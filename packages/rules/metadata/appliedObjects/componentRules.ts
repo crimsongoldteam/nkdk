@@ -4,6 +4,8 @@ import { MetadataConfigurationRules } from "./configuration/rules"
 import { MetadataConfigurationExtensionRules } from "./configurationExtension/rules"
 import { configurationFullXmlSyncProfile } from "../fullSyncToXml/profiles/configuration"
 import { configurationExtensionFullXmlSyncProfile } from "../fullSyncToXml/profiles/configurationExtension"
+import { resolveXmlImportRootItemName } from "../importFromXml/componentDescriptor"
+import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 
 export const appliedObjectComponentRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -29,7 +31,12 @@ export const appliedObjectComponentRules = defineMetadataRules({
           !("ConfigurationExtensionPurpose" in properties)
         )
       },
-      resolveAddress: () => ({ kind: "configuration" }),
+      resolveRoot(root) {
+        return {
+          address: { kind: "configuration" },
+          itemName: resolveXmlImportRootItemName(root),
+        }
+      },
     },
     {
       kind: "configurationExtension",
@@ -42,16 +49,12 @@ export const appliedObjectComponentRules = defineMetadataRules({
           "ConfigurationExtensionPurpose" in properties
         )
       },
-      resolveAddress(root) {
-        const configuration = root["Configuration"]
-        const properties = isRecord(configuration)
-          ? configuration["Properties"]
-          : undefined
-        const name = isRecord(properties) ? properties["Name"] : undefined
-        if (typeof name !== "string" || name.length === 0) {
-          throw new Error("Не задано имя расширения конфигурации")
+      resolveRoot(root) {
+        const itemName = resolveXmlImportRootItemName(root)
+        return {
+          address: { kind: "configurationExtension", name: itemName },
+          itemName,
         }
-        return { kind: "configurationExtension", name }
       },
       baseAddress: { kind: "configuration" },
       metadataItemAugmenter: "configurationExtension",
@@ -60,7 +63,7 @@ export const appliedObjectComponentRules = defineMetadataRules({
   synchronization: [
     configurationFullXmlSyncProfile,
     configurationExtensionFullXmlSyncProfile,
-  ],
+  ] as const satisfies readonly FullXmlSyncComponentProfile[],
 })
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

@@ -1,17 +1,17 @@
-import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import { selfIndexStandardAttribute, type StandardMemberDeclaration } from "../../standardMembers/declarations"
 import type { DataPathContribution } from "../../validation/dataPath/registry"
 
 const members = [
-  { memberKind: "standardAttribute", names: { internal: "Ref", yaml: "Ссылка" }, family: "sameOwnerObject", phase: "index-time", sourceScope: "self" },
-  { memberKind: "standardAttribute", names: { internal: "Code", yaml: "Код" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "string" },
-  { memberKind: "standardAttribute", names: { internal: "Description", yaml: "Наименование" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "string" },
-  { memberKind: "standardAttribute", names: { internal: "Parent", yaml: "Родитель" }, family: "sameOwnerObject", phase: "index-time", sourceScope: "self" },
-  { memberKind: "standardAttribute", names: { internal: "Type", yaml: "Вид" }, family: "standardEnum", phase: "index-time", sourceScope: "self", name: "ВидСчета" },
-  { memberKind: "standardAttribute", names: { internal: "OffBalance", yaml: "Забалансовый" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
-  { memberKind: "standardAttribute", names: { internal: "Order", yaml: "Порядок" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "string" },
-  { memberKind: "standardAttribute", names: { internal: "DeletionMark", yaml: "ПометкаУдаления" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
-  { memberKind: "standardAttribute", names: { internal: "Predefined", yaml: "Предопределенный" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
-  { memberKind: "standardAttribute", names: { internal: "PredefinedDataName", yaml: "ИмяПредопределенныхДанных" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "string" },
+  selfIndexStandardAttribute({ names: { internal: "Ref", yaml: "Ссылка" }, family: "sameOwnerObject" }),
+  selfIndexStandardAttribute({ names: { internal: "Code", yaml: "Код" }, family: "primitive", kind: "string" }),
+  selfIndexStandardAttribute({ names: { internal: "Description", yaml: "Наименование" }, family: "primitive", kind: "string" }),
+  selfIndexStandardAttribute({ names: { internal: "Parent", yaml: "Родитель" }, family: "sameOwnerObject" }),
+  selfIndexStandardAttribute({ names: { internal: "Type", yaml: "Вид" }, family: "standardEnum", name: "ВидСчета" }),
+  selfIndexStandardAttribute({ names: { internal: "OffBalance", yaml: "Забалансовый" }, family: "primitive", kind: "boolean" }),
+  selfIndexStandardAttribute({ names: { internal: "Order", yaml: "Порядок" }, family: "primitive", kind: "string" }),
+  selfIndexStandardAttribute({ names: { internal: "DeletionMark", yaml: "ПометкаУдаления" }, family: "primitive", kind: "boolean" }),
+  selfIndexStandardAttribute({ names: { internal: "Predefined", yaml: "Предопределенный" }, family: "primitive", kind: "boolean" }),
+  selfIndexStandardAttribute({ names: { internal: "PredefinedDataName", yaml: "ИмяПредопределенныхДанных" }, family: "primitive", kind: "string" }),
   {
     memberKind: "standardTabularSection",
     names: { internal: "ExtDimensionTypes", yaml: "ВидыСубконто" },

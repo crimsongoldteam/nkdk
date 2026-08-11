@@ -41,6 +41,7 @@ describe("BaseForm configuration index reader", () => {
     const projected = createBaseFormConfigurationIndexReader({
       base,
       extension,
+      formLogicalAddress: formAddress,
       extensionIdentityAddresses: new Set([attributeAddress, commandAddress, parameterAddress]),
     })
 
@@ -64,6 +65,7 @@ describe("BaseForm configuration index reader", () => {
     const projected = createBaseFormConfigurationIndexReader({
       base,
       extension,
+      formLogicalAddress: formAddress,
       extensionIdentityAddresses: new Set([attributeAddress]),
     })
 
@@ -90,6 +92,7 @@ describe("BaseForm configuration index reader", () => {
     const projected = createBaseFormConfigurationIndexReader({
       base,
       extension,
+      formLogicalAddress: formAddress,
       extensionIdentityAddresses: new Set([attributeAddress, extensionOnlyAddress]),
     })
 
@@ -112,6 +115,7 @@ describe("BaseForm configuration index reader", () => {
     const projected = createBaseFormConfigurationIndexReader({
       base,
       extension,
+      formLogicalAddress: formAddress,
       extensionIdentityAddresses: new Set(),
     })
 
@@ -120,11 +124,36 @@ describe("BaseForm configuration index reader", () => {
     expect([...projected.files()]).toEqual([...base.files()])
     expect(projected.file("Форма.yaml")).toEqual(base.file("Форма.yaml"))
   })
+
+  it("берёт XML-представление из отдельного индекса ОсноваФормы", () => {
+    const attributesStateAddress = `${formAddress}.attributes`
+    const base = reader("cf", [
+      entity(attributesStateAddress, "Форма.yaml", { xml: { present: true } }),
+    ])
+    const extension = reader("cfe/Дополнение", [
+      entity(`${formAddress}.ОсноваФормы.attributes`, "Расширение.yaml", {
+        xml: { present: true, explicitEmpty: true },
+      }),
+    ])
+
+    const projected = createBaseFormConfigurationIndexReader({
+      base,
+      extension,
+      formLogicalAddress: formAddress,
+      extensionIdentityAddresses: new Set(),
+    })
+
+    expect(projected.entity(attributesStateAddress)).toEqual({
+      logicalAddress: attributesStateAddress,
+      sourceProjectPath: "Форма.yaml",
+      xml: { present: true, explicitEmpty: true },
+    })
+  })
 })
 
 function reader(componentPath: string, entities: readonly ConfigurationSnapshotEntity[]): ConfigurationIndexReader {
   const snapshot: ConfigurationSnapshot = {
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath,
     files: [

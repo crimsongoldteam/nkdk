@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<DocumentJournal uuid="c2b12571-0a10-4580-aa46-c6d4542c8e7c">
+		<InternalInfo>
+			<xr:GeneratedType name="DocumentJournalSelection.ЖурналДокументовПоУмолчанию" category="Selection">
+				<xr:TypeId>ab8bbfd0-30cd-4005-b62c-fc1a23bc639b</xr:TypeId>
+				<xr:ValueId>003dc778-89e3-4f28-beb9-be8b86550a9c</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentJournalList.ЖурналДокументовПоУмолчанию" category="List">
+				<xr:TypeId>0e0b31e4-d455-4c25-8492-8ba7836962e0</xr:TypeId>
+				<xr:ValueId>384edeb4-6516-4f8b-8e2b-a32a79ec8ad4</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentJournalManager.ЖурналДокументовПоУмолчанию" category="Manager">
+				<xr:TypeId>fe8a05ce-f470-40f9-81ea-b230b5e9d7be</xr:TypeId>
+				<xr:ValueId>6e06442d-b5c8-4560-89b3-69def73db13f</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ЖурналДокументовПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>6c8a3e03-a494-4064-a7d3-6f9ea9b3d29f</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</DocumentJournal>
+</MetaDataObject>

@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ChartOfCharacteristicTypes uuid="6cb14e5f-006f-45a5-ab74-657a2b2f5153">
+		<InternalInfo>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesObject.ХарактеристикиОбъектов" category="Object">
+				<xr:TypeId>3f889a43-3869-48c2-8f98-e19e7ef80502</xr:TypeId>
+				<xr:ValueId>c0043a06-a330-451f-a25e-c87e77dfefec</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesRef.ХарактеристикиОбъектов" category="Ref">
+				<xr:TypeId>ef6074c0-43f6-4004-b0d2-dd5b0c03932e</xr:TypeId>
+				<xr:ValueId>81da4d43-34db-4eba-a22c-34c7a8b07b16</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesSelection.ХарактеристикиОбъектов" category="Selection">
+				<xr:TypeId>7960dcfe-8e18-47b4-929e-67b4b61db039</xr:TypeId>
+				<xr:ValueId>2ccc5be4-b976-4b25-ba50-f2728e8ac5f5</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesList.ХарактеристикиОбъектов" category="List">
+				<xr:TypeId>7814b984-f255-41a7-944d-bca821dec49b</xr:TypeId>
+				<xr:ValueId>9d19d927-6f0c-40bf-84b1-0d2d3481d85a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="Characteristic.ХарактеристикиОбъектов" category="Characteristic">
+				<xr:TypeId>28831f76-ae69-4e39-b200-b8cb792f43a3</xr:TypeId>
+				<xr:ValueId>9c1b4b78-3f68-46b4-a5eb-a566219503ae</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesManager.ХарактеристикиОбъектов" category="Manager">
+				<xr:TypeId>1e3d8e0d-bbf0-45b4-a46c-c4c057f422cc</xr:TypeId>
+				<xr:ValueId>76df167e-54ca-46b4-864e-099a6b475821</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ХарактеристикиОбъектов</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>72bb4826-bd88-41be-8deb-7f9d6f492e1b</ExtendedConfigurationObject>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>10</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="daceeb82-ef3d-4748-94b5-1875ee76e654">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>МножественнаяХарактеристика</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>db7a5378-9c21-4710-9da6-d05aecfdd23d</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+		</ChildObjects>
+	</ChartOfCharacteristicTypes>
+</MetaDataObject>

@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ChartOfCalculationTypes uuid="959dc680-f7fc-47f9-a3b7-a28771d5f5e6">
+		<InternalInfo>
+			<xr:GeneratedType name="ChartOfCalculationTypesObject.ПланРасчетаВсеСвойства" category="Object">
+				<xr:TypeId>4dfbac1a-950f-4410-9535-09a168ffc608</xr:TypeId>
+				<xr:ValueId>19672715-b1fd-4518-bf5c-53f966e6ab12</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesRef.ПланРасчетаВсеСвойства" category="Ref">
+				<xr:TypeId>2edffe8c-435c-413a-8a9f-52c40095b902</xr:TypeId>
+				<xr:ValueId>9a247f6a-4590-4cdf-91dc-ee37b4e6ea4b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesSelection.ПланРасчетаВсеСвойства" category="Selection">
+				<xr:TypeId>3b58780b-1512-40b5-b9b5-a73cc3e0c79d</xr:TypeId>
+				<xr:ValueId>2eec67cf-2a3f-42e3-aaa6-a95655b96b79</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesList.ПланРасчетаВсеСвойства" category="List">
+				<xr:TypeId>ed3b5f0b-0eba-4fda-8abf-54b34509ad0b</xr:TypeId>
+				<xr:ValueId>2f22705d-0b7d-4c90-828e-4d35d84ad197</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesManager.ПланРасчетаВсеСвойства" category="Manager">
+				<xr:TypeId>57af4700-95ab-4b37-8f5c-2ddaf956d1d8</xr:TypeId>
+				<xr:ValueId>1680c4e1-f5fa-4427-8ded-0189792eb174</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DisplacingCalculationTypes.ПланРасчетаВсеСвойства" category="DisplacingCalculationTypes">
+				<xr:TypeId>265f52df-f3dd-4e9e-bb3d-ec08a05965d6</xr:TypeId>
+				<xr:ValueId>888a4336-9b80-4151-bc8b-ac59ae5f4551</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DisplacingCalculationTypesRow.ПланРасчетаВсеСвойства" category="DisplacingCalculationTypesRow">
+				<xr:TypeId>7e55ff49-4fc1-451c-b7a5-347a6a430eaf</xr:TypeId>
+				<xr:ValueId>a97231d5-5f61-434f-b53a-a1769475022f</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BaseCalculationTypes.ПланРасчетаВсеСвойства" category="BaseCalculationTypes">
+				<xr:TypeId>8d2174d1-3db7-4bf1-8d78-b3837572dac7</xr:TypeId>
+				<xr:ValueId>1939c19f-98e8-4ca4-9f62-621baf3a6ed5</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BaseCalculationTypesRow.ПланРасчетаВсеСвойства" category="BaseCalculationTypesRow">
+				<xr:TypeId>4e9f97ef-11ed-48f8-925e-6effae4a388e</xr:TypeId>
+				<xr:ValueId>552356c1-6b3b-49be-baf3-15db6af67ec7</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="LeadingCalculationTypes.ПланРасчетаВсеСвойства" category="LeadingCalculationTypes">
+				<xr:TypeId>245d5b32-7135-4ac8-8007-566677db1737</xr:TypeId>
+				<xr:ValueId>d5c2aeb8-c426-4acc-9ff6-f69be4a4df43</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="LeadingCalculationTypesRow.ПланРасчетаВсеСвойства" category="LeadingCalculationTypesRow">
+				<xr:TypeId>07f7e33e-8f44-46e4-8dc7-1f6163731145</xr:TypeId>
+				<xr:ValueId>c134740b-a4d2-4d99-ae19-86324d793f3e</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПланРасчетаВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>9c6be49a-58d9-4ed5-8037-a77cf3616582</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="c75436b6-6c6a-4e59-ae4e-e2b24c9130f8">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>f8613036-3bdc-45b1-8ab5-f026bc4cfd86</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="95111cfc-020f-401b-866c-65ad6d0c4daa">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитХранилище</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>b8483619-29fe-4432-8ecd-dccacd734ea9</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="93b508bb-c0fc-44dd-aad1-4eba540685c2">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>aec64285-ff65-4eff-a0ec-5e48431d121a</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="c3b65350-7463-4fbc-83e1-9b885346e2bc">
+				<InternalInfo>
+					<xr:GeneratedType name="ChartOfCalculationTypesTabularSection.ПланРасчетаВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSection">
+						<xr:TypeId>33993f87-bf02-43c0-b1c3-0ebab799e0d7</xr:TypeId>
+						<xr:ValueId>04fd3301-a0db-4b81-b1fc-87aab3eea32c</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ChartOfCalculationTypesTabularSectionRow.ПланРасчетаВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSectionRow">
+						<xr:TypeId>4d992c9b-f04c-4762-b844-0b5b2fb48fe3</xr:TypeId>
+						<xr:ValueId>a9eaf47f-4741-4769-a58b-38d1cea5e9ab</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>372c33b4-cce9-4fc5-8733-33ffdf6d4784</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects/>
+			</TabularSection>
+			<TabularSection uuid="9a06ae65-84ee-44bf-bb9a-ad02b866e374">
+				<InternalInfo>
+					<xr:GeneratedType name="ChartOfCalculationTypesTabularSection.ПланРасчетаВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSection">
+						<xr:TypeId>12405972-af78-4fcc-a49c-baa190be74d2</xr:TypeId>
+						<xr:ValueId>aede38a8-cf25-4b68-8913-576c3e4aecd5</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ChartOfCalculationTypesTabularSectionRow.ПланРасчетаВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSectionRow">
+						<xr:TypeId>70785265-8cef-44a8-ab63-0491e267723c</xr:TypeId>
+						<xr:ValueId>d5799f73-9b3e-4ba0-bdc8-9fdfebb53d3f</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>cd1b1f56-04ae-47e7-a585-4e08eef3461e</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="0b77a8ba-fd7a-4896-9edf-2a6787192700">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитВсеСвойства</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>7c097a46-188b-4bf9-a662-17755d16ac96</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="de748297-7389-433f-97df-dc1bf874f693">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитПоУмолчанию</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>226aead4-fe58-4143-a5ec-897dd8ef9fb4</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаВидаРасчета</Form>
+			<Template>Макет</Template>
+			<Command uuid="7f3ec32e-f3f0-499c-9dbb-5d890665e516">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>e9463862-58ce-48a6-a6e2-69be991f3574</ExtendedConfigurationObject>
+					<Group>FormCommandBarImportant</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</ChartOfCalculationTypes>
+</MetaDataObject>

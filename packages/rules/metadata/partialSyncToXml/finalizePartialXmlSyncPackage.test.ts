@@ -157,7 +157,7 @@ describe("фиксация частичной XML-синхронизации", (
 })
 
 function snapshot(indexGeneration: bigint, componentPath = "cf"): ConfigurationSnapshot {
-  return { specificationVersion: "1.3", indexGeneration, componentPath, files: [], entities: [] }
+  return { specificationVersion: "1.4", indexGeneration, componentPath, files: [], entities: [] }
 }
 
 function hashHex(bytes: Uint8Array): string {

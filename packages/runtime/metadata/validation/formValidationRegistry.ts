@@ -1,5 +1,5 @@
-import type { ConfigurationContext } from "@nkdk/runtime"
-import type { ParsedYaml } from "@nkdk/runtime"
+import type { ConfigurationContext } from "../context/types"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { OwnerMetadataCache } from "./dataPath/contracts"
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"

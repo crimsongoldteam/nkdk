@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<IntegrationService uuid="06b55cb3-920b-4ac5-88af-e824cde51ded">
+		<InternalInfo>
+			<xr:GeneratedType name="IntegrationServiceManager.СервисИнтеграцииВсеСвойства" category="Manager">
+				<xr:TypeId>e1a32a00-4290-4b59-818a-d928649f2aa9</xr:TypeId>
+				<xr:ValueId>1260a596-e6b0-45f9-b22c-061666a57fcf</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СервисИнтеграцииВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>caf163ec-7a63-4890-b958-afa7bc3f9c77</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<IntegrationServiceChannel uuid="d85e8033-e7de-482c-92be-bcac1decc9d2">
+				<InternalInfo>
+					<xr:GeneratedType name="IntegrationServiceChannelManager.СервисИнтеграцииВсеСвойства.КаналСервисаИнтеграцииВсеСвойства" category="Manager">
+						<xr:TypeId>2b020187-c9b4-41de-aef9-67e31520613b</xr:TypeId>
+						<xr:ValueId>fb78da47-5bab-4f20-b920-3d980fcd9449</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>КаналСервисаИнтеграцииВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>25d297b9-3b88-43a8-a579-cf026f9f914f</ExtendedConfigurationObject>
+				</Properties>
+			</IntegrationServiceChannel>
+			<IntegrationServiceChannel uuid="6d4cc2e9-bcdf-4306-b66e-442fbd9f08a4">
+				<InternalInfo>
+					<xr:GeneratedType name="IntegrationServiceChannelManager.СервисИнтеграцииВсеСвойства.КаналСервисаИнтеграцииПоУмолчанию" category="Manager">
+						<xr:TypeId>952c72db-d02b-4d52-9b6a-45ec7d2f7099</xr:TypeId>
+						<xr:ValueId>88d4b391-db6b-436d-8a76-023348a8ecd7</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>КаналСервисаИнтеграцииПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>36517be8-6c2b-4511-9878-a84534490a8d</ExtendedConfigurationObject>
+				</Properties>
+			</IntegrationServiceChannel>
+		</ChildObjects>
+	</IntegrationService>
+</MetaDataObject>

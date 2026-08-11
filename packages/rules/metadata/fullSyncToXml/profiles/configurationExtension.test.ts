@@ -5,6 +5,7 @@ import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "@nkdk/r
 import type { ConfirmedComponentState } from "../../project/componentState/types"
 import { createTestProjectStateReadToken } from "../../projectState/tests/readToken"
 import { configurationExtensionFullXmlSyncProfile } from "./configurationExtension"
+import { configurationFullXmlSyncProfile } from "./configuration"
 import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../../resourceTopology/core/projectProjection"
 
@@ -153,6 +154,7 @@ describe("configuration extension full XML sync profile", () => {
       baseProjectPath: formPath,
       savedProjectPath: savedPath,
     }])
+    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toHaveProperty(logicalAddress, "adopted")
   })
 
   it("does not adopt an address found only in snapshots", () => {
@@ -277,6 +279,29 @@ describe("configuration extension full XML sync profile", () => {
   })
 })
 
+describe("configuration full XML sync profile", () => {
+  it("uses indexed defaults only below metadata items present in the snapshot", () => {
+    const existing = "ПланВидовХарактеристик.ВидыСвойств"
+    const runtime = configurationFullXmlSyncProfile.confirm({
+      target: state({
+        componentPath: "cf",
+        entities: [
+          uuidEntity(existing, "11111111-1111-4111-8111-111111111111"),
+          {
+            logicalAddress: `${existing}.Характеристики[0].ПолеПутиКДанным`,
+            sourceProjectPath: "Свойства.yaml",
+            xml: { present: true },
+          },
+        ],
+      }),
+    })
+
+    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toEqual({
+      [existing]: "indexed",
+    })
+  })
+})
+
 function state(params: {
   componentPath: string
   projectFiles?: ConfigurationSnapshot["files"]
@@ -286,7 +311,7 @@ function state(params: {
 }): ConfirmedComponentState {
   const projectFiles = params.projectFiles ?? [{ projectPath: "Свойства.yaml", contentHash: 1n }]
   const snapshot: ConfigurationSnapshot = {
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath: params.componentPath,
     files: params.snapshotProjectFiles ?? projectFiles,

@@ -43,12 +43,7 @@ describe("normalizeImportedDependentItems", () => {
       xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.Пользователи.EmptyRef" },
     }
     const collector = createConfigurationIndexCollector()
-    const partitioned = partitionImportedDependentItems({
-      yaml,
-      rule: MetadataCatalogRules,
-      candidates: [imported],
-      owner: { dir: "Справочник", name: "Товары" },
-    })
+    const partitioned = partitionCandidate(yaml, imported)
 
     expect(partitioned.immediate).toEqual([])
     expect(partitioned.deferred).toEqual([imported])
@@ -81,6 +76,24 @@ describe("normalizeImportedDependentItems", () => {
       () => ({ status: "unresolved", reason: "не найден определяемый тип" }),
     )
     expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
+  })
+
+  it.each([
+    ["цель есть в компоненте", "found", false],
+    ["цели нет в компоненте", "missing", true],
+    ["цель неоднозначна", "ambiguous", false],
+  ] as const)("нормализует DesignTimeRef, когда %s", (_name, status, tagged) => {
+    const attribute = normalizeReferenceAttribute(status)
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения") === "xml").toBe(tagged)
+  })
+
+  it("откладывает именованный DesignTimeRef до компонентного lookup", () => {
+    const attribute = referenceAttribute()
+    const imported = designTimeRefCandidate()
+    const partitioned = partitionCandidate({ Реквизиты: { Получатель: attribute } }, imported)
+
+    expect(partitioned.immediate).toEqual([])
+    expect(partitioned.deferred).toEqual([imported])
   })
 
   it("сохраняет непустое допустимое значение для последующей локальной валидации", () => {
@@ -324,4 +337,45 @@ function normalizeDefinedTypeAttribute(
     preserveRawXML: false,
   })
   return attribute
+}
+
+function normalizeReferenceAttribute(
+  status: "found" | "missing" | "ambiguous",
+): Record<string, unknown> {
+  const attribute = referenceAttribute()
+  normalizeImportedDependentItems({
+    yaml: { Реквизиты: { Получатель: attribute } },
+    rule: MetadataCatalogRules,
+    candidates: [designTimeRefCandidate()],
+    owner: { dir: "Справочник", name: "Товары" },
+    metadataTargetLookup: () => status,
+    preserveRawXML: false,
+  })
+  return attribute
+}
+
+function referenceAttribute(): Record<string, unknown> {
+  return {
+    Тип: "Справочник.СправочникРеквизит",
+    ЗначениеЗаполнения: "Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+  }
+}
+
+function designTimeRefCandidate(): ImportedDependentPropertyCandidate {
+  return {
+    ...candidate("MetadataAttribute", ["Реквизиты", "Получатель"], "Получатель"),
+    xmlValue: {
+      "_xsi:type": "xr:DesignTimeRef",
+      "#text": "Catalog.СправочникРеквизит.Predefined.ПредопредленноеЗначение",
+    },
+  }
+}
+
+function partitionCandidate(yaml: unknown, imported: ImportedDependentPropertyCandidate) {
+  return partitionImportedDependentItems({
+    yaml,
+    rule: MetadataCatalogRules,
+    candidates: [imported],
+    owner: { dir: "Справочник", name: "Товары" },
+  })
 }

@@ -8,7 +8,11 @@ import {
   type BinaryHashIndex,
 } from "../binary/hashIndex"
 import { componentPath, type ComponentAddress } from "../components/address"
-import { decodeConfigurationIndex, type DecodeConfigurationIndexOptions } from "./decode"
+import {
+  decodeConfigurationIndex,
+  decodeConfigurationSnapshotXmlFlags,
+  type DecodeConfigurationIndexOptions,
+} from "./decode"
 import { configurationIndexPath } from "./fileIO"
 import type {
   ConfigurationSnapshot,
@@ -92,6 +96,7 @@ const ENTITY_FLAGS = {
   xsiType: 1 << 8,
   xmlText: 1 << 9,
   xmlPrefix: 1 << 10,
+  present: 1 << 11,
 } as const
 const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true })
 const textEncoder = new TextEncoder()
@@ -178,7 +183,7 @@ class SharedConfigurationIndexReader implements AssignmentScopedConfigurationInd
   header(): Pick<ConfigurationSnapshot, "specificationVersion" | "indexGeneration" | "componentPath"> {
     const snapshot = section(this.buffer, this.directory, 1)
     return {
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       indexGeneration: snapshot.readBigUInt64LE(0),
       componentPath: this.stringById(snapshot.readUInt32LE(8)),
     }
@@ -303,11 +308,7 @@ class SharedConfigurationIndexReader implements AssignmentScopedConfigurationInd
       omittedChildren = { kind: "typedNames", items }
     }
 
-    const xml: ConfigurationSnapshotXml = {
-      ...(hasFlag(fieldMask, ENTITY_FLAGS.extended) ? { extended: true } : {}),
-      ...(hasFlag(fieldMask, ENTITY_FLAGS.xsiNil) ? { xsiNil: true } : {}),
-      ...(hasFlag(fieldMask, ENTITY_FLAGS.explicitEmpty) ? { explicitEmpty: true } : {}),
-    }
+    const xml: ConfigurationSnapshotXml = decodeConfigurationSnapshotXmlFlags(fieldMask)
     if (hasFlag(fieldMask, ENTITY_FLAGS.xsiType)) {
       Object.assign(xml, { xsiType: this.stringById(entities.readUInt32LE(cursor)) })
       cursor += 4

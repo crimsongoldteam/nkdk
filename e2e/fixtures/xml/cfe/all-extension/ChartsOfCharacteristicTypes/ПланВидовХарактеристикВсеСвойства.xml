@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ChartOfCharacteristicTypes uuid="a9d3c0cd-26f4-4e79-8aa1-98d5f23e860c">
+		<InternalInfo>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesObject.ПланВидовХарактеристикВсеСвойства" category="Object">
+				<xr:TypeId>cc37970d-9e0e-4a0a-a30a-54a489e7960a</xr:TypeId>
+				<xr:ValueId>8fa1783a-d41b-4fae-a678-34cabcf656f8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesRef.ПланВидовХарактеристикВсеСвойства" category="Ref">
+				<xr:TypeId>266450c9-f1b8-4f95-bac3-b516c49868d2</xr:TypeId>
+				<xr:ValueId>888af7f1-0dd0-476a-86bb-de4366712c9e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesSelection.ПланВидовХарактеристикВсеСвойства" category="Selection">
+				<xr:TypeId>b7e38b4f-7113-40bc-b4b2-bace832313b6</xr:TypeId>
+				<xr:ValueId>0ac5bf2a-ea61-4249-a180-5f99e734dacb</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesList.ПланВидовХарактеристикВсеСвойства" category="List">
+				<xr:TypeId>290b7ca7-9cc2-44b6-9fa4-0cb966a04ea9</xr:TypeId>
+				<xr:ValueId>e49dae4b-e2f0-47ad-a579-d429797cb089</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="Characteristic.ПланВидовХарактеристикВсеСвойства" category="Characteristic">
+				<xr:TypeId>7badb9e7-5bc6-48f4-a6b4-1134be50570d</xr:TypeId>
+				<xr:ValueId>137f2c77-6af2-437e-8227-c8b7ca63010a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesManager.ПланВидовХарактеристикВсеСвойства" category="Manager">
+				<xr:TypeId>d09acb83-1af9-444d-9aa3-49387a585ba4</xr:TypeId>
+				<xr:ValueId>25e8c772-02d3-4597-8cbd-dd4d38e87504</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПланВидовХарактеристикВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>83430a5b-11ad-4b28-bff4-f3c3f45f0360</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<TabularSection uuid="a12fddfc-dcfa-407c-9494-53a5457a3973">
+				<InternalInfo>
+					<xr:GeneratedType name="ChartOfCharacteristicTypesTabularSection.ПланВидовХарактеристикВсеСвойства.ТабличнаяЧасть" category="TabularSection">
+						<xr:TypeId>9a4fd8fe-bb59-434c-9fd6-bf67c588e8fa</xr:TypeId>
+						<xr:ValueId>821c3f67-cf61-469d-8138-05b6d59d5f2a</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ChartOfCharacteristicTypesTabularSectionRow.ПланВидовХарактеристикВсеСвойства.ТабличнаяЧасть" category="TabularSectionRow">
+						<xr:TypeId>4dcb79fe-6b80-4caa-be99-0db6186a12cf</xr:TypeId>
+						<xr:ValueId>ed94d9ed-f6ae-479f-900f-03ac7f565298</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧасть</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>01de07d4-fed6-442b-82ab-b8b9269a5b7c</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="32c74fe8-55b8-4fc7-9021-199f7b339a1d">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитТабличнойЧасти</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>ff1c9524-df96-496c-be61-86dbcef18a7b</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<Form>ФормаЭлемента</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаГруппы</Form>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбораГруппы</Form>
+			<Template>Макет</Template>
+			<Command uuid="8aeac8b3-1d56-4bfe-ab72-13478dd6c716">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПолнаяКоманда</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>d841e2fc-08ce-4dab-866f-4df3c42ca89f</ExtendedConfigurationObject>
+					<Group>FormNavigationPanelImportant</Group>
+				</Properties>
+			</Command>
+			<Command uuid="9183c4fc-82c2-47df-b08f-a6a12c93c00c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>b6d26f32-6c96-4db5-8beb-ad958b72ef83</ExtendedConfigurationObject>
+					<Group>NavigationPanelOrdinary</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</ChartOfCharacteristicTypes>
+</MetaDataObject>

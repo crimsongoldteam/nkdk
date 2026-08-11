@@ -11,7 +11,7 @@ const SECTION_COUNT = 4
 const DIRECTORY_LENGTH = DIRECTORY_ENTRY_LENGTH * SECTION_COUNT
 
 describe("decodeConfigurationIndex", () => {
-  it("полностью декодирует снимок 1.3 и нормализованный порядок", () => {
+  it("полностью декодирует снимок 1.4 и нормализованный порядок", () => {
     const source = sampleSnapshot()
 
     expect(
@@ -146,7 +146,7 @@ describe("decodeConfigurationIndex", () => {
     ["zero componentPath stringId", 1, (section: Buffer) => writeU32(section, 8, 0)],
     ["zero projectPath stringId", 3, (section: Buffer) => writeU32(section, 0, 0)],
     ["zero entity logicalAddress stringId", 4, (section: Buffer) => writeU32(section, 4, 0)],
-    ["unknown entity bit", 4, (section: Buffer) => writeU32(section, 12, section.readUInt32LE(12) | (1 << 11))],
+    ["unknown entity bit", 4, (section: Buffer) => writeU32(section, 12, section.readUInt32LE(12) | (1 << 12))],
     [
       "conflicting omitted variants",
       4,

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ChartOfCharacteristicTypes uuid="fff6883e-f0e2-4037-aa91-9fa46588e476">
+		<InternalInfo>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesObject.ПланВидовХарактеристикПоУмолчанию" category="Object">
+				<xr:TypeId>ef58e62d-c740-427c-84d4-97bcbac948df</xr:TypeId>
+				<xr:ValueId>63d46bba-37e3-46bb-b2d7-9c750fc3d21e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesRef.ПланВидовХарактеристикПоУмолчанию" category="Ref">
+				<xr:TypeId>6d581b08-571f-4688-bb40-a5a50dd49ebe</xr:TypeId>
+				<xr:ValueId>d5f6b30d-8bbe-4592-984c-e436fceadb54</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesSelection.ПланВидовХарактеристикПоУмолчанию" category="Selection">
+				<xr:TypeId>851c0787-62a8-496a-95d9-d7286ab94cca</xr:TypeId>
+				<xr:ValueId>a3a2a050-f2b9-4444-9b38-44d3adccc3bd</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesList.ПланВидовХарактеристикПоУмолчанию" category="List">
+				<xr:TypeId>2b582ec2-0e2f-440d-986f-cc447b1c3498</xr:TypeId>
+				<xr:ValueId>91e76807-ffce-44f2-8021-35ace63f4a0a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="Characteristic.ПланВидовХарактеристикПоУмолчанию" category="Characteristic">
+				<xr:TypeId>aa3a2e86-f9a1-49df-83b4-7255937f7f78</xr:TypeId>
+				<xr:ValueId>e4cb6cf0-4b74-48c5-852b-642337ae0cc4</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCharacteristicTypesManager.ПланВидовХарактеристикПоУмолчанию" category="Manager">
+				<xr:TypeId>8849b8db-756e-4799-a671-ada8c4439fb7</xr:TypeId>
+				<xr:ValueId>7d1c08e4-6d52-4387-bfa8-df381daaec0e</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПланВидовХарактеристикПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>3ee86569-24ca-474d-86c4-423f8d678768</ExtendedConfigurationObject>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>10</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Properties>
+		<ChildObjects/>
+	</ChartOfCharacteristicTypes>
+</MetaDataObject>

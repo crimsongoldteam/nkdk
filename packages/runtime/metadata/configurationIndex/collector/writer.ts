@@ -5,7 +5,7 @@ import type {
 } from "../types"
 
 type IdentityKind = "uuid" | "xmlId" | "xmlName"
-type XmlFlag = "extended" | "xsiNil" | "explicitEmpty"
+type XmlFlag = "present" | "extended" | "xsiNil" | "explicitEmpty"
 type XmlValue = "xsiType" | "xmlText" | "xmlPrefix"
 
 export interface ConfigurationIndexCollector {
@@ -25,6 +25,7 @@ interface MutableEntity {
 }
 
 interface MutableXml {
+  present?: true
   extended?: true
   xsiNil?: true
   explicitEmpty?: true

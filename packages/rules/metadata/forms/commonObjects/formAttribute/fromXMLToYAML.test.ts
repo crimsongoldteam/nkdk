@@ -59,6 +59,40 @@ describe("FormAttributes XML → YAML → XML", () => {
     expect(result).toBe(expected.trim())
   })
 
+  it("не помечает TypeDescription как присутствующий DynamicList", () => {
+    const source = fs.readFileSync(
+      fileURLToPath(new URL("__fixtures__/valueListWithReferenceEmptySettings.xml", import.meta.url)),
+      "utf8",
+    )
+    const xml = importContentFromXML<Record<string, unknown>>(source, {
+      preserveEmptyElements: true,
+      preserveXsiNil: true,
+    })
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "ОбщаяФорма.СписокЗначений",
+    })
+    const collection = contexts.importContext.fromXML.configurationIndex
+    const importContext = collection === undefined
+      ? contexts.importContext
+      : {
+          ...contexts.importContext,
+          fromXML: {
+            ...contexts.importContext.fromXML,
+            configurationIndex: { ...collection, yamlPathAddressing: true as const },
+          },
+        }
+
+    testPropertyFromXMLToYAML({ rule, xml, context: importContext })
+    const entities = collection?.collector.fragment("Форма.yaml").entities ?? []
+
+    expect(entities).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        logicalAddress: expect.stringContaining("ДинамическийСписок"),
+        xml: expect.objectContaining({ present: true }),
+      }),
+    ]))
+  })
+
   it("сохраняет отсутствие заголовка колонки как пустой YAML", () => {
     const source = fs.readFileSync(
       fileURLToPath(new URL("__fixtures__/tableWithColumns.xml", import.meta.url)),

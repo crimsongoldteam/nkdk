@@ -5,6 +5,8 @@ import type { TSchema } from "typebox"
 import { beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
+import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import {
   ensureJSONSchemaRegistry,
@@ -62,6 +64,7 @@ function commonFormValidationGraph(): ReturnType<typeof exportJSONSchemaGraph> {
 
 describe("JSON Schema registry", { timeout: 60_000 }, () => {
   beforeAll(() => {
+    registerCoreMetadata()
     clientApplicationFormGraph()
     commonFormValidationGraph()
     for (const name of [
@@ -450,6 +453,32 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(graph.schemas[`${prefix}string/base`]).toMatchObject({ $id: `${prefix}string/base` })
     expect(clientForm.properties?.События?.$ref).toBeUndefined()
     expect(inputField.properties?.ПутьКДанным?.$ref).toBeUndefined()
+  })
+
+  it("не вкладывает полный validation ref внутрь overlay namespace", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      requiredPolicy: { currentBoundary: "defer", cacheVariant: "extension-overlay" },
+      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
+    })
+    const refs = JSON.stringify(graph)
+
+    expect(refs).not.toContain("/extension-overlay/validation/")
+  })
+
+  it("разрешает пустой !xml для стандартных реквизитов в extension overlay", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      requiredPolicy: { currentBoundary: "defer", cacheVariant: "extension-overlay" },
+      roots: [{ key: "enumeration", rule: MetadataEnumerationRules }],
+    })
+    const root = graph.roots.enumeration as {
+      properties?: Record<string, unknown>
+    }
+
+    expect(JSON.stringify(root.properties?.СтандартныеРеквизиты)).toContain('"const":"!xml"')
   })
 
   it("exports reusable form property types as validation refs by default", () => {

@@ -87,6 +87,11 @@ describe("MetadataConfigurationExtensionRules", () => {
     })
     expect(yaml).not.toHaveProperty("ОсновнойЯзык")
     expect(yaml).not.toHaveProperty("Контроль")
+    expect(yaml).not.toHaveProperty("РежимИспользованияМодальности")
+    expect(yaml).not.toHaveProperty(
+      "РежимИспользованияСинхронныхВызововРасширенийПлатформыИВнешнихКомпонент"
+    )
+    expect(yaml).not.toHaveProperty("РежимСовместимости")
   })
 
   it("восстанавливает InternalInfo корня из снимка расширения", () => {
@@ -125,5 +130,23 @@ describe("MetadataConfigurationExtensionRules", () => {
       .toBe("yamlPath")
     expect(MetadataConfigurationExtensionRules.properties.mainSectionCommandInterface.configurationIndexAddressing)
       .toBe("yamlPath")
+  })
+
+  it.each([
+    ["managedApplicationModule", "МодульПриложения.bsl", "Ext/ManagedApplicationModule.bsl"],
+    ["sessionModule", "МодульСеанса.bsl", "Ext/SessionModule.bsl"],
+    ["externalConnectionModule", "МодульВнешнегоСоединения.bsl", "Ext/ExternalConnectionModule.bsl"],
+    ["ordinaryApplicationModule", "МодульОбычногоПриложения.bsl", "Ext/OrdinaryApplicationModule.bsl"],
+    [
+      "standaloneConfigurationContent",
+      "СодержимоеАвтономнойКонфигурации.bin",
+      "Ext/StandaloneConfigurationContent.bin",
+    ],
+  ])("использует общий корневой внешний ресурс %s", (property, nkdkPath, xmlPath) => {
+    const extensionRule = (MetadataConfigurationExtensionRules.properties as Record<string, unknown>)[property]
+    const configurationRule = (MetadataConfigurationRules.properties as Record<string, unknown>)[property]
+
+    expect(extensionRule).toBe(configurationRule)
+    expect(extensionRule).toMatchObject({ nkdkPath, xmlPath, syncExternalOnly: true })
   })
 })

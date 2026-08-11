@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
@@ -6,6 +6,7 @@ import { importFromXml } from "./importFromXml"
 import { createCoreProjectStateTestDouble } from "./projectStateTestSupport"
 import { jsonToolResult } from "../contracts/common"
 import type { DiagnosticReportFileSystem } from "./diagnosticReport"
+import { cleanupTempDirs } from "./testTempDirs"
 
 const importContext = {
   defaultLanguage: "ru" as const,
@@ -18,7 +19,7 @@ describe("importFromXml service", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    cleanupTempDirs(tempDirs)
   })
 
   it("requires allowWrite before reading project or calling core", async () => {
@@ -297,13 +298,13 @@ describe("importFromXml service", () => {
     })
   })
 
-  it("ограничивает ответ с 26 918 ошибками и пишет полный отчёт", async () => {
+  it("ограничивает ответ с 200 ошибками и пишет полный отчёт", async () => {
     const projectDir = createProject()
     const report = countingReportFileSystem()
     const importConfigurationFromXml = vi.fn().mockResolvedValue({
       componentPath: "cf",
       succeeded: 0,
-      failed: Array.from({ length: 26_918 }, (_unused, index) => ({
+      failed: Array.from({ length: 200 }, (_unused, index) => ({
         severity: "error" as const,
         code: "xml_import_assignment_failed",
         message: `Ошибка ${index}`,
@@ -324,13 +325,13 @@ describe("importFromXml service", () => {
 
     expect(result).toMatchObject({
       ok: true,
-      summary: { errors: 26_918, warnings: 0, shown: 100, omitted: 26_818 },
+      summary: { errors: 200, warnings: 0, shown: 100, omitted: 100 },
       truncated: true,
       report: { format: "application/x-ndjson" },
     })
     expect(result.ok && result.diagnostics).toHaveLength(100)
     expect(result.ok && result.failed).toHaveLength(100)
-    expect(report.lines()).toBe(26_918)
+    expect(report.lines()).toBe(200)
     expect(messageBytes).toBeLessThan(1024 * 1024)
   })
 

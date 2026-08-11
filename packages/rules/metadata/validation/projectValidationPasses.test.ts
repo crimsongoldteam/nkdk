@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
-import { afterEach, beforeAll, describe, expect, it } from "vitest"
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
@@ -14,6 +14,7 @@ import {
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { assertProjectStateFileUpdateBatch, toProjectStateFileUpdate } from "../projectState/fileUpdate"
 import { createTestValidationSchemaCache } from "./tests/testValidationSchemaCache"
+import { createValidationProjectComponent } from "./projectComponents"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -119,6 +120,77 @@ describe("validateProjectFileFirstPass references", () => {
         expect.objectContaining({ source: "structure", severity: "error", path: "/НесуществующееПоле" }),
       ])
     )
+  })
+
+  it("откладывает required адресуемого объекта cfe и сохраняет проверку в ProjectState", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const component = createValidationProjectComponent(projectDir, {
+      kind: "configurationExtension",
+      name: "X",
+    })
+    const projectPath = "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml"
+    writeProjectFile(component.componentDir, projectPath, "Комментарий: тест")
+    const file = resolveValidationProjectFile(component.componentDir, projectPath, component)
+    if (!file) throw new Error("file not resolved")
+    const properties = vi.fn(sharedSchemaCache.properties)
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: { ...sharedSchemaCache, properties },
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    const update = toProjectStateFileUpdate(first, {
+      projectPath: file.rootProjectPath,
+      componentPath: component.componentPath,
+      resourceKind: "yaml",
+      yamlRole: "properties",
+    })
+
+    expect(properties).toHaveBeenCalledWith(file.itemRule, "extension-overlay")
+    expect(update.pendingChecks).toContainEqual(expect.objectContaining({
+      kind: "addressableRequired",
+      canonicalTarget: "ExternalDataSource.Источник.Cube.Куб",
+      missing: ["ИмяВИсточникеДанных"],
+    }))
+  })
+
+  it.each([
+    [
+      "ПланСчетов/Тест/Свойства.yaml",
+      [
+        "Предопределенные:",
+        "  Элемент:",
+        '    Порядок: "1"',
+        "    ПризнакиУчета: {}",
+      ],
+      ["Порядок", "ПризнакиУчета"],
+    ],
+    [
+      "ПланВидовРасчета/Тест/Свойства.yaml",
+      [
+        "Предопределенные:",
+        "  Элемент:",
+        "    ПериодДействияБазовый: Истина",
+        "    Базовые: []",
+        "    Ведущие: []",
+        "    Вытесняющие: []",
+      ],
+      ["ПериодДействияБазовый", "Базовые", "Ведущие", "Вытесняющие"],
+    ],
+  ])("accepts specialized Predefined fields in %s", (projectPath, yaml, fields) => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, projectPath, yaml)
+
+    const paths = validateProjectPath(projectDir, projectPath).schemaDiagnostics.map(({ path }) => path)
+
+    for (const field of fields) {
+      expect(paths).not.toContain(`/Предопределенные/Элемент/${field}`)
+    }
   })
 
   it("keeps registered structural validator diagnostics out of schema diagnostics and rejects the contribution", () => {
@@ -383,6 +455,61 @@ describe("validateProjectFileFirstPass references", () => {
     )
   })
 
+  it("builds nested external data source member targets from the exact file owner", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const files = [
+      {
+        projectPath: "ВнешнийИсточникДанных/Источник/Таблицы/Таблица/Свойства.yaml",
+        yaml: [
+          "ИмяВИсточникеДанных: Table",
+          "Поля:",
+          "  Поле:",
+          "    Тип: Строка",
+          "Команды:",
+          "  Команда: {}",
+        ],
+      },
+      {
+        projectPath: "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml",
+        yaml: [
+          "ИмяВИсточникеДанных: Cube",
+          "Измерения:",
+          "  Измерение:",
+          "    Тип: Строка",
+          "Ресурсы:",
+          "  Ресурс:",
+          "    Тип: Число",
+        ],
+      },
+      {
+        projectPath:
+          "ВнешнийИсточникДанных/Источник/Кубы/Куб/ТаблицыИзмерений/ТаблицаИзмерений/Свойства.yaml",
+        yaml: [
+          "ИмяВИсточникеДанных: DimensionTable",
+          "Поля:",
+          "  Поле:",
+          "    Тип: Строка",
+        ],
+      },
+    ]
+
+    const entries = files.flatMap(({ projectPath, yaml }) => {
+      writeProjectFile(projectDir, projectPath, yaml)
+      return validateProjectPath(projectDir, projectPath).memberIndexEntries
+    })
+
+    expect(entries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ canonical: "ExternalDataSource.Источник.Table.Таблица.Field.Поле" }),
+      expect.objectContaining({ canonical: "ExternalDataSource.Источник.Table.Таблица.Command.Команда" }),
+      expect.objectContaining({ canonical: "ExternalDataSource.Источник.Cube.Куб.Dimension.Измерение" }),
+      expect.objectContaining({ canonical: "ExternalDataSource.Источник.Cube.Куб.Resource.Ресурс" }),
+      expect.objectContaining({
+        canonical: "ExternalDataSource.Источник.Cube.Куб.DimensionTable.ТаблицаИзмерений.Field.Поле",
+      }),
+    ]))
+  })
+
   it("builds chart of accounts accounting flag member index entries from YAML", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
@@ -506,6 +633,24 @@ describe("validateProjectFileFirstPass references", () => {
         result: expect.objectContaining({ ok: true }),
       })
     )
+  })
+
+  it("builds an object index entry for an inline external data source function", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const projectPath = "ВнешнийИсточникДанных/Источник/Свойства.yaml"
+    writeProjectFile(projectDir, projectPath, [
+      "Функции:",
+      "  Функция1:",
+      "    Тип: Строка",
+    ])
+
+    const first = validateProjectPath(projectDir, projectPath)
+
+    expect(first.objectIndexEntries).toContainEqual(expect.objectContaining({
+      canonical: "ExternalDataSource.Источник.Function.Функция1",
+      result: expect.objectContaining({ ok: true }),
+    }))
   })
 })
 

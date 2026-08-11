@@ -68,7 +68,10 @@ export interface LocalYamlValueValidationContribution {
 export interface MetadataImportComponentDescriptor {
   readonly kind: string
   detect(root: Readonly<Record<string, unknown>>): boolean
-  resolveAddress(root: Readonly<Record<string, unknown>>): ComponentAddress
+  resolveRoot(root: Readonly<Record<string, unknown>>): {
+    readonly address: ComponentAddress
+    readonly itemName: string
+  }
   readonly baseAddress?: ComponentAddress
   readonly metadataItemAugmenter?: string
 }

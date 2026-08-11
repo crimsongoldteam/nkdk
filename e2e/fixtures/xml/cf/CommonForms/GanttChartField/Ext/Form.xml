@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<ChildItems>
+		<GanttChartField name="ЭлементФормы" id="3" DisplayImportance="High">
+			<DataPath>Реквизит</DataPath>
+			<Visible>false</Visible>
+			<UserVisible>
+				<xr:Common>true</xr:Common>
+				<xr:Value name="Role.Администратор">false</xr:Value>
+			</UserVisible>
+			<DefaultItem>true</DefaultItem>
+			<Enabled>false</Enabled>
+			<ReadOnly>true</ReadOnly>
+			<SkipOnInput>true</SkipOnInput>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Поле диаграммы Ганта</v8:content>
+				</v8:item>
+			</Title>
+			<TitleTextColor>web:Black</TitleTextColor>
+			<TitleBackColor>web:Blue</TitleBackColor>
+			<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+			<TitleLocation>Left</TitleLocation>
+			<TitleHeight>20</TitleHeight>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Подсказка</v8:content>
+				</v8:item>
+			</ToolTip>
+			<ToolTipRepresentation>None</ToolTipRepresentation>
+			<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+			<WarningOnEdit>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Предупреждение</v8:content>
+				</v8:item>
+			</WarningOnEdit>
+			<Shortcut>S</Shortcut>
+			<HorizontalAlign>Left</HorizontalAlign>
+			<VerticalAlign>Top</VerticalAlign>
+			<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+			<GroupVerticalAlign>Top</GroupVerticalAlign>
+			<EditMode>EnterOnInput</EditMode>
+			<CellHyperlink>true</CellHyperlink>
+			<ShowInHeader>false</ShowInHeader>
+			<HeaderPicture>
+				<xr:Ref>StdPicture.Print</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</HeaderPicture>
+			<ShowInFooter>false</ShowInFooter>
+			<FooterDataPath>РеквизитПодвала</FooterDataPath>
+			<FooterText>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Текст подвала</v8:content>
+				</v8:item>
+			</FooterText>
+			<FooterTextColor>web:Black</FooterTextColor>
+			<FooterBackColor>web:White</FooterBackColor>
+			<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+			<FooterPicture>
+				<xr:Ref>StdPicture.Print</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</FooterPicture>
+			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+			<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+			<Width>300</Width>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<MaxWidth>400</MaxWidth>
+			<Height>200</Height>
+			<AutoMaxHeight>false</AutoMaxHeight>
+			<MaxHeight>500</MaxHeight>
+			<HorizontalStretch>false</HorizontalStretch>
+			<VerticalStretch>false</VerticalStretch>
+			<TableLocation>None</TableLocation>
+			<ValuesSelectionMode>Single</ValuesSelectionMode>
+			<IntervalsSelectionMode>Single</IntervalsSelectionMode>
+			<ShowHorizontalLinesFlag>false</ShowHorizontalLinesFlag>
+			<ShowVerticalLinesFlag>false</ShowVerticalLinesFlag>
+			<ContextMenu name="ПолеДиаграммыГантаКонтекстноеМеню" id="4">
+				<Autofill>false</Autofill>
+			</ContextMenu>
+			<ExtendedTooltip name="ПолеДиаграммыГантаРасширеннаяПодсказка" id="5">
+				<Title formatted="false">
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Расширенная подсказка</v8:content>
+					</v8:item>
+				</Title>
+			</ExtendedTooltip>
+			<Events>
+				<Event name="OnChange">ПроцедураПриИзменении</Event>
+				<Event name="Selection">ПроцедураВыбора</Event>
+				<Event name="DetailProcessing">ПроцедураОбработкиРасшифровки</Event>
+				<Event name="BeforeCollapse">ПроцедураПередСворачиванием</Event>
+				<Event name="OnActivateInterval">ПроцедураПриАктивизацииИнтервала</Event>
+				<Event name="OnActivateValue">ПроцедураПриАктивизацииЗначения</Event>
+				<Event name="BeforeExpand">ПроцедураПередРазворачиванием</Event>
+				<Event name="OnIntervalEditEnd">ПроцедураПриОкончанииРедактированияИнтервала</Event>
+			</Events>
+		</GanttChartField>
+		<GanttChartField name="ПоУмолчанию" id="6">
+			<DataPath>Реквизит</DataPath>
+			<ContextMenu name="ПоУмолчаниюКонтекстноеМеню" id="7"/>
+			<ExtendedTooltip name="ПоУмолчаниюРасширеннаяПодсказка" id="8"/>
+			<Table name="ПоУмолчаниюТаблица" id="9">
+				<Representation>Tree</Representation>
+				<Height>10</Height>
+				<HeightControlVariant>UseHeightInFormRows</HeightControlVariant>
+				<VerticalScrollBar>DontUse</VerticalScrollBar>
+				<DataPath>Реквизит</DataPath>
+				<SearchStringLocation>None</SearchStringLocation>
+				<ViewStatusLocation>None</ViewStatusLocation>
+				<SearchControlLocation>None</SearchControlLocation>
+				<ContextMenu name="ПоУмолчаниюТаблицаКонтекстноеМеню" id="10"/>
+				<AutoCommandBar name="ПоУмолчаниюТаблицаКоманднаяПанель" id="11"/>
+				<ExtendedTooltip name="ПоУмолчаниюТаблицаРасширеннаяПодсказка" id="12"/>
+				<SearchStringAddition name="ПоУмолчаниюТаблицаСтрокаПоиска" id="13">
+					<AdditionSource>
+						<Item>ПоУмолчаниюТаблица</Item>
+						<Type>SearchStringRepresentation</Type>
+					</AdditionSource>
+					<ContextMenu name="ПоУмолчаниюТаблицаСтрокаПоискаКонтекстноеМеню" id="14"/>
+					<ExtendedTooltip name="ПоУмолчаниюТаблицаСтрокаПоискаРасширеннаяПодсказка" id="15"/>
+				</SearchStringAddition>
+				<ViewStatusAddition name="ПоУмолчаниюТаблицаСостояниеПросмотра" id="16">
+					<AdditionSource>
+						<Item>ПоУмолчаниюТаблица</Item>
+						<Type>ViewStatusRepresentation</Type>
+					</AdditionSource>
+					<ContextMenu name="ПоУмолчаниюТаблицаСостояниеПросмотраКонтекстноеМеню" id="17"/>
+					<ExtendedTooltip name="ПоУмолчаниюТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="18"/>
+				</ViewStatusAddition>
+				<SearchControlAddition name="ПоУмолчаниюТаблицаУправлениеПоиском" id="19">
+					<AdditionSource>
+						<Item>ПоУмолчаниюТаблица</Item>
+						<Type>SearchControl</Type>
+					</AdditionSource>
+					<ContextMenu name="ПоУмолчаниюТаблицаУправлениеПоискомКонтекстноеМеню" id="20"/>
+					<ExtendedTooltip name="ПоУмолчаниюТаблицаУправлениеПоискомРасширеннаяПодсказка" id="21"/>
+				</SearchControlAddition>
+				<ChildItems>
+					<InputField name="РеквизитТаблицаТочка" id="22">
+						<DataPath>Реквизит.Point</DataPath>
+						<EditMode>EnterOnInput</EditMode>
+						<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+						<ContextMenu name="РеквизитТаблицаТочкаКонтекстноеМеню" id="23"/>
+						<ExtendedTooltip name="РеквизитТаблицаТочкаРасширеннаяПодсказка" id="24"/>
+					</InputField>
+					<InputField name="РеквизитТаблицаТекст" id="25">
+						<DataPath>Реквизит.Text</DataPath>
+						<EditMode>EnterOnInput</EditMode>
+						<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+						<ContextMenu name="РеквизитТаблицаТекстКонтекстноеМеню" id="26"/>
+						<ExtendedTooltip name="РеквизитТаблицаТекстРасширеннаяПодсказка" id="27"/>
+					</InputField>
+				</ChildItems>
+			</Table>
+		</GanttChartField>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Реквизит" id="1">
+			<Type>
+				<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/chart">d5p1:GanttChart</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="РеквизитПодвала" id="2">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+	</Attributes>
+</Form>

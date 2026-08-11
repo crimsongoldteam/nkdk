@@ -4,6 +4,7 @@ import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
+import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
 import { discoverValidationProjectComponents } from "../validation/projectComponents"
 import {
   assertMetadataProjectPathInside,
@@ -64,6 +65,24 @@ describe("metadata project resources", () => {
     })
   })
 
+  it("preserves the exact YAML role, item rule and metadata target", () => {
+    expect(classifyMetadataProjectPath(
+      "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml",
+    )).toMatchObject({
+      role: "properties",
+      itemRule: MetadataExternalDataSourceCubeRules,
+      metadataTarget: {
+        canonical: "ExternalDataSource.Источник.Cube.Куб",
+      },
+    })
+
+    expect(classifyMetadataProjectPath(
+      "Документ/Заказ/Формы/ФормаДокумента/Форма.yaml",
+    )).toMatchObject({
+      role: "form",
+    })
+  })
+
   it("classifies forms with the rule selected by their owner", () => {
     expect(
       classifyMetadataProjectPath(
@@ -92,12 +111,32 @@ describe("metadata project resources", () => {
         resources: [
           {
             kind: "content" as const,
+            projectPattern: "Справочник/{ownerName}/Свойства.yaml",
+            role: "properties" as const,
+            required: true,
+            repeatable: true,
+            compositionImpact: "configurationComposition" as const,
+            itemRule: catalogSpec.rule,
+            source: { kind: "itemRule" as const, description: "catalog" },
+          },
+          {
+            kind: "content" as const,
             projectPattern: "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
+            ownerProjectPattern: "Справочник/{ownerName}/Свойства.yaml",
             role: "fileItem" as const,
             required: true,
             repeatable: true,
             compositionImpact: "none" as const,
+            projectRole: "form" as const,
             itemRule: ClientApplicationFormRules,
+            logicalAddressSegment: "Форма",
+            fileBackedTarget: {
+              kind: "member" as const,
+              memberKind: "Form" as const,
+              itemNameParameter: "itemName",
+              itemProjectPattern: "Справочник/{ownerName}/Формы/{itemName}",
+              owner: "assignmentOwner" as const,
+            },
             source: { kind: "itemRule" as const, description: "form" },
           },
           {

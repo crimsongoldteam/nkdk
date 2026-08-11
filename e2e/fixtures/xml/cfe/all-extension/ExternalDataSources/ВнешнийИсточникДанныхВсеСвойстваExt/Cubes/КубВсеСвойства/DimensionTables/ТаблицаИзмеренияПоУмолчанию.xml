@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<DimensionTable uuid="e88f2f5c-f132-46ab-a2a3-898bcf89ba42">
+		<InternalInfo>
+			<xr:GeneratedType name="ExternalDataSourceCubeDimensionTableManager.ВнешнийИсточникДанныхВсеСвойстваExt.КубВсеСвойства.ТаблицаИзмеренияПоУмолчанию" category="Manager">
+				<xr:TypeId>d808ef84-dadf-4764-aaf2-7cbd31a44f1a</xr:TypeId>
+				<xr:ValueId>1da61c99-3565-46c9-a5d0-c52f138ce12c</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeDimensionTableObject.ВнешнийИсточникДанныхВсеСвойстваExt.КубВсеСвойства.ТаблицаИзмеренияПоУмолчанию" category="Object">
+				<xr:TypeId>a320379f-4b6d-4a95-bd88-c5ef82f45be8</xr:TypeId>
+				<xr:ValueId>26508b30-fa97-4adc-ad73-8cbd3846e9b3</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойстваExt.КубВсеСвойства.ТаблицаИзмеренияПоУмолчанию" category="Ref">
+				<xr:TypeId>2b5cc827-eb33-45de-bec3-13e077216ce3</xr:TypeId>
+				<xr:ValueId>62064c61-94ed-415a-a8ae-9770374a5cb2</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeDimensionTableList.ВнешнийИсточникДанныхВсеСвойстваExt.КубВсеСвойства.ТаблицаИзмеренияПоУмолчанию" category="List">
+				<xr:TypeId>0dcce7a1-b4a6-4f04-ba35-7802347a51bc</xr:TypeId>
+				<xr:ValueId>46732458-18e6-430c-87df-56c6bc1e2919</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Name>ТаблицаИзмеренияПоУмолчанию</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Таблица измерения по умолчанию</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment/>
+			<NameInDataSource>КакоеТоИмя</NameInDataSource>
+			<PresentationField/>
+			<HierarchyNameInDataSource/>
+			<LevelNumber>0</LevelNumber>
+			<Hierarchical>false</Hierarchical>
+			<UnfilledParentValue xsi:nil="true"/>
+			<UseStandardCommands>false</UseStandardCommands>
+			<QuickChoice>false</QuickChoice>
+			<DefaultObjectForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
+			<IncludeHelpInContents>false</IncludeHelpInContents>
+		</Properties>
+		<ChildObjects/>
+	</DimensionTable>
+</MetaDataObject>

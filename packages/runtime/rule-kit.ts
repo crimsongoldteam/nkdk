@@ -23,6 +23,7 @@ export {
   clearStandardMembersForTests,
   commonStandardMemberFillValuePolicy,
   restoreStandardMembersForTests,
+  selfIndexStandardAttribute,
   snapshotStandardMembersForTests,
 } from "./metadata/standardMembers/declarations"
 export * from "./metadata/resourceTopology/core/compiler"

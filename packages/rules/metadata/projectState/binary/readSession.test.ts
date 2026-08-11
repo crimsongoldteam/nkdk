@@ -6,7 +6,7 @@ import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } 
 import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView } from "./snapshot"
-import { fillValuePendingCheck, richYamlUpdate } from "./testData"
+import { addressableRequiredPendingCheck, fillValuePendingCheck, richYamlUpdate } from "./testData"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
 import { PROJECT_STATE_FACT_RECORD_VIEWS } from "./factTables"
 import {
@@ -101,12 +101,16 @@ it("сохраняет декларации табличных элементо�
     ],
   }
   const session = openSessionWithUpdates([update])
+  const dependencyCheck = source.pendingChecks[0]
+  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck === undefined) {
+    throw new Error("Ожидалась dependency-проверка")
+  }
 
   expect(session.readDependencyInputs([{
     requestId: "dependency",
     componentPath: "cf",
     projectPath: update.projectPath,
-    check: source.pendingChecks[0]!,
+    check: dependencyCheck,
   }])).toMatchObject([{
     status: "found",
     input: {
@@ -162,13 +166,17 @@ it("сохраняет произвольный тип колонки в дво�
     ],
   }
   const session = openSessionWithUpdates([update])
+  const dependencyCheck = source.pendingChecks[0]
+  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck === undefined) {
+    throw new Error("Ожидалась dependency-проверка")
+  }
 
   const response = session.readDependencyInputs([
     {
       requestId: "dependency",
       componentPath: "cf",
       projectPath: update.projectPath,
-      check: source.pendingChecks[0]!,
+      check: dependencyCheck,
     },
   ])[0]
 
@@ -305,6 +313,14 @@ it("читает fillValue-проверку из двоичного состоя
   expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])
 })
 
+it("читает addressableRequired-проверку из двоичного состояния без потери payload", () => {
+  const expected = addressableRequiredPendingCheck()
+  const update = richYamlUpdate("cfe/X/source.yaml", "cfe/X", "Catalog.Source")
+  const snapshot = new ProjectStateSnapshotView(typedSnapshot([{ ...update, pendingChecks: [expected] }]))
+
+  expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])
+})
+
 it("читает признак !xml DataPath из существующего reserved-байта", () => {
   const taggedUpdate = richYamlUpdate("cf/tagged.yaml", "cf", "Catalog.Tagged")
   const ordinaryUpdate = {
@@ -423,7 +439,7 @@ it("переиспользует компактное разбиение стр�
   expect(decode.mock.calls.length).toBeLessThan(firstReadCalls)
 })
 
-it("восстанавливает вложенную цель отложенной ссылки без повторного разбора ограничения", () => {
+it("восстанавливает вложенную цель и !xml отложенной ссылки без повторного разбора ограничения", () => {
   const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
   const pendingReference = {
     yamlPath: ["Форма", "Источник"],
@@ -440,6 +456,7 @@ it("восстанавливает вложенную цель отложенн�
       allowedObjectPaths: [["ExternalDataSource", "Table"]] as const,
       allowOwner: true,
     },
+    tagged: "xml" as const,
   }
   const buffers = typedSnapshot([{ ...update, pendingReferences: [pendingReference] }])
   const reader = createTypedProjectStateReader(new ProjectStateSnapshotView(buffers))

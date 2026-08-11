@@ -5,7 +5,7 @@ import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import { buildXmlSyncConfigurationSnapshot } from "./snapshotBuilder"
 
 const previous: ConfigurationSnapshot = {
-  specificationVersion: "1.3",
+  specificationVersion: "1.4",
   indexGeneration: 7n,
   componentPath: "cf",
   files: [
@@ -40,7 +40,7 @@ describe("buildXmlSyncConfigurationSnapshot", () => {
       },
     })
     const expected: ConfigurationSnapshot = {
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       indexGeneration: 8n,
       componentPath: "cf",
       files: [

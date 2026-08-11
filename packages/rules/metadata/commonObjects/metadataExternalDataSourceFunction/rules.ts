@@ -8,6 +8,7 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const propertiesParents = ["Properties"]
 export const MetadataExternalDataSourceFunctionRules = {
   itemType: "MetadataExternalDataSourceFunction",
+  externalMetadata: { segment: "Function", placement: "ownedEntry" },
   xmlOrder: [
     "objectBelonging",
     "name",

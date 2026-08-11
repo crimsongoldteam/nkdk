@@ -16,6 +16,9 @@ importers:
 
   .:
     devDependencies:
+      '@nkdk/runtime':
+        specifier: workspace:*
+        version: link:packages/runtime
       '@types/node':
         specifier: ^26.1.2
         version: 26.1.2

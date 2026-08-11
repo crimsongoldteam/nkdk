@@ -10,10 +10,11 @@ import {
 } from "./componentResolver"
 
 describe("componentResolver", () => {
-  const tempDirs: string[] = []
+  const tempDirs = new Set<string>()
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    for (const dir of tempDirs) rmSync(dir, { recursive: true, force: true })
+    tempDirs.clear()
   })
 
   it("defaults componentPath to cf and returns root .nkdk path", () => {
@@ -30,7 +31,7 @@ describe("componentResolver", () => {
 
   it("resolves project root without requiring cf", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-project-root-"))
-    tempDirs.push(projectDir)
+    tempDirs.add(projectDir)
 
     expect(resolveProjectRoot(projectDir)).toEqual({
       ok: true,
@@ -78,7 +79,7 @@ describe("componentResolver", () => {
 
   it("requires cf in project root", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-component-"))
-    tempDirs.push(projectDir)
+    tempDirs.add(projectDir)
 
     expect(resolveComponent({ projectDir })).toMatchObject({
       ok: false,
@@ -88,7 +89,7 @@ describe("componentResolver", () => {
 
   it("creates a missing cf when createIfMissing is true", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-component-"))
-    tempDirs.push(projectDir)
+    tempDirs.add(projectDir)
 
     expect(resolveComponent({ projectDir, componentPath: "cf", createIfMissing: true })).toEqual({
       ok: true,
@@ -149,7 +150,7 @@ describe("componentResolver", () => {
 
   function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-component-"))
-    tempDirs.push(projectDir)
+    tempDirs.add(projectDir)
     mkdirSync(join(projectDir, "cf"), { recursive: true })
     return projectDir
   }

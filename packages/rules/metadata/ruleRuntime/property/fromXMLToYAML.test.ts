@@ -689,7 +689,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(externalFilesCollector).toEqual([{ relativePath: "Запросы/Владелец.txt", content: "ВЫБРАТЬ 1" }])
   })
 
-  it("не сохраняет aliases и present", () => {
+  it("не сохраняет aliases, но сохраняет присутствие явного default", () => {
     const indexCollector = createConfigurationIndexCollector()
 
     importPropertiesFromXMLToYAML({
@@ -717,10 +717,14 @@ describe("importPropertiesFromXMLToYAML", () => {
       collector: createLocalIndexesCollector(),
     })
 
-    expect(indexCollector.fragment("test.yaml").entities).toEqual([])
+    expect(indexCollector.fragment("test.yaml").entities).toEqual([{
+      logicalAddress: "Справочник.Товары.explicitDefault",
+      sourceProjectPath: "test.yaml",
+      xml: { present: true },
+    }])
   })
 
-  it("не сохраняет present reference-only свойств", () => {
+  it("сохраняет пустую XML-форму reference-only свойства", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
 
@@ -765,7 +769,11 @@ describe("importPropertiesFromXMLToYAML", () => {
     })
 
     expect(yaml).toEqual({ Имя: "Товары", Ресурсы: "Ресурс1" })
-    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
+    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([{
+      logicalAddress: "Справочник.Товары.internalInfo",
+      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+      xml: { explicitEmpty: true },
+    }])
   })
 
   it("adds exact coordinates when a direct conversion fails", () => {
@@ -805,7 +813,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     }
   })
 
-  it("не собирает aliases и present XML-свойств", () => {
+  it("не собирает aliases и present, но сохраняет пустую XML-форму", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
 
@@ -835,7 +843,11 @@ describe("importPropertiesFromXMLToYAML", () => {
     })
 
     const fragment = indexCollector.fragment("Справочник/Товары/Свойства.yaml")
-    expect(fragment.entities).toEqual([])
+    expect(fragment.entities).toEqual([{
+      logicalAddress: "Справочник.Товары.rowFilter",
+      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+      xml: { explicitEmpty: true },
+    }])
     expect(JSON.stringify(fragment.entities)).not.toMatch(/aliases|present|order/)
   })
 
@@ -856,6 +868,32 @@ describe("importPropertiesFromXMLToYAML", () => {
 
     expect(yaml).toEqual({})
     expect(indexCollector.fragment("Форма.yaml").entities).toEqual([])
+  })
+
+  it("не создаёт исключаемое свойство, отсутствующее в XML", () => {
+    const yaml = importPropertiesFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: {
+        itemType: "MetadataAttribute",
+        properties: {
+          synonym: {
+            type: "I8nText",
+            xml: "Synonym",
+            yaml: "Синоним",
+            excludeIfEqualNameYAML: true,
+            defaultValue: { items: {} },
+            xmlParents: ["Properties"],
+          },
+        },
+      } as MetadataItemRule,
+      xml: {},
+      itemName: "Код",
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({})
   })
 
   it("collects XML identity attributes on the current logical address", () => {
@@ -905,7 +943,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     ])
   })
 
-  it("не сохраняет XML-представление, полностью восстанавливаемое из Project и rules", () => {
+  it("сохраняет присутствие пустого XML-свойства, отсутствующего в YAML", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Отчёт.Продажи")
     importPropertiesFromXMLToYAML({
@@ -923,7 +961,11 @@ describe("importPropertiesFromXMLToYAML", () => {
       collector: createLocalIndexesCollector(),
     })
 
-    expect(indexCollector.fragment("Отчёт/Продажи/Свойства.yaml").entities).toEqual([])
+    expect(indexCollector.fragment("Отчёт/Продажи/Свойства.yaml").entities).toEqual([{
+      logicalAddress: "Отчёт.Продажи.comment",
+      sourceProjectPath: "Отчёт/Продажи/Свойства.yaml",
+      xml: { present: true, explicitEmpty: true },
+    }])
   })
 
   it("сохраняет скалярное XML-значение, неоднозначное при отсутствующем YAML", () => {
@@ -954,7 +996,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       {
         logicalAddress: "Справочник.Товары.descriptionLength",
         sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-        xml: { xmlText: "30" },
+        xml: { present: true, xmlText: "30" },
       },
     ])
   })
@@ -985,7 +1027,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       {
         logicalAddress: "Отчет.Остатки.extendedPresentation",
         sourceProjectPath: "Отчет/Остатки/Свойства.yaml",
-        xml: { explicitEmpty: true },
+        xml: { present: true, explicitEmpty: true },
       },
     ])
   })
@@ -1050,6 +1092,11 @@ describe("importPropertiesFromXMLToYAML", () => {
 
     expect(indexCollector.fragment("РегистрСведений/Остатки/Свойства.yaml").entities).toEqual([
       {
+        logicalAddress: "РегистрСведений.Остатки.canonicalNil",
+        sourceProjectPath: "РегистрСведений/Остатки/Свойства.yaml",
+        xml: { present: true },
+      },
+      {
         logicalAddress: "РегистрСведений.Остатки.sourceValue",
         sourceProjectPath: "РегистрСведений/Остатки/Свойства.yaml",
         xml: { xsiNil: true },
@@ -1101,7 +1148,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       {
         logicalAddress: "Справочник.Товары.Свойство.Отбор.Скаляр",
         sourceProjectPath: "Форма.yaml",
-        xml: { xmlText: "30" },
+        xml: { present: true, xmlText: "30" },
       },
     ])
   })

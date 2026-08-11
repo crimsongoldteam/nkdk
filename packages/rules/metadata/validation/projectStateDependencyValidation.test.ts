@@ -42,6 +42,7 @@ import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSe
 import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
 import {
   createProjectStateDependencyValidator,
+  validateProjectStateAddressableRequiredBatch,
   validateProjectStateDependencyBatch,
   validateProjectStateOwnerBatch,
   validateProjectStateReferenceBatch,
@@ -67,6 +68,72 @@ if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
 const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
+  it("не требует поля заимствованного объекта расширения, найденного в cf", () => {
+    const resolveTargets = vi.fn(() => [{ requestId: "required:0", status: "found" as const, target: {
+      kind: "object" as const,
+      canonical: "Catalog.Товары",
+    }, source: { projectPath: "cf/Справочник/Товары.yaml", componentPath: "cf" } }])
+
+    expect(validateProjectStateAddressableRequiredBatch({
+      projectDir: "/project",
+      checks: [addressableRequiredCheck("Catalog.Товары")],
+      queryPort: { resolveTargets },
+    })).toEqual([])
+    expect(resolveTargets).toHaveBeenCalledWith([expect.objectContaining({ componentPath: "cf" })])
+  })
+
+  it("требует поля собственного объекта расширения, отсутствующего в cf", () => {
+    const diagnostics = validateProjectStateAddressableRequiredBatch({
+      projectDir: "/project",
+      checks: [addressableRequiredCheck("Catalog.Собственный")],
+      queryPort: { resolveTargets: () => [{ requestId: "required:0", status: "missing" }] },
+    })
+
+    expect(diagnostics).toEqual([expect.objectContaining({
+      filePath: "/project/cfe/X/Справочник/Собственный.yaml",
+      path: "/ОбязательноеПоле",
+      source: "structure",
+      message: 'Отсутствует обязательное свойство "ОбязательноеПоле"',
+    })])
+  })
+
+  it("сообщает неоднозначность цели и отсутствующие поля", () => {
+    const diagnostics = validateProjectStateAddressableRequiredBatch({
+      projectDir: "/project",
+      checks: [addressableRequiredCheck("Catalog.Дубликат")],
+      queryPort: { resolveTargets: () => [{ requestId: "required:0", status: "ambiguous" }] },
+    })
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({ source: "cross-file", message: expect.stringContaining("Неоднозначная цель") }),
+      expect.objectContaining({ source: "structure" }),
+    ])
+  })
+
+  it("разрешает addressableRequired через двоичное состояние проекта", () => {
+    const base = {
+      ...emptyYamlUpdate("cf/Справочник/Товары/Свойства.yaml", "cf", "properties"),
+      targets: [{ kind: "object" as const, canonical: "Catalog.Товары" }],
+    }
+    const borrowed = {
+      ...emptyYamlUpdate("cfe/X/Справочник/Товары/Свойства.yaml", "cfe/X", "properties"),
+      pendingChecks: [addressableRequiredCheck("Catalog.Товары").check],
+    }
+    const own = {
+      ...emptyYamlUpdate("cfe/X/Справочник/Собственный/Свойства.yaml", "cfe/X", "properties"),
+      pendingChecks: [addressableRequiredCheck("Catalog.Собственный").check],
+    }
+    const store = storeWithUpdates([base, borrowed, own, configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([
+      expect.objectContaining({
+        filePath: "/project/cfe/X/Справочник/Собственный/Свойства.yaml",
+        source: "structure",
+      }),
+    ])
+    store.rollbackUpdate()
+  })
+
   it("Б5 вызывает зарегистрированную проверку структуры формы", () => {
     const structuredValidator = vi.fn(validateBorrowedClientApplicationForms)
     const validator = createProjectStateDependencyValidator({
@@ -215,6 +282,44 @@ describe("dependency validation из ProjectState", () => {
     }
   })
 
+  it.each([
+    [false, "found", 0],
+    [false, "missing", 1],
+    [true, "found", 1],
+    [true, "missing", 0],
+  ] as const)("проверяет FillValue: tagged=%s, target=%s", (tagged, status, errors) => {
+    const base = valueReference("Справочник.Товары.Основной", {
+      roots: ["Catalog"],
+      valueKinds: ["predefinedValue"],
+    })
+    const reference = { ...base, ...(tagged ? { tagged: "xml" as const } : {}) }
+    const diagnostics = validateProjectStateReferenceBatch({
+      projectDir: "/project",
+      checks: [{ requestId: "fill-value", componentPath: "cfe/Расширение", reference }],
+      queryPort: {
+        resolveTargets: (requests) => requests.map(({ requestId, componentPath }) =>
+          componentPath === "cfe/Расширение" && status === "found"
+            ? {
+                requestId,
+                status: "found" as const,
+                target: { kind: "value" as const, canonical: reference.canonical },
+                source: { projectPath: "cfe/Расширение/Цель.yaml", componentPath },
+              }
+            : { requestId, status: "missing" as const }
+        ),
+        readOwners: () => [],
+      },
+    })
+
+    expect(diagnostics).toHaveLength(errors)
+    if (tagged && status === "found") {
+      expect(diagnostics[0]?.message).toBe("!xml не требуется: ссылка доступна в расширении")
+    }
+    if (!tagged && status === "missing") {
+      expect(diagnostics[0]?.message).toBe(`Не найдена ссылка "${reference.canonical}"`)
+    }
+  })
+
   it("проверяет одинакового владельца компонента один раз", () => {
     const owner = { kind: "Справочник", name: "Товары" }
     const requestBatchSizes: number[] = []
@@ -245,12 +350,14 @@ describe("dependency validation из ProjectState", () => {
       readPage: () => ({ refs: [] }),
     })
     const requestBatchSizes: number[] = []
+    const sourceCheck = source.pendingChecks[0]
+    if (sourceCheck?.kind !== "dataPath") throw new Error("Ожидалась проверка ПутьКДанным")
 
     const diagnostics = validateProjectStateDependencyBatch({
       projectDir: "/project",
       checks: [
         dependencyQuery("first", source),
-        { ...dependencyQuery("second", source), check: { ...source.pendingChecks[0]!, yamlPath: ["ДругойПуть"] } },
+        { ...dependencyQuery("second", source), check: { ...sourceCheck, yamlPath: ["ДругойПуть"] } },
       ],
       queryPort: {
         ...queryPort,
@@ -1030,6 +1137,21 @@ describe("dependency validation из ProjectState", () => {
   })
 })
 
+function addressableRequiredCheck(canonicalTarget: string) {
+  return {
+    requestId: "required:0",
+    componentPath: "cfe/X",
+    projectPath: "cfe/X/Справочник/Собственный.yaml",
+    check: {
+      kind: "addressableRequired" as const,
+      yamlPath: [],
+      location: { line: 1, col: 1 },
+      canonicalTarget,
+      missing: ["ОбязательноеПоле"],
+    },
+  }
+}
+
 function valueReference(
   value: string,
   constraint: {
@@ -1115,11 +1237,15 @@ function pagedDependencyQueryPort(params: {
 }
 
 function dependencyQuery(requestId: string, source: ProjectStateYamlFileUpdate) {
+  const check = source.pendingChecks[0]
+  if (check?.kind === "addressableRequired" || check === undefined) {
+    throw new Error("Ожидалась dependency-проверка")
+  }
   return {
     requestId,
     componentPath: source.componentPath,
     projectPath: source.projectPath,
-    check: source.pendingChecks[0]!,
+    check,
   }
 }
 

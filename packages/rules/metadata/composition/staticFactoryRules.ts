@@ -216,7 +216,6 @@ import { metadataPropertyRule000 as latePropertyContribution047 } from "../commo
 import { metadataPropertyRule000 as latePropertyContribution048 } from "../commonObjects/metadataObjectRefCollection/toXML"
 import { metadataPropertyRule000 as latePropertyContribution049, metadataPropertyRule001 as latePropertyContribution050 } from "../commonObjects/metadataValue/toXML"
 import { metadataPropertyRule000 as latePropertyContribution051 } from "../commonObjects/mobileDeviceCommandBarContent/toXML"
-import { metadataPropertyRule000 as latePropertyContribution052 } from "../commonObjects/predefined/toJSONSchema"
 import { metadataPropertyRule000 as latePropertyContribution053 } from "../commonObjects/predefinedItem/toJSONSchema"
 import { metadataPropertyRule000 as latePropertyContribution054 } from "../commonObjects/typeDescription/fromYAML"
 import { metadataPropertyRule000 as latePropertyContribution055 } from "../commonObjects/typeLink/toXML"
@@ -359,7 +358,6 @@ const factoryPropertyRules = defineMetadataRules({
   latePropertyContribution049,
   latePropertyContribution050,
   latePropertyContribution051,
-  latePropertyContribution052,
   latePropertyContribution053,
   latePropertyContribution054,
   latePropertyContribution055,

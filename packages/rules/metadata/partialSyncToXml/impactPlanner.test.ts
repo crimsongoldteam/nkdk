@@ -9,7 +9,11 @@ import { childFormPartialXmlPackagePolicy } from "../forms/clientApplicationForm
 
 const source = { kind: "itemRule" as const, description: "test" }
 const configurationRule = { itemType: "Configuration", properties: {} } as MetadataItemRule
-const languageRule = { itemType: "Language", properties: {} } as MetadataItemRule
+const languageRule = {
+  itemType: "Language",
+  properties: {},
+  metadataTargetOwner: { kind: "self", root: "Language" },
+} as MetadataItemRule
 const objectRule = {
   itemType: "TestObject",
   properties: {},
@@ -35,6 +39,7 @@ const topology = compileMetadataResourceTopology([{
         formRule,
         "none",
       ),
+      logicalAddressSegment: "Форма",
       ownerProjectPattern: "Объект/{ownerName}/Свойства.yaml",
       fileBackedTarget: {
         kind: "member" as const,

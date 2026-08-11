@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { getJSONSchemaIdentityExporter } from "../jsonSchemaRefs"
+import { createJSONSchemaExportContext, getJSONSchemaIdentityExporter } from "../jsonSchemaRefs"
+import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { getTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import {
@@ -8,6 +9,11 @@ import {
 } from "./ruleFactory"
 import { typeRulesRegistryRevision } from "../property/typeRuleRegistry"
 import { listJSONSchemaIdentityNames } from "../jsonSchemaRefs"
+import { predefinedRule } from "../../commonObjects/predefined/builders"
+import { PredefinedRules } from "../../commonObjects/predefined/rules"
+import { ChartOfAccountsPredefinedRules } from "../../appliedObjects/metadataChartOfAccounts/predefined/rules"
+import { ChartOfCalculationTypesPredefinedRules } from "../../appliedObjects/metadataChartOfCalculationTypes/predefinedRules"
+import "../../commonObjects/predefined"
 
 const baseContext = {
   defaultLanguage: "ru",
@@ -112,4 +118,104 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
         : undefined
     ).toBe(override)
   })
+
+  it("restores full required inside a non-addressable nested item", () => {
+    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
+    const context = createJSONSchemaExportContext(baseContext, "inline")
+    context.exportToJSONSchema!.requiredPolicy = {
+      currentBoundary: "defer",
+      cacheVariant: "extension-overlay",
+    }
+
+    const schema = exportPropertyToJSONSchema({
+      context,
+      rule: { type: "RuleFactorySampleItemProperty" },
+      value: undefined,
+    })
+
+    expect(schema).toMatchObject({ required: ["Имя"] })
+  })
+
+  it("starts a new deferred boundary for an addressable nested item", () => {
+    const addressableRule = {
+      ...SampleItemRule,
+      itemType: "RuleFactoryAddressableSampleItem",
+      externalMetadata: { segment: "Sample", placement: "ownerChild" },
+    } as const satisfies MetadataItemRule
+    registerMetadataItemRule({
+      propertyType: "RuleFactoryAddressableSampleItemProperty",
+      itemRule: addressableRule,
+    })
+    const context = createJSONSchemaExportContext(baseContext, "inline")
+    context.exportToJSONSchema!.requiredPolicy = {
+      currentBoundary: "full",
+      cacheVariant: "full",
+    }
+
+    const schema = exportPropertyToJSONSchema({
+      context,
+      rule: { type: "RuleFactoryAddressableSampleItemProperty" },
+      value: undefined,
+    })
+
+    expect(schema).not.toHaveProperty("required")
+    expect(schema).toHaveProperty("properties.Имя")
+  })
 })
+
+describe("Predefined JSON Schema", () => {
+  const schemaContext = createJSONSchemaExportContext(baseContext, "externalRefs")
+
+  it.each([
+    [ChartOfAccountsPredefinedRules, ["Порядок", "ПризнакиУчета"]],
+    [
+      ChartOfCalculationTypesPredefinedRules,
+      ["ПериодДействияБазовый", "Базовые", "Ведущие", "Вытесняющие"],
+    ],
+  ] as const)("uses the specialized Predefined itemRule", (itemRule, fields) => {
+    const properties = recordValueProperties(
+      exportPropertyToJSONSchema({
+        context: schemaContext,
+        rule: predefinedRule({ itemRule }),
+        value: undefined,
+      })!,
+    )
+
+    for (const field of fields) expect(properties).toHaveProperty(field)
+  })
+
+  it("does not add specialized fields to base Predefined", () => {
+    const properties = recordValueProperties(
+      exportPropertyToJSONSchema({
+        context: baseContext,
+        rule: predefinedRule({ itemRule: PredefinedRules }),
+        value: undefined,
+      })!,
+    )
+
+    expect(properties).not.toHaveProperty("Порядок")
+    expect(properties).not.toHaveProperty("ПериодДействияБазовый")
+  })
+})
+
+function recordValueProperties(schema: unknown): Record<string, unknown> {
+  const patternProperties = isRecord(schema) && isRecord(schema.patternProperties)
+    ? schema.patternProperties
+    : undefined
+  const valueSchema = patternProperties === undefined ? undefined : Object.values(patternProperties)[0]
+  if (!isRecord(valueSchema)) throw new Error("JSON Schema Predefined не содержит схему элемента")
+  if (isRecord(valueSchema.properties)) return valueSchema.properties
+
+  const definition =
+    typeof valueSchema.$ref === "string" && isRecord(valueSchema.$defs)
+      ? valueSchema.$defs[valueSchema.$ref]
+      : undefined
+  if (!isRecord(definition) || !isRecord(definition.properties)) {
+    throw new Error("JSON Schema Predefined не содержит свойства элемента")
+  }
+  return definition.properties
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+}

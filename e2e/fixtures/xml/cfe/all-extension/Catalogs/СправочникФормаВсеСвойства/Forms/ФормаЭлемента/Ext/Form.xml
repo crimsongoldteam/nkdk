@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок</v8:content>
+		</v8:item>
+	</Title>
+	<Width>5</Width>
+	<Height>10</Height>
+	<WindowOpeningMode>LockWholeInterface</WindowOpeningMode>
+	<EnterKeyBehavior>DefaultButton</EnterKeyBehavior>
+	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
+	<SaveDataInSettings>UseList</SaveDataInSettings>
+	<SaveWindowSettings>false</SaveWindowSettings>
+	<SettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</SettingsStorage>
+	<AutoTitle>false</AutoTitle>
+	<AutoURL>false</AutoURL>
+	<Group>AlwaysHorizontal</Group>
+	<ChildrenAlign>ItemsLeftTitlesLeft</ChildrenAlign>
+	<HorizontalSpacing>Single</HorizontalSpacing>
+	<VerticalSpacing>Double</VerticalSpacing>
+	<HorizontalAlign>Center</HorizontalAlign>
+	<VerticalAlign>Bottom</VerticalAlign>
+	<AutoFillCheck>false</AutoFillCheck>
+	<Customizable>false</Customizable>
+	<Enabled>false</Enabled>
+	<CommandBarLocation>Top</CommandBarLocation>
+	<VerticalScroll>useIfNecessary</VerticalScroll>
+	<ScalingMode>Compact</ScalingMode>
+	<Scale>90</Scale>
+	<ConversationsRepresentation>Show</ConversationsRepresentation>
+	<MobileDeviceCommandBarContent>
+		<xr:Item>
+			<xr:Presentation/>
+			<xr:CheckState>0</xr:CheckState>
+			<xr:Value xsi:type="xs:string">ФормаКоманда1</xr:Value>
+		</xr:Item>
+		<xr:Item>
+			<xr:Presentation/>
+			<xr:CheckState>0</xr:CheckState>
+			<xr:Value xsi:type="xs:string">Команда1</xr:Value>
+		</xr:Item>
+	</MobileDeviceCommandBarContent>
+	<CommandSet>
+		<ExcludedCommand>Write</ExcludedCommand>
+	</CommandSet>
+	<ShowTitle>false</ShowTitle>
+	<ShowCloseButton>false</ShowCloseButton>
+	<CollapseItemsByImportanceVariant>DontUse</CollapseItemsByImportanceVariant>
+	<UseForFoldersAndItems>Folders</UseForFoldersAndItems>
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1">
+		<ChildItems>
+			<Button name="ФормаКоманда2" id="3">
+				<Type>CommandBarButton</Type>
+				<CommandName>0</CommandName>
+				<ExtendedTooltip name="ФормаКоманда2РасширеннаяПодсказка" id="4"/>
+			</Button>
+		</ChildItems>
+	</AutoCommandBar>
+	<ChildItems>
+		<Button name="ФормаКоманда1" id="1">
+			<Type>UsualButton</Type>
+			<CommandName>0</CommandName>
+			<ExtendedTooltip name="ФормаКоманда1РасширеннаяПодсказка" id="2"/>
+		</Button>
+		<Button name="Команда1" id="5">
+			<Type>UsualButton</Type>
+			<CommandName>0</CommandName>
+			<ExtendedTooltip name="Команда1РасширеннаяПодсказка" id="6"/>
+		</Button>
+	</ChildItems>
+	<Attributes>
+		<ConditionalAppearance>
+			<dcsset:item>
+				<dcsset:selection/>
+				<dcsset:filter>
+					<dcsset:item xsi:type="dcsset:FilterItemComparison">
+						<dcsset:left xsi:type="dcscor:Field">Объект.Наименование</dcsset:left>
+						<dcsset:comparisonType>Contains</dcsset:comparisonType>
+						<dcsset:right xsi:type="xs:string">вба</dcsset:right>
+					</dcsset:item>
+				</dcsset:filter>
+				<dcsset:appearance>
+					<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+						<dcscor:parameter>Текст</dcscor:parameter>
+						<dcscor:value xsi:type="v8:LocalStringType">
+							<v8:item>
+								<v8:lang>ru</v8:lang>
+								<v8:content>абв</v8:content>
+							</v8:item>
+						</dcscor:value>
+					</dcscor:item>
+				</dcsset:appearance>
+			</dcsset:item>
+		</ConditionalAppearance>
+	</Attributes>
+	<BaseForm version="2.20">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Заголовок</v8:content>
+			</v8:item>
+		</Title>
+		<Width>5</Width>
+		<Height>10</Height>
+		<WindowOpeningMode>LockWholeInterface</WindowOpeningMode>
+		<EnterKeyBehavior>DefaultButton</EnterKeyBehavior>
+		<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
+		<SaveDataInSettings>UseList</SaveDataInSettings>
+		<SaveWindowSettings>false</SaveWindowSettings>
+		<SettingsStorage>SettingsStorage.ХранилищеНастроекВсеСвойства</SettingsStorage>
+		<AutoTitle>false</AutoTitle>
+		<AutoURL>false</AutoURL>
+		<Group>AlwaysHorizontal</Group>
+		<ChildrenAlign>ItemsLeftTitlesLeft</ChildrenAlign>
+		<HorizontalSpacing>Single</HorizontalSpacing>
+		<VerticalSpacing>Double</VerticalSpacing>
+		<HorizontalAlign>Center</HorizontalAlign>
+		<VerticalAlign>Bottom</VerticalAlign>
+		<AutoFillCheck>false</AutoFillCheck>
+		<Customizable>false</Customizable>
+		<Enabled>false</Enabled>
+		<CommandBarLocation>Top</CommandBarLocation>
+		<VerticalScroll>useIfNecessary</VerticalScroll>
+		<ScalingMode>Compact</ScalingMode>
+		<Scale>90</Scale>
+		<ConversationsRepresentation>Show</ConversationsRepresentation>
+		<MobileDeviceCommandBarContent>
+			<xr:Item>
+				<xr:Presentation/>
+				<xr:CheckState>0</xr:CheckState>
+				<xr:Value xsi:type="xs:string">ФормаКоманда1</xr:Value>
+			</xr:Item>
+			<xr:Item>
+				<xr:Presentation/>
+				<xr:CheckState>0</xr:CheckState>
+				<xr:Value xsi:type="xs:string">Команда1</xr:Value>
+			</xr:Item>
+		</MobileDeviceCommandBarContent>
+		<CommandSet>
+			<ExcludedCommand>Write</ExcludedCommand>
+		</CommandSet>
+		<ShowTitle>false</ShowTitle>
+		<ShowCloseButton>false</ShowCloseButton>
+		<CollapseItemsByImportanceVariant>DontUse</CollapseItemsByImportanceVariant>
+		<UseForFoldersAndItems>Folders</UseForFoldersAndItems>
+		<AutoCommandBar name="ФормаКоманднаяПанель" id="-1">
+			<ChildItems>
+				<Button name="ФормаКоманда2" id="3">
+					<Type>CommandBarButton</Type>
+					<CommandName>0</CommandName>
+					<ExtendedTooltip name="ФормаКоманда2РасширеннаяПодсказка" id="4"/>
+				</Button>
+			</ChildItems>
+		</AutoCommandBar>
+		<ChildItems>
+			<Button name="ФормаКоманда1" id="1">
+				<Type>UsualButton</Type>
+				<CommandName>0</CommandName>
+				<ExtendedTooltip name="ФормаКоманда1РасширеннаяПодсказка" id="2"/>
+			</Button>
+			<Button name="Команда1" id="5">
+				<Type>UsualButton</Type>
+				<CommandName>0</CommandName>
+				<ExtendedTooltip name="Команда1РасширеннаяПодсказка" id="6"/>
+			</Button>
+		</ChildItems>
+		<Attributes>
+			<ConditionalAppearance>
+				<dcsset:item>
+					<dcsset:selection/>
+					<dcsset:filter>
+						<dcsset:item xsi:type="dcsset:FilterItemComparison">
+							<dcsset:left xsi:type="dcscor:Field">Объект.Наименование</dcsset:left>
+							<dcsset:comparisonType>Contains</dcsset:comparisonType>
+							<dcsset:right xsi:type="xs:string">вба</dcsset:right>
+						</dcsset:item>
+					</dcsset:filter>
+					<dcsset:appearance>
+						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+							<dcscor:parameter>Текст</dcscor:parameter>
+							<dcscor:value xsi:type="v8:LocalStringType">
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>абв</v8:content>
+								</v8:item>
+							</dcscor:value>
+						</dcscor:item>
+					</dcsset:appearance>
+				</dcsset:item>
+			</ConditionalAppearance>
+		</Attributes>
+	</BaseForm>
+</Form>

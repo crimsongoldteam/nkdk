@@ -56,11 +56,15 @@ it("resolves an XML import descriptor from its own registry", () => {
   const registries = createOperationRegistrySet(
     defineMetadataRules({
       ...emptyMetadataRules,
+      synchronization: [] as FullXmlSyncComponentProfile[],
       imports: [
         {
           kind: "configuration",
           detect: (root) => root.kind === "configuration",
-          resolveAddress: () => ({ kind: "configuration" as const }),
+          resolveRoot: () => ({
+            address: { kind: "configuration" as const },
+            itemName: "configuration",
+          }),
         },
       ],
     }),

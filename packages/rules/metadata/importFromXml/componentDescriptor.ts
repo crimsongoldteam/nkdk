@@ -1,11 +1,15 @@
-import type { ComponentAddress } from "@nkdk/runtime"
+import type { MetadataImportComponentDescriptor } from "@nkdk/runtime/rule-kit"
 
-export interface XmlImportComponentDescriptor {
-  readonly kind: string
-  detect(root: Record<string, unknown>): boolean
-  resolveAddress(root: Record<string, unknown>): ComponentAddress
-  readonly baseAddress?: ComponentAddress
-  readonly metadataItemAugmenter?: string
+export type XmlImportComponentDescriptor = MetadataImportComponentDescriptor
+
+export function resolveXmlImportRootItemName(root: Readonly<Record<string, unknown>>): string {
+  const configuration = root["Configuration"]
+  const properties = isRecord(configuration) ? configuration["Properties"] : undefined
+  const name = isRecord(properties) ? properties["Name"] : undefined
+  if (typeof name !== "string" || name.length === 0) {
+    throw new Error("Не задано имя корневого объекта XML-компонента")
+  }
+  return name
 }
 
 const descriptorsByKind = new Map<string, XmlImportComponentDescriptor>()
@@ -30,4 +34,8 @@ export function getRegisteredXmlImportComponentDescriptor(kind: string): XmlImpo
   const descriptor = descriptorsByKind.get(kind)
   if (descriptor === undefined) throw new Error(`Не найдено описание XML-компонента: ${kind}`)
   return descriptor
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }

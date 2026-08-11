@@ -179,6 +179,28 @@ export type StandardMemberDeclaration =
   | ClosedReverseLookupStandardMemberDeclaration
   | StandardTableDeclaration
 
+type StandardAttributeDeclaration = Extract<StandardMemberDeclaration, { memberKind: "standardAttribute" }>
+type SelfIndexStandardAttributeParams = StandardAttributeDeclaration extends infer Declaration
+  ? Declaration extends StandardAttributeDeclaration
+    ? Omit<Declaration, "memberKind" | "phase" | "sourceScope">
+    : never
+  : never
+
+export function selfIndexStandardAttribute<const Params extends SelfIndexStandardAttributeParams>(
+  params: Params,
+): Params & {
+  readonly memberKind: "standardAttribute"
+  readonly phase: "index-time"
+  readonly sourceScope: "self"
+} {
+  return {
+    memberKind: "standardAttribute",
+    phase: "index-time",
+    sourceScope: "self",
+    ...params,
+  }
+}
+
 const membersByOwnerKind = new Map<string, StandardMemberDeclaration[]>()
 let standardMembersRevision = 0
 

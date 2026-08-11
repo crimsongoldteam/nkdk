@@ -102,3 +102,13 @@ export function fillValuePendingCheck(): ProjectStateYamlFileUpdate["pendingChec
     transport: "DesignTimeRef",
   }
 }
+
+export function addressableRequiredPendingCheck(): ProjectStateYamlFileUpdate["pendingChecks"][number] {
+  return {
+    kind: "addressableRequired",
+    yamlPath: ["Реквизиты", "Автор"],
+    location: { line: 3, col: 3, path: "/Реквизиты/Автор" },
+    canonicalTarget: "Catalog.Товары.Attribute.Автор",
+    missing: ["Тип", "Использование"],
+  }
+}

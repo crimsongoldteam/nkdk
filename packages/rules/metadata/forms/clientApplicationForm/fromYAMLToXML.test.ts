@@ -859,6 +859,37 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
   })
 
+  it("классифицирует таблицу cfe по обычному baseYAML текущей cf", () => {
+    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
+    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
+
+    const result = nestedRule.convert({
+      context: mockContextToXML(),
+      yaml: {
+        Элементы: { Список: { Вид: "ТаблицаФормы" } },
+      },
+      baseYAML: {
+        Реквизиты: { Список: { Тип: "ДинамическийСписок" } },
+        Элементы: {
+          Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" },
+        },
+      },
+      baseConfigurationIndex: createConfigurationIndexReader(
+        snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
+      ),
+      name: "ОбщаяФорма",
+      referenceXML: undefined,
+    })
+    const form = result.Form as ClientApplicationFormXML
+
+    expect(elementByName(form, "Список").DataPath).toBeUndefined()
+    expect(elementByName(form, "Список").Period).toEqual({
+      "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+      "v8:startDate": "0001-01-01T00:00:00",
+      "v8:endDate": "0001-01-01T00:00:00",
+    })
+  })
+
   it("разделяет сохранённый BaseForm и текущую форму cf во вложенном преобразовании", () => {
     const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
     if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")

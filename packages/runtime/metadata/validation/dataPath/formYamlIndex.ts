@@ -8,7 +8,7 @@ import type {
   FormDataPathSource,
 } from "./types"
 import type { FormDataPathIndex } from "../../ruleRuntime/dataPath/formIndex"
-import type { FormDataPathTabularElementDeclaration } from "@nkdk/runtime/rule-kit"
+import type { FormDataPathTabularElementDeclaration } from "../../ruleRuntime/dataPath/formIndex"
 import type {
   FormDataPathItemFact,
   FormDataPathMetadataProjection,

@@ -1,14 +1,15 @@
-import { mkdirSync, mkdtempSync, rmSync } from "fs"
+import { mkdirSync, mkdtempSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { initSyncState } from "./initSyncState"
+import { cleanupTempDirs } from "./testTempDirs"
 
 describe("initSyncState service", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    cleanupTempDirs(tempDirs)
   })
 
   it("requires allowWrite before calling core", async () => {

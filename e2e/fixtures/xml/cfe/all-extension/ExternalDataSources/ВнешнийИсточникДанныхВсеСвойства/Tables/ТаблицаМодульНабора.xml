@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Table uuid="afe17126-bebd-43d9-ab48-169c8350dbf2">
+		<InternalInfo>
+			<xr:GeneratedType name="ExternalDataSourceTableManager.ВнешнийИсточникДанныхВсеСвойства.ТаблицаМодульНабора" category="Manager">
+				<xr:TypeId>ee5dbee2-bd82-4c76-8730-de6659c98757</xr:TypeId>
+				<xr:ValueId>9223b216-81f7-4c1d-937d-9d1067a73f05</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableObject.ВнешнийИсточникДанныхВсеСвойства.ТаблицаМодульНабора" category="Object">
+				<xr:TypeId>465e5964-e5f3-436a-a1a3-8e928efea57b</xr:TypeId>
+				<xr:ValueId>6e916f83-077b-4cb7-9249-faa30c7618e8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаМодульНабора" category="Ref">
+				<xr:TypeId>94579a38-86ac-47e3-85cd-6afef71301b1</xr:TypeId>
+				<xr:ValueId>398eb033-2966-4744-8694-1b77e10c94ad</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableList.ВнешнийИсточникДанныхВсеСвойства.ТаблицаМодульНабора" category="List">
+				<xr:TypeId>87e04a19-d3b7-48dc-8ff1-bd0658bf33d6</xr:TypeId>
+				<xr:ValueId>556eb7fc-9ac2-44f2-877b-7937526e1357</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRecord.ВнешнийИсточникДанныхВсеСвойства.ТаблицаМодульНабора" category="Record">
+				<xr:TypeId>f3fb4fbd-3276-4dfa-b7d9-f0f758e847d3</xr:TypeId>
+				<xr:ValueId>53ced62b-8c4b-4cf2-bf25-fa21ecc83c71</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRecordSet.ВнешнийИсточникДанныхВсеСвойства.ТаблицаМодульНабора" category="RecordSet">
+				<xr:TypeId>dc1651fc-eb73-435e-9d21-5c070e32d112</xr:TypeId>
+				<xr:ValueId>f82cbb97-c624-4d4a-9ee7-065c82faa884</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRecordKey.ВнешнийИсточникДанныхВсеСвойства.ТаблицаМодульНабора" category="RecordKey">
+				<xr:TypeId>86e11f8e-8f3b-4270-a579-50da1b97b238</xr:TypeId>
+				<xr:ValueId>f3e74b12-315a-4747-95c9-43d757f38c7b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRecordManager.ВнешнийИсточникДанныхВсеСвойства.ТаблицаМодульНабора" category="RecordManager">
+				<xr:TypeId>7d9678fb-28bf-4a04-b484-aa4d7ffce71a</xr:TypeId>
+				<xr:ValueId>1d614032-0fa8-4749-8459-e519673826bd</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ТаблицаМодульНабора</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>0d6a5c94-2b9c-4196-8f45-ff1d3ee18c05</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Field uuid="4bb5dc01-d90a-43a6-a519-9843aefa590e">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Поле1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>0fffe859-6788-4097-bc64-9d923a553887</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Field>
+		</ChildObjects>
+	</Table>
+</MetaDataObject>

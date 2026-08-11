@@ -102,6 +102,9 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
           ...Object.fromEntries(
             Object.keys(adoptedUuids).map((logicalAddress) => [logicalAddress, "adopted"] as const)
           ),
+          ...Object.fromEntries(
+            borrowedForms.map(({ logicalAddress }) => [logicalAddress, "adopted"] as const)
+          ),
           Конфигурация: "indexed",
         },
         baseForms: {

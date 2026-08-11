@@ -153,6 +153,7 @@ export interface ProjectStatePendingReferenceRecord {
   readonly targetNameId: number
   readonly targetMemberId: number
   readonly constraintKindId: number
+  readonly flags: number
 }
 
 export interface ProjectStateOwnerRecord {
@@ -587,6 +588,7 @@ export const ProjectStatePendingReferenceRecordView = projectStateView.create<Pr
     targetNameId: { type: "integer", btype: "uint32" },
     targetMemberId: { type: "integer", btype: "uint32" },
     constraintKindId: { type: "integer", btype: "uint32" },
+    flags: { type: "integer", btype: "uint32" },
   },
 })
 

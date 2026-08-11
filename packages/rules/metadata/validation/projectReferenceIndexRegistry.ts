@@ -31,6 +31,8 @@ export type ProjectFileValidator = (params: { filePath: string; parsed: ParsedYa
 export type ProjectReferenceMemberIndexContributor = (params: {
   projectDir: string
   owner: OwnerMetadata
+  objectTarget: Extract<ParsedMetadataTarget, { kind: "object" }>
+  rawYaml: unknown
 }) => Iterable<ProjectMemberIndexEntry>
 
 export type ProjectReferenceContribution =

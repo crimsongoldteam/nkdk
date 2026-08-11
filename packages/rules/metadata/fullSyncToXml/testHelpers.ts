@@ -208,7 +208,7 @@ function snapshot(address: ComponentAddress) {
   const componentPath = address.kind === "configuration" ? "cf" : `cfe/${address.name}`
   return snapshotConfigurationIndex(
     encodeConfigurationIndex({
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       indexGeneration: 1n,
       componentPath,
       files: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],

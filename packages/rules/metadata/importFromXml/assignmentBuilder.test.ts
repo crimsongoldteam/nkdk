@@ -1,13 +1,15 @@
 import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
+import { configurationUid } from "@nkdk/runtime"
 
 function group(
   targetProjectPath: string,
   role: ImportAssignmentGroup["definition"]["role"],
   itemType: string,
   logicalAddressSegment?: string,
-  topologyNodeId?: string
+  topologyNodeId?: string,
+  itemName?: string,
 ): ImportAssignmentGroup {
   return {
     definition: {
@@ -15,6 +17,7 @@ function group(
       itemType,
       ...(logicalAddressSegment === undefined ? {} : { logicalAddressSegment }),
       ...(topologyNodeId === undefined ? {} : { topologyNodeId }),
+      ...(itemName === undefined ? {} : { itemName }),
     },
     values: {},
     targetProjectPath,
@@ -85,5 +88,21 @@ describe("XML import assignment builder", () => {
     ])
 
     expect(assignment?.topologyNodeId).toBe("processor-form-node")
+  })
+
+  it("uses the semantic item name only for an explicitly named group", () => {
+    const [assignment] = createImportAssignments([
+      group(
+        "Конфигурация.yaml",
+        "configuration",
+        "MetadataConfigurationExtension",
+        undefined,
+        undefined,
+        "РасширениеКонтроль",
+      ),
+    ])
+
+    expect(assignment?.itemName).toBe("РасширениеКонтроль")
+    expect(assignment?.logicalAddress).toBe(configurationUid())
   })
 })

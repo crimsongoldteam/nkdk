@@ -13,7 +13,11 @@ import {
   projectMetadataFileBackedTargets,
 } from "./projectProjection"
 
-const rule = { itemType: "TestObject", properties: {} } as MetadataItemRule
+const rule = {
+  itemType: "TestObject",
+  metadataTargetOwner: { kind: "self", root: "Catalog" },
+  properties: {},
+} as MetadataItemRule
 const source = { kind: "itemRule" as const, description: "test" }
 const projectDir = resolve("/project")
 
@@ -66,6 +70,58 @@ const topology = compileMetadataResourceTopology([
 ])
 
 describe("project resource topology projection", () => {
+  it("projects the exact rule and canonical target for a nested file item", () => {
+    const ownerRule = {
+      itemType: "MetadataExternalDataSource",
+      metadataTargetOwner: { kind: "self", root: "ExternalDataSource" },
+      properties: {},
+    } as MetadataItemRule
+    const cubeRule = {
+      itemType: "MetadataExternalDataSourceCube",
+      metadataTargetOwner: { kind: "resolver" },
+      externalMetadata: { segment: "Cube", placement: "ownedEntry" },
+      properties: {},
+    } as MetadataItemRule
+    const nestedTopology = compileMetadataResourceTopology([projectSpec(ownerRule, [
+      {
+        kind: "content",
+        projectPattern: "ВнешнийИсточникДанных/{ownerName}/Свойства.yaml",
+        role: "properties",
+        required: true,
+        repeatable: true,
+        compositionImpact: "configurationComposition",
+        itemRule: ownerRule,
+        source,
+      },
+      {
+        kind: "content",
+        projectPattern: "ВнешнийИсточникДанных/{ownerName}/Кубы/{itemName}/Свойства.yaml",
+        ownerProjectPattern: "ВнешнийИсточникДанных/{ownerName}/Свойства.yaml",
+        role: "fileItem",
+        required: true,
+        repeatable: true,
+        compositionImpact: "configurationComposition",
+        itemRule: cubeRule,
+        logicalAddressSegment: "Куб",
+        source,
+      },
+    ])])
+
+    expect(classifyMetadataProjectPath(
+      nestedTopology,
+      "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml",
+    )).toMatchObject({
+      rule: cubeRule,
+      metadataTarget: {
+        canonical: "ExternalDataSource.Источник.Cube.Куб",
+        owner: {
+          root: "ExternalDataSource",
+          objectName: "Источник.Cube.Куб",
+        },
+      },
+    })
+  })
+
   it.each([
     ["Объект/Заказ/Формы/Основная/Форма.yaml", "Form"],
     ["Объект/Заказ/Макеты/Печать/Template.xml", "Template"],
@@ -289,6 +345,7 @@ function fileBackedTargetTopology() {
         repeatable: true,
         compositionImpact: "none",
         itemRule: formRule,
+        logicalAddressSegment: "Форма",
         fileBackedTarget: {
           kind: "member",
           memberKind: "Form",

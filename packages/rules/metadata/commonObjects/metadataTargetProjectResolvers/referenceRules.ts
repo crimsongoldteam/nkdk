@@ -1,4 +1,3 @@
-import { rootFromYAML } from "../metadataTargets/roots"
 import type { ParsedMetadataTarget } from "../metadataTargets/types"
 import type {
   ProjectReferenceContribution,
@@ -19,7 +18,7 @@ const collections = [
 export const metadataTargetProjectReferenceRules: readonly ProjectReferenceContribution[] = collections.flatMap(
   ({ modelName, yamlName, kind }) => [
     { kind: "member" as const, memberKind: kind, contributor: createCollectionMemberResolver({ modelName, yamlName }) },
-    { kind: "memberIndex" as const, contributor: collectionMemberIndexContributor({ modelName, kind }) },
+    { kind: "memberIndex" as const, contributor: collectionMemberIndexContributor({ modelName, yamlName, kind }) },
   ],
 )
 
@@ -38,18 +37,18 @@ function createCollectionMemberResolver(params: { modelName: string; yamlName: s
 
 function collectionMemberIndexContributor(params: {
   modelName: string
+  yamlName: string
   kind: ProjectMemberIndexEntry["target"]["segments"][number]["kind"]
 }): ProjectReferenceMemberIndexContributor {
-  return ({ owner }) => {
-    const root = rootFromYAML[owner.ref.kind]
-    if (!root || !owner.ref.name) return []
-    const collection = metadataRecord(owner.facts)[params.modelName]
+  return ({ owner, objectTarget, rawYaml }) => {
+    const collection = metadataRecord(owner.facts)[params.modelName] ?? metadataRecord(rawYaml)[params.yamlName]
     const entries: ProjectMemberIndexEntry[] = []
     for (const item of collectionItems(collection)) {
       const target: Extract<ParsedMetadataTarget, { kind: "member" }> = {
         kind: "member",
-        root,
-        objectName: owner.ref.name,
+        root: objectTarget.root,
+        objectName: objectTarget.objectName,
+        ...(objectTarget.segments === undefined ? {} : { objectSegments: objectTarget.segments }),
         segments: [{ kind: params.kind, name: item.name }],
       }
       entries.push({

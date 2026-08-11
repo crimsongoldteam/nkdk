@@ -11,6 +11,7 @@ import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
   type ConfigurationIndexReader,
+  type ConfigurationSnapshotEntity,
 } from "@nkdk/runtime"
 import { sampleSnapshot } from "@nkdk/runtime"
 import type { ClientApplicationFormYAML } from "./types"
@@ -112,11 +113,7 @@ describe("client application BaseForm", () => {
       identities: [xmlId(autoCommandBarAddress, "-1")],
       xmlNodes: [
         {
-          logicalAddress: childUid(
-            formAddress,
-            "ЧастьФормы",
-            "Содержимое"
-          ),
+          logicalAddress: formAddress,
           present: ["autoCommandBar"],
         },
         {
@@ -128,18 +125,11 @@ describe("client application BaseForm", () => {
     })
     const extensionIndex = reader({
       componentPath: "cfe/Расширение",
+      identities: [xmlId(autoCommandBarAddress, "1000001")],
       xmlNodes: [
         {
-          logicalAddress: childUid(
-            formAddress,
-            "ЧастьФормы",
-            "Содержимое"
-          ),
+          logicalAddress: formAddress,
           present: ["autoCommandBar"],
-        },
-        {
-          logicalAddress: autoCommandBarAddress,
-          present: ["name"],
         },
       ],
     })
@@ -177,11 +167,6 @@ describe("client application BaseForm", () => {
       "Атрибут",
       "Список"
     )
-    const dynamicListAddress = childUid(
-      listAttributeAddress,
-      "Свойство",
-      "ДинамическийСписок"
-    )
     const baseIndex = reader({
       componentPath: "cf",
       identities: [
@@ -196,7 +181,7 @@ describe("client application BaseForm", () => {
         ),
       ],
       xmlNodes: [{
-        logicalAddress: dynamicListAddress,
+        logicalAddress: listAttributeAddress,
         order: ["customQuery", "mainTable"],
         present: ["customQuery"],
       }],
@@ -205,23 +190,7 @@ describe("client application BaseForm", () => {
       componentPath: "cfe/Расширение",
       identities: [xmlId(listAttributeAddress, "1000001")],
     })
-    const baseContext = mockContextToXML()
-    const context = {
-      ...baseContext,
-      exportToXML: {
-        ...baseContext.exportToXML,
-        configurationIndex: createConfigurationIndexExportRuntime({
-          source: extensionIndex,
-          collector: createConfigurationIndexCollector(),
-          targetProjectPath:
-            "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-          logicalAddress: formAddress,
-        }),
-        xmlDefaultVariantByLogicalAddress: {
-          [formAddress]: "adopted" as const,
-        },
-      },
-    }
+    const context = projectedContext(extensionIndex, true)
     const yaml = {
       Реквизиты: {
         Список: {
@@ -248,6 +217,75 @@ describe("client application BaseForm", () => {
     ).toBe(false)
   })
 
+  it("classifies projected table sources from the complete cf form", () => {
+    const tableAddress = childUid(formAddress, "Элемент", "Список")
+    const baseIndex = reader({
+      componentPath: "cf",
+      identities: [xmlId(tableAddress, "3")],
+      xmlValues: [{
+        logicalAddress: `${tableAddress}.autoRefresh`,
+        xml: { present: true },
+      }],
+    })
+    const extensionIndex = reader({ componentPath: "cfe/Расширение" })
+    const context = projectedContext(extensionIndex)
+    const element = {
+      Вид: "ТаблицаФормы",
+      ПутьКДанным: "Список",
+    } as const
+
+    const baseForm = buildClientApplicationBaseForm({
+      context,
+      baseIndex,
+      baseYaml: {
+        Реквизиты: { Список: { Тип: "Строка" } },
+        Элементы: { Список: element },
+      } as ClientApplicationFormYAML,
+      extensionYaml: {
+        Элементы: { Список: element },
+      } as ClientApplicationFormYAML,
+      currentConfigurationFormYaml: {
+        Реквизиты: { Список: { Тип: "ДинамическийСписок" } },
+        Элементы: { Список: element },
+      } as ClientApplicationFormYAML,
+      formName: "ФормаЭлемента",
+    })
+
+    expect(asChildItemArray(baseForm.ChildItems)[0]?.Table?.AutoRefresh)
+      .toBe(false)
+    expect(asChildItemArray(baseForm.ChildItems)[0]?.Table?.Period)
+      .toEqual({
+        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+        "v8:startDate": "0001-01-01T00:00:00",
+        "v8:endDate": "0001-01-01T00:00:00",
+      })
+  })
+
+  it("classifies a prepared BaseForm projection from the current cf form", () => {
+    const baseForm = buildClientApplicationBaseForm({
+      context: mockContextToXML(),
+      baseYaml: {
+        Элементы: { Список: { Вид: "ТаблицаФормы" } },
+      } as ClientApplicationFormYAML,
+      currentConfigurationFormYaml: {
+        Реквизиты: { Список: { Тип: "ДинамическийСписок" } },
+        Элементы: {
+          Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" },
+        },
+      } as ClientApplicationFormYAML,
+      formName: "ФормаЭлемента",
+    })
+
+    expect(asChildItemArray(baseForm.ChildItems)[0]?.Table?.DataPath)
+      .toBeUndefined()
+    expect(asChildItemArray(baseForm.ChildItems)[0]?.Table?.Period)
+      .toEqual({
+        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+        "v8:startDate": "0001-01-01T00:00:00",
+        "v8:endDate": "0001-01-01T00:00:00",
+      })
+  })
+
   it("rejects a borrowed table attribute when its cf column has no xmlId", () => {
     const tableAddress = childUid(
       formAddress,
@@ -267,20 +305,7 @@ describe("client application BaseForm", () => {
       componentPath: "cfe/Расширение",
       identities: [xmlId(tableAddress, "1000001")],
     })
-    const baseContext = mockContextToXML()
-    const context = {
-      ...baseContext,
-      exportToXML: {
-        ...baseContext.exportToXML,
-        configurationIndex: createConfigurationIndexExportRuntime({
-          source: extensionIndex,
-          collector: createConfigurationIndexCollector(),
-          targetProjectPath:
-            "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-          logicalAddress: formAddress,
-        }),
-      },
-    }
+    const context = projectedContext(extensionIndex)
     const yaml = {
       Реквизиты: {
         Таблица: {
@@ -773,15 +798,57 @@ describe("client application BaseForm", () => {
 function reader(params: {
   readonly componentPath: string
   readonly identities?: readonly LegacyIdentity[]
-  readonly xmlNodes?: readonly unknown[]
-  readonly xmlValues?: readonly unknown[]
+  readonly xmlNodes?: readonly {
+    readonly logicalAddress: string
+    readonly present?: readonly string[]
+    readonly aliases?: Readonly<Record<string, string>>
+    readonly order?: readonly string[]
+  }[]
+  readonly xmlValues?: readonly {
+    readonly logicalAddress: string
+    readonly xml: NonNullable<ConfigurationSnapshotEntity["xml"]>
+  }[]
 }): ConfigurationIndexReader {
   const sample = sampleSnapshot()
-  const identitiesByAddress = new Map<string, Record<string, string>>()
+  const entitiesByAddress = new Map<string, ConfigurationSnapshotEntity>()
+  const merge = (entity: ConfigurationSnapshotEntity): void => {
+    const current = entitiesByAddress.get(entity.logicalAddress)
+    entitiesByAddress.set(entity.logicalAddress, {
+      ...current,
+      ...entity,
+      identities: { ...current?.identities, ...entity.identities },
+      xml: { ...current?.xml, ...entity.xml },
+    })
+  }
   for (const identity of params.identities ?? []) {
-    const identities = identitiesByAddress.get(identity.logicalAddress) ?? {}
-    identities[identity.kind] = identity.value
-    identitiesByAddress.set(identity.logicalAddress, identities)
+    merge({
+      logicalAddress: identity.logicalAddress,
+      sourceProjectPath: "Configuration.yaml",
+      identities: { [identity.kind]: identity.value },
+    })
+  }
+  for (const node of params.xmlNodes ?? []) {
+    if (node.aliases?._name !== undefined) {
+      merge({
+        logicalAddress: node.logicalAddress,
+        sourceProjectPath: "Configuration.yaml",
+        identities: { xmlName: node.aliases._name },
+      })
+    }
+    for (const propertyKey of node.present ?? []) {
+      merge({
+        logicalAddress: `${node.logicalAddress}.${propertyKey}`,
+        sourceProjectPath: "Configuration.yaml",
+        xml: { present: true },
+      })
+    }
+  }
+  for (const value of params.xmlValues ?? []) {
+    merge({
+      logicalAddress: value.logicalAddress,
+      sourceProjectPath: "Configuration.yaml",
+      xml: value.xml,
+    })
   }
   const source = createConfigurationIndexReader(
     snapshotConfigurationIndex(
@@ -790,16 +857,35 @@ function reader(params: {
         componentPath: params.componentPath,
         entities: [
           ...sample.entities,
-          ...[...identitiesByAddress].map(([logicalAddress, identities]) => ({
-            logicalAddress,
-            sourceProjectPath: "Configuration.yaml",
-            identities,
-          })),
+          ...entitiesByAddress.values(),
         ],
       })
     )
   )
   return source
+}
+
+function projectedContext(
+  source: ConfigurationIndexReader,
+  adopted = false
+): ReturnType<typeof mockContextToXML> {
+  const base = mockContextToXML()
+  return {
+    ...base,
+    exportToXML: {
+      ...base.exportToXML,
+      configurationIndex: createConfigurationIndexExportRuntime({
+        source,
+        collector: createConfigurationIndexCollector(),
+        targetProjectPath:
+          "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        logicalAddress: formAddress,
+      }),
+      ...(adopted
+        ? { xmlDefaultVariantByLogicalAddress: { [formAddress]: "adopted" as const } }
+        : {}),
+    },
+  }
 }
 
 function xmlId(

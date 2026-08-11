@@ -1,6 +1,5 @@
 import { Type } from "typebox"
 import type { ConfigurationContext } from "../../context/types"
-import { registerJSONSchemaIdentity } from "../jsonSchemaRefs"
 import { PropertyRuleType } from "../property/registry"
 import type { MetadataItemRule } from "../property/types"
 import { registerLegacyPropertyTypeDefinitions } from "../property/typeRuleRegistry"
@@ -9,9 +8,11 @@ import {
   propertyTypesFromContributions,
 } from "../property/propertyRuleRegistrySet"
 import { defineMetadataRules } from "../definition"
+import { registerLegacySchemaDefinitions } from "../definition/legacyRuleRegistration"
 import { emptyMetadataRules } from "../definition/testSupport"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { exportMetadataItemToJSONSchema } from "./toJSONSchema"
+import { withNestedJSONSchemaItemContext } from "../property/jsonSchemaRequiredPolicy"
 
 type MetadataItemRuleParams<Rule extends MetadataItemRule, PropertyType extends PropertyRuleType> = {
   propertyType: PropertyType
@@ -74,19 +75,10 @@ export const defineMetadataItemRule = <
         const schemaStack = context.exportToJSONSchema?.schemaStack ?? []
         if (schemaStack.includes(propertyType)) return Type.Unknown()
 
+        const resolvedItemRule = propertyItemRule(rule) ?? itemRule
         return exportMetadataItemToJSONSchema({
-          context: {
-            ...context,
-            exportToJSONSchema: {
-              ...context.exportToJSONSchema,
-              mode: context.exportToJSONSchema?.mode ?? "inline",
-              refs: context.exportToJSONSchema?.refs ?? new Set(),
-              includeNestedChildItems: context.exportToJSONSchema?.includeNestedChildItems,
-              propertySchemaOverrides: context.exportToJSONSchema?.propertySchemaOverrides,
-              schemaStack: [...schemaStack, propertyType],
-            },
-          },
-          rule: propertyItemRule(rule) ?? itemRule,
+          context: withNestedJSONSchemaItemContext(context, resolvedItemRule, propertyType),
+          rule: resolvedItemRule,
         })
       }),
     ]),
@@ -99,13 +91,7 @@ export const registerMetadataItemRule = <
 >(params: MetadataItemRuleParams<Rule, PropertyType>): void => {
   const definition = defineMetadataItemRule(params)
   registerLegacyPropertyTypeDefinitions(definition.propertyTypes)
-  for (const [name, schema] of Object.entries(definition.schemas)) {
-    registerJSONSchemaIdentity({
-      name,
-      source: schema.source ?? params.itemRule,
-      exporter: schema.export,
-    })
-  }
+  registerLegacySchemaDefinitions(definition, params.itemRule)
 }
 
 function propertyItemRule(propertyRule: import("../property/types").PropertyRule): MetadataItemRule | undefined {

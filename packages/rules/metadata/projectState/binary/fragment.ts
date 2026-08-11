@@ -216,6 +216,7 @@ interface ProjectStatePendingReference {
   readonly canonical: string
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
+  readonly tagged?: "xml"
 }
 
 type ProjectStatePendingCheck =
@@ -244,6 +245,13 @@ type ProjectStatePendingCheck =
       readonly value: unknown
       readonly tagged: boolean
       readonly transport?: "DesignTimeRef"
+    }
+  | {
+      readonly kind: "addressableRequired"
+      readonly yamlPath: readonly (string | number)[]
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly canonicalTarget: string
+      readonly missing: readonly string[]
     }
 
 interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
@@ -576,35 +584,49 @@ export function createProjectStateFragmentWriter(options: {
         targetNameId: strings.intern(target.objectName),
         targetMemberId: optionalString(targetMember),
         constraintKindId: strings.intern(encodeMetadataTargetConstraint(reference.constraint)),
+        flags: reference.tagged === "xml" ? 1 : 0,
+      })
+    }
+    const appendPayloadPendingCheck = (
+      check: ProjectStatePendingCheck,
+      kind: "addressableRequired" | "fillValue",
+      payload: object,
+    ): void => {
+      rows.pendingChecks.push({
+        sourceFileId: fileId,
+        yamlPathId: appendYamlPath(check.yamlPath),
+        kindId: strings.intern(kind),
+        payloadId: strings.intern(JSON.stringify({ version: 1, ...payload })),
+        line: check.location.line,
+        col: check.location.col,
+        pathId: optionalString(check.location.path),
+        ownerTypeId: NONE,
+        valueId: NONE,
+        policyYamlId: NONE,
+        allowedKindsStart: rows.allowedKinds.length,
+        allowedKindsCount: 0,
+        elementTypeId: NONE,
+        tableContextId: NONE,
+        allowComposite: 0,
+        hasValuesPicture: 0,
+        reserved: 0,
       })
     }
     for (const check of update.pendingChecks) {
+      if (check.kind === "addressableRequired") {
+        appendPayloadPendingCheck(check, "addressableRequired", {
+          canonicalTarget: check.canonicalTarget,
+          missing: check.missing,
+        })
+        continue
+      }
       if (check.kind === "fillValue") {
-        rows.pendingChecks.push({
-          sourceFileId: fileId,
-          yamlPathId: appendYamlPath(check.yamlPath),
-          kindId: strings.intern("fillValue"),
-          payloadId: strings.intern(JSON.stringify({
-            version: 1,
-            itemType: check.itemType,
-            type: check.type,
-            value: check.value,
-            tagged: check.tagged,
-            ...(check.transport === undefined ? {} : { transport: check.transport }),
-          })),
-          line: check.location.line,
-          col: check.location.col,
-          pathId: optionalString(check.location.path),
-          ownerTypeId: NONE,
-          valueId: NONE,
-          policyYamlId: NONE,
-          allowedKindsStart: rows.allowedKinds.length,
-          allowedKindsCount: 0,
-          elementTypeId: NONE,
-          tableContextId: NONE,
-          allowComposite: 0,
-          hasValuesPicture: 0,
-          reserved: 0,
+        appendPayloadPendingCheck(check, "fillValue", {
+          itemType: check.itemType,
+          type: check.type,
+          value: check.value,
+          tagged: check.tagged,
+          ...(check.transport === undefined ? {} : { transport: check.transport }),
         })
         continue
       }

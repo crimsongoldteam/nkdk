@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Enum uuid="e2570bdd-b55c-41d5-b063-440cf87b69dc">
+		<InternalInfo>
+			<xr:GeneratedType name="EnumRef.ПеречислениеВсеСвойства" category="Ref">
+				<xr:TypeId>728a563d-427c-4ae7-94c3-a7dc3eeb75a5</xr:TypeId>
+				<xr:ValueId>87b352c4-8de9-4f26-866d-ef145f0ba4ef</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="EnumManager.ПеречислениеВсеСвойства" category="Manager">
+				<xr:TypeId>da6e8185-9ede-4fae-a04b-115ff99224a2</xr:TypeId>
+				<xr:ValueId>6df5779d-5ab3-4527-aa18-fa17ace733e0</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="EnumList.ПеречислениеВсеСвойства" category="List">
+				<xr:TypeId>9b3105b2-460c-4203-83b9-13dc4c120063</xr:TypeId>
+				<xr:ValueId>4f4404af-0a71-42f7-a364-c81c42336306</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПеречислениеВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>ec93e916-ecd7-45c4-8e73-ea76f186183c</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<EnumValue uuid="0940c048-29de-4953-b8af-267eaf8bf1c3">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ЗначениеПеречисления1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ExtendedConfigurationObject>
+				</Properties>
+			</EnumValue>
+			<EnumValue uuid="0e2d0774-31ff-4411-9056-f7e97e9979c8">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ЗначениеПеречисления2</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>915f7a59-e3e0-43d0-9a49-68375464d960</ExtendedConfigurationObject>
+				</Properties>
+			</EnumValue>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Template>Макет</Template>
+			<Command uuid="f93d3eb1-921a-412f-8b74-92adaf9c69f8">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>3712df7a-2311-48bf-a14c-dd76417176c1</ExtendedConfigurationObject>
+					<Group>NavigationPanelImportant</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</Enum>
+</MetaDataObject>

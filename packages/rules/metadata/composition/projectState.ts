@@ -10,6 +10,18 @@ import {
   type ProjectStateService,
 } from "../projectState/service"
 import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
+import { appliedObjectComponentRules } from "../appliedObjects/componentRules"
+import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
+import {
+  configurationValidationProjectSpec,
+  validationProjectSpecs,
+} from "../validation/projectSpecs"
+import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
+
+const validationSpecs = [configurationValidationProjectSpec, ...validationProjectSpecs]
+const validationTopologies = appliedObjectComponentRules.components.map(({ rootRule }) =>
+  compileMetadataResourceTopologyForRootRule(rootRule, validationSpecs)
+)
 
 function dependencyValidator() {
   return createProjectStateDependencyValidator({
@@ -35,7 +47,12 @@ export function createDefaultProjectStateService(
       if (operation === undefined || context === undefined) {
         throw new Error("ProjectState refresh composition is incomplete")
       }
-      const pool = createPreparedYamlProjectWorkerPool({ concurrency, operation })
+      const pool = createPreparedYamlProjectWorkerPool({
+        concurrency,
+        operation,
+        createRulesSnapshot: (validationContext) =>
+          createValidationRulesSnapshot(validationContext, validationTopologies),
+      })
       const executor = createPreparedYamlProjectRefreshExecutor(pool, context)
       return {
         ...executor,

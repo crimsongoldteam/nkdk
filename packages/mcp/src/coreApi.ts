@@ -133,20 +133,7 @@ export interface CoreApi {
   }): Promise<XmlSyncState>
 }
 
-export interface CoreProjectStateService {
-  beginImport(params: unknown): Promise<unknown>
-  refreshAndValidate(params: unknown): Promise<unknown>
-  createReadToken(projectDir: string): Promise<unknown>
-  openReadSession(token: unknown): unknown
-  readComponentProjection(params: unknown): Promise<unknown>
-  reset(projectDir: string): Promise<void>
-  rebuild(params: unknown): Promise<{
-    diagnostics: CoreDiagnosticCollection
-    stats: CoreProjectStateStats
-    readToken: unknown
-  }>
-  close(): Promise<void>
-}
+export type CoreProjectStateService = MetadataRuntimeProjectState
 
 export interface CoreProjectStateStats {
   readonly hashedFiles: number

@@ -1,8 +1,8 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
-import { isDeepStrictEqual } from "node:util"
 import { configurationIndexPropertyXmlStateUid } from "../logicalAddress"
 import type { ConfigurationIndexValueFromXMLDescriptor } from "../../ruleRuntime/property/fn"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { getConfigurationIndexCollectionContext } from "./context"
 
 export function collectConfigurationIndexIdentityFromXML(params: {
@@ -50,6 +50,9 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   const address =
     params.logicalAddress ??
     configurationIndexPropertyXmlStateUid(collection.logicalAddress, params.propertyKey, undefined, false)
+  if (params.presentInXML && propertyPresenceCanBeHiddenInYAML(params.rule)) {
+    collection.collector.setXmlFlag(address, "present")
+  }
   if (
     params.descriptor?.xsiNilWhenNotRepresentable === true &&
     hasXsiNil(params.xmlValue) &&
@@ -61,23 +64,10 @@ export function collectConfigurationIndexPropertyFromXML(params: {
     const xsiType = getUnrepresentedXsiType(params.xmlValue)
     if (xsiType !== undefined) collection.collector.setXmlValue(address, "xsiType", xsiType)
   }
-  if (
-    params.presentInXML &&
-    Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLEmpty") &&
-    (params.xmlValue === undefined || params.xmlValue === "") &&
-    !isDeepStrictEqual(params.rule.defaultValueXMLEmpty, params.xmlValue)
-  ) {
+  if (params.presentInXML && isExplicitEmptyXMLValue(params.xmlValue)) {
     collection.collector.setXmlFlag(address, "explicitEmpty")
   }
-  if (
-    params.presentInXML &&
-    isExplicitEmptyXMLValue(params.xmlValue) &&
-    Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLRaw") &&
-    isDeepStrictEqual(params.rule.defaultValueXMLRaw, params.xmlValue)
-  ) {
-    collection.collector.setXmlFlag(address, "explicitEmpty")
-  }
-  const ambiguousScalar = ambiguousImplicitScalarXMLValue(params.rule, params.xmlValue)
+  const ambiguousScalar = omittedScalarXMLValue(params.rule, params.xmlValue, params.presentInXML)
   if (ambiguousScalar !== undefined) {
     collection.collector.setXmlValue(address, "xmlText", ambiguousScalar)
   }
@@ -129,23 +119,49 @@ function isExplicitEmptyXMLValue(value: unknown): boolean {
   return value === undefined || value === "" || (isRecord(value) && Object.keys(value).length === 0)
 }
 
-function ambiguousImplicitScalarXMLValue(rule: PropertyRule, xmlValue: unknown): string | undefined {
+function omittedScalarXMLValue(
+  rule: PropertyRule,
+  xmlValue: unknown,
+  presentInXML: boolean
+): string | undefined {
+  if (!presentInXML) return undefined
+  const scalar =
+    xmlValue !== null && typeof xmlValue === "object" && !Array.isArray(xmlValue) && "#text" in xmlValue
+      ? xmlValue["#text"]
+      : xmlValue
+  if (typeof scalar !== "string" && typeof scalar !== "number" && typeof scalar !== "boolean") return undefined
+  const equalsXMLDefault =
+    Object.prototype.hasOwnProperty.call(rule, "defaultValueXML") &&
+    typeof rule.defaultValueXML !== "function" &&
+    String(scalar) === String(rule.defaultValueXML)
+  if (equalsXMLDefault) return undefined
   if (
-    rule.omitNonImplicitReferenceXMLWhenYAMLMissing !== true ||
     !Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") ||
     typeof rule.implicitValueYAML === "function"
   ) {
     return undefined
   }
-  const scalar =
-    xmlValue !== null && typeof xmlValue === "object" && !Array.isArray(xmlValue) && "#text" in xmlValue
-      ? xmlValue["#text"]
-      : xmlValue
-  if (
-    (typeof scalar !== "string" && typeof scalar !== "number" && typeof scalar !== "boolean") ||
-    String(scalar) !== String(rule.implicitValueYAML)
-  ) {
-    return undefined
-  }
   return String(scalar)
+}
+
+function propertyPresenceCanBeHiddenInYAML(rule: PropertyRule): boolean {
+  if (rule.runtimeOnly === true) return false
+  if (rule.forReferenceOnly === true && rule.evaluateWhenYAMLMissing === true) return true
+  if (rule.yaml === undefined) return false
+  if (rule.toYAML === false) {
+    return (
+      rule.fromXML === false &&
+      rule.evaluateWhenYAMLMissing === true &&
+      Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
+    )
+  }
+  if (getTypeRule(rule.type, "yamlToXMLNestedRule")?.kind === "item") return true
+  return (
+    Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") ||
+    Object.prototype.hasOwnProperty.call(rule, "defaultValue") ||
+    Object.prototype.hasOwnProperty.call(rule, "defaultValueXML") ||
+    Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw") ||
+    Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty") ||
+    rule.excludeIfEqualNameYAML === true
+  )
 }

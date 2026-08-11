@@ -76,6 +76,17 @@ describe("base form YAML", () => {
     })).toEqual({ Значение: 1, Вложенный: { Имя: "Поле" } })
   })
 
+  it("сохраняет смысловое пустое значение", () => {
+    const normalized = normalizeBaseFormYaml({
+      ПараметрыВыбора: { "Отбор.Ссылка": undefined },
+    })
+
+    expect(normalized).toEqual({
+      ПараметрыВыбора: { "Отбор.Ссылка": undefined },
+    })
+    expect(exportToYAML(normalized)).toContain("Отбор.Ссылка:")
+  })
+
   it("сохраняет явные строки списка выбора при нормализации", () => {
     const normalized = normalizeBaseFormYaml({
       СписокВыбора: [{ Представление: "Массив", Значение: explicitYAMLString("Массив") }],

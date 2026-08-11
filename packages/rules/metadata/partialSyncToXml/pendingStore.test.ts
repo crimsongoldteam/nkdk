@@ -87,7 +87,7 @@ describe("ожидающее состояние частичной XML-синх�
 })
 
 function snapshot(indexGeneration: bigint): ConfigurationSnapshot {
-  return { specificationVersion: "1.3", indexGeneration, componentPath: "cf", files: [], entities: [] }
+  return { specificationVersion: "1.4", indexGeneration, componentPath: "cf", files: [], entities: [] }
 }
 
 function createState(

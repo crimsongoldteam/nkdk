@@ -111,7 +111,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual(source)
   })
 
-  it("не восстанавливает XML-значение, исключённое из YAML как implicitValueYAML", () => {
+  it("восстанавливает XML-значение, исключённое из YAML как implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары",
       targetProjectPath: "Справочник/Товары/Свойства.yaml",
@@ -139,7 +139,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({})
+    expect(exported.xml).toEqual({ Mode: { "#text": "Auto" } })
   })
 
   it("не заменяет явно заданный Normal на XML-default QuickAccess", () => {
@@ -181,7 +181,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual(source)
   })
 
-  it("не восстанавливает логическое XML-значение, исключённое из YAML как implicitValueYAML", () => {
+  it("восстанавливает логическое XML-значение, исключённое из YAML как implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -206,7 +206,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({})
+    expect(exported.xml).toEqual({ Enabled: { "#text": "true" } })
   })
 
   it("восстанавливает XML defaults по rules без признака присутствия", () => {
@@ -243,7 +243,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual({ Mode: "Default", Enabled: false })
   })
 
-  it("не восстанавливает системное перечисление, исключённое из YAML как implicitValueYAML", () => {
+  it("восстанавливает системное перечисление, исключённое из YAML как implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -269,10 +269,10 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({})
+    expect(exported.xml).toEqual({ Type: "UsualButton" })
   })
 
-  it("не восстанавливает локализованное логическое implicitValueYAML", () => {
+  it("восстанавливает локализованное логическое implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -297,7 +297,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({})
+    expect(exported.xml).toEqual({ Enabled: { "#text": "false" } })
   })
 
   it("экспортирует вычисленное значение по умолчанию без удалённого признака присутствия", () => {
@@ -461,6 +461,90 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(Object.keys(exported.xml)).toEqual(["InternalInfo", "Properties", "ChildObjects"])
     expect(Object.keys(exported.xml.Properties as object)).toEqual(["Name"])
   })
+
+  it("restores an explicitly empty reference-only property from the index", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Catalog.Товары.Attribute.Код",
+      targetProjectPath: "Справочник/Товары/Свойства.yaml",
+    })
+    const rule = {
+      itemType: "TestDirectItem",
+      xmlOrder: ["internalInfo", "name"],
+      properties: {
+        internalInfo: {
+          type: "InternalInfo",
+          xml: "InternalInfo",
+          forReferenceOnly: true,
+          evaluateWhenYAMLMissing: true,
+          items: [],
+        },
+        name: {
+          type: "string",
+          xml: "Name",
+          xmlParents: ["Properties"],
+          yaml: "Имя",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { InternalInfo: {}, Properties: { Name: "Код" } },
+      name: "Код",
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+      name: "Код",
+    })
+
+    expect(imported.yaml).toEqual({ Имя: "Код" })
+    expect(exported.xml).toEqual({ InternalInfo: {}, Properties: { Name: "Код" } })
+  })
+
+  it("does not create an absent reference-only property in indexed round-trip", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Catalog.Товары.Attribute.Код",
+      targetProjectPath: "Справочник/Товары/Свойства.yaml",
+    })
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        internalInfo: {
+          type: "InternalInfo",
+          xml: "InternalInfo",
+          forReferenceOnly: true,
+          evaluateWhenYAMLMissing: true,
+          items: [],
+        },
+        name: {
+          type: "string",
+          xml: "Name",
+          yaml: "Имя",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { Name: "Код" },
+      name: "Код",
+    })
+    contexts.importContext.fromXML.configurationIndex?.collector.setXmlFlag(
+      "Catalog.Товары.Attribute.Код",
+      "present",
+    )
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+      name: "Код",
+    })
+
+    expect(exported.xml).toEqual({ Name: "Код" })
+  })
+
 
   it("использует XML-имена rules и не сохраняет aliases или present", () => {
     const { context, collector } = contextWithIndex()

@@ -38,7 +38,6 @@ export const prepareFormXML = (params: {
   const yamlObj = params.preparedYamlFile.data as ClientApplicationFormYAML | undefined
   if (yamlObj === undefined)
     throw new Error(`Подготовленные YAML-данные формы отсутствуют: ${params.preparedYamlFile.projectPath}`)
-
   const formDir = dirname(params.preparedYamlFile.filePath)
   const contextWithFormDir = createFormScopedContext({
     context: params.context,
@@ -73,6 +72,13 @@ export const prepareFormXML = (params: {
               ? { baseIndex: requireBaseConfigurationIndex(params), extensionYaml: yamlObj }
               : {}),
             baseYaml: params.baseFormPreparedYamlFile.data as ClientApplicationFormYAML,
+            ...(params.baseFormSourceKind === "projected" &&
+              params.currentConfigurationFormPreparedYamlFile !== undefined
+              ? {
+                  currentConfigurationFormYaml:
+                    params.currentConfigurationFormPreparedYamlFile.data as ClientApplicationFormYAML,
+                }
+              : {}),
             formName: params.formName,
             rule,
           }),

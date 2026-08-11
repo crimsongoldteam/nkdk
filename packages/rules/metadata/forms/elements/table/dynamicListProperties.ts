@@ -4,6 +4,7 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { getConfigurationIndexPropertyXmlValue } from "@nkdk/runtime"
 
 type CompactScalarRule = PropertyRule & {
   yaml: string
@@ -22,7 +23,7 @@ function dynamicListTableProperty<const Rule extends CompactScalarRule>(rule: Ru
 
 function tableSourceProfile(source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) {
   const dataPath = source.raw("dataPath")
-  const resolved = context?.importFromYAML?.resolveTableSourceProfile?.(dataPath)
+  const resolved = context?.importFromYAML?.resolveTableSourceProfile?.(dataPath, source.itemName)
   if (resolved !== undefined) return resolved
   if (typeof dataPath !== "string" || dataPath.trim().length === 0) return "rowFilter"
   const directKind = context?.importFromYAML?.formDataPathIndex?.getRoot(dataPath)?.tableSource?.table.kind
@@ -44,6 +45,15 @@ export function hasRowFilterTableSource(
   source: YAMLPropertySource,
   context?: ConfigurationContextWithExportToXML
 ): boolean {
+  if (
+    context?.exportToXML.configurationIndex !== undefined &&
+    getConfigurationIndexPropertyXmlValue(context, {
+      propertyKey: "rowFilter",
+      yamlKey: "ОтборСтрок",
+    })?.present !== true
+  ) {
+    return false
+  }
   return tableSourceProfile(source, context) === "rowFilter"
 }
 

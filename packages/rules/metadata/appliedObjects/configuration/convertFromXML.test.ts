@@ -254,7 +254,7 @@ describe("sync configuration from xml", () => {
     ]))
     expect(primaryImport.result.warnings).toEqual([])
     expect(primaryImport.snapshot).toMatchObject({
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       componentPath: "cf",
       indexGeneration: 1n,
     })

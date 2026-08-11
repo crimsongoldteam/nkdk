@@ -16,7 +16,6 @@ import { metadataItemLinkRule, metadataItemLinksRule } from "../../commonObjects
 import { usePurposesRule } from "../../commonObjects/usePurposes/types"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
-import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
 import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
@@ -33,6 +32,7 @@ import "../../commonObjects/rootCommandInterface/register"
 import "./configurationChildObjects"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
+import { configurationRootExternalResources } from "./rootExternalResources"
 const configurationProperties = ["Properties"]
 const configurationInternalInfoContainedObjectClassIds = [
   "9cd510cd-abfc-11d4-9434-004095e12fc7",
@@ -490,26 +490,7 @@ export const MetadataConfigurationRules = {
       defaultValueXML: "",
       defaultValueXMLRaw: "",
     }),
-    managedApplicationModule: moduleRule({
-      nkdkPath: "МодульПриложения.bsl",
-      xmlPath: "Ext/ManagedApplicationModule.bsl",
-      syncExternalOnly: true,
-    }),
-    sessionModule: moduleRule({
-      nkdkPath: "МодульСеанса.bsl",
-      xmlPath: "Ext/SessionModule.bsl",
-      syncExternalOnly: true,
-    }),
-    externalConnectionModule: moduleRule({
-      nkdkPath: "МодульВнешнегоСоединения.bsl",
-      xmlPath: "Ext/ExternalConnectionModule.bsl",
-      syncExternalOnly: true,
-    }),
-    ordinaryApplicationModule: moduleRule({
-      nkdkPath: "МодульОбычногоПриложения.bsl",
-      xmlPath: "Ext/OrdinaryApplicationModule.bsl",
-      syncExternalOnly: true,
-    }),
+    ...configurationRootExternalResources,
     commandInterface: rootCommandInterfaceRule({
       yaml: "КомандныйИнтерфейс",
       filePath: "Ext/CommandInterface.xml",
@@ -552,11 +533,6 @@ export const MetadataConfigurationRules = {
       nkdkDir: "Заставка",
       xmlPath: "Ext/Splash.xml",
       payloadXmlDir: "Ext/Splash",
-      syncExternalOnly: true,
-    }),
-    standaloneConfigurationContent: externalFileRule({
-      nkdkPath: "СодержимоеАвтономнойКонфигурации.bin",
-      xmlPath: "Ext/StandaloneConfigurationContent.bin",
       syncExternalOnly: true,
     }),
   },

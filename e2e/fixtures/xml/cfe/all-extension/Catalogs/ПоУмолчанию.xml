@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="03b2965f-b2ec-457e-a422-64948befb0ce">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.ПоУмолчанию" category="Object">
+				<xr:TypeId>a10687cb-a59f-4987-ae9e-2f956586c3a8</xr:TypeId>
+				<xr:ValueId>7df7c30f-9caa-4456-9b8e-72eecca1a4e6</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.ПоУмолчанию" category="Ref">
+				<xr:TypeId>7a1ff4b4-fdfe-4ccb-b575-07f47b5b7bb3</xr:TypeId>
+				<xr:ValueId>e6b4ad38-1526-4a9b-a055-51541a608041</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.ПоУмолчанию" category="Selection">
+				<xr:TypeId>34441751-7e0f-4497-a1d6-a38531063492</xr:TypeId>
+				<xr:ValueId>94fbcf39-cbc1-4045-8e4c-331ada182aea</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.ПоУмолчанию" category="List">
+				<xr:TypeId>ac705369-1e98-4899-b8c1-083895e53861</xr:TypeId>
+				<xr:ValueId>89619f3b-ed4c-498f-ac76-d89037493383</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.ПоУмолчанию" category="Manager">
+				<xr:TypeId>905abcac-25ac-4dd6-b31d-90db1f1f20c0</xr:TypeId>
+				<xr:ValueId>df524539-ceba-4b2e-84f7-e36e81ec4c9f</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПоУмолчанию</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>По умолчанию переименован</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment/>
+			<ExtendedConfigurationObject>63f82a4b-ad4a-4521-a087-ccb33fdb5f14</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</Catalog>
+</MetaDataObject>

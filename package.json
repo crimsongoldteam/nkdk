@@ -18,15 +18,17 @@
     "architecture:report": "node tools/dependency-cruiser/src/report.mjs",
     "check:duplicates": "node scripts/check-new-duplicates.mjs",
     "duplicates": "node scripts/check-new-duplicates.mjs",
-    "type-check": "pnpm --filter \"./packages/*\" -r exec tsc --noEmit",
+    "type-check": "pnpm --filter \"./packages/*\" -r exec tsc --noEmit && tsc --noEmit -p e2e/tsconfig.json",
     "test": "pnpm test:duplicates-script && pnpm -r --workspace-concurrency=1 run test",
     "test:duplicates-script": "node --test scripts/check-new-duplicates.test.mjs",
     "test:isolated": "pnpm -r run test:isolated",
     "test:architecture": "node tools/dependency-cruiser/src/check.mjs",
-    "test:architecture:rules": "node --test tools/dependency-cruiser/test/*.test.mjs",
-    "test:profile": "node packages/rules/scripts/run-test-duration-profile.mjs"
+    "test:architecture:rules": "node --test 'tools/dependency-cruiser/test/*.test.mjs'",
+    "test:profile": "node packages/rules/scripts/run-test-duration-profile.mjs",
+    "test:e2e": "vitest run --config e2e/vitest.config.ts"
   },
   "devDependencies": {
+    "@nkdk/runtime": "workspace:*",
     "@types/node": "^26.1.2",
     "jscpd": "5.0.12",
     "tsc-alias": "^1.9.1",

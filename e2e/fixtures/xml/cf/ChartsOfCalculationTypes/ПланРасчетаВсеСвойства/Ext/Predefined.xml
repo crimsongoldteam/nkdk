@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<PredefinedData xmlns="http://v8.1c.ru/8.3/xcf/predef" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CalculationTypePredefinedItems" version="2.20">
+	<Item id="d4e06a0e-5c3e-4520-a46f-0609bdc6de6a">
+		<Name>Предопределенное2</Name>
+		<Code xsi:type="xs:decimal">0</Code>
+		<Description>Предопределенное2</Description>
+		<ActionPeriodIsBase>false</ActionPeriodIsBase>
+		<Base>
+			<CalculationType>ChartOfCalculationTypes.ПланРасчетаВсеСвойства.ПредопредленноеВсе</CalculationType>
+		</Base>
+		<Leading>
+			<CalculationType>ChartOfCalculationTypes.ПланРасчетаВсеСвойства.ПредопредленноеВсе</CalculationType>
+		</Leading>
+		<Displaced>
+			<CalculationType>ChartOfCalculationTypes.ПланРасчетаВсеСвойства.ПредопредленноеВсе</CalculationType>
+		</Displaced>
+	</Item>
+	<Item id="e21604fe-638e-4106-9c3f-51f04b8d79f8">
+		<Name>ПоУмолчанию</Name>
+		<Code xsi:type="xs:decimal">0</Code>
+		<Description>По умолчанию</Description>
+		<ActionPeriodIsBase>false</ActionPeriodIsBase>
+	</Item>
+	<Item id="2ba8829d-9601-4ae5-908f-99cc3d65e0f9">
+		<Name>ПредопредленноеВсе</Name>
+		<Code xsi:type="xs:decimal">1</Code>
+		<Description>Наименование</Description>
+		<ActionPeriodIsBase>true</ActionPeriodIsBase>
+	</Item>
+</PredefinedData>

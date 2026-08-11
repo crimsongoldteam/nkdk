@@ -26,6 +26,7 @@ import { createLocalIndexesCollector, type LocalIndexes } from "../projectDefini
 import { findRegisteredProjectRule, getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import type { ValidationProfiler } from "../validation/profile"
 import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
 import { expandMetadataPathPattern, matchMetadataPathPattern } from "../resourceTopology/core/patterns"
@@ -86,12 +87,17 @@ export async function prepareImportYaml(params: {
   context: XmlImportConfigurationContext
   collector: ConfigurationIndexCollector
   profiler?: ValidationProfiler
+  topology?: CompiledMetadataResourceTopology
 }): Promise<PreparedImportYaml> {
   let xmlInputs: ParsedImportXmlInput[] | undefined
   try {
     xmlInputs = await readAndParseAssignmentXml(params.assignment.xmlFiles, params.profiler)
     const generatedFiles: ExternalFileEntry[] = []
-    const rule = resolveAssignmentRule(params.assignment, params.context.fromXML.componentKind)
+    const rule = resolveAssignmentRule(
+      params.assignment,
+      params.context.fromXML.componentKind,
+      params.topology,
+    )
     const ownerContext = buildOwnerContext(params.assignment, rule)
     const collectedContext = withConfigurationIndexCollector(
       params.context,
@@ -131,7 +137,7 @@ export async function prepareImportYaml(params: {
         const baseFormXML = (bodyXML?.["Form"] as ClientApplicationFormXML | undefined)?.BaseForm
         const companion = baseFormXML === undefined
           ? undefined
-          : resolveBaseFormCompanion(params.assignment)
+          : resolveBaseFormCompanion(params.assignment, params.topology)
         if (baseFormXML === undefined || companion === undefined) {
           return { ...imported, dependentDeferred: [] }
         }
@@ -226,12 +232,17 @@ export async function prepareImportYaml(params: {
   }
 }
 
-function resolveBaseFormCompanion(assignment: ImportAssignment): {
+function resolveBaseFormCompanion(
+  assignment: ImportAssignment,
+  topology?: CompiledMetadataResourceTopology,
+): {
   targetProjectPath: string
   rule: MetadataItemRule
 } | undefined {
   if (assignment.topologyNodeId === undefined) return undefined
-  const node = compileRegisteredMetadataResourceTopology().assignments.find(({ id }) => id === assignment.topologyNodeId)
+  const node = (topology ?? compileRegisteredMetadataResourceTopology()).assignments.find(
+    ({ id }) => id === assignment.topologyNodeId
+  )
   if (node === undefined) throw new Error(`Не найден узел топологии формы ${assignment.topologyNodeId}`)
   const values = matchMetadataPathPattern(node.projectPattern, assignment.targetProjectPath)
   if (values === undefined) {
@@ -247,11 +258,18 @@ function resolveBaseFormCompanion(assignment: ImportAssignment): {
   }
 }
 
-export function resolveAssignmentRule(assignment: ImportAssignment, componentKind: string): MetadataItemRule {
+export function resolveAssignmentRule(
+  assignment: ImportAssignment,
+  componentKind: string,
+  topology?: CompiledMetadataResourceTopology,
+): MetadataItemRule {
   if (assignment.role === "configuration") return getMetadataComponentDescriptor(componentKind).rootRule
+  if (topology !== undefined && assignment.topologyNodeId === undefined) {
+    throw new Error(`Задание XML-import не связано с узлом topology: ${assignment.targetProjectPath}`)
+  }
   if (assignment.topologyNodeId !== undefined) {
     const node =
-      compileRegisteredMetadataResourceTopology().assignments.find(
+      (topology ?? compileRegisteredMetadataResourceTopology()).assignments.find(
         ({ id }) => id === assignment.topologyNodeId
       )
     if (node === undefined) {

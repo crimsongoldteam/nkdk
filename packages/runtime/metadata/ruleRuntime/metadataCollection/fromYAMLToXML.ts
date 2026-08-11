@@ -46,6 +46,7 @@ export function convertMetadataCollectionFromYAMLToXML(
     source: params.source,
     outputs: params.outputs,
     materializeCanonicalItems: params.materializeCanonicalItems,
+    context: params.context,
   })
   const outputItems = new Map(params.outputs.map(({ key }) => [key, [] as unknown[]]))
   const deferredByOutput = new Map(params.outputs.map(({ key }) => [key, [] as DeferredValuePath[]]))
@@ -202,9 +203,12 @@ function completeCollectionEntries(params: {
   source: YAMLPropertySource | undefined
   outputs: readonly YAMLToXMLOutputRequest[]
   materializeCanonicalItems: true | undefined
+  context: ConfigurationContextWithExportToXML
 }): { yaml: unknown; name?: string }[] {
   if (params.descriptor.yamlShape !== "record") return params.entries
   const referenceNames = collectReferenceNames(params)
+  const savedNames = collectSavedNames(params)
+  const shapeNames = savedNames.length > 0 ? savedNames : referenceNames
   const shouldComplete = params.entries.length > 0 || params.materializeCanonicalItems === true
   const ruleNames =
     shouldComplete && params.propertyRule !== undefined && params.source !== undefined
@@ -216,17 +220,26 @@ function completeCollectionEntries(params: {
   }
   const sourceNames = new Set([
     ...params.entries.flatMap((entry) => entry.name === undefined ? [] : [entry.name]),
-    ...(params.descriptor.preserveReferenceItems === true ? referenceNames : []),
+    ...(params.descriptor.preserveReferenceItems === true ? shapeNames : []),
   ])
   const completedNames =
-    referenceNames.length === 0
+    shapeNames.length === 0
       ? ruleNames
       : ruleNames.filter((name) => sourceNames.has(name))
-  const requestedNames =
-    params.descriptor.preserveReferenceItems === true
-      ? [...completedNames, ...referenceNames.filter((name) => !completedNames.includes(name))]
-      : completedNames
+  const requestedNames = params.descriptor.preserveReferenceItems !== true
+    ? completedNames
+    : savedNames.length > 0
+      ? [...savedNames, ...completedNames.filter((name) => !savedNames.includes(name))]
+      : [...completedNames, ...referenceNames.filter((name) => !completedNames.includes(name))]
   if (requestedNames.length === 0) return params.entries
+
+  const runtime = params.context.exportToXML.configurationIndex
+  if (params.descriptor.preserveReferenceItems === true && runtime !== undefined) {
+    runtime.collector.setOmittedChildren(
+      runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress,
+      { kind: "names", names: requestedNames },
+    )
+  }
 
   const byName = new Map(params.entries.map((entry) => [entry.name, entry]))
   const result = requestedNames.map((name) => byName.get(name) ?? { name, yaml: {} })
@@ -234,6 +247,19 @@ function completeCollectionEntries(params: {
     if (entry.name === undefined || !requestedNames.includes(entry.name)) result.push(entry)
   }
   return result
+}
+
+function collectSavedNames(params: {
+  descriptor: CollectionDescriptor
+  context: ConfigurationContextWithExportToXML
+}): string[] {
+  if (params.descriptor.preserveReferenceItems !== true) return []
+  const saved = params.context.exportToXML.configurationIndex?.omittedChildren()
+  if (saved === undefined) return []
+  if (saved.kind !== "names") {
+    throw new Error(`Коллекция ${params.descriptor.itemRule.itemType} ожидает omittedChildren.kind = names`)
+  }
+  return [...saved.names]
 }
 
 function collectReferenceNames(params: {

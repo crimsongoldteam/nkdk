@@ -13,6 +13,7 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import "../../commonObjects/homePageWorkArea/register"
 import "../../commonObjects/rootCommandInterface/register"
+import { configurationRootExternalResources } from "../configuration/rootExternalResources"
 
 const properties = ["Properties"]
 
@@ -274,6 +275,7 @@ export const MetadataConfigurationExtensionRules = {
       preserveExplicitDefaultXML: true,
       xmlParents: properties,
     }),
+    ...configurationRootExternalResources,
     commandInterface: rootCommandInterfaceRule({
       yaml: "КомандныйИнтерфейс",
       filePath: "Ext/CommandInterface.xml",

@@ -71,6 +71,7 @@ import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/f
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplicationForm/importDataPathCompatibility"
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -103,6 +104,7 @@ interface InitializedImportWorkerState {
   outputDir: string
   projectDir: string
   componentPath: string
+  topology: CompiledMetadataResourceTopology
   schemaCache: ValidationSchemaCache
   rulesSnapshot: ValidationRulesSnapshot
 }
@@ -168,18 +170,24 @@ export async function runImportWorkerCommand(
     preparedYaml.clear()
     assignedImportIds.clear()
     firstPassAccumulator?.fragmentWriter.discard()
+    const projectDir = command.projectDir ?? command.outputDir
+    const componentPath = command.componentPath ?? "cf"
+    const validationComponent = validationProjectComponentFromAddress(projectDir, {
+      componentPath,
+      componentDir: command.outputDir,
+    })
     initializedState = {
       operationId: command.operationId,
       workerIndex: command.workerIndex,
       context: command.context,
       outputDir: command.outputDir,
-      projectDir: command.projectDir ?? command.outputDir,
-      componentPath: command.componentPath ?? "cf",
+      projectDir,
+      componentPath,
+      topology: validationComponent.topology,
       schemaCache: options.persistentValidationState?.schemaCache
         ?? schemaCacheForTests
         ?? createValidationSchemaCache(command.context),
-      rulesSnapshot: options.persistentValidationState?.rulesSnapshot
-        ?? createValidationRulesSnapshot(command.context),
+      rulesSnapshot: createValidationRulesSnapshot(command.context, validationComponent.topology),
     }
     firstPassAccumulator = createFirstPassAccumulator(command.workerIndex)
     return undefined
@@ -294,6 +302,7 @@ async function processSecondPass(
       const written = await writePreparedYamlToOutput(
         prepared,
         secondPass.ownerMetadataCache,
+        secondPass.readSession,
         state,
         accumulator.warnings,
         profiler,
@@ -362,6 +371,7 @@ function endSecondPass(): void {
 async function writePreparedYamlToOutput(
   prepared: DeferredImportYaml,
   ownerMetadataCache: OwnerMetadataCache,
+  readSession: ActiveSecondPass["readSession"],
   state: InitializedImportWorkerState,
   warnings: ImportDiagnostic[],
   profiler: ValidationProfiler
@@ -439,6 +449,14 @@ async function writePreparedYamlToOutput(
         const reason = result.diagnostics.map(({ message }) => message).join("; ")
         return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
       },
+      metadataTargetLookup: (canonical) => {
+        const [result] = readSession.resolveTargets([{
+          requestId: canonical,
+          componentPath: state.componentPath,
+          canonicalTarget: canonical,
+        }])
+        return result?.status ?? "missing"
+      },
       preserveRawXML: false,
     })
   )
@@ -466,11 +484,34 @@ async function writePreparedYamlToOutput(
         state,
         profiler,
       })
+  const baseFormConfigurationFragment = prepared.baseFormCandidate === undefined
+    ? undefined
+    : preparedBaseFormCandidate === undefined
+      ? retargetConfigurationFragment(
+          prepared.baseFormCandidate.configurationFragment,
+          prepared.targetProjectPath,
+        )
+      : prepared.baseFormCandidate.configurationFragment
   return {
     files: [main.file, ...(baseForm === undefined ? [] : [baseForm.file])],
     indexContributions: [validated.index, ...(baseForm === undefined ? [] : [baseForm.indexContribution])],
     finalStates: [validated.final, ...(baseForm === undefined ? [] : [baseForm.finalState])],
-    configurationFragments: baseForm === undefined ? [] : [baseForm.configurationFragment],
+    configurationFragments:
+      baseFormConfigurationFragment === undefined ? [] : [baseFormConfigurationFragment],
+  }
+}
+
+function retargetConfigurationFragment(
+  fragment: ConfigurationSnapshotFragment,
+  targetProjectPath: string,
+): ConfigurationSnapshotFragment {
+  return {
+    ...fragment,
+    targetProjectPath,
+    entities: fragment.entities.map((entity) => ({
+      ...entity,
+      sourceProjectPath: targetProjectPath,
+    })),
   }
 }
 
@@ -677,6 +718,7 @@ async function processFirstPass(
         context: state.context,
         collector,
         profiler,
+        topology: state.topology,
       })
       const fragment = profiler.measure(
         "Подготовка импорта конфигурации",
@@ -1079,6 +1121,13 @@ function importIndexContribution(
       ...validation.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
       ...validation.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
       ...validation.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
+      ...validation.logicalAddresses
+        .filter(({ logicalAddress }) => ![
+          ...validation.objectIndexEntries,
+          ...validation.memberIndexEntries,
+          ...validation.valueIndexEntries,
+        ].some(({ canonical }) => canonical === logicalAddress))
+        .map(({ logicalAddress }) => ({ kind: "object" as const, canonical: logicalAddress })),
     ],
     owners: validation.objectRecords.flatMap(projectStateOwnerFacts),
     fields: validation.objectRecords.flatMap(projectStateFieldEntries),

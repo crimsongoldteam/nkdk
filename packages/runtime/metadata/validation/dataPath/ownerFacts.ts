@@ -1,12 +1,12 @@
-import type { MetadataItem } from "@nkdk/runtime/rule-kit"
+import type { MetadataItem } from "../../ruleRuntime/property/types"
 import type { ObjectFieldIndex, ValidationOwnerFacts, ValidationNamedTypeItems } from "./contracts"
 export type { ValidationOwnerFacts } from "./contracts"
 import type { OwnerTypeRef } from "./types"
-import type { CollectLocalFactsFromYAMLFunction } from "@nkdk/runtime/rule-kit"
-import type { OwnerFactRole } from "@nkdk/runtime/rule-kit"
+import type { CollectLocalFactsFromYAMLFunction } from "../../ruleRuntime/property/importYamlTypes"
+import type { OwnerFactRole } from "../../ruleRuntime/property/ownerFactRole"
 import { indexValueFromYAML } from "../../ruleRuntime/property/indexValueFromYAMLRegistry"
-import { rootFromYAML } from "@nkdk/runtime/rule-kit"
-import { getSystemEnumeration } from "@nkdk/runtime/rule-kit"
+import { rootFromYAML } from "../../ruleRuntime/metadataTarget/roots"
+import { getSystemEnumeration } from "../../ruleRuntime/property/systemEnumerationRegistry"
 import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
 type ValidationOwnerFactsModel = MetadataItem & {
   type?: unknown

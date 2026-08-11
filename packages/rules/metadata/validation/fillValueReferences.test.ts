@@ -1,5 +1,4 @@
 import { beforeAll, describe, expect, it } from "vitest"
-import { resolve } from "node:path"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { serializeYAMLDocument } from "@nkdk/runtime"
@@ -10,11 +9,6 @@ import { extractValidationYamlFacts } from "./yamlFactExtractor"
 import { createValidationSchemaCache } from "./projectValidationPasses"
 import { validateSerializedProjectYaml } from "../importFromXml/serializedYamlValidation"
 import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
-import {
-  createProjectReferenceIndex,
-  createProjectReferenceSnapshot,
-  validatePendingReferencesWithIndex,
-} from "./projectReferenceIndex"
 
 registerCoreMetadata()
 
@@ -80,12 +74,39 @@ describe("fill value references", () => {
           root: "Catalog",
           objectName: "РолиИсполнителей",
         }),
+        tagged: "xml",
       }),
     ])
     expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Исполнитель/ЗначениеЗаполнения")).toEqual([])
   })
 
-  it("reports a missing catalog referenced by a tagged empty owner value", () => {
+  it("не отправляет !xml ссылку DefinedType в обычную семантическую проверку", () => {
+    const facts = extract(`Реквизиты:
+  Автор:
+    Тип: ОпределяемыйТип.АвторДействия
+    ЗначениеЗаполнения: !xml Справочник.Пользователи.Администратор
+`)
+
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({ canonical: "Catalog.Пользователи.Администратор", tagged: "xml" }),
+    ])
+    expect(facts.pendingChecks).toEqual([])
+  })
+
+  it("не отвергает локально совместимую !xml ссылку до компонентного lookup", () => {
+    const facts = extract(`Реквизиты:
+  Получатель:
+    Тип: Справочник.Контрагенты
+    ЗначениеЗаполнения: !xml Справочник.Контрагенты.Поставщик
+`)
+
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({ canonical: "Catalog.Контрагенты.Поставщик", tagged: "xml" }),
+    ])
+    expect(facts.diagnostics.filter(({ path }) => path?.endsWith("/ЗначениеЗаполнения"))).toEqual([])
+  })
+
+  it("сохраняет !xml отсутствующей ссылки для второго прохода", () => {
     const facts = extract(`Владельцы: []
 СтандартныеРеквизиты:
   Владелец:
@@ -94,28 +115,11 @@ describe("fill value references", () => {
     const fillValueReferences = facts.pendingReferences.filter(
       ({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения"
     )
-    const snapshot = createProjectReferenceSnapshot({
-      objectIndexEntries: [],
-      memberIndexEntries: [],
-      valueIndexEntries: [],
-      pendingReferences: fillValueReferences,
-    })
-    const result = validatePendingReferencesWithIndex({
-      index: createProjectReferenceIndex({ projectDir: "/project", snapshot }),
-      references: fillValueReferences,
-    })
-
     expect(fillValueReferences).toEqual([
       expect.objectContaining({
         canonical: "Catalog.ПапкиФайлов.EmptyRef",
         yamlPath: ["СтандартныеРеквизиты", "Владелец", "ЗначениеЗаполнения"],
-      }),
-    ])
-    expect(result.diagnostics).toEqual([
-      expect.objectContaining({
-        filePath: resolve("/project/Справочник/Товары/Свойства.yaml"),
-        message: 'Не найдена ссылка "Catalog.ПапкиФайлов.EmptyRef"',
-        severity: "error",
+        tagged: "xml",
       }),
     ])
   })

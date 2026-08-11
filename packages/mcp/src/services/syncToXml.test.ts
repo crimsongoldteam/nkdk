@@ -1,15 +1,16 @@
-import { mkdirSync, mkdtempSync, rmSync } from "fs"
+import { mkdirSync, mkdtempSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { syncToXml } from "./syncToXml"
 import { createCoreProjectStateTestDouble } from "./projectStateTestSupport"
+import { cleanupTempDirs } from "./testTempDirs"
 
 describe("syncToXml service", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    cleanupTempDirs(tempDirs)
   })
 
   it("returns a full XML sync plan without writing when allowWrite is not true", async () => {

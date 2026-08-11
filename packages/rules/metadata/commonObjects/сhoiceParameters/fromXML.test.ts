@@ -126,6 +126,19 @@ describe("importChoiceParametersFromXML", () => {
     expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
   })
 
+  it("preserves nil value through YAML text", () => {
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(import.meta.url, "nil.xml")
+
+    const imported = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
+    const yamlText = exportToYAML(exportChoiceParametersToYAML(mockContext, mockRule, imported))
+    const reparsedYaml = importFromYAML<ChoiceParametersYAML>(yamlText)
+    const importedFromYaml = importChoiceParametersFromYAML(mockContext, mockRule, reparsedYaml)
+    const exportedXML = exportChoiceParametersToXML(mockContext, mockRule, importedFromYaml)
+    const result = xmlExport({ ChoiceParameters: exportedXML }, false)
+
+    expect(result).toContain('<app:value xsi:nil="true"/>')
+  })
+
   it("should import choice parameters with without value correctly", () => {
     const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
       import.meta.url,

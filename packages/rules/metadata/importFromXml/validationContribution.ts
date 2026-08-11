@@ -4,6 +4,11 @@ import type { MetadataFieldKind, ParsedMetadataTarget } from "@nkdk/runtime/rule
 import type { OwnerMetadata } from "../validation/dataPath/ownerCache"
 import type { ObjectField, ObjectFieldKind } from "../validation/dataPath/objectFields"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
+import {
+  collectAddressableMetadataLogicalAddresses,
+  collectAddressableMetadataObjectEntries,
+  objectTargetForProjectFile,
+} from "../validation/addressableMetadataTargets"
 import { getProjectReferenceMemberIndexContributors } from "../validation/projectReferenceIndexRegistry"
 import {
   projectMemberIndexKey,
@@ -76,6 +81,7 @@ export function extractImportValidationContribution(params: {
       pendingReferences,
     })
   )
+  const canonicalTarget = objectIndexEntries[0]?.canonical
 
   return {
     localDependencies,
@@ -86,7 +92,14 @@ export function extractImportValidationContribution(params: {
       valueIndexEntries: [],
       pendingReferences,
       localDependencies: [],
-      logicalAddresses: [],
+      logicalAddresses: canonicalTarget === undefined
+        ? []
+        : collectAddressableMetadataLogicalAddresses({
+            yaml: params.prepared.yaml,
+            rule: file.itemRule,
+            logicalAddress: params.prepared.assignment.logicalAddress,
+            filePath: params.prepared.assignment.targetProjectPath,
+          }),
     },
   }
 }
@@ -168,35 +181,19 @@ function objectIndexEntriesForFile(file: ValidationProjectFile, yaml: unknown): 
         details: typeof type === "string" ? { type } : {},
       },
     },
+    ...collectAddressableMetadataObjectEntries({
+      yaml,
+      rule: file.itemRule,
+      canonicalTarget: projectObjectIndexKey(target),
+      filePath: file.projectPath,
+    }),
   ]
 }
 
 function objectTargetForFile(
   file: ValidationProjectFile
 ): Extract<ParsedMetadataTarget, { kind: "object" }> | undefined {
-  const root = rootFromYAML[file.owner.dir]
-  if (root === undefined || file.owner.name.length === 0) return undefined
-  const nesting = file.owner.spec.nesting
-  if (nesting?.kind !== "recursiveChildDir") {
-    return { kind: "object", root, objectName: file.owner.name }
-  }
-
-  const parts = file.projectPath.split("/")
-  const rootObjectName = parts[1]
-  if (rootObjectName === undefined || rootObjectName.length === 0) return undefined
-  const nestedNames: string[] = []
-  for (let index = 2; index < parts.length - 2; index += 2) {
-    if (parts[index] !== nesting.childDir) return undefined
-    const objectName = parts[index + 1]
-    if (objectName === undefined || objectName.length === 0) return undefined
-    nestedNames.push(objectName)
-  }
-  return {
-    kind: "object",
-    root,
-    objectName: rootObjectName,
-    segments: nestedNames.map((objectName) => ({ kind: root, objectName })),
-  }
+  return objectTargetForProjectFile(file)
 }
 
 function ownerMemberIndexEntries(params: {
@@ -227,7 +224,12 @@ function ownerMemberIndexEntries(params: {
     spec: params.file.owner.spec,
   }
   for (const contributor of getProjectReferenceMemberIndexContributors()) {
-    for (const entry of contributor({ projectDir: params.projectDir, owner })) {
+    for (const entry of contributor({
+      projectDir: params.projectDir,
+      owner,
+      objectTarget,
+      rawYaml: params.prepared.yaml,
+    })) {
       appendMember(entries, seen, entry)
     }
   }

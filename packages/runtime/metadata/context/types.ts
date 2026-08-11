@@ -38,6 +38,10 @@ export interface JSONSchemaExportContext {
     context: ConfigurationContext
     rule: unknown
   }) => TSchema | undefined
+  requiredPolicy?: {
+    readonly currentBoundary: "full" | "defer"
+    readonly cacheVariant: "full" | "extension-overlay"
+  }
 }
 
 export type ContextElementToEnterprise =

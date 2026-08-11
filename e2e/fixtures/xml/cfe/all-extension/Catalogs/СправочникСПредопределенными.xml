@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="4e3f99bd-79a6-4dc9-8483-b226914074a4">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.СправочникСПредопределенными" category="Object">
+				<xr:TypeId>e0381d32-1cd6-4c30-8bdf-de6e31849c4c</xr:TypeId>
+				<xr:ValueId>8bf62cfa-1f70-4dd8-b0f6-2e4046c1f873</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.СправочникСПредопределенными" category="Ref">
+				<xr:TypeId>6005b15c-0894-4110-84f6-b951308e3001</xr:TypeId>
+				<xr:ValueId>048e005d-33dc-4ee5-bf99-b5ff19aad424</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.СправочникСПредопределенными" category="Selection">
+				<xr:TypeId>092c884b-89a8-4108-b93f-b159aae9dbd0</xr:TypeId>
+				<xr:ValueId>76e012b8-6a52-4cda-89da-91ef4df7675a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.СправочникСПредопределенными" category="List">
+				<xr:TypeId>584ba1cf-2447-4727-8900-e35d517305d8</xr:TypeId>
+				<xr:ValueId>f7743c3a-e47b-4b78-adae-a3023166a0b6</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.СправочникСПредопределенными" category="Manager">
+				<xr:TypeId>beb6192c-abfa-4c32-b715-b3a08659530f</xr:TypeId>
+				<xr:ValueId>c347611c-6572-4bcb-acb2-429789b68b7e</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникСПредопределенными</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>b47a9e20-e2c8-4091-9025-b0cf97b28126</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Form>ФормаВыбора</Form>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

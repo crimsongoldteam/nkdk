@@ -122,6 +122,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
   concurrency: number
   createWorkerPool?: () => PreparedWorkerPool
   operation?: MetadataWorkerOperation
+  createRulesSnapshot?: typeof createValidationRulesSnapshot
 }): PreparedYamlProjectWorkerPool {
   const pools = new Map<number, PreparedWorkerPool>()
   let operationFailed = false
@@ -239,7 +240,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
         return { ...validationStartProfile, reused: true }
       }
 
-      const rulesSnapshot = createValidationRulesSnapshot(context)
+      const rulesSnapshot = (params.createRulesSnapshot ?? createValidationRulesSnapshot)(context)
       const startedAt = performance.now()
       let firstFailure: { readonly reason: unknown } | undefined
       const settled = await Promise.allSettled(
@@ -454,7 +455,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
       return stats
     },
     async runValidationFactPass(factPassParams) {
-      const rulesSnapshot = createValidationRulesSnapshot(factPassParams.context)
+      const rulesSnapshot = (params.createRulesSnapshot ?? createValidationRulesSnapshot)(factPassParams.context)
       const partitions = partitionRoundRobin(factPassParams.files, params.concurrency)
       const results = await Promise.all(
         partitions.map(async (files, index): Promise<ValidationIndexContribution> => {

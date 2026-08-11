@@ -77,9 +77,14 @@ export function convertClientApplicationFormYAMLToXMLCore(
     importFromYAML: {
       ...params.context.importFromYAML,
       formDataPathIndex,
-      resolveTableSourceProfile: (dataPath: unknown) =>
+      resolveTableSourceProfile: (dataPath: unknown, elementName?: string) =>
         classifyTableSource({
-          dataPath,
+          dataPath:
+            dataPath ?? (
+              elementName === undefined
+                ? undefined
+                : formDataPathContext.elementsByName.get(elementName)?.currentConfigurationValue
+            ),
           index: formDataPathIndex,
           ...(resolveDataPath === undefined
             ? {}

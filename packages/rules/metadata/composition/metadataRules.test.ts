@@ -41,19 +41,7 @@ describe("metadataRules", () => {
       const projectRevisionBeforeImport = projectSpecRegistryRevision()
       const referenceRegistryBeforeImport = snapshotProjectReferenceIndexRegistryForTests()
       const dataPathRegistryBeforeImport = snapshotDataPathResolverRegistryForTests()
-      expect(() => getElementRule("InputField")).toThrow()
-      expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
-      expect(() =>
-        getRegisteredXmlImportComponentDescriptor("configuration"),
-      ).toThrow()
-      expect(() =>
-        resolveFullXmlSyncComponentProfile({ kind: "configuration" }),
-      ).toThrow()
-      expect(
-        snapshotLocalYamlValueValidationRegistryForTests().validators.has(
-          "ClientApplicationForm",
-        ),
-      ).toBe(false)
+      expectLegacyMetadataRegistriesEmpty()
 
       const { metadataRules } = await import("./metadataRules")
 
@@ -69,19 +57,7 @@ describe("metadataRules", () => {
       expect(projectSpecRegistryRevision()).toBe(projectRevisionBeforeImport)
       expect(snapshotProjectReferenceIndexRegistryForTests()).toEqual(referenceRegistryBeforeImport)
       expect(snapshotDataPathResolverRegistryForTests()).toEqual(dataPathRegistryBeforeImport)
-      expect(() => getElementRule("InputField")).toThrow()
-      expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
-      expect(() =>
-        getRegisteredXmlImportComponentDescriptor("configuration"),
-      ).toThrow()
-      expect(() =>
-        resolveFullXmlSyncComponentProfile({ kind: "configuration" }),
-      ).toThrow()
-      expect(
-        snapshotLocalYamlValueValidationRegistryForTests().validators.has(
-          "ClientApplicationForm",
-        ),
-      ).toBe(false)
+      expectLegacyMetadataRegistriesEmpty()
       expect(metadataRules.propertyTypes.dateTime?.importFromXML).toBeTypeOf(
         "function",
       )
@@ -135,3 +111,13 @@ describe("metadataRules", () => {
     30_000,
   )
 })
+
+function expectLegacyMetadataRegistriesEmpty(): void {
+  expect(() => getElementRule("InputField")).toThrow()
+  expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
+  expect(() => getRegisteredXmlImportComponentDescriptor("configuration")).toThrow()
+  expect(() => resolveFullXmlSyncComponentProfile({ kind: "configuration" })).toThrow()
+  expect(
+    snapshotLocalYamlValueValidationRegistryForTests().validators.has("ClientApplicationForm"),
+  ).toBe(false)
+}

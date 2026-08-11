@@ -41,6 +41,12 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
                 }
               : {}),
             baseYaml: baseFormYAML as ClientApplicationFormYAML,
+            ...(selectedBase?.baseFormSourceKind === "projected"
+              ? {
+                  currentConfigurationFormYaml:
+                    selectedBase.currentConfigurationFormYAML as ClientApplicationFormYAML,
+                }
+              : {}),
             formName: name,
             rule,
           })
@@ -52,7 +58,9 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
         referenceFormXML: referenceXML?.Form as ClientApplicationFormXML | undefined,
         ...(baseFormXML === undefined ? {} : { baseFormXML }),
         ...(selectedBase === undefined
-          ? {}
+          ? baseYAMLContext === undefined && baseFormYAML !== undefined
+            ? { currentConfigurationFormYaml: baseFormYAML as ClientApplicationFormYAML }
+            : {}
           : {
               currentConfigurationFormYaml:
                 selectedBase.currentConfigurationFormYAML as ClientApplicationFormYAML,

@@ -8,7 +8,11 @@ import {
   projectXmlExportOwnerChain,
 } from "./xmlExportProjection"
 
-const rule = { itemType: "TestObject", properties: {} } as MetadataItemRule
+const rule = {
+  itemType: "TestObject",
+  properties: {},
+  metadataTargetOwner: { kind: "self", root: "Catalog" },
+} as MetadataItemRule
 const source = { kind: "itemRule" as const, description: "test" }
 
 describe("XML export topology projection", () => {
@@ -58,9 +62,21 @@ describe("XML export topology projection", () => {
   })
 
   it("projects the complete owner chain from root to immediate owner", () => {
-    const ownerRule = { itemType: "TestOwner", properties: {} } as MetadataItemRule
-    const childRule = { itemType: "TestChild", properties: {} } as MetadataItemRule
-    const nestedRule = { itemType: "TestNested", properties: {} } as MetadataItemRule
+    const ownerRule = {
+      itemType: "TestOwner",
+      properties: {},
+      metadataTargetOwner: { kind: "self", root: "Catalog" },
+    } as MetadataItemRule
+    const childRule = {
+      itemType: "TestChild",
+      properties: {},
+      externalMetadata: { segment: "Child", placement: "ownedEntry" },
+    } as MetadataItemRule
+    const nestedRule = {
+      itemType: "TestNested",
+      properties: {},
+      externalMetadata: { segment: "Nested", placement: "ownedEntry" },
+    } as MetadataItemRule
     const topology = compileMetadataResourceTopology([
       {
         dir: "Объект",

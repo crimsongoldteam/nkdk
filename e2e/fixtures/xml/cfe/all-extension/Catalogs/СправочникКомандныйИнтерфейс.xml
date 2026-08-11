@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="38b560fc-7679-421b-97ef-a4e6e3c2fa30">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.СправочникКомандныйИнтерфейс" category="Object">
+				<xr:TypeId>3ba88faf-9d7f-4c85-bb0e-8376ed06c105</xr:TypeId>
+				<xr:ValueId>c097f51a-1bae-4da8-9dba-f125252d5290</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.СправочникКомандныйИнтерфейс" category="Ref">
+				<xr:TypeId>eba4d92a-7a49-4378-891b-8fadaec7e243</xr:TypeId>
+				<xr:ValueId>7b2dadb9-0e76-4182-b843-ba3d738c13b3</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.СправочникКомандныйИнтерфейс" category="Selection">
+				<xr:TypeId>5e49b57a-4c75-46ee-89cb-9aa329d702e5</xr:TypeId>
+				<xr:ValueId>9f23db29-3645-4413-aeac-4e5806bc28c8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.СправочникКомандныйИнтерфейс" category="List">
+				<xr:TypeId>fb4d2fad-c057-4ebf-8b82-fec2d4c396ae</xr:TypeId>
+				<xr:ValueId>fe663ce1-eab6-46da-9526-6c69cd49ed61</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.СправочникКомандныйИнтерфейс" category="Manager">
+				<xr:TypeId>295f7aeb-016a-4c65-91ca-e9f10556b92f</xr:TypeId>
+				<xr:ValueId>d4d1b331-a53c-4764-8724-2c6bf5231dab</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникКомандныйИнтерфейс</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>600e1684-aa0a-495c-b40e-f76eb682746e</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Form>ФормаЭлемента</Form>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

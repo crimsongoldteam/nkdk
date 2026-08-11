@@ -44,7 +44,7 @@ describe("shared configuration index snapshot", () => {
     expect(first.snapshot.sourceEntityRanges).toBe(second.snapshot.sourceEntityRanges)
 
     expect(first.header()).toEqual({
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       indexGeneration: 7n,
       componentPath: "cf",
     })
@@ -203,7 +203,7 @@ describe("shared configuration index snapshot", () => {
 
     const snapshot = await readConfigurationIndexSnapshot({ projectDir, address: { kind: "configuration" } })
     expect(createConfigurationIndexReader(snapshot).header()).toEqual({
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       indexGeneration: 7n,
       componentPath: "cf",
     })

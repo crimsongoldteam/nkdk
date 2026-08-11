@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Cube uuid="f331dc24-7f45-4b3e-a993-becbd182ba81">
+		<InternalInfo>
+			<xr:GeneratedType name="ExternalDataSourceCubeManager.ВнешнийИсточникДанныхВсеСвойства.КубПоУмолчанию" category="Manager">
+				<xr:TypeId>947994bc-4a29-419b-b662-96881db6557c</xr:TypeId>
+				<xr:ValueId>087a46a2-18fd-40fe-8c7c-e71e6e183cc7</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeList.ВнешнийИсточникДанныхВсеСвойства.КубПоУмолчанию" category="List">
+				<xr:TypeId>4feb4fef-0431-4545-9569-8bdf1498b2b9</xr:TypeId>
+				<xr:ValueId>28f5c388-acb2-4956-a237-8bfcb98d6f97</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeRecordSet.ВнешнийИсточникДанныхВсеСвойства.КубПоУмолчанию" category="RecordSet">
+				<xr:TypeId>6e430607-6dce-497e-abc1-782c577469de</xr:TypeId>
+				<xr:ValueId>ee85f299-51be-4b05-a744-eb30db78c0b8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeRecord.ВнешнийИсточникДанныхВсеСвойства.КубПоУмолчанию" category="Record">
+				<xr:TypeId>133ca114-4a1a-4445-8c2d-4322da501ec9</xr:TypeId>
+				<xr:ValueId>bf85df8e-3a26-40c2-802c-fcaa796834a2</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeRecordKey.ВнешнийИсточникДанныхВсеСвойства.КубПоУмолчанию" category="RecordKey">
+				<xr:TypeId>d1fc530c-d2db-49fe-8dc1-3e52ea911bf2</xr:TypeId>
+				<xr:ValueId>7de446d8-7ac4-4907-9d1a-e17fdd3609eb</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeRecordManager.ВнешнийИсточникДанныхВсеСвойства.КубПоУмолчанию" category="RecordManager">
+				<xr:TypeId>d17477cd-aa51-4f53-8241-1cbd8e1243cd</xr:TypeId>
+				<xr:ValueId>52f0165f-f851-47a9-87e4-52d74ce6b283</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeDimensionsTablesManager.ВнешнийИсточникДанныхВсеСвойства.КубПоУмолчанию" category="DimensionTables">
+				<xr:TypeId>390125d1-edc7-4fee-9fcb-71ff1f30bd46</xr:TypeId>
+				<xr:ValueId>18179d1a-164f-4100-9850-535c378143cf</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>КубПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>1d32adeb-3b76-4685-9e6a-21ca3abde728</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</Cube>
+</MetaDataObject>

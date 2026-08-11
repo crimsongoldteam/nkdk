@@ -115,6 +115,26 @@ describe("HomePageWorkArea YAML → XML", () => {
     expect(roundTrip(HOME_PAGE_WORK_AREA_XML)).toBe(normalizeXML(HOME_PAGE_WORK_AREA_XML))
   })
 
+  it("restores an explicitly empty column from the index without reference XML", () => {
+    const xmlString = HOME_PAGE_WORK_AREA_XML.replace(
+      /\t<RightColumn>[\s\S]*?\t<\/RightColumn>/,
+      "\t<RightColumn/>"
+    )
+    const contexts = createDirectRoundTripContexts()
+    const imported = testMetadataItemFromXMLToYAML({
+      rule: HomePageWorkAreaRules,
+      xml: importContentFromXML(xmlString),
+      context: contexts.importContext,
+    }).yaml as HomePageWorkAreaYAML
+    const exported = testMetadataItemFromYAMLToXML({
+      rule: HomePageWorkAreaRules,
+      yaml: imported,
+      context: contexts.exportContext(),
+    })
+
+    expect(normalizeXML(serializeDirectXML(exported.xml))).toBe(normalizeXML(xmlString))
+  })
+
   it("writes full role names after YAML import", () => {
     expect(exportYAML(yaml)).toContain('<xr:Value name="Role.Администратор">false</xr:Value>')
   })

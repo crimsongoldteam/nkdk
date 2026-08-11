@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Document uuid="3fec8f80-dbf4-41da-9178-87a0a4d1821b">
+		<InternalInfo>
+			<xr:GeneratedType name="DocumentObject.ДокументКнопкаСПараметрами" category="Object">
+				<xr:TypeId>32660cdb-8356-43ac-b476-e8970496c7c9</xr:TypeId>
+				<xr:ValueId>fb7b8cd5-d18c-4fad-9dce-c69dfd882aa2</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentRef.ДокументКнопкаСПараметрами" category="Ref">
+				<xr:TypeId>11312485-ce30-4446-89bf-92d681ccd796</xr:TypeId>
+				<xr:ValueId>00065db4-aecb-4e45-bf8d-2ad9dfc42e83</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentSelection.ДокументКнопкаСПараметрами" category="Selection">
+				<xr:TypeId>39388e46-93bc-43e5-bed8-dfa45e52eaf5</xr:TypeId>
+				<xr:ValueId>69335512-9ea3-4d1a-a144-0f070e5c9086</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentList.ДокументКнопкаСПараметрами" category="List">
+				<xr:TypeId>05ace31e-1656-4d86-a160-ccfd194fd6d2</xr:TypeId>
+				<xr:ValueId>46b138a9-e0f4-4891-83ec-38f0b42f451e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentManager.ДокументКнопкаСПараметрами" category="Manager">
+				<xr:TypeId>96838ca4-aa66-4e1c-bca3-ab4ec4c83e99</xr:TypeId>
+				<xr:ValueId>1fbda6c5-018b-4852-adf5-89211f4f3686</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ДокументКнопкаСПараметрами</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>b143f868-111c-4446-a622-42513cdc675f</ExtendedConfigurationObject>
+			<RegisterRecords/>
+		</Properties>
+		<ChildObjects>
+			<Form>ФормаДокумента</Form>
+		</ChildObjects>
+	</Document>
+</MetaDataObject>

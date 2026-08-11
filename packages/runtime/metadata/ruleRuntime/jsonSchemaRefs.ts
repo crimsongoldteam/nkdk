@@ -103,6 +103,7 @@ export function createJSONSchemaExportContext(
     validationPropertyRefs?: true
     defineSchema?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["defineSchema"]
     propertyRef?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["propertyRef"]
+    requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"]
   } = {}
 ): ConfigurationContext {
   return {
@@ -125,6 +126,7 @@ export function createJSONSchemaExportContext(
       ...(options.propertyRef === undefined
         ? {}
         : { propertyRef: options.propertyRef }),
+      ...(options.requiredPolicy === undefined ? {} : { requiredPolicy: options.requiredPolicy }),
     },
   }
 }

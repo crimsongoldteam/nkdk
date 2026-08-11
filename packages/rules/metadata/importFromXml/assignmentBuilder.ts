@@ -7,6 +7,7 @@ export interface ImportAssignmentGroup {
     itemType: string
     logicalAddressSegment?: string
     topologyNodeId?: string
+    itemName?: string
   }
   values: Record<string, string>
   targetProjectPath: string
@@ -41,7 +42,7 @@ function createAssignment(group: ImportAssignmentGroup, context: AssignmentBuild
   const existing = context.assignmentByGroup.get(group)
   if (existing !== undefined) return existing
 
-  const itemName = assignmentItemName(group.targetProjectPath)
+  const itemName = group.definition.itemName ?? assignmentItemName(group.targetProjectPath)
   const ownerGroup = findOwnerGroup(group, context)
   const owner = ownerGroup === undefined ? undefined : assignmentIdentity(ownerGroup, context)
   const logicalAddressSegment = group.definition.logicalAddressSegment ?? group.definition.itemType

@@ -23,4 +23,5 @@ export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   itemRule: MetadataExternalDataSourceCubeDimensionRules,
   xmlElement: "Dimension",
   keyField: "name",
+  configurationIndexUidSegment: "Измерение",
 })

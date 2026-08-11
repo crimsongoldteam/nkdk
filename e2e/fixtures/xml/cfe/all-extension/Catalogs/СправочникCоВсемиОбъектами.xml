@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="87a18c10-e6fe-43b6-a0fa-4402ec36fec8">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.СправочникCоВсемиОбъектами" category="Object">
+				<xr:TypeId>d70b1579-0fab-4672-914d-a36fcba877ae</xr:TypeId>
+				<xr:ValueId>da8dc0d8-16a9-4e42-a45d-dc536ff2a304</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.СправочникCоВсемиОбъектами" category="Ref">
+				<xr:TypeId>17778fca-5cbf-46f0-ad66-a2303004f3ce</xr:TypeId>
+				<xr:ValueId>b482f0d7-ef89-406d-994d-f7cc697a105c</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.СправочникCоВсемиОбъектами" category="Selection">
+				<xr:TypeId>817f7077-12b4-4771-bd1c-ca064b77a4e9</xr:TypeId>
+				<xr:ValueId>26356e17-04fd-4b96-b0d9-da737852ab56</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.СправочникCоВсемиОбъектами" category="List">
+				<xr:TypeId>6f6a5472-cba3-48a3-b1b6-ef8dc5e9983b</xr:TypeId>
+				<xr:ValueId>e2b61f95-f4c4-4a7c-b357-0f58e4a7ec23</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.СправочникCоВсемиОбъектами" category="Manager">
+				<xr:TypeId>f773e808-28fe-40a0-b6a4-e2997cf6e811</xr:TypeId>
+				<xr:ValueId>0dba66cc-0c46-4a97-a7ca-deaf7bd8a36f</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникCоВсемиОбъектами</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>85c9d17e-a93a-47e6-ab54-9c37126fb1fa</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Form>ФормаЭлемента</Form>
+			<Template>Макет</Template>
+			<Command uuid="43800eb6-9d68-440a-a253-abbf73e2caf0">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>КомандаОбъекта</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>4821cd22-e050-4824-a4aa-452f4bfcd803</ExtendedConfigurationObject>
+					<Group>NavigationPanelImportant</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

@@ -19,4 +19,5 @@ export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   itemRule: MetadataExternalDataSourceFieldRules,
   xmlElement: "Field",
   keyField: "name",
+  configurationIndexUidSegment: "Поле",
 })

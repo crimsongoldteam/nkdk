@@ -1,4 +1,4 @@
-import type { ParsedYaml } from "@nkdk/runtime"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type {
   FormDataPathIndex,
   FormDataPathTabularElementDeclaration,

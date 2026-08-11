@@ -9,7 +9,9 @@ describe("findReferences service", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    while (tempDirs.length > 0) {
+      rmSync(tempDirs.shift()!, { recursive: true, force: true })
+    }
   })
 
   it("passes selected component operation path to core without requiring write mode", async () => {

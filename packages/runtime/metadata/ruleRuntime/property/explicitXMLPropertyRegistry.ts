@@ -41,6 +41,16 @@ export type ExplicitXMLPropertyAction =
 const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
 const typeRegistrations = new Map<string, ExplicitXMLPropertyTypeRegistration>()
 
+export interface ExplicitXMLPropertyRegistryView {
+  readonly properties: ReadonlyMap<string, ExplicitXMLPropertyRegistration>
+  readonly propertyTypes: ReadonlyMap<string, ExplicitXMLPropertyTypeRegistration>
+}
+
+const globalRegistryView: ExplicitXMLPropertyRegistryView = {
+  properties: registrations,
+  propertyTypes: typeRegistrations,
+}
+
 export function registerExplicitXMLProperty(registration: ExplicitXMLPropertyRegistration): void {
   const key = registrationKey(registration.itemType, registration.propertyKey)
   const current = registrations.get(key)
@@ -99,17 +109,17 @@ export function matchExplicitXMLPropertyTypeFromXML(params: {
 export function collectExplicitXMLPropertyActions(params: {
   readonly yaml: unknown
   readonly itemType: string
-  readonly properties: Readonly<Record<string, { readonly type: string; readonly yaml?: string }>>
-}): ReadonlyMap<string, ExplicitXMLPropertyAction> {
+  readonly properties: Readonly<Record<string, { readonly type?: string; readonly yaml?: string }>>
+}, registry: ExplicitXMLPropertyRegistryView = globalRegistryView): ReadonlyMap<string, ExplicitXMLPropertyAction> {
   const actions = new Map<string, ExplicitXMLPropertyAction>()
   if (typeof params.yaml !== "object" || params.yaml === null || Array.isArray(params.yaml)) return actions
   const yaml = params.yaml as Record<string, unknown>
   for (const [propertyKey, rule] of Object.entries(params.properties)) {
     if (typeof rule.yaml !== "string") continue
     if (!Object.prototype.hasOwnProperty.call(yaml, rule.yaml)) continue
-    const registration = registrations.get(registrationKey(params.itemType, propertyKey))
+    const registration = registry.properties.get(registrationKey(params.itemType, propertyKey))
     if (registration === undefined) {
-      const typeRegistration = typeRegistrations.get(rule.type)
+      const typeRegistration = rule.type === undefined ? undefined : registry.propertyTypes.get(rule.type)
       const rawValue = yaml[rule.yaml]
       if (
         typeRegistration === undefined ||
@@ -156,11 +166,12 @@ export function hasExplicitXMLPropertyRegistration(itemType: string, propertyKey
 export function explicitXMLPropertyValidationMode(
   itemType: string,
   propertyKey: string,
-  propertyType?: string
+  propertyType?: string,
+  registry: ExplicitXMLPropertyRegistryView = globalRegistryView,
 ): "empty" | "scalar" | undefined {
-  const registration = registrations.get(registrationKey(itemType, propertyKey))
+  const registration = registry.properties.get(registrationKey(itemType, propertyKey))
   if (registration !== undefined) return registration.action === "transportScalar" ? "scalar" : "empty"
-  return propertyType !== undefined && typeRegistrations.has(propertyType) ? "empty" : undefined
+  return propertyType !== undefined && registry.propertyTypes.has(propertyType) ? "empty" : undefined
 }
 
 function sameRegistration(
@@ -179,6 +190,6 @@ function sameRegistration(
     ("xmlValue" in left && "xmlValue" in right && Object.is(left.xmlValue, right.xmlValue))
 }
 
-function registrationKey(itemType: string, propertyKey: string): string {
+export function registrationKey(itemType: string, propertyKey: string): string {
   return `${itemType}\0${propertyKey}`
 }

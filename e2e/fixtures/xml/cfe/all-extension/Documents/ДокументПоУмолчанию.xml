@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Document uuid="4c967008-e832-435c-9bbd-1a2b9adbb363">
+		<InternalInfo>
+			<xr:GeneratedType name="DocumentObject.ДокументПоУмолчанию" category="Object">
+				<xr:TypeId>0e9c287d-740d-47ad-bbda-1c8a022534ec</xr:TypeId>
+				<xr:ValueId>66fbaa9f-18e3-4926-9796-b2d3c4152a0b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentRef.ДокументПоУмолчанию" category="Ref">
+				<xr:TypeId>fe6d71cc-f505-44ad-8ec3-71b9af2a524d</xr:TypeId>
+				<xr:ValueId>edfa8ace-6284-4649-a653-20626f6ad71e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentSelection.ДокументПоУмолчанию" category="Selection">
+				<xr:TypeId>914b1565-9dc1-4550-ba57-3d37363ca5d1</xr:TypeId>
+				<xr:ValueId>f0252540-c725-4719-909c-d67686063e93</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentList.ДокументПоУмолчанию" category="List">
+				<xr:TypeId>980eeb3f-042e-43c7-a145-d416436b3b21</xr:TypeId>
+				<xr:ValueId>e8ef7339-d608-48ca-87bf-bd46a3117f4b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentManager.ДокументПоУмолчанию" category="Manager">
+				<xr:TypeId>27236609-ab0d-4029-9f84-6a81b9abf15c</xr:TypeId>
+				<xr:ValueId>1ddbae42-8a14-4e6f-b915-7d72547ca575</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ДокументПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>3f6ea743-1a32-4c34-aa36-e2e5cfbc61be</ExtendedConfigurationObject>
+			<RegisterRecords>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.РегистрСведенийПодчиненРегистраторуExt</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">AccumulationRegister.РегистрНакопленияПоУмолчаниюExt</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">AccountingRegister.РегистрБухгалтерииПоУмолчаниюExt</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">AccumulationRegister.РегистрНакопленияВсеСвойстваОборотыExt</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">AccumulationRegister.РегистрНакопления1Ext</xr:Item>
+			</RegisterRecords>
+		</Properties>
+		<ChildObjects/>
+	</Document>
+</MetaDataObject>
