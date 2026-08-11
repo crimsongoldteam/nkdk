@@ -2,14 +2,18 @@ import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "@nkdk/runtime"
 import {
   attachCollectedSchemaRefs,
-  collectSchemaRefs,
   createJSONSchemaExportContext,
-  decodeValidationSchemaKey,
   encodeValidationSchemaKey,
   JSON_SCHEMA_REF_PREFIX,
-  stripCollectedSchemaRefs,
 } from "../ruleRuntime/jsonSchemaRefs"
-import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
+import type {
+  MetadataItemRule,
+  PropertyRule,
+  RuleRegistrySet,
+  RuleSchemaGraph,
+  RuleSchemaGraphRoot,
+} from "@nkdk/runtime/rule-kit"
+import { createRuleSchemaRuntime } from "@nkdk/runtime/rule-kit"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import { defineMetadataRules, type MetadataRulesDefinition } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
@@ -28,24 +32,8 @@ interface JSONSchemaExportSession {
   readonly defineSchema: (name: string, exporter: SchemaExporter) => void
 }
 
-export type JSONSchemaGraphRoot =
-  | {
-      key: string
-      name: string
-      rule?: never
-      includeNestedChildItems?: boolean
-    }
-  | {
-      key: string
-      rule: MetadataItemRule
-      name?: never
-      includeNestedChildItems?: boolean
-    }
-
-export interface JSONSchemaGraph {
-  roots: Record<string, TSchema>
-  schemas: Record<string, TSchema>
-}
+export type JSONSchemaGraphRoot = RuleSchemaGraphRoot
+export type JSONSchemaGraph = RuleSchemaGraph
 
 export function listJSONSchemaNames(): string[] {
   const contextual = currentSchemaRegistry()
@@ -102,64 +90,16 @@ export function exportJSONSchemaGraph(params: {
   validationPropertyRefs?: true
   requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"]
 }): JSONSchemaGraph {
-  const roots: Record<string, TSchema> = {}
-  const schemas: Record<string, TSchema> = {}
-  const pendingRefs: string[] = []
-  const mode = params.validationPropertyRefs === true ? "externalRefs" : (params.mode ?? "externalRefs")
-  const session = createJSONSchemaExportSession()
-
-  for (const root of params.roots) {
-    const schema =
-      root.rule === undefined
-        ? exportJSONSchemaForSchemaNameInSession({
-            context: params.context,
-            name: root.name,
-            mode,
-            excludeImplicitValueYAML: params.excludeImplicitValueYAML,
-            includeNestedChildItems: root.includeNestedChildItems,
-            validationPropertyRefs: params.validationPropertyRefs,
-            requiredPolicy: params.requiredPolicy,
-          }, session)
-        : exportJSONSchemaForMetadataItemRuleInSession({
-            context: params.context,
-            rule: root.rule,
-            mode,
-            excludeImplicitValueYAML: params.excludeImplicitValueYAML,
-            includeNestedChildItems: root.includeNestedChildItems,
-            validationPropertyRefs: params.validationPropertyRefs,
-            requiredPolicy: params.requiredPolicy,
-          }, session)
-    const rewritten = params.validationPropertyRefs === true
-      ? rewriteValidationRefs(params.context, schema)
-      : schema
-    roots[root.key] = rewritten
-    pendingRefs.push(...collectSchemaRefs(rewritten))
+  const rules = currentRuleRegistrySet<RuleRegistrySet>()
+  if (rules === undefined) {
+    throw new ProjectFileSchemaError("Metadata rules runtime не задан")
   }
-
-  for (let index = 0; index < pendingRefs.length; index += 1) {
-    const ref = pendingRefs[index]
-    if (ref === undefined || schemas[ref] !== undefined) continue
-
-    const name = params.validationPropertyRefs === true
-      ? validationSchemaName(params.context, ref)
-      : schemaNameFromRef(ref)
-    const exported = exportJSONSchemaForSchemaNameInSession({
-      context: params.context,
-      name,
-      mode,
-      excludeImplicitValueYAML: params.excludeImplicitValueYAML,
-      validationPropertyRefs: params.validationPropertyRefs,
-      requiredPolicy: params.requiredPolicy,
-    }, session)
-    const schema = withSchemaId(ref, params.validationPropertyRefs === true
-      ? rewriteValidationRefs(params.context, exported)
-      : exported)
-
-    schemas[ref] = schema
-    pendingRefs.push(...collectSchemaRefs(schema))
-  }
-
-  return { roots, schemas }
+  return createRuleSchemaRuntime(
+    rules,
+    (name, available) => new ProjectFileSchemaError(
+      `Неизвестная JSON Schema "${name}". Доступные имена: ${available.join(", ")}`,
+    ),
+  ).exportGraph(params)
 }
 
 export function exportJSONSchemaForMetadataItemRule(params: {
@@ -206,27 +146,6 @@ function exportJSONSchemaForMetadataItemRuleInSession(params: {
   return mode === "externalRefs"
     ? attachCollectedSchemaRefs(schemaContext, schema)
     : schema
-}
-
-function validationSchemaName(context: ConfigurationContext, ref: string): string {
-  const prefix = `${JSON_SCHEMA_REF_PREFIX}validation/${context.version}/${context.defaultLanguage}/`
-  if (!ref.startsWith(prefix)) throw new ProjectFileSchemaError(`Некорректная validation JSON Schema ссылка "${ref}"`)
-  return decodeValidationSchemaKey(ref.slice(prefix.length))
-}
-
-function rewriteValidationRefs(context: ConfigurationContext, schema: TSchema): TSchema {
-  const prefix = `${JSON_SCHEMA_REF_PREFIX}validation/${context.version}/${context.defaultLanguage}/`
-  const rewrite = (value: unknown): unknown => {
-    if (typeof value === "string" && value.startsWith(JSON_SCHEMA_REF_PREFIX) && !value.startsWith(prefix)) {
-      return `${prefix}${encodeValidationSchemaKey(value.slice(JSON_SCHEMA_REF_PREFIX.length))}`
-    }
-    if (Array.isArray(value)) return value.map(rewrite)
-    if (value === null || typeof value !== "object") return value
-    return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, entry]) => {
-      return [key, rewrite(entry)]
-    }))
-  }
-  return rewrite(schema) as TSchema
 }
 
 export function schemaNameFromRef(ref: string): string {
@@ -299,8 +218,4 @@ function createJSONSchemaExportSession(): JSONSchemaExportSession {
       exporters.set(name, exporter)
     },
   }
-}
-
-function withSchemaId(ref: string, schema: TSchema): TSchema {
-  return { ...stripCollectedSchemaRefs(schema), $id: ref } as TSchema
 }

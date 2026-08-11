@@ -239,25 +239,15 @@ function compileProjectPropertiesSchema(
   variant: ValidationSchemaVariant,
   runtime?: RuleSchemaRuntime,
 ): CompiledSchema {
-  if (runtime !== undefined) {
-    return compileValidationSchema(runtime.exportRule({
-      context,
-      rule,
-      mode: "inline",
-      excludeImplicitValueYAML: true,
-      explicitXMLValues: true,
-      requiredPolicy: requiredPolicy(variant),
-    }))
-  }
-  const graph = exportJSONSchemaGraph({
+  return compileRuleValidationSchema({
     context,
+    rule,
+    variant,
+    runtime,
+    rootKey: "properties",
     excludeImplicitValueYAML: true,
-    validationPropertyRefs: true,
-    roots: [{ key: "properties", rule }],
-    requiredPolicy: requiredPolicy(variant),
+    stripRootRefs: true,
   })
-  const rootSchema = stripCollectedSchemaRefs(graph.roots["properties"]!)
-  return compileValidationSchema(graph.schemas, rootSchema)
 }
 
 function validationProjectPropertyRules(): MetadataItemRule[] {
@@ -294,32 +284,49 @@ function compileRegisteredFormSchema(
   const cached = schemasByContext?.get(cacheKey)
   if (cached !== undefined) return cached
 
-  if (runtime !== undefined) {
-    const compiled = compileValidationSchema(runtime.exportRule({
-      context,
-      rule,
-      mode: "inline",
-      includeNestedChildItems: true,
-      explicitXMLValues: true,
-      requiredPolicy: requiredPolicy(variant),
-    }))
-    schemasByContext ??= new Map()
-    schemasByContext.set(cacheKey, compiled)
-    formSchemaCache.set(rule, schemasByContext)
-    return compiled
-  }
-
-  const graph = exportJSONSchemaGraph({
+  const compiled = compileRuleValidationSchema({
     context,
-    validationPropertyRefs: true,
-    roots: [{ key: "form", rule, includeNestedChildItems: true }],
-    requiredPolicy: requiredPolicy(variant),
+    rule,
+    variant,
+    runtime,
+    rootKey: "form",
+    includeNestedChildItems: true,
   })
-  const compiled = compileValidationSchema(graph.schemas, graph.roots["form"]!)
   schemasByContext ??= new Map()
   schemasByContext.set(cacheKey, compiled)
   formSchemaCache.set(rule, schemasByContext)
   return compiled
+}
+
+function compileRuleValidationSchema(params: {
+  context: ConfigurationContext
+  rule: MetadataItemRule
+  variant: ValidationSchemaVariant
+  runtime?: RuleSchemaRuntime
+  rootKey: string
+  includeNestedChildItems?: boolean
+  excludeImplicitValueYAML?: boolean
+  stripRootRefs?: boolean
+}): CompiledSchema {
+  const common = {
+    context: params.context,
+    excludeImplicitValueYAML: params.excludeImplicitValueYAML,
+    validationPropertyRefs: true as const,
+    roots: [{
+      key: params.rootKey,
+      rule: params.rule,
+      includeNestedChildItems: params.includeNestedChildItems,
+    }],
+    requiredPolicy: requiredPolicy(params.variant),
+  }
+  const graph = params.runtime === undefined
+    ? exportJSONSchemaGraph(common)
+    : params.runtime.exportGraph({ ...common, explicitXMLValues: true })
+  const root = graph.roots[params.rootKey]!
+  return compileValidationSchema(
+    graph.schemas,
+    params.stripRootRefs === true ? stripCollectedSchemaRefs(root) : root,
+  )
 }
 
 function requiredPolicy(variant: ValidationSchemaVariant) {
