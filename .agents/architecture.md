@@ -78,7 +78,7 @@ flowchart TD
 | [Подготовка топологии](#term-topology) | ● | ● | ● | ● | ● | ● |
 | [Проверка YAML и подготовка вклада в индекс](#subprocess-yaml-index) | ● | ● | ● | ● | ● | ● |
 | Публикация [состояния проекта](#term-state) | ● | ● | ● | ● | ● | ● |
-| [Проверка связей проекта](#term-reference-check) | ● | ● | ● | ● | ● | ● |
+| [Проверка связей проекта](#subprocess-reference-check) | ● | ● | ● | ● | ● | ● |
 | [Актуализировать проект](#subprocess-refresh) |  | ● | ● | ● | ● | ● |
 | Сверка со [снимком компонента](#term-snapshot) |  |  | ● | ● |  |  |
 | Подготовка выгрузки XML |  |  | ● | ● |  |  |
@@ -114,12 +114,31 @@ flowchart LR
 flowchart TD
   prepared["Получить подготовленный YAML"]
   schema["Проверить синтаксис<br/>и JSON Schema"]
-  rules["Выполнить проверки файла"]
-  canonical["Проверить каноническую<br/>форму YAML"]
-  facts["Извлечь объекты, поля, значения,<br/>ссылки и зависимости"]
+  rules["Выполнить проверки<br/>для вида файла"]
+  synonym["Проверить, что очевидный синоним<br/>не записан явно"]
+  values["Проверить имена элементов формы<br/>и другие локальные правила"]
+  facts["Собрать объекты, поля, ссылки,<br/>пути данных и значения заполнения"]
   contribution["Сформировать локальные ошибки<br/>и вклад файла в общий индекс"]
 
-  prepared --> schema --> rules --> canonical --> facts --> contribution
+  prepared --> schema --> rules --> synonym --> values --> facts --> contribution
+```
+
+<a id="subprocess-reference-check"></a>
+
+### Проверить связи проекта
+
+```mermaid
+flowchart TD
+  index["Получить общий индекс<br/>и отложенные проверки"]
+  references["Проверить ссылки<br/>на объекты и значения"]
+  owners["Найти владельцев и их поля"]
+  dataPaths["Проверить пути данных"]
+  fillValues["Проверить значения заполнения<br/>с учётом типов"]
+  required["Проверить обязательные поля<br/>объектов расширения"]
+  structured["Проверить структуру форм<br/>и других составных документов"]
+  diagnostics["Сформировать межфайловые<br/>ошибки и предупреждения"]
+
+  index --> references --> owners --> dataPaths --> fillValues --> required --> structured --> diagnostics
 ```
 
 <a id="subprocess-refresh"></a>
@@ -150,6 +169,8 @@ flowchart TD
 ```
 
 ↳ [Проверка YAML и подготовка вклада в индекс — подробная схема](#subprocess-yaml-index)
+
+↳ [Проверить связи проекта — подробная схема](#subprocess-reference-check)
 
 ## [Операции](#term-operation)
 
@@ -218,6 +239,8 @@ flowchart TD
 
 ↳ [Проверка YAML и подготовка вклада в индекс — подробная схема](#subprocess-yaml-index)
 
+↳ [Проверить связи проекта — подробная схема](#subprocess-reference-check)
+
 <a id="operation-validation"></a>
 
 ### Проверка проекта
@@ -228,6 +251,10 @@ flowchart LR
 ```
 
 ↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
+
+↳ [Проверка YAML и подготовка вклада в индекс — подробная схема](#subprocess-yaml-index)
+
+↳ [Проверить связи проекта — подробная схема](#subprocess-reference-check)
 
 <a id="operation-full-sync"></a>
 
