@@ -6,17 +6,15 @@ import {
   createJSONSchemaExportContext,
   createSchemaRef,
   exportPropertyExternalRefSchema,
-  getValidationSchemaRef,
-  getJSONSchemaIdentityExporter,
-  listJSONSchemaIdentityNames,
   recordOfSchemaRef,
-  registerJSONSchemaIdentity,
-  registerJSONSchemaPropertyRef,
   stripCollectedSchemaRefs,
 } from "./jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "./property/toJSONSchema"
-import { registerTypeRule } from "./property/typeRuleRegistry"
 import { compileValidationSchema } from "../validation/compileValidationSchema"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { defineMetadataRules } from "./definition"
+import { emptyMetadataRules } from "./definition/testSupport"
+import { createValidationSchemaTestSession } from "./jsonSchemaTestSupport"
 import "../commonObjects/metadataPath/toJSONSchema"
 import "../commonObjects/number/toJSONSchema"
 import "../commonObjects/string/toJSONSchema"
@@ -66,11 +64,10 @@ describe("jsonSchemaRefs", () => {
   })
 
   it("returns a property ref only in externalRefs mode and collects the ref", () => {
-    registerJSONSchemaPropertyRef("TestMetadataAttributesRefOnly" as any, () =>
+    const propertyRef = () =>
       recordOfSchemaRef("TestMetadataAttributeRefOnly")
-    )
 
-    const inlineContext = createJSONSchemaExportContext(baseContext, "inline")
+    const inlineContext = createJSONSchemaExportContext(baseContext, "inline", { propertyRef })
     expect(
       exportPropertyExternalRefSchema({
         context: inlineContext,
@@ -78,7 +75,7 @@ describe("jsonSchemaRefs", () => {
       })
     ).toBeUndefined()
 
-    const refContext = createJSONSchemaExportContext(baseContext, "externalRefs")
+    const refContext = createJSONSchemaExportContext(baseContext, "externalRefs", { propertyRef })
     expect(
       exportPropertyExternalRefSchema({
         context: refContext,
@@ -95,11 +92,10 @@ describe("jsonSchemaRefs", () => {
   })
 
   it("uses registered refs through property JSON Schema export", () => {
-    registerJSONSchemaPropertyRef("TestMetadataAttributesPropertyExport" as any, () =>
+    const propertyRef = () =>
       recordOfSchemaRef("TestMetadataAttributePropertyExport")
-    )
 
-    const context = createJSONSchemaExportContext(baseContext, "externalRefs")
+    const context = createJSONSchemaExportContext(baseContext, "externalRefs", { propertyRef })
     expect(
       exportPropertyToJSONSchema({
         context,
@@ -117,22 +113,21 @@ describe("jsonSchemaRefs", () => {
   })
 
   it("exports an opt-in validation property ref after implicit values are excluded", () => {
-    const context = createJSONSchemaExportContext(baseContext, "inline", {
+    const session = createValidationSchemaTestSession(baseContext, "inline", {
       excludeImplicitValueYAML: true,
-      validationPropertyRefs: true,
     })
     const schema = exportPropertyToJSONSchema({
-      context,
+      context: session.context,
       rule: { type: "number", implicitValueYAML: 1 },
       value: undefined,
     })
 
     expect(schema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/number/without-1" })
-    expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
+    expect(attachCollectedSchemaRefs(session.context, Type.Object({}))).toMatchObject({
       "x-nkdk-schemaRefs": ["nkdk://schema/validation/2.20/ru/number/without-1"],
     })
 
-    const registeredSchema = getValidationSchemaRef("nkdk://schema/validation/2.20/ru/number/without-1")
+    const registeredSchema = session.get("nkdk://schema/validation/2.20/ru/number/without-1")
     if (registeredSchema === undefined) throw new Error("Expected registered validation schema")
     const check = compileValidationSchema(registeredSchema)
     expect(check.Check(1)).toBe(false)
@@ -140,26 +135,27 @@ describe("jsonSchemaRefs", () => {
   })
 
   it("exports default validation refs for reusable property types without opt-in registration", () => {
-    registerTypeRule("TestReusableProperty" as any, "exportToJSONSchema", () =>
-      Type.Object({
-        Значение: Type.String(),
-      })
-    )
-
-    const context = createJSONSchemaExportContext(baseContext, "inline", {
-      validationPropertyRefs: true,
-    })
+    const rules = createRuleRegistrySet(defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: {
+        TestReusableProperty: {
+          exportToJSONSchema: () => Type.Object({ Значение: Type.String() }),
+        },
+      },
+    }))
+    const session = createValidationSchemaTestSession(baseContext, "inline")
     const schema = exportPropertyToJSONSchema({
-      context,
+      context: session.context,
       rule: { type: "TestReusableProperty" as any },
       value: undefined,
+      execution: rules.execution,
     })
 
     expect(schema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/TestReusableProperty/base" })
-    expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
+    expect(attachCollectedSchemaRefs(session.context, Type.Object({}))).toMatchObject({
       "x-nkdk-schemaRefs": ["nkdk://schema/validation/2.20/ru/TestReusableProperty/base"],
     })
-    expect(getValidationSchemaRef("nkdk://schema/validation/2.20/ru/TestReusableProperty/base")).toEqual({
+    expect(session.get("nkdk://schema/validation/2.20/ru/TestReusableProperty/base")).toEqual({
       type: "object",
       properties: {
         Значение: { type: "string" },
@@ -169,9 +165,7 @@ describe("jsonSchemaRefs", () => {
   })
 
   it("keeps explicit validation inline exceptions inline", () => {
-    const context = createJSONSchemaExportContext(baseContext, "inline", {
-      validationPropertyRefs: true,
-    })
+    const { context } = createValidationSchemaTestSession(baseContext, "inline")
 
     expect(
       exportPropertyToJSONSchema({
@@ -210,28 +204,27 @@ describe("jsonSchemaRefs", () => {
   })
 
   it("uses stable scalar validation keys for implicit values", () => {
-    const context = createJSONSchemaExportContext(baseContext, "inline", {
+    const session = createValidationSchemaTestSession(baseContext, "inline", {
       excludeImplicitValueYAML: true,
-      validationPropertyRefs: true,
     })
 
     const numberSchema = exportPropertyToJSONSchema({
-      context,
+      context: session.context,
       rule: { type: "number", implicitValueYAML: 0 },
       value: undefined,
     })
     const stringSchema = exportPropertyToJSONSchema({
-      context,
+      context: session.context,
       rule: { type: "string", implicitValueYAML: "" },
       value: undefined,
     })
 
     expect(numberSchema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/number/without-0" })
     expect(stringSchema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/string/without-empty" })
-    expect(getValidationSchemaRef("nkdk://schema/validation/2.20/ru/number/without-0")).toMatchObject({
+    expect(session.get("nkdk://schema/validation/2.20/ru/number/without-0")).toMatchObject({
       allOf: [{ type: "number" }, { not: { type: "number", const: 0 } }],
     })
-    expect(getValidationSchemaRef("nkdk://schema/validation/2.20/ru/string/without-empty")).toMatchObject({
+    expect(session.get("nkdk://schema/validation/2.20/ru/string/without-empty")).toMatchObject({
       allOf: [{ type: "string" }, { not: { type: "string", const: "" } }],
     })
   })
@@ -249,46 +242,4 @@ describe("jsonSchemaRefs", () => {
     expect(attachCollectedSchemaRefs(context, Type.Object({}))).not.toHaveProperty("x-nkdk-schemaRefs")
   })
 
-  it("registers and lists named schema exporters", () => {
-    const source = { itemType: "ListedSampleItem" }
-    registerJSONSchemaIdentity({
-      name: "ListedSampleItem",
-      source,
-      exporter: () => Type.Object({ Имя: Type.String() }),
-    })
-
-    expect(listJSONSchemaIdentityNames()).toContain("ListedSampleItem")
-    expect(getJSONSchemaIdentityExporter("ListedSampleItem")?.({ context: baseContext })).toMatchObject({
-      type: "object",
-      properties: { Имя: { type: "string" } },
-    })
-  })
-
-  it("allows idempotent registration for the same source", () => {
-    const source = { itemType: "IdempotentSampleItem" }
-    const exporter = () => Type.Object({})
-
-    registerJSONSchemaIdentity({ name: "IdempotentSampleItem", source, exporter })
-    registerJSONSchemaIdentity({ name: "IdempotentSampleItem", source, exporter })
-
-    expect(listJSONSchemaIdentityNames()).toContain("IdempotentSampleItem")
-  })
-
-  it("keeps the first exporter for repeated schema names", () => {
-    registerJSONSchemaIdentity({
-      name: "DuplicateItem",
-      source: { itemType: "Left" },
-      exporter: () => Type.Object({ left: Type.String() }),
-    })
-
-    registerJSONSchemaIdentity({
-      name: "DuplicateItem",
-      source: { itemType: "Right" },
-      exporter: () => Type.Object({ right: Type.String() }),
-    })
-
-    expect(getJSONSchemaIdentityExporter("DuplicateItem")?.({ context: baseContext })).toMatchObject({
-      properties: { left: { type: "string" } },
-    })
-  })
 })

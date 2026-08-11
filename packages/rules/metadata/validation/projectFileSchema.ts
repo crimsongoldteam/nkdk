@@ -5,7 +5,6 @@ import type { RuleRegistrySet, RuleSchemaRuntime } from "@nkdk/runtime/rule-kit"
 import { createRuleSchemaRuntime, currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
 import {
-  ensureJSONSchemaRegistry,
   exportJSONSchemaForMetadataItemRule,
   exportJSONSchemaForSchemaName as exportRegisteredJSONSchemaForSchemaName,
   ProjectFileSchemaError,
@@ -56,7 +55,6 @@ export function exportJSONSchemaForProjectFile(
       ),
     ),
   })
-  if (effectiveRuntime === undefined) ensureJSONSchemaRegistry()
   const normalized = normalizeProjectPath(params)
 
   if (!normalized.toLowerCase().endsWith(".yaml")) {

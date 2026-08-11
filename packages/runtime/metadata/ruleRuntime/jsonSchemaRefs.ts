@@ -8,24 +8,6 @@ import { getTypeRule } from "./property/typeRuleRegistry"
 export const JSON_SCHEMA_REF_PREFIX = "nkdk://schema/"
 const COLLECTED_SCHEMA_REFS_KEY = "x-nkdk-schemaRefs"
 
-type PropertyRefFactory = (params: { context: ConfigurationContext; rule: PropertyRule }) => TSchema | undefined
-type JSONSchemaExporter = (params: { context: ConfigurationContext }) => TSchema
-
-interface JSONSchemaIdentityRegistration {
-  exporter: JSONSchemaExporter
-  source: object | string
-}
-
-const propertyRefFactories = new Map<PropertyRuleType, PropertyRefFactory>()
-const schemaIdentityExporters = new Map<string, JSONSchemaIdentityRegistration>()
-const validationSchemas = new Map<string, TSchema>()
-
-export function clearJSONSchemaRefRegistries(): void {
-  propertyRefFactories.clear()
-  schemaIdentityExporters.clear()
-  validationSchemas.clear()
-}
-
 export function createSchemaRef(name: string): string {
   return `${JSON_SCHEMA_REF_PREFIX}${name}`
 }
@@ -65,34 +47,6 @@ export function recordOfDiscriminatedOneOfSchemaRefs(names: readonly string[], p
       discriminator: { propertyName },
     },
   })
-}
-
-export function registerJSONSchemaPropertyRef(type: PropertyRuleType, factory: PropertyRefFactory): void {
-  propertyRefFactories.set(type, factory)
-}
-
-export function registerJSONSchemaIdentity(params: {
-  name: string
-  exporter: JSONSchemaExporter
-  source: object | string
-}): void {
-  const existing = schemaIdentityExporters.get(params.name)
-  if (existing !== undefined) {
-    return
-  }
-
-  schemaIdentityExporters.set(params.name, {
-    exporter: params.exporter,
-    source: params.source,
-  })
-}
-
-export function getJSONSchemaIdentityExporter(name: string): JSONSchemaExporter | undefined {
-  return schemaIdentityExporters.get(name)?.exporter
-}
-
-export function listJSONSchemaIdentityNames(): string[] {
-  return [...schemaIdentityExporters.keys()].sort()
 }
 
 export function createJSONSchemaExportContext(
@@ -162,10 +116,10 @@ export function exportPropertyExternalRefSchema(params: {
   context: ConfigurationContext
   rule: PropertyRule
 }): TSchema | undefined {
-  const { context, rule } = params
+  const { context } = params
   if (context.exportToJSONSchema?.mode !== "externalRefs") return undefined
 
-  const factory = context.exportToJSONSchema.propertyRef ?? propertyRefFactories.get(rule.type)
+  const factory = context.exportToJSONSchema.propertyRef
   if (!factory) return undefined
 
   const schema = factory(params)
@@ -190,7 +144,7 @@ export function exportValidationPropertyRefSchema(params: {
   if (key === undefined) return undefined
 
   const name = validationSchemaRefName(context, key)
-  validationSchemas.set(name, schema)
+  context.exportToJSONSchema.defineSchema?.(key, () => schema)
   collectSchemaRefsToContext(context, rawJSONSchema({ $ref: name }))
   return rawJSONSchema({ $ref: name })
 }
@@ -219,10 +173,6 @@ export function defaultValidationSchemaRefKey(params: { rule: PropertyRule }): s
   const { rule } = params
   if (typeof rule.type !== "string" || rule.type.length === 0) return undefined
   return `${rule.type}/base`
-}
-
-export function getValidationSchemaRef(name: string): TSchema | undefined {
-  return validationSchemas.get(name)
 }
 
 export function encodeValidationSchemaKey(key: string): string {

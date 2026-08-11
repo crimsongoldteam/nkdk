@@ -1,6 +1,7 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
-import { registerIndexValueFromYAML } from "../../ruleRuntime/property/indexValueFromYAMLRegistry"
+import { defineMetadataRules } from "../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 import { ConfigurationContext } from "@nkdk/runtime"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { assertTypeDescriptionYAMLAllowed, METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
@@ -150,4 +151,7 @@ const getDateQualifiers = (type: string): TypeDescriptionDateQualifiers => {
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "importFromYAML", importTypeDescriptionFromYAML)
-registerIndexValueFromYAML("TypeDescription", parseTypeDescriptionYAML)
+export const typeDescriptionIndexRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  indexValuesFromYAML: { TypeDescription: parseTypeDescriptionYAML },
+})

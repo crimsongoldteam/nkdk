@@ -2,10 +2,10 @@ export * from "./types"
 
 import {
   externalDataSourceNestedOwnerResolver,
-  registerCommonMetadataTargetOwnerResolver,
+  defineCommonMetadataTargetOwnerResolver,
 } from "../metadataTargetOwnerResolver"
 
-registerCommonMetadataTargetOwnerResolver(
+export const metadataExternalDataSourceDimensionTableOwnerRules = defineCommonMetadataTargetOwnerResolver(
   "MetadataExternalDataSourceDimensionTable",
   externalDataSourceNestedOwnerResolver("MetadataExternalDataSourceCube", "DimensionTable"),
 )

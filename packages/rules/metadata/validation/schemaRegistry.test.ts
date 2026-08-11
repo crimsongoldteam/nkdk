@@ -2,13 +2,12 @@ import { compileValidationSchema, type ValidationSchemaValidator } from "./compi
 import "../appliedObjects"
 import "../forms"
 import type { TSchema } from "typebox"
-import { beforeAll, beforeEach, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
 import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import {
-  ensureJSONSchemaRegistry,
   exportJSONSchemaForSchemaName,
   exportJSONSchemaGraph,
   listJSONSchemaNames,
@@ -84,10 +83,6 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     )
     configurationSchema.Check(undefined)
   }, 240_000)
-
-  beforeEach(() => {
-    ensureJSONSchemaRegistry()
-  })
 
   it("exports compact named schemas by schema name", () => {
     const schema = schemaForName("MetadataCatalogAttribute")

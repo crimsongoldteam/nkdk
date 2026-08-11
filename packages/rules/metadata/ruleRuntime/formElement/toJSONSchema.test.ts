@@ -9,7 +9,7 @@ import {
   getTreeNodeJSONSchemaPropertyAliases,
 } from "../../forms/commonObjects/childItems/treeYAML"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
-import { getValidationSchemaRef } from "../jsonSchemaRefs"
+import { createValidationSchemaTestSession } from "../jsonSchemaTestSupport"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
 import { exportElementRuleToJSONSchema } from "./toJSONSchema"
@@ -72,17 +72,11 @@ describe("form element JSON Schema", () => {
   })
 
   it("разрешает !xml для HeaderHorizontalAlign табличного поля в validation", () => {
-    const refs = new Set<string>()
+    const session = createValidationSchemaTestSession(context, "inline", {
+      excludeImplicitValueYAML: true,
+    })
     const schema = exportElementRuleToJSONSchema({
-      context: {
-        ...context,
-        exportToJSONSchema: {
-          mode: "inline",
-          refs,
-          excludeImplicitValueYAML: true,
-          validationPropertyRefs: true,
-        },
-      },
+      context: session.context,
       rule: getElementRule("TableInputField"),
       yamlKind: "ПолеВвода",
     })
@@ -92,7 +86,7 @@ describe("form element JSON Schema", () => {
     if (headerSchema === undefined) throw new Error("Expected HeaderHorizontalAlign schema")
     const propertyRefs = collectSchemaRefs(headerSchema)
     const schemaContext = Object.fromEntries([...propertyRefs].map((name) => {
-      const registered = getValidationSchemaRef(name)
+      const registered = session.get(name)
       if (registered === undefined) throw new Error(`Expected validation schema ${name}`)
       return [name, registered]
     }))

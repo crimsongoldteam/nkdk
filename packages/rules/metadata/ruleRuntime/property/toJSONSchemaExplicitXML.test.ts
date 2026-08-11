@@ -6,7 +6,7 @@ import "../../commonObjects/standardAttributeDescription/registerCollectionRule"
 import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
 import { mockContext } from "../../../tests/mockContext"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
-import { getValidationSchemaRef } from "../jsonSchemaRefs"
+import { createValidationSchemaTestSession } from "../jsonSchemaTestSupport"
 import {
   registerExplicitXMLProperty,
   registerExplicitXMLPropertyType,
@@ -27,16 +27,10 @@ function probeRule(itemType: string): MetadataItemRule {
 }
 
 function explicitXMLSchemas(rule: MetadataItemRule) {
+  const session = createValidationSchemaTestSession(mockContext, "inline")
   return {
     validationProperties: exportPropertiesToJSONSchema({
-      context: {
-        ...mockContext,
-        exportToJSONSchema: {
-          mode: "inline",
-          refs: new Set<string>(),
-          validationPropertyRefs: true,
-        },
-      },
+      context: session.context,
       rule,
     }),
     externalProperties: exportPropertiesToJSONSchema({
@@ -46,6 +40,7 @@ function explicitXMLSchemas(rule: MetadataItemRule) {
       },
       rule,
     }),
+    validationSchemas: session.schemas,
   }
 }
 
@@ -67,8 +62,8 @@ describe("explicit XML property validation schema", () => {
         },
       },
     } as const satisfies MetadataItemRule
-    const { validationProperties, externalProperties } = explicitXMLSchemas(rule)
-    const validation = compileValidationSchema(Type.Object(validationProperties))
+    const { validationProperties, externalProperties, validationSchemas } = explicitXMLSchemas(rule)
+    const validation = compileValidationSchema(validationSchemas(), Type.Object(validationProperties))
 
     expect(validation.Check({ СтандартныеРеквизиты: "!xml" })).toBe(true)
     expect(validation.Check({ СтандартныеРеквизиты: "!xml payload" })).toBe(false)
@@ -118,26 +113,20 @@ describe("explicit XML property validation schema", () => {
       xmlValue: true,
       yamlValue: EMPTY_XML_TAG_VALUE,
     })
-    const context = {
-      ...mockContext,
-      exportToJSONSchema: {
-        mode: "inline" as const,
-        refs: new Set<string>(),
-        excludeImplicitValueYAML: true,
-        validationPropertyRefs: true as const,
-      },
-    }
+    const session = createValidationSchemaTestSession(mockContext, "inline", {
+      excludeImplicitValueYAML: true,
+    })
     const registeredSchema = Type.Object(
-      exportPropertiesToJSONSchema({ context, rule: registeredRule })
+      exportPropertiesToJSONSchema({ context: session.context, rule: registeredRule })
     )
     const unregisteredSchema = Type.Object(
       exportPropertiesToJSONSchema({
-        context,
+        context: session.context,
         rule: probeRule("UnregisteredExplicitXMLSchemaProbe"),
       })
     )
     const refName = "nkdk://schema/validation/2.20/ru/boolean/without-true"
-    const refSchema = getValidationSchemaRef(refName)
+    const refSchema = session.get(refName)
     if (refSchema === undefined) throw new Error("Expected boolean validation schema")
     const schemaContext = { [refName]: refSchema }
 
@@ -171,10 +160,10 @@ describe("explicit XML property validation schema", () => {
       itemType: rule.itemType,
       propertyKey: "flag",
     })
-    const { validationProperties, externalProperties } = explicitXMLSchemas(rule)
+    const { validationProperties, externalProperties, validationSchemas } = explicitXMLSchemas(rule)
 
     const refName = "nkdk://schema/validation/2.20/ru/boolean/without-true"
-    const refSchema = getValidationSchemaRef(refName)
+    const refSchema = validationSchemas()[refName]
     if (refSchema === undefined) throw new Error("Expected boolean validation schema")
     const validation = compileValidationSchema({ [refName]: refSchema }, Type.Object(validationProperties))
     expect(validation.Check({ Флаг: "!xml" })).toBe(true)

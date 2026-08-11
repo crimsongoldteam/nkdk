@@ -16,7 +16,6 @@ export * from "./property/toEnterprise"
 export * from "./property/toYAML"
 export * from "./property/typeRuleRegistry"
 export * from "./property/yamlRuleCursor"
-export * from "./property/propertyTypeKeys"
 export * from "./property/propertyRuleRegistrySet"
 export * from "./property/propertyRuleExecutor"
 

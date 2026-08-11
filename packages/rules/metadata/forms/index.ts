@@ -1,6 +1,6 @@
 export type { FormMetadataXML } from "./clientApplicationForm/types"
 
-export { clearElementRulesRegistry, getElementRule, registerElementRule } from "./elements/ruleRuntime/ruleFactory"
+export { getElementRule } from "./elements/ruleRuntime/ruleFactory"
 export type { ElementRule } from "./elements/ruleRuntime/types"
 
 import "./elements"

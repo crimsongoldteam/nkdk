@@ -7,7 +7,6 @@ import {
   propertyTypesFromContributions,
 } from "../property/propertyRuleRegistrySet"
 import { defineMetadataRules, type MetadataRulesDefinition } from "../definition"
-import { registerLegacySchemaDefinitions } from "../definition/legacyRuleRegistration"
 import { emptyMetadataRules } from "../definition/testSupport"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { exportMetadataItemToJSONSchema } from "./toJSONSchema"
@@ -93,7 +92,6 @@ export const registerMetadataItemRule = <
 >(params: MetadataItemRuleParams<Rule, PropertyType>): void => {
   const definition = defineMetadataItemRule(params)
   registerLegacyPropertyTypeDefinitions(definition.propertyTypes)
-  registerLegacySchemaDefinitions(definition, params.itemRule)
 }
 
 function propertyItemRule(propertyRule: import("../property/types").PropertyRule): MetadataItemRule | undefined {

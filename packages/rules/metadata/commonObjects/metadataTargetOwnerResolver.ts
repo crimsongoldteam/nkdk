@@ -1,6 +1,7 @@
 import type { MetadataTargetOwner } from "@nkdk/runtime/rule-kit"
-import { registerMetadataTargetOwnerResolver } from "../ruleRuntime/property/metadataTargetOwnerRegistry"
-import { registerTopologyMetadataTargetOwnerResolver } from "../resourceTopology/adapters/metadataTargetOwner"
+import { defineMetadataRules } from "../ruleRuntime/definition"
+import type { MetadataRulesDefinition } from "../ruleRuntime/definition"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 
 export interface CommonMetadataTargetOwnerFrame {
   readonly itemType: string
@@ -13,12 +14,14 @@ export type CommonMetadataTargetOwnerResolver = (params: {
   readonly frames: readonly CommonMetadataTargetOwnerFrame[]
 }) => MetadataTargetOwner | undefined
 
-export function registerCommonMetadataTargetOwnerResolver(
+export function defineCommonMetadataTargetOwnerResolver(
   itemType: string,
   resolver: CommonMetadataTargetOwnerResolver,
-): void {
-  registerMetadataTargetOwnerResolver(itemType, resolver)
-  registerTopologyMetadataTargetOwnerResolver(itemType, resolver)
+): MetadataRulesDefinition<never, never, never> {
+  return defineMetadataRules({
+    ...emptyMetadataRules,
+    metadataTargetOwners: { [itemType]: resolver },
+  })
 }
 
 export function externalDataSourceChildOwnerResolver(

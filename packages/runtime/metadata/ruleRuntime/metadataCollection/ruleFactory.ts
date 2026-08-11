@@ -21,7 +21,6 @@ import {
 import { getDeclaredPropertyItemRule } from "../property/propertyItemRuleDeclarations"
 import { importMetadataItemCollectionFromXMLToYAML } from "./fromXMLToYAML"
 import { defineMetadataRules } from "../definition"
-import { registerLegacySchemaDefinitions } from "../definition/legacyRuleRegistration"
 import type {
   MetadataRulesDefinition,
   MetadataSchemaPropertyRefDefinition,
@@ -252,7 +251,6 @@ export const registerMetadataItemCollectionRule = <
 >(params: CollectionRule<Rule, CollectionType, XMLKey>): void => {
   const definition = defineMetadataItemCollectionRule(params)
   registerLegacyPropertyTypeDefinitions(definition.propertyTypes)
-  registerLegacySchemaDefinitions(definition, params.itemRule)
 }
 
 function declaredMetadataItemRule(propertyType: PropertyRuleType): MetadataItemRule | undefined {

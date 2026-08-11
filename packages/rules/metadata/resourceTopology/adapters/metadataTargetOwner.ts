@@ -4,6 +4,7 @@ import type {
   TopologyMetadataTargetOwnerResolver,
   TopologyMetadataTargetOwnerRule,
 } from "../core/types"
+import { getMetadataTargetOwnerResolver } from "../../ruleRuntime/property/metadataTargetOwnerRegistry"
 
 export type {
   TopologyMetadataTargetOwner,
@@ -11,21 +12,6 @@ export type {
   TopologyMetadataTargetOwnerResolver,
   TopologyMetadataTargetOwnerRule,
 } from "../core/types"
-
-const resolvers = new Map<string, TopologyMetadataTargetOwnerResolver>()
-
-export function registerTopologyMetadataTargetOwnerResolver(
-  itemType: string,
-  resolver: TopologyMetadataTargetOwnerResolver,
-): void {
-  resolvers.set(itemType, resolver)
-}
-
-export function getTopologyMetadataTargetOwnerResolver(
-  itemType: string,
-): TopologyMetadataTargetOwnerResolver | undefined {
-  return resolvers.get(itemType)
-}
 
 export function resolveTopologyMetadataTargetOwner(params: {
   readonly itemRule: TopologyMetadataTargetOwnerRule
@@ -37,7 +23,9 @@ export function resolveTopologyMetadataTargetOwner(params: {
   if (currentFrame?.itemType === params.itemRule.itemType && currentFrame.name === params.name) {
     return currentFrame.owner
   }
-  const resolver = getTopologyMetadataTargetOwnerResolver(params.itemRule.itemType)
+  const resolver = getMetadataTargetOwnerResolver(params.itemRule.itemType) as
+    | TopologyMetadataTargetOwnerResolver
+    | undefined
   const resolved = resolver?.(params)
   if (resolved !== undefined) return resolved
 
@@ -47,10 +35,6 @@ export function resolveTopologyMetadataTargetOwner(params: {
     return params.name === undefined ? undefined : { root: declaration.root, objectName: params.name }
   }
   return undefined
-}
-
-export function clearTopologyMetadataTargetOwnerResolversForTests(): void {
-  resolvers.clear()
 }
 
 function lastResolvedOwner(

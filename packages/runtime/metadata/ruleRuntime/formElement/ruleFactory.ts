@@ -23,11 +23,9 @@ import { defineMetadataRules } from "../definition"
 import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
 export {
-  clearElementRulesRegistry,
   defineElementRule,
   getElementRule,
   getElementXMLTagName,
-  registerElementRule,
 } from "./ruleRegistry"
 
 type ToXMLFn<T extends object> = (params: {

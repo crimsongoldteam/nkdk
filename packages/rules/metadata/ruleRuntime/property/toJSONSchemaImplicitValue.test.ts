@@ -7,11 +7,10 @@ import "../../commonObjects/string/toJSONSchema"
 import "../../systemEnumerations/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
 import { exportPropertyToJSONSchema } from "./toJSONSchema"
-import { getValidationSchemaRef } from "../jsonSchemaRefs"
 import {
   createJSONSchemaExportContext,
-  registerJSONSchemaPropertyRef,
 } from "../jsonSchemaRefs"
+import { createValidationSchemaTestSession } from "../jsonSchemaTestSupport"
 import type { PropertyRuleType } from "./registry"
 
 const validationContext = {
@@ -45,12 +44,12 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
   })
 
   it("creates distinct validation refs for boolean implicit values", () => {
+    const session = createValidationSchemaTestSession(mockContext, "inline", {
+      excludeImplicitValueYAML: true,
+    })
     const refs = [undefined, true, false].map((implicitValueYAML) => {
       const schema = exportPropertyToJSONSchema({
-        context: {
-          ...validationContext,
-          exportToJSONSchema: { ...validationContext.exportToJSONSchema, validationPropertyRefs: true },
-        },
+        context: session.context,
         rule: { type: "boolean", implicitValueYAML },
         value: undefined,
       })
@@ -63,7 +62,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
       "nkdk://schema/validation/2.20/ru/boolean/without-false",
     ])
 
-    const withoutTruth = getValidationSchemaRef(refs[1]!)
+    const withoutTruth = session.get(refs[1]!)
     if (withoutTruth === undefined) throw new Error("Expected boolean validation schema")
     const check = compileValidationSchema(withoutTruth)
     expect(check.Check("Истина")).toBe(false)
@@ -71,12 +70,12 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
   })
 
   it("creates distinct validation refs for SystemEnumeration implicit values", () => {
+    const session = createValidationSchemaTestSession(mockContext, "inline", {
+      excludeImplicitValueYAML: true,
+    })
     const refs = ["Use", "DontUse"].map((implicitValueYAML) => {
       const schema = exportPropertyToJSONSchema({
-        context: {
-          ...validationContext,
-          exportToJSONSchema: { ...validationContext.exportToJSONSchema, validationPropertyRefs: true },
-        },
+        context: session.context,
         rule: { type: "SystemEnumeration", typeSE: "ModalityUseMode", implicitValueYAML },
         value: undefined,
       })
@@ -88,7 +87,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
       "nkdk://schema/validation/2.20/ru/SystemEnumeration/ModalityUseMode/without-DontUse",
     ])
 
-    const withoutUse = getValidationSchemaRef(refs[0]!)
+    const withoutUse = session.get(refs[0]!)
     if (withoutUse === undefined) throw new Error("Expected SystemEnumeration validation schema")
     const check = compileValidationSchema(withoutUse)
     expect(check.Check("Использовать")).toBe(false)
@@ -251,10 +250,11 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
 
   it("adds a property description to an external property ref", () => {
     const type = "DescriptionExternalRefProbe" as PropertyRuleType
-    registerJSONSchemaPropertyRef(type, () => ({ $ref: "nkdk://schema/DescriptionExternalRefProbe" }))
 
     const schema = exportPropertyToJSONSchema({
-      context: createJSONSchemaExportContext(validationContext, "externalRefs"),
+      context: createJSONSchemaExportContext(validationContext, "externalRefs", {
+        propertyRef: () => ({ $ref: "nkdk://schema/DescriptionExternalRefProbe" }),
+      }),
       rule: { type, description: "Описание свойства." },
       value: undefined,
     })

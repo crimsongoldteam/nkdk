@@ -1,7 +1,6 @@
 export * as Attribute from "../commonObjects/metadataAttribute/fragments"
 export { composeMetadataItemRule } from "../commonObjects/metadataRuleFragment"
 export * as Tabular from "../commonObjects/metadataTabularSection/fragments"
-import { declarePropertyItemRule } from "../ruleRuntime/property/propertyItemRuleDeclarations"
 
 interface OwnerChildExportContext {
   exportToXML: {
@@ -69,7 +68,6 @@ function createOwnerNamedCollectionRuleBuilder<
     migrationSegment: "Реквизит" | "ТабличнаяЧасть" | "Измерение" | "Ресурс"
   },
 >(propertyType: PropertyType, role: Role, itemRule: ItemRule, target: Target) {
-  declarePropertyItemRule(propertyType, itemRule)
   return <const Params extends Readonly<Record<string, unknown>>>(params: Params) => ({
     type: propertyType,
     ownerFactRole: role,

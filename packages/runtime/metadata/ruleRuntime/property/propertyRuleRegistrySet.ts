@@ -130,6 +130,8 @@ export function createPropertyRuleRegistrySet(
     MetadataRulesDefinition,
     | "propertyTypes"
     | "propertyItemRules"
+    | "metadataItems"
+    | "projectSpecs"
     | "explicitXMLProperties"
     | "explicitXMLPropertyTypes"
     | "dependentItems"
@@ -147,7 +149,13 @@ export function createPropertyRuleRegistrySet(
   )
   let revision = 0
   const enumerations = new Map(Object.entries(definition.systemEnumerations))
-  const propertyItemRules = collectPropertyItemRules(definition.propertyItemRules)
+  const propertyItemRules = collectPropertyItemRules(
+    definition.propertyItemRules,
+    [
+      ...Object.values(definition.metadataItems),
+      ...Object.values(definition.projectSpecs).map((spec) => spec.rule),
+    ],
+  )
   const explicitXMLProperties = new Map<string, ExplicitXMLPropertyRegistration>()
   for (const registration of Object.values(definition.explicitXMLProperties)) {
     explicitXMLProperties.set(
@@ -380,11 +388,15 @@ function sameExplicitXMLPropertyRegistration(
 
 export function collectPropertyItemRules(
   definitions: Readonly<Record<string, object>>,
+  rootRules: readonly object[] = [],
 ): Map<string, object> {
   const result = new Map<string, object>()
   for (const [propertyType, itemRule] of Object.entries(definitions)) {
     result.set(propertyType, itemRule)
     collectNestedPropertyItemRules(result, itemRule)
+  }
+  for (const rootRule of rootRules) {
+    collectNestedPropertyItemRules(result, rootRule)
   }
   return result
 }

@@ -1,6 +1,5 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import { ConfigurationContext } from "@nkdk/runtime"
-import "./registerPropertyType"
 import { exportI8nTextDefaultToYAML } from "./toYAML"
 import { I8nText } from "./types"
 

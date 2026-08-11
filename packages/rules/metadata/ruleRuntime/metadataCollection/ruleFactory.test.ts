@@ -4,22 +4,14 @@ import { describe, expect, it } from "vitest"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import {
   createJSONSchemaExportContext,
-  createSchemaRef,
-  getJSONSchemaIdentityExporter,
-  listJSONSchemaIdentityNames,
 } from "../jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { PropertyRuleType } from "../property/registry"
-import { declarePropertyItemRule } from "../property/propertyItemRuleDeclarations"
-import {
-  getTypeRule,
-  typeRulesRegistryRevision,
-} from "../property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
-import {
-  defineMetadataItemCollectionRule,
-  registerMetadataItemCollectionRule,
-} from "./ruleFactory"
+import { defineMetadataItemCollectionRule } from "./ruleFactory"
+import { composeMetadataRules, defineMetadataRules, type MetadataRulesDefinition } from "../definition"
+import { emptyMetadataRules } from "../definition/testSupport"
+import { createRuleRegistrySet, type RuleRegistrySet } from "../ruleRegistrySet"
 
 const itemRule = {
   itemType: "TestCollectionItem",
@@ -41,32 +33,38 @@ const recordType = "TestRecordSchemaCollection" as PropertyRuleType
 const arrayType = "TestArraySchemaCollection" as PropertyRuleType
 const recursiveType = "TestRecursiveSchemaCollection" as PropertyRuleType
 
-registerMetadataItemCollectionRule({ propertyType: recordType, itemRule, xmlElement: "Item", keyField: "name" })
-registerMetadataItemCollectionRule({ propertyType: arrayType, itemRule, xmlElement: "Item", yamlAsArray: true })
-registerMetadataItemCollectionRule({
+const collectionRules = createCollectionRegistry(
+  defineMetadataItemCollectionRule({ propertyType: recordType, itemRule, xmlElement: "Item", keyField: "name" }),
+  defineMetadataItemCollectionRule({ propertyType: arrayType, itemRule, xmlElement: "Item", yamlAsArray: true }),
+  defineMetadataItemCollectionRule({
   propertyType: recursiveType,
   itemRule: recursiveItemRule,
   xmlElement: "Item",
   yamlAsArray: true,
-})
+  }),
+)
 
 const context = { defaultLanguage: "ru", version: "2.20" } as const
 const propertyRule = (type: PropertyRuleType): PropertyRule => ({ type })
+const exportCollectionPropertySchema = (
+  rules: RuleRegistrySet,
+  propertyType: PropertyRuleType,
+) => exportPropertyToJSONSchema({
+  context: contextFor(rules, "externalRefs"),
+  rule: propertyRule(propertyType),
+  value: undefined,
+  execution: rules.execution,
+})
 
 describe("registerMetadataItemCollectionRule direct importer", () => {
   it("creates a definition without writing to legacy registries", () => {
     const propertyType = "TestPureCollection" as PropertyRuleType
-    const typeRevision = typeRulesRegistryRevision()
-    const schemaNames = listJSONSchemaIdentityNames()
-
     const definition = defineMetadataItemCollectionRule({
       propertyType,
       itemRule,
       xmlElement: "Item",
     })
 
-    expect(typeRulesRegistryRevision()).toBe(typeRevision)
-    expect(listJSONSchemaIdentityNames()).toEqual(schemaNames)
     expect(definition.propertyTypes[propertyType]?.importFromXMLToYAML).toBeTypeOf(
       "function",
     )
@@ -77,15 +75,25 @@ describe("registerMetadataItemCollectionRule direct importer", () => {
   it("registers an explicitly opted-in direct importer", () => {
     const propertyType = "TestCustomDirectCollection" as PropertyRuleType
     const fromXMLToYAML = () => ({ Значение: "direct" })
-    registerMetadataItemCollectionRule({ propertyType, itemRule, xmlElement: "Item", fromXMLToYAML })
+    const rules = createCollectionRegistry(defineMetadataItemCollectionRule({
+      propertyType,
+      itemRule,
+      xmlElement: "Item",
+      fromXMLToYAML,
+    }))
 
-    expect(getTypeRule(propertyType, "importFromXMLToYAML")).toBe(fromXMLToYAML)
+    expect(rules.property.getTypeRule(propertyType, "importFromXMLToYAML")).toBe(fromXMLToYAML)
   })
 })
 
 describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
   it("exports record schema for record YAML collections", () => {
-    const schema = exportPropertyToJSONSchema({ context, rule: propertyRule(recordType), value: undefined })
+    const schema = exportPropertyToJSONSchema({
+      context,
+      rule: propertyRule(recordType),
+      value: undefined,
+      execution: collectionRules.execution,
+    })
     const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check({ A: { name: "A" } })).toBe(true)
@@ -94,7 +102,12 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
   })
 
   it("exports array schema for yamlAsArray collections", () => {
-    const schema = exportPropertyToJSONSchema({ context, rule: propertyRule(arrayType), value: undefined })
+    const schema = exportPropertyToJSONSchema({
+      context,
+      rule: propertyRule(arrayType),
+      value: undefined,
+      execution: collectionRules.execution,
+    })
     const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check([{ name: "A" }])).toBe(true)
@@ -102,7 +115,12 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
   })
 
   it("exports array schema inside recursive yamlAsArray collections", () => {
-    const schema = exportPropertyToJSONSchema({ context, rule: propertyRule(recursiveType), value: undefined })
+    const schema = exportPropertyToJSONSchema({
+      context,
+      rule: propertyRule(recursiveType),
+      value: undefined,
+      execution: collectionRules.execution,
+    })
     const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check([{ name: "A", children: [] }])).toBe(true)
@@ -125,18 +143,19 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
           explicit: { type: "string", yaml: "explicit", required: true },
         },
       } as MetadataItemRule
-      registerMetadataItemCollectionRule({ propertyType, itemRule: fallbackRule, xmlElement: "Item" })
-      const schemaContext = createJSONSchemaExportContext(context, mode)
+      const rules = createCollectionRegistry(defineMetadataItemCollectionRule({
+        propertyType,
+        itemRule: fallbackRule,
+        xmlElement: "Item",
+      }))
+      const schemaContext = contextFor(rules, mode)
       const schema = exportPropertyToJSONSchema({
         context: schemaContext,
         rule: { type: propertyType, itemRule: explicitRule },
         value: undefined,
+        execution: rules.execution,
       })!
-      const fallbackSchema = getJSONSchemaIdentityExporter(fallbackRule.itemType)?.({ context: schemaContext })
-      const compiled =
-        fallbackSchema === undefined
-          ? compileValidationSchema(schema)
-          : compileValidationSchema({ [createSchemaRef(fallbackRule.itemType)]: fallbackSchema }, schema)
+      const compiled = compileValidationSchema(schema)
 
       expect(compiled.Check({ A: { explicit: "yes" } })).toBe(true)
       expect(compiled.Check({ A: { fallback: "no" } })).toBe(false)
@@ -156,24 +175,34 @@ describe("registerMetadataItemCollectionRule JSON Schema refs", () => {
       properties: { owner: { type: "string", yaml: "owner", required: true } },
     } as MetadataItemRule
 
-    registerMetadataItemCollectionRule({
+    const collectionDefinition = defineMetadataItemCollectionRule({
       propertyType,
       schemaName: "TestDeclaredOwnerSchema",
       itemRule: fallbackRule,
       xmlElement: "Item",
     })
-    declarePropertyItemRule(propertyType, ownerRule)
+    const rules = createCollectionRegistry(
+      collectionDefinition,
+      defineMetadataRules({
+        ...emptyMetadataRules,
+        propertyItemRules: { [propertyType]: ownerRule },
+      }),
+    )
 
-    const schemaContext = createJSONSchemaExportContext(context, "externalRefs")
+    const schemaContext = contextFor(rules, "externalRefs")
     expect(
       exportPropertyToJSONSchema({
         context: schemaContext,
         rule: { type: propertyType, itemRule: ownerRule },
         value: undefined,
+        execution: rules.execution,
       })
     ).toEqual({ type: "object", additionalProperties: { $ref: "nkdk://schema/TestDeclaredOwnerSchema" } })
 
-    const namedSchema = getJSONSchemaIdentityExporter("TestDeclaredOwnerSchema")?.({ context: schemaContext })
+    const namedSchema = rules.schemas.get("TestDeclaredOwnerSchema")?.export({
+      context: schemaContext,
+      execution: rules.execution,
+    })
     const compiled = compileValidationSchema(namedSchema!)
     expect(compiled.Check({ owner: "yes" })).toBe(true)
     expect(compiled.Check({ fallback: "no" })).toBe(false)
@@ -181,70 +210,87 @@ describe("registerMetadataItemCollectionRule JSON Schema refs", () => {
 
   it("registers record ref schema for metadata collections by default", () => {
     const propertyType = "TestRefCollection" as PropertyRuleType
-    registerMetadataItemCollectionRule({ propertyType, itemRule, xmlElement: "Item" })
+    const rules = createCollectionRegistry(defineMetadataItemCollectionRule({ propertyType, itemRule, xmlElement: "Item" }))
 
-    expect(
-      exportPropertyToJSONSchema({
-        context: createJSONSchemaExportContext(context, "externalRefs"),
-        rule: propertyRule(propertyType),
-        value: undefined,
-      })
-    ).toEqual({ type: "object", additionalProperties: { $ref: "nkdk://schema/TestCollectionItem" } })
+    expect(exportCollectionPropertySchema(rules, propertyType)).toEqual({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/TestCollectionItem" },
+    })
   })
 
   it("registers array ref schema when yamlAsArray is true", () => {
     const propertyType = "TestRefArrayCollection" as PropertyRuleType
-    registerMetadataItemCollectionRule({ propertyType, itemRule, xmlElement: "Item", yamlAsArray: true })
+    const rules = createCollectionRegistry(defineMetadataItemCollectionRule({
+      propertyType,
+      itemRule,
+      xmlElement: "Item",
+      yamlAsArray: true,
+    }))
 
-    expect(
-      exportPropertyToJSONSchema({
-        context: createJSONSchemaExportContext(context, "externalRefs"),
-        rule: propertyRule(propertyType),
-        value: undefined,
-      })
-    ).toEqual({ type: "array", items: { $ref: "nkdk://schema/TestCollectionItem" } })
+    expect(exportCollectionPropertySchema(rules, propertyType)).toEqual({
+      type: "array",
+      items: { $ref: "nkdk://schema/TestCollectionItem" },
+    })
   })
 
   it("uses explicit schemaName for collection item refs", () => {
     const propertyType = "TestExplicitRefCollection" as PropertyRuleType
-    registerMetadataItemCollectionRule({
+    const rules = createCollectionRegistry(defineMetadataItemCollectionRule({
       propertyType,
       itemRule,
       xmlElement: "Item",
       schemaName: "ExplicitCollectionItem",
-    })
+    }))
 
-    expect(
-      exportPropertyToJSONSchema({
-        context: createJSONSchemaExportContext(context, "externalRefs"),
-        rule: propertyRule(propertyType),
-        value: undefined,
-      })
-    ).toEqual({ type: "object", additionalProperties: { $ref: "nkdk://schema/ExplicitCollectionItem" } })
+    expect(exportCollectionPropertySchema(rules, propertyType)).toEqual({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/ExplicitCollectionItem" },
+    })
   })
 
   it("registers direct schema ref for custom collection schemas", () => {
     const propertyType = "TestCustomSchemaCollection" as PropertyRuleType
-    registerMetadataItemCollectionRule({
+    const rules = createCollectionRegistry(defineMetadataItemCollectionRule({
       propertyType,
       itemRule,
       xmlElement: "Item",
       schemaName: "CustomCollectionSchema",
       schemaShape: "schema",
       toJSONSchema: () => Type.Array(Type.Object({ custom: Type.Literal("yes") }, { additionalProperties: false })),
-    })
+    }))
 
     const schema = exportPropertyToJSONSchema({
-      context: createJSONSchemaExportContext(context, "externalRefs"),
+      context: contextFor(rules, "externalRefs"),
       rule: propertyRule(propertyType),
       value: undefined,
+      execution: rules.execution,
     })
-    const identityExporter = getJSONSchemaIdentityExporter("CustomCollectionSchema")
+    const identityExporter = rules.schemas.get("CustomCollectionSchema")?.export
 
     expect(schema).toEqual({ $ref: "nkdk://schema/CustomCollectionSchema" })
-    expect(identityExporter?.({ context })).toMatchObject({
+    expect(identityExporter?.({ context, execution: rules.execution })).toMatchObject({
       type: "array",
       items: { type: "object", properties: { custom: { const: "yes" } } },
     })
   })
 })
+
+function contextFor(rules: RuleRegistrySet, mode: "inline" | "externalRefs") {
+  return createJSONSchemaExportContext(context, mode, {
+    propertyRef: ({ context: schemaContext, rule }) => rules.schemas.propertyRef((rule as PropertyRule).type)?.({
+      context: schemaContext,
+      rule: rule as PropertyRule,
+      execution: rules.execution,
+    }),
+  })
+}
+
+function createCollectionRegistry(...definitions: readonly MetadataRulesDefinition<never>[]) {
+  return createRuleRegistrySet(composeMetadataRules(
+    defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: { string: { exportToJSONSchema: () => Type.String() } },
+    }),
+    ...definitions,
+  ))
+}

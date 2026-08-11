@@ -139,6 +139,36 @@ describe("metadata import boundaries", () => {
     expect(existsSync(join(METADATA_DIR, "workerPool", "registerOperations.ts"))).toBe(false)
   })
 
+  it("property and schema rules do not keep process-global registries", () => {
+    expect(existsSync(join(RUNTIME_METADATA_DIR, "ruleRuntime", "property", "propertyTypeKeys.ts"))).toBe(false)
+    expect(existsSync(join(RUNTIME_METADATA_DIR, "ruleRuntime", "definition", "legacyRuleRegistration.ts"))).toBe(false)
+    const files = [
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "jsonSchemaRefs.ts"),
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "property", "systemEnumerationRegistry.ts"),
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "property", "propertyItemRuleDeclarations.ts"),
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "property", "indexValueFromYAMLRegistry.ts"),
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "property", "metadataTargetOwnerRegistry.ts"),
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "formElement", "registry.ts"),
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "formElement", "ruleRegistry.ts"),
+      join(METADATA_DIR, "projectDefinition", "schemaRegistry.ts"),
+    ]
+    const forbidden = [
+      /^const (?:propertyRefFactories|schemaIdentityExporters|validationSchemas|systemEnumerations|declarations|indexValueFromYAMLRegistry|resolvers|schemaExporters|schemaRefFactories|collectionElementTypes|elementRulesRegistry)\s*=\s*new Map/m,
+      /^const registeredPropertyRuleTypes\s*=\s*new Set/m,
+      /^let namedSchemasInitialized\s*=/m,
+      /registerLegacySchemaDefinitions/,
+    ]
+
+    const offenders = files.flatMap((filePath) => {
+      const source = readFileSync(filePath, "utf-8")
+      return forbidden
+        .filter((pattern) => pattern.test(source))
+        .map((pattern) => ({ filePath: relative(WORKSPACE_ROOT, filePath), pattern: pattern.source }))
+    })
+
+    expect(offenders).toEqual([])
+  })
+
   it("ruleRuntime/appliedObject не импортирует configuration migrations", () => {
     expect(
       findImportOffenders(ORCHESTRATION_APPLIED_OBJECT_DIR, FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS)

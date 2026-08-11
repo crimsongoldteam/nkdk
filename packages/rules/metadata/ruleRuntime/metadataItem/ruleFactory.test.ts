@@ -1,14 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { createJSONSchemaExportContext, getJSONSchemaIdentityExporter } from "../jsonSchemaRefs"
+import { createJSONSchemaExportContext } from "../jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
-import { getTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
-import {
-  defineMetadataItemRule,
-  registerMetadataItemRule,
-} from "./ruleFactory"
-import { typeRulesRegistryRevision } from "../property/typeRuleRegistry"
-import { listJSONSchemaIdentityNames } from "../jsonSchemaRefs"
+import { defineMetadataItemRule } from "./ruleFactory"
+import { createRuleRegistrySet } from "../ruleRegistrySet"
+import { composeMetadataRules, defineMetadataRules, type MetadataRulesDefinition } from "../definition"
+import { emptyMetadataRules } from "../definition/testSupport"
+import { Type } from "typebox"
 import { predefinedRule } from "../../commonObjects/predefined/builders"
 import { PredefinedRules } from "../../commonObjects/predefined/rules"
 import { ChartOfAccountsPredefinedRules } from "../../appliedObjects/metadataChartOfAccounts/predefined/rules"
@@ -34,16 +32,11 @@ const ExplicitOnlySampleItemRule = {
 
 describe("registerMetadataItemRule JSON Schema identity", () => {
   it("creates a definition without writing to legacy registries", () => {
-    const typeRevision = typeRulesRegistryRevision()
-    const schemaNames = listJSONSchemaIdentityNames()
-
     const definition = defineMetadataItemRule({
       propertyType: "RuleFactorySampleItemProperty",
       itemRule: SampleItemRule,
     })
 
-    expect(typeRulesRegistryRevision()).toBe(typeRevision)
-    expect(listJSONSchemaIdentityNames()).toEqual(schemaNames)
     expect(
       definition.propertyTypes.RuleFactorySampleItemProperty
         ?.importFromXMLToYAML,
@@ -57,10 +50,12 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
   })
 
   it("registers item schema by itemType by default", () => {
-    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
+    const rules = sampleRules()
 
-    const exporter = getJSONSchemaIdentityExporter("RuleFactorySampleItem")
-    expect(exporter?.({ context: baseContext })).toMatchObject({
+    expect(rules.schemas.get("RuleFactorySampleItem")?.export({
+      context: baseContext,
+      execution: rules.execution,
+    })).toMatchObject({
       type: "object",
       properties: { Имя: { type: "string" } },
       required: ["Имя"],
@@ -68,23 +63,26 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
   })
 
   it("uses explicit schemaName when provided", () => {
-    registerMetadataItemRule({
+    const rules = createItemRegistry(defineMetadataItemRule({
       propertyType: "RuleFactoryExplicitOnlySampleItemProperty",
       itemRule: ExplicitOnlySampleItemRule,
       schemaName: "RuleFactoryExplicitSampleItem",
-    })
+    }))
 
-    expect(getJSONSchemaIdentityExporter("RuleFactoryExplicitOnlySampleItem")).toBeUndefined()
-    expect(getJSONSchemaIdentityExporter("RuleFactoryExplicitSampleItem")?.({ context: baseContext })).toMatchObject({
+    expect(rules.schemas.get("RuleFactoryExplicitOnlySampleItem")).toBeUndefined()
+    expect(rules.schemas.get("RuleFactoryExplicitSampleItem")?.export({
+      context: baseContext,
+      execution: rules.execution,
+    })).toMatchObject({
       type: "object",
     })
   })
 
   it("describes filePath XML as an input of the owning import assignment", () => {
-    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
+    const rules = sampleRules()
 
     expect(
-      getTypeRule("RuleFactorySampleItemProperty", "resourceTopology")?.({
+      rules.property.getTypeRule("RuleFactorySampleItemProperty", "resourceTopology")?.({
         propertyRule: { type: "RuleFactorySampleItemProperty", filePath: "Ext/Sample.xml" },
       })
     ).toEqual([
@@ -102,12 +100,12 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
   })
 
   it("позволяет property-rule уточнить правило вложенного документа", () => {
-    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
+    const rules = sampleRules()
     const override = {
       ...SampleItemRule,
       itemType: "RuleFactoryOverriddenSampleItem",
     } as const satisfies MetadataItemRule
-    const descriptor = getTypeRule("RuleFactorySampleItemProperty", "yamlToXMLNestedRule")
+    const descriptor = rules.property.getTypeRule("RuleFactorySampleItemProperty", "yamlToXMLNestedRule")
 
     expect(
       descriptor?.kind === "item"
@@ -120,7 +118,7 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
   })
 
   it("restores full required inside a non-addressable nested item", () => {
-    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
+    const rules = sampleRules()
     const context = createJSONSchemaExportContext(baseContext, "inline")
     context.exportToJSONSchema!.requiredPolicy = {
       currentBoundary: "defer",
@@ -131,6 +129,7 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
       context,
       rule: { type: "RuleFactorySampleItemProperty" },
       value: undefined,
+      execution: rules.execution,
     })
 
     expect(schema).toMatchObject({ required: ["Имя"] })
@@ -142,10 +141,10 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
       itemType: "RuleFactoryAddressableSampleItem",
       externalMetadata: { segment: "Sample", placement: "ownerChild" },
     } as const satisfies MetadataItemRule
-    registerMetadataItemRule({
+    const rules = createItemRegistry(defineMetadataItemRule({
       propertyType: "RuleFactoryAddressableSampleItemProperty",
       itemRule: addressableRule,
-    })
+    }))
     const context = createJSONSchemaExportContext(baseContext, "inline")
     context.exportToJSONSchema!.requiredPolicy = {
       currentBoundary: "full",
@@ -156,12 +155,30 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
       context,
       rule: { type: "RuleFactoryAddressableSampleItemProperty" },
       value: undefined,
+      execution: rules.execution,
     })
 
     expect(schema).not.toHaveProperty("required")
     expect(schema).toHaveProperty("properties.Имя")
   })
 })
+
+function sampleRules() {
+  return createItemRegistry(defineMetadataItemRule({
+    propertyType: "RuleFactorySampleItemProperty",
+    itemRule: SampleItemRule,
+  }))
+}
+
+function createItemRegistry(definition: MetadataRulesDefinition<never>) {
+  return createRuleRegistrySet(composeMetadataRules(
+    defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: { string: { exportToJSONSchema: () => Type.String() } },
+    }),
+    definition,
+  ))
+}
 
 describe("Predefined JSON Schema", () => {
   const schemaContext = createJSONSchemaExportContext(baseContext, "externalRefs")

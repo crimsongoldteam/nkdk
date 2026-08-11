@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { registerSystemEnumeration } from "@nkdk/runtime/rule-kit"
+import { createPropertyRuleRegistrySet, withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { normalizeDataPathTerminalType } from "./terminalTypes"
-
-registerSystemEnumeration("__terminal_type_test_enum__", { fromYAML: {}, toYAML: {} })
+import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 
 describe("normalizeDataPathTerminalType", () => {
   it.each([
@@ -33,12 +32,16 @@ describe("normalizeDataPathTerminalType", () => {
   })
 
   it("maps a registered platform enumeration to one matrix group", () => {
-    expect(
+    const registry = createPropertyRuleRegistrySet({
+      ...emptyMetadataRules,
+      systemEnumerations: { __terminal_type_test_enum__: { fromYAML: {}, toYAML: {} } },
+    })
+    expect(withPropertyRuleRegistrySet(registry, () =>
       normalizeDataPathTerminalType({
         kinds: ["scalar"],
         nextTypes: [],
         terminalTypes: ["__terminal_type_test_enum__"],
-      })
+      }))
     ).toMatchObject({ status: "resolved", groups: ["<standard-enum>"], composite: false })
   })
 

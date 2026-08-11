@@ -1,6 +1,5 @@
 export {
   ProjectFileSchemaError,
-  ensureJSONSchemaRegistry,
   exportJSONSchemaForSchemaName,
   exportJSONSchemaForMetadataItemRule,
   exportJSONSchemaGraph,

@@ -16,18 +16,8 @@ export type MetadataTargetOwnerResolver = (params: {
   context?: ConfigurationContext
 }) => MetadataTargetOwner | undefined
 
-const resolvers = new Map<string, MetadataTargetOwnerResolver>()
-
-export function registerMetadataTargetOwnerResolver(itemType: string, resolver: MetadataTargetOwnerResolver): void {
-  resolvers.set(itemType, resolver)
-}
-
 export function getMetadataTargetOwnerResolver(itemType: string): MetadataTargetOwnerResolver | undefined {
   return currentPropertyRuleRegistrySet<{
     getMetadataTargetOwnerResolver(type: string): MetadataTargetOwnerResolver | undefined
-  }>()?.getMetadataTargetOwnerResolver(itemType) ?? resolvers.get(itemType)
-}
-
-export function clearMetadataTargetOwnerResolversForTests(): void {
-  resolvers.clear()
+  }>()?.getMetadataTargetOwnerResolver(itemType)
 }

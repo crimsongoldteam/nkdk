@@ -55,6 +55,10 @@ import { configurationResourceCapabilityRules } from "../appliedObjects/configur
 import { commonObjectExternalTransferCapabilityRules } from "../commonObjects/resourceTopology"
 import { appliedObjectResourceCapabilityRules } from "../ruleRuntime/appliedObject/syncToXML"
 import { clientApplicationFormImportedYamlFinalizerRules } from "../forms/clientApplicationForm/importedYamlFinalizer"
+import { typeDescriptionIndexRules } from "../commonObjects/typeDescription/fromYAML"
+import { metadataExternalDataSourceCubeOwnerRules } from "../commonObjects/metadataExternalDataSourceCube/register"
+import { metadataExternalDataSourceTableOwnerRules } from "../commonObjects/metadataExternalDataSourceTable/register"
+import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/register"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -95,6 +99,10 @@ const operationRules = defineMetadataRules({
 export const legacyCoreRules = composeMetadataRules(
   staticFactoryRules,
   staticPropertyRules,
+  typeDescriptionIndexRules,
+  metadataExternalDataSourceCubeOwnerRules,
+  metadataExternalDataSourceTableOwnerRules,
+  metadataExternalDataSourceDimensionTableOwnerRules,
   systemEnumerationRules,
   appliedObjectProjectRules,
   ownerFactCollectorRules,

@@ -3,7 +3,6 @@ import "./registry.types"
 import { ConfigurationContext } from "@nkdk/runtime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { isEmptyI8nText } from "./helper"
-import "./registerPropertyType"
 import type { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
 
 /** @deprecated */
