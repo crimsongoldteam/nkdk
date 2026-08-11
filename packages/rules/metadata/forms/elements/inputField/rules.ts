@@ -19,6 +19,7 @@ import type { DataPathAllowedKind, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
+import { settingsComposerValueFieldKinds } from "../../settingsComposer/dataPathModel"
 export type { ElementRule, PropertyRule }
 const inputFieldDataPathKinds = [
   "string", "decimal", "boolean", "dateTime", "UUID", "Null", "<any>",
@@ -35,6 +36,8 @@ const inputFieldDataPathKinds = [
   "CatalogTabularSection.*", "<standard-enum>", "DataCompositionComparisonType",
   "ComparisonType", "DataCompositionGroupType", "DataCompositionSortDirection",
   "DataCompositionPeriodAdditionType", "Field", "Filter", "HorizontalAlign", "VerticalAlign",
+  ...settingsComposerValueFieldKinds,
+  "DataCompositionFilterApplicationType", "DataCompositionFieldPlacement",
 ] as const satisfies readonly DataPathAllowedKind[]
 export const InputFieldRules = {
   itemType: "InputField",

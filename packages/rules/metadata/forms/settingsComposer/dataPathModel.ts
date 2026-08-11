@@ -94,6 +94,41 @@ const collectionTypes = {
   UserFields: "DataCompositionUserFields", ItemUserFields: "DataCompositionUserFields",
 } as const
 
+export const settingsComposerTableKinds = [
+  "DataCompositionSettings",
+  "DataCompositionUserSettings",
+  "DataCompositionStructure",
+  "DataCompositionDataParameters",
+  "DataCompositionFilter",
+  "DataCompositionGroupFields",
+  "DataCompositionSelection",
+  "DataCompositionOrder",
+  "DataCompositionConditionalAppearance",
+  "DataCompositionAppearance",
+  "DataCompositionAppearanceFields",
+  "DataCompositionAvailableFields",
+  "DataCompositionUserFields",
+] as const
+
+export const settingsComposerValueFieldKinds = [
+  "DataCompositionFilter",
+  "DataCompositionGroupFields",
+  "DataCompositionSelection",
+  "DataCompositionOrder",
+  "DataCompositionConditionalAppearance",
+  "DataCompositionAppearance",
+  "DataCompositionAppearanceFields",
+] as const
+
+export const settingsComposerRadioFieldKinds = [
+  "DataCompositionComparisonType",
+  "DataCompositionGroupType",
+  "DataCompositionFilterApplicationType",
+  "DataCompositionFieldPlacement",
+  "DataCompositionPeriodAdditionType",
+  "DataCompositionSortDirection",
+] as const
+
 const settingsComposerGraph = new Map<string, readonly SettingsComposerProperty[]>([
   [SETTINGS_COMPOSER_TYPE, collections("Settings", "UserSettings", "FixedSettings")],
   ["DataCompositionSettings", [

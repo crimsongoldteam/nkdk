@@ -22,8 +22,14 @@ import { SpreadSheetDocumentFieldRules } from "./spreadSheetDocumentField/rules"
 import { TableRules } from "./table/rules"
 import { TextDocumentFieldRules } from "./textDocumentField/rules"
 import { TrackBarFieldRules } from "./trackBarField/rules"
+import {
+  settingsComposerRadioFieldKinds,
+  settingsComposerTableKinds,
+  settingsComposerValueFieldKinds,
+} from "../settingsComposer/dataPathModel"
 
-const inputKinds = matrixKinds(`
+const inputKinds = [
+  ...matrixKinds(`
   string decimal boolean dateTime UUID Null <any> Picture Color Font ValueStorage TypeDescription
   ValueTable ValueListType StandardPeriod StandardBeginningDate DocumentRef.* CatalogRef.* EnumRef.* TaskRef.*
   BusinessProcessRef.* ExchangePlanRef.* ChartOfAccountsRef.* ChartOfCharacteristicTypesRef.*
@@ -33,9 +39,14 @@ const inputKinds = matrixKinds(`
   BusinessProcessRoutePointRef AnyIBRef CatalogTabularSection.* <standard-enum> DataCompositionComparisonType
   ComparisonType DataCompositionGroupType DataCompositionSortDirection DataCompositionPeriodAdditionType
   Field Filter HorizontalAlign VerticalAlign
-`)
+  `),
+  ...settingsComposerValueFieldKinds,
+  "DataCompositionFilterApplicationType",
+  "DataCompositionFieldPlacement",
+] as const satisfies readonly DataPathAllowedKind[]
 
-const labelKinds = matrixKinds(`
+const labelKinds = [
+  ...matrixKinds(`
   string decimal boolean dateTime UUID Null <any> Picture FormattedString ValueStorage TypeDescription
   ValueTable ValueTree ValueListType StandardPeriod DocumentRef.* CatalogRef.* EnumRef.* TaskRef.*
   BusinessProcessRef.* ExchangePlanRef.* ChartOfAccountsRef.* ChartOfCharacteristicTypesRef.*
@@ -43,7 +54,15 @@ const labelKinds = matrixKinds(`
   CalculationRegisterRef.* Characteristic.* DefinedType.* DocumentRef CatalogRef EnumRef TaskRef BusinessProcessRef
   ExchangePlanRef ChartOfAccountsRef ChartOfCharacteristicTypesRef ChartOfCalculationTypesRef
   BusinessProcessRoutePointRef AnyIBRef <standard-enum> DataCompositionSortDirection
-`)
+  `),
+  ...settingsComposerValueFieldKinds,
+  "Field",
+  "DataCompositionComparisonType",
+  "DataCompositionGroupType",
+  "DataCompositionFilterApplicationType",
+  "DataCompositionFieldPlacement",
+  "DataCompositionPeriodAdditionType",
+] as const satisfies readonly DataPathAllowedKind[]
 
 const tableKinds = [
   "DynamicList", "ValueTable", "ValueTree", "ValueListType", "GanttChart",
@@ -54,6 +73,7 @@ const tableKinds = [
   "ChartOfAccountsExtDimensionTypes.*", "InformationRegisterRecordSet.*",
   "AccumulationRegisterRecordSet.*", "AccountingRegisterRecordSet.*",
   "CalculationRegisterRecordSet.*",
+  ...settingsComposerTableKinds,
 ] as const satisfies readonly DataPathAllowedKind[]
 
 describe("form element DataPath policies", () => {
@@ -85,6 +105,7 @@ describe("form element DataPath policies", () => {
       allowedKinds: [
         "string", "decimal", "CatalogRef.*", "DefinedType.*", "EnumRef.*",
         "FormattedString", "ChartOfAccountsRef.*", "ChartOfCharacteristicTypesRef.*", "<standard-enum>",
+        ...settingsComposerRadioFieldKinds,
       ],
       allowComposite: false,
     })

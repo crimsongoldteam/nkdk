@@ -3,6 +3,7 @@ import {
   resolveSettingsComposerProperty,
   settingsComposerInternalToYaml,
   settingsComposerNamePairs,
+  settingsComposerTableKinds,
   settingsComposerTypeInfo,
   settingsComposerYamlToInternal,
 } from "./dataPathModel"
@@ -97,6 +98,11 @@ describe("SettingsComposer DataPath model", () => {
       table: { kind: "Registered", type: "DataCompositionFilter" },
       sourceText: "DataCompositionFilter",
     })
+  })
+
+  it("keeps the closed table-kind catalog complete and unique", () => {
+    expect(new Set(settingsComposerTableKinds).size).toBe(settingsComposerTableKinds.length)
+    expect(settingsComposerTableKinds).toHaveLength(13)
   })
 
   it("rejects unknown properties of a registered type", () => {
