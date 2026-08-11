@@ -23,4 +23,5 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataExternalDataSourceCubeDimensionRules,
   xmlElement: "Dimension",
   keyField: "name",
+  configurationIndexUidSegment: "Измерение",
 })

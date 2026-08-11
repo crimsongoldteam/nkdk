@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Document uuid="2bcf1106-a38f-4406-a794-9cbce77fbbf5">
+		<InternalInfo>
+			<xr:GeneratedType name="DocumentObject.ДокументСНумератором" category="Object">
+				<xr:TypeId>35a2dab2-2819-4a15-a18b-65ab65e021b8</xr:TypeId>
+				<xr:ValueId>7723e508-b36a-4dfc-b5ad-fdf7a239943c</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentRef.ДокументСНумератором" category="Ref">
+				<xr:TypeId>e57af8e5-ef00-4e91-a598-b03b7fbdc539</xr:TypeId>
+				<xr:ValueId>7810c624-a029-4d64-a732-073a541b8faa</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentSelection.ДокументСНумератором" category="Selection">
+				<xr:TypeId>be7fa96a-d164-4020-96cc-6fec55af835c</xr:TypeId>
+				<xr:ValueId>a0cd6b32-31ad-4fc6-89a6-073ca089c105</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentList.ДокументСНумератором" category="List">
+				<xr:TypeId>c5f62f5e-f5c2-4652-9504-fb0439293bb6</xr:TypeId>
+				<xr:ValueId>0716d306-597f-4cf7-8e04-6b24dd51de8c</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentManager.ДокументСНумератором" category="Manager">
+				<xr:TypeId>950bab2c-a58c-45ef-8aee-366a51ad2d12</xr:TypeId>
+				<xr:ValueId>78a6b895-3e00-4160-8ff1-43542931f904</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ДокументСНумератором</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>9224a081-f4fe-4d3d-8f9a-67fbdbdbb201</ExtendedConfigurationObject>
+			<RegisterRecords/>
+		</Properties>
+		<ChildObjects/>
+	</Document>
+</MetaDataObject>

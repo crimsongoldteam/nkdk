@@ -65,8 +65,9 @@ const ENTITY_FLAGS = {
   xsiType: 1 << 8,
   xmlText: 1 << 9,
   xmlPrefix: 1 << 10,
+  present: 1 << 11,
 } as const
-const KNOWN_ENTITY_FLAGS = (1 << 11) - 1
+const KNOWN_ENTITY_FLAGS = (1 << 12) - 1
 const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true })
 
 export function decodeConfigurationIndex(
@@ -89,7 +90,7 @@ export function decodeConfigurationIndex(
     validateCrossReferences(files, entities, strings)
     validateExpectedComponentPath(snapshot.componentPath, options)
     return {
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       indexGeneration: snapshot.indexGeneration,
       componentPath: snapshot.componentPath,
       files,
@@ -109,7 +110,7 @@ function readAndValidateHeader(buffer: Buffer): ConfigurationIndexHeader {
 
   const majorVersion = buffer.readUInt16LE(8)
   const minorVersion = buffer.readUInt16LE(10)
-  if (majorVersion !== 1 || minorVersion !== 3) {
+  if (majorVersion !== 1 || minorVersion !== 4) {
     throw new ConfigurationIndexCompatibilityError(
       `Неподдерживаемая версия файла индекса конфигурации ${majorVersion}.${minorVersion}; требуется повторный import`
     )
@@ -352,9 +353,7 @@ function decodeEntity(fields: Buffer, strings: DecodedStrings): ConfigurationSna
   }
 
   const xml: ConfigurationSnapshotXml = {
-    ...(hasFlag(fieldMask, ENTITY_FLAGS.extended) ? { extended: true } : {}),
-    ...(hasFlag(fieldMask, ENTITY_FLAGS.xsiNil) ? { xsiNil: true } : {}),
-    ...(hasFlag(fieldMask, ENTITY_FLAGS.explicitEmpty) ? { explicitEmpty: true } : {}),
+    ...decodeConfigurationSnapshotXmlFlags(fieldMask),
     ...(hasFlag(fieldMask, ENTITY_FLAGS.xsiType)
       ? { xsiType: readEntityString(fields, strings, offset, "xsiType ENTITIES") }
       : {}),
@@ -386,6 +385,15 @@ function decodeEntity(fields: Buffer, strings: DecodedStrings): ConfigurationSna
       : {}),
     ...(omittedChildren === undefined ? {} : { omittedChildren }),
     ...(hasXml ? { xml } : {}),
+  }
+}
+
+export function decodeConfigurationSnapshotXmlFlags(fieldMask: number): ConfigurationSnapshotXml {
+  return {
+    ...(hasFlag(fieldMask, ENTITY_FLAGS.present) ? { present: true } : {}),
+    ...(hasFlag(fieldMask, ENTITY_FLAGS.extended) ? { extended: true } : {}),
+    ...(hasFlag(fieldMask, ENTITY_FLAGS.xsiNil) ? { xsiNil: true } : {}),
+    ...(hasFlag(fieldMask, ENTITY_FLAGS.explicitEmpty) ? { explicitEmpty: true } : {}),
   }
 }
 

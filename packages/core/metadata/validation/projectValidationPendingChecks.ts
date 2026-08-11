@@ -38,6 +38,13 @@ export type ValidationPendingCheck =
       tagged: boolean
       transport?: "DesignTimeRef"
     }
+  | {
+      kind: "addressableRequired"
+      yamlPath: YamlPath
+      location: YamlDiagnosticLocation
+      canonicalTarget: string
+      missing: readonly string[]
+    }
 
 export type DataPathValidationPendingCheck = Extract<ValidationPendingCheck, { kind: "dataPath" }>
 
@@ -52,6 +59,7 @@ export function validatePendingChecks(params: {
   const diagnostics: Diagnostic[] = []
 
   for (const check of params.checks) {
+    if (check.kind === "addressableRequired") continue
     if (check.kind === "fillValue") {
       diagnostics.push(...validateFillValueCheck(params.ownerCache, check))
       continue

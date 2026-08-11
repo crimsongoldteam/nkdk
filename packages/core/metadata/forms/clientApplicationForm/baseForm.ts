@@ -18,6 +18,7 @@ export function buildClientApplicationBaseForm(params: {
   readonly baseIndex?: ConfigurationIndexReader
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml?: ClientApplicationFormYAML
+  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly formName: string
   readonly rule?: MetadataItemRule
 }): ClientApplicationFormXML {
@@ -39,6 +40,7 @@ function buildProjectedClientApplicationBaseForm(params: {
   readonly baseIndex: ConfigurationIndexReader
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml: ClientApplicationFormYAML
+  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly formName: string
   readonly rule?: MetadataItemRule
 }): ClientApplicationFormXML {
@@ -55,6 +57,7 @@ function buildProjectedClientApplicationBaseForm(params: {
       : createBaseFormConfigurationIndexReader({
           base: params.baseIndex,
           extension: runtime.source,
+          formLogicalAddress: runtime.logicalAddress,
           extensionIdentityAddresses: extensionIdentityAddresses({
             formAddress: runtime.logicalAddress,
             projected,
@@ -68,6 +71,8 @@ function buildProjectedClientApplicationBaseForm(params: {
     context,
     yaml: projected.yaml,
     dataPathYaml: projected.yaml,
+    currentConfigurationFormYaml:
+      params.currentConfigurationFormYaml ?? params.baseYaml,
     name: params.formName,
     rule,
   }).formXML
@@ -79,6 +84,7 @@ function buildProjectedClientApplicationBaseForm(params: {
 function buildSavedClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly baseYaml: ClientApplicationFormYAML
+  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly formName: string
   readonly rule?: MetadataItemRule
 }): ClientApplicationFormXML {
@@ -86,6 +92,9 @@ function buildSavedClientApplicationBaseForm(params: {
     context: params.context,
     yaml: params.baseYaml,
     dataPathYaml: params.baseYaml,
+    ...(params.currentConfigurationFormYaml === undefined
+      ? {}
+      : { currentConfigurationFormYaml: params.currentConfigurationFormYaml }),
     name: params.formName,
     rule: params.rule ?? ClientApplicationFormRules,
   }).formXML

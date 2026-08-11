@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Report uuid="decea4a3-1150-4719-9c73-97ee18fc28a0">
+		<InternalInfo>
+			<xr:GeneratedType name="ReportObject.ОтчетВсеСвойства" category="Object">
+				<xr:TypeId>1699aa36-9d16-4fa5-b778-6b8336830f37</xr:TypeId>
+				<xr:ValueId>49302682-e5d0-473c-83f2-f98218e29c18</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ReportManager.ОтчетВсеСвойства" category="Manager">
+				<xr:TypeId>cc5b9b3e-49ba-42b1-bdca-38055e1d4eae</xr:TypeId>
+				<xr:ValueId>4b249696-1044-4805-b64a-886d8b7b50cf</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ОтчетВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>5f67e404-0a01-4480-aa68-1149a6e085cc</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="fa5419e6-f554-4aa4-b682-a7805f940046">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>e5209060-b2c5-4960-b9ae-654ee3c92a71</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="0665ad0a-db04-4e82-b118-f6011f552ee3">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитБулево</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>31d13e78-c0d2-451b-b7e1-c13cf874e2fc</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="d5e5dfbd-7ec7-4ac2-95f4-ba4fa06599b4">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>743aba58-3385-4e18-8c93-30c05bb65081</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="3d4c44b5-e550-46f9-ad50-c7fb0306784b">
+				<InternalInfo>
+					<xr:GeneratedType name="ReportTabularSection.ОтчетВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSection">
+						<xr:TypeId>88ae695a-7398-40b7-8e4c-a674ca0cdec8</xr:TypeId>
+						<xr:ValueId>34bbd591-1d5e-4922-909a-488cae7c053a</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ReportTabularSectionRow.ОтчетВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSectionRow">
+						<xr:TypeId>37de3f07-767c-410a-94e9-6127f0ea5c78</xr:TypeId>
+						<xr:ValueId>3f7bd431-a4f5-4012-8be9-f14f1889a932</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>f39f1f82-33fe-49f6-878f-818ed052930b</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="c6959d8a-c728-4066-ad2b-c10c061bac32">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитТаблицыВсеСвойства</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>4809f457-d357-4169-b1e7-4cb3d9388542</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<TabularSection uuid="ad785880-505a-4a3a-9692-3e32e856a3f2">
+				<InternalInfo>
+					<xr:GeneratedType name="ReportTabularSection.ОтчетВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSection">
+						<xr:TypeId>8ea368c1-4ae6-423a-b990-fd44e97d478d</xr:TypeId>
+						<xr:ValueId>0e60316c-0ed6-43f8-9345-2bdcafd41248</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ReportTabularSectionRow.ОтчетВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSectionRow">
+						<xr:TypeId>12126666-9d89-45e3-b44f-cddcb7e8e9a0</xr:TypeId>
+						<xr:ValueId>6c97ea9e-81ec-4f35-bff7-b66e1e8e8101</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>e96a2037-4c32-4863-a4dd-6ce899c0f395</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects/>
+			</TabularSection>
+			<Form>ФормаОтчета</Form>
+			<Form>ФормаВарианта</Form>
+			<Form>ФормаНастроек</Form>
+			<Template>Макет</Template>
+			<Template>ОсновнаяСхемаКомпоновкиДанных</Template>
+			<Command uuid="197e355e-a8d8-44e1-9309-0140eb45bb0a">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>be5e3364-681d-45ff-9418-a77ad1d1be30</ExtendedConfigurationObject>
+					<Group>FormNavigationPanelGoTo</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</Report>
+</MetaDataObject>

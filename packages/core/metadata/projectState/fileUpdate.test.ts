@@ -4,11 +4,55 @@ import { toDataPathPolicyInput } from "../validation/dataPath/policies"
 import {
   assertProjectStateFileUpdateBatch,
   createProjectStateFileUpdateBatch,
+  isolateProjectStateYamlUpdate,
   type ProjectStateFileUpdate,
   type ProjectStateFileUpdateBatch,
 } from "./fileUpdate"
 
 describe("ProjectStateFileUpdateBatch", () => {
+  it("оставляет у изолированного YAML только локальные schema diagnostics", () => {
+    const schemaDiagnostic = {
+      line: 1,
+      col: 1,
+      severity: "error" as const,
+      source: "structure" as const,
+      message: "schema",
+    }
+    const update = isolateProjectStateYamlUpdate({
+      ...yamlUpdate("cfe/Расширение/БазоваяФорма.yaml"),
+      componentPath: "cfe/Расширение",
+      localValidation: {
+        contributedFacts: true,
+        diagnostics: [schemaDiagnostic, { ...schemaDiagnostic, message: "reference" }],
+        schemaDiagnostics: [schemaDiagnostic],
+      },
+      targets: [{ kind: "member", canonical: "Catalog.Товары.Form.Форма" }],
+      owners: [{ owner: { kind: "CatalogObject", name: "Товары" }, facts: {} }],
+      pendingReferences: [{
+        yamlPath: [],
+        canonical: "Catalog.Товары",
+        target: { kind: "object", root: "Catalog", objectName: "Товары" },
+        constraint: { kind: "object", roots: ["Catalog"] },
+      }],
+      dependencies: ["Catalog.Товары"],
+    })
+
+    expect(update).toMatchObject({
+      localValidation: {
+        contributedFacts: false,
+        diagnostics: [schemaDiagnostic],
+        schemaDiagnostics: [schemaDiagnostic],
+      },
+      targets: [],
+      owners: [],
+      fields: [],
+      forms: [],
+      pendingReferences: [],
+      pendingChecks: [],
+      dependencies: [],
+    })
+  })
+
   it("переносит одну файловую цель через YAML- и resource-update", () => {
     const target = {
       kind: "member",
@@ -293,6 +337,7 @@ describe("ProjectStateFileUpdateBatch", () => {
       { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, target: { ...pendingReference.target, root: 1 } }] },
       { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, constraint: { kind: "object", extra: true } }] },
       { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, constraint: { kind: "object", allowNested: "yes" } }] },
+      { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, tagged: "raw" }] },
       {
         ...yamlUpdate("a.yaml"),
         owners: [{ owner: { kind: "Справочник", name: "Товары" }, facts: { owners: ["Catalog.Товары"], extra: true } }],
@@ -392,6 +437,25 @@ describe("ProjectStateFileUpdateBatch", () => {
 
     expect(() => assertProjectStateFileUpdateBatch(batch)).toThrow()
   })
+
+  it.each([
+    { canonicalTarget: 1, missing: ["Имя"] },
+    { canonicalTarget: "Catalog.Товары", missing: "Имя" },
+    { canonicalTarget: "Catalog.Товары", missing: [1] },
+  ])("rejects malformed addressableRequired payload: %o", (payload) => {
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [{
+        ...yamlUpdate("a.yaml"),
+        pendingChecks: [{
+          kind: "addressableRequired",
+          yamlPath: [],
+          location: { line: 1, col: 1 },
+          ...payload,
+        }],
+      }],
+      hashBytes: new Uint8Array(8),
+    })).toThrow()
+  })
 })
 
 function resourceUpdate(projectPath: string): ProjectStateFileUpdate {
@@ -404,7 +468,7 @@ function resourceUpdate(projectPath: string): ProjectStateFileUpdate {
   }
 }
 
-function yamlUpdate(projectPath: string): ProjectStateFileUpdate {
+function yamlUpdate(projectPath: string): Extract<ProjectStateFileUpdate, { kind: "yaml" }> {
   return {
     kind: "yaml",
     projectPath,

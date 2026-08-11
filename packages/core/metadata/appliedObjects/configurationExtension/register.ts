@@ -1,4 +1,7 @@
-import { registerXmlImportComponentDescriptor } from "../../importFromXml/componentDescriptor"
+import {
+  registerXmlImportComponentDescriptor,
+  resolveXmlImportRootItemName,
+} from "../../importFromXml/componentDescriptor"
 import { registerMetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
@@ -33,14 +36,12 @@ registerXmlImportComponentDescriptor({
     const properties = configuration["Properties"]
     return isRecord(properties) && "ConfigurationExtensionPurpose" in properties
   },
-  resolveAddress(root) {
-    const configuration = root["Configuration"]
-    const properties = isRecord(configuration) ? configuration["Properties"] : undefined
-    const name = isRecord(properties) ? properties["Name"] : undefined
-    if (typeof name !== "string" || name.length === 0) {
-      throw new Error("Не задано имя расширения конфигурации")
+  resolveRoot(root) {
+    const itemName = resolveXmlImportRootItemName(root)
+    return {
+      address: { kind: "configurationExtension", name: itemName },
+      itemName,
     }
-    return { kind: "configurationExtension", name }
   },
   baseAddress: { kind: "configuration" },
   metadataItemAugmenter: "configurationExtension",

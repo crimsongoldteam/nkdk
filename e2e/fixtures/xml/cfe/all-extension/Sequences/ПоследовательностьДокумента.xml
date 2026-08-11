@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Sequence uuid="10e6797e-212b-4efe-8aad-899bd17e60c0">
+		<InternalInfo>
+			<xr:GeneratedType name="SequenceRecord.ПоследовательностьДокумента" category="Record">
+				<xr:TypeId>cecaa6c0-5b42-4da0-a1f2-825b7360081e</xr:TypeId>
+				<xr:ValueId>de9a7f6a-fb35-48bc-a6e9-59669a4def52</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="SequenceManager.ПоследовательностьДокумента" category="Manager">
+				<xr:TypeId>2c701736-8347-4ae8-b57a-44d67eeb4555</xr:TypeId>
+				<xr:ValueId>a71dad06-851a-4bf7-a22a-c12ba886893d</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="SequenceRecordSet.ПоследовательностьДокумента" category="RecordSet">
+				<xr:TypeId>1f3fb87e-acba-438d-be19-bc7c84cebb1e</xr:TypeId>
+				<xr:ValueId>3f8c6e31-22ac-4c4d-814e-a26a3f9feb7a</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПоследовательностьДокумента</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>1bbd0b43-b1d5-4055-b01b-bce0c5925afb</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</Sequence>
+</MetaDataObject>

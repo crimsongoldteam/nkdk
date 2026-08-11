@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<PredefinedData xmlns="http://v8.1c.ru/8.3/xcf/predef" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="PlanOfCharacteristicKindPredefinedItems" version="2.20">
+	<Item id="f7d5eb32-fa82-420f-9e53-bc50c0101622">
+		<Name>ГруппаПоУмолчанию</Name>
+		<Code>КодГруппы</Code>
+		<Description>Группа по умолчанию</Description>
+		<Type/>
+		<IsFolder>true</IsFolder>
+	</Item>
+	<Item id="8592e175-aee4-40f9-849c-f808cdc149ce">
+		<Name>ПредопределенноеВсеСвойства</Name>
+		<Code>Код</Code>
+		<Description>Наименование</Description>
+		<Type>
+			<v8:Type xmlns:d4p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d4p1:CatalogRef.ЗначенияХарактеристик</v8:Type>
+		</Type>
+		<IsFolder>false</IsFolder>
+	</Item>
+	<Item id="bf7e5d15-7187-407c-a8ca-63918e207992">
+		<Name>ГруппаВсеСвойства</Name>
+		<Code>КодГруппы</Code>
+		<Description>Наименование</Description>
+		<Type/>
+		<IsFolder>true</IsFolder>
+	</Item>
+	<Item id="d27d571f-e5a6-4bfd-b9b1-ba27a6b9aeb8">
+		<Name>ПредопределенноеПоУмолчанию</Name>
+		<Code>КодПУ</Code>
+		<Description>Предопределенное по умолчанию</Description>
+		<Type>
+			<v8:Type xmlns:d4p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d4p1:CatalogRef.ЗначенияХарактеристик</v8:Type>
+		</Type>
+		<IsFolder>false</IsFolder>
+	</Item>
+</PredefinedData>

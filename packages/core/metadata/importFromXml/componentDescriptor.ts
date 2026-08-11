@@ -3,9 +3,22 @@ import type { ComponentAddress } from "../components/address"
 export interface XmlImportComponentDescriptor {
   readonly kind: string
   detect(root: Record<string, unknown>): boolean
-  resolveAddress(root: Record<string, unknown>): ComponentAddress
+  resolveRoot(root: Record<string, unknown>): {
+    readonly address: ComponentAddress
+    readonly itemName: string
+  }
   readonly baseAddress?: ComponentAddress
   readonly metadataItemAugmenter?: string
+}
+
+export function resolveXmlImportRootItemName(root: Record<string, unknown>): string {
+  const configuration = root["Configuration"]
+  const properties = isRecord(configuration) ? configuration["Properties"] : undefined
+  const name = isRecord(properties) ? properties["Name"] : undefined
+  if (typeof name !== "string" || name.length === 0) {
+    throw new Error("Не задано имя корневого объекта XML-компонента")
+  }
+  return name
 }
 
 const descriptorsByKind = new Map<string, XmlImportComponentDescriptor>()
@@ -30,4 +43,8 @@ export function getRegisteredXmlImportComponentDescriptor(kind: string): XmlImpo
   const descriptor = descriptorsByKind.get(kind)
   if (descriptor === undefined) throw new Error(`Не найдено описание XML-компонента: ${kind}`)
   return descriptor
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }

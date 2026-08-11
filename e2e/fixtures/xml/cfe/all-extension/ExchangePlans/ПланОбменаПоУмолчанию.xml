@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ExchangePlan uuid="bba0d1eb-e866-42f0-a602-092782dc8a0c">
+		<InternalInfo>
+			<xr:ThisNode>26507b5f-8806-4b4f-9044-e4272e4ba984</xr:ThisNode>
+			<xr:GeneratedType name="ExchangePlanObject.ПланОбменаПоУмолчанию" category="Object">
+				<xr:TypeId>65f40c7b-408e-4060-9cd3-1fd0b82cf2be</xr:TypeId>
+				<xr:ValueId>8e4cc435-63b6-4b8d-aab9-af8a6f33e08e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanRef.ПланОбменаПоУмолчанию" category="Ref">
+				<xr:TypeId>d4987d40-81d3-471c-ba5a-6daa332a5324</xr:TypeId>
+				<xr:ValueId>a2c79af6-db32-4589-a220-ad2990dc500b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanSelection.ПланОбменаПоУмолчанию" category="Selection">
+				<xr:TypeId>24d87ce4-352f-434f-b7b6-f396657dfed7</xr:TypeId>
+				<xr:ValueId>f26f7e05-0093-4718-8b80-58d570cfdfb3</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanList.ПланОбменаПоУмолчанию" category="List">
+				<xr:TypeId>5372a8ff-f8eb-483d-8266-feaa2e64aba1</xr:TypeId>
+				<xr:ValueId>34a0db7f-0536-4124-b956-1962a7d3f561</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanManager.ПланОбменаПоУмолчанию" category="Manager">
+				<xr:TypeId>faf8847f-0761-42b1-8e55-6277706a0999</xr:TypeId>
+				<xr:ValueId>040f29e9-0216-4bbf-b40d-270651cba8a1</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПланОбменаПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>9ab0ea2b-227d-4789-9d9f-475d050690e4</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</ExchangePlan>
+</MetaDataObject>

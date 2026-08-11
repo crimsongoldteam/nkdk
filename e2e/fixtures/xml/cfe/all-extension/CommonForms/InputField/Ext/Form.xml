@@ -1,0 +1,701 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<ChildItems>
+		<InputField name="ПолеВвода" id="6" DisplayImportance="High">
+			<DataPath>Таблица</DataPath>
+			<Visible>false</Visible>
+			<DefaultItem>true</DefaultItem>
+			<Enabled>false</Enabled>
+			<ReadOnly>true</ReadOnly>
+			<SkipOnInput>true</SkipOnInput>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Поле ввода</v8:content>
+				</v8:item>
+			</Title>
+			<TitleTextColor>web:Black</TitleTextColor>
+			<TitleBackColor>web:Blue</TitleBackColor>
+			<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+			<TitleLocation>Left</TitleLocation>
+			<TitleHeight>20</TitleHeight>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Подсказка</v8:content>
+				</v8:item>
+			</ToolTip>
+			<ToolTipRepresentation>None</ToolTipRepresentation>
+			<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+			<WarningOnEdit>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Предупреждение</v8:content>
+				</v8:item>
+			</WarningOnEdit>
+			<Shortcut>S</Shortcut>
+			<HorizontalAlign>Left</HorizontalAlign>
+			<VerticalAlign>Top</VerticalAlign>
+			<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+			<GroupVerticalAlign>Top</GroupVerticalAlign>
+			<EditMode>EnterOnInput</EditMode>
+			<CellHyperlink>true</CellHyperlink>
+			<ShowInHeader>false</ShowInHeader>
+			<HeaderPicture>
+				<xr:Ref>StdPicture.Print</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</HeaderPicture>
+			<ShowInFooter>false</ShowInFooter>
+			<FooterText>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Текст подвала</v8:content>
+				</v8:item>
+			</FooterText>
+			<FooterTextColor>web:Black</FooterTextColor>
+			<FooterBackColor>web:White</FooterBackColor>
+			<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+			<FooterPicture>
+				<xr:Ref>StdPicture.Print</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</FooterPicture>
+			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+			<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+			<Width>200</Width>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<MaxWidth>400</MaxWidth>
+			<Height>100</Height>
+			<AutoMaxHeight>false</AutoMaxHeight>
+			<MaxHeight>500</MaxHeight>
+			<HorizontalStretch>true</HorizontalStretch>
+			<VerticalStretch>true</VerticalStretch>
+			<Wrap>false</Wrap>
+			<PasswordMode>true</PasswordMode>
+			<MultiLine>true</MultiLine>
+			<ExtendedEdit>true</ExtendedEdit>
+			<MarkNegatives>true</MarkNegatives>
+			<DropListButton>true</DropListButton>
+			<ChoiceButton>true</ChoiceButton>
+			<ChoiceButtonRepresentation>ShowInInputField</ChoiceButtonRepresentation>
+			<ClearButton>true</ClearButton>
+			<SpinButton>true</SpinButton>
+			<OpenButton>true</OpenButton>
+			<CreateButton>true</CreateButton>
+			<Mask>999</Mask>
+			<ListChoiceMode>true</ListChoiceMode>
+			<MultipleValuesFont ref="style:NormalTextFont" kind="StyleItem"/>
+			<MultipleValuesTextColor>web:Red</MultipleValuesTextColor>
+			<MultipleValuesBackColor>web:Magenta</MultipleValuesBackColor>
+			<AllowInputEmptyMultipleValues>true</AllowInputEmptyMultipleValues>
+			<AllowMultipleValuesDuplicates>true</AllowMultipleValuesDuplicates>
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<MultipleValuePictureSize>Large</MultipleValuePictureSize>
+			<MultipleValuePictureShape>Circle</MultipleValuePictureShape>
+			<ShowCheckBoxesInDropList>true</ShowCheckBoxesInDropList>
+			<MultipleValuesHyperlink>true</MultipleValuesHyperlink>
+			<MultipleValueDataPath>Таблица.Реквизит</MultipleValueDataPath>
+			<MultipleValuePictureDataPath>Таблица.Реквизит</MultipleValuePictureDataPath>
+			<MultipleValuePresentDataPath>Таблица.Реквизит</MultipleValuePresentDataPath>
+			<AutoChoiceIncomplete>true</AutoChoiceIncomplete>
+			<QuickChoice>true</QuickChoice>
+			<ChoiceFoldersAndItems>FoldersAndItems</ChoiceFoldersAndItems>
+			<Format>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Формат отображения</v8:content>
+				</v8:item>
+			</Format>
+			<EditFormat>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Формат редактирования</v8:content>
+				</v8:item>
+			</EditFormat>
+			<AutoMarkIncomplete>true</AutoMarkIncomplete>
+			<ChooseType>false</ChooseType>
+			<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
+			<TextEdit>false</TextEdit>
+			<EditTextUpdate>OnValueChange</EditTextUpdate>
+			<MinValue xsi:type="xs:decimal">1</MinValue>
+			<MaxValue xsi:type="xs:decimal">99</MaxValue>
+			<ChoiceButtonPicture>
+				<xr:Ref>StdPicture.Print</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</ChoiceButtonPicture>
+			<ChoiceParameters>
+				<app:item name="Отбор.Параметр">
+					<app:value xsi:type="xs:string">Значение</app:value>
+				</app:item>
+			</ChoiceParameters>
+			<AvailableTypes>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</AvailableTypes>
+			<ChoiceList>
+				<xr:Item>
+					<xr:Presentation/>
+					<xr:CheckState>0</xr:CheckState>
+					<xr:Value xsi:type="FormChoiceListDesTimeValue">
+						<Presentation>
+							<v8:item>
+								<v8:lang>ru</v8:lang>
+								<v8:content>Значение 1</v8:content>
+							</v8:item>
+						</Presentation>
+						<Value xsi:type="xs:string">Значение1</Value>
+					</xr:Value>
+				</xr:Item>
+			</ChoiceList>
+			<ChoiceListButton>true</ChoiceListButton>
+			<ChoiceListHeight>200</ChoiceListHeight>
+			<DropListWidth>300</DropListWidth>
+			<TextColor>web:Yellow</TextColor>
+			<BackColor>web:Blue</BackColor>
+			<BorderColor>web:Green</BorderColor>
+			<Font ref="style:NormalTextFont" kind="StyleItem"/>
+			<HeightControlVariant>UseContentHeight</HeightControlVariant>
+			<AutoShowClearButtonMode>Always</AutoShowClearButtonMode>
+			<AutoShowOpenButtonMode>FilledOnly</AutoShowOpenButtonMode>
+			<AutoCorrectionOnTextInput>Use</AutoCorrectionOnTextInput>
+			<SpellCheckingOnTextInput>Use</SpellCheckingOnTextInput>
+			<AutoCapitalizationOnTextInput>AllCharacters</AutoCapitalizationOnTextInput>
+			<SpecialTextInputMode>Email</SpecialTextInputMode>
+			<OnScreenKeyboardReturnKeyText>Done</OnScreenKeyboardReturnKeyText>
+			<InputHint>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Подсказка ввода</v8:content>
+				</v8:item>
+			</InputHint>
+			<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
+			<ContextMenu name="ПолеВводаКонтекстноеМеню" id="7">
+				<Autofill>false</Autofill>
+			</ContextMenu>
+			<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="8">
+				<Title formatted="false">
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Расширенная подсказка</v8:content>
+					</v8:item>
+				</Title>
+			</ExtendedTooltip>
+		</InputField>
+		<InputField name="Таблица" id="9">
+			<DataPath>Таблица[4].Реквизит</DataPath>
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="ТаблицаКонтекстноеМеню" id="10"/>
+			<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="11"/>
+		</InputField>
+		<InputField name="РеквизитЗначениеМножественного" id="12">
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="РеквизитЗначениеМножественногоКонтекстноеМеню" id="13"/>
+			<ExtendedTooltip name="РеквизитЗначениеМножественногоРасширеннаяПодсказка" id="14"/>
+		</InputField>
+		<InputField name="СоставнойТип" id="15">
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="СоставнойТипКонтекстноеМеню" id="16"/>
+			<ExtendedTooltip name="СоставнойТипРасширеннаяПодсказка" id="17"/>
+		</InputField>
+		<InputField name="РеквизитЗначениеМножественногоПоУмолчанию" id="18">
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="РеквизитЗначениеМножественногоПоУмолчаниюКонтекстноеМеню" id="19"/>
+			<ExtendedTooltip name="РеквизитЗначениеМножественногоПоУмолчаниюРасширеннаяПодсказка" id="20"/>
+		</InputField>
+		<InputField name="ПоУмолчанию" id="21">
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="ПоУмолчаниюКонтекстноеМеню" id="22"/>
+			<ExtendedTooltip name="ПоУмолчаниюРасширеннаяПодсказка" id="23"/>
+		</InputField>
+		<Table name="Таблица1" id="24">
+			<Representation>List</Representation>
+			<AutoInsertNewRow>true</AutoInsertNewRow>
+			<EnableStartDrag>true</EnableStartDrag>
+			<EnableDrag>true</EnableDrag>
+			<DataPath>Таблица</DataPath>
+			<RowFilter xsi:nil="true"/>
+			<ContextMenu name="Таблица1КонтекстноеМеню" id="25"/>
+			<AutoCommandBar name="Таблица1КоманднаяПанель" id="26"/>
+			<ExtendedTooltip name="Таблица1РасширеннаяПодсказка" id="27"/>
+			<SearchStringAddition name="Таблица1СтрокаПоиска" id="28">
+				<AdditionSource>
+					<Item>Таблица1</Item>
+					<Type>SearchStringRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="Таблица1СтрокаПоискаКонтекстноеМеню" id="29"/>
+				<ExtendedTooltip name="Таблица1СтрокаПоискаРасширеннаяПодсказка" id="30"/>
+			</SearchStringAddition>
+			<ViewStatusAddition name="Таблица1СостояниеПросмотра" id="31">
+				<AdditionSource>
+					<Item>Таблица1</Item>
+					<Type>ViewStatusRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="Таблица1СостояниеПросмотраКонтекстноеМеню" id="32"/>
+				<ExtendedTooltip name="Таблица1СостояниеПросмотраРасширеннаяПодсказка" id="33"/>
+			</ViewStatusAddition>
+			<SearchControlAddition name="Таблица1УправлениеПоиском" id="34">
+				<AdditionSource>
+					<Item>Таблица1</Item>
+					<Type>SearchControl</Type>
+				</AdditionSource>
+				<ContextMenu name="Таблица1УправлениеПоискомКонтекстноеМеню" id="35"/>
+				<ExtendedTooltip name="Таблица1УправлениеПоискомРасширеннаяПодсказка" id="36"/>
+			</SearchControlAddition>
+			<ChildItems>
+				<InputField name="Таблица1Реквизит" id="37">
+					<DataPath>Таблица.Реквизит</DataPath>
+					<EditMode>EnterOnInput</EditMode>
+					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+					<ContextMenu name="Таблица1РеквизитКонтекстноеМеню" id="38"/>
+					<ExtendedTooltip name="Таблица1РеквизитРасширеннаяПодсказка" id="39"/>
+				</InputField>
+			</ChildItems>
+		</Table>
+		<Table name="ТаблицаExt" id="40">
+			<Representation>List</Representation>
+			<AutoInsertNewRow>true</AutoInsertNewRow>
+			<EnableStartDrag>true</EnableStartDrag>
+			<EnableDrag>true</EnableDrag>
+			<DataPath>ТаблицаExt</DataPath>
+			<RowFilter xsi:nil="true"/>
+			<ContextMenu name="ТаблицаExtКонтекстноеМеню" id="41"/>
+			<AutoCommandBar name="ТаблицаExtКоманднаяПанель" id="42"/>
+			<ExtendedTooltip name="ТаблицаExtРасширеннаяПодсказка" id="43"/>
+			<SearchStringAddition name="ТаблицаExtСтрокаПоиска" id="44">
+				<AdditionSource>
+					<Item>ТаблицаExt</Item>
+					<Type>SearchStringRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="ТаблицаExtСтрокаПоискаКонтекстноеМеню" id="45"/>
+				<ExtendedTooltip name="ТаблицаExtСтрокаПоискаРасширеннаяПодсказка" id="46"/>
+			</SearchStringAddition>
+			<ViewStatusAddition name="ТаблицаExtСостояниеПросмотра" id="47">
+				<AdditionSource>
+					<Item>ТаблицаExt</Item>
+					<Type>ViewStatusRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="ТаблицаExtСостояниеПросмотраКонтекстноеМеню" id="48"/>
+				<ExtendedTooltip name="ТаблицаExtСостояниеПросмотраРасширеннаяПодсказка" id="49"/>
+			</ViewStatusAddition>
+			<SearchControlAddition name="ТаблицаExtУправлениеПоиском" id="50">
+				<AdditionSource>
+					<Item>ТаблицаExt</Item>
+					<Type>SearchControl</Type>
+				</AdditionSource>
+				<ContextMenu name="ТаблицаExtУправлениеПоискомКонтекстноеМеню" id="51"/>
+				<ExtendedTooltip name="ТаблицаExtУправлениеПоискомРасширеннаяПодсказка" id="52"/>
+			</SearchControlAddition>
+			<ChildItems>
+				<InputField name="ТаблицаExtРеквизитТаблицаExt" id="53">
+					<DataPath>ТаблицаExt.РеквизитТаблицаExt</DataPath>
+					<EditMode>EnterOnInput</EditMode>
+					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+					<ContextMenu name="ТаблицаExtРеквизитТаблицаExtКонтекстноеМеню" id="54"/>
+					<ExtendedTooltip name="ТаблицаExtРеквизитТаблицаExtРасширеннаяПодсказка" id="55"/>
+				</InputField>
+			</ChildItems>
+		</Table>
+		<LabelDecoration name="ДекорацияExt" id="59">
+			<Title formatted="false">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Декорация ext</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ДекорацияExtКонтекстноеМеню" id="60"/>
+			<ExtendedTooltip name="ДекорацияExtРасширеннаяПодсказка" id="61"/>
+		</LabelDecoration>
+		<InputField name="РеквизитExt" id="56">
+			<DataPath>РеквизитExt</DataPath>
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="РеквизитExtКонтекстноеМеню" id="57"/>
+			<ExtendedTooltip name="РеквизитExtРасширеннаяПодсказка" id="58"/>
+		</InputField>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Таблица" id="1000001">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Таблица</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="Реквизит" id="1">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Реквизит</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
+		<Attribute name="Реквизит1" id="1000002">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+				<v8:DateQualifiers>
+					<v8:DateFractions>Date</v8:DateFractions>
+				</v8:DateQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="РеквизитExt" id="1000003">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Реквизит ext</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ТаблицаExt" id="1000004">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Таблица ext</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="РеквизитТаблицаExt" id="1000000">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Реквизит таблица ext</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="КомандаExt" id="1000000">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Команда ext</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Команда ext</v8:content>
+				</v8:item>
+			</ToolTip>
+		</Command>
+	</Commands>
+	<Parameters>
+		<Parameter name="ПараметрExt">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
+	<BaseForm version="2.20">
+		<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+		<ChildItems>
+			<InputField name="ПолеВвода" id="6" DisplayImportance="High">
+				<DataPath>Таблица</DataPath>
+				<Visible>false</Visible>
+				<DefaultItem>true</DefaultItem>
+				<Enabled>false</Enabled>
+				<ReadOnly>true</ReadOnly>
+				<SkipOnInput>true</SkipOnInput>
+				<Title>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Поле ввода</v8:content>
+					</v8:item>
+				</Title>
+				<TitleTextColor>web:Black</TitleTextColor>
+				<TitleBackColor>web:Blue</TitleBackColor>
+				<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+				<TitleLocation>Left</TitleLocation>
+				<TitleHeight>20</TitleHeight>
+				<ToolTip>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Подсказка</v8:content>
+					</v8:item>
+				</ToolTip>
+				<ToolTipRepresentation>None</ToolTipRepresentation>
+				<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+				<WarningOnEdit>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Предупреждение</v8:content>
+					</v8:item>
+				</WarningOnEdit>
+				<Shortcut>S</Shortcut>
+				<HorizontalAlign>Left</HorizontalAlign>
+				<VerticalAlign>Top</VerticalAlign>
+				<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+				<GroupVerticalAlign>Top</GroupVerticalAlign>
+				<EditMode>EnterOnInput</EditMode>
+				<CellHyperlink>true</CellHyperlink>
+				<ShowInHeader>false</ShowInHeader>
+				<HeaderPicture>
+					<xr:Ref>StdPicture.Print</xr:Ref>
+					<xr:LoadTransparent>true</xr:LoadTransparent>
+				</HeaderPicture>
+				<ShowInFooter>false</ShowInFooter>
+				<FooterText>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Текст подвала</v8:content>
+					</v8:item>
+				</FooterText>
+				<FooterTextColor>web:Black</FooterTextColor>
+				<FooterBackColor>web:White</FooterBackColor>
+				<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+				<FooterPicture>
+					<xr:Ref>StdPicture.Print</xr:Ref>
+					<xr:LoadTransparent>true</xr:LoadTransparent>
+				</FooterPicture>
+				<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+				<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+				<Width>200</Width>
+				<AutoMaxWidth>false</AutoMaxWidth>
+				<MaxWidth>400</MaxWidth>
+				<Height>100</Height>
+				<AutoMaxHeight>false</AutoMaxHeight>
+				<MaxHeight>500</MaxHeight>
+				<HorizontalStretch>true</HorizontalStretch>
+				<VerticalStretch>true</VerticalStretch>
+				<Wrap>false</Wrap>
+				<PasswordMode>true</PasswordMode>
+				<MultiLine>true</MultiLine>
+				<ExtendedEdit>true</ExtendedEdit>
+				<MarkNegatives>true</MarkNegatives>
+				<DropListButton>true</DropListButton>
+				<ChoiceButton>true</ChoiceButton>
+				<ChoiceButtonRepresentation>ShowInInputField</ChoiceButtonRepresentation>
+				<ClearButton>true</ClearButton>
+				<SpinButton>true</SpinButton>
+				<OpenButton>true</OpenButton>
+				<CreateButton>true</CreateButton>
+				<Mask>999</Mask>
+				<ListChoiceMode>true</ListChoiceMode>
+				<MultipleValuesFont ref="style:NormalTextFont" kind="StyleItem"/>
+				<MultipleValuesTextColor>web:Red</MultipleValuesTextColor>
+				<MultipleValuesBackColor>web:Magenta</MultipleValuesBackColor>
+				<AllowInputEmptyMultipleValues>true</AllowInputEmptyMultipleValues>
+				<AllowMultipleValuesDuplicates>true</AllowMultipleValuesDuplicates>
+				<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+				<MultipleValuePictureSize>Large</MultipleValuePictureSize>
+				<MultipleValuePictureShape>Circle</MultipleValuePictureShape>
+				<ShowCheckBoxesInDropList>true</ShowCheckBoxesInDropList>
+				<MultipleValuesHyperlink>true</MultipleValuesHyperlink>
+				<MultipleValueDataPath>Таблица.Реквизит</MultipleValueDataPath>
+				<MultipleValuePictureDataPath>Таблица.Реквизит</MultipleValuePictureDataPath>
+				<MultipleValuePresentDataPath>Таблица.Реквизит</MultipleValuePresentDataPath>
+				<AutoChoiceIncomplete>true</AutoChoiceIncomplete>
+				<QuickChoice>true</QuickChoice>
+				<ChoiceFoldersAndItems>FoldersAndItems</ChoiceFoldersAndItems>
+				<Format>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Формат отображения</v8:content>
+					</v8:item>
+				</Format>
+				<EditFormat>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Формат редактирования</v8:content>
+					</v8:item>
+				</EditFormat>
+				<AutoMarkIncomplete>true</AutoMarkIncomplete>
+				<ChooseType>false</ChooseType>
+				<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
+				<TextEdit>false</TextEdit>
+				<EditTextUpdate>OnValueChange</EditTextUpdate>
+				<MinValue xsi:type="xs:decimal">1</MinValue>
+				<MaxValue xsi:type="xs:decimal">99</MaxValue>
+				<ChoiceButtonPicture>
+					<xr:Ref>StdPicture.Print</xr:Ref>
+					<xr:LoadTransparent>true</xr:LoadTransparent>
+				</ChoiceButtonPicture>
+				<ChoiceParameters>
+					<app:item name="Отбор.Параметр">
+						<app:value xsi:type="xs:string">Значение</app:value>
+					</app:item>
+				</ChoiceParameters>
+				<AvailableTypes>
+					<v8:Type>xs:string</v8:Type>
+					<v8:StringQualifiers>
+						<v8:Length>0</v8:Length>
+						<v8:AllowedLength>Variable</v8:AllowedLength>
+					</v8:StringQualifiers>
+				</AvailableTypes>
+				<ChoiceList>
+					<xr:Item>
+						<xr:Presentation/>
+						<xr:CheckState>0</xr:CheckState>
+						<xr:Value xsi:type="FormChoiceListDesTimeValue">
+							<Presentation>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Значение 1</v8:content>
+								</v8:item>
+							</Presentation>
+							<Value xsi:type="xs:string">Значение1</Value>
+						</xr:Value>
+					</xr:Item>
+				</ChoiceList>
+				<ChoiceListButton>true</ChoiceListButton>
+				<ChoiceListHeight>200</ChoiceListHeight>
+				<DropListWidth>300</DropListWidth>
+				<TextColor>web:Yellow</TextColor>
+				<BackColor>web:Blue</BackColor>
+				<BorderColor>web:Green</BorderColor>
+				<Font ref="style:NormalTextFont" kind="StyleItem"/>
+				<HeightControlVariant>UseContentHeight</HeightControlVariant>
+				<AutoShowClearButtonMode>Always</AutoShowClearButtonMode>
+				<AutoShowOpenButtonMode>FilledOnly</AutoShowOpenButtonMode>
+				<AutoCorrectionOnTextInput>Use</AutoCorrectionOnTextInput>
+				<SpellCheckingOnTextInput>Use</SpellCheckingOnTextInput>
+				<AutoCapitalizationOnTextInput>AllCharacters</AutoCapitalizationOnTextInput>
+				<SpecialTextInputMode>Email</SpecialTextInputMode>
+				<OnScreenKeyboardReturnKeyText>Done</OnScreenKeyboardReturnKeyText>
+				<InputHint>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Подсказка ввода</v8:content>
+					</v8:item>
+				</InputHint>
+				<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
+				<ContextMenu name="ПолеВводаКонтекстноеМеню" id="7">
+					<Autofill>false</Autofill>
+				</ContextMenu>
+				<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="8">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Расширенная подсказка</v8:content>
+						</v8:item>
+					</Title>
+				</ExtendedTooltip>
+			</InputField>
+			<InputField name="Таблица" id="9">
+				<DataPath>Таблица[4].Реквизит</DataPath>
+				<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+				<ContextMenu name="ТаблицаКонтекстноеМеню" id="10"/>
+				<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="11"/>
+			</InputField>
+			<InputField name="РеквизитЗначениеМножественного" id="12">
+				<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+				<ContextMenu name="РеквизитЗначениеМножественногоКонтекстноеМеню" id="13"/>
+				<ExtendedTooltip name="РеквизитЗначениеМножественногоРасширеннаяПодсказка" id="14"/>
+			</InputField>
+			<InputField name="СоставнойТип" id="15">
+				<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+				<ContextMenu name="СоставнойТипКонтекстноеМеню" id="16"/>
+				<ExtendedTooltip name="СоставнойТипРасширеннаяПодсказка" id="17"/>
+			</InputField>
+			<InputField name="РеквизитЗначениеМножественногоПоУмолчанию" id="18">
+				<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+				<ContextMenu name="РеквизитЗначениеМножественногоПоУмолчаниюКонтекстноеМеню" id="19"/>
+				<ExtendedTooltip name="РеквизитЗначениеМножественногоПоУмолчаниюРасширеннаяПодсказка" id="20"/>
+			</InputField>
+			<InputField name="ПоУмолчанию" id="21">
+				<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+				<ContextMenu name="ПоУмолчаниюКонтекстноеМеню" id="22"/>
+				<ExtendedTooltip name="ПоУмолчаниюРасширеннаяПодсказка" id="23"/>
+			</InputField>
+		</ChildItems>
+		<Attributes>
+			<Attribute name="Таблица" id="1000001">
+				<Title>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Таблица</v8:content>
+					</v8:item>
+				</Title>
+				<Type>
+					<v8:Type>v8:ValueTable</v8:Type>
+				</Type>
+				<Columns>
+					<Column name="Реквизит" id="1">
+						<Title>
+							<v8:item>
+								<v8:lang>ru</v8:lang>
+								<v8:content>Реквизит</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:string</v8:Type>
+							<v8:StringQualifiers>
+								<v8:Length>0</v8:Length>
+								<v8:AllowedLength>Variable</v8:AllowedLength>
+							</v8:StringQualifiers>
+						</Type>
+					</Column>
+				</Columns>
+			</Attribute>
+			<Attribute name="Реквизит1" id="1000002">
+				<Type>
+					<v8:Type>xs:boolean</v8:Type>
+					<v8:Type>xs:string</v8:Type>
+					<v8:Type>xs:dateTime</v8:Type>
+					<v8:Type>xs:decimal</v8:Type>
+					<v8:NumberQualifiers>
+						<v8:Digits>10</v8:Digits>
+						<v8:FractionDigits>0</v8:FractionDigits>
+						<v8:AllowedSign>Any</v8:AllowedSign>
+					</v8:NumberQualifiers>
+					<v8:StringQualifiers>
+						<v8:Length>0</v8:Length>
+						<v8:AllowedLength>Variable</v8:AllowedLength>
+					</v8:StringQualifiers>
+					<v8:DateQualifiers>
+						<v8:DateFractions>Date</v8:DateFractions>
+					</v8:DateQualifiers>
+				</Type>
+			</Attribute>
+		</Attributes>
+	</BaseForm>
+</Form>

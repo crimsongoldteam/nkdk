@@ -2,6 +2,7 @@ import { join } from "node:path"
 import {
   referenceNotIncludedInExtensionResult,
   resolvedProjectReferenceResult,
+  unnecessaryXmlReferenceResult,
   unresolvedProjectReferenceResult,
   type PendingMetadataTargetReference,
 } from "./projectReferenceIndex"
@@ -41,6 +42,8 @@ import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinitio
 import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
 import type { ProjectStateStructuredDocumentValidator } from "../projectState/contracts/dependencyValidation"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
+import { diagnosticAtYamlLocation } from "./yamlLocations"
+import type { ProjectStateAddressableRequiredCheck } from "../projectState/contracts/dependencyValidation"
 
 export function createProjectStateDependencyValidator(params: {
   readonly structuredDocumentValidators?: readonly ProjectStateStructuredDocumentValidator[]
@@ -60,9 +63,49 @@ export function createProjectStateDependencyValidator(params: {
     validateReferences: validateProjectStateReferenceBatch,
     validateOwners: validateProjectStateOwnerBatch,
     validateDependencies: validateProjectStateDependencyBatch,
+    validateAddressableRequired: validateProjectStateAddressableRequiredBatch,
     validateStructuredDocuments: (validationParams) =>
       (params.structuredDocumentValidators ?? []).flatMap((validator) => validator(validationParams)),
   }
+}
+
+export function validateProjectStateAddressableRequiredBatch(params: {
+  readonly checks: readonly ProjectStateAddressableRequiredCheck[]
+  readonly projectDir: string
+  readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets">
+}): readonly Diagnostic[] {
+  const results = params.queryPort.resolveTargets(params.checks.map(({ requestId, check }) => ({
+    requestId,
+    componentPath: "cf",
+    canonicalTarget: check.canonicalTarget,
+  })))
+  const diagnostics: Diagnostic[] = []
+  forEachDependencyResult(params.checks, results, (entry, result) => {
+    if (result.status === "found") return
+    const location = {
+      ...entry.check.location,
+      filePath: join(params.projectDir, entry.projectPath),
+    }
+    if (result.status === "ambiguous") {
+      diagnostics.push(diagnosticAtYamlLocation({
+        location,
+        severity: "error",
+        source: "cross-file",
+        message: `Неоднозначная цель metadata "${entry.check.canonicalTarget}" в базовой конфигурации`,
+      }))
+    }
+    diagnostics.push(...entry.check.missing.map((name) => diagnosticAtYamlLocation({
+      location: { ...location, path: `${entry.check.location.path ?? ""}/${escapeYamlPointer(name)}` },
+      severity: "error",
+      source: "structure",
+      message: `Отсутствует обязательное свойство "${name}"`,
+    })))
+  })
+  return diagnostics
+}
+
+function escapeYamlPointer(value: string): string {
+  return value.replace(/~/g, "~0").replace(/\//g, "~1")
 }
 
 export interface ProjectStateDataPathReferenceCheck {
@@ -195,8 +238,9 @@ export function validateProjectStateReferenceBatch(params: {
     })),
   )
   const resultByRequestId = new Map(results.map((result) => [result.requestId, result]))
-  const basePresenceChecks = params.checks.filter(({ requestId, componentPath }) =>
-    componentPath.startsWith("cfe/")
+  const basePresenceChecks = params.checks.filter(({ requestId, componentPath, reference }) =>
+    reference.tagged !== "xml"
+    && componentPath.startsWith("cfe/")
     && componentPath.length > "cfe/".length
     && resultByRequestId.get(requestId)?.status === "missing"
   )
@@ -211,7 +255,9 @@ export function validateProjectStateReferenceBatch(params: {
     basePresenceResults.map((result) => [result.requestId, result]),
   )
   const valueOwnerChecks = params.checks.filter(({ requestId, reference }) =>
-    resultByRequestId.get(requestId)?.status === "missing" && reference.target.kind === "value"
+    reference.tagged !== "xml"
+    && resultByRequestId.get(requestId)?.status === "missing"
+    && reference.target.kind === "value"
   )
   const valueOwnerResults = params.queryPort.readOwners(
     valueOwnerChecks.map(({ requestId, componentPath, reference }) => {
@@ -226,6 +272,14 @@ export function validateProjectStateReferenceBatch(params: {
   const valueOwnerResultByRequestId = new Map(valueOwnerResults.map((result) => [result.requestId, result]))
   const diagnostics: Diagnostic[] = []
   forEachDependencyResult(params.checks, results, (check, result) => {
+    if (check.reference.tagged === "xml") {
+      if (result.status === "found") {
+        diagnostics.push(...unnecessaryXmlReferenceResult(check.reference).diagnostics)
+      } else if (result.status === "ambiguous") {
+        diagnostics.push(...unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics)
+      }
+      return
+    }
     if (result.status === "found") {
       const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
       if (!resolved.ok) diagnostics.push(...resolved.diagnostics)

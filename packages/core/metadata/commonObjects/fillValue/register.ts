@@ -2,6 +2,7 @@ import {
   registerDependentStructuralItemHandler,
   registerDependentImportItemHandler,
   registerDependentYamlItemHandler,
+  type DependentImportItemHandler,
   type DependentStructuralItemHandler,
 } from "../../ruleRuntime/property/dependentItemRegistry"
 import {
@@ -67,14 +68,41 @@ export function registerFillValueImport(): void {
   registerDependentImportItemHandler("MetadataAttribute", {
     propertyKeys: ["fillValue"],
     shouldRemove: (params) => classifyMetadataAttributeFillValue(params).kind === "implicit",
-    shouldTagXML: (params) => classifyMetadataAttributeFillValue(params).kind === "invalid",
-    shouldDefer: (params) => params.definedTypeLookup === undefined && metadataAttributeUsesDefinedType(params.item),
+    shouldTagXML: (params) => shouldTagFillValueXML(params, classifyMetadataAttributeFillValue(params).kind),
+    shouldDefer: (params) =>
+      (params.definedTypeLookup === undefined && metadataAttributeUsesDefinedType(params.item)) ||
+      namedDesignTimeRef(params) !== undefined,
   })
   registerDependentImportItemHandler("StandardAttributeDescription", {
     propertyKeys: ["fillValue"],
     shouldRemove: (params) => classifyStandardAttributeFillValue(params).kind === "implicit",
-    shouldTagXML: (params) => classifyStandardAttributeFillValue(params).kind === "invalid",
+    shouldTagXML: (params) => shouldTagFillValueXML(params, classifyStandardAttributeFillValue(params).kind),
+    shouldDefer: (params) => namedDesignTimeRef(params) !== undefined,
   })
+}
+
+function shouldTagFillValueXML(
+  params: DependentImportParams,
+  classification: ReturnType<typeof classifyMetadataAttributeFillValue>["kind"],
+): boolean {
+  if (classification === "invalid") return true
+  const canonical = namedDesignTimeRef(params)
+  return canonical !== undefined && params.metadataTargetLookup?.(canonical) === "missing"
+}
+
+function namedDesignTimeRef(
+  params: DependentImportParams,
+): string | undefined {
+  if (!isDesignTimeRef(params.candidate.xmlValue)) return undefined
+  const value = parseFillValueItem(params.item)?.value
+  return value?.type === "ref" && value.value.length > 0 ? value.value : undefined
+}
+
+type DependentImportParams = Parameters<DependentImportItemHandler["shouldRemove"]>[0]
+
+function isDesignTimeRef(value: unknown): boolean {
+  return typeof value === "object" && value !== null &&
+    (value as Record<string, unknown>)["_xsi:type"] === "xr:DesignTimeRef"
 }
 
 const collectFillValueStructuralReference: DependentStructuralItemHandler = (params) => {

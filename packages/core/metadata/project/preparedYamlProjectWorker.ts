@@ -470,6 +470,10 @@ export async function collectValidationFacts(
       ].map(({ canonical }) => ({
         logicalAddress: canonical,
         sourceProjectPath: descriptor.projectPath,
+      })),
+      ...(facts.logicalAddresses ?? []).map(({ logicalAddress }) => ({
+        logicalAddress,
+        sourceProjectPath: descriptor.projectPath,
       }))
     )
   }

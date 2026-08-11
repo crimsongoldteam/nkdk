@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="013d19a1-d76c-45e1-800b-0a33d38acf1a">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.СправочникДвоичныеДанные" category="Object">
+				<xr:TypeId>95b3d626-2064-42f0-838a-f87580fabdf7</xr:TypeId>
+				<xr:ValueId>1cf77361-8345-4969-9fab-c35b19cf8efb</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.СправочникДвоичныеДанные" category="Ref">
+				<xr:TypeId>f2295e28-b15d-40d3-8296-899b16ce1b8f</xr:TypeId>
+				<xr:ValueId>af592148-a4aa-40f7-91fd-daa29cbdca0a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.СправочникДвоичныеДанные" category="Selection">
+				<xr:TypeId>5ee45dba-fc8a-48fb-bcad-054cc3838be2</xr:TypeId>
+				<xr:ValueId>d157a671-d827-409c-a2d5-ffda0ee90386</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.СправочникДвоичныеДанные" category="List">
+				<xr:TypeId>4f68498f-f16c-4da2-b626-c8e398a9812c</xr:TypeId>
+				<xr:ValueId>d86278bd-3c01-4c94-90b6-6e0f43cfcfaf</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.СправочникДвоичныеДанные" category="Manager">
+				<xr:TypeId>48b92cce-52ed-48ff-b804-52da85b93b85</xr:TypeId>
+				<xr:ValueId>a18a069e-5185-480d-8de5-cc5666e74407</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникДвоичныеДанные</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>b67d497a-a629-4180-9587-e313846d302c</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="de0ba671-acf9-4eca-9de5-99d728fcd53d">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ХранилищеЗначения</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>7e7d2686-0c58-44cd-935c-5b693230f0fb</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>v8:ValueStorage</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

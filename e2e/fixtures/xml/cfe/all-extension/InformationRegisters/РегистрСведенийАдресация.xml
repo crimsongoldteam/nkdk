@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<InformationRegister uuid="d05669cf-4331-460d-8fbd-44ae4fbb43fc">
+		<InternalInfo>
+			<xr:GeneratedType name="InformationRegisterRecord.РегистрСведенийАдресация" category="Record">
+				<xr:TypeId>a47e384f-9135-4694-852e-55e62a6d4f06</xr:TypeId>
+				<xr:ValueId>776ff9fd-f2c0-4795-8acd-607ef2e7b23e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterManager.РегистрСведенийАдресация" category="Manager">
+				<xr:TypeId>f5200145-d494-41cf-b507-42953af3387d</xr:TypeId>
+				<xr:ValueId>d5fde19b-f9c3-49a9-987f-98108466ee02</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterSelection.РегистрСведенийАдресация" category="Selection">
+				<xr:TypeId>1367bc98-a82f-45eb-b4cf-06fad4b7e6b4</xr:TypeId>
+				<xr:ValueId>b0cdea22-52f9-4af4-9ccc-eca67d17a330</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterList.РегистрСведенийАдресация" category="List">
+				<xr:TypeId>f767aba9-2be6-4639-8e75-5deb7c32a72b</xr:TypeId>
+				<xr:ValueId>3a122c37-9f76-40ca-9fd6-04c66d3d80c6</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordSet.РегистрСведенийАдресация" category="RecordSet">
+				<xr:TypeId>5abd1c4c-ae34-49c3-9d62-6933c3b1fe29</xr:TypeId>
+				<xr:ValueId>8602d1b1-7948-4573-9d75-57a42d8d24d5</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordKey.РегистрСведенийАдресация" category="RecordKey">
+				<xr:TypeId>31191285-59b3-44a3-8dd0-c3e373e4c66a</xr:TypeId>
+				<xr:ValueId>a4b67725-f26a-41f0-889c-d435666c6039</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordManager.РегистрСведенийАдресация" category="RecordManager">
+				<xr:TypeId>07caf747-3d3f-47ad-9493-fc32c905a3b9</xr:TypeId>
+				<xr:ValueId>20ef2bbf-be4d-4acc-a4f6-fdf24fbe2994</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>РегистрСведенийАдресация</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>107dc6ff-c307-4635-9740-513ea31bab81</ExtendedConfigurationObject>
+			<InformationRegisterPeriodicity>Nonperiodical</InformationRegisterPeriodicity>
+			<WriteMode>Independent</WriteMode>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="f04e67dd-6a51-4c45-85de-87f12c1cafbf">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитАдресации</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>ba7db561-6599-45c2-86cb-820c6abdddfe</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Dimension uuid="f78997da-46a9-4b09-ae99-daed3a18fa82">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИзмерениеАдресации</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>af5d15f2-a868-4ddd-adc9-64399aaded42</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Dimension>
+		</ChildObjects>
+	</InformationRegister>
+</MetaDataObject>

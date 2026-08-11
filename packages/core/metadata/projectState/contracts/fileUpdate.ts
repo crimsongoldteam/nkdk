@@ -56,6 +56,7 @@ export interface ProjectStatePendingReference {
   readonly canonical: string
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
+  readonly tagged?: "xml"
 }
 export type ProjectStateNamedTypeItems = Array<{ name: string; type?: TypeDescriptionView }>
 export interface ProjectStateOwnerFacts {
@@ -125,6 +126,13 @@ export type ProjectStatePendingDependencyCheck =
       readonly value: FillValueTypedValue
       readonly tagged: boolean
       readonly transport?: "DesignTimeRef"
+    }
+  | {
+      readonly kind: "addressableRequired"
+      readonly yamlPath: ProjectStateYamlPath
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly canonicalTarget: string
+      readonly missing: readonly string[]
     }
 export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"

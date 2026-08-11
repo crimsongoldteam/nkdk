@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="dce8a7b1-553d-4ef4-8315-14fb8c27bf35">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.СправочникВладелец" category="Object">
+				<xr:TypeId>6f3d8fe9-8378-48a0-abd9-62dd1ffac009</xr:TypeId>
+				<xr:ValueId>5c39462b-b89e-4eb8-a82a-5f2f4e4932d9</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.СправочникВладелец" category="Ref">
+				<xr:TypeId>627b8324-fe05-432f-b977-956f77cdff28</xr:TypeId>
+				<xr:ValueId>f71c7808-ef0e-413f-9b54-08b526554bd8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.СправочникВладелец" category="Selection">
+				<xr:TypeId>1aef94a7-729d-4467-8695-e75e032a0b23</xr:TypeId>
+				<xr:ValueId>12319551-6b70-408d-b097-1aa88ba83207</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.СправочникВладелец" category="List">
+				<xr:TypeId>6aeb5d41-99fc-447d-825e-6561ba2789d4</xr:TypeId>
+				<xr:ValueId>49c7fa9c-bf35-4382-94b7-5d85225b7296</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.СправочникВладелец" category="Manager">
+				<xr:TypeId>1abc642c-71d2-4ffd-864f-6c5cf2e6bbf8</xr:TypeId>
+				<xr:ValueId>a94cca7c-8a49-49be-a78a-2e86994eda1f</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникВладелец</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>000f4b80-92c9-48d0-9845-ce77c1420161</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="1224c567-eed5-4096-802a-70da9f857882">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитСтрока</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>1699db2b-a83b-4ee4-b844-7141e167b8b6</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="984dbd7f-15a7-4a4c-93de-8a203025c26f">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитДвоичныеДанныеБезХранилища</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>da2e4d7d-9346-4435-a7a4-38fd8fa21596</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>v8:ValueStorage</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="142dcfcd-5e65-4abd-9ff4-39197328a39c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитСсылка</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>f2dbd3c8-2841-4069-b9c0-afd833fc83b0</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникСПредопределенными</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="c45a08b5-e560-4849-b9e4-70cdbb740f23">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитБулево</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>21e93be7-9cc6-46de-8797-135279a12a3f</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="356ff793-472a-4dee-9af3-81904208ac2c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитДвоичныеДанные</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>c9ab7c57-3b0f-4bac-8eb5-84a15163e18b</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>v8:ValueStorage</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="9bc586f2-a3d1-4f47-bcf6-db2e467bd331">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитМинимальный</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>e7c1c20d-ce0c-4bc1-9a2a-0179c570aee6</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="2720da37-5c92-4476-b806-9ccc60bc9b8c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитПолный</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>2b2ec1fd-1bdf-419d-aff9-67a25cb6d736</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="9b4baac2-2364-4d31-8464-be920a73ab0c">
+				<InternalInfo>
+					<xr:GeneratedType name="CatalogTabularSection.СправочникВладелец.ТабличнаяЧастьМинимальный" category="TabularSection">
+						<xr:TypeId>81006605-e492-4f7d-98c1-bb507014a4de</xr:TypeId>
+						<xr:ValueId>1f6e5a86-b41b-4785-a69a-264f9cde0822</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="CatalogTabularSectionRow.СправочникВладелец.ТабличнаяЧастьМинимальный" category="TabularSectionRow">
+						<xr:TypeId>eb486e1f-e773-460e-8266-8e9fd6d0c6a3</xr:TypeId>
+						<xr:ValueId>45b540a9-ec80-4035-ae52-b659b8f50701</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьМинимальный</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>c8b626c9-b75b-44d1-8075-a599d789b350</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects/>
+			</TabularSection>
+			<TabularSection uuid="82f215db-cf1d-42ef-8b60-b18f4388da47">
+				<InternalInfo>
+					<xr:GeneratedType name="CatalogTabularSection.СправочникВладелец.ТабличнаяЧастьПолный" category="TabularSection">
+						<xr:TypeId>c0be6ebe-4bc4-4474-bb2c-2c4d9c96f072</xr:TypeId>
+						<xr:ValueId>236b0b3a-7257-4754-8cfc-fbbe6c7bd749</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="CatalogTabularSectionRow.СправочникВладелец.ТабличнаяЧастьПолный" category="TabularSectionRow">
+						<xr:TypeId>076f3e5b-160c-4e89-90c9-24e8059aa7ea</xr:TypeId>
+						<xr:ValueId>41ac02fc-e12b-4297-aac1-20da11db450b</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьПолный</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>3cf6b85b-5422-44cc-bb0a-11d41703d9f5</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="609094be-4957-46df-aa77-a22c714cbd1c">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>Реквизит1</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>d92c0c44-ef34-4de2-97f2-b8c57f85cbd1</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<Form>ФормаВыбора</Form>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1">
+		<ChildItems>
+			<Button name="Кнопка" id="1">
+				<Type>CommandBarButton</Type>
+				<CommandName>0</CommandName>
+				<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="2" DisplayImportance="VeryHigh">
+					<Width>5</Width>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<MaxWidth>15</MaxWidth>
+					<Height>10</Height>
+					<AutoMaxHeight>false</AutoMaxHeight>
+					<MaxHeight>20</MaxHeight>
+					<HorizontalStretch>false</HorizontalStretch>
+					<VerticalStretch>false</VerticalStretch>
+					<TextColor>web:Violet</TextColor>
+					<Font ref="style:SmallTextFont" kind="StyleItem"/>
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Расширенная подсказка</v8:content>
+						</v8:item>
+					</Title>
+					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+					<GroupVerticalAlign>Center</GroupVerticalAlign>
+					<OnMainServerUnavalableBehavior>MakeDisable</OnMainServerUnavalableBehavior>
+					<Hyperlink>true</Hyperlink>
+					<VerticalAlign>Bottom</VerticalAlign>
+					<TitleHeight>3</TitleHeight>
+					<BackColor>web:BlueViolet</BackColor>
+					<BorderColor>web:SkyBlue</BorderColor>
+					<Border width="2">
+						<v8ui:style xsi:type="v8ui:ControlBorderType">Overline</v8ui:style>
+					</Border>
+					<Events>
+						<Event name="Click">КнопкаРасширеннаяПодсказкаНажатие</Event>
+						<Event name="URLProcessing">КнопкаРасширеннаяПодсказкаОбработкаНавигационнойСсылки</Event>
+					</Events>
+				</ExtendedTooltip>
+			</Button>
+		</ChildItems>
+	</AutoCommandBar>
+	<Attributes/>
+</Form>

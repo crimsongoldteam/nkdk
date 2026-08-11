@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<IntegrationService uuid="1b671fab-e928-4d39-868b-cc7d5724e37d">
+		<InternalInfo>
+			<xr:GeneratedType name="IntegrationServiceManager.СервисИнтеграцииПоУмолчанию" category="Manager">
+				<xr:TypeId>2b587354-7ac5-4d26-bc40-215b4dee5e3f</xr:TypeId>
+				<xr:ValueId>bdfa3625-b062-4009-b695-a08a7f4e4010</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СервисИнтеграцииПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>1d619a9b-5818-4271-861c-1fd89dc3b7d0</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</IntegrationService>
+</MetaDataObject>

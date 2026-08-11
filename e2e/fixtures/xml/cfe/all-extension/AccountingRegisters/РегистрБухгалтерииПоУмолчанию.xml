@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AccountingRegister uuid="733860dd-135c-44ba-8447-bdc453bb36f2">
+		<InternalInfo>
+			<xr:GeneratedType name="AccountingRegisterRecord.РегистрБухгалтерииПоУмолчанию" category="Record">
+				<xr:TypeId>567875a5-6cb3-4283-b543-ddfd9b8639bf</xr:TypeId>
+				<xr:ValueId>2ba9bfd1-2faa-467f-8af6-f3ee6c8d8957</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterExtDimensions.РегистрБухгалтерииПоУмолчанию" category="ExtDimensions">
+				<xr:TypeId>e358f8ae-93af-450b-b5ad-803c7e1eb2e8</xr:TypeId>
+				<xr:ValueId>045231d2-28a9-4582-acb0-b7327fb62f53</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterRecordSet.РегистрБухгалтерииПоУмолчанию" category="RecordSet">
+				<xr:TypeId>a133e36b-1d75-42e6-9dcb-f744fbc940a1</xr:TypeId>
+				<xr:ValueId>f07d618f-df17-45f6-8dab-0c61195cf5f7</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterRecordKey.РегистрБухгалтерииПоУмолчанию" category="RecordKey">
+				<xr:TypeId>32a099b8-f985-4542-b819-5a89fdf6e7f7</xr:TypeId>
+				<xr:ValueId>9040a2c4-f4cc-4f66-bf19-e0446cd7fcc5</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterSelection.РегистрБухгалтерииПоУмолчанию" category="Selection">
+				<xr:TypeId>94af7a0f-74f3-4916-9c07-af7677e0e44d</xr:TypeId>
+				<xr:ValueId>9e87db74-b7a5-4d76-886e-5745345009dd</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterList.РегистрБухгалтерииПоУмолчанию" category="List">
+				<xr:TypeId>dbebf390-e2b1-4942-8c24-551d1cc39401</xr:TypeId>
+				<xr:ValueId>02c8c7bf-ba4a-4d76-8098-36e9ee697c08</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterManager.РегистрБухгалтерииПоУмолчанию" category="Manager">
+				<xr:TypeId>390f752c-f12a-40e1-b597-75c59923c661</xr:TypeId>
+				<xr:ValueId>c65c1d9e-f32c-405b-a2df-36174a527f29</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>РегистрБухгалтерииПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>95af6512-9dc3-45ed-bebd-dd2a97f0069f</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Resource uuid="806cea14-87e9-4b03-bc3d-f4580e41304c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Ресурс1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>80af20e8-e064-46ee-96a4-309eea469dc7</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>10</v8:Digits>
+							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Any</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+					<Balance>true</Balance>
+				</Properties>
+			</Resource>
+		</ChildObjects>
+	</AccountingRegister>
+</MetaDataObject>

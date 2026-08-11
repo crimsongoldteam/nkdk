@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Document uuid="554e3b52-60db-43c1-9af9-b74e8f4c8930">
+		<InternalInfo>
+			<xr:GeneratedType name="DocumentObject.ДокументДругойДляЖурнала" category="Object">
+				<xr:TypeId>56f2328f-ba64-45db-a03e-ee5b7dfac986</xr:TypeId>
+				<xr:ValueId>ea7421f2-846e-4a43-b4e8-d0f91e8312e0</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentRef.ДокументДругойДляЖурнала" category="Ref">
+				<xr:TypeId>7d71483d-e784-4796-8141-ca8ac9294380</xr:TypeId>
+				<xr:ValueId>a9038184-7892-4df1-a6c0-9ec4f3483e1e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentSelection.ДокументДругойДляЖурнала" category="Selection">
+				<xr:TypeId>27a1777c-ca5a-4f37-9137-36826079c901</xr:TypeId>
+				<xr:ValueId>9dc0205c-8a5c-45f8-817a-76c301a6d500</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentList.ДокументДругойДляЖурнала" category="List">
+				<xr:TypeId>0ec2f1a7-3e00-4f4b-9bb7-93c090f5d7b4</xr:TypeId>
+				<xr:ValueId>145738f3-5750-420b-84fd-f0443a2e2e6b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentManager.ДокументДругойДляЖурнала" category="Manager">
+				<xr:TypeId>4d98e8da-2a37-4ff5-9776-19bc6f288c14</xr:TypeId>
+				<xr:ValueId>d685fdff-07f7-4af8-828c-70818b95f955</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ДокументДругойДляЖурнала</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>93edf229-1612-4501-b750-91152e79c468</ExtendedConfigurationObject>
+			<RegisterRecords/>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="ce6f5291-4357-45c2-8f66-1c0a3a2bee9f">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>СтроковыйРеквизит</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>c6a7455c-48ed-4273-aa99-eb7cc4e20a68</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+		</ChildObjects>
+	</Document>
+</MetaDataObject>

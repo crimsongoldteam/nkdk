@@ -37,7 +37,7 @@ describe("состояние универсального worker", () => {
     const close = vi.fn()
     const openReadSession = vi.fn(() => ({ close }) as unknown as ProjectStateReadSession)
     const createSchemaCache = vi.fn(async () => ({ marker: "schema" }))
-    const createRulesSnapshot = vi.fn(() => ({ version: 1 as const, specs: [] }))
+    const createRulesSnapshot = vi.fn(() => ({ version: 1 as const, specs: [], items: [] }))
     const state = await createMetadataWorkerPersistentState(
       { workerIndex: 0, context },
       {
@@ -68,7 +68,7 @@ describe("состояние универсального worker", () => {
       { workerIndex: 0, context },
       {
         createSchemaCache: async () => ({}) as never,
-        createRulesSnapshot: () => ({ version: 1, specs: [] }),
+        createRulesSnapshot: () => ({ version: 1, specs: [], items: [] }),
         openReadSession: () => ({ close: closes[sessionIndex++] }) as unknown as ProjectStateReadSession,
       }
     )

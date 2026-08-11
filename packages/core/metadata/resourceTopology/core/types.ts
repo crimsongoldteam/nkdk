@@ -29,6 +29,11 @@ export interface TopologyMetadataTargetOwner {
   readonly objectName: string
 }
 
+export interface TopologyMetadataTarget {
+  readonly canonical: string
+  readonly owner: TopologyMetadataTargetOwner
+}
+
 export interface TopologyMetadataTargetOwnerFrame {
   readonly itemType: string
   readonly name: string

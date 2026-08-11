@@ -29,7 +29,7 @@ import {
   type ProjectStateService,
 } from "../projectState"
 import { getMetadataSnapshotImportCapability } from "../resourceTopology/adapters/capabilities"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { createValidationProjectComponent, type ValidationProjectComponent } from "../validation/projectComponents"
 import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import { resolveXmlImportComponent, type XmlImportComponentDescriptor } from "./componentDescriptor"
@@ -78,6 +78,8 @@ export interface ImportCoordinatorDependencies {
   createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
   discover(params: {
     xmlDir: string
+    topology: CompiledMetadataResourceTopology
+    rootItemName: string
   }): Promise<{ assignments: ImportAssignment[]; snapshotFiles?: ImportSnapshotFile[] }>
   collectSnapshotFragments?(params: {
     context: ConfigurationContextFromXML
@@ -100,8 +102,8 @@ export interface ImportCoordinatorDependencies {
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
-  async discover({ xmlDir }) {
-    return discoverXmlImport({ xmlDir, topology: compileRegisteredMetadataResourceTopology() })
+  async discover({ xmlDir, topology, rootItemName }) {
+    return discoverXmlImport({ xmlDir, topology, rootItemName })
   },
   collectSnapshotFragments,
   createProjectStateService,
@@ -151,7 +153,8 @@ export async function importConfigurationFromXml(
   try {
     const root = await readXmlImportComponentRoot(params.inputDir)
     const descriptor = resolveXmlImportComponent(root)
-    const address = descriptor.resolveAddress(root)
+    const resolvedRoot = descriptor.resolveRoot(root)
+    const { address } = resolvedRoot
     const selectedComponentPath = componentPath(address)
     const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
     assertNoPending(params.projectDir, selectedComponentPath)
@@ -206,7 +209,11 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Поиск XML-файлов выгрузки",
       {},
-      () => deps.discover({ xmlDir: params.inputDir })
+      () => deps.discover({
+        xmlDir: params.inputDir,
+        topology: validationComponent.topology,
+        rootItemName: resolvedRoot.itemName,
+      })
     )
     profiler.record("Подготовка импорта конфигурации", "Формирование и распределение заданий импорта", {
       items: discovered.assignments.length,
@@ -520,7 +527,7 @@ function buildImportedConfigurationSnapshot(params: {
   fragmentData: MergedConfigurationSnapshotFragments
 }): ConfigurationSnapshot {
   return {
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath: params.componentPath,
     files: params.projectFiles,

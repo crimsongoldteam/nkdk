@@ -116,12 +116,15 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   assertRows(
     update["pendingReferences"],
     `${path}.pendingReferences`,
-    ["yamlPath", "canonical", "target", "constraint"],
+    ["yamlPath", "canonical", "target", "constraint", "tagged"],
     (row, rowPath) => {
       assertYamlPath(row["yamlPath"], `${rowPath}.yamlPath`)
       assertString(row["canonical"], `${rowPath}.canonical`)
       assertParsedMetadataTarget(row["target"], `${rowPath}.target`)
       assertMetadataTargetConstraint(row["constraint"], `${rowPath}.constraint`)
+      if (row["tagged"] !== undefined && row["tagged"] !== "xml") {
+        throw new Error(`${rowPath}.tagged должен быть xml`)
+      }
     }
   )
   assertRows(update["owners"], `${path}.owners`, ["owner", "facts"], (row, rowPath) => {
@@ -176,6 +179,8 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     "type",
     "tagged",
     "transport",
+    "canonicalTarget",
+    "missing",
   ], assertPendingCheck)
   if (!Array.isArray(update["dependencies"]) || !update["dependencies"].every((item) => typeof item === "string")) {
     throw new Error(`${path}.dependencies должен быть массивом строк`)
@@ -620,6 +625,13 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
     if (typeof row["tagged"] !== "boolean") throw new Error(`${path}.tagged должен быть boolean`)
     if (row["transport"] !== undefined && row["transport"] !== "DesignTimeRef") {
       throw new Error(`${path}.transport имеет неизвестное значение`)
+    }
+    return
+  }
+  if (row["kind"] === "addressableRequired") {
+    assertString(row["canonicalTarget"], `${path}.canonicalTarget`)
+    if (!Array.isArray(row["missing"]) || !row["missing"].every((item) => typeof item === "string")) {
+      throw new Error(`${path}.missing должен быть массивом строк`)
     }
     return
   }

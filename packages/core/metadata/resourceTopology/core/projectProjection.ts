@@ -11,6 +11,8 @@ import type {
   CompiledMetadataYamlCompanionNode,
   MetadataResourceRole,
   MetadataResourceItemRule,
+  TopologyMetadataTarget,
+  TopologyMetadataTargetOwner,
   TopologyMetadataTargetOwnerFrame,
   TopologyMetadataTargetOwnerResolver,
 } from "./types"
@@ -32,6 +34,7 @@ export interface MetadataProjectResourceMatch {
   readonly role: MetadataResourceRole
   readonly rule: MetadataResourceItemRule | undefined
   readonly owner: MetadataProjectResourceOwner | undefined
+  readonly metadataTarget?: TopologyMetadataTarget
   readonly compositionImpact: "none" | "configurationComposition"
 }
 
@@ -211,6 +214,7 @@ function classifyMetadataProjectPathWithMatches(params: {
         role: assignment.role,
         rule: assignment.itemRule,
         owner: resolveOwner(assignmentsByProjectPattern, assignment),
+        metadataTarget: resolveMetadataTarget(assignmentsByProjectPattern, assignment, match.values, projectPath),
         compositionImpact: assignment.compositionImpact,
       }]
     }
@@ -225,6 +229,12 @@ function classifyMetadataProjectPathWithMatches(params: {
         role: "external",
         rule: undefined,
         owner: resolveOwner(assignmentsByProjectPattern, external.assignment),
+        metadataTarget: resolveMetadataTarget(
+          assignmentsByProjectPattern,
+          external.assignment,
+          match.values,
+          projectPath,
+        ),
         compositionImpact: external.externalFile.compositionImpact,
       }]
     }
@@ -239,6 +249,12 @@ function classifyMetadataProjectPathWithMatches(params: {
         role: companion.yamlCompanion.projectRole,
         rule: companion.yamlCompanion.itemRule,
         owner: resolveOwner(assignmentsByProjectPattern, companion.assignment),
+        metadataTarget: resolveMetadataTarget(
+          assignmentsByProjectPattern,
+          companion.assignment,
+          match.values,
+          projectPath,
+        ),
         compositionImpact: "none",
       }]
     }
@@ -254,6 +270,7 @@ function classifyMetadataProjectPathWithMatches(params: {
           role: "external",
           rule: undefined,
           owner: undefined,
+          metadataTarget: undefined,
           compositionImpact: "none",
         }]
   })
@@ -358,6 +375,77 @@ function resolveOwner(
         projectPattern: owner.projectPattern,
         itemRule: owner.itemRule,
       }
+}
+
+function resolveMetadataTarget(
+  assignmentsByProjectPattern: ReadonlyMap<string, CompiledMetadataAssignmentNode>,
+  assignment: CompiledMetadataAssignmentNode,
+  values: Readonly<Record<string, string>>,
+  projectPath: string,
+): TopologyMetadataTarget | undefined {
+  if (assignment.role === "configuration") return undefined
+
+  const chain: CompiledMetadataAssignmentNode[] = []
+  const visited = new Set<string>()
+  let current: CompiledMetadataAssignmentNode | undefined = assignment
+  while (current !== undefined) {
+    if (visited.has(current.id)) {
+      throw new Error(`Цепочка assignments содержит цикл для ${projectPath}: ${[...visited, current.id].join(" -> ")}`)
+    }
+    visited.add(current.id)
+    chain.push(current)
+    if (current.ownerProjectPattern === undefined) break
+    current = assignmentsByProjectPattern.get(current.ownerProjectPattern)
+    if (current === undefined) {
+      throw new Error(
+        `Неполная цепочка assignments для ${projectPath}: ${chain.map(({ id }) => id).join(" -> ")}`,
+      )
+    }
+  }
+
+  let owner: TopologyMetadataTargetOwner | undefined
+  for (const frame of chain.reverse()) {
+    const nameParameter = patternParameters(frame.projectPattern).at(-1)
+    const name = nameParameter === undefined ? undefined : values[nameParameter]
+    if (nameParameter === undefined && chain.length === 1) return undefined
+    if (name === undefined || name.length === 0) {
+      throw new Error(
+        `Не удалось определить имя metadata target для ${projectPath}: ${chain.map(({ id }) => id).join(" -> ")}`,
+      )
+    }
+
+    if (owner === undefined) {
+      const root = frame.itemRule.metadataTargetOwner?.kind === "self"
+        ? frame.itemRule.metadataTargetOwner.root
+        : undefined
+      if (root === undefined) {
+        throw new Error(
+          `Не удалось определить корень metadata target для ${projectPath}: ${chain.map(({ id }) => id).join(" -> ")}`,
+        )
+      }
+      owner = { root, objectName: name }
+      continue
+    }
+
+    const segment = frame.itemRule.externalMetadata?.segment
+      ?? frame.fileBackedTarget?.memberKind
+      ?? (frame.itemRule.metadataTargetOwner?.kind === "self"
+        ? frame.itemRule.metadataTargetOwner.root
+        : undefined)
+    if (segment === undefined || frame.logicalAddressSegment === undefined) {
+      throw new Error(
+        `Не удалось определить сегмент metadata target для ${projectPath}: ${chain.map(({ id }) => id).join(" -> ")}`,
+      )
+    }
+    owner = {
+      root: owner.root,
+      objectName: `${owner.objectName}.${segment}.${name}`,
+    }
+  }
+
+  return owner === undefined
+    ? undefined
+    : { canonical: `${owner.root}.${owner.objectName}`, owner }
 }
 
 export interface ProjectDirectoryEntry {

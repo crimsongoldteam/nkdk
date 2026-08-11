@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="978393d1-e78e-422e-8828-4af822c1c1a5">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.СправочникФормаВсеСвойства" category="Object">
+				<xr:TypeId>3f93caf2-cb78-4ec9-998f-0d401ba5e784</xr:TypeId>
+				<xr:ValueId>b152d5ec-61af-49ef-b3db-749af0d98017</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.СправочникФормаВсеСвойства" category="Ref">
+				<xr:TypeId>4287c434-8e5c-4317-9083-582e45e78a87</xr:TypeId>
+				<xr:ValueId>773b28c2-732c-4f3b-a85f-fb1bdc52ebd1</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.СправочникФормаВсеСвойства" category="Selection">
+				<xr:TypeId>6a638ef4-5b2e-4417-8089-2350f5180e42</xr:TypeId>
+				<xr:ValueId>9fd22a11-7a06-45ee-b894-4ac0e38d0276</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.СправочникФормаВсеСвойства" category="List">
+				<xr:TypeId>a172c42d-609e-4438-a86b-100d13a7f5b7</xr:TypeId>
+				<xr:ValueId>35a24069-237e-4de0-97d8-0b2914988a43</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.СправочникФормаВсеСвойства" category="Manager">
+				<xr:TypeId>6984abb4-26e3-4643-835f-101bace556a6</xr:TypeId>
+				<xr:ValueId>335b95e8-40fd-4d11-a72a-fb1a44b53ad2</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникФормаВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>f4eb6828-49ca-4d6c-9ecd-5a691c60b276</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Form>ФормаЭлемента</Form>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

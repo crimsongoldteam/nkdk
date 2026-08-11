@@ -5,6 +5,7 @@ import type { MetadataItemRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { exportMetadataItemToJSONSchema } from "./toJSONSchema"
+import { withNestedJSONSchemaItemContext } from "../property/jsonSchemaRequiredPolicy"
 
 type MetadataItemRuleParams<Rule extends MetadataItemRule, PropertyType extends PropertyRuleType> = {
   propertyType: PropertyType
@@ -58,18 +59,10 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
     const schemaStack = context.exportToJSONSchema?.schemaStack ?? []
     if (schemaStack.includes(propertyType)) return Type.Unknown()
 
+    const resolvedItemRule = propertyItemRule(rule) ?? itemRule
     return exportMetadataItemToJSONSchema({
-      context: {
-        ...context,
-        exportToJSONSchema: {
-          mode: context.exportToJSONSchema?.mode ?? "inline",
-          refs: context.exportToJSONSchema?.refs ?? new Set(),
-          includeNestedChildItems: context.exportToJSONSchema?.includeNestedChildItems,
-          propertySchemaOverrides: context.exportToJSONSchema?.propertySchemaOverrides,
-          schemaStack: [...schemaStack, propertyType],
-        },
-      },
-      rule: propertyItemRule(rule) ?? itemRule,
+      context: withNestedJSONSchemaItemContext(context, resolvedItemRule, propertyType),
+      rule: resolvedItemRule,
     })
   })
 }

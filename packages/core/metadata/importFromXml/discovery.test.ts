@@ -52,6 +52,18 @@ describe("XML import discovery", () => {
     })
   })
 
+  it("passes the semantic component name only to the root assignment", async () => {
+    const result = await discoverXmlImport({
+      xmlDir,
+      topology: testTopology,
+      rootItemName: "РасширениеКонтроль",
+      fs: fakeFs(["Configuration.xml", "Catalogs/Контрагенты.xml"]),
+    })
+
+    expect(result.assignments.find(({ role }) => role === "configuration")?.itemName).toBe("РасширениеКонтроль")
+    expect(result.assignments.find(({ role }) => role === "properties")?.itemName).toBe("Контрагенты")
+  })
+
   it("classifies the real managed-form body and maps its module to the project root", async () => {
     const formRoot = "Catalogs/Контрагенты/Forms/ФормаЭлемента"
     const result = await discoverXmlImport({
@@ -270,6 +282,17 @@ describe("XML import discovery", () => {
       snapshotFiles: [],
     })
     expect(fs.readFile).not.toHaveBeenCalled()
+  })
+
+  it("rejects XML that is outside the selected component topology", async () => {
+    const unknownXml = "Catalogs/Контрагенты/Ext/Unknown.xml"
+
+    await expect(
+      discoverXmlImport({ xmlDir, topology: testTopology, fs: fakeFs([unknownXml]) })
+    ).rejects.toMatchObject({
+      code: "xml_import_route_unmatched",
+      paths: [unknownXml],
+    })
   })
 
   it("rejects an external file whose assignment is absent", async () => {

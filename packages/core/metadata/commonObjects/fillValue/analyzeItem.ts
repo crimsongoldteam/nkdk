@@ -45,6 +45,9 @@ export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParam
   if (parsed === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
   const type = metadataAttributeType(params.item)
   if (type?.type.some((sourceType) => sourceType.startsWith("DefinedType.")) === true) {
+    if (parsed.tagged && parsed.value.type === "ref") {
+      return withValueReference(params, parsed.value, emptyAnalysis(), parsed.tagged)
+    }
     return withValueReference(params, parsed.value, {
       diagnostics: [],
       references: [],
@@ -57,7 +60,7 @@ export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParam
         tagged: parsed.tagged,
         ...(parsed.transport === undefined ? {} : { transport: parsed.transport }),
       }],
-    })
+    }, parsed.tagged)
   }
   return analyzeFillValue(params, classifyMetadataAttributeFillValue)
 }
@@ -73,6 +76,9 @@ function analyzeFillValue(
   if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
   const parsed = parseFillValueItem(params.item)
   if (parsed === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
+  if (parsed.tagged && parsed.value.type === "ref") {
+    return withValueReference(params, parsed.value, emptyAnalysis(), parsed.tagged)
+  }
   const classification = classify(params, parsed.value)
   const diagnostic = parsed.transport === "DesignTimeRef"
     ? designTimeRefDiagnostic(params, classification)
@@ -80,7 +86,7 @@ function analyzeFillValue(
   const analysis = diagnostic === undefined
     ? emptyAnalysis()
     : diagnosticAnalysis(params, diagnostic.message, diagnostic.severity)
-  return withValueReference(params, parsed.value, analysis)
+  return withValueReference(params, parsed.value, analysis, parsed.tagged)
 }
 
 export function parseFillValueItem(
@@ -165,7 +171,8 @@ export function classifyStandardAttributeFillValue(
 function withValueReference(
   params: DependentYamlItemParams,
   value: NonNullable<ReturnType<typeof parseFillValueYaml>>,
-  analysis: DependentYamlItemAnalysis
+  analysis: DependentYamlItemAnalysis,
+  tagged: boolean,
 ): DependentYamlItemAnalysis {
   const constraint = inferFillValueReferenceConstraint(value)
   if (constraint === undefined) return analysis
@@ -178,7 +185,10 @@ function withValueReference(
   })
   return {
     diagnostics: [...analysis.diagnostics, ...reference.diagnostics],
-    references: reference.references,
+    references: reference.references.map((candidate) => ({
+      ...candidate,
+      ...(tagged ? { tagged: "xml" as const } : {}),
+    })),
     projectChecks: analysis.projectChecks,
   }
 }

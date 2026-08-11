@@ -1,0 +1,234 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<ChildItems>
+		<PlannerField name="ПолеПланировщика" id="3" DisplayImportance="High">
+			<DataPath>Реквизит</DataPath>
+			<UserVisible>
+				<xr:Common>true</xr:Common>
+				<xr:Value name="Role.Администратор">false</xr:Value>
+			</UserVisible>
+			<DefaultItem>true</DefaultItem>
+			<Enabled>false</Enabled>
+			<ReadOnly>true</ReadOnly>
+			<SkipOnInput>true</SkipOnInput>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Поле планировщика</v8:content>
+				</v8:item>
+			</Title>
+			<TitleTextColor>web:Black</TitleTextColor>
+			<TitleBackColor>web:Blue</TitleBackColor>
+			<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+			<TitleLocation>Left</TitleLocation>
+			<TitleHeight>20</TitleHeight>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Подсказка</v8:content>
+				</v8:item>
+			</ToolTip>
+			<ToolTipRepresentation>None</ToolTipRepresentation>
+			<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+			<WarningOnEdit>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Предупреждение</v8:content>
+				</v8:item>
+			</WarningOnEdit>
+			<Shortcut>S</Shortcut>
+			<CommandSet>
+				<ExcludedCommand>Begin</ExcludedCommand>
+			</CommandSet>
+			<HorizontalAlign>Left</HorizontalAlign>
+			<VerticalAlign>Top</VerticalAlign>
+			<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+			<GroupVerticalAlign>Top</GroupVerticalAlign>
+			<EditMode>EnterOnInput</EditMode>
+			<CellHyperlink>true</CellHyperlink>
+			<ShowInHeader>false</ShowInHeader>
+			<HeaderPicture>
+				<xr:Ref>StdPicture.Print</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</HeaderPicture>
+			<ShowInFooter>false</ShowInFooter>
+			<FooterDataPath>РеквизитПодвала</FooterDataPath>
+			<FooterText>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Текст подвала</v8:content>
+				</v8:item>
+			</FooterText>
+			<FooterTextColor>web:Black</FooterTextColor>
+			<FooterBackColor>web:White</FooterBackColor>
+			<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+			<FooterPicture>
+				<xr:Ref>StdPicture.Print</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</FooterPicture>
+			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+			<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+			<Width>300</Width>
+			<Height>200</Height>
+			<HorizontalStretch>false</HorizontalStretch>
+			<VerticalStretch>false</VerticalStretch>
+			<TimeScaleItemHyperlink>true</TimeScaleItemHyperlink>
+			<DimensionItemHyperlink>true</DimensionItemHyperlink>
+			<WrappedTimeScaleHeaderHyperlink>true</WrappedTimeScaleHeaderHyperlink>
+			<ContextMenu name="ПолеПланировщикаКонтекстноеМеню" id="4">
+				<Autofill>false</Autofill>
+			</ContextMenu>
+			<ExtendedTooltip name="ПолеПланировщикаРасширеннаяПодсказка" id="5">
+				<Title formatted="false">
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Расширенная подсказка</v8:content>
+					</v8:item>
+				</Title>
+			</ExtendedTooltip>
+			<Events>
+				<Event name="OnChange">ПроцедураПриИзменении</Event>
+				<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
+				<Event name="BeforeCollapseDimensionItem">ПроцедураСворачиванияЭлемента</Event>
+				<Event name="TimeScaleItemClick">ПроцедураНажатияНаЭлементе</Event>
+				<Event name="BeforeCreate">ПроцедураСозданияЭлемента</Event>
+				<Event name="InsideDragCheck">ПроцедураПроверкиПеретаскиванияВнутри</Event>
+				<Event name="BeforePrint">ПроцедураПередПечатью</Event>
+				<Event name="DimensionItemClick">ПроцедураНажатияНаЭлементе</Event>
+				<Event name="OnCurrentRepresentationPeriodChange">ПроцедураИзмененияПериода</Event>
+				<Event name="OnEditEnd">ПроцедураЗавершенияРедактирования</Event>
+				<Event name="WrappedTimeScaleHeaderClick">ПроцедураНажатияНаЗаголовке</Event>
+				<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
+				<Event name="BeforeDelete">ПроцедураУдаленияЭлемента</Event>
+				<Event name="BeforeExpandDimensionItem">ПроцедураРазворачиванияЭлемента</Event>
+				<Event name="BeforeStartEdit">ПроцедураНачалаРедактирования</Event>
+				<Event name="Drag">ПроцедураПеретаскивания</Event>
+				<Event name="CommandGenerateProcessing">ПроцедураГенерацииКоманды</Event>
+				<Event name="BeforeStartQuickEdit">ПроцедураНачалаБыстрогоРедактирования</Event>
+				<Event name="Selection">ПроцедураВыбора</Event>
+				<Event name="OnActivate">ПроцедураАктивации</Event>
+				<Event name="URLClick">ПроцедураНажатияНаСсылке</Event>
+				<Event name="DragEnd">ПроцедураЗавершенияПеретаскивания</Event>
+				<Event name="PlannerActionClick">ПроцедураНажатияНаПланировщике</Event>
+			</Events>
+		</PlannerField>
+		<PlannerField name="ПоУмолчанию" id="6">
+			<DataPath>Реквизит</DataPath>
+			<ContextMenu name="ПоУмолчаниюКонтекстноеМеню" id="7"/>
+			<ExtendedTooltip name="ПоУмолчаниюРасширеннаяПодсказка" id="8"/>
+		</PlannerField>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Реквизит" id="1">
+			<Type>
+				<v8:Type xmlns:pl="http://v8.1c.ru/8.3/data/planner">pl:Planner</v8:Type>
+			</Type>
+			<Settings xmlns:pl="http://v8.1c.ru/8.3/data/planner" xsi:type="pl:Planner">
+				<pl:item>
+					<pl:value xsi:nil="true"/>
+					<pl:text>Встреча</pl:text>
+					<pl:tooltip/>
+					<pl:begin>2026-03-16T01:00:00</pl:begin>
+					<pl:end>2026-03-16T04:00:00</pl:end>
+					<pl:borderColor>auto</pl:borderColor>
+					<pl:backColor>auto</pl:backColor>
+					<pl:textColor>auto</pl:textColor>
+					<pl:font kind="AutoFont"/>
+					<pl:dimensionValues/>
+					<pl:replacementDate>0001-01-01T00:00:00</pl:replacementDate>
+					<pl:deleted>false</pl:deleted>
+					<pl:id>9274d163-57c4-4019-889b-f211efe27359</pl:id>
+					<pl:textFormatted>false</pl:textFormatted>
+					<pl:border width="1">
+						<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
+					</pl:border>
+					<pl:editMode>EnableEdit</pl:editMode>
+				</pl:item>
+				<pl:borderColor>auto</pl:borderColor>
+				<pl:backColor>auto</pl:backColor>
+				<pl:textColor>auto</pl:textColor>
+				<pl:lineColor>auto</pl:lineColor>
+				<pl:font kind="AutoFont"/>
+				<pl:beginOfRepresentationPeriod>0001-01-01T00:00:00</pl:beginOfRepresentationPeriod>
+				<pl:endOfRepresentationPeriod>0001-01-01T00:00:00</pl:endOfRepresentationPeriod>
+				<pl:alignElementsOfTimeScale>true</pl:alignElementsOfTimeScale>
+				<pl:displayTimeScaleWrapHeaders>true</pl:displayTimeScaleWrapHeaders>
+				<pl:displayWrapHeaders>true</pl:displayWrapHeaders>
+				<pl:timeScaleWrapHeadersFormat>
+					<v8:item>
+						<v8:lang>#</v8:lang>
+						<v8:content>DLF="DD"</v8:content>
+					</v8:item>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>DLF="DD"</v8:content>
+					</v8:item>
+				</pl:timeScaleWrapHeadersFormat>
+				<pl:periodicVariantUnit>Day</pl:periodicVariantUnit>
+				<pl:periodicVariantRepetition>1</pl:periodicVariantRepetition>
+				<pl:timeScaleWrapBeginIndent>0</pl:timeScaleWrapBeginIndent>
+				<pl:timeScaleWrapEndIndent>0</pl:timeScaleWrapEndIndent>
+				<pl:timeScale>
+					<placement xmlns="http://v8.1c.ru/8.2/data/chart">Left</placement>
+					<level xmlns="http://v8.1c.ru/8.2/data/chart">
+						<measure>Hour</measure>
+						<interval>1</interval>
+						<show>true</show>
+						<line width="1" gap="false">
+							<v8ui:style xsi:type="v8ui:ChartLineType">Solid</v8ui:style>
+						</line>
+						<scaleColor>auto</scaleColor>
+						<dayFormatRule>MonthDayWeekDay</dayFormatRule>
+						<format>
+							<v8:item>
+								<v8:lang>#</v8:lang>
+								<v8:content>DF="HH:mm"</v8:content>
+							</v8:item>
+							<v8:item>
+								<v8:lang>ru</v8:lang>
+								<v8:content>DF="HH:mm"</v8:content>
+							</v8:item>
+						</format>
+						<labels>
+							<ticks>0</ticks>
+						</labels>
+						<backColor>auto</backColor>
+						<textColor>auto</textColor>
+						<showPereodicalLabels>true</showPereodicalLabels>
+					</level>
+					<transparent xmlns="http://v8.1c.ru/8.2/data/chart">false</transparent>
+					<backColor xmlns="http://v8.1c.ru/8.2/data/chart">auto</backColor>
+					<textColor xmlns="http://v8.1c.ru/8.2/data/chart">auto</textColor>
+					<currentLevel xmlns="http://v8.1c.ru/8.2/data/chart">0</currentLevel>
+				</pl:timeScale>
+				<pl:period>
+					<pl:begin>2026-03-16T00:00:00</pl:begin>
+					<pl:end>2026-03-16T23:59:59</pl:end>
+				</pl:period>
+				<pl:displayCurrentDate>true</pl:displayCurrentDate>
+				<pl:itemsTimeRepresentation>BeginTime</pl:itemsTimeRepresentation>
+				<pl:itemsBehaviorWhenSpaceInsufficient>CollapseItems</pl:itemsBehaviorWhenSpaceInsufficient>
+				<pl:autoMinColumnWidth>true</pl:autoMinColumnWidth>
+				<pl:autoMinRowHeight>true</pl:autoMinRowHeight>
+				<pl:minColumnWidth>0</pl:minColumnWidth>
+				<pl:minRowHeight>0</pl:minRowHeight>
+				<pl:fixDimensionsHeader>auto</pl:fixDimensionsHeader>
+				<pl:fixTimeScaleHeader>auto</pl:fixTimeScaleHeader>
+				<pl:border width="1">
+					<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
+				</pl:border>
+				<pl:newItemsTextType>String</pl:newItemsTextType>
+			</Settings>
+		</Attribute>
+		<Attribute name="РеквизитПодвала" id="2">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+	</Attributes>
+</Form>

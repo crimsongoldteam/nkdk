@@ -30,7 +30,11 @@ describe("prepareFullXmlSyncAssignment", () => {
   })
 
   it("calls one registered capability once for all of its XML outputs", () => {
-    const rule = { itemType: "TestObject", properties: {} } as MetadataItemRule
+    const rule = {
+      itemType: "TestObject",
+      properties: {},
+      metadataTargetOwner: { kind: "self", root: "Catalog" },
+    } as MetadataItemRule
     const source = { kind: "itemRule" as const, description: "test" }
     const topology = compileMetadataResourceTopology([
       {

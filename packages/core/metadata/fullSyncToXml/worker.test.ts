@@ -643,7 +643,7 @@ function assignment(projectDir: string, name: string): FullXmlSyncExecutionAssig
 
 function targetIndexForAssignment(assigned: FullXmlSyncAssignment): SharedConfigurationIndexSnapshot {
   return snapshotConfigurationIndex(encodeConfigurationIndex({
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath: "cf",
     files: [{ projectPath: assigned.sourceProjectPath, contentHash: assigned.expectedContentHash }],

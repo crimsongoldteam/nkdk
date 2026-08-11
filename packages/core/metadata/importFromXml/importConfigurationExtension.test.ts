@@ -110,6 +110,7 @@ describe("configuration extension XML import", () => {
       ОсновнойЯзык: "БазовыйЯзык",
       Контроль: ["ОсновнойРежимЗапуска"],
     })
+    expect(configuration).not.toHaveProperty("Синоним")
 
     expect(catalog).toEqual({
       Реквизиты: {
@@ -167,7 +168,7 @@ describe("configuration extension XML import", () => {
     })
 
     expect(snapshot).toMatchObject({
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       componentPath: "cfe/РасширениеКонтроль",
       indexGeneration: 1n,
     })
@@ -216,6 +217,19 @@ async function importExtension() {
   await importBaseConfiguration(projectDir)
   const inputDir = temporaryDirectory()
   fs.cpSync(fixtureDir, inputDir, { recursive: true })
+  replaceExactlyOnce(
+    join(inputDir, "Configuration.xml"),
+    "\t\t\t<Name>РасширениеКонтроль</Name>",
+    [
+      "\t\t\t<Name>РасширениеКонтроль</Name>",
+      "\t\t\t<Synonym>",
+      "\t\t\t\t<v8:item>",
+      "\t\t\t\t\t<v8:lang>ru</v8:lang>",
+      "\t\t\t\t\t<v8:content>Расширение контроль</v8:content>",
+      "\t\t\t\t</v8:item>",
+      "\t\t\t</Synonym>",
+    ].join("\n"),
+  )
   replaceExactlyOnce(
     join(inputDir, "Configuration.xml"),
     "\t\t\t<DefaultRunMode>ManagedApplication</DefaultRunMode>",

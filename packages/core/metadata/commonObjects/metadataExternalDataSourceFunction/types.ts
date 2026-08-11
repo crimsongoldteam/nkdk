@@ -19,4 +19,5 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataExternalDataSourceFunctionRules,
   xmlElement: "Function",
   keyField: "name",
+  configurationIndexUidSegment: "Функция",
 })

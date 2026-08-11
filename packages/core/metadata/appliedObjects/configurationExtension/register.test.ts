@@ -24,9 +24,12 @@ describe("configurationExtension register", () => {
     expect(descriptor.kind).toBe("configurationExtension")
     expect(getMetadataComponentDescriptor(descriptor.kind).rootRule)
       .toBe(MetadataConfigurationExtensionRules)
-    expect(descriptor.resolveAddress(root)).toEqual({
-      kind: "configurationExtension",
-      name: "РасширениеПоУмолчанию",
+    expect(descriptor.resolveRoot(root)).toEqual({
+      address: {
+        kind: "configurationExtension",
+        name: "РасширениеПоУмолчанию",
+      },
+      itemName: "РасширениеПоУмолчанию",
     })
     expect(descriptor.baseAddress).toEqual({ kind: "configuration" })
     expect(descriptor.metadataItemAugmenter).toBe("configurationExtension")

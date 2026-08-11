@@ -16,6 +16,7 @@ export function normalizeImportedDependentItems(params: {
   readonly collector?: ConfigurationIndexCollector
   readonly owner: DependentItemParams["owner"]
   readonly definedTypeLookup?: DependentItemParams["definedTypeLookup"]
+  readonly metadataTargetLookup?: DependentItemParams["metadataTargetLookup"]
   readonly preserveRawXML?: boolean
 }): number {
   let removed = 0
@@ -76,7 +77,13 @@ export function partitionImportedDependentItems(params: {
 }
 
 function dependentParamsForCandidate(
-  params: { readonly yaml: unknown; readonly rule: MetadataItemRule; readonly owner: DependentItemParams["owner"]; readonly definedTypeLookup?: DependentItemParams["definedTypeLookup"] },
+  params: {
+    readonly yaml: unknown
+    readonly rule: MetadataItemRule
+    readonly owner: DependentItemParams["owner"]
+    readonly definedTypeLookup?: DependentItemParams["definedTypeLookup"]
+    readonly metadataTargetLookup?: DependentItemParams["metadataTargetLookup"]
+  },
   candidate: ImportedDependentPropertyCandidate,
   item: Record<string, unknown>,
 ) {
@@ -89,6 +96,7 @@ function dependentParamsForCandidate(
     rootRule: params.rule,
     owner: params.owner,
     ...(params.definedTypeLookup === undefined ? {} : { definedTypeLookup: params.definedTypeLookup }),
+    ...(params.metadataTargetLookup === undefined ? {} : { metadataTargetLookup: params.metadataTargetLookup }),
     candidate,
   }
 }

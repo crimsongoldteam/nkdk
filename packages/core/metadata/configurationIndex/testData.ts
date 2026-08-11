@@ -19,7 +19,7 @@ export function fragment(
 
 export function sampleSnapshot(): ConfigurationSnapshot {
   return {
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 7n,
     componentPath: "cf",
     files: [

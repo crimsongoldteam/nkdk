@@ -162,7 +162,32 @@ export function importPropertiesFromXMLToYAML(params: {
       addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
     }
 
-    if (!forReference && propertyRule.forReferenceOnly === true) return
+    if (!forReference && propertyRule.forReferenceOnly === true) {
+      collectConfigurationIndexPropertyFromXML({
+        context: sourceContext,
+        logicalAddress:
+          indexCollection === undefined
+            ? undefined
+            : configurationIndexPropertyXmlStateUid(
+                indexCollection.logicalAddress,
+                key,
+                propertyRule.yaml,
+                indexCollection.yamlPathAddressing === true ||
+                  propertyRule.configurationIndexAddressing === "yamlPath"
+              ),
+        propertyKey: key,
+        xmlValue: sourceXMLValue,
+        presentInXML,
+        rule: propertyRule,
+        descriptor: getTypeRule(propertyRule.type, "configurationIndexValueFromXML"),
+      })
+      return
+    }
+    if (
+      !presentInXML &&
+      propertyRule.excludeIfEqualNameYAML === true &&
+      (propertyRule.xmlParents?.length ?? 0) > 0
+    ) return
 
     let xmlValue = sourceXMLValue
     if (!presentInXML && Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueXML")) {
@@ -185,12 +210,19 @@ export function importPropertiesFromXMLToYAML(params: {
           )
     if (sourceXMLKey !== undefined) {
       const indexStartedAt = performance.now()
+      const nestedItemRule = getTypeRule(propertyRule.type, "nestedItemRule")
       collectConfigurationIndexPropertyFromXML({
         context: sourceContext,
         logicalAddress: propertyLogicalAddress,
         propertyKey: key,
         xmlValue,
-        presentInXML,
+        presentInXML:
+          presentInXML && nestedItemXMLTypeMatches(
+            nestedItemRule !== undefined && "itemRule" in nestedItemRule
+              ? nestedItemRule.itemRule.xsiType
+              : undefined,
+            xmlValue,
+          ),
         rule: propertyRule,
         descriptor: getTypeRule(propertyRule.type, "configurationIndexValueFromXML"),
       })
@@ -548,6 +580,13 @@ export function importPropertiesFromXMLToYAML(params: {
   }
 
   return sortYamlRuleProperties(result)
+}
+
+function nestedItemXMLTypeMatches(expectedXsiType: string | undefined, xmlValue: unknown): boolean {
+  if (expectedXsiType === undefined) return true
+  if (xmlValue === null || typeof xmlValue !== "object" || Array.isArray(xmlValue)) return false
+  const actualXsiType = (xmlValue as Record<string, unknown>)["_xsi:type"]
+  return actualXsiType === expectedXsiType
 }
 
 function getOwnerXmlName(xml: Record<string, unknown>): string | undefined {

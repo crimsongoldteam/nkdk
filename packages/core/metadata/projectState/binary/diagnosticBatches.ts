@@ -3,9 +3,10 @@ import {
   type DiagnosticBatchView,
   type EncodedDiagnosticBatch,
 } from "../../diagnostics/binaryBatch"
-import type { DiagnosticSource, DiagnosticSeverity } from "../../diagnostics/types"
+import type { Diagnostic, DiagnosticSource, DiagnosticSeverity } from "../../diagnostics/types"
 import type {
   ProjectStateDependencyValidator,
+  ProjectStateAddressableRequiredCheck,
   ProjectStatePendingOwnerCheck,
   ProjectStatePendingReferenceCheck,
 } from "../contracts/dependencyValidation"
@@ -81,29 +82,42 @@ export function validateDependencyDiagnosticBatch(
   dependencyValidator: ProjectStateDependencyValidator,
   typed: TypedProjectStateReader = createTypedProjectStateReader(snapshot),
 ): EncodedDiagnosticBatch {
+  const writer = createDiagnosticBatchWriter()
+  append(writer, validateSnapshotDependencyDiagnostics(snapshot, projectDir, dependencyValidator, typed))
+  return writer.finish()
+}
+
+export function validateSnapshotDependencyDiagnostics(
+  snapshot: ProjectStateSnapshotView,
+  projectDir: string,
+  dependencyValidator: ProjectStateDependencyValidator,
+  typed: TypedProjectStateReader = createTypedProjectStateReader(snapshot),
+): Diagnostic[] {
   const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: typed, dependencyValidator })
   const readiness = dependencyValidator.readReadiness({ queryPort })
-  const { references, dependencies, owners, structuredDocuments } = collectDependencyChecks(
+  const { references, dependencies, addressableRequired, owners, structuredDocuments } = collectDependencyChecks(
     snapshot,
     typed,
     readiness.blockedComponentPaths,
   )
-  const writer = createDiagnosticBatchWriter()
-  append(writer, dependencyValidator.validateReferences({ checks: references, projectDir, queryPort }))
-  append(writer, dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }))
-  append(writer, dependencyValidator.validateDependencies({ checks: dependencies, projectDir, queryPort }))
-  append(writer, dependencyValidator.validateStructuredDocuments({ facts: structuredDocuments, projectDir, queryPort }))
-  append(writer, readiness.diagnostics)
-  return writer.finish()
+  return [
+    ...dependencyValidator.validateReferences({ checks: references, projectDir, queryPort }),
+    ...dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }),
+    ...dependencyValidator.validateDependencies({ checks: dependencies, projectDir, queryPort }),
+    ...dependencyValidator.validateAddressableRequired({ checks: addressableRequired, projectDir, queryPort }),
+    ...dependencyValidator.validateStructuredDocuments({ facts: structuredDocuments, projectDir, queryPort }),
+    ...readiness.diagnostics,
+  ]
 }
 
-function collectDependencyChecks(
+export function collectDependencyChecks(
   snapshot: ProjectStateSnapshotView,
   typed: TypedProjectStateReader,
   blockedComponentPaths: ReadonlySet<string>,
 ) {
   const references: ProjectStatePendingReferenceCheck[] = []
   const dependencies: ProjectDependencyInputQuery[] = []
+  const addressableRequired: ProjectStateAddressableRequiredCheck[] = []
   const owners: ProjectStatePendingOwnerCheck[] = []
   const structuredDocuments = []
   const seenOwners = new Set<string>()
@@ -120,6 +134,15 @@ function collectDependencyChecks(
       reference: { ...reference, filePath: projectPath },
     }))
     for (const [index, check] of typed.pendingChecks(fileId).entries()) {
+      if (check.kind === "addressableRequired") {
+        addressableRequired.push({
+          requestId: `required:${fileId}:${index}`,
+          componentPath,
+          projectPath,
+          check,
+        })
+        continue
+      }
       dependencies.push({
         requestId: `dependency:${fileId}:${index}`,
         componentPath,
@@ -133,7 +156,7 @@ function collectDependencyChecks(
       owners.push({ requestId: `owner:${fileId}:${index}`, componentPath, owner: check.owner })
     }
   }
-  return { references, dependencies, owners, structuredDocuments }
+  return { references, dependencies, addressableRequired, owners, structuredDocuments }
 }
 
 function* yamlFileIds(snapshot: ProjectStateSnapshotView): IterableIterator<number> {

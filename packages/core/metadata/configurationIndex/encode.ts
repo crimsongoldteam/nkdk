@@ -32,6 +32,7 @@ const ENTITY_FLAGS = {
   xsiType: 1 << 8,
   xmlText: 1 << 9,
   xmlPrefix: 1 << 10,
+  present: 1 << 11,
 } as const
 
 export function encodeConfigurationIndex(snapshot: ConfigurationSnapshot): Buffer {
@@ -64,7 +65,7 @@ function validateWellFormedStrings(snapshot: ConfigurationSnapshot): void {
 }
 
 function validateSnapshot(snapshot: ConfigurationSnapshot): void {
-  if (snapshot.specificationVersion !== "1.3") {
+  if (snapshot.specificationVersion !== "1.4") {
     throw new Error(`Неподдерживаемая specificationVersion: ${snapshot.specificationVersion}`)
   }
   assertU64(snapshot.indexGeneration, "indexGeneration SNAPSHOT")
@@ -273,6 +274,7 @@ function entityFieldMask(entity: ConfigurationSnapshotEntity): number {
   if (entity.xml?.xsiType !== undefined) mask |= ENTITY_FLAGS.xsiType
   if (entity.xml?.xmlText !== undefined) mask |= ENTITY_FLAGS.xmlText
   if (entity.xml?.xmlPrefix !== undefined) mask |= ENTITY_FLAGS.xmlPrefix
+  if (entity.xml?.present === true) mask |= ENTITY_FLAGS.present
   return mask
 }
 
@@ -283,7 +285,7 @@ function encodeContainer(sections: readonly EncodedSection[]): Buffer {
   const buffer = Buffer.alloc(fileLength)
   buffer.write("NKDK1CIX", 0, "ascii")
   buffer.writeUInt16LE(1, 8)
-  buffer.writeUInt16LE(3, 10)
+  buffer.writeUInt16LE(4, 10)
   buffer.writeUInt32LE(HEADER_LENGTH, 12)
   buffer.writeUInt8(1, 16)
   buffer.writeUInt8(1, 17)

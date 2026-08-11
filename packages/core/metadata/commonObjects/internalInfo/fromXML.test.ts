@@ -263,9 +263,14 @@ describe("importInternalInfoFromXML", () => {
         },
       ],
     })
-    expect(
-      exportContext.exportToXML.configurationIndex?.collector.fragment("Справочник/Товары/Свойства.yaml").entities
-    ).toHaveLength(4)
+    const collected = exportContext.exportToXML.configurationIndex?.collector
+      .fragment("Справочник/Товары/Свойства.yaml").entities
+    expect(collected).toHaveLength(5)
+    expect(collected).toContainEqual({
+      logicalAddress: "Справочник.Товары.internalInfo",
+      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+      xml: { present: true },
+    })
   })
 
   it("imports GeneratedType and ThisNode", () => {

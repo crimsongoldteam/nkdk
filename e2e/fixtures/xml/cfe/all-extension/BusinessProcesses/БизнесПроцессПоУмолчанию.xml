@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<BusinessProcess uuid="3e58a26c-2d9b-4bd0-b4ba-a8b8d821186d">
+		<InternalInfo>
+			<xr:GeneratedType name="BusinessProcessObject.БизнесПроцессПоУмолчанию" category="Object">
+				<xr:TypeId>cab0373e-5fb7-4b57-b87f-d4569a167fa1</xr:TypeId>
+				<xr:ValueId>2d7e1453-4afb-4f8a-8b54-fc0e615783f0</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessRef.БизнесПроцессПоУмолчанию" category="Ref">
+				<xr:TypeId>eae093a9-e2f4-489f-8125-c9b9c0c715a5</xr:TypeId>
+				<xr:ValueId>9cdaa999-1e71-4cc3-93b7-59548f846e5e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessSelection.БизнесПроцессПоУмолчанию" category="Selection">
+				<xr:TypeId>7fe9c658-fe4f-4533-89c5-3572fd8daeba</xr:TypeId>
+				<xr:ValueId>c3368e40-8098-4dc1-9094-167dc3aab39a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessList.БизнесПроцессПоУмолчанию" category="List">
+				<xr:TypeId>614c992d-6a66-4b15-b946-82f2185fc736</xr:TypeId>
+				<xr:ValueId>d5c6ba34-ecba-444e-b377-c64b6c4708e3</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessManager.БизнесПроцессПоУмолчанию" category="Manager">
+				<xr:TypeId>830b9785-af5d-4fd8-b8b3-d79f4eda3ae6</xr:TypeId>
+				<xr:ValueId>2e6bd7fc-0357-428c-a156-34a39437be43</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessRoutePointRef.БизнесПроцессПоУмолчанию" category="RoutePointRef">
+				<xr:TypeId>35396921-206c-4d64-8d6a-c86573015e95</xr:TypeId>
+				<xr:ValueId>bad5f03c-966a-4518-9353-477d25ae21fb</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>БизнесПроцессПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>d71a7a40-1552-4061-94ba-462ab002a8c0</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</BusinessProcess>
+</MetaDataObject>

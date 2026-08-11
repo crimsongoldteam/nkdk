@@ -20,7 +20,10 @@ import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
 import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
 import { configurationFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configuration"
 import { registerMetadataComponentDescriptor } from "../../components/descriptor"
-import { registerXmlImportComponentDescriptor } from "../../importFromXml/componentDescriptor"
+import {
+  registerXmlImportComponentDescriptor,
+  resolveXmlImportRootItemName,
+} from "../../importFromXml/componentDescriptor"
 import "./registerPartialXmlPackage"
 
 registerFullXmlSyncComponentProfile(configurationFullXmlSyncProfile)
@@ -36,7 +39,12 @@ registerXmlImportComponentDescriptor({
     const properties = configuration["Properties"]
     return !isRecord(properties) || !("ConfigurationExtensionPurpose" in properties)
   },
-  resolveAddress: () => ({ kind: "configuration" }),
+  resolveRoot(root) {
+    return {
+      address: { kind: "configuration" },
+      itemName: resolveXmlImportRootItemName(root),
+    }
+  },
 })
 
 const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
@@ -54,6 +62,14 @@ registerProjectSpec({
   dir: "",
   rule: MetadataConfigurationRules,
   exportSchema: createMetadataItemProjectSchemaExporter(MetadataConfigurationRules),
+  resources: [
+    {
+      kind: "ignore",
+      side: "xml",
+      pattern: "ConfigDumpInfo.xml",
+      source: { kind: "itemRule", description: "служебное описание выгрузки конфигурации" },
+    },
+  ],
 })
 
 registerMetadataXmlPrepareCapability({

@@ -39,8 +39,11 @@ import {
 } from "./yamlFactExtractor"
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
 import type { FormStructuredComponent } from "./formContracts"
+import { collectAddressableRequiredChecks } from "./addressableRequired"
+import { collectAddressableMetadataLogicalAddresses } from "./addressableMetadataTargets"
 
 type CompiledSchema = ValidationSchemaValidator
+type ValidationSchemaVariant = "full" | "extension-overlay"
 const formSchemaCache = new WeakMap<
   MetadataItemRule,
   Map<string, CompiledSchema>
@@ -48,8 +51,8 @@ const formSchemaCache = new WeakMap<
 const propertiesSchemaCache = new Map<string, CompiledSchema>()
 
 export interface ValidationSchemaCache {
-  form: (rule: MetadataItemRule) => CompiledSchema
-  properties: (rule: MetadataItemRule) => CompiledSchema
+  form: (rule: MetadataItemRule, variant?: ValidationSchemaVariant) => CompiledSchema
+  properties: (rule: MetadataItemRule, variant?: ValidationSchemaVariant) => CompiledSchema
   compileAll: () => ValidationSchemaCacheCompileProfile
 }
 
@@ -64,6 +67,7 @@ export type ProjectValidationFileState =
       kind: "properties"
       file: ValidationProjectFile
       pendingReferences: PendingMetadataTargetReference[]
+      pendingChecks: ValidationPendingCheck[]
       firstPassDiagnostics: Diagnostic[]
     }
   | {
@@ -84,6 +88,7 @@ export interface ProjectValidationFirstPassResult {
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
   dependencies: string[]
+  logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
   structuredComponents?: readonly FormStructuredComponent[]
   diagnostics: Diagnostic[]
@@ -116,6 +121,7 @@ export interface ProjectValidationFileFacts {
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
   localDependencies: import("../projectDefinition/componentIndexFacts").ProjectLocalDependency[]
+  logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
   structuredComponents?: readonly FormStructuredComponent[]
   profile: {
@@ -174,23 +180,23 @@ export function readProjectYamlDiagnostic(entry: { filePath: string; error: Erro
 
 export function createValidationSchemaCache(context: ConfigurationContext): ValidationSchemaCache {
   const propertiesSchemas = new Map<string, CompiledSchema>()
-  const formSchemas = new WeakMap<MetadataItemRule, CompiledSchema>()
+  const formSchemas = new WeakMap<MetadataItemRule, Partial<Record<ValidationSchemaVariant, CompiledSchema>>>()
 
   return {
-    form(rule) {
-      const existing = formSchemas.get(rule)
+    form(rule, variant = "full") {
+      const existing = formSchemas.get(rule)?.[variant]
       if (existing !== undefined) return existing
-      const compiled = compileRegisteredFormSchema(context, rule)
-      formSchemas.set(rule, compiled)
+      const compiled = compileRegisteredFormSchema(context, rule, variant)
+      formSchemas.set(rule, { ...formSchemas.get(rule), [variant]: compiled })
       return compiled
     },
-    properties(rule) {
-      const key = rule.itemType
+    properties(rule, variant = "full") {
+      const key = `${variant}:${rule.itemType}`
       const existing = propertiesSchemas.get(key)
       if (existing) return existing
 
-      const globalKey = [context.version, context.defaultLanguage, rule.itemType].join(":")
-      const compiled = propertiesSchemaCache.get(globalKey) ?? compileProjectPropertiesSchema(context, rule)
+      const globalKey = [context.version, context.defaultLanguage, variant, rule.itemType].join(":")
+      const compiled = propertiesSchemaCache.get(globalKey) ?? compileProjectPropertiesSchema(context, rule, variant)
       propertiesSchemaCache.set(globalKey, compiled)
       propertiesSchemas.set(key, compiled)
 
@@ -219,12 +225,17 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
   }
 }
 
-function compileProjectPropertiesSchema(context: ConfigurationContext, rule: MetadataItemRule): CompiledSchema {
+function compileProjectPropertiesSchema(
+  context: ConfigurationContext,
+  rule: MetadataItemRule,
+  variant: ValidationSchemaVariant,
+): CompiledSchema {
   const graph = exportJSONSchemaGraph({
     context,
     excludeImplicitValueYAML: true,
     validationPropertyRefs: true,
     roots: [{ key: "properties", name: rule.itemType }],
+    requiredPolicy: requiredPolicy(variant),
   })
   const rootSchema = stripCollectedSchemaRefs(graph.roots["properties"]!)
   return compileValidationSchema(graph.schemas, rootSchema)
@@ -248,9 +259,10 @@ function uniqueRulesByItemType(rules: readonly MetadataItemRule[]): MetadataItem
 
 function compileRegisteredFormSchema(
   context: ConfigurationContext,
-  rule: MetadataItemRule
+  rule: MetadataItemRule,
+  variant: ValidationSchemaVariant,
 ): CompiledSchema {
-  const cacheKey = `${context.version}:${context.defaultLanguage}`
+  const cacheKey = `${context.version}:${context.defaultLanguage}:${variant}`
   let schemasByContext = formSchemaCache.get(rule)
   const cached = schemasByContext?.get(cacheKey)
   if (cached !== undefined) return cached
@@ -259,12 +271,25 @@ function compileRegisteredFormSchema(
     context,
     validationPropertyRefs: true,
     roots: [{ key: "form", rule, includeNestedChildItems: true }],
+    requiredPolicy: requiredPolicy(variant),
   })
   const compiled = compileValidationSchema(graph.schemas, graph.roots["form"]!)
   schemasByContext ??= new Map()
   schemasByContext.set(cacheKey, compiled)
   formSchemaCache.set(rule, schemasByContext)
   return compiled
+}
+
+function requiredPolicy(variant: ValidationSchemaVariant) {
+  return variant === "extension-overlay"
+    ? { currentBoundary: "defer" as const, cacheVariant: variant }
+    : undefined
+}
+
+function validationSchemaVariant(file: ValidationProjectFile): ValidationSchemaVariant {
+  return file.componentPath.startsWith("cfe/") && file.metadataTarget !== undefined
+    ? "extension-overlay"
+    : "full"
 }
 
 export function validateProjectFileFirstPass(params: {
@@ -298,6 +323,18 @@ export function extractProjectValidationFileFacts(params: {
     })
   )
   const yamlFacts = measuredYamlFacts.value
+  const pendingChecks = [
+    ...yamlFacts.pendingChecks,
+    ...(isExtensionOverlayFile(params.file)
+      ? collectAddressableRequiredChecks({
+          filePath: params.file.absolutePath,
+          parsed,
+          yaml: parsed.data,
+          rule: params.file.itemRule,
+          canonicalTarget: params.file.metadataTarget.canonical,
+        })
+      : []),
+  ]
 
   if (params.file.kind === "form") {
     return {
@@ -306,7 +343,7 @@ export function extractProjectValidationFileFacts(params: {
       memberIndexEntries: [],
       valueIndexEntries: yamlFacts.valueIndexEntries,
       pendingReferences: yamlFacts.pendingReferences,
-      pendingChecks: yamlFacts.pendingChecks,
+      pendingChecks,
       diagnostics: yamlFacts.diagnostics,
       localDependencies: [],
       ...(yamlFacts.formDataPathIndex === undefined
@@ -343,7 +380,7 @@ export function extractProjectValidationFileFacts(params: {
       ref: ownerRef,
       filePath: params.file.absolutePath,
       facts: ownerFactsWithoutIndex,
-      rule: params.file.owner.spec.rule,
+      rule: params.file.itemRule,
       spec: params.file.owner.spec,
     }
     const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
@@ -355,21 +392,34 @@ export function extractProjectValidationFileFacts(params: {
     buildMemberIndexEntries({
       projectDir: params.projectDir,
       owner: measuredOwner.value.owner,
+      objectTarget: yamlFacts.objectIndexEntries[0]?.target,
+      rawYaml: parsed.data,
     })
   )
   const memberIndexEntries = measuredMemberIndex.value
+  const canonicalTarget = yamlFacts.objectIndexEntries[0]?.canonical
 
   return {
     objectIndexEntries: yamlFacts.objectIndexEntries,
     memberIndexEntries,
     valueIndexEntries: yamlFacts.valueIndexEntries,
     pendingReferences: yamlFacts.pendingReferences,
-    pendingChecks: yamlFacts.pendingChecks,
+    pendingChecks,
     diagnostics: [...yamlFacts.diagnostics, ...measuredOwner.value.fieldIndex.diagnostics],
     localDependencies: projectLocalDependenciesFromFacts(
       params.file.projectPath,
       yamlFacts.localIndexes?.metadata.metadataTargets ?? []
     ),
+    ...(canonicalTarget === undefined || params.file.logicalAddress === undefined
+      ? {}
+      : {
+          logicalAddresses: collectAddressableMetadataLogicalAddresses({
+            yaml: parsed.data,
+            rule: params.file.itemRule,
+            logicalAddress: params.file.logicalAddress,
+            filePath: params.file.projectPath,
+          }),
+        }),
     objectRecords: [
       {
         filePath: params.file.absolutePath,
@@ -432,7 +482,7 @@ function validateProjectFormFirstPass(params: {
   const schemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
-    schema: params.schemaCache.form(requireFormRule(params.file)),
+    schema: params.schemaCache.form(requireFormRule(params.file), validationSchemaVariant(params.file)),
   })
   const schemaMs = performance.now() - schemaStartedAt
   if (schemaDiagnostics.some((diagnostic) => diagnostic.source === "syntax")) {
@@ -488,6 +538,7 @@ function validateProjectFormFirstPass(params: {
         ...facts.pendingReferences.map(({ canonical }) => canonical),
       ]),
     ],
+    ...(facts.logicalAddresses === undefined ? {} : { logicalAddresses: facts.logicalAddresses }),
     ...(facts.form === undefined ? {} : { form: facts.form }),
     ...(facts.structuredComponents === undefined
       ? {}
@@ -531,7 +582,7 @@ function validateProjectPropertiesFirstPass(params: {
     const diagnostics = validateProjectFileSchema({
       file: params.file,
       cache: params.cache,
-      schema: params.schemaCache.properties(params.file.owner.spec.rule),
+      schema: params.schemaCache.properties(params.file.itemRule, validationSchemaVariant(params.file)),
     })
     const schemaMs = performance.now() - schemaStartedAt
     return failedFirstPass(
@@ -553,7 +604,7 @@ function validateProjectPropertiesFirstPass(params: {
   const baseSchemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
-    schema: params.schemaCache.properties(params.file.owner.spec.rule),
+    schema: params.schemaCache.properties(params.file.itemRule, validationSchemaVariant(params.file)),
     parsed,
   })
   const schemaDiagnostics = baseSchemaDiagnostics
@@ -620,6 +671,7 @@ function validateProjectPropertiesFirstPass(params: {
       kind: "properties",
       file: params.file,
       pendingReferences: facts.pendingReferences,
+      pendingChecks: facts.pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
     schemaDiagnostics: publishedSchemaDiagnostics,
@@ -630,6 +682,7 @@ function validateProjectPropertiesFirstPass(params: {
     valueIndexEntries: facts.valueIndexEntries,
     pendingReferences: facts.pendingReferences,
     dependencies: facts.localDependencies.map(({ canonical }) => canonical),
+    ...(facts.logicalAddresses === undefined ? {} : { logicalAddresses: facts.logicalAddresses }),
     objectRecords: facts.objectRecords,
     profile: {
       key: validationFirstPassProfileKey(params.file),
@@ -648,6 +701,12 @@ function validateProjectPropertiesFirstPass(params: {
       propertyEvents: facts.profile.propertyEvents,
     },
   }
+}
+
+function isExtensionOverlayFile(file: ValidationProjectFile): file is ValidationProjectFile & {
+  metadataTarget: NonNullable<ValidationProjectFile["metadataTarget"]>
+} {
+  return file.componentPath.startsWith("cfe/") && file.metadataTarget !== undefined
 }
 
 function failedFirstPass(
@@ -719,6 +778,8 @@ function validationFirstPassProfileKey(file: ValidationProjectFile): string {
 function buildMemberIndexEntries(params: {
   projectDir: string
   owner: OwnerMetadata
+  objectTarget?: Extract<ParsedMetadataTarget, { kind: "object" }>
+  rawYaml: unknown
 }): ProjectMemberIndexEntry[] {
   const entries: ProjectMemberIndexEntry[] = []
   const seen = new Set<string>()
@@ -743,8 +804,14 @@ function buildMemberIndexEntries(params: {
     }
   }
 
+  if (params.objectTarget === undefined) return entries
   for (const contributor of getProjectReferenceMemberIndexContributors()) {
-    for (const entry of contributor(params)) addMemberIndexEntry(entries, seen, entry)
+    for (const entry of contributor({
+      projectDir: params.projectDir,
+      owner: params.owner,
+      objectTarget: params.objectTarget,
+      rawYaml: params.rawYaml,
+    })) addMemberIndexEntry(entries, seen, entry)
   }
 
   return entries

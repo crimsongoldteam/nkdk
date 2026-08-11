@@ -23,4 +23,5 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataExternalDataSourceCubeResourceRules,
   xmlElement: "Resource",
   keyField: "name",
+  configurationIndexUidSegment: "Ресурс",
 })

@@ -26,6 +26,9 @@ declare module "../../context/types" {
   interface FormimportFromYAMLContext {
     allElements?: FormChildItemsPartialYAML
     formAttributes?: readonly FormAttribute[]
-    readonly resolveTableSourceProfile?: (dataPath: unknown) => "dynamicList" | "rowFilter" | "none"
+    readonly resolveTableSourceProfile?: (
+      dataPath: unknown,
+      elementName?: string
+    ) => "dynamicList" | "rowFilter" | "none"
   }
 }

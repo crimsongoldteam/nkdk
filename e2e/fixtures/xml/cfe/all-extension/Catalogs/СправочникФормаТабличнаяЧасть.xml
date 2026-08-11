@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="8e32e9cd-148d-472c-ab5b-8f72b0d68d78">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.СправочникФормаТабличнаяЧасть" category="Object">
+				<xr:TypeId>8c531f72-9404-4769-9c24-c08e5bf3bfc7</xr:TypeId>
+				<xr:ValueId>d854a8d9-7cd5-4213-a4c5-37a388593ae8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.СправочникФормаТабличнаяЧасть" category="Ref">
+				<xr:TypeId>8c677e3d-6fc5-40af-9379-5d963b947fbe</xr:TypeId>
+				<xr:ValueId>3b45f4ad-5f63-4a20-a98f-052504f37f27</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.СправочникФормаТабличнаяЧасть" category="Selection">
+				<xr:TypeId>5e0c6b4e-c3ea-4024-b07d-22e04a8fcc05</xr:TypeId>
+				<xr:ValueId>e78dd280-766c-483f-b299-b20715b7b6e5</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.СправочникФормаТабличнаяЧасть" category="List">
+				<xr:TypeId>68e1466b-1802-436b-be48-78cc8e62d67c</xr:TypeId>
+				<xr:ValueId>05033f85-a187-40cc-883a-45452bfd829f</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.СправочникФормаТабличнаяЧасть" category="Manager">
+				<xr:TypeId>63f80b8b-8021-4d48-bb03-ad5cf54870fd</xr:TypeId>
+				<xr:ValueId>af820c1e-e166-4c47-a67a-99a0f9db6787</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникФормаТабличнаяЧасть</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>dbc9a40c-8bd3-4f15-b001-346b132d9e8d</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<TabularSection uuid="d693b35f-71e8-42e6-bc8f-73e8d311406e">
+				<InternalInfo>
+					<xr:GeneratedType name="CatalogTabularSection.СправочникФормаТабличнаяЧасть.ТабличнаяЧасть" category="TabularSection">
+						<xr:TypeId>875ba605-9dd2-48cb-97fb-b555734d3deb</xr:TypeId>
+						<xr:ValueId>913d8566-c06e-4d16-ae58-a05d3c04b7c8</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="CatalogTabularSectionRow.СправочникФормаТабличнаяЧасть.ТабличнаяЧасть" category="TabularSectionRow">
+						<xr:TypeId>04353c9d-fb7d-450b-a817-0e03d505a7b9</xr:TypeId>
+						<xr:ValueId>f1bfa944-873c-423e-b569-b48925e40c7e</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧасть</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>ac271eb9-7642-4803-ba88-11d29f7305d5</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="02253ab5-b61f-46bd-91f8-7f4badbca9e2">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>Реквизит1</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>bf5f4568-d07a-4e9a-9f56-f2cbcb1b94ba</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<Form>ФормаЭлемента</Form>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

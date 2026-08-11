@@ -92,7 +92,7 @@ describe("configuration snapshot worker fragments", () => {
     const merged = builder.finish()
 
     expect(() => encodeConfigurationIndex({
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       indexGeneration: 1n,
       componentPath: "cf",
       files: merged.sourceProjectPaths.map((projectPath) => ({ projectPath, contentHash: 1n })),

@@ -6,6 +6,10 @@ import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLe
 import { discoverValidationProjectComponents } from "./projectComponents"
 import { assertProjectFileInside, discoverValidationProjectFiles, resolveValidationProjectFile } from "./projectFiles"
 import { validationProjectSpecs } from "./projectSpecs"
+import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
+import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
+import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 
 describe("validation project files", () => {
   const tempDirs: string[] = []
@@ -87,6 +91,10 @@ describe("validation project files", () => {
       projectPath: "Справочник/Товары/Свойства.yaml",
       kind: "properties",
       itemType: "MetadataCatalog",
+      itemRule: MetadataCatalogRules,
+      metadataTarget: {
+        canonical: "Catalog.Товары",
+      },
       owner: {
         dir: "Справочник",
         name: "Товары",
@@ -108,6 +116,10 @@ describe("validation project files", () => {
       projectPath: "Документ/Заказ/Формы/ФормаДокумента/Форма.yaml",
       kind: "form",
       itemType: "ClientApplicationForm",
+      itemRule: ClientApplicationFormRules,
+      metadataTarget: {
+        canonical: "Document.Заказ.Form.ФормаДокумента",
+      },
       owner: {
         dir: "Документ",
         name: "Заказ",
@@ -139,6 +151,10 @@ describe("validation project files", () => {
     ).toMatchObject({
       projectPath: "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml",
       kind: "properties",
+      itemRule: expect.objectContaining({ itemType: "MetadataSubsystem" }),
+      metadataTarget: {
+        canonical: "Subsystem.Администрирование.Subsystem.Настройки.Subsystem.Интерфейс",
+      },
       owner: {
         dir: "Подсистема",
         name: "Интерфейс",
@@ -200,10 +216,27 @@ describe("validation project files", () => {
       projectPath: "Конфигурация.yaml",
       kind: "configuration",
       itemType: "MetadataConfiguration",
+      itemRule: MetadataConfigurationRules,
       owner: {
         dir: "",
         name: "Конфигурация",
         spec: expect.objectContaining({ kind: "configuration" }),
+      },
+    })
+    expect(resolveValidationProjectFile(projectDir, "Конфигурация.yaml")?.metadataTarget).toBeUndefined()
+  })
+
+  it("resolves a nested file item with its own rule and full target", () => {
+    const projectDir = createProject()
+    const projectPath = "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml"
+    touchProjectFile(projectDir, projectPath)
+
+    expect(resolveValidationProjectFile(projectDir, projectPath)).toMatchObject({
+      kind: "properties",
+      itemType: "MetadataExternalDataSourceCube",
+      itemRule: MetadataExternalDataSourceCubeRules,
+      metadataTarget: {
+        canonical: "ExternalDataSource.Источник.Cube.Куб",
       },
     })
   })

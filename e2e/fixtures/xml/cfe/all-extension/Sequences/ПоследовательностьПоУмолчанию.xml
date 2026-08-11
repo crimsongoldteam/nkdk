@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Sequence uuid="30c8c891-7b5e-45c4-a938-1902b2324c22">
+		<InternalInfo>
+			<xr:GeneratedType name="SequenceRecord.ПоследовательностьПоУмолчанию" category="Record">
+				<xr:TypeId>cdc99091-1a3d-4ca1-b018-33a533bb43c2</xr:TypeId>
+				<xr:ValueId>e003edf5-ee69-4585-b606-a811e04e3435</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="SequenceManager.ПоследовательностьПоУмолчанию" category="Manager">
+				<xr:TypeId>a637511d-56d5-4615-979a-55a7bad0906b</xr:TypeId>
+				<xr:ValueId>cc3b0f0d-0f01-4204-bc1f-8d2d4971062d</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="SequenceRecordSet.ПоследовательностьПоУмолчанию" category="RecordSet">
+				<xr:TypeId>305741e8-6c15-44f7-a3f2-189f85c8eb49</xr:TypeId>
+				<xr:ValueId>af8506b6-c63a-4e74-aa16-86b1b79fe9d4</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПоследовательностьПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>6d2c11b6-4e22-412a-bd51-1df53dc6f0fb</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</Sequence>
+</MetaDataObject>

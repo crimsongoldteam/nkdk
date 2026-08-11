@@ -48,3 +48,6 @@ reports/test-profile/
 
 # Локальные отчёты dependency-cruiser
 reports/dependency-cruiser/
+
+# Локальные отчёты metadata E2E
+reports/e2e/

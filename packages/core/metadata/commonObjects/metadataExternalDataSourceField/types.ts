@@ -19,4 +19,5 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataExternalDataSourceFieldRules,
   xmlElement: "Field",
   keyField: "name",
+  configurationIndexUidSegment: "Поле",
 })

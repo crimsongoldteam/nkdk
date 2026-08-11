@@ -41,6 +41,7 @@ export interface DependentItemParams {
   readonly rootRule: unknown
   readonly owner: { readonly dir: string; readonly name: string }
   readonly definedTypeLookup?: DefinedTypeLookup
+  readonly metadataTargetLookup?: (canonical: string) => "found" | "missing" | "ambiguous"
 }
 
 export interface DependentYamlItemAnalysis {

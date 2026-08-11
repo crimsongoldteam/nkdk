@@ -6,6 +6,8 @@ import { UsualGroupRules } from "../../forms/elements/usualGroup/rules"
 import { mockContext } from "../../../tests/mockContext"
 import { exportPropertiesToJSONSchema } from "./toJSONSchema"
 import type { MetadataItemRule, PropertyRule } from "./types"
+import "../../commonObjects/string/types"
+import "../../commonObjects/string/toJSONSchema"
 
 describe("exportPropertiesToJSONSchema required YAML properties", () => {
   it("keeps required YAML properties non-optional", () => {
@@ -26,6 +28,31 @@ describe("exportPropertiesToJSONSchema required YAML properties", () => {
       },
       required: ["Имя"],
     })
+  })
+
+  it("defers only direct required properties at an addressable extension boundary", () => {
+    const rule = {
+      itemType: "AddressableOverlay",
+      properties: {
+        name: { yaml: "Имя", type: "string", required: true },
+      },
+    } as const satisfies MetadataItemRule
+    const context = {
+      ...mockContext,
+      exportToJSONSchema: {
+        mode: "inline" as const,
+        refs: new Set<string>(),
+        requiredPolicy: {
+          currentBoundary: "defer" as const,
+          cacheVariant: "extension-overlay" as const,
+        },
+      },
+    }
+
+    const schema = Type.Object(exportPropertiesToJSONSchema({ context, rule }) as TProperties)
+
+    expect(schema.required).toBeUndefined()
+    expect(schema.properties).toHaveProperty("Имя")
   })
 
   it("has no rules that combine required and implicitValueYAML", () => {

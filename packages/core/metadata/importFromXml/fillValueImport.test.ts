@@ -36,7 +36,7 @@ describe("fill value XML import", () => {
     expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "Справочник.СправочникПолный.Реквизит.Момент.fillValue",
       sourceProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
-      xml: { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
+      xml: { present: true, xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
     })
   })
 
@@ -87,7 +87,11 @@ describe("fill value XML import", () => {
       collector,
     })
 
-    expect(prepared.dependentDeferred).toHaveLength(1)
+    expect(prepared.dependentDeferred).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        yamlPath: ["Реквизиты", "АвторДействия", "ЗначениеЗаполнения"],
+      }),
+    ]))
     expect(prepared.yaml).toHaveProperty(
       "Реквизиты.АвторДействия.ЗначениеЗаполнения",
       "Справочник.Пользователи.ПустаяСсылка",
@@ -95,14 +99,14 @@ describe("fill value XML import", () => {
     expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "Справочник.СправочникПолный.Реквизит.АвторДействия.fillValue",
       sourceProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
-      xml: { xsiType: "xr:DesignTimeRef", xmlText: "Catalog.Пользователи.EmptyRef" },
+      xml: { present: true, xsiType: "xr:DesignTimeRef", xmlText: "Catalog.Пользователи.EmptyRef" },
     })
   })
 
   it.each([
-    ["typed", "Справочник.ПапкиФайлов.ПустаяСсылка"],
-    ["empty", "DesignTimeRef"],
-  ] as const)("импортирует %s XML-исключение владельца без snapshot", async (kind, expected) => {
+    ["typed", "Справочник.ПапкиФайлов.ПустаяСсылка", false],
+    ["empty", "DesignTimeRef", true],
+  ] as const)("откладывает %s XML-исключение владельца без snapshot", async (kind, expected, tagged) => {
     const sourcePath = copiedEmptyOwnerFixture(kind)
     const collector = createConfigurationIndexCollector()
     const prepared = await prepareImportYaml({
@@ -112,8 +116,20 @@ describe("fill value XML import", () => {
     })
 
     expect(prepared.yaml).not.toHaveProperty("Владельцы")
-    expect(prepared.yaml).toHaveProperty("СтандартныеРеквизиты.Владелец.ЗначениеЗаполнения", `!xml ${expected}`)
-    expect(serializeYAMLDocument(prepared.yaml).text).toContain(`ЗначениеЗаполнения: !xml ${expected}`)
+    expect(prepared.yaml).toHaveProperty(
+      "СтандартныеРеквизиты.Владелец.ЗначениеЗаполнения",
+      tagged ? `!xml ${expected}` : expected,
+    )
+    expect(serializeYAMLDocument(prepared.yaml).text).toContain(
+      `ЗначениеЗаполнения: ${tagged ? "!xml " : ""}${expected}`,
+    )
+    if (!tagged) {
+      expect(prepared.dependentDeferred).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          yamlPath: ["СтандартныеРеквизиты", "Владелец", "ЗначениеЗаполнения"],
+        }),
+      ]))
+    }
     expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
       expect.objectContaining({ logicalAddress: "Справочник.СправочникПолный.СтандартныйРеквизит.Владелец.fillValue" }),
     )

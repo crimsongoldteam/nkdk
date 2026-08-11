@@ -69,6 +69,7 @@ export function toProjectStateFileUpdate(
       ...firstPassResult.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
       ...firstPassResult.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
       ...firstPassResult.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
+      ...logicalAddressTargetEntries(firstPassResult),
       ...fileBackedTargets,
     ],
     pendingReferences: firstPassResult.pendingReferences.map(({ filePath: _filePath, ...reference }) => reference),
@@ -76,12 +77,25 @@ export function toProjectStateFileUpdate(
     fields: firstPassResult.objectRecords.flatMap(projectStateFieldEntries),
     forms: projectStateFormEntries(firstPassResult.form),
     pendingChecks:
-      firstPassResult.state.kind === "form"
+      firstPassResult.state.kind === "form" || firstPassResult.state.kind === "properties"
         ? firstPassResult.state.pendingChecks.map(projectStatePendingCheck)
         : [],
     dependencies: [...new Set(firstPassResult.dependencies ?? [])],
     ...(structuredDocuments.length === 0 ? {} : { structuredDocuments }),
   }
+}
+
+function logicalAddressTargetEntries(
+  result: ProjectValidationFirstPassResult,
+): ProjectStateTargetEntry[] {
+  const indexed = new Set([
+    ...result.objectIndexEntries,
+    ...result.memberIndexEntries,
+    ...result.valueIndexEntries,
+  ].map(({ canonical }) => canonical))
+  return (result.logicalAddresses ?? [])
+    .filter(({ logicalAddress }) => !indexed.has(logicalAddress))
+    .map(({ logicalAddress }) => ({ kind: "object", canonical: logicalAddress }))
 }
 
 export function projectStateTargetEntry(
@@ -224,6 +238,15 @@ function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePe
       value: check.value,
       tagged: check.tagged,
       ...(check.transport === undefined ? {} : { transport: check.transport }),
+    }
+  }
+  if (check.kind === "addressableRequired") {
+    return {
+      kind: "addressableRequired",
+      yamlPath: check.yamlPath,
+      location,
+      canonicalTarget: check.canonicalTarget,
+      missing: check.missing,
     }
   }
   return {

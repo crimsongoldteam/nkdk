@@ -425,6 +425,18 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(inputField.properties?.ПутьКДанным?.$ref).toBeUndefined()
   })
 
+  it("не вкладывает полный validation ref внутрь overlay namespace", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      requiredPolicy: { currentBoundary: "defer", cacheVariant: "extension-overlay" },
+      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
+    })
+    const refs = JSON.stringify(graph)
+
+    expect(refs).not.toContain("/extension-overlay/validation/")
+  })
+
   it("exports reusable form property types as validation refs by default", () => {
     const graph = commonFormValidationGraph()
     const prefix = "nkdk://schema/validation/2.20/ru/"

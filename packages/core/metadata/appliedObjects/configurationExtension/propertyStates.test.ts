@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { childSegmentUid } from "../../configurationIndex/logicalAddress"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
@@ -68,13 +69,14 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml,
     })
 
-    expect(collector.fragment("Форма.yaml").entities).toEqual([
+    expect(collector.fragment("Форма.yaml").entities).toEqual(expect.arrayContaining([
       {
         logicalAddress: `${logicalAddress}.${segment}`,
         sourceProjectPath: "Форма.yaml",
         xml: { extended: true },
       },
-    ])
+    ]))
+    expect(collector.fragment("Форма.yaml").entities).toHaveLength(2)
     expect(yaml).not.toHaveProperty("Контроль")
   })
 
@@ -94,7 +96,13 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml,
     })
 
-    expect(collector.fragment("Свойства.yaml").entities).toEqual([])
+    expect(collector.fragment("Свойства.yaml").entities).toEqual([
+      {
+        logicalAddress: childSegmentUid("Справочник.Товары", "InternalInfo"),
+        sourceProjectPath: "Свойства.yaml",
+        xml: { present: true },
+      },
+    ])
     expect(yaml).toEqual({})
   })
 
@@ -119,6 +127,26 @@ describe("configuration extension PropertyState augmenter", () => {
         logicalAddress,
         sourceProjectPath: "Форма.yaml",
         xml: { extended: true },
+      },
+    ])
+  })
+
+  it("сохраняет присутствие InternalInfo у metadata-item", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Товары.Реквизит.Код"
+
+    configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(collector, logicalAddress),
+      rule: { itemType: "MetadataAttribute", properties: {} } as MetadataItemRule,
+      source: { InternalInfo: {}, Properties: { Name: "Код" } },
+      yaml: {},
+    })
+
+    expect(collector.fragment("Форма.yaml").entities).toEqual([
+      {
+        logicalAddress: childSegmentUid(logicalAddress, "InternalInfo"),
+        sourceProjectPath: "Форма.yaml",
+        xml: { present: true },
       },
     ])
   })

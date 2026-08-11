@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<InformationRegister uuid="eae9507c-0b1b-447a-b221-f479e77cf917">
+		<InternalInfo>
+			<xr:GeneratedType name="InformationRegisterRecord.РегистрСведенийГрафик" category="Record">
+				<xr:TypeId>ad3a2b62-3e69-49a2-94d5-cba48d307792</xr:TypeId>
+				<xr:ValueId>22d4b425-37d7-4b7c-95a1-01fa6939c463</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterManager.РегистрСведенийГрафик" category="Manager">
+				<xr:TypeId>6a048a8d-7176-4594-9e9c-6d54b0e02558</xr:TypeId>
+				<xr:ValueId>17d8f88a-922a-4dc4-acb8-3d964f8b3c1e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterSelection.РегистрСведенийГрафик" category="Selection">
+				<xr:TypeId>cb36d2ff-94ae-4138-a435-2f6e12b6c0fe</xr:TypeId>
+				<xr:ValueId>43517731-5cc3-440f-899d-fd278887dbd3</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterList.РегистрСведенийГрафик" category="List">
+				<xr:TypeId>b6e84b75-1665-4ad2-af3f-7c79e764ffa8</xr:TypeId>
+				<xr:ValueId>ca4ee993-79fb-4720-95ab-8ee0d2abc31d</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordSet.РегистрСведенийГрафик" category="RecordSet">
+				<xr:TypeId>5ee5bfeb-ed10-46d1-947a-85870c954449</xr:TypeId>
+				<xr:ValueId>26f8cae0-f4af-4a62-acd9-c1a53802a986</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordKey.РегистрСведенийГрафик" category="RecordKey">
+				<xr:TypeId>79bb899b-dbd9-4bd8-be02-6da7734d976c</xr:TypeId>
+				<xr:ValueId>9c2517e0-1c4b-4bc5-bd0b-a12080c57fe6</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordManager.РегистрСведенийГрафик" category="RecordManager">
+				<xr:TypeId>ebf194c4-a716-4db1-bf5c-b29599ae1b13</xr:TypeId>
+				<xr:ValueId>121dabb9-48d7-4d7b-b603-a76f7a852237</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>РегистрСведенийГрафик</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>8b56aac4-7933-454d-8908-8ac378292289</ExtendedConfigurationObject>
+			<InformationRegisterPeriodicity>Nonperiodical</InformationRegisterPeriodicity>
+			<WriteMode>Independent</WriteMode>
+		</Properties>
+		<ChildObjects>
+			<Resource uuid="7458ebe6-63ae-424f-a8e4-6feb90849f5b">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Значение</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>72107d9b-5b26-4adc-80cf-523d6732dae7</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>10</v8:Digits>
+							<v8:FractionDigits>2</v8:FractionDigits>
+							<v8:AllowedSign>Any</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+				</Properties>
+			</Resource>
+			<Dimension uuid="b37dfbbe-cc3d-4169-afd6-316bf2cf968b">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Дата</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>46ac728c-3571-43c3-9bf9-ad25646a8d2a</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:dateTime</v8:Type>
+						<v8:DateQualifiers>
+							<v8:DateFractions>Date</v8:DateFractions>
+						</v8:DateQualifiers>
+					</Type>
+				</Properties>
+			</Dimension>
+		</ChildObjects>
+	</InformationRegister>
+</MetaDataObject>

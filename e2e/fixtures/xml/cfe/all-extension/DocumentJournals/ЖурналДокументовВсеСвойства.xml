@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<DocumentJournal uuid="fb4abe02-f000-40aa-af03-80cb661508e5">
+		<InternalInfo>
+			<xr:GeneratedType name="DocumentJournalSelection.ЖурналДокументовВсеСвойства" category="Selection">
+				<xr:TypeId>8a268076-771c-4a46-9088-b2e5c71e350c</xr:TypeId>
+				<xr:ValueId>d4e48e36-96e4-4dc8-a1dd-4074ba4b22e7</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentJournalList.ЖурналДокументовВсеСвойства" category="List">
+				<xr:TypeId>19efa7a7-c2a6-48a2-8d0c-e3d2951f14d7</xr:TypeId>
+				<xr:ValueId>bd2bcc55-b8fc-4409-a0d3-15b48b004026</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentJournalManager.ЖурналДокументовВсеСвойства" category="Manager">
+				<xr:TypeId>14524891-128a-429d-a69a-7618602e1df5</xr:TypeId>
+				<xr:ValueId>61681ddb-f961-47ac-967b-c34ebad5d6ed</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ЖурналДокументовВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>eaa3ce17-c186-4aac-9667-0f4409e5043c</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Column uuid="70e7d414-7b6a-48b8-96f9-758e57115a21">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ГрафаВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>c9c20257-fb3b-4591-af4d-9dcf3c5a6ab5</ExtendedConfigurationObject>
+				</Properties>
+			</Column>
+			<Column uuid="53b6f24a-b36c-4032-bcd7-56dc16cc95dc">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ГрафаПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>eb6587df-1b6a-4fc5-9ea0-9532c1289d9c</ExtendedConfigurationObject>
+				</Properties>
+			</Column>
+			<Form>ФормаСписка</Form>
+			<Template>Макет</Template>
+			<Command uuid="3c563475-adf5-4d72-a172-f708f45595d1">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>379bfbdd-9fa6-4a7c-aa7b-45d9c52a210c</ExtendedConfigurationObject>
+					<Group>CommandGroup.ГруппаКомандПоУмолчанию</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</DocumentJournal>
+</MetaDataObject>

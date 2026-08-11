@@ -2,15 +2,24 @@ import { TSchema, Type } from "typebox"
 import { PredefinedCodeJSONSchema } from "../predefinedCode/types"
 import { ConfigurationContext } from "../../context/types"
 import { recordOfSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { registerTypeRule, resolvePropertyItemRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
 import {
   registerProjectJSONSchema,
   registerProjectJSONSchemaPropertyRefFactory,
 } from "../../projectDefinition/schemaRegistry"
 import { PredefinedItemRules } from "./rules"
 
-export const exportPredefinedItemCollectionToJSONSchema = (context: ConfigurationContext): TSchema => {
+export const exportPredefinedItemCollectionToJSONSchema = (
+  context: ConfigurationContext,
+  itemRule: MetadataItemRule = PredefinedItemRules,
+): TSchema => {
+  if (itemRule !== PredefinedItemRules) {
+    return Type.Record(Type.String(), exportMetadataItemToJSONSchema({ context, rule: itemRule }))
+  }
+
   const typeSchema = exportPropertyToJSONSchema({
     context,
     rule: PredefinedItemRules.properties.type,
@@ -55,8 +64,17 @@ const exportPredefinedItemYAMLToJSONSchema = (context: ConfigurationContext): TS
   )
 }
 
-registerTypeRule("PredefinedItemCollection", "exportToJSONSchema", ({ context }) =>
-  exportPredefinedItemCollectionToJSONSchema(context)
+registerTypeRule("PredefinedItemCollection", "exportToJSONSchema", ({ context, rule }) =>
+  exportPredefinedItemCollectionToJSONSchema(context, predefinedItemRule(rule))
 )
 registerProjectJSONSchema("PredefinedItemYAML", ({ context }) => exportPredefinedItemYAMLToJSONSchema(context))
-registerProjectJSONSchemaPropertyRefFactory("PredefinedItemCollection", () => recordOfSchemaRef("PredefinedItemYAML"))
+registerProjectJSONSchemaPropertyRefFactory("PredefinedItemCollection", ({ context, rule }) => {
+  const itemRule = predefinedItemRule(rule)
+  return itemRule === PredefinedItemRules
+    ? recordOfSchemaRef("PredefinedItemYAML")
+    : exportPredefinedItemCollectionToJSONSchema(context, itemRule)
+})
+
+function predefinedItemRule(rule: PropertyRule): MetadataItemRule {
+  return resolvePropertyItemRule(rule, PredefinedItemRules) ?? PredefinedItemRules
+}
