@@ -1,5 +1,10 @@
-import { registerCoreMetadata } from "../coreMetadata"
+import {
+  createMetadataExecutionRegistrySets,
+  withMetadataExecutionRegistrySets,
+} from "../metadataExecutionContext"
 
-registerCoreMetadata()
+const registries = createMetadataExecutionRegistrySets()
+const worker = (await import("../../importFromXml/worker")).default
 
-export default (await import("../../importFromXml/worker")).default
+export default (command: Parameters<typeof worker>[0]) =>
+  withMetadataExecutionRegistrySets(registries, () => worker(command))

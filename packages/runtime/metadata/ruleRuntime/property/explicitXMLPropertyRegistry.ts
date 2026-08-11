@@ -3,6 +3,7 @@ import {
   xmlScalarTagPayload,
   yamlScalarTagAt,
 } from "../../../yaml/scalarTags"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export type ExplicitXMLPropertyRegistration =
   | {
@@ -63,6 +64,20 @@ export interface ExplicitXMLPropertyRegistryView {
   readonly propertyTypes: ReadonlyMap<string, ExplicitXMLPropertyTypeRegistration>
 }
 
+interface ContextualExplicitXMLPropertyRegistry extends ExplicitXMLPropertyMatcher {
+  collectExplicitXMLPropertyActions(params: {
+    readonly yaml: unknown
+    readonly itemType: string
+    readonly properties: Readonly<Record<string, { readonly type?: string; readonly yaml?: string }>>
+  }): ReadonlyMap<string, ExplicitXMLPropertyAction>
+  hasExplicitXMLProperty(itemType: string, propertyKey: string): boolean
+  explicitXMLPropertyValidationMode(
+    itemType: string,
+    propertyKey: string,
+    propertyType?: string,
+  ): "empty" | "scalar" | undefined
+}
+
 const globalRegistryView: ExplicitXMLPropertyRegistryView = {
   properties: registrations,
   propertyTypes: typeRegistrations,
@@ -102,6 +117,8 @@ export function matchExplicitXMLPropertyFromXML(params: {
   readonly presentInXML: boolean
   readonly xmlValue: unknown
 }): Exclude<ExplicitXMLPropertyRegistration, { readonly action: "transportScalar" }> | undefined {
+  const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
+  if (contextual !== undefined) return contextual.matchExplicitXMLPropertyFromXML(params)
   const registration = registrations.get(registrationKey(params.itemType, params.propertyKey))
   if (registration?.action === "transportScalar") return undefined
   if (registration?.action === "omit") return params.presentInXML ? undefined : registration
@@ -115,6 +132,8 @@ export function matchExplicitXMLPropertyTypeFromXML(params: {
   readonly presentInXML: boolean
   readonly yamlValue: unknown
 }): ExplicitXMLPropertyTypeRegistration | undefined {
+  const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
+  if (contextual !== undefined) return contextual.matchExplicitXMLPropertyTypeFromXML(params)
   const registration = typeRegistrations.get(params.propertyType)
   return registration !== undefined &&
     params.presentInXML &&
@@ -128,6 +147,10 @@ export function collectExplicitXMLPropertyActions(params: {
   readonly itemType: string
   readonly properties: Readonly<Record<string, { readonly type?: string; readonly yaml?: string }>>
 }, registry: ExplicitXMLPropertyRegistryView = globalRegistryView): ReadonlyMap<string, ExplicitXMLPropertyAction> {
+  const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
+  if (registry === globalRegistryView && contextual !== undefined) {
+    return contextual.collectExplicitXMLPropertyActions(params)
+  }
   const actions = new Map<string, ExplicitXMLPropertyAction>()
   if (typeof params.yaml !== "object" || params.yaml === null || Array.isArray(params.yaml)) return actions
   const yaml = params.yaml as Record<string, unknown>
@@ -177,7 +200,9 @@ export function collectExplicitXMLPropertyActions(params: {
 }
 
 export function hasExplicitXMLPropertyRegistration(itemType: string, propertyKey: string): boolean {
-  return registrations.has(registrationKey(itemType, propertyKey))
+  return currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
+    ?.hasExplicitXMLProperty(itemType, propertyKey)
+    ?? registrations.has(registrationKey(itemType, propertyKey))
 }
 
 export function explicitXMLPropertyValidationMode(
@@ -186,6 +211,10 @@ export function explicitXMLPropertyValidationMode(
   propertyType?: string,
   registry: ExplicitXMLPropertyRegistryView = globalRegistryView,
 ): "empty" | "scalar" | undefined {
+  const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
+  if (registry === globalRegistryView && contextual !== undefined) {
+    return contextual.explicitXMLPropertyValidationMode(itemType, propertyKey, propertyType)
+  }
   const registration = registry.properties.get(registrationKey(itemType, propertyKey))
   if (registration !== undefined) return registration.action === "transportScalar" ? "scalar" : "empty"
   return propertyType !== undefined && registry.propertyTypes.has(propertyType) ? "empty" : undefined

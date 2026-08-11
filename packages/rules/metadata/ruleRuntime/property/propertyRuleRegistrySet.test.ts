@@ -28,6 +28,8 @@ import { finalizeImportedYamlValues } from "./finalizeImportedYAML"
 import { finalizeExportedXmlValues } from "./finalizeExportedXML"
 import { bindDeferredObjectValues } from "./deferredObjectValues"
 import { exportPropertyToEnterprise } from "./toEnterprise"
+import { getTypeRule } from "./typeRuleRegistry"
+import { withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
 function inlineValidationSchemaContext() {
   return {
@@ -98,6 +100,31 @@ it("keeps identical property keys isolated between registry sets", () => {
 
   expect(first.getTypeRule("Sample", "exportToYAML")).toBe(firstHandler)
   expect(second.getTypeRule("Sample", "exportToYAML")).toBe(secondHandler)
+})
+
+it("keeps concurrent execution contexts isolated", async () => {
+  const createRegistries = (value: string) => createPropertyRuleRegistrySet(
+    defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: { Sample: { exportToYAML: () => value } },
+    }),
+  )
+  const first = createRegistries("first")
+  const second = createRegistries("second")
+
+  const [firstResult, secondResult] = await Promise.all([
+    withPropertyRuleRegistrySet(first, async () => {
+      await Promise.resolve()
+      return getTypeRule("Sample", "exportToYAML")?.({} as never, {} as never, "value")
+    }),
+    withPropertyRuleRegistrySet(second, async () => {
+      await Promise.resolve()
+      return getTypeRule("Sample", "exportToYAML")?.({} as never, {} as never, "value")
+    }),
+  ])
+
+  expect(firstResult).toBe("first")
+  expect(secondResult).toBe("second")
 })
 
 it("executes a conversion through the owning registry", () => {

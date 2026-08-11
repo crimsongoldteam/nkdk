@@ -1,4 +1,5 @@
 import type { MetadataImportComponentDescriptor } from "@nkdk/runtime/rule-kit"
+import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
 
 export type XmlImportComponentDescriptor = MetadataImportComponentDescriptor
 
@@ -22,6 +23,8 @@ export function registerXmlImportComponentDescriptor(descriptor: XmlImportCompon
 }
 
 export function resolveXmlImportComponent(root: Record<string, unknown>): XmlImportComponentDescriptor {
+  const contextual = contextualImports()
+  if (contextual !== undefined) return contextual.resolve(root)
   const matches = [...descriptorsByKind.values()].filter((descriptor) => descriptor.detect(root))
   if (matches.length === 0) throw new Error("Не найдено описание XML-компонента")
   if (matches.length > 1) {
@@ -31,9 +34,20 @@ export function resolveXmlImportComponent(root: Record<string, unknown>): XmlImp
 }
 
 export function getRegisteredXmlImportComponentDescriptor(kind: string): XmlImportComponentDescriptor {
+  const contextual = contextualImports()
+  if (contextual !== undefined) return contextual.get(kind)
   const descriptor = descriptorsByKind.get(kind)
   if (descriptor === undefined) throw new Error(`Не найдено описание XML-компонента: ${kind}`)
   return descriptor
+}
+
+function contextualImports() {
+  return currentOperationRegistrySet<{
+    imports: {
+      resolve(input: Readonly<Record<string, unknown>>): XmlImportComponentDescriptor
+      get(kind: string): XmlImportComponentDescriptor
+    }
+  }>()?.imports
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

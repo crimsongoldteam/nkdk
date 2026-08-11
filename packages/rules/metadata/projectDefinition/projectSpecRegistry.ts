@@ -1,6 +1,7 @@
 import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
 import { resolvePropertyItemRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import type { RegisteredProjectSpec } from "./projectSpecContracts"
 import { defineMetadataRules } from "../ruleRuntime/definition"
 import type { MetadataRulesDefinition } from "../ruleRuntime/definition"
@@ -56,6 +57,12 @@ export function registerLegacyProjectSpecDefinitions(
 }
 
 export function getRegisteredProjectSpecs(): readonly RegisteredProjectSpec[] {
+  const contextual = currentRuleRegistrySet<{
+    projectSpecs: ReadonlyMap<string, RegisteredProjectSpec>
+  }>()
+  if (contextual !== undefined) {
+    return [...contextual.projectSpecs.values()].sort((left, right) => left.dir.localeCompare(right.dir, "ru"))
+  }
   return [...specsByDir.values()].sort((left, right) => left.dir.localeCompare(right.dir, "ru"))
 }
 
@@ -66,7 +73,9 @@ export function assertCoreMetadataRegistered(operation: string): void {
 }
 
 export function getRegisteredProjectSpecByDir(dir: string): RegisteredProjectSpec | undefined {
-  return specsByDir.get(dir)
+  return currentRuleRegistrySet<{
+    projectSpecs: ReadonlyMap<string, RegisteredProjectSpec>
+  }>()?.projectSpecs.get(dir) ?? specsByDir.get(dir)
 }
 
 export function findRegisteredProjectRule(itemType: string): MetadataItemRule | undefined {

@@ -5,6 +5,7 @@ import type {
 } from "../configurationIndex"
 import type { ConfirmedComponentState } from "../project/componentState/types"
 import type { XMLDefaultVariant } from "@nkdk/runtime"
+import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
 
 export type XmlSyncProfileKind = "configuration" | "configurationExtension"
 
@@ -64,6 +65,10 @@ export function registerFullXmlSyncComponentProfile(
 export function resolveFullXmlSyncComponentProfile(
   address: ComponentAddress
 ): FullXmlSyncComponentProfile {
+  const contextual = currentOperationRegistrySet<{
+    synchronization: { resolve(input: ComponentAddress): FullXmlSyncComponentProfile }
+  }>()
+  if (contextual !== undefined) return contextual.synchronization.resolve(address)
   const matches = [...profiles.values()].filter((profile) => profile.supports(address))
   if (matches.length === 0) {
     throw new Error(`Не найден профиль XML-синхронизации для компонента: ${address.kind}`)

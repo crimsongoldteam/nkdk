@@ -4,6 +4,7 @@ import type { ProjectMemberIndexEntry, MetadataReferenceResolveResult } from "./
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
 import type { ParsedYaml } from "@nkdk/runtime"
+import { currentValidationRegistrySet } from "./validationExecutionContext"
 
 export type ProjectReferenceObjectPathContributor = (params: {
   projectDir: string
@@ -68,6 +69,8 @@ export interface ProjectReferenceRegistrySet {
   getFileValidators(role: string): readonly ProjectFileValidator[]
   getMemberIndexContributors(): readonly ProjectReferenceMemberIndexContributor[]
 }
+
+type ContextualValidationRegistry = { references: ProjectReferenceRegistrySet }
 
 export function createProjectReferenceRegistrySet(
   contributions: readonly ProjectReferenceContribution[],
@@ -139,7 +142,8 @@ export function registerProjectReferenceObjectPathContributor(
 export function getProjectReferenceObjectPathContributor(
   root: MetadataRootName
 ): ProjectReferenceObjectPathContributor | undefined {
-  return objectPathContributors.get(root)
+  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getObjectPathContributor(root)
+    ?? objectPathContributors.get(root)
 }
 
 export function registerProjectReferenceMemberContributor(
@@ -152,7 +156,8 @@ export function registerProjectReferenceMemberContributor(
 export function getProjectReferenceMemberContributors(
   kind: MetadataMemberKind
 ): readonly ProjectReferenceMemberContributor[] {
-  return memberContributors.get(kind) ?? []
+  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getMemberContributors(kind)
+    ?? memberContributors.get(kind) ?? []
 }
 
 export function registerProjectReferenceValueContributor(
@@ -165,7 +170,8 @@ export function registerProjectReferenceValueContributor(
 export function getProjectReferenceValueContributor(
   root: MetadataRootName
 ): ProjectReferenceValueContributor | undefined {
-  return valueContributors.get(root)
+  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getValueContributor(root)
+    ?? valueContributors.get(root)
 }
 
 export function registerProjectFileValidator(role: string, validator: ProjectFileValidator): void {
@@ -173,7 +179,8 @@ export function registerProjectFileValidator(role: string, validator: ProjectFil
 }
 
 export function getProjectFileValidators(role: string): readonly ProjectFileValidator[] {
-  return projectFileValidators.get(role) ?? []
+  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getFileValidators(role)
+    ?? projectFileValidators.get(role) ?? []
 }
 
 export function registerProjectReferenceMemberIndexContributor(
@@ -183,7 +190,8 @@ export function registerProjectReferenceMemberIndexContributor(
 }
 
 export function getProjectReferenceMemberIndexContributors(): readonly ProjectReferenceMemberIndexContributor[] {
-  return memberIndexContributors
+  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getMemberIndexContributors()
+    ?? memberIndexContributors
 }
 
 export function clearProjectReferenceIndexRegistryForTests(): void {

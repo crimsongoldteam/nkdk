@@ -11,14 +11,7 @@ import {
   type ExplicitXMLPropertyRegistration,
   type ExplicitXMLPropertyTypeRegistration,
 } from "./explicitXMLPropertyRegistry"
-import type {
-  DependentImportedPropertyCandidate,
-  DependentItemParams,
-  DependentStructuralItemParams,
-  DependentStructuralItemReference,
-  DependentYamlItemAnalysis,
-  DependentYamlItemParams,
-} from "./dependentItemRegistry"
+import type { DependentItemRegistryLookup } from "./dependentItemRegistry"
 import type {
   CollectionItemRule,
   importExportFunction,
@@ -78,7 +71,7 @@ function setPropertyTypeOperation(
   mutableDefinition[contribution.operation] = contribution.handler
 }
 
-export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher {
+export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, DependentItemRegistryLookup {
   getTypeRule<Operation extends TypeRulesOperations>(
     type: PropertyRuleType,
     operation: Operation,
@@ -108,28 +101,6 @@ export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher {
   getMetadataTargetOwnerResolver(
     itemType: string,
   ): MetadataTargetOwnerResolver | undefined
-  analyzeDependentYamlItem(
-    params: DependentYamlItemParams,
-  ): DependentYamlItemAnalysis
-  collectDependentStructuralItemReferences(
-    params: DependentStructuralItemParams,
-  ): readonly DependentStructuralItemReference[]
-  isDependentImportProperty(itemType: string, propertyKey: string): boolean
-  shouldRemoveImportedDependentProperty(
-    params: DependentItemParams & {
-      readonly candidate: DependentImportedPropertyCandidate
-    },
-  ): boolean
-  shouldTagImportedDependentProperty(
-    params: DependentItemParams & {
-      readonly candidate: DependentImportedPropertyCandidate
-    },
-  ): boolean
-  shouldDeferImportedDependentProperty(
-    params: DependentItemParams & {
-      readonly candidate: DependentImportedPropertyCandidate
-    },
-  ): boolean
 }
 
 export function createPropertyRuleRegistrySet(

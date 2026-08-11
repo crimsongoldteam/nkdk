@@ -1,4 +1,5 @@
 import type { CompiledMetadataResourceTopology, MetadataResourceItemRule } from "./types"
+import { currentRuleRegistrySet } from "../../ruleRuntime/ruleRegistryExecutionContext"
 
 export interface MetadataResourceTopologyProvider {
   revision(): string
@@ -23,6 +24,10 @@ export function registerMetadataResourceTopologyProvider(provider: MetadataResou
 }
 
 export function getMetadataResourceTopology(): CompiledMetadataResourceTopology {
+  const contextual = currentRuleRegistrySet<{
+    resourceTopology: { get(rootRule?: MetadataResourceItemRule): CompiledMetadataResourceTopology }
+  }>()
+  if (contextual !== undefined) return contextual.resourceTopology.get()
   const provider = registeredProvider
   if (provider === undefined) throw new Error("Metadata resource topology provider не зарегистрирован")
 

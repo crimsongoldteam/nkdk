@@ -1,4 +1,5 @@
 import { collectPropertyItemRules } from "./propertyRuleRegistrySet"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 type DeclaredItemRule = object
 
@@ -13,5 +14,8 @@ export function declarePropertyItemRule(propertyType: string, itemRule: Declared
 export function getDeclaredPropertyItemRule<Rule extends object = DeclaredItemRule>(
   propertyType: string
 ): Rule | undefined {
-  return declarations.get(propertyType) as Rule | undefined
+  return currentPropertyRuleRegistrySet<{
+    getDeclaredPropertyItemRule<Resolved extends object>(type: string): Resolved | undefined
+  }>()?.getDeclaredPropertyItemRule<Rule>(propertyType)
+    ?? declarations.get(propertyType) as Rule | undefined
 }

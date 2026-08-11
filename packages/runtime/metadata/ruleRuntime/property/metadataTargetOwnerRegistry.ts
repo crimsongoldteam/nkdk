@@ -1,6 +1,7 @@
 import type { MetadataTargetOwner } from "../metadataTarget/types"
 import type { ConfigurationContext } from "../../context/types"
 import type { MetadataItemRule } from "./types"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export interface MetadataTargetOwnerFrame {
   itemType: string
@@ -22,7 +23,9 @@ export function registerMetadataTargetOwnerResolver(itemType: string, resolver: 
 }
 
 export function getMetadataTargetOwnerResolver(itemType: string): MetadataTargetOwnerResolver | undefined {
-  return resolvers.get(itemType)
+  return currentPropertyRuleRegistrySet<{
+    getMetadataTargetOwnerResolver(type: string): MetadataTargetOwnerResolver | undefined
+  }>()?.getMetadataTargetOwnerResolver(itemType) ?? resolvers.get(itemType)
 }
 
 export function clearMetadataTargetOwnerResolversForTests(): void {

@@ -1,5 +1,6 @@
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import type { OwnerTypeRef } from "./types"
+import { currentDataPathRegistrySet } from "./dataPathExecutionContext"
 
 export interface DataPathOwnerKindRegistration {
   kind: OwnerTypeRef["kind"]
@@ -23,6 +24,15 @@ const ownerKindByTypeBase = new Map<string, string>()
 const ownerKindByRegisterRecordSetBase = new Map<string, string>()
 const ownerKindByMetadataLinkPrefix = new Map<string, string>()
 
+interface ContextualOwnerKindRegistry {
+  getOwnerKind(kind: string): DataPathOwnerKindRegistration | undefined
+  getOwnerKindByItemType(itemType: string): DataPathOwnerKindRegistration | undefined
+  getOwnerKindByTypeDescriptionBase(baseType: string): string | undefined
+  getOwnerKindByRegisterRecordSetBase(baseType: string): string | undefined
+  getOwnerKindByMetadataLinkPrefix(prefix: string): string | undefined
+  getMetadataLinkPrefixesByOwnerKind(kind: string): readonly string[]
+}
+
 export function registerDataPathOwnerKind(registration: DataPathOwnerKindRegistration): void {
   ownerKinds.set(registration.kind, registration)
   for (const alias of registration.aliases ?? []) ownerKinds.set(alias, registration)
@@ -33,19 +43,30 @@ export function registerDataPathOwnerKind(registration: DataPathOwnerKindRegistr
   }
 }
 
-export const getDataPathOwnerKind = (kind: string) => ownerKinds.get(kind)
+export const getDataPathOwnerKind = (kind: string) =>
+  currentDataPathRegistrySet<ContextualOwnerKindRegistry>()?.getOwnerKind(kind) ?? ownerKinds.get(kind)
 export function getDataPathOwnerKindByItemType(itemType: string): DataPathOwnerKindRegistration | undefined {
+  const contextual = currentDataPathRegistrySet<ContextualOwnerKindRegistry>()
+  if (contextual !== undefined) return contextual.getOwnerKindByItemType(itemType)
   for (const registration of ownerKinds.values()) if (registration.rule.itemType === itemType) return registration
   return undefined
 }
-export const getOwnerKindByTypeDescriptionBase = (baseType: string) => ownerKindByTypeBase.get(baseType)
-export const getOwnerKindByRegisterRecordSetBase = (baseType: string) => ownerKindByRegisterRecordSetBase.get(baseType)
-export const getOwnerKindByMetadataLinkPrefix = (prefix: string) => ownerKindByMetadataLinkPrefix.get(prefix)
-export const getMetadataLinkPrefixesByOwnerKind = (kind: string): readonly string[] => ownerKinds.get(kind)?.metadataLinkPrefixes ?? []
+export const getOwnerKindByTypeDescriptionBase = (baseType: string) =>
+  currentDataPathRegistrySet<ContextualOwnerKindRegistry>()?.getOwnerKindByTypeDescriptionBase(baseType)
+    ?? ownerKindByTypeBase.get(baseType)
+export const getOwnerKindByRegisterRecordSetBase = (baseType: string) =>
+  currentDataPathRegistrySet<ContextualOwnerKindRegistry>()?.getOwnerKindByRegisterRecordSetBase(baseType)
+    ?? ownerKindByRegisterRecordSetBase.get(baseType)
+export const getOwnerKindByMetadataLinkPrefix = (prefix: string) =>
+  currentDataPathRegistrySet<ContextualOwnerKindRegistry>()?.getOwnerKindByMetadataLinkPrefix(prefix)
+    ?? ownerKindByMetadataLinkPrefix.get(prefix)
+export const getMetadataLinkPrefixesByOwnerKind = (kind: string): readonly string[] =>
+  currentDataPathRegistrySet<ContextualOwnerKindRegistry>()?.getMetadataLinkPrefixesByOwnerKind(kind)
+    ?? ownerKinds.get(kind)?.metadataLinkPrefixes ?? []
 export const getReferenceTypeBaseByOwnerKind = (kind: string): string | undefined =>
-  ownerKinds.get(kind)?.typeDescriptionBases?.find((base) => base.endsWith("Ref"))
+  getDataPathOwnerKind(kind)?.typeDescriptionBases?.find((base) => base.endsWith("Ref"))
 export const getRecordSetTypeBaseByOwnerKind = (kind: string): string | undefined =>
-  ownerKinds.get(kind)?.registerRecordSetBases?.[0]
+  getDataPathOwnerKind(kind)?.registerRecordSetBases?.[0]
 
 export function clearOwnerKindRegistryForTests(): void {
   ownerKinds.clear()

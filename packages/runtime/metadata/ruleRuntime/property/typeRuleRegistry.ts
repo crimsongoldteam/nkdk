@@ -36,6 +36,7 @@ import type {
   ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
 import type { PropertyTypeDefinition } from "../definition"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export { definePropertyTypeRule } from "./propertyRuleRegistrySet"
 
@@ -170,7 +171,15 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                                     ? YAMLToXMLNestedRule | undefined
                                                     : never => {
   const key = createRegistryKey(type, operation)
-  const result = typeRulesRegistry.get(key)
+  const contextual = currentPropertyRuleRegistrySet<{
+    getTypeRule<Operation extends TypeRulesOperations>(
+      propertyType: PropertyRuleType,
+      operation: Operation,
+    ): importExportFunction<Operation>
+  }>()
+  const result = contextual === undefined
+    ? typeRulesRegistry.get(key)
+    : contextual.getTypeRule(type, operation)
   return result as any
 }
 

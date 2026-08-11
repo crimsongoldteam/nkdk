@@ -1,6 +1,7 @@
 import type { TypeDescriptionView } from "./typeDescriptionView"
 import type { FillValueTypedValue } from "./fillValueSemantics"
 import type { DefinedTypeLookup } from "./fillValueSemantics"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 type DependentYamlPath = readonly (string | number)[]
 
@@ -98,11 +99,28 @@ const yamlHandlers = new Map<string, DependentYamlItemHandler>()
 const structuralHandlers = new Map<string, DependentStructuralItemHandler>()
 const importHandlers = new Map<string, DependentImportItemHandler>()
 
+export interface DependentItemRegistryLookup {
+  analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis
+  collectDependentStructuralItemReferences(params: DependentStructuralItemParams): readonly DependentStructuralItemReference[]
+  isDependentImportProperty(itemType: string, propertyKey: string): boolean
+  shouldRemoveImportedDependentProperty(
+    params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate },
+  ): boolean
+  shouldTagImportedDependentProperty(
+    params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate },
+  ): boolean
+  shouldDeferImportedDependentProperty(
+    params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate },
+  ): boolean
+}
+
 export function registerDependentYamlItemHandler(itemType: string, handler: DependentYamlItemHandler): void {
   yamlHandlers.set(itemType, handler)
 }
 
 export function analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis {
+  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
+  if (contextual !== undefined) return contextual.analyzeDependentYamlItem(params)
   return yamlHandlers.get(params.itemType)?.(params) ?? { diagnostics: [], references: [], projectChecks: [] }
 }
 
@@ -113,6 +131,8 @@ export function registerDependentStructuralItemHandler(itemType: string, handler
 export function collectDependentStructuralItemReferences(
   params: DependentStructuralItemParams
 ): readonly DependentStructuralItemReference[] {
+  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
+  if (contextual !== undefined) return contextual.collectDependentStructuralItemReferences(params)
   return structuralHandlers.get(params.itemType)?.(params) ?? []
 }
 
@@ -121,24 +141,32 @@ export function registerDependentImportItemHandler(itemType: string, handler: De
 }
 
 export function isDependentImportProperty(itemType: string, propertyKey: string): boolean {
+  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
+  if (contextual !== undefined) return contextual.isDependentImportProperty(itemType, propertyKey)
   return importHandlers.get(itemType)?.propertyKeys.includes(propertyKey) === true
 }
 
 export function shouldRemoveImportedDependentProperty(
   params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
 ): boolean {
+  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
+  if (contextual !== undefined) return contextual.shouldRemoveImportedDependentProperty(params)
   return importHandlers.get(params.itemType)?.shouldRemove(params) === true
 }
 
 export function shouldTagImportedDependentProperty(
   params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
 ): boolean {
+  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
+  if (contextual !== undefined) return contextual.shouldTagImportedDependentProperty(params)
   return importHandlers.get(params.itemType)?.shouldTagXML?.(params) === true
 }
 
 export function shouldDeferImportedDependentProperty(
   params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
 ): boolean {
+  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
+  if (contextual !== undefined) return contextual.shouldDeferImportedDependentProperty(params)
   return importHandlers.get(params.itemType)?.shouldDefer?.(params) === true
 }
 

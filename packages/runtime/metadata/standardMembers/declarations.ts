@@ -2,11 +2,18 @@ import {
   clearStandardMemberAliasesForTests,
   registerStandardMemberAlias,
 } from "../ruleRuntime/metadataTarget/standardMemberAliases"
+import { currentDataPathRegistrySet } from "../validation/dataPath/dataPathExecutionContext"
 
 export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"
 export type StandardMemberPhase = "index-time" | "traversal-time" | "deferred"
 export type StandardMemberSourceScope = "self" | "ownerModel" | "rules" | "projectIndex"
 export type PrimitiveKind = "boolean" | "string" | "dateTime" | "number"
+
+interface ContextualStandardMemberRegistry {
+  getStandardMembers(ownerKind: string): readonly StandardMemberDeclaration[]
+  standardMemberInternalToYaml(internalName: string): string | undefined
+  standardMemberYamlToInternalForOwnerKind(ownerKind: string, yamlName: string): string | undefined
+}
 
 export type StandardMemberFillValuePolicy =
   | { readonly policy: "forbidden" }
@@ -219,7 +226,8 @@ function withCommonFillValuePolicy(member: StandardMemberDeclaration): StandardM
 }
 
 export function getStandardMembers(ownerKind: string): readonly StandardMemberDeclaration[] {
-  return membersByOwnerKind.get(ownerKind) ?? []
+  return currentDataPathRegistrySet<ContextualStandardMemberRegistry>()?.getStandardMembers(ownerKind)
+    ?? membersByOwnerKind.get(ownerKind) ?? []
 }
 
 export function clearStandardMembersForTests(): void {
@@ -270,6 +278,8 @@ export function standardMembersRegistryRevision(): number {
 }
 
 export function standardMemberInternalToYaml(internalName: string): string | undefined {
+  const contextual = currentDataPathRegistrySet<ContextualStandardMemberRegistry>()
+  if (contextual !== undefined) return contextual.standardMemberInternalToYaml(internalName)
   for (const members of membersByOwnerKind.values()) {
     const member = members.find((item) => item.names.internal === internalName)
     if (member !== undefined) return member.names.yaml
@@ -290,7 +300,9 @@ export function standardMemberYamlToInternal(yamlName: string): string | undefin
 }
 
 export function standardMemberYamlToInternalForOwnerKind(ownerKind: string, yamlName: string): string | undefined {
-  return getStandardMembers(ownerKind).find((item) => item.names.yaml === yamlName)?.names.internal
+  return currentDataPathRegistrySet<ContextualStandardMemberRegistry>()
+    ?.standardMemberYamlToInternalForOwnerKind(ownerKind, yamlName)
+    ?? getStandardMembers(ownerKind).find((item) => item.names.yaml === yamlName)?.names.internal
 }
 
 function addStandardMemberNamePair(pairs: Map<string, StandardMemberNames>, names: StandardMemberNames): void {

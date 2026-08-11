@@ -1,5 +1,6 @@
 import type { ComponentAddress } from "./address"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { currentRuleRegistrySet } from "../ruleRuntime/ruleRegistryExecutionContext"
 
 export interface MetadataComponentDescriptor {
   readonly kind: ComponentAddress["kind"]
@@ -24,5 +25,6 @@ export function getMetadataComponentDescriptor(kind: string): MetadataComponentD
 }
 
 export function findMetadataComponentDescriptor(kind: string): MetadataComponentDescriptor | undefined {
-  return descriptorsByKind.get(kind)
+  return currentRuleRegistrySet<{ components: ReadonlyMap<string, MetadataComponentDescriptor> }>()
+    ?.components.get(kind) ?? descriptorsByKind.get(kind)
 }

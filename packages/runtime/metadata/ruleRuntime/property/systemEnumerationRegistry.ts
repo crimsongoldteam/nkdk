@@ -1,3 +1,5 @@
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
+
 export interface SystemEnumerationTypeMap {}
 
 export type SystemEnumerationToMetadata<Name extends string> = Name extends keyof SystemEnumerationTypeMap
@@ -28,7 +30,9 @@ export function registerSystemEnumeration(name: string, value: RegisteredSystemE
 }
 
 export function getSystemEnumeration(name: string): RegisteredSystemEnumeration | undefined {
-  return systemEnumerations.get(name)
+  return currentPropertyRuleRegistrySet<{
+    getSystemEnumeration(name: string): RegisteredSystemEnumeration | undefined
+  }>()?.getSystemEnumeration(name) ?? systemEnumerations.get(name)
 }
 
 export function getRegisteredSystemEnumerationNames(): string[] {

@@ -10,6 +10,7 @@ import {
   type StandardMemberDeclaration as SnapshotStandardMemberDeclaration,
 } from "../../standardMembers/declarations"
 import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import { currentDataPathRegistrySet } from "./dataPathExecutionContext"
 import {
   clearOwnerKindRegistryForTests,
   getDataPathOwnerKind,
@@ -305,6 +306,8 @@ export function resolveRegisteredDataPathType(params: {
   baseType: string
   name?: string
 }): DataPathTypeInfo | undefined {
+  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
+  if (contextual !== undefined) return contextual.resolveType(params)
   for (const resolver of typeResolvers) {
     const result = resolver(params)
     if (result !== undefined) return result
@@ -317,7 +320,8 @@ export function registerObjectFieldCollectionProvider(provider: ObjectFieldColle
 }
 
 export function getObjectFieldCollectionDescriptors(owner: OwnerMetadata): readonly ObjectFieldCollectionDescriptor[] {
-  return objectFieldCollectionProviders.flatMap((provider) => [...provider({ owner })])
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.getObjectFieldCollections(owner)
+    ?? objectFieldCollectionProviders.flatMap((provider) => [...provider({ owner })])
 }
 
 export function registerStandardAttributeTypeResolver(resolver: StandardAttributeTypeResolver): void {
@@ -327,6 +331,8 @@ export function registerStandardAttributeTypeResolver(resolver: StandardAttribut
 export function resolveStandardAttributeType(
   params: Parameters<StandardAttributeTypeResolver>[0]
 ): DataPathTypeInfo | undefined {
+  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
+  if (contextual !== undefined) return contextual.resolveStandardAttributeType(params)
   for (const resolver of standardAttributeTypeResolvers) {
     const result = resolver(params)
     if (result !== undefined) return result
@@ -341,6 +347,8 @@ export function registerVirtualOwnerFieldResolver(resolver: VirtualOwnerFieldRes
 export function resolveVirtualOwnerField(
   params: Parameters<VirtualOwnerFieldResolver>[0]
 ): ReturnType<VirtualOwnerFieldResolver> {
+  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
+  if (contextual !== undefined) return contextual.resolveVirtualOwnerField(params)
   for (const resolver of virtualOwnerFieldResolvers) {
     const result = resolver(params)
     if (result !== undefined) return result
@@ -355,6 +363,8 @@ export function registerTableColumnResolver(resolver: TableColumnResolver): void
 export function resolveRegisteredTableColumn(
   params: Parameters<TableColumnResolver>[0]
 ): FormDataPathColumnSource | undefined {
+  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
+  if (contextual !== undefined) return contextual.resolveTableColumn(params)
   for (const resolver of tableColumnResolvers) {
     const result = resolver(params)
     if (result !== undefined) return result
@@ -369,6 +379,8 @@ export function registerTraversalTransitionResolver(resolver: TraversalTransitio
 export function resolveTraversalTransition(
   params: Parameters<TraversalTransitionResolver>[0]
 ): ReturnType<TraversalTransitionResolver> {
+  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
+  if (contextual !== undefined) return contextual.resolveTraversalTransition(params)
   for (const resolver of traversalTransitionResolvers) {
     const result = resolver(params)
     if (result !== undefined) return result
@@ -381,7 +393,8 @@ export function registerOpaqueTraversalResolver(resolver: OpaqueTraversalResolve
 }
 
 export function isOpaqueTraversal(params: Parameters<OpaqueTraversalResolver>[0]): boolean {
-  return opaqueTraversalResolvers.some((resolver) => resolver(params))
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.isOpaqueTraversal(params)
+    ?? opaqueTraversalResolvers.some((resolver) => resolver(params))
 }
 
 export function registerRegisterRecordsItemResolver(resolver: RegisterRecordsItemResolver): void {
@@ -391,6 +404,8 @@ export function registerRegisterRecordsItemResolver(resolver: RegisterRecordsIte
 export function resolveRegisterRecordsItem(
   params: Parameters<RegisterRecordsItemResolver>[0]
 ): ReturnType<RegisterRecordsItemResolver> {
+  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
+  if (contextual !== undefined) return contextual.resolveRegisterRecordsItem(params)
   return resolveMovementItem(params)
 }
 
