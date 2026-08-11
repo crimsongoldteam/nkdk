@@ -44,24 +44,24 @@
 
 ```mermaid
 flowchart TD
-  mcp["MCP-сервер<br/>публичные инструменты и ответы"]
-  platform["Работа с платформой 1С<br/>сеансы и команды"]
-  rules["Правила метаданных<br/>rules.ts и предметные обработчики"]
-  runtime["Общие механизмы<br/>XML, YAML, выполнение правил, ошибки и индексы"]
+  mcp["@nkdk/mcp<br/>(публичные инструменты и ответы)"]
+  platform["@nkdk/platform<br/>(сеансы и команды 1С)"]
+  rules["@nkdk/rules<br/>(правила метаданных и предметные обработчики)"]
+  runtime["@nkdk/runtime<br/>(общие механизмы XML, YAML, ошибок и индексов)"]
 
   mcp --> platform
   mcp --> rules
   rules --> runtime
 
-  rules --> metadataRuntime["Среда метаданных"]
-  metadataRuntime --> operations["Операции"]
-  metadataRuntime --> projectState["Состояние проекта"]
-  metadataRuntime --> workers["Набор воркеров"]
-  metadataRuntime --> registry["Собранные правила"]
+  rules --> metadataRuntime["MetadataRuntime<br/>(среда выполнения метаданных)"]
+  metadataRuntime --> operations["MetadataRuntime<br/>import · validation · sync · metadata<br/>(операции)"]
+  metadataRuntime --> projectState["ProjectStateService<br/>(состояние проекта)"]
+  metadataRuntime --> workers["MetadataWorkerPoolHandle<br/>(набор воркеров)"]
+  metadataRuntime --> registry["RuleRegistrySet<br/>(собранные правила)"]
 
-  registry --> topology["Топология"]
-  registry --> schemas["JSON Schema"]
-  registry --> conversion["XML ↔ YAML"]
+  registry --> topology["RuleRegistrySet.resourceTopology<br/>(топология файлов)"]
+  registry --> schemas["MetadataRuntime.schemas<br/>(JSON Schema)"]
+  registry --> conversion["RuleRegistrySet.execution<br/>(выполнение правил XML ↔ YAML)"]
 
   operations --> projectState
   operations --> workers
@@ -76,7 +76,10 @@ flowchart TD
 | Подпроцесс | [Импорт](#operation-import) | [Проверка](#operation-validation) | [Полная<br/>синхронизация](#operation-full-sync) | [Частичная<br/>синхронизация](#operation-partial-sync) | [Переименование](#operation-rename) | [Поиск<br/>ссылок](#operation-find-references) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
 | [Подготовка топологии](#term-topology) | ● | ● | ● | ● | ● | ● |
-| [Актуализация проекта](#subprocess-refresh) |  | ● | ● | ● | ● | ● |
+| [Проверка YAML и подготовка вклада в индекс](#subprocess-yaml-index) | ● | ● | ● | ● | ● | ● |
+| Публикация [состояния проекта](#term-state) | ● | ● | ● | ● | ● | ● |
+| [Проверка связей проекта](#term-reference-check) | ● | ● | ● | ● | ● | ● |
+| [Актуализировать проект](#subprocess-refresh) |  | ● | ● | ● | ● | ● |
 | Сверка со [снимком компонента](#term-snapshot) |  |  | ● | ● |  |  |
 | Подготовка выгрузки XML |  |  | ● | ● |  |  |
 | YAML → XML |  |  | ● | ● |  |  |
@@ -87,7 +90,7 @@ flowchart TD
 flowchart LR
   common[["Переиспользуемый<br/>подпроцесс"]]
 
-  subgraph job["воркер: один запуск · × N параллельно"]
+  subgraph job["Воркер"]
     direction LR
     read["Задача"] --> parse["Задача"] --> result["Задача"]
   end
@@ -97,13 +100,31 @@ flowchart LR
 ```
 
 - двойная рамка — [подпроцесс](#term-subprocess), переиспользуемый в нескольких процессах; крупные подпроцессы раскрываются отдельно;
-- пунктирная рамка — [граница одного запуска воркера](#term-worker-run); `× N` означает параллельное выполнение таких запусков;
+- пунктирная рамка — [граница одного запуска воркера](#term-worker-run);
 - прямоугольник — [задача](#term-task);
 - до четырёх последовательных задач схема идёт слева направо, от пяти — сверху вниз.
 
+<a id="subprocess-yaml-index"></a>
+
+## Общие подпроцессы
+
+### Проверить YAML и подготовить вклад в индекс
+
+```mermaid
+flowchart TD
+  prepared["Получить подготовленный YAML"]
+  schema["Проверить синтаксис<br/>и JSON Schema"]
+  rules["Выполнить проверки файла"]
+  canonical["Проверить каноническую<br/>форму YAML"]
+  facts["Извлечь объекты, поля, значения,<br/>ссылки и зависимости"]
+  contribution["Сформировать локальные ошибки<br/>и вклад файла в общий индекс"]
+
+  prepared --> schema --> rules --> canonical --> facts --> contribution
+```
+
 <a id="subprocess-refresh"></a>
 
-## Общий подпроцесс: актуализация проекта
+### Актуализировать проект
 
 Этот [подпроцесс](#term-subprocess) приводит [состояние проекта](#term-state) в соответствие с файлами и возвращает ошибки и предупреждения.
 
@@ -116,16 +137,20 @@ flowchart TD
     direction TD
     readFile["Прочитать файл"] --> hash["Вычислить хэш"] --> changed{"Файл изменился?"}
     changed -- "нет" --> unchanged["Вернуть сохранённый результат"]
-    changed -- "да" --> parseYaml["Один раз разобрать YAML"] --> local["Проверить файл<br/>и подготовить вклад в индекс"]
+    changed -- "да" --> parseYaml["Один раз разобрать YAML"] --> local[["Проверить YAML и подготовить<br/>вклад в индекс"]]
   end
 
-  merge["Обновить общий индекс<br/>и состояние проекта"]
-  dependency["Проверить связи<br/>во всём проекте"]
+  merge["Обновить временные индекс<br/>и состояние проекта"]
+  dependency[["Проверить связи проекта"]]
+  publish[["Опубликовать состояние проекта"]]
   diagnostics["Вернуть ошибки<br/>и предупреждения"]
 
-  topology --> state --> validationJob --> merge --> dependency --> diagnostics
+  topology --> state --> validationJob --> merge --> dependency --> publish --> diagnostics
   style validationJob stroke-dasharray: 7 5
 ```
+
+↳ [Проверка YAML и подготовка вклада в индекс — подробная схема](#subprocess-yaml-index)
+
 ## [Операции](#term-operation)
 
 <a id="operation-import"></a>
@@ -134,40 +159,75 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  target["Определить компонент<br/>и проверить пустую цель"]
+  root["Прочитать корневой XML"]
+  target["Определить вид и путь компонента"]
+  preflight["Проверить целевой каталог<br/>и отсутствие незавершённой синхронизации"]
   topology[["Подготовить топологию проекта"]]
+  extension{"Импортируется расширение?"}
+  refresh[["Актуализировать проект"]]
   session["Открыть временное<br/>состояние импорта"]
+  discover["Найти XML и внешние файлы<br/>и сформировать задания"]
 
-  subgraph first["воркер: первый проход · × N параллельно"]
-    direction LR
-    readXml["Прочитать XML"] --> toYaml["Преобразовать в YAML"] --> local1[["Подготовить текст<br/>и проверить файл"]] --> write1["Записать готовый YAML<br/>и вклад в индекс"]
+  subgraph first["Воркер"]
+    direction TD
+    readXml["Прочитать XML"] --> toModel["Разобрать XML<br/>и построить модель"] --> toYaml["Преобразовать модель в YAML"]
+    toYaml --> ready{"Можно завершить<br/>без общего индекса?"}
+    ready -- "да" --> serialize1["Сформировать текст YAML"] --> local1[["Проверить YAML и подготовить<br/>вклад в индекс"]] --> write1["Записать YAML"]
+    ready -- "нет" --> defer["Сохранить незавершённый YAML<br/>и предварительный вклад в индекс"]
+    write1 --> firstResult["Вернуть файлы<br/>и части состояния"]
+    defer --> firstResult
   end
 
-  index["Собрать общий индекс<br/>первого прохода"]
+  firstErrors{"Есть ошибки?"}
+  snapshotFragments["Собрать сведения из XML<br/>для снимка компонента"]
+  index["Записать вклады и зафиксировать<br/>рабочий индекс первого прохода"]
 
-  subgraph second["воркер: второй проход · × N параллельно · только отложенные значения"]
-    direction LR
-    readIndex["Прочитать общий индекс"] --> resolve["Уточнить значения"] --> local2[["Подготовить текст<br/>и проверить файл"]] --> write2["Записать YAML<br/>и окончательный вклад"]
+  subgraph second["Воркер"]
+    direction TD
+    pending{"Остался незавершённый YAML?"}
+    pending -- "нет" --> skip["Вернуть пустой результат"]
+    pending -- "да" --> readIndex["Прочитать рабочий индекс"] --> resolve["Уточнить отложенные значения"] --> serialize2["Сформировать текст YAML"] --> local2[["Проверить YAML и подготовить<br/>вклад в индекс"]] --> write2["Записать YAML<br/>и окончательный вклад"]
   end
 
-  external["Передать внешние файлы"]
-  dependencies[["Проверить зависимости<br/>всего проекта"]]
-  publish[["Записать снимок и целиком<br/>обновить состояние проекта"]]
+  secondErrors{"Есть ошибки?"}
+  files["Объединить списки<br/>созданных файлов"]
+  external["Передать внешние файлы<br/>и вычислить их хэши"]
+  externalState["Добавить внешние файлы<br/>во временное состояние"]
+  snapshot["Собрать снимок компонента"]
+  dependencies[["Проверить связи проекта"]]
+  writeSnapshot["Записать снимок компонента"]
+  publish[["Опубликовать состояние проекта"]]
+  result["Вернуть результат импорта,<br/>ошибки и предупреждения"]
+  abort["Отменить временное состояние<br/>и закрыть воркеры"]
+  failure["Вернуть ошибки импорта"]
 
-  target --> topology --> session --> first --> index --> second --> external --> dependencies --> publish
+  root --> target --> preflight --> topology --> extension
+  extension -- "нет" --> session
+  extension -- "да" --> refresh --> session
+  session --> discover --> first --> firstErrors
+  firstErrors -- "нет" --> snapshotFragments --> index --> second --> secondErrors
+  secondErrors -- "нет" --> files --> external --> externalState --> snapshot --> dependencies --> writeSnapshot --> publish --> result
+  firstErrors -- "да" --> abort
+  secondErrors -- "да" --> abort
+  abort --> failure
   style first stroke-dasharray: 7 5
   style second stroke-dasharray: 7 5
 ```
+
+↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
+
+↳ [Проверка YAML и подготовка вклада в индекс — подробная схема](#subprocess-yaml-index)
+
 <a id="operation-validation"></a>
 
 ### Проверка проекта
 
 ```mermaid
 flowchart LR
-  request["Принять запрос"] --> refresh[["Актуализировать проект ↗"]] --> result["Вернуть ошибки<br/>и предупреждения"]
+  request["Принять запрос"] --> refresh[["Актуализировать проект"]] --> result["Вернуть ошибки<br/>и предупреждения"]
 ```
 
-↳ [Актуализация проекта — подробная схема](#subprocess-refresh)
+↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
 
 <a id="operation-full-sync"></a>
 
@@ -175,11 +235,11 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-  validate[["Актуализировать проект ↗"]]
+  validate[["Актуализировать проект"]]
   target[["Сверить компонент<br/>с его снимком"]]
   plan[["Построить план<br/>выгрузки XML"]]
 
-  subgraph fullSyncJob["воркер: один запуск · × N параллельно"]
+  subgraph fullSyncJob["Воркер"]
     direction LR
     readYaml["Прочитать YAML"] --> toXml[["Преобразовать YAML → XML"]] --> writeXml["Записать XML"] --> fragment["Вернуть фрагмент снимка"]
   end
@@ -192,7 +252,7 @@ flowchart TD
   style fullSyncJob stroke-dasharray: 7 5
 ```
 
-↳ [Актуализация проекта — подробная схема](#subprocess-refresh)
+↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
 
 <a id="operation-partial-sync"></a>
 
@@ -200,13 +260,13 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  validate[["Актуализировать проект ↗"]]
+  validate[["Актуализировать проект"]]
   target[["Сверить компонент<br/>с его снимком"]]
   changes["Найти изменения<br/>относительно снимка"]
   impact["Расширить выборку<br/>по топологии и ссылкам"]
   plan[["Построить план<br/>выгрузки XML"]]
 
-  subgraph partialSyncJob["воркер: один запуск · × N параллельно"]
+  subgraph partialSyncJob["Воркер"]
     direction LR
     readYaml["Прочитать YAML"] --> toXml[["Преобразовать YAML → XML"]] --> document["Вернуть XML-документы"] --> fragment["Вернуть фрагмент снимка"]
   end
@@ -222,7 +282,7 @@ flowchart TD
   style load stroke-dasharray: 4 4
 ```
 
-↳ [Актуализация проекта — подробная схема](#subprocess-refresh)
+↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
 
 <a id="operation-rename"></a>
 
@@ -230,7 +290,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  refreshBefore[["Актуализировать проект ↗"]]
+  refreshBefore[["Актуализировать проект"]]
   target["Найти переименовываемый объект"]
   references["Получить его ссылки<br/>из общего индекса"]
   affected["Прочитать только<br/>затронутые YAML"]
@@ -238,7 +298,7 @@ flowchart TD
   write{"Запись разрешена?"}
   preview["Вернуть план изменений"]
   apply["Записать файлы"]
-  refreshAfter[["Повторно актуализировать проект ↗"]]
+  refreshAfter[["Актуализировать проект"]]
   result["Вернуть изменённые файлы<br/>и переписанные ссылки"]
 
   refreshBefore --> target --> references --> affected --> plan --> write
@@ -246,14 +306,14 @@ flowchart TD
   write -- "да" --> apply --> refreshAfter --> result
 ```
 
-↳ [Актуализация проекта — подробная схема](#subprocess-refresh)
+↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
 <a id="operation-find-references"></a>
 
 ### Поиск ссылок
 
 ```mermaid
 flowchart LR
-  refresh[["Актуализировать проект ↗"]] --> target["Найти объект"] --> references["Прочитать ссылки<br/>из общего индекса"] --> result["Вернуть внешние ссылки"]
+  refresh[["Актуализировать проект"]] --> target["Найти объект"] --> references["Прочитать ссылки<br/>из общего индекса"] --> result["Вернуть внешние ссылки"]
 ```
 
-↳ [Актуализация проекта — подробная схема](#subprocess-refresh)
+↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
