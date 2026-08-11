@@ -1500,7 +1500,7 @@ property type, project spec, import descriptor или sync profile. Особен
   тестом, поэтому порядок файлов не возвращает process-global состояние.
 - Проверены типы `@nkdk/runtime` и `@nkdk/rules`. Unit/core-metadata набор без
   изоляции и отдельный integration-набор проходят без функциональных падений.
-  Обычные тесты имеют жёсткий предел 50ms, а восемь сценариев с полной сборкой
+  Обычные тесты имеют жёсткий предел 50ms, а сценарии с полной сборкой
   metadata, worker или файловым вводом-выводом выделены в отдельный
   integration-проект с изоляцией и пределом 100ms. Import worker использует переданный
   `persistentValidationState.rulesSnapshot` вместо повторной сборки.
@@ -1518,3 +1518,6 @@ property type, project spec, import descriptor или sync profile. Особен
   политикой extension overlay.
 - После исправлений повторно прошли `pnpm test`, `pnpm test:e2e`, полный
   type-check, обе архитектурные проверки и контроль новых дублей.
+- Семь файлов, где CI зафиксировал unit-сценарии дольше 50ms, перенесены в
+  integration-проект с пределом 100ms; unit/core-набор по-прежнему запускается
+  без изоляции.

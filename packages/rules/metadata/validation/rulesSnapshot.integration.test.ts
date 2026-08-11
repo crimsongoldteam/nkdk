@@ -11,18 +11,22 @@ import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 
 let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
+let structuredCloneSnapshot: ReturnType<typeof createValidationRulesSnapshot>
+let jsonSnapshot: ReturnType<typeof createValidationRulesSnapshot>
 
 beforeAll(() => {
   rulesSnapshot = createValidationRulesSnapshot(mockContext)
+  structuredCloneSnapshot = structuredClone(rulesSnapshot)
+  jsonSnapshot = JSON.parse(JSON.stringify(rulesSnapshot))
 })
 
 describe("ValidationRulesSnapshot", () => {
   it("supports structured cloning", () => {
-    expect(structuredClone(rulesSnapshot)).toEqual(rulesSnapshot)
+    expect(structuredCloneSnapshot).toEqual(rulesSnapshot)
   })
 
   it("is JSON-compatible", () => {
-    expect(JSON.parse(JSON.stringify(rulesSnapshot))).toEqual(rulesSnapshot)
+    expect(jsonSnapshot).toEqual(rulesSnapshot)
   })
 
   it("includes catalog properties descriptor", () => {
