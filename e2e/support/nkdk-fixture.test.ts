@@ -57,6 +57,7 @@ describe("updateNkdkFixture", () => {
     await write(join(targetDir, "old.txt"), "old")
     await write(join(projectDir, "cf", "Конфигурация.yaml"), "Имя: Новая\n")
     await write(join(projectDir, ".nkdk", "cache", "project-state.bin"), "cache")
+    await write(join(projectDir, ".nkdk", "components", "cf", "configuration-index.bin"), "index")
 
     await updateNkdkFixture({
       targetDir,
@@ -76,6 +77,8 @@ describe("updateNkdkFixture", () => {
       .rejects.toMatchObject({ code: "ENOENT" })
     await expect(readFile(join(targetDir, ".nkdk", "cache", "project-state.bin"), "utf8"))
       .rejects.toMatchObject({ code: "ENOENT" })
+    await expect(readFile(join(targetDir, ".nkdk", "components", "cf", "configuration-index.bin"), "utf8"))
+      .resolves.toBe("index")
   })
 })
 

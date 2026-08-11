@@ -148,6 +148,16 @@ export async function cloneImportedProject(source: ImportedMetadataProject, name
   return target
 }
 
+export async function cloneNkdkFixtureProject(
+  owner: Pick<ImportedMetadataProject, "root">,
+  name: string,
+  fixtureRoot = NKDK_FIXTURES_ROOT,
+): Promise<string> {
+  const target = join(owner.root, name)
+  await cp(fixtureRoot, target, { recursive: true })
+  return target
+}
+
 export async function validateCleanProject(projectDir: string): Promise<readonly ComparableDiagnostic[]> {
   return runValidation(projectDir)
 }

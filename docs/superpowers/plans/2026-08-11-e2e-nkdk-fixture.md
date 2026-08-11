@@ -12,7 +12,7 @@
 
 - XML в `e2e/fixtures/xml` остаётся источником истины; реализация и тесты не переписывают существующие XML-файлы.
 - Сохраняется текущая пользовательская XML-дельта: регистрация и файлы `КомпоновщикНастроек`, а также уже выгруженные поля `KeyField`, `ObjectField`, `TypeField`.
-- Эталон хранится как обычное дерево `e2e/fixtures/nkdk/{cf,cfe/...}` без `.nkdk` и `.DS_Store`.
+- Эталон хранит обычное дерево `e2e/fixtures/nkdk/{cf,cfe/...}` и необходимые для sync индексы `.nkdk/components`; временный `.nkdk/cache` и `.DS_Store` исключены.
 - Сравнение путей и содержимого строго побайтовое; отчёт не ослабляет результат проверки.
 - Команда `pnpm fixtures:e2e:nkdk` всегда обновляет весь проект и не поддерживает частичное обновление компонента.
 - Если импорт содержит ошибку, существующий эталон не меняется.
@@ -244,6 +244,7 @@ export async function updateNkdkFixture(params: {
   const imported = await importProject()
   try {
     assertSuccessfulImport(imported)
+    await rm(join(imported.projectDir, ".nkdk", "cache"), { recursive: true, force: true })
     await replaceDirectoryWithRollback({ sourceDir: imported.projectDir, targetDir, renamePath })
   } finally {
     await removeProject(imported)
@@ -385,7 +386,7 @@ const componentRoots = [
 ] as const
 ```
 
-Для каждого описания собирать все относительные пути от `resolve(fixturesRoot, component.path)`, требовать `component.rootFile` и запрещать сегменты `.DS_Store` и `.nkdk`. Заменить `collectRelativeFiles()` на вариант, который включает каталоги, поэтому обнаруживает даже пустой `.nkdk`:
+Для каждого описания собирать все относительные пути от `resolve(fixturesRoot, component.path)`, требовать `component.rootFile` и запрещать `.DS_Store`. Отдельно проверить наличие четырёх `.nkdk/components/**/configuration-index.bin` и отсутствие `.nkdk/cache`. Заменить `collectRelativeFiles()` на вариант, который включает каталоги:
 
 ```ts
 async function collectRelativePaths(root: string, prefix = ""): Promise<string[]> {
@@ -400,12 +401,14 @@ async function collectRelativePaths(root: string, prefix = ""): Promise<string[]
 }
 ```
 
-Проверка служебных сегментов:
+Проверка служебных путей:
 
 ```ts
 expect(paths.some((path) => path.split("/").some((segment) =>
-  segment === ".DS_Store" || segment === ".nkdk"
+  segment === ".DS_Store"
 ))).toBe(false)
+expect(paths.some((path) => path === ".nkdk/cache" || path.startsWith(".nkdk/cache/"))).toBe(false)
+expect(paths).toContain(".nkdk/components/cf/configuration-index.bin")
 ```
 
 - [ ] **Step 2: Добавить прямое сравнение результата импорта с эталоном**
@@ -416,19 +419,25 @@ expect(paths.some((path) => path.split("/").some((segment) =>
 it("matches the committed NKDK project byte for byte", async () => {
   if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
   const reportDir = resolve(import.meta.dirname, "../reports/e2e/nkdk-import")
+  const projectDir = await cloneImportedProject(baseline, "nkdk-import-comparison")
   await rm(reportDir, { recursive: true, force: true })
-  const comparison = await compareFileTrees({
-    expectedDir: NKDK_FIXTURES_ROOT,
-    actualDir: baseline.projectDir,
-    reportDir,
-  })
+  await rm(join(projectDir, ".nkdk", "cache"), { recursive: true, force: true })
+  try {
+    const comparison = await compareFileTrees({
+      expectedDir: NKDK_FIXTURES_ROOT,
+      actualDir: projectDir,
+      reportDir,
+    })
 
-  expect(comparison, comparison.reportDir).toMatchObject({
-    equal: true,
-    added: [],
-    removed: [],
-    changed: [],
-  })
+    expect(comparison, comparison.reportDir).toMatchObject({
+      equal: true,
+      added: [],
+      removed: [],
+      changed: [],
+    })
+  } finally {
+    await rm(projectDir, { recursive: true, force: true })
+  }
 })
 ```
 
@@ -457,14 +466,15 @@ Expected: exit 0 и сообщение `Эталонный NKDK-проект о�
 Проверить состав:
 
 ```bash
-find e2e/fixtures/nkdk -name .nkdk -o -name .DS_Store
+find e2e/fixtures/nkdk -name .DS_Store -o -path '*/.nkdk/cache*'
+test -f e2e/fixtures/nkdk/.nkdk/components/cf/configuration-index.bin
 test -f e2e/fixtures/nkdk/cf/Конфигурация.yaml
 test -f e2e/fixtures/nkdk/cfe/Расширение_All/Конфигурация.yaml
 test -f e2e/fixtures/nkdk/cfe/РасширениеКонтроль/Конфигурация.yaml
 test -f e2e/fixtures/nkdk/cfe/РасширениеПоУмолчанию/Конфигурация.yaml
 ```
 
-Expected: `find` не печатает путей; четыре `test -f` завершаются с кодом 0.
+Expected: `find` не печатает путей; проверки YAML и индекса завершаются с кодом 0.
 
 - [ ] **Step 5: Повторить прямые проверки**
 
