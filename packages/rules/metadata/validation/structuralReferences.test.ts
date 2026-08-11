@@ -14,6 +14,7 @@ import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { metadataRules } from "../composition/metadataRules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { collectStructuralYamlReferences } from "./structuralReferences"
+import { MetadataSubsystemRules } from "../appliedObjects/metadataSubsystem/rules"
 
 it.each([
   ["setter", "без setter"],
@@ -61,4 +62,27 @@ it.each([
       context: { version: "2.20", defaultLanguage: "ru" },
       runtime: createPropertyStructuralReferenceRuntime(),
     }))).toThrow(message)
+})
+
+it("excludes only tagged transported MDObjectRef from structural references", () => {
+  const parsed = parseMetadataYaml(`Состав:\n  - Справочник.Товары\n  - !xml 447e2bd8-fa43-442e-91db-b17634e036d9\n`)
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const rule = {
+    itemType: "BrokenMDObjectRefStructuralProbe",
+    properties: { content: MetadataSubsystemRules.properties.content },
+  } as MetadataItemRule
+
+  const result = withPropertyRuleRegistrySet(registry, () => collectStructuralYamlReferences({
+    filePath: "/project/Подсистема/Продажи/Свойства.yaml",
+    parsed,
+    rule,
+    yaml: parsed.data,
+    context: { version: "2.20", defaultLanguage: "ru" },
+    runtime: createPropertyStructuralReferenceRuntime(),
+  }))
+
+  expect(result).toMatchObject({
+    ok: true,
+    references: [{ canonical: "Catalog.Товары" }],
+  })
 })
