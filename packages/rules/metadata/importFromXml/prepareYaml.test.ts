@@ -186,6 +186,8 @@ describe("prepareImportYaml", () => {
 
     expect(expected.syntaxErrors).toEqual([])
     expect(prepared.yaml).toEqual(expected.data)
+    expect(prepared.localIndexes.metadata.formDataPathIndex?.getRoot("НаборКонстант"))
+      .toMatchObject({ name: "НаборКонстант" })
     expect(profiler.records().map(({ substep }) => substep)).not.toContain(
       "XML в YAML: атомарный тип ClientApplicationForm"
     )

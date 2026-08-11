@@ -52,6 +52,14 @@ describe.sequential("metadata project E2E", () => {
     ), "utf8")
     expect(ordinaryValueYaml).toContain("ЗначениеЗаполнения: Истина")
     expect(ordinaryValueYaml).not.toContain("ЗначениеЗаполнения: !xml Истина")
+    const settingsComposerYaml = await readFile(join(
+      baseline.projectDir,
+      "cf/ОбщаяФорма/КомпоновщикНастроек/Свойства.yaml",
+    ), "utf8")
+    expect(settingsComposerYaml).toContain(
+      "ПутьКДанным: КомпоновщикНастроек.Настройки.КартинкаСтруктурыОтчета",
+    )
+    expect(settingsComposerYaml).not.toContain("Settings.ReportStructurePicture")
     await expect(access(join(baseline.projectDir, ".nkdk"))).resolves.toBeUndefined()
     console.info("E2E import durations, ms", baseline.durationsMs)
   })
