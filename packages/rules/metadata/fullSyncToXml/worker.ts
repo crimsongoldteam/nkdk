@@ -44,10 +44,7 @@ import { aggregateCleanupFailures } from "./cleanupFailure"
 import { resolveDataPathCore } from "../validation/dataPath/coreResolver"
 import { createFullXmlSyncBinaryResult } from "./binaryResult"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
-import {
-  legacyMetadataWorkerOperationRegistry,
-  type MetadataWorkerOperationRegistry,
-} from "../workerPool/operationRegistry"
+import type { MetadataWorkerOperationRegistry } from "../workerPool/operationRegistry"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -59,7 +56,7 @@ declare module "../workerPool/types" {
 }
 
 export function registerFullSyncWorkerOperation(
-  registry: MetadataWorkerOperationRegistry = legacyMetadataWorkerOperationRegistry,
+  registry: MetadataWorkerOperationRegistry,
 ): void {
   registry.register(
     "fullSync",

@@ -3,18 +3,9 @@ import { registerImportWorkerOperation } from "../importFromXml/worker"
 import { registerValidationWorkerOperation } from "../project/registerWorkerOperation"
 import {
   createMetadataWorkerOperationRegistry,
-  legacyMetadataWorkerOperationRegistry,
   type MetadataWorkerOperationRegistry,
 } from "../workerPool/operationRegistry"
 import { registerProjectQueryWorkerOperation } from "../workerPool/projectQueries"
-
-let operationsRegistered = false
-
-export function registerMetadataWorkerOperations(): void {
-  if (operationsRegistered) return
-  operationsRegistered = true
-  registerOperations(legacyMetadataWorkerOperationRegistry)
-}
 
 export function createMetadataWorkerOperations(): MetadataWorkerOperationRegistry {
   const registry = createMetadataWorkerOperationRegistry()
@@ -28,8 +19,4 @@ function registerOperations(registry: MetadataWorkerOperationRegistry): void {
   registerImportWorkerOperation(registry)
   registerFullSyncWorkerOperation(registry)
   registerProjectQueryWorkerOperation(registry)
-}
-
-export function resetMetadataWorkerOperationsRegistrationForTests(): void {
-  operationsRegistered = false
 }

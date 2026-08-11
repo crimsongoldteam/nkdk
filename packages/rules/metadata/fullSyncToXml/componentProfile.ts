@@ -51,30 +51,12 @@ export interface FullXmlSyncComponentProfile {
   }) => FullXmlSyncProfileRuntime
 }
 
-const profiles = new Map<XmlSyncProfileKind, FullXmlSyncComponentProfile>()
-
-export function registerFullXmlSyncComponentProfile(
-  profile: FullXmlSyncComponentProfile
-): void {
-  if (profiles.has(profile.kind)) {
-    throw new Error(`Профиль XML-синхронизации уже зарегистрирован: ${profile.kind}`)
-  }
-  profiles.set(profile.kind, profile)
-}
-
 export function resolveFullXmlSyncComponentProfile(
   address: ComponentAddress
 ): FullXmlSyncComponentProfile {
   const contextual = currentOperationRegistrySet<{
     synchronization: { resolve(input: ComponentAddress): FullXmlSyncComponentProfile }
   }>()
-  if (contextual !== undefined) return contextual.synchronization.resolve(address)
-  const matches = [...profiles.values()].filter((profile) => profile.supports(address))
-  if (matches.length === 0) {
-    throw new Error(`Не найден профиль XML-синхронизации для компонента: ${address.kind}`)
-  }
-  if (matches.length > 1) {
-    throw new Error(`Несколько профилей XML-синхронизации поддерживают компонент: ${address.kind}`)
-  }
-  return matches[0]!
+  if (contextual === undefined) throw new Error("Не задан execution context XML-синхронизации")
+  return contextual.synchronization.resolve(address)
 }

@@ -1,10 +1,4 @@
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { typeRulesRegistryRevision } from "../../ruleRuntime/property/typeRuleRegistry"
-import { projectSpecRegistryRevision } from "../../projectDefinition/projectSpecRegistry"
-import {
-  compileMetadataResourceTopologyForRootRule,
-  compileRegisteredMetadataResourceTopology,
-} from "./registeredRules"
 import type { MetadataResourceTopologyProvider } from "../core/providerRegistry"
 import type { MetadataRulesDefinition, MetadataSynchronizationContribution } from "../../ruleRuntime/definition"
 import { createPropertyRuleRegistrySet } from "../../ruleRuntime/property/propertyRuleRegistrySet"
@@ -17,14 +11,6 @@ declare module "@nkdk/runtime/rule-kit" {
   interface MetadataResourceTopologyTypeMap {
     itemRule: MetadataItemRule
   }
-}
-
-export const metadataResourceTopologyProvider: MetadataResourceTopologyProvider = {
-  revision: () => `${projectSpecRegistryRevision()}:${typeRulesRegistryRevision()}`,
-  compile: (rootRule) =>
-    rootRule === undefined
-      ? compileRegisteredMetadataResourceTopology()
-      : compileMetadataResourceTopologyForRootRule(rootRule),
 }
 
 export function createMetadataResourceTopologyProvider(

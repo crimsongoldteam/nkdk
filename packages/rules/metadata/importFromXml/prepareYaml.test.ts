@@ -7,7 +7,6 @@ import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import { parseMetadataYamlData } from "@nkdk/runtime"
 import { discoverXmlImport } from "./discovery"
-import { registerMetadataComponentDescriptor } from "../components/descriptor"
 import {
   prepareImportYaml,
   registeredImportRuleLookupCountForTests,
@@ -16,7 +15,8 @@ import {
 } from "./prepareYaml"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { ImportAssignment } from "./types"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { currentRuleRegistrySet, withRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,
@@ -35,19 +35,19 @@ afterEach(() => {
 
 describe("prepareImportYaml", () => {
   it("uses the component kind to resolve the configuration root rule", () => {
-    registerMetadataComponentDescriptor({
-      kind: "externalReport",
-      rootRule: AlternateComponentRootRule,
-    })
+    const current = currentRuleRegistrySet<RuleRegistrySet>()
+    if (current === undefined) throw new Error("Не задан тестовый rule registry")
+    const components = new Map(current.components)
+    components.set("externalReport", { kind: "externalReport", rootRule: AlternateComponentRootRule })
 
-    expect(
-      resolveAssignmentRule(
+    withRuleRegistrySet({ ...current, components }, () => {
+      expect(resolveAssignmentRule(
         {
           role: "configuration",
         } as ImportAssignment,
         "externalReport"
-      )
-    ).toBe(AlternateComponentRootRule)
+      )).toBe(AlternateComponentRootRule)
+    })
   })
 
   it("resolves a specialized form rule by topology node", () => {

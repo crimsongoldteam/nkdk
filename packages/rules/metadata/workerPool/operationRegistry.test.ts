@@ -1,15 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import {
-  createMetadataWorkerOperationRegistry,
-  registerMetadataWorkerOperation,
-  resetMetadataWorkerOperationRegistryForTests,
-  runRegisteredMetadataWorkerOperation,
-} from "./operationRegistry"
-import {
-  createMetadataWorkerOperations,
-  registerMetadataWorkerOperations,
-  resetMetadataWorkerOperationsRegistrationForTests,
-} from "../composition/workerOperations"
+import { describe, expect, it, vi } from "vitest"
+import { createMetadataWorkerOperationRegistry } from "./operationRegistry"
+import { createMetadataWorkerOperations } from "../composition/workerOperations"
 import type { MetadataWorkerPersistentState } from "./workerState"
 
 const state = {} as MetadataWorkerPersistentState
@@ -45,40 +36,32 @@ describe("metadata worker operation registry", () => {
     })
   })
 
-  beforeEach(() => {
-    resetMetadataWorkerOperationRegistryForTests()
-    resetMetadataWorkerOperationsRegistrationForTests()
-  })
-
-  afterEach(() => {
-    resetMetadataWorkerOperationRegistryForTests()
-    resetMetadataWorkerOperationsRegistrationForTests()
-    registerMetadataWorkerOperations()
-  })
-
   it("routes a command to the handler with the same kind", async () => {
+    const registry = createMetadataWorkerOperationRegistry()
     const handler = vi.fn(async (command: { readonly kind: "probe"; readonly value: string }) => ({
       kind: "probeResult" as const,
       value: command.value,
     }))
-    registerMetadataWorkerOperation("probe", handler)
+    registry.register("probe", handler)
 
-    await expect(runRegisteredMetadataWorkerOperation({ kind: "probe", value: "ready" }, state))
+    await expect(registry.run({ kind: "probe", value: "ready" }, state))
       .resolves.toEqual({ kind: "probeResult", value: "ready" })
     expect(handler).toHaveBeenCalledWith({ kind: "probe", value: "ready" }, state)
   })
 
   it("rejects a duplicate kind", () => {
-    registerMetadataWorkerOperation("probe", async (command) => ({ kind: "probeResult", value: command.value }))
+    const registry = createMetadataWorkerOperationRegistry()
+    registry.register("probe", async (command) => ({ kind: "probeResult", value: command.value }))
 
-    expect(() => registerMetadataWorkerOperation("probe", async (command) => ({
+    expect(() => registry.register("probe", async (command) => ({
       kind: "probeResult",
       value: command.value,
     }))).toThrow("Worker operation уже зарегистрирована: probe")
   })
 
   it("rejects an unknown kind", async () => {
-    await expect(runRegisteredMetadataWorkerOperation(
+    const registry = createMetadataWorkerOperationRegistry()
+    await expect(registry.run(
       { kind: "unknown" } as never,
       state,
     )).rejects.toThrow("Worker operation не зарегистрирована: unknown")
