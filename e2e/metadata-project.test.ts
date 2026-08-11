@@ -60,6 +60,14 @@ describe.sequential("metadata project E2E", () => {
       "ПутьКДанным: КомпоновщикНастроек.Настройки.КартинкаСтруктурыОтчета",
     )
     expect(settingsComposerYaml).not.toContain("Settings.ReportStructurePicture")
+    expect(settingsComposerYaml).toContain(
+      "ПутьКДанным: КомпоновщикНастроек.Настройки.СтруктураОтчета",
+    )
+    expect(settingsComposerYaml).toContain(
+      "ПутьКДанным: КомпоновщикНастроек.ФиксированныеНастройки.СтруктураОтчета",
+    )
+    expect(settingsComposerYaml).not.toContain("!xml КомпоновщикНастроек.Settings.ReportStructure")
+    expect(settingsComposerYaml).not.toContain("!xml КомпоновщикНастроек.FixedSettings.ReportStructure")
     await expect(access(join(baseline.projectDir, ".nkdk"))).resolves.toBeUndefined()
     console.info("E2E import durations, ms", baseline.durationsMs)
   })

@@ -5,6 +5,7 @@ import {
   settingsComposerNamePairs,
   settingsComposerTableKinds,
   settingsComposerTypeInfo,
+  settingsComposerValueFieldKinds,
   settingsComposerYamlToInternal,
 } from "./dataPathModel"
 
@@ -103,6 +104,10 @@ describe("SettingsComposer DataPath model", () => {
   it("keeps the closed table-kind catalog complete and unique", () => {
     expect(new Set(settingsComposerTableKinds).size).toBe(settingsComposerTableKinds.length)
     expect(settingsComposerTableKinds).toHaveLength(13)
+  })
+
+  it("разрешает структуру отчёта как значение поля ввода", () => {
+    expect(settingsComposerValueFieldKinds).toContain("DataCompositionStructure")
   })
 
   it("rejects unknown properties of a registered type", () => {
