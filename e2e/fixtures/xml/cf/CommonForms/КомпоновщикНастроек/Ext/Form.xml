@@ -2021,6 +2021,220 @@
 								</InputField>
 							</ChildItems>
 						</Table>
+						<Table name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтбор" id="2910">
+							<Representation>Tree</Representation>
+							<Autofill>true</Autofill>
+							<Width>60</Width>
+							<InitialTreeView>ExpandAllLevels</InitialTreeView>
+							<EnableStartDrag>true</EnableStartDrag>
+							<EnableDrag>true</EnableDrag>
+							<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.Filter</DataPath>
+							<ViewMode>All</ViewMode>
+							<SettingsNamedItemDetailedRepresentation>false</SettingsNamedItemDetailedRepresentation>
+							<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборКонтекстноеМеню" id="2911"/>
+							<AutoCommandBar name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборКоманднаяПанель" id="2912"/>
+							<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборРасширеннаяПодсказка" id="2913"/>
+							<SearchStringAddition name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборСтрокаПоиска" id="2914">
+								<AdditionSource>
+									<Item>ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтбор</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборСтрокаПоискаКонтекстноеМеню" id="2915"/>
+								<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборСтрокаПоискаРасширеннаяПодсказка" id="2916"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборСостояниеПросмотра" id="2917">
+								<AdditionSource>
+									<Item>ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтбор</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборСостояниеПросмотраКонтекстноеМеню" id="2918"/>
+								<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборСостояниеПросмотраРасширеннаяПодсказка" id="2919"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборУправлениеПоиском" id="2920">
+								<AdditionSource>
+									<Item>ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтбор</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборУправлениеПоискомКонтекстноеМеню" id="2921"/>
+								<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеОтборУправлениеПоискомРасширеннаяПодсказка" id="2922"/>
+							</SearchControlAddition>
+						</Table>
+						<Table name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанных" id="2868">
+							<Representation>Tree</Representation>
+							<Width>50</Width>
+							<InitialTreeView>ExpandAllLevels</InitialTreeView>
+							<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.DataParameters</DataPath>
+							<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхКонтекстноеМеню" id="2869"/>
+							<AutoCommandBar name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхКоманднаяПанель" id="2870"/>
+							<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхРасширеннаяПодсказка" id="2871"/>
+							<SearchStringAddition name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхСтрокаПоиска" id="2872">
+								<AdditionSource>
+									<Item>ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанных</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхСтрокаПоискаКонтекстноеМеню" id="2873"/>
+								<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхСтрокаПоискаРасширеннаяПодсказка" id="2874"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхСостояниеПросмотра" id="2875">
+								<AdditionSource>
+									<Item>ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанных</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхСостояниеПросмотраКонтекстноеМеню" id="2876"/>
+								<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхСостояниеПросмотраРасширеннаяПодсказка" id="2877"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхУправлениеПоиском" id="2878">
+								<AdditionSource>
+									<Item>ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанных</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхУправлениеПоискомКонтекстноеМеню" id="2879"/>
+								<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхУправлениеПоискомРасширеннаяПодсказка" id="2880"/>
+							</SearchControlAddition>
+							<ChildItems>
+								<CheckBoxField name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхИспользование" id="2881">
+									<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.DataParameters.Use</DataPath>
+									<TitleLocation>None</TitleLocation>
+									<EditMode>Directly</EditMode>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхИспользованиеКонтекстноеМеню" id="2882"/>
+									<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхИспользованиеРасширеннаяПодсказка" id="2883"/>
+								</CheckBoxField>
+								<ColumnGroup name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхГруппаКолонокПараметрИЗначениеПериода" id="2884">
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Параметр и период</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхГруппаКолонокПараметрИЗначениеПериодаРасширеннаяПодсказка" id="2885"/>
+									<ChildItems>
+										<ColumnGroup name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхГруппаКолонокПараметр" id="2886">
+											<Title>
+												<v8:item>
+													<v8:lang>ru</v8:lang>
+													<v8:content>Параметр</v8:content>
+												</v8:item>
+											</Title>
+											<Group>Horizontal</Group>
+											<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхГруппаКолонокПараметрРасширеннаяПодсказка" id="2887"/>
+											<ChildItems>
+												<InputField name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхПараметр" id="2890">
+													<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.DataParameters.Parameter</DataPath>
+													<Width>30</Width>
+													<HorizontalStretch>false</HorizontalStretch>
+													<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+													<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхПараметрКонтекстноеМеню" id="2891"/>
+													<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхПараметрРасширеннаяПодсказка" id="2892"/>
+												</InputField>
+												<ColumnGroup name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхГруппаКолонокЗначениеПараметра" id="2893">
+													<Title>
+														<v8:item>
+															<v8:lang>ru</v8:lang>
+															<v8:content>Значение</v8:content>
+														</v8:item>
+													</Title>
+													<Group>InCell</Group>
+													<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхГруппаКолонокЗначениеПараметраРасширеннаяПодсказка" id="2894"/>
+													<ChildItems>
+														<PictureField name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхКартинкаЗначения" id="2895">
+															<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.DataParameters.ValuePicture</DataPath>
+															<ShowInHeader>false</ShowInHeader>
+															<ShowInFooter>false</ShowInFooter>
+															<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхКартинкаЗначенияКонтекстноеМеню" id="2896"/>
+															<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхКартинкаЗначенияРасширеннаяПодсказка" id="2897"/>
+														</PictureField>
+														<InputField name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхЗначение" id="2898">
+															<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.DataParameters.Value</DataPath>
+															<EditMode>EnterOnInput</EditMode>
+															<Width>15</Width>
+															<HorizontalStretch>true</HorizontalStretch>
+															<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+															<ChoiceFoldersAndItems>FoldersAndItems</ChoiceFoldersAndItems>
+															<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхЗначениеКонтекстноеМеню" id="2899"/>
+															<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхЗначениеРасширеннаяПодсказка" id="2900"/>
+														</InputField>
+													</ChildItems>
+												</ColumnGroup>
+												<InputField name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхДата" id="2901">
+													<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.DataParameters.Date</DataPath>
+													<EditMode>EnterOnInput</EditMode>
+													<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+													<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхДатаКонтекстноеМеню" id="2902"/>
+													<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхДатаРасширеннаяПодсказка" id="2903"/>
+												</InputField>
+											</ChildItems>
+										</ColumnGroup>
+										<ColumnGroup name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхГруппаКолонокЗначениеПериода" id="2888">
+											<Title>
+												<v8:item>
+													<v8:lang>ru</v8:lang>
+													<v8:content>Период</v8:content>
+												</v8:item>
+											</Title>
+											<Group>Horizontal</Group>
+											<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхГруппаКолонокЗначениеПериодаРасширеннаяПодсказка" id="2889"/>
+											<ChildItems>
+												<InputField name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхДатаНачала" id="2904">
+													<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.DataParameters.StartDate</DataPath>
+													<EditMode>EnterOnInput</EditMode>
+													<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+													<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхДатаНачалаКонтекстноеМеню" id="2905"/>
+													<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхДатаНачалаРасширеннаяПодсказка" id="2906"/>
+												</InputField>
+												<InputField name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхДатаОкончания" id="2907">
+													<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.DataParameters.EndDate</DataPath>
+													<EditMode>EnterOnInput</EditMode>
+													<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+													<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхДатаОкончанияКонтекстноеМеню" id="2908"/>
+													<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеПараметрыДанныхДатаОкончанияРасширеннаяПодсказка" id="2909"/>
+												</InputField>
+											</ChildItems>
+										</ColumnGroup>
+									</ChildItems>
+								</ColumnGroup>
+							</ChildItems>
+						</Table>
+						<Table name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыбор" id="2923">
+							<Representation>Tree</Representation>
+							<Autofill>true</Autofill>
+							<Width>60</Width>
+							<HeightInTableRows>15</HeightInTableRows>
+							<ChoiceMode>true</ChoiceMode>
+							<HorizontalLines>false</HorizontalLines>
+							<VerticalLines>false</VerticalLines>
+							<InitialTreeView>ExpandAllLevels</InitialTreeView>
+							<EnableStartDrag>true</EnableStartDrag>
+							<EnableDrag>true</EnableDrag>
+							<DataPath>Items.КомпоновщикНастроекНастройки.CurrentData.Selection</DataPath>
+							<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборКонтекстноеМеню" id="2924"/>
+							<AutoCommandBar name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборКоманднаяПанель" id="2925"/>
+							<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборРасширеннаяПодсказка" id="2926"/>
+							<SearchStringAddition name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборСтрокаПоиска" id="2927">
+								<AdditionSource>
+									<Item>ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыбор</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборСтрокаПоискаКонтекстноеМеню" id="2928"/>
+								<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборСтрокаПоискаРасширеннаяПодсказка" id="2929"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборСостояниеПросмотра" id="2930">
+								<AdditionSource>
+									<Item>ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыбор</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборСостояниеПросмотраКонтекстноеМеню" id="2931"/>
+								<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборСостояниеПросмотраРасширеннаяПодсказка" id="2932"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборУправлениеПоиском" id="2933">
+								<AdditionSource>
+									<Item>ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыбор</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборУправлениеПоискомКонтекстноеМеню" id="2934"/>
+								<ExtendedTooltip name="ЭлементыКомпоновщикНастроекНастройкиТекущиеДанныеВыборУправлениеПоискомРасширеннаяПодсказка" id="2935"/>
+							</SearchControlAddition>
+						</Table>
 						<Table name="КомпоновщикНастроекНастройкиПараметрыДанных" id="671">
 							<Representation>Tree</Representation>
 							<Width>50</Width>
@@ -3544,7 +3758,6 @@
 						</Table>
 						<Table name="КомпоновщикНастроекНастройкиПользовательскиеПоля" id="1180">
 							<Representation>List</Representation>
-							<Autofill>true</Autofill>
 							<Width>60</Width>
 							<EnableStartDrag>true</EnableStartDrag>
 							<EnableDrag>true</EnableDrag>
@@ -3576,7 +3789,102 @@
 								<ContextMenu name="КомпоновщикНастроекНастройкиПользовательскиеПоляУправлениеПоискомКонтекстноеМеню" id="1191"/>
 								<ExtendedTooltip name="КомпоновщикНастроекНастройкиПользовательскиеПоляУправлениеПоискомРасширеннаяПодсказка" id="1192"/>
 							</SearchControlAddition>
+							<ChildItems>
+								<InputField name="КомпоновщикНастроекНастройкиПользовательскиеПоляЗаголовок" id="2936">
+									<DataPath>КомпоновщикНастроек.Settings.UserFields.Title</DataPath>
+									<EditMode>EnterOnInput</EditMode>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="КомпоновщикНастроекНастройкиПользовательскиеПоляЗаголовокКонтекстноеМеню" id="2937"/>
+									<ExtendedTooltip name="КомпоновщикНастроекНастройкиПользовательскиеПоляЗаголовокРасширеннаяПодсказка" id="2938"/>
+								</InputField>
+							</ChildItems>
 						</Table>
+						<UsualGroup name="ПолеВводаПолеНадписи" id="2864">
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Поле ввода поле надписи</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Поле ввода поле надписи</v8:content>
+								</v8:item>
+							</ToolTip>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ПолеВводаПолеНадписиРасширеннаяПодсказка" id="2865"/>
+							<ChildItems>
+								<InputField name="КомпоновщикНастроекНастройкиЭлементПоляГруппировкиПоле1" id="2846">
+									<DataPath>Items.КомпоновщикНастроекНастройкиЭлементПоляГруппировки.CurrentData.Field</DataPath>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="КомпоновщикНастроекНастройкиЭлементПоляГруппировкиПоле1КонтекстноеМеню" id="2847"/>
+									<ExtendedTooltip name="КомпоновщикНастроекНастройкиЭлементПоляГруппировкиПоле1РасширеннаяПодсказка" id="2848"/>
+								</InputField>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="ПолеВводаПолеНадписиПолеПереключателя" id="2866">
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Поле ввода поле надписи поле переключателя</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Поле ввода поле надписи поле переключателя</v8:content>
+								</v8:item>
+							</ToolTip>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ПолеВводаПолеНадписиПолеПереключателяРасширеннаяПодсказка" id="2867"/>
+							<ChildItems>
+								<InputField name="КомпоновщикНастроекНастройкиЭлементПоляГруппировкиТипГруппировки1" id="2849">
+									<DataPath>Items.КомпоновщикНастроекНастройкиЭлементПоляГруппировки.CurrentData.GroupType</DataPath>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="КомпоновщикНастроекНастройкиЭлементПоляГруппировкиТипГруппировки1КонтекстноеМеню" id="2850"/>
+									<ExtendedTooltip name="КомпоновщикНастроекНастройкиЭлементПоляГруппировкиТипГруппировки1РасширеннаяПодсказка" id="2851"/>
+								</InputField>
+								<InputField name="КомпоновщикНастроекНастройкиЭлементОтборВидСравнения1" id="2834">
+									<DataPath>Items.КомпоновщикНастроекНастройкиЭлементОтбор.CurrentData.ComparisonType</DataPath>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="КомпоновщикНастроекНастройкиЭлементОтборВидСравнения1КонтекстноеМеню" id="2835"/>
+									<ExtendedTooltip name="КомпоновщикНастроекНастройкиЭлементОтборВидСравнения1РасширеннаяПодсказка" id="2836"/>
+								</InputField>
+								<InputField name="КомпоновщикНастроекНастройкиЭлементОтборТипГруппы1" id="2837">
+									<DataPath>Items.КомпоновщикНастроекНастройкиЭлементОтбор.CurrentData.GroupType</DataPath>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="КомпоновщикНастроекНастройкиЭлементОтборТипГруппы1КонтекстноеМеню" id="2838"/>
+									<ExtendedTooltip name="КомпоновщикНастроекНастройкиЭлементОтборТипГруппы1РасширеннаяПодсказка" id="2839"/>
+								</InputField>
+								<InputField name="КомпоновщикНастроекНастройкиЭлементОтборПрименение1" id="2840">
+									<DataPath>Items.КомпоновщикНастроекНастройкиЭлементОтбор.CurrentData.Application</DataPath>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="КомпоновщикНастроекНастройкиЭлементОтборПрименение1КонтекстноеМеню" id="2841"/>
+									<ExtendedTooltip name="КомпоновщикНастроекНастройкиЭлементОтборПрименение1РасширеннаяПодсказка" id="2842"/>
+								</InputField>
+								<RadioButtonField name="КомпоновщикНастроекНастройкиЭлементВыборРасположение1" id="2858">
+									<DataPath>Items.КомпоновщикНастроекНастройкиЭлементВыбор.CurrentData.Placement</DataPath>
+									<RadioButtonType>Auto</RadioButtonType>
+									<ContextMenu name="КомпоновщикНастроекНастройкиЭлементВыборРасположение1КонтекстноеМеню" id="2859"/>
+									<ExtendedTooltip name="КомпоновщикНастроекНастройкиЭлементВыборРасположение1РасширеннаяПодсказка" id="2860"/>
+								</RadioButtonField>
+								<InputField name="КомпоновщикНастроекНастройкиЭлементПоляГруппировкиТипДополнения1" id="2852">
+									<DataPath>Items.КомпоновщикНастроекНастройкиЭлементПоляГруппировки.CurrentData.AdditionType</DataPath>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="КомпоновщикНастроекНастройкиЭлементПоляГруппировкиТипДополнения1КонтекстноеМеню" id="2853"/>
+									<ExtendedTooltip name="КомпоновщикНастроекНастройкиЭлементПоляГруппировкиТипДополнения1РасширеннаяПодсказка" id="2854"/>
+								</InputField>
+								<InputField name="КомпоновщикНастроекНастройкиЭлементПорядокТипУпорядочивания1" id="2861">
+									<DataPath>Items.КомпоновщикНастроекНастройкиЭлементПорядок.CurrentData.OrderType</DataPath>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="КомпоновщикНастроекНастройкиЭлементПорядокТипУпорядочивания1КонтекстноеМеню" id="2862"/>
+									<ExtendedTooltip name="КомпоновщикНастроекНастройкиЭлементПорядокТипУпорядочивания1РасширеннаяПодсказка" id="2863"/>
+								</InputField>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</Page>
 				<Page name="ПользовательскиеНастройки" id="1193">
