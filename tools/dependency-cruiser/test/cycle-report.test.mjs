@@ -9,15 +9,15 @@ test("группирует production-цикл в одну компоненту"
   const components = findProductionCycleComponents({
     modules: [
       {
-        source: "packages/core/helpers/runtime/cycle-b.ts",
+        source: "packages/rules/helpers/runtime/cycle-b.ts",
         dependencies: [
-          { resolved: "packages/core/helpers/runtime/cycle-a.ts" },
+          { resolved: "packages/rules/helpers/runtime/cycle-a.ts" },
         ],
       },
       {
-        source: "packages/core/helpers/runtime/cycle-a.ts",
+        source: "packages/rules/helpers/runtime/cycle-a.ts",
         dependencies: [
-          { resolved: "packages/core/helpers/runtime/cycle-b.ts" },
+          { resolved: "packages/rules/helpers/runtime/cycle-b.ts" },
         ],
       },
     ],
@@ -27,14 +27,14 @@ test("группирует production-цикл в одну компоненту"
     {
       dependencyCount: 2,
       modules: [
-        "packages/core/helpers/runtime/cycle-a.ts",
-        "packages/core/helpers/runtime/cycle-b.ts",
+        "packages/rules/helpers/runtime/cycle-a.ts",
+        "packages/rules/helpers/runtime/cycle-b.ts",
       ],
       keyModules: [
-        "packages/core/helpers/runtime/cycle-a.ts",
-        "packages/core/helpers/runtime/cycle-b.ts",
+        "packages/rules/helpers/runtime/cycle-a.ts",
+        "packages/rules/helpers/runtime/cycle-b.ts",
       ],
-      areas: [{ name: "packages/core", moduleCount: 2 }],
+      areas: [{ name: "packages/rules", moduleCount: 2 }],
     },
   ])
 })
@@ -44,14 +44,14 @@ test("форматирует компактную сводку цикличес�
     {
       dependencyCount: 2,
       modules: [
-        "packages/core/helpers/runtime/cycle-a.ts",
-        "packages/core/helpers/runtime/cycle-b.ts",
+        "packages/rules/helpers/runtime/cycle-a.ts",
+        "packages/rules/helpers/runtime/cycle-b.ts",
       ],
       keyModules: [
-        "packages/core/helpers/runtime/cycle-a.ts",
-        "packages/core/helpers/runtime/cycle-b.ts",
+        "packages/rules/helpers/runtime/cycle-a.ts",
+        "packages/rules/helpers/runtime/cycle-b.ts",
       ],
-      areas: [{ name: "packages/core", moduleCount: 2 }],
+      areas: [{ name: "packages/rules", moduleCount: 2 }],
     },
   ])
 
@@ -60,8 +60,8 @@ test("форматирует компактную сводку цикличес�
     [
       "Циклические компоненты: 1; модулей в циклах: 2.",
       "1. 2 модуля, внутренних зависимостей: 2",
-      "   Области: packages/core — 2",
-      "   Ключевые модули: packages/core/helpers/runtime/cycle-a.ts; packages/core/helpers/runtime/cycle-b.ts",
+      "   Области: packages/rules — 2",
+      "   Ключевые модули: packages/rules/helpers/runtime/cycle-a.ts; packages/rules/helpers/runtime/cycle-b.ts",
     ].join("\n")
   )
 })

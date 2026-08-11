@@ -1,0 +1,51 @@
+import { commonRegisterFieldProperties } from "../metadataRegisterField/rules"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import {
+  metadataRegisterResourceRuleBase,
+  registerResourceAccountingFragment,
+} from "./fragments"
+
+export const MetadataRegisterResourceRules = {
+  ...metadataRegisterResourceRuleBase,
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "passwordMode",
+    "format",
+    "editFormat",
+    "toolTip",
+    "markNegatives",
+    "mask",
+    "multiLine",
+    "extendedEdit",
+    "minValue",
+    "maxValue",
+    "fillFromFillingValue",
+    "fillValue",
+    "fillChecking",
+    "choiceFoldersAndItems",
+    "choiceParameterLinks",
+    "choiceParameters",
+    "quickChoice",
+    "createOnInput",
+    "choiceForm",
+    "linkByType",
+    "choiceHistoryOnInput",
+    "indexing",
+    "balance",
+    "accountingFlag",
+    "extDimensionAccountingFlag",
+    "fullTextSearch",
+    "dataHistory",
+    "binaryDataStorageLocationUse",
+    "binaryDataStorageLocationUseField",
+    "uuid",
+  ],
+  properties: {
+    ...commonRegisterFieldProperties,
+    ...registerResourceAccountingFragment.properties,
+  },
+} as const satisfies MetadataItemRule

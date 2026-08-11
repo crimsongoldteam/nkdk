@@ -6,9 +6,11 @@ import {
   createCycleBaseline,
 } from "./cycle-baseline.mjs"
 import { cycleBaselinePath } from "./paths.mjs"
+import { reportRuntimeInternalImports } from "./runtime-public-imports.mjs"
 
 const cycleBaseline = JSON.parse(readFileSync(cycleBaselinePath, "utf8"))
 const result = createCruiseResult({ ignoreKnown: true, writeEnhanced: false })
+reportRuntimeInternalImports(result)
 assertNoNewViolations(result)
 assertCyclesNotWorse(result, cycleBaseline)
 

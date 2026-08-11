@@ -1,0 +1,37 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { exportI8nTextToXML } from "../../i8nText/toXML"
+import { PropertyRule } from "../../../ruleRuntime"
+import type { AvailableFieldItem, AvailableFieldXML, AvailableFields, AvailableFieldsXML } from "./types"
+
+const exportItem = (context: ConfigurationContextWithExportToXML, item: AvailableFieldItem): AvailableFieldXML => {
+  if (typeof item === "string") return { "dcsset:field": item }
+
+  return {
+    ...(item.use !== undefined ? { "dcsset:use": item.use } : {}),
+    "dcsset:field": item.field,
+    ...(item.title !== undefined
+      ? { "dcsset:title": exportI8nTextToXML(context, { type: "I8nText" }, item.title) }
+      : {}),
+    ...(item.lwsTitle !== undefined
+      ? { "dcsset:lwsTitle": exportI8nTextToXML(context, { type: "I8nText" }, item.lwsTitle) }
+      : {}),
+    ...(item.viewMode !== undefined ? { "dcsset:viewMode": item.viewMode } : {}),
+  }
+}
+
+const exportAvailableFieldsToXML = (
+  context: ConfigurationContextWithExportToXML,
+  _rule: PropertyRule | undefined,
+  value: AvailableFields | undefined,
+  _referenceMetadata?: AvailableFields | undefined
+): AvailableFieldsXML | undefined => {
+  if (!value || value.length === 0) return undefined
+
+  const items = value.map((item) => exportItem(context, item))
+  return {
+    "dcsset:item": items.length === 1 ? items[0] : items,
+  }
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("AvailableFields", "exportToXML", exportAvailableFieldsToXML)

@@ -1,0 +1,42 @@
+import { TSchema, Type } from "typebox"
+import { ConfigurationContext } from "../../context/types"
+import { exportPropertiesToJSONSchema, exportPropertyToJSONSchema } from "../property/toJSONSchema"
+import { MetadataItem, MetadataItemRule } from "../property/types"
+import type { PropertyRuleExecution } from "../property/fn"
+import { findInlineProperty } from "./yamlInline"
+
+export const exportMetadataItemToJSONSchema = <T extends MetadataItem>(params: {
+  context: ConfigurationContext
+  rule: MetadataItemRule
+  value?: T
+  execution?: PropertyRuleExecution
+}): TSchema => {
+  const { context, rule, value } = params
+
+  const properties = exportPropertiesToJSONSchema({
+    context,
+    metadataItem: value,
+    rule,
+    execution: params.execution,
+  })
+
+  const objectSchema = Type.Object(
+    {
+      ...properties,
+    },
+    { additionalProperties: false }
+  )
+
+  const inline = findInlineProperty(rule)
+  if (inline) {
+    const inlineSchema = exportPropertyToJSONSchema({
+      context,
+      rule: inline.prop,
+      value: undefined,
+      execution: params.execution,
+    })
+    if (inlineSchema !== undefined) return inlineSchema
+  }
+
+  return objectSchema
+}

@@ -1,0 +1,29 @@
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { ConfigurationContext } from "@nkdk/runtime"
+import { exportMetadataFieldToYAML } from "../metadataField/toYAML"
+import type { TypeLink, TypeLinkYAML } from "./types"
+
+const typeLinkMetadataTargetRule = {
+  type: "MetadataField",
+  metadataTarget: { kind: "member", owner: "explicit", allowOwner: true },
+} as const satisfies PropertyRule
+
+export const exportTypeLinkToYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: TypeLink | undefined
+): TypeLinkYAML | undefined => {
+  if (!data) return undefined
+
+  const dataPathYAML = exportMetadataFieldToYAML(context, typeLinkMetadataTargetRule, data.dataPath) ?? data.dataPath
+
+  // Добавляем linkItem в скобках, если он не равен 0
+  if (data.linkItem !== 0) {
+    return `${dataPathYAML}(${data.linkItem})`
+  }
+
+  return dataPathYAML
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeLink", "exportToYAML", exportTypeLinkToYAML)

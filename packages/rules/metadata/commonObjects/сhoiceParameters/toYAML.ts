@@ -1,0 +1,32 @@
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { ConfigurationContext } from "@nkdk/runtime"
+import { exportFormChoiceListToYAML } from "../metadataValue/formChoiceList/toYAML"
+import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
+import type { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "./types"
+
+const exportChoiceParameterValueToYAML = (
+  context: ConfigurationContext,
+  param: ChoiceParameter
+): ChoiceParametersYAML[string] => {
+  if (param.value?.type === "formChoiceListDesTimeValue") {
+    return {
+      Тип: "ЗначениеСпискаВыбора",
+      ...exportFormChoiceListToYAML(context, param.value),
+    }
+  }
+
+  return exportMetadataValueToYAML(context, undefined, param.value)
+}
+
+export const exportChoiceParametersToYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: ChoiceParameters | undefined
+): ChoiceParametersYAML | undefined => {
+  if (!data) return undefined
+
+  return Object.fromEntries(data.map((param) => [param.name, exportChoiceParameterValueToYAML(context, param)]))
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("ChoiceParameters", "exportToYAML", exportChoiceParametersToYAML)

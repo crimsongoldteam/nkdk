@@ -8,9 +8,11 @@ import type {
   MetadataDiagnosticCollection,
   MetadataProjectDirectoryStructure,
   MetadataProjectStructureNode,
-} from "@nkdk/core"
+  MetadataRuntimeProjectState,
+} from "@nkdk/runtime"
+import { metadataRuntimeHandle } from "./metadataRuntimeHandle"
 
-export type { MetadataProjectDirectoryStructure, MetadataProjectStructureNode } from "@nkdk/core"
+export type { MetadataProjectDirectoryStructure, MetadataProjectStructureNode } from "@nkdk/runtime"
 
 export interface SchemaSummaryOptions {
   requiredOnly?: boolean
@@ -131,20 +133,7 @@ export interface CoreApi {
   }): Promise<XmlSyncState>
 }
 
-export interface CoreProjectStateService {
-  beginImport(params: unknown): Promise<unknown>
-  refreshAndValidate(params: unknown): Promise<unknown>
-  createReadToken(projectDir: string): Promise<unknown>
-  openReadSession(token: unknown): unknown
-  readComponentProjection(params: unknown): Promise<unknown>
-  reset(projectDir: string): Promise<void>
-  rebuild(params: unknown): Promise<{
-    diagnostics: CoreDiagnosticCollection
-    stats: CoreProjectStateStats
-    readToken: unknown
-  }>
-  close(): Promise<void>
-}
+export type CoreProjectStateService = MetadataRuntimeProjectState
 
 export interface CoreProjectStateStats {
   readonly hashedFiles: number
@@ -154,5 +143,57 @@ export interface CoreProjectStateStats {
 }
 
 export async function loadCoreApi(): Promise<CoreApi> {
-  return await import("@nkdk/core") as unknown as CoreApi
+  const runtime = await metadataRuntimeHandle.get()
+  return {
+    parseProjectPath: runtime.projects.parsePath,
+    createProjectStateService: runtime.projects.createState,
+    ProjectFileSchemaError: runtime.schemas.ProjectFileSchemaError,
+    splitSearchTerms: runtime.schemas.splitSearchTerms,
+    listSchemaSummaryKeys: runtime.schemas.listSummaryKeys,
+    summarizeJSONSchema: runtime.schemas.summarize,
+    exportJSONSchemaForProjectFile: runtime.schemas.exportForProjectFile,
+    exportJSONSchemaForSchemaName: runtime.schemas.exportByName,
+    describeMetadataProjectDirectoryStructure: runtime.projects.describeStructure,
+    validateProject: (params) => runtime.validation.validateProject({
+      ...params,
+      projectState: requireRuntimeProjectState(params.projectState),
+    }),
+    renameMetadataItem: (params) => runtime.metadata.rename({
+      ...params,
+      projectState: requireRuntimeProjectState(params.projectState),
+    }),
+    findMetadataReferences: (params) => runtime.metadata.findReferences({
+      ...params,
+      projectState: requireRuntimeProjectState(params.projectState),
+    }),
+    planSyncToXml: (params) => runtime.sync.planToXml({
+      ...params,
+      projectState: requireRuntimeProjectState(params.projectState),
+    }),
+    async syncConfigurationFromXML(params) {
+      const { outputDir, projectDir, ...importParams } = params
+      return runtime.import.configurationFromXml({
+        ...importParams,
+        projectDir: projectDir ?? outputDir,
+        projectState: runtime.projects.createState(),
+      })
+    },
+    importConfigurationFromXml: (params) => runtime.import.configurationFromXml({
+      ...params,
+      projectState: requireRuntimeProjectState(params.projectState),
+    }),
+    syncConfigurationToXML: (params) => runtime.sync.configurationToXml({
+      ...params,
+      projectState: requireRuntimeProjectState(params.projectState),
+    }),
+    readXmlSyncState: runtime.sync.readState,
+    initializeXmlSyncState: runtime.sync.initializeState,
+  }
+}
+
+function requireRuntimeProjectState(state: CoreProjectStateService): MetadataRuntimeProjectState {
+  if (!("workers" in state)) {
+    throw new Error("ProjectStateService создан вне MetadataRuntime")
+  }
+  return state as MetadataRuntimeProjectState
 }

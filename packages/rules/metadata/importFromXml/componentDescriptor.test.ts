@@ -1,0 +1,78 @@
+import fs from "node:fs"
+import { join } from "node:path"
+import { describe, expect, it } from "vitest"
+import type { ComponentAddress } from "@nkdk/runtime"
+import { importContentFromXML } from "@nkdk/runtime"
+import {
+  registerXmlImportComponentDescriptor,
+  resolveXmlImportComponent,
+  type XmlImportComponentDescriptor,
+} from "./componentDescriptor"
+
+function descriptor(params: {
+  kind: string
+  detect(root: Record<string, unknown>): boolean
+  address?: ComponentAddress
+}): XmlImportComponentDescriptor {
+  return {
+    kind: params.kind,
+    detect: params.detect,
+    resolveRoot: () => ({
+      address: params.address ?? { kind: "configuration" },
+      itemName: "ТестовыйКорень",
+    }),
+  }
+}
+
+describe("XML import component descriptors", () => {
+  it("returns the only descriptor that recognizes the XML root", () => {
+    const registered = descriptor({ kind: "test-single", detect: (root) => root["testSingle"] === true })
+    registerXmlImportComponentDescriptor(registered)
+
+    expect(resolveXmlImportComponent({ testSingle: true })).toBe(registered)
+  })
+
+  it("rejects XML roots that no descriptor recognizes", () => {
+    expect(() => resolveXmlImportComponent({ unknownComponent: true })).toThrow(/не найдено/iu)
+  })
+
+  it("rejects XML roots recognized by multiple descriptors", () => {
+    registerXmlImportComponentDescriptor(descriptor({ kind: "test-first", detect: (root) => root["testBoth"] === true }))
+    registerXmlImportComponentDescriptor(descriptor({ kind: "test-second", detect: (root) => root["testBoth"] === true }))
+
+    expect(() => resolveXmlImportComponent({ testBoth: true })).toThrow(/несколько/iu)
+  })
+
+  it("rejects a repeated component kind", () => {
+    registerXmlImportComponentDescriptor(descriptor({ kind: "test-duplicate", detect: () => false }))
+
+    expect(() =>
+      registerXmlImportComponentDescriptor(descriptor({ kind: "test-duplicate", detect: () => false }))
+    ).toThrow(/уже зарегистрирован/u)
+  })
+
+  it("recognizes a base configuration without ConfigurationExtensionPurpose", () => {
+    const parsed = importContentFromXML<Record<string, unknown>>(
+      fs.readFileSync(join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/minimal.xml"), "utf-8")
+    )
+    const root = parsed["MetaDataObject"] as Record<string, unknown>
+    const component = resolveXmlImportComponent(root)
+
+    expect(component.kind).toBe("configuration")
+    expect(component.resolveRoot(root)).toEqual({
+      address: { kind: "configuration" },
+      itemName: "Конфигурация",
+    })
+    expect(component.baseAddress).toBeUndefined()
+    expect(component.metadataItemAugmenter).toBeUndefined()
+  })
+
+  it("rejects an empty root name", () => {
+    const root = {
+      Configuration: { Properties: { Name: "" } },
+    }
+    const component = resolveXmlImportComponent(root)
+
+    expect(() => component.resolveRoot(root)).toThrow(/имя/iu)
+  })
+})

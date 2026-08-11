@@ -2,7 +2,7 @@ import { findProductionCycleComponents as findComponents } from "./cycle-analysi
 
 function areaName(source) {
   const metadata = source.match(/^packages\/core\/metadata\/([^/]+)/u)
-  if (metadata !== null) return `packages/core/metadata/${metadata[1]}`
+  if (metadata !== null) return `packages/rules/metadata/${metadata[1]}`
   const packageName = source.match(/^packages\/([^/]+)/u)
   return packageName === null ? source.split("/")[0] : `packages/${packageName[1]}`
 }

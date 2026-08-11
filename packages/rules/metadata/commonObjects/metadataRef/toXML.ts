@@ -1,0 +1,43 @@
+import { definePropertyTypeRule } from "../../ruleRuntime"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ConfigurationContext } from "@nkdk/runtime"
+import type { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
+
+export function exportMetadataItemLinkToXML(
+  _context: ConfigurationContext,
+  rule: PropertyRule | undefined,
+  data: MetadataItemLink | undefined
+): MetadataItemLinkXML | undefined {
+  if (data === undefined) return undefined
+
+  const typedXML = rule?.typedXML
+
+  if (typedXML === "xr:MDObjectRef") {
+    return { "#text": data, "_xsi:type": typedXML }
+  }
+
+  return data
+}
+
+export function exportMetadataItemLinksToXML(
+  context: ConfigurationContext,
+  rule: PropertyRule | undefined,
+  data: MetadataItemLinks | undefined
+): MetadataItemLinksXML | "" | undefined {
+  if (!data) return undefined
+
+  if (data.length === 0) return ""
+
+  const itemTag = rule?.metadataItemLinksXMLItem ?? "xr:Item"
+  const itemRule = {
+    type: "MetadataItemLink",
+    ...(itemTag === "xr:Item" ? { typedXML: "xr:MDObjectRef" } : {}),
+  } satisfies PropertyRule
+
+  return {
+    [itemTag]: data.map((value) => exportMetadataItemLinkToXML(context, itemRule, value)!),
+  }
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataItemLink", "exportToXML", exportMetadataItemLinkToXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataItemLinks", "exportToXML", exportMetadataItemLinksToXML)

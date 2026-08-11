@@ -1,9 +1,9 @@
-export const neutralProductionPattern =
-  "^packages/core/metadata/(?:ruleRuntime|diagnostics|validation|project|projectDefinition|projectState|resourceTopology/core|standardMembers)/"
+export const neutralProductionPattern = "^packages/runtime/"
 
 export const implementationTargetPatterns = [
-  "^packages/core/metadata/(?:appliedObjects|forms|commonObjects|systemEnumerations|operations|importFromXml)/",
-  "^packages/core/metadata/register\\.ts$",
+  "^packages/rules/",
+  "^packages/rules/metadata/(?:appliedObjects|forms|commonObjects|systemEnumerations|operations|importFromXml)/",
+  "^packages/rules/metadata/register\\.ts$",
 ]
 
 /**
@@ -31,8 +31,8 @@ export const diagnosticsValidationReachabilityRule = {
   name: "diagnostics-not-reach-validation",
   severity: "error",
   comment: "Diagnostics не зависит от реализации validation.",
-  fromPatterns: ["^packages/core/metadata/diagnostics/"],
-  toPatterns: ["^packages/core/metadata/validation/"],
+  fromPatterns: ["^packages/rules/metadata/diagnostics/"],
+  toPatterns: ["^packages/rules/metadata/validation/"],
 }
 
 /** @type {ReachabilityRule} */
@@ -40,9 +40,9 @@ export const resourceTopologyCoreReachabilityRule = {
   name: "resource-topology-core-is-leaf",
   severity: "error",
   comment: "Ядро resourceTopology не зависит от metadata-адаптеров.",
-  fromPatterns: ["^packages/core/metadata/resourceTopology/core/"],
+  fromPatterns: ["^packages/rules/metadata/resourceTopology/core/"],
   toPatterns: [
-    "^packages/core/metadata/(?:ruleRuntime|project|configurationIndex|resourceTopology/adapters)/",
+    "^packages/rules/metadata/(?:ruleRuntime|project|configurationIndex|resourceTopology/adapters)/",
   ],
 }
 
@@ -51,10 +51,10 @@ export const validationProjectReachabilityRule = {
   name: "validation-not-reach-project",
   severity: "error",
   comment: "Validation не зависит от project-координаторов и изменяемого реестра projectDefinition.",
-  fromPatterns: ["^packages/core/metadata/validation/"],
+  fromPatterns: ["^packages/rules/metadata/validation/"],
   toPatterns: [
-    "^packages/core/metadata/project/",
-    "^packages/core/metadata/projectDefinition/projectSpecRegistry\\.ts$",
+    "^packages/rules/metadata/project/",
+    "^packages/rules/metadata/projectDefinition/projectSpecRegistry\\.ts$",
   ],
 }
 
@@ -63,9 +63,9 @@ export const projectDefinitionReachabilityRule = {
   name: "project-definition-is-leaf",
   severity: "error",
   comment: "ProjectDefinition не зависит от координации project, validation, projectState и workerPool.",
-  fromPatterns: ["^packages/core/metadata/projectDefinition/"],
+  fromPatterns: ["^packages/rules/metadata/projectDefinition/"],
   toPatterns: [
-    "^packages/core/metadata/(?:project|validation|projectState|workerPool)/",
+    "^packages/rules/metadata/(?:project|validation|projectState|workerPool)/",
   ],
 }
 
@@ -74,20 +74,20 @@ export const metadataCompositionReachabilityRule = {
   name: "metadata-core-not-reach-composition",
   severity: "error",
   comment: "Обычные metadata-модули не зависят от composition roots.",
-  fromPatterns: ["^packages/core/metadata/(?!composition/)"],
+  fromPatterns: ["^packages/rules/metadata/(?!composition/)"],
   fromNotPatterns: [
-    "^packages/core/metadata/workerPool/(?:worker|preparedYamlProjectEntry|generateProjectValidationAjvStandaloneEntry)\\.ts$",
-    "^packages/core/metadata/(?:importFromXml|fullSyncToXml)/worker\\.ts$",
+    "^packages/rules/metadata/workerPool/(?:worker|preparedYamlProjectEntry|generateProjectValidationAjvStandaloneEntry)\\.ts$",
+    "^packages/rules/metadata/(?:importFromXml|fullSyncToXml)/worker\\.ts$",
   ],
-  toPatterns: ["^packages/core/metadata/composition/"],
+  toPatterns: ["^packages/rules/metadata/composition/"],
 }
 
 const layerReachabilityRule = (name, from, targets) => ({
   name,
   severity: "error",
   comment: `Слой ${from} не достигает более конкретных реализаций.`,
-  fromPatterns: [`^packages/core/metadata/${from}/`],
-  toPatterns: [`^packages/core/metadata/(?:${targets.join("|")})/`],
+  fromPatterns: [`^packages/rules/metadata/${from}/`],
+  toPatterns: [`^packages/rules/metadata/(?:${targets.join("|")})/`],
 })
 
 export const concreteLayerReachabilityRules = [
@@ -99,24 +99,24 @@ export const concreteLayerReachabilityRules = [
 export const localLeafReachabilityRules = [
   {
     name: "project-state-contracts-are-leaf",
-    fromPatterns: ["^packages/core/metadata/projectState/contracts/"],
+    fromPatterns: ["^packages/rules/metadata/projectState/contracts/"],
     toPatterns: [
-      "^packages/core/metadata/projectState/(?:binary|fileUpdate|readSession|service|store)",
-      "^packages/core/metadata/validation/",
+      "^packages/rules/metadata/projectState/(?:binary|fileUpdate|readSession|service|store)",
+      "^packages/rules/metadata/validation/",
     ],
   },
   {
     name: "project-state-service-does-not-compose",
-    fromPatterns: ["^packages/core/metadata/projectState/service\\.ts$"],
+    fromPatterns: ["^packages/rules/metadata/projectState/service\\.ts$"],
     toPatterns: [
-      "^packages/core/metadata/project/preparedYamlProjectWorkerPool\\.ts$",
-      "^packages/core/metadata/workerPool/handle\\.ts$",
+      "^packages/rules/metadata/project/preparedYamlProjectWorkerPool\\.ts$",
+      "^packages/rules/metadata/workerPool/handle\\.ts$",
     ],
   },
   {
     name: "worker-pool-types-are-leaf",
-    fromPatterns: ["^packages/core/metadata/workerPool/types\\.ts$"],
-    toPatterns: ["^packages/core/metadata/(?:project|fullSyncToXml|importFromXml)/"],
+    fromPatterns: ["^packages/rules/metadata/workerPool/types\\.ts$"],
+    toPatterns: ["^packages/rules/metadata/(?:project|fullSyncToXml|importFromXml)/"],
   },
 ].map((rule) => ({
   ...rule,
@@ -130,12 +130,45 @@ export const exampleCoreReachabilityRule = {
   severity: "error",
   comment: "Нижние зоны synthetic-примера не знают adapters.",
   fromPatterns: [
-    "^packages/core/metadata/example/(?:contracts|core)/",
+    "^packages/rules/metadata/example/(?:contracts|core)/",
   ],
-  toPatterns: ["^packages/core/metadata/example/adapters/"],
+  toPatterns: ["^packages/rules/metadata/example/adapters/"],
+}
+
+/** @type {ReachabilityRule} */
+export const runtimeDoesNotReachRulesRule = {
+  name: "runtime-does-not-reach-rules",
+  severity: "error",
+  comment: "Runtime не зависит от конкретного набора rules.",
+  fromPatterns: ["^packages/runtime/"],
+  toPatterns: ["^packages/rules/"],
+}
+
+/** @type {ReachabilityRule} */
+export const rulesDoesNotReachRuntimeInternalsRule = {
+  name: "rules-does-not-reach-runtime-internals",
+  severity: "ignore",
+  comment: "Rules использует только публичные точки входа runtime.",
+  fromPatterns: ["^packages/rules/"],
+  toPatterns: ["^packages/runtime/"],
+  toNotPatterns: [
+    "^packages/runtime/(?:index|rule-kit|worker)\\.ts$",
+  ],
+  reachable: false,
+}
+
+/** @type {ReachabilityRule} */
+export const packageCompositionRootOnlyInMcpRule = {
+  name: "package-composition-root-only-in-mcp",
+  severity: "error",
+  comment: "Готовый набор rules подключает только MCP как composition root.",
+  fromPatterns: ["^packages/(?!mcp/|rules/)"],
+  toPatterns: ["^packages/rules/"],
 }
 
 export const metadataReachabilityRules = [
+  runtimeDoesNotReachRulesRule,
+  packageCompositionRootOnlyInMcpRule,
   metadataImplementationReachabilityRule,
   diagnosticsValidationReachabilityRule,
   resourceTopologyCoreReachabilityRule,
@@ -165,7 +198,7 @@ export function toDependencyCruiserRule(rule) {
     to: {
       path: rule.toPatterns,
       ...(rule.toNotPatterns ? { pathNot: rule.toNotPatterns } : {}),
-      reachable: true,
+      ...(rule.reachable === false ? {} : { reachable: true }),
     },
   }
 }

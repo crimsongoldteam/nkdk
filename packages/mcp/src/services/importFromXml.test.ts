@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
@@ -6,6 +6,7 @@ import { importFromXml } from "./importFromXml"
 import { createCoreProjectStateTestDouble } from "./projectStateTestSupport"
 import { jsonToolResult } from "../contracts/common"
 import type { DiagnosticReportFileSystem } from "./diagnosticReport"
+import { cleanupTempDirs } from "./testTempDirs"
 
 const importContext = {
   defaultLanguage: "ru" as const,
@@ -18,7 +19,7 @@ describe("importFromXml service", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    cleanupTempDirs(tempDirs)
   })
 
   it("requires allowWrite before reading project or calling core", async () => {

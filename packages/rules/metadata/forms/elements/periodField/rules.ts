@@ -1,0 +1,113 @@
+import { borderRule } from "../../../commonObjects/border/types"
+import { colorRule } from "../../../commonObjects/color/types"
+import { fontRule } from "../../../commonObjects/font/types"
+import { dataPathRule } from "../../../commonObjects/metadataPath/types"
+import { eventsRule } from "../../commonObjects/event/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { numberRule } from "../../../commonObjects/number/types"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
+import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
+export type { ElementRule, PropertyRule }
+export const PeriodFieldRules = {
+  itemType: "PeriodField",
+  enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.PeriodField",
+  xmlOrder: [
+    "dataPath",
+    "visible",
+    "userVisible",
+    "defaultItem",
+    "enabled",
+    "readOnly",
+    "skipOnInput",
+    "title",
+    "titleTextColor",
+    "titleBackColor",
+    "titleFont",
+    "titleLocation",
+    "titleHeight",
+    "toolTip",
+    "toolTipRepresentation",
+    "warningOnEditRepresentation",
+    "warningOnEdit",
+    "shortcut",
+    "horizontalAlign",
+    "verticalAlign",
+    "horizontalAlignInGroup",
+    "verticalAlignInGroup",
+    "editMode",
+    "cellHyperlink",
+    "showInHeader",
+    "headerPicture",
+    "showInFooter",
+    "footerDataPath",
+    "footerText",
+    "footerTextColor",
+    "footerBackColor",
+    "footerFont",
+    "footerPicture",
+    "footerHorizontalAlign",
+    "onMainServerUnavalableBehavior",
+    "width",
+    "autoMaxWidth",
+    "maxWidth",
+    "height",
+    "autoMaxHeight",
+    "maxHeight",
+    "horizontalStretch",
+    "verticalStretch",
+    "font",
+    "borderColor",
+    "border",
+    "contextMenu",
+    "extendedTooltip",
+    "events",
+    "name",
+    "displayImportance",
+  ],
+  properties: {
+    font: fontRule({
+      yaml: "Шрифт",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+    }),
+    autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
+    autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
+    border: borderRule({
+      yaml: "Рамка",
+      implicitValueYAML: "Single",
+      metadataTarget: {
+        kind: "object",
+        roots: ["StyleItem"],
+        filters: [{ kind: "styleItemType", values: ["Border"] }],
+      },
+    }),
+    borderColor: colorRule({
+      yaml: "ЦветРамки",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    }),
+    height: numberRule({ yaml: "Высота", implicitValueYAML: 0 }),
+    horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", noImplicitValueYAML: true }),
+    maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
+    maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
+    verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", noImplicitValueYAML: true }),
+    width: numberRule({ yaml: "Ширина", implicitValueYAML: 0 }),
+    events: eventsRule({
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onChange: "ПриИзменении",
+        selection: "Выбор",
+      },
+    }),
+    dataPath: dataPathRule({
+      yaml: "ПутьКДанным",
+      defaultType: "dateTime",
+    }),
+    ...formFieldCommonProperties,
+    ...formFieldDisabledTableRelatedProperties,
+    titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
+  },
+} as const satisfies ElementRule
+export const metadataRuleLayer000 = defineElementRule("PeriodField", PeriodFieldRules)

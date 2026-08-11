@@ -1,23 +1,18 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { spawnSync } from "node:child_process"
-import { mkdtemp, rm } from "node:fs/promises"
+import { cp, mkdtemp, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
-import { join } from "node:path"
+import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url))
 const tmpRoot = await mkdtemp(join(tmpdir(), "nkdk-mcp-pack-"))
 
 try {
-  const build = spawnSync("pnpm", ["run", "build"], {
-    cwd: packageRoot,
-    encoding: "utf8",
-    stdio: "inherit",
-  })
-  if (build.status !== 0) throw new Error(`pnpm run build failed with status ${build.status}`)
+  await import("./build.mjs")
 
-  const pack = spawnSync("npm", ["pack", "--ignore-scripts", "--json", "--pack-destination", tmpRoot], {
+  const pack = spawnNpm(["pack", "--ignore-scripts", "--json", "--pack-destination", tmpRoot], {
     cwd: packageRoot,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "inherit"],
@@ -27,7 +22,7 @@ try {
   const packed = JSON.parse(pack.stdout)
   const tarball = join(tmpRoot, packed[0].filename)
 
-  const install = spawnSync("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund", tarball], {
+  const install = spawnNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", tarball], {
     cwd: tmpRoot,
     encoding: "utf8",
     stdio: "inherit",
@@ -66,6 +61,20 @@ try {
       },
     })
     if (result.isError) throw new Error("nkdk.get_schema returned MCP error")
+
+    const projectDir = join(tmpRoot, "project")
+    await cp(
+      join(packageRoot, "../rules/metadata/validation/__fixtures__/project-with-form"),
+      projectDir,
+      { recursive: true },
+    )
+    const validation = await client.callTool({
+      name: "nkdk.validate_project",
+      arguments: { projectDir },
+    })
+    if (validation.isError) {
+      throw new Error(`nkdk.validate_project returned MCP error: ${JSON.stringify(validation.structuredContent)}`)
+    }
 
     const confirmation = await client.callTool({
       name: "nkdk.import_from_infobase",
@@ -109,4 +118,10 @@ try {
   }
 } finally {
   await rm(tmpRoot, { recursive: true, force: true })
+}
+
+function spawnNpm(args, options) {
+  if (process.platform !== "win32") return spawnSync("npm", args, options)
+  const npmCli = join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")
+  return spawnSync(process.execPath, [npmCli, ...args], options)
 }

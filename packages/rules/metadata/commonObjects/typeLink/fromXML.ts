@@ -1,0 +1,26 @@
+import { importNumberFromXML } from "../number/fromXML"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { ConfigurationContext } from "@nkdk/runtime"
+import { MetadataField } from "../metadataField/types"
+import type { TypeLink, TypeLinkXML } from "./types"
+
+export const importTypeLinkFromXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: TypeLinkXML | undefined
+): TypeLink | undefined => {
+  if (!xml) return undefined
+
+  const dataPath = typeof xml["xr:DataPath"] === "string" ? xml["xr:DataPath"] : xml["xr:DataPath"]["#text"]
+  const linkItem = importNumberFromXML(_context, undefined, xml["xr:LinkItem"])
+
+  const result: TypeLink = {
+    dataPath: dataPath as MetadataField,
+    linkItem: linkItem ?? 0,
+  }
+
+  return result
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeLink", "importFromXML", importTypeLinkFromXML)

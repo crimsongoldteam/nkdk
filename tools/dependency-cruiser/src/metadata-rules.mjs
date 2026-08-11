@@ -10,8 +10,6 @@ export { implementationTargetPatterns, neutralProductionPattern }
 
 const allowedInternalTargets = [
   neutralProductionPattern,
-  "^packages/core/metadata/(?:binary|composition|context|helpers|resourceTopology|configurationIndex|components|diagnostics|projectState|workerPool|sourceWorkerRuntime)(?:/|\\.ts$)",
-  "^packages/core/(?:helpers|yaml|xml)/",
 ]
 
 export const allowedNeutralRules = [

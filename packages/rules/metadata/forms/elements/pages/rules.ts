@@ -1,0 +1,106 @@
+import { associatedTableRule } from "../../../commonObjects/metadataValue/types"
+import { pagesChildItemsRule } from "../../commonObjects/childItems/rules"
+import { eventsRule } from "../../commonObjects/event/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
+import { formGroupCommonProperties } from "../formGroup/rules"
+export type { ElementRule, PropertyRule }
+export const PagesRules = {
+  itemType: "Pages",
+  enterpriseField: "FormGroup",
+  enterpriseFieldType: "FormGroupType.Pages",
+  xmlOrder: [
+    "visible",
+    "userVisible",
+    "enabled",
+    "readOnly",
+    "enableContentChange",
+    "title",
+    "titleTextColor",
+    "titleFont",
+    "toolTip",
+    "toolTipRepresentation",
+    "shortcut",
+    "width",
+    "height",
+    "horizontalStretch",
+    "verticalStretch",
+    "horizontalAlignInGroup",
+    "verticalAlignInGroup",
+    "pagesRepresentation",
+    "currentRowUse",
+    "table",
+    "extendedTooltip",
+    "events",
+    "childItems",
+    "name",
+    "displayImportance",
+  ],
+  properties: {
+    name: stringRule({
+      xml: "_name",
+      required: true,
+    }),
+    childItems: pagesChildItemsRule({
+      yaml: "Элементы",
+      defaultValue: [],
+    }),
+    displayImportance: systemEnumerationRule({
+      yaml: "ВажностьПриОтображении",
+      xml: "_DisplayImportance",
+      typeSE: "DisplayImportance",
+      implicitValueYAML: "Auto",
+    }),
+    currentPagesState: systemEnumerationRule({
+      yaml: "ТекущееСостояниеСтраниц",
+      typeSE: "FormPagesState",
+      implicitValueYAML: "CurrentPage",
+      runtimeOnly: true,
+    }),
+    currentRowUse: systemEnumerationRule({
+      yaml: "ИспользованиеТекущейСтроки",
+      typeSE: "CurrentRowUse",
+      implicitValueYAML: "Auto",
+    }),
+    pagesRepresentation: systemEnumerationRule({
+      yaml: "ОтображениеСтраниц",
+      typeSE: "FormPagesRepresentation",
+      implicitValueYAML: "Auto",
+    }),
+    events: eventsRule({
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        onCurrentPageChange: "ПриСменеСтраницы",
+      },
+    }),
+    table: associatedTableRule({
+      yaml: "Таблица",
+      xml: "AssociatedTableElementId",
+      toEnterprise: false,
+    }),
+    ...formGroupCommonProperties,
+    height: {
+      ...formGroupCommonProperties.height,
+      implicitValueYAML: 0,
+    },
+    visible: {
+      ...formGroupCommonProperties.visible,
+      implicitValueYAML: true,
+    },
+    width: {
+      ...formGroupCommonProperties.width,
+      implicitValueYAML: 0,
+    },
+    type: systemEnumerationRule({
+      yaml: "Вид",
+      typeSE: "FormGroupType",
+      runtimeOnly: true,
+      implicitValueYAML: "Pages",
+    }),
+  },
+} as const satisfies ElementRule
+export const metadataRuleLayer000 = defineElementRule("Pages", PagesRules)

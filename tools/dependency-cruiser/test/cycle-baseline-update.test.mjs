@@ -5,7 +5,7 @@ import { join } from "node:path"
 import test from "node:test"
 import { updateCycleBaseline } from "../src/cycle-baseline-update.mjs"
 
-const source = (name) => `packages/core/helpers/${name}`
+const source = (name) => `packages/rules/helpers/${name}`
 
 function component(names, dependencyCount) {
   return { modules: names.map(source).sort(), dependencyCount }

@@ -1,0 +1,144 @@
+import { rootFromYAML } from "@nkdk/runtime/rule-kit"
+import type { ConfigurationContext } from "@nkdk/runtime"
+import { createFormDataPathIndexFromYAML } from "../validation/dataPath/formYamlIndex"
+import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
+import { createOwnerMetadataCache, type OwnerMetadataCache } from "../validation/dataPath/ownerCache"
+import { resolveDataPath, type ResolvedDataPathTarget } from "../validation/dataPath/resolver"
+import { createProjectYamlCache } from "../validation/projectYamlCache"
+import type { OperationSnapshotItem } from "./projectSnapshot"
+import { getRegisteredFormDataPathMetadataProjection } from "../validation/formDataPathProjectionRegistry"
+
+export interface DataPathReferenceInput {
+  item: OperationSnapshotItem
+  filePath: string
+  yamlPath: readonly (string | number)[]
+  value: string
+  target: ResolvedDataPathTarget
+  segmentIndex: number
+  setValue(nextValue: string): void
+}
+
+export interface FormDataPathValueInput {
+  readonly value: string
+  setValue(nextValue: string): void
+}
+
+export function rewriteDataPathSegments(
+  value: string,
+  resolvedSegments: readonly string[],
+  segmentIndex: number,
+  nextName: string
+): string {
+  const sourceSegments = value.split(".")
+  return sourceSegments
+    .map((segment, index) => {
+      if (index !== segmentIndex) return segment
+      const resolvedSegment = resolvedSegments[index] ?? ""
+      const suffix = segment.slice(resolvedSegment.length)
+      return `${nextName}${suffix}`
+    })
+    .join(".")
+}
+
+export function createOperationDataPathOwnerCache(params: {
+  projectDir: string
+  context: ConfigurationContext
+}): OwnerMetadataCache {
+  return createOwnerMetadataCache({
+    projectDir: params.projectDir,
+    yamlCache: createProjectYamlCache(),
+    context: params.context,
+  })
+}
+
+export function collectFormDataPathReferencesForItem(params: {
+  item: OperationSnapshotItem
+  ownerCache: OwnerMetadataCache
+  targetPrefix: string
+}): DataPathReferenceInput[] {
+  if (params.item.kind !== "form") return []
+
+  const projection = getRegisteredFormDataPathMetadataProjection()
+  if (projection === undefined) throw new Error("Не зарегистрирована проекция индекса формы")
+  const index = createFormDataPathIndexFromYAML(params.item.yaml, projection)
+
+  const references: DataPathReferenceInput[] = []
+  for (const occurrence of collectFormDataPathOccurrencesFromYAML({
+    yaml: params.item.yaml,
+    rule: params.item.rule,
+  })) {
+    const result = resolveDataPath({
+      filePath: params.item.filePath,
+      parsed: params.item.parsed,
+      yamlPath: occurrence.yamlPath,
+      value: occurrence.value,
+      nameMode: occurrence.nameMode,
+      index,
+      ownerCache: params.ownerCache,
+      ...(occurrence.tableContext !== undefined ? { tableContext: occurrence.tableContext } : {}),
+    })
+
+    if (result.status === "error") continue
+
+    const formLogicalAddress = operationFormLogicalAddress(params.item)
+    for (const target of result.targets) {
+      const match = dataPathTargetMatchesCanonicalPrefix(target, params.targetPrefix, formLogicalAddress)
+      if (match === undefined) continue
+
+      references.push({
+        item: params.item,
+        filePath: params.item.filePath,
+        yamlPath: occurrence.yamlPath,
+        value: occurrence.value,
+        target,
+        segmentIndex: match.segmentIndex,
+        setValue: occurrence.setValue,
+      })
+    }
+  }
+
+  return references
+}
+
+export function findFormDataPathValueForItem(
+  item: OperationSnapshotItem,
+  yamlPath: readonly (string | number)[],
+): FormDataPathValueInput | undefined {
+  if (item.kind !== "form") return undefined
+  return collectFormDataPathOccurrencesFromYAML({ yaml: item.yaml, rule: item.rule })
+    .find((occurrence) => sameYamlPath(occurrence.yamlPath, yamlPath))
+}
+
+export function dataPathTargetMatchesCanonicalPrefix(
+  target: ResolvedDataPathTarget,
+  canonicalPrefix: string,
+  formLogicalAddress?: string,
+): { segmentIndex: number } | undefined {
+  if (target.source.kind === "formElement") {
+    if (formLogicalAddress === undefined) return undefined
+    const canonical = `${formLogicalAddress}.Element.${target.source.name}`
+    return canonical === canonicalPrefix || canonical.startsWith(`${canonicalPrefix}.`)
+      ? { segmentIndex: target.segmentIndex }
+      : undefined
+  }
+  if (target.source.kind !== "objectField") return undefined
+  const ownerRoot = rootFromYAML[target.source.owner.kind] ?? target.source.owner.kind
+  const ownerName = target.source.owner.name
+  if (ownerName === undefined) return undefined
+
+  const canonical = `${ownerRoot}.${ownerName}.Attribute.${target.source.name}`
+  if (canonical === canonicalPrefix || canonical.startsWith(`${canonicalPrefix}.`)) {
+    return { segmentIndex: target.segmentIndex }
+  }
+  return undefined
+}
+
+function operationFormLogicalAddress(item: OperationSnapshotItem): string | undefined {
+  if (item.kind !== "form" || item.resource.formName === undefined) return undefined
+  const ownerRoot = rootFromYAML[item.resource.owner.dir] ?? item.resource.owner.dir
+  return `${ownerRoot}.${item.resource.owner.name}.Form.${item.resource.formName}`
+}
+
+function sameYamlPath(left: readonly (string | number)[], right: readonly (string | number)[]): boolean {
+  return left.length === right.length && left.every((segment, index) => segment === right[index])
+}

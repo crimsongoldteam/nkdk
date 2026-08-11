@@ -3,17 +3,39 @@ import { tmpdir } from "node:os"
 import { dirname, isAbsolute, join, relative, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import {
-  createProjectStateService,
+  createMetadataRuntime,
   exportToYAML,
-  importConfigurationFromXml,
   parseMetadataYaml,
-  syncConfigurationToXML,
-  validateProject,
   type ConfigurationImportResult,
   type FullXmlSyncResult,
   type MetadataDiagnostic,
-} from "@nkdk/core"
+} from "@nkdk/runtime"
+import { metadataRules } from "../../packages/rules/metadata/composition/metadataRules"
 import { compareFileTrees, type FileTreeComparison } from "./file-tree"
+
+function createE2EMetadataRuntime() {
+  return createMetadataRuntime({
+    rules: metadataRules,
+    workers: {
+      preparedYamlProject: new URL(
+        "../../packages/rules/metadata/composition/workers/preparedYamlProject.ts",
+        import.meta.url,
+      ),
+      importFromXml: new URL(
+        "../../packages/rules/metadata/composition/workers/importFromXml.ts",
+        import.meta.url,
+      ),
+      fullSyncToXml: new URL(
+        "../../packages/rules/metadata/composition/workers/fullSyncToXml.ts",
+        import.meta.url,
+      ),
+      generic: new URL(
+        "../../packages/rules/metadata/composition/workers/generic.ts",
+        import.meta.url,
+      ),
+    },
+  })
+}
 
 export interface E2EComponent {
   readonly fixturePath: string
@@ -91,14 +113,15 @@ export const SYNC_CONTEXT = {
 export async function importMetadataProject(): Promise<ImportedMetadataProject> {
   const root = await mkdtemp(join(tmpdir(), "nkdk-e2e-"))
   const projectDir = join(root, "project")
-  const projectState = createProjectStateService()
+  const runtime = createE2EMetadataRuntime()
+  const projectState = runtime.projects.createState()
   const results: ConfigurationImportResult[] = []
   const durationsMs: Record<string, number> = {}
   let completed = false
   try {
     for (const component of E2E_COMPONENTS) {
       const startedAt = performance.now()
-      const result = await importConfigurationFromXml({
+      const result = await runtime.import.configurationFromXml({
         context: IMPORT_CONTEXT,
         inputDir: resolve(fixturesRoot, component.fixturePath),
         projectDir,
@@ -113,7 +136,7 @@ export async function importMetadataProject(): Promise<ImportedMetadataProject> 
     completed = true
     return { root, projectDir, results, durationsMs }
   } finally {
-    await projectState.close()
+    await runtime.close()
     if (!completed) await rm(root, { recursive: true, force: true })
   }
 }
@@ -183,7 +206,8 @@ export async function roundTripMetadataProject(params: {
   readonly reportRoot: string
 }): Promise<readonly ComponentRoundTripResult[]> {
   await rm(params.reportRoot, { recursive: true, force: true })
-  const projectState = createProjectStateService()
+  const runtime = createE2EMetadataRuntime()
+  const projectState = runtime.projects.createState()
   const results: ComponentRoundTripResult[] = []
   try {
     for (const component of E2E_COMPONENTS) {
@@ -191,7 +215,7 @@ export async function roundTripMetadataProject(params: {
       await rm(xmlDir, { recursive: true, force: true })
       await mkdir(xmlDir, { recursive: true })
       const startedAt = performance.now()
-      const sync = await syncConfigurationToXML({
+      const sync = await runtime.sync.configurationToXml({
         context: SYNC_CONTEXT,
         projectDir: params.projectDir,
         componentPath: component.componentPath,
@@ -214,7 +238,7 @@ export async function roundTripMetadataProject(params: {
     }
     return results
   } finally {
-    await projectState.close()
+    await runtime.close()
   }
 }
 
@@ -242,12 +266,11 @@ export async function removeImportedProject(source: ImportedMetadataProject): Pr
 }
 
 async function runValidation(projectDir: string): Promise<readonly ComparableDiagnostic[]> {
-  const projectState = createProjectStateService()
+  const runtime = createE2EMetadataRuntime()
+  const projectState = runtime.projects.createState()
   try {
-    const { diagnostics } = await validateProject({
+    const { diagnostics } = await runtime.validation.validateProject({
       projectDir,
-      context: SYNC_CONTEXT,
-      concurrency: 2,
       projectState,
     })
     try {
@@ -256,7 +279,7 @@ async function runValidation(projectDir: string): Promise<readonly ComparableDia
       diagnostics.release()
     }
   } finally {
-    await projectState.close()
+    await runtime.close()
   }
 }
 

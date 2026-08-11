@@ -4,7 +4,7 @@ import test from "node:test"
 
 test("types.ts не выполняет runtime-регистрацию", () => {
   const source = readFileSync(
-    "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types.ts",
+    "packages/rules/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types.ts",
     "utf8"
   )
   assert.doesNotMatch(source, /registerTypeRule/u)
@@ -12,6 +12,6 @@ test("types.ts не выполняет runtime-регистрацию", () => {
 })
 
 test("commonObjects не импортирует form adapter", () => {
-  const source = readFileSync("packages/core/metadata/commonObjects/index.ts", "utf8")
+  const source = readFileSync("packages/rules/metadata/commonObjects/index.ts", "utf8")
   assert.doesNotMatch(source, /childFormNames\/syncExternalFromXML/u)
 })

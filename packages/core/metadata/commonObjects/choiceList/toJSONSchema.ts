@@ -1,9 +1,0 @@
-import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
-import { ChoiceListJSONSchema } from "./types"
-
-export const exportChoiceListToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
-  return ChoiceListJSONSchema
-}
-
-registerTypeRule("ChoiceList", "exportToJSONSchema", exportChoiceListToJSONSchema)

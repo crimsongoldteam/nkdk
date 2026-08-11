@@ -1,0 +1,145 @@
+import { colorRule } from "../../../commonObjects/color/types"
+import { dataPathRule } from "../../../commonObjects/metadataPath/types"
+import { pictureRule } from "../../../commonObjects/picture/types"
+import { groupChildItemsRule } from "../../commonObjects/childItems/rules"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../../commonObjects/i8nText/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { formGroupCommonProperties } from "../formGroup/rules"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
+export type { ElementRule, PropertyRule }
+export const PageRules = {
+  itemType: "Page",
+  enterpriseField: "FormGroup",
+  enterpriseFieldType: "FormGroupType.Page",
+  xmlOrder: [
+    "visible",
+    "userVisible",
+    "enabled",
+    "readOnly",
+    "enableContentChange",
+    "title",
+    "titleTextColor",
+    "titleFont",
+    "toolTip",
+    "toolTipRepresentation",
+    "shortcut",
+    "width",
+    "height",
+    "horizontalStretch",
+    "verticalStretch",
+    "horizontalAlignInGroup",
+    "verticalAlignInGroup",
+    "picture",
+    "group",
+    "itemsAndTitlesAlign",
+    "horizontalSpacing",
+    "slaveItemsWidth",
+    "verticalSpacing",
+    "childItemsHorizontalAlign",
+    "verticalAlign",
+    "format",
+    "showTitle",
+    "titleDataPath",
+    "backColor",
+    "scrollOnCompress",
+    "extendedTooltip",
+    "childItems",
+    "name",
+    "displayImportance",
+  ],
+  properties: {
+    name: stringRule({
+      xml: "_name",
+      required: true,
+    }),
+    backColor: colorRule({
+      yaml: "ЦветФона",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    }),
+    childItems: groupChildItemsRule({
+      yaml: "Элементы",
+      defaultValue: [],
+    }),
+    childItemsHorizontalAlign: systemEnumerationRule({
+      yaml: "ГоризонтальноеПоложениеПодчиненных",
+      xml: "HorizontalAlign",
+      typeSE: "ItemHorizontalLocation",
+      implicitValueYAML: "Auto",
+    }),
+    childItemsVerticalAlign: systemEnumerationRule({
+      yaml: "ВертикальноеПоложениеПодчиненных",
+      typeSE: "ItemVerticalAlign",
+      implicitValueYAML: "Auto",
+    }),
+    displayImportance: systemEnumerationRule({
+      yaml: "ВажностьПриОтображении",
+      xml: "_DisplayImportance",
+      typeSE: "DisplayImportance",
+      implicitValueYAML: "Auto",
+    }),
+    format: i8nTextRule({ yaml: "Формат" }),
+    group: systemEnumerationRule({
+      yaml: "Группировка",
+      typeSE: "ChildFormItemsGroup",
+      implicitValueYAML: "Vertical",
+    }),
+    horizontalSpacing: systemEnumerationRule({
+      yaml: "ГоризонтальныйИнтервал",
+      typeSE: "FormItemSpacing",
+      implicitValueYAML: "Auto",
+    }),
+    itemsAndTitlesAlign: systemEnumerationRule({
+      yaml: "ВыравниваниеЭлементовИЗаголовков",
+      xml: "ChildrenAlign",
+      typeSE: "ItemsAndTitlesAlignVariant",
+      implicitValueYAML: "Auto",
+    }),
+    picture: pictureRule({ yaml: "Картинка", metadataTarget: { kind: "object", roots: ["CommonPicture"] } }),
+    scrollOnCompress: booleanRule({ yaml: "СкроллПриСжатии", noImplicitValueYAML: true }),
+    showTitle: booleanRule({ yaml: "ОтображатьЗаголовок", implicitValueYAML: true }),
+    slaveItemsWidth: systemEnumerationRule({
+      yaml: "ШиринаПодчиненныхЭлементов",
+      xml: "ChildItemsWidth",
+      typeSE: "ChildFormItemsWidth",
+      noImplicitValueYAML: true,
+    }),
+    titleDataPath: dataPathRule({ yaml: "ПутьКДаннымЗаголовка", defaultType: "string" }),
+    verticalAlign: systemEnumerationRule({
+      yaml: "ВертикальноеПоложение",
+      typeSE: "ItemVerticalAlign",
+      noImplicitValueYAML: true,
+    }),
+    verticalScrollOnReduceSize: booleanRule({
+      yaml: "ВертикальнаяПрокруткаПриСжатии",
+      implicitValueYAML: false,
+    }),
+    verticalSpacing: systemEnumerationRule({
+      yaml: "ВертикальныйИнтервал",
+      typeSE: "FormItemSpacing",
+      implicitValueYAML: "Auto",
+    }),
+    ...formGroupCommonProperties,
+    height: {
+      ...formGroupCommonProperties.height,
+      implicitValueYAML: 0,
+    },
+    visible: {
+      ...formGroupCommonProperties.visible,
+      implicitValueYAML: true,
+    },
+    width: {
+      ...formGroupCommonProperties.width,
+      implicitValueYAML: 0,
+    },
+    type: systemEnumerationRule({
+      yaml: "Вид",
+      typeSE: "FormGroupType",
+      runtimeOnly: true,
+    }),
+  },
+} as const satisfies ElementRule
+export const metadataRuleLayer000 = defineElementRule("Page", PageRules)

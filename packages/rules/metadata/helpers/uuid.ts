@@ -1,0 +1,15 @@
+import { randomUUID } from "crypto"
+import { ConfigurationContext } from "@nkdk/runtime"
+
+export const UUID_TEST = "11111111-1111-4111-8111-111111111111" as const
+
+export const getUUID = (context: ConfigurationContext): string => {
+  const configurationIndex = context.exportToXML?.configurationIndex
+  if (configurationIndex !== undefined) {
+    return configurationIndex.identityOrCreate("uuid")
+  }
+  if (context.testMode) {
+    return UUID_TEST
+  }
+  return randomUUID()
+}

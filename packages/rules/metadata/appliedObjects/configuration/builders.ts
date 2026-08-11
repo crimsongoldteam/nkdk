@@ -1,0 +1,111 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../../commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
+
+export interface RootCommandInterfaceWidePropertyRule extends WidePropertyRuleBase {
+  type: "RootCommandInterface"
+}
+
+export type RootCommandInterfaceRuleParams = Omit<RootCommandInterfaceWidePropertyRule, "type">
+
+export function rootCommandInterfaceRule<const Params extends RootCommandInterfaceRuleParams>(
+  params: WideExactRuleParams<RootCommandInterfaceRuleParams, Params>
+): Readonly<{
+  type: "RootCommandInterface"
+  configurationIndexAddressing: "yamlPath"
+} & Params> {
+  return defineWidePropertyRule("RootCommandInterface", {
+    configurationIndexAddressing: "yamlPath" as const,
+    ...params,
+  })
+}
+export interface AllowedIncomingShareRequestTypesWidePropertyRule extends WidePropertyRuleBase {
+  type: "AllowedIncomingShareRequestTypes"
+}
+
+export type AllowedIncomingShareRequestTypesRuleParams = Omit<AllowedIncomingShareRequestTypesWidePropertyRule, "type">
+
+export function allowedIncomingShareRequestTypesRule<const Params extends AllowedIncomingShareRequestTypesRuleParams>(
+  params: WideExactRuleParams<AllowedIncomingShareRequestTypesRuleParams, Params>
+): Readonly<{ type: "AllowedIncomingShareRequestTypes" } & Params> {
+  return defineWidePropertyRule("AllowedIncomingShareRequestTypes", params)
+}
+export interface ClientApplicationInterfaceWidePropertyRule extends WidePropertyRuleBase {
+  type: "ClientApplicationInterface"
+}
+
+export type ClientApplicationInterfaceRuleParams = Omit<ClientApplicationInterfaceWidePropertyRule, "type">
+
+export function clientApplicationInterfaceRule<const Params extends ClientApplicationInterfaceRuleParams>(
+  params: WideExactRuleParams<ClientApplicationInterfaceRuleParams, Params>
+): Readonly<{ type: "ClientApplicationInterface" } & Params> {
+  return defineWidePropertyRule("ClientApplicationInterface", params)
+}
+export interface HomePageWorkAreaWidePropertyRule extends WidePropertyRuleBase {
+  type: "HomePageWorkArea"
+}
+
+export type HomePageWorkAreaRuleParams = Omit<HomePageWorkAreaWidePropertyRule, "type">
+
+export function homePageWorkAreaRule<const Params extends HomePageWorkAreaRuleParams>(
+  params: WideExactRuleParams<HomePageWorkAreaRuleParams, Params>
+): Readonly<{ type: "HomePageWorkArea" } & Params> {
+  return defineWidePropertyRule("HomePageWorkArea", params)
+}
+export interface MobileApplicationURLsWidePropertyRule extends WidePropertyRuleBase {
+  type: "MobileApplicationURLs"
+}
+
+export type MobileApplicationURLsRuleParams = Omit<MobileApplicationURLsWidePropertyRule, "type">
+
+export function mobileApplicationURLsRule<const Params extends MobileApplicationURLsRuleParams>(
+  params: WideExactRuleParams<MobileApplicationURLsRuleParams, Params>
+): Readonly<{ type: "MobileApplicationURLs" } & Params> {
+  return defineWidePropertyRule("MobileApplicationURLs", params)
+}
+export interface RequiredMobileApplicationPermissionsWidePropertyRule extends WidePropertyRuleBase {
+  type: "RequiredMobileApplicationPermissions"
+}
+
+export type RequiredMobileApplicationPermissionsRuleParams = Omit<
+  RequiredMobileApplicationPermissionsWidePropertyRule,
+  "type"
+>
+
+export function requiredMobileApplicationPermissionsRule<
+  const Params extends RequiredMobileApplicationPermissionsRuleParams,
+>(
+  params: WideExactRuleParams<RequiredMobileApplicationPermissionsRuleParams, Params>
+): Readonly<{ type: "RequiredMobileApplicationPermissions" } & Params> {
+  return defineWidePropertyRule("RequiredMobileApplicationPermissions", params)
+}
+export interface UsedMobileApplicationFunctionalitiesWidePropertyRule extends WidePropertyRuleBase {
+  type: "UsedMobileApplicationFunctionalities"
+}
+
+export type UsedMobileApplicationFunctionalitiesRuleParams = Omit<
+  UsedMobileApplicationFunctionalitiesWidePropertyRule,
+  "type"
+>
+
+export function usedMobileApplicationFunctionalitiesRule<
+  const Params extends UsedMobileApplicationFunctionalitiesRuleParams,
+>(
+  params: WideExactRuleParams<UsedMobileApplicationFunctionalitiesRuleParams, Params>
+): Readonly<{ type: "UsedMobileApplicationFunctionalities" } & Params> {
+  return defineWidePropertyRule("UsedMobileApplicationFunctionalities", params)
+}
+
+export interface ConfigurationChildObjectsWidePropertyRule extends WidePropertyRuleBase {
+  type: "ConfigurationChildObjects"
+}
+
+export type ConfigurationChildObjectsRuleParams = Omit<ConfigurationChildObjectsWidePropertyRule, "type">
+
+export function configurationChildObjectsRule<const Params extends ConfigurationChildObjectsRuleParams>(
+  params: WideExactRuleParams<ConfigurationChildObjectsRuleParams, Params>
+): Readonly<{ type: "ConfigurationChildObjects" } & Params> {
+  return defineWidePropertyRule("ConfigurationChildObjects", params)
+}

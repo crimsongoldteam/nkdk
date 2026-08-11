@@ -1,0 +1,23 @@
+import { defineMetadataItemCollectionRule } from "../../../ruleRuntime"
+import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
+import "../../../systemEnumerations/fromXML"
+import "../../../systemEnumerations/fromYAML"
+import "../../../systemEnumerations/toYAML"
+import { importCalculatedFieldOrderExpressionFromXMLToYAML } from "./fromXMLToYAML"
+import { CalculatedFieldOrderExpressionRules } from "./rules"
+
+export type CalculatedFieldOrderExpressionItem = MetadataTypeByRule<typeof CalculatedFieldOrderExpressionRules>
+export type CalculatedFieldOrderExpressionItemYAML = YAMLTypeByRule<typeof CalculatedFieldOrderExpressionRules>
+
+export type CalculatedFieldOrderExpression = CalculatedFieldOrderExpressionItem[]
+export type CalculatedFieldOrderExpressionYAML = CalculatedFieldOrderExpressionItemYAML[]
+
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
+  propertyType: "CalculatedFieldOrderExpression",
+  itemRule: CalculatedFieldOrderExpressionRules,
+  xmlElement: "dcssch:orderExpression",
+  yamlAsArray: true,
+  configurationIndexAddressing: "yamlPath",
+  fromXMLToYAML: importCalculatedFieldOrderExpressionFromXMLToYAML,
+})

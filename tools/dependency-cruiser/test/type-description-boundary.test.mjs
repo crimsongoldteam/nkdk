@@ -3,11 +3,11 @@ import { readFileSync } from "node:fs"
 import test from "node:test"
 
 const ruleRuntimeTypes = readFileSync(
-  "packages/core/metadata/ruleRuntime/property/types.ts",
+  "packages/rules/metadata/ruleRuntime/property/types.ts",
   "utf8"
 )
 const typeDescriptionTypes = readFileSync(
-  "packages/core/metadata/commonObjects/typeDescription/types.ts",
+  "packages/rules/metadata/commonObjects/typeDescription/types.ts",
   "utf8"
 )
 

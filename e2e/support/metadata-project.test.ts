@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import type { FullXmlSyncResult } from "@nkdk/core"
+import type { FullXmlSyncResult } from "@nkdk/runtime"
 import { compareSuccessfulSync } from "./metadata-project"
 
 describe("compareSuccessfulSync", () => {

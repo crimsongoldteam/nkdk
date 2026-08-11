@@ -1,0 +1,40 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ConfigurationContext } from "@nkdk/runtime"
+import { exportMetadataValueToXML } from "../metadataValue/toXML"
+import { MetadataPrimitiveValueXML } from "../metadataValue/types"
+import type { TypeLink, TypeLinkXML } from "./types"
+
+export const exportTypeLinkToXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  typeLink: TypeLink | undefined
+): TypeLinkXML | undefined => {
+  if (!typeLink) return undefined
+
+  return {
+    "xr:DataPath": typeLink.dataPath,
+    "xr:LinkItem": Number(typeLink.linkItem),
+  }
+}
+
+export const exportTypeLinkWithXSITypeToXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  typeLink: TypeLink | undefined
+): TypeLinkXML | undefined => {
+  if (!typeLink) return undefined
+
+  const dataPath = exportMetadataValueToXML({
+    context,
+    rule: { type: "MetadataValue", valueType: ["string"] },
+    value: { type: "string", value: typeLink.dataPath },
+  })! as MetadataPrimitiveValueXML
+
+  return {
+    "xr:DataPath": dataPath,
+    "xr:LinkItem": Number(typeLink.linkItem),
+  }
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeLink", "exportToXML", exportTypeLinkToXML)

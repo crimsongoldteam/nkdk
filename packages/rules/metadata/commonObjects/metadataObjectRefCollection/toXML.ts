@@ -1,0 +1,32 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ConfigurationContext } from "@nkdk/runtime"
+import { exportMetadataValueToXML } from "../metadataValue/toXML"
+import { MetadataObjectRefValue, MetadataPrimitiveValueXML } from "../metadataValue/types"
+import type { MetadataObjectRefCollection, MetadataObjectRefCollectionXML } from "./types"
+
+export const exportMetadataObjectRefCollectionToXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: MetadataObjectRefCollection | undefined
+): MetadataObjectRefCollectionXML | undefined => {
+  if (!data || data.length === 0) return undefined
+
+  const items = data.map((item) => {
+    const metadataValue: MetadataObjectRefValue = {
+      type: "objectRef",
+      value: item,
+    }
+    return exportMetadataValueToXML({
+      context,
+      rule: { type: "MetadataValue" },
+      value: metadataValue,
+    })! as MetadataPrimitiveValueXML
+  })
+
+  return {
+    "xr:Item": items,
+  }
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataObjectRefCollection", "exportToXML", exportMetadataObjectRefCollectionToXML)

@@ -19,7 +19,7 @@
     "typeRoots": ["./node_modules/@types"],
     "types": ["node"],
     "paths": {
-      "@nkdk/core": ["./packages/core/index.ts"],
+      "@nkdk/rules": ["./packages/rules/index.ts"],
       "@nkdk/platform": ["./packages/platform/index.ts"]
     }
   },
@@ -28,10 +28,10 @@
     "resolveFullExtension": ".js"
   },
   "include": [
-    "packages/core/index.ts",
-    "packages/core/helpers/**/*.ts",
-    "packages/core/metadata/**/*.ts",
-    "packages/core/yaml/**/*.ts",
+    "packages/rules/index.ts",
+    "packages/rules/helpers/**/*.ts",
+    "packages/rules/metadata/**/*.ts",
+    "packages/rules/yaml/**/*.ts",
     "packages/mcp/src/**/*.ts",
     "packages/platform/index.ts",
     "packages/platform/src/**/*.ts"

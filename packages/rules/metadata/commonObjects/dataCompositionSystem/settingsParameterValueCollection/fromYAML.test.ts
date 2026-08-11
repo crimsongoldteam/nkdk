@@ -1,0 +1,143 @@
+import { describe, expect, it } from "vitest"
+import { PropertyRule } from "../../../ruleRuntime"
+import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
+import { exportToYAML } from "@nkdk/runtime"
+import { importFromYAML } from "@nkdk/runtime"
+import {
+  settingsParameterValueCollectionFixture,
+  settingsParameterValueCollectionFixtureYAML,
+} from "./__fixtures__/data"
+
+const rule: PropertyRule = {
+  type: "SettingsParameterValueCollection",
+  defaultItemRule: {
+    type: "SettingsParameterValue",
+    valueType: "Field",
+  },
+}
+
+describe("import SettingsParameterValueCollection from YAML", { timeout: 60_000 }, () => {
+  const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
+
+  it("imports undefined", () => {
+    const result = testAtomicFromYAML({ rule, value: undefined })
+    expect(result).toBeUndefined()
+  })
+
+  it("imports fixture", () => {
+    const result = testAtomicFromYAML({
+      rule,
+      value: settingsParameterValueCollectionFixtureYAML,
+    })
+
+    expect(result).toEqual(settingsParameterValueCollectionFixture)
+  })
+
+  it("imports full SettingsParameterValue entries while keeping outer parameter name", () => {
+    const result = testAtomicFromYAML({
+      rule,
+      value: {
+        Параметр1: {
+          Значение: "ПараметрыДанных.Параметр1",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        Параметр1: {
+          parameter: "Параметр1",
+          value: "ПараметрыДанных.Параметр1",
+        },
+      },
+    })
+  })
+
+  it("imports nested ent system enumeration values", () => {
+    const result = testAtomicFromYAML({
+      rule,
+      value: {
+        ВидДвижения: {
+          Использовать: "Ложь",
+          Значение: {
+            Тип: "СистемноеПеречисление",
+            Имя: "AccumulationRecordType",
+            Значение: "Приход",
+          },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        ВидДвижения: {
+          parameter: "ВидДвижения",
+          use: false,
+          value: {
+            type: "SystemEnumeration",
+            typeSE: "AccumulationRecordType",
+            value: "Receipt",
+          },
+        },
+      },
+    })
+  })
+
+  it("preserves double-quoted numeric-looking parameter value as string", () => {
+    const yaml = parseViaYamlText({
+      Маска: "123",
+    })
+
+    const result = testAtomicFromYAML({
+      rule: {
+        type: "SettingsParameterValueCollection",
+        defaultItemRule: {
+          type: "SettingsParameterValue",
+          valueType: "Primitive",
+        },
+      } as PropertyRule,
+      value: yaml,
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        Маска: {
+          parameter: "Маска",
+          value: { type: "string", value: "123" },
+        },
+      },
+    })
+  })
+
+  it("preserves double-quoted numeric-looking full parameter value as string", () => {
+    const yaml = parseViaYamlText({
+      Маска: {
+        Значение: "123",
+      },
+    })
+
+    const result = testAtomicFromYAML({
+      rule: {
+        type: "SettingsParameterValueCollection",
+        defaultItemRule: {
+          type: "SettingsParameterValue",
+          valueType: "Primitive",
+        },
+      } as PropertyRule,
+      value: yaml,
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        Маска: {
+          parameter: "Маска",
+          value: { type: "string", value: "123" },
+        },
+      },
+    })
+  })
+})

@@ -1,0 +1,26 @@
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ConfigurationContext } from "@nkdk/runtime"
+import type { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
+
+export const exportMetadataCommandGroupToXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: MetadataCommandGroup | undefined
+): MetadataCommandGroupXML | undefined => {
+  if (!data) return undefined
+
+  return {
+    "#text": data,
+    "xsi:type": "xr:MDObjectRef",
+  }
+}
+
+export const exportMetadataCommandGroupsToXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: MetadataCommandGroup[] | undefined
+): MetadataCommandGroupXML[] | undefined => {
+  if (!data) return undefined
+
+  return data.map((value) => exportMetadataCommandGroupToXML(context, undefined, value)!)
+}

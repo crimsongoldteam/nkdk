@@ -1,0 +1,106 @@
+import { functionalOptionsPropertyRule } from "../../../commonObjects/functionalOptionsProperty/types"
+import { pictureRule } from "../../../commonObjects/picture/types"
+import { associatedTableRule } from "../../../commonObjects/metadataValue/types"
+import { userVisibleRule } from "../../../commonObjects/userVisible/types"
+import { elementIdRule } from "../elementId/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../../commonObjects/i8nText/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+export const FormCommandRules = {
+  itemType: "FormCommand",
+  xmlOrder: [
+    "title",
+    "toolTip",
+    "use",
+    "shortcut",
+    "picture",
+    "action",
+    "functionalOptions",
+    "representation",
+    "modifiesSavedData",
+    "currentRowUse",
+    "table",
+    "name",
+    "id",
+  ],
+  properties: {
+    id: elementIdRule({
+      xml: "_id",
+      forReferenceOnly: true,
+    }),
+    name: stringRule({
+      xml: "_name",
+      required: true,
+    }),
+    title: i8nTextRule({
+      yaml: "Заголовок",
+      skipEmptyToXML: true,
+      defaultValue: ({
+        context,
+        name,
+        operation,
+      }: {
+        context: {
+          defaultLanguage: string
+        }
+        name?: string
+        operation: string
+      }) => {
+        if (operation === "importFromXML") {
+          return { items: { [context.defaultLanguage]: "" } }
+        }
+        if (name === undefined) throw new Error("name is required for title default value")
+        return {
+          items: { [context.defaultLanguage]: splitPascalCase(name) },
+        }
+      },
+      excludeIfEqualNameYAML: true,
+    }),
+    toolTip: i8nTextRule({
+      yaml: "Подсказка",
+    }),
+    use: userVisibleRule({
+      yaml: "Использование",
+    }),
+    shortcut: stringRule({
+      yaml: "СочетаниеКлавиш",
+      xml: "Shortcut",
+    }),
+    picture: pictureRule({
+      yaml: "Картинка",
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+    }),
+    action: stringRule({
+      yaml: "Действие",
+      xml: "Action",
+    }),
+    functionalOptions: functionalOptionsPropertyRule({
+      yaml: "ФункциональныеОпции",
+    }),
+    representation: systemEnumerationRule({
+      yaml: "ОтображениеКнопки",
+      xml: "Representation",
+      typeSE: "ButtonRepresentation",
+      implicitValueYAML: "Auto",
+    }),
+    currentRowUse: systemEnumerationRule({
+      yaml: "ИспользованиеТекущейСтроки",
+      xml: "CurrentRowUse",
+      typeSE: "CurrentRowUse",
+      implicitValueYAML: "Auto",
+    }),
+    modifiesSavedData: booleanRule({
+      yaml: "ИзменяемыеДанные",
+      xml: "ModifiesSavedData",
+      implicitValueYAML: false,
+    }),
+    table: associatedTableRule({
+      yaml: "Таблица",
+      xml: "AssociatedTableElementId",
+      toEnterprise: false,
+    }),
+  },
+} as const satisfies MetadataItemRule

@@ -1,0 +1,44 @@
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import "../border/fromXML"
+import "../color/fromXML"
+import "../font/fromXML"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { importPropertyFromXML } from "../../ruleRuntime/property/fromXML"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { Border } from "../border/types"
+import { Color } from "../color/types"
+import { Font } from "../font/types"
+import type { StyleItemValue, StyleItemValueXML } from "./types"
+
+export const importStyleItemValueFromXML = (
+  context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  value: StyleItemValueXML | undefined
+): StyleItemValue | undefined => {
+  if (!value) return undefined
+
+  if (value["_xsi:type"] === "v8ui:Font") {
+    return {
+      type: "Font",
+      value: importPropertyFromXML({ context, rule: { type: "Font" }, value }) as Font,
+    }
+  }
+
+  if (value["_xsi:type"] === "v8ui:Color") {
+    return {
+      type: "Color",
+      value: importPropertyFromXML({ context, rule: { type: "Color" }, value: value["#text"] }) as Color,
+    }
+  }
+
+  if (value["_xsi:type"] === "v8ui:Border") {
+    return {
+      type: "Border",
+      value: importPropertyFromXML({ context, rule: { type: "Border" }, value }) as Border,
+    }
+  }
+
+  throw new Error(`StyleItemValue: неподдержанный xsi:type ${String(value["_xsi:type"])}`)
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("StyleItemValue", "importFromXML", importStyleItemValueFromXML)

@@ -1,0 +1,36 @@
+import { exportTypeDescriptionToYAML } from "../../../commonObjects/typeDescription/toYAML"
+import { ConfigurationContext } from "@nkdk/runtime"
+import { PropertyRule } from "../../elements/calendarField/rules"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
+import { FormParameterYAML, FormParameters, FormParametersYAML } from "./types"
+
+export const exportFormParametersToYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  parameters: FormParameters | undefined
+): FormParametersYAML | undefined => {
+  if (parameters === undefined || parameters.length === 0) {
+    return undefined
+  }
+
+  const result: FormParametersYAML = {}
+
+  for (const parameter of parameters) {
+    const enterpriseParameter: FormParameterYAML = {}
+
+    const type = exportTypeDescriptionToYAML(context, undefined, parameter.type)
+    if (type !== undefined) {
+      enterpriseParameter.Тип = type
+    }
+
+    if (parameter.keyParameter !== undefined) {
+      enterpriseParameter.Ключевой = parameter.keyParameter
+    }
+
+    result[parameter.name] = enterpriseParameter
+  }
+
+  return result
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("FormParameters", "exportToYAML", exportFormParametersToYAML)

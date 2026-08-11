@@ -1,0 +1,181 @@
+import fs from "node:fs"
+import { dirname, join, relative, resolve } from "node:path"
+import { pipeline } from "node:stream/promises"
+import { Transform } from "node:stream"
+import { xxh3 } from "@node-rs/xxhash"
+import pLimit from "p-limit"
+import { hashFileBytes } from "@nkdk/runtime"
+import type { ConfigurationProjectFile } from "@nkdk/runtime"
+import type { FullXmlSyncExternalFile } from "./types"
+import type { FullXmlSyncCopiedFile } from "./types"
+import { getMetadataExternalTransferCapability } from "../resourceTopology/adapters/capabilities"
+
+const DEFAULT_TRANSFER_CONCURRENCY = 16
+
+export interface TransferFullXmlSyncExternalFilesOptions {
+  readonly outputDir: string
+  readonly files: readonly FullXmlSyncExternalFile[]
+  readonly concurrency?: number
+  readonly readFile?: (path: string) => Promise<Buffer>
+  readonly writeFile?: (path: string, bytes: Buffer) => Promise<void>
+}
+
+export interface TransferFullXmlSyncExternalFilesResult {
+  readonly projectFiles: readonly ConfigurationProjectFile[]
+  readonly copiedFiles: readonly FullXmlSyncCopiedFile[]
+}
+
+export async function transferFullXmlSyncExternalFiles(
+  options: TransferFullXmlSyncExternalFilesOptions
+): Promise<TransferFullXmlSyncExternalFilesResult> {
+  const outputRoot = resolve(options.outputDir)
+  const concurrency = normalizeTransferConcurrency(options.concurrency ?? DEFAULT_TRANSFER_CONCURRENCY)
+  const usesInjectedBufferIo = options.readFile !== undefined || options.writeFile !== undefined
+  const targetPaths = validateTransferPlan({ outputRoot, files: options.files })
+  const limit = pLimit(concurrency)
+  const results = await Promise.all(
+    options.files.map((file, index) =>
+      limit(async () => {
+        const initialTargetPath = targetPaths[index]
+        if (initialTargetPath === undefined) throw new Error(`Не найден target path для ${file.sourceProjectPath}`)
+        const transfer =
+          file.transferCapabilityId === undefined
+            ? { sourcePath: file.sourcePath, targetPath: initialTargetPath }
+            : requireTransferCapability(file.transferCapabilityId).projectToXml({
+                sourcePath: file.sourcePath,
+                targetPath: initialTargetPath,
+              })
+        await fs.promises.mkdir(dirname(transfer.targetPath), { recursive: true })
+        const contentHash = usesInjectedBufferIo
+          ? await transferBufferedForInjectedIo({
+              sourcePath: transfer.sourcePath,
+              targetPath: transfer.targetPath,
+              expectedContentHash: file.expectedContentHash,
+              sourceProjectPath: file.sourceProjectPath,
+              readFile: options.readFile ?? fs.promises.readFile,
+              writeFile: options.writeFile ?? fs.promises.writeFile,
+            })
+          : await transferStreamedFile({
+              sourcePath: transfer.sourcePath,
+              targetPath: transfer.targetPath,
+              expectedContentHash: file.expectedContentHash,
+              sourceProjectPath: file.sourceProjectPath,
+            })
+        return {
+          projectFile: { projectPath: file.sourceProjectPath, contentHash },
+          copiedFile: {
+            assignmentId: file.assignmentId ?? file.sourceProjectPath,
+            sourceProjectPath: file.sourceProjectPath,
+            targetXmlPath: file.targetXmlPath,
+          },
+        }
+      })
+    )
+  )
+
+  return {
+    projectFiles: results
+      .map((result) => result.projectFile)
+      .sort((left, right) => Buffer.compare(Buffer.from(left.projectPath), Buffer.from(right.projectPath))),
+    copiedFiles: results
+      .map((result) => result.copiedFile)
+      .sort((left, right) => Buffer.compare(Buffer.from(left.sourceProjectPath), Buffer.from(right.sourceProjectPath))),
+  }
+}
+
+function requireTransferCapability(id: string) {
+  const capability = getMetadataExternalTransferCapability(id)
+  if (capability === undefined) throw new Error(`Не зарегистрирована возможность переноса внешнего файла: ${id}`)
+  return capability
+}
+
+async function transferBufferedForInjectedIo(params: {
+  sourcePath: string
+  targetPath: string
+  expectedContentHash: bigint
+  sourceProjectPath: string
+  readFile: (path: string) => Promise<Buffer>
+  writeFile: (path: string, bytes: Buffer) => Promise<void>
+}): Promise<bigint> {
+  const bytes = await params.readFile(params.sourcePath)
+  const contentHash = hashFileBytes(bytes)
+  assertExpectedContentHash({
+    actual: contentHash,
+    expected: params.expectedContentHash,
+    sourceProjectPath: params.sourceProjectPath,
+  })
+  await params.writeFile(params.targetPath, bytes)
+  return contentHash
+}
+
+async function transferStreamedFile(params: {
+  sourcePath: string
+  targetPath: string
+  expectedContentHash: bigint
+  sourceProjectPath: string
+}): Promise<bigint> {
+  const hasher = xxh3.Xxh3.withSeed()
+  const hashingTransform = new Transform({
+    transform(chunk: Buffer, _encoding, callback) {
+      hasher.update(chunk)
+      callback(null, chunk)
+    },
+  })
+  try {
+    await pipeline(
+      fs.createReadStream(params.sourcePath),
+      hashingTransform,
+      fs.createWriteStream(params.targetPath)
+    )
+  } catch (caught) {
+    await fs.promises.rm(params.targetPath, { force: true })
+    throw caught
+  }
+  const contentHash = hasher.digest()
+  assertExpectedContentHash({
+    actual: contentHash,
+    expected: params.expectedContentHash,
+    sourceProjectPath: params.sourceProjectPath,
+  })
+  return contentHash
+}
+
+function assertExpectedContentHash(params: {
+  actual: bigint
+  expected: bigint
+  sourceProjectPath: string
+}): void {
+  if (params.actual !== params.expected) {
+    throw new Error(
+      `Внешний файл изменён после получения хэшей: ${params.sourceProjectPath}`
+    )
+  }
+}
+
+function validateTransferPlan(params: { outputRoot: string; files: readonly FullXmlSyncExternalFile[] }): string[] {
+  const seenTargets = new Map<string, string>()
+  return params.files.map((file) => {
+    if (file.targetXmlPath.length === 0 || file.targetXmlPath.startsWith("/") || file.targetXmlPath.includes("\0")) {
+      throw new Error(`Некорректный XML-путь внешнего файла: ${file.targetXmlPath}`)
+    }
+    const targetPath = resolve(join(params.outputRoot, ...file.targetXmlPath.split("/")))
+    const relativePath = relative(params.outputRoot, targetPath)
+    if (relativePath.startsWith("..") || relativePath === "" || relativePath.includes("\0")) {
+      throw new Error(`XML-путь внешнего файла выходит за целевой каталог: ${file.targetXmlPath}`)
+    }
+
+    const previous = seenTargets.get(targetPath)
+    if (previous !== undefined) {
+      throw new Error(`Повторный XML-путь внешнего файла ${file.targetXmlPath}: ${previous} и ${file.sourceProjectPath}`)
+    }
+    seenTargets.set(targetPath, file.sourceProjectPath)
+    return targetPath
+  })
+}
+
+function normalizeTransferConcurrency(value: number): number {
+  if (!Number.isSafeInteger(value) || value < 1) {
+    throw new Error("Степень параллелизма переноса внешних файлов должна быть положительным целым числом")
+  }
+  return value
+}

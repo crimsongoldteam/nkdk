@@ -5,7 +5,7 @@ import { pathToFileURL } from "url"
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { registerNkdkCapabilities } from "./tools/registerTools"
-import { projectStateHandle } from "./services/projectStateHandle"
+import { metadataRuntimeHandle } from "./metadataRuntimeHandle"
 import { closePlatformSessionManager } from "./services/platformSessionHandle"
 import { createMcpWatchHost } from "./watchHost"
 
@@ -88,7 +88,7 @@ export async function runServerUntilTransportCloses(
 
 export async function shutdownNkdkMcpServer(): Promise<void> {
   const results = await Promise.allSettled([
-    projectStateHandle.close(),
+    metadataRuntimeHandle.close(),
     closePlatformSessionManager(),
   ])
   const rejected = results.find((result) => result.status === "rejected")

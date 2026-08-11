@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process"
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { dirname, extname, join, relative, resolve, sep } from "node:path"
-import { importContentFromXML } from "@nkdk/core"
+import { importContentFromXML } from "@nkdk/runtime"
 
 export interface FileTreeComparison {
   readonly equal: boolean

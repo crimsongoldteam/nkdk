@@ -1,0 +1,21 @@
+import { ConfigurationContext } from "@nkdk/runtime"
+import { definePropertyTypeRule } from "../ruleRuntime"
+import { SystemEnumerationEnterprise, SystemEnumerationPropertyRule } from "./types"
+
+export const exportSystemEnumerationToEnterprise = (params: {
+  context: ConfigurationContext
+  rule: SystemEnumerationPropertyRule
+  value: string | undefined
+}): SystemEnumerationEnterprise | undefined => {
+  const { rule, value } = params
+  if (!value) return undefined
+
+  const enumerationName = rule.typeSE
+
+  return {
+    Type: "SystemEnumeration",
+    Value: `${enumerationName}.${value}`,
+  }
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("SystemEnumeration", "exportToEnterprise", exportSystemEnumerationToEnterprise as any)

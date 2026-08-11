@@ -1,0 +1,156 @@
+import { tableAdditionalSourceRule } from "../../commonObjects/tableAdditionalSource/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { getParentFromContext } from "../../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
+import { getSearchStringAdditionName } from "./helper"
+export type { ElementRule, PropertyRule }
+const commonProperties = {
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
+  backColor: {
+    yaml: "ЦветФона",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  borderColor: {
+    yaml: "ЦветРамки",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  font: {
+    yaml: "Шрифт",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
+  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
+  textColor: {
+    yaml: "ЦветТекста",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
+  contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
+  displayImportance: {
+    yaml: "ВажностьПриОтображении",
+    xml: "_DisplayImportance",
+    type: "SystemEnumeration",
+    typeSE: "DisplayImportance",
+    implicitValueYAML: "Auto",
+  },
+  enabled: { yaml: "Доступность", type: "boolean", implicitValueYAML: true },
+  extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+  horizontalAlignInGroup: {
+    yaml: "ГоризонтальноеПоложениеВГруппе",
+    xml: "GroupHorizontalAlign",
+    type: "SystemEnumeration",
+    typeSE: "ItemHorizontalLocation",
+    implicitValueYAML: "Auto",
+  },
+  title: {
+    yaml: "Заголовок",
+    type: "I8nText",
+  },
+  toolTip: { yaml: "Подсказка", type: "I8nText" },
+  toolTipRepresentation: {
+    yaml: "ОтображениеПодсказки",
+    type: "SystemEnumeration",
+    typeSE: "ToolTipRepresentation",
+    implicitValueYAML: "Auto",
+  },
+  userVisible: {
+    yaml: "Использование",
+    type: "UserVisible",
+  },
+  verticalAlignInGroup: {
+    yaml: "ВертикальноеПоложениеВГруппе",
+    xml: "GroupVerticalAlign",
+    type: "SystemEnumeration",
+    typeSE: "ItemVerticalAlign",
+    implicitValueYAML: "Auto",
+  },
+  visible: { yaml: "Видимость", type: "boolean", noImplicitValueYAML: true },
+} as const satisfies MetadataItemRule["properties"]
+export const SingleSearchStringAdditionRules = {
+  itemType: "SingleSearchStringAddition",
+  enterpriseField: "FormField",
+  enterpriseFieldType: "None",
+  xmlOrder: [
+    "toolTipRepresentation",
+    "visible",
+    "enabled",
+    "additionSource",
+    "font",
+    "width",
+    "autoMaxWidth",
+    "maxWidth",
+    "horizontalStretch",
+    "title",
+    "toolTip",
+    "contextMenu",
+    "extendedTooltip",
+    "displayImportance",
+  ],
+  properties: {
+    additionSource: tableAdditionalSourceRule({
+      additionalSourceType: "SearchStringRepresentation",
+      fromXML: false,
+      forSingleElement: true,
+    }),
+    ...commonProperties,
+  },
+} as const satisfies ElementRule
+export const SearchStringAdditionRules = {
+  itemType: "SearchStringAddition",
+  enterpriseField: "FormField",
+  enterpriseFieldType: "None",
+  xmlOrder: [
+    "toolTipRepresentation",
+    "visible",
+    "additionSource",
+    "title",
+    "horizontalAlignInGroup",
+    "width",
+    "autoMaxWidth",
+    "maxWidth",
+    "horizontalStretch",
+    "toolTip",
+    "verticalAlignInGroup",
+    "font",
+    "contextMenu",
+    "extendedTooltip",
+    "name",
+    "displayImportance",
+  ],
+  properties: {
+    name: stringRule({
+      xml: "_name",
+      required: true,
+    }),
+    additionSource: tableAdditionalSourceRule({
+      yaml: "Источник",
+      additionalSourceType: "SearchStringRepresentation",
+    }),
+    ...commonProperties,
+  },
+} as const satisfies ElementRule
+export const metadataRuleLayer000 = defineElementAsType({
+  propertyType: "SingleSearchStringAddition",
+  elementRule: SingleSearchStringAdditionRules,
+  nameStyle: {
+    canonicalSuffix: "СтрокаПоиска",
+    referenceSuffixes: ["СтрокаПоиска", "SearchString"],
+    canonicalNameMode: "ownerSuffix",
+  },
+  toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
+    const { context } = params
+    if (!context.exportToXML.itemsTree) throw new Error("elementContext is not defined")
+    const parent = getParentFromContext(context, ["Table"])
+    const name = getSearchStringAdditionName(parent)
+    return { name }
+  },
+})
+export const metadataRuleLayer001 = defineElementRule("SearchStringAddition", SearchStringAdditionRules)
+export const metadataRuleLayer002 = defineElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules)

@@ -1,0 +1,167 @@
+import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { importPropertyFromXML } from "../../../ruleRuntime/property/fromXML"
+import { callAtomicToXML } from "../../../ruleRuntime/property/fromYAMLToXML"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import "../flowchartContext/types"
+import "../ganttChart/types"
+import "../planner/types"
+import type { FormAttribute, FormAttributeXML } from "./types"
+
+const chartSettingsRule = {
+  type: "Chart",
+  xml: "Settings",
+  yaml: "Диаграмма",
+} as const satisfies PropertyRule
+
+const ganttChartSettingsRule = {
+  type: "GanttChart",
+  xml: "Settings",
+  yaml: "ДиаграммаГанта",
+} as const satisfies PropertyRule
+
+const flowchartContextSettingsRule = {
+  type: "FlowchartContext",
+  xml: "Settings",
+  yaml: "ГрафическаяСхема",
+} as const satisfies PropertyRule
+
+const spreadsheetDocumentSettingsRule = {
+  type: "SpreadsheetDocument",
+  xml: "Settings",
+  yaml: "ТабличныйДокумент",
+} as const satisfies PropertyRule
+
+const plannerSettingsRule = {
+  type: "Planner",
+  xml: "Settings",
+  yaml: "Планировщик",
+} as const satisfies PropertyRule
+
+type TypedFormAttributeSettings = Pick<
+  FormAttribute,
+  "chart" | "ganttChart" | "flowchartContext" | "spreadsheetDocument" | "planner"
+>
+
+const getXsiType = (settings: FormAttributeXML["Settings"] | undefined): string | undefined => {
+  if (settings === undefined || settings === null || typeof settings !== "object" || Array.isArray(settings)) {
+    return undefined
+  }
+
+  const xsiType = settings["_xsi:type"]
+  return typeof xsiType === "string" ? xsiType : undefined
+}
+
+export const importTypedFormAttributeSettingsFromXML = (
+  context: ConfigurationContextFromXML,
+  settings: FormAttributeXML["Settings"] | undefined
+): TypedFormAttributeSettings => {
+  const xsiType = getXsiType(settings)
+
+  if (xsiType === "d4p1:Chart" || xsiType?.endsWith(":Chart")) {
+    const chart = importPropertyFromXML({
+      context,
+      rule: chartSettingsRule,
+      value: settings,
+      name: "chart",
+    }) as FormAttribute["chart"] | undefined
+
+    return chart === undefined ? {} : { chart }
+  }
+
+  if (xsiType === "d4p1:GanttChart" || xsiType?.endsWith(":GanttChart")) {
+    const ganttChart = importPropertyFromXML({
+      context,
+      rule: ganttChartSettingsRule,
+      value: settings,
+      name: "ganttChart",
+    }) as FormAttribute["ganttChart"] | undefined
+
+    return ganttChart === undefined ? {} : { ganttChart }
+  }
+
+  if (xsiType === "d4p1:FlowchartContextType" || xsiType?.endsWith(":FlowchartContextType")) {
+    const flowchartContext = importPropertyFromXML({
+      context,
+      rule: flowchartContextSettingsRule,
+      value: settings,
+      name: "flowchartContext",
+    }) as FormAttribute["flowchartContext"] | undefined
+
+    return flowchartContext === undefined ? {} : { flowchartContext }
+  }
+
+  if (xsiType === "mxl:SpreadsheetDocument" || xsiType?.endsWith(":SpreadsheetDocument")) {
+    const spreadsheetDocument = importPropertyFromXML({
+      context,
+      rule: spreadsheetDocumentSettingsRule,
+      value: settings,
+      name: "spreadsheetDocument",
+    }) as FormAttribute["spreadsheetDocument"] | undefined
+
+    return spreadsheetDocument === undefined ? {} : { spreadsheetDocument }
+  }
+
+  if (xsiType === "pl:Planner" || xsiType?.endsWith(":Planner")) {
+    const planner = importPropertyFromXML({
+      context,
+      rule: plannerSettingsRule,
+      value: settings,
+      name: "planner",
+    }) as FormAttribute["planner"] | undefined
+
+    return planner === undefined ? {} : { planner }
+  }
+
+  return {}
+}
+
+export const exportTypedFormAttributeSettingsToXML = (
+  context: ConfigurationContextWithExportToXML,
+  data: TypedFormAttributeSettings,
+  referenceData?: TypedFormAttributeSettings
+): FormAttributeXML["Settings"] | undefined => {
+  const chart = callAtomicToXML({
+    context,
+    rule: chartSettingsRule,
+    value: data.chart,
+    referenceValue: referenceData?.chart,
+  }) as FormAttributeXML["Settings"] | undefined
+
+  if (chart !== undefined) return chart
+
+  const ganttChart = callAtomicToXML({
+    context,
+    rule: ganttChartSettingsRule,
+    value: data.ganttChart,
+    referenceValue: referenceData?.ganttChart,
+  }) as FormAttributeXML["Settings"] | undefined
+
+  if (ganttChart !== undefined) return ganttChart
+
+  const flowchartContext = callAtomicToXML({
+    context,
+    rule: flowchartContextSettingsRule,
+    value: data.flowchartContext,
+    referenceValue: referenceData?.flowchartContext,
+  }) as FormAttributeXML["Settings"] | undefined
+
+  if (flowchartContext !== undefined) return flowchartContext
+
+  const spreadsheetDocument = callAtomicToXML({
+    context,
+    rule: spreadsheetDocumentSettingsRule,
+    value: data.spreadsheetDocument,
+    referenceValue: referenceData?.spreadsheetDocument,
+  }) as FormAttributeXML["Settings"] | undefined
+
+  if (spreadsheetDocument !== undefined) return spreadsheetDocument
+
+  const planner = callAtomicToXML({
+    context,
+    rule: plannerSettingsRule,
+    value: data.planner,
+    referenceValue: referenceData?.planner,
+  }) as FormAttributeXML["Settings"] | undefined
+
+  if (planner !== undefined) return planner
+}

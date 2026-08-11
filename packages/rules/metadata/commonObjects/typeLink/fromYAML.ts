@@ -1,0 +1,44 @@
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { ConfigurationContext } from "@nkdk/runtime"
+import { importMetadataFieldFromYAML } from "../metadataField/fromYAML"
+import type { TypeLink, TypeLinkYAML } from "./types"
+
+const typeLinkMetadataTargetRule = {
+  type: "MetadataField",
+  metadataTarget: { kind: "member", owner: "explicit", allowOwner: true },
+} as const satisfies PropertyRule
+
+export const importTypeLinkFromYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: TypeLinkYAML | undefined
+): TypeLink | undefined => {
+  if (!data) return undefined
+
+  // Парсим строку, извлекая linkItem из скобок, если они есть
+  // Формат: "Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит(1)"
+  const linkItemMatch = data.match(/\((\d+)\)$/)
+  let dataPathYAML: string
+  let linkItem: number
+
+  if (linkItemMatch) {
+    // Есть linkItem в скобках
+    dataPathYAML = data.slice(0, -linkItemMatch[0].length)
+    linkItem = Number(linkItemMatch[1])
+  } else {
+    // Нет linkItem, используем 0 по умолчанию
+    dataPathYAML = data
+    linkItem = 0
+  }
+
+  // Преобразуем dataPath из формата YAML в формат XML
+  const dataPath = importMetadataFieldFromYAML(context, typeLinkMetadataTargetRule, dataPathYAML) ?? dataPathYAML
+
+  return {
+    dataPath,
+    linkItem,
+  }
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeLink", "importFromYAML", importTypeLinkFromYAML)

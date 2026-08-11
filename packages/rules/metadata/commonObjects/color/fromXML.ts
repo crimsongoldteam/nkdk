@@ -1,0 +1,34 @@
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { ConfigurationContext } from "@nkdk/runtime"
+import { ColorPrefixToType, isRawColorRefValue, type Color, type ColorXML } from "./types"
+
+export const importColorFromXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: ColorXML | undefined
+): Color | undefined => {
+  if (!xml || xml === "auto") return undefined
+
+  if (isRawColorRefValue(xml)) return { rawRef: xml }
+
+  const match = xml.match(/^(\w+):(.+)$/)
+  if (match) {
+    const [, prefix, value] = match
+    const type = ColorPrefixToType[prefix]
+    return {
+      type,
+      value,
+    }
+  }
+
+  return {
+    type: "Absolute",
+    value: xml,
+  }
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("Color", "importFromXML", importColorFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("Color", "xmlImportPropertyBehavior", {
+  presenceAffectsExportForSourceValues: ["auto"],
+})

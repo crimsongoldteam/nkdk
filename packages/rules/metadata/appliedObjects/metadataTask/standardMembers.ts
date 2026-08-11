@@ -1,0 +1,23 @@
+import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { DataPathContribution } from "../../validation/dataPath/registry"
+
+const indexTimeMembers = [
+  { memberKind: "standardAttribute", names: { internal: "Ref", yaml: "Ссылка" }, family: "sameOwnerObject", phase: "index-time", sourceScope: "self" },
+  { memberKind: "standardAttribute", names: { internal: "Date", yaml: "Дата" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "dateTime", fillValue: { policy: "byEffectiveType" } },
+  { memberKind: "standardAttribute", names: { internal: "Number", yaml: "Номер" }, family: "numberByProperty", phase: "index-time", sourceScope: "ownerModel", property: "numberType" },
+  { memberKind: "standardAttribute", names: { internal: "Executed", yaml: "Выполнена" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
+  { memberKind: "standardAttribute", names: { internal: "Description", yaml: "Наименование" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "string" },
+  { memberKind: "standardAttribute", names: { internal: "DeletionMark", yaml: "ПометкаУдаления" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
+] as const
+
+const traversalMembers = [
+  { memberKind: "standardAttribute", names: { internal: "BusinessProcess", yaml: "БизнесПроцесс" }, family: "reverseLookup", phase: "traversal-time", sourceScope: "projectIndex", target: "BusinessProcess", property: "task", emptyPolicy: "error", compositePolicy: "errorOnTraversal" },
+  { memberKind: "standardAttribute", names: { internal: "RoutePoint", yaml: "ТочкаМаршрута" }, family: "closedReverseLookup", phase: "traversal-time", sourceScope: "projectIndex", target: "BusinessProcess", result: "BusinessProcessRoutePoint", source: "businessProcessesByTask", property: "task", emptyPolicy: "error", allowNestedProperties: false },
+] as const
+
+const members = [...indexTimeMembers, ...traversalMembers] as const satisfies readonly StandardMemberDeclaration[]
+
+export const metadataTaskStandardMemberRules: readonly DataPathContribution[] = [
+  { kind: "standardMembers", ownerKind: "Задача", members },
+  { kind: "standardMembers", ownerKind: "ЗадачаОбъект", members },
+]

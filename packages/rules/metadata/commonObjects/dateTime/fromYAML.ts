@@ -1,0 +1,38 @@
+import { format, parse } from "date-fns"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { ConfigurationContext } from "@nkdk/runtime"
+import type { DateTimeYAML } from "./types"
+
+const importDateOnlyFromYAML = (value: string): string => {
+  try {
+    const parsed = parse(value, "dd.MM.yyyy", new Date())
+    if (isNaN(parsed.getTime())) return value
+    return format(parsed, "yyyy-MM-dd'T'00:00:00")
+  } catch {
+    return value
+  }
+}
+
+const importDateTimeFromYAMLValue = (value: string): string => {
+  try {
+    const parsed = parse(value, "dd.MM.yyyy HH:mm", new Date())
+    if (isNaN(parsed.getTime())) return value
+    return format(parsed, "yyyy-MM-dd'T'HH:mm:00")
+  } catch {
+    return value
+  }
+}
+
+export const importDateTimeFromYAML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  value: DateTimeYAML | undefined
+): string | undefined => {
+  if (value === undefined) return undefined
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(value)) return importDateOnlyFromYAML(value)
+  if (/^\d{2}\.\d{2}\.\d{4}\s+\d{2}:\d{2}$/.test(value)) return importDateTimeFromYAMLValue(value)
+  return value
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("dateTime", "importFromYAML", importDateTimeFromYAML)

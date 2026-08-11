@@ -1,0 +1,24 @@
+import { ConfigurationContext } from "@nkdk/runtime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
+import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
+import { MobileDeviceCommandBarContent, MobileDeviceCommandBarContentYAML } from "./types"
+
+export const importMobileDeviceCommandBarContentFromYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  yaml: MobileDeviceCommandBarContentYAML | undefined
+): MobileDeviceCommandBarContent | undefined => {
+  if (!yaml || yaml.length === 0) return undefined
+
+  const items = yaml
+    .map((item) =>
+      typeof item === "string"
+        ? { type: "string" as const, value: item }
+        : importMetadataValueFromYAML(context, { type: "MetadataValue" }, item)
+    )
+    .filter((item): item is MobileDeviceCommandBarContent[number] => item !== undefined)
+
+  return items.length === 0 ? undefined : items
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("MobileDeviceCommandBarContent", "importFromYAML", importMobileDeviceCommandBarContentFromYAML)

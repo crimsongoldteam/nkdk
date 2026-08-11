@@ -1,0 +1,28 @@
+import { importMetadataItemFromXMLToYAML } from "../../../../../ruleRuntime/metadataItem/fromXMLToYAML"
+import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
+import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
+import { GroupItemFieldRules } from "./rules"
+
+export const importGroupItemFieldFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
+  context,
+  xml,
+  name,
+  traversal,
+}) => {
+  const yaml = importMetadataItemFromXMLToYAML({
+    context,
+    rule: GroupItemFieldRules,
+    xml,
+    name,
+    traversal,
+  })
+  if (yaml === undefined || yaml === null || typeof yaml !== "object" || Array.isArray(yaml)) return undefined
+
+  const value = yaml as Record<string, unknown>
+  if (typeof value.Поле !== "string") return undefined
+  const keys = Object.keys(value)
+  if (keys.length === 1) return value.Поле
+  return value
+}
+
+export const metadataPropertyRule000 = definePropertyTypeRule("GroupItemField", "importFromXMLToYAML", importGroupItemFieldFromXMLToYAML)

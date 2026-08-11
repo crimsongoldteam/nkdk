@@ -1,15 +1,16 @@
-import { mkdirSync, mkdtempSync, rmSync } from "fs"
+import { mkdirSync, mkdtempSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { renameItem } from "./renameItem"
 import { emptyDiagnosticOutputForTest } from "./projectStateTestSupport"
+import { cleanupTempDirs } from "./testTempDirs"
 
 describe("renameItem service", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    cleanupTempDirs(tempDirs)
   })
 
   it("passes selected component operation path to core", async () => {
