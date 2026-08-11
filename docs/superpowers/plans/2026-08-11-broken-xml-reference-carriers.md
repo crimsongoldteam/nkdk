@@ -72,7 +72,7 @@ Run:
 pnpm --filter @nkdk/rules exec vitest run \
   metadata/ruleRuntime/definition/composeMetadataRules.test.ts \
   metadata/ruleRuntime/property/propertyRuleRegistrySet.test.ts \
-  --project unit
+  --no-isolate --project unit
 ```
 
 Expected: FAIL — поля `brokenXMLReferenceCarriers` и методов реестра ещё нет.
@@ -156,7 +156,7 @@ pnpm --filter @nkdk/runtime type-check
 pnpm --filter @nkdk/rules exec vitest run \
   metadata/ruleRuntime/definition/composeMetadataRules.test.ts \
   metadata/ruleRuntime/property/propertyRuleRegistrySet.test.ts \
-  --project unit
+  --no-isolate --project unit
 pnpm duplicates -- --base origin/develop
 ```
 
