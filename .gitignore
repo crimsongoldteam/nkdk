@@ -54,3 +54,6 @@ reports/dependency-cruiser/
 
 # Локальные отчёты metadata E2E
 reports/e2e/
+
+# Служебный индекс выгрузки конфигурации 1С
+e2e/fixtures/xml/cf/ConfigDumpInfo.xml
