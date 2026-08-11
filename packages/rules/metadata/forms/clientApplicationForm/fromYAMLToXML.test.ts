@@ -468,6 +468,30 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     )
   })
 
+  it("восстанавливает исключительный RowFilter из пустого !xml без reference и configuration index", () => {
+    const yaml = importFromYAML<ClientApplicationFormYAML>([
+      "Реквизиты:",
+      "  КомпоновщикНастроек:",
+      "    Тип: КомпоновщикНастроекКомпоновкиДанных",
+      "Элементы:",
+      "  Настройки:",
+      "    Вид: ТаблицаФормы",
+      "    ПутьКДанным: КомпоновщикНастроек.Настройки",
+      "  Порядок:",
+      "    Вид: ТаблицаФормы",
+      "    ПутьКДанным: Элементы.Настройки.ТекущиеДанные.ЭлементПорядок",
+      "    ОтборСтрок: !xml",
+    ].join("\n"))
+
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml,
+      name: "Форма",
+    })
+
+    expect(tableByName(result.formXML, "Порядок").RowFilter).toEqual({ "_xsi:nil": "true" })
+  })
+
   it("восстанавливает свойства таблицы только для прямого динамического списка", () => {
     const convert = (requisites: ClientApplicationFormYAML["Реквизиты"], dataPath: string) =>
       convertClientApplicationFormFromYAMLToXML({

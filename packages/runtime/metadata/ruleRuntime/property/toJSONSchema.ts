@@ -54,7 +54,11 @@ function withExplicitXMLValidationValue(params: {
         params.propertyKey,
         params.rule.type,
       )
-  if (mode === "empty") return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
+  if (mode === "empty") {
+    return shouldProcessProperty({ rule: params.rule, operation: "importFromYAML" })
+      ? Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
+      : Type.Literal(EMPTY_XML_TAG_VALUE)
+  }
   if (mode === "scalar") return Type.Union([params.schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
   return params.schema
 }
@@ -114,7 +118,14 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
     PropertyRule,
   ][]) {
     // if (ruleProp.fromEnterprise === false) continue
-    if (!shouldProcessProperty({ rule: ruleProp, operation: "importFromYAML" })) continue
+    const importsFromYAML = shouldProcessProperty({ rule: ruleProp, operation: "importFromYAML" })
+    const validatesExplicitXML =
+      (params.context.exportToJSONSchema?.explicitXMLValues === true ||
+        params.context.exportToJSONSchema?.validationPropertyRefs === true) &&
+      (params.execution === undefined
+        ? explicitXMLPropertyValidationMode(rule.itemType, key, ruleProp.type)
+        : params.execution.explicitXMLPropertyValidationMode(rule.itemType, key, ruleProp.type)) !== undefined
+    if (!importsFromYAML && !validatesExplicitXML) continue
 
     const yamlKey = ruleProp.yaml
     if (!yamlKey) continue

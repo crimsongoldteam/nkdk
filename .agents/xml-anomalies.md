@@ -8,6 +8,7 @@
 | `CharacteristicsDescription` | `ПолеКлючаМножественныхЗначений` | `!xml` | `<xr:MultipleValuesKeyField>` отсутствует |
 | `CharacteristicsDescription` | `ПолеПорядкаМножественныхЗначений` | `!xml` | `<xr:MultipleValuesOrderField>` отсутствует |
 | `TableInputField`, `TableCheckBoxField`, `TablePictureField`, `TableLabelField` | `ГоризонтальноеПоложениеВШапке` | `!xml` | `<HeaderHorizontalAlign>Auto</HeaderHorizontalAlign>` |
+| `Table` с источником-коллекцией `КомпоновщикНастроекКомпоновкиДанных`, для которого вычислен профиль `none` ([проверка](../packages/rules/metadata/forms/elements/table/explicitRowFilter.test.ts)) | `ОтборСтрок` | `!xml` | явно присутствующий `<RowFilter xsi:nil="true"/>` |
 | нестандартная панель `ClientApplicationInterface` с UUID | `ПустоеОпределение` | `!xml` | `<panelDef id="<UUID панели>"/>` |
 | управляемая форма | `ПутьКДанным` | `!xml <исходный внутренний путь>` | `<DataPath><исходный внутренний путь></DataPath>` |
 | `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | свойство типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml <UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><UUID>.<UUID></…>` |

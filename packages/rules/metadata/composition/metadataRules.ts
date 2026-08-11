@@ -56,6 +56,7 @@ import { configurationResourceCapabilityRules } from "../appliedObjects/configur
 import { commonObjectExternalTransferCapabilityRules } from "../commonObjects/resourceTopology"
 import { appliedObjectResourceCapabilityRules } from "../ruleRuntime/appliedObject/syncToXML"
 import { clientApplicationFormImportedYamlFinalizerRules } from "../forms/clientApplicationForm/importedYamlFinalizer"
+import { explicitRowFilterRules } from "../forms/elements/table/explicitRowFilter"
 import { typeDescriptionIndexRules } from "../commonObjects/typeDescription/fromYAML"
 import { metadataExternalDataSourceCubeOwnerRules } from "../commonObjects/metadataExternalDataSourceCube/register"
 import { metadataExternalDataSourceTableOwnerRules } from "../commonObjects/metadataExternalDataSourceTable/register"
@@ -134,6 +135,7 @@ export const legacyCoreRules = composeMetadataRules(
   commonObjectExternalTransferCapabilityRules,
   appliedObjectResourceCapabilityRules,
   clientApplicationFormImportedYamlFinalizerRules,
+  explicitRowFilterRules,
 )
 
 const rulesWithoutTopology = composeMetadataRules(

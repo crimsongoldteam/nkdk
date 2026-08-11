@@ -27,6 +27,23 @@ describe("RowFilter таблицы формы", () => {
   ])("в indexed round-trip сохраняет присутствие XML-узла: %s", (_case, present, expected) => {
     expect(hasRowFilterTableSource(source, indexedContext(present))).toBe(expected)
   })
+
+  it.each([
+    ["dynamicList", false],
+    ["rowFilter", true],
+    ["none", false],
+  ] as const)("вычисляет RowFilter только для профиля %s", (profile, expected) => {
+    const context = {
+      defaultLanguage: "ru",
+      version: "2.20",
+      importFromYAML: { resolveTableSourceProfile: () => profile },
+      exportToXML: { version: "2.20", itemsTree: [], context: {
+        metadataForNumbering: [], forms: [], templates: [], parentName: "",
+      } },
+    } as ConfigurationContextWithExportToXML
+
+    expect(hasRowFilterTableSource(source, context)).toBe(expected)
+  })
 })
 
 function indexedContext(present: boolean): ConfigurationContextWithExportToXML {

@@ -24,6 +24,7 @@ import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeI
 import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
+import { EMPTY_XML_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -161,6 +162,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
               _name: "КомпоновщикНастроекНастройкиЭлементПараметрыДанных",
               _id: "3",
               DataPath: "Items.КомпоновщикНастроекНастройки.CurrentData.ItemDataParameters",
+              RowFilter: { "_xsi:nil": "true" },
             },
           },
           {
@@ -189,6 +191,9 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
         ПутьКДанным: "Элементы.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.ТекущиеДанные.Параметр",
       },
     })
+    const parameters = yaml.Элементы?.КомпоновщикНастроекНастройкиЭлементПараметрыДанных as unknown as Record<string, unknown>
+    expect(parameters.ОтборСтрок).toBe(EMPTY_XML_TAG_VALUE)
+    expect(yamlScalarTagAt(parameters, "ОтборСтрок")).toBe("xml")
   })
 
   it("индексирует дополнительные колонки до уточнения CurrentData", () => {

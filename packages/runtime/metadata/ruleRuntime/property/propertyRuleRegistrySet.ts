@@ -17,6 +17,7 @@ import type {
   importExportFunction,
   TypeRulesOperations,
 } from "./fn"
+import { isDeepStrictEqual } from "node:util"
 import type { PropertyRuleType } from "./registry"
 import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
 import type { IndexValueFromYAMLFunction } from "./indexValueFromYAMLRegistry"
@@ -295,7 +296,7 @@ export function createPropertyRuleRegistrySet(
       }
       return registration !== undefined &&
         params.presentInXML &&
-        Object.is(registration.xmlValue, params.xmlValue)
+        isDeepStrictEqual(registration.xmlValue, params.xmlValue)
         ? registration
         : undefined
     },
@@ -376,9 +377,9 @@ function sameExplicitXMLPropertyRegistration(
   }
   const leftAction = left.action ?? "emit"
   const rightAction = right.action ?? "emit"
-  if (leftAction !== rightAction || !Object.is(left.yamlValue, right.yamlValue)) return false
+  if (leftAction !== rightAction || !isDeepStrictEqual(left.yamlValue, right.yamlValue)) return false
   return leftAction === "omit" ||
-    ("xmlValue" in left && "xmlValue" in right && Object.is(left.xmlValue, right.xmlValue))
+    ("xmlValue" in left && "xmlValue" in right && isDeepStrictEqual(left.xmlValue, right.xmlValue))
 }
 
 export function collectPropertyItemRules(

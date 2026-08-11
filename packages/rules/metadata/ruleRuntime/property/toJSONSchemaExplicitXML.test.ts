@@ -153,6 +153,16 @@ describe("explicit XML property validation schema", () => {
     expect(JSON.stringify(properties)).not.toContain('"const":"!xml"')
   })
 
+  it("разрешает для скрытого RowFilter только пустой !xml", () => {
+    const { validationProperties, externalProperties, validationSchemas } = explicitXMLSchemas(TableRules)
+    const validation = compileValidationSchema(validationSchemas(), Type.Object(validationProperties))
+
+    expect(validation.Check({ ОтборСтрок: EMPTY_XML_TAG_VALUE })).toBe(true)
+    expect(validation.Check({ ОтборСтрок: "!xml payload" })).toBe(false)
+    expect(validation.Check({ ОтборСтрок: true })).toBe(false)
+    expect(externalProperties).not.toHaveProperty("ОтборСтрок")
+  })
+
   it("разрешает любой scalar только внутренней схеме зарегистрированного транспорта", () => {
     const rule = probeRule("ExplicitXMLScalarSchemaProbe")
     registerExplicitXMLProperty({
