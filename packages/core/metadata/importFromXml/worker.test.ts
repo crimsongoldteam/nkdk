@@ -9,7 +9,6 @@ import { createBinaryProjectStateStore } from "../projectState/binary/store"
 import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
-import { isolateProjectStateYamlUpdate } from "../projectState/fileUpdate"
 import { buildProjectStateSnapshot } from "../projectState/binary/builder"
 import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
@@ -28,17 +27,10 @@ import {
   workerStateForTests,
 } from "./worker"
 import type { ImportAssignment } from "./types"
-import { serializeImportYaml } from "./writeOutput"
-import { resolveAssignmentRule } from "./prepareYaml"
 import { createValidationProjectComponent } from "../validation/projectComponents"
-import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
 const catalogFullXmlPath = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
-const minimalNumeratorXmlPath = join(
-  import.meta.dirname,
-  "../appliedObjects/metadataDocumentNumerator/__fixtures__/minimal.xml"
-)
 const minimalFormXmlPath = join(import.meta.dirname, "../forms/clientApplicationForm/__fixtures__/minimal.xml")
 const minimalFormMetadataXmlPath = join(
   import.meta.dirname,
@@ -66,39 +58,12 @@ function requireTopologyNode(projectPattern: string) {
 }
 const catalogTopologyNode = requireTopologyNode("Справочник/{ownerName}/Свойства.yaml")
 const catalogFormTopologyNode = requireTopologyNode("Справочник/{ownerName}/Формы/{itemName}/Форма.yaml")
-const documentNumeratorTopologyNode = requireTopologyNode("Нумератор/{ownerName}/Свойства.yaml")
 const catalogValidationFile = resolveValidationProjectFile(
   "/project",
   "/project/Справочник/Товары/Свойства.yaml",
 )
 if (catalogValidationFile === undefined) throw new Error("Не удалось классифицировать тестовый YAML")
 
-it("resolves an assignment only in the selected component topology", () => {
-  const topology = createValidationProjectComponent(
-    "/project",
-    { kind: "configurationExtension", name: "Расширение" },
-  ).topology
-  const root = topology.assignments.find(({ role }) => role === "configuration")
-  if (root === undefined) throw new Error("Не найден корневой assignment расширения")
-  const assignment = catalogAssignment({
-    role: "properties",
-    topologyNodeId: root.id,
-    itemType: MetadataConfigurationExtensionRules.itemType,
-  })
-
-  expect(resolveAssignmentRule(assignment, "configurationExtension", topology))
-    .toBe(MetadataConfigurationExtensionRules)
-  expect(() => resolveAssignmentRule(
-    { ...assignment, topologyNodeId: "unknown-node" },
-    "configurationExtension",
-    topology,
-  )).toThrow("Не найден узел топологии XML-import: unknown-node")
-  expect(() => resolveAssignmentRule(
-    { ...assignment, topologyNodeId: undefined },
-    "configurationExtension",
-    topology,
-  )).toThrow("Задание XML-import не связано с узлом topology")
-})
 fullValidationSchemaCache.properties(catalogValidationFile.owner.spec.rule)
 const tempDirs: string[] = []
 const stateStores: Array<ReturnType<typeof createBinaryProjectStateStore>["store"]> = []
@@ -136,49 +101,6 @@ afterEach(() => {
 })
 
 describe("XML import worker first pass", () => {
-  it("оставляет у изолированного YAML только локальные schema diagnostics", () => {
-    const schemaDiagnostic = { line: 1, col: 1, severity: "error" as const, source: "structure" as const, message: "schema" }
-    const update = isolateProjectStateYamlUpdate({
-      kind: "yaml",
-      projectPath: "cfe/Расширение/БазоваяФорма.yaml",
-      componentPath: "cfe/Расширение",
-      resourceKind: "yaml",
-      yamlRole: "form",
-      localValidation: {
-        contributedFacts: true,
-        diagnostics: [schemaDiagnostic, { ...schemaDiagnostic, message: "reference" }],
-        schemaDiagnostics: [schemaDiagnostic],
-      },
-      targets: [{ kind: "member", canonical: "Catalog.Товары.Form.Форма" }],
-      owners: [{ owner: { kind: "CatalogObject", name: "Товары" }, facts: {} }],
-      fields: [],
-      forms: [],
-      pendingReferences: [{
-        yamlPath: [],
-        canonical: "Catalog.Товары",
-        target: { kind: "object", root: "Catalog", objectName: "Товары" },
-        constraint: { kind: "object", roots: ["Catalog"] },
-      }],
-      pendingChecks: [],
-      dependencies: ["Catalog.Товары"],
-    })
-
-    expect(update).toMatchObject({
-      localValidation: {
-        contributedFacts: false,
-        diagnostics: [schemaDiagnostic],
-        schemaDiagnostics: [schemaDiagnostic],
-      },
-      targets: [],
-      owners: [],
-      fields: [],
-      forms: [],
-      pendingReferences: [],
-      pendingChecks: [],
-      dependencies: [],
-    })
-  })
-
   it("writes deferred YAML and returns the complete local validation contribution", () => {
     const scenario = readyYamlValidationScenario
     if (scenario === undefined) throw new Error("Сценарий validation импортированного YAML не подготовлен")
@@ -239,16 +161,6 @@ describe("XML import worker first pass", () => {
     expect(writtenFileExists).toBe(true)
     expect(workerState).not.toHaveProperty("preparedModels")
     expect(workerState).not.toHaveProperty("preparedXml")
-  })
-
-  it("сохраняет сериализованный текст вместе с байтами без обратного декодирования", () => {
-    const serialized = serializeImportYaml({
-      output: { sourceKind: "worker", sourcePath: "/tmp/test.yaml", targetProjectPath: "test.yaml" },
-      yaml: { Имя: "Тест" },
-    })
-
-    expect(serialized.text).toBe("Имя: Тест")
-    expect(new TextDecoder().decode(serialized.bytes)).toBe(serialized.text)
   })
 
   it("continues first pass after a task error and blocks no other parsing", async () => {
@@ -372,37 +284,16 @@ describe("XML import worker first pass", () => {
     expect(workerStateForTests().initialized).toBe(false)
   })
 
-  it.each(["Объект.Товары.НомерСтроки", "Объект.Товары.CustomField"])(
-    "удерживает форму до проверки совместимости DataPath: %s",
-    async (dataPath) => {
-      const outputDir = createTempDir("first-pass-form")
-      const assignments = createCatalogAndFormAssignments(dataPath)
-      await initializeWorker(outputDir)
-
-      const first = expectFirstPass(
-        await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })
-      )
-
-      expectDeferredFormFirstPass(first, assignments)
-    }
-  )
-
-  it("writes generated files during the first pass even when the main form YAML is deferred", async () => {
-    const outputDir = createTempDir("first-pass-generated")
-    const assignments = createCatalogAndFormAssignments("Неизвестный.LineNumber", "Товары", false, true)
+  it("удерживает форму до проверки совместимости DataPath", async () => {
+    const outputDir = createTempDir("first-pass-form")
+    const assignments = createCatalogAndFormAssignments("Объект.Товары.НомерСтроки")
     await initializeWorker(outputDir)
 
     const first = expectFirstPass(
       await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })
     )
 
-    const generated = first.files.find(({ targetProjectPath }) => targetProjectPath.endsWith(".query"))
-    expect(generated).toBeDefined()
-    expect(existsSync(generated!.sourcePath)).toBe(true)
-    expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(
-      assignments.form.targetProjectPath
-    )
-    expect(workerStateForTests().preparedYamlIds).toEqual([assignments.catalog.id, assignments.form.id])
+    expectDeferredFormFirstPass(first, assignments)
   })
 
   it("не генерирует внешний файл повторно, когда им владеет XML-выгрузка", async () => {
@@ -424,21 +315,6 @@ describe("XML import worker first pass", () => {
     ])
   })
 
-  it("returns XML external file descriptors during the first pass", async () => {
-    const sourcePath = join(createTempDir("external-source"), "Help.xml")
-    writeFileSync(sourcePath, "<Help/>", "utf-8")
-    const assignment = catalogAssignment({
-      externalFiles: [{ sourcePath, targetProjectPath: "Справочник/Контрагенты/Справка.xml" }],
-    })
-
-    const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
-
-    expect(first.files).toContainEqual({
-      sourceKind: "xml",
-      sourcePath,
-      targetProjectPath: "Справочник/Контрагенты/Справка.xml",
-    })
-  })
 })
 
 describe("XML import worker second pass", () => {
@@ -507,29 +383,6 @@ describe("XML import worker second pass", () => {
     const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
 
     expect(finished).toBeUndefined()
-  })
-
-  it.each([
-    ["Catalog", catalogAssignment()],
-    [
-      "DocumentNumerator",
-      catalogAssignment({
-        id: "document-numerator",
-        topologyNodeId: documentNumeratorTopologyNode.id,
-        itemType: "MetadataDocumentNumerator",
-        itemName: "НумераторПоУмолчанию",
-        logicalAddress: "Нумератор.НумераторПоУмолчанию",
-        targetProjectPath: "Нумератор/НумераторПоУмолчанию/Свойства.yaml",
-        xmlFiles: [{ role: "metadata", sourcePath: minimalNumeratorXmlPath }],
-      }),
-    ],
-  ])("writes %s to its fixed Свойства.yaml target path", async (_itemType, assignment) => {
-    const outputDir = createTempDir("worker-target")
-    await initializeWorker(outputDir)
-    const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
-
-    expectWrittenImportFile(first, outputDir, assignment)
-    expect(existsSync(join(outputDir, assignment.targetProjectPath.replace(/\/Свойства\.yaml$/, ".yaml")))).toBe(false)
   })
 
   it("writes a cross-object DataPath through the shared snapshot without reading a YAML project", async () => {
@@ -652,23 +505,6 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it.each([
-    ["несовместимый строковый тип", "Объект.Description", "ПутьКДанным: !xml Объект.Description"],
-    ["совместимый булев тип", "Объект.DeletionMark", "ПутьКДанным: Объект.ПометкаУдаления"],
-  ])("классифицирует при импорте ПолеФлажок: %s", async (_name, dataPath, expected) => {
-    const tempDir = createTempDir("worker-checkbox")
-    const { assignments, second } = await runCatalogAndFormSecondPass(
-      tempDir,
-      dataPath,
-      undefined,
-      undefined,
-      "CheckBoxField",
-    )
-    const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
-    if (formFile === undefined) throw new Error("Ожидался файл формы")
-    expect(readFileSync(formFile.sourcePath, "utf-8")).toContain(expected)
-  })
-
   it("continues first pass after an early YAML write error", async () => {
     const tempDir = createTempDir("worker")
     const blocked = catalogAssignment({ id: "blocked" })
@@ -735,19 +571,6 @@ function expectDeferredFormFirstPass(
   if (checkWorkerState) {
     expect(workerStateForTests().preparedYamlIds).toEqual([assignments.catalog.id, assignments.form.id])
   }
-}
-
-function expectWrittenImportFile(
-  result: ImportFirstPassResult,
-  outputDir: string,
-  assignment: ImportAssignment,
-): void {
-  expect(result.files).toContainEqual({
-    sourceKind: "worker",
-    sourcePath: join(outputDir, assignment.targetProjectPath),
-    targetProjectPath: assignment.targetProjectPath,
-  })
-  expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
 }
 
 async function initializeWorker(

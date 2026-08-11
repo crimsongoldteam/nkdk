@@ -71,6 +71,16 @@ describe("prepareImportYaml", () => {
         "configuration"
       )
     ).toBe(ClientApplicationFormWithExtendedPresentationRules)
+    expect(() => resolveAssignmentRule(
+      { role: "fileItem", topologyNodeId: "unknown-node" } as ImportAssignment,
+      "configuration",
+      topology,
+    )).toThrow("Не найден узел топологии XML-import: unknown-node")
+    expect(() => resolveAssignmentRule(
+      { role: "fileItem" } as ImportAssignment,
+      "configuration",
+      topology,
+    )).toThrow("Задание XML-import не связано с узлом topology")
   })
 
   it("prepares a processor form with the rule selected by topology", async () => {

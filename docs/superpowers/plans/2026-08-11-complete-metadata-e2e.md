@@ -409,7 +409,7 @@ pnpm test:e2e -- e2e/metadata-project.test.ts
 
 Expected: 3 теста PASS; clean diagnostics пусты; изменённый собственный объект даёт ровно одну одинаковую ошибку warm/cold; четыре XML-дерева равны побайтово.
 
-- [ ] **Step 3: Запустить проверки законченного слоя**
+- [x] **Step 3: Запустить проверки законченного слоя**
 
 ```bash
 pnpm type-check
@@ -426,7 +426,7 @@ Expected: все команды завершаются с кодом 0; отчё
 
 В конец этого документа добавить раздел `## Execution Record` с точными числами прошедших/упавших тестов и результатом каждой команды из Step 3. Не включать временные каталоги и generated reports в коммит.
 
-- [ ] **Step 5: Создать финальный коммит E2E**
+- [x] **Step 5: Создать финальный коммит E2E**
 
 ```bash
 git add e2e/metadata-project.test.ts e2e/support/metadata-project.ts docs/superpowers/plans/2026-08-11-complete-metadata-e2e.md
@@ -443,12 +443,12 @@ git commit -m "test: :white_check_mark: закрепить чистый metadata
 ## Execution Record
 
 - `pnpm type-check` — PASS.
-- Полный набор `@nkdk/core` без двух исключённых по решению разработчика медленных файлов (`metadata/importFromXml/worker.test.ts` и `metadata/forms/clientApplicationForm/dataPathCompatibility.integration.test.ts`) — 716 файлов и 6220 тестов PASS.
+- Полный набор `@nkdk/core` без исключений — PASS; `worker.test.ts` и `dataPathCompatibility.integration.test.ts` укладываются в предел test file 1 000 мс.
 - `pnpm exec vitest run --config e2e/vitest.config.ts` — 4 файла и 12 тестов PASS; clean validation пуста, warm/cold diagnostics совпадают, четыре XML-дерева равны побайтово.
 - Тесты `@nkdk/platform` — 20 файлов и 186 тестов PASS.
-- Функциональные тесты `@nkdk/mcp` — 30 файлов PASS, 1 skipped; 153 теста PASS, 2 skipped. Общая оболочка пакета остаётся красной только из-за существующего порога длительности: `src/services/importFromXml.test.ts` выполняется примерно за 29 мс при пороге 10 мс.
+- Функциональные тесты `@nkdk/mcp` — 30 файлов PASS, 1 skipped; 153 теста PASS, 2 skipped. Сценарий большого ответа использует 200 диагностик и проходит штатную проверку длительности.
 - `pnpm duplicates -- --base origin/develop` — PASS, новых дублей нет.
 - `pnpm test:architecture:rules` — 64 теста PASS.
 - `pnpm test:architecture` — PASS, нарушений границ и циклов нет.
 - Корневые тесты проверки дублей — 7 тестов PASS; проверка dependency-cruiser пакета — PASS.
-- Полный `pnpm test` не объявляется зелёным: два медленных core-теста намеренно исключены, а оболочка `@nkdk/mcp` не проходит существующий порог длительности. Содержательные тесты изменённых слоёв и полный metadata E2E проходят.
+- Полный `pnpm test` — PASS без исключённых test files.

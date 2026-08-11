@@ -14,6 +14,7 @@ const ownerCache: OwnerMetadataCache = {
   get: () => ({ status: "not-found", diagnostics: [] }),
   listRefs: () => [],
 }
+const rulesSnapshot = createValidationRulesSnapshot(mockContext)
 
 const cases = [
   ["ПолеВвода", "[Строка, Булево]", true],
@@ -134,7 +135,7 @@ function validate(
   const facts = extractValidationYamlFacts({
     file,
     parsed,
-    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    rulesSnapshot,
   })
   return validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics
 }
@@ -156,7 +157,7 @@ function validateVirtualColumn(elementKind: string, column: string) {
   const facts = extractValidationYamlFacts({
     file,
     parsed,
-    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    rulesSnapshot,
   })
   return validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics
 }
