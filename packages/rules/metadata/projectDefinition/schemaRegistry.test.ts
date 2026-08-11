@@ -1,8 +1,6 @@
 import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
 import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { registerProjectSpec, unregisterProjectSpecForTests } from "./projectSpecRegistry"
 import {
   defineProjectJSONSchema,
   exportJSONSchemaForSchemaName,
@@ -54,33 +52,4 @@ describe("project schema registry", () => {
     })
   })
 
-  it("exports schemas registered through project specs", () => {
-    const rule = {
-      itemType: "ProjectSpecIdentitySample",
-      properties: {},
-    } as MetadataItemRule
-
-    registerProjectSpec({
-      kind: "ProjectSpecIdentitySample",
-      dir: "__project_spec_identity_sample__",
-      rule,
-      exportSchema: () =>
-        Type.Object(
-          {
-            Имя: Type.String(),
-          },
-          { additionalProperties: false }
-        ),
-    })
-
-    try {
-      expect(listJSONSchemaNames()).toContain("ProjectSpecIdentitySample")
-      expect(exportJSONSchemaForSchemaName({ context, name: "ProjectSpecIdentitySample" })).toMatchObject({
-        type: "object",
-        properties: { Имя: { type: "string" } },
-      })
-    } finally {
-      unregisterProjectSpecForTests("__project_spec_identity_sample__")
-    }
-  })
 })

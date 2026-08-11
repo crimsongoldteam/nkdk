@@ -1,4 +1,3 @@
-import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
 import { resolvePropertyItemRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
@@ -11,9 +10,6 @@ export type {
   ProjectSpecNesting,
   RegisteredProjectSpec,
 } from "./projectSpecContracts"
-
-const specsByDir = new Map<string, RegisteredProjectSpec>()
-let registryRevision = 0
 
 export function defineProjectSpec(
   spec: RegisteredProjectSpec,
@@ -35,35 +31,12 @@ export function defineProjectSpec(
   })
 }
 
-export function registerProjectSpec(spec: RegisteredProjectSpec): void {
-  const definition = defineProjectSpec(spec)
-  registerLegacyProjectSpecDefinitions(definition.projectSpecs)
-  for (const [name, schema] of Object.entries(definition.schemas)) {
-    registerJSONSchemaIdentity({
-      name,
-      source: schema.source ?? spec.rule,
-      exporter: schema.export,
-    })
-  }
-}
-
-export function registerLegacyProjectSpecDefinitions(
-  definitions: Readonly<Record<string, RegisteredProjectSpec>>,
-): void {
-  for (const spec of Object.values(definitions)) {
-    specsByDir.set(spec.dir, spec)
-    registryRevision += 1
-  }
-}
-
 export function getRegisteredProjectSpecs(): readonly RegisteredProjectSpec[] {
   const contextual = currentRuleRegistrySet<{
     projectSpecs: ReadonlyMap<string, RegisteredProjectSpec>
   }>()
-  if (contextual !== undefined) {
-    return [...contextual.projectSpecs.values()].sort((left, right) => left.dir.localeCompare(right.dir, "ru"))
-  }
-  return [...specsByDir.values()].sort((left, right) => left.dir.localeCompare(right.dir, "ru"))
+  return [...(contextual?.projectSpecs.values() ?? [])]
+    .sort((left, right) => left.dir.localeCompare(right.dir, "ru"))
 }
 
 export function assertCoreMetadataRegistered(operation: string): void {
@@ -75,7 +48,7 @@ export function assertCoreMetadataRegistered(operation: string): void {
 export function getRegisteredProjectSpecByDir(dir: string): RegisteredProjectSpec | undefined {
   return currentRuleRegistrySet<{
     projectSpecs: ReadonlyMap<string, RegisteredProjectSpec>
-  }>()?.projectSpecs.get(dir) ?? specsByDir.get(dir)
+  }>()?.projectSpecs.get(dir)
 }
 
 export function findRegisteredProjectRule(itemType: string): MetadataItemRule | undefined {
@@ -84,15 +57,6 @@ export function findRegisteredProjectRule(itemType: string): MetadataItemRule | 
     if (rule !== undefined) return rule
   }
   return undefined
-}
-
-export function unregisterProjectSpecForTests(dir: string): void {
-  specsByDir.delete(dir)
-  registryRevision += 1
-}
-
-export function projectSpecRegistryRevision(): number {
-  return registryRevision
 }
 
 function findProjectRule(
