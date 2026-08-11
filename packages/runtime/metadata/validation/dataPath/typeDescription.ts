@@ -24,6 +24,7 @@ export function typeDescriptionToDataPathTypeInfo(
   const kinds: DataPathValueKind[] = []
   const nextTypes: OwnerTypeRef[] = []
   const definedTypes: string[] = []
+  const terminalTypes: string[] = []
   let table: DataPathTableInfo | undefined
 
   for (const type of types) {
@@ -31,17 +32,15 @@ export function typeDescriptionToDataPathTypeInfo(
     addUnique(kinds, mapped.kind)
     if (mapped.nextType !== undefined) nextTypes.push(mapped.nextType)
     if (mapped.definedType !== undefined) definedTypes.push(mapped.definedType)
+    if (mapped.terminalTypes !== undefined) terminalTypes.push(...mapped.terminalTypes)
+    else if (mapped.definedType === undefined) terminalTypes.push(type)
     if (table === undefined && mapped.table !== undefined) table = mapped.table
   }
 
   return {
     kinds,
     nextTypes,
-    ...(
-      types.some((type) => definedTypeNameFromType(type) === undefined)
-        ? { terminalTypes: types.filter((type) => definedTypeNameFromType(type) === undefined) }
-        : {}
-    ),
+    ...(terminalTypes.length > 0 ? { terminalTypes } : {}),
     ...(definedTypes.length > 0 ? { definedTypes } : {}),
     ...(table !== undefined ? { table } : {}),
     ...(types.length > 1 ? { isComposite: true } : {}),
@@ -63,6 +62,7 @@ function mapType(type: string): {
   nextType?: OwnerTypeRef
   definedType?: string
   table?: DataPathTableInfo
+  terminalTypes?: readonly string[]
 } {
   switch (type) {
     case "boolean":
@@ -86,9 +86,6 @@ function mapType(type: string): {
     case "ConstantsSet":
     case "КонстантыНабор":
       return { kind: "constantSet" }
-    case "SettingsComposer":
-    case "КомпоновщикНастроекКомпоновкиДанных":
-      return { kind: "platformSource" }
     case "StandardPeriod":
     case "СтандартныйПериод":
       return { kind: "standardPeriod" }
@@ -117,6 +114,7 @@ function mapType(type: string): {
       ...(registered.nextTypes[0] !== undefined ? { nextType: registered.nextTypes[0] } : {}),
       ...(registered.definedTypes?.[0] !== undefined ? { definedType: registered.definedTypes[0] } : {}),
       ...(registered.table !== undefined ? { table: registered.table } : {}),
+      ...(registered.terminalTypes !== undefined ? { terminalTypes: registered.terminalTypes } : {}),
     }
   }
 

@@ -63,6 +63,7 @@ export type TraversalTransitionResolver = (params: {
       kind?: "state"
       typeInfo: DataPathTypeInfo
       sourceName: string
+      targetName?: string
       sourceKind?: "objectField" | "registerRecords"
       tableSource?: {
         table: DataPathTableInfo

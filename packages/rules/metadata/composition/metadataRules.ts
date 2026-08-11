@@ -9,6 +9,7 @@ import { formElementRules } from "../forms/elements/metadataRules"
 import { defineAppliedObjectProjectRules } from "../appliedObjects/projectRules"
 import { appliedObjectComponentRules } from "../appliedObjects/componentRules"
 import { clientApplicationFormValidationRules } from "../forms/clientApplicationForm/validationRules"
+import { settingsComposerDataPathRules } from "../forms/settingsComposer/dataPathRules"
 import { clientApplicationFormPropertyRules } from "../forms/clientApplicationForm/propertyTypeRules"
 import { childFormNamesPropertyRules } from "../forms/clientApplicationForm/childFormNamesPropertyRules"
 import { createMetadataResourceTopologyProvider } from "../resourceTopology/adapters/metadataProvider"
@@ -89,7 +90,7 @@ const projectReferenceRules = defineMetadataRules({
 })
 const dataPathRules = defineMetadataRules({
   ...emptyMetadataRules,
-  dataPaths: appliedObjectDataPathRules,
+  dataPaths: [...settingsComposerDataPathRules, ...appliedObjectDataPathRules],
 })
 const operationRules = defineMetadataRules({
   ...emptyMetadataRules,

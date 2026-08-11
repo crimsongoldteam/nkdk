@@ -320,6 +320,16 @@ function resolveDataPathCoreWithCurrentData(
       return okWithoutTarget({ value, segments, replacements })
     }
     if (transition !== undefined) {
+      if (transition.targetName !== undefined) {
+        recordTableColumnStandardMemberReplacement({
+          replacements,
+          nameMode: params.nameMode,
+          segmentIndex: index,
+          input: lookupSegment,
+          internalName: transition.targetName,
+          yamlName: transition.sourceName,
+        })
+      }
       state = {
         typeInfo: transition.typeInfo,
         source:
@@ -578,7 +588,9 @@ function tableSourceFromObjectField(field: {
   return {
     table,
     columns: new Map(),
-    hasColumns: table.kind === "ValueList" || table.kind === "GanttChart" || table.kind === "RegisterRecordSet",
+    hasColumns:
+      table.kind === "Registered" || table.kind === "ValueList" || table.kind === "GanttChart" ||
+      table.kind === "RegisterRecordSet",
   }
 }
 
