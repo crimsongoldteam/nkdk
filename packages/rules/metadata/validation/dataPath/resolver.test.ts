@@ -2524,6 +2524,52 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it.each([
+    ["Элементы.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.ТекущиеДанные.Параметр", "yaml", "Field"],
+    ["Items.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.CurrentData.Parameter", "internal", "Field"],
+  ] as const)("resolves a recursive SettingsComposer CurrentData chain in %s", (value, nameMode, terminalType) => {
+    const result = resolveDataPathCore({
+      value,
+      nameMode,
+      index: indexWithForm({
+        attributes: [attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })],
+        tabularElementsByName: tabularElements([
+          [
+            "КомпоновщикНастроекНастройки",
+            nameMode === "yaml" ? "КомпоновщикНастроек.Настройки" : "КомпоновщикНастроек.Settings",
+          ],
+          [
+            "КомпоновщикНастроекНастройкиЭлементПараметрыДанных",
+            nameMode === "yaml"
+              ? "Элементы.КомпоновщикНастроекНастройки.ТекущиеДанные.ЭлементПараметрыДанных"
+              : "Items.КомпоновщикНастроекНастройки.CurrentData.ItemDataParameters",
+          ],
+        ]),
+      }),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      target: { typeInfo: { terminalTypes: [terminalType] } },
+    })
+    expect(result.replacements).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ segmentIndex: 1, reason: "standardMember" }),
+    ]))
+  })
+
+  it("rejects CurrentData for an element without a tabular source", () => {
+    const value = "Items.Поле.CurrentData.Value"
+    const result = resolveDataPathCore({
+      value,
+      nameMode: "internal",
+      index: indexWithForm({ attributes: [], tabularElementsByName: tabularElements([]) }),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({ status: "error" })
+  })
+
   it("reports a CurrentData cycle through a table element data path", () => {
     const value = "Items.Таблица.CurrentData.Поле"
     const result = resolveDataPathCore({

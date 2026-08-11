@@ -113,6 +113,10 @@ type DataPathRegistrationContribution =
   | { readonly kind: "traversalTransition"; readonly resolver: TraversalTransitionResolver }
   | { readonly kind: "opaqueTraversal"; readonly resolver: OpaqueTraversalResolver }
   | { readonly kind: "registerRecordsItem"; readonly resolver: RegisterRecordsItemResolver }
+  | {
+      readonly kind: "formattingNamePairs"
+      readonly pairs: readonly import("../../standardMembers/declarations").StandardMemberNames[]
+    }
   | { readonly kind: "standardMembers"; readonly ownerKind: string; readonly members: readonly StandardMemberDeclaration[] }
 
 export type DataPathContribution = DataPathRegistrationContribution | {
@@ -159,6 +163,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     registerRecords: [] as RegisterRecordsItemResolver[],
   }
   const standardMembers = new Map<string, StandardMemberDeclaration[]>()
+  const formattingNamePairs: import("../../standardMembers/declarations").StandardMemberNames[] = []
   const addStandardMembers = (ownerKind: string, members: readonly StandardMemberDeclaration[]) => {
     const normalized = members.map((member) => {
       if (member.memberKind !== "standardAttribute" || member.fillValue !== undefined) return member
@@ -197,6 +202,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     else if (contribution.kind === "traversalTransition") resolvers.traversal.push(contribution.resolver)
     else if (contribution.kind === "opaqueTraversal") resolvers.opaque.push(contribution.resolver)
     else if (contribution.kind === "registerRecordsItem") resolvers.registerRecords.push(contribution.resolver)
+    else if (contribution.kind === "formattingNamePairs") formattingNamePairs.push(...contribution.pairs)
     else {
       addStandardMembers(contribution.ownerKind, contribution.members)
     }
@@ -239,6 +245,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
       standardMembers.get(ownerKind)?.find(({ names }) => names.yaml === yamlName)?.names.internal,
     getStandardMemberNamePairs: () => {
       const pairs = new Map<string, import("../../standardMembers/declarations").StandardMemberNames>()
+      for (const names of formattingNamePairs) pairs.set(`${names.internal}\u0000${names.yaml}`, names)
       for (const members of standardMembers.values()) {
         for (const member of members) {
           pairs.set(`${member.names.internal}\u0000${member.names.yaml}`, member.names)

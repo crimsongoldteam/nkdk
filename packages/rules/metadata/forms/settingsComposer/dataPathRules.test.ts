@@ -1,7 +1,23 @@
 import { describe, expect, it } from "vitest"
+import { withDataPathRegistrySet } from "@nkdk/runtime/rule-kit"
+import { requiresDataPathStandardMemberFormatting } from "../../validation/dataPath/finalizationPredicate"
+import { createDataPathRegistrySet, standardMemberNamePairs } from "../../validation/dataPath/registry"
 import { settingsComposerDataPathRules } from "./dataPathRules"
 
 describe("settingsComposerDataPathRules", () => {
+  it("registers the complete name catalog for deferred formatting", () => {
+    const contribution = settingsComposerDataPathRules.find((candidate) => candidate.kind === "formattingNamePairs")
+
+    expect(contribution?.kind === "formattingNamePairs" && contribution.pairs).toHaveLength(68)
+    withDataPathRegistrySet(createDataPathRegistrySet(settingsComposerDataPathRules), () => {
+      expect(standardMemberNamePairs()).toContainEqual({ internal: "Settings", yaml: "Настройки" })
+      expect(requiresDataPathStandardMemberFormatting(
+        "КомпоновщикНастроек.Настройки.Отбор",
+        "yaml-to-internal",
+      )).toBe(true)
+    })
+  })
+
   it.each(["SettingsComposer", "КомпоновщикНастроекКомпоновкиДанных"])(
     "registers %s as the canonical SettingsComposer graph",
     (baseType) => {

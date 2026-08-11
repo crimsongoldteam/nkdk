@@ -365,7 +365,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
 
     const settingsComposer = convert(
       { Компоновщик: { Тип: "КомпоновщикНастроекКомпоновкиДанных" } },
-      "Компоновщик.Settings.Filter"
+      "Компоновщик.Настройки.Отбор"
     )
     expect(settingsComposer.Period).toBeUndefined()
     expect(settingsComposer.TopLevelParent).toBeUndefined()
@@ -430,27 +430,42 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(tableByName(result.formXML, "ВложенноеДерево").RowFilter).toBeUndefined()
   })
 
-  it("не создаёт RowFilter для коллекций SettingsComposer общего отчёта", () => {
+  it("преобразует рекурсивные пути SettingsComposer и не создаёт для них RowFilter", () => {
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
       yaml: {
-        Реквизиты: { Отчет: { Тип: "ОтчетОбъект" } },
+        Реквизиты: { КомпоновщикНастроек: { Тип: "КомпоновщикНастроекКомпоновкиДанных" } },
         Элементы: {
-          Настройки: {
+          КомпоновщикНастроекНастройки: {
             Вид: "ТаблицаФормы",
-            ПутьКДанным: "Отчет.SettingsComposer.Settings",
+            ПутьКДанным: "КомпоновщикНастроек.Настройки",
           },
-          ПараметрыДанных: {
+          КомпоновщикНастроекНастройкиЭлементПараметрыДанных: {
             Вид: "ТаблицаФормы",
-            ПутьКДанным: "Элементы.Настройки.ТекущиеДанные.ItemDataParameters",
+            ПутьКДанным: "Элементы.КомпоновщикНастроекНастройки.ТекущиеДанные.ЭлементПараметрыДанных",
+          },
+          Параметр: {
+            Вид: "ПолеВвода",
+            ПутьКДанным:
+              "Элементы.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.ТекущиеДанные.Параметр",
           },
         },
       } as ClientApplicationFormYAML,
-      name: "ФормаВариантаОтчета",
+      name: "Форма",
     })
 
-    expect(tableByName(result.formXML, "Настройки").RowFilter).toBeUndefined()
-    expect(tableByName(result.formXML, "ПараметрыДанных").RowFilter).toBeUndefined()
+    expect(tableByName(result.formXML, "КомпоновщикНастроекНастройки")).toMatchObject({
+      DataPath: "КомпоновщикНастроек.Settings",
+    })
+    expect(tableByName(result.formXML, "КомпоновщикНастроекНастройки").RowFilter).toBeUndefined()
+    expect(tableByName(result.formXML, "КомпоновщикНастроекНастройкиЭлементПараметрыДанных")).toMatchObject({
+      DataPath: "Items.КомпоновщикНастроекНастройки.CurrentData.ItemDataParameters",
+    })
+    expect(tableByName(result.formXML, "КомпоновщикНастроекНастройкиЭлементПараметрыДанных").RowFilter)
+      .toBeUndefined()
+    expect(elementByName(result.formXML, "Параметр").DataPath).toBe(
+      "Items.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.CurrentData.Parameter",
+    )
   })
 
   it("восстанавливает свойства таблицы только для прямого динамического списка", () => {

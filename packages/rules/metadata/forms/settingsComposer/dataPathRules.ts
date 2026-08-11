@@ -2,10 +2,15 @@ import type { DataPathContribution } from "../../validation/dataPath/registry"
 import {
   resolveSettingsComposerProperty,
   SETTINGS_COMPOSER_TYPE,
+  settingsComposerNamePairs,
   settingsComposerTypeInfo,
 } from "./dataPathModel"
 
 export const settingsComposerDataPathRules: readonly DataPathContribution[] = [
+  {
+    kind: "formattingNamePairs",
+    pairs: settingsComposerNamePairs.map(([internal, yaml]) => ({ internal, yaml })),
+  },
   {
     kind: "typeResolver",
     resolver: ({ baseType }) =>

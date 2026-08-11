@@ -136,6 +136,61 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     expect(JSON.stringify(result.yaml)).not.toContain("Items.Строки.CurrentData.Значение")
   })
 
+  it("преобразует рекурсивные пути SettingsComposer и сохраняет имена элементов", () => {
+    const result = importClientApplicationFormFromXMLToYAML({
+      context: currentDataImportContext(),
+      formName: "Форма",
+      formXML: {
+        Attributes: {
+          Attribute: [{
+            _name: "КомпоновщикНастроек",
+            _id: "1",
+            Type: { "v8:Type": "dcsset:SettingsComposer" },
+          }],
+        },
+        ChildItems: [
+          {
+            Table: {
+              _name: "КомпоновщикНастроекНастройки",
+              _id: "2",
+              DataPath: "КомпоновщикНастроек.Settings",
+            },
+          },
+          {
+            Table: {
+              _name: "КомпоновщикНастроекНастройкиЭлементПараметрыДанных",
+              _id: "3",
+              DataPath: "Items.КомпоновщикНастроекНастройки.CurrentData.ItemDataParameters",
+            },
+          },
+          {
+            InputField: {
+              _name: "Параметр",
+              _id: "4",
+              DataPath: "Items.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.CurrentData.Parameter",
+            },
+          },
+        ],
+      },
+      metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+    })
+
+    finalizeImportedFormDataPaths(result)
+
+    const yaml = result.yaml as ClientApplicationFormYAML
+    expect(yaml.Элементы).toMatchObject({
+      КомпоновщикНастроекНастройки: {
+        ПутьКДанным: "КомпоновщикНастроек.Настройки",
+      },
+      КомпоновщикНастроекНастройкиЭлементПараметрыДанных: {
+        ПутьКДанным: "Элементы.КомпоновщикНастроекНастройки.ТекущиеДанные.ЭлементПараметрыДанных",
+      },
+      Параметр: {
+        ПутьКДанным: "Элементы.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.ТекущиеДанные.Параметр",
+      },
+    })
+  })
+
   it("индексирует дополнительные колонки до уточнения CurrentData", () => {
     const result = importValueTableCurrentDataForm(
       {
