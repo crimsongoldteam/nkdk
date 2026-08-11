@@ -154,7 +154,11 @@ describe("explicit XML property validation schema", () => {
   })
 
   it("разрешает для скрытого RowFilter только пустой !xml", () => {
-    const { validationProperties, externalProperties, validationSchemas } = explicitXMLSchemas(TableRules)
+    const rowFilterRule = {
+      itemType: TableRules.itemType,
+      properties: { rowFilter: TableRules.properties.rowFilter },
+    } as MetadataItemRule
+    const { validationProperties, externalProperties, validationSchemas } = explicitXMLSchemas(rowFilterRule)
     const validation = compileValidationSchema(validationSchemas(), Type.Object(validationProperties))
 
     expect(validation.Check({ ОтборСтрок: EMPTY_XML_TAG_VALUE })).toBe(true)
