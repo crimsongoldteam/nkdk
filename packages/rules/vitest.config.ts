@@ -53,7 +53,7 @@ export default defineConfig({
         test: {
           name: "unit",
           runner: metadataTestRunner,
-          exclude: [...configDefaults.exclude, ...coreMetadataTests, ...bundleContractTests],
+          exclude: [...configDefaults.exclude, ...coreMetadataTests, ...bundleContractTests, ...integrationTests],
           sequence: { groupOrder: 0 },
           setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
         },
