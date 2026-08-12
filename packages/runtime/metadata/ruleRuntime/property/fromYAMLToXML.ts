@@ -287,16 +287,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 
     if (
       !source.has(propertyKey) &&
-      planned.propertyRule.forReferenceOnly === true &&
-      planned.propertyRule.evaluateWhenYAMLMissing === true &&
-      configurationIndexContainsCurrentItem(propertyContext) &&
-      references.every((reference) => !reference.exists)
-    ) {
-      continue
-    }
-
-    if (
-      !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       planned.propertyRule.omitNonImplicitReferenceXMLWhenYAMLMissing === true &&
       Object.prototype.hasOwnProperty.call(planned.propertyRule, "implicitValueYAML") &&
@@ -755,11 +745,6 @@ function isRelativeYAMLScalarTagged(
   }
   const key = path[path.length - 1]
   return key !== undefined && yamlScalarTagAt(parent, key) === "xml"
-}
-
-function configurationIndexContainsCurrentItem(context: ConfigurationContextWithExportToXML): boolean {
-  const runtime = context.exportToXML.configurationIndex
-  return runtime !== undefined && runtime.source.entity(runtime.logicalAddress) !== undefined
 }
 
 function copyConfigurationIndexPropertyValue(

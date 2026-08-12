@@ -505,6 +505,11 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       },
       name: "Товары",
     })
+    contexts.importContext.fromXML.configurationIndex?.collector.setIdentity(
+      "Справочник.Товары",
+      "uuid",
+      "00000000-0000-0000-0000-000000000003",
+    )
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
       rule,
@@ -514,10 +519,20 @@ describe("configuration index в едином YAML → XML-обходе", () => 
 
     expect(imported.yaml).toEqual({ Имя: "Товары", Ресурсы: "Ресурс1" })
     expect(Object.keys(exported.xml)).toEqual(["InternalInfo", "Properties", "ChildObjects"])
+    expect(exported.xml.InternalInfo).toEqual({
+      "xr:GeneratedType": [
+        {
+          _name: "CatalogRef.Товары",
+          _category: "Ref",
+          "xr:TypeId": "00000000-0000-0000-0000-000000000001",
+          "xr:ValueId": "00000000-0000-0000-0000-000000000002",
+        },
+      ],
+    })
     expect(Object.keys(exported.xml.Properties as object)).toEqual(["Name"])
   })
 
-  it("restores an explicitly empty reference-only property from the index", () => {
+  it("не восстанавливает пустой InternalInfo без предметной структуры", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Catalog.Товары.Attribute.Код",
       targetProjectPath: "Справочник/Товары/Свойства.yaml",
@@ -555,7 +570,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({ Имя: "Код" })
-    expect(exported.xml).toEqual({ InternalInfo: {}, Properties: { Name: "Код" } })
+    expect(exported.xml).toEqual({ Properties: { Name: "Код" } })
   })
 
   it("does not create an absent reference-only property in indexed round-trip", () => {
