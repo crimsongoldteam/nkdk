@@ -6,7 +6,7 @@ import { TypeDescriptionJSONSchema } from "./types"
 const xmlTypePrefix = Type.String({ pattern: "^!xml d[0-9]+p1:[^:]+$" })
 const withoutExplicitXML = (schema: TSchema): TSchema => Type.Intersect([
   schema,
-  { not: Type.String({ pattern: "^!xml(?: |$)" }) } as TSchema,
+  { not: Type.String({ pattern: "^!x(?:ml)(?: |$)" }) } as TSchema,
 ])
 
 export const exportTypeDescriptionToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
