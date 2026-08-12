@@ -1,4 +1,4 @@
-import { definePropertyStateItemCapabilities } from "../../appliedObjects/configurationExtension/propertyStateCapabilities"
+import { definePropertyStateItemCapabilities } from "../../ruleRuntime/definition/propertyStateDeclarations"
 import { MetadataTabularSectionRules } from "./rules"
 
 export const metadataTabularSectionPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataTabularSectionRules, {

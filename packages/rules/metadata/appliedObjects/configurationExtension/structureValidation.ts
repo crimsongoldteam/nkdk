@@ -1,46 +1,25 @@
 import { join } from "node:path"
 import type { Diagnostic } from "@nkdk/runtime"
 import type { ProjectStateStructuredDocumentValidationParams } from "../../projectState/contracts/dependencyValidation"
-import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fileUpdate"
+import type { ProjectStateStructuredDocumentEntry } from "../../projectState/contracts/fileUpdate"
 import { createConfigurationExtensionStructureRegistry } from "./structureCapabilities"
+import { CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT } from "../../ruleRuntime/property/configurationExtensionStructureFacts"
 
-const DOCUMENT_KIND = "configurationExtensionStructure"
 const registry = createConfigurationExtensionStructureRegistry()
-
-export function configurationExtensionStructureDocument(params: {
-  readonly itemType: string
-  readonly logicalAddress: string
-  readonly workingProjectPath: string
-  readonly compatibilityMode?: string
-  readonly lineNumberLength?: number
-}): ProjectStateStructuredDocumentEntry {
-  return {
-    documentKind: DOCUMENT_KIND,
-    representation: "working",
-    logicalAddress: params.logicalAddress,
-    workingProjectPath: params.workingProjectPath,
-    componentKind: "object",
-    name: params.itemType,
-    yamlPath: [],
-    payload: JSON.stringify({
-      version: 1,
-      itemType: params.itemType,
-      ...(params.compatibilityMode === undefined ? {} : { compatibilityMode: params.compatibilityMode }),
-      ...(params.lineNumberLength === undefined ? {} : { lineNumberLength: params.lineNumberLength }),
-    }),
-  }
-}
 
 export function validateConfigurationExtensionStructure(
   params: ProjectStateStructuredDocumentValidationParams,
 ): readonly Diagnostic[] {
   const diagnostics: Diagnostic[] = []
   for (const fact of params.facts) {
-    if (!fact.componentPath.startsWith("cfe/") || fact.entry.documentKind !== DOCUMENT_KIND) continue
+    if (
+      !fact.componentPath.startsWith("cfe/") ||
+      fact.entry.documentKind !== CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT
+    ) continue
     const base = params.queryPort.readStructuredDocumentEntries({
       componentPath: "cf",
       logicalAddress: fact.entry.logicalAddress,
-    }).some(({ documentKind }) => documentKind === DOCUMENT_KIND)
+    }).some(({ documentKind }) => documentKind === CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT)
     if (base) continue
     const parent = baseParent(params, fact.entry.logicalAddress)
     const collection = childCollection(fact.entry.name, parent?.name)
@@ -73,7 +52,7 @@ function baseParent(
     const parent = params.queryPort.readStructuredDocumentEntries({
       componentPath: "cf",
       logicalAddress: current,
-    }).find(({ documentKind }) => documentKind === DOCUMENT_KIND)
+    }).find(({ documentKind }) => documentKind === CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT)
     if (parent !== undefined) return parent
   }
   return undefined

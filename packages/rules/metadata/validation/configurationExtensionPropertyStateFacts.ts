@@ -3,21 +3,14 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type {
   PropertyStateMode,
   ResolvedPropertyStateItemCapability,
-} from "../../ruleRuntime/definition"
-import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fileUpdate"
-import { readPropertyStateSections } from "./sections"
-
-export const CONFIGURATION_EXTENSION_PROPERTY_STATE_DOCUMENT = "configurationExtensionPropertyState"
-
-export type ConfigurationExtensionPropertyStateFactMode = PropertyStateMode | "xml"
-
-export interface ConfigurationExtensionPropertyStateFactPayload {
-  readonly version: 1
-  readonly itemType: string
-  readonly propertyKey: string
-  readonly mode: ConfigurationExtensionPropertyStateFactMode
-  readonly value: unknown
-}
+} from "../ruleRuntime/definition"
+import type { ProjectStateStructuredDocumentEntry } from "../projectState/contracts/fileUpdate"
+import { readPropertyStateSections } from "../ruleRuntime/property/propertyStateSections"
+import {
+  CONFIGURATION_EXTENSION_PROPERTY_STATE_DOCUMENT,
+  type ConfigurationExtensionPropertyStateFactMode,
+  type ConfigurationExtensionPropertyStateFactPayload,
+} from "../ruleRuntime/property/propertyStateFacts"
 
 export function collectConfigurationExtensionPropertyStateDocuments(params: {
   readonly yaml: Readonly<Record<string, unknown>>

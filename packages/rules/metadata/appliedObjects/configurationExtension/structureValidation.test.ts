@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { validateConfigurationExtensionStructure } from "./structureValidation"
-import { configurationExtensionStructureDocument } from "./structureValidation"
+import { configurationExtensionStructureDocument } from "../../ruleRuntime/property/configurationExtensionStructureFacts"
 
 describe("configuration extension structure validation", () => {
   it.each([

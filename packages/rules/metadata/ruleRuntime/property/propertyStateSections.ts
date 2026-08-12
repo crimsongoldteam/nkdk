@@ -1,7 +1,7 @@
 import type {
   PropertyStateMode,
   ResolvedPropertyStateItemCapability,
-} from "../../ruleRuntime/definition"
+} from "../definition"
 
 export type PropertyStateSectionMode = "notify" | "extend"
 

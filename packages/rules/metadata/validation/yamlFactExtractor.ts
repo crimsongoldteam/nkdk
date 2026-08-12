@@ -63,9 +63,9 @@ import {
 } from "./addressableMetadataTargets"
 import { existsSync } from "node:fs"
 import { resolve } from "node:path"
-import type { ProjectStateStructuredDocumentEntry } from "../projectState/fileUpdate"
-import { collectConfigurationExtensionPropertyStateDocuments } from "../appliedObjects/configurationExtension/propertyStateFacts"
-import { configurationExtensionStructureDocument } from "../appliedObjects/configurationExtension/structureValidation"
+import type { ProjectStateStructuredDocumentEntry } from "../projectState/contracts/fileUpdate"
+import { collectConfigurationExtensionPropertyStateDocuments } from "./configurationExtensionPropertyStateFacts"
+import { configurationExtensionStructureDocument } from "../ruleRuntime/property/configurationExtensionStructureFacts"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 

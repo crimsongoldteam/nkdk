@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { Type } from "typebox"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
-import { exportBorrowedPropertyStateSchema } from "./propertyStateSchema"
+import { exportBorrowedPropertyStateSchema } from "../../ruleRuntime/property/propertyStateSchema"
 
 const rule = {
   itemType: "MetadataCatalog",

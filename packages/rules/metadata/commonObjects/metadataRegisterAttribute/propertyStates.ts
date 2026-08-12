@@ -1,4 +1,4 @@
-import { controlled, definePropertyStateItemCapabilities } from "../../appliedObjects/configurationExtension/propertyStateCapabilities"
+import { controlled, definePropertyStateItemCapabilities } from "../../ruleRuntime/definition/propertyStateDeclarations"
 import { MetadataRegisterAttributeRules } from "./rules"
 
 export const metadataRegisterAttributePropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataRegisterAttributeRules, {

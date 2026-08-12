@@ -1,6 +1,6 @@
 import { Type, type TSchema } from "typebox"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
+import type { MetadataItemRule } from "./types"
+import type { ResolvedPropertyStateItemCapability } from "../definition"
 
 export function exportBorrowedPropertyStateSchema(params: {
   readonly rule: MetadataItemRule

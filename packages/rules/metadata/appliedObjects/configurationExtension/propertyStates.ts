@@ -6,7 +6,7 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
-import { writePropertyStateSection } from "./sections"
+import { writePropertyStateSection } from "../../ruleRuntime/property/propertyStateSections"
 import { encodeExplicitXMLPropertyState } from "./explicitXMLState"
 
 const NOTIFY_ALIASES: Readonly<Record<string, string>> = {

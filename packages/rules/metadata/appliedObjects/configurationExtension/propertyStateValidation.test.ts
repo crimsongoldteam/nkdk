@@ -4,7 +4,7 @@ import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fil
 import {
   CONFIGURATION_EXTENSION_PROPERTY_STATE_DOCUMENT,
   type ConfigurationExtensionPropertyStateFactPayload,
-} from "./propertyStateFacts"
+} from "../../ruleRuntime/property/propertyStateFacts"
 import { validateConfigurationExtensionPropertyStates } from "./propertyStateValidation"
 
 describe("configuration extension PropertyState validation", () => {

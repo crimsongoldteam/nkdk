@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { configurationExtensionStructureDocument } from "./structureValidation"
+import { configurationExtensionStructureDocument } from "../../ruleRuntime/property/configurationExtensionStructureFacts"
 import { validateConfigurationExtensionHistory } from "./historyValidation"
 
 describe("configuration extension data history", () => {

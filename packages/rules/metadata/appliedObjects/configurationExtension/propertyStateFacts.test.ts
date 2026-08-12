@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
-import { collectConfigurationExtensionPropertyStateDocuments } from "./propertyStateFacts"
+import { collectConfigurationExtensionPropertyStateDocuments } from "../../validation/configurationExtensionPropertyStateFacts"
 
 const capability: ResolvedPropertyStateItemCapability = {
   itemType: "MetadataExample",

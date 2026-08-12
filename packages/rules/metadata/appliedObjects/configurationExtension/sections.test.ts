@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
-import { readPropertyStateSections, writePropertyStateSection } from "./sections"
+import { readPropertyStateSections, writePropertyStateSection } from "../../ruleRuntime/property/propertyStateSections"
 
 const capability: ResolvedPropertyStateItemCapability = {
   itemType: "MetadataXDTOPackage",

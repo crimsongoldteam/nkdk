@@ -46,7 +46,7 @@ import type { ValidationRegistrySet } from "./validationRegistrySet"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../ruleRuntime/definition"
-import { exportBorrowedPropertyStateSchema } from "../appliedObjects/configurationExtension/propertyStateSchema"
+import { exportBorrowedPropertyStateSchema } from "../ruleRuntime/property/propertyStateSchema"
 
 type CompiledSchema = ValidationSchemaValidator
 type ValidationSchemaVariant = "full" | "extension-overlay"
@@ -97,7 +97,7 @@ export interface ProjectValidationFirstPassResult {
   logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
   structuredComponents?: readonly FormStructuredComponent[]
-  structuredDocuments?: readonly import("../projectState/fileUpdate").ProjectStateStructuredDocumentEntry[]
+  structuredDocuments?: readonly import("../projectState/contracts/fileUpdate").ProjectStateStructuredDocumentEntry[]
   diagnostics: Diagnostic[]
   profile?: ProjectValidationFirstPassProfile
 }
@@ -131,7 +131,7 @@ export interface ProjectValidationFileFacts {
   logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
   structuredComponents?: readonly FormStructuredComponent[]
-  structuredDocuments?: readonly import("../projectState/fileUpdate").ProjectStateStructuredDocumentEntry[]
+  structuredDocuments?: readonly import("../projectState/contracts/fileUpdate").ProjectStateStructuredDocumentEntry[]
   profile: {
     yamlFactsMs: number
     localValueValidationProfile: LocalValueValidationProfile

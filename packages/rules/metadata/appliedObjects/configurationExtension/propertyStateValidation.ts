@@ -1,11 +1,11 @@
 import { join } from "node:path"
 import type { Diagnostic } from "@nkdk/runtime"
 import type { ProjectStateStructuredDocumentValidationParams } from "../../projectState/contracts/dependencyValidation"
-import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fileUpdate"
+import type { ProjectStateStructuredDocumentEntry } from "../../projectState/contracts/fileUpdate"
 import {
   CONFIGURATION_EXTENSION_PROPERTY_STATE_DOCUMENT,
   type ConfigurationExtensionPropertyStateFactPayload,
-} from "./propertyStateFacts"
+} from "../../ruleRuntime/property/propertyStateFacts"
 
 export function validateConfigurationExtensionPropertyStates(
   params: ProjectStateStructuredDocumentValidationParams,

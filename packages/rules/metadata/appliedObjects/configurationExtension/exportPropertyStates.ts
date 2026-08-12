@@ -8,7 +8,7 @@ import { EXTENDED_SNAPSHOT_SEGMENTS } from "./propertyStates"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
-import { readPropertyStateSections } from "./sections"
+import { readPropertyStateSections } from "../../ruleRuntime/property/propertyStateSections"
 import { decodeExplicitXMLPropertyState } from "./explicitXMLState"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"

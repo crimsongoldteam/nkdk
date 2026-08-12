@@ -1,4 +1,4 @@
-import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities } from "../../appliedObjects/configurationExtension/propertyStateCapabilities"
+import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities } from "../../ruleRuntime/definition/propertyStateDeclarations"
 import { MetadataTaskAddressingAttributeRules } from "./rules"
 
 export const metadataTaskAddressingAttributePropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataTaskAddressingAttributeRules, {

@@ -1,4 +1,4 @@
-import { allPropertyStateModes, definePropertyStateItemCapabilities } from "../../appliedObjects/configurationExtension/propertyStateCapabilities"
+import { allPropertyStateModes, definePropertyStateItemCapabilities } from "../../ruleRuntime/definition/propertyStateDeclarations"
 import { MetadataExternalDataSourceCubeResourceRules } from "./rules"
 
 export const metadataExternalDataSourceCubeResourcePropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataExternalDataSourceCubeResourceRules, {
