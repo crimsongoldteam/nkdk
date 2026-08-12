@@ -34,6 +34,7 @@ const fileSystem: SessionFileSystem = {
   async readFile(path) {
     return fs.promises.readFile(path, "utf8")
   },
+  copyFile: fs.promises.copyFile,
   async rm(path) {
     await fs.promises.rm(path, { recursive: true, force: true })
   },

@@ -55,6 +55,20 @@ export type ListConfigurationExtensionsResult = {
   reusedConnection: boolean
 }
 
+export type LoadPartialConfigurationParams = NormalizedPlatformConnectionSettings & {
+  projectDir: string
+  archivePath: string
+  logPath: string
+  extensionName?: string
+  signal?: AbortSignal
+}
+
+export type LoadPartialConfigurationResult = {
+  mode: "designer-agent"
+  reusedConnection: boolean
+  warnings: readonly string[]
+}
+
 export type CloseConnectionResult = {
   closed: boolean
   stoppedOwnedProcess: boolean
@@ -81,6 +95,12 @@ export interface PlatformSession {
     signal?: AbortSignal
   ): Promise<void>
   listExtensions(signal?: AbortSignal): Promise<ConfigurationExtensionInfo[]>
+  loadPartialConfiguration?(
+    archivePath: string,
+    operationLog: PlatformOperationLog,
+    extensionName?: string,
+    signal?: AbortSignal
+  ): Promise<{ warnings: readonly string[] }>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>
   cancel(): Promise<{ stoppedOwnedProcess: boolean }>
@@ -97,6 +117,7 @@ export type CreatePlatformSessionParams = {
 export interface PlatformSessionManager {
   exportConfiguration(params: ExportConfigurationParams): Promise<ExportConfigurationResult>
   listExtensions(params: ListConfigurationExtensionsParams): Promise<ListConfigurationExtensionsResult>
+  loadPartialConfiguration(params: LoadPartialConfigurationParams): Promise<LoadPartialConfigurationResult>
   closeConnection(projectDir: string): Promise<CloseConnectionResult>
   closeAllConnections(): Promise<CloseAllConnectionsResult>
 }

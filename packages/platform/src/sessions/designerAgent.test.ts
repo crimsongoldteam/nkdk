@@ -138,6 +138,76 @@ describe("Designer agent session", () => {
     expect(fixture.calls).toContain("shell.run-options timeout=1800000")
   })
 
+  it("copies a project ZIP to agent staging and loads its root list file", async () => {
+    const fixture = createFixture()
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      fixture.operationLog,
+      "Расширение"
+    )).resolves.toEqual({ warnings: [] })
+
+    expect(fixture.calls.find((call) => call.startsWith("copy "))).toMatch(
+      /^copy \/project\/\.nkdk\/tmp\/op\/package\.zip \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+\/package\.zip$/u
+    )
+    expect(fixture.calls.find((call) => call.startsWith("shell.run config load-config"))).toMatch(
+      /^shell\.run config load-config-from-files --archive="\.nkdk-load\/[^/]+\/package\.zip" --list-file="load\.lst" --format=hierarchical --partial --extension="Расширение"$/u
+    )
+    expect(fixture.calls.findLast((call) => call.startsWith("rm "))).toMatch(
+      /^rm \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+$/u
+    )
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "stage=configuration-load status=ready"
+    )
+  })
+
+  it("rejects an archive outside the project before copying it", async () => {
+    const fixture = createFixture()
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/outside/package.zip",
+      fixture.operationLog
+    )).rejects.toMatchObject({ code: "platform_command_failed" })
+    expect(fixture.calls.some((call) => call.startsWith("copy "))).toBe(false)
+  })
+
+  it.each([
+    ["rejected", "platform_command_failed", "rejected"],
+    ["unknown", "delivery_outcome_unknown", "unknown"],
+  ] as const)("classifies a %s partial load failure", async (_case, code, commandOutcome) => {
+    const fixture = createFixture({
+      loadError: new PlatformSessionError(
+        code === "delivery_outcome_unknown" ? "session_timeout" : "platform_command_failed",
+        "load failed",
+        { commandOutcome }
+      ),
+    })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      fixture.operationLog
+    )).rejects.toMatchObject({
+      code,
+      commandOutcome,
+      details: { stage: "configuration-load", mode: "designer-agent" },
+    })
+  })
+
+  it("returns a warning when staging cleanup fails after confirmed success", async () => {
+    const fixture = createFixture({ loadCleanupFailure: true })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      fixture.operationLog
+    )).resolves.toEqual({
+      warnings: ["Не удалось удалить служебную копию ZIP после успешной загрузки"],
+    })
+  })
+
   it("rejects a success response without an extension-properties body", async () => {
     const fixture = createFixture({
       extensionResponseComplete: false,
@@ -554,6 +624,8 @@ function createFixture(
     processLogDuringDump?: string
     processLogReadFailure?: boolean
     openCommandError?: Error
+    loadError?: PlatformSessionError
+    loadCleanupFailure?: boolean
   } = {}
 ): {
   calls: string[]
@@ -634,6 +706,9 @@ function createFixture(
       ) {
         throw options.extensionListError
       }
+      if (options.loadError !== undefined && command.startsWith("config load-config-from-files")) {
+        throw options.loadError
+      }
       if (options.dumpFailure === true && command.startsWith("config ")) {
         processLog += options.processLogDuringDump ?? ""
         throw new Error("dump failed")
@@ -697,6 +772,12 @@ function createFixture(
         },
         async rm(path) {
           calls.push(`rm ${recordedPath(path)}`)
+          if (options.loadCleanupFailure === true && path.includes(".nkdk-load")) {
+            throw new Error("cleanup failed")
+          }
+        },
+        async copyFile(from, to) {
+          calls.push(`copy ${recordedPath(from)} ${recordedPath(to)}`)
         },
         async rename(from, to) {
           calls.push(`rename ${recordedPath(from)} ${recordedPath(to)}`)

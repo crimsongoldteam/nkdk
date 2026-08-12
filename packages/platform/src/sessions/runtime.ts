@@ -8,6 +8,7 @@ export type PlatformFailureStage =
   | "session-start"
   | "authentication"
   | "configuration-export"
+  | "configuration-load"
   | "platform-log"
 
 export interface PlatformOperationLog {
@@ -97,6 +98,7 @@ export interface SessionFileSystem {
   writeFile(path: string, content: string, options?: { mode?: number }): Promise<void>
   appendFile(path: string, content: string): Promise<void>
   readFile(path: string): Promise<string>
+  copyFile(from: string, to: string): Promise<void>
   rm(path: string): Promise<void>
   rename(from: string, to: string): Promise<void>
   chmod(path: string, mode: number): Promise<void>

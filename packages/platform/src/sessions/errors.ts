@@ -7,6 +7,7 @@ export type PlatformSessionErrorCode =
   | "session_start_failed"
   | "session_timeout"
   | "platform_command_failed"
+  | "delivery_outcome_unknown"
   | "operation_cancelled"
 
 import type { PlatformFailureStage } from "./runtime"

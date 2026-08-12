@@ -1,6 +1,7 @@
 export { findPlatform, type PlatformInstallation } from "./src/platform/findPlatform"
 export {
   PlatformSessionError,
+  type PlatformCommandOutcome,
   type PlatformFailureDetails,
   type PlatformFailureStage,
   type PlatformSessionErrorCode,
@@ -26,6 +27,8 @@ export type {
   InfobaseImportSettings,
   ListConfigurationExtensionsParams,
   ListConfigurationExtensionsResult,
+  LoadPartialConfigurationParams,
+  LoadPartialConfigurationResult,
   NormalizedPlatformConnectionSettings,
   PlatformSession,
   PlatformSessionManager,

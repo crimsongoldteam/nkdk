@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "./errors"
 import type { PlatformOperationLog } from "./operationLog"
-import type { ExportConfigurationParams, ListConfigurationExtensionsParams, PlatformSession } from "./types"
+import type {
+  ExportConfigurationParams,
+  ListConfigurationExtensionsParams,
+  LoadPartialConfigurationParams,
+  PlatformSession,
+} from "./types"
 import { createPlatformSessionManager, type PlatformSessionManagerDependencies } from "./manager"
 
 describe("platform session manager", () => {
@@ -84,6 +89,54 @@ describe("platform session manager", () => {
     })
     expect(fixture.created).toHaveLength(1)
     expect(fixture.listStarts).toEqual(["/project:1"])
+  })
+
+  it("loads a partial ZIP through the queued Designer session and reuses it", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    await manager.exportConfiguration(exportParams({ mode: "standalone-server" }))
+
+    await expect(manager.loadPartialConfiguration(loadParams())).resolves.toEqual({
+      mode: "designer-agent",
+      reusedConnection: false,
+      warnings: [],
+    })
+    await expect(manager.loadPartialConfiguration(loadParams())).resolves.toMatchObject({
+      reusedConnection: true,
+    })
+
+    expect(fixture.created).toEqual([
+      "/project:standalone-server",
+      "/project:designer-agent",
+    ])
+    expect(fixture.loadedArchives).toEqual([
+      "/project/.nkdk/tmp/op/package.zip",
+      "/project/.nkdk/tmp/op/package.zip",
+    ])
+    expect(fixture.logEvents).toEqual(expect.arrayContaining([
+      expect.stringContaining("operation mode=designer-agent"),
+      expect.stringContaining("configuration-load"),
+    ]))
+  })
+
+  it("discards the session after an unknown partial load outcome", async () => {
+    const fixture = createFixture({
+      loadHook: async () => {
+        throw new PlatformSessionError(
+          "delivery_outcome_unknown",
+          "outcome unknown",
+          { commandOutcome: "unknown" }
+        )
+      },
+    })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await expect(manager.loadPartialConfiguration(loadParams())).rejects.toMatchObject({
+      code: "delivery_outcome_unknown",
+      commandOutcome: "unknown",
+    })
+    expect(fixture.sessions[0]?.cancelCalls).toBe(1)
+    expect(fixture.activeTimers()).toEqual([])
   })
 
   it("serializes extension listing with other operations of one project", async () => {
@@ -419,6 +472,18 @@ function listParams(overrides: Partial<ListConfigurationExtensionsParams> = {}, 
   return { ...params, ...overrides }
 }
 
+function loadParams(overrides: Partial<LoadPartialConfigurationParams> = {}): LoadPartialConfigurationParams {
+  return {
+    projectDir: "/project",
+    archivePath: "/project/.nkdk/tmp/op/package.zip",
+    logPath: "/project/.nkdk/tmp/op/platform.log",
+    connectionString: 'File="/bases/demo";',
+    password: "secret",
+    sessionIdleTimeout: 900,
+    ...overrides,
+  }
+}
+
 function baseExportParams(projectDir: string) {
   return {
     projectDir,
@@ -447,6 +512,7 @@ function createFixture(
     closeFailureProject?: string
     cancelFailures?: number
     listHook?: (projectDir: string, call: number, signal?: AbortSignal) => Promise<void>
+    loadHook?: (projectDir: string, signal?: AbortSignal) => Promise<void>
     platformMissing?: boolean
     designerMissing?: boolean
     logCreateFailure?: boolean
@@ -459,6 +525,7 @@ function createFixture(
   listStarts: string[]
   exportedOutputDirs: string[]
   exportedUnresolvedReferences: string[]
+  loadedArchives: string[]
   logEvents: string[]
   findPlatformCalls: number
   options: {
@@ -475,6 +542,7 @@ function createFixture(
   const listStarts: string[] = []
   const exportedOutputDirs: string[] = []
   const exportedUnresolvedReferences: string[] = []
+  const loadedArchives: string[] = []
   const logEvents: string[] = []
   let findPlatformCalls = 0
   let cancelFailures = options.cancelFailures ?? 0
@@ -511,6 +579,13 @@ function createFixture(
         await options.listHook?.(params.projectDir, listCalls, signal)
         return [listedExtension]
       },
+      async loadPartialConfiguration(archivePath, operationLog, _extensionName, signal) {
+        loadedArchives.push(archivePath)
+        await operationLog.append("stage=configuration-load status=start")
+        await options.loadHook?.(params.projectDir, signal)
+        await operationLog.append("stage=configuration-load status=ready")
+        return { warnings: [] }
+      },
       isAlive: () => alive,
       async close() {
         session.closeCalls += 1
@@ -545,6 +620,7 @@ function createFixture(
     listStarts,
     exportedOutputDirs,
     exportedUnresolvedReferences,
+    loadedArchives,
     logEvents,
     get findPlatformCalls() {
       return findPlatformCalls
