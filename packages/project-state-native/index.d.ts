@@ -27,7 +27,29 @@ export interface NativeProjectStateReader {
   stats(): ProjectStateReaderStats
   filePaths(): string[]
   execute(request: Uint8Array): Uint8Array
+  validateDependencyPage(input: DependencyValidationPageInput): NativeDependencyValidationPage
   close(): void
+}
+
+export interface DependencyValidationPageInput {
+  readonly projectDir: string
+  readonly cursor: number
+  readonly batchSize: number
+}
+
+export interface NativeDependencyValidationStats {
+  readonly filesVisited: number
+  readonly checksVisited: number
+  readonly nativeDiagnostics: number
+  readonly deferredChecks: number
+  readonly nativeTemporaryBytes: number
+}
+
+export interface NativeDependencyValidationPage {
+  readonly diagnostics: Uint8Array<ArrayBuffer>
+  readonly deferred: Uint8Array<ArrayBuffer>
+  readonly nextCursor?: number
+  readonly stats: NativeDependencyValidationStats
 }
 
 export interface ProjectStateFragmentSections {

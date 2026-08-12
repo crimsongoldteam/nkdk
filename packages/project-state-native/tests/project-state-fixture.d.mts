@@ -19,5 +19,9 @@ export interface TestProjectStateSnapshotView {
 export function unicodeSnapshot(): TestProjectStateBuffers
 export function targetSnapshot(): TestProjectStateBuffers
 export function fileBackedTargetSnapshot(): TestProjectStateBuffers
+export function readinessSnapshot(options?: {
+  readonly includeBase?: boolean
+  readonly baseReady?: boolean
+}): TestProjectStateBuffers
 export function snapshotView(buffers: TestProjectStateBuffers): TestProjectStateSnapshotView
 export function sectionViews(buffers: TestProjectStateBuffers): ProjectStateSections

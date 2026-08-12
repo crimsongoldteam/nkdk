@@ -14,6 +14,13 @@ module.exports.openProjectStateReader = function openProjectStateReader(sections
     close: () => reader.close(),
     filePaths: () => reader.filePaths(),
     stats: () => reader.stats(),
+    validateDependencyPage(input) {
+      try {
+        return reader.validateDependencyPage(input)
+      } catch (error) {
+        throw withCode(error, "PROJECT_STATE_INVALID_DEPENDENCY_VALIDATION")
+      }
+    },
     execute(request) {
       try {
         return reader.execute(request)

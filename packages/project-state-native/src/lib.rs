@@ -3,6 +3,7 @@ use napi::bindgen_prelude::Uint8Array;
 use napi_derive::napi;
 
 mod buffers;
+mod dependency_validation;
 mod diagnostic_batch;
 mod format;
 mod queries;

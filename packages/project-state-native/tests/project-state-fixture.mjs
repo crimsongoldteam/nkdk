@@ -52,6 +52,28 @@ export function fileBackedTargetSnapshot() {
   })
 }
 
+export function readinessSnapshot({ includeBase = true, baseReady = true } = {}) {
+  const writer = createProjectStateFragmentWriter()
+  if (includeBase) {
+    writer.appendFile({
+      ...yamlUpdate("cf/Конфигурация.yaml", "cf", "Configuration.cf"),
+      localValidation: {
+        contributedFacts: baseReady,
+        diagnostics: [],
+        schemaDiagnostics: [],
+      },
+    }, 1n)
+  }
+  writer.appendFile(
+    yamlUpdate("cfe/demo/Конфигурация.yaml", "cfe/demo", "Configuration.demo"),
+    2n,
+  )
+  return buildProjectStateSnapshot({
+    fragments: [openProjectStateFragment(writer.finish())],
+    deletions: [],
+  })
+}
+
 export function snapshotView(buffers) {
   return new ProjectStateSnapshotView(buffers)
 }

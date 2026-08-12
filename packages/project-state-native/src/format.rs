@@ -19,6 +19,8 @@ const TARGET_RANGE_BYTES: usize = 16;
 const OWNER_ENTRY_BYTES: usize = 8;
 const OWNER_RANGE_BYTES: usize = 16;
 const NONE: usize = u32::MAX as usize;
+const FACT_HEADER_BYTES: usize = 8;
+const FACT_CATALOG_RECORD_BYTES: usize = 16;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct TargetEntry {
@@ -35,6 +37,13 @@ pub struct FileIdentityRecord {
     pub hash: u64,
     pub resource_kind: u8,
     pub yaml_role: u8,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) struct FactTableRange {
+    pub offset: usize,
+    pub records: usize,
+    pub record_bytes: usize,
 }
 
 pub struct SnapshotLayout {
@@ -193,6 +202,59 @@ impl SnapshotLayout {
             checked_mul(file_id, FILE_RECORD_BYTES)?,
         )?;
         usize_from_u32(read_u32(files, record)?)
+    }
+
+    pub(crate) fn file_project_path<'a>(
+        &self,
+        sections: &'a ProjectStateSections,
+        file_id: usize,
+    ) -> Result<&'a str> {
+        let path_id = self.file_project_path_id(sections.files.as_ref(), file_id)?;
+        self.string_value(sections.strings.as_ref(), path_id)
+    }
+
+    pub(crate) fn file_component_path<'a>(
+        &self,
+        sections: &'a ProjectStateSections,
+        file_id: usize,
+    ) -> Result<&'a str> {
+        let record = self.file_record_offset(file_id)?;
+        let component_path_id =
+            usize_from_u32(read_u32(sections.files.as_ref(), checked_add(record, 4)?)?)?;
+        self.string_value(sections.strings.as_ref(), component_path_id)
+    }
+
+    pub(crate) fn fact_table(&self, facts: &[u8], kind: u16) -> Result<Option<FactTableRange>> {
+        require_length(facts, FACT_HEADER_BYTES, "Раздел фактов оборван")?;
+        let table_count = usize_from_u32(read_u32(facts, 0)?)?;
+        let catalog_offset = usize_from_u32(read_u32(facts, 4)?)?;
+        let catalog_length = checked_mul(table_count, FACT_CATALOG_RECORD_BYTES)?;
+        let catalog_end = checked_add(catalog_offset, catalog_length)?;
+        if catalog_offset != FACT_HEADER_BYTES || catalog_end > facts.len() {
+            return invalid("Повреждён каталог фактов");
+        }
+        for index in 0..table_count {
+            let record = checked_add(
+                catalog_offset,
+                checked_mul(index, FACT_CATALOG_RECORD_BYTES)?,
+            )?;
+            if read_u16(facts, record)? != kind {
+                continue;
+            }
+            let offset = usize_from_u32(read_u32(facts, checked_add(record, 4)?)?)?;
+            let records = usize_from_u32(read_u32(facts, checked_add(record, 8)?)?)?;
+            let record_bytes = usize_from_u32(read_u32(facts, checked_add(record, 12)?)?)?;
+            let end = checked_add(offset, checked_mul(records, record_bytes)?)?;
+            if offset < catalog_end || end > facts.len() {
+                return invalid("Повреждён диапазон таблицы фактов");
+            }
+            return Ok(Some(FactTableRange {
+                offset,
+                records,
+                record_bytes,
+            }));
+        }
+        Ok(None)
     }
 
     pub fn file_hash(&self, files: &[u8], file_id: usize) -> Result<u64> {
