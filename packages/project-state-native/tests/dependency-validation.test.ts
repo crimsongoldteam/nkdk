@@ -1,7 +1,12 @@
 import { openDiagnosticBatch } from "@nkdk/runtime"
+import { decodeRustDeferredValidationPage } from "../../rules/metadata/projectState/rust/dependencyProtocol"
 import { describe, expect, it } from "vitest"
 import { nativeTestDiagnosticBatch, openProjectStateReader } from "../index.js"
-import { readinessSnapshot, sectionViews } from "./project-state-fixture.mjs"
+import {
+  deferredValidationSnapshot,
+  readinessSnapshot,
+  sectionViews,
+} from "./project-state-fixture.mjs"
 
 describe("Rust ProjectState dependency validation", () => {
   it("кодирует диагностику в общий двоичный формат runtime", () => {
@@ -67,6 +72,30 @@ describe("Rust ProjectState dependency validation", () => {
     reader.close()
     expect(() => reader.validateDependencyPage({ projectDir: "/project", cursor: 0, batchSize: 1 }))
       .toThrow(/закрыт/u)
+  })
+
+  it("выдаёт отложенные строки детерминированными страницами", () => {
+    const reader = openProjectStateReader(sectionViews(deferredValidationSnapshot()))
+
+    const first = reader.validateDependencyPage({ projectDir: "/project", cursor: 0, batchSize: 2 })
+    const second = reader.validateDependencyPage({
+      projectDir: "/project",
+      cursor: 2,
+      batchSize: 2,
+    })
+
+    expect(decodeRustDeferredValidationPage(first.deferred)).toEqual([
+      { kind: "pendingReference", fileId: 0, rowId: 0 },
+      { kind: "pendingCheck", fileId: 0, rowId: 0 },
+    ])
+    expect(first.nextCursor).toBe(2)
+    expect(first.stats).toMatchObject({ checksVisited: 2, deferredChecks: 2 })
+    expect(decodeRustDeferredValidationPage(second.deferred)).toEqual([
+      { kind: "structuredDocument", fileId: 0, rowId: 0 },
+    ])
+    expect(second.nextCursor).toBeUndefined()
+    expect(second.stats).toMatchObject({ checksVisited: 1, deferredChecks: 1 })
+    reader.close()
   })
 })
 

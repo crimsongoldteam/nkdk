@@ -40,7 +40,9 @@ export function openRustProjectStateReadSession(
 }
 
 interface RustReadSessionDependencies {
-  readonly openReader: typeof openRustProjectStateReader
+  readonly openReader: (
+    sections: Parameters<typeof openRustProjectStateReader>[0],
+  ) => Pick<NativeProjectStateReader, "execute" | "close">
   readonly createTypedReader: typeof createTypedProjectStateReader
   readonly createFallbackQueryPort: typeof createBinaryProjectStateQueryPort
   readonly createTargetCacheKey: typeof targetCacheKey
@@ -50,7 +52,7 @@ type WithoutRequestId<T> = T extends unknown ? Omit<T, "requestId"> : never
 type CachedTargetLookupResult = WithoutRequestId<ProjectTargetLookupResult>
 
 function resolveTargets(
-  native: NativeProjectStateReader,
+  native: Pick<NativeProjectStateReader, "execute">,
   snapshot: ProjectStateSnapshotView,
   typedReader: ReturnType<typeof createTypedProjectStateReader> | undefined,
   fallback: ProjectStateQueryPort,

@@ -5,6 +5,7 @@ import {
 } from "../../rules/metadata/projectState/binary/fragment.ts"
 import { ProjectStateSnapshotView } from "../../rules/metadata/projectState/binary/snapshot.ts"
 import { resourceUpdate, yamlUpdate } from "../../rules/metadata/projectState/binary/testData.ts"
+import { richYamlUpdate } from "../../rules/metadata/projectState/binary/testData.ts"
 
 export function unicodeSnapshot() {
   const writer = createProjectStateFragmentWriter()
@@ -68,6 +69,26 @@ export function readinessSnapshot({ includeBase = true, baseReady = true } = {})
     yamlUpdate("cfe/demo/Конфигурация.yaml", "cfe/demo", "Configuration.demo"),
     2n,
   )
+  return buildProjectStateSnapshot({
+    fragments: [openProjectStateFragment(writer.finish())],
+    deletions: [],
+  })
+}
+
+export function deferredValidationSnapshot() {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendFile({
+    ...richYamlUpdate("cf/Конфигурация.yaml", "cf", "Configuration.cf"),
+    structuredDocuments: [{
+      documentKind: "clientApplicationForm",
+      representation: "working",
+      logicalAddress: "Form.Одна",
+      workingProjectPath: "Форма.yaml",
+      componentKind: "element",
+      name: "Поле",
+      yamlPath: ["Элементы", "Поле"],
+    }],
+  }, 1n)
   return buildProjectStateSnapshot({
     fragments: [openProjectStateFragment(writer.finish())],
     deletions: [],
