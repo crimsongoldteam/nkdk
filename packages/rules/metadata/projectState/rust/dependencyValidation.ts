@@ -24,6 +24,7 @@ const DEFAULT_PAGE_SIZE = 2_000
 export interface RustDependencyValidationPageEvent {
   readonly deferredRows: number
   readonly nativeDiagnostics: number
+  readonly nativeTemporaryBytes: number
 }
 
 export function validateRustDependencyDiagnosticBatches(params: {
@@ -63,7 +64,11 @@ export function validateRustDependencyDiagnosticBatches(params: {
       batchSize: pageSize,
     })
     const rows = decodeRustDeferredValidationPage(page.deferred)
-    params.onPage?.({ deferredRows: rows.length, nativeDiagnostics: page.stats.nativeDiagnostics })
+    params.onPage?.({
+      deferredRows: rows.length,
+      nativeDiagnostics: page.stats.nativeDiagnostics,
+      nativeTemporaryBytes: page.stats.nativeTemporaryBytes,
+    })
     if (diagnosticCount(page.diagnostics) > 0) readiness.push({ bytes: page.diagnostics })
     const checks = decodePage(params.snapshot, typed, rows, seenOwners, structuredRows)
     appendDiagnostics(categories.references, params.dependencyValidator.validateReferences({

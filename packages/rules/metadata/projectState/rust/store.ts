@@ -26,11 +26,25 @@ import type { ProjectStateSharedBuffers } from "../binary/snapshot"
 import type { ProjectStateFragmentView } from "../binary/fragment"
 import type { ProjectStateSnapshotBuildInput } from "../binary/typedBuilder"
 import type { NativeSnapshotStats, ProjectStateFragmentSections } from "@nkdk/project-state-native"
+import { openDiagnosticBatch } from "@nkdk/runtime"
+import { validateRustDependencyDiagnosticBatches } from "./dependencyValidation"
 
 let lastBuildStats: NativeSnapshotStats | undefined
+let lastValidationStats: RustProjectStateValidationStats | undefined
+
+export interface RustProjectStateValidationStats {
+  readonly pages: number
+  readonly deferredRows: number
+  readonly nativeDiagnostics: number
+  readonly maxNativeTemporaryBytes: number
+}
 
 export function readLastRustProjectStateBuildStats(): NativeSnapshotStats | undefined {
   return lastBuildStats
+}
+
+export function readLastRustProjectStateValidationStats(): RustProjectStateValidationStats | undefined {
+  return lastValidationStats
 }
 
 export function createRustProjectStateStore(params: OpenProjectStateStoreParams): ProjectStateStore {
@@ -41,6 +55,32 @@ export function createRustProjectStateStore(params: OpenProjectStateStoreParams)
       readFileBaseline(native, snapshot, files)),
     compareFiles: (batch) => withReader(store, ({ native, snapshot }) =>
       compareFiles(native, snapshot, batch)),
+    validateDependencyDiagnosticBatches: () => withReader(store, ({ native, snapshot }) => {
+      const stats = {
+        pages: 0,
+        deferredRows: 0,
+        nativeDiagnostics: 0,
+        maxNativeTemporaryBytes: 0,
+      }
+      lastValidationStats = undefined
+      const batches = validateRustDependencyDiagnosticBatches({
+        native,
+        snapshot,
+        projectDir: params.projectDir ?? "",
+        dependencyValidator: params.dependencyValidator,
+        onPage: (page) => {
+          stats.pages += 1
+          stats.deferredRows += page.deferredRows
+          stats.nativeDiagnostics += page.nativeDiagnostics
+          stats.maxNativeTemporaryBytes = Math.max(
+            stats.maxNativeTemporaryBytes,
+            page.nativeTemporaryBytes,
+          )
+        },
+      })
+      lastValidationStats = stats
+      return batches.map(openDiagnosticBatch)
+    }),
   }
 }
 
