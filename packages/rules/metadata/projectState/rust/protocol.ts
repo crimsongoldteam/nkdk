@@ -10,8 +10,7 @@ const COMPARE_REQUEST_BYTES = 32
 const COMPARE_RESPONSE_BYTES = 8
 const TARGET_OPERATION = 3
 const TARGET_REQUEST_BYTES = 16
-const TARGET_RESULT_BYTES = 16
-const TARGET_ENTRY_BYTES = 48
+const TARGET_RESULT_BYTES = 28
 const MISSING_FILE_ID = 0xffff_ffff
 const NONE = 0xffff_ffff
 
@@ -21,18 +20,17 @@ export interface RustFileBaselineResult {
   readonly hash?: bigint
 }
 
-export interface RustResolvedTarget {
+export interface RustResolvedTargetIds {
   readonly kind: "object" | "member" | "value"
-  readonly canonical: string
   readonly sourceFileId: number
-  readonly projectPath: string
-  readonly componentPath: string
-  readonly itemProjectPath?: string
-  readonly ownerProjectPath?: string
+  readonly canonicalId: number
+  readonly componentPathId: number
+  readonly itemProjectPathId?: number
+  readonly ownerProjectPathId?: number
 }
 
 export type RustTargetLookupResult =
-  | { readonly status: "found"; readonly target: RustResolvedTarget }
+  | { readonly status: "found"; readonly target: RustResolvedTargetIds }
   | { readonly status: "missing" | "ambiguous" }
 
 export interface RustFileComparisonRequest {
@@ -186,24 +184,13 @@ export function decodeRustFileComparisonResponse(bytes: Uint8Array): RustFileCom
 
 export function decodeRustTargetResponse(bytes: Uint8Array): readonly RustTargetLookupResult[] {
   const envelope = readEnvelope(bytes, TARGET_OPERATION)
-  const entriesOffset = envelope.rowsOffset + envelope.requestCount * TARGET_RESULT_BYTES
   if (
-    envelope.stringsOffset < entriesOffset
-    || (envelope.stringsOffset - entriesOffset) % TARGET_ENTRY_BYTES !== 0
+    envelope.stringsOffset !== envelope.rowsOffset + envelope.requestCount * TARGET_RESULT_BYTES
+    || envelope.stringsOffset !== bytes.byteLength
   ) {
     throw new Error("Повреждены записи ответа Rust target lookup")
   }
-  const entryCount = (envelope.stringsOffset - entriesOffset) / TARGET_ENTRY_BYTES
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
-  const decoder = new TextDecoder()
-  const readString = (offset: number, length: number): string => {
-    if (offset === NONE) throw new Error("Обязательная строка Rust target отсутствует")
-    const start = envelope.stringsOffset + offset
-    if (start + length > bytes.byteLength) throw new Error("Строка Rust target выходит за пакет")
-    return decoder.decode(bytes.subarray(start, start + length))
-  }
-  const optionalString = (offset: number, length: number): string | undefined =>
-    offset === NONE ? undefined : readString(offset, length)
 
   return Array.from({ length: envelope.requestCount }, (_, index) => {
     const row = envelope.rowsOffset + index * TARGET_RESULT_BYTES
@@ -211,32 +198,26 @@ export function decodeRustTargetResponse(bytes: Uint8Array): readonly RustTarget
     if (status === 0) return { status: "missing" }
     if (status === 2) return { status: "ambiguous" }
     if (status !== 1) throw new Error(`Неизвестный статус Rust target lookup: ${status}`)
-    const targetIndex = view.getUint32(row + 4, true)
-    if (targetIndex >= entryCount) throw new Error("Неверный индекс Rust target")
-    const entry = entriesOffset + targetIndex * TARGET_ENTRY_BYTES
-    const kind = (["object", "member", "value"] as const)[view.getUint32(entry, true) - 1]
+    const kind = (["object", "member", "value"] as const)[view.getUint32(row + 4, true) - 1]
     if (kind === undefined) throw new Error("Неизвестный вид Rust target")
     return {
       status: "found",
       target: {
         kind,
-        sourceFileId: view.getUint32(entry + 4, true),
-        canonical: readString(view.getUint32(entry + 8, true), view.getUint32(entry + 12, true)),
-        projectPath: readString(view.getUint32(entry + 16, true), view.getUint32(entry + 20, true)),
-        componentPath: readString(view.getUint32(entry + 24, true), view.getUint32(entry + 28, true)),
-        ...optionalField("itemProjectPath", view.getUint32(entry + 32, true), view.getUint32(entry + 36, true)),
-        ...optionalField("ownerProjectPath", view.getUint32(entry + 40, true), view.getUint32(entry + 44, true)),
+        sourceFileId: view.getUint32(row + 8, true),
+        canonicalId: view.getUint32(row + 12, true),
+        componentPathId: view.getUint32(row + 16, true),
+        ...optionalId("itemProjectPathId", view.getUint32(row + 20, true)),
+        ...optionalId("ownerProjectPathId", view.getUint32(row + 24, true)),
       },
     }
   })
 
-  function optionalField<Key extends "itemProjectPath" | "ownerProjectPath">(
+  function optionalId<Key extends "itemProjectPathId" | "ownerProjectPathId">(
     key: Key,
-    offset: number,
-    length: number,
-  ): Partial<Record<Key, string>> {
-    const value = optionalString(offset, length)
-    return value === undefined ? {} : { [key]: value } as Record<Key, string>
+    value: number,
+  ): Partial<Record<Key, number>> {
+    return value === NONE ? {} : { [key]: value } as Record<Key, number>
   }
 }
 

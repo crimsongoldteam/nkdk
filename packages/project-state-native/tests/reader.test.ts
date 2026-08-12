@@ -52,6 +52,8 @@ describe("Rust ProjectState reader", () => {
 
   it("различает найденные, отсутствующие и неоднозначные цели", () => {
     const buffers = targetSnapshot()
+    const snapshot = snapshotView(buffers)
+    const expected = targetEntry(snapshot, "Catalog.Один")
     const reader = openProjectStateReader(sectionViews(buffers))
 
     const actual = decodeRustTargetResponse(reader.execute(encodeRustTargetRequest([
@@ -65,10 +67,9 @@ describe("Rust ProjectState reader", () => {
         status: "found",
         target: {
           kind: "object",
-          canonical: "Catalog.Один",
-          sourceFileId: 2,
-          projectPath: "cf/Один.yaml",
-          componentPath: "cf",
+          sourceFileId: expected.sourceFileId,
+          canonicalId: expected.canonicalId,
+          componentPathId: expected.componentPathId,
         },
       },
       { status: "missing" },
@@ -109,7 +110,10 @@ describe("Rust ProjectState reader", () => {
   })
 
   it("объединяет несколько доказательств одной файловой цели", () => {
-    const reader = openProjectStateReader(sectionViews(fileBackedTargetSnapshot()))
+    const buffers = fileBackedTargetSnapshot()
+    const snapshot = snapshotView(buffers)
+    const expected = targetEntry(snapshot, "Document.Заказ.Template.Печать")
+    const reader = openProjectStateReader(sectionViews(buffers))
 
     const actual = decodeRustTargetResponse(reader.execute(encodeRustTargetRequest([{
       componentPath: "cf",
@@ -120,12 +124,11 @@ describe("Rust ProjectState reader", () => {
       status: "found",
       target: {
         kind: "member",
-        canonical: "Document.Заказ.Template.Печать",
-        sourceFileId: 0,
-        projectPath: "cf/Макеты/Печать/Ext/logo.png",
-        componentPath: "cf",
-        itemProjectPath: "cf/Макеты/Печать",
-        ownerProjectPath: "cf/Свойства.yaml",
+        sourceFileId: expected.sourceFileId,
+        canonicalId: expected.canonicalId,
+        componentPathId: expected.componentPathId,
+        itemProjectPathId: expected.itemProjectPathId,
+        ownerProjectPathId: expected.ownerProjectPathId,
       },
     }])
     reader.close()
@@ -189,4 +192,16 @@ function copiedSectionViews(
     lookups: Uint8Array.from(sections.lookups),
     diagnostics: Uint8Array.from(sections.diagnostics),
   }
+}
+
+function targetEntry(
+  snapshot: ReturnType<typeof snapshotView>,
+  canonical: string,
+) {
+  const entry = Array.from(
+    { length: snapshot.targetEntryCount },
+    (_, entryId) => snapshot.targetEntry(entryId),
+  ).find((candidate) => snapshot.stringValue(candidate.canonicalId) === canonical)
+  if (entry === undefined) throw new Error(`Не найдена цель ${canonical}`)
+  return entry
 }
