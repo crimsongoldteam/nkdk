@@ -4,6 +4,8 @@ import { createValidationRegistrySet } from "../../validation/validationRegistry
 import { createMetadataWorkerPersistentState } from "../../workerPool/workerState"
 import { createOperationRegistrySet } from "../../operations/operationRegistrySet"
 import { withMetadataExecutionRegistrySets } from "../metadataExecutionContext"
+import { createProjectStateBackend } from "../projectStateBackend"
+import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
 
 const [{ createMetadataWorkerCommandHandler }, { createMetadataWorkerOperations }] = await Promise.all([
   import("../../workerPool/worker"),
@@ -12,10 +14,15 @@ const [{ createMetadataWorkerCommandHandler }, { createMetadataWorkerOperations 
 const rules = createRuleRegistrySet(metadataRules)
 const validation = createValidationRegistrySet(metadataRules, rules)
 const registries = { rules, validation, operations: createOperationRegistrySet(metadataRules) }
+const projectStateBackend = createProjectStateBackend()
+const projectStateDependencyValidator = createProjectStateDependencyValidator()
 
 const worker = createMetadataWorkerCommandHandler({
   operations: createMetadataWorkerOperations(),
-  createState: (params) => createMetadataWorkerPersistentState(params, { validationRuntime: validation }),
+  createState: (params) => createMetadataWorkerPersistentState(params, {
+    validationRuntime: validation,
+    openReadSession: (token) => projectStateBackend.openReadSession(token, projectStateDependencyValidator),
+  }),
 })
 
 export default (command: Parameters<typeof worker>[0]) =>

@@ -28,6 +28,7 @@ const commonOptions = {
   bundle: true,
   external: [
     "@modelcontextprotocol/sdk",
+    "@nkdk/project-state-native",
     "@node-rs/xxhash",
     "date-fns",
     "fast-xml-parser",

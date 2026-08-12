@@ -14,6 +14,7 @@ const commonOptions = {
   absWorkingDir: rootDir.pathname,
   bundle: true,
   external: [
+    "@nkdk/project-state-native",
     "@node-rs/xxhash",
     "date-fns",
     "fast-xml-parser",

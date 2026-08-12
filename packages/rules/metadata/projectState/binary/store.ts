@@ -78,11 +78,11 @@ export function createBinaryProjectStateStore(
       const requestedPaths = new Set(files.map(({ projectPath }) => projectPath))
       files.forEach((file, index) => {
       const fileId = snapshot.findFile(file.projectPath)
-        if (fileId === undefined || !sameIdentity(snapshotIdentity(snapshot, fileId), file)) return
+        if (fileId === undefined || !sameProjectStateFileIdentity(projectStateSnapshotIdentity(snapshot, fileId), file)) return
         knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
         new DataView(hashBytes.buffer).setBigUint64(index * 8, snapshot.fileRecord(fileId).hash, false)
       })
-      const deleted = allIdentities(snapshot).filter(({ projectPath }) => !requestedPaths.has(projectPath))
+      const deleted = allProjectStateSnapshotIdentities(snapshot).filter(({ projectPath }) => !requestedPaths.has(projectPath))
       const result = { knownHashBits, hashBytes, deleted }
       assertProjectStateFileBaseline(result, files.length)
       return result
@@ -115,12 +115,12 @@ export function createBinaryProjectStateStore(
         changed: batch.files.flatMap((file, index) => {
           const fileId = snapshot.findFile(file.projectPath)
           return fileId !== undefined
-            && sameIdentity(snapshotIdentity(snapshot, fileId), file)
+            && sameProjectStateFileIdentity(projectStateSnapshotIdentity(snapshot, fileId), file)
             && snapshot.fileRecord(fileId).hash === hashes.getBigUint64(index * 8, false)
             ? []
             : [{ index, file }]
         }),
-        deleted: allIdentities(snapshot).filter(({ projectPath }) => !requestedPaths.has(projectPath)),
+        deleted: allProjectStateSnapshotIdentities(snapshot).filter(({ projectPath }) => !requestedPaths.has(projectPath)),
       }
     },
     beginUpdate() {
@@ -293,7 +293,10 @@ function remove(active: ActiveUpdate, projectPath: string): void {
   active.candidate = undefined
 }
 
-function snapshotIdentity(snapshot: ProjectStateSnapshotView, fileId: number): ProjectStateFileIdentity {
+export function projectStateSnapshotIdentity(
+  snapshot: ProjectStateSnapshotView,
+  fileId: number,
+): ProjectStateFileIdentity {
   const record = snapshot.fileRecord(fileId)
   const yamlRole = YAML_ROLES[record.yamlRole]
   return {
@@ -304,11 +307,14 @@ function snapshotIdentity(snapshot: ProjectStateSnapshotView, fileId: number): P
   }
 }
 
-function allIdentities(snapshot: ProjectStateSnapshotView): ProjectStateFileIdentity[] {
-  return Array.from({ length: snapshot.fileCount }, (_, fileId) => snapshotIdentity(snapshot, fileId))
+export function allProjectStateSnapshotIdentities(snapshot: ProjectStateSnapshotView): ProjectStateFileIdentity[] {
+  return Array.from({ length: snapshot.fileCount }, (_, fileId) => projectStateSnapshotIdentity(snapshot, fileId))
 }
 
-function sameIdentity(left: ProjectStateFileIdentity, right: ProjectStateFileIdentity): boolean {
+export function sameProjectStateFileIdentity(
+  left: ProjectStateFileIdentity,
+  right: ProjectStateFileIdentity,
+): boolean {
   return left.projectPath === right.projectPath
     && left.componentPath === right.componentPath
     && left.resourceKind === right.resourceKind

@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@nkdk/project-state-native": "workspace:*",
     "@node-rs/xxhash": "^1.7.6",
     "date-fns": "^4.4.0",
     "fast-xml-parser": "^5.10.1",

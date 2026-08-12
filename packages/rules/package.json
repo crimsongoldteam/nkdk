@@ -28,6 +28,7 @@
     "measure:validation-workers": "node scripts/measure-validation-workers.mjs"
   },
   "dependencies": {
+    "@nkdk/project-state-native": "workspace:*",
     "@nkdk/runtime": "workspace:*",
     "@node-rs/xxhash": "^1.7.6",
     "@zip.js/zip.js": "^2.8.34",

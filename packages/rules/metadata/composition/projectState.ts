@@ -1,9 +1,9 @@
 import { createPreparedYamlProjectRefreshExecutor, createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import { createMetadataWorkerPoolHandle } from "../workerPool/handle"
-import { openBinaryProjectStateReadSession } from "../projectState/binary/readSession"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import { createProjectStateWriterHandle } from "../projectState/writerHandle"
+import { loadBinaryProjectState } from "../projectState/binary/persistence"
 import {
   createProjectStateService,
   type CreateProjectStateServiceOptions,
@@ -15,6 +15,7 @@ import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { createProjectStateBackend } from "./projectStateBackend"
 
 function dependencyValidator() {
   return createProjectStateDependencyValidator({
@@ -23,7 +24,7 @@ function dependencyValidator() {
 }
 
 export const openProjectStateReadSession = (token: ProjectStateReadToken) =>
-  openBinaryProjectStateReadSession(token, dependencyValidator())
+  createProjectStateBackend().openReadSession(token, dependencyValidator())
 
 export function createDefaultProjectStateService(
   options: CreateProjectStateServiceOptions = {},
@@ -32,12 +33,20 @@ export function createDefaultProjectStateService(
   const effectiveRules = rules ?? currentRuleRegistrySet<RuleRegistrySet>()
   const workers = options.workerPool ?? createMetadataWorkerPoolHandle()
   const validator = dependencyValidator()
+  const backend = createProjectStateBackend()
   return createProjectStateService({
     ...options,
     workerPool: workers,
     useWorkerOperation: options.createPool === undefined ? true : options.useWorkerOperation,
-    createWriter: options.createWriter ?? (() => createProjectStateWriterHandle({ dependencyValidator: validator })),
-    openReadSession: options.openReadSession ?? openProjectStateReadSession,
+    createWriter: options.createWriter ?? (() => createProjectStateWriterHandle({
+      dependencyValidator: validator,
+      openStore: async (projectDir) => backend.openStore({
+        projectDir,
+        initial: await loadBinaryProjectState(projectDir),
+        dependencyValidator: validator,
+      }),
+    })),
+    openReadSession: options.openReadSession ?? ((token) => backend.openReadSession(token, validator)),
     createPool: options.createPool ?? ((concurrency, operation, context) => {
       if (operation === undefined || context === undefined) {
         throw new Error("ProjectState refresh composition is incomplete")
