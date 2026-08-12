@@ -1,45 +1,46 @@
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
-import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
-import { attachMinMaxValueXsiType, type MinMaxValueXsiType } from "./types"
-
-const MIN_MAX_VALUE_XSI_TYPES = new Set<MinMaxValueXsiType>(["xs:string", "xs:decimal"])
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { MinMaxValueModel, MinMaxValueXsiType } from "./types"
 
 type MinMaxValueXML = number | string | { "#text"?: number | string; "_xsi:type"?: string } | undefined
+type RuleWithTypedXML = PropertyRule & { typedXML?: unknown }
 
 export const importMinMaxValueFromXML = (
-  context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
-  value: MinMaxValueXML
-): number | Number | undefined => {
+  _context: ConfigurationContextFromXML,
+  rule: PropertyRule | undefined,
+  value: MinMaxValueXML,
+): MinMaxValueModel | undefined => {
   const rawValue = getMinMaxValueText(value)
-
   if (rawValue === undefined || rawValue === "") return undefined
 
-  const result = typeof rawValue === "number" ? rawValue : Number(rawValue.replace(",", "."))
+  const text = String(rawValue)
   const xsiType = typeof value === "object" && value !== null ? value["_xsi:type"] : undefined
+  const number = Number(text.replace(",", "."))
+  const canonicalXsiType = getRuleMinMaxValueXsiType(rule) ?? "xs:decimal"
 
-  if (context.fromXML.forReference && isMinMaxValueXsiType(xsiType)) {
-    return attachMinMaxValueXsiType(result, xsiType, String(rawValue))
-  }
+  if (
+    Number.isFinite(number) &&
+    xsiType === canonicalXsiType &&
+    text === formatCanonicalMinMaxValueText(number, canonicalXsiType)
+  ) return number
 
-  return result
+  return { kind: "xml", ...(xsiType === undefined ? {} : { xsiType }), text }
 }
 
-const getMinMaxValueText = (value: MinMaxValueXML): number | string | undefined => {
-  if (typeof value === "object" && value !== null) {
-    return value["#text"]
-  }
-
-  if (typeof value === "number" || typeof value === "string") {
-    return value
-  }
-
-  return undefined
+function getMinMaxValueText(value: MinMaxValueXML): number | string | undefined {
+  if (typeof value === "object" && value !== null) return value["#text"]
+  return typeof value === "number" || typeof value === "string" ? value : undefined
 }
 
-const isMinMaxValueXsiType = (value: string | undefined): value is MinMaxValueXsiType => {
-  return value !== undefined && MIN_MAX_VALUE_XSI_TYPES.has(value as MinMaxValueXsiType)
+export function getRuleMinMaxValueXsiType(rule: PropertyRule | undefined): MinMaxValueXsiType | undefined {
+  const typedXML = (rule as RuleWithTypedXML | undefined)?.typedXML
+  return typedXML === "xs:string" || typedXML === "xs:decimal" ? typedXML : undefined
+}
+
+export function formatCanonicalMinMaxValueText(value: number, xsiType: MinMaxValueXsiType): string {
+  const text = String(value)
+  return xsiType === "xs:string" && !Number.isInteger(value) ? text.replace(".", ",") : text
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MinMaxValue", "importFromXML", importMinMaxValueFromXML)

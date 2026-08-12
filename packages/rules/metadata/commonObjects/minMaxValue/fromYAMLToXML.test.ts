@@ -1,67 +1,47 @@
 import { describe, expect, it } from "vitest"
+import { importFromYAML } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { serializeDirectXML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
 
-import type { PropertyRule } from "../../ruleRuntime"
-import { testAtomicFromYAML } from "../../../tests/property/atomicFromYAML"
-import { testAtomicToXML } from "../../../tests/property/atomicToXML"
-import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
-
-import "./fromXML"
+import "./fromYAML"
 import "./toXML"
 
-const rule: PropertyRule = {
-  type: "MinMaxValue",
-  yaml: "МинимальноеЗначение",
-}
+const stringRule = probeRule("xs:string")
+const decimalRule = probeRule("xs:decimal")
 
 describe("MinMaxValue YAML → XML", () => {
-  it("exports number as typed decimal without reference", () => {
-    expect(convert(1)).toBe('<MinValue xsi:type="xs:decimal">1</MinValue>')
+  it.each([
+    ["МинимальноеЗначение: 1", decimalRule, '<MinValue xsi:type="xs:decimal">1</MinValue>'],
+    ["МинимальноеЗначение: !xml String 001.00", decimalRule, '<MinValue xsi:type="xs:string">001.00</MinValue>'],
+    ["МинимальноеЗначение: !xml Decimal 001.00", stringRule, '<MinValue xsi:type="xs:decimal">001.00</MinValue>'],
+    ["МинимальноеЗначение: !xml Raw xs:dateTime bad", stringRule, '<MinValue xsi:type="xs:dateTime">bad</MinValue>'],
+    ["МинимальноеЗначение: !xml Raw - bad", stringRule, "<MinValue>bad</MinValue>"],
+  ] as const)("exports %s without reference XML", (yamlText, rule, expected) => {
+    const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml: importFromYAML(yamlText) }).xml)
+
+    expect(xml).toContain(expected)
   })
 
-  it("preserves xs:string from reference", () => {
-    expect(convert(1, importReference())).toBe('<MinValue xsi:type="xs:string">1</MinValue>')
-  })
-
-  it("exports xs:string decimal comma from reference", () => {
-    const reference = importReference('<MinValue xsi:type="xs:string">0,005</MinValue>')
-
-    expect(convert(0.005, reference)).toBe('<MinValue xsi:type="xs:string">0,005</MinValue>')
-  })
-
-  it("exports xs:decimal decimal dot from reference", () => {
-    const reference = importReference('<MinValue xsi:type="xs:decimal">0.005</MinValue>')
-
-    expect(convert(0.005, reference)).toBe('<MinValue xsi:type="xs:decimal">0.005</MinValue>')
-  })
-
-  it("preserves xs:string integer decimal comma from reference", () => {
-    const reference = importReference('<MinValue xsi:type="xs:string">0,00</MinValue>')
-
-    expect(convert(0, reference)).toBe('<MinValue xsi:type="xs:string">0,00</MinValue>')
-  })
-
-  it("formats changed value instead of stale reference XML text", () => {
-    const reference = importReference('<MinValue xsi:type="xs:string">0,00</MinValue>')
-
-    expect(convert(1, reference)).toBe('<MinValue xsi:type="xs:string">1</MinValue>')
-  })
-
-  it("preserves xs:string non-numeric text from reference for NaN", () => {
-    const reference = importReference('<MinValue xsi:type="xs:string">abc</MinValue>')
-
-    expect(convert(Number.NaN, reference)).toBe('<MinValue xsi:type="xs:string">abc</MinValue>')
+  it.each([
+    "МинимальноеЗначение: !xml String",
+    "МинимальноеЗначение: !xml Decimal nope",
+    "МинимальноеЗначение: !xml Raw",
+    "МинимальноеЗначение: !xml Unknown 1",
+  ])("rejects invalid transport %s", (yamlText) => {
+    expect(() => testPropertyFromYAMLToXML({ rule: stringRule, yaml: importFromYAML(yamlText) })).toThrow()
   })
 })
 
-const convert = (yaml: number, referenceValue?: unknown): string => {
-  const value = testAtomicFromYAML({ rule, value: yaml, sourceValue: referenceValue })
-  return testAtomicToXML({ rule, value, referenceMetadata: referenceValue, xmlRootTag: "MinValue" }).result
+function probeRule(typedXML: "xs:string" | "xs:decimal"): MetadataItemRule {
+  return {
+    itemType: `MinMaxValueProbe.${typedXML}`,
+    properties: {
+      value: {
+        type: "MinMaxValue",
+        yaml: "МинимальноеЗначение",
+        xml: "MinValue",
+        typedXML,
+      },
+    },
+  } as MetadataItemRule
 }
-
-const importReference = (xmlString = '<MinValue xsi:type="xs:string">1</MinValue>'): unknown =>
-  testImportPropertyFromXML({
-    rule,
-    xmlString,
-    xmlRootTag: "MinValue",
-    forReference: true,
-  })

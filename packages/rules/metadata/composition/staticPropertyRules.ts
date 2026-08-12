@@ -373,6 +373,8 @@ import { metadataPropertyRule000 as rule371 } from "../systemEnumerations/toJSON
 import { metadataPropertyRule001 as rule372 } from "../systemEnumerations/toJSONSchema"
 import { metadataPropertyRule000 as rule373 } from "../systemEnumerations/toXML"
 import { metadataPropertyRule000 as rule374 } from "../systemEnumerations/toYAML"
+import { metadataPropertyRule000 as rule375 } from "../commonObjects/minMaxValue/fromYAML"
+import { metadataPropertyRule000 as rule376 } from "../commonObjects/minMaxValue/toYAML"
 
 import { propertyTypesFromContributions } from "../ruleRuntime/property/propertyRuleRegistrySet"
 
@@ -752,4 +754,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule372,
   rule373,
   rule374,
+  rule375,
+  rule376,
 ])

@@ -24,8 +24,10 @@ import "./stringOrNumber/toJSONSchema"
 import "./stringOrNumber/toXML"
 
 import "./minMaxValue/fromXML"
+import "./minMaxValue/fromYAML"
 import "./minMaxValue/toJSONSchema"
 import "./minMaxValue/toXML"
+import "./minMaxValue/toYAML"
 
 import "./userSettingsID/fromXML"
 import "./userSettingsID/fromYAML"
