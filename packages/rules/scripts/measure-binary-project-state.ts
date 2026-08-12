@@ -9,6 +9,12 @@ import { loadBinaryProjectState, projectStateBinaryPath, saveBinaryProjectState 
 import { createBinaryProjectStateReadToken } from "../metadata/projectState/binary/readToken"
 import { ProjectStateSnapshotView } from "../metadata/projectState/binary/snapshot"
 import { sourceWorkerExecArgv } from "../metadata/sourceWorkerRuntime"
+import {
+  parsePositiveIntegerOption,
+  parseProjectDirectoryArgument,
+  requireProjectDirectory,
+  runJsonMeasureCli,
+} from "./measure-script-support"
 import type {
   BinaryProjectStateLookupResult,
   BinaryProjectStateLookupTask,
@@ -29,20 +35,14 @@ export function parseMeasureBinaryProjectStateArgs(argv: readonly string[]): Mea
     const argument = argv[index]!
     if (argument === "--") continue
     if (argument === "--lookups" || argument === "--workers") {
-      const value = argv[++index]
-      if (value === undefined || !/^[1-9][0-9]*$/.test(value)) {
-        throw new Error(`${argument} должен быть положительным целым числом`)
-      }
+      const value = parsePositiveIntegerOption(argument, argv[++index])
       if (argument === "--lookups") lookups = Number(value)
       else workers = Number(value)
       continue
     }
-    if (argument.startsWith("-")) throw new Error(`Неизвестный параметр ${argument}`)
-    if (projectDir !== undefined) throw new Error("Можно указать только один каталог проекта")
-    projectDir = argument
+    projectDir = parseProjectDirectoryArgument(projectDir, argument)
   }
-  if (projectDir === undefined) throw new Error("Не указан каталог проекта")
-  return { projectDir: resolve(projectDir), lookups, workers }
+  return { projectDir: requireProjectDirectory(projectDir), lookups, workers }
 }
 
 export async function measureBinaryProjectState(options: MeasureBinaryProjectStateOptions) {
@@ -106,16 +106,6 @@ function secondsSince(startedAt: number): number {
   return Math.round((performance.now() - startedAt) * 1_000) / 1_000_000
 }
 
-function isMainModule(): boolean {
-  const entry = process.argv[1]
-  return entry !== undefined && resolve(entry) === fileURLToPath(import.meta.url)
-}
-
-if (isMainModule()) {
-  try {
-    console.log(JSON.stringify(await measureBinaryProjectState(parseMeasureBinaryProjectStateArgs(process.argv.slice(2))), null, 2))
-  } catch (caught) {
-    console.error(caught instanceof Error ? caught.message : String(caught))
-    process.exitCode = 1
-  }
-}
+await runJsonMeasureCli(import.meta.url, () =>
+  measureBinaryProjectState(parseMeasureBinaryProjectStateArgs(process.argv.slice(2))),
+{ pretty: true })
