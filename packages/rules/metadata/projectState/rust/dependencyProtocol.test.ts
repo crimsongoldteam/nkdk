@@ -3,18 +3,7 @@ import { decodeRustDeferredValidationPage } from "./dependencyProtocol"
 
 describe("Rust deferred dependency validation protocol", () => {
   it("декодирует идентификаторы строк без строковых данных", () => {
-    const bytes = new Uint8Array(32)
-    const view = new DataView(bytes.buffer)
-    view.setUint32(0, 0x5644_4b4e, true)
-    view.setUint16(4, 1, true)
-    view.setUint32(8, 1, true)
-    view.setUint32(12, 20, true)
-    view.setUint32(16, 32, true)
-    view.setUint16(20, 1, true)
-    view.setUint32(24, 3, true)
-    view.setUint32(28, 7, true)
-
-    expect(decodeRustDeferredValidationPage(bytes)).toEqual([
+    expect(decodeRustDeferredValidationPage(validDeferredPage())).toEqual([
       { kind: "pendingReference", fileId: 3, rowId: 7 },
     ])
   })

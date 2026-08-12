@@ -7,12 +7,18 @@ import type {
 } from "@nkdk/runtime/rule-kit"
 import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
 import type { FillValueTypedValue } from "../../ruleRuntime/property/fillValueSemantics"
-import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "@nkdk/runtime/rule-kit"
+import type {
+  DataPathAllowedKind,
+  DataPathTableInfo,
+  DataPathTypeInfo,
+  OwnerTypeRef,
+} from "@nkdk/runtime/rule-kit"
 import type {
   ProjectStateFileIdentity,
   ProjectStateFileUpdate,
   ProjectStateLocalValidationResult,
   ProjectStateOwnerFacts,
+  ProjectStatePendingDependencyCheck,
   ProjectStatePendingReference,
   ProjectStateStructuredDocumentEntry,
   ProjectStateYamlFileUpdate,
@@ -69,6 +75,18 @@ export interface TypedProjectStateReader {
   localValidation(fileId: number): ProjectStateLocalValidationResult | undefined
   pendingReferences(fileId: number): ProjectStateYamlFileUpdate["pendingReferences"]
   pendingChecks(fileId: number): ProjectStateYamlFileUpdate["pendingChecks"]
+  pendingReferenceRow(rowId: number): {
+    readonly fileId: number
+    readonly value: ProjectStateYamlFileUpdate["pendingReferences"][number]
+  }
+  pendingCheckRow(rowId: number): {
+    readonly fileId: number
+    readonly value: ProjectStateYamlFileUpdate["pendingChecks"][number]
+  }
+  structuredDocumentRow(rowId: number): {
+    readonly fileId: number
+    readonly value: ProjectStateStructuredDocumentEntry
+  }
   fileUpdate(fileId: number): ProjectStateFileUpdate
 }
 
@@ -119,6 +137,9 @@ export function createTypedProjectStateReader(
     localValidation,
     pendingReferences,
     pendingChecks,
+    pendingReferenceRow,
+    pendingCheckRow,
+    structuredDocumentRow,
     fileUpdate,
   }
 
@@ -440,8 +461,17 @@ export function createTypedProjectStateReader(
     return fileRows("pendingReferences", fileId).map(pendingReference)
   }
 
+  function pendingReferenceRow(rowId: number) {
+    const stored = row("pendingReferences", rowId)
+    return { fileId: stored.sourceFileId, value: pendingReference(stored) }
+  }
+
   function structuredDocuments(fileId: number): readonly ProjectStateStructuredDocumentEntry[] {
-    return fileRows("structuredDocuments", fileId).map((value) => ({
+    return fileRows("structuredDocuments", fileId).map(structuredDocument)
+  }
+
+  function structuredDocument(value: Record<string, number>): ProjectStateStructuredDocumentEntry {
+    return {
       documentKind: string(value.documentKindId),
       representation: string(value.representationId),
       logicalAddress: string(value.logicalAddressId),
@@ -450,13 +480,21 @@ export function createTypedProjectStateReader(
       name: string(value.nameId),
       yamlPath: yamlPath(value.yamlPathId),
       ...optionalField("payload", value.payloadId),
-    }))
+    }
+  }
+
+  function structuredDocumentRow(rowId: number) {
+    const stored = row("structuredDocuments", rowId)
+    return { fileId: stored.sourceFileId, value: structuredDocument(stored) }
   }
 
   function pendingChecks(fileId: number): ProjectStateYamlFileUpdate["pendingChecks"] {
-    return fileRows("pendingChecks", fileId).map((value) => {
-      const kind = string(value.kindId)
-      const location = { line: value.line, col: value.col, ...optionalField("path", value.pathId) }
+    return fileRows("pendingChecks", fileId).map(pendingCheck) as ProjectStateYamlFileUpdate["pendingChecks"]
+  }
+
+  function pendingCheck(value: Record<string, number>): ProjectStateYamlFileUpdate["pendingChecks"][number] {
+    const kind = string(value.kindId)
+    const location = { line: value.line, col: value.col, ...optionalField("path", value.pathId) }
       if (kind === "fillValue") {
         const payload = decodeFillValuePayload(string(value.payloadId))
         return {
@@ -481,14 +519,20 @@ export function createTypedProjectStateReader(
         owner: ownerType(value.ownerTypeId), value: string(value.valueId),
         tagged: value.reserved === 1,
         policyInput: { yaml: string(value.policyYamlId),
-          ...(value.allowedKindsCount === 0 ? {} : { allowedKinds: stringValues("allowedKinds", value.allowedKindsStart, value.allowedKindsCount) }),
+          ...(value.allowedKindsCount === 0 ? {} : { allowedKinds: stringValues(
+            "allowedKinds", value.allowedKindsStart, value.allowedKindsCount,
+          ) as DataPathAllowedKind[] }),
           ...(value.allowComposite === 0 ? {} : { allowComposite: value.allowComposite === 1 }) },
         ...optionalField("elementType", value.elementTypeId),
         ...(value.hasValuesPicture === 0 ? {} : { hasValuesPicture: value.hasValuesPicture === 1 }),
         ...(value.tableContextId === NONE ? {} : { tableContext: { dataPath: string(value.tableContextId) } }),
         policy: "formDataPath" as const,
-      }
-    }) as ProjectStateYamlFileUpdate["pendingChecks"]
+      } as Extract<ProjectStatePendingDependencyCheck, { readonly kind: "dataPath" }>
+  }
+
+  function pendingCheckRow(rowId: number) {
+    const stored = row("pendingChecks", rowId)
+    return { fileId: stored.sourceFileId, value: pendingCheck(stored) }
   }
 
   function decodeAddressableRequiredPayload(payload: string): {
