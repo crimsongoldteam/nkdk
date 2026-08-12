@@ -763,6 +763,7 @@ function copyConfigurationIndexPropertyValue(
   if (runtime === undefined || value === undefined) return
   const address = configurationIndexPropertyXmlStateLogicalAddress(runtime, property)
   if (value.extended === true) runtime.collector.setXmlFlag(address, "extended")
+  if (!usesConfigurationIndexOrdinaryXMLState(context)) return
   if (getXMLDefaultVariant(context) === undefined) return
   if (value.present === true) runtime.collector.setXmlFlag(address, "present")
   if (value.xsiNil === true) runtime.collector.setXmlFlag(address, "xsiNil")
@@ -960,6 +961,7 @@ function referenceFromConfigurationIndex(
     execution,
   )
   if (identity !== undefined) return identity
+  if (!usesConfigurationIndexOrdinaryXMLState(context)) return { exists: false }
   if (getXMLDefaultVariant(context) === undefined) return { exists: false }
   const property = configurationIndexPropertyXmlStateAddress(planned)
   const indexedValue = getConfigurationIndexPropertyXmlValue(context, property)
@@ -995,6 +997,12 @@ function referenceFromConfigurationIndex(
     }
   }
   return { exists: false }
+}
+
+function usesConfigurationIndexOrdinaryXMLState(
+  context: ConfigurationContextWithExportToXML,
+): boolean {
+  return context.exportToXML.componentKind !== "configuration"
 }
 
 function configurationIndexPropertyXmlStateAddress(

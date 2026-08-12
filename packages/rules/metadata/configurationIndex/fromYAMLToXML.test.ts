@@ -648,6 +648,45 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(result.outputs.get("owner")).toEqual({})
   })
 
+  it("сохраняет XML-состояние расширения", () => {
+    const { context, collector } = contextWithIndex([
+      {
+        logicalAddress: "Справочник.Товары.fillValue",
+        sourceProjectPath: "Configuration.yaml",
+        xml: { extended: true, xsiNil: true },
+      },
+    ])
+    const extensionContext: ConfigurationContextWithExportToXML = {
+      ...context,
+      exportToXML: {
+        ...context.exportToXML,
+        componentKind: "configurationExtension",
+        xmlDefaultVariantByLogicalAddress: { "Справочник.Товары": "indexed" },
+      },
+    }
+    const rule = {
+      itemType: "Catalog",
+      properties: {
+        fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
+      },
+    } as const satisfies MetadataItemRule
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: extensionContext,
+      yaml: {},
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ FillValue: { "_xsi:nil": true } })
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual(
+      expect.objectContaining({
+        logicalAddress: "Справочник.Товары.fillValue",
+        xml: { extended: true, xsiNil: true },
+      })
+    )
+  })
+
   it("восстанавливает служебную XML-идентичность без reference XML", () => {
     const { context, collector } = contextWithIndex()
     const rule = {

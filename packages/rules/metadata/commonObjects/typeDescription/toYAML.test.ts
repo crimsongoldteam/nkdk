@@ -36,6 +36,21 @@ describe("exportTypeDescriptionToYAML", () => {
     expect(exportTypeDescriptionToYAML(mockContext, mockRule, value)).toBe("СправочникОбъект.Товары")
   })
 
+  it("отклоняет несовместимый generated prefix ссылочного типа", () => {
+    const value = { type: ["CatalogRef.Товары"] }
+    Object.defineProperty(value, TYPE_DESCRIPTION_SOURCE_TYPES, {
+      value: {
+        "CatalogRef.Товары": {
+          value: "d7p1:CatalogRef.Товары",
+          namespace: "http://v8.1c.ru/8.1/data/enterprise/current-config",
+        },
+      },
+    })
+
+    expect(() => exportTypeDescriptionToYAML(mockContext, mockRule, value))
+      .toThrow("несовместимый XML-префикс d7p1")
+  })
+
   it("should throw on unknown non-enumeration type during YAML export", () => {
     expect(() => exportTypeDescriptionToYAML(mockContext, mockRule, { type: ["DefinitelyUnknownType"] })).toThrow(
       "Type DefinitelyUnknownType not found in TypeDescriptionRules"
