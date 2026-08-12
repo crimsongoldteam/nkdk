@@ -257,7 +257,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       propertyKey !== namePropertyKey &&
       !source.has(propertyKey) &&
       ((!references.some((reference) => reference.exists) && !requiresYAMLToXMLEvaluation(planned.propertyRule)) ||
-        (planned.propertyKey === "fillValue" && references.every((reference) => reference.value === undefined))) &&
+        (planned.propertyRule.exportNilValue === true &&
+          planned.propertyRule.preserveUnknownReferenceXML === false &&
+          references.every((reference) => reference.value === undefined))) &&
       (!hasXMLDefault || params.omitDefaultsForSparseYAML === true)
     ) {
       continue
