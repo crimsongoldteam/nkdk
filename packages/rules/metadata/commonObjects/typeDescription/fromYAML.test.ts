@@ -3,8 +3,14 @@ import { mockContext, mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromYAML } from "./fromYAML"
 import { TypeDescriptionYAML } from "./types"
-import { markYAMLScalarTag, taggedYAMLScalar, xmlScalarTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, taggedYAMLScalar, xmlScalarTagValue, yamlScalarTagAt } from "@nkdk/runtime"
 import { importTaggedTypeDescriptionFromYAML } from "./fromYAML"
+import {
+  createDirectRoundTripContexts,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../../tests/directConversion"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 const importUnsafeTypeDescriptionFromYAML = (value: unknown) =>
   importTypeDescriptionFromYAML(mockContext, mockRule, value as TypeDescriptionYAML)
@@ -175,6 +181,35 @@ describe("importTypeDescriptionFromYAML with allowedTypes", () => {
       "TypeDescription YAML value is not allowed by rule.allowedTypes"
     )
   })
+
+  it("round-trips an allowed tagged prefix inside a compound type", () => {
+    const { contexts, imported } = importRestrictedCompound("CatalogRef.Товары")
+    const type = (imported.yaml as { Тип: string[] }).Тип
+
+    expect(type).toEqual(["!xml d6p1:Справочник.Товары", "Строка"])
+    expect(yamlScalarTagAt(type, 0)).toBe("xml")
+
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: restrictedItemRule,
+      yaml: imported.yaml,
+    })
+    const xmlTypes = (exported.xml.Type as Record<string, unknown>)["v8:Type"] as unknown[]
+    expect(xmlTypes[0]).toEqual({
+      "_xmlns:d6p1": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+      "#text": "d6p1:CatalogRef.Товары",
+    })
+  })
+
+  it("rejects a tagged compound element outside allowedTypes", () => {
+    const { contexts, imported } = importRestrictedCompound("DocumentRef.Заказ")
+
+    expect(() => testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: restrictedItemRule,
+      yaml: imported.yaml,
+    })).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+  })
 })
 
 const externalDataSourceRule = {
@@ -233,3 +268,39 @@ describe("external data source TypeDescription YAML import", () => {
     })
   })
 })
+
+const restrictedItemRule = {
+  itemType: "RestrictedTypeDescriptionProbe",
+  properties: {
+    type: {
+      ...restrictedCatalogAttributeRule,
+      yaml: "Тип",
+      xml: "Type",
+      declareTypeNamespaceXML: true,
+    },
+  },
+} as const satisfies MetadataItemRule
+
+function importRestrictedCompound(type: string) {
+  const contexts = createDirectRoundTripContexts()
+  const imported = testPropertyFromXMLToYAML({
+    context: contexts.importContext,
+    rule: restrictedItemRule,
+    xml: {
+      Type: {
+        "v8:Type": [
+          {
+            "_xmlns:d6p1": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+            "#text": `d6p1:${type}`,
+          },
+          "xs:string",
+        ],
+        "v8:StringQualifiers": {
+          "v8:Length": 0,
+          "v8:AllowedLength": "Variable",
+        },
+      },
+    },
+  })
+  return { contexts, imported }
+}

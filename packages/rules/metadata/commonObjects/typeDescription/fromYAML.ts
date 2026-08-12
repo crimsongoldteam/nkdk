@@ -140,9 +140,27 @@ export const importTypeDescriptionFromYAML = (
 ): TypeDescription | undefined => {
   if (value === undefined) return undefined
   if (rule?.type === "TypeDescription" && rule.allowedTypes !== undefined) {
-    assertTypeDescriptionYAMLAllowed({ value, allowedTypes: rule.allowedTypes })
+    assertTypeDescriptionYAMLAllowed({
+      value: semanticTypeDescriptionYAML(value),
+      allowedTypes: rule.allowedTypes,
+    })
   }
   return parseTypeDescriptionYAML(value)
+}
+
+function semanticTypeDescriptionYAML(value: TypeDescriptionYAML): TypeDescriptionYAML {
+  if (!Array.isArray(value)) return value
+  return value.map((item, index) =>
+    yamlScalarTagAt(value, index) === "xml" ? semanticTaggedType(item) : item
+  ) as TypeDescriptionYAML
+}
+
+function semanticTaggedType(value: unknown): unknown {
+  const scalar = isTaggedYAMLScalar(value) && value.tag === "xml" ? value.value : value
+  if (typeof scalar !== "string") return value
+  const payload = xmlScalarTagPayload(scalar)
+  const separator = payload.indexOf(":")
+  return separator <= 0 ? value : payload.slice(separator + 1)
 }
 
 const generatedPrefixPattern = /^d(\d+)p1$/

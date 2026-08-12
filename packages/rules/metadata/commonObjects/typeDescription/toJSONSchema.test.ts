@@ -74,6 +74,30 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     expect(internal.Check("!xml d7p1:")).toBe(false)
     expect(external.Check("!xml d7p1:Диаграмма")).toBe(false)
   })
+
+  it("allows a prefix marker inside a restricted compound type only in the internal schema", () => {
+    const externalSchema = exportTypeDescriptionToJSONSchema({
+      context: mockContext,
+      rule: restrictedRule,
+      value: undefined,
+    })
+    const internalSchema = exportTypeDescriptionToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: { mode: "inline", refs: new Set(), validationPropertyRefs: true },
+      },
+      rule: restrictedRule,
+      value: undefined,
+    })
+    if (externalSchema === undefined || internalSchema === undefined) throw new Error("TypeDescription schema is missing")
+    const external = compileValidationSchema({}, externalSchema)
+    const internal = compileValidationSchema({}, internalSchema)
+    const value = ["!xml d6p1:Справочник.Товары", "Строка"]
+
+    expect(internal.Check(value)).toBe(true)
+    expect(external.Check(value)).toBe(false)
+  })
+
   it("keeps broad schema when allowedTypes is absent", () => {
     const schema = exportTypeDescriptionToJSONSchema({
       context: mockContext,
