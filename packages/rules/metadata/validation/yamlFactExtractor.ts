@@ -25,6 +25,9 @@ import {
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { DataPathValidationPendingCheck, ValidationPendingCheck } from "./projectValidationPendingChecks"
+import { currentPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import type { PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
+import { isTransportedBrokenPropertyScalar } from "./transportedBrokenReference"
 import { toDataPathPolicyInput } from "./dataPath/policies"
 import {
   findValidationRulesSpec,
@@ -711,6 +714,7 @@ function extractFormYamlFacts(
 }
 
 function createPropertyStructuralReferenceRuntime(runtime?: ValidationRegistrySet): StructuralReferenceRuntime {
+  const transportRegistry = () => runtime?.rules.execution ?? currentPropertyRuleRegistrySet<PropertyRuleExecution>()
   return {
     valueFromYAML: (params) => callAtomicFromYAML(
       params as Parameters<typeof callAtomicFromYAML>[0]
@@ -736,6 +740,11 @@ function createPropertyStructuralReferenceRuntime(runtime?: ValidationRegistrySe
         ?? getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
       return nested as unknown as StructuralReferenceNestedRule | undefined
     },
+    isTransportedBrokenXMLReference: (params) =>
+      transportRegistry()?.isTransportedBrokenXMLReference({
+        ...params,
+        rule: params.rule as PropertyRule,
+      }) ?? false,
   }
 }
 function collectFormPendingChecks(params: {
@@ -913,6 +922,7 @@ function collectFormElementChecks(params: {
   nameCollector?: FormElementNameCollectorView
   ownerName?: string
   singletonRuleStack: ReadonlySet<string>
+  runtime?: ValidationRegistrySet
 }): DataPathValidationPendingCheck[] {
   const itemChecks = collectRuleDataPathChecks({
     file: params.file,
@@ -923,6 +933,7 @@ function collectFormElementChecks(params: {
     cursor: params.cursor,
     elementType: params.rule.itemType,
     tableContext: params.tableContext,
+    runtime: params.runtime,
   })
   const childTableContext = tableContextForChildren(params.rule.itemType, itemChecks, params.tableContext)
   return [
@@ -946,6 +957,7 @@ function collectRuleDataPathChecks(params: {
   cursor: YamlRuleCursor
   elementType: ElementType
   tableContext?: { dataPath: string }
+  runtime?: ValidationRegistrySet
 }): DataPathValidationPendingCheck[] {
   const checks: DataPathValidationPendingCheck[] = []
   for (const [propertyKey, rule] of Object.entries(params.properties)) {
@@ -954,6 +966,12 @@ function collectRuleDataPathChecks(params: {
     const rawValue = params.owner[rule.yaml]
     if (typeof rawValue !== "string") continue
     const tagged = yamlScalarTagAt(params.owner, rule.yaml) === "xml"
+    if (isTransportedBrokenPropertyScalar({
+      execution: params.runtime?.rules.execution,
+      rule,
+      yamlValue: rawValue,
+      tagged,
+    })) continue
     const value = tagged ? xmlScalarTagPayload(rawValue) : rawValue
     if (value.trim().length === 0 && !tagged) continue
     const yamlPath = enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath

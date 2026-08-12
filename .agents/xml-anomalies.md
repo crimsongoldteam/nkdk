@@ -8,15 +8,16 @@
 | `CharacteristicsDescription` | `ПолеКлючаМножественныхЗначений` | `!xml` | `<xr:MultipleValuesKeyField>` отсутствует |
 | `CharacteristicsDescription` | `ПолеПорядкаМножественныхЗначений` | `!xml` | `<xr:MultipleValuesOrderField>` отсутствует |
 | `TableInputField`, `TableCheckBoxField`, `TablePictureField`, `TableLabelField` | `ГоризонтальноеПоложениеВШапке` | `!xml` | `<HeaderHorizontalAlign>Auto</HeaderHorizontalAlign>` |
+| `Table` с источником-коллекцией `КомпоновщикНастроекКомпоновкиДанных`, для которого вычислен профиль `none` ([проверка](../packages/rules/metadata/forms/elements/table/explicitRowFilter.test.ts)) | `ОтборСтрок` | `!xml` | явно присутствующий `<RowFilter xsi:nil="true"/>` |
 | нестандартная панель `ClientApplicationInterface` с UUID | `ПустоеОпределение` | `!xml` | `<panelDef id="<UUID панели>"/>` |
 | управляемая форма | `ПутьКДанным` | `!xml <исходный внутренний путь>` | `<DataPath><исходный внутренний путь></DataPath>` |
-| `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | свойство типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml <UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><UUID>.<UUID></…>` |
-| `Subsystem` | элемент состава подсистемы | `!xml <UUID>` | `<xr:Item xsi:type="xr:MDObjectRef"><UUID></xr:Item>` |
-| форма `Catalog`, `ChartOfAccounts`, `ChartOfCharacteristicTypes`, `CommonForm`, `DataProcessor`, `DocumentJournal`, `Document`, `ExchangePlan`, `InformationRegister`, `Report` или `Subsystem` | локальная ссылка `Command` | `!xml <исходная ссылка>` | `<Command><исходная ссылка></Command>` |
-| форма `Catalog`, `CommonForm`, `DataProcessor`, `DocumentJournal`, `Document`, `ExchangePlan`, `InformationRegister` или `Report` | локальная ссылка `CommandName` | `!xml <исходная ссылка>` | `<CommandName><исходная ссылка></CommandName>` |
-| форма `Catalog`, `DataProcessor`, `Document` или `Report` | локальная ссылка `Field` | `!xml <исходная ссылка>` | `<Field><исходная ссылка></Field>` |
-| форма `Catalog`, `CommonForm`, `Document` или `InformationRegister` | локальная ссылка `DataPath` | `!xml <исходная ссылка>` | `<DataPath><исходная ссылка></DataPath>` |
-| форма `AccumulationRegister`, `Catalog`, `DataProcessor`, `Document`, `InformationRegister`, `Report` или `SettingsStorage` | локальная ссылка `xr:DataPath` | `!xml <исходная ссылка>` | `<xr:DataPath><исходная ссылка></xr:DataPath>` |
-| форма `Catalog`, `DataProcessor`, `Document`, `ExchangePlan` или `Subsystem` | локальная ссылка `CommandGroup` | `!xml <исходная ссылка>` | `<CommandGroup><исходная ссылка></CommandGroup>` |
-| форма `Catalog` | локальная ссылка `GroupList` | `!xml <исходная ссылка>` | `<GroupList><исходная ссылка></GroupList>` |
-| форма `Catalog`, `CommonForm`, `Document` или `InformationRegister` | локальная ссылка `UserSettingsGroup` | `!xml <исходная ссылка>` | `<UserSettingsGroup><исходная ссылка></UserSettingsGroup>` |
+| `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | битая ссылка типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml <UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><UUID>.<UUID></…>` |
+| `Subsystem` | битая ссылка в элементе состава подсистемы | `!xml <UUID>` | `<xr:Item xsi:type="xr:MDObjectRef"><UUID></xr:Item>` |
+| форма `Catalog`, `ChartOfAccounts`, `ChartOfCharacteristicTypes`, `CommonForm`, `DataProcessor`, `DocumentJournal`, `Document`, `ExchangePlan`, `InformationRegister`, `Report` или `Subsystem` | битая локальная ссылка `Command` | `!xml <исходная битая ссылка>` | `<Command><исходная битая ссылка></Command>` |
+| форма `Catalog`, `CommonForm`, `DataProcessor`, `DocumentJournal`, `Document`, `ExchangePlan`, `InformationRegister` или `Report` | битая локальная ссылка `CommandName` | `!xml <исходная битая ссылка>` | `<CommandName><исходная битая ссылка></CommandName>` |
+| форма `Catalog`, `DataProcessor`, `Document` или `Report` | битая локальная ссылка `Field` | `!xml <исходная битая ссылка>` | `<Field><исходная битая ссылка></Field>` |
+| форма `Catalog`, `CommonForm`, `Document` или `InformationRegister` | битая локальная ссылка `DataPath` | `!xml <исходная битая ссылка>` | `<DataPath><исходная битая ссылка></DataPath>` |
+| форма `AccumulationRegister`, `Catalog`, `DataProcessor`, `Document`, `InformationRegister`, `Report` или `SettingsStorage` | битая локальная ссылка `xr:DataPath` | `!xml <исходная битая ссылка>` | `<xr:DataPath><исходная битая ссылка></xr:DataPath>` |
+| форма `Catalog`, `DataProcessor`, `Document`, `ExchangePlan` или `Subsystem` | битая локальная ссылка `CommandGroup` | `!xml <исходная битая ссылка>` | `<CommandGroup><исходная битая ссылка></CommandGroup>` |
+| форма `Catalog` | битая локальная ссылка `GroupList` | `!xml <исходная битая ссылка>` | `<GroupList><исходная битая ссылка></GroupList>` |
+| форма `Catalog`, `CommonForm`, `Document` или `InformationRegister` | битая локальная ссылка `UserSettingsGroup` | `!xml <исходная битая ссылка>` | `<UserSettingsGroup><исходная битая ссылка></UserSettingsGroup>` |

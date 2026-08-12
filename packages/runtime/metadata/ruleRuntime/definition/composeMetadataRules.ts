@@ -40,6 +40,10 @@ export function composeMetadataRules<
         ...result.explicitXMLPropertyTypes,
         ...layer.explicitXMLPropertyTypes,
       },
+      brokenXMLReferenceCarriers: [
+        ...result.brokenXMLReferenceCarriers,
+        ...layer.brokenXMLReferenceCarriers,
+      ],
       dependentItems: {
         ...result.dependentItems,
         ...layer.dependentItems,

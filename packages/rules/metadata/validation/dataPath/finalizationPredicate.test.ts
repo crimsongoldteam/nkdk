@@ -4,6 +4,11 @@ import {
   createDataPathRegistrySet,
 } from "./registry"
 import { withDataPathRegistrySet } from "@nkdk/runtime/rule-kit"
+import { settingsComposerDataPathRules } from "../../forms/settingsComposer/dataPathRules"
+import { metadataRules } from "../../composition/metadataRules"
+import { createMetadataExecutionRegistrySets, withMetadataExecutionRegistrySets } from "../../composition/metadataExecutionContext"
+
+const registries = createMetadataExecutionRegistrySets(metadataRules)
 
 describe("requiresDataPathStandardMemberFormatting", () => {
   it.each([
@@ -19,7 +24,9 @@ describe("requiresDataPathStandardMemberFormatting", () => {
     ["Items.Таблица.CurrentData.Код", "internal-to-yaml", true],
     ["Элементы.Таблица.ТекущиеДанные.Код", "yaml-to-internal", true],
   ] as const)("checks %j in %s", (value, direction, expected) => {
-    expect(requiresDataPathStandardMemberFormatting(value, direction)).toBe(expected)
+    withMetadataExecutionRegistrySets(registries, () => {
+      expect(requiresDataPathStandardMemberFormatting(value, direction)).toBe(expected)
+    })
   })
 
   it("rebuilds the matcher after registering a nested standard-table column", () => {
@@ -48,6 +55,21 @@ describe("requiresDataPathStandardMemberFormatting", () => {
 
     withDataPathRegistrySet(registry, () => {
       expect(requiresDataPathStandardMemberFormatting("Объект.UniqueEnglish", "internal-to-yaml")).toBe(true)
+    })
+  })
+
+  it("обнаруживает зарегистрированные внутренние имена SettingsComposer", () => {
+    const registry = createDataPathRegistrySet(settingsComposerDataPathRules)
+
+    withDataPathRegistrySet(registry, () => {
+      expect(requiresDataPathStandardMemberFormatting(
+        "КомпоновщикНастроек.Settings.ReportStructurePicture",
+        "internal-to-yaml",
+      )).toBe(true)
+      expect(requiresDataPathStandardMemberFormatting(
+        "КомпоновщикНастроек.Настройки.КартинкаСтруктурыОтчета",
+        "yaml-to-internal",
+      )).toBe(true)
     })
   })
 })

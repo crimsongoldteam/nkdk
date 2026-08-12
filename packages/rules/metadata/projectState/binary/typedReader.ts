@@ -30,7 +30,17 @@ const NONE = 0xffff_ffff
 const YAML_ROLES = [undefined, "configuration", "properties", "form"] as const
 const REFERENCE_KINDS = [undefined, "object", "member", "value"] as const
 const FIELD_KINDS = [undefined, "attribute", "standardAttribute", "tabularSection", "dimension", "resource", "addressingAttribute"] as const
-const TABLE_KINDS = [undefined, "ValueTable", "ValueTree", "ValueList", "GanttChart", "DynamicList", "RegisterRecordSet", "TabularSection"] as const
+const TABLE_KINDS = [
+  undefined,
+  "ValueTable",
+  "ValueTree",
+  "ValueList",
+  "GanttChart",
+  "DynamicList",
+  "RegisterRecordSet",
+  "TabularSection",
+  "Registered",
+] as const
 const SEVERITIES = [undefined, "error", "warning"] as const
 const SOURCES = [undefined, "syntax", "structure", "external-file", "cross-file", "reference"] as const
 const MEMBER_KINDS = new Set<MetadataMemberKind>([
@@ -169,6 +179,7 @@ export function createTypedProjectStateReader(
     const value = row("tableInfo", id)
     const kind = TABLE_KINDS[value.kind]
     if (kind === undefined) throw new Error(`Неизвестный вид таблицы: ${value.kind}`)
+    if (kind === "Registered") return { kind, type: string(value.nameId) }
     if (kind === "RegisterRecordSet") return { kind, owner: ownerType(value.ownerTypeId) }
     if (kind === "TabularSection") return { kind, owner: ownerType(value.ownerTypeId), name: string(value.nameId) }
     return { kind }

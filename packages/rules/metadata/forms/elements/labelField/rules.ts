@@ -11,6 +11,7 @@ import type { DataPathAllowedKind, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
+import { settingsComposerValueFieldKinds } from "../../settingsComposer/dataPathModel"
 export type { ElementRule, PropertyRule }
 const labelFieldDataPathKinds = [
   "string", "decimal", "boolean", "dateTime", "UUID", "Null", "<any>",
@@ -25,6 +26,9 @@ const labelFieldDataPathKinds = [
   "ExchangePlanRef", "ChartOfAccountsRef", "ChartOfCharacteristicTypesRef",
   "ChartOfCalculationTypesRef", "BusinessProcessRoutePointRef", "AnyIBRef",
   "<standard-enum>", "DataCompositionSortDirection",
+  ...settingsComposerValueFieldKinds,
+  "Field", "DataCompositionComparisonType", "DataCompositionGroupType",
+  "DataCompositionFilterApplicationType", "DataCompositionFieldPlacement", "DataCompositionPeriodAdditionType",
 ] as const satisfies readonly DataPathAllowedKind[]
 export const LabelFieldRules = {
   itemType: "LabelField",

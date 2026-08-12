@@ -36,6 +36,7 @@ import {
   partitionImportedDependentItems,
   preserveDeferredDependentRawXML,
 } from "./dependentItems"
+import { createImportedFormDataPathIndex } from "../forms/clientApplicationForm/formDataPathMetadata"
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment
@@ -197,9 +198,12 @@ export async function prepareImportYaml(params: {
         owner: dependentOwner,
       })
       preserveDeferredDependentRawXML({ candidates: partitioned.deferred, collector: params.collector })
+      const localIndexes = collector.finish()
+      const formDataPathIndex = createImportedFormDataPathIndex({ yaml, rule })
+      if (formDataPathIndex !== undefined) localIndexes.metadata.formDataPathIndex = formDataPathIndex
       return {
         yaml,
-        localIndexes: collector.finish(),
+        localIndexes,
         deferred: deferred.finish(),
         dependentDeferred: partitioned.deferred,
         generatedFiles,

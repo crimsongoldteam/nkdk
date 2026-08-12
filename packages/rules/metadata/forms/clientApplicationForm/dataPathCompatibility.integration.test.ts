@@ -108,7 +108,48 @@ describe("совместимость ПутьКДанным в полной фо
     expect(diagnostics).toHaveLength(compatible ? 0 : 1)
     if (!compatible) expect(diagnostics[0]?.message).toContain("decimal")
   })
+
+  it.each([
+    ["ТаблицаФормы", "ЭлементПараметрыДанных", true],
+    ["ПолеВвода", "ЭлементПараметрыДанных", false],
+    ["ТаблицаФормы", "ЭлементОтбор", true],
+    ["ПолеВвода", "ЭлементОтбор", true],
+    ["ПолеНадписи", "ЭлементОтбор", true],
+    ["ПолеПереключателя", "ЭлементОтбор", false],
+    ["ПолеВвода", "ЭлементПоляГруппировки.Поле", true],
+    ["ПолеНадписи", "ЭлементПоляГруппировки.Поле", true],
+    ["ПолеПереключателя", "ЭлементПоляГруппировки.Поле", false],
+    ["ПолеПереключателя", "ЭлементОтбор.ВидСравнения", true],
+    ["ПолеПереключателя", "ЭлементОтбор.ТипГруппы", true],
+    ["ПолеПереключателя", "ЭлементОтбор.Применение", true],
+    ["ПолеПереключателя", "ЭлементВыбор.Расположение", true],
+    ["ПолеПереключателя", "ЭлементПоляГруппировки.ТипДополнения", true],
+    ["ПолеПереключателя", "ЭлементПорядок.ТипУпорядочивания", true],
+  ] as const)("проверяет %s для SettingsComposer.%s: совместимость=%s", (elementKind, path, compatible) => {
+    const diagnostics = validateSettingsComposer(elementKind, path)
+
+    expect(diagnostics).toHaveLength(compatible ? 0 : 1)
+    if (!compatible) expect(diagnostics[0]?.message).toContain("ожидается")
+  })
 })
+
+function validateSettingsComposer(elementKind: string, path: string) {
+  const projectDir = "/project"
+  const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+  const file = resolveValidationProjectFile(projectDir, filePath)
+  if (file === undefined) throw new Error("Не удалось определить файл формы")
+  const parsed = parseMetadataYaml([
+    "Реквизиты:",
+    "  КомпоновщикНастроек:",
+    "    Тип: КомпоновщикНастроекКомпоновкиДанных",
+    "Элементы:",
+    "  Поле:",
+    `    Вид: ${elementKind}`,
+    `    ПутьКДанным: КомпоновщикНастроек.Настройки.${path}`,
+  ].join("\n"))
+  const facts = extractValidationYamlFacts({ file, parsed, rulesSnapshot })
+  return validatePendingChecks({ ownerCache: missingOwnerMetadataCache, checks: facts.pendingChecks }).diagnostics
+}
 
 function validate(
   elementKind: string,

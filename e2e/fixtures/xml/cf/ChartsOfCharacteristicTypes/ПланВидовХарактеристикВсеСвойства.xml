@@ -305,12 +305,15 @@
 			<Characteristics>
 				<xr:Characteristic>
 					<xr:CharacteristicTypes from="ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства.TabularSection.ТабличнаяЧасть">
+						<xr:KeyField>-1</xr:KeyField>
 						<xr:TypesFilterField>-1</xr:TypesFilterField>
 						<xr:TypesFilterValue xsi:nil="true"/>
 						<xr:DataPathField>-1</xr:DataPathField>
 						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 					</xr:CharacteristicTypes>
 					<xr:CharacteristicValues from="ChartOfCharacteristicTypes.ПланВидовХарактеристикВсеСвойства.TabularSection.ТабличнаяЧасть">
+						<xr:ObjectField>-1</xr:ObjectField>
+						<xr:TypeField>-1</xr:TypeField>
 						<xr:ValueField>-1</xr:ValueField>
 						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
 						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>

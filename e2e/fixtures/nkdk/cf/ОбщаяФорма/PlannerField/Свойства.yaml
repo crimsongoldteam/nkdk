@@ -1,0 +1,95 @@
+Синоним: PlannerField
+ИспользоватьСтандартныеКоманды: Ложь
+НазначенияИспользования: ПлатформаИМобильноеПриложение
+Форма:
+  Реквизиты:
+    Реквизит:
+      Заголовок: ""
+      Тип: Планировщик
+      Планировщик: "<pl:item>\n\t<pl:value xsi:nil=\"true\"/>\n\t<pl:text>Встреча</pl:text>\n\t<pl:tooltip/>\n\t<pl:begin>2026-03-16T01:00:00</pl:begin>\n\t<pl:end>2026-03-16T04:00:00</pl:end>\n\t<pl:borderColor>auto</pl:borderColor>\n\t<pl:backColor>auto</pl:backColor>\n\t<pl:textColor>auto</pl:textColor>\n\t<pl:font kind=\"AutoFont\"/>\n\t<pl:dimensionValues/>\n\t<pl:replacementDate>0001-01-01T00:00:00</pl:replacementDate>\n\t<pl:deleted>false</pl:deleted>\n\t<pl:id>9274d163-57c4-4019-889b-f211efe27359</pl:id>\n\t<pl:textFormatted>false</pl:textFormatted>\n\t<pl:border width=\"1\">\n\t\t<v8ui:style xsi:type=\"v8ui:ControlBorderType\">Single</v8ui:style>\n\t</pl:border>\n\t<pl:editMode>EnableEdit</pl:editMode>\n</pl:item>\n<pl:borderColor>auto</pl:borderColor>\n<pl:backColor>auto</pl:backColor>\n<pl:textColor>auto</pl:textColor>\n<pl:lineColor>auto</pl:lineColor>\n<pl:font kind=\"AutoFont\"/>\n<pl:beginOfRepresentationPeriod>0001-01-01T00:00:00</pl:beginOfRepresentationPeriod>\n<pl:endOfRepresentationPeriod>0001-01-01T00:00:00</pl:endOfRepresentationPeriod>\n<pl:alignElementsOfTimeScale>true</pl:alignElementsOfTimeScale>\n<pl:displayTimeScaleWrapHeaders>true</pl:displayTimeScaleWrapHeaders>\n<pl:displayWrapHeaders>true</pl:displayWrapHeaders>\n<pl:timeScaleWrapHeadersFormat>\n\t<v8:item>\n\t\t<v8:lang>#</v8:lang>\n\t\t<v8:content>DLF=\"DD\"</v8:content>\n\t</v8:item>\n\t<v8:item>\n\t\t<v8:lang>ru</v8:lang>\n\t\t<v8:content>DLF=\"DD\"</v8:content>\n\t</v8:item>\n</pl:timeScaleWrapHeadersFormat>\n<pl:periodicVariantUnit>Day</pl:periodicVariantUnit>\n<pl:periodicVariantRepetition>1</pl:periodicVariantRepetition>\n<pl:timeScaleWrapBeginIndent>0</pl:timeScaleWrapBeginIndent>\n<pl:timeScaleWrapEndIndent>0</pl:timeScaleWrapEndIndent>\n<pl:timeScale>\n\t<placement xmlns=\"http://v8.1c.ru/8.2/data/chart\">Left</placement>\n\t<level xmlns=\"http://v8.1c.ru/8.2/data/chart\">\n\t\t<measure>Hour</measure>\n\t\t<interval>1</interval>\n\t\t<show>true</show>\n\t\t<line width=\"1\" gap=\"false\">\n\t\t\t<v8ui:style xsi:type=\"v8ui:ChartLineType\">Solid</v8ui:style>\n\t\t</line>\n\t\t<scaleColor>auto</scaleColor>\n\t\t<dayFormatRule>MonthDayWeekDay</dayFormatRule>\n\t\t<format>\n\t\t\t<v8:item>\n\t\t\t\t<v8:lang>#</v8:lang>\n\t\t\t\t<v8:content>DF=\"HH:mm\"</v8:content>\n\t\t\t</v8:item>\n\t\t\t<v8:item>\n\t\t\t\t<v8:lang>ru</v8:lang>\n\t\t\t\t<v8:content>DF=\"HH:mm\"</v8:content>\n\t\t\t</v8:item>\n\t\t</format>\n\t\t<labels>\n\t\t\t<ticks>0</ticks>\n\t\t</labels>\n\t\t<backColor>auto</backColor>\n\t\t<textColor>auto</textColor>\n\t\t<showPereodicalLabels>true</showPereodicalLabels>\n\t</level>\n\t<transparent xmlns=\"http://v8.1c.ru/8.2/data/chart\">false</transparent>\n\t<backColor xmlns=\"http://v8.1c.ru/8.2/data/chart\">auto</backColor>\n\t<textColor xmlns=\"http://v8.1c.ru/8.2/data/chart\">auto</textColor>\n\t<currentLevel xmlns=\"http://v8.1c.ru/8.2/data/chart\">0</currentLevel>\n</pl:timeScale>\n<pl:period>\n\t<pl:begin>2026-03-16T00:00:00</pl:begin>\n\t<pl:end>2026-03-16T23:59:59</pl:end>\n</pl:period>\n<pl:displayCurrentDate>true</pl:displayCurrentDate>\n<pl:itemsTimeRepresentation>BeginTime</pl:itemsTimeRepresentation>\n<pl:itemsBehaviorWhenSpaceInsufficient>CollapseItems</pl:itemsBehaviorWhenSpaceInsufficient>\n<pl:autoMinColumnWidth>true</pl:autoMinColumnWidth>\n<pl:autoMinRowHeight>true</pl:autoMinRowHeight>\n<pl:minColumnWidth>0</pl:minColumnWidth>\n<pl:minRowHeight>0</pl:minRowHeight>\n<pl:fixDimensionsHeader>auto</pl:fixDimensionsHeader>\n<pl:fixTimeScaleHeader>auto</pl:fixTimeScaleHeader>\n<pl:border width=\"1\">\n\t<v8ui:style xsi:type=\"v8ui:ControlBorderType\">Single</v8ui:style>\n</pl:border>\n<pl:newItemsTextType>String</pl:newItemsTextType>"
+    РеквизитПодвала:
+      Заголовок: ""
+      Тип: Строка
+  Элементы:
+    ПолеПланировщика:
+      Вид: ПолеПланировщика
+      Заголовок: Поле планировщика
+      АктивизироватьПоУмолчанию: Истина
+      ВажностьПриОтображении: Высокая
+      ВертикальноеПоложение: Верх
+      ВертикальноеПоложениеВГруппе: Верх
+      Высота: 200
+      ВысотаЗаголовка: 20
+      ГиперссылкаПеренесенногоЗаголовкаШкалыВремени: Истина
+      ГиперссылкаЭлементаИзмерения: Истина
+      ГиперссылкаЭлементаШкалыВремени: Истина
+      ГиперссылкаЯчейки: Истина
+      ГоризонтальноеПоложение: Лево
+      ГоризонтальноеПоложениеВГруппе: Лево
+      ГоризонтальноеПоложениеВПодвале: Лево
+      Доступность: Ложь
+      Использование:
+        Роли:
+          Role.Администратор: Ложь
+      КартинкаПодвала: Печать
+      КартинкаШапки: Печать
+      Команда:
+        - Begin
+      КонтекстноеМеню:
+        Автозаполнение: Ложь
+      ОтображатьВПодвале: Ложь
+      ОтображатьВШапке: Ложь
+      ОтображениеПодсказки: Нет
+      ОтображениеПредупрежденияПриРедактировании: НеОтображать
+      ПоведениеПриНедоступностиОсновногоСервера: НеИзменятьПоведение
+      Подсказка: Подсказка
+      ПоложениеЗаголовка: Лево
+      ПредупреждениеПриРедактировании: Предупреждение
+      ПропускатьПриВводе: Истина
+      ПутьКДанным: Реквизит
+      ПутьКДаннымПодвала: РеквизитПодвала
+      РастягиватьПоВертикали: Ложь
+      РастягиватьПоГоризонтали: Ложь
+      РасширеннаяПодсказка:
+        Заголовок:
+          Текст: Расширенная подсказка
+      РежимРедактирования: ВходПриВводе
+      События:
+        ПриИзменении: ПроцедураПриИзменении
+        ПроверкаПеретаскивания: ПроцедураПроверкиПеретаскивания
+        ПередСворачиваниемЭлементаИзмерения: ПроцедураСворачиванияЭлемента
+        НажатиеНаЭлементеШкалыВремени: ПроцедураНажатияНаЭлементе
+        ПередСозданием: ПроцедураСозданияЭлемента
+        ПроверкаПеретаскиванияВнутри: ПроцедураПроверкиПеретаскиванияВнутри
+        ПередПечатью: ПроцедураПередПечатью
+        НажатиеНаЭлементеИзмерения: ПроцедураНажатияНаЭлементе
+        ПриСменеТекущегоПериодаОтображения: ПроцедураИзмененияПериода
+        ПриОкончанииРедактирования: ПроцедураЗавершенияРедактирования
+        НажатиеНаПеренесенномЗаголовкеШкалыВремени: ПроцедураНажатияНаЗаголовке
+        НачалоПеретаскивания: ПроцедураНачалаПеретаскивания
+        ПередУдалением: ПроцедураУдаленияЭлемента
+        ПередРазворачиваниемЭлементаИзмерения: ПроцедураРазворачиванияЭлемента
+        ПередНачаломРедактирования: ПроцедураНачалаРедактирования
+        Перетаскивание: ПроцедураПеретаскивания
+        ОбработкаФормированияКоманд: ПроцедураГенерацииКоманды
+        ПередНачаломБыстрогоРедактирования: ПроцедураНачалаБыстрогоРедактирования
+        Выбор: ПроцедураВыбора
+        ПриАктивизации: ПроцедураАктивации
+        НажатиеНаНавигационнойСсылке: ПроцедураНажатияНаСсылке
+        ОкончаниеПеретаскивания: ПроцедураЗавершенияПеретаскивания
+        НажатиеНаДействиеПланировщика: ПроцедураНажатияНаПланировщике
+      СочетаниеКлавиш: S
+      ТекстПодвала: Текст подвала
+      ТолькоПросмотр: Истина
+      ЦветТекстаЗаголовка: Черный
+      ЦветТекстаПодвала: Черный
+      ЦветФонаЗаголовка: Синий
+      ЦветФонаПодвала: Белый
+      Ширина: 300
+      ШрифтЗаголовка:
+        Вид: ОбычныйШрифтТекста
+      ШрифтПодвала:
+        Вид: ОбычныйШрифтТекста
+    ПоУмолчанию:
+      Вид: ПолеПланировщика
+      ПутьКДанным: Реквизит

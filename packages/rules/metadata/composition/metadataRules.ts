@@ -9,6 +9,7 @@ import { formElementRules } from "../forms/elements/metadataRules"
 import { defineAppliedObjectProjectRules } from "../appliedObjects/projectRules"
 import { appliedObjectComponentRules } from "../appliedObjects/componentRules"
 import { clientApplicationFormValidationRules } from "../forms/clientApplicationForm/validationRules"
+import { settingsComposerDataPathRules } from "../forms/settingsComposer/dataPathRules"
 import { clientApplicationFormPropertyRules } from "../forms/clientApplicationForm/propertyTypeRules"
 import { childFormNamesPropertyRules } from "../forms/clientApplicationForm/childFormNamesPropertyRules"
 import { createMetadataResourceTopologyProvider } from "../resourceTopology/adapters/metadataProvider"
@@ -55,10 +56,14 @@ import { configurationResourceCapabilityRules } from "../appliedObjects/configur
 import { commonObjectExternalTransferCapabilityRules } from "../commonObjects/resourceTopology"
 import { appliedObjectResourceCapabilityRules } from "../ruleRuntime/appliedObject/syncToXML"
 import { clientApplicationFormImportedYamlFinalizerRules } from "../forms/clientApplicationForm/importedYamlFinalizer"
+import { explicitRowFilterRules } from "../forms/elements/table/explicitRowFilter"
 import { typeDescriptionIndexRules } from "../commonObjects/typeDescription/fromYAML"
 import { metadataExternalDataSourceCubeOwnerRules } from "../commonObjects/metadataExternalDataSourceCube/register"
 import { metadataExternalDataSourceTableOwnerRules } from "../commonObjects/metadataExternalDataSourceTable/register"
 import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/register"
+import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenDesignTimeRef"
+import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
+import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -89,7 +94,7 @@ const projectReferenceRules = defineMetadataRules({
 })
 const dataPathRules = defineMetadataRules({
   ...emptyMetadataRules,
-  dataPaths: appliedObjectDataPathRules,
+  dataPaths: [...settingsComposerDataPathRules, ...appliedObjectDataPathRules],
 })
 const operationRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -99,6 +104,9 @@ const operationRules = defineMetadataRules({
 export const legacyCoreRules = composeMetadataRules(
   staticFactoryRules,
   staticPropertyRules,
+  brokenDesignTimeRefRules,
+  brokenMDObjectRefRules,
+  brokenLocalFormReferenceRules,
   typeDescriptionIndexRules,
   metadataExternalDataSourceCubeOwnerRules,
   metadataExternalDataSourceTableOwnerRules,
@@ -133,6 +141,7 @@ export const legacyCoreRules = composeMetadataRules(
   commonObjectExternalTransferCapabilityRules,
   appliedObjectResourceCapabilityRules,
   clientApplicationFormImportedYamlFinalizerRules,
+  explicitRowFilterRules,
 )
 
 const rulesWithoutTopology = composeMetadataRules(

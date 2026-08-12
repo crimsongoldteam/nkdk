@@ -1240,7 +1240,7 @@ describe("resolveDataPath", () => {
     }
   })
 
-  it("rejects internal accounting RegisterRecords Account in YAML mode", () => {
+  it("suggests the YAML name for internal accounting RegisterRecords Account", () => {
     const result = resolve("Объект.RegisterRecords.Хозрасчетный.Account", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
       ownerCache: documentWithAccountingRegisterRecords(),
@@ -1250,7 +1250,8 @@ describe("resolveDataPath", () => {
       status: "error",
       diagnostics: [
         expect.objectContaining({
-          message: 'ПутьКДанным "Объект.RegisterRecords.Хозрасчетный.Account": неизвестная колонка "Account"',
+          message:
+            'ПутьКДанным "Объект.RegisterRecords.Хозрасчетный.Account": в YAML используйте "Счет" вместо "Account"',
         }),
       ],
     })
@@ -2308,63 +2309,70 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("skips known platform source paths without diagnostics", () => {
-    const result = resolve("КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items", {
-      index: indexWithAttributes([]),
-    })
-
-    expect(result).toMatchObject({
-      status: "ok",
-      diagnostics: [],
-    })
-  })
-
-  it("skips SettingsComposer form attribute data paths without diagnostics", () => {
-    const result = resolve("КомпоновщикНастроек.Settings.Filter", {
+  it.each([
+    ["КомпоновщикНастроек.Настройки.ПараметрыДанных", "yaml", [
+      { segmentIndex: 1, from: "Настройки", to: "Settings", reason: "standardMember" },
+      { segmentIndex: 2, from: "ПараметрыДанных", to: "DataParameters", reason: "standardMember" },
+    ]],
+    ["КомпоновщикНастроек.Settings.DataParameters", "internal", [
+      { segmentIndex: 1, from: "Settings", to: "Настройки", reason: "standardMember" },
+      { segmentIndex: 2, from: "DataParameters", to: "ПараметрыДанных", reason: "standardMember" },
+    ]],
+  ] as const)("resolves a SettingsComposer form attribute path in %s mode", (value, nameMode, replacements) => {
+    expect(resolveDataPathCore({
+      value,
       index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
-    })
-
-    expect(result).toMatchObject({
-      status: "ok",
-      diagnostics: [],
-    })
-  })
-
-  it("skips report SettingsComposer object data paths without diagnostics", () => {
-    const result = resolve("Отчет.SettingsComposer.Settings.Filter.Use", {
-      index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject.Анализ"] })]),
-      ownerCache: ownerCache([
-        owner({
-          ref: { kind: "ОтчетОбъект", name: "Анализ" },
-          rule: MetadataReportRules,
-          model: { itemType: "MetadataReport" },
-        }),
-      ]),
-    })
-
-    expect(result).toMatchObject({
-      status: "ok",
-      diagnostics: [],
-    })
-  })
-
-  it("skips SettingsComposer of a generic report object without loading an unnamed owner", () => {
-    const result = resolve("Отчет.SettingsComposer.Settings", {
-      index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject"] })]),
+      nameMode,
       ownerCache: ownerCache([]),
+    })).toMatchObject({
+      status: "ok", replacements,
+      target: { typeInfo: { terminalTypes: ["DataCompositionDataParameters"] } },
     })
-
-    expect(result).toMatchObject({ status: "ok", diagnostics: [] })
   })
 
-  it("skips indexed SettingsComposer user settings data paths without diagnostics", () => {
-    const result = resolve("КомпоновщикНастроек.UserSettings[0].Filter", {
-      index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
+  it.each([
+    ["Отчет.КомпоновщикНастроек.Настройки", "yaml", [
+      { segmentIndex: 1, from: "КомпоновщикНастроек", to: "SettingsComposer", reason: "standardMember" },
+      { segmentIndex: 2, from: "Настройки", to: "Settings", reason: "standardMember" },
+    ]],
+    ["Отчет.SettingsComposer.Settings", "internal", [
+      { segmentIndex: 1, from: "SettingsComposer", to: "КомпоновщикНастроек", reason: "standardMember" },
+      { segmentIndex: 2, from: "Settings", to: "Настройки", reason: "standardMember" },
+    ]],
+  ] as const)("resolves a report SettingsComposer path in %s mode", (value, nameMode, replacements) => {
+    expect(resolveDataPathCore({
+      value,
+      nameMode,
+      index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject.Анализ"] })]),
+      ownerCache: ownerCache([owner({
+        ref: { kind: "ОтчетОбъект", name: "Анализ" }, rule: MetadataReportRules,
+        model: { itemType: "MetadataReport" },
+      })]),
+    })).toMatchObject({
+      status: "ok", replacements,
+      target: { typeInfo: { terminalTypes: ["DataCompositionSettings"] } },
     })
+  })
 
-    expect(result).toMatchObject({
-      status: "ok",
-      diagnostics: [],
+  it.each([
+    ["Список.КомпоновщикНастроек.Настройки.Отбор", "yaml", "DataCompositionFilter"],
+    ["Список.SettingsComposer.Settings.Filter", "internal", "DataCompositionFilter"],
+  ] as const)("resolves a DynamicList SettingsComposer path in %s mode", (value, nameMode, terminalType) => {
+    expect(resolve(value, {
+      nameMode,
+      index: indexWithAttributes([{
+        ...attribute("Список", { type: ["CatalogRef.Номенклатура"] }),
+        dynamicList: { itemType: "DynamicList" },
+      }]),
+    })).toMatchObject({ status: "ok", target: { typeInfo: { terminalTypes: [terminalType] } } })
+  })
+
+  it("reports an unknown registered SettingsComposer property", () => {
+    expect(resolve("КомпоновщикНастроек.Настройки.Неизвестно", {
+      index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
+    })).toMatchObject({
+      status: "error",
+      diagnostics: [expect.objectContaining({ message: expect.stringContaining('неизвестная колонка "Неизвестно"') })],
     })
   })
 
@@ -2498,7 +2506,7 @@ describe("resolveDataPath", () => {
     ]))
   })
 
-  it("keeps a CurrentData SettingsComposer collection as a known target-less path", () => {
+  it("resolves a CurrentData SettingsComposer collection to its registered type", () => {
     const value = "Items.Настройки.CurrentData.Filter"
     const result = resolveDataPathCore({
       value,
@@ -2510,8 +2518,57 @@ describe("resolveDataPath", () => {
       ownerCache: ownerCache([]),
     })
 
-    expect(result).toMatchObject({ status: "ok", value })
-    expect(result.target).toBeUndefined()
+    expect(result).toMatchObject({
+      status: "ok",
+      value,
+      target: { typeInfo: { terminalTypes: ["DataCompositionFilter"] } },
+    })
+  })
+
+  it.each([
+    ["Элементы.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.ТекущиеДанные.Параметр", "yaml", "Field"],
+    ["Items.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.CurrentData.Parameter", "internal", "Field"],
+  ] as const)("resolves a recursive SettingsComposer CurrentData chain in %s", (value, nameMode, terminalType) => {
+    const result = resolveDataPathCore({
+      value,
+      nameMode,
+      index: indexWithForm({
+        attributes: [attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })],
+        tabularElementsByName: tabularElements([
+          [
+            "КомпоновщикНастроекНастройки",
+            nameMode === "yaml" ? "КомпоновщикНастроек.Настройки" : "КомпоновщикНастроек.Settings",
+          ],
+          [
+            "КомпоновщикНастроекНастройкиЭлементПараметрыДанных",
+            nameMode === "yaml"
+              ? "Элементы.КомпоновщикНастроекНастройки.ТекущиеДанные.ЭлементПараметрыДанных"
+              : "Items.КомпоновщикНастроекНастройки.CurrentData.ItemDataParameters",
+          ],
+        ]),
+      }),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      target: { typeInfo: { terminalTypes: [terminalType] } },
+    })
+    expect(result.replacements).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ segmentIndex: 1, reason: "standardMember" }),
+    ]))
+  })
+
+  it("rejects CurrentData for an element without a tabular source", () => {
+    const value = "Items.Поле.CurrentData.Value"
+    const result = resolveDataPathCore({
+      value,
+      nameMode: "internal",
+      index: indexWithForm({ attributes: [], tabularElementsByName: tabularElements([]) }),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({ status: "error" })
   })
 
   it("reports a CurrentData cycle through a table element data path", () => {

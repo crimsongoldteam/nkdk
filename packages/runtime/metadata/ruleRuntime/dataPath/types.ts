@@ -25,6 +25,7 @@ export interface OwnerTypeRef {
 }
 
 export type DataPathTableInfo =
+  | { kind: "Registered"; type: string }
   | { kind: "ValueTable" }
   | { kind: "ValueTree" }
   | { kind: "ValueList" }

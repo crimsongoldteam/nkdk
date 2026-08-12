@@ -2,7 +2,10 @@ import { Type } from "typebox"
 import { expect, it } from "vitest"
 
 import { defineMetadataRules } from "../definition"
-import { emptyMetadataRules } from "../definition/testSupport"
+import {
+  brokenXMLReferenceCarrier,
+  emptyMetadataRules,
+} from "../definition/testSupport"
 import {
   createPropertyRuleRegistrySet,
   definePropertyTypeRule,
@@ -100,6 +103,45 @@ it("keeps identical property keys isolated between registry sets", () => {
 
   expect(first.getTypeRule("Sample", "exportToYAML")).toBe(firstHandler)
   expect(second.getTypeRule("Sample", "exportToYAML")).toBe(secondHandler)
+})
+
+it("matches broken XML reference carriers only for their property type", () => {
+  const carrier = brokenXMLReferenceCarrier("sample", "Sample", {
+    tryImport: ({ xmlValue }: { xmlValue: unknown }) => xmlValue === "broken"
+      ? { yamlValue: "!xml broken", taggedPaths: [[]] }
+      : undefined,
+  })
+  const registries = createPropertyRuleRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    brokenXMLReferenceCarriers: [carrier],
+  }))
+
+  expect(registries.normalizeImportedBrokenXMLReferences({
+    rule: { type: "Sample" },
+    xmlValue: "broken",
+    yamlValue: "ordinary",
+  })).toEqual({ yamlValue: "!xml broken", taggedPaths: [[]] })
+  expect(registries.normalizeImportedBrokenXMLReferences({
+    rule: { type: "Other" },
+    xmlValue: "broken",
+    yamlValue: "ordinary",
+  })).toEqual({ yamlValue: "ordinary", taggedPaths: [] })
+})
+
+it("rejects ambiguous broken XML reference carrier matches", () => {
+  const carrier = (name: string) => brokenXMLReferenceCarrier(name, "Sample", {
+    tryImport: () => ({ yamlValue: `!xml ${name}`, taggedPaths: [[]] }),
+  })
+  const registries = createPropertyRuleRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    brokenXMLReferenceCarriers: [carrier("first"), carrier("second")],
+  }))
+
+  expect(() => registries.normalizeImportedBrokenXMLReferences({
+    rule: { type: "Sample" },
+    xmlValue: "broken",
+    yamlValue: "ordinary",
+  })).toThrow("Конфликт переносчиков битой XML-ссылки: first, second")
 })
 
 it("keeps concurrent execution contexts isolated", async () => {

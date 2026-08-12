@@ -17,6 +17,7 @@ import type {
   importExportFunction,
   TypeRulesOperations,
 } from "./fn"
+import { isDeepStrictEqual } from "node:util"
 import type { PropertyRuleType } from "./registry"
 import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
 import type { IndexValueFromYAMLFunction } from "./indexValueFromYAMLRegistry"
@@ -25,6 +26,10 @@ import type { MetadataItemXmlImportAugmenter } from "../metadataItem/augmenterRe
 import type { MetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
 import type { MetadataImportedYamlFinalizer, MetadataImportedYamlFinalizerParams } from "../definition"
 import type { MetadataItemRule } from "./types"
+import {
+  createBrokenXMLReferenceCarrierRegistry,
+  type BrokenXMLReferenceCarrierRegistry,
+} from "./brokenXMLReferenceCarrierRegistry"
 
 type ResolvedPropertyItemRule = CollectionItemRule["itemRule"]
 
@@ -75,7 +80,7 @@ function setPropertyTypeOperation(
   mutableDefinition[contribution.operation] = contribution.handler
 }
 
-export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, DependentItemRegistryLookup {
+export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, DependentItemRegistryLookup, BrokenXMLReferenceCarrierRegistry {
   registerTypeRule<Operation extends TypeRulesOperations>(
     type: PropertyRuleType,
     operation: Operation,
@@ -133,6 +138,7 @@ export function createPropertyRuleRegistrySet(
     | "projectSpecs"
     | "explicitXMLProperties"
     | "explicitXMLPropertyTypes"
+    | "brokenXMLReferenceCarriers"
     | "dependentItems"
     | "indexValuesFromYAML"
     | "metadataTargetOwners"
@@ -173,6 +179,9 @@ export function createPropertyRuleRegistrySet(
     Object.entries(definition.metadataTargetOwners),
   )
   const dependentItems = new Map(Object.entries(definition.dependentItems))
+  const brokenXMLReferenceCarriers = createBrokenXMLReferenceCarrierRegistry(
+    definition.brokenXMLReferenceCarriers,
+  )
   const xmlImportAugmenters = new Map<string, MetadataItemXmlImportAugmenter>()
   const yamlToXmlAugmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()
   const importedYamlFinalizers = new Map<string, MetadataImportedYamlFinalizer>()
@@ -194,6 +203,7 @@ export function createPropertyRuleRegistrySet(
   }
 
   return {
+    ...brokenXMLReferenceCarriers,
     registerTypeRule(type, operation, handler) {
       const definition = { ...typeRules.get(type) }
       ;(definition as Record<string, unknown>)[operation] = handler
@@ -295,7 +305,7 @@ export function createPropertyRuleRegistrySet(
       }
       return registration !== undefined &&
         params.presentInXML &&
-        Object.is(registration.xmlValue, params.xmlValue)
+        isDeepStrictEqual(registration.xmlValue, params.xmlValue)
         ? registration
         : undefined
     },
@@ -376,9 +386,9 @@ function sameExplicitXMLPropertyRegistration(
   }
   const leftAction = left.action ?? "emit"
   const rightAction = right.action ?? "emit"
-  if (leftAction !== rightAction || !Object.is(left.yamlValue, right.yamlValue)) return false
+  if (leftAction !== rightAction || !isDeepStrictEqual(left.yamlValue, right.yamlValue)) return false
   return leftAction === "omit" ||
-    ("xmlValue" in left && "xmlValue" in right && Object.is(left.xmlValue, right.xmlValue))
+    ("xmlValue" in left && "xmlValue" in right && isDeepStrictEqual(left.xmlValue, right.xmlValue))
 }
 
 export function collectPropertyItemRules(
