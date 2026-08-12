@@ -305,31 +305,10 @@ type PartialSyncDelivery =
 | `@nkdk/platform` | Сессия агента, staging ZIP, команда 1С, результат передачи и `platform.log` |
 | `@nkdk/mcp` | Публичная операция, последовательность вызовов `rules` и `platform`, преобразование результата в MCP-ответ |
 
-Схема операции в архитектурном мониторе показывает границы пакетов и устойчивые
-состояния полного цикла:
-
-```mermaid
-flowchart TD
-  request["@nkdk/mcp<br/>Принять sync_to_infobase"]
-  pending{"@nkdk/rules<br/>Фаза ожидающего состояния?"}
-  prepare[["@nkdk/rules<br/>Актуализировать Проект и подготовить ZIP"]]
-  transferring["@nkdk/rules<br/>Атомарно записать transferring"]
-  load["@nkdk/platform<br/>Загрузить ZIP агентом и записать журнал"]
-  outcome{"Результат передачи"}
-  prepared["@nkdk/rules<br/>Вернуть prepared"]
-  unknown["Сохранить transferring<br/>и запретить повтор"]
-  applied["@nkdk/rules<br/>Атомарно записать applied"]
-  finalize[["@nkdk/rules<br/>Опубликовать снимок и очистить пакет"]]
-  result["@nkdk/mcp<br/>Вернуть результат"]
-
-  request --> pending
-  pending -- "нет пакета или prepared" --> prepare --> transferring --> load --> outcome
-  pending -- "transferring" --> unknown --> result
-  pending -- "applied" --> finalize --> result
-  outcome -- "явный отказ" --> prepared --> result
-  outcome -- "неизвестен" --> unknown
-  outcome -- "успех" --> applied --> finalize
-```
+Схема операции в архитектурном мониторе показывает общий ход полного цикла.
+Чтение точной фазы, восстановление фиксации и запрет опасного повтора скрыты за
+подпроцессом «Проверить незавершённую синхронизацию»; программный договор фаз
+остаётся в разделе «Состояние передачи» этой спецификации.
 
 Заголовок операции и колонка переиспользования изменены на «Частичная
 синхронизация с информационной базой». Отдельный архитектурный термин для
