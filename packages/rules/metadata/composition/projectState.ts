@@ -10,6 +10,9 @@ import {
   type ProjectStateService,
 } from "../projectState/service"
 import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
+import { validateConfigurationExtensionPropertyStates } from "../appliedObjects/configurationExtension/propertyStateValidation"
+import { validateConfigurationExtensionStructure } from "../appliedObjects/configurationExtension/structureValidation"
+import { validateConfigurationExtensionHistory } from "../appliedObjects/configurationExtension/historyValidation"
 import { appliedObjectComponentRules } from "../appliedObjects/componentRules"
 import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
@@ -18,7 +21,12 @@ import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
 function dependencyValidator() {
   return createProjectStateDependencyValidator({
-    structuredDocumentValidators: [validateBorrowedClientApplicationForms],
+    structuredDocumentValidators: [
+      validateBorrowedClientApplicationForms,
+      validateConfigurationExtensionPropertyStates,
+      validateConfigurationExtensionStructure,
+      validateConfigurationExtensionHistory,
+    ],
   })
 }
 

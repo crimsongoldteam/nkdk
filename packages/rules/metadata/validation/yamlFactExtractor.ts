@@ -61,6 +61,11 @@ import {
   collectAddressableMetadataObjectEntries,
   objectTargetForProjectFile,
 } from "./addressableMetadataTargets"
+import { existsSync } from "node:fs"
+import { resolve } from "node:path"
+import type { ProjectStateStructuredDocumentEntry } from "../projectState/fileUpdate"
+import { collectConfigurationExtensionPropertyStateDocuments } from "../appliedObjects/configurationExtension/propertyStateFacts"
+import { configurationExtensionStructureDocument } from "../appliedObjects/configurationExtension/structureValidation"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -76,6 +81,7 @@ export interface ValidationYamlFacts {
   formDataPathIndex?: FormDataPathIndex
   localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
   structuredComponents?: readonly FormStructuredComponent[]
+  structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
 }
 
 export interface ValidationOwnerYamlFacts {
@@ -164,6 +170,36 @@ export function extractValidationYamlFacts(params: {
           filePath: params.file.absolutePath,
         }),
       ]
+  const capability = params.runtime?.propertyStates.item(params.file.itemType)
+  const belongsToBorrowedPair = params.file.componentPath === "cf" || (
+    params.file.componentPath.startsWith("cfe/") &&
+    existsSync(resolve(params.file.componentDir, "..", "..", "cf", ...params.file.projectPath.split("/")))
+  )
+  const propertyStateDocuments = capability === undefined || params.file.logicalAddress === undefined || !belongsToBorrowedPair
+    ? []
+    : collectConfigurationExtensionPropertyStateDocuments({
+        yaml: metadataRecord(params.parsed.data),
+        rule: params.file.itemRule,
+        capability,
+        logicalAddress: params.file.logicalAddress,
+        workingProjectPath: params.file.projectPath,
+      })
+  const structuredDocuments = params.file.logicalAddress === undefined
+    ? propertyStateDocuments
+    : [
+        ...propertyStateDocuments,
+        configurationExtensionStructureDocument({
+          itemType: params.file.itemType,
+          logicalAddress: params.file.logicalAddress,
+          workingProjectPath: params.file.projectPath,
+          ...(typeof metadataRecord(params.parsed.data)["РежимСовместимостиРасширенияКонфигурации"] === "string"
+            ? { compatibilityMode: metadataRecord(params.parsed.data)["РежимСовместимостиРасширенияКонфигурации"] as string }
+            : {}),
+          ...(typeof metadataRecord(params.parsed.data)["ДлинаНомераСтроки"] === "number"
+            ? { lineNumberLength: metadataRecord(params.parsed.data)["ДлинаНомераСтроки"] as number }
+            : {}),
+        }),
+      ]
   return {
     objectIndexEntries,
     memberIndexEntries: [],
@@ -179,6 +215,9 @@ export function extractValidationYamlFacts(params: {
       : [],
     localValueValidationProfile,
     localIndexes,
+    ...(structuredDocuments.length === 0
+      ? {}
+      : { structuredDocuments }),
   }
 }
 

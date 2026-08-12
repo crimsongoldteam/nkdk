@@ -49,11 +49,14 @@ export function buildProjectStateYamlFileUpdate(
     componentPath: descriptor.componentPath,
     resourceKind: "yaml",
     yamlRole: descriptor.role,
-  }, params.fileBackedTargets ?? [], projectFormStructureDocuments({
-    projectDir: params.projectDir,
-    descriptor,
-    components,
-  }))
+  }, params.fileBackedTargets ?? [], [
+    ...projectFormStructureDocuments({
+      projectDir: params.projectDir,
+      descriptor,
+      components,
+    }),
+    ...(firstPass.structuredDocuments ?? []),
+  ])
 
   return descriptor.indexContribution === "isolated"
     ? isolateProjectStateYamlUpdate(update)

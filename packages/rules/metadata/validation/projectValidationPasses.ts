@@ -97,6 +97,7 @@ export interface ProjectValidationFirstPassResult {
   logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
   structuredComponents?: readonly FormStructuredComponent[]
+  structuredDocuments?: readonly import("../projectState/fileUpdate").ProjectStateStructuredDocumentEntry[]
   diagnostics: Diagnostic[]
   profile?: ProjectValidationFirstPassProfile
 }
@@ -130,6 +131,7 @@ export interface ProjectValidationFileFacts {
   logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
   structuredComponents?: readonly FormStructuredComponent[]
+  structuredDocuments?: readonly import("../projectState/fileUpdate").ProjectStateStructuredDocumentEntry[]
   profile: {
     yamlFactsMs: number
     localValueValidationProfile: LocalValueValidationProfile
@@ -425,6 +427,9 @@ export function extractProjectValidationFileFacts(params: {
       ...(yamlFacts.structuredComponents === undefined
         ? {}
         : { structuredComponents: yamlFacts.structuredComponents }),
+      ...(yamlFacts.structuredDocuments === undefined
+        ? {}
+        : { structuredDocuments: yamlFacts.structuredDocuments }),
       profile: {
         yamlFactsMs: measuredYamlFacts.timeMs,
         localValueValidationProfile: yamlFacts.localValueValidationProfile,
@@ -505,6 +510,9 @@ export function extractProjectValidationFileFacts(params: {
         importDiagnostics: [],
       },
     ],
+    ...(yamlFacts.structuredDocuments === undefined
+      ? {}
+      : { structuredDocuments: yamlFacts.structuredDocuments }),
     profile: {
       yamlFactsMs: measuredYamlFacts.timeMs,
       localValueValidationProfile: yamlFacts.localValueValidationProfile,
@@ -614,6 +622,9 @@ function validateProjectFormFirstPass(params: {
     ...(facts.structuredComponents === undefined
       ? {}
       : { structuredComponents: facts.structuredComponents }),
+    ...(facts.structuredDocuments === undefined
+      ? {}
+      : { structuredDocuments: facts.structuredDocuments }),
     profile: {
       ...emptyFirstPassProfile("form"),
       totalMs: performance.now() - totalStartedAt,
