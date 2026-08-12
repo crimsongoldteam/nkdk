@@ -84,9 +84,11 @@ export const exportMetadataValueToXML = (params: {
         return { "_xsi:type": "xs:string" }
       }
     }
-    if (isNilMetadataValueXML(referenceMetadata)) return { "_xsi:nil": true }
-    const referenceXMLType = getReferenceMetadataValueXMLType(referenceMetadata)
-    if (referenceXMLType !== undefined) return { "_xsi:type": referenceXMLType }
+    if (propertyKey !== "fillValue") {
+      if (isNilMetadataValueXML(referenceMetadata)) return { "_xsi:nil": true }
+      const referenceXMLType = getReferenceMetadataValueXMLType(referenceMetadata)
+      if (referenceXMLType !== undefined) return { "_xsi:type": referenceXMLType }
+    }
     if (rule.exportNilValue) return { "_xsi:nil": true }
     if (rule.valueType !== undefined && rule.valueType.length > 0) {
       const firstType = rule.valueType[0]
