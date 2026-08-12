@@ -194,6 +194,8 @@ describe("configuration extension XML import", () => {
       ]))
     expect(snapshot).not.toHaveProperty("localIndexes")
     expect(snapshot).not.toHaveProperty("dependencies")
+    expect(JSON.stringify(snapshot, (_key, value) => typeof value === "bigint" ? value.toString() : value))
+      .not.toMatch(/PropertyState|проверять|изменять/u)
     expect(
       fs.existsSync(join(projectDir, ".nkdk", "components", "cfe", "РасширениеКонтроль", "configuration-index.bin"))
     ).toBe(true)
