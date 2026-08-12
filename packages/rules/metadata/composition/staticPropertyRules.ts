@@ -361,8 +361,6 @@ import { metadataPropertyRule002 as rule363 } from "../forms/elements/button/par
 import { metadataPropertyRule003 as rule364 } from "../forms/elements/button/parameter"
 import { metadataPropertyRule004 as rule365 } from "../forms/elements/button/parameter"
 import { metadataPropertyRule000 as rule366 } from "../systemEnumerations/fromXML"
-import { metadataPropertyRule001 as rule367 } from "../systemEnumerations/fromXML"
-import { metadataPropertyRule002 as rule368 } from "../systemEnumerations/fromXML"
 import { metadataPropertyRule000 as rule369 } from "../systemEnumerations/fromYAML"
 import { metadataPropertyRule000 as rule370 } from "../systemEnumerations/toEnterprise"
 import { metadataPropertyRule000 as rule371 } from "../systemEnumerations/toJSONSchema"
@@ -738,8 +736,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule364,
   rule365,
   rule366,
-  rule367,
-  rule368,
   rule369,
   rule370,
   rule371,

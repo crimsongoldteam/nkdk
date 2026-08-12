@@ -10,7 +10,7 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import "./index"
 
 describe("SystemEnumeration XML → YAML → XML", () => {
-  it("восстанавливает исходный XML-псевдоним без reference XML", () => {
+  it("преобразует XML RadioButtons в YAML Переключатель и обратно без снимка", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "SystemEnumerationAliasProbe",
@@ -39,7 +39,7 @@ describe("SystemEnumeration XML → YAML → XML", () => {
     expect(exported.xml).toEqual({ RadioButtonType: "RadioButtons" })
   })
 
-  it("использует канонический XML-псевдоним без configuration index", () => {
+  it("выводит RadioButtons из YAML Переключатель без configuration index", () => {
     const rule = {
       itemType: "SystemEnumerationCanonicalAliasProbe",
       properties: {
@@ -57,6 +57,6 @@ describe("SystemEnumeration XML → YAML → XML", () => {
       yaml: { Вид: "Переключатель" },
     })
 
-    expect(exported.xml).toEqual({ RadioButtonType: "RadioButton" })
+    expect(exported.xml).toEqual({ RadioButtonType: "RadioButtons" })
   })
 })

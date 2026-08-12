@@ -9,7 +9,7 @@ const predefinedCalculationTypeTarget = {
   valueKinds: ["predefinedValue"],
 } as const
 
-const ChartOfCalculationTypesPredefinedItemRules = {
+export const ChartOfCalculationTypesPredefinedItemRules = {
   ...PredefinedItemRules,
   xmlOrder: [
     "name",
@@ -31,6 +31,7 @@ const ChartOfCalculationTypesPredefinedItemRules = {
       yaml: "ПериодДействияБазовый",
       xml: "ActionPeriodIsBase",
       defaultValueXML: false,
+      implicitValueYAML: false,
       preserveExplicitDefaultXML: true,
     }),
     base: metadataItemLinksRule({
