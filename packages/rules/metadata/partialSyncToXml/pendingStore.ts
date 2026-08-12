@@ -118,6 +118,10 @@ export async function writePendingPartialXmlSync(
   const archiveBytes = await fs.promises.readFile(archivePath)
   if (hashHex(archiveBytes) !== state.archiveHash) throw new Error("Хэш ZIP не совпадает с pending state")
 
+  const current = await readPendingPartialXmlSync(params.projectDir, state.componentPath)
+  if (current !== undefined && current.delivery.status !== "prepared") {
+    throw new Error(`Нельзя заменить пакет в фазе ${current.delivery.status}`)
+  }
   await cleanupPendingPartialXmlSync(params.projectDir, state.componentPath, state.archiveProjectPath)
   const paths = pendingPartialXmlSyncPaths(params.projectDir, state.componentPath)
   const writeAtomic = dependencies.writeAtomic ?? writeFileAtomic
@@ -150,7 +154,7 @@ export async function cleanupPendingPartialXmlSync(
   preserveArchiveProjectPath?: string,
 ): Promise<void> {
   const paths = pendingPartialXmlSyncPaths(projectDir, componentPath)
-  const pending = await readPendingForCleanup(projectDir, componentPath)
+  const pending = await readPendingPartialXmlSync(projectDir, componentPath)
   if (pending !== undefined && pending.archiveProjectPath !== preserveArchiveProjectPath) {
     await fs.promises.rm(projectPathToAbsolute(projectDir, pending.archiveProjectPath), { force: true })
   }
@@ -177,17 +181,6 @@ export async function writeFileAtomic(path: string, bytes: Uint8Array): Promise<
   } catch (caught) {
     await fs.promises.rm(temporary, { force: true })
     throw caught
-  }
-}
-
-async function readPendingForCleanup(
-  projectDir: string,
-  componentPath: string,
-): Promise<PendingPartialXmlSyncStateV2 | undefined> {
-  try {
-    return await readPendingPartialXmlSync(projectDir, componentPath)
-  } catch {
-    return undefined
   }
 }
 

@@ -31,7 +31,22 @@ describe("sync_to_infobase contract", () => {
       ok: false,
       code: "delivery_outcome_unknown",
       message: "Неизвестно",
-      details: { packageId: "package-1" },
+      details: {
+        packageId: "package-1",
+        componentPath: "cf",
+        temporaryDirectory: "/project/.nkdk/tmp/sync-to-infobase/attempt-1",
+        stage: "configuration-load",
+        mode: "designer-agent",
+      },
     }).success).toBe(true)
+  })
+
+  it("отклоняет неполные подробности неизвестного результата", () => {
+    expect(syncToInfobaseOutputShape.safeParse({
+      ok: false,
+      code: "delivery_outcome_unknown",
+      message: "Неизвестно",
+      details: { packageId: "package-1" },
+    }).success).toBe(false)
   })
 })

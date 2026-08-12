@@ -152,6 +152,8 @@ export async function createDesignerAgentSession(
     )
     canonicalAgentBaseDir = directories.agentBaseDir
     userServiceDir = directories.userServiceDir
+    await ignoreCleanupError(() =>
+      dependencies.fileSystem.rm(join(userServiceDir, ".nkdk-load")))
   } catch (caught) {
     await stopAfterFailedStart(processHandle)
     if (params.operationLog !== undefined) {
@@ -343,12 +345,14 @@ export async function createDesignerAgentSession(
         processLogPath,
         dependencies.processLogReader
       )
+      const command = buildLoadPartialConfigurationCommand({
+        stagingDir: relativeAgentPath(userServiceDir, stagingDir),
+        ...(extensionName === undefined ? {} : { extensionName }),
+      })
+      await appendAgentLog(operationLog, `command ${command}`)
       try {
         await commandSession.run(
-          buildLoadPartialConfigurationCommand({
-            stagingDir: relativeAgentPath(userServiceDir, stagingDir),
-            ...(extensionName === undefined ? {} : { extensionName }),
-          }),
+          command,
           { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog }
         )
       } catch (caught) {
@@ -370,12 +374,28 @@ export async function createDesignerAgentSession(
         )
       }
       const warnings: string[] = []
+      const appendAfterSuccess = async (message: string) => {
+        if (await operationLog.append(message)) return
+        if (!warnings.includes("Не удалось дополнить журнал после успешной загрузки")) {
+          warnings.push("Не удалось дополнить журнал после успешной загрузки")
+        }
+      }
+      await appendAfterSuccess("command-response status=success")
+      try {
+        const processLog = await dependencies.processLogReader.readSince(
+          processLogPath,
+          processLogCursor,
+        )
+        if (processLog.trim() !== "") await appendAfterSuccess(`process-log\n${processLog}`)
+      } catch {
+        warnings.push("Не удалось прочитать новый фрагмент /Out после успешной загрузки")
+      }
       try {
         await dependencies.fileSystem.rm(stagingDir)
       } catch {
         warnings.push("Не удалось удалить служебную копию ZIP после успешной загрузки")
       }
-      await appendAgentLog(operationLog, "stage=configuration-load status=ready")
+      await appendAfterSuccess("stage=configuration-load status=ready")
       return { warnings }
     },
     async close() {

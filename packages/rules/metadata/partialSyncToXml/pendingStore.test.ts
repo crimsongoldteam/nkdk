@@ -74,6 +74,7 @@ describe("ожидающее состояние частичной XML-синх�
     fs.writeFileSync(paths.pendingPath, JSON.stringify({ ...state, ...patch }))
 
     await expect(readPendingPartialXmlSync(projectDir, "cf")).rejects.toThrow(error)
+    await expect(cleanupPendingPartialXmlSync(projectDir, "cf")).rejects.toThrow(error)
     expect(fs.existsSync(paths.pendingPath)).toBe(true)
     expect(fs.existsSync(paths.candidatePath)).toBe(true)
   })
@@ -100,6 +101,37 @@ describe("ожидающее состояние частичной XML-синх�
     expect((await readPendingPartialXmlSync(projectDir, "cf"))?.packageId).toBe("second")
   })
 
+  it("не заменяет пакет, передачу которого уже начали", async () => {
+    const projectDir = tempProject()
+    const firstBytes = encodeConfigurationIndex(snapshot(2n))
+    const first = {
+      ...createState(projectDir, "first", firstBytes),
+      delivery: {
+        status: "transferring" as const,
+        attemptId: "attempt-1",
+        operationLogProjectPath: ".nkdk/tmp/sync-to-infobase/attempt-1/platform.log",
+      },
+    }
+    await writePendingPartialXmlSync({
+      projectDir,
+      state: { ...first, delivery: { status: "prepared" } },
+      candidateBytes: firstBytes,
+    })
+    fs.writeFileSync(
+      pendingPartialXmlSyncPaths(projectDir, "cf").pendingPath,
+      JSON.stringify(first),
+    )
+    const secondBytes = encodeConfigurationIndex(snapshot(3n))
+    const second = createState(projectDir, "second", secondBytes)
+
+    await expect(writePendingPartialXmlSync({
+      projectDir,
+      state: second,
+      candidateBytes: secondBytes,
+    })).rejects.toThrow(/transferring/i)
+    expect((await readPendingPartialXmlSync(projectDir, "cf"))?.packageId).toBe("first")
+  })
+
   it("не доверяет пути повреждённого manifest и блокирует обычную синхронизацию", async () => {
     const projectDir = tempProject()
     const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
@@ -109,10 +141,10 @@ describe("ожидающее состояние частичной XML-синх�
     fs.writeFileSync(paths.pendingPath, JSON.stringify({ version: 1, archiveProjectPath: "keep.zip" }))
 
     expect(() => assertNoPendingPartialXmlSync(projectDir, "cf")).toThrow(/ожидающий пакет/i)
-    await cleanupPendingPartialXmlSync(projectDir, "cf")
+    await expect(cleanupPendingPartialXmlSync(projectDir, "cf")).rejects.toThrow(/pending state/i)
 
     expect(fs.existsSync(outside)).toBe(true)
-    expect(fs.existsSync(paths.pendingPath)).toBe(false)
+    expect(fs.existsSync(paths.pendingPath)).toBe(true)
   })
 
   function tempProject(): string {

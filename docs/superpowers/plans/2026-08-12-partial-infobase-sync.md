@@ -42,7 +42,7 @@
 - Produces: внутренний признак ответа команды `"rejected" | "unknown"`; публичный код неизвестного результата остаётся `delivery_outcome_unknown`.
 - Extends: `SshShell` уведомлением о закрытии, чтобы ожидающая команда не висела до стороннего тайм-аута.
 
-- [ ] **Step 1: Написать падающие тесты построителя команды**
+- [x] **Step 1: Написать падающие тесты построителя команды**
 
 Добавить случаи основной конфигурации, расширения и управляющих символов:
 
@@ -58,7 +58,7 @@ expect(buildLoadPartialConfigurationCommand({
 
 Проверить, что `stagingDir` и `extensionName` используют существующий `interactiveValue` и отклоняют `\0`, `\n`, `\r`.
 
-- [ ] **Step 2: Написать падающие проверки протокола**
+- [x] **Step 2: Написать падающие проверки протокола**
 
 Расширить сценарии `sshProtocol.test.ts`:
 
@@ -79,7 +79,7 @@ type PlatformSessionErrorOptions = ErrorOptions & {
 
 `sshProtocol` устанавливает `rejected` только при полном JSON-ответе `error`/`cancel`; закрытие канала, повреждённый ответ и истечение ожидания после записи команды устанавливают `unknown`. `platformFailure` обязан перенести это поле в обёрнутую ошибку вместе с отдельными `stage`, `mode` и `logPath`.
 
-- [ ] **Step 3: Запустить новые тесты и подтвердить RED**
+- [x] **Step 3: Запустить новые тесты и подтвердить RED**
 
 Run:
 
@@ -89,13 +89,13 @@ pnpm exec vitest run --config packages/platform/vitest.config.ts packages/platfo
 
 Expected: новые проверки падают, потому что команды загрузки, уведомления о закрытии и структурированной известности результата ещё нет.
 
-- [ ] **Step 4: Реализовать минимальный договор протокола**
+- [x] **Step 4: Реализовать минимальный договор протокола**
 
 Добавить построитель команды. Расширить `SshShell` методом подписки на закрытие; транспорт обязан вызвать слушателей ровно один раз. В `PlatformCommandProtocol` хранить факт успешной записи команды и завершать ожидающий обмен структурированной ошибкой при закрытии.
 
 Не менять договоры выгрузки и списка расширений: новое поле необязательно и используется загрузкой частичного архива.
 
-- [ ] **Step 5: Подтвердить GREEN и проверить слой**
+- [x] **Step 5: Подтвердить GREEN и проверить слой**
 
 Run:
 
@@ -106,7 +106,7 @@ pnpm duplicates -- --base origin/develop
 
 Expected: PASS; новых дублей нет.
 
-- [ ] **Step 6: Зафиксировать слой**
+- [x] **Step 6: Зафиксировать слой**
 
 ```bash
 git add packages/platform/src/sessions/commands.ts packages/platform/src/sessions/commands.test.ts packages/platform/src/sessions/runtime.ts packages/platform/src/sessions/errors.ts packages/platform/src/sessions/sshProtocol.ts packages/platform/src/sessions/sshProtocol.test.ts packages/platform/src/sessions/ssh2Transport.ts packages/platform/src/sessions/ssh2Transport.test.ts
@@ -132,7 +132,7 @@ git commit -m "feat: :sparkles: описать результат команды
 - Produces: `PlatformSessionManager.loadPartialConfiguration(params)`.
 - Consumes: готовый ZIP, список путей загрузки, необязательное имя расширения, настройки подключения, `platform.log`, `AbortSignal`.
 
-- [ ] **Step 1: Написать падающий тест сессии агента**
+- [x] **Step 1: Написать падающий тест сессии агента**
 
 В существующей поддельной сессии проверить:
 
@@ -164,13 +164,13 @@ type LoadPartialConfigurationResult = {
 }
 ```
 
-- [ ] **Step 2: Написать падающий тест менеджера**
+- [x] **Step 2: Написать падающий тест менеджера**
 
 Расширить `manager.test.ts` одним самостоятельным договором: загрузка использует ту же очередь и сохранённую сессию проекта, всегда создаёт `designer-agent`, пишет начало/конец `configuration-load`, передаёт секреты только очистителю журнала и возвращает `reusedConnection`.
 
 Проверить замену ранее сохранённой `standalone-server`-сессии агентной через существующий отпечаток.
 
-- [ ] **Step 3: Запустить тесты и подтвердить RED**
+- [x] **Step 3: Запустить тесты и подтвердить RED**
 
 Run:
 
@@ -180,7 +180,7 @@ pnpm exec vitest run --config packages/platform/vitest.config.ts packages/platfo
 
 Expected: FAIL из-за отсутствующих методов и копирования ZIP.
 
-- [ ] **Step 4: Реализовать служебный каталог и загрузку**
+- [x] **Step 4: Реализовать служебный каталог и загрузку**
 
 Добавить `copyFile` в `SessionFileSystem`, узкую зависимость `DesignerAgentDependencies.fileSystem` и `nodeRuntime`. Создавать каталог с уникальным идентификатором, например `.nkdk-load/<attempt-id>`, копировать туда `package.zip`, записывать `load.lst`, выполнять построенную команду и удалять только этот каталог.
 
@@ -188,7 +188,7 @@ Expected: FAIL из-за отсутствующих методов и копир
 
 Менеджер вызывает общий `withSession`, но принудительно задаёт `mode: "designer-agent"`; новая операция не принимает режим снаружи.
 
-- [ ] **Step 5: Подтвердить GREEN и отсутствие регрессий platform**
+- [x] **Step 5: Подтвердить GREEN и отсутствие регрессий platform**
 
 Run:
 
@@ -200,7 +200,7 @@ pnpm duplicates -- --base origin/develop
 
 Expected: PASS; существующие выгрузка, список расширений, отмена и повторное использование соединения не изменились.
 
-- [ ] **Step 6: Зафиксировать слой**
+- [x] **Step 6: Зафиксировать слой**
 
 ```bash
 git add packages/platform/src/sessions/types.ts packages/platform/src/sessions/designerAgent.ts packages/platform/src/sessions/designerAgent.test.ts packages/platform/src/sessions/manager.ts packages/platform/src/sessions/manager.test.ts packages/platform/src/sessions/runtime.ts packages/platform/src/sessions/nodeRuntime.ts packages/platform/index.ts
@@ -217,25 +217,25 @@ git commit -m "feat: :sparkles: загружать частичный ZIP аге
 
 **Gate:** Дальнейшая реализация разрешена после подтверждённого успеха `load-files` с отдельным `load.lst` рядом с ZIP без распаковки.
 
-- [ ] **Step 1: Проверить внешние пути перед копированием**
+- [x] **Step 1: Проверить внешние пути перед копированием**
 
 В отдельной оболочке задать `NKDK_TEST_INFOBASE_DIR` и `NKDK_TEST_BACKUP_ROOT`. Проверить, что оба значения непустые, путь базы существует и не находится внутри worktree. Создать уникальный каталог командой `mktemp -d` под разрешённым корнем резервных копий.
 
-- [ ] **Step 2: Создать проверенную резервную копию**
+- [x] **Step 2: Создать проверенную резервную копию**
 
 Скопировать каталог базы средствами macOS без изменения источника. Сравнить перечень файлов и суммарные размеры; сохранить путь копии только в журнале текущей задачи, не в репозитории.
 
-- [ ] **Step 3: Подготовить минимальный внешний проект и пакет**
+- [x] **Step 3: Подготовить минимальный внешний проект и пакет**
 
 Во внешнем временном каталоге импортировать текущую конфигурацию штатным `nkdk.import_from_infobase`, изменить YAML тестового реквизита либо подготовить минимальное безопасное изменение, затем вызвать внутренний тестовый вход платформенного менеджера для уже сформированного ZIP.
 
 Не добавлять временную команду в публичный MCP. Допустим одноразовый сценарий через `pnpm --filter @nkdk/platform exec tsx` из stdin/внешнего файла под `/private/tmp`, использующий публичный `createPlatformSessionManager`.
 
-- [ ] **Step 4: Выполнить команду и проверить результат в Конфигураторе**
+- [x] **Step 4: Выполнить команду и проверить результат в Конфигураторе**
 
 Подтвердить по `platform.log`, ответу SSH и повторной XML-выгрузке, что агент прочитал отдельный `load.lst` и применил только перечисленные документы. Внешний временный каталог и журнал сохранить до завершения всей задачи.
 
-- [ ] **Step 5: Применить жёсткую развилку**
+- [x] **Step 5: Применить жёсткую развилку**
 
 - При успехе: записать в заметках задачи версию платформы и точную успешно выполненную команду; продолжить Task 4.
 - При штатном отказе команды: остановить реализацию, не распаковывать ZIP и исследовать точную причину.
@@ -261,7 +261,7 @@ git commit -m "feat: :sparkles: загружать частичный ZIP аге
 - Produces: чтение состояния, переход `prepared → transferring → applied`, возврат `transferring → prepared` после известного отказа.
 - Restricts: `finalizePartialXmlSyncPackage` принимает только `applied` и возвращает путь опубликованного `configuration-index.bin` вместе со статусом.
 
-- [ ] **Step 1: Написать проверки совместимости и переходов**
+- [x] **Step 1: Написать проверки совместимости и переходов**
 
 В `pendingStore.test.ts` добавить:
 
@@ -281,14 +281,14 @@ await markPartialSyncApplied({ projectDir, componentPath, packageId, attemptId }
 
 Переход с неверным `packageId`/`attemptId` или из неверной фазы должен падать, не перезаписывая `pending.json`.
 
-- [ ] **Step 2: Написать проверки подготовки и фиксации**
+- [x] **Step 2: Написать проверки подготовки и фиксации**
 
 - `preparePartialXmlSyncPackage` создаёт v2 `prepared`.
 - `finalizePartialXmlSyncPackage` отклоняет `prepared` и `transferring`.
 - `applied` публикуется как прежде; повтор после уже записанного снимка возвращает `alreadyPublished` и очищает ожидающие файлы.
 - оба успешных варианта finalize возвращают `configurationIndexPath`, вычисленный владельцем снимка в `@nkdk/rules`.
 
-- [ ] **Step 3: Запустить тесты и подтвердить RED**
+- [x] **Step 3: Запустить тесты и подтвердить RED**
 
 Run:
 
@@ -298,7 +298,7 @@ pnpm exec vitest run --config packages/rules/vitest.config.ts packages/rules/met
 
 Expected: FAIL, потому что формат v2 и переходы ещё отсутствуют.
 
-- [ ] **Step 4: Реализовать v2 без дублирования проверки состояния**
+- [x] **Step 4: Реализовать v2 без дублирования проверки состояния**
 
 Сосредоточить разбор и атомарную запись в `pendingStore.ts`; `deliveryState.ts` использует публичные операции хранилища. Не позволять MCP записывать `pending.json` напрямую.
 
@@ -311,7 +311,7 @@ type PartialSyncDelivery =
   | { readonly status: "applied"; readonly attemptId: string; readonly operationLogProjectPath: string }
 ```
 
-- [ ] **Step 5: Подтвердить GREEN и проверить весь узел partialSyncToXml**
+- [x] **Step 5: Подтвердить GREEN и проверить весь узел partialSyncToXml**
 
 Run:
 
@@ -322,7 +322,7 @@ pnpm duplicates -- --base origin/develop
 
 Expected: PASS; потоковая запись ZIP и существующая фиксация снимка сохранены.
 
-- [ ] **Step 6: Зафиксировать слой**
+- [x] **Step 6: Зафиксировать слой**
 
 ```bash
 git add packages/rules/metadata/partialSyncToXml
@@ -346,7 +346,7 @@ git commit -m "feat: :sparkles: сохранять фазу частичной �
 - Extends: `MetadataRuntime.sync.partial` публичными операциями подготовки, чтения доставки, переходов и фиксации.
 - Extends: `CoreApi` теми же узкими методами с обязательной проверкой принадлежности `ProjectStateService` для подготовки.
 
-- [ ] **Step 1: Написать падающий runtime-тест**
+- [x] **Step 1: Написать падающий runtime-тест**
 
 Проверить, что `runtime.sync.partial.prepare` принимает только состояние, созданное этим runtime, а операции чтения/переходов/finalize вызывают публичные функции `@nkdk/rules` без глубоких импортов из MCP.
 
@@ -361,11 +361,11 @@ runtime.sync.partial.markApplied(params)
 runtime.sync.partial.finalize(params)
 ```
 
-- [ ] **Step 2: Написать падающий тест `CoreApi`**
+- [x] **Step 2: Написать падающий тест `CoreApi`**
 
 Проверить точное сопоставление методов и отказ для чужого `ProjectStateService`; не экспортировать правила, хранилище или файловые пути в MCP.
 
-- [ ] **Step 3: Подтвердить RED**
+- [x] **Step 3: Подтвердить RED**
 
 Run:
 
@@ -374,11 +374,11 @@ pnpm exec vitest run --config packages/rules/vitest.config.ts packages/rules/met
 pnpm exec vitest run --config packages/mcp/vitest.config.ts packages/mcp/src/coreApi.test.ts
 ```
 
-- [ ] **Step 4: Реализовать узкую границу runtime**
+- [x] **Step 4: Реализовать узкую границу runtime**
 
 Добавить импорты только в `runtime/createMetadataRuntime.ts` и публичный `partialSyncToXml/index.ts`. Оборачивать подготовку в существующие execution registries; файловые переходы не создают второй набор metadata-регистраций.
 
-- [ ] **Step 5: Подтвердить GREEN, архитектуру и дубли**
+- [x] **Step 5: Подтвердить GREEN, архитектуру и дубли**
 
 Run:
 
@@ -391,7 +391,7 @@ pnpm duplicates -- --base origin/develop
 
 Expected: PASS; `@nkdk/mcp` не получил глубоких импортов из `@nkdk/rules`.
 
-- [ ] **Step 6: Зафиксировать слой**
+- [x] **Step 6: Зафиксировать слой**
 
 ```bash
 git add packages/rules/metadata/runtime/contracts.ts packages/rules/metadata/runtime/createMetadataRuntime.ts packages/rules/metadata/runtime/createMetadataRuntime.test.ts packages/rules/metadata/partialSyncToXml/index.ts packages/rules/index.ts packages/mcp/src/coreApi.ts packages/mcp/src/coreApi.test.ts
@@ -413,7 +413,7 @@ git commit -m "feat: :sparkles: открыть частичную синхрон
 - Consumes: `projectDir`, `componentPath = "cf"`, `allowWrite`, настройки проекта, `CoreApi.sync.partial`, `PlatformSessionManager.loadPartialConfiguration`.
 - Produces: `unchanged`, `synchronized`, настройки/validation/platform errors и `delivery_outcome_unknown`.
 
-- [ ] **Step 1: Зафиксировать строгую схему входа и выхода**
+- [x] **Step 1: Зафиксировать строгую схему входа и выхода**
 
 `syncToInfobaseInputShape` принимает только согласованные поля. Ограничить `componentPath` значениями `cf` или `cfe/<Имя>` без `..`, абсолютных путей и пустого имени.
 
@@ -439,7 +439,7 @@ type SyncToInfobaseSuccess =
 
 Добавить `delivery_outcome_unknown` в общий перечень ошибок и отдельную схему сведений: `packageId`, `componentPath`, `temporaryDirectory`, `stage`, `mode`, необязательная ссылка на журнал.
 
-- [ ] **Step 2: Написать таблицу падающих сценариев координатора**
+- [x] **Step 2: Написать таблицу падающих сценариев координатора**
 
 В одном `it.each` покрыть уникальные ветви:
 
@@ -466,7 +466,7 @@ expect(events).toEqual([
 ])
 ```
 
-- [ ] **Step 3: Запустить тесты и подтвердить RED**
+- [x] **Step 3: Запустить тесты и подтвердить RED**
 
 Run:
 
@@ -474,7 +474,7 @@ Run:
 pnpm exec vitest run --config packages/mcp/vitest.config.ts packages/mcp/src/services/syncToInfobase.test.ts
 ```
 
-- [ ] **Step 4: Реализовать координатор без прямой записи pending**
+- [x] **Step 4: Реализовать координатор без прямой записи pending**
 
 Алгоритм:
 
@@ -499,7 +499,7 @@ try {
 
 Каталог попытки создаётся под `.nkdk/tmp/sync-to-infobase/<attempt-id>`. На полном успехе удаляется; при любом сбое сохраняется. `configurationIndexPath` берётся из результата finalize, а не вычисляется MCP через знание внутренней структуры снимка.
 
-- [ ] **Step 5: Подтвердить GREEN и проверить пакет MCP**
+- [x] **Step 5: Подтвердить GREEN и проверить пакет MCP**
 
 Run:
 
@@ -511,7 +511,7 @@ pnpm duplicates -- --base origin/develop
 
 Expected: PASS; существующий импорт не изменил договор ошибок и журнала.
 
-- [ ] **Step 6: Зафиксировать слой**
+- [x] **Step 6: Зафиксировать слой**
 
 ```bash
 git add packages/mcp/src/contracts/syncToInfobase.ts packages/mcp/src/services/syncToInfobase.ts packages/mcp/src/services/syncToInfobase.test.ts packages/mcp/src/contracts/common.ts packages/mcp/src/services/platformSessionHandle.ts
@@ -532,7 +532,7 @@ git commit -m "feat: :sparkles: выполнить частичную синхр
 **Interfaces:**
 - Produces: `nkdk.sync_to_infobase` с `outputSchema`, передачей `AbortSignal` и `resource_link` на схему настроек либо `platform.log`.
 
-- [ ] **Step 1: Написать падающие проверки регистрации**
+- [x] **Step 1: Написать падающие проверки регистрации**
 
 Проверить:
 
@@ -544,7 +544,7 @@ git commit -m "feat: :sparkles: выполнить частичную синхр
 - ошибка платформы и неизвестный результат показывают ссылку с именем «Журнал синхронизации с информационной базой»;
 - успешный ответ не дублирует журнал и не добавляет ресурс.
 
-- [ ] **Step 2: Подтвердить RED**
+- [x] **Step 2: Подтвердить RED**
 
 Run:
 
@@ -552,11 +552,11 @@ Run:
 pnpm exec vitest run --config packages/mcp/vitest.config.ts packages/mcp/src/tools/registerTools.test.ts
 ```
 
-- [ ] **Step 3: Зарегистрировать инструмент и представление результата**
+- [x] **Step 3: Зарегистрировать инструмент и представление результата**
 
 Использовать отдельные `createSyncToInfobaseHandler` и `syncToInfobaseToolResult` по образцу импорта, не расширяя универсальный `metadataToolResult` специальными условиями.
 
-- [ ] **Step 4: Подтвердить GREEN и проверить документацию**
+- [x] **Step 4: Подтвердить GREEN и проверить документацию**
 
 Run:
 
@@ -566,7 +566,7 @@ pnpm --filter @nkdk/mcp test
 pnpm duplicates -- --base origin/develop
 ```
 
-- [ ] **Step 5: Зафиксировать публичную границу**
+- [x] **Step 5: Зафиксировать публичную границу**
 
 ```bash
 git add packages/mcp/src/tools/registerTools.ts packages/mcp/src/tools/registerTools.test.ts packages/mcp/README.md
@@ -585,7 +585,7 @@ git commit -m "feat: :sparkles: опубликовать синхронизац�
 
 **Contract:** Реальный `MetadataRuntime` формирует ZIP и снимок-кандидат, поддельный `PlatformSessionManager` подтверждает загрузку, координатор публикует снимок; второй вызов возвращает `unchanged`.
 
-- [ ] **Step 1: Написать один сквозной интеграционный тест**
+- [x] **Step 1: Написать один сквозной интеграционный тест**
 
 Создать временный NKDK-проект из минимальных программно построенных YAML-данных либо существующего тестового строителя, не меняя XML-фикстуры. Инициализировать снимок, изменить один реквизит, затем вызвать реальный координатор с поддельной платформой.
 
@@ -597,11 +597,11 @@ git commit -m "feat: :sparkles: опубликовать синхронизац�
 - ZIP, кандидат и `pending.json` удалены;
 - повторный вызов возвращает `unchanged` и не вызывает платформу.
 
-- [ ] **Step 2: Добавить восстановительный сценарий в тот же тестовый модуль**
+- [x] **Step 2: Добавить восстановительный сценарий в тот же тестовый модуль**
 
 Оборвать первый вызов после `markApplied`, до finalize. Новый вызов обязан выполнить только finalize и вернуть `alreadyPublished` либо `published` согласно точке сбоя; платформа вызывается один раз за оба вызова.
 
-- [ ] **Step 3: Подтвердить RED, затем GREEN минимальными исправлениями**
+- [x] **Step 3: Подтвердить RED, затем GREEN минимальными исправлениями**
 
 Run:
 
@@ -611,7 +611,7 @@ pnpm exec vitest run --config packages/mcp/vitest.config.ts packages/mcp/src/ser
 
 Если тест вскрывает расхождение интерфейсов, менять владельца соответствующего договора (`rules`, `platform` или `mcp`), а не добавлять обход в интеграционный тест.
 
-- [ ] **Step 4: Проверить затронутые пакеты и архитектуру**
+- [x] **Step 4: Проверить затронутые пакеты и архитектуру**
 
 Run:
 
@@ -623,7 +623,7 @@ pnpm test:architecture
 pnpm duplicates -- --base origin/develop
 ```
 
-- [ ] **Step 5: Зафиксировать сквозную защиту**
+- [x] **Step 5: Зафиксировать сквозную защиту**
 
 ```bash
 git add packages/mcp/src/services/syncToInfobase.integration.test.ts packages/rules packages/platform packages/mcp
@@ -640,31 +640,31 @@ git commit -m "test: :white_check_mark: проверить полный цикл
 - No repository fixtures or database files.
 - External only: проверенная резервная копия, два временных NKDK-проекта, `platform.log` и результаты XML-выгрузки.
 
-- [ ] **Step 1: Повторно проверить резервную копию и закрыть лишние процессы 1С**
+- [x] **Step 1: Повторно проверить резервную копию и закрыть лишние процессы 1С**
 
 Убедиться, что копия из Task 3 существует и соответствует исходному каталогу до изменений. Закрыть только процессы/сессии 1С, созданные текущим MCP-процессом, через штатный `close_platform_connection`; не завершать чужие процессы.
 
-- [ ] **Step 2: Импортировать базу во внешний временный проект**
+- [x] **Step 2: Импортировать базу во внешний временный проект**
 
 Создать каталог через `mktemp -d` вне репозитория. Записать `.nkdk/project.yaml` с файловым подключением из `NKDK_TEST_INFOBASE_DIR`, без пользователя и пароля, и импортировать основную конфигурацию через `nkdk.import_from_infobase`.
 
-- [ ] **Step 3: Изменить только согласованный реквизит**
+- [x] **Step 3: Изменить только согласованный реквизит**
 
 В YAML `Справочник1` добавить реквизит `ТестовыйРеквизит` типа `Строка` длиной `50`, используя существующую структуру соседнего строкового реквизита или JSON Schema. Проверить YAML штатной validation до запуска платформы.
 
-- [ ] **Step 4: Выполнить `nkdk.sync_to_infobase`**
+- [x] **Step 4: Выполнить `nkdk.sync_to_infobase`**
 
 Сначала подтвердить, что без `allowWrite` возвращается `confirmation_required`; затем вызвать с `allowWrite: true`. Проверить подробный результат: `packageId`, точные `entries`, `loadTargets`, `mode=designer-agent`, `reusedConnection`, `finalizeStatus`, `configurationIndexPath`, предупреждения.
 
-- [ ] **Step 5: Проверить результат повторным импортом и в Конфигураторе**
+- [x] **Step 5: Проверить результат повторным импортом и в Конфигураторе**
 
 Импортировать изменённую конфигурацию базы в новый внешний временный проект и проверить, что у `Справочник1` присутствует `ТестовыйРеквизит` с типом `Строка(50)`. Открывать или проверять Конфигуратор достаточно на уровне сохранённой конфигурации; режим 1С:Предприятия и обновление конфигурации базы данных не запускать.
 
-- [ ] **Step 6: Проверить идемпотентность**
+- [x] **Step 6: Проверить идемпотентность**
 
 Повторный `nkdk.sync_to_infobase` для исходного проекта должен вернуть `unchanged` и не создавать новую платформенную загрузку.
 
-- [ ] **Step 7: Обработать проблемы безопасно**
+- [x] **Step 7: Обработать проблемы безопасно**
 
 Если результат неизвестен, не повторять загрузку автоматически: сначала проверить конфигурацию в Конфигураторе. Если база повреждена или сценарий не завершён, закрыть созданную сессию, переместить проблемный каталог в отдельное временное место и восстановить проверенную копию. Не удалять резервную копию до явного подтверждения завершения задачи.
 
@@ -677,7 +677,7 @@ git commit -m "test: :white_check_mark: проверить полный цикл
 - Inspect: `docs/superpowers/specs/2026-08-12-partial-infobase-sync-design.md`
 - Modify only if explicitly approved after reporting a real mismatch: neither by default.
 
-- [ ] **Step 1: Проверить итоговый diff и отсутствие временных файлов**
+- [x] **Step 1: Проверить итоговый diff и отсутствие временных файлов**
 
 Run:
 
@@ -689,7 +689,7 @@ git diff --name-only origin/develop...HEAD
 
 Убедиться, что в diff нет путей базы, абсолютного локального пути к ней, ZIP, `pending.json`, `configuration-index.bin`, `platform.log`, временных XML/YAML-проектов и секретов.
 
-- [ ] **Step 2: Выполнить обязательные проверки**
+- [x] **Step 2: Выполнить обязательные проверки**
 
 Run:
 
@@ -703,7 +703,7 @@ pnpm duplicates -- --base origin/develop
 
 Expected: все команды завершаются успешно. При нестабильном временном пороге выполнить `pnpm test:profile -- --output /private/tmp/nkdk-partial-sync-test-profile.json` три раза и исследовать медиану; не ослаблять тест без установленной причины.
 
-- [ ] **Step 3: Сверить реализацию с согласованной архитектурой**
+- [x] **Step 3: Сверить реализацию с согласованной архитектурой**
 
 Проверить таблицу ответственности и схему частичной синхронизации:
 
@@ -715,7 +715,7 @@ Expected: все команды завершаются успешно. При н
 
 Если всё совпадает, документы не менять. Если есть расхождение, остановиться и представить пользователю точное отличие и рекомендуемое решение.
 
-- [ ] **Step 4: Зафиксировать только необходимые итоговые правки**
+- [x] **Step 4: Зафиксировать только необходимые итоговые правки**
 
 Если после проверок потребовались кодовые или документальные исправления:
 
@@ -724,7 +724,7 @@ git add <точный список файлов>
 git commit -m "fix: :bug: завершить частичную синхронизацию базы"
 ```
 
-- [ ] **Step 5: Подготовить итоговый отчёт**
+- [x] **Step 5: Подготовить итоговый отчёт**
 
 Перечислить:
 

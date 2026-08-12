@@ -10,6 +10,7 @@ export {
   concisePlatformMessage,
   createPlatformOperationLog,
   platformFailure,
+  recordPartialSyncDeliveryPhase,
   redactPlatformText,
   type PlatformFailureParams,
   type PlatformOperationLog,

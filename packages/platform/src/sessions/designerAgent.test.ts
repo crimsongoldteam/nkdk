@@ -24,6 +24,7 @@ describe("Designer agent session", () => {
       "ssh.connect 127.0.0.1:58248 fingerprint",
       "shell.connect-ib",
       "read /project/.nkdk/agentbasedir.json",
+      "rm /project/.nkdk/0/.nkdk-load",
       "write /project/.nkdk/tmp/op/platform.log",
       "rm /project/.nkdk/0/.nkdk-export",
       "mkdir /project/.nkdk/0/.nkdk-export",
@@ -139,7 +140,7 @@ describe("Designer agent session", () => {
   })
 
   it("copies a project ZIP, writes its load list and uses EDT-compatible paths", async () => {
-    const fixture = createFixture()
+    const fixture = createFixture({ processLogDuringLoad: "partial load detail\n" })
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
 
     await expect(session.loadPartialConfiguration(
@@ -165,6 +166,28 @@ describe("Designer agent session", () => {
     expect(fixture.writes.get(fixture.operationLog.path)).toContain(
       "stage=configuration-load status=ready"
     )
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "command config load-files"
+    )
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "command-response status=success"
+    )
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "process-log\npartial load detail"
+    )
+  })
+
+  it("сохраняет успешный результат загрузки при отказе журнала после команды", async () => {
+    const fixture = createFixture({ logAppendFailureAt: 3 })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml"],
+      fixture.operationLog,
+    )).resolves.toEqual({
+      warnings: ["Не удалось дополнить журнал после успешной загрузки"],
+    })
   })
 
   it("rejects an archive outside the project before copying it", async () => {
@@ -419,7 +442,9 @@ describe("Designer agent session", () => {
         "include"
       )
     ).rejects.toMatchObject({ code: "platform_command_failed" })
-    expect(fixture.calls.some((call) => call.startsWith("rm "))).toBe(false)
+    expect(fixture.calls.filter((call) => call.startsWith("rm "))).toEqual([
+      "rm /project/.nkdk/0/.nkdk-load",
+    ])
   })
 
   it("rejects a platform installation without 1cv8", async () => {
@@ -645,10 +670,12 @@ function createFixture(
     extensionListError?: Error
     processLog?: string
     processLogDuringDump?: string
+    processLogDuringLoad?: string
     processLogReadFailure?: boolean
     openCommandError?: Error
     loadError?: PlatformSessionError
     loadCleanupFailure?: boolean
+    logAppendFailureAt?: number
   } = {}
 ): {
   calls: string[]
@@ -661,11 +688,14 @@ function createFixture(
 } {
   const calls: string[] = []
   const writes = new Map<string, string>()
+  let logAppendCalls = 0
   const createOperationLog = (path: string): PlatformOperationLog => ({
     path,
     available: true,
     async append(message) {
       calls.push(`write ${path}`)
+      logAppendCalls += 1
+      if (logAppendCalls >= (options.logAppendFailureAt ?? Number.POSITIVE_INFINITY)) return false
       const safeMessage = this.sanitize(message)
       writes.set(path, `${writes.get(path) ?? ""}${safeMessage}\n`)
       return true
@@ -732,6 +762,7 @@ function createFixture(
       if (options.loadError !== undefined && command.startsWith("config load-files")) {
         throw options.loadError
       }
+      if (command.startsWith("config load-files")) processLog += options.processLogDuringLoad ?? ""
       if (options.dumpFailure === true && command.startsWith("config ")) {
         processLog += options.processLogDuringDump ?? ""
         throw new Error("dump failed")

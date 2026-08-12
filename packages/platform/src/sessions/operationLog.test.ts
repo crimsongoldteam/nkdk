@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  recordPartialSyncDeliveryPhase,
   concisePlatformMessage,
   createPlatformOperationLog,
   platformFailure,
@@ -9,6 +10,16 @@ import {
 import { PlatformSessionError } from "./errors"
 
 describe("platform operation log", () => {
+  it("дописывает фазу доставки в существующий журнал", async () => {
+    const fixture = createFixture()
+
+    await recordPartialSyncDeliveryPhase(
+      { path: "/operation/platform.log", phase: "applied" },
+      fixture.dependencies,
+    )
+
+    expect(fixture.calls).toContain("append /operation/platform.log")
+  })
   it("redacts explicit secrets and common password arguments", () => {
     expect(redactPlatformText(
       "ibcmd --password secret --database-password=db-secret /P pwd",

@@ -107,6 +107,7 @@ describe("sync to infobase", () => {
       "markTransferring",
       "platformLoad",
       "markApplied",
+      "recordPhase applied",
       "finalize",
       `rm ${attemptDirectory}`,
     ])
@@ -118,6 +119,17 @@ describe("sync to infobase", () => {
       connectionString: "File=/base",
     })
     expect(fixture.platformParams).not.toHaveProperty("operations")
+  })
+
+  it("передаёт имя расширения без условий по виду метаданных", async () => {
+    const fixture = createFixture()
+
+    await expect(syncToInfobase(
+      { projectDir: "/project", componentPath: "cfe/Расширение", allowWrite: true },
+      fixture.dependencies,
+    )).resolves.toMatchObject({ ok: true, componentPath: "cfe/Расширение" })
+
+    expect(fixture.platformParams).toMatchObject({ extensionName: "Расширение" })
   })
 
   it("returns a confirmed platform rejection to prepared", async () => {
@@ -195,6 +207,36 @@ describe("sync to infobase", () => {
       warnings: [expect.objectContaining({ code: "temporary_directory_cleanup_failed" })],
     })
   })
+
+  it("последовательно выполняет два полных цикла одного проекта", async () => {
+    let releaseFirstLoad!: () => void
+    const firstLoad = new Promise<void>((resolve) => { releaseFirstLoad = resolve })
+    let firstLoadStarted!: () => void
+    const started = new Promise<void>((resolve) => { firstLoadStarted = resolve })
+    let calls = 0
+    const fixture = createFixture({
+      async platformLoad() {
+        calls += 1
+        if (calls === 1) {
+          firstLoadStarted()
+          await firstLoad
+        }
+        return { mode: "designer-agent", reusedConnection: false, warnings: [] }
+      },
+    })
+
+    const first = syncToInfobase(input(), fixture.dependencies)
+    await started
+    const second = syncToInfobase(input(), fixture.dependencies)
+    let secondSettled = false
+    void second.then(() => { secondSettled = true })
+    await Promise.resolve()
+
+    expect(secondSettled).toBe(false)
+    releaseFirstLoad()
+    await expect(first).resolves.toMatchObject({ ok: true, status: "synchronized" })
+    await expect(second).resolves.toMatchObject({ ok: true, status: "synchronized" })
+  })
 })
 
 function input() {
@@ -234,6 +276,7 @@ function createFixture(options: {
   markAppliedError?: Error
   finalizeFailures?: number
   cleanupError?: Error
+  platformLoad?: SyncToInfobaseDependencies["platformManager"]["loadPartialConfiguration"]
 } = {}) {
   const events: string[] = []
   let delivery = options.pendingStatus
@@ -287,10 +330,14 @@ function createFixture(options: {
         }
       },
     },
+    async recordDeliveryPhase({ phase }) {
+      events.push(`recordPhase ${phase}`)
+    },
     platformManager: {
       async loadPartialConfiguration(params) {
         events.push("platformLoad")
         Object.assign(platformParams, params)
+        if (options.platformLoad !== undefined) return options.platformLoad(params)
         if (options.platformError !== undefined) throw options.platformError
         return { mode: "designer-agent", reusedConnection: false, warnings: [] }
       },

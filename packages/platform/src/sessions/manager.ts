@@ -86,6 +86,7 @@ export function createPlatformSessionManager(
       ].join(" "),
       mode
     )
+    await appendRequired(operationLog, "pending-phase=transferring", mode)
     const result = await withSession(
       { ...params, mode },
       operationLog,

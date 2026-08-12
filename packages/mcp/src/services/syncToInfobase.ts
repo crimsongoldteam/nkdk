@@ -3,6 +3,7 @@ import { join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import {
   PlatformSessionError,
+  recordPartialSyncDeliveryPhase,
   readProjectSettings,
   type PlatformSessionManager,
 } from "@nkdk/platform"
@@ -43,6 +44,7 @@ export interface SyncToInfobaseDependencies {
   readonly core: PartialCore
   readonly projectState: CoreProjectStateService
   readonly platformManager: Pick<PlatformSessionManager, "loadPartialConfiguration">
+  readonly recordDeliveryPhase: typeof recordPartialSyncDeliveryPhase
   readonly fs: {
     mkdir(path: string): Promise<void>
     rm(path: string): Promise<void>
@@ -64,6 +66,8 @@ export type SyncToInfobasePayload = ToolPayload<{
   readonly warnings?: readonly OutputDiagnostic[]
 }>
 
+const projectSyncQueues = new Map<string, Promise<void>>()
+
 export async function syncToInfobase(
   input: SyncToInfobaseInput,
   providedDependencies?: SyncToInfobaseDependencies,
@@ -76,6 +80,16 @@ export async function syncToInfobase(
       { projectDir: input.projectDir, componentPath: input.componentPath ?? "cf" },
     )
   }
+
+  return enqueueProjectSync(resolve(input.projectDir), () =>
+    syncToInfobaseExclusive(input, providedDependencies, signal))
+}
+
+async function syncToInfobaseExclusive(
+  input: SyncToInfobaseInput,
+  providedDependencies?: SyncToInfobaseDependencies,
+  signal?: AbortSignal,
+): Promise<SyncToInfobasePayload> {
 
   const dependencies = providedDependencies ?? await defaultDependencies()
   try {
@@ -185,6 +199,14 @@ export async function syncToInfobase(
     } catch {
       return unknownDelivery(prepared.packageId, component.componentPath, temporaryDirectory, logPath)
     }
+    try {
+      await dependencies.recordDeliveryPhase({ path: logPath, phase: "applied" })
+    } catch {
+      loaded = {
+        ...loaded,
+        warnings: [...loaded.warnings, "Не удалось записать итоговую фазу в журнал платформы"],
+      }
+    }
 
     return await finalizeApplied({
       dependencies,
@@ -202,6 +224,18 @@ export async function syncToInfobase(
   }
 }
 
+async function enqueueProjectSync<T>(projectDir: string, operation: () => Promise<T>): Promise<T> {
+  const previous = projectSyncQueues.get(projectDir) ?? Promise.resolve()
+  const result = previous.then(operation, operation)
+  const tail = result.then(() => undefined, () => undefined)
+  projectSyncQueues.set(projectDir, tail)
+  try {
+    return await result
+  } finally {
+    if (projectSyncQueues.get(projectDir) === tail) projectSyncQueues.delete(projectDir)
+  }
+}
+
 async function defaultDependencies(): Promise<SyncToInfobaseDependencies> {
   const core = await loadCoreApi()
   return {
@@ -210,6 +244,7 @@ async function defaultDependencies(): Promise<SyncToInfobaseDependencies> {
     core,
     projectState: await projectStateHandle.get(),
     platformManager: getPlatformSessionManager(),
+    recordDeliveryPhase: recordPartialSyncDeliveryPhase,
     fs: temporaryDirectoryFileSystem,
     attemptId: randomUUID,
   }

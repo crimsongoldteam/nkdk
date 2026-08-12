@@ -1,3 +1,4 @@
+import fs from "node:fs"
 import {
   PlatformSessionError,
   type PlatformFailureStage,
@@ -84,6 +85,23 @@ export async function createPlatformOperationLog(
     },
     sanitize,
   }
+}
+
+export async function recordPartialSyncDeliveryPhase(
+  params: { readonly path: string; readonly phase: "transferring" | "applied" },
+  dependencies: Pick<PlatformOperationLogDependencies, "fileSystem" | "now"> = {
+    fileSystem: {
+      writeFile: (path, content, options) => fs.promises.writeFile(path, content, options).then(() => undefined),
+      appendFile: (path, content) => fs.promises.appendFile(path, content),
+      chmod: (path, mode) => fs.promises.chmod(path, mode),
+    },
+    now: () => new Date(),
+  },
+): Promise<void> {
+  await dependencies.fileSystem.appendFile(
+    params.path,
+    `${timestamp(dependencies.now())} pending-phase=${params.phase}\n`,
+  )
 }
 
 export function redactPlatformText(value: string, secrets: readonly string[]): string {

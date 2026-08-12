@@ -1,6 +1,7 @@
 import { z } from "zod/v4"
 import { toolErrorOutputShape } from "./common"
 import {
+  importResourceReferenceSchema,
   invalidProjectSettingsSchema,
   projectSettingsRequiredSchema,
 } from "./importFromInfobase"
@@ -40,12 +41,31 @@ const synchronizedSchema = z.strictObject({
   warnings: z.array(metadataDiagnosticSchema),
 })
 
+const unknownDeliverySchema = z.strictObject({
+  ok: z.literal(false),
+  code: z.literal("delivery_outcome_unknown"),
+  message: z.string(),
+  details: z.strictObject({
+    packageId: z.string().min(1),
+    componentPath: componentPathSchema,
+    temporaryDirectory: z.string().min(1),
+    stage: z.literal("configuration-load"),
+    mode: z.literal("designer-agent"),
+    log: importResourceReferenceSchema.optional(),
+  }),
+})
+
+const otherErrorSchema = z.object(toolErrorOutputShape).refine(
+  ({ code }) => code !== "delivery_outcome_unknown",
+)
+
 export const syncToInfobaseOutputShape = z.union([
   unchangedSchema,
   synchronizedSchema,
   projectSettingsRequiredSchema,
   invalidProjectSettingsSchema,
-  z.object(toolErrorOutputShape),
+  unknownDeliverySchema,
+  otherErrorSchema,
 ])
 
 export type SyncToInfobaseInput = z.infer<typeof syncToInfobaseInputSchema>
