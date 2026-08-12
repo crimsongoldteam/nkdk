@@ -15,6 +15,7 @@ import type {
 } from "./measure-project-state-backend-worker"
 
 export type ProjectStateBackendKind = "typescript" | "rust"
+export type ProjectStateQueryPattern = "repeated" | "unique"
 
 export interface ProjectStateBackendMeasureOptions {
   readonly projectDir: string
@@ -22,6 +23,7 @@ export interface ProjectStateBackendMeasureOptions {
   readonly concurrency: number
   readonly backends: readonly ProjectStateBackendKind[]
   readonly lookups: number
+  readonly queryPattern: ProjectStateQueryPattern
 }
 
 export interface RustExperimentMeasurements {
@@ -52,6 +54,7 @@ export function parseProjectStateBackendMeasureArgs(
   let runs = 5
   let concurrency = 4
   let lookups = 1_000_000
+  let queryPattern: ProjectStateQueryPattern = "repeated"
   let backends: readonly ProjectStateBackendKind[] = ["typescript", "rust"]
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -71,11 +74,20 @@ export function parseProjectStateBackendMeasureArgs(
       else throw new Error("--backends должен быть typescript, rust или both")
       continue
     }
+    if (argument === "--query-pattern") {
+      queryPattern = parseProjectStateQueryPattern(argv[++index])
+      continue
+    }
     projectDir = parseProjectDirectoryArgument(projectDir, argument)
   }
 
   projectDir = requireProjectDirectory(projectDir)
-  return { projectDir, runs, concurrency, backends, lookups }
+  return { projectDir, runs, concurrency, backends, lookups, queryPattern }
+}
+
+export function parseProjectStateQueryPattern(value: string | undefined): ProjectStateQueryPattern {
+  if (value === "repeated" || value === "unique") return value
+  throw new Error("--query-pattern должен быть repeated или unique")
 }
 
 export function buildBackendProcessEnv(
@@ -102,6 +114,7 @@ export async function measureProjectStateBackends(
         run,
         lookups: options.lookups,
         workers: options.concurrency,
+        queryPattern: options.queryPattern,
       }))
     }
   }
@@ -122,6 +135,7 @@ async function runBackendProcess(
     "--run", String(options.run),
     "--lookups", String(options.lookups),
     "--workers", String(options.workers),
+    "--query-pattern", options.queryPattern,
   ], {
     env: buildBackendProcessEnv(options.backend),
     maxBuffer: 10 * 1024 * 1024,

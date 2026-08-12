@@ -19,17 +19,23 @@ import type {
   BinaryProjectStateLookupResult,
   BinaryProjectStateLookupTask,
 } from "./measure-binary-project-state-worker"
+import {
+  parseProjectStateQueryPattern,
+  type ProjectStateQueryPattern,
+} from "./measure-project-state-backends"
 
 export interface MeasureBinaryProjectStateOptions {
   readonly projectDir: string
   readonly lookups: number
   readonly workers: number
+  readonly queryPattern: ProjectStateQueryPattern
 }
 
 export function parseMeasureBinaryProjectStateArgs(argv: readonly string[]): MeasureBinaryProjectStateOptions {
   let projectDir: string | undefined
   let lookups = 1_000_000
   let workers = 1
+  let queryPattern: ProjectStateQueryPattern = "repeated"
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]!
@@ -40,9 +46,13 @@ export function parseMeasureBinaryProjectStateArgs(argv: readonly string[]): Mea
       else workers = Number(value)
       continue
     }
+    if (argument === "--query-pattern") {
+      queryPattern = parseProjectStateQueryPattern(argv[++index])
+      continue
+    }
     projectDir = parseProjectDirectoryArgument(projectDir, argument)
   }
-  return { projectDir: requireProjectDirectory(projectDir), lookups, workers }
+  return { projectDir: requireProjectDirectory(projectDir), lookups, workers, queryPattern }
 }
 
 export async function measureBinaryProjectState(options: MeasureBinaryProjectStateOptions) {
@@ -78,6 +88,7 @@ export async function measureBinaryProjectState(options: MeasureBinaryProjectSta
         start,
         count: end - start,
         totalLookups: options.lookups,
+        queryPattern: options.queryPattern,
       })
     }))
     const lookupSeconds = secondsSince(lookupStartedAt)
@@ -87,6 +98,7 @@ export async function measureBinaryProjectState(options: MeasureBinaryProjectSta
       projectDir: resolve(options.projectDir),
       lookups: options.lookups,
       workers: options.workers,
+      queryPattern: options.queryPattern,
       fileBytes,
       seconds: { read: readSeconds, write: writeSeconds, lookup: lookupSeconds },
       results: {

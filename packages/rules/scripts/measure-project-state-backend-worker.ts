@@ -10,7 +10,11 @@ import {
   requireProjectDirectory,
   runJsonMeasureCli,
 } from "./measure-script-support"
-import type { ProjectStateBackendKind } from "./measure-project-state-backends"
+import {
+  parseProjectStateQueryPattern,
+  type ProjectStateBackendKind,
+  type ProjectStateQueryPattern,
+} from "./measure-project-state-backends"
 
 export interface ProjectStateBackendWorkerOptions {
   readonly projectDir: string
@@ -18,6 +22,7 @@ export interface ProjectStateBackendWorkerOptions {
   readonly run: number
   readonly lookups: number
   readonly workers: number
+  readonly queryPattern: ProjectStateQueryPattern
 }
 
 export interface ProjectStateBackendRun {
@@ -34,6 +39,7 @@ export interface ProjectStateBackendRun {
   readonly diagnosticsDigest: string
   readonly found: number
   readonly missing: number
+  readonly queryPattern: ProjectStateQueryPattern
 }
 
 interface ProjectStateBackendMeasureDependencies {
@@ -66,6 +72,7 @@ export function parseProjectStateBackendWorkerArgs(
   let run = 1
   let lookups = 1_000_000
   let workers = 4
+  let queryPattern: ProjectStateQueryPattern = "repeated"
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]!
@@ -85,12 +92,16 @@ export function parseProjectStateBackendWorkerArgs(
       else workers = Number(value)
       continue
     }
+    if (argument === "--query-pattern") {
+      queryPattern = parseProjectStateQueryPattern(argv[++index])
+      continue
+    }
     projectDir = parseProjectDirectoryArgument(projectDir, argument)
   }
 
   projectDir = requireProjectDirectory(projectDir)
   if (backend === undefined) throw new Error("Не указан --backend")
-  return { projectDir, backend, run, lookups, workers }
+  return { projectDir, backend, run, lookups, workers, queryPattern }
 }
 
 export function assertProjectStateBackendAvailable(
@@ -115,6 +126,7 @@ export async function measureProjectStateBackend(
       projectDir: options.projectDir,
       lookups: options.lookups,
       workers: options.workers,
+      queryPattern: options.queryPattern,
     })
   } finally {
     clearInterval(memoryTimer)
@@ -137,6 +149,7 @@ export async function measureProjectStateBackend(
     diagnosticsDigest: await dependencies.diagnosticsDigest(options.projectDir),
     found: measurement.results.found,
     missing: measurement.results.missing,
+    queryPattern: options.queryPattern,
   }
 }
 

@@ -12,6 +12,7 @@ import {
   measureProjectStateBackend,
   parseProjectStateBackendWorkerArgs,
 } from "./measure-project-state-backend-worker"
+import { createProjectStateLookupRequest } from "./measure-binary-project-state-worker"
 
 describe("measure project state backends args", () => {
   it("применяет согласованные пороги включительно", () => {
@@ -37,7 +38,15 @@ describe("measure project state backends args", () => {
       concurrency: 4,
       backends: ["typescript", "rust"],
       lookups: 1_000_000,
+      queryPattern: "repeated",
     })
+  })
+
+  it("разбирает уникальный режим поисковой нагрузки", () => {
+    expect(parseProjectStateBackendMeasureArgs([
+      "/project",
+      "--query-pattern", "unique",
+    ])).toMatchObject({ queryPattern: "unique" })
   })
 
   it("ограничивает запуск одним явно выбранным вариантом", () => {
@@ -56,6 +65,7 @@ describe("measure project state backends args", () => {
       concurrency: 3,
       backends: ["typescript", "rust"],
       lookups: 10,
+      queryPattern: "repeated",
     }, async (options) => {
       calls.push({ backend: options.backend, run: options.run })
       return {
@@ -72,6 +82,7 @@ describe("measure project state backends args", () => {
         diagnosticsDigest: "digest",
         found: 9,
         missing: 1,
+        queryPattern: "repeated",
       }
     })
 
@@ -112,6 +123,7 @@ describe("measure project state backend worker", () => {
       run: 3,
       lookups: 2_000,
       workers: 2,
+      queryPattern: "repeated",
     })
   })
 
@@ -128,6 +140,7 @@ describe("measure project state backend worker", () => {
       run: 3,
       lookups: 2_000,
       workers: 2,
+      queryPattern: "repeated",
     }, {
       now: sequence([100, 350]),
       cpuUsage: sequence([
@@ -138,6 +151,7 @@ describe("measure project state backend worker", () => {
         projectDir: resolve("/project"),
         lookups: 2_000,
         workers: 2,
+        queryPattern: "repeated",
         fileBytes: 4_096,
         seconds: { read: 0.01, write: 0.02, lookup: 0.2 },
         results: { found: 1_800, missing: 200 },
@@ -172,6 +186,36 @@ describe("measure project state backend worker", () => {
       diagnosticsDigest: "abc123",
       found: 1_800,
       missing: 200,
+      queryPattern: "repeated",
+    })
+  })
+})
+
+describe("project state lookup patterns", () => {
+  const snapshot = {
+    targetRangeCount: 2,
+    targetRange: (index: number) => ({
+      componentPathId: index,
+      canonicalId: index + 2,
+      start: index,
+      count: 1,
+    }),
+    stringValue: (id: number) => `string-${id}`,
+  }
+
+  it("повторяет найденные цели в repeated режиме", () => {
+    expect(createProjectStateLookupRequest(snapshot, 2, 10, "repeated")).toEqual({
+      requestId: "2",
+      componentPath: "string-0",
+      canonicalTarget: "string-2",
+    })
+  })
+
+  it("не повторяет найденные цели в unique режиме", () => {
+    expect(createProjectStateLookupRequest(snapshot, 2, 10, "unique")).toEqual({
+      requestId: "2",
+      componentPath: "\u0000nkdk-measure-missing",
+      canonicalTarget: "\u0000nkdk-measure-missing-2",
     })
   })
 })
