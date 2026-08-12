@@ -5,6 +5,7 @@ import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataI
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
+import { importMultiStateType } from "./multiState"
 
 const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
   ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",
@@ -71,6 +72,15 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       const property = propertyState["xr:Property"]
       const state = propertyState["xr:State"]
       if (typeof property !== "string" || typeof state !== "string") continue
+      if (state === "MultiState") {
+        const propertyEntry = propertyEntryByXmlName(rule, property)
+        const propertyRule = propertyEntry?.[1]
+        if (propertyEntry !== undefined && typeof propertyRule?.yaml === "string") {
+          const xmlValue = valueAtXmlPath(source, [...(propertyRule.xmlParents ?? []), property])
+          yaml[propertyRule.yaml] = importMultiStateType(context, propertyRule, xmlValue)
+        }
+        continue
+      }
       if (state === "Notify") {
         const yamlName = propertyYamlName(rule, property)
         if (yamlName !== undefined) markPropertyState(yaml, yamlName, "проверять")
@@ -102,8 +112,15 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
 }
 
 function propertyKeyByXmlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {
+  return propertyEntryByXmlName(rule, xmlProperty)?.[0]
+}
+
+function propertyEntryByXmlName(
+  rule: MetadataItemRule,
+  xmlProperty: string,
+): [string, MetadataItemRule["properties"][string]] | undefined {
   return Object.entries(rule.properties).find(([propertyKey, propertyRule]) =>
-    (propertyRule.xml ?? capitalize(propertyKey)) === xmlProperty)?.[0]
+    (propertyRule.xml ?? capitalize(propertyKey)) === xmlProperty)
 }
 
 function propertyStateRegistry(): PropertyStateCapabilityRegistry | undefined {
@@ -144,4 +161,10 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
+}
+
+function valueAtXmlPath(source: Record<string, unknown>, path: readonly string[]): unknown {
+  let current: unknown = source
+  for (const segment of path) current = asRecord(current)?.[segment]
+  return current
 }

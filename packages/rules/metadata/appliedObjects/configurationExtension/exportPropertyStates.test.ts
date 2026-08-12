@@ -64,6 +64,39 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     expect(outputs.get("body")).toEqual({})
   })
 
+  it("writes tagged type parts as one MultiState property", () => {
+    const outputs = new Map<string, Record<string, unknown>>([["metadata", {
+      Properties: { Type: ["Дата", "Булево"] },
+    }]])
+    const yamlType = ["Дата", "Булево"]
+    markYAMLScalarTag(yamlType, 1, "изменять")
+    configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: {} }),
+      rule: {
+        itemType: "MetadataAttribute",
+        properties: {
+          type: { type: "TypeDescription", yaml: "Тип", xml: "Type", xmlParents: ["Properties"] },
+        },
+      } as MetadataItemRule,
+      yaml: { Тип: yamlType },
+      outputs,
+      logicalAddress,
+    })
+
+    expect(record(outputs.get("metadata")).InternalInfo).toEqual({
+      "xr:PropertyState": [{ "xr:Property": "Type", "xr:State": "MultiState" }],
+    })
+    expect(record(record(outputs.get("metadata")).Properties).Type).toEqual({
+      "_xsi:type": "xr:ExtendedProperty",
+      "xr:CheckValue": {
+        "_xsi:type": "v8:TypeDescription",
+        "v8:Type": "xs:dateTime",
+        "v8:DateQualifiers": { "v8:DateFractions": "Date" },
+      },
+      "xr:ExtendValue": { "_xsi:type": "v8:TypeDescription", "v8:Type": "xs:boolean" },
+    })
+  })
+
   it("orders the adopted catalog service property by its real rules", () => {
     const outputs = new Map([
       [

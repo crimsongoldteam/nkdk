@@ -7,6 +7,7 @@ import { getCompiledXMLPropertyOrder } from "../../ruleRuntime/property/xmlPrope
 import { EXTENDED_SNAPSHOT_SEGMENTS } from "./propertyStates"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
+import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
 
@@ -32,6 +33,7 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       context,
       rule,
       yaml,
+      outputs,
       logicalAddress,
     })
     if (states.length > 0) writePropertyStates(outputs, rule, states)
@@ -188,6 +190,7 @@ function propertyStates(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly rule: MetadataItemRule
   readonly yaml: Readonly<Record<string, unknown>>
+  readonly outputs: ReadonlyMap<string, Record<string, unknown>>
   readonly logicalAddress: string
 }): Record<string, string>[] {
   const states: Record<string, string>[] = []
@@ -198,6 +201,21 @@ function propertyStates(params: {
   for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
     const yamlName = propertyRule.yaml
     const xmlName = propertyRule.xml ?? capitalize(propertyKey)
+    const yamlValue = typeof yamlName === "string" ? params.yaml[yamlName] : undefined
+    const capability = propertyStateRegistry()?.resolve({
+      itemType: params.rule.itemType,
+      propertyKey,
+    })
+    if (
+      typeof yamlName === "string" &&
+      propertyRule.type === "TypeDescription" &&
+      isMultiStateTypeYAML(yamlValue)
+    ) {
+      const multiState = exportMultiStateType(params.context, propertyRule, yamlValue)
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, multiState.value)
+      states.push(propertyState(xmlName, multiState.state))
+      continue
+    }
     if (
       typeof yamlName === "string" &&
       yamlName !== EXTENDED_CONFIGURATION_OBJECT_YAML &&
@@ -210,10 +228,6 @@ function propertyStates(params: {
       states.push(propertyState(xmlName, "Extended"))
       continue
     }
-    const capability = propertyStateRegistry()?.resolve({
-      itemType: params.rule.itemType,
-      propertyKey,
-    })
     if (
       typeof yamlName === "string" &&
       Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&
@@ -248,6 +262,17 @@ function propertyStates(params: {
     }
   }
   return states
+}
+
+function writePropertyValue(
+  outputs: ReadonlyMap<string, Record<string, unknown>>,
+  parents: readonly string[],
+  xmlName: string,
+  value: unknown,
+): void {
+  const output = findMetadataOutput(outputs, parents)
+  if (output === undefined) return
+  recordAt(output, parents)[xmlName] = value
 }
 
 function propertyStateRegistry(): PropertyStateCapabilityRegistry | undefined {
@@ -317,7 +342,7 @@ function recordAtIfPresent(
   return current
 }
 
-function propertyState(property: string, state: "Notify" | "Extended") {
+function propertyState(property: string, state: "Notify" | "Extended" | "MultiState") {
   return { "xr:Property": property, "xr:State": state }
 }
 

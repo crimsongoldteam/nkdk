@@ -2,6 +2,7 @@ import {
   controlled,
   definePropertyStateProfile,
   extended,
+  multiState,
 } from "./propertyStateCapabilities"
 
 export const configurationExtensionPropertyStateProfiles = [
@@ -10,7 +11,7 @@ export const configurationExtensionPropertyStateProfiles = [
   }),
   definePropertyStateProfile("mutable-synonym", extended("synonym")),
   definePropertyStateProfile("typed-field", {
-    ...controlled("type"),
+    ...multiState("type"),
     ...extended("format", "editFormat", "toolTip", "choiceForm"),
   }),
   definePropertyStateProfile("tabular-section", extended("toolTip")),
@@ -19,6 +20,6 @@ export const configurationExtensionPropertyStateProfiles = [
   }),
   definePropertyStateProfile("register-field", {
     ...extended("synonym", "format", "editFormat", "toolTip", "choiceForm"),
-    ...controlled("type"),
+    ...multiState("type"),
   }),
 ] as const

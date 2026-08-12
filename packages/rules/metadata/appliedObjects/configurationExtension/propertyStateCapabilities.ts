@@ -66,6 +66,9 @@ export const extended = (...keys: readonly string[]): Readonly<Record<string, Pr
 export const allPropertyStateModes = (...keys: readonly string[]): Readonly<Record<string, PropertyStatePropertyCapability>> =>
   Object.fromEntries(keys.map((key) => [key, borrowed(["control", "notify", "extend"], "tagged")]))
 
+export const multiState = (...keys: readonly string[]): Readonly<Record<string, PropertyStatePropertyCapability>> =>
+  Object.fromEntries(keys.map((key) => [key, borrowed(["control", "notify", "extend", "multi"], "multi")]))
+
 function normalizeCompatibilityMode(mode: string | undefined): string {
   if (mode === undefined || DONT_USE_MODES.has(mode)) return DEFAULT_COMPATIBILITY_MODE
   if (Object.hasOwn(CompatibilityModeFromYAML, mode)) return mode

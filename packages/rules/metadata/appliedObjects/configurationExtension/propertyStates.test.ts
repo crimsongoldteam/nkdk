@@ -62,6 +62,33 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yamlScalarTagAt(yaml, "ДлинаКода")).toBe("изменять")
   })
 
+  it("заменяет Type/xr:ExtendedProperty составным YAML-типом", () => {
+    const yaml: Record<string, unknown> = {}
+    configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: {
+        itemType: "MetadataAttribute",
+        properties: {
+          type: { type: "TypeDescription", yaml: "Тип", xml: "Type", xmlParents: ["Properties"] },
+        },
+      } as MetadataItemRule,
+      source: {
+        ...propertyStates(["Type", "MultiState"]),
+        Properties: {
+          Type: {
+            "_xsi:type": "xr:ExtendedProperty",
+            "xr:CheckValue": { "_xsi:type": "v8:TypeDescription", "v8:Type": "xs:dateTime" },
+            "xr:ExtendValue": { "_xsi:type": "v8:TypeDescription", "v8:Type": "xs:boolean" },
+          },
+        },
+      },
+      yaml,
+    })
+
+    expect(yaml.Тип).toEqual(["Дата", "Булево"])
+    expect(yamlScalarTagAt(yaml.Тип, 1)).toBe("изменять")
+  })
+
   it.each([
     ["ClientApplicationForm", "Form", "form"],
     ["MetadataCommonForm", "Form", "form"],
