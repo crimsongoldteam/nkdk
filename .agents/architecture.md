@@ -287,7 +287,8 @@ flowchart TD
 ```mermaid
 flowchart TD
   pending["Проверить незавершённую<br/>синхронизацию"]
-  proceed{"Готовить новый пакет?"}
+  proceed{"Проверять новые<br/>изменения?"}
+  previous["Вернуть результат<br/>предыдущей попытки"]
   validate[["Актуализировать проект"]]
   target[["Сверить компонент<br/>с его снимком"]]
   changes["Найти изменения<br/>относительно снимка"]
@@ -314,7 +315,7 @@ flowchart TD
 
   pending --> proceed
   proceed -- "да" --> validate
-  proceed -- "нет" --> result
+  proceed -- "нет" --> previous
   validate --> target --> changes --> work
   work -- "нет" --> noChanges
   work -- "да" --> impact --> plan --> partialSyncJob --> archive --> prepared
