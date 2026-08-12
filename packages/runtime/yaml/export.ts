@@ -1,6 +1,11 @@
 import { dump } from "js-yaml"
 import { isExplicitYAMLString, markDoubleQuotedScalar, unwrapExplicitYAMLString } from "./explicitString"
-import { copyYAMLScalarTags, NKDK_YAML_SCHEMA, taggedScalarForDump } from "./scalarTags"
+import {
+  copyYAMLScalarTags,
+  NKDK_YAML_SCHEMA,
+  restoreYAMLScalarTagsAfterDump,
+  taggedScalarForDump,
+} from "./scalarTags"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
 const UNDEFINED_VALUE_MARKER_PREFIX = "__NKDK_UNDEFINED_VALUE_"
@@ -164,11 +169,13 @@ export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
     forceQuotes: false,
     quoteStyle: "double",
   })
-  const text = removeDocumentFinalLineEnding(
-    normalizeEmptyMappings(
-      normalizeEmptyXMLTags(
-        normalizeQuotedTypeLinkValues(
-          quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings)
+  const text = restoreYAMLScalarTagsAfterDump(
+    removeDocumentFinalLineEnding(
+      normalizeEmptyMappings(
+        normalizeEmptyXMLTags(
+          normalizeQuotedTypeLinkValues(
+            quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings)
+          )
         )
       )
     )
