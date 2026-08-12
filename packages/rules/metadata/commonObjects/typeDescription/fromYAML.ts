@@ -53,15 +53,25 @@ export function parseTypeDescriptionYAML(value: unknown): TypeDescription | unde
     return typeId === undefined ? undefined : { type: [], typeId }
   }
 
-  const stringValues = (Array.isArray(value) ? value : [value]).filter(
-    (item): item is string => typeof item === "string" && item.trim() !== ""
+  const sourceValues = Array.isArray(value) ? value : [value]
+  const stringValues = sourceValues.flatMap((item, index) =>
+    typeof item === "string" && item.trim() !== ""
+      ? [{ value: item, tagged: Array.isArray(value) && yamlScalarTagAt(value, index) === "xml" }]
+      : []
   )
   if (stringValues.length === 0) return undefined
 
   const types: string[] = []
   const result: TypeDescription = { type: types }
+  const sourceTypes: NonNullable<TypeDescription[typeof TYPE_DESCRIPTION_SOURCE_TYPES]> = {}
 
-  for (const stringValue of stringValues) {
+  for (const { value: stringValue, tagged } of stringValues) {
+    if (tagged) {
+      const parsed = parseTaggedTypeDescription("Тип", stringValue)
+      types.push(...parsed.type)
+      Object.assign(sourceTypes, parsed[TYPE_DESCRIPTION_SOURCE_TYPES])
+      continue
+    }
     const { formula: type, parameters } = formulaFormatParser(stringValue)
 
     if (type === "Строка" || type === "ФиксированнаяСтрока") {
@@ -114,6 +124,12 @@ export function parseTypeDescriptionYAML(value: unknown): TypeDescription | unde
     types.push(stringValue)
   }
 
+  if (Object.keys(sourceTypes).length > 0) {
+    Object.defineProperty(result, TYPE_DESCRIPTION_SOURCE_TYPES, {
+      value: sourceTypes,
+      enumerable: false,
+    })
+  }
   return types.length === 0 ? undefined : result
 }
 

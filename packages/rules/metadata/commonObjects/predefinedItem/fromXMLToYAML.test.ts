@@ -105,6 +105,25 @@ describe("PredefinedItem XML → YAML", () => {
     expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml")
   })
 
+  it("точно восстанавливает неканонический d6p1 у Type на глубине 1", () => {
+    const source = { Item: predefinedItem("Первый", "d6p1", "CatalogRef.Товары") }
+    const { yaml, xml } = roundTrip(source)
+    const item = (yaml as Record<string, any>).Значение.Первый
+
+    expect(item.ТипЗначения).toBe("!xml d6p1:Справочник.Товары")
+    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml")
+    expect(xml).toMatchObject({
+      Item: [{
+        Type: {
+          "v8:Type": {
+            "_xmlns:d6p1": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+            "#text": "d6p1:CatalogRef.Товары",
+          },
+        },
+      }],
+    })
+  })
+
   it("выбирает TypeSet по реестру без !xml и снимка", () => {
     const contexts = createDirectRoundTripContexts()
     const imported = testPropertyFromXMLToYAML({
@@ -117,18 +136,58 @@ describe("PredefinedItem XML → YAML", () => {
     expect(item.ТипЗначения).toBe("Справочник")
     expect(yamlScalarTagAt(item, "ТипЗначения")).toBeUndefined()
 
-    const exportBase = mockContextToXML()
-    exportBase.exportToXML.itemsTree.push({
-      itemType: "MetadataChartOfCharacteristicTypes",
-      name: "ВидыСубконто",
-      path: "MetadataChartOfCharacteristicTypes.ВидыСубконто",
-    })
     const exported = testPropertyFromYAMLToXML({
-      context: contexts.exportContext(exportBase),
+      context: contexts.exportContext(chartContext()),
       rule: collectionRule,
       yaml: imported,
     })
     expect(serializeDirectXML(exported.xml)).toContain("<v8:TypeSet")
+  })
+
+  it("точно восстанавливает канонический d4p1 у TypeSet", () => {
+    const source = { Item: predefinedItem("Первый", "d4p1", "CatalogRef", undefined, "v8:TypeSet") }
+    const { yaml, xml } = roundTrip(source)
+    const item = (yaml as Record<string, any>).Значение.Первый
+
+    expect(item.ТипЗначения).toBe("Справочник")
+    expect(yamlScalarTagAt(item, "ТипЗначения")).toBeUndefined()
+    expect(xml).toMatchObject({
+      Item: [{
+        Type: {
+          "v8:TypeSet": {
+            "_xmlns:d4p1": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+            "#text": "d4p1:CatalogRef",
+          },
+        },
+      }],
+    })
+  })
+
+  it("отклоняет несовместимый generated prefix внутри составного типа", () => {
+    expect(() => importCompoundType("d7p1")).toThrow("несовместимый XML-префикс d7p1")
+  })
+
+  it("точно восстанавливает допустимый неканонический prefix внутри составного типа", () => {
+    const source = compoundPredefinedItem("d6p1")
+    const { yaml, xml } = roundTrip(source)
+    const type = (yaml as Record<string, any>).Значение.Первый.ТипЗначения
+
+    expect(type).toEqual(["!xml d6p1:Справочник.Товары", "Строка"])
+    expect(yamlScalarTagAt(type, 0)).toBe("xml")
+    expect(yamlScalarTagAt(type, 1)).toBeUndefined()
+    expect(xml).toMatchObject({
+      Item: [{
+        Type: {
+          "v8:Type": [
+            {
+              "_xmlns:d6p1": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+              "#text": "d6p1:CatalogRef.Товары",
+            },
+            "xs:string",
+          ],
+        },
+      }],
+    })
   })
 })
 
@@ -175,5 +234,62 @@ function predefinedItem(
       },
     },
     ...(childItems === undefined ? {} : { ChildItems: childItems }),
+  }
+}
+
+function roundTrip(source: Record<string, unknown>) {
+  const contexts = createDirectRoundTripContexts()
+  const imported = testPropertyFromXMLToYAML({
+    context: contexts.importContext,
+    rule: collectionRule,
+    xml: source,
+  })
+  const exported = testPropertyFromYAMLToXML({
+    context: contexts.exportContext(chartContext()),
+    rule: collectionRule,
+    yaml: imported.yaml,
+  })
+  return { yaml: imported.yaml, xml: exported.xml }
+}
+
+function chartContext() {
+  const context = mockContextToXML()
+  context.exportToXML.itemsTree.push({
+    itemType: "MetadataChartOfCharacteristicTypes",
+    name: "ВидыСубконто",
+    path: "MetadataChartOfCharacteristicTypes.ВидыСубконто",
+  })
+  return context
+}
+
+function importCompoundType(prefix: string) {
+  return testPropertyFromXMLToYAML({
+    context: createDirectRoundTripContexts().importContext,
+    rule: collectionRule,
+    xml: compoundPredefinedItem(prefix),
+  })
+}
+
+function compoundPredefinedItem(prefix: string): Record<string, unknown> {
+  return {
+    Item: {
+      Name: "Первый",
+      Code: "",
+      Description: "",
+      IsFolder: false,
+      Type: {
+        "v8:Type": [
+          {
+            [`_xmlns:${prefix}`]: "http://v8.1c.ru/8.1/data/enterprise/current-config",
+            "#text": `${prefix}:CatalogRef.Товары`,
+          },
+          "xs:string",
+        ],
+        "v8:StringQualifiers": {
+          "v8:Length": 0,
+          "v8:AllowedLength": "Variable",
+        },
+      },
+    },
   }
 }

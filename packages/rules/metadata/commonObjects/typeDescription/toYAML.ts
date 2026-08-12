@@ -1,6 +1,12 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext, taggedYAMLScalar, xmlScalarTagValue } from "@nkdk/runtime"
+import {
+  ConfigurationContext,
+  isTaggedYAMLScalar,
+  markYAMLScalarTag,
+  taggedYAMLScalar,
+  xmlScalarTagValue,
+} from "@nkdk/runtime"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationYAMLType, getTypeDescriptionRule, getTypePrefix } from "./helper"
 import { PrimitiveTypeToYAML, TYPE_DESCRIPTION_SOURCE_TYPES, type TypeDescription, type TypeDescriptionYAML } from "./types"
@@ -29,15 +35,26 @@ export const exportTypeDescriptionToYAML = (
     }
   }
 
-  if (types.length > 1) {
-    return types.map((type) => formatSingleType(type, typeDescription))
-  }
+  const exportedTypes = types.map((type) => exportSingleTypeToYAML(context, type, typeDescription))
+  if (exportedTypes.length === 1) return exportedTypes[0] as TypeDescriptionYAML
 
-  const yamlType = formatSingleType(types[0], typeDescription)
-  const sourceType = typeDescription[TYPE_DESCRIPTION_SOURCE_TYPES]?.[types[0]]
+  const yamlTypes = exportedTypes.map((type) => isTaggedYAMLScalar(type) ? type.value : type)
+  exportedTypes.forEach((type, index) => {
+    if (isTaggedYAMLScalar(type)) markYAMLScalarTag(yamlTypes, index, type.tag)
+  })
+  return yamlTypes as TypeDescriptionYAML
+}
+
+function exportSingleTypeToYAML(
+  context: ConfigurationContext,
+  type: string,
+  typeDescription: TypeDescription,
+) {
+  const yamlType = formatSingleType(type, typeDescription)
+  const sourceType = typeDescription[TYPE_DESCRIPTION_SOURCE_TYPES]?.[type]
   const sourcePrefix = sourceType === undefined ? undefined : getTypePrefix(sourceType.value)
-  const separator = types[0].indexOf(".")
-  const baseType = separator === -1 ? types[0] : types[0].slice(0, separator)
+  const separator = type.indexOf(".")
+  const baseType = separator === -1 ? type : type.slice(0, separator)
   const typeRule = getTypeDescriptionRule(baseType)
   const canonicalPrefix = typeRule?.prefix
   if (sourcePrefix !== undefined && !isCompatibleSourcePrefix(sourcePrefix, sourceType?.namespace, typeRule)) {

@@ -2,6 +2,7 @@ import { defineMetadataItemCollectionRule, defineMetadataItemRule } from "../../
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import { PredefinedItemRules } from "./rules"
+import { yamlScalarTagAt } from "@nkdk/runtime"
 
 export type PredefinedItem = MetadataTypeByRule<typeof PredefinedItemRules>
 export type PredefinedItemYAML = YAMLTypeByRule<typeof PredefinedItemRules>
@@ -17,7 +18,8 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
     : undefined
 }
 
-function normalizeCurrentConfigQName(value: unknown, prefix: string): unknown {
+function normalizeCurrentConfigQName(value: unknown, prefix: string, preservePrefix: boolean): unknown {
+  if (preservePrefix) return value
   const qname = asRecord(value)
   const namespaceEntry = Object.entries(qname ?? {}).find(
     ([key, namespace]) => key.startsWith("_xmlns:") && namespace === CURRENT_CONFIG_NAMESPACE
@@ -39,32 +41,42 @@ function normalizeCurrentConfigQName(value: unknown, prefix: string): unknown {
 
 function normalizePredefinedItemTypePrefixes(
   xml: Record<string, unknown>,
+  yaml: unknown,
   depth = 0
 ): Record<string, unknown> {
   const prefix = `d${4 + depth * 2}p1`
   const type = asRecord(xml.Type)
   let result = xml
 
-  if (type !== undefined && type["v8:Type"] !== undefined) {
-    const sourceTypes = type["v8:Type"]
-    const normalizedTypes = Array.isArray(sourceTypes)
-      ? sourceTypes.map((value) => normalizeCurrentConfigQName(value, prefix))
-      : normalizeCurrentConfigQName(sourceTypes, prefix)
-    result = {
-      ...result,
-      Type: {
-        ...type,
-        "v8:Type": normalizedTypes,
-      },
+  if (type !== undefined) {
+    let yamlTypeIndex = 0
+    let normalizedType = type
+    for (const container of ["v8:Type", "v8:TypeSet"] as const) {
+      const source = type[container]
+      if (source === undefined) continue
+      const sourceValues = Array.isArray(source) ? source : [source]
+      const normalizedValues = sourceValues.map((value, index) =>
+        normalizeCurrentConfigQName(value, prefix, hasExplicitTypePrefix(yaml, yamlTypeIndex + index))
+      )
+      yamlTypeIndex += sourceValues.length
+      normalizedType = {
+        ...normalizedType,
+        [container]: Array.isArray(source) ? normalizedValues : normalizedValues[0],
+      }
     }
+    result = { ...result, Type: normalizedType }
   }
 
   const childItems = asRecord(result.ChildItems)
   if (childItems === undefined || childItems.Item === undefined) return result
+  const childItemsYAML = asRecord(asRecord(yaml)?.Элементы)
   const sourceItems = Array.isArray(childItems.Item) ? childItems.Item : [childItems.Item]
   const mappedItems = sourceItems.map((item) => {
     const record = asRecord(item)
-    return record === undefined ? item : normalizePredefinedItemTypePrefixes(record, depth + 1)
+    if (record === undefined) return item
+    const childName = typeof record.Name === "string" ? record.Name : undefined
+    const childYAML = childName === undefined ? undefined : childItemsYAML?.[childName]
+    return normalizePredefinedItemTypePrefixes(record, childYAML, depth + 1)
   })
   return {
     ...result,
@@ -73,6 +85,15 @@ function normalizePredefinedItemTypePrefixes(
       Item: Array.isArray(childItems.Item) ? mappedItems : mappedItems[0],
     },
   }
+}
+
+function hasExplicitTypePrefix(yaml: unknown, index: number): boolean {
+  const item = asRecord(yaml)
+  if (item === undefined) return false
+  const type = item.ТипЗначения
+  return Array.isArray(type)
+    ? yamlScalarTagAt(type, index) === "xml"
+    : index === 0 && yamlScalarTagAt(item, "ТипЗначения") === "xml"
 }
 
 export const metadataRuleLayer000 = defineMetadataItemRule({
@@ -86,5 +107,5 @@ export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   xmlElement: "Item",
   keyField: "name",
   configurationIndexUidSegment: "Предопределенный",
-  mapItemOutput: ({ xml }) => normalizePredefinedItemTypePrefixes(xml),
+  mapItemOutput: ({ xml, yaml }) => normalizePredefinedItemTypePrefixes(xml, yaml),
 })
