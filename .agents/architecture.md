@@ -298,10 +298,12 @@ flowchart TD
 
   subgraph partialSyncJob["Воркер"]
     direction LR
-    readYaml["Прочитать YAML"] --> toXml[["Преобразовать YAML → XML"]] --> document["Вернуть XML-документы"] --> fragment["Вернуть фрагмент снимка"]
+    readYaml["Прочитать YAML"] --> toXml[["Преобразовать YAML → XML"]]
+    toXml --> document["Передать XML-документы"]
+    toXml --> fragment["Вернуть фрагмент снимка"]
   end
 
-  archive["Потоково записать ZIP"]
+  archive["Добавлять XML в ZIP"]
   prepared["Сохранить пакет<br/>и подготовленный снимок"]
   noChanges["Вернуть отсутствие изменений"]
   transferring["Отметить начало передачи"]
@@ -318,7 +320,9 @@ flowchart TD
   proceed -- "нет" --> previous
   validate --> target --> changes --> work
   work -- "нет" --> noChanges
-  work -- "да" --> impact --> plan --> partialSyncJob --> archive --> prepared
+  work -- "да" --> impact --> plan --> readYaml
+  document -- "по мере готовности" --> archive --> prepared
+  fragment --> prepared
   prepared --> transferring --> load --> outcome
   outcome -- "явный отказ" --> retry --> result
   outcome -- "неизвестен" --> unknown
