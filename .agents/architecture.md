@@ -1,6 +1,6 @@
 # Архитектура NKDK
 
-Этот файл — монитор текущей архитектуры. Он меняется вместе с кодом и не хранит историю или подробные договоры реализации: история остаётся в git.
+Этот файл — монитор текущей архитектуры и явно согласованных целевых схем ближайшей реализации. Он не хранит историю или подробные договоры реализации: история остаётся в git.
 
 ## Принципы
 
@@ -30,6 +30,7 @@
 | <a id="term-runtime"></a>Среда метаданных | Собранные для одного процесса правила, проверки, операции, состояние проекта и набор воркеров. |
 | <a id="term-state"></a>Состояние проекта | Восстанавливаемые хэши, результаты проверки отдельных файлов и общие индексы всего проекта. В памяти публикуется неизменяемыми общими буферами. |
 | <a id="term-snapshot"></a>Снимок компонента | Двоичный результат импорта или синхронизации: хэши файлов и сведения, необходимые для точного восстановления XML. |
+| <a id="term-pending-sync"></a>Ожидающее состояние синхронизации | ZIP, снимок-кандидат и устойчивая фаза доставки `prepared`, `transferring` или `applied`, которая защищает информационную базу от опасной повторной загрузки. |
 | <a id="term-file-check"></a>Проверка файла | Проверка синтаксиса, JSON Schema и правил, зависящих только от одного YAML. |
 | <a id="term-reference-check"></a>Проверка связей | Проверка межфайловых ссылок по общему индексу всего проекта. |
 
@@ -64,9 +65,15 @@ flowchart TD
 
 Общие механизмы не знают о конкретных объектах метаданных. Предметные правила зависят от общих механизмов, а не наоборот. Все правила и обработчики связываются в одном месте при запуске.
 
+| Пакет | Ответственность в частичной синхронизации с информационной базой |
+|---|---|
+| `@nkdk/rules` | Актуализация Проекта, план XML, ZIP, снимок-кандидат и переходы ожидающего состояния |
+| `@nkdk/platform` | Сессия агента, staging ZIP, команда 1С, результат передачи и `platform.log` |
+| `@nkdk/mcp` | Последовательность публичной операции и преобразование результата в MCP-ответ |
+
 ## Переиспользование
 
-| Подпроцесс | [Импорт](#operation-import) | [Проверка](#operation-validation) | [Полная<br/>синхронизация](#operation-full-sync) | [Частичная<br/>синхронизация](#operation-partial-sync) | [Переименование](#operation-rename) | [Поиск<br/>ссылок](#operation-find-references) |
+| Подпроцесс | [Импорт](#operation-import) | [Проверка](#operation-validation) | [Полная<br/>синхронизация](#operation-full-sync) | [Частичная синхронизация<br/>с информационной базой](#operation-partial-sync) | [Переименование](#operation-rename) | [Поиск<br/>ссылок](#operation-find-references) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
 | [Подготовка топологии](#term-topology) | ● | ● | ● | ● | ● | ● |
 | [Проверка YAML и подготовка вклада в индекс](#subprocess-yaml-index) | ● | ● | ● | ● | ● | ● |
@@ -276,30 +283,54 @@ flowchart TD
 
 <a id="operation-partial-sync"></a>
 
-### Частичная синхронизация YAML → XML
+### Частичная синхронизация с информационной базой
 
 ```mermaid
 flowchart TD
-  validate[["Актуализировать проект"]]
-  target[["Сверить компонент<br/>с его снимком"]]
-  changes["Найти изменения<br/>относительно снимка"]
-  impact["Расширить выборку<br/>по топологии и ссылкам"]
-  plan[["Построить план<br/>выгрузки XML"]]
+  request["@nkdk/mcp<br/>Принять sync_to_infobase"]
+  phase{"Фаза ожидающего<br/>состояния?"}
 
-  subgraph partialSyncJob["Воркер"]
-    direction LR
-    readYaml["Прочитать YAML"] --> toXml[["Преобразовать YAML → XML"]] --> document["Вернуть XML-документы"] --> fragment["Вернуть фрагмент снимка"]
+  subgraph preparePackage["@nkdk/rules · подготовка пакета"]
+    direction TD
+    validate[["Актуализировать проект"]]
+    target[["Сверить компонент<br/>с его снимком"]]
+    changes["Найти изменения<br/>относительно снимка"]
+    work{"Есть изменения<br/>или migration?"}
+    impact["Расширить выборку<br/>по топологии и ссылкам"]
+    plan[["Построить план<br/>выгрузки XML"]]
+
+    subgraph partialSyncJob["Воркер"]
+      direction LR
+      readYaml["Прочитать YAML"] --> toXml[["Преобразовать YAML → XML"]] --> document["Вернуть XML-документы"] --> fragment["Вернуть фрагмент снимка"]
+    end
+
+    archive["Потоково записать ZIP<br/>и load.lst"]
+    prepared["Сохранить снимок-кандидат<br/>и фазу prepared"]
+
+    validate --> target --> changes --> work
+    work -- "да" --> impact --> plan --> partialSyncJob --> archive --> prepared
   end
 
-  archive["Потоково записать ZIP<br/>и load.lst"]
-  pending["Сохранить снимок-кандидат<br/>и ожидающее состояние"]
-  load["Вне NKDK:<br/>загрузить пакет в 1С"]
-  confirm["Подтвердить идентификатор<br/>и хэши пакета и снимков"]
-  publish[["Опубликовать снимок-кандидат<br/>и очистить ожидающее состояние"]]
+  noChanges["@nkdk/mcp<br/>Вернуть unchanged"]
+  transferring["@nkdk/rules<br/>Атомарно записать transferring"]
+  load["@nkdk/platform<br/>Передать ZIP агенту,<br/>загрузить и записать журнал"]
+  outcome{"Результат передачи?"}
+  retry["@nkdk/rules<br/>Вернуть prepared"]
+  unknown["Сохранить transferring<br/>и запретить повтор"]
+  applied["@nkdk/rules<br/>Атомарно записать applied"]
+  publish[["@nkdk/rules<br/>Проверить пакет и снимки,<br/>опубликовать кандидат"]]
+  result["@nkdk/mcp<br/>Вернуть результат"]
 
-  validate --> target --> changes --> impact --> plan --> partialSyncJob --> archive --> pending --> load --> confirm --> publish
+  request --> phase
+  phase -- "нет пакета или prepared" --> validate
+  phase -- "transferring" --> unknown --> result
+  phase -- "applied" --> publish --> result
+  work -- "нет" --> noChanges
+  prepared --> transferring --> load --> outcome
+  outcome -- "явный отказ" --> retry --> result
+  outcome -- "неизвестен" --> unknown
+  outcome -- "успех" --> applied --> publish
   style partialSyncJob stroke-dasharray: 7 5
-  style load stroke-dasharray: 4 4
 ```
 
 ↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
