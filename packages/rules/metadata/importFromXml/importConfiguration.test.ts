@@ -77,12 +77,12 @@ const fragmentData: MergedConfigurationSnapshotFragments = {
     {
       logicalAddress: "Справочник.Контрагенты",
       sourceProjectPath: catalogProjectPath,
-      identities: { uuid: "00000000-0000-4000-8000-000000000001" },
+      identities: { uuid: "00000000-0000-4000-8000-000000000001", xmlId: "Catalog42" },
     },
     {
       logicalAddress: "Справочник.Контрагенты.Форма.ФормаЭлемента",
       sourceProjectPath: formProjectPath,
-      xml: { explicitEmpty: true },
+      identities: { xmlId: "Form42" },
     },
   ],
 }
@@ -176,6 +176,9 @@ describe("configuration XML import coordinator", () => {
       snapshot?.entities.every((entity) => snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath))
     ).toBe(true)
     expect(snapshot?.entities.every(hasMeaningfulPayload)).toBe(true)
+    expect(JSON.stringify(snapshot?.entities)).not.toMatch(
+      /"xmlName"|"present"|"xsiNil"|"explicitEmpty"|"xsiType"|"xmlText"|"xmlPrefix"/u,
+    )
     expect(snapshot?.files).toContainEqual(expect.objectContaining({ projectPath: emptyProjectPath }))
     expect(snapshot?.entities).not.toContainEqual(expect.objectContaining({ sourceProjectPath: emptyProjectPath }))
   })
@@ -1039,7 +1042,7 @@ function configurationIndex(component: string): ConfigurationSnapshot {
 }
 
 function hasMeaningfulPayload(entity: ConfigurationSnapshot["entities"][number]): boolean {
-  return entity.identities !== undefined || entity.omittedChildren !== undefined || entity.xml !== undefined
+  return entity.identities !== undefined || entity.omittedChildren !== undefined
 }
 
 function emptyValidationContribution(): ValidationIndexContribution {

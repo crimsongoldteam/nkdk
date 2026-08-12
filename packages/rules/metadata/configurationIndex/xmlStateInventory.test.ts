@@ -1,5 +1,5 @@
 import { createConfigurationIndexCollector, withConfigurationIndexCollector } from "@nkdk/runtime"
-import type { ConfigurationSnapshotEntity } from "@nkdk/runtime"
+import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
@@ -8,8 +8,8 @@ import { mockContextFromXML } from "../../tests/mockContext"
 
 import "../../tests/directConversion"
 
-function expectNoOrdinaryXMLState(entities: readonly ConfigurationSnapshotEntity[]): void {
-  for (const entity of entities) {
+function expectNoOrdinaryXMLState(index: Pick<ConfigurationSnapshot, "entities">): void {
+  for (const entity of index.entities) {
     expect(entity.identities?.xmlName).toBeUndefined()
     expect(entity.xml?.present).toBeUndefined()
     expect(entity.xml?.xsiNil).toBeUndefined()
@@ -40,6 +40,7 @@ describe("тонкое содержимое снимка конфигураци�
           yaml: "Комментарий",
           defaultValueXMLEmpty: "",
         },
+        fillValue: { type: "MetadataValue", xml: "FillValue", yaml: "ЗначениеЗаполнения" },
         nilValue: { type: "MetadataValue", xml: "NilValue", yaml: "ПустоеЗначение" },
         typedValue: { type: "MetadataValue", xml: "TypedValue", yaml: "ТипизированноеЗначение" },
         length: {
@@ -63,8 +64,10 @@ describe("тонкое содержимое снимка конфигураци�
           _id: "Document42",
           _name: "СтароеИмяЗаказа",
           Comment: "",
+          FillValue: { "_xsi:type": "xs:string" },
           NilValue: { "_xsi:nil": true },
           TypedValue: { "_xsi:type": "v8:Null" },
+          EmptyCollection: [],
           Length: 30,
         },
       }],
@@ -81,6 +84,6 @@ describe("тонкое содержимое снимка конфигураци�
         xmlId: "Document42",
       }),
     }))
-    expectNoOrdinaryXMLState(entities)
+    expectNoOrdinaryXMLState({ entities })
   })
 })

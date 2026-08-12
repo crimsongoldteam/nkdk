@@ -14,7 +14,7 @@ import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
 import { importFromYAML } from "@nkdk/runtime"
 import { sampleSnapshot, TEST_UUID } from "@nkdk/runtime"
-import type { ConfigurationSnapshotEntity } from "@nkdk/runtime"
+import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "@nkdk/runtime"
 import { registeredExplicitXMLTestRule } from "../../tests/property/explicitXMLPropertyRegistry"
 
 import "../commonObjects/metadataValue/toXML"
@@ -76,6 +76,31 @@ function contextWithIndex(extraEntities: readonly ConfigurationSnapshotEntity[] 
   }
 }
 
+function contextWithEmptyIndex(): ConfigurationContextWithExportToXML {
+  const source = createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex({
+    specificationVersion: "1.4",
+    indexGeneration: 1n,
+    componentPath: "cf",
+    files: [],
+    entities: [],
+  } satisfies ConfigurationSnapshot)))
+  const collector = createConfigurationIndexCollector()
+  return {
+    defaultLanguage: "ru",
+    version: "2.20",
+    exportToXML: {
+      version: "2.20",
+      itemsTree: [],
+      configurationIndex: createConfigurationIndexExportRuntime({
+        source,
+        collector,
+        targetProjectPath: "Справочник/Товары/Свойства.yaml",
+        logicalAddress: "Справочник.Товары",
+      }),
+    },
+  }
+}
+
 describe("configuration index в едином YAML → XML-обходе", () => {
   it.each([
     ["каноническое значение", "default"],
@@ -97,7 +122,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     const yaml = kind === "explicitXML" ? importFromYAML("Режим: !xml") : {}
     const withoutSnapshot = testPropertyFromYAMLToXML({ rule, yaml }).xml
     const withEmptySnapshot = testPropertyFromYAMLToXML({
-      context: contextWithIndex().context,
+      context: contextWithEmptyIndex(),
       rule,
       yaml,
     }).xml
