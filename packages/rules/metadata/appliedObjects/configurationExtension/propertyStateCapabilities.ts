@@ -69,6 +69,19 @@ export const allPropertyStateModes = (...keys: readonly string[]): Readonly<Reco
 export const multiState = (...keys: readonly string[]): Readonly<Record<string, PropertyStatePropertyCapability>> =>
   Object.fromEntries(keys.map((key) => [key, borrowed(["control", "notify", "extend", "multi"], "multi")]))
 
+export const externalProperty = (
+  propertyKey: string,
+  externalName: string,
+  modes: readonly ("control" | "notify" | "extend")[],
+): Readonly<Record<string, PropertyStatePropertyCapability>> => ({
+  [propertyKey]: {
+    availability: "borrowed",
+    modes,
+    representation: "section",
+    externalName,
+  },
+})
+
 function normalizeCompatibilityMode(mode: string | undefined): string {
   if (mode === undefined || DONT_USE_MODES.has(mode)) return DEFAULT_COMPATIBILITY_MODE
   if (Object.hasOwn(CompatibilityModeFromYAML, mode)) return mode

@@ -17,7 +17,7 @@ import { MetadataWebSocketClientRules } from "../metadataWebSocketClient/rules"
 import { MetadataWSReferenceRules } from "../metadataWSReference/rules"
 import { MetadataXDTOPackageRules } from "../metadataXDTOPackage/rules"
 import { defineStandardBorrowedPropertyStates } from "./standardPropertyStates"
-import { allPropertyStateModes, definePropertyStateItemCapabilities } from "./propertyStateCapabilities"
+import { allPropertyStateModes, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
 
 export const remainingConfigurationExtensionPropertyStateCapabilities = [
   MetadataEventSubscriptionRules,
@@ -42,6 +42,9 @@ export const remainingConfigurationExtensionPropertyStateCapabilities = [
 remainingConfigurationExtensionPropertyStateCapabilities.push(
   definePropertyStateItemCapabilities(MetadataXDTOPackageRules, {
     profiles: ["borrowed-base", "mutable-synonym"],
-    properties: allPropertyStateModes("namespace", "package"),
+    properties: {
+      ...allPropertyStateModes("namespace"),
+      ...externalProperty("package", "Пакет", ["control", "notify", "extend"]),
+    },
   }),
 )

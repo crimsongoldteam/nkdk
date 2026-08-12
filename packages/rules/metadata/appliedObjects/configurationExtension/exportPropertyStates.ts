@@ -8,6 +8,7 @@ import { EXTENDED_SNAPSHOT_SEGMENTS } from "./propertyStates"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
+import { readPropertyStateSections } from "./sections"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
 
@@ -194,6 +195,10 @@ function propertyStates(params: {
   readonly logicalAddress: string
 }): Record<string, string>[] {
   const states: Record<string, string>[] = []
+  const itemCapability = propertyStateRegistry()?.item(params.rule.itemType)
+  const sectionStates = itemCapability === undefined
+    ? new Map<string, "notify" | "extend">()
+    : readPropertyStateSections(params.yaml, itemCapability)
   if (yamlScalarTagAt(params.yaml, EXTENDED_CONFIGURATION_OBJECT_YAML) === "проверять") {
     states.push(propertyState("ExtendedConfigurationObject", "Notify"))
   }
@@ -206,6 +211,11 @@ function propertyStates(params: {
       itemType: params.rule.itemType,
       propertyKey,
     })
+    const sectionMode = sectionStates.get(propertyKey)
+    if (sectionMode !== undefined) {
+      states.push(propertyState(xmlName, sectionMode === "notify" ? "Notify" : "Extended"))
+      continue
+    }
     if (
       typeof yamlName === "string" &&
       propertyRule.type === "TypeDescription" &&

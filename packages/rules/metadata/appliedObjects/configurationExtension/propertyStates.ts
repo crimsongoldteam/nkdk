@@ -6,6 +6,7 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
+import { writePropertyStateSection } from "./sections"
 
 const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
   ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",
@@ -82,6 +83,11 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         continue
       }
       if (state === "Notify") {
+        const section = sectionProperty(rule, property)
+        if (section !== undefined) {
+          writePropertyStateSection(yaml, section.item, section.property.externalName!, "notify")
+          continue
+        }
         const yamlName = propertyYamlName(rule, property)
         if (yamlName !== undefined) markPropertyState(yaml, yamlName, "проверять")
         continue
@@ -102,6 +108,11 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         if (capability?.modes.length !== 1 || capability.modes[0] !== "extend") {
           markYAMLScalarTag(yaml, yamlName, "изменять")
         }
+        continue
+      }
+      const section = sectionProperty(rule, property)
+      if (section !== undefined) {
+        writePropertyStateSection(yaml, section.item, section.property.externalName!, "extend")
         continue
       }
       const segment = EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType]?.[property]
@@ -125,6 +136,15 @@ function propertyEntryByXmlName(
 
 function propertyStateRegistry(): PropertyStateCapabilityRegistry | undefined {
   return currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()?.propertyStates
+}
+
+function sectionProperty(rule: MetadataItemRule, xmlProperty: string) {
+  const propertyKey = propertyKeyByXmlName(rule, xmlProperty)
+  const item = propertyStateRegistry()?.item(rule.itemType)
+  const property = propertyKey === undefined ? undefined : item?.properties[propertyKey]
+  return item !== undefined && property?.representation === "section" && property.externalName !== undefined
+    ? { item, property }
+    : undefined
 }
 
 function propertyStates(source: Record<string, unknown>): Record<string, unknown>[] {
