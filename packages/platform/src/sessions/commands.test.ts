@@ -4,6 +4,7 @@ import {
   buildDesignerAgentLaunch,
   buildDumpConfigurationCommand,
   buildListDesignerExtensionsCommand,
+  buildLoadPartialConfigurationCommand,
   buildStandaloneConfigExport,
   buildStandaloneConfigInit,
   buildStandaloneListExtensions,
@@ -198,6 +199,22 @@ describe("platform session commands", () => {
     })
   })
 
+  it("builds a partial configuration load command for a configuration or extension", () => {
+    expect(
+      buildLoadPartialConfigurationCommand({ archivePath: "staging/package.zip" })
+    ).toBe(
+      'config load-config-from-files --archive="staging/package.zip" --list-file="load.lst" --format=hierarchical --partial'
+    )
+    expect(
+      buildLoadPartialConfigurationCommand({
+        archivePath: 'staging/package".zip',
+        extensionName: 'Расширение "Тест"',
+      })
+    ).toBe(
+      'config load-config-from-files --archive="staging/package"".zip" --list-file="load.lst" --format=hierarchical --partial --extension="Расширение ""Тест"""'
+    )
+  })
+
   it("omits absent infobase credentials from extension list arguments", () => {
     expect(
       buildStandaloneListExtensions({
@@ -215,6 +232,19 @@ describe("platform session commands", () => {
 
   it.each(["/project/a\nb", "/project/a\0b"])("rejects unsafe interactive values", (path) => {
     expect(() => buildDumpConfigurationCommand(path, "include")).toThrowError(
+      expect.objectContaining<Partial<PlatformSessionError>>({ code: "platform_command_failed" })
+    )
+  })
+
+  it.each([
+    { archivePath: "staging/package\0.zip" },
+    { archivePath: "staging/package\n.zip" },
+    { archivePath: "staging/package\r.zip" },
+    { archivePath: "staging/package.zip", extensionName: "Расширение\0" },
+    { archivePath: "staging/package.zip", extensionName: "Расширение\n" },
+    { archivePath: "staging/package.zip", extensionName: "Расширение\r" },
+  ])("rejects unsafe partial load command values", (params) => {
+    expect(() => buildLoadPartialConfigurationCommand(params)).toThrowError(
       expect.objectContaining<Partial<PlatformSessionError>>({ code: "platform_command_failed" })
     )
   })

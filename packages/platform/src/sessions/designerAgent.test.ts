@@ -748,6 +748,9 @@ function createFixture(
             onData() {
               return () => undefined
             },
+            onClose() {
+              return () => undefined
+            },
             isOpen: () => true,
             async close() {},
           }

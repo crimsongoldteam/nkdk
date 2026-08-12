@@ -133,6 +133,21 @@ export function buildListDesignerExtensionsCommand(): string {
   return "config extensions properties get --all-extensions"
 }
 
+export function buildLoadPartialConfigurationCommand(params: {
+  archivePath: string
+  extensionName?: string
+}): string {
+  return [
+    `config load-config-from-files --archive="${interactiveValue(params.archivePath)}"`,
+    '--list-file="load.lst"',
+    "--format=hierarchical",
+    "--partial",
+    ...(params.extensionName === undefined
+      ? []
+      : [`--extension="${interactiveValue(params.extensionName)}"`]),
+  ].join(" ")
+}
+
 function designerConnectionArgument(connection: InfobaseConnection): string {
   if (connection.type === "file") return `/F${connection.path}`
   if (connection.type === "server") return `/S${connection.server}\\${connection.reference}`

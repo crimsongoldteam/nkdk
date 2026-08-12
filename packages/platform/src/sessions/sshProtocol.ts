@@ -1,4 +1,8 @@
-import { PlatformSessionError, type PlatformSessionErrorCode } from "./errors"
+import {
+  PlatformSessionError,
+  type PlatformCommandOutcome,
+  type PlatformSessionErrorCode,
+} from "./errors"
 import { redactPlatformText, type PlatformOperationLog } from "./operationLog"
 import {
   systemSessionClock,
@@ -13,6 +17,7 @@ type PendingExchange = {
   allowQuestions: boolean
   initialPrompt: boolean
   sawSuccess: boolean
+  commandSent: boolean
   extensionInfo?: unknown[]
   timer?: unknown
   removeAbortListener?: () => void
@@ -77,6 +82,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
   private readonly clock: SessionClock
   private readonly diagnostic: (message: string) => void
   private readonly unsubscribe: () => void
+  private readonly unsubscribeClose: () => void
   private pending: PendingExchange | undefined
   private buffer = ""
 
@@ -95,6 +101,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     this.clock = params.clock
     this.diagnostic = params.diagnostic
     this.unsubscribe = this.shell.onData((chunk) => this.receive(chunk))
+    this.unsubscribeClose = this.shell.onClose(() => this.handleShellClose())
   }
 
   async waitForPrompt(): Promise<void> {
@@ -119,6 +126,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
 
   async close(): Promise<void> {
     this.unsubscribe()
+    this.unsubscribeClose()
     const pending = this.pending
     if (pending !== undefined) {
       this.cleanupPending(pending)
@@ -151,6 +159,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     )
     this.diagnostic("Команда платформы отправлена")
     this.shell.write(`${command}\n`)
+    if (this.pending !== undefined) this.pending.commandSent = true
     return completion
   }
 
@@ -171,6 +180,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
         allowQuestions,
         initialPrompt,
         sawSuccess: false,
+        commandSent: false,
         ...(options.operationLog === undefined ? {} : { operationLog: options.operationLog }),
         resolve,
         reject,
@@ -183,7 +193,8 @@ class PlatformCommandProtocol implements PlatformCommandSession {
           reject(
             new PlatformSessionError(
               "session_timeout",
-              "Истекло время ожидания ответа платформы"
+              "Истекло время ожидания ответа платформы",
+              commandOutcomeOptions(pending)
             )
           )
         }, options.timeoutMs)
@@ -197,7 +208,8 @@ class PlatformCommandProtocol implements PlatformCommandSession {
           reject(
             new PlatformSessionError(
               "operation_cancelled",
-              "Операция платформы отменена"
+              "Операция платформы отменена",
+              commandOutcomeOptions(pending)
             )
           )
         }
@@ -253,7 +265,8 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     if (!Array.isArray(messages)) {
       this.failPending(
         pending.errorCode,
-        "Платформа вернула неожиданный ответ"
+        "Платформа вернула неожиданный ответ",
+        pending.commandSent ? "unknown" : undefined
       )
       return
     }
@@ -262,7 +275,8 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     } catch {
       this.failPending(
         pending.errorCode,
-        "Платформа вернула неожиданный ответ"
+        "Платформа вернула неожиданный ответ",
+        pending.commandSent ? "unknown" : undefined
       )
     }
   }
@@ -273,7 +287,11 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       if (!Array.isArray(messages)) throw new Error("response is not an array")
       this.consumeMessages(messages, pending)
     } catch {
-      this.failPending(pending.errorCode, "Платформа вернула неожиданный ответ")
+      this.failPending(
+        pending.errorCode,
+        "Платформа вернула неожиданный ответ",
+        pending.commandSent ? "unknown" : undefined
+      )
     }
   }
 
@@ -298,7 +316,8 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       const passwordSafe = redactPlatformText(platformMessage ?? fallback, [this.password])
       this.failPending(
         pending.errorCode,
-        pending.operationLog?.sanitize(passwordSafe) ?? passwordSafe
+        pending.operationLog?.sanitize(passwordSafe) ?? passwordSafe,
+        "rejected"
       )
       return
     }
@@ -358,18 +377,42 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     )
   }
 
-  private failPending(code: PlatformSessionErrorCode, message: string): void {
+  private handleShellClose(): void {
     const pending = this.pending
     if (pending === undefined) return
     this.cleanupPending(pending)
     this.pending = undefined
-    pending.reject(new PlatformSessionError(code, message))
+    pending.reject(
+      new PlatformSessionError(
+        pending.errorCode,
+        "SSH-сеанс платформы закрыт",
+        commandOutcomeOptions(pending)
+      )
+    )
+  }
+
+  private failPending(
+    code: PlatformSessionErrorCode,
+    message: string,
+    commandOutcome?: PlatformCommandOutcome
+  ): void {
+    const pending = this.pending
+    if (pending === undefined) return
+    this.cleanupPending(pending)
+    this.pending = undefined
+    pending.reject(new PlatformSessionError(code, message, { commandOutcome }))
   }
 
   private cleanupPending(pending: PendingExchange): void {
     if (pending.timer !== undefined) this.clock.clearTimeout(pending.timer)
     pending.removeAbortListener?.()
   }
+}
+
+function commandOutcomeOptions(
+  pending: PendingExchange
+): { commandOutcome: "unknown" } | undefined {
+  return pending.commandSent ? { commandOutcome: "unknown" } : undefined
 }
 
 function safeFailureMessage(code: PlatformSessionErrorCode): string {

@@ -125,6 +125,10 @@ export async function platformFailure(params: PlatformFailureParams): Promise<Pl
     : `${message}. Журнал операции записать не удалось`
   return new PlatformSessionError(params.code, finalMessage, {
     ...(params.cause === undefined ? {} : { cause: params.cause }),
+    ...(params.cause instanceof PlatformSessionError
+      && params.cause.commandOutcome !== undefined
+      ? { commandOutcome: params.cause.commandOutcome }
+      : {}),
     details: {
       stage: params.stage,
       ...(params.mode === undefined ? {} : { mode: params.mode }),

@@ -25,6 +25,7 @@ export interface PlatformOperationLog {
 export interface SshShell {
   write(value: string): void
   onData(listener: (chunk: string) => void): () => void
+  onClose(listener: () => void): () => void
   isOpen(): boolean
   close(): Promise<void>
 }

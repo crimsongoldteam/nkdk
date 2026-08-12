@@ -105,8 +105,11 @@ function isAuthenticationFailure(value: unknown): boolean {
 function createShell(client: Ssh2ClientLike, stream: Ssh2ShellStream): SshShell {
   let open = true
   const dataListeners = new Set<(chunk: string) => void>()
+  const closeListeners = new Set<() => void>()
   const markClosed = () => {
+    if (!open) return
     open = false
+    for (const listener of closeListeners) listener()
   }
   stream
     .on("data", (value) => {
@@ -127,12 +130,16 @@ function createShell(client: Ssh2ClientLike, stream: Ssh2ShellStream): SshShell 
       dataListeners.add(listener)
       return () => dataListeners.delete(listener)
     },
+    onClose(listener) {
+      closeListeners.add(listener)
+      return () => closeListeners.delete(listener)
+    },
     isOpen() {
       return open
     },
     async close() {
       if (!open) return
-      open = false
+      markClosed()
       stream.end()
       client.end()
     },
