@@ -83,6 +83,22 @@ describe("platform SSH command protocol", () => {
     expect(String(error)).not.toContain("secret")
   })
 
+  it("treats command usage logs followed by an error as a confirmed rejection", async () => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"log","message":"Использование:"},{"type":"error","message":"Неверный формат команды"}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({ shell, timeoutMs: 100 })
+
+    await expect(session.run("bad command")).rejects.toMatchObject({
+      code: "platform_command_failed",
+      message: "Неверный формат команды",
+      commandOutcome: "rejected",
+    })
+  })
+
   it("returns extension properties nested in the success body in platform order", async () => {
     const shell = scriptedShell([
       "designer> ",

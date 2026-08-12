@@ -18,6 +18,7 @@ type PendingExchange = {
   initialPrompt: boolean
   sawSuccess: boolean
   commandSent: boolean
+  logWrites: Promise<void>
   extensionInfo?: unknown[]
   timer?: unknown
   removeAbortListener?: () => void
@@ -181,6 +182,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
         initialPrompt,
         sawSuccess: false,
         commandSent: false,
+        logWrites: Promise.resolve(),
         ...(options.operationLog === undefined ? {} : { operationLog: options.operationLog }),
         resolve,
         reject,
@@ -310,6 +312,14 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       pending.sawSuccess = true
       return
     }
+    if (type === "log") {
+      if (typeof message["message"] !== "string") throw new Error("invalid log message")
+      const text = pending.operationLog?.sanitize(message["message"]) ?? message["message"]
+      pending.logWrites = pending.logWrites.then(async () => {
+        await pending.operationLog?.append(`command-log ${text}`)
+      })
+      return
+    }
     if (type === "error" || type === "cancel") {
       const platformMessage = extractFailureMessage(message)
       const fallback = safeFailureMessage(pending.errorCode)
@@ -370,11 +380,11 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     if (pending === undefined) return
     this.cleanupPending(pending)
     this.pending = undefined
-    pending.resolve(
+    void pending.logWrites.then(() => pending.resolve(
       pending.extensionInfo === undefined
         ? {}
         : { extensionInfo: [...pending.extensionInfo] }
-    )
+    ))
   }
 
   private handleShellClose(): void {
@@ -400,7 +410,8 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     if (pending === undefined) return
     this.cleanupPending(pending)
     this.pending = undefined
-    pending.reject(new PlatformSessionError(code, message, { commandOutcome }))
+    void pending.logWrites.then(() =>
+      pending.reject(new PlatformSessionError(code, message, { commandOutcome })))
   }
 
   private cleanupPending(pending: PendingExchange): void {
