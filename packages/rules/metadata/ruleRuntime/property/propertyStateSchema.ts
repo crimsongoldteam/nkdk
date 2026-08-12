@@ -1,6 +1,7 @@
 import { Type, type TSchema } from "typebox"
 import type { MetadataItemRule } from "./types"
 import type { ResolvedPropertyStateItemCapability } from "../definition"
+import { getImplicitValueYAML } from "./toJSONSchema"
 
 export function exportBorrowedPropertyStateSchema(params: {
   readonly rule: MetadataItemRule
@@ -28,9 +29,13 @@ export function exportBorrowedPropertyStateSchema(params: {
       if (!allowedYamlNames.has(yamlName)) return []
       const propertyKey = propertyKeyByYamlName(params.rule, yamlName)
       const capability = propertyKey === undefined ? undefined : params.capability.properties[propertyKey]
+      const propertyRule = propertyKey === undefined ? undefined : params.rule.properties[propertyKey]
+      const withImplicitValue = propertyRule === undefined
+        ? schema
+        : implicitValueSchema(schema, getImplicitValueYAML(propertyRule))
       return [[yamlName, capability?.representation === "tagged"
-        ? taggedScalarSchema(schema)
-        : schema]]
+        ? taggedScalarSchema(withImplicitValue)
+        : withImplicitValue]]
     }),
   )
   const properties = params.closed === false
@@ -39,6 +44,13 @@ export function exportBorrowedPropertyStateSchema(params: {
         ...allowedProperties,
       }
     : allowedProperties
+  if (params.closed !== false) {
+    for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
+      if (typeof propertyRule.yaml !== "string" || allowedPropertyKeys.has(propertyKey)) continue
+      const sourceSchema = source.properties?.[propertyRule.yaml]
+      if (sourceSchema !== undefined) properties[propertyRule.yaml] = explicitPropertyStateXMLSchema()
+    }
+  }
   const notify = sectionNames(params.capability, "notify")
   const extend = sectionNames(params.capability, "extend")
   if (notify.length > 0) properties.Проверять = sectionSchema(notify)
@@ -60,54 +72,17 @@ export function exportNestedPropertyStateSchema(params: {
   readonly source: TSchema
   readonly structuralPropertyKeys?: readonly string[]
 }): TSchema {
-  const normalized = withBorrowedMarker(params.rule, params.source)
-  const markerYaml = normalized.rule.properties.extendedConfigurationObject?.yaml
-  if (typeof markerYaml !== "string") return params.source
-  const own = {
-    ...normalized.source,
-    not: { required: [markerYaml] },
-  }
   const borrowed = exportBorrowedPropertyStateSchema({
     ...params,
-    rule: normalized.rule,
-    source: normalized.source,
-  }) as TSchema & { required?: string[] }
-  const id = (normalized.source as TSchema & { $id?: string }).$id
+    rule: params.rule,
+    source: params.source,
+  })
+  const id = (params.source as TSchema & { $id?: string }).$id
   const union = Type.Union([
-    withoutId(own),
-    {
-      ...withoutId(borrowed),
-      required: [...new Set([...(borrowed.required ?? []), markerYaml])],
-    },
+    withoutId(params.source),
+    withoutId(borrowed),
   ])
   return id === undefined ? union : { ...union, $id: id }
-}
-
-function withBorrowedMarker(rule: MetadataItemRule, source: TSchema): {
-  rule: MetadataItemRule
-  source: TSchema
-} {
-  if (rule.properties.extendedConfigurationObject !== undefined) return { rule, source }
-  const markerRule = {
-    type: "string",
-    yaml: "ОбъектРасширяемойКонфигурации",
-  }
-  return {
-    rule: {
-      ...rule,
-      properties: {
-        ...rule.properties,
-        extendedConfigurationObject: markerRule,
-      },
-    },
-    source: {
-      ...source,
-      properties: {
-        ...((source as TSchema & { properties?: Record<string, TSchema> }).properties ?? {}),
-        ОбъектРасширяемойКонфигурации: Type.Optional(Type.String()),
-      },
-    },
-  }
 }
 
 function withoutId(schema: TSchema): TSchema {
@@ -124,6 +99,14 @@ function taggedScalarSchema(source: TSchema): TSchema {
     source,
     Type.Object({}, { additionalProperties: false, maxProperties: 0 }),
   ])
+}
+
+function implicitValueSchema(source: TSchema, implicitValue: string | number | undefined): TSchema {
+  return implicitValue === undefined ? source : Type.Union([source, Type.Literal(implicitValue)])
+}
+
+function explicitPropertyStateXMLSchema(): TSchema {
+  return Type.String({ pattern: "^!xml configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$" })
 }
 
 function sectionNames(

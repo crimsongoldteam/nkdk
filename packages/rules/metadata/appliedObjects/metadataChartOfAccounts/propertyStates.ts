@@ -1,7 +1,10 @@
-import { controlled, definePropertyStateItemCapabilities } from "../configurationExtension/propertyStateCapabilities"
+import { controlled, definePropertyStateItemCapabilities, externalProperty } from "../configurationExtension/propertyStateCapabilities"
 import { MetadataChartOfAccountsRules } from "./rules"
 
 export const metadataChartOfAccountsPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataChartOfAccountsRules, {
   profiles: ["borrowed-base", "mutable-synonym"],
-  properties: controlled("orderLength", "extDimensionTypes"),
+  properties: {
+    ...controlled("orderLength", "extDimensionTypes"),
+    ...externalProperty("predefined", "Предопределенные", ["extend"]),
+  },
 })

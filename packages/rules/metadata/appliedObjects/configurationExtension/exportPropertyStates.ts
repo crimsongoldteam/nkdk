@@ -9,7 +9,7 @@ import { currentOperationRegistrySet } from "../../operations/operationExecution
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
 import { readPropertyStateSections } from "../../ruleRuntime/property/propertyStateSections"
-import { decodeExplicitXMLPropertyState } from "./explicitXMLState"
+import { decodeExplicitXMLPropertyState, isExplicitXMLPropertyState } from "./explicitXMLState"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
 
@@ -208,14 +208,10 @@ function propertyStates(params: {
     const yamlName = propertyRule.yaml
     const xmlName = propertyRule.xml ?? capitalize(propertyKey)
     const yamlValue = typeof yamlName === "string" ? params.yaml[yamlName] : undefined
-    const capability = propertyStateRegistry()?.resolve({
-      itemType: params.rule.itemType,
-      propertyKey,
-    })
     const sectionMode = sectionStates.get(propertyKey)
     if (
       typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "xml" &&
-      typeof yamlValue === "string"
+      typeof yamlValue === "string" && isExplicitXMLPropertyState(yamlValue)
     ) {
       const explicit = decodeExplicitXMLPropertyState(yamlValue, {
         itemType: params.rule.itemType,
@@ -248,22 +244,20 @@ function propertyStates(params: {
       continue
     }
     if (typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "изменять") {
+      if (isEmptyRecord(yamlValue)) {
+        writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
+      }
       states.push(propertyState(xmlName, "Extended"))
       continue
     }
-    if (
-      typeof yamlName === "string" &&
-      Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&
-      capability?.modes.length === 1 && capability.modes[0] === "extend" &&
-      capability.representation !== "section"
-    ) {
-      states.push(propertyState(xmlName, "Extended"))
-      continue
-    }
-    const segment = EXTENDED_SNAPSHOT_SEGMENTS[params.rule.itemType]?.[xmlName]
+    const declaredSegment = EXTENDED_SNAPSHOT_SEGMENTS[params.rule.itemType]?.[xmlName]
+    const segment = declaredSegment ?? propertyRule.externalMetadata?.segment ??
+      (typeof propertyRule.yaml !== "string" ? propertyKey : undefined)
     if (
       segment !== undefined &&
-      params.context.exportToXML.configurationIndex?.xml(childSegmentUid(params.logicalAddress, segment))?.extended ===
+      params.context.exportToXML.configurationIndex?.xml(
+        childSegmentUid(params.logicalAddress, declaredSegment ?? propertyKey),
+      )?.extended ===
         true
     ) {
       states.push(propertyState(xmlName, "Extended"))
@@ -373,4 +367,8 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
+}
+
+function isEmptyRecord(value: unknown): boolean {
+  return asRecord(value) !== undefined && Object.keys(value as Record<string, unknown>).length === 0
 }

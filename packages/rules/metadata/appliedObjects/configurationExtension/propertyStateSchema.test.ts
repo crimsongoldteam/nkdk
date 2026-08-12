@@ -11,7 +11,7 @@ const rule = {
     name: { type: "string", yaml: "Имя" },
     comment: { type: "string", yaml: "Комментарий" },
     synonym: { type: "string", yaml: "Синоним" },
-    codeLength: { type: "number", yaml: "ДлинаКода" },
+    codeLength: { type: "number", yaml: "ДлинаКода", implicitValueYAML: 9 },
     objectModule: { type: "ExternalFile", yaml: "МодульОбъекта" },
     attributes: { type: "Attributes", yaml: "Реквизиты" },
   },
@@ -63,6 +63,9 @@ describe("borrowed property-state schema", () => {
     })
     expect(schema.properties).not.toHaveProperty("Проверять")
     expect(schema.additionalProperties).toBe(false)
+    expect(schema.properties.Реквизиты).not.toMatchObject({
+      pattern: "^!xml configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$",
+    })
   })
 
   it("adds both sections only with names allowed for each mode", () => {
@@ -93,7 +96,10 @@ describe("borrowed property-state schema", () => {
     }) as { properties: Record<string, { anyOf?: unknown[] }> }
 
     expect(schema.properties.ДлинаКода?.anyOf).toEqual(expect.arrayContaining([
-      expect.objectContaining({ type: "number" }),
+      expect.objectContaining({ anyOf: expect.arrayContaining([
+        expect.objectContaining({ type: "number" }),
+        expect.objectContaining({ const: 9 }),
+      ]) }),
       expect.objectContaining({ type: "object", maxProperties: 0 }),
     ]))
   })
@@ -115,7 +121,20 @@ describe("borrowed property-state schema", () => {
     ]))
   })
 
-  it("различает собственный и заимствованный вложенный объект по явному признаку", () => {
+  it("разрешает только переносчик !xml для свойства вне закрытой матрицы", () => {
+    const schema = exportBorrowedPropertyStateSchema({
+      rule,
+      capability,
+      source: Type.Object({ Реквизиты: Type.Optional(Type.Object({})) }, { additionalProperties: false }),
+      closed: true,
+    }) as { properties: Record<string, { pattern?: string }> }
+
+    expect(schema.properties.Реквизиты?.pattern).toBe(
+      "^!xml configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$",
+    )
+  })
+
+  it("допускает полную и закрытую форму вложенного объекта без служебного признака", () => {
     const nestedRule = {
       ...rule,
       properties: {
@@ -146,11 +165,10 @@ describe("borrowed property-state schema", () => {
         СобственноеПоле: Type.Optional(Type.String()),
         ОбъектРасширяемойКонфигурации: Type.Optional(Type.String()),
       }, { additionalProperties: false }),
-    }) as { anyOf?: Array<{ required?: string[]; not?: { required?: string[] } }> }
+    }) as { anyOf?: Array<{ required?: string[]; properties?: Record<string, unknown> }> }
 
-    expect(schema.anyOf).toEqual([
-      expect.objectContaining({ not: { required: ["ОбъектРасширяемойКонфигурации"] } }),
-      expect.objectContaining({ required: expect.arrayContaining(["ОбъектРасширяемойКонфигурации"]) }),
-    ])
+    expect(schema.anyOf).toHaveLength(2)
+    expect(schema.anyOf?.[0]?.properties).toHaveProperty("СобственноеПоле")
+    expect(schema.anyOf?.[1]?.properties).not.toHaveProperty("СобственноеПоле")
   })
 })

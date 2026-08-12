@@ -1,4 +1,4 @@
-import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities } from "../configurationExtension/propertyStateCapabilities"
+import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "../configurationExtension/propertyStateCapabilities"
 import { MetadataCatalogRules } from "./rules"
 
 export const metadataCatalogPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataCatalogRules, {
@@ -6,5 +6,6 @@ export const metadataCatalogPropertyStateCapabilities = definePropertyStateItemC
   properties: {
     ...controlled("hierarchical", "hierarchyType", "owners", "codeAllowedLength"),
     ...allPropertyStateModes("codeLength", "descriptionLength", "codeType"),
+    ...externalProperty("predefined", "Предопределенные", ["extend"]),
   },
 })

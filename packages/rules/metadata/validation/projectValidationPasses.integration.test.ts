@@ -5,7 +5,11 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
-import { type ValidationSchemaCache, validateProjectFileFirstPass } from "./projectValidationPasses"
+import {
+  createValidationSchemaCache,
+  type ValidationSchemaCache,
+  validateProjectFileFirstPass,
+} from "./projectValidationPasses"
 import type { ProjectFileValidator } from "./projectReferenceIndexRegistry"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { assertProjectStateFileUpdateBatch, toProjectStateFileUpdate } from "../projectState/fileUpdate"
@@ -188,7 +192,7 @@ describe("validateProjectFileFirstPass references", () => {
     writeProjectFile(component.componentDir, projectPath, [
       "Реквизиты:",
       "  Артикул:",
-      "    ОбъектРасширяемойКонфигурации: !проверять",
+      "    Тип: Строка",
     ])
     writeProjectFile(join(projectDir, "cf"), projectPath, [
       "Реквизиты:",
@@ -196,12 +200,13 @@ describe("validateProjectFileFirstPass references", () => {
       "    Тип: Строка",
     ])
 
+    const schemaCache = createValidationSchemaCache(mockContext)
     const result = validateProjectFileFirstPass({
       projectDir,
       file: resolveValidationProjectFile(component.componentDir, projectPath, component)!,
       cache: createProjectYamlCache(),
       context: mockContext,
-      schemaCache: sharedSchemaCache,
+      schemaCache,
       rulesSnapshot,
     })
 

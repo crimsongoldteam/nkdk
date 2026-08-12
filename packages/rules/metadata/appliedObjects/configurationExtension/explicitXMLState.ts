@@ -16,6 +16,10 @@ export function encodeExplicitXMLPropertyState(
   return `!xml ${CONFIGURATION_EXTENSION_PROPERTY_STATE_XML_CARRIER}${Buffer.from(JSON.stringify({ version: 1, ...payload }), "utf8").toString("base64url")}`
 }
 
+export function isExplicitXMLPropertyState(yamlValue: string): boolean {
+  return xmlScalarTagPayload(yamlValue).startsWith(CONFIGURATION_EXTENSION_PROPERTY_STATE_XML_CARRIER)
+}
+
 export function decodeExplicitXMLPropertyState(
   yamlValue: string,
   expected: { readonly itemType: string; readonly propertyKey: string },

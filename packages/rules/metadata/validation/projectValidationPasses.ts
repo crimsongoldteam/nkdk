@@ -211,7 +211,17 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
       const existing = propertiesSchemas.get(key)
       if (existing) return existing
 
-      const globalKey = [context.version, context.defaultLanguage, variant, rule.itemType].join(":")
+      const capability = variant === "full"
+        ? undefined
+        : currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()
+          ?.propertyStates.item(rule.itemType)
+      const globalKey = [
+        context.version,
+        context.defaultLanguage,
+        variant,
+        rule.itemType,
+        ...(capability === undefined ? [] : Object.keys(capability.properties).sort()),
+      ].join(":")
       const compiled = propertiesSchemaCache.get(globalKey)
         ?? compileProjectPropertiesSchema(context, rule, variant, schemaRuntime)
       propertiesSchemaCache.set(globalKey, compiled)

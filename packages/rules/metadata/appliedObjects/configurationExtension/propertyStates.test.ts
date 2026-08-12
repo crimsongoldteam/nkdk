@@ -66,6 +66,37 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yamlScalarTagAt(yaml, "ДлинаКода")).toBe("изменять")
   })
 
+  it.each([
+    ["Extended", "изменять"],
+    ["Notify", "проверять"],
+  ] as const)("сохраняет неявное значение свойства с состоянием %s", (state, tag) => {
+    const yaml: Record<string, unknown> = {}
+    configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: {
+        itemType: "MetadataTask",
+        properties: {
+          numberLength: {
+            type: "number",
+            yaml: "ДлинаНомера",
+            xml: "NumberLength",
+            xmlParents: ["Properties"],
+            implicitValueYAML: 9,
+            defaultValueXML: 9,
+          },
+        },
+      } as MetadataItemRule,
+      source: {
+        ...propertyStates(["NumberLength", state]),
+        Properties: { NumberLength: 9 },
+      },
+      yaml,
+    })
+
+    expect(yaml.ДлинаНомера).toBe(9)
+    expect(yamlScalarTagAt(yaml, "ДлинаНомера")).toBe(tag)
+  })
+
   it("переносит известный недопустимый Extended через !xml", () => {
     const yaml: Record<string, unknown> = { Иерархический: true }
     withOperationRegistrySet({
@@ -90,6 +121,31 @@ describe("configuration extension PropertyState augmenter", () => {
 
     expect(yamlScalarTagAt(yaml, "Иерархический")).toBe("xml")
     expect(yaml.Иерархический).toMatch(/^!xml configurationExtensionPropertyStateXML:/u)
+  })
+
+  it("переносит через !xml свойство, отсутствующее в зарегистрированной матрице вида", () => {
+    const yaml: Record<string, unknown> = { ДлинаКода: 9 }
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        ...configurationExtensionPropertyStateProfiles,
+        metadataCatalogPropertyStateCapabilities,
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: {
+        itemType: "MetadataCatalog",
+        properties: {
+          unknownLength: { type: "number", yaml: "ДлинаКода", xml: "UnknownLength", xmlParents: ["Properties"] },
+        },
+      } as MetadataItemRule,
+      source: {
+        ...propertyStates(["UnknownLength", "Extended"]),
+        Properties: { UnknownLength: 9 },
+      },
+      yaml,
+    }))
+
+    expect(yamlScalarTagAt(yaml, "ДлинаКода")).toBe("xml")
   })
 
   it("заменяет Type/xr:ExtendedProperty составным YAML-типом", () => {
@@ -151,6 +207,37 @@ describe("configuration extension PropertyState augmenter", () => {
     ]))
     expect(collector.fragment("Форма.yaml").entities).toHaveLength(2)
     expect(yaml).not.toHaveProperty("Контроль")
+  })
+
+  it("сохраняет Extended вынесенного свойства по externalMetadata rules.ts", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Товары.Команда.Печать"
+    const yaml: Record<string, unknown> = {}
+
+    configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(collector, logicalAddress),
+      rule: {
+        itemType: "MetadataCommand",
+        properties: {
+          commandModule: {
+            type: "Module",
+            externalMetadata: { segment: "CommandModule", placement: "derivedEntry" },
+            xmlPath: "Commands/Печать/Ext/CommandModule.bsl",
+          },
+        },
+      } as MetadataItemRule,
+      source: propertyStates(["CommandModule", "Extended"]),
+      yaml,
+    })
+
+    expect(collector.fragment("Форма.yaml").entities).toEqual(expect.arrayContaining([
+      {
+        logicalAddress: `${logicalAddress}.commandModule`,
+        sourceProjectPath: "Форма.yaml",
+        xml: { extended: true },
+      },
+    ]))
+    expect(yaml).toEqual({})
   })
 
   it("не помечает локальным тегом вынесенное составное свойство конфигурации", () => {

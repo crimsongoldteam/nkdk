@@ -1,4 +1,4 @@
-import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities } from "../configurationExtension/propertyStateCapabilities"
+import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "../configurationExtension/propertyStateCapabilities"
 import { MetadataChartOfCalculationTypesRules } from "./rules"
 
 export const metadataChartOfCalculationTypesPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataChartOfCalculationTypesRules, {
@@ -6,5 +6,6 @@ export const metadataChartOfCalculationTypesPropertyStateCapabilities = definePr
   properties: {
     ...controlled("actionPeriodUse", "dependenceOnCalculationTypes"),
     ...allPropertyStateModes("codeLength", "descriptionLength", "codeType", "codeAllowedLength"),
+    ...externalProperty("predefined", "Предопределенные", ["extend"]),
   },
 })

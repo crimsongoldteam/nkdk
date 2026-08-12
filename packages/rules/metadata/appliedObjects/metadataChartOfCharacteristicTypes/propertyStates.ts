@@ -1,4 +1,4 @@
-import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities } from "../configurationExtension/propertyStateCapabilities"
+import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "../configurationExtension/propertyStateCapabilities"
 import { MetadataChartOfCharacteristicTypesRules } from "./rules"
 
 export const metadataChartOfCharacteristicTypesPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataChartOfCharacteristicTypesRules, {
@@ -6,5 +6,6 @@ export const metadataChartOfCharacteristicTypesPropertyStateCapabilities = defin
   properties: {
     ...controlled("type", "hierarchical"),
     ...allPropertyStateModes("codeLength", "codeAllowedLength", "descriptionLength"),
+    ...externalProperty("predefined", "Предопределенные", ["extend"]),
   },
 })

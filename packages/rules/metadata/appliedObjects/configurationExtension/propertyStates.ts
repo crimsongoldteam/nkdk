@@ -3,6 +3,7 @@ import { getConfigurationIndexCollectionContext } from "@nkdk/runtime"
 import { childSegmentUid } from "@nkdk/runtime"
 import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { exportPropertyValueToYAML, getImplicitValueYAML, importPropertyFromXML } from "@nkdk/runtime/rule-kit"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
@@ -90,7 +91,10 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
           continue
         }
         const yamlName = propertyYamlName(rule, property)
-        if (yamlName !== undefined) markPropertyState(yaml, yamlName, "проверять")
+        if (yamlName !== undefined) {
+          ensurePropertyYamlValue({ context, rule, source, yaml, xmlProperty: property, yamlName })
+          markPropertyState(yaml, yamlName, "проверять")
+        }
         continue
       }
       if (state !== "Extended") {
@@ -101,21 +105,41 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         }
         continue
       }
-      const segment = EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType]?.[property]
+      const section = sectionProperty(rule, property)
+      if (section !== undefined) {
+        writePropertyStateSection(yaml, section.item, section.property.externalName!, "extend")
+        continue
+      }
+      const propertyEntry = propertyEntryByXmlName(rule, property)
+      const propertyKey = propertyEntry?.[0]
+      const declaredSegment = EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType]?.[property]
+      const segment = declaredSegment ?? propertyEntry?.[1].externalMetadata?.segment ??
+        (propertyEntry !== undefined && typeof propertyEntry[1].yaml !== "string" ? propertyKey : undefined)
       if (segment !== undefined) {
         if (collection !== undefined) {
-          collection.collector.setXmlFlag(childSegmentUid(collection.logicalAddress, segment), "extended")
+          collection.collector.setXmlFlag(
+            childSegmentUid(collection.logicalAddress, declaredSegment ?? propertyKey ?? segment),
+            "extended",
+          )
         }
         continue
       }
       const yamlName = propertyYamlName(rule, property)
+      if (yamlName !== undefined) {
+        ensurePropertyYamlValue({ context, rule, source, yaml, xmlProperty: property, yamlName })
+      }
       if (yamlName !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlName)) {
-        const propertyKey = propertyKeyByXmlName(rule, property)
-        const capability = propertyKey === undefined ? undefined : propertyStateRegistry()?.resolve({
+        const registry = propertyStateRegistry()
+        const capability = propertyKey === undefined ? undefined : registry?.resolve({
           itemType: rule.itemType,
           propertyKey,
         })
-        if (propertyKey !== undefined && capability !== undefined && !capability.modes.includes("extend")) {
+        const itemCapability = registry?.item(rule.itemType)
+        if (
+          propertyKey !== undefined &&
+          itemCapability !== undefined &&
+          (capability === undefined || !capability.modes.includes("extend"))
+        ) {
           const propertyRule = rule.properties[propertyKey]!
           yaml[yamlName] = encodeExplicitXMLPropertyState({
             itemType: rule.itemType,
@@ -134,13 +158,34 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         }
         continue
       }
-      const section = sectionProperty(rule, property)
-      if (section !== undefined) {
-        writePropertyStateSection(yaml, section.item, section.property.externalName!, "extend")
-        continue
-      }
     }
   },
+}
+
+function ensurePropertyYamlValue(params: {
+  readonly context: Parameters<typeof importPropertyFromXML>[0]["context"]
+  readonly rule: MetadataItemRule
+  readonly source: Record<string, unknown>
+  readonly yaml: Record<string, unknown>
+  readonly xmlProperty: string
+  readonly yamlName: string
+}): void {
+  if (Object.prototype.hasOwnProperty.call(params.yaml, params.yamlName)) return
+  const propertyRule = propertyEntryByXmlName(params.rule, params.xmlProperty)?.[1]
+  if (propertyRule === undefined) return
+  const xmlValue = valueAtXmlPath(params.source, [...(propertyRule.xmlParents ?? []), params.xmlProperty])
+  const importedValue = importPropertyFromXML({
+    context: params.context,
+    rule: propertyRule,
+    value: xmlValue,
+  })
+  const yamlValue = exportPropertyValueToYAML({
+    context: params.context,
+    rule: propertyRule,
+    value: importedValue,
+    preserveImplicitValue: true,
+  })
+  params.yaml[params.yamlName] = yamlValue ?? getImplicitValueYAML(propertyRule) ?? {}
 }
 
 function propertyKeyByXmlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {

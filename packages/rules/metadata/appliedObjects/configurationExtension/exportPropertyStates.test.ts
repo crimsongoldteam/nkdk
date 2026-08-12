@@ -160,6 +160,24 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     ])
   })
 
+  it.each([
+    ["own", {}],
+    ["borrowed", { "Catalog.Товары": BASE_UUID }],
+  ] as const)("does not write an explicit state for a plain extended property of an %s object", (_kind, adoptedUuids) => {
+    const outputs = new Map([
+      ["metadata", { Properties: { Name: "Товары", Synonym: "Новое имя" } }],
+    ])
+    configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids }),
+      rule: MetadataCatalogRules,
+      yaml: { Синоним: "Новое имя" },
+      outputs,
+      logicalAddress: "Catalog.Товары",
+    })
+
+    expect(record(outputs.get("metadata"))).not.toHaveProperty("InternalInfo")
+  })
+
   it("places extension root service fields in the platform XML order", () => {
     const outputs = new Map([
       [

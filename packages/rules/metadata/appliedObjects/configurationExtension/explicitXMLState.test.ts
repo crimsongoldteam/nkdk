@@ -1,7 +1,22 @@
 import { describe, expect, it } from "vitest"
-import { decodeExplicitXMLPropertyState, encodeExplicitXMLPropertyState } from "./explicitXMLState"
+import {
+  decodeExplicitXMLPropertyState,
+  encodeExplicitXMLPropertyState,
+  isExplicitXMLPropertyState,
+} from "./explicitXMLState"
 
 describe("explicit XML PropertyState carrier", () => {
+  it("отличает переносчик PropertyState от обычного !xml", () => {
+    expect(isExplicitXMLPropertyState("!xml")).toBe(false)
+    expect(isExplicitXMLPropertyState("!xml обычное-значение")).toBe(false)
+    expect(isExplicitXMLPropertyState(encodeExplicitXMLPropertyState({
+      itemType: "MetadataCatalog",
+      propertyKey: "hierarchical",
+      propertyXML: true,
+      propertyStateXML: { "xr:Property": "Hierarchical", "xr:State": "Extended" },
+    }))).toBe(true)
+  })
+
   it("round-trips a versioned payload", () => {
     const encoded = encodeExplicitXMLPropertyState({
       itemType: "MetadataCatalog",
