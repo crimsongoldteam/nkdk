@@ -64,6 +64,7 @@ import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObj
 import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenDesignTimeRef"
 import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
 import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
+import { configurationExtensionPropertyStateRules } from "../appliedObjects/configurationExtension/propertyStateRules"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -130,6 +131,7 @@ export const legacyCoreRules = composeMetadataRules(
   projectReferenceRules,
   dataPathRules,
   operationRules,
+  configurationExtensionPropertyStateRules,
   eventBaseFormProjectionRules,
   dataPathBaseFormProjectionRules,
   commandNameBaseFormProjectionRules,
