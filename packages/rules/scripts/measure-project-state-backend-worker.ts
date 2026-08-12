@@ -40,6 +40,8 @@ export interface ProjectStateBackendRun {
   readonly found: number
   readonly missing: number
   readonly queryPattern: ProjectStateQueryPattern
+  readonly coldLookupMs: number
+  readonly warmLookupMs: number
 }
 
 interface ProjectStateBackendMeasureDependencies {
@@ -150,6 +152,8 @@ export async function measureProjectStateBackend(
     found: measurement.results.found,
     missing: measurement.results.missing,
     queryPattern: options.queryPattern,
+    coldLookupMs: measurement.seconds.coldLookup * 1_000,
+    warmLookupMs: measurement.seconds.warmLookup * 1_000,
   }
 }
 

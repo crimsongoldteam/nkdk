@@ -79,19 +79,34 @@ export async function measureBinaryProjectState(options: MeasureBinaryProjectSta
     await saveBinaryProjectState(temporary, buffers)
     const writeSeconds = secondsSince(writeStartedAt)
 
-    const lookupStartedAt = performance.now()
-    const results = await Promise.all(Array.from({ length: options.workers }, (_, workerIndex) => {
-      const start = Math.floor(options.lookups * workerIndex / options.workers)
-      const end = Math.floor(options.lookups * (workerIndex + 1) / options.workers)
-      return pool.run({
-        readToken: createBinaryProjectStateReadToken(buffers),
-        start,
-        count: end - start,
-        totalLookups: options.lookups,
-        queryPattern: options.queryPattern,
-      })
-    }))
-    const lookupSeconds = secondsSince(lookupStartedAt)
+    const runLookupRound = async () => {
+      const startedAt = performance.now()
+      const workerResults = await Promise.all(Array.from(
+        { length: options.workers },
+        (_, workerIndex) => {
+          const start = Math.floor(options.lookups * workerIndex / options.workers)
+          const end = Math.floor(options.lookups * (workerIndex + 1) / options.workers)
+          return pool.run({
+            readToken: createBinaryProjectStateReadToken(buffers),
+            start,
+            count: end - start,
+            totalLookups: options.lookups,
+            queryPattern: options.queryPattern,
+          })
+        },
+      ))
+      return {
+        seconds: secondsSince(startedAt),
+        workerResults,
+        found: workerResults.reduce((sum, result) => sum + result.found, 0),
+        missing: workerResults.reduce((sum, result) => sum + result.missing, 0),
+      }
+    }
+    const cold = await runLookupRound()
+    const warm = await runLookupRound()
+    if (cold.found !== warm.found || cold.missing !== warm.missing) {
+      throw new Error("Холодный и прогретый раунды ProjectState различаются")
+    }
     const fileBytes = (await fs.promises.stat(projectStateBinaryPath(options.projectDir))).size
 
     return {
@@ -100,12 +115,21 @@ export async function measureBinaryProjectState(options: MeasureBinaryProjectSta
       workers: options.workers,
       queryPattern: options.queryPattern,
       fileBytes,
-      seconds: { read: readSeconds, write: writeSeconds, lookup: lookupSeconds },
-      results: {
-        found: results.reduce((sum, result) => sum + result.found, 0),
-        missing: results.reduce((sum, result) => sum + result.missing, 0),
+      seconds: {
+        read: readSeconds,
+        write: writeSeconds,
+        coldLookup: cold.seconds,
+        warmLookup: warm.seconds,
       },
-      rssMiB: Math.round(Math.max(process.memoryUsage().rss, ...results.map(({ rssBytes }) => rssBytes)) / 1024 / 1024),
+      results: {
+        found: warm.found,
+        missing: warm.missing,
+      },
+      rssMiB: Math.round(Math.max(
+        process.memoryUsage().rss,
+        ...cold.workerResults.map(({ rssBytes }) => rssBytes),
+        ...warm.workerResults.map(({ rssBytes }) => rssBytes),
+      ) / 1024 / 1024),
       hashIndexes: snapshot.hashIndexStats(),
     }
   } finally {

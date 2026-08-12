@@ -83,6 +83,8 @@ describe("measure project state backends args", () => {
         found: 9,
         missing: 1,
         queryPattern: "repeated",
+        coldLookupMs: 9,
+        warmLookupMs: 8,
       }
     })
 
@@ -153,7 +155,7 @@ describe("measure project state backend worker", () => {
         workers: 2,
         queryPattern: "repeated",
         fileBytes: 4_096,
-        seconds: { read: 0.01, write: 0.02, lookup: 0.2 },
+        seconds: { read: 0.01, write: 0.02, coldLookup: 0.2, warmLookup: 0.15 },
         results: { found: 1_800, missing: 200 },
         rssMiB: 128,
         hashIndexes: {
@@ -187,6 +189,8 @@ describe("measure project state backend worker", () => {
       found: 1_800,
       missing: 200,
       queryPattern: "repeated",
+      coldLookupMs: 200,
+      warmLookupMs: 150,
     })
   })
 })
