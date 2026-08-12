@@ -24,6 +24,7 @@ import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
 import { prepareFormDataPathContextFromYAML } from "./formDataPathContext"
+import { createDirectRoundTripContexts } from "../../../tests/directConversion"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   const formWithMainAttribute = (
@@ -241,6 +242,31 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     const firstChild = Array.isArray(childItems) ? childItems[0] : childItems
     expect(firstChild?.InputField?.ContextMenu).toBeDefined()
     expect(firstChild?.InputField?.ExtendedTooltip).toBeDefined()
+  })
+
+  it("создаёт обязательные одиночные элементы формы без identity в снимке", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+      targetProjectPath: "Справочники/Товары/Формы/ФормаЭлемента.yaml",
+    })
+
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: {
+        Элементы: {
+          Поле: { Вид: "ПолеВвода" },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+
+    expect(result.formXML.AutoCommandBar).toMatchObject({
+      _name: "ФормаКоманднаяПанель",
+    })
+    expect(elementByName(result.formXML, "Поле")).toMatchObject({
+      ContextMenu: { _name: "ПолеКонтекстноеМеню" },
+      ExtendedTooltip: { _name: "ПолеРасширеннаяПодсказка" },
+    })
   })
 
   it("формирует дополнительные колонки реквизита без модели", () => {

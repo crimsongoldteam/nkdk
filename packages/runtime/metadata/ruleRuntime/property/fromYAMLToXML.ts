@@ -218,6 +218,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
     const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
     const exportHandler = typeRule(planned.propertyRule.type, "exportToXML")
+    const reserveNestedItemWhenAbsent =
+      typeRule(planned.propertyRule.type, "nestedItemIdentity")?.reserveWhenAbsent === true
     const references = matchingOutputs.map(({ request }) =>
       readReferenceProperty({
         context: request.context ?? propertyContext,
@@ -254,6 +256,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
     if (
       params.sparseYAML === true &&
+      !reserveNestedItemWhenAbsent &&
       propertyKey !== namePropertyKey &&
       !source.has(propertyKey) &&
       ((!references.some((reference) => reference.exists) && !requiresYAMLToXMLEvaluation(planned.propertyRule)) ||
@@ -272,6 +275,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 
     if (
       !source.has(propertyKey) &&
+      !reserveNestedItemWhenAbsent &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       matchingOutputs.every((output) => output.request.referenceXML !== undefined) &&
       references.every((reference) => !reference.exists) &&
@@ -364,11 +368,13 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !source.has(propertyKey) && references.some((reference) => reference.synthesizedDefault === true)
     if (
       !preservesIndexedProperty &&
+      !reserveNestedItemWhenAbsent &&
       !shouldConvertYAMLProperty({ source, planned, context: propertyContext })
     ) continue
 
     if (
       getXMLDefaultVariant(propertyContext) === "indexed" &&
+      !reserveNestedItemWhenAbsent &&
       planned.propertyRule.yaml !== undefined &&
       planned.propertyRule.toYAML !== false &&
       !source.has(propertyKey) &&
@@ -382,6 +388,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 
     if (
       !usesOrdinaryXMLDefaults(propertyContext) &&
+      !reserveNestedItemWhenAbsent &&
       !hasXMLDefault &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       !source.has(propertyKey) &&
@@ -454,7 +461,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             matchingOutputs.every((output) => output.request.referenceXML === undefined)
             ? []
             : effectiveNestedRule.kind === "item" &&
-            (planned.propertyRule.evaluateWhenYAMLMissing === true ||
+            (reserveNestedItemWhenAbsent ||
+              planned.propertyRule.evaluateWhenYAMLMissing === true ||
               references.some((reference) => reference.exists && reference.value === undefined) ||
               nestedContext.exportToXML.configurationIndex?.identity(
                 "xmlId",

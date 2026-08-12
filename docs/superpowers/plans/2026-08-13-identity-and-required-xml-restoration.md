@@ -64,7 +64,7 @@ expect(inputField.ExtendedTooltip).toMatchObject({
 Run:
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
 ```
 
 Expected: обязательный singleton отсутствует либо преобразование завершается ошибкой `Не найден обязательный xmlId`.
@@ -87,7 +87,7 @@ const reservesNestedItemWhenAbsent = (rule: PropertyRule): boolean =>
 Run:
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
 pnpm duplicates -- --base 54b32c509
 ```
 
@@ -138,7 +138,7 @@ expect(assign(undefined, undefined, undefined)).toBe("1")
 Run:
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/formXmlIdAssignment.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/formXmlIdAssignment.test.ts
 ```
 
 Expected: модуль отсутствует или старый общий `Set` ошибочно смешивает пространства/не публикует ID.
@@ -167,7 +167,7 @@ Expected: модуль отсутствует или старый общий `Se
 Run:
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/formXmlIdAssignment.test.ts metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts metadata/forms/clientApplicationForm/baseForm.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/formXmlIdAssignment.test.ts metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts metadata/forms/clientApplicationForm/baseForm.test.ts
 pnpm duplicates -- --base 54b32c509
 ```
 
@@ -203,7 +203,7 @@ git commit -m "fix: :bug: сохранять назначенные ID элем�
 Run:
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project unit --no-isolate metadata/configurationIndex/fromYAMLToXML.test.ts metadata/commonObjects/internalInfo/fromXML.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit --no-isolate metadata/configurationIndex/fromYAMLToXML.test.ts metadata/commonObjects/internalInfo/fromXML.test.ts
 ```
 
 Expected: pipeline пропускает `InternalInfo`, хотя UUID присутствуют в снимке.
@@ -219,7 +219,7 @@ Expected: pipeline пропускает `InternalInfo`, хотя UUID прису
 Run:
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project unit --no-isolate metadata/configurationIndex/fromYAMLToXML.test.ts metadata/commonObjects/internalInfo
+pnpm --filter @nkdk/rules exec vitest run --project unit --no-isolate metadata/configurationIndex/fromYAMLToXML.test.ts metadata/commonObjects/internalInfo
 pnpm duplicates -- --base 54b32c509
 ```
 
@@ -264,8 +264,8 @@ expect(exported.AdditionalFields).toEqual({})
 Run:
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts
-pnpm --filter @nakidka/rules exec vitest run --project integration --no-isolate metadata/importFromXml/importConfiguration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/importFromXml/importConfiguration.test.ts
 ```
 
 Expected: `Comment` и/или scalar tag теряются на полном пути.
@@ -290,8 +290,8 @@ comment: stringRule({
 Run:
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts metadata/commonObjects/additionalIndex/fromYAMLToXML.test.ts
-pnpm --filter @nakidka/rules exec vitest run --project integration --no-isolate metadata/importFromXml/importConfiguration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts metadata/commonObjects/additionalIndex/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/importFromXml/importConfiguration.test.ts
 pnpm duplicates -- --base 54b32c509
 ```
 
@@ -324,15 +324,15 @@ git commit -m "fix: :bug: восстанавливать обязательны�
 Run:
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project integration --no-isolate metadata/fullSyncToXml/snapshotBuilder.test.ts metadata/partialSyncToXml/preparePartialXmlSyncPackage.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/fullSyncToXml/snapshotBuilder.test.ts metadata/partialSyncToXml/preparePartialXmlSyncPackage.test.ts
 ```
 
 - [ ] **Step 2: Запустить целевые проверки областей**
 
 ```bash
-pnpm --filter @nakidka/rules exec vitest run --project unit --no-isolate metadata/configurationIndex metadata/commonObjects/internalInfo
-pnpm --filter @nakidka/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm metadata/commonObjects/additionalIndex
-pnpm --filter @nakidka/rules exec vitest run --project integration --no-isolate metadata/importFromXml metadata/fullSyncToXml metadata/forms/clientApplicationForm
+pnpm --filter @nkdk/rules exec vitest run --project unit --no-isolate metadata/configurationIndex metadata/commonObjects/internalInfo
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm metadata/commonObjects/additionalIndex
+pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/importFromXml metadata/fullSyncToXml metadata/forms/clientApplicationForm
 ```
 
 - [ ] **Step 3: Запустить обязательные проверки проекта**
