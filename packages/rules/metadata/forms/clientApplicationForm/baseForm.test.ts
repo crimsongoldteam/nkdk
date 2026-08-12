@@ -22,6 +22,7 @@ import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
+import type { FormAttributeXML } from "../commonObjects/formAttribute/types"
 
 const formAddress = "Справочник.Товары.Форма.ФормаЭлемента"
 
@@ -286,16 +287,11 @@ describe("client application BaseForm", () => {
       })
   })
 
-  it("rejects a borrowed table attribute when its cf column has no xmlId", () => {
+  it("назначает xmlId заимствованной колонке, если его нет в cf и cfe", () => {
     const tableAddress = childUid(
       formAddress,
       "Атрибут",
       "Таблица"
-    )
-    const columnAddress = childUid(
-      tableAddress,
-      "Колонка",
-      "Значение"
     )
     const baseIndex = reader({
       componentPath: "cf",
@@ -319,15 +315,21 @@ describe("client application BaseForm", () => {
       },
     } as ClientApplicationFormYAML
 
-    expect(() =>
-      buildClientApplicationBaseForm({
-        context,
-        baseIndex,
-        baseYaml: yaml,
-        extensionYaml: yaml,
-        formName: "ФормаЭлемента",
-      })
-    ).toThrow(columnAddress)
+    const baseForm = buildClientApplicationBaseForm({
+      context,
+      baseIndex,
+      baseYaml: yaml,
+      extensionYaml: yaml,
+      formName: "ФормаЭлемента",
+    })
+    const attributes = baseForm.Attributes?.Attribute
+    const attribute = (Array.isArray(attributes) ? attributes[0] : attributes) as FormAttributeXML | undefined
+    const columns = attribute?.Columns?.Column
+    const column = Array.isArray(columns) ? columns[0] : columns
+
+    expect(attribute?._id).toBe("1000001")
+    expect(column?._id).toMatch(/^\d+$/)
+    expect(column?._id).not.toBe(attribute?._id)
   })
 
   it("intersects state of nested items outside the root element tree", () => {

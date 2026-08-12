@@ -2,7 +2,7 @@ import fs from "fs"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 
-import { EMPTY_XML_TAG_VALUE, importFromYAML, markYAMLScalarTag } from "@nkdk/runtime"
+import { childSegmentUid, childUid, EMPTY_XML_TAG_VALUE, importFromYAML, markYAMLScalarTag } from "@nkdk/runtime"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
@@ -250,8 +250,9 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       targetProjectPath: "Справочники/Товары/Формы/ФормаЭлемента.yaml",
     })
 
+    const context = contexts.exportContext()
     const result = convertClientApplicationFormFromYAMLToXML({
-      context: contexts.exportContext(),
+      context,
       yaml: {
         Элементы: {
           Поле: { Вид: "ПолеВвода" },
@@ -260,13 +261,31 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       name: "ФормаЭлемента",
     })
 
-    expect(result.formXML.AutoCommandBar).toMatchObject({
+    const autoCommandBar = result.formXML.AutoCommandBar as Record<string, unknown>
+    const inputField = elementByName(result.formXML, "Поле")
+    expect(autoCommandBar).toMatchObject({
       _name: "ФормаКоманднаяПанель",
+      _id: "-1",
     })
-    expect(elementByName(result.formXML, "Поле")).toMatchObject({
+    expect(inputField).toMatchObject({
       ContextMenu: { _name: "ПолеКонтекстноеМеню" },
       ExtendedTooltip: { _name: "ПолеРасширеннаяПодсказка" },
     })
+    const formAddress = "Справочник.Товары.Форма.ФормаЭлемента"
+    const inputAddress = childUid(formAddress, "Элемент", "Поле")
+    const identities = new Map(
+      context.exportToXML.configurationIndex?.collector
+        .fragment("Справочники/Товары/Формы/ФормаЭлемента.yaml")
+        .entities.map((entity) => [entity.logicalAddress, entity.identities?.xmlId]),
+    )
+    expect(identities.get(childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"))).toBe("-1")
+    expect(identities.get(inputAddress)).toBe(inputField._id)
+    expect(identities.get(childSegmentUid(inputAddress, "КонтекстноеМеню"))).toBe(
+      (inputField.ContextMenu as Record<string, unknown>)._id,
+    )
+    expect(identities.get(childSegmentUid(inputAddress, "РасширеннаяПодсказка"))).toBe(
+      (inputField.ExtendedTooltip as Record<string, unknown>)._id,
+    )
   })
 
   it("формирует дополнительные колонки реквизита без модели", () => {

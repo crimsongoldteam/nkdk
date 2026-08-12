@@ -22,6 +22,7 @@ import { defineMetadataRules } from "../definition"
 import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
 import { readExplicitElementXMLName } from "./explicitName"
+import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
 export {
   defineElementRule,
   getElementRule,
@@ -85,10 +86,18 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
             ? _name
             : extra.name
         ),
-      _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? params.directId ?? String(extra.id ?? "")),
+      _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
       ...properties,
     }
-    return params.transformOutput?.({ ...outputParams, xml: result }) ?? result
+    const transformed = params.transformOutput?.({ ...outputParams, xml: result }) ?? result
+    if (transformed !== null && typeof transformed === "object" && !Array.isArray(transformed)) {
+      registerFormXmlIdReservation(transformed, {
+        ...(runtime === undefined ? {} : { runtime }),
+        space: "elements",
+        ...(params.directId === undefined ? {} : { specialId: params.directId }),
+      })
+    }
+    return transformed
   },
 })
 
