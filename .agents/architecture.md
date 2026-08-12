@@ -30,7 +30,6 @@
 | <a id="term-runtime"></a>Среда метаданных | Собранные для одного процесса правила, проверки, операции, состояние проекта и набор воркеров. |
 | <a id="term-state"></a>Состояние проекта | Восстанавливаемые хэши, результаты проверки отдельных файлов и общие индексы всего проекта. В памяти публикуется неизменяемыми общими буферами. |
 | <a id="term-snapshot"></a>Снимок компонента | Двоичный результат импорта или синхронизации: хэши файлов и сведения, необходимые для точного восстановления XML. |
-| <a id="term-pending-sync"></a>Ожидающее состояние синхронизации | ZIP, снимок-кандидат и устойчивая фаза доставки `prepared`, `transferring` или `applied`, которая защищает информационную базу от опасной повторной загрузки. |
 | <a id="term-file-check"></a>Проверка файла | Проверка синтаксиса, JSON Schema и правил, зависящих только от одного YAML. |
 | <a id="term-reference-check"></a>Проверка связей | Проверка межфайловых ссылок по общему индексу всего проекта. |
 
@@ -67,9 +66,9 @@ flowchart TD
 
 | Пакет | Ответственность в частичной синхронизации с информационной базой |
 |---|---|
-| `@nkdk/rules` | Актуализация Проекта, план XML, ZIP, снимок-кандидат и переходы ожидающего состояния |
-| `@nkdk/platform` | Сессия агента, staging ZIP, команда 1С, результат передачи и `platform.log` |
-| `@nkdk/mcp` | Последовательность публичной операции и преобразование результата в MCP-ответ |
+| `@nkdk/rules` | Актуализация Проекта, план XML, ZIP, подготовленный снимок и состояние передачи |
+| `@nkdk/platform` | Сессия агента, служебная копия ZIP, команда 1С, результат передачи и журнал платформы |
+| `@nkdk/mcp` | Последовательность операции и публичный ответ |
 
 ## Переиспользование
 
@@ -287,49 +286,43 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  request["@nkdk/mcp<br/>Принять sync_to_infobase"]
-  phase{"Фаза ожидающего<br/>состояния?"}
+  state["Прочитать ожидающее<br/>состояние"]
+  phase{"Состояние передачи?"}
+  validate[["Актуализировать проект"]]
+  target[["Сверить компонент<br/>с его снимком"]]
+  changes["Найти изменения<br/>относительно снимка"]
+  work{"Есть изменения<br/>для передачи?"}
+  impact["Расширить выборку<br/>по топологии и ссылкам"]
+  plan[["Построить план<br/>выгрузки XML"]]
 
-  subgraph preparePackage["@nkdk/rules · подготовка пакета"]
-    direction TD
-    validate[["Актуализировать проект"]]
-    target[["Сверить компонент<br/>с его снимком"]]
-    changes["Найти изменения<br/>относительно снимка"]
-    work{"Есть изменения<br/>или migration?"}
-    impact["Расширить выборку<br/>по топологии и ссылкам"]
-    plan[["Построить план<br/>выгрузки XML"]]
-
-    subgraph partialSyncJob["Воркер"]
-      direction LR
-      readYaml["Прочитать YAML"] --> toXml[["Преобразовать YAML → XML"]] --> document["Вернуть XML-документы"] --> fragment["Вернуть фрагмент снимка"]
-    end
-
-    archive["Потоково записать ZIP<br/>и load.lst"]
-    prepared["Сохранить снимок-кандидат<br/>и фазу prepared"]
-
-    validate --> target --> changes --> work
-    work -- "да" --> impact --> plan --> partialSyncJob --> archive --> prepared
+  subgraph partialSyncJob["Воркер"]
+    direction LR
+    readYaml["Прочитать YAML"] --> toXml[["Преобразовать YAML → XML"]] --> document["Вернуть XML-документы"] --> fragment["Вернуть фрагмент снимка"]
   end
 
-  noChanges["@nkdk/mcp<br/>Вернуть unchanged"]
-  transferring["@nkdk/rules<br/>Атомарно записать transferring"]
-  load["@nkdk/platform<br/>Передать ZIP агенту,<br/>загрузить и записать журнал"]
+  archive["Потоково записать ZIP"]
+  prepared["Сохранить подготовленный снимок<br/>и состояние «готово»"]
+  noChanges["Вернуть отсутствие изменений"]
+  transferring["Записать состояние<br/>«передаётся»"]
+  load["Загрузить ZIP через<br/>агент Конфигуратора"]
   outcome{"Результат передачи?"}
-  retry["@nkdk/rules<br/>Вернуть prepared"]
-  unknown["Сохранить transferring<br/>и запретить повтор"]
-  applied["@nkdk/rules<br/>Атомарно записать applied"]
-  publish[["@nkdk/rules<br/>Проверить пакет и снимки,<br/>опубликовать кандидат"]]
-  result["@nkdk/mcp<br/>Вернуть результат"]
+  retry["Вернуть состояние<br/>«готово»"]
+  unknown["Сохранить состояние «передаётся»<br/>и запретить повтор"]
+  applied["Записать состояние<br/>«применено»"]
+  publish[["Опубликовать подготовленный снимок<br/>и очистить ожидающее состояние"]]
+  result["Вернуть результат"]
 
-  request --> phase
-  phase -- "нет пакета или prepared" --> validate
-  phase -- "transferring" --> unknown --> result
-  phase -- "applied" --> publish --> result
+  state --> phase
+  phase -- "нет пакета или готово" --> validate
+  phase -- "передаётся" --> unknown --> result
+  phase -- "применено" --> publish --> result
+  validate --> target --> changes --> work
   work -- "нет" --> noChanges
+  work -- "да" --> impact --> plan --> partialSyncJob --> archive --> prepared
   prepared --> transferring --> load --> outcome
   outcome -- "явный отказ" --> retry --> result
   outcome -- "неизвестен" --> unknown
-  outcome -- "успех" --> applied --> publish
+  outcome -- "успех" --> applied --> publish --> result
   style partialSyncJob stroke-dasharray: 7 5
 ```
 
