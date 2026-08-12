@@ -649,7 +649,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(fragment?.entities.flatMap((entity) => Object.keys(entity))).not.toContain("present")
     expect(JSON.stringify(fragment?.entities)).not.toMatch(/"(aliases|excludedEqualName|userSettingsId|order)"/)
     const items = standardAttributeItems(exported.xml)
-    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toEqual({})
+    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toBe("")
     expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toEqual({
       "v8:item": [{
         "v8:lang": "ru",

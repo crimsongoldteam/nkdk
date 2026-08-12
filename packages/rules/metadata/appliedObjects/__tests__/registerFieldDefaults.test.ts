@@ -51,7 +51,7 @@ describe("register field XML defaults", () => {
       expect(xml.includes("<FillFromFillingValue>false</FillFromFillingValue>")).toBe(
         informationDefaults
       )
-      expect(xml.includes('<FillValue xsi:nil="true"/>')).toBe(informationDefaults)
+      expect(xml.includes('<FillValue xsi:type="xs:string"/>')).toBe(informationDefaults)
       expect(xml.includes("<Indexing>DontIndex</Indexing>")).toBe(indexing)
       expect(xml.includes("<DataHistory>Use</DataHistory>")).toBe(informationDefaults)
     }

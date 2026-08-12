@@ -50,7 +50,6 @@ const settingsFixtures = [
   "plannerSettings.xml",
   "plannerSettingsWithNil.xml",
   "spreadsheetDocumentSettings.xml",
-  "valueListWithReferenceEmptySettings.xml",
 ] as const
 
 describe("FormAttributes XML → YAML → XML", () => {

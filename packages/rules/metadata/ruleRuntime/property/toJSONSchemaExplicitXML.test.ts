@@ -23,7 +23,7 @@ import { explicitAdditionalFieldsRules } from "../../commonObjects/indexField/ex
 import { explicitEmptyAttributesRules } from "../../forms/clientApplicationForm/explicitEmptyAttributes"
 import { explicitEmptyFormElementTitleRules } from "../../forms/clientApplicationForm/explicitEmptyTitle"
 import { explicitEmptyPredefinedExtDimensionTypesRules } from "../../appliedObjects/metadataChartOfAccounts/predefined/rules"
-import { formAttributeValueTypeSettingsRules } from "../../forms/commonObjects/formAttribute/settings"
+import { formAttributeValueTypeSettingsRules } from "../../forms/commonObjects/formAttribute/valueListSettings"
 import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
 import { LabelDecorationRules } from "../../forms/elements/labelDecoration/rules"
 import { ChartOfAccountsPredefinedItemRules } from "../../appliedObjects/metadataChartOfAccounts/predefined/rules"
@@ -98,12 +98,17 @@ describe("explicit XML property validation schema", () => {
       ...formAttributeValueTypeSettingsRules.explicitXMLProperties,
     }
     const execution = explicitXMLExecution(explicitXMLProperties)
-    const rule = sourceRule as MetadataItemRule
+    const completeRule = sourceRule as MetadataItemRule
+    const propertyEntry = Object.entries(completeRule.properties).find(([, property]) => property.yaml === yamlKey)
+    if (propertyEntry === undefined) throw new Error(`Не найдено правило свойства ${yamlKey}`)
+    const [propertyKey, property] = propertyEntry
+    const rule = {
+      itemType: completeRule.itemType,
+      properties: { [propertyKey]: property },
+    } as MetadataItemRule
     const otherOwner = { ...rule, itemType: `${rule.itemType}Other` } as MetadataItemRule
     const accepted = explicitXMLSchemas(rule, execution)
     const acceptedProperty = accepted.validationProperties[yamlKey]
-    const propertyKey = Object.entries(rule.properties).find(([, property]) => property.yaml === yamlKey)?.[0]
-    if (propertyKey === undefined) throw new Error(`Не найдено правило свойства ${yamlKey}`)
 
     if (acceptedProperty !== undefined) {
       expect(compileValidationSchema(accepted.validationSchemas(), acceptedProperty).Check(EMPTY_XML_TAG_VALUE)).toBe(true)

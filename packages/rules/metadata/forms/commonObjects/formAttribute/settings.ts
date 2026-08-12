@@ -1,8 +1,4 @@
-import {
-  ConfigurationContextFromXML,
-  ConfigurationContextWithExportToXML,
-  EMPTY_XML_TAG_VALUE,
-} from "@nkdk/runtime"
+import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { importPropertyFromXML } from "../../../ruleRuntime/property/fromXML"
 import { callAtomicToXML } from "../../../ruleRuntime/property/fromYAMLToXML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
@@ -10,46 +6,6 @@ import "../flowchartContext/types"
 import "../ganttChart/types"
 import "../planner/types"
 import type { FormAttribute, FormAttributeXML } from "./types"
-import { defineMetadataRules } from "../../../ruleRuntime/definition"
-import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
-
-export const formAttributeValueTypeSettingsRules = defineMetadataRules({
-  ...emptyMetadataRules,
-  explicitXMLProperties: {
-    missingValueListSettings: {
-      action: "omit",
-      itemType: "FormAttribute",
-      propertyKey: "valueType",
-      yamlValue: EMPTY_XML_TAG_VALUE,
-    },
-  },
-})
-
-export function hasSoleValueListType(xml: Record<string, unknown>): boolean {
-  if (xml.Settings !== undefined) return false
-  const type = xml.Type
-  if (type === null || typeof type !== "object" || Array.isArray(type)) return false
-  const raw = (type as Record<string, unknown>)["v8:Type"]
-  const values = Array.isArray(raw) ? raw : raw === undefined ? [] : [raw]
-  return values.length === 1 && values[0] === "v8:ValueListType"
-}
-
-export function addCanonicalValueListSettings(
-  xml: Record<string, unknown>,
-  yaml: unknown,
-): Record<string, unknown> {
-  if (yaml === null || typeof yaml !== "object" || Array.isArray(yaml)) return xml
-  const item = yaml as Record<string, unknown>
-  if (
-    item.Тип === "СписокЗначений" &&
-    !Object.prototype.hasOwnProperty.call(item, "ТипЗначения") &&
-    xml.Settings === undefined
-  ) {
-    return { ...xml, Settings: { "_xsi:type": "v8:TypeDescription" } }
-  }
-  return xml
-}
-
 const chartSettingsRule = {
   type: "Chart",
   xml: "Settings",

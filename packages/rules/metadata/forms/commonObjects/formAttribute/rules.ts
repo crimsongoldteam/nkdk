@@ -20,7 +20,7 @@ import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
-import { addCanonicalValueListSettings } from "./settings"
+import { addCanonicalValueListSettings } from "./valueListSettings"
 
 const formAttributeTitleRule = i8nTextRule({
   yaml: "Заголовок",

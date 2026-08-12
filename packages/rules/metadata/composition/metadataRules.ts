@@ -69,7 +69,7 @@ import { explicitAdditionalFieldsRules } from "../commonObjects/indexField/expli
 import { explicitEmptyAttributesRules } from "../forms/clientApplicationForm/explicitEmptyAttributes"
 import { explicitEmptyFormElementTitleRules } from "../forms/clientApplicationForm/explicitEmptyTitle"
 import { explicitEmptyPredefinedExtDimensionTypesRules } from "../appliedObjects/metadataChartOfAccounts/predefined/rules"
-import { formAttributeValueTypeSettingsRules } from "../forms/commonObjects/formAttribute/settings"
+import { formAttributeValueTypeSettingsRules } from "../forms/commonObjects/formAttribute/valueListSettings"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,

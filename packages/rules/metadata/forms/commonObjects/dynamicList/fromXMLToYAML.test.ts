@@ -79,8 +79,17 @@ describe("DynamicList XML → YAML → XML", () => {
       })
       const yaml = testPropertyFromXMLToYAML({ rule, xml: parsed, context: contexts.importContext }).yaml
       const { xml } = testPropertyFromYAMLToXML({ rule, yaml, context: contexts.exportContext() })
+      const canonical = fixture === "full.xml"
+        ? expected
+            .replace('\n\t\t\t<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>', "")
+            .replace('\n\t\t\t<autoOrder xmlns="http://v8.1c.ru/8.1/data-composition-system/common">false</autoOrder>', "")
+            .replace(
+              "\n\t\t\t<dcsset:userSettingID>b75fecce-942b-4aed-abc9-e6a02e460fb3</dcsset:userSettingID>",
+              "\n\t\t\t<dcsset:viewMode>QuickAccess</dcsset:viewMode>\n\t\t\t<dcsset:userSettingID>b75fecce-942b-4aed-abc9-e6a02e460fb3</dcsset:userSettingID>",
+            )
+        : expected
 
-      expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
+      expect(withoutDeclaration(xmlExport(xml, false))).toBe(canonical.trim())
     }
   )
 

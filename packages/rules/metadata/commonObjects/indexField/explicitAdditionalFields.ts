@@ -11,5 +11,11 @@ export const explicitAdditionalFieldsRules = defineMetadataRules({
       yamlValue: EMPTY_XML_TAG_VALUE,
       xmlValue: {},
     },
+    additionalIndexItemAdditionalFields: {
+      itemType: "AdditionalIndexItem",
+      propertyKey: "additionalFields",
+      yamlValue: EMPTY_XML_TAG_VALUE,
+      xmlValue: {},
+    },
   },
 })

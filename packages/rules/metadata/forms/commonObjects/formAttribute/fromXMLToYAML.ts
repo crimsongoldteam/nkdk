@@ -8,7 +8,7 @@ import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCursor"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
-import { hasSoleValueListType } from "./settings"
+import { hasSoleValueListType } from "./valueListSettings"
 
 export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml, traversal }) => {
   const source = asRecord(xml)?.Attribute ?? xml
