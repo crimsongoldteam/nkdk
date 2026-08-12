@@ -98,6 +98,7 @@ export function createPlatformSessionManager(
         }
         return session.loadPartialConfiguration(
           params.archivePath,
+          params.loadTargets,
           operationLog,
           params.extensionName,
           params.signal

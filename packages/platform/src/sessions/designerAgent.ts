@@ -311,7 +311,7 @@ export async function createDesignerAgentSession(
       }
       return parseExtensionPropertyRecords(result.extensionInfo)
     },
-    async loadPartialConfiguration(archivePath, operationLog, extensionName, signal) {
+    async loadPartialConfiguration(archivePath, loadTargets, operationLog, extensionName, signal) {
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
@@ -320,12 +320,15 @@ export async function createDesignerAgentSession(
         archivePath,
         dependencies
       )
+      const loadList = formatLoadList(loadTargets)
       const stagingDir = join(userServiceDir, ".nkdk-load", randomUUID())
       const stagedArchivePath = join(stagingDir, "package.zip")
+      const stagedLoadListPath = join(stagingDir, "load.lst")
       await appendAgentLog(operationLog, "stage=configuration-load status=start")
       try {
         await dependencies.fileSystem.mkdir(stagingDir)
         await dependencies.fileSystem.copyFile(canonicalArchivePath, stagedArchivePath)
+        await dependencies.fileSystem.writeFile(stagedLoadListPath, loadList)
       } catch (cause) {
         await ignoreCleanupError(() => dependencies.fileSystem.rm(stagingDir))
         throw await agentFailure(
@@ -343,7 +346,7 @@ export async function createDesignerAgentSession(
       try {
         await commandSession.run(
           buildLoadPartialConfigurationCommand({
-            archivePath: relativeAgentPath(userServiceDir, stagedArchivePath),
+            stagingDir: relativeAgentPath(userServiceDir, stagingDir),
             ...(extensionName === undefined ? {} : { extensionName }),
           }),
           { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog }
@@ -409,6 +412,24 @@ export async function createDesignerAgentSession(
     },
     cancel: cancelSession,
   }
+}
+
+function formatLoadList(loadTargets: readonly string[]): string {
+  for (const target of loadTargets) {
+    if (target.length === 0
+      || target.startsWith("/")
+      || target.includes("\\")
+      || target.includes("\0")
+      || target.includes("\n")
+      || target.includes("\r")
+      || target.split("/").some((segment) => segment.length === 0 || segment === "." || segment === "..")) {
+      throw new PlatformSessionError(
+        "platform_command_failed",
+        `Некорректный путь в списке частичной загрузки: ${target}`
+      )
+    }
+  }
+  return loadTargets.length === 0 ? "" : `${loadTargets.join("\n")}\n`
 }
 
 async function appendAgentLog(operationLog: PlatformOperationLog, message: string): Promise<void> {

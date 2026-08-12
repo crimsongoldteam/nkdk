@@ -138,12 +138,13 @@ describe("Designer agent session", () => {
     expect(fixture.calls).toContain("shell.run-options timeout=1800000")
   })
 
-  it("copies a project ZIP to agent staging and loads its root list file", async () => {
+  it("copies a project ZIP, writes its load list and uses EDT-compatible paths", async () => {
     const fixture = createFixture()
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
 
     await expect(session.loadPartialConfiguration(
       "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml", "Catalogs/Справочник1/Ext/ObjectModule.bsl"],
       fixture.operationLog,
       "Расширение"
     )).resolves.toEqual({ warnings: [] })
@@ -151,8 +152,12 @@ describe("Designer agent session", () => {
     expect(fixture.calls.find((call) => call.startsWith("copy "))).toMatch(
       /^copy \/project\/\.nkdk\/tmp\/op\/package\.zip \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+\/package\.zip$/u
     )
-    expect(fixture.calls.find((call) => call.startsWith("shell.run config load-config"))).toMatch(
-      /^shell\.run config load-config-from-files --archive="\.nkdk-load\/[^/]+\/package\.zip" --list-file="load\.lst" --format=hierarchical --partial --extension="Расширение"$/u
+    expect([...fixture.writes.entries()].find(([path]) => path.endsWith("/load.lst"))).toEqual([
+      expect.stringMatching(/^\/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+\/load\.lst$/u),
+      "Catalogs/Справочник1.xml\nCatalogs/Справочник1/Ext/ObjectModule.bsl\n",
+    ])
+    expect(fixture.calls.find((call) => call.startsWith("shell.run config load-files"))).toMatch(
+      /^shell\.run config load-files --dir="\.nkdk-load\/[^/]+" --archive="package\.zip" --no-check --list-file="\.nkdk-load\/[^/]+\/load\.lst" --partial --update-config-dump-info --extension="Расширение"$/u
     )
     expect(fixture.calls.findLast((call) => call.startsWith("rm "))).toMatch(
       /^rm \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+$/u
@@ -168,10 +173,26 @@ describe("Designer agent session", () => {
 
     await expect(session.loadPartialConfiguration(
       "/outside/package.zip",
+      ["Catalogs/Справочник1.xml"],
       fixture.operationLog
     )).rejects.toMatchObject({ code: "platform_command_failed" })
     expect(fixture.calls.some((call) => call.startsWith("copy "))).toBe(false)
   })
+
+  it.each(["", "/Catalogs/Справочник1.xml", "../Configuration.xml", "Catalogs\\Справочник1.xml", "Catalogs/a\n.xml"])(
+    "rejects an unsafe partial load target: %j",
+    async (loadTarget) => {
+      const fixture = createFixture()
+      const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+      await expect(session.loadPartialConfiguration(
+        "/project/.nkdk/tmp/op/package.zip",
+        [loadTarget],
+        fixture.operationLog
+      )).rejects.toMatchObject({ code: "platform_command_failed" })
+      expect(fixture.calls.some((call) => call.startsWith("shell.run config load-files"))).toBe(false)
+    }
+  )
 
   it.each([
     ["rejected", "platform_command_failed", "rejected"],
@@ -188,6 +209,7 @@ describe("Designer agent session", () => {
 
     await expect(session.loadPartialConfiguration(
       "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml"],
       fixture.operationLog
     )).rejects.toMatchObject({
       code,
@@ -202,6 +224,7 @@ describe("Designer agent session", () => {
 
     await expect(session.loadPartialConfiguration(
       "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml"],
       fixture.operationLog
     )).resolves.toEqual({
       warnings: ["Не удалось удалить служебную копию ZIP после успешной загрузки"],
@@ -706,7 +729,7 @@ function createFixture(
       ) {
         throw options.extensionListError
       }
-      if (options.loadError !== undefined && command.startsWith("config load-config-from-files")) {
+      if (options.loadError !== undefined && command.startsWith("config load-files")) {
         throw options.loadError
       }
       if (options.dumpFailure === true && command.startsWith("config ")) {

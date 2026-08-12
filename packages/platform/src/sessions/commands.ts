@@ -134,14 +134,17 @@ export function buildListDesignerExtensionsCommand(): string {
 }
 
 export function buildLoadPartialConfigurationCommand(params: {
-  archivePath: string
+  stagingDir: string
   extensionName?: string
 }): string {
+  const stagingDir = interactiveValue(params.stagingDir)
   return [
-    `config load-config-from-files --archive="${interactiveValue(params.archivePath)}"`,
-    '--list-file="load.lst"',
-    "--format=hierarchical",
+    `config load-files --dir="${stagingDir}"`,
+    '--archive="package.zip"',
+    "--no-check",
+    `--list-file="${stagingDir}/load.lst"`,
     "--partial",
+    "--update-config-dump-info",
     ...(params.extensionName === undefined
       ? []
       : [`--extension="${interactiveValue(params.extensionName)}"`]),

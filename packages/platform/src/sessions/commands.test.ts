@@ -201,17 +201,17 @@ describe("platform session commands", () => {
 
   it("builds a partial configuration load command for a configuration or extension", () => {
     expect(
-      buildLoadPartialConfigurationCommand({ archivePath: "staging/package.zip" })
+      buildLoadPartialConfigurationCommand({ stagingDir: "staging" })
     ).toBe(
-      'config load-config-from-files --archive="staging/package.zip" --list-file="load.lst" --format=hierarchical --partial'
+      'config load-files --dir="staging" --archive="package.zip" --no-check --list-file="staging/load.lst" --partial --update-config-dump-info'
     )
     expect(
       buildLoadPartialConfigurationCommand({
-        archivePath: 'staging/package".zip',
+        stagingDir: 'staging"dir',
         extensionName: 'Расширение "Тест"',
       })
     ).toBe(
-      'config load-config-from-files --archive="staging/package"".zip" --list-file="load.lst" --format=hierarchical --partial --extension="Расширение ""Тест"""'
+      'config load-files --dir="staging""dir" --archive="package.zip" --no-check --list-file="staging""dir/load.lst" --partial --update-config-dump-info --extension="Расширение ""Тест"""'
     )
   })
 
@@ -237,12 +237,12 @@ describe("platform session commands", () => {
   })
 
   it.each([
-    { archivePath: "staging/package\0.zip" },
-    { archivePath: "staging/package\n.zip" },
-    { archivePath: "staging/package\r.zip" },
-    { archivePath: "staging/package.zip", extensionName: "Расширение\0" },
-    { archivePath: "staging/package.zip", extensionName: "Расширение\n" },
-    { archivePath: "staging/package.zip", extensionName: "Расширение\r" },
+    { stagingDir: "staging\0dir" },
+    { stagingDir: "staging\ndir" },
+    { stagingDir: "staging\rdir" },
+    { stagingDir: "staging", extensionName: "Расширение\0" },
+    { stagingDir: "staging", extensionName: "Расширение\n" },
+    { stagingDir: "staging", extensionName: "Расширение\r" },
   ])("rejects unsafe partial load command values", (params) => {
     expect(() => buildLoadPartialConfigurationCommand(params)).toThrowError(
       expect.objectContaining<Partial<PlatformSessionError>>({ code: "platform_command_failed" })

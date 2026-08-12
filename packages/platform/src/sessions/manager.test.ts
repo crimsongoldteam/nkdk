@@ -476,6 +476,7 @@ function loadParams(overrides: Partial<LoadPartialConfigurationParams> = {}): Lo
   return {
     projectDir: "/project",
     archivePath: "/project/.nkdk/tmp/op/package.zip",
+    loadTargets: ["Catalogs/Справочник1.xml"],
     logPath: "/project/.nkdk/tmp/op/platform.log",
     connectionString: 'File="/bases/demo";',
     password: "secret",
@@ -579,7 +580,7 @@ function createFixture(
         await options.listHook?.(params.projectDir, listCalls, signal)
         return [listedExtension]
       },
-      async loadPartialConfiguration(archivePath, operationLog, _extensionName, signal) {
+      async loadPartialConfiguration(archivePath, _loadTargets, operationLog, _extensionName, signal) {
         loadedArchives.push(archivePath)
         await operationLog.append("stage=configuration-load status=start")
         await options.loadHook?.(params.projectDir, signal)

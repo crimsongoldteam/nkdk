@@ -58,6 +58,7 @@ export type ListConfigurationExtensionsResult = {
 export type LoadPartialConfigurationParams = NormalizedPlatformConnectionSettings & {
   projectDir: string
   archivePath: string
+  loadTargets: readonly string[]
   logPath: string
   extensionName?: string
   signal?: AbortSignal
@@ -97,6 +98,7 @@ export interface PlatformSession {
   listExtensions(signal?: AbortSignal): Promise<ConfigurationExtensionInfo[]>
   loadPartialConfiguration?(
     archivePath: string,
+    loadTargets: readonly string[],
     operationLog: PlatformOperationLog,
     extensionName?: string,
     signal?: AbortSignal
