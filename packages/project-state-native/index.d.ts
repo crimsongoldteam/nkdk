@@ -5,6 +5,7 @@ export interface SharedBufferProbe {
 
 export function probeSharedBuffer(bytes: Uint8Array): SharedBufferProbe
 export function fillSharedBuffer(bytes: Uint8Array, value: number): void
+export function nativeTestDiagnosticBatch(): Uint8Array<ArrayBuffer>
 
 export interface ProjectStateSections {
   readonly header: Uint8Array
