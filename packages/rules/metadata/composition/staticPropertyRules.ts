@@ -88,7 +88,6 @@ import { metadataPropertyRule002 as rule86 } from "../commonObjects/dataComposit
 import { metadataPropertyRule003 as rule87 } from "../commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind"
 import { metadataPropertyRule004 as rule88 } from "../commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind"
 import { metadataPropertyRule000 as rule89 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/fromXML"
-import { metadataPropertyRule001 as rule90 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/fromXML"
 import { metadataPropertyRule000 as rule91 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/fromYAML"
 import { metadataPropertyRule000 as rule92 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/toJSONSchema"
 import { metadataPropertyRule000 as rule93 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/toYAML"
@@ -469,7 +468,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule87,
   rule88,
   rule89,
-  rule90,
   rule91,
   rule92,
   rule93,

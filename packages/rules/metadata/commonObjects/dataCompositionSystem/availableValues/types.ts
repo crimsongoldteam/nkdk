@@ -3,13 +3,14 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../../ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
-import type { I8nText, I8nTextYAML } from "../../i8nText/types"
+import type { I8nTextYAML } from "../../i8nText/types"
 import type { MetadataDcsMetadataValue, MetadataDcsMetadataValueYAML } from "../dcsMetadataValue/types"
+import type { DcsLocalStringValue } from "../dcsLocalStringType/types"
 
 export interface DcsAvailableValue {
   itemType: "DcsAvailableValue"
   value?: MetadataDcsMetadataValue
-  presentation?: I8nText | string
+  presentation?: DcsLocalStringValue
 }
 
 export interface DcsAvailableValueYAML {
