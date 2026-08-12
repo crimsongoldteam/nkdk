@@ -309,8 +309,8 @@ flowchart TD
   transferring["Отметить начало передачи"]
   load["Загрузить ZIP через<br/>агент Конфигуратора"]
   outcome{"Результат передачи?"}
-  retry["Разрешить повтор"]
-  unknown["Запретить повтор"]
+  failure["Вернуть ошибку загрузки"]
+  unknown["Вернуть неопределённый результат<br/>и запретить повтор"]
   applied["Отметить успешную передачу"]
   publish[["Опубликовать подготовленный снимок<br/>и удалить пакет"]]
   result["Вернуть результат"]
@@ -324,7 +324,7 @@ flowchart TD
   document -- "по мере готовности" --> archive --> prepared
   fragment --> prepared
   prepared --> transferring --> load --> outcome
-  outcome -- "явный отказ" --> retry --> result
+  outcome -- "явный отказ" --> failure
   outcome -- "неизвестен" --> unknown
   outcome -- "успех" --> applied --> publish --> result
   style partialSyncJob stroke-dasharray: 7 5
