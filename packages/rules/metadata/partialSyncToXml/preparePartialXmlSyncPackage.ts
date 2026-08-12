@@ -266,6 +266,8 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
         baseSnapshotGeneration: decodeSharedSnapshot(baseSnapshot).indexGeneration.toString(),
       }),
       candidateAppliedMigrations: params.migration.candidateAppliedNames,
+      entries: archive.entries,
+      loadTargets: params.impact.loadTargets,
       delivery: { status: "prepared" },
     }
     await writePendingPartialXmlSync({ projectDir: params.projectDir, state: pending, candidateBytes })

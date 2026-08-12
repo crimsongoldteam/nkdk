@@ -87,6 +87,8 @@ describe("фазы передачи частичного XML-пакета", () =
       sourceSnapshotGeneration: "1",
       candidateSnapshotHash: hashHex(candidateBytes),
       candidateAppliedMigrations: [],
+      entries: ["Catalogs/Test.xml", "load.lst"],
+      loadTargets: ["Catalogs/Test.xml"],
       delivery: { status: "prepared" },
     }
     await writePendingPartialXmlSync({ projectDir, state, candidateBytes })

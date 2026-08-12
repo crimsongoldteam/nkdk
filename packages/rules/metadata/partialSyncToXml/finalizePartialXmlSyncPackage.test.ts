@@ -175,6 +175,8 @@ describe("фиксация частичной XML-синхронизации", (
       candidateSnapshotHash: hashHex(candidateBytes),
       ...baseIdentity,
       candidateAppliedMigrations,
+      entries: ["Catalogs/Test.xml", "load.lst"],
+      loadTargets: ["Catalogs/Test.xml"],
       delivery: { status: "prepared" },
     }
     await writePendingPartialXmlSync({ projectDir, state, candidateBytes })

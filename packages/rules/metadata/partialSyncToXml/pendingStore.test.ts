@@ -52,10 +52,14 @@ describe("ожидающее состояние частичной XML-синх�
     const state = createState(projectDir, "legacy", candidateBytes)
     const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
     fs.mkdirSync(join(paths.pendingPath, ".."), { recursive: true })
-    const { delivery: _delivery, ...legacy } = state
+    const { delivery: _delivery, entries: _entries, loadTargets: _loadTargets, ...legacy } = state
     fs.writeFileSync(paths.pendingPath, JSON.stringify({ ...legacy, version: 1 }))
 
-    await expect(readPendingPartialXmlSync(projectDir, "cf")).resolves.toEqual(state)
+    await expect(readPendingPartialXmlSync(projectDir, "cf")).resolves.toEqual({
+      ...state,
+      entries: [],
+      loadTargets: [],
+    })
   })
 
   it.each([
@@ -141,6 +145,8 @@ function createState(
     sourceSnapshotGeneration: (decodeConfigurationIndex(candidateBytes).indexGeneration - 1n).toString(),
     candidateSnapshotHash: hashHex(candidateBytes),
     candidateAppliedMigrations: [],
+    entries: ["Catalogs/Test.xml", "load.lst"],
+    loadTargets: ["Catalogs/Test.xml"],
     delivery: { status: "prepared" },
   }
 }

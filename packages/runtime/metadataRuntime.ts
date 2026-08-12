@@ -142,6 +142,8 @@ export interface PendingPartialSyncState {
   readonly baseSnapshotHash?: string
   readonly baseSnapshotGeneration?: string
   readonly candidateAppliedMigrations: readonly string[]
+  readonly entries: readonly string[]
+  readonly loadTargets: readonly string[]
   readonly delivery: PartialSyncDelivery
 }
 

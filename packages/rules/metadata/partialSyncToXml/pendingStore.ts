@@ -29,6 +29,8 @@ export type PartialSyncDelivery =
 
 export interface PendingPartialXmlSyncStateV2 extends Omit<PendingPartialXmlSyncStateV1, "version"> {
   readonly version: 2
+  readonly entries: readonly string[]
+  readonly loadTargets: readonly string[]
   readonly delivery: PartialSyncDelivery
 }
 
@@ -223,12 +225,21 @@ function validatePendingState(value: unknown, expectedComponentPath: string): Pe
   }
   const migrations = value.candidateAppliedMigrations as string[]
   if (new Set(migrations).size !== migrations.length) throw new Error("Повтор migration в pending state")
+  const entries = value.version === 1 ? [] : validateStringList(value.entries, "entries")
+  const loadTargets = value.version === 1 ? [] : validateStringList(value.loadTargets, "loadTargets")
   const delivery = value.version === 1 ? { status: "prepared" as const } : validateDelivery(value.delivery)
-  const state = { ...value, version: 2, delivery } as unknown as PendingPartialXmlSyncStateV2
+  const state = { ...value, version: 2, entries, loadTargets, delivery } as unknown as PendingPartialXmlSyncStateV2
   if (state.archiveProjectPath !== partialXmlSyncArchiveProjectPath(state.componentPath, state.packageId)) {
     throw new Error("Некорректный путь ZIP в pending state")
   }
   return state
+}
+
+function validateStringList(value: unknown, name: string): readonly string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.length === 0)) {
+    throw new Error(`Некорректное поле pending state: ${name}`)
+  }
+  return value as string[]
 }
 
 function validateDelivery(value: unknown): PartialSyncDelivery {
