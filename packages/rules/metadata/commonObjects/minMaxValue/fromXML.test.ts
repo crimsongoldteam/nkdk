@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { serializeYAMLDocument } from "@nkdk/runtime"
-import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { createRuleRegistrySet, type PropertyRule } from "@nkdk/runtime/rule-kit"
 import { exportPropertyToYAML } from "../../ruleRuntime/property/toYAML"
+import { metadataRules } from "../../composition/metadataRules"
 import { mockContext } from "../../../tests/mockContext"
 import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 
@@ -19,6 +20,8 @@ const decimalRule = {
   yaml: "МинимальноеЗначение",
   typedXML: "xs:decimal",
 } as PropertyRule
+
+const execution = createRuleRegistrySet(metadataRules).execution
 
 describe("MinMaxValue XML → YAML", () => {
   it.each([
@@ -49,7 +52,7 @@ describe("MinMaxValue XML → YAML", () => {
 
 function importAndSerialize(rule: PropertyRule, xmlString: string): string {
   const value = testImportPropertyFromXML({ rule, xmlString, xmlRootTag: "MinValue" })
-  const yaml = exportPropertyToYAML({ context: mockContext, rule, value })
+  const yaml = exportPropertyToYAML({ context: mockContext, rule, value, execution })
   if (yaml === undefined) throw new Error("MinMaxValue не экспортирован в YAML")
   return serializeYAMLDocument(yaml).text.trim()
 }

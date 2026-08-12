@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest"
 import { importFromYAML } from "@nkdk/runtime"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { serializeDirectXML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
+import { metadataRules } from "../../composition/metadataRules"
 
 import "./fromYAML"
 import "./toXML"
 
 const stringRule = probeRule("xs:string")
 const decimalRule = probeRule("xs:decimal")
+const execution = createRuleRegistrySet(metadataRules).execution
 
 describe("MinMaxValue YAML → XML", () => {
   it.each([
@@ -17,7 +19,11 @@ describe("MinMaxValue YAML → XML", () => {
     ["МинимальноеЗначение: !xml Raw xs:dateTime bad", stringRule, '<MinValue xsi:type="xs:dateTime">bad</MinValue>'],
     ["МинимальноеЗначение: !xml Raw - bad", stringRule, "<MinValue>bad</MinValue>"],
   ] as const)("exports %s without reference XML", (yamlText, rule, expected) => {
-    const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml: importFromYAML(yamlText) }).xml)
+    const xml = serializeDirectXML(testPropertyFromYAMLToXML({
+      rule,
+      yaml: importFromYAML(yamlText),
+      execution,
+    }).xml)
 
     expect(xml).toContain(expected)
   })
@@ -28,7 +34,11 @@ describe("MinMaxValue YAML → XML", () => {
     "МинимальноеЗначение: !xml Raw",
     "МинимальноеЗначение: !xml Unknown 1",
   ])("rejects invalid transport %s", (yamlText) => {
-    expect(() => testPropertyFromYAMLToXML({ rule: stringRule, yaml: importFromYAML(yamlText) })).toThrow()
+    expect(() => testPropertyFromYAMLToXML({
+      rule: stringRule,
+      yaml: importFromYAML(yamlText),
+      execution,
+    })).toThrow()
   })
 })
 
