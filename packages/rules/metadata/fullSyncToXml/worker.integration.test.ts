@@ -3,6 +3,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { decodeConfigurationIndexFragments } from "@nkdk/runtime"
 import { hashFileBytes } from "@nkdk/runtime"
 import { childSegmentUid, childUid } from "@nkdk/runtime"
 import {
@@ -110,6 +111,9 @@ describe("full XML sync worker", () => {
     }))
 
     expect(batch.writtenFiles.file(0)).toMatchObject({ targetXmlPath: "Catalogs/Товары.xml" })
+    expect(JSON.stringify(decodeConfigurationIndexFragments(batch.fragmentBuffer))).not.toMatch(
+      /"xmlName"|"present"|"xsiNil"|"explicitEmpty"|"xsiType"|"xmlText"|"xmlPrefix"/u,
+    )
     expect(await runFullXmlSyncWorkerCommand({ kind: "finishExecution" })).toBeUndefined()
   })
 

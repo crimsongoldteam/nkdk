@@ -1,6 +1,8 @@
 import { createConfigurationIndexCollector, withConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML } from "../ruleRuntime/property/fromXMLToYAML"
@@ -22,6 +24,7 @@ function expectNoOrdinaryXMLState(index: Pick<ConfigurationSnapshot, "entities">
 
 describe("тонкое содержимое снимка конфигурации", () => {
   it("сохраняет идентификаторы, но не обычное XML-состояние", () => {
+    registerTypeRule("TestInventoryEmptyCollection" as PropertyRuleType, "importFromXMLToYAML", () => [])
     const collector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(
       mockContextFromXML(),
@@ -41,6 +44,12 @@ describe("тонкое содержимое снимка конфигураци�
           defaultValueXMLEmpty: "",
         },
         fillValue: { type: "MetadataValue", xml: "FillValue", yaml: "ЗначениеЗаполнения" },
+        emptyCollection: {
+          type: "TestInventoryEmptyCollection",
+          xml: "EmptyCollection",
+          yaml: "ПустаяКоллекция",
+          defaultValueXMLEmpty: [],
+        },
         nilValue: { type: "MetadataValue", xml: "NilValue", yaml: "ПустоеЗначение" },
         typedValue: { type: "MetadataValue", xml: "TypedValue", yaml: "ТипизированноеЗначение" },
         length: {
