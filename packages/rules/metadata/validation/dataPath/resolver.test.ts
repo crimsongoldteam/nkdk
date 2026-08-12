@@ -1240,7 +1240,7 @@ describe("resolveDataPath", () => {
     }
   })
 
-  it("rejects internal accounting RegisterRecords Account in YAML mode", () => {
+  it("suggests the YAML name for internal accounting RegisterRecords Account", () => {
     const result = resolve("Объект.RegisterRecords.Хозрасчетный.Account", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
       ownerCache: documentWithAccountingRegisterRecords(),
@@ -1250,7 +1250,8 @@ describe("resolveDataPath", () => {
       status: "error",
       diagnostics: [
         expect.objectContaining({
-          message: 'ПутьКДанным "Объект.RegisterRecords.Хозрасчетный.Account": неизвестная колонка "Account"',
+          message:
+            'ПутьКДанным "Объект.RegisterRecords.Хозрасчетный.Account": в YAML используйте "Счет" вместо "Account"',
         }),
       ],
     })

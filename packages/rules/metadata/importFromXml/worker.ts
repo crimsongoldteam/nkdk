@@ -65,10 +65,10 @@ import { equalBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import { normalizeImportedDependentItems } from "./dependentItems"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
-import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplicationForm/importDataPathCompatibility"
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
+import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -417,7 +417,7 @@ async function writePreparedYamlToOutput(
       return withExportMetadataTargetOwners(context, prepared.ownerContext)
     }
   )
-  const originalFormDataPaths = collectImportedFormDataPaths(prepared.yaml, prepared.rule.itemType)
+  const originalFormDataPaths = collectImportedFormDataPaths(prepared.yaml, prepared.rule)
   profiler.measure(
     "Подготовка импорта конфигурации",
     "Уточнение отложенных значений YAML",
@@ -433,7 +433,7 @@ async function writePreparedYamlToOutput(
   )
   finalizeImportedFormDataPaths({
     yaml: prepared.yaml,
-    itemType: prepared.rule.itemType,
+    rule: prepared.rule,
     originalOccurrences: originalFormDataPaths,
     formDataPathIndex: prepared.formDataPathIndex,
     ownerMetadataCache,
@@ -547,10 +547,7 @@ function prepareBaseFormCandidate(params: {
   if (params.currentConfigurationYAML === undefined) {
     throw new Error(`Не найдена текущая форма cf для ${params.candidate.baseProjectPath}`)
   }
-  const originalFormDataPaths = collectImportedFormDataPaths(
-    params.candidate.yaml,
-    params.candidate.rule.itemType,
-  )
+  const originalFormDataPaths = collectImportedFormDataPaths(params.candidate.yaml, params.candidate.rule)
   finalizeImportedYamlValues({
     yaml: params.candidate.yaml,
     rootRule: params.candidate.rule,
@@ -560,7 +557,7 @@ function prepareBaseFormCandidate(params: {
   })
   finalizeImportedFormDataPaths({
     yaml: params.candidate.yaml,
-    itemType: params.candidate.rule.itemType,
+    rule: params.candidate.rule,
     originalOccurrences: originalFormDataPaths,
     formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
     ownerMetadataCache: params.ownerMetadataCache,
@@ -605,22 +602,24 @@ async function writePreparedBaseFormCandidate(params: {
   }
 }
 
-function collectImportedFormDataPaths(yaml: unknown, itemType: string) {
-  return itemType === "ClientApplicationForm"
-    ? collectFormDataPathOccurrencesFromYAML({ yaml, rule: ClientApplicationFormRules })
-    : []
+function collectImportedFormDataPaths(yaml: unknown, rule: PreparedImportYaml["rule"]) {
+  const form = importedClientApplicationForm({ yaml, rule })
+  return form === undefined
+    ? []
+    : collectFormDataPathOccurrencesFromYAML(form)
 }
 
 function finalizeImportedFormDataPaths(params: {
   yaml: unknown
-  itemType: string
+  rule: PreparedImportYaml["rule"]
   originalOccurrences: ReturnType<typeof collectImportedFormDataPaths>
   formDataPathIndex: DeferredImportYaml["formDataPathIndex"]
   ownerMetadataCache: OwnerMetadataCache
 }): void {
-  if (params.itemType !== "ClientApplicationForm" || params.formDataPathIndex === undefined) return
+  const form = importedClientApplicationForm({ yaml: params.yaml, rule: params.rule })
+  if (form === undefined || params.formDataPathIndex === undefined || params.originalOccurrences.length === 0) return
   finalizeImportedFormDataPathCompatibility({
-    yaml: params.yaml,
+    yaml: form.yaml,
     originalOccurrences: params.originalOccurrences,
     index: params.formDataPathIndex,
     ownerCache: params.ownerMetadataCache,
@@ -788,7 +787,7 @@ async function processFirstPass(
         assignmentFiles.push(...externalFiles)
         const requiresFormDataPathCompatibility = collectImportedFormDataPaths(
           prepared.yaml,
-          prepared.rule.itemType,
+          prepared.rule,
         ).some((occurrence) => occurrence.rule.allowedKinds !== undefined && occurrence.rule.yaml === "ПутьКДанным")
         if (
           prepared.deferred.length === 0

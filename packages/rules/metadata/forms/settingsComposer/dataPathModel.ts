@@ -111,6 +111,7 @@ export const settingsComposerTableKinds = [
 ] as const
 
 export const settingsComposerValueFieldKinds = [
+  "DataCompositionStructure",
   "DataCompositionFilter",
   "DataCompositionGroupFields",
   "DataCompositionSelection",

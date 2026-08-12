@@ -13,6 +13,12 @@ import { createProjectYamlCache } from "./projectYamlCache"
 import { validateForm } from "./validateForm"
 import { createPropertyRuleRegistrySet, withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { metadataRules } from "../composition/metadataRules"
+import {
+  createMetadataExecutionRegistrySets,
+  withMetadataExecutionRegistrySets,
+} from "../composition/metadataExecutionContext"
+
+const metadataRegistries = createMetadataExecutionRegistrySets(metadataRules)
 
 describe("validateForm", () => {
   const tempDirs: string[] = []
@@ -1909,6 +1915,28 @@ describe("validateForm", () => {
     })
 
     expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("отклоняет зарегистрированное внутреннее имя SettingsComposer в YAML", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  КомпоновщикНастроек:",
+        "    Тип: КомпоновщикНастроекКомпоновкиДанных",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: КомпоновщикНастроек.Settings",
+      ],
+    })
+
+    expect(withMetadataExecutionRegistrySets(metadataRegistries, () => runValidateForm(project))).toEqual([
+      expect.objectContaining({
+        path: "/Элементы/Таблица/ПутьКДанным",
+        severity: "error",
+        message: expect.stringContaining('в YAML используйте "Настройки" вместо "Settings"'),
+      }),
+    ])
   })
 
   it("rejects a type-dependent Table property for an unsupported SettingsComposer collection", () => {

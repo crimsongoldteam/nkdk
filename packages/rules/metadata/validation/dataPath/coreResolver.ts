@@ -57,6 +57,7 @@ export type ResolveDataPathCoreIssueCode =
   | "current_data_unsupported"
   | "current_data_source_missing"
   | "internal_service_name_in_yaml"
+  | "internal_standard_member_in_yaml"
   | "tilde_variant"
   | "platform_source"
   | "table_context_mismatch"
@@ -992,7 +993,14 @@ function resolveRegisteredColumn(params: {
     column?.targetName === params.segment &&
     column.name !== params.segment
   ) {
-    return { status: "ok" }
+    return {
+      status: "error",
+      result: error(
+        params.params,
+        `ПутьКДанным "${params.params.value}": в YAML используйте "${column.name}" вместо "${params.segment}"`,
+        "internal_standard_member_in_yaml",
+      ),
+    }
   }
   return {
     status: "ok",
