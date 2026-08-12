@@ -20,6 +20,7 @@ import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
+import { addCanonicalValueListSettings } from "./settings"
 
 const formAttributeTitleRule = i8nTextRule({
   yaml: "Заголовок",
@@ -227,9 +228,12 @@ export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   keyField: "name",
   configurationIndexUidSegment: "Атрибут",
   requiredIdentity: "xmlId",
-  mapItemOutput: ({ xml }) => {
+  mapItemOutput: ({ xml, yaml }) => {
     const { _name, _id, ...properties } = xml
-    return { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+    return addCanonicalValueListSettings(
+      { _name, _id: typeof _id === "string" ? _id : "", ...properties },
+      yaml,
+    )
   },
 })
 

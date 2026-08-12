@@ -8,6 +8,7 @@ import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCursor"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
+import { hasSoleValueListType } from "./settings"
 
 export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml, traversal }) => {
   const source = asRecord(xml)?.Attribute ?? xml
@@ -37,6 +38,7 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
     if (yamlValue === undefined) continue
     const yaml = asRecord(yamlValue)
     if (yaml === undefined) throw new Error(`Реквизит формы ${name} должен преобразовываться в YAML-объект`)
+    if (!hasSoleValueListType(item)) delete yaml.ТипЗначения
 
     const columns = importColumnsFromXMLToYAML({
       context: itemContext,

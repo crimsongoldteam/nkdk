@@ -374,6 +374,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 
   it("восстанавливает пустой контейнер реквизитов без reference XML", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
+    form.Form.Attributes = {}
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "minimalMetadata.xml")
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.Минимальная",
@@ -385,6 +386,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       formXML: form.Form,
       metadataXML: metadata.MetaDataObject,
     })
+    expect(imported.yaml).toHaveProperty("Реквизиты", EMPTY_XML_TAG_VALUE)
+    expect(yamlScalarTagAt(imported.yaml, "Реквизиты")).toBe("xml")
     const converted = convertClientApplicationFormFromYAMLToXML({
       context: contexts.exportContext(),
       yaml: imported.yaml as ClientApplicationFormYAML,

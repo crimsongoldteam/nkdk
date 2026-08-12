@@ -11,7 +11,7 @@ import { ExtendedTooltipRules } from "../extendedTooltip/rules"
 import { TableLabelFieldRules } from "../labelField/rules"
 import { TablePictureFieldRules } from "../pictureField/rules"
 import { GraphicalSchemaFieldRules } from "../graphicalSchemaField/rules"
-import { exportToYAML } from "@nkdk/runtime"
+import { EMPTY_XML_TAG_VALUE, exportToYAML, yamlScalarTagAt } from "@nkdk/runtime"
 
 import "../index"
 
@@ -251,20 +251,19 @@ describe("элементы формы XML → YAML → XML", () => {
   it("сохраняет пустой форматированный заголовок ExtendedTooltip без reference", () => {
     const yaml = testMetadataItemFromXMLToYAML({
       rule: ExtendedTooltipRules,
-      xml: { _name: "ПолеРасширеннаяПодсказка", Title: { _formatted: true } },
+      xml: { _name: "ПолеРасширеннаяПодсказка", Title: { _formatted: "true" } },
       name: "ПолеРасширеннаяПодсказка",
     }).yaml
 
-    expect(yaml).toMatchObject({
-      Заголовок: { Форматированный: "Истина", Текст: "" },
-    })
+    expect(yaml).toHaveProperty("Заголовок", EMPTY_XML_TAG_VALUE)
+    expect(yamlScalarTagAt(yaml, "Заголовок")).toBe("xml")
     expect(
       testMetadataItemFromYAMLToXML({
         rule: ExtendedTooltipRules,
         yaml,
         name: "ПолеРасширеннаяПодсказка",
       }).xml
-    ).toHaveProperty("Title", { _formatted: true })
+    ).toHaveProperty("Title", { _formatted: "true" })
   })
 
   it("не создаёт отсутствующий заголовок ExtendedTooltip", () => {

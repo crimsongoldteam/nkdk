@@ -154,7 +154,6 @@ import { metadataPropertyRule000 as rule153 } from "../commonObjects/i8nText/fro
 import { metadataPropertyRule000 as rule154 } from "../commonObjects/i8nText/toJSONSchema"
 import { metadataPropertyRule000 as rule155 } from "../commonObjects/i8nText/toYAML"
 import { metadataPropertyRule000 as rule156 } from "../commonObjects/indexField/fromXML"
-import { metadataPropertyRule001 as rule157 } from "../commonObjects/indexField/fromXML"
 import { metadataPropertyRule000 as rule158 } from "../commonObjects/indexField/fromYAML"
 import { metadataPropertyRule000 as rule159 } from "../commonObjects/indexField/toJSONSchema"
 import { metadataPropertyRule000 as rule160 } from "../commonObjects/indexField/toXML"
@@ -534,7 +533,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule154,
   rule155,
   rule156,
-  rule157,
   rule158,
   rule159,
   rule160,

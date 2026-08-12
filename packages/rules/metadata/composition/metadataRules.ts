@@ -65,6 +65,11 @@ import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenD
 import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
 import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
 import { dcsParameterExplicitUndefinedRules } from "../commonObjects/dataCompositionSystem/dcsParameter/explicitUndefined"
+import { explicitAdditionalFieldsRules } from "../commonObjects/indexField/explicitAdditionalFields"
+import { explicitEmptyAttributesRules } from "../forms/clientApplicationForm/explicitEmptyAttributes"
+import { explicitEmptyFormElementTitleRules } from "../forms/clientApplicationForm/explicitEmptyTitle"
+import { explicitEmptyPredefinedExtDimensionTypesRules } from "../appliedObjects/metadataChartOfAccounts/predefined/rules"
+import { formAttributeValueTypeSettingsRules } from "../forms/commonObjects/formAttribute/settings"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -121,6 +126,11 @@ export const legacyCoreRules = composeMetadataRules(
   childFormNamesPropertyRules,
   fillValueRules,
   dcsParameterExplicitUndefinedRules,
+  explicitAdditionalFieldsRules,
+  explicitEmptyAttributesRules,
+  explicitEmptyFormElementTitleRules,
+  explicitEmptyPredefinedExtDimensionTypesRules,
+  formAttributeValueTypeSettingsRules,
   metadataAttributeCollectionRules,
   metadataTabularSectionCollectionRules,
   metadataRegisterAttributeCollectionRules,

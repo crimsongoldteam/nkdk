@@ -176,7 +176,6 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueXMLEmpty: [],
       itemRule: FormAttributeRules,
-      preserveExplicitDefaultXML: true,
     }),
     attributesConditionalAppearance: conditionalAppearanceRule({
       yaml: "УсловноеОформлениеРеквизитов",

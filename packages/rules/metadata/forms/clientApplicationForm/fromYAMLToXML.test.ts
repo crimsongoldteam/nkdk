@@ -2,7 +2,7 @@ import fs from "fs"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 
-import { importFromYAML } from "@nkdk/runtime"
+import { EMPTY_XML_TAG_VALUE, importFromYAML, markYAMLScalarTag } from "@nkdk/runtime"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
@@ -286,12 +286,13 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
   })
 
-  it("сохраняет пустой контейнер реквизитов из reference XML", () => {
+  it("восстанавливает пустой контейнер реквизитов из !xml без reference XML", () => {
+    const yaml = { Реквизиты: EMPTY_XML_TAG_VALUE } as unknown as ClientApplicationFormYAML
+    markYAMLScalarTag(yaml, "Реквизиты", "xml")
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
-      yaml: {} as ClientApplicationFormYAML,
+      yaml,
       name: "Форма",
-      referenceFormXML: { Attributes: undefined } as ClientApplicationFormXML,
     })
 
     expect(result.formXML.Attributes).toEqual({})
