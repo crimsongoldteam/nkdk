@@ -2,6 +2,24 @@
 |---|---|---|---|
 | `MetadataAttribute`, `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |
 | `MetadataAttribute`, `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml DesignTimeRef` | `<FillValue xsi:type="xr:DesignTimeRef"/>` или `<xr:FillValue xsi:type="xr:DesignTimeRef"/>` |
+| обычный `MetadataAttribute` с единственным строковым типом | `ЗначениеЗаполнения` | `!xml Nil` | `<FillValue xsi:nil="true"/>` |
+| строковый `StandardAttributeDescription` (`Code`, `Description`, `Number`) | `ЗначениеЗаполнения` | `!xml String` | `<xr:FillValue xsi:type="xs:string"/>` |
+| `StandardAttributeDescription` с именем `ValueType` | `ЗначениеЗаполнения` | `!xml TypeDescription` | `<xr:FillValue xsi:type="v8:TypeDescription"/>` |
+| поле внешнего источника данных | `ЗначениеЗаполнения` | `!xml Null` | `<FillValue xsi:type="v8:Null"/>` |
+| `CharacteristicsDescription` | `ЗначениеОтбораВидов` | `!xml DesignTimeRef` | `<xr:TypesFilterValue xsi:type="xr:DesignTimeRef"/>` |
+| одиночный встроенный элемент формы (`ExtendedTooltip`, `ContextMenu`, `AutoCommandBar`, `SearchStringAddition`, `SearchControlAddition`, `ViewStatusAddition`, вложенная таблица `GanttChartField`) | `Имя` | `!xml <исходное имя>`; для пустого имени `!xml ""` | исходный атрибут `name`, например `<ExtendedTooltip name="СтароеИмяExtendedTooltip"/>` |
+| свойство типа `MinMaxValue` | `МинимальноеЗначение`, `МаксимальноеЗначение` | `!xml "String <исходный текст>"` | `<MinValue xsi:type="xs:string"><исходный текст></MinValue>` или `<MaxValue xsi:type="xs:string"><исходный текст></MaxValue>` |
+| свойство типа `MinMaxValue` | `МинимальноеЗначение`, `МаксимальноеЗначение` | `!xml "Decimal <исходный текст>"` | `<MinValue xsi:type="xs:decimal"><исходный текст></MinValue>` или `<MaxValue xsi:type="xs:decimal"><исходный текст></MaxValue>` |
+| свойство типа `MinMaxValue` | `МинимальноеЗначение`, `МаксимальноеЗначение` | `!xml "Raw <QName или -> <исходный текст>"` | исходный неподдерживаемый `xsi:type` или его отсутствие и точный текст `MinValue` либо `MaxValue` |
+| свойство типа `DcsLocalStringType` | соответствующая строка СКД | `!xml "String <текст>"` | элемент с `xsi:type="xs:string"` вместо канонического `v8:LocalStringType` |
+| `IndexField` | `ДополнительныеПоля` | `!xml` | `<AdditionalFields/>` |
+| `SettingsParameterValueCollection` | `Значение` | `!xml Nil` | `<dcscor:value xsi:nil="true"/>` |
+| параметр схемы компоновки данных | `Значение` | `!xml Undefined` | `<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>` |
+| управляемая форма | `Реквизиты` | `!xml` | `<Attributes/>` |
+| `LabelDecoration`, `ExtendedTooltip` | `Заголовок` | `!xml` | `<Title formatted="true"/>` |
+| предопределённый счёт | `ВидыСубконто` | `!xml` | `<ExtDimensionTypes/>` |
+| реквизит формы с единственным типом `СписокЗначений` | `ТипЗначения` | `!xml` | элемент `<Settings>` отсутствует вопреки каноническому экспорту пустого `v8:TypeDescription` |
+| свойство типа `TypeDescription` | `Тип` | `!xml <исходный префикс>:<русское имя типа>` | `v8:Type` с исходным namespace-префиксом, например `d7p1:Chart` |
 | `StandardAttributeDescriptions` | `СтандартныеРеквизиты` | `!xml` | канонические элементы `<xr:StandardAttribute name="…">…</xr:StandardAttribute>` |
 | `CharacteristicsDescription` | `ПолеПутиКДанным` | `!xml` | `<xr:DataPathField>` отсутствует |
 | `CharacteristicsDescription` | `ПолеИспользованияМножественныхЗначений` | `!xml` | `<xr:MultipleValuesUseField>` отсутствует |
