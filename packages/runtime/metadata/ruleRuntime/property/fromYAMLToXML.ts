@@ -374,6 +374,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
+      !hasXMLDefault &&
       references.every((reference) => !reference.exists)
     ) {
       continue
@@ -658,7 +659,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           !source.has(propertyKey) &&
           planned.propertyRule.excludeIfEqualNameYAML === true &&
           params.name !== undefined &&
-          (getXMLDefaultVariant(propertyContext) === undefined || references.some((reference) => reference.exists)),
+          getXMLDefaultVariant(propertyContext) !== "adopted",
       }
       imported = callAtomicFromYAML(importParams)
       if (params.profile !== undefined) params.profile.atomicFromYAMLCount++

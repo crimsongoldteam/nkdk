@@ -82,6 +82,18 @@ describe("fill value XML import", () => {
     )
   })
 
+  it("не сохраняет канонический xsi:nil нестрокового реквизита", async () => {
+    const prepared = await prepareImportYaml({
+      assignment: assignment(fixture),
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    expect(prepared.yaml).not.toHaveProperty(
+      "Реквизиты.РеквизитСправочника.ЗначениеЗаполнения",
+    )
+  })
+
   it("сохраняет содержательный код при неявном строковом типе", async () => {
     const sourcePath = copiedCatalogCodeFixture()
     const prepared = await prepareImportYaml({

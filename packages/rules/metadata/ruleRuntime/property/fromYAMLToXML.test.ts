@@ -573,7 +573,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
-  it("применяет XML-default индексного варианта только по сохранённому XML-значению", () => {
+  it("восстанавливает XML-default индексного варианта без состояния XML в снимке", () => {
     const property = {
       type: "string",
       yaml: "Режим",
@@ -595,11 +595,11 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(absent.outputs.get("owner")).toEqual({})
+    expect(absent.outputs.get("owner")).toEqual({ Mode: "full-xml" })
     expect(present.outputs.get("owner")).toEqual({ Mode: "full-xml" })
   })
 
-  it("не считает свойство из сохранённого порядка присутствовавшим в XML", () => {
+  it("не использует порядок как XML-состояние, но восстанавливает XML-default", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant("indexed", ["value"], true),
       yaml: {},
@@ -615,7 +615,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({})
+    expect(result.outputs.get("owner")).toEqual({ Mode: "full-xml" })
   })
 
   it("преобразует синтезированный XML-default через обработчик типа", () => {
@@ -915,7 +915,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     const logicalAddress = DEFAULT_TEST_LOGICAL_ADDRESS
     const testContext = contextWithXMLDefaultVariant(
       "indexed",
-      ["synonym"],
+      [],
       false,
       logicalAddress
     )

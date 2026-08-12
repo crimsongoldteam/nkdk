@@ -35,6 +35,12 @@ export function normalizeImportedDependentItems(params: {
     if (transport !== undefined) {
       item[yamlKey] = xmlScalarTagValue(transport)
       markYAMLScalarTag(item, yamlKey, "xml")
+      if (
+        transport === "Nil" &&
+        !shouldRemoveImportedDependentProperty(dependentParamsForCandidate(params, candidate, item))
+      ) {
+        delete item[yamlKey]
+      }
       continue
     }
     if (!Object.prototype.hasOwnProperty.call(item, yamlKey)) continue
