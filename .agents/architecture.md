@@ -288,7 +288,6 @@ flowchart TD
 flowchart TD
   pending["Проверить незавершённую<br/>синхронизацию"]
   proceed{"Проверять новые<br/>изменения?"}
-  previous["Вернуть результат<br/>предыдущей попытки"]
   validate[["Актуализировать проект"]]
   target[["Сверить компонент<br/>с его снимком"]]
   changes["Найти изменения<br/>относительно снимка"]
@@ -306,25 +305,26 @@ flowchart TD
   archive["Добавлять XML в ZIP"]
   prepared["Сохранить пакет<br/>и подготовленный снимок"]
   noChanges["Вернуть отсутствие изменений"]
+  previous["Вернуть результат<br/>предыдущей попытки"]
   transferring["Отметить начало передачи"]
   load["Загрузить ZIP через<br/>агент Конфигуратора"]
   outcome{"Загрузка успешна?"}
-  failure["Вернуть ошибку загрузки"]
   applied["Отметить успешную передачу"]
   publish[["Опубликовать подготовленный снимок<br/>и удалить пакет"]]
   result["Вернуть результат"]
+  failure["Вернуть ошибку загрузки"]
 
   pending --> proceed
   proceed -- "да" --> validate
   proceed -- "нет" --> previous
   validate --> target --> changes --> work
-  work -- "нет" --> noChanges
   work -- "да" --> impact --> plan --> readYaml
+  work -- "нет" --> noChanges
   document -- "по мере готовности" --> archive --> prepared
   fragment --> prepared
   prepared --> transferring --> load --> outcome
-  outcome -- "нет" --> failure
   outcome -- "да" --> applied --> publish --> result
+  outcome -- "нет" --> failure
   style partialSyncJob stroke-dasharray: 7 5
 ```
 
