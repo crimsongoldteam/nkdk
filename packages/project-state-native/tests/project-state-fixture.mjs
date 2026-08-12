@@ -95,6 +95,16 @@ export function deferredValidationSnapshot() {
   })
 }
 
+export function unsortedDeferredValidationSnapshot() {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendFile(richYamlUpdate("cf/Я.yaml", "cf", "Catalog.Я"), 1n)
+  writer.appendFile(richYamlUpdate("cf/А.yaml", "cf", "Catalog.А"), 2n)
+  return buildProjectStateSnapshot({
+    fragments: [openProjectStateFragment(writer.finish())],
+    deletions: [],
+  })
+}
+
 export function snapshotView(buffers) {
   return new ProjectStateSnapshotView(buffers)
 }

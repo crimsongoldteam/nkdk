@@ -28,6 +28,17 @@ export interface NativeProjectStateReader {
   filePaths(): string[]
   execute(request: Uint8Array): Uint8Array
   validateDependencyPage(input: DependencyValidationPageInput): NativeDependencyValidationPage
+  planDependencyValidation(input: DependencyValidationPlanInput): NativeDependencyValidationPlan
+  close(): void
+}
+
+export interface DependencyValidationPlanInput {
+  readonly projectDir: string
+  readonly batchSize: number
+}
+
+export interface NativeDependencyValidationPlan {
+  nextPage(): NativeDependencyValidationPage
   close(): void
 }
 

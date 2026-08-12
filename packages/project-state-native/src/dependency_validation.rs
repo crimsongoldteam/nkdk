@@ -29,6 +29,12 @@ pub struct DependencyValidationPageInput {
 }
 
 #[napi(object)]
+pub struct DependencyValidationPlanInput {
+    pub project_dir: String,
+    pub batch_size: u32,
+}
+
+#[napi(object)]
 pub struct NativeDependencyValidationStats {
     pub files_visited: u32,
     pub checks_visited: u32,
@@ -43,6 +49,99 @@ pub struct NativeDependencyValidationPage {
     pub deferred: Uint8Array,
     pub next_cursor: Option<u32>,
     pub stats: NativeDependencyValidationStats,
+}
+
+#[napi]
+pub struct NativeDependencyValidationPlan {
+    rows: Option<Vec<DeferredRow>>,
+    diagnostics: Option<Vec<u8>>,
+    cursor: usize,
+    batch_size: usize,
+    files: u32,
+    native_diagnostics: u32,
+    rows_temporary_bytes: usize,
+    finished: bool,
+}
+
+#[napi]
+impl NativeDependencyValidationPlan {
+    #[napi]
+    pub fn next_page(&mut self) -> Result<NativeDependencyValidationPage> {
+        let rows = self
+            .rows
+            .as_ref()
+            .ok_or_else(|| Error::from_reason("План проверки зависимостей закрыт"))?;
+        if self.finished {
+            return Err(Error::from_reason("План проверки зависимостей завершён"));
+        }
+        let end = self.cursor.saturating_add(self.batch_size).min(rows.len());
+        let deferred = encode_deferred(&rows[self.cursor..end])?;
+        let diagnostics = match self.diagnostics.take() {
+            Some(value) => value,
+            None => DiagnosticBatchWriter::default().finish()?,
+        };
+        let native_diagnostics = if self.cursor == 0 {
+            self.native_diagnostics
+        } else {
+            0
+        };
+        let count = end - self.cursor;
+        self.cursor = end;
+        self.finished = end >= rows.len();
+        let temporary_bytes = self
+            .rows_temporary_bytes
+            .checked_add(diagnostics.len())
+            .and_then(|value| value.checked_add(deferred.len()))
+            .ok_or_else(overflow)?;
+        Ok(NativeDependencyValidationPage {
+            diagnostics: diagnostics.into(),
+            deferred: deferred.into(),
+            next_cursor: (!self.finished).then(|| u32_len(end)).transpose()?,
+            stats: NativeDependencyValidationStats {
+                files_visited: self.files,
+                checks_visited: u32_len(count)?,
+                native_diagnostics,
+                deferred_checks: u32_len(count)?,
+                native_temporary_bytes: u32_len(temporary_bytes)?,
+            },
+        })
+    }
+
+    #[napi]
+    pub fn close(&mut self) {
+        self.rows = None;
+        self.diagnostics = None;
+        self.finished = true;
+    }
+}
+
+impl NativeDependencyValidationPlan {
+    pub fn open(
+        sections: &ProjectStateSections,
+        layout: &SnapshotLayout,
+        input: DependencyValidationPlanInput,
+    ) -> Result<Self> {
+        if input.batch_size == 0 {
+            return Err(Error::from_reason("batchSize должен быть положительным"));
+        }
+        let readiness = readiness(sections, layout)?;
+        let mut writer = DiagnosticBatchWriter::default();
+        append_readiness_diagnostics(&mut writer, &input.project_dir, &readiness)?;
+        let native_diagnostics =
+            readiness.blocked_component_paths.len() + usize::from(!readiness.has_configuration);
+        let (rows, rows_temporary_bytes) =
+            eligible_deferred_rows(sections, layout, &readiness.blocked_component_paths)?;
+        Ok(Self {
+            rows: Some(rows),
+            diagnostics: Some(writer.finish()?),
+            cursor: 0,
+            batch_size: usize_from_u32(input.batch_size)?,
+            files: u32_len(layout.file_count)?,
+            native_diagnostics: u32_len(native_diagnostics)?,
+            rows_temporary_bytes,
+            finished: false,
+        })
+    }
 }
 
 pub fn validate_page(
@@ -85,6 +184,7 @@ pub fn validate_page(
     let temporary_bytes = diagnostics
         .len()
         .checked_add(deferred.len())
+        .and_then(|value| value.checked_add(page.temporary_bytes))
         .ok_or_else(overflow)?;
     Ok(NativeDependencyValidationPage {
         diagnostics: diagnostics.into(),
@@ -246,13 +346,7 @@ struct DeferredRow {
 struct DeferredPage {
     rows: Vec<DeferredRow>,
     has_more: bool,
-}
-
-struct DeferredTable {
-    protocol_kind: u16,
-    range: FactTableRange,
-    next_row: usize,
-    previous_file_id: Option<usize>,
+    temporary_bytes: usize,
 }
 
 fn deferred_page(
@@ -262,6 +356,26 @@ fn deferred_page(
     cursor: usize,
     batch_size: usize,
 ) -> Result<DeferredPage> {
+    let (eligible_rows, temporary_bytes) =
+        eligible_deferred_rows(sections, layout, blocked_component_paths)?;
+    if cursor > eligible_rows.len() {
+        return Err(Error::from_reason("Курсор страницы проверки вне диапазона"));
+    }
+    let end = cursor.saturating_add(batch_size).min(eligible_rows.len());
+    let has_more = end < eligible_rows.len();
+    let rows = eligible_rows[cursor..end].to_vec();
+    Ok(DeferredPage {
+        rows,
+        has_more,
+        temporary_bytes,
+    })
+}
+
+fn eligible_deferred_rows(
+    sections: &ProjectStateSections,
+    layout: &SnapshotLayout,
+    blocked_component_paths: &[String],
+) -> Result<(Vec<DeferredRow>, usize)> {
     let facts = sections.facts.as_ref();
     let mut tables = Vec::new();
     for (fact_kind, protocol_kind, record_bytes) in [
@@ -277,12 +391,7 @@ fn deferred_page(
                 "Неверный размер записи отложенной проверки",
             ));
         }
-        tables.push(DeferredTable {
-            protocol_kind,
-            range,
-            next_row: 0,
-            previous_file_id: None,
-        });
+        tables.push((protocol_kind, range));
     }
     let blocked: HashSet<&str> = blocked_component_paths.iter().map(String::as_str).collect();
     let mut blocked_files = Vec::with_capacity(layout.file_count);
@@ -290,67 +399,32 @@ fn deferred_page(
         blocked_files.push(blocked.contains(layout.file_component_path(sections, file_id)?));
     }
 
-    let mut eligible = 0usize;
-    let mut rows = Vec::with_capacity(batch_size.min(2_000));
-    let mut has_more = false;
-    loop {
-        let mut selected: Option<(usize, usize, u16)> = None;
-        for (table_index, table) in tables.iter().enumerate() {
-            if table.next_row >= table.range.records {
-                continue;
-            }
-            let offset = table.range.offset + table.next_row * table.range.record_bytes;
+    let mut eligible_rows = Vec::new();
+    for (protocol_kind, range) in tables {
+        for row_id in 0..range.records {
+            let offset = range.offset + row_id * range.record_bytes;
             let file_id = usize_from_u32(read_u32(facts, offset)?)?;
             if file_id >= layout.file_count {
                 return Err(Error::from_reason(
                     "Отложенная проверка ссылается на неизвестный файл",
                 ));
             }
-            let candidate = (file_id, table_index, table.protocol_kind);
-            if selected
-                .map(|current| (candidate.0, candidate.2) < (current.0, current.2))
-                .unwrap_or(true)
-            {
-                selected = Some(candidate);
+            if blocked_files[file_id] {
+                continue;
             }
+            eligible_rows.push(DeferredRow {
+                kind: protocol_kind,
+                file_id,
+                row_id,
+            });
         }
-        let Some((file_id, table_index, protocol_kind)) = selected else {
-            break;
-        };
-        let table = &mut tables[table_index];
-        if table
-            .previous_file_id
-            .is_some_and(|previous| file_id < previous)
-        {
-            return Err(Error::from_reason(
-                "Таблица отложенных проверок не отсортирована по файлу",
-            ));
-        }
-        table.previous_file_id = Some(file_id);
-        let row_id = table.next_row;
-        table.next_row += 1;
-        if blocked_files[file_id] {
-            continue;
-        }
-        if eligible < cursor {
-            eligible += 1;
-            continue;
-        }
-        if rows.len() == batch_size {
-            has_more = true;
-            break;
-        }
-        rows.push(DeferredRow {
-            kind: protocol_kind,
-            file_id,
-            row_id,
-        });
-        eligible += 1;
     }
-    if eligible < cursor {
-        return Err(Error::from_reason("Курсор страницы проверки вне диапазона"));
-    }
-    Ok(DeferredPage { rows, has_more })
+    eligible_rows.sort_unstable_by_key(|row| (row.file_id, row.kind, row.row_id));
+    let temporary_bytes = eligible_rows
+        .capacity()
+        .checked_mul(std::mem::size_of::<DeferredRow>())
+        .ok_or_else(overflow)?;
+    Ok((eligible_rows, temporary_bytes))
 }
 
 fn encode_deferred(rows: &[DeferredRow]) -> Result<Vec<u8>> {

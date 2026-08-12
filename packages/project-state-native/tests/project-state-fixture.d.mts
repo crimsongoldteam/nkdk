@@ -24,5 +24,6 @@ export function readinessSnapshot(options?: {
   readonly baseReady?: boolean
 }): TestProjectStateBuffers
 export function deferredValidationSnapshot(): TestProjectStateBuffers
+export function unsortedDeferredValidationSnapshot(): TestProjectStateBuffers
 export function snapshotView(buffers: TestProjectStateBuffers): TestProjectStateSnapshotView
 export function sectionViews(buffers: TestProjectStateBuffers): ProjectStateSections

@@ -28,7 +28,7 @@ export interface RustDependencyValidationPageEvent {
 }
 
 export function validateRustDependencyDiagnosticBatches(params: {
-  readonly native: Pick<NativeProjectStateReader, "execute" | "validateDependencyPage">
+  readonly native: Pick<NativeProjectStateReader, "execute" | "planDependencyValidation">
   readonly snapshot: ProjectStateSnapshotView
   readonly projectDir: string
   readonly dependencyValidator: ProjectStateDependencyValidator
@@ -55,44 +55,46 @@ export function validateRustDependencyDiagnosticBatches(params: {
   const structuredRows: RustDeferredValidationRow[] = []
   const readiness: EncodedDiagnosticBatch[] = []
   const seenOwners = new Set<string>()
-  let cursor = 0
-  for (;;) {
-    const page = params.native.validateDependencyPage({
-      // Диагностики готовности по существующему договору содержат проектные пути.
-      projectDir: "",
-      cursor,
-      batchSize: pageSize,
-    })
-    const rows = decodeRustDeferredValidationPage(page.deferred)
-    params.onPage?.({
-      deferredRows: rows.length,
-      nativeDiagnostics: page.stats.nativeDiagnostics,
-      nativeTemporaryBytes: page.stats.nativeTemporaryBytes,
-    })
-    if (diagnosticCount(page.diagnostics) > 0) readiness.push({ bytes: page.diagnostics })
-    const checks = decodePage(params.snapshot, typed, rows, seenOwners, structuredRows)
-    appendDiagnostics(categories.references, params.dependencyValidator.validateReferences({
-      checks: checks.references,
-      projectDir: params.projectDir,
-      queryPort,
-    }))
-    appendDiagnostics(categories.owners, params.dependencyValidator.validateOwners({
-      checks: checks.owners,
-      projectDir: params.projectDir,
-      queryPort,
-    }))
-    appendDiagnostics(categories.dependencies, params.dependencyValidator.validateDependencies({
-      checks: checks.dependencies,
-      projectDir: params.projectDir,
-      queryPort,
-    }))
-    appendDiagnostics(categories.addressableRequired, params.dependencyValidator.validateAddressableRequired({
-      checks: checks.addressableRequired,
-      projectDir: params.projectDir,
-      queryPort,
-    }))
-    if (page.nextCursor === undefined) break
-    cursor = page.nextCursor
+  const plan = params.native.planDependencyValidation({
+    // Диагностики готовности по существующему договору содержат проектные пути.
+    projectDir: "",
+    batchSize: pageSize,
+  })
+  try {
+    for (;;) {
+      const page = plan.nextPage()
+      const rows = decodeRustDeferredValidationPage(page.deferred)
+      params.onPage?.({
+        deferredRows: rows.length,
+        nativeDiagnostics: page.stats.nativeDiagnostics,
+        nativeTemporaryBytes: page.stats.nativeTemporaryBytes,
+      })
+      if (diagnosticCount(page.diagnostics) > 0) readiness.push({ bytes: page.diagnostics })
+      const checks = decodePage(params.snapshot, typed, rows, seenOwners, structuredRows)
+      appendDiagnostics(categories.references, params.dependencyValidator.validateReferences({
+        checks: checks.references,
+        projectDir: params.projectDir,
+        queryPort,
+      }))
+      appendDiagnostics(categories.owners, params.dependencyValidator.validateOwners({
+        checks: checks.owners,
+        projectDir: params.projectDir,
+        queryPort,
+      }))
+      appendDiagnostics(categories.dependencies, params.dependencyValidator.validateDependencies({
+        checks: checks.dependencies,
+        projectDir: params.projectDir,
+        queryPort,
+      }))
+      appendDiagnostics(categories.addressableRequired, params.dependencyValidator.validateAddressableRequired({
+        checks: checks.addressableRequired,
+        projectDir: params.projectDir,
+        queryPort,
+      }))
+      if (page.nextCursor === undefined) break
+    }
+  } finally {
+    plan.close()
   }
   const structuredDocuments = structuredRows.map((row) => {
     const stored = typed.structuredDocumentRow(row.rowId)

@@ -21,6 +21,24 @@ module.exports.openProjectStateReader = function openProjectStateReader(sections
         throw withCode(error, "PROJECT_STATE_INVALID_DEPENDENCY_VALIDATION")
       }
     },
+    planDependencyValidation(input) {
+      let plan
+      try {
+        plan = reader.planDependencyValidation(input)
+      } catch (error) {
+        throw withCode(error, "PROJECT_STATE_INVALID_DEPENDENCY_VALIDATION")
+      }
+      return {
+        nextPage() {
+          try {
+            return plan.nextPage()
+          } catch (error) {
+            throw withCode(error, "PROJECT_STATE_INVALID_DEPENDENCY_VALIDATION")
+          }
+        },
+        close: () => plan.close(),
+      }
+    },
     execute(request) {
       try {
         return reader.execute(request)

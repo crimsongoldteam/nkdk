@@ -3,7 +3,10 @@ use napi::{Error, Result};
 use napi_derive::napi;
 
 use crate::buffers::ProjectStateSections;
-use crate::dependency_validation::{DependencyValidationPageInput, NativeDependencyValidationPage};
+use crate::dependency_validation::{
+    DependencyValidationPageInput, DependencyValidationPlanInput, NativeDependencyValidationPage,
+    NativeDependencyValidationPlan,
+};
 use crate::format::SnapshotLayout;
 use crate::query_protocol;
 
@@ -61,6 +64,14 @@ impl NativeProjectStateReader {
     ) -> Result<NativeDependencyValidationPage> {
         let sections = self.require_sections()?;
         crate::dependency_validation::validate_page(sections, &self.layout, input)
+    }
+
+    #[napi]
+    pub fn plan_dependency_validation(
+        &self,
+        input: DependencyValidationPlanInput,
+    ) -> Result<NativeDependencyValidationPlan> {
+        NativeDependencyValidationPlan::open(self.require_sections()?, &self.layout, input)
     }
 
     #[napi]

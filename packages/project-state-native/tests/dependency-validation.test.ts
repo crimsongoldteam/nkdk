@@ -6,6 +6,7 @@ import {
   deferredValidationSnapshot,
   readinessSnapshot,
   sectionViews,
+  unsortedDeferredValidationSnapshot,
 } from "./project-state-fixture.mjs"
 
 describe("Rust ProjectState dependency validation", () => {
@@ -81,6 +82,34 @@ describe("Rust ProjectState dependency validation", () => {
     ])
     expect(second.nextCursor).toBeUndefined()
     expect(second.stats).toMatchObject({ checksVisited: 1, deferredChecks: 1 })
+    reader.close()
+  })
+
+  it("не требует физической сортировки строк снимка по файлу", () => {
+    const reader = openProjectStateReader(sectionViews(unsortedDeferredValidationSnapshot()))
+
+    const page = reader.validateDependencyPage({ projectDir: "/project", cursor: 0, batchSize: 2 })
+
+    expect(decodeRustDeferredValidationPage(page.deferred)).toEqual([
+      { kind: "pendingReference", fileId: 0, rowId: 1 },
+      { kind: "pendingCheck", fileId: 0, rowId: 1 },
+    ])
+    reader.close()
+  })
+
+  it("строит компактный план один раз и последовательно отдаёт страницы", () => {
+    const reader = openProjectStateReader(sectionViews(deferredValidationSnapshot()))
+    const plan = reader.planDependencyValidation({ projectDir: "/project", batchSize: 2 })
+
+    const first = plan.nextPage()
+    const second = plan.nextPage()
+
+    expect(decodeRustDeferredValidationPage(first.deferred)).toHaveLength(2)
+    expect(first.nextCursor).toBe(2)
+    expect(decodeRustDeferredValidationPage(second.deferred)).toHaveLength(1)
+    expect(second.nextCursor).toBeUndefined()
+    plan.close()
+    expect(() => plan.nextPage()).toThrow(/закрыт/u)
     reader.close()
   })
 })
