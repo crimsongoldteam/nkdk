@@ -104,7 +104,7 @@ export async function measureProjectStateBackend(
   options: ProjectStateBackendWorkerOptions,
   dependencies: ProjectStateBackendMeasureDependencies = defaultDependencies,
 ): Promise<ProjectStateBackendRun> {
-  assertProjectStateBackendAvailable(options.backend, false)
+  assertProjectStateBackendAvailable(options.backend, true)
   const startedAt = dependencies.now()
   const cpuBefore = dependencies.cpuUsage()
   const memoryTracker = createMemoryPeakTracker(dependencies.memoryUsage())

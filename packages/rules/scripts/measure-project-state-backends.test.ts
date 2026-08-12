@@ -2,6 +2,7 @@ import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import {
   buildBackendProcessEnv,
+  evaluateRustExperiment,
   measureProjectStateBackends,
   parseProjectStateBackendMeasureArgs,
 } from "./measure-project-state-backends"
@@ -13,6 +14,18 @@ import {
 } from "./measure-project-state-backend-worker"
 
 describe("measure project state backends args", () => {
+  it("применяет согласованные пороги включительно", () => {
+    expect(evaluateRustExperiment({
+      typescript: { rssPeak: 100, targetMs: 100, unchangedMs: 100 },
+      rust: { rssPeak: 75, targetMs: 80, unchangedMs: 105 },
+    })).toEqual({
+      rssPassed: true,
+      targetTimePassed: true,
+      unchangedPassed: true,
+      passed: true,
+    })
+  })
+
   it("разбирает проект, число прогонов, worker и обе реализации", () => {
     expect(parseProjectStateBackendMeasureArgs([
       "/project",

@@ -24,6 +24,23 @@ export interface ProjectStateBackendMeasureOptions {
   readonly lookups: number
 }
 
+export interface RustExperimentMeasurements {
+  readonly typescript: { readonly rssPeak: number; readonly targetMs: number; readonly unchangedMs: number }
+  readonly rust: { readonly rssPeak: number; readonly targetMs: number; readonly unchangedMs: number }
+}
+
+export function evaluateRustExperiment(input: RustExperimentMeasurements) {
+  const rssPassed = input.rust.rssPeak <= input.typescript.rssPeak * 0.75
+  const targetTimePassed = input.rust.targetMs <= input.typescript.targetMs * 0.8
+  const unchangedPassed = input.rust.unchangedMs <= input.typescript.unchangedMs * 1.05
+  return {
+    rssPassed,
+    targetTimePassed,
+    unchangedPassed,
+    passed: rssPassed && targetTimePassed && unchangedPassed,
+  }
+}
+
 type RunProjectStateBackend = (
   options: ProjectStateBackendWorkerOptions,
 ) => Promise<ProjectStateBackendRun>
