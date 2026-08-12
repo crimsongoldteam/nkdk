@@ -29,6 +29,7 @@ describe("registerNkdkCapabilities", () => {
       "nkdk.rebuild_project_cache",
       "nkdk.import_from_xml",
       "nkdk.import_from_infobase",
+      "nkdk.sync_to_infobase",
       "nkdk.close_platform_connection",
       "nkdk.close_all_platform_connections",
       "nkdk.sync_to_xml",
@@ -87,6 +88,27 @@ describe("registerNkdkCapabilities", () => {
       connectionString: 'File="/base";',
     }).success).toBe(false)
     expect(infobaseImportOptions?.outputSchema).toBeDefined()
+
+    const infobaseSync = server.registerTool.mock.calls.find(
+      ([name]) => name === "nkdk.sync_to_infobase"
+    )?.[1] as { description: string; inputSchema: z.ZodType; outputSchema?: z.ZodType } | undefined
+    expect(infobaseSync?.description.toLowerCase()).toContain("частично")
+    expect(infobaseSync?.description).toContain("cf")
+    expect(infobaseSync?.description).toContain("cfe/<Имя>")
+    expect(infobaseSync?.description).toContain("Запускает 1С")
+    expect(infobaseSync?.description).toContain("allowWrite=true")
+    expect(infobaseSync?.description).toContain("не обновляет конфигурацию базы данных")
+    expect(infobaseSync?.inputSchema.safeParse({
+      projectDir: "/project",
+      componentPath: "cf",
+      allowWrite: true,
+    }).success).toBe(true)
+    expect(infobaseSync?.inputSchema.safeParse({
+      projectDir: "/project",
+      componentPath: "cfe/..",
+      allowWrite: true,
+    }).success).toBe(false)
+    expect(infobaseSync?.outputSchema).toBeDefined()
 
     for (const name of [
       "nkdk.close_platform_connection",
@@ -195,9 +217,12 @@ describe("registerNkdkCapabilities", () => {
     expect(result.structuredContent).toBe(payload)
   })
 
-  it("passes the MCP cancellation signal to infobase import", async () => {
+  it.each([
+    ["infobase import", "createImportFromInfobaseHandler"],
+    ["infobase synchronization", "createSyncToInfobaseHandler"],
+  ])("passes the MCP cancellation signal to %s", async (_name, factoryName) => {
     const factory = (registerToolsModule as Record<string, unknown>)[
-      "createImportFromInfobaseHandler"
+      factoryName
     ]
     expect(factory).toBeTypeOf("function")
     const service = vi.fn().mockResolvedValue({
@@ -274,6 +299,39 @@ describe("registerNkdkCapabilities", () => {
       details: { stage: "platform-log", mode: "designer-agent" },
     })
     expect(noLog.content).toEqual([{ type: "text", text: "Журнал недоступен" }])
+  })
+
+  it("presents synchronization failures with one relevant resource link", () => {
+    const logFailure = {
+      ok: false as const,
+      code: "delivery_outcome_unknown" as const,
+      message: "Неизвестно",
+      details: {
+        log: {
+          uri: "file:///project/.nkdk/tmp/sync-to-infobase/attempt-1/platform.log",
+          format: "text/plain" as const,
+        },
+      },
+    }
+    expect(registerToolsModule.syncToInfobaseToolResult(logFailure).content).toEqual([
+      { type: "text", text: "Неизвестно" },
+      {
+        type: "resource_link",
+        uri: logFailure.details.log.uri,
+        name: "Журнал синхронизации с информационной базой",
+        mimeType: "text/plain",
+      },
+    ])
+
+    const success = {
+      ok: true as const,
+      status: "unchanged" as const,
+      componentPath: "cf",
+      diagnostics: [],
+    }
+    expect(registerToolsModule.syncToInfobaseToolResult(success).content).toEqual([
+      { type: "text", text: "Операция выполнена." },
+    ])
   })
 
   it("passes the MCP cancellation signal to extension listing", async () => {
