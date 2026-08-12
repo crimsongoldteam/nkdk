@@ -10,6 +10,30 @@ import {
 } from "./fileUpdate"
 
 describe("ProjectStateFileUpdateBatch", () => {
+  it("принимает зарегистрированный табличный источник DataPath", () => {
+    const update = yamlUpdate("cf/Форма.yaml")
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [{
+        ...update,
+        forms: [{
+          kind: "root",
+          owner: { kind: "Справочник", name: "Catalog.Товары" },
+          name: "Настройки",
+          source: {
+            kind: "formAttribute",
+            name: "Настройки",
+            typeInfo: {
+              kinds: ["tableSource"],
+              nextTypes: [],
+              table: { kind: "Registered", type: "DataCompositionSettings" },
+            },
+          },
+        }],
+      }],
+      hashBytes: new Uint8Array(8),
+    })).not.toThrow()
+  })
+
   it("оставляет у изолированного YAML только локальные schema diagnostics", () => {
     const schemaDiagnostic = {
       line: 1,

@@ -715,6 +715,11 @@ function assertDataPathTableInfo(value: unknown, path: string): void {
     assertExactKeys(table, ["kind"], path)
     return
   }
+  if (table["kind"] === "Registered") {
+    assertExactKeys(table, ["kind", "type"], path)
+    assertString(table["type"], `${path}.type`)
+    return
+  }
   if (table["kind"] === "RegisterRecordSet") {
     assertExactKeys(table, ["kind", "owner"], path)
     assertOwnerRef(table["owner"], `${path}.owner`)
