@@ -25,6 +25,12 @@ export type ExplicitXMLPropertyRegistration =
       readonly propertyKey: string
       readonly overrides?: Readonly<Record<string, unknown>>
     }
+  | {
+      readonly action: "carrier"
+      readonly itemType: string
+      readonly propertyKey: string
+      readonly prefix: string
+    }
 
 export interface ExplicitXMLPropertyTypeRegistration {
   readonly action: "materializeCollection"
@@ -37,6 +43,7 @@ export type ExplicitXMLPropertyAction =
   | { readonly kind: "omit" }
   | { readonly kind: "useYamlValue"; readonly yamlValue: string }
   | { readonly kind: "materializeCollection" }
+  | { readonly kind: "deferToAugmenter" }
   | { readonly kind: "invalid"; readonly message: string }
 
 export interface ExplicitXMLPropertyMatcher {
@@ -47,7 +54,7 @@ export interface ExplicitXMLPropertyMatcher {
     readonly xmlValue: unknown
   }): Exclude<
     ExplicitXMLPropertyRegistration,
-    { readonly action: "transportScalar" }
+    { readonly action: "transportScalar" | "carrier" }
   > | undefined
   matchExplicitXMLPropertyTypeFromXML(params: {
     readonly propertyType: string
@@ -96,7 +103,10 @@ export function matchExplicitXMLPropertyFromXML(params: {
   readonly propertyKey: string
   readonly presentInXML: boolean
   readonly xmlValue: unknown
-}): Exclude<ExplicitXMLPropertyRegistration, { readonly action: "transportScalar" }> | undefined {
+}): Exclude<
+  ExplicitXMLPropertyRegistration,
+  { readonly action: "transportScalar" | "carrier" }
+> | undefined {
   const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
   return contextual?.matchExplicitXMLPropertyFromXML(params)
 }
@@ -146,6 +156,16 @@ export function collectExplicitXMLPropertyActions(params: {
       )
       continue
     }
+    if (registration.action === "carrier") {
+      const rawValue = yaml[rule.yaml]
+      const payload = yamlScalarTagAt(yaml, rule.yaml) === "xml" && typeof rawValue === "string"
+        ? xmlScalarTagPayload(rawValue)
+        : undefined
+      if (payload?.startsWith(registration.prefix)) {
+        actions.set(propertyKey, { kind: "deferToAugmenter" })
+      }
+      continue
+    }
     if (registration.action === "transportScalar") {
       const rawValue = yaml[rule.yaml]
       if (yamlScalarTagAt(yaml, rule.yaml) === "xml" && typeof rawValue === "string") {
@@ -186,7 +206,9 @@ export function explicitXMLPropertyValidationMode(
     return contextual.explicitXMLPropertyValidationMode(itemType, propertyKey, propertyType)
   }
   const registration = registry.properties.get(registrationKey(itemType, propertyKey))
-  if (registration !== undefined) return registration.action === "transportScalar" ? "scalar" : "empty"
+  if (registration !== undefined) {
+    return registration.action === "transportScalar" || registration.action === "carrier" ? "scalar" : "empty"
+  }
   return propertyType !== undefined && registry.propertyTypes.has(propertyType) ? "empty" : undefined
 }
 

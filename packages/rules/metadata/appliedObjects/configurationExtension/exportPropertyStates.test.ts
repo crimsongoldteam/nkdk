@@ -12,6 +12,7 @@ import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { MetadataCommonFormRules } from "../metadataCommonForm/rules"
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
+import { encodeExplicitXMLPropertyState } from "./explicitXMLState"
 
 const BASE_UUID = "11111111-1111-4111-8111-111111111111"
 const logicalAddress = "Catalog.Товары.Attribute.Дата"
@@ -95,6 +96,36 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       },
       "xr:ExtendValue": { "_xsi:type": "v8:TypeDescription", "v8:Type": "xs:boolean" },
     })
+  })
+
+  it("restores a PropertyState carrier and its original XML value", () => {
+    const outputs = new Map<string, Record<string, unknown>>([["metadata", { Properties: {} }]])
+    const yaml = {
+      Иерархический: encodeExplicitXMLPropertyState({
+        itemType: "MetadataCatalog",
+        propertyKey: "hierarchical",
+        propertyXML: true,
+        propertyStateXML: { "xr:Property": "Hierarchical", "xr:State": "Extended" },
+      }),
+    }
+    markYAMLScalarTag(yaml, "Иерархический", "xml")
+    configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: {} }),
+      rule: {
+        itemType: "MetadataCatalog",
+        properties: {
+          hierarchical: { type: "boolean", yaml: "Иерархический", xml: "Hierarchical", xmlParents: ["Properties"] },
+        },
+      } as MetadataItemRule,
+      yaml,
+      outputs,
+      logicalAddress,
+    })
+
+    expect(record(record(outputs.get("metadata")).Properties).Hierarchical).toBe(true)
+    expect(record(record(outputs.get("metadata")).InternalInfo)["xr:PropertyState"]).toEqual([
+      { "xr:Property": "Hierarchical", "xr:State": "Extended" },
+    ])
   })
 
   it("orders the adopted catalog service property by its real rules", () => {

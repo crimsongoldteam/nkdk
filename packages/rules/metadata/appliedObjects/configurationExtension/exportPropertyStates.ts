@@ -9,6 +9,7 @@ import { currentOperationRegistrySet } from "../../operations/operationExecution
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
 import { readPropertyStateSections } from "./sections"
+import { decodeExplicitXMLPropertyState } from "./explicitXMLState"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
 
@@ -212,6 +213,18 @@ function propertyStates(params: {
       propertyKey,
     })
     const sectionMode = sectionStates.get(propertyKey)
+    if (
+      typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "xml" &&
+      typeof yamlValue === "string"
+    ) {
+      const explicit = decodeExplicitXMLPropertyState(yamlValue, {
+        itemType: params.rule.itemType,
+        propertyKey,
+      })
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, explicit.propertyXML)
+      states.push({ ...explicit.propertyStateXML })
+      continue
+    }
     if (sectionMode !== undefined) {
       states.push(propertyState(xmlName, sectionMode === "notify" ? "Notify" : "Extended"))
       continue

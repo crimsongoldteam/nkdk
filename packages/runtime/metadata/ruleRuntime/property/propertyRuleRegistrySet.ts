@@ -299,7 +299,7 @@ export function createPropertyRuleRegistrySet(
       const registration = explicitXMLProperties.get(
         propertyRegistrationKey(params.itemType, params.propertyKey),
       )
-      if (registration?.action === "transportScalar") return undefined
+      if (registration?.action === "transportScalar" || registration?.action === "carrier") return undefined
       if (registration?.action === "omit") {
         return params.presentInXML ? undefined : registration
       }
@@ -379,6 +379,9 @@ function sameExplicitXMLPropertyRegistration(
   left: ExplicitXMLPropertyRegistration,
   right: ExplicitXMLPropertyRegistration,
 ): boolean {
+  if (left.action === "carrier" || right.action === "carrier") {
+    return left.action === "carrier" && right.action === "carrier" && left.prefix === right.prefix
+  }
   if (left.action === "transportScalar" || right.action === "transportScalar") {
     return left.action === "transportScalar" &&
       right.action === "transportScalar" &&

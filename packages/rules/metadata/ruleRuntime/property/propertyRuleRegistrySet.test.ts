@@ -272,6 +272,43 @@ it("keeps explicit XML property-type policies inside the registry instance", () 
     .toBeUndefined()
 })
 
+it("defers a registered PropertyState carrier to the item augmenter", () => {
+  const registry = createPropertyRuleRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes: {
+      Sample: { importFromYAML: () => "ordinary-conversion" },
+    },
+    explicitXMLProperties: {
+      "Owner.value": {
+        action: "carrier",
+        itemType: "Owner",
+        propertyKey: "value",
+        prefix: "configurationExtensionPropertyStateXML:",
+      },
+    },
+  }))
+  const execution = createPropertyRuleExecutor(registry)
+  const yaml = importFromYAML<Record<string, unknown>>(
+    "Значение: !xml configurationExtensionPropertyStateXML:payload\n",
+  )
+  const rule = {
+    itemType: "Owner",
+    properties: {
+      value: { type: "Sample", yaml: "Значение", xml: "Value" },
+    },
+  }
+
+  expect(registry.collectExplicitXMLPropertyActions({ yaml, ...rule }).get("value"))
+    .toEqual({ kind: "deferToAugmenter" })
+  expect(convertPropertiesFromYAMLToXML({
+    context: mockContextToXML(),
+    yaml,
+    rule,
+    outputs: [{ key: "main" }],
+    execution,
+  }).outputs.get("main")).toEqual({})
+})
+
 it("exports explicit XML validation from the owning registry only", () => {
   const definition = (withExplicitXML: boolean) => defineMetadataRules({
     ...emptyMetadataRules,

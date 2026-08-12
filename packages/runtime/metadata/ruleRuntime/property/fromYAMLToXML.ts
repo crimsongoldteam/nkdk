@@ -205,6 +205,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
     const explicitXMLAction = explicitXMLActions.get(propertyKey)
     if (explicitXMLAction?.kind === "omit") continue
+    if (explicitXMLAction?.kind === "deferToAugmenter") continue
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
     if (explicitXMLAction?.kind === "invalid") {

@@ -446,7 +446,9 @@ export function importPropertiesFromXMLToYAML(params: {
               yamlValue,
             })
           : {
-              yamlValue: explicitXML?.yamlValue ?? yamlValue,
+              yamlValue: explicitXML !== undefined && "yamlValue" in explicitXML
+                ? explicitXML.yamlValue
+                : yamlValue,
               taggedPaths: [],
             }
       const exportedYamlValue = transported.yamlValue

@@ -9,6 +9,10 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { yamlScalarTagAt } from "@nkdk/runtime"
+import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
+import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
+import { metadataCatalogPropertyStateCapabilities } from "../metadataCatalog/propertyStates"
+import { configurationExtensionPropertyStateProfiles } from "./propertyStateProfiles"
 
 describe("configuration extension PropertyState augmenter", () => {
   it("преобразует Notify по каноническому XML-имени builder-rule без явного xml", () => {
@@ -60,6 +64,32 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml,
     })
     expect(yamlScalarTagAt(yaml, "ДлинаКода")).toBe("изменять")
+  })
+
+  it("переносит известный недопустимый Extended через !xml", () => {
+    const yaml: Record<string, unknown> = { Иерархический: true }
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        ...configurationExtensionPropertyStateProfiles,
+        metadataCatalogPropertyStateCapabilities,
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+        context: extensionContext(),
+        rule: {
+          itemType: "MetadataCatalog",
+          properties: {
+            hierarchical: { type: "boolean", yaml: "Иерархический", xml: "Hierarchical", xmlParents: ["Properties"] },
+          },
+        },
+        source: {
+          ...propertyStates(["Hierarchical", "Extended"]),
+          Properties: { Hierarchical: true },
+        },
+        yaml,
+      }))
+
+    expect(yamlScalarTagAt(yaml, "Иерархический")).toBe("xml")
+    expect(yaml.Иерархический).toMatch(/^!xml configurationExtensionPropertyStateXML:/u)
   })
 
   it("заменяет Type/xr:ExtendedProperty составным YAML-типом", () => {
@@ -136,7 +166,7 @@ describe("configuration extension PropertyState augmenter", () => {
         ["Form", "FutureState"],
       ]),
       yaml,
-    })).toThrow("Неизвестное значение PropertyState: FutureState")
+    })).toThrow("Неизвестное значение PropertyState FutureState для UnknownItem.Form")
   })
 
   it("сохраняет расширяемый объект как xml.extended", () => {

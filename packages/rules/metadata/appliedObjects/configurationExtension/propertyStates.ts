@@ -7,6 +7,7 @@ import { currentOperationRegistrySet } from "../../operations/operationExecution
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
 import { writePropertyStateSection } from "./sections"
+import { encodeExplicitXMLPropertyState } from "./explicitXMLState"
 
 const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
   ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",
@@ -94,7 +95,9 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       }
       if (state !== "Extended") {
         if (state !== "NotSet" && state !== "Checked") {
-          throw new Error(`Неизвестное значение PropertyState: ${state}`)
+          throw new Error(
+            `Неизвестное значение PropertyState ${state} для ${rule.itemType}.${property}`,
+          )
         }
         continue
       }
@@ -105,6 +108,20 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
           itemType: rule.itemType,
           propertyKey,
         })
+        if (propertyKey !== undefined && capability !== undefined && !capability.modes.includes("extend")) {
+          const propertyRule = rule.properties[propertyKey]!
+          yaml[yamlName] = encodeExplicitXMLPropertyState({
+            itemType: rule.itemType,
+            propertyKey,
+            propertyXML: valueAtXmlPath(source, [...(propertyRule.xmlParents ?? []), property]),
+            propertyStateXML: {
+              "xr:Property": property,
+              "xr:State": state,
+            },
+          })
+          markYAMLScalarTag(yaml, yamlName, "xml")
+          continue
+        }
         if (capability?.modes.length !== 1 || capability.modes[0] !== "extend") {
           markYAMLScalarTag(yaml, yamlName, "изменять")
         }
