@@ -406,7 +406,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const inputField = (form.Form.ChildItems as Array<{ InputField: { ContextMenu: { _name: string } } }>)[0].InputField
     inputField.ContextMenu._name = "НестандартноеКонтекстноеМеню"
 
-    importClientApplicationFormFromXMLToYAML({
+    const imported = importClientApplicationFormFromXMLToYAML({
       context,
       formName: "ФормаЭлемента",
       formXML: form.Form,
@@ -425,13 +425,15 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
           kind: "xmlId",
           value: "3",
         },
-        {
-          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.КонтекстноеМеню`,
-          kind: "xmlName",
-          value: "НестандартноеКонтекстноеМеню",
-        },
       ])
     )
+    expect(identities).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: "xmlName" }),
+    ]))
+    const input = (imported.yaml as ClientApplicationFormYAML).Элементы?.ПолеВвода1 as Record<string, unknown>
+    const menu = input.КонтекстноеМеню as Record<string, unknown>
+    expect(menu.Имя).toBe("!xml НестандартноеКонтекстноеМеню")
+    expect(yamlScalarTagAt(menu, "Имя")).toBe("xml")
     expect(identities).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.НестандартноеКонтекстноеМеню` }),
@@ -727,7 +729,7 @@ describe("форма XML → YAML → XML", () => {
       form.Form.ChildItems as Array<{
         InputField: {
           _id: string
-          ContextMenu: { _id: string }
+          ContextMenu: { _id: string; _name: string }
           ExtendedTooltip: { _id: string }
         }
       }>
@@ -737,6 +739,7 @@ describe("форма XML → YAML → XML", () => {
     sourceAttribute._id = "11"
     sourceInputField._id = "22"
     sourceInputField.ContextMenu._id = "33"
+    sourceInputField.ContextMenu._name = "СтароеИмяКонтекстногоМеню"
     sourceInputField.ExtendedTooltip._id = "44"
     sourceCommand._id = "55"
     const autoCommandBar = form.Form.AutoCommandBar as { _name?: string } | undefined
@@ -765,7 +768,7 @@ describe("форма XML → YAML → XML", () => {
       expect.objectContaining({
         _name: "ПолеВвода1",
         _id: "22",
-        ContextMenu: expect.objectContaining({ _name: "ПолеВвода1КонтекстноеМеню", _id: "33" }),
+        ContextMenu: expect.objectContaining({ _name: "СтароеИмяКонтекстногоМеню", _id: "33" }),
         ExtendedTooltip: expect.objectContaining({ _name: "ПолеВвода1РасширеннаяПодсказка", _id: "44" }),
       })
     )

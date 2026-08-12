@@ -18,22 +18,27 @@ import {
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { ElementXML } from "../../../ruleRuntime/formElement/types"
 import type { ExportToJSONSchemaFn } from "../../../ruleRuntime"
+import { explicitElementNameStyle } from "../../explicitElementName"
 
 export type GanttChartFieldTable = Table
 export type GanttChartFieldTableYAML = TablePartialYAML
 
-const nameStyle: SingletonNameStyle = {
+const nameStyle: SingletonNameStyle = explicitElementNameStyle("GanttChartFieldTable", {
   canonicalSuffix: "Таблица",
   referenceSuffixes: ["Таблица", "Table"],
   canonicalNameMode: "ownerSuffix",
-}
+})
 
 const getGeneratedName = (
   context: ConfigurationContextWithExportToXML,
   table: GanttChartFieldTable | undefined
 ): string => {
   const parent = getParentFromContext(context, ["GanttChartField"])
-  const parentName = parent.name || table?.name || "ДиаграммаГанта"
+  const logicalAddress = context.exportToXML.configurationIndex?.logicalAddress
+  const segments = logicalAddress?.split(".") ?? []
+  const tableSegment = segments.lastIndexOf("Таблица")
+  const indexedOwnerName = tableSegment > 0 ? segments[tableSegment - 1] : undefined
+  const parentName = parent.name || table?.name || indexedOwnerName || "ДиаграммаГанта"
   return `${parentName}Таблица`
 }
 
@@ -47,6 +52,7 @@ export const exportGanttChartFieldTableToJSONSchema: ExportToJSONSchemaFn = (par
   return exportElementToJSONSchema({
     context: params.context,
     value,
+    explicitXMLName: true,
   })
 }
 

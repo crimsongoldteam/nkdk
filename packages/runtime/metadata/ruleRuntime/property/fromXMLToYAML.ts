@@ -30,7 +30,7 @@ import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import type { YamlPath } from "../../diagnostics/types"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
-import { markYAMLScalarTag, xmlScalarTagValue } from "../../../yaml/scalarTags"
+import { copyYAMLScalarTags, markYAMLScalarTag, xmlScalarTagValue } from "../../../yaml/scalarTags"
 import {
   matchExplicitXMLPropertyFromXML,
   matchExplicitXMLPropertyTypeFromXML,
@@ -511,6 +511,7 @@ export function importPropertiesFromXMLToYAML(params: {
           : { [propertyRule.yaml!]: exportedYamlValue }
       if (exportedValues === undefined) return
       Object.assign(result, exportedValues)
+      copyYAMLScalarTags(exportedValues, result)
       if (dependentImportProperty) {
         params.dependent?.accept({
           itemType: rule.itemType,

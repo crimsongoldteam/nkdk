@@ -13,6 +13,8 @@ import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import { CollectableElementTypeToYAML, type CollectableElementType, type ElementRule, type ElementXML } from "./types"
 import { currentRuleRegistrySet } from "../ruleRegistryExecutionContext"
+import { writeExplicitElementXMLName } from "./explicitName"
+import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
 
 export function importFormElementFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
@@ -21,11 +23,14 @@ export function importFormElementFromXMLToYAML(params: {
   name: string
   traversal: DirectImportTraversal
 }): Record<string, unknown> {
-  return {
+  const properties = importFormElementPropertiesFromXMLToYAML(params) ?? {}
+  const result = {
     Вид: currentRuleRegistrySet<{ formElementKinds: ReadonlyMap<string, string> }>()
       ?.formElementKinds.get(params.rule.itemType) ?? CollectableElementTypeToYAML[params.rule.itemType],
-    ...importFormElementPropertiesFromXMLToYAML(params),
+    ...properties,
   }
+  copyYAMLScalarTags(properties, result)
+  return result
 }
 
 export function importFormElementPropertiesFromXMLToYAML(params: {
@@ -76,18 +81,25 @@ export function importSingleFormElementFromXMLToYAML(params: {
     logicalAddress === undefined ? params.context : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
 
   collectConfigurationIndexIdentityFromXML({ context, sourceXmlKey: "_id", xmlValue: params.xml._id })
-  collectConfigurationIndexIdentityFromXML({
-    context,
-    sourceXmlKey: "_name",
-    xmlValue: params.xml._name,
-    reconstructibleXmlName: canonicalName,
-  })
+  if (params.nameStyle?.explicitXMLName !== true) {
+    collectConfigurationIndexIdentityFromXML({
+      context,
+      sourceXmlKey: "_name",
+      xmlValue: params.xml._name,
+      reconstructibleXmlName: canonicalName,
+    })
+  }
 
-  return (
+  const yaml = (
     importPropertiesFromXMLToYAML({
       context,
       rule: params.rule,
-      sources: [{ context, xml: params.xml }],
+      sources: [{
+        context,
+        xml: params.nameStyle?.explicitXMLName === true
+          ? withoutImportableXMLName(params.xml)
+          : params.xml,
+      }],
       itemName: canonicalName,
       yamlPath: params.traversal.yamlPath,
       rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
@@ -97,6 +109,21 @@ export function importSingleFormElementFromXMLToYAML(params: {
       execution: propertyExecutionFromTraversal(params.traversal),
     }) ?? {}
   )
+  if (
+    params.nameStyle?.explicitXMLName === true &&
+    typeof params.xml._name === "string" &&
+    params.xml._name !== canonicalName
+  ) {
+    writeExplicitElementXMLName(yaml, params.xml._name)
+  }
+  return yaml
+}
+
+function withoutImportableXMLName(xml: ElementXML): ElementXML {
+  const { _name, ...properties } = xml
+  const result = properties as ElementXML
+  Object.defineProperty(result, "_name", { value: _name, enumerable: false })
+  return result
 }
 
 function propertyExecutionFromTraversal(
