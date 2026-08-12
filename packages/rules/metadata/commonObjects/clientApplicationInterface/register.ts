@@ -171,8 +171,6 @@ const collectClientApplicationInterfaceConfigurationIndex = (
   for (const [index, panelDef] of (panelDefs ?? []).entries()) {
     const address = itemAddress(panelDefsAddress, index)
     collection.collector.setIdentity(address, "xmlId", panelDef.id)
-    if (panelDef.name !== undefined) collection.collector.setXmlValue(`${address}.name`, "xmlText", panelDef.name)
-    if (panelDef.spr !== undefined) collection.collector.setXmlValue(`${address}.spr`, "xmlText", panelDef.spr)
   }
 }
 

@@ -14,7 +14,6 @@ import { importSingleFormElementFromXMLToYAML } from "./fromXMLToYAML"
 import {
   configurationIndexExportFormElementLogicalAddress,
   configurationIndexExportFormSingletonLogicalAddress,
-  getConfigurationIndexXmlName,
   withConfigurationIndexExportLogicalAddress,
 } from "../../configurationIndex/referenceView"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
@@ -59,9 +58,7 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
     return logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
   },
   resolveItemContext: ({ context }) => {
-    const itemName = params.nameStyle?.explicitXMLName === true
-      ? params.toXML({ context }).name
-      : (getConfigurationIndexXmlName(context) ?? params.toXML({ context }).name)
+    const itemName = params.toXML({ context }).name
     return itemName === undefined
       ? context
       : getChildContextToXML({
@@ -79,20 +76,14 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
     const explicitName = params.nameStyle?.explicitXMLName === true
       ? readExplicitElementXMLName(yaml)
       : undefined
-    const indexedName = params.nameStyle?.explicitXMLName === true
-      ? undefined
-      : getConfigurationIndexXmlName(context)
     const indexedId = runtime?.identity("xmlId")
-    if (params.nameStyle?.explicitXMLName !== true && indexedName !== undefined) {
-      runtime?.collector.setIdentity(runtime.logicalAddress, "xmlName", indexedName)
-    }
     if (indexedId !== undefined) runtime?.collector.setIdentity(runtime.logicalAddress, "xmlId", indexedId)
     const result = {
       _name:
         explicitName ?? (
-          typeof _name === "string" && (_name.length > 0 || indexedName === "")
+          typeof _name === "string" && _name.length > 0
             ? _name
-            : (indexedName ?? extra.name)
+            : extra.name
         ),
       _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? params.directId ?? String(extra.id ?? "")),
       ...properties,

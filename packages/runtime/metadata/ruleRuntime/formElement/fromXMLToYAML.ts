@@ -81,15 +81,6 @@ export function importSingleFormElementFromXMLToYAML(params: {
     logicalAddress === undefined ? params.context : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
 
   collectConfigurationIndexIdentityFromXML({ context, sourceXmlKey: "_id", xmlValue: params.xml._id })
-  if (params.nameStyle?.explicitXMLName !== true) {
-    collectConfigurationIndexIdentityFromXML({
-      context,
-      sourceXmlKey: "_name",
-      xmlValue: params.xml._name,
-      reconstructibleXmlName: canonicalName,
-    })
-  }
-
   const yaml = (
     importPropertiesFromXMLToYAML({
       context,

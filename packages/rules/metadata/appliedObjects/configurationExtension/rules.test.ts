@@ -96,17 +96,32 @@ describe("MetadataConfigurationExtensionRules", () => {
 
   it("восстанавливает InternalInfo корня из снимка расширения", () => {
     const contexts = createDirectRoundTripContexts({ logicalAddress: "Конфигурация" })
+    const importContext = {
+      ...contexts.importContext,
+      fromXML: {
+        ...contexts.importContext.fromXML,
+        metadataItemAugmenter: "configurationExtension",
+      },
+    }
     const imported = testMetadataItemFromXMLToYAML({
       rule: MetadataConfigurationExtensionRules,
       xml: parseRoot(DEFAULT_EXTENSION_XML),
-      context: contexts.importContext,
+      context: importContext,
       name: "РасширениеПоУмолчанию",
     })
+    const exportContext = contexts.exportContext()
 
     const exported = testMetadataItemFromYAMLToXML({
       rule: MetadataConfigurationExtensionRules,
       yaml: imported.yaml,
-      context: contexts.exportContext(),
+      context: {
+        ...exportContext,
+        exportToXML: {
+          ...exportContext.exportToXML,
+          componentKind: "configurationExtension",
+          xmlDefaultVariantByLogicalAddress: { Конфигурация: "adopted" },
+        },
+      },
       name: "РасширениеПоУмолчанию",
     })
 

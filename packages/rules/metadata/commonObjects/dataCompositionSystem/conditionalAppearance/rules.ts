@@ -4,10 +4,13 @@ import { userSettingsIDRule } from "../../userSettingsID/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../ruleRuntime"
 import type { TypeRulesOperations } from "@nkdk/runtime/rule-kit"
-const conditionalAppearanceViewModeDefaultValue = ({ operation }: { operation: TypeRulesOperations }) =>
-  operation === "importFromXML" || operation === "importFromXMLToYAML" || operation === "importFromYAML"
-    ? undefined
-    : "QuickAccess"
+const conditionalAppearanceViewModeDefaultValue = ({ operation, yaml }: { operation: TypeRulesOperations; yaml?: unknown }) => {
+  if (operation === "importFromXML" || operation === "importFromXMLToYAML") return undefined
+  if (operation === "importFromYAML") {
+    return typeof yaml === "object" && yaml !== null && "Элементы" in yaml ? "QuickAccess" : "Normal"
+  }
+  return "QuickAccess"
+}
 export const ConditionalAppearanceRules = {
   itemType: "ConditionalAppearance",
   xmlOrder: ["conditionalAppearanceItems", "viewMode", "userSettingID", "userSettingPresentation"],

@@ -33,7 +33,9 @@ export const exportTypeDescriptionToYAML = (
   const yamlType = formatSingleType(types[0], typeDescription)
   const sourceType = typeDescription[TYPE_DESCRIPTION_SOURCE_TYPES]?.[types[0]]
   const sourcePrefix = sourceType === undefined ? undefined : sourceType.value.slice(0, sourceType.value.indexOf(":"))
-  const canonicalPrefix = getTypeDescriptionRule(types[0])?.prefix
+  const separator = types[0].indexOf(".")
+  const baseType = separator === -1 ? types[0] : types[0].slice(0, separator)
+  const canonicalPrefix = getTypeDescriptionRule(baseType)?.prefix
   if (sourcePrefix !== undefined && sourcePrefix !== canonicalPrefix) {
     return taggedYAMLScalar("xml", xmlScalarTagValue(`${sourcePrefix}:${yamlType}`)) as unknown as TypeDescriptionYAML
   }

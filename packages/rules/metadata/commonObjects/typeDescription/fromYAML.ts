@@ -130,11 +130,13 @@ export const importTypeDescriptionFromYAML = (
 }
 
 const generatedPrefixPattern = /^d(\d+)p1$/
+const currentConfigNamespace = "http://v8.1c.ru/8.1/data/enterprise/current-config"
 
 const isCompatibleGeneratedPrefix = (prefix: string, type: string): boolean => {
   const match = generatedPrefixPattern.exec(prefix)
   if (match === null) return false
-  const rule = getTypeDescriptionRule(type)
+  const dot = type.indexOf(".")
+  const rule = getTypeDescriptionRule(dot === -1 ? type : type.slice(0, dot))
   if (rule === undefined) return false
   const number = Number(match[1])
   if (rule.prefix === "cfg") return number % 2 === 0
@@ -159,11 +161,13 @@ const parseTaggedTypeDescription = (propertyName: string, value: unknown): TypeD
     parsed.dateQualifiers !== undefined
   ) throw new Error(error)
   const type = parsed.type[0]!
-  const rule = getTypeDescriptionRule(type)
-  if (rule?.namespace === undefined || !isCompatibleGeneratedPrefix(prefix, type)) throw new Error(error)
+  const dot = type.indexOf(".")
+  const rule = getTypeDescriptionRule(dot === -1 ? type : type.slice(0, dot))
+  const namespace = rule?.prefix === "cfg" ? currentConfigNamespace : rule?.namespace
+  if (namespace === undefined || !isCompatibleGeneratedPrefix(prefix, type)) throw new Error(error)
 
   Object.defineProperty(parsed, TYPE_DESCRIPTION_SOURCE_TYPES, {
-    value: { [type]: { value: `${prefix}:${type}`, namespace: rule.namespace } },
+    value: { [type]: { value: `${prefix}:${type}`, namespace } },
     enumerable: false,
   })
   return parsed

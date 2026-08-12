@@ -5,7 +5,6 @@ import {
   type ConfigurationIndexPropertyXmlStateAddress,
   getConfigurationIndexPropertyReferenceXMLValue,
   getConfigurationIndexPropertyXmlValue,
-  getConfigurationIndexXmlName,
   getConfigurationIndexXmlNodeLogicalAddress,
   withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
@@ -762,6 +761,7 @@ function copyConfigurationIndexPropertyValue(
   if (runtime === undefined || value === undefined) return
   const address = configurationIndexPropertyXmlStateLogicalAddress(runtime, property)
   if (value.extended === true) runtime.collector.setXmlFlag(address, "extended")
+  if (getXMLDefaultVariant(context) === undefined) return
   if (value.present === true) runtime.collector.setXmlFlag(address, "present")
   if (value.xsiNil === true) runtime.collector.setXmlFlag(address, "xsiNil")
   if (value.explicitEmpty === true) runtime.collector.setXmlFlag(address, "explicitEmpty")
@@ -936,12 +936,6 @@ function readReferenceProperty(params: {
           exists: true,
           key,
           value: current[key],
-          ...(getConfigurationIndexPropertyXmlValue(
-            params.context,
-            configurationIndexPropertyXmlStateAddress(params.planned)
-          )?.explicitEmpty === true
-            ? { indexedExplicitEmpty: true }
-            : {}),
         }
       }
     }
@@ -964,6 +958,7 @@ function referenceFromConfigurationIndex(
     execution,
   )
   if (identity !== undefined) return identity
+  if (getXMLDefaultVariant(context) === undefined) return { exists: false }
   const property = configurationIndexPropertyXmlStateAddress(planned)
   const indexedValue = getConfigurationIndexPropertyXmlValue(context, property)
   if (
@@ -978,20 +973,16 @@ function referenceFromConfigurationIndex(
   }
   const indexedDescriptor = execution === undefined
     ? getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
-    : execution.getTypeRule(
-        planned.propertyRule.type,
-        "configurationIndexValueFromXML",
-      )
+    : execution.getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
   const value =
     (indexedValue === undefined ? undefined : indexedDescriptor?.referenceXMLFromValue?.(indexedValue)) ??
     getConfigurationIndexPropertyReferenceXMLValue(context, property)
-  const indexedExplicitEmpty = indexedValue?.explicitEmpty === true
   if (value !== undefined) {
     return {
       exists: true,
       key: planned.propertyRule.xml ?? capitalize(planned.propertyKey),
       value,
-      ...(indexedExplicitEmpty ? { indexedExplicitEmpty: true } : {}),
+      ...(indexedValue?.explicitEmpty === true ? { indexedExplicitEmpty: true } : {}),
     }
   }
   if (indexedValue?.present === true) {
@@ -1024,13 +1015,11 @@ function identityReferenceFromConfigurationIndex(
   if ((planned.propertyRule.xmlParents?.length ?? 0) > 0) return undefined
   const xmlKey = planned.propertyRule.xml ?? planned.xmlPath.at(-1)
   const runtime = context.exportToXML.configurationIndex
-  if (runtime === undefined || (xmlKey !== "_uuid" && xmlKey !== "_id" && xmlKey !== "_name")) return undefined
+  if (runtime === undefined || (xmlKey !== "_uuid" && xmlKey !== "_id")) return undefined
   const kind =
     xmlKey === "_uuid"
       ? "uuid"
-      : xmlKey === "_name"
-        ? "xmlName"
-        : (execution === undefined
+      : (execution === undefined
             ? getTypeRule(
                 planned.propertyRule.type,
                 "configurationIndexValueFromXML",
@@ -1041,7 +1030,7 @@ function identityReferenceFromConfigurationIndex(
               ))?.identityKind === "uuid"
           ? "uuid"
           : "xmlId"
-  const value = kind === "xmlName" ? getConfigurationIndexXmlName(context) : runtime.identity(kind)
+  const value = runtime.identity(kind)
   if (value === undefined) return undefined
   runtime.collector.setIdentity(runtime.logicalAddress, kind, value)
   return { exists: true, key: xmlKey, value }
