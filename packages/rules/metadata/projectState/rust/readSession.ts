@@ -20,16 +20,20 @@ export function openRustProjectStateReadSession(
 ) {
   const buffers = claimBinaryProjectStateReadToken(token)
   const snapshot = new ProjectStateSnapshotView(buffers)
-  const fallback = createBinaryProjectStateQueryPort(snapshot, { dependencyValidator })
-  const native = (dependencies.openReader ?? openRustProjectStateReader)(projectStateSectionViews(buffers))
   const typedReader = hasTypedProjectStateFacts(snapshot)
-    ? createTypedProjectStateReader(snapshot)
+    ? (dependencies.createTypedReader ?? createTypedProjectStateReader)(snapshot)
     : undefined
+  const fallback = (dependencies.createFallbackQueryPort ?? createBinaryProjectStateQueryPort)(
+    snapshot,
+    { dependencyValidator, typedReader },
+  )
+  const native = (dependencies.openReader ?? openRustProjectStateReader)(projectStateSectionViews(buffers))
+  const createTargetCacheKey = dependencies.createTargetCacheKey ?? targetCacheKey
   const targetCache = new Map<string, CachedTargetLookupResult>()
   const queryPort: ProjectStateQueryPort = {
     ...fallback,
     resolveTargets: (requests) => resolveTargets(
-      native, snapshot, typedReader, fallback, targetCache, requests,
+      native, snapshot, typedReader, fallback, targetCache, createTargetCacheKey, requests,
     ),
   }
   return createProjectStateReadSession({ token, queryPort, close: () => native.close() })
@@ -37,6 +41,9 @@ export function openRustProjectStateReadSession(
 
 interface RustReadSessionDependencies {
   readonly openReader: typeof openRustProjectStateReader
+  readonly createTypedReader: typeof createTypedProjectStateReader
+  readonly createFallbackQueryPort: typeof createBinaryProjectStateQueryPort
+  readonly createTargetCacheKey: typeof targetCacheKey
 }
 
 type WithoutRequestId<T> = T extends unknown ? Omit<T, "requestId"> : never
@@ -48,14 +55,17 @@ function resolveTargets(
   typedReader: ReturnType<typeof createTypedProjectStateReader> | undefined,
   fallback: ProjectStateQueryPort,
   cache: Map<string, CachedTargetLookupResult>,
+  createTargetCacheKey: typeof targetCacheKey,
   requests: Parameters<ProjectStateQueryPort["resolveTargets"]>[0],
 ): ReturnType<ProjectStateQueryPort["resolveTargets"]> {
   if (typedReader === undefined) return fallback.resolveTargets(requests)
+  const keys = requests.map(({ componentPath, canonicalTarget }) =>
+    createTargetCacheKey(componentPath, canonicalTarget))
   const pending = new Map<string, (typeof requests)[number]>()
-  for (const request of requests) {
-    const key = targetCacheKey(request.componentPath, request.canonicalTarget)
+  requests.forEach((request, index) => {
+    const key = keys[index]!
     if (!cache.has(key)) pending.set(key, request)
-  }
+  })
   if (pending.size > 0) {
     const entries = [...pending]
     const results = decodeRustTargetResponse(native.execute(encodeRustTargetRequest(
@@ -65,9 +75,9 @@ function resolveTargets(
       cache.set(entries[index]![0], decodeTarget(snapshot, typedReader, result))
     })
   }
-  return requests.map(({ requestId, componentPath, canonicalTarget }) => ({
+  return requests.map(({ requestId }, index) => ({
     requestId,
-    ...cache.get(targetCacheKey(componentPath, canonicalTarget))!,
+    ...cache.get(keys[index]!)!,
   }))
 }
 

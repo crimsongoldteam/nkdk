@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
+import { createBinaryProjectStateQueryPort } from "../binary/readSession"
 import { createBinaryProjectStateStore } from "../binary/store"
 import { createProjectStateFragmentWriter } from "../binary/fragment"
 import { richYamlUpdate } from "../binary/testData"
+import { createTypedProjectStateReader } from "../binary/typedReader"
 import { openRustProjectStateReader } from "./addon"
 import { openRustProjectStateReadSession } from "./readSession"
 
@@ -50,6 +52,10 @@ describe("Rust ProjectState read session", () => {
     const update = richYamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")
     const { store, validator } = publishedStore(update)
     let executeCalls = 0
+    let typedReaderCalls = 0
+    let cacheKeyCalls = 0
+    let createdTypedReader: ReturnType<typeof createTypedProjectStateReader> | undefined
+    let fallbackTypedReader: ReturnType<typeof createTypedProjectStateReader> | undefined
     const requestCounts: number[] = []
     const session = openRustProjectStateReadSession(store.createReadToken(), validator, {
       openReader(sections) {
@@ -67,6 +73,18 @@ describe("Rust ProjectState read session", () => {
           close: () => reader.close(),
         }
       },
+      createTypedReader(...args: Parameters<typeof createTypedProjectStateReader>) {
+        typedReaderCalls += 1
+        return createdTypedReader = createTypedProjectStateReader(...args)
+      },
+      createFallbackQueryPort(...args: Parameters<typeof createBinaryProjectStateQueryPort>) {
+        fallbackTypedReader = args[1].typedReader
+        return createBinaryProjectStateQueryPort(...args)
+      },
+      createTargetCacheKey(componentPath: string, canonicalTarget: string) {
+        cacheKeyCalls += 1
+        return `${componentPath}\u0000${canonicalTarget}`
+      },
     })
     const lookup = (requestId: string) => ({
       requestId,
@@ -83,6 +101,9 @@ describe("Rust ProjectState read session", () => {
       .toMatchObject([{ requestId: "cached", status: "found" }])
     expect(executeCalls).toBe(1)
     expect(requestCounts).toEqual([1])
+    expect(typedReaderCalls).toBe(1)
+    expect(fallbackTypedReader).toBe(createdTypedReader)
+    expect(cacheKeyCalls).toBe(3)
 
     session.close()
     store.close()
