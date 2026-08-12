@@ -134,6 +134,7 @@ describe("validateProjectFileFirstPass references", () => {
     })
     const projectPath = "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml"
     writeProjectFile(component.componentDir, projectPath, "Комментарий: тест")
+    writeProjectFile(join(projectDir, "cf"), projectPath, "ИмяВИсточникеДанных: Куб")
     const file = resolveValidationProjectFile(component.componentDir, projectPath, component)
     if (!file) throw new Error("file not resolved")
     const properties = vi.fn(sharedSchemaCache.properties)
@@ -159,6 +160,31 @@ describe("validateProjectFileFirstPass references", () => {
       canonicalTarget: "ExternalDataSource.Источник.Cube.Куб",
       missing: ["ИмяВИсточникеДанных"],
     }))
+  })
+
+  it("использует полную схему для собственного объекта cfe без одноимённого cf", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const component = createValidationProjectComponent(projectDir, {
+      kind: "configurationExtension",
+      name: "X",
+    })
+    const projectPath = "Справочник/Собственный/Свойства.yaml"
+    writeProjectFile(component.componentDir, projectPath, "Комментарий: собственный")
+    const file = resolveValidationProjectFile(component.componentDir, projectPath, component)
+    if (!file) throw new Error("file not resolved")
+    const properties = vi.fn(sharedSchemaCache.properties)
+
+    validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: { ...sharedSchemaCache, properties },
+      rulesSnapshot,
+    })
+
+    expect(properties).toHaveBeenCalledWith(file.itemRule, "full")
   })
 
   it.each([

@@ -44,6 +44,9 @@ import { collectAddressableRequiredChecks } from "./addressableRequired"
 import { collectAddressableMetadataLogicalAddresses } from "./addressableMetadataTargets"
 import type { ValidationRegistrySet } from "./validationRegistrySet"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
+import type { PropertyStateCapabilityRegistry } from "../ruleRuntime/definition"
+import { exportBorrowedPropertyStateSchema } from "../appliedObjects/configurationExtension/propertyStateSchema"
 
 type CompiledSchema = ValidationSchemaValidator
 type ValidationSchemaVariant = "full" | "extension-overlay"
@@ -322,7 +325,14 @@ function compileRuleValidationSchema(params: {
   const graph = params.runtime === undefined
     ? exportJSONSchemaGraph(common)
     : params.runtime.exportGraph({ ...common, explicitXMLValues: true })
-  const root = graph.roots[params.rootKey]!
+  const sourceRoot = graph.roots[params.rootKey]!
+  const capability = params.variant === "extension-overlay"
+    ? currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()
+      ?.propertyStates.item(params.rule.itemType)
+    : undefined
+  const root = capability === undefined
+    ? sourceRoot
+    : exportBorrowedPropertyStateSchema({ rule: params.rule, capability, source: sourceRoot })
   return compileValidationSchema(
     graph.schemas,
     params.stripRootRefs === true ? stripCollectedSchemaRefs(root) : root,
@@ -336,9 +346,15 @@ function requiredPolicy(variant: ValidationSchemaVariant) {
 }
 
 function validationSchemaVariant(file: ValidationProjectFile): ValidationSchemaVariant {
-  return file.componentPath.startsWith("cfe/") && file.metadataTarget !== undefined
+  return isBorrowedExtensionFile(file)
     ? "extension-overlay"
     : "full"
+}
+
+function isBorrowedExtensionFile(file: ValidationProjectFile): boolean {
+  if (!file.componentPath.startsWith("cfe/") || file.metadataTarget === undefined) return false
+  const projectRoot = resolve(file.componentDir, "..", "..")
+  return fs.existsSync(resolve(projectRoot, "cf", ...file.projectPath.split("/")))
 }
 
 export function validateProjectFileFirstPass(params: {
