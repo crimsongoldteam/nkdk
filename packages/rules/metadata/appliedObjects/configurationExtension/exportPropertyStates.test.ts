@@ -4,6 +4,7 @@ import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import { childSegmentUid } from "@nkdk/runtime"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
+import { markYAMLScalarTag } from "@nkdk/runtime"
 import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -34,15 +35,16 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       ["metadata", { Form: { Properties: { Format: "date" } } }],
       ["body", {}],
     ])
+    const yaml = { Формат: "date", ОбъектРасширяемойКонфигурации: BASE_UUID }
+    markYAMLScalarTag(yaml, "Формат", "проверять")
+    markYAMLScalarTag(yaml, "ОбъектРасширяемойКонфигурации", "проверять")
     configurationExtensionYamlToXmlAugmenter.augment({
       context: context({
         adoptedUuids: { [logicalAddress]: BASE_UUID },
         extended: ["form"],
       }),
       rule,
-      yaml: {
-        Контроль: ["Формат", "ОбъектРасширяемойКонфигурации"],
-      },
+      yaml,
       outputs,
       logicalAddress,
     })
@@ -298,7 +300,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     })
   })
 
-  it("rejects an unknown control name with the logical address", () => {
+  it("не поддерживает старый раздел Контроль", () => {
     expect(() =>
       configurationExtensionYamlToXmlAugmenter.augment({
         context: context({ adoptedUuids: {} }),
@@ -307,15 +309,17 @@ describe("configuration extension YAML-to-XML augmenter", () => {
         outputs: new Map([["metadata", { Form: { Properties: {} } }]]),
         logicalAddress,
       })
-    ).toThrow(`Неизвестное свойство Контроль "Неизвестное": ${logicalAddress}`)
+    ).toThrow(`YAML-поле Контроль больше не поддерживается: ${logicalAddress}`)
   })
 
   it("prefers Notify when the same property is saved as Extended", () => {
     const outputs = new Map([["metadata", { Form: { Properties: {} } }]])
+    const yaml = { Форма: {} }
+    markYAMLScalarTag(yaml, "Форма", "проверять")
     configurationExtensionYamlToXmlAugmenter.augment({
       context: context({ adoptedUuids: {}, extended: ["form"] }),
       rule,
-      yaml: { Контроль: ["Форма"] },
+      yaml,
       outputs,
       logicalAddress,
     })

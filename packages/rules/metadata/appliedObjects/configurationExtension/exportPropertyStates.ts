@@ -1,10 +1,12 @@
-import { capitalize } from "@nkdk/runtime"
+import { capitalize, yamlScalarTagAt } from "@nkdk/runtime"
 import { childSegmentUid } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { getCompiledXMLPropertyOrder } from "../../ruleRuntime/property/xmlPropertyOrder"
 import { EXTENDED_SNAPSHOT_SEGMENTS } from "./propertyStates"
+import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
+import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
 
@@ -23,11 +25,13 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
     }
 
-    const control = readControl(yaml, rule, logicalAddress)
+    if (Object.prototype.hasOwnProperty.call(yaml, "Контроль")) {
+      throw new Error(`YAML-поле Контроль больше не поддерживается: ${logicalAddress}`)
+    }
     const states = propertyStates({
       context,
       rule,
-      control,
+      yaml,
       logicalAddress,
     })
     if (states.length > 0) writePropertyStates(outputs, rule, states)
@@ -183,11 +187,11 @@ function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
 function propertyStates(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly rule: MetadataItemRule
-  readonly control: ReadonlySet<string>
+  readonly yaml: Readonly<Record<string, unknown>>
   readonly logicalAddress: string
 }): Record<string, string>[] {
   const states: Record<string, string>[] = []
-  if (params.control.has(EXTENDED_CONFIGURATION_OBJECT_YAML)) {
+  if (yamlScalarTagAt(params.yaml, EXTENDED_CONFIGURATION_OBJECT_YAML) === "проверять") {
     states.push(propertyState("ExtendedConfigurationObject", "Notify"))
   }
 
@@ -197,9 +201,26 @@ function propertyStates(params: {
     if (
       typeof yamlName === "string" &&
       yamlName !== EXTENDED_CONFIGURATION_OBJECT_YAML &&
-      params.control.has(yamlName)
+      yamlScalarTagAt(params.yaml, yamlName) === "проверять"
     ) {
       states.push(propertyState(xmlName, "Notify"))
+      continue
+    }
+    if (typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "изменять") {
+      states.push(propertyState(xmlName, "Extended"))
+      continue
+    }
+    const capability = propertyStateRegistry()?.resolve({
+      itemType: params.rule.itemType,
+      propertyKey,
+    })
+    if (
+      typeof yamlName === "string" &&
+      Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&
+      capability?.modes.length === 1 && capability.modes[0] === "extend" &&
+      capability.representation !== "section"
+    ) {
+      states.push(propertyState(xmlName, "Extended"))
       continue
     }
     const segment = EXTENDED_SNAPSHOT_SEGMENTS[params.rule.itemType]?.[xmlName]
@@ -229,26 +250,8 @@ function propertyStates(params: {
   return states
 }
 
-function readControl(
-  yaml: Readonly<Record<string, unknown>>,
-  rule: MetadataItemRule,
-  logicalAddress: string
-): ReadonlySet<string> {
-  const value = yaml["Контроль"]
-  if (value === undefined) return new Set()
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
-    throw new Error(`Контроль должен быть массивом строк: ${logicalAddress}`)
-  }
-  const known = new Set<string>([EXTENDED_CONFIGURATION_OBJECT_YAML])
-  for (const propertyRule of Object.values(rule.properties)) {
-    if (typeof propertyRule.yaml === "string") known.add(propertyRule.yaml)
-  }
-  for (const item of value) {
-    if (!known.has(item)) {
-      throw new Error(`Неизвестное свойство Контроль "${item}": ${logicalAddress}`)
-    }
-  }
-  return new Set(value)
+function propertyStateRegistry(): PropertyStateCapabilityRegistry | undefined {
+  return currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()?.propertyStates
 }
 
 function writeServiceProperty(

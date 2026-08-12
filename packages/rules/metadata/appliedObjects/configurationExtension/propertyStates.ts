@@ -1,8 +1,10 @@
-import { capitalize } from "@nkdk/runtime"
+import { capitalize, markYAMLScalarTag } from "@nkdk/runtime"
 import { getConfigurationIndexCollectionContext } from "@nkdk/runtime"
 import { childSegmentUid } from "@nkdk/runtime"
 import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
+import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 
 const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
   ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",
@@ -70,16 +72,42 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       const state = propertyState["xr:State"]
       if (typeof property !== "string" || typeof state !== "string") continue
       if (state === "Notify") {
-        const yamlName = notifyYamlName(rule, property)
-        if (yamlName !== undefined) appendUniqueControl(yaml, yamlName)
+        const yamlName = propertyYamlName(rule, property)
+        if (yamlName !== undefined) markPropertyState(yaml, yamlName, "проверять")
         continue
       }
-      if (state !== "Extended") continue
+      if (state !== "Extended") {
+        if (state !== "NotSet" && state !== "Checked") {
+          throw new Error(`Неизвестное значение PropertyState: ${state}`)
+        }
+        continue
+      }
+      const yamlName = propertyYamlName(rule, property)
+      if (yamlName !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlName)) {
+        const propertyKey = propertyKeyByXmlName(rule, property)
+        const capability = propertyKey === undefined ? undefined : propertyStateRegistry()?.resolve({
+          itemType: rule.itemType,
+          propertyKey,
+        })
+        if (capability?.modes.length !== 1 || capability.modes[0] !== "extend") {
+          markYAMLScalarTag(yaml, yamlName, "изменять")
+        }
+        continue
+      }
       const segment = EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType]?.[property]
       if (segment === undefined || collection === undefined) continue
       collection.collector.setXmlFlag(childSegmentUid(collection.logicalAddress, segment), "extended")
     }
   },
+}
+
+function propertyKeyByXmlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {
+  return Object.entries(rule.properties).find(([propertyKey, propertyRule]) =>
+    (propertyRule.xml ?? capitalize(propertyKey)) === xmlProperty)?.[0]
+}
+
+function propertyStateRegistry(): PropertyStateCapabilityRegistry | undefined {
+  return currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()?.propertyStates
 }
 
 function propertyStates(source: Record<string, unknown>): Record<string, unknown>[] {
@@ -92,7 +120,7 @@ function propertyStates(source: Record<string, unknown>): Record<string, unknown
   })
 }
 
-function notifyYamlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {
+function propertyYamlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {
   const alias = NOTIFY_ALIASES[xmlProperty]
   if (alias !== undefined) return alias
   for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
@@ -103,11 +131,13 @@ function notifyYamlName(rule: MetadataItemRule, xmlProperty: string): string | u
   return undefined
 }
 
-function appendUniqueControl(yaml: Record<string, unknown>, propertyName: string): void {
-  const current = yaml["Контроль"]
-  const control = Array.isArray(current) ? current.flatMap((entry) => (typeof entry === "string" ? [entry] : [])) : []
-  if (!control.includes(propertyName)) control.push(propertyName)
-  yaml["Контроль"] = control
+function markPropertyState(
+  yaml: Record<string, unknown>,
+  propertyName: string,
+  tag: "проверять" | "изменять",
+): void {
+  if (!Object.prototype.hasOwnProperty.call(yaml, propertyName)) yaml[propertyName] = {}
+  markYAMLScalarTag(yaml, propertyName, tag)
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
