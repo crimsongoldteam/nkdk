@@ -16,6 +16,8 @@ import {
   MetadataValueTypeToXML,
   assertValueType,
 } from "./types"
+import { importTypeDescriptionFromYAML } from "../typeDescription/fromYAML"
+import { effectiveTypeFromTypeDescription } from "../fillValue/effectiveType"
 
 const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "string",
@@ -57,13 +59,31 @@ export const exportMetadataValueToXML = (params: {
   rule: MetadataValuePropertyRule
   value: MetadataTypedValue | { "_xsi:nil": true } | undefined
   referenceMetadata?: unknown
+  source?: import("@nkdk/runtime/rule-kit").YAMLPropertySource
+  propertyKey?: string
 }): any => {
-  const { rule, value, referenceMetadata } = params
+  const { context, rule, value, referenceMetadata, source, propertyKey } = params
 
   if (isNilMetadataValueXML(value)) return { "_xsi:nil": true }
   if (isV8NullMetadataValueXML(value)) return { "_xsi:type": "v8:Null" }
 
   if (value === undefined) {
+    if (propertyKey === "fillValue" && source !== undefined) {
+      const type = importTypeDescriptionFromYAML(
+        context,
+        undefined,
+        source.raw("type") as import("../typeDescription/types").TypeDescriptionYAML | undefined,
+      )
+      const effectiveType = effectiveTypeFromTypeDescription(type)
+      if (
+        effectiveType.status === "known" &&
+        !effectiveType.composite &&
+        effectiveType.alternatives.length === 1 &&
+        effectiveType.alternatives[0]?.kind === "string"
+      ) {
+        return { "_xsi:type": "xs:string" }
+      }
+    }
     if (isNilMetadataValueXML(referenceMetadata)) return { "_xsi:nil": true }
     const referenceXMLType = getReferenceMetadataValueXMLType(referenceMetadata)
     if (referenceXMLType !== undefined) return { "_xsi:type": referenceXMLType }

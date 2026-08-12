@@ -30,10 +30,11 @@ import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import type { YamlPath } from "../../diagnostics/types"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
-import { markYAMLScalarTag } from "../../../yaml/scalarTags"
+import { markYAMLScalarTag, xmlScalarTagValue } from "../../../yaml/scalarTags"
 import {
   matchExplicitXMLPropertyFromXML,
   matchExplicitXMLPropertyTypeFromXML,
+  matchExplicitXMLTransportFromXML,
 } from "./explicitXMLPropertyRegistry"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
@@ -136,6 +137,12 @@ export function importPropertiesFromXMLToYAML(params: {
     const explicitXMLByProperty = params.execution === undefined
       ? matchExplicitXMLPropertyFromXML(explicitXMLParams)
       : params.execution.matchExplicitXMLPropertyFromXML(explicitXMLParams)
+    const explicitXMLTransport = params.execution === undefined
+      ? matchExplicitXMLTransportFromXML(explicitXMLParams)
+      : params.execution.matchExplicitXMLTransportFromXML(explicitXMLParams)
+    const dependentImportProperty = params.execution === undefined
+      ? isDependentImportProperty(rule.itemType, key)
+      : params.execution.isDependentImportProperty(rule.itemType, key)
     const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")
     const nestedConfigurationIndexAddressing =
       propertyRule.configurationIndexAddressing ??
@@ -224,7 +231,7 @@ export function importPropertiesFromXMLToYAML(params: {
             propertyRule.yaml,
             indexCollection.yamlPathAddressing === true || propertyRule.configurationIndexAddressing === "yamlPath"
           )
-    if (sourceXMLKey !== undefined) {
+    if (sourceXMLKey !== undefined && !dependentImportProperty) {
       const indexStartedAt = performance.now()
       const nestedItemRule = typeRule(propertyRule.type, "nestedItemRule")
       collectConfigurationIndexPropertyFromXML({
@@ -263,7 +270,9 @@ export function importPropertiesFromXMLToYAML(params: {
       const resolveNestedSources = typeRule(propertyRule.type, "resolveNestedImportXMLSources")
       const convertedDirectly = resolveNestedSources !== undefined || direct !== undefined
       let importedValue: unknown
-      if (resolveNestedSources !== undefined) {
+      if (explicitXMLTransport !== undefined) {
+        importedValue = undefined
+      } else if (resolveNestedSources !== undefined) {
         const nested = typeRule(propertyRule.type, "nestedItemRule")
         if (nested === undefined || !("itemRule" in nested)) {
           throw new Error(`Для ${propertyRule.type} не зарегистрировано фиксированное вложенное правило`)
@@ -403,7 +412,7 @@ export function importPropertiesFromXMLToYAML(params: {
         : cleanValue
       addProfileTime(params.profile, "defaultMs", defaultStartedAt)
 
-      if (value !== undefined) {
+      if (value !== undefined && !dependentImportProperty) {
         const indexStartedAt = performance.now()
         collectConfigurationIndexImportedValue({
           context: sourceContext,
@@ -439,14 +448,16 @@ export function importPropertiesFromXMLToYAML(params: {
           yamlValue,
             }))
       const transported =
-        explicitXML === undefined && params.execution !== undefined
+        explicitXML === undefined && explicitXMLTransport === undefined && params.execution !== undefined
           ? params.execution.normalizeImportedBrokenXMLReferences({
               rule: propertyRule,
               xmlValue,
               yamlValue,
             })
           : {
-              yamlValue: explicitXML?.yamlValue ?? yamlValue,
+              yamlValue: explicitXMLTransport === undefined
+                ? explicitXML?.yamlValue ?? yamlValue
+                : xmlScalarTagValue(explicitXMLTransport),
               taggedPaths: [],
             }
       const exportedYamlValue = transported.yamlValue
@@ -482,10 +493,14 @@ export function importPropertiesFromXMLToYAML(params: {
         addProfileTime(params.profile, "outputMs", outputStartedAt)
       }
 
-      if (explicitXML === undefined && !canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })) return
+      if (
+        explicitXML === undefined &&
+        explicitXMLTransport === undefined &&
+        !canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })
+      ) return
       const outputStartedAt = performance.now()
       const exportedValues =
-        explicitXML === undefined
+        explicitXML === undefined && explicitXMLTransport === undefined
           ? getExportToYAMLResult(
               propertyRule,
               propertyRule.yaml!,
@@ -496,9 +511,7 @@ export function importPropertiesFromXMLToYAML(params: {
           : { [propertyRule.yaml!]: exportedYamlValue }
       if (exportedValues === undefined) return
       Object.assign(result, exportedValues)
-      if ((params.execution === undefined
-        ? isDependentImportProperty(rule.itemType, key)
-        : params.execution.isDependentImportProperty(rule.itemType, key))) {
+      if (dependentImportProperty) {
         params.dependent?.accept({
           itemType: rule.itemType,
           ...(itemName === undefined ? {} : { itemName }),
@@ -510,7 +523,9 @@ export function importPropertiesFromXMLToYAML(params: {
           presentInXML,
         })
       }
-      if (explicitXML !== undefined) markYAMLScalarTag(result, propertyRule.yaml!, "xml")
+      if (explicitXML !== undefined || explicitXMLTransport !== undefined) {
+        markYAMLScalarTag(result, propertyRule.yaml!, "xml")
+      }
       for (const path of transported.taggedPaths) {
         markRelativeYAMLScalarTag(result, propertyRule.yaml!, path)
       }

@@ -8,6 +8,7 @@ import {
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { matchExplicitXMLTransportFromXML } from "../ruleRuntime/property/explicitXMLPropertyRegistry"
 
 export function normalizeImportedDependentItems(params: {
   readonly yaml: unknown
@@ -23,9 +24,21 @@ export function normalizeImportedDependentItems(params: {
   for (const candidate of params.candidates) {
     const item = recordAtPath(params.yaml, candidate.itemYamlPath)
     if (item === undefined) continue
-    const dependentParams = dependentParamsForCandidate(params, candidate, item)
     const yamlKey = candidate.yamlPath.at(-1)
-    if (typeof yamlKey !== "string" || !Object.prototype.hasOwnProperty.call(item, yamlKey)) continue
+    if (typeof yamlKey !== "string") continue
+    const transport = matchExplicitXMLTransportFromXML({
+      itemType: candidate.itemType,
+      propertyKey: candidate.propertyKey,
+      presentInXML: candidate.presentInXML,
+      xmlValue: candidate.xmlValue,
+    })
+    if (transport !== undefined) {
+      item[yamlKey] = xmlScalarTagValue(transport)
+      markYAMLScalarTag(item, yamlKey, "xml")
+      continue
+    }
+    if (!Object.prototype.hasOwnProperty.call(item, yamlKey)) continue
+    const dependentParams = dependentParamsForCandidate(params, candidate, item)
     if (isEmptyDesignTimeRef(candidate)) {
       item[yamlKey] = xmlScalarTagValue("DesignTimeRef")
       markYAMLScalarTag(item, yamlKey, "xml")

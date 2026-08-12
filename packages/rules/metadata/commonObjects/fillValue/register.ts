@@ -104,12 +104,34 @@ export const fillValueRules = defineMetadataRules({
       action: "transportScalar",
       itemType: "MetadataAttribute",
       propertyKey: "fillValue",
-      overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
+      overrides: {
+        Nil: { "_xsi:nil": true },
+        DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" },
+      },
     },
     standardAttributeFillValue: {
       action: "transportScalar",
       itemType: "StandardAttributeDescription",
       propertyKey: "fillValue",
+      overrides: {
+        String: { "_xsi:type": "xs:string" },
+        DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" },
+        TypeDescription: { "_xsi:type": "v8:TypeDescription" },
+      },
+    },
+    externalDataSourceFieldFillValue: {
+      action: "transportScalar",
+      itemType: "MetadataExternalDataSourceField",
+      propertyKey: "fillValue",
+      overrides: {
+        DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" },
+        Null: { "_xsi:type": "v8:Null" },
+      },
+    },
+    characteristicTypesFilterValue: {
+      action: "transportScalar",
+      itemType: "CharacteristicsDescription",
+      propertyKey: "typesFilterValue",
       overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
     },
   },
@@ -123,6 +145,17 @@ export const fillValueRules = defineMetadataRules({
       yaml: analyzeStandardAttributeFillValue,
       structural: collectFillValueStructuralReference,
       imported: standardAttributeImport,
+    },
+    MetadataExternalDataSourceField: {
+      yaml: analyzeMetadataAttributeFillValue,
+      structural: collectFillValueStructuralReference,
+      imported: metadataAttributeImport,
+    },
+    CharacteristicsDescription: {
+      imported: {
+        propertyKeys: ["typesFilterValue"],
+        shouldRemove: () => false,
+      },
     },
   },
 })

@@ -317,6 +317,17 @@ export function createPropertyRuleRegistrySet(
         ? registration
         : undefined
     },
+    matchExplicitXMLTransportFromXML(params) {
+      if (!params.presentInXML) return undefined
+      const registration = explicitXMLProperties.get(
+        propertyRegistrationKey(params.itemType, params.propertyKey),
+      )
+      if (registration?.action !== "transportScalar") return undefined
+      for (const [payload, xmlValue] of Object.entries(registration.overrides ?? {})) {
+        if (sameExplicitXMLTransportValue(xmlValue, params.xmlValue)) return payload
+      }
+      return undefined
+    },
     collectExplicitXMLPropertyActions(params) {
       return collectExplicitXMLPropertyActions(params, {
         properties: explicitXMLProperties,
@@ -373,6 +384,22 @@ export function createPropertyRuleRegistrySet(
       )
     },
   }
+}
+
+function sameExplicitXMLTransportValue(expected: unknown, actual: unknown): boolean {
+  if (isDeepStrictEqual(expected, actual)) return true
+  if (
+    expected !== null && typeof expected === "object" && !Array.isArray(expected) &&
+    actual !== null && typeof actual === "object" && !Array.isArray(actual)
+  ) {
+    const expectedRecord = expected as Record<string, unknown>
+    const actualRecord = actual as Record<string, unknown>
+    return Object.keys(expectedRecord).length === 1 &&
+      Object.keys(actualRecord).length === 1 &&
+      expectedRecord["_xsi:nil"] === true &&
+      actualRecord["_xsi:nil"] === "true"
+  }
+  return false
 }
 
 function sameExplicitXMLPropertyRegistration(

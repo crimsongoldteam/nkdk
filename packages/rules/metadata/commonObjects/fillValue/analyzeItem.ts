@@ -22,7 +22,7 @@ import {
   effectiveTypeFromTypeDescription,
   isReferenceStandardMember,
 } from "./effectiveType"
-import type { FillValueClassification } from "./types"
+import type { FillValueClassification, FillValueTransport } from "./types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
@@ -43,6 +43,8 @@ export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParam
   if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
   const parsed = parseFillValueItem(params.item)
   if (parsed === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
+  const transport = analyzeTransport(params, parsed.transport, metadataAttributeTransportDiagnostic)
+  if (transport !== undefined) return transport
   const type = metadataAttributeType(params.item)
   if (type?.type.some((sourceType) => sourceType.startsWith("DefinedType.")) === true) {
     if (parsed.tagged && parsed.value.type === "ref") {
@@ -58,7 +60,7 @@ export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParam
         type,
         value: parsed.value,
         tagged: parsed.tagged,
-        ...(parsed.transport === undefined ? {} : { transport: parsed.transport }),
+        ...(parsed.transport === "DesignTimeRef" ? { transport: parsed.transport } : {}),
       }],
     }, parsed.tagged)
   }
@@ -76,6 +78,8 @@ function analyzeFillValue(
   if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
   const parsed = parseFillValueItem(params.item)
   if (parsed === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
+  const transport = analyzeTransport(params, parsed.transport, standardAttributeTransportDiagnostic)
+  if (transport !== undefined) return transport
   if (parsed.tagged && parsed.value.type === "ref") {
     return withValueReference(params, parsed.value, emptyAnalysis(), parsed.tagged)
   }
@@ -89,20 +93,110 @@ function analyzeFillValue(
   return withValueReference(params, parsed.value, analysis, parsed.tagged)
 }
 
+function analyzeTransport(
+  params: DependentYamlItemParams,
+  transport: FillValueTransport | undefined,
+  diagnose: (
+    params: DependentYamlItemParams,
+    transport: Exclude<FillValueTransport, "DesignTimeRef">,
+  ) => { readonly message: string; readonly severity: "error" | "warning" } | undefined,
+): DependentYamlItemAnalysis | undefined {
+  if (transport === undefined || transport === "DesignTimeRef") return undefined
+  const diagnostic = diagnose(params, transport)
+  return diagnostic === undefined
+    ? emptyAnalysis()
+    : diagnosticAnalysis(params, diagnostic.message, diagnostic.severity)
+}
+
 export function parseFillValueItem(
   item: Readonly<Record<string, unknown>>
-): { readonly tagged: boolean; readonly value: MetadataTypedValue; readonly transport?: "DesignTimeRef" } | undefined {
+): { readonly tagged: boolean; readonly value: MetadataTypedValue; readonly transport?: FillValueTransport } | undefined {
   const tagged = yamlScalarTagAt(item, fillValueYamlKey) === "xml"
   const rawValue = item[fillValueYamlKey]
-  if (tagged && rawValue === "!xml DesignTimeRef") {
-    return { tagged: true, value: { type: "ref", value: "" }, transport: "DesignTimeRef" }
+  const payload = tagged && typeof rawValue === "string" ? xmlScalarTagPayload(rawValue) : undefined
+  if (payload !== undefined && isFillValueTransport(payload)) {
+    return {
+      tagged: true,
+      value: payload === "DesignTimeRef"
+        ? { type: "ref", value: "" }
+        : { type: "string", value: "" },
+      transport: payload,
+    }
   }
   const value = parseFillValueYaml(
-    tagged && typeof rawValue === "string"
-      ? xmlScalarTagPayload(rawValue)
+    payload !== undefined
+      ? payload
       : asExplicitYAMLStringIfMarked(item, fillValueYamlKey, rawValue)
   )
   return value === undefined ? undefined : { tagged, value }
+}
+
+function isFillValueTransport(value: string): value is FillValueTransport {
+  return value === "Nil" ||
+    value === "String" ||
+    value === "DesignTimeRef" ||
+    value === "TypeDescription" ||
+    value === "Null"
+}
+
+function metadataAttributeTransportDiagnostic(
+  params: DependentYamlItemParams,
+  transport: Exclude<FillValueTransport, "DesignTimeRef">,
+): { readonly message: string; readonly severity: "error" | "warning" } | undefined {
+  if (transport === "Null") {
+    return params.itemType === "MetadataExternalDataSourceField"
+      ? undefined
+      : { message: "Null допустим только для поля внешнего источника данных", severity: "error" }
+  }
+  if (transport !== "Nil") {
+    return { message: `${transport} недопустим для обычного реквизита`, severity: "error" }
+  }
+  const effectiveType = effectiveFillValueType(metadataAttributeType(params.item), params.definedTypeLookup)
+  if (effectiveType.status === "unresolved") return { message: effectiveType.reason, severity: "warning" }
+  if (effectiveType.status !== "known") {
+    return { message: "не удалось определить тип реквизита", severity: "warning" }
+  }
+  const singleString = !effectiveType.composite &&
+    effectiveType.alternatives.length === 1 &&
+    effectiveType.alternatives[0]?.kind === "string"
+  return singleString
+    ? undefined
+    : { message: "Nil допустим только для обычного строкового реквизита", severity: "error" }
+}
+
+function standardAttributeTransportDiagnostic(
+  params: DependentYamlItemParams,
+  transport: Exclude<FillValueTransport, "DesignTimeRef">,
+): { readonly message: string; readonly severity: "error" } | undefined {
+  const declaration = params.itemName === undefined
+    ? undefined
+    : getStandardMembers(params.owner.dir).find(({ names }) => names.yaml === params.itemName)
+  if (transport === "TypeDescription") {
+    return declaration?.memberKind === "standardAttribute" && declaration.family === "typeDescription"
+      ? undefined
+      : { message: "TypeDescription допустим только для стандартного реквизита ТипЗначения", severity: "error" }
+  }
+  if (transport === "String") {
+    return standardMemberUsesString(declaration, ownerProperties(params))
+      ? undefined
+      : { message: "String допустим только для строкового стандартного реквизита", severity: "error" }
+  }
+  return { message: `${transport} недопустим для стандартного реквизита`, severity: "error" }
+}
+
+function standardMemberUsesString(
+  declaration: ReturnType<typeof getStandardMembers>[number] | undefined,
+  owner: Readonly<Record<string, unknown>>,
+): boolean {
+  if (declaration?.memberKind !== "standardAttribute") return false
+  if (declaration.family === "primitive") return declaration.kind === "string"
+  if (declaration.family === "codeByProperty") {
+    return owner[declaration.property] === "String" || owner[declaration.property] === "Строка"
+  }
+  if (declaration.family === "numberByProperty") {
+    return owner[declaration.property] === "String" || owner[declaration.property] === "Строка"
+  }
+  return false
 }
 
 function designTimeRefDiagnostic(

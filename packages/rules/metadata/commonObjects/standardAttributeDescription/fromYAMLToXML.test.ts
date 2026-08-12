@@ -290,16 +290,20 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   })
 
   it.each([
-    ["DesignTimeRef", { "_xsi:type": "xr:DesignTimeRef" }],
+    ["DesignTimeRef", { "_xsi:type": "xr:DesignTimeRef" }, "Owner", "Владелец"],
+    ["String", { "_xsi:type": "xs:string" }, "Code", "Код"],
+    ["TypeDescription", { "_xsi:type": "v8:TypeDescription" }, "ValueType", "ТипЗначения"],
     [
       "Справочник.ПапкиФайлов.ПустаяСсылка",
       { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.ПапкиФайлов.EmptyRef" },
+      "Owner",
+      "Владелец",
     ],
-  ] as const)("exports !xml %s as exact DesignTimeRef XML", (fillValue, expected) => {
+  ] as const)("exports !xml %s as exact FillValue XML", (fillValue, expected, xmlName, yamlName) => {
     const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
-  Владелец:
+  ${yamlName}:
     ЗначениеЗаполнения: !xml ${fillValue}
-`, { Owner: "Владелец" })
+`, { [xmlName]: yamlName })
 
     expect(item["xr:FillValue"]).toEqual(expected)
     expect(JSON.stringify(item["xr:FillValue"])).not.toContain("!xml")

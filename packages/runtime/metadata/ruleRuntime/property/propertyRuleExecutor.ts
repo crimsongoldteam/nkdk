@@ -89,6 +89,9 @@ export function createPropertyRuleExecutor(
     matchExplicitXMLPropertyTypeFromXML(params) {
       return registries.matchExplicitXMLPropertyTypeFromXML(params)
     },
+    matchExplicitXMLTransportFromXML(params) {
+      return registries.matchExplicitXMLTransportFromXML(params)
+    },
     isDependentImportProperty(itemType, propertyKey) {
       return registries.isDependentImportProperty(itemType, propertyKey)
     },

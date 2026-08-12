@@ -21,7 +21,7 @@ afterEach(() => {
 })
 
 describe("fill value XML import", () => {
-  it("удаляет начальную дату после импорта и сохраняет точный XML", async () => {
+  it("удаляет каноническую начальную дату после импорта без снимка", async () => {
     const sourcePath = copiedBeginningDateFixture()
     const collector = createConfigurationIndexCollector()
     const prepared = await prepareImportYaml({
@@ -31,11 +31,9 @@ describe("fill value XML import", () => {
     })
 
     expect(prepared.yaml).not.toHaveProperty("Реквизиты.Момент.ЗначениеЗаполнения")
-    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).toContainEqual({
-      logicalAddress: "Справочник.СправочникПолный.Реквизит.Момент.fillValue",
-      sourceProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
-      xml: { present: true, xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
-    })
+    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
+      expect.objectContaining({ logicalAddress: "Справочник.СправочникПолный.Реквизит.Момент.fillValue" }),
+    )
   })
 
   it.each(["type-before", "fill-before"] as const)(
@@ -55,13 +53,30 @@ describe("fill value XML import", () => {
       expect(prepared.yaml).not.toHaveProperty(
         "СтандартныеРеквизиты.ПометкаУдаления.ЗначениеЗаполнения",
       )
-      expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ xml: expect.objectContaining({ xsiType: "xs:string" }) }),
-        ]),
+      expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
+        expect.objectContaining({
+          logicalAddress: "Справочник.СправочникПолный.Реквизит.СтроковыйРеквизитСИндексом.fillValue",
+        }),
       )
     },
   )
+
+  it("сохраняет неканонический xsi:nil строкового реквизита как !xml Nil", async () => {
+    const sourcePath = copiedStringNilFixture()
+    const collector = createConfigurationIndexCollector()
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector,
+    })
+
+    expect(serializeYAMLDocument(prepared.yaml).text).toContain("ЗначениеЗаполнения: !xml Nil")
+    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
+      expect.objectContaining({
+        logicalAddress: "Справочник.СправочникПолный.Реквизит.СтроковыйРеквизитСИндексом.fillValue",
+      }),
+    )
+  })
 
   it("сохраняет содержательный код при неявном строковом типе", async () => {
     const sourcePath = copiedCatalogCodeFixture()
@@ -76,7 +91,7 @@ describe("fill value XML import", () => {
     expect(serializeYAMLDocument(prepared.yaml).text).toContain('ЗначениеЗаполнения: "--"')
   })
 
-  it("откладывает DefinedType и заранее сохраняет исходный XML", async () => {
+  it("откладывает DefinedType без сохранения исходного XML в снимке", async () => {
     const sourcePath = copiedDefinedTypeFixture()
     const collector = createConfigurationIndexCollector()
     const prepared = await prepareImportYaml({
@@ -94,11 +109,11 @@ describe("fill value XML import", () => {
       "Реквизиты.АвторДействия.ЗначениеЗаполнения",
       "Справочник.Пользователи.ПустаяСсылка",
     )
-    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).toContainEqual({
-      logicalAddress: "Справочник.СправочникПолный.Реквизит.АвторДействия.fillValue",
-      sourceProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
-      xml: { present: true, xsiType: "xr:DesignTimeRef", xmlText: "Catalog.Пользователи.EmptyRef" },
-    })
+    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
+      expect.objectContaining({
+        logicalAddress: "Справочник.СправочникПолный.Реквизит.АвторДействия.fillValue",
+      }),
+    )
   })
 
   it.each([
@@ -175,6 +190,20 @@ function copiedFixture(order: "type-before" | "fill-before"): string {
     const typeLineStart = xml.lastIndexOf("\n", adjustedType) + 1
     xml = `${xml.slice(0, typeLineStart)}${fillLine}${xml.slice(typeLineStart)}`
   }
+  fs.writeFileSync(sourcePath, xml)
+  return sourcePath
+}
+
+function copiedStringNilFixture(): string {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-string-nil-import-"))
+  tempDirs.push(dir)
+  const sourcePath = join(dir, "СправочникПолный.xml")
+  const source = fs.readFileSync(fixture, "utf8")
+  const attributeStart = source.indexOf("<Name>СтроковыйРеквизитСИндексом</Name>")
+  const fill = source.indexOf('<FillValue xsi:type="xs:string"/>', attributeStart)
+  if (attributeStart === -1 || fill === -1) throw new Error("Не найден строковый реквизит с пустым FillValue")
+  const original = '<FillValue xsi:type="xs:string"/>'
+  const xml = `${source.slice(0, fill)}<FillValue xsi:nil="true"/>${source.slice(fill + original.length)}`
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
 }
