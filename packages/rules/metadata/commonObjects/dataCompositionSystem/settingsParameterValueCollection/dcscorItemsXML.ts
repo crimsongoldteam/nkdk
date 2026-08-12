@@ -1,10 +1,8 @@
 import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import {
-  getConfigurationIndexCollectionContext,
   withConfigurationIndexYamlCollectionItemContext,
 } from "@nkdk/runtime"
-import { withConfigurationIndexExportYamlCollectionItemContext } from "@nkdk/runtime"
 import { callAtomicToXML, importPropertyFromXML } from "@nkdk/runtime/rule-kit"
 import type { PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
 import type { ParameterValueXML, SettingsParameterValue } from "../parameterValue/types"
@@ -56,22 +54,9 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
       index: Object.keys(parameters).length,
       yamlKey: parameterName,
     })
-    const itemCollection = getConfigurationIndexCollectionContext(itemContext)
-    if (
-      itemCollection !== undefined &&
-      (Object.prototype.hasOwnProperty.call(itemXml, "dcscor:value") &&
-        (itemXml["dcscor:value"] === undefined ||
-          asDcscorItemArray(itemXml["dcscor:value"]).some(
-            (value) =>
-              typeof value === "object" &&
-              value !== null &&
-              !Array.isArray(value) &&
-              ((value as Record<string, unknown>)["_xsi:nil"] === true ||
-                (value as Record<string, unknown>)["_xsi:nil"] === "true")
-          )))
-    ) {
-      itemCollection.collector.setXmlFlag(`${itemCollection.logicalAddress}.value`, "xsiNil")
-    }
+    const nilValue = Object.prototype.hasOwnProperty.call(itemXml, "dcscor:value") &&
+      (itemXml["dcscor:value"] === undefined ||
+        asDcscorItemArray(itemXml["dcscor:value"]).some(isXsiNil))
 
     const value = (params.execution?.fromXML ?? importPropertyFromXML)({
       context: itemContext,
@@ -80,7 +65,7 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
     }) as SettingsParameterValue | undefined
 
     if (value !== undefined) {
-      parameters[parameterName] = value
+      parameters[parameterName] = nilValue ? { ...value, xmlNil: true } : value
     }
   }
 
@@ -104,7 +89,7 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
 
   const items: ParameterValueXML[] = []
 
-  for (const [index, parameterName] of names.entries()) {
+  for (const parameterName of names) {
     const fieldValue = parameters[parameterName]
     if (fieldValue === undefined) continue
 
@@ -112,25 +97,17 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
     if (itemRule === undefined) continue
 
     const referenceField = referenceParameters?.[parameterName]
-    const itemContext = withConfigurationIndexExportYamlCollectionItemContext(context, {
-      index,
-      yamlKey: parameterName,
-    })
-    const indexedNil =
-      itemContext.exportToXML.configurationIndex?.xml(
-        `${itemContext.exportToXML.configurationIndex.logicalAddress}.value`
-      )?.xsiNil === true
+    const { xmlNil, ...fieldWithoutNil } = fieldValue
     const itemXml = callAtomicToXML({
-      context: itemContext,
+      context,
       rule: itemRule,
-      value: fieldValue,
-      referenceValue:
-        indexedNil && referenceField?.__referenceNilValue !== true
-          ? { ...referenceField, __referenceNilValue: true as const }
-          : referenceField,
+      value: fieldWithoutNil,
+      referenceValue: referenceField,
     })
     if (itemXml !== undefined) {
-      items.push(itemXml as ParameterValueXML)
+      items.push(xmlNil === true
+        ? { ...(itemXml as ParameterValueXML), "dcscor:value": { "_xsi:nil": true } }
+        : itemXml as ParameterValueXML)
     }
   }
 
@@ -139,6 +116,12 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
   return {
     "dcscor:item": items.length === 1 ? items[0]! : items,
   }
+}
+
+function isXsiNil(value: unknown): boolean {
+  return typeof value === "object" && value !== null && !Array.isArray(value) &&
+    ((value as Record<string, unknown>)["_xsi:nil"] === true ||
+      (value as Record<string, unknown>)["_xsi:nil"] === "true")
 }
 
 /** Для свойства с `xmlParents` в `setXMLValue` подставляется только значение `dcscor:item`, без обёртки. */

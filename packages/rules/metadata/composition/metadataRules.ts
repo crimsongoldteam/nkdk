@@ -64,6 +64,7 @@ import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObj
 import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenDesignTimeRef"
 import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
 import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
+import { dcsParameterExplicitUndefinedRules } from "../commonObjects/dataCompositionSystem/dcsParameter/explicitUndefined"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -119,6 +120,7 @@ export const legacyCoreRules = composeMetadataRules(
   clientApplicationFormPropertyRules,
   childFormNamesPropertyRules,
   fillValueRules,
+  dcsParameterExplicitUndefinedRules,
   metadataAttributeCollectionRules,
   metadataTabularSectionCollectionRules,
   metadataRegisterAttributeCollectionRules,

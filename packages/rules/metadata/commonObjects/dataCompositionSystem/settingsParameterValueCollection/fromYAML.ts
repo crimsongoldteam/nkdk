@@ -2,6 +2,7 @@ import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
+import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { importParameterValueFromYAML } from "../parameterValue/fromYAML"
 import type { SettingsParameterValueYAML } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
@@ -41,11 +42,18 @@ const importSettingsParameterValueCollectionFromYAML = (
     const itemRule = getSettingsParameterValueRuleForParameter(collRule, paramName)
     if (itemRule === undefined) continue
 
-    const valueFragment = asExplicitYAMLStringIfMarked(value, paramName, yamlFragment)
+    const nilTransport = settingsNilTransport(value, paramName, yamlFragment)
+    const valueFragment = nilTransport === undefined
+      ? asExplicitYAMLStringIfMarked(value, paramName, yamlFragment)
+      : removeSettingsNilTransport(yamlFragment, nilTransport)
     const wrapped = wrapYamlFragment(paramName, valueFragment)
     const imported = importParameterValueFromYAML(context, itemRule, wrapped, source?.parameters[paramName])
     if (imported !== undefined) {
-      parameters[paramName] = { ...imported, parameter: paramName }
+      parameters[paramName] = {
+        ...imported,
+        parameter: paramName,
+        ...(nilTransport === undefined ? {} : { xmlNil: true }),
+      }
     }
   }
 
@@ -58,6 +66,36 @@ const importSettingsParameterValueCollectionFromYAML = (
     if (orderedParameters[name] === undefined) orderedParameters[name] = parameter
   }
   return { itemType: "SettingsParameterValueCollection", parameters: orderedParameters }
+}
+
+type SettingsNilTransport = "scalar" | "value"
+
+function settingsNilTransport(
+  collection: Record<string, unknown>,
+  parameterName: string,
+  fragment: unknown,
+): SettingsNilTransport | undefined {
+  if (yamlScalarTagAt(collection, parameterName) === "xml") {
+    assertNilPayload(fragment)
+    return "scalar"
+  }
+  if (isPlainObject(fragment) && yamlScalarTagAt(fragment, "Значение") === "xml") {
+    assertNilPayload(fragment.Значение)
+    return "value"
+  }
+  return undefined
+}
+
+function assertNilPayload(value: unknown): void {
+  if (typeof value !== "string" || xmlScalarTagPayload(value) !== "Nil") {
+    throw new Error("для значения параметра настройки допустим только !xml Nil")
+  }
+}
+
+function removeSettingsNilTransport(fragment: unknown, transport: SettingsNilTransport): unknown {
+  if (transport === "scalar") return undefined
+  const { Значение: _nil, ...rest } = fragment as Record<string, unknown>
+  return rest
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValueCollection", "importFromYAML", importSettingsParameterValueCollectionFromYAML)
