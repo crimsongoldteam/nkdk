@@ -8,6 +8,11 @@ import {
   importFromInfobaseOutputShape,
   type ImportFromInfobaseOutput,
 } from "../contracts/importFromInfobase"
+import {
+  syncToInfobaseInputSchema,
+  syncToInfobaseOutputShape,
+  type SyncToInfobaseOutput,
+} from "../contracts/syncToInfobase"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
 import { listInfobasesInputShape } from "../contracts/listInfobases"
 import {
@@ -30,6 +35,7 @@ import { describeProjectStructure } from "../services/describeProjectStructure"
 import { getSchema } from "../services/getSchema"
 import { importFromXml } from "../services/importFromXml"
 import { importFromInfobase } from "../services/importFromInfobase"
+import { syncToInfobase } from "../services/syncToInfobase"
 import { initSyncState } from "../services/initSyncState"
 import { listInfobasesService } from "../services/listInfobases"
 import { listInfobaseExtensions } from "../services/listInfobaseExtensions"
@@ -149,6 +155,18 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       outputSchema: importFromInfobaseOutputShape,
     },
     createImportFromInfobaseHandler()
+  )
+
+  server.registerTool(
+    "nkdk.sync_to_infobase",
+    {
+      title: "Partially sync NKDK YAML to 1C infobase",
+      description:
+        "Частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы через агент Конфигуратора. Запускает 1С и изменяет конфигурацию только при allowWrite=true; не обновляет конфигурацию базы данных.",
+      inputSchema: syncToInfobaseInputSchema,
+      outputSchema: syncToInfobaseOutputShape,
+    },
+    createSyncToInfobaseHandler()
   )
 
   server.registerTool(
@@ -327,6 +345,25 @@ export function createImportFromInfobaseHandler(
 }
 
 export function importFromInfobaseToolResult(payload: ImportFromInfobaseOutput) {
+  return infobaseToolResult(payload, "Журнал импорта из информационной базы")
+}
+
+export function createSyncToInfobaseHandler(
+  service: typeof syncToInfobase = syncToInfobase
+) {
+  return async (
+    input: Parameters<typeof syncToInfobase>[0],
+    extra: { signal: AbortSignal }
+  ) => syncToInfobaseToolResult(
+    await service(input, undefined, extra.signal) as SyncToInfobaseOutput
+  )
+}
+
+export function syncToInfobaseToolResult(payload: SyncToInfobaseOutput) {
+  return infobaseToolResult(payload, "Журнал синхронизации с информационной базой")
+}
+
+function infobaseToolResult(payload: ToolPayload, logName: string) {
   if (payload.ok) return jsonToolResult(payload)
   const details = payload.details
   const reference = isRecord(details) && isResourceReference(details["schema"])
@@ -338,7 +375,7 @@ export function importFromInfobaseToolResult(payload: ImportFromInfobaseOutput) 
     : isRecord(details) && isResourceReference(details["log"])
       ? {
           uri: details["log"].uri,
-          name: "Журнал импорта из информационной базы",
+          name: logName,
           mimeType: details["log"].format,
         }
       : undefined

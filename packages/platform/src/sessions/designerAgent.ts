@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { isAbsolute, join, relative, resolve, sep } from "node:path"
 import { parseConnection } from "../infobases/parseConnection"
 import { parseExtensionPropertyRecords } from "../extensions/parse"
@@ -5,6 +6,7 @@ import {
   buildDesignerAgentLaunch,
   buildDumpConfigurationCommand,
   buildListDesignerExtensionsCommand,
+  buildLoadPartialConfigurationCommand,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
 import { platformFailure, type PlatformOperationLog } from "./operationLog"
@@ -23,6 +25,7 @@ export interface DesignerAgentDependencies {
   portRuntime: SessionPortRuntime
   fileSystem: {
     mkdir(path: string): Promise<void>
+    copyFile(from: string, to: string): Promise<void>
     readFile(path: string): Promise<string>
     realpath(path: string): Promise<string>
     rm(path: string): Promise<void>
@@ -44,10 +47,12 @@ export interface DesignerAgentDependencies {
   closeTimeoutMs: number
 }
 
+export type DesignerAgentSession = PlatformSession & Required<Pick<PlatformSession, "loadPartialConfiguration">>
+
 export async function createDesignerAgentSession(
   params: CreatePlatformSessionParams,
   dependencies: DesignerAgentDependencies
-): Promise<PlatformSession> {
+): Promise<DesignerAgentSession> {
   const enterprisePath = params.installation.enterprisePath
   if (enterprisePath === undefined) {
     throw new PlatformSessionError(
@@ -147,6 +152,8 @@ export async function createDesignerAgentSession(
     )
     canonicalAgentBaseDir = directories.agentBaseDir
     userServiceDir = directories.userServiceDir
+    await ignoreCleanupError(() =>
+      dependencies.fileSystem.rm(join(userServiceDir, ".nkdk-load")))
   } catch (caught) {
     await stopAfterFailedStart(processHandle)
     if (params.operationLog !== undefined) {
@@ -306,6 +313,98 @@ export async function createDesignerAgentSession(
       }
       return parseExtensionPropertyRecords(result.extensionInfo)
     },
+    async loadPartialConfiguration(archivePath, loadTargets, operationLog, extensionName, signal) {
+      if (closed) {
+        throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
+      }
+      const canonicalArchivePath = await checkedArchivePath(
+        params.projectDir,
+        archivePath,
+        dependencies
+      )
+      const loadList = formatLoadList(loadTargets)
+      const stagingDir = join(userServiceDir, ".nkdk-load", randomUUID())
+      const stagedArchivePath = join(stagingDir, "package.zip")
+      const stagedLoadListPath = join(stagingDir, "load.lst")
+      const cleanupStaging = async (): Promise<boolean> => {
+        try {
+          await dependencies.fileSystem.rm(stagingDir)
+          return true
+        } catch {
+          await operationLog.append("cleanup stage=configuration-load status=failed")
+          return false
+        }
+      }
+      await appendAgentLog(operationLog, "stage=configuration-load status=start")
+      try {
+        await dependencies.fileSystem.mkdir(stagingDir)
+        await dependencies.fileSystem.copyFile(canonicalArchivePath, stagedArchivePath)
+        await dependencies.fileSystem.writeFile(stagedLoadListPath, loadList)
+      } catch (cause) {
+        await cleanupStaging()
+        throw await agentFailure(
+          cause,
+          "configuration-load",
+          operationLog,
+          processLogPath,
+          dependencies
+        )
+      }
+      const processLogCursor = await captureProcessLogCursor(
+        processLogPath,
+        dependencies.processLogReader
+      )
+      const command = buildLoadPartialConfigurationCommand({
+        stagingDir: relativeAgentPath(userServiceDir, stagingDir),
+        ...(extensionName === undefined ? {} : { extensionName }),
+      })
+      await appendAgentLog(operationLog, `command ${command}`)
+      try {
+        await commandSession.run(
+          command,
+          { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog }
+        )
+      } catch (caught) {
+        await cleanupStaging()
+        const cause = caught instanceof PlatformSessionError && caught.commandOutcome === "unknown"
+          ? new PlatformSessionError(
+              "delivery_outcome_unknown",
+              caught.message,
+              { cause: caught, commandOutcome: "unknown" }
+            )
+          : caught
+        throw await agentFailure(
+          cause,
+          "configuration-load",
+          operationLog,
+          processLogPath,
+          dependencies,
+          processLogCursor
+        )
+      }
+      const warnings: string[] = []
+      const appendAfterSuccess = async (message: string) => {
+        if (await operationLog.append(message)) return
+        if (!warnings.includes("Не удалось дополнить журнал после успешной загрузки")) {
+          warnings.push("Не удалось дополнить журнал после успешной загрузки")
+        }
+      }
+      await appendAfterSuccess("command-response status=success")
+      try {
+        const processLog = await dependencies.processLogReader.readSince(
+          processLogPath,
+          processLogCursor,
+        )
+        if (processLog.trim() !== "") await appendAfterSuccess(`process-log\n${processLog}`)
+      } catch {
+        warnings.push("Не удалось прочитать новый фрагмент /Out после успешной загрузки")
+      }
+      if (!await cleanupStaging()) {
+        warnings.push("Не удалось удалить служебную копию ZIP после успешной загрузки")
+      }
+      await appendAfterSuccess("stage=configuration-load status=ready")
+      return { warnings }
+    },
     async close() {
       if (closed) return { stoppedOwnedProcess: false }
       await ignoreCleanupError(() =>
@@ -342,6 +441,24 @@ export async function createDesignerAgentSession(
   }
 }
 
+function formatLoadList(loadTargets: readonly string[]): string {
+  for (const target of loadTargets) {
+    if (target.length === 0
+      || target.startsWith("/")
+      || target.includes("\\")
+      || target.includes("\0")
+      || target.includes("\n")
+      || target.includes("\r")
+      || target.split("/").some((segment) => segment.length === 0 || segment === "." || segment === "..")) {
+      throw new PlatformSessionError(
+        "platform_command_failed",
+        `Некорректный путь в списке частичной загрузки: ${target}`
+      )
+    }
+  }
+  return loadTargets.length === 0 ? "" : `${loadTargets.join("\n")}\n`
+}
+
 async function appendAgentLog(operationLog: PlatformOperationLog, message: string): Promise<void> {
   if (await operationLog.append(message)) return
   throw await platformFailure({
@@ -356,7 +473,7 @@ async function appendAgentLog(operationLog: PlatformOperationLog, message: strin
 
 async function agentFailure(
   cause: unknown,
-  stage: "session-start" | "authentication" | "configuration-export",
+  stage: "session-start" | "authentication" | "configuration-export" | "configuration-load",
   operationLog: PlatformOperationLog,
   processLogPath: string,
   dependencies: DesignerAgentDependencies,
@@ -484,6 +601,24 @@ async function checkedOutputDir(
     )
   }
   return resolvedOutputDir
+}
+
+async function checkedArchivePath(
+  projectDir: string,
+  archivePath: string,
+  dependencies: DesignerAgentDependencies
+): Promise<string> {
+  try {
+    const canonicalProjectDir = await dependencies.fileSystem.realpath(projectDir)
+    const canonicalArchivePath = await dependencies.fileSystem.realpath(archivePath)
+    if (!isPathInside(canonicalProjectDir, canonicalArchivePath)) throw new Error("outside project")
+    return canonicalArchivePath
+  } catch {
+    throw new PlatformSessionError(
+      "platform_command_failed",
+      "ZIP частичной загрузки должен находиться внутри проекта"
+    )
+  }
 }
 
 function relativeAgentPath(userServiceDir: string, stagingDir: string): string {

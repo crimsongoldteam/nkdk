@@ -47,6 +47,27 @@ describe("ssh2 loopback transport", () => {
     expect(shell.isOpen()).toBe(false)
   })
 
+  it("notifies shell close listeners exactly once", async () => {
+    const client = fakeClient()
+    const pending = createSsh2Transport({ createClient: () => client }).connect({
+      host: "127.0.0.1",
+      port: 58248,
+      timeoutMs: 1_000,
+      expectedHostKeyHash: "trusted",
+    })
+    client.emit("ready")
+    const shell = await pending
+    let closeCalls = 0
+    shell.onClose(() => closeCalls += 1)
+
+    client.stream.emit("end")
+    client.stream.emit("close")
+    client.emit("close")
+
+    expect(closeCalls).toBe(1)
+    expect(shell.isOpen()).toBe(false)
+  })
+
   it("uses the injected timeout and destroys an unready client", async () => {
     const client = fakeClient()
     const clock = controlledClock()

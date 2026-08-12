@@ -22,6 +22,9 @@ describe("platform session process handle", () => {
             reusedConnection: false,
           }
         },
+        async loadPartialConfiguration() {
+          throw new Error("not used")
+        },
         async closeConnection() {
           return { closed: false, stoppedOwnedProcess: false }
         },

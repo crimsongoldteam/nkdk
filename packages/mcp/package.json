@@ -17,7 +17,8 @@
     "dev": "tsx src/server.ts",
     "prepack": "pnpm run build",
     "smoke:packed": "node scripts/smoke-packed.mjs",
-    "test": "node ../../scripts/run-test-duration-check.mjs -- --passWithNoTests",
+    "test": "node ../../scripts/run-test-duration-check.mjs -- --passWithNoTests --exclude '**/*.integration.test.ts' && pnpm run test:integration",
+    "test:integration": "vitest run --config vitest.config.ts src/services/syncToInfobase.integration.test.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -40,6 +41,7 @@
     "@nkdk/runtime": "workspace:*",
     "@nkdk/rules": "workspace:*",
     "@nkdk/platform": "workspace:*",
+    "@zip.js/zip.js": "^2.8.34",
     "@types/node": "^26.1.2",
     "esbuild": "^0.28.1",
     "typescript": "~7.0.0",

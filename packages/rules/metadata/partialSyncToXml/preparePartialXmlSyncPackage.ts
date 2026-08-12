@@ -36,8 +36,9 @@ import { resolvePartialXmlPackagePolicy } from "./packagePolicy"
 import {
   cleanupPendingPartialXmlSync,
   partialXmlSyncArchiveProjectPath,
+  readPendingPartialXmlSync,
   writePendingPartialXmlSync,
-  type PendingPartialXmlSyncStateV1,
+  type PendingPartialXmlSyncStateV2,
 } from "./pendingStore"
 import { createPartialXmlArchiveWriter, type PartialXmlArchiveWriter } from "./archiveWriter"
 
@@ -71,6 +72,7 @@ interface ValidatedPreparationParams extends PreparePartialXmlSyncPackageParams 
 }
 
 export interface PartialXmlSyncCoordinatorDependencies {
+  readonly readPending: typeof readPendingPartialXmlSync
   readonly cleanup: typeof cleanupPendingPartialXmlSync
   readonly refresh: (params: PreparePartialXmlSyncPackageParams) => Promise<{
     readonly diagnostics: readonly Diagnostic[]
@@ -80,6 +82,7 @@ export interface PartialXmlSyncCoordinatorDependencies {
 }
 
 const defaultDependencies: PartialXmlSyncCoordinatorDependencies = {
+  readPending: readPendingPartialXmlSync,
   cleanup: cleanupPendingPartialXmlSync,
   refresh: refreshProject,
   prepareValidated: prepareValidatedPackage,
@@ -91,10 +94,16 @@ export async function preparePartialXmlSyncPackage(
 ): Promise<PreparePartialXmlSyncPackageResult> {
   const projectDir = resolve(params.projectDir)
   let diagnostics: readonly Diagnostic[] = []
+  let preparationStarted = false
   try {
     const address = parseComponentPath(params.componentPath)
     const normalizedComponentPath = componentPath(address)
+    const pending = await dependencies.readPending(projectDir, normalizedComponentPath)
+    if (pending !== undefined && pending.delivery.status !== "prepared") {
+      throw new Error(`Нельзя готовить новый пакет в фазе ${pending.delivery.status}`)
+    }
     await dependencies.cleanup(projectDir, normalizedComponentPath)
+    preparationStarted = true
     const refreshed = await dependencies.refresh({ ...params, projectDir, componentPath: normalizedComponentPath })
     diagnostics = refreshed.diagnostics
     if (hasErrors(diagnostics)) return { ok: false, diagnostics }
@@ -106,7 +115,9 @@ export async function preparePartialXmlSyncPackage(
       readToken: refreshed.readToken,
     })
   } catch (caught) {
-    await dependencies.cleanup(projectDir, params.componentPath).catch(() => undefined)
+    if (preparationStarted) {
+      await dependencies.cleanup(projectDir, params.componentPath).catch(() => undefined)
+    }
     return { ok: false, diagnostics: [...diagnostics, operationDiagnostic(projectDir, caught)] }
   }
 }
@@ -252,8 +263,8 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
     const candidateBytes = encodeConfigurationIndex(candidate)
     const sourceBytes = sharedSnapshotBytes(params.runtime.target.snapshot)
     const baseSnapshot = params.runtime.base?.snapshot
-    const pending: PendingPartialXmlSyncStateV1 = {
-      version: 1,
+    const pending: PendingPartialXmlSyncStateV2 = {
+      version: 2,
       packageId,
       componentPath: params.componentPath,
       archiveProjectPath,
@@ -266,6 +277,9 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
         baseSnapshotGeneration: decodeSharedSnapshot(baseSnapshot).indexGeneration.toString(),
       }),
       candidateAppliedMigrations: params.migration.candidateAppliedNames,
+      entries: archive.entries,
+      loadTargets: params.impact.loadTargets,
+      delivery: { status: "prepared" },
     }
     await writePendingPartialXmlSync({ projectDir: params.projectDir, state: pending, candidateBytes })
     retained = true

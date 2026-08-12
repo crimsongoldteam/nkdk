@@ -36,7 +36,7 @@ export function createPlatformSessionManager(
   const pendingOperations = new Map<string, number>()
 
   async function exportConfiguration(params: Parameters<PlatformSessionManager["exportConfiguration"]>[0]) {
-    const operationLog = await openOperationLog(params)
+    const operationLog = await openOperationLog(params, params.mode)
     await appendRequired(
       operationLog,
       [
@@ -68,6 +68,48 @@ export function createPlatformSessionManager(
       extensions: result.value,
       mode: result.mode,
       reusedConnection: result.reusedConnection,
+    }
+  }
+
+  async function loadPartialConfiguration(
+    params: Parameters<PlatformSessionManager["loadPartialConfiguration"]>[0]
+  ) {
+    const mode = "designer-agent" as const
+    const operationLog = await openOperationLog(params, mode)
+    await appendRequired(
+      operationLog,
+      [
+        `operation mode=${mode} stage=configuration-load`,
+        `connection=${connectionKind(params.connectionString)}`,
+        `infobase-auth=${params.user === undefined ? "os" : "credentials"}`,
+        `database-auth=${databaseAuthenticationKind(params.database)}`,
+      ].join(" "),
+      mode
+    )
+    await appendRequired(operationLog, "pending-phase=transferring", mode)
+    const result = await withSession(
+      { ...params, mode },
+      operationLog,
+      (session) => {
+        if (session.loadPartialConfiguration === undefined) {
+          throw new PlatformSessionError(
+            "platform_component_missing",
+            "Сеанс платформы не поддерживает частичную загрузку"
+          )
+        }
+        return session.loadPartialConfiguration(
+          params.archivePath,
+          params.loadTargets,
+          operationLog,
+          params.extensionName,
+          params.signal
+        )
+      }
+    )
+    return {
+      mode,
+      reusedConnection: result.reusedConnection,
+      warnings: result.value.warnings,
     }
   }
 
@@ -114,7 +156,8 @@ export function createPlatformSessionManager(
         if (
           caught instanceof PlatformSessionError &&
           (caught.code === "operation_cancelled" ||
-            caught.code === "session_timeout")
+            caught.code === "session_timeout" ||
+            caught.code === "delivery_outcome_unknown")
         ) {
           try {
             await cached.session.cancel()
@@ -294,12 +337,14 @@ export function createPlatformSessionManager(
   return {
     exportConfiguration,
     listExtensions,
+    loadPartialConfiguration,
     closeConnection,
     closeAllConnections,
   }
 
   async function openOperationLog(
-    params: Parameters<PlatformSessionManager["exportConfiguration"]>[0]
+    params: { logPath: string; password?: string; database?: NormalizedPlatformConnectionSettings["database"] },
+    mode: PlatformSessionMode = "designer-agent"
   ): Promise<PlatformOperationLog> {
     try {
       return await dependencies.createOperationLog({
@@ -312,7 +357,7 @@ export function createPlatformSessionManager(
       throw new PlatformSessionError(
         "platform_command_failed",
         "Не удалось создать журнал операции платформы",
-        { cause, details: { stage: "platform-log", mode: params.mode } }
+        { cause, details: { stage: "platform-log", mode } }
       )
     }
   }

@@ -122,6 +122,45 @@ export type FullXmlSyncPlanResult =
       readonly diagnostics: readonly MetadataSyncDiagnostic[]
     }
 
+export type PartialSyncDelivery =
+  | { readonly status: "prepared" }
+  | {
+      readonly status: "transferring" | "applied"
+      readonly attemptId: string
+      readonly operationLogProjectPath: string
+    }
+
+export interface PendingPartialSyncState {
+  readonly version: 2
+  readonly packageId: string
+  readonly componentPath: string
+  readonly archiveProjectPath: string
+  readonly archiveHash: string
+  readonly sourceSnapshotHash: string
+  readonly sourceSnapshotGeneration: string
+  readonly candidateSnapshotHash: string
+  readonly baseSnapshotHash?: string
+  readonly baseSnapshotGeneration?: string
+  readonly candidateAppliedMigrations: readonly string[]
+  readonly entries: readonly string[]
+  readonly loadTargets: readonly string[]
+  readonly delivery: PartialSyncDelivery
+}
+
+export type PreparePartialSyncResult =
+  | { readonly ok: true; readonly status: "unchanged"; readonly diagnostics: readonly MetadataDiagnostic[] }
+  | {
+      readonly ok: true
+      readonly status: "prepared"
+      readonly packageId: string
+      readonly archivePath: string
+      readonly archiveHash: string
+      readonly entries: readonly string[]
+      readonly loadTargets: readonly string[]
+      readonly diagnostics: readonly MetadataDiagnostic[]
+    }
+  | { readonly ok: false; readonly diagnostics: readonly MetadataDiagnostic[] }
+
 export interface MetadataRuntimeProjectState {
   beginImport(params: unknown): Promise<unknown>
   refreshAndValidate(params: unknown): Promise<unknown>
@@ -204,6 +243,43 @@ export interface MetadataRuntime {
       readonly version: 1
       readonly files: Record<string, string>
     }>
+    readonly partial: {
+      prepare(params: {
+        readonly context: ConfigurationContext
+        readonly projectDir: string
+        readonly componentPath: string
+        readonly concurrency?: number
+        readonly projectState: MetadataRuntimeProjectState
+      }): Promise<PreparePartialSyncResult>
+      readPending(projectDir: string, componentPath: string): Promise<PendingPartialSyncState | undefined>
+      markTransferring(params: {
+        readonly projectDir: string
+        readonly componentPath: string
+        readonly packageId: string
+        readonly attemptId: string
+        readonly operationLogProjectPath: string
+      }): Promise<void>
+      markPreparedAfterRejection(params: {
+        readonly projectDir: string
+        readonly componentPath: string
+        readonly packageId: string
+        readonly attemptId: string
+      }): Promise<void>
+      markApplied(params: {
+        readonly projectDir: string
+        readonly componentPath: string
+        readonly packageId: string
+        readonly attemptId: string
+      }): Promise<void>
+      finalize(params: {
+        readonly projectDir: string
+        readonly componentPath: string
+        readonly packageId: string
+      }): Promise<{
+        readonly status: "published" | "alreadyPublished"
+        readonly configurationIndexPath: string
+      }>
+    }
   }
   readonly metadata: {
     rename(params: {
