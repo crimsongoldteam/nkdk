@@ -3,5 +3,5 @@ import { MetadataStyleItemRules } from "./rules"
 
 export const metadataStyleItemPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataStyleItemRules, {
   profiles: ["borrowed-base", "mutable-synonym"],
-  properties: controlled("type"),
+  properties: controlled("type", "value"),
 })

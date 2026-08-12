@@ -7,6 +7,8 @@ import {
 
 export const configurationExtensionPropertyStateProfiles = [
   definePropertyStateProfile("borrowed-base", {
+    name: { availability: "own", modes: [] },
+    comment: { availability: "own", modes: [] },
     ...controlled("extendedConfigurationObject"),
   }),
   definePropertyStateProfile("mutable-synonym", extended("synonym")),

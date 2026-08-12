@@ -44,6 +44,22 @@ describe("validateProjectFileFirstPass references", () => {
     })
   }
 
+  const validateWithPropertiesSpy = (
+    projectDir: string,
+    file: NonNullable<ReturnType<typeof resolveValidationProjectFile>>,
+  ) => {
+    const properties = vi.fn(sharedSchemaCache.properties)
+    validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: { ...sharedSchemaCache, properties },
+      rulesSnapshot,
+    })
+    return properties
+  }
+
   function formFirstPassUpdate(lines: string[]) {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
@@ -135,8 +151,7 @@ describe("validateProjectFileFirstPass references", () => {
     const projectPath = "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml"
     writeProjectFile(component.componentDir, projectPath, "Комментарий: тест")
     writeProjectFile(join(projectDir, "cf"), projectPath, "ИмяВИсточникеДанных: Куб")
-    const file = resolveValidationProjectFile(component.componentDir, projectPath, component)
-    if (!file) throw new Error("file not resolved")
+    const file = requireValidationProjectFile(component, projectPath)
     const properties = vi.fn(sharedSchemaCache.properties)
 
     const first = validateProjectFileFirstPass({
@@ -162,6 +177,37 @@ describe("validateProjectFileFirstPass references", () => {
     }))
   })
 
+  it("применяет схему PropertyState на вложенной границе заимствованного реквизита", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const component = createValidationProjectComponent(projectDir, {
+      kind: "configurationExtension",
+      name: "X",
+    })
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    writeProjectFile(component.componentDir, projectPath, [
+      "Реквизиты:",
+      "  Артикул:",
+      "    ОбъектРасширяемойКонфигурации: !проверять",
+    ])
+    writeProjectFile(join(projectDir, "cf"), projectPath, [
+      "Реквизиты:",
+      "  Артикул:",
+      "    Тип: Строка",
+    ])
+
+    const result = validateProjectFileFirstPass({
+      projectDir,
+      file: resolveValidationProjectFile(component.componentDir, projectPath, component)!,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot,
+    })
+
+    expect(result.schemaDiagnostics).toEqual([])
+  })
+
   it("использует полную схему для собственного объекта cfe без одноимённого cf", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
@@ -171,20 +217,53 @@ describe("validateProjectFileFirstPass references", () => {
     })
     const projectPath = "Справочник/Собственный/Свойства.yaml"
     writeProjectFile(component.componentDir, projectPath, "Комментарий: собственный")
-    const file = resolveValidationProjectFile(component.componentDir, projectPath, component)
-    if (!file) throw new Error("file not resolved")
-    const properties = vi.fn(sharedSchemaCache.properties)
+    const file = requireValidationProjectFile(component, projectPath)
+    const properties = validateWithPropertiesSpy(projectDir, file)
+
+    expect(properties).toHaveBeenCalledWith(file.itemRule, "full")
+  })
+
+  it("сохраняет полную структуру корня cfe и поддерживает его локальные теги", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const component = createValidationProjectComponent(projectDir, {
+      kind: "configurationExtension",
+      name: "X",
+    })
+    writeProjectFile(component.componentDir, "Конфигурация.yaml", [
+      "Имя: X",
+      "НазначениеРасширенияКонфигурации: Адаптация",
+      "РежимСовместимости: !проверять",
+    ])
+    const file = requireValidationProjectFile(component, "Конфигурация.yaml")
+    const properties = validateWithPropertiesSpy(projectDir, file)
+
+    expect(properties).toHaveBeenCalledWith(file.itemRule, "extension-root")
+  })
+
+  it("использует полную схему содержимого вынесенной формы cfe", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const component = createValidationProjectComponent(projectDir, {
+      kind: "configurationExtension",
+      name: "X",
+    })
+    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    writeProjectFile(component.componentDir, projectPath, "{}")
+    writeProjectFile(join(projectDir, "cf"), projectPath, "{}")
+    const file = requireValidationProjectFile(component, projectPath)
+    const form = vi.fn(sharedSchemaCache.form)
 
     validateProjectFileFirstPass({
       projectDir,
       file,
       cache: createProjectYamlCache(),
       context: mockContext,
-      schemaCache: { ...sharedSchemaCache, properties },
+      schemaCache: { ...sharedSchemaCache, form },
       rulesSnapshot,
     })
 
-    expect(properties).toHaveBeenCalledWith(file.itemRule, "full")
+    expect(form).toHaveBeenCalledWith(file.itemRule, "full")
   })
 
   it.each([
@@ -684,6 +763,12 @@ function writeProjectFile(projectDir: string, projectPath: string, lines: string
   mkdirSync(dirname(filePath), { recursive: true })
   const text = Array.isArray(lines) ? lines.join("\n") : lines
   writeFileSync(filePath, `${text.trimEnd()}\n`)
+}
+
+function requireValidationProjectFile(component: ReturnType<typeof createValidationProjectComponent>, projectPath: string) {
+  const file = resolveValidationProjectFile(component.componentDir, projectPath, component)
+  if (!file) throw new Error("file not resolved")
+  return file
 }
 
 function validationRuntimeWithFileValidator(role: string, validator: ProjectFileValidator) {

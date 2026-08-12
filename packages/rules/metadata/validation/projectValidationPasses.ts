@@ -8,7 +8,7 @@ import type { MetadataFieldKind, ParsedMetadataTarget } from "@nkdk/runtime/rule
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { stripCollectedSchemaRefs } from "../ruleRuntime/jsonSchemaRefs"
+import { decodeValidationSchemaKey, stripCollectedSchemaRefs } from "../ruleRuntime/jsonSchemaRefs"
 import { parseMetadataYaml, type ParsedYaml } from "@nkdk/runtime"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -32,6 +32,7 @@ import { getConfigurationValidationProjectSpec, getValidationProjectSpecs } from
 import type { ValidationFormIndexContribution, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
+import type { TSchema } from "typebox"
 import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
 import { validateParsedFile } from "./validateFile"
 import {
@@ -46,10 +47,13 @@ import type { ValidationRegistrySet } from "./validationRegistrySet"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../ruleRuntime/definition"
-import { exportBorrowedPropertyStateSchema } from "../ruleRuntime/property/propertyStateSchema"
+import {
+  exportBorrowedPropertyStateSchema,
+  exportNestedPropertyStateSchema,
+} from "../ruleRuntime/property/propertyStateSchema"
 
 type CompiledSchema = ValidationSchemaValidator
-type ValidationSchemaVariant = "full" | "extension-overlay"
+type ValidationSchemaVariant = "full" | "extension-root" | "extension-overlay"
 const formSchemaCache = new WeakMap<
   MetadataItemRule,
   Map<string, CompiledSchema>
@@ -328,17 +332,66 @@ function compileRuleValidationSchema(params: {
     ? exportJSONSchemaGraph(common)
     : params.runtime.exportGraph({ ...common, explicitXMLValues: true })
   const sourceRoot = graph.roots[params.rootKey]!
-  const capability = params.variant === "extension-overlay"
+  const capability = params.variant !== "full"
     ? currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()
       ?.propertyStates.item(params.rule.itemType)
     : undefined
   const root = capability === undefined
     ? sourceRoot
-    : exportBorrowedPropertyStateSchema({ rule: params.rule, capability, source: sourceRoot })
+    : exportBorrowedPropertyStateSchema({
+        rule: params.rule,
+        capability,
+        source: sourceRoot,
+        structuralPropertyKeys: structuralPropertyKeys(params.rule),
+        closed: params.variant === "extension-overlay",
+      })
+  const schemas = params.variant === "extension-overlay" && capability !== undefined
+    ? propertyStateNestedSchemas(graph.schemas)
+    : graph.schemas
   return compileValidationSchema(
-    graph.schemas,
+    schemas,
     params.stripRootRefs === true ? stripCollectedSchemaRefs(root) : root,
   )
+}
+
+function propertyStateNestedSchemas(schemas: Readonly<Record<string, TSchema>>): Record<string, TSchema> {
+  const rules = currentRuleRegistrySet<RuleRegistrySet>()
+  const propertyStates = currentOperationRegistrySet<{
+    readonly propertyStates: PropertyStateCapabilityRegistry
+  }>()?.propertyStates
+  if (rules === undefined || propertyStates === undefined) return { ...schemas }
+  const schemaNames = [...rules.schemas.names()].sort((left, right) => right.length - left.length)
+  return Object.fromEntries(Object.entries(schemas).map(([ref, schema]) => {
+    const decoded = decodeValidationSchemaKey(ref.replace(/^nkdk:\/\/schema\//u, ""))
+    const name = schemaNames.find((candidate) => decoded === candidate || decoded.endsWith(`/${candidate}`))
+    const source = name === undefined ? undefined : rules.schemas.get(name)?.source
+    if (!isMetadataItemRule(source)) return [ref, schema]
+    const capability = propertyStates.item(source.itemType)
+    return capability === undefined
+      ? [ref, schema]
+      : [ref, exportNestedPropertyStateSchema({
+          rule: source,
+          capability,
+          source: schema,
+          structuralPropertyKeys: structuralPropertyKeys(source),
+        })]
+  }))
+}
+
+function isMetadataItemRule(value: unknown): value is MetadataItemRule {
+  return typeof value === "object" && value !== null
+    && typeof (value as Partial<MetadataItemRule>).itemType === "string"
+    && typeof (value as Partial<MetadataItemRule>).properties === "object"
+}
+
+function structuralPropertyKeys(rule: MetadataItemRule): string[] {
+  const execution = currentRuleRegistrySet<RuleRegistrySet>()?.execution
+  if (execution === undefined) return []
+  return Object.entries(rule.properties).flatMap(([propertyKey, property]) =>
+    execution.resolvePropertyItemRule(property) !== undefined ||
+    (property.xmlParents ?? []).includes("ChildObjects")
+      ? [propertyKey]
+      : [])
 }
 
 function requiredPolicy(variant: ValidationSchemaVariant) {
@@ -348,6 +401,10 @@ function requiredPolicy(variant: ValidationSchemaVariant) {
 }
 
 function validationSchemaVariant(file: ValidationProjectFile): ValidationSchemaVariant {
+  if (file.kind === "form") return "full"
+  if (file.componentPath.startsWith("cfe/") && file.kind === "configuration") {
+    return "extension-root"
+  }
   return isBorrowedExtensionFile(file)
     ? "extension-overlay"
     : "full"

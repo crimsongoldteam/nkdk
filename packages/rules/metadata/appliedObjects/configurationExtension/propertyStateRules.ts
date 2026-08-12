@@ -45,10 +45,23 @@ import { metadataFilterCriterionPropertyStateCapabilities } from "../metadataFil
 import { metadataSessionParameterPropertyStateCapabilities } from "../metadataSessionParameter/propertyStates"
 import { metadataTabularSectionPropertyStateCapabilities } from "../../commonObjects/metadataTabularSection/propertyStates"
 import { CONFIGURATION_EXTENSION_PROPERTY_STATE_XML_CARRIER } from "./explicitXMLState"
-import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
+import {
+  controlled,
+  createPropertyStateCapabilityRegistry,
+  definePropertyStateItemCapabilities,
+} from "./propertyStateCapabilities"
+import { MetadataConfigurationExtensionRules } from "./rules"
+
+const metadataConfigurationExtensionPropertyStateCapabilities = definePropertyStateItemCapabilities(
+  MetadataConfigurationExtensionRules,
+  {
+    properties: controlled("compatibilityMode"),
+  },
+)
 
 export const configurationExtensionPropertyStateCapabilities = [
   ...configurationExtensionPropertyStateProfiles,
+  metadataConfigurationExtensionPropertyStateCapabilities,
   metadataCatalogPropertyStateCapabilities,
   metadataExchangePlanPropertyStateCapabilities,
   metadataDocumentPropertyStateCapabilities,

@@ -17,7 +17,7 @@ import { MetadataWebSocketClientRules } from "../metadataWebSocketClient/rules"
 import { MetadataWSReferenceRules } from "../metadataWSReference/rules"
 import { MetadataXDTOPackageRules } from "../metadataXDTOPackage/rules"
 import { defineStandardBorrowedPropertyStates } from "./standardPropertyStates"
-import { allPropertyStateModes, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
+import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
 
 export const remainingConfigurationExtensionPropertyStateCapabilities = [
   MetadataEventSubscriptionRules,
@@ -26,11 +26,9 @@ export const remainingConfigurationExtensionPropertyStateCapabilities = [
   MetadataSettingsStorageRules,
   MetadataDataProcessorRules,
   MetadataReportRules,
-  MetadataCommonFormRules,
   MetadataCommonPictureRules,
   MetadataCommonTemplateRules,
   MetadataStyleRules,
-  MetadataLanguageRules,
   MetadataWebServiceRules,
   MetadataHTTPServiceRules,
   MetadataIntegrationServiceRules,
@@ -40,6 +38,16 @@ export const remainingConfigurationExtensionPropertyStateCapabilities = [
 ].map(defineStandardBorrowedPropertyStates)
 
 remainingConfigurationExtensionPropertyStateCapabilities.push(
+  definePropertyStateItemCapabilities(MetadataCommonFormRules, {
+    profiles: ["borrowed-base", "mutable-synonym"],
+    properties: {
+      form: { availability: "own", modes: [] },
+    },
+  }),
+  definePropertyStateItemCapabilities(MetadataLanguageRules, {
+    profiles: ["borrowed-base", "mutable-synonym"],
+    properties: controlled("languageCode"),
+  }),
   definePropertyStateItemCapabilities(MetadataXDTOPackageRules, {
     profiles: ["borrowed-base", "mutable-synonym"],
     properties: {

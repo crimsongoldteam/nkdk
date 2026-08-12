@@ -101,6 +101,13 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         }
         continue
       }
+      const segment = EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType]?.[property]
+      if (segment !== undefined) {
+        if (collection !== undefined) {
+          collection.collector.setXmlFlag(childSegmentUid(collection.logicalAddress, segment), "extended")
+        }
+        continue
+      }
       const yamlName = propertyYamlName(rule, property)
       if (yamlName !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlName)) {
         const propertyKey = propertyKeyByXmlName(rule, property)
@@ -132,9 +139,6 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         writePropertyStateSection(yaml, section.item, section.property.externalName!, "extend")
         continue
       }
-      const segment = EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType]?.[property]
-      if (segment === undefined || collection === undefined) continue
-      collection.collector.setXmlFlag(childSegmentUid(collection.logicalAddress, segment), "extended")
     }
   },
 }

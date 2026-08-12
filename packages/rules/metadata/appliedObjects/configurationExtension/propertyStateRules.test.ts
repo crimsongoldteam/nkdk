@@ -21,6 +21,28 @@ describe("матрица PropertyState расширения", () => {
     ])
   })
 
+  it.each([
+    ["MetadataChartOfCharacteristicTypes", "type"],
+    ["MetadataStyleItem", "value"],
+    ["MetadataLanguage", "languageCode"],
+    ["MetadataConfigurationExtension", "compatibilityMode"],
+  ])("контролирует %s.%s", (itemType, propertyKey) => {
+    expect(registry.resolve({ itemType, propertyKey })?.modes).toEqual([
+      "control",
+      "notify",
+    ])
+  })
+
+  it("разрешает собственный состав движений заимствованного документа", () => {
+    expect(registry.resolve({ itemType: "MetadataDocument", propertyKey: "registerRecords" }))
+      .toEqual({ availability: "own", modes: [] })
+  })
+
+  it("разрешает содержимое вынесенной общей формы", () => {
+    expect(registry.resolve({ itemType: "MetadataCommonForm", propertyKey: "form" }))
+      .toEqual({ availability: "own", modes: [] })
+  })
+
   it("различает группу общей и объектной команды", () => {
     expect(registry.resolve({ itemType: "MetadataCommonCommand", propertyKey: "group" })?.modes)
       .toEqual(["control", "notify", "extend"])
@@ -94,6 +116,7 @@ describe("матрица PropertyState расширения", () => {
     "MetadataWSReference",
     "MetadataXDTOPackage",
     "MetadataExternalDataSource",
+    "MetadataConfigurationExtension",
   ])("содержит закрытую запись вида %s", (itemType) => {
     expect(registry.item(itemType)).toBeDefined()
   })

@@ -153,6 +153,39 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml).not.toHaveProperty("Контроль")
   })
 
+  it("не помечает локальным тегом вынесенное составное свойство конфигурации", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Конфигурация"
+    const commandInterface = { ВидимостьПодсистем: { "Subsystem.Товары": { Общее: false } } }
+    const yaml: Record<string, unknown> = { КомандныйИнтерфейс: commandInterface }
+
+    configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(collector, logicalAddress),
+      rule: {
+        itemType: "MetadataConfigurationExtension",
+        properties: {
+          commandInterface: {
+            type: "RootCommandInterface",
+            xml: "CommandInterface",
+            yaml: "КомандныйИнтерфейс",
+          },
+        },
+      } as MetadataItemRule,
+      source: propertyStates(["CommandInterface", "Extended"]),
+      yaml,
+    })
+
+    expect(yaml.КомандныйИнтерфейс).toBe(commandInterface)
+    expect(yamlScalarTagAt(yaml, "КомандныйИнтерфейс")).toBeUndefined()
+    expect(collector.fragment("Форма.yaml").entities).toEqual(expect.arrayContaining([
+      {
+        logicalAddress: `${logicalAddress}.commandInterface`,
+        sourceProjectPath: "Форма.yaml",
+        xml: { extended: true },
+      },
+    ]))
+  })
+
   it("отклоняет неизвестное значение PropertyState", () => {
     const collector = createConfigurationIndexCollector()
     const yaml: Record<string, unknown> = {}

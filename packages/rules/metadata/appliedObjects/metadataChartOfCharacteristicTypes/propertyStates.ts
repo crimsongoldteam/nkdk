@@ -4,7 +4,7 @@ import { MetadataChartOfCharacteristicTypesRules } from "./rules"
 export const metadataChartOfCharacteristicTypesPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataChartOfCharacteristicTypesRules, {
   profiles: ["borrowed-base", "mutable-synonym"],
   properties: {
-    ...controlled("hierarchical"),
+    ...controlled("type", "hierarchical"),
     ...allPropertyStateModes("codeLength", "codeAllowedLength", "descriptionLength"),
   },
 })
