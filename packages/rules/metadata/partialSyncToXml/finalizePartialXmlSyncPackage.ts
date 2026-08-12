@@ -9,7 +9,7 @@ import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import {
   pendingPartialXmlSyncPaths,
   readPendingPartialXmlSync,
-  type PendingPartialXmlSyncStateV1,
+  type PendingPartialXmlSyncStateV2,
 } from "./pendingStore"
 import { publishPartialXmlSyncAppliedMigrations } from "./migrationState"
 
@@ -34,13 +34,19 @@ export async function finalizePartialXmlSyncPackage(
     readonly packageId: string
   },
   dependencies: FinalizePartialXmlSyncDependencies = {},
-): Promise<{ readonly status: "published" | "alreadyPublished" }> {
+): Promise<{
+  readonly status: "published" | "alreadyPublished"
+  readonly configurationIndexPath: string
+}> {
   const projectDir = resolve(params.projectDir)
   const address = parseComponentPath(params.componentPath)
   const pending = await readPendingPartialXmlSync(projectDir, params.componentPath)
   if (pending === undefined) throw new Error(`Нет ожидающего пакета для компонента ${params.componentPath}`)
   if (pending.packageId !== params.packageId) {
     throw new Error(`Не совпадает идентификатор ожидающего пакета: ${params.packageId}`)
+  }
+  if (pending.delivery.status !== "applied") {
+    throw new Error("Ожидающий пакет не имеет подтверждённой успешной передачи")
   }
 
   const publishedPath = configurationIndexPath(projectDir, address)
@@ -73,12 +79,15 @@ export async function finalizePartialXmlSyncPackage(
     applied: pending.candidateAppliedMigrations,
   })
   await removePublishedPendingFiles(projectDir, pending)
-  return { status: alreadyPublished ? "alreadyPublished" : "published" }
+  return {
+    status: alreadyPublished ? "alreadyPublished" : "published",
+    configurationIndexPath: publishedPath,
+  }
 }
 
 async function readCandidate(
   projectDir: string,
-  pending: PendingPartialXmlSyncStateV1,
+  pending: PendingPartialXmlSyncStateV2,
 ): Promise<ConfigurationSnapshot> {
   const { candidatePath } = pendingPartialXmlSyncPaths(projectDir, pending.componentPath)
   const bytes = await fs.promises.readFile(candidatePath)
@@ -90,7 +99,7 @@ async function readCandidate(
 
 async function assertBaseSnapshotIdentity(
   projectDir: string,
-  pending: PendingPartialXmlSyncStateV1,
+  pending: PendingPartialXmlSyncStateV2,
 ): Promise<void> {
   if (pending.baseSnapshotHash === undefined || pending.baseSnapshotGeneration === undefined) return
   const baseAddress = parseComponentPath("cf")
@@ -119,7 +128,7 @@ function assertSnapshotIdentity(params: {
 
 async function removePublishedPendingFiles(
   projectDir: string,
-  pending: PendingPartialXmlSyncStateV1,
+  pending: PendingPartialXmlSyncStateV2,
 ): Promise<void> {
   const paths = pendingPartialXmlSyncPaths(projectDir, pending.componentPath)
   await fs.promises.rm(projectPathToAbsolute(projectDir, pending.archiveProjectPath), { force: true })

@@ -13,7 +13,7 @@ import {
   pendingPartialXmlSyncPaths,
   readPendingPartialXmlSync,
   writePendingPartialXmlSync,
-  type PendingPartialXmlSyncStateV1,
+  type PendingPartialXmlSyncStateV2,
 } from "./pendingStore"
 
 describe("ожидающее состояние частичной XML-синхронизации", () => {
@@ -40,6 +40,38 @@ describe("ожидающее состояние частичной XML-синх�
     expect(writes).toEqual([paths.candidatePath, paths.pendingPath])
     expect(await readPendingPartialXmlSync(projectDir, "cf")).toEqual(state)
     expect(fs.readFileSync(paths.candidatePath)).toEqual(candidateBytes)
+    expect(JSON.parse(fs.readFileSync(paths.pendingPath, "utf8"))).toMatchObject({
+      version: 2,
+      delivery: { status: "prepared" },
+    })
+  })
+
+  it("читает состояние версии 1 как подготовленное состояние версии 2", async () => {
+    const projectDir = tempProject()
+    const candidateBytes = encodeConfigurationIndex(snapshot(2n))
+    const state = createState(projectDir, "legacy", candidateBytes)
+    const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
+    fs.mkdirSync(join(paths.pendingPath, ".."), { recursive: true })
+    const { delivery: _delivery, ...legacy } = state
+    fs.writeFileSync(paths.pendingPath, JSON.stringify({ ...legacy, version: 1 }))
+
+    await expect(readPendingPartialXmlSync(projectDir, "cf")).resolves.toEqual(state)
+  })
+
+  it.each([
+    [{ version: 3 }, /верси/i],
+    [{ version: 2, delivery: { status: "transferring", attemptId: "attempt-1", operationLogProjectPath: "../platform.log" } }, /журнал/i],
+  ])("отклоняет повреждённую доставку и сохраняет файлы: %#", async (patch, error) => {
+    const projectDir = tempProject()
+    const candidateBytes = encodeConfigurationIndex(snapshot(2n))
+    const state = createState(projectDir, "damaged", candidateBytes)
+    await writePendingPartialXmlSync({ projectDir, state, candidateBytes })
+    const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
+    fs.writeFileSync(paths.pendingPath, JSON.stringify({ ...state, ...patch }))
+
+    await expect(readPendingPartialXmlSync(projectDir, "cf")).rejects.toThrow(error)
+    expect(fs.existsSync(paths.pendingPath)).toBe(true)
+    expect(fs.existsSync(paths.candidatePath)).toBe(true)
   })
 
   it("заменяет единственный предыдущий пакет и удаляет ZIP-сироты только своего компонента", async () => {
@@ -94,13 +126,13 @@ function createState(
   projectDir: string,
   packageId: string,
   candidateBytes: Uint8Array,
-): PendingPartialXmlSyncStateV1 {
+): PendingPartialXmlSyncStateV2 {
   const archiveProjectPath = partialXmlSyncArchiveProjectPath("cf", packageId)
   const archivePath = join(projectDir, ...archiveProjectPath.split("/"))
   fs.mkdirSync(join(archivePath, ".."), { recursive: true })
   fs.writeFileSync(archivePath, packageId)
   return {
-    version: 1,
+    version: 2,
     packageId,
     componentPath: "cf",
     archiveProjectPath,
@@ -109,6 +141,7 @@ function createState(
     sourceSnapshotGeneration: (decodeConfigurationIndex(candidateBytes).indexGeneration - 1n).toString(),
     candidateSnapshotHash: hashHex(candidateBytes),
     candidateAppliedMigrations: [],
+    delivery: { status: "prepared" },
   }
 }
 

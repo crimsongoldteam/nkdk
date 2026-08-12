@@ -19,6 +19,19 @@ export interface PendingPartialXmlSyncStateV1 {
   readonly candidateAppliedMigrations: readonly string[]
 }
 
+export type PartialSyncDelivery =
+  | { readonly status: "prepared" }
+  | {
+      readonly status: "transferring" | "applied"
+      readonly attemptId: string
+      readonly operationLogProjectPath: string
+    }
+
+export interface PendingPartialXmlSyncStateV2 extends Omit<PendingPartialXmlSyncStateV1, "version"> {
+  readonly version: 2
+  readonly delivery: PartialSyncDelivery
+}
+
 export interface PendingPartialXmlSyncPaths {
   readonly pendingPath: string
   readonly candidatePath: string
@@ -52,7 +65,7 @@ export function partialXmlSyncArchiveProjectPath(componentPath: string, packageI
 export async function readPendingPartialXmlSync(
   projectDir: string,
   componentPath: string,
-): Promise<PendingPartialXmlSyncStateV1 | undefined> {
+): Promise<PendingPartialXmlSyncStateV2 | undefined> {
   const { pendingPath } = pendingPartialXmlSyncPaths(projectDir, componentPath)
   let bytes: Buffer
   try {
@@ -80,11 +93,12 @@ export function assertNoPendingPartialXmlSync(projectDir: string, componentPath:
 export async function writePendingPartialXmlSync(
   params: {
     readonly projectDir: string
-    readonly state: PendingPartialXmlSyncStateV1
+    readonly state: PendingPartialXmlSyncStateV2
     readonly candidateBytes: Uint8Array
   },
   dependencies: PendingPartialXmlSyncStoreDependencies = {},
 ): Promise<void> {
+  if (params.state.version !== 2) throw new Error("Новые pending state должны иметь версию 2")
   const state = validatePendingState(params.state, params.state.componentPath)
   const candidateHash = hashHex(params.candidateBytes)
   if (candidateHash !== state.candidateSnapshotHash) {
@@ -107,6 +121,25 @@ export async function writePendingPartialXmlSync(
   const writeAtomic = dependencies.writeAtomic ?? writeFileAtomic
   await writeAtomic(paths.candidatePath, params.candidateBytes)
   await writeAtomic(paths.pendingPath, new TextEncoder().encode(`${JSON.stringify(state, undefined, 2)}\n`))
+}
+
+export async function updatePendingPartialXmlSync(
+  params: {
+    readonly projectDir: string
+    readonly componentPath: string
+    readonly update: (state: PendingPartialXmlSyncStateV2) => PendingPartialXmlSyncStateV2
+  },
+  dependencies: PendingPartialXmlSyncStoreDependencies = {},
+): Promise<PendingPartialXmlSyncStateV2> {
+  const current = await readPendingPartialXmlSync(params.projectDir, params.componentPath)
+  if (current === undefined) throw new Error(`Нет ожидающего пакета для компонента ${params.componentPath}`)
+  const next = validatePendingState(params.update(current), params.componentPath)
+  const { pendingPath } = pendingPartialXmlSyncPaths(params.projectDir, params.componentPath)
+  await (dependencies.writeAtomic ?? writeFileAtomic)(
+    pendingPath,
+    new TextEncoder().encode(`${JSON.stringify(next, undefined, 2)}\n`)
+  )
+  return next
 }
 
 export async function cleanupPendingPartialXmlSync(
@@ -148,7 +181,7 @@ export async function writeFileAtomic(path: string, bytes: Uint8Array): Promise<
 async function readPendingForCleanup(
   projectDir: string,
   componentPath: string,
-): Promise<PendingPartialXmlSyncStateV1 | undefined> {
+): Promise<PendingPartialXmlSyncStateV2 | undefined> {
   try {
     return await readPendingPartialXmlSync(projectDir, componentPath)
   } catch {
@@ -156,8 +189,10 @@ async function readPendingForCleanup(
   }
 }
 
-function validatePendingState(value: unknown, expectedComponentPath: string): PendingPartialXmlSyncStateV1 {
-  if (!isRecord(value) || value.version !== 1) throw new Error("Некорректная версия pending state")
+function validatePendingState(value: unknown, expectedComponentPath: string): PendingPartialXmlSyncStateV2 {
+  if (!isRecord(value) || (value.version !== 1 && value.version !== 2)) {
+    throw new Error("Некорректная версия pending state")
+  }
   const requiredStrings = [
     "packageId", "componentPath", "archiveProjectPath", "archiveHash", "sourceSnapshotHash",
     "sourceSnapshotGeneration", "candidateSnapshotHash",
@@ -188,11 +223,40 @@ function validatePendingState(value: unknown, expectedComponentPath: string): Pe
   }
   const migrations = value.candidateAppliedMigrations as string[]
   if (new Set(migrations).size !== migrations.length) throw new Error("Повтор migration в pending state")
-  const state = value as unknown as PendingPartialXmlSyncStateV1
+  const delivery = value.version === 1 ? { status: "prepared" as const } : validateDelivery(value.delivery)
+  const state = { ...value, version: 2, delivery } as unknown as PendingPartialXmlSyncStateV2
   if (state.archiveProjectPath !== partialXmlSyncArchiveProjectPath(state.componentPath, state.packageId)) {
     throw new Error("Некорректный путь ZIP в pending state")
   }
   return state
+}
+
+function validateDelivery(value: unknown): PartialSyncDelivery {
+  if (!isRecord(value) || typeof value.status !== "string") {
+    throw new Error("Некорректная фаза доставки в pending state")
+  }
+  if (value.status === "prepared") {
+    if (Object.keys(value).length !== 1) throw new Error("Некорректная фаза доставки в pending state")
+    return { status: "prepared" }
+  }
+  if (value.status !== "transferring" && value.status !== "applied") {
+    throw new Error("Некорректная фаза доставки в pending state")
+  }
+  if (typeof value.attemptId !== "string" || typeof value.operationLogProjectPath !== "string") {
+    throw new Error("Некорректная фаза доставки в pending state")
+  }
+  assertPackageId(value.attemptId)
+  const expectedLogPath = [
+    ".nkdk", "tmp", "sync-to-infobase", value.attemptId, "platform.log",
+  ].join("/")
+  if (value.operationLogProjectPath !== expectedLogPath) {
+    throw new Error("Некорректный путь журнала передачи в pending state")
+  }
+  return {
+    status: value.status,
+    attemptId: value.attemptId,
+    operationLogProjectPath: value.operationLogProjectPath,
+  }
 }
 
 function projectPathToAbsolute(projectDir: string, projectPath: string): string {

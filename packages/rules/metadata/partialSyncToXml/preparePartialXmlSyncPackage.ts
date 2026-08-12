@@ -37,7 +37,7 @@ import {
   cleanupPendingPartialXmlSync,
   partialXmlSyncArchiveProjectPath,
   writePendingPartialXmlSync,
-  type PendingPartialXmlSyncStateV1,
+  type PendingPartialXmlSyncStateV2,
 } from "./pendingStore"
 import { createPartialXmlArchiveWriter, type PartialXmlArchiveWriter } from "./archiveWriter"
 
@@ -252,8 +252,8 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
     const candidateBytes = encodeConfigurationIndex(candidate)
     const sourceBytes = sharedSnapshotBytes(params.runtime.target.snapshot)
     const baseSnapshot = params.runtime.base?.snapshot
-    const pending: PendingPartialXmlSyncStateV1 = {
-      version: 1,
+    const pending: PendingPartialXmlSyncStateV2 = {
+      version: 2,
       packageId,
       componentPath: params.componentPath,
       archiveProjectPath,
@@ -266,6 +266,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
         baseSnapshotGeneration: decodeSharedSnapshot(baseSnapshot).indexGeneration.toString(),
       }),
       candidateAppliedMigrations: params.migration.candidateAppliedNames,
+      delivery: { status: "prepared" },
     }
     await writePendingPartialXmlSync({ projectDir: params.projectDir, state: pending, candidateBytes })
     retained = true
