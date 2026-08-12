@@ -1,6 +1,8 @@
 import { createRequire } from "node:module"
 import type {
   NativeProjectStateReader,
+  NativeSnapshotPlan,
+  SnapshotPlanInput,
   ProjectStateSections,
 } from "@nkdk/project-state-native"
 import type { ProjectStateSharedBuffers } from "../binary/snapshot"
@@ -31,6 +33,16 @@ export function projectStateSectionViews(buffers: ProjectStateSharedBuffers): Pr
     header: new Uint8Array(buffers.header), strings: new Uint8Array(buffers.strings),
     files: new Uint8Array(buffers.files), facts: new Uint8Array(buffers.facts),
     lookups: new Uint8Array(buffers.lookups), diagnostics: new Uint8Array(buffers.diagnostics),
+  }
+}
+
+export function planRustProjectStateSnapshot(input: SnapshotPlanInput): NativeSnapshotPlan {
+  try {
+    const addon = require("@nkdk/project-state-native") as typeof import("@nkdk/project-state-native")
+    return addon.planProjectStateSnapshot(input)
+  } catch (caught) {
+    if (isNativeLoadFailure(caught)) throw new RustProjectStateBackendUnavailableError(caught)
+    throw caught
   }
 }
 

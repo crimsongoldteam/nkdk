@@ -7,9 +7,11 @@ mod format;
 mod queries;
 mod query_protocol;
 mod reader;
+mod snapshot_plan;
 
 use buffers::ProjectStateSections;
 use reader::NativeProjectStateReader;
+pub use snapshot_plan::{NativeSnapshotPlan, plan_project_state_snapshot};
 
 #[napi(object)]
 pub struct SharedBufferProbe {

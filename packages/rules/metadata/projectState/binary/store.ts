@@ -41,6 +41,7 @@ export interface BinaryProjectStateStoreOptions {
   readonly initial?: ProjectStateSharedBuffers
   readonly checkpoint?: (buffers: ProjectStateSharedBuffers) => Promise<void>
   readonly projectDir?: string
+  readonly buildSnapshot?: typeof buildProjectStateSnapshot
 }
 
 export interface BinaryProjectStateStoreFixture {
@@ -64,7 +65,8 @@ const YAML_ROLES = [undefined, "configuration", "properties", "form"] as const
 export function createBinaryProjectStateStore(
   options: BinaryProjectStateStoreOptions,
 ): BinaryProjectStateStoreFixture {
-  let published = options.initial ?? buildProjectStateSnapshot({ fragments: [], deletions: [] })
+  const buildSnapshot = options.buildSnapshot ?? buildProjectStateSnapshot
+  let published = options.initial ?? buildSnapshot({ fragments: [], deletions: [] })
   let active: ActiveUpdate | undefined
   let closed = false
   const readContexts = new WeakMap<ProjectStateSharedBuffers, BinaryProjectStateReadContext>()
@@ -279,7 +281,7 @@ export function createBinaryProjectStateStore(
 
   function materialize(update: ActiveUpdate): ProjectStateSharedBuffers {
     if (update.fragments.length === 0 && update.deletions.size === 0) return published
-    update.candidate ??= buildProjectStateSnapshot({
+    update.candidate ??= buildSnapshot({
       base: published,
       fragments: update.fragments,
       deletions: [...update.deletions],

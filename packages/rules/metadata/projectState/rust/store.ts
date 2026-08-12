@@ -21,15 +21,61 @@ import {
   encodeRustFileComparisonRequest,
 } from "./protocol"
 import { openRustProjectStateReader, projectStateSectionViews } from "./addon"
+import { planRustProjectStateSnapshot } from "./addon"
+import type { ProjectStateSharedBuffers } from "../binary/snapshot"
+import type { ProjectStateFragmentView } from "../binary/fragment"
+import type { ProjectStateSnapshotBuildInput } from "../binary/typedBuilder"
+import type { NativeSnapshotStats, ProjectStateFragmentSections } from "@nkdk/project-state-native"
+
+let lastBuildStats: NativeSnapshotStats | undefined
+
+export function readLastRustProjectStateBuildStats(): NativeSnapshotStats | undefined {
+  return lastBuildStats
+}
 
 export function createRustProjectStateStore(params: OpenProjectStateStoreParams): ProjectStateStore {
-  const store = createBinaryProjectStateStore(params).store
+  const store = createBinaryProjectStateStore({ ...params, buildSnapshot: buildRustSnapshot }).store
   return {
     ...store,
     readFileBaseline: (files) => withReader(store, ({ native, snapshot }) =>
       readFileBaseline(native, snapshot, files)),
     compareFiles: (batch) => withReader(store, ({ native, snapshot }) =>
       compareFiles(native, snapshot, batch)),
+  }
+}
+
+function buildRustSnapshot(input: ProjectStateSnapshotBuildInput): ProjectStateSharedBuffers {
+  if (input.base !== undefined && input.fragments.length === 0 && input.deletions.length === 0) return input.base
+  const plan = planRustProjectStateSnapshot({
+    ...(input.base === undefined ? {} : { base: projectStateSectionViews(input.base) }),
+    fragments: input.fragments.map(({ buffers }) => fragmentSectionViews(buffers)),
+    deletedProjectPaths: input.deletions,
+  })
+  try {
+    const layout = plan.layout()
+    const output = {
+      header: new SharedArrayBuffer(layout.header),
+      strings: new SharedArrayBuffer(layout.strings),
+      files: new SharedArrayBuffer(layout.files),
+      facts: new SharedArrayBuffer(layout.facts),
+      lookups: new SharedArrayBuffer(layout.lookups),
+      diagnostics: new SharedArrayBuffer(layout.diagnostics),
+    }
+    lastBuildStats = plan.writeInto(projectStateSectionViews(output))
+    new ProjectStateSnapshotView(output)
+    return output
+  } finally {
+    plan.close()
+  }
+}
+
+function fragmentSectionViews(
+  buffers: ProjectStateFragmentView["buffers"],
+): ProjectStateFragmentSections {
+  return {
+    header: new Uint8Array(buffers.header), strings: new Uint8Array(buffers.strings),
+    files: new Uint8Array(buffers.files), facts: new Uint8Array(buffers.facts),
+    diagnostics: new Uint8Array(buffers.diagnostics),
   }
 }
 

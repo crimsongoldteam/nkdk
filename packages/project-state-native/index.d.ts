@@ -29,4 +29,43 @@ export interface NativeProjectStateReader {
   close(): void
 }
 
+export interface ProjectStateFragmentSections {
+  readonly header: Uint8Array
+  readonly strings: Uint8Array
+  readonly files: Uint8Array
+  readonly facts: Uint8Array
+  readonly diagnostics: Uint8Array
+}
+
+export interface ProjectStateSectionSizes {
+  readonly header: number
+  readonly strings: number
+  readonly files: number
+  readonly facts: number
+  readonly lookups: number
+  readonly diagnostics: number
+}
+
+export interface SnapshotPlanInput {
+  readonly base?: ProjectStateSections
+  readonly fragments: readonly ProjectStateFragmentSections[]
+  readonly deletedProjectPaths: readonly string[]
+}
+
+export interface NativeSnapshotStats {
+  readonly files: number
+  readonly strings: number
+  readonly temporaryBytes: number
+  readonly copiedSnapshotBytes: number
+  readonly planMs: number
+  readonly writeMs: number
+}
+
+export interface NativeSnapshotPlan {
+  layout(): ProjectStateSectionSizes
+  writeInto(output: ProjectStateSections): NativeSnapshotStats
+  close(): void
+}
+
 export function openProjectStateReader(sections: ProjectStateSections): NativeProjectStateReader
+export function planProjectStateSnapshot(input: SnapshotPlanInput): NativeSnapshotPlan

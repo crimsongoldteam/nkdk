@@ -67,11 +67,13 @@ interface FileCandidate {
   readonly path: string
 }
 
-export function buildTypedProjectStateSnapshot(input: {
+export interface ProjectStateSnapshotBuildInput {
   readonly base?: ProjectStateSharedBuffers
   readonly fragments: readonly ProjectStateFragmentView[]
   readonly deletions: readonly string[]
-}): ProjectStateSharedBuffers {
+}
+
+export function buildTypedProjectStateSnapshot(input: ProjectStateSnapshotBuildInput): ProjectStateSharedBuffers {
   if (input.base !== undefined && input.fragments.length === 0 && input.deletions.length === 0) return input.base
 
   const baseView = input.base === undefined ? undefined : new ProjectStateSnapshotView(input.base)
