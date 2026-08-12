@@ -24,7 +24,10 @@ function expectNoOrdinaryXMLState(index: Pick<ConfigurationSnapshot, "entities">
 
 describe("тонкое содержимое снимка конфигурации", () => {
   it("сохраняет идентификаторы, но не обычное XML-состояние", () => {
-    registerTypeRule("TestInventoryEmptyCollection" as PropertyRuleType, "importFromXMLToYAML", () => [])
+    registerTypeRule("TestInventoryEmptyCollection" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => {
+      if (!Array.isArray(xml) || xml.length !== 0) throw new Error("Ожидалась пустая XML-коллекция")
+      return ["преобразована"]
+    })
     const collector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(
       mockContextFromXML(),
@@ -48,7 +51,6 @@ describe("тонкое содержимое снимка конфигураци�
           type: "TestInventoryEmptyCollection",
           xml: "EmptyCollection",
           yaml: "ПустаяКоллекция",
-          defaultValueXMLEmpty: [],
         },
         nilValue: { type: "MetadataValue", xml: "NilValue", yaml: "ПустоеЗначение" },
         typedValue: { type: "MetadataValue", xml: "TypedValue", yaml: "ТипизированноеЗначение" },
@@ -63,7 +65,7 @@ describe("тонкое содержимое снимка конфигураци�
       },
     } as const satisfies MetadataItemRule
 
-    importPropertiesFromXMLToYAML({
+    const yaml = importPropertiesFromXMLToYAML({
       context,
       rule,
       sources: [{
@@ -85,6 +87,7 @@ describe("тонкое содержимое снимка конфигураци�
       collector: createLocalIndexesCollector(),
     })
 
+    expect(yaml).toMatchObject({ ПустаяКоллекция: ["преобразована"] })
     const entities = collector.fragment("Документы/Заказ.yaml").entities
     expect(entities).toContainEqual(expect.objectContaining({
       logicalAddress: "Документ.Заказ",
