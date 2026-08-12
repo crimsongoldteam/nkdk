@@ -9,6 +9,11 @@ describe("measure binary project state args", () => {
       "/tmp/project",
       "--lookups", "1000000",
       "--workers", "4",
-    ])).toEqual({ projectDir: resolve("/tmp/project"), lookups: 1_000_000, workers: 4 })
+    ])).toEqual({
+      projectDir: resolve("/tmp/project"),
+      lookups: 1_000_000,
+      workers: 4,
+      queryPattern: "repeated",
+    })
   })
 })
