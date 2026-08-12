@@ -278,8 +278,6 @@ import { metadataPropertyRule000 as rule278 } from "../commonObjects/styleItemVa
 import { metadataPropertyRule000 as rule279 } from "../commonObjects/styleItemValue/toXML"
 import { metadataPropertyRule000 as rule280 } from "../commonObjects/styleItemValue/toYAML"
 import { metadataPropertyRule000 as rule281 } from "../commonObjects/typeDescription/fromXML"
-import { metadataPropertyRule001 as rule282 } from "../commonObjects/typeDescription/fromXML"
-import { metadataPropertyRule002 as rule283 } from "../commonObjects/typeDescription/fromXML"
 import { metadataPropertyRule000 as rule284 } from "../commonObjects/typeDescription/toEnterprise"
 import { metadataPropertyRule000 as rule285 } from "../commonObjects/typeDescription/toJSONSchema"
 import { metadataPropertyRule000 as rule286 } from "../commonObjects/typeDescription/toXML"
@@ -657,8 +655,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule279,
   rule280,
   rule281,
-  rule282,
-  rule283,
   rule284,
   rule285,
   rule286,

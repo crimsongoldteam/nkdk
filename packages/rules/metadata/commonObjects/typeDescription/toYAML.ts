@@ -1,9 +1,9 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, taggedYAMLScalar, xmlScalarTagValue } from "@nkdk/runtime"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationYAMLType, getTypeDescriptionRule } from "./helper"
-import { PrimitiveTypeToYAML, type TypeDescription, type TypeDescriptionYAML } from "./types"
+import { PrimitiveTypeToYAML, TYPE_DESCRIPTION_SOURCE_TYPES, type TypeDescription, type TypeDescriptionYAML } from "./types"
 
 export const exportTypeDescriptionToYAML = (
   _context: ConfigurationContext,
@@ -30,7 +30,14 @@ export const exportTypeDescriptionToYAML = (
     return types.map((type) => formatSingleType(type, typeDescription))
   }
 
-  return formatSingleType(types[0], typeDescription)
+  const yamlType = formatSingleType(types[0], typeDescription)
+  const sourceType = typeDescription[TYPE_DESCRIPTION_SOURCE_TYPES]?.[types[0]]
+  const sourcePrefix = sourceType === undefined ? undefined : sourceType.value.slice(0, sourceType.value.indexOf(":"))
+  const canonicalPrefix = getTypeDescriptionRule(types[0])?.prefix
+  if (sourcePrefix !== undefined && sourcePrefix !== canonicalPrefix) {
+    return taggedYAMLScalar("xml", xmlScalarTagValue(`${sourcePrefix}:${yamlType}`)) as unknown as TypeDescriptionYAML
+  }
+  return yamlType
 }
 
 const formatStringQualifier = (stringQualifiers: NonNullable<TypeDescription["stringQualifiers"]>): string => {

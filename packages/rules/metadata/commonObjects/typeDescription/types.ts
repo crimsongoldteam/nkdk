@@ -753,9 +753,6 @@ export type PrimitiveType = keyof typeof PrimitiveTypeToYAML
 export type PrimitiveTypeYAML = (typeof PrimitiveTypeToYAML)[keyof typeof PrimitiveTypeToYAML]
 
 export type TypeDescriptionType = string
-export type TypeDescriptionXMLContainerKind = "Type" | "TypeSet" | "TypeSetAttribute"
-export type TypeDescriptionXMLContainerByType = Partial<Record<TypeDescriptionType, TypeDescriptionXMLContainerKind>>
-export const TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE = Symbol("typeDescriptionXmlContainerByType")
 export type TypeDescriptionSourceType = {
   value: string
   namespace?: string
@@ -773,7 +770,6 @@ export interface TypeDescription {
   stringQualifiers?: TypeDescriptionStringQualifiers
   numberQualifiers?: TypeDescriptionNumberQualifiers
   dateQualifiers?: TypeDescriptionDateQualifiers
-  [TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE]?: TypeDescriptionXMLContainerByType
   [TYPE_DESCRIPTION_SOURCE_TYPES]?: TypeDescriptionSourceTypes
 }
 

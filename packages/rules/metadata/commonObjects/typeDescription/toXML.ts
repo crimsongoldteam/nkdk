@@ -9,18 +9,14 @@ import {
 } from "./helper"
 import {
   TYPE_DESCRIPTION_SOURCE_TYPES,
-  TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
   TypeDescription,
   TypeDescriptionRule,
   TypeDescriptionSourceType,
   TypeDescriptionSourceTypes,
   TypeDescriptionXML,
-  TypeDescriptionXMLContainerByType,
   TypeDescriptionXMLType,
   TypeDescriptionTypeWithNamespaceXML,
 } from "./types"
-
-type TypeDescriptionXMLWithTypeSetAttribute = TypeDescriptionXML & { "_xsi:type"?: "v8:TypeSet" }
 
 const ENTERPRISE_CURRENT_CONFIG_NAMESPACE = "http://v8.1c.ru/8.1/data/enterprise/current-config"
 
@@ -36,27 +32,19 @@ export const exportTypeDescriptionToXML = (
   const dateQualifiers = getDateQualifiers(typeDescription)
   const binaryDataQualifiers = getBinaryDataQualifiers(typeDescription)
 
-  const referenceContainerByType = getMatchingReferenceContainerByType(typeDescription, referenceTypeDescription)
-  const referenceSourceTypes = getReferenceSourceTypes(referenceTypeDescription)
+  const sourceTypes = typeDescription[TYPE_DESCRIPTION_SOURCE_TYPES] ?? getReferenceSourceTypes(referenceTypeDescription)
   const typesXML = getTypesXML(
     typeDescription,
     shouldDeclareTypeNamespace(_rule),
-    referenceContainerByType,
-    referenceSourceTypes,
+    sourceTypes,
     _context.exportToXML?.typeDescriptionXMLNameByType
   )
   const typeIdXML = getTypeIdXML(typeDescription)
-  const sourceTypeSetMarkerXML = getSourceTypeSetMarkerXML(
-    typeDescription,
-    referenceTypeDescription,
-    referenceContainerByType
-  )
 
   const result = {
     ...(_rule?.type === "TypeDescription" && _rule.addTypeDescriptionAttributeToXML === true
       ? { "_xsi:type": "v8:TypeDescription" }
       : undefined),
-    ...sourceTypeSetMarkerXML,
     ...typesXML,
     ...(typeIdXML !== undefined ? { "v8:TypeId": typeIdXML } : undefined),
     ...(numberQualifiers !== undefined ? { "v8:NumberQualifiers": numberQualifiers } : undefined),
@@ -74,7 +62,6 @@ const shouldDeclareTypeNamespace = (rule: PropertyRule | undefined): boolean =>
 const getTypesXML = (
   typeDescription: TypeDescription,
   declareTypeNamespace: boolean,
-  referenceContainerByType: TypeDescriptionXMLContainerByType | undefined,
   referenceSourceTypes: TypeDescriptionSourceTypes | undefined,
   xmlNameByType: Readonly<Record<string, string>> | undefined
 ): {
@@ -103,11 +90,7 @@ const getTypesXML = (
         ? getSourceTypeXML(sourceType)
         : getCanonicalTypeXML(type, rule, declareTypeNamespace, xmlBaseType)
 
-    if (referenceContainerByType?.[type] === "TypeSetAttribute") {
-      typesXML.push(item)
-    } else if (referenceContainerByType?.[type] === "TypeSet") {
-      typeSetXML.push(item)
-    } else if (rule.modifier === "typeset" || (rule.modifier === "complex" && !isComplex)) {
+    if (rule.modifier === "typeset" || (rule.modifier === "complex" && !isComplex)) {
       typeSetXML.push(item)
     } else {
       typesXML.push(item)
@@ -120,35 +103,12 @@ const getTypesXML = (
   }
 }
 
-const getMatchingReferenceContainerByType = (
-  typeDescription: TypeDescription,
-  referenceTypeDescription: TypeDescription | undefined
-): TypeDescriptionXMLContainerByType | undefined => {
-  if (!referenceTypeDescription || !isSameTypes(typeDescription.type, referenceTypeDescription.type)) return undefined
-  return referenceTypeDescription[TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE]
-}
-
 const getReferenceSourceTypes = (
   referenceTypeDescription: TypeDescription | undefined
 ): TypeDescriptionSourceTypes | undefined => {
   if (!referenceTypeDescription) return undefined
   return referenceTypeDescription[TYPE_DESCRIPTION_SOURCE_TYPES]
 }
-
-const getSourceTypeSetMarkerXML = (
-  typeDescription: TypeDescription,
-  referenceTypeDescription: TypeDescription | undefined,
-  referenceContainerByType: TypeDescriptionXMLContainerByType | undefined
-): TypeDescriptionXMLWithTypeSetAttribute | { "_xsi:type": undefined } | undefined => {
-  if (!referenceTypeDescription?.[TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE]) return undefined
-  if (!referenceContainerByType) return { "_xsi:type": undefined }
-  return typeDescription.type.some((type) => referenceContainerByType[type] === "TypeSetAttribute")
-    ? { "_xsi:type": "v8:TypeSet" }
-    : undefined
-}
-
-const isSameTypes = (left: string[], right: string[]): boolean =>
-  left.length === right.length && left.every((type, index) => type === right[index])
 
 const getCanonicalTypeNamespace = (
   rule: ReturnType<typeof getTypeDescriptionRule>,

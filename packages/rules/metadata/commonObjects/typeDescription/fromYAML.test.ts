@@ -3,6 +3,8 @@ import { mockContext, mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromYAML } from "./fromYAML"
 import { TypeDescriptionYAML } from "./types"
+import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { importTaggedTypeDescriptionFromYAML } from "./fromYAML"
 
 const importUnsafeTypeDescriptionFromYAML = (value: unknown) =>
   importTypeDescriptionFromYAML(mockContext, mockRule, value as TypeDescriptionYAML)
@@ -73,6 +75,41 @@ describe("importTypeDescriptionFromYAML", () => {
 
     expect(result).toEqual({ type: ["СистемноеПеречисление.ПроверкаЗаполнения.Anything"] })
   })
+})
+
+describe("importTaggedTypeDescriptionFromYAML", () => {
+  const tagged = (payload: string) => {
+    const yaml = { Тип: xmlScalarTagValue(payload) }
+    markYAMLScalarTag(yaml, "Тип", "xml")
+    return yaml
+  }
+
+  it("imports an exact generated namespace prefix", () => {
+    const yaml = tagged("d7p1:Диаграмма")
+    const result = importTaggedTypeDescriptionFromYAML({
+      context: mockContext,
+      rule: { type: "TypeDescription", yaml: "Тип" },
+      yaml,
+      value: yaml.Тип,
+    })
+
+    expect(result).toEqual({ type: ["Chart"] })
+  })
+
+  it.each(["Диаграмма", "d7p1:", "d7p1:Строка", "d7p1:Справочник.Товары", "d6p1:Диаграмма"])(
+    "rejects incompatible !xml payload %s",
+    (payload) => {
+      const yaml = tagged(payload)
+      expect(() =>
+        importTaggedTypeDescriptionFromYAML({
+          context: mockContext,
+          rule: { type: "TypeDescription", yaml: "Тип" },
+          yaml,
+          value: yaml.Тип,
+        })
+      ).toThrow("Тип: недопустимое значение !xml")
+    }
+  )
 })
 
 describe("importTypeDescriptionFromYAML with allowedTypes", () => {

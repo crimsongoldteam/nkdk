@@ -2,13 +2,15 @@ import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleR
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { assertTypeDescriptionYAMLAllowed, METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
-import { getSystemEnumerationTypeFromYAML, getTypeFromYAML } from "./helper"
+import { getSystemEnumerationTypeFromYAML, getTypeDescriptionRule, getTypeFromYAML } from "./helper"
 import {
   PrimitiveTypeFromYAML,
   TypeDescription,
+  TYPE_DESCRIPTION_SOURCE_TYPES,
   TypeDescriptionDateQualifiers,
   TypeDescriptionNumberQualifiers,
   TypeDescriptionStringQualifiers,
@@ -127,6 +129,59 @@ export const importTypeDescriptionFromYAML = (
   return parseTypeDescriptionYAML(value)
 }
 
+const generatedPrefixPattern = /^d(\d+)p1$/
+
+const isCompatibleGeneratedPrefix = (prefix: string, type: string): boolean => {
+  const match = generatedPrefixPattern.exec(prefix)
+  if (match === null) return false
+  const rule = getTypeDescriptionRule(type)
+  if (rule === undefined) return false
+  const number = Number(match[1])
+  if (rule.prefix === "cfg") return number % 2 === 0
+  return rule.namespace !== undefined && number % 2 === 1
+}
+
+const parseTaggedTypeDescription = (propertyName: string, value: unknown): TypeDescription => {
+  const error = `${propertyName}: недопустимое значение !xml для типа`
+  if (typeof value !== "string") throw new Error(error)
+  const payload = xmlScalarTagPayload(value)
+  const separator = payload.indexOf(":")
+  if (separator <= 0 || separator === payload.length - 1) throw new Error(error)
+  const prefix = payload.slice(0, separator)
+  const yamlType = payload.slice(separator + 1)
+  const parsed = parseTypeDescriptionYAML(yamlType)
+  if (
+    parsed === undefined ||
+    parsed.type.length !== 1 ||
+    parsed.typeId !== undefined ||
+    parsed.stringQualifiers !== undefined ||
+    parsed.numberQualifiers !== undefined ||
+    parsed.dateQualifiers !== undefined
+  ) throw new Error(error)
+  const type = parsed.type[0]!
+  const rule = getTypeDescriptionRule(type)
+  if (rule?.namespace === undefined || !isCompatibleGeneratedPrefix(prefix, type)) throw new Error(error)
+
+  Object.defineProperty(parsed, TYPE_DESCRIPTION_SOURCE_TYPES, {
+    value: { [type]: { value: `${prefix}:${type}`, namespace: rule.namespace } },
+    enumerable: false,
+  })
+  return parsed
+}
+
+export const importTaggedTypeDescriptionFromYAML: ImportFromYAMLFunctionNew = (params) => {
+  const propertyName = params.rule.yaml ?? "Тип"
+  if (yamlScalarTagAt(params.yaml, propertyName) === "xml") {
+    const parsed = parseTaggedTypeDescription(propertyName, params.value)
+    if (params.rule.allowedTypes !== undefined) {
+      const payload = xmlScalarTagPayload(params.value)
+      assertTypeDescriptionYAMLAllowed({ value: payload.slice(payload.indexOf(":") + 1), allowedTypes: params.rule.allowedTypes })
+    }
+    return parsed
+  }
+  return importTypeDescriptionFromYAML(params.context, params.rule, params.value)
+}
+
 const getStringQualifiers = (parameters: string[], type: string): TypeDescriptionStringQualifiers | undefined => {
   const qualifiers: TypeDescriptionStringQualifiers = { length: 0, allowedLength: "Variable" }
   if (parameters.length > 0) qualifiers.length = parseInt(parameters[0])
@@ -150,7 +205,7 @@ const getDateQualifiers = (type: string): TypeDescriptionDateQualifiers => {
   return { dateFractions: "Date" }
 }
 
-export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "importFromYAML", importTypeDescriptionFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "importFromYAML", importTaggedTypeDescriptionFromYAML)
 export const typeDescriptionIndexRules = defineMetadataRules({
   ...emptyMetadataRules,
   indexValuesFromYAML: { TypeDescription: parseTypeDescriptionYAML },
