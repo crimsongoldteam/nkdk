@@ -3,7 +3,7 @@ import { mockContext, mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromYAML } from "./fromYAML"
 import { TypeDescriptionYAML } from "./types"
-import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, taggedYAMLScalar, xmlScalarTagValue } from "@nkdk/runtime"
 import { importTaggedTypeDescriptionFromYAML } from "./fromYAML"
 
 const importUnsafeTypeDescriptionFromYAML = (value: unknown) =>
@@ -94,6 +94,30 @@ describe("importTaggedTypeDescriptionFromYAML", () => {
     })
 
     expect(result).toEqual({ type: ["Chart"] })
+  })
+
+  it("imports an exact prefix from the in-memory tagged scalar", () => {
+    const yaml = { Тип: taggedYAMLScalar("xml", xmlScalarTagValue("d7p1:Диаграмма")) }
+    markYAMLScalarTag(yaml, "Тип", "xml")
+
+    expect(importTaggedTypeDescriptionFromYAML({
+      context: mockContext,
+      rule: { type: "TypeDescription", yaml: "Тип" },
+      yaml,
+      value: yaml.Тип,
+    })).toEqual({ type: ["Chart"] })
+  })
+
+  it("ignores a stale tag of an omitted type", () => {
+    const yaml = { Тип: undefined }
+    markYAMLScalarTag(yaml, "Тип", "xml")
+
+    expect(importTaggedTypeDescriptionFromYAML({
+      context: mockContext,
+      rule: { type: "TypeDescription", yaml: "Тип" },
+      yaml,
+      value: undefined,
+    })).toBeUndefined()
   })
 
   it.each(["Диаграмма", "d7p1:", "d7p1:Строка", "d7p1:Справочник.Товары", "d6p1:Диаграмма"])(

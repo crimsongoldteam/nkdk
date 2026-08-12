@@ -489,7 +489,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     )
   })
 
-  it("сохраняет присутствие скрытых YAML-свойств Form.xml", () => {
+  it("не сохраняет скрытые YAML-свойства Form.xml в снимке", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
     const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
@@ -506,18 +506,11 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       },
     })
 
-    expect(collector.fragment("Форма.yaml").entities).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          logicalAddress: `${logicalAddress}.comment`,
-          xml: { present: true, xmlText: "Комментарий" },
-        }),
-        expect.objectContaining({
-          logicalAddress: `${logicalAddress}.width`,
-          xml: { present: true, xmlText: "80" },
-        }),
-      ])
-    )
+    expect(collector.fragment("Форма.yaml").entities).toEqual([{
+      logicalAddress,
+      sourceProjectPath: "Форма.yaml",
+      identities: { uuid: "00000000-0000-4000-8000-000000000001" },
+    }])
   })
 
   it("добавляет Контроль metadata формы и сохраняет Extended Form только в снимке", () => {

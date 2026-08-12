@@ -3,7 +3,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { createConfigurationIndexCollector, yamlScalarTagAt } from "@nkdk/runtime"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 import { serializeYAMLDocument } from "@nkdk/runtime"
@@ -21,7 +21,7 @@ afterEach(() => {
 })
 
 describe("fill value XML import", () => {
-  it("удаляет каноническую начальную дату после импорта без снимка", async () => {
+  it("сохраняет начальную дату через !xml без снимка", async () => {
     const sourcePath = copiedBeginningDateFixture()
     const collector = createConfigurationIndexCollector()
     const prepared = await prepareImportYaml({
@@ -30,7 +30,11 @@ describe("fill value XML import", () => {
       collector,
     })
 
-    expect(prepared.yaml).not.toHaveProperty("Реквизиты.Момент.ЗначениеЗаполнения")
+    const attribute = (prepared.yaml as {
+      Реквизиты: { Момент: Record<string, unknown> }
+    }).Реквизиты.Момент
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml 01.01.0001 00:00:00")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
     expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
       expect.objectContaining({ logicalAddress: "Справочник.СправочникПолный.Реквизит.Момент.fillValue" }),
     )

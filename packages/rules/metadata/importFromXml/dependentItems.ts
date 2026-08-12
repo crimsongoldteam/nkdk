@@ -46,15 +46,14 @@ export function normalizeImportedDependentItems(params: {
     }
     const shouldRemove = shouldRemoveImportedDependentProperty(dependentParams)
     if (shouldRemove) {
+      const value = item[yamlKey]
+      if (hasExplicitXMLText(candidate.xmlValue) && (typeof value === "string" || typeof value === "number")) {
+        item[yamlKey] = xmlScalarTagValue(String(value))
+        markYAMLScalarTag(item, yamlKey, "xml")
+        continue
+      }
       delete item[yamlKey]
       removed += 1
-      if (params.preserveRawXML !== false && candidate.logicalAddress !== undefined) {
-        params.collector?.preserveRawXmlState(
-          candidate.logicalAddress,
-          candidate.xmlValue,
-          candidate.presentInXML,
-        )
-      }
       continue
     }
     const shouldTagXML = shouldTagImportedDependentProperty(dependentParams)
@@ -114,20 +113,15 @@ function dependentParamsForCandidate(
   }
 }
 
-export function preserveDeferredDependentRawXML(params: {
-  readonly candidates: readonly ImportedDependentPropertyCandidate[]
-  readonly collector: ConfigurationIndexCollector
-}): void {
-  for (const candidate of params.candidates) {
-    if (candidate.logicalAddress === undefined || isEmptyDesignTimeRef(candidate)) continue
-    params.collector.preserveRawXmlState(candidate.logicalAddress, candidate.xmlValue, candidate.presentInXML)
-  }
-}
-
 function isEmptyDesignTimeRef(candidate: ImportedDependentPropertyCandidate): boolean {
   if (!candidate.presentInXML || candidate.xmlValue === null || typeof candidate.xmlValue !== "object") return false
   const value = candidate.xmlValue as Record<string, unknown>
   return Object.keys(value).length === 1 && value["_xsi:type"] === "xr:DesignTimeRef"
+}
+
+function hasExplicitXMLText(value: unknown): boolean {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return true
+  return value !== null && typeof value === "object" && !Array.isArray(value) && "#text" in value
 }
 
 function recordAtPath(root: unknown, path: readonly (string | number)[]): Record<string, unknown> | undefined {

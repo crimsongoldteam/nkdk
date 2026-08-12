@@ -2,7 +2,7 @@ import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleR
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
-import { ConfigurationContext, xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { ConfigurationContext, isTaggedYAMLScalar, xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { assertTypeDescriptionYAMLAllowed, METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
@@ -145,8 +145,9 @@ const isCompatibleGeneratedPrefix = (prefix: string, type: string): boolean => {
 
 const parseTaggedTypeDescription = (propertyName: string, value: unknown): TypeDescription => {
   const error = `${propertyName}: недопустимое значение !xml для типа`
-  if (typeof value !== "string") throw new Error(error)
-  const payload = xmlScalarTagPayload(value)
+  const scalar = isTaggedYAMLScalar(value) && value.tag === "xml" ? value.value : value
+  if (typeof scalar !== "string") throw new Error(error)
+  const payload = xmlScalarTagPayload(scalar)
   const separator = payload.indexOf(":")
   if (separator <= 0 || separator === payload.length - 1) throw new Error(error)
   const prefix = payload.slice(0, separator)
@@ -175,10 +176,13 @@ const parseTaggedTypeDescription = (propertyName: string, value: unknown): TypeD
 
 export const importTaggedTypeDescriptionFromYAML: ImportFromYAMLFunctionNew = (params) => {
   const propertyName = params.rule.yaml ?? "Тип"
+  if (params.value === undefined) return undefined
   if (yamlScalarTagAt(params.yaml, propertyName) === "xml") {
     const parsed = parseTaggedTypeDescription(propertyName, params.value)
     if (params.rule.allowedTypes !== undefined) {
-      const payload = xmlScalarTagPayload(params.value)
+      const scalar = isTaggedYAMLScalar(params.value) ? params.value.value : params.value
+      if (typeof scalar !== "string") throw new Error(`${propertyName}: недопустимое значение !xml для типа`)
+      const payload = xmlScalarTagPayload(scalar)
       assertTypeDescriptionYAMLAllowed({ value: payload.slice(payload.indexOf(":") + 1), allowedTypes: params.rule.allowedTypes })
     }
     return parsed
