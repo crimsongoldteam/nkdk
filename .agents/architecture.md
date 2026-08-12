@@ -107,9 +107,10 @@ flowchart LR
 
 Снимок каждого компонента хранится в отдельном LMDB environment. Таблица
 `hashes` позволяет искать изменения без чтения крупных значений, а `blocks`
-содержит самостоятельный двоичный блок на каждый проектный файл. Worker
-открывает снимок только для чтения и получает блоки известных ему файлов;
-полный снимок между процессами не передаётся.
+содержит самостоятельные двоичные блоки только для YAML-файлов с сохраняемыми
+идентификаторами или XML-сведениями. Worker открывает снимок только для чтения
+и получает блоки известных ему файлов; полный снимок между процессами не
+передаётся.
 
 Только координатор операции пишет LMDB. Полная публикация заменяет все активные
 ключи одной транзакцией, частичная — только ключи подготовленной дельты.
@@ -311,9 +312,11 @@ flowchart TD
   pending["Сохранить block-дельту<br/>в pending-таблицах LMDB"]
   load["Вне NKDK:<br/>загрузить пакет в 1С"]
   confirm["Подтвердить идентификатор<br/>и хэш пакета"]
-  publish[["Одной транзакцией применить дельту,<br/>затем очистить pending"]]
+  apply[["Идемпотентно применить дельту,<br/>не очищая pending"]]
+  migrations["Опубликовать migrations"]
+  cleanup["Очистить pending<br/>и удалить ZIP"]
 
-  validate --> target --> changes --> impact --> plan --> partialSyncJob --> archive --> pending --> load --> confirm --> publish
+  validate --> target --> changes --> impact --> plan --> partialSyncJob --> archive --> pending --> load --> confirm --> apply --> migrations --> cleanup
   style partialSyncJob stroke-dasharray: 7 5
   style load stroke-dasharray: 4 4
 ```
