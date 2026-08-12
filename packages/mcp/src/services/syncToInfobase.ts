@@ -81,20 +81,24 @@ export async function syncToInfobase(
     )
   }
 
-  return enqueueProjectSync(resolve(input.projectDir), () =>
-    syncToInfobaseExclusive(input, providedDependencies, signal))
+  try {
+    const dependencies = providedDependencies ?? await defaultDependencies()
+    const settingsRead = await dependencies.readSettings(input.projectDir)
+    if (settingsRead.status !== "ready") return projectSettingsFailure(settingsRead)!
+    return enqueueProjectSync(settingsRead.projectDir, () =>
+      syncToInfobaseExclusive(input, dependencies, settingsRead, signal))
+  } catch {
+    return toolError("core_error", "Не удалось синхронизировать проект с информационной базой")
+  }
 }
 
 async function syncToInfobaseExclusive(
   input: SyncToInfobaseInput,
-  providedDependencies?: SyncToInfobaseDependencies,
+  dependencies: SyncToInfobaseDependencies,
+  settingsRead: Extract<Awaited<ReturnType<typeof readProjectSettings>>, { status: "ready" }>,
   signal?: AbortSignal,
 ): Promise<SyncToInfobasePayload> {
-
-  const dependencies = providedDependencies ?? await defaultDependencies()
   try {
-    const settingsRead = await dependencies.readSettings(input.projectDir)
-    if (settingsRead.status !== "ready") return projectSettingsFailure(settingsRead)!
     const requestedComponentPath = input.componentPath ?? "cf"
     if (!isSupportedComponentPath(requestedComponentPath)) {
       return toolError("invalid_arguments", "Ожидался путь cf или cfe/<Имя>", {
@@ -185,6 +189,7 @@ async function syncToInfobaseExclusive(
         } catch {
           return unknownDelivery(prepared.packageId, component.componentPath, temporaryDirectory, logPath)
         }
+        await dependencies.recordDeliveryPhase({ path: logPath, phase: "prepared" }).catch(() => undefined)
       }
       return mapDeliveryFailure(caught, prepared.packageId, component.componentPath, temporaryDirectory)
     }

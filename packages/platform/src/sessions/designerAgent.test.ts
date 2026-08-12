@@ -252,6 +252,30 @@ describe("Designer agent session", () => {
     )).resolves.toEqual({
       warnings: ["Не удалось удалить служебную копию ZIP после успешной загрузки"],
     })
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "cleanup stage=configuration-load status=failed"
+    )
+  })
+
+  it("records a staging cleanup failure after a confirmed rejection", async () => {
+    const fixture = createFixture({
+      loadCleanupFailure: true,
+      loadError: new PlatformSessionError(
+        "platform_command_failed",
+        "load failed",
+        { commandOutcome: "rejected" }
+      ),
+    })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml"],
+      fixture.operationLog
+    )).rejects.toMatchObject({ commandOutcome: "rejected" })
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "cleanup stage=configuration-load status=failed"
+    )
   })
 
   it("rejects a success response without an extension-properties body", async () => {

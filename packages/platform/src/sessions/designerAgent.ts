@@ -326,13 +326,22 @@ export async function createDesignerAgentSession(
       const stagingDir = join(userServiceDir, ".nkdk-load", randomUUID())
       const stagedArchivePath = join(stagingDir, "package.zip")
       const stagedLoadListPath = join(stagingDir, "load.lst")
+      const cleanupStaging = async (): Promise<boolean> => {
+        try {
+          await dependencies.fileSystem.rm(stagingDir)
+          return true
+        } catch {
+          await operationLog.append("cleanup stage=configuration-load status=failed")
+          return false
+        }
+      }
       await appendAgentLog(operationLog, "stage=configuration-load status=start")
       try {
         await dependencies.fileSystem.mkdir(stagingDir)
         await dependencies.fileSystem.copyFile(canonicalArchivePath, stagedArchivePath)
         await dependencies.fileSystem.writeFile(stagedLoadListPath, loadList)
       } catch (cause) {
-        await ignoreCleanupError(() => dependencies.fileSystem.rm(stagingDir))
+        await cleanupStaging()
         throw await agentFailure(
           cause,
           "configuration-load",
@@ -356,7 +365,7 @@ export async function createDesignerAgentSession(
           { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog }
         )
       } catch (caught) {
-        await ignoreCleanupError(() => dependencies.fileSystem.rm(stagingDir))
+        await cleanupStaging()
         const cause = caught instanceof PlatformSessionError && caught.commandOutcome === "unknown"
           ? new PlatformSessionError(
               "delivery_outcome_unknown",
@@ -390,9 +399,7 @@ export async function createDesignerAgentSession(
       } catch {
         warnings.push("Не удалось прочитать новый фрагмент /Out после успешной загрузки")
       }
-      try {
-        await dependencies.fileSystem.rm(stagingDir)
-      } catch {
+      if (!await cleanupStaging()) {
         warnings.push("Не удалось удалить служебную копию ZIP после успешной загрузки")
       }
       await appendAfterSuccess("stage=configuration-load status=ready")

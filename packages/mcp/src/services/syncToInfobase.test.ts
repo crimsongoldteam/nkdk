@@ -147,7 +147,24 @@ describe("sync to infobase", () => {
       details: { packageId: "package-1", temporaryDirectory: attemptDirectory },
     })
     expect(fixture.events).toContain("markPreparedAfterRejection")
+    expect(fixture.events).toContain("recordPhase prepared")
     expect(fixture.events).not.toContain("markApplied")
+  })
+
+  it("сохраняет подтверждённый отказ при ошибке записи конечной фазы", async () => {
+    const fixture = createFixture({
+      platformError: new PlatformSessionError("platform_command_failed", "XML отклонён", {
+        commandOutcome: "rejected",
+        details: { stage: "configuration-load", mode: "designer-agent", logPath },
+      }),
+      recordPhaseError: new Error("log unavailable"),
+    })
+
+    await expect(syncToInfobase(input(), fixture.dependencies)).resolves.toMatchObject({
+      ok: false,
+      code: "platform_command_failed",
+      message: "XML отклонён",
+    })
   })
 
   it("keeps transferring when the platform outcome is unknown", async () => {
@@ -208,7 +225,10 @@ describe("sync to infobase", () => {
     })
   })
 
-  it("последовательно выполняет два полных цикла одного проекта", async () => {
+  it.each([
+    { paths: "одинаковом пути", secondProjectDir: "/project" },
+    { paths: "настоящем пути и ссылке", secondProjectDir: "/project-link" },
+  ])("последовательно выполняет два полных цикла при $paths", async ({ secondProjectDir }) => {
     let releaseFirstLoad!: () => void
     const firstLoad = new Promise<void>((resolve) => { releaseFirstLoad = resolve })
     let firstLoadStarted!: () => void
@@ -227,7 +247,10 @@ describe("sync to infobase", () => {
 
     const first = syncToInfobase(input(), fixture.dependencies)
     await started
-    const second = syncToInfobase(input(), fixture.dependencies)
+    const second = syncToInfobase(
+      { projectDir: secondProjectDir, allowWrite: true },
+      fixture.dependencies,
+    )
     let secondSettled = false
     void second.then(() => { secondSettled = true })
     await Promise.resolve()
@@ -276,6 +299,7 @@ function createFixture(options: {
   markAppliedError?: Error
   finalizeFailures?: number
   cleanupError?: Error
+  recordPhaseError?: Error
   platformLoad?: SyncToInfobaseDependencies["platformManager"]["loadPartialConfiguration"]
 } = {}) {
   const events: string[] = []
@@ -332,6 +356,7 @@ function createFixture(options: {
     },
     async recordDeliveryPhase({ phase }) {
       events.push(`recordPhase ${phase}`)
+      if (options.recordPhaseError !== undefined) throw options.recordPhaseError
     },
     platformManager: {
       async loadPartialConfiguration(params) {

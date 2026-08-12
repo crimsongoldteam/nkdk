@@ -11,17 +11,32 @@ import {
 } from "@nkdk/runtime"
 import { metadataRules } from "@nkdk/rules"
 import { PlatformSessionError, recordPartialSyncDeliveryPhase } from "@nkdk/platform"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
 import { syncToInfobase, type SyncToInfobaseDependencies } from "./syncToInfobase"
 
-const describeIntegration = process.env["NKDK_TEST_PARTIAL_SYNC"] === "1" ? describe : describe.skip
-
-describeIntegration("полный цикл частичной синхронизации без платформы", () => {
+describe("полный цикл частичной синхронизации без платформы", () => {
   const temporaryProjects: string[] = []
-  const runtimes: MetadataRuntime[] = []
+  let runtime: MetadataRuntime
+  let projectState: ReturnType<MetadataRuntime["projects"]["createState"]>
+
+  beforeAll(() => {
+    runtime = createMetadataRuntime({
+      rules: metadataRules,
+      workers: {
+        preparedYamlProject: new URL(import.meta.resolve("@nkdk/rules/workers/prepared-yaml")),
+        importFromXml: new URL(import.meta.resolve("@nkdk/rules/workers/import")),
+        fullSyncToXml: new URL(import.meta.resolve("@nkdk/rules/workers/sync")),
+        generic: new URL(import.meta.resolve("@nkdk/rules/workers/generic")),
+      },
+    })
+    projectState = runtime.projects.createState()
+  })
+
+  afterAll(async () => {
+    await runtime.close()
+  })
 
   afterEach(async () => {
-    await Promise.all(runtimes.splice(0).map((runtime) => runtime.close()))
     await Promise.all(temporaryProjects.splice(0).map((path) =>
       fs.promises.rm(path, { recursive: true, force: true })))
   })
@@ -64,6 +79,7 @@ describeIntegration("полный цикл частичной синхрониз
     const first = await syncToInfobase(input(fixture.projectDir), fixture.dependencies)
     expect(first).toMatchObject({ ok: false, code: "platform_command_failed" })
     expect(fs.existsSync(fixture.logPath)).toBe(true)
+    expect(await fs.promises.readFile(fixture.logPath, "utf8")).toContain("pending-phase=prepared")
 
     const second = await syncToInfobase(input(fixture.projectDir), fixture.dependencies)
     expect(second).toMatchObject({ ok: true, status: "synchronized" })
@@ -197,17 +213,6 @@ describeIntegration("полный цикл частичной синхрониз
     })
     fs.writeFileSync(catalogPath, "Синоним: Изменённый\n")
 
-    const runtime = createMetadataRuntime({
-      rules: metadataRules,
-      workers: {
-        preparedYamlProject: new URL(import.meta.resolve("@nkdk/rules/workers/prepared-yaml")),
-        importFromXml: new URL(import.meta.resolve("@nkdk/rules/workers/import")),
-        fullSyncToXml: new URL(import.meta.resolve("@nkdk/rules/workers/sync")),
-        generic: new URL(import.meta.resolve("@nkdk/rules/workers/generic")),
-      },
-    })
-    runtimes.push(runtime)
-    const projectState = runtime.projects.createState()
     let platformCalls = 0
     let deliveryDuringLoad: string | undefined
     let zipEntries: string[] = []

@@ -88,7 +88,7 @@ export async function createPlatformOperationLog(
 }
 
 export async function recordPartialSyncDeliveryPhase(
-  params: { readonly path: string; readonly phase: "transferring" | "applied" },
+  params: { readonly path: string; readonly phase: "prepared" | "transferring" | "applied" },
   dependencies: Pick<PlatformOperationLogDependencies, "fileSystem" | "now"> = {
     fileSystem: {
       writeFile: (path, content, options) => fs.promises.writeFile(path, content, options).then(() => undefined),
