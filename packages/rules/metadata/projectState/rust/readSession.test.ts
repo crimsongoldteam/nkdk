@@ -3,6 +3,7 @@ import { createProjectStateDependencyValidator } from "../../validation/projectS
 import { createBinaryProjectStateStore } from "../binary/store"
 import { createProjectStateFragmentWriter } from "../binary/fragment"
 import { richYamlUpdate } from "../binary/testData"
+import { openRustProjectStateReader } from "./addon"
 import { openRustProjectStateReadSession } from "./readSession"
 
 describe("Rust ProjectState read session", () => {
@@ -41,6 +42,48 @@ describe("Rust ProjectState read session", () => {
       componentPath: "cf",
       owner: update.owners[0]!.owner,
     }])).toMatchObject([{ requestId: "owner", status: "found" }])
+    session.close()
+    store.close()
+  })
+
+  it("один раз разрешает повторяющуюся цель через Rust", () => {
+    const update = richYamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")
+    const { store, validator } = publishedStore(update)
+    let executeCalls = 0
+    const requestCounts: number[] = []
+    const session = openRustProjectStateReadSession(store.createReadToken(), validator, {
+      openReader(sections) {
+        const reader = openRustProjectStateReader(sections)
+        return {
+          stats: () => reader.stats(),
+          filePaths: () => reader.filePaths(),
+          execute(request) {
+            executeCalls += 1
+            requestCounts.push(
+              new DataView(request.buffer, request.byteOffset, request.byteLength).getUint32(12, true),
+            )
+            return reader.execute(request)
+          },
+          close: () => reader.close(),
+        }
+      },
+    })
+    const lookup = (requestId: string) => ({
+      requestId,
+      componentPath: "cf",
+      canonicalTarget: "Catalog.Товары",
+    })
+
+    expect(session.resolveTargets([lookup("first"), lookup("duplicate")]))
+      .toMatchObject([
+        { requestId: "first", status: "found" },
+        { requestId: "duplicate", status: "found" },
+      ])
+    expect(session.resolveTargets([lookup("cached")]))
+      .toMatchObject([{ requestId: "cached", status: "found" }])
+    expect(executeCalls).toBe(1)
+    expect(requestCounts).toEqual([1])
+
     session.close()
     store.close()
   })
