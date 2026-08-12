@@ -84,6 +84,26 @@ describe("FormAttributes XML → YAML → XML", () => {
     expect(item).not.toHaveProperty("ТипЗначения")
   })
 
+  it("сохраняет непустой Settings у единственного СпискаЗначений", () => {
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule,
+      xml: {
+        Attribute: {
+          _name: "Список",
+          Type: { "v8:Type": "v8:ValueListType" },
+          Settings: {
+            "_xsi:type": "v8:TypeDescription",
+            "v8:Type": "xs:string",
+            "v8:StringQualifiers": { "v8:Length": 0, "v8:AllowedLength": "Variable" },
+          },
+        },
+      },
+    })
+    const item = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение.Список!
+
+    expect(item.ТипЗначения).toBe("Строка")
+  })
+
   it("не создаёт Settings по маркеру отсутствия", () => {
     const item = {
       Тип: "СписокЗначений",

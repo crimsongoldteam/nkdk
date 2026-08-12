@@ -553,22 +553,9 @@ describe("implicitValueYAML contract", () => {
     expect([...unexpectedLineNumberLength, ...unexpectedObjectBelonging]).toEqual([])
   })
 
-  it("uses configurator defaults as implicit YAML values for calculated field order expressions", () => {
-    const expected = {
-      autoOrder: false,
-      orderType: "Asc",
-    } as const
-
-    const unexpected = Object.entries(expected)
-      .filter(([propertyKey, implicitValueYAML]) => {
-        return (
-          getRuleProperty(CalculatedFieldOrderExpressionRules.properties, propertyKey).implicitValueYAML !==
-          implicitValueYAML
-        )
-      })
-      .map(([propertyKey]) => `CalculatedFieldOrderExpressionRules.${propertyKey}`)
-
-    expect(unexpected).toEqual([])
+  it("keeps calculated field order values explicit for exact XML restoration", () => {
+    expect(CalculatedFieldOrderExpressionRules.properties.autoOrder.noImplicitValueYAML).toBe(true)
+    expect(CalculatedFieldOrderExpressionRules.properties.orderType.noImplicitValueYAML).toBe(true)
   })
 
   it("uses configurator defaults as implicit YAML values for DCS parameters", () => {

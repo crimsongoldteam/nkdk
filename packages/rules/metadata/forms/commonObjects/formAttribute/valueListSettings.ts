@@ -15,7 +15,6 @@ export const formAttributeValueTypeSettingsRules = defineMetadataRules({
 })
 
 export function hasSoleValueListType(xml: Record<string, unknown>): boolean {
-  if (xml.Settings !== undefined) return false
   const type = xml.Type
   if (type === null || typeof type !== "object" || Array.isArray(type)) return false
   const raw = (type as Record<string, unknown>)["v8:Type"]

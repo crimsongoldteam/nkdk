@@ -510,8 +510,7 @@ export const ClientApplicationFormRules = {
       yaml: "Комментарий",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
-      defaultValueXMLEmpty: "",
-      implicitValueYAML: "",
+      defaultValueXMLRaw: "",
     }),
     includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",

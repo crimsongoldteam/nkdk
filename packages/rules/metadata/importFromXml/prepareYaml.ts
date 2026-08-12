@@ -319,8 +319,14 @@ async function readAndParseAssignmentXml(
             "Подготовка импорта конфигурации",
             "Парсинг XML",
             { items: 1, bytes: Buffer.byteLength(content) },
-            () => importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true })
-          ) ?? importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true }),
+            () => importContentFromXML<Record<string, unknown>>(content, {
+              preserveXsiNil: true,
+              preserveEmptyElementNames: ["AdditionalFields"],
+            })
+          ) ?? importContentFromXML<Record<string, unknown>>(content, {
+            preserveXsiNil: true,
+            preserveEmptyElementNames: ["AdditionalFields"],
+          }),
       })
     } catch (caught) {
       throw new ImportXmlInputError(input.sourcePath, caught)

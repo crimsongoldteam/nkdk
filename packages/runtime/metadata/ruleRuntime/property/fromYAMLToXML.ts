@@ -255,6 +255,19 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       )
     }
     if (
+      !isYAMLPropertyExportEnabled({ source, planned, context: params.context }) &&
+      planned.propertyRule.preserveUnknownReferenceXML === false &&
+      references.every((reference) => !reference.exists || reference.synthesizedDefault === true)
+    ) continue
+    if (
+      getXMLDefaultVariant(propertyContext) === "adopted" &&
+      !source.has(propertyKey) &&
+      planned.propertyRule.exportNilValue === true &&
+      references.every((reference) => !reference.exists)
+    ) {
+      continue
+    }
+    if (
       params.sparseYAML === true &&
       !reserveNestedItemWhenAbsent &&
       propertyKey !== namePropertyKey &&
@@ -367,6 +380,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !reserveNestedItemWhenAbsent &&
       planned.propertyRule.yaml !== undefined &&
       planned.propertyRule.toYAML !== false &&
+      planned.propertyRule.excludeIfEqualNameYAML !== true &&
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&

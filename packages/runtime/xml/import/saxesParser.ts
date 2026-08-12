@@ -128,7 +128,12 @@ function finalizeFrame(frame: ElementFrame, options: ImportContentFromXMLOptions
   ) {
     return properties["#text"]
   }
-  if (keys.length === 0 && frame.name !== "" && options.preserveEmptyElements !== true) return undefined
+  if (
+    keys.length === 0 &&
+    frame.name !== "" &&
+    options.preserveEmptyElements !== true &&
+    !options.preserveEmptyElementNames?.includes(frame.name)
+  ) return undefined
   if (frame.orderedChildren === undefined && frame.childOrder.length > 0) {
     Object.defineProperty(container, XML_METADATA, {
       value: { childOrder: frame.childOrder },

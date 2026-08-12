@@ -222,12 +222,7 @@ describe("normalizeImportedDependentItems", () => {
       owner: { dir: "Справочник", name: "Товары" },
     })
 
-    if (_name === "xsi:nil") {
-      expect(attribute.ЗначениеЗаполнения).toBe("!xml Nil")
-      expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
-    } else {
-      expect(attribute).not.toHaveProperty("ЗначениеЗаполнения")
-    }
+    expect(attribute).not.toHaveProperty("ЗначениеЗаполнения")
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 

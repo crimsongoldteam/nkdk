@@ -106,7 +106,7 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
     })
     if (itemXml !== undefined) {
       items.push(xmlNil === true
-        ? { ...(itemXml as ParameterValueXML), "dcscor:value": { "_xsi:nil": true } }
+        ? insertNilValueBeforeSettingsExtension(itemXml as ParameterValueXML)
         : itemXml as ParameterValueXML)
     }
   }
@@ -116,6 +116,20 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
   return {
     "dcscor:item": items.length === 1 ? items[0]! : items,
   }
+}
+
+function insertNilValueBeforeSettingsExtension(item: ParameterValueXML): ParameterValueXML {
+  const result: Record<string, unknown> = {}
+  let inserted = false
+  for (const [key, value] of Object.entries(item)) {
+    if (!inserted && key.startsWith("dcsset:")) {
+      result["dcscor:value"] = { "_xsi:nil": true }
+      inserted = true
+    }
+    result[key] = value
+  }
+  if (!inserted) result["dcscor:value"] = { "_xsi:nil": true }
+  return result as ParameterValueXML
 }
 
 function isXsiNil(value: unknown): boolean {

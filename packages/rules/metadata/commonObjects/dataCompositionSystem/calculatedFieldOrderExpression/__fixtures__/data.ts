@@ -31,10 +31,12 @@ export const fullOrderExpressionsFromCompactYAML: CalculatedFieldOrderExpression
 export const fullOrderExpressionsYAML: CalculatedFieldOrderExpressionYAML = [
   {
     Выражение: "Наименование",
+    ТипУпорядочивания: "Возр",
     Автоупорядочивание: "Истина",
   },
   {
     Выражение: "Ссылка",
     ТипУпорядочивания: "Убыв",
+    Автоупорядочивание: "Ложь",
   },
 ]

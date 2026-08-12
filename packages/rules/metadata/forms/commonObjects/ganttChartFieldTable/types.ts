@@ -2,17 +2,23 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
+import type {
+  MetadataItemRule,
+  PropertyRule as WidePropertyRuleBase,
+  YAMLPropertySource,
+} from "@nkdk/runtime/rule-kit"
 import type { TSchema } from "typebox"
 import { getParentFromContext } from "../../../context/helpers"
-import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import {
+  configurationIndexExportFormSingletonLogicalAddress,
+  type ConfigurationContextWithExportToXML,
+} from "@nkdk/runtime"
 import { TableRules } from "../../elements/table/rules"
 import type { Table, TablePartialYAML } from "../../elements/table/types"
 import { exportElementToJSONSchema } from "../../../ruleRuntime/formElement/toJSONSchema"
 import { importSingleFormElementFromXMLToYAML } from "../../elements/ruleRuntime/fromXMLToYAML"
 import { createSingletonElementYAMLToXMLNestedRule } from "../../elements/ruleRuntime/ruleFactory"
 import {
-  getCanonicalSingletonName,
   type SingletonNameStyle,
 } from "../../../ruleRuntime/formElement/singletonName"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
@@ -22,6 +28,44 @@ import { explicitElementNameStyle } from "../../explicitElementName"
 
 export type GanttChartFieldTable = Table
 export type GanttChartFieldTableYAML = TablePartialYAML
+
+const GanttChartFieldTableRules = {
+  ...TableRules,
+  properties: {
+    ...TableRules.properties,
+    searchControl: {
+      ...TableRules.properties.searchControl,
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("searchControl") || hasSingletonIdentity(context, "УправлениеПоиском"),
+      preserveUnknownReferenceXML: false,
+      evaluateWhenYAMLMissing: true,
+    },
+    searchStringRepresentation: {
+      ...TableRules.properties.searchStringRepresentation,
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("searchStringRepresentation") || hasSingletonIdentity(context, "СтрокаПоиска"),
+      preserveUnknownReferenceXML: false,
+      evaluateWhenYAMLMissing: true,
+    },
+    viewStatusRepresentation: {
+      ...TableRules.properties.viewStatusRepresentation,
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("viewStatusRepresentation") || hasSingletonIdentity(context, "СостояниеПросмотра"),
+      preserveUnknownReferenceXML: false,
+      evaluateWhenYAMLMissing: true,
+    },
+  },
+} as const satisfies MetadataItemRule
+
+function hasSingletonIdentity(
+  context: ConfigurationContextWithExportToXML | undefined,
+  segment: string,
+): boolean {
+  if (context === undefined) return false
+  const runtime = context.exportToXML.configurationIndex
+  const address = configurationIndexExportFormSingletonLogicalAddress(context, segment)
+  return runtime !== undefined && address !== undefined && runtime.identity("xmlId", address) !== undefined
+}
 
 const nameStyle: SingletonNameStyle = explicitElementNameStyle("GanttChartFieldTable", {
   canonicalSuffix: "Таблица",
@@ -59,27 +103,19 @@ export const exportGanttChartFieldTableToJSONSchema: ExportToJSONSchemaFn = (par
 export const metadataPropertyRule000 = definePropertyTypeRule("GanttChartFieldTable", "importFromXMLToYAML", ({ context, xml, ownerXmlName, traversal }) =>
   importSingleFormElementFromXMLToYAML({
     context,
-    rule: TableRules,
+    rule: GanttChartFieldTableRules,
     xml: xml as ElementXML | undefined,
     ownerXmlName,
     nameStyle,
     traversal,
   })
 )
-export const metadataPropertyRule001 = definePropertyTypeRule("GanttChartFieldTable", "nestedItemRule", { itemRule: TableRules })
-export const metadataPropertyRule002 = definePropertyTypeRule("GanttChartFieldTable", "nestedItemIdentity", {
-  reserveWhenAbsent: true,
-  resolveName: (ownerName) =>
-    getCanonicalSingletonName({
-      ownerLogicalAddress: ownerName ?? "",
-      nameStyle,
-    }),
-})
+export const metadataPropertyRule001 = definePropertyTypeRule("GanttChartFieldTable", "nestedItemRule", { itemRule: GanttChartFieldTableRules })
 export const metadataPropertyRule003 = definePropertyTypeRule(
   "GanttChartFieldTable",
   "yamlToXMLNestedRule",
   createSingletonElementYAMLToXMLNestedRule({
-    elementRule: TableRules,
+    elementRule: GanttChartFieldTableRules,
     nameStyle,
     toXML: ({ context }) => ({ name: getGeneratedName(context, undefined) }),
   })

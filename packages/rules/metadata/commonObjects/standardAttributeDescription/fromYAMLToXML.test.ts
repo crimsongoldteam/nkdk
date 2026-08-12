@@ -501,8 +501,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       xmlRootTag: "StandardAttributes",
     })
 
-    expect(result).toContain('<xr:StandardAttribute name="ExtDimension50"/>')
-    expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50"/>')
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimension50">')
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50">')
     expect(result).not.toContain('name="ExtDimension1"')
   })
 
@@ -566,6 +566,11 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(items.find((item) => item._name === "ExtDimension1")?.["xr:LinkByType"]).toEqual(
       sourceXML.StandardAttributes["xr:StandardAttribute"][0]["xr:LinkByType"]
     )
+    expect(items.find((item) => item._name === "ExtDimension1")).toMatchObject({
+      "xr:ChoiceHistoryOnInput": "Auto",
+      "xr:FullTextSearch": "Use",
+      "xr:TypeReductionMode": "TransformValues",
+    })
   })
 
   it("восстанавливает дефолтную коллекцию из пустого !xml", () => {

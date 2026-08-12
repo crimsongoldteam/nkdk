@@ -849,6 +849,32 @@ describe("форма XML → YAML → XML", () => {
     ])
   })
 
+  it("восстанавливает обязательный пустой Comment формы без reference XML", () => {
+    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
+    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "minimalMetadata.xml",
+    )
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.Минимальная",
+    })
+
+    const imported = importClientApplicationFormFromXMLToYAML({
+      context: contexts.importContext,
+      formName: "Минимальная",
+      formXML: form.Form,
+      metadataXML: metadata.MetaDataObject,
+    })
+    const converted = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: imported.yaml as ClientApplicationFormYAML,
+      name: "Минимальная",
+    })
+
+    expect(imported.yaml).not.toHaveProperty("Комментарий")
+    expect(converted.metadataXML.Form.Properties.Comment).toBe("")
+  })
+
   const cases = [
     ["полная", "full.xml", "fullMetadata.xml"],
     ["минимальная", "minimal.xml", "minimalMetadata.xml"],

@@ -379,7 +379,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     const valueTable = convert({ Таблица: { Тип: "ТаблицаЗначений" } }, "Таблица")
     expect(valueTable.Period).toBeUndefined()
     expect(valueTable.TopLevelParent).toBeUndefined()
-    expect(valueTable.RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(valueTable.RowFilter).toBeUndefined()
 
     const valueTree = convert({ Дерево: { Тип: "ДеревоЗначений" } }, "Дерево")
     expect(valueTree.Period).toBeUndefined()
@@ -402,7 +402,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     )
     expect(registerRecordSet.Period).toBeUndefined()
     expect(registerRecordSet.TopLevelParent).toBeUndefined()
-    expect(registerRecordSet.RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(registerRecordSet.RowFilter).toBeUndefined()
 
     const scalar = convert({ Значение: { Тип: "Строка" } }, "Значение")
     expect(scalar.Period).toBeUndefined()
@@ -429,18 +429,18 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     )
     expect(tabularSection.Period).toBeUndefined()
     expect(tabularSection.TopLevelParent).toBeUndefined()
-    expect(tabularSection.RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(tabularSection.RowFilter).toBeUndefined()
 
     const missing = convert({}, undefined)
     expect(missing.Period).toBeUndefined()
     expect(missing.TopLevelParent).toBeUndefined()
-    expect(missing.RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(missing.RowFilter).toBeUndefined()
 
     for (const unresolvedPath of ["", "НеизвестныйИсточник"]) {
       const unresolved = convert({}, unresolvedPath)
       expect(unresolved.Period).toBeUndefined()
       expect(unresolved.TopLevelParent).toBeUndefined()
-      expect(unresolved.RowFilter).toEqual({ "_xsi:nil": "true" })
+      expect(unresolved.RowFilter).toBeUndefined()
     }
   })
 
@@ -472,7 +472,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       name: "Форма",
     })
 
-    expect(tableByName(result.formXML, "ВложеннаяТаблица").RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(tableByName(result.formXML, "ВложеннаяТаблица").RowFilter).toBeUndefined()
     expect(tableByName(result.formXML, "ВложенноеДерево").RowFilter).toBeUndefined()
   })
 

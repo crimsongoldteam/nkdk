@@ -30,7 +30,6 @@ const collectionRule = defineMetadataItemCollectionRule({
   preserveReferenceItems: true,
   sparseItems: true,
   omitDefaultsForSparseItems: true,
-  omitDefaultsForSparseItem: ({ name }) => name !== undefined && /^ExtDimension(Type)?\d+$/.test(name),
   omitEmptyOutput: true,
   recordYamlKeyFromYAML: ({ name }) => StandartAttributeNameToYAML[name as keyof typeof StandartAttributeNameToYAML],
   fromXMLToYAML: importStandardAttributeDescriptionsFromXMLToYAML,

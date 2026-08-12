@@ -130,6 +130,52 @@ describe("MetadataConfigurationExtensionRules", () => {
     )
   })
 
+  it("восстанавливает обязательный синоним корня расширения из имени", () => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Конфигурация" })
+    const imported = testMetadataItemFromXMLToYAML({
+      rule: MetadataConfigurationExtensionRules,
+      xml: parseRoot(`
+        <MetaDataObject>
+          <Configuration uuid="11111111-1111-1111-1111-111111111111">
+            <Properties>
+              <Name>РасширениеПоУмолчанию</Name>
+              <Synonym>
+                <v8:item>
+                  <v8:lang>ru</v8:lang>
+                  <v8:content>Расширение по умолчанию</v8:content>
+                </v8:item>
+              </Synonym>
+              <ConfigurationExtensionPurpose>Customization</ConfigurationExtensionPurpose>
+            </Properties>
+          </Configuration>
+        </MetaDataObject>
+      `),
+      context: contexts.importContext,
+      name: "РасширениеПоУмолчанию",
+    })
+
+    expect(imported.yaml).not.toHaveProperty("Синоним")
+
+    const exported = testMetadataItemFromYAMLToXML({
+      rule: MetadataConfigurationExtensionRules,
+      yaml: imported.yaml,
+      context: {
+        ...contexts.exportContext(),
+        exportToXML: {
+          ...contexts.exportContext().exportToXML,
+          componentKind: "configurationExtension",
+          xmlDefaultVariantByLogicalAddress: { Конфигурация: "adopted" },
+        },
+      },
+      name: "РасширениеПоУмолчанию",
+    })
+
+    expect(exported.xml).toHaveProperty(
+      "MetaDataObject.Configuration.Properties.Synonym.v8:item",
+      [{ "v8:lang": "ru", "v8:content": "Расширение по умолчанию" }]
+    )
+  })
+
   it("использует общий формат интерфейса клиентского приложения", () => {
     expect((MetadataConfigurationExtensionRules.properties as Record<string, unknown>).clientApplicationInterface)
       .toBe(MetadataConfigurationRules.properties.clientApplicationInterface)

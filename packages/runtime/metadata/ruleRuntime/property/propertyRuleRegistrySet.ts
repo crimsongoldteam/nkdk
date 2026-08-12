@@ -305,7 +305,8 @@ export function createPropertyRuleRegistrySet(
       }
       return registration !== undefined &&
         params.presentInXML &&
-        isDeepStrictEqual(registration.xmlValue, params.xmlValue)
+        (isDeepStrictEqual(registration.xmlValue, params.xmlValue) ||
+          (isEmptyXMLValue(registration.xmlValue) && isEmptyXMLValue(params.xmlValue)))
         ? registration
         : undefined
     },
@@ -400,6 +401,11 @@ function sameExplicitXMLTransportValue(expected: unknown, actual: unknown): bool
       actualRecord["_xsi:nil"] === "true"
   }
   return false
+}
+
+function isEmptyXMLValue(value: unknown): boolean {
+  return value === "" ||
+    (value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0)
 }
 
 function sameExplicitXMLPropertyRegistration(

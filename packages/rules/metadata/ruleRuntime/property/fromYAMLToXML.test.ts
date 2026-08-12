@@ -135,6 +135,29 @@ const contextWithXMLDefaultVariant = (
 }
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("восстанавливает исключённый заголовок по имени индексированного объекта", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("indexed"),
+      yaml: {},
+      rule: testRule({
+        synonym: {
+          type: "I8nText",
+          yaml: "Синоним",
+          xml: "Synonym",
+          excludeIfEqualNameYAML: true,
+        },
+      }),
+      name: "ДинамическийСписок",
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Synonym: {
+        "v8:item": [{ "v8:lang": "ru", "v8:content": "Динамический список" }],
+      },
+    })
+  })
+
   it("exports a registered explicit XML scalar without reference", () => {
     const rule = registeredExplicitXMLTestRule("TestExplicitXMLDefault")
 
@@ -552,6 +575,26 @@ describe("convertPropertiesFromYAMLToXML", () => {
 
     expect(full.outputs.get("owner")).toEqual({ Mode: "full-xml" })
     expect(adopted.outputs.get("owner")).toEqual({ Mode: "adopted-xml" })
+  })
+
+  it("не создаёт индексированный XML-default, когда предметное условие экспорта ложно", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("indexed", ["value"]),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Значение",
+          xml: "Value",
+          defaultValueXML: "default",
+          toXML: () => false,
+          preserveUnknownReferenceXML: false,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
   it("не применяет обычный XML-default к заимствованному объекту", () => {

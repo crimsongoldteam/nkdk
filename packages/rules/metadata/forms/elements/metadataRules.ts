@@ -44,7 +44,6 @@ import { metadataRuleLayer001 as layer42 } from "./viewStatusAddition/rules"
 import { metadataRuleLayer002 as layer43 } from "./viewStatusAddition/rules"
 import { metadataPropertyRule000 as ganttProperty0 } from "../commonObjects/ganttChartFieldTable/types"
 import { metadataPropertyRule001 as ganttProperty1 } from "../commonObjects/ganttChartFieldTable/types"
-import { metadataPropertyRule002 as ganttProperty2 } from "../commonObjects/ganttChartFieldTable/types"
 import { metadataPropertyRule003 as ganttProperty3 } from "../commonObjects/ganttChartFieldTable/types"
 import { metadataPropertyRule004 as ganttProperty4 } from "../commonObjects/ganttChartFieldTable/types"
 import { metadataRuleLayer000 as checkBoxFieldHeaderRules } from "./checkBoxField/rules"
@@ -69,7 +68,6 @@ const ganttChartFieldTableRules = defineMetadataRules({
   propertyTypes: propertyTypesFromContributions([
     ganttProperty0,
     ganttProperty1,
-    ganttProperty2,
     ganttProperty3,
     ganttProperty4,
   ]),

@@ -1,17 +1,18 @@
-import { formXmlIdReservation, type FormXmlIdReservation, type FormXmlIdSpace } from "@nkdk/runtime"
+import { formXmlIdReservation, type FormXmlIdReservation } from "@nkdk/runtime"
 
 interface Candidate {
   readonly node: Record<string, unknown>
   readonly reference: Record<string, unknown> | undefined
   readonly reservation: FormXmlIdReservation
+  readonly scope: object
   id?: string
 }
 
 export function assignFormXmlIds(generated: unknown, reference?: unknown): void {
   const candidates: Candidate[] = []
-  collectCandidates(generated, reference, candidates)
+  collectCandidates(generated, reference, candidates, rootScope(generated))
 
-  const occupied = new Map<FormXmlIdSpace, Map<string, Candidate>>()
+  const occupied = new Map<object, Map<string, Candidate>>()
   for (const candidate of candidates) {
     const snapshotId = candidate.reservation.runtime?.identity("xmlId")
     const referenceId = stringId(candidate.reference?._id)
@@ -19,14 +20,14 @@ export function assignFormXmlIds(generated: unknown, reference?: unknown): void 
     if (candidate.id !== undefined) reserve(candidate, occupied)
   }
 
-  const nextBySpace = new Map<FormXmlIdSpace, number>()
+  const nextByScope = new Map<object, number>()
   for (const candidate of candidates) {
     if (candidate.id === undefined) {
-      let next = nextBySpace.get(candidate.reservation.space) ?? 1
-      const used = occupied.get(candidate.reservation.space)
+      let next = nextByScope.get(candidate.scope) ?? 1
+      const used = occupied.get(candidate.scope)
       while (used?.has(String(next)) === true) next++
       candidate.id = String(next)
-      nextBySpace.set(candidate.reservation.space, next + 1)
+      nextByScope.set(candidate.scope, next + 1)
       reserve(candidate, occupied)
     }
     candidate.node._id = candidate.id
@@ -35,20 +36,21 @@ export function assignFormXmlIds(generated: unknown, reference?: unknown): void 
   }
 }
 
-function collectCandidates(generated: unknown, reference: unknown, result: Candidate[]): void {
+function collectCandidates(generated: unknown, reference: unknown, result: Candidate[], scope: object): void {
   if (Array.isArray(generated)) {
     const references = Array.isArray(reference) ? reference : []
     for (const [index, item] of generated.entries()) {
-      collectCandidates(item, findReferenceNode(item, references) ?? references[index], result)
+      collectCandidates(item, findReferenceNode(item, references) ?? references[index], result, generated)
     }
     return
   }
   if (!isRecord(generated)) return
   const referenceRecord = isRecord(reference) ? reference : undefined
   const reservation = formXmlIdReservation(generated)
-  if (reservation !== undefined) result.push({ node: generated, reference: referenceRecord, reservation })
+  if (reservation !== undefined) result.push({ node: generated, reference: referenceRecord, reservation, scope })
+  const childScope = reservation === undefined ? scope : generated
   for (const [key, child] of Object.entries(generated)) {
-    collectCandidates(child, referenceRecord?.[key], result)
+    collectCandidates(child, referenceRecord?.[key], result, childScope)
   }
 }
 
@@ -67,7 +69,7 @@ function nestedName(value: unknown): string | undefined {
 
 function reserve(
   candidate: Candidate,
-  occupied: Map<FormXmlIdSpace, Map<string, Candidate>>,
+  occupied: Map<object, Map<string, Candidate>>,
 ): void {
   const id = candidate.id
   if (id === undefined) return
@@ -76,13 +78,17 @@ function reserve(
     return
   }
   if (!isNonNegativeId(id)) throw new Error(`Некорректный ID формы: ${id}`)
-  const byId = occupied.get(candidate.reservation.space) ?? new Map<string, Candidate>()
+  const byId = occupied.get(candidate.scope) ?? new Map<string, Candidate>()
   const previous = byId.get(id)
   if (previous !== undefined && previous !== candidate) {
-    throw new Error(`Повторный ID ${id} в пространстве ${candidate.reservation.space}`)
+    throw new Error(`Повторный ID ${id} в XML-контейнере (${candidate.reservation.space})`)
   }
   byId.set(id, candidate)
-  occupied.set(candidate.reservation.space, byId)
+  occupied.set(candidate.scope, byId)
+}
+
+function rootScope(value: unknown): object {
+  return value !== null && typeof value === "object" ? value : {}
 }
 
 function stringId(value: unknown): string | undefined {

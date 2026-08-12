@@ -62,14 +62,14 @@ describe("assignFormXmlIds", () => {
     expect(second._id).toBe("1")
   })
 
-  it("отклоняет повторный неотрицательный ID внутри одного пространства", () => {
+  it("отклоняет повторный неотрицательный ID внутри одного XML-контейнера", () => {
     const firstAddress = "Форма.Элемент.Первый"
     const secondAddress = "Форма.Элемент.Второй"
     const setup = runtimeSetup([entity(firstAddress, "1"), entity(secondAddress, "1")])
     const { first, second } = registerElementPair(setup.runtime, firstAddress, secondAddress)
 
     expect(() => assignFormXmlIds({ Items: [first, second] })).toThrow(
-      "Повторный ID 1 в пространстве elements",
+      "Повторный ID 1 в XML-контейнере (elements)",
     )
   })
 })

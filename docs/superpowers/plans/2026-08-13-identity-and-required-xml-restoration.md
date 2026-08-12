@@ -4,7 +4,7 @@
 
 **Goal:** Восстановить обязательные одиночные элементы форм, все их числовые ID, вычисляемый `InternalInfo` и два вида обязательной пустой XML-структуры после перехода на тонкий снимок.
 
-**Architecture:** Обычное XML-состояние не возвращается в снимок. Одиночные элементы материализуются существующим `nestedItemIdentity.reserveWhenAbsent`; созданные XML-объекты регистрируются с эффективным runtime снимка и получают ID единым проходом по независимым пространствам. `InternalInfo` строится предметным экспортёром из UUID снимка, а пустые `Comment` и `AdditionalFields` восстанавливаются существующими XML-default/`!xml` правилами.
+**Architecture:** Обычное XML-состояние не возвращается в снимок. Одиночные элементы материализуются существующим `nestedItemIdentity.reserveWhenAbsent`; созданные XML-объекты регистрируются с эффективным runtime снимка и получают ID единым проходом по фактическим XML-контейнерам. `InternalInfo` строится предметным экспортёром из UUID снимка, а пустые `Comment` и `AdditionalFields` восстанавливаются существующими XML-default/`!xml` правилами.
 
 **Tech Stack:** TypeScript 7, Vitest 4, metadata rules, configuration index runtime, `fast-xml-parser`, YAML-теги NKDK.
 
@@ -26,7 +26,7 @@
 | Область | Файлы | Ответственность |
 |---|---|---|
 | Материализация singleton | `packages/runtime/metadata/ruleRuntime/property/fromYAMLToXML.ts` | Не пропускать зарегистрированный обязательный вложенный item при отсутствующем YAML и identity |
-| Регистрация ID | `packages/runtime/metadata/configurationIndex/formXmlIdReservation.ts`, `ruleRuntime/formElement/{fromYAMLToXML,ruleFactory}.ts`, form attribute/command rules | Связать созданный XML-объект с logicalAddress, runtime, пространством ID и специальным ID |
+| Регистрация ID | `packages/runtime/metadata/configurationIndex/formXmlIdReservation.ts`, `ruleRuntime/formElement/{fromYAMLToXML,ruleFactory}.ts`, form attribute/command rules | Связать созданный XML-объект с logicalAddress, runtime, категорией и XML-контейнером ID, специальным ID |
 | Распределение ID | `packages/rules/metadata/forms/clientApplicationForm/formXmlIdAssignment.ts`, `convertYAMLToXML.ts` | Выбрать snapshot → reference → special → свободный ID, проверить коллизии и записать результат в collector |
 | `InternalInfo` | `packages/runtime/metadata/ruleRuntime/property/fromYAMLToXML.ts`, `packages/rules/metadata/commonObjects/internalInfo/toXML.ts` | Всегда вычислять непустое правило и восстанавливать UUID снимка без YAML/reference XML |
 | Пустой XML | `clientApplicationForm/rules.ts`, путь импорта/экспорта additional indexes | Канонически создавать `<Comment/>` и переносить `<AdditionalFields/>` через `!xml` |
@@ -44,7 +44,7 @@
 - Consumes: `nestedItemIdentity.reserveWhenAbsent`, `yamlToXMLNestedRule`, `typeRule()`.
 - Produces: отсутствующий YAML singleton преобразуется как `{}`; отсутствие `xmlId` больше не останавливает построение формы до распределителя.
 
-- [ ] **Step 1: Добавить падающий тест реального преобразователя формы**
+- [x] **Step 1: Добавить падающий тест реального преобразователя формы**
 
 В `fromYAMLToXML.test.ts` построить форму с полем ввода, у которого в YAML отсутствуют `КонтекстноеМеню` и `РасширеннаяПодсказка`, и с пустым configuration index. Проверить литерально:
 
@@ -59,7 +59,7 @@ expect(inputField.ExtendedTooltip).toMatchObject({
 
 Отдельно проверить корневой `AutoCommandBar` без YAML-поля и identity.
 
-- [ ] **Step 2: Запустить тест и подтвердить RED**
+- [x] **Step 2: Запустить тест и подтвердить RED**
 
 Run:
 
@@ -69,7 +69,7 @@ pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate m
 
 Expected: обязательный singleton отсутствует либо преобразование завершается ошибкой `Не найден обязательный xmlId`.
 
-- [ ] **Step 3: Использовать существующий договор `reserveWhenAbsent`**
+- [x] **Step 3: Использовать существующий договор `reserveWhenAbsent`**
 
 В `fromYAMLToXML.ts` определить локальный предикат через реестр типов:
 
@@ -82,7 +82,7 @@ const reservesNestedItemWhenAbsent = (rule: PropertyRule): boolean =>
 
 Проверку `requiredIdentity: "xmlId"` не выполнять до постобработки формы: ID теперь может быть взят из целевого XML или назначен распределителем. Остальные виды identity не ослаблять.
 
-- [ ] **Step 4: Проверить GREEN и дубли**
+- [x] **Step 4: Проверить GREEN и дубли**
 
 Run:
 
@@ -93,7 +93,7 @@ pnpm duplicates -- --base 54b32c509
 
 Expected: тест проходит; обязательные singleton существуют без снимка.
 
-- [ ] **Step 5: Зафиксировать слой**
+- [x] **Step 5: Зафиксировать слой**
 
 ```bash
 git add packages/runtime/metadata/ruleRuntime/property/fromYAMLToXML.ts packages/runtime/metadata/ruleRuntime/property/requiredIdentity.ts packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
@@ -102,7 +102,7 @@ git commit -m "fix: :bug: создавать обязательные элеме
 
 ---
 
-### Task 2: Распределить ID по независимым пространствам и опубликовать их
+### Task 2: Распределить ID по XML-контейнерам и опубликовать их
 
 **Files:**
 - Create: `packages/runtime/metadata/configurationIndex/formXmlIdReservation.ts`
@@ -120,7 +120,7 @@ git commit -m "fix: :bug: создавать обязательные элеме
 - Spaces: `"elements" | "attributes" | "commands" | "parameters"`.
 - Side effect: каждый итоговый ID записывается `reservation.runtime.collector.setIdentity(reservation.runtime.logicalAddress, "xmlId", id)`.
 
-- [ ] **Step 1: Добавить падающие тесты распределителя**
+- [x] **Step 1: Добавить падающие тесты распределителя**
 
 В новом тесте зарегистрировать реальные XML-объекты и проверить отдельными случаями:
 
@@ -131,9 +131,9 @@ expect(assign(undefined, undefined, "-1")).toBe("-1")
 expect(assign(undefined, undefined, undefined)).toBe("1")
 ```
 
-Добавить форму, где элемент, реквизит и команда одновременно получают `id="1"`, а два элемента одного пространства с `id="1"` дают ошибку. Добавить случай, где занятый элемент ниже по XML заставляет новый элемент выбрать следующий свободный ID.
+Добавить форму, где элемент, реквизит и команда одновременно получают `id="1"`, а два соседних элемента одного XML-контейнера с `id="1"` дают ошибку. Добавить случай, где занятый элемент ниже по XML заставляет новый элемент выбрать следующий свободный ID, и случай одинаковых ID на разных уровнях вложенности.
 
-- [ ] **Step 2: Подтвердить RED**
+- [x] **Step 2: Подтвердить RED**
 
 Run:
 
@@ -141,26 +141,26 @@ Run:
 pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/formXmlIdAssignment.test.ts
 ```
 
-Expected: модуль отсутствует или старый общий `Set` ошибочно смешивает пространства/не публикует ID.
+Expected: модуль отсутствует или старый общий `Set` ошибочно смешивает XML-контейнеры/не публикует ID.
 
-- [ ] **Step 3: Реализовать нейтральную регистрацию**
+- [x] **Step 3: Реализовать нейтральную регистрацию**
 
-В runtime-модуле хранить `WeakMap<object, FormXmlIdReservation>`. Регистрация принимает только созданный XML-объект, эффективный `ConfigurationIndexExportRuntime`, пространство и необязательный специальный ID; она ничего не сериализует и не изменяет общие типы правил.
+В runtime-модуле хранить `WeakMap<object, FormXmlIdReservation>`. Регистрация принимает только созданный XML-объект, эффективный `ConfigurationIndexExportRuntime`, категорию и необязательный специальный ID; XML-контейнер определяется по собранной структуре формы. Регистрация ничего не сериализует и не изменяет общие типы правил.
 
 В обоих form-element преобразователях регистрировать именно итоговый объект после `transformOutput`. Для коллекций реквизитов и команд регистрировать объект из `mapItemOutput` с текущим item-context. `directId="-1"` передавать как `specialId`, а не присваивать раньше snapshot/reference.
 
-- [ ] **Step 4: Реализовать двухпроходное назначение**
+- [x] **Step 4: Реализовать двухпроходное назначение**
 
 В `formXmlIdAssignment.ts`:
 
-1. собрать все зарегистрированные узлы, их одноимённые reference-узлы и занятые неотрицательные ID отдельно по каждому пространству;
+1. собрать все зарегистрированные узлы, их одноимённые reference-узлы и занятые неотрицательные ID отдельно по каждому XML-контейнеру;
 2. для каждого узла выбрать уже установленный snapshot-ID, затем reference-ID, затем `specialId`, затем минимальный свободный положительный ID;
-3. проверить повтор неотрицательного ID внутри пространства и допустимость отрицательного ID только при совпадении со `specialId`;
+3. проверить повтор неотрицательного ID внутри XML-контейнера и допустимость отрицательного ID только при совпадении со `specialId`;
 4. записать выбранный ID в XML и collector соответствующего runtime.
 
 Заменить старый `assignGeneratedIds` в `convertYAMLToXML.ts` вызовом нового модуля.
 
-- [ ] **Step 5: Проверить обычную форму и `BaseForm`**
+- [x] **Step 5: Проверить обычную форму и `BaseForm`**
 
 В `baseForm.test.ts` проверить литеральные ID: автоматически заимствованный singleton берёт ID из reader `cf`, явно заимствованные реквизит/команда — из `cfe`; временный collector `BaseForm` не публикует базовые identity в `cfe`. Новый собственный объект основной формы `cfe` публикует назначенный ID.
 
@@ -171,9 +171,9 @@ pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate m
 pnpm duplicates -- --base 54b32c509
 ```
 
-Expected: все проверки проходят, одинаковые ID разных пространств разрешены.
+Expected: все проверки проходят, одинаковые ID разных XML-контейнеров разрешены.
 
-- [ ] **Step 6: Зафиксировать слой**
+- [x] **Step 6: Зафиксировать слой**
 
 ```bash
 git add packages/runtime/metadata/configurationIndex/formXmlIdReservation.ts packages/runtime/metadata/ruleRuntime/formElement packages/rules/metadata/forms/commonObjects/formAttribute/rules.ts packages/rules/metadata/forms/commonObjects/formCommand/types.ts packages/rules/metadata/forms/clientApplicationForm/formXmlIdAssignment.ts packages/rules/metadata/forms/clientApplicationForm/formXmlIdAssignment.test.ts packages/rules/metadata/forms/clientApplicationForm/convertYAMLToXML.ts packages/rules/metadata/forms/clientApplicationForm/baseForm.test.ts
@@ -194,11 +194,11 @@ git commit -m "fix: :bug: сохранять назначенные ID элем�
 - Consumes: `InternalInfo.evaluateWhenYAMLMissing`, `resolveInternalInfoUuid()`.
 - Produces: непустой `InternalInfoRootXML` из предметного правила; пустой набор правила возвращает `undefined` и не создаёт произвольный `<InternalInfo/>`.
 
-- [ ] **Step 1: Добавить pipeline-регрессию**
+- [x] **Step 1: Добавить pipeline-регрессию**
 
 В `configurationIndex/fromYAMLToXML.test.ts` импортировать объект с `GeneratedType`, очистить reference XML и экспортировать только из YAML и собранного снимка. Проверить полные литеральные `_name`, `_category`, `xr:TypeId`, `xr:ValueId`. Отдельно проверить `ContainedObject` и `ThisNode`.
 
-- [ ] **Step 2: Подтвердить RED**
+- [x] **Step 2: Подтвердить RED**
 
 Run:
 
@@ -208,13 +208,13 @@ pnpm --filter @nkdk/rules exec vitest run --project unit --no-isolate metadata/c
 
 Expected: pipeline пропускает `InternalInfo`, хотя UUID присутствуют в снимке.
 
-- [ ] **Step 3: Убрать неверный ранний пропуск**
+- [x] **Step 3: Убрать неверный ранний пропуск**
 
 Удалить ветку, которая пропускает любое `forReferenceOnly + evaluateWhenYAMLMissing` при наличии владельца в снимке. Предметный экспортёр `InternalInfo` должен выполниться; если правило не объявляет `items`, `thisNode` или `containedObjectClassIds`, он возвращает `undefined`, поэтому отсутствующее пустое свойство не материализуется.
 
 Сохранить приоритет UUID: снимок → reference/model fallback → новый UUID. Каждый выбранный UUID остаётся записанным в collector через `resolveInternalInfoUuid`.
 
-- [ ] **Step 4: Проверить GREEN и дубли**
+- [x] **Step 4: Проверить GREEN и дубли**
 
 Run:
 
@@ -225,7 +225,7 @@ pnpm duplicates -- --base 54b32c509
 
 Expected: структура восстановлена без YAML/reference XML; пустое правило ничего не создаёт.
 
-- [ ] **Step 5: Зафиксировать слой**
+- [x] **Step 5: Зафиксировать слой**
 
 ```bash
 git add packages/runtime/metadata/ruleRuntime/property/fromYAMLToXML.ts packages/rules/metadata/configurationIndex/fromYAMLToXML.test.ts packages/rules/metadata/commonObjects/internalInfo
@@ -239,38 +239,40 @@ git commit -m "fix: :bug: восстанавливать InternalInfo из сн�
 **Files:**
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/rules.ts`
-- Modify: `packages/rules/metadata/commonObjects/additionalIndex/fromYAMLToXML.test.ts`
-- Modify: `packages/rules/metadata/importFromXml/importConfiguration.test.ts`
-- Modify: `packages/rules/metadata/importFromXml/worker.ts`
+- Modify: `packages/rules/metadata/importFromXml/prepareYaml.ts`
+- Modify: `packages/runtime/xml/import/contracts.ts`
+- Modify: `packages/runtime/xml/import/saxesParser.ts`
+- Modify: `packages/runtime/xml/import/importer.test.ts`
 
 **Interfaces:**
 - Produces: отсутствующий `Комментарий` формы → `Comment: ""`; `ДополнительныеПоля: !xml` переживает запись/чтение проекта и экспортируется как `{ AdditionalFields: {} }`.
 
-- [ ] **Step 1: Добавить RED для пустого комментария**
+- [x] **Step 1: Добавить RED для пустого комментария**
 
 В интеграционном тесте импортировать metadata формы с `<Comment/>`, убедиться, что `Комментарий` отсутствует в YAML, затем экспортировать без reference XML и проверить `Properties.Comment === ""`.
 
-- [ ] **Step 2: Добавить RED дискового round-trip `AdditionalFields`**
+- [x] **Step 2: Добавить RED дискового round-trip `AdditionalFields`**
 
-В `importConfiguration.test.ts` провести реальный import XML с пустым `AdditionalFields`, сериализовать YAML штатным writer, прочитать штатным parser и экспортировать. Проверить:
+В тесте импортёра зафиксировать выборочное сохранение пустого `AdditionalFields`,
+а полным e2e проверить его сериализацию в YAML и обратный экспорт. Проверить:
 
 ```ts
 expect(projectYaml).toContain("ДополнительныеПоля: !xml")
 expect(exported.AdditionalFields).toEqual({})
 ```
 
-- [ ] **Step 3: Подтвердить оба RED**
+- [x] **Step 3: Подтвердить оба RED**
 
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts
-pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/importFromXml/importConfiguration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts
+pnpm --filter @nkdk/runtime exec vitest run xml/import/importer.test.ts
 ```
 
 Expected: `Comment` и/или scalar tag теряются на полном пути.
 
-- [ ] **Step 4: Исправить минимальные предметные правила**
+- [x] **Step 4: Исправить минимальные предметные правила**
 
 Для комментария формы заменить импортный-only default на экспортируемый XML-default:
 
@@ -283,24 +285,27 @@ comment: stringRule({
 })
 ```
 
-Для `AdditionalFields` сохранить регистрацию `AdditionalIndexItem + additionalFields`. В `worker.ts` сериализовать подготовленный additional-index YAML до переноса результата между проходами worker либо восстановить scalar tags из штатных dependent facts непосредственно перед `serializePreparedYaml`, чтобы `yamlScalarTagAt(item, "ДополнительныеПоля") === "xml"` оставался истинным. Общий YAML/runtime не менять.
+Для `AdditionalFields` сохранить регистрацию `AdditionalIndexItem + additionalFields`.
+Штатному XML-парсеру передать только имя `AdditionalFields` как выборочно
+сохраняемый пустой элемент; остальные пустые XML-элементы по-прежнему
+отбрасываются. Общую структуру YAML не менять.
 
-- [ ] **Step 5: Проверить GREEN и дубли**
+- [x] **Step 5: Проверить GREEN и дубли**
 
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts metadata/commonObjects/additionalIndex/fromYAMLToXML.test.ts
-pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/importFromXml/importConfiguration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts
+pnpm --filter @nkdk/runtime exec vitest run xml/import/importer.test.ts
 pnpm duplicates -- --base 54b32c509
 ```
 
 Expected: пустые элементы восстановлены без снимка.
 
-- [ ] **Step 6: Зафиксировать слой**
+- [x] **Step 6: Зафиксировать слой**
 
 ```bash
-git add packages/rules/metadata/forms/clientApplicationForm/rules.ts packages/rules/metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts packages/rules/metadata/commonObjects/additionalIndex/fromYAMLToXML.test.ts packages/rules/metadata/importFromXml/importConfiguration.test.ts packages/rules/metadata/importFromXml/worker.ts
+git add packages/rules/metadata/forms/clientApplicationForm/rules.ts packages/rules/metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts packages/rules/metadata/importFromXml/prepareYaml.ts packages/runtime/xml/import/contracts.ts packages/runtime/xml/import/saxesParser.ts packages/runtime/xml/import/importer.test.ts
 git commit -m "fix: :bug: восстанавливать обязательные пустые XML-теги"
 ```
 
@@ -317,17 +322,18 @@ git commit -m "fix: :bug: восстанавливать обязательны�
 **Interfaces:**
 - Produces: точный XML round-trip `cf` и `cfe` с тонким снимком; полная и частичная синхронизация публикуют назначенные ID только через snapshot-кандидат.
 
-- [ ] **Step 1: Проверить публикацию ID полной и частичной синхронизацией**
+- [x] **Step 1: Проверить публикацию ID полной и частичной синхронизацией**
 
 В `snapshotBuilder.test.ts` передать фрагмент формы с новым `xmlId` и проверить его присутствие в итоговом snapshot полной синхронизации. В `preparePartialXmlSyncPackage.test.ts` передать тот же фрагмент, проверить ID в candidate snapshot и неизменность действующего snapshot до finalize.
 
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/fullSyncToXml/snapshotBuilder.test.ts metadata/partialSyncToXml/preparePartialXmlSyncPackage.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate metadata/fullSyncToXml/snapshotBuilder.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit --no-isolate metadata/partialSyncToXml/preparePartialXmlSyncPackage.test.ts
 ```
 
-- [ ] **Step 2: Запустить целевые проверки областей**
+- [x] **Step 2: Запустить целевые проверки областей**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project unit --no-isolate metadata/configurationIndex metadata/commonObjects/internalInfo
@@ -335,7 +341,7 @@ pnpm --filter @nkdk/rules exec vitest run --project core-metadata --no-isolate m
 pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/importFromXml metadata/fullSyncToXml metadata/forms/clientApplicationForm
 ```
 
-- [ ] **Step 3: Запустить обязательные проверки проекта**
+- [x] **Step 3: Запустить обязательные проверки проекта**
 
 ```bash
 pnpm type-check
@@ -345,7 +351,7 @@ pnpm test:architecture
 pnpm duplicates -- --base 54b32c509
 ```
 
-- [ ] **Step 4: Запустить полный e2e**
+- [x] **Step 4: Запустить полный e2e**
 
 ```bash
 pnpm test:e2e
@@ -353,11 +359,11 @@ pnpm test:e2e
 
 Expected: 0 изменённых XML-файлов в exact round-trip для `cf` и `cfe`; существующие XML-фикстуры не изменены.
 
-- [ ] **Step 5: Проверить границы спецификации**
+- [x] **Step 5: Проверить границы спецификации**
 
 Проверить `git diff 54b32c509 --stat` и `git diff 54b32c509 -- packages/runtime/metadata/configurationIndex/types.ts packages/runtime/metadata/configurationIndex/encode.ts packages/runtime/metadata/configurationIndex/decode.ts`. Второй diff должен быть пустым; общие типы правил и формат снимка не менялись.
 
-- [ ] **Step 6: Зафиксировать только необходимые итоговые правки**
+- [x] **Step 6: Зафиксировать только необходимые итоговые правки**
 
 Если Task 5 не потребовал production-изменений, отдельный коммит не создавать. Иначе использовать сообщение:
 

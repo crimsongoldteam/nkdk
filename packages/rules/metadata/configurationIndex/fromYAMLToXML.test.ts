@@ -231,6 +231,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(imported.yaml).toEqual({
       УсловноеОформление: {
         ИспользоватьПользовательскуюНастройку: "b75fecce-942b-4aed-abc9-e6a02e460fb3",
+        РежимОтображения: "Обычный",
       },
     })
     expect(exported.xml).toEqual(source)
