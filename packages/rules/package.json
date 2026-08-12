@@ -23,6 +23,7 @@
     "type-check": "tsc --noEmit",
     "measure:configuration-snapshot": "node scripts/measure-configuration-snapshot.mjs",
     "measure:project-state-backends": "node --import tsx scripts/measure-project-state-backends.ts",
+    "measure:project-state-validation-backends": "node --import tsx scripts/measure-project-state-validation-backends.ts",
     "measure:project-state-binary": "tsx scripts/measure-binary-project-state.ts",
     "measure:validation-schemas": "tsx --expose-gc scripts/measure-validation-schemas.mjs",
     "measure:validation-workers": "node scripts/measure-validation-workers.mjs"

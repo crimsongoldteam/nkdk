@@ -47,7 +47,9 @@ export function readLastRustProjectStateValidationStats(): RustProjectStateValid
   return lastValidationStats
 }
 
-export function createRustProjectStateStore(params: OpenProjectStateStoreParams): ProjectStateStore {
+export function createRustProjectStateStore(
+  params: OpenProjectStateStoreParams & { readonly validationPageSize?: number },
+): ProjectStateStore {
   const store = createBinaryProjectStateStore({ ...params, buildSnapshot: buildRustSnapshot }).store
   return {
     ...store,
@@ -68,6 +70,7 @@ export function createRustProjectStateStore(params: OpenProjectStateStoreParams)
         snapshot,
         projectDir: params.projectDir ?? "",
         dependencyValidator: params.dependencyValidator,
+        ...(params.validationPageSize === undefined ? {} : { pageSize: params.validationPageSize }),
         onPage: (page) => {
           stats.pages += 1
           stats.deferredRows += page.deferredRows
