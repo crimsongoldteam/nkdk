@@ -49,6 +49,18 @@ const fillValueTestRule = (): MetadataItemRule => testRule({
     yaml: "ЗначениеЗаполнения",
     xml: "FillValue",
     defaultValueXMLRaw: { "_xsi:nil": true },
+    exportNilValue: true,
+  },
+})
+
+const typedFillValueTestRule = (): MetadataItemRule => testRule({
+  type: { type: "TypeDescription", yaml: "Тип", xml: "Type" },
+  fillValue: {
+    type: "MetadataValue",
+    yaml: "ЗначениеЗаполнения",
+    xml: "FillValue",
+    defaultValueXMLRaw: { "_xsi:nil": true },
+    exportNilValue: true,
   },
 })
 
@@ -760,28 +772,28 @@ describe("convertPropertiesFromYAMLToXML", () => {
   })
 
   it.each([
-    [{ xsiNil: true as const }, { "_xsi:nil": true }],
-    [{ xsiType: "xr:DesignTimeRef" }, { "_xsi:type": "xr:DesignTimeRef" }],
-    [{ xsiType: "xs:string", xmlText: "   " }, { "_xsi:type": "xs:string", "#text": "   " }],
-    [
-      { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
-      { "_xsi:type": "xs:dateTime", "#text": "0001-01-01T00:00:00" },
-    ],
-  ])("восстанавливает удалённое значение заполнения из снимка %#", (xmlState, expected) => {
+    undefined,
+    { xsiNil: true as const },
+    { xsiType: "xr:DesignTimeRef" },
+    { xsiType: "xs:string", xmlText: "   " },
+    { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
+  ])("использует канонический FillValue без YAML-поля %#", (xmlState) => {
     const result = convertPropertiesFromYAMLToXML({
-      context: contextWithXMLDefaultVariant(
-        "indexed",
-        [],
-        false,
-        DEFAULT_TEST_LOGICAL_ADDRESS,
-        [{ logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.fillValue`, ...xmlState }],
-      ),
+      context: xmlState === undefined
+        ? context()
+        : contextWithXMLDefaultVariant(
+            "indexed",
+            [],
+            false,
+            DEFAULT_TEST_LOGICAL_ADDRESS,
+            [{ logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.fillValue`, ...xmlState }],
+          ),
       yaml: {},
       rule: fillValueTestRule(),
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ FillValue: expected })
+    expect(result.outputs.get("owner")).toEqual({ FillValue: { "_xsi:nil": true } })
   })
 
   it("явное YAML-значение заполнения имеет приоритет над снимком", () => {
@@ -826,15 +838,18 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
-  it("использует канонический XML-default без снимка и YAML-поля", () => {
+  it.each([
+    ["Булево", { "_xsi:nil": true }],
+    ["Строка", { "_xsi:type": "xs:string" }],
+  ] as const)("вычисляет канонический FillValue %s вместо reference XML", (type, expected) => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
-      yaml: {},
-      rule: fillValueTestRule(),
-      outputs: [{ key: "owner" }],
+      yaml: { Тип: type },
+      rule: typedFillValueTestRule(),
+      outputs: [{ key: "owner", referenceXML: { FillValue: { "_xsi:type": "v8:TypeDescription" } } }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ FillValue: { "_xsi:nil": true } })
+    expect(result.outputs.get("owner")).toMatchObject({ FillValue: expected })
   })
 
   it("восстанавливает присутствие пустого XML-default из снимка", () => {

@@ -114,6 +114,8 @@ export const StandardAttributeDescriptionRules = {
       yaml: "ЗначениеЗаполнения",
       xml: "xr:FillValue",
       defaultValueXMLRaw: { "_xsi:nil": true },
+      exportNilValue: true,
+      preserveUnknownReferenceXML: false,
     }),
     format: i8nTextRule({
       yaml: "Формат",

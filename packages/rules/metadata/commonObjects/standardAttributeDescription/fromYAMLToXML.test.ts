@@ -349,7 +349,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("preserves missing fillValue xsi type from reference", () => {
+  it("uses canonical missing fillValue XML instead of reference type", () => {
     const xmlString = '<xr:FillValue xsi:type="v8:TypeDescription"/>'
     const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
       rule: StandardAttributeDescriptionRules.properties.fillValue,
@@ -359,7 +359,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       xmlString,
     })
 
-    expect(result).toEqual(expectedResult)
+    expect(expectedResult).toBe('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+    expect(result).toBe('<xr:FillValue xsi:nil="true"/>')
   })
 
   it("preserves reference-only collection values", () => {
@@ -384,7 +385,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toContain("<xr:Comment>reference-only</xr:Comment>")
   })
 
-  it("preserves fillValue reference type through changed collection item", () => {
+  it("uses canonical FillValue through changed collection item", () => {
     const xmlString = `<StandardAttributes>
 	<xr:StandardAttribute name="ValueType">
 		<xr:Comment>before</xr:Comment>
@@ -405,7 +406,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     })
 
     expect(result).toContain("<xr:Comment>changed</xr:Comment>")
-    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+    expect(result).toContain('<xr:FillValue xsi:nil="true"/>')
+    expect(result).not.toContain('xsi:type="v8:TypeDescription"')
   })
 
   it("preserves nil reference XML for empty standard attribute values", () => {
