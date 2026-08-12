@@ -6,7 +6,7 @@
 
 **Architecture:** Публичные `ProjectStateStore`, `ProjectStateQueryPort`, `ProjectStateService`, `ProjectStateReadToken` и `project-state.bin 0.5.0` сохраняются. Rust-дополнение строит неизменяемые снимки и выполняет чистые пакетные запросы; TypeScript сохраняет транзакции, orchestration, `ProjectStateDependencyValidator`, файловый ввод-вывод и эталонную реализацию.
 
-**Tech Stack:** Node.js 26, TypeScript 7, pnpm 10, Rust 1.97.1 stable, edition 2024, `napi` 3.12.0, `napi-derive` 3.6.0, `napi-build` 2.3.2, `@napi-rs/cli` 3.8.6, Vitest 4.
+**Tech Stack:** Node.js 26, TypeScript 7, pnpm 10, Rust 1.97.1 stable, edition 2024, `napi` 3.12.1, `napi-derive` 3.6.3, `napi-build` 2.4.1, `@napi-rs/cli` 3.8.6, Vitest 4.
 
 ## Global Constraints
 
@@ -19,7 +19,7 @@
 - Переключение на TypeScript допускается только при загрузке дополнения до открытия ProjectState; после `beginUpdate` скрытое переключение запрещено.
 - Первый эксперимент поддерживает только текущую `darwin-arm64`; публикация npm-пакетов и сборки Linux/Windows не входят в план.
 - Закрепить Rust `1.97.1` в `rust-toolchain.toml`; использовать edition `2024` и только стабильные выпуски зависимостей.
-- Закрепить `napi = 3.12.0`, `napi-derive = 3.6.0`, `napi-build = 2.3.2`, `@napi-rs/cli = 3.8.6`; коммитить `Cargo.lock` и `pnpm-lock.yaml`.
+- Закрепить `napi = 3.12.1`, `napi-derive = 3.6.3`, `napi-build = 2.4.1`, `@napi-rs/cli = 3.8.6`; коммитить `Cargo.lock` и `pnpm-lock.yaml`.
 - Внешний XML-набор `/Users/nikita/git/sed_xml/cf` считать только для чтения. Не копировать его в репозиторий, не изменять и не делать обязательным для обычных тестов.
 - Критерии успеха на большом наборе: пиковая RSS ниже минимум на 25%, целевой этап быстрее минимум на 20%, неизменившийся проект медленнее не более чем на 5%, поведение контрактов совпадает.
 - После каждого законченного слоя запускать `pnpm duplicates -- --base e53cb778b`.
@@ -249,15 +249,17 @@ rust-version = "1.97.1"
 crate-type = ["cdylib"]
 
 [dependencies]
-napi = { version = "=3.12.0", default-features = false, features = ["napi8"] }
-napi-derive = "=3.6.0"
-thiserror = "=2.0.16"
+napi = { version = "=3.12.1", default-features = false, features = ["napi8"] }
+napi-derive = "=3.6.3"
+thiserror = "=2.0.20"
 
 [build-dependencies]
-napi-build = "=2.3.2"
+napi-build = "=2.4.1"
 ```
 
-`package.json` закрепляет `@napi-rs/cli` ровно `3.8.6` и команды `build`, `test`, `type-check`.
+`napi 3.12.1` требует `napi-build ^2.4.0`, поэтому используется совместимая актуальная
+версия `2.4.1`. `package.json` закрепляет `@napi-rs/cli` ровно `3.8.6` и команды
+`build`, `test`, `type-check`.
 
 - [ ] **Step 5: Реализовать только две пробные функции и собрать дополнение**
 

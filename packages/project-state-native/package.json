@@ -1,0 +1,23 @@
+{
+  "name": "@nkdk/project-state-native",
+  "version": "0.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "build": "napi build --platform --release --no-js --dts target/index.d.ts",
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "3.8.6",
+    "@types/node": "^26.1.2",
+    "typescript": "~7.0.0",
+    "vitest": "^4.1.10"
+  },
+  "napi": {
+    "binaryName": "nkdk_project_state_native",
+    "targets": ["aarch64-apple-darwin"]
+  }
+}

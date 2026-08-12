@@ -1,0 +1,16 @@
+[package]
+name = "nkdk_project_state_native"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.97.1"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+napi = { version = "=3.12.1", default-features = false, features = ["napi8"] }
+napi-derive = "=3.6.3"
+thiserror = "=2.0.20"
+
+[build-dependencies]
+napi-build = "=2.4.1"
