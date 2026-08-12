@@ -89,4 +89,16 @@ describe("metadata rules definition", () => {
       secondCarrier,
     ])
   })
+
+  it("сохраняет возможности PropertyState в порядке слоёв", () => {
+    const first = { kind: "propertyStateCapability" as const, id: "first", profile: { properties: {} } }
+    const second = { kind: "propertyStateCapability" as const, id: "second", profile: { properties: {} } }
+
+    const result = composeMetadataRules(
+      defineMetadataRules({ ...emptyMetadataRules, propertyStateCapabilities: [first] }),
+      defineMetadataRules({ ...emptyMetadataRules, propertyStateCapabilities: [second] }),
+    )
+
+    expect(result.propertyStateCapabilities).toEqual([first, second])
+  })
 })

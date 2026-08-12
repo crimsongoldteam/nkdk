@@ -63,6 +63,62 @@ export interface RuleRegistrationContribution {
   readonly register: () => void
 }
 
+export type PropertyStateMode = "control" | "notify" | "extend" | "multi"
+
+export interface PropertyStatePropertyCapability {
+  readonly availability?: "borrowed" | "own"
+  readonly modes: readonly PropertyStateMode[]
+  readonly representation?: "plain" | "tagged" | "section" | "multi"
+  readonly xmlName?: string
+  readonly externalName?: string
+}
+
+export interface PropertyStateItemCapabilityPatch {
+  readonly itemType: string
+  readonly properties: Readonly<Record<string, Partial<PropertyStatePropertyCapability>>>
+}
+
+export interface PropertyStateCapabilityContribution {
+  readonly kind: "propertyStateCapability"
+  readonly id: string
+  readonly profile?: {
+    readonly properties: Readonly<Record<string, PropertyStatePropertyCapability>>
+  }
+  readonly item?: {
+    readonly itemType: string
+    readonly profiles: readonly string[]
+    readonly properties?: Readonly<Record<string, PropertyStatePropertyCapability>>
+  }
+  readonly delta?: {
+    readonly mode: string
+    readonly items: readonly PropertyStateItemCapabilityPatch[]
+  }
+}
+
+export interface ResolvedPropertyStateItemCapability {
+  readonly itemType: string
+  readonly properties: Readonly<Record<string, PropertyStatePropertyCapability>>
+}
+
+export interface PropertyStateCapabilityRegistry {
+  resolve(params: {
+    readonly itemType: string
+    readonly propertyKey: string
+    readonly compatibilityMode?: string
+  }): PropertyStatePropertyCapability | undefined
+  item(itemType: string, compatibilityMode?: string): ResolvedPropertyStateItemCapability | undefined
+}
+
+export interface PropertyStateCompatibilityModeResolver {
+  normalize(mode: string | undefined): string
+  compare(first: string, second: string): number
+}
+
+export const emptyPropertyStateCapabilityRegistry: PropertyStateCapabilityRegistry = {
+  resolve: () => undefined,
+  item: () => undefined,
+}
+
 export interface LocalYamlValueValidationParams {
   readonly filePath: string
   readonly parsed: ParsedYaml
@@ -238,4 +294,5 @@ export interface MetadataRulesDefinition<
   readonly synchronization: readonly SynchronizationContribution[]
   readonly operations: readonly MetadataOperationContribution[]
   readonly workerOperations: readonly MetadataWorkerOperationContribution[]
+  readonly propertyStateCapabilities: readonly PropertyStateCapabilityContribution[]
 }

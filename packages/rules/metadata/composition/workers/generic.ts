@@ -4,14 +4,16 @@ import { createValidationRegistrySet } from "../../validation/validationRegistry
 import { createMetadataWorkerPersistentState } from "../../workerPool/workerState"
 import { createOperationRegistrySet } from "../../operations/operationRegistrySet"
 import { withMetadataExecutionRegistrySets } from "../metadataExecutionContext"
+import { createPropertyStateCapabilityRegistry } from "../../appliedObjects/configurationExtension/propertyStateCapabilities"
 
 const [{ createMetadataWorkerCommandHandler }, { createMetadataWorkerOperations }] = await Promise.all([
   import("../../workerPool/worker"),
   import("../workerOperations"),
 ])
 const rules = createRuleRegistrySet(metadataRules)
-const validation = createValidationRegistrySet(metadataRules, rules)
-const registries = { rules, validation, operations: createOperationRegistrySet(metadataRules) }
+const propertyStates = createPropertyStateCapabilityRegistry(metadataRules.propertyStateCapabilities)
+const validation = createValidationRegistrySet(metadataRules, rules, propertyStates)
+const registries = { rules, validation, operations: createOperationRegistrySet(metadataRules, propertyStates) }
 
 const worker = createMetadataWorkerCommandHandler({
   operations: createMetadataWorkerOperations(),

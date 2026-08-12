@@ -8,10 +8,12 @@ import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { createValidationRegistrySet } from "../validation/validationRegistrySet"
 import { createOperationRegistrySet } from "../operations/operationRegistrySet"
 import { withMetadataExecutionRegistrySets } from "../composition/metadataExecutionContext"
+import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 
 const rules = createRuleRegistrySet(metadataRules)
-const validation = createValidationRegistrySet(metadataRules, rules)
-const registries = { rules, validation, operations: createOperationRegistrySet(metadataRules) }
+const propertyStates = createPropertyStateCapabilityRegistry(metadataRules.propertyStateCapabilities)
+const validation = createValidationRegistrySet(metadataRules, rules, propertyStates)
+const registries = { rules, validation, operations: createOperationRegistrySet(metadataRules, propertyStates) }
 const worker = createPreparedYamlProjectWorkerEntryPoint(validation)
 
 export default function preparedYamlProjectEntry(

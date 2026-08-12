@@ -21,6 +21,10 @@ export type RulesSynchronizationContribution =
   | MetadataResourceCapabilityContribution
 import { createMetadataItemXmlImportAugmenterRegistry, type MetadataItemXmlImportAugmenterRegistry } from "../ruleRuntime/metadataItem/augmenterRegistry"
 import { createMetadataItemYamlToXmlAugmenterRegistry, type MetadataItemYamlToXmlAugmenterRegistry } from "../ruleRuntime/property/yamlToXmlAugmenter"
+import {
+  emptyPropertyStateCapabilityRegistry,
+  type PropertyStateCapabilityRegistry,
+} from "../ruleRuntime/definition"
 
 export type WorkerOperationKind = keyof MetadataWorkerOperationRuleTypeMap
 
@@ -37,6 +41,7 @@ export interface WorkerOperationRegistry {
 }
 
 export interface OperationRegistrySet {
+  readonly propertyStates: PropertyStateCapabilityRegistry
   readonly augmentation: {
     readonly xmlImport: MetadataItemXmlImportAugmenterRegistry
     readonly yamlToXml: MetadataItemYamlToXmlAugmenterRegistry
@@ -70,8 +75,9 @@ export interface OperationRegistrySet {
 export function createOperationRegistrySet(
   definition: Pick<
     MetadataRulesDefinition<RulesSynchronizationContribution>,
-    "components" | "imports" | "synchronization" | "operations" | "workerOperations"
+    "components" | "imports" | "synchronization" | "operations" | "workerOperations" | "propertyStateCapabilities"
   >,
+  propertyStates: PropertyStateCapabilityRegistry = emptyPropertyStateCapabilityRegistry,
 ): OperationRegistrySet {
   const components = new Map<string, MetadataComponentDescriptor>()
   for (const component of definition.components) {
@@ -149,6 +155,7 @@ export function createOperationRegistrySet(
   }
 
   return {
+    propertyStates,
     augmentation: { xmlImport: xmlImportAugmenters, yamlToXml: yamlToXmlAugmenters },
     baseFormProjection: {
       property: (propertyType) => baseFormPropertyProjectors.get(propertyType),

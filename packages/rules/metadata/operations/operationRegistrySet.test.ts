@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 
 import { defineMetadataRules } from "../ruleRuntime/definition"
-import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { emptyMetadataRules, propertyStateCapability } from "../ruleRuntime/definition/testSupport"
 import { metadataItemRule } from "../ruleRuntime/definition/testSupport"
 import { createOperationRegistrySet } from "./operationRegistrySet"
 import { createMetadataWorkerHandler } from "../workerPool/metadataWorkerHandler"
@@ -13,6 +13,7 @@ import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
 import { sampleSnapshot } from "@nkdk/runtime"
+import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 
 it("runs the worker operation from the owning registry", async () => {
   const createRules = (value: string) =>
@@ -127,4 +128,21 @@ it("owns XML import and YAML-to-XML augmenters from its rules", () => {
 
   expect(yaml.imported).toBe(true)
   expect(output.exported).toBe(true)
+})
+
+it("exposes PropertyState capabilities from its own definition", () => {
+  const definition = defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyStateCapabilities: [propertyStateCapability("sample", ["control"])],
+  })
+  const registries = createOperationRegistrySet(
+    definition,
+    createPropertyStateCapabilityRegistry(definition.propertyStateCapabilities),
+  )
+
+  expect(registries.propertyStates.resolve({
+    itemType: "Sample",
+    propertyKey: "value",
+    compatibilityMode: "Версия8_3_27",
+  })).toEqual({ availability: "borrowed", modes: ["control"] })
 })
