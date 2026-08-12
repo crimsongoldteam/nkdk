@@ -11,6 +11,7 @@ crate-type = ["cdylib"]
 napi = { version = "=3.12.1", default-features = false, features = ["napi8"] }
 napi-derive = "=3.6.3"
 thiserror = "=2.0.20"
+xxhash-rust = { version = "=0.8.18", features = ["xxh3"] }
 
 [build-dependencies]
 napi-build = "=2.4.1"

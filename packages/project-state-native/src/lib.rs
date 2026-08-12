@@ -1,5 +1,15 @@
+use napi::Result;
 use napi::bindgen_prelude::Uint8Array;
 use napi_derive::napi;
+
+mod buffers;
+mod format;
+mod queries;
+mod query_protocol;
+mod reader;
+
+use buffers::ProjectStateSections;
+use reader::NativeProjectStateReader;
 
 #[napi(object)]
 pub struct SharedBufferProbe {
@@ -20,4 +30,11 @@ pub fn fill_shared_buffer(mut bytes: Uint8Array, value: u8) {
     // SAFETY: вызов синхронный, а договор функции запрещает параллельный доступ
     // к переданному диапазону до её возврата.
     unsafe { bytes.as_mut() }.fill(value);
+}
+
+#[napi]
+pub fn open_project_state_reader(
+    sections: ProjectStateSections,
+) -> Result<NativeProjectStateReader> {
+    NativeProjectStateReader::open(sections)
 }
