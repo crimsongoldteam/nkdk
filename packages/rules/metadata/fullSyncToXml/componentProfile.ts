@@ -11,6 +11,7 @@ import {
   type LocalConfigurationIndexReader,
 } from "../configurationIndex"
 import { openConfigurationIndexStore } from "../configurationIndex/store"
+import type { ConfigurationIndexStore } from "../configurationIndex/store"
 
 export type XmlSyncProfileKind = "configuration" | "configurationExtension"
 
@@ -29,15 +30,19 @@ export interface FullXmlSyncWorkerProfileRuntime {
   }
 }
 
-export function readConfirmedComponentIndex(
+export async function readConfirmedComponentIndex(
   state: ConfirmedComponentState,
   projectPaths = state.indexes.logicalAddresses.map(({ sourceProjectPath }) => sourceProjectPath),
-): LocalConfigurationIndexReader {
-  const store = openConfigurationIndexStore(state.snapshot.descriptor, "readOnly")
+  openStore: (
+    descriptor: ConfigurationIndexStoreDescriptor,
+    mode: "readOnly",
+  ) => Pick<ConfigurationIndexStore, "getBlocks" | "close"> = openConfigurationIndexStore,
+): Promise<LocalConfigurationIndexReader> {
+  const store = openStore(state.snapshot.descriptor, "readOnly")
   try {
     return createLocalConfigurationIndexReader(store.getBlocks(projectPaths))
   } finally {
-    void store.close()
+    await store.close()
   }
 }
 
@@ -61,7 +66,7 @@ export interface FullXmlSyncComponentProfile {
   confirm(params: {
     readonly target: ConfirmedComponentState
     readonly base?: ConfirmedComponentState
-  }): FullXmlSyncProfileRuntime
+  }): FullXmlSyncProfileRuntime | Promise<FullXmlSyncProfileRuntime>
   readonly prepareRuntime?: (params: {
     readonly runtime: FullXmlSyncProfileRuntime
     readonly rootYaml: unknown

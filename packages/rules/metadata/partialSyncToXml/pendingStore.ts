@@ -80,14 +80,21 @@ export async function readPendingPartialXmlSync(
   return validatePendingState(value, componentPath)
 }
 
-export function assertNoPendingPartialXmlSync(projectDir: string, componentPath: string): void {
+export async function assertNoPendingPartialXmlSync(
+  projectDir: string,
+  componentPath: string,
+  openStore: (
+    descriptor: ReturnType<typeof configurationIndexStoreDescriptor>,
+    mode: "readOnly",
+  ) => Pick<ReturnType<typeof openConfigurationIndexStore>, "hasPending" | "close"> = openConfigurationIndexStore,
+): Promise<void> {
   const { pendingPath } = pendingPartialXmlSyncPaths(projectDir, componentPath)
   const address = parseComponentPath(componentPath)
   const descriptor = configurationIndexStoreDescriptor(projectDir, address)
   let lmdbPending = false
   if (fs.existsSync(descriptor.dataPath)) {
-    const store = openConfigurationIndexStore(descriptor, "readOnly")
-    try { lmdbPending = store.hasPending() } finally { void store.close() }
+    const store = openStore(descriptor, "readOnly")
+    try { lmdbPending = store.hasPending() } finally { await store.close() }
   }
   if (fs.existsSync(pendingPath) || lmdbPending) {
     throw new Error(`Для компонента ${componentPath} существует ожидающий пакет частичной XML-синхронизации`)
@@ -112,7 +119,7 @@ export async function writePendingPartialXmlSync(
   const archiveBytes = await fs.promises.readFile(archivePath)
   if (hashHex(archiveBytes) !== state.archiveHash) throw new Error("Хэш ZIP не совпадает с pending state")
 
-  assertNoPendingPartialXmlSync(params.projectDir, state.componentPath)
+  await assertNoPendingPartialXmlSync(params.projectDir, state.componentPath)
   const paths = pendingPartialXmlSyncPaths(params.projectDir, state.componentPath)
   const writeAtomic = dependencies.writeAtomic ?? writeFileAtomic
   const descriptor = configurationIndexStoreDescriptor(params.projectDir, parseComponentPath(state.componentPath))

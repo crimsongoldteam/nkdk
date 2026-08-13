@@ -99,7 +99,7 @@ export async function preparePartialXmlSyncPackage(
     const normalizedComponentPath = componentPath(address)
     const pending = await dependencies.readPending(projectDir, normalizedComponentPath)
     if (pending !== undefined) throw new Error(`Для компонента ${normalizedComponentPath} существует ожидающий пакет`)
-    assertNoPendingPartialXmlSync(projectDir, normalizedComponentPath)
+    await assertNoPendingPartialXmlSync(projectDir, normalizedComponentPath)
     const refreshed = await dependencies.refresh({ ...params, projectDir, componentPath: normalizedComponentPath })
     diagnostics = refreshed.diagnostics
     if (hasErrors(diagnostics)) return { ok: false, diagnostics }
@@ -149,7 +149,7 @@ async function prepareValidatedPackage(
       confirmState: confirmComponentState,
     },
   })
-  const runtime = profile.confirm(states)
+  const runtime = await profile.confirm(states)
   const changes = detectPartialXmlChanges({
     current: runtime.target.hashes.projectFiles,
     previous: runtime.target.snapshot.projectFiles,
@@ -252,7 +252,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
     }
     for (const external of params.plan.externalFiles) await writer.addExternal(external)
     const archive = await writer.close(params.impact.loadTargets)
-    const delta = buildPendingDelta(params, rebuiltBlocks)
+    const delta = await buildPendingDelta(params, rebuiltBlocks)
     const pending: PendingPartialXmlSyncStateV3 = {
       version: 3,
       packageId,
@@ -285,10 +285,10 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
   }
 }
 
-function buildPendingDelta(
+async function buildPendingDelta(
   params: Pick<Parameters<typeof writePreparedPackage>[0], "changes" | "runtime">,
   rebuiltBlocks: ReadonlyMap<string, ConfigurationIndexBlock>,
-): ConfigurationIndexPendingDelta {
+): Promise<ConfigurationIndexPendingDelta> {
   const hashes = new Map<string, { kind: "put"; contentHash: bigint } | { kind: "delete" }>()
   for (const file of params.changes.added) hashes.set(file.projectPath, { kind: "put", contentHash: file.contentHash })
   for (const { current } of params.changes.changed) {
@@ -306,7 +306,7 @@ function buildPendingDelta(
       if (store.hasBlock(file.projectPath)) blocks.set(file.projectPath, { kind: "delete" })
     }
   } finally {
-    void store.close()
+    await store.close()
   }
   return { hashes, blocks }
 }

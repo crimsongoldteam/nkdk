@@ -83,7 +83,7 @@ export type FullXmlSyncPlanResult =
     }
 
 export interface FullXmlSyncCoordinatorDependencies extends FullXmlSyncComponentRuntimeDependencies {
-  readonly assertNoPending?: (projectDir: string, componentPath: string) => void
+  readonly assertNoPending?: (projectDir: string, componentPath: string) => void | Promise<void>
   readonly exists: (path: string) => Promise<boolean>
   readonly isDirectoryEmpty: (path: string) => Promise<boolean>
   readonly mkdir: (path: string) => Promise<void>
@@ -150,7 +150,7 @@ export async function syncComponentToXml(
   try {
     if (params.componentPath === "cf" || params.componentPath.startsWith("cfe/")) {
       const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
-      assertNoPending(projectDir, params.componentPath)
+      await assertNoPending(projectDir, params.componentPath)
     }
     const refreshed = await refreshSyncProject({ ...params, projectDir })
     diagnostics = refreshed.diagnostics
@@ -358,7 +358,7 @@ export async function planSyncConfigurationToXml(
       targetProjection,
       deps,
     })
-    const confirmedRuntime = profile.confirm({ target, ...(base === undefined ? {} : { base }) })
+    const confirmedRuntime = await profile.confirm({ target, ...(base === undefined ? {} : { base }) })
     await prepareFullXmlSyncProfileRuntime({
       profile,
       runtime: confirmedRuntime,

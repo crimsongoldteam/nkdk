@@ -71,7 +71,7 @@ describe("ожидающее состояние частичной XML-синх�
     await writePendingPartialXmlSync({ projectDir, state, delta: sampleDelta() })
     fs.rmSync(pendingPartialXmlSyncPaths(projectDir, "cf").pendingPath)
 
-    expect(() => assertNoPendingPartialXmlSync(projectDir, "cf")).toThrow(/ожидающий пакет/i)
+    await expect(assertNoPendingPartialXmlSync(projectDir, "cf")).rejects.toThrow(/ожидающий пакет/i)
   })
 
   it("принудительно очищает LMDB-дельту, manifest и ZIP", async () => {
@@ -83,7 +83,19 @@ describe("ожидающее состояние частичной XML-синх�
 
     expect(await readPendingPartialXmlSync(projectDir, "cf")).toBeUndefined()
     expect(fs.existsSync(join(projectDir, ...state.archiveProjectPath.split("/")))).toBe(false)
-    expect(() => assertNoPendingPartialXmlSync(projectDir, "cf")).not.toThrow()
+    await expect(assertNoPendingPartialXmlSync(projectDir, "cf")).resolves.toBeUndefined()
+  })
+
+  it("ожидает закрытие LMDB и возвращает ошибку закрытия", async () => {
+    const projectDir = tempProject()
+    const descriptor = configurationIndexStoreDescriptor(projectDir, { kind: "configuration" })
+    fs.mkdirSync(descriptor.dataPath, { recursive: true })
+    const closeFailure = new Error("close failed")
+
+    await expect(assertNoPendingPartialXmlSync(projectDir, "cf", () => ({
+      hasPending: () => false,
+      async close() { throw closeFailure },
+    }))).rejects.toBe(closeFailure)
   })
 
   function tempProject(): string {

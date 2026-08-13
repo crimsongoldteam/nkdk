@@ -25,10 +25,21 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
   confirm: confirmConfigurationExtensionFullXmlSync,
 }
 
+type ReadIndex = (
+  state: Parameters<typeof readConfirmedComponentIndex>[0],
+) => Awaited<ReturnType<typeof readConfirmedComponentIndex>>
+
+export function confirmConfigurationExtensionFullXmlSync(
+  params: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
+  readIndex: ReadIndex,
+): FullXmlSyncProfileRuntime
+export function confirmConfigurationExtensionFullXmlSync(
+  params: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
+): Promise<FullXmlSyncProfileRuntime>
 export function confirmConfigurationExtensionFullXmlSync(
   { target, base }: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
-  readIndex: typeof readConfirmedComponentIndex = readConfirmedComponentIndex,
-): FullXmlSyncProfileRuntime {
+  readIndex: ReadIndex | typeof readConfirmedComponentIndex = readConfirmedComponentIndex,
+): FullXmlSyncProfileRuntime | Promise<FullXmlSyncProfileRuntime> {
     if (target.structure.address.kind !== "configurationExtension") {
       throw new Error("Профиль configurationExtension получил другой вид компонента")
     }
@@ -37,6 +48,17 @@ export function confirmConfigurationExtensionFullXmlSync(
     }
 
     const baseReader = readIndex(base)
+    if (baseReader instanceof Promise) {
+      return baseReader.then((resolved) => confirmedRuntime(target, base, resolved))
+    }
+    return confirmedRuntime(target, base, baseReader)
+}
+
+function confirmedRuntime(
+  target: Parameters<FullXmlSyncComponentProfile["confirm"]>[0]["target"],
+  base: NonNullable<Parameters<FullXmlSyncComponentProfile["confirm"]>[0]["base"]>,
+  baseReader: Awaited<ReturnType<typeof readConfirmedComponentIndex>>,
+): FullXmlSyncProfileRuntime {
     assertEqualProjectFiles(
       base.hashes.projectFiles,
       base.snapshot.projectFiles,

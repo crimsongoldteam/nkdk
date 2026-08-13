@@ -11,10 +11,21 @@ export const configurationFullXmlSyncProfile: FullXmlSyncComponentProfile = {
   confirm: confirmConfigurationFullXmlSync,
 }
 
+type ReadIndex = (
+  state: Parameters<typeof readConfirmedComponentIndex>[0],
+) => Awaited<ReturnType<typeof readConfirmedComponentIndex>>
+
+export function confirmConfigurationFullXmlSync(
+  params: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
+  readIndex: ReadIndex,
+): FullXmlSyncProfileRuntime
+export function confirmConfigurationFullXmlSync(
+  params: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
+): Promise<FullXmlSyncProfileRuntime>
 export function confirmConfigurationFullXmlSync(
   { target, base }: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
-  readIndex: typeof readConfirmedComponentIndex = readConfirmedComponentIndex,
-): FullXmlSyncProfileRuntime {
+  readIndex: ReadIndex | typeof readConfirmedComponentIndex = readConfirmedComponentIndex,
+): FullXmlSyncProfileRuntime | Promise<FullXmlSyncProfileRuntime> {
     if (target.structure.address.kind !== "configuration") {
       throw new Error("Профиль configuration получил другой вид компонента")
     }
@@ -22,6 +33,16 @@ export function confirmConfigurationFullXmlSync(
       throw new Error("Для основной конфигурации не должна передаваться базовая конфигурация")
     }
     const reader = readIndex(target)
+    if (reader instanceof Promise) {
+      return reader.then((resolved) => confirmedRuntime(target, resolved))
+    }
+    return confirmedRuntime(target, reader)
+}
+
+function confirmedRuntime(
+  target: Parameters<FullXmlSyncComponentProfile["confirm"]>[0]["target"],
+  reader: Awaited<ReturnType<typeof readConfirmedComponentIndex>>,
+): FullXmlSyncProfileRuntime {
     const indexedItems = [...reader.entities()].flatMap((entity) =>
       entity.uuid === undefined && entity.xmlId === undefined ? [] : [[entity.logicalAddress, "indexed"] as const]
     )

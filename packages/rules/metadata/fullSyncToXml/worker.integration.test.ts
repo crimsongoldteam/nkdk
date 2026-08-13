@@ -121,9 +121,9 @@ describe("full XML sync worker", () => {
       configurationIndexSources: { targetProjectPaths: [baseAssignment.sourceProjectPath], baseProjectPaths: [] },
     }
     const targetDescriptor = await installTestIndex(projectDir, { kind: "configuration" }, targetSnapshot)
-    const profile = configurationFullXmlSyncProfile.confirm({
+    const profile = (await configurationFullXmlSyncProfile.confirm({
       target: configurationState(projectDir, assigned, targetDescriptor),
-    }).workerProfile
+    })).workerProfile
     await initialize(
       projectDir,
       [assigned],

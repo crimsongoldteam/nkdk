@@ -136,7 +136,7 @@ async function createDefaultConfigurationIndexCandidate(
 
 async function assertNoPendingDefault(projectDir: string, selectedComponentPath: string): Promise<void> {
   const { assertNoPendingPartialXmlSync } = await import("../partialSyncToXml/pendingStore")
-  assertNoPendingPartialXmlSync(projectDir, selectedComponentPath)
+  await assertNoPendingPartialXmlSync(projectDir, selectedComponentPath)
 }
 
 export function createImportCoordinatorDependencies(
