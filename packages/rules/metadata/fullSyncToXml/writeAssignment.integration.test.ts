@@ -29,6 +29,26 @@ describe("writeFullXmlSyncAssignment", () => {
     return dir
   }
 
+  async function writePreparedAssignmentForTest(
+    assignment: FullXmlSyncAssignment,
+    preparedYamlFile: Parameters<typeof prepareFullXmlSyncAssignment>[0]["preparedYamlFile"],
+    outputDir: string,
+  ) {
+    const context = mockContextToXML()
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile,
+      context,
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      composition: emptyComposition,
+    })
+    return writeFullXmlSyncAssignment({
+      prepared,
+      context,
+      outputTarget: { kind: "directory", outputDir },
+    })
+  }
+
   async function writeDataProcessorOwnerFromYaml(projectDir: string, yaml: string, removeSource = false) {
     const sourceProjectPath = "Обработка/ОбработкаВсеСвойства/Свойства.yaml"
     const sourcePath = join(projectDir, ...sourceProjectPath.split("/"))
@@ -106,6 +126,46 @@ describe("writeFullXmlSyncAssignment", () => {
     )
   })
 
+  it("writes numerator XML from a flat YAML file", async () => {
+    const projectDir = tempDir()
+    const sourceProjectPath = "Нумератор/НумераторЗаказов.yaml"
+    const sourcePath = join(projectDir, "Нумератор", "НумераторЗаказов.yaml")
+    fs.mkdirSync(join(projectDir, "Нумератор"), { recursive: true })
+    fs.writeFileSync(sourcePath, "")
+    const prepared = prepareYamlFiles({
+      files: [{
+        projectPath: sourceProjectPath,
+        filePath: sourcePath,
+        role: "properties",
+        owner: { dir: "Нумератор", name: "НумераторЗаказов" },
+        itemType: "MetadataDocumentNumerator",
+      }],
+      itemTypeByYamlDir: { Нумератор: "MetadataDocumentNumerator" },
+    })
+    const outputDir = join(projectDir, "xml")
+    const assignment: FullXmlSyncAssignment = {
+      id: sourceProjectPath,
+      sourceProjectPath,
+      sourcePath,
+      expectedContentHash: 0n,
+      role: "properties",
+      itemType: "MetadataDocumentNumerator",
+      itemName: "НумераторЗаказов",
+      logicalAddress: "Нумератор.НумераторЗаказов",
+      ...fullXmlSyncTestTopologyFields(sourceProjectPath),
+    }
+    const result = await writePreparedAssignmentForTest(assignment, prepared.yamlFiles[0]!, outputDir)
+
+    expect(result.diagnostics).toEqual([])
+    expect(result.writtenFiles).toEqual([
+      expect.objectContaining({ targetXmlPath: "DocumentNumerators/НумераторЗаказов.xml" }),
+    ])
+    expect(fs.readFileSync(
+      join(outputDir, "DocumentNumerators", "НумераторЗаказов.xml"),
+      "utf-8",
+    )).toContain("<Name>НумераторЗаказов</Name>")
+  })
+
   it("rejects an assignment whose topology node is absent", async () => {
     const projectDir = tempDir()
     expect(() => prepareFullXmlSyncAssignment({
@@ -171,19 +231,7 @@ describe("writeFullXmlSyncAssignment", () => {
       ...fullXmlSyncTestTopologyFields(sourceProjectPath),
     }
 
-    const context = mockContextToXML()
-    const preparedAssignment = prepareFullXmlSyncAssignment({
-      assignment,
-      preparedYamlFile: prepared.yamlFiles[0]!,
-      context,
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
-      composition: emptyComposition,
-    })
-    const result = await writeFullXmlSyncAssignment({
-      prepared: preparedAssignment,
-      context,
-      outputTarget: { kind: "directory", outputDir },
-    })
+    const result = await writePreparedAssignmentForTest(assignment, prepared.yamlFiles[0]!, outputDir)
 
     expect(result.diagnostics).toEqual([])
     expect(result.writtenFiles.map((file) => file.targetXmlPath)).toEqual([

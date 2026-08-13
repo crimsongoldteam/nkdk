@@ -433,8 +433,8 @@ describe("collectValidationFacts", () => {
 
   it("keeps valid metadata dependencies while schema diagnostics are disabled", async () => {
     const projectDir = createTempDir()
-    const filePath = join(projectDir, "ФункциональнаяОпция", "ИспользоватьАртикулы", "Свойства.yaml")
-    mkdirSync(join(projectDir, "ФункциональнаяОпция", "ИспользоватьАртикулы"), { recursive: true })
+    const filePath = join(projectDir, "ФункциональнаяОпция", "ИспользоватьАртикулы.yaml")
+    mkdirSync(join(projectDir, "ФункциональнаяОпция"), { recursive: true })
     writeFileSync(filePath, ["СоставФункциональнойОпции:", "  - Catalog.Номенклатура.Attribute.Артикул", ""].join("\n"))
 
     const contribution = await collectValidationFacts({
@@ -445,8 +445,8 @@ describe("collectValidationFacts", () => {
         {
           componentPath: "cf",
           componentDir: projectDir,
-          rootProjectPath: "cf/ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml",
-          projectPath: "ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml",
+          rootProjectPath: "cf/ФункциональнаяОпция/ИспользоватьАртикулы.yaml",
+          projectPath: "ФункциональнаяОпция/ИспользоватьАртикулы.yaml",
           filePath,
           role: "properties",
           owner: { dir: "ФункциональнаяОпция", name: "ИспользоватьАртикулы" },

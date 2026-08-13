@@ -219,7 +219,7 @@ function definedTypeCache(types: Readonly<Record<string, TypeDescriptionView | u
     get(ref) {
       if (ref.name === undefined || !Object.prototype.hasOwnProperty.call(types, ref.name)) {
         return { status: "not-found", diagnostics: [{
-          filePath: `/project/ОпределяемыйТип/${ref.name ?? ""}/Свойства.yaml`,
+          filePath: `/project/ОпределяемыйТип/${ref.name ?? ""}.yaml`,
           line: 1,
           col: 1,
           severity: "error",

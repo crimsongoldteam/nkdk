@@ -152,7 +152,7 @@ describe("configuration extension PropertyState validation", () => {
     const baseOption = configurationExtensionStructureDocument({
       itemType: "MetadataFunctionalOption",
       logicalAddress,
-      workingProjectPath: "ФункциональнаяОпция/Опция/Свойства.yaml",
+      workingProjectPath: "ФункциональнаяОпция/Опция.yaml",
       location: "Constant.Флаг",
     })
     const baseLocation = configurationExtensionStructureDocument({
