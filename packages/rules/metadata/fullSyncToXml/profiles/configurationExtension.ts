@@ -96,6 +96,19 @@ export function confirmConfigurationExtensionFullXmlSync(
             ),
           }]
     })
+    const xmlDefaultVariantByLogicalAddress = Object.fromEntries(
+      [...targetAddresses].map((logicalAddress) => {
+        const workerLogicalAddress = formatCanonicalMetadataTargetToYAML(logicalAddress) ?? logicalAddress
+        return [
+          workerLogicalAddress,
+          logicalAddress === "Конфигурация" || baseAddresses.has(logicalAddress) ? "adopted" : "full",
+        ] as const
+      }),
+    )
+    for (const { logicalAddress } of borrowedForms) {
+      xmlDefaultVariantByLogicalAddress[logicalAddress] = "adopted"
+    }
+    xmlDefaultVariantByLogicalAddress.Конфигурация = "adopted"
 
     return {
       kind: "configurationExtension",
@@ -106,15 +119,7 @@ export function confirmConfigurationExtensionFullXmlSync(
         kind: "configurationExtension",
         componentKind: "configurationExtension",
         adoptedUuids,
-        xmlDefaultVariantByLogicalAddress: {
-          ...Object.fromEntries(
-            Object.keys(adoptedUuids).map((logicalAddress) => [logicalAddress, "adopted"] as const)
-          ),
-          ...Object.fromEntries(
-            borrowedForms.map(({ logicalAddress }) => [logicalAddress, "adopted"] as const)
-          ),
-          Конфигурация: "adopted",
-        },
+        xmlDefaultVariantByLogicalAddress,
         baseForms: {
           componentDir: base.structure.componentDir,
           projectFiles: base.hashes.projectFiles,

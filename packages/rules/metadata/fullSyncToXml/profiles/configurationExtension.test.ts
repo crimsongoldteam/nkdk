@@ -108,6 +108,28 @@ describe("configuration extension full XML sync profile", () => {
     expect(Object.keys(runtime)).toEqual(["kind", "target", "base", "workerProfile"])
   })
 
+  it("assigns an explicit default variant to borrowed and own target objects", () => {
+    const borrowed = "Catalog.Заимствованный"
+    const own = "Catalog.Собственный"
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: [borrowed],
+      entities: [uuidEntity(borrowed, "11111111-1111-4111-8111-111111111111")],
+    })
+    const target = state({
+      componentPath: "cfe/Дополнение",
+      logicalAddresses: [borrowed, own],
+    })
+
+    const runtime = confirmExtension({ target, base })
+
+    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toEqual({
+      Конфигурация: "adopted",
+      "Справочник.Заимствованный": "adopted",
+      "Справочник.Собственный": "full",
+    })
+  })
+
   it.each([
     [
       "Catalog.Товары.Form.ФормаЭлемента",
