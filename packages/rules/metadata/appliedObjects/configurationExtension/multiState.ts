@@ -69,9 +69,7 @@ export function exportMultiStateType(
   }
 
   const value: ExtendedPropertyXML = { "_xsi:type": "xr:ExtendedProperty" }
-  for (const group of GROUPS) {
-    const parts = values.get(group)
-    if (parts === undefined) continue
+  for (const [group, parts] of values) {
     const hasEmpty = parts.some(isEmptyPart)
     if (hasEmpty && (parts.length !== 1 || group !== "xr:CheckValue")) {
       throw new Error("Пустая часть MultiState допустима только как единственный CheckValue")
