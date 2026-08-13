@@ -17,6 +17,7 @@
     "date-fns": "^4.4.0",
     "fast-xml-parser": "^5.10.1",
     "js-yaml": "^5.2.2",
+    "lmdb": "^3.5.6",
     "p-limit": "^7.3.1",
     "piscina": "^5.3.0",
     "saxes": "^6.0.0",
