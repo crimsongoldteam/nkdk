@@ -65,7 +65,7 @@ export function parseMetadataTargetFromYAML(input: ParseMetadataTargetFromYAMLIn
       )
     }
     case "dataTable":
-      return parseDataTable(parts, input.constraint, "yaml")
+      return parseDataTable(parts, input.constraint, "yaml", input.owner)
     case "dataTableField":
       return parseDataTableField(input.value, input.constraint, "yaml")
     case "type":
@@ -95,7 +95,7 @@ export function parseMetadataTargetFromModel(input: ParseMetadataTargetFromModel
       )
     }
     case "dataTable":
-      return parseDataTable(parts, input.constraint, "model")
+      return parseDataTable(parts, input.constraint, "model", input.owner)
     case "dataTableField":
       return parseDataTableField(input.canonical, input.constraint, "model")
     case "type":
@@ -107,7 +107,8 @@ export function parseMetadataTargetFromModel(input: ParseMetadataTargetFromModel
 function parseDataTable(
   parts: readonly string[],
   constraint: Extract<MetadataTargetConstraint, { kind: "dataTable" }>,
-  source: MetadataTargetSource
+  source: MetadataTargetSource,
+  owner: MetadataTargetOwner | undefined,
 ): MetadataTargetParseResult {
   const rootToken = parts[0]
   const root = source === "yaml" ? rootFromYAML[rootToken ?? ""] : isMetadataRootName(rootToken ?? "") ? rootToken as MetadataRootName : undefined
@@ -156,14 +157,15 @@ function parseDataTable(
     ...tableSegments.flatMap((segment) => [segment.kind, segment.name]),
     ...(virtualTable === undefined ? [] : [virtualTable]),
   ].join(".")
-  return success(canonical, {
+  const target: Extract<ParsedMetadataTarget, { kind: "dataTable" }> = {
     kind: "dataTable",
     root,
     objectName,
     ...(objectSegments.length === 0 ? {} : { objectSegments }),
     ...(tableSegments.length === 0 ? {} : { tableSegments }),
     ...(virtualTable === undefined ? {} : { virtualTable }),
-  })
+  }
+  return constraint.owner === "this" ? ensureCurrentOwner(target, owner) : success(canonical, target)
 }
 
 function parseDataTableField(
@@ -756,7 +758,9 @@ function ensureCurrentOwner(
   target: ParsedMetadataTarget,
   owner: MetadataTargetOwner | undefined
 ): MetadataTargetParseResult {
-  if (target.kind !== "member" && target.kind !== "object") return success(formatCanonicalTarget(target), target)
+  if (target.kind !== "member" && target.kind !== "object" && target.kind !== "dataTable") {
+    return success(formatCanonicalTarget(target), target)
+  }
   if (!owner) return missingOwnerContext()
   if (target.root !== owner.root || target.objectName !== owner.objectName) {
     return error("disallowed-root", `Цель "${formatCanonicalTarget(target)}" не принадлежит текущему объекту`)

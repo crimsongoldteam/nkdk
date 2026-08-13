@@ -49,7 +49,7 @@ export function exportStringMetadataTargetToYAML(params: {
 }): unknown {
   const value = params.value
   const constraint = params.rule.metadataTarget
-  if (!isSupportedStringMetadataTarget(constraint)) return value
+  if (!supportsGenericStringMetadataTarget(params.rule) || !isSupportedStringMetadataTarget(constraint)) return value
 
   if (Array.isArray(value)) {
     return value.map((item) => exportStringMetadataTargetToYAML({ ...params, value: item }))
@@ -70,7 +70,7 @@ export function importStringMetadataTargetFromYAML(params: {
 }): unknown {
   const value = params.value
   const constraint = params.rule.metadataTarget
-  if (!isSupportedStringMetadataTarget(constraint)) return value
+  if (!supportsGenericStringMetadataTarget(params.rule) || !isSupportedStringMetadataTarget(constraint)) return value
 
   if (Array.isArray(value)) {
     return value.map((item) => importStringMetadataTargetFromYAML({ ...params, value: item }))
@@ -84,6 +84,10 @@ export function importStringMetadataTargetFromYAML(params: {
   })
   if (!result.ok) throw new Error(result.message)
   return result.canonical
+}
+
+function supportsGenericStringMetadataTarget(rule: PropertyRule): boolean {
+  return rule.type === "string" || rule.type === "IndexField"
 }
 
 function metadataTargetOwnerFrames(context: ConfigurationContext | undefined): readonly MetadataTargetOwnerFrame[] {

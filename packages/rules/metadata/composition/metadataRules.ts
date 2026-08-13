@@ -73,6 +73,7 @@ import { explicitEmptyPredefinedExtDimensionTypesRules } from "../appliedObjects
 import { formAttributeValueTypeSettingsRules } from "../forms/commonObjects/formAttribute/valueListSettings"
 import { appliedObjectInputByStringRules } from "../appliedObjects/inputByStringRules"
 import { appliedObjectDataTableRules } from "../appliedObjects/dataTableRules"
+import { analyzeAdditionalIndexItem } from "../commonObjects/additionalIndex/validation"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -110,11 +111,18 @@ const operationRules = defineMetadataRules({
   ...emptyMetadataRules,
   operations: configurationExtensionOperationRules,
 })
+const additionalIndexValidationRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  dependentItems: {
+    AdditionalIndexItem: { yaml: analyzeAdditionalIndexItem },
+  },
+})
 
 export const legacyCoreRules = composeMetadataRules(
   staticFactoryRules,
   staticPropertyRules,
   appliedObjectInputByStringRules,
+  additionalIndexValidationRules,
   brokenDesignTimeRefRules,
   brokenMDObjectRefRules,
   brokenLocalFormReferenceRules,

@@ -805,11 +805,11 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const handler = params.handler ?? (params.execution === undefined
     ? getTypeRule(rule.type, "importFromYAML")
     : params.execution.getTypeRule(rule.type, "importFromYAML"))
+  const importedValue = handler === undefined || rule.type === "IndexField"
+    ? importStringMetadataTargetFromYAML({ rule, value, owner })
+    : value
   if (handler === undefined) {
-    const imported =
-      rule.type === "string"
-        ? importStringMetadataTargetFromYAML({ rule, value: value ?? referenceValue, owner })
-        : (value ?? referenceValue)
+    const imported = importedValue ?? referenceValue
     return imported === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : imported
   }
 
@@ -818,14 +818,14 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
       ? (handler as ImportFromYAMLFunctionNew)({
           context,
           rule,
-          value,
+          value: importedValue,
           source: referenceValue,
           yaml,
           name,
           owner,
           restoreExcludedEqualName: params.restoreExcludedEqualName,
         })
-      : (handler as importFromYAMLFunction)(context, rule, value, referenceValue)
+      : (handler as importFromYAMLFunction)(context, rule, importedValue, referenceValue)
   if (rule.type === "MetadataDcsMetadataValue" && imported === null) return null
   const resolved = shouldUseOnlyImportedValue({ rule, value })
     ? imported

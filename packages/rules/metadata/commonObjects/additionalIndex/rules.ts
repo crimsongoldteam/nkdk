@@ -6,6 +6,7 @@ import { uuidPropertyRule } from "../uuid/rule"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const AdditionalIndexItemRules = {
   itemType: "AdditionalIndexItem",
+  metadataTargetOwner: { kind: "inherit" },
   xmlOrder: [
     "name",
     "table",
@@ -21,6 +22,7 @@ export const AdditionalIndexItemRules = {
     additionalFields: indexFieldRule({
       xml: "AdditionalFields",
       yaml: "ДополнительныеПоля",
+      metadataTarget: { kind: "dataTableField", tableProperty: "table" },
     }),
     name: stringRule({
       xml: "Name",
@@ -30,10 +32,12 @@ export const AdditionalIndexItemRules = {
     indexedFields: indexFieldRule({
       xml: "IndexedFields",
       yaml: "ИндексируемыеПоля",
+      metadataTarget: { kind: "dataTableField", tableProperty: "table" },
     }),
     table: stringRule({
       xml: "Table",
       yaml: "Таблица",
+      metadataTarget: { kind: "dataTable", owner: "this" },
     }),
   },
 } as const satisfies MetadataItemRule

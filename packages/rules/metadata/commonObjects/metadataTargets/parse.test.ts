@@ -36,6 +36,20 @@ describe("metadataTargets parser", () => {
     expect(formatMetadataTargetToYAML({ canonical: "Date", constraint })).toBe("Дата")
   })
 
+  it("restricts owner data tables to the current object", () => {
+    const constraint = { kind: "dataTable", owner: "this" } as const
+    const owner = { root: "Catalog", objectName: "Товары" } as const
+
+    expect(parseMetadataTargetFromYAML({ value: "Справочник.Товары", constraint, owner })).toMatchObject({
+      ok: true,
+      canonical: "Catalog.Товары",
+    })
+    expect(parseMetadataTargetFromYAML({ value: "Справочник.Контрагенты", constraint, owner })).toMatchObject({
+      ok: false,
+      code: "disallowed-root",
+    })
+  })
+
   it("preserves service negative characteristic fields", () => {
     const constraint = { kind: "dataTableField", tableProperty: "table", validation: "translateOnly" } as const
     expect(formatMetadataTargetToYAML({ canonical: "-8", constraint })).toBe("-8")

@@ -93,6 +93,18 @@ describe("DynamicList XML → YAML → XML", () => {
     expect(testPropertyFromXMLToYAML({ rule, xml: parsed }).yaml).not.toHaveProperty("Значение.ПроизвольныйЗапрос")
   })
 
+  it("переводит основную таблицу в русскую форму", () => {
+    const yaml = testPropertyFromXMLToYAML({
+      rule,
+      xml: { Settings: { "_xsi:type": "DynamicList", MainTable: "Catalog.Справочник1" } },
+    }).yaml
+
+    expect(yaml).toHaveProperty("Значение.ОсновнаяТаблица", "Справочник.Справочник1")
+    expect(testPropertyFromYAMLToXML({ rule, yaml }).xml).toMatchObject({
+      Settings: { MainTable: "Catalog.Справочник1" },
+    })
+  })
+
   it("выгружает новый список с ключевыми полями в каноническом порядке", () => {
     const { xml } = testPropertyFromYAMLToXML({
       rule,
