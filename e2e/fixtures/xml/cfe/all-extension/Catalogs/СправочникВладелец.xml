@@ -63,10 +63,6 @@
 						<xr:Property>ExtendedConfigurationObject</xr:Property>
 						<xr:State>Notify</xr:State>
 					</xr:PropertyState>
-					<xr:PropertyState>
-						<xr:Property>Type</xr:Property>
-						<xr:State>Notify</xr:State>
-					</xr:PropertyState>
 				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>

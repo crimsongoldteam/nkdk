@@ -313,10 +313,6 @@
 							<v8:lang/>
 							<v8:content>Ведущие виды расчета</v8:content>
 						</v8:item>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Синоним ведущие виды расчета</v8:content>
-						</v8:item>
 					</xr:Synonym>
 					<xr:Comment/>
 					<xr:ToolTip/>
@@ -411,10 +407,6 @@
 							<v8:lang/>
 							<v8:content>Вытесняющие виды расчета</v8:content>
 						</v8:item>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Синоним вытесняющие виды расчета</v8:content>
-						</v8:item>
 					</xr:Synonym>
 					<xr:Comment/>
 					<xr:ToolTip/>
@@ -508,10 +500,6 @@
 						<v8:item>
 							<v8:lang/>
 							<v8:content>Базовые виды расчета</v8:content>
-						</v8:item>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Синоним базовые виды расчета</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:Comment/>
