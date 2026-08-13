@@ -6,7 +6,7 @@ import { importConfigurationFromXml } from "./importConfiguration"
 import { mockContextFromXML } from "../../tests/mockContext"
 import {
   createImportProjectStateTestService,
-  createXmlImportWorkerTestPool,
+  createInspectableXmlImportWorkerTestPool,
 } from "../../tests/xmlImportWorkerTestPool"
 import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
 import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
@@ -18,7 +18,8 @@ import {
 
 const inputDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-russian-metadata-references-"))
-const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
+const importWorkerPool = createInspectableXmlImportWorkerTestPool(4)
+const xmlImportWorkerPoolHandle = importWorkerPool.handle
 const preparedYamlWorkerFactory = createPreparedYamlWorkerThreadPoolFactory()
 const projectState = createImportProjectStateTestService({
   createPool: (concurrency) => createPreparedYamlProjectWorkerPool({
@@ -34,7 +35,7 @@ beforeAll(async () => {
     context: mockContextFromXML(),
     inputDir,
     projectDir,
-    concurrency: 1,
+    concurrency: 4,
     operationId: "russian-metadata-references",
     xmlImportWorkerPoolHandle,
     projectState,
@@ -63,8 +64,33 @@ describe("Russian metadata references XML import", () => {
     expect(readYaml("Справочник/СправочникВладелец/Свойства.yaml"))
       .toContain("ФормаВыбора: ФормаВыбора")
   })
+
+  it("разрешает предопределённое значение по общему индексу другого работника", () => {
+    const exchangePlanPath = "ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml"
+    const catalogPath = "Справочник/СправочникРеквизит/Свойства.yaml"
+    const exchangePlan = readYaml(exchangePlanPath)
+
+    expect(workerFor(exchangePlanPath)).not.toBe(workerFor(catalogPath))
+    expect(exchangePlan).toContain(
+      "ЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+    )
+    expect(exchangePlan).not.toContain(
+      "ЗначениеЗаполнения: !xml Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+    )
+  })
 })
 
 function readYaml(relativePath: string): string {
   return fs.readFileSync(join(projectDir, "cf", relativePath), "utf8")
+}
+
+function workerFor(targetProjectPath: string): number {
+  for (let workerIndex = 0; workerIndex < 4; workerIndex += 1) {
+    const assigned = importWorkerPool.commands(workerIndex).some((command) =>
+      command.kind === "firstPassBatch"
+      && command.assignments.some((assignment) => assignment.targetProjectPath === targetProjectPath)
+    )
+    if (assigned) return workerIndex
+  }
+  throw new Error(`Не найден работник для ${targetProjectPath}`)
 }

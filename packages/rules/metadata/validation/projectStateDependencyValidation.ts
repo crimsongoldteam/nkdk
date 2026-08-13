@@ -24,7 +24,6 @@ import type { FormDataPathIndex } from "./dataPath/formIndex"
 import {
   getDataPathOwnerKind,
   getDataPathOwnerKindByItemType,
-  getOwnerKindByMetadataLinkPrefix,
 } from "./dataPath/registry"
 import { validatePendingChecks } from "./projectValidationPendingChecks"
 import { createProjectDegradationDiagnostics } from "./projectFirstPassReadiness"
@@ -48,6 +47,7 @@ import type { DataTableDeclarationContributor } from "./dataTables"
 import { validateProjectStateDataTableReferenceBatch } from "./dataTables/projectState"
 import type { DataTableRegistrySet } from "./dataTables/registry"
 import { currentValidationRegistrySet } from "./validationExecutionContext"
+import { resolveProjectValueTargets } from "./projectReferenceValueResolver"
 
 export function createProjectStateDependencyValidator(params: {
   readonly structuredDocumentValidators?: readonly ProjectStateStructuredDocumentValidator[]
@@ -287,17 +287,16 @@ export function validateProjectStateReferenceBatch(params: {
     && resultByRequestId.get(requestId)?.status === "missing"
     && reference.target.kind === "value"
   )
-  const valueOwnerResults = params.queryPort.readOwners(
-    valueOwnerChecks.map(({ requestId, componentPath, reference }) => {
+  const valueResults = resolveProjectValueTargets({
+    requests: valueOwnerChecks.map(({ requestId, componentPath, reference }) => {
       if (reference.target.kind !== "value") throw new Error("Ожидалась ссылка на значение")
-      return {
-        requestId,
-        componentPath,
-        owner: valueTargetOwner(reference.target),
-      }
+      return { requestId, componentPath, target: reference.target }
     }),
-  )
-  const valueOwnerResultByRequestId = new Map(valueOwnerResults.map((result) => [result.requestId, result]))
+    projectDir: params.projectDir,
+    queryPort: params.queryPort,
+    getContributor: getProjectReferenceValueContributor,
+  })
+  const valueResultByRequestId = new Map(valueResults.map((result) => [result.requestId, result]))
   const diagnostics: Diagnostic[] = [...dataTableDiagnostics]
   forEachDependencyResult(ordinaryChecks, results, (check, result) => {
     if (check.reference.tagged === "xml") {
@@ -327,28 +326,13 @@ export function validateProjectStateReferenceBatch(params: {
         return
       }
       if (result.status === "missing" && check.reference.target.kind === "value") {
-        const ownerResult = valueOwnerResultByRequestId.get(check.requestId)
-        if (ownerResult?.status === "found") {
-          if (check.reference.target.valueKind === "emptyRef") return
-          const ownerRef = valueTargetOwner(check.reference.target)
-          const owner = ownerMetadataFromFacts({
-            projectDir: join(params.projectDir, check.componentPath),
-            ref: ownerRef,
-            facts: ownerResult.facts,
-            fieldIndex: projectStateFieldIndex(ownerRef, []),
-          })
-          if (owner.status === "ok") {
-            const contributed = getProjectReferenceValueContributor(check.reference.target.root)?.({
-              owner: owner.owner,
-              target: check.reference.target,
-            })
-            if (contributed?.ok === true) return
-            if (contributed?.ok === false) {
-              diagnostics.push(...contributed.diagnostics)
-              return
-            }
-          }
-        } else if (ownerResult?.status === "ambiguous") {
+        const valueResult = valueResultByRequestId.get(check.requestId)
+        if (valueResult?.status === "found") return
+        if (valueResult?.status === "invalid") {
+          diagnostics.push(...valueResult.diagnostics)
+          return
+        }
+        if (valueResult?.status === "ambiguous") {
           diagnostics.push(...unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics)
           return
         }
@@ -379,13 +363,6 @@ function requireDataTableQueryPort(
     resolveTargets: queryPort.resolveTargets.bind(queryPort),
     readDependencyOwnerInputs: queryPort.readDependencyOwnerInputs.bind(queryPort),
     readOwnerRefPage: queryPort.readOwnerRefPage.bind(queryPort),
-  }
-}
-
-function valueTargetOwner(target: Extract<PendingMetadataTargetReference["target"], { kind: "value" }>): OwnerTypeRef {
-  return {
-    kind: getOwnerKindByMetadataLinkPrefix(target.root) ?? target.root,
-    name: target.objectName,
   }
 }
 

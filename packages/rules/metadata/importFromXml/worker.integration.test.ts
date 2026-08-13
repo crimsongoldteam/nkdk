@@ -24,6 +24,7 @@ import {
   createImportFirstPassTransferable,
   createImportWorkerCommandRunner,
 } from "./worker"
+import { importDiagnostic, openImportBinaryResult } from "./binaryResult"
 import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
 
@@ -140,6 +141,23 @@ describe("XML import worker first pass", () => {
     second.resetForTests()
   })
 
+  it("удерживает каждый основной YAML до общего индекса", async () => {
+    const outputDir = createTempDir("all-yaml-deferred")
+    const assignment = catalogAssignment()
+    await initializeWorker(outputDir)
+
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [assignment],
+    }))
+
+    expect(first.diagnostics).toEqual([])
+    expect(first.files.map(({ targetProjectPath }) => targetProjectPath))
+      .not.toContain(assignment.targetProjectPath)
+    expect(workerStateForTests().preparedYamlIds).toEqual([assignment.id])
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
+  })
+
   it("writes deferred YAML and returns the complete local validation contribution", () => {
     const scenario = readyYamlValidationScenario
     if (scenario === undefined) throw new Error("Сценарий validation импортированного YAML не подготовлен")
@@ -224,10 +242,8 @@ describe("XML import worker first pass", () => {
       sourcePath: expect.stringContaining("broken.xml"),
       targetProjectPath: broken.targetProjectPath,
     })
-    expect(workerStateForTests().preparedYamlIds).toEqual([])
-    expect(result.files).toContainEqual(
-      expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath })
-    )
+    expect(workerStateForTests().preparedYamlIds).toEqual([valid.id])
+    expect(result.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(valid.targetProjectPath)
     expect(result.configurationFragments).toHaveLength(1)
   })
 
@@ -294,17 +310,17 @@ describe("XML import worker first pass", () => {
     expect(lines.some((line) => line.includes('substep="Преобразование XML в YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Сбор локальных индексов"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Извлечение данных для индекса конфигурации"'))).toBe(true)
-    expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(true)
-    expect(lines.some((line) => line.includes('substep="Запись основного YAML-файла"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(false)
+    expect(lines.some((line) => line.includes('substep="Запись основного YAML-файла"'))).toBe(false)
     expect(lines).toContainEqual(
-      expect.stringMatching(/substep="Досрочно записанные YAML".*items=1.*bytes=[1-9][0-9]*/)
+      expect.stringMatching(/substep="YAML, ожидающие второго прохода".*items=1/)
     )
+    expect(lines.some((line) => line.includes('substep="Досрочно записанные YAML"'))).toBe(false)
     const readLines = lines.filter((line) => line.includes('substep="Чтение XML"'))
     expect(readLines).toHaveLength(1)
     expect(readLines[0]).toContain("items=1")
     const serializationLines = lines.filter((line) => line.includes('substep="Сериализация YAML"'))
-    expect(serializationLines).toHaveLength(1)
-    expect(serializationLines.every((line) => line.includes("items=1"))).toBe(true)
+    expect(serializationLines).toHaveLength(0)
     expect(lines.some((line) => line.includes('substep="Построение модели"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Экспорт модели в YAML-объект"'))).toBe(false)
   })
@@ -422,6 +438,7 @@ describe("XML import worker second pass", () => {
       kind: "secondPassBatch",
       assignmentIds: ["foreign"],
     })).rejects.toThrow("не принадлежит этой линии")
+    await runImportWorkerCommand({ kind: "secondPass", assignmentId: "owned" })
     const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
 
     expect(finished).toBeUndefined()
@@ -471,6 +488,28 @@ describe("XML import worker second pass", () => {
     expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.Товары.НомерСтроки")
     expect(existsSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(false)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
+  })
+
+  it("даёт одинаковый YAML при прямом и обратном порядке второго прохода", async () => {
+    const forward = await runCatalogAndFormSecondPass(
+      createTempDir("second-pass-owner-first"),
+      "Объект.Товары.LineNumber",
+      undefined,
+      undefined,
+      "LabelField",
+      "owner-first",
+    )
+    const reverse = await runCatalogAndFormSecondPass(
+      createTempDir("second-pass-consumer-first"),
+      "Объект.Товары.LineNumber",
+      undefined,
+      undefined,
+      "LabelField",
+      "consumer-first",
+    )
+
+    expect(readImportedFormYaml(reverse)).toBe(readImportedFormYaml(forward))
+    expect(readImportedFormYaml(reverse)).toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
   })
 
   it("публикует структуру импортированной формы в окончательном ProjectState", async () => {
@@ -547,7 +586,7 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it("continues first pass after an early YAML write error", async () => {
+  it("продолжает второй проход после ошибки записи YAML", async () => {
     const tempDir = createTempDir("worker")
     const blocked = catalogAssignment({ id: "blocked" })
     const valid = catalogAssignment({
@@ -564,19 +603,63 @@ describe("XML import worker second pass", () => {
       await runImportWorkerCommand({ kind: "firstPass", assignments: [blocked, valid] })
     )
 
-    expect(first).toMatchObject({
-      kind: "firstPassResult",
-      diagnostics: [
-        {
-          severity: "error",
-          code: "xml_import_yaml_failed",
-          targetProjectPath: blocked.targetProjectPath,
-        },
-      ],
+    expect(first.diagnostics).toEqual([])
+    expect(workerStateForTests().preparedYamlIds).toEqual([blocked.id, valid.id])
+
+    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    const second = await runImportWorkerCommand({
+      kind: "secondPassBatch",
+      assignmentIds: [blocked.id, valid.id],
     })
-    expect(first.files).toContainEqual(
-      expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath })
+    await runImportWorkerCommand({ kind: "endSecondPass" })
+
+    const view = openImportBinaryResult(second)
+
+    expect(view.diagnostics.count).toBe(1)
+    expect(importDiagnostic(view.diagnostics, 0)).toMatchObject({
+      severity: "error",
+      code: "xml_import_yaml_failed",
+      targetProjectPath: blocked.targetProjectPath,
+    })
+    expect(Array.from({ length: view.files.count }, (_, index) => view.files.file(index))).toContainEqual(
+      expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath }),
     )
+    expect(workerStateForTests().preparedYamlIds).toEqual([])
+  })
+
+  it("не записывает YAML, если локальная валидация завершилась ошибкой", async () => {
+    const outputDir = createTempDir("validation-before-write")
+    const assignment = catalogAssignment()
+    const validationError = "Ошибка тестовой локальной валидации"
+    const failingSchemaCache = {
+      form: () => validSchema,
+      properties: () => ({
+        Check: () => false,
+        Errors: () => {
+          throw new Error(validationError)
+        },
+      }),
+      compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
+    } satisfies ValidationSchemaCache
+    await initializeWorker(outputDir, failingSchemaCache)
+
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [assignment],
+    }))
+    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignment.id })
+    await runImportWorkerCommand({ kind: "endSecondPass" })
+
+    expect(second).toMatchObject({
+      kind: "secondPassResult",
+      diagnostics: [expect.objectContaining({
+        code: "xml_import_yaml_failed",
+        message: expect.stringContaining(validationError),
+        targetProjectPath: assignment.targetProjectPath,
+      })],
+    })
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 })
@@ -734,6 +817,7 @@ async function runCatalogAndFormSecondPass(
     readonly first: ImportFirstPassResult
   }) => void,
   elementTag = "LabelField",
+  secondPassOrder: "owner-first" | "consumer-first" = "owner-first",
 ) {
   const assignments = createCatalogAndFormAssignments(dataPath, objectTypeName, false, false, elementTag)
   await initializeWorker(outputDir)
@@ -744,7 +828,10 @@ async function runCatalogAndFormSecondPass(
   onFirstPass?.({ assignments, first })
   await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
   const secondResults = []
-  for (const assignmentId of [assignments.catalog.id, assignments.form.id]) {
+  const assignmentIds = secondPassOrder === "owner-first"
+    ? [assignments.catalog.id, assignments.form.id]
+    : [assignments.form.id, assignments.catalog.id]
+  for (const assignmentId of assignmentIds) {
     const result = await runImportWorkerCommand({ kind: "secondPass", assignmentId })
     if (result?.kind === "secondPassResult") secondResults.push(result)
   }
@@ -757,6 +844,14 @@ async function runCatalogAndFormSecondPass(
     stateFragments: secondResults.flatMap(({ stateFragment }) => stateFragment === undefined ? [] : [stateFragment]),
   }
   return { assignments, first, second }
+}
+
+function readImportedFormYaml(result: Awaited<ReturnType<typeof runCatalogAndFormSecondPass>>): string {
+  const formFile = result.second.files.find(
+    ({ targetProjectPath }) => targetProjectPath === result.assignments.form.targetProjectPath,
+  )
+  if (formFile === undefined) throw new Error("Ожидался импортированный YAML формы")
+  return readFileSync(formFile.sourcePath, "utf-8")
 }
 
 function createCatalogAndFormAssignments(

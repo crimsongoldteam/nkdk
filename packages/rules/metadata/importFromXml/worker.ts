@@ -9,7 +9,6 @@ import { withExportMetadataTargetOwners } from "../ruleRuntime/appliedObject/met
 import { finalizeImportedYamlValues } from "../ruleRuntime/property/finalizeImportedYAML"
 import {
   finalizeMetadataItemImportedYaml,
-  requiresMetadataItemImportedYamlFinalization,
   supportsMetadataItemImportedYamlFinalization,
 } from "../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
@@ -69,6 +68,8 @@ import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplic
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
+import { getProjectReferenceValueContributor } from "../validation/projectReferenceIndexRegistry"
+import { resolveImportedMetadataTargetStatus } from "./metadataTargetLookup"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -471,14 +472,13 @@ async function writePreparedYamlToOutput(
         const reason = result.diagnostics.map(({ message }) => message).join("; ")
         return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
       },
-      metadataTargetLookup: (canonical) => {
-        const [result] = readSession.resolveTargets([{
-          requestId: canonical,
-          componentPath: state.componentPath,
-          canonicalTarget: canonical,
-        }])
-        return result?.status ?? "missing"
-      },
+      metadataTargetLookup: (canonical) => resolveImportedMetadataTargetStatus({
+        canonical,
+        componentPath: state.componentPath,
+        projectDir: state.projectDir,
+        queryPort: readSession,
+        getContributor: getProjectReferenceValueContributor,
+      }),
       preserveRawXML: false,
     })
   )
@@ -497,8 +497,8 @@ async function writePreparedYamlToOutput(
     })
   )
   const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
-  const main = await writeMainImportYaml({ serialized, profiler })
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
+  const main = await writeMainImportYaml({ serialized, profiler })
   const baseForm = preparedBaseFormCandidate === undefined
     ? undefined
     : await writePreparedBaseFormCandidate({
@@ -586,7 +586,6 @@ async function writePreparedBaseFormCandidate(params: {
     params.state,
     params.profiler,
   )
-  const written = await writeMainImportYaml({ serialized, profiler: params.profiler })
   const validated = measureSerializedImportYamlValidation(
     { targetProjectPath: params.candidate.targetProjectPath },
     serialized,
@@ -594,6 +593,7 @@ async function writePreparedBaseFormCandidate(params: {
     params.profiler,
     "isolated",
   )
+  const written = await writeMainImportYaml({ serialized, profiler: params.profiler })
   return {
     file: written.file,
     indexContribution: validated.index,
@@ -726,8 +726,6 @@ async function processFirstPass(
   accumulator: FirstPassAccumulator,
 ): Promise<void> {
   const profiler = accumulator.profiler
-  let earlyYamlCount = 0
-  let earlyYamlBytes = 0
   let retainedYamlCount = 0
   let deferredValueCount = 0
   for (const assignment of assignments) {
@@ -785,54 +783,30 @@ async function processFirstPass(
           accumulator.stateEntries += generatedStateEntries.length
         }
         assignmentFiles.push(...externalFiles)
-        const requiresFormDataPathCompatibility = collectImportedFormDataPaths(
-          prepared.yaml,
-          prepared.rule,
-        ).some((occurrence) => occurrence.rule.allowedKinds !== undefined && occurrence.rule.yaml === "ПутьКДанным")
-        if (
-          prepared.deferred.length === 0
-          && prepared.dependentDeferred.length === 0
-          && prepared.baseFormCandidate === undefined
-          && !requiresMetadataItemImportedYamlFinalization({ yaml: prepared.yaml, rule: prepared.rule })
-          && !(state.componentPath.startsWith("cfe/") &&
-            supportsMetadataItemImportedYamlFinalization(prepared.rule))
-          && !requiresFormDataPathCompatibility
-        ) {
-          const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
-          const main = await writeMainImportYaml({ serialized, profiler })
-          const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
-          assignmentFiles.push(main.file)
-          accumulator.fragmentWriter.appendImportIndex(validated.index)
-          accumulator.fragmentWriter.appendImportFinal(validated.final)
-          accumulator.stateEntries += 2
-          earlyYamlCount += 1
-          earlyYamlBytes += main.bytes
-        } else {
-          const indexContribution = importIndexContribution(prepared, validationContribution, state)
-          accumulator.fragmentWriter.appendImportIndex(indexContribution)
-          accumulator.stateEntries += 1
-          preparedYaml.set(assignment.id, {
-            diagnosticAssignment: {
-              targetProjectPath: assignment.targetProjectPath,
-              xmlFiles: assignment.xmlFiles,
-            },
-            targetProjectPath: prepared.targetProjectPath,
-            logicalAddress: assignment.logicalAddress,
-            yaml: prepared.yaml,
-            rule: prepared.rule,
-            ownerContext: prepared.ownerContext,
-            formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
-            deferred: prepared.deferred,
-            dependentDeferred: prepared.dependentDeferred,
-            dependentOwner: prepared.dependentOwner,
-            indexContribution,
-            ...(prepared.baseFormCandidate === undefined
-              ? {}
-              : { baseFormCandidate: prepared.baseFormCandidate }),
-          })
-          retainedYamlCount += 1
-          deferredValueCount += prepared.deferred.length + prepared.dependentDeferred.length
-        }
+        const indexContribution = importIndexContribution(prepared, validationContribution, state)
+        accumulator.fragmentWriter.appendImportIndex(indexContribution)
+        accumulator.stateEntries += 1
+        preparedYaml.set(assignment.id, {
+          diagnosticAssignment: {
+            targetProjectPath: assignment.targetProjectPath,
+            xmlFiles: assignment.xmlFiles,
+          },
+          targetProjectPath: prepared.targetProjectPath,
+          logicalAddress: assignment.logicalAddress,
+          yaml: prepared.yaml,
+          rule: prepared.rule,
+          ownerContext: prepared.ownerContext,
+          formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
+          deferred: prepared.deferred,
+          dependentDeferred: prepared.dependentDeferred,
+          dependentOwner: prepared.dependentOwner,
+          indexContribution,
+          ...(prepared.baseFormCandidate === undefined
+            ? {}
+            : { baseFormCandidate: prepared.baseFormCandidate }),
+        })
+        retainedYamlCount += 1
+        deferredValueCount += prepared.deferred.length + prepared.dependentDeferred.length
         accumulator.files.push(...assignmentFiles)
       } catch (caught) {
         preparedYaml.delete(assignment.id)
@@ -848,12 +822,7 @@ async function processFirstPass(
     }
   }
 
-  profiler.record("Подготовка импорта конфигурации", "Досрочно записанные YAML", {
-    items: earlyYamlCount,
-    bytes: earlyYamlBytes,
-    timeMs: 0,
-  })
-  profiler.record("Подготовка импорта конфигурации", "YAML, оставленные до второго прохода", {
+  profiler.record("Подготовка импорта конфигурации", "YAML, ожидающие второго прохода", {
     items: retainedYamlCount,
     timeMs: 0,
   })
