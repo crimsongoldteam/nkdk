@@ -192,6 +192,70 @@ describe("full XML sync worker", () => {
     expect(fs.existsSync(join(projectDir, ".out"))).toBe(false)
   })
 
+  it("восстанавливает те же XML-байты из блока, опубликованного частичной синхронизацией", async () => {
+    const projectDir = createProject(["Товары"])
+    const assigned = assignment(projectDir, "Товары")
+    const declarationId = assigned.potentialOutputs[0]!.declarationId
+    const outputTarget: FullXmlSyncOutputTarget = {
+      kind: "memory",
+      documentIdsByAssignment: { [assigned.id]: [declarationId] },
+    }
+    const descriptor = await installTestIndex(
+      projectDir,
+      { kind: "configuration" },
+      targetIndexForAssignment(assigned),
+    )
+    const initializeFromPublishedIndex = async (operationSeed: Uint8Array) => {
+      await runFullXmlSyncWorkerCommand({
+        kind: "initialize",
+        workerIndex: 0,
+        componentPath: "cf",
+        componentDir: projectDir,
+        outputTarget,
+        context,
+        profile: { kind: "configuration", componentKind: "configuration", adoptedUuids: {} },
+        composition: createFullXmlSyncCompositionSnapshot([assigned]),
+        targetIndex: descriptor,
+        operationSeed,
+        projectStateReadToken: readToken,
+      }, { openReadSession: () => emptyReadSession() })
+    }
+
+    await initializeFromPublishedIndex(new Uint8Array(32))
+    const partial = openFullXmlSyncBinaryResult(await runFullXmlSyncWorkerCommand({
+      kind: "executeBatch",
+      assignments: [assigned],
+    }))
+    const partialBytes = partial.generatedDocuments.document(0).content
+    const [fragment] = decodeConfigurationBlockFragments(partial.fragmentBuffer)
+    if (fragment === undefined) throw new Error("частичная синхронизация не вернула блок снимка")
+    await runFullXmlSyncWorkerCommand({ kind: "dispose" })
+
+    const active = openConfigurationIndexStore(descriptor, "readWrite")
+    try {
+      await active.writePending({
+        hashes: new Map(),
+        blocks: new Map([[fragment.targetProjectPath, {
+          kind: "put",
+          block: { entities: fragment.entities },
+        }]]),
+      })
+      await active.applyPending()
+      await active.clearPending()
+    } finally {
+      await active.close()
+    }
+
+    await initializeFromPublishedIndex(new Uint8Array(32).fill(1))
+    const full = openFullXmlSyncBinaryResult(await runFullXmlSyncWorkerCommand({
+      kind: "executeBatch",
+      assignments: [assigned],
+    }))
+    await runFullXmlSyncWorkerCommand({ kind: "dispose" })
+
+    expect(full.generatedDocuments.document(0).content).toEqual(partialBytes)
+  })
+
   it("сообщает об отсутствующем запрошенном XML-документе", async () => {
     const projectDir = createProject(["Товары"])
     const assigned = assignment(projectDir, "Товары")
