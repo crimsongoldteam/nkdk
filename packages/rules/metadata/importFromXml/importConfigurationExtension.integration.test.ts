@@ -4,11 +4,13 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import {
-  configurationIndexStoreDescriptor,
-  openConfigurationIndexStore,
   parseWithJsYaml,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
+import {
+  configurationIndexStoreDescriptor,
+  openConfigurationIndexStore,
+} from "@nkdk/runtime/configuration-index-store"
 import { importConfigurationFromXml } from "./importConfiguration"
 import { mockContextFromXML } from "../../tests/mockContext"
 import {

@@ -5,11 +5,13 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./configuration-index-store": "./configuration-index-store.ts",
     "./rule-kit": "./rule-kit.ts",
     "./worker": "./worker.ts"
   },
   "scripts": {
-    "test": "node ../../scripts/run-test-duration-check.mjs -- --passWithNoTests",
+    "test": "node ../../scripts/run-test-duration-check.mjs -- --passWithNoTests --exclude metadata/configurationIndex/store.test.ts && pnpm run test:integration",
+    "test:integration": "vitest run metadata/configurationIndex/store.test.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

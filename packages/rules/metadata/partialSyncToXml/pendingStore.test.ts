@@ -3,11 +3,13 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import {
-  configurationIndexStoreDescriptor,
   hashFileBytes,
+} from "@nkdk/runtime"
+import {
+  configurationIndexStoreDescriptor,
   openConfigurationIndexStore,
   type ConfigurationIndexPendingDelta,
-} from "@nkdk/runtime"
+} from "@nkdk/runtime/configuration-index-store"
 import {
   assertNoPendingPartialXmlSync,
   forceClearPendingPartialXmlSync,

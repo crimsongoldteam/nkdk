@@ -8,6 +8,7 @@ import {
   type ConfigurationIndexBlock,
   type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
+import type { ConfigurationIndexCandidateStore } from "../configurationIndex/store"
 import type { ComponentAddress } from "@nkdk/runtime"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
@@ -715,6 +716,8 @@ function fakeDependencies(params: {
   }
 
   return {
+    assertNoPending() {},
+    async createIndexCandidate() { return memoryCandidateStore() },
     createWorkerPool() {
       return {
         async writeStateFragment() {},
@@ -798,6 +801,45 @@ function fakeDependencies(params: {
       })
       await candidate.discard()
     },
+  }
+}
+
+function memoryCandidateStore(): ConfigurationIndexCandidateStore {
+  let hashes: readonly { projectPath: string; contentHash: bigint }[] = []
+  const blocks = new Map<string, ConfigurationIndexBlock>()
+  return {
+    descriptor: () => configurationIndexStoreDescriptor("/project", { kind: "configuration" }),
+    readHashes: () => [...hashes].sort((left, right) =>
+      Buffer.compare(Buffer.from(left.projectPath), Buffer.from(right.projectPath))
+    ),
+    getBlocks(projectPaths) {
+      return new Map(projectPaths.flatMap((projectPath) => {
+        const block = blocks.get(projectPath)
+        return block === undefined ? [] : [[projectPath, block] as const]
+      }))
+    },
+    hasBlock: (projectPath) => blocks.has(projectPath),
+    hasPending: () => false,
+    mergeBlockFragment(fragment) {
+      if (fragment.entities.length === 0) {
+        blocks.delete(fragment.targetProjectPath)
+        return
+      }
+      const entities = [...blocks.get(fragment.targetProjectPath)?.entities ?? [], ...fragment.entities]
+      blocks.set(fragment.targetProjectPath, { entities })
+    },
+    replaceHashes(value) { hashes = [...value] },
+    copyActiveBlocksFrom() {},
+    validateCandidate() {},
+    async replaceActiveFrom() {},
+    async publishImportedCandidate() {},
+    async writePending() {},
+    pendingAlreadyApplied: () => false,
+    async applyPending() {},
+    async clearPending() {},
+    async flush() {},
+    async close() {},
+    async discard() {},
   }
 }
 

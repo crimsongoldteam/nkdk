@@ -49,7 +49,7 @@ describe("guide definitions", () => {
   it("describes sync through configuration index without reference catalog", () => {
     const syncGuide = guideDefinitions.find((guide) => guide.uri === "nkdk://guides/config-sync-to-xml")
 
-    expect(syncGuide?.text).toContain("файла индекса конфигурации")
+    expect(syncGuide?.text).toContain("LMDB-индекса")
     expect(syncGuide?.text).toContain("projectDir/componentPath")
     expect(syncGuide?.text).toContain("xmlRootDir/componentPath")
     expect(syncGuide?.text).not.toContain("reference")

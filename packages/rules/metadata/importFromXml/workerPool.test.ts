@@ -4,7 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
-import { decodeConfigurationIndexFragments } from "@nkdk/runtime"
+import { decodeConfigurationBlockFragments } from "@nkdk/runtime"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { MetadataWorkerOperation } from "../workerPool/types"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
@@ -729,7 +729,7 @@ function fragmentProjectPath(batch: XmlImportStateBatch): string {
 function configurationProjectPaths(batch: XmlImportStateBatch): string[] {
   if (batch.configurationFragment !== undefined) return [batch.configurationFragment.targetProjectPath]
   if (batch.configurationFragmentBuffer === undefined) return []
-  return decodeConfigurationIndexFragments(batch.configurationFragmentBuffer)
+  return decodeConfigurationBlockFragments(batch.configurationFragmentBuffer)
     .map(({ targetProjectPath }) => targetProjectPath)
 }
 

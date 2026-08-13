@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import {
   createConfigurationIndexFragmentBuilder,
-  decodeConfigurationIndexFragments,
-  encodeConfigurationIndexFragments,
+  decodeConfigurationBlockFragments,
+  encodeConfigurationBlockFragments,
   mergeConfigurationIndexFragments,
 } from "./fragment"
 import type { ConfigurationIndexBlockFragment } from "./types"
@@ -20,7 +20,7 @@ describe("configuration index worker fragments", () => {
         children: [{ xmlName: "Form", name: "Форма" }],
       }],
     }
-    expect(decodeConfigurationIndexFragments(encodeConfigurationIndexFragments([value]))).toEqual([value])
+    expect(decodeConfigurationBlockFragments(encodeConfigurationBlockFragments([value]))).toEqual([value])
   })
 
   it("groups the same address independently by target project path", () => {
@@ -72,9 +72,9 @@ describe("configuration index worker fragments", () => {
       fragments: Array<{ entities: Array<Record<string, unknown>> }>
     }
     envelope.fragments[0]!.entities[0] = { logicalAddress: "Объект", xmlName: "Старое" }
-    expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("неизвестное поле")
+    expect(() => decodeConfigurationBlockFragments(encodeEnvelope(envelope))).toThrow("неизвестное поле")
     envelope.fragments[0]!.entities[0] = { logicalAddress: "Объект" }
-    expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("не содержит данных")
+    expect(() => decodeConfigurationBlockFragments(encodeEnvelope(envelope))).toThrow("не содержит данных")
   })
 })
 
@@ -82,7 +82,7 @@ function encoded(
   targetProjectPath: string,
   entity: ConfigurationIndexBlockFragment["entities"][number],
 ): ArrayBuffer {
-  return encodeConfigurationIndexFragments([{ targetProjectPath, entities: [entity] }])
+  return encodeConfigurationBlockFragments([{ targetProjectPath, entities: [entity] }])
 }
 
 function encodeEnvelope(envelope: unknown): ArrayBuffer {

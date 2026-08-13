@@ -14,15 +14,10 @@ import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import {
-  createConfigurationIndexReader,
-  snapshotConfigurationIndex,
-} from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import { prepareFormDataPathContextFromYAML } from "./formDataPathContext"
 import { createDirectRoundTripContexts } from "../../../tests/directConversion"
 
@@ -926,11 +921,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       context: mockContextToXML(),
       yaml: { Ширина: 100 },
       baseYAML: { Ширина: 80 },
-      baseConfigurationIndex: createConfigurationIndexReader(
-        snapshotConfigurationIndex(
-          encodeConfigurationIndex(sampleSnapshot())
-        )
-      ),
+      baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ОбщаяФорма",
       referenceXML: undefined,
     })
@@ -959,9 +950,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
           Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" },
         },
       },
-      baseConfigurationIndex: createConfigurationIndexReader(
-        snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
-      ),
+      baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ОбщаяФорма",
       referenceXML: undefined,
     })

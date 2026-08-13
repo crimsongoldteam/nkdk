@@ -4,8 +4,8 @@ import {
   type DiagnosticBatchView,
 } from "@nkdk/runtime"
 import {
-  decodeConfigurationIndexFragments,
-  encodeConfigurationIndexFragments,
+  decodeConfigurationBlockFragments,
+  encodeConfigurationBlockFragments,
 } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import {
@@ -55,7 +55,7 @@ export function createImportBinaryResult(params: {
 }): MetadataWorkerBinaryResult {
   const configuration = params.configurationFragments === undefined
     ? undefined
-    : encodeConfigurationIndexFragments(params.configurationFragments)
+    : encodeConfigurationBlockFragments(params.configurationFragments)
   return {
     kind: "binaryResult",
     payloadKind: PAYLOAD_KIND,
@@ -94,7 +94,7 @@ export function openImportBinaryResult(value: unknown): ImportBinaryBatchView {
     throw new Error("Повреждён состав буферов двоичного результата import")
   }
   const configurationFragmentBuffer = buffers.get("configuration")
-  if (configurationFragmentBuffer !== undefined) decodeConfigurationIndexFragments(configurationFragmentBuffer)
+  if (configurationFragmentBuffer !== undefined) decodeConfigurationBlockFragments(configurationFragmentBuffer)
   const stateFragment = value.counters.hasState === 0 ? undefined : projectStateFragmentFromNamedBuffers(buffers)
   if (stateFragment !== undefined) openProjectStateFragment(stateFragment)
   return {

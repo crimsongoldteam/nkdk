@@ -92,12 +92,12 @@ describe("compareFileTrees", () => {
 
   it("не строит текстовый diff двоичного файла", async () => {
     const fixture = await treeFixture()
-    await write(fixture.expectedDir, "configuration-index.bin", "\u0000старое")
-    await write(fixture.actualDir, "configuration-index.bin", "\u0000новое")
+    await write(fixture.expectedDir, "binary-state.dat", "\u0000старое")
+    await write(fixture.actualDir, "binary-state.dat", "\u0000новое")
 
     await compareFileTrees(fixture)
 
-    expect(await readFile(join(fixture.reportDir, "configuration-index.bin.diff"), "utf8"))
+    expect(await readFile(join(fixture.reportDir, "binary-state.dat.diff"), "utf8"))
       .toBe("Текстовый diff недоступен для двоичного файла.\n")
   })
 })

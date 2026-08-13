@@ -1,10 +1,10 @@
-import { decodeConfigurationIndexBlock, encodeConfigurationIndexBlock } from "./blockCodec"
+import { decodeBlockV1, encodeBlockV1 } from "./blockCodec"
 import { validateConfigurationIndexProjectPath } from "./store"
 import { compareConfigurationIndexUtf8, configurationIndexErrorMessage } from "./utilities"
 import type {
   ConfigurationIndexBlockEntity,
   ConfigurationIndexBlockFragment,
-  MergedConfigurationSnapshotFragments,
+  ConfigurationIndexFragmentCollection,
 } from "./types"
 
 const FRAGMENT_MAGIC = "NKDKCIF5"
@@ -21,7 +21,7 @@ export interface ConfigurationIndexFragmentBuilder {
   add(fragment: ConfigurationIndexBlockFragment): void
   addEncoded(buffer: ArrayBuffer): void
   metrics(): { readonly projectPaths: number; readonly entities: number; readonly retainedInputFragments: 0 }
-  finish(): MergedConfigurationSnapshotFragments
+  finish(): ConfigurationIndexFragmentCollection
 }
 
 export function createConfigurationIndexFragmentBuilder(): ConfigurationIndexFragmentBuilder {
@@ -39,7 +39,7 @@ export function createConfigurationIndexFragmentBuilder(): ConfigurationIndexFra
       }
     },
     addEncoded(buffer) {
-      for (const fragment of decodeConfigurationIndexFragments(buffer)) this.add(fragment)
+      for (const fragment of decodeConfigurationBlockFragments(buffer)) this.add(fragment)
     },
     metrics() {
       return {
@@ -63,7 +63,7 @@ export function createConfigurationIndexFragmentBuilder(): ConfigurationIndexFra
   }
 }
 
-export function encodeConfigurationIndexFragments(
+export function encodeConfigurationBlockFragments(
   fragments: readonly ConfigurationIndexBlockFragment[],
 ): ArrayBuffer {
   const envelope: FragmentEnvelope = {
@@ -75,7 +75,7 @@ export function encodeConfigurationIndexFragments(
   return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
 }
 
-export function decodeConfigurationIndexFragments(buffer: ArrayBuffer): ConfigurationIndexBlockFragment[] {
+export function decodeConfigurationBlockFragments(buffer: ArrayBuffer): ConfigurationIndexBlockFragment[] {
   try {
     if (!(buffer instanceof ArrayBuffer)) throw new Error("ожидался ArrayBuffer")
     const parsed: unknown = JSON.parse(fatalUtf8Decoder.decode(new Uint8Array(buffer)))
@@ -91,7 +91,7 @@ export function decodeConfigurationIndexFragments(buffer: ArrayBuffer): Configur
 
 export function mergeConfigurationIndexFragments(
   workerBuffers: readonly ArrayBuffer[],
-): MergedConfigurationSnapshotFragments {
+): ConfigurationIndexFragmentCollection {
   const builder = createConfigurationIndexFragmentBuilder()
   for (const buffer of workerBuffers) builder.addEncoded(buffer)
   return builder.finish()
@@ -131,7 +131,7 @@ function decodeEntity(value: unknown): ConfigurationIndexBlockEntity {
 
 function normalizeFragment(fragment: ConfigurationIndexBlockFragment): ConfigurationIndexBlockFragment {
   const targetProjectPath = validateConfigurationIndexProjectPath(fragment.targetProjectPath)
-  const block = decodeConfigurationIndexBlock(encodeConfigurationIndexBlock({ entities: fragment.entities }))
+  const block = decodeBlockV1(encodeBlockV1({ entities: fragment.entities }))
   return { targetProjectPath, entities: block.entities }
 }
 

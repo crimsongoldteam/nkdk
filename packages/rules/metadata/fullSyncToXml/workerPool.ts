@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
-import { decodeConfigurationIndexFragments } from "@nkdk/runtime"
+import { decodeConfigurationBlockFragments } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { ConfigurationIndexStoreDescriptor } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
@@ -185,7 +185,7 @@ export function createFullXmlSyncWorkerPool(params: {
               if (documents.length > 0 && options.onBatch === undefined) {
                 throw new Error("Получены XML-документы без обработчика пачки")
               }
-              const configurationFragments = decodeConfigurationIndexFragments(batch.fragmentBuffer)
+              const configurationFragments = decodeConfigurationBlockFragments(batch.fragmentBuffer)
               const consume = consumerTail.then(() => options.onBatch?.({ generatedDocuments: documents, configurationFragments }))
               consumerTail = consume.then(() => undefined, () => undefined)
               await consume

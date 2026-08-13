@@ -31,5 +31,4 @@ export const importNumberFromXML = (
 
 export const metadataPropertyRule000 = definePropertyTypeRule("number", "importFromXML", importNumberFromXML)
 export const metadataPropertyRule001 = definePropertyTypeRule("number", "configurationIndexValueFromXML", {
-  referenceXMLFromValue: (value) => value.xmlText === undefined ? undefined : Number(value.xmlText),
 })

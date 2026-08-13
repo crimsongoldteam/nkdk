@@ -5,15 +5,13 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import { createYAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
 import { fullXmlSyncTestOutput, fullXmlSyncTestTopologyFields } from "./testTopology"
+import { testConfigurationIndexReader } from "../../tests/configurationIndex"
 
 describe("writeFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
@@ -39,7 +37,7 @@ describe("writeFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile,
       context,
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
       composition: emptyComposition,
     })
     return writeFullXmlSyncAssignment({
@@ -74,7 +72,7 @@ describe("writeFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
       composition: emptyComposition,
     })
     const result = await writeFullXmlSyncAssignment({
@@ -180,7 +178,7 @@ describe("writeFullXmlSyncAssignment", () => {
         syntaxDiagnostics: [],
       },
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
       composition: emptyComposition,
     })).toThrow("Не найден узел топологии: test-assignment")
   })

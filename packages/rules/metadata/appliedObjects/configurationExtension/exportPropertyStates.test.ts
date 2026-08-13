@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { childSegmentUid } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
 import { markYAMLScalarTag } from "@nkdk/runtime"
-import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
@@ -15,6 +11,7 @@ import { withOperationRegistrySet } from "../../operations/operationExecutionCon
 import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
 import { MetadataConfigurationExtensionRules } from "./rules"
 import { encodeExplicitXMLPropertyState } from "./explicitXMLState"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 const BASE_UUID = "11111111-1111-4111-8111-111111111111"
 const logicalAddress = "Catalog.Товары.Attribute.Дата"
@@ -328,16 +325,10 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       ObjectBelonging: "Adopted",
       ExtendedConfigurationObject: BASE_UUID,
     })
-    expect(testContext.exportToXML.configurationIndex!.collector.fragment("Конфигурация.yaml").entities).toEqual([
-      {
-        logicalAddress: "Конфигурация",
-        sourceProjectPath: "Конфигурация.yaml",
-        xml: { extended: true },
-      },
-    ])
+    expect(testContext.exportToXML.configurationIndex!.collector.fragment("Конфигурация.yaml").entities).toEqual([])
   })
 
-  it("omits ExtendedConfigurationObject when the imported XML omitted it", () => {
+  it("writes canonical ExtendedConfigurationObject without snapshot XML state", () => {
     const outputs = new Map<string, Record<string, unknown>>([
       ["metadata", { Form: { Properties: {} } }],
     ])
@@ -351,6 +342,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
 
     expect(record(record(outputs.get("metadata")).Form).Properties).toEqual({
       ObjectBelonging: "Adopted",
+      ExtendedConfigurationObject: BASE_UUID,
     })
   })
 
@@ -381,7 +373,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     expect(record(outputs.get("metadata"))).not.toHaveProperty("InternalInfo")
   })
 
-  it("restores empty InternalInfo saved for a metadata item", () => {
+  it("does not restore empty InternalInfo from snapshot", () => {
     const outputs = new Map([[
       "metadata",
       { Properties: { Name: "Код" } },
@@ -406,12 +398,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       logicalAddress,
     })
 
-    expect(record(outputs.get("metadata"))).toEqual({
-      InternalInfo: {},
-      Properties: {
-        Name: "Код",
-      },
-    })
+    expect(record(outputs.get("metadata"))).toEqual({ Properties: { Name: "Код" } })
   })
 
   it("не поддерживает старый раздел Контроль", () => {
@@ -478,31 +465,6 @@ function context(params: {
   extendedLogicalAddresses?: readonly string[]
   internalInfoPresent?: true
 }): ConfigurationContextWithExportToXML {
-  const snapshot: ConfigurationSnapshot = {
-    specificationVersion: "1.4",
-    indexGeneration: 1n,
-    componentPath: "cfe/Дополнение",
-    files: [{ projectPath: "Форма.yaml", contentHash: 1n }],
-    entities: [
-      ...(params.extendedLogicalAddresses ?? []).map((address) => ({
-        logicalAddress: address,
-        sourceProjectPath: "Форма.yaml",
-        xml: { extended: true as const },
-      })),
-      ...(params.extended ?? []).map((segment) => ({
-        logicalAddress: childSegmentUid(logicalAddress, segment),
-        sourceProjectPath: "Форма.yaml",
-        xml: { extended: true as const },
-      })),
-      ...(params.internalInfoPresent === true
-        ? [{
-            logicalAddress: childSegmentUid(logicalAddress, "InternalInfo"),
-            sourceProjectPath: "Форма.yaml",
-            xml: { present: true as const },
-          }]
-        : []),
-    ],
-  }
   return {
     version: "2.20",
     defaultLanguage: "ru",
@@ -512,7 +474,7 @@ function context(params: {
       adoptedUuids: params.adoptedUuids,
       componentKind: "configurationExtension",
       configurationIndex: createConfigurationIndexExportRuntime({
-        source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(snapshot))),
+        source: testConfigurationIndexReader(),
         collector: createConfigurationIndexCollector(),
         targetProjectPath: "Форма.yaml",
         logicalAddress,

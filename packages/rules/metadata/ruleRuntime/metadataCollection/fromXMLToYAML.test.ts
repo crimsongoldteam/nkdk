@@ -182,11 +182,11 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       expect.arrayContaining([
         expect.objectContaining({
           logicalAddress: "Владелец.A.Элемент.Первый",
-          identities: { uuid: "11111111-1111-1111-1111-111111111111" },
+          uuid: "11111111-1111-1111-1111-111111111111",
         }),
         expect.objectContaining({
           logicalAddress: "Владелец.A.Элемент.Второй",
-          identities: { uuid: "22222222-2222-2222-2222-222222222222" },
+          uuid: "22222222-2222-2222-2222-222222222222",
         }),
       ])
     )
@@ -194,11 +194,11 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       expect.arrayContaining([
         expect.objectContaining({
           logicalAddress: "Владелец.A.Элементы[0]",
-          identities: { uuid: "11111111-1111-1111-1111-111111111111" },
+          uuid: "11111111-1111-1111-1111-111111111111",
         }),
         expect.objectContaining({
           logicalAddress: "Владелец.A.Элементы[1]",
-          identities: { uuid: "22222222-2222-2222-2222-222222222222" },
+          uuid: "22222222-2222-2222-2222-222222222222",
         }),
       ])
     )
@@ -224,8 +224,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
 
     expect(indexCollector.fragment("test.yaml").entities).toContainEqual({
       logicalAddress: "Владелец.A.TestItem.a",
-      sourceProjectPath: "test.yaml",
-      identities: { uuid: "11111111-1111-1111-1111-111111111111" },
+      uuid: "11111111-1111-1111-1111-111111111111",
     })
   })
 

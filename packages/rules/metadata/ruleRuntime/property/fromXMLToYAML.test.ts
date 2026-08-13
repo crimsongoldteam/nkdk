@@ -579,8 +579,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("test.yaml").entities).toEqual([
       {
         logicalAddress: "Справочник.Товары.ТехническийUUID",
-        sourceProjectPath: "test.yaml",
-        identities: { uuid: "00000000-0000-4000-8000-000000000001" },
+        uuid: "00000000-0000-4000-8000-000000000001",
       },
     ])
   })
@@ -905,11 +904,8 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([
       {
         logicalAddress: "Справочник.Товары",
-        sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-        identities: {
-          uuid: "00000000-0000-4000-8000-000000000001",
-          xmlId: "42",
-        },
+        uuid: "00000000-0000-4000-8000-000000000001",
+        xmlId: "42",
       },
     ])
   })

@@ -1,14 +1,14 @@
 import { createHash, randomBytes } from "node:crypto"
 import type { ConfigurationIndexCollector } from "./collector/writer"
-import type { ConfigurationIndexBlockEntity, ConfigurationIndexChild, ConfigurationSnapshotEntity } from "./types"
+import type { ConfigurationIndexBlockEntity, ConfigurationIndexChild } from "./types"
 import type { ConfigurationIndexAddressingMode } from "../ruleRuntime/property/types"
 import { childUid, yamlPropertyUid } from "./logicalAddress"
 
 type IdentityKind = "uuid" | "xmlId"
 
 interface ConfigurationIndexEntityReader {
-  entity(logicalAddress: string): ConfigurationIndexBlockEntity | ConfigurationSnapshotEntity | undefined
-  entities(): Iterable<ConfigurationIndexBlockEntity | ConfigurationSnapshotEntity>
+  entity(logicalAddress: string): ConfigurationIndexBlockEntity | undefined
+  entities(): Iterable<ConfigurationIndexBlockEntity>
 }
 
 export interface ConfigurationIndexExportRuntime {
@@ -100,7 +100,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   identity(kind: IdentityKind, address = this.logicalAddress): string | undefined {
     const entity = this.source.entity(this.referencePathByCurrentPath?.get(address) ?? address)
     if (entity === undefined) return undefined
-    return isLegacyEntity(entity) ? entity.identities?.[kind] : entity[kind]
+    return entity[kind]
   }
 
   identityOrCreate(kind: IdentityKind, address = this.logicalAddress): string {
@@ -112,12 +112,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   children(address = this.xmlNodeLogicalAddress ?? this.logicalAddress): readonly ConfigurationIndexChild[] | undefined {
     const entity = this.source.entity(address)
     if (entity === undefined) return undefined
-    if (!isLegacyEntity(entity)) return entity.children
-    const omitted = entity.omittedChildren
-    if (omitted === undefined) return undefined
-    return omitted.kind === "typedNames"
-      ? omitted.items
-      : omitted.names.map((name) => ({ xmlName: "Form", name }))
+    return entity.children
   }
 
   configVersion(address: string): string {
@@ -195,12 +190,6 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       .update(address, "utf8")
       .digest()
   }
-}
-
-function isLegacyEntity(
-  entity: ConfigurationIndexBlockEntity | ConfigurationSnapshotEntity,
-): entity is ConfigurationSnapshotEntity {
-  return "sourceProjectPath" in entity
 }
 
 function formatDeterministicUuid(bytes: Uint8Array): string {

@@ -3,11 +3,12 @@ import { randomBytes } from "node:crypto"
 import { resolve } from "node:path"
 import { componentPath, parseComponentPath, type ComponentAddress } from "@nkdk/runtime"
 import {
-  configurationIndexStoreDescriptor,
-  createConfigurationIndexCandidateStore,
-  openConfigurationIndexStore,
   type ConfigurationIndexCandidateStore,
+} from "../configurationIndex/store"
+import {
+  configurationIndexStoreDescriptor,
 } from "../configurationIndex"
+import { createConfigurationIndexCandidateStore, openConfigurationIndexStore } from "../configurationIndex/store"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import {
   confirmComponentState,

@@ -267,6 +267,4 @@ const importDcsMetadataValueFromXMLForRule: (
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataDcsMetadataValue", "importFromXML", importDcsMetadataValueFromXMLForRule)
 export const metadataPropertyRule001 = definePropertyTypeRule("MetadataDcsMetadataValue", "configurationIndexValueFromXML", {
-  xsiNilWhenNotRepresentable: true,
-  referenceXMLFromValue: (value) => (value.xsiNil === true ? { "_xsi:nil": true } : undefined),
 })

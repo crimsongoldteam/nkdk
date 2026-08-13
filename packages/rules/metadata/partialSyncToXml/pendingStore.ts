@@ -5,9 +5,9 @@ import { hashFileBytes } from "@nkdk/runtime"
 import {
   configurationIndexStoreDescriptor,
   openConfigurationIndexStore,
-  parseComponentPath,
   type ConfigurationIndexPendingDelta,
-} from "@nkdk/runtime"
+} from "@nkdk/runtime/configuration-index-store"
+import { parseComponentPath } from "@nkdk/runtime"
 
 export interface PendingPartialXmlSyncStateV3 {
   readonly version: 3

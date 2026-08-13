@@ -1,19 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import {
   childSegmentUid,
   childUid,
 } from "@nkdk/runtime"
-import {
-  createConfigurationIndexReader,
-  snapshotConfigurationIndex,
-  type ConfigurationIndexReader,
-  type ConfigurationSnapshotEntity,
-} from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockEntity, LocalConfigurationIndexReader } from "@nkdk/runtime"
 import type { ClientApplicationFormYAML } from "./types"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
@@ -23,6 +16,7 @@ import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
 import type { FormAttributeXML } from "../commonObjects/formAttribute/types"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 const formAddress = "Справочник.Товары.Форма.ФормаЭлемента"
 
@@ -791,7 +785,10 @@ describe("client application BaseForm", () => {
     expect(asChildItemArray(baseForm.ChildItems)[0]?.InputField?._id).toBeDefined()
     expect(collector.fragment(targetProjectPath).entities).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ sourceProjectPath: targetProjectPath }),
+        expect.objectContaining({
+          logicalAddress: `${formAddress}.ОсноваФормы.Элемент.ИсторическоеПоле`,
+          xmlId: expect.any(String),
+        }),
       ])
     )
   })
@@ -808,67 +805,30 @@ function reader(params: {
   }[]
   readonly xmlValues?: readonly {
     readonly logicalAddress: string
-    readonly xml: NonNullable<ConfigurationSnapshotEntity["xml"]>
+    readonly xml: Record<string, unknown>
   }[]
-}): ConfigurationIndexReader {
-  const sample = sampleSnapshot()
-  const entitiesByAddress = new Map<string, ConfigurationSnapshotEntity>()
-  const merge = (entity: ConfigurationSnapshotEntity): void => {
+}): LocalConfigurationIndexReader {
+  const entitiesByAddress = new Map<string, ConfigurationIndexBlockEntity>()
+  const merge = (entity: ConfigurationIndexBlockEntity): void => {
     const current = entitiesByAddress.get(entity.logicalAddress)
     entitiesByAddress.set(entity.logicalAddress, {
       ...current,
       ...entity,
-      identities: { ...current?.identities, ...entity.identities },
-      xml: { ...current?.xml, ...entity.xml },
     })
   }
   for (const identity of params.identities ?? []) {
     merge({
       logicalAddress: identity.logicalAddress,
-      sourceProjectPath: "Configuration.yaml",
-      identities: { [identity.kind]: identity.value },
+      ...(identity.kind === "uuid" ? { uuid: identity.value } : { xmlId: identity.value }),
     })
   }
-  for (const node of params.xmlNodes ?? []) {
-    if (node.aliases?._name !== undefined) {
-      merge({
-        logicalAddress: node.logicalAddress,
-        sourceProjectPath: "Configuration.yaml",
-        identities: { xmlName: node.aliases._name },
-      })
-    }
-    for (const propertyKey of node.present ?? []) {
-      merge({
-        logicalAddress: `${node.logicalAddress}.${propertyKey}`,
-        sourceProjectPath: "Configuration.yaml",
-        xml: { present: true },
-      })
-    }
-  }
-  for (const value of params.xmlValues ?? []) {
-    merge({
-      logicalAddress: value.logicalAddress,
-      sourceProjectPath: "Configuration.yaml",
-      xml: value.xml,
-    })
-  }
-  const source = createConfigurationIndexReader(
-    snapshotConfigurationIndex(
-      encodeConfigurationIndex({
-        ...sample,
-        componentPath: params.componentPath,
-        entities: [
-          ...sample.entities,
-          ...entitiesByAddress.values(),
-        ],
-      })
-    )
-  )
-  return source
+  void params.xmlNodes
+  void params.xmlValues
+  return testConfigurationIndexReader([...entitiesByAddress.values()])
 }
 
 function projectedContext(
-  source: ConfigurationIndexReader,
+  source: LocalConfigurationIndexReader,
   adopted = false
 ): ReturnType<typeof mockContextToXML> {
   const base = mockContextToXML()
@@ -899,7 +859,7 @@ function xmlId(
 
 interface LegacyIdentity {
   readonly logicalAddress: string
-  readonly kind: "uuid" | "xmlId" | "xmlName"
+  readonly kind: "uuid" | "xmlId"
   readonly value: string
 }
 

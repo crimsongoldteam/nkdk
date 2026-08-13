@@ -20,7 +20,7 @@ describe("syncToXml service", () => {
       mode: "plan",
       assignments: 2,
       externalFiles: 1,
-      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.lmdb",
     })
     const syncConfigurationToXML = vi.fn()
     const projectState = createCoreProjectStateTestDouble()
@@ -53,7 +53,7 @@ describe("syncToXml service", () => {
       succeeded: 1,
       failed: [],
       warnings: [],
-      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.lmdb",
     })
 
     const projectState = createCoreProjectStateTestDouble()
@@ -75,7 +75,7 @@ describe("syncToXml service", () => {
     expect(result).toEqual({
       ok: true,
       succeeded: 1,
-      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.lmdb",
       diagnostics: [],
       summary: { errors: 0, warnings: 0, shown: 0, omitted: 0 },
       truncated: false,
@@ -109,14 +109,14 @@ describe("syncToXml service", () => {
         assignments: 1,
         externalFiles: 0,
         configurationIndexPath:
-          "/yaml/.nkdk/components/cfe/Расширение/configuration-index.bin",
+          "/yaml/.nkdk/components/cfe/Расширение/configuration-index.lmdb",
       })
       const syncConfigurationToXML = vi.fn().mockResolvedValue({
         succeeded: 1,
         failed: [],
         warnings: [],
         configurationIndexPath:
-          "/yaml/.nkdk/components/cfe/Расширение/configuration-index.bin",
+          "/yaml/.nkdk/components/cfe/Расширение/configuration-index.lmdb",
       })
 
       const projectState = createCoreProjectStateTestDouble()
@@ -141,7 +141,7 @@ describe("syncToXml service", () => {
         expect(result).toMatchObject({
           ok: true,
           configurationIndexPath:
-            "/yaml/.nkdk/components/cfe/Расширение/configuration-index.bin",
+            "/yaml/.nkdk/components/cfe/Расширение/configuration-index.lmdb",
         })
       } else {
         expect(planSyncToXml).toHaveBeenCalledWith(expected)
@@ -150,7 +150,7 @@ describe("syncToXml service", () => {
           ok: true,
           result: {
             configurationIndexPath:
-              "/yaml/.nkdk/components/cfe/Расширение/configuration-index.bin",
+              "/yaml/.nkdk/components/cfe/Расширение/configuration-index.lmdb",
           },
         })
       }

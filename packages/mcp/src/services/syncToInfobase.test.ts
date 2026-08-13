@@ -96,7 +96,7 @@ describe("sync to infobase", () => {
       status: "synchronized",
       mode: "designer-agent",
       reusedConnection: false,
-      configurationIndexPath: "/project/.nkdk/configuration-index/cf.bin",
+      configurationIndexPath: "/project/.nkdk/components/cf/configuration-index.lmdb",
     })
     expect(fixture.events).toEqual([
       "readSettings",
@@ -350,7 +350,7 @@ function createFixture(options: {
         delivery = undefined
         return {
           status: options.pendingStatus === "applied" ? "alreadyPublished" as const : "published" as const,
-          configurationIndexPath: "/project/.nkdk/configuration-index/cf.bin",
+          configurationIndexPath: "/project/.nkdk/components/cf/configuration-index.lmdb",
         }
       },
       async forceClearPendingSync() {

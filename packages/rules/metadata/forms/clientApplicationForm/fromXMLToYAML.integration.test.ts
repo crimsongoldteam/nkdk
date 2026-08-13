@@ -508,8 +508,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 
     expect(collector.fragment("Форма.yaml").entities).toEqual([{
       logicalAddress,
-      sourceProjectPath: "Форма.yaml",
-      identities: { uuid: "00000000-0000-4000-8000-000000000001" },
+      uuid: "00000000-0000-4000-8000-000000000001",
     }])
   })
 

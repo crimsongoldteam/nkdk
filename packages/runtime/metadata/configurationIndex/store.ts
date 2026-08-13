@@ -3,10 +3,10 @@ import { rename, rm } from "node:fs/promises"
 import { dirname, posix } from "node:path"
 import { open, type Database, type RootDatabase, type Transaction } from "lmdb"
 import {
-  decodeConfigurationIndexBlock,
+  decodeBlockV1,
   decodeContentHash,
   decodePendingValue,
-  encodeConfigurationIndexBlock,
+  encodeBlockV1,
   encodeContentHash,
   encodePendingDelete,
   encodePendingPut,
@@ -146,7 +146,7 @@ class LmdbConfigurationIndexStore implements ConfigurationIndexStore {
     const result = new Map<string, ConfigurationIndexBlock>()
     for (const projectPath of requested) {
       const value = this.tables.blocks.get(projectPath, this.readOptions())
-      if (value !== undefined) result.set(projectPath, decodeConfigurationIndexBlock(value))
+      if (value !== undefined) result.set(projectPath, decodeBlockV1(value))
     }
     return result
   }
@@ -181,9 +181,9 @@ class LmdbConfigurationIndexStore implements ConfigurationIndexStore {
       return
     }
     const existingValue = this.tables.blocks.get(projectPath)
-    const existing = existingValue === undefined ? { entities: [] } : decodeConfigurationIndexBlock(existingValue)
+    const existing = existingValue === undefined ? { entities: [] } : decodeBlockV1(existingValue)
     const merged = mergeBlockEntities(existing.entities, fragment.entities)
-    const encoded = encodeConfigurationIndexBlock({ entities: merged })
+    const encoded = encodeBlockV1({ entities: merged })
     this.tables.blocks.putSync(projectPath, encoded)
   }
 
@@ -202,7 +202,7 @@ class LmdbConfigurationIndexStore implements ConfigurationIndexStore {
     this.assertCandidate()
     for (const { key, value } of this.tables.blocks.getRange()) {
       const projectPath = validateProjectPath(key)
-      decodeConfigurationIndexBlock(value)
+      decodeBlockV1(value)
       if (!this.tables.hashes.doesExist(projectPath)) {
         throw new Error(`Блок не имеет соответствующего hash: ${projectPath}`)
       }
@@ -248,7 +248,7 @@ class LmdbConfigurationIndexStore implements ConfigurationIndexStore {
     }))
     const blockEntries = [...delta.blocks].map(([projectPath, value]) => ({
       projectPath: validateProjectPath(projectPath),
-      value: value.kind === "delete" ? encodePendingDelete() : encodePendingPut(encodeConfigurationIndexBlock(value.block)),
+      value: value.kind === "delete" ? encodePendingDelete() : encodePendingPut(encodeBlockV1(value.block)),
     }))
     if (hashEntries.length === 0 && blockEntries.length === 0) throw new Error("Pending-дельта не содержит изменений")
     assertUniquePaths(hashEntries.map(({ projectPath }) => projectPath), "pendingHashes")
@@ -340,7 +340,7 @@ function decodePendingEntries(
     const decoded = decodePendingValue(value)
     if (decoded.kind === "delete") return { projectPath, kind: "delete" }
     if (valueKind === "hash") decodeContentHash(decoded.value)
-    else decodeConfigurationIndexBlock(decoded.value)
+    else decodeBlockV1(decoded.value)
     return { projectPath, kind: "put", value: decoded.value }
   })
 }

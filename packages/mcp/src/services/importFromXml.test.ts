@@ -162,7 +162,7 @@ describe("importFromXml service", () => {
     mkdirSync(componentDir, { recursive: true })
     const configurationPath = join(componentDir, "Configuration.yaml")
     writeFileSync(configurationPath, "name: Test\n")
-    const snapshotPath = join(projectDir, ".nkdk", "components", "cfe", "Расширение", "configuration-index.bin")
+    const snapshotPath = join(projectDir, ".nkdk", "components", "cfe", "Расширение", "configuration-index.lmdb")
     mkdirSync(join(projectDir, ".nkdk", "components", "cfe", "Расширение"), { recursive: true })
     writeFileSync(snapshotPath, "snapshot")
     const importConfigurationFromXml = vi.fn().mockResolvedValue({
@@ -232,7 +232,7 @@ describe("importFromXml service", () => {
           targetProjectPath: "Форма.yaml",
         },
       ],
-      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.lmdb",
     })
 
     const result = await importFromXml(
@@ -269,7 +269,7 @@ describe("importFromXml service", () => {
           targetProjectPath: "Форма.yaml",
         },
       ],
-      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.lmdb",
     })
   })
 

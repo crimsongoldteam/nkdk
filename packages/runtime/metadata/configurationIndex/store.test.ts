@@ -4,7 +4,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { open, type Database } from "lmdb"
 import { afterEach, describe, expect, it } from "vitest"
-import { encodeConfigurationIndexBlock, encodeContentHash } from "./blockCodec"
+import { encodeBlockV1, encodeContentHash } from "./blockCodec"
 import {
   CONFIGURATION_INDEX_SCHEMA_VERSION,
   configurationIndexStoreDescriptor,
@@ -73,7 +73,7 @@ describe("configuration index store", () => {
     const goodBlock = { entities: [{ logicalAddress: "Документ.Заказ", xmlId: "1" }] }
     await writeRaw(descriptor.dataPath, (table) => {
       table("hashes").putSync("Документы/Заказ.yaml", encodeContentHash(1n))
-      table("blocks").putSync("Документы/Заказ.yaml", encodeConfigurationIndexBlock(goodBlock))
+      table("blocks").putSync("Документы/Заказ.yaml", encodeBlockV1(goodBlock))
       table("blocks").putSync("broken.yaml", Uint8Array.of(255))
     })
 
@@ -290,7 +290,7 @@ describe("configuration index publication", () => {
     expect(existsSync(`${candidatePath}-lock`)).toBe(false)
     const reader = openConfigurationIndexStore(descriptor, "readOnly")
     expect(reader.readHashes()).toEqual([{ projectPath: "А.yaml", contentHash: 4n }])
-    await reader.close()
+    await Promise.all([active.close(), reader.close()])
   })
 })
 

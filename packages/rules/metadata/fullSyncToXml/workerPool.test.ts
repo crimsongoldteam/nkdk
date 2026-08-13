@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
-import { encodeConfigurationIndexFragments } from "@nkdk/runtime"
+import { encodeConfigurationBlockFragments } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import type {
   FullXmlSyncAssignment,
@@ -335,7 +335,7 @@ function executionResult() {
 function createFakePools() {
   const failures = new Map<number, Error>()
   const diagnostics = new Map<number, FullXmlSyncDiagnostic[]>()
-  const fragments = new Map<number, Parameters<typeof encodeConfigurationIndexFragments>[0]>()
+  const fragments = new Map<number, Parameters<typeof encodeConfigurationBlockFragments>[0]>()
   const pools = createMockWorkerThreadPoolFactory<
     FullXmlSyncWorkerCommand,
     unknown
@@ -382,7 +382,7 @@ function createFakePools() {
     },
     returnFragments(
       workerIndex: number,
-      value: Parameters<typeof encodeConfigurationIndexFragments>[0]
+      value: Parameters<typeof encodeConfigurationBlockFragments>[0]
     ) {
       fragments.set(workerIndex, value)
     },

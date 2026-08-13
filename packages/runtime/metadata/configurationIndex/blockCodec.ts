@@ -16,7 +16,7 @@ export type ConfigurationIndexPendingValue =
   | { readonly kind: "delete" }
   | { readonly kind: "put"; readonly value: Uint8Array }
 
-export function encodeConfigurationIndexBlock(block: ConfigurationIndexBlock): Uint8Array {
+export function encodeBlockV1(block: ConfigurationIndexBlock): Uint8Array {
   assertU32(block.entities.length, "Количество entity")
   const entities = [...block.entities].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress))
   const addresses = new Set<string>()
@@ -37,7 +37,7 @@ export function encodeConfigurationIndexBlock(block: ConfigurationIndexBlock): U
   return Buffer.concat(chunks)
 }
 
-export function decodeConfigurationIndexBlock(bytes: Uint8Array): ConfigurationIndexBlock {
+export function decodeBlockV1(bytes: Uint8Array): ConfigurationIndexBlock {
   const reader = new BinaryReader(bytes)
   const count = reader.u32()
   const entities: ConfigurationIndexBlockEntity[] = []

@@ -31,15 +31,11 @@ describe("Predefined XML → YAML", () => {
       expect.arrayContaining([
         expect.objectContaining({
           logicalAddress: "Справочник.Товары.Предопределенный.Группа",
-          identities: expect.objectContaining({
-            uuid: "79d5668f-62a2-4d95-954b-8d3b03b76b99",
-          }),
+          uuid: "79d5668f-62a2-4d95-954b-8d3b03b76b99",
         }),
         expect.objectContaining({
           logicalAddress: "Справочник.Товары.Предопределенный.Группа.Предопределенный.Предопределенный1",
-          identities: expect.objectContaining({
-            uuid: "3234ebff-0d7f-4ad7-b6c4-1f86a23725dd",
-          }),
+          uuid: "3234ebff-0d7f-4ad7-b6c4-1f86a23725dd",
         }),
       ])
     )

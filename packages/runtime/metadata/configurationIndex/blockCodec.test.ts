@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import {
-  decodeConfigurationIndexBlock,
+  decodeBlockV1,
   decodeContentHash,
   decodePendingValue,
-  encodeConfigurationIndexBlock,
+  encodeBlockV1,
   encodeContentHash,
   encodePendingDelete,
   encodePendingPut,
@@ -26,7 +26,7 @@ describe("configuration index block codec", () => {
   ] satisfies readonly { name: string; entity: ConfigurationIndexBlockEntity }[])(
     "round-trips $name",
     ({ entity }) => {
-      expect(decodeConfigurationIndexBlock(encodeConfigurationIndexBlock({ entities: [entity] }))).toEqual({
+      expect(decodeBlockV1(encodeBlockV1({ entities: [entity] }))).toEqual({
         entities: [entity],
       })
     },
@@ -36,14 +36,14 @@ describe("configuration index block codec", () => {
     const first = { logicalAddress: "Я", xmlId: "2" }
     const second = { logicalAddress: "А", xmlId: "1" }
 
-    expect(encodeConfigurationIndexBlock({ entities: [first, second] })).toEqual(
-      encodeConfigurationIndexBlock({ entities: [second, first] }),
+    expect(encodeBlockV1({ entities: [first, second] })).toEqual(
+      encodeBlockV1({ entities: [second, first] }),
     )
   })
 
   it("stores UUID as exactly 16 bytes", () => {
     const address = "A"
-    const bytes = encodeConfigurationIndexBlock({ entities: [{ logicalAddress: address, uuid: UUID }] })
+    const bytes = encodeBlockV1({ entities: [{ logicalAddress: address, uuid: UUID }] })
 
     expect(bytes.byteLength).toBe(4 + 4 + Buffer.byteLength(address) + 1 + 16)
   })
@@ -69,7 +69,7 @@ describe("configuration index block codec", () => {
       block: { entities: [{ logicalAddress: "A", uuid: UUID }, { logicalAddress: "A", xmlId: "1" }] },
     },
   ])("rejects $name", ({ block }) => {
-    expect(() => encodeConfigurationIndexBlock(block as never)).toThrow()
+    expect(() => encodeBlockV1(block as never)).toThrow()
   })
 
   it.each([
@@ -95,8 +95,8 @@ describe("configuration index block codec", () => {
       },
     },
   ])("rejects $name while decoding", ({ mutate }) => {
-    const encoded = encodeConfigurationIndexBlock({ entities: [{ logicalAddress: "A", xmlId: "1" }] })
-    expect(() => decodeConfigurationIndexBlock(mutate(encoded))).toThrow()
+    const encoded = encodeBlockV1({ entities: [{ logicalAddress: "A", xmlId: "1" }] })
+    expect(() => decodeBlockV1(mutate(encoded))).toThrow()
   })
 
   it("encodes pending put and tombstone as distinct values", () => {

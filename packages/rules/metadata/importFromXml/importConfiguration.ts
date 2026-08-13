@@ -4,15 +4,13 @@ import { join } from "node:path"
 import {
   componentPath,
   configurationIndexStoreDescriptor,
-  createConfigurationIndexCandidateStore,
-  decodeConfigurationIndexFragments,
+  decodeConfigurationBlockFragments,
   hashConfigurationProjectFileList,
-  openConfigurationIndexStore,
   type ComponentAddress,
-  type ConfigurationIndexCandidateStore,
-  type ConfigurationSnapshotFile,
+  type ConfigurationProjectFile,
   type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
+import type { ConfigurationIndexCandidateStore } from "../configurationIndex/store"
 import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import {
@@ -47,7 +45,6 @@ import {
   type XmlImportWorkerPool,
   type XmlImportWorkerPoolHandle,
 } from "./workerPool"
-import { assertNoPendingPartialXmlSync } from "../partialSyncToXml/pendingStore"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -74,7 +71,7 @@ export interface ImportConfigurationFromXmlParams {
 
 export interface ImportCoordinatorDependencies {
   resolveComponent?(root: Record<string, unknown>): XmlImportComponentDescriptor
-  assertNoPending?(projectDir: string, componentPath: string): void
+  assertNoPending?(projectDir: string, componentPath: string): void | Promise<void>
   createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
   discover(params: {
     xmlDir: string
@@ -85,6 +82,7 @@ export interface ImportCoordinatorDependencies {
     context: ConfigurationContextFromXML
     files: readonly ImportSnapshotFile[]
   }): Promise<ConfigurationIndexBlockFragment[]>
+  createIndexCandidate?: CreateConfigurationIndexCandidate
   createProjectStateService?(): ProjectStateService
   mergeFiles(files: readonly ImportResultFile[]): ImportResultFile[]
   transferExternalFiles(params: {
@@ -97,7 +95,7 @@ export interface ImportCoordinatorDependencies {
     projectDir: string,
     projectPaths: readonly string[],
     options: { concurrency?: number }
-  ): Promise<ConfigurationSnapshotFile[]>
+  ): Promise<ConfigurationProjectFile[]>
   publishCandidate?(params: {
     readonly projectDir: string
     readonly address: ComponentAddress
@@ -116,9 +114,29 @@ const defaultImportDependencies: ImportCoordinatorDependencies = {
   transferExternalFiles: transferXmlImportExternalFiles,
   hashProject: hashConfigurationProjectFileList,
   async publishCandidate({ projectDir, address, candidate }) {
+    const { configurationIndexStoreDescriptor, openConfigurationIndexStore } = await import("../configurationIndex/store")
     const active = openConfigurationIndexStore(configurationIndexStoreDescriptor(projectDir, address), "readWrite")
     await active.publishImportedCandidate(candidate)
   },
+}
+
+type CreateConfigurationIndexCandidate = (params: {
+  readonly projectDir: string
+  readonly address: ComponentAddress
+  readonly operationId: string
+  readonly purpose: "import" | "full" | "partial"
+}) => Promise<ConfigurationIndexCandidateStore>
+
+async function createDefaultConfigurationIndexCandidate(
+  params: Parameters<CreateConfigurationIndexCandidate>[0],
+): Promise<ConfigurationIndexCandidateStore> {
+  const { createConfigurationIndexCandidateStore } = await import("../configurationIndex/store")
+  return createConfigurationIndexCandidateStore(params)
+}
+
+async function assertNoPendingDefault(projectDir: string, selectedComponentPath: string): Promise<void> {
+  const { assertNoPendingPartialXmlSync } = await import("../partialSyncToXml/pendingStore")
+  assertNoPendingPartialXmlSync(projectDir, selectedComponentPath)
 }
 
 export function createImportCoordinatorDependencies(
@@ -174,8 +192,8 @@ export async function importConfigurationFromXml(
       : params.context
     const { address } = resolvedRoot
     const selectedComponentPath = componentPath(address)
-    const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
-    assertNoPending(params.projectDir, selectedComponentPath)
+    const assertNoPending = deps.assertNoPending ?? assertNoPendingDefault
+    await assertNoPending(params.projectDir, selectedComponentPath)
     const validationComponent = createValidationProjectComponent(params.projectDir, address)
     resolvedComponentPath = selectedComponentPath
     assertRequestedComponentPath(params.requestedComponentPath, selectedComponentPath)
@@ -203,7 +221,7 @@ export async function importConfigurationFromXml(
         },
       },
     })
-    indexCandidate = await createConfigurationIndexCandidateStore({
+    indexCandidate = await (deps.createIndexCandidate ?? createDefaultConfigurationIndexCandidate)({
       projectDir: params.projectDir,
       address,
       operationId,
@@ -473,7 +491,7 @@ function createImportStateSink(
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
     if (batch.configurationFragment !== undefined) candidate.mergeBlockFragment(batch.configurationFragment)
     if (batch.configurationFragmentBuffer !== undefined) {
-      for (const fragment of decodeConfigurationIndexFragments(batch.configurationFragmentBuffer)) {
+      for (const fragment of decodeConfigurationBlockFragments(batch.configurationFragmentBuffer)) {
         candidate.mergeBlockFragment(fragment)
       }
     }
@@ -580,7 +598,7 @@ function assertRequestedComponentPath(requestedComponentPath: string | undefined
 
 export function externalFileStateBatch(
   component: ValidationProjectComponent,
-  files: readonly ConfigurationSnapshotFile[],
+  files: readonly ConfigurationProjectFile[],
 ): ProjectStateImportFinalFileStateBatch {
   const entries = files.map((file) => {
     const resource = classifyMetadataProjectPath(file.projectPath, component)
@@ -616,7 +634,7 @@ function rememberImportFileHashes(
 function snapshotFilesFromState(
   files: readonly ImportResultFile[],
   hashes: ReadonlyMap<string, bigint>,
-): ConfigurationSnapshotFile[] {
+): ConfigurationProjectFile[] {
   return files.map(({ targetProjectPath }) => {
     const contentHash = hashes.get(targetProjectPath)
     if (contentHash === undefined) throw new Error(`Import не передал хэш готового файла: ${targetProjectPath}`)

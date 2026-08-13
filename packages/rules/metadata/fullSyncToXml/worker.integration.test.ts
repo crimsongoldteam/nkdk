@@ -2,20 +2,19 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { decodeConfigurationIndexFragments } from "@nkdk/runtime"
+import { decodeConfigurationBlockFragments } from "@nkdk/runtime"
 import { hashFileBytes } from "@nkdk/runtime"
 import { childSegmentUid, childUid } from "@nkdk/runtime"
 import {
+  type ConfigurationIndexBlockFragment,
+  type ConfigurationProjectFile,
+  type ConfigurationIndexStoreDescriptor,
+} from "@nkdk/runtime"
+import {
   configurationIndexStoreDescriptor,
   createConfigurationIndexCandidateStore,
-  decodeConfigurationIndex,
   openConfigurationIndexStore,
-  snapshotConfigurationIndex,
-  type ConfigurationIndexStoreDescriptor,
-  type SharedConfigurationIndexSnapshot,
-} from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
+} from "@nkdk/runtime/configuration-index-store"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateReadSession, ProjectStateReadToken } from "../projectState"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
@@ -110,29 +109,18 @@ describe("full XML sync worker", () => {
   it("не переносит обычное XML-состояние старого снимка при полном sync конфигурации", async () => {
     const projectDir = createProject(["Товары"])
     const baseAssignment = assignment(projectDir, "Товары")
-    const targetSnapshot = snapshotConfigurationIndex(encodeConfigurationIndex({
-      specificationVersion: "1.4",
-      indexGeneration: 1n,
-      componentPath: "cf",
+    const targetSnapshot: TestIndex = {
       files: [{ projectPath: baseAssignment.sourceProjectPath, contentHash: baseAssignment.expectedContentHash }],
-      entities: [
-        {
+      fragments: [{ targetProjectPath: baseAssignment.sourceProjectPath, entities: [{
           logicalAddress: baseAssignment.logicalAddress,
-          sourceProjectPath: baseAssignment.sourceProjectPath,
-          identities: { uuid: "00000000-0000-4000-8000-000000000001" },
-        },
-        {
-          logicalAddress: `${baseAssignment.logicalAddress}.comment`,
-          sourceProjectPath: baseAssignment.sourceProjectPath,
-          xml: { xmlText: "Устаревший комментарий" },
-        },
-      ],
-    }))
+          uuid: "00000000-0000-4000-8000-000000000001",
+        }]}],
+    }
     const assigned: FullXmlSyncExecutionAssignment = {
       ...baseAssignment,
       configurationIndexSources: { targetProjectPaths: [baseAssignment.sourceProjectPath], baseProjectPaths: [] },
     }
-    const targetDescriptor = await installLegacySnapshot(projectDir, { kind: "configuration" }, targetSnapshot)
+    const targetDescriptor = await installTestIndex(projectDir, { kind: "configuration" }, targetSnapshot)
     const profile = configurationFullXmlSyncProfile.confirm({
       target: configurationState(projectDir, assigned, targetDescriptor),
     }).workerProfile
@@ -156,7 +144,7 @@ describe("full XML sync worker", () => {
     const xml = fs.readFileSync(join(projectDir, ".out", "Catalogs", "Товары.xml"), "utf8")
     expect(xml).toContain('uuid="00000000-0000-4000-8000-000000000001"')
     expect(xml).not.toContain("Устаревший комментарий")
-    expect(JSON.stringify(decodeConfigurationIndexFragments(result.fragmentBuffer))).not.toContain("xmlText")
+    expect(JSON.stringify(decodeConfigurationBlockFragments(result.fragmentBuffer))).not.toContain("xmlText")
   })
 
   it("возвращает каждую рабочую пачку двоичным результатом и ничего не накапливает к завершению", async () => {
@@ -170,7 +158,7 @@ describe("full XML sync worker", () => {
     }))
 
     expect(batch.writtenFiles.file(0)).toMatchObject({ targetXmlPath: "Catalogs/Товары.xml" })
-    expect(JSON.stringify(decodeConfigurationIndexFragments(batch.fragmentBuffer))).not.toMatch(
+    expect(JSON.stringify(decodeConfigurationBlockFragments(batch.fragmentBuffer))).not.toMatch(
       /"xmlName"|"present"|"xsiNil"|"explicitEmpty"|"xsiType"|"xmlText"|"xmlPrefix"/u,
     )
     expect(await runFullXmlSyncWorkerCommand({ kind: "finishExecution" })).toBeUndefined()
@@ -230,10 +218,10 @@ describe("full XML sync worker", () => {
     const assignments = [assignment(projectDir, "Первый"), assignment(projectDir, "Второй")]
     const composition = createFullXmlSyncCompositionSnapshot(assignments)
     let catalogBuilds = 0
-    const targetDescriptor = await installLegacySnapshot(
+    const targetDescriptor = await installTestIndex(
       projectDir,
       { kind: "configuration" },
-      snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
+      emptyTestIndex(),
     )
 
     await runFullXmlSyncWorkerCommand({
@@ -315,7 +303,7 @@ describe("full XML sync worker", () => {
   it("releases all state on dispose", async () => {
     const projectDir = createProject(["Товары"])
     const assigned = assignment(projectDir, "Товары")
-    const baseSnapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
+    const baseSnapshot = emptyTestIndex()
     await initialize(projectDir, [assigned], context, baseSnapshot)
 
     expect(fullXmlSyncWorkerStateForTests().baseIndexPath).toContain("configuration-index.lmdb")
@@ -508,43 +496,32 @@ describe("full XML sync worker", () => {
       const logicalAddress = "ОбщаяФорма.ФормаПродаж"
       const formAddress = logicalAddress
       const elementAddress = childUid(formAddress, "Элемент", "Поле")
-      const baseIndex = sampleSnapshot()
-      const baseSnapshot = snapshotConfigurationIndex(
-        encodeConfigurationIndex({
-          ...baseIndex,
+      const baseSnapshot: TestIndex = {
           files: [
-            ...baseIndex.files,
             {
               projectPath,
               contentHash: hashFileBytes(fs.readFileSync(baseSourcePath)),
             },
           ],
-          entities: [
-            ...baseIndex.entities,
+          fragments: [{ targetProjectPath: projectPath, entities: [
             {
               logicalAddress: childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"),
-              sourceProjectPath: projectPath,
-              identities: { xmlId: "9" },
+              xmlId: "9",
             },
             {
               logicalAddress: elementAddress,
-              sourceProjectPath: projectPath,
-              identities: { xmlId: "10" },
+              xmlId: "10",
             },
             {
               logicalAddress: childSegmentUid(elementAddress, "КонтекстноеМеню"),
-              sourceProjectPath: projectPath,
-              identities: { xmlId: "11" },
+              xmlId: "11",
             },
             {
               logicalAddress: childSegmentUid(elementAddress, "РасширеннаяПодсказка"),
-              sourceProjectPath: projectPath,
-              identities: { xmlId: "12" },
+              xmlId: "12",
             },
-          ],
-        })
-      )
-      const extensionIndex = sampleSnapshot()
+          ]}],
+        }
       const assigned: FullXmlSyncExecutionAssignment = {
         id: projectPath,
         sourceProjectPath: projectPath,
@@ -568,20 +545,15 @@ describe("full XML sync worker", () => {
           : {}),
         ...fullXmlSyncTestTopologyFields(projectPath),
       }
-      const targetSnapshot = snapshotConfigurationIndex(
-        encodeConfigurationIndex({
-          ...extensionIndex,
-          componentPath: "cfe/Продажи",
-          files: [...extensionIndex.files, { projectPath, contentHash: hashFileBytes(fs.readFileSync(sourcePath)) }],
-          entities: [...extensionIndex.entities, {
+      const targetSnapshot: TestIndex = {
+          files: [{ projectPath, contentHash: hashFileBytes(fs.readFileSync(sourcePath)) }],
+          fragments: [{ targetProjectPath: projectPath, entities: [{
             logicalAddress: elementAddress,
-            sourceProjectPath: projectPath,
-            identities: { xmlId: "1000010" },
-          }],
-        }),
-      )
-      const baseDescriptor = await installLegacySnapshot(projectDir, { kind: "configuration" }, baseSnapshot)
-      const targetDescriptor = await installLegacySnapshot(projectDir, { kind: "configurationExtension", name: "Продажи" }, targetSnapshot)
+            xmlId: "1000010",
+          }]}],
+        }
+      const baseDescriptor = await installTestIndex(projectDir, { kind: "configuration" }, baseSnapshot)
+      const targetDescriptor = await installTestIndex(projectDir, { kind: "configurationExtension", name: "Продажи" }, targetSnapshot)
       await runFullXmlSyncWorkerCommand({
         kind: "initialize",
         workerIndex: 0,
@@ -668,20 +640,18 @@ describe("full XML sync worker", () => {
     projectDir: string,
     assignments: readonly FullXmlSyncAssignment[],
     workerContext: ConfigurationContext = context,
-    baseSnapshot?: ReturnType<typeof snapshotConfigurationIndex>,
+    baseSnapshot?: TestIndex,
     openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession = () => emptyReadSession(),
     projectStateReadSession?: ProjectStateReadSession,
-    targetSnapshot: SharedConfigurationIndexSnapshot = snapshotConfigurationIndex(
-      encodeConfigurationIndex(sampleSnapshot())
-    ),
+    targetSnapshot: TestIndex = emptyTestIndex(),
     outputTarget: FullXmlSyncOutputTarget = { kind: "directory", outputDir: join(projectDir, ".out") },
     typeDescriptionXMLNameByType?: Readonly<Record<string, string>>,
     profileOverride?: FullXmlSyncWorkerProfileRuntime,
   ): Promise<void> {
-    const targetDescriptor = await installLegacySnapshot(projectDir, { kind: "configuration" }, targetSnapshot)
+    const targetDescriptor = await installTestIndex(projectDir, { kind: "configuration" }, targetSnapshot)
     const baseDescriptor = baseSnapshot === undefined
       ? undefined
-      : await installLegacySnapshot(projectDir, { kind: "configurationExtension", name: "base-test" }, baseSnapshot)
+      : await installTestIndex(projectDir, { kind: "configurationExtension", name: "base-test" }, baseSnapshot)
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
       workerIndex: 0,
@@ -748,23 +718,16 @@ function flatSessionParameterAssignment(
     itemType: "MetadataSessionParameter",
     itemName: name,
     logicalAddress: `ПараметрСеанса.${name}`,
-    configurationIndexEntityRange: { start: 0, count: 0 },
+    configurationIndexSources: { targetProjectPaths: [`ПараметрСеанса/${name}.yaml`], baseProjectPaths: [] },
     ...fullXmlSyncTestTopologyFields(`ПараметрСеанса/${name}.yaml`),
   }
 }
 
-function targetIndexForAssignment(assigned: FullXmlSyncAssignment): SharedConfigurationIndexSnapshot {
-  return snapshotConfigurationIndex(encodeConfigurationIndex({
-    specificationVersion: "1.4",
-    indexGeneration: 1n,
-    componentPath: "cf",
+function targetIndexForAssignment(assigned: FullXmlSyncAssignment): TestIndex {
+  return {
     files: [{ projectPath: assigned.sourceProjectPath, contentHash: assigned.expectedContentHash }],
-    entities: [{
-      logicalAddress: assigned.logicalAddress,
-      sourceProjectPath: assigned.sourceProjectPath,
-      identities: { xmlName: assigned.itemName },
-    }],
-  }))
+    fragments: [],
+  }
 }
 
 function configurationState(
@@ -799,36 +762,28 @@ function configurationState(
   }
 }
 
-async function installLegacySnapshot(
+interface TestIndex {
+  readonly files: readonly ConfigurationProjectFile[]
+  readonly fragments: readonly ConfigurationIndexBlockFragment[]
+}
+
+function emptyTestIndex(): TestIndex {
+  return { files: [], fragments: [] }
+}
+
+async function installTestIndex(
   projectDir: string,
   address: { kind: "configuration" } | { kind: "configurationExtension"; name: string },
-  snapshot: SharedConfigurationIndexSnapshot,
+  snapshot: TestIndex,
 ): Promise<ConfigurationIndexStoreDescriptor> {
-  const decoded = decodeConfigurationIndex(new Uint8Array(snapshot.bytes, 0, snapshot.byteLength))
   const candidate = await createConfigurationIndexCandidateStore({
     projectDir,
     address,
     operationId: `test-${Math.random()}`,
     purpose: "full",
   })
-  candidate.replaceHashes(decoded.files)
-  const byPath = Map.groupBy(decoded.entities, ({ sourceProjectPath }) => sourceProjectPath)
-  for (const [targetProjectPath, entities] of byPath) {
-    candidate.mergeBlockFragment({
-      targetProjectPath,
-      entities: entities.flatMap((entity) => {
-        const uuid = entity.identities?.uuid
-        const xmlId = entity.identities?.xmlId
-        if (uuid === undefined && xmlId === undefined && entity.omittedChildren === undefined) return []
-        return [{
-          logicalAddress: entity.logicalAddress,
-          ...(uuid === undefined ? {} : { uuid }),
-          ...(xmlId === undefined ? {} : { xmlId }),
-          ...(entity.omittedChildren?.kind !== "typedNames" ? {} : { children: entity.omittedChildren.items }),
-        }]
-      }),
-    })
-  }
+  candidate.replaceHashes(snapshot.files)
+  for (const fragment of snapshot.fragments) candidate.mergeBlockFragment(fragment)
   const descriptor = configurationIndexStoreDescriptor(projectDir, address)
   const active = openConfigurationIndexStore(descriptor, "readWrite")
   try { await active.replaceActiveFrom(candidate) } finally {

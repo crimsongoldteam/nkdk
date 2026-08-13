@@ -3,9 +3,9 @@ import { join, resolve } from "node:path"
 import { componentPath, parseComponentPath } from "@nkdk/runtime"
 import {
   openConfigurationIndexStore,
-  type ConfigurationIndexBlock,
   type ConfigurationIndexPendingDelta,
-} from "@nkdk/runtime"
+} from "@nkdk/runtime/configuration-index-store"
+import type { ConfigurationIndexBlock } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import type { Diagnostic } from "@nkdk/runtime"
 import {

@@ -13,7 +13,7 @@ import type {
   ProjectStateService,
 } from "../projectState"
 import type { FullXmlSyncComponentProfile } from "./componentProfile"
-import { configurationIndexStoreDescriptor, openConfigurationIndexStore } from "../configurationIndex"
+import { configurationIndexStoreDescriptor, openConfigurationIndexStore } from "../configurationIndex/store"
 
 export interface FullXmlSyncComponentRuntimeDependencies {
   readonly readStructure: typeof readComponentProjectStructure

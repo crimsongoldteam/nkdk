@@ -8,9 +8,9 @@ import type { XMLDefaultVariant } from "@nkdk/runtime"
 import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
 import {
   createLocalConfigurationIndexReader,
-  openConfigurationIndexStore,
   type LocalConfigurationIndexReader,
 } from "../configurationIndex"
+import { openConfigurationIndexStore } from "../configurationIndex/store"
 
 export type XmlSyncProfileKind = "configuration" | "configurationExtension"
 

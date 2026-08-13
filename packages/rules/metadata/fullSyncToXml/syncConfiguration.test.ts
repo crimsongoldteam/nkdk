@@ -2,9 +2,9 @@ import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import type {
   ConfigurationIndexBlockFragment,
-  ConfigurationIndexCandidateStore,
   ConfigurationProjectFile,
 } from "@nkdk/runtime"
+import type { ConfigurationIndexCandidateStore } from "@nkdk/runtime/configuration-index-store"
 import type { ComponentAddress } from "@nkdk/runtime"
 import type {
   ComponentHashState,

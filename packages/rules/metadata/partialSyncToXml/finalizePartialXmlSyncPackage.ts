@@ -2,11 +2,13 @@ import fs from "node:fs"
 import { resolve } from "node:path"
 import { xxh3 } from "@node-rs/xxhash"
 import {
+  parseComponentPath,
+} from "@nkdk/runtime"
+import {
   configurationIndexStoreDescriptor,
   openConfigurationIndexStore,
-  parseComponentPath,
   type ConfigurationIndexStore,
-} from "@nkdk/runtime"
+} from "@nkdk/runtime/configuration-index-store"
 import { pendingPartialXmlSyncPaths, readPendingPartialXmlSync, type PendingPartialXmlSyncStateV3 } from "./pendingStore"
 import { publishPartialXmlSyncAppliedMigrations } from "./migrationState"
 

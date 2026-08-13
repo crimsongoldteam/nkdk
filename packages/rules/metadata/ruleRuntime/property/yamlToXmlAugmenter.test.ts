@@ -1,14 +1,12 @@
 import { beforeAll, describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
 import { createMetadataItemYamlToXmlAugmenterRegistry, registerMetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 const calls: Array<{ itemType: string; logicalAddress: string }> = []
 
@@ -103,9 +101,7 @@ function context(): ConfigurationContextWithExportToXML {
 
       componentKind: "recursive-augmenter-test",
       configurationIndex: createConfigurationIndexExportRuntime({
-        source: createConfigurationIndexReader(
-          snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
-        ),
+        source: testConfigurationIndexReader(),
         collector: createConfigurationIndexCollector(),
         targetProjectPath: "root.yaml",
         logicalAddress: "Root",

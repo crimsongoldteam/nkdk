@@ -26,6 +26,15 @@ const forbiddenPiscinaSetup = resolve(__dirname, "./tests/forbidRealPiscina")
 const lightweightSetup = resolve(__dirname, "./tests/setupTests")
 const metadataTestRunner = resolve(__dirname, "./tests/metadataTestRunner")
 const integrationTests = ["**/*.integration.test.ts"]
+const nativeLmdbIntegrationTests = [
+  "metadata/fullSyncToXml/worker.integration.test.ts",
+  "metadata/importFromXml/importConfigurationExtension.integration.test.ts",
+]
+const nativeLmdbTests = [
+  "metadata/appliedObjects/configuration/convertFromXML.test.ts",
+  "metadata/partialSyncToXml/deliveryState.test.ts",
+  "metadata/partialSyncToXml/pendingStore.test.ts",
+]
 const bundleContractTests = [
   "metadata/composition/metadataRules.test.ts",
   "metadata/composition/runtimeSchemaContract.test.ts",
@@ -53,7 +62,13 @@ export default defineConfig({
         test: {
           name: "unit",
           runner: metadataTestRunner,
-          exclude: [...configDefaults.exclude, ...coreMetadataTests, ...bundleContractTests, ...integrationTests],
+          exclude: [
+            ...configDefaults.exclude,
+            ...coreMetadataTests,
+            ...bundleContractTests,
+            ...integrationTests,
+            ...nativeLmdbTests,
+          ],
           sequence: { groupOrder: 0 },
           setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
         },
@@ -71,7 +86,7 @@ export default defineConfig({
           name: "core-metadata",
           runner: metadataTestRunner,
           include: coreMetadataTests,
-          exclude: integrationTests,
+          exclude: [...integrationTests, ...nativeLmdbTests],
           sequence: { groupOrder: 2 },
           setupFiles: [
             forbiddenPiscinaSetup,
@@ -81,14 +96,33 @@ export default defineConfig({
       },
       {
         test: {
+          name: "native-lmdb",
+          runner: metadataTestRunner,
+          include: nativeLmdbTests,
+          sequence: { groupOrder: 3 },
+          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
+        },
+      },
+      {
+        test: {
           name: "integration",
           runner: metadataTestRunner,
           include: integrationTests,
-          sequence: { groupOrder: 3 },
+          exclude: nativeLmdbIntegrationTests,
+          sequence: { groupOrder: 4 },
           setupFiles: [
             forbiddenPiscinaSetup,
             lightweightSetup,
           ],
+        },
+      },
+      {
+        test: {
+          name: "native-lmdb-integration",
+          runner: metadataTestRunner,
+          include: nativeLmdbIntegrationTests,
+          sequence: { groupOrder: 5 },
+          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
         },
       },
     ],

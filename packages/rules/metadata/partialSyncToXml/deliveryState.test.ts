@@ -2,7 +2,8 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { hashFileBytes, type ConfigurationIndexPendingDelta } from "@nkdk/runtime"
+import { hashFileBytes } from "@nkdk/runtime"
+import type { ConfigurationIndexPendingDelta } from "@nkdk/runtime/configuration-index-store"
 import {
   pendingPartialXmlSyncPaths,
   readPendingPartialXmlSync,
@@ -86,7 +87,7 @@ describe("фазы передачи частичного XML-пакета", () =
       loadTargets: ["Catalogs/Test.xml"],
       delivery: { status: "prepared" },
     }
-    await writePendingPartialXmlSync({ projectDir, state, delta: emptyDelta() })
+    await writePendingPartialXmlSync({ projectDir, state, delta: testDelta() })
     return projectDir
   }
 
@@ -109,6 +110,6 @@ function hashHex(bytes: Uint8Array): string {
   return hashFileBytes(bytes).toString(16).padStart(16, "0")
 }
 
-function emptyDelta(): ConfigurationIndexPendingDelta {
-  return { hashes: new Map(), blocks: new Map() }
+function testDelta(): ConfigurationIndexPendingDelta {
+  return { hashes: new Map([["Тест.yaml", { kind: "put", contentHash: 1n }]]), blocks: new Map() }
 }

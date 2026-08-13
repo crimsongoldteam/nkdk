@@ -93,9 +93,7 @@ describe("единый XML → YAML-обход: configuration index", () => {
       for (const identity of expected) {
         expect(entities).toContainEqual(expect.objectContaining({
           logicalAddress: identity.logicalAddress,
-          identities: expect.objectContaining({
-            [identity.kind]: identity.value,
-          }),
+          [identity.kind]: identity.value,
         }))
       }
     }

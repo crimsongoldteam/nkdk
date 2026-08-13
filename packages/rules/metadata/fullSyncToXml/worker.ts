@@ -1,14 +1,14 @@
 import fs from "node:fs"
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
-import { encodeConfigurationIndexFragments } from "@nkdk/runtime"
+import { encodeConfigurationBlockFragments } from "@nkdk/runtime"
 import { hashFileBytes } from "@nkdk/runtime"
 import {
   createLocalConfigurationIndexReader,
-  openConfigurationIndexStore,
   type ConfigurationIndexBlock,
   type ConfigurationIndexStoreDescriptor,
 } from "@nkdk/runtime"
+import { openConfigurationIndexStore } from "@nkdk/runtime/configuration-index-store"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlContracts"
@@ -326,7 +326,7 @@ async function executeAssignments(
     writtenFiles,
     expectedOutputs,
     generatedDocuments,
-    fragmentBuffer: encodeConfigurationIndexFragments(fragments),
+    fragmentBuffer: encodeConfigurationBlockFragments(fragments),
   }
 }
 

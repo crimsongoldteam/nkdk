@@ -3,10 +3,12 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import {
-  configurationIndexStoreDescriptor,
   hashFileBytes,
-  type ConfigurationIndexStore,
 } from "@nkdk/runtime"
+import {
+  configurationIndexStoreDescriptor,
+  type ConfigurationIndexStore,
+} from "@nkdk/runtime/configuration-index-store"
 import { finalizePartialXmlSyncPackage } from "./finalizePartialXmlSyncPackage"
 import {
   partialXmlSyncArchiveProjectPath,
@@ -51,7 +53,7 @@ describe("фиксация частичной XML-синхронизации", (
     let applied = false
     const events: string[] = []
     const store = fakeStore(events, {
-      pendingAlreadyApplied: () => applied,
+      pendingAlreadyApplied: () => { events.push("already?"); return applied },
       applyPending: async () => { events.push("apply"); applied = true },
     })
 

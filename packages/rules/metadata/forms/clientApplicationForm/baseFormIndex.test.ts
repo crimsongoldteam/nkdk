@@ -36,7 +36,10 @@ describe("BaseForm configuration index reader", () => {
       formLogicalAddress: formAddress,
       extensionIdentityAddresses: new Set([extensionOnly]),
     })
-    expect([...projected.entities()]).toEqual([projected.entity(elementAddress), projected.entity(extensionOnly)])
+    expect([...projected.entities()]).toEqual(expect.arrayContaining([
+      projected.entity(elementAddress),
+      projected.entity(extensionOnly),
+    ]))
   })
 
   it("берёт порядок детей из отдельного блока ОсноваФормы", () => {

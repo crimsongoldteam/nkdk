@@ -3,16 +3,18 @@ import os from "node:os"
 import { join } from "node:path"
 import { BlobReader, TextWriter, ZipReader } from "@zip.js/zip.js"
 import {
-  configurationIndexStoreDescriptor,
-  createConfigurationIndexCandidateStore,
   createMetadataRuntime,
   hashFileBytes,
-  openConfigurationIndexStore,
   parseComponentPath,
   type ConfigurationIndexBlockEntity,
   type ConfigurationProjectFile,
   type MetadataRuntime,
 } from "@nkdk/runtime"
+import {
+  configurationIndexStoreDescriptor,
+  createConfigurationIndexCandidateStore,
+  openConfigurationIndexStore,
+} from "@nkdk/runtime/configuration-index-store"
 import { metadataRules } from "@nkdk/rules"
 import { PlatformSessionError, recordPartialSyncDeliveryPhase } from "@nkdk/platform"
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"

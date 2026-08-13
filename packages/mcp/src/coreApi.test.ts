@@ -7,7 +7,7 @@ const fixture = vi.hoisted(() => {
     markTransferring: vi.fn(async () => undefined),
     markPreparedAfterRejection: vi.fn(async () => undefined),
     markApplied: vi.fn(async () => undefined),
-    finalize: vi.fn(async () => ({ status: "published", configurationIndexPath: "/project/index.bin" })),
+    finalize: vi.fn(async () => ({ status: "published", configurationIndexPath: "/project/configuration-index.lmdb" })),
   }
   return {
     partial,

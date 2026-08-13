@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
-  childSegmentUid,
   createConfigurationIndexCollector,
   withConfigurationIndexCollector,
 } from "@nkdk/runtime"
@@ -323,7 +322,7 @@ describe("configuration extension PropertyState augmenter", () => {
     })).toThrow("Неизвестное значение PropertyState FutureState для UnknownItem.Form")
   })
 
-  it("сохраняет присутствие ExtendedConfigurationObject как xml.extended у любого metadata-item", () => {
+  it("не сохраняет присутствие ExtendedConfigurationObject в тонком снимке", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Конфигурация"
 
@@ -339,16 +338,10 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml: {},
     })
 
-    expect(collector.fragment("Форма.yaml").entities).toEqual([
-      {
-        logicalAddress,
-        sourceProjectPath: "Форма.yaml",
-        xml: { extended: true },
-      },
-    ])
+    expect(collector.fragment("Форма.yaml").entities).toEqual([])
   })
 
-  it("сохраняет присутствие InternalInfo у metadata-item", () => {
+  it("не сохраняет присутствие InternalInfo в тонком снимке", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Товары.Реквизит.Код"
 
@@ -359,13 +352,7 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml: {},
     })
 
-    expect(collector.fragment("Форма.yaml").entities).toEqual([
-      {
-        logicalAddress: childSegmentUid(logicalAddress, "InternalInfo"),
-        sourceProjectPath: "Форма.yaml",
-        xml: { present: true },
-      },
-    ])
+    expect(collector.fragment("Форма.yaml").entities).toEqual([])
   })
 
   it("не сохраняет присутствие и порядок служебных свойств", () => {

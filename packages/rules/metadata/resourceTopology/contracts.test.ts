@@ -6,10 +6,8 @@ import { resolveTopologyMetadataTargetOwner } from "./adapters/metadataTargetOwn
 import { classifyMetadataProjectPath, projectMetadataFileBackedTargets } from "./core/projectProjection"
 import { mockContextToXML } from "../../tests/mockContext"
 import { createYAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import { resolvePartialXmlPackagePolicy } from "../partialSyncToXml/packagePolicy"
+import { testConfigurationIndexReader } from "../../tests/configurationIndex"
 
 
 describe("registered metadata resource topology contracts", () => {
@@ -82,7 +80,7 @@ describe("registered metadata resource topology contracts", () => {
           propertyName: "form",
         },
       ],
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
       composition: { children: () => [] },
       profile: createYAMLToXMLProfile(),
     })
