@@ -16,29 +16,22 @@ import { yamlScalarTagAt } from "@nkdk/runtime"
 const yaml = [
   {
     Имя: "Индекс1",
-    Таблица: "Справочник.СправочникCоВсемиОбъектами",
-    ИндексируемыеПоля: ["Ссылка"],
-    ДополнительныеПоля: ["Наименование"],
+    Таблица: "Catalog.СправочникCоВсемиОбъектами",
+    ИндексируемыеПоля: ["Ref"],
+    ДополнительныеПоля: ["Description"],
   },
 ]
 
 describe("AdditionalIndex YAML → XML", () => {
   it("round-trip from full.xml", () => {
     const referenceXML = readAppliedObjectFixture(import.meta.url, "full.xml")
-    const contexts = additionalIndexContexts("СправочникCоВсемиОбъектами")
-    const result = testMetadataItemFromYAMLToXML({
-      context: contexts.exportContext(),
-      rule: AdditionalIndexRules,
-      yaml,
-      referenceXML,
-    })
+    const result = testMetadataItemFromYAMLToXML({ rule: AdditionalIndexRules, yaml, referenceXML })
 
     expect(serializeDirectXML(result.xml)).toBe(readXMLFixtureAsString(import.meta.url, "full.xml"))
   })
 
   it("inline-array парсится в items без обёртки", () => {
-    const contexts = additionalIndexContexts("СправочникCоВсемиОбъектами")
-    const result = testMetadataItemFromYAMLToXML({ context: contexts.exportContext(), rule: AdditionalIndexRules, yaml })
+    const result = testMetadataItemFromYAMLToXML({ rule: AdditionalIndexRules, yaml })
 
     expect(result.xml).toMatchObject({
       AdditionalIndexes: {
@@ -50,16 +43,14 @@ describe("AdditionalIndex YAML → XML", () => {
   })
 
   it("exports fields in 1C-loadable order without reference", () => {
-    const contexts = additionalIndexContexts("СправочникПолный")
     const result = testMetadataItemFromYAMLToXML({
-      context: contexts.exportContext(),
       rule: AdditionalIndexRules,
       yaml: [
         {
           Имя: "ОдинИндекс",
-          Таблица: "Справочник.СправочникПолный",
-          ИндексируемыеПоля: ["Код"],
-          ДополнительныеПоля: ["Ссылка"],
+          Таблица: "Catalog.СправочникПолный",
+          ИндексируемыеПоля: ["Code"],
+          ДополнительныеПоля: ["Ref"],
         },
       ],
     })
@@ -67,6 +58,7 @@ describe("AdditionalIndex YAML → XML", () => {
 
     expect(exported).toContain(
       [
+        '\t<AdditionalIndex id="11111111-1111-4111-8111-111111111111">',
         "\t\t<Name>ОдинИндекс</Name>",
         "\t\t<Table>Catalog.СправочникПолный</Table>",
         "\t\t<IndexedFields>",
@@ -75,12 +67,13 @@ describe("AdditionalIndex YAML → XML", () => {
         "\t\t<AdditionalFields>",
         "\t\t\t<Field>Ref</Field>",
         "\t\t</AdditionalFields>",
+        "\t</AdditionalIndex>",
       ].join("\n")
     )
   })
 
   it("preserves a zero _id through the configuration index", () => {
-    const contexts = additionalIndexContexts("Товары")
+    const contexts = createDirectRoundTripContexts()
     const sourceXML = {
       AdditionalIndexes: {
         AdditionalIndex: [
@@ -109,7 +102,7 @@ describe("AdditionalIndex YAML → XML", () => {
   })
 
   it("preserves an explicitly empty fields container through !xml", () => {
-    const contexts = additionalIndexContexts("Товары")
+    const contexts = createDirectRoundTripContexts()
     const sourceXML = {
       AdditionalIndexes: {
         AdditionalIndex: [
@@ -144,11 +137,3 @@ describe("AdditionalIndex YAML → XML", () => {
     })
   })
 })
-
-function additionalIndexContexts(ownerName: string) {
-  return createDirectRoundTripContexts({
-    metadataTargetOwners: [
-      { itemType: "MetadataCatalog", name: ownerName, owner: { root: "Catalog", objectName: ownerName } },
-    ],
-  })
-}
