@@ -73,6 +73,7 @@ export const MetadataExternalDataSourceRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",

@@ -179,6 +179,7 @@ export const MetadataAccountingRegisterRules = {
       yaml: "ПланСчетов",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
       ownerFactRole: "chartOfAccounts",
     }),
     correspondence: booleanRule({

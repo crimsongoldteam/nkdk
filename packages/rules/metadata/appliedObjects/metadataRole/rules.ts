@@ -46,6 +46,7 @@ export const MetadataRoleRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     rights: templateRule({
       nkdkPath: "Rights.xml",

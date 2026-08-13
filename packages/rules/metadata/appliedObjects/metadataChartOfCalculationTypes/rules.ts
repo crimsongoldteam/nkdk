@@ -239,6 +239,7 @@ export const MetadataChartOfCalculationTypesRules = {
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     defaultListForm: stringRule({
       yaml: "ОсновнаяФормаСписка",

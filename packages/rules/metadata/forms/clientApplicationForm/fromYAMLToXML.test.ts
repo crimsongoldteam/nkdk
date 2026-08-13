@@ -338,6 +338,23 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(result.formXML.Attributes).toEqual({})
   })
 
+  it("создаёт обязательный пустой Attributes формы расширения без YAML-поля", () => {
+    const baseContext = mockContextToXML()
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: {
+        ...baseContext,
+        exportToXML: {
+          ...baseContext.exportToXML,
+          xmlDefaultVariantByLogicalAddress: { "ОбщаяФорма.Форма": "adopted" },
+        },
+      },
+      yaml: {},
+      name: "Форма",
+    })
+
+    expect(result.formXML.Attributes).toEqual({ Attribute: [] })
+  })
+
   it("добавляет служебные узлы по конечному источнику таблицы без reference XML", () => {
     const convert = (requisites: ClientApplicationFormYAML["Реквизиты"], dataPath?: string) =>
       firstTable(

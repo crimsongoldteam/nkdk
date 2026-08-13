@@ -101,6 +101,7 @@ export const MetadataDocumentJournalRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     defaultForm: stringRule({
       yaml: "ОсновнаяФорма",

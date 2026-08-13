@@ -47,6 +47,7 @@ export const MetadataCommonTemplateRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     templateType: systemEnumerationRule({
       yaml: "ВидМакета",

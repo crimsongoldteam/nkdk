@@ -250,6 +250,7 @@ export const MetadataCatalogRules = {
       yaml: "Комментарий",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     createOnInput: systemEnumerationRule({
       yaml: "СозданиеПриВводе",

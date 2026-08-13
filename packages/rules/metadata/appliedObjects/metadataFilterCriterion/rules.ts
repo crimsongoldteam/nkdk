@@ -73,6 +73,7 @@ export const MetadataFilterCriterionRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",

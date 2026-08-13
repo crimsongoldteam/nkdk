@@ -55,6 +55,7 @@ export const MetadataEnumerationValueRules = {
       xml: "Comment",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",

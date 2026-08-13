@@ -55,6 +55,7 @@ export const MetadataScheduledJobRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     methodName: stringRule({
       yaml: "ИмяМетода",

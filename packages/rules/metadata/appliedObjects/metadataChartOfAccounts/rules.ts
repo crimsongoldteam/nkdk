@@ -172,6 +172,7 @@ export const MetadataChartOfAccountsRules = {
       yaml: "ВидыСубконто",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
       ownerFactRole: "extDimensionTypes",
     }),
     maxExtDimensionCount: numberRule({

@@ -147,6 +147,7 @@ export const MetadataExchangePlanRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",

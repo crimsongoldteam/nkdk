@@ -47,6 +47,7 @@ export const MetadataFunctionalOptionsParameterRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     use: metadataItemLinksRule({
       yaml: "Использование",

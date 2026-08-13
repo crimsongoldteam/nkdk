@@ -90,6 +90,7 @@ export const MetadataConstantRules = {
       yaml: "Комментарий",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     type: typeDescriptionRule({
       ownerFactRole: "type",

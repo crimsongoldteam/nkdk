@@ -97,6 +97,24 @@ describe("client application BaseForm", () => {
     })
   })
 
+  it("создаёт пустой Attributes только у существующего BaseForm", () => {
+    const baseForm = buildClientApplicationBaseForm({
+      context: mockContextToXML(),
+      baseIndex: reader({ componentPath: "cf" }),
+      baseYaml: {},
+      extensionYaml: {},
+      formName: "ФормаЭлемента",
+    })
+    const withoutBaseForm = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {},
+      name: "ФормаЭлемента",
+    })
+
+    expect(baseForm.Attributes).toEqual({ Attribute: [] })
+    expect(withoutBaseForm.formXML).not.toHaveProperty("BaseForm")
+  })
+
   it("uses the canonical singleton name when indexed name output is empty", () => {
     const autoCommandBarAddress = childUid(
       formAddress,

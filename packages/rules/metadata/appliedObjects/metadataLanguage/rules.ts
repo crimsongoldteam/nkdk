@@ -49,6 +49,7 @@ export const MetadataLanguageRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     languageCode: stringRule({
       yaml: "КодЯзыка",

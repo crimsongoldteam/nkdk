@@ -132,6 +132,7 @@ export const MetadataCalculationRegisterRules = {
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     auxiliaryListForm: stringRule({
       yaml: "ДополнительнаяФормаСписка",

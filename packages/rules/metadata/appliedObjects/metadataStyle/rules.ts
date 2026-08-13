@@ -46,6 +46,7 @@ export const MetadataStyleRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     style: templateRule({
       nkdkPath: "Style.xml",

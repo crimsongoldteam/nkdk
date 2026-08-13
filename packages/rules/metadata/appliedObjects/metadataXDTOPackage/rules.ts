@@ -47,6 +47,7 @@ export const MetadataXDTOPackageRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     namespace: stringRule({
       yaml: "ПространствоИмен",

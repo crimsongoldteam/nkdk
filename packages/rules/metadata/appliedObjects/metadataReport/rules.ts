@@ -98,6 +98,7 @@ export const MetadataReportRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",

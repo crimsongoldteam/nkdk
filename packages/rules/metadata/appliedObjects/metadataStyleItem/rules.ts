@@ -48,6 +48,7 @@ export const MetadataStyleItemRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     type: systemEnumerationRule({
       yaml: "Тип",

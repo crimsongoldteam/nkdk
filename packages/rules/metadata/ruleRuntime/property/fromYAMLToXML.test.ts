@@ -579,6 +579,53 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
+  it("применяет предметно обязательный XML-default к заимствованному объекту", () => {
+    const property = {
+      type: "string",
+      yaml: "Режим",
+      xml: "Mode",
+      defaultValue: "default",
+      defaultValueXML: "xml-default",
+      toXML: () => true,
+    } as const
+
+    const adopted = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted"),
+      yaml: {},
+      rule: testRule({ value: property }),
+      outputs: [{ key: "owner" }],
+    })
+    const full = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("full"),
+      yaml: {},
+      rule: testRule({ value: property }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(adopted.outputs.get("owner")).toEqual({ Mode: "xml-default" })
+    expect(full.outputs.get("owner")).toEqual({ Mode: "xml-default" })
+  })
+
+  it("не применяет XML-default к заимствованному объекту при ложном предметном условии", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted"),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Режим",
+          xml: "Mode",
+          defaultValue: "default",
+          defaultValueXML: "xml-default",
+          toXML: () => false,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
   it("восстанавливает XML-default индексного варианта без состояния XML в снимке", () => {
     const property = {
       type: "string",

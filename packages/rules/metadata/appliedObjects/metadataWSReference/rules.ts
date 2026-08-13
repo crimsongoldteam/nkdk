@@ -57,6 +57,7 @@ export const MetadataWSReferenceRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",

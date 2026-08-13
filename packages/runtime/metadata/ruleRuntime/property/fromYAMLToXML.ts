@@ -217,7 +217,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
     if (!source.has(propertyKey)) {
     }
-    const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
+    const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey, source)
     const exportHandler = typeRule(planned.propertyRule.type, "exportToXML")
     const reserveNestedItemWhenAbsent =
       typeRule(planned.propertyRule.type, "nestedItemIdentity")?.reserveWhenAbsent === true
@@ -458,7 +458,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           : planned.propertyKey === namePropertyKey && params.name !== undefined && !source.has(propertyKey)
           ? params.name
           : source.raw(propertyKey)
-      const hasNestedDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
+      const hasNestedDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey, source)
       const nestedYAML =
         sourceNestedYAML === undefined
           ? effectiveNestedRule.kind === "collection" &&
@@ -847,7 +847,7 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
   const xmlDefault =
     params.preserveIndexedImplicitValue === true && Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
       ? { exists: true, value: rule.defaultValueXML }
-      : resolveXMLDefault(context, rule, propertyKey)
+      : resolveXMLDefault(context, rule, propertyKey, source)
   if (handler === undefined) {
     if (isDefaultValue(value, rule.defaultValue)) {
       if (shouldCreateRawParent(value, rule)) return value
@@ -1120,11 +1120,12 @@ function shouldCreateRawParent(value: unknown, rule: PropertyRule): boolean {
 function hasExplicitXMLDefault(
   context: ConfigurationContextWithExportToXML,
   rule: PropertyRule,
-  propertyKey?: string
+  propertyKey?: string,
+  source?: YAMLPropertySource,
 ): boolean {
   return (
-    resolveXMLDefault(context, rule, propertyKey).exists ||
-    (usesOrdinaryXMLDefaults(context, propertyKey, rule) &&
+    resolveXMLDefault(context, rule, propertyKey, source).exists ||
+    (usesOrdinaryXMLDefaults(context, propertyKey, rule, source) &&
       (Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw") ||
         Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty")))
   )
@@ -1133,25 +1134,36 @@ function hasExplicitXMLDefault(
 function usesOrdinaryXMLDefaults(
   context: ConfigurationContextWithExportToXML,
   _propertyKey?: string,
-  _rule?: PropertyRule
+  rule?: PropertyRule,
+  source?: YAMLPropertySource,
 ): boolean {
-  return resolveXMLDefaultVariant(context) !== "adopted"
+  return resolveXMLDefaultVariant(context) !== "adopted" || subjectRequiresXML(rule, source, context)
 }
 
 function resolveXMLDefault(
   context: ConfigurationContextWithExportToXML,
   rule: PropertyRule,
-  _propertyKey?: string
+  _propertyKey?: string,
+  source?: YAMLPropertySource,
 ): { readonly exists: boolean; readonly value: unknown } {
   const variant = resolveXMLDefaultVariant(context)
   if (variant === "adopted") {
-    return Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML")
-      ? { exists: true, value: rule.defaultValueAdoptedXML }
-      : { exists: false, value: undefined }
+    if (Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML")) {
+      return { exists: true, value: rule.defaultValueAdoptedXML }
+    }
+    if (!subjectRequiresXML(rule, source, context)) return { exists: false, value: undefined }
   }
   return Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
     ? { exists: true, value: rule.defaultValueXML }
     : { exists: false, value: undefined }
+}
+
+function subjectRequiresXML(
+  rule: PropertyRule | undefined,
+  source: YAMLPropertySource | undefined,
+  context: ConfigurationContextWithExportToXML,
+): boolean {
+  return source !== undefined && typeof rule?.toXML === "function" && rule.toXML(source, context)
 }
 
 export function resolveXMLDefaultVariant(

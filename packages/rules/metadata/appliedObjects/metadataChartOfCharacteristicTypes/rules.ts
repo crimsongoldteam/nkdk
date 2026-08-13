@@ -163,6 +163,7 @@ export const MetadataChartOfCharacteristicTypesRules = {
       yaml: "ДополнительныеЗначенияХарактеристик",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     type: typeDescriptionRule({
       yaml: "ТипЗначения",

@@ -47,6 +47,11 @@ export const MetadataWebServiceRules = {
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
     }),
+    namespace: stringRule({
+      yaml: "ПространствоИмен",
+      xml: "Namespace",
+      xmlParents: properties,
+    }),
     synonym: i8nTextRule({
       yaml: "Синоним",
       xmlParents: properties,
@@ -57,22 +62,13 @@ export const MetadataWebServiceRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    }),
-    namespace: stringRule({
-      yaml: "ПространствоИмен",
-      xml: "Namespace",
-      xmlParents: properties,
+      defaultValueAdoptedXML: "",
     }),
     xdtoPackages: xDTOPackagesRule({
       yaml: "ПакетыXDTO",
       xml: "XDTOPackages",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    }),
-    descriptorFileName: stringRule({
-      yaml: "ИмяФайлаДескриптора",
-      xml: "DescriptorFileName",
-      xmlParents: properties,
     }),
     reuseSessions: systemEnumerationRule({
       yaml: "ПовторноеИспользованиеСеансов",
@@ -82,13 +78,6 @@ export const MetadataWebServiceRules = {
       defaultValueXML: "AutoUse",
       implicitValueYAML: "AutoUse",
     }),
-    sessionMaxAge: numberRule({
-      yaml: "ВремяЖизниСеанса",
-      xml: "SessionMaxAge",
-      xmlParents: properties,
-      defaultValueXML: 20,
-      implicitValueYAML: 20,
-    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
@@ -97,6 +86,18 @@ export const MetadataWebServiceRules = {
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
+    }),
+    sessionMaxAge: numberRule({
+      yaml: "ВремяЖизниСеанса",
+      xml: "SessionMaxAge",
+      xmlParents: properties,
+      defaultValueXML: 20,
+      implicitValueYAML: 20,
+    }),
+    descriptorFileName: stringRule({
+      yaml: "ИмяФайлаДескриптора",
+      xml: "DescriptorFileName",
+      xmlParents: properties,
     }),
     extendedConfigurationObject: stringRule({
       xml: "ExtendedConfigurationObject",

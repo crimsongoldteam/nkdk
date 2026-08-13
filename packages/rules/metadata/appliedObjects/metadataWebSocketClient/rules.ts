@@ -58,6 +58,7 @@ export const MetadataWebSocketClientRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     predefined: booleanRule({
       yaml: "Предопределенный",

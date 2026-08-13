@@ -49,6 +49,7 @@ export const MetadataEventSubscriptionRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     source: typeDescriptionRule({
       yaml: "Источник",

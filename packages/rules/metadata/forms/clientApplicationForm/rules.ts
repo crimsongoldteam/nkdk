@@ -175,6 +175,7 @@ export const ClientApplicationFormRules = {
       yaml: "Реквизиты",
       tag: FormRulesTags.Form,
       defaultValueXMLEmpty: [],
+      defaultValueAdoptedXML: [],
       itemRule: FormAttributeRules,
     }),
     attributesConditionalAppearance: conditionalAppearanceRule({

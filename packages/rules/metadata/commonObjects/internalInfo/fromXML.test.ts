@@ -84,6 +84,16 @@ const importContainedObjectsFixture = () => {
 }
 
 describe("importInternalInfoFromXML", () => {
+  it("создаёт пустой InternalInfo для правила без вычисляемых UUID", () => {
+    expect(exportInternalInfoToXML({
+      context: mockContextToXML(),
+      rule: containedObjectsRule,
+      value: undefined,
+      referenceMetadata: undefined,
+      metadataItem: { itemType: "MetadataConfiguration" as never },
+    })).toEqual({})
+  })
+
   it("collects every InternalInfo UUID without exposing InternalInfo in YAML", () => {
     const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xmlWithContainedObject)
     const indexCollector = createConfigurationIndexCollector()

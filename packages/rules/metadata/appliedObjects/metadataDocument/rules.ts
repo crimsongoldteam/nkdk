@@ -247,6 +247,7 @@ export const MetadataDocumentRules = {
       yaml: "Комментарий",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     createOnInput: systemEnumerationRule({
       yaml: "СозданиеПриВводе",

@@ -72,6 +72,7 @@ export const StandardAttributeDescriptionRules = {
       yaml: "Комментарий",
       xml: "xr:Comment",
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     createOnInput: systemEnumerationRule({
       yaml: "СозданиеПриВводе",

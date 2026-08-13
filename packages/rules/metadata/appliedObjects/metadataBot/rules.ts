@@ -50,6 +50,7 @@ export const MetadataBotRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",

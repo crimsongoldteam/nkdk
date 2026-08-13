@@ -54,6 +54,7 @@ export const MetadataHTTPServiceRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     rootURL: stringRule({
       yaml: "КорневойURL",

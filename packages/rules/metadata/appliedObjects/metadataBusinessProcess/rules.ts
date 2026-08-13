@@ -131,6 +131,7 @@ export const MetadataBusinessProcessRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",

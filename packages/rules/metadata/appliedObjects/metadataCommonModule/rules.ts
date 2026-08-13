@@ -55,6 +55,7 @@ export const MetadataCommonModuleRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     global: booleanRule({
       yaml: "Глобальный",

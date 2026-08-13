@@ -52,6 +52,7 @@ export const MetadataDocumentNumeratorRules = {
       yaml: "Комментарий",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     numberType: systemEnumerationRule({
       yaml: "ТипНомера",

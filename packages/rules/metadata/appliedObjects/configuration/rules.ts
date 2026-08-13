@@ -154,6 +154,7 @@ export const MetadataConfigurationRules = {
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     namePrefix: stringRule({
       yaml: "ПрефиксИмен",

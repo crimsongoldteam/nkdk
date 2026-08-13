@@ -37,7 +37,13 @@ export const RecalculationRules = {
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
     }),
-    comment: stringRule({ yaml: "Комментарий", xml: "Comment", xmlParents: properties, defaultValueXMLRaw: "" }),
+    comment: stringRule({
+      yaml: "Комментарий",
+      xml: "Comment",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
+    }),
     use: booleanRule({
       yaml: "Использование",
       xml: "Use",
