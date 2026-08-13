@@ -11,10 +11,42 @@ import { yamlScalarTagAt } from "@nkdk/runtime"
 import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
 import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
 import { metadataCatalogPropertyStateCapabilities } from "../metadataCatalog/propertyStates"
+import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { configurationExtensionPropertyStateProfiles } from "./propertyStateProfiles"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
 
 describe("configuration extension PropertyState augmenter", () => {
+  it("записывает снятый флажок заимствованного объекта как Ложь", () => {
+    const yaml: Record<string, unknown> = {}
+
+    configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: MetadataCatalogRules,
+      source: { Properties: { ObjectBelonging: "Adopted" } },
+      yaml,
+    })
+
+    expect(yaml).toEqual({ ОбъектРасширяемойКонфигурации: false })
+  })
+
+  it("не записывает включённый флажок без Notify в YAML", () => {
+    const yaml: Record<string, unknown> = {}
+
+    configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: MetadataCatalogRules,
+      source: {
+        Properties: {
+          ObjectBelonging: "Adopted",
+          ExtendedConfigurationObject: "11111111-1111-4111-8111-111111111111",
+        },
+      },
+      yaml,
+    })
+
+    expect(yaml).toEqual({})
+  })
+
   it("преобразует Notify по каноническому XML-имени builder-rule без явного xml", () => {
     const yaml: Record<string, unknown> = { ОсновнойРежимЗапуска: "ManagedApplication" }
     configurationExtensionPropertyStatesAugmenter.augment({

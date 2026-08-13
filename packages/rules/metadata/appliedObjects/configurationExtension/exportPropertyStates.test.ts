@@ -35,7 +35,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       ["metadata", { Form: { Properties: { Format: "date" } } }],
       ["body", {}],
     ])
-    const yaml = { Формат: "date", ОбъектРасширяемойКонфигурации: BASE_UUID }
+    const yaml = { Формат: "date", ОбъектРасширяемойКонфигурации: {} }
     markYAMLScalarTag(yaml, "Формат", "проверять")
     markYAMLScalarTag(yaml, "ОбъектРасширяемойКонфигурации", "проверять")
     configurationExtensionYamlToXmlAugmenter.augment({
@@ -293,19 +293,15 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     expect(record(outputs.get("metadata")).Properties).toEqual({})
   })
 
-  it("marks the extension root as adopted without a base UUID", () => {
+  it("rejects an enabled extension root without a base UUID", () => {
     const outputs = new Map([["metadata", { Properties: {} }]])
-    configurationExtensionYamlToXmlAugmenter.augment({
+    expect(() => configurationExtensionYamlToXmlAugmenter.augment({
       context: context({ adoptedUuids: {} }),
       rule: MetadataConfigurationExtensionRules,
       yaml: {},
       outputs,
       logicalAddress: "Конфигурация",
-    })
-
-    expect(record(outputs.get("metadata")).Properties).toEqual({
-      ObjectBelonging: "Adopted",
-    })
+    })).toThrow("Не найден UUID основной конфигурации: Конфигурация")
   })
 
   it("writes the base UUID for an extended configuration root", () => {
@@ -328,22 +324,22 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     expect(testContext.exportToXML.configurationIndex!.collector.fragment("Конфигурация.yaml").entities).toEqual([])
   })
 
-  it("writes canonical ExtendedConfigurationObject without snapshot XML state", () => {
+  it.each([
+    ["included", {}, { ObjectBelonging: "Adopted", ExtendedConfigurationObject: BASE_UUID }],
+    ["omitted for a false flag", { ОбъектРасширяемойКонфигурации: false }, { ObjectBelonging: "Adopted" }],
+  ] as const)("writes canonical ExtendedConfigurationObject: %s", (_case, yaml, expected) => {
     const outputs = new Map<string, Record<string, unknown>>([
       ["metadata", { Form: { Properties: {} } }],
     ])
     configurationExtensionYamlToXmlAugmenter.augment({
       context: context({ adoptedUuids: { [logicalAddress]: BASE_UUID } }),
       rule,
-      yaml: {},
+      yaml,
       outputs,
       logicalAddress,
     })
 
-    expect(record(record(outputs.get("metadata")).Form).Properties).toEqual({
-      ObjectBelonging: "Adopted",
-      ExtendedConfigurationObject: BASE_UUID,
-    })
+    expect(record(record(outputs.get("metadata")).Form).Properties).toEqual(expected)
   })
 
   it("does not restore owner InternalInfo into an external XML file", () => {

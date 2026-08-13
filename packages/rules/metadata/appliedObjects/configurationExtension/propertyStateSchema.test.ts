@@ -248,7 +248,7 @@ describe("borrowed property-state schema", () => {
     })
   })
 
-  it("добавляет служебный маркер расширяемого объекта", () => {
+  it("разрешает только Ложь или пустой !проверять для флажка расширяемого объекта", () => {
     const serviceRule = {
       ...rule,
       properties: {
@@ -256,6 +256,7 @@ describe("borrowed property-state schema", () => {
         extendedConfigurationObject: {
           type: "string",
           xml: "ExtendedConfigurationObject",
+          xmlParents: ["Properties"],
           runtimeOnly: true,
         },
       },
@@ -274,8 +275,12 @@ describe("borrowed property-state schema", () => {
         },
       },
       source: Type.Object({ ДлинаКода: Type.Optional(Type.Number()) }, { additionalProperties: false }),
-    }) as { properties?: Record<string, unknown> }
+    })
+    const validator = compileValidationSchema(schema)
 
-    expect(schema.properties).toHaveProperty("ОбъектРасширяемойКонфигурации")
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: false })).toBe(true)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: {} })).toBe(true)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: true })).toBe(false)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: "11111111-1111-4111-8111-111111111111" })).toBe(false)
   })
 })

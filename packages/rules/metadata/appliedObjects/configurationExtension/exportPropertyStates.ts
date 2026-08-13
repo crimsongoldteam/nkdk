@@ -14,14 +14,25 @@ const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойК
 export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugmenter = {
   augment({ context, rule, yaml, outputs, logicalAddress }) {
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
-    if (rule.itemType === "MetadataConfigurationExtension") {
+    const extensionObject = yaml[EXTENDED_CONFIGURATION_OBJECT_YAML]
+    const enabled = extensionObject !== false
+    const adopted = rule.itemType === "MetadataConfigurationExtension" ||
+      adoptedUuid !== undefined ||
+      context.exportToXML.xmlDefaultVariantByLogicalAddress?.[logicalAddress] === "adopted"
+    if (adopted && supportsAdoptionServiceProperties(rule)) {
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-      if (adoptedUuid !== undefined) {
-        writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
+      if (enabled) {
+        if (adoptedUuid === undefined) {
+          throw new Error(`Не найден UUID основной конфигурации: ${logicalAddress}`)
+        }
+        writeServiceProperty(
+          outputs,
+          rule,
+          "extendedConfigurationObject",
+          "ExtendedConfigurationObject",
+          adoptedUuid,
+        )
       }
-    } else if (adoptedUuid !== undefined && supportsAdoptionServiceProperties(rule)) {
-      writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-      writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
     }
 
     if (Object.prototype.hasOwnProperty.call(yaml, "Контроль")) {

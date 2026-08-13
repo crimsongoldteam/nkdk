@@ -92,7 +92,43 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         continue
       }
     }
+    const serviceProperties = extensionServiceProperties(source, rule)
+    if (
+      supportsAdoptionServiceProperties(rule) &&
+      serviceProperties?.objectBelonging === "Adopted" &&
+      !serviceProperties.hasExtendedConfigurationObject &&
+      !Object.prototype.hasOwnProperty.call(yaml, NOTIFY_ALIASES.ExtendedConfigurationObject)
+    ) {
+      yaml[NOTIFY_ALIASES.ExtendedConfigurationObject] = false
+    }
   },
+}
+
+function extensionServiceProperties(
+  source: Record<string, unknown>,
+  rule: MetadataItemRule,
+): { readonly objectBelonging: unknown; readonly hasExtendedConfigurationObject: boolean } | undefined {
+  const extendedRule = rule.properties.extendedConfigurationObject
+  const objectBelongingRule = rule.properties.objectBelonging
+  const parents = extendedRule?.xmlParents ?? objectBelongingRule?.xmlParents ??
+    (rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"])
+  const properties = asRecord(valueAtXmlPath(source, parents))
+  if (properties === undefined) return undefined
+  const objectBelongingXML = objectBelongingRule?.xml ?? "ObjectBelonging"
+  const extendedConfigurationObjectXML = extendedRule?.xml ?? "ExtendedConfigurationObject"
+  return {
+    objectBelonging: properties[objectBelongingXML],
+    hasExtendedConfigurationObject: Object.prototype.hasOwnProperty.call(
+      properties,
+      extendedConfigurationObjectXML,
+    ),
+  }
+}
+
+function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
+  return rule.itemType === "MetadataConfigurationExtension" ||
+    rule.itemType === "ClientApplicationForm" ||
+    rule.properties.uuid !== undefined
 }
 
 function ensurePropertyYamlValue(params: {

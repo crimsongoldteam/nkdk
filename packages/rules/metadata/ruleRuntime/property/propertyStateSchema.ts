@@ -61,7 +61,10 @@ export function exportBorrowedPropertyStateSchema(params: {
       }
     : allowedProperties
   if (params.capability.properties.extendedConfigurationObject !== undefined) {
-    properties.ОбъектРасширяемойКонфигурации = Type.Optional(taggedScalarSchema(Type.String()))
+    properties.ОбъектРасширяемойКонфигурации = Type.Optional(Type.Union([
+      Type.Literal(false),
+      Type.Object({}, { additionalProperties: false, maxProperties: 0 }),
+    ]))
   }
   if (params.closed !== false) {
     const explicitXMLPropertyKeys = new Set(params.explicitXMLPropertyKeys ?? [])
