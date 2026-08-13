@@ -24,6 +24,7 @@ import {
   createImportFirstPassTransferable,
   createImportWorkerCommandRunner,
 } from "./worker"
+import { importDiagnostic, openImportBinaryResult } from "./binaryResult"
 import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
 
@@ -140,6 +141,23 @@ describe("XML import worker first pass", () => {
     second.resetForTests()
   })
 
+  it("удерживает каждый основной YAML до общего индекса", async () => {
+    const outputDir = createTempDir("all-yaml-deferred")
+    const assignment = catalogAssignment()
+    await initializeWorker(outputDir)
+
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [assignment],
+    }))
+
+    expect(first.diagnostics).toEqual([])
+    expect(first.files.map(({ targetProjectPath }) => targetProjectPath))
+      .not.toContain(assignment.targetProjectPath)
+    expect(workerStateForTests().preparedYamlIds).toEqual([assignment.id])
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
+  })
+
   it("writes deferred YAML and returns the complete local validation contribution", () => {
     const scenario = readyYamlValidationScenario
     if (scenario === undefined) throw new Error("Сценарий validation импортированного YAML не подготовлен")
@@ -224,10 +242,8 @@ describe("XML import worker first pass", () => {
       sourcePath: expect.stringContaining("broken.xml"),
       targetProjectPath: broken.targetProjectPath,
     })
-    expect(workerStateForTests().preparedYamlIds).toEqual([])
-    expect(result.files).toContainEqual(
-      expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath })
-    )
+    expect(workerStateForTests().preparedYamlIds).toEqual([valid.id])
+    expect(result.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(valid.targetProjectPath)
     expect(result.configurationFragments).toHaveLength(1)
   })
 
@@ -294,17 +310,17 @@ describe("XML import worker first pass", () => {
     expect(lines.some((line) => line.includes('substep="Преобразование XML в YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Сбор локальных индексов"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Извлечение данных для индекса конфигурации"'))).toBe(true)
-    expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(true)
-    expect(lines.some((line) => line.includes('substep="Запись основного YAML-файла"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(false)
+    expect(lines.some((line) => line.includes('substep="Запись основного YAML-файла"'))).toBe(false)
     expect(lines).toContainEqual(
-      expect.stringMatching(/substep="Досрочно записанные YAML".*items=1.*bytes=[1-9][0-9]*/)
+      expect.stringMatching(/substep="YAML, ожидающие второго прохода".*items=1/)
     )
+    expect(lines.some((line) => line.includes('substep="Досрочно записанные YAML"'))).toBe(false)
     const readLines = lines.filter((line) => line.includes('substep="Чтение XML"'))
     expect(readLines).toHaveLength(1)
     expect(readLines[0]).toContain("items=1")
     const serializationLines = lines.filter((line) => line.includes('substep="Сериализация YAML"'))
-    expect(serializationLines).toHaveLength(1)
-    expect(serializationLines.every((line) => line.includes("items=1"))).toBe(true)
+    expect(serializationLines).toHaveLength(0)
     expect(lines.some((line) => line.includes('substep="Построение модели"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Экспорт модели в YAML-объект"'))).toBe(false)
   })
@@ -422,6 +438,7 @@ describe("XML import worker second pass", () => {
       kind: "secondPassBatch",
       assignmentIds: ["foreign"],
     })).rejects.toThrow("не принадлежит этой линии")
+    await runImportWorkerCommand({ kind: "secondPass", assignmentId: "owned" })
     const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
 
     expect(finished).toBeUndefined()
@@ -547,7 +564,7 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it("continues first pass after an early YAML write error", async () => {
+  it("продолжает второй проход после ошибки записи YAML", async () => {
     const tempDir = createTempDir("worker")
     const blocked = catalogAssignment({ id: "blocked" })
     const valid = catalogAssignment({
@@ -564,18 +581,26 @@ describe("XML import worker second pass", () => {
       await runImportWorkerCommand({ kind: "firstPass", assignments: [blocked, valid] })
     )
 
-    expect(first).toMatchObject({
-      kind: "firstPassResult",
-      diagnostics: [
-        {
-          severity: "error",
-          code: "xml_import_yaml_failed",
-          targetProjectPath: blocked.targetProjectPath,
-        },
-      ],
+    expect(first.diagnostics).toEqual([])
+    expect(workerStateForTests().preparedYamlIds).toEqual([blocked.id, valid.id])
+
+    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    const second = await runImportWorkerCommand({
+      kind: "secondPassBatch",
+      assignmentIds: [blocked.id, valid.id],
     })
-    expect(first.files).toContainEqual(
-      expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath })
+    await runImportWorkerCommand({ kind: "endSecondPass" })
+
+    const view = openImportBinaryResult(second)
+
+    expect(view.diagnostics.count).toBe(1)
+    expect(importDiagnostic(view.diagnostics, 0)).toMatchObject({
+      severity: "error",
+      code: "xml_import_yaml_failed",
+      targetProjectPath: blocked.targetProjectPath,
+    })
+    expect(Array.from({ length: view.files.count }, (_, index) => view.files.file(index))).toContainEqual(
+      expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath }),
     )
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
