@@ -78,7 +78,12 @@
 				</Properties>
 			</Dimension>
 			<Dimension uuid="12d55711-1b6c-4b3a-a0a2-d5746957fb98">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>Balance</xr:Property>
+						<xr:State>Notify</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ИспользоватьХранилищеДвоичныхДанных</Name>

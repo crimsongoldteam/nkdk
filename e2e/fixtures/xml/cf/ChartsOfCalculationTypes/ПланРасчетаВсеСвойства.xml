@@ -82,7 +82,7 @@
 			<BasedOn>
 				<xr:Item xsi:type="xr:MDObjectRef">Document.ДокументВсеСвойства</xr:Item>
 			</BasedOn>
-			<DependenceOnCalculationTypes>OnActionPeriod</DependenceOnCalculationTypes>
+			<DependenceOnCalculationTypes>OnRegistrationPeriod</DependenceOnCalculationTypes>
 			<BaseCalculationTypes>
 				<xr:Item xsi:type="xr:MDObjectRef">ChartOfCalculationTypes.ПланРасчетаВсеСвойства</xr:Item>
 			</BaseCalculationTypes>

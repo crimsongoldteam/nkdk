@@ -33,6 +33,13 @@ describe("матрица PropertyState расширения", () => {
     ])
   })
 
+  it("контролирует максимальное количество субконто плана счетов", () => {
+    expect(registry.resolve({
+      itemType: "MetadataChartOfAccounts",
+      propertyKey: "maxExtDimensionCount",
+    })?.modes).toEqual(["control", "notify"])
+  })
+
   it("разрешает собственный состав движений заимствованного документа", () => {
     expect(registry.resolve({ itemType: "MetadataDocument", propertyKey: "registerRecords" }))
       .toEqual({ availability: "own", modes: [] })
