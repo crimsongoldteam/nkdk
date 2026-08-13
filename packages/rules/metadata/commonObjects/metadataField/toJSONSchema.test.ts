@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "../../ruleRuntime"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataFieldToJSONSchema } from "./toJSONSchema"
+import { metadataRules } from "../../composition/metadataRules"
+import { createRuleRegistrySet } from "../../ruleRuntime/ruleRegistrySet"
+
+const propertyRules = createRuleRegistrySet(metadataRules).property
 
 type StringSchemaMetadata = {
   pattern?: string
@@ -40,7 +43,7 @@ describe("exportMetadataFieldToJSONSchema", () => {
   })
 
   it("wraps metadata field schemas into array items", () => {
-    const exportToJSONSchema = getTypeRule("MetadataFields", "exportToJSONSchema")
+    const exportToJSONSchema = propertyRules.getTypeRule("MetadataFields", "exportToJSONSchema")
 
     const result = exportToJSONSchema?.({
       context: mockContext,
@@ -71,7 +74,7 @@ describe("exportMetadataFieldToJSONSchema", () => {
   })
 
   it("uses member fallback for registered metadata field schemas", () => {
-    const exportToJSONSchema = getTypeRule("MetadataField", "exportToJSONSchema")
+    const exportToJSONSchema = propertyRules.getTypeRule("MetadataField", "exportToJSONSchema")
 
     const result = exportToJSONSchema?.({
       context: mockContext,
@@ -89,7 +92,7 @@ describe("exportMetadataFieldToJSONSchema", () => {
   })
 
   it("uses member fallback for registered metadata fields array schemas", () => {
-    const exportToJSONSchema = getTypeRule("MetadataFields", "exportToJSONSchema")
+    const exportToJSONSchema = propertyRules.getTypeRule("MetadataFields", "exportToJSONSchema")
 
     const result = exportToJSONSchema?.({
       context: mockContext,

@@ -110,8 +110,11 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(schema("MetadataChartOfCalculationTypes").properties?.ДлинаКода).toMatchObject({ minimum: 0, maximum: 40 })
 
     const taskInput = schema("MetadataTask").properties?.ВводПоСтроке
-    expect((taskInput as { description?: string } | undefined)?.description)
-      .toContain("СтандартныйРеквизит.Наименование, СтандартныйРеквизит.Номер")
+    const taskInputDescription = (taskInput as { description?: string } | undefined)?.description
+    expect(taskInputDescription).toContain("СтандартныйРеквизит.Наименование, СтандартныйРеквизит.Номер")
+    expect(taskInputDescription).toContain("Нулевая длина исключает стандартное поле")
+    expect(taskInputDescription).toContain("Порядок полей значим")
+    expect(taskInputDescription).toContain("Полный вычисляемый список нельзя задавать явно")
     expect((schema("MetadataTask").properties?.ДлинаНомера as { description?: string } | undefined)?.description)
       .toContain("Число максимальная длина — 38")
   })

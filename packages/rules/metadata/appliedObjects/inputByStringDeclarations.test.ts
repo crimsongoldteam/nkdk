@@ -68,6 +68,14 @@ describe("input by string declarations", () => {
     const rule = itemRule.properties.inputByString as InputByStringFieldsWidePropertyRule
     expect(rule.type).toBe("InputByStringFields")
     expect(rule.standardFields.map(({ yaml }) => yaml)).toEqual(expected)
+    for (const field of rule.standardFields) {
+      const lengthRule = itemRule.properties[field.length.propertyKey] as NumberPropertyRule
+      expect(lengthRule).toMatchObject({
+        type: "number",
+        yaml: field.length.yaml,
+        implicitValueYAML: field.length.implicitValue,
+      })
+    }
   })
 
   it("does not change external data source tables", () => {

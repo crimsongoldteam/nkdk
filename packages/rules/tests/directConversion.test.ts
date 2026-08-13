@@ -116,14 +116,21 @@ describe("direct conversion test helpers", () => {
     })
 
     expect(imported.yaml).toEqual(minimalYAML)
-    expect(exported.result).toContain(
-      "<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Description</xr:Field>"
-    )
-    expect(exported.result).toContain(
-      "<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Code</xr:Field>"
-    )
+    expect(exported.result).toBe(withComputedCatalogInputByString(exported.expected))
   })
 })
+
+function withComputedCatalogInputByString(xml: string): string {
+  return xml.replace(
+    "\t\t\t<InputByString/>",
+    [
+      "\t\t\t<InputByString>",
+      "\t\t\t\t<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Description</xr:Field>",
+      "\t\t\t\t<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Code</xr:Field>",
+      "\t\t\t</InputByString>",
+    ].join("\n")
+  )
+}
 
 function itemRule(propertyType: PropertyRuleType): MetadataItemRule {
   return {

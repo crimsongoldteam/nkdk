@@ -75,7 +75,7 @@ describe("number JSON Schema", () => {
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/number/toJSONSchema.test.ts metadata/ruleRuntime/jsonSchemaRefs.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/number/toJSONSchema.test.ts metadata/ruleRuntime/jsonSchemaRefs.test.ts
 ```
 
 Expected: FAIL, потому что `minimum`, `maximum`, `maximumWhen` и `numberValidationSchemaRef` ещё не объявлены, а экспорт возвращает только `{ type: "number" }`.
@@ -138,7 +138,7 @@ export const numberValidationSchemaRef: ValidationSchemaRefFn = ({ rule }) => {
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/number/toJSONSchema.test.ts metadata/ruleRuntime/jsonSchemaRefs.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/number/toJSONSchema.test.ts metadata/ruleRuntime/jsonSchemaRefs.test.ts
 ```
 
 Expected: PASS; схема содержит `minimum`/`maximum`, а ref различает диапазоны и `implicitValueYAML`.
@@ -238,7 +238,7 @@ const rule = inputByStringFieldsRule({
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/inputByStringFields
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/inputByStringFields
 ```
 
 Expected: FAIL, потому что каталог и тип правила ещё не существуют.
@@ -302,7 +302,7 @@ definePropertyTypeRule("InputByStringFields", "exportToJSONSchema", exportMetada
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/inputByStringFields metadata/commonObjects/metadataField
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/inputByStringFields metadata/commonObjects/metadataField
 ```
 
 Expected: PASS; существующий `MetadataFields` не изменил поведение, новый тип делегирует формат и вычисляет отсутствие ключа.
@@ -584,7 +584,7 @@ description: "При значении Число максимальная дли
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/appliedObjects/inputByStringDeclarations.test.ts metadata/commonObjects/number/toJSONSchema.test.ts metadata/commonObjects/metadataField/toJSONSchema.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit --project core-metadata metadata/appliedObjects/inputByStringDeclarations.test.ts metadata/commonObjects/number/toJSONSchema.test.ts metadata/commonObjects/metadataField/toJSONSchema.test.ts
 ```
 
 Expected: PASS; все точные диапазоны и восемь порядков заданы декларативно.
@@ -666,7 +666,7 @@ expect(chartOfCalculationTypes.properties?.ДлинаКода).toMatchObject({ m
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/appliedObjects/inputByString.integration.test.ts metadata/validation/schemaRegistry.integration.test.ts metadata/validation/projectValidationPasses.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration metadata/appliedObjects/inputByString.integration.test.ts metadata/validation/schemaRegistry.integration.test.ts metadata/validation/projectValidationPasses.integration.test.ts
 ```
 
 Expected: PASS. Если проверка требует расширить `BasePropertyRule`, добавить concrete-switch в нейтральный слой или применить `!xml`, остановить выполнение и вынести изменение на согласование.

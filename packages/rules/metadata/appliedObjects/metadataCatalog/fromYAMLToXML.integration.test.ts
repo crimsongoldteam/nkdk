@@ -29,8 +29,7 @@ describe("MetadataCatalog YAML → XML", () => {
       yaml: minimalYAML,
     })
 
-    expect(result.result).toContain("Catalog.ПоУмолчанию.StandardAttribute.Description")
-    expect(result.result).toContain("Catalog.ПоУмолчанию.StandardAttribute.Code")
+    expect(result.result).toEqual(withComputedCatalogInputByString(withKnownXMLDefaults(result.expected)))
   })
 
   it.each([
@@ -105,3 +104,15 @@ describe("MetadataCatalog YAML → XML", () => {
     ).toThrow(message)
   })
 })
+
+function withComputedCatalogInputByString(xml: string): string {
+  return xml.replace(
+    "\t\t\t<InputByString/>",
+    [
+      "\t\t\t<InputByString>",
+      "\t\t\t\t<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Description</xr:Field>",
+      "\t\t\t\t<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Code</xr:Field>",
+      "\t\t\t</InputByString>",
+    ].join("\n")
+  )
+}

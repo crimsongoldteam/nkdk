@@ -261,7 +261,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       references.every((reference) => !reference.exists || reference.synthesizedDefault === true)
     ) continue
     if (
-      getXMLDefaultVariant(propertyContext) === "adopted" &&
+      resolveXMLDefaultVariant(propertyContext) === "adopted" &&
       !source.has(propertyKey) &&
       planned.propertyRule.exportNilValue === true &&
       references.every((reference) => !reference.exists)
@@ -377,7 +377,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     ) continue
 
     if (
-      getXMLDefaultVariant(propertyContext) === "indexed" &&
+      resolveXMLDefaultVariant(propertyContext) === "indexed" &&
       !reserveNestedItemWhenAbsent &&
       planned.propertyRule.yaml !== undefined &&
       planned.propertyRule.toYAML !== false &&
@@ -672,7 +672,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           !source.has(propertyKey) &&
           planned.propertyRule.excludeIfEqualNameYAML === true &&
           params.name !== undefined &&
-          getXMLDefaultVariant(propertyContext) !== "adopted",
+          resolveXMLDefaultVariant(propertyContext) !== "adopted",
       }
       imported = callAtomicFromYAML(importParams)
       if (params.profile !== undefined) params.profile.atomicFromYAMLCount++
@@ -773,7 +773,7 @@ function copyConfigurationIndexPropertyValue(
   const address = configurationIndexPropertyXmlStateLogicalAddress(runtime, property)
   if (value.extended === true) runtime.collector.setXmlFlag(address, "extended")
   if (!usesConfigurationIndexOrdinaryXMLState(context)) return
-  if (getXMLDefaultVariant(context) === undefined) return
+  if (resolveXMLDefaultVariant(context) === undefined) return
   if (value.present === true) runtime.collector.setXmlFlag(address, "present")
   if (value.xsiNil === true) runtime.collector.setXmlFlag(address, "xsiNil")
   if (value.explicitEmpty === true) runtime.collector.setXmlFlag(address, "explicitEmpty")
@@ -971,7 +971,7 @@ function referenceFromConfigurationIndex(
   )
   if (identity !== undefined) return identity
   if (!usesConfigurationIndexOrdinaryXMLState(context)) return { exists: false }
-  if (getXMLDefaultVariant(context) === undefined) return { exists: false }
+  if (resolveXMLDefaultVariant(context) === undefined) return { exists: false }
   const property = configurationIndexPropertyXmlStateAddress(planned)
   const indexedValue = getConfigurationIndexPropertyXmlValue(context, property)
   if (
@@ -1200,7 +1200,7 @@ function usesOrdinaryXMLDefaults(
   _propertyKey?: string,
   _rule?: PropertyRule
 ): boolean {
-  return getXMLDefaultVariant(context) !== "adopted"
+  return resolveXMLDefaultVariant(context) !== "adopted"
 }
 
 function resolveXMLDefault(
@@ -1208,7 +1208,7 @@ function resolveXMLDefault(
   rule: PropertyRule,
   _propertyKey?: string
 ): { readonly exists: boolean; readonly value: unknown } {
-  const variant = getXMLDefaultVariant(context)
+  const variant = resolveXMLDefaultVariant(context)
   if (variant === "adopted") {
     return Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML")
       ? { exists: true, value: rule.defaultValueAdoptedXML }
@@ -1219,7 +1219,9 @@ function resolveXMLDefault(
     : { exists: false, value: undefined }
 }
 
-function getXMLDefaultVariant(context: ConfigurationContextWithExportToXML): XMLDefaultVariant | undefined {
+export function resolveXMLDefaultVariant(
+  context: ConfigurationContextWithExportToXML
+): XMLDefaultVariant | undefined {
   const variants = context.exportToXML?.xmlDefaultVariantByLogicalAddress
   let logicalAddress = context.exportToXML?.configurationIndex?.logicalAddress
   while (logicalAddress !== undefined) {
