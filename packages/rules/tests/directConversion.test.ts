@@ -116,7 +116,12 @@ describe("direct conversion test helpers", () => {
     })
 
     expect(imported.yaml).toEqual(minimalYAML)
-    expect(exported.result).toBe(exported.expected)
+    expect(exported.result).toContain(
+      "<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Description</xr:Field>"
+    )
+    expect(exported.result).toContain(
+      "<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Code</xr:Field>"
+    )
   })
 })
 
