@@ -1,6 +1,17 @@
-import type { InputByStringFieldsWidePropertyRule, InputByStringStandardField } from "./types"
-
 type YAMLRoot = Readonly<Record<string, unknown>>
+
+export interface InputByStringStandardField {
+  yaml: string
+  length: {
+    propertyKey: string
+    yaml: string
+    implicitValue: number
+  }
+}
+
+interface InputByStringDefaultsRule {
+  standardFields: readonly InputByStringStandardField[]
+}
 
 export function effectiveInputByStringLength(
   field: InputByStringStandardField,
@@ -12,7 +23,7 @@ export function effectiveInputByStringLength(
 }
 
 export function inputByStringDefaultYAML(
-  rule: InputByStringFieldsWidePropertyRule,
+  rule: InputByStringDefaultsRule,
   yaml: unknown
 ): string[] {
   return rule.standardFields

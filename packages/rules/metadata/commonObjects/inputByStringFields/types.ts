@@ -5,16 +5,12 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import { inputByStringDefaultYAML } from "./defaultValue"
+import {
+  inputByStringDefaultYAML,
+  type InputByStringStandardField,
+} from "./defaultValue"
 
-export interface InputByStringStandardField {
-  yaml: string
-  length: {
-    propertyKey: string
-    yaml: string
-    implicitValue: number
-  }
-}
+export type { InputByStringStandardField } from "./defaultValue"
 
 export interface InputByStringFieldsWidePropertyRule extends WidePropertyRuleBase {
   type: "InputByStringFields"
