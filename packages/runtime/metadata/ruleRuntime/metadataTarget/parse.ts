@@ -7,6 +7,8 @@ import {
   objectPathKindToYAML,
   rootFromYAML,
   standardAttributeFromYAML,
+  virtualDataTableFromYAML,
+  virtualDataTableToYAML,
 } from "./roots"
 import { standardMemberYamlToInternal } from "./standardMemberAliases"
 import type {
@@ -61,6 +63,10 @@ export function parseMetadataTargetFromYAML(input: ParseMetadataTargetFromYAMLIn
         parseYAMLValueTarget(root, objectName, tail, constraint)
       )
     }
+    case "dataTable":
+      return parseDataTable(parts, input.constraint, "yaml")
+    case "dataTableField":
+      return parseDataTableField(input.value, input.constraint, "yaml")
     case "type":
     case "dataPath":
       return invalidShape(`Разбор целей вида "${input.constraint.kind}" не поддержан в metadataTargets`)
@@ -87,10 +93,117 @@ export function parseMetadataTargetFromModel(input: ParseMetadataTargetFromModel
         parseModelValueTarget(root, objectName, tail, constraint)
       )
     }
+    case "dataTable":
+      return parseDataTable(parts, input.constraint, "model")
+    case "dataTableField":
+      return parseDataTableField(input.canonical, input.constraint, "model")
     case "type":
     case "dataPath":
       return invalidShape(`Разбор целей вида "${input.constraint.kind}" не поддержан в metadataTargets`)
   }
+}
+
+function parseDataTable(
+  parts: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "dataTable" }>,
+  source: MetadataTargetSource
+): MetadataTargetParseResult {
+  const rootToken = parts[0]
+  const root = source === "yaml" ? rootFromYAML[rootToken ?? ""] : isMetadataRootName(rootToken ?? "") ? rootToken as MetadataRootName : undefined
+  if (root === undefined) return error("unknown-root", `Неизвестный корень "${rootToken ?? ""}"`)
+  if (constraint.roots !== undefined && !constraint.roots.includes(root)) {
+    return error("disallowed-root", `Корень "${root}" не разрешён для цели метаданных`)
+  }
+  const objectName = parts[1]
+  if (!isValidMetadataName(objectName)) return invalidShape()
+
+  let index = 2
+  const objectSegments: MetadataObjectSegment[] = []
+  while (index + 1 < parts.length) {
+    const kind = parseObjectSegmentKind(parts[index], source)
+    const name = parts[index + 1]
+    if (kind === undefined || !isValidMetadataName(name)) break
+    objectSegments.push({ kind, objectName: name })
+    index += 2
+  }
+
+  let virtualTable: string | undefined
+  if (index < parts.length) {
+    if (index !== parts.length - 1) return invalidShape()
+    const token = parts[index]!
+    virtualTable = source === "yaml"
+      ? virtualDataTableFromYAML[token] ?? parseBaseVirtualTable(token, "yaml")
+      : isModelVirtualTable(token)
+        ? token
+        : undefined
+    if (virtualTable === undefined) return unknownSegment(token)
+  }
+
+  const canonical = [
+    root,
+    objectName,
+    ...objectSegments.flatMap((segment) => [segment.kind, segment.objectName]),
+    ...(virtualTable === undefined ? [] : [virtualTable]),
+  ].join(".")
+  return success(canonical, {
+    kind: "dataTable",
+    root,
+    objectName,
+    ...(objectSegments.length === 0 ? {} : { objectSegments }),
+    ...(virtualTable === undefined ? {} : { virtualTable }),
+  })
+}
+
+function parseDataTableField(
+  value: string,
+  _constraint: Extract<MetadataTargetConstraint, { kind: "dataTableField" }>,
+  source: MetadataTargetSource
+): MetadataTargetParseResult {
+  if (/^-\d+$/.test(value)) {
+    return success(value, { kind: "dataTableField", fieldName: value, serviceValue: true })
+  }
+  const parts = splitTarget(value)
+  if (parts.length === 1 && isValidMetadataName(parts[0])) {
+    const fieldName = source === "yaml"
+      ? standardAttributeFromYAML[parts[0]!] ?? standardMemberYamlToInternal(parts[0]!) ?? parts[0]!
+      : parts[0]!
+    return success(fieldName, { kind: "dataTableField", fieldName })
+  }
+  if (source === "yaml" && rootFromYAML[parts[0] ?? ""] === undefined) {
+    return error("unknown-root", `Неизвестный корень "${parts[0] ?? ""}"`)
+  }
+  const memberConstraint = { kind: "member", owner: "explicit" } as const
+  const parsed = source === "yaml"
+    ? parseMemberTargetFromYAML(parts, memberConstraint, undefined)
+    : parseMemberTargetFromModel(parts, memberConstraint, undefined)
+  if (!parsed.ok || parsed.target.kind !== "member") return parsed
+  const terminal = parsed.target.segments.at(-1)
+  if (terminal === undefined) return invalidShape()
+  const tableSegments = parsed.target.segments.slice(0, -1)
+  const table: import("./types").ParsedDataTableTarget = {
+    kind: "dataTable",
+    root: parsed.target.root,
+    objectName: parsed.target.objectName,
+    ...(parsed.target.objectSegments === undefined ? {} : { objectSegments: parsed.target.objectSegments }),
+  }
+  return success(parsed.canonical, {
+    kind: "dataTableField",
+    fieldName: terminal.name,
+    table,
+    segments: [...tableSegments, terminal],
+  })
+}
+
+function parseBaseVirtualTable(value: string, source: MetadataTargetSource): string | undefined {
+  const prefix = source === "yaml" ? "База" : "Base"
+  if (!value.startsWith(prefix)) return undefined
+  const name = value.slice(prefix.length)
+  return isValidMetadataName(name) ? `Base${name}` : undefined
+}
+
+function isModelVirtualTable(value: string): boolean {
+  return Object.prototype.hasOwnProperty.call(virtualDataTableToYAML, value)
+    || parseBaseVirtualTable(value, "model") !== undefined
 }
 
 function parseRootedTargetFromYAML(
@@ -663,6 +776,22 @@ function formatCanonicalTarget(target: ParsedMetadataTarget): string {
         return `${target.root}.${target.objectName}.${enumValueModel}.${target.valueName}`
       if (target.valueKind === "emptyRef") return `${target.root}.${target.objectName}.${emptyRefModel}`
       return `${target.root}.${target.objectName}.${target.valueName}`
+    case "dataTable":
+      return [
+        target.root,
+        target.objectName,
+        ...(target.objectSegments ?? []).flatMap((segment) => [segment.kind, segment.objectName]),
+        ...(target.virtualTable === undefined ? [] : [target.virtualTable]),
+      ].join(".")
+    case "dataTableField":
+      return target.table === undefined || target.segments === undefined
+        ? target.fieldName
+        : [
+            target.table.root,
+            target.table.objectName,
+            ...(target.table.objectSegments ?? []).flatMap((segment) => [segment.kind, segment.objectName]),
+            ...target.segments.flatMap((segment) => [segment.kind, segment.name]),
+          ].join(".")
   }
 }
 

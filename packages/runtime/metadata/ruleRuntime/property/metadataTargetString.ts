@@ -49,7 +49,12 @@ export function exportStringMetadataTargetToYAML(params: {
 }): unknown {
   const value = params.value
   const constraint = params.rule.metadataTarget
-  if (typeof value !== "string" || value === "" || !isSupportedStringMetadataTarget(constraint)) return value
+  if (!isSupportedStringMetadataTarget(constraint)) return value
+
+  if (Array.isArray(value)) {
+    return value.map((item) => exportStringMetadataTargetToYAML({ ...params, value: item }))
+  }
+  if (typeof value !== "string" || value === "") return value
 
   return formatMetadataTargetToYAML({
     canonical: value,
@@ -65,7 +70,12 @@ export function importStringMetadataTargetFromYAML(params: {
 }): unknown {
   const value = params.value
   const constraint = params.rule.metadataTarget
-  if (typeof value !== "string" || value === "" || !isSupportedStringMetadataTarget(constraint)) return value
+  if (!isSupportedStringMetadataTarget(constraint)) return value
+
+  if (Array.isArray(value)) {
+    return value.map((item) => importStringMetadataTargetFromYAML({ ...params, value: item }))
+  }
+  if (typeof value !== "string" || value === "") return value
 
   const result = parseMetadataTargetFromYAML({
     value,
@@ -90,7 +100,10 @@ function lastResolvedOwner(frames: readonly MetadataTargetOwnerFrame[]): Metadat
 
 function isSupportedStringMetadataTarget(
   constraint: MetadataTargetConstraint | undefined
-): constraint is Extract<MetadataTargetConstraint, { kind: "member" | "object" }> {
+): constraint is Extract<MetadataTargetConstraint, { kind: "member" | "object" | "dataTable" | "dataTableField" }> {
   if (!constraint) return false
-  return constraint.kind === "member" || constraint.kind === "object"
+  return constraint.kind === "member"
+    || constraint.kind === "object"
+    || constraint.kind === "dataTable"
+    || constraint.kind === "dataTableField"
 }

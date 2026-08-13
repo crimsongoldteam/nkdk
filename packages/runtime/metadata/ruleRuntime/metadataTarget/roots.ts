@@ -132,3 +132,21 @@ export const objectPathKindFromYAML = Object.fromEntries(
 export function isMetadataObjectPathKind(value: string): value is MetadataObjectPathKind {
   return Object.prototype.hasOwnProperty.call(objectPathKindToYAML, value)
 }
+
+export const virtualDataTableToYAML: Readonly<Record<string, string>> = {
+  SliceFirst: "СрезПервых",
+  SliceLast: "СрезПоследних",
+  Balance: "Остатки",
+  Turnovers: "Обороты",
+  BalanceAndTurnovers: "ОстаткиИОбороты",
+  RecordsWithExtDimensions: "ДвиженияССубконто",
+  DrCrTurnovers: "ОборотыДтКт",
+  ExtDimensions: "Субконто",
+  ScheduleData: "ДанныеГрафика",
+  ActualActionPeriod: "ФактическийПериодДействия",
+  Points: "Точки",
+}
+
+export const virtualDataTableFromYAML = Object.fromEntries(
+  Object.entries(virtualDataTableToYAML).map(([model, yaml]) => [yaml, model])
+) as Readonly<Record<string, string>>

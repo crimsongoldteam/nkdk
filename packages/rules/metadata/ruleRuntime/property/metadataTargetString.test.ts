@@ -117,6 +117,20 @@ describe("metadataTargetOwnerFromRule", () => {
 })
 
 describe("string metadataTarget YAML", () => {
+  it("converts every item of a data-table target list", () => {
+    const rule = {
+      type: "IndexField",
+      metadataTarget: { kind: "dataTableField", tableProperty: "table" },
+    } as const
+
+    expect(
+      exportStringMetadataTargetToYAML({ rule, value: ["Date", "Ref"], owner: undefined })
+    ).toEqual(["Дата", "Ссылка"])
+    expect(
+      importStringMetadataTargetFromYAML({ rule, value: ["Дата", "Ссылка"], owner: undefined })
+    ).toEqual(["Date", "Ref"])
+  })
+
   it("exports canonical local member strings to short YAML", () => {
     expect(
       exportStringMetadataTargetToYAML({

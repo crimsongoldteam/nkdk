@@ -1,4 +1,11 @@
-import { memberKindToYAML, objectPathKindToYAML, rootToYAML, standardAttributeToYAML } from "./roots"
+import {
+  memberKindToYAML,
+  objectPathKindToYAML,
+  rootToYAML,
+  standardAttributeToYAML,
+  virtualDataTableToYAML,
+} from "./roots"
+import { standardMemberInternalToYaml } from "./standardMemberAliases"
 import { parseMetadataTargetFromModel } from "./parse"
 import type {
   MetadataMemberKind,
@@ -42,7 +49,42 @@ function formatParsedMetadataTargetToYAML(
       return formatMemberTargetToYAML(target, constraint, owner)
     case "value":
       return formatValueTargetToYAML(target)
+    case "dataTable":
+      return formatDataTableTargetToYAML(target)
+    case "dataTableField":
+      return formatDataTableFieldTargetToYAML(target)
   }
+}
+
+function formatDataTableTargetToYAML(target: Extract<ParsedMetadataTarget, { kind: "dataTable" }>): string {
+  return [
+    rootToYAML[target.root],
+    target.objectName,
+    ...(target.objectSegments ?? []).flatMap((segment) => [formatObjectSegmentKind(segment.kind), segment.objectName]),
+    ...(target.virtualTable === undefined ? [] : [formatVirtualDataTable(target.virtualTable)]),
+  ].join(".")
+}
+
+function formatDataTableFieldTargetToYAML(
+  target: Extract<ParsedMetadataTarget, { kind: "dataTableField" }>
+): string {
+  if (target.serviceValue === true) return target.fieldName
+  if (target.table === undefined || target.segments === undefined) {
+    return standardAttributeToYAML[target.fieldName]
+      ?? standardMemberInternalToYaml(target.fieldName)
+      ?? target.fieldName
+  }
+  return [
+    rootToYAML[target.table.root],
+    target.table.objectName,
+    ...(target.table.objectSegments ?? []).flatMap((segment) => [formatObjectSegmentKind(segment.kind), segment.objectName]),
+    ...target.segments.flatMap((segment) => [memberKindToYAML[segment.kind], formatMemberSegmentName(segment)]),
+  ].join(".")
+}
+
+function formatVirtualDataTable(value: string): string {
+  if (value.startsWith("Base") && value.length > "Base".length) return `База${value.slice("Base".length)}`
+  return virtualDataTableToYAML[value] ?? value
 }
 
 function shouldUseShortObjectYAML(target: ParsedMetadataTarget, constraint: MetadataTargetConstraint): boolean {

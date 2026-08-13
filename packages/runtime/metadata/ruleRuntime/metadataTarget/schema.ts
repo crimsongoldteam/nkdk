@@ -1,5 +1,11 @@
 import { Type, type TSchema } from "typebox"
-import { memberKindToYAML, METADATA_NAME_PATTERN, objectPathKindToYAML, rootToYAML } from "./roots"
+import {
+  memberKindToYAML,
+  METADATA_NAME_PATTERN,
+  objectPathKindToYAML,
+  rootToYAML,
+  virtualDataTableToYAML,
+} from "./roots"
 import type {
   MetadataMemberKind,
   MetadataObjectPathKind,
@@ -112,9 +118,44 @@ export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint):
   if (constraint.kind === "value") return valueSchema(constraint)
   if (constraint.kind === "type") return typeSchema(constraint)
   if (constraint.kind === "dataPath") return dataPathSchema(constraint)
+  if (constraint.kind === "dataTable") return dataTableSchema(constraint)
+  if (constraint.kind === "dataTableField") return dataTableFieldSchema()
 
   return Type.String({
     description: "Строковое metadata-значение. Подробная проверка выполняется командой validate.",
+  })
+}
+
+function dataTableSchema(constraint: Extract<MetadataTargetConstraint, { kind: "dataTable" }>): TSchema {
+  const selectedRoots = selectRoots(constraint.roots)
+  const rootGroup = yamlRootGroup(selectedRoots)
+  const nestedKindGroup = yamlObjectPathKindGroup(allObjectPathKinds)
+  const virtualTableGroup = [
+    ...Object.values(virtualDataTableToYAML),
+    `База${METADATA_NAME_PATTERN}`,
+  ].join("|")
+  const nestedObjects = `(?:\\.(?:${nestedKindGroup})\\.${METADATA_NAME_PATTERN})*`
+  const virtualTable = `(?:\\.(?:${virtualTableGroup}))?`
+
+  return Type.String({
+    pattern: selectedRoots.length === 0
+      ? noMatchPattern
+      : `^(?:${rootGroup})\\.${METADATA_NAME_PATTERN}${nestedObjects}${virtualTable}$`,
+    examples: ["РегистрСведений.ИмяРегистра.СрезПоследних"],
+    description: "Таблица объекта метаданных или её виртуальная таблица. Имена объектов проверяются командой validate.",
+  })
+}
+
+function dataTableFieldSchema(): TSchema {
+  const rootGroup = yamlRootGroup(undefined)
+  const memberGroup = yamlMemberKindGroup(allMemberKinds)
+  const nestedObjectGroup = yamlObjectPathKindGroup(allObjectPathKinds)
+  const qualified = `(?:${rootGroup})\\.${METADATA_NAME_PATTERN}(?:\\.(?:${nestedObjectGroup})\\.${METADATA_NAME_PATTERN})*(?:\\.(?:${memberGroup})\\.${METADATA_NAME_PATTERN})+`
+
+  return Type.String({
+    pattern: `^(?:-\\d+|${METADATA_NAME_PATTERN}|${qualified})$`,
+    examples: ["Дата", "Справочник.Товары.СтандартныйРеквизит.Ссылка"],
+    description: "Поле выбранной таблицы метаданных. Допустимость поля для таблицы проверяется командой validate.",
   })
 }
 
@@ -431,6 +472,10 @@ function yamlRootGroup(roots: readonly MetadataRootName[] | undefined): string {
 
 function yamlObjectPathKindGroup(kinds: readonly MetadataObjectPathKind[]): string {
   return kinds.map((kind) => objectPathKindToYAML[kind]).join("|")
+}
+
+function yamlMemberKindGroup(kinds: readonly MetadataMemberKind[]): string {
+  return kinds.map((kind) => memberKindToYAML[kind]).join("|")
 }
 
 function modelRootGroup(roots: readonly MetadataRootName[]): string {

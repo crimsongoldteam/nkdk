@@ -189,7 +189,8 @@ function matchesNumber(value: number, type: Extract<FillValueAlternative, { kind
 function matchesReference(value: string, type: Extract<FillValueAlternative, { kind: "reference" }>): boolean {
   if (value === "") return false
   const parsed = parseMetadataTargetFromModel({ canonical: value, constraint: type.constraint })
-  return parsed.ok && (type.objectName === undefined || parsed.target.objectName === type.objectName)
+  return parsed.ok && parsed.target.kind === "value" &&
+    (type.objectName === undefined || parsed.target.objectName === type.objectName)
 }
 
 function isMatchingEmptyRef(value: string, type: Extract<FillValueAlternative, { kind: "reference" }>): boolean {

@@ -4,6 +4,26 @@ import type { TSchema } from "typebox"
 import { buildMetadataTargetSchema } from "./index"
 
 describe("buildMetadataTargetSchema", () => {
+  it("describes data tables using Russian roots and virtual table names", () => {
+    const schema = buildMetadataTargetSchema({ kind: "dataTable" })
+
+    expectMatches(schema, "РегистрСведений.Остатки.СрезПоследних")
+    expectMatches(schema, "РегистрРасчета.Начисления.БазаНачисления")
+    expectMatches(schema, "ВнешнийИсточникДанных.Источник.Куб.Куб1.ТаблицаИзмерения.Измерение1")
+    expectNotMatches(schema, "InformationRegister.Остатки.SliceLast")
+    expectNotMatches(schema, "Catalog.Товары")
+  })
+
+  it("describes local, qualified and service data table fields", () => {
+    const schema = buildMetadataTargetSchema({ kind: "dataTableField", tableProperty: "Таблица" })
+
+    expectMatches(schema, "Дата")
+    expectMatches(schema, "Справочник.Товары.СтандартныйРеквизит.Ссылка")
+    expectMatches(schema, "Справочник.Товары.ТабличнаяЧасть.Состав.Реквизит.Номенклатура")
+    expectMatches(schema, "-8")
+    expectNotMatches(schema, "Catalog.Товары.StandardAttribute.Ref")
+  })
+
   it("returns ordinary JSON Schema for object references", () => {
     const schema = buildMetadataTargetSchema({ kind: "object", roots: ["Catalog", "Document"] })
 
