@@ -14,7 +14,7 @@ export type DcsLocalStringTypeXML =
     }
   | undefined
 
-export type DcsLocalStringTypeReference = I8nText | string
+export type DcsLocalStringValue = I8nText | { readonly kind: "xmlString"; readonly text: string }
 
 export interface DcsLocalStringTypeWidePropertyRule extends WidePropertyRuleBase {
   type: "DcsLocalStringType"

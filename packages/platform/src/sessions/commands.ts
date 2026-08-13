@@ -133,6 +133,24 @@ export function buildListDesignerExtensionsCommand(): string {
   return "config extensions properties get --all-extensions"
 }
 
+export function buildLoadPartialConfigurationCommand(params: {
+  stagingDir: string
+  extensionName?: string
+}): string {
+  const stagingDir = interactiveValue(params.stagingDir)
+  return [
+    `config load-files --dir="${stagingDir}"`,
+    '--archive="package.zip"',
+    "--no-check",
+    `--list-file="${stagingDir}/load.lst"`,
+    "--partial",
+    "--update-config-dump-info",
+    ...(params.extensionName === undefined
+      ? []
+      : [`--extension="${interactiveValue(params.extensionName)}"`]),
+  ].join(" ")
+}
+
 function designerConnectionArgument(connection: InfobaseConnection): string {
   if (connection.type === "file") return `/F${connection.path}`
   if (connection.type === "server") return `/S${connection.server}\\${connection.reference}`

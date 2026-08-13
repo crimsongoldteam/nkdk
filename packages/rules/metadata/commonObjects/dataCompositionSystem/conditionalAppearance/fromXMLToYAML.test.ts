@@ -5,6 +5,7 @@ import {
   fullConditionalAppearance,
   fullConditionalAppearanceYAML,
   minimalConditionalAppearance,
+  minimalConditionalAppearanceYAML,
   minimalUserSettingsConditionalAppearance,
   minimalUserSettingsConditionalAppearanceYAML,
 } from "./__fixtures__/data"
@@ -35,7 +36,7 @@ describe("export ConditionalAppearance to YAML", () => {
       xmlRootTag: "dcsset:conditionalAppearance",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual({ УсловноеОформление: {} })
+    expect(result).toEqual({ УсловноеОформление: minimalConditionalAppearanceYAML })
   })
 
   it("exports minimalUserSettings", () => {

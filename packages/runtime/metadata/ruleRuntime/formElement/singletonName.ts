@@ -4,6 +4,7 @@ export type SingletonNameStyle = {
   canonicalSuffix: string
   referenceSuffixes: readonly string[]
   canonicalNameMode: "fixed" | "ownerSuffix"
+  explicitXMLName?: true
 }
 
 export type ReferenceNameMode = { kind: "suffix"; suffix: string } | { kind: "exact"; name: string }

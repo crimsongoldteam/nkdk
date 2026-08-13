@@ -70,6 +70,12 @@ describe("createMetadataRuntime", () => {
     expect(runtime.schemas.exportByName).toBeTypeOf("function")
     expect(runtime.import.configurationFromXml).toBeTypeOf("function")
     expect(runtime.sync.planToXml).toBeTypeOf("function")
+    expect(runtime.sync.partial.prepare).toBeTypeOf("function")
+    expect(runtime.sync.partial.readPending).toBeTypeOf("function")
+    expect(runtime.sync.partial.markTransferring).toBeTypeOf("function")
+    expect(runtime.sync.partial.markPreparedAfterRejection).toBeTypeOf("function")
+    expect(runtime.sync.partial.markApplied).toBeTypeOf("function")
+    expect(runtime.sync.partial.finalize).toBeTypeOf("function")
     expect(runtime.metadata.rename).toBeTypeOf("function")
     expect(runtime.metadata.findReferences).toBeTypeOf("function")
 
@@ -84,6 +90,12 @@ describe("createMetadataRuntime", () => {
     await expect(
       second.validation.validateProject({ projectDir: "test", projectState: state }),
     ).rejects.toThrow("другому runtime")
+    await expect(second.sync.partial.prepare({
+      context: { defaultLanguage: "ru", version: "2.20" },
+      projectDir: "test",
+      componentPath: "cf",
+      projectState: state,
+    })).rejects.toThrow("другому runtime")
 
     await first.close()
     await first.close()

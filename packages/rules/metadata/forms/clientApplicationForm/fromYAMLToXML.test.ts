@@ -2,7 +2,7 @@ import fs from "fs"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 
-import { importFromYAML } from "@nkdk/runtime"
+import { childSegmentUid, childUid, EMPTY_XML_TAG_VALUE, importFromYAML, markYAMLScalarTag } from "@nkdk/runtime"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
@@ -24,6 +24,7 @@ import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
 import { prepareFormDataPathContextFromYAML } from "./formDataPathContext"
+import { createDirectRoundTripContexts } from "../../../tests/directConversion"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   const formWithMainAttribute = (
@@ -243,6 +244,50 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(firstChild?.InputField?.ExtendedTooltip).toBeDefined()
   })
 
+  it("создаёт обязательные одиночные элементы формы без identity в снимке", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+      targetProjectPath: "Справочники/Товары/Формы/ФормаЭлемента.yaml",
+    })
+
+    const context = contexts.exportContext()
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context,
+      yaml: {
+        Элементы: {
+          Поле: { Вид: "ПолеВвода" },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+
+    const autoCommandBar = result.formXML.AutoCommandBar as Record<string, unknown>
+    const inputField = elementByName(result.formXML, "Поле")
+    expect(autoCommandBar).toMatchObject({
+      _name: "ФормаКоманднаяПанель",
+      _id: "-1",
+    })
+    expect(inputField).toMatchObject({
+      ContextMenu: { _name: "ПолеКонтекстноеМеню" },
+      ExtendedTooltip: { _name: "ПолеРасширеннаяПодсказка" },
+    })
+    const formAddress = "Справочник.Товары.Форма.ФормаЭлемента"
+    const inputAddress = childUid(formAddress, "Элемент", "Поле")
+    const identities = new Map(
+      context.exportToXML.configurationIndex?.collector
+        .fragment("Справочники/Товары/Формы/ФормаЭлемента.yaml")
+        .entities.map((entity) => [entity.logicalAddress, entity.identities?.xmlId]),
+    )
+    expect(identities.get(childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"))).toBe("-1")
+    expect(identities.get(inputAddress)).toBe(inputField._id)
+    expect(identities.get(childSegmentUid(inputAddress, "КонтекстноеМеню"))).toBe(
+      (inputField.ContextMenu as Record<string, unknown>)._id,
+    )
+    expect(identities.get(childSegmentUid(inputAddress, "РасширеннаяПодсказка"))).toBe(
+      (inputField.ExtendedTooltip as Record<string, unknown>)._id,
+    )
+  })
+
   it("формирует дополнительные колонки реквизита без модели", () => {
     const yaml = importFromYAML<ClientApplicationFormYAML>(
       [
@@ -286,12 +331,13 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
   })
 
-  it("сохраняет пустой контейнер реквизитов из reference XML", () => {
+  it("восстанавливает пустой контейнер реквизитов из !xml без reference XML", () => {
+    const yaml = { Реквизиты: EMPTY_XML_TAG_VALUE } as unknown as ClientApplicationFormYAML
+    markYAMLScalarTag(yaml, "Реквизиты", "xml")
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
-      yaml: {} as ClientApplicationFormYAML,
+      yaml,
       name: "Форма",
-      referenceFormXML: { Attributes: undefined } as ClientApplicationFormXML,
     })
 
     expect(result.formXML.Attributes).toEqual({})
@@ -333,7 +379,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     const valueTable = convert({ Таблица: { Тип: "ТаблицаЗначений" } }, "Таблица")
     expect(valueTable.Period).toBeUndefined()
     expect(valueTable.TopLevelParent).toBeUndefined()
-    expect(valueTable.RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(valueTable.RowFilter).toBeUndefined()
 
     const valueTree = convert({ Дерево: { Тип: "ДеревоЗначений" } }, "Дерево")
     expect(valueTree.Period).toBeUndefined()
@@ -356,7 +402,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     )
     expect(registerRecordSet.Period).toBeUndefined()
     expect(registerRecordSet.TopLevelParent).toBeUndefined()
-    expect(registerRecordSet.RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(registerRecordSet.RowFilter).toBeUndefined()
 
     const scalar = convert({ Значение: { Тип: "Строка" } }, "Значение")
     expect(scalar.Period).toBeUndefined()
@@ -383,18 +429,18 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     )
     expect(tabularSection.Period).toBeUndefined()
     expect(tabularSection.TopLevelParent).toBeUndefined()
-    expect(tabularSection.RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(tabularSection.RowFilter).toBeUndefined()
 
     const missing = convert({}, undefined)
     expect(missing.Period).toBeUndefined()
     expect(missing.TopLevelParent).toBeUndefined()
-    expect(missing.RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(missing.RowFilter).toBeUndefined()
 
     for (const unresolvedPath of ["", "НеизвестныйИсточник"]) {
       const unresolved = convert({}, unresolvedPath)
       expect(unresolved.Period).toBeUndefined()
       expect(unresolved.TopLevelParent).toBeUndefined()
-      expect(unresolved.RowFilter).toEqual({ "_xsi:nil": "true" })
+      expect(unresolved.RowFilter).toBeUndefined()
     }
   })
 
@@ -426,7 +472,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       name: "Форма",
     })
 
-    expect(tableByName(result.formXML, "ВложеннаяТаблица").RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(tableByName(result.formXML, "ВложеннаяТаблица").RowFilter).toBeUndefined()
     expect(tableByName(result.formXML, "ВложенноеДерево").RowFilter).toBeUndefined()
   })
 

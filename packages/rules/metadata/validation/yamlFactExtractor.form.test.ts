@@ -98,7 +98,7 @@ describe("extractValidationYamlFacts form", () => {
     expect(facts.diagnostics).toEqual([])
   })
 
-  it("резервирует single-имена отсутствующей таблицы поля диаграммы Ганта", () => {
+  it("не резервирует single-имена отсутствующей необязательной таблицы поля диаграммы Ганта", () => {
     const facts = extractFormFacts(
       [
         "Элементы:",
@@ -109,15 +109,7 @@ describe("extractValidationYamlFacts form", () => {
       ].join("\n")
     )
 
-    expect(facts.diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          path: "/Элементы/ДиаграммаГантаТаблицаКонтекстноеМеню",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
+    expect(facts.diagnostics).toEqual([])
   })
 
   it("строит DataPath checks и equal-name диагностики по YAML формы", () => {

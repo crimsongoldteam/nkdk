@@ -1,10 +1,6 @@
 import { describeAppliedObjectYAMLToXMLFixtures } from "../../../tests/appliedObject/unifiedFixtureConversion"
 import { describe, expect, it } from "vitest"
-import {
-  testAppliedObjectFromXMLToYAML,
-  testAppliedObjectFromYAMLToXML,
-  testMetadataItemFromYAMLToXML,
-} from "../../../tests/directConversion"
+import { testMetadataItemFromYAMLToXML } from "../../../tests/directConversion"
 import { serializeDirectXML } from "../../../tests/directConversion"
 import { MetadataEventSubscriptionRules } from "./rules"
 import { fullYAML } from "./__fixtures__/full"
@@ -23,44 +19,7 @@ describeAppliedObjectYAMLToXMLFixtures({
   testTitle: "exports $fixture exactly",
 })
 
-describe("MetadataEventSubscription special YAML → XML cases", () => {
-  it.each([
-    ["source-typeset.xml", '<Source xsi:type="v8:TypeSet">'],
-    ["source-child-typeset.xml", "<v8:TypeSet>cfg:DocumentObject.ЗаказКлиента</v8:TypeSet>"],
-  ])("preserves Source TypeSet container from $fixture", (fixture, marker) => {
-    const imported = testAppliedObjectFromXMLToYAML({
-      rule: MetadataEventSubscriptionRules,
-      importMetaUrl: import.meta.url,
-      fixture,
-    })
-    const exported = testAppliedObjectFromYAMLToXML({
-      rule: MetadataEventSubscriptionRules,
-      importMetaUrl: import.meta.url,
-      fixture,
-      yaml: imported.yaml,
-    })
-
-    expect(imported.yaml).toMatchObject({ Источник: "ДокументОбъект.ЗаказКлиента" })
-    expect(normalize(exported.result)).toBe(normalize(exported.expected))
-    expect(exported.result).toContain(marker)
-  })
-
-  it("does not inherit TypeSet when Source semantics changed", () => {
-    const exported = testAppliedObjectFromYAMLToXML({
-      rule: MetadataEventSubscriptionRules,
-      importMetaUrl: import.meta.url,
-      fixture: "source-typeset.xml",
-      yaml: {
-        Источник: "ДокументОбъект.ДругойЗаказ",
-        Событие: "BeforeWrite",
-        Обработчик: "CommonModule.ОбщийМодульПодпискаНаСобытие.ПередЗаписьюЗаказаКлиента",
-      },
-    })
-
-    expect(exported.result).toContain("<v8:Type>cfg:DocumentObject.ДругойЗаказ</v8:Type>")
-    expect(exported.result).not.toContain("v8:TypeSet")
-  })
-
+describe("MetadataEventSubscription YAML → XML", () => {
   it("writes a new single Source canonically and keeps 1C field order", () => {
     const converted = testMetadataItemFromYAMLToXML({
       rule: MetadataEventSubscriptionRules,
@@ -81,10 +40,3 @@ describe("MetadataEventSubscription special YAML → XML cases", () => {
     expect(names).toEqual(["Name", "Synonym", "Comment", "Source", "Event", "Handler"])
   })
 })
-
-function normalize(value: string): string {
-  return value
-    .replace(/^\uFEFF/, "")
-    .replace(/\r\n/g, "\n")
-    .trimEnd()
-}

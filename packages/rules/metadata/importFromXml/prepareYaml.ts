@@ -34,7 +34,6 @@ import type { ImportAssignment, ImportXmlInput } from "./types"
 import {
   normalizeImportedDependentItems,
   partitionImportedDependentItems,
-  preserveDeferredDependentRawXML,
 } from "./dependentItems"
 import { createImportedFormDataPathIndex } from "../forms/clientApplicationForm/formDataPathMetadata"
 
@@ -196,8 +195,8 @@ export async function prepareImportYaml(params: {
         candidates: partitioned.immediate,
         collector: params.collector,
         owner: dependentOwner,
+        preserveRawXML: false,
       })
-      preserveDeferredDependentRawXML({ candidates: partitioned.deferred, collector: params.collector })
       const localIndexes = collector.finish()
       const formDataPathIndex = createImportedFormDataPathIndex({ yaml, rule })
       if (formDataPathIndex !== undefined) localIndexes.metadata.formDataPathIndex = formDataPathIndex
@@ -320,8 +319,14 @@ async function readAndParseAssignmentXml(
             "Подготовка импорта конфигурации",
             "Парсинг XML",
             { items: 1, bytes: Buffer.byteLength(content) },
-            () => importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true })
-          ) ?? importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true }),
+            () => importContentFromXML<Record<string, unknown>>(content, {
+              preserveXsiNil: true,
+              preserveEmptyElementNames: ["AdditionalFields"],
+            })
+          ) ?? importContentFromXML<Record<string, unknown>>(content, {
+            preserveXsiNil: true,
+            preserveEmptyElementNames: ["AdditionalFields"],
+          }),
       })
     } catch (caught) {
       throw new ImportXmlInputError(input.sourcePath, caught)

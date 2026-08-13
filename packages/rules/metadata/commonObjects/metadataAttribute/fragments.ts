@@ -227,6 +227,8 @@ export const attributeFillFragment = metadataRuleFragment(
       type: "MetadataValue",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: { "_xsi:nil": true },
+      exportNilValue: true,
+      preserveUnknownReferenceXML: false,
     },
   } as const satisfies Record<string, MetadataRulePropertyShape>
 )
@@ -401,8 +403,9 @@ export const attributeBinaryStorageUseFieldFragment = metadataRuleFragment(
 
 export const attributeUuidFragment = metadataRuleFragment(["uuid"], {
   uuid: {
-    type: "UUID",
+    type: "uuid",
     xml: "_uuid",
+    evaluateWhenYAMLMissing: true,
     forReferenceOnly: true,
     toYAML: false,
     fromYAML: false,

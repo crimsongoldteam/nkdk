@@ -30,7 +30,7 @@ export const importFromInfobaseSuccessOutputShape = {
   temporaryDirectory: z.string().optional(),
 }
 
-const projectSettingsRequiredSchema = z.strictObject({
+export const projectSettingsRequiredSchema = z.strictObject({
   ok: z.literal(false),
   code: z.literal("project_settings_required"),
   message: z.string(),
@@ -40,7 +40,7 @@ const projectSettingsRequiredSchema = z.strictObject({
   }),
 })
 
-const invalidProjectSettingsSchema = z.strictObject({
+export const invalidProjectSettingsSchema = z.strictObject({
   ok: z.literal(false),
   code: z.literal("invalid_project_settings"),
   message: z.string(),

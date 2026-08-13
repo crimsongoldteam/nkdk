@@ -6,7 +6,6 @@ import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import {
   normalizeImportedDependentItems,
   partitionImportedDependentItems,
-  preserveDeferredDependentRawXML,
 } from "./dependentItems"
 
 
@@ -45,7 +44,6 @@ describe("normalizeImportedDependentItems", () => {
 
     expect(partitioned.immediate).toEqual([])
     expect(partitioned.deferred).toEqual([imported])
-    preserveDeferredDependentRawXML({ candidates: partitioned.deferred, collector })
     expect(normalizeImportedDependentItems({
       yaml,
       rule: MetadataCatalogRules,
@@ -53,11 +51,10 @@ describe("normalizeImportedDependentItems", () => {
       owner: { dir: "Справочник", name: "Товары" },
       definedTypeLookup: () => ({ status: "ok", type: { type: ["CatalogRef.Пользователи"] } }),
       preserveRawXML: false,
-    })).toBe(1)
-    expect(attribute).not.toHaveProperty("ЗначениеЗаполнения")
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual(
-      expect.objectContaining({ logicalAddress: imported.logicalAddress }),
-    )
+    })).toBe(0)
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml Справочник.Пользователи.ПустаяСсылка")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 
   it.each([
@@ -121,7 +118,8 @@ describe("normalizeImportedDependentItems", () => {
       candidates: [candidate(
         "StandardAttributeDescription",
         ["СтандартныеРеквизиты", "Предопределенный"],
-        "Предопределенный"
+        "Предопределенный",
+        { "_xsi:type": "xs:string", "#text": "false" },
       )],
       collector: createConfigurationIndexCollector(),
       owner: { dir: "Справочник", name: "Товары" },
@@ -141,14 +139,17 @@ describe("normalizeImportedDependentItems", () => {
     expect(normalizeImportedDependentItems({
       yaml,
       rule: MetadataCatalogRules,
-      candidates: [candidate(itemType, [collection, itemName], itemName)],
+      candidates: [candidate(itemType, [collection, itemName], itemName, {
+        "_xsi:type": "xs:string",
+        "#text": "текст",
+      })],
       collector: createConfigurationIndexCollector(),
       owner: { dir: "Справочник", name: "Товары" },
     })).toBe(0)
     expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
   })
 
-  it.each(["", " ", "   "])("удаляет неявный код %j и сохраняет точный XML", (fillValue) => {
+  it.each([" ", "   "])("сохраняет неявный код %j через !xml", (fillValue) => {
     const yaml = {
       СтандартныеРеквизиты: { Код: { ЗначениеЗаполнения: fillValue } },
     }
@@ -167,16 +168,13 @@ describe("normalizeImportedDependentItems", () => {
       owner: { dir: "Справочник", name: "Товары" },
     })
 
-    expect(removed).toBe(1)
-    expect(yaml.СтандартныеРеквизиты.Код).not.toHaveProperty("ЗначениеЗаполнения")
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual({
-      logicalAddress,
-      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-      xml: { xsiType: "xs:string", xmlText: fillValue },
-    })
+    expect(removed).toBe(0)
+    expect(yaml.СтандартныеРеквизиты.Код.ЗначениеЗаполнения).toBe(`!xml ${fillValue}`)
+    expect(yamlScalarTagAt(yaml.СтандартныеРеквизиты.Код, "ЗначениеЗаполнения")).toBe("xml")
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 
-  it("удаляет начальную дату и сохраняет точный XML в снимке", () => {
+  it("сохраняет начальную дату через !xml", () => {
     const attribute = { Тип: "ДатаВремя", ЗначениеЗаполнения: "01.01.0001 00:00:00" }
     const yaml = { Реквизиты: { Момент: attribute } }
     const collector = createConfigurationIndexCollector()
@@ -193,13 +191,10 @@ describe("normalizeImportedDependentItems", () => {
       owner: { dir: "Справочник", name: "Товары" },
     })
 
-    expect(removed).toBe(1)
-    expect(attribute).not.toHaveProperty("ЗначениеЗаполнения")
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual({
-      logicalAddress: "Справочник.Товары.Attribute.Момент.Property.fillValue",
-      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-      xml: { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
-    })
+    expect(removed).toBe(0)
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml 01.01.0001 00:00:00")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 
   it.each([
@@ -208,10 +203,9 @@ describe("normalizeImportedDependentItems", () => {
       "Справочник.Контрагенты",
       "Справочник.Контрагенты.ПустаяСсылка",
       { "_xsi:nil": true },
-      { xsiNil: true },
     ],
-    ["явный пустой узел", "Строка(10)", "", {}, { explicitEmpty: true }],
-  ])("сохраняет XML-форму %s только при удалении", (_name, type, fillValue, xmlValue, expectedXml) => {
+    ["явный пустой узел", "Строка(10)", "", {}],
+  ])("не сохраняет XML-форму %s в снимке", (_name, type, fillValue, xmlValue) => {
     const attribute = { Тип: type, ЗначениеЗаполнения: fillValue }
     const yaml = { Реквизиты: { Получатель: attribute } }
     const collector = createConfigurationIndexCollector()
@@ -229,11 +223,7 @@ describe("normalizeImportedDependentItems", () => {
     })
 
     expect(attribute).not.toHaveProperty("ЗначениеЗаполнения")
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual({
-      logicalAddress: "Справочник.Товары.Attribute.Получатель.Property.fillValue",
-      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-      xml: expectedXml,
-    })
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 
   it("представляет пустой DesignTimeRef точным !xml sentinel без snapshot", () => {
@@ -296,6 +286,7 @@ function candidate(
   itemType: string,
   itemYamlPath: readonly (string | number)[],
   itemName: string,
+  xmlValue: unknown = { "_xsi:type": "xs:string" },
 ): ImportedDependentPropertyCandidate {
   return {
     itemType,
@@ -303,7 +294,7 @@ function candidate(
     itemYamlPath,
     propertyKey: "fillValue",
     yamlPath: [...itemYamlPath, "ЗначениеЗаполнения"],
-    xmlValue: { "_xsi:type": "xs:string" },
+    xmlValue,
     presentInXML: true,
   }
 }

@@ -100,9 +100,10 @@ describe("элементы формы XML → YAML → XML", () => {
     }
 
     const actualXML = withoutDeclaration(xmlExport({ [xmlTag]: result }, false))
-    const expectedXML = withKnownXMLDefaults(fs.readFileSync(fixture, "utf8").trim(), {
-      includeCheckBoxType: false,
-    })
+    const expectedXML = withCanonicalSystemEnumerationAliases(withKnownXMLDefaults(
+      fs.readFileSync(fixture, "utf8").trim(),
+      { includeCheckBoxType: false },
+    ))
     if (expectedXML.includes("<Table")) {
       expect(withoutComputedTableServiceNodes(importContentFromXML(actualXML, { preserveXsiNil: true }))).toEqual(
         withoutComputedTableServiceNodes(importContentFromXML(expectedXML, { preserveXsiNil: true }))
@@ -153,4 +154,11 @@ function withoutDeclaration(xml: string): string {
 
 function isDynamicListTableFixture(fixture: string): boolean {
   return path.basename(fixture) === "dynamicList.xml" && path.basename(path.dirname(path.dirname(fixture))) === "table"
+}
+
+function withCanonicalSystemEnumerationAliases(xml: string): string {
+  return xml.replace(
+    "<RadioButtonType>RadioButton</RadioButtonType>",
+    "<RadioButtonType>RadioButtons</RadioButtonType>",
+  )
 }

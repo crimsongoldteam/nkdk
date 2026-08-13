@@ -5,7 +5,6 @@ import {
   type ConfigurationIndexPropertyXmlStateAddress,
   getConfigurationIndexPropertyReferenceXMLValue,
   getConfigurationIndexPropertyXmlValue,
-  getConfigurationIndexXmlName,
   getConfigurationIndexXmlNodeLogicalAddress,
   withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
@@ -220,6 +219,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
     const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
     const exportHandler = typeRule(planned.propertyRule.type, "exportToXML")
+    const reserveNestedItemWhenAbsent =
+      typeRule(planned.propertyRule.type, "nestedItemIdentity")?.reserveWhenAbsent === true
     const references = matchingOutputs.map(({ request }) =>
       readReferenceProperty({
         context: request.context ?? propertyContext,
@@ -255,11 +256,27 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       )
     }
     if (
+      !isYAMLPropertyExportEnabled({ source, planned, context: params.context }) &&
+      planned.propertyRule.preserveUnknownReferenceXML === false &&
+      references.every((reference) => !reference.exists || reference.synthesizedDefault === true)
+    ) continue
+    if (
+      getXMLDefaultVariant(propertyContext) === "adopted" &&
+      !source.has(propertyKey) &&
+      planned.propertyRule.exportNilValue === true &&
+      references.every((reference) => !reference.exists)
+    ) {
+      continue
+    }
+    if (
       params.sparseYAML === true &&
+      !reserveNestedItemWhenAbsent &&
       propertyKey !== namePropertyKey &&
       !source.has(propertyKey) &&
-      !references.some((reference) => reference.exists) &&
-      !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
+      ((!references.some((reference) => reference.exists) && !requiresYAMLToXMLEvaluation(planned.propertyRule)) ||
+        (planned.propertyRule.exportNilValue === true &&
+          planned.propertyRule.preserveUnknownReferenceXML === false &&
+          references.every((reference) => reference.value === undefined))) &&
       (!hasXMLDefault || params.omitDefaultsForSparseYAML === true)
     ) {
       continue
@@ -272,21 +289,12 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 
     if (
       !source.has(propertyKey) &&
+      !reserveNestedItemWhenAbsent &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       matchingOutputs.every((output) => output.request.referenceXML !== undefined) &&
       references.every((reference) => !reference.exists) &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       !hasXMLDefault
-    ) {
-      continue
-    }
-
-    if (
-      !source.has(propertyKey) &&
-      planned.propertyRule.forReferenceOnly === true &&
-      planned.propertyRule.evaluateWhenYAMLMissing === true &&
-      configurationIndexContainsCurrentItem(propertyContext) &&
-      references.every((reference) => !reference.exists)
     ) {
       continue
     }
@@ -364,16 +372,20 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !source.has(propertyKey) && references.some((reference) => reference.synthesizedDefault === true)
     if (
       !preservesIndexedProperty &&
+      !reserveNestedItemWhenAbsent &&
       !shouldConvertYAMLProperty({ source, planned, context: propertyContext })
     ) continue
 
     if (
       getXMLDefaultVariant(propertyContext) === "indexed" &&
+      !reserveNestedItemWhenAbsent &&
       planned.propertyRule.yaml !== undefined &&
       planned.propertyRule.toYAML !== false &&
+      planned.propertyRule.excludeIfEqualNameYAML !== true &&
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
+      !hasXMLDefault &&
       references.every((reference) => !reference.exists)
     ) {
       continue
@@ -381,6 +393,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 
     if (
       !usesOrdinaryXMLDefaults(propertyContext) &&
+      !reserveNestedItemWhenAbsent &&
       !hasXMLDefault &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       !source.has(propertyKey) &&
@@ -453,7 +466,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             matchingOutputs.every((output) => output.request.referenceXML === undefined)
             ? []
             : effectiveNestedRule.kind === "item" &&
-            (planned.propertyRule.evaluateWhenYAMLMissing === true ||
+            (reserveNestedItemWhenAbsent ||
+              planned.propertyRule.evaluateWhenYAMLMissing === true ||
               references.some((reference) => reference.exists && reference.value === undefined) ||
               nestedContext.exportToXML.configurationIndex?.identity(
                 "xmlId",
@@ -658,7 +672,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           !source.has(propertyKey) &&
           planned.propertyRule.excludeIfEqualNameYAML === true &&
           params.name !== undefined &&
-          (getXMLDefaultVariant(propertyContext) === undefined || references.some((reference) => reference.exists)),
+          getXMLDefaultVariant(propertyContext) !== "adopted",
       }
       imported = callAtomicFromYAML(importParams)
       if (params.profile !== undefined) params.profile.atomicFromYAMLCount++
@@ -748,11 +762,6 @@ function isRelativeYAMLScalarTagged(
   return key !== undefined && yamlScalarTagAt(parent, key) === "xml"
 }
 
-function configurationIndexContainsCurrentItem(context: ConfigurationContextWithExportToXML): boolean {
-  const runtime = context.exportToXML.configurationIndex
-  return runtime !== undefined && runtime.source.entity(runtime.logicalAddress) !== undefined
-}
-
 function copyConfigurationIndexPropertyValue(
   context: ConfigurationContextWithExportToXML,
   planned: YAMLToXMLPlannedProperty
@@ -763,6 +772,8 @@ function copyConfigurationIndexPropertyValue(
   if (runtime === undefined || value === undefined) return
   const address = configurationIndexPropertyXmlStateLogicalAddress(runtime, property)
   if (value.extended === true) runtime.collector.setXmlFlag(address, "extended")
+  if (!usesConfigurationIndexOrdinaryXMLState(context)) return
+  if (getXMLDefaultVariant(context) === undefined) return
   if (value.present === true) runtime.collector.setXmlFlag(address, "present")
   if (value.xsiNil === true) runtime.collector.setXmlFlag(address, "xsiNil")
   if (value.explicitEmpty === true) runtime.collector.setXmlFlag(address, "explicitEmpty")
@@ -937,12 +948,6 @@ function readReferenceProperty(params: {
           exists: true,
           key,
           value: current[key],
-          ...(getConfigurationIndexPropertyXmlValue(
-            params.context,
-            configurationIndexPropertyXmlStateAddress(params.planned)
-          )?.explicitEmpty === true
-            ? { indexedExplicitEmpty: true }
-            : {}),
         }
       }
     }
@@ -965,6 +970,8 @@ function referenceFromConfigurationIndex(
     execution,
   )
   if (identity !== undefined) return identity
+  if (!usesConfigurationIndexOrdinaryXMLState(context)) return { exists: false }
+  if (getXMLDefaultVariant(context) === undefined) return { exists: false }
   const property = configurationIndexPropertyXmlStateAddress(planned)
   const indexedValue = getConfigurationIndexPropertyXmlValue(context, property)
   if (
@@ -979,20 +986,16 @@ function referenceFromConfigurationIndex(
   }
   const indexedDescriptor = execution === undefined
     ? getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
-    : execution.getTypeRule(
-        planned.propertyRule.type,
-        "configurationIndexValueFromXML",
-      )
+    : execution.getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
   const value =
     (indexedValue === undefined ? undefined : indexedDescriptor?.referenceXMLFromValue?.(indexedValue)) ??
     getConfigurationIndexPropertyReferenceXMLValue(context, property)
-  const indexedExplicitEmpty = indexedValue?.explicitEmpty === true
   if (value !== undefined) {
     return {
       exists: true,
       key: planned.propertyRule.xml ?? capitalize(planned.propertyKey),
       value,
-      ...(indexedExplicitEmpty ? { indexedExplicitEmpty: true } : {}),
+      ...(indexedValue?.explicitEmpty === true ? { indexedExplicitEmpty: true } : {}),
     }
   }
   if (indexedValue?.present === true) {
@@ -1003,6 +1006,12 @@ function referenceFromConfigurationIndex(
     }
   }
   return { exists: false }
+}
+
+function usesConfigurationIndexOrdinaryXMLState(
+  context: ConfigurationContextWithExportToXML,
+): boolean {
+  return context.exportToXML.componentKind !== "configuration"
 }
 
 function configurationIndexPropertyXmlStateAddress(
@@ -1025,13 +1034,11 @@ function identityReferenceFromConfigurationIndex(
   if ((planned.propertyRule.xmlParents?.length ?? 0) > 0) return undefined
   const xmlKey = planned.propertyRule.xml ?? planned.xmlPath.at(-1)
   const runtime = context.exportToXML.configurationIndex
-  if (runtime === undefined || (xmlKey !== "_uuid" && xmlKey !== "_id" && xmlKey !== "_name")) return undefined
+  if (runtime === undefined || (xmlKey !== "_uuid" && xmlKey !== "_id")) return undefined
   const kind =
     xmlKey === "_uuid"
       ? "uuid"
-      : xmlKey === "_name"
-        ? "xmlName"
-        : (execution === undefined
+      : (execution === undefined
             ? getTypeRule(
                 planned.propertyRule.type,
                 "configurationIndexValueFromXML",
@@ -1042,7 +1049,7 @@ function identityReferenceFromConfigurationIndex(
               ))?.identityKind === "uuid"
           ? "uuid"
           : "xmlId"
-  const value = kind === "xmlName" ? getConfigurationIndexXmlName(context) : runtime.identity(kind)
+  const value = runtime.identity(kind)
   if (value === undefined) return undefined
   runtime.collector.setIdentity(runtime.logicalAddress, kind, value)
   return { exists: true, key: xmlKey, value }

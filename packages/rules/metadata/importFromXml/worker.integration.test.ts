@@ -175,6 +175,9 @@ describe("XML import worker first pass", () => {
       }),
     ])
     expect(fragments[0]).not.toHaveProperty("localDependencies")
+    expect(JSON.stringify(fragments)).not.toMatch(
+      /"xmlName"|"present"|"xsiNil"|"explicitEmpty"|"xsiType"|"xmlText"|"xmlPrefix"/u,
+    )
     expect(result.stateFragment).toBeDefined()
     const imported = Array.from({ length: state.fileCount }, (_, fileId) => state.fileRecord(fileId))
       .find((file) => state.stringValue(file.projectPathId).endsWith(assignment.targetProjectPath))

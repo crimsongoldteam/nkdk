@@ -3,7 +3,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { createConfigurationIndexCollector, yamlScalarTagAt } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import { parseMetadataYamlData } from "@nkdk/runtime"
 import { discoverXmlImport } from "./discovery"
@@ -340,7 +340,7 @@ describe("prepareImportYaml", () => {
     } finally { fs.rmSync(inputDir, { recursive: true, force: true }) }
   })
 
-  it("preserves xsi:nil service data while reading applied XML", async () => {
+  it("не сохраняет xsi:nil общего реквизита в снимке", async () => {
     const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-xsi-nil-"))
     const metadataPath = join(inputDir, "ОбщийРеквизит.xml")
     try {
@@ -356,7 +356,7 @@ describe("prepareImportYaml", () => {
       )
       const collector = createConfigurationIndexCollector()
       const targetProjectPath = "ОбщийРеквизит/ОбщийРеквизитПоУмолчанию/Свойства.yaml"
-      await prepareImportYaml({
+      const prepared = await prepareImportYaml({
         assignment: metadataImportAssignment({
           id: "common-attribute-nil",
           targetProjectPath,
@@ -369,12 +369,17 @@ describe("prepareImportYaml", () => {
         collector,
       })
 
-      expect(collector.fragment(targetProjectPath).entities).toContainEqual({
-        logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию.fillValue",
+      const yaml = prepared.yaml as Record<string, unknown>
+      expect(yaml).not.toHaveProperty("ЗначениеЗаполнения")
+      expect(yamlScalarTagAt(yaml, "ЗначениеЗаполнения")).toBeUndefined()
+      expect(collector.fragment(targetProjectPath).entities).toEqual([{
+        logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию",
         sourceProjectPath: targetProjectPath,
-        xml: { present: true, xsiNil: true },
-      })
-    } finally { fs.rmSync(inputDir, { recursive: true, force: true }) }
+        identities: { uuid: "b82a1fc0-ce4b-4270-b9b7-018c35ab718e" },
+      }])
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true })
+    }
   })
 
   it("prepares a nested file item through its registered metadata rule", async () => {

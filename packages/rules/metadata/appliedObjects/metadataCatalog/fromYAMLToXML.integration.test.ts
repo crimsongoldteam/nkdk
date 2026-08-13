@@ -67,6 +67,15 @@ describe("MetadataCatalog YAML → XML", () => {
     })
 
     expect(JSON.stringify(result.xml)).toContain(xmlType)
+    expect(result.xml).toMatchObject({
+      MetaDataObject: {
+        Catalog: {
+          ChildObjects: {
+            Attribute: [{ _uuid: "11111111-1111-4111-8111-111111111111" }],
+          },
+        },
+      },
+    })
   })
 
   it.each([

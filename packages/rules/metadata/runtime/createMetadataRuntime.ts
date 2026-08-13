@@ -44,6 +44,14 @@ import type { ProjectStateService } from "../projectState/service"
 import { createMetadataWorkerPoolHandle } from "../workerPool/handle"
 import { discoverProjectStateValidationFileBatches } from "../projectState/projectFiles"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
+import {
+  finalizePartialXmlSyncPackage,
+  markPartialSyncApplied,
+  markPartialSyncPreparedAfterRejection,
+  markPartialSyncTransferring,
+  preparePartialXmlSyncPackage,
+  readPendingPartialXmlSync,
+} from "../partialSyncToXml"
 
 export function createMetadataRuntime(
   options: CreateMetadataRuntimeOptions,
@@ -146,6 +154,17 @@ export function createMetadataRuntime(
       },
       readState: readXmlSyncState,
       initializeState: initializeXmlSyncState,
+      partial: {
+        async prepare(params) {
+          assertOwnedState(params.projectState)
+          return withExecutionRegistries(() => preparePartialXmlSyncPackage(params))
+        },
+        readPending: readPendingPartialXmlSync,
+        markTransferring: markPartialSyncTransferring,
+        markPreparedAfterRejection: markPartialSyncPreparedAfterRejection,
+        markApplied: markPartialSyncApplied,
+        finalize: finalizePartialXmlSyncPackage,
+      },
     },
     metadata: {
       rules,

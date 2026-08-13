@@ -61,6 +61,12 @@ export interface ExplicitXMLPropertyMatcher {
     readonly presentInXML: boolean
     readonly yamlValue: unknown
   }): ExplicitXMLPropertyTypeRegistration | undefined
+  matchExplicitXMLTransportFromXML(params: {
+    readonly itemType: string
+    readonly propertyKey: string
+    readonly presentInXML: boolean
+    readonly xmlValue: unknown
+  }): string | undefined
 }
 
 export interface ExplicitXMLPropertyRegistryView {
@@ -118,6 +124,16 @@ export function matchExplicitXMLPropertyTypeFromXML(params: {
 }): ExplicitXMLPropertyTypeRegistration | undefined {
   const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
   return contextual?.matchExplicitXMLPropertyTypeFromXML(params)
+}
+
+export function matchExplicitXMLTransportFromXML(params: {
+  readonly itemType: string
+  readonly propertyKey: string
+  readonly presentInXML: boolean
+  readonly xmlValue: unknown
+}): string | undefined {
+  return currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
+    ?.matchExplicitXMLTransportFromXML(params)
 }
 
 export function collectExplicitXMLPropertyActions(params: {

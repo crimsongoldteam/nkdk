@@ -14,7 +14,6 @@ import { importSingleFormElementFromXMLToYAML } from "./fromXMLToYAML"
 import {
   configurationIndexExportFormElementLogicalAddress,
   configurationIndexExportFormSingletonLogicalAddress,
-  getConfigurationIndexXmlName,
   withConfigurationIndexExportLogicalAddress,
 } from "../../configurationIndex/referenceView"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
@@ -22,6 +21,8 @@ import type { ElementRule, ElementXML, SingleElementType } from "./types"
 import { defineMetadataRules } from "../definition"
 import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
+import { readExplicitElementXMLName } from "./explicitName"
+import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
 export {
   defineElementRule,
   getElementRule,
@@ -58,7 +59,7 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
     return logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
   },
   resolveItemContext: ({ context }) => {
-    const itemName = getConfigurationIndexXmlName(context) ?? params.toXML({ context }).name
+    const itemName = params.toXML({ context }).name
     return itemName === undefined
       ? context
       : getChildContextToXML({
@@ -69,26 +70,34 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
         })
   },
   transformOutput: (outputParams) => {
-    const { context, xml } = outputParams
+    const { context, xml, yaml } = outputParams
     const extra = params.toXML({ context })
     const { _name, _id, ...properties } = xml
     const runtime = context.exportToXML.configurationIndex
-    const indexedName = getConfigurationIndexXmlName(context)
+    const explicitName = params.nameStyle?.explicitXMLName === true
+      ? readExplicitElementXMLName(yaml)
+      : undefined
     const indexedId = runtime?.identity("xmlId")
-    if (indexedName !== undefined) {
-      runtime?.collector.setIdentity(runtime.logicalAddress, "xmlName", indexedName)
-    }
     if (indexedId !== undefined) runtime?.collector.setIdentity(runtime.logicalAddress, "xmlId", indexedId)
     const result = {
       _name:
-        typeof _name === "string" &&
-          (_name.length > 0 || indexedName === "")
-          ? _name
-          : (indexedName ?? extra.name),
-      _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? params.directId ?? String(extra.id ?? "")),
+        explicitName ?? (
+          typeof _name === "string" && _name.length > 0
+            ? _name
+            : extra.name
+        ),
+      _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
       ...properties,
     }
-    return params.transformOutput?.({ ...outputParams, xml: result }) ?? result
+    const transformed = params.transformOutput?.({ ...outputParams, xml: result }) ?? result
+    if (transformed !== null && typeof transformed === "object" && !Array.isArray(transformed)) {
+      registerFormXmlIdReservation(transformed, {
+        ...(runtime === undefined ? {} : { runtime }),
+        space: "elements",
+        ...(params.directId === undefined ? {} : { specialId: params.directId }),
+      })
+    }
+    return transformed
   },
 })
 
@@ -127,7 +136,7 @@ export const defineElementAsType = <Rule extends ElementRule & { itemType: Singl
     "yamlToXMLNestedRule",
     createSingletonElementYAMLToXMLNestedRule({ elementRule, toXML, nameStyle, directId: params.directId })
   ))
-  propertyTypeRules.push(defineExportToJSONSchema({ propertyType, elementRule }))
+  propertyTypeRules.push(defineExportToJSONSchema({ propertyType, elementRule, nameStyle }))
 
   return defineMetadataRules({
     ...emptyMetadataRules,
@@ -151,13 +160,15 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
 const defineExportToJSONSchema = <Rule extends ElementRule>(params: {
   propertyType: PropertyRuleType
   elementRule: Rule
+  nameStyle?: SingletonNameStyle
 }): PropertyTypeRuleContribution => {
-  const { propertyType, elementRule } = params
+  const { propertyType, elementRule, nameStyle } = params
 
   return definePropertyTypeRule(propertyType, "exportToJSONSchema", ({ context }) =>
     exportSingleElementRuleToJSONSchema({
       context,
       rule: elementRule,
+      explicitXMLName: nameStyle?.explicitXMLName,
     })
   )
 }

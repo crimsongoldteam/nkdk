@@ -17,7 +17,7 @@ describe("export CalculatedFieldOrderExpression to XML", () => {
     expect(result).toEqual(expectedResult!)
   })
 
-  it("restores explicit Asc from reference XML", () => {
+  it("does not restore explicit Asc from reference XML when YAML omits it", () => {
     const { result } = testExportPropertyModelThroughYAMLToXML({
       rule: { type: "CalculatedFieldOrderExpression" },
       value: [
@@ -38,7 +38,7 @@ describe("export CalculatedFieldOrderExpression to XML", () => {
       xmlRootTag: "dcssch:orderExpression",
     })
 
-    expect(result).toContain('<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>')
+    expect(result).not.toContain("<orderType")
   })
 
   it("does not invent Asc without reference XML", () => {

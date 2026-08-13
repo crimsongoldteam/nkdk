@@ -20,6 +20,8 @@ import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
+import { addCanonicalValueListSettings } from "./valueListSettings"
+import { registerFormXmlIdReservation } from "@nkdk/runtime"
 
 const formAttributeTitleRule = i8nTextRule({
   yaml: "Заголовок",
@@ -227,9 +229,18 @@ export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   keyField: "name",
   configurationIndexUidSegment: "Атрибут",
   requiredIdentity: "xmlId",
-  mapItemOutput: ({ xml }) => {
+  mapItemOutput: ({ xml, yaml, context }) => {
     const { _name, _id, ...properties } = xml
-    return { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+    const result = addCanonicalValueListSettings(
+      { _name, _id: typeof _id === "string" ? _id : "", ...properties },
+      yaml,
+    )
+    const runtime = context.exportToXML.configurationIndex
+    registerFormXmlIdReservation(result, {
+      ...(runtime === undefined ? {} : { runtime }),
+      space: "attributes",
+    })
+    return result
   },
 })
 
@@ -240,9 +251,15 @@ export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   keyField: "name",
   configurationIndexUidSegment: "Колонка",
   requiredIdentity: "xmlId",
-  mapItemOutput: ({ xml }) => {
+  mapItemOutput: ({ xml, context }) => {
     const { _name, _id, ...properties } = xml
-    return { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+    const result = { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+    const runtime = context.exportToXML.configurationIndex
+    registerFormXmlIdReservation(result, {
+      ...(runtime === undefined ? {} : { runtime }),
+      space: "attributes",
+    })
+    return result
   },
 })
 

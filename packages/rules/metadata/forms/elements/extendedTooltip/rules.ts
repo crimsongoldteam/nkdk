@@ -12,6 +12,7 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formDecorationCommonProperties } from "../formDecoration/rules"
 import { getExtendedTooltipName } from "./helper"
+import { explicitElementNameStyle } from "../../explicitElementName"
 export type { ElementRule, PropertyRule }
 const extendedTooltipCommonProperties = {
   autoMaxHeight: formDecorationCommonProperties.autoMaxHeight,
@@ -70,7 +71,6 @@ export const ExtendedTooltipRules = {
   properties: {
     title: formattedI8nTextRule({
       yaml: "Заголовок",
-      preserveEmptyXML: true,
     }),
     type: systemEnumerationRule({
       typeSE: "FormDecorationType",
@@ -131,11 +131,11 @@ export const ExtendedTooltipRules = {
 export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "ExtendedTooltip",
   elementRule: ExtendedTooltipRules,
-  nameStyle: {
+  nameStyle: explicitElementNameStyle("ExtendedTooltip", {
     canonicalSuffix: "РасширеннаяПодсказка",
     referenceSuffixes: ["РасширеннаяПодсказка", "ExtendedTooltip"],
     canonicalNameMode: "ownerSuffix",
-  },
+  }),
   toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     const parent = getParentFromContext(context)

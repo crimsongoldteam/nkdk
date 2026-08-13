@@ -105,7 +105,7 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
           ...Object.fromEntries(
             borrowedForms.map(({ logicalAddress }) => [logicalAddress, "adopted"] as const)
           ),
-          Конфигурация: "indexed",
+          Конфигурация: "adopted",
         },
         baseForms: {
           componentDir: base.structure.componentDir,

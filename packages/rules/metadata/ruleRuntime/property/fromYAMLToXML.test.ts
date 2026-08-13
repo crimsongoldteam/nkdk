@@ -49,6 +49,18 @@ const fillValueTestRule = (): MetadataItemRule => testRule({
     yaml: "ЗначениеЗаполнения",
     xml: "FillValue",
     defaultValueXMLRaw: { "_xsi:nil": true },
+    exportNilValue: true,
+  },
+})
+
+const typedFillValueTestRule = (): MetadataItemRule => testRule({
+  type: { type: "TypeDescription", yaml: "Тип", xml: "Type" },
+  fillValue: {
+    type: "MetadataValue",
+    yaml: "ЗначениеЗаполнения",
+    xml: "FillValue",
+    defaultValueXMLRaw: { "_xsi:nil": true },
+    exportNilValue: true,
   },
 })
 
@@ -123,6 +135,29 @@ const contextWithXMLDefaultVariant = (
 }
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("восстанавливает исключённый заголовок по имени индексированного объекта", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("indexed"),
+      yaml: {},
+      rule: testRule({
+        synonym: {
+          type: "I8nText",
+          yaml: "Синоним",
+          xml: "Synonym",
+          excludeIfEqualNameYAML: true,
+        },
+      }),
+      name: "ДинамическийСписок",
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Synonym: {
+        "v8:item": [{ "v8:lang": "ru", "v8:content": "Динамический список" }],
+      },
+    })
+  })
+
   it("exports a registered explicit XML scalar without reference", () => {
     const rule = registeredExplicitXMLTestRule("TestExplicitXMLDefault")
 
@@ -268,17 +303,28 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
-  it("evaluates XML property when YAML is missing", () => {
+  it.each([
+    ["value", "Value"],
+    ["fillValue", "FillValue"],
+  ] as const)("evaluates missing sparse XML property regardless of key %s", (propertyKey, xmlKey) => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: {},
-      rule: evaluatedMissingPropertyRule(),
+      rule: testRule({
+        [propertyKey]: {
+          type: "string",
+          xml: xmlKey,
+          yaml: "Значение",
+          defaultValueXMLRaw: {},
+          evaluateWhenYAMLMissing: true,
+        } as PropertyRule,
+      }),
       outputs: [{ key: "owner" }],
       sparseYAML: true,
       omitDefaultsForSparseYAML: true,
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Value: {} })
+    expect(result.outputs.get("owner")).toEqual({ [xmlKey]: {} })
   })
 
   it.each(["indexed", "adopted"] as const)(
@@ -531,6 +577,26 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(adopted.outputs.get("owner")).toEqual({ Mode: "adopted-xml" })
   })
 
+  it("не создаёт индексированный XML-default, когда предметное условие экспорта ложно", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("indexed", ["value"]),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Значение",
+          xml: "Value",
+          defaultValueXML: "default",
+          toXML: () => false,
+          preserveUnknownReferenceXML: false,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
   it("не применяет обычный XML-default к заимствованному объекту", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant("adopted"),
@@ -550,7 +616,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
-  it("применяет XML-default индексного варианта только по сохранённому XML-значению", () => {
+  it("восстанавливает XML-default индексного варианта без состояния XML в снимке", () => {
     const property = {
       type: "string",
       yaml: "Режим",
@@ -572,11 +638,11 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(absent.outputs.get("owner")).toEqual({})
+    expect(absent.outputs.get("owner")).toEqual({ Mode: "full-xml" })
     expect(present.outputs.get("owner")).toEqual({ Mode: "full-xml" })
   })
 
-  it("не считает свойство из сохранённого порядка присутствовавшим в XML", () => {
+  it("не использует порядок как XML-состояние, но восстанавливает XML-default", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant("indexed", ["value"], true),
       yaml: {},
@@ -592,7 +658,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({})
+    expect(result.outputs.get("owner")).toEqual({ Mode: "full-xml" })
   })
 
   it("преобразует синтезированный XML-default через обработчик типа", () => {
@@ -760,28 +826,28 @@ describe("convertPropertiesFromYAMLToXML", () => {
   })
 
   it.each([
-    [{ xsiNil: true as const }, { "_xsi:nil": true }],
-    [{ xsiType: "xr:DesignTimeRef" }, { "_xsi:type": "xr:DesignTimeRef" }],
-    [{ xsiType: "xs:string", xmlText: "   " }, { "_xsi:type": "xs:string", "#text": "   " }],
-    [
-      { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
-      { "_xsi:type": "xs:dateTime", "#text": "0001-01-01T00:00:00" },
-    ],
-  ])("восстанавливает удалённое значение заполнения из снимка %#", (xmlState, expected) => {
+    undefined,
+    { xsiNil: true as const },
+    { xsiType: "xr:DesignTimeRef" },
+    { xsiType: "xs:string", xmlText: "   " },
+    { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
+  ])("использует канонический FillValue без YAML-поля %#", (xmlState) => {
     const result = convertPropertiesFromYAMLToXML({
-      context: contextWithXMLDefaultVariant(
-        "indexed",
-        [],
-        false,
-        DEFAULT_TEST_LOGICAL_ADDRESS,
-        [{ logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.fillValue`, ...xmlState }],
-      ),
+      context: xmlState === undefined
+        ? context()
+        : contextWithXMLDefaultVariant(
+            "indexed",
+            [],
+            false,
+            DEFAULT_TEST_LOGICAL_ADDRESS,
+            [{ logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.fillValue`, ...xmlState }],
+          ),
       yaml: {},
       rule: fillValueTestRule(),
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ FillValue: expected })
+    expect(result.outputs.get("owner")).toEqual({ FillValue: { "_xsi:nil": true } })
   })
 
   it("явное YAML-значение заполнения имеет приоритет над снимком", () => {
@@ -826,15 +892,18 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
-  it("использует канонический XML-default без снимка и YAML-поля", () => {
+  it.each([
+    ["Булево", { "_xsi:nil": true }],
+    ["Строка", { "_xsi:type": "xs:string" }],
+  ] as const)("вычисляет канонический FillValue %s вместо reference XML", (type, expected) => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
-      yaml: {},
-      rule: fillValueTestRule(),
-      outputs: [{ key: "owner" }],
+      yaml: { Тип: type },
+      rule: typedFillValueTestRule(),
+      outputs: [{ key: "owner", referenceXML: { FillValue: { "_xsi:type": "v8:TypeDescription" } } }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ FillValue: { "_xsi:nil": true } })
+    expect(result.outputs.get("owner")).toMatchObject({ FillValue: expected })
   })
 
   it("восстанавливает присутствие пустого XML-default из снимка", () => {
@@ -889,7 +958,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     const logicalAddress = DEFAULT_TEST_LOGICAL_ADDRESS
     const testContext = contextWithXMLDefaultVariant(
       "indexed",
-      ["synonym"],
+      [],
       false,
       logicalAddress
     )

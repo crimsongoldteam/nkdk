@@ -16,6 +16,7 @@ export const errorCodeSchema = z.enum([
   "session_start_failed",
   "session_timeout",
   "platform_command_failed",
+  "delivery_outcome_unknown",
   "operation_cancelled",
 ])
 

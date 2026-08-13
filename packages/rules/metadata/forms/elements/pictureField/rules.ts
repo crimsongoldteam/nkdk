@@ -226,6 +226,7 @@ export const TablePictureFieldRules = {
   properties: {
     ...PictureFieldRules.properties,
     ...formFieldTableRelatedProperties,
+    skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", noImplicitValueYAML: true },
   },
 } as const satisfies ElementRule
 export const metadataRuleLayer000 = defineExplicitHeaderHorizontalAlign(TablePictureFieldRules.itemType)

@@ -1,76 +1,58 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../ruleRuntime"
+import { serializeYAMLDocument } from "@nkdk/runtime"
+import { createRuleRegistrySet, type PropertyRule } from "@nkdk/runtime/rule-kit"
+import { exportPropertyToYAML } from "../../ruleRuntime/property/toYAML"
+import { metadataRules } from "../../composition/metadataRules"
+import { mockContext } from "../../../tests/mockContext"
 import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
-import { getMinMaxValueXMLText } from "./types"
-import "./fromXML"
 
-const rule: PropertyRule = {
+import "./fromXML"
+import "./toYAML"
+
+const stringRule = {
   type: "MinMaxValue",
   yaml: "МинимальноеЗначение",
-}
+  typedXML: "xs:string",
+} as PropertyRule
 
-describe("importMinMaxValueFromXML", () => {
-  it("imports xs:string as number", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      xmlString: '<MinValue xsi:type="xs:string">1</MinValue>',
-      xmlRootTag: "MinValue",
-    })
+const decimalRule = {
+  type: "MinMaxValue",
+  yaml: "МинимальноеЗначение",
+  typedXML: "xs:decimal",
+} as PropertyRule
 
-    expect(result).toBe(1)
+const execution = createRuleRegistrySet(metadataRules).execution
+
+describe("MinMaxValue XML → YAML", () => {
+  it.each([
+    ['<MinValue xsi:type="xs:string">1</MinValue>', stringRule, "МинимальноеЗначение: 1"],
+    ['<MinValue xsi:type="xs:string">001.00</MinValue>', stringRule, "МинимальноеЗначение: !xml String 001.00"],
+    ['<MinValue xsi:type="xs:decimal">001.00</MinValue>', decimalRule, "МинимальноеЗначение: !xml Decimal 001.00"],
+    ['<MinValue xsi:type="xs:dateTime">bad</MinValue>', stringRule, "МинимальноеЗначение: !xml Raw xs:dateTime bad"],
+    ["<MinValue>bad</MinValue>", stringRule, "МинимальноеЗначение: !xml Raw - bad"],
+  ] as const)("imports exact representation from %s", (xmlString, rule, expected) => {
+    expect(importAndSerialize(rule, xmlString)).toBe(expected)
   })
 
-  it("imports xs:string decimal comma as number", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      xmlString: '<MinValue xsi:type="xs:string">0,005</MinValue>',
-      xmlRootTag: "MinValue",
-    })
-
-    expect(result).toBe(0.005)
+  it("imports canonical decimal comma as a number", () => {
+    expect(importAndSerialize(stringRule, '<MinValue xsi:type="xs:string">0,005</MinValue>'))
+      .toBe("МинимальноеЗначение: 0.005")
   })
 
-  it("imports typed value without text as undefined", () => {
-    const result = testImportPropertyFromXML({
-      rule,
+  it("imports an empty typed value as undefined", () => {
+    const value = testImportPropertyFromXML({
+      rule: stringRule,
       xmlString: '<MinValue xsi:type="xs:string"/>',
       xmlRootTag: "MinValue",
     })
 
-    expect(result).toBeUndefined()
-  })
-
-  it("imports typed empty text as undefined", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      xmlString: '<MinValue xsi:type="xs:string"></MinValue>',
-      xmlRootTag: "MinValue",
-    })
-
-    expect(result).toBeUndefined()
-  })
-
-  it("imports xs:string as empty boxed number for reference", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      xmlString: '<MinValue xsi:type="xs:string">1</MinValue>',
-      xmlRootTag: "MinValue",
-      forReference: true,
-    })
-
-    expect(Number(result)).toBe(1)
-    expect(Object.keys(Object(result))).toEqual([])
-  })
-
-  it("keeps original XML text for reference import", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      xmlString: '<MinValue xsi:type="xs:string">0,00</MinValue>',
-      xmlRootTag: "MinValue",
-      forReference: true,
-    })
-
-    expect(Number(result)).toBe(0)
-    expect(getMinMaxValueXMLText(result)).toBe("0,00")
+    expect(value).toBeUndefined()
   })
 })
+
+function importAndSerialize(rule: PropertyRule, xmlString: string): string {
+  const value = testImportPropertyFromXML({ rule, xmlString, xmlRootTag: "MinValue" })
+  const yaml = exportPropertyToYAML({ context: mockContext, rule, value, execution })
+  if (yaml === undefined) throw new Error("MinMaxValue не экспортирован в YAML")
+  return serializeYAMLDocument(yaml).text.trim()
+}

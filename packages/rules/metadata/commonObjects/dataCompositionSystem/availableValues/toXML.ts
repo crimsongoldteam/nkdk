@@ -15,12 +15,11 @@ export const exportDcsAvailableValuesToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   values: DcsAvailableValues | undefined,
-  referenceMetadata?: DcsAvailableValues
+  _referenceMetadata?: DcsAvailableValues
 ): unknown[] | undefined => {
   if (!values || values.length === 0) return undefined
 
-  return values.map((item, index) => {
-    const referenceItem = referenceMetadata?.[index]
+  return values.map((item) => {
     const valueXML =
       item.value === undefined
         ? { "_xsi:nil": true }
@@ -29,7 +28,6 @@ export const exportDcsAvailableValuesToXML = (
       context,
       { type: "DcsLocalStringType" },
       item.presentation,
-      referenceItem?.presentation
     )
 
     return {

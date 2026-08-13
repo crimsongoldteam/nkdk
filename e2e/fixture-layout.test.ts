@@ -24,13 +24,9 @@ describe("metadata E2E fixture layout", () => {
     expect(paths).toContain(component.rootFile)
   })
 
-  it("contains round-trip indexes without transient NKDK cache", async () => {
+  it("does not contain generated NKDK state", async () => {
     const paths = await collectRelativePaths(resolve(fixturesRoot, "nkdk"))
-    expect(paths.some((path) => path === ".nkdk/cache" || path.startsWith(".nkdk/cache/"))).toBe(false)
-    expect(paths).toContain(".nkdk/components/cf/configuration-index.bin")
-    expect(paths).toContain(".nkdk/components/cfe/Расширение_All/configuration-index.bin")
-    expect(paths).toContain(".nkdk/components/cfe/РасширениеКонтроль/configuration-index.bin")
-    expect(paths).toContain(".nkdk/components/cfe/РасширениеПоУмолчанию/configuration-index.bin")
+    expect(paths.some((path) => path === ".nkdk" || path.startsWith(".nkdk/"))).toBe(false)
   })
 })
 

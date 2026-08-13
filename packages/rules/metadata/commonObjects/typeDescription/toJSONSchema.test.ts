@@ -61,6 +61,46 @@ const findSchemaBranchByPattern = (schema: unknown, pattern: string): SchemaBran
 }
 
 describe("exportTypeDescriptionToJSONSchema", () => {
+  it("allows the type prefix marker only in the internal schema", () => {
+    const rule = { type: "TypeDescription" } as const
+    const externalSchema = exportTypeDescriptionToJSONSchema({ context: mockContext, rule, value: undefined })
+    const internalSchema = exportTypeDescriptionToJSONSchema({
+      context: { ...mockContext, exportToJSONSchema: { mode: "inline", refs: new Set(), explicitXMLValues: true } },
+      rule,
+      value: undefined,
+    })
+    if (externalSchema === undefined || internalSchema === undefined) throw new Error("TypeDescription schema is missing")
+    const external = compileValidationSchema({}, externalSchema)
+    const internal = compileValidationSchema({}, internalSchema)
+
+    expect(internal.Check("!xml d7p1:Диаграмма")).toBe(true)
+    expect(internal.Check("!xml d7p1:")).toBe(false)
+    expect(external.Check("!xml d7p1:Диаграмма")).toBe(false)
+  })
+
+  it("allows a prefix marker inside a restricted compound type only in the internal schema", () => {
+    const externalSchema = exportTypeDescriptionToJSONSchema({
+      context: mockContext,
+      rule: restrictedRule,
+      value: undefined,
+    })
+    const internalSchema = exportTypeDescriptionToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: { mode: "inline", refs: new Set(), validationPropertyRefs: true },
+      },
+      rule: restrictedRule,
+      value: undefined,
+    })
+    if (externalSchema === undefined || internalSchema === undefined) throw new Error("TypeDescription schema is missing")
+    const external = compileValidationSchema({}, externalSchema)
+    const internal = compileValidationSchema({}, internalSchema)
+    const value = ["!xml d6p1:Справочник.Товары", "Строка"]
+
+    expect(internal.Check(value)).toBe(true)
+    expect(external.Check(value)).toBe(false)
+  })
+
   it("keeps broad schema when allowedTypes is absent", () => {
     const schema = exportTypeDescriptionToJSONSchema({
       context: mockContext,
@@ -68,14 +108,12 @@ describe("exportTypeDescriptionToJSONSchema", () => {
       value: undefined,
     })
 
-    expect(schema).toMatchObject({
-      anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }, { type: "object" }],
-    })
-
     if (schema === undefined) {
       throw new Error("Expected TypeDescription JSON schema")
     }
     const compiled = compileValidationSchema(schema)
+    expect(compiled.Check("Строка")).toBe(true)
+    expect(compiled.Check(["Строка", "Число"])).toBe(true)
     expect(compiled.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(true)
     expect(compiled.Check({ ИдентификаторТипа: [] })).toBe(false)
     expect(compiled.Check({})).toBe(false)

@@ -4,6 +4,7 @@ import {
   buildDesignerAgentLaunch,
   buildDumpConfigurationCommand,
   buildListDesignerExtensionsCommand,
+  buildLoadPartialConfigurationCommand,
   buildStandaloneConfigExport,
   buildStandaloneConfigInit,
   buildStandaloneListExtensions,
@@ -198,6 +199,22 @@ describe("platform session commands", () => {
     })
   })
 
+  it("builds a partial configuration load command for a configuration or extension", () => {
+    expect(
+      buildLoadPartialConfigurationCommand({ stagingDir: "staging" })
+    ).toBe(
+      'config load-files --dir="staging" --archive="package.zip" --no-check --list-file="staging/load.lst" --partial --update-config-dump-info'
+    )
+    expect(
+      buildLoadPartialConfigurationCommand({
+        stagingDir: 'staging"dir',
+        extensionName: 'Расширение "Тест"',
+      })
+    ).toBe(
+      'config load-files --dir="staging""dir" --archive="package.zip" --no-check --list-file="staging""dir/load.lst" --partial --update-config-dump-info --extension="Расширение ""Тест"""'
+    )
+  })
+
   it("omits absent infobase credentials from extension list arguments", () => {
     expect(
       buildStandaloneListExtensions({
@@ -215,6 +232,19 @@ describe("platform session commands", () => {
 
   it.each(["/project/a\nb", "/project/a\0b"])("rejects unsafe interactive values", (path) => {
     expect(() => buildDumpConfigurationCommand(path, "include")).toThrowError(
+      expect.objectContaining<Partial<PlatformSessionError>>({ code: "platform_command_failed" })
+    )
+  })
+
+  it.each([
+    { stagingDir: "staging\0dir" },
+    { stagingDir: "staging\ndir" },
+    { stagingDir: "staging\rdir" },
+    { stagingDir: "staging", extensionName: "Расширение\0" },
+    { stagingDir: "staging", extensionName: "Расширение\n" },
+    { stagingDir: "staging", extensionName: "Расширение\r" },
+  ])("rejects unsafe partial load command values", (params) => {
+    expect(() => buildLoadPartialConfigurationCommand(params)).toThrowError(
       expect.objectContaining<Partial<PlatformSessionError>>({ code: "platform_command_failed" })
     )
   })

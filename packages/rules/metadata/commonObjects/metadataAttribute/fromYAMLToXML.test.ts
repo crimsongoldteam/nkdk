@@ -169,6 +169,33 @@ describe("MetadataAttributes YAML → XML", () => {
     )
 
     expect(result).toContain("<FillFromFillingValue>false</FillFromFillingValue>")
+    expect(result).toContain('<FillValue xsi:type="xs:string"/>')
+  })
+
+  it("exports the canonical empty string FillValue from the attribute type without a snapshot", () => {
+    const result = convertYAML({ ТестовыйРеквизит: { Тип: "Строка" } })
+
+    expect(result).toContain('<FillValue xsi:type="xs:string"/>')
+  })
+
+  it("uses the canonical string FillValue instead of reference XML", () => {
+    const referenceXML = importContentFromXML<Record<string, unknown>>(
+      '<Attribute><Properties><Name>ТестовыйРеквизит</Name><FillValue xsi:type="v8:TypeDescription"/></Properties></Attribute>'
+    )
+    const result = serializeDirectXML(
+      testPropertyFromYAMLToXML({
+        rule,
+        yaml: { Значение: { ТестовыйРеквизит: { Тип: "Строка" } } },
+        referenceXML,
+      }).xml
+    )
+
+    expect(result).toContain('<FillValue xsi:type="xs:string"/>')
+  })
+
+  it("keeps xsi:nil as the canonical FillValue for a non-string attribute", () => {
+    const result = convertYAML({ ТестовыйРеквизит: { Тип: "Булево" } })
+
     expect(result).toContain('<FillValue xsi:nil="true"/>')
   })
 

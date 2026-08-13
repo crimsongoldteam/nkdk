@@ -6,7 +6,6 @@ import "../flowchartContext/types"
 import "../ganttChart/types"
 import "../planner/types"
 import type { FormAttribute, FormAttributeXML } from "./types"
-
 const chartSettingsRule = {
   type: "Chart",
   xml: "Settings",

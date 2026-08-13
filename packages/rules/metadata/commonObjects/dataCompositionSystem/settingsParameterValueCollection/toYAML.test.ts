@@ -5,6 +5,7 @@ import {
   settingsParameterValueCollectionFixture,
   settingsParameterValueCollectionFixtureYAML,
 } from "./__fixtures__/data"
+import { serializeYAMLDocument } from "@nkdk/runtime"
 
 const rule: PropertyRule = {
   type: "SettingsParameterValueCollection",
@@ -63,5 +64,17 @@ describe("export SettingsParameterValueCollection to YAML", () => {
         },
       },
     })
+  })
+
+  it("exports the Nil transport as !xml", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: {
+        itemType: "SettingsParameterValueCollection",
+        parameters: { Параметр1: { parameter: "Параметр1", xmlNil: true } },
+      },
+    })
+
+    expect(serializeYAMLDocument(result).text).toContain("Значение: !xml Nil")
   })
 })

@@ -1,89 +1,59 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../ruleRuntime"
+import { serializeYAMLDocument } from "@nkdk/runtime"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
+import { exportPropertyToYAML } from "../../../ruleRuntime/property/toYAML"
+import { createDirectRoundTripContexts, testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
+import { mockContext } from "../../../../tests/mockContext"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
-import {
-  fixtureDcsLocalStringRef,
-  fixtureDcsLocalStringSingleLang,
-  fixtureDcsLocalStringTwoLangs,
-  fixtureDcsLocalStringTwoLangsRef,
-  fixtureDcsStringRef,
-  fixtureDcsStringSingleLang,
-} from "./__fixtures__/data"
+import { fixtureDcsLocalStringTwoLangs } from "./__fixtures__/data"
 
-const rule: PropertyRule = { type: "DcsLocalStringType" }
+import "./fromXML"
+import "./toYAML"
+
+const rule: PropertyRule = { type: "DcsLocalStringType", yaml: "Заголовок" }
 const xmlRootTag = "dcsset:userSettingPresentation"
 
-describe("importDcsLocalStringTypeFromXML", () => {
-  describe("обычный импорт", () => {
-    it("string.xml -> I8nText", () => {
-      const result = testImportPropertyFromXML({
-        rule,
-        path: "string.xml",
-        xmlRootTag,
-        importMetaUrl: import.meta.url,
-      })
-
-      expect(result).toEqual(fixtureDcsStringSingleLang)
-    })
-
-    it("localString.xml -> I8nText с одним языком", () => {
-      const result = testImportPropertyFromXML({
-        rule,
-        path: "localString.xml",
-        xmlRootTag,
-        importMetaUrl: import.meta.url,
-      })
-
-      expect(result).toEqual(fixtureDcsLocalStringSingleLang)
-    })
-
-    it("localStringTwoLangs.xml -> I8nText с двумя языками", () => {
-      const result = testImportPropertyFromXML({
-        rule,
-        path: "localStringTwoLangs.xml",
-        xmlRootTag,
-        importMetaUrl: import.meta.url,
-      })
-
-      expect(result).toEqual(fixtureDcsLocalStringTwoLangs)
-    })
+describe("DcsLocalStringType XML → YAML", () => {
+  it("stores xs:string as !xml String", () => {
+    expect(importAndSerialize("string.xml")).toBe("Заголовок: !xml String Один язык - string")
   })
 
-  describe("импорт референса", () => {
-    it("string.xml -> строковый референс", () => {
-      const result = testImportPropertyFromXML({
-        rule,
-        path: "string.xml",
-        xmlRootTag,
-        importMetaUrl: import.meta.url,
-        forReference: true,
-      })
+  it("imports one-language LocalStringType as ordinary YAML", () => {
+    expect(importAndSerialize("localString.xml")).toBe("Заголовок: Один язык - local string")
+  })
 
-      expect(result).toEqual(fixtureDcsStringRef)
+  it("imports two-language LocalStringType as ordinary YAML", () => {
+    const value = importFixture("localStringTwoLangs.xml")
+
+    expect(value).toEqual(fixtureDcsLocalStringTwoLangs)
+  })
+
+  it("does not collect xsiType in the configuration snapshot", () => {
+    const contexts = createDirectRoundTripContexts()
+    const ownerRule = {
+      itemType: "DcsLocalStringSnapshotProbe",
+      properties: {
+        title: { ...rule, xml: "Title" },
+      },
+    } as MetadataItemRule
+    testPropertyFromXMLToYAML({
+      rule: ownerRule,
+      context: contexts.importContext,
+      xml: { Title: { "_xsi:type": "xs:string", "#text": "Текст" } },
     })
 
-    it("localString.xml -> I8nText референс", () => {
-      const result = testImportPropertyFromXML({
-        rule,
-        path: "localString.xml",
-        xmlRootTag,
-        importMetaUrl: import.meta.url,
-        forReference: true,
-      })
-
-      expect(result).toEqual(fixtureDcsLocalStringRef)
-    })
-
-    it("localStringTwoLangs.xml -> I8nText референс", () => {
-      const result = testImportPropertyFromXML({
-        rule,
-        path: "localStringTwoLangs.xml",
-        xmlRootTag,
-        importMetaUrl: import.meta.url,
-        forReference: true,
-      })
-
-      expect(result).toEqual(fixtureDcsLocalStringTwoLangsRef)
-    })
+    const fragment = contexts.importContext.fromXML.configurationIndex?.collector.fragment("Тест.yaml")
+    expect(JSON.stringify(fragment?.entities)).not.toContain("xsiType")
   })
 })
+
+function importAndSerialize(path: string): string {
+  const value = importFixture(path)
+  const yaml = exportPropertyToYAML({ context: mockContext, rule, value })
+  if (yaml === undefined) throw new Error("DcsLocalStringType не экспортирован")
+  return serializeYAMLDocument(yaml).text.trim()
+}
+
+function importFixture(path: string): unknown {
+  return testImportPropertyFromXML({ rule, path, xmlRootTag, importMetaUrl: import.meta.url })
+}

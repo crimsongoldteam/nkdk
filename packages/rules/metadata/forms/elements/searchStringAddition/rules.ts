@@ -3,6 +3,7 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { explicitElementNameStyle } from "../../explicitElementName"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getSearchStringAdditionName } from "./helper"
@@ -139,11 +140,11 @@ export const SearchStringAdditionRules = {
 export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "SingleSearchStringAddition",
   elementRule: SingleSearchStringAdditionRules,
-  nameStyle: {
+  nameStyle: explicitElementNameStyle("SearchStringAddition", {
     canonicalSuffix: "СтрокаПоиска",
     referenceSuffixes: ["СтрокаПоиска", "SearchString"],
     canonicalNameMode: "ownerSuffix",
-  },
+  }),
   toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     if (!context.exportToXML.itemsTree) throw new Error("elementContext is not defined")

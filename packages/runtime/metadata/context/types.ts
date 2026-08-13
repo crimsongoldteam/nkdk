@@ -139,6 +139,8 @@ export interface EnterpriseContext {}
 
 export interface FormExportToYAMLContext {
   toTyped: boolean
+  /** Вложенный путь видов metadata-item, доступный предметным экспортёрам значений. */
+  metadataItemTypes?: readonly string[]
   /** Путь к корню YAML-проекта для чтения владельцев DataPath. */
   projectDir?: string
   /** Имя родительского объекта (например, имя реквизита формы) для externalFile. */

@@ -20,6 +20,7 @@ import {
   prepareFormDataPathContextFromYAML,
   type FormDataPathContext,
 } from "./formDataPathContext"
+import { assignFormXmlIds } from "./formXmlIdAssignment"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -119,7 +120,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
     ...formProperties,
     ...(params.baseFormXML === undefined ? {} : { BaseForm: params.baseFormXML }),
   } as ClientApplicationFormXML
-  assignGeneratedIds(formXML, params.referenceFormXML)
+  assignFormXmlIds(formXML, params.referenceFormXML)
 
   const generatedForm = asRecord(metadataProperties.Form) ?? {}
   const metadataXML = {
@@ -147,46 +148,6 @@ function createFormBodyContext(context: ConfigurationContextWithExportToXML): Co
     withConfigurationIndexExportFormElementRootLogicalAddress(context, runtime.logicalAddress),
     childUid(runtime.logicalAddress, "ЧастьФормы", "Содержимое")
   )
-}
-
-function assignGeneratedIds(generated: unknown, reference: unknown): void {
-  const occupied = new Set<string>()
-  collectIds(reference, occupied)
-  let next = 1
-
-  const visit = (value: unknown, referenceValue: unknown): void => {
-    if (Array.isArray(value)) {
-      const references = Array.isArray(referenceValue) ? referenceValue : []
-      value.forEach((item, index) => visit(item, findReferenceNode(item, references) ?? references[index]))
-      return
-    }
-    if (!isRecord(value)) return
-    const referenceRecord = isRecord(referenceValue) ? referenceValue : undefined
-    if (Object.prototype.hasOwnProperty.call(value, "_id")) {
-      const referenceId = typeof referenceRecord?._id === "string" ? referenceRecord._id : undefined
-      if (referenceId !== undefined) value._id = referenceId
-      else if (typeof value._id !== "string" || value._id.length === 0) {
-        while (occupied.has(String(next))) next++
-        value._id = String(next++)
-      }
-      if (typeof value._id === "string") occupied.add(value._id)
-    }
-    for (const [key, child] of Object.entries(value)) visit(child, referenceRecord?.[key])
-  }
-
-  visit(generated, reference)
-}
-
-function findReferenceNode(value: unknown, references: unknown[]): unknown {
-  if (!isRecord(value) || typeof value._name !== "string") return undefined
-  return references.find((item) => isRecord(item) && item._name === value._name)
-}
-
-function collectIds(value: unknown, result: Set<string>): void {
-  if (Array.isArray(value)) return value.forEach((item) => collectIds(item, result))
-  if (!isRecord(value)) return
-  if (typeof value._id === "string" && value._id.length > 0) result.add(value._id)
-  Object.values(value).forEach((item) => collectIds(item, result))
 }
 
 function readMetadataUUID(metadata: Record<string, unknown>): string | undefined {

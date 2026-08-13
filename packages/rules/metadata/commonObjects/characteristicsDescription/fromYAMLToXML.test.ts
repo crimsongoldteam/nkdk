@@ -89,6 +89,13 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
     expect(xml).toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
   })
 
+  it("exports !xml DesignTimeRef without reference XML", () => {
+    const yaml = importFromYAML("Характеристики:\n  - ЗначениеОтбораВидов: !xml DesignTimeRef\n")
+    const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
+
+    expect(xml).toContain('<xr:TypesFilterValue xsi:type="xr:DesignTimeRef"/>')
+  })
+
   it("preserves explicit XML default fields from reference", () => {
     const referenceXML = readAppliedObjectFixture(import.meta.url, "single.xml")
     const roundTrip = createDirectRoundTripContexts()

@@ -5,7 +5,6 @@ import {
   E2E_COMPONENTS,
   NKDK_FIXTURES_ROOT,
   cloneImportedProject,
-  cloneNkdkFixtureProject,
   importMetadataProject,
   removeImportedProject,
   roundTripMetadataProject,
@@ -77,7 +76,7 @@ describe.sequential("metadata project E2E", () => {
     const reportDir = resolve(import.meta.dirname, "../reports/e2e/nkdk-import")
     const projectDir = await cloneImportedProject(baseline, "nkdk-import-comparison")
     await rm(reportDir, { recursive: true, force: true })
-    await rm(join(projectDir, ".nkdk", "cache"), { recursive: true, force: true })
+    await rm(join(projectDir, ".nkdk"), { recursive: true, force: true })
     try {
       const comparison = await compareFileTrees({
         expectedDir: NKDK_FIXTURES_ROOT,
@@ -122,7 +121,7 @@ describe.sequential("metadata project E2E", () => {
 
   it("restores every XML component semantically from the committed NKDK project", async () => {
     if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
-    const projectDir = await cloneNkdkFixtureProject(baseline, "round-trip")
+    const projectDir = await cloneImportedProject(baseline, "round-trip")
     const reportRoot = resolve(import.meta.dirname, "../reports/e2e/round-trip")
     const results = await roundTripMetadataProject({ projectDir, reportRoot })
 

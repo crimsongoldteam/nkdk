@@ -52,6 +52,9 @@ function fakeDependencies(): PlatformConnectionsDependencies {
           reusedConnection: false,
         }
       },
+      async loadPartialConfiguration() {
+        throw new Error("not used")
+      },
       async closeConnection() {
         return { closed: true, stoppedOwnedProcess: true }
       },

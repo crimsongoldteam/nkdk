@@ -8,6 +8,7 @@ import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { ButtonRepresentation, CurrentRowUse } from "../../../systemEnumerations/types"
 import { importFormCommandsFromXMLToYAML } from "./fromXMLToYAML"
 import { FormCommandRules } from "./rules"
+import { registerFormXmlIdReservation } from "@nkdk/runtime"
 
 export type FormCommand = FormTypeByRule<typeof FormCommandRules>
 
@@ -42,10 +43,15 @@ export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   configurationIndexUidSegment: "Команда",
   requiredIdentity: "xmlId",
   fromXMLToYAML: importFormCommandsFromXMLToYAML,
-  mapItemOutput: ({ xml }) => {
+  mapItemOutput: ({ xml, context }) => {
     const { _name, _id, ...properties } = xml
     const result: Record<string, unknown> = { _name, _id: typeof _id === "string" ? _id : "", ...properties }
     if (result.Representation === "PictureAndText") result.Representation = "TextPicture"
+    const runtime = context.exportToXML.configurationIndex
+    registerFormXmlIdReservation(result, {
+      ...(runtime === undefined ? {} : { runtime }),
+      space: "commands",
+    })
     return result
   },
 })

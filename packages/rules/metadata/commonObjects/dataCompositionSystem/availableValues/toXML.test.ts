@@ -45,16 +45,15 @@ describe("export DcsAvailableValues to XML", () => {
     ])
   })
 
-  it("preserves xs:string presentation from reference metadata", () => {
+  it("exports an explicit xs:string presentation without reference metadata", () => {
     const result = callAtomicToXML({
       context: mockContextToXML(),
       rule,
-      value: stringAvailableValues,
-      referenceValue: [
+      value: [
         {
           itemType: "DcsAvailableValue",
           value: { type: "string", value: "Выставлен" },
-          presentation: "Выставлен",
+          presentation: { kind: "xmlString", text: "Выставлен" },
         },
       ],
     })

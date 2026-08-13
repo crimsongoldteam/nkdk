@@ -9,12 +9,13 @@ import { hashFileBytes } from "@nkdk/runtime"
 import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import { parseComponentPath } from "@nkdk/runtime"
 import { finalizePartialXmlSyncPackage } from "./finalizePartialXmlSyncPackage"
+import { markPartialSyncApplied, markPartialSyncTransferring } from "./deliveryState"
 import { readPartialXmlSyncAppliedMigrations } from "./migrationState"
 import {
   partialXmlSyncArchiveProjectPath,
   pendingPartialXmlSyncPaths,
   writePendingPartialXmlSync,
-  type PendingPartialXmlSyncStateV1,
+  type PendingPartialXmlSyncStateV2,
 } from "./pendingStore"
 
 describe("фиксация частичной XML-синхронизации", () => {
@@ -33,7 +34,10 @@ describe("фиксация частичной XML-синхронизации", (
       packageId: "package-1",
     })
 
-    expect(result).toEqual({ status: "published" })
+    expect(result).toEqual({
+      status: "published",
+      configurationIndexPath: configurationIndexPath(prepared.projectDir, { kind: "configuration" }),
+    })
     expect(decodeConfigurationIndex(fs.readFileSync(configurationIndexPath(
       prepared.projectDir,
       { kind: "configuration" },
@@ -60,7 +64,10 @@ describe("фиксация частичной XML-синхронизации", (
       packageId: "package-1",
     })
 
-    expect(result).toEqual({ status: "alreadyPublished" })
+    expect(result).toEqual({
+      status: "alreadyPublished",
+      configurationIndexPath: configurationIndexPath(prepared.projectDir, { kind: "configuration" }),
+    })
     expect(decodeConfigurationIndex(fs.readFileSync(configurationIndexPath(
       prepared.projectDir,
       { kind: "configuration" },
@@ -119,7 +126,25 @@ describe("фиксация частичной XML-синхронизации", (
     expect(fs.existsSync(prepared.paths.pendingPath)).toBe(true)
   })
 
-  async function prepare(componentPath = "cf", candidateAppliedMigrations: readonly string[] = []) {
+  it.each(["prepared", "transferring"] as const)(
+    "не фиксирует пакет в фазе %s",
+    async (deliveryStatus) => {
+      const prepared = await prepare("cf", [], deliveryStatus)
+
+      await expect(finalizePartialXmlSyncPackage({
+        projectDir: prepared.projectDir,
+        componentPath: "cf",
+        packageId: "package-1",
+      })).rejects.toThrow(/успешн.*передач/i)
+      expect(fs.existsSync(prepared.paths.pendingPath)).toBe(true)
+    }
+  )
+
+  async function prepare(
+    componentPath = "cf",
+    candidateAppliedMigrations: readonly string[] = [],
+    deliveryStatus: "prepared" | "transferring" | "applied" = "applied",
+  ) {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-finalize-partial-"))
     tempDirs.push(projectDir)
     const sourceBytes = encodeConfigurationIndex(snapshot(1n, componentPath))
@@ -139,8 +164,8 @@ describe("фиксация частичной XML-синхронизации", (
     const archivePath = join(projectDir, ...archiveProjectPath.split("/"))
     fs.mkdirSync(join(archivePath, ".."), { recursive: true })
     fs.writeFileSync(archivePath, "archive")
-    const state: PendingPartialXmlSyncStateV1 = {
-      version: 1,
+    const state: PendingPartialXmlSyncStateV2 = {
+      version: 2,
       packageId: "package-1",
       componentPath,
       archiveProjectPath,
@@ -150,8 +175,28 @@ describe("фиксация частичной XML-синхронизации", (
       candidateSnapshotHash: hashHex(candidateBytes),
       ...baseIdentity,
       candidateAppliedMigrations,
+      entries: ["Catalogs/Test.xml", "load.lst"],
+      loadTargets: ["Catalogs/Test.xml"],
+      delivery: { status: "prepared" },
     }
     await writePendingPartialXmlSync({ projectDir, state, candidateBytes })
+    if (deliveryStatus !== "prepared") {
+      await markPartialSyncTransferring({
+        projectDir,
+        componentPath,
+        packageId: "package-1",
+        attemptId: "attempt-1",
+        operationLogProjectPath: ".nkdk/tmp/sync-to-infobase/attempt-1/platform.log",
+      })
+    }
+    if (deliveryStatus === "applied") {
+      await markPartialSyncApplied({
+        projectDir,
+        componentPath,
+        packageId: "package-1",
+        attemptId: "attempt-1",
+      })
+    }
     return { projectDir, archivePath, paths: pendingPartialXmlSyncPaths(projectDir, componentPath) }
   }
 })

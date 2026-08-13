@@ -39,6 +39,7 @@ export const ConditionalAppearanceItemRules = {
       xml: "dcsset:appearance",
       yaml: "Оформление",
       defaultValueXMLRaw: {},
+      evaluateWhenYAMLMissing: true,
     }),
     presentation: dcsLocalStringTypeRule({
       xml: "dcsset:presentation",

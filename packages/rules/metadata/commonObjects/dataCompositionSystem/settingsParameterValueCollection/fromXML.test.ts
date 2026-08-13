@@ -51,4 +51,19 @@ describe("import SettingsParameterValueCollection from XML", () => {
       },
     })
   })
+
+  it("imports xsi:nil as the local Nil transport", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "dcsset:dataParameters",
+      xmlString: `<dcsset:dataParameters>
+  <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+    <dcscor:parameter>Параметр1</dcscor:parameter>
+    <dcscor:value xsi:nil="true"/>
+  </dcscor:item>
+</dcsset:dataParameters>`,
+    })
+
+    expect(result).toMatchObject({ parameters: { Параметр1: { xmlNil: true } } })
+  })
 })

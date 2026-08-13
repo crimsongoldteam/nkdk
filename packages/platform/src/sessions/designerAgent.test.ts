@@ -24,6 +24,7 @@ describe("Designer agent session", () => {
       "ssh.connect 127.0.0.1:58248 fingerprint",
       "shell.connect-ib",
       "read /project/.nkdk/agentbasedir.json",
+      "rm /project/.nkdk/0/.nkdk-load",
       "write /project/.nkdk/tmp/op/platform.log",
       "rm /project/.nkdk/0/.nkdk-export",
       "mkdir /project/.nkdk/0/.nkdk-export",
@@ -136,6 +137,145 @@ describe("Designer agent session", () => {
       "shell.run config extensions properties get --all-extensions"
     )
     expect(fixture.calls).toContain("shell.run-options timeout=1800000")
+  })
+
+  it("copies a project ZIP, writes its load list and uses EDT-compatible paths", async () => {
+    const fixture = createFixture({ processLogDuringLoad: "partial load detail\n" })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml", "Catalogs/Справочник1/Ext/ObjectModule.bsl"],
+      fixture.operationLog,
+      "Расширение"
+    )).resolves.toEqual({ warnings: [] })
+
+    expect(fixture.calls.find((call) => call.startsWith("copy "))).toMatch(
+      /^copy \/project\/\.nkdk\/tmp\/op\/package\.zip \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+\/package\.zip$/u
+    )
+    expect([...fixture.writes.entries()].find(([path]) => path.endsWith("/load.lst"))).toEqual([
+      expect.stringMatching(/^\/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+\/load\.lst$/u),
+      "Catalogs/Справочник1.xml\nCatalogs/Справочник1/Ext/ObjectModule.bsl\n",
+    ])
+    expect(fixture.calls.find((call) => call.startsWith("shell.run config load-files"))).toMatch(
+      /^shell\.run config load-files --dir="\.nkdk-load\/[^/]+" --archive="package\.zip" --no-check --list-file="\.nkdk-load\/[^/]+\/load\.lst" --partial --update-config-dump-info --extension="Расширение"$/u
+    )
+    expect(fixture.calls.findLast((call) => call.startsWith("rm "))).toMatch(
+      /^rm \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+$/u
+    )
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "stage=configuration-load status=ready"
+    )
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "command config load-files"
+    )
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "command-response status=success"
+    )
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "process-log\npartial load detail"
+    )
+  })
+
+  it("сохраняет успешный результат загрузки при отказе журнала после команды", async () => {
+    const fixture = createFixture({ logAppendFailureAt: 3 })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml"],
+      fixture.operationLog,
+    )).resolves.toEqual({
+      warnings: ["Не удалось дополнить журнал после успешной загрузки"],
+    })
+  })
+
+  it("rejects an archive outside the project before copying it", async () => {
+    const fixture = createFixture()
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/outside/package.zip",
+      ["Catalogs/Справочник1.xml"],
+      fixture.operationLog
+    )).rejects.toMatchObject({ code: "platform_command_failed" })
+    expect(fixture.calls.some((call) => call.startsWith("copy "))).toBe(false)
+  })
+
+  it.each(["", "/Catalogs/Справочник1.xml", "../Configuration.xml", "Catalogs\\Справочник1.xml", "Catalogs/a\n.xml"])(
+    "rejects an unsafe partial load target: %j",
+    async (loadTarget) => {
+      const fixture = createFixture()
+      const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+      await expect(session.loadPartialConfiguration(
+        "/project/.nkdk/tmp/op/package.zip",
+        [loadTarget],
+        fixture.operationLog
+      )).rejects.toMatchObject({ code: "platform_command_failed" })
+      expect(fixture.calls.some((call) => call.startsWith("shell.run config load-files"))).toBe(false)
+    }
+  )
+
+  it.each([
+    ["rejected", "platform_command_failed", "rejected"],
+    ["unknown", "delivery_outcome_unknown", "unknown"],
+  ] as const)("classifies a %s partial load failure", async (_case, code, commandOutcome) => {
+    const fixture = createFixture({
+      loadError: new PlatformSessionError(
+        code === "delivery_outcome_unknown" ? "session_timeout" : "platform_command_failed",
+        "load failed",
+        { commandOutcome }
+      ),
+    })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml"],
+      fixture.operationLog
+    )).rejects.toMatchObject({
+      code,
+      commandOutcome,
+      details: { stage: "configuration-load", mode: "designer-agent" },
+    })
+  })
+
+  it("returns a warning when staging cleanup fails after confirmed success", async () => {
+    const fixture = createFixture({ loadCleanupFailure: true })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml"],
+      fixture.operationLog
+    )).resolves.toEqual({
+      warnings: ["Не удалось удалить служебную копию ZIP после успешной загрузки"],
+    })
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "cleanup stage=configuration-load status=failed"
+    )
+  })
+
+  it("records a staging cleanup failure after a confirmed rejection", async () => {
+    const fixture = createFixture({
+      loadCleanupFailure: true,
+      loadError: new PlatformSessionError(
+        "platform_command_failed",
+        "load failed",
+        { commandOutcome: "rejected" }
+      ),
+    })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml"],
+      fixture.operationLog
+    )).rejects.toMatchObject({ commandOutcome: "rejected" })
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain(
+      "cleanup stage=configuration-load status=failed"
+    )
   })
 
   it("rejects a success response without an extension-properties body", async () => {
@@ -326,7 +466,9 @@ describe("Designer agent session", () => {
         "include"
       )
     ).rejects.toMatchObject({ code: "platform_command_failed" })
-    expect(fixture.calls.some((call) => call.startsWith("rm "))).toBe(false)
+    expect(fixture.calls.filter((call) => call.startsWith("rm "))).toEqual([
+      "rm /project/.nkdk/0/.nkdk-load",
+    ])
   })
 
   it("rejects a platform installation without 1cv8", async () => {
@@ -552,8 +694,12 @@ function createFixture(
     extensionListError?: Error
     processLog?: string
     processLogDuringDump?: string
+    processLogDuringLoad?: string
     processLogReadFailure?: boolean
     openCommandError?: Error
+    loadError?: PlatformSessionError
+    loadCleanupFailure?: boolean
+    logAppendFailureAt?: number
   } = {}
 ): {
   calls: string[]
@@ -566,11 +712,14 @@ function createFixture(
 } {
   const calls: string[] = []
   const writes = new Map<string, string>()
+  let logAppendCalls = 0
   const createOperationLog = (path: string): PlatformOperationLog => ({
     path,
     available: true,
     async append(message) {
       calls.push(`write ${path}`)
+      logAppendCalls += 1
+      if (logAppendCalls >= (options.logAppendFailureAt ?? Number.POSITIVE_INFINITY)) return false
       const safeMessage = this.sanitize(message)
       writes.set(path, `${writes.get(path) ?? ""}${safeMessage}\n`)
       return true
@@ -634,6 +783,10 @@ function createFixture(
       ) {
         throw options.extensionListError
       }
+      if (options.loadError !== undefined && command.startsWith("config load-files")) {
+        throw options.loadError
+      }
+      if (command.startsWith("config load-files")) processLog += options.processLogDuringLoad ?? ""
       if (options.dumpFailure === true && command.startsWith("config ")) {
         processLog += options.processLogDuringDump ?? ""
         throw new Error("dump failed")
@@ -697,6 +850,12 @@ function createFixture(
         },
         async rm(path) {
           calls.push(`rm ${recordedPath(path)}`)
+          if (options.loadCleanupFailure === true && path.includes(".nkdk-load")) {
+            throw new Error("cleanup failed")
+          }
+        },
+        async copyFile(from, to) {
+          calls.push(`copy ${recordedPath(from)} ${recordedPath(to)}`)
         },
         async rename(from, to) {
           calls.push(`rename ${recordedPath(from)} ${recordedPath(to)}`)
@@ -746,6 +905,9 @@ function createFixture(
           return {
             write() {},
             onData() {
+              return () => undefined
+            },
+            onClose() {
               return () => undefined
             },
             isOpen: () => true,

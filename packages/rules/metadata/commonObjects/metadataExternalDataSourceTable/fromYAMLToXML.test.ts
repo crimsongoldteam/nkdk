@@ -56,6 +56,17 @@ describe("MetadataExternalDataSourceTable YAML → XML", () => {
 
     expect(serializeDirectXML(restored.xml)).toContain("<Characteristics/>")
   })
+
+  it("строит канонический UnfilledParentValue без reference XML и снимка", () => {
+    const rule = {
+      itemType: "ExternalDataSourceTableUnfilledParentProbe",
+      properties: { value: MetadataExternalDataSourceTableRules.properties.unfilledParentValue },
+    } as const satisfies MetadataItemRule
+
+    const restored = testPropertyFromYAMLToXML({ rule, yaml: {} })
+
+    expect(serializeDirectXML(restored.xml)).toContain('<UnfilledParentValue xsi:nil="true"/>')
+  })
 })
 
 const convert = (fixture: string) => testPropertyFixtureThroughYAML({ propertyType: "MetadataExternalDataSourceTable", xmlRootTag: "MetaDataObject", importMetaUrl: import.meta.url, fixture, itemsTree, metadataTargetOwners })

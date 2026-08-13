@@ -91,6 +91,32 @@ describe("shared full XML sync coordinator", () => {
     expect(harness.writtenIndex?.entities).toEqual([])
   })
 
+  it("записывает тонкий снимок результата полного sync через публичный entrypoint", async () => {
+    const harness = createHarness({
+      fragmentData: {
+        sourceProjectPaths: ["Конфигурация.yaml"],
+        entities: [{
+          logicalAddress: "Конфигурация",
+          sourceProjectPath: "Конфигурация.yaml",
+          identities: { uuid: "00000000-0000-4000-8000-000000000001", xmlId: "Configuration42" },
+        }],
+      },
+    })
+
+    const result = await syncComponentToXml({
+      context,
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+    }, harness.deps)
+
+    expect(result.failed).toEqual([])
+    expect(JSON.stringify(harness.writtenIndex?.entities)).not.toMatch(
+      /"xmlName"|"present"|"xsiNil"|"explicitEmpty"|"xsiType"|"xmlText"|"xmlPrefix"/u,
+    )
+  })
+
   it("останавливается до refresh и записи XML при ожидающем частичном пакете", async () => {
     const harness = createHarness()
 

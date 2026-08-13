@@ -88,6 +88,20 @@ describe("подготовка частичного XML-пакета", () => {
     await expect(preparePartialXmlSyncPackage(params(), dependencies)).resolves.toEqual(prepared)
     expect(dependencies.cleanup).toHaveBeenCalledOnce()
   })
+
+  it.each(["transferring", "applied"] as const)(
+    "не удаляет пакет в фазе %s и не начинает новую подготовку",
+    async (status) => {
+      const dependencies = boundary({ ok: true, status: "unchanged", diagnostics: [] })
+      dependencies.readPending.mockResolvedValue({ delivery: { status } } as never)
+
+      const result = await preparePartialXmlSyncPackage(params(), dependencies)
+
+      expect(result).toMatchObject({ ok: false })
+      expect(dependencies.cleanup).not.toHaveBeenCalled()
+      expect(dependencies.refresh).not.toHaveBeenCalled()
+    },
+  )
 })
 
 function formAssignment(): FullXmlSyncAssignment {
@@ -118,6 +132,7 @@ function boundary(
   result: Awaited<ReturnType<PartialXmlSyncCoordinatorDependencies["prepareValidated"]>>,
 ) {
   return {
+    readPending: vi.fn(async () => undefined),
     cleanup: vi.fn(async () => undefined),
     refresh: vi.fn(async () => ({
       diagnostics: [] as readonly Diagnostic[],

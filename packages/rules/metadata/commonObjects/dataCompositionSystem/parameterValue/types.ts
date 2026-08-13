@@ -33,6 +33,7 @@ export type ParameterValue = {
   parameter: string
   value?: MetadataDcsMetadataValue | MetadataDcsMetadataValue[]
   item?: ParameterValue[]
+  xmlNil?: true
   __referenceNilValue?: true
 }
 

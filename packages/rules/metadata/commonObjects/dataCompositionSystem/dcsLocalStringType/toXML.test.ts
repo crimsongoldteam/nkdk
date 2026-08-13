@@ -1,84 +1,53 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../ruleRuntime"
-import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
-import {
-  fixtureDcsLocalStringSingleLang,
-  fixtureDcsLocalStringTwoLangs,
-  fixtureDcsStringSingleLang,
-} from "./__fixtures__/data"
+import { importFromYAML } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { serializeDirectXML, testPropertyFromYAMLToXML } from "../../../../tests/directConversion"
+import { fixtureDcsLocalStringTwoLangs } from "./__fixtures__/data"
 
-const rule: PropertyRule = { type: "DcsLocalStringType" }
-const xmlRootTag = "dcsset:userSettingPresentation"
+import "./fromYAML"
+import "./toXML"
 
-describe("exportDcsLocalStringTypeToXML", () => {
-  it("один язык + string reference -> xs:string", () => {
-    const { expectedResult, result } = testAtomicToXML({
-      rule,
-      value: fixtureDcsStringSingleLang,
-      xmlRootTag,
-      path: "string.xml",
-      importMetaUrl: import.meta.url,
-    })
+const rule = {
+  itemType: "DcsLocalStringProbe",
+  properties: {
+    title: { type: "DcsLocalStringType", yaml: "Заголовок", xml: "dcsset:userSettingPresentation" },
+  },
+} as MetadataItemRule
 
-    expect(result).toEqual(expectedResult?.trimEnd())
+describe("DcsLocalStringType YAML → XML", () => {
+  it("exports !xml String without reference XML", () => {
+    expect(convert('Заголовок: !xml "String Текст"')).toContain(
+      '<dcsset:userSettingPresentation xsi:type="xs:string">Текст</dcsset:userSettingPresentation>',
+    )
   })
 
-  it("один язык + LocalString reference -> v8:LocalStringType", () => {
-    const { expectedResult, result } = testAtomicToXML({
-      rule,
-      value: fixtureDcsLocalStringSingleLang,
-      xmlRootTag,
-      path: "localString.xml",
-      importMetaUrl: import.meta.url,
-    })
-
-    expect(result).toEqual(expectedResult?.trimEnd())
+  it("exports an empty !xml String", () => {
+    expect(convert("Заголовок: !xml String")).toContain(
+      '<dcsset:userSettingPresentation xsi:type="xs:string"/>',
+    )
   })
 
-  it("один язык без референса -> v8:LocalStringType", () => {
-    const { expectedResult, result } = testAtomicToXML({
-      rule,
-      value: fixtureDcsLocalStringSingleLang,
-      xmlRootTag,
-      path: "localString.xml",
-      importMetaUrl: import.meta.url,
-      referenceMetadata: undefined,
-    })
-
-    expect(result).toEqual(expectedResult?.trimEnd())
+  it("always exports an ordinary one-language value as LocalStringType", () => {
+    expect(convert("Заголовок: Текст")).toContain(
+      '<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">',
+    )
   })
 
-  it("два языка -> v8:LocalStringType", () => {
-    const { expectedResult, result } = testAtomicToXML({
-      rule,
-      value: fixtureDcsLocalStringTwoLangs,
-      xmlRootTag,
-      path: "localStringTwoLangs.xml",
-      importMetaUrl: import.meta.url,
-    })
+  it("exports two languages as LocalStringType", () => {
+    const xml = serializeDirectXML(
+      testPropertyFromYAMLToXML({ rule, yaml: { Заголовок: fixtureDcsLocalStringTwoLangs.items } }).xml,
+    )
 
-    expect(result).toEqual(expectedResult?.trimEnd())
+    expect(xml).toContain('<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">')
+    expect(xml).toContain("English language - local string")
   })
 
-  it("undefined -> пустой элемент", () => {
-    const { result } = testAtomicToXML({
-      rule,
-      value: undefined,
-      xmlRootTag,
-      referenceMetadata: "reference",
-    })
-
-    expect(result).toBe("")
-  })
-
-  it("пустой items -> пустой элемент", () => {
-    const { result } = testAtomicToXML({
-      rule,
-      value: { items: {} },
-      xmlRootTag,
-      referenceMetadata: "reference",
-    })
-
-    expect(result).toBe("")
-  })
+  it.each(["Заголовок: !xml", "Заголовок: !xml Raw Текст"]) (
+    "rejects an unsupported marker: %s",
+    (yaml) => expect(() => testPropertyFromYAMLToXML({ rule, yaml: importFromYAML(yaml) })).toThrow(),
+  )
 })
+
+function convert(yaml: string): string {
+  return serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml: importFromYAML(yaml) }).xml)
+}

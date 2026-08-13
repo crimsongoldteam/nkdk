@@ -11,6 +11,7 @@ import {
 } from "./__fixtures__/data"
 import "./types"
 import { explicitYAMLString } from "@nkdk/runtime"
+import { importFromYAML } from "@nkdk/runtime"
 
 const rule: PropertyRule = { type: "DCSParameters" }
 
@@ -42,6 +43,17 @@ const parameterXML = (name: string, ...values: unknown[]) => ({
 })
 
 describe("export DCSParameter to XML", () => {
+  it("exports !xml Undefined without reference XML", () => {
+    const yaml = importFromYAML(`ТипЗначенияКлюча:
+  Значение: !xml Undefined
+`)
+    const result = exportDCSParameters([], yaml)
+
+    expect(result).toContain(
+      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>',
+    )
+  })
+
   it("exports minimal.xml", () => {
     const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
       rule,
@@ -98,7 +110,7 @@ describe("export DCSParameter to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("preserves xs:string title in XML", () => {
+  it("preserves xs:string title from !xml", () => {
     const xmlString = `<Settings>
 	<Parameter>
 		<dcssch:name>StringTitleParameter</dcssch:name>
@@ -108,11 +120,9 @@ describe("export DCSParameter to XML", () => {
     const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
       rule,
       value: undefined,
-      yaml: {
-        StringTitleParameter: {
-          Заголовок: "String title",
-        },
-      },
+      yaml: importFromYAML(`StringTitleParameter:
+  Заголовок: !xml String String title
+`),
       xmlRootTag: "Settings",
       xmlString,
     })

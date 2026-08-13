@@ -7,6 +7,7 @@ import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getContextMenuName } from "./helper"
+import { explicitElementNameStyle } from "../../explicitElementName"
 export type { ElementRule }
 export const ContextMenuRules = {
   itemType: "ContextMenu",
@@ -39,11 +40,11 @@ export const ContextMenuRules = {
 export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "ContextMenu",
   elementRule: ContextMenuRules,
-  nameStyle: {
+  nameStyle: explicitElementNameStyle("ContextMenu", {
     canonicalSuffix: "КонтекстноеМеню",
     referenceSuffixes: ["КонтекстноеМеню", "ContextMenu"],
     canonicalNameMode: "ownerSuffix",
-  },
+  }),
   toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     const parent = getParentFromContext(context)

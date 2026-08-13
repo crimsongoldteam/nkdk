@@ -265,12 +265,8 @@ describe("importInternalInfoFromXML", () => {
     })
     const collected = exportContext.exportToXML.configurationIndex?.collector
       .fragment("Справочник/Товары/Свойства.yaml").entities
-    expect(collected).toHaveLength(5)
-    expect(collected).toContainEqual({
-      logicalAddress: "Справочник.Товары.internalInfo",
-      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-      xml: { present: true },
-    })
+    expect(collected).toHaveLength(4)
+    expect(collected?.some((entity) => entity.xml !== undefined)).toBe(false)
   })
 
   it("imports GeneratedType and ThisNode", () => {

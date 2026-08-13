@@ -115,10 +115,39 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     expect(result).toEqual({
       СтандартныеРеквизиты: {
         Ссылка: {
-          ЗначениеЗаполнения: ".",
+          ЗначениеЗаполнения: "!xml DesignTimeRef",
         },
       },
     })
+  })
+
+  it.each([
+    ["Code", "Код", "xs:string", "String"],
+    ["ValueType", "ТипЗначения", "v8:TypeDescription", "TypeDescription"],
+  ] as const)("переносит пустой %s FillValue в !xml %s", (xmlName, yamlName, xsiType, marker) => {
+    const itemRule = {
+      itemType: "StandardAttributeFillValueTransportProbe",
+      properties: {
+        standardAttributes: {
+          ...rule,
+          xml: "StandardAttributes",
+          standartAttributeNames: { [xmlName]: yamlName },
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      rule: itemRule,
+      xml: {
+        StandardAttributes: {
+          "xr:StandardAttribute": {
+            _name: xmlName,
+            "xr:FillValue": { "_xsi:type": xsiType },
+          },
+        },
+      },
+    }).yaml
+
+    expect(serializeYAMLDocument(imported).text).toContain(`ЗначениеЗаполнения: !xml ${marker}`)
   })
 
   it("exports explicit accounting ExtDimension attributes", () => {

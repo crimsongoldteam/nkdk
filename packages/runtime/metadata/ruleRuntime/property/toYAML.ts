@@ -8,6 +8,7 @@ import {
 import { exportStringMetadataTargetToYAML } from "./metadataTargetString"
 import type { PropertyRule } from "./types"
 import type { MetadataTargetOwner } from "../metadataTarget/types"
+import { isTaggedYAMLScalar, markYAMLScalarTag } from "../../../yaml/scalarTags"
 
 export const exportPropertyToYAML = (params: {
   context: ConfigurationContext
@@ -153,5 +154,11 @@ export const getExportToYAMLResult = (
   )
     return undefined
 
-  return value === undefined ? undefined : { [yamlKey]: value }
+  if (value === undefined) return undefined
+  if (isTaggedYAMLScalar(value)) {
+    const result = { [yamlKey]: value.value }
+    markYAMLScalarTag(result, yamlKey, value.tag)
+    return result
+  }
+  return { [yamlKey]: value }
 }

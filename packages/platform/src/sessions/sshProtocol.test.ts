@@ -76,8 +76,27 @@ describe("platform SSH command protocol", () => {
     })
 
     const error = await session.run("bad command").catch((caught: unknown) => caught)
-    expect(error).toMatchObject({ code: "platform_command_failed" })
+    expect(error).toMatchObject({
+      code: "platform_command_failed",
+      commandOutcome: "rejected",
+    })
     expect(String(error)).not.toContain("secret")
+  })
+
+  it("treats command usage logs followed by an error as a confirmed rejection", async () => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"log","message":"Использование:"},{"type":"error","message":"Неверный формат команды"}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({ shell, timeoutMs: 100 })
+
+    await expect(session.run("bad command")).rejects.toMatchObject({
+      code: "platform_command_failed",
+      message: "Неверный формат команды",
+      commandOutcome: "rejected",
+    })
   })
 
   it("returns extension properties nested in the success body in platform order", async () => {
@@ -138,6 +157,24 @@ describe("platform SSH command protocol", () => {
 
     await expect(pending).rejects.toMatchObject({
       code: "platform_command_failed",
+      commandOutcome: "unknown",
+    })
+  })
+
+  it("marks a shell close after command dispatch as an unknown outcome", async () => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({ shell, timeoutMs: 100 })
+
+    const pending = session.run("config load-config-from-files")
+    shell.emitClose()
+
+    await expect(pending).rejects.toMatchObject({
+      code: "platform_command_failed",
+      commandOutcome: "unknown",
     })
   })
 
@@ -154,9 +191,10 @@ describe("platform SSH command protocol", () => {
     const controller = new AbortController()
     controller.abort()
 
-    await expect(
-      session.run("must-not-run", { signal: controller.signal })
-    ).rejects.toMatchObject({ code: "operation_cancelled" })
+    const error = await session.run("must-not-run", { signal: controller.signal })
+      .catch((caught: unknown) => caught)
+    expect(error).toMatchObject({ code: "operation_cancelled" })
+    expect((error as { commandOutcome?: unknown }).commandOutcome).toBeUndefined()
     expect(shell.rawWrites).not.toContain("must-not-run\n")
   })
 
@@ -241,18 +279,45 @@ describe("platform SSH command protocol", () => {
     })
     controller.abort()
 
-    await expect(pending).rejects.toMatchObject({ code: "operation_cancelled" })
+    await expect(pending).rejects.toMatchObject({
+      code: "operation_cancelled",
+      commandOutcome: "unknown",
+    })
+  })
+
+  it("marks a command timeout after dispatch as an unknown outcome", async () => {
+    const clock = controlledClock()
+    const session = await openPlatformCommandSession({
+      shell: scriptedShell([
+        "designer> ",
+        '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+        '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      ]),
+      timeoutMs: 100,
+      clock,
+    })
+    clock.resetCounters()
+
+    const pending = session.run("config load-config-from-files", { timeoutMs: 100 })
+    clock.expire()
+
+    await expect(pending).rejects.toMatchObject({
+      code: "session_timeout",
+      commandOutcome: "unknown",
+    })
   })
 })
 
 type ScriptedShell = SshShell & {
   rawWrites: string[]
   emitNext(): void
+  emitClose(): void
 }
 
 function scriptedShell(chunks: string[], initiallyOpen = true): ScriptedShell {
   let open = initiallyOpen
   let listener: ((chunk: string) => void) | undefined
+  let closeListener: (() => void) | undefined
   const remaining = [...chunks]
   const emitNext = () => {
     const chunk = remaining.shift()
@@ -261,6 +326,10 @@ function scriptedShell(chunks: string[], initiallyOpen = true): ScriptedShell {
   return {
     rawWrites: [],
     emitNext,
+    emitClose() {
+      open = false
+      closeListener?.()
+    },
     write(value) {
       this.rawWrites.push(value)
       emitNext()
@@ -270,6 +339,12 @@ function scriptedShell(chunks: string[], initiallyOpen = true): ScriptedShell {
       emitNext()
       return () => {
         listener = undefined
+      }
+    },
+    onClose(nextListener) {
+      closeListener = nextListener
+      return () => {
+        closeListener = undefined
       }
     },
     isOpen() {

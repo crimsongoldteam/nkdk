@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { EMPTY_XML_TAG_VALUE, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
 import { explicitRowFilterRules } from "./explicitRowFilter"
-import { normalizeImportedRowFilterMarkers } from "../../clientApplicationForm/importedYamlFinalizer"
-import { prepareFormDataPathContextFromYAML } from "../../clientApplicationForm/formDataPathContext"
 import type { ClientApplicationFormYAML } from "../../clientApplicationForm/types"
 import { classifyTableSource } from "../../clientApplicationForm/tableSourceProfile"
 
@@ -16,7 +14,7 @@ describe("explicit RowFilter", () => {
     })
   })
 
-  it("keeps the marker only for the computed none profile", () => {
+  it("keeps the marker for every source profile", () => {
     const yaml = {
       Реквизиты: {
         Компоновщик: { Тип: "КомпоновщикНастроекКомпоновкиДанных" },
@@ -39,14 +37,10 @@ describe("explicit RowFilter", () => {
     const rows = yaml.Элементы?.Строки as unknown as Record<string, unknown>
     markYAMLScalarTag(settings, "ОтборСтрок", "xml")
     markYAMLScalarTag(rows, "ОтборСтрок", "xml")
-    const ownerCache = { get: () => ({ status: "not-found" as const, diagnostics: [] }), listRefs: () => [] }
-    const context = prepareFormDataPathContextFromYAML({ yaml, ownerCache })
-
-    normalizeImportedRowFilterMarkers({ yaml, context, ownerCache })
-
     expect(settings.ОтборСтрок).toBe(EMPTY_XML_TAG_VALUE)
     expect(yamlScalarTagAt(settings, "ОтборСтрок")).toBe("xml")
-    expect(rows).not.toHaveProperty("ОтборСтрок")
+    expect(rows.ОтборСтрок).toBe(EMPTY_XML_TAG_VALUE)
+    expect(yamlScalarTagAt(rows, "ОтборСтрок")).toBe("xml")
   })
 
   it.each([

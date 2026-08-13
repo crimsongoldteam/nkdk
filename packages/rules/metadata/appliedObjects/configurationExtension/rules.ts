@@ -14,6 +14,7 @@ import { systemEnumerationRule } from "../../systemEnumerations/types"
 import "../../commonObjects/homePageWorkArea/register"
 import "../../commonObjects/rootCommandInterface/register"
 import { configurationRootExternalResources } from "../configuration/rootExternalResources"
+import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 
 const properties = ["Properties"]
 
@@ -86,6 +87,11 @@ export const MetadataConfigurationExtensionRules = {
       defaultValueXML: "",
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
+      evaluateWhenYAMLMissing: true,
+      defaultValue: ({ context, name }) =>
+        name === undefined
+          ? { items: {} }
+          : addDefaultLanguageNameToSynonym(context, undefined, name),
     }),
     comment: stringRule({
       yaml: "Комментарий",

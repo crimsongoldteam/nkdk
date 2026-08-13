@@ -7188,7 +7188,6 @@ export type ProgressBarSmoothingModeYAML = keyof typeof ProgressBarSmoothingMode
 export const RadioButtonTypeToYAML = {
   Auto: "Авто",
   RadioButton: "Переключатель",
-  RadioButtons: "Переключатель",
   Tumbler: "Тумблер",
 } as const
 

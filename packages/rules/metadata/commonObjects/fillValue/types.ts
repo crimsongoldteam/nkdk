@@ -11,3 +11,10 @@ export type {
 export interface FillValueReferenceTypeMapping {
   readonly root: MetadataRootName
 }
+
+export type FillValueTransport =
+  | "Nil"
+  | "String"
+  | "DesignTimeRef"
+  | "TypeDescription"
+  | "Null"
