@@ -1,24 +1,16 @@
 import { importNumberFromXML } from "../number/fromXML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { getTypePrefix, removeTypePrefix } from "./helper"
 import {
-  getConfigurationIndexCollectionContext,
-  getConfigurationIndexPropertyValueLogicalAddress,
-} from "@nkdk/runtime"
-import {
   TYPE_DESCRIPTION_SOURCE_TYPES,
-  TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
   TypeDescription,
   TypeDescriptionSourceTypes,
   TypeDescriptionXML,
-  TypeDescriptionXMLContainerByType,
   TypeDescriptionXMLType,
 } from "./types"
 import { normalizeImportedTypeDescriptionName } from "./xmlTypeNames"
-
-type TypeDescriptionXMLWithTypeSetAttribute = TypeDescriptionXML & { "_xsi:type"?: "v8:TypeSet" }
 
 export const importTypeDescriptionFromXML = (
   _context: ConfigurationContext,
@@ -27,7 +19,9 @@ export const importTypeDescriptionFromXML = (
 ): TypeDescription | undefined => {
   if (!xml) return undefined
 
-  const { types, xmlContainerByType } = extractTypesAndXMLContainers(xml)
+  const typeXML = xml["v8:Type"]
+  const typeSetXML = xml["v8:TypeSet"]
+  const types = extractTypesFromValues(typeXML, typeSetXML)
   const typeId = getTypeIds(xml["v8:TypeId"])
   const stringQualifiers = getStringQualifiers(_context, xml["v8:StringQualifiers"])
   const numberQualifiers = getNumberQualifiers(_context, xml["v8:NumberQualifiers"])
@@ -42,13 +36,7 @@ export const importTypeDescriptionFromXML = (
   }
 
   if (result.type.length === 0 && result.typeId === undefined) return undefined
-  if (Object.keys(xmlContainerByType).length > 0) {
-    Object.defineProperty(result, TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE, {
-      value: xmlContainerByType,
-      enumerable: false,
-    })
-  }
-  const sourceTypes = shouldImportReferenceSourceTypes(_context) ? extractSourceTypes(xml) : {}
+  const sourceTypes = extractSourceTypes(typeXML, typeSetXML)
   if (Object.keys(sourceTypes).length > 0) {
     Object.defineProperty(result, TYPE_DESCRIPTION_SOURCE_TYPES, {
       value: sourceTypes,
@@ -60,8 +48,15 @@ export const importTypeDescriptionFromXML = (
 }
 
 export const extractTypes = (item: TypeDescriptionXML): string[] => {
-  const type = getTypes(item["v8:Type"])
-  const typeSet = getTypes(item["v8:TypeSet"])
+  return extractTypesFromValues(item["v8:Type"], item["v8:TypeSet"])
+}
+
+const extractTypesFromValues = (
+  typeXML: TypeDescriptionXML["v8:Type"],
+  typeSetXML: TypeDescriptionXML["v8:TypeSet"]
+): string[] => {
+  const type = getTypes(typeXML)
+  const typeSet = getTypes(typeSetXML)
 
   const result: string[] = []
   if (type !== undefined) result.push(...type)
@@ -78,30 +73,13 @@ export const getTypes = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   return typeArray.map((typeItem) => getType(typeItem))
 }
 
-const extractTypesAndXMLContainers = (
-  item: TypeDescriptionXML
-): { types: string[]; xmlContainerByType: TypeDescriptionXMLContainerByType } => {
-  const type = getTypes(item["v8:Type"]) ?? []
-  const typeSet = getTypes(item["v8:TypeSet"]) ?? []
-  const types = [...type, ...typeSet]
-  const result: TypeDescriptionXMLContainerByType = {}
-  for (const currentType of type) result[currentType] = "Type"
-  for (const currentType of typeSet) result[currentType] = "TypeSet"
-
-  if ((item as TypeDescriptionXMLWithTypeSetAttribute)["_xsi:type"] === "v8:TypeSet") {
-    for (const currentType of type) result[currentType] = "TypeSetAttribute"
-  }
-
-  return { types, xmlContainerByType: result }
-}
-
-const shouldImportReferenceSourceTypes = (context: ConfigurationContext): boolean =>
-  (context as Partial<ConfigurationContextFromXML>).fromXML?.forReference === true
-
-const extractSourceTypes = (item: TypeDescriptionXML): TypeDescriptionSourceTypes => {
+const extractSourceTypes = (
+  typeXML: TypeDescriptionXML["v8:Type"],
+  typeSetXML: TypeDescriptionXML["v8:TypeSet"]
+): TypeDescriptionSourceTypes => {
   const result: TypeDescriptionSourceTypes = {}
-  for (const type of toTypeArray(item["v8:Type"])) setSourceType(result, type)
-  for (const type of toTypeArray(item["v8:TypeSet"])) setSourceType(result, type)
+  for (const type of toTypeArray(typeXML)) setSourceType(result, type)
+  for (const type of toTypeArray(typeSetXML)) setSourceType(result, type)
 
   return result
 }
@@ -213,44 +191,3 @@ function getDateQualifiers(xml?: TypeDescriptionXML["v8:DateQualifiers"]) {
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "importFromXML", importTypeDescriptionFromXML)
-export const metadataPropertyRule001 = definePropertyTypeRule("TypeDescription", "collectConfigurationIndexFromXML", ({ context, rule, xml, propertyKey }) => {
-  const collection = getConfigurationIndexCollectionContext(context)
-  if (collection === undefined) return
-  const address = getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey)
-  if (rule.preserveEmptyXML === true && isExplicitEmptyTypeDescriptionXML(xml)) {
-    collection.collector.setXmlFlag(address, "explicitEmpty")
-    const xsiType = isRecord(xml) ? xml["_xsi:type"] : undefined
-    if (typeof xsiType === "string") collection.collector.setXmlValue(address, "xsiType", xsiType)
-  }
-  const type = isRecord(xml) ? xml["v8:Type"] : undefined
-  if (Array.isArray(type) || !isRecord(type) || typeof type["#text"] !== "string") return
-  const prefix = getTypePrefix(type["#text"])
-  const namespace = prefix === undefined ? undefined : type[`_xmlns:${prefix}`]
-  if (prefix === undefined || typeof namespace !== "string") return
-  collection.collector.setXmlValue(address, "xmlPrefix", prefix)
-  collection.collector.setXmlValue(address, "xmlText", `${namespace}\n${type["#text"]}`)
-})
-export const metadataPropertyRule002 = definePropertyTypeRule("TypeDescription", "configurationIndexValueFromXML", {
-  referenceXMLFromValue: (value) => {
-    if (value.xmlPrefix === undefined || value.xmlText === undefined) return undefined
-    const separator = value.xmlText.indexOf("\n")
-    if (separator < 0) return undefined
-    const namespace = value.xmlText.slice(0, separator)
-    const text = value.xmlText.slice(separator + 1)
-    return {
-      "v8:Type": {
-        [`_xmlns:${value.xmlPrefix}`]: namespace,
-        "#text": text,
-      },
-    }
-  },
-})
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-}
-
-function isExplicitEmptyTypeDescriptionXML(value: unknown): boolean {
-  if (value === "" || value === undefined) return true
-  return isRecord(value) && Object.keys(value).every((key) => key.startsWith("_"))
-}

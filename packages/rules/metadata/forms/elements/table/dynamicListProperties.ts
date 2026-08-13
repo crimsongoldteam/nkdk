@@ -4,7 +4,6 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { getConfigurationIndexPropertyXmlValue } from "@nkdk/runtime"
 
 type CompactScalarRule = PropertyRule & {
   yaml: string
@@ -45,15 +44,6 @@ export function hasRowFilterTableSource(
   source: YAMLPropertySource,
   context?: ConfigurationContextWithExportToXML
 ): boolean {
-  if (
-    context?.exportToXML.configurationIndex !== undefined &&
-    getConfigurationIndexPropertyXmlValue(context, {
-      propertyKey: "rowFilter",
-      yamlKey: "ОтборСтрок",
-    })?.present !== true
-  ) {
-    return false
-  }
   return tableSourceProfile(source, context) === "rowFilter"
 }
 

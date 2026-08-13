@@ -4,6 +4,7 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { explicitElementNameStyle } from "../../explicitElementName"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getViewStatusAdditionName } from "./helper"
@@ -152,11 +153,11 @@ export const ViewStatusAdditionRules = {
 export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "SingleViewStatusAddition",
   elementRule: SingleViewStatusAdditionRules,
-  nameStyle: {
+  nameStyle: explicitElementNameStyle("ViewStatusAddition", {
     canonicalSuffix: "СостояниеПросмотра",
     referenceSuffixes: ["СостояниеПросмотра", "ViewStatus"],
     canonicalNameMode: "ownerSuffix",
-  },
+  }),
   toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     const parent = getParentFromContext(context, ["Table", "PDFDocumentField"])

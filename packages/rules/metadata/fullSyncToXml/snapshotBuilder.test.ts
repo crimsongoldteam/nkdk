@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { entity } from "@nkdk/runtime"
 import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import { buildXmlSyncConfigurationSnapshot } from "./snapshotBuilder"
 
@@ -14,9 +13,9 @@ const previous: ConfigurationSnapshot = {
     { projectPath: "Удалён.yaml", contentHash: 3n },
   ],
   entities: [
-    entity("СтарыйА", "А.yaml"),
-    entity("ОстаётсяБ", "Б.yaml"),
-    entity("Удаляется", "Удалён.yaml"),
+    indexEntity("СтарыйА", "А.yaml"),
+    indexEntity("ОстаётсяБ", "Б.yaml"),
+    indexEntity("Удаляется", "Удалён.yaml"),
   ],
 }
 
@@ -36,7 +35,14 @@ describe("buildXmlSyncConfigurationSnapshot", () => {
       ],
       fragmentData: {
         sourceProjectPaths: ["А.yaml", "В.yaml"],
-        entities: [entity("НовыйА", "А.yaml"), entity("НовыйВ", "В.yaml")],
+        entities: [
+          {
+            logicalAddress: "НовыйА",
+            sourceProjectPath: "А.yaml",
+            identities: { uuid: "00000000-0000-4000-8000-000000000001", xmlId: "Catalog42" },
+          },
+          indexEntity("НовыйВ", "В.yaml"),
+        ],
       },
     })
     const expected: ConfigurationSnapshot = {
@@ -49,14 +55,21 @@ describe("buildXmlSyncConfigurationSnapshot", () => {
         { projectPath: "В.yaml", contentHash: 4n },
       ],
       entities: [
-        entity("НовыйА", "А.yaml"),
-        entity("НовыйВ", "В.yaml"),
-        entity("ОстаётсяБ", "Б.yaml"),
+        {
+          logicalAddress: "НовыйА",
+          sourceProjectPath: "А.yaml",
+          identities: { uuid: "00000000-0000-4000-8000-000000000001", xmlId: "Catalog42" },
+        },
+        indexEntity("НовыйВ", "В.yaml"),
+        indexEntity("ОстаётсяБ", "Б.yaml"),
       ],
     }
 
     expect(result).toEqual(expected)
     expect(encodeConfigurationIndex(result)).toEqual(encodeConfigurationIndex(expected))
+    expect(JSON.stringify(result.entities)).not.toMatch(
+      /"xmlName"|"present"|"xsiNil"|"explicitEmpty"|"xsiType"|"xmlText"|"xmlPrefix"/u,
+    )
   })
 
   it("удаляет entity текущего файла при пустом заменяющем фрагменте", () => {
@@ -66,8 +79,12 @@ describe("buildXmlSyncConfigurationSnapshot", () => {
       currentLogicalAddresses: [],
       fragmentData: { sourceProjectPaths: ["Б.yaml"], entities: [] },
     }).entities).toEqual([
-      entity("СтарыйА", "А.yaml"),
-      entity("Удаляется", "Удалён.yaml"),
+      indexEntity("СтарыйА", "А.yaml"),
+      indexEntity("Удаляется", "Удалён.yaml"),
     ])
   })
 })
+
+function indexEntity(logicalAddress: string, sourceProjectPath: string): ConfigurationSnapshot["entities"][number] {
+  return { logicalAddress, sourceProjectPath, identities: { xmlId: logicalAddress } }
+}

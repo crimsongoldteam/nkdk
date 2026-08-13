@@ -89,6 +89,7 @@ export function defineFormSchemaRules(
         exportSingleElementRuleToJSONSchema({
           context: withNestedChildItems(context),
           rule,
+          explicitXMLName: true,
         }),
     }
   }
@@ -102,7 +103,11 @@ export function defineFormSchemaRules(
     const rule = requireElementRule(formElements, type)
     schemas[type] = {
       source: rule,
-      export: ({ context }) => exportSingleElementRuleToJSONSchema({ context, rule }),
+      export: ({ context }) => exportSingleElementRuleToJSONSchema({
+        context,
+        rule,
+        explicitXMLName: true,
+      }),
     }
   }
 

@@ -290,16 +290,20 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   })
 
   it.each([
-    ["DesignTimeRef", { "_xsi:type": "xr:DesignTimeRef" }],
+    ["DesignTimeRef", { "_xsi:type": "xr:DesignTimeRef" }, "Owner", "Владелец"],
+    ["String", { "_xsi:type": "xs:string" }, "Code", "Код"],
+    ["TypeDescription", { "_xsi:type": "v8:TypeDescription" }, "ValueType", "ТипЗначения"],
     [
       "Справочник.ПапкиФайлов.ПустаяСсылка",
       { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.ПапкиФайлов.EmptyRef" },
+      "Owner",
+      "Владелец",
     ],
-  ] as const)("exports !xml %s as exact DesignTimeRef XML", (fillValue, expected) => {
+  ] as const)("exports !xml %s as exact FillValue XML", (fillValue, expected, xmlName, yamlName) => {
     const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
-  Владелец:
+  ${yamlName}:
     ЗначениеЗаполнения: !xml ${fillValue}
-`, { Owner: "Владелец" })
+`, { [xmlName]: yamlName })
 
     expect(item["xr:FillValue"]).toEqual(expected)
     expect(JSON.stringify(item["xr:FillValue"])).not.toContain("!xml")
@@ -345,7 +349,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("preserves missing fillValue xsi type from reference", () => {
+  it("uses canonical missing fillValue XML instead of reference type", () => {
     const xmlString = '<xr:FillValue xsi:type="v8:TypeDescription"/>'
     const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
       rule: StandardAttributeDescriptionRules.properties.fillValue,
@@ -355,7 +359,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       xmlString,
     })
 
-    expect(result).toEqual(expectedResult)
+    expect(expectedResult).toBe('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+    expect(result).toBe('<xr:FillValue xsi:nil="true"/>')
   })
 
   it("preserves reference-only collection values", () => {
@@ -380,7 +385,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toContain("<xr:Comment>reference-only</xr:Comment>")
   })
 
-  it("preserves fillValue reference type through changed collection item", () => {
+  it("uses canonical FillValue through changed collection item", () => {
     const xmlString = `<StandardAttributes>
 	<xr:StandardAttribute name="ValueType">
 		<xr:Comment>before</xr:Comment>
@@ -401,7 +406,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     })
 
     expect(result).toContain("<xr:Comment>changed</xr:Comment>")
-    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+    expect(result).toContain('<xr:FillValue xsi:nil="true"/>')
+    expect(result).not.toContain('xsi:type="v8:TypeDescription"')
   })
 
   it("preserves nil reference XML for empty standard attribute values", () => {
@@ -495,8 +501,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       xmlRootTag: "StandardAttributes",
     })
 
-    expect(result).toContain('<xr:StandardAttribute name="ExtDimension50"/>')
-    expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50"/>')
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimension50">')
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50">')
     expect(result).not.toContain('name="ExtDimension1"')
   })
 
@@ -560,6 +566,11 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(items.find((item) => item._name === "ExtDimension1")?.["xr:LinkByType"]).toEqual(
       sourceXML.StandardAttributes["xr:StandardAttribute"][0]["xr:LinkByType"]
     )
+    expect(items.find((item) => item._name === "ExtDimension1")).toMatchObject({
+      "xr:ChoiceHistoryOnInput": "Auto",
+      "xr:FullTextSearch": "Use",
+      "xr:TypeReductionMode": "TransformValues",
+    })
   })
 
   it("восстанавливает дефолтную коллекцию из пустого !xml", () => {
@@ -645,7 +656,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(fragment?.entities.flatMap((entity) => Object.keys(entity))).not.toContain("present")
     expect(JSON.stringify(fragment?.entities)).not.toMatch(/"(aliases|excludedEqualName|userSettingsId|order)"/)
     const items = standardAttributeItems(exported.xml)
-    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toEqual({})
+    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toBe("")
     expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toEqual({
       "v8:item": [{
         "v8:lang": "ru",

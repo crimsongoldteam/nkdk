@@ -3,6 +3,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { decodeConfigurationIndexFragments } from "@nkdk/runtime"
 import { hashFileBytes } from "@nkdk/runtime"
 import { childSegmentUid, childUid } from "@nkdk/runtime"
 import {
@@ -24,11 +25,14 @@ import type {
   FullXmlSyncExecutionAssignment,
   FullXmlSyncOutputTarget,
 } from "./types"
+import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import { emptyProjectStateReadSession } from "./testHelpers"
 import { openFullXmlSyncBinaryResult } from "./binaryResult"
 import {
   createFullXmlSyncWorkerCommandRunner,
 } from "./worker"
+import { configurationFullXmlSyncProfile } from "./profiles/configuration"
+import type { ConfirmedComponentState } from "../project/componentState/types"
 
 const fullSyncWorker = createFullXmlSyncWorkerCommandRunner()
 const runFullXmlSyncWorkerCommand = fullSyncWorker.run
@@ -99,6 +103,58 @@ describe("full XML sync worker", () => {
     expect(xml).toContain(`<v8:TypeSet>${expected}</v8:TypeSet>`)
   })
 
+  it("не переносит обычное XML-состояние старого снимка при полном sync конфигурации", async () => {
+    const projectDir = createProject(["Товары"])
+    const baseAssignment = assignment(projectDir, "Товары")
+    const targetSnapshot = snapshotConfigurationIndex(encodeConfigurationIndex({
+      specificationVersion: "1.4",
+      indexGeneration: 1n,
+      componentPath: "cf",
+      files: [{ projectPath: baseAssignment.sourceProjectPath, contentHash: baseAssignment.expectedContentHash }],
+      entities: [
+        {
+          logicalAddress: baseAssignment.logicalAddress,
+          sourceProjectPath: baseAssignment.sourceProjectPath,
+          identities: { uuid: "00000000-0000-4000-8000-000000000001" },
+        },
+        {
+          logicalAddress: `${baseAssignment.logicalAddress}.comment`,
+          sourceProjectPath: baseAssignment.sourceProjectPath,
+          xml: { xmlText: "Устаревший комментарий" },
+        },
+      ],
+    }))
+    const assigned: FullXmlSyncExecutionAssignment = {
+      ...baseAssignment,
+      configurationIndexEntityRange: createConfigurationIndexReader(targetSnapshot)
+        .entityRange(baseAssignment.sourceProjectPath),
+    }
+    const profile = configurationFullXmlSyncProfile.confirm({
+      target: configurationState(projectDir, assigned, targetSnapshot),
+    }).workerProfile
+    await initialize(
+      projectDir,
+      [assigned],
+      context,
+      undefined,
+      undefined,
+      undefined,
+      targetSnapshot,
+      undefined,
+      undefined,
+      profile,
+    )
+
+    const result = await runFullXmlSyncWorkerCommand({ kind: "execute", assignments: [assigned] })
+
+    expect(result).toMatchObject({ kind: "executionResult", diagnostics: [] })
+    if (result?.kind !== "executionResult") throw new Error("unexpected result")
+    const xml = fs.readFileSync(join(projectDir, ".out", "Catalogs", "Товары.xml"), "utf8")
+    expect(xml).toContain('uuid="00000000-0000-4000-8000-000000000001"')
+    expect(xml).not.toContain("Устаревший комментарий")
+    expect(JSON.stringify(decodeConfigurationIndexFragments(result.fragmentBuffer))).not.toContain("xmlText")
+  })
+
   it("возвращает каждую рабочую пачку двоичным результатом и ничего не накапливает к завершению", async () => {
     const projectDir = createProject(["Товары"])
     const assigned = assignment(projectDir, "Товары")
@@ -110,6 +166,9 @@ describe("full XML sync worker", () => {
     }))
 
     expect(batch.writtenFiles.file(0)).toMatchObject({ targetXmlPath: "Catalogs/Товары.xml" })
+    expect(JSON.stringify(decodeConfigurationIndexFragments(batch.fragmentBuffer))).not.toMatch(
+      /"xmlName"|"present"|"xsiNil"|"explicitEmpty"|"xsiType"|"xmlText"|"xmlPrefix"/u,
+    )
     expect(await runFullXmlSyncWorkerCommand({ kind: "finishExecution" })).toBeUndefined()
   })
 
@@ -593,6 +652,7 @@ describe("full XML sync worker", () => {
     ),
     outputTarget: FullXmlSyncOutputTarget = { kind: "directory", outputDir: join(projectDir, ".out") },
     typeDescriptionXMLNameByType?: Readonly<Record<string, string>>,
+    profileOverride?: FullXmlSyncWorkerProfileRuntime,
   ): Promise<void> {
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
@@ -601,7 +661,7 @@ describe("full XML sync worker", () => {
       componentDir: projectDir,
       outputTarget,
       context: workerContext,
-      profile: {
+      profile: profileOverride ?? {
         kind: baseSnapshot === undefined ? "configuration" : "configurationExtension",
         componentKind: baseSnapshot === undefined ? "configuration" : "configurationExtension",
         adoptedUuids: {},
@@ -656,4 +716,36 @@ function targetIndexForAssignment(assigned: FullXmlSyncAssignment): SharedConfig
       identities: { xmlName: assigned.itemName },
     }],
   }))
+}
+
+function configurationState(
+  projectDir: string,
+  assigned: FullXmlSyncExecutionAssignment,
+  snapshot: SharedConfigurationIndexSnapshot,
+): ConfirmedComponentState {
+  const projectFile = {
+    projectPath: assigned.sourceProjectPath,
+    contentHash: assigned.expectedContentHash,
+  }
+  return {
+    structure: {
+      address: { kind: "configuration" },
+      componentPath: "cf",
+      componentDir: projectDir,
+      topology: {} as ConfirmedComponentState["structure"]["topology"],
+      resources: [],
+      projectPaths: [assigned.sourceProjectPath],
+    },
+    hashes: { componentPath: "cf", projectFiles: [projectFile] },
+    indexes: {
+      componentPath: "cf",
+      sourceProjectFiles: [projectFile],
+      logicalAddresses: [{
+        logicalAddress: assigned.logicalAddress,
+        sourceProjectPath: assigned.sourceProjectPath,
+      }],
+    },
+    snapshot,
+    projectStateReadToken: createTestProjectStateReadToken(),
+  }
 }

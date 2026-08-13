@@ -508,6 +508,18 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(graph.schemas[`${prefix}I8nText/base`]).toMatchObject({ $id: `${prefix}I8nText/base` })
   })
 
+  it("разрешает явное XML-имя встроенного элемента во внутренней схеме формы", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+    const autoCommandBar = Object.entries(graph.schemas).find(([key]) => key.endsWith("/AutoCommandBar"))?.[1]
+
+    expect(JSON.stringify(autoCommandBar)).toContain('"Имя"')
+    expect(JSON.stringify(autoCommandBar)).toContain("^!xml")
+  })
+
   it("keeps DataPath and Events inline in validation schemas", () => {
     const graph = commonFormValidationGraph()
     const prefix = "nkdk://schema/validation/2.20/ru/"

@@ -67,6 +67,7 @@ export const MetadataIntegrationServiceChannelRules = {
       typeSE: "IntegrationServiceChannelMessageDirection",
       xmlParents: propertiesParents,
       implicitValueYAML: "Send",
+      defaultValueXML: "Send",
     },
     receiveMessageProcessing: {
       yaml: "ОбработкаПолученияСообщения",
@@ -81,6 +82,7 @@ export const MetadataIntegrationServiceChannelRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       implicitValueYAML: true,
+      defaultValueXML: true,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",

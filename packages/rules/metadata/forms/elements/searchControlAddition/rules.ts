@@ -5,6 +5,7 @@ import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
+import { explicitElementNameStyle } from "../../explicitElementName"
 import { getSearchControlAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 const commonProperties = {
@@ -135,11 +136,11 @@ export const SearchControlAdditionRules = {
 export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "SingleSearchControlAddition",
   elementRule: SingleSearchControlAdditionRules,
-  nameStyle: {
+  nameStyle: explicitElementNameStyle("SearchControlAddition", {
     canonicalSuffix: "УправлениеПоиском",
     referenceSuffixes: ["УправлениеПоиском", "SearchControl"],
     canonicalNameMode: "ownerSuffix",
-  },
+  }),
   toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     if (!context.exportToXML.itemsTree) throw new Error("elementContext is not defined")

@@ -30,9 +30,6 @@ AGENTS.local.md
 .agents/settings.local.json
 .superpowers/
 .nkdk/
-!e2e/fixtures/nkdk/.nkdk/
-!e2e/fixtures/nkdk/.nkdk/components/
-!e2e/fixtures/nkdk/.nkdk/components/**
 
 # Логи внешних MCP-серверов (если всё-таки окажутся в проекте —
 # logback rotating policy может писать .tmp/.gz в cwd независимо от LOG_FILE)

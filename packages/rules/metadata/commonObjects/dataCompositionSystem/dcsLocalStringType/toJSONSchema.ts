@@ -1,4 +1,22 @@
-import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
+import { Type, type TSchema } from "typebox"
+import type { ExportToJSONSchemaFn } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../../ruleRuntime"
 
-export const metadataPropertyRule000 = definePropertyTypeRule("DcsLocalStringType", "exportToJSONSchema", exportI8nTextToJSONSchema)
+const ordinaryString = Type.Intersect([
+  Type.String(),
+  { not: Type.String({ pattern: "^!xml(?: |$)" }) } as TSchema,
+])
+const ordinaryValue = Type.Union([ordinaryString, Type.Record(Type.String(), Type.String())])
+const xmlString = Type.String({ pattern: "^!xml String(?: .*)?$" })
+
+const exportDcsLocalStringTypeToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
+  context.exportToJSONSchema?.explicitXMLValues === true ||
+  context.exportToJSONSchema?.validationPropertyRefs === true
+    ? Type.Union([ordinaryValue, xmlString])
+    : ordinaryValue
+
+export const metadataPropertyRule000 = definePropertyTypeRule(
+  "DcsLocalStringType",
+  "exportToJSONSchema",
+  exportDcsLocalStringTypeToJSONSchema,
+)

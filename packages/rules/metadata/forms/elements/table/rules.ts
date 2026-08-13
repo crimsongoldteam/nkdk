@@ -4,7 +4,6 @@ import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import {
   dynamicListTableProperties,
-  hasRowFilterTableSource,
   isDirectDynamicListTable,
 } from "./dynamicListProperties"
 import { settingsComposerTableKinds } from "../../settingsComposer/dataPathModel"
@@ -466,9 +465,7 @@ export const TableRules = {
       fromXML: false,
       toYAML: false,
       fromYAML: false,
-      evaluateWhenYAMLMissing: true,
-      toXML: hasRowFilterTableSource,
-      defaultValueXMLRaw: { "_xsi:nil": "true" },
+      preserveUnknownReferenceXML: false,
     },
     events: {
       type: "Events",

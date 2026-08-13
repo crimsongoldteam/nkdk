@@ -27,7 +27,7 @@ export function importMetadataItemFromXMLToYAML(params: {
   const source = xmlRoot === undefined ? root : asRecord(root?.[xmlRoot.container])
   if (source === undefined) return undefined
 
-  const context = contextWithItemParent(params.context, params.name)
+  const context = contextWithItemParent(params.context, params.name, params.rule.itemType)
   const yaml = importPropertiesFromXMLToYAML({
     context,
     rule: params.rule,
@@ -76,12 +76,17 @@ function findInlinePropertyCached(rule: MetadataItemRule): InlineProperty {
 
 function contextWithItemParent(
   context: ConfigurationContextFromXML,
-  name: string | undefined
+  name: string | undefined,
+  itemType: string,
 ): ConfigurationContextFromXML {
-  if (name === undefined || context.exportToYAML === undefined) return context
+  if (context.exportToYAML === undefined) return context
   return {
     ...context,
-    exportToYAML: { ...context.exportToYAML, parent: { name } },
+    exportToYAML: {
+      ...context.exportToYAML,
+      ...(name === undefined ? {} : { parent: { name } }),
+      metadataItemTypes: [...(context.exportToYAML.metadataItemTypes ?? []), itemType],
+    },
   }
 }
 

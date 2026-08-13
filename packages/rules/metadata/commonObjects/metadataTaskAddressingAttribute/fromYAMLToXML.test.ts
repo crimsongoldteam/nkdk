@@ -14,6 +14,6 @@ describe("MetadataTaskAddressingAttribute YAML → XML", () => {
     )
 
     expect(result).toContain("<FillFromFillingValue>false</FillFromFillingValue>")
-    expect(result).toContain('<FillValue xsi:nil="true"/>')
+    expect(result).toContain('<FillValue xsi:type="xs:string"/>')
   })
 })

@@ -4,6 +4,7 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { getParentFromContext } from "../../../context/helpers"
 import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { explicitElementNameStyle } from "../../explicitElementName"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
@@ -50,11 +51,11 @@ export const AutoCommandBarRules = {
 export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "AutoCommandBar",
   elementRule: AutoCommandBarRules,
-  nameStyle: {
+  nameStyle: explicitElementNameStyle("AutoCommandBar", {
     canonicalSuffix: "ФормаКоманднаяПанель",
     referenceSuffixes: ["ФормаКоманднаяПанель", "FormCommandBar"],
     canonicalNameMode: "fixed",
-  },
+  }),
   directId: "-1",
   toXML: () => ({
     id: "-1",
@@ -64,11 +65,11 @@ export const metadataRuleLayer000 = defineElementAsType({
 export const metadataRuleLayer001 = defineElementAsType({
   propertyType: "TableAutoCommandBar",
   elementRule: AutoCommandBarRules,
-  nameStyle: {
+  nameStyle: explicitElementNameStyle("AutoCommandBar", {
     canonicalSuffix: "КоманднаяПанель",
     referenceSuffixes: ["КоманднаяПанель", "CommandBar"],
     canonicalNameMode: "ownerSuffix",
-  },
+  }),
   toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     const parentTable = getParentFromContext(context, ["Table"])

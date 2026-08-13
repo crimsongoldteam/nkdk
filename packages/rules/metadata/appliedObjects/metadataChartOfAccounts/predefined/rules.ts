@@ -9,6 +9,9 @@ import {
   chartOfAccountsPredefinedAccountingFlagsRule,
   chartOfAccountsPredefinedExtDimensionTypesRule,
 } from "../builders"
+import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { defineMetadataRules } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 
 export const PredefinedAccountingFlagRules = {
   itemType: "ChartOfAccountsPredefinedAccountingFlag",
@@ -61,6 +64,7 @@ export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
 
 export const ChartOfAccountsPredefinedItemRules = {
   ...PredefinedItemRules,
+  itemType: "ChartOfAccountsPredefinedItem",
   xmlOrder: [
     "name",
     "code",
@@ -107,11 +111,22 @@ export const ChartOfAccountsPredefinedItemRules = {
       yaml: "ВидыСубконто",
       xml: "ExtDimensionTypes",
       defaultValueXMLEmpty: [],
-      preserveExplicitDefaultXML: true,
       itemRule: PredefinedExtDimensionTypeRules,
     }),
   },
 } as const satisfies MetadataItemRule
+
+export const explicitEmptyPredefinedExtDimensionTypesRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  explicitXMLProperties: {
+    chartOfAccountsPredefinedExtDimensionTypes: {
+      itemType: "ChartOfAccountsPredefinedItem",
+      propertyKey: "extDimensionTypes",
+      yamlValue: EMPTY_XML_TAG_VALUE,
+      xmlValue: {},
+    },
+  },
+})
 
 export const ChartOfAccountsPredefinedRules = {
   ...PredefinedRules,

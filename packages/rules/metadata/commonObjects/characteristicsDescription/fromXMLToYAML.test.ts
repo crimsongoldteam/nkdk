@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 
-import { readAppliedObjectFixture, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
+import {
+  createDirectRoundTripContexts,
+  readAppliedObjectFixture,
+  testPropertyFromXMLToYAML,
+} from "../../../tests/directConversion"
 import { exportToYAML } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { multipleCharacteristicsYAML, singleCharacteristicYAML } from "./__fixtures__/data"
@@ -43,6 +47,19 @@ describe("CharacteristicsDescriptions XML → YAML", () => {
   it("exports multiple characteristics", () => {
     const xml = readAppliedObjectFixture(import.meta.url, "multiple.xml")
     expect(testPropertyFromXMLToYAML({ rule, xml }).yaml).toEqual({ Характеристики: multipleCharacteristicsYAML })
+  })
+
+  it("stores an empty DesignTimeRef as !xml instead of the configuration snapshot", () => {
+    const contexts = createDirectRoundTripContexts()
+    const result = testPropertyFromXMLToYAML({
+      rule,
+      context: contexts.importContext,
+      xml: characteristicWithTypesFilterValue({ "_xsi:type": "xr:DesignTimeRef" }),
+    })
+
+    expect(exportToYAML(result.yaml)).toContain("ЗначениеОтбораВидов: !xml DesignTimeRef")
+    const fragment = contexts.importContext.fromXML.configurationIndex?.collector.fragment("Тест.yaml")
+    expect(JSON.stringify(fragment?.entities)).not.toContain("typesFilterValue")
   })
 
   it.each([
@@ -110,6 +127,18 @@ function characteristicXML(fields: {
           ...(fields.multipleValuesOrderField === undefined
             ? {}
             : { "xr:MultipleValuesOrderField": fields.multipleValuesOrderField }),
+        },
+      },
+    },
+  }
+}
+
+function characteristicWithTypesFilterValue(value: Record<string, unknown>): Record<string, unknown> {
+  return {
+    Characteristics: {
+      "xr:Characteristic": {
+        "xr:CharacteristicTypes": {
+          "xr:TypesFilterValue": value,
         },
       },
     },

@@ -11,6 +11,7 @@ import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { AdditionalIndexRules } from "./rules"
 
 import "./types"
+import { yamlScalarTagAt } from "@nkdk/runtime"
 
 const yaml = [
   {
@@ -100,7 +101,7 @@ describe("AdditionalIndex YAML → XML", () => {
     ).toBe("00000000-0000-0000-0000-000000000000")
   })
 
-  it("preserves an explicitly empty fields container through the configuration index", () => {
+  it("preserves an explicitly empty fields container through !xml", () => {
     const contexts = createDirectRoundTripContexts()
     const sourceXML = {
       AdditionalIndexes: {
@@ -125,6 +126,9 @@ describe("AdditionalIndex YAML → XML", () => {
       rule: AdditionalIndexRules,
       yaml: imported.yaml,
     })
+    const item = (imported.yaml as Array<Record<string, unknown>>)[0]!
+    expect(item.ДополнительныеПоля).toBe("!xml")
+    expect(yamlScalarTagAt(item, "ДополнительныеПоля")).toBe("xml")
 
     expect(exported.xml).toMatchObject({
       AdditionalIndexes: {

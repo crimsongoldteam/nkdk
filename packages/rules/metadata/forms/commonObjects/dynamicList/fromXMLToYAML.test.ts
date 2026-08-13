@@ -79,7 +79,6 @@ describe("DynamicList XML → YAML → XML", () => {
       })
       const yaml = testPropertyFromXMLToYAML({ rule, xml: parsed, context: contexts.importContext }).yaml
       const { xml } = testPropertyFromYAMLToXML({ rule, yaml, context: contexts.exportContext() })
-
       expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
     }
   )
@@ -114,7 +113,7 @@ describe("DynamicList XML → YAML → XML", () => {
     expect(result.match(/<KeyField>/g)).toHaveLength(3)
   })
 
-  it("восстанавливает только явный Asc для выражения упорядочивания", () => {
+  it("не восстанавливает Asc из reference XML без явного YAML-поля", () => {
     const yaml = {
       Значение: {
         ВычисляемыеПоля: [
@@ -148,7 +147,7 @@ describe("DynamicList XML → YAML → XML", () => {
     const restored = xmlExport(testPropertyFromYAMLToXML({ rule, yaml, referenceXML }).xml, false)
 
     expect(fresh).not.toContain("<orderType")
-    expect(restored).toContain(">Asc</orderType>")
+    expect(restored).not.toContain("<orderType")
   })
 
   it("разрешает одно или несколько строковых ключевых полей в JSON Schema", () => {

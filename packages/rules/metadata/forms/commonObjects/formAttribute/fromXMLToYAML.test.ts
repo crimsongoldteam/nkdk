@@ -7,8 +7,13 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
-import { xmlExport } from "@nkdk/runtime"
+import {
+  EMPTY_XML_TAG_VALUE,
+  importContentFromXML,
+  markYAMLScalarTag,
+  xmlExport,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 import "../index"
@@ -45,10 +50,86 @@ const settingsFixtures = [
   "plannerSettings.xml",
   "plannerSettingsWithNil.xml",
   "spreadsheetDocumentSettings.xml",
-  "valueListWithReferenceEmptySettings.xml",
 ] as const
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it("различает отсутствие Settings у единственного ValueListType", () => {
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule,
+      xml: {
+        Attribute: {
+          _name: "Список",
+          Type: { "v8:Type": "v8:ValueListType" },
+        },
+      },
+    })
+    const item = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение.Список!
+
+    expect(item.ТипЗначения).toBe(EMPTY_XML_TAG_VALUE)
+    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml")
+  })
+
+  it("не помечает отсутствие Settings у составного типа", () => {
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule,
+      xml: {
+        Attribute: {
+          _name: "Список",
+          Type: { "v8:Type": ["v8:ValueListType", "xs:string"] },
+        },
+      },
+    })
+    const item = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение.Список!
+
+    expect(item).not.toHaveProperty("ТипЗначения")
+  })
+
+  it("сохраняет непустой Settings у единственного СпискаЗначений", () => {
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule,
+      xml: {
+        Attribute: {
+          _name: "Список",
+          Type: { "v8:Type": "v8:ValueListType" },
+          Settings: {
+            "_xsi:type": "v8:TypeDescription",
+            "v8:Type": "xs:string",
+            "v8:StringQualifiers": { "v8:Length": 0, "v8:AllowedLength": "Variable" },
+          },
+        },
+      },
+    })
+    const item = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение.Список!
+
+    expect(item.ТипЗначения).toBe("Строка")
+  })
+
+  it("не создаёт Settings по маркеру отсутствия", () => {
+    const item = {
+      Тип: "СписокЗначений",
+      ТипЗначения: EMPTY_XML_TAG_VALUE,
+    }
+    markYAMLScalarTag(item, "ТипЗначения", "xml")
+
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml: { Значение: { Список: item } },
+    })
+    const attribute = Array.isArray(xml.Attribute) ? xml.Attribute[0] : xml.Attribute
+
+    expect(attribute).not.toHaveProperty("Settings")
+  })
+
+  it("создаёт канонический Settings без маркера", () => {
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml: { Значение: { Список: { Тип: "СписокЗначений" } } },
+    })
+    const attribute = Array.isArray(xml.Attribute) ? xml.Attribute[0] : xml.Attribute
+
+    expect(attribute).toHaveProperty("Settings", { "_xsi:type": "v8:TypeDescription" })
+  })
+
   it.each(fixtures)("сохраняет %s", (fixture) => {
     const { expected, result } = roundTripFixture(fixture, true)
     expect(result).toBe(expected.trim())

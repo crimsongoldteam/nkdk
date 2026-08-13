@@ -61,6 +61,14 @@ describe("importContentFromXML", () => {
     })
   })
 
+  it("сохраняет только пустые элементы с указанными именами", () => {
+    const xml = "<Root><AdditionalFields/><Other/><Parent><AdditionalFields/></Parent></Root>"
+
+    expect(importContentFromXML(xml, { preserveEmptyElementNames: ["AdditionalFields"] })).toEqual({
+      Root: { AdditionalFields: {}, Other: undefined, Parent: { AdditionalFields: {} } },
+    })
+  })
+
   it("сохраняет XML declaration и порядок разноимённых детей", () => {
     const result = importContentFromXML<{
       "?xml": { _version: string; _encoding: string; _standalone: string }

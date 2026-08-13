@@ -57,7 +57,7 @@ describe("export SettingsParameterValueCollection to XML", () => {
     expect(result).toContain('<dcscor:value xsi:type="ent:AccumulationRecordType">Receipt</dcscor:value>')
   })
 
-  it("восстанавливает xsi:nil из снимка без reference XML", () => {
+  it("восстанавливает xsi:nil из !xml Nil без снимка и reference XML", () => {
     const metadataRule = {
       itemType: "SettingsParameterValueCollectionProbe",
       properties: {
@@ -81,7 +81,6 @@ describe("export SettingsParameterValueCollection to XML", () => {
     const restored = testPropertyFromYAMLToXML({
       rule: metadataRule,
       yaml: imported.yaml,
-      context: contexts.exportContext(),
     })
 
     expect(restored.xml).toMatchObject({

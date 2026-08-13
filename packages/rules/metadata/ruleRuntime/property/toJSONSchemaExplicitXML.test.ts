@@ -19,6 +19,15 @@ import type { MetadataItemRule } from "./types"
 import { CheckBoxFieldRules } from "../../forms/elements/checkBoxField/rules"
 import { ButtonRules } from "../../forms/elements/button/rules"
 import { TableRules } from "../../forms/elements/table/rules"
+import { explicitAdditionalFieldsRules } from "../../commonObjects/indexField/explicitAdditionalFields"
+import { explicitEmptyAttributesRules } from "../../forms/clientApplicationForm/explicitEmptyAttributes"
+import { explicitEmptyFormElementTitleRules } from "../../forms/clientApplicationForm/explicitEmptyTitle"
+import { explicitEmptyPredefinedExtDimensionTypesRules } from "../../appliedObjects/metadataChartOfAccounts/predefined/rules"
+import { formAttributeValueTypeSettingsRules } from "../../forms/commonObjects/formAttribute/valueListSettings"
+import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
+import { LabelDecorationRules } from "../../forms/elements/labelDecoration/rules"
+import { ChartOfAccountsPredefinedItemRules } from "../../appliedObjects/metadataChartOfAccounts/predefined/rules"
+import { FormAttributeRules } from "../../forms/commonObjects/formAttribute/rules"
 
 function probeRule(itemType: string): MetadataItemRule {
   return {
@@ -71,6 +80,44 @@ function explicitXMLSchemas(rule: MetadataItemRule, execution = defaultExecution
 }
 
 describe("explicit XML property validation schema", () => {
+  it.each([
+    [
+      "ДополнительныеПоля",
+      { itemType: "IndexField", properties: { additionalFields: { type: "IndexField", yaml: "ДополнительныеПоля" } } },
+    ],
+    ["Реквизиты", ClientApplicationFormRules],
+    ["Заголовок", LabelDecorationRules],
+    ["ВидыСубконто", ChartOfAccountsPredefinedItemRules],
+    ["ТипЗначения", FormAttributeRules],
+  ] as const)("разрешает пустой !xml только согласованному свойству %s", (yamlKey, sourceRule) => {
+    const explicitXMLProperties = {
+      ...explicitAdditionalFieldsRules.explicitXMLProperties,
+      ...explicitEmptyAttributesRules.explicitXMLProperties,
+      ...explicitEmptyFormElementTitleRules.explicitXMLProperties,
+      ...explicitEmptyPredefinedExtDimensionTypesRules.explicitXMLProperties,
+      ...formAttributeValueTypeSettingsRules.explicitXMLProperties,
+    }
+    const execution = explicitXMLExecution(explicitXMLProperties)
+    const completeRule = sourceRule as MetadataItemRule
+    const propertyEntry = Object.entries(completeRule.properties).find(([, property]) => property.yaml === yamlKey)
+    if (propertyEntry === undefined) throw new Error(`Не найдено правило свойства ${yamlKey}`)
+    const [propertyKey, property] = propertyEntry
+    const rule = {
+      itemType: completeRule.itemType,
+      properties: { [propertyKey]: property },
+    } as MetadataItemRule
+    const otherOwner = { ...rule, itemType: `${rule.itemType}Other` } as MetadataItemRule
+    const accepted = explicitXMLSchemas(rule, execution)
+    const acceptedProperty = accepted.validationProperties[yamlKey]
+
+    if (acceptedProperty !== undefined) {
+      expect(compileValidationSchema(accepted.validationSchemas(), acceptedProperty).Check(EMPTY_XML_TAG_VALUE)).toBe(true)
+    }
+    expect(execution.explicitXMLPropertyValidationMode(rule.itemType, propertyKey)).toBe("empty")
+    expect(execution.explicitXMLPropertyValidationMode(otherOwner.itemType, propertyKey)).toBeUndefined()
+    expect(JSON.stringify(accepted.externalProperties)).not.toContain("!xml")
+  })
+
   it("разрешает пустой !xml для точного типа коллекции", () => {
     const rule = {
       itemType: "ExplicitXMLCollectionSchemaProbe",

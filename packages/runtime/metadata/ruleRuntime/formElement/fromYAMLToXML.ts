@@ -8,6 +8,7 @@ import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { getChildContextToXML } from "../../context/childContext"
 import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
+import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
 
 type FormElementCollectionNestedRule = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -90,11 +91,16 @@ function withNameAndId(
   const runtime = context.exportToXML.configurationIndex
   const indexedId = runtime?.identity("xmlId")
   if (indexedId !== undefined) runtime?.collector.setIdentity(runtime.logicalAddress, "xmlId", indexedId)
-  return {
+  const result = {
     _name: typeof _name === "string" ? _name : name,
     _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
     ...properties,
   }
+  registerFormXmlIdReservation(result, {
+    ...(runtime === undefined ? {} : { runtime }),
+    space: "elements",
+  })
+  return result
 }
 
 export function resolveFormElementRule(params: {

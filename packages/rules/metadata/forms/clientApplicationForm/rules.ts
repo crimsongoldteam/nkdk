@@ -176,7 +176,6 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueXMLEmpty: [],
       itemRule: FormAttributeRules,
-      preserveExplicitDefaultXML: true,
     }),
     attributesConditionalAppearance: conditionalAppearanceRule({
       yaml: "УсловноеОформлениеРеквизитов",
@@ -511,8 +510,7 @@ export const ClientApplicationFormRules = {
       yaml: "Комментарий",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
-      defaultValueXMLEmpty: "",
-      implicitValueYAML: "",
+      defaultValueXMLRaw: "",
     }),
     includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",

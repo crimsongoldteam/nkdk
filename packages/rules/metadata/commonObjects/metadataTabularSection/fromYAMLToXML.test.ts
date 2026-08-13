@@ -94,7 +94,7 @@ describe("MetadataTabularSections YAML → XML", () => {
     )
 
     expect(result.includes("<FillFromFillingValue>false</FillFromFillingValue>")).toBe(expectedFill)
-    expect(result.includes('<FillValue xsi:nil="true"/>')).toBe(expectedFill)
+    expect(result.includes('<FillValue xsi:type="xs:string"/>')).toBe(expectedFill)
   })
 
   it("should return undefined when data is undefined after YAML export", () => {

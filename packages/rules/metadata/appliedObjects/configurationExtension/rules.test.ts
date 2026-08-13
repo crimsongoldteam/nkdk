@@ -96,22 +96,83 @@ describe("MetadataConfigurationExtensionRules", () => {
 
   it("восстанавливает InternalInfo корня из снимка расширения", () => {
     const contexts = createDirectRoundTripContexts({ logicalAddress: "Конфигурация" })
+    const importContext = {
+      ...contexts.importContext,
+      fromXML: {
+        ...contexts.importContext.fromXML,
+        metadataItemAugmenter: "configurationExtension",
+      },
+    }
     const imported = testMetadataItemFromXMLToYAML({
       rule: MetadataConfigurationExtensionRules,
       xml: parseRoot(DEFAULT_EXTENSION_XML),
-      context: contexts.importContext,
+      context: importContext,
       name: "РасширениеПоУмолчанию",
     })
+    const exportContext = contexts.exportContext()
 
     const exported = testMetadataItemFromYAMLToXML({
       rule: MetadataConfigurationExtensionRules,
       yaml: imported.yaml,
-      context: contexts.exportContext(),
+      context: {
+        ...exportContext,
+        exportToXML: {
+          ...exportContext.exportToXML,
+          componentKind: "configurationExtension",
+          xmlDefaultVariantByLogicalAddress: { Конфигурация: "adopted" },
+        },
+      },
       name: "РасширениеПоУмолчанию",
     })
 
     expect(exported.xml).toHaveProperty(
       "MetaDataObject.Configuration.InternalInfo.xr:ContainedObject"
+    )
+  })
+
+  it("восстанавливает обязательный синоним корня расширения из имени", () => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Конфигурация" })
+    const imported = testMetadataItemFromXMLToYAML({
+      rule: MetadataConfigurationExtensionRules,
+      xml: parseRoot(`
+        <MetaDataObject>
+          <Configuration uuid="11111111-1111-1111-1111-111111111111">
+            <Properties>
+              <Name>РасширениеПоУмолчанию</Name>
+              <Synonym>
+                <v8:item>
+                  <v8:lang>ru</v8:lang>
+                  <v8:content>Расширение по умолчанию</v8:content>
+                </v8:item>
+              </Synonym>
+              <ConfigurationExtensionPurpose>Customization</ConfigurationExtensionPurpose>
+            </Properties>
+          </Configuration>
+        </MetaDataObject>
+      `),
+      context: contexts.importContext,
+      name: "РасширениеПоУмолчанию",
+    })
+
+    expect(imported.yaml).not.toHaveProperty("Синоним")
+
+    const exported = testMetadataItemFromYAMLToXML({
+      rule: MetadataConfigurationExtensionRules,
+      yaml: imported.yaml,
+      context: {
+        ...contexts.exportContext(),
+        exportToXML: {
+          ...contexts.exportContext().exportToXML,
+          componentKind: "configurationExtension",
+          xmlDefaultVariantByLogicalAddress: { Конфигурация: "adopted" },
+        },
+      },
+      name: "РасширениеПоУмолчанию",
+    })
+
+    expect(exported.xml).toHaveProperty(
+      "MetaDataObject.Configuration.Properties.Synonym.v8:item",
+      [{ "v8:lang": "ru", "v8:content": "Расширение по умолчанию" }]
     )
   })
 

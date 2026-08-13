@@ -25,6 +25,31 @@ describe("ClientApplicationForm exportToJSONSchema type rule", () => {
     expect(exportToJSONSchema).toBe(exportClientApplicationFormToJSONSchema)
   })
 
+  it("показывает Имя встроенного элемента только внутренней схеме", () => {
+    const exportToJSONSchema = getTypeRule("ContextMenu", "exportToJSONSchema")
+    if (exportToJSONSchema === undefined) throw new Error("ContextMenu schema exporter is not registered")
+    const internal = exportToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: { mode: "inline", refs: new Set(), validationPropertyRefs: true },
+      },
+      rule: { type: "ContextMenu" },
+      value: undefined,
+    })
+    const external = exportToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: { mode: "externalRefs", refs: new Set() },
+      },
+      rule: { type: "ContextMenu" },
+      value: undefined,
+    })
+
+    expect(JSON.stringify(internal)).toContain('"Имя"')
+    expect(JSON.stringify(internal)).toContain("^!xml")
+    expect(JSON.stringify(external)).not.toContain('"Имя"')
+  })
+
   it.each([
     ["МобильноеПриложение", true],
     ["ПлатформаИМобильноеПриложение", true],

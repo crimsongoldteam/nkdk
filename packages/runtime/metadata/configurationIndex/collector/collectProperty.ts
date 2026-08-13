@@ -27,12 +27,6 @@ export function collectConfigurationIndexIdentityFromXML(params: {
     }
     return
   }
-  if (
-    params.sourceXmlKey === "_name" &&
-    !isNameReconstructible(collection.logicalAddress, params.xmlValue, params.reconstructibleXmlName)
-  ) {
-    collection.collector.setIdentity(collection.logicalAddress, "xmlName", params.xmlValue)
-  }
 }
 
 export function collectConfigurationIndexPropertyFromXML(params: {
@@ -44,6 +38,7 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   rule: PropertyRule
   descriptor?: ConfigurationIndexValueFromXMLDescriptor
 }): void {
+  if (!collectsConfigurationExtensionState(params.context)) return
   const collection = getConfigurationIndexCollectionContext(params.context)
   if (collection === undefined) return
 
@@ -68,9 +63,7 @@ export function collectConfigurationIndexPropertyFromXML(params: {
     collection.collector.setXmlFlag(address, "explicitEmpty")
   }
   const ambiguousScalar = omittedScalarXMLValue(params.rule, params.xmlValue, params.presentInXML)
-  if (ambiguousScalar !== undefined) {
-    collection.collector.setXmlValue(address, "xmlText", ambiguousScalar)
-  }
+  if (ambiguousScalar !== undefined) collection.collector.setXmlValue(address, "xmlText", ambiguousScalar)
 }
 
 export function collectConfigurationIndexImportedValue(params: {
@@ -79,25 +72,23 @@ export function collectConfigurationIndexImportedValue(params: {
   propertyKey: string
   importedValue: unknown
 }): void {
+  if (!collectsConfigurationExtensionState(params.context)) return
   const collection = getConfigurationIndexCollectionContext(params.context)
   if (collection === undefined || !isRecord(params.importedValue)) return
-
   const xmlPrefix = params.importedValue.xmlPrefix
   const address =
     params.logicalAddress ??
     configurationIndexPropertyXmlStateUid(collection.logicalAddress, params.propertyKey, undefined, false)
-  if (typeof xmlPrefix === "string") {
-    collection.collector.setXmlValue(address, "xmlPrefix", xmlPrefix)
-  }
-}
-
-function isNameReconstructible(logicalAddress: string, xmlName: string, reconstructibleXmlName?: string): boolean {
-  const lastSegment = logicalAddress.slice(logicalAddress.lastIndexOf(".") + 1)
-  return (reconstructibleXmlName ?? lastSegment) === xmlName
+  if (typeof xmlPrefix === "string") collection.collector.setXmlValue(address, "xmlPrefix", xmlPrefix)
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function collectsConfigurationExtensionState(context: ConfigurationContextFromXML): boolean {
+  return "metadataItemAugmenter" in context.fromXML &&
+    context.fromXML.metadataItemAugmenter === "configurationExtension"
 }
 
 function hasXsiNil(value: unknown): boolean {
@@ -125,20 +116,14 @@ function omittedScalarXMLValue(
   presentInXML: boolean
 ): string | undefined {
   if (!presentInXML) return undefined
-  const scalar =
-    xmlValue !== null && typeof xmlValue === "object" && !Array.isArray(xmlValue) && "#text" in xmlValue
-      ? xmlValue["#text"]
-      : xmlValue
+  const scalar = isRecord(xmlValue) && "#text" in xmlValue ? xmlValue["#text"] : xmlValue
   if (typeof scalar !== "string" && typeof scalar !== "number" && typeof scalar !== "boolean") return undefined
   const equalsXMLDefault =
     Object.prototype.hasOwnProperty.call(rule, "defaultValueXML") &&
     typeof rule.defaultValueXML !== "function" &&
     String(scalar) === String(rule.defaultValueXML)
   if (equalsXMLDefault) return undefined
-  if (
-    !Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") ||
-    typeof rule.implicitValueYAML === "function"
-  ) {
+  if (!Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") || typeof rule.implicitValueYAML === "function") {
     return undefined
   }
   return String(scalar)

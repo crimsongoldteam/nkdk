@@ -181,6 +181,7 @@ export const MetadataConfigurationRules = {
       xml: "UsePurposes",
       xmlParents: configurationProperties,
       defaultValue: () => ["PlatformApplication"],
+      evaluateWhenYAMLMissing: true,
     }),
     scriptVariant: systemEnumerationRule({
       yaml: "ВариантВстроенногоЯзыка",

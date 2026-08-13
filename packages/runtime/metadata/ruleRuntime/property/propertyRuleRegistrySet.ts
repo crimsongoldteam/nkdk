@@ -305,7 +305,8 @@ export function createPropertyRuleRegistrySet(
       }
       return registration !== undefined &&
         params.presentInXML &&
-        isDeepStrictEqual(registration.xmlValue, params.xmlValue)
+        (isDeepStrictEqual(registration.xmlValue, params.xmlValue) ||
+          (isEmptyXMLValue(registration.xmlValue) && isEmptyXMLValue(params.xmlValue)))
         ? registration
         : undefined
     },
@@ -316,6 +317,17 @@ export function createPropertyRuleRegistrySet(
         Object.is(params.yamlValue, registration.yamlValue)
         ? registration
         : undefined
+    },
+    matchExplicitXMLTransportFromXML(params) {
+      if (!params.presentInXML) return undefined
+      const registration = explicitXMLProperties.get(
+        propertyRegistrationKey(params.itemType, params.propertyKey),
+      )
+      if (registration?.action !== "transportScalar") return undefined
+      for (const [payload, xmlValue] of Object.entries(registration.overrides ?? {})) {
+        if (sameExplicitXMLTransportValue(xmlValue, params.xmlValue)) return payload
+      }
+      return undefined
     },
     collectExplicitXMLPropertyActions(params) {
       return collectExplicitXMLPropertyActions(params, {
@@ -373,6 +385,27 @@ export function createPropertyRuleRegistrySet(
       )
     },
   }
+}
+
+function sameExplicitXMLTransportValue(expected: unknown, actual: unknown): boolean {
+  if (isDeepStrictEqual(expected, actual)) return true
+  if (
+    expected !== null && typeof expected === "object" && !Array.isArray(expected) &&
+    actual !== null && typeof actual === "object" && !Array.isArray(actual)
+  ) {
+    const expectedRecord = expected as Record<string, unknown>
+    const actualRecord = actual as Record<string, unknown>
+    return Object.keys(expectedRecord).length === 1 &&
+      Object.keys(actualRecord).length === 1 &&
+      expectedRecord["_xsi:nil"] === true &&
+      actualRecord["_xsi:nil"] === "true"
+  }
+  return false
+}
+
+function isEmptyXMLValue(value: unknown): boolean {
+  return value === "" ||
+    (value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0)
 }
 
 function sameExplicitXMLPropertyRegistration(

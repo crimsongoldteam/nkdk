@@ -18,7 +18,7 @@ import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLExternalWriteFactory,
 } from "@nkdk/runtime/rule-kit"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { MetadataItemRule, PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/projectDefinition/localIndexes"
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
@@ -107,6 +107,7 @@ export function testPropertyFromYAMLToXML(params: {
   rule: MetadataItemRule
   yaml: unknown
   context?: ConfigurationContextWithExportToXML
+  execution?: PropertyRuleExecution
   name?: string
   referenceXML?: unknown
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
@@ -115,6 +116,7 @@ export function testPropertyFromYAMLToXML(params: {
     context: params.context ?? mockContextToXML(),
     yaml: params.yaml,
     rule: params.rule,
+    execution: params.execution,
     name: params.name,
     outputs: [{ key: "owner", referenceXML: params.referenceXML }],
     externalWriteFactory: params.externalWriteFactory,

@@ -16,7 +16,7 @@ import {
   InternalInfoRootXML,
 } from "./types"
 
-export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): InternalInfoRootXML => {
+export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): InternalInfoRootXML | undefined => {
   const { context, rule, value, referenceMetadata, metadataItem, source } = params
 
   const internalInfoRule = rule as InternalInfoPropertyRule
@@ -84,7 +84,7 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
     result["xr:ContainedObject"] = containedObjects
   }
 
-  return result
+  return Object.keys(result).length === 0 ? undefined : result
 }
 
 const getInternalInfoItem = (value: InternalInfo[string]): { typeId: string; valueId: string } | undefined => {

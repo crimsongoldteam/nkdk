@@ -88,7 +88,6 @@ import { metadataPropertyRule002 as rule86 } from "../commonObjects/dataComposit
 import { metadataPropertyRule003 as rule87 } from "../commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind"
 import { metadataPropertyRule004 as rule88 } from "../commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind"
 import { metadataPropertyRule000 as rule89 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/fromXML"
-import { metadataPropertyRule001 as rule90 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/fromXML"
 import { metadataPropertyRule000 as rule91 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/fromYAML"
 import { metadataPropertyRule000 as rule92 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/toJSONSchema"
 import { metadataPropertyRule000 as rule93 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/toYAML"
@@ -155,7 +154,6 @@ import { metadataPropertyRule000 as rule153 } from "../commonObjects/i8nText/fro
 import { metadataPropertyRule000 as rule154 } from "../commonObjects/i8nText/toJSONSchema"
 import { metadataPropertyRule000 as rule155 } from "../commonObjects/i8nText/toYAML"
 import { metadataPropertyRule000 as rule156 } from "../commonObjects/indexField/fromXML"
-import { metadataPropertyRule001 as rule157 } from "../commonObjects/indexField/fromXML"
 import { metadataPropertyRule000 as rule158 } from "../commonObjects/indexField/fromYAML"
 import { metadataPropertyRule000 as rule159 } from "../commonObjects/indexField/toJSONSchema"
 import { metadataPropertyRule000 as rule160 } from "../commonObjects/indexField/toXML"
@@ -280,8 +278,6 @@ import { metadataPropertyRule000 as rule278 } from "../commonObjects/styleItemVa
 import { metadataPropertyRule000 as rule279 } from "../commonObjects/styleItemValue/toXML"
 import { metadataPropertyRule000 as rule280 } from "../commonObjects/styleItemValue/toYAML"
 import { metadataPropertyRule000 as rule281 } from "../commonObjects/typeDescription/fromXML"
-import { metadataPropertyRule001 as rule282 } from "../commonObjects/typeDescription/fromXML"
-import { metadataPropertyRule002 as rule283 } from "../commonObjects/typeDescription/fromXML"
 import { metadataPropertyRule000 as rule284 } from "../commonObjects/typeDescription/toEnterprise"
 import { metadataPropertyRule000 as rule285 } from "../commonObjects/typeDescription/toJSONSchema"
 import { metadataPropertyRule000 as rule286 } from "../commonObjects/typeDescription/toXML"
@@ -365,14 +361,14 @@ import { metadataPropertyRule002 as rule363 } from "../forms/elements/button/par
 import { metadataPropertyRule003 as rule364 } from "../forms/elements/button/parameter"
 import { metadataPropertyRule004 as rule365 } from "../forms/elements/button/parameter"
 import { metadataPropertyRule000 as rule366 } from "../systemEnumerations/fromXML"
-import { metadataPropertyRule001 as rule367 } from "../systemEnumerations/fromXML"
-import { metadataPropertyRule002 as rule368 } from "../systemEnumerations/fromXML"
 import { metadataPropertyRule000 as rule369 } from "../systemEnumerations/fromYAML"
 import { metadataPropertyRule000 as rule370 } from "../systemEnumerations/toEnterprise"
 import { metadataPropertyRule000 as rule371 } from "../systemEnumerations/toJSONSchema"
 import { metadataPropertyRule001 as rule372 } from "../systemEnumerations/toJSONSchema"
 import { metadataPropertyRule000 as rule373 } from "../systemEnumerations/toXML"
 import { metadataPropertyRule000 as rule374 } from "../systemEnumerations/toYAML"
+import { metadataPropertyRule000 as rule375 } from "../commonObjects/minMaxValue/fromYAML"
+import { metadataPropertyRule000 as rule376 } from "../commonObjects/minMaxValue/toYAML"
 
 import { propertyTypesFromContributions } from "../ruleRuntime/property/propertyRuleRegistrySet"
 
@@ -467,7 +463,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule87,
   rule88,
   rule89,
-  rule90,
   rule91,
   rule92,
   rule93,
@@ -534,7 +529,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule154,
   rule155,
   rule156,
-  rule157,
   rule158,
   rule159,
   rule160,
@@ -659,8 +653,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule279,
   rule280,
   rule281,
-  rule282,
-  rule283,
   rule284,
   rule285,
   rule286,
@@ -744,12 +736,12 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule364,
   rule365,
   rule366,
-  rule367,
-  rule368,
   rule369,
   rule370,
   rule371,
   rule372,
   rule373,
   rule374,
+  rule375,
+  rule376,
 ])

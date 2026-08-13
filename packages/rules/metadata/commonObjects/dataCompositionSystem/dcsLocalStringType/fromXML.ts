@@ -1,54 +1,26 @@
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
-import { I8nText, I8nTextXML } from "../../i8nText/types"
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
-import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
-import {
-  getConfigurationIndexCollectionContext,
-  getConfigurationIndexPropertyValueLogicalAddress,
-} from "@nkdk/runtime"
-import { DcsLocalStringTypeXML } from "./types"
-
-const extractStringValue = (xml: DcsLocalStringTypeXML): string | undefined => {
-  if (typeof xml === "string") return xml
-  if (xml !== undefined && xml !== null && typeof xml === "object" && xml["_xsi:type"] === "xs:string") {
-    const text = xml["#text"]
-    return text !== undefined ? String(text) : ""
-  }
-  return undefined
-}
+import type { I8nTextXML } from "../../i8nText/types"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { definePropertyTypeRule } from "../../../ruleRuntime"
+import type { PropertyRule } from "../../../ruleRuntime"
+import type { DcsLocalStringTypeXML, DcsLocalStringValue } from "./types"
 
 export const importDcsLocalStringTypeFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: DcsLocalStringTypeXML
-): I8nText | string | undefined => {
+  xml: DcsLocalStringTypeXML,
+): DcsLocalStringValue | undefined => {
   if (xml === undefined) return undefined
-
-  const stringValue = extractStringValue(xml)
-  if (stringValue !== undefined) {
-    if (context.fromXML.forReference) return stringValue
-    return { items: { [context.defaultLanguage]: stringValue } }
-  }
-
+  if (typeof xml === "string") return { kind: "xmlString", text: xml }
   if (typeof xml !== "object" || xml === null) return undefined
-  return importI8nTextFromXML(context, { type: "I8nText" } as any, xml as I8nTextXML)
+  if (xml["_xsi:type"] === "xs:string") {
+    return { kind: "xmlString", text: xml["#text"] === undefined ? "" : String(xml["#text"]) }
+  }
+  return importI8nTextFromXML(context, { type: "I8nText" } as PropertyRule, xml as I8nTextXML)
 }
 
-export const metadataPropertyRule000 = definePropertyTypeRule("DcsLocalStringType", "importFromXML", importDcsLocalStringTypeFromXML as any)
-export const metadataPropertyRule001 = definePropertyTypeRule("DcsLocalStringType", "collectConfigurationIndexFromXML", ({ context, xml, propertyKey }) => {
-  const collection = getConfigurationIndexCollectionContext(context)
-  if (
-    collection === undefined ||
-    typeof xml !== "object" ||
-    xml === null ||
-    !("_xsi:type" in xml) ||
-    xml["_xsi:type"] !== "xs:string"
-  ) {
-    return
-  }
-  collection.collector.setXmlValue(
-    getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey),
-    "xsiType",
-    "xs:string"
-  )
-})
+export const metadataPropertyRule000 = definePropertyTypeRule(
+  "DcsLocalStringType",
+  "importFromXML",
+  importDcsLocalStringTypeFromXML,
+)

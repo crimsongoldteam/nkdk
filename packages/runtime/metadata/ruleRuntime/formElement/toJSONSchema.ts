@@ -34,6 +34,7 @@ export const exportElementRuleToJSONSchema = (params: {
 export const exportSingleElementRuleToJSONSchema = (params: {
   context: ConfigurationContext
   rule: ElementRule
+  explicitXMLName?: true
 }): TSchema => {
   const { context, rule } = params
   const properties = exportPropertiesToJSONSchema({
@@ -44,6 +45,7 @@ export const exportSingleElementRuleToJSONSchema = (params: {
   return Type.Object(
     {
       ...properties,
+      ...explicitXMLNameProperty(context, params.explicitXMLName),
     },
     {
       additionalProperties: false,
@@ -83,6 +85,7 @@ const applyPropertyAliases = (params: { aliases?: Record<string, string>; proper
 export const exportElementToJSONSchema = <T extends { itemType: ElementType; name: string }>(params: {
   context: ConfigurationContext
   value: T
+  explicitXMLName?: true
 }): TSchema => {
   const { context, value: element } = params
   const itemType = element.itemType
@@ -98,9 +101,21 @@ export const exportElementToJSONSchema = <T extends { itemType: ElementType; nam
   const result = Type.Object(
     {
       ...properties,
+      ...explicitXMLNameProperty(context, params.explicitXMLName),
     },
     { additionalProperties: false }
   )
 
   return result
+}
+
+function acceptsExplicitXMLValues(context: ConfigurationContext): boolean {
+  return context.exportToJSONSchema?.explicitXMLValues === true ||
+    context.exportToJSONSchema?.validationPropertyRefs === true
+}
+
+function explicitXMLNameProperty(context: ConfigurationContext, enabled: true | undefined): TProperties {
+  return enabled === true && acceptsExplicitXMLValues(context)
+    ? { Имя: Type.Optional(Type.String({ pattern: "^!xml(?: .*)?$" })) }
+    : {}
 }

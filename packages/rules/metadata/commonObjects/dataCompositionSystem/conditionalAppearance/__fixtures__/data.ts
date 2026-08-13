@@ -21,7 +21,9 @@ export const minimalConditionalAppearance = {
   viewMode: "Normal",
 } as const satisfies ConditionalAppearance
 
-export const minimalConditionalAppearanceYAML = {} as const satisfies ConditionalAppearanceYAML
+export const minimalConditionalAppearanceYAML = {
+  РежимОтображения: "Обычный",
+} as const satisfies ConditionalAppearanceYAML
 
 export const minimalUserSettingsConditionalAppearance = {
   itemType: "ConditionalAppearance",
@@ -30,5 +32,6 @@ export const minimalUserSettingsConditionalAppearance = {
 } as const satisfies ConditionalAppearance
 
 export const minimalUserSettingsConditionalAppearanceYAML = {
+  РежимОтображения: "Обычный",
   ИспользоватьПользовательскуюНастройку: "b75fecce-942b-4aed-abc9-e6a02e460fb3",
 } as const satisfies ConditionalAppearanceYAML

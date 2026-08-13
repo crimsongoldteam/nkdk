@@ -6,6 +6,8 @@ import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToXML } from "./toXML"
 import { TYPE_DESCRIPTION_SOURCE_TYPES, TypeDescription, TypeDescriptionXML } from "./types"
+import { importTaggedTypeDescriptionFromYAML } from "./fromYAML"
+import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
 
 const typeDescriptionRule = { type: "TypeDescription" } as const
 const typeDescriptionRuleWithLocalNamespace = {
@@ -28,6 +30,24 @@ describe("exportTypeDescriptionToXML", () => {
   it("should export undefined type description to XML", () => {
     const result = exportTypeDescriptionToXML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
+  })
+
+  it("restores an exact prefix from !xml without a reference or snapshot", () => {
+    const yaml = { Тип: xmlScalarTagValue("d7p1:Диаграмма") }
+    markYAMLScalarTag(yaml, "Тип", "xml")
+    const value = importTaggedTypeDescriptionFromYAML({
+      context: mockContext,
+      rule: { type: "TypeDescription", yaml: "Тип" },
+      yaml,
+      value: yaml.Тип,
+    })
+
+    expect(exportTypeDescriptionToXML(mockContext, mockRule, value)).toEqual({
+      "v8:Type": {
+        "_xmlns:d7p1": "http://v8.1c.ru/8.2/data/chart",
+        "#text": "d7p1:Chart",
+      },
+    })
   })
 
   it.each(typeFixturesTable)("should export type to XML: $internal.type", ({ internal, xml }) => {

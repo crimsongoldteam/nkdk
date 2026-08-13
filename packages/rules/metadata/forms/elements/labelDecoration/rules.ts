@@ -57,7 +57,6 @@ export const LabelDecorationRules = {
     }),
     title: formattedI8nTextRule({
       yaml: "Заголовок",
-      preserveEmptyXML: true,
     }),
     type: systemEnumerationRule({
       typeSE: "FormDecorationType",

@@ -90,7 +90,7 @@ describe("configuration extension full XML sync profile", () => {
       "Справочник.Товары.Реквизит.Артикул": "21111111-1111-4111-8111-111111111111",
     })
     expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toEqual({
-      Конфигурация: "indexed",
+      Конфигурация: "adopted",
       "Справочник.Товары": "adopted",
       "Справочник.Товары.Реквизит.Артикул": "adopted",
     })
@@ -275,7 +275,7 @@ describe("configuration extension full XML sync profile", () => {
     const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).toHaveProperty("Конфигурация", baseUuid)
-    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toHaveProperty("Конфигурация", "indexed")
+    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toHaveProperty("Конфигурация", "adopted")
   })
 })
 

@@ -152,7 +152,7 @@ describe("export DataCompositionSchemaDataSetField to YAML", () => {
         Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
         ПутьКДанным: "StringTitleField",
         Поле: "StringTitleField",
-        Заголовок: "String title",
+        Заголовок: "!xml String String title",
       },
     })
   })

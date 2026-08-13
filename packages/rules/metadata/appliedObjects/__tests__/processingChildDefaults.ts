@@ -18,6 +18,6 @@ export function expectProcessingChildDefaults(rule: MetadataItemRule): void {
   expect(topAttribute).not.toMatch(/<(Indexing|FullTextSearch|DataHistory|FillFromFillingValue|FillValue)>/)
   expect(result).not.toContain("<LineNumberLength>")
   expect(nestedAttribute).toContain("<FillFromFillingValue>false</FillFromFillingValue>")
-  expect(nestedAttribute).toContain('<FillValue xsi:nil="true"/>')
+  expect(nestedAttribute).toContain('<FillValue xsi:type="xs:string"/>')
   expect(nestedAttribute).not.toMatch(/<(Indexing|FullTextSearch|DataHistory)>/)
 }

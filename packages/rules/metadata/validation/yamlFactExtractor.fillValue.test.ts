@@ -244,6 +244,39 @@ describe("dependent fill value validation", () => {
   })
 
   it.each([
+    ["Nil у строкового реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml Nil", false],
+    ["Nil у нестрокового реквизита", "Тип: Булево\n    ЗначениеЗаполнения: !xml Nil", true],
+    ["String у обычного реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml String", true],
+    ["TypeDescription у обычного реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml TypeDescription", true],
+    ["Null у обычного реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml Null", true],
+  ] as const)("проверяет транспортный маркер %s", (_name, body, expectsError) => {
+    const diagnostics = extractAttributeDiagnostics(body)
+
+    expect(diagnostics.some(({ severity }) => severity === "error")).toBe(expectsError)
+  })
+
+  it.each([
+    ["String для строкового Кода", "ТипКода: Строка\nСтандартныеРеквизиты:\n  Код:\n    ЗначениеЗаполнения: !xml String", false],
+    ["String для числового Кода", "ТипКода: Число\nСтандартныеРеквизиты:\n  Код:\n    ЗначениеЗаполнения: !xml String", true],
+    ["TypeDescription для Наименования", "СтандартныеРеквизиты:\n  Наименование:\n    ЗначениеЗаполнения: !xml TypeDescription", true],
+  ] as const)("проверяет %s", (_name, yaml, expectsError) => {
+    const diagnostics = extractDiagnostics(yaml)
+      .filter(({ path }) => path?.endsWith("/ЗначениеЗаполнения"))
+
+    expect(diagnostics.some(({ severity }) => severity === "error")).toBe(expectsError)
+  })
+
+  it("разрешает TypeDescription для стандартного реквизита ТипЗначения", () => {
+    const facts = extractValidationYamlFacts({
+      file: characteristicTypeFile(),
+      parsed: parseMetadataYaml("СтандартныеРеквизиты:\n  ТипЗначения:\n    ЗначениеЗаполнения: !xml TypeDescription\n"),
+      rulesSnapshot,
+    })
+
+    expect(facts.diagnostics.filter(({ path }) => path?.endsWith("/ЗначениеЗаполнения"))).toEqual([])
+  })
+
+  it.each([
     ["Родитель справочника", catalogFile, "Родитель"],
     ["БизнесПроцесс задачи", taskFile, "БизнесПроцесс"],
   ])("разрешает DesignTimeRef для ссылочного стандартного реквизита %s", (_name, fileFactory, member) => {
@@ -286,6 +319,15 @@ function catalogFile() {
 
 function taskFile() {
   const file = resolveValidationProjectFile("/project", "/project/Задача/ЗадачаИсполнителя/Свойства.yaml")
+  if (file === undefined) throw new Error("file not resolved")
+  return file
+}
+
+function characteristicTypeFile() {
+  const file = resolveValidationProjectFile(
+    "/project",
+    "/project/ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
+  )
   if (file === undefined) throw new Error("file not resolved")
   return file
 }
