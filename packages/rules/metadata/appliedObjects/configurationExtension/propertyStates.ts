@@ -95,8 +95,7 @@ function importPresentProperties(params: {
 }): void {
   if (extensionServiceProperties(params.source, params.rule)?.objectBelonging !== "Adopted") return
   const item = propertyStateRegistry()?.item(params.rule.itemType, params.compatibilityMode)
-  for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
-    if (capability.availability !== "borrowed") continue
+  for (const propertyKey of Object.keys(item?.properties ?? {})) {
     const propertyRule = params.rule.properties[propertyKey]
     if (propertyRule === undefined || typeof propertyRule.yaml !== "string") continue
     const xmlProperty = propertyRule.xml ?? capitalize(propertyKey)

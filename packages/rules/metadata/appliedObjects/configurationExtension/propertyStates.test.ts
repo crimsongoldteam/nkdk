@@ -92,7 +92,7 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml).toEqual({})
   })
 
-  it("не переносит пустое собственное свойство заимствованного объекта", () => {
+  it("сохраняет явное пустое собственное свойство заимствованного объекта", () => {
     const rule = {
       itemType: "OwnPropertyOfBorrowedItem",
       properties: {
@@ -114,7 +114,7 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml,
     }))
 
-    expect(yaml).toEqual({})
+    expect(yaml).toEqual({ Комментарий: "" })
   })
 
   it("сохраняет присутствующее пустое tagged-свойство без PropertyState", () => {
