@@ -1,14 +1,11 @@
 import os from "node:os"
+import { randomBytes } from "node:crypto"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
-import { mergeConfigurationIndexFragments } from "@nkdk/runtime"
-import type { MergedConfigurationSnapshotFragments } from "@nkdk/runtime"
-import {
-  createConfigurationIndexReader,
-  type AssignmentScopedConfigurationIndexReader,
-  type SharedConfigurationIndexSnapshot,
-} from "@nkdk/runtime"
+import { decodeConfigurationIndexFragments } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexStoreDescriptor } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateReadToken } from "../projectState"
 import type { MetadataWorkerOperation } from "../workerPool/types"
@@ -36,7 +33,9 @@ export interface FullXmlSyncWorkerInitialization {
   readonly context: ConfigurationContext
   readonly profile: FullXmlSyncWorkerProfileRuntime
   readonly composition: FullXmlSyncSharedCompositionSnapshot
-  readonly targetIndex: SharedConfigurationIndexSnapshot
+  readonly targetIndex: ConfigurationIndexStoreDescriptor
+  readonly baseIndex?: ConfigurationIndexStoreDescriptor
+  readonly operationSeed?: Uint8Array
   readonly projectStateReadTokens?: readonly ProjectStateReadToken[]
 }
 
@@ -45,13 +44,13 @@ export interface FullXmlSyncExecutionPoolResult {
   readonly warnings: FullXmlSyncDiagnosticCollection
   readonly writtenFiles: FullXmlSyncFileCollection<FullXmlSyncWrittenFile>
   readonly expectedOutputs: FullXmlSyncFileCollection<FullXmlSyncExpectedOutput>
-  readonly fragmentData: MergedConfigurationSnapshotFragments
 }
 
 export type FullXmlSyncExecutionSummary = FullXmlSyncExecutionPoolResult
 
 export interface FullXmlSyncExecutionBatch {
   readonly generatedDocuments: readonly FullXmlSyncGeneratedDocument[]
+  readonly configurationFragments: readonly ConfigurationIndexBlockFragment[]
 }
 
 export interface FullXmlSyncExecutionOptions {
@@ -100,7 +99,7 @@ export function createFullXmlSyncFileCollectionFromFiles<T>(files: readonly T[])
 export interface FullXmlSyncWorkerPool {
   initialize(params: FullXmlSyncWorkerInitialization): Promise<void>
   execute(
-    assignments: readonly FullXmlSyncAssignment[],
+    assignments: readonly (FullXmlSyncAssignment | FullXmlSyncExecutionAssignment)[],
     options?: FullXmlSyncExecutionOptions,
   ): Promise<FullXmlSyncExecutionSummary>
   close(): Promise<void>
@@ -123,7 +122,6 @@ export function createFullXmlSyncWorkerPool(params: {
   const createPool = params.createWorkerPool ?? createPiscinaWorkerPool
   let phase: PoolPhase = "new"
   let initialization: FullXmlSyncWorkerInitialization | undefined
-  let targetIndexReader: AssignmentScopedConfigurationIndexReader | undefined
   let fatalError: unknown
   let destroyPromise: Promise<void> | undefined
 
@@ -131,7 +129,6 @@ export function createFullXmlSyncWorkerPool(params: {
     async initialize(initializeParams) {
       assertPhase(phase, "new", "Full XML sync worker pool уже инициализирован")
       initialization = initializeParams
-      targetIndexReader = createConfigurationIndexReader(initializeParams.targetIndex)
       phase = "initialized"
     },
 
@@ -145,18 +142,18 @@ export function createFullXmlSyncWorkerPool(params: {
       phase = "executing"
       const batchSlots = createAsyncSlots(maxBufferedBatches)
       let consumerTail = Promise.resolve()
-      const indexReader = targetIndexReader
-      if (indexReader === undefined) {
-        throw new Error("Full XML sync worker pool не получил target index")
-      }
-      const executableAssignments = assignments.map((assignment): FullXmlSyncExecutionAssignment => ({
-        ...assignment,
-        configurationIndexEntityRange: indexReader.entityRange(assignment.sourceProjectPath),
-      }))
+      const executableAssignments = assignments.map((assignment): FullXmlSyncExecutionAssignment =>
+        "configurationIndexSources" in assignment
+          ? assignment
+          : {
+              ...assignment,
+              configurationIndexSources: { targetProjectPaths: [assignment.sourceProjectPath], baseProjectPaths: [] },
+            })
       const partitions = partitionRoundRobin(executableAssignments, concurrency)
         .filter((partition) => partition.length > 0)
       const initialized = initialization
-      const { projectStateReadTokens = [], ...workerInitialization } = initialized
+      const { projectStateReadTokens = [], operationSeed = randomBytes(32), ...restInitialization } = initialized
+      const workerInitialization = { ...restInitialization, operationSeed }
       const results = await Promise.all(
         partitions.map(async (partition, workerIndex): Promise<FullXmlSyncBinaryBatchView[]> => {
           const initializeResponse = await runCommand(workerIndex, {
@@ -188,7 +185,8 @@ export function createFullXmlSyncWorkerPool(params: {
               if (documents.length > 0 && options.onBatch === undefined) {
                 throw new Error("Получены XML-документы без обработчика пачки")
               }
-              const consume = consumerTail.then(() => options.onBatch?.({ generatedDocuments: documents }))
+              const configurationFragments = decodeConfigurationIndexFragments(batch.fragmentBuffer)
+              const consume = consumerTail.then(() => options.onBatch?.({ generatedDocuments: documents, configurationFragments }))
               consumerTail = consume.then(() => undefined, () => undefined)
               await consume
             } catch (caught) {
@@ -212,7 +210,6 @@ export function createFullXmlSyncWorkerPool(params: {
         warnings: createDiagnosticCollection(batches.map(({ warnings }) => warnings)),
         writtenFiles: createFileCollection(batches.map(({ writtenFiles }) => writtenFiles)),
         expectedOutputs: createFileCollection(batches.map(({ expectedOutputs }) => expectedOutputs)),
-        fragmentData: mergeConfigurationIndexFragments(batches.map(({ fragmentBuffer }) => fragmentBuffer)),
       }
     },
 

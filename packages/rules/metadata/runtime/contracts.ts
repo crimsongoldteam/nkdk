@@ -39,6 +39,7 @@ import type { findMetadataReferences } from "../operations/findMetadataReference
 import type { MetadataWorkerPoolHandle } from "../workerPool/types"
 import type {
   finalizePartialXmlSyncPackage,
+  forceClearPendingPartialXmlSync,
   markPartialSyncApplied,
   markPartialSyncPreparedAfterRejection,
   markPartialSyncTransferring,
@@ -105,6 +106,7 @@ export interface MetadataRuntime {
       readonly markPreparedAfterRejection: typeof markPartialSyncPreparedAfterRejection
       readonly markApplied: typeof markPartialSyncApplied
       readonly finalize: typeof finalizePartialXmlSyncPackage
+      readonly forceClear: typeof forceClearPendingPartialXmlSync
     }
   }
   readonly metadata: {

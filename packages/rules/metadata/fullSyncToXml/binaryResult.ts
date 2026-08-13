@@ -2,7 +2,7 @@ import {
   decodeConfigurationIndexFragments,
   encodeConfigurationIndexFragments,
 } from "@nkdk/runtime"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import {
   BinaryStringPoolBuilder,
   openBinaryStringPool,
@@ -61,7 +61,7 @@ export function createFullXmlSyncBinaryResult(params: {
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
   readonly expectedOutputs: readonly FullXmlSyncExpectedOutput[]
   readonly generatedDocuments?: readonly FullXmlSyncGeneratedDocument[]
-  readonly configurationFragments?: readonly ConfigurationSnapshotFragment[]
+  readonly configurationFragments?: readonly ConfigurationIndexBlockFragment[]
   readonly fragmentBuffer?: ArrayBuffer
 }): MetadataWorkerBinaryResult {
   if ((params.configurationFragments === undefined) === (params.fragmentBuffer === undefined)) {

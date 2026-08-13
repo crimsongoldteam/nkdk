@@ -16,6 +16,7 @@ export interface ConfigurationIndexExportRuntime {
   readonly collector: ConfigurationIndexCollector
   readonly targetProjectPath: string
   readonly logicalAddress: string
+  readonly operationSeed: Uint8Array
   readonly xmlNodeLogicalAddress?: string
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
@@ -79,7 +80,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
   readonly referencePathByCurrentPath?: ReadonlyMap<string, string>
-  private readonly operationSeed: Buffer
+  readonly operationSeed: Buffer
   private readonly generated: Map<string, string>
 
   constructor(options: InternalOptions, generated = new Map<string, string>()) {

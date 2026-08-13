@@ -1,4 +1,4 @@
-import type { ConfigurationIndexReader } from "@nkdk/runtime"
+import type { LocalConfigurationIndexReader } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
@@ -51,13 +51,13 @@ export interface MetadataXmlPrepareCapability {
     readonly baseFormPreparedYamlFile?: PreparedYamlFile
     readonly currentConfigurationFormPreparedYamlFile?: PreparedYamlFile
     readonly baseFormSourceKind?: "saved" | "projected"
-    readonly baseConfigurationIndex?: ConfigurationIndexReader
+    readonly baseConfigurationIndex?: LocalConfigurationIndexReader
     readonly baseFormContext?: ConfigurationContextWithExportToXML
     readonly assignment: CompiledMetadataAssignmentNode
     readonly itemName: string
     readonly logicalAddress: string
     readonly outputs: readonly MetadataXmlPrepareOutput[]
-    readonly index: ConfigurationIndexReader
+    readonly index: LocalConfigurationIndexReader
     readonly composition: MetadataXmlPrepareComposition
     readonly profile: YAMLToXMLProfile
   }) => readonly PreparedMetadataXmlDocument[]

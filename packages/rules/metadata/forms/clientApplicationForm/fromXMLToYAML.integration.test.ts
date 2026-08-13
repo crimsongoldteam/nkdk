@@ -6,7 +6,7 @@ import { xmlExport } from "@nkdk/runtime"
 import { importContentFromXML } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import type { ConfigurationSnapshotEntity } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from "./__fixtures__/data"
 import {
   importClientApplicationFormBodyFromXML,
@@ -560,13 +560,13 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
   })
 })
 
-function identityFacts(entities: readonly ConfigurationSnapshotEntity[]) {
+function identityFacts(entities: readonly ConfigurationIndexBlockEntity[]) {
   return entities.flatMap((entity) =>
-    Object.entries(entity.identities ?? {}).map(([kind, value]) => ({
+    (["uuid", "xmlId"] as const).flatMap((kind) => entity[kind] === undefined ? [] : [{
       logicalAddress: entity.logicalAddress,
       kind,
-      value,
-    }))
+      value: entity[kind],
+    }])
   )
 }
 

@@ -1,22 +1,24 @@
 import fs from "node:fs"
 import { randomUUID } from "node:crypto"
 import { basename, dirname, join, relative, resolve } from "node:path"
-import { decodeConfigurationIndex } from "@nkdk/runtime"
 import { hashFileBytes } from "@nkdk/runtime"
-import { parseComponentPath } from "@nkdk/runtime"
+import {
+  configurationIndexStoreDescriptor,
+  openConfigurationIndexStore,
+  parseComponentPath,
+  type ConfigurationIndexPendingDelta,
+} from "@nkdk/runtime"
 
-export interface PendingPartialXmlSyncStateV1 {
-  readonly version: 1
+export interface PendingPartialXmlSyncStateV3 {
+  readonly version: 3
   readonly packageId: string
   readonly componentPath: string
   readonly archiveProjectPath: string
   readonly archiveHash: string
-  readonly sourceSnapshotHash: string
-  readonly sourceSnapshotGeneration: string
-  readonly candidateSnapshotHash: string
-  readonly baseSnapshotHash?: string
-  readonly baseSnapshotGeneration?: string
   readonly candidateAppliedMigrations: readonly string[]
+  readonly entries: readonly string[]
+  readonly loadTargets: readonly string[]
+  readonly delivery: PartialSyncDelivery
 }
 
 export type PartialSyncDelivery =
@@ -27,16 +29,10 @@ export type PartialSyncDelivery =
       readonly operationLogProjectPath: string
     }
 
-export interface PendingPartialXmlSyncStateV2 extends Omit<PendingPartialXmlSyncStateV1, "version"> {
-  readonly version: 2
-  readonly entries: readonly string[]
-  readonly loadTargets: readonly string[]
-  readonly delivery: PartialSyncDelivery
-}
+export type PendingPartialXmlSyncStateV2 = PendingPartialXmlSyncStateV3
 
 export interface PendingPartialXmlSyncPaths {
   readonly pendingPath: string
-  readonly candidatePath: string
   readonly archiveDir: string
 }
 
@@ -53,7 +49,6 @@ export function pendingPartialXmlSyncPaths(
   const componentRoot = join(root, ".nkdk", "components", ...componentPath.split("/"), "partial-sync")
   return {
     pendingPath: join(componentRoot, "pending.json"),
-    candidatePath: join(componentRoot, "candidate-configuration-index.bin"),
     archiveDir: join(root, ".nkdk", "tmp", "incremental-sync", ...componentPath.split("/")),
   }
 }
@@ -87,7 +82,14 @@ export async function readPendingPartialXmlSync(
 
 export function assertNoPendingPartialXmlSync(projectDir: string, componentPath: string): void {
   const { pendingPath } = pendingPartialXmlSyncPaths(projectDir, componentPath)
-  if (fs.existsSync(pendingPath)) {
+  const address = parseComponentPath(componentPath)
+  const descriptor = configurationIndexStoreDescriptor(projectDir, address)
+  let lmdbPending = false
+  if (fs.existsSync(descriptor.dataPath)) {
+    const store = openConfigurationIndexStore(descriptor, "readOnly")
+    try { lmdbPending = store.hasPending() } finally { void store.close() }
+  }
+  if (fs.existsSync(pendingPath) || lmdbPending) {
     throw new Error(`Для компонента ${componentPath} существует ожидающий пакет частичной XML-синхронизации`)
   }
 }
@@ -95,21 +97,13 @@ export function assertNoPendingPartialXmlSync(projectDir: string, componentPath:
 export async function writePendingPartialXmlSync(
   params: {
     readonly projectDir: string
-    readonly state: PendingPartialXmlSyncStateV2
-    readonly candidateBytes: Uint8Array
+    readonly state: PendingPartialXmlSyncStateV3
+    readonly delta: ConfigurationIndexPendingDelta
   },
   dependencies: PendingPartialXmlSyncStoreDependencies = {},
 ): Promise<void> {
-  if (params.state.version !== 2) throw new Error("Новые pending state должны иметь версию 2")
+  if (params.state.version !== 3) throw new Error("Новые pending state должны иметь версию 3")
   const state = validatePendingState(params.state, params.state.componentPath)
-  const candidateHash = hashHex(params.candidateBytes)
-  if (candidateHash !== state.candidateSnapshotHash) {
-    throw new Error("Хэш снимка-кандидата не совпадает с pending state")
-  }
-  const candidate = decodeConfigurationIndex(params.candidateBytes, { expectedComponentPath: state.componentPath })
-  if (candidate.indexGeneration !== BigInt(state.sourceSnapshotGeneration) + 1n) {
-    throw new Error("Поколение снимка-кандидата не следует за исходным")
-  }
   const expectedArchiveProjectPath = partialXmlSyncArchiveProjectPath(state.componentPath, state.packageId)
   if (state.archiveProjectPath !== expectedArchiveProjectPath) {
     throw new Error(`Некорректный путь ZIP ожидающего пакета: ${state.archiveProjectPath}`)
@@ -118,15 +112,17 @@ export async function writePendingPartialXmlSync(
   const archiveBytes = await fs.promises.readFile(archivePath)
   if (hashHex(archiveBytes) !== state.archiveHash) throw new Error("Хэш ZIP не совпадает с pending state")
 
-  const current = await readPendingPartialXmlSync(params.projectDir, state.componentPath)
-  if (current !== undefined && current.delivery.status !== "prepared") {
-    throw new Error(`Нельзя заменить пакет в фазе ${current.delivery.status}`)
-  }
-  await cleanupPendingPartialXmlSync(params.projectDir, state.componentPath, state.archiveProjectPath)
+  assertNoPendingPartialXmlSync(params.projectDir, state.componentPath)
   const paths = pendingPartialXmlSyncPaths(params.projectDir, state.componentPath)
   const writeAtomic = dependencies.writeAtomic ?? writeFileAtomic
-  await writeAtomic(paths.candidatePath, params.candidateBytes)
-  await writeAtomic(paths.pendingPath, new TextEncoder().encode(`${JSON.stringify(state, undefined, 2)}\n`))
+  const descriptor = configurationIndexStoreDescriptor(params.projectDir, parseComponentPath(state.componentPath))
+  const store = openConfigurationIndexStore(descriptor, "readWrite")
+  try {
+    await store.writePending(params.delta)
+    await writeAtomic(paths.pendingPath, new TextEncoder().encode(`${JSON.stringify(state, undefined, 2)}\n`))
+  } finally {
+    await store.close()
+  }
 }
 
 export async function updatePendingPartialXmlSync(
@@ -169,7 +165,15 @@ export async function cleanupPendingPartialXmlSync(
     .filter((entry) => entry.isFile() && entry.name.endsWith(".zip") && entry.name !== preservedName)
     .map((entry) => fs.promises.rm(join(paths.archiveDir, entry.name), { force: true })))
   await fs.promises.rm(paths.pendingPath, { force: true })
-  await fs.promises.rm(paths.candidatePath, { force: true })
+}
+
+export async function forceClearPendingPartialXmlSync(projectDir: string, componentPath: string): Promise<void> {
+  const descriptor = configurationIndexStoreDescriptor(projectDir, parseComponentPath(componentPath))
+  if (fs.existsSync(descriptor.dataPath)) {
+    const store = openConfigurationIndexStore(descriptor, "readWrite")
+    try { await store.clearPending() } finally { await store.close() }
+  }
+  await cleanupPendingPartialXmlSync(projectDir, componentPath)
 }
 
 export async function writeFileAtomic(path: string, bytes: Uint8Array): Promise<void> {
@@ -184,13 +188,12 @@ export async function writeFileAtomic(path: string, bytes: Uint8Array): Promise<
   }
 }
 
-function validatePendingState(value: unknown, expectedComponentPath: string): PendingPartialXmlSyncStateV2 {
-  if (!isRecord(value) || (value.version !== 1 && value.version !== 2)) {
+function validatePendingState(value: unknown, expectedComponentPath: string): PendingPartialXmlSyncStateV3 {
+  if (!isRecord(value) || value.version !== 3) {
     throw new Error("Некорректная версия pending state")
   }
   const requiredStrings = [
-    "packageId", "componentPath", "archiveProjectPath", "archiveHash", "sourceSnapshotHash",
-    "sourceSnapshotGeneration", "candidateSnapshotHash",
+    "packageId", "componentPath", "archiveProjectPath", "archiveHash",
   ] as const
   for (const key of requiredStrings) {
     if (typeof value[key] !== "string") throw new Error(`Некорректное поле pending state: ${key}`)
@@ -198,19 +201,8 @@ function validatePendingState(value: unknown, expectedComponentPath: string): Pe
   assertPackageId(value.packageId as string)
   assertSupportedComponentPath(value.componentPath as string)
   if (value.componentPath !== expectedComponentPath) throw new Error("Pending state относится к другому компоненту")
-  for (const key of ["archiveHash", "sourceSnapshotHash", "candidateSnapshotHash"] as const) {
+  for (const key of ["archiveHash"] as const) {
     assertHash(value[key] as string, key)
-  }
-  assertGeneration(value.sourceSnapshotGeneration as string, "sourceSnapshotGeneration")
-  const hasBaseHash = value.baseSnapshotHash !== undefined
-  const hasBaseGeneration = value.baseSnapshotGeneration !== undefined
-  if (hasBaseHash !== hasBaseGeneration) throw new Error("Неполная идентичность базового снимка")
-  if (hasBaseHash) {
-    if (typeof value.baseSnapshotHash !== "string" || typeof value.baseSnapshotGeneration !== "string") {
-      throw new Error("Некорректная идентичность базового снимка")
-    }
-    assertHash(value.baseSnapshotHash, "baseSnapshotHash")
-    assertGeneration(value.baseSnapshotGeneration, "baseSnapshotGeneration")
   }
   if (!Array.isArray(value.candidateAppliedMigrations)
     || value.candidateAppliedMigrations.some((name) => typeof name !== "string")) {
@@ -218,10 +210,10 @@ function validatePendingState(value: unknown, expectedComponentPath: string): Pe
   }
   const migrations = value.candidateAppliedMigrations as string[]
   if (new Set(migrations).size !== migrations.length) throw new Error("Повтор migration в pending state")
-  const entries = value.version === 1 ? [] : validateStringList(value.entries, "entries")
-  const loadTargets = value.version === 1 ? [] : validateStringList(value.loadTargets, "loadTargets")
-  const delivery = value.version === 1 ? { status: "prepared" as const } : validateDelivery(value.delivery)
-  const state = { ...value, version: 2, entries, loadTargets, delivery } as unknown as PendingPartialXmlSyncStateV2
+  const entries = validateStringList(value.entries, "entries")
+  const loadTargets = validateStringList(value.loadTargets, "loadTargets")
+  const delivery = validateDelivery(value.delivery)
+  const state = { ...value, version: 3, entries, loadTargets, delivery } as unknown as PendingPartialXmlSyncStateV3
   if (state.archiveProjectPath !== partialXmlSyncArchiveProjectPath(state.componentPath, state.packageId)) {
     throw new Error("Некорректный путь ZIP в pending state")
   }
@@ -282,10 +274,6 @@ function assertPackageId(value: string): void {
 
 function assertHash(value: string, name: string): void {
   if (!/^[0-9a-f]{16}$/.test(value)) throw new Error(`Некорректный хэш ${name}`)
-}
-
-function assertGeneration(value: string, name: string): void {
-  if (!/^[1-9][0-9]*$/.test(value)) throw new Error(`Некорректное поколение ${name}`)
 }
 
 function hashHex(bytes: Uint8Array): string {

@@ -1,5 +1,5 @@
 import { createConfigurationIndexCollector, withConfigurationIndexCollector } from "@nkdk/runtime"
-import type { ConfigurationSnapshot } from "@nkdk/runtime"
+import type { ConfigurationIndexBlock } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
@@ -10,15 +10,9 @@ import { mockContextFromXML } from "../../tests/mockContext"
 
 import "../../tests/directConversion"
 
-function expectNoOrdinaryXMLState(index: Pick<ConfigurationSnapshot, "entities">): void {
+function expectNoOrdinaryXMLState(index: ConfigurationIndexBlock): void {
   for (const entity of index.entities) {
-    expect(entity.identities?.xmlName).toBeUndefined()
-    expect(entity.xml?.present).toBeUndefined()
-    expect(entity.xml?.xsiNil).toBeUndefined()
-    expect(entity.xml?.explicitEmpty).toBeUndefined()
-    expect(entity.xml?.xsiType).toBeUndefined()
-    expect(entity.xml?.xmlText).toBeUndefined()
-    expect(entity.xml?.xmlPrefix).toBeUndefined()
+    expect(Object.keys(entity).every((key) => ["logicalAddress", "uuid", "xmlId", "children"].includes(key))).toBe(true)
   }
 }
 
@@ -91,10 +85,8 @@ describe("тонкое содержимое снимка конфигураци�
     const entities = collector.fragment("Документы/Заказ.yaml").entities
     expect(entities).toContainEqual(expect.objectContaining({
       logicalAddress: "Документ.Заказ",
-      identities: expect.objectContaining({
-        uuid: "00000000-0000-4000-8000-000000000001",
-        xmlId: "Document42",
-      }),
+      uuid: "00000000-0000-4000-8000-000000000001",
+      xmlId: "Document42",
     }))
     expectNoOrdinaryXMLState({ entities })
   })

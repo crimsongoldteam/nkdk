@@ -4,11 +4,10 @@ import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import { encodeConfigurationIndexFragments } from "@nkdk/runtime"
 import { hashFileBytes } from "@nkdk/runtime"
 import {
-  createConfigurationIndexAssignmentLookupStats,
-  createConfigurationIndexReader,
-  type AssignmentScopedConfigurationIndexReader,
-  type ConfigurationIndexAssignmentLookupStats,
-  type ConfigurationIndexReader,
+  createLocalConfigurationIndexReader,
+  openConfigurationIndexStore,
+  type ConfigurationIndexBlock,
+  type ConfigurationIndexStoreDescriptor,
 } from "@nkdk/runtime"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
@@ -37,7 +36,7 @@ import type {
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import { BaseFormSourceError, createVerifiedBaseFormSource, type BaseFormSource } from "./baseFormSource"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import { aggregateCleanupFailures } from "./cleanupFailure"
@@ -78,8 +77,9 @@ interface InitializedFullXmlSyncWorkerState {
   readonly componentDir: string
   readonly outputTarget: FullXmlSyncOutputTarget
   readonly context: ConfigurationContext
-  readonly index: AssignmentScopedConfigurationIndexReader
-  readonly baseIndex?: ConfigurationIndexReader
+  readonly targetIndex: ConfigurationIndexStoreDescriptor
+  readonly baseIndex?: ConfigurationIndexStoreDescriptor
+  readonly operationSeed: Uint8Array
   readonly composition: FullXmlSyncCompositionReader
   readonly itemTypeByYamlDir: Readonly<Record<string, string>>
   readonly ownerMetadataCache: ProjectStateOwnerMetadataCache
@@ -110,7 +110,7 @@ export interface FullXmlSyncWorkerCommandRunner {
     readonly importProjectDir?: string
     readonly outputDir?: string
     readonly activeAssignmentId?: string
-    readonly baseIndexSnapshot?: ConfigurationIndexReader["snapshot"]
+    readonly baseIndexPath?: string
   }
   readonly resetForTests: () => void
 }
@@ -131,10 +131,6 @@ async function runFullXmlSyncWorkerCommand(
       const composition = (dependencies.createCompositionReader ?? createFullXmlSyncCompositionReader)(
         command.composition,
       )
-      const baseIndex =
-        command.profile.baseForms === undefined
-          ? undefined
-          : createConfigurationIndexReader(command.profile.baseForms.snapshot)
       initializedState = {
         workerIndex: command.workerIndex,
         componentPath: command.componentPath,
@@ -147,8 +143,9 @@ async function runFullXmlSyncWorkerCommand(
             projectDir: command.componentDir,
           },
         },
-        index: createConfigurationIndexReader(command.targetIndex),
-        ...(baseIndex === undefined ? {} : { baseIndex }),
+        targetIndex: command.targetIndex,
+        ...(command.baseIndex === undefined ? {} : { baseIndex: command.baseIndex }),
+        operationSeed: command.operationSeed,
         composition,
         itemTypeByYamlDir: composition.itemTypeByYamlDir(),
         ownerMetadataCache: createProjectStateOwnerMetadataCache({
@@ -230,17 +227,18 @@ async function executeAssignments(
   const writtenFiles: FullXmlSyncWrittenFile[] = []
   const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
   const generatedDocuments: FullXmlSyncGeneratedDocument[] = []
-  const fragments: ConfigurationSnapshotFragment[] = []
+  const fragments: ConfigurationIndexBlockFragment[] = []
+  const targetStore = openConfigurationIndexStore(state.targetIndex, "readOnly")
+  const baseStore = state.baseIndex === undefined ? undefined : openConfigurationIndexStore(state.baseIndex, "readOnly")
+  const targetBlocks = targetStore.getBlocks(assignments.flatMap(({ configurationIndexSources }) => configurationIndexSources.targetProjectPaths))
+  const baseBlocks = baseStore?.getBlocks(assignments.flatMap(({ configurationIndexSources }) => configurationIndexSources.baseProjectPaths)) ?? new Map()
   state.ownerMetadataCache.preload(assignments.flatMap(ownerRefsFromAssignment))
 
-  for (const assignment of assignments) {
+  try { for (const assignment of assignments) {
     state.activeAssignmentId = assignment.id
-    const lookupStats = createConfigurationIndexAssignmentLookupStats()
     try {
-      const assignmentIndex = state.index.forEntityRange(
-        assignment.configurationIndexEntityRange,
-        lookupStats,
-      )
+      const assignmentIndex = createLocalConfigurationIndexReader(selectBlocks(targetBlocks, assignment.configurationIndexSources.targetProjectPaths))
+      const assignmentBaseIndex = createLocalConfigurationIndexReader(selectBlocks(baseBlocks, assignment.configurationIndexSources.baseProjectPaths))
       const bytes = await fs.promises.readFile(assignment.sourcePath)
       const actualHash = hashFileBytes(bytes)
       if (actualHash !== assignment.expectedContentHash) {
@@ -279,14 +277,15 @@ async function executeAssignments(
           : {
               baseFormSource,
               ...(baseFormSource.kind === "saved"
-                ? { baseFormConfigurationIndex: state.index }
+                ? { baseFormConfigurationIndex: assignmentIndex }
                 : {}),
               ...(baseFormSource.kind === "projected" && state.baseIndex !== undefined
-                ? { baseConfigurationIndex: state.baseIndex }
+                ? { baseConfigurationIndex: assignmentBaseIndex }
                 : {}),
             }),
         context: exportContext(state, assignment.logicalAddress),
         index: assignmentIndex,
+        operationSeed: state.operationSeed,
         composition: state.composition,
       })
       expectedOutputs.push(
@@ -313,9 +312,11 @@ async function executeAssignments(
         )
       )
     } finally {
-      recordConfigurationIndexLookupStats(state.lookupProfiler, lookupStats)
       state.activeAssignmentId = undefined
     }
+  } } finally {
+    await targetStore.close()
+    await baseStore?.close()
   }
 
   return {
@@ -327,19 +328,6 @@ async function executeAssignments(
     generatedDocuments,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }
-}
-
-function recordConfigurationIndexLookupStats(
-  profiler: ValidationProfiler,
-  stats: ConfigurationIndexAssignmentLookupStats,
-): void {
-  if (process.env["NKDK_PROFILE"] !== "1") return
-  const step = "Configuration index назначения"
-  profiler.record(step, "Локальные попадания", { items: stats.localHits, timeMs: 0 })
-  profiler.record(step, "Локальные промахи", { items: stats.localMisses, timeMs: 0 })
-  profiler.record(step, "Глобальные fallback", { items: stats.globalFallbacks, timeMs: 0 })
-  profiler.record(step, "Декодированные entity", { items: stats.decodedEntities, timeMs: 0 })
-  profiler.record(step, "Entity в диапазонах", { items: stats.rangeEntities, timeMs: 0 })
 }
 
 function ownerRefsFromAssignment(assignment: FullXmlSyncAssignment): OwnerTypeRef[] {
@@ -424,6 +412,18 @@ function assignmentDescriptor(
     owner: ownerFromAssignment(assignment),
     itemType: assignment.itemType,
   }
+}
+
+function selectBlocks(
+  blocks: ReadonlyMap<string, ConfigurationIndexBlock>,
+  projectPaths: readonly string[],
+): ReadonlyMap<string, ConfigurationIndexBlock> {
+  const selected = new Map<string, ConfigurationIndexBlock>()
+  for (const projectPath of projectPaths) {
+    const block = blocks.get(projectPath)
+    if (block !== undefined) selected.set(projectPath, block)
+  }
+  return selected
 }
 
 function ownerFromAssignment(assignment: Pick<FullXmlSyncAssignment, "role" | "itemName" | "sourceProjectPath">): {
@@ -527,7 +527,7 @@ function fullXmlSyncWorkerStateForTests(): {
   readonly importProjectDir?: string
   readonly outputDir?: string
   readonly activeAssignmentId?: string
-  readonly baseIndexSnapshot?: ConfigurationIndexReader["snapshot"]
+  readonly baseIndexPath?: string
 } {
   if (initializedState === undefined) return { initialized: false }
   return {
@@ -538,7 +538,7 @@ function fullXmlSyncWorkerStateForTests(): {
     ...(initializedState.outputTarget.kind === "directory"
       ? { outputDir: initializedState.outputTarget.outputDir }
       : {}),
-    ...(initializedState.baseIndex === undefined ? {} : { baseIndexSnapshot: initializedState.baseIndex.snapshot }),
+    ...(initializedState.baseIndex === undefined ? {} : { baseIndexPath: initializedState.baseIndex.dataPath }),
     ...(initializedState.activeAssignmentId === undefined
       ? {}
       : { activeAssignmentId: initializedState.activeAssignmentId }),

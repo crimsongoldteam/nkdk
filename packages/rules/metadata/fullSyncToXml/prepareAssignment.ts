@@ -1,6 +1,6 @@
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import type { ConfigurationIndexReader } from "@nkdk/runtime"
+import type { LocalConfigurationIndexReader } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { createYAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
@@ -23,10 +23,11 @@ export function prepareFullXmlSyncAssignment(params: {
   assignment: FullXmlSyncAssignment
   preparedYamlFile: PreparedYamlFile
   baseFormSource?: BaseFormSourceResult
-  baseConfigurationIndex?: ConfigurationIndexReader
-  baseFormConfigurationIndex?: ConfigurationIndexReader
+  baseConfigurationIndex?: LocalConfigurationIndexReader
+  baseFormConfigurationIndex?: LocalConfigurationIndexReader
   context: ConfigurationContextWithExportToXML
-  index: ConfigurationIndexReader
+  index: LocalConfigurationIndexReader
+  operationSeed?: Uint8Array
   composition: MetadataXmlPrepareComposition
   topology?: CompiledMetadataResourceTopology
 }): PreparedXMLAssignment {
@@ -36,6 +37,7 @@ export function prepareFullXmlSyncAssignment(params: {
     collector: indexCollector,
     targetProjectPath: params.assignment.sourceProjectPath,
     logicalAddress: params.assignment.logicalAddress,
+    ...(params.operationSeed === undefined ? {} : { operationSeed: params.operationSeed }),
     ...(params.context.importFromYAML?.referenceRemap === undefined
       ? {}
       : {
@@ -61,6 +63,7 @@ export function prepareFullXmlSyncAssignment(params: {
             collector: baseFormCollector,
             targetProjectPath: params.baseFormSource.baseForm.projectPath,
             logicalAddress: `${params.assignment.logicalAddress}.ОсноваФормы`,
+            ...(params.operationSeed === undefined ? {} : { operationSeed: params.operationSeed }),
           }),
         },
       }

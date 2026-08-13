@@ -2,8 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { encodeConfigurationIndex, hashFileBytes } from "@nkdk/runtime"
-import type { ConfigurationSnapshot } from "@nkdk/runtime"
+import { hashFileBytes, type ConfigurationIndexPendingDelta } from "@nkdk/runtime"
 import {
   pendingPartialXmlSyncPaths,
   readPendingPartialXmlSync,
@@ -75,23 +74,19 @@ describe("фазы передачи частичного XML-пакета", () =
   async function prepare(): Promise<string> {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-delivery-state-"))
     tempDirs.push(projectDir)
-    const candidateBytes = encodeConfigurationIndex(snapshot(2n))
     const archive = writeArchive(projectDir)
     const state: PendingPartialXmlSyncStateV2 = {
-      version: 2,
+      version: 3,
       packageId: "package-1",
       componentPath: "cf",
       archiveProjectPath: archive.projectPath,
       archiveHash: hashHex(archive.bytes),
-      sourceSnapshotHash: "0000000000000001",
-      sourceSnapshotGeneration: "1",
-      candidateSnapshotHash: hashHex(candidateBytes),
       candidateAppliedMigrations: [],
       entries: ["Catalogs/Test.xml", "load.lst"],
       loadTargets: ["Catalogs/Test.xml"],
       delivery: { status: "prepared" },
     }
-    await writePendingPartialXmlSync({ projectDir, state, candidateBytes })
+    await writePendingPartialXmlSync({ projectDir, state, delta: emptyDelta() })
     return projectDir
   }
 
@@ -110,10 +105,10 @@ function writeArchive(projectDir: string): { projectPath: string; bytes: Buffer 
   return { projectPath, bytes }
 }
 
-function snapshot(indexGeneration: bigint): ConfigurationSnapshot {
-  return { specificationVersion: "1.4", indexGeneration, componentPath: "cf", files: [], entities: [] }
-}
-
 function hashHex(bytes: Uint8Array): string {
   return hashFileBytes(bytes).toString(16).padStart(16, "0")
+}
+
+function emptyDelta(): ConfigurationIndexPendingDelta {
+  return { hashes: new Map(), blocks: new Map() }
 }

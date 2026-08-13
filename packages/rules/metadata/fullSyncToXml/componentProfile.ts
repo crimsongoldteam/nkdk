@@ -1,11 +1,16 @@
 import type { ComponentAddress } from "@nkdk/runtime"
 import type {
   ConfigurationProjectFile,
-  SharedConfigurationIndexSnapshot,
+  ConfigurationIndexStoreDescriptor,
 } from "../configurationIndex"
 import type { ConfirmedComponentState } from "../project/componentState/types"
 import type { XMLDefaultVariant } from "@nkdk/runtime"
 import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
+import {
+  createLocalConfigurationIndexReader,
+  openConfigurationIndexStore,
+  type LocalConfigurationIndexReader,
+} from "../configurationIndex"
 
 export type XmlSyncProfileKind = "configuration" | "configurationExtension"
 
@@ -20,7 +25,19 @@ export interface FullXmlSyncWorkerProfileRuntime {
     readonly componentDir: string
     readonly projectFiles: readonly ConfigurationProjectFile[]
     readonly targetProjectFiles?: readonly ConfigurationProjectFile[]
-    readonly snapshot: SharedConfigurationIndexSnapshot
+    readonly snapshot: ConfigurationIndexStoreDescriptor
+  }
+}
+
+export function readConfirmedComponentIndex(
+  state: ConfirmedComponentState,
+  projectPaths = state.indexes.logicalAddresses.map(({ sourceProjectPath }) => sourceProjectPath),
+): LocalConfigurationIndexReader {
+  const store = openConfigurationIndexStore(state.snapshot.descriptor, "readOnly")
+  try {
+    return createLocalConfigurationIndexReader(store.getBlocks(projectPaths))
+  } finally {
+    void store.close()
   }
 }
 

@@ -13,10 +13,14 @@ import type {
   ProjectStateService,
 } from "../projectState"
 import type { FullXmlSyncComponentProfile } from "./componentProfile"
+import { configurationIndexStoreDescriptor, openConfigurationIndexStore } from "../configurationIndex"
 
 export interface FullXmlSyncComponentRuntimeDependencies {
   readonly readStructure: typeof readComponentProjectStructure
-  readonly readSnapshot: typeof import("../configurationIndex").readConfigurationIndexSnapshot
+  readonly readSnapshot?: (params: {
+    readonly projectDir: string
+    readonly address: ComponentAddress
+  }) => Promise<ConfirmedComponentState["snapshot"]>
   readonly readHashes: typeof readComponentHashState
   readonly readIndexes: typeof readComponentIndexes
   readonly confirmState: typeof confirmComponentState
@@ -75,15 +79,14 @@ async function readConfirmedComponentState(params: {
     projectDir: params.projectDir,
     address: params.address,
   })
-  const snapshot = await params.deps.readSnapshot({
-    projectDir: params.projectDir,
-    address: params.address,
-  })
   const projection = params.projection ?? await params.projectState.readComponentProjection({
     projectDir: params.projectDir,
     componentPath: structure.componentPath,
   })
   const hashes = await params.deps.readHashes({ structure, projection })
+  const snapshot = params.deps.readSnapshot === undefined
+    ? await readConfigurationIndexState(params.projectDir, params.address)
+    : await params.deps.readSnapshot({ projectDir: params.projectDir, address: params.address })
   const indexes = await params.deps.readIndexes({
     structure,
     hashes,
@@ -96,4 +99,17 @@ async function readConfirmedComponentState(params: {
     indexes,
     projectStateReadToken: params.projectStateReadToken,
   })
+}
+
+async function readConfigurationIndexState(
+  projectDir: string,
+  address: ComponentAddress,
+): Promise<ConfirmedComponentState["snapshot"]> {
+  const descriptor = configurationIndexStoreDescriptor(projectDir, address)
+  const store = openConfigurationIndexStore(descriptor, "readOnly")
+  try {
+    return { descriptor, projectFiles: store.readHashes() }
+  } finally {
+    await store.close()
+  }
 }

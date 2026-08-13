@@ -9,8 +9,10 @@ export {
 } from "./finalizePartialXmlSyncPackage"
 export {
   readPendingPartialXmlSync,
+  forceClearPendingPartialXmlSync,
   type PartialSyncDelivery,
   type PendingPartialXmlSyncStateV2,
+  type PendingPartialXmlSyncStateV3,
 } from "./pendingStore"
 export {
   markPartialSyncApplied,

@@ -276,7 +276,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     const identities = new Map(
       context.exportToXML.configurationIndex?.collector
         .fragment("Справочники/Товары/Формы/ФормаЭлемента.yaml")
-        .entities.map((entity) => [entity.logicalAddress, entity.identities?.xmlId]),
+        .entities.map((entity) => [entity.logicalAddress, entity.xmlId]),
     )
     expect(identities.get(childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"))).toBe("-1")
     expect(identities.get(inputAddress)).toBe(inputField._id)

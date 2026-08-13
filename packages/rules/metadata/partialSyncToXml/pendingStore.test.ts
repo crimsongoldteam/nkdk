@@ -2,18 +2,20 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { decodeConfigurationIndex } from "@nkdk/runtime"
-import { hashFileBytes } from "@nkdk/runtime"
-import type { ConfigurationSnapshot } from "@nkdk/runtime"
+import {
+  configurationIndexStoreDescriptor,
+  hashFileBytes,
+  openConfigurationIndexStore,
+  type ConfigurationIndexPendingDelta,
+} from "@nkdk/runtime"
 import {
   assertNoPendingPartialXmlSync,
-  cleanupPendingPartialXmlSync,
+  forceClearPendingPartialXmlSync,
   partialXmlSyncArchiveProjectPath,
   pendingPartialXmlSyncPaths,
   readPendingPartialXmlSync,
   writePendingPartialXmlSync,
-  type PendingPartialXmlSyncStateV2,
+  type PendingPartialXmlSyncStateV3,
 } from "./pendingStore"
 
 describe("ожидающее состояние частичной XML-синхронизации", () => {
@@ -22,129 +24,64 @@ describe("ожидающее состояние частичной XML-синх�
     while (tempDirs.length > 0) fs.rmSync(tempDirs.pop()!, { recursive: true, force: true })
   })
 
-  it("пишет кандидат раньше manifest и не изменяет опубликованный снимок", async () => {
+  it("пишет LMDB-дельту раньше manifest без отдельного snapshot-кандидата", async () => {
     const projectDir = tempProject()
-    const candidateBytes = encodeConfigurationIndex(snapshot(2n))
-    const state = createState(projectDir, "first", candidateBytes)
-    const writes: string[] = []
+    const state = createState(projectDir, "first")
+    let pendingObservedBeforeManifest = false
 
-    await writePendingPartialXmlSync({ projectDir, state, candidateBytes }, {
+    await writePendingPartialXmlSync({ projectDir, state, delta: sampleDelta() }, {
       async writeAtomic(path, bytes) {
-        writes.push(path)
+        const store = openConfigurationIndexStore(
+          configurationIndexStoreDescriptor(projectDir, { kind: "configuration" }),
+          "readOnly",
+        )
+        try { pendingObservedBeforeManifest = store.hasPending() } finally { await store.close() }
         await fs.promises.mkdir(join(path, ".."), { recursive: true })
         await fs.promises.writeFile(path, bytes)
       },
     })
 
     const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
-    expect(writes).toEqual([paths.candidatePath, paths.pendingPath])
+    expect(pendingObservedBeforeManifest).toBe(true)
     expect(await readPendingPartialXmlSync(projectDir, "cf")).toEqual(state)
-    expect(fs.readFileSync(paths.candidatePath)).toEqual(candidateBytes)
     expect(JSON.parse(fs.readFileSync(paths.pendingPath, "utf8"))).toMatchObject({
-      version: 2,
+      version: 3,
       delivery: { status: "prepared" },
     })
+    expect(fs.readdirSync(join(projectDir, ".nkdk", "components", "cf", "partial-sync")))
+      .toEqual(["pending.json"])
   })
 
-  it("читает состояние версии 1 как подготовленное состояние версии 2", async () => {
+  it("не заменяет существующий pending-пакет", async () => {
     const projectDir = tempProject()
-    const candidateBytes = encodeConfigurationIndex(snapshot(2n))
-    const state = createState(projectDir, "legacy", candidateBytes)
-    const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
-    fs.mkdirSync(join(paths.pendingPath, ".."), { recursive: true })
-    const { delivery: _delivery, entries: _entries, loadTargets: _loadTargets, ...legacy } = state
-    fs.writeFileSync(paths.pendingPath, JSON.stringify({ ...legacy, version: 1 }))
+    const first = createState(projectDir, "first")
+    await writePendingPartialXmlSync({ projectDir, state: first, delta: sampleDelta() })
+    const second = createState(projectDir, "second")
 
-    await expect(readPendingPartialXmlSync(projectDir, "cf")).resolves.toEqual({
-      ...state,
-      entries: [],
-      loadTargets: [],
-    })
-  })
-
-  it.each([
-    [{ version: 3 }, /верси/i],
-    [{ version: 2, delivery: { status: "transferring", attemptId: "attempt-1", operationLogProjectPath: "../platform.log" } }, /журнал/i],
-  ])("отклоняет повреждённую доставку и сохраняет файлы: %#", async (patch, error) => {
-    const projectDir = tempProject()
-    const candidateBytes = encodeConfigurationIndex(snapshot(2n))
-    const state = createState(projectDir, "damaged", candidateBytes)
-    await writePendingPartialXmlSync({ projectDir, state, candidateBytes })
-    const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
-    fs.writeFileSync(paths.pendingPath, JSON.stringify({ ...state, ...patch }))
-
-    await expect(readPendingPartialXmlSync(projectDir, "cf")).rejects.toThrow(error)
-    await expect(cleanupPendingPartialXmlSync(projectDir, "cf")).rejects.toThrow(error)
-    expect(fs.existsSync(paths.pendingPath)).toBe(true)
-    expect(fs.existsSync(paths.candidatePath)).toBe(true)
-  })
-
-  it("заменяет единственный предыдущий пакет и удаляет ZIP-сироты только своего компонента", async () => {
-    const projectDir = tempProject()
-    const firstBytes = encodeConfigurationIndex(snapshot(2n))
-    const first = createState(projectDir, "first", firstBytes)
-    await writePendingPartialXmlSync({ projectDir, state: first, candidateBytes: firstBytes })
-    const firstArchive = join(projectDir, ...first.archiveProjectPath.split("/"))
-    const orphan = join(firstArchive, "..", "orphan.zip")
-    fs.writeFileSync(orphan, "orphan")
-    const otherComponent = join(projectDir, ".nkdk", "tmp", "incremental-sync", "cfe", "Other", "keep.zip")
-    fs.mkdirSync(join(otherComponent, ".."), { recursive: true })
-    fs.writeFileSync(otherComponent, "keep")
-
-    const secondBytes = encodeConfigurationIndex(snapshot(3n))
-    const second = createState(projectDir, "second", secondBytes)
-    await writePendingPartialXmlSync({ projectDir, state: second, candidateBytes: secondBytes })
-
-    expect(fs.existsSync(firstArchive)).toBe(false)
-    expect(fs.existsSync(orphan)).toBe(false)
-    expect(fs.existsSync(otherComponent)).toBe(true)
-    expect((await readPendingPartialXmlSync(projectDir, "cf"))?.packageId).toBe("second")
-  })
-
-  it("не заменяет пакет, передачу которого уже начали", async () => {
-    const projectDir = tempProject()
-    const firstBytes = encodeConfigurationIndex(snapshot(2n))
-    const first = {
-      ...createState(projectDir, "first", firstBytes),
-      delivery: {
-        status: "transferring" as const,
-        attemptId: "attempt-1",
-        operationLogProjectPath: ".nkdk/tmp/sync-to-infobase/attempt-1/platform.log",
-      },
-    }
-    await writePendingPartialXmlSync({
-      projectDir,
-      state: { ...first, delivery: { status: "prepared" } },
-      candidateBytes: firstBytes,
-    })
-    fs.writeFileSync(
-      pendingPartialXmlSyncPaths(projectDir, "cf").pendingPath,
-      JSON.stringify(first),
-    )
-    const secondBytes = encodeConfigurationIndex(snapshot(3n))
-    const second = createState(projectDir, "second", secondBytes)
-
-    await expect(writePendingPartialXmlSync({
-      projectDir,
-      state: second,
-      candidateBytes: secondBytes,
-    })).rejects.toThrow(/transferring/i)
+    await expect(writePendingPartialXmlSync({ projectDir, state: second, delta: sampleDelta() }))
+      .rejects.toThrow(/ожидающий пакет/i)
     expect((await readPendingPartialXmlSync(projectDir, "cf"))?.packageId).toBe("first")
   })
 
-  it("не доверяет пути повреждённого manifest и блокирует обычную синхронизацию", async () => {
+  it("блокирует обычную синхронизацию, даже если осталась только LMDB-дельта", async () => {
     const projectDir = tempProject()
-    const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
-    const outside = join(projectDir, "keep.zip")
-    fs.mkdirSync(join(paths.pendingPath, ".."), { recursive: true })
-    fs.writeFileSync(outside, "keep")
-    fs.writeFileSync(paths.pendingPath, JSON.stringify({ version: 1, archiveProjectPath: "keep.zip" }))
+    const state = createState(projectDir, "first")
+    await writePendingPartialXmlSync({ projectDir, state, delta: sampleDelta() })
+    fs.rmSync(pendingPartialXmlSyncPaths(projectDir, "cf").pendingPath)
 
     expect(() => assertNoPendingPartialXmlSync(projectDir, "cf")).toThrow(/ожидающий пакет/i)
-    await expect(cleanupPendingPartialXmlSync(projectDir, "cf")).rejects.toThrow(/pending state/i)
+  })
 
-    expect(fs.existsSync(outside)).toBe(true)
-    expect(fs.existsSync(paths.pendingPath)).toBe(true)
+  it("принудительно очищает LMDB-дельту, manifest и ZIP", async () => {
+    const projectDir = tempProject()
+    const state = createState(projectDir, "first")
+    await writePendingPartialXmlSync({ projectDir, state, delta: sampleDelta() })
+
+    await forceClearPendingPartialXmlSync(projectDir, "cf")
+
+    expect(await readPendingPartialXmlSync(projectDir, "cf")).toBeUndefined()
+    expect(fs.existsSync(join(projectDir, ...state.archiveProjectPath.split("/")))).toBe(false)
+    expect(() => assertNoPendingPartialXmlSync(projectDir, "cf")).not.toThrow()
   })
 
   function tempProject(): string {
@@ -154,35 +91,30 @@ describe("ожидающее состояние частичной XML-синх�
   }
 })
 
-function snapshot(indexGeneration: bigint): ConfigurationSnapshot {
-  return { specificationVersion: "1.4", indexGeneration, componentPath: "cf", files: [], entities: [] }
+function sampleDelta(): ConfigurationIndexPendingDelta {
+  return {
+    hashes: new Map([["Справочники/Тест.yaml", { kind: "put", contentHash: 2n }]]),
+    blocks: new Map([["Справочники/Тест.yaml", {
+      kind: "put",
+      block: { entities: [{ logicalAddress: "Справочник.Тест", uuid: "11111111-1111-4111-8111-111111111111" }] },
+    }]]),
+  }
 }
 
-function createState(
-  projectDir: string,
-  packageId: string,
-  candidateBytes: Uint8Array,
-): PendingPartialXmlSyncStateV2 {
+function createState(projectDir: string, packageId: string): PendingPartialXmlSyncStateV3 {
   const archiveProjectPath = partialXmlSyncArchiveProjectPath("cf", packageId)
   const archivePath = join(projectDir, ...archiveProjectPath.split("/"))
   fs.mkdirSync(join(archivePath, ".."), { recursive: true })
   fs.writeFileSync(archivePath, packageId)
   return {
-    version: 2,
+    version: 3,
     packageId,
     componentPath: "cf",
     archiveProjectPath,
-    archiveHash: hashHex(fs.readFileSync(archivePath)),
-    sourceSnapshotHash: "0000000000000001",
-    sourceSnapshotGeneration: (decodeConfigurationIndex(candidateBytes).indexGeneration - 1n).toString(),
-    candidateSnapshotHash: hashHex(candidateBytes),
+    archiveHash: hashFileBytes(fs.readFileSync(archivePath)).toString(16).padStart(16, "0"),
     candidateAppliedMigrations: [],
     entries: ["Catalogs/Test.xml", "load.lst"],
     loadTargets: ["Catalogs/Test.xml"],
     delivery: { status: "prepared" },
   }
-}
-
-function hashHex(bytes: Uint8Array): string {
-  return hashFileBytes(bytes).toString(16).padStart(16, "0")
 }

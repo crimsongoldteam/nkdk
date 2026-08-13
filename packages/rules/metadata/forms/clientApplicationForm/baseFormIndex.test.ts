@@ -1,178 +1,57 @@
 import { describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { childUid } from "@nkdk/runtime"
-import {
-  createConfigurationIndexReader,
-  snapshotConfigurationIndex,
-  type ConfigurationIndexReader,
-} from "@nkdk/runtime"
-import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "@nkdk/runtime"
+import { childUid, createLocalConfigurationIndexReader, type ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import { createBaseFormConfigurationIndexReader } from "./baseFormIndex"
 
 const formAddress = "Справочник.Товары.Форма.ФормаЭлемента"
 const elementAddress = childUid(formAddress, "Элемент", "Код")
 const attributeAddress = childUid(formAddress, "Атрибут", "Объект")
-const commandAddress = childUid(formAddress, "Команда", "Обновить")
-const parameterAddress = childUid(formAddress, "Параметр", "Отбор")
 
 describe("BaseForm configuration index reader", () => {
-  it("берёт identities выбранных компонентов из расширения, а остальные поля entity — из базы", () => {
-    const base = reader("cf", [
-      entity(elementAddress, "Форма.yaml", { identities: { xmlId: "4" }, xml: { explicitEmpty: true } }),
-      entity(attributeAddress, "Форма.yaml", {
-        identities: { xmlId: "5" },
-        omittedChildren: { kind: "names", names: ["Поле"] },
-        xml: { xsiNil: true },
-      }),
-      entity(commandAddress, "Форма.yaml", { identities: { xmlId: "6" } }),
-      entity(parameterAddress, "Форма.yaml", { identities: { xmlId: "7" } }),
-    ])
-    const extension = reader("cfe/Дополнение", [
-      entity(elementAddress, "Расширение.yaml", { identities: { xmlId: "1000000" }, xml: { xmlText: "extension" } }),
-      entity(attributeAddress, "Расширение.yaml", {
-        identities: { xmlId: "1000001" },
-        omittedChildren: { kind: "names", names: ["Расширение"] },
-        xml: { xmlText: "extension" },
-      }),
-      entity(commandAddress, "Расширение.yaml", { identities: { xmlId: "1000002" } }),
-      entity(parameterAddress, "Расширение.yaml", { identities: { xmlId: "1000003" } }),
-    ])
-
+  it("берёт идентификатор выбранного компонента из расширения, а остальных — из базы", () => {
     const projected = createBaseFormConfigurationIndexReader({
-      base,
-      extension,
-      formLogicalAddress: formAddress,
-      extensionIdentityAddresses: new Set([attributeAddress, commandAddress, parameterAddress]),
-    })
-
-    expect(projected.entity(elementAddress)).toEqual(base.entity(elementAddress))
-    expect(projected.entity(attributeAddress)).toEqual({
-      logicalAddress: attributeAddress,
-      sourceProjectPath: "Форма.yaml",
-      identities: { xmlId: "1000001" },
-      omittedChildren: { kind: "names", names: ["Поле"] },
-      xml: { xsiNil: true },
-    })
-    expect(projected.entity(commandAddress)?.identities).toEqual({ xmlId: "1000002" })
-    expect(projected.entity(parameterAddress)?.identities).toEqual({ xmlId: "1000003" })
-  })
-
-  it("не подставляет identity базы для выбранного адреса без identity расширения", () => {
-    const base = reader("cf", [entity(attributeAddress, "Форма.yaml", { identities: { xmlId: "5" }, xml: { xsiNil: true } })])
-    const extension = reader("cfe/Дополнение", [
-      entity(attributeAddress, "Расширение.yaml", { xml: { xmlText: "extension" } }),
-    ])
-    const projected = createBaseFormConfigurationIndexReader({
-      base,
-      extension,
+      base: reader([{ logicalAddress: elementAddress, xmlId: "4" }, { logicalAddress: attributeAddress, xmlId: "5" }]),
+      extension: reader([{ logicalAddress: attributeAddress, xmlId: "1000001" }]),
       formLogicalAddress: formAddress,
       extensionIdentityAddresses: new Set([attributeAddress]),
     })
-
-    expect(projected.entity(attributeAddress)).toEqual({
-      logicalAddress: attributeAddress,
-      sourceProjectPath: "Форма.yaml",
-      xml: { xsiNil: true },
-    })
+    expect(projected.entity(elementAddress)?.xmlId).toBe("4")
+    expect(projected.entity(attributeAddress)?.xmlId).toBe("1000001")
   })
 
-  it("перечисляет ту же проекцию, что и точечное чтение, включая выбранную entity только расширения", () => {
-    const extensionOnlyAddress = childUid(formAddress, "Команда", "ТолькоРасширение")
-    const base = reader("cf", [
-      entity(elementAddress, "Форма.yaml", { identities: { xmlId: "4" } }),
-      entity(attributeAddress, "Форма.yaml", { identities: { xmlId: "5" } }),
-    ])
-    const extension = reader("cfe/Дополнение", [
-      entity(attributeAddress, "Расширение.yaml", { identities: { xmlId: "1000001" }, xml: { xmlText: "не переносить" } }),
-      entity(extensionOnlyAddress, "Расширение.yaml", {
-        identities: { xmlId: "1000002" },
-        xml: { xmlText: "не переносить" },
-      }),
-    ])
+  it("не подставляет идентификатор базы для выбранного адреса без идентификатора расширения", () => {
     const projected = createBaseFormConfigurationIndexReader({
-      base,
-      extension,
+      base: reader([{ logicalAddress: attributeAddress, xmlId: "5" }]),
+      extension: reader([{ logicalAddress: attributeAddress, children: [{ xmlName: "Form", name: "Поле" }] }]),
       formLogicalAddress: formAddress,
-      extensionIdentityAddresses: new Set([attributeAddress, extensionOnlyAddress]),
+      extensionIdentityAddresses: new Set([attributeAddress]),
     })
-
-    expect([...projected.entities()]).toEqual(
-      [attributeAddress, elementAddress, extensionOnlyAddress]
-        .sort(compareUtf8)
-        .map((logicalAddress) => projected.entity(logicalAddress))
-    )
-    expect(projected.entity(extensionOnlyAddress)).toEqual({
-      logicalAddress: extensionOnlyAddress,
-      sourceProjectPath: "Расширение.yaml",
-      identities: { xmlId: "1000002" },
-    })
-    expect([...projected.entitiesBySourceProjectPath("Форма.yaml")]).toHaveLength(2)
+    expect(projected.entity(attributeAddress)).toEqual({ logicalAddress: attributeAddress })
   })
 
-  it("делегирует header и files базовому снимку", () => {
-    const base = reader("cf", [])
-    const extension = reader("cfe/Дополнение", [])
+  it("перечисляет ту же проекцию, что и точечное чтение", () => {
+    const extensionOnly = childUid(formAddress, "Команда", "ТолькоРасширение")
     const projected = createBaseFormConfigurationIndexReader({
-      base,
-      extension,
+      base: reader([{ logicalAddress: elementAddress, xmlId: "4" }]),
+      extension: reader([{ logicalAddress: extensionOnly, xmlId: "1000002" }]),
+      formLogicalAddress: formAddress,
+      extensionIdentityAddresses: new Set([extensionOnly]),
+    })
+    expect([...projected.entities()]).toEqual([projected.entity(elementAddress), projected.entity(extensionOnly)])
+  })
+
+  it("берёт порядок детей из отдельного блока ОсноваФормы", () => {
+    const address = `${formAddress}.attributes`
+    const children = [{ xmlName: "Attribute", name: "Расширение" }]
+    const projected = createBaseFormConfigurationIndexReader({
+      base: reader([{ logicalAddress: address }]),
+      extension: reader([{ logicalAddress: `${formAddress}.ОсноваФормы.attributes`, children }]),
       formLogicalAddress: formAddress,
       extensionIdentityAddresses: new Set(),
     })
-
-    expect(projected.snapshot).toBe(base.snapshot)
-    expect(projected.header()).toEqual(base.header())
-    expect([...projected.files()]).toEqual([...base.files()])
-    expect(projected.file("Форма.yaml")).toEqual(base.file("Форма.yaml"))
-  })
-
-  it("берёт XML-представление из отдельного индекса ОсноваФормы", () => {
-    const attributesStateAddress = `${formAddress}.attributes`
-    const base = reader("cf", [
-      entity(attributesStateAddress, "Форма.yaml", { xml: { present: true } }),
-    ])
-    const extension = reader("cfe/Дополнение", [
-      entity(`${formAddress}.ОсноваФормы.attributes`, "Расширение.yaml", {
-        xml: { present: true, explicitEmpty: true },
-      }),
-    ])
-
-    const projected = createBaseFormConfigurationIndexReader({
-      base,
-      extension,
-      formLogicalAddress: formAddress,
-      extensionIdentityAddresses: new Set(),
-    })
-
-    expect(projected.entity(attributesStateAddress)).toEqual({
-      logicalAddress: attributesStateAddress,
-      sourceProjectPath: "Форма.yaml",
-      xml: { present: true, explicitEmpty: true },
-    })
+    expect(projected.entity(address)).toEqual({ logicalAddress: address, children })
   })
 })
 
-function reader(componentPath: string, entities: readonly ConfigurationSnapshotEntity[]): ConfigurationIndexReader {
-  const snapshot: ConfigurationSnapshot = {
-    specificationVersion: "1.4",
-    indexGeneration: 1n,
-    componentPath,
-    files: [
-      { projectPath: "Форма.yaml", contentHash: 1n },
-      { projectPath: "Расширение.yaml", contentHash: 2n },
-    ],
-    entities,
-  }
-  return createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(snapshot)))
-}
-
-function entity(
-  logicalAddress: string,
-  sourceProjectPath: string,
-  fields: Omit<ConfigurationSnapshotEntity, "logicalAddress" | "sourceProjectPath">
-): ConfigurationSnapshotEntity {
-  return { logicalAddress, sourceProjectPath, ...fields }
-}
-
-function compareUtf8(left: string, right: string): number {
-  return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
+function reader(entities: readonly ConfigurationIndexBlockEntity[]) {
+  return createLocalConfigurationIndexReader(new Map([["Форма.yaml", { entities }]]))
 }

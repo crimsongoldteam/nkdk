@@ -1,6 +1,9 @@
-import { createConfigurationIndexReader } from "../../configurationIndex"
 import { formatCanonicalMetadataTargetToYAML } from "../../ruleRuntime/metadataTarget"
-import type { FullXmlSyncComponentProfile } from "../componentProfile"
+import {
+  readConfirmedComponentIndex,
+  type FullXmlSyncComponentProfile,
+  type FullXmlSyncProfileRuntime,
+} from "../componentProfile"
 import { configurationExtensionTypeDescriptionXMLNameByType } from "../../appliedObjects/configurationExtension/typeDescriptionPolicy"
 import { expandMetadataPathPattern } from "../../resourceTopology/core/patterns"
 import type { ConfirmedComponentState } from "../../project/componentState/types"
@@ -19,7 +22,13 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
       },
     }
   },
-  confirm({ target, base }) {
+  confirm: confirmConfigurationExtensionFullXmlSync,
+}
+
+export function confirmConfigurationExtensionFullXmlSync(
+  { target, base }: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
+  readIndex: typeof readConfirmedComponentIndex = readConfirmedComponentIndex,
+): FullXmlSyncProfileRuntime {
     if (target.structure.address.kind !== "configurationExtension") {
       throw new Error("Профиль configurationExtension получил другой вид компонента")
     }
@@ -27,11 +36,10 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
       throw new Error("Для расширения требуется основная конфигурация")
     }
 
-    const baseReader = createConfigurationIndexReader(base.snapshot)
-    const targetReader = createConfigurationIndexReader(target.snapshot)
+    const baseReader = readIndex(base)
     assertEqualProjectFiles(
       base.hashes.projectFiles,
-      [...baseReader.files()],
+      base.snapshot.projectFiles,
       "основная конфигурация не синхронизирована"
     )
     const baseAddresses = new Set(base.indexes.logicalAddresses.map(({ logicalAddress }) => logicalAddress))
@@ -42,17 +50,17 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
       if (!baseAddresses.has(logicalAddress)) continue
       const workerLogicalAddress = formatCanonicalMetadataTargetToYAML(logicalAddress) ?? logicalAddress
       const uuid =
-        baseReader.entity(logicalAddress)?.identities?.uuid ??
-        baseReader.entity(workerLogicalAddress)?.identities?.uuid
+        baseReader.entity(logicalAddress)?.uuid ??
+        baseReader.entity(workerLogicalAddress)?.uuid
       if (uuid === undefined) continue
       adoptedUuids[workerLogicalAddress] = uuid
     }
     if (
       targetAddresses.has("Конфигурация") &&
       baseAddresses.has("Конфигурация") &&
-      targetReader.entity("Конфигурация")?.xml?.extended === true
+      target.structure.address.kind === "configurationExtension"
     ) {
-      const uuid = baseReader.entity("Конфигурация")?.identities?.uuid
+      const uuid = baseReader.entity("Конфигурация")?.uuid
       if (uuid === undefined) {
         throw new Error('Не найден UUID расширяемой конфигурации "Конфигурация"')
       }
@@ -111,11 +119,10 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
           componentDir: base.structure.componentDir,
           projectFiles: base.hashes.projectFiles,
           targetProjectFiles: target.hashes.projectFiles,
-          snapshot: base.snapshot,
+          snapshot: base.snapshot.descriptor,
         },
       },
     }
-  },
 }
 
 function savedBaseFormPath(

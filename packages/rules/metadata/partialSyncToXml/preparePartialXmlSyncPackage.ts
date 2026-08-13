@@ -1,10 +1,11 @@
-import { randomUUID } from "node:crypto"
+import { randomBytes, randomUUID } from "node:crypto"
 import { join, resolve } from "node:path"
 import { componentPath, parseComponentPath } from "@nkdk/runtime"
-import { decodeConfigurationIndex } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { hashFileBytes } from "@nkdk/runtime"
-import type { MergedConfigurationSnapshotFragments } from "@nkdk/runtime"
+import {
+  openConfigurationIndexStore,
+  type ConfigurationIndexBlock,
+  type ConfigurationIndexPendingDelta,
+} from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import type { Diagnostic } from "@nkdk/runtime"
 import {
@@ -15,8 +16,8 @@ import { attachBorrowedFormPaths } from "../fullSyncToXml/borrowedFormPlan"
 import { readProfileComponentStates } from "../fullSyncToXml/componentRuntime"
 import { buildXmlSyncPlan } from "../fullSyncToXml/selection"
 import { createFullXmlSyncCompositionSnapshot } from "../fullSyncToXml/sharedMetadata"
-import { buildXmlSyncConfigurationSnapshot } from "../fullSyncToXml/snapshotBuilder"
 import type { FullXmlSyncDiagnostic, FullXmlSyncPlan } from "../fullSyncToXml/types"
+import { withConfigurationIndexSources } from "../fullSyncToXml/configurationIndexSources"
 import {
   createFullXmlSyncWorkerPool,
   normalizeFullXmlSyncConcurrency,
@@ -34,11 +35,12 @@ import { buildPartialXmlImpactPlan } from "./impactPlanner"
 import { evaluatePartialXmlSyncMigrationState } from "./migrationState"
 import { resolvePartialXmlPackagePolicy } from "./packagePolicy"
 import {
+  assertNoPendingPartialXmlSync,
   cleanupPendingPartialXmlSync,
   partialXmlSyncArchiveProjectPath,
   readPendingPartialXmlSync,
   writePendingPartialXmlSync,
-  type PendingPartialXmlSyncStateV2,
+  type PendingPartialXmlSyncStateV3,
 } from "./pendingStore"
 import { createPartialXmlArchiveWriter, type PartialXmlArchiveWriter } from "./archiveWriter"
 
@@ -73,7 +75,6 @@ interface ValidatedPreparationParams extends PreparePartialXmlSyncPackageParams 
 
 export interface PartialXmlSyncCoordinatorDependencies {
   readonly readPending: typeof readPendingPartialXmlSync
-  readonly cleanup: typeof cleanupPendingPartialXmlSync
   readonly refresh: (params: PreparePartialXmlSyncPackageParams) => Promise<{
     readonly diagnostics: readonly Diagnostic[]
     readonly readToken: ProjectStateReadToken
@@ -83,7 +84,6 @@ export interface PartialXmlSyncCoordinatorDependencies {
 
 const defaultDependencies: PartialXmlSyncCoordinatorDependencies = {
   readPending: readPendingPartialXmlSync,
-  cleanup: cleanupPendingPartialXmlSync,
   refresh: refreshProject,
   prepareValidated: prepareValidatedPackage,
 }
@@ -94,16 +94,12 @@ export async function preparePartialXmlSyncPackage(
 ): Promise<PreparePartialXmlSyncPackageResult> {
   const projectDir = resolve(params.projectDir)
   let diagnostics: readonly Diagnostic[] = []
-  let preparationStarted = false
   try {
     const address = parseComponentPath(params.componentPath)
     const normalizedComponentPath = componentPath(address)
     const pending = await dependencies.readPending(projectDir, normalizedComponentPath)
-    if (pending !== undefined && pending.delivery.status !== "prepared") {
-      throw new Error(`Нельзя готовить новый пакет в фазе ${pending.delivery.status}`)
-    }
-    await dependencies.cleanup(projectDir, normalizedComponentPath)
-    preparationStarted = true
+    if (pending !== undefined) throw new Error(`Для компонента ${normalizedComponentPath} существует ожидающий пакет`)
+    assertNoPendingPartialXmlSync(projectDir, normalizedComponentPath)
     const refreshed = await dependencies.refresh({ ...params, projectDir, componentPath: normalizedComponentPath })
     diagnostics = refreshed.diagnostics
     if (hasErrors(diagnostics)) return { ok: false, diagnostics }
@@ -115,9 +111,6 @@ export async function preparePartialXmlSyncPackage(
       readToken: refreshed.readToken,
     })
   } catch (caught) {
-    if (preparationStarted) {
-      await dependencies.cleanup(projectDir, params.componentPath).catch(() => undefined)
-    }
     return { ok: false, diagnostics: [...diagnostics, operationDiagnostic(projectDir, caught)] }
   }
 }
@@ -151,17 +144,15 @@ async function prepareValidatedPackage(
     targetProjection,
     deps: {
       readStructure: readComponentProjectStructure,
-      readSnapshot: (await import("../configurationIndex")).readConfigurationIndexSnapshot,
       readHashes: readComponentHashState,
       readIndexes: readComponentIndexes,
       confirmState: confirmComponentState,
     },
   })
   const runtime = profile.confirm(states)
-  const previous = decodeSharedSnapshot(runtime.target.snapshot)
   const changes = detectPartialXmlChanges({
     current: runtime.target.hashes.projectFiles,
-    previous: previous.files,
+    previous: runtime.target.snapshot.projectFiles,
   })
   const migration = await evaluatePartialXmlSyncMigrationState({
     projectDir: params.projectDir,
@@ -188,7 +179,7 @@ async function prepareValidatedPackage(
     hashes: runtime.target.hashes,
     selection: impact.selection,
   }), runtime)
-  return writePreparedPackage({ ...params, runtime, plan, impact, migration, previous, diagnostics })
+  return writePreparedPackage({ ...params, runtime, plan, impact, migration, changes, diagnostics })
 }
 
 async function writePreparedPackage(params: ValidatedPreparationParams & {
@@ -196,7 +187,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
   readonly plan: FullXmlSyncPlan
   readonly impact: ReturnType<typeof buildPartialXmlImpactPlan>
   readonly migration: Awaited<ReturnType<typeof evaluatePartialXmlSyncMigrationState>>
-  readonly previous: ReturnType<typeof decodeSharedSnapshot>
+  readonly changes: ReturnType<typeof detectPartialXmlChanges>
   readonly diagnostics: readonly Diagnostic[]
 }): Promise<PreparePartialXmlSyncPackageResult> {
   const packageId = randomUUID()
@@ -207,7 +198,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
   let retained = false
   try {
     writer = createPartialXmlArchiveWriter({ archivePath })
-    let fragmentData: MergedConfigurationSnapshotFragments = { sourceProjectPaths: [], entities: [] }
+    const rebuiltBlocks = new Map<string, ConfigurationIndexBlock>()
     const workerDiagnostics: FullXmlSyncDiagnostic[] = []
     if (params.plan.assignments.length > 0) {
       const concurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
@@ -234,16 +225,23 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
           referencePathByCurrentPath: params.migration.referencePathByCurrentPath,
         },
         composition: createFullXmlSyncCompositionSnapshot(params.plan.assignments),
-        targetIndex: params.runtime.target.snapshot,
+        targetIndex: params.runtime.target.snapshot.descriptor,
+        ...(params.runtime.base === undefined ? {} : { baseIndex: params.runtime.base.snapshot.descriptor }),
+        operationSeed: randomBytes(32),
       })
-      const execution = await pool.execute(params.plan.assignments, {
+      const assignments = params.plan.assignments.map((assignment) => withConfigurationIndexSources({
+        assignment,
+        targetLogicalAddresses: params.runtime.target.indexes.logicalAddresses,
+        ...(params.runtime.base === undefined ? {} : { baseLogicalAddresses: params.runtime.base.indexes.logicalAddresses }),
+      }))
+      const execution = await pool.execute(assignments, {
         maxBufferedBatches: concurrency,
         async onBatch(batch) {
           for (const document of batch.generatedDocuments) await writer!.addGenerated(document)
+          for (const fragment of batch.configurationFragments) mergePartialBlock(rebuiltBlocks, fragment)
         },
       })
       workerDiagnostics.push(...execution.diagnostics, ...execution.warnings)
-      fragmentData = execution.fragmentData
       execution.diagnostics.release()
       execution.warnings.release()
       execution.expectedOutputs.release()
@@ -254,34 +252,19 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
     }
     for (const external of params.plan.externalFiles) await writer.addExternal(external)
     const archive = await writer.close(params.impact.loadTargets)
-    const candidate = buildXmlSyncConfigurationSnapshot({
-      previous: params.previous,
-      currentFiles: params.runtime.target.hashes.projectFiles,
-      currentLogicalAddresses: params.runtime.target.indexes.logicalAddresses,
-      fragmentData,
-    })
-    const candidateBytes = encodeConfigurationIndex(candidate)
-    const sourceBytes = sharedSnapshotBytes(params.runtime.target.snapshot)
-    const baseSnapshot = params.runtime.base?.snapshot
-    const pending: PendingPartialXmlSyncStateV2 = {
-      version: 2,
+    const delta = buildPendingDelta(params, rebuiltBlocks)
+    const pending: PendingPartialXmlSyncStateV3 = {
+      version: 3,
       packageId,
       componentPath: params.componentPath,
       archiveProjectPath,
       archiveHash: hashHex(archive.archiveHash),
-      sourceSnapshotHash: hashHex(hashFileBytes(sourceBytes)),
-      sourceSnapshotGeneration: params.previous.indexGeneration.toString(),
-      candidateSnapshotHash: hashHex(hashFileBytes(candidateBytes)),
-      ...(baseSnapshot === undefined ? {} : {
-        baseSnapshotHash: hashHex(hashFileBytes(sharedSnapshotBytes(baseSnapshot))),
-        baseSnapshotGeneration: decodeSharedSnapshot(baseSnapshot).indexGeneration.toString(),
-      }),
       candidateAppliedMigrations: params.migration.candidateAppliedNames,
       entries: archive.entries,
       loadTargets: params.impact.loadTargets,
       delivery: { status: "prepared" },
     }
-    await writePendingPartialXmlSync({ projectDir: params.projectDir, state: pending, candidateBytes })
+    await writePendingPartialXmlSync({ projectDir: params.projectDir, state: pending, delta })
     retained = true
     return {
       ok: true,
@@ -300,6 +283,51 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
       await cleanupPendingPartialXmlSync(params.projectDir, params.componentPath)
     }
   }
+}
+
+function buildPendingDelta(
+  params: Pick<Parameters<typeof writePreparedPackage>[0], "changes" | "runtime">,
+  rebuiltBlocks: ReadonlyMap<string, ConfigurationIndexBlock>,
+): ConfigurationIndexPendingDelta {
+  const hashes = new Map<string, { kind: "put"; contentHash: bigint } | { kind: "delete" }>()
+  for (const file of params.changes.added) hashes.set(file.projectPath, { kind: "put", contentHash: file.contentHash })
+  for (const { current } of params.changes.changed) {
+    hashes.set(current.projectPath, { kind: "put", contentHash: current.contentHash })
+  }
+  for (const file of params.changes.deleted) hashes.set(file.projectPath, { kind: "delete" })
+
+  const blocks = new Map<string, { kind: "put"; block: ConfigurationIndexBlock } | { kind: "delete" }>()
+  for (const [projectPath, block] of rebuiltBlocks) {
+    blocks.set(projectPath, block.entities.length === 0 ? { kind: "delete" } : { kind: "put", block })
+  }
+  const store = openConfigurationIndexStore(params.runtime.target.snapshot.descriptor, "readOnly")
+  try {
+    for (const file of params.changes.deleted) {
+      if (store.hasBlock(file.projectPath)) blocks.set(file.projectPath, { kind: "delete" })
+    }
+  } finally {
+    void store.close()
+  }
+  return { hashes, blocks }
+}
+
+function mergePartialBlock(
+  blocks: Map<string, ConfigurationIndexBlock>,
+  fragment: { readonly targetProjectPath: string; readonly entities: ConfigurationIndexBlock["entities"] },
+): void {
+  if (fragment.entities.length === 0) {
+    blocks.set(fragment.targetProjectPath, { entities: [] })
+    return
+  }
+  const merged = new Map((blocks.get(fragment.targetProjectPath)?.entities ?? []).map((entity) => [entity.logicalAddress, entity]))
+  for (const entity of fragment.entities) {
+    const previous = merged.get(entity.logicalAddress)
+    if (previous !== undefined && JSON.stringify(previous) !== JSON.stringify(entity)) {
+      throw new Error(`Конфликт блока ${fragment.targetProjectPath}: ${entity.logicalAddress}`)
+    }
+    merged.set(entity.logicalAddress, entity)
+  }
+  blocks.set(fragment.targetProjectPath, { entities: [...merged.values()] })
 }
 
 function readCompanionReferences(
@@ -350,14 +378,6 @@ function readCompanionReferences(
   } finally {
     session.close()
   }
-}
-
-function decodeSharedSnapshot(snapshot: FullXmlSyncProfileRuntime["target"]["snapshot"]) {
-  return decodeConfigurationIndex(sharedSnapshotBytes(snapshot))
-}
-
-function sharedSnapshotBytes(snapshot: FullXmlSyncProfileRuntime["target"]["snapshot"]): Uint8Array {
-  return new Uint8Array(snapshot.bytes, 0, snapshot.byteLength)
 }
 
 function isEmptyChanges(changes: ReturnType<typeof detectPartialXmlChanges>): boolean {

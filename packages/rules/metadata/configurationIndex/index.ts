@@ -11,6 +11,7 @@ export {
   createConfigurationIndexCandidateStore,
   openConfigurationIndexStore,
   type ConfigurationIndexCandidateStore,
+  type ConfigurationIndexStoreDescriptor,
 } from "@nkdk/runtime"
 export {
   ConfigurationIndexCompatibilityError,
@@ -22,6 +23,10 @@ export {
   createConfigurationIndexExportRuntime,
   type ConfigurationIndexExportRuntime,
   type CreateConfigurationIndexExportRuntimeOptions,
+} from "@nkdk/runtime"
+export {
+  createLocalConfigurationIndexReader,
+  type LocalConfigurationIndexReader,
 } from "@nkdk/runtime"
 export {
   configurationIndexPath,
@@ -50,6 +55,7 @@ export {
 export type {
   ConfigurationProjectFile,
   ConfigurationIndexBlockFragment,
+  ConfigurationIndexBlock,
   ConfigurationSnapshot,
   ConfigurationSnapshotEntity,
   ConfigurationSnapshotFile,

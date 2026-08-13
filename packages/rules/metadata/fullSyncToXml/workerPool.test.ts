@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { encodeConfigurationIndexFragments } from "@nkdk/runtime"
-import { snapshotConfigurationIndex } from "@nkdk/runtime"
-import { entity, fragment } from "@nkdk/runtime"
-import type { ConfigurationSnapshotEntity } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
@@ -98,16 +95,16 @@ describe("full XML sync worker pool", () => {
     const pool = createFullXmlSyncWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
     await pool.initialize({
       ...initialization,
-      targetIndex: targetIndex([entity("Справочник.one", "one.yaml")]),
+      targetIndex: targetIndex([{ logicalAddress: "Справочник.one" }]),
     })
 
     await pool.execute([assignment("one"), assignment("new")])
 
-    expect(pools.executionAssignments(0).map(({ configurationIndexEntityRange }) =>
-      configurationIndexEntityRange
+    expect(pools.executionAssignments(0).map(({ configurationIndexSources }) =>
+      configurationIndexSources
     )).toEqual([
-      { start: expect.any(Number), count: 1 },
-      { start: 0, count: 0 },
+      { targetProjectPaths: ["one.yaml"], baseProjectPaths: [] },
+      { targetProjectPaths: ["new.yaml"], baseProjectPaths: [] },
     ])
     await pool.close()
   })
@@ -147,7 +144,10 @@ describe("full XML sync worker pool", () => {
   it("merges execution results from workers", async () => {
     const pools = createFakePools()
     pools.returnFragments(0, [fragment("one.yaml")])
-    pools.returnFragments(1, [fragment("two.yaml", entity("Справочник.two", "two.yaml"))])
+    pools.returnFragments(1, [fragment("two.yaml", {
+      logicalAddress: "Справочник.two",
+      uuid: "11111111-1111-4111-8111-111111111111",
+    })])
     pools.diagnoseWorker(1, {
       severity: "error",
       code: "syntax",
@@ -161,15 +161,15 @@ describe("full XML sync worker pool", () => {
     })
 
     await pool.initialize(initialization)
-    const result = await pool.execute([assignment("one"), assignment("two")])
+    const streamed: unknown[] = []
+    const result = await pool.execute([assignment("one"), assignment("two")], {
+      async onBatch(batch) { streamed.push(...batch.configurationFragments) },
+    })
 
     expect(Array.isArray(result.diagnostics)).toBe(false)
     expect([...result.diagnostics]).toEqual([expect.objectContaining({ severity: "error", assignmentId: "two" })])
     expect(result.expectedOutputs.count).toBe(2)
-    expect(result.fragmentData).toEqual({
-      sourceProjectPaths: ["one.yaml", "two.yaml"],
-      entities: [entity("Справочник.two", "two.yaml")],
-    })
+    expect(streamed).toHaveLength(2)
     await pool.close()
   })
 
@@ -310,15 +310,16 @@ function assignment(id: string): FullXmlSyncAssignment {
   }
 }
 
-function targetIndex(entities: readonly ConfigurationSnapshotEntity[]) {
-  return snapshotConfigurationIndex(encodeConfigurationIndex({
-    specificationVersion: "1.4",
-    indexGeneration: 1n,
-    componentPath: "cf",
-    files: [...new Set(entities.map(({ sourceProjectPath }) => sourceProjectPath))]
-      .map((projectPath) => ({ projectPath, contentHash: 1n })),
-    entities,
-  }))
+function targetIndex(_entities: readonly ConfigurationIndexBlockEntity[]) {
+  return {
+    dataPath: "/project/.nkdk/components/cf/configuration-index.lmdb",
+    lockPath: "/project/.nkdk/components/cf/configuration-index.lmdb-lock",
+    schemaVersion: 1,
+  } as const
+}
+
+function fragment(targetProjectPath: string, ...entities: readonly ConfigurationIndexBlockEntity[]) {
+  return { targetProjectPath, entities }
 }
 
 function executionResult() {

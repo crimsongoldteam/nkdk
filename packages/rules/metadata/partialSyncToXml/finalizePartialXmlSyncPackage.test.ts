@@ -2,20 +2,16 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { decodeConfigurationIndex } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { configurationIndexPath } from "@nkdk/runtime"
-import { hashFileBytes } from "@nkdk/runtime"
-import type { ConfigurationSnapshot } from "@nkdk/runtime"
-import { parseComponentPath } from "@nkdk/runtime"
+import {
+  configurationIndexStoreDescriptor,
+  hashFileBytes,
+  type ConfigurationIndexStore,
+} from "@nkdk/runtime"
 import { finalizePartialXmlSyncPackage } from "./finalizePartialXmlSyncPackage"
-import { markPartialSyncApplied, markPartialSyncTransferring } from "./deliveryState"
-import { readPartialXmlSyncAppliedMigrations } from "./migrationState"
 import {
   partialXmlSyncArchiveProjectPath,
   pendingPartialXmlSyncPaths,
-  writePendingPartialXmlSync,
-  type PendingPartialXmlSyncStateV2,
+  type PendingPartialXmlSyncStateV3,
 } from "./pendingStore"
 
 describe("фиксация частичной XML-синхронизации", () => {
@@ -24,187 +20,141 @@ describe("фиксация частичной XML-синхронизации", (
     await Promise.all(tempDirs.splice(0).map((dir) => fs.promises.rm(dir, { recursive: true, force: true })))
   })
 
-  it("публикует заранее подготовленный снимок и удаляет ожидающие файлы", async () => {
-    const prepared = await prepare()
-    fs.writeFileSync(join(prepared.projectDir, "changed-after-prepare.yaml"), "new change")
+  it("применяет дельту, публикует migration, очищает pending и затем удаляет транспорт", async () => {
+    const prepared = prepare()
+    const events: string[] = []
+    const store = fakeStore(events)
 
     const result = await finalizePartialXmlSyncPackage({
       projectDir: prepared.projectDir,
       componentPath: "cf",
       packageId: "package-1",
+    }, {
+      openStore: () => store,
+      async publishMigrations() { events.push("migrations") },
     })
 
+    expect(events).toEqual(["already?", "apply", "migrations", "clear", "close"])
     expect(result).toEqual({
       status: "published",
-      configurationIndexPath: configurationIndexPath(prepared.projectDir, { kind: "configuration" }),
+      configurationIndexPath: configurationIndexStoreDescriptor(
+        prepared.projectDir,
+        { kind: "configuration" },
+      ).dataPath,
     })
-    expect(decodeConfigurationIndex(fs.readFileSync(configurationIndexPath(
-      prepared.projectDir,
-      { kind: "configuration" },
-    ))).indexGeneration).toBe(2n)
     expect(fs.existsSync(prepared.archivePath)).toBe(false)
-    expect(fs.existsSync(prepared.paths.pendingPath)).toBe(false)
-    expect(fs.existsSync(prepared.paths.candidatePath)).toBe(false)
+    expect(fs.existsSync(prepared.pendingPath)).toBe(false)
   })
 
-  it("после сбоя за публикацией снимка завершает ту же фиксацию без нового поколения", async () => {
-    const prepared = await prepare()
+  it("после сбоя migration повторяет фиксацию без повторного применения дельты", async () => {
+    const prepared = prepare()
+    let applied = false
+    const events: string[] = []
+    const store = fakeStore(events, {
+      pendingAlreadyApplied: () => applied,
+      applyPending: async () => { events.push("apply"); applied = true },
+    })
+
     await expect(finalizePartialXmlSyncPackage({
       projectDir: prepared.projectDir,
       componentPath: "cf",
       packageId: "package-1",
     }, {
+      openStore: () => store,
       async publishMigrations() { throw new Error("migration write failed") },
     })).rejects.toThrow("migration write failed")
-    expect(fs.existsSync(prepared.paths.pendingPath)).toBe(true)
+    expect(fs.existsSync(prepared.pendingPath)).toBe(true)
 
+    events.length = 0
     const result = await finalizePartialXmlSyncPackage({
       projectDir: prepared.projectDir,
       componentPath: "cf",
       packageId: "package-1",
+    }, {
+      openStore: () => store,
+      async publishMigrations() { events.push("migrations") },
     })
 
-    expect(result).toEqual({
-      status: "alreadyPublished",
-      configurationIndexPath: configurationIndexPath(prepared.projectDir, { kind: "configuration" }),
-    })
-    expect(decodeConfigurationIndex(fs.readFileSync(configurationIndexPath(
-      prepared.projectDir,
-      { kind: "configuration" },
-    ))).indexGeneration).toBe(2n)
-  })
-
-  it("публикует проверенный список migration только при фиксации", async () => {
-    const migrationName = "2026-06-30-120000.yaml"
-    const prepared = await prepare("cf", [migrationName])
-    expect(await readPartialXmlSyncAppliedMigrations(prepared.projectDir, "cf")).toEqual([])
-
-    await finalizePartialXmlSyncPackage({
-      projectDir: prepared.projectDir,
-      componentPath: "cf",
-      packageId: "package-1",
-    })
-
-    expect(await readPartialXmlSyncAppliedMigrations(prepared.projectDir, "cf")).toEqual([migrationName])
+    expect(result.status).toBe("alreadyPublished")
+    expect(events).toEqual(["already?", "migrations", "clear", "close"])
   })
 
   it.each([
-    ["another-package", undefined, /идентификатор/i],
-    ["package-1", "archive", /архив/i],
-    ["package-1", "source", /исходн.*сним/i],
-  ] as const)("отклоняет неверное состояние и сохраняет pending", async (packageId, damage, error) => {
-    const prepared = await prepare()
-    if (damage === "archive") fs.writeFileSync(prepared.archivePath, "damaged")
-    if (damage === "source") fs.writeFileSync(
-      configurationIndexPath(prepared.projectDir, { kind: "configuration" }),
-      encodeConfigurationIndex(snapshot(3n)),
-    )
+    ["another-package", false, /идентификатор/i],
+    ["package-1", true, /архив/i],
+  ] as const)("сохраняет pending при неверном состоянии", async (packageId, damageArchive, error) => {
+    const prepared = prepare()
+    if (damageArchive) fs.writeFileSync(prepared.archivePath, "damaged")
 
     await expect(finalizePartialXmlSyncPackage({
       projectDir: prepared.projectDir,
       componentPath: "cf",
       packageId,
-    })).rejects.toThrow(error)
-
-    expect(fs.existsSync(prepared.paths.pendingPath)).toBe(true)
-    expect(fs.existsSync(prepared.paths.candidatePath)).toBe(true)
+    }, { openStore: () => fakeStore([]) })).rejects.toThrow(error)
+    expect(fs.existsSync(prepared.pendingPath)).toBe(true)
   })
 
-  it("не публикует пакет расширения после изменения подтверждённого снимка cf", async () => {
-    const prepared = await prepare("cfe/Продажи")
-    fs.writeFileSync(
-      configurationIndexPath(prepared.projectDir, { kind: "configuration" }),
-      encodeConfigurationIndex(snapshot(6n)),
-    )
+  it.each(["prepared", "transferring"] as const)("не фиксирует пакет в фазе %s", async (status) => {
+    const prepared = prepare(status)
 
     await expect(finalizePartialXmlSyncPackage({
       projectDir: prepared.projectDir,
-      componentPath: "cfe/Продажи",
+      componentPath: "cf",
       packageId: "package-1",
-    })).rejects.toThrow(/базов.*сним/i)
-
-    expect(fs.existsSync(prepared.paths.pendingPath)).toBe(true)
+    }, { openStore: () => fakeStore([]) })).rejects.toThrow(/успешн.*передач/i)
+    expect(fs.existsSync(prepared.pendingPath)).toBe(true)
   })
 
-  it.each(["prepared", "transferring"] as const)(
-    "не фиксирует пакет в фазе %s",
-    async (deliveryStatus) => {
-      const prepared = await prepare("cf", [], deliveryStatus)
-
-      await expect(finalizePartialXmlSyncPackage({
-        projectDir: prepared.projectDir,
-        componentPath: "cf",
-        packageId: "package-1",
-      })).rejects.toThrow(/успешн.*передач/i)
-      expect(fs.existsSync(prepared.paths.pendingPath)).toBe(true)
-    }
-  )
-
-  async function prepare(
-    componentPath = "cf",
-    candidateAppliedMigrations: readonly string[] = [],
-    deliveryStatus: "prepared" | "transferring" | "applied" = "applied",
-  ) {
+  function prepare(deliveryStatus: "prepared" | "transferring" | "applied" = "applied") {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-finalize-partial-"))
     tempDirs.push(projectDir)
-    const sourceBytes = encodeConfigurationIndex(snapshot(1n, componentPath))
-    const candidateBytes = encodeConfigurationIndex(snapshot(2n, componentPath))
-    const publishedPath = configurationIndexPath(projectDir, parseComponentPath(componentPath))
-    fs.mkdirSync(join(publishedPath, ".."), { recursive: true })
-    fs.writeFileSync(publishedPath, sourceBytes)
-    let baseIdentity: { baseSnapshotHash: string; baseSnapshotGeneration: string } | undefined
-    if (componentPath !== "cf") {
-      const baseBytes = encodeConfigurationIndex(snapshot(5n))
-      const basePath = configurationIndexPath(projectDir, { kind: "configuration" })
-      fs.mkdirSync(join(basePath, ".."), { recursive: true })
-      fs.writeFileSync(basePath, baseBytes)
-      baseIdentity = { baseSnapshotHash: hashHex(baseBytes), baseSnapshotGeneration: "5" }
-    }
-    const archiveProjectPath = partialXmlSyncArchiveProjectPath(componentPath, "package-1")
+    const archiveProjectPath = partialXmlSyncArchiveProjectPath("cf", "package-1")
     const archivePath = join(projectDir, ...archiveProjectPath.split("/"))
     fs.mkdirSync(join(archivePath, ".."), { recursive: true })
     fs.writeFileSync(archivePath, "archive")
-    const state: PendingPartialXmlSyncStateV2 = {
-      version: 2,
+    const delivery = deliveryStatus === "prepared"
+      ? { status: "prepared" as const }
+      : {
+          status: deliveryStatus,
+          attemptId: "attempt-1",
+          operationLogProjectPath: ".nkdk/tmp/sync-to-infobase/attempt-1/platform.log",
+        }
+    const state: PendingPartialXmlSyncStateV3 = {
+      version: 3,
       packageId: "package-1",
-      componentPath,
+      componentPath: "cf",
       archiveProjectPath,
-      archiveHash: hashHex(fs.readFileSync(archivePath)),
-      sourceSnapshotHash: hashHex(sourceBytes),
-      sourceSnapshotGeneration: "1",
-      candidateSnapshotHash: hashHex(candidateBytes),
-      ...baseIdentity,
-      candidateAppliedMigrations,
+      archiveHash: hashFileBytes(fs.readFileSync(archivePath)).toString(16).padStart(16, "0"),
+      candidateAppliedMigrations: ["2026-06-30-120000.yaml"],
       entries: ["Catalogs/Test.xml", "load.lst"],
       loadTargets: ["Catalogs/Test.xml"],
-      delivery: { status: "prepared" },
+      delivery,
     }
-    await writePendingPartialXmlSync({ projectDir, state, candidateBytes })
-    if (deliveryStatus !== "prepared") {
-      await markPartialSyncTransferring({
-        projectDir,
-        componentPath,
-        packageId: "package-1",
-        attemptId: "attempt-1",
-        operationLogProjectPath: ".nkdk/tmp/sync-to-infobase/attempt-1/platform.log",
-      })
-    }
-    if (deliveryStatus === "applied") {
-      await markPartialSyncApplied({
-        projectDir,
-        componentPath,
-        packageId: "package-1",
-        attemptId: "attempt-1",
-      })
-    }
-    return { projectDir, archivePath, paths: pendingPartialXmlSyncPaths(projectDir, componentPath) }
+    const pendingPath = pendingPartialXmlSyncPaths(projectDir, "cf").pendingPath
+    fs.mkdirSync(join(pendingPath, ".."), { recursive: true })
+    fs.writeFileSync(pendingPath, `${JSON.stringify(state)}\n`)
+    return { projectDir, archivePath, pendingPath }
   }
 })
 
-function snapshot(indexGeneration: bigint, componentPath = "cf"): ConfigurationSnapshot {
-  return { specificationVersion: "1.4", indexGeneration, componentPath, files: [], entities: [] }
-}
-
-function hashHex(bytes: Uint8Array): string {
-  return hashFileBytes(bytes).toString(16).padStart(16, "0")
+function fakeStore(
+  events: string[],
+  overrides: Partial<ConfigurationIndexStore> = {},
+): ConfigurationIndexStore {
+  return {
+    descriptor: () => ({ dataPath: "/index.lmdb", lockPath: "/index.lmdb-lock", schemaVersion: 1 }),
+    readHashes: () => [],
+    getBlocks: () => new Map(),
+    hasBlock: () => false,
+    hasPending: () => true,
+    async replaceActiveFrom() {},
+    async publishImportedCandidate() {},
+    async writePending() {},
+    pendingAlreadyApplied: () => { events.push("already?"); return false },
+    async applyPending() { events.push("apply") },
+    async clearPending() { events.push("clear") },
+    async flush() {},
+    async close() { events.push("close") },
+    ...overrides,
+  }
 }

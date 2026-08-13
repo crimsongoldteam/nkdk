@@ -103,9 +103,7 @@ describe("writeFullXmlSyncAssignment", () => {
       expect.arrayContaining([
         expect.objectContaining({
           logicalAddress: "Обработка.ОбработкаВсеСвойства",
-          identities: expect.objectContaining({
-            uuid: expect.any(String),
-          }),
+          uuid: expect.any(String),
         }),
       ])
     )

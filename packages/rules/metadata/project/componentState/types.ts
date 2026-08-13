@@ -1,6 +1,6 @@
 import type { ComponentAddress } from "@nkdk/runtime"
 import type { ConfigurationProjectFile } from "../../configurationIndex"
-import type { SharedConfigurationIndexSnapshot } from "../../configurationIndex"
+import type { ConfigurationIndexStoreDescriptor } from "../../configurationIndex"
 import type { ProjectStateReadToken } from "../../projectState"
 import type { ProjectLogicalAddressEntry } from "../../projectDefinition/componentIndexFacts"
 import type { MetadataProjectResourceMatch } from "../../resourceTopology/core/projectProjection"
@@ -30,6 +30,9 @@ export interface ConfirmedComponentState {
   readonly structure: ComponentProjectStructure
   readonly hashes: ComponentHashState
   readonly indexes: ComponentIndexes
-  readonly snapshot: SharedConfigurationIndexSnapshot
+  readonly snapshot: {
+    readonly descriptor: ConfigurationIndexStoreDescriptor
+    readonly projectFiles: readonly ConfigurationProjectFile[]
+  }
   readonly projectStateReadToken: ProjectStateReadToken
 }

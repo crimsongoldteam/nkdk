@@ -353,6 +353,10 @@ function createFixture(options: {
           configurationIndexPath: "/project/.nkdk/configuration-index/cf.bin",
         }
       },
+      async forceClearPendingSync() {
+        events.push("forceClear")
+        delivery = undefined
+      },
     },
     async recordDeliveryPhase({ phase }) {
       events.push(`recordPhase ${phase}`)
@@ -396,14 +400,11 @@ const readySettings = {
 
 function pending(status: "transferring" | "applied") {
   return {
-    version: 2 as const,
+    version: 3 as const,
     packageId: "package-1",
     componentPath: "cf",
     archiveProjectPath: ".nkdk/tmp/incremental-sync/cf/package-1.zip",
     archiveHash: "1111111111111111",
-    sourceSnapshotHash: "2222222222222222",
-    sourceSnapshotGeneration: "1",
-    candidateSnapshotHash: "3333333333333333",
     candidateAppliedMigrations: [],
     entries: ["Catalogs/Test.xml", "load.lst"],
     loadTargets: ["Catalogs/Test.xml"],

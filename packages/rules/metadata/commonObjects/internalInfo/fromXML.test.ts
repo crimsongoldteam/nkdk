@@ -109,7 +109,7 @@ describe("importInternalInfoFromXML", () => {
     expect(yaml).toEqual({})
     expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").entities.map((entity) => ({
       logicalAddress: entity.logicalAddress,
-      uuid: entity.identities?.uuid,
+      uuid: entity.uuid,
     }))).toEqual([
       {
         logicalAddress:
@@ -266,7 +266,7 @@ describe("importInternalInfoFromXML", () => {
     const collected = exportContext.exportToXML.configurationIndex?.collector
       .fragment("Справочник/Товары/Свойства.yaml").entities
     expect(collected).toHaveLength(4)
-    expect(collected?.some((entity) => entity.xml !== undefined)).toBe(false)
+    expect(collected?.every((entity) => Object.keys(entity).every((key) => ["logicalAddress", "uuid", "xmlId", "children"].includes(key)))).toBe(true)
   })
 
   it("imports GeneratedType and ThisNode", () => {

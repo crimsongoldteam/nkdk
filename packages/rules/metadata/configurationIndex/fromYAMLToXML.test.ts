@@ -602,10 +602,6 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       xml: { Name: "Код" },
       name: "Код",
     })
-    contexts.importContext.fromXML.configurationIndex?.collector.setXmlFlag(
-      "Catalog.Товары.Attribute.Код",
-      "present",
-    )
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
       rule,

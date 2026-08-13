@@ -16,6 +16,7 @@ export const syncToInfobaseInputShape = {
   projectDir: z.string().min(1),
   componentPath: componentPathSchema.optional(),
   allowWrite: z.boolean().optional(),
+  forceClearPending: z.boolean().optional(),
 }
 
 export const syncToInfobaseInputSchema = z.strictObject(syncToInfobaseInputShape)

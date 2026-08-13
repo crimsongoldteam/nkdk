@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import { dirname, join } from "node:path"
 import { xmlExport } from "@nkdk/runtime"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { finalizeExportedXmlValues } from "../ruleRuntime/property/finalizeExportedXML"
 import type { YAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
@@ -24,7 +24,7 @@ export interface WriteFullXmlSyncAssignmentResult {
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
   readonly generatedDocuments: readonly FullXmlSyncGeneratedDocument[]
-  readonly fragments: readonly ConfigurationSnapshotFragment[]
+  readonly fragments: readonly ConfigurationIndexBlockFragment[]
   readonly profile?: YAMLToXMLProfile
 }
 

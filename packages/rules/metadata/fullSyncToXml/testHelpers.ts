@@ -2,8 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import type { ComponentAddress } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { snapshotConfigurationIndex } from "@nkdk/runtime"
+import type { ConfigurationIndexCandidateStore, ConfigurationIndexStore } from "@nkdk/runtime"
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
@@ -100,7 +99,7 @@ export function createMockFullSyncDependencies(
                     baseForms: {
                       componentDir: base.structure.componentDir,
                       projectFiles: base.hashes.projectFiles,
-                      snapshot: base.snapshot,
+                      snapshot: base.snapshot.descriptor,
                     },
                   }),
             },
@@ -132,7 +131,8 @@ export function createMockFullSyncDependencies(
     createWorkerPool() {
       return {
         async initialize() {},
-        async execute() {
+        async execute(_assignments, options) {
+          await options?.onBatch?.({ generatedDocuments: [], configurationFragments: [{ targetProjectPath: "Конфигурация.yaml", entities: [] }] })
           return {
             diagnostics: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
             warnings: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
@@ -148,10 +148,6 @@ export function createMockFullSyncDependencies(
                 targetXmlPath: "Configuration.xml",
               },
             ]),
-            fragmentData: {
-              sourceProjectPaths: ["Конфигурация.yaml"],
-              entities: [],
-            },
           }
         },
         async close() {},
@@ -163,7 +159,9 @@ export function createMockFullSyncDependencies(
     validateWrittenFiles() {
       return []
     },
-    async writeIndex() {},
+    openIndexStore: () => createFakeConfigurationIndexStore(),
+    async createIndexCandidate() { return createFakeConfigurationIndexCandidateStore() },
+    async publishCandidate() {},
   }
 
   return { ...defaults, ...overrides }
@@ -206,13 +204,27 @@ function indexes(structure: ComponentProjectStructure, hashState: ComponentHashS
 
 function snapshot(address: ComponentAddress) {
   const componentPath = address.kind === "configuration" ? "cf" : `cfe/${address.name}`
-  return snapshotConfigurationIndex(
-    encodeConfigurationIndex({
-      specificationVersion: "1.4",
-      indexGeneration: 1n,
-      componentPath,
-      files: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
-      entities: [],
-    })
-  )
+  return {
+    descriptor: {
+      dataPath: `/project/.nkdk/components/${componentPath}/configuration-index.lmdb`,
+      lockPath: `/project/.nkdk/components/${componentPath}/configuration-index.lmdb-lock`,
+      schemaVersion: 1,
+    },
+    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+  }
+}
+
+export function createFakeConfigurationIndexStore(): ConfigurationIndexStore {
+  return {
+    descriptor: () => snapshot({ kind: "configuration" }).descriptor,
+    readHashes: () => [], getBlocks: () => new Map(), hasBlock: () => false, hasPending: () => false,
+    async replaceActiveFrom() {}, async publishImportedCandidate() {}, async writePending() {},
+    pendingAlreadyApplied: () => false, async applyPending() {}, async clearPending() {}, async flush() {}, async close() {},
+  }
+}
+
+export function createFakeConfigurationIndexCandidateStore(): ConfigurationIndexCandidateStore {
+  return {
+    ...createFakeConfigurationIndexStore(), mergeBlockFragment() {}, replaceHashes() {}, copyActiveBlocksFrom() {}, validateCandidate() {}, async discard() {},
+  }
 }
