@@ -151,6 +151,16 @@ export const MetadataFunctionalOptionRules = {
       yaml: "Размещение",
       xml: "Location",
       xmlParents: properties,
+      metadataTarget: {
+        kind: "member",
+        owner: "explicit",
+        allowOwner: true,
+        allowedObjectPaths: [["Constant"]],
+        allowedMemberPaths: [
+          ["Catalog", "Attribute"],
+          ["InformationRegister", "Resource"],
+        ],
+      },
     }),
     privilegedGetMode: booleanRule({
       yaml: "ПривилегированныйРежимПриПолучении",

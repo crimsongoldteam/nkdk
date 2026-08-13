@@ -7,6 +7,7 @@ import "./toYAML"
 const rule: PropertyRule = {
   type: "FunctionalOptionsProperty",
   yaml: "ФункциональныеОпции",
+  metadataTarget: { kind: "object", roots: ["FunctionalOption"] },
 }
 
 describe("exportFunctionalOptionsToYAML", () => {
@@ -17,5 +18,11 @@ describe("exportFunctionalOptionsToYAML", () => {
     })
 
     expect(exportToYAML(result)).toBe('ФункциональныеОпции:\n  - ""')
+  })
+
+  it("exports functional option references as short Russian names", () => {
+    const result = testExportPropertyToYAML({ rule, value: ["FunctionalOption.Булево"] })
+
+    expect(result).toEqual({ ФункциональныеОпции: ["Булево"] })
   })
 })

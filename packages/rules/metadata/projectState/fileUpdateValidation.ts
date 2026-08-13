@@ -376,8 +376,10 @@ function assertMetadataTargetConstraint(value: unknown, path: string): void {
       "memberKinds",
       "filters",
       "allowOwner",
+      "typeProperty",
     ], path)
-    assertStringIn(constraint["owner"], ["this", "explicit"], `${path}.owner`)
+    assertStringIn(constraint["owner"], ["this", "explicit", "type"], `${path}.owner`)
+    assertOptionalString(constraint["typeProperty"], `${path}.typeProperty`)
     assertOptionalRootArray(constraint["roots"], `${path}.roots`)
     assertOptionalRootArray(constraint["objectRoots"], `${path}.objectRoots`)
     assertOptionalRootArray(constraint["nestedObjectRoots"], `${path}.nestedObjectRoots`)

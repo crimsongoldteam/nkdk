@@ -100,7 +100,8 @@ export interface ObjectTargetConstraint {
 
 export interface MemberTargetConstraint {
   kind: "member"
-  owner: "this" | "explicit"
+  owner: "this" | "explicit" | "type"
+  typeProperty?: string
   roots?: readonly MetadataRootName[]
   objectRoots?: readonly MetadataRootName[]
   nestedObjectRoots?: readonly MetadataRootName[]

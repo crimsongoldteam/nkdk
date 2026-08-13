@@ -47,6 +47,15 @@ describe("MetadataAttributes YAML → XML", () => {
     expect(result).toContain("<ChoiceForm>Catalog.Справочник.Form.ФормаВыбора</ChoiceForm>")
   })
 
+  it("rejects a choice form for a composite attribute type", () => {
+    expect(() => convertYAML({
+      ТестовыйРеквизит: {
+        Тип: ["Справочник.Справочник", "Документ.Документ"],
+        ФормаВыбора: "ФормаВыбора",
+      },
+    })).toThrow(/Неизвестный корень/)
+  })
+
   it("should import minimal", () => {
     const result = convertYAML({ ТестовыйРеквизит: { Тип: "Строка", Синоним: "" } })
     expect(result).toContain("<Name>ТестовыйРеквизит</Name>")
@@ -307,10 +316,10 @@ const normalize = (value: string): string =>
 
 const FULL_YAML = {
   ТестовыйРеквизит: {
-    Тип: "Строка",
+    Тип: "Справочник.Справочник",
     Синоним: "Какой-то тестовый реквизит",
     Комментарий: "Комментарий к реквизиту",
-    ФормаВыбора: "Catalog.Справочник.Form.ФормаВыбора",
+    ФормаВыбора: "ФормаВыбора",
   },
 }
 

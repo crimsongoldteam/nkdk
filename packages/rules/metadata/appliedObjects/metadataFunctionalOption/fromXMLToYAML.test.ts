@@ -10,6 +10,11 @@ const rule = {
   },
 } satisfies MetadataItemRule
 
+const locationRule = {
+  itemType: "MetadataFunctionalOptionLocationProbe",
+  properties: { location: MetadataFunctionalOptionRules.properties.location },
+} satisfies MetadataItemRule
+
 describe("MetadataFunctionalOption: единый XML → YAML-обход", () => {
   it("отклоняет неподдерживаемые ссылки состава", () => {
     expect(() =>
@@ -18,5 +23,28 @@ describe("MetadataFunctionalOption: единый XML → YAML-обход", () =>
         xml: { Properties: { Content: { "xr:Object": ["CommonTemplate.ПечатнаяФорма"] } } },
       })
     ).toThrow()
+  })
+
+  it.each([
+    ["Constant.КонстантаБулево", "Константа.КонстантаБулево"],
+    ["Catalog.Товары.Attribute.ИспользоватьОпцию", "Справочник.Товары.Реквизит.ИспользоватьОпцию"],
+    ["InformationRegister.Настройки.Resource.ИспользоватьОпцию", "РегистрСведений.Настройки.Ресурс.ИспользоватьОпцию"],
+  ])("переводит допустимое размещение %s", (canonical, yaml) => {
+    const result = testPropertyFromXMLToYAML({
+      rule: locationRule,
+      xml: { Properties: { Location: canonical } },
+    })
+
+    expect(result.yaml).toEqual({ Размещение: yaml })
+  })
+
+  it.each([
+    "Catalog.Товары.TabularSection.Строки.Attribute.ИспользоватьОпцию",
+    "InformationRegister.Настройки.Attribute.ИспользоватьОпцию",
+  ])("отклоняет недопустимое размещение %s", (canonical) => {
+    expect(() => testPropertyFromXMLToYAML({
+      rule: locationRule,
+      xml: { Properties: { Location: canonical } },
+    })).toThrow()
   })
 })

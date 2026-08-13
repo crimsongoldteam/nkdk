@@ -10,7 +10,11 @@ import {
 } from "../../configurationIndex/referenceView"
 import type { MetadataTargetOwner } from "../metadataTarget"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefaultVariant } from "../../context/types"
-import { metadataTargetOwnerFromRule, importStringMetadataTargetFromYAML } from "./metadataTargetString"
+import {
+  metadataTargetOwnerForProperty,
+  metadataTargetOwnerFromRule,
+  importStringMetadataTargetFromYAML,
+} from "./metadataTargetString"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"
 import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
@@ -667,7 +671,11 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         referenceValue: atomicReferences[0],
         yaml,
         name: params.name,
-        owner,
+        owner: metadataTargetOwnerForProperty({
+          rule: planned.propertyRule,
+          siblingValue: (siblingPropertyKey) => source.raw(siblingPropertyKey),
+          owner,
+        }),
         restoreExcludedEqualName:
           !source.has(propertyKey) &&
           planned.propertyRule.excludeIfEqualNameYAML === true &&
@@ -805,7 +813,7 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const handler = params.handler ?? (params.execution === undefined
     ? getTypeRule(rule.type, "importFromYAML")
     : params.execution.getTypeRule(rule.type, "importFromYAML"))
-  const importedValue = handler === undefined || rule.type === "IndexField"
+  const importedValue = handler === undefined || rule.type === "IndexField" || rule.type === "FunctionalOptionsProperty"
     ? importStringMetadataTargetFromYAML({ rule, value, owner })
     : value
   if (handler === undefined) {

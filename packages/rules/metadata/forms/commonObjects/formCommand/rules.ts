@@ -64,6 +64,7 @@ export const FormCommandRules = {
     }),
     use: userVisibleRule({
       yaml: "Использование",
+      metadataTarget: { kind: "object", roots: ["Role"] },
     }),
     shortcut: stringRule({
       yaml: "СочетаниеКлавиш",
@@ -79,6 +80,7 @@ export const FormCommandRules = {
     }),
     functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
+      metadataTarget: { kind: "object", roots: ["FunctionalOption"] },
     }),
     representation: systemEnumerationRule({
       yaml: "ОтображениеКнопки",

@@ -9,14 +9,12 @@ import {
   type DependentStructuralItemReference,
 } from "../ruleRuntime/property/dependentItemRegistry"
 import { yamlScalarTagAt } from "../../yaml/scalarTags"
+import { metadataTargetOwnerForProperty } from "../ruleRuntime/property/metadataTargetString"
 
 export interface StructuralReferencePropertyRule {
   readonly type: string
   readonly yaml?: string
-  readonly metadataTarget?: {
-    readonly kind: string
-    readonly owner?: string
-  }
+  readonly metadataTarget?: MetadataTargetConstraint
 }
 
 export interface StructuralReferenceItemRule {
@@ -194,19 +192,27 @@ function collectObjectReferences(params: {
       })
     if (isTransported([])) continue
 
+    const propertyOwner = metadataTargetOwnerForProperty({
+      rule: propertyRule,
+      siblingValue: (propertyKey) => {
+        const siblingYaml = params.rule.properties[propertyKey]?.yaml
+        return typeof siblingYaml === "string" ? record[siblingYaml] : undefined
+      },
+      owner: params.owner,
+    })
     const handlerParams = {
       filePath: params.filePath,
       parsed: params.parsed,
       yamlPath: [...params.yamlPath, propertyRule.yaml],
       propRule: propertyRule,
       propertyName,
-      owner: params.owner,
+      owner: propertyOwner,
     }
     let typedValue = params.runtime.valueFromYAML({
       context: params.context,
       rule: propertyRule,
       value: yamlValue,
-      owner: params.owner,
+      owner: propertyOwner,
       yaml: record,
     })
     const candidates = params.runtime.collectStructuralReferences({
@@ -218,7 +224,7 @@ function collectObjectReferences(params: {
           context: params.context,
           rule: propertyRule,
           value: nextValue,
-          owner: params.owner,
+          owner: propertyOwner,
         })
       },
     })
@@ -234,7 +240,7 @@ function collectObjectReferences(params: {
           context: params.context,
           rule: propertyRule,
           value: typedValue,
-          owner: ownerForRewrittenCanonical(propertyRule, params.owner, stagedCanonical),
+          owner: ownerForRewrittenCanonical(propertyRule, propertyOwner, stagedCanonical),
         })
         stagedCanonical = undefined
       }
@@ -265,7 +271,7 @@ function collectObjectReferences(params: {
               context: params.context,
               rule: propertyRule,
               value: typedValue,
-              owner: ownerForRewrittenCanonical(propertyRule, params.owner, nextCanonical),
+              owner: ownerForRewrittenCanonical(propertyRule, propertyOwner, nextCanonical),
             })
           },
         })

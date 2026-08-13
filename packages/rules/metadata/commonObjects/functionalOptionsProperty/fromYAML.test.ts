@@ -6,6 +6,7 @@ import "./fromYAML"
 const rule: PropertyRule = {
   type: "FunctionalOptionsProperty",
   yaml: "ФункциональныеОпции",
+  metadataTarget: { kind: "object", roots: ["FunctionalOption"] },
 }
 
 describe("importFunctionalOptionsFromYAML", () => {
@@ -16,5 +17,12 @@ describe("importFunctionalOptionsFromYAML", () => {
     })
 
     expect(result).toEqual([""])
+  })
+
+
+  it("restores short functional option names", () => {
+    const result = testAtomicFromYAML({ rule, value: ["Булево"] })
+
+    expect(result).toEqual(["FunctionalOption.Булево"])
   })
 })

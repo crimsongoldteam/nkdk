@@ -16,7 +16,7 @@ describe("importUserVisibleFromYAML", () => {
       rule: userVisibleRule,
       value: {
         Роли: {
-          "Role.Администратор": "Истина",
+          Администратор: "Истина",
           "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь",
         },
       },
@@ -38,7 +38,7 @@ describe("importUserVisibleFromYAML", () => {
       value: {
         Разрешить: "Ложь",
         Роли: {
-          "Role.Администратор": "Истина",
+          Администратор: "Истина",
           "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь",
         },
       },

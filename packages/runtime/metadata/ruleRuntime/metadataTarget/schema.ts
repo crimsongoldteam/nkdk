@@ -221,7 +221,7 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
       ? undefined
       : `(?:${modelRootGroup(selectedRoots)})\\.${METADATA_NAME_PATTERN}\\.${modelMemberPath}`
 
-  if (constraint.owner === "this" && memberKinds.length === 1) {
+  if (constraint.owner !== "explicit" && memberKinds.length === 1) {
     const kind = memberKinds[0]
     const branches = [METADATA_NAME_PATTERN]
     branches.push(nestedLocalMemberPathPattern(kind, "yaml"))
@@ -235,7 +235,7 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
     })
   }
 
-  if (constraint.owner === "this") {
+  if (constraint.owner !== "explicit") {
     const branches = []
     if (yamlMemberPath) branches.push(yamlMemberPath)
     if (fullModelCompatibility) branches.push(fullModelCompatibility)

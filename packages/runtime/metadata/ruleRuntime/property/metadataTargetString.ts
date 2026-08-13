@@ -58,7 +58,7 @@ export function exportStringMetadataTargetToYAML(params: {
 
   return formatMetadataTargetToYAML({
     canonical: value,
-    constraint,
+    constraint: effectiveMetadataTargetConstraint(constraint, params.owner),
     owner: params.owner,
   })
 }
@@ -79,15 +79,42 @@ export function importStringMetadataTargetFromYAML(params: {
 
   const result = parseMetadataTargetFromYAML({
     value,
-    constraint,
+    constraint: effectiveMetadataTargetConstraint(constraint, params.owner),
     owner: params.owner,
   })
   if (!result.ok) throw new Error(result.message)
   return result.canonical
 }
 
+export function metadataTargetOwnerFromTypeYAML(value: unknown): MetadataTargetOwner | undefined {
+  if (typeof value !== "string" || value === "") return undefined
+  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "object" } })
+  if (!parsed.ok || parsed.target.kind !== "object" || (parsed.target.segments?.length ?? 0) > 0) return undefined
+  return { root: parsed.target.root, objectName: parsed.target.objectName }
+}
+
+export function metadataTargetOwnerForProperty(params: {
+  rule: { readonly metadataTarget?: MetadataTargetConstraint }
+  siblingValue: (propertyKey: string) => unknown
+  owner: MetadataTargetOwner | undefined
+}): MetadataTargetOwner | undefined {
+  const constraint = params.rule.metadataTarget
+  if (constraint?.kind !== "member" || constraint.owner !== "type") return params.owner
+  if (constraint.typeProperty === undefined) return undefined
+  return metadataTargetOwnerFromTypeYAML(params.siblingValue(constraint.typeProperty))
+}
+
+function effectiveMetadataTargetConstraint(
+  constraint: MetadataTargetConstraint,
+  owner: MetadataTargetOwner | undefined,
+): MetadataTargetConstraint {
+  if (constraint.kind !== "member" || constraint.owner !== "type") return constraint
+  const { typeProperty: _typeProperty, ...rest } = constraint
+  return { ...rest, owner: owner === undefined ? "explicit" : "this" }
+}
+
 function supportsGenericStringMetadataTarget(rule: PropertyRule): boolean {
-  return rule.type === "string" || rule.type === "IndexField"
+  return rule.type === "string" || rule.type === "IndexField" || rule.type === "FunctionalOptionsProperty"
 }
 
 function metadataTargetOwnerFrames(context: ConfigurationContext | undefined): readonly MetadataTargetOwnerFrame[] {

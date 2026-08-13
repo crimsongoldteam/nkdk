@@ -15,6 +15,7 @@ import { metadataRules } from "../composition/metadataRules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 import { MetadataSubsystemRules } from "../appliedObjects/metadataSubsystem/rules"
+import { mockContext } from "../../tests/mockContext"
 
 it.each([
   ["setter", "без setter"],
@@ -77,7 +78,7 @@ it("excludes only tagged transported MDObjectRef from structural references", ()
     parsed,
     rule,
     yaml: parsed.data,
-    context: { version: "2.20", defaultLanguage: "ru" },
+    context: mockContext,
     runtime: createPropertyStructuralReferenceRuntime(),
   }))
 
@@ -85,4 +86,50 @@ it("excludes only tagged transported MDObjectRef from structural references", ()
     ok: true,
     references: [{ canonical: "Catalog.Товары" }],
   })
+})
+
+it("resolves and preserves a short member reference owned by the sibling type", () => {
+  const parsed = parseMetadataYaml("Тип: Справочник.Товары\nФормаВыбора: ФормаВыбора\n")
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const rule = {
+    itemType: "TypeOwnedMemberStructuralProbe",
+    properties: {
+      type: {
+        type: "string",
+        yaml: "Тип",
+        metadataTarget: { kind: "object" },
+      },
+      choiceForm: {
+        type: "string",
+        yaml: "ФормаВыбора",
+        metadataTarget: {
+          kind: "member",
+          owner: "type",
+          typeProperty: "type",
+          memberKinds: ["Form"],
+        },
+      },
+    },
+  } as MetadataItemRule
+
+  const result = withPropertyRuleRegistrySet(registry, () => collectStructuralYamlReferences({
+    filePath: "/project/Свойства.yaml",
+    parsed,
+    rule,
+    yaml: parsed.data,
+    context: mockContext,
+    runtime: createPropertyStructuralReferenceRuntime(),
+  }))
+
+  expect(result).toMatchObject({
+    ok: true,
+    references: expect.arrayContaining([
+      expect.objectContaining({ canonical: "Catalog.Товары.Form.ФормаВыбора" }),
+    ]),
+  })
+  if (!result.ok) throw new Error(result.message)
+  const choiceForm = result.references.find(({ canonical }) => canonical.endsWith(".Form.ФормаВыбора"))
+  if (choiceForm === undefined) throw new Error("Не найдена ссылка на форму выбора")
+  choiceForm.setCanonical("Catalog.Товары.Form.НоваяФорма")
+  expect(parsed.data).toMatchObject({ ФормаВыбора: "НоваяФорма" })
 })

@@ -48,6 +48,7 @@ export const StandardAttributeDescriptionRules = {
     choiceForm: stringRule({
       yaml: "ФормаВыбора",
       xml: "xr:ChoiceForm",
+      metadataTarget: { kind: "member", owner: "explicit", memberKinds: ["Form"] },
       defaultValueXMLRaw: "",
     }),
     choiceHistoryOnInput: systemEnumerationRule({
