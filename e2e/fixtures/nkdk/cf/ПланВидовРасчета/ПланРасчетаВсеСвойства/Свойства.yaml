@@ -104,7 +104,6 @@
   LeadingCalculationTypes:
     Синоним:
       : Ведущие виды расчета
-      ru: Синоним ведущие виды расчета
     СтандартныеРеквизиты:
       Predefined:
       CalculationType:
@@ -113,7 +112,6 @@
   DisplacingCalculationTypes:
     Синоним:
       : Вытесняющие виды расчета
-      ru: Синоним вытесняющие виды расчета
     СтандартныеРеквизиты:
       Predefined:
       CalculationType:
@@ -122,7 +120,6 @@
   BaseCalculationTypes:
     Синоним:
       : Базовые виды расчета
-      ru: Синоним базовые виды расчета
     СтандартныеРеквизиты:
       Predefined:
       CalculationType:
