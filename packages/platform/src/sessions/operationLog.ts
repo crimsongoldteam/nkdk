@@ -1,3 +1,4 @@
+import fs from "node:fs"
 import {
   PlatformSessionError,
   type PlatformFailureStage,
@@ -86,6 +87,23 @@ export async function createPlatformOperationLog(
   }
 }
 
+export async function recordPartialSyncDeliveryPhase(
+  params: { readonly path: string; readonly phase: "prepared" | "transferring" | "applied" },
+  dependencies: Pick<PlatformOperationLogDependencies, "fileSystem" | "now"> = {
+    fileSystem: {
+      writeFile: (path, content, options) => fs.promises.writeFile(path, content, options).then(() => undefined),
+      appendFile: (path, content) => fs.promises.appendFile(path, content),
+      chmod: (path, mode) => fs.promises.chmod(path, mode),
+    },
+    now: () => new Date(),
+  },
+): Promise<void> {
+  await dependencies.fileSystem.appendFile(
+    params.path,
+    `${timestamp(dependencies.now())} pending-phase=${params.phase}\n`,
+  )
+}
+
 export function redactPlatformText(value: string, secrets: readonly string[]): string {
   let sanitized = stripUnsafeControls(value)
   for (const secret of [...new Set(secrets)].filter(Boolean).sort((left, right) => right.length - left.length)) {
@@ -125,6 +143,10 @@ export async function platformFailure(params: PlatformFailureParams): Promise<Pl
     : `${message}. Журнал операции записать не удалось`
   return new PlatformSessionError(params.code, finalMessage, {
     ...(params.cause === undefined ? {} : { cause: params.cause }),
+    ...(params.cause instanceof PlatformSessionError
+      && params.cause.commandOutcome !== undefined
+      ? { commandOutcome: params.cause.commandOutcome }
+      : {}),
     details: {
       stage: params.stage,
       ...(params.mode === undefined ? {} : { mode: params.mode }),

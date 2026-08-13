@@ -37,6 +37,14 @@ import type {
 import type { renameMetadataItem } from "../operations/renameItem"
 import type { findMetadataReferences } from "../operations/findMetadataReferences"
 import type { MetadataWorkerPoolHandle } from "../workerPool/types"
+import type {
+  finalizePartialXmlSyncPackage,
+  markPartialSyncApplied,
+  markPartialSyncPreparedAfterRejection,
+  markPartialSyncTransferring,
+  preparePartialXmlSyncPackage,
+  readPendingPartialXmlSync,
+} from "../partialSyncToXml"
 
 export interface MetadataWorkerManifest {
   readonly preparedYamlProject: URL
@@ -90,6 +98,14 @@ export interface MetadataRuntime {
     readonly configurationToXml: typeof syncConfigurationToXml
     readonly readState: typeof readXmlSyncState
     readonly initializeState: typeof initializeXmlSyncState
+    readonly partial: {
+      readonly prepare: typeof preparePartialXmlSyncPackage
+      readonly readPending: typeof readPendingPartialXmlSync
+      readonly markTransferring: typeof markPartialSyncTransferring
+      readonly markPreparedAfterRejection: typeof markPartialSyncPreparedAfterRejection
+      readonly markApplied: typeof markPartialSyncApplied
+      readonly finalize: typeof finalizePartialXmlSyncPackage
+    }
   }
   readonly metadata: {
     readonly rules: RuleRegistrySet

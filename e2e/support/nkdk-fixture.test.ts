@@ -49,7 +49,7 @@ describe("updateNkdkFixture", () => {
       .rejects.toMatchObject({ code: "ENOENT" })
   })
 
-  it("заменяет полный эталон после успешного импорта", async () => {
+  it("заменяет YAML-эталон после успешного импорта без сгенерированного состояния", async () => {
     const root = await temporaryRoot()
     const targetDir = join(root, "fixtures", "nkdk")
     const importedRoot = join(root, "imported")
@@ -75,10 +75,8 @@ describe("updateNkdkFixture", () => {
       .resolves.toBe("Имя: Новая\n")
     await expect(readFile(join(targetDir, "old.txt"), "utf8"))
       .rejects.toMatchObject({ code: "ENOENT" })
-    await expect(readFile(join(targetDir, ".nkdk", "cache", "project-state.bin"), "utf8"))
-      .rejects.toMatchObject({ code: "ENOENT" })
     await expect(readFile(join(targetDir, ".nkdk", "components", "cf", "configuration-index.bin"), "utf8"))
-      .resolves.toBe("index")
+      .rejects.toMatchObject({ code: "ENOENT" })
   })
 })
 

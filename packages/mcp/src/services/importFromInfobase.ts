@@ -1,4 +1,3 @@
-import fs from "node:fs"
 import { randomUUID } from "node:crypto"
 import { join } from "node:path"
 import { pathToFileURL } from "node:url"
@@ -14,6 +13,7 @@ import type { ImportFromInfobaseInput } from "../contracts/importFromInfobase"
 import { assertImportTargetEmpty, resolveComponent } from "./componentResolver"
 import { getPlatformSessionManager } from "./platformSessionHandle"
 import { projectSettingsFailure } from "./projectSettingsFailure"
+import { temporaryDirectoryFileSystem } from "./temporaryDirectory"
 
 type CoreImportDiagnostic = {
   severity: "error" | "warning"
@@ -168,14 +168,7 @@ function defaultDependencies(): ImportFromInfobaseDependencies {
     readSettings: readProjectSettings,
     resolveTarget: resolveComponent,
     assertTargetEmpty: assertImportTargetEmpty,
-    fs: {
-      async mkdir(path) {
-        await fs.promises.mkdir(path, { recursive: true })
-      },
-      async rm(path) {
-        await fs.promises.rm(path, { recursive: true, force: true })
-      },
-    },
+    fs: temporaryDirectoryFileSystem,
     operationId: randomUUID,
   }
 }

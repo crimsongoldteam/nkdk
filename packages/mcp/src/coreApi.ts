@@ -9,6 +9,8 @@ import type {
   MetadataProjectDirectoryStructure,
   MetadataProjectStructureNode,
   MetadataRuntimeProjectState,
+  PendingPartialSyncState,
+  PreparePartialSyncResult,
 } from "@nkdk/runtime"
 import { metadataRuntimeHandle } from "./metadataRuntimeHandle"
 
@@ -131,7 +133,21 @@ export interface CoreApi {
     yamlDir: string
     xmlDir: string
   }): Promise<XmlSyncState>
+  preparePartialSync(params: {
+    context: { defaultLanguage: "ru"; version: "2.20" }
+    projectDir: string
+    componentPath: string
+    concurrency?: number
+    projectState: CoreProjectStateService
+  }): Promise<PreparePartialSyncResult>
+  readPendingPartialSync(projectDir: string, componentPath: string): Promise<PendingPartialSyncState | undefined>
+  markPartialSyncTransferring: MetadataRuntimePartialSync["markTransferring"]
+  markPartialSyncPreparedAfterRejection: MetadataRuntimePartialSync["markPreparedAfterRejection"]
+  markPartialSyncApplied: MetadataRuntimePartialSync["markApplied"]
+  finalizePartialSync: MetadataRuntimePartialSync["finalize"]
 }
+
+type MetadataRuntimePartialSync = Awaited<ReturnType<typeof metadataRuntimeHandle.get>>["sync"]["partial"]
 
 export type CoreProjectStateService = MetadataRuntimeProjectState
 
@@ -188,6 +204,15 @@ export async function loadCoreApi(): Promise<CoreApi> {
     }),
     readXmlSyncState: runtime.sync.readState,
     initializeXmlSyncState: runtime.sync.initializeState,
+    preparePartialSync: (params) => runtime.sync.partial.prepare({
+      ...params,
+      projectState: requireRuntimeProjectState(params.projectState),
+    }),
+    readPendingPartialSync: runtime.sync.partial.readPending,
+    markPartialSyncTransferring: runtime.sync.partial.markTransferring,
+    markPartialSyncPreparedAfterRejection: runtime.sync.partial.markPreparedAfterRejection,
+    markPartialSyncApplied: runtime.sync.partial.markApplied,
+    finalizePartialSync: runtime.sync.partial.finalize,
   }
 }
 

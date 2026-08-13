@@ -1,13 +1,25 @@
 import { describe, expect, it } from "vitest"
 import {
+  recordPartialSyncDeliveryPhase,
   concisePlatformMessage,
   createPlatformOperationLog,
   platformFailure,
   redactPlatformText,
   type PlatformOperationLogFileSystem,
 } from "./operationLog"
+import { PlatformSessionError } from "./errors"
 
 describe("platform operation log", () => {
+  it("дописывает фазу доставки в существующий журнал", async () => {
+    const fixture = createFixture()
+
+    await recordPartialSyncDeliveryPhase(
+      { path: "/operation/platform.log", phase: "applied" },
+      fixture.dependencies,
+    )
+
+    expect(fixture.calls).toContain("append /operation/platform.log")
+  })
   it("redacts explicit secrets and common password arguments", () => {
     expect(redactPlatformText(
       "ibcmd --password secret --database-password=db-secret /P pwd",
@@ -140,6 +152,38 @@ describe("platform operation log", () => {
       },
     })
     expect(error.details).not.toHaveProperty("logPath")
+  })
+
+  it("preserves the structured command outcome while adding failure details", async () => {
+    const fixture = createFixture()
+    const log = await createPlatformOperationLog(
+      { path: "/operation/platform.log", secrets: [] },
+      fixture.dependencies
+    )
+    const cause = new PlatformSessionError(
+      "session_timeout",
+      "Timed out",
+      { commandOutcome: "unknown" }
+    )
+
+    const error = await platformFailure({
+      code: cause.code,
+      stage: "configuration-export",
+      mode: "designer-agent",
+      log,
+      platformText: cause.message,
+      fallbackMessage: "Истекло время выгрузки",
+      cause,
+    })
+
+    expect(error).toMatchObject({
+      commandOutcome: "unknown",
+      details: {
+        stage: "configuration-export",
+        mode: "designer-agent",
+        logPath: "/operation/platform.log",
+      },
+    })
   })
 })
 

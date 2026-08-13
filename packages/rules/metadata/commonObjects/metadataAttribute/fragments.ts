@@ -403,8 +403,9 @@ export const attributeBinaryStorageUseFieldFragment = metadataRuleFragment(
 
 export const attributeUuidFragment = metadataRuleFragment(["uuid"], {
   uuid: {
-    type: "UUID",
+    type: "uuid",
     xml: "_uuid",
+    evaluateWhenYAMLMissing: true,
     forReferenceOnly: true,
     toYAML: false,
     fromYAML: false,
