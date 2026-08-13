@@ -103,6 +103,15 @@ describe("registered metadata resource topology contracts", () => {
     })
   })
 
+  it("классифицирует плоский объект без поддержки прежнего пути", () => {
+    expect(classifyMetadataProjectPath(topology, "Нумератор/НумераторЗаказов.yaml")).toMatchObject({
+      kind: "content",
+      role: "properties",
+      values: { ownerName: "НумераторЗаказов" },
+    })
+    expect(classifyMetadataProjectPath(topology, "Нумератор/НумераторЗаказов/Свойства.yaml")).toBeUndefined()
+  })
+
   it.each([
     [
       "Справочник/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml",

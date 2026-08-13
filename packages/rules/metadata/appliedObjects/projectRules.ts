@@ -13,6 +13,19 @@ import { MetadataEnumerationRules } from "./metadataEnumeration/rules"
 import { exportMetadataEnumerationToJSONSchema } from "./metadataEnumeration/toJSONSchema"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
+const flatFileItemTypes = new Set([
+  "MetadataCommandGroup",
+  "MetadataDocumentNumerator",
+  "MetadataCommonAttribute",
+  "MetadataDefinedType",
+  "MetadataSessionParameter",
+  "MetadataFunctionalOptionsParameter",
+  "MetadataEventSubscription",
+  "MetadataFunctionalOption",
+  "MetadataStyleItem",
+  "MetadataLanguage",
+])
+
 const fixedAppliedObjectProjectRules = composeMetadataRules(
   defineProjectSpec({
     kind: "configuration",
@@ -68,6 +81,7 @@ export function defineAppliedObjectProjectRules(
         kind: rule.itemType,
         dir,
         rule,
+        ...(flatFileItemTypes.has(rule.itemType) ? { projectLayout: "flatFile" as const } : {}),
         exportSchema: createMetadataItemProjectSchemaExporter(rule),
         ...(rule.itemType === "MetadataSubsystem"
           ? {
