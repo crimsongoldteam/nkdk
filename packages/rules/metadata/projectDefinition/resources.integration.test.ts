@@ -2,7 +2,6 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
 import { discoverValidationProjectComponents } from "../validation/projectComponents"
@@ -18,8 +17,9 @@ import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "../forms/clientApplicationForm/rules"
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
-import { getMetadataProjectSpecByDir } from "./specs"
+import { getMetadataProjectSpecByDir, getMetadataProjectSpecs } from "./specs"
 import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlDescriptor"
+import { projectSpecFixturePaths } from "../../tests/projectSpecFixturePath"
 
 describe("metadata project resources", () => {
   const tempDirs: string[] = []
@@ -320,16 +320,12 @@ describe("metadata project resources", () => {
 
   it("discovers properties for every top-level metadata item with YAML directory", async () => {
     const projectDir = createProject()
-    const dirs = TopLevelMetadataItemRules.flatMap((rule) =>
-      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
-    )
+    const projectPaths = projectSpecFixturePaths(getMetadataProjectSpecs(), "Тест")
 
-    for (const dir of dirs) {
-      touchProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`)
-    }
+    for (const projectPath of projectPaths) touchProjectFile(projectDir, projectPath)
 
     expect((await discoverMetadataProjectResources(projectDir)).map((file) => file.projectPath)).toEqual(
-      dirs.map((dir) => `${dir}/Тест/Свойства.yaml`).sort((left, right) => left.localeCompare(right, "ru"))
+      projectPaths,
     )
   })
 

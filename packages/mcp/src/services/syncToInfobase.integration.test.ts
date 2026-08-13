@@ -159,7 +159,7 @@ describe("полный цикл частичной синхронизации б
       fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), rootYaml)
       const baseRootYaml = "Имя: Конфигурация\nОсновнойЯзык: Русский\n"
       const languageYaml = "КодЯзыка: ru\n"
-      const languagePath = join(projectDir, "cf", "Язык", "Русский", "Свойства.yaml")
+      const languagePath = join(projectDir, "cf", "Язык", "Русский.yaml")
       fs.mkdirSync(join(languagePath, ".."), { recursive: true })
       fs.writeFileSync(join(projectDir, "cf", "Конфигурация.yaml"), baseRootYaml)
       fs.writeFileSync(languagePath, languageYaml)
@@ -172,11 +172,11 @@ describe("полный цикл частичной синхронизации б
           componentPath: "cf",
           files: [
             { projectPath: "Конфигурация.yaml", contentHash: hashFileBytes(Buffer.from(baseRootYaml)) },
-            { projectPath: "Язык/Русский/Свойства.yaml", contentHash: hashFileBytes(Buffer.from(languageYaml)) },
+            { projectPath: "Язык/Русский.yaml", contentHash: hashFileBytes(Buffer.from(languageYaml)) },
           ],
           entities: [{
             logicalAddress: "Язык.Русский",
-            sourceProjectPath: "Язык/Русский/Свойства.yaml",
+            sourceProjectPath: "Язык/Русский.yaml",
             identities: { uuid: "00000000-0000-4000-8000-000000000002", xmlName: "Русский" },
           }],
         },

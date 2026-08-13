@@ -59,7 +59,7 @@ describe("extractValidationYamlFacts", () => {
 
   it("запускает локальную проверку присутствующего свойства с его YAML-путём", () => {
     const projectDir = "/project"
-    const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
+    const filePath = "/project/ГруппаКоманд/ПечатьДокумента.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
     if (file === undefined) throw new Error("file not resolved")
     const runtime = localValidationRuntime("Picture", (params) => [
@@ -215,7 +215,7 @@ describe("extractValidationYamlFacts", () => {
 
   it("does not collect standard pictures as common picture references", () => {
     const projectDir = "/project"
-    const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
+    const filePath = "/project/ГруппаКоманд/ПечатьДокумента.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
     if (file === undefined) throw new Error("file not resolved")
 
@@ -230,7 +230,7 @@ describe("extractValidationYamlFacts", () => {
 
   it("collects explicitly prefixed common picture references", () => {
     const projectDir = "/project"
-    const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
+    const filePath = "/project/ГруппаКоманд/ПечатьДокумента.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
     if (file === undefined) throw new Error("file not resolved")
 
@@ -335,7 +335,7 @@ describe("extractValidationYamlFacts", () => {
 
   it("keeps reference facts while diagnostics are disabled", () => {
     const projectDir = "/project"
-    const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
+    const filePath = "/project/ГруппаКоманд/ПечатьДокумента.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
     if (file === undefined) throw new Error("file not resolved")
 
@@ -357,7 +357,7 @@ describe("extractValidationYamlFacts", () => {
 
   it("сохраняет размещение и тип для проверки состава функциональной опции", () => {
     const projectDir = "/project"
-    const filePath = "/project/ФункциональнаяОпция/Опция/Свойства.yaml"
+    const filePath = "/project/ФункциональнаяОпция/Опция.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
     if (file === undefined) throw new Error("file not resolved")
 

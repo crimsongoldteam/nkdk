@@ -217,7 +217,7 @@ describe("ProjectReferenceIndex", () => {
   it("applies style item type filter to object entries", () => {
     const projectDir = "/tmp/nkdk-project"
     const target = objectTarget("ЭлементСтиля.ОсновнойШрифт")
-    const filePath = join(projectDir, "ЭлементСтиля", "ОсновнойШрифт", "Свойства.yaml")
+    const filePath = join(projectDir, "ЭлементСтиля", "ОсновнойШрифт.yaml")
     const index = createProjectReferenceIndex({
       projectDir,
       snapshot: createProjectReferenceSnapshot({

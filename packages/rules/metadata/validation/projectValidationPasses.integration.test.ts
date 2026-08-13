@@ -808,7 +808,7 @@ describe("validateProjectFileFirstPass references", () => {
   it("keeps common attribute content owner links from YAML", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
-    writeProjectFile(projectDir, "ОбщийРеквизит/КлассВНА/Свойства.yaml", [
+    writeProjectFile(projectDir, "ОбщийРеквизит/КлассВНА.yaml", [
       "Тип: Справочник.КлассыВНА",
       "Состав:",
       "  - Объект: Справочники.НематериальныеАктивы",
@@ -816,7 +816,7 @@ describe("validateProjectFileFirstPass references", () => {
       "  - Объект: Справочники.Контрагенты",
       "    Использование: НеИспользовать",
     ])
-    const file = resolveValidationProjectFile(projectDir, join(projectDir, "ОбщийРеквизит/КлассВНА/Свойства.yaml"))
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "ОбщийРеквизит/КлассВНА.yaml"))
     if (!file) throw new Error("file not resolved")
 
     const first = validateProjectFileFirstPass({
@@ -837,13 +837,13 @@ describe("validateProjectFileFirstPass references", () => {
   it("collects pending metadata target references during first pass", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
-    writeProjectFile(projectDir, "ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml", [
+    writeProjectFile(projectDir, "ФункциональнаяОпция/ИспользоватьАртикулы.yaml", [
       "СоставФункциональнойОпции:",
       "  - Catalog.Номенклатура.Attribute.Артикул",
     ])
     const file = resolveValidationProjectFile(
       projectDir,
-      join(projectDir, "ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml")
+      join(projectDir, "ФункциональнаяОпция/ИспользоватьАртикулы.yaml")
     )
     if (!file) throw new Error("file not resolved")
 

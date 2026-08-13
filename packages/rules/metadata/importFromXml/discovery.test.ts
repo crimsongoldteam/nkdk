@@ -64,6 +64,29 @@ describe("XML import discovery", () => {
     expect(result.assignments.find(({ role }) => role === "properties")?.itemName).toBe("Контрагенты")
   })
 
+  it("uses the file parameter as the semantic name of a flat assignment", async () => {
+    const topology = compileMetadataResourceTopology([{
+      resources: [
+        content("ПараметрСеанса/{ownerName}.yaml", "properties", catalogRule),
+        xmlDocument("", "SessionParameters/{ownerName}.xml", "metadata"),
+      ],
+    }])
+
+    const result = await discoverXmlImport({
+      xmlDir,
+      topology,
+      fs: fakeFs(["SessionParameters/ТекущийПользователь.xml"]),
+    })
+
+    expect(result.assignments).toEqual([
+      expect.objectContaining({
+        targetProjectPath: "ПараметрСеанса/ТекущийПользователь.yaml",
+        itemName: "ТекущийПользователь",
+        logicalAddress: "ПараметрСеанса.ТекущийПользователь",
+      }),
+    ])
+  })
+
   it("classifies the real managed-form body and maps its module to the project root", async () => {
     const formRoot = "Catalogs/Контрагенты/Forms/ФормаЭлемента"
     const result = await discoverXmlImport({

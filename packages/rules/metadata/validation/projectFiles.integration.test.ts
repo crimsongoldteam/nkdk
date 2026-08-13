@@ -10,6 +10,7 @@ import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { projectSpecFixturePaths } from "../../tests/projectSpecFixturePath"
 
 describe("validation project files", () => {
   const tempDirs: string[] = []
@@ -68,16 +69,12 @@ describe("validation project files", () => {
 
   it("discovers properties for every top-level metadata object with YAML directory", async () => {
     const projectDir = createProject()
-    const dirs = TopLevelMetadataItemRules.flatMap((rule) =>
-      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
-    )
+    const projectPaths = projectSpecFixturePaths(getValidationProjectSpecs(), "Тест")
 
-    for (const dir of dirs) {
-      touchProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`)
-    }
+    for (const projectPath of projectPaths) touchProjectFile(projectDir, projectPath)
 
     expect((await discoverValidationProjectFiles(projectDir)).map((file) => file.projectPath)).toEqual(
-      dirs.map((dir) => `${dir}/Тест/Свойства.yaml`).sort((left, right) => left.localeCompare(right, "ru"))
+      projectPaths,
     )
   })
 
