@@ -315,7 +315,7 @@ XML сам по себе не доказывает, какие ещё режим
 | Регистр накопления | `ВидРегистра` |
 | Регистр сведений | `Периодичность`, `РежимЗаписи` |
 | План видов расчёта | `ПериодДействияБазовый`, `ЗависимостьОтВидовРасчета` |
-| План счетов | `ДлинаПорядка`, `ВидыСубконто` |
+| План счетов | `МаксКоличествоСубконто`, `ДлинаПорядка`, `ВидыСубконто` |
 | План видов характеристик | `Иерархический` |
 | Журнал документов | `РегистрируемыеДокументы` |
 | Справочник | `Иерархический`, `ВидИерархии`, `Владельцы`, `ДопустимаяДлинаКода` |
@@ -481,7 +481,7 @@ XML сам по себе не доказывает, какие ещё режим
 | Регистр накопления | `ВидРегистра` | `MetadataAccumulationRegisterRules.registerType` |
 | Регистр сведений | `Периодичность`, `РежимЗаписи` | `MetadataInformationRegisterRules.informationRegisterPeriodicity`, `writeMode` |
 | План видов расчёта | `ПериодДействияБазовый`, `ЗависимостьОтВидовРасчета` | `MetadataChartOfCalculationTypesRules.actionPeriodUse`, `dependenceOnCalculationTypes` |
-| План счетов | `ДлинаПорядка`, `ВидыСубконто` | `MetadataChartOfAccountsRules.orderLength`, `extDimensionTypes` |
+| План счетов | `МаксКоличествоСубконто`, `ДлинаПорядка`, `ВидыСубконто` | `MetadataChartOfAccountsRules.maxExtDimensionCount`, `orderLength`, `extDimensionTypes` |
 | План видов характеристик | `Иерархический` | `MetadataChartOfCharacteristicTypesRules.hierarchical` |
 | Журнал документов | `РегистрируемыеДокументы` | `MetadataDocumentJournalRules.registeredDocuments` |
 | Справочник | `Иерархический`, `ВидИерархии`, `Владельцы`, `ДопустимаяДлинаКода` | `MetadataCatalogRules.hierarchical`, `hierarchyType`, `owners`, `codeAllowedLength` |

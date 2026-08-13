@@ -4,7 +4,7 @@ import { MetadataChartOfAccountsRules } from "./rules"
 export const metadataChartOfAccountsPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataChartOfAccountsRules, {
   profiles: ["borrowed-base", "mutable-synonym"],
   properties: {
-    ...controlled("orderLength", "extDimensionTypes"),
+    ...controlled("maxExtDimensionCount", "orderLength", "extDimensionTypes"),
     ...externalProperty("predefined", "Предопределенные", ["extend"]),
   },
 })

@@ -443,6 +443,7 @@
 			<Catalog>СправочникБезКодИНаименования</Catalog>
 			<Catalog>СправочникМаксимальнаяДлинаКодаИНаименования</Catalog>
 			<Catalog>СправочникМаксимальнаяДлинаКодаИНаименованияЧисло</Catalog>
+			<Catalog>СправочникСХарактеристиками</Catalog>
 			<Document>ДокументВсеСвойства</Document>
 			<Document>ДокументПоУмолчанию</Document>
 			<Document>ДокументСНумератором</Document>
@@ -480,6 +481,7 @@
 			<InformationRegister>РегистрСведенийПоУмолчанию</InformationRegister>
 			<InformationRegister>РегистрСведенийАдресация</InformationRegister>
 			<InformationRegister>РегистрСведенийГрафик</InformationRegister>
+			<InformationRegister>РегистрСведенийПроверкаХарактеристик</InformationRegister>
 			<AccumulationRegister>РегистрНакопления1</AccumulationRegister>
 			<AccumulationRegister>РегистрНакопленияВсеСвойстваОбороты</AccumulationRegister>
 			<AccumulationRegister>РегистрНакопленияПоУмолчанию</AccumulationRegister>

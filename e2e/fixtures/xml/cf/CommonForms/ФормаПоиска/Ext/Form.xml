@@ -31,8 +31,8 @@
 							<v8:content>Введите строку для поиска или ссылку для перехода</v8:content>
 						</v8:item>
 					</InputHint>
-					<ContextMenu name="SearchStringКонтекстноеМеню" id="4"/>
-					<ExtendedTooltip name="SearchStringРасширеннаяПодсказка" id="5"/>
+					<ContextMenu name="СтрокаПоискаКонтекстноеМеню" id="4"/>
+					<ExtendedTooltip name="СтрокаПоискаРасширеннаяПодсказка" id="5"/>
 					<Events>
 						<Event name="OnChange">СтрокаПоискаПриИзменении</Event>
 						<Event name="StartChoice">СтрокаПоискаНачалоВыбора</Event>
@@ -65,7 +65,7 @@
 						<Button name="ИсторияПоиска" id="84">
 							<Type>UsualButton</Type>
 							<CommandName>Form.Command.ИсторияПоиска</CommandName>
-							<ExtendedTooltip name="ИсторияПоискаExtendedTooltip" id="85"/>
+							<ExtendedTooltip name="ИсторияПоискаРасширеннаяПодсказка" id="85"/>
 						</Button>
 					</ChildItems>
 				</UsualGroup>
@@ -74,12 +74,12 @@
 		<Pages name="СтраницыРезультатов" id="30">
 			<ToolTipRepresentation>None</ToolTipRepresentation>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="PagesResultРасширеннаяПодсказка" id="31"/>
+			<ExtendedTooltip name="СтраницыРезультатовРасширеннаяПодсказка" id="31"/>
 			<ChildItems>
 				<Page name="СтраницаПодсказки" id="42">
 					<ToolTipRepresentation>None</ToolTipRepresentation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="PageHelpStringРасширеннаяПодсказка" id="43"/>
+					<ExtendedTooltip name="СтраницаПодсказкиРасширеннаяПодсказка" id="43"/>
 					<ChildItems>
 						<LabelDecoration name="СтрокаПодсказки" id="44">
 							<MaxWidth>75</MaxWidth>
@@ -91,7 +91,7 @@
 				</Page>
 				<Page name="СтраницаРезультатаПоиска" id="32">
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="PageSearchResultРасширеннаяПодсказка" id="33"/>
+					<ExtendedTooltip name="СтраницаРезультатаПоискаРасширеннаяПодсказка" id="33"/>
 					<ChildItems>
 						<Pages name="СтраницыРезультатаПоиска" id="70">
 							<PagesRepresentation>None</PagesRepresentation>
@@ -106,8 +106,8 @@
 											<HorizontalStretch>true</HorizontalStretch>
 											<VerticalStretch>true</VerticalStretch>
 											<Title formatted="true"/>
-											<ContextMenu name="SearchResultКонтекстноеМеню" id="25"/>
-											<ExtendedTooltip name="SearchResultРасширеннаяПодсказка" id="26"/>
+											<ContextMenu name="РезультатыПоискаКонтекстноеМеню" id="25"/>
+											<ExtendedTooltip name="РезультатыПоискаРасширеннаяПодсказка" id="26"/>
 											<Events>
 												<Event name="URLProcessing">РезультатыПоискаОбработкаНавигационнойСсылки</Event>
 											</Events>
@@ -119,7 +119,7 @@
 						<UsualGroup name="ГруппаНавигации" id="51">
 							<GroupVerticalAlign>Bottom</GroupVerticalAlign>
 							<Behavior>Usual</Behavior>
-							<ExtendedTooltip name="NavigateGroupРасширеннаяПодсказка" id="52"/>
+							<ExtendedTooltip name="ГруппаНавигацииРасширеннаяПодсказка" id="52"/>
 							<ChildItems>
 								<LabelDecoration name="КнопкаНачало" id="53">
 									<Title formatted="false">
@@ -129,8 +129,8 @@
 										</v8:item>
 									</Title>
 									<Hyperlink>true</Hyperlink>
-									<ContextMenu name="bFirstКонтекстноеМеню" id="54"/>
-									<ExtendedTooltip name="bFirstРасширеннаяПодсказка" id="55"/>
+									<ContextMenu name="КнопкаНачалоКонтекстноеМеню" id="54"/>
+									<ExtendedTooltip name="КнопкаНачалоРасширеннаяПодсказка" id="55"/>
 									<Events>
 										<Event name="Click">КнопкаНачалоНажатие</Event>
 									</Events>
@@ -143,8 +143,8 @@
 										</v8:item>
 									</Title>
 									<Hyperlink>true</Hyperlink>
-									<ContextMenu name="bPrevКонтекстноеМеню" id="57"/>
-									<ExtendedTooltip name="bPrevРасширеннаяПодсказка" id="58"/>
+									<ContextMenu name="КнопкаПредыдущаяКонтекстноеМеню" id="57"/>
+									<ExtendedTooltip name="КнопкаПредыдущаяРасширеннаяПодсказка" id="58"/>
 									<Events>
 										<Event name="Click">КнопкаСледующаяНажатие</Event>
 									</Events>
@@ -181,8 +181,8 @@
 										</v8:item>
 									</Title>
 									<Hyperlink>true</Hyperlink>
-									<ContextMenu name="bNextКонтекстноеМеню" id="63"/>
-									<ExtendedTooltip name="bNextРасширеннаяПодсказка" id="64"/>
+									<ContextMenu name="КнопкаСледующаяКонтекстноеМеню" id="63"/>
+									<ExtendedTooltip name="КнопкаСледующаяРасширеннаяПодсказка" id="64"/>
 									<Events>
 										<Event name="Click">КнопкаПредыдущаяНажатие</Event>
 									</Events>
@@ -195,7 +195,7 @@
 					<ToolTipRepresentation>None</ToolTipRepresentation>
 					<ShowTitle>false</ShowTitle>
 					<ScrollOnCompress>true</ScrollOnCompress>
-					<ExtendedTooltip name="PageNotFoundРасширеннаяПодсказка" id="41"/>
+					<ExtendedTooltip name="СтраницаПоискаРасширеннаяПодсказка" id="41"/>
 					<ChildItems>
 						<LabelDecoration name="СтрокаНеНайдено" id="21">
 							<AutoMaxWidth>false</AutoMaxWidth>
