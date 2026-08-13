@@ -99,6 +99,26 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(JSON.stringify(schema)).toContain("nkdk://schema/MetadataCatalogAttribute")
   })
 
+  it("exports applied-object length bounds and static input hints", () => {
+    const schema = (itemType: string) => schemaForName(itemType, "inline") as {
+      properties?: Record<string, TSchema>
+    }
+
+    expect(schema("MetadataExchangePlan").properties?.ДлинаКода).toMatchObject({ minimum: 1, maximum: 50 })
+    expect(schema("MetadataExchangePlan").properties?.ДлинаНаименования).toMatchObject({ minimum: 1, maximum: 250 })
+    expect(schema("MetadataChartOfAccounts").properties?.ДлинаКода).toMatchObject({ minimum: 0, maximum: 628 })
+    expect(schema("MetadataChartOfCalculationTypes").properties?.ДлинаКода).toMatchObject({ minimum: 0, maximum: 40 })
+
+    const taskInput = schema("MetadataTask").properties?.ВводПоСтроке
+    const taskInputDescription = (taskInput as { description?: string } | undefined)?.description
+    expect(taskInputDescription).toContain("СтандартныйРеквизит.Наименование, СтандартныйРеквизит.Номер")
+    expect(taskInputDescription).toContain("Нулевая длина исключает стандартное поле")
+    expect(taskInputDescription).toContain("Порядок полей значим")
+    expect(taskInputDescription).toContain("Полный вычисляемый список нельзя задавать явно")
+    expect((schema("MetadataTask").properties?.ДлинаНомера as { description?: string } | undefined)?.description)
+      .toContain("Число максимальная длина — 38")
+  })
+
   it("resolves MetadataCatalogAttributes through collection registration", () => {
     const graph = exportJSONSchemaGraph({
       context,

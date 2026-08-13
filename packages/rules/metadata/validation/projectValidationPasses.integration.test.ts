@@ -26,10 +26,14 @@ import { configurationExtensionPropertyStateCapabilities } from "../appliedObjec
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
   let sharedSchemaCache: ValidationSchemaCache
+  let appliedObjectSchemaCache: ValidationSchemaCache
+  let appliedObjectRuntime: ReturnType<typeof createValidationRegistrySet>
   let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
 
   beforeAll(() => {
     sharedSchemaCache = createTestValidationSchemaCache()
+    appliedObjectSchemaCache = createValidationSchemaCache(mockContext)
+    appliedObjectRuntime = createValidationRegistrySet(metadataRules, createRuleRegistrySet(metadataRules))
     rulesSnapshot = createValidationRulesSnapshot(mockContext)
   }, 120_000)
 
@@ -90,6 +94,94 @@ describe("validateProjectFileFirstPass references", () => {
   const createExtensionComponent = (projectDir: string) => createValidationProjectComponent(projectDir, {
     kind: "configurationExtension",
     name: "X",
+  })
+
+  const validateAppliedObject = (
+    projectPath: string,
+    yaml: string,
+    kind: "cf" | "cfe" = "cf",
+  ) => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-input-by-string-validation-"))
+    tempDirs.push(projectDir)
+    const component = kind === "cfe" ? createExtensionComponent(projectDir) : undefined
+    const componentDir = component?.componentDir ?? projectDir
+    writeProjectFile(componentDir, projectPath, yaml)
+    const file = component === undefined
+      ? resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
+      : requireValidationProjectFile(component, projectPath)
+    if (!file) throw new Error("file not resolved")
+    return validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: appliedObjectSchemaCache,
+      rulesSnapshot,
+      runtime: appliedObjectRuntime,
+    })
+  }
+
+  const validationErrors = (result: ReturnType<typeof validateAppliedObject>) => [
+    ...result.schemaDiagnostics,
+    ...result.diagnostics,
+  ].filter(({ severity }) => severity === "error")
+
+  it.each([
+    ["ПланОбмена/Тест/Свойства.yaml", "ДлинаКода", 1, 50, 0, 51],
+    ["ПланОбмена/Тест/Свойства.yaml", "ДлинаНаименования", 1, 250, 0, 251],
+    ["Справочник/Тест/Свойства.yaml", "ДлинаКода", 0, 50, -1, 51],
+    ["Задача/Тест/Свойства.yaml", "ДлинаНаименования", 0, 150, -1, 151],
+    ["ПланСчетов/Тест/Свойства.yaml", "ДлинаКода", 0, 628, -1, 629],
+    ["ПланВидовРасчета/Тест/Свойства.yaml", "ДлинаКода", 0, 40, -1, 41],
+    ["ПланВидовРасчета/Тест/Свойства.yaml", "ДлинаНаименования", 0, 100, -1, 101],
+  ] as const)(
+    "validates real schema bounds for %s.%s",
+    (projectPath, field, minimum, maximum, below, above) => {
+      expect(validationErrors(validateAppliedObject(projectPath, `${field}: ${minimum}`))).toEqual([])
+      expect(validationErrors(validateAppliedObject(projectPath, `${field}: ${maximum}`))).toEqual([])
+      expect(validationErrors(validateAppliedObject(projectPath, `${field}: ${below}`)))
+        .toContainEqual(expect.objectContaining({ path: `/${field}` }))
+      expect(validationErrors(validateAppliedObject(projectPath, `${field}: ${above}`)))
+        .toContainEqual(expect.objectContaining({ path: `/${field}` }))
+    }
+  )
+
+  it("validates conditional number length and string maximum through the project pass", () => {
+    expect(validationErrors(validateAppliedObject(
+      "Документ/Тест/Свойства.yaml",
+      "ТипНомера: Число\nДлинаНомера: 38",
+    ))).toEqual([])
+    expect(validationErrors(validateAppliedObject(
+      "Документ/Тест/Свойства.yaml",
+      "ТипНомера: Число\nДлинаНомера: 39",
+    ))).toContainEqual(expect.objectContaining({ path: "/ДлинаНомера" }))
+    expect(validationErrors(validateAppliedObject(
+      "Документ/Тест/Свойства.yaml",
+      "ДлинаНомера: 50",
+    ))).toEqual([])
+  })
+
+  it("validates computed and zero-length input fields through the project pass", () => {
+    expect(validationErrors(validateAppliedObject(
+      "Задача/Тест/Свойства.yaml",
+      "ВводПоСтроке:\n  - СтандартныйРеквизит.Наименование\n  - СтандартныйРеквизит.Номер",
+    ))).toContainEqual(expect.objectContaining({ path: "/ВводПоСтроке" }))
+    expect(validationErrors(validateAppliedObject(
+      "Задача/Тест/Свойства.yaml",
+      "ДлинаНомера: 0\nВводПоСтроке:\n  - СтандартныйРеквизит.Номер",
+    ))).toContainEqual(expect.objectContaining({ path: "/ВводПоСтроке/0" }))
+    expect(validationErrors(validateAppliedObject(
+      "Задача/Тест/Свойства.yaml",
+      "ДлинаНомера: 0",
+    ))).toEqual([])
+  })
+
+  it("applies the same input field contributions to cfe", () => {
+    expect(validationErrors(validateAppliedObject(
+      "Задача/Тест/Свойства.yaml",
+      "ДлинаНомера: 0\nВводПоСтроке:\n  - СтандартныйРеквизит.Номер",
+      "cfe",
+    ))).toContainEqual(expect.objectContaining({ path: "/ВводПоСтроке/0" }))
   })
 
   function formFirstPassUpdate(lines: string[]) {

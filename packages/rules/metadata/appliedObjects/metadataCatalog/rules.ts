@@ -21,6 +21,7 @@ import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { commonBasedOnObjectPaths } from "../../ruleRuntime/metadataTarget"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
+import { appliedObjectInputByStringRule, inputByStringStandardField, NUMERIC_LENGTH_HINT } from "../inputByStringDeclarations"
 export const MetadataCatalogStandardAttributeNames: Record<string, string> = {
   PredefinedDataName: "ИмяПредопределенныхДанных",
   Predefined: "Предопределенный",
@@ -223,6 +224,10 @@ export const MetadataCatalogRules = {
     }),
     codeLength: numberRule({
       yaml: "ДлинаКода",
+      description: `Длина кода. ${NUMERIC_LENGTH_HINT}`,
+      minimum: 0,
+      maximum: 50,
+      maximumWhen: { propertyKey: "codeType", equals: "Number", maximum: 38 },
       defaultValueXML: 9,
       xmlParents: ["Properties"],
       implicitValueYAML: 9,
@@ -312,6 +317,8 @@ export const MetadataCatalogRules = {
     }),
     descriptionLength: numberRule({
       yaml: "ДлинаНаименования",
+      minimum: 0,
+      maximum: 150,
       defaultValueXML: 25,
       xmlParents: ["Properties"],
       implicitValueYAML: 25,
@@ -383,17 +390,14 @@ export const MetadataCatalogRules = {
       implicitValueYAML: false,
       xmlParents: ["Properties"],
     }),
-    inputByString: metadataFieldsRule({
-      yaml: "ВводПоСтроке",
-      metadataTarget: {
-        kind: "member",
-        owner: "this",
-        memberKinds: ["Attribute", "StandardAttribute"],
-        filters: [{ kind: "inputByStringField" }],
-      },
+    inputByString: appliedObjectInputByStringRule({
       defaultValue: [],
       defaultValueXMLRaw: {},
       xmlParents: ["Properties"],
+      standardFields: [
+        inputByStringStandardField("Наименование", "descriptionLength", "ДлинаНаименования", 25),
+        inputByStringStandardField("Код", "codeLength", "ДлинаКода", 9),
+      ],
     }),
     levelCount: numberRule({
       yaml: "КоличествоУровней",

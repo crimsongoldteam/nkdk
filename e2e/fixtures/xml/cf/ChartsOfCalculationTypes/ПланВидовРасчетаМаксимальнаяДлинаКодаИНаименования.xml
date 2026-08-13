@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ChartOfCalculationTypes uuid="32fac09a-077d-4fbc-9e1c-23a1417446d5">
+		<InternalInfo>
+			<xr:GeneratedType name="ChartOfCalculationTypesObject.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="Object">
+				<xr:TypeId>df6e2509-dbb4-417a-ad44-9c9434cf3f78</xr:TypeId>
+				<xr:ValueId>e4ba9cbd-d82a-4586-99b6-f4c7675124c0</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesRef.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="Ref">
+				<xr:TypeId>26ad47a9-48e9-41fd-897f-bda7d004b760</xr:TypeId>
+				<xr:ValueId>bfbc8587-2358-4d38-863d-75322c541d24</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesSelection.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="Selection">
+				<xr:TypeId>4b4a0609-a5ff-436c-808f-3f77745f44f8</xr:TypeId>
+				<xr:ValueId>12f0ed4c-7c06-445e-9625-6dfbe7aefdc1</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesList.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="List">
+				<xr:TypeId>21762c5a-f0a8-42ec-99d9-16ff2facc3bf</xr:TypeId>
+				<xr:ValueId>01bb9ad3-05bf-4f22-8500-b3c83ce122dd</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesManager.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="Manager">
+				<xr:TypeId>3f697da7-7d9e-423e-9c85-a28c49554333</xr:TypeId>
+				<xr:ValueId>b393ea32-0205-4daf-9938-8e64c793674b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DisplacingCalculationTypes.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="DisplacingCalculationTypes">
+				<xr:TypeId>a6c5f4b2-ed99-4009-a81e-87e871b19e73</xr:TypeId>
+				<xr:ValueId>a494ddbe-3e24-4675-823e-70c850aeb9d4</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DisplacingCalculationTypesRow.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="DisplacingCalculationTypesRow">
+				<xr:TypeId>60346527-daa7-4281-9cee-19a935d13f55</xr:TypeId>
+				<xr:ValueId>efbbdb3e-3f3b-4e4d-900c-1a265c93be03</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BaseCalculationTypes.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="BaseCalculationTypes">
+				<xr:TypeId>61a71512-a27f-4135-a356-66e8111ff8c7</xr:TypeId>
+				<xr:ValueId>e2516164-e95f-4f24-ba27-90e7ca523e47</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BaseCalculationTypesRow.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="BaseCalculationTypesRow">
+				<xr:TypeId>3f07d6cf-e04b-4aae-af7b-9cc2911f4319</xr:TypeId>
+				<xr:ValueId>1542d3f6-6426-4837-8dd6-a1ae9a4f08ea</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="LeadingCalculationTypes.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="LeadingCalculationTypes">
+				<xr:TypeId>678d3100-9e23-4c15-9b2d-6f826bd0b6ba</xr:TypeId>
+				<xr:ValueId>fa5c9116-518e-4c5c-b6c6-8e2c14964b1d</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="LeadingCalculationTypesRow.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования" category="LeadingCalculationTypesRow">
+				<xr:TypeId>cfc2f1d8-1463-4508-a1f9-ceecf0c4edc3</xr:TypeId>
+				<xr:ValueId>95ce856c-c113-40ea-9f58-13d99005189c</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Name>ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>План видов расчета максимальная длина кода и наименования</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment/>
+			<UseStandardCommands>true</UseStandardCommands>
+			<CodeLength>40</CodeLength>
+			<DescriptionLength>100</DescriptionLength>
+			<CodeType>String</CodeType>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
+			<DefaultPresentation>AsDescription</DefaultPresentation>
+			<EditType>InDialog</EditType>
+			<QuickChoice>false</QuickChoice>
+			<ChoiceMode>BothWays</ChoiceMode>
+			<InputByString>
+				<xr:Field>ChartOfCalculationTypes.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования.StandardAttribute.Description</xr:Field>
+				<xr:Field>ChartOfCalculationTypes.ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования.StandardAttribute.Code</xr:Field>
+			</InputByString>
+			<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>
+			<FullTextSearchOnInputByString>DontUse</FullTextSearchOnInputByString>
+			<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>
+			<CreateOnInput>DontUse</CreateOnInput>
+			<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+			<DefaultObjectForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<AuxiliaryObjectForm/>
+			<AuxiliaryListForm/>
+			<AuxiliaryChoiceForm/>
+			<BasedOn/>
+			<DependenceOnCalculationTypes>DontUse</DependenceOnCalculationTypes>
+			<BaseCalculationTypes/>
+			<ActionPeriodUse>false</ActionPeriodUse>
+			<Characteristics/>
+			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
+			<IncludeHelpInContents>false</IncludeHelpInContents>
+			<DataLockFields/>
+			<DataLockControlMode>Automatic</DataLockControlMode>
+			<FullTextSearch>Use</FullTextSearch>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
+			<DataHistory>DontUse</DataHistory>
+			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
+			<ExecuteAfterWriteDataHistoryVersionProcessing>false</ExecuteAfterWriteDataHistoryVersionProcessing>
+		</Properties>
+		<ChildObjects/>
+	</ChartOfCalculationTypes>
+</MetaDataObject>

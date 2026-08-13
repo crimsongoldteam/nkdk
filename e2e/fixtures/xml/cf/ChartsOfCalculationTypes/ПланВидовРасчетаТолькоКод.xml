@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ChartOfCalculationTypes uuid="857ba444-f121-440d-85d9-cb10178664a2">
+		<InternalInfo>
+			<xr:GeneratedType name="ChartOfCalculationTypesObject.ПланВидовРасчетаТолькоКод" category="Object">
+				<xr:TypeId>d26f4955-4468-4caf-ab88-9f24662aeb0f</xr:TypeId>
+				<xr:ValueId>3b318e8f-c704-4760-b8b8-df353e1243c9</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesRef.ПланВидовРасчетаТолькоКод" category="Ref">
+				<xr:TypeId>be0a9097-1cec-4484-844f-0abe6179e326</xr:TypeId>
+				<xr:ValueId>eee95adf-3bf5-4b36-a0e4-f68ccabafca7</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesSelection.ПланВидовРасчетаТолькоКод" category="Selection">
+				<xr:TypeId>b935feb9-8469-45a3-9c13-8fa14b7564c8</xr:TypeId>
+				<xr:ValueId>dc1980e5-729b-4a44-9007-40f81e68ca6b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesList.ПланВидовРасчетаТолькоКод" category="List">
+				<xr:TypeId>5b1a3410-4321-4207-ad63-2b29d2c36417</xr:TypeId>
+				<xr:ValueId>596cd021-fc80-445e-9f2b-b85499bdc086</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesManager.ПланВидовРасчетаТолькоКод" category="Manager">
+				<xr:TypeId>6fba8f07-726e-43e1-a069-bb5370b875ae</xr:TypeId>
+				<xr:ValueId>6e579e5c-8eec-46d0-991d-e394a070b2fa</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DisplacingCalculationTypes.ПланВидовРасчетаТолькоКод" category="DisplacingCalculationTypes">
+				<xr:TypeId>f2448f2d-81c5-454a-930e-88213396bf1a</xr:TypeId>
+				<xr:ValueId>6759c059-cfd7-4424-be48-37efbdd0c481</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DisplacingCalculationTypesRow.ПланВидовРасчетаТолькоКод" category="DisplacingCalculationTypesRow">
+				<xr:TypeId>e12e9028-1d4a-4c22-8935-3e9718687a27</xr:TypeId>
+				<xr:ValueId>fd7fa48d-010e-415e-bdf3-fad350bb4704</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BaseCalculationTypes.ПланВидовРасчетаТолькоКод" category="BaseCalculationTypes">
+				<xr:TypeId>3df9e5b4-a72f-4931-b60f-a4afa91ea5c2</xr:TypeId>
+				<xr:ValueId>a7676d31-67c2-4b0e-ae6a-1f667397a5ec</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BaseCalculationTypesRow.ПланВидовРасчетаТолькоКод" category="BaseCalculationTypesRow">
+				<xr:TypeId>03dd0f45-3bb2-4bfd-b198-09ff4243cf93</xr:TypeId>
+				<xr:ValueId>43793110-72d1-46f5-a7b1-f257f4535ba4</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="LeadingCalculationTypes.ПланВидовРасчетаТолькоКод" category="LeadingCalculationTypes">
+				<xr:TypeId>8206b2f6-7e1c-46d1-aa5c-ea2359421b23</xr:TypeId>
+				<xr:ValueId>c8bcce25-eec8-49ae-846b-e7f8df346ba4</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="LeadingCalculationTypesRow.ПланВидовРасчетаТолькоКод" category="LeadingCalculationTypesRow">
+				<xr:TypeId>384175ba-36de-474b-b60b-bfd0bec74d75</xr:TypeId>
+				<xr:ValueId>f33d1316-67c3-4b2c-b4c9-03a214cff164</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Name>ПланВидовРасчетаТолькоКод</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>План видов расчета только код</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment/>
+			<UseStandardCommands>true</UseStandardCommands>
+			<CodeLength>9</CodeLength>
+			<DescriptionLength>0</DescriptionLength>
+			<CodeType>String</CodeType>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
+			<DefaultPresentation>AsCode</DefaultPresentation>
+			<EditType>InDialog</EditType>
+			<QuickChoice>false</QuickChoice>
+			<ChoiceMode>BothWays</ChoiceMode>
+			<InputByString>
+				<xr:Field>ChartOfCalculationTypes.ПланВидовРасчетаТолькоКод.StandardAttribute.Code</xr:Field>
+			</InputByString>
+			<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>
+			<FullTextSearchOnInputByString>DontUse</FullTextSearchOnInputByString>
+			<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>
+			<CreateOnInput>DontUse</CreateOnInput>
+			<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+			<DefaultObjectForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<AuxiliaryObjectForm/>
+			<AuxiliaryListForm/>
+			<AuxiliaryChoiceForm/>
+			<BasedOn/>
+			<DependenceOnCalculationTypes>DontUse</DependenceOnCalculationTypes>
+			<BaseCalculationTypes/>
+			<ActionPeriodUse>false</ActionPeriodUse>
+			<Characteristics/>
+			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
+			<IncludeHelpInContents>false</IncludeHelpInContents>
+			<DataLockFields/>
+			<DataLockControlMode>Automatic</DataLockControlMode>
+			<FullTextSearch>Use</FullTextSearch>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
+			<DataHistory>DontUse</DataHistory>
+			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
+			<ExecuteAfterWriteDataHistoryVersionProcessing>false</ExecuteAfterWriteDataHistoryVersionProcessing>
+		</Properties>
+		<ChildObjects/>
+	</ChartOfCalculationTypes>
+</MetaDataObject>

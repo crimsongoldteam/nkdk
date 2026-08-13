@@ -10,18 +10,26 @@ import { MetadataCatalogRules } from "./rules"
 import { withKnownXMLDefaults } from "../../../tests/knownXMLDefaults"
 
 describe("MetadataCatalog YAML → XML", () => {
-  it.each([
-    ["full.xml", fullYAML],
-    ["minimal.xml", minimalYAML],
-  ] as const)("exports %s exactly", (fixture, yaml) => {
+  it("exports full.xml exactly", () => {
     const result = testAppliedObjectFromYAMLToXML({
       rule: MetadataCatalogRules,
       importMetaUrl: import.meta.url,
-      fixture,
-      yaml,
+      fixture: "full.xml",
+      yaml: fullYAML,
     })
 
     expect(result.result).toEqual(withKnownXMLDefaults(result.expected))
+  })
+
+  it("restores computed input fields for minimal.xml", () => {
+    const result = testAppliedObjectFromYAMLToXML({
+      rule: MetadataCatalogRules,
+      importMetaUrl: import.meta.url,
+      fixture: "minimal.xml",
+      yaml: minimalYAML,
+    })
+
+    expect(result.result).toEqual(withComputedCatalogInputByString(withKnownXMLDefaults(result.expected)))
   })
 
   it.each([
@@ -96,3 +104,15 @@ describe("MetadataCatalog YAML → XML", () => {
     ).toThrow(message)
   })
 })
+
+function withComputedCatalogInputByString(xml: string): string {
+  return xml.replace(
+    "\t\t\t<InputByString/>",
+    [
+      "\t\t\t<InputByString>",
+      "\t\t\t\t<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Description</xr:Field>",
+      "\t\t\t\t<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Code</xr:Field>",
+      "\t\t\t</InputByString>",
+    ].join("\n")
+  )
+}

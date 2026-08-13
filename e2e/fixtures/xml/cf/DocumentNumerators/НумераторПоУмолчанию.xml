@@ -3,7 +3,12 @@
 	<DocumentNumerator uuid="2cd303bb-277b-4f8c-8176-6a7082e9cb82">
 		<Properties>
 			<Name>НумераторПоУмолчанию</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Нумератор по умолчанию</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<NumberType>String</NumberType>
 			<NumberLength>9</NumberLength>

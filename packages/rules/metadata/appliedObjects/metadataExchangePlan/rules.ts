@@ -24,6 +24,7 @@ import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { commonBasedOnObjectPaths } from "../../ruleRuntime/metadataTarget"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
+import { appliedObjectInputByStringRule, commonInputChoiceRules, inputByStringStandardField } from "../inputByStringDeclarations"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 const emptyCollection: [] = []
@@ -155,6 +156,8 @@ export const MetadataExchangePlanRules = {
     }),
     codeLength: numberRule({
       yaml: "ДлинаКода",
+      minimum: 1,
+      maximum: 50,
       defaultValueXML: 9,
       implicitValueYAML: 9,
       xmlParents: properties,
@@ -168,6 +171,8 @@ export const MetadataExchangePlanRules = {
     }),
     descriptionLength: numberRule({
       yaml: "ДлинаНаименования",
+      minimum: 1,
+      maximum: 250,
       defaultValueXML: 25,
       implicitValueYAML: 25,
       xmlParents: properties,
@@ -184,35 +189,13 @@ export const MetadataExchangePlanRules = {
       implicitValueYAML: "AsDescription",
       xmlParents: properties,
     }),
-    editType: systemEnumerationRule({
-      yaml: "СпособРедактирования",
-      typeSE: "EditType",
-      defaultValueXML: "InDialog",
-      implicitValueYAML: "InDialog",
+    ...commonInputChoiceRules(properties),
+    inputByString: appliedObjectInputByStringRule({
       xmlParents: properties,
-    }),
-    quickChoice: booleanRule({
-      yaml: "БыстрыйВыбор",
-      defaultValueXML: false,
-      implicitValueYAML: false,
-      xmlParents: properties,
-    }),
-    choiceMode: systemEnumerationRule({
-      yaml: "РежимВыбора",
-      typeSE: "ChoiceMode",
-      defaultValueXML: "BothWays",
-      implicitValueYAML: "BothWays",
-      xmlParents: properties,
-    }),
-    inputByString: metadataFieldsRule({
-      yaml: "ВводПоСтроке",
-      metadataTarget: {
-        kind: "member",
-        owner: "this",
-        memberKinds: ["Attribute", "StandardAttribute"],
-        filters: [{ kind: "inputByStringField" }],
-      },
-      xmlParents: properties,
+      standardFields: [
+        inputByStringStandardField("Наименование", "descriptionLength", "ДлинаНаименования", 25),
+        inputByStringStandardField("Код", "codeLength", "ДлинаКода", 9),
+      ],
     }),
     searchStringModeOnInputByString: systemEnumerationRule({
       yaml: "РежимСтрокиПоискаПриВводеПоСтроке",
