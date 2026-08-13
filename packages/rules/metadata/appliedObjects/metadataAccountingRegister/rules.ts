@@ -182,6 +182,7 @@ export const MetadataAccountingRegisterRules = {
       ownerFactRole: "chartOfAccounts",
     }),
     correspondence: booleanRule({
+      ownerFactRole: "correspondence",
       yaml: "Корреспонденция",
       defaultValueXML: false,
       implicitValueYAML: false,

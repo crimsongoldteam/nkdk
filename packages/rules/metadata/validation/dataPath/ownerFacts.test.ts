@@ -85,6 +85,32 @@ describe("ValidationOwnerFacts", () => {
     })
   })
 
+  it("сохраняет условия доступности виртуальных таблиц", () => {
+    const facts = createValidationOwnerFacts({
+      ref: { kind: "РегистрРасчета", name: "Начисления" },
+      filePath: "/project/РегистрРасчета/Начисления/Свойства.yaml",
+      fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
+      model: {
+        itemType: "MetadataCalculationRegister",
+        actionPeriod: true,
+        basePeriod: true,
+        chartOfCalculationTypes: "ChartOfCalculationTypes.Начисления",
+        schedule: "InformationRegister.График",
+        scheduleDate: "InformationRegister.График.Dimension.Дата",
+        scheduleValue: "InformationRegister.График.Resource.Значение",
+      },
+    })
+
+    expect(facts).toMatchObject({
+      actionPeriod: "true",
+      basePeriod: "true",
+      chartOfCalculationTypes: "ChartOfCalculationTypes.Начисления",
+      schedule: "InformationRegister.График",
+      scheduleDate: "InformationRegister.График.Dimension.Дата",
+      scheduleValue: "InformationRegister.График.Resource.Значение",
+    })
+  })
+
   it("сохраняет владельцев справочника в типизированных фактах", () => {
     const facts = createValidationOwnerFacts({
       ref: { kind: "Справочник", name: "ПодарочныеСертификаты" },

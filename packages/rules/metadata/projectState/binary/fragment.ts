@@ -82,9 +82,11 @@ const DIAGNOSTIC_SOURCE_IDS = {
 } as const
 const STRING_OWNER_FACT_ROLES = new Set([
   "task", "chartOfAccounts", "extDimensionTypes", "registerType",
+  "periodicity", "correspondence", "maxExtDimensionCount", "actionPeriod", "basePeriod",
+  "chartOfCalculationTypes", "schedule", "scheduleValue", "scheduleDate", "dependenceOnCalculationTypes",
 ])
 const STRING_LIST_OWNER_FACT_ROLES = new Set([
-  "commonAttributeOwnerLinks", "owners", "registerRecords",
+  "commonAttributeOwnerLinks", "owners", "registerRecords", "baseCalculationTypes",
 ])
 const NAMED_ITEMS_OWNER_FACT_ROLES = new Set([
   "accountingFlags", "extDimensionAccountingFlags", "attributes", "dimensions", "resources",

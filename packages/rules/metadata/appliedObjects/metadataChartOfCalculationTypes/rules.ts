@@ -277,6 +277,7 @@ export const MetadataChartOfCalculationTypesRules = {
       defaultValueXMLRaw: {},
     }),
     dependenceOnCalculationTypes: systemEnumerationRule({
+      ownerFactRole: "dependenceOnCalculationTypes",
       yaml: "ЗависимостьОтВидовРасчета",
       typeSE: "ChartOfCalculationTypesBaseUse",
       defaultValueXML: "DontUse",
@@ -284,6 +285,7 @@ export const MetadataChartOfCalculationTypesRules = {
       xmlParents: properties,
     }),
     baseCalculationTypes: metadataItemLinksRule({
+      ownerFactRole: "baseCalculationTypes",
       yaml: "БазовыеВидыРасчета",
       xmlParents: properties,
       defaultValueXMLRaw: {},

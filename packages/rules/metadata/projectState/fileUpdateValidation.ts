@@ -477,6 +477,17 @@ function assertOwnerFacts(value: unknown, path: string): void {
     "accountingFlags",
     "extDimensionAccountingFlags",
     "registerType",
+    "periodicity",
+    "correspondence",
+    "maxExtDimensionCount",
+    "actionPeriod",
+    "basePeriod",
+    "chartOfCalculationTypes",
+    "schedule",
+    "scheduleValue",
+    "scheduleDate",
+    "dependenceOnCalculationTypes",
+    "baseCalculationTypes",
     "attributes",
     "dimensions",
     "resources",
@@ -488,10 +499,14 @@ function assertOwnerFacts(value: unknown, path: string): void {
     "enumValues",
   ], path)
   if (facts["type"] !== undefined) assertTypeDescription(facts["type"], `${path}.type`)
-  for (const key of ["commonAttributeOwnerLinks", "owners", "registerRecords"] as const) {
+  for (const key of ["commonAttributeOwnerLinks", "owners", "registerRecords", "baseCalculationTypes"] as const) {
     assertOptionalStringArray(facts[key], `${path}.${key}`)
   }
-  for (const key of ["task", "chartOfAccounts", "extDimensionTypes", "registerType"] as const) {
+  for (const key of [
+    "task", "chartOfAccounts", "extDimensionTypes", "registerType", "periodicity", "correspondence",
+    "maxExtDimensionCount", "actionPeriod", "basePeriod", "chartOfCalculationTypes", "schedule",
+    "scheduleValue", "scheduleDate", "dependenceOnCalculationTypes",
+  ] as const) {
     assertOptionalString(facts[key], `${path}.${key}`)
   }
   for (const key of [
