@@ -3,10 +3,6 @@
 	<CommonCommand uuid="1884c009-96af-4eb3-8798-85df5c5aa38f">
 		<InternalInfo>
 			<xr:PropertyState>
-				<xr:Property>Group</xr:Property>
-				<xr:State>Extended</xr:State>
-			</xr:PropertyState>
-			<xr:PropertyState>
 				<xr:Property>CommandModule</xr:Property>
 				<xr:State>Extended</xr:State>
 			</xr:PropertyState>

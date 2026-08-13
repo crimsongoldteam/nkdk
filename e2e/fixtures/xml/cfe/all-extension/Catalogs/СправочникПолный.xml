@@ -48,15 +48,16 @@
 					<Comment/>
 					<ExtendedConfigurationObject>301fda37-ce86-4a9a-a764-f914a74e0188</ExtendedConfigurationObject>
 					<Type xsi:type="xr:ExtendedProperty">
+						<xr:CheckValue xsi:type="v8:TypeDescription">
+							<v8:Type>xs:string</v8:Type>
+							<v8:StringQualifiers>
+								<v8:Length>10</v8:Length>
+								<v8:AllowedLength>Variable</v8:AllowedLength>
+							</v8:StringQualifiers>
+						</xr:CheckValue>
 						<xr:ExtendValue xsi:type="v8:TypeDescription">
 							<v8:Type>xs:boolean</v8:Type>
 						</xr:ExtendValue>
-						<xr:NotifyValue xsi:type="v8:TypeDescription">
-							<v8:Type>xs:dateTime</v8:Type>
-							<v8:DateQualifiers>
-								<v8:DateFractions>Date</v8:DateFractions>
-							</v8:DateQualifiers>
-						</xr:NotifyValue>
 					</Type>
 					<ToolTip/>
 				</Properties>

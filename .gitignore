@@ -54,3 +54,4 @@ reports/e2e/
 
 # Служебный индекс выгрузки конфигурации 1С
 e2e/fixtures/xml/cf/ConfigDumpInfo.xml
+e2e/fixtures/xml/cfe/*/ConfigDumpInfo.xml
