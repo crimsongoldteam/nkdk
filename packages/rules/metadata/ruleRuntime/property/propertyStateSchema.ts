@@ -48,7 +48,10 @@ export function exportBorrowedPropertyStateSchema(params: {
       const propertyRule = propertyKey === undefined ? undefined : params.rule.properties[propertyKey]
       const withImplicitValue = propertyRule === undefined
         ? schema
-        : implicitValueSchema(schema, getImplicitValueYAML(propertyRule))
+        : implicitValueSchema(
+            propertyRule.metadataTarget === undefined ? schema : Type.Union([schema, Type.Null()]),
+            getImplicitValueYAML(propertyRule),
+          )
       return [[yamlName, capability?.representation === "tagged"
         ? taggedScalarSchema(withImplicitValue)
         : withImplicitValue]]

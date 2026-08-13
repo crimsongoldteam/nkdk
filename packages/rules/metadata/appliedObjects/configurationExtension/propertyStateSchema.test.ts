@@ -131,6 +131,46 @@ describe("borrowed property-state schema", () => {
     ]))
   })
 
+  it("разрешает null только предметной ссылке", () => {
+    const referenceRule = {
+      itemType: "MetadataTaskAddressingAttribute",
+      properties: {
+        addressingDimension: {
+          type: "string",
+          yaml: "ИзмерениеАдресации",
+          metadataTarget: { kind: "member", owner: "explicit", objectRoots: ["InformationRegister"], memberKinds: ["Dimension"] },
+        },
+        ordinary: { type: "string", yaml: "ОбычнаяСтрока" },
+        collection: { type: "MetadataObjectRefCollection", yaml: "ОбычнаяКоллекция" },
+        object: { type: "MetadataItemLinks", yaml: "ОбычныйОбъект" },
+      },
+    } as MetadataItemRule
+    const schema = exportBorrowedPropertyStateSchema({
+      rule: referenceRule,
+      capability: {
+        itemType: referenceRule.itemType,
+        properties: {
+          addressingDimension: { availability: "borrowed", modes: ["control", "notify", "extend"], representation: "tagged" },
+          ordinary: { availability: "borrowed", modes: ["control", "notify", "extend"], representation: "tagged" },
+          collection: { availability: "borrowed", modes: ["control", "notify", "extend"], representation: "tagged" },
+          object: { availability: "borrowed", modes: ["control", "notify", "extend"], representation: "tagged" },
+        },
+      },
+      source: Type.Object({
+        ИзмерениеАдресации: Type.Optional(Type.String()),
+        ОбычнаяСтрока: Type.Optional(Type.String()),
+        ОбычнаяКоллекция: Type.Optional(Type.Array(Type.String())),
+        ОбычныйОбъект: Type.Optional(Type.Object({ Значение: Type.Optional(Type.String()) })),
+      }, { additionalProperties: false }),
+    })
+    const validator = compileValidationSchema(schema)
+
+    expect(validator.Check({ ИзмерениеАдресации: null })).toBe(true)
+    expect(validator.Check({ ОбычнаяСтрока: null })).toBe(false)
+    expect(validator.Check({ ОбычнаяКоллекция: null })).toBe(false)
+    expect(validator.Check({ ОбычныйОбъект: null })).toBe(false)
+  })
+
   it("сохраняет остальные поля корня расширения, но расширяет схему локального тега", () => {
     const schema = exportBorrowedPropertyStateSchema({
       rule,

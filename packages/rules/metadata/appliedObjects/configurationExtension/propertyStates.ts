@@ -158,9 +158,14 @@ function ensurePropertyYamlValue(params: {
   readonly yamlName: string
   readonly emptyValue?: unknown
 }): void {
-  if (Object.prototype.hasOwnProperty.call(params.yaml, params.yamlName)) return
   const propertyRule = propertyEntryByXmlName(params.rule, params.xmlProperty)?.[1]
   if (propertyRule === undefined) return
+  if (Object.prototype.hasOwnProperty.call(params.yaml, params.yamlName)) {
+    if (propertyRule.metadataTarget !== undefined && params.yaml[params.yamlName] === null) {
+      params.yaml[params.yamlName] = {}
+    }
+    return
+  }
   const xmlValue = valueAtXmlPath(params.source, [...(propertyRule.xmlParents ?? []), params.xmlProperty])
   const importedValue = importPropertyFromXML({
     context: params.context,

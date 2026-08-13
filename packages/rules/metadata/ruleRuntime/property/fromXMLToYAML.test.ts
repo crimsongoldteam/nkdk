@@ -589,6 +589,12 @@ describe("importPropertiesFromXMLToYAML", () => {
     ["parent", { Properties: { Value: "x" } }, { xml: "Value", xmlParents: ["Properties"], yaml: "Значение" }, "x"],
     ["model default", {}, { xml: "Value", yaml: "Значение", defaultValue: "x" }, "x"],
     ["empty default", { Value: "" }, { xml: "Value", yaml: "Значение", defaultValueXMLEmpty: "x" }, ""],
+    [
+      "cleared metadata target",
+      { Value: undefined },
+      { xml: "Value", yaml: "Значение", metadataTarget: { kind: "object", roots: ["Catalog"] } },
+      null,
+    ],
   ])("preserves %s XML selection", (_name, xml, property, expected) => {
     expect(runSingleProperty(property, xml)).toEqual({ Значение: expected })
   })

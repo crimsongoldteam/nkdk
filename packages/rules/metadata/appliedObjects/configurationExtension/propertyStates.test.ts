@@ -12,6 +12,7 @@ import { withOperationRegistrySet } from "../../operations/operationExecutionCon
 import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
+import { clearedReferencePropertyStateCapabilities, clearedReferenceRule } from "./clearedReference.testFixture"
 
 describe("configuration extension PropertyState augmenter", () => {
   it.each([
@@ -60,6 +61,28 @@ describe("configuration extension PropertyState augmenter", () => {
       expect(absent).toEqual({})
     },
   )
+
+  it.each([
+    ["Notify", "проверять"],
+    ["Extended", "изменять"],
+  ] as const)("сохраняет очищенную ссылку с состоянием %s", (state, tag) => {
+    const yaml: Record<string, unknown> = { ИзмерениеАдресации: null }
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([clearedReferencePropertyStateCapabilities]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: clearedReferenceRule,
+      source: {
+        ...propertyStates(["AddressingDimension", state]),
+        Properties: { AddressingDimension: undefined },
+      },
+      yaml,
+    }))
+
+    expect(yaml.ИзмерениеАдресации).toEqual({})
+    expect(yamlScalarTagAt(yaml, "ИзмерениеАдресации")).toBe(tag)
+  })
   it("записывает снятый флажок заимствованного объекта как Ложь", () => {
     const yaml: Record<string, unknown> = {}
 

@@ -57,6 +57,12 @@ export const MetadataTaskAddressingAttributeRules = {
       xml: "AddressingDimension",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      metadataTarget: {
+        kind: "member",
+        owner: "explicit",
+        objectRoots: ["InformationRegister"],
+        memberKinds: ["Dimension"],
+      },
     }),
   },
 } as const satisfies MetadataItemRule

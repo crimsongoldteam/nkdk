@@ -394,8 +394,16 @@ export function importPropertiesFromXMLToYAML(params: {
               rule: propertyRule,
             })
           : undefined
+      const clearedMetadataTarget =
+        !forReference &&
+        propertyRule.metadataTarget !== undefined &&
+        importedValue === undefined &&
+        presentInXML &&
+        (xmlValue === undefined || xmlValue === "")
       const rawValue =
-        importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && !convertedDirectly
+        clearedMetadataTarget
+          ? null
+          : importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && !convertedDirectly
           ? propertyRule.defaultValueXMLEmpty
           : importedValue === undefined
             ? registeredExplicitEmptyValue
@@ -438,7 +446,9 @@ export function importPropertiesFromXMLToYAML(params: {
         },
         owner,
       })
-      const yamlValue = !convertedDirectly
+      const yamlValue = clearedMetadataTarget
+        ? null
+        : !convertedDirectly
         ? exportPropertyValueToYAML({
             context: sourceContext,
             rule: propertyRule,

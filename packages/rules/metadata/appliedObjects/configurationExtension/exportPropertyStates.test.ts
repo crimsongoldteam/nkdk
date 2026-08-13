@@ -14,6 +14,7 @@ import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metada
 import { metadataExternalDataSourceTablePropertyStateCapabilities } from "../../commonObjects/metadataExternalDataSourceTable/propertyStates"
 import { configurationExtensionPropertyStateProfiles } from "./propertyStateProfiles"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
+import { clearedReferencePropertyStateCapabilities, clearedReferenceRule } from "./clearedReference.testFixture"
 
 const BASE_UUID = "11111111-1111-4111-8111-111111111111"
 const logicalAddress = "Catalog.Товары.Attribute.Дата"
@@ -105,6 +106,41 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       },
       "xr:ExtendValue": { "_xsi:type": "v8:TypeDescription", "v8:Type": "xs:boolean" },
     })
+  })
+
+  it.each([
+    [null, undefined],
+    [{}, "изменять"],
+  ] as const)("writes an empty referenced property from %#", (yamlValue, tag) => {
+    const outputs = new Map<string, Record<string, unknown>>([["metadata", { Properties: {} }]])
+    const yaml: Record<string, unknown> = { ИзмерениеАдресации: yamlValue }
+    if (tag !== undefined) markYAMLScalarTag(yaml, "ИзмерениеАдресации", tag)
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([clearedReferencePropertyStateCapabilities]),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: {} }),
+      rule: clearedReferenceRule,
+      yaml,
+      outputs,
+      logicalAddress,
+    }))
+
+    expect(record(outputs.get("metadata")).Properties).toHaveProperty("AddressingDimension", "")
+  })
+
+  it("does not add an absent referenced property", () => {
+    const outputs = new Map<string, Record<string, unknown>>([["metadata", { Properties: {} }]])
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([clearedReferencePropertyStateCapabilities]),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: {} }),
+      rule: clearedReferenceRule,
+      yaml: {},
+      outputs,
+      logicalAddress,
+    }))
+
+    expect(record(outputs.get("metadata")).Properties).not.toHaveProperty("AddressingDimension")
   })
 
   it("orders every PropertyState by the subject registry", () => {

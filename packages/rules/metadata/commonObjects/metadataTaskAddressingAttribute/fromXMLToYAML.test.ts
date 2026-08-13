@@ -27,7 +27,36 @@ describe("MetadataTaskAddressingAttribute XML → YAML", () => {
 
     expect(result).toMatchObject({
       Тип: "Строка",
-      ИзмерениеАдресации: "InformationRegister.Адресация.Dimension.Исполнитель",
+      ИзмерениеАдресации: "РегистрСведений.Адресация.Измерение.Исполнитель",
     })
+  })
+
+  it("импортирует очищенное измерение адресации как null", () => {
+    const result = testMetadataItemFromXMLToYAML({
+      rule: MetadataTaskAddressingAttributeRules,
+      xml: {
+        Properties: {
+          Name: "РеквизитАдресации",
+          Type: { "v8:Type": "xs:string" },
+          AddressingDimension: undefined,
+        },
+      },
+    }).yaml
+
+    expect(result).toHaveProperty("ИзмерениеАдресации", null)
+  })
+
+  it("не добавляет отсутствующее измерение адресации", () => {
+    const result = testMetadataItemFromXMLToYAML({
+      rule: MetadataTaskAddressingAttributeRules,
+      xml: {
+        Properties: {
+          Name: "РеквизитАдресации",
+          Type: { "v8:Type": "xs:string" },
+        },
+      },
+    }).yaml
+
+    expect(result).not.toHaveProperty("ИзмерениеАдресации")
   })
 })

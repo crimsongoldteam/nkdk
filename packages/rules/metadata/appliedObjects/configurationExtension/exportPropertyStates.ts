@@ -190,6 +190,15 @@ function propertyStates(params: {
     const yamlName = propertyRule.yaml
     const xmlName = propertyRule.xml ?? capitalize(propertyKey)
     const yamlValue = typeof yamlName === "string" ? params.yaml[yamlName] : undefined
+    const scalarTag = typeof yamlName === "string" ? yamlScalarTagAt(params.yaml, yamlName) : undefined
+    if (
+      typeof yamlName === "string" &&
+      propertyRule.metadataTarget !== undefined &&
+      Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&
+      (yamlValue === null || (isEmptyRecord(yamlValue) && scalarTag !== undefined))
+    ) {
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
+    }
     const sectionMode = sectionStates.get(propertyKey)
     if (sectionMode !== undefined) {
       addState(propertyKey, sectionMode === "notify" ? "Notify" : "Extended")
@@ -208,15 +217,12 @@ function propertyStates(params: {
     if (
       typeof yamlName === "string" &&
       yamlName !== EXTENDED_CONFIGURATION_OBJECT_YAML &&
-      yamlScalarTagAt(params.yaml, yamlName) === "проверять"
+      scalarTag === "проверять"
     ) {
       addState(propertyKey, "Notify")
       continue
     }
-    if (typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "изменять") {
-      if (isEmptyRecord(yamlValue)) {
-        writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
-      }
+    if (typeof yamlName === "string" && scalarTag === "изменять") {
       addState(propertyKey, "Extended")
       continue
     }
