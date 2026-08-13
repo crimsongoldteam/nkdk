@@ -54,12 +54,27 @@ function scalarTypeDescriptionSchema(schema: TSchema): TSchema {
 }
 
 function collectScalarSchemas(schema: TSchema): TSchema[] {
-  const raw = schema as TSchema & { type?: unknown; anyOf?: unknown }
+  const raw = schema as TSchema & { type?: unknown; anyOf?: unknown; allOf?: unknown }
   if (raw.type === "string") return [schema]
   const variants = raw.anyOf
-  return Array.isArray(variants)
-    ? variants.flatMap((variant) => collectScalarSchemas(variant as TSchema))
-    : []
+  if (Array.isArray(variants)) {
+    return variants.flatMap((variant) => collectScalarSchemas(variant as TSchema))
+  }
+
+  const intersections = raw.allOf
+  if (!Array.isArray(intersections)) return []
+  const scalarBranchIndex = intersections.findIndex(
+    (branch) => collectScalarSchemas(branch as TSchema).length > 0,
+  )
+  if (scalarBranchIndex < 0) return []
+
+  const scalarBranches = collectScalarSchemas(intersections[scalarBranchIndex] as TSchema)
+  const remainingBranches = intersections.filter((_, index) => index !== scalarBranchIndex) as TSchema[]
+  if (remainingBranches.length === 0) return scalarBranches
+  return scalarBranches.map((branch) => Type.Intersect([
+    branch,
+    ...remainingBranches,
+  ] as [TSchema, TSchema, ...TSchema[]]))
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "exportToJSONSchema", exportTypeDescriptionToJSONSchema)
