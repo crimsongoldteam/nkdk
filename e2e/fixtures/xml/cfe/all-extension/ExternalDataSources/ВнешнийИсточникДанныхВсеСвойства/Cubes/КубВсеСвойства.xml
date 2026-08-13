@@ -30,12 +30,32 @@
 				<xr:TypeId>6f1056c0-b97e-437b-a562-807ce79a5c40</xr:TypeId>
 				<xr:ValueId>99bcc05f-e225-42fa-93f3-9ec85616b597</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>NameInDataSource</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>RecordSetModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>КубВсеСвойства</Name>
 			<Comment/>
 			<ExtendedConfigurationObject>1838370c-89b3-4870-967f-3a56177d74ca</ExtendedConfigurationObject>
+			<NameInDataSource/>
+			<DefaultRecordForm/>
+			<DefaultListForm/>
+			<RecordPresentation/>
+			<ExtendedRecordPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<DimensionTable>ТаблицаИзмеренияВсеСвойства</DimensionTable>
@@ -45,11 +65,14 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ИзмерениеВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>e6dfd431-5737-49f2-a414-d92aa8516219</ExtendedConfigurationObject>
 					<Type>
 						<v8:Type>cfg:ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства</v8:Type>
 					</Type>
+					<ToolTip/>
+					<ChoiceForm/>
 				</Properties>
 			</Dimension>
 			<Dimension uuid="1165d44c-2dcc-4979-9089-2a5bf5cb46e9">
@@ -65,10 +88,16 @@
 				</Properties>
 			</Dimension>
 			<Resource uuid="4010bbaa-814f-4c2e-b016-a3d30801b146">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>NameInDataSource</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РесурсВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>2b64bcaf-966a-4f8d-8214-6ea0be5b7caf</ExtendedConfigurationObject>
 					<Type>
@@ -79,6 +108,10 @@
 							<v8:AllowedSign>Any</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
+					<NameInDataSource/>
 				</Properties>
 			</Resource>
 			<Resource uuid="dbff1cd2-3d87-4499-ae50-b7438fbfcc4a">
@@ -100,13 +133,21 @@
 			<Form>ФормаСписка</Form>
 			<Form>ФормаЗаписи</Form>
 			<Command uuid="5a309794-38e9-4cb6-b7fe-9f9a11adc5e8">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>3dcc114d-bdcf-4cca-b7a8-fbfacc0751d1</ExtendedConfigurationObject>
 					<Group>NavigationPanelImportant</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 			<Template>Макет</Template>

@@ -8,8 +8,23 @@ export function exportBorrowedPropertyStateSchema(params: {
   readonly capability: ResolvedPropertyStateItemCapability
   readonly source: TSchema
   readonly structuralPropertyKeys?: readonly string[]
+  readonly explicitXMLPropertyKeys?: readonly string[]
   readonly closed?: boolean
 }): TSchema {
+  const localRoot = localSchemaRoot(params.source)
+  if (localRoot !== undefined) {
+    const source = schemaWithDefinitions(params.source)
+    return {
+      ...source,
+      $defs: {
+        ...source.$defs,
+        [localRoot.key]: exportBorrowedPropertyStateSchema({
+          ...params,
+          source: localRoot.schema,
+        }),
+      },
+    }
+  }
   const source = params.source as TSchema & {
     properties?: Record<string, TSchema>
     required?: string[]
@@ -17,6 +32,7 @@ export function exportBorrowedPropertyStateSchema(params: {
   const allowedPropertyKeys = new Set([
     ...Object.keys(params.capability.properties),
     ...(params.structuralPropertyKeys ?? []),
+    ...(params.rule.properties.objectBelonging === undefined ? [] : ["objectBelonging"]),
   ])
   const allowedYamlNames = new Set(
     [...allowedPropertyKeys].flatMap((propertyKey) => {
@@ -44,9 +60,17 @@ export function exportBorrowedPropertyStateSchema(params: {
         ...allowedProperties,
       }
     : allowedProperties
+  if (params.capability.properties.extendedConfigurationObject !== undefined) {
+    properties.ОбъектРасширяемойКонфигурации = Type.Optional(taggedScalarSchema(Type.String()))
+  }
   if (params.closed !== false) {
+    const explicitXMLPropertyKeys = new Set(params.explicitXMLPropertyKeys ?? [])
     for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
-      if (typeof propertyRule.yaml !== "string" || allowedPropertyKeys.has(propertyKey)) continue
+      if (
+        typeof propertyRule.yaml !== "string" ||
+        allowedPropertyKeys.has(propertyKey) ||
+        !explicitXMLPropertyKeys.has(propertyKey)
+      ) continue
       const sourceSchema = source.properties?.[propertyRule.yaml]
       if (sourceSchema !== undefined) properties[propertyRule.yaml] = explicitPropertyStateXMLSchema()
     }
@@ -66,28 +90,48 @@ export function exportBorrowedPropertyStateSchema(params: {
   }
 }
 
+function localSchemaRoot(source: TSchema): { readonly key: string; readonly schema: TSchema } | undefined {
+  const candidate = source as TSchema & { $ref?: unknown; $defs?: unknown }
+  if (typeof candidate.$ref !== "string" || candidate.$defs === null || typeof candidate.$defs !== "object") return undefined
+  const definitions = candidate.$defs as Record<string, TSchema>
+  const direct = definitions[candidate.$ref]
+  if (direct !== undefined) return { key: candidate.$ref, schema: direct }
+  const entry = Object.entries(definitions).find(([, schema]) =>
+    (schema as TSchema & { $id?: unknown }).$id === candidate.$ref)
+  return entry === undefined ? undefined : { key: entry[0], schema: entry[1] }
+}
+
+function schemaWithDefinitions(source: TSchema): TSchema & { $defs: Record<string, TSchema> } {
+  return source as TSchema & { $defs: Record<string, TSchema> }
+}
+
 export function exportNestedPropertyStateSchema(params: {
   readonly rule: MetadataItemRule
   readonly capability: ResolvedPropertyStateItemCapability
   readonly source: TSchema
   readonly structuralPropertyKeys?: readonly string[]
+  readonly explicitXMLPropertyKeys?: readonly string[]
 }): TSchema {
-  const borrowed = exportBorrowedPropertyStateSchema({
+  const belongingYamlName = objectBelongingYamlName(params.rule)
+  if (
+    belongingYamlName === undefined &&
+    Object.values(params.capability.properties).every((property) => property.representation === "section")
+  ) return params.source
+  return exportBorrowedPropertyStateSchema({
     ...params,
     rule: params.rule,
     source: params.source,
+    structuralPropertyKeys: [
+      ...(params.structuralPropertyKeys ?? []),
+      ...(belongingYamlName === undefined ? [] : [propertyKeyByYamlName(params.rule, belongingYamlName)!]),
+    ],
+    explicitXMLPropertyKeys: params.explicitXMLPropertyKeys,
   })
-  const id = (params.source as TSchema & { $id?: string }).$id
-  const union = Type.Union([
-    withoutId(params.source),
-    withoutId(borrowed),
-  ])
-  return id === undefined ? union : { ...union, $id: id }
 }
 
-function withoutId(schema: TSchema): TSchema {
-  const { $id: _id, ...rest } = schema as TSchema & { $id?: string }
-  return rest
+function objectBelongingYamlName(rule: MetadataItemRule): string | undefined {
+  return Object.values(rule.properties).find((property) =>
+    property.yaml === "ПринадлежностьОбъекта")?.yaml as string | undefined
 }
 
 function propertyKeyByYamlName(rule: MetadataItemRule, yamlName: string): string | undefined {
@@ -123,7 +167,7 @@ function sectionNames(
 }
 
 function sectionSchema(names: readonly string[]): TSchema {
-  return Type.Optional(Type.Array({ enum: [...names] }, {
+  return Type.Array(Type.Enum([...names]), {
     uniqueItems: true,
-  }))
+  })
 }

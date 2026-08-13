@@ -46,6 +46,20 @@ describe("explicit XML PropertyState carrier", () => {
   })
 
   it.each([
+    [{ "xr:Property": "Other", "xr:State": "Extended" }, "не соответствует XML-свойству"],
+    [{ "xr:Property": "Comment", "xr:State": "FutureState" }, "Неизвестное значение PropertyState"],
+  ])("rejects an invalid PropertyState payload", (propertyStateXML, message) => {
+    const encoded = encodeExplicitXMLPropertyState({
+      itemType: "MetadataCatalog", propertyKey: "comment", propertyXML: "x",
+      propertyStateXML,
+    })
+
+    expect(() => decodeExplicitXMLPropertyState(encoded, {
+      itemType: "MetadataCatalog", propertyKey: "comment", xmlProperty: "Comment",
+    })).toThrow(message)
+  })
+
+  it.each([
     ["!xml configurationExtensionPropertyStateXML:not-json", "Повреждён payload"],
     [
       `!xml configurationExtensionPropertyStateXML:${Buffer.from(JSON.stringify({ version: 2 }), "utf8").toString("base64url")}`,

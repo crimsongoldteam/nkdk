@@ -5,9 +5,11 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ЭлементСтиляШрифтВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>8eb9a3b4-df02-441f-afe4-0a914000ab48</ExtendedConfigurationObject>
 			<Type>Font</Type>
+			<Value xsi:type="v8ui:Font" ref="style:TextFont" kind="StyleItem"/>
 		</Properties>
 	</StyleItem>
 </MetaDataObject>

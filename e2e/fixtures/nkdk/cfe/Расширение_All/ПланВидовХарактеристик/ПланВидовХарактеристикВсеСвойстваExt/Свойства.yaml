@@ -113,8 +113,6 @@
     ПолеВида: Catalog.СправочникПолныйExt.Attribute.Реквизит1
     ПолеИспользованияМножественныхЗначений: ChartOfCharacteristicTypes.ХарактеристикиОбъектов.Attribute.МножественнаяХарактеристика
     ПолеКлюча: ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Ref
-    ПолеКлючаМножественныхЗначений: !xml
     ПолеОбъекта: Catalog.СправочникПолныйExt.Attribute.Реквизит1
     ПолеОтбораВидов: ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Description
-    ПолеПорядкаМножественныхЗначений: !xml
     ПолеПутиКДанным: ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Ref

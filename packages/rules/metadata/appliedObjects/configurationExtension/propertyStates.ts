@@ -14,50 +14,9 @@ const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
   ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",
 }
 
-export const EXTENDED_SNAPSHOT_SEGMENTS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
-  ClientApplicationForm: {
-    Form: "form",
-  },
-  MetadataBot: {
-    Module: "module",
-  },
-  MetadataCommonForm: {
-    Form: "form",
-    Module: "module",
-  },
-  MetadataCommonModule: {
-    Module: "module",
-  },
-  MetadataHTTPService: {
-    Module: "module",
-  },
-  MetadataIntegrationService: {
-    Module: "module",
-  },
-  MetadataRole: {
-    Rights: "rights",
-  },
-  MetadataSubsystem: {
-    CommandInterface: "commandInterface",
-  },
-  MetadataWebService: {
-    Module: "module",
-  },
-  MetadataWebSocketClient: {
-    Module: "module",
-  },
-  MetadataConfigurationExtension: {
-    CommandInterface: "commandInterface",
-    HomePageWorkArea: "homePageWorkArea",
-    Logo: "logo",
-    MainSectionCommandInterface: "mainSectionCommandInterface",
-    MainSectionPicture: "mainSectionPicture",
-    Splash: "splash",
-  },
-}
-
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
   augment({ context, rule, source, yaml }): void {
+    const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
     const collection = getConfigurationIndexCollectionContext(context)
     if (collection !== undefined && Object.prototype.hasOwnProperty.call(source, "InternalInfo")) {
       collection.collector.setXmlFlag(childSegmentUid(collection.logicalAddress, "InternalInfo"), "present")
@@ -66,7 +25,6 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
     if (
       collection !== undefined &&
       properties !== undefined &&
-      rule.itemType === "MetadataConfigurationExtension" &&
       Object.prototype.hasOwnProperty.call(properties, "ExtendedConfigurationObject")
     ) {
       collection.collector.setXmlFlag(collection.logicalAddress, "extended")
@@ -85,7 +43,7 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         continue
       }
       if (state === "Notify") {
-        const section = sectionProperty(rule, property)
+        const section = sectionProperty(rule, property, compatibilityMode)
         if (section !== undefined) {
           writePropertyStateSection(yaml, section.item, section.property.externalName!, "notify")
           continue
@@ -105,25 +63,13 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         }
         continue
       }
-      const section = sectionProperty(rule, property)
+      const section = sectionProperty(rule, property, compatibilityMode)
       if (section !== undefined) {
         writePropertyStateSection(yaml, section.item, section.property.externalName!, "extend")
         continue
       }
       const propertyEntry = propertyEntryByXmlName(rule, property)
       const propertyKey = propertyEntry?.[0]
-      const declaredSegment = EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType]?.[property]
-      const segment = declaredSegment ?? propertyEntry?.[1].externalMetadata?.segment ??
-        (propertyEntry !== undefined && typeof propertyEntry[1].yaml !== "string" ? propertyKey : undefined)
-      if (segment !== undefined) {
-        if (collection !== undefined) {
-          collection.collector.setXmlFlag(
-            childSegmentUid(collection.logicalAddress, declaredSegment ?? propertyKey ?? segment),
-            "extended",
-          )
-        }
-        continue
-      }
       const yamlName = propertyYamlName(rule, property)
       if (yamlName !== undefined) {
         ensurePropertyYamlValue({ context, rule, source, yaml, xmlProperty: property, yamlName })
@@ -133,6 +79,7 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         const capability = propertyKey === undefined ? undefined : registry?.resolve({
           itemType: rule.itemType,
           propertyKey,
+          compatibilityMode,
         })
         const itemCapability = registry?.item(rule.itemType)
         if (
@@ -204,10 +151,13 @@ function propertyStateRegistry(): PropertyStateCapabilityRegistry | undefined {
   return currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()?.propertyStates
 }
 
-function sectionProperty(rule: MetadataItemRule, xmlProperty: string) {
+function sectionProperty(rule: MetadataItemRule, xmlProperty: string, compatibilityMode?: string) {
   const propertyKey = propertyKeyByXmlName(rule, xmlProperty)
-  const item = propertyStateRegistry()?.item(rule.itemType)
-  const property = propertyKey === undefined ? undefined : item?.properties[propertyKey]
+  const item = propertyStateRegistry()?.item(rule.itemType, compatibilityMode)
+  const resolvedPropertyKey = propertyKey ?? Object.keys(item?.properties ?? {}).find(
+    (key) => capitalize(key) === xmlProperty,
+  )
+  const property = resolvedPropertyKey === undefined ? undefined : item?.properties[resolvedPropertyKey]
   return item !== undefined && property?.representation === "section" && property.externalName !== undefined
     ? { item, property }
     : undefined

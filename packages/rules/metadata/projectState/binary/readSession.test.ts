@@ -457,6 +457,7 @@ it("восстанавливает вложенную цель и !xml отло�
       allowOwner: true,
     },
     tagged: "xml" as const,
+    propertyStateMode: "notify" as const,
   }
   const buffers = typedSnapshot([{ ...update, pendingReferences: [pendingReference] }])
   const reader = createTypedProjectStateReader(new ProjectStateSnapshotView(buffers))

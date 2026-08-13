@@ -52,6 +52,38 @@ describe("PropertyState capability registry", () => {
     })
   })
 
+  it("does not expose a capability that is introduced only by a delta", () => {
+    const registry = createPropertyStateCapabilityRegistry([
+      {
+        kind: "propertyStateCapability",
+        id: "sample",
+        item: {
+          itemType: "Sample",
+          profiles: [],
+          properties: {},
+        },
+      },
+      {
+        kind: "propertyStateCapability",
+        id: "sample-8.3.8",
+        delta: {
+          mode: "Версия8_3_8",
+          items: [{
+            itemType: "Sample",
+            properties: { value: { availability: "borrowed", modes: ["control", "notify"] } },
+          }],
+        },
+      },
+    ])
+
+    expect(registry.resolve({
+      itemType: "Sample", propertyKey: "value", compatibilityMode: "Версия8_3_7",
+    })).toBeUndefined()
+    expect(registry.resolve({
+      itemType: "Sample", propertyKey: "value", compatibilityMode: "Версия8_3_8",
+    })?.modes).toEqual(["control", "notify"])
+  })
+
   it.each(["НеИспользовать", "DontUse", undefined] as const)("использует матрицу 8.3.27 для %s", (mode) => {
     const registry = createPropertyStateCapabilityRegistry([
       {

@@ -218,6 +218,7 @@ interface ProjectStatePendingReference {
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
   readonly tagged?: "xml"
+  readonly propertyStateMode?: "control" | "notify" | "extend"
 }
 
 type ProjectStatePendingCheck =
@@ -585,7 +586,7 @@ export function createProjectStateFragmentWriter(options: {
         targetNameId: strings.intern(target.objectName),
         targetMemberId: optionalString(targetMember),
         constraintKindId: strings.intern(encodeMetadataTargetConstraint(reference.constraint)),
-        flags: reference.tagged === "xml" ? 1 : 0,
+        flags: encodePendingReferenceFlags(reference),
       })
     }
     const appendPayloadPendingCheck = (
@@ -658,6 +659,15 @@ export function createProjectStateFragmentWriter(options: {
     for (const dependency of update.dependencies) {
       rows.dependencies.push({ sourceFileId: fileId, projectPathId: strings.intern(dependency) })
     }
+  }
+
+  function encodePendingReferenceFlags(reference: ProjectStatePendingReference): number {
+    const tagged = reference.tagged === "xml" ? 1 : 0
+    const mode = reference.propertyStateMode === "control" ? 2
+      : reference.propertyStateMode === "notify" ? 4
+        : reference.propertyStateMode === "extend" ? 6
+          : 0
+    return tagged | mode
   }
 
   function appendOwnerFact(ownerId: number, role: string, value: unknown): void {

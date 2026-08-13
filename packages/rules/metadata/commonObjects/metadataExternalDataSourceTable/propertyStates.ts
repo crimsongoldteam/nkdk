@@ -1,4 +1,4 @@
-import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities } from "../../ruleRuntime/definition/propertyStateDeclarations"
+import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "../../ruleRuntime/definition/propertyStateDeclarations"
 import { MetadataExternalDataSourceTableRules } from "./rules"
 
 export const metadataExternalDataSourceTablePropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataExternalDataSourceTableRules, {
@@ -6,5 +6,8 @@ export const metadataExternalDataSourceTablePropertyStateCapabilities = definePr
   properties: {
     ...controlled("tableType"),
     ...allPropertyStateModes("nameInDataSource", "keyFields", "readOnly"),
+    ...externalProperty("managerModule", "МодульМенеджера", ["extend"]),
+    ...externalProperty("objectModule", "МодульОбъекта", ["extend"]),
+    ...externalProperty("recordSetModule", "МодульНабораЗаписей", ["extend"]),
   },
 })

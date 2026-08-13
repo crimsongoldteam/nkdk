@@ -11,6 +11,8 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { MetadataCommonFormRules } from "../metadataCommonForm/rules"
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
+import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
+import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
 import { MetadataConfigurationExtensionRules } from "./rules"
 import { encodeExplicitXMLPropertyState } from "./explicitXMLState"
 
@@ -42,7 +44,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     configurationExtensionYamlToXmlAugmenter.augment({
       context: context({
         adoptedUuids: { [logicalAddress]: BASE_UUID },
-        extended: ["form"],
+        extendedLogicalAddresses: [logicalAddress],
       }),
       rule,
       yaml,
@@ -60,7 +62,6 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     expect(record(form.InternalInfo)["xr:PropertyState"]).toEqual([
       { "xr:Property": "ExtendedConfigurationObject", "xr:State": "Notify" },
       { "xr:Property": "Format", "xr:State": "Notify" },
-      { "xr:Property": "Form", "xr:State": "Extended" },
     ])
     expect(outputs.get("body")).toEqual({})
   })
@@ -144,6 +145,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     configurationExtensionYamlToXmlAugmenter.augment({
       context: context({
         adoptedUuids: { "Catalog.Товары": BASE_UUID },
+        extendedLogicalAddresses: ["Catalog.Товары"],
       }),
       rule: MetadataCatalogRules,
       yaml: {},
@@ -215,6 +217,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     configurationExtensionYamlToXmlAugmenter.augment({
       context: context({
         adoptedUuids: { "CommonForm.InputField": BASE_UUID },
+        extendedLogicalAddresses: ["CommonForm.InputField"],
       }),
       rule: MetadataCommonFormRules,
       yaml: {},
@@ -228,7 +231,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     })
   })
 
-  it("copies only xml.extended into the next snapshot", () => {
+  it("does not copy PropertyState markers from the snapshot", () => {
     const testContext = context({
       adoptedUuids: { [logicalAddress]: BASE_UUID },
       extended: ["form"],
@@ -241,13 +244,25 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       logicalAddress,
     })
 
-    expect(testContext.exportToXML.configurationIndex!.collector.fragment("Форма.yaml").entities).toEqual([
-      {
-        logicalAddress: childSegmentUid(logicalAddress, "form"),
-        sourceProjectPath: "Форма.yaml",
-        xml: { extended: true },
-      },
-    ])
+    expect(testContext.exportToXML.configurationIndex!.collector.fragment("Форма.yaml").entities).toEqual([])
+  })
+
+  it("writes a section state for a virtual external property", () => {
+    const outputs = new Map<string, Record<string, unknown>>([["metadata", { Form: { Properties: {} } }]])
+    const contribution = definePropertyStateItemCapabilities(rule, {
+      properties: externalProperty("form", "Форма", ["extend"]),
+    })
+    withOperationRegistrySet({ propertyStates: createPropertyStateCapabilityRegistry([contribution]) }, () =>
+      configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: { [logicalAddress]: BASE_UUID } }),
+      rule,
+      yaml: { Изменять: ["Форма"] },
+      outputs,
+      logicalAddress,
+    }))
+
+    expect(record(record(record(outputs.get("metadata")).Form).InternalInfo)["xr:PropertyState"])
+      .toContainEqual({ "xr:Property": "Form", "xr:State": "Extended" })
   })
 
   it("does not mark an own address as adopted", () => {
@@ -320,6 +335,23 @@ describe("configuration extension YAML-to-XML augmenter", () => {
         xml: { extended: true },
       },
     ])
+  })
+
+  it("omits ExtendedConfigurationObject when the imported XML omitted it", () => {
+    const outputs = new Map<string, Record<string, unknown>>([
+      ["metadata", { Form: { Properties: {} } }],
+    ])
+    configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: { [logicalAddress]: BASE_UUID } }),
+      rule,
+      yaml: {},
+      outputs,
+      logicalAddress,
+    })
+
+    expect(record(record(outputs.get("metadata")).Form).Properties).toEqual({
+      ObjectBelonging: "Adopted",
+    })
   })
 
   it("does not restore owner InternalInfo into an external XML file", () => {
@@ -411,23 +443,28 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     ])
   })
 
-  it("restores Extended for a property that is stored outside YAML", () => {
+  it("restores Extended for a property declared in the YAML section", () => {
     const outputs = new Map([["metadata", { InternalInfo: {}, Properties: {} }]])
-    configurationExtensionYamlToXmlAugmenter.augment({
-      context: context({ adoptedUuids: {}, extended: ["module"] }),
-      rule: {
-        itemType: "MetadataCommonModule",
-        properties: {
-          module: {
-            type: "Module",
-            xmlPath: "Ext/Module.bsl",
-          },
+    const moduleRule = {
+      itemType: "MetadataCommonModule",
+      properties: {
+        module: {
+          type: "Module",
+          xmlPath: "Ext/Module.bsl",
         },
       },
-      yaml: {},
+    } as const satisfies MetadataItemRule
+    const contribution = definePropertyStateItemCapabilities(moduleRule, {
+      properties: externalProperty("module", "Модуль", ["extend"]),
+    })
+    withOperationRegistrySet({ propertyStates: createPropertyStateCapabilityRegistry([contribution]) }, () =>
+      configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: {}, extended: ["module"] }),
+      rule: moduleRule,
+      yaml: { Изменять: ["Модуль"] },
       outputs,
       logicalAddress,
-    })
+    }))
 
     expect(record(record(outputs.get("metadata")).InternalInfo)["xr:PropertyState"]).toEqual([
       { "xr:Property": "Module", "xr:State": "Extended" },
@@ -438,6 +475,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
 function context(params: {
   adoptedUuids: Readonly<Record<string, string>>
   extended?: readonly string[]
+  extendedLogicalAddresses?: readonly string[]
   internalInfoPresent?: true
 }): ConfigurationContextWithExportToXML {
   const snapshot: ConfigurationSnapshot = {
@@ -446,6 +484,11 @@ function context(params: {
     componentPath: "cfe/Дополнение",
     files: [{ projectPath: "Форма.yaml", contentHash: 1n }],
     entities: [
+      ...(params.extendedLogicalAddresses ?? []).map((address) => ({
+        logicalAddress: address,
+        sourceProjectPath: "Форма.yaml",
+        xml: { extended: true as const },
+      })),
       ...(params.extended ?? []).map((segment) => ({
         logicalAddress: childSegmentUid(logicalAddress, segment),
         sourceProjectPath: "Форма.yaml",

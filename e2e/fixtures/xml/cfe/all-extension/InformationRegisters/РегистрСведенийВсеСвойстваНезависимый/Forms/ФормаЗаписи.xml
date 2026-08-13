@@ -10,6 +10,7 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ФормаЗаписи</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>5fcbdf60-96a5-4928-acfd-003656188e68</ExtendedConfigurationObject>
 			<FormType>Managed</FormType>

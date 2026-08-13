@@ -18,6 +18,7 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ВнешнийИсточникДанныхВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>aa0a162f-bf96-4951-9c81-f6a8014ab7e8</ExtendedConfigurationObject>
 		</Properties>
@@ -56,13 +57,25 @@
 				</Properties>
 			</Function>
 			<Function uuid="eafb81ff-68aa-4f43-b7fb-d38d9b31fd7e">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>ReturnValue</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+					<xr:PropertyState>
+						<xr:Property>ExpressionInDataSource</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ФункцияВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>f3a425ae-a79d-4001-b911-e1f4ce4b0dff</ExtendedConfigurationObject>
+					<ReturnValue>true</ReturnValue>
 					<Type/>
+					<ExpressionInDataSource/>
 				</Properties>
 			</Function>
 		</ChildObjects>

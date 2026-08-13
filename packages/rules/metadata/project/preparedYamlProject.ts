@@ -159,6 +159,8 @@ export function toPreparedYamlProjectFileDescriptor(
     projectPath: resource.projectPath,
     filePath: resource.absolutePath,
     role: resource.role,
+    ...(resource.logicalAddress === undefined ? {} : { logicalAddress: resource.logicalAddress }),
+    ...(resource.metadataTarget === undefined ? {} : { metadataTarget: resource.metadataTarget }),
     ...(resource.role === "form" && resource.indexContribution !== undefined
       ? { indexContribution: resource.indexContribution }
       : {}),

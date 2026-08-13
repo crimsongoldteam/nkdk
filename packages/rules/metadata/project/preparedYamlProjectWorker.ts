@@ -29,6 +29,7 @@ import {
 } from "../validation/projectComponents"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
 import {
+  collectBorrowedExtensionLogicalAddresses,
   extractProjectValidationFileFacts,
   validateProjectFileFirstPass,
   readProjectYamlDiagnostic,
@@ -434,6 +435,7 @@ export async function collectValidationFacts(
   const readEntry = dependencies.readEntry ?? readProjectYamlEntryForValidation
   const extractFacts = dependencies.extractFacts ?? extractProjectValidationFileFacts
   const contribution = emptyValidationIndexContribution()
+  const compatibilityModes = new Map<string, string | undefined>()
 
   for (const descriptor of message.files) {
     const file = resolveValidationProjectFile(message.projectDir, descriptor.filePath)
@@ -454,13 +456,25 @@ export async function collectValidationFacts(
       throw new Error(`Не удалось разобрать YAML-файл ${file.absolutePath}${location}: ${details}`)
     }
 
+    const resolvedFile = {
+      ...file,
+      ...(descriptor.logicalAddress === undefined ? {} : { logicalAddress: descriptor.logicalAddress }),
+      ...(descriptor.metadataTarget === undefined ? {} : { metadataTarget: descriptor.metadataTarget }),
+    }
     const facts = extractFacts({
       projectDir: message.projectDir,
-      file,
+      file: resolvedFile,
       entry,
+      borrowedLogicalAddresses: collectBorrowedExtensionLogicalAddresses(resolvedFile, readEntry),
       rulesSnapshot: message.rulesSnapshot,
       validationDiagnostics: false,
       runtime: dependencies.runtime,
+      propertyStateCompatibilityMode: componentPropertyStateCompatibilityMode({
+        descriptor,
+        compatibilityModes,
+        readEntry,
+        currentEntry: entry,
+      }),
     })
     contribution.objectRecords.push(...facts.objectRecords)
     contribution.objectIndexEntries.push(...facts.objectIndexEntries)
@@ -557,12 +571,40 @@ interface ValidationFirstPassResult {
   yamlLifetime: ValidationYamlLifetime
 }
 
+function componentPropertyStateCompatibilityMode(params: {
+  readonly descriptor: PreparedYamlProjectFileDescriptor
+  readonly compatibilityModes: Map<string, string | undefined>
+  readonly readEntry: typeof readProjectYamlEntryForValidation
+  readonly currentEntry: Exclude<ReturnType<typeof readProjectYamlEntryForValidation>, { error: Error }>
+}): string | undefined {
+  const { descriptor } = params
+  if (!descriptor.componentPath.startsWith("cfe/")) return undefined
+  if (params.compatibilityModes.has(descriptor.componentPath)) {
+    return params.compatibilityModes.get(descriptor.componentPath)
+  }
+
+  const rootPath = resolve(descriptor.componentDir, "Конфигурация.yaml")
+  const rootEntry = params.currentEntry.filePath === rootPath
+    ? params.currentEntry
+    : params.readEntry(rootPath)
+  const root = "error" in rootEntry
+    || typeof rootEntry.parsed.data !== "object"
+    || rootEntry.parsed.data === null
+    ? undefined
+    : rootEntry.parsed.data as Record<string, unknown>
+  const value = root?.["РежимСовместимостиРасширенияКонфигурации"]
+  const mode = typeof value === "string" ? value : undefined
+  params.compatibilityModes.set(descriptor.componentPath, mode)
+  return mode
+}
+
 interface ValidationFirstPassAccumulator {
   readonly profiler: ReturnType<typeof createValidationProfiler>
   readonly components: Map<string, ComponentFirstPassPoolResult>
   readonly schemaCache: ValidationSchemaCache
   readonly firstPassProfile: Omit<ProjectValidationFirstPassProfile, "key">
   readonly fileUpdateEntries: ProjectStateFileUpdateBatchEntry[]
+  readonly compatibilityModes: Map<string, string | undefined>
   readonly detailedProfile: {
     enabled: boolean
     parseMs: number
@@ -592,6 +634,7 @@ function createValidationFirstPassAccumulator(workerIndex: number): ValidationFi
     schemaCache: requireValidationSchemaCache(),
     firstPassProfile: createEmptyFirstPassProfileSummary(),
     fileUpdateEntries: [],
+    compatibilityModes: new Map(),
     detailedProfile: {
       enabled: process.env["NKDK_PROFILE"] === "1",
       parseMs: 0,
@@ -666,14 +709,29 @@ function processValidationFirstPassFile(
   let first
   try {
     if (accumulator.detailedProfile.enabled) startedAt = performance.now()
+    const resolvedFile = {
+      ...file,
+      ...(descriptor.logicalAddress === undefined ? {} : { logicalAddress: descriptor.logicalAddress }),
+      ...(descriptor.metadataTarget === undefined ? {} : { metadataTarget: descriptor.metadataTarget }),
+    }
     first = validateProjectFileFirstPass({
       projectDir: descriptor.componentDir,
-      file,
+      file: resolvedFile,
       cache: createProjectYamlCacheFromEntries([entry]),
       context: input.context,
       schemaCache: accumulator.schemaCache,
       rulesSnapshot: requireValidationRulesSnapshot(),
       runtime: validationRuntime,
+      propertyStateCompatibilityMode: componentPropertyStateCompatibilityMode({
+        descriptor,
+        compatibilityModes: accumulator.compatibilityModes,
+        readEntry: readProjectYamlEntryForValidation,
+        currentEntry: entry,
+      }),
+      borrowedLogicalAddresses: collectBorrowedExtensionLogicalAddresses(
+        resolvedFile,
+        readProjectYamlEntryForValidation,
+      ),
     })
     if (accumulator.detailedProfile.enabled) {
       accumulator.detailedProfile.validationMs += performance.now() - startedAt

@@ -20,6 +20,8 @@ export interface PreparedYamlProjectFileDescriptor extends PreparedYamlProjectFi
   componentPath: string
   componentDir: string
   rootProjectPath: string
+  logicalAddress?: string
+  metadataTarget?: { readonly canonical: string; readonly owner: { readonly root: string; readonly objectName: string } }
   indexContribution?: "isolated"
 }
 

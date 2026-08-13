@@ -10,6 +10,7 @@ import type { PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
 import type { ParameterValueXML, SettingsParameterValue } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
 import type { SettingsParameterValueCollectionXML, SettingsParameterValueRuleSet } from "./types"
+import { isNilMetadataValueXML } from "../../metadataValue/toXML"
 
 export const asDcscorItemArray = <T>(x: T | T[] | undefined): T[] => {
   if (x === undefined) return []
@@ -61,14 +62,7 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
       itemCollection !== undefined &&
       (Object.prototype.hasOwnProperty.call(itemXml, "dcscor:value") &&
         (itemXml["dcscor:value"] === undefined ||
-          asDcscorItemArray(itemXml["dcscor:value"]).some(
-            (value) =>
-              typeof value === "object" &&
-              value !== null &&
-              !Array.isArray(value) &&
-              ((value as Record<string, unknown>)["_xsi:nil"] === true ||
-                (value as Record<string, unknown>)["_xsi:nil"] === "true")
-          )))
+          asDcscorItemArray(itemXml["dcscor:value"]).some(isNilMetadataValueXML)))
     ) {
       itemCollection.collector.setXmlFlag(`${itemCollection.logicalAddress}.value`, "xsiNil")
     }

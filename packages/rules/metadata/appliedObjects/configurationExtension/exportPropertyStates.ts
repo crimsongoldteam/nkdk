@@ -4,7 +4,6 @@ import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { getCompiledXMLPropertyOrder } from "../../ruleRuntime/property/xmlPropertyOrder"
-import { EXTENDED_SNAPSHOT_SEGMENTS } from "./propertyStates"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
@@ -15,7 +14,6 @@ const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойК
 
 export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugmenter = {
   augment({ context, rule, yaml, outputs, logicalAddress }) {
-    copyExtendedSnapshotState(context, rule, logicalAddress)
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
     if (rule.itemType === "MetadataConfigurationExtension") {
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
@@ -25,7 +23,9 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       }
     } else if (adoptedUuid !== undefined && supportsAdoptionServiceProperties(rule)) {
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-      writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
+      if (context.exportToXML.configurationIndex?.xml(logicalAddress)?.extended === true) {
+        writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
+      }
     }
 
     if (Object.prototype.hasOwnProperty.call(yaml, "Контроль")) {
@@ -43,21 +43,6 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
     reorderServiceProperties(outputs, rule)
     reorderMetadataRoot(outputs, rule)
   },
-}
-
-function copyExtendedSnapshotState(
-  context: ConfigurationContextWithExportToXML,
-  rule: MetadataItemRule,
-  logicalAddress: string
-): void {
-  const runtime = context.exportToXML.configurationIndex
-  if (runtime === undefined) return
-  for (const segment of new Set(Object.values(EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType] ?? {}))) {
-    const address = childSegmentUid(logicalAddress, segment)
-    if (runtime.xml(address)?.extended === true) {
-      runtime.collector.setXmlFlag(address, "extended")
-    }
-  }
 }
 
 function reorderMetadataRoot(outputs: ReadonlyMap<string, Record<string, unknown>>, rule: MetadataItemRule): void {
@@ -200,6 +185,7 @@ function propertyStates(params: {
   const sectionStates = itemCapability === undefined
     ? new Map<string, "notify" | "extend">()
     : readPropertyStateSections(params.yaml, itemCapability)
+  const consumedSectionKeys = new Set<string>()
   if (yamlScalarTagAt(params.yaml, EXTENDED_CONFIGURATION_OBJECT_YAML) === "проверять") {
     states.push(propertyState("ExtendedConfigurationObject", "Notify"))
   }
@@ -216,12 +202,14 @@ function propertyStates(params: {
       const explicit = decodeExplicitXMLPropertyState(yamlValue, {
         itemType: params.rule.itemType,
         propertyKey,
+        xmlProperty: xmlName,
       })
       writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, explicit.propertyXML)
       states.push({ ...explicit.propertyStateXML })
       continue
     }
     if (sectionMode !== undefined) {
+      consumedSectionKeys.add(propertyKey)
       states.push(propertyState(xmlName, sectionMode === "notify" ? "Notify" : "Extended"))
       continue
     }
@@ -250,33 +238,10 @@ function propertyStates(params: {
       states.push(propertyState(xmlName, "Extended"))
       continue
     }
-    const declaredSegment = EXTENDED_SNAPSHOT_SEGMENTS[params.rule.itemType]?.[xmlName]
-    const segment = declaredSegment ?? propertyRule.externalMetadata?.segment ??
-      (typeof propertyRule.yaml !== "string" ? propertyKey : undefined)
-    if (
-      segment !== undefined &&
-      params.context.exportToXML.configurationIndex?.xml(
-        childSegmentUid(params.logicalAddress, declaredSegment ?? propertyKey),
-      )?.extended ===
-        true
-    ) {
-      states.push(propertyState(xmlName, "Extended"))
-    }
   }
-
-  const declaredXmlNames = new Set(
-    Object.entries(params.rule.properties).map(
-      ([propertyKey, propertyRule]) => propertyRule.xml ?? capitalize(propertyKey)
-    )
-  )
-  for (const [xmlName, segment] of Object.entries(EXTENDED_SNAPSHOT_SEGMENTS[params.rule.itemType] ?? {})) {
-    if (declaredXmlNames.has(xmlName)) continue
-    if (
-      params.context.exportToXML.configurationIndex?.xml(childSegmentUid(params.logicalAddress, segment))?.extended ===
-      true
-    ) {
-      states.push(propertyState(xmlName, "Extended"))
-    }
+  for (const [propertyKey, mode] of sectionStates) {
+    if (consumedSectionKeys.has(propertyKey)) continue
+    states.push(propertyState(capitalize(propertyKey), mode === "notify" ? "Notify" : "Extended"))
   }
   return states
 }

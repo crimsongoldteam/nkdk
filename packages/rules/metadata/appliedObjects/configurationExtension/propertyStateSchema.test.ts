@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { Type } from "typebox"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
@@ -34,6 +35,32 @@ const capability: ResolvedPropertyStateItemCapability = {
 }
 
 describe("borrowed property-state schema", () => {
+  it("расширяет корень схемы, упакованный в $defs", () => {
+    const source = {
+      $defs: {
+        command: {
+          $id: "command",
+          type: "object",
+          properties: {},
+          additionalProperties: false,
+        },
+      },
+      $ref: "command",
+    }
+    const schema = exportBorrowedPropertyStateSchema({ rule, capability, source }) as typeof source
+
+    expect(schema.$defs.command.properties).toHaveProperty("Изменять")
+    expect(schema).not.toHaveProperty("properties")
+  })
+
+  it("accepts a generated Изменять section", () => {
+    const schema = exportBorrowedPropertyStateSchema({
+      rule,
+      capability,
+      source: Type.Object({}, { additionalProperties: false }),
+    })
+    expect(compileValidationSchema(schema).Check({ Изменять: ["МодульОбъекта"] })).toBe(true)
+  })
   it("keeps only capabilities and adds closed canonical sections", () => {
     const schema = exportBorrowedPropertyStateSchema({
       rule,
@@ -121,7 +148,7 @@ describe("borrowed property-state schema", () => {
     ]))
   })
 
-  it("разрешает только переносчик !xml для свойства вне закрытой матрицы", () => {
+  it("запрещает свойство вне закрытой матрицы", () => {
     const schema = exportBorrowedPropertyStateSchema({
       rule,
       capability,
@@ -129,19 +156,17 @@ describe("borrowed property-state schema", () => {
       closed: true,
     }) as { properties: Record<string, { pattern?: string }> }
 
-    expect(schema.properties.Реквизиты?.pattern).toBe(
-      "^!xml configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$",
-    )
+    expect(schema.properties).not.toHaveProperty("Реквизиты")
   })
 
-  it("допускает полную и закрытую форму вложенного объекта без служебного признака", () => {
+  it("выбирает безопасную закрытую форму вложенного объекта с признаком принадлежности", () => {
     const nestedRule = {
       ...rule,
       properties: {
         ...rule.properties,
-        extendedConfigurationObject: {
+        objectBelonging: {
           type: "string",
-          yaml: "ОбъектРасширяемойКонфигурации",
+          yaml: "ПринадлежностьОбъекта",
         },
       },
     } as MetadataItemRule
@@ -149,10 +174,10 @@ describe("borrowed property-state schema", () => {
       ...capability,
       properties: {
         ...capability.properties,
-        extendedConfigurationObject: {
+        objectBelonging: {
           availability: "borrowed",
-          modes: ["control", "notify"],
-          representation: "tagged",
+          modes: [],
+          representation: "plain",
         },
       },
     }
@@ -163,12 +188,94 @@ describe("borrowed property-state schema", () => {
         Имя: Type.Optional(Type.String()),
         ДлинаКода: Type.Optional(Type.Number()),
         СобственноеПоле: Type.Optional(Type.String()),
-        ОбъектРасширяемойКонфигурации: Type.Optional(Type.String()),
+        ПринадлежностьОбъекта: Type.Optional(Type.String()),
       }, { additionalProperties: false }),
-    }) as { anyOf?: Array<{ required?: string[]; properties?: Record<string, unknown> }> }
+    }) as { properties?: Record<string, unknown>; additionalProperties?: boolean }
 
-    expect(schema.anyOf).toHaveLength(2)
-    expect(schema.anyOf?.[0]?.properties).toHaveProperty("СобственноеПоле")
-    expect(schema.anyOf?.[1]?.properties).not.toHaveProperty("СобственноеПоле")
+    expect(schema.properties).not.toHaveProperty("СобственноеПоле")
+    expect(schema.properties).toHaveProperty("ПринадлежностьОбъекта")
+    expect(schema.additionalProperties).toBe(false)
+  })
+
+  it("сохраняет признак принадлежности у корневого заимствованного объекта", () => {
+    const borrowedRule = {
+      ...rule,
+      properties: {
+        ...rule.properties,
+        objectBelonging: { type: "string", yaml: "ПринадлежностьОбъекта" },
+      },
+    } as MetadataItemRule
+    const schema = exportBorrowedPropertyStateSchema({
+      rule: borrowedRule,
+      capability,
+      source: Type.Object({
+        ПринадлежностьОбъекта: Type.Optional(Type.String()),
+      }, { additionalProperties: false }),
+    }) as { properties?: Record<string, unknown> }
+
+    expect(schema.properties).toHaveProperty("ПринадлежностьОбъекта")
+  })
+
+  it("не закрывает вложенную схему без признака принадлежности", () => {
+    const nestedRule = {
+      itemType: "ClientApplicationForm",
+      properties: {
+        form: { type: "Form", yaml: "Форма" },
+      },
+    } as MetadataItemRule
+    const schema = exportNestedPropertyStateSchema({
+      rule: nestedRule,
+      capability: { itemType: nestedRule.itemType, properties: {} },
+      source: Type.Object({ Форма: Type.Optional(Type.Object({})) }),
+    })
+
+    expect(schema).toMatchObject({ properties: { Форма: expect.any(Object) } })
+  })
+
+  it("разрешает зарегистрированный !xml во вложенном заимствованном объекте", () => {
+    const schema = exportNestedPropertyStateSchema({
+      rule,
+      capability,
+      source: Type.Object({
+        ДлинаКода: Type.Optional(Type.Number()),
+        Реквизиты: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+      }, { additionalProperties: false }),
+      explicitXMLPropertyKeys: ["attributes"],
+    }) as { properties?: Record<string, unknown> }
+
+    expect(schema.properties?.Реквизиты).toMatchObject({
+      pattern: "^!xml configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$",
+    })
+  })
+
+  it("добавляет служебный маркер расширяемого объекта", () => {
+    const serviceRule = {
+      ...rule,
+      properties: {
+        ...rule.properties,
+        extendedConfigurationObject: {
+          type: "string",
+          xml: "ExtendedConfigurationObject",
+          runtimeOnly: true,
+        },
+      },
+    } as MetadataItemRule
+    const schema = exportNestedPropertyStateSchema({
+      rule: serviceRule,
+      capability: {
+        ...capability,
+        properties: {
+          ...capability.properties,
+          extendedConfigurationObject: {
+            availability: "borrowed",
+            modes: ["control", "notify"],
+            representation: "tagged",
+          },
+        },
+      },
+      source: Type.Object({ ДлинаКода: Type.Optional(Type.Number()) }, { additionalProperties: false }),
+    }) as { properties?: Record<string, unknown> }
+
+    expect(schema.properties).toHaveProperty("ОбъектРасширяемойКонфигурации")
   })
 })

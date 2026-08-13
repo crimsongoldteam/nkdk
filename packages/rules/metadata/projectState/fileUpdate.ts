@@ -112,7 +112,7 @@ export function isolateProjectStateYamlUpdate(
   return {
     ...update,
     localValidation: {
-      contributedFacts: false,
+      contributedFacts: update.localValidation.contributedFacts,
       diagnostics: update.localValidation.schemaDiagnostics,
       schemaDiagnostics: update.localValidation.schemaDiagnostics,
     },

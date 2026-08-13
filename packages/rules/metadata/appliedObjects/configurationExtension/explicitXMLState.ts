@@ -22,7 +22,7 @@ export function isExplicitXMLPropertyState(yamlValue: string): boolean {
 
 export function decodeExplicitXMLPropertyState(
   yamlValue: string,
-  expected: { readonly itemType: string; readonly propertyKey: string },
+  expected: { readonly itemType: string; readonly propertyKey: string; readonly xmlProperty?: string },
 ): ExplicitXMLPropertyStatePayload {
   const scalar = xmlScalarTagPayload(yamlValue)
   if (!scalar.startsWith(CONFIGURATION_EXTENSION_PROPERTY_STATE_XML_CARRIER)) throw new Error("Неизвестный переносчик PropertyState")
@@ -41,5 +41,11 @@ export function decodeExplicitXMLPropertyState(
     typeof state !== "object" || state === null ||
     typeof state["xr:Property"] !== "string" || typeof state["xr:State"] !== "string"
   ) throw new Error("Повреждён PropertyState в payload")
+  if (expected.xmlProperty !== undefined && state["xr:Property"] !== expected.xmlProperty) {
+    throw new Error("Переносчик PropertyState не соответствует XML-свойству")
+  }
+  if (!["NotSet", "Checked", "Notify", "Extended", "MultiState"].includes(state["xr:State"])) {
+    throw new Error(`Неизвестное значение PropertyState: ${state["xr:State"]}`)
+  }
   return parsed as ExplicitXMLPropertyStatePayload
 }

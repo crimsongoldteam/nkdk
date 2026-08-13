@@ -10,6 +10,7 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ОбщийМодульРегЗадание</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>dc2ecf7f-4c83-4703-b2cd-852fef6d6f18</ExtendedConfigurationObject>
 			<Global>false</Global>
@@ -18,6 +19,7 @@
 			<ExternalConnection>false</ExternalConnection>
 			<ClientOrdinaryApplication>false</ClientOrdinaryApplication>
 			<ServerCall>false</ServerCall>
+			<ReturnValuesReuse>DontUse</ReturnValuesReuse>
 		</Properties>
 	</CommonModule>
 </MetaDataObject>

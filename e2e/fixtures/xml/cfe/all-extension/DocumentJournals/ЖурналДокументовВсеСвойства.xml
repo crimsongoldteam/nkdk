@@ -14,12 +14,25 @@
 				<xr:TypeId>14524891-128a-429d-a69a-7618602e1df5</xr:TypeId>
 				<xr:ValueId>61681ddb-f961-47ac-967b-c34ebad5d6ed</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ЖурналДокументовВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>eaa3ce17-c186-4aac-9667-0f4409e5043c</ExtendedConfigurationObject>
+			<DefaultForm/>
+			<RegisteredDocuments>
+				<xr:Item xsi:type="xr:MDObjectRef">Document.ДокументВсеСвойства</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Document.ДокументДругойДляЖурнала</xr:Item>
+			</RegisteredDocuments>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Column uuid="70e7d414-7b6a-48b8-96f9-758e57115a21">
@@ -27,8 +40,10 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ГрафаВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>c9c20257-fb3b-4591-af4d-9dcf3c5a6ab5</ExtendedConfigurationObject>
+					<References/>
 				</Properties>
 			</Column>
 			<Column uuid="53b6f24a-b36c-4032-bcd7-56dc16cc95dc">
@@ -43,13 +58,21 @@
 			<Form>ФормаСписка</Form>
 			<Template>Макет</Template>
 			<Command uuid="3c563475-adf5-4d72-a172-f708f45595d1">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>379bfbdd-9fa6-4a7c-aa7b-45d9c52a210c</ExtendedConfigurationObject>
 					<Group>CommandGroup.ГруппаКомандПоУмолчанию</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

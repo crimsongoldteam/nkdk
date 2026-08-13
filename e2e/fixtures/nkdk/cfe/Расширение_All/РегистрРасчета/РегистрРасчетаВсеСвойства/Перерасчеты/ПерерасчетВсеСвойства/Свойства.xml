@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Recalculation uuid="c05735ac-3bbc-4a6d-9286-6484f72ceea4">
+		<InternalInfo>
+			<xr:GeneratedType name="RecalculationRecord.РегистрРасчетаВсеСвойства.ПерерасчетВсеСвойства" category="Record">
+				<xr:TypeId>2dcd1554-87cb-47d8-87d8-925f85fc9d1e</xr:TypeId>
+				<xr:ValueId>d9e2cd42-f3a7-4fa5-85db-d3f2a59cc41e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="RecalculationManager.РегистрРасчетаВсеСвойства.ПерерасчетВсеСвойства" category="Manager">
+				<xr:TypeId>a150a344-bced-4081-aa29-674589a9b70d</xr:TypeId>
+				<xr:ValueId>cd96fce7-017d-4d18-b7d7-e2e0c9826411</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="RecalculationRecordSet.РегистрРасчетаВсеСвойства.ПерерасчетВсеСвойства" category="RecordSet">
+				<xr:TypeId>3308a809-5852-49c5-8874-d8f7bdb73d6d</xr:TypeId>
+				<xr:ValueId>5e20544e-eaa1-4e1c-a80f-6e6a81c834b4</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПерерасчетВсеСвойства</Name>
+			<Synonym/>
+			<Comment/>
+			<ExtendedConfigurationObject>fe3ce121-d6fc-409c-9b83-19e551d26b21</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</Recalculation>
+</MetaDataObject>

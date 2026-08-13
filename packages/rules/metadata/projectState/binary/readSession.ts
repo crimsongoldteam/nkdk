@@ -115,6 +115,12 @@ export function createBinaryProjectStateQueryPort(
       }
       return result
     },
+    readFileHash: ({ componentPath, projectPath }) => {
+      const fileId = snapshot.findFile(projectPath)
+      return fileId === undefined || snapshot.componentPath(fileId) !== componentPath
+        ? undefined
+        : snapshot.fileRecord(fileId).hash
+    },
   }
   return queryPort
 }

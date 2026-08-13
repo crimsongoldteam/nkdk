@@ -84,7 +84,7 @@ export function validateProjectStateAddressableRequiredBatch(params: {
     if (result.status === "found") return
     const location = {
       ...entry.check.location,
-      filePath: join(params.projectDir, entry.projectPath),
+      filePath: entry.projectPath,
     }
     if (result.status === "ambiguous") {
       diagnostics.push(diagnosticAtYamlLocation({
@@ -205,7 +205,9 @@ export function readProjectStateDependencyReadiness(params: {
       if (row.componentPath !== "cf") continue
       hasConfiguration = true
       if (row.projectPath === "cf/Конфигурация.yaml") hasConfigurationRoot = true
-      if (row.schemaReady === false || row.contributedFacts === false) configurationFilesReady = false
+      if (row.schemaReady === false || row.contributedFacts === false) {
+        configurationFilesReady = false
+      }
     }
     if (rows.length < VALIDATION_STATUS_BATCH_SIZE) break
   }
@@ -242,7 +244,9 @@ export function validateProjectStateReferenceBatch(params: {
     reference.tagged !== "xml"
     && componentPath.startsWith("cfe/")
     && componentPath.length > "cfe/".length
-    && resultByRequestId.get(requestId)?.status === "missing"
+    && (resultByRequestId.get(requestId)?.status === "missing"
+      || reference.propertyStateMode === "control"
+      || reference.propertyStateMode === "notify")
   )
   const basePresenceResults = params.queryPort.resolveTargets(
     basePresenceChecks.map(({ requestId, reference }) => ({
@@ -281,6 +285,16 @@ export function validateProjectStateReferenceBatch(params: {
       return
     }
     if (result.status === "found") {
+      const baseResult = basePresenceByRequestId.get(check.requestId)
+      if (check.reference.propertyStateMode !== undefined
+        && check.reference.propertyStateMode !== "extend"
+        && baseResult?.status !== "found") {
+        diagnostics.push(...unresolvedProjectReferenceResult(
+          check.reference,
+          baseResult?.status ?? "missing",
+        ).diagnostics)
+        return
+      }
       const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
       if (!resolved.ok) diagnostics.push(...resolved.diagnostics)
     } else {

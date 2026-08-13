@@ -132,6 +132,7 @@ describe("configuration extension XML import", () => {
 
     expect(form).toEqual({
       Комментарий: "Форма расширения",
+      Изменять: ["Форма"],
       Реквизиты: {
         БазовыйОбъект: {
           Заголовок: "",
@@ -175,14 +176,9 @@ describe("configuration extension XML import", () => {
       componentPath: "cfe/РасширениеКонтроль",
       indexGeneration: 1n,
     })
-    expect(
-      snapshot.entities.find(
-        ({ logicalAddress }) => logicalAddress === "Справочник.СправочникПолный.Форма.ФормаОтчета.form"
-      )
-    ).toMatchObject({
-      sourceProjectPath: "Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
-      xml: { extended: true },
-    })
+    expect(snapshot.entities.some(
+      ({ logicalAddress }) => logicalAddress === "Справочник.СправочникПолный.Форма.ФормаОтчета.form"
+    )).toBe(false)
     expect(
       snapshot.entities.every((entity) => snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath))
     ).toBe(true)

@@ -3,5 +3,5 @@ import { MetadataRegisterResourceRules } from "./rules"
 
 export const metadataRegisterResourcePropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataRegisterResourceRules, {
   profiles: ["borrowed-base", "register-field"],
-  properties: controlled("type", "balance", "accountingFlag"),
+  properties: controlled("balance", "accountingFlag"),
 })

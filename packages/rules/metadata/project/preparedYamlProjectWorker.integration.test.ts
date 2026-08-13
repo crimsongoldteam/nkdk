@@ -51,6 +51,49 @@ afterEach(() => {
 })
 
 describe("project-state refresh worker", () => {
+  it("читает режим совместимости из корня расширения для дочернего YAML", async () => {
+    const projectDir = createTempDir()
+    const child = componentProperties(projectDir, "cfe/Расширение", "Товары")
+    writeProjectFile(join(projectDir, "cfe/Расширение"), "Конфигурация.yaml",
+      "РежимСовместимостиРасширенияКонфигурации: Версия8_3_19\n")
+    writeProjectFile(join(projectDir, "cfe/Расширение"), child.projectPath, "{}\n")
+    writeProjectFile(join(projectDir, "cf"), child.projectPath, "{}\n")
+    const localSchemaCache = createTestValidationSchemaCache()
+    const properties = vi.fn(localSchemaCache.properties)
+    await runPreparedYamlProjectWorkerTask({
+      kind: "initValidation",
+      workerIndex: 0,
+      context: mockContext,
+      rulesSnapshot,
+    }, {
+      createValidationSchemaCache: async () => ({ ...localSchemaCache, properties }),
+    })
+
+    try {
+      await runPreparedYamlProjectWorkerTask({
+        kind: "validateFirstPass",
+        workerIndex: 0,
+        projectDir,
+        context: mockContext,
+        files: [child],
+      })
+      expect(properties).toHaveBeenCalledWith(
+        expect.anything(),
+        "extension-overlay",
+        "Версия8_3_19",
+      )
+    } finally {
+      await runPreparedYamlProjectWorkerTask({
+        kind: "initValidation",
+        workerIndex: 0,
+        context: mockContext,
+        rulesSnapshot,
+      }, {
+        createValidationSchemaCache: async () => createTestValidationSchemaCache(),
+      })
+    }
+  })
+
   it("возвращает отдельный двоичный фрагмент для каждой рабочей пачки", async () => {
     const createTask = (projectPath: string): PreparedYamlProjectWorkerTask => ({
       kind: "refreshProjectState",
@@ -699,7 +742,7 @@ describe("validation first-pass worker boundary", () => {
 
     expect(update).toMatchObject({
       targets: [], owners: [], fields: [], forms: [], pendingReferences: [], pendingChecks: [], dependencies: [],
-      localValidation: { contributedFacts: false },
+      localValidation: { contributedFacts: true },
     })
     expect(update.structuredDocuments).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -1128,6 +1171,12 @@ function createTempDir(): string {
   const dir = mkdtempSync(join(tmpdir(), "nkdk-validation-facts-worker-"))
   tempDirs.push(dir)
   return dir
+}
+
+function writeProjectFile(projectDir: string, projectPath: string, content: string): void {
+  const filePath = join(projectDir, ...projectPath.split("/"))
+  mkdirSync(dirname(filePath), { recursive: true })
+  writeFileSync(filePath, content)
 }
 
 function descriptor(filePath: string) {

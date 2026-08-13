@@ -6,11 +6,17 @@ import {
   CONFIGURATION_EXTENSION_PROPERTY_STATE_DOCUMENT,
   type ConfigurationExtensionPropertyStateFactPayload,
 } from "../../ruleRuntime/property/propertyStateFacts"
+import { CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT } from "../../ruleRuntime/property/configurationExtensionStructureFacts"
+import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
+import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
+
+const propertyStates = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
 
 export function validateConfigurationExtensionPropertyStates(
   params: ProjectStateStructuredDocumentValidationParams,
 ): readonly Diagnostic[] {
   const diagnostics: Diagnostic[] = []
+  const compatibilityModes = extensionCompatibilityModes(params)
   for (const fact of params.facts) {
     if (
       !fact.componentPath.startsWith("cfe/") ||
@@ -25,8 +31,48 @@ export function validateConfigurationExtensionPropertyStates(
       entry.name === fact.entry.name)
     const basePayload = base === undefined ? undefined : parsePayload(base)
     if (basePayload === undefined) {
+      const baseObjectExists = params.queryPort.readStructuredDocumentEntries({
+        componentPath: "cf",
+        logicalAddress: fact.entry.logicalAddress,
+      }).some((entry) => entry.documentKind === CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT)
+      if (!baseObjectExists && extension.explicitMode !== true) continue
       diagnostics.push(diagnostic(params.projectDir, fact.projectPath, fact.entry, "error",
         `Свойство «${extension.propertyKey}» отсутствует в основной конфигурации`))
+      continue
+    }
+    if (
+      extension.itemType === "MetadataFunctionalOption" &&
+      extension.propertyKey === "content" &&
+      !functionalOptionHasBooleanLocation(params, fact.entry.logicalAddress)
+    ) {
+      diagnostics.push(diagnostic(params.projectDir, fact.projectPath, fact.entry, "error",
+        "Состав функциональной опции доступен только при булевом типе объекта из Размещения"))
+      continue
+    }
+    const external = externalProjectPath(extension.value)
+    if (external !== undefined) {
+      diagnostics.push(...validateExternalFile({
+        params,
+        fact,
+        mode: extension.mode,
+        extensionProjectPath: external,
+        baseProjectPath: externalProjectPath(basePayload.value),
+      }))
+      continue
+    }
+    const compatibilityMode = compatibilityModes.get(fact.componentPath)
+    const capability = propertyStates.resolve({
+      itemType: extension.itemType,
+      propertyKey: extension.propertyKey,
+      compatibilityMode,
+    })
+    const knownItem = propertyStates.item(extension.itemType, compatibilityMode)
+    if (
+      extension.mode !== "xml" && knownItem !== undefined &&
+      (capability === undefined || !capability.modes.includes(extension.mode))
+    ) {
+      diagnostics.push(diagnostic(params.projectDir, fact.projectPath, fact.entry, "error",
+        `Режим свойства «${extension.propertyKey}» недоступен при ${compatibilityMode ?? "Версия8_3_27"}`))
       continue
     }
     if (extension.mode === "extend" || extension.mode === "xml") continue
@@ -49,6 +95,82 @@ export function validateConfigurationExtensionPropertyStates(
         : `Контролируемое свойство «${extension.propertyKey}» отличается от основной конфигурации`))
   }
   return diagnostics
+}
+
+function functionalOptionHasBooleanLocation(
+  params: ProjectStateStructuredDocumentValidationParams,
+  logicalAddress: string,
+): boolean {
+  const option = params.queryPort.readStructuredDocumentEntries({
+    componentPath: "cf",
+    logicalAddress,
+  }).find((entry) => entry.documentKind === CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT)
+  const optionPayload = parseStructurePayload(option?.payload)
+  if (typeof optionPayload.location !== "string") return false
+  const location = params.queryPort.readStructuredDocumentEntries({
+    componentPath: "cf",
+    logicalAddress: optionPayload.location,
+  }).find((entry) => entry.documentKind === CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT)
+  return parseStructurePayload(location?.payload).valueType === "Булево"
+}
+
+function parseStructurePayload(payload: string | undefined): { location?: unknown; valueType?: unknown } {
+  return payload === undefined ? {} : JSON.parse(payload) as { location?: unknown; valueType?: unknown }
+}
+
+function validateExternalFile(params: {
+  readonly params: ProjectStateStructuredDocumentValidationParams
+  readonly fact: ProjectStateStructuredDocumentValidationParams["facts"][number]
+  readonly mode: ConfigurationExtensionPropertyStateFactPayload["mode"]
+  readonly extensionProjectPath: string
+  readonly baseProjectPath: string | undefined
+}): readonly Diagnostic[] {
+  const extensionHash = params.params.queryPort.readFileHash?.({
+    componentPath: params.fact.componentPath,
+    projectPath: params.extensionProjectPath,
+  })
+  if (extensionHash === undefined) {
+    return [diagnostic(params.params.projectDir, params.fact.projectPath, params.fact.entry, "error",
+      `Отсутствует внешний файл «${params.extensionProjectPath}»`)]
+  }
+  if (params.mode === "extend" || params.mode === "xml") return []
+  if (params.baseProjectPath === undefined) {
+    return [diagnostic(params.params.projectDir, params.fact.projectPath, params.fact.entry, "error",
+      "Соответствующий внешний файл отсутствует в основной конфигурации")]
+  }
+  const baseHash = params.params.queryPort.readFileHash?.({ componentPath: "cf", projectPath: params.baseProjectPath })
+  if (baseHash === undefined) {
+    return [diagnostic(params.params.projectDir, params.fact.projectPath, params.fact.entry, "error",
+      `Не найден хэш внешнего файла основной конфигурации «${params.baseProjectPath}»`)]
+  }
+  if (baseHash === extensionHash) return []
+  const severity = params.mode === "notify" ? "warning" : "error"
+  return [diagnostic(params.params.projectDir, params.fact.projectPath, params.fact.entry, severity,
+    severity === "warning"
+      ? "Проверяемый внешний файл отличается от основной конфигурации"
+      : "Контролируемый внешний файл отличается от основной конфигурации")]
+}
+
+function externalProjectPath(value: unknown): string | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined
+  const projectPath = (value as { externalProjectPath?: unknown }).externalProjectPath
+  return typeof projectPath === "string" ? projectPath : undefined
+}
+
+function extensionCompatibilityModes(
+  params: ProjectStateStructuredDocumentValidationParams,
+): ReadonlyMap<string, string> {
+  const modes = new Map<string, string>()
+  for (const fact of params.facts) {
+    if (
+      !fact.componentPath.startsWith("cfe/") ||
+      fact.entry.documentKind !== CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT ||
+      fact.entry.name !== "MetadataConfigurationExtension"
+    ) continue
+    const parsed = JSON.parse(fact.entry.payload ?? "null") as { compatibilityMode?: unknown } | null
+    if (typeof parsed?.compatibilityMode === "string") modes.set(fact.componentPath, parsed.compatibilityMode)
+  }
+  return modes
 }
 
 function validateMulti(params: {

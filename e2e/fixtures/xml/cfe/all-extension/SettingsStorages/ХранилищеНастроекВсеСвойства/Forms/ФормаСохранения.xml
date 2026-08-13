@@ -10,6 +10,7 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ФормаСохранения</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>a3ce474b-a801-4044-994d-f85a375ba0a6</ExtendedConfigurationObject>
 			<FormType>Managed</FormType>

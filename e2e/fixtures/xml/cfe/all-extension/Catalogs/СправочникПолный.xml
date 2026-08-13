@@ -35,34 +35,58 @@
 		</Properties>
 		<ChildObjects>
 			<Attribute uuid="f82ff53b-3aed-4421-bbe7-6f6311126446">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>Type</xr:Property>
+						<xr:State>MultiState</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>СтроковыйРеквизитСИндексом</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>301fda37-ce86-4a9a-a764-f914a74e0188</ExtendedConfigurationObject>
-					<Type>
-						<v8:Type>xs:string</v8:Type>
-						<v8:StringQualifiers>
-							<v8:Length>10</v8:Length>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-						</v8:StringQualifiers>
+					<Type xsi:type="xr:ExtendedProperty">
+						<xr:ExtendValue xsi:type="v8:TypeDescription">
+							<v8:Type>xs:boolean</v8:Type>
+						</xr:ExtendValue>
+						<xr:NotifyValue xsi:type="v8:TypeDescription">
+							<v8:Type>xs:dateTime</v8:Type>
+							<v8:DateQualifiers>
+								<v8:DateFractions>Date</v8:DateFractions>
+							</v8:DateQualifiers>
+						</xr:NotifyValue>
 					</Type>
+					<ToolTip/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="7838c9da-1bc2-41d4-bf3e-71393ec66bf0">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>Type</xr:Property>
+						<xr:State>MultiState</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитСправочника</Name>
 					<Comment/>
 					<ExtendedConfigurationObject>1f3ce853-d20e-42a3-9308-e01afc6d1af9</ExtendedConfigurationObject>
-					<Type>
-						<v8:Type>xs:dateTime</v8:Type>
-						<v8:DateQualifiers>
-							<v8:DateFractions>Date</v8:DateFractions>
-						</v8:DateQualifiers>
+					<Type xsi:type="xr:ExtendedProperty">
+						<xr:CheckValue xsi:type="v8:TypeDescription">
+							<v8:Type>xs:dateTime</v8:Type>
+							<v8:DateQualifiers>
+								<v8:DateFractions>Date</v8:DateFractions>
+							</v8:DateQualifiers>
+						</xr:CheckValue>
+						<xr:ExtendValue xsi:type="v8:TypeDescription">
+							<v8:Type>xs:boolean</v8:Type>
+						</xr:ExtendValue>
 					</Type>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="2075490f-502f-41cc-8fe5-4c8ed3a5f32a">
@@ -129,8 +153,10 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ТабличнаяЧасть</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>33737a10-74f4-4fac-a778-0612abab432b</ExtendedConfigurationObject>
+					<ToolTip/>
 				</Properties>
 				<ChildObjects>
 					<Attribute uuid="88885a22-7712-42de-8da4-20ea85ffff8c">
@@ -138,6 +164,7 @@
 						<Properties>
 							<ObjectBelonging>Adopted</ObjectBelonging>
 							<Name>РеквизитТабличнойЧасти</Name>
+							<Synonym/>
 							<Comment/>
 							<ExtendedConfigurationObject>fad201c9-0134-4db1-ab7e-649f5419b3c3</ExtendedConfigurationObject>
 							<Type>
@@ -147,6 +174,7 @@
 									<v8:AllowedLength>Variable</v8:AllowedLength>
 								</v8:StringQualifiers>
 							</Type>
+							<ToolTip/>
 						</Properties>
 					</Attribute>
 					<Attribute uuid="3d777f18-f0c0-44cc-9ad9-ccf5a7512b3d">
@@ -171,13 +199,21 @@
 			<Form>Минимальная</Form>
 			<Template>Макет</Template>
 			<Command uuid="9f4ab276-b1ef-4e38-ae23-0ecce21122bd">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ПолнаяКоманда</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>36c7fb10-4e7d-44b5-af98-ae9e7f82cf63</ExtendedConfigurationObject>
 					<Group>FormNavigationPanelImportant</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 			<Command uuid="42af3318-0abe-42ae-b229-889706552d6c">

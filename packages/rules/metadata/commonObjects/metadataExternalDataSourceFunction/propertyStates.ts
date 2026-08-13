@@ -3,5 +3,8 @@ import { MetadataExternalDataSourceFunctionRules } from "./rules"
 
 export const metadataExternalDataSourceFunctionPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataExternalDataSourceFunctionRules, {
   profiles: ["borrowed-base", "mutable-synonym"],
-  properties: allPropertyStateModes("returnValue", "expressionInDataSource"),
+  properties: {
+    type: { availability: "own", modes: [] },
+    ...allPropertyStateModes("returnValue", "expressionInDataSource"),
+  },
 })

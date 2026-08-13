@@ -35,6 +35,14 @@ describe("ограничения структуры расширения", () =>
     expect(registry.allowsOwnBorrowedChild("MetadataIntegrationService", "channels")).toBe(true)
   })
 
+  it.each([
+    ["MetadataWebService", "Версия8_3_7"],
+    ["MetadataCatalog", "Версия8_3_11"],
+    ["MetadataDefinedType", "Версия8_3_20"],
+  ])("хранит границу собственного объекта %s", (itemType, sinceMode) => {
+    expect(registry.resolve(itemType).sinceMode).toBe(sinceMode)
+  })
+
   it("определяет заимствованного ребёнка по виду и имени", () => {
     expect(registry.classifyChild({ itemType: "MetadataCommand", name: "Печать" }, [
       { itemType: "MetadataCommand", name: "Печать" },

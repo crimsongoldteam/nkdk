@@ -22,16 +22,55 @@
 				<xr:TypeId>660764be-ddfd-4c28-a4d4-065a4c81802b</xr:TypeId>
 				<xr:ValueId>0290ac63-e8c4-450c-b9d5-8428b3432ad8</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>Numerator</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>NumberType</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>NumberLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>NumberAllowedLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ObjectModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ДокументВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>2f109eaa-d341-4592-a04f-3f199e75d879</ExtendedConfigurationObject>
+			<Numerator/>
+			<NumberType>String</NumberType>
+			<NumberLength>9</NumberLength>
+			<NumberAllowedLength>Variable</NumberAllowedLength>
+			<NumberPeriodicity>Nonperiodical</NumberPeriodicity>
+			<CheckUnique>true</CheckUnique>
+			<DefaultObjectForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
 			<RegisterRecords>
 				<xr:Item xsi:type="xr:MDObjectRef">AccountingRegister.РегистрБухгалтерии1Ext</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt</xr:Item>
 			</RegisterRecords>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Attribute uuid="3b5c18a9-8703-492c-8813-927cd92e7888">
@@ -39,6 +78,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>СтроковыйРеквизит</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>f019ac1d-40f3-4cf9-b142-708dd2ee9642</ExtendedConfigurationObject>
 					<Type>
@@ -48,6 +88,7 @@
 							<v8:AllowedLength>Variable</v8:AllowedLength>
 						</v8:StringQualifiers>
 					</Type>
+					<ToolTip/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="d826e31f-7c70-4710-8a09-5cc95fce3152">
@@ -55,11 +96,15 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитБулево</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>1c13e5ad-46cf-4739-b8f9-ad731f1623ea</ExtendedConfigurationObject>
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="2618e2f7-dfe3-40de-9f68-3eb7c75b9901">
@@ -108,8 +153,10 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ТабличнаяЧасть</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>c9e31200-6141-4636-9849-d483d787ec32</ExtendedConfigurationObject>
+					<ToolTip/>
 				</Properties>
 				<ChildObjects>
 					<Attribute uuid="c4b2ca53-a877-4567-9c6f-9613ef2e4889">
@@ -117,6 +164,7 @@
 						<Properties>
 							<ObjectBelonging>Adopted</ObjectBelonging>
 							<Name>РеквизитТабличнойЧасти</Name>
+							<Synonym/>
 							<Comment/>
 							<ExtendedConfigurationObject>dab3842c-5ad2-4e69-9539-4430a655f3d5</ExtendedConfigurationObject>
 							<Type>
@@ -127,19 +175,30 @@
 									<v8:AllowedSign>Any</v8:AllowedSign>
 								</v8:NumberQualifiers>
 							</Type>
+							<Format/>
+							<EditFormat/>
+							<ToolTip/>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
 			</TabularSection>
 			<Template>Макет</Template>
 			<Command uuid="c0426e06-192d-40fb-bb46-aa3ea355d15b">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>e3464398-fb69-4562-bc40-ab9d5aeb2d74</ExtendedConfigurationObject>
 					<Group>NavigationPanelImportant</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

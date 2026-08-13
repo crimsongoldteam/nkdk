@@ -10,9 +10,12 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>InputField</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>881a8424-1181-46eb-ba00-0b55a1b941a1</ExtendedConfigurationObject>
 			<FormType>Managed</FormType>
+			<ExtendedPresentation/>
+			<Explanation/>
 		</Properties>
 	</CommonForm>
 </MetaDataObject>

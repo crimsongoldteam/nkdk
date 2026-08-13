@@ -26,12 +26,49 @@
 				<xr:TypeId>d09acb83-1af9-444d-9aa3-49387a585ba4</xr:TypeId>
 				<xr:ValueId>25e8c772-02d3-4597-8cbd-dd4d38e87504</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>CodeLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>CodeAllowedLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>DescriptionLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>Predefined</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ObjectModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ПланВидовХарактеристикВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>83430a5b-11ad-4b28-bff4-f3c3f45f0360</ExtendedConfigurationObject>
+			<Hierarchical>true</Hierarchical>
+			<CodeLength>9</CodeLength>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
+			<DescriptionLength>25</DescriptionLength>
+			<DefaultObjectForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<TabularSection uuid="a12fddfc-dcfa-407c-9494-53a5457a3973">
@@ -48,8 +85,10 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ТабличнаяЧасть</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>01de07d4-fed6-442b-82ab-b8b9269a5b7c</ExtendedConfigurationObject>
+					<ToolTip/>
 				</Properties>
 				<ChildObjects>
 					<Attribute uuid="32c74fe8-55b8-4fc7-9021-199f7b339a1d">
@@ -57,11 +96,14 @@
 						<Properties>
 							<ObjectBelonging>Adopted</ObjectBelonging>
 							<Name>РеквизитТабличнойЧасти</Name>
+							<Synonym/>
 							<Comment/>
 							<ExtendedConfigurationObject>ff1c9524-df96-496c-be61-86dbcef18a7b</ExtendedConfigurationObject>
 							<Type>
 								<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
 							</Type>
+							<ToolTip/>
+							<ChoiceForm/>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
@@ -73,13 +115,21 @@
 			<Form>ФормаВыбораГруппы</Form>
 			<Template>Макет</Template>
 			<Command uuid="8aeac8b3-1d56-4bfe-ab72-13478dd6c716">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ПолнаяКоманда</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>d841e2fc-08ce-4dab-866f-4df3c42ca89f</ExtendedConfigurationObject>
 					<Group>FormNavigationPanelImportant</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 			<Command uuid="9183c4fc-82c2-47df-b08f-a6a12c93c00c">

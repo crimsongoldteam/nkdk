@@ -107,6 +107,8 @@ export interface ToXMLConfigurationContext {
 
 export interface FromXMLConfigurationContext {
   forReference: boolean
+  /** Режим, ограничивающий доступные состояния свойств импортируемого компонента. */
+  propertyStateCompatibilityMode?: string
 }
 
 export type XmlImportFromXMLConfigurationContext = FromXMLConfigurationContext & {

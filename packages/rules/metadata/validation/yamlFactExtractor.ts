@@ -66,6 +66,7 @@ import { resolve } from "node:path"
 import type { ProjectStateStructuredDocumentEntry } from "../projectState/contracts/fileUpdate"
 import { collectConfigurationExtensionPropertyStateDocuments } from "./configurationExtensionPropertyStateFacts"
 import { configurationExtensionStructureDocument } from "../ruleRuntime/property/configurationExtensionStructureFacts"
+import { traverseMetadataRuleYaml } from "./metadataRuleYamlTraversal"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -95,6 +96,8 @@ export function extractValidationYamlFacts(params: {
   rulesSnapshot: ValidationRulesSnapshot
   validationDiagnostics?: boolean
   runtime?: ValidationRegistrySet
+  propertyStateCompatibilityMode?: string
+  borrowedLogicalAddresses?: ReadonlySet<string>
 }): ValidationYamlFacts {
   const validationDiagnostics = params.validationDiagnostics !== false
   if (params.file.kind === "form") {
@@ -170,41 +173,41 @@ export function extractValidationYamlFacts(params: {
           filePath: params.file.absolutePath,
         }),
       ]
-  const capability = params.runtime?.propertyStates.item(params.file.itemType)
-  const belongsToBorrowedPair = params.file.componentPath === "cf" || (
-    params.file.componentPath.startsWith("cfe/") &&
+  const extensionComponent = params.file.componentPath.startsWith("cfe/")
+  const belongsToBorrowedPair = extensionComponent && (
     existsSync(resolve(params.file.componentDir, "..", "..", "cf", ...params.file.projectPath.split("/")))
   )
-  const propertyStateDocuments = capability === undefined || params.file.logicalAddress === undefined || !belongsToBorrowedPair
+  const extensionLogicalAddress = params.file.logicalAddress
+    ?? (params.file.componentPath.startsWith("cfe/") && objectTarget !== undefined
+      ? projectObjectIndexKey(objectTarget)
+      : undefined)
+  const structuredDocuments = extensionLogicalAddress === undefined
     ? []
-    : collectConfigurationExtensionPropertyStateDocuments({
-        yaml: metadataRecord(params.parsed.data),
+    : collectConfigurationExtensionDocuments({
+        yaml: params.parsed.data,
         rule: params.file.itemRule,
-        capability,
-        logicalAddress: params.file.logicalAddress,
+        logicalAddress: extensionLogicalAddress,
         workingProjectPath: params.file.projectPath,
+        runtime: params.runtime,
+        collectPropertyStates: belongsToBorrowedPair,
+        borrowed: belongsToBorrowedPair,
+        borrowedLogicalAddresses: params.borrowedLogicalAddresses,
+        propertyStateCompatibilityMode: params.propertyStateCompatibilityMode,
+        projectFileExists: (projectPath) => existsSync(resolve(params.file.componentDir, ...projectPath.split("/"))),
       })
-  const structuredDocuments = params.file.logicalAddress === undefined
-    ? propertyStateDocuments
-    : [
-        ...propertyStateDocuments,
-        configurationExtensionStructureDocument({
-          itemType: params.file.itemType,
-          logicalAddress: params.file.logicalAddress,
-          workingProjectPath: params.file.projectPath,
-          ...(typeof metadataRecord(params.parsed.data)["РежимСовместимостиРасширенияКонфигурации"] === "string"
-            ? { compatibilityMode: metadataRecord(params.parsed.data)["РежимСовместимостиРасширенияКонфигурации"] as string }
-            : {}),
-          ...(typeof metadataRecord(params.parsed.data)["ДлинаНомераСтроки"] === "number"
-            ? { lineNumberLength: metadataRecord(params.parsed.data)["ДлинаНомераСтроки"] as number }
-            : {}),
-        }),
-      ]
+  const propertyStatePendingReferences = pendingReferences.map((reference) => {
+    const propertyStateMode = pendingReferencePropertyStateMode(
+      reference.yamlPath,
+      structuredDocuments,
+      params.file.itemRule,
+    )
+    return propertyStateMode === undefined ? reference : { ...reference, propertyStateMode }
+  })
   return {
     objectIndexEntries,
     memberIndexEntries: [],
     valueIndexEntries: [],
-    pendingReferences,
+    pendingReferences: propertyStatePendingReferences,
     pendingChecks,
     diagnostics: validationDiagnostics
       ? [
@@ -219,6 +222,152 @@ export function extractValidationYamlFacts(params: {
       ? {}
       : { structuredDocuments }),
   }
+}
+
+interface ExtensionDocumentTraversalState {
+  readonly logicalAddress: string
+  readonly metadataObject: boolean
+}
+
+function collectConfigurationExtensionDocuments(params: {
+  readonly yaml: unknown
+  readonly rule: MetadataItemRule
+  readonly logicalAddress: string
+  readonly workingProjectPath: string
+  readonly runtime?: ValidationRegistrySet
+  readonly collectPropertyStates: boolean
+  readonly borrowed: boolean
+  readonly borrowedLogicalAddresses?: ReadonlySet<string>
+  readonly propertyStateCompatibilityMode?: string
+  readonly projectFileExists: (projectPath: string) => boolean
+}): readonly ProjectStateStructuredDocumentEntry[] {
+  const documents: ProjectStateStructuredDocumentEntry[] = []
+  traverseMetadataRuleYaml<ExtensionDocumentTraversalState>({
+    yaml: params.yaml,
+    rule: params.rule,
+    initialState: { logicalAddress: params.logicalAddress, metadataObject: true },
+    onObject: ({ yaml, rule, yamlPath, state }) => {
+      if (!state.metadataObject) return
+      const record = metadataRecord(yaml)
+      const capability = params.runtime?.propertyStates.item(
+        rule.itemType,
+        params.propertyStateCompatibilityMode,
+      )
+      const extensionObject = params.borrowedLogicalAddresses !== undefined
+      const borrowed = params.borrowedLogicalAddresses?.has(state.logicalAddress) ?? params.borrowed
+      if (capability !== undefined && (params.collectPropertyStates || !borrowed)) {
+        const propertyStateDocuments = collectConfigurationExtensionPropertyStateDocuments({
+          yaml: record,
+          rule,
+          capability,
+          logicalAddress: state.logicalAddress,
+          workingProjectPath: params.workingProjectPath,
+          borrowed,
+          projectFileExists: params.projectFileExists,
+          yamlPathPrefix: yamlPath,
+        })
+        if (params.collectPropertyStates && (!extensionObject || borrowed)) {
+          documents.push(...propertyStateDocuments)
+        }
+      }
+      documents.push(configurationExtensionStructureDocument({
+        itemType: rule.itemType,
+        logicalAddress: state.logicalAddress,
+        workingProjectPath: params.workingProjectPath,
+        yamlPath,
+        ...(typeof record["РежимСовместимостиРасширенияКонфигурации"] === "string"
+          ? { compatibilityMode: record["РежимСовместимостиРасширенияКонфигурации"] as string }
+          : {}),
+        ...(typeof record["ДлинаНомераСтроки"] === "number"
+          ? { lineNumberLength: record["ДлинаНомераСтроки"] as number }
+          : {}),
+        ...(typeof record["ИсторияДанных"] === "string"
+          ? { dataHistory: record["ИсторияДанных"] as string }
+          : {}),
+        ...(typeof record["РаспределеннаяИнформационнаяБаза"] === "boolean"
+          ? { distributedInfoBase: record["РаспределеннаяИнформационнаяБаза"] as boolean }
+          : {}),
+        ...(hasRestrictedExtensionTypes(record) ? { usesRestrictedTypes: true } : {}),
+        ...(typeof record["Размещение"] === "string" ? { location: record["Размещение"] as string } : {}),
+        ...(typeof record["Тип"] === "string" ? { valueType: record["Тип"] as string } : {}),
+      }))
+    },
+    enterNestedObject: ({ state }) => ({ ...state, metadataObject: false }),
+    enterCollectionItem: ({ rule, propertyRule, collectionUidSegment, itemName, state }) => {
+      const externalMetadata = rule.externalMetadata
+      const addressable = externalMetadata?.placement === "ownedEntry" ||
+        externalMetadata?.placement === "ownerChild" || rule.properties.uuid !== undefined
+      const segment = propertyRule.configurationIndexUidSegment ?? collectionUidSegment ?? externalMetadata?.segment
+      if (!addressable || itemName === undefined || segment === undefined) {
+        return { ...state, metadataObject: false }
+      }
+      return {
+        logicalAddress: `${state.logicalAddress}.${segment}.${itemName}`,
+        metadataObject: true,
+      }
+    },
+  })
+  return documents
+}
+
+function pendingReferencePropertyStateMode(
+  yamlPath: readonly (string | number)[],
+  documents: readonly ProjectStateStructuredDocumentEntry[],
+  rule: MetadataItemRule,
+): "control" | "notify" | "extend" | undefined {
+  const candidates = documents
+    .filter((entry) => entry.documentKind === "configurationExtensionPropertyState"
+      && (isYamlPathPrefix(entry.yamlPath, yamlPath)
+        || propertyDocumentMatchesReference(entry, yamlPath, rule)))
+    .sort((left, right) => right.yamlPath.length - left.yamlPath.length)
+  const candidate = candidates[0]
+  if (candidate?.payload === undefined) return undefined
+  const payload = JSON.parse(candidate.payload) as {
+    mode?: unknown
+    value?: unknown
+    explicitMode?: unknown
+  }
+  if (payload.mode === "control" || payload.mode === "notify" || payload.mode === "extend") {
+    return payload.mode
+  }
+  if (payload.mode !== "multi" || !Array.isArray(payload.value)) return undefined
+  const relativePath = yamlPath.slice(candidate.yamlPath.length)
+  const index = relativePath.find((segment): segment is number => typeof segment === "number")
+  const part = index === undefined ? undefined : payload.value[index]
+  if (typeof part !== "object" || part === null) return undefined
+  const mode = (part as { mode?: unknown }).mode
+  return mode === "control" || mode === "notify" || mode === "extend" ? mode : undefined
+}
+
+function propertyDocumentMatchesReference(
+  entry: ProjectStateStructuredDocumentEntry,
+  yamlPath: readonly (string | number)[],
+  rule: MetadataItemRule,
+): boolean {
+  const yamlName = rule.properties[entry.name]?.yaml
+  return typeof yamlName === "string" && yamlPath[0] === yamlName
+}
+
+function isYamlPathPrefix(
+  prefix: readonly (string | number)[],
+  path: readonly (string | number)[],
+): boolean {
+  return prefix.length <= path.length && prefix.every((segment, index) => segment === path[index])
+}
+
+function hasRestrictedExtensionTypes(value: unknown): boolean {
+  if (Array.isArray(value)) return value.some(hasRestrictedExtensionTypes)
+  if (value === null || typeof value !== "object") return false
+  return Object.entries(value).some(([key, nested]) => key === "Тип"
+    ? isRestrictedExtensionTypeValue(nested)
+    : hasRestrictedExtensionTypes(nested))
+}
+
+function isRestrictedExtensionTypeValue(value: unknown): boolean {
+  if (typeof value === "string") return /^(?:ОпределяемыйТип|Характеристика)(?:\.|$)/u.test(value)
+  if (Array.isArray(value)) return value.length > 1 || value.some(isRestrictedExtensionTypeValue)
+  if (value === null || typeof value !== "object") return false
+  return Object.values(value).some(isRestrictedExtensionTypeValue)
 }
 
 export function extractValidationOwnerYamlFacts(params: {

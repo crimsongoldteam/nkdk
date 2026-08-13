@@ -44,6 +44,8 @@
 					<Type>
 						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
 					</Type>
+					<ToolTip/>
+					<ChoiceForm/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="bab2caae-77b4-41e6-9bfd-f03e2b2909f9">
@@ -104,8 +106,10 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>a0f4cbdc-308d-4458-81c8-a3ae9374449e</ExtendedConfigurationObject>
+					<ToolTip/>
 				</Properties>
 				<ChildObjects>
 					<Attribute uuid="2aa09f23-033f-46d5-92d4-e90139459084">
@@ -129,11 +133,14 @@
 						<Properties>
 							<ObjectBelonging>Adopted</ObjectBelonging>
 							<Name>РеквизитВсеСвойства</Name>
+							<Synonym/>
 							<Comment/>
 							<ExtendedConfigurationObject>1fee75ec-9bbb-411d-bb45-78e5755c9d55</ExtendedConfigurationObject>
 							<Type>
 								<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
 							</Type>
+							<ToolTip/>
+							<ChoiceForm/>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
@@ -162,13 +169,21 @@
 			<Form>ФормаЗадачи</Form>
 			<Template>Макет</Template>
 			<Command uuid="b5a4c2f4-a439-478e-8c87-ab9a63c0985d">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитАдресацииВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>c5bd6a47-4fb6-4251-bd67-e77ffb159c98</ExtendedConfigurationObject>
 					<Group>NavigationPanelImportant</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 			<Command uuid="53680874-f6cb-4795-937a-d8512e51c59c">

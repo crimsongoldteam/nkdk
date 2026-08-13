@@ -315,6 +315,8 @@
 						<xr:ObjectField>Catalog.СправочникПолныйExt.Attribute.Реквизит1</xr:ObjectField>
 						<xr:TypeField>Catalog.СправочникПолныйExt.Attribute.Реквизит1</xr:TypeField>
 						<xr:ValueField>-1</xr:ValueField>
+						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
+						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 					</xr:CharacteristicValues>
 				</xr:Characteristic>
 			</Characteristics>

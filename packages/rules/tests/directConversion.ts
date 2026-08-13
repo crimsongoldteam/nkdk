@@ -35,6 +35,10 @@ interface ToXMLResult {
   externalWrites: readonly YAMLToXMLExternalWrite[]
 }
 
+export function normalizeDirectRoundTripXML(value: string): string {
+  return value.replace(/^\ufeff?<\?xml[^\n]*\?>\r?\n?/, "").replace(/\r\n/g, "\n").trimEnd()
+}
+
 registerCommonObjects()
 
 export interface DirectRoundTripContexts {

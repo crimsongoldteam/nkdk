@@ -65,7 +65,8 @@ export async function replaceDirectoryWithRollback(params: {
 
 function assertSuccessfulImport(imported: ImportedMetadataProject): void {
   const failures = imported.results.flatMap((result) =>
-    result.failed.map(({ message }) => `${result.componentPath ?? "unknown"}: ${message}`)
+    result.failed.map(({ message, targetProjectPath, value }) =>
+      `${result.componentPath ?? "unknown"}${targetProjectPath === undefined ? "" : ` (${targetProjectPath})`}: ${message}${value === undefined ? "" : ` (${value})`}`)
   )
   if (failures.length > 0) throw new Error(failures.join("\n"))
 }

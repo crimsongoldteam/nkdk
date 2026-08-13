@@ -7,6 +7,8 @@ import { MetadataEventSubscriptionRules } from "../metadataEventSubscription/rul
 import { MetadataExternalDataSourceRules } from "../metadataExternalDataSource/rules"
 import { MetadataHTTPServiceRules } from "../metadataHTTPService/rules"
 import { MetadataIntegrationServiceRules } from "../metadataIntegrationService/rules"
+import { MetadataEnumerationRules, MetadataEnumerationValueRules } from "../metadataEnumeration/rules"
+import { MetadataSequenceRules } from "../metadataSequence/rules"
 import { MetadataLanguageRules } from "../metadataLanguage/rules"
 import { MetadataReportRules } from "../metadataReport/rules"
 import { MetadataScheduledJobRules } from "../metadataScheduledJob/rules"
@@ -19,6 +21,17 @@ import { MetadataXDTOPackageRules } from "../metadataXDTOPackage/rules"
 import { defineStandardBorrowedPropertyStates } from "./standardPropertyStates"
 import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
 
+const externalStateProperties = new Map([
+  ["MetadataBot", externalProperty("module", "Модуль", ["extend"])],
+  ["MetadataHTTPService", externalProperty("module", "Модуль", ["extend"])],
+  ["MetadataIntegrationService", externalProperty("module", "Модуль", ["extend"])],
+  ["MetadataWebService", externalProperty("module", "Модуль", ["extend"])],
+  ["MetadataWebSocketClient", externalProperty("module", "Модуль", ["extend"])],
+  ["MetadataCommonPicture", externalProperty("picture", "Картинка", ["extend"])],
+  ["MetadataCommonTemplate", externalProperty("template", "Макет", ["extend"])],
+  ["MetadataStyle", externalProperty("style", "Стиль", ["extend"])],
+])
+
 export const remainingConfigurationExtensionPropertyStateCapabilities = [
   MetadataEventSubscriptionRules,
   MetadataScheduledJobRules,
@@ -26,6 +39,8 @@ export const remainingConfigurationExtensionPropertyStateCapabilities = [
   MetadataSettingsStorageRules,
   MetadataDataProcessorRules,
   MetadataReportRules,
+  MetadataEnumerationRules,
+  MetadataSequenceRules,
   MetadataCommonPictureRules,
   MetadataCommonTemplateRules,
   MetadataStyleRules,
@@ -35,13 +50,23 @@ export const remainingConfigurationExtensionPropertyStateCapabilities = [
   MetadataWebSocketClientRules,
   MetadataWSReferenceRules,
   MetadataExternalDataSourceRules,
-].map(defineStandardBorrowedPropertyStates)
+].map((rule) => {
+  const external = externalStateProperties.get(rule.itemType)
+  return external === undefined
+    ? defineStandardBorrowedPropertyStates(rule)
+    : definePropertyStateItemCapabilities(rule, {
+        profiles: ["borrowed-base", "mutable-synonym"],
+        properties: external,
+      })
+})
 
 remainingConfigurationExtensionPropertyStateCapabilities.push(
+  defineStandardBorrowedPropertyStates(MetadataEnumerationValueRules),
   definePropertyStateItemCapabilities(MetadataCommonFormRules, {
     profiles: ["borrowed-base", "mutable-synonym"],
     properties: {
-      form: { availability: "own", modes: [] },
+      ...externalProperty("form", "Форма", ["extend"]),
+      ...externalProperty("module", "Модуль", ["extend"]),
     },
   }),
   definePropertyStateItemCapabilities(MetadataLanguageRules, {
@@ -56,3 +81,13 @@ remainingConfigurationExtensionPropertyStateCapabilities.push(
     },
   }),
 )
+
+remainingConfigurationExtensionPropertyStateCapabilities.push({
+  kind: "propertyStateCapability",
+  id: "item:ClientApplicationForm",
+  item: {
+    itemType: "ClientApplicationForm",
+    profiles: [],
+    properties: externalProperty("form", "Форма", ["extend"]),
+  },
+})

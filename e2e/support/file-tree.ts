@@ -25,15 +25,26 @@ export async function compareFileTrees(params: {
   readonly expectedDir: string
   readonly actualDir: string
   readonly reportDir: string
+  readonly xmlComparison?: "bytes" | "semantic"
+  readonly ignoredPaths?: readonly string[]
 }): Promise<FileTreeComparison> {
-  const expected = await fileMap(params.expectedDir)
-  const actual = await fileMap(params.actualDir)
+  const ignoredPaths = new Set(params.ignoredPaths ?? [])
+  const expected = await fileMap(params.expectedDir, ignoredPaths)
+  const actual = await fileMap(params.actualDir, ignoredPaths)
   const added = [...actual.keys()].filter((path) => !expected.has(path)).sort()
   const removed = [...expected.keys()].filter((path) => !actual.has(path)).sort()
   const shared = [...expected.keys()].filter((path) => actual.has(path)).sort()
   const changed: string[] = []
   for (const path of shared) {
-    if (!expected.get(path)!.equals(actual.get(path)!)) changed.push(path)
+    const expectedContent = expected.get(path)!
+    const actualContent = actual.get(path)!
+    if (expectedContent.equals(actualContent)) continue
+    if (
+      params.xmlComparison === "semantic" &&
+      extname(path).toLowerCase() === ".xml" &&
+      semanticXML(expectedContent) === semanticXML(actualContent)
+    ) continue
+    changed.push(path)
   }
   if (added.length === 0 && removed.length === 0 && changed.length === 0) {
     return { equal: true, added, removed, changed }
@@ -42,21 +53,27 @@ export async function compareFileTrees(params: {
   return { equal: false, added, removed, changed, reportDir: params.reportDir }
 }
 
-async function fileMap(root: string): Promise<Map<string, Buffer>> {
+async function fileMap(root: string, ignoredPaths: ReadonlySet<string>): Promise<Map<string, Buffer>> {
   const files = new Map<string, Buffer>()
-  await collectFiles(resolve(root), resolve(root), files)
+  await collectFiles(resolve(root), resolve(root), files, ignoredPaths)
   return files
 }
 
-async function collectFiles(root: string, directory: string, files: Map<string, Buffer>): Promise<void> {
+async function collectFiles(
+  root: string,
+  directory: string,
+  files: Map<string, Buffer>,
+  ignoredPaths: ReadonlySet<string>,
+): Promise<void> {
   const entries = await readdir(directory, { withFileTypes: true })
   entries.sort((left, right) => left.name.localeCompare(right.name, "ru"))
   for (const entry of entries) {
     const path = join(directory, entry.name)
     if (entry.isDirectory()) {
-      await collectFiles(root, path, files)
+      await collectFiles(root, path, files, ignoredPaths)
     } else if (entry.isFile()) {
-      files.set(toPortablePath(relative(root, path)), await readFile(path))
+      const projectPath = toPortablePath(relative(root, path))
+      if (!ignoredPaths.has(projectPath)) files.set(projectPath, await readFile(path))
     }
   }
 }
@@ -92,8 +109,15 @@ async function writeFileDiffs(difference: FileTreeDifference, path: string): Pro
   const diffPath = resolve(difference.reportDir, `${path}.diff`)
   const normalizedDiffPath = resolve(difference.reportDir, `${path}.normalized.diff`)
   await mkdir(dirname(diffPath), { recursive: true })
-  await writeFile(diffPath, gitDiff(expectedPath, actualPath))
+  await writeFile(diffPath, isBinaryPath(path)
+    ? "Текстовый diff недоступен для двоичного файла.\n"
+    : gitDiff(expectedPath, actualPath))
   await writeFile(normalizedDiffPath, await normalizedDiff(expectedPath, actualPath))
+}
+
+function isBinaryPath(path: string): boolean {
+  return new Set([".bin", ".zip", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".pdf"])
+    .has(extname(path).toLowerCase())
 }
 
 function gitDiff(expectedPath: string, actualPath: string): string {
@@ -144,14 +168,23 @@ function stableJson(value: unknown): string {
   return `${JSON.stringify(sortValue(value), undefined, 2)}\n`
 }
 
-function sortValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(sortValue)
+function semanticXML(content: Buffer): string {
+  return stableJson(importContentFromXML<unknown>(content.toString("utf8")))
+}
+
+function sortValue(value: unknown, parentKey?: string): unknown {
+  if (Array.isArray(value)) {
+    const values = value.map((child) => sortValue(child, parentKey))
+    return parentKey === "xr:PropertyState"
+      ? values.sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right), "en"))
+      : values
+  }
   if (value === null || typeof value !== "object") return value
   return Object.fromEntries(
     Object.entries(value)
       .filter(([key, child]) => !(key === "#text" && typeof child === "string" && child.trim() === ""))
       .sort(([left], [right]) => left.localeCompare(right, "en"))
-      .map(([key, child]) => [key, sortValue(child)])
+      .map(([key, child]) => [key, sortValue(child, key)])
   )
 }
 

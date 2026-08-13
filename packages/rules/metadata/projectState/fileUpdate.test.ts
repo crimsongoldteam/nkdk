@@ -39,7 +39,7 @@ describe("ProjectStateFileUpdateBatch", () => {
 
     expect(update).toMatchObject({
       localValidation: {
-        contributedFacts: false,
+        contributedFacts: true,
         diagnostics: [schemaDiagnostic],
         schemaDiagnostics: [schemaDiagnostic],
       },

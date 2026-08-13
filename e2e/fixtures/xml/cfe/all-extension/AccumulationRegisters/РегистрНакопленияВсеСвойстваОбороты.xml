@@ -26,13 +26,26 @@
 				<xr:TypeId>c458551b-8dbf-4444-a1a5-96bb2e66a9f5</xr:TypeId>
 				<xr:ValueId>9f4f0c6f-33ad-40dc-9756-eb397edaccf9</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>RecordSetModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>РегистрНакопленияВсеСвойстваОбороты</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>e9194700-40e3-475f-91a5-fcdef0f9d75c</ExtendedConfigurationObject>
+			<DefaultListForm/>
 			<RegisterType>Turnovers</RegisterType>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Resource uuid="db92a5b6-6701-49b4-a30a-b79bbdb2c1f4">
@@ -40,6 +53,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РесурсВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>1bc4ec59-9ba1-494f-a3e2-30b0620ac930</ExtendedConfigurationObject>
 					<Type>
@@ -50,6 +64,9 @@
 							<v8:AllowedSign>Any</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
 				</Properties>
 			</Resource>
 			<Resource uuid="81510b6e-d7d6-4cc0-a34e-3bfc1d9cb72d">
@@ -74,6 +91,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>6296243c-9c57-4525-bd4a-68d5ed73c6dc</ExtendedConfigurationObject>
 					<Type>
@@ -83,6 +101,7 @@
 							<v8:AllowedLength>Variable</v8:AllowedLength>
 						</v8:StringQualifiers>
 					</Type>
+					<ToolTip/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="5c673e3b-b3aa-4a88-a08f-5ae9b3bc6aa5">
@@ -102,6 +121,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ИзмерениеВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>03968db0-73b9-4ece-a25d-caec28201c04</ExtendedConfigurationObject>
 					<Type>
@@ -112,6 +132,9 @@
 							<v8:AllowedSign>Any</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
 				</Properties>
 			</Dimension>
 			<Dimension uuid="731adee0-03a7-4ca1-92ca-834204ce0daf">
@@ -145,13 +168,21 @@
 			<Form>ФормаСписка</Form>
 			<Template>Макет</Template>
 			<Command uuid="56c19c90-891b-4e70-8b99-e1033e50b0ef">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>3c00f567-32e3-4236-b026-42431317dcc2</ExtendedConfigurationObject>
 					<Group>ActionsPanelCreate</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

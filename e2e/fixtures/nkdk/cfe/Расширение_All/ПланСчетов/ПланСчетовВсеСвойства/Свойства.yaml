@@ -1,8 +1,14 @@
+Синоним: ""
+ВидыСубконто: ChartOfCharacteristicTypes.ВидыСубконто
 Команды:
   Команда1:
+    Синоним: ""
     Группа: КоманднаяПанельФормыВажное
+    Изменять:
+      - МодульКоманды
 ПризнакиУчета:
   ПризнакУчетаВсеСвойства:
+    Синоним: ""
     Тип: Булево
   ПризнакУчетаПоУмолчанию:
     Тип: Булево
@@ -10,9 +16,11 @@
   ПризнакУчетаСубконтоПоУмолчанию:
     Тип: Булево
   ПризнакУчетаСубконтоВсеСвойства:
+    Синоним: ""
     Тип: Булево
 Реквизиты:
   РеквизитВсеСвойства:
+    Синоним: ""
     Тип: Справочник.СправочникРеквизит
   РеквизитХранилище:
     Тип: Булево
@@ -20,11 +28,19 @@
     Тип: Строка(10)
 ТабличныеЧасти:
   ТабличнаяЧастьВсеСвойства:
+    Синоним: ""
     ПринадлежностьОбъекта: Заимствованный
     Реквизиты:
       РеквизитПоУмолчанию:
         Тип: Строка(10)
       РеквизитВсеСвойства:
+        Синоним: ""
         Тип: Справочник.СправочникРеквизит
   ТабличнаяЧастьПоУмолчанию:
     ПринадлежностьОбъекта: Заимствованный
+ДлинаКода: !xml configurationExtensionPropertyStateXML:eyJ2ZXJzaW9uIjoxLCJpdGVtVHlwZSI6Ik1ldGFkYXRhQ2hhcnRPZkFjY291bnRzIiwicHJvcGVydHlLZXkiOiJjb2RlTGVuZ3RoIiwicHJvcGVydHlYTUwiOiI5IiwicHJvcGVydHlTdGF0ZVhNTCI6eyJ4cjpQcm9wZXJ0eSI6IkNvZGVMZW5ndGgiLCJ4cjpTdGF0ZSI6IkV4dGVuZGVkIn19
+ДлинаНаименования: !xml configurationExtensionPropertyStateXML:eyJ2ZXJzaW9uIjoxLCJpdGVtVHlwZSI6Ik1ldGFkYXRhQ2hhcnRPZkFjY291bnRzIiwicHJvcGVydHlLZXkiOiJkZXNjcmlwdGlvbkxlbmd0aCIsInByb3BlcnR5WE1MIjoiMjUiLCJwcm9wZXJ0eVN0YXRlWE1MIjp7InhyOlByb3BlcnR5IjoiRGVzY3JpcHRpb25MZW5ndGgiLCJ4cjpTdGF0ZSI6IkV4dGVuZGVkIn19
+Изменять:
+  - МодульОбъекта
+  - МодульМенеджера
+  - Предопределенные

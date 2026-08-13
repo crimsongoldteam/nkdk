@@ -10,4 +10,5 @@ export interface ConfigurationExtensionPropertyStateFactPayload {
   readonly propertyKey: string
   readonly mode: ConfigurationExtensionPropertyStateFactMode
   readonly value: unknown
+  readonly explicitMode?: boolean
 }

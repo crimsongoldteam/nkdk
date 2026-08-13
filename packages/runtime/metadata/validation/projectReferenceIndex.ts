@@ -40,6 +40,7 @@ export interface PendingMetadataTargetReference {
   target: ParsedMetadataTarget
   constraint: MetadataTargetConstraint
   tagged?: "xml"
+  propertyStateMode?: "control" | "notify" | "extend"
 }
 
 export interface ProjectReferenceSnapshot {

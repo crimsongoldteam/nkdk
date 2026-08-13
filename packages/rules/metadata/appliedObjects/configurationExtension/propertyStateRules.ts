@@ -49,17 +49,76 @@ import {
   controlled,
   createPropertyStateCapabilityRegistry,
   definePropertyStateItemCapabilities,
+  extended,
+  externalProperty,
 } from "./propertyStateCapabilities"
 import { MetadataConfigurationExtensionRules } from "./rules"
+import type { PropertyStateCapabilityContribution } from "../../ruleRuntime/definition"
 
 const metadataConfigurationExtensionPropertyStateCapabilities = definePropertyStateItemCapabilities(
   MetadataConfigurationExtensionRules,
   {
-    properties: controlled("compatibilityMode"),
+    properties: {
+      ...controlled("compatibilityMode"),
+      ...extended("defaultRoles"),
+      ...externalProperty("commandInterface", "КомандныйИнтерфейс", ["extend"]),
+      ...externalProperty("homePageWorkArea", "РабочаяОбластьНачальнойСтраницы", ["extend"]),
+      ...externalProperty("mainSectionCommandInterface", "КомандныйИнтерфейсОсновногоРаздела", ["extend"]),
+      ...externalProperty("mainSectionPicture", "КартинкаОсновногоРаздела", ["extend"]),
+      ...externalProperty("logo", "Логотип", ["extend"]),
+      ...externalProperty("splash", "Заставка", ["extend"]),
+    },
   },
 )
 
-export const configurationExtensionPropertyStateCapabilities = [
+const propertyStateCompatibilityDeltas = [
+  {
+    kind: "propertyStateCapability" as const,
+    id: "configuration-default-roles-8.3.14",
+    delta: {
+      mode: "Версия8_3_14",
+      items: [{
+        itemType: "MetadataConfigurationExtension",
+        properties: extended("defaultRoles"),
+      }],
+    },
+  },
+  {
+    kind: "propertyStateCapability" as const,
+    id: "attribute-type-8.3.18",
+    delta: {
+      mode: "Версия8_3_18",
+      items: [
+        "MetadataAttribute",
+        "MetadataRegisterAttribute",
+        "MetadataRegisterDimension",
+        "MetadataRegisterResource",
+        "MetadataSequenceDimension",
+        "MetadataTaskAddressingAttribute",
+      ].map((itemType) => ({
+        itemType,
+        properties: {
+          type: {
+            availability: "borrowed" as const,
+            modes: ["control", "notify", "extend", "multi"] as const,
+            representation: "multi" as const,
+          },
+        },
+      })),
+    },
+  },
+] as const
+
+const CONTROLLED_TYPE_ITEMS = new Set([
+  "MetadataAttribute",
+  "MetadataRegisterAttribute",
+  "MetadataRegisterDimension",
+  "MetadataRegisterResource",
+  "MetadataSequenceDimension",
+  "MetadataTaskAddressingAttribute",
+])
+
+const currentPropertyStateCapabilities = [
   ...configurationExtensionPropertyStateProfiles,
   metadataConfigurationExtensionPropertyStateCapabilities,
   metadataCatalogPropertyStateCapabilities,
@@ -107,16 +166,41 @@ export const configurationExtensionPropertyStateCapabilities = [
   ...remainingConfigurationExtensionPropertyStateCapabilities,
 ] as const
 
+export const configurationExtensionPropertyStateCapabilities = [
+  ...propertyStateBaseContributions(currentPropertyStateCapabilities),
+  propertyStateIntroductionDelta(currentPropertyStateCapabilities),
+  propertyStateNotifyDelta(currentPropertyStateCapabilities),
+  ...propertyStateCompatibilityDeltas,
+] as const
+
 export const configurationExtensionPropertyStateRules = defineMetadataRules({
   ...emptyMetadataRules,
   propertyStateCapabilities: configurationExtensionPropertyStateCapabilities,
-  explicitXMLProperties: propertyStateXMLCarriers(),
+  explicitXMLProperties: {
+    ...propertyStateXMLCarriers(),
+    ...confirmedUnsupportedPropertyStateXMLCarriers(),
+  },
 })
+
+function confirmedUnsupportedPropertyStateXMLCarriers() {
+  return Object.fromEntries([
+    ["MetadataChartOfAccounts", "codeLength"],
+    ["MetadataChartOfAccounts", "descriptionLength"],
+  ].map(([itemType, propertyKey]) => [
+    `${itemType}.${propertyKey}`,
+    {
+      action: "carrier" as const,
+      itemType,
+      propertyKey,
+      prefix: CONFIGURATION_EXTENSION_PROPERTY_STATE_XML_CARRIER,
+    },
+  ]))
+}
 
 function propertyStateXMLCarriers() {
   const registry = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
   const itemTypes = new Set(configurationExtensionPropertyStateCapabilities.flatMap((contribution) =>
-    contribution.item === undefined ? [] : [contribution.item.itemType]))
+    "item" in contribution && contribution.item !== undefined ? [contribution.item.itemType] : []))
   return Object.fromEntries([...itemTypes].flatMap((itemType) =>
     Object.keys(registry.item(itemType)?.properties ?? {}).map((propertyKey) => [
       `${itemType}.${propertyKey}`,
@@ -127,4 +211,96 @@ function propertyStateXMLCarriers() {
         prefix: CONFIGURATION_EXTENSION_PROPERTY_STATE_XML_CARRIER,
       },
     ])))
+}
+
+function propertyStateIntroductionDelta(
+  contributions: readonly PropertyStateCapabilityContribution[],
+): PropertyStateCapabilityContribution {
+  const profiles = propertyStateProfiles(contributions)
+  return {
+    kind: "propertyStateCapability",
+    id: "property-state-overrides-8.3.8",
+    delta: {
+      mode: "Версия8_3_8",
+      items: contributions.flatMap((contribution) => {
+        const item = contribution.item
+        if (item === undefined) return []
+        const properties = resolvedItemProperties(item, profiles)
+        const borrowed = Object.fromEntries(Object.entries(properties)
+          .filter(([, property]) => property.availability !== "own")
+          .map(([propertyKey, property]) => [propertyKey, {
+            ...property,
+            modes: property.modes.filter((mode) => mode !== "notify"),
+          }]))
+        if (item.itemType === "MetadataConfigurationExtension") delete borrowed.defaultRoles
+        const normalizedBorrowed = CONTROLLED_TYPE_ITEMS.has(item.itemType) && borrowed.type !== undefined
+          ? { ...borrowed, type: controlled("type").type! }
+          : borrowed
+        return Object.keys(borrowed).length === 0
+          ? []
+          : [{ itemType: item.itemType, properties: normalizedBorrowed }]
+      }),
+    },
+  }
+}
+
+function propertyStateNotifyDelta(
+  contributions: readonly PropertyStateCapabilityContribution[],
+): PropertyStateCapabilityContribution {
+  const profiles = propertyStateProfiles(contributions)
+  return {
+    kind: "propertyStateCapability",
+    id: "property-state-notify-8.3.15",
+    delta: {
+      mode: "Версия8_3_15",
+      items: contributions.flatMap((contribution) => {
+        const item = contribution.item
+        if (item === undefined) return []
+        const properties = Object.fromEntries(Object.entries(resolvedItemProperties(item, profiles))
+          .filter(([, property]) => property.availability !== "own" && property.modes.includes("notify"))
+          .map(([propertyKey, property]) => [propertyKey,
+            CONTROLLED_TYPE_ITEMS.has(item.itemType) && propertyKey === "type"
+              ? controlled("type").type!
+              : property]))
+        return Object.keys(properties).length === 0 ? [] : [{ itemType: item.itemType, properties }]
+      }),
+    },
+  }
+}
+
+function propertyStateBaseContributions(
+  contributions: readonly PropertyStateCapabilityContribution[],
+): PropertyStateCapabilityContribution[] {
+  const profiles = propertyStateProfiles(contributions)
+  return contributions.map((contribution) => {
+    const item = contribution.item
+    if (item === undefined) return contribution
+    const properties = resolvedItemProperties(item, profiles)
+    return {
+      ...contribution,
+      item: {
+        ...item,
+        profiles: [],
+        properties: Object.fromEntries(Object.entries(properties).filter(([, property]) =>
+          property.availability === "own")),
+      },
+    }
+  })
+}
+
+function propertyStateProfiles(contributions: readonly PropertyStateCapabilityContribution[]) {
+  return new Map(contributions.flatMap((contribution) => contribution.profile === undefined
+    ? []
+    : [[contribution.id, contribution.profile] as const]))
+}
+
+function resolvedItemProperties(
+  item: NonNullable<PropertyStateCapabilityContribution["item"]>,
+  profiles: ReturnType<typeof propertyStateProfiles>,
+) {
+  return Object.assign(
+    {},
+    ...item.profiles.map((profileId) => profiles.get(profileId)?.properties ?? {}),
+    item.properties ?? {},
+  ) as Record<string, import("../../ruleRuntime/definition").PropertyStatePropertyCapability>
 }

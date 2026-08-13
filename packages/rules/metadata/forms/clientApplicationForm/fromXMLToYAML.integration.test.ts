@@ -515,7 +515,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     )
   })
 
-  it("добавляет !проверять metadata формы и сохраняет Extended Form только в снимке", () => {
+  it("добавляет !проверять metadata формы и сохраняет Extended Form в секции Изменять", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
     const baseContext = mockXmlImportContext()
@@ -537,7 +537,6 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
           "xr:PropertyState": [
             { "xr:Property": "ExtendedPresentation", "xr:State": "Notify" },
             { "xr:Property": "Form", "xr:State": "Extended" },
-            { "xr:Property": "Form", "xr:State": "Notify" },
           ],
         },
       },
@@ -553,14 +552,12 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 
     expect(result.yaml).toMatchObject({
       Комментарий: "Комментарий",
+      Изменять: ["Форма"],
     })
     expect(yamlScalarTagAt(result.yaml, "РасширенноеПредставление")).toBe("проверять")
     expect(yamlScalarTagAt(result.yaml, "Форма")).toBeUndefined()
-    expect(collector.fragment("Форма.yaml").entities).toContainEqual(
-      expect.objectContaining({
-        logicalAddress: `${logicalAddress}.form`,
-        xml: { extended: true },
-      })
+    expect(collector.fragment("Форма.yaml").entities).not.toContainEqual(
+      expect.objectContaining({ logicalAddress: `${logicalAddress}.form` })
     )
   })
 })

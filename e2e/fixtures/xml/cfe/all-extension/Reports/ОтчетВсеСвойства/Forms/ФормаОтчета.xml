@@ -10,9 +10,11 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ФормаОтчета</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>0921068c-e41c-4651-a4bc-89752d6a6445</ExtendedConfigurationObject>
 			<FormType>Managed</FormType>
+			<ExtendedPresentation/>
 		</Properties>
 	</Form>
 </MetaDataObject>
