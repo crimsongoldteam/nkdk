@@ -46,12 +46,53 @@
 				<xr:TypeId>07f7e33e-8f44-46e4-8dc7-1f6163731145</xr:TypeId>
 				<xr:ValueId>c134740b-a4d2-4d99-ae19-86324d793f3e</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>CodeLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>DescriptionLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>CodeType</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>CodeAllowedLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ObjectModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>Predefined</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ПланРасчетаВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>9c6be49a-58d9-4ed5-8037-a77cf3616582</ExtendedConfigurationObject>
+			<CodeLength>9</CodeLength>
+			<DescriptionLength>40</DescriptionLength>
+			<CodeType>String</CodeType>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
+			<DefaultObjectForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Attribute uuid="c75436b6-6c6a-4e59-ae4e-e2b24c9130f8">
@@ -59,11 +100,14 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>f8613036-3bdc-45b1-8ab5-f026bc4cfd86</ExtendedConfigurationObject>
 					<Type>
 						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
 					</Type>
+					<ToolTip/>
+					<ChoiceForm/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="95111cfc-020f-401b-866c-65ad6d0c4daa">
@@ -127,8 +171,10 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>cd1b1f56-04ae-47e7-a585-4e08eef3461e</ExtendedConfigurationObject>
+					<ToolTip/>
 				</Properties>
 				<ChildObjects>
 					<Attribute uuid="0b77a8ba-fd7a-4896-9edf-2a6787192700">
@@ -136,11 +182,14 @@
 						<Properties>
 							<ObjectBelonging>Adopted</ObjectBelonging>
 							<Name>РеквизитВсеСвойства</Name>
+							<Synonym/>
 							<Comment/>
 							<ExtendedConfigurationObject>7c097a46-188b-4bf9-a662-17755d16ac96</ExtendedConfigurationObject>
 							<Type>
 								<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
 							</Type>
+							<ToolTip/>
+							<ChoiceForm/>
 						</Properties>
 					</Attribute>
 					<Attribute uuid="de748297-7389-433f-97df-dc1bf874f693">
@@ -166,13 +215,21 @@
 			<Form>ФормаВидаРасчета</Form>
 			<Template>Макет</Template>
 			<Command uuid="7f3ec32e-f3f0-499c-9dbb-5d890665e516">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>e9463862-58ce-48a6-a6e2-69be991f3574</ExtendedConfigurationObject>
 					<Group>FormCommandBarImportant</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

@@ -60,7 +60,7 @@ describe("importTypeDescriptionFromXML", () => {
     const yaml = exportTypeDescriptionToYAML(mockContextFromXML(), mockRule, result)
     expect(isTaggedYAMLScalar(yaml)).toBe(true)
     if (!isTaggedYAMLScalar(yaml)) throw new Error("Expected !xml scalar")
-    expect(xmlScalarTagPayload(yaml.value)).toBe("d7p1:Диаграмма")
+    expect(xmlScalarTagPayload(yaml.value as string)).toBe("d7p1:Диаграмма")
   })
 
   it("does not mark the canonical type prefix", () => {

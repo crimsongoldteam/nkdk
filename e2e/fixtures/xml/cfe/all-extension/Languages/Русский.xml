@@ -5,6 +5,7 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>Русский</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>fe7bac61-788f-44bc-a496-6719001c5033</ExtendedConfigurationObject>
 			<LanguageCode>ru</LanguageCode>

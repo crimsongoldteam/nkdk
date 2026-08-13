@@ -10,9 +10,11 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>Форма</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>cf0bc989-3255-4c3b-81d9-104424ec18cb</ExtendedConfigurationObject>
 			<FormType>Managed</FormType>
+			<ExtendedPresentation/>
 		</Properties>
 	</Form>
 </MetaDataObject>

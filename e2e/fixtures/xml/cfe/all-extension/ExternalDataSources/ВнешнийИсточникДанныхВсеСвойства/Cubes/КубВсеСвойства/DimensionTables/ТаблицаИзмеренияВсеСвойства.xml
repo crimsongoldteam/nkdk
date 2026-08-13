@@ -18,12 +18,39 @@
 				<xr:TypeId>c64e3ec8-7cca-4639-9551-8312c359412f</xr:TypeId>
 				<xr:ValueId>54cf0c74-e1ed-47fb-9b0d-3efd6b8fc6e0</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>NameInDataSource</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>PresentationField</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ObjectModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ТаблицаИзмеренияВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>e948bf38-a9fa-411a-8a06-0c14f9fdc867</ExtendedConfigurationObject>
+			<NameInDataSource/>
+			<PresentationField/>
+			<DefaultObjectForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Field uuid="55d0d15e-cfcb-4068-9a66-0141ac1cba27">

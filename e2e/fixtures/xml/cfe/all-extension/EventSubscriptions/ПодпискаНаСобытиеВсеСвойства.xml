@@ -5,8 +5,10 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ПодпискаНаСобытиеВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>f308a688-ea0d-48b8-8e0d-4d2b3a1d8649</ExtendedConfigurationObject>
+			<Source/>
 		</Properties>
 	</EventSubscription>
 </MetaDataObject>

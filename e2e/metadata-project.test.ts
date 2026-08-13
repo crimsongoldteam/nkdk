@@ -119,7 +119,7 @@ describe.sequential("metadata project E2E", () => {
     console.info("E2E validation durations, ms", result.durationsMs)
   })
 
-  it("restores every XML component byte for byte from the committed NKDK project", async () => {
+  it("restores every XML component semantically from the committed NKDK project", async () => {
     if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
     const projectDir = await cloneImportedProject(baseline, "round-trip")
     const reportRoot = resolve(import.meta.dirname, "../reports/e2e/round-trip")

@@ -8,6 +8,37 @@ import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "./scala
 
 describe("exportToYAML", () => {
   it.each([
+    ["пустое значение", {}, "Нумератор: !изменять"],
+    ["строка", "Авто", "Нумератор: !изменять Авто"],
+    ["число", 12, "Нумератор: !изменять 12"],
+  ] as const)("сериализует режим свойства: %s", (_name, value, expected) => {
+    const source = { Нумератор: value }
+    markYAMLScalarTag(source, "Нумератор", "изменять")
+
+    const yaml = exportToYAML(source)
+    const reparsed = parseMetadataYaml(yaml)
+
+    expect(yaml).toBe(expected)
+    expect(reparsed.data).toEqual(source)
+    expect(yamlScalarTagAt(reparsed.data, "Нумератор")).toBe("изменять")
+  })
+
+  it("сериализует режимы элементов массива", () => {
+    const source = { Тип: ["Дата", "Булево"] }
+    markYAMLScalarTag(source.Тип, 0, "проверять")
+    markYAMLScalarTag(source.Тип, 1, "изменять")
+
+    const yaml = exportToYAML(source)
+    const reparsed = parseMetadataYaml(yaml)
+    const types = (reparsed.data as { Тип: unknown[] }).Тип
+
+    expect(yaml).toBe("Тип:\n  - !проверять Дата\n  - !изменять Булево")
+    expect(types).toEqual(source.Тип)
+    expect(yamlScalarTagAt(types, 0)).toBe("проверять")
+    expect(yamlScalarTagAt(types, 1)).toBe("изменять")
+  })
+
+  it.each([
     ["корень", {}, ""],
     ["свойство", { Поле: {} }, "Поле:"],
     ["вложенное свойство", { Внешний: { Поле: {} } }, "Внешний:\n  Поле:"],

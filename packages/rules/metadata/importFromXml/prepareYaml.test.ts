@@ -29,6 +29,27 @@ const subsystemFixturePath = join(import.meta.dirname, "../appliedObjects/metada
 const extensionFixtureDir = join(import.meta.dirname, "__fixtures__/configurationExtension")
 const AlternateComponentRootRule = { itemType: "MetadataAlternateComponent", properties: {} } as MetadataItemRule
 
+function metadataImportAssignment(params: {
+  id: string
+  targetProjectPath: string
+  itemType: string
+  itemName: string
+  logicalAddress: string
+  metadataPath: string
+}): ImportAssignment {
+  return {
+    id: params.id,
+    role: "properties",
+    targetProjectPath: params.targetProjectPath,
+    itemType: params.itemType,
+    itemName: params.itemName,
+    logicalAddress: params.logicalAddress,
+    owner: undefined,
+    xmlFiles: [{ role: "metadata", sourcePath: params.metadataPath }],
+    externalFiles: [],
+  }
+}
+
 afterEach(() => {
   vi.restoreAllMocks()
 })
@@ -284,8 +305,8 @@ describe("prepareImportYaml", () => {
 
   it("creates the child logical address before importing child properties", async () => {
     const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-child-address-"))
+    const metadataPath = join(inputDir, "ТестСправочник.xml")
     try {
-      const metadataPath = join(inputDir, "ТестСправочник.xml")
       fs.writeFileSync(
         metadataPath,
         `<?xml version="1.0" encoding="UTF-8"?>
@@ -299,17 +320,14 @@ describe("prepareImportYaml", () => {
       const collector = createConfigurationIndexCollector()
       const targetProjectPath = "Справочник/ТестСправочник/Свойства.yaml"
       await prepareImportYaml({
-        assignment: {
+        assignment: metadataImportAssignment({
           id: "catalog-with-command",
-          role: "properties",
           targetProjectPath,
           itemType: "MetadataCatalog",
           itemName: "ТестСправочник",
           logicalAddress: "Справочник.ТестСправочник",
-          owner: undefined,
-          xmlFiles: [{ role: "metadata", sourcePath: metadataPath }],
-          externalFiles: [],
-        },
+          metadataPath,
+        }),
         context: mockXmlImportContext(),
         collector,
       })
@@ -319,19 +337,17 @@ describe("prepareImportYaml", () => {
         sourceProjectPath: targetProjectPath,
         identities: { uuid: "00000000-0000-0000-0000-000000000002" },
       })
-    } finally {
-      fs.rmSync(inputDir, { recursive: true, force: true })
-    }
+    } finally { fs.rmSync(inputDir, { recursive: true, force: true }) }
   })
 
   it("не сохраняет xsi:nil общего реквизита в снимке", async () => {
     const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-xsi-nil-"))
+    const metadataPath = join(inputDir, "ОбщийРеквизит.xml")
     try {
       const sourceFixture = join(
         import.meta.dirname,
         "../appliedObjects/metadataCommonAttribute/__fixtures__/minimal.xml"
       )
-      const metadataPath = join(inputDir, "ОбщийРеквизит.xml")
       fs.writeFileSync(
         metadataPath,
         fs
@@ -341,17 +357,14 @@ describe("prepareImportYaml", () => {
       const collector = createConfigurationIndexCollector()
       const targetProjectPath = "ОбщийРеквизит/ОбщийРеквизитПоУмолчанию/Свойства.yaml"
       const prepared = await prepareImportYaml({
-        assignment: {
+        assignment: metadataImportAssignment({
           id: "common-attribute-nil",
-          role: "properties",
           targetProjectPath,
           itemType: "MetadataCommonAttribute",
           itemName: "ОбщийРеквизитПоУмолчанию",
           logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию",
-          owner: undefined,
-          xmlFiles: [{ role: "metadata", sourcePath: metadataPath }],
-          externalFiles: [],
-        },
+          metadataPath,
+        }),
         context: mockXmlImportContext(),
         collector,
       })

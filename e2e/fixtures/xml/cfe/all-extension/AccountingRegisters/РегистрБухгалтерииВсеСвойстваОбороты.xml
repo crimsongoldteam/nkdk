@@ -30,12 +30,35 @@
 				<xr:TypeId>eba3d52d-396e-41f9-8539-33fa44a9b3c4</xr:TypeId>
 				<xr:ValueId>3b457ad4-d984-42fe-b170-ba3e41954654</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>ChartOfAccounts</xr:Property>
+				<xr:State>Notify</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>PeriodAdjustmentLength</xr:Property>
+				<xr:State>Notify</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>RecordSetModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>РегистрБухгалтерииВсеСвойстваОбороты</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>28c1195f-ffed-4f2e-994d-663362cadd4d</ExtendedConfigurationObject>
+			<ChartOfAccounts>ChartOfAccounts.ПланСчетовВсеСвойства</ChartOfAccounts>
+			<PeriodAdjustmentLength>3</PeriodAdjustmentLength>
+			<DefaultListForm/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Dimension uuid="dff3b6f5-a677-43c1-8bb4-83d0fd698681">
@@ -43,11 +66,14 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ИзмерениеВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>6e433de4-e7a5-41fc-a89b-cd97430fad1b</ExtendedConfigurationObject>
 					<Type>
 						<v8:Type>cfg:CatalogRef.ПараметрыВыбора</v8:Type>
 					</Type>
+					<ToolTip/>
+					<ChoiceForm/>
 					<Balance>false</Balance>
 				</Properties>
 			</Dimension>
@@ -69,6 +95,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РесурсВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>46a6d281-76df-4d05-8494-0b4dac4fcc90</ExtendedConfigurationObject>
 					<Type>
@@ -79,6 +106,9 @@
 							<v8:AllowedSign>Any</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
 					<Balance>true</Balance>
 				</Properties>
 			</Resource>
@@ -105,6 +135,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>c49fd4d4-4069-4d8f-97f7-35c6aaa63e26</ExtendedConfigurationObject>
 					<Type>
@@ -114,6 +145,7 @@
 							<v8:AllowedLength>Variable</v8:AllowedLength>
 						</v8:StringQualifiers>
 					</Type>
+					<ToolTip/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="4d176859-3454-4d44-886c-a70e5353843a">
@@ -131,13 +163,21 @@
 			<Form>ФормаСписка</Form>
 			<Template>Макет</Template>
 			<Command uuid="e55ca59f-e31c-4dd1-973a-039990d65c33">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>d6db57aa-bb06-42ad-82e0-48fc29308e81</ExtendedConfigurationObject>
 					<Group>ActionsPanelCreate</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

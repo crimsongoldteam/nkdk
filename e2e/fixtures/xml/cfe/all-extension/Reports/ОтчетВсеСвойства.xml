@@ -10,12 +10,27 @@
 				<xr:TypeId>cc5b9b3e-49ba-42b1-bdca-38055e1d4eae</xr:TypeId>
 				<xr:ValueId>4b249696-1044-4805-b64a-886d8b7b50cf</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>ObjectModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ОтчетВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>5f67e404-0a01-4480-aa68-1149a6e085cc</ExtendedConfigurationObject>
+			<DefaultForm/>
+			<MainDataCompositionSchema/>
+			<DefaultSettingsForm/>
+			<DefaultVariantForm/>
+			<ExtendedPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Attribute uuid="fa5419e6-f554-4aa4-b682-a7805f940046">
@@ -23,6 +38,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитПоУмолчанию</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>e5209060-b2c5-4960-b9ae-654ee3c92a71</ExtendedConfigurationObject>
 					<Type>
@@ -32,6 +48,7 @@
 							<v8:AllowedLength>Variable</v8:AllowedLength>
 						</v8:StringQualifiers>
 					</Type>
+					<ToolTip/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="0665ad0a-db04-4e82-b118-f6011f552ee3">
@@ -72,8 +89,10 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>f39f1f82-33fe-49f6-878f-818ed052930b</ExtendedConfigurationObject>
+					<ToolTip/>
 				</Properties>
 				<ChildObjects>
 					<Attribute uuid="c6959d8a-c728-4066-ad2b-c10c061bac32">
@@ -81,6 +100,7 @@
 						<Properties>
 							<ObjectBelonging>Adopted</ObjectBelonging>
 							<Name>РеквизитТаблицыВсеСвойства</Name>
+							<Synonym/>
 							<Comment/>
 							<ExtendedConfigurationObject>4809f457-d357-4169-b1e7-4cb3d9388542</ExtendedConfigurationObject>
 							<Type>
@@ -90,6 +110,7 @@
 									<v8:AllowedLength>Variable</v8:AllowedLength>
 								</v8:StringQualifiers>
 							</Type>
+							<ToolTip/>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
@@ -119,13 +140,21 @@
 			<Template>Макет</Template>
 			<Template>ОсновнаяСхемаКомпоновкиДанных</Template>
 			<Command uuid="197e355e-a8d8-44e1-9309-0140eb45bb0a">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>be5e3364-681d-45ff-9418-a77ad1d1be30</ExtendedConfigurationObject>
 					<Group>FormNavigationPanelGoTo</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

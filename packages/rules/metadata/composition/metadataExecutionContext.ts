@@ -18,6 +18,7 @@ import type { ValidationRegistrySet } from "../validation/validationRegistrySet"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { createValidationRegistrySet } from "../validation/validationRegistrySet"
 import { createOperationRegistrySet } from "../operations/operationRegistrySet"
+import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 
 export interface MetadataExecutionRegistrySets {
   readonly rules: RuleRegistrySet
@@ -31,10 +32,11 @@ export function createMetadataExecutionRegistrySets(
     & Parameters<typeof createOperationRegistrySet>[0],
 ): MetadataExecutionRegistrySets {
   const rules = createRuleRegistrySet(definition)
+  const propertyStates = createPropertyStateCapabilityRegistry(definition.propertyStateCapabilities)
   return {
     rules,
-    validation: createValidationRegistrySet(definition, rules),
-    operations: createOperationRegistrySet(definition),
+    validation: createValidationRegistrySet(definition, rules, propertyStates),
+    operations: createOperationRegistrySet(definition, propertyStates),
   }
 }
 

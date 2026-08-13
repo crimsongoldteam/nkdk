@@ -54,6 +54,10 @@
 				<xr:Property>Splash</xr:Property>
 				<xr:State>Extended</xr:State>
 			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>CompatibilityMode</xr:Property>
+				<xr:State>Notify</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>

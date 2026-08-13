@@ -33,7 +33,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "AccountType",
 ]
 
-const isNilMetadataValueXML = (value: unknown): value is { "_xsi:nil": true } =>
+export const isNilMetadataValueXML = (value: unknown): value is { "_xsi:nil": true } =>
   typeof value === "object" &&
   value !== null &&
   !Array.isArray(value) &&

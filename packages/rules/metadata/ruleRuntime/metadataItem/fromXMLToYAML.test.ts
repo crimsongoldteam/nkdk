@@ -8,6 +8,7 @@ import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { registerMetadataItemRule } from "./ruleFactory"
+import { yamlScalarTagAt } from "@nkdk/runtime"
 
 describe("importMetadataItemFromXMLToYAML", () => {
   it("builds a nested item without returning its model shape", () => {
@@ -49,7 +50,7 @@ describe("importMetadataItemFromXMLToYAML", () => {
     expect(result.yaml).toEqual({ Значение: "payload" })
   })
 
-  it("добавляет Контроль корневого metadata-item до возврата YAML", () => {
+  it("добавляет !проверять корневому metadata-item до возврата YAML", () => {
     const rule = {
       itemType: "Task4RootNotify",
       properties: {
@@ -72,13 +73,11 @@ describe("importMetadataItemFromXMLToYAML", () => {
       },
     })
 
-    expect(yaml).toEqual({
-      ОсновнойРежимЗапуска: "ManagedApplication",
-      Контроль: ["ОсновнойРежимЗапуска"],
-    })
+    expect(yaml).toEqual({ ОсновнойРежимЗапуска: "ManagedApplication" })
+    expect(yamlScalarTagAt(yaml, "ОсновнойРежимЗапуска")).toBe("проверять")
   })
 
-  it("рекурсивно добавляет Контроль вложенному metadata-item коллекции", () => {
+  it("рекурсивно добавляет теги вложенному metadata-item коллекции", () => {
     const attributeRule = {
       itemType: "Task4NestedAttribute",
       properties: {
@@ -134,10 +133,13 @@ describe("importMetadataItemFromXMLToYAML", () => {
         РеквизитСправочника: {
           Тип: "Дата",
           Формат: "ffff",
-          Контроль: ["ОбъектРасширяемойКонфигурации", "Формат"],
+          ОбъектРасширяемойКонфигурации: {},
         },
       },
     })
+    const attribute = ((yaml as Record<string, unknown>).Реквизиты as Record<string, Record<string, unknown>>).РеквизитСправочника
+    expect(yamlScalarTagAt(attribute, "ОбъектРасширяемойКонфигурации")).toBe("проверять")
+    expect(yamlScalarTagAt(attribute, "Формат")).toBe("проверять")
   })
 })
 

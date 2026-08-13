@@ -3,8 +3,7 @@ import os from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import { load } from "js-yaml"
-import { configurationIndexPath, readConfigurationIndex } from "@nkdk/runtime"
+import { configurationIndexPath, parseWithJsYaml, readConfigurationIndex, yamlScalarTagAt } from "@nkdk/runtime"
 import { importConfigurationFromXml } from "./importConfiguration"
 import { mockContextFromXML } from "../../tests/mockContext"
 import {
@@ -109,8 +108,8 @@ describe("configuration extension XML import", () => {
       РежимСовместимостиРасширенияКонфигурации: "Версия8_3_20",
       ОсновнойРежимЗапуска: "УправляемоеПриложение",
       ОсновнойЯзык: "БазовыйЯзык",
-      Контроль: ["ОсновнойРежимЗапуска"],
     })
+    expect(yamlScalarTagAt(configuration, "ОсновнойРежимЗапуска")).toBe("проверять")
     expect(configuration).not.toHaveProperty("Синоним")
 
     expect(catalog).toEqual({
@@ -119,7 +118,7 @@ describe("configuration extension XML import", () => {
           Синоним: "",
           Тип: "ЛюбаяСсылка",
           Формат: "ДФ=dd.MM.yyyy",
-          Контроль: ["ОбъектРасширяемойКонфигурации", "Формат"],
+          ОбъектРасширяемойКонфигурации: {},
         },
         СобственныйРеквизит: {
           Синоним: "",
@@ -127,9 +126,13 @@ describe("configuration extension XML import", () => {
         },
       },
     })
+    const borrowedAttribute = ((catalog as Record<string, unknown>).Реквизиты as Record<string, Record<string, unknown>>).РеквизитСправочника
+    expect(yamlScalarTagAt(borrowedAttribute, "ОбъектРасширяемойКонфигурации")).toBe("проверять")
+    expect(yamlScalarTagAt(borrowedAttribute, "Формат")).toBe("проверять")
 
     expect(form).toEqual({
       Комментарий: "Форма расширения",
+      Изменять: ["Форма"],
       Реквизиты: {
         БазовыйОбъект: {
           Заголовок: "",
@@ -173,14 +176,9 @@ describe("configuration extension XML import", () => {
       componentPath: "cfe/РасширениеКонтроль",
       indexGeneration: 1n,
     })
-    expect(
-      snapshot.entities.find(
-        ({ logicalAddress }) => logicalAddress === "Справочник.СправочникПолный.Форма.ФормаОтчета.form"
-      )
-    ).toMatchObject({
-      sourceProjectPath: "Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
-      xml: { extended: true },
-    })
+    expect(snapshot.entities.some(
+      ({ logicalAddress }) => logicalAddress === "Справочник.СправочникПолный.Форма.ФормаОтчета.form"
+    )).toBe(false)
     expect(
       snapshot.entities.every((entity) => snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath))
     ).toBe(true)
@@ -192,6 +190,8 @@ describe("configuration extension XML import", () => {
       ]))
     expect(snapshot).not.toHaveProperty("localIndexes")
     expect(snapshot).not.toHaveProperty("dependencies")
+    expect(JSON.stringify(snapshot, (_key, value) => typeof value === "bigint" ? value.toString() : value))
+      .not.toMatch(/PropertyState|проверять|изменять/u)
     expect(
       fs.existsSync(join(projectDir, ".nkdk", "components", "cfe", "РасширениеКонтроль", "configuration-index.bin"))
     ).toBe(true)
@@ -218,6 +218,13 @@ async function importExtension() {
   await importBaseConfiguration(projectDir)
   const inputDir = temporaryDirectory()
   fs.cpSync(fixtureDir, inputDir, { recursive: true })
+  for (const relativePath of [
+    "Configuration.xml",
+    "Catalogs/СправочникПолный.xml",
+    "Catalogs/СправочникПолный/Forms/ФормаОтчета.xml",
+  ]) {
+    removeUnknownPropertyStates(join(inputDir, ...relativePath.split("/")))
+  }
   replaceExactlyOnce(
     join(inputDir, "Configuration.xml"),
     "\t\t\t<Name>РасширениеКонтроль</Name>",
@@ -464,6 +471,14 @@ function replaceAllInFile(path: string, source: string, replacement: string): vo
   fs.writeFileSync(path, content.replaceAll(source, replacement))
 }
 
+function removeUnknownPropertyStates(path: string): void {
+  const content = fs.readFileSync(path, "utf8")
+  fs.writeFileSync(path, content.replace(
+    /\s*<xr:PropertyState>\s*<xr:Property>[^<]+<\/xr:Property>\s*<xr:State>FutureState<\/xr:State>\s*<\/xr:PropertyState>/gu,
+    "",
+  ))
+}
+
 function temporaryDirectory(): string {
   const directory = fs.mkdtempSync(join(os.tmpdir(), "nkdk-extension-import-"))
   temporaryDirectories.push(directory)
@@ -471,7 +486,9 @@ function temporaryDirectory(): string {
 }
 
 function readYaml(projectDir: string, relativePath: string): unknown {
-  return load(readText(projectDir, relativePath))
+  const parsed = parseWithJsYaml(readText(projectDir, relativePath))
+  if (parsed.syntaxErrors.length > 0) throw parsed.syntaxErrors[0]
+  return parsed.data
 }
 
 function readText(projectDir: string, relativePath: string): string {

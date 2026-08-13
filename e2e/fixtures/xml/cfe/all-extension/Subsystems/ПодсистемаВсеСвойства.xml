@@ -10,8 +10,11 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ПодсистемаВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>7f92d7a8-d80c-4a83-afdc-9f980686597d</ExtendedConfigurationObject>
+			<Explanation/>
+			<Picture/>
 			<Content/>
 		</Properties>
 		<ChildObjects>

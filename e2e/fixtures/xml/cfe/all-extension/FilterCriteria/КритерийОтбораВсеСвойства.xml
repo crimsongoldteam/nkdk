@@ -10,35 +10,41 @@
 				<xr:TypeId>f90d7626-9038-43d1-9eec-1dbda7f4f6a8</xr:TypeId>
 				<xr:ValueId>3bbb3aa0-74d8-4f92-b00d-ac72a55efbed</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>КритерийОтбораВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>f95f51b6-2066-4076-9691-3f86bffd3e6a</ExtendedConfigurationObject>
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>10</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-			<Content>
-				<xr:Item xsi:type="xr:MDObjectRef">Catalog.СправочникПолный.Attribute.СтроковыйРеквизитСИндексом</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.Attribute.РеквизитТабличнойЧасти</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Document.ДокументВсеСвойства.Attribute.СтроковыйРеквизит</xr:Item>
-			</Content>
+			<UseStandardCommands>true</UseStandardCommands>
+			<DefaultForm/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Form>ФормаСписка</Form>
 			<Command uuid="bd6ed164-db52-4014-8c3b-db83dba86818">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>c7dea22c-2aeb-468e-8426-a749ec0ca7a1</ExtendedConfigurationObject>
 					<Group>FormCommandBarCreateBasedOn</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

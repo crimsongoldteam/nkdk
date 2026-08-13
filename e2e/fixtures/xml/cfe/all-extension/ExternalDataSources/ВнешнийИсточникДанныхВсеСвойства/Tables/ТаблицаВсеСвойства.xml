@@ -34,12 +34,44 @@
 				<xr:TypeId>5d14e54c-4d49-4909-8906-44396247ef51</xr:TypeId>
 				<xr:ValueId>c84f487f-e039-4bdf-bdc7-87af227ffea4</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>NameInDataSource</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>KeyFields</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>RecordSetModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ReadOnly</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ТаблицаВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>61def258-8564-4ebe-8985-8cdfeca43828</ExtendedConfigurationObject>
+			<TableType>Table</TableType>
+			<NameInDataSource>вТ</NameInDataSource>
+			<KeyFields/>
+			<DefaultRecordForm/>
+			<DefaultListForm/>
+			<RecordPresentation/>
+			<ExtendedRecordPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
+			<ReadOnly>false</ReadOnly>
 		</Properties>
 		<ChildObjects>
 			<Field uuid="ea3b11fd-0133-4ccc-bab9-1e208911970a">
@@ -59,10 +91,24 @@
 				</Properties>
 			</Field>
 			<Field uuid="059684ad-636a-4b6c-bc6f-22265f1dc5e1">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>NameInDataSource</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+					<xr:PropertyState>
+						<xr:Property>ReadOnly</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+					<xr:PropertyState>
+						<xr:Property>AllowNull</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ПолеВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>aee77a9f-cb3d-43c7-b1f9-5e15c399e5aa</ExtendedConfigurationObject>
 					<Type>
@@ -72,19 +118,31 @@
 							<v8:AllowedLength>Variable</v8:AllowedLength>
 						</v8:BinaryDataQualifiers>
 					</Type>
+					<ToolTip/>
+					<NameInDataSource/>
+					<ReadOnly>false</ReadOnly>
+					<AllowNull>true</AllowNull>
 				</Properties>
 			</Field>
 			<Form>ФормаОбъекта</Form>
 			<Form>ФормаСписка</Form>
 			<Form>ФормаВыбора</Form>
 			<Command uuid="298593cd-3ceb-4d4c-81f5-cf21ad067f5c">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>1671b912-76b3-466c-b319-fa1e7c54f0f9</ExtendedConfigurationObject>
 					<Group>NavigationPanelImportant</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 			<Template>Макет</Template>

@@ -4,6 +4,28 @@ import { parseWithJsYaml } from "./jsYamlParser"
 import { xmlScalarTagPayload, xmlScalarTagValue, yamlScalarTagAt } from "./scalarTags"
 
 describe("parseWithJsYaml", () => {
+  it.each([
+    ["Поле: !проверять Значение", "проверять", "Значение"],
+    ["Поле: !изменять 12", "изменять", 12],
+    ["Поле: !изменять", "изменять", {}],
+  ] as const)("разбирает режим свойства: %s", (source, tag, value) => {
+    const parsed = parseWithJsYaml(source)
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect((parsed.data as Record<string, unknown>).Поле).toEqual(value)
+    expect(yamlScalarTagAt(parsed.data, "Поле")).toBe(tag)
+  })
+
+  it("сохраняет режимы частей составного типа", () => {
+    const parsed = parseWithJsYaml("Тип:\n  - !проверять Дата\n  - !изменять Булево")
+    const types = (parsed.data as { Тип: unknown[] }).Тип
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(types).toEqual(["Дата", "Булево"])
+    expect(yamlScalarTagAt(types, 0)).toBe("проверять")
+    expect(yamlScalarTagAt(types, 1)).toBe("изменять")
+  })
+
   it("parses a local xml tag as an ordinary scalar value", () => {
     const parsed = parseWithJsYaml("Поле: !xml Авто")
 

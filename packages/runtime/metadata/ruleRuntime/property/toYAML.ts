@@ -35,12 +35,16 @@ export function exportPropertyValueToYAML(params: {
   name?: string
   owner?: MetadataTargetOwner
   execution?: PropertyRuleExecution
+  preserveImplicitValue?: boolean
 }): unknown {
   const { context, rule, value, name } = params
 
   if (!canExportPropertyToYAML({ context, rule })) return undefined
 
-  if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
+  if (
+    params.preserveImplicitValue !== true &&
+    "implicitValueYAML" in rule && value === (rule as any).implicitValueYAML
+  ) return undefined
 
   const typeExportFn = params.execution === undefined
     ? getTypeRule(rule.type, "exportToYAML")

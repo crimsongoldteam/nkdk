@@ -5,6 +5,7 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ФункциональнаяОпцияБулево</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>e24d0c03-7602-4853-9411-f91be1001515</ExtendedConfigurationObject>
 			<Location>Constant.КонстантаБулево</Location>

@@ -117,7 +117,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   assertRows(
     update["pendingReferences"],
     `${path}.pendingReferences`,
-    ["yamlPath", "canonical", "target", "constraint", "tagged"],
+    ["yamlPath", "canonical", "target", "constraint", "tagged", "propertyStateMode"],
     (row, rowPath) => {
       assertYamlPath(row["yamlPath"], `${rowPath}.yamlPath`)
       assertString(row["canonical"], `${rowPath}.canonical`)
@@ -125,6 +125,12 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
       assertMetadataTargetConstraint(row["constraint"], `${rowPath}.constraint`)
       if (row["tagged"] !== undefined && row["tagged"] !== "xml") {
         throw new Error(`${rowPath}.tagged должен быть xml`)
+      }
+      if (row["propertyStateMode"] !== undefined
+        && row["propertyStateMode"] !== "control"
+        && row["propertyStateMode"] !== "notify"
+        && row["propertyStateMode"] !== "extend") {
+        throw new Error(`${rowPath}.propertyStateMode имеет неизвестное значение`)
       }
     }
   )

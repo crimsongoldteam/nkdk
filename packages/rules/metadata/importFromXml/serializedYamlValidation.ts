@@ -1,6 +1,6 @@
 import type { SerializedYAMLDocument } from "@nkdk/runtime"
 import { parsedYamlFromKnownData } from "@nkdk/runtime"
-import type { ConfigurationContext } from "@nkdk/runtime"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { ValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
 import {
@@ -30,5 +30,15 @@ export function validateSerializedProjectYaml(params: {
     context: params.context,
     schemaCache: params.schemaCache,
     rulesSnapshot: params.rulesSnapshot,
+    propertyStateCompatibilityMode: propertyStateCompatibilityMode(params.context),
   })
+}
+
+function propertyStateCompatibilityMode(context: ConfigurationContext): string | undefined {
+  if (!hasFromXMLContext(context)) return undefined
+  return context.fromXML.propertyStateCompatibilityMode
+}
+
+function hasFromXMLContext(context: ConfigurationContext): context is ConfigurationContextFromXML {
+  return "fromXML" in context && typeof context.fromXML === "object" && context.fromXML !== null
 }

@@ -10,6 +10,7 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ФормаСписка</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>7b2e595d-f11a-4de2-82d8-93697625e792</ExtendedConfigurationObject>
 			<FormType>Managed</FormType>

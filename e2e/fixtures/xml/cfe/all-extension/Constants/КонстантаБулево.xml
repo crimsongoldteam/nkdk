@@ -14,15 +14,30 @@
 				<xr:TypeId>1496ed37-9eaf-407d-91bb-1047478e4281</xr:TypeId>
 				<xr:ValueId>b1a214d0-07a6-4f39-a2ad-bb200fd9c983</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>ValueManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>КонстантаБулево</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>d7533d79-977e-4195-ba43-0bc00e5ce47e</ExtendedConfigurationObject>
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
+			<DefaultForm/>
+			<ExtendedPresentation/>
+			<Explanation/>
+			<Format/>
+			<EditFormat/>
+			<ToolTip/>
 		</Properties>
 	</Constant>
 </MetaDataObject>

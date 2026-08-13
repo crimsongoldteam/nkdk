@@ -162,6 +162,9 @@ export async function importConfigurationFromXml(
     const root = await readXmlImportComponentRoot(params.inputDir)
     const descriptor = (deps.resolveComponent ?? resolveXmlImportComponent)(root)
     const resolvedRoot = descriptor.resolveRoot(root)
+    const importContext = descriptor.metadataItemAugmenter === "configurationExtension"
+      ? withPropertyStateCompatibilityMode(params.context, root)
+      : params.context
     const { address } = resolvedRoot
     const selectedComponentPath = componentPath(address)
     const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
@@ -208,7 +211,7 @@ export async function importConfigurationFromXml(
       const workerOperation = await projectState.workers.beginOperation({
         id: operationId,
         concurrency,
-        context: params.context,
+        context: importContext,
       })
       pool = createXmlImportWorkerPool({ concurrency, operation: workerOperation })
     }
@@ -234,7 +237,7 @@ export async function importConfigurationFromXml(
       () =>
         pool!.initialize({
           operationId,
-          context: params.context,
+          context: importContext,
           outputDir: componentDir,
           projectDir: params.projectDir,
           componentPath: selectedComponentPath,
@@ -384,6 +387,38 @@ export async function importConfigurationFromXml(
       outcome.failed.push(...cleanupFailures.map(operationDiagnostic))
     }
   }
+}
+
+function withPropertyStateCompatibilityMode(
+  context: ImportConfigurationFromXmlParams["context"],
+  root: Record<string, unknown>,
+): ImportConfigurationFromXmlParams["context"] {
+  const mode = findPropertyStateCompatibilityMode(root)
+  return typeof mode === "string"
+    ? { ...context, fromXML: { ...context.fromXML, propertyStateCompatibilityMode: mode } }
+    : context
+}
+
+function findPropertyStateCompatibilityMode(value: unknown): string | undefined {
+  if (typeof value !== "object" || value === null) return undefined
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const mode = findPropertyStateCompatibilityMode(item)
+      if (mode !== undefined) return mode
+    }
+    return undefined
+  }
+  const record = value as Record<string, unknown>
+  const properties = record.Properties
+  if (typeof properties === "object" && properties !== null && !Array.isArray(properties)) {
+    const mode = (properties as Record<string, unknown>).ConfigurationExtensionCompatibilityMode
+    if (typeof mode === "string") return mode
+  }
+  for (const item of Object.values(record)) {
+    const mode = findPropertyStateCompatibilityMode(item)
+    if (mode !== undefined) return mode
+  }
+  return undefined
 }
 
 function importStatePhaseName(

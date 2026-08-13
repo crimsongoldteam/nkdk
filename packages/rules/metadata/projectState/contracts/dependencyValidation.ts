@@ -53,6 +53,7 @@ export type ProjectFileMetadataTargetReferencesResult =
   | { readonly requestId: string; readonly status: "found"; readonly references: readonly { readonly yamlPath: ProjectStateYamlPath; readonly canonical: string }[] }
   | { readonly requestId: string; readonly status: "missing" }
 export interface ProjectStructuredDocumentQuery { readonly componentPath: string; readonly logicalAddress: string }
+export interface ProjectFileHashQuery { readonly componentPath: string; readonly projectPath: string }
 export interface ProjectStateStructuredDocumentFact {
   readonly componentPath: string
   readonly projectPath: string
@@ -70,6 +71,7 @@ export interface ProjectStateQueryPort {
   readValidationStatus(query: ProjectValidationStatusQuery): readonly ProjectValidationStatusRow[]
   readFileMetadataTargetReferences(requests: readonly ProjectFileMetadataTargetReferencesQuery[]): readonly ProjectFileMetadataTargetReferencesResult[]
   readStructuredDocumentEntries(query: ProjectStructuredDocumentQuery): readonly ProjectStateStructuredDocumentEntry[]
+  readFileHash?(query: ProjectFileHashQuery): bigint | undefined
 }
 
 export interface ProjectStateReadSession extends ProjectStateQueryPort { close(): void }
@@ -82,6 +84,7 @@ export interface ProjectStatePendingMetadataTargetReference {
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
   readonly tagged?: "xml"
+  readonly propertyStateMode?: "control" | "notify" | "extend"
 }
 export interface ProjectStatePendingReferenceCheck { readonly requestId: string; readonly componentPath: string; readonly reference: ProjectStatePendingMetadataTargetReference }
 export interface ProjectStatePendingOwnerCheck { readonly requestId: string; readonly componentPath: string; readonly owner: OwnerTypeRef }
@@ -100,7 +103,7 @@ export interface ProjectStateStructuredDocumentValidationParams {
   readonly facts: readonly ProjectStateStructuredDocumentFact[]
   readonly projectDir: string
   readonly queryPort: Pick<ProjectStateQueryPort,
-    "readStructuredDocumentEntries" | "readDependencyInputs" | "readDependencyOwnerInputs">
+    "readStructuredDocumentEntries" | "readDependencyInputs" | "readDependencyOwnerInputs" | "readFileHash">
 }
 export type ProjectStateStructuredDocumentValidator = (
   params: ProjectStateStructuredDocumentValidationParams,

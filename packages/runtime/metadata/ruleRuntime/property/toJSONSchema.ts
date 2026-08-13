@@ -73,7 +73,7 @@ function withExplicitXMLValidationValue(params: {
  * Возвращает YAML-представление implicitValueYAML.
  * Только для литеральных значений: функции зависят от контекста объекта.
  */
-function getImplicitValueYAML(
+export function getImplicitValueYAML(
   rule: PropertyRule,
   execution?: PropertyRuleExecution,
 ): string | number | undefined {

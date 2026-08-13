@@ -52,14 +52,22 @@
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитДвоичныеДанныеБезХранилища</Name>
 					<Comment/>
-					<ExtendedConfigurationObject>da2e4d7d-9346-4435-a7a4-38fd8fa21596</ExtendedConfigurationObject>
 					<Type>
 						<v8:Type>v8:ValueStorage</v8:Type>
 					</Type>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="142dcfcd-5e65-4abd-9ff4-39197328a39c">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>ExtendedConfigurationObject</xr:Property>
+						<xr:State>Notify</xr:State>
+					</xr:PropertyState>
+					<xr:PropertyState>
+						<xr:Property>Type</xr:Property>
+						<xr:State>Notify</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитСсылка</Name>
@@ -77,9 +85,6 @@
 					<Name>РеквизитБулево</Name>
 					<Comment/>
 					<ExtendedConfigurationObject>21e93be7-9cc6-46de-8797-135279a12a3f</ExtendedConfigurationObject>
-					<Type>
-						<v8:Type>xs:boolean</v8:Type>
-					</Type>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="356ff793-472a-4dee-9af3-81904208ac2c">
@@ -95,30 +100,47 @@
 				</Properties>
 			</Attribute>
 			<Attribute uuid="9bc586f2-a3d1-4f47-bcf6-db2e467bd331">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>Type</xr:Property>
+						<xr:State>MultiState</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитМинимальный</Name>
 					<Comment/>
 					<ExtendedConfigurationObject>e7c1c20d-ce0c-4bc1-9a2a-0179c570aee6</ExtendedConfigurationObject>
-					<Type>
-						<v8:Type>xs:string</v8:Type>
-						<v8:StringQualifiers>
-							<v8:Length>10</v8:Length>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-						</v8:StringQualifiers>
+					<Type xsi:type="xr:ExtendedProperty">
+						<xr:ExtendValue xsi:type="v8:TypeDescription">
+							<v8:Type>xs:string</v8:Type>
+							<v8:StringQualifiers>
+								<v8:Length>10</v8:Length>
+								<v8:AllowedLength>Variable</v8:AllowedLength>
+							</v8:StringQualifiers>
+						</xr:ExtendValue>
 					</Type>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="2720da37-5c92-4476-b806-9ccc60bc9b8c">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>Type</xr:Property>
+						<xr:State>MultiState</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитПолный</Name>
 					<Comment/>
 					<ExtendedConfigurationObject>2b2ec1fd-1bdf-419d-aff9-67a25cb6d736</ExtendedConfigurationObject>
-					<Type>
-						<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
+					<Type xsi:type="xr:ExtendedProperty">
+						<xr:CheckValue xsi:type="v8:TypeDescription">
+							<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
+						</xr:CheckValue>
+						<xr:ExtendValue xsi:type="v8:TypeDescription">
+							<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+						</xr:ExtendValue>
 					</Type>
 				</Properties>
 			</Attribute>

@@ -14,12 +14,22 @@
 				<xr:TypeId>9b3105b2-460c-4203-83b9-13dc4c120063</xr:TypeId>
 				<xr:ValueId>4f4404af-0a71-42f7-a364-c81c42336306</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ПеречислениеВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>ec93e916-ecd7-45c4-8e73-ea76f186183c</ExtendedConfigurationObject>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<EnumValue uuid="0940c048-29de-4953-b8af-267eaf8bf1c3">
@@ -27,6 +37,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ЗначениеПеречисления1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>3422552b-50dd-46cf-88bd-163e75331ff9</ExtendedConfigurationObject>
 				</Properties>
@@ -44,13 +55,21 @@
 			<Form>ФормаВыбора</Form>
 			<Template>Макет</Template>
 			<Command uuid="f93d3eb1-921a-412f-8b74-92adaf9c69f8">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>3712df7a-2311-48bf-a14c-dd76417176c1</ExtendedConfigurationObject>
 					<Group>NavigationPanelImportant</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

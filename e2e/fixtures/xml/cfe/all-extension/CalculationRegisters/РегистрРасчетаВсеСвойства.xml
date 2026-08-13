@@ -30,13 +30,155 @@
 				<xr:TypeId>895e4370-7e6d-4354-bb7b-2e1fdebad284</xr:TypeId>
 				<xr:ValueId>1cfe059d-6ca6-4252-a69c-adb19c48b67d</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>RecordSetModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>РегистрРасчетаВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>963bef13-9fd2-432c-ac46-133d20e7dc0f</ExtendedConfigurationObject>
+			<DefaultListForm/>
+			<Periodicity>Quarter</Periodicity>
+			<ActionPeriod>true</ActionPeriod>
+			<BasePeriod>true</BasePeriod>
+			<Schedule>InformationRegister.РегистрСведенийГрафик</Schedule>
+			<ScheduleValue>InformationRegister.РегистрСведенийГрафик.Resource.Значение</ScheduleValue>
+			<ScheduleDate>InformationRegister.РегистрСведенийГрафик.Dimension.Дата</ScheduleDate>
+			<ChartOfCalculationTypes>ChartOfCalculationTypes.ПланРасчетаВсеСвойства</ChartOfCalculationTypes>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
-		<ChildObjects/>
+		<ChildObjects>
+			<Resource uuid="3cfd3b83-7929-45d8-bdc9-1b99af26cd12">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РесурсВсеСвойства</Name>
+					<Synonym/>
+					<Comment/>
+					<ExtendedConfigurationObject>b20cd2cd-ea0a-4456-8a51-fcd29b06a715</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>10</v8:Digits>
+							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Any</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
+				</Properties>
+			</Resource>
+			<Resource uuid="f9c13967-cbb3-4c30-9945-288b570bfa97">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИзмерениеИндексировать</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>96f36916-205f-4a73-8e38-4fc137bc91ee</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>10</v8:Digits>
+							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Any</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+				</Properties>
+			</Resource>
+			<Attribute uuid="c0db24ce-559c-45d2-ba09-42be1cff1d4b">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитВсеСвойства</Name>
+					<Synonym/>
+					<Comment/>
+					<ExtendedConfigurationObject>47b112eb-daf1-4fd9-9a48-a511ca0e9da6</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+					<ToolTip/>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="fd58ca54-fc52-4004-9bd0-a74c8dcb1d6a">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>4179c8e3-71f1-404a-8ae8-a8b363c81f77</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>v8:ValueStorage</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Dimension uuid="0dca80bd-9553-40e3-9ed2-116cccc901ad">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИзмерениеВсеСвойства</Name>
+					<Synonym/>
+					<Comment/>
+					<ExtendedConfigurationObject>883c0a78-2c97-43dd-883d-69426934a3a9</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.ПараметрыВыбора</v8:Type>
+					</Type>
+					<ToolTip/>
+					<ChoiceForm/>
+				</Properties>
+			</Dimension>
+			<Dimension uuid="9f397e26-b3f9-42e9-ba5a-72bfbd2d8751">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИзмерениеПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>53928319-c381-4c34-9b58-9dab4d9bb94c</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Dimension>
+			<Recalculation>ПерерасчетВсеСвойства</Recalculation>
+			<Recalculation>ПерерасчетПоУмолчанию</Recalculation>
+			<Form>ФормаСписка</Form>
+			<Template>Макет</Template>
+			<Command uuid="dc51ac1f-e68f-4145-a987-926767f57b7f">
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Synonym/>
+					<Comment/>
+					<ExtendedConfigurationObject>be053901-ebd6-43b0-9d6e-091e5acbab08</ExtendedConfigurationObject>
+					<Group>ActionsPanelCreate</Group>
+					<ToolTip/>
+					<Picture/>
+				</Properties>
+			</Command>
+		</ChildObjects>
 	</CalculationRegister>
 </MetaDataObject>

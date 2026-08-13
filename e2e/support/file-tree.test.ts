@@ -58,6 +58,48 @@ describe("compareFileTrees", () => {
     expect(await readFile(join(fixture.reportDir, "changed.xml.normalized.diff"), "utf8"))
       .toMatch(/[+-].*Value/u)
   })
+
+  it("сравнивает XML по смыслу и не учитывает порядок PropertyState", async () => {
+    const fixture = await treeFixture()
+    await write(fixture.expectedDir, "state.xml", [
+      "<Root><xr:PropertyState xmlns:xr=\"urn:xr\"><xr:Property>Second</xr:Property></xr:PropertyState>",
+      "<xr:PropertyState xmlns:xr=\"urn:xr\"><xr:Property>First</xr:Property></xr:PropertyState></Root>",
+    ].join(""))
+    await write(fixture.actualDir, "state.xml", [
+      "<Root>\n<xr:PropertyState xmlns:xr=\"urn:xr\"><xr:Property>First</xr:Property></xr:PropertyState>",
+      "<xr:PropertyState xmlns:xr=\"urn:xr\"><xr:Property>Second</xr:Property></xr:PropertyState>\n</Root>",
+    ].join(""))
+
+    await expect(compareFileTrees({ ...fixture, xmlComparison: "semantic" })).resolves.toEqual({
+      equal: true,
+      added: [],
+      removed: [],
+      changed: [],
+    })
+  })
+
+  it("позволяет исключить служебный ConfigDumpInfo.xml", async () => {
+    const fixture = await treeFixture()
+    await write(fixture.expectedDir, "ConfigDumpInfo.xml", "<ConfigDumpInfo/>")
+
+    await expect(compareFileTrees({ ...fixture, ignoredPaths: ["ConfigDumpInfo.xml"] })).resolves.toEqual({
+      equal: true,
+      added: [],
+      removed: [],
+      changed: [],
+    })
+  })
+
+  it("не строит текстовый diff двоичного файла", async () => {
+    const fixture = await treeFixture()
+    await write(fixture.expectedDir, "configuration-index.bin", "\u0000старое")
+    await write(fixture.actualDir, "configuration-index.bin", "\u0000новое")
+
+    await compareFileTrees(fixture)
+
+    expect(await readFile(join(fixture.reportDir, "configuration-index.bin.diff"), "utf8"))
+      .toBe("Текстовый diff недоступен для двоичного файла.\n")
+  })
 })
 
 async function treeFixture(): Promise<{

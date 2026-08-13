@@ -14,10 +14,15 @@
 				<xr:TypeId>1671d574-f825-4a91-b408-3346b5cff120</xr:TypeId>
 				<xr:ValueId>e36942c9-d6b9-4ee4-a1e4-45d7bc266ae2</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>RecordSetModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ПоследовательностьВсеПоля</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>9a75d662-44b7-487e-970b-3265bfe1f7ca</ExtendedConfigurationObject>
 		</Properties>
@@ -27,6 +32,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ИзмерениеПолное</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>579511d3-dbe6-44ab-be70-86d13771a368</ExtendedConfigurationObject>
 					<Type>

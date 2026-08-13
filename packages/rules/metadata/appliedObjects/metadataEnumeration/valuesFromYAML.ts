@@ -40,6 +40,7 @@ const schemaRules = defineMetadataRules({
   },
   schemas: {
     MetadataEnumerationValueYAML: {
+      source: MetadataEnumerationValueRules,
       export: ({ context }) =>
         exportMetadataEnumerationValueYAMLToJSONSchema(context),
     },

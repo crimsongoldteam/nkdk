@@ -1,4 +1,5 @@
-import { readFileSync } from "fs"
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "fs"
+import { tmpdir } from "os"
 import { join } from "path"
 import { beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
@@ -12,6 +13,8 @@ import { defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { createValidationRegistrySet } from "./validationRegistrySet"
+import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
+import { configurationExtensionPropertyStateCapabilities } from "../appliedObjects/configurationExtension/propertyStateRules"
 
 let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
 
@@ -351,6 +354,124 @@ describe("extractValidationYamlFacts", () => {
     ])
     expect(facts.diagnostics).toEqual([])
   })
+
+  it("сохраняет размещение и тип для проверки состава функциональной опции", () => {
+    const projectDir = "/project"
+    const filePath = "/project/ФункциональнаяОпция/Опция/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml("Размещение: Constant.Флаг\nТип: Булево\n"),
+      rulesSnapshot,
+      validationDiagnostics: false,
+    })
+    const structure = facts.structuredDocuments?.find(({ documentKind }) =>
+      documentKind === "configurationExtensionStructure")
+
+    expect(JSON.parse(structure?.payload ?? "null")).toMatchObject({
+      location: "Constant.Флаг",
+      valueType: "Булево",
+    })
+  })
+
+  it("сохраняет PropertyState и структуру вложенных metadata-объектов", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-facts-"))
+    const componentDir = join(projectDir, "cfe", "Расширение")
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    const filePath = join(componentDir, projectPath)
+    const baseFilePath = join(projectDir, "cf", projectPath)
+    mkdirSync(join(componentDir, "Справочник", "Товары"), { recursive: true })
+    mkdirSync(join(projectDir, "cf", "Справочник", "Товары"), { recursive: true })
+    writeFileSync(baseFilePath, "Комментарий: исходный\n")
+    const resolvedFile = resolveValidationProjectFile(componentDir, filePath)
+    if (resolvedFile === undefined) throw new Error("file not resolved")
+    const file = {
+      ...resolvedFile,
+      componentPath: "cfe/Расширение",
+      componentDir,
+    }
+    const baseRuntime = localValidationRuntime("unused", () => [])
+    const runtime = {
+      ...baseRuntime,
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml([
+        "ТабличныеЧасти:",
+        "  Строки:",
+        "    Подсказка: Строки",
+        "    ДлинаНомераСтроки: 9",
+        "",
+      ].join("\n")),
+      rulesSnapshot,
+      runtime,
+      validationDiagnostics: false,
+    })
+
+    expect(facts.structuredDocuments).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        documentKind: "configurationExtensionPropertyState",
+        logicalAddress: "Справочник.Товары.TabularSection.Строки",
+        name: "toolTip",
+        yamlPath: ["ТабличныеЧасти", "Строки", "Подсказка"],
+      }),
+      expect.objectContaining({
+        documentKind: "configurationExtensionStructure",
+        logicalAddress: "Справочник.Товары.TabularSection.Строки",
+        name: "MetadataTabularSection",
+        yamlPath: ["ТабличныеЧасти", "Строки"],
+      }),
+    ]))
+    const section = facts.structuredDocuments?.find(({ name }) => name === "MetadataTabularSection")
+    expect(JSON.parse(section?.payload ?? "null")).toMatchObject({ lineNumberLength: 9 })
+  })
+
+  it("помечает обычную ссылку многорежимного свойства как control", () => {
+    const facts = extractDocumentExtensionFacts("Нумератор: Собственный\n")
+
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({
+        canonical: "DocumentNumerator.Собственный",
+        propertyStateMode: "control",
+      }),
+    ])
+  })
+
+  it("не назначает PropertyState ссылкам собственного свойства заимствованного объекта", () => {
+    const facts = extractDocumentExtensionFacts("Движения:\n  - РегистрНакопления.Собственный\n")
+
+    expect(facts.pendingReferences).toEqual([
+      expect.not.objectContaining({ propertyStateMode: expect.anything() }),
+    ])
+  })
+
+  function extractDocumentExtensionFacts(yaml: string) {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-facts-"))
+    const componentDir = join(projectDir, "cfe", "Расширение")
+    const projectPath = "Документ/Заказ/Свойства.yaml"
+    const filePath = join(componentDir, projectPath)
+    mkdirSync(join(componentDir, "Документ", "Заказ"), { recursive: true })
+    mkdirSync(join(projectDir, "cf", "Документ", "Заказ"), { recursive: true })
+    writeFileSync(join(projectDir, "cf", projectPath), "Комментарий: исходный\n")
+    const resolvedFile = resolveValidationProjectFile(componentDir, filePath)
+    if (resolvedFile === undefined) throw new Error("file not resolved")
+    const runtime = {
+      ...localValidationRuntime("unused", () => []),
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }
+
+    return extractValidationYamlFacts({
+      file: { ...resolvedFile, componentPath: "cfe/Расширение", componentDir },
+      parsed: parseMetadataYaml(yaml),
+      rulesSnapshot,
+      runtime,
+      validationDiagnostics: false,
+    })
+  }
 })
 
 function localValidationRuntime(type: string, validator: LocalYamlValueValidator) {

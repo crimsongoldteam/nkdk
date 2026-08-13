@@ -419,7 +419,9 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   it("uses validation refs only for reusable schemas", () => {
     const graph = commonFormValidationGraph()
     const prefix = "nkdk://schema/validation/2.20/ru/"
-    const commonForm = graph.roots.commonForm as { properties?: { Форма?: { $ref?: string } } }
+    const commonForm = graph.roots.commonForm as {
+      properties?: { Форма?: { anyOf?: Array<{ $ref?: string }> } }
+    }
     const clientForm = graph.schemas[`${prefix}ClientApplicationForm`] as {
       properties?: { События?: { $ref?: string } }
     }
@@ -433,7 +435,9 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     const visibilitySchemaName =
       "SettingsParameterValue/Primitive/yaml/%D0%92%D0%B8%D0%B4%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D1%8C"
 
-    expect(commonForm.properties?.Форма).toMatchObject({ $ref: `${prefix}ClientApplicationForm` })
+    expect(commonForm.properties?.Форма?.anyOf).toEqual(expect.arrayContaining([
+      expect.objectContaining({ $ref: `${prefix}ClientApplicationForm` }),
+    ]))
     expect(graph.schemas[`${prefix}${visibilitySchemaName}`]).toMatchObject({ $id: `${prefix}${visibilitySchemaName}` })
     expect(graph.schemas[`${prefix}DcsMetadataValue/Primitive`]).toMatchObject({
       $id: `${prefix}DcsMetadataValue/Primitive`,

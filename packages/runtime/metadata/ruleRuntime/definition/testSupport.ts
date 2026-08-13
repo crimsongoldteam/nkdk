@@ -1,6 +1,7 @@
 import type { MetadataItemRule } from "../property/types"
 import type { MetadataRulesDefinition } from "./contracts"
 import type { BrokenXMLReferenceCarrierRegistration } from "../property/brokenXMLReferenceCarrierRegistry"
+import type { PropertyStateCapabilityContribution, PropertyStateMode } from "./contracts"
 
 export const emptyMetadataRules: MetadataRulesDefinition<never, never, never> = {
   propertyTypes: {},
@@ -27,6 +28,7 @@ export const emptyMetadataRules: MetadataRulesDefinition<never, never, never> = 
   synchronization: [],
   operations: [],
   workerOperations: [],
+  propertyStateCapabilities: [],
 }
 
 export function metadataItemRule(itemType: string): MetadataItemRule {
@@ -47,5 +49,20 @@ export function brokenXMLReferenceCarrier(
     validationSchema: ({ base }) => base,
     matchesTaggedYAML: () => false,
     ...overrides,
+  }
+}
+
+export function propertyStateCapability(
+  id: string,
+  modes: readonly PropertyStateMode[],
+): PropertyStateCapabilityContribution {
+  return {
+    kind: "propertyStateCapability",
+    id,
+    item: {
+      itemType: "Sample",
+      profiles: [],
+      properties: { value: { availability: "borrowed", modes } },
+    },
   }
 }

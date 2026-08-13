@@ -1,11 +1,12 @@
 import { expect, it } from "vitest"
 
 import { defineMetadataRules } from "../ruleRuntime/definition"
-import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { emptyMetadataRules, propertyStateCapability } from "../ruleRuntime/definition/testSupport"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { createValidationRegistrySet } from "./validationRegistrySet"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
+import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 
 it("uses the local YAML validator from its own definition", () => {
   const createRules = (message: string) =>
@@ -124,4 +125,22 @@ it("builds DataPath fields only from its own definition", () => {
 
   expect([...first.buildObjectFieldIndex(owner).fields.keys()]).toEqual(["Первый"])
   expect([...second.buildObjectFieldIndex(owner).fields.keys()]).toEqual(["Второй"])
+})
+
+it("exposes the same PropertyState capabilities as operation registries", () => {
+  const definition = defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyStateCapabilities: [propertyStateCapability("sample", ["notify", "extend"])],
+  })
+  const registries = createValidationRegistrySet(
+    definition,
+    createRuleRegistrySet(definition),
+    createPropertyStateCapabilityRegistry(definition.propertyStateCapabilities),
+  )
+
+  expect(registries.propertyStates.resolve({
+    itemType: "Sample",
+    propertyKey: "value",
+    compatibilityMode: "НеИспользовать",
+  })).toEqual({ availability: "borrowed", modes: ["notify", "extend"] })
 })

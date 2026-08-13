@@ -46,11 +46,15 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>МножественнаяХарактеристика</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>db7a5378-9c21-4710-9da6-d05aecfdd23d</ExtendedConfigurationObject>
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
 				</Properties>
 			</Attribute>
 		</ChildObjects>

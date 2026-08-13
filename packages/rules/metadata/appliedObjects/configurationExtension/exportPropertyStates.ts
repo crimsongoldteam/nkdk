@@ -1,16 +1,19 @@
-import { capitalize } from "@nkdk/runtime"
+import { capitalize, yamlScalarTagAt } from "@nkdk/runtime"
 import { childSegmentUid } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { getCompiledXMLPropertyOrder } from "../../ruleRuntime/property/xmlPropertyOrder"
-import { EXTENDED_SNAPSHOT_SEGMENTS } from "./propertyStates"
+import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
+import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
+import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
+import { readPropertyStateSections } from "../../ruleRuntime/property/propertyStateSections"
+import { decodeExplicitXMLPropertyState, isExplicitXMLPropertyState } from "./explicitXMLState"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
 
 export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugmenter = {
   augment({ context, rule, yaml, outputs, logicalAddress }) {
-    copyExtendedSnapshotState(context, rule, logicalAddress)
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
     if (rule.itemType === "MetadataConfigurationExtension") {
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
@@ -20,14 +23,19 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       }
     } else if (adoptedUuid !== undefined && supportsAdoptionServiceProperties(rule)) {
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-      writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
+      if (context.exportToXML.configurationIndex?.xml(logicalAddress)?.extended === true) {
+        writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
+      }
     }
 
-    const control = readControl(yaml, rule, logicalAddress)
+    if (Object.prototype.hasOwnProperty.call(yaml, "Контроль")) {
+      throw new Error(`YAML-поле Контроль больше не поддерживается: ${logicalAddress}`)
+    }
     const states = propertyStates({
       context,
       rule,
-      control,
+      yaml,
+      outputs,
       logicalAddress,
     })
     if (states.length > 0) writePropertyStates(outputs, rule, states)
@@ -35,21 +43,6 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
     reorderServiceProperties(outputs, rule)
     reorderMetadataRoot(outputs, rule)
   },
-}
-
-function copyExtendedSnapshotState(
-  context: ConfigurationContextWithExportToXML,
-  rule: MetadataItemRule,
-  logicalAddress: string
-): void {
-  const runtime = context.exportToXML.configurationIndex
-  if (runtime === undefined) return
-  for (const segment of new Set(Object.values(EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType] ?? {}))) {
-    const address = childSegmentUid(logicalAddress, segment)
-    if (runtime.xml(address)?.extended === true) {
-      runtime.collector.setXmlFlag(address, "extended")
-    }
-  }
 }
 
 function reorderMetadataRoot(outputs: ReadonlyMap<string, Record<string, unknown>>, rule: MetadataItemRule): void {
@@ -183,72 +176,89 @@ function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
 function propertyStates(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly rule: MetadataItemRule
-  readonly control: ReadonlySet<string>
+  readonly yaml: Readonly<Record<string, unknown>>
+  readonly outputs: ReadonlyMap<string, Record<string, unknown>>
   readonly logicalAddress: string
 }): Record<string, string>[] {
   const states: Record<string, string>[] = []
-  if (params.control.has(EXTENDED_CONFIGURATION_OBJECT_YAML)) {
+  const itemCapability = propertyStateRegistry()?.item(params.rule.itemType)
+  const sectionStates = itemCapability === undefined
+    ? new Map<string, "notify" | "extend">()
+    : readPropertyStateSections(params.yaml, itemCapability)
+  const consumedSectionKeys = new Set<string>()
+  if (yamlScalarTagAt(params.yaml, EXTENDED_CONFIGURATION_OBJECT_YAML) === "проверять") {
     states.push(propertyState("ExtendedConfigurationObject", "Notify"))
   }
 
   for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
     const yamlName = propertyRule.yaml
     const xmlName = propertyRule.xml ?? capitalize(propertyKey)
+    const yamlValue = typeof yamlName === "string" ? params.yaml[yamlName] : undefined
+    const sectionMode = sectionStates.get(propertyKey)
+    if (
+      typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "xml" &&
+      typeof yamlValue === "string" && isExplicitXMLPropertyState(yamlValue)
+    ) {
+      const explicit = decodeExplicitXMLPropertyState(yamlValue, {
+        itemType: params.rule.itemType,
+        propertyKey,
+        xmlProperty: xmlName,
+      })
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, explicit.propertyXML)
+      states.push({ ...explicit.propertyStateXML })
+      continue
+    }
+    if (sectionMode !== undefined) {
+      consumedSectionKeys.add(propertyKey)
+      states.push(propertyState(xmlName, sectionMode === "notify" ? "Notify" : "Extended"))
+      continue
+    }
+    if (
+      typeof yamlName === "string" &&
+      propertyRule.type === "TypeDescription" &&
+      isMultiStateTypeYAML(yamlValue)
+    ) {
+      const multiState = exportMultiStateType(params.context, propertyRule, yamlValue)
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, multiState.value)
+      states.push(propertyState(xmlName, multiState.state))
+      continue
+    }
     if (
       typeof yamlName === "string" &&
       yamlName !== EXTENDED_CONFIGURATION_OBJECT_YAML &&
-      params.control.has(yamlName)
+      yamlScalarTagAt(params.yaml, yamlName) === "проверять"
     ) {
       states.push(propertyState(xmlName, "Notify"))
       continue
     }
-    const segment = EXTENDED_SNAPSHOT_SEGMENTS[params.rule.itemType]?.[xmlName]
-    if (
-      segment !== undefined &&
-      params.context.exportToXML.configurationIndex?.xml(childSegmentUid(params.logicalAddress, segment))?.extended ===
-        true
-    ) {
+    if (typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "изменять") {
+      if (isEmptyRecord(yamlValue)) {
+        writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
+      }
       states.push(propertyState(xmlName, "Extended"))
+      continue
     }
   }
-
-  const declaredXmlNames = new Set(
-    Object.entries(params.rule.properties).map(
-      ([propertyKey, propertyRule]) => propertyRule.xml ?? capitalize(propertyKey)
-    )
-  )
-  for (const [xmlName, segment] of Object.entries(EXTENDED_SNAPSHOT_SEGMENTS[params.rule.itemType] ?? {})) {
-    if (declaredXmlNames.has(xmlName)) continue
-    if (
-      params.context.exportToXML.configurationIndex?.xml(childSegmentUid(params.logicalAddress, segment))?.extended ===
-      true
-    ) {
-      states.push(propertyState(xmlName, "Extended"))
-    }
+  for (const [propertyKey, mode] of sectionStates) {
+    if (consumedSectionKeys.has(propertyKey)) continue
+    states.push(propertyState(capitalize(propertyKey), mode === "notify" ? "Notify" : "Extended"))
   }
   return states
 }
 
-function readControl(
-  yaml: Readonly<Record<string, unknown>>,
-  rule: MetadataItemRule,
-  logicalAddress: string
-): ReadonlySet<string> {
-  const value = yaml["Контроль"]
-  if (value === undefined) return new Set()
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
-    throw new Error(`Контроль должен быть массивом строк: ${logicalAddress}`)
-  }
-  const known = new Set<string>([EXTENDED_CONFIGURATION_OBJECT_YAML])
-  for (const propertyRule of Object.values(rule.properties)) {
-    if (typeof propertyRule.yaml === "string") known.add(propertyRule.yaml)
-  }
-  for (const item of value) {
-    if (!known.has(item)) {
-      throw new Error(`Неизвестное свойство Контроль "${item}": ${logicalAddress}`)
-    }
-  }
-  return new Set(value)
+function writePropertyValue(
+  outputs: ReadonlyMap<string, Record<string, unknown>>,
+  parents: readonly string[],
+  xmlName: string,
+  value: unknown,
+): void {
+  const output = findMetadataOutput(outputs, parents)
+  if (output === undefined) return
+  recordAt(output, parents)[xmlName] = value
+}
+
+function propertyStateRegistry(): PropertyStateCapabilityRegistry | undefined {
+  return currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()?.propertyStates
 }
 
 function writeServiceProperty(
@@ -314,7 +324,7 @@ function recordAtIfPresent(
   return current
 }
 
-function propertyState(property: string, state: "Notify" | "Extended") {
+function propertyState(property: string, state: "Notify" | "Extended" | "MultiState") {
   return { "xr:Property": property, "xr:State": state }
 }
 
@@ -322,4 +332,8 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
+}
+
+function isEmptyRecord(value: unknown): boolean {
+  return asRecord(value) !== undefined && Object.keys(value as Record<string, unknown>).length === 0
 }

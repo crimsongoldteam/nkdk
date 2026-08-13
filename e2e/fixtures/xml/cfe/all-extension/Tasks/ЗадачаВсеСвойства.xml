@@ -22,12 +22,65 @@
 				<xr:TypeId>0c57d052-4ea8-45cb-98a8-86d75671203c</xr:TypeId>
 				<xr:ValueId>6c51d91c-3cb8-4b9b-91e7-96565c145863</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>ObjectModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>NumberType</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>NumberLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>NumberAllowedLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>DescriptionLength</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>Addressing</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>MainAddressingAttribute</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>CurrentPerformer</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ЗадачаВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>cdd7e9c6-691f-429c-a06f-27f74773fd84</ExtendedConfigurationObject>
+			<NumberType>String</NumberType>
+			<NumberLength>9</NumberLength>
+			<NumberAllowedLength>Variable</NumberAllowedLength>
+			<CheckUnique>true</CheckUnique>
+			<DescriptionLength>25</DescriptionLength>
+			<Addressing/>
+			<MainAddressingAttribute/>
+			<CurrentPerformer/>
+			<DefaultObjectForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Attribute uuid="892d7e62-7ff9-4557-8e65-2c4139763d48">
@@ -35,11 +88,14 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>937b170d-eafe-4f52-b6fa-47e30a5f99ca</ExtendedConfigurationObject>
 					<Type>
 						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
 					</Type>
+					<ToolTip/>
+					<ChoiceForm/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="59a86d4e-1502-41a5-95d0-14bbee8bee3a">
@@ -84,8 +140,10 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>30252dac-7c8a-4928-b677-f23641dae385</ExtendedConfigurationObject>
+					<ToolTip/>
 				</Properties>
 				<ChildObjects>
 					<Attribute uuid="ac53450e-bf36-4ab4-86c2-5dc20c5250db">
@@ -123,15 +181,24 @@
 			<Form>ФормаЗадачи</Form>
 			<Template>Макет</Template>
 			<AddressingAttribute uuid="0350f5e9-d508-4064-a7af-7215789f2dd1">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>AddressingDimension</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитАдресацииВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>d7d973ca-def2-485f-afd4-e16fb8ae54f5</ExtendedConfigurationObject>
 					<Type>
 						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
 					</Type>
+					<ToolTip/>
+					<ChoiceForm/>
+					<AddressingDimension/>
 				</Properties>
 			</AddressingAttribute>
 			<AddressingAttribute uuid="a9537f24-2785-46f7-b8db-64f4b088a900">
@@ -151,13 +218,21 @@
 				</Properties>
 			</AddressingAttribute>
 			<Command uuid="723537dc-9f17-486b-ab3c-843c610fa5c1">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>db5fa673-728d-4c34-bd4a-4d8d1da38043</ExtendedConfigurationObject>
 					<Group>FormCommandBarImportant</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

@@ -90,6 +90,10 @@ export function composeMetadataRules<
         ...result.workerOperations,
         ...layer.workerOperations,
       ],
+      propertyStateCapabilities: [
+        ...result.propertyStateCapabilities,
+        ...layer.propertyStateCapabilities,
+      ],
     }),
     emptyMetadataRules as MetadataRulesDefinition<SynchronizationContribution, ReferenceContribution, DataPathContribution>,
   )

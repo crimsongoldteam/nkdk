@@ -27,8 +27,13 @@ import type {
   RegisteredFormSecondPassValidator,
   RegisteredFormValidator,
 } from "./formValidationRegistry"
+import {
+  emptyPropertyStateCapabilityRegistry,
+  type PropertyStateCapabilityRegistry,
+} from "../ruleRuntime/definition"
 
 export interface ValidationRegistrySet {
+  readonly propertyStates: PropertyStateCapabilityRegistry
   readonly rules: Pick<RuleRegistrySet, "execution" | "property">
   readonly references: ProjectReferenceRegistrySet
   readonly dataPaths: DataPathRegistrySet
@@ -54,9 +59,10 @@ export interface ValidationRegistrySet {
 export function createValidationRegistrySet(
   definition: Pick<
     MetadataRulesDefinition<never, ProjectReferenceContribution, DataPathContribution>,
-    "validation" | "references" | "dataPaths"
+    "validation" | "references" | "dataPaths" | "propertyStateCapabilities"
   >,
   rules: Pick<RuleRegistrySet, "execution" | "property">,
+  propertyStates: PropertyStateCapabilityRegistry = emptyPropertyStateCapabilityRegistry,
 ): ValidationRegistrySet {
   const localYamlValidators = new Map(
     definition.validation.filter((contribution) => contribution.kind === "localYamlValue").map((contribution) => [
@@ -81,6 +87,7 @@ export function createValidationRegistrySet(
   const dataPaths = createDataPathRegistrySet(definition.dataPaths)
   const execution = { dataPaths, execution: rules.execution }
   return {
+    propertyStates,
     rules,
     references: createProjectReferenceRegistrySet(definition.references),
     dataPaths,

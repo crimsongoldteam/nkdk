@@ -64,6 +64,7 @@ import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObj
 import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenDesignTimeRef"
 import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
 import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
+import { configurationExtensionPropertyStateRules } from "../appliedObjects/configurationExtension/propertyStateRules"
 import { dcsParameterExplicitUndefinedRules } from "../commonObjects/dataCompositionSystem/dcsParameter/explicitUndefined"
 import { explicitAdditionalFieldsRules } from "../commonObjects/indexField/explicitAdditionalFields"
 import { explicitEmptyAttributesRules } from "../forms/clientApplicationForm/explicitEmptyAttributes"
@@ -142,6 +143,7 @@ export const legacyCoreRules = composeMetadataRules(
   projectReferenceRules,
   dataPathRules,
   operationRules,
+  configurationExtensionPropertyStateRules,
   eventBaseFormProjectionRules,
   dataPathBaseFormProjectionRules,
   commandNameBaseFormProjectionRules,

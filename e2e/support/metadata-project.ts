@@ -239,6 +239,10 @@ export async function roundTripMetadataProject(params: {
         expectedDir: resolve(fixturesRoot, component.fixturePath),
         actualDir: xmlDir,
         reportDir: resolve(params.reportRoot, component.reportName),
+        compareOptions: {
+          xmlComparison: "semantic",
+          ignoredPaths: ["ConfigDumpInfo.xml"],
+        },
       })
       results.push({
         component,
@@ -259,6 +263,7 @@ export async function compareSuccessfulSync(params: {
   readonly actualDir: string
   readonly reportDir: string
   readonly compare?: typeof compareFileTrees
+  readonly compareOptions?: Pick<Parameters<typeof compareFileTrees>[0], "xmlComparison" | "ignoredPaths">
 }): Promise<
   | { readonly kind: "syncFailed" }
   | { readonly kind: "compared"; readonly comparison: FileTreeComparison }
@@ -268,6 +273,7 @@ export async function compareSuccessfulSync(params: {
     expectedDir: params.expectedDir,
     actualDir: params.actualDir,
     reportDir: params.reportDir,
+    ...params.compareOptions,
   })
   return { kind: "compared", comparison }
 }

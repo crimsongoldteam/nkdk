@@ -271,7 +271,7 @@ export function createTypedProjectStateReader(
   }
 
   function pendingReference(value: Record<string, number>): ProjectStatePendingReference {
-    if (value.flags !== 0 && value.flags !== 1) {
+    if (value.flags < 0 || value.flags > 7) {
       throw new Error(`Неизвестные flags отложенной metadata-ссылки: ${value.flags}`)
     }
     const constraint = decodeMetadataTargetConstraint(string(value.constraintKindId))
@@ -281,8 +281,19 @@ export function createTypedProjectStateReader(
       canonical,
       target: storedTarget(value, canonical),
       constraint,
-      ...(value.flags === 1 ? { tagged: "xml" as const } : {}),
+      ...((value.flags & 1) === 1 ? { tagged: "xml" as const } : {}),
+      ...pendingReferencePropertyStateMode(value.flags),
     }
+  }
+
+  function pendingReferencePropertyStateMode(flags: number): {
+    propertyStateMode?: "control" | "notify" | "extend"
+  } {
+    const encoded = flags & 6
+    if (encoded === 0) return {}
+    if (encoded === 2) return { propertyStateMode: "control" }
+    if (encoded === 4) return { propertyStateMode: "notify" }
+    return { propertyStateMode: "extend" }
   }
 
   function storedTarget(value: Record<string, number>, canonical: string): ParsedMetadataTarget {

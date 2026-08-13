@@ -6,10 +6,15 @@
 				<xr:TypeId>e1a32a00-4290-4b59-818a-d928649f2aa9</xr:TypeId>
 				<xr:ValueId>1260a596-e6b0-45f9-b22c-061666a57fcf</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>Module</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>СервисИнтеграцииВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>caf163ec-7a63-4890-b958-afa7bc3f9c77</ExtendedConfigurationObject>
 		</Properties>
@@ -24,6 +29,7 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>КаналСервисаИнтеграцииВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>25d297b9-3b88-43a8-a579-cf026f9f914f</ExtendedConfigurationObject>
 				</Properties>
@@ -40,6 +46,23 @@
 					<Name>КаналСервисаИнтеграцииПоУмолчанию</Name>
 					<Comment/>
 					<ExtendedConfigurationObject>36517be8-6c2b-4511-9878-a84534490a8d</ExtendedConfigurationObject>
+				</Properties>
+			</IntegrationServiceChannel>
+			<IntegrationServiceChannel uuid="3089a9ee-a89c-4848-934d-9c07718d42ef">
+				<InternalInfo>
+					<xr:GeneratedType name="IntegrationServiceChannelManager.СервисИнтеграцииВсеСвойства.allext_КаналСервисаИнтеграции1" category="Manager">
+						<xr:TypeId>2bd6c6d4-2604-4fd5-8beb-3cee120a03da</xr:TypeId>
+						<xr:ValueId>d35c57f3-4ea0-4880-bd37-3cc539a7b399</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<Name>allext_КаналСервисаИнтеграции1</Name>
+					<Synonym/>
+					<Comment/>
+					<ExternalIntegrationServiceChannelName/>
+					<MessageDirection>Send</MessageDirection>
+					<ReceiveMessageProcessing/>
+					<Transactioned>true</Transactioned>
 				</Properties>
 			</IntegrationServiceChannel>
 		</ChildObjects>

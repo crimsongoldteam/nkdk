@@ -5,8 +5,11 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ГруппаКомандВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>33385155-66cd-455d-b51d-35459aece802</ExtendedConfigurationObject>
+			<ToolTip/>
+			<Picture/>
 			<Category>FormNavigationPanel</Category>
 		</Properties>
 	</CommandGroup>

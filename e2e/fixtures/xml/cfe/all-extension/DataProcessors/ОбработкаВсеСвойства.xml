@@ -10,12 +10,24 @@
 				<xr:TypeId>281f1849-6a45-4c15-9666-983875e9e709</xr:TypeId>
 				<xr:ValueId>a5ed6215-43b2-4268-9b6d-7f5e459f5b12</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>ObjectModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>ManagerModule</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ОбработкаВсеСвойства</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>d09aded1-3722-43c0-aff2-25f1c29159ea</ExtendedConfigurationObject>
+			<DefaultForm/>
+			<ExtendedPresentation/>
+			<Explanation/>
 		</Properties>
 		<ChildObjects>
 			<Attribute uuid="3e0024eb-5f8e-4c71-b2db-7232d8347d6a">
@@ -23,11 +35,14 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>РеквизитВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>f8206ed7-b0fb-4152-8b32-a171ffa061c9</ExtendedConfigurationObject>
 					<Type>
 						<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
 					</Type>
+					<ToolTip/>
+					<ChoiceForm/>
 				</Properties>
 			</Attribute>
 			<Attribute uuid="6ca68765-fe22-497a-8720-49f073cc0257">
@@ -56,8 +71,10 @@
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>64916fe4-9457-41ac-a24e-bf5060f34672</ExtendedConfigurationObject>
+					<ToolTip/>
 				</Properties>
 				<ChildObjects>
 					<Attribute uuid="40d4ed45-7f15-4790-90d9-e3bb65edaf62">
@@ -65,6 +82,7 @@
 						<Properties>
 							<ObjectBelonging>Adopted</ObjectBelonging>
 							<Name>РеквизитТаблицыВсеСвойства</Name>
+							<Synonym/>
 							<Comment/>
 							<ExtendedConfigurationObject>48ada0fe-827e-4864-a1e9-2ef831db0e9d</ExtendedConfigurationObject>
 							<Type>
@@ -74,6 +92,7 @@
 									<v8:AllowedLength>Variable</v8:AllowedLength>
 								</v8:StringQualifiers>
 							</Type>
+							<ToolTip/>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
@@ -100,13 +119,21 @@
 			<Form>Форма</Form>
 			<Template>Макет</Template>
 			<Command uuid="f2a54364-d7b7-459a-9e1c-f2f0d28abf66">
-				<InternalInfo/>
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>CommandModule</xr:Property>
+						<xr:State>Extended</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
 				<Properties>
 					<ObjectBelonging>Adopted</ObjectBelonging>
 					<Name>Команда1</Name>
+					<Synonym/>
 					<Comment/>
 					<ExtendedConfigurationObject>bdc75ded-71fc-440d-8e9a-896e8a51eda8</ExtendedConfigurationObject>
 					<Group>FormNavigationPanelGoTo</Group>
+					<ToolTip/>
+					<Picture/>
 				</Properties>
 			</Command>
 		</ChildObjects>

@@ -43,6 +43,7 @@ import { findMetadataReferences } from "../operations/findMetadataReferences"
 import type { ProjectStateService } from "../projectState/service"
 import { createMetadataWorkerPoolHandle } from "../workerPool/handle"
 import { discoverProjectStateValidationFileBatches } from "../projectState/projectFiles"
+import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 import {
   finalizePartialXmlSyncPackage,
   markPartialSyncApplied,
@@ -56,8 +57,9 @@ export function createMetadataRuntime(
   options: CreateMetadataRuntimeOptions,
 ): MetadataRuntime {
   const rules = createRuleRegistrySet(options.rules)
-  const validation = createValidationRegistrySet(options.rules, rules)
-  const operations = createOperationRegistrySet(options.rules)
+  const propertyStates = createPropertyStateCapabilityRegistry(options.rules.propertyStateCapabilities)
+  const validation = createValidationRegistrySet(options.rules, rules, propertyStates)
+  const operations = createOperationRegistrySet(options.rules, propertyStates)
   const executionRegistries = { rules, validation, operations }
   const withExecutionRegistries = <Result>(execute: () => Result): Result =>
     withRuleRegistrySet(executionRegistries.rules, () =>

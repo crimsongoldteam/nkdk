@@ -91,7 +91,7 @@ describe("dependency validation из ProjectState", () => {
     })
 
     expect(diagnostics).toEqual([expect.objectContaining({
-      filePath: "/project/cfe/X/Справочник/Собственный.yaml",
+      filePath: "cfe/X/Справочник/Собственный.yaml",
       path: "/ОбязательноеПоле",
       source: "structure",
       message: 'Отсутствует обязательное свойство "ОбязательноеПоле"',
@@ -128,7 +128,7 @@ describe("dependency validation из ProjectState", () => {
 
     expect(store.validateDependencies({ requests: [] })).toEqual([
       expect.objectContaining({
-        filePath: "/project/cfe/X/Справочник/Собственный/Свойства.yaml",
+        filePath: "cfe/X/Справочник/Собственный/Свойства.yaml",
         source: "structure",
       }),
     ])
@@ -301,6 +301,37 @@ describe("dependency validation из ProjectState", () => {
     if (!tagged && status === "missing") {
       expect(diagnostics[0]?.message).toBe(`Не найдена ссылка "${reference.canonical}"`)
     }
+  })
+
+  it.each([
+    ["control", 1],
+    ["notify", 1],
+    ["extend", 0],
+  ] as const)("ссылка PropertyState %s на собственный объект расширения", (propertyStateMode, errors) => {
+    const reference = {
+      ...valueReference("Справочник.Собственный.Основной", {
+        roots: ["Catalog"],
+        valueKinds: ["predefinedValue"],
+      }),
+      propertyStateMode,
+    }
+    const diagnostics = validateProjectStateReferenceBatch({
+      projectDir: "/project",
+      checks: [{ requestId: propertyStateMode, componentPath: "cfe/Расширение", reference }],
+      queryPort: {
+        resolveTargets: (requests) => requests.map(({ requestId, componentPath }) => componentPath === "cf"
+          ? { requestId, status: "missing" as const }
+          : {
+              requestId,
+              status: "found" as const,
+              target: { kind: "value" as const, canonical: reference.canonical },
+              source: { projectPath: "cfe/Расширение/Цель.yaml", componentPath },
+            }),
+        readOwners: () => [],
+      },
+    })
+
+    expect(diagnostics).toHaveLength(errors)
   })
 
   it("проверяет одинакового владельца компонента один раз", () => {

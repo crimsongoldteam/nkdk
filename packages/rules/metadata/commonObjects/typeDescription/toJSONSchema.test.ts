@@ -1,7 +1,10 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
-import { exportTypeDescriptionToJSONSchema } from "./toJSONSchema"
+import {
+  buildMultiStateTypeDescriptionJSONSchema,
+  exportTypeDescriptionToJSONSchema,
+} from "./toJSONSchema"
 
 const unrestrictedRule = { type: "TypeDescription" } as const
 
@@ -229,5 +232,21 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     const schema = compileValidationSchema(jsonSchema)
 
     expect(schema.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(false)
+  })
+
+  it("builds MultiState array schema with an empty controlled part", () => {
+    const base = exportTypeDescriptionToJSONSchema({
+      context: mockContext,
+      rule: restrictedRule,
+      value: undefined,
+    })
+    if (base === undefined) throw new Error("Expected TypeDescription JSON schema")
+    const schema = compileValidationSchema(buildMultiStateTypeDescriptionJSONSchema(base))
+
+    expect(schema.Check(["Справочник.Контрагенты", "Дата"])).toBe(true)
+    expect(schema.Check([[], "Справочник.Контрагенты"])).toBe(true)
+    expect(schema.Check([])).toBe(false)
+    expect(schema.Check([["Строка"], "Дата"])).toBe(false)
+    expect(schema.Check("Дата")).toBe(false)
   })
 })

@@ -10,6 +10,7 @@
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>ФормаДокумента</Name>
+			<Synonym/>
 			<Comment/>
 			<ExtendedConfigurationObject>e65a7d08-b367-48a2-8fb5-9682bd4ad7e4</ExtendedConfigurationObject>
 			<FormType>Managed</FormType>
