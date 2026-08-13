@@ -16,7 +16,7 @@ export const configurationResourceCapabilityRules = defineMetadataXmlPrepareCapa
         .filter((entry) => entry.assignmentRole === "properties")
         .map((entry) => {
           const parts = entry.sourceProjectPath.split("/")
-          return { dir: parts[0] ?? "", name: parts[1] ?? entry.itemName }
+          return { dir: parts[0] ?? "", name: entry.itemName }
         }),
     })
     const prepared = prepareConfigurationXML({
