@@ -92,6 +92,31 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml).toEqual({})
   })
 
+  it("не переносит пустое собственное свойство заимствованного объекта", () => {
+    const rule = {
+      itemType: "OwnPropertyOfBorrowedItem",
+      properties: {
+        comment: { type: "string", yaml: "Комментарий", xml: "Comment", xmlParents: ["Properties"] },
+      },
+    } as MetadataItemRule
+    const yaml: Record<string, unknown> = {}
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(rule, {
+          properties: { comment: { availability: "own", modes: [], representation: "plain" } },
+        }),
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule,
+      source: { Properties: { ObjectBelonging: "Adopted", Comment: undefined } },
+      yaml,
+    }))
+
+    expect(yaml).toEqual({})
+  })
+
   it("сохраняет присутствующее пустое tagged-свойство без PropertyState", () => {
     const rule = {
       itemType: "TaggedFormat",
@@ -188,7 +213,7 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml,
     })
 
-    expect(yaml).toEqual({ ОбъектРасширяемойКонфигурации: false })
+    expect(yaml).toEqual({ ОбъектРасширяемойКонфигурации: "Ложь" })
   })
 
   it("не записывает включённый флажок без Notify в YAML", () => {

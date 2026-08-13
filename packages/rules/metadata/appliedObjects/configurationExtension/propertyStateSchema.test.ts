@@ -348,8 +348,9 @@ describe("borrowed property-state schema", () => {
     })
     const validator = compileValidationSchema(schema)
 
-    expect(validator.Check({ ОбъектРасширяемойКонфигурации: false })).toBe(true)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: "Ложь" })).toBe(true)
     expect(validator.Check({ ОбъектРасширяемойКонфигурации: {} })).toBe(true)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: false })).toBe(false)
     expect(validator.Check({ ОбъектРасширяемойКонфигурации: true })).toBe(false)
     expect(validator.Check({ ОбъектРасширяемойКонфигурации: "11111111-1111-4111-8111-111111111111" })).toBe(false)
   })

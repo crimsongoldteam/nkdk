@@ -456,7 +456,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
 
   it.each([
     ["included", {}, { ObjectBelonging: "Adopted", ExtendedConfigurationObject: BASE_UUID }],
-    ["omitted for a false flag", { ОбъектРасширяемойКонфигурации: false }, { ObjectBelonging: "Adopted" }],
+    ["omitted for a false flag", { ОбъектРасширяемойКонфигурации: "Ложь" }, { ObjectBelonging: "Adopted" }],
   ] as const)("writes canonical ExtendedConfigurationObject: %s", (_case, yaml, expected) => {
     const outputs = new Map<string, Record<string, unknown>>([
       ["metadata", { Form: { Properties: {} } }],

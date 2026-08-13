@@ -64,7 +64,7 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       !serviceProperties.hasExtendedConfigurationObject &&
       !Object.prototype.hasOwnProperty.call(yaml, NOTIFY_ALIASES.ExtendedConfigurationObject)
     ) {
-      yaml[NOTIFY_ALIASES.ExtendedConfigurationObject] = false
+      yaml[NOTIFY_ALIASES.ExtendedConfigurationObject] = "Ложь"
     }
   },
 }
@@ -95,7 +95,8 @@ function importPresentProperties(params: {
 }): void {
   if (extensionServiceProperties(params.source, params.rule)?.objectBelonging !== "Adopted") return
   const item = propertyStateRegistry()?.item(params.rule.itemType, params.compatibilityMode)
-  for (const propertyKey of Object.keys(item?.properties ?? {})) {
+  for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
+    if (capability.availability !== "borrowed") continue
     const propertyRule = params.rule.properties[propertyKey]
     if (propertyRule === undefined || typeof propertyRule.yaml !== "string") continue
     const xmlProperty = propertyRule.xml ?? capitalize(propertyKey)

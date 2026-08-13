@@ -14,7 +14,7 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
   augment({ context, rule, yaml, outputs, logicalAddress }) {
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
     const extensionObject = yaml[EXTENDED_CONFIGURATION_OBJECT_YAML]
-    const enabled = extensionObject !== false
+    const enabled = extensionObject !== "Ложь"
     const adopted = rule.itemType === "MetadataConfigurationExtension" ||
       adoptedUuid !== undefined ||
       context.exportToXML.xmlDefaultVariantByLogicalAddress?.[logicalAddress] === "adopted"
