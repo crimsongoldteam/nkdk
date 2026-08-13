@@ -108,6 +108,18 @@ describe("buildMetadataTargetSchema", () => {
     expect(String(schema.description)).toContain("Полный путь члена объекта")
   })
 
+  it("allows a full Russian choice-form path when its owner is derived from type", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "type",
+      typeProperty: "type",
+      memberKinds: ["Form"],
+    })
+
+    expectMatches(schema, "ФормаВыбора")
+    expectMatches(schema, "Справочник.Товары.Форма.ФормаВыбора")
+  })
+
   it("does not accept field paths when roots are empty", () => {
     const schema = buildMetadataTargetSchema({ kind: "member", owner: "explicit", roots: [] })
 

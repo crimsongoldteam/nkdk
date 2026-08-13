@@ -63,7 +63,7 @@ export function exportStringMetadataTargetToYAML(params: {
   try {
     return formatMetadataTargetToYAML({
       canonical: value,
-      constraint: effectiveMetadataTargetConstraint(constraint, params.owner),
+      constraint: metadataTargetConstraintForOwner(constraint, params.owner),
       owner: params.owner,
     })
   } catch (error) {
@@ -88,14 +88,14 @@ export function importStringMetadataTargetFromYAML(params: {
 
   const result = parseMetadataTargetFromYAML({
     value,
-    constraint: effectiveMetadataTargetConstraint(constraint, params.owner),
+    constraint: metadataTargetConstraintForOwner(constraint, params.owner),
     owner: params.owner,
   })
   if (!result.ok) {
     if (isTranslateOnlyConstraint(constraint)) {
       const modelResult = parseMetadataTargetFromModel({
         canonical: value,
-        constraint: effectiveMetadataTargetConstraint(constraint, params.owner),
+        constraint: metadataTargetConstraintForOwner(constraint, params.owner),
         owner: params.owner,
       })
       if (!modelResult.ok) return value
@@ -123,7 +123,7 @@ export function metadataTargetOwnerForProperty(params: {
   return metadataTargetOwnerFromTypeYAML(params.siblingValue(constraint.typeProperty))
 }
 
-function effectiveMetadataTargetConstraint(
+export function metadataTargetConstraintForOwner(
   constraint: MetadataTargetConstraint,
   owner: MetadataTargetOwner | undefined,
 ): MetadataTargetConstraint {

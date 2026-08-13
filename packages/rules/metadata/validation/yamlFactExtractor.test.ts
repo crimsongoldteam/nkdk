@@ -248,6 +248,52 @@ describe("extractValidationYamlFacts", () => {
     ])
   })
 
+  it("разрешает краткую форму выбора по типу соседнего реквизита", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Справочник/Товары/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml([
+        "Реквизиты:",
+        "  Поставщик:",
+        "    Тип: Справочник.Поставщики",
+        "    ФормаВыбора: ФормаВыбора",
+      ].join("\n")),
+      rulesSnapshot,
+    })
+
+    expect(facts.pendingReferences).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        canonical: "Catalog.Поставщики.Form.ФормаВыбора",
+        yamlPath: ["Реквизиты", "Поставщик", "ФормаВыбора"],
+      }),
+    ]))
+    expect(facts.diagnostics).toEqual([])
+  })
+
+  it("не проверяет существование целей с режимом translateOnly", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Справочник/Товары/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml([
+        "Характеристики:",
+        "  - ВидыХарактеристик: Справочник.Товары.ТабличнаяЧасть.Виды",
+        "    ПолеКлюча: Справочник.Товары.ТабличнаяЧасть.Виды.СтандартныйРеквизит.Ссылка",
+      ].join("\n")),
+      rulesSnapshot,
+    })
+
+    expect(facts.pendingReferences).toEqual([])
+    expect(facts.diagnostics).toEqual([])
+  })
+
   it("extracts document register records from YAML movements", () => {
     const projectDir = "/project"
     const filePath = "/project/Документ/Операция/Свойства.yaml"

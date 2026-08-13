@@ -1,5 +1,9 @@
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
-import { rootFromYAML } from "@nkdk/runtime/rule-kit"
+import {
+  metadataTargetConstraintForOwner,
+  metadataTargetOwnerForProperty,
+  rootFromYAML,
+} from "@nkdk/runtime/rule-kit"
 import type { MetadataTargetOwner } from "@nkdk/runtime/rule-kit"
 import type { ElementType } from "../ruleRuntime/formElement/types"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
@@ -578,14 +582,22 @@ function collectPendingReferences(params: {
     }
 
     if (property.metadataTarget !== undefined) {
+      const propertyOwner = metadataTargetOwnerForProperty({
+        rule: { metadataTarget: property.metadataTarget },
+        owner: params.owner,
+        siblingValue: (propertyKey) => {
+          const sibling = params.properties.find((candidate) => candidate.modelKey === propertyKey)
+          return sibling === undefined ? undefined : valueAtPath(record, sibling.yamlPath)
+        },
+      })
       references.push(
         ...collectTargetValues({
           filePath: params.filePath,
           parsed: params.parsed,
-          owner: params.owner,
+          owner: propertyOwner,
           value,
           type: property.type,
-          constraint: property.metadataTarget,
+          constraint: metadataTargetConstraintForOwner(property.metadataTarget, propertyOwner),
           yamlPath,
           diagnostics: params.diagnostics,
           validationDiagnostics: params.validationDiagnostics,
@@ -716,6 +728,9 @@ function collectTargetValues(params: {
   validationDiagnostics: boolean
   runtime?: ValidationRegistrySet
 }): PendingMetadataTargetReference[] {
+  if ((params.constraint.kind === "dataTable" || params.constraint.kind === "dataTableField")
+    && params.constraint.validation === "translateOnly") return []
+
   if (params.type === "Picture") {
     return collectPictureTargetValues(params)
   }
