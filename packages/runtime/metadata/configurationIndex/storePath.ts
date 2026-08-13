@@ -27,3 +27,39 @@ export function configurationIndexStoreDescriptor(
     schemaVersion: CONFIGURATION_INDEX_SCHEMA_VERSION,
   }
 }
+
+export function configurationIndexCandidateStoreDescriptor(params: {
+  readonly projectDir: string
+  readonly address: ComponentAddress
+  readonly operationId: string
+  readonly purpose: "import" | "full" | "partial"
+}): ConfigurationIndexStoreDescriptor {
+  assertSafeOperationId(params.operationId)
+  const dataPath = join(
+    resolve(params.projectDir),
+    ".nkdk",
+    "tmp",
+    "configuration-index",
+    params.purpose,
+    componentPath(params.address),
+    `${params.operationId}.lmdb`,
+  )
+  return {
+    dataPath,
+    lockPath: `${dataPath}-lock`,
+    schemaVersion: CONFIGURATION_INDEX_SCHEMA_VERSION,
+  }
+}
+
+function assertSafeOperationId(operationId: string): void {
+  if (
+    operationId.length === 0
+    || operationId === "."
+    || operationId === ".."
+    || operationId.includes("/")
+    || operationId.includes("\\")
+    || operationId.includes("\0")
+  ) {
+    throw new Error(`Недопустимый operationId: ${operationId}`)
+  }
+}
