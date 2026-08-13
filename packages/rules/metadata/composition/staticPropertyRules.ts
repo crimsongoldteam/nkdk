@@ -374,6 +374,9 @@ import { metadataPropertyRule001 as rule378 } from "../commonObjects/inputByStri
 import { metadataPropertyRule002 as rule379 } from "../commonObjects/inputByStringFields/propertyRules"
 import { metadataPropertyRule003 as rule380 } from "../commonObjects/inputByStringFields/propertyRules"
 import { metadataPropertyRule004 as rule381 } from "../commonObjects/inputByStringFields/propertyRules"
+import { metadataPropertyRule005 as rule382 } from "../commonObjects/inputByStringFields/propertyRules"
+import { metadataPropertyRule006 as rule383 } from "../commonObjects/inputByStringFields/propertyRules"
+import { metadataPropertyRule007 as rule384 } from "../commonObjects/inputByStringFields/propertyRules"
 
 import { propertyTypesFromContributions } from "../ruleRuntime/property/propertyRuleRegistrySet"
 
@@ -754,4 +757,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule379,
   rule380,
   rule381,
+  rule382,
+  rule383,
+  rule384,
 ])

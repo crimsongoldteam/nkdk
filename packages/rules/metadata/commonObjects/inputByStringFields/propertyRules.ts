@@ -5,9 +5,25 @@ import { importMetadataFieldsFromYAML } from "../metadataField/fromYAML"
 import { exportMetadataFieldsToJSONSchema } from "../metadataField/toJSONSchema"
 import { exportMetadataFieldsToXML } from "../metadataField/toXML"
 import { exportMetadataFieldsToYAML } from "../metadataField/toYAML"
+import type { InputByStringFieldsWidePropertyRule } from "./types"
+import {
+  collectStringTargetListForValidation,
+  collectStringTargetReferenceList,
+  validateStringTargetList,
+} from "../metadataTargets/validationHandlers"
 
-const importFromYAML: ImportFromYAMLFunctionNew = (params) =>
-  importMetadataFieldsFromYAML(params.context, params.rule, params.value, params.owner)
+const importFromYAML: ImportFromYAMLFunctionNew = (params) => {
+  const rule = params.rule as InputByStringFieldsWidePropertyRule
+  const value = params.value ?? (typeof rule.implicitValueYAML === "function"
+    ? rule.implicitValueYAML({
+        context: params.context,
+        name: params.name,
+        operation: "importFromYAML",
+        yaml: params.yaml,
+      })
+    : rule.implicitValueYAML)
+  return importMetadataFieldsFromYAML(params.context, rule, value, params.owner)
+}
 
 const exportToYAML: ExportToYAMLFunctionNew = (params) =>
   exportMetadataFieldsToYAML(params.context, params.rule, params.value, params.owner)
@@ -39,4 +55,19 @@ export const metadataPropertyRule004 = definePropertyTypeRule(
   "InputByStringFields",
   "exportToJSONSchema",
   exportToJSONSchema
+)
+export const metadataPropertyRule005 = definePropertyTypeRule(
+  "InputByStringFields",
+  "validateMetadataTarget",
+  validateStringTargetList
+)
+export const metadataPropertyRule006 = definePropertyTypeRule(
+  "InputByStringFields",
+  "collectMetadataTargetReferences",
+  collectStringTargetListForValidation
+)
+export const metadataPropertyRule007 = definePropertyTypeRule(
+  "InputByStringFields",
+  "structuralReferences",
+  collectStringTargetReferenceList
 )

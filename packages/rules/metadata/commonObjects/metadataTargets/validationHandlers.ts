@@ -40,7 +40,7 @@ const collectStringTargetReference: StructuralReferencesFunction = (params) => {
   ]
 }
 
-const validateStringTargetList: ValidateMetadataTargetFunction = (params) => {
+export const validateStringTargetList: ValidateMetadataTargetFunction = (params) => {
   if (!Array.isArray(params.value)) return []
 
   return params.value.flatMap((value, index) =>
@@ -52,7 +52,7 @@ const validateStringTargetList: ValidateMetadataTargetFunction = (params) => {
   )
 }
 
-const collectStringTargetReferenceList: StructuralReferencesFunction = (params) => {
+export const collectStringTargetReferenceList: StructuralReferencesFunction = (params) => {
   if (!Array.isArray(params.value)) return []
 
   return params.value.flatMap((value, index) => {
@@ -106,7 +106,7 @@ const collectStringTargetForValidation: CollectMetadataTargetReferencesFunction 
   return collectCanonicalTarget(params, params.value)
 }
 
-const collectStringTargetListForValidation: CollectMetadataTargetReferencesFunction = (params) => {
+export const collectStringTargetListForValidation: CollectMetadataTargetReferencesFunction = (params) => {
   if (!Array.isArray(params.value)) return { references: [], diagnostics: [] }
 
   const references: PendingMetadataTargetReferenceCandidate[] = []

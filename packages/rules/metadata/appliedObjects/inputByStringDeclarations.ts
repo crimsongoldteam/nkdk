@@ -25,6 +25,9 @@ export function appliedObjectInputByStringRule(params: {
 }) {
   return inputByStringFieldsRule({
     yaml: "ВводПоСтроке",
+    description: `Поля, пригодные для ввода по строке. Стандартное значение: ${params.standardFields
+      .map(({ yaml }) => yaml)
+      .join(", ")}.`,
     metadataTarget: {
       kind: "member",
       owner: "this",
