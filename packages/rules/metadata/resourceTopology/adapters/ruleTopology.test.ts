@@ -14,6 +14,40 @@ const rule = {
 
 const source = { kind: "itemRule", description: "test" } as const
 
+const additionalProjectResources = [
+  {
+    kind: "content",
+    projectPattern: "Дополнение.yaml",
+    role: "fileItem",
+    required: false,
+    repeatable: false,
+    compositionImpact: "none",
+    itemRule: rule,
+    source,
+  },
+  {
+    kind: "yamlCompanion",
+    assignmentProjectPattern: "",
+    projectPattern: "Дополнение.yaml",
+    required: false,
+    itemRule: rule,
+    projectRole: "form",
+    indexContribution: "isolated",
+    logicalAddressSegment: "Дополнение",
+    source,
+  },
+  {
+    kind: "externalFile",
+    assignmentProjectPattern: "",
+    projectPattern: "Дополнение.bin",
+    xmlPattern: "Ext/Дополнение.bin",
+    direction: "both",
+    transferCapabilityId: "copy",
+    compositionImpact: "none",
+    source,
+  },
+] satisfies readonly MetadataResourceDeclaration[]
+
 function projectSpec(
   projectLayout?: "objectDirectory" | "flatFile",
   resources: readonly MetadataResourceDeclaration[] = [],
@@ -45,42 +79,27 @@ describe("project spec resource topology", () => {
     ]))
   })
 
-  it.each([
-    {
-      kind: "content",
-      projectPattern: "Дополнение.yaml",
-      role: "fileItem",
-      required: false,
-      repeatable: false,
-      compositionImpact: "none",
-      itemRule: rule,
-      source,
-    },
-    {
-      kind: "yamlCompanion",
-      assignmentProjectPattern: "",
-      projectPattern: "Дополнение.yaml",
-      required: false,
-      itemRule: rule,
-      projectRole: "form",
-      indexContribution: "isolated",
-      logicalAddressSegment: "Дополнение",
-      source,
-    },
-    {
-      kind: "externalFile",
-      assignmentProjectPattern: "",
-      projectPattern: "Дополнение.bin",
-      xmlPattern: "Ext/Дополнение.bin",
-      direction: "both",
-      transferCapabilityId: "copy",
-      compositionImpact: "none",
-      source,
-    },
-  ] satisfies readonly MetadataResourceDeclaration[])(
+  it.each(additionalProjectResources)(
     "отклоняет дополнительный проектный ресурс $kind",
     (resource) => {
       expect(() => describeProjectSpecResourceTopology(projectSpec("flatFile", [resource]))).toThrow(
+        "Плоское размещение Тест не допускает дополнительные проектные ресурсы",
+      )
+    },
+  )
+
+  it.each(additionalProjectResources)(
+    "отклоняет вложенный проектный ресурс $kind",
+    (resource) => {
+      const childCollection = {
+        kind: "childCollection",
+        projectBasePattern: "Дочерние/{childName}",
+        xmlBasePattern: "Children/{childName}",
+        declarations: [resource],
+        source,
+      } as const satisfies MetadataResourceDeclaration
+
+      expect(() => describeProjectSpecResourceTopology(projectSpec("flatFile", [childCollection]))).toThrow(
         "Плоское размещение Тест не допускает дополнительные проектные ресурсы",
       )
     },

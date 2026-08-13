@@ -129,11 +129,24 @@ function assertFlatFileProjectResources(
 ): void {
   const contentCount = declarations.filter((declaration) => declaration.kind === "content").length
   const hasAdditionalProjectResource = declarations.some(
-    (declaration) => declaration.kind === "yamlCompanion" || declaration.kind === "externalFile",
+    (declaration) =>
+      declaration.kind === "yamlCompanion" ||
+      declaration.kind === "externalFile" ||
+      (declaration.kind === "childCollection" && containsProjectResource(declaration.declarations)),
   )
   if (contentCount !== 1 || hasAdditionalProjectResource) {
     throw new Error(`Плоское размещение ${spec.dir} не допускает дополнительные проектные ресурсы`)
   }
+}
+
+function containsProjectResource(declarations: readonly MetadataResourceDeclaration[]): boolean {
+  return declarations.some(
+    (declaration) =>
+      declaration.kind === "content" ||
+      declaration.kind === "yamlCompanion" ||
+      declaration.kind === "externalFile" ||
+      (declaration.kind === "childCollection" && containsProjectResource(declaration.declarations)),
+  )
 }
 
 function collectSpecAssignment(
