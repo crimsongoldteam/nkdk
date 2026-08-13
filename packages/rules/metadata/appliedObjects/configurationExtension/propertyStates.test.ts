@@ -13,6 +13,7 @@ import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilit
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
 import { clearedReferencePropertyStateCapabilities, clearedReferenceRule } from "./clearedReference.testFixture"
+import { MetadataAccountingRegisterDimensionRules } from "../metadataAccountingRegister/childRules"
 
 describe("configuration extension PropertyState augmenter", () => {
   it.each([
@@ -193,6 +194,42 @@ describe("configuration extension PropertyState augmenter", () => {
 
     expect(yaml.ДлинаНомера).toBe(9)
     expect(yamlScalarTagAt(yaml, "ДлинаНомера")).toBe(tag)
+  })
+
+  it.each([
+    [true, "Истина"],
+    [false, "Ложь"],
+  ] as const)("сохраняет Balance=%s с !проверять", (xmlValue, yamlValue) => {
+    const yaml: Record<string, unknown> = {}
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: MetadataAccountingRegisterDimensionRules,
+      source: {
+        ...propertyStates(["Balance", "Notify"]),
+        Properties: { Balance: xmlValue },
+      },
+      yaml,
+    }))
+
+    expect(yaml.Балансовый).toBe(yamlValue)
+    expect(yamlScalarTagAt(yaml, "Балансовый")).toBe("проверять")
+  })
+
+  it("отклоняет !изменять для Balance", () => {
+    expect(() => withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: MetadataAccountingRegisterDimensionRules,
+      source: {
+        ...propertyStates(["Balance", "Extended"]),
+        Properties: { Balance: true },
+      },
+      yaml: {},
+    }))).toThrow("MetadataRegisterDimension.Balance=Extended")
   })
 
   it.each([

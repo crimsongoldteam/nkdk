@@ -5,6 +5,9 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { exportBorrowedPropertyStateSchema } from "../../ruleRuntime/property/propertyStateSchema"
 import { exportNestedPropertyStateSchema } from "../../ruleRuntime/property/propertyStateSchema"
+import { MetadataAccountingRegisterDimensionRules } from "../metadataAccountingRegister/childRules"
+import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
+import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
 
 const rule = {
   itemType: "MetadataCatalog",
@@ -35,6 +38,26 @@ const capability: ResolvedPropertyStateItemCapability = {
 }
 
 describe("borrowed property-state schema", () => {
+  it("разрешает оба явных значения Balance только в режимах контроля и проверки", () => {
+    const registry = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
+    const item = registry.item(MetadataAccountingRegisterDimensionRules.itemType)!
+    const schema = exportBorrowedPropertyStateSchema({
+      rule: MetadataAccountingRegisterDimensionRules,
+      capability: item,
+      source: Type.Object({
+        Балансовый: Type.Optional(Type.Enum(["Истина", "Ложь"])),
+      }, { additionalProperties: false }),
+    })
+    const validator = compileValidationSchema(schema)
+
+    expect(validator.Check({ Балансовый: "Истина" })).toBe(true)
+    expect(validator.Check({ Балансовый: "Ложь" })).toBe(true)
+    expect(registry.resolve({
+      itemType: MetadataAccountingRegisterDimensionRules.itemType,
+      propertyKey: "balance",
+    })?.modes).toEqual(["control", "notify"])
+  })
+
   it("расширяет корень схемы, упакованный в $defs", () => {
     const source = {
       $defs: {

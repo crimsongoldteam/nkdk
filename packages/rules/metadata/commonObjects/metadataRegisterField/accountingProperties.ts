@@ -14,6 +14,7 @@ export const registerFieldBalanceProperty = booleanProperty({
   xml: "Balance",
   xmlParents: ["Properties"],
   defaultValueXML: true,
+  defaultValueAdoptedXML: true,
   implicitValueYAML: true,
   toXML: (_source: unknown, context?: RegisterFieldExportContext) =>
     isAccountingRegisterField(context),

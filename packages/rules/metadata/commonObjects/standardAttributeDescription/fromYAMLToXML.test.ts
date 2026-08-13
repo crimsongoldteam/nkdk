@@ -471,8 +471,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).not.toContain('name="ExtDimension5"')
     expect(result).not.toContain('name="ExtDimensionType50"')
     expect(Array.from(result.matchAll(/<xr:StandardAttribute name="([^"]+)"/g), ([, name]) => name)).toEqual([
-      "PeriodAdjustment",
       "Account",
+      "RecordType",
       "Active",
       "LineNumber",
       "Recorder",
@@ -480,6 +480,38 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       "ExtDimension1",
       "ExtDimensionType4",
     ])
+  })
+
+  it.each([
+    [0, ["Account", "RecordType", "Active", "LineNumber", "Recorder", "Period"]],
+    [3, ["PeriodAdjustment", "Account", "RecordType", "Active", "LineNumber", "Recorder", "Period"]],
+  ] as const)("строит стандартные реквизиты регистра для длины уточнения %s", (periodAdjustmentLength, expected) => {
+    const source = {
+      raw(propertyKey: string): unknown {
+        if (propertyKey === "periodAdjustmentLength") return periodAdjustmentLength
+        if (propertyKey === "standardAttributes") return {}
+        return undefined
+      },
+    }
+
+    expect(Object.keys(MetadataAccountingRegisterStandardAttributeNamesXML(source))).toEqual(expected)
+  })
+
+  it("сохраняет явно заданные свойства стандартного реквизита регистра", () => {
+    const { result } = testExportPropertyModelThroughYAMLToXML({
+      rule: {
+        type: "StandardAttributeDescriptions",
+        standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+        standartAttributeNamesXML: MetadataAccountingRegisterStandardAttributeNamesXML,
+      },
+      value: undefined,
+      yaml: {
+        Счет: { Комментарий: "Явное значение" },
+      },
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toMatch(/<xr:StandardAttribute name="Account">[\s\S]*<xr:Comment>Явное значение<\/xr:Comment>/)
   })
 
   it("exports explicit high-number accounting ExtDimension attributes without reference", () => {
@@ -559,8 +591,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
 
     const items = standardAttributeItems(exported.xml)
     expect(items.map((item) => item._name)).toEqual([
-      "PeriodAdjustment",
       "Account",
+      "RecordType",
       "Active",
       "LineNumber",
       "Recorder",
