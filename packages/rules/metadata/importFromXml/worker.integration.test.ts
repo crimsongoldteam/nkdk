@@ -490,6 +490,28 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
+  it("даёт одинаковый YAML при прямом и обратном порядке второго прохода", async () => {
+    const forward = await runCatalogAndFormSecondPass(
+      createTempDir("second-pass-owner-first"),
+      "Объект.Товары.LineNumber",
+      undefined,
+      undefined,
+      "LabelField",
+      "owner-first",
+    )
+    const reverse = await runCatalogAndFormSecondPass(
+      createTempDir("second-pass-consumer-first"),
+      "Объект.Товары.LineNumber",
+      undefined,
+      undefined,
+      "LabelField",
+      "consumer-first",
+    )
+
+    expect(readImportedFormYaml(reverse)).toBe(readImportedFormYaml(forward))
+    expect(readImportedFormYaml(reverse)).toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
+  })
+
   it("публикует структуру импортированной формы в окончательном ProjectState", async () => {
     const outputDir = createTempDir("structured-form")
     const { assignments, second } = await runCatalogAndFormSecondPass(
@@ -602,6 +624,42 @@ describe("XML import worker second pass", () => {
     expect(Array.from({ length: view.files.count }, (_, index) => view.files.file(index))).toContainEqual(
       expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath }),
     )
+    expect(workerStateForTests().preparedYamlIds).toEqual([])
+  })
+
+  it("не записывает YAML, если локальная валидация завершилась ошибкой", async () => {
+    const outputDir = createTempDir("validation-before-write")
+    const assignment = catalogAssignment()
+    const validationError = "Ошибка тестовой локальной валидации"
+    const failingSchemaCache = {
+      form: () => validSchema,
+      properties: () => ({
+        Check: () => false,
+        Errors: () => {
+          throw new Error(validationError)
+        },
+      }),
+      compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
+    } satisfies ValidationSchemaCache
+    await initializeWorker(outputDir, failingSchemaCache)
+
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [assignment],
+    }))
+    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignment.id })
+    await runImportWorkerCommand({ kind: "endSecondPass" })
+
+    expect(second).toMatchObject({
+      kind: "secondPassResult",
+      diagnostics: [expect.objectContaining({
+        code: "xml_import_yaml_failed",
+        message: expect.stringContaining(validationError),
+        targetProjectPath: assignment.targetProjectPath,
+      })],
+    })
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 })
@@ -759,6 +817,7 @@ async function runCatalogAndFormSecondPass(
     readonly first: ImportFirstPassResult
   }) => void,
   elementTag = "LabelField",
+  secondPassOrder: "owner-first" | "consumer-first" = "owner-first",
 ) {
   const assignments = createCatalogAndFormAssignments(dataPath, objectTypeName, false, false, elementTag)
   await initializeWorker(outputDir)
@@ -769,7 +828,10 @@ async function runCatalogAndFormSecondPass(
   onFirstPass?.({ assignments, first })
   await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
   const secondResults = []
-  for (const assignmentId of [assignments.catalog.id, assignments.form.id]) {
+  const assignmentIds = secondPassOrder === "owner-first"
+    ? [assignments.catalog.id, assignments.form.id]
+    : [assignments.form.id, assignments.catalog.id]
+  for (const assignmentId of assignmentIds) {
     const result = await runImportWorkerCommand({ kind: "secondPass", assignmentId })
     if (result?.kind === "secondPassResult") secondResults.push(result)
   }
@@ -782,6 +844,14 @@ async function runCatalogAndFormSecondPass(
     stateFragments: secondResults.flatMap(({ stateFragment }) => stateFragment === undefined ? [] : [stateFragment]),
   }
   return { assignments, first, second }
+}
+
+function readImportedFormYaml(result: Awaited<ReturnType<typeof runCatalogAndFormSecondPass>>): string {
+  const formFile = result.second.files.find(
+    ({ targetProjectPath }) => targetProjectPath === result.assignments.form.targetProjectPath,
+  )
+  if (formFile === undefined) throw new Error("Ожидался импортированный YAML формы")
+  return readFileSync(formFile.sourcePath, "utf-8")
 }
 
 function createCatalogAndFormAssignments(

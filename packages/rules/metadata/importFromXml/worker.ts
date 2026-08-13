@@ -68,9 +68,8 @@ import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplic
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
-import { parseMetadataTargetFromModel } from "../ruleRuntime/metadataTarget"
 import { getProjectReferenceValueContributor } from "../validation/projectReferenceIndexRegistry"
-import { resolveProjectValueTargets } from "../validation/projectReferenceValueResolver"
+import { resolveImportedMetadataTargetStatus } from "./metadataTargetLookup"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -473,28 +472,13 @@ async function writePreparedYamlToOutput(
         const reason = result.diagnostics.map(({ message }) => message).join("; ")
         return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
       },
-      metadataTargetLookup: (canonical) => {
-        const requestId = `import-value:${canonical}`
-        const [direct] = readSession.resolveTargets([{
-          requestId,
-          componentPath: state.componentPath,
-          canonicalTarget: canonical,
-        }])
-        if (direct?.status !== "missing") return direct?.status ?? "missing"
-
-        const parsed = parseMetadataTargetFromModel({
-          canonical,
-          constraint: { kind: "value" },
-        })
-        if (!parsed.ok || parsed.target.kind !== "value") return "missing"
-        const [semantic] = resolveProjectValueTargets({
-          requests: [{ requestId, componentPath: state.componentPath, target: parsed.target }],
-          projectDir: state.projectDir,
-          queryPort: readSession,
-          getContributor: getProjectReferenceValueContributor,
-        })
-        return semantic?.status === "invalid" ? "missing" : semantic?.status ?? "missing"
-      },
+      metadataTargetLookup: (canonical) => resolveImportedMetadataTargetStatus({
+        canonical,
+        componentPath: state.componentPath,
+        projectDir: state.projectDir,
+        queryPort: readSession,
+        getContributor: getProjectReferenceValueContributor,
+      }),
       preserveRawXML: false,
     })
   )
@@ -513,8 +497,8 @@ async function writePreparedYamlToOutput(
     })
   )
   const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
-  const main = await writeMainImportYaml({ serialized, profiler })
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
+  const main = await writeMainImportYaml({ serialized, profiler })
   const baseForm = preparedBaseFormCandidate === undefined
     ? undefined
     : await writePreparedBaseFormCandidate({
@@ -602,7 +586,6 @@ async function writePreparedBaseFormCandidate(params: {
     params.state,
     params.profiler,
   )
-  const written = await writeMainImportYaml({ serialized, profiler: params.profiler })
   const validated = measureSerializedImportYamlValidation(
     { targetProjectPath: params.candidate.targetProjectPath },
     serialized,
@@ -610,6 +593,7 @@ async function writePreparedBaseFormCandidate(params: {
     params.profiler,
     "isolated",
   )
+  const written = await writeMainImportYaml({ serialized, profiler: params.profiler })
   return {
     file: written.file,
     indexContribution: validated.index,
