@@ -68,6 +68,9 @@ import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplic
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
+import { parseMetadataTargetFromModel } from "../ruleRuntime/metadataTarget"
+import { getProjectReferenceValueContributor } from "../validation/projectReferenceIndexRegistry"
+import { resolveProjectValueTargets } from "../validation/projectReferenceValueResolver"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -471,12 +474,26 @@ async function writePreparedYamlToOutput(
         return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
       },
       metadataTargetLookup: (canonical) => {
-        const [result] = readSession.resolveTargets([{
-          requestId: canonical,
+        const requestId = `import-value:${canonical}`
+        const [direct] = readSession.resolveTargets([{
+          requestId,
           componentPath: state.componentPath,
           canonicalTarget: canonical,
         }])
-        return result?.status ?? "missing"
+        if (direct?.status !== "missing") return direct?.status ?? "missing"
+
+        const parsed = parseMetadataTargetFromModel({
+          canonical,
+          constraint: { kind: "value" },
+        })
+        if (!parsed.ok || parsed.target.kind !== "value") return "missing"
+        const [semantic] = resolveProjectValueTargets({
+          requests: [{ requestId, componentPath: state.componentPath, target: parsed.target }],
+          projectDir: state.projectDir,
+          queryPort: readSession,
+          getContributor: getProjectReferenceValueContributor,
+        })
+        return semantic?.status === "invalid" ? "missing" : semantic?.status ?? "missing"
       },
       preserveRawXML: false,
     })

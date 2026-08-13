@@ -40,18 +40,32 @@ export function createImportProjectStateTestService(
 }
 
 export function createXmlImportWorkerTestPool(concurrency = 1): XmlImportWorkerPoolHandle {
-  const worker = createImportWorkerCommandRunner()
-  const threadPools = createMockWorkerThreadPoolFactory<ImportWorkerCommand, ImportWorkerCommandResult>(async (command) => {
-    if (command.kind !== "initialize") return worker.run(command)
-    worker.setSchemaCacheForTests(fastSchemaCache)
-    try {
-      return await worker.run(command)
-    } finally {
-      worker.setSchemaCacheForTests(undefined)
-    }
-  })
-  return createXmlImportWorkerPoolHandle({
-    concurrency,
-    createWorkerPool: threadPools.factory,
-  })
+  return createInspectableXmlImportWorkerTestPool(concurrency).handle
+}
+
+export function createInspectableXmlImportWorkerTestPool(concurrency = 1): {
+  readonly handle: XmlImportWorkerPoolHandle
+  commands(workerIndex: number): readonly ImportWorkerCommand[]
+} {
+  const workers = new Map<number, ReturnType<typeof createImportWorkerCommandRunner>>()
+  const threadPools = createMockWorkerThreadPoolFactory<ImportWorkerCommand, ImportWorkerCommandResult>(
+    async (command, workerIndex) => {
+      const worker = workers.get(workerIndex) ?? createImportWorkerCommandRunner()
+      workers.set(workerIndex, worker)
+      if (command.kind !== "initialize") return worker.run(command)
+      worker.setSchemaCacheForTests(fastSchemaCache)
+      try {
+        return await worker.run(command)
+      } finally {
+        worker.setSchemaCacheForTests(undefined)
+      }
+    },
+  )
+  return {
+    handle: createXmlImportWorkerPoolHandle({
+      concurrency,
+      createWorkerPool: threadPools.factory,
+    }),
+    commands: threadPools.commands,
+  }
 }
