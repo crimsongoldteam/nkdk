@@ -19,6 +19,7 @@ export function projectLocalDependenciesFromFacts(
     })
     if (!parsed.ok) return []
     const target = parsed.target
+    if (target.kind !== "object" && target.kind !== "member" && target.kind !== "value") return []
     const canonical =
       target.kind === "object"
         ? projectObjectIndexKey(target)

@@ -168,6 +168,7 @@ export const MetadataInformationRegisterRules = {
       xmlParents: properties,
     }),
     informationRegisterPeriodicity: systemEnumerationRule({
+      ownerFactRole: "periodicity",
       yaml: "Периодичность",
       typeSE: "InformationRegisterPeriodicity",
       defaultValueXML: "Nonperiodical",

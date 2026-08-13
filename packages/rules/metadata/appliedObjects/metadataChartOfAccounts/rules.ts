@@ -175,6 +175,7 @@ export const MetadataChartOfAccountsRules = {
       ownerFactRole: "extDimensionTypes",
     }),
     maxExtDimensionCount: numberRule({
+      ownerFactRole: "maxExtDimensionCount",
       yaml: "МаксКоличествоСубконто",
       defaultValueXML: 0,
       implicitValueYAML: 0,

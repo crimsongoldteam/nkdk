@@ -53,6 +53,7 @@ import {
   exportBorrowedPropertyStateSchema,
   exportNestedPropertyStateSchema,
 } from "../ruleRuntime/property/propertyStateSchema"
+import type { DataTableIndex } from "./dataTables"
 
 type CompiledSchema = ValidationSchemaValidator
 type ValidationSchemaVariant = "full" | "extension-root" | "extension-overlay" | "extension-form-overlay"
@@ -85,6 +86,7 @@ export type ProjectValidationFileState =
   | {
       kind: "form"
       file: ValidationProjectFile
+      pendingReferences: PendingMetadataTargetReference[]
       pendingChecks: ValidationPendingCheck[]
       firstPassDiagnostics: Diagnostic[]
     }
@@ -153,6 +155,7 @@ export interface ProjectValidationSecondPassParams {
   context: ConfigurationContext
   ownerCache: OwnerMetadataCache
   referenceIndex: ProjectReferenceIndex
+  dataTableIndex?: DataTableIndex
   skipMetadataTargetValidation?: boolean
 }
 
@@ -695,21 +698,43 @@ export function validateProjectFileSecondPass(
   if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
 
   if (params.state.kind === "form") {
+    const referenceDiagnostics = params.skipMetadataTargetValidation
+      ? []
+      : validateSecondPassReferences(params, params.state.pendingReferences)
     return {
       status: "ok",
-      ...validatePendingChecks({ ownerCache: params.ownerCache, checks: params.state.pendingChecks }),
+      diagnostics: [
+        ...referenceDiagnostics,
+        ...validatePendingChecks({ ownerCache: params.ownerCache, checks: params.state.pendingChecks }).diagnostics,
+      ],
     }
   }
 
   const collected = params.skipMetadataTargetValidation
     ? { references: [], diagnostics: [] }
     : { references: params.state.pendingReferences, diagnostics: [] }
-  const resolved = validatePendingReferencesWithIndex({
-    index: params.referenceIndex,
-    references: collected.references,
-  })
-  const diagnostics = [...collected.diagnostics, ...resolved.diagnostics]
+  const diagnostics = [
+    ...collected.diagnostics,
+    ...validateSecondPassReferences(params, collected.references),
+  ]
   return { status: "ok", diagnostics }
+}
+
+function validateSecondPassReferences(
+  params: ProjectValidationSecondPassParams,
+  references: readonly PendingMetadataTargetReference[],
+): Diagnostic[] {
+  const dataTables = references.filter(({ target }) => target.kind === "dataTable" || target.kind === "dataTableField")
+  const ordinary = references.filter(({ target }) => target.kind !== "dataTable" && target.kind !== "dataTableField")
+  const diagnostics = validatePendingReferencesWithIndex({
+    index: params.referenceIndex,
+    references: ordinary,
+  }).diagnostics
+  for (const reference of dataTables) {
+    const resolved = params.dataTableIndex?.resolve(reference) ?? params.referenceIndex.resolve(reference)
+    if (!resolved.ok) diagnostics.push(...resolved.diagnostics)
+  }
+  return diagnostics
 }
 
 interface ProjectValidationFirstPassInternalParams {
@@ -777,6 +802,7 @@ function validateProjectFormFirstPass(
     state: {
       kind: "form",
       file: params.file,
+      pendingReferences: facts.pendingReferences,
       pendingChecks: facts.pendingChecks,
       firstPassDiagnostics: diagnostics,
     },

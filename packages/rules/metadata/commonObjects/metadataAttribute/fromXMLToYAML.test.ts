@@ -30,6 +30,7 @@ describe("MetadataAttributes XML → YAML", () => {
     const yaml = convert("full.xml", catalogOwner).yaml
     expect(yaml).toHaveProperty("Значение.РеквизитПолный.Тип", "Справочник.СправочникПолный")
     expect(yaml).toHaveProperty("Значение.РеквизитПолный.Комментарий", "Комментарий")
+    expect(yaml).toHaveProperty("Значение.РеквизитПолный.ФормаВыбора", "ФормаВыбора")
     expect(yaml).toHaveProperty(
       "Значение.РеквизитПолный.ПолеИспользованияХраненияВХранилищеДвоичныхДанных",
       "РеквизитБулево"
@@ -89,6 +90,7 @@ describe("MetadataAttributes XML → YAML", () => {
       Значение: { ТестовыйРеквизит: { Тип: "Строка", Синоним: { en: "Test attribute" } } },
     })
   })
+
 })
 
 const catalogOwner: readonly MetadataTargetOwnerContext[] = [

@@ -50,6 +50,22 @@ const formAttributeTitleRule = i8nTextRule({
   excludeIfEqualNameYAML: true,
 })
 
+const formAttributeViewRule = userVisibleRule({
+  yaml: "Просмотр",
+  metadataTarget: { kind: "object", roots: ["Role"] },
+})
+
+const formAttributeEditRule = userVisibleRule({
+  yaml: "Редактирование",
+  metadataTarget: { kind: "object", roots: ["Role"] },
+})
+
+const formAttributeFillCheckRule = systemEnumerationRule({
+  yaml: "ПроверкаЗаполнения",
+  typeSE: "FillChecking",
+  implicitValueYAML: "DontCheck",
+})
+
 export const FormAttributeRules = {
   itemType: "FormAttribute",
   xmlOrder: [
@@ -107,17 +123,9 @@ export const FormAttributeRules = {
       xml: "SavedData",
       implicitValueYAML: false,
     }),
-    view: userVisibleRule({
-      yaml: "Просмотр",
-    }),
-    edit: userVisibleRule({
-      yaml: "Редактирование",
-    }),
-    fillCheck: systemEnumerationRule({
-      yaml: "ПроверкаЗаполнения",
-      typeSE: "FillChecking",
-      implicitValueYAML: "DontCheck",
-    }),
+    view: formAttributeViewRule,
+    edit: formAttributeEditRule,
+    fillCheck: formAttributeFillCheckRule,
     columns: formAttributeColumnsRule({
       yaml: "Колонки",
       xml: "Column",
@@ -135,6 +143,7 @@ export const FormAttributeRules = {
     }),
     functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
+      metadataTarget: { kind: "object", roots: ["FunctionalOption"] },
     }),
     fieldsList: fieldsListRule({
       yaml: "ИспользоватьВсегда",
@@ -197,19 +206,12 @@ export const FormAttributeColumnRules = {
       xml: "Type",
       defaultValueXMLRaw: {},
     }),
-    view: userVisibleRule({
-      yaml: "Просмотр",
-    }),
-    edit: userVisibleRule({
-      yaml: "Редактирование",
-    }),
-    fillCheck: systemEnumerationRule({
-      yaml: "ПроверкаЗаполнения",
-      typeSE: "FillChecking",
-      implicitValueYAML: "DontCheck",
-    }),
+    view: formAttributeViewRule,
+    edit: formAttributeEditRule,
+    fillCheck: formAttributeFillCheckRule,
     functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
+      metadataTarget: { kind: "object", roots: ["FunctionalOption"] },
     }),
   },
 } as const satisfies MetadataItemRule

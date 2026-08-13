@@ -62,6 +62,15 @@ describe("CharacteristicsDescriptions XML → YAML", () => {
     expect(JSON.stringify(fragment?.entities)).not.toContain("typesFilterValue")
   })
 
+  it("preserves a negative service field value", () => {
+    const yaml = testPropertyFromXMLToYAML({
+      rule,
+      xml: characteristicXML({ dataPathField: "-8" }),
+    }).yaml
+
+    expect(yaml).toMatchObject({ Характеристики: [{ ПолеПутиКДанным: "-8" }] })
+  })
+
   it.each([
     [
       "отсутствуют все четыре XML-default",

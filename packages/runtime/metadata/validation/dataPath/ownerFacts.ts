@@ -25,6 +25,17 @@ type ValidationOwnerFactsModel = MetadataItem & {
   tabularSections?: unknown
   standardAttributes?: unknown
   registerType?: unknown
+  periodicity?: unknown
+  correspondence?: unknown
+  maxExtDimensionCount?: unknown
+  actionPeriod?: unknown
+  basePeriod?: unknown
+  chartOfCalculationTypes?: unknown
+  schedule?: unknown
+  scheduleValue?: unknown
+  scheduleDate?: unknown
+  dependenceOnCalculationTypes?: unknown
+  baseCalculationTypes?: unknown
   commands?: unknown
   predefined?: unknown
   enumValues?: unknown
@@ -48,6 +59,17 @@ export function createValidationOwnerFacts(params: {
   const accountingFlags = namedTypeItems(metadataRecord(params.model)["accountingFlags"])
   const extDimensionAccountingFlags = namedTypeItems(metadataRecord(params.model)["extDimensionAccountingFlags"])
   const registerType = metadataRecord(params.model)["registerType"]
+  const periodicity = metadataRecord(params.model)["periodicity"]
+  const correspondence = metadataRecord(params.model)["correspondence"]
+  const maxExtDimensionCount = metadataRecord(params.model)["maxExtDimensionCount"]
+  const actionPeriod = metadataRecord(params.model)["actionPeriod"]
+  const basePeriod = metadataRecord(params.model)["basePeriod"]
+  const chartOfCalculationTypes = metadataRecord(params.model)["chartOfCalculationTypes"]
+  const schedule = metadataRecord(params.model)["schedule"]
+  const scheduleValue = metadataRecord(params.model)["scheduleValue"]
+  const scheduleDate = metadataRecord(params.model)["scheduleDate"]
+  const dependenceOnCalculationTypes = metadataRecord(params.model)["dependenceOnCalculationTypes"]
+  const baseCalculationTypes = stringArray(metadataRecord(params.model)["baseCalculationTypes"])
   const attributes = namedTypeItems(metadataRecord(params.model)["attributes"])
   const dimensions = namedTypeItems(metadataRecord(params.model)["dimensions"])
   const resources = namedTypeItems(metadataRecord(params.model)["resources"])
@@ -72,6 +94,17 @@ export function createValidationOwnerFacts(params: {
     ...(accountingFlags.length === 0 ? {} : { accountingFlags }),
     ...(extDimensionAccountingFlags.length === 0 ? {} : { extDimensionAccountingFlags }),
     ...(typeof registerType === "string" ? { registerType } : {}),
+    ...(typeof periodicity === "string" ? { periodicity } : {}),
+    ...(typeof correspondence === "boolean" ? { correspondence: String(correspondence) } : {}),
+    ...(typeof maxExtDimensionCount === "number" ? { maxExtDimensionCount: String(maxExtDimensionCount) } : {}),
+    ...(typeof actionPeriod === "boolean" ? { actionPeriod: String(actionPeriod) } : {}),
+    ...(typeof basePeriod === "boolean" ? { basePeriod: String(basePeriod) } : {}),
+    ...(typeof chartOfCalculationTypes === "string" ? { chartOfCalculationTypes } : {}),
+    ...(typeof schedule === "string" ? { schedule } : {}),
+    ...(typeof scheduleValue === "string" ? { scheduleValue } : {}),
+    ...(typeof scheduleDate === "string" ? { scheduleDate } : {}),
+    ...(typeof dependenceOnCalculationTypes === "string" ? { dependenceOnCalculationTypes } : {}),
+    ...(baseCalculationTypes.length === 0 ? {} : { baseCalculationTypes }),
     ...(attributes.length === 0 ? {} : { attributes }),
     ...(dimensions.length === 0 ? {} : { dimensions }),
     ...(resources.length === 0 ? {} : { resources }),
@@ -104,6 +137,14 @@ function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
     return typeof value === "string" ? metadataLinkFromYaml(value) : undefined
   if (role === "commonAttributeOwnerLinks") return commonAttributeOwnerLinksFromYaml(value)
   if (role === "registerType") return typeof value === "string" ? value : undefined
+  if (role === "baseCalculationTypes") return metadataLinksFromYaml(value)
+  if (role === "chartOfCalculationTypes" || role === "schedule" || role === "scheduleValue" || role === "scheduleDate")
+    return typeof value === "string" ? metadataLinkFromYaml(value) : undefined
+  if (role === "periodicity" || role === "dependenceOnCalculationTypes")
+    return typeof value === "string" ? value : undefined
+  if (role === "correspondence" || role === "actionPeriod" || role === "basePeriod")
+    return typeof value === "boolean" ? String(value) : undefined
+  if (role === "maxExtDimensionCount") return typeof value === "number" ? String(value) : undefined
   if (role === "commands") return namedTypedItemsFromYaml(value)
   if (role === "predefined" || role === "enumValues") return namedValueItemsFromYaml(value)
   return undefined

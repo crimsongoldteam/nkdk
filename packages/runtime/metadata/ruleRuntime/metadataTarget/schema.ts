@@ -1,5 +1,11 @@
 import { Type, type TSchema } from "typebox"
-import { memberKindToYAML, METADATA_NAME_PATTERN, objectPathKindToYAML, rootToYAML } from "./roots"
+import {
+  memberKindToYAML,
+  METADATA_NAME_PATTERN,
+  objectPathKindToYAML,
+  rootToYAML,
+  virtualDataTableToYAML,
+} from "./roots"
 import type {
   MetadataMemberKind,
   MetadataObjectPathKind,
@@ -112,9 +118,45 @@ export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint):
   if (constraint.kind === "value") return valueSchema(constraint)
   if (constraint.kind === "type") return typeSchema(constraint)
   if (constraint.kind === "dataPath") return dataPathSchema(constraint)
+  if (constraint.kind === "dataTable") return dataTableSchema(constraint)
+  if (constraint.kind === "dataTableField") return dataTableFieldSchema()
 
   return Type.String({
     description: "Строковое metadata-значение. Подробная проверка выполняется командой validate.",
+  })
+}
+
+function dataTableSchema(constraint: Extract<MetadataTargetConstraint, { kind: "dataTable" }>): TSchema {
+  const selectedRoots = selectRoots(constraint.roots)
+  const rootGroup = yamlRootGroup(selectedRoots)
+  const nestedKindGroup = yamlObjectPathKindGroup(allObjectPathKinds)
+  const virtualTableGroup = [
+    ...Object.values(virtualDataTableToYAML),
+    `База${METADATA_NAME_PATTERN}`,
+  ].join("|")
+  const nestedObjects = `(?:\\.(?:${nestedKindGroup})\\.${METADATA_NAME_PATTERN})*`
+  const tabularSections = `(?:\\.${memberKindToYAML.TabularSection}\\.${METADATA_NAME_PATTERN})*`
+  const virtualTable = `(?:\\.(?:${virtualTableGroup}))?`
+
+  return Type.String({
+    pattern: selectedRoots.length === 0
+      ? noMatchPattern
+      : `^(?:${rootGroup})\\.${METADATA_NAME_PATTERN}${nestedObjects}${tabularSections}${virtualTable}$`,
+    examples: ["РегистрСведений.ИмяРегистра.СрезПоследних"],
+    description: "Таблица объекта метаданных или её виртуальная таблица. Имена объектов проверяются командой validate.",
+  })
+}
+
+function dataTableFieldSchema(): TSchema {
+  const rootGroup = yamlRootGroup(undefined)
+  const memberGroup = yamlMemberKindGroup(allMemberKinds)
+  const nestedObjectGroup = yamlObjectPathKindGroup(allObjectPathKinds)
+  const qualified = `(?:${rootGroup})\\.${METADATA_NAME_PATTERN}(?:\\.(?:${nestedObjectGroup})\\.${METADATA_NAME_PATTERN})*(?:\\.(?:${memberGroup})\\.${METADATA_NAME_PATTERN})+`
+
+  return Type.String({
+    pattern: `^(?:-\\d+|${METADATA_NAME_PATTERN}|${qualified})$`,
+    examples: ["Дата", "Справочник.Товары.СтандартныйРеквизит.Ссылка"],
+    description: "Поле выбранной таблицы метаданных. Допустимость поля для таблицы проверяется командой validate.",
   })
 }
 
@@ -179,10 +221,16 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
       ? undefined
       : `(?:${modelRootGroup(selectedRoots)})\\.${METADATA_NAME_PATTERN}\\.${modelMemberPath}`
 
-  if (constraint.owner === "this" && memberKinds.length === 1) {
+  const fullYamlTypeOwner =
+    constraint.owner !== "type" || selectedRoots.length === 0 || !yamlMemberPath
+      ? undefined
+      : "(?:" + yamlRootGroup(selectedRoots) + ")\\." + METADATA_NAME_PATTERN + "\\." + yamlMemberPath
+
+  if (constraint.owner !== "explicit" && memberKinds.length === 1) {
     const kind = memberKinds[0]
     const branches = [METADATA_NAME_PATTERN]
     branches.push(nestedLocalMemberPathPattern(kind, "yaml"))
+    if (fullYamlTypeOwner) branches.push(fullYamlTypeOwner)
     if (fullModelCompatibility) branches.push(fullModelCompatibility)
     branches.push(...exactMemberBranches, ...exactModelMemberBranches, ...objectBranches, ...modelObjectBranches)
 
@@ -193,9 +241,10 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
     })
   }
 
-  if (constraint.owner === "this") {
+  if (constraint.owner !== "explicit") {
     const branches = []
     if (yamlMemberPath) branches.push(yamlMemberPath)
+    if (fullYamlTypeOwner) branches.push(fullYamlTypeOwner)
     if (fullModelCompatibility) branches.push(fullModelCompatibility)
     branches.push(...exactMemberBranches, ...exactModelMemberBranches, ...objectBranches, ...modelObjectBranches)
 
@@ -431,6 +480,10 @@ function yamlRootGroup(roots: readonly MetadataRootName[] | undefined): string {
 
 function yamlObjectPathKindGroup(kinds: readonly MetadataObjectPathKind[]): string {
   return kinds.map((kind) => objectPathKindToYAML[kind]).join("|")
+}
+
+function yamlMemberKindGroup(kinds: readonly MetadataMemberKind[]): string {
+  return kinds.map((kind) => memberKindToYAML[kind]).join("|")
 }
 
 function modelRootGroup(roots: readonly MetadataRootName[]): string {

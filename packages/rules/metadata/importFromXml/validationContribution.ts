@@ -12,8 +12,8 @@ import {
 import { getProjectReferenceMemberIndexContributors } from "../validation/projectReferenceIndexRegistry"
 import {
   projectMemberIndexKey,
+  projectMetadataTargetIndexKey,
   projectObjectIndexKey,
-  projectValueIndexKey,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
@@ -159,11 +159,7 @@ function extractMetadataTargetReferences(prepared: PreparedImportYaml): Array<{
   })
 }
 
-function targetKey(target: ParsedMetadataTarget): string {
-  if (target.kind === "object") return projectObjectIndexKey(target)
-  if (target.kind === "member") return projectMemberIndexKey(target)
-  return projectValueIndexKey(target)
-}
+const targetKey = projectMetadataTargetIndexKey
 
 function objectIndexEntriesForFile(file: ValidationProjectFile, yaml: unknown): ProjectObjectIndexEntry[] {
   const target = objectTargetForFile(file)

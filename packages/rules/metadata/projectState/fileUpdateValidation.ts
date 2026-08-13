@@ -260,6 +260,26 @@ function elementTypes(): readonly string[] {
 
 function assertParsedMetadataTarget(value: unknown, path: string): void {
   const target = requiredRecord(value, path)
+  if (target["kind"] === "dataTable") {
+    assertExactKeys(target, ["kind", "root", "objectName", "objectSegments", "tableSegments", "virtualTable"], path)
+    assertRootedTarget(target, path)
+    if (target["tableSegments"] !== undefined) {
+      assertRows(target["tableSegments"], `${path}.tableSegments`, ["kind", "name"], (segment, segmentPath) => {
+        assertStringIn(segment["kind"], ["TabularSection"], `${segmentPath}.kind`)
+        assertString(segment["name"], `${segmentPath}.name`)
+      })
+    }
+    if (target["virtualTable"] !== undefined) assertString(target["virtualTable"], `${path}.virtualTable`)
+    return
+  }
+  if (target["kind"] === "dataTableField") {
+    assertExactKeys(target, ["kind", "fieldName", "table", "segments", "serviceValue"], path)
+    assertString(target["fieldName"], `${path}.fieldName`)
+    if (target["table"] !== undefined) assertParsedMetadataTarget(target["table"], `${path}.table`)
+    if (target["segments"] !== undefined) assertMemberSegments(target["segments"], `${path}.segments`)
+    assertOptionalBoolean(target["serviceValue"], `${path}.serviceValue`)
+    return
+  }
   if (target["kind"] === "object") {
     assertExactKeys(target, ["kind", "root", "objectName", "segments"], path)
     assertStringIn(target["root"], METADATA_ROOT_NAMES, `${path}.root`)
@@ -269,15 +289,8 @@ function assertParsedMetadataTarget(value: unknown, path: string): void {
   }
   if (target["kind"] === "member") {
     assertExactKeys(target, ["kind", "root", "objectName", "objectSegments", "segments"], path)
-    assertStringIn(target["root"], METADATA_ROOT_NAMES, `${path}.root`)
-    assertString(target["objectName"], `${path}.objectName`)
-    if (target["objectSegments"] !== undefined) {
-      assertObjectSegments(target["objectSegments"], `${path}.objectSegments`)
-    }
-    assertRows(target["segments"], `${path}.segments`, ["kind", "name"], (segment, segmentPath) => {
-      assertStringIn(segment["kind"], METADATA_MEMBER_KINDS, `${segmentPath}.kind`)
-      assertString(segment["name"], `${segmentPath}.name`)
-    })
+    assertRootedTarget(target, path)
+    assertMemberSegments(target["segments"], `${path}.segments`)
     return
   }
   if (target["kind"] !== "value") throw new Error(`${path}.kind имеет неизвестное значение`)
@@ -290,6 +303,21 @@ function assertParsedMetadataTarget(value: unknown, path: string): void {
   }
   assertStringIn(target["root"], METADATA_ROOT_NAMES, `${path}.root`)
   assertString(target["objectName"], `${path}.objectName`)
+}
+
+function assertRootedTarget(target: Record<string, unknown>, path: string): void {
+  assertStringIn(target["root"], METADATA_ROOT_NAMES, `${path}.root`)
+  assertString(target["objectName"], `${path}.objectName`)
+  if (target["objectSegments"] !== undefined) {
+    assertObjectSegments(target["objectSegments"], `${path}.objectSegments`)
+  }
+}
+
+function assertMemberSegments(value: unknown, path: string): void {
+  assertRows(value, path, ["kind", "name"], (segment, segmentPath) => {
+    assertStringIn(segment["kind"], METADATA_MEMBER_KINDS, `${segmentPath}.kind`)
+    assertString(segment["name"], `${segmentPath}.name`)
+  })
 }
 
 function assertObjectSegments(value: unknown, path: string): void {
@@ -305,6 +333,19 @@ function assertObjectSegments(value: unknown, path: string): void {
 
 function assertMetadataTargetConstraint(value: unknown, path: string): void {
   const constraint = requiredRecord(value, path)
+  if (constraint["kind"] === "dataTable") {
+    assertExactKeys(constraint, ["kind", "roots", "owner", "validation"], path)
+    assertOptionalRootArray(constraint["roots"], `${path}.roots`)
+    assertOptionalStringIn(constraint["owner"], ["this"], `${path}.owner`)
+    assertOptionalStringIn(constraint["validation"], ["resolve", "translateOnly"], `${path}.validation`)
+    return
+  }
+  if (constraint["kind"] === "dataTableField") {
+    assertExactKeys(constraint, ["kind", "tableProperty", "validation"], path)
+    assertString(constraint["tableProperty"], `${path}.tableProperty`)
+    assertOptionalStringIn(constraint["validation"], ["resolve", "translateOnly"], `${path}.validation`)
+    return
+  }
   if (constraint["kind"] === "object") {
     assertExactKeys(constraint, [
       "kind",
@@ -335,8 +376,10 @@ function assertMetadataTargetConstraint(value: unknown, path: string): void {
       "memberKinds",
       "filters",
       "allowOwner",
+      "typeProperty",
     ], path)
-    assertStringIn(constraint["owner"], ["this", "explicit"], `${path}.owner`)
+    assertStringIn(constraint["owner"], ["this", "explicit", "type"], `${path}.owner`)
+    assertOptionalString(constraint["typeProperty"], `${path}.typeProperty`)
     assertOptionalRootArray(constraint["roots"], `${path}.roots`)
     assertOptionalRootArray(constraint["objectRoots"], `${path}.objectRoots`)
     assertOptionalRootArray(constraint["nestedObjectRoots"], `${path}.nestedObjectRoots`)
@@ -436,6 +479,17 @@ function assertOwnerFacts(value: unknown, path: string): void {
     "accountingFlags",
     "extDimensionAccountingFlags",
     "registerType",
+    "periodicity",
+    "correspondence",
+    "maxExtDimensionCount",
+    "actionPeriod",
+    "basePeriod",
+    "chartOfCalculationTypes",
+    "schedule",
+    "scheduleValue",
+    "scheduleDate",
+    "dependenceOnCalculationTypes",
+    "baseCalculationTypes",
     "attributes",
     "dimensions",
     "resources",
@@ -447,10 +501,14 @@ function assertOwnerFacts(value: unknown, path: string): void {
     "enumValues",
   ], path)
   if (facts["type"] !== undefined) assertTypeDescription(facts["type"], `${path}.type`)
-  for (const key of ["commonAttributeOwnerLinks", "owners", "registerRecords"] as const) {
+  for (const key of ["commonAttributeOwnerLinks", "owners", "registerRecords", "baseCalculationTypes"] as const) {
     assertOptionalStringArray(facts[key], `${path}.${key}`)
   }
-  for (const key of ["task", "chartOfAccounts", "extDimensionTypes", "registerType"] as const) {
+  for (const key of [
+    "task", "chartOfAccounts", "extDimensionTypes", "registerType", "periodicity", "correspondence",
+    "maxExtDimensionCount", "actionPeriod", "basePeriod", "chartOfCalculationTypes", "schedule",
+    "scheduleValue", "scheduleDate", "dependenceOnCalculationTypes",
+  ] as const) {
     assertOptionalString(facts[key], `${path}.${key}`)
   }
   for (const key of [

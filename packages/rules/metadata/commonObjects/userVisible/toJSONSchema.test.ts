@@ -6,11 +6,11 @@ describe("UserVisibleJSONSchema", () => {
   const compiled = compileValidationSchema(UserVisibleJSONSchema)
 
   it("accepts allow mode without explicit Разрешить", () => {
-    expect(compiled.Check({ Роли: { "Role.Администратор": "Ложь" } })).toBe(true)
+    expect(compiled.Check({ Роли: { Администратор: "Ложь" } })).toBe(true)
   })
 
   it("accepts deny mode with Разрешить Ложь", () => {
-    expect(compiled.Check({ Разрешить: "Ложь", Роли: { "Role.Администратор": "Истина" } })).toBe(true)
+    expect(compiled.Check({ Разрешить: "Ложь", Роли: { Администратор: "Истина" } })).toBe(true)
   })
 
   it("accepts empty deny mode without roles", () => {
@@ -18,7 +18,7 @@ describe("UserVisibleJSONSchema", () => {
   })
 
   it("rejects explicit Разрешить Истина", () => {
-    expect(compiled.Check({ Разрешить: "Истина", Роли: { "Role.Администратор": "Истина" } })).toBe(false)
+    expect(compiled.Check({ Разрешить: "Истина", Роли: { Администратор: "Истина" } })).toBe(false)
   })
 
   it("rejects empty roles", () => {
@@ -27,5 +27,9 @@ describe("UserVisibleJSONSchema", () => {
 
   it("rejects legacy role map at top level", () => {
     expect(compiled.Check({ "Role.Администратор": "Истина" })).toBe(false)
+  })
+
+  it("rejects the internal Role prefix in role keys", () => {
+    expect(compiled.Check({ Роли: { "Role.Администратор": "Истина" } })).toBe(false)
   })
 })

@@ -1,6 +1,11 @@
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
-import { rootFromYAML } from "@nkdk/runtime/rule-kit"
-import type { MetadataTargetOwner, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
+import {
+  isTypeOwnedMetadataTargetUnavailable,
+  metadataTargetConstraintForOwner,
+  metadataTargetOwnerForProperty,
+  rootFromYAML,
+} from "@nkdk/runtime/rule-kit"
+import type { MetadataTargetOwner } from "@nkdk/runtime/rule-kit"
 import type { ElementType } from "../ruleRuntime/formElement/types"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import { getSystemEnumeration } from "@nkdk/runtime/rule-kit"
@@ -15,9 +20,8 @@ import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
 import {
-  projectMemberIndexKey,
+  projectMetadataTargetIndexKey,
   projectObjectIndexKey,
-  projectValueIndexKey,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
@@ -579,14 +583,39 @@ function collectPendingReferences(params: {
     }
 
     if (property.metadataTarget !== undefined) {
+      const siblingValue = (propertyKey: string) => {
+        const sibling = params.properties.find((candidate) => candidate.modelKey === propertyKey)
+        return sibling === undefined ? undefined : valueAtPath(record, sibling.yamlPath)
+      }
+      if (isTypeOwnedMetadataTargetUnavailable({
+        rule: { metadataTarget: property.metadataTarget },
+        siblingValue,
+      })) {
+        if (params.validationDiagnostics) {
+          params.diagnostics.push(diagnosticAtYamlPath({
+            filePath: params.filePath,
+            parsed: params.parsed,
+            path: yamlPath,
+            severity: "error",
+            source: "reference",
+            message: `Свойство "${property.yamlPath.at(-1)}" недоступно для реквизита с составным типом`,
+          }))
+        }
+        continue
+      }
+      const propertyOwner = metadataTargetOwnerForProperty({
+        rule: { metadataTarget: property.metadataTarget },
+        owner: params.owner,
+        siblingValue,
+      })
       references.push(
         ...collectTargetValues({
           filePath: params.filePath,
           parsed: params.parsed,
-          owner: params.owner,
+          owner: propertyOwner,
           value,
           type: property.type,
-          constraint: property.metadataTarget,
+          constraint: metadataTargetConstraintForOwner(property.metadataTarget, propertyOwner),
           yamlPath,
           diagnostics: params.diagnostics,
           validationDiagnostics: params.validationDiagnostics,
@@ -717,6 +746,9 @@ function collectTargetValues(params: {
   validationDiagnostics: boolean
   runtime?: ValidationRegistrySet
 }): PendingMetadataTargetReference[] {
+  if ((params.constraint.kind === "dataTable" || params.constraint.kind === "dataTableField")
+    && params.constraint.validation === "translateOnly") return []
+
   if (params.type === "Picture") {
     return collectPictureTargetValues(params)
   }
@@ -827,11 +859,7 @@ function pendingReferenceFromYamlValue(params: {
   }
 }
 
-function targetKey(target: ParsedMetadataTarget): string {
-  if (target.kind === "object") return projectObjectIndexKey(target)
-  if (target.kind === "member") return projectMemberIndexKey(target)
-  return projectValueIndexKey(target)
-}
+const targetKey = projectMetadataTargetIndexKey
 
 function extractFormYamlFacts(
   file: ValidationProjectFile,

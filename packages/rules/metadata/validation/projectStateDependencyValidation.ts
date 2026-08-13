@@ -19,7 +19,7 @@ import {
 import type { FormDataPathSource, OwnerTypeRef } from "./dataPath/types"
 import type { ResolvedDataPathTarget } from "./dataPath/resolver"
 import { resolveDataPath } from "./dataPath/resolver"
-import type { ObjectField, ObjectFieldIndex } from "./dataPath/objectFields"
+import { projectStateFieldIndex } from "./dataPath/projectStateFieldIndex"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import {
   getDataPathOwnerKind,
@@ -44,9 +44,14 @@ import type { ProjectStateStructuredDocumentValidator } from "../projectState/co
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 import { diagnosticAtYamlLocation } from "./yamlLocations"
 import type { ProjectStateAddressableRequiredCheck } from "../projectState/contracts/dependencyValidation"
+import type { DataTableDeclarationContributor } from "./dataTables"
+import { validateProjectStateDataTableReferenceBatch } from "./dataTables/projectState"
+import type { DataTableRegistrySet } from "./dataTables/registry"
+import { currentValidationRegistrySet } from "./validationExecutionContext"
 
 export function createProjectStateDependencyValidator(params: {
   readonly structuredDocumentValidators?: readonly ProjectStateStructuredDocumentValidator[]
+  readonly dataTableContributors?: readonly DataTableDeclarationContributor[]
 } = {}): ProjectStateDependencyValidator {
   return {
     readReadiness: readProjectStateDependencyReadiness,
@@ -60,7 +65,12 @@ export function createProjectStateDependencyValidator(params: {
         sourceOwner: reference.target.source.kind === "objectField" ? reference.target.source.owner : { kind: "" },
         ...(reference.target.source.kind === "objectField" ? { sourceFieldName: reference.target.source.name } : {}),
       })),
-    validateReferences: validateProjectStateReferenceBatch,
+    validateReferences: (validationParams) => validateProjectStateReferenceBatch({
+      ...validationParams,
+      dataTableContributors: params.dataTableContributors
+        ?? currentValidationRegistrySet<{ dataTables: DataTableRegistrySet }>()?.dataTables.contributors
+        ?? [],
+    }),
     validateOwners: validateProjectStateOwnerBatch,
     validateDependencies: validateProjectStateDependencyBatch,
     validateAddressableRequired: validateProjectStateAddressableRequiredBatch,
@@ -230,17 +240,31 @@ export function readProjectStateDependencyReadiness(params: {
 export function validateProjectStateReferenceBatch(params: {
   readonly checks: readonly ProjectStatePendingReferenceCheck[]
   readonly projectDir: string
-  readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets" | "readOwners">
+  readonly queryPort: Pick<
+    ProjectStateQueryPort,
+    "resolveTargets" | "readOwners"
+  > & Partial<Pick<ProjectStateQueryPort, "readDependencyOwnerInputs" | "readOwnerRefPage">>
+  readonly dataTableContributors?: readonly DataTableDeclarationContributor[]
 }): readonly Diagnostic[] {
+  const dataTableChecks = params.checks.filter(({ reference }) => reference.target.kind === "dataTable")
+  const ordinaryChecks = params.checks.filter(({ reference }) => reference.target.kind !== "dataTable")
+  const dataTableDiagnostics = dataTableChecks.length === 0
+    ? []
+    : validateProjectStateDataTableReferenceBatch({
+        checks: dataTableChecks,
+        projectDir: params.projectDir,
+        queryPort: requireDataTableQueryPort(params.queryPort),
+        contributors: params.dataTableContributors ?? [],
+      })
   const results = params.queryPort.resolveTargets(
-    params.checks.map(({ requestId, componentPath, reference }) => ({
+    ordinaryChecks.map(({ requestId, componentPath, reference }) => ({
       requestId,
       componentPath,
       canonicalTarget: reference.canonical,
     })),
   )
   const resultByRequestId = new Map(results.map((result) => [result.requestId, result]))
-  const basePresenceChecks = params.checks.filter(({ requestId, componentPath, reference }) =>
+  const basePresenceChecks = ordinaryChecks.filter(({ requestId, componentPath, reference }) =>
     reference.tagged !== "xml"
     && componentPath.startsWith("cfe/")
     && componentPath.length > "cfe/".length
@@ -258,7 +282,7 @@ export function validateProjectStateReferenceBatch(params: {
   const basePresenceByRequestId = new Map(
     basePresenceResults.map((result) => [result.requestId, result]),
   )
-  const valueOwnerChecks = params.checks.filter(({ requestId, reference }) =>
+  const valueOwnerChecks = ordinaryChecks.filter(({ requestId, reference }) =>
     reference.tagged !== "xml"
     && resultByRequestId.get(requestId)?.status === "missing"
     && reference.target.kind === "value"
@@ -274,8 +298,8 @@ export function validateProjectStateReferenceBatch(params: {
     }),
   )
   const valueOwnerResultByRequestId = new Map(valueOwnerResults.map((result) => [result.requestId, result]))
-  const diagnostics: Diagnostic[] = []
-  forEachDependencyResult(params.checks, results, (check, result) => {
+  const diagnostics: Diagnostic[] = [...dataTableDiagnostics]
+  forEachDependencyResult(ordinaryChecks, results, (check, result) => {
     if (check.reference.tagged === "xml") {
       if (result.status === "found") {
         diagnostics.push(...unnecessaryXmlReferenceResult(check.reference).diagnostics)
@@ -342,6 +366,20 @@ export function validateProjectStateReferenceBatch(params: {
     }
   })
   return diagnostics
+}
+
+function requireDataTableQueryPort(
+  queryPort: Pick<ProjectStateQueryPort, "resolveTargets">
+    & Partial<Pick<ProjectStateQueryPort, "readDependencyOwnerInputs" | "readOwnerRefPage">>,
+): Pick<ProjectStateQueryPort, "resolveTargets" | "readDependencyOwnerInputs" | "readOwnerRefPage"> {
+  if (queryPort.readDependencyOwnerInputs === undefined || queryPort.readOwnerRefPage === undefined) {
+    throw new Error("Проверка таблиц данных требует доступ к фактам владельцев проекта")
+  }
+  return {
+    resolveTargets: queryPort.resolveTargets.bind(queryPort),
+    readDependencyOwnerInputs: queryPort.readDependencyOwnerInputs.bind(queryPort),
+    readOwnerRefPage: queryPort.readOwnerRefPage.bind(queryPort),
+  }
 }
 
 function valueTargetOwner(target: Extract<PendingMetadataTargetReference["target"], { kind: "value" }>): OwnerTypeRef {
@@ -583,45 +621,6 @@ function projectStateFields(
 ): readonly ProjectStateFieldEntry[] {
   const key = ownerKey(owner)
   return entries.filter((entry) => ownerKey(entry.owner) === key)
-}
-
-function projectStateFieldIndex(owner: OwnerTypeRef, entries: readonly ProjectStateFieldEntry[]): ObjectFieldIndex {
-  const relevant = entries.filter((entry) => ownerKey(entry.owner) === ownerKey(owner))
-  const columns = new Map<string, Map<string, ObjectField>>()
-  for (const entry of relevant) {
-    if (entry.parentName === undefined) continue
-    const parentColumns = columns.get(entry.parentName) ?? new Map<string, ObjectField>()
-    parentColumns.set(entry.name, projectStateObjectField(entry))
-    columns.set(entry.parentName, parentColumns)
-  }
-  const fields = new Map<string, ObjectField>()
-  const standardAttributeAliases = new Map<string, string>()
-  for (const entry of relevant) {
-    if (entry.parentName !== undefined) continue
-    const field = projectStateObjectField(entry, columns.get(entry.name))
-    fields.set(entry.name, field)
-    if (entry.targetName !== undefined) {
-      fields.set(entry.targetName, field)
-      standardAttributeAliases.set(entry.targetName, entry.name)
-    }
-  }
-  return { fields, standardAttributeAliases, diagnostics: [] }
-}
-
-function projectStateObjectField(
-  entry: ProjectStateFieldEntry,
-  columns?: Map<string, ObjectField>,
-): ObjectField {
-  return {
-    name: entry.name,
-    kind: entry.kind,
-    typeInfo: entry.typeInfo,
-    ...(entry.targetName === undefined ? {} : { targetName: entry.targetName }),
-    ...(entry.sourceCollection === undefined ? {} : { sourceCollection: entry.sourceCollection }),
-    ...(entry.table === undefined
-      ? {}
-      : { tableSource: { table: entry.table, columns: columns ?? new Map(), hasColumns: entry.tableHasColumns ?? false } }),
-  }
 }
 
 function dependencyFormIndex(entries: readonly ProjectStateFormEntry[]): FormDataPathIndex {

@@ -3,6 +3,59 @@ import "../../appliedObjects/metadataExchangePlan/standardMembers"
 import { formatMetadataTargetToYAML, parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "./index"
 
 describe("metadataTargets parser", () => {
+  it.each([
+    ["InformationRegister.Регистр.SliceLast", "РегистрСведений.Регистр.СрезПоследних"],
+    ["AccumulationRegister.Остатки.BalanceAndTurnovers", "РегистрНакопления.Остатки.ОстаткиИОбороты"],
+    ["AccountingRegister.Хозрасчетный.RecordsWithExtDimensions", "РегистрБухгалтерии.Хозрасчетный.ДвиженияССубконто"],
+    ["CalculationRegister.Начисления.BaseБаза", "РегистрРасчета.Начисления.БазаБаза"],
+    ["BusinessProcess.Согласование.Points", "БизнесПроцесс.Согласование.Точки"],
+    ["Catalog.Товары.TabularSection.Состав", "Справочник.Товары.ТабличнаяЧасть.Состав"],
+    [
+      "ExternalDataSource.Источник.Cube.Куб.DimensionTable.Измерение",
+      "ВнешнийИсточникДанных.Источник.Куб.Куб.ТаблицаИзмерения.Измерение",
+    ],
+  ])("round-trips data table %s", (model, yaml) => {
+    const constraint = { kind: "dataTable" } as const
+    expect(formatMetadataTargetToYAML({ canonical: model, constraint })).toBe(yaml)
+    expect(parseMetadataTargetFromYAML({ value: yaml, constraint })).toMatchObject({ ok: true, canonical: model })
+  })
+
+  it("translates qualified and local data table fields", () => {
+    const constraint = { kind: "dataTableField", tableProperty: "table" } as const
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Catalog.Товары.TabularSection.Состав.StandardAttribute.LineNumber",
+        constraint,
+      })
+    ).toBe("Справочник.Товары.ТабличнаяЧасть.Состав.СтандартныйРеквизит.НомерСтроки")
+    expect(parseMetadataTargetFromYAML({ value: "Дата", constraint })).toMatchObject({
+      ok: true,
+      canonical: "Date",
+    })
+    expect(formatMetadataTargetToYAML({ canonical: "Date", constraint })).toBe("Дата")
+  })
+
+  it("restricts owner data tables to the current object", () => {
+    const constraint = { kind: "dataTable", owner: "this" } as const
+    const owner = { root: "Catalog", objectName: "Товары" } as const
+
+    expect(parseMetadataTargetFromYAML({ value: "Справочник.Товары", constraint, owner })).toMatchObject({
+      ok: true,
+      canonical: "Catalog.Товары",
+    })
+    expect(parseMetadataTargetFromYAML({ value: "Справочник.Контрагенты", constraint, owner })).toMatchObject({
+      ok: false,
+      code: "disallowed-root",
+    })
+  })
+
+  it("preserves service negative characteristic fields", () => {
+    const constraint = { kind: "dataTableField", tableProperty: "table", validation: "translateOnly" } as const
+    expect(formatMetadataTargetToYAML({ canonical: "-8", constraint })).toBe("-8")
+    expect(parseMetadataTargetFromYAML({ value: "-1", constraint })).toMatchObject({ ok: true, canonical: "-1" })
+  })
+
   it("parses object references from Russian YAML to canonical model strings", () => {
     const result = parseMetadataTargetFromYAML({
       value: "Контрагенты",

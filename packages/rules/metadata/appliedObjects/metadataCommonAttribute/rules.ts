@@ -205,6 +205,7 @@ export const MetadataCommonAttributeRules = {
     choiceForm: stringRule({
       yaml: "ФормаВыбора",
       xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "type", typeProperty: "type", memberKinds: ["Form"] },
       defaultValueXMLRaw: "",
     }),
     linkByType: typeLinkRule({

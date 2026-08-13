@@ -82,9 +82,11 @@ const DIAGNOSTIC_SOURCE_IDS = {
 } as const
 const STRING_OWNER_FACT_ROLES = new Set([
   "task", "chartOfAccounts", "extDimensionTypes", "registerType",
+  "periodicity", "correspondence", "maxExtDimensionCount", "actionPeriod", "basePeriod",
+  "chartOfCalculationTypes", "schedule", "scheduleValue", "scheduleDate", "dependenceOnCalculationTypes",
 ])
 const STRING_LIST_OWNER_FACT_ROLES = new Set([
-  "commonAttributeOwnerLinks", "owners", "registerRecords",
+  "commonAttributeOwnerLinks", "owners", "registerRecords", "baseCalculationTypes",
 ])
 const NAMED_ITEMS_OWNER_FACT_ROLES = new Set([
   "accountingFlags", "extDimensionAccountingFlags", "attributes", "dimensions", "resources",
@@ -577,14 +579,17 @@ export function createProjectStateFragmentWriter(options: {
       const target = reference.target
       const targetMember = target.kind === "member" ? target.segments.at(-1)?.name
         : target.kind === "value" && "valueName" in target ? target.valueName : undefined
+      const serializedTarget = target.kind === "dataTable" || target.kind === "dataTableField"
+        ? JSON.stringify(target)
+        : targetMember
       rows.pendingReferences.push({
         sourceFileId: fileId,
         yamlPathId: appendYamlPath(reference.yamlPath),
         canonicalId: strings.intern(reference.canonical),
         targetKindId: strings.intern(target.kind),
-        targetRootId: strings.intern(target.root),
-        targetNameId: strings.intern(target.objectName),
-        targetMemberId: optionalString(targetMember),
+        targetRootId: strings.intern("root" in target ? target.root : ""),
+        targetNameId: strings.intern("objectName" in target ? target.objectName : ""),
+        targetMemberId: optionalString(serializedTarget),
         constraintKindId: strings.intern(encodeMetadataTargetConstraint(reference.constraint)),
         flags: encodePendingReferenceFlags(reference),
       })

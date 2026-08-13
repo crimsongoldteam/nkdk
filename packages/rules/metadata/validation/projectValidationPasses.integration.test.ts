@@ -588,6 +588,24 @@ describe("validateProjectFileFirstPass references", () => {
     })).not.toThrow()
   })
 
+  it("передаёт ссылки функциональных опций и ролей формы в состояние проекта", () => {
+    const update = formFirstPassUpdate([
+      "Реквизиты:",
+      "  Поле:",
+      "    Тип: Строка",
+      "    ФункциональныеОпции:",
+      "      - ДоступностьСкладов",
+      "    Просмотр:",
+      "      Роли:",
+      "        Администратор: Ложь",
+    ])
+
+    expect(update.pendingReferences).toEqual(expect.arrayContaining([
+      expect.objectContaining({ canonical: "FunctionalOption.ДоступностьСкладов" }),
+      expect.objectContaining({ canonical: "Role.Администратор" }),
+    ]))
+  })
+
   it("проверяет уникальность имён элементов внутри общей формы", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

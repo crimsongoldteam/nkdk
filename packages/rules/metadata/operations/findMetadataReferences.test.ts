@@ -5,6 +5,11 @@ import { createTestProjectStateReadToken } from "../projectState/tests/readToken
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import type { ProjectStateService } from "../projectState/service"
 import { findMetadataReferences } from "./findMetadataReferences"
+import { metadataRules } from "../composition/metadataRules"
+import {
+  createMetadataExecutionRegistrySets,
+  withMetadataExecutionRegistrySets,
+} from "../composition/metadataExecutionContext"
 import {
   completeOperationReadSession,
   completeOperationProjectState,
@@ -12,6 +17,8 @@ import {
   emptyOperationRefreshStats,
   operationDataPathFormYaml,
   operationDataPathReference,
+  operationCalculationBaseFormYaml,
+  operationCalculationBaseReference,
   operationLockFieldYaml,
   operationMetadataReference,
   operationPictureFormYaml,
@@ -82,6 +89,30 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
       changedFiles: [],
       rewrittenReferences: [],
       blockedReferences: [expect.objectContaining({ value: "Catalog.Товары" })],
+    })
+  })
+
+  it("finds a base calculation register embedded in a virtual-table name", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "РегистрРасчета/Основание/Свойства.yaml", "{}")
+    writeProjectFile(projectDir, "ОбщаяФорма/Расчеты/Свойства.yaml", operationCalculationBaseFormYaml)
+    harness.setIndex({
+      targetProjectPath: "cf/РегистрРасчета/Основание/Свойства.yaml",
+      references: [operationCalculationBaseReference()],
+    })
+    const registries = createMetadataExecutionRegistrySets(metadataRules)
+
+    const result = await withMetadataExecutionRegistrySets(registries, () => findMetadataReferences({
+      projectDir,
+      path: "РегистрРасчета.Основание",
+      projectState,
+      ignoreValidationErrors: true,
+    }, registries.rules))
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "references_found",
+      blockedReferences: [{ value: "CalculationRegister.Основание" }],
     })
   })
 

@@ -5,6 +5,7 @@ import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
 import type { ParsedYaml } from "@nkdk/runtime"
 import { currentValidationRegistrySet } from "./validationExecutionContext"
+import type { DataTableDeclarationContribution } from "./dataTables/contracts"
 
 export type ProjectReferenceObjectPathContributor = (params: {
   projectDir: string
@@ -37,6 +38,7 @@ export type ProjectReferenceMemberIndexContributor = (params: {
 }) => Iterable<ProjectMemberIndexEntry>
 
 export type ProjectReferenceContribution =
+  | DataTableDeclarationContribution
   | {
       readonly kind: "objectPath"
       readonly root: MetadataRootName
@@ -88,7 +90,7 @@ export function createProjectReferenceRegistrySet(
     } else if (contribution.kind === "value") values.set(contribution.root, contribution.contributor)
     else if (contribution.kind === "fileValidator") {
       fileValidators.set(contribution.role, [...(fileValidators.get(contribution.role) ?? []), contribution.validator])
-    } else memberIndexes.push(contribution.contributor)
+    } else if (contribution.kind === "memberIndex") memberIndexes.push(contribution.contributor)
   }
 
   return {

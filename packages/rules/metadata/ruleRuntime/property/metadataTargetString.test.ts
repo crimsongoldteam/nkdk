@@ -117,6 +117,73 @@ describe("metadataTargetOwnerFromRule", () => {
 })
 
 describe("string metadataTarget YAML", () => {
+  it("keeps a qualified member when a single non-reference type has no owner", () => {
+    const rule = {
+      type: "string",
+      yaml: "ФормаВыбора",
+      metadataTarget: {
+        kind: "member",
+        owner: "type",
+        typeProperty: "type",
+        memberKinds: ["Form"],
+      },
+    } as const
+
+    expect(importStringMetadataTargetFromYAML({
+      rule,
+      value: "Справочник.Товары.Форма.ФормаВыбора",
+      owner: undefined,
+    })).toBe("Catalog.Товары.Form.ФормаВыбора")
+  })
+
+  it("rejects a qualified type-owned member when a short name is required", () => {
+    const rule = {
+      type: "string",
+      yaml: "ФормаВыбора",
+      metadataTarget: {
+        kind: "member",
+        owner: "type",
+        typeProperty: "type",
+        memberKinds: ["Form"],
+      },
+    } as const
+
+    expect(() => importStringMetadataTargetFromYAML({
+      rule,
+      value: "Справочник.Товары.Форма.ФормаВыбора",
+      owner: { root: "Catalog", objectName: "Товары" },
+    })).toThrow(/ФормаВыбора.*кратк/i)
+  })
+
+  it("passes opaque values through in translate-only mode but rejects canonical English targets", () => {
+    const rule = {
+      type: "string",
+      metadataTarget: { kind: "dataTableField", tableProperty: "table", validation: "translateOnly" },
+    } as const
+
+    expect(exportStringMetadataTargetToYAML({ rule, value: "Data.Path", owner: undefined })).toBe("Data.Path")
+    expect(importStringMetadataTargetFromYAML({ rule, value: "Data.Path", owner: undefined })).toBe("Data.Path")
+    expect(() => importStringMetadataTargetFromYAML({
+      rule,
+      value: "Catalog.Товары.Attribute.Код",
+      owner: undefined,
+    })).toThrow()
+  })
+
+  it("converts every item of a data-table target list", () => {
+    const rule = {
+      type: "IndexField",
+      metadataTarget: { kind: "dataTableField", tableProperty: "table" },
+    } as const
+
+    expect(
+      exportStringMetadataTargetToYAML({ rule, value: ["Date", "Ref"], owner: undefined })
+    ).toEqual(["Дата", "Ссылка"])
+    expect(
+      importStringMetadataTargetFromYAML({ rule, value: ["Дата", "Ссылка"], owner: undefined })
+    ).toEqual(["Date", "Ref"])
+  })
+
   it("exports canonical local member strings to short YAML", () => {
     expect(
       exportStringMetadataTargetToYAML({

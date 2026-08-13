@@ -100,7 +100,8 @@ export interface ObjectTargetConstraint {
 
 export interface MemberTargetConstraint {
   kind: "member"
-  owner: "this" | "explicit"
+  owner: "this" | "explicit" | "type"
+  typeProperty?: string
   roots?: readonly MetadataRootName[]
   objectRoots?: readonly MetadataRootName[]
   nestedObjectRoots?: readonly MetadataRootName[]
@@ -133,12 +134,44 @@ export interface DataPathTargetConstraint {
   allowOpaqueMultipleValue?: boolean
 }
 
+export interface DataTableTargetConstraint {
+  kind: "dataTable"
+  roots?: readonly MetadataRootName[]
+  owner?: "this"
+  validation?: "resolve" | "translateOnly"
+}
+
+export interface DataTableFieldTargetConstraint {
+  kind: "dataTableField"
+  tableProperty: string
+  validation?: "resolve" | "translateOnly"
+}
+
 export type MetadataTargetConstraint =
   | ObjectTargetConstraint
   | MemberTargetConstraint
   | ValueTargetConstraint
   | TypeTargetConstraint
   | DataPathTargetConstraint
+  | DataTableTargetConstraint
+  | DataTableFieldTargetConstraint
+
+export interface ParsedDataTableTarget {
+  kind: "dataTable"
+  root: MetadataRootName
+  objectName: string
+  objectSegments?: MetadataObjectSegment[]
+  tableSegments?: MetadataMemberSegment[]
+  virtualTable?: string
+}
+
+export interface ParsedDataTableFieldTarget {
+  kind: "dataTableField"
+  fieldName: string
+  table?: ParsedDataTableTarget
+  segments?: MetadataMemberSegment[]
+  serviceValue?: true
+}
 
 export type ParsedMetadataTarget =
   | { kind: "object"; root: MetadataRootName; objectName: string; segments?: MetadataObjectSegment[] }
@@ -152,6 +185,8 @@ export type ParsedMetadataTarget =
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "predefinedValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "enumValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "emptyRef" }
+  | ParsedDataTableTarget
+  | ParsedDataTableFieldTarget
 
 export interface MetadataMemberSegment {
   kind: MetadataMemberKind

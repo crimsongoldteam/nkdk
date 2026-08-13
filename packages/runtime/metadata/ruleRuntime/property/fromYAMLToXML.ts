@@ -10,7 +10,12 @@ import {
 } from "../../configurationIndex/referenceView"
 import type { MetadataTargetOwner } from "../metadataTarget"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefaultVariant } from "../../context/types"
-import { metadataTargetOwnerFromRule, importStringMetadataTargetFromYAML } from "./metadataTargetString"
+import {
+  isTypeOwnedMetadataTargetUnavailable,
+  metadataTargetOwnerForProperty,
+  metadataTargetOwnerFromRule,
+  importStringMetadataTargetFromYAML,
+} from "./metadataTargetString"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"
 import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
@@ -645,6 +650,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }) as ConfigurationContextWithExportToXML
     let imported: unknown
     try {
+      if (source.has(propertyKey) && isTypeOwnedMetadataTargetUnavailable({
+        rule: planned.propertyRule,
+        siblingValue: (siblingPropertyKey) => source.raw(siblingPropertyKey),
+      })) {
+        throw new Error(
+          `${planned.propertyRule.yaml ?? propertyKey} недоступна: тип должен содержать единственный тип`,
+        )
+      }
       const atomicReferences = references.map((reference) =>
         !source.has(propertyKey) && planned.propertyRule.exportNilValue === true
           ? undefined
@@ -667,7 +680,11 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         referenceValue: atomicReferences[0],
         yaml,
         name: params.name,
-        owner,
+        owner: metadataTargetOwnerForProperty({
+          rule: planned.propertyRule,
+          siblingValue: (siblingPropertyKey) => source.raw(siblingPropertyKey),
+          owner,
+        }),
         restoreExcludedEqualName:
           !source.has(propertyKey) &&
           planned.propertyRule.excludeIfEqualNameYAML === true &&
@@ -805,11 +822,11 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const handler = params.handler ?? (params.execution === undefined
     ? getTypeRule(rule.type, "importFromYAML")
     : params.execution.getTypeRule(rule.type, "importFromYAML"))
+  const importedValue = handler === undefined || rule.type === "IndexField" || rule.type === "FunctionalOptionsProperty"
+    ? importStringMetadataTargetFromYAML({ rule, value, owner })
+    : value
   if (handler === undefined) {
-    const imported =
-      rule.type === "string"
-        ? importStringMetadataTargetFromYAML({ rule, value: value ?? referenceValue, owner })
-        : (value ?? referenceValue)
+    const imported = importedValue ?? referenceValue
     return imported === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : imported
   }
 
@@ -818,14 +835,14 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
       ? (handler as ImportFromYAMLFunctionNew)({
           context,
           rule,
-          value,
+          value: importedValue,
           source: referenceValue,
           yaml,
           name,
           owner,
           restoreExcludedEqualName: params.restoreExcludedEqualName,
         })
-      : (handler as importFromYAMLFunction)(context, rule, value, referenceValue)
+      : (handler as importFromYAMLFunction)(context, rule, importedValue, referenceValue)
   if (rule.type === "MetadataDcsMetadataValue" && imported === null) return null
   const resolved = shouldUseOnlyImportedValue({ rule, value })
     ? imported

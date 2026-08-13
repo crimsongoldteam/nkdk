@@ -19,7 +19,13 @@ import type {
   DirectImportXMLSource,
   ImportedDependentPropertyCollector,
 } from "./importYamlTypes"
-import { metadataTargetOwnerFromRule } from "./metadataTargetString"
+import {
+  exportStringMetadataTargetToYAML,
+  importStringMetadataTargetFromYAML,
+  isTypeOwnedMetadataTargetUnavailable,
+  metadataTargetOwnerForProperty,
+  metadataTargetOwnerFromRule,
+} from "./metadataTargetString"
 import { importPropertyFromXML } from "./fromXML"
 import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
 import { getTypeRule } from "./typeRuleRegistry"
@@ -424,13 +430,21 @@ export function importPropertiesFromXMLToYAML(params: {
       }
 
       const exportStartedAt = performance.now()
+      const propertyOwner = metadataTargetOwnerForProperty({
+        rule: propertyRule,
+        siblingValue: (propertyKey) => {
+          const siblingYaml = rule.properties[propertyKey]?.yaml
+          return siblingYaml === undefined ? undefined : result[siblingYaml]
+        },
+        owner,
+      })
       const yamlValue = !convertedDirectly
         ? exportPropertyValueToYAML({
             context: sourceContext,
             rule: propertyRule,
             value,
             name: itemName,
-            owner,
+            owner: propertyOwner,
             execution: params.execution,
           })
         : value
@@ -644,7 +658,36 @@ export function importPropertiesFromXMLToYAML(params: {
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
+  normalizeTypeOwnedMetadataTargets({ result, rule })
   return sortYamlRuleProperties(result)
+}
+
+function normalizeTypeOwnedMetadataTargets(params: {
+  result: Record<string, unknown>
+  rule: MetadataItemRule
+}): void {
+  for (const propertyRule of Object.values(params.rule.properties)) {
+    const constraint = propertyRule.metadataTarget
+    if (constraint?.kind !== "member" || constraint.owner !== "type" || constraint.typeProperty === undefined) continue
+    const yamlKey = propertyRule.yaml
+    const typeYamlKey = params.rule.properties[constraint.typeProperty]?.yaml
+    if (yamlKey === undefined || typeYamlKey === undefined || params.result[yamlKey] === undefined) continue
+    if (isTypeOwnedMetadataTargetUnavailable({
+      rule: propertyRule,
+      siblingValue: () => params.result[typeYamlKey],
+    })) {
+      delete params.result[yamlKey]
+      continue
+    }
+    const owner = metadataTargetOwnerForProperty({
+      rule: propertyRule,
+      siblingValue: () => params.result[typeYamlKey],
+      owner: undefined,
+    })
+    if (owner === undefined) continue
+    const canonical = importStringMetadataTargetFromYAML({ rule: propertyRule, value: params.result[yamlKey], owner })
+    params.result[yamlKey] = exportStringMetadataTargetToYAML({ rule: propertyRule, value: canonical, owner })
+  }
 }
 
 function markRelativeYAMLScalarTag(

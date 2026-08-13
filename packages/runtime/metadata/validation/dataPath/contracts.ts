@@ -49,6 +49,17 @@ export interface ValidationOwnerFacts {
   accountingFlags?: ValidationNamedTypeItems
   extDimensionAccountingFlags?: ValidationNamedTypeItems
   registerType?: string
+  periodicity?: string
+  correspondence?: string
+  maxExtDimensionCount?: string
+  actionPeriod?: string
+  basePeriod?: string
+  chartOfCalculationTypes?: string
+  schedule?: string
+  scheduleValue?: string
+  scheduleDate?: string
+  dependenceOnCalculationTypes?: string
+  baseCalculationTypes?: string[]
   attributes?: ValidationNamedTypeItems
   dimensions?: ValidationNamedTypeItems
   resources?: ValidationNamedTypeItems

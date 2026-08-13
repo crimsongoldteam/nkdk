@@ -300,6 +300,7 @@ export const attributeChoiceFragment = metadataRuleFragment(
       yaml: "ФормаВыбора",
       xml: "ChoiceForm",
       type: "string",
+      metadataTarget: { kind: "member", owner: "type", typeProperty: "type", memberKinds: ["Form"] },
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
     },

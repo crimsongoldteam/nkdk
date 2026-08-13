@@ -72,6 +72,7 @@ import { explicitEmptyFormElementTitleRules } from "../forms/clientApplicationFo
 import { explicitEmptyPredefinedExtDimensionTypesRules } from "../appliedObjects/metadataChartOfAccounts/predefined/rules"
 import { formAttributeValueTypeSettingsRules } from "../forms/commonObjects/formAttribute/valueListSettings"
 import { appliedObjectInputByStringRules } from "../appliedObjects/inputByStringRules"
+import { appliedObjectDataTableRules } from "../appliedObjects/dataTableRules"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -98,6 +99,7 @@ const projectReferenceRules = defineMetadataRules({
     ...metadataCatalogReferenceRules,
     ...metadataDocumentReferenceRules,
     ...configurationReferenceRules,
+    ...appliedObjectDataTableRules,
   ],
 })
 const dataPathRules = defineMetadataRules({

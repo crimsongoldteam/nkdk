@@ -104,6 +104,28 @@ export const DynamicListRules = {
     }),
     mainTable: stringRule({
       yaml: "ОсновнаяТаблица",
+      metadataTarget: {
+        kind: "dataTable",
+        roots: [
+          "FilterCriterion",
+          "ExchangePlan",
+          "Constant",
+          "Catalog",
+          "Document",
+          "DocumentJournal",
+          "Enum",
+          "ChartOfCharacteristicTypes",
+          "ChartOfAccounts",
+          "ChartOfCalculationTypes",
+          "InformationRegister",
+          "AccumulationRegister",
+          "AccountingRegister",
+          "CalculationRegister",
+          "BusinessProcess",
+          "Task",
+          "ExternalDataSource",
+        ],
+      },
     }),
     order: orderRule({
       xml: "dcsset:order",

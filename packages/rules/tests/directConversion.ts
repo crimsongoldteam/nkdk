@@ -50,6 +50,7 @@ export function createDirectRoundTripContexts(
   params: {
     logicalAddress?: string
     targetProjectPath?: string
+    metadataTargetOwners?: readonly MetadataTargetOwnerContext[]
   } = {}
 ): DirectRoundTripContexts {
   const logicalAddress = params.logicalAddress ?? "Test.Item"
@@ -57,7 +58,17 @@ export function createDirectRoundTripContexts(
   const imported = createConfigurationIndexCollector()
 
   return {
-    importContext: withConfigurationIndexCollector(mockContextFromXML(), imported, logicalAddress),
+    importContext: withConfigurationIndexCollector(
+      {
+        ...mockContextFromXML(),
+        exportToYAML: {
+          toTyped: false,
+          metadataTargetOwners: params.metadataTargetOwners === undefined ? undefined : [...params.metadataTargetOwners],
+        },
+      },
+      imported,
+      logicalAddress
+    ),
     exportContext(base = mockContextToXML()) {
       const fragment = imported.fragment(targetProjectPath)
       const source = createConfigurationIndexReader(
@@ -73,6 +84,12 @@ export function createDirectRoundTripContexts(
       )
       return {
         ...base,
+        importFromYAML: {
+          ...base.importFromYAML,
+          metadataTargetOwners: params.metadataTargetOwners === undefined
+            ? base.importFromYAML?.metadataTargetOwners
+            : [...params.metadataTargetOwners],
+        },
         exportToXML: {
           ...base.exportToXML,
           configurationIndex: createConfigurationIndexExportRuntime({

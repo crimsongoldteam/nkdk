@@ -95,7 +95,14 @@ export interface ProjectStateResolvedDataPathProjection { readonly requestId: st
 
 export interface ProjectStateReadinessParams { readonly queryPort: Pick<ProjectStateQueryPort, "readValidationStatus"> }
 export interface ProjectStateResolveDataPathsParams { readonly checks: readonly ProjectStateDataPathReferenceCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "readDependencyInputs" | "readDependencyOwnerInputs"> }
-export interface ProjectStateReferenceValidationParams { readonly checks: readonly ProjectStatePendingReferenceCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets"> }
+export interface ProjectStateReferenceValidationParams {
+  readonly checks: readonly ProjectStatePendingReferenceCheck[]
+  readonly projectDir: string
+  readonly queryPort: Pick<
+    ProjectStateQueryPort,
+    "resolveTargets" | "readOwners" | "readDependencyOwnerInputs" | "readOwnerRefPage"
+  >
+}
 export interface ProjectStateOwnerValidationParams { readonly checks: readonly ProjectStatePendingOwnerCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "readOwners"> }
 export interface ProjectStateDependencyValidationParams { readonly checks: readonly ProjectDependencyInputQuery[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "readDependencyInputs" | "readDependencyOwnerInputs" | "readOwnerRefPage"> }
 export interface ProjectStateAddressableRequiredValidationParams { readonly checks: readonly ProjectStateAddressableRequiredCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets"> }

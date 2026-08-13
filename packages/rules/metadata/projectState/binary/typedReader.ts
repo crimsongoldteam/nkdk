@@ -298,6 +298,9 @@ export function createTypedProjectStateReader(
 
   function storedTarget(value: Record<string, number>, canonical: string): ParsedMetadataTarget {
     const kind = string(value.targetKindId)
+    if (kind === "dataTable" || kind === "dataTableField") {
+      return JSON.parse(string(value.targetMemberId)) as ParsedMetadataTarget
+    }
     const root = string(value.targetRootId)
     if (!isMetadataRootName(root)) throw new Error(`Неизвестный корень metadata target: ${root}`)
     const objectName = string(value.targetNameId)

@@ -51,9 +51,7 @@ export function exportPropertyValueToYAML(params: {
     : params.execution.getTypeRule(rule.type, "exportToYAML")
 
   if (!typeExportFn) {
-    const exportedValue =
-      rule.type === "string" ? exportStringMetadataTargetToYAML({ rule, value, owner: params.owner }) : value
-    return exportedValue
+    return exportStringMetadataTargetToYAML({ rule, value, owner: params.owner })
   }
 
   const nestedContext = contextWithPropertyParentName(context, name)
@@ -66,18 +64,11 @@ export function exportPropertyValueToYAML(params: {
       name: name,
       owner: params.owner,
     })
-    const exportedValue =
-      rule.type === "string"
-        ? exportStringMetadataTargetToYAML({ rule, value: typedValue, owner: params.owner })
-        : typedValue
-
-    return exportedValue
+    return exportStringMetadataTargetToYAML({ rule, value: typedValue, owner: params.owner })
   }
 
   const typedResult = (typeExportFn as ExportToYAMLFunction)(nestedContext, rule, value)
-  return rule.type === "string"
-    ? exportStringMetadataTargetToYAML({ rule, value: typedResult, owner: params.owner })
-    : typedResult
+  return exportStringMetadataTargetToYAML({ rule, value: typedResult, owner: params.owner })
 }
 
 export function canExportPropertyToYAML(params: { context: ConfigurationContext; rule: PropertyRule }): boolean {

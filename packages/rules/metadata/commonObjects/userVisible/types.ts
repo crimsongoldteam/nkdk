@@ -39,7 +39,12 @@ export const UserEditKeysYAML = {
   Value: "Редактирование",
 } as const
 
-const UserVisibleRolesJSONSchema = Type.Record(Type.String(), BooleanJSONSchema, { minProperties: 1 })
+const USER_VISIBLE_ROLE_KEY_PATTERN = "^(?:[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$"
+const UserVisibleRolesJSONSchema = Type.Record(
+  Type.String({ pattern: USER_VISIBLE_ROLE_KEY_PATTERN }),
+  BooleanJSONSchema,
+  { minProperties: 1, additionalProperties: false },
+)
 
 export const UserVisibleJSONSchema = Type.Union(
   [
