@@ -20,6 +20,7 @@ import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { MetadataItemRule, PropertyRule } from "../../ruleRuntime"
 import { ElementRule } from "../../ruleRuntime/formElement/types"
 import { hasMainAttributeKind } from "./mainAttributeKinds"
+import { xmlDefaultVariant } from "../../ruleRuntime/property/xmlDefaultVariant"
 export type { ElementRule, PropertyRule }
 
 export const FormRulesTags = {
@@ -40,7 +41,12 @@ interface FormRuleYAMLSource {
 }
 
 interface FormRuleExportContext {
+  exportToXML: {
+    configurationIndex?: { readonly logicalAddress: string }
+    xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, "full" | "adopted" | "indexed">>
+  }
   importFromYAML?: {
+    effectiveMainAttribute?: string
     formDataPathIndex?: {
       getRoot(name: string):
         | { typeInfo: { nextTypes: readonly { kind: string }[] } }
@@ -53,7 +59,12 @@ const hasMainAttributeFromSource = (
   source: FormRuleYAMLSource,
   context: FormRuleExportContext | undefined,
   kinds: ReadonlySet<string>
-): boolean => hasMainAttributeKind(source.raw("attributes"), context?.importFromYAML?.formDataPathIndex, kinds)
+): boolean => hasMainAttributeKind(
+  source.raw("attributes"),
+  context?.importFromYAML?.formDataPathIndex,
+  kinds,
+  context?.importFromYAML?.effectiveMainAttribute,
+)
 
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
@@ -512,6 +523,7 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
@@ -540,9 +552,12 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       implicitValueYAML: "Items",
       defaultValueXML: "Items",
+      preserveExplicitDefaultXML: true,
       toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
-        source.has("useForFoldersAndItems") ||
-        hasMainAttributeFromSource(source, context, FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS),
+        source.has("useForFoldersAndItems") || (
+          xmlDefaultVariant(context) !== "adopted" &&
+          hasMainAttributeFromSource(source, context, FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS)
+        ),
     }),
     choiceParameters: choiceParametersRule({
       yaml: "ПараметрыВыбора",

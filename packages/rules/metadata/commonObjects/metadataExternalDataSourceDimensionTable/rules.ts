@@ -5,6 +5,7 @@ import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 import { internalInfoRule } from "../internalInfo/types"
+import { externalDataSourceNamedProperties } from "../metadataExternalDataSourceShared"
 
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -50,30 +51,7 @@ const dimensionTableProperties = {
       { name: "ExternalDataSourceCubeDimensionTableList", category: "List" },
     ] as { name: string; category: string }[],
   }),
-  uuid: {
-    type: "uuid",
-    xml: "_uuid",
-    forReferenceOnly: true,
-    xmlParents: root,
-  },
-  name: {
-    type: "string",
-    xmlParents: properties,
-    required: true,
-  },
-  synonym: {
-    yaml: "Синоним",
-    type: "I8nText",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-    excludeIfEqualNameYAML: true,
-  },
-  comment: {
-    yaml: "Комментарий",
-    type: "string",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-  },
+  ...externalDataSourceNamedProperties(root, properties),
   nameInDataSource: {
     yaml: "ИмяВИсточникеДанных",
     xml: "NameInDataSource",

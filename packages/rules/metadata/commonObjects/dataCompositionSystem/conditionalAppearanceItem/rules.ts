@@ -28,6 +28,7 @@ export const ConditionalAppearanceItemRules = {
       xml: "dcsset:selection",
       yaml: "Поля",
       defaultValueXMLRaw: {},
+      evaluateWhenYAMLMissing: true,
     }),
     filter: filterRule({
       xml: "dcsset:filter",

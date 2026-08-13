@@ -22,6 +22,7 @@ import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { createValidationRegistrySet } from "./validationRegistrySet"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "../appliedObjects/configurationExtension/propertyStateRules"
+import { withOperationRegistrySet } from "../operations/operationExecutionContext"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -333,6 +334,29 @@ describe("validateProjectFileFirstPass references", () => {
     expect(result.schemaDiagnostics).toEqual([])
   })
 
+  it("разрешает явно присутствующее пустое свойство с неявным значением у заимствованного объекта", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const component = createExtensionComponent(projectDir)
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    writeProjectFile(component.componentDir, projectPath, "ОсновнаяФормаСписка: \"\"")
+    writeProjectFile(join(projectDir, "cf"), projectPath, "Комментарий: исходный")
+
+    const propertyStates = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
+    const runtime = createValidationRegistrySet(metadataRules, createRuleRegistrySet(metadataRules), propertyStates)
+    const result = withOperationRegistrySet({ propertyStates }, () => validateProjectFileFirstPass({
+      projectDir,
+      file: requireValidationProjectFile(component, projectPath),
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot,
+      runtime,
+    }))
+
+    expect(result.schemaDiagnostics).toEqual([])
+  })
+
   it("сохраняет содержимое заимствованной формы cfe и добавляет схему PropertyState", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
@@ -406,6 +430,7 @@ describe("validateProjectFileFirstPass references", () => {
       "Имя: X",
       "НазначениеРасширенияКонфигурации: Адаптация",
       "РежимСовместимости: !проверять",
+      "ОбъектРасширяемойКонфигурации: Ложь",
     ])
     const file = requireValidationProjectFile(component, "Конфигурация.yaml")
     const properties = vi.fn(sharedSchemaCache.properties)

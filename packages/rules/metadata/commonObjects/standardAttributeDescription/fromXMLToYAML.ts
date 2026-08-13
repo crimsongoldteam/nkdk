@@ -18,7 +18,6 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
     xmlElement: "xr:StandardAttribute",
     keyField: "name",
     configurationIndexUidSegment: rule.configurationIndexUidSegment,
-    preserveItemPropertyPresence: true,
     recordYamlKeyFromYAML: ({ name }) =>
       names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,
     traversal: params.traversal,
@@ -44,7 +43,7 @@ function collectPreservedEmptyNames(xml: unknown): Set<string> {
   for (const item of items) {
     const record = asRecord(item)
     if (record === undefined || typeof record._name !== "string") continue
-    if (!/^ExtDimension(Type)?\d+$/.test(record._name)) continue
+    if (record._name !== "RecordType" && !/^ExtDimension(Type)?\d+$/.test(record._name)) continue
     names.add(record._name)
   }
   return names

@@ -115,7 +115,7 @@ describe("HomePageWorkArea YAML → XML", () => {
     expect(roundTrip(HOME_PAGE_WORK_AREA_XML)).toBe(normalizeXML(HOME_PAGE_WORK_AREA_XML))
   })
 
-  it("omits an explicitly empty column without reference XML", () => {
+  it("preserves an explicitly empty column without reference XML", () => {
     const xmlString = HOME_PAGE_WORK_AREA_XML.replace(
       /\t<RightColumn>[\s\S]*?\t<\/RightColumn>/,
       "\t<RightColumn/>"
@@ -132,9 +132,7 @@ describe("HomePageWorkArea YAML → XML", () => {
       context: contexts.exportContext(),
     })
 
-    expect(normalizeXML(serializeDirectXML(exported.xml))).toBe(
-      normalizeXML(xmlString.replace("\t<RightColumn/>\n", ""))
-    )
+    expect(normalizeXML(serializeDirectXML(exported.xml))).toBe(normalizeXML(xmlString))
   })
 
   it("writes full role names after YAML import", () => {

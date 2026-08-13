@@ -62,6 +62,7 @@ export const MetadataCommonModuleRules = {
       xml: "Global",
       xmlParents: properties,
       defaultValueXML: false,
+      defaultValueAdoptedXML: false,
       implicitValueYAML: false,
     }),
     clientManagedApplication: booleanRule({
@@ -69,6 +70,7 @@ export const MetadataCommonModuleRules = {
       xml: "ClientManagedApplication",
       xmlParents: properties,
       defaultValueXML: false,
+      defaultValueAdoptedXML: false,
       implicitValueYAML: false,
     }),
     server: booleanRule({
@@ -76,6 +78,7 @@ export const MetadataCommonModuleRules = {
       xml: "Server",
       xmlParents: properties,
       defaultValueXML: true,
+      defaultValueAdoptedXML: true,
       implicitValueYAML: true,
     }),
     externalConnection: booleanRule({
@@ -83,6 +86,7 @@ export const MetadataCommonModuleRules = {
       xml: "ExternalConnection",
       xmlParents: properties,
       defaultValueXML: false,
+      defaultValueAdoptedXML: false,
       implicitValueYAML: false,
     }),
     clientOrdinaryApplication: booleanRule({
@@ -90,6 +94,7 @@ export const MetadataCommonModuleRules = {
       xml: "ClientOrdinaryApplication",
       xmlParents: properties,
       defaultValueXML: false,
+      defaultValueAdoptedXML: false,
       implicitValueYAML: false,
     }),
     serverCall: booleanRule({
@@ -97,6 +102,7 @@ export const MetadataCommonModuleRules = {
       xml: "ServerCall",
       xmlParents: properties,
       defaultValueXML: false,
+      defaultValueAdoptedXML: false,
       implicitValueYAML: false,
     }),
     privileged: booleanRule({
@@ -112,6 +118,7 @@ export const MetadataCommonModuleRules = {
       typeSE: "ReturnValuesReuse",
       xmlParents: properties,
       defaultValueXML: "DontUse",
+      preserveExplicitDefaultXML: true,
       implicitValueYAML: "DontUse",
     }),
     module: moduleRule({

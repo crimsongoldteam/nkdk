@@ -10,7 +10,8 @@ export const exportXDTOPackagesToXML: ExportToXMLFunction = (
   _rule,
   value: XDTOPackages | undefined
 ): XDTOPackagesXML | undefined => {
-  if (!value || value.length === 0) return undefined
+  if (!value) return undefined
+  if (value.length === 0) return {}
 
   return {
     "xr:Item": value.map((item) => ({

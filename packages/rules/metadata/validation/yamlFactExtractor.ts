@@ -754,6 +754,7 @@ function collectTargetValues(params: {
   }
 
   if (typeof params.value === "string") {
+    if (params.value === "") return []
     const reference = pendingReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })
     return reference === undefined ? [] : [reference]
   }

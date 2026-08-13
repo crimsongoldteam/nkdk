@@ -1,4 +1,4 @@
-import { capitalize, markYAMLScalarTag } from "@nkdk/runtime"
+import { capitalize, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
 import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { exportPropertyValueToYAML, getImplicitValueYAML, importPropertyFromXML } from "@nkdk/runtime/rule-kit"
@@ -43,9 +43,11 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         if (propertyRule === undefined || typeof propertyRule.yaml !== "string") {
           throw new Error(`Не задано YAML-свойство PropertyState ${rule.itemType}.${property}`)
         }
-        const xmlValue = valueAtXmlPath(source, [...(propertyRule.xmlParents ?? []), property])
-        yaml[propertyRule.yaml] = importMultiStateType(context, propertyRule, xmlValue)
-        continue
+        if (mode === "multi") {
+          const xmlValue = valueAtImportXmlPath(source, rule, [...(propertyRule.xmlParents ?? []), property])
+          yaml[propertyRule.yaml] = importMultiStateType(context, propertyRule, xmlValue)
+          continue
+        }
       }
       if (yamlName === undefined) {
         throw new Error(`Не задано YAML-свойство PropertyState ${rule.itemType}.${property}`)
@@ -54,7 +56,7 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       if (capability.representation === "plain") continue
       markPropertyState(yaml, yamlName, mode === "notify" ? "проверять" : "изменять")
     }
-    importPresentPlainProperties({ context, rule, source, yaml, compatibilityMode })
+    importPresentProperties({ context, rule, source, yaml, compatibilityMode })
     const serviceProperties = extensionServiceProperties(source, rule)
     if (
       supportsAdoptionServiceProperties(rule) &&
@@ -84,26 +86,25 @@ function propertyKeyForState(
   )
 }
 
-function importPresentPlainProperties(params: {
+function importPresentProperties(params: {
   readonly context: Parameters<typeof importPropertyFromXML>[0]["context"]
   readonly rule: MetadataItemRule
   readonly source: Record<string, unknown>
   readonly yaml: Record<string, unknown>
   readonly compatibilityMode?: string
 }): void {
+  if (extensionServiceProperties(params.source, params.rule)?.objectBelonging !== "Adopted") return
   const item = propertyStateRegistry()?.item(params.rule.itemType, params.compatibilityMode)
-  for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
-    if (
-      capability.availability !== "borrowed" ||
-      capability.representation !== "plain" ||
-      capability.modes.length !== 1 ||
-      capability.modes[0] !== "extend"
-    ) continue
+  for (const propertyKey of Object.keys(item?.properties ?? {})) {
     const propertyRule = params.rule.properties[propertyKey]
     if (propertyRule === undefined || typeof propertyRule.yaml !== "string") continue
     const xmlProperty = propertyRule.xml ?? capitalize(propertyKey)
-    const owner = asRecord(valueAtXmlPath(params.source, propertyRule.xmlParents ?? []))
+    const owner = asRecord(valueAtImportXmlPath(params.source, params.rule, propertyRule.xmlParents ?? []))
     if (owner === undefined || !Object.prototype.hasOwnProperty.call(owner, xmlProperty)) continue
+    const xmlValue = owner[xmlProperty]
+    if (xmlValue !== undefined && xmlValue !== "" && !isEmptyRecord(xmlValue)) continue
+    const emptyValue = emptyPlainYAMLValue(propertyRule.type)
+    if (emptyValue === undefined) continue
     ensurePropertyYamlValue({
       context: params.context,
       rule: params.rule,
@@ -111,15 +112,22 @@ function importPresentPlainProperties(params: {
       yaml: params.yaml,
       xmlProperty,
       yamlName: propertyRule.yaml,
-      emptyValue: emptyPlainYAMLValue(propertyRule.type),
+      emptyValue,
     })
   }
 }
 
-function emptyPlainYAMLValue(type: MetadataItemRule["properties"][string]["type"]): unknown {
-  if (type === "MetadataObjectRefCollection" || type === "MetadataItemLinks") return []
-  if (type === "string" || type === "I8nText" || type === "MetadataItemLink") return ""
-  return {}
+function emptyPlainYAMLValue(type: MetadataItemRule["properties"][string]["type"]): unknown | undefined {
+  if (
+    type === "MetadataObjectRefCollection" ||
+    type === "MetadataItemLinks" ||
+    type === "CommonAttributeContent" ||
+    type === "FieldsList" ||
+    type === "XDTOPackages"
+  ) return []
+  if (type === "TypeDescription") return []
+  if (type === "string" || type === "I8nText" || type === "Picture") return ""
+  return undefined
 }
 
 function extensionServiceProperties(
@@ -130,7 +138,7 @@ function extensionServiceProperties(
   const objectBelongingRule = rule.properties.objectBelonging
   const parents = extendedRule?.xmlParents ?? objectBelongingRule?.xmlParents ??
     (rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"])
-  const properties = asRecord(valueAtXmlPath(source, parents))
+  const properties = asRecord(valueAtImportXmlPath(source, rule, parents))
   if (properties === undefined) return undefined
   const objectBelongingXML = objectBelongingRule?.xml ?? "ObjectBelonging"
   const extendedConfigurationObjectXML = extendedRule?.xml ?? "ExtendedConfigurationObject"
@@ -162,11 +170,21 @@ function ensurePropertyYamlValue(params: {
   if (propertyRule === undefined) return
   if (Object.prototype.hasOwnProperty.call(params.yaml, params.yamlName)) {
     if (propertyRule.metadataTarget !== undefined && params.yaml[params.yamlName] === null) {
-      params.yaml[params.yamlName] = {}
+      params.yaml[params.yamlName] = params.emptyValue ?? {}
+    } else if (
+      params.emptyValue !== undefined &&
+      isEmptyRecord(params.yaml[params.yamlName]) &&
+      yamlScalarTagAt(params.yaml, params.yamlName) === undefined
+    ) {
+      params.yaml[params.yamlName] = params.emptyValue
     }
     return
   }
-  const xmlValue = valueAtXmlPath(params.source, [...(propertyRule.xmlParents ?? []), params.xmlProperty])
+  const xmlValue = valueAtImportXmlPath(
+    params.source,
+    params.rule,
+    [...(propertyRule.xmlParents ?? []), params.xmlProperty],
+  )
   const importedValue = importPropertyFromXML({
     context: params.context,
     rule: propertyRule,
@@ -233,8 +251,21 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
     : undefined
 }
 
+function isEmptyRecord(value: unknown): value is Record<string, never> {
+  const record = asRecord(value)
+  return record !== undefined && Object.keys(record).length === 0
+}
+
 function valueAtXmlPath(source: Record<string, unknown>, path: readonly string[]): unknown {
   let current: unknown = source
   for (const segment of path) current = asRecord(current)?.[segment]
   return current
+}
+
+function valueAtImportXmlPath(
+  source: Record<string, unknown>,
+  rule: MetadataItemRule,
+  path: readonly string[],
+): unknown {
+  return valueAtXmlPath(source, rule.itemType === "ClientApplicationForm" && path[0] === "Form" ? path.slice(1) : path)
 }

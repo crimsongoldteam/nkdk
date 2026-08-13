@@ -37,6 +37,7 @@ export const MetadataHTTPServiceURLTemplateRules = {
       type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     },
     template: {
       yaml: "Шаблон",

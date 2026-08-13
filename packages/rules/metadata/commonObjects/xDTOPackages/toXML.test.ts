@@ -5,6 +5,16 @@ import { exportXDTOPackagesToXML } from "./toXML"
 const context = mockContextToXML()
 
 describe("exportXDTOPackagesToXML", () => {
+  it("сохраняет явно пустой список как пустой XML-элемент", () => {
+    expect(
+      exportXDTOPackagesToXML(
+        context,
+        { type: "XDTOPackages" },
+        []
+      )
+    ).toEqual({})
+  })
+
   it("выгружает имя пакета XDTO как ссылку на объект метаданных", () => {
     expect(
       exportXDTOPackagesToXML(

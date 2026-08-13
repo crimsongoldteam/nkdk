@@ -88,6 +88,16 @@ describe("MetadataInformationRegisterDimensions YAML → XML", () => {
 
     expect(serializeDirectXML(result.xml)).toContain("<Balance>true</Balance>")
   })
+
+  it("не создаёт отсутствующий признак учёта у заимствованного измерения", () => {
+    const result = testPropertyFromYAMLToXML({
+      context: accountingRegisterContext("adopted"),
+      rule,
+      yaml: { Значение: { Измерение: { Тип: "Булево" } } },
+    })
+
+    expect(serializeDirectXML(result.xml)).not.toContain("<AccountingFlag")
+  })
 })
 
 const normalize = (value: string): string => value.replace(/^\ufeff?<\?xml[^\n]*\?>\r?\n?/, "").replace(/\r\n/g, "\n").trimEnd()

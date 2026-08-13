@@ -144,7 +144,12 @@ export const MetadataChartOfCalculationTypesRules = {
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
     }),
-    comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
+    comment: stringRule({
+      yaml: "Комментарий",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
+    }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -239,7 +244,6 @@ export const MetadataChartOfCalculationTypesRules = {
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
     }),
     defaultListForm: stringRule({
       yaml: "ОсновнаяФормаСписка",

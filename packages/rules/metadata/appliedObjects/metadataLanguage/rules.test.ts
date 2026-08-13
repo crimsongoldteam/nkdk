@@ -45,6 +45,7 @@ describe("MetadataLanguageRules", () => {
         yaml: "Комментарий",
         xmlParents: ["Properties"],
         defaultValueXMLRaw: "",
+        defaultValueAdoptedXML: "",
       },
       languageCode: {
         type: "string",

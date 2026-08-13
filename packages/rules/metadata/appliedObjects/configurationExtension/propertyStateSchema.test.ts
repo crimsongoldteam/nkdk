@@ -164,8 +164,16 @@ describe("borrowed property-state schema", () => {
           metadataTarget: { kind: "member", owner: "explicit", objectRoots: ["InformationRegister"], memberKinds: ["Dimension"] },
         },
         ordinary: { type: "string", yaml: "ОбычнаяСтрока" },
-        collection: { type: "MetadataObjectRefCollection", yaml: "ОбычнаяКоллекция" },
-        object: { type: "MetadataItemLinks", yaml: "ОбычныйОбъект" },
+        collection: {
+          type: "MetadataObjectRefCollection",
+          yaml: "ОбычнаяКоллекция",
+          metadataTarget: { kind: "object", roots: ["Catalog"] },
+        },
+        object: {
+          type: "Picture",
+          yaml: "ОбычныйОбъект",
+          metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+        },
       },
     } as MetadataItemRule
     const schema = exportBorrowedPropertyStateSchema({

@@ -18,11 +18,19 @@ import { MetadataWebServiceRules } from "../metadataWebService/rules"
 import { MetadataWebSocketClientRules } from "../metadataWebSocketClient/rules"
 import { MetadataWSReferenceRules } from "../metadataWSReference/rules"
 import { MetadataXDTOPackageRules } from "../metadataXDTOPackage/rules"
+import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "../../commonObjects/accountingFlag/rules"
+import { MetadataExternalDataSourceCubeDimensionRules } from "../../commonObjects/metadataExternalDataSourceCubeDimension/rules"
+import { MetadataHTTPServiceMethodRules } from "../../commonObjects/metadataHTTPServiceMethod/rules"
+import { MetadataHTTPServiceURLTemplateRules } from "../../commonObjects/metadataHTTPServiceURLTemplate/rules"
+import { MetadataWebServiceOperationRules, MetadataWebServiceParameterRules } from "../../commonObjects/metadataWebServiceOperation/rules"
 import { defineStandardBorrowedPropertyStates } from "./standardPropertyStates"
 import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
 
 const externalStateProperties = new Map([
-  ["MetadataBot", externalProperty("module", "Модуль", ["extend"])],
+  ["MetadataBot", {
+    ...externalProperty("module", "Модуль", ["extend"]),
+    picture: presentProperty(),
+  }],
   ["MetadataHTTPService", externalProperty("module", "Модуль", ["extend"])],
   ["MetadataIntegrationService", externalProperty("module", "Модуль", ["extend"])],
   ["MetadataWebService", externalProperty("module", "Модуль", ["extend"])],
@@ -30,6 +38,20 @@ const externalStateProperties = new Map([
   ["MetadataCommonPicture", externalProperty("picture", "Картинка", ["extend"])],
   ["MetadataCommonTemplate", externalProperty("template", "Макет", ["extend"])],
   ["MetadataStyle", externalProperty("style", "Стиль", ["extend"])],
+])
+
+const presenceProperties = new Map<string, Record<string, {
+  availability: "borrowed"
+  modes: readonly []
+  representation: "plain"
+}>>([
+  ["MetadataDataProcessor", { extendedPresentation: presentProperty() }],
+  ["MetadataEventSubscription", { source: presentProperty() }],
+  ["MetadataReport", {
+    mainDataCompositionSchema: presentProperty(),
+    extendedPresentation: presentProperty(),
+  }],
+  ["MetadataWebService", { xdtoPackages: presentProperty() }],
 ])
 
 export const remainingConfigurationExtensionPropertyStateCapabilities = [
@@ -52,21 +74,39 @@ export const remainingConfigurationExtensionPropertyStateCapabilities = [
   MetadataExternalDataSourceRules,
 ].map((rule) => {
   const external = externalStateProperties.get(rule.itemType)
-  return external === undefined
+  const presence = presenceProperties.get(rule.itemType)
+  return external === undefined && presence === undefined
     ? defineStandardBorrowedPropertyStates(rule)
     : definePropertyStateItemCapabilities(rule, {
         profiles: ["borrowed-base", "mutable-synonym"],
-        properties: external,
+        properties: { ...external, ...presence },
       })
 })
 
 remainingConfigurationExtensionPropertyStateCapabilities.push(
   defineStandardBorrowedPropertyStates(MetadataEnumerationValueRules),
+  definePropertyStateItemCapabilities(AccountingFlagRules, {
+    profiles: ["borrowed-base", "typed-field"],
+    properties: {},
+  }),
+  definePropertyStateItemCapabilities(ExtDimensionAccountingFlagRules, {
+    profiles: ["borrowed-base", "typed-field"],
+    properties: {},
+  }),
+  definePropertyStateItemCapabilities(MetadataExternalDataSourceCubeDimensionRules, {
+    profiles: ["borrowed-base", "typed-field"],
+    properties: {},
+  }),
+  defineStandardBorrowedPropertyStates(MetadataHTTPServiceURLTemplateRules),
+  defineStandardBorrowedPropertyStates(MetadataHTTPServiceMethodRules),
+  defineStandardBorrowedPropertyStates(MetadataWebServiceOperationRules),
+  defineStandardBorrowedPropertyStates(MetadataWebServiceParameterRules),
   definePropertyStateItemCapabilities(MetadataCommonFormRules, {
     profiles: ["borrowed-base", "mutable-synonym"],
     properties: {
       ...externalProperty("form", "Форма", ["extend"]),
       ...externalProperty("module", "Модуль", ["extend"]),
+      extendedPresentation: presentProperty(),
     },
   }),
   definePropertyStateItemCapabilities(MetadataLanguageRules, {
@@ -89,8 +129,16 @@ remainingConfigurationExtensionPropertyStateCapabilities.push({
     itemType: "ClientApplicationForm",
     profiles: [],
     properties: {
+      childItems: { availability: "own", modes: [] },
+      commands: { availability: "own", modes: [] },
+      parameters: { availability: "own", modes: [] },
+      ...controlled("extendedPresentation"),
       ...controlled("extendedConfigurationObject"),
       ...externalProperty("form", "Форма", ["extend"]),
     },
   },
 })
+
+function presentProperty() {
+  return { availability: "borrowed", modes: [], representation: "plain" } as const
+}

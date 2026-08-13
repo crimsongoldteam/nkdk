@@ -557,6 +557,34 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       expect.objectContaining({ logicalAddress: `${logicalAddress}.form` })
     )
   })
+
+  it("сохраняет пустое расширенное представление заимствованной формы", () => {
+    const baseContext = mockXmlImportContext()
+    const collector = createConfigurationIndexCollector()
+    const extensionContext = {
+      ...baseContext,
+      fromXML: { ...baseContext.fromXML, metadataItemAugmenter: "configurationExtension" },
+    }
+    const context = withConfigurationIndexCollector(extensionContext, collector, "ОбщаяФорма.Форма")
+    const result = importClientApplicationFormFromXMLToYAML({
+      context,
+      formName: "Форма",
+      formXML: {},
+      metadataXML: {
+        Form: {
+          Properties: {
+            ObjectBelonging: "Adopted",
+            Name: "Форма",
+            FormType: "Managed",
+            ExtendedPresentation: "",
+          },
+        },
+      },
+      rule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+
+    expect(result.yaml).toMatchObject({ РасширенноеПредставление: "" })
+  })
 })
 
 function identityFacts(entities: readonly ConfigurationIndexBlockEntity[]) {

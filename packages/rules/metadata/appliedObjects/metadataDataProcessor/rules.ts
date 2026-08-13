@@ -91,7 +91,6 @@ export const MetadataDataProcessorRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
     }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",

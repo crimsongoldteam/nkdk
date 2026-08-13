@@ -285,7 +285,7 @@ const importColumnItemsFromXML = (
     .filter((item): item is HomePageWorkAreaColumnItem => item !== undefined)
 
   defineReferenceRawXML({ context, target: result, xml })
-  return result.length > 0 ? result : undefined
+  return result
 }
 
 const exportColumnItemsToXML: ExportToXMLFunctionNew = ({ context, value, referenceMetadata }) => {
@@ -306,7 +306,7 @@ const exportColumnItemsToXML: ExportToXMLFunctionNew = ({ context, value, refere
     return itemXML
   })
 
-  return items.length > 0 ? { Item: items } : undefined
+  return items.length > 0 ? { Item: items } : {}
 }
 
 const importColumnItemsFromYAML = (params: {
@@ -346,7 +346,7 @@ const exportColumnItemsToYAML = (
     return yaml
   })
 
-  return result.length > 0 ? result : undefined
+  return result
 }
 
 export const metadataRuleLayer000 = defineMetadataItemRule({
@@ -371,3 +371,7 @@ export const metadataPropertyRule012 = definePropertyTypeRule("HomePageWorkAreaC
 export const metadataPropertyRule013 = definePropertyTypeRule("HomePageWorkAreaColumnItems", "importFromYAML", importColumnItemsFromYAML)
 export const metadataPropertyRule014 = definePropertyTypeRule("HomePageWorkAreaColumnItems", "exportToYAML", exportColumnItemsToYAML)
 export const metadataPropertyRule015 = definePropertyTypeRule("HomePageWorkAreaColumnItems", "exportToJSONSchema", () => homePageWorkAreaColumnItemsSchema)
+export const metadataPropertyRule016 = definePropertyTypeRule("HomePageWorkAreaColumnItems", "xmlImportPropertyBehavior", {
+  presenceAffectsExport: true,
+  explicitEmptyValue: () => [],
+})

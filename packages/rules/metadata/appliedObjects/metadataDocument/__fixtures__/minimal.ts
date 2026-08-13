@@ -18,4 +18,6 @@ export const minimal: MetadataDocument = {
 export const minimalYAML: MetadataDocumentYAML = {
   Синоним: "",
   ВводПоСтроке: ["СтандартныйРеквизит.Номер"],
+  ПериодичностьНомера: "Непериодический",
+  КонтрольУникальности: "Истина",
 }

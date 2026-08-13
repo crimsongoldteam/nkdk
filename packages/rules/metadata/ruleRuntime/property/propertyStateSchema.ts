@@ -1,5 +1,5 @@
 import { Type, type TSchema } from "typebox"
-import type { MetadataItemRule } from "./types"
+import type { MetadataItemRule, PropertyRule } from "./types"
 import type { ResolvedPropertyStateItemCapability } from "../definition"
 import { getImplicitValueYAML } from "./toJSONSchema"
 
@@ -10,6 +10,7 @@ export function exportBorrowedPropertyStateSchema(params: {
   readonly structuralPropertyKeys?: readonly string[]
   readonly explicitXMLPropertyKeys?: readonly string[]
   readonly closed?: boolean
+  readonly includeExtendedConfigurationObject?: boolean
 }): TSchema {
   const localRoot = localSchemaRoot(params.source)
   if (localRoot !== undefined) {
@@ -49,7 +50,11 @@ export function exportBorrowedPropertyStateSchema(params: {
       const withImplicitValue = propertyRule === undefined
         ? schema
         : implicitValueSchema(
-            propertyRule.metadataTarget === undefined ? schema : Type.Union([schema, Type.Null()]),
+            capability?.representation === "plain"
+              ? plainEmptySchema(schema, propertyRule)
+              : isScalarMetadataTarget(propertyRule)
+                ? Type.Union([schema, Type.Null()])
+                : schema,
             getImplicitValueYAML(propertyRule),
           )
       return [[yamlName, capability?.representation === "tagged"
@@ -63,7 +68,10 @@ export function exportBorrowedPropertyStateSchema(params: {
         ...allowedProperties,
       }
     : allowedProperties
-  if (params.capability.properties.extendedConfigurationObject !== undefined) {
+  if (
+    params.includeExtendedConfigurationObject === true ||
+    params.capability.properties.extendedConfigurationObject !== undefined
+  ) {
     properties.ОбъектРасширяемойКонфигурации = Type.Optional(Type.Union([
       Type.Literal(false),
       Type.Object({}, { additionalProperties: false, maxProperties: 0 }),
@@ -94,6 +102,21 @@ export function exportBorrowedPropertyStateSchema(params: {
       : (source.required ?? []).filter((yamlName) => allowedYamlNames.has(yamlName)),
     additionalProperties: false,
   }
+}
+
+function isScalarMetadataTarget(rule: PropertyRule): boolean {
+  return rule.metadataTarget !== undefined &&
+    (rule.type === "string" || rule.type === "MetadataItemLink" || rule.type === "MetadataField")
+}
+
+function plainEmptySchema(
+  schema: TSchema,
+  rule: PropertyRule,
+): TSchema {
+  if (rule.type === "string" || rule.type === "I8nText" || rule.type === "MetadataItemLink" || rule.type === "Picture") {
+    return Type.Union([schema, Type.Literal("")])
+  }
+  return schema
 }
 
 function localSchemaRoot(source: TSchema): { readonly key: string; readonly schema: TSchema } | undefined {

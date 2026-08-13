@@ -277,7 +277,7 @@ function compileProjectPropertiesSchema(
     variant,
     runtime,
     rootKey: "properties",
-    excludeImplicitValueYAML: true,
+    excludeImplicitValueYAML: variant === "full",
     stripRootRefs: true,
     compatibilityMode,
   })
@@ -372,6 +372,7 @@ function compileRuleValidationSchema(params: {
         structuralPropertyKeys: structuralPropertyKeys(params.rule),
         explicitXMLPropertyKeys: explicitXMLPropertyKeys(params.rule),
         closed: params.variant !== "extension-root" && params.variant !== "extension-form-overlay",
+        includeExtendedConfigurationObject: params.variant === "extension-root",
       })
   const schemas = params.variant === "extension-overlay" || params.variant === "extension-form-overlay"
     ? propertyStateNestedSchemas(graph.schemas, params.compatibilityMode)

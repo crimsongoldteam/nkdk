@@ -9,14 +9,18 @@ interface MainAttributeKindIndex {
 export function hasMainAttributeKind(
   attributes: unknown,
   index: MainAttributeKindIndex | undefined,
-  kinds: ReadonlySet<string>
+  kinds: ReadonlySet<string>,
+  effectiveMainAttribute?: string,
 ): boolean {
-  if (!isRecord(attributes) || index === undefined) return false
+  if (index === undefined) return false
 
-  return Object.entries(attributes).some(([name, rawAttribute]) => {
+  if (isRecord(attributes) && Object.entries(attributes).some(([name, rawAttribute]) => {
     if (!isRecord(rawAttribute) || rawAttribute["ОсновнойРеквизит"] !== "Истина") return false
     return index.getRoot(name)?.typeInfo.nextTypes.some(({ kind }) => kinds.has(kind)) === true
-  })
+  })) return true
+
+  return effectiveMainAttribute !== undefined &&
+    index.getRoot(effectiveMainAttribute)?.typeInfo.nextTypes.some(({ kind }) => kinds.has(kind)) === true
 }
 
 export function findMainAttributeName(attributes: unknown): string | undefined {

@@ -85,6 +85,12 @@ describe("MetadataInformationRegisterResources YAML → XML", () => {
   it.each(["full", "adopted"] as const)("выводит обязательный Balance в варианте %s", (variant) => {
     expect(exportAccountingResource(variant)).toContain("<Balance>true</Balance>")
   })
+
+  it("не создаёт отсутствующие признаки учёта у заимствованного ресурса", () => {
+    const xml = exportAccountingResource("adopted")
+    expect(xml).not.toContain("<AccountingFlag")
+    expect(xml).not.toContain("<ExtDimensionAccountingFlag")
+  })
 })
 
 function exportAccountingResource(variant: "full" | "adopted"): string {

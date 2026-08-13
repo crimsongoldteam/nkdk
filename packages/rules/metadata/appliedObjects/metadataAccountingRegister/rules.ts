@@ -57,6 +57,7 @@ export const MetadataAccountingRegisterStandardAttributeNamesXML = (
       Object.entries(MetadataAccountingRegisterStandardAttributeNames).filter(
         ([name, yamlName]) =>
           (name !== "PeriodAdjustment" || periodAdjustmentLength !== 0) &&
+          (name !== "RecordType" || yamlNames.has(yamlName)) &&
           (!extDimensionStandardAttributeName.test(name) || yamlNames.has(yamlName))
       )
     )
@@ -83,7 +84,9 @@ export const MetadataAccountingRegisterStandardAttributeNamesXML = (
   )
   return Object.fromEntries(
     Object.entries(MetadataAccountingRegisterStandardAttributeNames).filter(
-      ([name]) => !extDimensionStandardAttributeName.test(name) || explicitExtDimensions.has(name)
+      ([name]) =>
+        name !== "RecordType" &&
+        (!extDimensionStandardAttributeName.test(name) || explicitExtDimensions.has(name))
     )
   )
 }
@@ -166,7 +169,12 @@ export const MetadataAccountingRegisterRules = {
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
     }),
-    comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
+    comment: stringRule({
+      yaml: "Комментарий",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
+    }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -183,7 +191,6 @@ export const MetadataAccountingRegisterRules = {
       yaml: "ПланСчетов",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
       ownerFactRole: "chartOfAccounts",
     }),
     correspondence: booleanRule({

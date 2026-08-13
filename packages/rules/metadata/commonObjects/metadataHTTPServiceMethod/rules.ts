@@ -36,6 +36,7 @@ export const MetadataHTTPServiceMethodRules = {
       type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     },
     httpMethod: {
       yaml: "HTTPМетод",

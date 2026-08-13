@@ -45,6 +45,9 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       logicalAddress,
     })
     if (states.length > 0) writePropertyStates(outputs, rule, states)
+    else if (adopted && propertyStateRegistry()?.item(rule.itemType) !== undefined) {
+      ensureInternalInfo(outputs, rule)
+    }
     reorderServiceProperties(outputs, rule)
     reorderMetadataRoot(outputs, rule)
   },
@@ -191,6 +194,25 @@ function propertyStates(params: {
     const xmlName = propertyRule.xml ?? capitalize(propertyKey)
     const yamlValue = typeof yamlName === "string" ? params.yaml[yamlName] : undefined
     const scalarTag = typeof yamlName === "string" ? yamlScalarTagAt(params.yaml, yamlName) : undefined
+    const capability = registry?.resolve({ itemType: params.rule.itemType, propertyKey })
+    if (
+      capability !== undefined &&
+      typeof yamlName === "string" &&
+      Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&
+      yamlValue === ""
+    ) {
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
+    }
+    if (
+      capability !== undefined &&
+      typeof yamlName === "string" &&
+      propertyRule.type === "TypeDescription" &&
+      Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&
+      Array.isArray(yamlValue) &&
+      yamlValue.length === 0
+    ) {
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
+    }
     if (
       typeof yamlName === "string" &&
       propertyRule.metadataTarget !== undefined &&
@@ -287,6 +309,16 @@ function writePropertyStates(
   const output = findMetadataOutput(outputs, serviceParents) ?? outputs.values().next().value
   if (output === undefined) return
   recordAt(output, parents)["xr:PropertyState"] = [...states]
+}
+
+function ensureInternalInfo(
+  outputs: ReadonlyMap<string, Record<string, unknown>>,
+  rule: MetadataItemRule,
+): void {
+  const parents = rule.itemType === "ClientApplicationForm" ? ["Form", "InternalInfo"] : ["InternalInfo"]
+  const serviceParents = rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"]
+  const output = findMetadataOutput(outputs, serviceParents) ?? outputs.values().next().value
+  if (output !== undefined) recordAt(output, parents)
 }
 
 function findMetadataOutput(

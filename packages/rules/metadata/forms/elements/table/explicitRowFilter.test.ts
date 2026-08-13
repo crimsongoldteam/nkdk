@@ -64,4 +64,24 @@ describe("explicit RowFilter", () => {
       }),
     })).toBe(expected)
   })
+
+  it("uses the merged form index when the extension resolver cannot see a base form attribute", () => {
+    expect(classifyTableSource({
+      dataPath: "Список",
+      index: {
+        getRoot: () => ({ typeInfo: { table: { kind: "DynamicList" } } }),
+      },
+      resolve: () => ({ status: "error" }),
+    })).toBe("dynamicList")
+  })
+
+  it("uses the merged form index when the extension resolver returns no target", () => {
+    expect(classifyTableSource({
+      dataPath: "Список",
+      index: {
+        getRoot: () => ({ typeInfo: { table: { kind: "DynamicList" } } }),
+      },
+      resolve: () => ({ status: "warning" }),
+    })).toBe("dynamicList")
+  })
 })

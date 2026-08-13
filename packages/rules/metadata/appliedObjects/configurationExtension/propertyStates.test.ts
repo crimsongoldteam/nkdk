@@ -14,6 +14,8 @@ import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
 import { clearedReferencePropertyStateCapabilities, clearedReferenceRule } from "./clearedReference.testFixture"
 import { MetadataAccountingRegisterDimensionRules } from "../metadataAccountingRegister/childRules"
+import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/rules"
+import { MetadataTaskAddressingAttributeRules } from "../../commonObjects/metadataTaskAddressingAttribute/rules"
 
 describe("configuration extension PropertyState augmenter", () => {
   it.each([
@@ -22,6 +24,8 @@ describe("configuration extension PropertyState augmenter", () => {
     ["objectPresentation", "ПредставлениеОбъекта", "ObjectPresentation", undefined, ""],
     ["owners", "Владельцы", "Owners", "MetadataObjectRefCollection", []],
     ["content", "Содержимое", "Content", "MetadataItemLinks", []],
+    ["commonAttributeContent", "Состав", "Content", "CommonAttributeContent", []],
+    ["type", "Тип", "Type", "TypeDescription", []],
   ] as const)(
     "сохраняет присутствующее пустое plain-свойство %s и отличает его от отсутствующего",
     (propertyKey, yamlName, xmlName, type, emptyYAML) => {
@@ -47,13 +51,13 @@ describe("configuration extension PropertyState augmenter", () => {
         configurationExtensionPropertyStatesAugmenter.augment({
           context: extensionContext(),
           rule,
-          source: { Properties: { [xmlName]: undefined } },
+          source: { Properties: { ObjectBelonging: "Adopted", [xmlName]: undefined } },
           yaml: present,
         })
         configurationExtensionPropertyStatesAugmenter.augment({
           context: extensionContext(),
           rule,
-          source: { Properties: {} },
+          source: { Properties: { ObjectBelonging: "Adopted" } },
           yaml: absent,
         })
       })
@@ -62,6 +66,59 @@ describe("configuration extension PropertyState augmenter", () => {
       expect(absent).toEqual({})
     },
   )
+
+  it("не переносит plain-свойство собственного объекта расширения", () => {
+    const rule = {
+      itemType: "OwnPlainItem",
+      properties: {
+        synonym: { type: "I8nText", yaml: "Синоним", xml: "Synonym", xmlParents: ["Properties"] },
+      },
+    } as MetadataItemRule
+    const yaml: Record<string, unknown> = {}
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(rule, {
+          properties: { synonym: { availability: "borrowed", modes: ["extend"], representation: "plain" } },
+        }),
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule,
+      source: { Properties: { Synonym: "Собственный" } },
+      yaml,
+    }))
+
+    expect(yaml).toEqual({})
+  })
+
+  it("сохраняет присутствующее пустое tagged-свойство без PropertyState", () => {
+    const rule = {
+      itemType: "TaggedFormat",
+      properties: {
+        format: { type: "string", yaml: "Формат", xml: "Format", xmlParents: ["Properties"] },
+      },
+    } as const satisfies MetadataItemRule
+    const yaml: Record<string, unknown> = {}
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(rule, {
+          properties: {
+            format: { availability: "borrowed", modes: ["control", "notify", "extend"], representation: "tagged" },
+          },
+        }),
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule,
+      source: { Properties: { ObjectBelonging: "Adopted", Format: "" } },
+      yaml,
+    }))
+
+    expect(yaml).toEqual({ Формат: "" })
+    expect(yamlScalarTagAt(yaml, "Формат")).toBeUndefined()
+  })
 
   it.each([
     ["Notify", "проверять"],
@@ -83,6 +140,43 @@ describe("configuration extension PropertyState augmenter", () => {
 
     expect(yaml.ИзмерениеАдресации).toEqual({})
     expect(yamlScalarTagAt(yaml, "ИзмерениеАдресации")).toBe(tag)
+  })
+
+  it("сохраняет обычный Type с Notify без требования xr:ExtendedProperty", () => {
+    const yaml: Record<string, unknown> = { Тип: "СправочникСсылка.СправочникСПредопределенными" }
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: MetadataAttributeRules,
+      source: {
+        ...propertyStates(["Type", "Notify"]),
+        Properties: { Type: { "v8:Type": "cfg:CatalogRef.СправочникСПредопределенными" } },
+      },
+      yaml,
+    }))
+
+    expect(yamlScalarTagAt(yaml, "Тип")).toBe("проверять")
+  })
+
+  it("принимает Extended для измерения адресации задачи", () => {
+    const yaml: Record<string, unknown> = { ИзмерениеАдресации: null }
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: MetadataTaskAddressingAttributeRules,
+      source: {
+        ...propertyStates(["AddressingDimension", "Extended"]),
+        Properties: { AddressingDimension: undefined },
+      },
+      yaml,
+    }))
+
+    expect(yaml.ИзмерениеАдресации).toEqual({})
+    expect(yamlScalarTagAt(yaml, "ИзмерениеАдресации")).toBe("изменять")
   })
   it("записывает снятый флажок заимствованного объекта как Ложь", () => {
     const yaml: Record<string, unknown> = {}

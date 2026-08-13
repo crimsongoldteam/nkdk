@@ -152,6 +152,7 @@ import { metadataPropertyRule012 as contribution130 } from "../commonObjects/hom
 import { metadataPropertyRule013 as contribution131 } from "../commonObjects/homePageWorkArea/register"
 import { metadataPropertyRule014 as contribution132 } from "../commonObjects/homePageWorkArea/register"
 import { metadataPropertyRule015 as contribution133 } from "../commonObjects/homePageWorkArea/register"
+import { metadataPropertyRule016 as homePageWorkAreaPresenceContribution } from "../commonObjects/homePageWorkArea/register"
 import { metadataPropertyRule001 as contribution134 } from "../commonObjects/rootCommandInterface/register"
 import { metadataPropertyRule002 as contribution135 } from "../commonObjects/rootCommandInterface/register"
 import { metadataPropertyRule003 as contribution136 } from "../commonObjects/rootCommandInterface/register"
@@ -275,6 +276,7 @@ const factoryPropertyRules = defineMetadataRules({
   contribution131,
   contribution132,
   contribution133,
+  homePageWorkAreaPresenceContribution,
   contribution134,
   contribution135,
   contribution136,

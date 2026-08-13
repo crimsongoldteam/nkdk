@@ -44,12 +44,13 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
                 }
               : {}),
             baseYaml: baseFormYAML as ClientApplicationFormYAML,
-            ...(selectedBase?.baseFormSourceKind === "projected"
-              ? {
+            ...(selectedBase === undefined
+              ? {}
+              : {
                   currentConfigurationFormYaml:
                     selectedBase.currentConfigurationFormYAML as ClientApplicationFormYAML,
                 }
-              : {}),
+            ),
             formName: name,
             rule,
           })

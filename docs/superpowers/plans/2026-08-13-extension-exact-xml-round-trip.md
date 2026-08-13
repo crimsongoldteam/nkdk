@@ -558,7 +558,8 @@ git commit -m "fix(rules): :bug: сохранить порядок групп Mu
 
 - `periodAdjustmentLength = 0`: нет `PeriodAdjustment`;
 - ненулевое значение: `PeriodAdjustment` присутствует;
-- `RecordType` расположен сразу после `Account`;
+- явно импортированный `RecordType` расположен сразу после `Account`, а без
+  него обычный регистр бухгалтерии не получает этот реквизит;
 - явно заданные YAML-значения стандартных реквизитов не заменяются каноническими.
 
 - [ ] **Step 2: Добавить RED-тесты `Balance`**
@@ -575,7 +576,7 @@ pnpm --filter @nakidka/rules exec vitest run --project core-metadata --no-isolat
 
 - [ ] **Step 4: Сделать список стандартных реквизитов зависимым от YAML**
 
-В `MetadataAccountingRegisterStandardAttributeNamesXML(source)` исключать `PeriodAdjustment`, если `Number(source.raw("periodAdjustmentLength") ?? 0) === 0`, и включить `RecordType` непосредственно после `Account`. Существующий механизм переопределений YAML оставить источником явных значений.
+В `MetadataAccountingRegisterStandardAttributeNamesXML(source)` исключать `PeriodAdjustment`, если `Number(source.raw("periodAdjustmentLength") ?? 0) === 0`, и включать `RecordType` непосредственно после `Account` только при наличии импортированного `ВидДвижения`. Существующий механизм переопределений YAML оставить источником явных значений.
 
 - [ ] **Step 5: Сделать `Balance` обязательным в `adopted`**
 
@@ -612,7 +613,7 @@ git commit -m "fix(rules): :bug: восстановить свойства ре�
 - Modify only if a missing cross-layer contract is proven by a RED test.
 - Do not modify: `e2e/fixtures/xml/**`, `e2e/fixtures/nkdk/**/.nkdk/**`, LMDB snapshot format.
 
-- [ ] **Step 1: Запустить целевые тесты исходного плана**
+- [x] **Step 1: Запустить целевые тесты исходного плана**
 
 Повторно проверить обязательные одиночные элементы форм, назначение ID, области уникальности, запись нового ID в снимок, `InternalInfo`, `Comment`, `Attributes`, `AdditionalFields` и неизменность `BaseForm`. В тот же прогон включить существующие проверки пустого `RowFilter: !xml`, отсутствующего `FillValue` в `adopted`, вычисляемого `TypeSet`, корневого `Synonym`, явного `SkipOnInput=false` и отсутствующих корневых `CompatibilityMode`, `ModalityUseMode`, `SynchronousPlatformExtensionAndAddInCallUseMode`.
 
@@ -622,7 +623,7 @@ pnpm --filter @nakidka/rules exec vitest run --project core-metadata --no-isolat
 
 Expected: PASS. Если тест падает, сначала зафиксировать минимальный RED на предметном пути; не менять XML-фикстуру.
 
-- [ ] **Step 2: Запустить все тесты пакета rules**
+- [x] **Step 2: Запустить все тесты пакета rules**
 
 ```bash
 pnpm --filter @nakidka/rules test
@@ -630,7 +631,7 @@ pnpm --filter @nakidka/rules test
 
 Expected: PASS.
 
-- [ ] **Step 3: Запустить полный e2e round-trip**
+- [x] **Step 3: Запустить полный e2e round-trip**
 
 ```bash
 pnpm test:e2e
@@ -638,7 +639,7 @@ pnpm test:e2e
 
 Expected: поддержанные XML-файлы побайтово совпадают; неподдержанный `PropertyState` даёт предметную ошибку, а не скрытое преобразование.
 
-- [ ] **Step 4: Выполнить обязательные проверки проекта**
+- [x] **Step 4: Выполнить обязательные проверки проекта**
 
 ```bash
 pnpm type-check
@@ -651,7 +652,7 @@ git diff --check
 
 Expected: все команды завершаются с кодом 0.
 
-- [ ] **Step 5: Проверить границы изменения**
+- [x] **Step 5: Проверить границы изменения**
 
 ```bash
 git diff --name-only a523b93ef...HEAD
@@ -666,7 +667,7 @@ git status --short
 - незакоммиченные пользовательские файлы не вошли в коммиты плана;
 - XML-фикстуры и двоичные `.nkdk` не изменены.
 
-- [ ] **Step 6: Commit только при необходимости интеграционного исправления**
+- [x] **Step 6: Commit только при необходимости интеграционного исправления**
 
 Если Step 1–4 потребовали дополнительной правки, выполнить отдельный TDD-коммит:
 

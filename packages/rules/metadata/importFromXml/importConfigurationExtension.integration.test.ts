@@ -113,6 +113,7 @@ describe("configuration extension XML import", () => {
       Имя: "РасширениеКонтроль",
       НазначениеРасширенияКонфигурации: "Адаптация",
       РежимСовместимостиРасширенияКонфигурации: "Версия8_3_20",
+      ОбъектРасширяемойКонфигурации: false,
       ОсновнойРежимЗапуска: "УправляемоеПриложение",
       ОсновнойЯзык: "БазовыйЯзык",
     })
@@ -475,8 +476,12 @@ function replaceAllInFile(path: string, source: string, replacement: string): vo
 
 function removeUnknownPropertyStates(path: string): void {
   const content = fs.readFileSync(path, "utf8")
-  fs.writeFileSync(path, content.replace(
+  const withoutFutureState = content.replace(
     /\s*<xr:PropertyState>\s*<xr:Property>[^<]+<\/xr:Property>\s*<xr:State>FutureState<\/xr:State>\s*<\/xr:PropertyState>/gu,
+    "",
+  )
+  fs.writeFileSync(path, withoutFutureState.replace(
+    /\s*<xr:PropertyState>\s*<xr:Property>UnknownProperty<\/xr:Property>\s*<xr:State>[^<]+<\/xr:State>\s*<\/xr:PropertyState>/gu,
     "",
   ))
 }

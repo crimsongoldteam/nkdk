@@ -472,7 +472,6 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).not.toContain('name="ExtDimensionType50"')
     expect(Array.from(result.matchAll(/<xr:StandardAttribute name="([^"]+)"/g), ([, name]) => name)).toEqual([
       "Account",
-      "RecordType",
       "Active",
       "LineNumber",
       "Recorder",
@@ -483,8 +482,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   })
 
   it.each([
-    [0, ["Account", "RecordType", "Active", "LineNumber", "Recorder", "Period"]],
-    [3, ["PeriodAdjustment", "Account", "RecordType", "Active", "LineNumber", "Recorder", "Period"]],
+    [0, ["Account", "Active", "LineNumber", "Recorder", "Period"]],
+    [3, ["PeriodAdjustment", "Account", "Active", "LineNumber", "Recorder", "Period"]],
   ] as const)("строит стандартные реквизиты регистра для длины уточнения %s", (periodAdjustmentLength, expected) => {
     const source = {
       raw(propertyKey: string): unknown {
@@ -592,7 +591,6 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     const items = standardAttributeItems(exported.xml)
     expect(items.map((item) => item._name)).toEqual([
       "Account",
-      "RecordType",
       "Active",
       "LineNumber",
       "Recorder",

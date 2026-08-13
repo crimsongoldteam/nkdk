@@ -120,7 +120,12 @@ export const MetadataCalculationRegisterRules = {
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
     }),
-    comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
+    comment: stringRule({
+      yaml: "Комментарий",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
+    }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -132,7 +137,6 @@ export const MetadataCalculationRegisterRules = {
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
     }),
     auxiliaryListForm: stringRule({
       yaml: "ДополнительнаяФормаСписка",

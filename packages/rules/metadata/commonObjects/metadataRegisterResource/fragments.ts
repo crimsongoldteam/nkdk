@@ -3,7 +3,7 @@ import {
   stringProperty,
 } from "../metadataRuleFragment"
 import {
-  isAccountingRegisterField,
+  exportAccountingFieldDefault,
   registerFieldAccountingFlagProperty,
   registerFieldBalanceProperty,
   type RegisterFieldExportContext,
@@ -19,8 +19,8 @@ const extDimensionAccountingFlag = stringProperty({
   xml: "ExtDimensionAccountingFlag",
   xmlParents: ["Properties"],
   defaultValueXMLRaw: "",
-  toXML: (_source: unknown, context?: RegisterFieldExportContext) =>
-    isAccountingRegisterField(context),
+  toXML: (source: unknown, context?: RegisterFieldExportContext) =>
+    exportAccountingFieldDefault("extDimensionAccountingFlag", source, context),
 })
 
 export const registerResourceAccountingFragment = metadataRuleFragment(

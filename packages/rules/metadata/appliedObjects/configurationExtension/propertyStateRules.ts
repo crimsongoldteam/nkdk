@@ -57,14 +57,14 @@ const metadataConfigurationExtensionPropertyStateCapabilities = definePropertySt
   MetadataConfigurationExtensionRules,
   {
     properties: {
-      ...controlled("compatibilityMode"),
-      ...extended("defaultRoles"),
       ...externalProperty("commandInterface", "КомандныйИнтерфейс", ["extend"]),
       ...externalProperty("homePageWorkArea", "РабочаяОбластьНачальнойСтраницы", ["extend"]),
       ...externalProperty("mainSectionCommandInterface", "КомандныйИнтерфейсОсновногоРаздела", ["extend"]),
       ...externalProperty("mainSectionPicture", "КартинкаОсновногоРаздела", ["extend"]),
       ...externalProperty("logo", "Логотип", ["extend"]),
       ...externalProperty("splash", "Заставка", ["extend"]),
+      ...controlled("compatibilityMode", "defaultRunMode"),
+      ...extended("defaultRoles"),
     },
   },
 )

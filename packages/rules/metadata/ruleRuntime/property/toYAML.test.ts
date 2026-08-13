@@ -52,6 +52,19 @@ describe("exportPropertyToYAML", () => {
     ).toEqual({ Поле: {} })
   })
 
+  it("preserves an empty array when XML presence affects export", () => {
+    const type = "TestArrayPresenceAffectsExport" as PropertyRuleType
+    registerTypeRule(type, "xmlImportPropertyBehavior", { presenceAffectsExport: true })
+
+    expect(
+      exportPropertyToYAML({
+        context: { ...mockContext, exportToYAML: { toTyped: false } },
+        rule: { yaml: "Поле", type } as PropertyRule,
+        value: [],
+      })
+    ).toEqual({ Поле: [] })
+  })
+
   it("omits an ordinary empty object", () => {
     expect(
       exportPropertyToYAML({

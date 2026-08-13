@@ -10,7 +10,7 @@ import {
 } from "../metadataAttribute/fragments"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const MetadataTaskAddressingAttributeRules = {
-  itemType: "MetadataAttribute",
+  itemType: "MetadataTaskAddressingAttribute",
   externalMetadata: { segment: "AddressingAttribute", placement: "ownerChild" },
   xmlOrder: [
     "objectBelonging",

@@ -900,6 +900,7 @@ function isYAMLPropertyExportEnabled(params: {
 
 function requiresYAMLToXMLEvaluation(rule: PropertyRule): boolean {
   return (
+    typeof rule.toXML === "function" ||
     rule.evaluateWhenYAMLMissing === true ||
     rule.exportNilValue === true ||
     Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
@@ -1166,8 +1167,15 @@ function subjectRequiresXML(
   return source !== undefined && typeof rule?.toXML === "function" && rule.toXML(source, context)
 }
 
+export interface XMLDefaultVariantContext {
+  readonly exportToXML: {
+    readonly configurationIndex?: { readonly logicalAddress: string }
+    readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
+  }
+}
+
 export function resolveXMLDefaultVariant(
-  context: ConfigurationContextWithExportToXML
+  context: XMLDefaultVariantContext
 ): XMLDefaultVariant | undefined {
   const variants = context.exportToXML?.xmlDefaultVariantByLogicalAddress
   let logicalAddress = context.exportToXML?.configurationIndex?.logicalAddress

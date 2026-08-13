@@ -33,7 +33,84 @@ const rule = {
   },
 } as const satisfies MetadataItemRule
 
+function exportEmptyProperty(
+  emptyRule: MetadataItemRule,
+  propertyKey: string,
+  modes: readonly ("control" | "notify" | "extend")[],
+  yaml: Record<string, unknown>,
+): Record<string, unknown> {
+  const outputs = new Map<string, Record<string, unknown>>([["metadata", { Properties: {} }]])
+  const contribution = definePropertyStateItemCapabilities(emptyRule, {
+    properties: {
+      [propertyKey]: { availability: "borrowed", modes, representation: "tagged" },
+    },
+  })
+
+  withOperationRegistrySet({
+    propertyStates: createPropertyStateCapabilityRegistry([contribution]),
+  }, () => configurationExtensionYamlToXmlAugmenter.augment({
+    context: context({ adoptedUuids: {} }),
+    rule: emptyRule,
+    yaml,
+    outputs,
+    logicalAddress,
+  }))
+
+  return record(outputs.get("metadata")).Properties as Record<string, unknown>
+}
+
 describe("configuration extension YAML-to-XML augmenter", () => {
+  it("writes an empty plain I8n property as an empty XML element", () => {
+    const emptyI8nRule = {
+      itemType: "EmptyI8nProbe",
+      properties: {
+        toolTip: { type: "I8nText", yaml: "Подсказка", xml: "ToolTip", xmlParents: ["Properties"] },
+      },
+    } as const satisfies MetadataItemRule
+    const outputs = new Map<string, Record<string, unknown>>([["metadata", {
+      Properties: { ToolTip: { "v8:item": { "v8:lang": "ru", "v8:content": "" } } },
+    }]])
+    const contribution = definePropertyStateItemCapabilities(emptyI8nRule, {
+      properties: {
+        toolTip: { availability: "borrowed", modes: ["extend"], representation: "plain" },
+      },
+    })
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([contribution]),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: {} }),
+      rule: emptyI8nRule,
+      yaml: { Подсказка: "" },
+      outputs,
+      logicalAddress,
+    }))
+
+    expect(record(outputs.get("metadata")).Properties).toEqual({ ToolTip: "" })
+  })
+
+  it("writes an explicitly empty tagged property as an empty XML element", () => {
+    const emptyRule = {
+      itemType: "EmptyTaggedProbe",
+      properties: {
+        format: { type: "string", yaml: "Формат", xml: "Format", xmlParents: ["Properties"] },
+      },
+    } as const satisfies MetadataItemRule
+    expect(exportEmptyProperty(emptyRule, "format", ["control", "notify", "extend"], { Формат: "" }))
+      .toEqual({ Format: "" })
+  })
+
+  it("writes a registered empty type as an empty XML element", () => {
+    const emptyRule = {
+      itemType: "EmptyTypeProbe",
+      properties: {
+        type: { type: "TypeDescription", yaml: "Тип", xml: "Type", xmlParents: ["Properties"] },
+      },
+    } as const satisfies MetadataItemRule
+    expect(exportEmptyProperty(emptyRule, "type", ["control", "notify"], { Тип: [] }))
+      .toEqual({ Type: "" })
+  })
+
   it("writes service properties in current rules order and states from control", () => {
     const outputs = new Map<string, Record<string, unknown>>([
       ["metadata", { Form: { Properties: { Format: "date" } } }],
@@ -225,7 +302,9 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       logicalAddress: "Catalog.Товары",
     })
 
-    expect(record(outputs.get("metadata"))).not.toHaveProperty("InternalInfo")
+    const metadata = record(outputs.get("metadata"))
+    if (_kind === "borrowed") expect(metadata.InternalInfo).toEqual({})
+    else expect(metadata).not.toHaveProperty("InternalInfo")
   })
 
   it("places extension root service fields in the platform XML order", () => {
@@ -446,6 +525,35 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     })
 
     expect(record(outputs.get("metadata"))).toEqual({ Properties: { Name: "Код" } })
+  })
+
+  it("создаёт пустой InternalInfo для заимствованного объекта с реестром состояний", () => {
+    const borrowedRule = {
+      itemType: "BorrowedProbe",
+      properties: {
+        uuid: { type: "UUID", xml: "_uuid", forReferenceOnly: true },
+        name: { type: "string", xml: "Name", xmlParents: ["Properties"] },
+      },
+    } as const satisfies MetadataItemRule
+    const contribution = definePropertyStateItemCapabilities(borrowedRule, {
+      properties: {},
+    })
+    const outputs = new Map([["metadata", { Properties: { Name: "Код" } }]])
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([contribution]),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: { [logicalAddress]: BASE_UUID } }),
+      rule: borrowedRule,
+      yaml: {},
+      outputs,
+      logicalAddress,
+    }))
+
+    expect(record(outputs.get("metadata"))).toMatchObject({
+      InternalInfo: {},
+      Properties: { Name: "Код" },
+    })
   })
 
   it("не поддерживает старый раздел Контроль", () => {

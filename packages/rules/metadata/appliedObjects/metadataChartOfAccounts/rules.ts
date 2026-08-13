@@ -149,7 +149,12 @@ export const MetadataChartOfAccountsRules = {
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
     }),
-    comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
+    comment: stringRule({
+      yaml: "Комментарий",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
+    }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -172,7 +177,6 @@ export const MetadataChartOfAccountsRules = {
       yaml: "ВидыСубконто",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
       ownerFactRole: "extDimensionTypes",
     }),
     maxExtDimensionCount: numberRule({

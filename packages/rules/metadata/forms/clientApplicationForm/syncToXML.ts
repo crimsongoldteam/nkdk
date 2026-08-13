@@ -72,8 +72,7 @@ export const prepareFormXML = (params: {
               ? { baseIndex: requireBaseConfigurationIndex(params), extensionYaml: yamlObj }
               : {}),
             baseYaml: params.baseFormPreparedYamlFile.data as ClientApplicationFormYAML,
-            ...(params.baseFormSourceKind === "projected" &&
-              params.currentConfigurationFormPreparedYamlFile !== undefined
+            ...(params.currentConfigurationFormPreparedYamlFile !== undefined
               ? {
                   currentConfigurationFormYaml:
                     params.currentConfigurationFormPreparedYamlFile.data as ClientApplicationFormYAML,

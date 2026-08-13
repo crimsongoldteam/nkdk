@@ -134,6 +134,7 @@ export const MetadataEnumerationRules = {
       yaml: "Комментарий",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",

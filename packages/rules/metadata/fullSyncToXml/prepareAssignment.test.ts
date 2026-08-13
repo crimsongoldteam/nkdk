@@ -20,7 +20,7 @@ import { MetadataConfigurationExtensionRules } from "../appliedObjects/configura
 import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "../forms/clientApplicationForm/rules"
-import { testConfigurationIndexReader } from "../../tests/configurationIndex"
+import { TEST_CONFIGURATION_UUID, testConfigurationIndexReader } from "../../tests/configurationIndex"
 
 describe("prepareFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
@@ -192,6 +192,7 @@ describe("prepareFullXmlSyncAssignment", () => {
         exportToXML: {
           ...mockContextToXML().exportToXML,
           componentKind: "configurationExtension",
+          adoptedUuids: { Конфигурация: TEST_CONFIGURATION_UUID },
         },
       },
       index: testConfigurationIndexReader(),

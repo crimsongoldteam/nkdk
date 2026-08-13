@@ -35,6 +35,7 @@ export const FilterItemComparisonRules = {
       xml: "dcsset:comparisonType",
       yaml: "ВидСравнения",
       defaultValueXML: "Equal",
+      preserveExplicitDefaultXML: true,
       implicitValueYAML: "Equal",
     }),
     rightValue: dcsMetadataTypedValueRule({

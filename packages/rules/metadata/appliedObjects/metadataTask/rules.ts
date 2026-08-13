@@ -173,6 +173,7 @@ export const MetadataTaskRules = {
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
       defaultValueXML: true,
+      preserveExplicitDefaultXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
     }),

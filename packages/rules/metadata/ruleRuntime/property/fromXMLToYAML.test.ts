@@ -589,14 +589,27 @@ describe("importPropertiesFromXMLToYAML", () => {
     ["parent", { Properties: { Value: "x" } }, { xml: "Value", xmlParents: ["Properties"], yaml: "Значение" }, "x"],
     ["model default", {}, { xml: "Value", yaml: "Значение", defaultValue: "x" }, "x"],
     ["empty default", { Value: "" }, { xml: "Value", yaml: "Значение", defaultValueXMLEmpty: "x" }, ""],
-    [
-      "cleared metadata target",
-      { Value: undefined },
-      { xml: "Value", yaml: "Значение", metadataTarget: { kind: "object", roots: ["Catalog"] } },
-      null,
-    ],
   ])("preserves %s XML selection", (_name, xml, property, expected) => {
     expect(runSingleProperty(property, xml)).toEqual({ Значение: expected })
+  })
+
+  it("импортирует очищенную скалярную ссылку расширения как null", () => {
+    expect(runSingleProperty(
+      { xml: "Value", yaml: "Значение", metadataTarget: { kind: "object", roots: ["Catalog"] } },
+      { Value: undefined },
+      {
+        ...mockContextFromXML(),
+        fromXML: { forReference: false, propertyStateCompatibilityMode: "Adaptation" },
+        exportToYAML: { toTyped: true },
+      },
+    )).toEqual({ Значение: null })
+  })
+
+  it("не импортирует пустую скалярную ссылку основной конфигурации как null", () => {
+    expect(runSingleProperty(
+      { xml: "Value", yaml: "Значение", metadataTarget: { kind: "object", roots: ["Catalog"] } },
+      { Value: undefined },
+    )).toEqual({})
   })
 
   it.each([
@@ -682,10 +695,10 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(externalFilesCollector).toEqual([{ relativePath: "Запросы/Владелец.txt", content: "ВЫБРАТЬ 1" }])
   })
 
-  it("не сохраняет aliases и присутствие явного default", () => {
+  it("сохраняет явный XML-default в YAML, но не в снимке", () => {
     const indexCollector = createConfigurationIndexCollector()
 
-    importPropertiesFromXMLToYAML({
+    const yaml = importPropertiesFromXMLToYAML({
       context: withConfigurationIndexCollector(
         { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
         indexCollector,
@@ -701,6 +714,7 @@ describe("importPropertiesFromXMLToYAML", () => {
             yaml: "ЯвноеПоУмолчанию",
             defaultValueXML: "Авто",
             preserveExplicitDefaultXML: true,
+            implicitValueYAML: "Авто",
           },
         },
       } as MetadataItemRule,
@@ -710,6 +724,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       collector: createLocalIndexesCollector(),
     })
 
+    expect(yaml).toEqual({ Заголовок: "Заголовок", ЯвноеПоУмолчанию: "Авто" })
     expect(indexCollector.fragment("test.yaml").entities).toEqual([])
   })
 
@@ -1133,10 +1148,11 @@ describe("importPropertiesFromXMLToYAML", () => {
 
 function runSingleProperty(
   property: Record<string, unknown>,
-  xml: Record<string, unknown>
+  xml: Record<string, unknown>,
+  context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
 ): Record<string, unknown> | undefined {
   return importPropertiesFromXMLToYAML({
-    context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+    context,
     rule: {
       itemType: "TestDirectItem",
       properties: { value: { type: "string", ...property } },

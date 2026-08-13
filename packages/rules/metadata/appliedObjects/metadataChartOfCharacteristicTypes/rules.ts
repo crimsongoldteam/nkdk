@@ -146,7 +146,12 @@ export const MetadataChartOfCharacteristicTypesRules = {
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
     }),
-    comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
+    comment: stringRule({
+      yaml: "Комментарий",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
+    }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -163,7 +168,6 @@ export const MetadataChartOfCharacteristicTypesRules = {
       yaml: "ДополнительныеЗначенияХарактеристик",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-      defaultValueAdoptedXML: "",
     }),
     type: typeDescriptionRule({
       yaml: "ТипЗначения",

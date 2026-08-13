@@ -8,6 +8,7 @@ import {
   registerFieldAccountingFlagProperty,
   registerFieldBalanceProperty,
 } from "../metadataRegisterField/accountingProperties"
+import { hasYAMLProperty, xmlDefaultVariant } from "../../ruleRuntime/property/xmlDefaultVariant"
 
 const registerParentItemTypes = [
   "MetadataAccumulationRegister",
@@ -19,6 +20,8 @@ const registerParentItemTypes = [
 interface RegisterDimensionExportContext {
   exportToXML: {
     itemsTree: readonly { itemType: string }[]
+    configurationIndex?: { readonly logicalAddress: string }
+    xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, "full" | "adopted" | "indexed">>
   }
 }
 
@@ -61,8 +64,9 @@ const baseDimension = booleanProperty({
   xmlParents: ["Properties"],
   defaultValueXML: false,
   implicitValueYAML: false,
-  toXML: (_source: unknown, context?: RegisterDimensionExportContext) =>
-    isCalculationRegisterField(context),
+  toXML: (source: unknown, context?: RegisterDimensionExportContext) =>
+    isCalculationRegisterField(context) &&
+    exportDimensionDefaultForXML("baseDimension", source, context, "MetadataCalculationRegister"),
 })
 
 const scheduleLink = stringProperty({
@@ -70,8 +74,9 @@ const scheduleLink = stringProperty({
   xml: "ScheduleLink",
   xmlParents: ["Properties"],
   defaultValueXMLRaw: "",
-  toXML: (_source: unknown, context?: RegisterDimensionExportContext) =>
-    isCalculationRegisterField(context),
+  toXML: (source: unknown, context?: RegisterDimensionExportContext) =>
+    isCalculationRegisterField(context) &&
+    (xmlDefaultVariant(context) !== "adopted" || hasYAMLProperty(source, "scheduleLink")),
 })
 
 const useInTotals = booleanProperty({
@@ -120,19 +125,12 @@ const exportDimensionDefaultForXML = (
   parentItemTypeWithDefault: string
 ): boolean => {
   if (!context) return true
+  if (xmlDefaultVariant(context) === "adopted") return hasYAMLProperty(source, propertyKey)
   const parentItemType = findParentItemType(context, registerParentItemTypes)
   if (parentItemType === undefined) return true
   if (parentItemType === parentItemTypeWithDefault) return true
-  return hasProperty(source, propertyKey)
+  return hasYAMLProperty(source, propertyKey)
 }
-
-const hasProperty = (source: unknown, propertyKey: string): boolean =>
-  source !== null &&
-  source !== undefined &&
-  typeof source === "object" &&
-  ("has" in source && typeof source.has === "function"
-    ? source.has(propertyKey)
-    : Object.prototype.hasOwnProperty.call(source, propertyKey))
 
 const isCalculationRegisterField = (
   context?: RegisterDimensionExportContext

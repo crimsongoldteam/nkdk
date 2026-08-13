@@ -530,10 +530,6 @@ function retargetConfigurationFragment(
   return {
     ...fragment,
     targetProjectPath,
-    entities: fragment.entities.map((entity) => ({
-      ...entity,
-      sourceProjectPath: targetProjectPath,
-    })),
   }
 }
 

@@ -556,7 +556,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({ Имя: "Код" })
-    expect(exported.xml).toEqual({ Properties: { Name: "Код" } })
+    expect(exported.xml).toEqual({ InternalInfo: {}, Properties: { Name: "Код" } })
   })
 
   it("does not create an absent reference-only property in indexed round-trip", () => {
@@ -594,7 +594,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       name: "Код",
     })
 
-    expect(exported.xml).toEqual({ Name: "Код" })
+    expect(exported.xml).toEqual({ InternalInfo: {}, Name: "Код" })
   })
 
 

@@ -29,7 +29,7 @@ import {
 import { importPropertyFromXML } from "./fromXML"
 import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
 import { getTypeRule } from "./typeRuleRegistry"
-import type { MetadataItemRule } from "./types"
+import type { MetadataItemRule, PropertyRule } from "./types"
 import { getXMLImportPlan, visitXMLImportPlan, type XMLImportPlanEntry } from "./xmlImportPlan"
 import { sortYamlRuleProperties } from "./yamlPropertyOrder"
 import { enterNestedYamlRule } from "./yamlRuleCursor"
@@ -396,7 +396,8 @@ export function importPropertiesFromXMLToYAML(params: {
           : undefined
       const clearedMetadataTarget =
         !forReference &&
-        propertyRule.metadataTarget !== undefined &&
+        sourceContext.fromXML.propertyStateCompatibilityMode !== undefined &&
+        isScalarMetadataTarget(propertyRule) &&
         importedValue === undefined &&
         presentInXML &&
         (xmlValue === undefined || xmlValue === "")
@@ -456,6 +457,7 @@ export function importPropertiesFromXMLToYAML(params: {
             name: itemName,
             owner: propertyOwner,
             execution: params.execution,
+            preserveImplicitValue: preserveExplicitDefault,
           })
         : value
       const explicitXML =
@@ -698,6 +700,11 @@ function normalizeTypeOwnedMetadataTargets(params: {
     const canonical = importStringMetadataTargetFromYAML({ rule: propertyRule, value: params.result[yamlKey], owner })
     params.result[yamlKey] = exportStringMetadataTargetToYAML({ rule: propertyRule, value: canonical, owner })
   }
+}
+
+function isScalarMetadataTarget(rule: PropertyRule): boolean {
+  return rule.metadataTarget !== undefined &&
+    (rule.type === "string" || rule.type === "MetadataItemLink" || rule.type === "MetadataField")
 }
 
 function markRelativeYAMLScalarTag(

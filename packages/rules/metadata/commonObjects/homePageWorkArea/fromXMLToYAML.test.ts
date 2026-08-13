@@ -76,4 +76,13 @@ describe("HomePageWorkArea XML → YAML", () => {
       ОтображениеКомандногоИнтерфейса: "FutureDisplay",
     })
   })
+
+  it("preserves an explicitly empty column in YAML", () => {
+    const xml = HOME_PAGE_WORK_AREA_XML.replace(
+      /\t<RightColumn>[\s\S]*?\t<\/RightColumn>/,
+      "\t<RightColumn/>"
+    )
+
+    expect(convert(xml)).toMatchObject({ ПраваяКолонка: [] })
+  })
 })

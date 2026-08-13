@@ -14,6 +14,7 @@ describe("матрица PropertyState расширения", () => {
     ["MetadataDocument", "numerator"],
     ["MetadataTask", "addressing"],
     ["MetadataExternalDataSourceTable", "nameInDataSource"],
+    ["MetadataAttribute", "format"],
   ])("разрешает все режимы для %s.%s", (itemType, propertyKey) => {
     expect(registry.resolve({ itemType, propertyKey })?.modes).toEqual([
       "control",
@@ -26,6 +27,7 @@ describe("матрица PropertyState расширения", () => {
     ["MetadataChartOfCharacteristicTypes", "type"],
     ["MetadataLanguage", "languageCode"],
     ["MetadataConfigurationExtension", "compatibilityMode"],
+    ["MetadataConfigurationExtension", "defaultRunMode"],
   ])("контролирует %s.%s", (itemType, propertyKey) => {
     expect(registry.resolve({ itemType, propertyKey })?.modes).toEqual([
       "control",
@@ -41,6 +43,19 @@ describe("матрица PropertyState расширения", () => {
   it("разрешает содержимое вынесенной общей формы", () => {
     expect(registry.resolve({ itemType: "MetadataCommonForm", propertyKey: "form" }))
       .toEqual({ availability: "borrowed", modes: ["extend"], representation: "section", externalName: "Форма" })
+  })
+
+  it.each(["childItems", "commands", "parameters"])(
+    "считает структурный контейнер формы %s собственным",
+    (propertyKey) => {
+      expect(registry.resolve({ itemType: "ClientApplicationForm", propertyKey }))
+        .toEqual({ availability: "own", modes: [] })
+    },
+  )
+
+  it("сохраняет присутствие пустого расширенного представления формы", () => {
+    expect(registry.resolve({ itemType: "ClientApplicationForm", propertyKey: "extendedPresentation" }))
+      .toEqual({ availability: "borrowed", modes: ["control", "notify"], representation: "tagged" })
   })
 
   it("различает группу общей и объектной команды", () => {
@@ -80,6 +95,19 @@ describe("матрица PropertyState расширения", () => {
       .toEqual(["extend"])
     expect(registry.resolve({ itemType: "MetadataCommand", propertyKey: "objectModule" }))
       .toBeUndefined()
+  })
+
+  it.each([
+    ["MetadataConfigurationExtension", ["commandInterface", "homePageWorkArea", "mainSectionCommandInterface", "mainSectionPicture", "logo", "splash", "compatibilityMode"]],
+    ["MetadataAccumulationRegister", ["recordSetModule", "managerModule"]],
+    ["MetadataBusinessProcess", ["objectModule", "managerModule", "flowchart", "numberType", "numberLength", "numberAllowedLength", "task"]],
+    ["MetadataChartOfCalculationTypes", ["codeLength", "descriptionLength", "codeType", "codeAllowedLength", "objectModule", "managerModule", "predefined"]],
+    ["MetadataConstant", ["valueManagerModule", "managerModule"]],
+    ["MetadataTask", ["objectModule", "managerModule", "numberType", "numberLength", "numberAllowedLength", "descriptionLength", "addressing", "mainAddressingAttribute", "currentPerformer"]],
+  ] as const)("сохраняет предметный порядок PropertyState для %s", (itemType, expected) => {
+    const expectedSet = new Set<string>(expected)
+    expect(Object.keys(registry.item(itemType)!.properties).filter((key) => expectedSet.has(key)))
+      .toEqual(expected)
   })
 
   it.each([
@@ -126,6 +154,8 @@ describe("матрица PropertyState расширения", () => {
     ["MetadataCatalog", "owners"],
     ["MetadataFunctionalOption", "content"],
     ["MetadataAccountingRegister", "explanation"],
+    ["MetadataExternalDataSourceCube", "defaultRecordForm"],
+    ["MetadataSettingsStorage", "defaultLoadForm"],
   ])("регистрирует изменяемое plain-свойство %s.%s", (itemType, propertyKey) => {
     expect(registry.resolve({ itemType, propertyKey })).toEqual({
       availability: "borrowed",
@@ -230,6 +260,13 @@ describe("матрица PropertyState расширения", () => {
     "MetadataXDTOPackage",
     "MetadataExternalDataSource",
     "MetadataConfigurationExtension",
+    "AccountingFlag",
+    "ExtDimensionAccountingFlag",
+    "MetadataExternalDataSourceCubeDimension",
+    "MetadataHTTPServiceURLTemplate",
+    "MetadataHTTPServiceMethod",
+    "MetadataWebServiceOperation",
+    "MetadataWebServiceParameter",
   ])("содержит закрытую запись вида %s", (itemType) => {
     expect(registry.item(itemType)).toBeDefined()
   })

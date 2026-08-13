@@ -606,6 +606,28 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(full.outputs.get("owner")).toEqual({ Mode: "xml-default" })
   })
 
+  it("вычисляет предметно обязательный default внутри разреженного заимствованного объекта", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted"),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Режим",
+          xml: "Mode",
+          defaultValue: "default",
+          defaultValueAdoptedXML: "adopted-xml",
+          toXML: () => true,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+      sparseYAML: true,
+      omitDefaultsForSparseYAML: true,
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Mode: "adopted-xml" })
+  })
+
   it("не применяет XML-default к заимствованному объекту при ложном предметном условии", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant("adopted"),

@@ -55,6 +55,7 @@ export const MetadataCommonTemplateRules = {
       typeSE: "TemplateType",
       xmlParents: properties,
       defaultValueXML: "SpreadsheetDocument",
+      defaultValueAdoptedXML: "SpreadsheetDocument",
       implicitValueYAML: "SpreadsheetDocument",
     }),
     template: templateRule({

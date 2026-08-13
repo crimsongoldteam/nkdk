@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { ConfigurationContextWithExportToXML, YAMLPropertySource } from "@nkdk/runtime/rule-kit"
-import { hasRowFilterTableSource } from "./dynamicListProperties"
+import { dynamicListTableProperties, hasRowFilterTableSource } from "./dynamicListProperties"
 
 const source: YAMLPropertySource = {
   itemName: "Таблица",
@@ -10,6 +10,12 @@ const source: YAMLPropertySource = {
 }
 
 describe("RowFilter таблицы формы", () => {
+  it("объявляет значения для заимствованной таблицы динамического списка", () => {
+    for (const rule of Object.values(dynamicListTableProperties)) {
+      expect(rule.defaultValueAdoptedXML).toBe(rule.implicitValueYAML)
+    }
+  })
+
   it("вычисляется при экспорте без индекса", () => {
     expect(hasRowFilterTableSource(source)).toBe(true)
   })

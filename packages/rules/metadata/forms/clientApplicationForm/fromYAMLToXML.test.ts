@@ -974,6 +974,16 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     const form = result.Form as ClientApplicationFormXML
 
     expect(elementByName(form, "Список").DataPath).toBeUndefined()
+    expect(elementByName(form, "Список")).toMatchObject({
+      AllowGettingCurrentRowURL: true,
+      AllowRootChoice: false,
+      AutoRefresh: false,
+      AutoRefreshPeriod: 60,
+      ChoiceFoldersAndItems: "Items",
+      RestoreCurrentRow: false,
+      ShowRoot: true,
+      UpdateOnDataChange: "Auto",
+    })
     expect(elementByName(form, "Список").Period).toEqual({
       "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
       "v8:startDate": "0001-01-01T00:00:00",
@@ -992,17 +1002,22 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         Элементы: {
           Номер: { Вид: "ПолеВвода" },
           Дата: { Вид: "ПолеВвода" },
+          Список: { Вид: "ТаблицаФормы" },
         },
       },
       baseYAML: {
         kind: "selectedBaseYAML",
         baseFormSourceKind: "saved",
-        baseFormYAML: { Ширина: 80 },
+        baseFormYAML: { Ширина: 80, Элементы: { Список: { Вид: "ТаблицаФормы" } } },
         currentConfigurationFormYAML: {
           Реквизиты: {
             Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+            Список: { Тип: "ДинамическийСписок" },
           },
-          Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+          Элементы: {
+            Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" },
+            Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" },
+          },
         },
       },
       baseYAMLContext: context,
@@ -1014,6 +1029,9 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(form.BaseForm).toMatchObject({ Width: 80 })
     expect(elementByName(form, "Номер").DataPath).toBeUndefined()
     expect(elementByName(form, "Дата").DataPath).toBe("Объект.Date")
+    expect(elementByName(form, "Список")).toMatchObject({ AutoRefresh: false, ShowRoot: true })
+    expect(elementByName(form.BaseForm as ClientApplicationFormXML, "Список"))
+      .toMatchObject({ AutoRefresh: false, ShowRoot: true })
   })
 })
 

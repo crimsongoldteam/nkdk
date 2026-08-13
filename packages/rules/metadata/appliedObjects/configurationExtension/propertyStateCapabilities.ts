@@ -12,42 +12,15 @@ export {
   externalProperty,
   multiState,
 } from "../../ruleRuntime/definition/propertyStateDeclarations"
+import { definePropertyStateItemCapabilities as defineItemCapabilities } from "../../ruleRuntime/definition/propertyStateDeclarations"
 import {
   CompatibilityModeFromYAML,
   CompatibilityModeToYAML,
 } from "../../systemEnumerations/types"
-import { extended } from "../../ruleRuntime/definition/propertyStateDeclarations"
 
 const DEFAULT_COMPATIBILITY_MODE = "Версия8_3_27"
 const DONT_USE_MODES = new Set(["НеИспользовать", "DontUse"])
 const VERSION_PATTERN = /^(?:Версия|Version)(\d+)_(\d+)_(\d+)$/u
-
-const MODULE_EXTERNAL_NAMES: Readonly<Record<string, string>> = {
-  objectModule: "МодульОбъекта",
-  managerModule: "МодульМенеджера",
-  recordSetModule: "МодульНабораЗаписей",
-  module: "Модуль",
-  valueManagerModule: "МодульМенеджераЗначения",
-  commandModule: "МодульКоманды",
-}
-
-const STANDARD_PLAIN_KEYS = [
-  "defaultObjectForm",
-  "defaultFolderForm",
-  "defaultListForm",
-  "defaultChoiceForm",
-  "defaultFolderChoiceForm",
-  "defaultRecordForm",
-  "defaultSettingsForm",
-  "defaultVariantForm",
-  "objectPresentation",
-  "extendedObjectPresentation",
-  "listPresentation",
-  "extendedListPresentation",
-  "owners",
-  "content",
-  "explanation",
-] as const
 
 export function definePropertyStateItemCapabilities<const Rule extends MetadataItemRule>(
   rule: Rule,
@@ -57,32 +30,7 @@ export function definePropertyStateItemCapabilities<const Rule extends MetadataI
     readonly properties?: Partial<Record<keyof Rule["properties"] & string, PropertyStatePropertyCapability>>
   },
 ): PropertyStateCapabilityContribution {
-  const modules: Record<string, PropertyStatePropertyCapability> = {}
-  for (const propertyKey of STANDARD_PLAIN_KEYS) {
-    if (rule.properties[propertyKey] !== undefined) Object.assign(modules, extended(propertyKey))
-  }
-  for (const propertyKey of Object.keys(rule.properties)) {
-    const externalName = MODULE_EXTERNAL_NAMES[propertyKey]
-    if (externalName === undefined) continue
-    modules[propertyKey] = {
-      availability: "borrowed",
-      modes: ["extend"],
-      representation: "section",
-      externalName,
-    }
-  }
-  for (const [propertyKey, property] of Object.entries(options.properties ?? {})) {
-    if (property !== undefined) modules[propertyKey] = property
-  }
-  return {
-    kind: "propertyStateCapability",
-    id: `item:${options.itemType ?? rule.itemType}`,
-    item: {
-      itemType: options.itemType ?? rule.itemType,
-      profiles: options.profiles ?? [],
-      properties: modules,
-    },
-  }
+  return defineItemCapabilities(rule, options)
 }
 
 export function createPropertyStateCapabilityRegistry(

@@ -42,6 +42,14 @@ function withExplicitXMLValidationValue(params: {
   ) return params.schema
   let schema = params.schema
   if (
+    (params.context.exportToJSONSchema?.explicitXMLValues === true ||
+      params.context.exportToJSONSchema?.validationPropertyRefs === true) &&
+    params.rule.metadataTarget !== undefined &&
+    (params.rule.type === "string" || params.rule.type === "MetadataItemLink" || params.rule.type === "MetadataField")
+  ) {
+    schema = Type.Union([schema, Type.Null()])
+  }
+  if (
     params.rule.type === "DataPath" &&
     params.rule.yaml === "ПутьКДанным" &&
     params.rule.allowedKinds !== undefined
@@ -193,6 +201,7 @@ export const exportPropertyToJSONSchema = (params: {
   const implicitYAML = getImplicitValueYAML(rule, params.execution)
   const schemaWithDefaults =
     context.exportToJSONSchema?.excludeImplicitValueYAML === true &&
+    rule.preserveExplicitDefaultXML !== true &&
     implicitYAML !== undefined &&
     exportedValue !== undefined
       ? excludeImplicitValueFromSchema(exportedValue, implicitYAML)
