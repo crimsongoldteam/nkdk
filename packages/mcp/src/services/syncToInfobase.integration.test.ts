@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { BlobReader, TextWriter, ZipReader } from "@zip.js/zip.js"
+import { BlobReader, TextWriter, Uint8ArrayWriter, ZipReader } from "@zip.js/zip.js"
 import {
   createMetadataRuntime,
   hashFileBytes,
@@ -59,6 +59,8 @@ describe("полный цикл частичной синхронизации б
     expect(fixture.deliveryDuringLoad).toBe("transferring")
     expect(fixture.zipEntries).toEqual(expect.arrayContaining(["Catalogs/Test.xml", "load.lst"]))
     expect(fixture.loadList).toBe("Catalogs/Test.xml\n")
+    const fullCatalogXml = await fixture.generateFullCatalogXml()
+    expect(Buffer.compare(Buffer.from(fixture.partialCatalogXml!), fullCatalogXml)).toBe(0)
     expect(await publishedHash(fixture.projectDir)).toBe(hashFileBytes(Buffer.from("Синоним: Изменённый\n")))
     expect(await fixture.runtime.sync.partial.readPending(
       fixture.projectDir,
@@ -210,6 +212,7 @@ describe("полный цикл частичной синхронизации б
     let deliveryDuringLoad: string | undefined
     let zipEntries: string[] = []
     let loadList = ""
+    let partialCatalogXml: Uint8Array | undefined
     let archivePath: string | undefined
     let extensionName: string | undefined
     let failFinalize = options.failFinalizeOnce === true
@@ -283,6 +286,10 @@ describe("полный цикл частичной синхронизации б
           const listEntry = entries.find(({ filename }) => filename === "load.lst")
           if (listEntry === undefined || listEntry.directory) throw new Error("load.lst отсутствует")
           loadList = await listEntry.getData(new TextWriter())
+          const catalogEntry = entries.find(({ filename }) => filename === "Catalogs/Test.xml")
+          if (catalogEntry !== undefined && !catalogEntry.directory) {
+            partialCatalogXml = await catalogEntry.getData(new Uint8ArrayWriter())
+          }
           await reader.close()
           return { mode: "designer-agent", reusedConnection: false, warnings: [] }
         },
@@ -303,6 +310,20 @@ describe("полный цикл частичной синхронизации б
       get deliveryDuringLoad() { return deliveryDuringLoad },
       get zipEntries() { return zipEntries },
       get loadList() { return loadList },
+      get partialCatalogXml() { return partialCatalogXml },
+      async generateFullCatalogXml() {
+        const outputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-reference-"))
+        temporaryProjects.push(outputDir)
+        const result = await runtime.sync.configurationToXml({
+          context: { version: "2.20", defaultLanguage: "ru" },
+          projectDir,
+          componentPath,
+          xmlDir: outputDir,
+          projectState: runtime.projects.createState(),
+        })
+        expect(result.failed, JSON.stringify(result.failed)).toEqual([])
+        return fs.readFileSync(join(outputDir, "Catalogs", "Test.xml"))
+      },
       get archivePath() { return archivePath },
       get extensionName() { return extensionName },
       get logPath() { return join(projectDir, ".nkdk", "tmp", "sync-to-infobase", "attempt-1", "platform.log") },

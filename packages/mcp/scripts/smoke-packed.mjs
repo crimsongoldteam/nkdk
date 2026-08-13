@@ -30,6 +30,16 @@ try {
   })
   if (install.status !== 0) throw new Error(`npm install failed with status ${install.status}`)
 
+  const lmdbSmoke = spawnSync(process.execPath, [
+    join(tmpRoot, "node_modules/@nkdk/mcp/dist/bin/configurationIndexSmoke.js"),
+  ], {
+    cwd: tmpRoot,
+    encoding: "utf8",
+    stdio: "inherit",
+    timeout: 30_000,
+  })
+  if (lmdbSmoke.status !== 0) throw new Error(`packed LMDB smoke failed with status ${lmdbSmoke.status}`)
+
   const command = join(tmpRoot, "node_modules/.bin/nkdk-mcp")
   const transport = new StdioClientTransport({ command, args: [] })
   const client = new Client({ name: "nkdk-packed-smoke", version: "1.0.0" })

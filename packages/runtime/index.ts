@@ -16,6 +16,10 @@ export * from "./metadata/configurationIndex/localReader"
 export * from "./metadata/configurationIndex/logicalAddress"
 export * from "./metadata/configurationIndex/referenceView"
 export * from "./metadata/configurationIndex/storePath"
+export {
+  createConfigurationIndexCandidateStore,
+  openConfigurationIndexStore,
+} from "./metadata/configurationIndex/store"
 export * from "./metadata/configurationIndex/types"
 export * from "./metadata/context/types"
 export * from "./metadata/diagnostics/binaryBatch"

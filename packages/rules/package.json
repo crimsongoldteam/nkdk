@@ -22,6 +22,7 @@
     "test:integration": "node ../../scripts/run-test-duration-check.mjs --integration -- --no-isolate --project integration --sequence.shuffle",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
+    "benchmark:configuration-index": "tsx scripts/benchmark-configuration-index.mjs",
     "measure:project-state-binary": "tsx scripts/measure-binary-project-state.ts",
     "measure:validation-schemas": "tsx --expose-gc scripts/measure-validation-schemas.mjs",
     "measure:validation-workers": "node scripts/measure-validation-workers.mjs"

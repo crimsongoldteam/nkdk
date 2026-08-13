@@ -32,7 +32,13 @@ describe.sequential("metadata project E2E", () => {
     for (const result of baseline.results) {
       expect(result.failed).toEqual([])
       expect(result.succeeded).toBeGreaterThan(0)
-      expect(result.configurationIndexPath).toBeDefined()
+      expect(result.configurationIndexPath).toBe(join(
+        baseline.projectDir,
+        ".nkdk/components",
+        result.componentPath!,
+        "configuration-index.lmdb",
+      ))
+      await expect(access(result.configurationIndexPath!)).resolves.toBeUndefined()
     }
     for (const { componentPath } of E2E_COMPONENTS) {
       await expect(access(join(baseline.projectDir, componentPath, "Конфигурация.yaml")))

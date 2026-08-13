@@ -52,6 +52,9 @@ importers:
       js-yaml:
         specifier: ^5.2.2
         version: 5.2.2
+      lmdb:
+        specifier: ^3.5.6
+        version: 3.5.6
       p-limit:
         specifier: ^7.3.1
         version: 7.3.1

@@ -32,6 +32,7 @@ const commonOptions = {
     "date-fns",
     "fast-xml-parser",
     "js-yaml",
+    "lmdb",
     "p-limit",
     "piscina",
     "ssh2",
@@ -82,6 +83,12 @@ await esbuild.build({
   ...commonOptions,
   entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/rules/workers/generic"))],
   outfile: join(binDir, "worker.js"),
+})
+
+await esbuild.build({
+  ...commonOptions,
+  entryPoints: [join(packageRoot, "src/configurationIndexSmoke.ts")],
+  outfile: join(binDir, "configurationIndexSmoke.js"),
 })
 
 await chmod(binFile, 0o755)
