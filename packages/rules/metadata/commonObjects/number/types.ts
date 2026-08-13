@@ -7,8 +7,19 @@ export const NumberJSONSchema = Type.Number()
 
 export type NumberYAML = Static<typeof NumberJSONSchema>
 
+export interface NumberMaximumWhen {
+  /** Модельный ключ соседнего свойства-переключателя. */
+  propertyKey: string
+  /** Внутреннее значение перечисления, например Number. */
+  equals: string
+  maximum: number
+}
+
 export interface NumberPropertyRule extends BasePropertyRule {
   type: "number"
+  minimum?: number
+  maximum?: number
+  maximumWhen?: NumberMaximumWhen
   /** Выгружать число с указанием `xsi:type`. `true` сохраняет старое поведение: `xs:decimal`. */
   typedXML?: true | "xs:decimal" | "xs:string"
 }

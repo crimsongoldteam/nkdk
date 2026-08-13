@@ -257,7 +257,7 @@ export interface InputByStringStandardField {
   }
 }
 
-export interface InputByStringFieldsWidePropertyRule extends MetadataFieldsWidePropertyRule {
+export interface InputByStringFieldsWidePropertyRule extends Omit<MetadataFieldsWidePropertyRule, "type"> {
   type: "InputByStringFields"
   standardFields: readonly InputByStringStandardField[]
 }

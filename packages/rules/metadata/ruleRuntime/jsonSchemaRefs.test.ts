@@ -134,6 +134,32 @@ describe("jsonSchemaRefs", () => {
     expect(check.Check(2)).toBe(true)
   })
 
+  it("keeps bounded number validation schemas separate", () => {
+    const session = createValidationSchemaTestSession(baseContext, "inline", {
+      excludeImplicitValueYAML: true,
+    })
+
+    const first = exportPropertyToJSONSchema({
+      context: session.context,
+      rule: { type: "number", minimum: 0, maximum: 50, implicitValueYAML: 9 },
+      value: undefined,
+    })
+    const second = exportPropertyToJSONSchema({
+      context: session.context,
+      rule: { type: "number", minimum: 1, maximum: 250, implicitValueYAML: 9 },
+      value: undefined,
+    })
+
+    expect(first).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/number/0..50/without-9" })
+    expect(second).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/number/1..250/without-9" })
+    expect(session.get("nkdk://schema/validation/2.20/ru/number/0..50/without-9")).toMatchObject({
+      allOf: [{ type: "number", minimum: 0, maximum: 50 }, { not: { type: "number", const: 9 } }],
+    })
+    expect(session.get("nkdk://schema/validation/2.20/ru/number/1..250/without-9")).toMatchObject({
+      allOf: [{ type: "number", minimum: 1, maximum: 250 }, { not: { type: "number", const: 9 } }],
+    })
+  })
+
   it("exports default validation refs for reusable property types without opt-in registration", () => {
     const rules = createRuleRegistrySet(defineMetadataRules({
       ...emptyMetadataRules,
