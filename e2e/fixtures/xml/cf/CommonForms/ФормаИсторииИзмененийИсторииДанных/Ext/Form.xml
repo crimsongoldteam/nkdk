@@ -72,7 +72,7 @@
 			<Button name="FormShowMultipleSelection" id="50">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.Item.Версии.StandardCommand.ShowMultipleSelection</CommandName>
-				<ExtendedTooltip name="FormShowMultipleSelectionExtendedTooltip" id="51"/>
+				<ExtendedTooltip name="FormShowMultipleSelectionРасширеннаяПодсказка" id="51"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

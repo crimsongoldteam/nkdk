@@ -35,6 +35,13 @@ describe("матрица PropertyState расширения", () => {
     ])
   })
 
+  it("контролирует максимальное количество субконто плана счетов", () => {
+    expect(registry.resolve({
+      itemType: "MetadataChartOfAccounts",
+      propertyKey: "maxExtDimensionCount",
+    })?.modes).toEqual(["control", "notify"])
+  })
+
   it("разрешает собственный состав движений заимствованного документа", () => {
     expect(registry.resolve({ itemType: "MetadataDocument", propertyKey: "registerRecords" }))
       .toEqual({ availability: "own", modes: [] })
@@ -101,6 +108,7 @@ describe("матрица PropertyState расширения", () => {
     ["MetadataConfigurationExtension", ["commandInterface", "homePageWorkArea", "mainSectionCommandInterface", "mainSectionPicture", "logo", "splash", "compatibilityMode"]],
     ["MetadataAccumulationRegister", ["recordSetModule", "managerModule"]],
     ["MetadataBusinessProcess", ["objectModule", "managerModule", "flowchart", "numberType", "numberLength", "numberAllowedLength", "task"]],
+    ["MetadataChartOfAccounts", ["maxExtDimensionCount", "codeLength", "descriptionLength", "predefined", "objectModule", "managerModule", "orderLength", "extDimensionTypes"]],
     ["MetadataChartOfCalculationTypes", ["codeLength", "descriptionLength", "codeType", "codeAllowedLength", "objectModule", "managerModule", "predefined"]],
     ["MetadataConstant", ["valueManagerModule", "managerModule"]],
     ["MetadataTask", ["objectModule", "managerModule", "numberType", "numberLength", "numberAllowedLength", "descriptionLength", "addressing", "mainAddressingAttribute", "currentPerformer"]],

@@ -49,8 +49,6 @@
       FormShowMultipleSelection:
         Вид: КнопкаКоманднойПанели
         ИмяКоманды: Form.Item.Версии.StandardCommand.ShowMultipleSelection
-        РасширеннаяПодсказка:
-          Имя: !xml FormShowMultipleSelectionExtendedTooltip
         ТипКнопки: КнопкаКоманднойПанели
   Команды:
     ОтключитьОтбор:

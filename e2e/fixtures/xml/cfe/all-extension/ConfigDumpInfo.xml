@@ -7,7 +7,7 @@
 		<Metadata name="AccountingRegister.РегистрБухгалтерии1Ext" id="108f2fa9-b42f-489d-bc89-06dc6756e037" configVersion="292a00b30f35c1a410a200a70e512cef929ae355">
 			<Metadata name="AccountingRegister.РегистрБухгалтерии1Ext.Resource.Ресурс1" id="520df453-c3fb-44ff-b37c-18364089b949"/>
 		</Metadata>
-		<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты" id="64e2dc72-5f50-4807-aa06-fc6a8463a0f0" configVersion="4bce77ab276e3436bcb0c79cd94008343f257a94">
+		<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты" id="64e2dc72-5f50-4807-aa06-fc6a8463a0f0" configVersion="7a1364f76dee0d6b4ddf44f0f63a46b67a60c3da">
 			<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.Dimension.ИспользоватьХранилищеДвоичныхДанных" id="12d55711-1b6c-4b3a-a0a2-d5746957fb98"/>
 			<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.Attribute.РеквизитВсеСвойства" id="13123a7f-6b6f-4759-922e-d199ed88091c"/>
 			<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.Attribute.РеквизитПоУмолчанию" id="4d176859-3454-4d44-886c-a70e5353843a"/>
@@ -19,7 +19,7 @@
 		<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.Form.ФормаСписка" id="bfbcca26-3d75-4d79-a323-783cd55b64bc" configVersion="44d4f582ae3ad7f59c774278493e0880fec41c67"/>
 		<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.Form.ФормаСписка.Form" id="bfbcca26-3d75-4d79-a323-783cd55b64bc.0" configVersion="e33e2a3abe1030f4ea6485af824337a61c7b060e"/>
 		<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты.Template.Макет" id="e2572c6b-7b80-477b-89ec-562ca571c1f5" configVersion="5136f270308fafe49a4ad3bd50f80a336d15b18d"/>
-		<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt" id="1c43fe17-6e87-409c-bab6-2ea4b72ca60a" configVersion="9d78272712132c9e7acaedbdabb2e9d34fcd87cd">
+		<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt" id="1c43fe17-6e87-409c-bab6-2ea4b72ca60a" configVersion="6509a147c6d3242a38317cfa6037b39a9edf4833">
 			<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.Resource.ИзмерениеИндексировать" id="05eb2d1c-4be6-4815-bacc-ba598a0890fc"/>
 			<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.Resource.РесурсВсеСвойства" id="08abf75d-cb4a-4d34-b5fd-078570c8e273"/>
 			<Metadata name="AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt.Attribute.РеквизитПоУмолчанию" id="6e65f86b-46d7-40dd-9130-ba3670349ba7"/>
@@ -340,7 +340,7 @@
 		<Metadata name="Catalog.СправочникФормаТабличнаяЧастьExt.Form.ФормаЭлемента.Form" id="79b29445-74fe-4033-b467-eed6fe175dcf.0" configVersion="9e9d74f3f64212657cf1c83c29f4fd98d2ac43da"/>
 		<Metadata name="ChartOfAccounts.ПланСчетов1" id="8deb1733-40a5-4d86-bdcf-f515038c6c02" configVersion="4f6e812c4a4a1c2e9f31528fa83429dcf354f060"/>
 		<Metadata name="ChartOfAccounts.ПланСчетов1Ext" id="6c642514-e604-4d92-9e52-468508ddf59c" configVersion="5d6cf08e64d26098a8a765eb7374e33278501f76"/>
-		<Metadata name="ChartOfAccounts.ПланСчетовВсеСвойства" id="c7aadf08-0c91-4b20-b034-88ae8d18efd0" configVersion="5ee02b2aa8de5fdeacc12d316294b5e65baff3b8">
+		<Metadata name="ChartOfAccounts.ПланСчетовВсеСвойства" id="c7aadf08-0c91-4b20-b034-88ae8d18efd0" configVersion="c253e9b29fa8586d77658b0dea1ad79c42ec5adb">
 			<Metadata name="ChartOfAccounts.ПланСчетовВсеСвойства.Attribute.РеквизитХранилище" id="07b39466-79d8-45fc-9141-338cc370371c"/>
 			<Metadata name="ChartOfAccounts.ПланСчетовВсеСвойства.ExtDimensionAccountingFlag.ПризнакУчетаСубконтоВсеСвойства" id="0f2ab9ca-1fae-43b8-abf1-e336b9f2ea36"/>
 			<Metadata name="ChartOfAccounts.ПланСчетовВсеСвойства.TabularSection.ТабличнаяЧастьВсеСвойства.Attribute.РеквизитВсеСвойства" id="311d4d1d-8849-4cef-9167-c07e684c0060"/>
@@ -530,7 +530,7 @@
 		<Metadata name="CommonTemplate.ТабличныйДокументВсеСвойстваExt.Template" id="8f399cc4-a071-494e-94a4-8687987db6f7.0" configVersion="3ffe38fc71b34b0ed55c32166840619710e06d5c"/>
 		<Metadata name="CommonTemplate.ТабличныйДокументПоУмолчанию" id="fe4fc890-0378-44d3-a1f9-4c0bafebb946" configVersion="c4445a08dbb28605ecaf723dc366c2ee2e7d7403"/>
 		<Metadata name="CommonTemplate.ТабличныйДокументПоУмолчаниюExt" id="fabffc8d-9d76-4864-9add-092cdf4234d2" configVersion="bb62090e71a13eb9b9356bed14910ca6964c361c"/>
-		<Metadata name="Configuration.Расширение_All" id="876e64b9-531a-4214-9777-5e1f1043d79c" configVersion="fab611f0dc376dd0adbf73af6aeb65731789084d"/>
+		<Metadata name="Configuration.Расширение_All" id="876e64b9-531a-4214-9777-5e1f1043d79c" configVersion="2ce1b4868ed5955608ef09195bd3314dba7f6aab"/>
 		<Metadata name="Configuration.Расширение_All.CommandInterface" id="b062cd49-8561-4707-901d-de46f0c31838.a" configVersion="6c287a3cee1540baf267080aed4bc9749b5b87b1"/>
 		<Metadata name="Configuration.Расширение_All.HomePageWorkArea" id="b062cd49-8561-4707-901d-de46f0c31838.8" configVersion="9042cce440eac54d980ebf9ca0903267a29c9475"/>
 		<Metadata name="Configuration.Расширение_All.Logo" id="b062cd49-8561-4707-901d-de46f0c31838.1" configVersion="2b02be1bae36cb1de66b06f535a45fdc691ae6ee"/>
@@ -1076,7 +1076,7 @@
 		<Metadata name="Subsystem.ПодсистемаПоУмолчаниюExt" id="a4fe2979-f328-4b8a-b6a8-9561cdf61cab" configVersion="14dfc1e50b196177644935a96777301b6d4b286d"/>
 		<Metadata name="Task.Задача1" id="0d855917-78bf-474c-ae27-385175935163" configVersion="6150584a288751ccb23b3dde0cfd95d6dd7d886b"/>
 		<Metadata name="Task.Задача1Ext" id="909d7bb1-453a-4b5c-a9e7-d95a558f183a" configVersion="1c1d1f700badaa0dc02b1aac04492a642b127fac"/>
-		<Metadata name="Task.ЗадачаВсеСвойства" id="83a7ef20-2dbd-429f-bdb5-18b22603c42e" configVersion="cebca56ac50bcc9921fd83eb543b26fd649b1de7">
+		<Metadata name="Task.ЗадачаВсеСвойства" id="83a7ef20-2dbd-429f-bdb5-18b22603c42e" configVersion="618787872d6b98df8993c8bf64e2cd052cd1d6cb">
 			<Metadata name="Task.ЗадачаВсеСвойства.AddressingAttribute.РеквизитАдресацииВсеСвойства" id="0350f5e9-d508-4064-a7af-7215789f2dd1"/>
 			<Metadata name="Task.ЗадачаВсеСвойства.TabularSection.ТабличнаяЧастьВсеСвойства" id="442454f9-687a-4155-9913-004400adc45c"/>
 			<Metadata name="Task.ЗадачаВсеСвойства.Attribute.РеквизитХранилище" id="59a86d4e-1502-41a5-95d0-14bbee8bee3a"/>

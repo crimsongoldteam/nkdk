@@ -31,6 +31,10 @@
 				<xr:ValueId>1263d566-9760-49cf-8450-645301dae221</xr:ValueId>
 			</xr:GeneratedType>
 			<xr:PropertyState>
+				<xr:Property>MaxExtDimensionCount</xr:Property>
+				<xr:State>Notify</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
 				<xr:Property>CodeLength</xr:Property>
 				<xr:State>Extended</xr:State>
 			</xr:PropertyState>
@@ -50,6 +54,10 @@
 				<xr:Property>ManagerModule</xr:Property>
 				<xr:State>Extended</xr:State>
 			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>OrderLength</xr:Property>
+				<xr:State>Notify</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
@@ -58,11 +66,13 @@
 			<Comment/>
 			<ExtendedConfigurationObject>06cc2a86-f916-4f8f-964e-66a9ad7b1fc0</ExtendedConfigurationObject>
 			<ExtDimensionTypes>ChartOfCharacteristicTypes.ВидыСубконто</ExtDimensionTypes>
+			<MaxExtDimensionCount>4</MaxExtDimensionCount>
 			<CodeLength>9</CodeLength>
 			<DescriptionLength>25</DescriptionLength>
 			<DefaultObjectForm/>
 			<DefaultListForm/>
 			<DefaultChoiceForm/>
+			<OrderLength>11</OrderLength>
 			<ObjectPresentation/>
 			<ExtendedObjectPresentation/>
 			<ListPresentation/>
