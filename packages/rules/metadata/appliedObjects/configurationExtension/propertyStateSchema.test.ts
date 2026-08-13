@@ -243,9 +243,8 @@ describe("borrowed property-state schema", () => {
       explicitXMLPropertyKeys: ["attributes"],
     }) as { properties?: Record<string, unknown> }
 
-    expect(schema.properties?.Реквизиты).toMatchObject({
-      pattern: "^!xml configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$",
-    })
+    expect(schema.properties?.Реквизиты).toEqual(expect.objectContaining({ type: "object" }))
+    expect(JSON.stringify(schema.properties?.Реквизиты)).not.toContain("configurationExtensionPropertyStateXML")
   })
 
   it("разрешает только Ложь или пустой !проверять для флажка расширяемого объекта", () => {

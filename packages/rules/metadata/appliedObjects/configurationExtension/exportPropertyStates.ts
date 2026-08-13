@@ -7,7 +7,6 @@ import { currentOperationRegistrySet } from "../../operations/operationExecution
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
 import { readPropertyStateSections } from "../../ruleRuntime/property/propertyStateSections"
-import { decodeExplicitXMLPropertyState, isExplicitXMLPropertyState } from "./explicitXMLState"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
 
@@ -165,14 +164,26 @@ function propertyStates(params: {
   readonly outputs: ReadonlyMap<string, Record<string, unknown>>
   readonly logicalAddress: string
 }): Record<string, string>[] {
-  const states: Record<string, string>[] = []
-  const itemCapability = propertyStateRegistry()?.item(params.rule.itemType)
+  const registry = propertyStateRegistry()
+  const itemCapability = registry?.item(params.rule.itemType)
   const sectionStates = itemCapability === undefined
     ? new Map<string, "notify" | "extend">()
     : readPropertyStateSections(params.yaml, itemCapability)
-  const consumedSectionKeys = new Set<string>()
+  const statesByPropertyKey = new Map<string, Record<string, string>>()
+  const addState = (
+    propertyKey: string,
+    state: "Notify" | "Extended" | "MultiState",
+  ): void => {
+    const mode = state === "Notify" ? "notify" : state === "Extended" ? "extend" : "multi"
+    const capability = registry?.resolve({ itemType: params.rule.itemType, propertyKey })
+    if (capability === undefined || !capability.modes.includes(mode)) {
+      throw new Error(`Недопустимый PropertyState ${params.rule.itemType}.${propertyKey}=${state}`)
+    }
+    const propertyRule = params.rule.properties[propertyKey]
+    statesByPropertyKey.set(propertyKey, propertyState(propertyRule?.xml ?? capitalize(propertyKey), state))
+  }
   if (yamlScalarTagAt(params.yaml, EXTENDED_CONFIGURATION_OBJECT_YAML) === "проверять") {
-    states.push(propertyState("ExtendedConfigurationObject", "Notify"))
+    addState("extendedConfigurationObject", "Notify")
   }
 
   for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
@@ -180,22 +191,8 @@ function propertyStates(params: {
     const xmlName = propertyRule.xml ?? capitalize(propertyKey)
     const yamlValue = typeof yamlName === "string" ? params.yaml[yamlName] : undefined
     const sectionMode = sectionStates.get(propertyKey)
-    if (
-      typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "xml" &&
-      typeof yamlValue === "string" && isExplicitXMLPropertyState(yamlValue)
-    ) {
-      const explicit = decodeExplicitXMLPropertyState(yamlValue, {
-        itemType: params.rule.itemType,
-        propertyKey,
-        xmlProperty: xmlName,
-      })
-      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, explicit.propertyXML)
-      states.push({ ...explicit.propertyStateXML })
-      continue
-    }
     if (sectionMode !== undefined) {
-      consumedSectionKeys.add(propertyKey)
-      states.push(propertyState(xmlName, sectionMode === "notify" ? "Notify" : "Extended"))
+      addState(propertyKey, sectionMode === "notify" ? "Notify" : "Extended")
       continue
     }
     if (
@@ -205,7 +202,7 @@ function propertyStates(params: {
     ) {
       const multiState = exportMultiStateType(params.context, propertyRule, yamlValue)
       writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, multiState.value)
-      states.push(propertyState(xmlName, multiState.state))
+      addState(propertyKey, multiState.state)
       continue
     }
     if (
@@ -213,22 +210,35 @@ function propertyStates(params: {
       yamlName !== EXTENDED_CONFIGURATION_OBJECT_YAML &&
       yamlScalarTagAt(params.yaml, yamlName) === "проверять"
     ) {
-      states.push(propertyState(xmlName, "Notify"))
+      addState(propertyKey, "Notify")
       continue
     }
     if (typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "изменять") {
       if (isEmptyRecord(yamlValue)) {
         writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
       }
-      states.push(propertyState(xmlName, "Extended"))
+      addState(propertyKey, "Extended")
       continue
     }
   }
   for (const [propertyKey, mode] of sectionStates) {
-    if (consumedSectionKeys.has(propertyKey)) continue
-    states.push(propertyState(capitalize(propertyKey), mode === "notify" ? "Notify" : "Extended"))
+    if (statesByPropertyKey.has(propertyKey)) continue
+    addState(propertyKey, mode === "notify" ? "Notify" : "Extended")
   }
-  return states
+  if (statesByPropertyKey.size === 0) return []
+  if (itemCapability === undefined) {
+    throw new Error(`Не зарегистрирован порядок PropertyState для ${params.rule.itemType}`)
+  }
+  const ordered = Object.keys(itemCapability.properties).flatMap((propertyKey) => {
+    const state = statesByPropertyKey.get(propertyKey)
+    if (state === undefined) return []
+    statesByPropertyKey.delete(propertyKey)
+    return [state]
+  })
+  if (statesByPropertyKey.size > 0) {
+    throw new Error(`Не зарегистрирован порядок PropertyState для ${params.rule.itemType}.${statesByPropertyKey.keys().next().value}`)
+  }
+  return ordered
 }
 
 function writePropertyValue(

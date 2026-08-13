@@ -88,6 +88,9 @@ remainingConfigurationExtensionPropertyStateCapabilities.push({
   item: {
     itemType: "ClientApplicationForm",
     profiles: [],
-    properties: externalProperty("form", "Форма", ["extend"]),
+    properties: {
+      ...controlled("extendedConfigurationObject"),
+      ...externalProperty("form", "Форма", ["extend"]),
+    },
   },
 })

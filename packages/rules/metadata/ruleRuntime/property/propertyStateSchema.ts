@@ -75,7 +75,7 @@ export function exportBorrowedPropertyStateSchema(params: {
         !explicitXMLPropertyKeys.has(propertyKey)
       ) continue
       const sourceSchema = source.properties?.[propertyRule.yaml]
-      if (sourceSchema !== undefined) properties[propertyRule.yaml] = explicitPropertyStateXMLSchema()
+      if (sourceSchema !== undefined) properties[propertyRule.yaml] = sourceSchema
     }
   }
   const notify = sectionNames(params.capability, "notify")
@@ -150,10 +150,6 @@ function taggedScalarSchema(source: TSchema): TSchema {
 
 function implicitValueSchema(source: TSchema, implicitValue: string | number | undefined): TSchema {
   return implicitValue === undefined ? source : Type.Union([source, Type.Literal(implicitValue)])
-}
-
-function explicitPropertyStateXMLSchema(): TSchema {
-  return Type.String({ pattern: "^!xml configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$" })
 }
 
 function sectionNames(

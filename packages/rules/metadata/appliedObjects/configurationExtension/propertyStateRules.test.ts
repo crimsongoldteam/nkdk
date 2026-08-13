@@ -82,11 +82,19 @@ describe("матрица PropertyState расширения", () => {
       .toBeUndefined()
   })
 
-  it("регистрирует подтверждённые переносчики недопустимого PropertyState", () => {
-    expect(configurationExtensionPropertyStateRules.explicitXMLProperties)
-      .toHaveProperty("MetadataChartOfAccounts.codeLength")
-    expect(configurationExtensionPropertyStateRules.explicitXMLProperties)
-      .toHaveProperty("MetadataChartOfAccounts.descriptionLength")
+  it.each([
+    ["codeLength", ["control", "notify", "extend"]],
+    ["descriptionLength", ["control", "notify", "extend"]],
+    ["extDimensionTypes", ["control", "notify"]],
+    ["orderLength", ["control", "notify"]],
+    ["maxExtDimensionCount", ["control", "notify"]],
+  ])("описывает режимы плана счетов для %s", (propertyKey, modes) => {
+    expect(registry.resolve({ itemType: "MetadataChartOfAccounts", propertyKey })?.modes).toEqual(modes)
+  })
+
+  it("не регистрирует служебные переносчики PropertyState", () => {
+    expect(JSON.stringify(configurationExtensionPropertyStateRules.explicitXMLProperties))
+      .not.toContain("configurationExtensionPropertyStateXML")
   })
 
   it("не переносит возможность по совпадению имени свойства", () => {

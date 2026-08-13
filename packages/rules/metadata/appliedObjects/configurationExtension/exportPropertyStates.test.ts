@@ -10,7 +10,9 @@ import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates
 import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
 import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
 import { MetadataConfigurationExtensionRules } from "./rules"
-import { encodeExplicitXMLPropertyState } from "./explicitXMLState"
+import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
+import { metadataExternalDataSourceTablePropertyStateCapabilities } from "../../commonObjects/metadataExternalDataSourceTable/propertyStates"
+import { configurationExtensionPropertyStateProfiles } from "./propertyStateProfiles"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 const BASE_UUID = "11111111-1111-4111-8111-111111111111"
@@ -26,6 +28,7 @@ const rule = {
       xmlParents: ["Form", "Properties"],
     },
     form: { type: "string", yaml: "Форма", xml: "Form" },
+    extendedConfigurationObject: { type: "string", runtimeOnly: true },
   },
 } as const satisfies MetadataItemRule
 
@@ -38,7 +41,15 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     const yaml = { Формат: "date", ОбъектРасширяемойКонфигурации: {} }
     markYAMLScalarTag(yaml, "Формат", "проверять")
     markYAMLScalarTag(yaml, "ОбъектРасширяемойКонфигурации", "проверять")
-    configurationExtensionYamlToXmlAugmenter.augment({
+    const contribution = definePropertyStateItemCapabilities(rule, {
+      properties: {
+        extendedConfigurationObject: { availability: "borrowed", modes: ["control", "notify"], representation: "tagged" },
+        format: { availability: "borrowed", modes: ["control", "notify"], representation: "tagged" },
+      },
+    })
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([contribution]),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
       context: context({
         adoptedUuids: { [logicalAddress]: BASE_UUID },
         extendedLogicalAddresses: [logicalAddress],
@@ -47,7 +58,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       yaml,
       outputs,
       logicalAddress,
-    })
+    }))
 
     const form = record(outputs.get("metadata")?.Form)
     expect(form.Properties).toMatchObject({
@@ -96,33 +107,37 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     })
   })
 
-  it("restores a PropertyState carrier and its original XML value", () => {
+  it("orders every PropertyState by the subject registry", () => {
     const outputs = new Map<string, Record<string, unknown>>([["metadata", { Properties: {} }]])
     const yaml = {
-      Иерархический: encodeExplicitXMLPropertyState({
-        itemType: "MetadataCatalog",
-        propertyKey: "hierarchical",
-        propertyXML: true,
-        propertyStateXML: { "xr:Property": "Hierarchical", "xr:State": "Extended" },
-      }),
+      ИмяВИсточникеДанных: "table",
+      КлючевыеПоля: ["id"],
+      ТолькоЧтение: true,
+      Изменять: ["МодульНабораЗаписей", "МодульМенеджера"],
     }
-    markYAMLScalarTag(yaml, "Иерархический", "xml")
-    configurationExtensionYamlToXmlAugmenter.augment({
+    markYAMLScalarTag(yaml, "ИмяВИсточникеДанных", "проверять")
+    markYAMLScalarTag(yaml, "КлючевыеПоля", "проверять")
+    markYAMLScalarTag(yaml, "ТолькоЧтение", "проверять")
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        ...configurationExtensionPropertyStateProfiles,
+        metadataExternalDataSourceTablePropertyStateCapabilities,
+      ]),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
       context: context({ adoptedUuids: {} }),
-      rule: {
-        itemType: "MetadataCatalog",
-        properties: {
-          hierarchical: { type: "boolean", yaml: "Иерархический", xml: "Hierarchical", xmlParents: ["Properties"] },
-        },
-      } as MetadataItemRule,
+      rule: MetadataExternalDataSourceTableRules,
       yaml,
       outputs,
       logicalAddress,
-    })
+    }))
 
-    expect(record(record(outputs.get("metadata")).Properties).Hierarchical).toBe(true)
     expect(record(record(outputs.get("metadata")).InternalInfo)["xr:PropertyState"]).toEqual([
-      { "xr:Property": "Hierarchical", "xr:State": "Extended" },
+      { "xr:Property": "NameInDataSource", "xr:State": "Notify" },
+      { "xr:Property": "KeyFields", "xr:State": "Notify" },
+      { "xr:Property": "RecordSetModule", "xr:State": "Extended" },
+      { "xr:Property": "ManagerModule", "xr:State": "Extended" },
+      { "xr:Property": "ReadOnly", "xr:State": "Notify" },
     ])
   })
 
@@ -409,21 +424,17 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     ).toThrow(`YAML-поле Контроль больше не поддерживается: ${logicalAddress}`)
   })
 
-  it("prefers Notify when the same property is saved as Extended", () => {
+  it("rejects Notify when a section property only supports Extended", () => {
     const outputs = new Map([["metadata", { Form: { Properties: {} } }]])
     const yaml = { Форма: {} }
     markYAMLScalarTag(yaml, "Форма", "проверять")
-    configurationExtensionYamlToXmlAugmenter.augment({
+    expect(() => configurationExtensionYamlToXmlAugmenter.augment({
       context: context({ adoptedUuids: {}, extended: ["form"] }),
       rule,
       yaml,
       outputs,
       logicalAddress,
-    })
-
-    expect(record(record(record(outputs.get("metadata")).Form).InternalInfo)["xr:PropertyState"]).toEqual([
-      { "xr:Property": "Form", "xr:State": "Notify" },
-    ])
+    })).toThrow("ClientApplicationForm.form=Notify")
   })
 
   it("restores Extended for a property declared in the YAML section", () => {

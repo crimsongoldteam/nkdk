@@ -10,9 +10,7 @@ import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { yamlScalarTagAt } from "@nkdk/runtime"
 import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
 import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities, externalProperty } from "./propertyStateCapabilities"
-import { metadataCatalogPropertyStateCapabilities } from "../metadataCatalog/propertyStates"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
-import { configurationExtensionPropertyStateProfiles } from "./propertyStateProfiles"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
 
 describe("configuration extension PropertyState augmenter", () => {
@@ -94,43 +92,42 @@ describe("configuration extension PropertyState augmenter", () => {
   })
 
   it("преобразует Notify по каноническому XML-имени builder-rule без явного xml", () => {
-    const yaml: Record<string, unknown> = { ОсновнойРежимЗапуска: "ManagedApplication" }
-    configurationExtensionPropertyStatesAugmenter.augment({
-      context: extensionContext(),
-      rule: {
-        itemType: "MetadataConfigurationExtension",
-        properties: {
-          defaultRunMode: systemEnumerationRule({
-            yaml: "ОсновнойРежимЗапуска",
-            typeSE: "ClientRunMode",
-          }),
-        },
+    const yaml: Record<string, unknown> = { РежимСовместимости: "Version8_3_27" }
+    const testRule = {
+      itemType: "MetadataConfigurationExtension",
+      properties: {
+        compatibilityMode: systemEnumerationRule({
+          yaml: "РежимСовместимости",
+          typeSE: "CompatibilityMode",
+        }),
+        extendedConfigurationObject: { type: "string", runtimeOnly: true },
       },
-      source: propertyStates([
-        ["DefaultRunMode", "Notify"],
-        ["ExtendedConfigurationObject", "Notify"],
-        ["DefaultRunMode", "Notify"],
-        ["Unknown", "Notify"],
+    } as MetadataItemRule
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(testRule, {
+          properties: {
+            compatibilityMode: { availability: "borrowed", modes: ["control", "notify"], representation: "tagged" },
+            extendedConfigurationObject: { availability: "borrowed", modes: ["control", "notify"], representation: "tagged" },
+          },
+        }),
       ]),
-      yaml,
-    })
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+        context: extensionContext(),
+        rule: testRule,
+        source: propertyStates([
+          ["CompatibilityMode", "Notify"],
+          ["ExtendedConfigurationObject", "Notify"],
+        ]),
+        yaml,
+      }))
 
     expect(yaml).toEqual({
-      ОсновнойРежимЗапуска: "ManagedApplication",
+      РежимСовместимости: "Version8_3_27",
       ОбъектРасширяемойКонфигурации: {},
     })
-    expect(yamlScalarTagAt(yaml, "ОсновнойРежимЗапуска")).toBe("проверять")
+    expect(yamlScalarTagAt(yaml, "РежимСовместимости")).toBe("проверять")
     expect(yamlScalarTagAt(yaml, "ОбъектРасширяемойКонфигурации")).toBe("проверять")
-
-    const singleYaml: Record<string, unknown> = {}
-    configurationExtensionPropertyStatesAugmenter.augment({
-      context: extensionContext(),
-      rule: { itemType: "SingleState", properties: {} },
-      source: propertyStates(["ExtendedConfigurationObject", "Notify"]),
-      yaml: singleYaml,
-    })
-    expect(singleYaml).toEqual({ ОбъектРасширяемойКонфигурации: {} })
-    expect(yamlScalarTagAt(singleYaml, "ОбъектРасширяемойКонфигурации")).toBe("проверять")
   })
 
   it("преобразует скалярный Extended в !изменять", () => {
@@ -175,57 +172,31 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yamlScalarTagAt(yaml, "ДлинаНомера")).toBe(tag)
   })
 
-  it("переносит известный недопустимый Extended через !xml", () => {
-    const yaml: Record<string, unknown> = { Иерархический: true }
+  it.each([
+    ["Hierarchical", "Extended", "MetadataCatalog.Hierarchical=Extended"],
+    ["DefaultListForm", "Notify", "MetadataCatalog.DefaultListForm=Notify"],
+    ["CodeLength", "MultiState", "MetadataCatalog.CodeLength=MultiState"],
+    ["UnknownLength", "Extended", "MetadataCatalog.UnknownLength=Extended"],
+    ["CodeLength", "Checked", "MetadataCatalog.CodeLength=Checked"],
+    ["CodeLength", "NotSet", "MetadataCatalog.CodeLength=NotSet"],
+    ["CodeLength", "FutureState", "MetadataCatalog.CodeLength=FutureState"],
+  ])("отклоняет неподдерживаемый PropertyState %s=%s", (xmlProperty, state, message) => {
     withOperationRegistrySet({
       propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
-    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+    }, () => expect(() => configurationExtensionPropertyStatesAugmenter.augment({
         context: extensionContext(),
-        rule: {
-          itemType: "MetadataCatalog",
-          properties: {
-            hierarchical: { type: "boolean", yaml: "Иерархический", xml: "Hierarchical", xmlParents: ["Properties"] },
-          },
-        },
+        rule: MetadataCatalogRules,
         source: {
-          ...propertyStates(["Hierarchical", "Extended"]),
-          Properties: { Hierarchical: true },
+          ...propertyStates([xmlProperty, state]),
+          Properties: { [xmlProperty]: 9 },
         },
-        yaml,
-      }))
-
-    expect(yamlScalarTagAt(yaml, "Иерархический")).toBe("xml")
-    expect(yaml.Иерархический).toMatch(/^!xml configurationExtensionPropertyStateXML:/u)
+        yaml: {},
+      })).toThrow(message))
   })
 
-  it("переносит через !xml свойство, отсутствующее в зарегистрированной матрице вида", () => {
+  it("отклоняет Extended, недоступный в режиме совместимости расширения", () => {
     const yaml: Record<string, unknown> = { ДлинаКода: 9 }
-    withOperationRegistrySet({
-      propertyStates: createPropertyStateCapabilityRegistry([
-        ...configurationExtensionPropertyStateProfiles,
-        metadataCatalogPropertyStateCapabilities,
-      ]),
-    }, () => configurationExtensionPropertyStatesAugmenter.augment({
-      context: extensionContext(),
-      rule: {
-        itemType: "MetadataCatalog",
-        properties: {
-          unknownLength: { type: "number", yaml: "ДлинаКода", xml: "UnknownLength", xmlParents: ["Properties"] },
-        },
-      } as MetadataItemRule,
-      source: {
-        ...propertyStates(["UnknownLength", "Extended"]),
-        Properties: { UnknownLength: 9 },
-      },
-      yaml,
-    }))
-
-    expect(yamlScalarTagAt(yaml, "ДлинаКода")).toBe("xml")
-  })
-
-  it("учитывает режим совместимости расширения при импорте известного Extended", () => {
-    const yaml: Record<string, unknown> = { ДлинаКода: 9 }
-    withOperationRegistrySet({
+    expect(() => withOperationRegistrySet({
       propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
     }, () => configurationExtensionPropertyStatesAugmenter.augment({
       context: extensionContext(undefined, "Конфигурация", "Version8_3_7"),
@@ -240,9 +211,7 @@ describe("configuration extension PropertyState augmenter", () => {
         Properties: { CodeLength: 9 },
       },
       yaml,
-    }))
-
-    expect(yamlScalarTagAt(yaml, "ДлинаКода")).toBe("xml")
+      }))).toThrow("MetadataCatalog.CodeLength=Extended")
   })
 
   it("заменяет Type/xr:ExtendedProperty составным YAML-типом", () => {
@@ -324,12 +293,12 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml).toEqual({ Изменять: ["Форма"] })
   })
 
-  it("не сохраняет незарегистрированный режим вынесенного свойства в снимок", () => {
+  it("отклоняет незарегистрированный режим вынесенного свойства", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Товары.Команда.Печать"
     const yaml: Record<string, unknown> = {}
 
-    configurationExtensionPropertyStatesAugmenter.augment({
+    expect(() => configurationExtensionPropertyStatesAugmenter.augment({
       context: extensionContext(collector, logicalAddress),
       rule: {
         itemType: "UnregisteredMetadataCommand",
@@ -343,7 +312,7 @@ describe("configuration extension PropertyState augmenter", () => {
       } as MetadataItemRule,
       source: propertyStates(["CommandModule", "Extended"]),
       yaml,
-    })
+    })).toThrow("UnregisteredMetadataCommand.CommandModule=Extended")
 
     expect(collector.fragment("Форма.yaml").entities).not.toEqual(expect.arrayContaining([
       expect.objectContaining({ xml: { extended: true } }),
@@ -382,22 +351,6 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml.КомандныйИнтерфейс).toBe(commandInterface)
     expect(yamlScalarTagAt(yaml, "КомандныйИнтерфейс")).toBeUndefined()
     expect(yaml.Изменять).toEqual(["КомандныйИнтерфейс"])
-  })
-
-  it("отклоняет неизвестное значение PropertyState", () => {
-    const collector = createConfigurationIndexCollector()
-    const yaml: Record<string, unknown> = {}
-
-    expect(() => configurationExtensionPropertyStatesAugmenter.augment({
-      context: extensionContext(collector, "Справочник.Товары"),
-      rule: { itemType: "UnknownItem", properties: {} } as MetadataItemRule,
-      source: propertyStates([
-        ["Form", "Extended"],
-        ["Unknown", "Extended"],
-        ["Form", "FutureState"],
-      ]),
-      yaml,
-    })).toThrow("Неизвестное значение PropertyState FutureState для UnknownItem.Form")
   })
 
   it("не сохраняет присутствие ExtendedConfigurationObject в тонком снимке", () => {

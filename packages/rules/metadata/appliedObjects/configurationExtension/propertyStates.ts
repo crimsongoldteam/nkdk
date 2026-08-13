@@ -3,10 +3,9 @@ import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataI
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { exportPropertyValueToYAML, getImplicitValueYAML, importPropertyFromXML } from "@nkdk/runtime/rule-kit"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
-import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
+import type { PropertyStateCapabilityRegistry, ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
 import { writePropertyStateSection } from "../../ruleRuntime/property/propertyStateSections"
-import { encodeExplicitXMLPropertyState } from "./explicitXMLState"
 
 const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
   ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",
@@ -19,78 +18,41 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       const property = propertyState["xr:Property"]
       const state = propertyState["xr:State"]
       if (typeof property !== "string" || typeof state !== "string") continue
-      if (state === "MultiState") {
-        const propertyEntry = propertyEntryByXmlName(rule, property)
-        const propertyRule = propertyEntry?.[1]
-        if (propertyEntry !== undefined && typeof propertyRule?.yaml === "string") {
-          const xmlValue = valueAtXmlPath(source, [...(propertyRule.xmlParents ?? []), property])
-          yaml[propertyRule.yaml] = importMultiStateType(context, propertyRule, xmlValue)
+      const registry = propertyStateRegistry()
+      const item = registry?.item(rule.itemType, compatibilityMode)
+      const propertyKey = propertyKeyForState(rule, item, property)
+      const mode = propertyStateMode(state)
+      const capability = propertyKey === undefined ? undefined : registry?.resolve({
+        itemType: rule.itemType,
+        propertyKey,
+        compatibilityMode,
+      })
+      if (mode === undefined || capability === undefined || !capability.modes.includes(mode)) {
+        throw new Error(`Недопустимый PropertyState ${rule.itemType}.${property}=${state}`)
+      }
+      if (capability.representation === "section") {
+        if (capability.externalName === undefined) {
+          throw new Error(`Не задано имя раздела PropertyState ${rule.itemType}.${property}`)
         }
+        writePropertyStateSection(yaml, item!, capability.externalName, mode === "notify" ? "notify" : "extend")
         continue
       }
-      if (state === "Notify") {
-        const section = sectionProperty(rule, property, compatibilityMode)
-        if (section !== undefined) {
-          writePropertyStateSection(yaml, section.item, section.property.externalName!, "notify")
-          continue
-        }
-        const yamlName = propertyYamlName(rule, property)
-        if (yamlName !== undefined) {
-          ensurePropertyYamlValue({ context, rule, source, yaml, xmlProperty: property, yamlName })
-          markPropertyState(yaml, yamlName, "проверять")
-        }
-        continue
-      }
-      if (state !== "Extended") {
-        if (state !== "NotSet" && state !== "Checked") {
-          throw new Error(
-            `Неизвестное значение PropertyState ${state} для ${rule.itemType}.${property}`,
-          )
-        }
-        continue
-      }
-      const section = sectionProperty(rule, property, compatibilityMode)
-      if (section !== undefined) {
-        writePropertyStateSection(yaml, section.item, section.property.externalName!, "extend")
-        continue
-      }
-      const propertyEntry = propertyEntryByXmlName(rule, property)
-      const propertyKey = propertyEntry?.[0]
+      const propertyRule = rule.properties[propertyKey!]
       const yamlName = propertyYamlName(rule, property)
-      if (yamlName !== undefined) {
-        ensurePropertyYamlValue({ context, rule, source, yaml, xmlProperty: property, yamlName })
-      }
-      if (yamlName !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlName)) {
-        const registry = propertyStateRegistry()
-        const capability = propertyKey === undefined ? undefined : registry?.resolve({
-          itemType: rule.itemType,
-          propertyKey,
-          compatibilityMode,
-        })
-        const itemCapability = registry?.item(rule.itemType)
-        if (
-          propertyKey !== undefined &&
-          itemCapability !== undefined &&
-          (capability === undefined || !capability.modes.includes("extend"))
-        ) {
-          const propertyRule = rule.properties[propertyKey]!
-          yaml[yamlName] = encodeExplicitXMLPropertyState({
-            itemType: rule.itemType,
-            propertyKey,
-            propertyXML: valueAtXmlPath(source, [...(propertyRule.xmlParents ?? []), property]),
-            propertyStateXML: {
-              "xr:Property": property,
-              "xr:State": state,
-            },
-          })
-          markYAMLScalarTag(yaml, yamlName, "xml")
-          continue
+      if (capability.representation === "multi") {
+        if (propertyRule === undefined || typeof propertyRule.yaml !== "string") {
+          throw new Error(`Не задано YAML-свойство PropertyState ${rule.itemType}.${property}`)
         }
-        if (capability?.modes.length !== 1 || capability.modes[0] !== "extend") {
-          markYAMLScalarTag(yaml, yamlName, "изменять")
-        }
+        const xmlValue = valueAtXmlPath(source, [...(propertyRule.xmlParents ?? []), property])
+        yaml[propertyRule.yaml] = importMultiStateType(context, propertyRule, xmlValue)
         continue
       }
+      if (yamlName === undefined) {
+        throw new Error(`Не задано YAML-свойство PropertyState ${rule.itemType}.${property}`)
+      }
+      ensurePropertyYamlValue({ context, rule, source, yaml, xmlProperty: property, yamlName })
+      if (capability.representation === "plain") continue
+      markPropertyState(yaml, yamlName, mode === "notify" ? "проверять" : "изменять")
     }
     importPresentPlainProperties({ context, rule, source, yaml, compatibilityMode })
     const serviceProperties = extensionServiceProperties(source, rule)
@@ -103,6 +65,23 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       yaml[NOTIFY_ALIASES.ExtendedConfigurationObject] = false
     }
   },
+}
+
+function propertyStateMode(state: string): "notify" | "extend" | "multi" | undefined {
+  if (state === "Notify") return "notify"
+  if (state === "Extended") return "extend"
+  if (state === "MultiState") return "multi"
+  return undefined
+}
+
+function propertyKeyForState(
+  rule: MetadataItemRule,
+  item: ResolvedPropertyStateItemCapability | undefined,
+  xmlProperty: string,
+): string | undefined {
+  return propertyKeyByXmlName(rule, xmlProperty) ?? Object.keys(item?.properties ?? {}).find(
+    (propertyKey) => capitalize(propertyKey) === xmlProperty,
+  )
 }
 
 function importPresentPlainProperties(params: {
@@ -211,18 +190,6 @@ function propertyEntryByXmlName(
 
 function propertyStateRegistry(): PropertyStateCapabilityRegistry | undefined {
   return currentOperationRegistrySet<{ readonly propertyStates: PropertyStateCapabilityRegistry }>()?.propertyStates
-}
-
-function sectionProperty(rule: MetadataItemRule, xmlProperty: string, compatibilityMode?: string) {
-  const propertyKey = propertyKeyByXmlName(rule, xmlProperty)
-  const item = propertyStateRegistry()?.item(rule.itemType, compatibilityMode)
-  const resolvedPropertyKey = propertyKey ?? Object.keys(item?.properties ?? {}).find(
-    (key) => capitalize(key) === xmlProperty,
-  )
-  const property = resolvedPropertyKey === undefined ? undefined : item?.properties[resolvedPropertyKey]
-  return item !== undefined && property?.representation === "section" && property.externalName !== undefined
-    ? { item, property }
-    : undefined
 }
 
 function propertyStates(source: Record<string, unknown>): Record<string, unknown>[] {

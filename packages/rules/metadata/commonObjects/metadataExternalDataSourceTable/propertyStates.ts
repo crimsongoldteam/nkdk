@@ -5,9 +5,10 @@ export const metadataExternalDataSourceTablePropertyStateCapabilities = definePr
   profiles: ["borrowed-base", "mutable-synonym"],
   properties: {
     ...controlled("tableType"),
-    ...allPropertyStateModes("nameInDataSource", "keyFields", "readOnly"),
+    ...allPropertyStateModes("nameInDataSource", "keyFields"),
+    ...externalProperty("recordSetModule", "МодульНабораЗаписей", ["extend"]),
     ...externalProperty("managerModule", "МодульМенеджера", ["extend"]),
     ...externalProperty("objectModule", "МодульОбъекта", ["extend"]),
-    ...externalProperty("recordSetModule", "МодульНабораЗаписей", ["extend"]),
+    ...allPropertyStateModes("readOnly"),
   },
 })
