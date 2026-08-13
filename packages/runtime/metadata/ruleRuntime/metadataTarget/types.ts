@@ -160,6 +160,7 @@ export interface ParsedDataTableTarget {
   root: MetadataRootName
   objectName: string
   objectSegments?: MetadataObjectSegment[]
+  tableSegments?: MetadataMemberSegment[]
   virtualTable?: string
 }
 

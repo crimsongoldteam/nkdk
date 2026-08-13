@@ -11,6 +11,7 @@ import {
   virtualDataTableToYAML,
 } from "./roots"
 import { standardMemberYamlToInternal } from "./standardMemberAliases"
+import { dataTableCanonical } from "./canonical"
 import type {
   MetadataMemberKind,
   MetadataMemberSegment,
@@ -127,6 +128,15 @@ function parseDataTable(
     index += 2
   }
 
+  const tableSegments: MetadataMemberSegment[] = []
+  while (index + 1 < parts.length) {
+    const kind = source === "yaml" ? memberKindFromYAML[parts[index] ?? ""] : parts[index]
+    const name = parts[index + 1]
+    if (kind !== "TabularSection" || !isValidMetadataName(name)) break
+    tableSegments.push({ kind, name })
+    index += 2
+  }
+
   let virtualTable: string | undefined
   if (index < parts.length) {
     if (index !== parts.length - 1) return invalidShape()
@@ -143,6 +153,7 @@ function parseDataTable(
     root,
     objectName,
     ...objectSegments.flatMap((segment) => [segment.kind, segment.objectName]),
+    ...tableSegments.flatMap((segment) => [segment.kind, segment.name]),
     ...(virtualTable === undefined ? [] : [virtualTable]),
   ].join(".")
   return success(canonical, {
@@ -150,6 +161,7 @@ function parseDataTable(
     root,
     objectName,
     ...(objectSegments.length === 0 ? {} : { objectSegments }),
+    ...(tableSegments.length === 0 ? {} : { tableSegments }),
     ...(virtualTable === undefined ? {} : { virtualTable }),
   })
 }
@@ -777,12 +789,7 @@ function formatCanonicalTarget(target: ParsedMetadataTarget): string {
       if (target.valueKind === "emptyRef") return `${target.root}.${target.objectName}.${emptyRefModel}`
       return `${target.root}.${target.objectName}.${target.valueName}`
     case "dataTable":
-      return [
-        target.root,
-        target.objectName,
-        ...(target.objectSegments ?? []).flatMap((segment) => [segment.kind, segment.objectName]),
-        ...(target.virtualTable === undefined ? [] : [target.virtualTable]),
-      ].join(".")
+      return dataTableCanonical(target)
     case "dataTableField":
       return target.table === undefined || target.segments === undefined
         ? target.fieldName

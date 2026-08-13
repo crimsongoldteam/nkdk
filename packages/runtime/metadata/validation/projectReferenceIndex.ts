@@ -8,6 +8,7 @@ import type {
   ParsedMetadataTarget,
 } from "../ruleRuntime/metadataTarget"
 import { objectPathKindToYAML, rootToYAML } from "../ruleRuntime/metadataTarget/roots"
+import { dataTableCanonical } from "../ruleRuntime/metadataTarget/canonical"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
 
@@ -166,6 +167,30 @@ export function projectValueIndexKey(target: Extract<ParsedMetadataTarget, { kin
   ]
   if ("valueName" in target) return [...base, target.valueName].join(".")
   return base.join(".")
+}
+
+export function projectDataTableIndexKey(
+  target: Extract<ParsedMetadataTarget, { kind: "dataTable" }>,
+): string {
+  return dataTableCanonical(target)
+}
+
+export function projectDataTableFieldIndexKey(
+  target: Extract<ParsedMetadataTarget, { kind: "dataTableField" }>,
+): string {
+  if (target.table === undefined || target.segments === undefined) return target.fieldName
+  return [
+    projectDataTableIndexKey(target.table),
+    ...target.segments.flatMap((segment) => [segment.kind, segment.name]),
+  ].join(".")
+}
+
+export function projectMetadataTargetIndexKey(target: ParsedMetadataTarget): string {
+  if (target.kind === "object") return projectObjectIndexKey(target)
+  if (target.kind === "member") return projectMemberIndexKey(target)
+  if (target.kind === "value") return projectValueIndexKey(target)
+  if (target.kind === "dataTable") return projectDataTableIndexKey(target)
+  return projectDataTableFieldIndexKey(target)
 }
 
 function valueTargetObjectSegments(

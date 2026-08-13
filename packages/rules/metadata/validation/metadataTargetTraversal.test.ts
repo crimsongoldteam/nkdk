@@ -119,6 +119,48 @@ describe("collectMetadataTargetReferencesInModel", () => {
     ])
   })
 
+  it("collects table fields and skips translate-only table fields", () => {
+    const rule: MetadataItemRule = {
+      itemType: "MetadataTask",
+      properties: {
+        indexedFields: {
+          type: "MetadataItemLinks",
+          yaml: "ИндексируемыеПоля",
+          metadataTarget: { kind: "dataTableField", tableProperty: "table" },
+        },
+        characteristicFields: {
+          type: "MetadataItemLinks",
+          yaml: "ПоляХарактеристик",
+          metadataTarget: {
+            kind: "dataTableField",
+            tableProperty: "characteristicTable",
+            validation: "translateOnly",
+          },
+        },
+      },
+    } as never
+
+    const result = collectMetadataTargetReferencesInModel({
+      filePath: "/tmp/Задача/Задачи/Свойства.yaml",
+      parsed: emptyParsedYaml(),
+      model: {
+        itemType: "MetadataTask",
+        indexedFields: ["Date"],
+        characteristicFields: ["Ref"],
+      } as never,
+      rule,
+    })
+
+    expect(result.diagnostics).toEqual([])
+    expect(result.references).toEqual([
+      expect.objectContaining({
+        yamlPath: ["ИндексируемыеПоля", 0],
+        canonical: "Date",
+        target: { kind: "dataTableField", fieldName: "Date" },
+      }),
+    ])
+  })
+
   it("collects structure diagnostics for invalid pending metadata targets", () => {
     const rule: MetadataItemRule = {
       itemType: "MetadataDocument",

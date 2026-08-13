@@ -135,12 +135,13 @@ function dataTableSchema(constraint: Extract<MetadataTargetConstraint, { kind: "
     `База${METADATA_NAME_PATTERN}`,
   ].join("|")
   const nestedObjects = `(?:\\.(?:${nestedKindGroup})\\.${METADATA_NAME_PATTERN})*`
+  const tabularSections = `(?:\\.${memberKindToYAML.TabularSection}\\.${METADATA_NAME_PATTERN})*`
   const virtualTable = `(?:\\.(?:${virtualTableGroup}))?`
 
   return Type.String({
     pattern: selectedRoots.length === 0
       ? noMatchPattern
-      : `^(?:${rootGroup})\\.${METADATA_NAME_PATTERN}${nestedObjects}${virtualTable}$`,
+      : `^(?:${rootGroup})\\.${METADATA_NAME_PATTERN}${nestedObjects}${tabularSections}${virtualTable}$`,
     examples: ["РегистрСведений.ИмяРегистра.СрезПоследних"],
     description: "Таблица объекта метаданных или её виртуальная таблица. Имена объектов проверяются командой validate.",
   })

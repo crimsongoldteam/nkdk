@@ -15,14 +15,14 @@ import { materializeCanonicalMetadataReference, materializeMetadataValueReferenc
 
 const validateStringTarget: ValidateMetadataTargetFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return []
-  if (params.propRule.type === "string" && params.propRule.metadataTarget?.kind !== "member") return []
+  if (!isCollectedStringTarget(params.propRule.type, params.propRule.metadataTarget)) return []
   return validateCanonicalTarget(params, params.value)
 }
 
 const collectStringTargetReference: StructuralReferencesFunction = (params) => {
   if (!params.propRule.metadataTarget) return []
   if (typeof params.value !== "string" || params.value === "") return []
-  if (params.propRule.type === "string" && params.propRule.metadataTarget.kind !== "member") return []
+  if (!isCollectedStringTarget(params.propRule.type, params.propRule.metadataTarget)) return []
 
   const parsed = parseMetadataTargetFromModel({
     canonical: params.value,
@@ -100,10 +100,21 @@ const collectMetadataValueReference: StructuralReferencesFunction = (params) => 
 
 const collectStringTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return { references: [], diagnostics: [] }
-  if (params.propRule.type === "string" && params.propRule.metadataTarget?.kind !== "member") {
+  if (!isCollectedStringTarget(params.propRule.type, params.propRule.metadataTarget)) {
     return { references: [], diagnostics: [] }
   }
   return collectCanonicalTarget(params, params.value)
+}
+
+function isCollectedStringTarget(
+  propertyType: string,
+  constraint: MetadataTargetConstraint | undefined,
+): boolean {
+  if (constraint === undefined) return false
+  if ((constraint.kind === "dataTable" || constraint.kind === "dataTableField")
+    && constraint.validation === "translateOnly") return false
+  if (propertyType !== "string") return true
+  return constraint.kind === "member" || constraint.kind === "dataTable" || constraint.kind === "dataTableField"
 }
 
 export const collectStringTargetListForValidation: CollectMetadataTargetReferencesFunction = (params) => {

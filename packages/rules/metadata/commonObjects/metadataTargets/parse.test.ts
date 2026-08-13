@@ -9,6 +9,7 @@ describe("metadataTargets parser", () => {
     ["AccountingRegister.Хозрасчетный.RecordsWithExtDimensions", "РегистрБухгалтерии.Хозрасчетный.ДвиженияССубконто"],
     ["CalculationRegister.Начисления.BaseБаза", "РегистрРасчета.Начисления.БазаБаза"],
     ["BusinessProcess.Согласование.Points", "БизнесПроцесс.Согласование.Точки"],
+    ["Catalog.Товары.TabularSection.Состав", "Справочник.Товары.ТабличнаяЧасть.Состав"],
     [
       "ExternalDataSource.Источник.Cube.Куб.DimensionTable.Измерение",
       "ВнешнийИсточникДанных.Источник.Куб.Куб.ТаблицаИзмерения.Измерение",

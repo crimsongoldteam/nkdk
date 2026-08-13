@@ -260,6 +260,26 @@ function elementTypes(): readonly string[] {
 
 function assertParsedMetadataTarget(value: unknown, path: string): void {
   const target = requiredRecord(value, path)
+  if (target["kind"] === "dataTable") {
+    assertExactKeys(target, ["kind", "root", "objectName", "objectSegments", "tableSegments", "virtualTable"], path)
+    assertRootedTarget(target, path)
+    if (target["tableSegments"] !== undefined) {
+      assertRows(target["tableSegments"], `${path}.tableSegments`, ["kind", "name"], (segment, segmentPath) => {
+        assertStringIn(segment["kind"], ["TabularSection"], `${segmentPath}.kind`)
+        assertString(segment["name"], `${segmentPath}.name`)
+      })
+    }
+    if (target["virtualTable"] !== undefined) assertString(target["virtualTable"], `${path}.virtualTable`)
+    return
+  }
+  if (target["kind"] === "dataTableField") {
+    assertExactKeys(target, ["kind", "fieldName", "table", "segments", "serviceValue"], path)
+    assertString(target["fieldName"], `${path}.fieldName`)
+    if (target["table"] !== undefined) assertParsedMetadataTarget(target["table"], `${path}.table`)
+    if (target["segments"] !== undefined) assertMemberSegments(target["segments"], `${path}.segments`)
+    assertOptionalBoolean(target["serviceValue"], `${path}.serviceValue`)
+    return
+  }
   if (target["kind"] === "object") {
     assertExactKeys(target, ["kind", "root", "objectName", "segments"], path)
     assertStringIn(target["root"], METADATA_ROOT_NAMES, `${path}.root`)
@@ -269,15 +289,8 @@ function assertParsedMetadataTarget(value: unknown, path: string): void {
   }
   if (target["kind"] === "member") {
     assertExactKeys(target, ["kind", "root", "objectName", "objectSegments", "segments"], path)
-    assertStringIn(target["root"], METADATA_ROOT_NAMES, `${path}.root`)
-    assertString(target["objectName"], `${path}.objectName`)
-    if (target["objectSegments"] !== undefined) {
-      assertObjectSegments(target["objectSegments"], `${path}.objectSegments`)
-    }
-    assertRows(target["segments"], `${path}.segments`, ["kind", "name"], (segment, segmentPath) => {
-      assertStringIn(segment["kind"], METADATA_MEMBER_KINDS, `${segmentPath}.kind`)
-      assertString(segment["name"], `${segmentPath}.name`)
-    })
+    assertRootedTarget(target, path)
+    assertMemberSegments(target["segments"], `${path}.segments`)
     return
   }
   if (target["kind"] !== "value") throw new Error(`${path}.kind имеет неизвестное значение`)
@@ -290,6 +303,21 @@ function assertParsedMetadataTarget(value: unknown, path: string): void {
   }
   assertStringIn(target["root"], METADATA_ROOT_NAMES, `${path}.root`)
   assertString(target["objectName"], `${path}.objectName`)
+}
+
+function assertRootedTarget(target: Record<string, unknown>, path: string): void {
+  assertStringIn(target["root"], METADATA_ROOT_NAMES, `${path}.root`)
+  assertString(target["objectName"], `${path}.objectName`)
+  if (target["objectSegments"] !== undefined) {
+    assertObjectSegments(target["objectSegments"], `${path}.objectSegments`)
+  }
+}
+
+function assertMemberSegments(value: unknown, path: string): void {
+  assertRows(value, path, ["kind", "name"], (segment, segmentPath) => {
+    assertStringIn(segment["kind"], METADATA_MEMBER_KINDS, `${segmentPath}.kind`)
+    assertString(segment["name"], `${segmentPath}.name`)
+  })
 }
 
 function assertObjectSegments(value: unknown, path: string): void {
@@ -305,6 +333,19 @@ function assertObjectSegments(value: unknown, path: string): void {
 
 function assertMetadataTargetConstraint(value: unknown, path: string): void {
   const constraint = requiredRecord(value, path)
+  if (constraint["kind"] === "dataTable") {
+    assertExactKeys(constraint, ["kind", "roots", "owner", "validation"], path)
+    assertOptionalRootArray(constraint["roots"], `${path}.roots`)
+    assertOptionalStringIn(constraint["owner"], ["this"], `${path}.owner`)
+    assertOptionalStringIn(constraint["validation"], ["resolve", "translateOnly"], `${path}.validation`)
+    return
+  }
+  if (constraint["kind"] === "dataTableField") {
+    assertExactKeys(constraint, ["kind", "tableProperty", "validation"], path)
+    assertString(constraint["tableProperty"], `${path}.tableProperty`)
+    assertOptionalStringIn(constraint["validation"], ["resolve", "translateOnly"], `${path}.validation`)
+    return
+  }
   if (constraint["kind"] === "object") {
     assertExactKeys(constraint, [
       "kind",

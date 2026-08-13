@@ -31,11 +31,13 @@ import {
   emptyPropertyStateCapabilityRegistry,
   type PropertyStateCapabilityRegistry,
 } from "../ruleRuntime/definition"
+import { createDataTableRegistrySet, type DataTableRegistrySet } from "./dataTables/registry"
 
 export interface ValidationRegistrySet {
   readonly propertyStates: PropertyStateCapabilityRegistry
   readonly rules: Pick<RuleRegistrySet, "execution" | "property">
   readonly references: ProjectReferenceRegistrySet
+  readonly dataTables: DataTableRegistrySet
   readonly dataPaths: DataPathRegistrySet
   readonly execution: ObjectFieldIndexRuntime
   readonly form: {
@@ -90,6 +92,9 @@ export function createValidationRegistrySet(
     propertyStates,
     rules,
     references: createProjectReferenceRegistrySet(definition.references),
+    dataTables: createDataTableRegistrySet(
+      definition.references.filter((contribution) => contribution.kind === "dataTableDeclarations"),
+    ),
     dataPaths,
     execution,
     form: {

@@ -465,6 +465,33 @@ it("восстанавливает вложенную цель и !xml отло�
   expect(reader.pendingReferences(0)).toEqual([pendingReference])
 })
 
+it("восстанавливает цели таблицы и её локального поля", () => {
+  const update = richYamlUpdate("cf/source.yaml", "cf", "Task.Задачи")
+  const references = [
+    {
+      yamlPath: ["ОсновнаяТаблица"],
+      canonical: "AccumulationRegister.Остатки.Balance",
+      target: {
+        kind: "dataTable" as const,
+        root: "AccumulationRegister" as const,
+        objectName: "Остатки",
+        virtualTable: "Balance",
+      },
+      constraint: { kind: "dataTable" as const, roots: ["AccumulationRegister" as const] },
+    },
+    {
+      yamlPath: ["ДополнительныеИндексы", 0, "ИндексируемыеПоля", 0],
+      canonical: "Date",
+      target: { kind: "dataTableField" as const, fieldName: "Date" },
+      constraint: { kind: "dataTableField" as const, tableProperty: "table" },
+    },
+  ]
+  const buffers = typedSnapshot([{ ...update, pendingReferences: references }])
+  const reader = createTypedProjectStateReader(new ProjectStateSnapshotView(buffers))
+
+  expect(reader.pendingReferences(0)).toEqual(references)
+})
+
 function openSessionWithUpdates(updates: ReturnType<typeof richYamlUpdate>[]) {
   const buffers = typedSnapshot(updates)
   return openBinaryProjectStateReadSession(

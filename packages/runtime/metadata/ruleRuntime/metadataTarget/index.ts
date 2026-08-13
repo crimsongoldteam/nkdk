@@ -1,5 +1,6 @@
 export * from "./basedOn"
 export * from "./format"
+export * from "./canonical"
 export * from "./parse"
 export * from "./projectAddress"
 export * from "./roots"

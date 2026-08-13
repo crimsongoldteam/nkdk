@@ -577,14 +577,17 @@ export function createProjectStateFragmentWriter(options: {
       const target = reference.target
       const targetMember = target.kind === "member" ? target.segments.at(-1)?.name
         : target.kind === "value" && "valueName" in target ? target.valueName : undefined
+      const serializedTarget = target.kind === "dataTable" || target.kind === "dataTableField"
+        ? JSON.stringify(target)
+        : targetMember
       rows.pendingReferences.push({
         sourceFileId: fileId,
         yamlPathId: appendYamlPath(reference.yamlPath),
         canonicalId: strings.intern(reference.canonical),
         targetKindId: strings.intern(target.kind),
-        targetRootId: strings.intern(target.root),
-        targetNameId: strings.intern(target.objectName),
-        targetMemberId: optionalString(targetMember),
+        targetRootId: strings.intern("root" in target ? target.root : ""),
+        targetNameId: strings.intern("objectName" in target ? target.objectName : ""),
+        targetMemberId: optionalString(serializedTarget),
         constraintKindId: strings.intern(encodeMetadataTargetConstraint(reference.constraint)),
         flags: encodePendingReferenceFlags(reference),
       })

@@ -1,6 +1,6 @@
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { rootFromYAML } from "@nkdk/runtime/rule-kit"
-import type { MetadataTargetOwner, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
+import type { MetadataTargetOwner } from "@nkdk/runtime/rule-kit"
 import type { ElementType } from "../ruleRuntime/formElement/types"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import { getSystemEnumeration } from "@nkdk/runtime/rule-kit"
@@ -15,9 +15,8 @@ import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
 import {
-  projectMemberIndexKey,
+  projectMetadataTargetIndexKey,
   projectObjectIndexKey,
-  projectValueIndexKey,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
@@ -827,11 +826,7 @@ function pendingReferenceFromYamlValue(params: {
   }
 }
 
-function targetKey(target: ParsedMetadataTarget): string {
-  if (target.kind === "object") return projectObjectIndexKey(target)
-  if (target.kind === "member") return projectMemberIndexKey(target)
-  return projectValueIndexKey(target)
-}
+const targetKey = projectMetadataTargetIndexKey
 
 function extractFormYamlFacts(
   file: ValidationProjectFile,

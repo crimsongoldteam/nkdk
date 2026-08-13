@@ -61,6 +61,7 @@ function formatDataTableTargetToYAML(target: Extract<ParsedMetadataTarget, { kin
     rootToYAML[target.root],
     target.objectName,
     ...(target.objectSegments ?? []).flatMap((segment) => [formatObjectSegmentKind(segment.kind), segment.objectName]),
+    ...(target.tableSegments ?? []).flatMap((segment) => [memberKindToYAML[segment.kind], formatMemberSegmentName(segment)]),
     ...(target.virtualTable === undefined ? [] : [formatVirtualDataTable(target.virtualTable)]),
   ].join(".")
 }
