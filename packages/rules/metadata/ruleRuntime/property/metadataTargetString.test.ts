@@ -117,6 +117,21 @@ describe("metadataTargetOwnerFromRule", () => {
 })
 
 describe("string metadataTarget YAML", () => {
+  it("passes opaque values through in translate-only mode but rejects canonical English targets", () => {
+    const rule = {
+      type: "string",
+      metadataTarget: { kind: "dataTableField", tableProperty: "table", validation: "translateOnly" },
+    } as const
+
+    expect(exportStringMetadataTargetToYAML({ rule, value: "Data.Path", owner: undefined })).toBe("Data.Path")
+    expect(importStringMetadataTargetFromYAML({ rule, value: "Data.Path", owner: undefined })).toBe("Data.Path")
+    expect(() => importStringMetadataTargetFromYAML({
+      rule,
+      value: "Catalog.Товары.Attribute.Код",
+      owner: undefined,
+    })).toThrow()
+  })
+
   it("converts every item of a data-table target list", () => {
     const rule = {
       type: "IndexField",

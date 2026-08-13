@@ -1,4 +1,8 @@
-import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "../metadataTarget"
+import {
+  formatMetadataTargetToYAML,
+  parseMetadataTargetFromModel,
+  parseMetadataTargetFromYAML,
+} from "../metadataTarget"
 import type { ConfigurationContext } from "../../context/types"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTarget/types"
 import { getMetadataTargetOwnerResolver, type MetadataTargetOwnerFrame } from "./metadataTargetOwnerRegistry"
@@ -56,11 +60,16 @@ export function exportStringMetadataTargetToYAML(params: {
   }
   if (typeof value !== "string" || value === "") return value
 
-  return formatMetadataTargetToYAML({
-    canonical: value,
-    constraint: effectiveMetadataTargetConstraint(constraint, params.owner),
-    owner: params.owner,
-  })
+  try {
+    return formatMetadataTargetToYAML({
+      canonical: value,
+      constraint: effectiveMetadataTargetConstraint(constraint, params.owner),
+      owner: params.owner,
+    })
+  } catch (error) {
+    if (isTranslateOnlyConstraint(constraint)) return value
+    throw error
+  }
 }
 
 export function importStringMetadataTargetFromYAML(params: {
@@ -82,7 +91,17 @@ export function importStringMetadataTargetFromYAML(params: {
     constraint: effectiveMetadataTargetConstraint(constraint, params.owner),
     owner: params.owner,
   })
-  if (!result.ok) throw new Error(result.message)
+  if (!result.ok) {
+    if (isTranslateOnlyConstraint(constraint)) {
+      const modelResult = parseMetadataTargetFromModel({
+        canonical: value,
+        constraint: effectiveMetadataTargetConstraint(constraint, params.owner),
+        owner: params.owner,
+      })
+      if (!modelResult.ok) return value
+    }
+    throw new Error(result.message)
+  }
   return result.canonical
 }
 
@@ -115,6 +134,11 @@ function effectiveMetadataTargetConstraint(
 
 function supportsGenericStringMetadataTarget(rule: PropertyRule): boolean {
   return rule.type === "string" || rule.type === "IndexField" || rule.type === "FunctionalOptionsProperty"
+}
+
+function isTranslateOnlyConstraint(constraint: MetadataTargetConstraint): boolean {
+  return (constraint.kind === "dataTable" || constraint.kind === "dataTableField")
+    && constraint.validation === "translateOnly"
 }
 
 function metadataTargetOwnerFrames(context: ConfigurationContext | undefined): readonly MetadataTargetOwnerFrame[] {
