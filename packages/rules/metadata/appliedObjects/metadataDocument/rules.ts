@@ -20,6 +20,7 @@ import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { commonBasedOnObjectPaths } from "../../ruleRuntime/metadataTarget"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
+import { appliedObjectInputByStringRule, inputByStringStandardField, NUMERIC_LENGTH_HINT } from "../inputByStringDeclarations"
 const documentProperties = ["Properties"]
 const documentChildObjects = ["ChildObjects"]
 export const MetadataDocumentStandardAttributeNames: Record<string, string> = {
@@ -339,16 +340,12 @@ export const MetadataDocumentRules = {
       implicitValueYAML: false,
       xmlParents: documentProperties,
     }),
-    inputByString: metadataFieldsRule({
-      yaml: "ВводПоСтроке",
-      metadataTarget: {
-        kind: "member",
-        owner: "this",
-        memberKinds: ["Attribute", "StandardAttribute"],
-        filters: [{ kind: "inputByStringField" }],
-      },
+    inputByString: appliedObjectInputByStringRule({
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
+      standardFields: [
+        inputByStringStandardField("Номер", "numberLength", "ДлинаНомера", 9),
+      ],
     }),
     listPresentation: i8nTextRule({
       yaml: "ПредставлениеСписка",
@@ -369,6 +366,10 @@ export const MetadataDocumentRules = {
     }),
     numberLength: numberRule({
       yaml: "ДлинаНомера",
+      description: `Длина номера. ${NUMERIC_LENGTH_HINT}`,
+      minimum: 0,
+      maximum: 50,
+      maximumWhen: { propertyKey: "numberType", equals: "Number", maximum: 38 },
       defaultValueXML: 9,
       xmlParents: documentProperties,
       implicitValueYAML: 9,

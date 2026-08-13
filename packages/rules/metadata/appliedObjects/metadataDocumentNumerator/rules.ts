@@ -7,6 +7,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
+import { NUMERIC_LENGTH_HINT } from "../inputByStringDeclarations"
 export const MetadataDocumentNumeratorRules = {
   itemType: "MetadataDocumentNumerator",
   metadataTargetOwner: { kind: "self", root: "DocumentNumerator" },
@@ -61,6 +62,10 @@ export const MetadataDocumentNumeratorRules = {
     }),
     numberLength: numberRule({
       yaml: "ДлинаНомера",
+      description: `Длина номера. ${NUMERIC_LENGTH_HINT}`,
+      minimum: 0,
+      maximum: 50,
+      maximumWhen: { propertyKey: "numberType", equals: "Number", maximum: 38 },
       defaultValueXML: 9,
       xmlParents: ["Properties"],
       implicitValueYAML: 9,

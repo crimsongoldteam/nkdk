@@ -12,15 +12,7 @@ import type { NumberPropertyRule } from "../commonObjects/number/types"
 import { diagnosticAtYamlPath } from "../validation/yamlLocations"
 import { defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
-import { MetadataBusinessProcessRules } from "./metadataBusinessProcess/rules"
-import { MetadataCatalogRules } from "./metadataCatalog/rules"
-import { MetadataChartOfAccountsRules } from "./metadataChartOfAccounts/rules"
-import { MetadataChartOfCalculationTypesRules } from "./metadataChartOfCalculationTypes/rules"
-import { MetadataChartOfCharacteristicTypesRules } from "./metadataChartOfCharacteristicTypes/rules"
-import { MetadataDocumentRules } from "./metadataDocument/rules"
-import { MetadataDocumentNumeratorRules } from "./metadataDocumentNumerator/rules"
-import { MetadataExchangePlanRules } from "./metadataExchangePlan/rules"
-import { MetadataTaskRules } from "./metadataTask/rules"
+import { inputByStringObjectRules } from "./inputByStringObjectRules"
 
 type YAMLRoot = Record<string, unknown>
 
@@ -58,28 +50,16 @@ export function createAppliedObjectValidator(
   }
 }
 
-const validatedRules = [
-  MetadataCatalogRules,
-  MetadataDocumentRules,
-  MetadataDocumentNumeratorRules,
-  MetadataExchangePlanRules,
-  MetadataChartOfCharacteristicTypesRules,
-  MetadataChartOfAccountsRules,
-  MetadataChartOfCalculationTypesRules,
-  MetadataBusinessProcessRules,
-  MetadataTaskRules,
-] as const satisfies readonly MetadataItemRule[]
-
 export const appliedObjectInputByStringRules = defineMetadataRules({
   ...emptyMetadataRules,
-  operations: validatedRules
+  operations: inputByStringObjectRules
     .filter(hasInputByStringProperty)
     .map((itemRule) => ({
       kind: "importedYamlFinalizer" as const,
       itemType: itemRule.itemType,
       finalizer: createInputByStringFinalizer(itemRule),
     })),
-  validation: validatedRules
+  validation: inputByStringObjectRules
     .filter(hasAppliedObjectValidation)
     .map((itemRule) => ({
       kind: "localYamlValue" as const,

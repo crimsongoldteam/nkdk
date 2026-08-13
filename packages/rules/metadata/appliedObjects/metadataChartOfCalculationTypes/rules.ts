@@ -26,6 +26,7 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { ChartOfCalculationTypesPredefinedRules } from "./predefinedRules"
 import { commonBasedOnObjectPaths } from "../../ruleRuntime/metadataTarget"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
+import { appliedObjectInputByStringRule, commonInputChoiceRules, inputByStringStandardField, NUMERIC_LENGTH_HINT } from "../inputByStringDeclarations"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataChartOfCalculationTypesStandardAttributeNames: Record<string, string> = {
@@ -150,9 +151,20 @@ export const MetadataChartOfCalculationTypesRules = {
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    codeLength: numberRule({ yaml: "ДлинаКода", defaultValueXML: 9, implicitValueYAML: 9, xmlParents: properties }),
+    codeLength: numberRule({
+      yaml: "ДлинаКода",
+      description: `Длина кода. ${NUMERIC_LENGTH_HINT}`,
+      minimum: 0,
+      maximum: 40,
+      maximumWhen: { propertyKey: "codeType", equals: "Number", maximum: 38 },
+      defaultValueXML: 9,
+      implicitValueYAML: 9,
+      xmlParents: properties,
+    }),
     descriptionLength: numberRule({
       yaml: "ДлинаНаименования",
+      minimum: 0,
+      maximum: 100,
       defaultValueXML: 40,
       implicitValueYAML: 40,
       xmlParents: properties,
@@ -178,36 +190,14 @@ export const MetadataChartOfCalculationTypesRules = {
       implicitValueYAML: "AsDescription",
       xmlParents: properties,
     }),
-    editType: systemEnumerationRule({
-      yaml: "СпособРедактирования",
-      typeSE: "EditType",
-      defaultValueXML: "InDialog",
-      implicitValueYAML: "InDialog",
-      xmlParents: properties,
-    }),
-    quickChoice: booleanRule({
-      yaml: "БыстрыйВыбор",
-      defaultValueXML: false,
-      implicitValueYAML: false,
-      xmlParents: properties,
-    }),
-    choiceMode: systemEnumerationRule({
-      yaml: "РежимВыбора",
-      typeSE: "ChoiceMode",
-      defaultValueXML: "BothWays",
-      implicitValueYAML: "BothWays",
-      xmlParents: properties,
-    }),
-    inputByString: metadataFieldsRule({
-      yaml: "ВводПоСтроке",
-      metadataTarget: {
-        kind: "member",
-        owner: "this",
-        memberKinds: ["Attribute", "StandardAttribute"],
-        filters: [{ kind: "inputByStringField" }],
-      },
+    ...commonInputChoiceRules(properties),
+    inputByString: appliedObjectInputByStringRule({
       xmlParents: properties,
       defaultValueXMLRaw: {},
+      standardFields: [
+        inputByStringStandardField("Наименование", "descriptionLength", "ДлинаНаименования", 40),
+        inputByStringStandardField("Код", "codeLength", "ДлинаКода", 9),
+      ],
     }),
     searchStringModeOnInputByString: systemEnumerationRule({
       yaml: "РежимСтрокиПоискаПриВводеПоСтроке",

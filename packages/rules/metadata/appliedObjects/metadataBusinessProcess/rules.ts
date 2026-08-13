@@ -21,6 +21,7 @@ import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { commonBasedOnObjectPaths } from "../../ruleRuntime/metadataTarget"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
+import { appliedObjectInputByStringRule, inputByStringStandardField, NUMERIC_LENGTH_HINT } from "../inputByStringDeclarations"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataBusinessProcessStandardAttributeNames: Record<string, string> = {
@@ -144,16 +145,12 @@ export const MetadataBusinessProcessRules = {
       implicitValueYAML: "InDialog",
       xmlParents: properties,
     }),
-    inputByString: metadataFieldsRule({
-      yaml: "ВводПоСтроке",
-      metadataTarget: {
-        kind: "member",
-        owner: "this",
-        memberKinds: ["Attribute", "StandardAttribute"],
-        filters: [{ kind: "inputByStringField" }],
-      },
+    inputByString: appliedObjectInputByStringRule({
       xmlParents: properties,
       defaultValueXMLRaw: {},
+      standardFields: [
+        inputByStringStandardField("Номер", "numberLength", "ДлинаНомера", 9),
+      ],
     }),
     createOnInput: systemEnumerationRule({
       yaml: "СозданиеПриВводе",
@@ -235,6 +232,10 @@ export const MetadataBusinessProcessRules = {
     }),
     numberLength: numberRule({
       yaml: "ДлинаНомера",
+      description: `Длина номера. ${NUMERIC_LENGTH_HINT}`,
+      minimum: 0,
+      maximum: 50,
+      maximumWhen: { propertyKey: "numberType", equals: "Number", maximum: 38 },
       defaultValueXML: 9,
       implicitValueYAML: 9,
       xmlParents: properties,
