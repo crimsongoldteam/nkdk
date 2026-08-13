@@ -1,5 +1,5 @@
 import type { ConfigurationIndexReader } from "@nkdk/runtime"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { DeferredObjectValue } from "@nkdk/runtime/rule-kit"
@@ -77,7 +77,7 @@ export interface MetadataSnapshotImportCapability {
     readonly context: ConfigurationContextFromXML
     readonly sourcePath: string
     readonly targetProjectPath: string
-  }) => Promise<ConfigurationSnapshotFragment>
+  }) => Promise<ConfigurationIndexBlockFragment>
 }
 
 export type MetadataResourceCapabilityContribution =

@@ -3,7 +3,12 @@ import os from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import { configurationIndexPath, parseWithJsYaml, readConfigurationIndex, yamlScalarTagAt } from "@nkdk/runtime"
+import {
+  configurationIndexStoreDescriptor,
+  openConfigurationIndexStore,
+  parseWithJsYaml,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import { importConfigurationFromXml } from "./importConfiguration"
 import { mockContextFromXML } from "../../tests/mockContext"
 import {
@@ -87,10 +92,10 @@ describe("configuration extension XML import", () => {
           value: "БазовыйОбъект.БазовыйРеквизит.Description",
         },
       ],
-      configurationIndexPath: configurationIndexPath(projectDir, {
+      configurationIndexPath: configurationIndexStoreDescriptor(projectDir, {
         kind: "configurationExtension",
         name: "РасширениеКонтроль",
-      }),
+      }).dataPath,
     })
     expect(result.failed).not.toEqual(expect.arrayContaining([
       expect.objectContaining({ message: expect.stringContaining("Не найдена текущая форма cf") }),
@@ -171,29 +176,23 @@ describe("configuration extension XML import", () => {
       Элементы: { БазовоеПоле: { Вид: "ПолеВвода", Ширина: 99 } },
     })
 
-    expect(snapshot).toMatchObject({
-      specificationVersion: "1.4",
-      componentPath: "cfe/РасширениеКонтроль",
-      indexGeneration: 1n,
-    })
-    expect(snapshot.entities.some(
+    const entities = [...snapshot.blocks.values()].flatMap(({ entities }) => entities)
+    expect(entities.some(
       ({ logicalAddress }) => logicalAddress === "Справочник.СправочникПолный.Форма.ФормаОтчета.form"
     )).toBe(false)
-    expect(
-      snapshot.entities.every((entity) => snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath))
-    ).toBe(true)
-    expect(snapshot.entities.filter(({ sourceProjectPath }) => sourceProjectPath.endsWith("БазоваяФорма.yaml")))
+    const baseFormEntities = [...snapshot.blocks]
+      .filter(([projectPath]) => projectPath.endsWith("БазоваяФорма.yaml"))
+      .flatMap(([, block]) => block.entities)
+    expect(baseFormEntities)
       .toEqual(expect.arrayContaining([
         expect.objectContaining({
           logicalAddress: expect.stringContaining(".ОсноваФормы"),
         }),
       ]))
-    expect(snapshot).not.toHaveProperty("localIndexes")
-    expect(snapshot).not.toHaveProperty("dependencies")
     expect(JSON.stringify(snapshot, (_key, value) => typeof value === "bigint" ? value.toString() : value))
       .not.toMatch(/PropertyState|проверять|изменять/u)
     expect(
-      fs.existsSync(join(projectDir, ".nkdk", "components", "cfe", "РасширениеКонтроль", "configuration-index.bin"))
+      fs.existsSync(join(projectDir, ".nkdk", "components", "cfe", "РасширениеКонтроль", "configuration-index.lmdb"))
     ).toBe(true)
     expect(fs.existsSync(join(projectDir, ".nkdk", "configuration-index", "default.bin"))).toBe(false)
   })
@@ -320,14 +319,15 @@ async function importExtension() {
     readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml"),
     readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml"),
   ].join("\n")
-  if (!fs.existsSync(configurationIndexPath(projectDir, {
+  const descriptor = configurationIndexStoreDescriptor(projectDir, {
     kind: "configurationExtension",
     name: "РасширениеКонтроль",
-  }))) throw new Error(`Импорт не создал снимок: ${JSON.stringify(result)}`)
-  const snapshot = await readConfigurationIndex({
-    projectDir,
-    address: { kind: "configurationExtension", name: "РасширениеКонтроль" },
   })
+  if (!fs.existsSync(descriptor.dataPath)) throw new Error(`Импорт не создал снимок: ${JSON.stringify(result)}`)
+  const store = openConfigurationIndexStore(descriptor, "readOnly")
+  const hashes = store.readHashes()
+  const snapshot = { hashes, blocks: store.getBlocks(hashes.map(({ projectPath }) => projectPath)) }
+  await store.close()
 
   return { projectDir, result, validationDiagnostics, configuration, catalog, form, formWithoutBase, yamlText, snapshot }
 }

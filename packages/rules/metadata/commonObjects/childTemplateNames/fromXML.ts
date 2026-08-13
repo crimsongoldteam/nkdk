@@ -5,6 +5,7 @@ import {
 } from "@nkdk/runtime"
 import type { ConfigurationIndexCollector } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
+import { canonicalNamedChildren, childrenToPersist } from "../omittedChildren"
 
 /** Импортирует список имён макетов из XML-тегов Template в ChildObjects. */
 export const importChildTemplateNamesFromXML = (
@@ -37,5 +38,7 @@ export function setChildTemplateNamesOmittedChildren(
   names: readonly string[]
 ): void {
   if (names.length === 0) return
-  collector.setOmittedChildren(address, { kind: "names", names })
+  const actual = names.map((name) => ({ xmlName: "Template", name }))
+  const saved = childrenToPersist(actual, canonicalNamedChildren("Template", names))
+  if (saved !== undefined) collector.setChildren(address, saved)
 }

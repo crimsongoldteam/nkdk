@@ -629,8 +629,7 @@ function createFakePools() {
               entities: [
                 {
                   logicalAddress: item.logicalAddress,
-                  sourceProjectPath: item.targetProjectPath,
-                  identities: { xmlName: item.itemName },
+                  xmlId: item.itemName,
                 },
               ],
             })),

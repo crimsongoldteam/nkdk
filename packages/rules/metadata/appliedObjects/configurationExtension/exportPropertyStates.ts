@@ -1,5 +1,4 @@
 import { capitalize, yamlScalarTagAt } from "@nkdk/runtime"
-import { childSegmentUid } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -19,13 +18,10 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
       if (adoptedUuid !== undefined) {
         writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
-        context.exportToXML.configurationIndex?.collector.setXmlFlag(logicalAddress, "extended")
       }
     } else if (adoptedUuid !== undefined && supportsAdoptionServiceProperties(rule)) {
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-      if (context.exportToXML.configurationIndex?.xml(logicalAddress)?.extended === true) {
-        writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
-      }
+      writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
     }
 
     if (Object.prototype.hasOwnProperty.call(yaml, "Контроль")) {
@@ -39,7 +35,6 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       logicalAddress,
     })
     if (states.length > 0) writePropertyStates(outputs, rule, states)
-    restoreIndexedInternalInfo(context, outputs, rule, logicalAddress)
     reorderServiceProperties(outputs, rule)
     reorderMetadataRoot(outputs, rule)
   },
@@ -136,27 +131,6 @@ function currentPropertyOrder(rule: MetadataItemRule): readonly string[] {
     "end"
   )
   return order
-}
-
-function restoreIndexedInternalInfo(
-  context: ConfigurationContextWithExportToXML,
-  outputs: ReadonlyMap<string, Record<string, unknown>>,
-  rule: MetadataItemRule,
-  logicalAddress: string
-): void {
-  const xmlRoot = rule.properties.xmlRoot
-  if (xmlRoot?.type === "XMLRoot" && xmlRoot.isFileRoot === true) return
-  if (
-    context.exportToXML.configurationIndex?.xml(childSegmentUid(logicalAddress, "InternalInfo"))?.present !== true
-  ) {
-    return
-  }
-  const propertiesParents = rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"]
-  const output = findMetadataOutput(outputs, propertiesParents)
-  if (output === undefined) return
-  const ownerParents = rule.itemType === "ClientApplicationForm" ? ["Form"] : []
-  const owner = recordAt(output, ownerParents)
-  if (!Object.prototype.hasOwnProperty.call(owner, "InternalInfo")) owner.InternalInfo = {}
 }
 
 function insertAfter(

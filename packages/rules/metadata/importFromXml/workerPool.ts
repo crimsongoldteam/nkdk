@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { ConfigurationContextFromXML, XmlImportConfigurationContext } from "@nkdk/runtime"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ProjectStateReadToken } from "../projectState/contracts"
@@ -80,7 +80,7 @@ export interface ImportResultFileCollection extends Iterable<ImportResultFile> {
 }
 
 export interface XmlImportStateBatch {
-  readonly configurationFragment?: ConfigurationSnapshotFragment
+  readonly configurationFragment?: ConfigurationIndexBlockFragment
   readonly configurationFragmentBuffer?: ArrayBuffer
   readonly stateFragment?: ProjectStateFragment
 }

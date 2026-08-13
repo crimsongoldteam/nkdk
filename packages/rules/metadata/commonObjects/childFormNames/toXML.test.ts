@@ -21,7 +21,7 @@ describe("exportChildFormNamesToXML", () => {
   it("возвращает value при наличии форм в round-trip-данных", () => {
     expect(
       exportChildFormNamesToXML({ context: mockContextToXML(), rule, value: ["ФормаЭлемента", "ФормаСписка"] })
-    ).toEqual(["ФормаЭлемента", "ФормаСписка"])
+    ).toEqual(["ФормаСписка", "ФормаЭлемента"])
   })
 
   it("сохраняет порядок существующих форм из reference и добавляет новые в конец", () => {
@@ -76,10 +76,11 @@ describe("exportChildFormNamesToXML", () => {
     expect(imported.yaml).toEqual({})
     expect(exported.xml).toEqual({ Form: ["ФормаСписка", "ФормаВыбора", "ФормаЗадачи"] })
     expect(
-      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.omittedChildren
-    ).toEqual({
-      kind: "names",
-      names: ["ФормаСписка", "ФормаВыбора", "ФормаЗадачи"],
-    })
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.children
+    ).toEqual([
+      { xmlName: "Form", name: "ФормаСписка" },
+      { xmlName: "Form", name: "ФормаВыбора" },
+      { xmlName: "Form", name: "ФормаЗадачи" },
+    ])
   })
 })

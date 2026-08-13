@@ -1,24 +1,22 @@
 import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector } from "./collector/writer"
-import { encodeConfigurationIndex } from "./encode"
 import { createConfigurationIndexExportRuntime } from "./exportRuntime"
-import { getConfigurationIndexOmittedChildren } from "./referenceView"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sharedSnapshot"
-import { sampleSnapshot } from "./testData"
+import { createLocalConfigurationIndexReader } from "./localReader"
+import { getConfigurationIndexChildren } from "./referenceView"
 
-describe("getConfigurationIndexOmittedChildren", () => {
-  it("reads omitted children through the export runtime", () => {
+describe("getConfigurationIndexChildren", () => {
+  it("reads children through the export runtime", () => {
     const runtime = createConfigurationIndexExportRuntime({
-      source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      source: createLocalConfigurationIndexReader(new Map([["А.yaml", { entities: [{
+        logicalAddress: "Документ.Заказ",
+        children: [{ xmlName: "Form", name: "Форма" }],
+      }] }]])),
       collector: createConfigurationIndexCollector(),
-      targetProjectPath: "Документы/Заказ.yaml",
+      targetProjectPath: "А.yaml",
       logicalAddress: "Документ.Заказ",
+      operationSeed: new Uint8Array(32),
     })
     const context = { exportToXML: { configurationIndex: runtime } } as never
-
-    expect(getConfigurationIndexOmittedChildren(context)).toEqual({
-      kind: "names",
-      names: ["Форма", "Макет"],
-    })
+    expect(getConfigurationIndexChildren(context)).toEqual([{ xmlName: "Form", name: "Форма" }])
   })
 })

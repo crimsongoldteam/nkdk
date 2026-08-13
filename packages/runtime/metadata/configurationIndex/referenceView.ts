@@ -1,7 +1,7 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import type { ConfigurationIndexAddressingMode } from "../ruleRuntime/property/types"
 import type { ConfigurationIndexExportRuntime } from "./exportRuntime"
-import type { OmittedChildren } from "./types"
+import type { ConfigurationIndexChild } from "./types"
 import {
   childSegmentUid,
   childUid,
@@ -9,12 +9,6 @@ import {
   yamlIndexUid,
   yamlKeyUid,
 } from "./logicalAddress"
-
-export function getConfigurationIndexXmlName(
-  context: ConfigurationContextWithExportToXML | undefined
-): string | undefined {
-  return context?.exportToXML.configurationIndex?.identity("xmlName")
-}
 
 export function getConfigurationIndexXmlNodeLogicalAddress(
   context: ConfigurationContextWithExportToXML
@@ -24,41 +18,10 @@ export function getConfigurationIndexXmlNodeLogicalAddress(
   return runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress
 }
 
-export function getConfigurationIndexOmittedChildren(
+export function getConfigurationIndexChildren(
   context: ConfigurationContextWithExportToXML | undefined
-): OmittedChildren | undefined {
-  return context?.exportToXML.configurationIndex?.omittedChildren()
-}
-
-export function getConfigurationIndexPropertyXmlValue(
-  context: ConfigurationContextWithExportToXML | undefined,
-  property: ConfigurationIndexPropertyXmlStateAddress
-) {
-  const runtime = context?.exportToXML.configurationIndex
-  if (runtime === undefined) return undefined
-  return runtime.xml(configurationIndexPropertyXmlStateLogicalAddress(runtime, property))
-}
-
-export function getConfigurationIndexPropertyReferenceXMLValue(
-  context: ConfigurationContextWithExportToXML | undefined,
-  property: ConfigurationIndexPropertyXmlStateAddress
-): unknown {
-  const value = getConfigurationIndexPropertyXmlValue(context, property)
-  if (value === undefined) return undefined
-  if (value.xsiNil === true) return { "_xsi:nil": true }
-  if (
-    value.xsiType !== undefined ||
-    value.xmlText !== undefined ||
-    value.xmlPrefix !== undefined ||
-    value.explicitEmpty === true
-  ) {
-    return {
-      ...(value.xsiType === undefined ? {} : { "_xsi:type": value.xsiType }),
-      ...(value.xmlPrefix === undefined ? {} : { _xmlns: value.xmlPrefix }),
-      ...(value.xmlText === undefined ? {} : { "#text": value.xmlText }),
-    }
-  }
-  return undefined
+): readonly ConfigurationIndexChild[] | undefined {
+  return context?.exportToXML.configurationIndex?.children()
 }
 
 export interface ConfigurationIndexPropertyXmlStateAddress {

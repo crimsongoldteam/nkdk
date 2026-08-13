@@ -28,7 +28,7 @@ import { getMetadataComponentDescriptor } from "../components/descriptor"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import type { ValidationProfiler } from "../validation/profile"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import { expandMetadataPathPattern, matchMetadataPathPattern } from "../resourceTopology/core/patterns"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 import {
@@ -59,7 +59,7 @@ export interface PreparedBaseFormCandidate {
   rule: MetadataItemRule
   localIndexes: LocalIndexes
   deferred: readonly DeferredObjectValue[]
-  configurationFragment: ConfigurationSnapshotFragment
+  configurationFragment: ConfigurationIndexBlockFragment
 }
 
 interface ParsedImportXmlInput {

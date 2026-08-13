@@ -1,10 +1,6 @@
 import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
 import { capitalize } from "../../../helpers/capitalize"
 import {
-  configurationIndexPropertyXmlStateLogicalAddress,
-  type ConfigurationIndexPropertyXmlStateAddress,
-  getConfigurationIndexPropertyReferenceXMLValue,
-  getConfigurationIndexPropertyXmlValue,
   getConfigurationIndexXmlNodeLogicalAddress,
   withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
@@ -220,7 +216,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       throw toYAMLImportError(new Error(explicitXMLAction.message), diagnosticContext)
     }
     if (!source.has(propertyKey)) {
-      copyConfigurationIndexPropertyValue(propertyContext, planned)
     }
     const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
     const exportHandler = typeRule(planned.propertyRule.type, "exportToXML")
@@ -476,10 +471,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               references.some((reference) => reference.exists && reference.value === undefined) ||
               nestedContext.exportToXML.configurationIndex?.identity(
                 "xmlId",
-                getConfigurationIndexXmlNodeLogicalAddress(nestedContext)
-              ) !== undefined ||
-              nestedContext.exportToXML.configurationIndex?.identity(
-                "xmlName",
                 getConfigurationIndexXmlNodeLogicalAddress(nestedContext)
               ) !== undefined)
             ? {}
@@ -779,26 +770,6 @@ function isRelativeYAMLScalarTagged(
   return key !== undefined && yamlScalarTagAt(parent, key) === "xml"
 }
 
-function copyConfigurationIndexPropertyValue(
-  context: ConfigurationContextWithExportToXML,
-  planned: YAMLToXMLPlannedProperty
-): void {
-  const runtime = context.exportToXML.configurationIndex
-  const property = configurationIndexPropertyXmlStateAddress(planned)
-  const value = getConfigurationIndexPropertyXmlValue(context, property)
-  if (runtime === undefined || value === undefined) return
-  const address = configurationIndexPropertyXmlStateLogicalAddress(runtime, property)
-  if (value.extended === true) runtime.collector.setXmlFlag(address, "extended")
-  if (!usesConfigurationIndexOrdinaryXMLState(context)) return
-  if (resolveXMLDefaultVariant(context) === undefined) return
-  if (value.present === true) runtime.collector.setXmlFlag(address, "present")
-  if (value.xsiNil === true) runtime.collector.setXmlFlag(address, "xsiNil")
-  if (value.explicitEmpty === true) runtime.collector.setXmlFlag(address, "explicitEmpty")
-  if (value.xsiType !== undefined) runtime.collector.setXmlValue(address, "xsiType", value.xsiType)
-  if (value.xmlText !== undefined) runtime.collector.setXmlValue(address, "xmlText", value.xmlText)
-  if (value.xmlPrefix !== undefined) runtime.collector.setXmlValue(address, "xmlPrefix", value.xmlPrefix)
-}
-
 function formatRulePath(path: readonly (string | number)[]): string {
   return path.map(String).join("/")
 }
@@ -987,60 +958,7 @@ function referenceFromConfigurationIndex(
     execution,
   )
   if (identity !== undefined) return identity
-  if (!usesConfigurationIndexOrdinaryXMLState(context)) return { exists: false }
-  if (resolveXMLDefaultVariant(context) === undefined) return { exists: false }
-  const property = configurationIndexPropertyXmlStateAddress(planned)
-  const indexedValue = getConfigurationIndexPropertyXmlValue(context, property)
-  if (
-    indexedValue?.present === true &&
-    Object.keys(indexedValue).every((key) => key === "present")
-  ) {
-    return {
-      exists: true,
-      key: planned.propertyRule.xml ?? capitalize(planned.propertyKey),
-      synthesizedDefault: true,
-    }
-  }
-  const indexedDescriptor = execution === undefined
-    ? getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
-    : execution.getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
-  const value =
-    (indexedValue === undefined ? undefined : indexedDescriptor?.referenceXMLFromValue?.(indexedValue)) ??
-    getConfigurationIndexPropertyReferenceXMLValue(context, property)
-  if (value !== undefined) {
-    return {
-      exists: true,
-      key: planned.propertyRule.xml ?? capitalize(planned.propertyKey),
-      value,
-      ...(indexedValue?.explicitEmpty === true ? { indexedExplicitEmpty: true } : {}),
-    }
-  }
-  if (indexedValue?.present === true) {
-    return {
-      exists: true,
-      key: planned.propertyRule.xml ?? capitalize(planned.propertyKey),
-      synthesizedDefault: true,
-    }
-  }
   return { exists: false }
-}
-
-function usesConfigurationIndexOrdinaryXMLState(
-  context: ConfigurationContextWithExportToXML,
-): boolean {
-  return context.exportToXML.componentKind !== "configuration"
-}
-
-function configurationIndexPropertyXmlStateAddress(
-  planned: YAMLToXMLPlannedProperty
-): ConfigurationIndexPropertyXmlStateAddress {
-  return {
-    propertyKey: planned.propertyKey,
-    ...(planned.yamlKey === undefined ? {} : { yamlKey: planned.yamlKey }),
-    ...(planned.propertyRule.configurationIndexAddressing === undefined
-      ? {}
-      : { configurationIndexAddressing: planned.propertyRule.configurationIndexAddressing }),
-  }
 }
 
 function identityReferenceFromConfigurationIndex(

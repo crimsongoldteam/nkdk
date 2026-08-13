@@ -1,15 +1,11 @@
 import { ExportToXMLFunctionNew, definePropertyTypeRule } from "../../ruleRuntime"
-import { mergeOmittedNames, readOmittedNames } from "../omittedChildren"
-import { setChildFormNamesOmittedChildren } from "./fromXML"
-
-const PROPERTY_TYPE = "ChildFormNames"
+import { orderAndPersistNamedChildren } from "../omittedChildren"
 
 /** Экспортирует список имён форм с сохранённым порядком актуальных элементов. */
 export const exportChildFormNamesToXML: ExportToXMLFunctionNew = (params): string[] | undefined => {
   const { context, value, referenceMetadata } = params
   const runtime = context.exportToXML.configurationIndex
-  const saved = runtime?.omittedChildren()
-  readOmittedNames(saved, PROPERTY_TYPE)
+  const saved = runtime?.children()
 
   let names: readonly string[] | undefined
   if (Array.isArray(value) && value.length > 0) {
@@ -23,18 +19,8 @@ export const exportChildFormNamesToXML: ExportToXMLFunctionNew = (params): strin
   const referenceNames = Array.isArray(referenceMetadata)
     ? referenceMetadata.filter((name): name is string => typeof name === "string")
     : undefined
-  const ordered = mergeOmittedNames(
-    names,
-    saved ?? (referenceNames === undefined ? undefined : { kind: "names", names: referenceNames })
-  )
-  if (runtime !== undefined) {
-    setChildFormNamesOmittedChildren(
-      runtime.collector,
-      runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress,
-      ordered
-    )
-  }
-  return ordered
+  const referenceChildren = referenceNames?.map((name) => ({ xmlName: "Form", name }))
+  return orderAndPersistNamedChildren({ xmlName: "Form", names, saved: saved ?? referenceChildren, runtime })
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("ChildFormNames", "exportToXML", exportChildFormNamesToXML)

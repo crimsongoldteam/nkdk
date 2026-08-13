@@ -7,6 +7,12 @@ export {
 } from "@nkdk/runtime"
 export { createConfigurationIndexCollector, type ConfigurationIndexCollector } from "@nkdk/runtime"
 export {
+  configurationIndexStoreDescriptor,
+  createConfigurationIndexCandidateStore,
+  openConfigurationIndexStore,
+  type ConfigurationIndexCandidateStore,
+} from "@nkdk/runtime"
+export {
   ConfigurationIndexCompatibilityError,
   decodeConfigurationIndex,
   type DecodeConfigurationIndexOptions,
@@ -43,6 +49,7 @@ export {
 } from "@nkdk/runtime"
 export type {
   ConfigurationProjectFile,
+  ConfigurationIndexBlockFragment,
   ConfigurationSnapshot,
   ConfigurationSnapshotEntity,
   ConfigurationSnapshotFile,

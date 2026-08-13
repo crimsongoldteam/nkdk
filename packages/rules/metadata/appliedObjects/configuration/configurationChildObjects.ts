@@ -2,60 +2,110 @@ import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexCollectionXmlNodeLogicalAddress,
 } from "@nkdk/runtime"
-import type { ConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { readOmittedTypedNames } from "../../commonObjects/omittedChildren"
+import type { ConfigurationIndexChild, ConfigurationIndexExportRuntime } from "@nkdk/runtime"
+import { childrenToPersist, mergeSavedChildren } from "../../commonObjects/omittedChildren"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { STANDARD_CHILD_OBJECT_TYPE_ORDER } from "./childObjects"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
 
 const PROPERTY_KEY = "childObjects"
-const PROPERTY_TYPE = "ConfigurationChildObjects"
 const XML_METADATA = Symbol.for("metadata")
 const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 
-function normalizeNames(value: unknown): string[] {
-  if (typeof value === "string") return [value]
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []
-}
-
-export const metadataPropertyRule000 = definePropertyTypeRule("ConfigurationChildObjects", "collectConfigurationIndexFromXML", ({ context, xml }) => {
-  const collection = getConfigurationIndexCollectionContext(context)
-  if (collection === undefined || typeof xml !== "object" || xml === null || Array.isArray(xml)) return
-
-  const items = flattenChildObjects(xml)
-  if (items.length === 0) return
-  collection.collector.setOmittedChildren(getConfigurationIndexCollectionXmlNodeLogicalAddress(collection), {
-    kind: "typedNames",
-    items,
-  })
-})
+export const metadataPropertyRule000 = definePropertyTypeRule(
+  "ConfigurationChildObjects",
+  "collectConfigurationIndexFromXML",
+  ({ context, xml }) => {
+    const collection = getConfigurationIndexCollectionContext(context)
+    if (collection === undefined || !isRecord(xml)) return
+    const actual = flattenChildObjects(xml)
+    const saved = rootChildrenToPersist(actual)
+    if (saved !== undefined) {
+      collection.collector.setChildren(
+        getConfigurationIndexCollectionXmlNodeLogicalAddress(collection),
+        saved,
+      )
+    }
+  },
+)
 
 export function configurationChildObjectsFromIndex(
   runtime: ConfigurationIndexExportRuntime | undefined,
-  current: ConfigurationChildObjectsXML
+  current: ConfigurationChildObjectsXML,
 ): ConfigurationChildObjectsXML {
   const currentItems = flattenChildObjects(current)
   assertUniqueItems(currentItems)
-
-  const propertyRuntime = runtime?.withPropertyContext(PROPERTY_KEY)
-  const savedItems =
-    propertyRuntime === undefined ? undefined : readOmittedTypedNames(propertyRuntime.omittedChildren(), PROPERTY_TYPE)
-  if (savedItems !== undefined) assertUniqueItems(savedItems)
   if (currentItems.length === 0) return {}
-  if (propertyRuntime === undefined) return buildChildObjects(currentItems)
-
-  const currentKeys = new Set(currentItems.map(itemKey))
-  const preserved = savedItems?.filter((item) => currentKeys.has(itemKey(item))) ?? []
-  const preservedKeys = new Set(preserved.map(itemKey))
-  const merged = [...preserved, ...currentItems.filter((item) => !preservedKeys.has(itemKey(item)))]
-  propertyRuntime.collector.setOmittedChildren(
-    propertyRuntime.xmlNodeLogicalAddress ?? propertyRuntime.logicalAddress,
-    { kind: "typedNames", items: merged }
-  )
-
+  const canonical = canonicalRootChildren(currentItems)
+  const propertyRuntime = runtime?.withPropertyContext(PROPERTY_KEY)
+  const saved = propertyRuntime?.children()
+  const merged = saved === undefined ? canonical : mergeRootChildren(currentItems, saved, canonical)
+  const toPersist = rootChildrenToPersist(merged)
+  if (propertyRuntime !== undefined && toPersist !== undefined) {
+    propertyRuntime.collector.setChildren(
+      propertyRuntime.xmlNodeLogicalAddress ?? propertyRuntime.logicalAddress,
+      toPersist,
+    )
+  }
   return buildChildObjects(merged)
 }
 
-function buildChildObjects(items: readonly { xmlName: string; name: string }[]): ConfigurationChildObjectsXML {
+function mergeRootChildren(
+  current: readonly ConfigurationIndexChild[],
+  saved: readonly ConfigurationIndexChild[],
+  canonical: readonly ConfigurationIndexChild[],
+): ConfigurationIndexChild[] {
+  assertUniqueItems(saved)
+  const currentKeys = new Set(current.map(itemKey))
+  const savedCurrentCount = saved.filter((item) => currentKeys.has(itemKey(item))).length
+  if (savedCurrentCount === current.length) return mergeSavedChildren(current, saved, canonical)
+
+  const savedKinds = new Set<string>(saved.map(({ xmlName }) => xmlName))
+  return STANDARD_CHILD_OBJECT_TYPE_ORDER.flatMap((xmlName) => {
+    const currentKind = current.filter((item) => item.xmlName === xmlName)
+    const canonicalKind = canonical.filter((item) => item.xmlName === xmlName)
+    const savedKind = savedKinds.has(xmlName) ? saved.filter((item) => item.xmlName === xmlName) : undefined
+    return mergeSavedChildren(currentKind, savedKind, canonicalKind)
+  })
+}
+
+function rootChildrenToPersist(actual: readonly ConfigurationIndexChild[]): ConfigurationIndexChild[] | undefined {
+  assertUniqueItems(actual)
+  const canonical = canonicalRootChildren(actual)
+  if (childrenToPersist(actual, canonical) === undefined) return undefined
+  if (!hasCanonicalKindOrder(actual)) return actual.map(copyChild)
+  const changedKinds = new Set<string>()
+  for (const xmlName of STANDARD_CHILD_OBJECT_TYPE_ORDER) {
+    const actualKind = actual.filter((item) => item.xmlName === xmlName)
+    const canonicalKind = canonical.filter((item) => item.xmlName === xmlName)
+    if (childrenToPersist(actualKind, canonicalKind) !== undefined) changedKinds.add(xmlName)
+  }
+  const result = actual.filter((item) => changedKinds.has(item.xmlName)).map(copyChild)
+  return result.length === 0 ? undefined : result
+}
+
+function canonicalRootChildren(items: readonly ConfigurationIndexChild[]): ConfigurationIndexChild[] {
+  assertUniqueItems(items)
+  const rank = new Map<string, number>(STANDARD_CHILD_OBJECT_TYPE_ORDER.map((xmlName, index) => [xmlName, index]))
+  return items.map(copyChild).sort((left, right) => {
+    const typeOrder = (rank.get(left.xmlName) ?? Number.MAX_SAFE_INTEGER)
+      - (rank.get(right.xmlName) ?? Number.MAX_SAFE_INTEGER)
+    return typeOrder || left.name.localeCompare(right.name, "ru")
+  })
+}
+
+function hasCanonicalKindOrder(items: readonly ConfigurationIndexChild[]): boolean {
+  const rank = new Map<string, number>(STANDARD_CHILD_OBJECT_TYPE_ORDER.map((xmlName, index) => [xmlName, index]))
+  let previous = -1
+  for (const item of items) {
+    const current = rank.get(item.xmlName) ?? Number.MAX_SAFE_INTEGER
+    if (current < previous) return false
+    previous = current
+  }
+  return true
+}
+
+function buildChildObjects(items: readonly ConfigurationIndexChild[]): ConfigurationChildObjectsXML {
   const result: ConfigurationChildObjectsXML = {}
   for (const { xmlName, name } of items) {
     const previous = result[xmlName]
@@ -68,7 +118,7 @@ function buildChildObjects(items: readonly { xmlName: string; name: string }[]):
   return result
 }
 
-function flattenChildObjects(xml: object): { xmlName: string; name: string }[] {
+function flattenChildObjects(xml: object): ConfigurationIndexChild[] {
   const childOrder = getXMLChildOrder(xml)
   if (childOrder !== undefined) {
     return childOrder.flatMap(({ key: xmlName, index }) => {
@@ -77,37 +127,44 @@ function flattenChildObjects(xml: object): { xmlName: string; name: string }[] {
     })
   }
   return Object.entries(xml).flatMap(([xmlName, value]) =>
-    xmlName === "#text" ? [] : normalizeNames(value).map((name) => ({ xmlName, name }))
+    xmlName === "#text" ? [] : normalizeNames(value).map((name) => ({ xmlName, name })),
   )
 }
 
 function getXMLChildOrder(xml: object): Array<{ key: string; index: number }> | undefined {
   const metadata = (xml as Record<PropertyKey, unknown>)[XML_METADATA]
-  if (typeof metadata !== "object" || metadata === null || Array.isArray(metadata)) return undefined
-  const childOrder = (metadata as Record<string, unknown>).childOrder
-  if (!Array.isArray(childOrder)) return undefined
-  return childOrder.filter(
+  if (!isRecord(metadata) || !Array.isArray(metadata.childOrder)) return undefined
+  return metadata.childOrder.filter(
     (entry): entry is { key: string; index: number } =>
-      typeof entry === "object" &&
-      entry !== null &&
-      !Array.isArray(entry) &&
-      typeof (entry as Record<string, unknown>).key === "string" &&
-      Number.isInteger((entry as Record<string, unknown>).index) &&
-      (entry as Record<string, number>).index >= 0
+      isRecord(entry) && typeof entry.key === "string" && Number.isInteger(entry.index) && Number(entry.index) >= 0,
   )
 }
 
-function assertUniqueItems(items: readonly { xmlName: string; name: string }[]): void {
+function normalizeNames(value: unknown): string[] {
+  const result: string[] = []
+  for (const item of Array.isArray(value) ? value : [value]) {
+    if (typeof item === "string") result.push(item)
+  }
+  return result
+}
+
+function assertUniqueItems(items: readonly ConfigurationIndexChild[]): void {
   const seen = new Set<string>()
   for (const item of items) {
     const key = itemKey(item)
-    if (seen.has(key)) {
-      throw new Error(`Дублирующаяся пара ${item.xmlName}/${item.name} в omittedChildren`)
-    }
+    if (seen.has(key)) throw new Error(`Дублирующаяся пара ${item.xmlName}/${item.name} в children`)
     seen.add(key)
   }
 }
 
-function itemKey(item: { xmlName: string; name: string }): string {
+function itemKey(item: ConfigurationIndexChild): string {
   return `${item.xmlName}\0${item.name}`
+}
+
+function copyChild(item: ConfigurationIndexChild): ConfigurationIndexChild {
+  return { xmlName: item.xmlName, name: item.name }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
 }

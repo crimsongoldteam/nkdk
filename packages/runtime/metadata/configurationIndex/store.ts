@@ -23,6 +23,7 @@ export {
   configurationIndexCandidateStoreDescriptor,
   configurationIndexStoreDescriptor,
 } from "./storePath"
+import { compareConfigurationIndexUtf8, configurationIndexErrorMessage } from "./utilities"
 import {
   CONFIGURATION_INDEX_SCHEMA_VERSION,
   configurationIndexCandidateStoreDescriptor,
@@ -137,11 +138,11 @@ class LmdbConfigurationIndexStore implements ConfigurationIndexStore {
       projectPath: validateProjectPath(key),
       contentHash: decodeContentHash(value),
     }))
-    return result.sort((left, right) => compareUtf8(left.projectPath, right.projectPath))
+    return result.sort((left, right) => compareConfigurationIndexUtf8(left.projectPath, right.projectPath))
   }
 
   getBlocks(projectPaths: readonly string[]): ReadonlyMap<string, ConfigurationIndexBlock> {
-    const requested = [...new Set(projectPaths.map(validateProjectPath))].sort(compareUtf8)
+    const requested = [...new Set(projectPaths.map(validateProjectPath))].sort(compareConfigurationIndexUtf8)
     const result = new Map<string, ConfigurationIndexBlock>()
     for (const projectPath of requested) {
       const value = this.tables.blocks.get(projectPath, this.readOptions())
@@ -481,10 +482,6 @@ function validateProjectPath(projectPath: string): string {
   return projectPath
 }
 
-function compareUtf8(left: string, right: string): number {
-  return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
-}
-
 function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
+  return configurationIndexErrorMessage(error)
 }

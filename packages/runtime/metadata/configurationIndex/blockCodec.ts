@@ -56,7 +56,7 @@ export function decodeConfigurationIndexBlock(bytes: Uint8Array): ConfigurationI
     const children = (flags & CHILDREN_FLAG) !== 0 ? reader.children() : undefined
     const entity = { logicalAddress, uuid, xmlId, children }
     validateEntity(entity)
-    entities.push(withDefinedFields(entity))
+    entities.push(copyConfigurationIndexBlockEntity(entity))
   }
 
   reader.finish()
@@ -158,7 +158,7 @@ function compareUtf8(left: string, right: string): number {
   return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
 }
 
-function withDefinedFields(entity: {
+export function copyConfigurationIndexBlockEntity(entity: {
   readonly logicalAddress: string
   readonly uuid: string | undefined
   readonly xmlId: string | undefined

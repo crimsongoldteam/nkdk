@@ -1,6 +1,4 @@
 import { capitalize, markYAMLScalarTag } from "@nkdk/runtime"
-import { getConfigurationIndexCollectionContext } from "@nkdk/runtime"
-import { childSegmentUid } from "@nkdk/runtime"
 import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { exportPropertyValueToYAML, getImplicitValueYAML, importPropertyFromXML } from "@nkdk/runtime/rule-kit"
@@ -17,18 +15,6 @@ const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
   augment({ context, rule, source, yaml }): void {
     const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
-    const collection = getConfigurationIndexCollectionContext(context)
-    if (collection !== undefined && Object.prototype.hasOwnProperty.call(source, "InternalInfo")) {
-      collection.collector.setXmlFlag(childSegmentUid(collection.logicalAddress, "InternalInfo"), "present")
-    }
-    const properties = asRecord(source["Properties"])
-    if (
-      collection !== undefined &&
-      properties !== undefined &&
-      Object.prototype.hasOwnProperty.call(properties, "ExtendedConfigurationObject")
-    ) {
-      collection.collector.setXmlFlag(collection.logicalAddress, "extended")
-    }
     for (const propertyState of propertyStates(source)) {
       const property = propertyState["xr:Property"]
       const state = propertyState["xr:State"]

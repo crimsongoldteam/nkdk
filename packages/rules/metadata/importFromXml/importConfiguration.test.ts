@@ -4,9 +4,9 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import {
-  configurationIndexPath,
-  type ConfigurationSnapshot,
-  type MergedConfigurationSnapshotFragments,
+  configurationIndexStoreDescriptor,
+  type ConfigurationIndexBlock,
+  type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
 import type { ComponentAddress } from "@nkdk/runtime"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
@@ -38,7 +38,7 @@ const failurePhases = [
   "mergeFiles",
   "transferExternalFiles",
   "hashProject",
-  "writeIndex",
+  "publishCandidate",
 ] as const
 
 type FailurePhase = (typeof failurePhases)[number]
@@ -71,25 +71,33 @@ const resultFiles: ImportResultFile[] = [
 ]
 const firstPassFiles = resultFiles.slice(0, 2)
 const secondPassFiles = resultFiles.slice(2)
-const fragmentData: MergedConfigurationSnapshotFragments = {
-  sourceProjectPaths: [catalogProjectPath, emptyProjectPath, formProjectPath],
-  entities: [
-    {
+const fragmentData: readonly ConfigurationIndexBlockFragment[] = [
+  {
+    targetProjectPath: catalogProjectPath,
+    entities: [{
       logicalAddress: "Справочник.Контрагенты",
-      sourceProjectPath: catalogProjectPath,
-      identities: { uuid: "00000000-0000-4000-8000-000000000001", xmlId: "Catalog42" },
-    },
-    {
+      uuid: "00000000-0000-4000-8000-000000000001",
+      xmlId: "Catalog42",
+    }],
+  },
+  {
+    targetProjectPath: formProjectPath,
+    entities: [{
       logicalAddress: "Справочник.Контрагенты.Форма.ФормаЭлемента",
-      sourceProjectPath: formProjectPath,
-      identities: { xmlId: "Form42" },
-    },
-  ],
-}
+      xmlId: "Form42",
+    }],
+  },
+  { targetProjectPath: emptyProjectPath, entities: [] },
+]
 const projectFiles = resultFiles.map((file, index) => ({
   projectPath: file.targetProjectPath,
   contentHash: BigInt(index + 1),
-}))
+})).sort((left, right) => Buffer.compare(Buffer.from(left.projectPath), Buffer.from(right.projectPath)))
+type PublishedCandidate = {
+  readonly address: ComponentAddress
+  readonly hashes: readonly { projectPath: string; contentHash: bigint }[]
+  readonly blocks: ReadonlyMap<string, ConfigurationIndexBlock>
+}
 
 const tempDirs: string[] = []
 
@@ -141,7 +149,7 @@ describe("configuration XML import coordinator", () => {
   it("detects the main configuration and writes it to cf", async () => {
     const calls: string[] = []
     const params = createParams("configuration")
-    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
+    const writtenIndexes: PublishedCandidate[] = []
     const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
 
     const result = await importConfigurationFromXml(params, fakeDependencies({ calls, writtenIndexes, initialized }))
@@ -151,7 +159,7 @@ describe("configuration XML import coordinator", () => {
       succeeded: assignments.length,
       failed: [],
       warnings: [],
-      configurationIndexPath: configurationIndexPath(params.projectDir, { kind: "configuration" }),
+      configurationIndexPath: configurationIndexDataPath(params.projectDir, { kind: "configuration" }),
     })
     expect(initialized).toEqual([
       {
@@ -162,32 +170,29 @@ describe("configuration XML import coordinator", () => {
     expect(writtenIndexes).toEqual([
       {
         address: { kind: "configuration" },
-        data: configurationIndex("cf"),
+        hashes: projectFiles,
+        blocks: expect.any(Map),
       },
     ])
-    const snapshot = writtenIndexes[0]?.data
-    expect(snapshot?.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты")).toMatchObject({
-      sourceProjectPath: catalogProjectPath,
-    })
-    expect(
-      snapshot?.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты.Форма.ФормаЭлемента")
-    ).toMatchObject({ sourceProjectPath: formProjectPath })
-    expect(
-      snapshot?.entities.every((entity) => snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath))
-    ).toBe(true)
-    expect(snapshot?.entities.every(hasMeaningfulPayload)).toBe(true)
-    expect(JSON.stringify(snapshot?.entities)).not.toMatch(
+    const snapshot = writtenIndexes[0]
+    expect(snapshot?.blocks.get(catalogProjectPath)?.entities).toContainEqual(expect.objectContaining({
+      logicalAddress: "Справочник.Контрагенты",
+    }))
+    expect(snapshot?.blocks.get(formProjectPath)?.entities).toContainEqual(expect.objectContaining({
+      logicalAddress: "Справочник.Контрагенты.Форма.ФормаЭлемента",
+    }))
+    expect(JSON.stringify([...snapshot?.blocks.values() ?? []])).not.toMatch(
       /"xmlName"|"present"|"xsiNil"|"explicitEmpty"|"xsiType"|"xmlText"|"xmlPrefix"/u,
     )
-    expect(snapshot?.files).toContainEqual(expect.objectContaining({ projectPath: emptyProjectPath }))
-    expect(snapshot?.entities).not.toContainEqual(expect.objectContaining({ sourceProjectPath: emptyProjectPath }))
+    expect(snapshot?.hashes).toContainEqual(expect.objectContaining({ projectPath: emptyProjectPath }))
+    expect(snapshot?.blocks.has(emptyProjectPath)).toBe(false)
   })
 
   it("detects Расширение_All and writes it to cfe/Расширение_All", async () => {
     const calls: string[] = []
     const params = createParams("configurationExtension")
     createBaseConfiguration(params.projectDir)
-    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
+    const writtenIndexes: PublishedCandidate[] = []
     const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
     let secondPassTokenCount = 0
     const discovered: Array<{
@@ -219,7 +224,7 @@ describe("configuration XML import coordinator", () => {
       componentPath: "cfe/Расширение_All",
       succeeded: assignments.length,
       failed: [],
-      configurationIndexPath: configurationIndexPath(params.projectDir, {
+      configurationIndexPath: configurationIndexDataPath(params.projectDir, {
         kind: "configurationExtension",
         name: "Расширение_All",
       }),
@@ -237,11 +242,7 @@ describe("configuration XML import coordinator", () => {
     expect(discovered[0]?.rootItemName).toBe("Расширение_All")
     expect(writtenIndexes[0]).toMatchObject({
       address: { kind: "configurationExtension", name: "Расширение_All" },
-      data: {
-        specificationVersion: "1.4",
-        componentPath: "cfe/Расширение_All",
-        indexGeneration: 1n,
-      },
+      hashes: projectFiles,
     })
     expect(calls.indexOf("baseMetadata")).toBeLessThan(calls.indexOf("discover"))
   })
@@ -317,7 +318,7 @@ describe("configuration XML import coordinator", () => {
   it("rejects an existing extension snapshot before XML discovery", async () => {
     const params = createParams("configurationExtension")
     createBaseConfiguration(params.projectDir)
-    const snapshotPath = configurationIndexPath(params.projectDir, {
+    const snapshotPath = configurationIndexDataPath(params.projectDir, {
       kind: "configurationExtension",
       name: "Расширение_All",
     })
@@ -341,7 +342,7 @@ describe("configuration XML import coordinator", () => {
     const componentDir = join(params.projectDir, "cf")
     const yamlPath = join(componentDir, "Конфигурация.yaml")
     const calls: string[] = []
-    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
+    const writtenIndexes: PublishedCandidate[] = []
     const diagnostic = importError("broken second pass")
     const dependencies = fakeDependencies({ calls, writtenIndexes })
     const pool = dependencies.createWorkerPool!({ concurrency: 1 })
@@ -365,7 +366,7 @@ describe("configuration XML import coordinator", () => {
     expect(result.configurationIndexPath).toBeUndefined()
     expect(fs.readFileSync(yamlPath, "utf8")).toBe("Имя: ЧастичныйРезультат\n")
     expect(writtenIndexes).toEqual([])
-    expect(fs.existsSync(configurationIndexPath(params.projectDir, { kind: "configuration" }))).toBe(false)
+    expect(fs.existsSync(configurationIndexDataPath(params.projectDir, { kind: "configuration" }))).toBe(false)
   })
 
   it("writes the snapshot strictly after direct YAML output, copying and hashing", async () => {
@@ -382,10 +383,10 @@ describe("configuration XML import coordinator", () => {
       "mergeFiles",
       "transferExternalFiles",
       "hashProject",
-      "writeIndex",
+      "publishCandidate",
       "closeWorkers",
     ])
-    expect(result.configurationIndexPath).toBe(configurationIndexPath(params.projectDir, { kind: "configuration" }))
+    expect(result.configurationIndexPath).toBe(configurationIndexDataPath(params.projectDir, { kind: "configuration" }))
   })
 
   it.each(failurePhases)("does not publish a snapshot path after the %s failure", async (failurePhase) => {
@@ -402,10 +403,10 @@ describe("configuration XML import coordinator", () => {
       warnings: [],
     })
     expect(result.configurationIndexPath).toBeUndefined()
-    expect(calls.includes("writeIndex")).toBe(failurePhase === "writeIndex")
+    expect(calls.includes("publishCandidate")).toBe(failurePhase === "publishCandidate")
     expect(calls.at(-1)).toBe("closeWorkers")
     expect(fs.existsSync(yamlPath)).toBe(
-      ["mergeFiles", "transferExternalFiles", "hashProject", "writeIndex"].includes(failurePhase)
+      ["mergeFiles", "transferExternalFiles", "hashProject", "publishCandidate"].includes(failurePhase)
     )
   })
 
@@ -695,7 +696,7 @@ function createParams(kind: "configuration" | "configurationExtension" | "unknow
 function fakeDependencies(params: {
   calls: string[]
   failurePhase?: FailurePhase
-  writtenIndexes?: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }>
+  writtenIndexes?: PublishedCandidate[]
   initialized?: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }>
   discovered?: Array<{
     xmlDir: string
@@ -731,13 +732,9 @@ function fakeDependencies(params: {
         },
         async runFirstPass(_assignments, sink) {
           call("firstPass")
-          const fragments = fragmentData.sourceProjectPaths.map((targetProjectPath) => ({
-            targetProjectPath,
-            entities: fragmentData.entities.filter((entity) => entity.sourceProjectPath === targetProjectPath),
-          }))
-          for (let index = 0; index < fragments.length; index += 1) {
+          for (let index = 0; index < fragmentData.length; index += 1) {
             await sink?.writeFirstPassState({
-              configurationFragment: fragments[index],
+              configurationFragment: fragmentData[index],
               ...(index === 0
                 ? { stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)) }
                 : {}),
@@ -792,9 +789,14 @@ function fakeDependencies(params: {
       expect(projectPaths).toEqual([])
       return []
     },
-    async writeIndex({ address, data }) {
-      call("writeIndex")
-      params.writtenIndexes?.push({ address, data })
+    async publishCandidate({ address, candidate }) {
+      call("publishCandidate")
+      params.writtenIndexes?.push({
+        address,
+        hashes: candidate.readHashes(),
+        blocks: candidate.getBlocks(candidate.readHashes().map(({ projectPath }) => projectPath)),
+      })
+      await candidate.discard()
     },
   }
 }
@@ -1031,18 +1033,8 @@ function fileCollection(items: readonly ImportResultFile[]): ImportResultFileCol
   }
 }
 
-function configurationIndex(component: string): ConfigurationSnapshot {
-  return {
-    specificationVersion: "1.4",
-    indexGeneration: 1n,
-    componentPath: component,
-    files: projectFiles,
-    entities: fragmentData.entities,
-  }
-}
-
-function hasMeaningfulPayload(entity: ConfigurationSnapshot["entities"][number]): boolean {
-  return entity.identities !== undefined || entity.omittedChildren !== undefined
+function configurationIndexDataPath(projectDir: string, address: ComponentAddress): string {
+  return configurationIndexStoreDescriptor(projectDir, address).dataPath
 }
 
 function emptyValidationContribution(): ValidationIndexContribution {

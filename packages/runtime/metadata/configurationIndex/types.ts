@@ -75,6 +75,5 @@ export interface ConfigurationSnapshotFragment {
 }
 
 export interface MergedConfigurationSnapshotFragments {
-  readonly sourceProjectPaths: readonly string[]
-  readonly entities: readonly ConfigurationSnapshotEntity[]
+  readonly fragments: readonly ConfigurationIndexBlockFragment[]
 }

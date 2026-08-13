@@ -7,7 +7,7 @@ import {
   decodeConfigurationIndexFragments,
   encodeConfigurationIndexFragments,
 } from "@nkdk/runtime"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import {
   openProjectStateFragment,
   type ProjectStateFragment,
@@ -50,7 +50,7 @@ export function createImportBinaryResult(params: {
   readonly diagnostics: readonly ImportDiagnostic[]
   readonly warnings?: readonly ImportDiagnostic[]
   readonly files: readonly ImportResultFile[]
-  readonly configurationFragments?: readonly ConfigurationSnapshotFragment[]
+  readonly configurationFragments?: readonly ConfigurationIndexBlockFragment[]
   readonly stateFragment?: ProjectStateFragment
 }): MetadataWorkerBinaryResult {
   const configuration = params.configurationFragments === undefined
