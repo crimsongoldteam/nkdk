@@ -336,6 +336,7 @@
 			<CommonAttribute>ОбщийРеквизитПоУмолчанию</CommonAttribute>
 			<ExchangePlan>ПланОбменаВсеСвойства</ExchangePlan>
 			<ExchangePlan>ПланОбменаПоУмолчанию</ExchangePlan>
+			<ExchangePlan>ПланОбменаМаксимальнаяДлинаКода</ExchangePlan>
 			<XDTOPackage>ПакетXDTOВсеСвойства</XDTOPackage>
 			<XDTOPackage>ПакетXDTOПоУмолчанию</XDTOPackage>
 			<WebService>WebСервисВсеСвойства</WebService>
@@ -436,13 +437,24 @@
 			<Catalog>СправочникРеквизит</Catalog>
 			<Catalog>СправочникРеквизитБезСинонима</Catalog>
 			<Catalog>СправочникДвоичныеДанные</Catalog>
+			<Catalog>СправочникТолькоКод</Catalog>
+			<Catalog>СправочникТолькоНаименование</Catalog>
+			<Catalog>СправочникБезКодИНаименования</Catalog>
+			<Catalog>СправочникМаксимальнаяДлинаКодаИНаименования</Catalog>
+			<Catalog>СправочникМаксимальнаяДлинаКодаИНаименованияЧисло</Catalog>
 			<Document>ДокументВсеСвойства</Document>
 			<Document>ДокументПоУмолчанию</Document>
 			<Document>ДокументСНумератором</Document>
 			<Document>ДокументКнопкаСПараметрами</Document>
 			<Document>ДокументДругойДляЖурнала</Document>
+			<Document>ДокументБезНомера</Document>
+			<Document>ДокументМаксимальнаяДлинаНомераСтрока</Document>
+			<Document>ДокументМаксимальнаяДлинаНомераЧисло</Document>
 			<DocumentNumerator>НумераторДокументовВсеСвойства</DocumentNumerator>
 			<DocumentNumerator>НумераторПоУмолчанию</DocumentNumerator>
+			<DocumentNumerator>НумераторДокументовМаксимальнаяДлинаНомера</DocumentNumerator>
+			<DocumentNumerator>НумераторДокументовМаксимальнаяДлинаНомераЧисло</DocumentNumerator>
+			<DocumentNumerator>НумераторДокументовМинимальнаяДлинаНомера</DocumentNumerator>
 			<Sequence>ПоследовательностьДокумента</Sequence>
 			<Sequence>ПоследовательностьВсеПоля</Sequence>
 			<Sequence>ПоследовательностьПоУмолчанию</Sequence>
@@ -475,24 +487,45 @@
 			<ChartOfCharacteristicTypes>ПланВидовХарактеристикВсеСвойства</ChartOfCharacteristicTypes>
 			<ChartOfCharacteristicTypes>ПланВидовХарактеристикПоУмолчанию</ChartOfCharacteristicTypes>
 			<ChartOfCharacteristicTypes>ВидыСубконто</ChartOfCharacteristicTypes>
+			<ChartOfCharacteristicTypes>ПланВидовХарактеристикТолькоКод</ChartOfCharacteristicTypes>
+			<ChartOfCharacteristicTypes>ПланВидовХарактеристикТолькоНаименование</ChartOfCharacteristicTypes>
+			<ChartOfCharacteristicTypes>ПланВидовХарактеристикБезКодаИНаименования</ChartOfCharacteristicTypes>
+			<ChartOfCharacteristicTypes>ПланВидовХарактеристикМаксимальнаяДлинаКодаИНаименования</ChartOfCharacteristicTypes>
 			<ChartOfAccounts>ПланСчетов1</ChartOfAccounts>
 			<ChartOfAccounts>ПланСчетовВсеСвойства</ChartOfAccounts>
 			<ChartOfAccounts>ПланСчетовПоУмолчанию</ChartOfAccounts>
+			<ChartOfAccounts>ПланСчетовТолькоКод</ChartOfAccounts>
+			<ChartOfAccounts>ПланСчетовТолькоНаименование</ChartOfAccounts>
+			<ChartOfAccounts>ПланСчетовБезКодаИНаименования</ChartOfAccounts>
+			<ChartOfAccounts>ПланСчетовМаксимальнаяДлинаКодаИНаименования</ChartOfAccounts>
 			<AccountingRegister>РегистрБухгалтерии1</AccountingRegister>
 			<AccountingRegister>РегистрБухгалтерииВсеСвойстваОбороты</AccountingRegister>
 			<AccountingRegister>РегистрБухгалтерииПоУмолчанию</AccountingRegister>
 			<ChartOfCalculationTypes>ПланВидовРасчета1</ChartOfCalculationTypes>
 			<ChartOfCalculationTypes>ПланРасчетаВсеСвойства</ChartOfCalculationTypes>
 			<ChartOfCalculationTypes>ПланВидовРасчетаПоУмолчанию</ChartOfCalculationTypes>
+			<ChartOfCalculationTypes>ПланВидовРасчетаТолькоКод</ChartOfCalculationTypes>
+			<ChartOfCalculationTypes>ПланВидовРасчетаТолькоНаименование</ChartOfCalculationTypes>
+			<ChartOfCalculationTypes>ПланВидовРасчетаБезКодаИНаименования</ChartOfCalculationTypes>
+			<ChartOfCalculationTypes>ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименования</ChartOfCalculationTypes>
+			<ChartOfCalculationTypes>ПланВидовРасчетаМаксимальнаяДлинаКодаИНаименованияЧисло</ChartOfCalculationTypes>
 			<CalculationRegister>РегистрРасчета1</CalculationRegister>
 			<CalculationRegister>РегистрРасчетаВсеСвойства</CalculationRegister>
 			<CalculationRegister>РегистрРасчетаПоУмолчанию</CalculationRegister>
 			<BusinessProcess>БизнесПроцесс1</BusinessProcess>
 			<BusinessProcess>БизнесПроцессВсеСвойства</BusinessProcess>
 			<BusinessProcess>БизнесПроцессПоУмолчанию</BusinessProcess>
+			<BusinessProcess>БизнесПроцессБезНомера</BusinessProcess>
+			<BusinessProcess>БизнесПроцессМаксимальнаяДлинаКодаИНаименования</BusinessProcess>
+			<BusinessProcess>БизнесПроцессМаксимальнаяДлинаКодаИНаименованияЧисло</BusinessProcess>
 			<Task>Задача1</Task>
 			<Task>ЗадачаВсеСвойства</Task>
 			<Task>ЗадачаПоУмолчанию</Task>
+			<Task>ЗадачаБезНомера</Task>
+			<Task>ЗадачаБезНаименования</Task>
+			<Task>ЗадачаБезНомераИНаименования</Task>
+			<Task>ЗадачаМаксимальнаяДлинаНомера</Task>
+			<Task>ЗадачаМаксимальнаяДлинаНомераЧисло</Task>
 			<ExternalDataSource>ВнешнийИсточникДанныхВсеСвойства</ExternalDataSource>
 			<ExternalDataSource>ВнешнийИсточникДанныхПоУмолчанию</ExternalDataSource>
 			<IntegrationService>СервисИнтеграцииВсеСвойства</IntegrationService>
