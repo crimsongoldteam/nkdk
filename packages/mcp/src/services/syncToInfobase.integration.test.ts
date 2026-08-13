@@ -178,9 +178,9 @@ describe("полный цикл частичной синхронизации б
             { projectPath: "Конфигурация.yaml", contentHash: hashFileBytes(Buffer.from(baseRootYaml)) },
             { projectPath: "Язык/Русский.yaml", contentHash: hashFileBytes(Buffer.from(languageYaml)) },
         ],
-        blockPath: "Язык/Русский.yaml",
+        blockPath: "Конфигурация.yaml",
         entities: [{
-          logicalAddress: "Язык.Русский",
+          logicalAddress: "Конфигурация",
           uuid: "00000000-0000-4000-8000-000000000002",
         }],
       })
