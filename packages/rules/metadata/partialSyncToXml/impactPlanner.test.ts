@@ -26,7 +26,7 @@ const topology = compileMetadataResourceTopology([{
     content("Конфигурация.yaml", "configuration", configurationRule, "none"),
     document("", "Configuration.xml", "metadata", true),
     document("", "Ext/ClientApplicationInterface.xml", "property", false),
-    content("Язык/{ownerName}/Свойства.yaml", "properties", languageRule, "configurationComposition"),
+    content("Язык/{ownerName}.yaml", "properties", languageRule, "configurationComposition"),
     document("", "Languages/{ownerName}.xml", "metadata", true),
     content("Объект/{ownerName}/Свойства.yaml", "properties", objectRule, "configurationComposition"),
     document("", "Objects/{ownerName}.xml", "metadata", true),
@@ -99,7 +99,7 @@ registry.register(childFormPartialXmlPackagePolicy)
 const policies = registry.resolve(topology)
 
 const root = "Конфигурация.yaml"
-const language = "Язык/Русский/Свойства.yaml"
+const language = "Язык/Русский.yaml"
 const owner = "Объект/Товары/Свойства.yaml"
 const firstForm = "Объект/Товары/Формы/Первая/Форма.yaml"
 const firstModule = "Объект/Товары/Формы/Первая/Модуль.bsl"
@@ -248,7 +248,7 @@ describe("partial XML impact planner", () => {
     })
     cyclicRegistry.register({
       assignment: {
-        assignmentPattern: "Язык/{ownerName}/Свойства.yaml",
+        assignmentPattern: "Язык/{ownerName}.yaml",
         loadDocumentRoles: ["metadata"],
         companionReferences: [{ yamlPath: ["Корень"], include: "targetAssignment", loadTarget: true }],
       },

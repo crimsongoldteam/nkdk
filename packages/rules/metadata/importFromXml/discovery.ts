@@ -90,6 +90,10 @@ export async function discoverXmlImport(
       continue
     }
 
+    const itemName = compatible.assignment.role === "configuration"
+      ? params.rootItemName
+      : matchedAssignmentItemName(compatible.assignment.projectPattern, compatible.values)
+
     const existing = assignmentsByTarget.get(compatible.assignmentProjectPath)
     if (
       existing !== undefined &&
@@ -106,9 +110,7 @@ export async function discoverXmlImport(
           role: compatible.assignment.role,
           itemType: compatible.assignment.itemRule.itemType,
           topologyNodeId: compatible.assignment.id,
-          ...(compatible.assignment.role === "configuration" && params.rootItemName !== undefined
-            ? { itemName: params.rootItemName }
-            : {}),
+          ...(itemName === undefined ? {} : { itemName }),
           ...(compatible.assignment.logicalAddressSegment === undefined
             ? {}
             : { logicalAddressSegment: compatible.assignment.logicalAddressSegment }),
@@ -149,6 +151,18 @@ export async function discoverXmlImport(
   assertEveryExternalFileBelongsToOneAssignment(assignments)
 
   return { assignments, snapshotFiles }
+}
+
+function matchedAssignmentItemName(
+  projectPattern: string,
+  values: Readonly<Record<string, string>>,
+): string | undefined {
+  const parameters = [...projectPattern.matchAll(/\{([^}.]+)(?:\.\.\.)?\}/g)].map((match) => match[1]!)
+  for (const parameter of parameters.reverse()) {
+    const value = values[parameter]
+    if (value !== undefined) return value
+  }
+  return undefined
 }
 
 const defaultFileSystem: XmlImportDiscoveryFileSystem = {

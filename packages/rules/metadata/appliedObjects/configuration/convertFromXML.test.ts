@@ -74,6 +74,7 @@ describe("sync configuration from xml", () => {
     catalogYaml: string
     hasDocument: boolean
     hasNumerator: boolean
+    hasLegacyNumerator: boolean
     hasSequence: boolean
     snapshot: Awaited<ReturnType<typeof readConfigurationIndex>>
     operationTempExists: boolean
@@ -188,7 +189,10 @@ describe("sync configuration from xml", () => {
       ),
       catalogYaml: fs.readFileSync(join(outputDir, "Справочник", "Контрагенты", "Свойства.yaml"), "utf-8"),
       hasDocument: fs.existsSync(join(outputDir, "Документ", "ДокументПоУмолчанию", "Свойства.yaml")),
-      hasNumerator: fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml")),
+      hasNumerator: fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию.yaml")),
+      hasLegacyNumerator: fs.existsSync(
+        join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml"),
+      ),
       hasSequence: fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml")),
       snapshot: await readConfigurationIndex({ projectDir, address: { kind: "configuration" } }),
       operationTempExists: fs.existsSync(join(projectDir, ".nkdk", "tmp", "import", operationId)),
@@ -248,6 +252,7 @@ describe("sync configuration from xml", () => {
     expect(primaryImport.formYaml).toBe(expectedFormYaml.replaceAll("\r\n", "\n"))
     expect(primaryImport.hasDocument).toBe(true)
     expect(primaryImport.hasNumerator).toBe(true)
+    expect(primaryImport.hasLegacyNumerator).toBe(false)
     expect(primaryImport.hasSequence).toBe(true)
     expect(primaryImport.result.failed).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "project_validation", severity: "error" }),

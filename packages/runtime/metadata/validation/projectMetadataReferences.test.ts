@@ -73,7 +73,7 @@ describe("project metadata references", () => {
 
 function pending(target: Extract<ParsedMetadataTarget, { kind: "member" }>): PendingMetadataTargetReference {
   return {
-    filePath: "/tmp/ФункциональнаяОпция/Опция/Свойства.yaml",
+    filePath: "/tmp/ФункциональнаяОпция/Опция.yaml",
     yamlPath: ["Состав", 0],
     canonical: projectMemberIndexKey(target),
     target,

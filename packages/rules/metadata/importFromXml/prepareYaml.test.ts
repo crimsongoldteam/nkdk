@@ -355,7 +355,7 @@ describe("prepareImportYaml", () => {
           .replace('<FillValue xsi:type="xs:string"/>', '<FillValue xsi:nil="true"/>')
       )
       const collector = createConfigurationIndexCollector()
-      const targetProjectPath = "ОбщийРеквизит/ОбщийРеквизитПоУмолчанию/Свойства.yaml"
+      const targetProjectPath = "ОбщийРеквизит/ОбщийРеквизитПоУмолчанию.yaml"
       const prepared = await prepareImportYaml({
         assignment: metadataImportAssignment({
           id: "common-attribute-nil",

@@ -53,6 +53,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
       root,
       catalogAssignment(projectDir, "Товары"),
       catalogAssignment(projectDir, "Контрагенты"),
+      flatSessionParameterAssignment(projectDir, "ТекущийПользователь"),
     ]
 
     const context = mockContextToXML()
@@ -75,6 +76,8 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     expect(xml).toContain("<ChildObjects>")
     expect(xml).toContain("<Catalog>Контрагенты</Catalog>")
     expect(xml).toContain("<Catalog>Товары</Catalog>")
+    expect(xml).toContain("<SessionParameter>ТекущийПользователь</SessionParameter>")
+    expect(xml).not.toContain("ТекущийПользователь.yaml")
     expect(result.profile?.rulesPassCount).toBe(1)
     expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
   })
@@ -167,5 +170,19 @@ function catalogAssignment(projectDir: string, name: string): FullXmlSyncAssignm
     itemName: name,
     logicalAddress: `Справочник.${name}`,
     ...fullXmlSyncTestTopologyFields(`Справочник/${name}/Свойства.yaml`),
+  }
+}
+
+function flatSessionParameterAssignment(projectDir: string, name: string): FullXmlSyncAssignment {
+  return {
+    id: `ПараметрСеанса/${name}.yaml`,
+    sourceProjectPath: `ПараметрСеанса/${name}.yaml`,
+    sourcePath: join(projectDir, "ПараметрСеанса", `${name}.yaml`),
+    expectedContentHash: 0n,
+    role: "properties",
+    itemType: "MetadataSessionParameter",
+    itemName: name,
+    logicalAddress: `ПараметрСеанса.${name}`,
+    ...fullXmlSyncTestTopologyFields(`ПараметрСеанса/${name}.yaml`),
   }
 }

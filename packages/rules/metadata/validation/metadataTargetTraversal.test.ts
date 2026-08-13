@@ -93,7 +93,7 @@ describe("collectMetadataTargetReferencesInModel", () => {
     } as never
 
     const references = collectMetadataTargetReferencesInModel({
-      filePath: "/tmp/ФункциональнаяОпция/Опция/Свойства.yaml",
+      filePath: "/tmp/ФункциональнаяОпция/Опция.yaml",
       parsed: parseMetadataYaml(["СоставФункциональнойОпции:", "  - Catalog.Номенклатура.Attribute.Артикул"].join("\n")),
       model: {
         itemType: "MetadataFunctionalOption",
@@ -105,7 +105,7 @@ describe("collectMetadataTargetReferencesInModel", () => {
     expect(references.diagnostics).toEqual([])
     expect(references.references).toEqual([
       expect.objectContaining({
-        filePath: "/tmp/ФункциональнаяОпция/Опция/Свойства.yaml",
+        filePath: "/tmp/ФункциональнаяОпция/Опция.yaml",
         yamlPath: ["СоставФункциональнойОпции", 0],
         canonical: "Catalog.Номенклатура.Attribute.Артикул",
         target: expect.objectContaining({

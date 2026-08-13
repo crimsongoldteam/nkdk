@@ -341,6 +341,26 @@ describe("full XML sync worker", () => {
     expect(closed).toBe(true)
   })
 
+  it("preloads a flat assignment owner by its semantic name", async () => {
+    const projectDir = createProject([])
+    const dir = join(projectDir, "ПараметрСеанса")
+    fs.mkdirSync(dir, { recursive: true })
+    fs.writeFileSync(join(dir, "ТекущийПользователь.yaml"), "Имя: ТекущийПользователь\n")
+    const assigned = flatSessionParameterAssignment(projectDir, "ТекущийПользователь")
+    const batches: string[][] = []
+    const session = emptyReadSession({
+      readDependencyOwnerInputs(requests) {
+        batches.push(requests.map(({ owner }) => `${owner.kind}.${owner.name}`))
+        return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
+      },
+    })
+
+    await initialize(projectDir, [assigned], context, undefined, () => session)
+    await runFullXmlSyncWorkerCommand({ kind: "execute", assignments: [assigned] })
+
+    expect(batches).toEqual([["ПараметрСеанса.ТекущийПользователь"]])
+  })
+
   it("использует установленную сессию универсальной линии и не закрывает её", async () => {
     const projectDir = createProject(["Товары"])
     const assigned = assignment(projectDir, "Товары")
@@ -701,6 +721,25 @@ function assignment(projectDir: string, name: string): FullXmlSyncExecutionAssig
     logicalAddress: `Справочник.${name}`,
     configurationIndexEntityRange: { start: 0, count: 0 },
     ...fullXmlSyncTestTopologyFields(`Справочник/${name}/Свойства.yaml`),
+  }
+}
+
+function flatSessionParameterAssignment(
+  projectDir: string,
+  name: string,
+): FullXmlSyncExecutionAssignment {
+  const sourcePath = join(projectDir, "ПараметрСеанса", `${name}.yaml`)
+  return {
+    id: `ПараметрСеанса/${name}.yaml`,
+    sourceProjectPath: `ПараметрСеанса/${name}.yaml`,
+    sourcePath,
+    expectedContentHash: hashFileBytes(fs.readFileSync(sourcePath)),
+    role: "properties",
+    itemType: "MetadataSessionParameter",
+    itemName: name,
+    logicalAddress: `ПараметрСеанса.${name}`,
+    configurationIndexEntityRange: { start: 0, count: 0 },
+    ...fullXmlSyncTestTopologyFields(`ПараметрСеанса/${name}.yaml`),
   }
 }
 

@@ -91,6 +91,20 @@ describe("full XML sync discovery", () => {
     ])
   })
 
+  it("uses the file parameter as the semantic name of a flat assignment", async () => {
+    const projectDir = createProject()
+    touch(projectDir, "Конфигурация.yaml")
+    touch(projectDir, "ПараметрСеанса/ТекущийПользователь.yaml")
+
+    const plan = await buildPlan(projectDir)
+
+    expect(plan.assignments.find(({ role }) => role === "properties")).toMatchObject({
+      sourceProjectPath: "ПараметрСеанса/ТекущийПользователь.yaml",
+      itemName: "ТекущийПользователь",
+      logicalAddress: "ПараметрСеанса.ТекущийПользователь",
+    })
+  })
+
   it("plans metadata and body XML for one common form assignment", async () => {
     const projectDir = createProject()
     touch(projectDir, "ОбщаяФорма/Additional/Свойства.yaml")

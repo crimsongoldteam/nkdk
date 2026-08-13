@@ -92,13 +92,13 @@ describe("buildMetadataOperationSnapshot", () => {
     const validationProjectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))
     const projectDir = join(validationProjectDir, "cf")
     tempDirs.push(validationProjectDir)
-    mkdirSync(join(projectDir, "Язык", "Русский"), { recursive: true })
+    mkdirSync(join(projectDir, "Язык"), { recursive: true })
     mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
     writeFileSync(
       join(projectDir, "Конфигурация.yaml"),
       ["Имя: Конфигурация", "ОсновнойЯзык: Русский", ""].join("\n")
     )
-    writeFileSync(join(projectDir, "Язык", "Русский", "Свойства.yaml"), "КодЯзыка: ru\n")
+    writeFileSync(join(projectDir, "Язык", "Русский.yaml"), "КодЯзыка: ru\n")
     writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "{}\n")
 
     const result = await buildMetadataOperationSnapshot({
@@ -114,7 +114,7 @@ describe("buildMetadataOperationSnapshot", () => {
     expect(result.items.map(({ projectPath }) => projectPath)).toEqual(
       expect.arrayContaining([
         "Конфигурация.yaml",
-        "Язык/Русский/Свойства.yaml",
+        "Язык/Русский.yaml",
         "Справочник/Товары/Свойства.yaml",
       ])
     )

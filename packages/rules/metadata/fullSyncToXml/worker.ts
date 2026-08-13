@@ -432,6 +432,7 @@ function ownerFromAssignment(assignment: Pick<FullXmlSyncAssignment, "role" | "i
 } {
   if (assignment.role === "configuration") return { dir: "", name: assignment.itemName }
   const parts = assignment.sourceProjectPath.split("/")
+  if (assignment.role === "properties") return { dir: parts[0] ?? "", name: assignment.itemName }
   return { dir: parts[0] ?? "", name: parts[1] ?? assignment.itemName }
 }
 

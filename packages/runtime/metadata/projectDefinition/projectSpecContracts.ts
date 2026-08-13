@@ -11,6 +11,7 @@ export interface RegisteredProjectSpec extends MetadataResourceTopologySpec {
   dir: string
   kind: string
   rule: MetadataItemRule
+  projectLayout?: ProjectFileLayout
   exportSchema: (params: {
     context: ConfigurationContext
     mode?: JSONSchemaExportMode
@@ -19,6 +20,8 @@ export interface RegisteredProjectSpec extends MetadataResourceTopologySpec {
   }) => TSchema
   nesting?: ProjectSpecNesting
 }
+
+export type ProjectFileLayout = "objectDirectory" | "flatFile"
 
 export type ProjectSpecNesting = {
   kind: "recursiveChildDir"

@@ -12,6 +12,19 @@ const itemRule = { itemType: "TestForm", properties: {} } as MetadataItemRule
 const propertyRule = { type: "TestChildFormNames" } as PropertyRule
 let topology: CompiledMetadataResourceTopology
 
+const flatProjectSpecs = [
+  ["ГруппаКоманд", "MetadataCommandGroup"],
+  ["Нумератор", "MetadataDocumentNumerator"],
+  ["ОбщийРеквизит", "MetadataCommonAttribute"],
+  ["ОпределяемыйТип", "MetadataDefinedType"],
+  ["ПараметрСеанса", "MetadataSessionParameter"],
+  ["ПараметрФункциональныхОпций", "MetadataFunctionalOptionsParameter"],
+  ["ПодпискаНаСобытие", "MetadataEventSubscription"],
+  ["ФункциональнаяОпция", "MetadataFunctionalOption"],
+  ["ЭлементСтиля", "MetadataStyleItem"],
+  ["Язык", "MetadataLanguage"],
+] as const
+
 describe("property resource topology registry", () => {
   beforeAll(() => {
     topology = compileRegisteredMetadataResourceTopology()
@@ -220,6 +233,27 @@ describe("property resource topology registry", () => {
         }),
       ]),
     })
+  })
+
+  it.each(flatProjectSpecs)("регистрирует плоский файл %s", (dir, itemType) => {
+    const assignment = topology.assignments.find(
+      (candidate) => candidate.projectPattern === `${dir}/{ownerName}.yaml`,
+    )
+
+    expect(assignment).toMatchObject({
+      itemRule: { itemType },
+      xmlDocuments: [
+        expect.objectContaining({
+          xmlPattern: `${assignment?.itemRule.xmlDir}/{ownerName}.xml`,
+          role: "metadata",
+        }),
+      ],
+    })
+    expect(
+      topology.assignments.some(
+        (candidate) => candidate.projectPattern === `${dir}/{ownerName}/Свойства.yaml`,
+      ),
+    ).toBe(false)
   })
 
   it("selects the form rule in owner declarations", () => {
