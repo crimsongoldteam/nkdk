@@ -82,11 +82,13 @@ export function describeProjectSpecResourceTopology(
       nextNameIndex: 1,
     }, propertyRules)
   } else if (typeof spec.rule.xmlDir === "string") {
-    const projectBase = `${spec.dir}/{ownerName}`
+    const flatFile = spec.projectLayout === "flatFile"
+    const projectBase = flatFile ? spec.dir : `${spec.dir}/{ownerName}`
     const xmlBase = `${spec.rule.xmlDir}/{ownerName}`
     collectSpecAssignment(declarations, spec.rule, {
       projectBase,
       xmlBase,
+      assignmentProjectPattern: flatFile ? `${spec.dir}/{ownerName}.yaml` : undefined,
       role: "properties",
       currentNameParameter: "ownerName",
     }, propertyRules)
@@ -117,7 +119,21 @@ export function describeProjectSpecResourceTopology(
   }
 
   declarations.push(...(spec.resources ?? []))
+  if (spec.projectLayout === "flatFile") assertFlatFileProjectResources(spec, declarations)
   return declarations
+}
+
+function assertFlatFileProjectResources(
+  spec: RegisteredProjectSpec,
+  declarations: readonly MetadataResourceDeclaration[],
+): void {
+  const contentCount = declarations.filter((declaration) => declaration.kind === "content").length
+  const hasAdditionalProjectResource = declarations.some(
+    (declaration) => declaration.kind === "yamlCompanion" || declaration.kind === "externalFile",
+  )
+  if (contentCount !== 1 || hasAdditionalProjectResource) {
+    throw new Error(`Плоское размещение ${spec.dir} не допускает дополнительные проектные ресурсы`)
+  }
 }
 
 function collectSpecAssignment(
@@ -126,6 +142,7 @@ function collectSpecAssignment(
   params: {
     projectBase: string
     xmlBase: string
+    assignmentProjectPattern?: string
     role: "properties" | "fileItem"
     currentNameParameter: string
     ownerProjectPattern?: string
@@ -133,7 +150,7 @@ function collectSpecAssignment(
   },
   propertyRules?: Pick<PropertyRuleRegistrySet, "getTypeRule">,
 ): void {
-  const assignmentProjectPattern = `${params.projectBase}/Свойства.yaml`
+  const assignmentProjectPattern = params.assignmentProjectPattern ?? `${params.projectBase}/Свойства.yaml`
   declarations.push(
     contentDeclaration({
       projectPattern: assignmentProjectPattern,
