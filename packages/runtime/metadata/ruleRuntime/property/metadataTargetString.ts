@@ -59,7 +59,6 @@ export function exportStringMetadataTargetToYAML(params: {
     return value.map((item) => exportStringMetadataTargetToYAML({ ...params, value: item }))
   }
   if (typeof value !== "string" || value === "") return value
-
   try {
     return formatMetadataTargetToYAML({
       canonical: value,
@@ -85,6 +84,12 @@ export function importStringMetadataTargetFromYAML(params: {
     return value.map((item) => importStringMetadataTargetFromYAML({ ...params, value: item }))
   }
   if (typeof value !== "string" || value === "") return value
+  if (constraint.kind === "member" && constraint.owner === "type") {
+    const propertyName = params.rule.yaml ?? "Ссылка на член метаданных"
+    if (params.owner !== undefined && value.includes(".")) {
+      throw new Error(`${propertyName} должна быть задана кратким именем`)
+    }
+  }
 
   const result = parseMetadataTargetFromYAML({
     value,
@@ -121,6 +126,17 @@ export function metadataTargetOwnerForProperty(params: {
   if (constraint?.kind !== "member" || constraint.owner !== "type") return params.owner
   if (constraint.typeProperty === undefined) return undefined
   return metadataTargetOwnerFromTypeYAML(params.siblingValue(constraint.typeProperty))
+}
+
+export function isTypeOwnedMetadataTargetUnavailable(params: {
+  rule: { readonly metadataTarget?: MetadataTargetConstraint }
+  siblingValue: (propertyKey: string) => unknown
+}): boolean {
+  const constraint = params.rule.metadataTarget
+  return constraint?.kind === "member"
+    && constraint.owner === "type"
+    && constraint.typeProperty !== undefined
+    && Array.isArray(params.siblingValue(constraint.typeProperty))
 }
 
 export function metadataTargetConstraintForOwner(

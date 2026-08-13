@@ -11,6 +11,7 @@ import {
 import type { MetadataTargetOwner } from "../metadataTarget"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefaultVariant } from "../../context/types"
 import {
+  isTypeOwnedMetadataTargetUnavailable,
   metadataTargetOwnerForProperty,
   metadataTargetOwnerFromRule,
   importStringMetadataTargetFromYAML,
@@ -649,6 +650,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }) as ConfigurationContextWithExportToXML
     let imported: unknown
     try {
+      if (source.has(propertyKey) && isTypeOwnedMetadataTargetUnavailable({
+        rule: planned.propertyRule,
+        siblingValue: (siblingPropertyKey) => source.raw(siblingPropertyKey),
+      })) {
+        throw new Error(
+          `${planned.propertyRule.yaml ?? propertyKey} недоступна: тип должен содержать единственный тип`,
+        )
+      }
       const atomicReferences = references.map((reference) =>
         !source.has(propertyKey) && planned.propertyRule.exportNilValue === true
           ? undefined

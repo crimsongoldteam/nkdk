@@ -22,6 +22,7 @@ import type {
 import {
   exportStringMetadataTargetToYAML,
   importStringMetadataTargetFromYAML,
+  isTypeOwnedMetadataTargetUnavailable,
   metadataTargetOwnerForProperty,
   metadataTargetOwnerFromRule,
 } from "./metadataTargetString"
@@ -671,6 +672,13 @@ function normalizeTypeOwnedMetadataTargets(params: {
     const yamlKey = propertyRule.yaml
     const typeYamlKey = params.rule.properties[constraint.typeProperty]?.yaml
     if (yamlKey === undefined || typeYamlKey === undefined || params.result[yamlKey] === undefined) continue
+    if (isTypeOwnedMetadataTargetUnavailable({
+      rule: propertyRule,
+      siblingValue: () => params.result[typeYamlKey],
+    })) {
+      delete params.result[yamlKey]
+      continue
+    }
     const owner = metadataTargetOwnerForProperty({
       rule: propertyRule,
       siblingValue: () => params.result[typeYamlKey],

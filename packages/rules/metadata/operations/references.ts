@@ -1,4 +1,4 @@
-import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget"
+import { parseMetadataTargetFromModel, type MetadataTargetOwner } from "../ruleRuntime/metadataTarget"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { callAtomicFromYAML } from "../ruleRuntime/property/fromYAMLToXML"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
@@ -108,15 +108,23 @@ export function createPropertyStructuralReferenceRuntime(
       const handler = execution === undefined
         ? getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
         : execution.getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
-      return handler?.({ ...params, propRule: propertyRule }).references ?? []
+      const indexed = handler?.({ ...params, propRule: propertyRule }).references ?? []
+      return indexed.length > 0 ? indexed : materializeTranslateOnlyReferences({ ...params, propRule: propertyRule })
     },
     nestedRule: (rule) => {
       const propertyRule = rule as PropertyRule
-      return (
+      const nested = (
         execution === undefined
           ? getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
           : execution.getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
       ) as unknown as StructuralReferenceNestedRule | undefined
+      if (nested?.kind !== "externalFile") return nested
+      const item = execution === undefined
+        ? getTypeRule(propertyRule.type, "nestedItemRule")
+        : execution.getTypeRule(propertyRule.type, "nestedItemRule")
+      return item === undefined || !("itemRule" in item)
+        ? nested
+        : { kind: "item", itemRule: item.itemRule }
     },
     isTransportedBrokenXMLReference: (params) =>
       transportRegistry()?.isTransportedBrokenXMLReference({
@@ -124,6 +132,27 @@ export function createPropertyStructuralReferenceRuntime(
         rule: params.rule as PropertyRule,
       }) ?? false,
   }
+}
+
+function materializeTranslateOnlyReferences(
+  params: Parameters<StructuralReferenceRuntime["collectIndexedReferences"]>[0] & { propRule: PropertyRule },
+): ReturnType<StructuralReferenceRuntime["collectIndexedReferences"]> {
+  const constraint = params.propRule.metadataTarget
+  if (constraint === undefined || !(
+    (constraint.kind === "dataTable" || constraint.kind === "dataTableField")
+    && constraint.validation === "translateOnly"
+  )) return []
+
+  const values = Array.isArray(params.value)
+    ? params.value.map((value, index) => ({ value, yamlPath: [...params.yamlPath, index] }))
+    : [{ value: params.value, yamlPath: params.yamlPath }]
+  return values.flatMap(({ value, yamlPath }) => {
+    if (typeof value !== "string" || value === "") return []
+    const parsed = parseMetadataTargetFromModel({ canonical: value, constraint, owner: params.owner })
+    return parsed.ok
+      ? [{ yamlPath, canonical: parsed.canonical, target: parsed.target, constraint }]
+      : []
+  })
 }
 
 function canonicalMatchesPrefix(value: string, prefix: string): boolean {

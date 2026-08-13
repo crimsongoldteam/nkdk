@@ -1,5 +1,6 @@
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import {
+  isTypeOwnedMetadataTargetUnavailable,
   metadataTargetConstraintForOwner,
   metadataTargetOwnerForProperty,
   rootFromYAML,
@@ -582,13 +583,30 @@ function collectPendingReferences(params: {
     }
 
     if (property.metadataTarget !== undefined) {
+      const siblingValue = (propertyKey: string) => {
+        const sibling = params.properties.find((candidate) => candidate.modelKey === propertyKey)
+        return sibling === undefined ? undefined : valueAtPath(record, sibling.yamlPath)
+      }
+      if (isTypeOwnedMetadataTargetUnavailable({
+        rule: { metadataTarget: property.metadataTarget },
+        siblingValue,
+      })) {
+        if (params.validationDiagnostics) {
+          params.diagnostics.push(diagnosticAtYamlPath({
+            filePath: params.filePath,
+            parsed: params.parsed,
+            path: yamlPath,
+            severity: "error",
+            source: "reference",
+            message: `Свойство "${property.yamlPath.at(-1)}" недоступно для реквизита с составным типом`,
+          }))
+        }
+        continue
+      }
       const propertyOwner = metadataTargetOwnerForProperty({
         rule: { metadataTarget: property.metadataTarget },
         owner: params.owner,
-        siblingValue: (propertyKey) => {
-          const sibling = params.properties.find((candidate) => candidate.modelKey === propertyKey)
-          return sibling === undefined ? undefined : valueAtPath(record, sibling.yamlPath)
-        },
+        siblingValue,
       })
       references.push(
         ...collectTargetValues({

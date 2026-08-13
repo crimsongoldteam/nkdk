@@ -11,6 +11,8 @@ import {
   emptyOperationRefreshStats,
   operationDataPathFormYaml,
   operationDataPathReference,
+  operationCalculationBaseFormYaml,
+  operationCalculationBaseReference,
   operationLockFieldYaml,
   operationMetadataReference,
   operationPictureFormYaml,
@@ -18,6 +20,11 @@ import {
   operationValidationError,
 } from "./tests/operationTestSupport"
 import { renameMetadataItem } from "./renameItem"
+import { metadataRules } from "../composition/metadataRules"
+import {
+  createMetadataExecutionRegistrySets,
+  withMetadataExecutionRegistrySets,
+} from "../composition/metadataExecutionContext"
 
 
 const validationError = operationValidationError
@@ -117,6 +124,44 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
         },
       ],
     })
+  })
+
+  it("rewrites a base calculation register embedded in a dynamic-list virtual table", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "РегистрРасчета/Основание/Свойства.yaml", [
+      "ПланВидовРасчета: ПланРасчета",
+    ])
+    const formPath = writeProjectFile(
+      projectDir,
+      "ОбщаяФорма/Расчеты/Свойства.yaml",
+      operationCalculationBaseFormYaml,
+    )
+    harness.setIndex({
+      targetProjectPath: "cf/РегистрРасчета/Основание/Свойства.yaml",
+      references: [operationCalculationBaseReference()],
+    })
+
+    const registries = createMetadataExecutionRegistrySets(metadataRules)
+    const result = await withMetadataExecutionRegistrySets(registries, () => renameMetadataItem({
+      projectDir,
+      path: "РегистрРасчета.Основание",
+      newName: "НоваяБаза",
+      allowWrite: true,
+      now: new Date("2026-08-13T12:00:00.000Z"),
+      projectState,
+      ignoreValidationErrors: true,
+    }, registries.rules))
+
+    expect(result).toMatchObject({
+      ok: true,
+      rewrittenReferences: [{
+        from: "CalculationRegister.Основание",
+        to: "CalculationRegister.НоваяБаза",
+      }],
+    })
+    expect(readFileSync(formPath, "utf-8")).toContain(
+      "ОсновнаяТаблица: РегистрРасчета.Начисления.БазаНоваяБаза",
+    )
   })
 
   it("пакетно переписывает много индексированных ссылок одного YAML", async () => {

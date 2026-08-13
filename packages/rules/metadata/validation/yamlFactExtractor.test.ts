@@ -249,21 +249,12 @@ describe("extractValidationYamlFacts", () => {
   })
 
   it("разрешает краткую форму выбора по типу соседнего реквизита", () => {
-    const projectDir = "/project"
-    const filePath = "/project/Справочник/Товары/Свойства.yaml"
-    const file = resolveValidationProjectFile(projectDir, filePath)
-    if (file === undefined) throw new Error("file not resolved")
-
-    const facts = extractValidationYamlFacts({
-      file,
-      parsed: parseMetadataYaml([
+    const facts = catalogAttributeFacts([
         "Реквизиты:",
         "  Поставщик:",
         "    Тип: Справочник.Поставщики",
         "    ФормаВыбора: ФормаВыбора",
-      ].join("\n")),
-      rulesSnapshot,
-    })
+    ])
 
     expect(facts.pendingReferences).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -272,6 +263,30 @@ describe("extractValidationYamlFacts", () => {
       }),
     ]))
     expect(facts.diagnostics).toEqual([])
+  })
+
+  it("сообщает, что форма выбора недоступна для составного типа реквизита", () => {
+    const facts = catalogAttributeFacts([
+        "Реквизиты:",
+        "  Поставщик:",
+        "    Тип:",
+        "      - Справочник.Поставщики",
+        "      - Справочник.Контрагенты",
+        "    ФормаВыбора: ФормаВыбора",
+    ])
+
+    expect(facts.pendingReferences).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        yamlPath: ["Реквизиты", "Поставщик", "ФормаВыбора"],
+      }),
+    ]))
+    expect(facts.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        source: "reference",
+        message: 'Свойство "ФормаВыбора" недоступно для реквизита с составным типом',
+      }),
+    ])
   })
 
   it("не проверяет существование целей с режимом translateOnly", () => {
@@ -519,6 +534,17 @@ describe("extractValidationYamlFacts", () => {
     })
   }
 })
+
+function catalogAttributeFacts(lines: readonly string[]) {
+  const projectDir = "/project"
+  const file = resolveValidationProjectFile(projectDir, `${projectDir}/Справочник/Товары/Свойства.yaml`)
+  if (file === undefined) throw new Error("file not resolved")
+  return extractValidationYamlFacts({
+    file,
+    parsed: parseMetadataYaml(lines.join("\n")),
+    rulesSnapshot,
+  })
+}
 
 function localValidationRuntime(type: string, validator: LocalYamlValueValidator) {
   const rules = defineMetadataRules({

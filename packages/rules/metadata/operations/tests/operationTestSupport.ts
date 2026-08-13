@@ -47,6 +47,23 @@ export const operationDataPathFormYaml = [
   "    ПутьКДанным: Объект.Артикул",
 ]
 
+export const operationCalculationBaseFormYaml = [
+  "Форма:",
+  "  Реквизиты:",
+  "    Список:",
+  "      Тип: ДинамическийСписок",
+  "      ДинамическийСписок:",
+  "        ОсновнаяТаблица: РегистрРасчета.Начисления.БазаОснование",
+]
+
+export function operationCalculationBaseReference(): ProjectReferenceLocation {
+  return operationMetadataReference(
+    "cf/ОбщаяФорма/Расчеты/Свойства.yaml",
+    ["Форма", "Реквизиты", "Список", "ДинамическийСписок", "ОсновнаяТаблица"],
+    "CalculationRegister.Основание",
+  )
+}
+
 export function createOperationTestProjectHarness(prefix: string) {
   const tempDirs: string[] = []
   let index: OperationTestIndex = {}

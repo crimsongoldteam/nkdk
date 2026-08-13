@@ -11,8 +11,11 @@ import {
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { createBinaryProjectStateTestFixture } from "../projectState/binary/testFixture"
+import { emptyYamlUpdate } from "../projectState/binary/testData"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import type { ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "../projectState/fileUpdate"
+import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
+import { collectAppliedObjectDataTables } from "../appliedObjects/dataTableRules"
 
 describe("validateProject", () => {
   it("всегда актуализирует весь проект через переданное состояние и не закрывает его", async () => {
@@ -54,6 +57,25 @@ describe("validateProject", () => {
       .toEqual(['Ссылка "Catalog.Номенклатура.Attribute.Артикул" не включена в расширение'])
 
     appendStateFiles(store, [facts.extensionObjectWithAttribute])
+    expect(messages(await validateProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([])
+    store.rollbackUpdate()
+  })
+
+  it("проверяет доступность виртуальной ОсновнойТаблицы через декларации объекта", async () => {
+    const dependencyValidator = createProjectStateDependencyValidator({
+      dataTableContributors: [collectAppliedObjectDataTables],
+    })
+    const { store } = createBinaryProjectStateTestFixture(dependencyValidator)
+    const facts = dataTableValidationFacts("РегистрНакопления.Продажи.Остатки")
+    store.beginUpdate()
+    appendStateFiles(store, [facts.configuration, facts.register, facts.form])
+    const projectState = testProjectState(() => store.validateDependencies({ requests: [] }))
+
+    expect(messages(await validateProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([
+      'Не найдена ссылка "AccumulationRegister.Продажи.Balance"',
+    ])
+
+    appendStateFiles(store, [dataTableValidationFacts("РегистрНакопления.Продажи.Обороты").form])
     expect(messages(await validateProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([])
     store.rollbackUpdate()
   })
@@ -212,4 +234,38 @@ function appendStateFiles(
   const writer = createProjectStateFragmentWriter()
   for (const update of updates) writer.appendFile(update, 0n)
   store.appendFragment(writer.finish())
+}
+
+function dataTableValidationFacts(value: string) {
+  const object = parseMetadataTargetFromYAML({
+    value: "РегистрНакопления.Продажи",
+    constraint: { kind: "object" },
+  })
+  const table = parseMetadataTargetFromYAML({ value, constraint: { kind: "dataTable" } })
+  if (!object.ok || object.target.kind !== "object" || !table.ok || table.target.kind !== "dataTable") {
+    throw new Error("Некорректные тестовые ссылки")
+  }
+  const yaml = (
+    projectPath: string,
+    yamlRole: ProjectStateYamlFileUpdate["yamlRole"],
+    extra: Partial<ProjectStateYamlFileUpdate> = {},
+  ): ProjectStateYamlFileUpdate => ({ ...emptyYamlUpdate(projectPath, yamlRole), ...extra })
+  return {
+    configuration: yaml("cf/Конфигурация.yaml", "configuration"),
+    register: yaml("cf/РегистрНакопления/Продажи/Свойства.yaml", "properties", {
+      targets: [{ kind: "object", canonical: object.canonical }],
+      owners: [{
+        owner: { kind: "РегистрНакопления", name: "Продажи" },
+        facts: { registerType: "Turnovers" },
+      }],
+    }),
+    form: yaml("cf/ОбщаяФорма/Список/Форма.yaml", "form", {
+      pendingReferences: [{
+        yamlPath: ["Реквизиты", "Список", "ДинамическийСписок", "ОсновнаяТаблица"],
+        canonical: table.canonical,
+        target: table.target,
+        constraint: { kind: "dataTable" },
+      }],
+    }),
+  }
 }

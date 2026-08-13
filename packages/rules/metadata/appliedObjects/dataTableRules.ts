@@ -125,8 +125,8 @@ function hasScheduleData(
   }
   const schedule = byCanonical.get(facts.schedule)?.ownerFacts
   if (schedule === undefined || !isNonperiodical(schedule.periodicity)) return false
-  const dateName = referencedMemberName(facts.scheduleDate, "Dimension")
-  const valueName = referencedMemberName(facts.scheduleValue, "Resource")
+  const dateName = referencedMemberName(facts.scheduleDate, facts.schedule, "Dimension")
+  const valueName = referencedMemberName(facts.scheduleValue, facts.schedule, "Resource")
   return hasPrimitive(schedule.dimensions, dateName, "dateTime") && hasPrimitive(schedule.resources, valueName, "decimal")
 }
 
@@ -134,10 +134,13 @@ function hasPrimitive(items: ValidationNamedTypeItems | undefined, name: string 
   return name !== undefined && items?.some((item) => item.name === name && item.type?.type?.includes(primitive)) === true
 }
 
-function referencedMemberName(canonical: string, kind: MetadataFieldKind): string | undefined {
-  const marker = `.${kind}.`
-  const index = canonical.lastIndexOf(marker)
-  return index === -1 ? undefined : canonical.slice(index + marker.length)
+function referencedMemberName(
+  canonical: string,
+  ownerCanonical: string,
+  kind: MetadataFieldKind,
+): string | undefined {
+  const prefix = `${ownerCanonical}.${kind}.`
+  return canonical.startsWith(prefix) ? canonical.slice(prefix.length) : undefined
 }
 
 function tabularSectionTables(

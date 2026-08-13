@@ -88,18 +88,9 @@ describe("applied object data tables", () => {
       dependenceOnCalculationTypes: "OnActionPeriod",
       baseCalculationTypes: ["ChartOfCalculationTypes.БазовыйПлан"],
     })
-    const schedule = objectRecord("InformationRegister", "График", {
-      periodicity: "Nonperiodical",
-      dimensions: [{ name: "Дата", type: { type: ["dateTime"] } }],
-      resources: [{ name: "Значение", type: { type: ["decimal"] } }],
-    })
-    const main = objectRecord("CalculationRegister", "Основной", {
-      actionPeriod: "true",
+    const [schedule, main] = scheduleDataRecords({
       basePeriod: "true",
       chartOfCalculationTypes: "ChartOfCalculationTypes.ОсновнойПлан",
-      schedule: "InformationRegister.График",
-      scheduleDate: "InformationRegister.График.Dimension.Дата",
-      scheduleValue: "InformationRegister.График.Resource.Значение",
     })
     const base = objectRecord("CalculationRegister", "Базовый", {
       chartOfCalculationTypes: "ChartOfCalculationTypes.БазовыйПлан",
@@ -111,6 +102,15 @@ describe("applied object data tables", () => {
       "CalculationRegister.Основной.ScheduleData",
       "CalculationRegister.Основной.ActualActionPeriod",
     ])
+  })
+
+  it.each([
+    ["scheduleDate", "InformationRegister.ДругойГрафик.Dimension.Дата"],
+    ["scheduleValue", "InformationRegister.ДругойГрафик.Resource.Значение"],
+  ])("does not publish schedule data when %s belongs to another register", (property, foreignReference) => {
+    const [schedule, main] = scheduleDataRecords({ [property]: foreignReference })
+
+    expect(canonicals([schedule, main])).not.toContain("CalculationRegister.Основной.ScheduleData")
   })
 
   it("publishes tabular sections as physical tables", () => {
@@ -143,6 +143,24 @@ describe("applied object data tables", () => {
 
 function canonicals(records: readonly ValidationObjectRecord[]): string[] {
   return [...collectAppliedObjectDataTables(records)].map(({ canonical }) => canonical)
+}
+
+function scheduleDataRecords(
+  overrides: Partial<ValidationOwnerFacts>,
+): readonly [ValidationObjectRecord, ValidationObjectRecord] {
+  const schedule = objectRecord("InformationRegister", "График", {
+    periodicity: "Nonperiodical",
+    dimensions: [{ name: "Дата", type: { type: ["dateTime"] } }],
+    resources: [{ name: "Значение", type: { type: ["decimal"] } }],
+  })
+  const register = objectRecord("CalculationRegister", "Основной", {
+    actionPeriod: "true",
+    schedule: "InformationRegister.График",
+    scheduleDate: "InformationRegister.График.Dimension.Дата",
+    scheduleValue: "InformationRegister.График.Resource.Значение",
+    ...overrides,
+  })
+  return [schedule, register]
 }
 
 function objectRecord(

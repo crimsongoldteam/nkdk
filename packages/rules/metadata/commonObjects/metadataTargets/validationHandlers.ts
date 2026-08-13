@@ -4,6 +4,7 @@ import type {
   StructuralReferencesFunction,
   ValidateMetadataTargetFunction,
 } from "@nkdk/runtime/rule-kit"
+import { dataTableCanonical } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
 import type { Diagnostic } from "../../validation/types"
@@ -15,14 +16,14 @@ import { materializeCanonicalMetadataReference, materializeMetadataValueReferenc
 
 const validateStringTarget: ValidateMetadataTargetFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return []
-  if (!isCollectedStringTarget(params.propRule.type, params.propRule.metadataTarget)) return []
+  if (!isValidatedStringTarget(params.propRule.type, params.propRule.metadataTarget)) return []
   return validateCanonicalTarget(params, params.value)
 }
 
 const collectStringTargetReference: StructuralReferencesFunction = (params) => {
   if (!params.propRule.metadataTarget) return []
   if (typeof params.value !== "string" || params.value === "") return []
-  if (!isCollectedStringTarget(params.propRule.type, params.propRule.metadataTarget)) return []
+  if (!isStructuralStringTarget(params.propRule.type, params.propRule.metadataTarget)) return []
 
   const parsed = parseMetadataTargetFromModel({
     canonical: params.value,
@@ -31,13 +32,33 @@ const collectStringTargetReference: StructuralReferencesFunction = (params) => {
   })
   if (!parsed.ok) return []
 
-  return [
-    {
+  const references: ReturnType<StructuralReferencesFunction> = [{
+    yamlPath: params.yamlPath,
+    canonical: parsed.canonical,
+    setCanonical: (nextCanonical: string) => params.setValue(nextCanonical),
+  }]
+  const baseRegister = baseCalculationRegisterReference(parsed.target)
+  if (baseRegister !== undefined && parsed.target.kind === "dataTable") {
+    const dataTable = parsed.target
+    references.push({
       yamlPath: params.yamlPath,
-      canonical: parsed.canonical,
-      setCanonical: (nextCanonical: string) => params.setValue(nextCanonical),
-    },
-  ]
+      canonical: baseRegister,
+      setCanonical: (nextCanonical: string) => {
+        const next = parseMetadataTargetFromModel({
+          canonical: nextCanonical,
+          constraint: calculationRegisterConstraint,
+        })
+        if (!next.ok || next.target.kind !== "object" || next.target.root !== "CalculationRegister") {
+          throw new Error(`Не удалось записать ссылку на базовый регистр расчёта: ${nextCanonical}`)
+        }
+        params.setValue(dataTableCanonical({
+          ...dataTable,
+          virtualTable: `Base${next.target.objectName}`,
+        }))
+      },
+    })
+  }
+  return references
 }
 
 export const validateStringTargetList: ValidateMetadataTargetFunction = (params) => {
@@ -100,19 +121,52 @@ const collectMetadataValueReference: StructuralReferencesFunction = (params) => 
 
 const collectStringTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return { references: [], diagnostics: [] }
-  if (!isCollectedStringTarget(params.propRule.type, params.propRule.metadataTarget)) {
+  if (!isValidatedStringTarget(params.propRule.type, params.propRule.metadataTarget)) {
     return { references: [], diagnostics: [] }
   }
-  return collectCanonicalTarget(params, params.value)
+  const result = collectCanonicalTarget(params, params.value)
+  const constraint = params.propRule.metadataTarget
+  if (constraint?.kind !== "dataTable") return result
+  const parsed = parseMetadataTargetFromModel({ canonical: params.value, constraint, owner: params.owner })
+  if (!parsed.ok) return result
+  const baseRegister = baseCalculationRegisterReference(parsed.target)
+  if (baseRegister === undefined) return result
+  const baseResult = collectCanonicalTargetWithConstraint(params, baseRegister, calculationRegisterConstraint)
+  return {
+    references: [...result.references, ...baseResult.references],
+    diagnostics: [...result.diagnostics, ...baseResult.diagnostics],
+  }
 }
 
-function isCollectedStringTarget(
+const calculationRegisterConstraint = {
+  kind: "object",
+  roots: ["CalculationRegister"],
+} as const satisfies MetadataTargetConstraint
+
+function baseCalculationRegisterReference(target: ParsedMetadataTarget): string | undefined {
+  if (target.kind !== "dataTable" || target.root !== "CalculationRegister") return undefined
+  const virtualTable = target.virtualTable
+  if (virtualTable === undefined || !virtualTable.startsWith("Base") || virtualTable.length === "Base".length) {
+    return undefined
+  }
+  return `CalculationRegister.${virtualTable.slice("Base".length)}`
+}
+
+function isValidatedStringTarget(
   propertyType: string,
   constraint: MetadataTargetConstraint | undefined,
 ): boolean {
   if (constraint === undefined) return false
   if ((constraint.kind === "dataTable" || constraint.kind === "dataTableField")
     && constraint.validation === "translateOnly") return false
+  return isStructuralStringTarget(propertyType, constraint)
+}
+
+function isStructuralStringTarget(
+  propertyType: string,
+  constraint: MetadataTargetConstraint | undefined,
+): boolean {
+  if (constraint === undefined) return false
   if (propertyType !== "string") return true
   return constraint.kind === "member" || constraint.kind === "dataTable" || constraint.kind === "dataTableField"
 }
@@ -247,6 +301,76 @@ const collectPictureReference: StructuralReferencesFunction = (params) => {
       },
     },
   ]
+}
+
+const functionalOptionConstraint = {
+  kind: "object",
+  roots: ["FunctionalOption"],
+} as const satisfies MetadataTargetConstraint
+
+const roleConstraint = {
+  kind: "object",
+  roots: ["Role"],
+} as const satisfies MetadataTargetConstraint
+
+const collectFunctionalOptionReferences: StructuralReferencesFunction = (params) =>
+  collectStringTargetReferenceList({
+    ...params,
+    propRule: { ...params.propRule, metadataTarget: functionalOptionConstraint },
+  })
+
+const collectFunctionalOptionTargets: CollectMetadataTargetReferencesFunction = (params) =>
+  collectStringTargetListForValidation({
+    ...params,
+    propRule: { ...params.propRule, metadataTarget: functionalOptionConstraint },
+  })
+
+const collectUserVisibleReferences: StructuralReferencesFunction = (params) => {
+  const values = userVisibleValues(params.value)
+  return values.flatMap((item) => {
+    if (isUuid(item.name)) return []
+    const parsed = parseMetadataTargetFromModel({ canonical: item.name, constraint: roleConstraint })
+    if (!parsed.ok || parsed.target.kind !== "object") return []
+    return [{
+      yamlPath: [...params.yamlPath, "Роли", parsed.target.objectName],
+      canonical: parsed.canonical,
+      setCanonical: (nextCanonical: string) => {
+        item.name = nextCanonical
+      },
+    }]
+  })
+}
+
+const collectUserVisibleTargets: CollectMetadataTargetReferencesFunction = (params) => {
+  const references: PendingMetadataTargetReferenceCandidate[] = []
+  const diagnostics: Diagnostic[] = []
+  for (const item of userVisibleValues(params.value)) {
+    if (isUuid(item.name)) continue
+    const parsed = parseMetadataTargetFromModel({ canonical: item.name, constraint: roleConstraint })
+    const yamlPath = [...params.yamlPath, "Роли", parsed.ok && parsed.target.kind === "object"
+      ? parsed.target.objectName
+      : item.name]
+    const result = materializeCanonicalMetadataReference({
+      canonical: item.name,
+      constraint: roleConstraint,
+      filePath: params.filePath,
+      parsed: params.parsed,
+      yamlPath,
+    })
+    references.push(...result.references)
+    diagnostics.push(...result.diagnostics)
+  }
+  return { references, diagnostics }
+}
+
+function userVisibleValues(value: unknown): Array<{ name: string; value: unknown }> {
+  if (!isRecord(value) || !Array.isArray(value.values)) return []
+  return value.values.filter((item): item is { name: string; value: unknown } =>
+    isRecord(item) && typeof item.name === "string")
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
 }
 
 function validateCanonicalTarget(
@@ -384,3 +508,7 @@ export const metadataPropertyRule026 = definePropertyTypeRule("Color", "validate
 export const metadataPropertyRule027 = definePropertyTypeRule("Font", "validateMetadataTarget", validateFontTarget)
 export const metadataPropertyRule028 = definePropertyTypeRule("Border", "validateMetadataTarget", validateBorderTarget)
 export const metadataPropertyRule029 = definePropertyTypeRule("Picture", "validateMetadataTarget", validatePictureTarget)
+export const metadataPropertyRule030 = definePropertyTypeRule("FunctionalOptionsProperty", "collectMetadataTargetReferences", collectFunctionalOptionTargets)
+export const metadataPropertyRule031 = definePropertyTypeRule("FunctionalOptionsProperty", "structuralReferences", collectFunctionalOptionReferences)
+export const metadataPropertyRule032 = definePropertyTypeRule("UserVisible", "collectMetadataTargetReferences", collectUserVisibleTargets)
+export const metadataPropertyRule033 = definePropertyTypeRule("UserVisible", "structuralReferences", collectUserVisibleReferences)

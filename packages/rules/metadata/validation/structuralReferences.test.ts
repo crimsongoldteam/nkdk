@@ -16,6 +16,8 @@ import { createPropertyStructuralReferenceRuntime } from "../operations/referenc
 import { collectStructuralYamlReferences } from "./structuralReferences"
 import { MetadataSubsystemRules } from "../appliedObjects/metadataSubsystem/rules"
 import { mockContext } from "../../tests/mockContext"
+import { functionalOptionsPropertyRule } from "../commonObjects/functionalOptionsProperty/types"
+import { userVisibleRule } from "../commonObjects/userVisible/types"
 
 it.each([
   ["setter", "без setter"],
@@ -112,14 +114,7 @@ it("resolves and preserves a short member reference owned by the sibling type", 
     },
   } as MetadataItemRule
 
-  const result = withPropertyRuleRegistrySet(registry, () => collectStructuralYamlReferences({
-    filePath: "/project/Свойства.yaml",
-    parsed,
-    rule,
-    yaml: parsed.data,
-    context: mockContext,
-    runtime: createPropertyStructuralReferenceRuntime(),
-  }))
+  const result = collectProbeReferences(parsed, rule, registry)
 
   expect(result).toMatchObject({
     ok: true,
@@ -133,3 +128,124 @@ it("resolves and preserves a short member reference owned by the sibling type", 
   choiceForm.setCanonical("Catalog.Товары.Form.НоваяФорма")
   expect(parsed.data).toMatchObject({ ФормаВыбора: "НоваяФорма" })
 })
+
+it("collects translateOnly targets for find and rename without validating their existence", () => {
+  const parsed = parseMetadataYaml("ВидыХарактеристик: Справочник.Товары\n")
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const rule = {
+    itemType: "TranslateOnlyStructuralProbe",
+    properties: {
+      characteristicTypes: {
+        type: "string",
+        yaml: "ВидыХарактеристик",
+        metadataTarget: { kind: "dataTable", validation: "translateOnly" },
+      },
+    },
+  } as MetadataItemRule
+
+  const result = collectProbeReferences(parsed, rule, registry)
+
+  expect(result).toMatchObject({
+    ok: true,
+    references: [expect.objectContaining({ canonical: "Catalog.Товары" })],
+  })
+  if (!result.ok) throw new Error(result.message)
+  result.references[0]?.setCanonical("Catalog.Номенклатура")
+  expect(parsed.data).toMatchObject({ ВидыХарактеристик: "Справочник.Номенклатура" })
+})
+
+it("collects the base calculation register embedded in a Base virtual table", () => {
+  const parsed = parseMetadataYaml("ОсновнаяТаблица: РегистрРасчета.Начисления.БазаОснование\n")
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const rule = {
+    itemType: "CalculationBaseStructuralProbe",
+    properties: {
+      mainTable: {
+        type: "string",
+        yaml: "ОсновнаяТаблица",
+        metadataTarget: { kind: "dataTable" },
+      },
+    },
+  } as MetadataItemRule
+
+  const result = collectProbeReferences(parsed, rule, registry)
+
+  expect(result).toMatchObject({
+    ok: true,
+    references: expect.arrayContaining([
+      expect.objectContaining({ canonical: "CalculationRegister.Начисления.BaseОснование" }),
+      expect.objectContaining({ canonical: "CalculationRegister.Основание" }),
+    ]),
+  })
+  if (!result.ok) throw new Error(result.message)
+  const base = result.references.find(({ canonical }) => canonical === "CalculationRegister.Основание")
+  if (base === undefined) throw new Error("Не найдена ссылка на базовый регистр расчёта")
+  base.setCanonical("CalculationRegister.НоваяБаза")
+  expect(parsed.data).toMatchObject({
+    ОсновнаяТаблица: "РегистрРасчета.Начисления.БазаНоваяБаза",
+  })
+})
+
+it("collects and rewrites functional-option references", () => {
+  const parsed = parseMetadataYaml("ФункциональныеОпции:\n  - ДоступностьСкладов\n")
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const rule = {
+    itemType: "FunctionalOptionsStructuralProbe",
+    properties: {
+      functionalOptions: functionalOptionsPropertyRule({
+        yaml: "ФункциональныеОпции",
+        metadataTarget: { kind: "object", roots: ["FunctionalOption"] },
+      }),
+    },
+  } as MetadataItemRule
+
+  const result = collectProbeReferences(parsed, rule, registry)
+
+  expect(result).toMatchObject({
+    ok: true,
+    references: [expect.objectContaining({ canonical: "FunctionalOption.ДоступностьСкладов" })],
+  })
+  if (!result.ok) throw new Error(result.message)
+  result.references[0]?.setCanonical("FunctionalOption.ДоступностьМагазинов")
+  expect(parsed.data).toMatchObject({ ФункциональныеОпции: ["ДоступностьМагазинов"] })
+})
+
+it("collects and rewrites role keys in user visibility", () => {
+  const parsed = parseMetadataYaml([
+    "Использование:",
+    "  Роли:",
+    "    Администратор: Ложь",
+  ].join("\n"))
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const rule = {
+    itemType: "UserVisibleStructuralProbe",
+    properties: {
+      use: userVisibleRule({ yaml: "Использование", xml: "Use" }),
+    },
+  } as MetadataItemRule
+
+  const result = collectProbeReferences(parsed, rule, registry)
+
+  expect(result).toMatchObject({
+    ok: true,
+    references: [expect.objectContaining({ canonical: "Role.Администратор" })],
+  })
+  if (!result.ok) throw new Error(result.message)
+  result.references[0]?.setCanonical("Role.Аудитор")
+  expect(parsed.data).toMatchObject({ Использование: { Роли: { Аудитор: "Ложь" } } })
+})
+
+function collectProbeReferences(
+  parsed: ReturnType<typeof parseMetadataYaml>,
+  rule: MetadataItemRule,
+  registry: ReturnType<typeof createPropertyRuleRegistrySet>,
+) {
+  return withPropertyRuleRegistrySet(registry, () => collectStructuralYamlReferences({
+    filePath: "/project/Свойства.yaml",
+    parsed,
+    rule,
+    yaml: parsed.data,
+    context: mockContext,
+    runtime: createPropertyStructuralReferenceRuntime(),
+  }))
+}

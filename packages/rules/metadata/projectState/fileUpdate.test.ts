@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
+import { emptyYamlUpdate as yamlUpdate } from "./binary/testData"
 import { toDataPathPolicyInput } from "../validation/dataPath/policies"
 import {
   assertProjectStateFileUpdateBatch,
@@ -465,23 +466,5 @@ function resourceUpdate(projectPath: string): ProjectStateFileUpdate {
     componentPath: "cf",
     resourceKind: "resource",
     targets: [],
-  }
-}
-
-function yamlUpdate(projectPath: string): Extract<ProjectStateFileUpdate, { kind: "yaml" }> {
-  return {
-    kind: "yaml",
-    projectPath,
-    componentPath: "cf",
-    resourceKind: "yaml",
-    yamlRole: "configuration",
-    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    targets: [],
-    pendingReferences: [],
-    owners: [],
-    fields: [],
-    forms: [],
-    pendingChecks: [],
-    dependencies: [],
   }
 }

@@ -224,6 +224,10 @@ import { metadataPropertyRule026 as rule224 } from "../commonObjects/metadataTar
 import { metadataPropertyRule027 as rule225 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule028 as rule226 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule029 as rule227 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule030 as rule385 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule031 as rule386 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule032 as rule387 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule033 as rule388 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule000 as rule228 } from "../commonObjects/metadataValue/associatedTableToJSONSchema"
 import { metadataPropertyRule000 as rule229 } from "../commonObjects/metadataValue/fromXML"
 import { metadataPropertyRule001 as rule230 } from "../commonObjects/metadataValue/fromXML"
@@ -760,4 +764,8 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule382,
   rule383,
   rule384,
+  rule385,
+  rule386,
+  rule387,
+  rule388,
 ])

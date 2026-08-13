@@ -7,6 +7,27 @@ export function resourceUpdate(
   return { kind: "resource", projectPath, componentPath, resourceKind: "resource", targets: [] }
 }
 
+export function emptyYamlUpdate(
+  projectPath: string,
+  yamlRole: ProjectStateYamlFileUpdate["yamlRole"] = "configuration",
+): ProjectStateYamlFileUpdate {
+  return {
+    kind: "yaml",
+    projectPath,
+    componentPath: "cf",
+    resourceKind: "yaml",
+    yamlRole,
+    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
+    targets: [],
+    pendingReferences: [],
+    owners: [],
+    fields: [],
+    forms: [],
+    pendingChecks: [],
+    dependencies: [],
+  }
+}
+
 export function yamlUpdate(
   projectPath: string,
   componentPath: string,

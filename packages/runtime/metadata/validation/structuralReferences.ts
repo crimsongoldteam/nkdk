@@ -9,7 +9,10 @@ import {
   type DependentStructuralItemReference,
 } from "../ruleRuntime/property/dependentItemRegistry"
 import { yamlScalarTagAt } from "../../yaml/scalarTags"
-import { metadataTargetOwnerForProperty } from "../ruleRuntime/property/metadataTargetString"
+import {
+  isTypeOwnedMetadataTargetUnavailable,
+  metadataTargetOwnerForProperty,
+} from "../ruleRuntime/property/metadataTargetString"
 
 export interface StructuralReferencePropertyRule {
   readonly type: string
@@ -192,12 +195,15 @@ function collectObjectReferences(params: {
       })
     if (isTransported([])) continue
 
+    const siblingValue = (propertyKey: string) => {
+      const siblingYaml = params.rule.properties[propertyKey]?.yaml
+      return typeof siblingYaml === "string" ? record[siblingYaml] : undefined
+    }
+    if (isTypeOwnedMetadataTargetUnavailable({ rule: propertyRule, siblingValue })) continue
+
     const propertyOwner = metadataTargetOwnerForProperty({
       rule: propertyRule,
-      siblingValue: (propertyKey) => {
-        const siblingYaml = params.rule.properties[propertyKey]?.yaml
-        return typeof siblingYaml === "string" ? record[siblingYaml] : undefined
-      },
+      siblingValue,
       owner: params.owner,
     })
     const handlerParams = {
@@ -220,12 +226,12 @@ function collectObjectReferences(params: {
       value: typedValue,
       setValue: (nextValue) => {
         typedValue = nextValue
-        record[propertyRule.yaml as string] = params.runtime.valueToYAML({
+        record[propertyRule.yaml as string] = structuralPropertyYamlValue(propertyRule, params.runtime.valueToYAML({
           context: params.context,
           rule: propertyRule,
           value: nextValue,
           owner: propertyOwner,
-        })
+        }))
       },
     })
     if (candidates !== undefined) {
@@ -236,12 +242,12 @@ function collectObjectReferences(params: {
       let stagedCanonical: string | undefined
       const commitStaged = (): void => {
         if (stagedCanonical === undefined) return
-        record[propertyRule.yaml as string] = params.runtime.valueToYAML({
+        record[propertyRule.yaml as string] = structuralPropertyYamlValue(propertyRule, params.runtime.valueToYAML({
           context: params.context,
           rule: propertyRule,
           value: typedValue,
           owner: ownerForRewrittenCanonical(propertyRule, propertyOwner, stagedCanonical),
-        })
+        }))
         stagedCanonical = undefined
       }
       for (const candidate of candidates) {
@@ -267,12 +273,12 @@ function collectObjectReferences(params: {
           commitStaged,
           setCanonical: (nextCanonical) => {
             candidate.setCanonical(nextCanonical)
-            record[propertyRule.yaml as string] = params.runtime.valueToYAML({
+            record[propertyRule.yaml as string] = structuralPropertyYamlValue(propertyRule, params.runtime.valueToYAML({
               context: params.context,
               rule: propertyRule,
               value: typedValue,
               owner: ownerForRewrittenCanonical(propertyRule, propertyOwner, nextCanonical),
-            })
+            }))
           },
         })
       }
@@ -289,6 +295,17 @@ function collectObjectReferences(params: {
     references.push(...nested.references)
   }
   return { ok: true, references }
+}
+
+function structuralPropertyYamlValue(
+  rule: StructuralReferencePropertyRule,
+  exported: unknown,
+): unknown {
+  if ((rule.type !== "UserVisible" && rule.type !== "FormattedI8nText") || typeof rule.yaml !== "string") {
+    return exported
+  }
+  const record = asRecord(exported)
+  return record === undefined ? exported : record[rule.yaml]
 }
 
 function isRelativeYAMLScalarTagged(

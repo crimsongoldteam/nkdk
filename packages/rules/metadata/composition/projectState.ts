@@ -18,9 +18,11 @@ import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { appliedObjectDataTableRules } from "../appliedObjects/dataTableRules"
 
 function dependencyValidator() {
   return createProjectStateDependencyValidator({
+    dataTableContributors: appliedObjectDataTableRules.map(({ contributor }) => contributor),
     structuredDocumentValidators: [
       validateBorrowedClientApplicationForms,
       validateConfigurationExtensionPropertyStates,

@@ -39,6 +39,27 @@ describe("collectStructuralReferenceChanges", () => {
     ])
   })
 
+  it("rewrites a calculation register referenced through a Base virtual table", () => {
+    const changes = collectStructuralReferenceChanges({
+      projectDir: "/tmp/project",
+      fromPrefix: "CalculationRegister.Основание",
+      toPrefix: "CalculationRegister.НоваяБаза",
+      items: [{
+        filePath: "/tmp/project/ОбщаяФорма/Список/Форма.yaml",
+        yamlPath: ["Форма", "Реквизиты", "Список", "ДинамическийСписок", "ОсновнаяТаблица"],
+        canonical: "CalculationRegister.Основание",
+        setCanonical: () => undefined,
+      }],
+    })
+
+    expect(changes).toEqual([{
+      filePath: "/tmp/project/ОбщаяФорма/Список/Форма.yaml",
+      yamlPath: ["Форма", "Реквизиты", "Список", "ДинамическийСписок", "ОсновнаяТаблица"],
+      from: "CalculationRegister.Основание",
+      to: "CalculationRegister.НоваяБаза",
+    }])
+  })
+
   it("uses structural reference rules from the owning runtime", () => {
     const createRules = (kind: "item" | "collection") => createRuleRegistrySet(
       defineMetadataRules({

@@ -90,6 +90,7 @@ describe("MetadataAttributes XML → YAML", () => {
       Значение: { ТестовыйРеквизит: { Тип: "Строка", Синоним: { en: "Test attribute" } } },
     })
   })
+
 })
 
 const catalogOwner: readonly MetadataTargetOwnerContext[] = [

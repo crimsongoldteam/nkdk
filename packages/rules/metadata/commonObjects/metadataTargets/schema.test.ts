@@ -108,7 +108,7 @@ describe("buildMetadataTargetSchema", () => {
     expect(String(schema.description)).toContain("Полный путь члена объекта")
   })
 
-  it("allows a full Russian choice-form path when its owner is derived from type", () => {
+  it("allows a full choice-form fallback for a non-reference type", () => {
     const schema = buildMetadataTargetSchema({
       kind: "member",
       owner: "type",
