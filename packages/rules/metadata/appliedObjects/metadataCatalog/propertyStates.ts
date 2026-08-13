@@ -4,7 +4,7 @@ import { MetadataCatalogRules } from "./rules"
 export const metadataCatalogPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataCatalogRules, {
   profiles: ["borrowed-base", "mutable-synonym"],
   properties: {
-    ...controlled("hierarchical", "hierarchyType", "owners", "codeAllowedLength"),
+    ...controlled("hierarchical", "hierarchyType", "codeAllowedLength"),
     ...allPropertyStateModes("codeLength", "descriptionLength", "codeType"),
     ...externalProperty("predefined", "Предопределенные", ["extend"]),
   },

@@ -16,6 +16,52 @@ import { configurationExtensionPropertyStateProfiles } from "./propertyStateProf
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
 
 describe("configuration extension PropertyState augmenter", () => {
+  it.each([
+    ["synonym", "Синоним", "Synonym", undefined, ""],
+    ["defaultListForm", "ОсновнаяФормаСписка", "DefaultListForm", undefined, ""],
+    ["objectPresentation", "ПредставлениеОбъекта", "ObjectPresentation", undefined, ""],
+    ["owners", "Владельцы", "Owners", "MetadataObjectRefCollection", []],
+    ["content", "Содержимое", "Content", "MetadataItemLinks", []],
+  ] as const)(
+    "сохраняет присутствующее пустое plain-свойство %s и отличает его от отсутствующего",
+    (propertyKey, yamlName, xmlName, type, emptyYAML) => {
+      const propertyRule = {
+        type: type ?? "string",
+        yaml: yamlName,
+        xml: xmlName,
+        xmlParents: ["Properties"],
+      }
+      const rule = {
+        itemType: `Plain${propertyKey}`,
+        properties: { [propertyKey]: propertyRule },
+      } as MetadataItemRule
+      const contribution = definePropertyStateItemCapabilities(rule, {
+        properties: { [propertyKey]: { availability: "borrowed", modes: ["extend"], representation: "plain" } },
+      })
+      const present: Record<string, unknown> = {}
+      const absent: Record<string, unknown> = {}
+
+      withOperationRegistrySet({
+        propertyStates: createPropertyStateCapabilityRegistry([contribution]),
+      }, () => {
+        configurationExtensionPropertyStatesAugmenter.augment({
+          context: extensionContext(),
+          rule,
+          source: { Properties: { [xmlName]: undefined } },
+          yaml: present,
+        })
+        configurationExtensionPropertyStatesAugmenter.augment({
+          context: extensionContext(),
+          rule,
+          source: { Properties: {} },
+          yaml: absent,
+        })
+      })
+
+      expect(present).toEqual({ [yamlName]: emptyYAML })
+      expect(absent).toEqual({})
+    },
+  )
   it("записывает снятый флажок заимствованного объекта как Ложь", () => {
     const yaml: Record<string, unknown> = {}
 

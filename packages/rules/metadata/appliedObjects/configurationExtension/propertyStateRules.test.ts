@@ -112,6 +112,24 @@ describe("матрица PropertyState расширения", () => {
       .toEqual({ availability: "borrowed", modes: ["extend"], representation: "plain" })
   })
 
+  it.each([
+    ["MetadataCatalog", "defaultListForm"],
+    ["MetadataCatalog", "objectPresentation"],
+    ["MetadataCatalog", "owners"],
+    ["MetadataFunctionalOption", "content"],
+    ["MetadataAccountingRegister", "explanation"],
+  ])("регистрирует изменяемое plain-свойство %s.%s", (itemType, propertyKey) => {
+    expect(registry.resolve({ itemType, propertyKey })).toEqual({
+      availability: "borrowed",
+      modes: ["extend"],
+      representation: "plain",
+    })
+  })
+
+  it("не регистрирует стандартный plain-ключ, отсутствующий в правиле вида", () => {
+    expect(registry.resolve({ itemType: "MetadataLanguage", propertyKey: "owners" })).toBeUndefined()
+  })
+
   it("applies the confirmed compatibility boundaries", () => {
     expect(registry.resolve({
       itemType: "MetadataCatalog", propertyKey: "codeLength", compatibilityMode: "Версия8_3_7",

@@ -16,6 +16,7 @@ import {
   CompatibilityModeFromYAML,
   CompatibilityModeToYAML,
 } from "../../systemEnumerations/types"
+import { extended } from "../../ruleRuntime/definition/propertyStateDeclarations"
 
 const DEFAULT_COMPATIBILITY_MODE = "Версия8_3_27"
 const DONT_USE_MODES = new Set(["НеИспользовать", "DontUse"])
@@ -30,6 +31,24 @@ const MODULE_EXTERNAL_NAMES: Readonly<Record<string, string>> = {
   commandModule: "МодульКоманды",
 }
 
+const STANDARD_PLAIN_KEYS = [
+  "defaultObjectForm",
+  "defaultFolderForm",
+  "defaultListForm",
+  "defaultChoiceForm",
+  "defaultFolderChoiceForm",
+  "defaultRecordForm",
+  "defaultSettingsForm",
+  "defaultVariantForm",
+  "objectPresentation",
+  "extendedObjectPresentation",
+  "listPresentation",
+  "extendedListPresentation",
+  "owners",
+  "content",
+  "explanation",
+] as const
+
 export function definePropertyStateItemCapabilities<const Rule extends MetadataItemRule>(
   rule: Rule,
   options: {
@@ -39,6 +58,9 @@ export function definePropertyStateItemCapabilities<const Rule extends MetadataI
   },
 ): PropertyStateCapabilityContribution {
   const modules: Record<string, PropertyStatePropertyCapability> = {}
+  for (const propertyKey of STANDARD_PLAIN_KEYS) {
+    if (rule.properties[propertyKey] !== undefined) Object.assign(modules, extended(propertyKey))
+  }
   for (const propertyKey of Object.keys(rule.properties)) {
     const externalName = MODULE_EXTERNAL_NAMES[propertyKey]
     if (externalName === undefined) continue

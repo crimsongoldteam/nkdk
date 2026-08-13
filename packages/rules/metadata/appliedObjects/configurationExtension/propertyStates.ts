@@ -92,6 +92,7 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         continue
       }
     }
+    importPresentPlainProperties({ context, rule, source, yaml, compatibilityMode })
     const serviceProperties = extensionServiceProperties(source, rule)
     if (
       supportsAdoptionServiceProperties(rule) &&
@@ -102,6 +103,44 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       yaml[NOTIFY_ALIASES.ExtendedConfigurationObject] = false
     }
   },
+}
+
+function importPresentPlainProperties(params: {
+  readonly context: Parameters<typeof importPropertyFromXML>[0]["context"]
+  readonly rule: MetadataItemRule
+  readonly source: Record<string, unknown>
+  readonly yaml: Record<string, unknown>
+  readonly compatibilityMode?: string
+}): void {
+  const item = propertyStateRegistry()?.item(params.rule.itemType, params.compatibilityMode)
+  for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
+    if (
+      capability.availability !== "borrowed" ||
+      capability.representation !== "plain" ||
+      capability.modes.length !== 1 ||
+      capability.modes[0] !== "extend"
+    ) continue
+    const propertyRule = params.rule.properties[propertyKey]
+    if (propertyRule === undefined || typeof propertyRule.yaml !== "string") continue
+    const xmlProperty = propertyRule.xml ?? capitalize(propertyKey)
+    const owner = asRecord(valueAtXmlPath(params.source, propertyRule.xmlParents ?? []))
+    if (owner === undefined || !Object.prototype.hasOwnProperty.call(owner, xmlProperty)) continue
+    ensurePropertyYamlValue({
+      context: params.context,
+      rule: params.rule,
+      source: params.source,
+      yaml: params.yaml,
+      xmlProperty,
+      yamlName: propertyRule.yaml,
+      emptyValue: emptyPlainYAMLValue(propertyRule.type),
+    })
+  }
+}
+
+function emptyPlainYAMLValue(type: MetadataItemRule["properties"][string]["type"]): unknown {
+  if (type === "MetadataObjectRefCollection" || type === "MetadataItemLinks") return []
+  if (type === "string" || type === "I8nText" || type === "MetadataItemLink") return ""
+  return {}
 }
 
 function extensionServiceProperties(
@@ -138,6 +177,7 @@ function ensurePropertyYamlValue(params: {
   readonly yaml: Record<string, unknown>
   readonly xmlProperty: string
   readonly yamlName: string
+  readonly emptyValue?: unknown
 }): void {
   if (Object.prototype.hasOwnProperty.call(params.yaml, params.yamlName)) return
   const propertyRule = propertyEntryByXmlName(params.rule, params.xmlProperty)?.[1]
@@ -154,7 +194,7 @@ function ensurePropertyYamlValue(params: {
     value: importedValue,
     preserveImplicitValue: true,
   })
-  params.yaml[params.yamlName] = yamlValue ?? getImplicitValueYAML(propertyRule) ?? {}
+  params.yaml[params.yamlName] = yamlValue ?? getImplicitValueYAML(propertyRule) ?? params.emptyValue ?? {}
 }
 
 function propertyKeyByXmlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {
