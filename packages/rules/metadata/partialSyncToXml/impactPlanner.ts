@@ -104,6 +104,10 @@ export function buildPartialXmlImpactPlan(params: {
       includeYamlCompanionOwner(match)
       continue
     }
+    if (match.kind === "assignmentInput") {
+      includeAssignmentInputOwner(match)
+      continue
+    }
     if (match.compositionImpact === "configurationComposition") {
       includeConfigurationRoot()
       continue
@@ -145,7 +149,7 @@ export function buildPartialXmlImpactPlan(params: {
     const impact = resolveMetadataProjectChangeImpact(params.topology, projectPath)
     if (impact === undefined) {
       const classified = classifyMetadataProjectPath(params.topology, projectPath)
-      if (classified?.kind === "ignore") return classified
+      if (classified?.kind === "ignore" || classified?.kind === "assignmentInput") return classified
       throw new Error(`Изменённый путь не классифицирован топологией: ${projectPath}`)
     }
     const classified = classifyMetadataProjectPath(params.topology, projectPath)
@@ -168,7 +172,23 @@ export function buildPartialXmlImpactPlan(params: {
       includeExternal(resource, true)
     } else if (resource.kind === "yamlCompanion") {
       includeYamlCompanionOwner(resource)
+    } else if (resource.kind === "assignmentInput") {
+      includeAssignmentInputOwner(resource)
     }
+  }
+
+  function includeAssignmentInputOwner(resource: MetadataProjectResourceMatch): void {
+    const assignment = resource.assignment
+    const input = resource.assignmentInput
+    if (assignment === undefined || input === undefined) {
+      throw new Error(`Вход не связан с XML-заданием: ${resource.projectPath}`)
+    }
+    const assignmentPath = expandMetadataPathPattern(assignment.projectPattern, resource.values)
+    const owner = currentByPath.get(assignmentPath)
+    if (owner?.kind !== "content") {
+      throw new Error(`Для входа не найдено текущее XML-задание: ${resource.projectPath}`)
+    }
+    includeAssignment(owner, true)
   }
 
   function includeYamlCompanionOwner(resource: MetadataProjectResourceMatch): void {

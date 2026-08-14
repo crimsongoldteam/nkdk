@@ -4,6 +4,8 @@ import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { hashConfigurationProjectFileList } from "../configurationIndex"
 import { readComponentProjectStructure } from "../project/componentState/structure"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import { buildFullXmlSyncPlan } from "./discovery"
 
 describe("full XML sync discovery", () => {
@@ -95,6 +97,15 @@ describe("full XML sync discovery", () => {
         transferCapabilityId: "ChildFormNames",
       }),
     )
+    expect(classifyMetadataProjectPath(
+      compileRegisteredMetadataResourceTopology(),
+      "Справочник/Товары/Формы/ФормаЭлемента/ДинамическийСписок/Список.query",
+    )).toMatchObject({
+      kind: "assignmentInput",
+      assignment: {
+        projectPattern: "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
+      },
+    })
   })
 
   it("tracks embedded query files in component state without planning a separate XML file", async () => {

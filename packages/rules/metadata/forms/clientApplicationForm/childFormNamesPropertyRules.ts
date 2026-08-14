@@ -125,10 +125,9 @@ export const childFormNamesPropertyRules = defineMetadataRules({
           source,
         },
         {
-          kind: "ignore",
-          side: "project",
-          pattern: `${folderName}/{itemName}/ДинамическийСписок/{queryName}.query`,
-          syncState: true,
+          kind: "assignmentInput",
+          assignmentProjectPattern: "",
+          projectPattern: `${folderName}/{itemName}/ДинамическийСписок/{queryName}.query`,
           source,
         },
         {

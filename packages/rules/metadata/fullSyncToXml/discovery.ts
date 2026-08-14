@@ -24,7 +24,6 @@ export async function discoverFullXmlSyncPlan(componentDir: string): Promise<Ful
   const resources = await discoverMetadataProjectResources({
     topology,
     projectDir: componentDir,
-    includeSyncStateIgnored: true,
   })
   const projectPaths = resources.map(({ projectPath }) => projectPath)
   const structure: ComponentProjectStructure = {

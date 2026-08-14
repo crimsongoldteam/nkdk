@@ -131,6 +131,7 @@ function assertFlatFileProjectResources(
   const hasAdditionalProjectResource = declarations.some(
     (declaration) =>
       declaration.kind === "yamlCompanion" ||
+      declaration.kind === "assignmentInput" ||
       declaration.kind === "externalFile" ||
       (declaration.kind === "childCollection" && containsProjectResource(declaration.declarations)),
   )
@@ -144,6 +145,7 @@ function containsProjectResource(declarations: readonly MetadataResourceDeclarat
     (declaration) =>
       declaration.kind === "content" ||
       declaration.kind === "yamlCompanion" ||
+      declaration.kind === "assignmentInput" ||
       declaration.kind === "externalFile" ||
       (declaration.kind === "childCollection" && containsProjectResource(declaration.declarations)),
   )
@@ -229,7 +231,7 @@ function collectRuleDeclarations(
         })
         continue
       }
-      if (declaration.kind === "yamlCompanion") {
+      if (declaration.kind === "yamlCompanion" || declaration.kind === "assignmentInput") {
         target.push({
           ...declaration,
           assignmentProjectPattern: resolveContributionAssignmentPattern(
