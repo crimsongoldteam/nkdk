@@ -322,6 +322,7 @@ addInlineChild({
 })
 
 const recalculationName = "ПроверочныйПерерасчет"
+const recalculationPath = `РегистрРасчета/${matrixObjectNames.calculationRegister}/Перерасчеты/${recalculationName}/Свойства.xml`
 const recalculation = addInlineChild({
   ownerKey: "object:calculation-register",
   propertyKey: "recalculations",
@@ -330,18 +331,22 @@ const recalculation = addInlineChild({
   name: recalculationName,
   exposeAsOwner: true,
   extraChanges: [{
-    path: `РегистрРасчета/${matrixObjectNames.calculationRegister}/Перерасчеты/${recalculationName}/Свойства.xml`,
+    path: recalculationPath,
     before: null,
     after: recalculationXml(recalculationName),
   }],
 })
-addInlineChild({
+declarations.push({
+  key: childKey(recalculation.key, "dimensions"),
   ownerKey: recalculation.key,
   propertyKey: "dimensions",
   childItemType: "MetadataRegisterDimension",
-  section: "Измерения",
-  name: "ПроверочноеИзмерение",
-  body: "Тип: Строка(10)",
+  dependsOn: [],
+  changes: [{
+    path: recalculationPath,
+    before: recalculationXml(recalculationName),
+    after: recalculationXml(recalculationName, "ПроверочноеИзмерение"),
+  }],
 })
 
 for (const ownerKey of [
@@ -544,7 +549,10 @@ function childKey(ownerKey: string, propertyKey: string): string {
   return `child:${ownerKey.replace(/^(object|child):/, "").replaceAll(":", "-")}:${propertyKey}`
 }
 
-function recalculationXml(name: string): string {
+function recalculationXml(name: string, dimensionName?: string): string {
+  const childObjects = dimensionName === undefined
+    ? ["\t\t<ChildObjects/>"]
+    : recalculationDimensionXml(dimensionName)
   return [
     '\uFEFF<?xml version="1.0" encoding="UTF-8"?>',
     '<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">',
@@ -569,8 +577,53 @@ function recalculationXml(name: string): string {
     '\t\t\t<Comment/>',
     '\t\t\t<DataLockControlMode>Managed</DataLockControlMode>',
     '\t\t</Properties>',
-    '\t\t<ChildObjects/>',
+    ...childObjects,
     '\t</Recalculation>',
     '</MetaDataObject>',
   ].join("\r\n")
+}
+
+function recalculationDimensionXml(name: string): readonly string[] {
+  return [
+    "\t\t<ChildObjects>",
+    '\t\t\t<Dimension uuid="10000000-0000-4000-8000-000000000008">',
+    "\t\t\t\t<Properties>",
+    `\t\t\t\t\t<Name>${name}</Name>`,
+    "\t\t\t\t\t<Synonym/>",
+    "\t\t\t\t\t<Comment/>",
+    "\t\t\t\t\t<Type>",
+    "\t\t\t\t\t\t<v8:Type>xs:string</v8:Type>",
+    "\t\t\t\t\t\t<v8:StringQualifiers>",
+    "\t\t\t\t\t\t\t<v8:Length>10</v8:Length>",
+    "\t\t\t\t\t\t\t<v8:AllowedLength>Variable</v8:AllowedLength>",
+    "\t\t\t\t\t\t</v8:StringQualifiers>",
+    "\t\t\t\t\t</Type>",
+    "\t\t\t\t\t<PasswordMode>false</PasswordMode>",
+    "\t\t\t\t\t<Format/>",
+    "\t\t\t\t\t<EditFormat/>",
+    "\t\t\t\t\t<ToolTip/>",
+    "\t\t\t\t\t<MarkNegatives>false</MarkNegatives>",
+    "\t\t\t\t\t<Mask/>",
+    "\t\t\t\t\t<MultiLine>false</MultiLine>",
+    "\t\t\t\t\t<ExtendedEdit>false</ExtendedEdit>",
+    '\t\t\t\t\t<MinValue xsi:nil="true"/>',
+    '\t\t\t\t\t<MaxValue xsi:nil="true"/>',
+    "\t\t\t\t\t<FillChecking>DontCheck</FillChecking>",
+    "\t\t\t\t\t<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>",
+    "\t\t\t\t\t<ChoiceParameterLinks/>",
+    "\t\t\t\t\t<ChoiceParameters/>",
+    "\t\t\t\t\t<QuickChoice>Auto</QuickChoice>",
+    "\t\t\t\t\t<CreateOnInput>Auto</CreateOnInput>",
+    "\t\t\t\t\t<ChoiceForm/>",
+    "\t\t\t\t\t<LinkByType/>",
+    "\t\t\t\t\t<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>",
+    "\t\t\t\t\t<DenyIncompleteValues>false</DenyIncompleteValues>",
+    "\t\t\t\t\t<BaseDimension>false</BaseDimension>",
+    "\t\t\t\t\t<ScheduleLink/>",
+    "\t\t\t\t\t<Indexing>DontIndex</Indexing>",
+    "\t\t\t\t\t<FullTextSearch>Use</FullTextSearch>",
+    "\t\t\t\t</Properties>",
+    "\t\t\t</Dimension>",
+    "\t\t</ChildObjects>",
+  ]
 }

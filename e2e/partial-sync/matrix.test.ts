@@ -243,20 +243,19 @@ describe("partial sync matrix", () => {
     expect(recalculationXml.endsWith("\n")).toBe(false)
   })
 
-  it("adds recalculation dimensions inside their owner", () => {
+  it("adds recalculation dimensions to the external recalculation XML", () => {
     const plan = buildScenarioPlan(partialSyncMatrix)
     const operation = plan.find(({ key }) => key === "child:calculation-register-recalculations:dimensions")
-    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after as string
+    const change = operation?.changes[0]
 
-    expect(properties).toContain([
-      "Перерасчеты:",
-      "  ПроверочныйПерерасчет:",
-      "    Измерения:",
-      "      ПроверочноеИзмерение:",
-      "        Тип: Строка(10)",
-      "ПланВидовРасчета:",
-    ].join("\n"))
-    expect(properties).not.toContain("Тип: Число(10, 0)\n    Измерения:")
+    expect(operation?.changes).toHaveLength(1)
+    expect(change?.path).toBe(
+      "РегистрРасчета/ЯПроверкаЧастичнойСинхронизацииРегистрРасчета/Перерасчеты/ПроверочныйПерерасчет/Свойства.xml",
+    )
+    expect(change?.before).not.toContain("<Dimension ")
+    expect(change?.after).toContain('<Dimension uuid="10000000-0000-4000-8000-000000000008">')
+    expect(change?.after).toContain("<Name>ПроверочноеИзмерение</Name>")
+    expect(change?.after).toContain("<v8:Length>10</v8:Length>")
   })
 
   it("does not create register resources in the root-object layer", () => {
