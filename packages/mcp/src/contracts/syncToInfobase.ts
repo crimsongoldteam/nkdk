@@ -38,6 +38,21 @@ const synchronizedSchema = z.strictObject({
   warnings: z.array(metadataDiagnosticSchema),
 })
 
+export const syncToInfobaseSuccessOutputSchema = z.strictObject({
+  ok: z.literal(true),
+  status: z.enum(["unchanged", "synchronized"]),
+  componentPath: configurationComponentPathSchema,
+  diagnostics: z.array(metadataDiagnosticSchema).optional(),
+  packageId: z.string().min(1).optional(),
+  entries: z.array(z.string()).optional(),
+  loadTargets: z.array(z.string()).optional(),
+  mode: z.literal("designer-agent").optional(),
+  reusedConnection: z.boolean().optional(),
+  finalizeStatus: z.enum(["published", "alreadyPublished"]).optional(),
+  configurationIndexPath: z.string().min(1).optional(),
+  warnings: z.array(metadataDiagnosticSchema).optional(),
+})
+
 const unknownDeliverySchema = z.strictObject({
   ok: z.literal(false),
   code: z.literal("delivery_outcome_unknown"),

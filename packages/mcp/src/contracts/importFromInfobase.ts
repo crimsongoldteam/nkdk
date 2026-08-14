@@ -32,6 +32,10 @@ export const importFromInfobaseSuccessOutputShape = {
   temporaryDirectory: z.string().optional(),
 }
 
+export const importFromInfobaseSuccessOutputSchema = z.strictObject(
+  importFromInfobaseSuccessOutputShape
+)
+
 export const projectSettingsRequiredSchema = z.strictObject({
   ok: z.literal(false),
   code: z.literal("project_settings_required"),
@@ -81,7 +85,7 @@ const platformFailureSchema = z.strictObject({
 })
 
 export const importFromInfobaseOutputShape = z.union([
-  z.strictObject(importFromInfobaseSuccessOutputShape),
+  importFromInfobaseSuccessOutputSchema,
   projectSettingsRequiredSchema,
   invalidProjectSettingsSchema,
   platformFailureSchema,

@@ -91,6 +91,7 @@ describe("registerNkdkCapabilities", () => {
       connectionString: 'File="/base";',
     }).success).toBe(false)
     expect(infobaseImportOptions?.outputSchema).toBeDefined()
+    expect(infobaseImportOptions?.outputSchema).toBeInstanceOf(z.ZodObject)
 
     const infobaseSync = server.registerTool.mock.calls.find(
       ([name]) => name === "nkdk.sync_to_infobase"
@@ -112,6 +113,7 @@ describe("registerNkdkCapabilities", () => {
       allowWrite: true,
     }).success).toBe(false)
     expect(infobaseSync?.outputSchema).toBeDefined()
+    expect(infobaseSync?.outputSchema).toBeInstanceOf(z.ZodObject)
 
     for (const name of [
       "nkdk.close_platform_connection",

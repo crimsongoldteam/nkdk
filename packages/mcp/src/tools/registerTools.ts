@@ -6,11 +6,13 @@ import { importFromXmlInputShape, importFromXmlSuccessOutputShape } from "../con
 import {
   importFromInfobaseInputShape,
   importFromInfobaseOutputShape,
+  importFromInfobaseSuccessOutputSchema,
   type ImportFromInfobaseOutput,
 } from "../contracts/importFromInfobase"
 import {
   syncToInfobaseInputSchema,
   syncToInfobaseOutputShape,
+  syncToInfobaseSuccessOutputSchema,
   type SyncToInfobaseOutput,
 } from "../contracts/syncToInfobase"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
@@ -152,7 +154,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Импортирует один компонент информационной базы: по умолчанию cf, расширение выбирается через cfe/<Имя>; цель должна отсутствовать или быть пустой. Перед расширением cf импортируется первым. Перед операцией нужно создать .nkdk/project.yaml по опубликованной схеме, вручную внести нужные пароли, а затем повторить импорт. Запускает 1С и пишет файлы только при allowWrite=true.",
       inputSchema: importFromInfobaseInputShape,
-      outputSchema: importFromInfobaseOutputShape,
+      outputSchema: importFromInfobaseSuccessOutputSchema,
     },
     createImportFromInfobaseHandler()
   )
@@ -164,7 +166,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы через агент Конфигуратора. Запускает 1С и изменяет конфигурацию только при allowWrite=true; не обновляет конфигурацию базы данных.",
       inputSchema: syncToInfobaseInputSchema,
-      outputSchema: syncToInfobaseOutputShape,
+      outputSchema: syncToInfobaseSuccessOutputSchema,
     },
     createSyncToInfobaseHandler()
   )

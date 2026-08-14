@@ -97,4 +97,13 @@ describe("import_from_infobase contract", () => {
       temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
     })).toMatchObject({ ok: true })
   })
+
+  it("parses a core failure with a preserved temporary directory", () => {
+    expect(importFromInfobaseOutputShape.parse({
+      ok: false,
+      code: "core_error",
+      message: "Не удалось импортировать конфигурацию",
+      details: { temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1" },
+    })).toMatchObject({ ok: false, code: "core_error" })
+  })
 })
