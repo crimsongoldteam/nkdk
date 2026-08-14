@@ -24,6 +24,7 @@
 | реквизит формы с единственным типом `СписокЗначений` | `ТипЗначения` | `!xml/absent` | элемент `<Settings>` отсутствует вопреки каноническому экспорту пустого `v8:TypeDescription` |
 | свойство типа `TypeDescription` | `Тип` | `!xml/type <исходный префикс>:<русское имя типа>` | `v8:Type` с исходным namespace-префиксом, например `d7p1:Chart` |
 | `StandardAttributeDescriptions` | `СтандартныеРеквизиты` | `!xml/present` | канонические элементы `<xr:StandardAttribute name="…">…</xr:StandardAttribute>` |
+| отсутствующий канонический элемент `StandardAttributeDescriptions` внутри присутствующей коллекции | ключ соответствующего стандартного реквизита | `!xml/absent` | соответствующий `<xr:StandardAttribute>` отсутствует |
 | `CharacteristicsDescription` | `ПолеПутиКДанным` | `!xml/absent` | `<xr:DataPathField>` отсутствует |
 | `CharacteristicsDescription` | `ПолеИспользованияМножественныхЗначений` | `!xml/absent` | `<xr:MultipleValuesUseField>` отсутствует |
 | `CharacteristicsDescription` | `ПолеКлючаМножественныхЗначений` | `!xml/absent` | `<xr:MultipleValuesKeyField>` отсутствует |

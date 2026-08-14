@@ -4,6 +4,7 @@ import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/t
 import { StandardAttributeDescriptionRules } from "./rules"
 import type { StandardAttributeDescriptionsPropertyRule } from "@nkdk/runtime/rule-kit"
 import { commonStandardMemberFillValuePolicy } from "../../standardMembers/declarations"
+import { XML_ABSENT_TAG_VALUE } from "@nkdk/runtime"
 
 export const exportStandardAttributeDescriptionToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {
   const { context } = params
@@ -12,10 +13,17 @@ export const exportStandardAttributeDescriptionToJSONSchema: ExportToJSONSchemaF
     context: context,
     rule: StandardAttributeDescriptionRules,
   })
-  if (
-    context.exportToJSONSchema?.validationPropertyRefs === true ||
-    context.exportToJSONSchema?.mode === "inline"
-  ) {
+  if (context.exportToJSONSchema?.validationPropertyRefs === true) {
+    const absent = Type.Literal(XML_ABSENT_TAG_VALUE)
+    const properties = Object.fromEntries(
+      Object.values(rule.standartAttributeNames ?? {}).map((yamlName) => [
+        yamlName,
+        Type.Optional(Type.Union([attributeSchema, absent])),
+      ]),
+    )
+    return Type.Object(properties, { additionalProperties: attributeSchema })
+  }
+  if (context.exportToJSONSchema?.mode === "inline") {
     return Type.Record(Type.String(), attributeSchema)
   }
   const properties = Object.fromEntries(
