@@ -1,4 +1,4 @@
-import { xmlScalarTagValue } from "@nkdk/runtime"
+import { xmlAnomalyTagValue } from "@nkdk/runtime"
 import type {
   BrokenXMLReferenceExportResult,
   BrokenXMLReferenceImportResult,
@@ -15,7 +15,7 @@ export function normalizeImportedBrokenReferenceCollection(
 ): BrokenXMLReferenceImportResult | undefined {
   if (broken.length === 0) return undefined
   const normalized = [...yamlValue]
-  for (const { index, value } of broken) normalized[index] = xmlScalarTagValue(value)
+  for (const { index, value } of broken) normalized[index] = xmlAnomalyTagValue("xml/reference", value)
   return {
     yamlValue: normalized,
     taggedPaths: broken.map(({ index }) => [index]),
@@ -39,4 +39,3 @@ export function prepareBrokenReferenceCollectionExport(params: {
     ? undefined
     : { yamlValue: prepared, transportedPaths }
 }
-

@@ -727,7 +727,7 @@ function markRelativeYAMLScalarTag(
   path: YamlPath,
 ): void {
   if (path.length === 0) {
-    markYAMLScalarTag(result, propertyKey, "xml")
+    markYAMLScalarTag(result, propertyKey, "xml/reference")
     return
   }
   let parent: unknown = result[propertyKey]
@@ -741,7 +741,7 @@ function markRelativeYAMLScalarTag(
   if (typeof parent !== "object" || parent === null || key === undefined) {
     throw new Error(`Не найден YAML-путь переносчика: ${[propertyKey, ...path].join("/")}`)
   }
-  markYAMLScalarTag(parent, key, "xml")
+  markYAMLScalarTag(parent, key, "xml/reference")
 }
 
 function nestedItemXMLTypeMatches(expectedXsiType: string | undefined, xmlValue: unknown): boolean {

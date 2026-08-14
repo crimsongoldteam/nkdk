@@ -68,7 +68,7 @@ it.each([
 })
 
 it("excludes only tagged transported MDObjectRef from structural references", () => {
-  const parsed = parseMetadataYaml(`Состав:\n  - Справочник.Товары\n  - !xml 447e2bd8-fa43-442e-91db-b17634e036d9\n`)
+  const parsed = parseMetadataYaml(`Состав:\n  - Справочник.Товары\n  - !xml/reference 447e2bd8-fa43-442e-91db-b17634e036d9\n`)
   const registry = createPropertyRuleRegistrySet(metadataRules)
   const rule = {
     itemType: "BrokenMDObjectRefStructuralProbe",

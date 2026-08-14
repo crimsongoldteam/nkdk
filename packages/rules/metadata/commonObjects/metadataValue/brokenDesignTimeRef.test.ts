@@ -38,7 +38,7 @@ it("registers the strict DesignTimeRef UUID grammar", () => {
     rule: rule.properties.fillValue!,
     xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": UUID_PAIR },
     yamlValue: UUID_PAIR,
-  })).toEqual({ yamlValue: `!xml ${UUID_PAIR}`, taggedPaths: [[]] })
+  })).toEqual({ yamlValue: `!xml/reference ${UUID_PAIR}`, taggedPaths: [[]] })
   expect(carrier.tryImport({
     rule: rule.properties.fillValue!,
     xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": `${UUID_PAIR}.extra` },
@@ -69,8 +69,8 @@ it("round-trips a broken DesignTimeRef without reference XML", () => {
     execution,
   })
 
-  expect(yaml).toEqual({ ЗначениеЗаполнения: `!xml ${UUID_PAIR}` })
-  expect(yamlScalarTagAt(yaml, "ЗначениеЗаполнения")).toBe("xml")
+  expect(yaml).toEqual({ ЗначениеЗаполнения: `!xml/reference ${UUID_PAIR}` })
+  expect(yamlScalarTagAt(yaml, "ЗначениеЗаполнения")).toBe("xml/reference")
 
   const exported = convertPropertiesFromYAMLToXML({
     context: {
@@ -78,7 +78,7 @@ it("round-trips a broken DesignTimeRef without reference XML", () => {
       version: "test",
       exportToXML: { version: "test", itemsTree: [] },
     },
-    yaml: importFromYAML(`ЗначениеЗаполнения: !xml ${UUID_PAIR}`),
+    yaml: importFromYAML(`ЗначениеЗаполнения: !xml/reference ${UUID_PAIR}`),
     rule,
     outputs: [{ key: "owner" }],
     execution,
@@ -90,8 +90,8 @@ it("round-trips a broken DesignTimeRef without reference XML", () => {
 })
 
 it.each([
-  ["Ложь", { "_xsi:type": "xs:string", "#text": "!xml Ложь" }],
-  ["Справочник.Роли.ПустаяСсылка", { "_xsi:type": "xs:string", "#text": "!xml Справочник.Роли.ПустаяСсылка" }],
+  ["Ложь", { "_xsi:type": "xs:string", "#text": "!xml/reference Ложь" }],
+  ["Справочник.Роли.ПустаяСсылка", { "_xsi:type": "xs:string", "#text": "!xml/reference Справочник.Роли.ПустаяСсылка" }],
 ] as const)("не перехватывает чужой tagged payload %s", (value, expected) => {
   const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
   const exported = convertPropertiesFromYAMLToXML({
@@ -100,7 +100,7 @@ it.each([
       version: "test",
       exportToXML: { version: "test", itemsTree: [] },
     },
-    yaml: importFromYAML(`ЗначениеЗаполнения: !xml ${value}`),
+    yaml: importFromYAML(`ЗначениеЗаполнения: !xml/reference ${value}`),
     rule,
     outputs: [{ key: "owner" }],
     execution,

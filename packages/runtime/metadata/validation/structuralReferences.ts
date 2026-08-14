@@ -334,14 +334,14 @@ export function isRelativeYAMLScalarTagged(
   propertyKey: string,
   path: readonly (string | number)[],
 ): boolean {
-  if (path.length === 0) return yamlScalarTagAt(parent, propertyKey) === "xml"
+  if (path.length === 0) return yamlScalarTagAt(parent, propertyKey) === "xml/reference"
   let current: unknown = parent[propertyKey]
   for (const segment of path.slice(0, -1)) {
     if ((typeof current !== "object" || current === null)) return false
     current = (current as Readonly<Record<string | number, unknown>>)[segment]
   }
   const key = path[path.length - 1]
-  return key !== undefined && yamlScalarTagAt(current, key) === "xml"
+  return key !== undefined && yamlScalarTagAt(current, key) === "xml/reference"
 }
 
 function dependentStructuralTarget(

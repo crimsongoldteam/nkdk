@@ -1,8 +1,8 @@
 import { Type } from "typebox"
 
 import {
-  xmlScalarTagPayload,
-  xmlScalarTagValue,
+  xmlAnomalyTagPayload,
+  xmlAnomalyTagValue,
 } from "@nkdk/runtime"
 import {
   defineMetadataRules,
@@ -21,7 +21,7 @@ export const brokenDesignTimeRefCarrier: BrokenXMLReferenceCarrierRegistration =
     const text = designTimeRefText(xmlValue)
     if (text === undefined || yamlValue !== text) return undefined
     return {
-      yamlValue: xmlScalarTagValue(text),
+      yamlValue: xmlAnomalyTagValue("xml/reference", text),
       taggedPaths: [[]],
     }
   },
@@ -45,7 +45,7 @@ export const brokenDesignTimeRefCarrier: BrokenXMLReferenceCarrierRegistration =
           base,
           Type.String({
             pattern:
-              `^!xml ${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}$`,
+              `^!xml/reference ${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}$`,
           }),
         ])
       : base
@@ -76,7 +76,7 @@ function designTimeRefText(value: unknown): string | undefined {
 
 function isBrokenDesignTimeRefYAML(value: unknown): value is string {
   return typeof value === "string" &&
-    isDesignTimeRefUuid(xmlScalarTagPayload(value))
+    isDesignTimeRefUuid(xmlAnomalyTagPayload("xml/reference", value))
 }
 
 function brokenDesignTimeRefPayload(value: unknown): string {
@@ -85,5 +85,5 @@ function brokenDesignTimeRefPayload(value: unknown): string {
       "Битая DesignTimeRef-ссылка должна содержать два UUID через точку",
     )
   }
-  return xmlScalarTagPayload(value)
+  return xmlAnomalyTagPayload("xml/reference", value)
 }
