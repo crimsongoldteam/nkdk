@@ -12,7 +12,7 @@ type OwnerState = {
   readonly path: string
   readonly document: { content: string }
   readonly indent: number
-  readonly insertionAnchor?: string
+  readonly insertionAnchors?: Readonly<Record<string, string>>
 }
 
 type InlineChildSpec = {
@@ -98,7 +98,7 @@ for (const ownerKey of [
     childItemType: "MetadataRegisterDimension",
     section: "Измерения",
     name: "ПроверочноеИзмерение",
-    body: "Тип: Строка(10)",
+    body: "Тип: Строка(10)\nЗначениеЗаполнения: \"\"",
   })
   addInlineChild({
     ownerKey,
@@ -106,7 +106,7 @@ for (const ownerKey of [
     childItemType: "MetadataRegisterAttribute",
     section: "Реквизиты",
     name: "ПроверочныйРеквизитРегистра",
-    body: "Тип: Строка(10)",
+    body: "Тип: Строка(10)\nЗначениеЗаполнения: \"\"",
   })
 }
 
@@ -430,7 +430,7 @@ function createRootOwnerStates(): Map<string, OwnerState> {
       path: properties.path,
       document: { content: properties.after },
       indent: 0,
-      insertionAnchor: matrixChildInsertionAnchors[root.key],
+      insertionAnchors: matrixChildInsertionAnchors[root.key],
     })
   }
   return result
@@ -448,9 +448,10 @@ function appendYamlItem(owner: OwnerState, section: string, name: string, body =
   const source = owner.document.content === "" || owner.document.content.endsWith("\n")
     ? owner.document.content
     : `${owner.document.content}\n`
-  const anchorMarker = owner.insertionAnchor === undefined
+  const insertionAnchor = owner.insertionAnchors?.[section]
+  const anchorMarker = insertionAnchor === undefined
     ? undefined
-    : `${indentation}${owner.insertionAnchor}:`
+    : `${indentation}${insertionAnchor}:`
   const insertionIndex = anchorMarker === undefined ? -1 : source.indexOf(anchorMarker)
   const prefix = insertionIndex < 0 ? source : source.slice(0, insertionIndex)
   const suffix = insertionIndex < 0 ? "" : source.slice(insertionIndex)

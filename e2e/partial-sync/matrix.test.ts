@@ -89,6 +89,24 @@ describe("partial sync matrix", () => {
     }
   })
 
+  it("emits register fields in canonical section order with string fill values", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    for (const owner of [
+      "information-register",
+      "accumulation-register",
+      "accounting-register",
+      "calculation-register",
+    ]) {
+      const operation = plan.find(({ key }) => key === `child:${owner}:attributes`)
+      const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+      expect(properties, owner).toEqual(expect.any(String))
+      const source = properties as string
+      expect(source.indexOf("Измерения:"), owner).toBeLessThan(source.indexOf("Реквизиты:"))
+      expect(source.indexOf("Реквизиты:"), owner).toBeLessThan(source.indexOf("Ресурсы:"))
+      expect(source.match(/ЗначениеЗаполнения: ""/gu), owner).toHaveLength(2)
+    }
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",

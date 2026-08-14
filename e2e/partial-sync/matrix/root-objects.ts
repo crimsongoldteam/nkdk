@@ -16,8 +16,16 @@ export const matrixObjectNames = {
   task: `${prefix}Задача`,
 } as const
 
-export const matrixChildInsertionAnchors: Readonly<Record<string, string>> = {
-  "object:chart-of-characteristic-types": "ТипЗначения",
+export const matrixChildInsertionAnchors: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  "object:chart-of-characteristic-types": {
+    Реквизиты: "ТипЗначения",
+    ТабличныеЧасти: "ТипЗначения",
+    Предопределенные: "ТипЗначения",
+  },
+  "object:information-register": registerFieldInsertionAnchors(),
+  "object:accumulation-register": registerFieldInsertionAnchors(),
+  "object:accounting-register": registerFieldInsertionAnchors(),
+  "object:calculation-register": registerFieldInsertionAnchors(),
 }
 
 export const rootObjectDeclarations = [
@@ -368,4 +376,11 @@ function minimalWsdl(): string {
   </service>
 </definitions>
 `
+}
+
+function registerFieldInsertionAnchors(): Readonly<Record<string, string>> {
+  return {
+    Измерения: "Ресурсы",
+    Реквизиты: "Ресурсы",
+  }
 }
