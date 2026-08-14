@@ -84,12 +84,12 @@ function loadLowLevelSessionFactory(): () => Promise<LowLevelMcpSession> {
   }
 }
 
-function adaptMcpModule(value: unknown): () => Promise<LowLevelMcpSession> {
+export function adaptMcpModule(value: unknown): () => Promise<LowLevelMcpSession> {
   if (typeof value !== "object" || value === null) throw new Error("Не удалось загрузить MCP-клиент")
   const factory = Reflect.get(value, "createMcpToolSession")
   if (typeof factory !== "function") throw new Error("MCP-клиент не экспортирует createMcpToolSession")
   return async () => {
-    const session: unknown = await Reflect.apply(factory, value, [])
+    const session: unknown = await Reflect.apply(factory, value, [{ serverMode: "compiled" }])
     if (!isLowLevelSession(session)) throw new Error("MCP-клиент вернул несовместимый сеанс")
     return session
   }

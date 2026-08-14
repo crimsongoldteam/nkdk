@@ -2,9 +2,27 @@ import { mkdtemp, readFile } from "node:fs/promises"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
 import { describe, expect, it } from "vitest"
-import { openScenarioMcpSession, type LowLevelMcpSession } from "./mcp-session"
+import {
+  adaptMcpModule,
+  openScenarioMcpSession,
+  type LowLevelMcpSession,
+} from "./mcp-session"
 
 describe("partial sync MCP session", () => {
+  it("starts the compiled MCP server with packaged workers", async () => {
+    let received: unknown
+    const lowLevel = fakeLowLevel([])
+    const createSession = adaptMcpModule({
+      async createMcpToolSession(options: unknown) {
+        received = options
+        return lowLevel
+      },
+    })
+
+    await expect(createSession()).resolves.toBe(lowLevel)
+    expect(received).toEqual({ serverMode: "compiled" })
+  })
+
   it("keeps one session and logs every request, response and stderr", async () => {
     const attemptLogDir = await mkdtemp(join(tmpdir(), "nkdk-mcp-session-"))
     const lowLevel = fakeLowLevel([
