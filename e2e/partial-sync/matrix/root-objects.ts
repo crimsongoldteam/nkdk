@@ -342,20 +342,24 @@ function minimalRights(): string {
 function minimalWsdl(): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
-  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:soap12bind="http://schemas.xmlsoap.org/wsdl/soap12/"
+  xmlns:soapbind="http://schemas.xmlsoap.org/wsdl/soap/"
   xmlns:tns="http://example.org/partial-sync"
+  xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+  xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsd1="http://example.org/partial-sync"
   targetNamespace="http://example.org/partial-sync">
   <types>
-    <xsd:schema targetNamespace="http://example.org/partial-sync" />
+    <xsd:schema xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://example.org/partial-sync" />
   </types>
   <portType name="PartialSyncPort" />
   <binding name="PartialSyncBinding" type="tns:PartialSyncPort">
-    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
   </binding>
   <service name="PartialSyncService">
     <port name="PartialSyncPort" binding="tns:PartialSyncBinding">
-      <soap:address location="http://example.org/partial-sync" />
+      <soapbind:address location="http://example.org/partial-sync" />
     </port>
   </service>
 </definitions>

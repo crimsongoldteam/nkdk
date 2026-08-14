@@ -56,6 +56,20 @@ describe("partial sync matrix", () => {
     )
   })
 
+  it("emits the WS definition in the platform canonical namespace form", () => {
+    const declaration = rootObjectDeclarations.find(({ key }) => key === "object:ws-reference")
+    const definition = declaration?.changes.find(({ path }) => path.endsWith("/WSDefinition.xml"))?.after
+
+    expect(definition).toEqual(expect.any(String))
+    expect(definition).toContain('xmlns:soap12bind="http://schemas.xmlsoap.org/wsdl/soap12/"')
+    expect(definition).toContain('xmlns:soapbind="http://schemas.xmlsoap.org/wsdl/soap/"')
+    expect(definition).toContain('xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"')
+    expect(definition).toContain('xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"')
+    expect(definition).toContain('xmlns:xsd1="http://example.org/partial-sync"')
+    expect(definition).toContain("<soapbind:binding")
+    expect(definition).toContain("<soapbind:address")
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",
