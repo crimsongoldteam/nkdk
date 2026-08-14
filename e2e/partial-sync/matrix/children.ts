@@ -281,6 +281,7 @@ const externalCube = addDirectoryChild({
   directory: "Кубы",
   name: "ПроверочныйКуб",
   properties: "ИмяВИсточникеДанных: PartialSyncCube\n",
+  insertionAnchors: { Измерения: "ИмяВИсточникеДанных" },
 })
 const dimensionTable = addDirectoryChild({
   ownerKey: externalCube.key,
@@ -304,7 +305,7 @@ addInlineChild({
   childItemType: "MetadataExternalDataSourceCubeDimension",
   section: "Измерения",
   name: "ПроверочноеИзмерение",
-  body: "Тип: Строка(10)",
+  body: "Тип: Строка(10)\nЗначениеЗаполнения: \"\"",
   dependsOn: [dimensionTable.key],
 })
 addInlineChild({

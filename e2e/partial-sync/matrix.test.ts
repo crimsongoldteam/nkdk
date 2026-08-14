@@ -218,7 +218,10 @@ describe("partial sync matrix", () => {
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
 
     expect(properties).toContain("    Тип: Строка(10)")
+    expect(properties).toContain("    ЗначениеЗаполнения: \"\"")
     expect(properties).not.toContain("ТаблицаИзмерения")
+    const source = properties as string
+    expect(source.indexOf("Измерения:")).toBeLessThan(source.indexOf("ИмяВИсточникеДанных:"))
   })
 
   it("does not create register resources in the root-object layer", () => {
