@@ -517,8 +517,11 @@ git commit -m "fix: :bug: сохранить Nil у обычных полей"
 - Modify: `packages/runtime/metadata/resourceTopology/core/projectProjection.ts`
 - Modify: `packages/rules/metadata/resourceTopology/adapters/ruleTopology.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/childFormNamesPropertyRules.ts`
-- Modify: `packages/rules/metadata/project/syncStateFiles.test.ts`
-- Modify: `packages/rules/metadata/appliedObjects/configuration/syncState.test.ts`
+- Modify: `packages/rules/metadata/project/syncStateFiles.ts`
+- Modify: `packages/rules/metadata/project/componentState/structure.ts`
+- Modify: `packages/rules/metadata/fullSyncToXml/discovery.ts`
+- Verify: `packages/rules/metadata/project/syncStateFiles.test.ts`
+- Verify: `packages/rules/metadata/appliedObjects/configuration/syncState.test.ts`
 - Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.ts`
 - Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts`
 - Modify: `packages/rules/metadata/fullSyncToXml/discovery.test.ts`
@@ -640,8 +643,8 @@ Expected: `.query` классифицируется как `assignmentInput`, о
 - [ ] **Step 7: Закоммитить слой**
 
 ```bash
-git add packages/rules/metadata/forms/clientApplicationForm/childFormNamesPropertyRules.ts packages/rules/metadata/fullSyncToXml/discovery.test.ts packages/rules/metadata/fullSyncToXml/writeAssignment.integration.test.ts
-git commit -m "fix: :bug: исключить query из внешних файлов формы"
+git add packages/runtime/metadata/resourceTopology/core/types.ts packages/runtime/metadata/resourceTopology/core/compiler.ts packages/runtime/metadata/resourceTopology/core/projectProjection.ts packages/rules/metadata/resourceTopology/adapters/ruleTopology.ts packages/rules/metadata/forms/clientApplicationForm/childFormNamesPropertyRules.ts packages/rules/metadata/project/syncStateFiles.ts packages/rules/metadata/project/componentState/structure.ts packages/rules/metadata/fullSyncToXml/discovery.ts packages/rules/metadata/fullSyncToXml/discovery.test.ts packages/rules/metadata/fullSyncToXml/writeAssignment.integration.test.ts packages/rules/metadata/partialSyncToXml/impactPlanner.ts packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts
+git commit -m "fix: :bug: связать query с заданием формы"
 ```
 
 ---
