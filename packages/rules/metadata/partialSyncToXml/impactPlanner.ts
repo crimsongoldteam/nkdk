@@ -293,6 +293,7 @@ export function buildPartialXmlImpactPlan(params: {
       const owner = currentByPath.get(ownerPath)
       if (owner?.kind !== "content") throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
       includeAssignment(owner, true)
+      includeAssignmentExternalFiles(owner)
     }
     if (policy.structural.includeCurrentMemberSubtree) {
       for (const current of currentByPath.values()) {
@@ -338,6 +339,18 @@ export function buildPartialXmlImpactPlan(params: {
       if (current.projectPath !== resource.projectPath && !current.projectPath.startsWith(`${directory}/`)) continue
       if (current.kind === "content") includeAssignment(current, requestLoad)
       if (current.kind === "externalFile") includeExternal(current, requestLoad)
+    }
+  }
+
+  function includeAssignmentExternalFiles(resource: MetadataProjectResourceMatch): void {
+    const assignment = resource.assignment
+    if (resource.kind !== "content" || assignment === undefined) {
+      throw new Error(`Ожидалось XML-задание владельца: ${resource.projectPath}`)
+    }
+    for (const current of currentByPath.values()) {
+      if (current.kind === "externalFile" && current.assignment?.id === assignment.id) {
+        includeExternal(current, false)
+      }
     }
   }
 

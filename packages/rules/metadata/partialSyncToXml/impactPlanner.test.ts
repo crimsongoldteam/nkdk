@@ -47,6 +47,16 @@ const topology = compileMetadataResourceTopology([{
     content("Объект/{ownerName}/Свойства.yaml", "properties", objectRule, "configurationComposition"),
     document("", "Objects/{ownerName}.xml", "metadata", true),
     {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+      projectPattern: "Объект/{ownerName}/Команды/Проверочная.bsl",
+      xmlPattern: "Objects/{ownerName}/Commands/Проверочная/Ext/CommandModule.bsl",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      source,
+    },
+    {
       ...content(
         "Объект/{ownerName}/Таблицы/{itemName}/Свойства.yaml",
         "fileItem",
@@ -164,6 +174,7 @@ const root = "Конфигурация.yaml"
 const rootModule = "МодульПриложения.bsl"
 const language = "Язык/Русский.yaml"
 const owner = "Объект/Товары/Свойства.yaml"
+const ownerModule = "Объект/Товары/Команды/Проверочная.bsl"
 const firstForm = "Объект/Товары/Формы/Первая/Форма.yaml"
 const firstModule = "Объект/Товары/Формы/Первая/Модуль.bsl"
 const firstBaseForm = "Объект/Товары/Формы/Первая/БазоваяФорма.yaml"
@@ -238,6 +249,23 @@ describe("partial XML impact planner", () => {
     expect(result.loadTargets).toEqual([
       "Objects/Товары.xml",
       "Objects/Товары/Forms/Вторая.xml",
+    ].sort(utf8))
+  })
+
+  it("при добавлении формы сохраняет внешние файлы владельца", () => {
+    const result = plan(
+      [root, language, owner, ownerModule, firstForm],
+      changes({ added: [firstForm] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, ownerModule, firstForm].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([ownerModule])
+    expect(result.loadTargets).toEqual([
+      "Objects/Товары.xml",
+      "Objects/Товары/Forms/Первая.xml",
     ].sort(utf8))
   })
 
