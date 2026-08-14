@@ -89,9 +89,12 @@ async function runChangedStage(
   const verificationProjectDir = join(workspace.verificationDir, stage)
   const session = await dependencies.openMcpSession({ attemptLogDir })
   let verificationStarted = false
+  let projectConnectionOpen = true
   try {
     await expectSuccessfulValidation(session, workspace.projectDir)
     await syncAndExpectStable(session, workspace.projectDir)
+    await closePlatformConnection(session, workspace.projectDir)
+    projectConnectionOpen = false
     verificationStarted = true
     await verifyComponents({
       session,
@@ -102,7 +105,7 @@ async function runChangedStage(
     })
   } finally {
     if (verificationStarted) await closePlatformConnection(session, verificationProjectDir)
-    await closePlatformConnection(session, workspace.projectDir)
+    if (projectConnectionOpen) await closePlatformConnection(session, workspace.projectDir)
     await session.close()
   }
 }

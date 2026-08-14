@@ -73,9 +73,9 @@ describe("partial sync steps", () => {
       "nkdk.validate_project",
       "nkdk.sync_to_infobase",
       "nkdk.sync_to_infobase",
-      "nkdk.import_from_infobase",
-      "nkdk.import_from_infobase",
       "nkdk.close_platform_connection",
+      "nkdk.import_from_infobase",
+      "nkdk.import_from_infobase",
       "nkdk.close_platform_connection",
     ])
     expect(fixture.comparisons).toHaveLength(2)
