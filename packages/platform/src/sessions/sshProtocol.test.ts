@@ -99,6 +99,26 @@ describe("platform SSH command protocol", () => {
     })
   })
 
+  it.each([
+    ["progress", '{"type":"progress","message":"","body":{"message":"Подготовка","percent":33}}'],
+    ["database structure", '{"type":"dbstru","body":{"info":"change","message":"Новый объект"}}'],
+    ["generation identifier", '{"type":"generation-id","body":"bbb2f569dfa9f5459ea86a0ee852479500000000"}'],
+  ])("accepts a %s message before command completion", async (_case, intermediate) => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      `[${intermediate}]`,
+      '[{"type":"success","message":"Done"}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({ shell, timeoutMs: 100 })
+
+    const pending = session.run("config load-files")
+    await Promise.resolve()
+    shell.emitNext()
+    await expect(pending).resolves.toEqual({})
+  })
+
   it("returns extension properties nested in the success body in platform order", async () => {
     const shell = scriptedShell([
       "designer> ",

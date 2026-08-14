@@ -121,6 +121,29 @@ describe("sync to infobase", () => {
     expect(fixture.platformParams).not.toHaveProperty("operations")
   })
 
+  it("uses and reports the standalone-server mode from project settings", async () => {
+    const fixture = createFixture({
+      settings: {
+        ...readySettings,
+        settings: {
+          infobase: {
+            ...readySettings.settings.infobase,
+            operations: {
+              import: { mode: "standalone-server", unresolvedReferences: "include" },
+            },
+          },
+        },
+      },
+    })
+
+    await expect(syncToInfobase(input(), fixture.dependencies)).resolves.toMatchObject({
+      ok: true,
+      status: "synchronized",
+      mode: "standalone-server",
+    })
+    expect(fixture.platformParams).toMatchObject({ mode: "standalone-server" })
+  })
+
   it("передаёт имя расширения без условий по виду метаданных", async () => {
     const fixture = createFixture()
 
@@ -368,7 +391,7 @@ function createFixture(options: {
         Object.assign(platformParams, params)
         if (options.platformLoad !== undefined) return options.platformLoad(params)
         if (options.platformError !== undefined) throw options.platformError
-        return { mode: "designer-agent", reusedConnection: false, warnings: [] }
+        return { mode: params.mode, reusedConnection: false, warnings: [] }
       },
     },
     fs: {

@@ -28,6 +28,19 @@ describe("sync_to_infobase contract", () => {
       diagnostics: [],
     }).success).toBe(true)
     expect(syncToInfobaseOutputShape.safeParse({
+      ok: true,
+      status: "synchronized",
+      componentPath: "cf",
+      packageId: "package-1",
+      entries: [],
+      loadTargets: [],
+      mode: "standalone-server",
+      reusedConnection: false,
+      finalizeStatus: "published",
+      configurationIndexPath: "/project/index.lmdb",
+      warnings: [],
+    }).success).toBe(true)
+    expect(syncToInfobaseOutputShape.safeParse({
       ok: false,
       code: "delivery_outcome_unknown",
       message: "Неизвестно",

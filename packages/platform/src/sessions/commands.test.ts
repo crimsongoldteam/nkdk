@@ -217,7 +217,7 @@ describe("platform session commands", () => {
 
   it("builds a partial configuration load command for a configuration or extension", () => {
     expect(
-      buildLoadPartialConfigurationCommand({ stagingDir: "staging" })
+      buildLoadPartialConfigurationCommand({ stagingDir: "staging", updateDumpInfo: true })
     ).toBe(
       'config load-files --dir="staging" --archive="package.zip" --no-check --list-file="staging/load.lst" --update-config-dump-info'
     )
@@ -225,6 +225,7 @@ describe("platform session commands", () => {
       buildLoadPartialConfigurationCommand({
         stagingDir: 'staging"dir',
         extensionName: 'Расширение "Тест"',
+        updateDumpInfo: true,
       })
     ).toBe(
       'config load-files --dir="staging""dir" --archive="package.zip" --no-check --list-file="staging""dir/load.lst" --update-config-dump-info --extension="Расширение ""Тест"""'

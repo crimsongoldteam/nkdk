@@ -57,6 +57,7 @@ export type ListConfigurationExtensionsResult = {
 }
 
 export type LoadPartialConfigurationParams = NormalizedPlatformConnectionSettings & {
+  mode: PlatformSessionMode
   projectDir: string
   archivePath: string
   loadTargets: readonly string[]
@@ -66,7 +67,7 @@ export type LoadPartialConfigurationParams = NormalizedPlatformConnectionSetting
 }
 
 export type LoadPartialConfigurationResult = {
-  mode: "designer-agent"
+  mode: PlatformSessionMode
   reusedConnection: boolean
   warnings: readonly string[]
 }

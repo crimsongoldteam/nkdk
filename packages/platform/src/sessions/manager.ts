@@ -75,7 +75,7 @@ export function createPlatformSessionManager(
   async function loadPartialConfiguration(
     params: Parameters<PlatformSessionManager["loadPartialConfiguration"]>[0]
   ) {
-    const mode = "designer-agent" as const
+    const mode = params.mode
     const operationLog = await openOperationLog(params, mode)
     await appendRequired(
       operationLog,

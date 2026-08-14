@@ -218,6 +218,11 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
       createStandaloneServerSession(params, {
         fileSystem,
         processRuntime: nodeProcessRuntime,
+        portRuntime,
+        generateHostKey,
+        sshTransport,
+        openCommandSession: openPlatformCommandSession,
+        startupTimeoutMs: 60_000,
         commandTimeoutMs: 30 * 60 * 1000,
         closeTimeoutMs: 5_000,
         platform: process.platform,

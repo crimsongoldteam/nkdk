@@ -1,15 +1,24 @@
+import { randomUUID } from "node:crypto"
 import { join } from "node:path"
-import { parse } from "yaml"
+import { parse, stringify } from "yaml"
 import { parseIbcmdExtensionList } from "../extensions/parse"
 import { parseConnection } from "../infobases/parseConnection"
 import {
   buildStandaloneConfigExport,
   buildStandaloneConfigInit,
   buildStandaloneListExtensions,
+  buildStandaloneLaunch,
+  buildLoadPartialConfigurationCommand,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
 import { platformFailure, type PlatformOperationLog } from "./operationLog"
-import type { SessionProcessRuntime } from "./runtime"
+import type {
+  PlatformCommandSession,
+  SessionPortRuntime,
+  SessionProcessRuntime,
+  SshTransport,
+} from "./runtime"
+import { openPlatformCommandSession } from "./sshProtocol"
 import type { CreatePlatformSessionParams, PlatformSession } from "./types"
 
 const PRIVATE_FILE_MODE = 0o600
@@ -17,11 +26,17 @@ const PRIVATE_FILE_MODE = 0o600
 export interface StandaloneServerDependencies {
   fileSystem: {
     mkdir(path: string): Promise<void>
+    copyFile(from: string, to: string): Promise<void>
     writeFile(path: string, content: string, options?: { mode?: number }): Promise<void>
     chmod(path: string, mode: number): Promise<void>
     rm(path: string): Promise<void>
   }
-  processRuntime: Pick<SessionProcessRuntime, "run">
+  processRuntime: Pick<SessionProcessRuntime, "run" | "spawn">
+  portRuntime: SessionPortRuntime
+  generateHostKey(path: string): Promise<string>
+  sshTransport: SshTransport
+  openCommandSession: typeof openPlatformCommandSession
+  startupTimeoutMs: number
   commandTimeoutMs: number
   closeTimeoutMs: number
   platform: NodeJS.Platform
@@ -106,7 +121,7 @@ export async function createStandaloneServerSession(
       "ibcmd не смог подготовить конфигурацию автономного сервера"
     )
   }
-  validateConfiguration(initialized.stdout)
+  parseConfiguration(initialized.stdout)
   try {
     await dependencies.fileSystem.writeFile(
       configPath,
@@ -151,10 +166,7 @@ export async function createStandaloneServerSession(
         outputDir,
         unresolvedReferences,
         extensionName,
-        ...(params.settings.user === undefined ? {} : { user: params.settings.user }),
-        ...(params.settings.password === undefined
-          ? {}
-          : { password: params.settings.password }),
+        ...infobaseCredentials(params.settings),
       })
       let exported
       try {
@@ -186,6 +198,79 @@ export async function createStandaloneServerSession(
       if (exported.exitCode !== 0) {
         throw await processFailure(operationLog, "platform_command_failed", "configuration-export", processText(exported), "ibcmd не смог выгрузить конфигурацию в XML")
       }
+    },
+    async loadPartialConfiguration(archivePath, loadTargets, operationLog, extensionName, signal) {
+      if (closed) throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
+      const ibsrvPath = params.installation.ibsrvPath
+      if (ibsrvPath === undefined) throw missingComponent("ibsrv")
+      const serverDataDir = join(params.sessionDir, "server-data")
+      const sessionDataDir = join(params.sessionDir, "session-data")
+      const userServiceDir = join(serverDataDir, "users-data")
+      const keyDir = join(params.sessionDir, ".ssh")
+      const hostKeyPath = join(keyDir, "host.key")
+      const [serverPort, sshPort] = await Promise.all([
+        dependencies.portRuntime.reservePort("127.0.0.1"),
+        dependencies.portRuntime.reservePort("127.0.0.1"),
+      ])
+      await dependencies.fileSystem.mkdir(keyDir)
+      const hostKeyHash = await dependencies.generateHostKey(hostKeyPath)
+      const configuration = parseConfiguration(initialized.stdout)
+      configureServerGateway(configuration, { serverPort, sshPort, hostKeyPath })
+      await dependencies.fileSystem.writeFile(configPath, stringify(configuration), { mode: PRIVATE_FILE_MODE })
+      const stagingDir = join(userServiceDir, ".nkdk-load", randomUUID())
+      const relativeStagingDir = stagingDir.slice(userServiceDir.length + 1)
+      const stagedArchivePath = join(stagingDir, "package.zip")
+      const stagedLoadListPath = join(stagingDir, "load.lst")
+      await dependencies.fileSystem.mkdir(serverDataDir)
+      await dependencies.fileSystem.mkdir(sessionDataDir)
+      await dependencies.fileSystem.mkdir(stagingDir)
+      await dependencies.fileSystem.copyFile(archivePath, stagedArchivePath)
+      await dependencies.fileSystem.writeFile(stagedLoadListPath, formatLoadList(loadTargets))
+      const launch = buildStandaloneLaunch({
+        ibsrvPath,
+        dataDir: serverDataDir,
+        sessionDataDir,
+        configPath,
+      })
+      const processHandle = dependencies.processRuntime.spawn(launch.command, launch.args, {
+        cwd: params.sessionDir,
+      })
+      let commandSession: PlatformCommandSession | undefined
+      try {
+        await processHandle.waitForOutput("Stand-alone Server ready.", dependencies.startupTimeoutMs)
+        const shell = await dependencies.sshTransport.connect({
+          host: "127.0.0.1",
+          port: sshPort,
+          timeoutMs: dependencies.startupTimeoutMs,
+          expectedHostKeyHash: hostKeyHash,
+          ...infobaseCredentials(params.settings),
+        })
+        commandSession = await dependencies.openCommandSession({
+          shell,
+          user: params.settings.user,
+          password: params.settings.password,
+          timeoutMs: dependencies.startupTimeoutMs,
+          operationLog,
+        })
+        const command = buildLoadPartialConfigurationCommand({
+          stagingDir: relativeStagingDir,
+          ...(extensionName === undefined ? {} : { extensionName }),
+        })
+        await operationLog.append(`command ${command}`)
+        await commandSession.run(command, { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog })
+        await commandSession.run('config update-db-cfg --session-terminate="prompt"', {
+          signal,
+          timeoutMs: dependencies.commandTimeoutMs,
+          operationLog,
+        })
+      } catch (cause) {
+        throw await processFailure(operationLog, "platform_command_failed", "configuration-load", cause instanceof Error ? cause.message : "", "Автономный сервер не смог частично загрузить конфигурацию", cause)
+      } finally {
+        await stopStandaloneAgent(commandSession, processHandle, dependencies.closeTimeoutMs)
+        await dependencies.fileSystem.rm(stagingDir).catch(() => undefined)
+        await dependencies.fileSystem.writeFile(configPath, initialized.stdout, { mode: PRIVATE_FILE_MODE })
+      }
+      return { warnings: [] }
     },
     async listExtensions(signal) {
       if (closed) {
@@ -278,9 +363,11 @@ function missingComponent(name: string): PlatformSessionError {
   )
 }
 
-function validateConfiguration(source: string): void {
+function parseConfiguration(source: string): Record<string, unknown> {
   try {
-    if (!isRecord(parse(source))) throw new Error("configuration is not an object")
+    const configuration: unknown = parse(source)
+    if (!isRecord(configuration)) throw new Error("configuration is not an object")
+    return configuration
   } catch {
     throw new PlatformSessionError(
       "session_start_failed",
@@ -289,6 +376,52 @@ function validateConfiguration(source: string): void {
   }
 }
 
+function configureServerGateway(
+  configuration: Record<string, unknown>,
+  params: { serverPort: number; sshPort: number; hostKeyPath: string }
+): void {
+  configuration["server"] = { address: "localhost", port: params.serverPort }
+  configuration["gates"] = {
+    ssh: {
+      admin: {
+        address: "localhost",
+        port: params.sshPort,
+        "host-key": params.hostKeyPath,
+      },
+    },
+  }
+}
+
+function formatLoadList(loadTargets: readonly string[]): string {
+  return loadTargets.length === 0 ? "" : `${loadTargets.join("\n")}\n`
+}
+
+async function stopStandaloneAgent(
+  commandSession: PlatformCommandSession | undefined,
+  processHandle: ReturnType<SessionProcessRuntime["spawn"]>,
+  closeTimeoutMs: number
+): Promise<void> {
+  if (commandSession !== undefined) {
+    await commandSession.run("common disconnect-ib").catch(() => undefined)
+    await commandSession.run("common shutdown").catch(() => undefined)
+    await commandSession.close().catch(() => undefined)
+  }
+  if (!processHandle.isAlive()) return
+  if (await processHandle.wait(closeTimeoutMs)) return
+  await processHandle.kill()
+  await processHandle.wait(closeTimeoutMs)
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function infobaseCredentials(settings: CreatePlatformSessionParams["settings"]): {
+  user?: string
+  password?: string
+} {
+  return {
+    ...(settings.user === undefined ? {} : { user: settings.user }),
+    ...(settings.password === undefined ? {} : { password: settings.password }),
+  }
 }

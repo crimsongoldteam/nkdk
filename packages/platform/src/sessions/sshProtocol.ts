@@ -320,6 +320,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       })
       return
     }
+    if (type === "progress" || type === "dbstru" || type === "generation-id") return
     if (type === "error" || type === "cancel") {
       const platformMessage = extractFailureMessage(message)
       const fallback = safeFailureMessage(pending.errorCode)
@@ -332,6 +333,10 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       return
     }
     if (type !== "question" || !pending.allowQuestions || typeof message["message"] !== "string") {
+      const text = pending.operationLog?.sanitize(JSON.stringify(message)) ?? JSON.stringify(message)
+      pending.logWrites = pending.logWrites.then(async () => {
+        await pending.operationLog?.append(`unsupported-command-message ${text}`)
+      })
       throw new Error("unexpected message")
     }
 

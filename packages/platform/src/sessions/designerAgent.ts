@@ -357,6 +357,7 @@ export async function createDesignerAgentSession(
       )
       const command = buildLoadPartialConfigurationCommand({
         stagingDir: relativeAgentPath(userServiceDir, stagingDir),
+        updateDumpInfo: true,
         ...(extensionName === undefined ? {} : { extensionName }),
       })
       await appendAgentLog(operationLog, `command ${command}`)

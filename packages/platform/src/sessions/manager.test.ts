@@ -491,6 +491,7 @@ function loadParams(overrides: Partial<LoadPartialConfigurationParams> = {}): Lo
     password: "secret",
     sessionIdleTimeout: 900,
     ...overrides,
+    mode: overrides.mode ?? "designer-agent",
   }
 }
 

@@ -120,6 +120,27 @@ describe("standalone server session", () => {
     )
   })
 
+  it("loads selected metadata through the standalone server SSH gateway", async () => {
+    const fixture = createFixture({ agentEnabled: true })
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration?.(
+      "/project/package.zip",
+      ["Catalogs/Справочник.xml"],
+      fixture.operationLog
+    )).resolves.toEqual({ warnings: [] })
+
+    expect(fixture.calls).toContain("spawn ibsrv --data /project/.nkdk/platform-sessions/standalone/server-data --session-data /project/.nkdk/platform-sessions/standalone/session-data --config /project/.nkdk/platform-sessions/standalone/config.yaml cwd=/project/.nkdk/platform-sessions/standalone")
+    expect(fixture.calls).toContain("process.waitForOutput Stand-alone Server ready. timeout=60000")
+    expect(fixture.calls).toContain("ssh.connect 127.0.0.1:8429 fingerprint")
+    const loadCall = fixture.calls.find((call) => call.startsWith("shell.run config load-files"))
+    expect(loadCall).toContain('--list-file=".nkdk-load/')
+    expect(loadCall).toContain('/load.lst"')
+    expect(fixture.calls.some((call) => call.includes("--update-config-dump-info"))).toBe(false)
+    expect(fixture.calls.some((call) => call.includes("--partial"))).toBe(false)
+    expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
+  })
+
   it.each([
     ["timeout", { listTimedOut: true }, "session_timeout"],
     ["cancellation", { listCancelled: true }, "operation_cancelled"],
@@ -380,6 +401,7 @@ function createFixture(
     listTimedOut?: boolean
     listCancelled?: boolean
     logAppendFails?: boolean
+    agentEnabled?: boolean
   } = {}
 ): {
   calls: string[]
@@ -391,6 +413,7 @@ function createFixture(
   const calls: string[] = []
   const writes = new Map<string, string>()
   let rmCalls = 0
+  let nextPort = 8427
   let operationLogText = ""
   let logAvailable = true
   const operationLog: PlatformOperationLog = {
@@ -432,6 +455,9 @@ function createFixture(
         async mkdir(path) {
           calls.push(`mkdir ${recordedPath(path)}`)
         },
+        async copyFile(from, to) {
+          calls.push(`copy ${recordedPath(from)} ${recordedPath(to)}`)
+        },
         async writeFile(path, content, writeOptions) {
           const recorded = recordedPath(path)
           calls.push(
@@ -451,6 +477,24 @@ function createFixture(
         },
       },
       processRuntime: {
+        spawn(command, args, spawnOptions) {
+          if (options.agentEnabled !== true) throw new Error("unexpected spawn")
+          calls.push(`spawn ${recordedPath(command)} ${args.map(recordedArgument).join(" ")} cwd=${recordedPath(spawnOptions?.cwd ?? "")}`)
+          return {
+            owned: true,
+            isAlive: () => true,
+            async wait() {
+              calls.push("process.wait")
+              return true
+            },
+            async waitForOutput(value, timeoutMs) {
+              calls.push(`process.waitForOutput ${value} timeout=${timeoutMs}`)
+            },
+            async kill() {
+              calls.push("process.kill")
+            },
+          }
+        },
         async run(command, args, runOptions) {
           const isList = args.includes("extension")
           calls.push(
@@ -490,6 +534,44 @@ function createFixture(
           }
         },
       },
+      portRuntime: {
+        async reservePort() {
+          nextPort += 1
+          return nextPort
+        },
+      },
+      async generateHostKey(path) {
+        calls.push(`host-key ${recordedPath(path)}`)
+        return "fingerprint"
+      },
+      sshTransport: {
+        async connect(params) {
+          if (options.agentEnabled !== true) throw new Error("unexpected ssh connect")
+          calls.push(`ssh.connect ${params.host}:${params.port} ${params.expectedHostKeyHash}`)
+          const noop = () => undefined
+          return {
+            write: noop,
+            onData: () => noop,
+            onClose: () => noop,
+            isOpen: () => true,
+            close: async () => undefined,
+          }
+        },
+      },
+      async openCommandSession() {
+        if (options.agentEnabled !== true) throw new Error("unexpected command session")
+        return {
+          async run(command) {
+            calls.push(`shell.run ${command}`)
+            return {}
+          },
+          isAlive: () => true,
+          async close() {
+            calls.push("shell.close")
+          },
+        }
+      },
+      startupTimeoutMs: 60_000,
       commandTimeoutMs: 1_800_000,
       closeTimeoutMs: 5_000,
       platform: "darwin",
