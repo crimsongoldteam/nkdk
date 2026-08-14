@@ -1,5 +1,5 @@
 import { MetadataCatalog, MetadataCatalogYAML } from "../types"
-import { explicitYAMLString } from "@nkdk/runtime"
+import { explicitYAMLString, markYAMLScalarTag } from "@nkdk/runtime"
 
 export const full = {
   attributes: [
@@ -318,3 +318,13 @@ export const fullYAML: MetadataCatalogYAML = {
     },
   ],
 }
+
+const standardAttributes = fullYAML.СтандартныеРеквизиты
+if (typeof standardAttributes !== "object" || standardAttributes === null) {
+  throw new Error("В полной YAML-фикстуре отсутствуют стандартные реквизиты")
+}
+const ownerStandardAttribute = standardAttributes.Владелец
+if (ownerStandardAttribute === undefined) {
+  throw new Error("В полной YAML-фикстуре отсутствует стандартный реквизит Владелец")
+}
+markYAMLScalarTag(ownerStandardAttribute, "ЗначениеЗаполнения", "xml")
