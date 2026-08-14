@@ -263,6 +263,7 @@ const externalTable = addDirectoryChild({
     "ТолькоЧтение: Ложь",
     "",
   ].join("\n"),
+  insertionAnchors: { Поля: "ТипТаблицы" },
 })
 addInlineChild({
   ownerKey: externalTable.key,
@@ -407,6 +408,7 @@ function addDirectoryChild(spec: {
   readonly directory: string
   readonly name: string
   readonly properties: string
+  readonly insertionAnchors?: Readonly<Record<string, string>>
 }): ChildDeclaration {
   const owner = requireOwnerState(spec.ownerKey)
   const ownerDirectory = owner.path.slice(0, -"/Свойства.yaml".length)
@@ -421,7 +423,12 @@ function addDirectoryChild(spec: {
     changes: [{ path, before: null, after: spec.properties }],
   }
   declarations.push(declaration)
-  ownerStates.set(key, { path, document: { content: spec.properties }, indent: 0 })
+  ownerStates.set(key, {
+    path,
+    document: { content: spec.properties },
+    indent: 0,
+    insertionAnchors: spec.insertionAnchors,
+  })
   return declaration
 }
 

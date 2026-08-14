@@ -203,6 +203,13 @@ describe("partial sync matrix", () => {
     const source = properties as string
     expect(source.indexOf("Поля:")).toBeLessThan(source.indexOf("ТипТаблицы:"))
     expect(source.indexOf("Поля:")).toBeLessThan(source.indexOf("ТолькоЧтение:"))
+
+    const fieldOperation = plan.find(({ key }) => key === "child:external-data-source-tables:fields")
+    const fieldProperties = fieldOperation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+    expect(fieldProperties).toEqual(expect.any(String))
+    const fieldSource = fieldProperties as string
+    expect(fieldSource.indexOf("  ПроверочноеПоле:")).toBeGreaterThan(fieldSource.indexOf("Поля:"))
+    expect(fieldSource.indexOf("  ПроверочноеПоле:")).toBeLessThan(fieldSource.indexOf("ТипТаблицы:"))
   })
 
   it("does not create register resources in the root-object layer", () => {
