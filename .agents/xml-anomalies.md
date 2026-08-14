@@ -31,6 +31,7 @@
 | управляемая форма | `ПутьКДанным` | `!xml <исходный внутренний путь>` | `<DataPath><исходный внутренний путь></DataPath>` |
 | `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | битая ссылка типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml <UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><UUID>.<UUID></…>` |
 | `Subsystem` | битая ссылка в элементе состава подсистемы | `!xml <UUID>` | `<xr:Item xsi:type="xr:MDObjectRef"><UUID></xr:Item>` |
+| корневой `CommandInterface` | битая ссылка в `ПорядокПодсистем` | `!xml <UUID>` | `<SubsystemsOrder><Subsystem><UUID></Subsystem></SubsystemsOrder>` |
 | форма `Catalog`, `ChartOfAccounts`, `ChartOfCharacteristicTypes`, `CommonForm`, `DataProcessor`, `DocumentJournal`, `Document`, `ExchangePlan`, `InformationRegister`, `Report` или `Subsystem` | битая локальная ссылка `Command` | `!xml <исходная битая ссылка>` | `<Command><исходная битая ссылка></Command>` |
 | форма `Catalog`, `CommonForm`, `DataProcessor`, `DocumentJournal`, `Document`, `ExchangePlan`, `InformationRegister` или `Report` | битая локальная ссылка `CommandName` | `!xml <исходная битая ссылка>` | `<CommandName><исходная битая ссылка></CommandName>` |
 | форма `Catalog`, `DataProcessor`, `Document` или `Report` | битая локальная ссылка `Field` | `!xml <исходная битая ссылка>` | `<Field><исходная битая ссылка></Field>` |

@@ -1,11 +1,15 @@
 import { Type, type TSchema } from "typebox"
 
-import { xmlScalarTagPayload, xmlScalarTagValue } from "@nkdk/runtime"
+import { xmlScalarTagPayload } from "@nkdk/runtime"
 import {
   defineMetadataRules,
   emptyMetadataRules,
   type BrokenXMLReferenceCarrierRegistration,
 } from "@nkdk/runtime/rule-kit"
+import {
+  normalizeImportedBrokenReferenceCollection,
+  prepareBrokenReferenceCollectionExport,
+} from "./brokenReferenceCollection"
 
 export const MD_OBJECT_REF_UUID_SOURCE =
   "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
@@ -26,29 +30,16 @@ export const brokenMDObjectRefCarrier: BrokenXMLReferenceCarrierRegistration = {
 
     const broken = items.flatMap((item, index) => {
       const uuid = typedMDObjectRefUuid(item)
-      return uuid === undefined ? [] : [{ index, uuid }]
+      return uuid === undefined ? [] : [{ index, value: uuid }]
     })
-    if (broken.length === 0) return undefined
-
-    const normalized = [...yamlValue]
-    for (const { index, uuid } of broken) normalized[index] = xmlScalarTagValue(uuid)
-    return {
-      yamlValue: normalized,
-      taggedPaths: broken.map(({ index }) => [index]),
-    }
+    return normalizeImportedBrokenReferenceCollection(yamlValue, broken)
   },
   prepareExport({ yamlValue, isTagged }) {
-    if (!Array.isArray(yamlValue)) return undefined
-    const transportedPaths: number[][] = []
-    const prepared = yamlValue.map((item, index) => {
-      if (!isTagged([index])) return item
-      const payload = brokenMDObjectRefPayload(item)
-      transportedPaths.push([index])
-      return payload
+    return prepareBrokenReferenceCollectionExport({
+      yamlValue,
+      isTagged,
+      payload: brokenMDObjectRefPayload,
     })
-    return transportedPaths.length === 0
-      ? undefined
-      : { yamlValue: prepared, transportedPaths }
   },
   patchExportedXML({ rule, yamlValue, xmlValue, transportedPaths }) {
     if (!Array.isArray(yamlValue) || !isRecord(xmlValue)) return xmlValue

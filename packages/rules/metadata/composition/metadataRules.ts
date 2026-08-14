@@ -63,6 +63,7 @@ import { metadataExternalDataSourceTableOwnerRules } from "../commonObjects/meta
 import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/register"
 import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenDesignTimeRef"
 import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
+import { brokenCommandInterfaceSubsystemOrderRules } from "../commonObjects/rootCommandInterface/brokenSubsystemOrder"
 import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
 import { configurationExtensionPropertyStateRules } from "../appliedObjects/configurationExtension/propertyStateRules"
 import { dcsParameterExplicitUndefinedRules } from "../commonObjects/dataCompositionSystem/dcsParameter/explicitUndefined"
@@ -117,6 +118,7 @@ export const legacyCoreRules = composeMetadataRules(
   appliedObjectInputByStringRules,
   brokenDesignTimeRefRules,
   brokenMDObjectRefRules,
+  brokenCommandInterfaceSubsystemOrderRules,
   brokenLocalFormReferenceRules,
   typeDescriptionIndexRules,
   metadataExternalDataSourceCubeOwnerRules,

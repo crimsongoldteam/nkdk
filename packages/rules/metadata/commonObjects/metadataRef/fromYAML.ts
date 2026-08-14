@@ -42,7 +42,7 @@ export const importMetadataItemLinksFromYAML = (
 const importMetadataItemLinkFromYAMLProperty: ImportFromYAMLFunctionNew = (params) =>
   importMetadataItemLinkFromYAML(params.context, params.rule, params.value, params.owner)
 
-const importMetadataItemLinksFromYAMLProperty: ImportFromYAMLFunctionNew = (params) => {
+export const importMetadataItemLinksFromYAMLProperty: ImportFromYAMLFunctionNew = (params) => {
   const yamlCollection = typeof params.rule.yaml === "string"
     ? params.yaml?.[params.rule.yaml]
     : undefined
