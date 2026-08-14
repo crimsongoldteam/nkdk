@@ -52,6 +52,13 @@ describe("partial sync matrix", () => {
     }
   })
 
+  it("omits implicit default properties from minimal root objects", () => {
+    const commonForm = rootObjectDeclarations.find(({ key }) => key === "object:common-form")
+    const properties = commonForm?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))
+
+    expect(properties?.after).not.toContain("ИспользоватьСтандартныеКоманды")
+  })
+
   it("declares every reachable owner-child capability", () => {
     expect(childCapabilityExclusions).toEqual([])
     const ownerItemTypes = new Map(
