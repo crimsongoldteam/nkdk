@@ -186,7 +186,7 @@ function prepareScalar(
   yamlValue: unknown,
   isTagged: (path: readonly (string | number)[]) => boolean,
 ) {
-  return isTagged([])
+  return isTagged([]) && validTaggedPayload(element, yamlValue)
     ? { yamlValue: scalarPayload(element, yamlValue), transportedPaths: [[]] }
     : undefined
 }

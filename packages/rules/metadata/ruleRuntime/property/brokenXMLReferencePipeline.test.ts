@@ -78,7 +78,60 @@ const contextualRegistry = createPropertyRuleRegistrySet(defineMetadataRules({
   brokenXMLReferenceCarriers: [contextualCarrier],
 }))
 
+function convertYAMLToXML(
+  source: string,
+  rule: MetadataItemRule,
+  execution: Parameters<typeof convertPropertiesFromYAMLToXML>[0]["execution"],
+) {
+  return convertPropertiesFromYAMLToXML({
+    context: {
+      defaultLanguage: "ru",
+      version: "test",
+      exportToXML: { version: "test", itemsTree: [] },
+    },
+    yaml: importFromYAML(source),
+    rule,
+    outputs: [{ key: "owner" }],
+    execution,
+  }).outputs.get("owner")
+}
+
 describe("broken XML reference property pipeline", () => {
+  it("выбирает переносчик только после принятия tagged payload", () => {
+    const carrier = (name: string, accepted: readonly string[]) => brokenXMLReferenceCarrier(name, "CoexistingProbe", {
+      prepareExport: ({ yamlValue, isTagged }) =>
+        isTagged([]) && typeof yamlValue === "string" && accepted.includes(yamlValue)
+          ? { yamlValue: xmlScalarTagPayload(yamlValue), transportedPaths: [[]] }
+          : undefined,
+      patchExportedXML: ({ yamlValue }) => xmlScalarTagPayload(String(yamlValue)),
+    })
+    const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: {
+        CoexistingProbe: {
+          importFromYAML: (_context, _rule, value) => value,
+          exportToXML: (_context, _rule, value) => `converted:${value}`,
+        },
+      },
+      brokenXMLReferenceCarriers: [
+        carrier("first", ["!xml first", "!xml shared"]),
+        carrier("second", ["!xml second", "!xml shared"]),
+      ],
+    })))
+    const rule = {
+      itemType: "CoexistingCarrierProbe",
+      properties: {
+        reference: { type: "CoexistingProbe", yaml: "Ссылка", xml: "Reference" },
+      },
+    } as MetadataItemRule
+    const convert = (source: string) => convertYAMLToXML(source, rule, execution)
+
+    expect(convert("Ссылка: !xml second")).toEqual({ Reference: "second" })
+    expect(convert("Ссылка: !xml ordinary")).toEqual({ Reference: "converted:!xml ordinary" })
+    expect(() => convert("Ссылка: !xml shared"))
+      .toThrow("Конфликт переносчиков битой XML-ссылки: first, second")
+  })
+
   it("использует контекстный carrier без явного execution", () => {
     const rule = {
       itemType: "ContextualBrokenReferenceProbe",
@@ -165,17 +218,7 @@ describe("broken XML reference property pipeline", () => {
         reference: { type: "ReferenceProbe", yaml: "Ссылка", xml: "Reference" },
       },
     } as MetadataItemRule
-    const convert = (source: string) => convertPropertiesFromYAMLToXML({
-      context: {
-        defaultLanguage: "ru",
-        version: "test",
-        exportToXML: { version: "test", itemsTree: [] },
-      },
-      yaml: importFromYAML(source),
-      rule,
-      outputs: [{ key: "owner" }],
-      execution,
-    }).outputs.get("owner")
+    const convert = (source: string) => convertYAMLToXML(source, rule, execution)
 
     expect(convert("Ссылка: !xml broken")).toEqual({ Reference: "broken" })
     expect(convert('Ссылка: "!xml broken"')).toEqual({

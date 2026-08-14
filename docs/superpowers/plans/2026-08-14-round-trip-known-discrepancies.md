@@ -33,7 +33,8 @@
 - Test: `packages/rules/metadata/ruleRuntime/property/brokenXMLReferencePipeline.test.ts`
 - Test: `packages/rules/metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts`
 - Test: `packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts`
-- Test: точный тест импорта, чьё ожидание всё ещё содержит нетегированную пару UUID
+- Test: `packages/rules/metadata/appliedObjects/metadataCatalog/fromXMLToYAML.test.ts`
+- Modify fixture expectation: `packages/rules/metadata/appliedObjects/metadataCatalog/__fixtures__/full.ts`
 
 **Interfaces:**
 - Consumes: контекстный `PropertyRuleExecution`, `prepareBrokenXMLReferenceExport`, YAML-тег и строгие грамматики зарегистрированных переносчиков.
@@ -55,7 +56,8 @@ payload другой зарегистрированной формы.
 - [ ] **Step 2: Verify RED against the contextual pipeline**
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/ruleRuntime/property/brokenXMLReferencePipeline.test.ts metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/ruleRuntime/property/brokenXMLReferencePipeline.test.ts metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts metadata/appliedObjects/metadataCatalog/fromXMLToYAML.test.ts
 ```
 
 Expected: строгие переносчики бросают ошибку на чужом tagged payload вместо
@@ -83,7 +85,7 @@ Expected: строгие переносчики бросают ошибку на
 
 ```bash
 pnpm duplicates -- --base 48a3e967a99e2f6c964edaa0b70b2f79d9069d5d
-git add packages/rules/metadata/commonObjects/metadataValue/brokenDesignTimeRef.ts packages/rules/metadata/forms/clientApplicationForm/brokenLocalReferences.ts packages/rules/metadata/ruleRuntime/property/brokenXMLReferencePipeline.test.ts packages/rules/metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
+git add packages/rules/metadata/commonObjects/metadataValue/brokenDesignTimeRef.ts packages/rules/metadata/forms/clientApplicationForm/brokenLocalReferences.ts packages/rules/metadata/ruleRuntime/property/brokenXMLReferencePipeline.test.ts packages/rules/metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts packages/rules/metadata/appliedObjects/metadataCatalog/fromXMLToYAML.test.ts packages/rules/metadata/appliedObjects/metadataCatalog/__fixtures__/full.ts docs/superpowers/plans/2026-08-14-round-trip-known-discrepancies.md
 git commit -m "fix: :bug: не перехватывать чужие значения xml"
 ```
 

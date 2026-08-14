@@ -26,7 +26,7 @@ export const brokenDesignTimeRefCarrier: BrokenXMLReferenceCarrierRegistration =
     }
   },
   prepareExport({ yamlValue, isTagged }) {
-    if (!isTagged([])) return undefined
+    if (!isTagged([]) || !isBrokenDesignTimeRefYAML(yamlValue)) return undefined
     const payload = brokenDesignTimeRefPayload(yamlValue)
     return {
       yamlValue: payload,
