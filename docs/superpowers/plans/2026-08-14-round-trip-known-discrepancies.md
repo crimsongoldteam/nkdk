@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Устранить четыре согласованных round-trip дефекта Tester и Storekeeper, не расширяя семантику `!xml` за пределы зарегистрированных аномалий.
+**Goal:** Устранить согласованные round-trip дефекты Tester и Storekeeper и выявленный конфликт переносчиков, не расширяя семантику `!xml` за пределы зарегистрированных аномалий.
 
 **Architecture:** Канонические булевы значения исправляются в общей классификации `FillValue`; точные некорректные XML-ссылки продолжают проходить только через реестр переносчиков. Пустой корневой `ClientApplicationInterface` использует существующую политику явной материализации XML, а проектная валидация сверяется с тем же реестром переносчиков, что структурные операции и экспорт.
 
@@ -15,12 +15,77 @@
 - Обычный или разрешённый стандартный реквизит единственного булевого типа хранит явные `Истина` и `Ложь` без `!xml`; отсутствующий, пустой или `xsi:nil` FillValue не создаёт поле YAML.
 - Ошибочный булевый FillValue стандартных `Предопределенный` и `Владелец` сохраняется как `ЗначениеЗаполнения: !xml Ложь`.
 - Битая `DesignTimeRef` хранится ровно как один тег `!xml <UUID>.<UUID>`; повторный текст `!xml` внутри payload запрещён.
+- Переносчик битой XML-ссылки объявляет совпадение только для своей строгой грамматики и не перехватывает другие допустимые значения `!xml` того же типа свойства.
 - Битая `MDObjectRef` исключается из проверки metadata target только при наличии YAML-тега `!xml` и успешном распознавании зарегистрированным переносчиком для текущего правила свойства и относительного YAML-пути.
 - Пустой существующий `Ext/ClientApplicationInterface.xml`, содержащий только пять стандартных `panelDef`, хранится как `ИнтерфейсКлиентскогоПриложения: !xml`; отсутствующий файл не создаёт поле.
 - Расхождение старых форм Tester по `xmlns:dcssch` в этот план не входит: решение по нему отложено.
 - LMDB использует mmap и файловые блокировки; `pnpm --filter @nkdk/rules test:native`, `pnpm test:e2e`, полный `pnpm test` и round-trip запускать вне песочницы с `sandbox_permissions: require_escalated`.
 - Если Vitest worker завершается с SIGABRT, сначала повторить запуск вне песочницы; не пересобирать LMDB как первичное исправление.
 - После каждого законченного слоя запускать `pnpm duplicates -- --base 48a3e967a99e2f6c964edaa0b70b2f79d9069d5d`.
+
+---
+
+### Task 0: Избирательный экспорт через контекстные переносчики
+
+**Files:**
+- Modify: `packages/rules/metadata/commonObjects/metadataValue/brokenDesignTimeRef.ts`
+- Modify: `packages/rules/metadata/forms/clientApplicationForm/brokenLocalReferences.ts`
+- Test: `packages/rules/metadata/ruleRuntime/property/brokenXMLReferencePipeline.test.ts`
+- Test: `packages/rules/metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts`
+- Test: `packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts`
+- Test: точный тест импорта, чьё ожидание всё ещё содержит нетегированную пару UUID
+
+**Interfaces:**
+- Consumes: контекстный `PropertyRuleExecution`, `prepareBrokenXMLReferenceExport`, YAML-тег и строгие грамматики зарегистрированных переносчиков.
+- Produces: переносчик возвращает `undefined` для чужого tagged payload; реестр продолжает поиск другого совпадения, а при отсутствии совпадений оставляет значение обычному правилу свойства.
+
+- [ ] **Step 1: Add coexistence regressions**
+
+Добавить интеграционный тест с несколькими переносчиками одного типа свойства.
+Проверить три случая: первый переносчик не принимает значение, второй принимает;
+ни один переносчик не принимает допустимый для обычного правила `!xml`; два
+переносчика действительно принимают значение и реестр сохраняет диагностику
+неоднозначности.
+
+В тестах `MetadataValue` подтвердить, что переносчик `DesignTimeRef` не
+перехватывает `!xml Ложь` и `!xml Справочник.Роли.ПустаяСсылка`. В тестах формы
+подтвердить, что переносчик `DataPath` не перехватывает допустимый tagged
+payload другой зарегистрированной формы.
+
+- [ ] **Step 2: Verify RED against the contextual pipeline**
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/ruleRuntime/property/brokenXMLReferencePipeline.test.ts metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
+```
+
+Expected: строгие переносчики бросают ошибку на чужом tagged payload вместо
+возврата `undefined`.
+
+- [ ] **Step 3: Make carrier selection non-claiming**
+
+В `prepareExport` каждого скалярного переносчика сначала проверить одновременно
+наличие YAML-тега и соответствие payload его грамматике. При несовпадении
+вернуть `undefined`; `scalarPayload` и `brokenDesignTimeRefPayload` оставить
+строгими для уже выбранного переносчика и стадии patch.
+
+Не откатывать использование `currentPropertyRuleRegistrySet`: контекстный реестр
+должен оставаться рабочим путём production pipeline.
+
+- [ ] **Step 4: Correct only the stale expectation**
+
+В тесте импорта пары UUID заменить ожидание обычной строки на
+`!xml <UUID>.<UUID>`. Остальные шесть исходных падений исправить кодом, не
+ослабляя их ожидания.
+
+- [ ] **Step 5: Verify baseline recovery, duplication and commit**
+
+Запустить узкие тесты из Step 2, затем полный `pnpm test` вне песочницы.
+
+```bash
+pnpm duplicates -- --base 48a3e967a99e2f6c964edaa0b70b2f79d9069d5d
+git add packages/rules/metadata/commonObjects/metadataValue/brokenDesignTimeRef.ts packages/rules/metadata/forms/clientApplicationForm/brokenLocalReferences.ts packages/rules/metadata/ruleRuntime/property/brokenXMLReferencePipeline.test.ts packages/rules/metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
+git commit -m "fix: :bug: не перехватывать чужие значения xml"
+```
 
 ---
 
