@@ -70,6 +70,7 @@ export async function prepareInfobaseFixture(
         `--data=${params.dataDir}`,
         `--import=${params.cfXmlDir}`,
         "--apply",
+        "--force",
       ],
     },
     {

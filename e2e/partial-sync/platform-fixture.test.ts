@@ -31,6 +31,7 @@ describe("partial sync platform fixture", () => {
           "--data=/Users/nikita/Базы 1С/temp_test/data",
           `--import=${cfXmlDir}`,
           "--apply",
+          "--force",
         ],
       },
       {
