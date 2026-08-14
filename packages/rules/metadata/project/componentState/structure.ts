@@ -16,6 +16,7 @@ export async function readComponentProjectStructure(params: {
   const resources = await discoverMetadataProjectResources({
     topology,
     projectDir: componentDir,
+    includeSyncStateIgnored: true,
   })
 
   return {

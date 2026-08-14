@@ -518,7 +518,9 @@ git commit -m "fix: :bug: сохранить Nil у обычных полей"
 - Modify: `packages/rules/metadata/project/syncStateFiles.ts`
 - Modify: `packages/rules/metadata/project/syncStateFiles.test.ts`
 - Modify: `packages/rules/metadata/appliedObjects/configuration/syncState.test.ts`
+- Modify: `packages/rules/metadata/project/componentState/structure.ts`
 - Modify: `packages/rules/metadata/fullSyncToXml/discovery.test.ts`
+- Modify: `packages/rules/metadata/fullSyncToXml/discovery.ts`
 - Modify: `packages/rules/metadata/fullSyncToXml/writeAssignment.integration.test.ts`
 
 **Interfaces:**
@@ -586,6 +588,10 @@ Expected: discovery FAIL, потому что включает `.query` чере
 Не добавлять проверок расширения в `fullSyncToXml`, не менять `DynamicListRules.properties.queryText` и не удалять fallback.
 `syncState: true` означает, что проигнорированный для самостоятельного переноса
 файл остаётся значимым входом sync и участвует в хэшах проекта.
+И сбор хэшей, и `readComponentProjectStructure` должны вызывать обнаружение с
+`includeSyncStateIgnored: true`, чтобы структура и хэши относились к одному составу
+файлов. Ресурс `ignore` остаётся в структуре, но `buildXmlSyncPlan` не создаёт для него
+ни XML-задания, ни внешнего файла.
 
 - [ ] **Step 5: Подтвердить GREEN слоя**
 

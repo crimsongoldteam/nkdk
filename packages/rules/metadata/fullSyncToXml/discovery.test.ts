@@ -97,6 +97,36 @@ describe("full XML sync discovery", () => {
     )
   })
 
+  it("tracks embedded query files in component state without planning a separate XML file", async () => {
+    const projectDir = createProject()
+    const queryPath =
+      "Справочник/Товары/Формы/ФормаЭлемента/ДинамическийСписок/Список.query"
+    touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml")
+    touch(projectDir, queryPath)
+
+    const structure = await readComponentProjectStructure({
+      projectDir,
+      address: { kind: "configuration" },
+    })
+    const hashes = {
+      componentPath: structure.componentPath,
+      projectFiles: await hashConfigurationProjectFileList(
+        structure.componentDir,
+        structure.projectPaths
+      ),
+    }
+    const plan = buildFullXmlSyncPlan({ structure, hashes })
+
+    expect(structure.projectPaths).toContain(queryPath)
+    expect(hashes.projectFiles.map(({ projectPath }) => projectPath)).toContain(queryPath)
+    expect(plan.assignments.map(({ sourceProjectPath }) => sourceProjectPath)).not.toContain(
+      queryPath
+    )
+    expect(plan.externalFiles.map(({ sourceProjectPath }) => sourceProjectPath)).not.toContain(
+      queryPath
+    )
+  })
+
   it("uses the file parameter as the semantic name of a flat assignment", async () => {
     const projectDir = createProject()
     touch(projectDir, "Конфигурация.yaml")
