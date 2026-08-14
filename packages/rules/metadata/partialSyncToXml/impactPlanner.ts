@@ -201,7 +201,10 @@ export function buildPartialXmlImpactPlan(params: {
 
     if (!state.payload) {
       state.payload = true
-      for (const document of assignment.xmlDocuments.filter((candidate) => candidate.required)) {
+      const payloadDocuments = policy === undefined
+        ? assignment.xmlDocuments
+        : assignment.xmlDocuments.filter((candidate) => candidate.required)
+      for (const document of payloadDocuments) {
         addDocument(resource, document, false)
       }
       for (const companion of policy?.companionDocuments ?? []) {
@@ -213,7 +216,6 @@ export function buildPartialXmlImpactPlan(params: {
     if (requestLoad && !state.load) {
       state.load = true
       const loadDocumentIds = policy?.loadDocumentIds ?? assignment.xmlDocuments
-        .filter((document) => document.required)
         .map((document) => document.id)
       for (const documentId of loadDocumentIds) {
         addDocument(resource, requiredDocument(assignment, documentId), true)

@@ -275,6 +275,39 @@ describe("writeFullXmlSyncAssignment", () => {
       }],
     })
   })
+
+  it("не считает ошибкой отсутствие запрошенного необязательного XML-документа", async () => {
+    const projectDir = tempDir()
+    const baseAssignment = dataProcessorAssignment(projectDir)
+    const optionalOutput = {
+      declarationId: "optional-property",
+      targetXmlPath: "DataProcessors/ОбработкаВсеСвойства/Ext/Optional.xml",
+      role: "property" as const,
+      required: false,
+      prepareCapabilityId: "externalFileProperty",
+    }
+    const assignment = {
+      ...baseAssignment,
+      potentialOutputs: [...baseAssignment.potentialOutputs, optionalOutput],
+    }
+
+    const result = await writeFullXmlSyncAssignment({
+      prepared: {
+        assignment,
+        documents: [],
+        indexCollectors: [],
+        profile: createYAMLToXMLProfile(),
+      },
+      context: mockContextToXML(),
+      outputTarget: {
+        kind: "memory",
+        documentIdsByAssignment: { [assignment.id]: [optionalOutput.declarationId] },
+      },
+    })
+
+    expect(result.diagnostics).toEqual([])
+    expect(result.generatedDocuments).toEqual([])
+  })
 })
 
 function dataProcessorAssignment(projectDir: string): FullXmlSyncAssignment {

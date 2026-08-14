@@ -67,6 +67,31 @@ describe("полный цикл частичной синхронизации б
     expect(fs.existsSync(fixture.archivePath!)).toBe(false)
   }, 30_000)
 
+  it("включает XML внешнего свойства изменённого объекта", async () => {
+    const changedYaml = [
+      "Синоним: Изменённый",
+      "Предопределенные:",
+      "  Проверочный:",
+      "    Наименование: Проверочный",
+      "",
+    ].join("\n")
+    const fixture = await createFixture({ changedYaml })
+
+    const result = await syncToInfobase(input(fixture.projectDir), fixture.dependencies)
+
+    expect(result, JSON.stringify(result)).toMatchObject({ ok: true, status: "synchronized" })
+    expect(fixture.zipEntries).toEqual(expect.arrayContaining([
+      "Catalogs/Test.xml",
+      "Catalogs/Test/Ext/Predefined.xml",
+      "load.lst",
+    ]))
+    expect(fixture.loadList).toBe([
+      "Catalogs/Test.xml",
+      "Catalogs/Test/Ext/Predefined.xml",
+      "",
+    ].join("\n"))
+  }, 30_000)
+
   it("после подтверждения платформы повторяет только незавершённую фиксацию", async () => {
     const fixture = await createFixture({ failFinalizeOnce: true })
 
@@ -148,6 +173,7 @@ describe("полный цикл частичной синхронизации б
     unknownLoadOnce?: boolean
     waitDuringLoad?: { started(): void; wait: Promise<void> }
     componentPath?: "cf" | `cfe/${string}`
+    changedYaml?: string
   } = {}) {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-sync-infobase-integration-"))
     temporaryProjects.push(projectDir)
@@ -204,7 +230,7 @@ describe("полный цикл частичной синхронизации б
           uuid: "00000000-0000-4000-8000-000000000001",
         }],
     })
-    fs.writeFileSync(catalogPath, "Синоним: Изменённый\n")
+    fs.writeFileSync(catalogPath, options.changedYaml ?? "Синоним: Изменённый\n")
 
     let platformCalls = 0
     let deliveryDuringLoad: string | undefined

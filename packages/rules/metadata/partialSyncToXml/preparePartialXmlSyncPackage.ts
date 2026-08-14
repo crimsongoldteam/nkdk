@@ -232,6 +232,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
   let retained = false
   try {
     writer = createPartialXmlArchiveWriter({ archivePath })
+    const writtenPayloadPaths = new Set<string>()
     const rebuiltBlocks = new Map<string, ConfigurationIndexBlock>()
     const workerDiagnostics: FullXmlSyncDiagnostic[] = []
     if (params.plan.assignments.length > 0) {
@@ -271,7 +272,10 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
       const execution = await pool.execute(assignments, {
         maxBufferedBatches: concurrency,
         async onBatch(batch) {
-          for (const document of batch.generatedDocuments) await writer!.addGenerated(document)
+          for (const document of batch.generatedDocuments) {
+            await writer!.addGenerated(document)
+            writtenPayloadPaths.add(document.targetXmlPath)
+          }
           for (const fragment of batch.configurationFragments) mergePartialBlock(rebuiltBlocks, fragment)
         },
       })
@@ -284,8 +288,12 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
         return { ok: false, diagnostics: [...params.diagnostics, ...workerDiagnostics.map((value) => workerDiagnostic(params, value))] }
       }
     }
-    for (const external of params.plan.externalFiles) await writer.addExternal(external)
-    const archive = await writer.close(params.impact.loadTargets)
+    for (const external of params.plan.externalFiles) {
+      await writer.addExternal(external)
+      writtenPayloadPaths.add(external.targetXmlPath)
+    }
+    const loadTargets = params.impact.loadTargets.filter((target) => writtenPayloadPaths.has(target))
+    const archive = await writer.close(loadTargets)
     const delta = await buildPendingDelta(params, rebuiltBlocks)
     const pending: PendingPartialXmlSyncStateV3 = {
       version: 3,
@@ -295,7 +303,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
       archiveHash: hashHex(archive.archiveHash),
       candidateAppliedMigrations: params.migration.candidateAppliedNames,
       entries: archive.entries,
-      loadTargets: params.impact.loadTargets,
+      loadTargets,
       delivery: { status: "prepared" },
     }
     await writePendingPartialXmlSync({ projectDir: params.projectDir, state: pending, delta })
@@ -307,7 +315,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
       archivePath,
       archiveHash: pending.archiveHash,
       entries: archive.entries,
-      loadTargets: params.impact.loadTargets,
+      loadTargets,
       diagnostics: [...params.diagnostics, ...workerDiagnostics.map((value) => workerDiagnostic(params, value))],
     }
   } finally {
