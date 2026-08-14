@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
 
 import { serializeDirectXML, testMetadataItemFromYAMLToXML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
+import { mockContextToXML } from "../../../tests/mockContext"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
+import {
+  createConfigurationIndexCollector,
+  createConfigurationIndexExportRuntime,
+} from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "../accountingFlag/rules"
 
@@ -50,6 +56,34 @@ describe("metadata register field YAML → XML", () => {
 
   it("exports explicit empty synonym for full YAML register resource collection", () => {
     expectExplicitEmptyCollectionSynonym(resourcesRule, "Содержание", "Строка(100)")
+  })
+
+  it("assigns a UUID to a new register resource from the configuration index", () => {
+    const base = mockContextToXML()
+    base.exportToXML.itemsTree.push({
+      itemType: "MetadataInformationRegister",
+      name: "Тест",
+      path: "MetadataInformationRegister.Тест",
+    })
+    const context = {
+      ...base,
+      exportToXML: {
+        ...base.exportToXML,
+        configurationIndex: createConfigurationIndexExportRuntime({
+          source: testConfigurationIndexReader(),
+          collector: createConfigurationIndexCollector(),
+          targetProjectPath: "РегистрСведений/Тест/Свойства.yaml",
+          logicalAddress: "РегистрСведений.Тест",
+        }),
+      },
+    }
+    const xml = serializeDirectXML(testPropertyFromYAMLToXML({
+      rule: resourcesRule,
+      yaml: { Значение: { Новый: { Тип: "Число(10, 0)" } } },
+      context,
+    }).xml)
+
+    expect(xml).toMatch(/<Resource uuid="[0-9a-f-]{36}">/u)
   })
 
   it("exports explicit empty synonym for full YAML register dimension collection", () => {

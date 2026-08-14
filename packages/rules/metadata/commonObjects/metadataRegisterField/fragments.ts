@@ -17,8 +17,9 @@ const presentation = attributePresentationFragment({}).properties
 
 export const commonRegisterFieldProperties = {
   uuid: {
-    type: "UUID",
+    type: "uuid",
     xml: "_uuid",
+    evaluateWhenYAMLMissing: true,
     forReferenceOnly: true,
     toYAML: false,
     fromYAML: false,
