@@ -144,6 +144,11 @@ export function createYAMLPropertySource(params: {
 }
 
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
+  const brokenReferenceRegistry = params.execution ?? currentPropertyRuleRegistrySet<Pick<
+    PropertyRuleExecution,
+    | "prepareBrokenXMLReferenceExport"
+    | "patchExportedBrokenXMLReferences"
+  >>()
   const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
     type: PropertyRule["type"],
     operation: Operation,
@@ -629,7 +634,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             name: params.name,
           })
         : rawSourceValue
-    const transportPreparation = params.execution?.prepareBrokenXMLReferenceExport({
+    const transportPreparation = brokenReferenceRegistry?.prepareBrokenXMLReferenceExport({
       rule: planned.propertyRule,
       yamlValue: sourceValue,
       isTagged: (path) => isRelativeYAMLScalarTagged(yaml, yamlKey, path),
@@ -708,9 +713,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         })
         if (params.profile !== undefined) params.profile.atomicToXMLCount++
         const transportedXML =
-          transportPreparation === undefined || params.execution === undefined
+          transportPreparation === undefined || brokenReferenceRegistry === undefined
             ? exported
-            : params.execution.patchExportedBrokenXMLReferences({
+            : brokenReferenceRegistry.patchExportedBrokenXMLReferences({
                 rule: planned.propertyRule,
                 yamlValue: sourceValue,
                 xmlValue: exported,

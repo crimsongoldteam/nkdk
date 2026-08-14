@@ -13,6 +13,7 @@ import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import { getSystemEnumeration } from "./systemEnumerationRegistry"
 import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
 import { explicitXMLPropertyValidationMode } from "./explicitXMLPropertyRegistry"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 function notSchema(schema: TSchema): TSchema {
   return { not: schema } as TSchema
@@ -69,7 +70,11 @@ function withExplicitXMLValidationValue(params: {
       : Type.Literal(EMPTY_XML_TAG_VALUE)
   }
   if (mode === "scalar") schema = Type.Union([schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
-  return params.execution?.brokenXMLReferenceValidationSchema({
+  const brokenReferenceRegistry = params.execution ?? currentPropertyRuleRegistrySet<Pick<
+    PropertyRuleExecution,
+    "brokenXMLReferenceValidationSchema"
+  >>()
+  return brokenReferenceRegistry?.brokenXMLReferenceValidationSchema({
     rule: params.rule,
     base: schema,
     validationGraph:

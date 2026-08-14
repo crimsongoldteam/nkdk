@@ -44,6 +44,7 @@ import {
 } from "./explicitXMLPropertyRegistry"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -76,6 +77,10 @@ export function importPropertiesFromXMLToYAML(params: {
 }): Record<string, unknown> | undefined {
   const { context, rule, sources, itemName, yamlPath, rulePath, collector, deferred, propertyXML } = params
   if (sources.length === 0) return undefined
+  const brokenReferenceRegistry = params.execution ?? currentPropertyRuleRegistrySet<Pick<
+    PropertyRuleExecution,
+    "normalizeImportedBrokenXMLReferences"
+  >>()
   const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
     type: import("./types").PropertyRule["type"],
     operation: Operation,
@@ -474,8 +479,8 @@ export function importPropertiesFromXMLToYAML(params: {
           yamlValue,
             }))
       const transported =
-        explicitXML === undefined && explicitXMLTransport === undefined && params.execution !== undefined
-          ? params.execution.normalizeImportedBrokenXMLReferences({
+        explicitXML === undefined && explicitXMLTransport === undefined && brokenReferenceRegistry !== undefined
+          ? brokenReferenceRegistry.normalizeImportedBrokenXMLReferences({
               rule: propertyRule,
               xmlValue,
               yamlValue,
