@@ -21,6 +21,33 @@ afterEach(() => {
 })
 
 describe("fill value XML import", () => {
+  it("сохраняет булево Ложь для допустимых и запрещённого стандартного реквизита", async () => {
+    const sourcePath = copiedBooleanFillValuesFixture()
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    const yaml = prepared.yaml as {
+      Реквизиты: { БулевоПоле: Record<string, unknown> }
+      СтандартныеРеквизиты: {
+        ПометкаУдаления: Record<string, unknown>
+        Предопределенный: Record<string, unknown>
+      }
+    }
+    const booleanFillValue = yaml.Реквизиты.БулевоПоле
+    const deletionMarkFillValue = yaml.СтандартныеРеквизиты.ПометкаУдаления
+    const predefinedFillValue = yaml.СтандартныеРеквизиты.Предопределенный
+
+    expect(booleanFillValue.ЗначениеЗаполнения).toBe("Ложь")
+    expect(yamlScalarTagAt(booleanFillValue, "ЗначениеЗаполнения")).toBeUndefined()
+    expect(deletionMarkFillValue.ЗначениеЗаполнения).toBe("Ложь")
+    expect(yamlScalarTagAt(deletionMarkFillValue, "ЗначениеЗаполнения")).toBeUndefined()
+    expect(predefinedFillValue.ЗначениеЗаполнения).toBe("!xml Ложь")
+    expect(yamlScalarTagAt(predefinedFillValue, "ЗначениеЗаполнения")).toBe("xml")
+  })
+
   it("сохраняет начальную дату через !xml без снимка", async () => {
     const sourcePath = copiedBeginningDateFixture()
     const collector = createConfigurationIndexCollector()
@@ -187,6 +214,48 @@ function copiedBeginningDateFixture(): string {
     .replace('<FillValue xsi:nil="true"/>', '<FillValue xsi:type="xs:dateTime">0001-01-01T00:00:00</FillValue>')
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
+}
+
+function copiedBooleanFillValuesFixture(): string {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-boolean-import-"))
+  tempDirs.push(dir)
+  const sourcePath = join(dir, "СправочникПолный.xml")
+  const booleanType = `<Type>
+						<v8:Type>xs:dateTime</v8:Type>
+						<v8:DateQualifiers>
+							<v8:DateFractions>Date</v8:DateFractions>
+						</v8:DateQualifiers>
+					</Type>`
+  let xml = fs.readFileSync(fixture, "utf8")
+    .replace("<Name>РеквизитСправочника</Name>", "<Name>БулевоПоле</Name>")
+    .replace(booleanType, "<Type><v8:Type>xs:boolean</v8:Type></Type>")
+  xml = replaceFillValueAfter(
+    xml,
+    '<xr:StandardAttribute name="DeletionMark">',
+    '<xr:FillValue xsi:nil="true"/>',
+    '<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>',
+  )
+  xml = replaceFillValueAfter(
+    xml,
+    '<xr:StandardAttribute name="Predefined">',
+    '<xr:FillValue xsi:nil="true"/>',
+    '<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>',
+  )
+  xml = replaceFillValueAfter(
+    xml,
+    "<Name>БулевоПоле</Name>",
+    '<FillValue xsi:nil="true"/>',
+    '<FillValue xsi:type="xs:boolean">false</FillValue>',
+  )
+  fs.writeFileSync(sourcePath, xml)
+  return sourcePath
+}
+
+function replaceFillValueAfter(xml: string, marker: string, source: string, replacement: string): string {
+  const markerIndex = xml.indexOf(marker)
+  const fillValueIndex = xml.indexOf(source, markerIndex)
+  if (markerIndex === -1 || fillValueIndex === -1) throw new Error(`Не найден FillValue после ${marker}`)
+  return `${xml.slice(0, fillValueIndex)}${replacement}${xml.slice(fillValueIndex + source.length)}`
 }
 
 function copiedFixture(order: "type-before" | "fill-before"): string {

@@ -141,7 +141,7 @@ function isImplicit(value: FillValueTypedValue, alternative: FillValueAlternativ
   if (alternative === undefined) return false
   if (alternative.kind === "string") return value.type === "string" && value.value === ""
   if (alternative.kind === "number") return value.type === "decimal" && value.value === 0
-  if (alternative.kind === "boolean") return value.type === "boolean" && value.value === false
+  if (alternative.kind === "boolean") return false
   if (alternative.kind === "dateTime") return value.type === "dateTime" && value.value === "0001-01-01T00:00:00"
   return value.type === "ref" && typeof value.value === "string" && (value.value === "" || isMatchingEmptyRef(value.value, alternative))
 }

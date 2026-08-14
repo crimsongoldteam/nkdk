@@ -47,11 +47,16 @@ describe("standard member fill value", () => {
     (name) => expect(classify(catalogMember(name), { type: "boolean", value: true }).kind).toBe("invalid")
   )
 
-  it("allows only non-implicit deletion mark", () => {
+  it("allows both boolean deletion mark values", () => {
     const member = catalogMember("ПометкаУдаления")
     expect(classify(member, { type: "boolean", value: true }).kind).toBe("valid")
-    expect(classify(member, { type: "boolean", value: false }).kind).toBe("implicit")
+    expect(classify(member, { type: "boolean", value: false }).kind).toBe("valid")
   })
+
+  it.each(["Предопределенный", "Владелец"])(
+    "rejects boolean false for %s",
+    (name) => expect(classify(catalogMember(name), { type: "boolean", value: false }).kind).toBe("invalid")
+  )
 
   it("checks catalog code using owner properties", () => {
     const member = catalogMember("Код")
