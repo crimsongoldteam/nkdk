@@ -212,6 +212,16 @@ describe("partial sync matrix", () => {
     expect(fieldSource.indexOf("  ПроверочноеПоле:")).toBeLessThan(fieldSource.indexOf("ТипТаблицы:"))
   })
 
+  it("emits the dimension-table reference with metadata type prefixes", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const operation = plan.find(({ key }) => key === "child:external-data-source-cubes:dimensions")
+    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+
+    expect(properties).toContain(
+      "Тип: ВнешнийИсточникДанныхПроверкаЧастичнойСинхронизацииВнешнийИсточникДанных.КубПроверочныйКуб.ТаблицаИзмеренияПроверочнаяТаблицаИзмерения",
+    )
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",
