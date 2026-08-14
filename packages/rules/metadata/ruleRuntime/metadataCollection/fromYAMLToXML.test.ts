@@ -9,9 +9,10 @@ import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "./fromYAMLToXML"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
+import { mockLanguages } from "../../../tests/mockContext"
 
 const context = (): ConfigurationContextWithExportToXML => ({
-  defaultLanguage: "ru",
+  languages: mockLanguages,
   version: "2.20",
   exportToXML: { version: "2.20", itemsTree: [] },
 })

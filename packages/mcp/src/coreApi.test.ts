@@ -49,7 +49,7 @@ describe("CoreApi частичной синхронизации", () => {
     const core = await loadCoreApi()
     const projectState = { workers: {} } as never
     const prepareParams = {
-      context: { defaultLanguage: "ru" as const, version: "2.20" as const },
+      context: { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "2.20" as const },
       projectDir: "/project",
       componentPath: "cf",
       projectState,
@@ -84,7 +84,7 @@ describe("CoreApi частичной синхронизации", () => {
     const core = await loadCoreApi()
 
     expect(() => core.preparePartialSync({
-      context: { defaultLanguage: "ru", version: "2.20" },
+      context: { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "2.20" },
       projectDir: "/project",
       componentPath: "cf",
       projectState: {} as never,

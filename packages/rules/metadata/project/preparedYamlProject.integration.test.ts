@@ -18,7 +18,7 @@ import {
 
 describe("prepareYamlProject", () => {
   const testTimeout = 20_000
-  const validationContext = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
+  const validationContext = { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, exportToYAML: { toTyped: false } } as const
   const tempDirs: string[] = []
   const validationTestPool = createPreparedYamlWorkerTestPool()
   const prepareTestPool1 = createPreparedYamlWorkerTestPool()
@@ -396,7 +396,7 @@ describe("prepareYamlProject", () => {
     async () => {
       const testPool = createPreparedYamlWorkerTestPool()
       const pool = testPool.pool
-      const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
+      const context = { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, exportToYAML: { toTyped: false } } as const
 
       try {
         const first = await pool.initValidation(context)
@@ -515,7 +515,7 @@ describe("prepareYamlProject", () => {
     try {
       const result = await pool.run({
         projectDir: "/project",
-        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+        context: { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, exportToYAML: { toTyped: false } },
         files: [
           {
             ...componentFileAddress("/project", "Справочник/Товары/Свойства.yaml"),

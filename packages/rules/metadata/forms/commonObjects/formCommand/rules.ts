@@ -44,17 +44,17 @@ export const FormCommandRules = {
         operation,
       }: {
         context: {
-          defaultLanguage: string
+          languages: { readonly default: string }
         }
         name?: string
         operation: string
       }) => {
         if (operation === "importFromXML") {
-          return { items: { [context.defaultLanguage]: "" } }
+          return { items: { [context.languages.default]: "" } }
         }
         if (name === undefined) throw new Error("name is required for title default value")
         return {
-          items: { [context.defaultLanguage]: splitPascalCase(name) },
+          items: { [context.languages.default]: splitPascalCase(name) },
         }
       },
       excludeIfEqualNameYAML: true,

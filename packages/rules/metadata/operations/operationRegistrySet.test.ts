@@ -109,7 +109,7 @@ it("owns XML import and YAML-to-XML augmenters from its rules", () => {
   const output: Record<string, unknown> = {}
   const toXmlContext: ConfigurationContextWithExportToXML = {
     version: "2.20",
-    defaultLanguage: "ru",
+    languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
     exportToXML: {
       version: "2.20",
       itemsTree: [],

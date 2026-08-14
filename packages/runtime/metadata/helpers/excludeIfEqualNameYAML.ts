@@ -14,7 +14,7 @@ export interface ExcludedEqualNameYAMLOccurrence {
 }
 
 export interface FindExcludedEqualNameYAMLOccurrenceParams {
-  context: Pick<ConfigurationContext, "defaultLanguage">
+  context: Pick<ConfigurationContext, "languages">
   rule: PropertyRule
   value: unknown
   name: string | undefined
@@ -59,7 +59,7 @@ export function applyExcludedEqualNameYAMLToJSONSchema(params: ApplyExcludedEqua
 }
 
 function findI8nTextOccurrence(params: {
-  context: Pick<ConfigurationContext, "defaultLanguage">
+  context: Pick<ConfigurationContext, "languages">
   value: unknown
   name: string
   path: YamlPath
@@ -73,11 +73,11 @@ function findI8nTextOccurrence(params: {
   const record = asRecord(value)
   if (!record) return undefined
 
-  const defaultLanguageValue = record[context.defaultLanguage]
+  const defaultLanguageValue = record[context.languages.default]
   if (typeof defaultLanguageValue !== "string") return undefined
 
   return canConvertToPascalCase(defaultLanguageValue, name)
-    ? { path: [...path, context.defaultLanguage], value: defaultLanguageValue }
+    ? { path: [...path, context.languages.default], value: defaultLanguageValue }
     : undefined
 }
 

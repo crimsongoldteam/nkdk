@@ -26,7 +26,7 @@ describe("RowFilter таблицы формы", () => {
     ["none", false],
   ] as const)("вычисляет RowFilter только для профиля %s", (profile, expected) => {
     const context = {
-      defaultLanguage: "ru",
+      languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
       version: "2.20",
       importFromYAML: { resolveTableSourceProfile: () => profile },
       exportToXML: { version: "2.20", itemsTree: [], context: {

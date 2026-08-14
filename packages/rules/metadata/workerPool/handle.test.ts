@@ -3,7 +3,7 @@ import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadP
 import { createMetadataWorkerPoolHandle } from "./handle"
 import type { MetadataWorkerCommand, MetadataWorkerCommandResult, MetadataWorkerLine } from "./types"
 
-const context = { defaultLanguage: "ru", version: "8.3.27" }
+const context = { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "8.3.27" }
 
 function operation(id: string, concurrency: number) {
   return { id, concurrency, context }
@@ -41,7 +41,7 @@ describe("createMetadataWorkerPoolHandle", () => {
       const operation = await handle.beginOperation({
         id: "custom-entrypoint",
         concurrency: 1,
-        context: { defaultLanguage: "ru", version: "8.3.27" },
+        context: { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "8.3.27" },
       })
 
       await expect(operation.run(0, { kind: "probe", value: "ready" })).resolves.toEqual({

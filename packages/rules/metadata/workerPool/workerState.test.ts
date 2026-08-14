@@ -7,7 +7,7 @@ import { createMetadataWorkerLineFactory } from "../../tests/metadataWorkerTestP
 import { createMetadataWorkerPoolHandle } from "./handle"
 import { createMetadataWorkerPersistentState } from "./workerState"
 
-const context = { defaultLanguage: "ru", version: "8.3.27" }
+const context = { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "8.3.27" }
 
 describe("состояние универсального worker", () => {
   it("устанавливает снимок в существующие и будущие линии, затем очищает его", async () => {

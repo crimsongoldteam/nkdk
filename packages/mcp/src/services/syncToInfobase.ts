@@ -15,6 +15,7 @@ import {
 import { toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import type { SyncToInfobaseInput } from "../contracts/syncToInfobase"
 import { resolveComponent, type ResolveComponentResult } from "./componentResolver"
+import { defaultMcpConfigurationLanguages } from "../configurationContext"
 import { getPlatformSessionManager } from "./platformSessionHandle"
 import { projectSettingsFailure } from "./projectSettingsFailure"
 import { projectStateHandle } from "./projectStateHandle"
@@ -147,7 +148,7 @@ async function syncToInfobaseExclusive(
           diagnostics: [],
         }
       : await dependencies.core.preparePartialSync({
-          context: { defaultLanguage: "ru", version: "2.20" },
+          context: { languages: defaultMcpConfigurationLanguages, version: "2.20" },
           projectDir: component.projectDir,
           componentPath: component.componentPath,
           projectState: dependencies.projectState,

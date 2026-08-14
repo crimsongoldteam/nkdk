@@ -254,9 +254,9 @@ JSON Schema cache key использует только `languages.default`, п�
 
 - [ ] **Step 6: Проверить отсутствие старого поля и целевые тесты**
 
-Run: `rg -n "defaultLanguage" packages --glob '!**/*.map'`
+Run: `rg -n "\\.defaultLanguage\\b|Pick<ConfigurationContext, \"defaultLanguage\">" packages --glob '!**/*.map'`
 
-Expected: нет совпадений.
+Expected: нет обращений к старому полю контекста; одноимённое предметное свойство `Configuration.defaultLanguage` и имена legacy-fixture не затрагиваются.
 
 Run: `pnpm --filter @nkdk/runtime test`
 

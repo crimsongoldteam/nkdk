@@ -1,7 +1,12 @@
 import fs from "node:fs"
 import { randomBytes } from "node:crypto"
 import { resolve } from "node:path"
-import { componentPath, parseComponentPath, type ComponentAddress } from "@nkdk/runtime"
+import {
+  componentPath,
+  createConfigurationLanguages,
+  parseComponentPath,
+  type ComponentAddress,
+} from "@nkdk/runtime"
 import {
   type ConfigurationIndexCandidateStore,
 } from "../configurationIndex/store"
@@ -335,7 +340,10 @@ export async function planSyncConfigurationToXml(
   const xmlDir = resolve(params.xmlDir)
   let diagnostics: FullXmlSyncDiagnostic[] = []
   try {
-    const context = { version: "2.20", defaultLanguage: "ru" } as const
+    const context = {
+      version: "2.20",
+      languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+    } as const
     const refreshed = await refreshSyncProject({ ...params, projectDir, context })
     diagnostics = refreshed.diagnostics
     const refreshErrors = diagnostics.filter(({ severity }) => severity === "error")

@@ -117,7 +117,7 @@ function formAssignment(): FullXmlSyncAssignment {
 
 function params() {
   return {
-    context: { version: "2.20", defaultLanguage: "ru" } as const,
+    context: { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' } } as const,
     projectDir: "/project/../project",
     componentPath: "cf",
     projectState: {} as ProjectStateService,

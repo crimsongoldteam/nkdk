@@ -15,7 +15,7 @@ import { exportPropertyValueToYAML } from "../ruleRuntime/property/toYAML"
 import { getElementRule } from "../ruleRuntime/formElement/ruleFactory"
 import { enterNestedYamlRule, enterYamlProperty } from "../ruleRuntime/property/yamlRuleCursor"
 import type { YamlRuleCursor } from "@nkdk/runtime/rule-kit"
-import type { ParsedYaml } from "@nkdk/runtime"
+import { createConfigurationLanguages, type ParsedYaml } from "@nkdk/runtime"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -937,7 +937,11 @@ function extractFormYamlFacts(
     rule: adapter.formRule,
     yaml: data,
     owner: root === undefined ? undefined : { root, objectName: file.owner.name },
-    context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+    context: {
+      version: "2.20",
+      languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+      exportToYAML: { toTyped: false },
+    },
     runtime: createPropertyStructuralReferenceRuntime(runtime),
   })
   if (!structuralReferences.ok) throw new Error(structuralReferences.message)
@@ -968,7 +972,10 @@ function extractFormYamlFacts(
         filePath: file.absolutePath,
         parsed,
         rule: adapter.formRule,
-        context: { version: "2.20", defaultLanguage: "ru" },
+        context: {
+          version: "2.20",
+          languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+        },
         name: file.formName,
       }),
       ...collected.formElementNameDiagnostics,

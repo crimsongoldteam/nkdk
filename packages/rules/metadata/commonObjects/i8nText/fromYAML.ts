@@ -38,7 +38,7 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
 
   if (i8nRule.excludeIfEqualNameYAML) {
     if (name === undefined) return result
-    if (source !== undefined && source.items[context.defaultLanguage] === undefined) return result
+    if (source !== undefined && source.items[context.languages.default] === undefined) return result
     return addDefaultLanguageNameToSynonym(context, result, name)
   }
 
@@ -51,7 +51,7 @@ const importFromYAML = (context: ConfigurationContext, data: I8nTextYAML | undef
   if (typeof data === "string") {
     return {
       items: {
-        [context.defaultLanguage]: data,
+        [context.languages.default]: data,
       },
     }
   }

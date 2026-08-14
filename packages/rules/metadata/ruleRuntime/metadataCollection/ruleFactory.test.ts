@@ -44,7 +44,7 @@ const collectionRules = createCollectionRegistry(
   }),
 )
 
-const context = { defaultLanguage: "ru", version: "2.20" } as const
+const context = { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "2.20" } as const
 const propertyRule = (type: PropertyRuleType): PropertyRule => ({ type })
 const exportCollectionPropertySchema = (
   rules: RuleRegistrySet,

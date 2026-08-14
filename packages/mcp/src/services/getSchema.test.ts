@@ -49,7 +49,7 @@ describe("getSchema service", () => {
     if (result.result.kind !== "summary") throw new Error("expected summary result")
     expect(JSON.stringify(result.result.summary)).toContain("ПолеВвода")
     expect(core.exportJSONSchemaForSchemaName).toHaveBeenCalledWith({
-      context: { defaultLanguage: "ru", version: "2.20" },
+      context: { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "2.20" },
       name: "InputField",
       mode: "externalRefs",
     })
@@ -87,7 +87,7 @@ describe("getSchema service", () => {
     if (result.result.kind !== "jsonSchema") throw new Error("expected jsonSchema result")
     expect(JSON.stringify(result.result.schema)).not.toContain("nkdk://schema/MetadataCatalogAttribute")
     expect(core.exportJSONSchemaForProjectFile).toHaveBeenCalledWith({
-      context: { defaultLanguage: "ru", version: "2.20" },
+      context: { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "2.20" },
       filePath: "Справочник/Контрагенты/Свойства.yaml",
       projectDir: join(projectDir, "cfe", "Расширение"),
       mode: "inline",

@@ -68,14 +68,14 @@ it("keeps form, schema, project and topology state inside its registry set", () 
   const second = createRuleRegistrySet(createRules("second", secondItem))
 
   expect(first.schemas.get("Main")?.export({
-    context: { defaultLanguage: "ru", version: "test" },
+    context: { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "test" },
   })).toMatchObject({ const: "first" })
   expect(first.schemas.propertyRef("Main")?.({
-    context: { defaultLanguage: "ru", version: "test" },
+    context: { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "test" },
     rule: { type: "string" },
   })).toMatchObject({ const: "first" })
   expect(second.schemas.propertyRef("Main")?.({
-    context: { defaultLanguage: "ru", version: "test" },
+    context: { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "test" },
     rule: { type: "string" },
   })).toMatchObject({ const: "second" })
   expect(second.projectSpecs.get("Main")?.kind).toBe("second")

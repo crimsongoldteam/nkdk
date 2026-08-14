@@ -34,7 +34,7 @@ export const exportI8nTextDefaultToYAML = (
 ): string | undefined => {
   if (!title) return undefined
 
-  const defaultLanguage = context.defaultLanguage
+  const defaultLanguage = context.languages.default
 
   return title.items[defaultLanguage]
 }
@@ -61,7 +61,7 @@ const exportFullI8nTextToYAML = (
   if (!title) return undefined
   if (!title.items) return undefined
 
-  const defaultLanguage = context.defaultLanguage
+  const defaultLanguage = context.languages.default
   const items = title.items
   const languages = Object.keys(items)
 

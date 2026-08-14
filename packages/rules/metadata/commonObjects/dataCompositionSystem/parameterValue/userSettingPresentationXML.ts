@@ -46,7 +46,7 @@ export const importUserSettingPresentationFromXML = (
 
   if (typeof xml === "string" || isShortForm(xml)) {
     const text = typeof xml === "string" ? xml : String(xml["#text"] ?? "")
-    const result: I8nText = { items: { [context.defaultLanguage]: text } }
+    const result: I8nText = { items: { [context.languages.default]: text } }
     return context.fromXML.forReference ? markShortFormReference(result, text) : result
   }
 

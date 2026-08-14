@@ -242,7 +242,7 @@ function rewriteValidationRefs(context: ConfigurationContext, schema: TSchema): 
 }
 
 function validationSchemaPrefix(context: ConfigurationContext): string {
-  return `${JSON_SCHEMA_REF_PREFIX}validation/${context.version}/${context.defaultLanguage}/`
+  return `${JSON_SCHEMA_REF_PREFIX}validation/${context.version}/${context.languages.default}/`
 }
 
 function schemaNameFromRef(ref: string): string {

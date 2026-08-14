@@ -11,6 +11,41 @@ export type ContextElementToXML = {
   externalMetadata?: ExternalMetadataItemRule
 }
 
+export interface ConfigurationLanguages {
+  readonly default: string
+  readonly registered: readonly string[]
+  readonly registeredSet: ReadonlySet<string>
+  readonly version: string
+}
+
+export function createConfigurationLanguages(params: {
+  readonly default: string
+  readonly registered: readonly string[]
+}): ConfigurationLanguages {
+  if (params.default.trim() === "") throw new Error("Код основного языка не должен быть пустым")
+  const registered = [...params.registered]
+  const values = new Set<string>()
+  for (const code of registered) {
+    if (code.trim() === "") throw new Error("Код зарегистрированного языка не должен быть пустым")
+    if (values.has(code)) throw new Error(`Код языка зарегистрирован повторно: ${code}`)
+    values.add(code)
+  }
+  if (!values.has(params.default)) {
+    throw new Error(`Основной язык не зарегистрирован: ${params.default}`)
+  }
+  const frozenRegistered = Object.freeze(registered)
+  return Object.freeze({
+    default: params.default,
+    registered: frozenRegistered,
+    registeredSet: Object.freeze(values),
+    version: JSON.stringify([params.default, [...registered].sort(compareLanguageCodes)]),
+  })
+}
+
+function compareLanguageCodes(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0
+}
+
 export type JSONSchemaExportMode = "externalRefs" | "inline"
 
 export interface MetadataContextTypeMap {}
@@ -55,7 +90,7 @@ export type ContextElementToEnterprise =
 
 export interface ConfigurationContext {
   testMode?: boolean
-  defaultLanguage: string
+  languages: ConfigurationLanguages
   version: string
   context?: object
   exportToYAML?: FormExportToYAMLContext

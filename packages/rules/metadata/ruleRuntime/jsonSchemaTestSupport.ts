@@ -43,6 +43,6 @@ export function createValidationSchemaTestSession(
 
 function validationRef(context: ConfigurationContext, key: string): string {
   return createSchemaRef(
-    `validation/${context.version}/${context.defaultLanguage}/${encodeValidationSchemaKey(key)}`,
+    `validation/${context.version}/${context.languages.default}/${encodeValidationSchemaKey(key)}`,
   )
 }

@@ -6,7 +6,7 @@ import { MetadataBusinessProcessTabularSectionRules } from "../appliedObjects/me
 
 const context = {
   version: "2.20",
-  defaultLanguage: "ru",
+  languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   exportToYAML: { toTyped: false },
 } as const
 

@@ -219,7 +219,7 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
           ?.propertyStates.item(rule.itemType, compatibilityMode)
       const globalKey = [
         context.version,
-        context.defaultLanguage,
+        context.languages.default,
         variant,
         compatibilityMode ?? "",
         rule.itemType,
@@ -313,7 +313,7 @@ function compileRegisteredFormSchema(
   runtime?: RuleSchemaRuntime,
   compatibilityMode?: string,
 ): CompiledSchema {
-  const cacheKey = `${context.version}:${context.defaultLanguage}:${variant}:${compatibilityMode ?? ""}`
+  const cacheKey = `${context.version}:${context.languages.default}:${variant}:${compatibilityMode ?? ""}`
   let schemasByContext = formSchemaCache.get(rule)
   const cached = schemasByContext?.get(cacheKey)
   if (cached !== undefined) return cached

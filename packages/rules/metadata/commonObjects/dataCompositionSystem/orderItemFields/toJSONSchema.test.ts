@@ -2,9 +2,10 @@ import { compileValidationSchema } from "./../../../validation/compileValidation
 import { describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../ruleRuntime/property/toJSONSchema"
 import "./types"
+import { mockLanguages } from "../../../../tests/mockContext"
 
 const context = {
-  defaultLanguage: "ru",
+  languages: mockLanguages,
   version: "2.20",
 } as const
 

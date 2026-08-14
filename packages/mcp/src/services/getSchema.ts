@@ -2,6 +2,7 @@ import { loadCoreApi, type CoreApi, type SchemaSummaryOptions } from "../coreApi
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type GetSchemaInput } from "../contracts/getSchema"
 import { resolveComponent, resolveStructurePath } from "./componentResolver"
+import { defaultMcpConfigurationLanguages } from "../configurationContext"
 
 export type GetSchemaPayload = ToolPayload<{
   target: string
@@ -109,7 +110,7 @@ function validateGetSchemaInput(input: GetSchemaInput, core: CoreApi): string | 
 
 function readSchema(input: GetSchemaInput, mode: "externalRefs" | "inline", core: CoreApi): unknown {
   const context = {
-    defaultLanguage: "ru",
+    languages: defaultMcpConfigurationLanguages,
     version: "2.20",
   } as const
 

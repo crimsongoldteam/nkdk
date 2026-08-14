@@ -1,5 +1,6 @@
 import type {
   ConfigurationImportResult,
+  ConfigurationLanguages,
   FullXmlSyncPlanResult,
   FullXmlSyncResult,
   ImportConfigurationFromXmlParams,
@@ -43,7 +44,7 @@ export interface CoreApi {
   summarizeJSONSchema(schema: unknown, options?: SchemaSummaryOptions): unknown | undefined
   exportJSONSchemaForProjectFile(params: {
     context: {
-      defaultLanguage: "ru"
+      languages: ConfigurationLanguages
       version: "2.20"
     }
     filePath: string
@@ -52,7 +53,7 @@ export interface CoreApi {
   }): unknown
   exportJSONSchemaForSchemaName(params: {
     context: {
-      defaultLanguage: "ru"
+      languages: ConfigurationLanguages
       version: "2.20"
     }
     name: string
@@ -92,7 +93,7 @@ export interface CoreApi {
   }): Promise<FullXmlSyncPlanResult>
   syncConfigurationFromXML(params: {
     context: {
-      defaultLanguage: "ru"
+      languages: ConfigurationLanguages
       version: "2.20"
       exportToYAML: { toTyped: false }
       fromXML: { forReference: false }
@@ -107,7 +108,7 @@ export interface CoreApi {
   ): Promise<ConfigurationImportResult>
   syncConfigurationToXML(params: {
     context: {
-      defaultLanguage: "ru"
+      languages: ConfigurationLanguages
       version: "2.20"
       exportToYAML: { toTyped: false }
       exportToXML: {
@@ -134,7 +135,7 @@ export interface CoreApi {
     xmlDir: string
   }): Promise<XmlSyncState>
   preparePartialSync(params: {
-    context: { defaultLanguage: "ru"; version: "2.20" }
+    context: { languages: ConfigurationLanguages; version: "2.20" }
     projectDir: string
     componentPath: string
     concurrency?: number

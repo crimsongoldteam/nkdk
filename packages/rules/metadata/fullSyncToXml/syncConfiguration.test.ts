@@ -36,7 +36,7 @@ import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPo
 describe("shared full XML sync coordinator", () => {
   const context = {
     version: "2.20",
-    defaultLanguage: "ru",
+    languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
     exportToYAML: { toTyped: false },
   } as const
   const runHarnessSync = (harness: ReturnType<typeof createHarness>, options: {

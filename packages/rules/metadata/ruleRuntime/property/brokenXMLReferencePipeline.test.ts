@@ -14,7 +14,7 @@ import {
   emptyMetadataRules,
   withPropertyRuleRegistrySet,
 } from "@nkdk/runtime/rule-kit"
-import { mockContext, mockContextFromXML } from "../../../tests/mockContext"
+import { mockContext, mockContextFromXML, mockLanguages } from "../../../tests/mockContext"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { importPropertiesFromXMLToYAML } from "./fromXMLToYAML"
@@ -85,7 +85,7 @@ function convertYAMLToXML(
 ) {
   return convertPropertiesFromYAMLToXML({
     context: {
-      defaultLanguage: "ru",
+      languages: mockLanguages,
       version: "test",
       exportToXML: { version: "test", itemsTree: [] },
     },
@@ -156,7 +156,7 @@ describe("broken XML reference property pipeline", () => {
 
     const exported = withPropertyRuleRegistrySet(contextualRegistry, () =>
       convertPropertiesFromYAMLToXML({
-        context: { defaultLanguage: "ru", version: "test", exportToXML: { version: "test", itemsTree: [] } },
+        context: { languages: mockLanguages, version: "test", exportToXML: { version: "test", itemsTree: [] } },
         yaml: importFromYAML("Ссылка: !xml/reference 7"),
         rule,
         outputs: [{ key: "owner" }],

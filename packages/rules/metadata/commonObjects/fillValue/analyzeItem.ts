@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "@nkdk/runtime"
+import { createConfigurationLanguages, type ConfigurationContext } from "@nkdk/runtime"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { ParsedYaml } from "@nkdk/runtime"
 import type {
@@ -29,7 +29,10 @@ import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
 import { fillValueDiagnostic } from "../../ruleRuntime/property/fillValueSemantics"
 import { effectiveFillValueType } from "../../ruleRuntime/property/fillValueSemantics"
 
-const validationContext: ConfigurationContext = { version: "2.20", defaultLanguage: "ru" }
+const validationContext: ConfigurationContext = {
+  version: "2.20",
+  languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+}
 const fillValueYamlKey = "ЗначениеЗаполнения"
 const typeYamlKey = "Тип"
 const ownerRoots: readonly MetadataRootName[] = [

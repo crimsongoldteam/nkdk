@@ -7,6 +7,7 @@ import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
 import { createMetadataItemYamlToXmlAugmenterRegistry, registerMetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
+import { mockLanguages } from "../../../tests/mockContext"
 
 const calls: Array<{ itemType: string; logicalAddress: string }> = []
 
@@ -94,7 +95,7 @@ describe("metadata item YAML-to-XML augmenter", () => {
 function context(): ConfigurationContextWithExportToXML {
   return {
     version: "2.20",
-    defaultLanguage: "ru",
+    languages: mockLanguages,
     exportToXML: {
       version: "2.20",
       itemsTree: [],
