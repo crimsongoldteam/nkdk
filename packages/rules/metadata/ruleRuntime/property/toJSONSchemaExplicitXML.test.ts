@@ -1,6 +1,6 @@
 import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_ABSENT_TAG_VALUE, XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 import {
   composeMetadataRules,
   createPropertyRuleExecutor,
@@ -107,7 +107,7 @@ describe("explicit XML property validation schema", () => {
     ["Заголовок", LabelDecorationRules],
     ["ВидыСубконто", ChartOfAccountsPredefinedItemRules],
     ["ТипЗначения", FormAttributeRules],
-  ] as const)("разрешает пустой !xml только согласованному свойству %s", (yamlKey, sourceRule) => {
+  ] as const)("разрешает классифицированный пустой XML-маркер только согласованному свойству %s", (yamlKey, sourceRule) => {
     const explicitXMLProperties = {
       ...explicitAdditionalFieldsRules.explicitXMLProperties,
       ...explicitEmptyAttributesRules.explicitXMLProperties,
@@ -129,10 +129,12 @@ describe("explicit XML property validation schema", () => {
     const acceptedProperty = accepted.validationProperties[yamlKey]
 
     if (acceptedProperty !== undefined) {
-      expect(compileValidationSchema(accepted.validationSchemas(), acceptedProperty).Check(EMPTY_XML_TAG_VALUE)).toBe(true)
+      const expected = yamlKey === "ТипЗначения" ? XML_ABSENT_TAG_VALUE : XML_PRESENT_TAG_VALUE
+      expect(compileValidationSchema(accepted.validationSchemas(), acceptedProperty).Check(expected)).toBe(true)
     }
-    expect(execution.explicitXMLPropertyValidationMode(rule.itemType, propertyKey)).toBe("empty")
-    expect(execution.explicitXMLPropertyValidationMode(otherOwner.itemType, propertyKey)).toBeUndefined()
+    expect(execution.explicitXMLPropertyValidationTag(rule.itemType, propertyKey))
+      .toBe(yamlKey === "ТипЗначения" ? "xml/absent" : "xml/present")
+    expect(execution.explicitXMLPropertyValidationTag(otherOwner.itemType, propertyKey)).toBeUndefined()
     expect(JSON.stringify(accepted.externalProperties)).not.toContain("!xml")
   })
 
@@ -151,8 +153,9 @@ describe("explicit XML property validation schema", () => {
     const { validationProperties, externalProperties, validationSchemas } = explicitXMLSchemas(rule)
     const validation = compileValidationSchema(validationSchemas(), Type.Object(validationProperties))
 
-    expect(validation.Check({ СтандартныеРеквизиты: "!xml" })).toBe(true)
-    expect(validation.Check({ СтандартныеРеквизиты: "!xml payload" })).toBe(false)
+    expect(validation.Check({ СтандартныеРеквизиты: XML_PRESENT_TAG_VALUE })).toBe(true)
+    expect(validation.Check({ СтандартныеРеквизиты: "!xml/present payload" })).toBe(false)
+    expect(validation.Check({ СтандартныеРеквизиты: XML_ABSENT_TAG_VALUE })).toBe(false)
     expect(JSON.stringify(externalProperties)).not.toContain("!xml")
   })
 
@@ -200,7 +203,7 @@ describe("explicit XML property validation schema", () => {
         itemType: registeredRule.itemType,
         propertyKey: "flag",
         xmlValue: true,
-        yamlValue: EMPTY_XML_TAG_VALUE,
+        yamlValue: XML_PRESENT_TAG_VALUE,
       },
     })
     const session = createValidationSchemaTestSession(mockContext, "inline", {
@@ -221,8 +224,8 @@ describe("explicit XML property validation schema", () => {
     if (refSchema === undefined) throw new Error("Expected boolean validation schema")
     const schemaContext = { [refName]: refSchema }
 
-    expect(compileValidationSchema(schemaContext, registeredSchema).Check({ Флаг: "!xml" })).toBe(true)
-    expect(compileValidationSchema(schemaContext, unregisteredSchema).Check({ Флаг: "!xml" })).toBe(false)
+    expect(compileValidationSchema(schemaContext, registeredSchema).Check({ Флаг: XML_PRESENT_TAG_VALUE })).toBe(true)
+    expect(compileValidationSchema(schemaContext, unregisteredSchema).Check({ Флаг: XML_PRESENT_TAG_VALUE })).toBe(false)
   })
 
   it("не показывает !xml во внешней схеме подсказок", () => {
@@ -232,7 +235,7 @@ describe("explicit XML property validation schema", () => {
         itemType: rule.itemType,
         propertyKey: "flag",
         xmlValue: true,
-        yamlValue: EMPTY_XML_TAG_VALUE,
+        yamlValue: XML_PRESENT_TAG_VALUE,
       },
     })
     const properties = exportPropertiesToJSONSchema({
@@ -255,8 +258,9 @@ describe("explicit XML property validation schema", () => {
     const { validationProperties, externalProperties, validationSchemas } = explicitXMLSchemas(rowFilterRule)
     const validation = compileValidationSchema(validationSchemas(), Type.Object(validationProperties))
 
-    expect(validation.Check({ ОтборСтрок: EMPTY_XML_TAG_VALUE })).toBe(true)
-    expect(validation.Check({ ОтборСтрок: "!xml payload" })).toBe(false)
+    expect(validation.Check({ ОтборСтрок: XML_PRESENT_TAG_VALUE })).toBe(true)
+    expect(validation.Check({ ОтборСтрок: "!xml/present payload" })).toBe(false)
+    expect(validation.Check({ ОтборСтрок: XML_ABSENT_TAG_VALUE })).toBe(false)
     expect(validation.Check({ ОтборСтрок: true })).toBe(false)
     expect(externalProperties).not.toHaveProperty("ОтборСтрок")
   })
@@ -276,8 +280,9 @@ describe("explicit XML property validation schema", () => {
     const refSchema = validationSchemas()[refName]
     if (refSchema === undefined) throw new Error("Expected boolean validation schema")
     const validation = compileValidationSchema({ [refName]: refSchema }, Type.Object(validationProperties))
-    expect(validation.Check({ Флаг: "!xml" })).toBe(true)
-    expect(validation.Check({ Флаг: "!xml Ложь" })).toBe(true)
+    expect(validation.Check({ Флаг: "!xml/value" })).toBe(false)
+    expect(validation.Check({ Флаг: "!xml/value Ложь" })).toBe(true)
+    expect(validation.Check({ Флаг: "!xml/reference Ложь" })).toBe(false)
     expect(JSON.stringify(externalProperties)).not.toContain("!xml")
   })
 })

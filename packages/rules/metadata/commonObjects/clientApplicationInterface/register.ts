@@ -34,7 +34,7 @@ import {
   ClientApplicationInterfaceItemsHintYAMLSchema,
   ClientApplicationInterfaceItemsValidationYAMLSchema,
 } from "./types"
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 
 const standardPanelsByUuid = {
   "b553047f-c9aa-4157-978d-448ecad24248": "ПанельИстории",
@@ -567,7 +567,7 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
         panelDef.spr === undefined &&
         Object.keys(getReferenceRawXML(panelDef) ?? panelDef).every((key) => key === "_id" || key === "id")
     )
-  return emptyStandardRoot ? EMPTY_XML_TAG_VALUE : result
+  return emptyStandardRoot ? XML_PRESENT_TAG_VALUE : result
 }
 
 const importPanelFromYAML = (
@@ -586,8 +586,8 @@ const importPanelFromYAML = (
 
   const uuid =
     yaml.UUID ?? (yaml.Имя !== undefined ? standardPanelUuidByName[yaml.Имя] : undefined) ?? sourcePanel?.uuid
-  if (uuid === EMPTY_XML_TAG_VALUE || uuid?.startsWith(`${EMPTY_XML_TAG_VALUE} `) === true) {
-    throw new Error("UUID панели не допускает !xml")
+  if (uuid?.startsWith("!xml/") === true) {
+    throw new Error("UUID панели не допускает тег XML-аномалии")
   }
   if (uuid !== undefined) result.uuid = uuid
   if (yaml.Имя !== undefined && standardPanelUuidByName[yaml.Имя] === undefined) result.name = yaml.Имя
@@ -919,7 +919,7 @@ export const metadataRuleLayer000 = defineMetadataRules({
     ClientApplicationInterface: {
       propertyType: "ClientApplicationInterface",
       action: "materializeCollection",
-      yamlValue: EMPTY_XML_TAG_VALUE,
+      yamlValue: XML_PRESENT_TAG_VALUE,
     },
   },
 })

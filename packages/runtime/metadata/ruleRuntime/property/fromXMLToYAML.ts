@@ -36,7 +36,11 @@ import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import type { YamlPath } from "../../diagnostics/types"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
-import { copyYAMLScalarTags, markYAMLScalarTag, xmlScalarTagValue } from "../../../yaml/scalarTags"
+import {
+  copyYAMLScalarTags,
+  markYAMLScalarTag,
+  xmlAnomalyTagValue,
+} from "../../../yaml/scalarTags"
 import {
   matchExplicitXMLPropertyFromXML,
   matchExplicitXMLPropertyTypeFromXML,
@@ -488,7 +492,7 @@ export function importPropertiesFromXMLToYAML(params: {
           : {
               yamlValue: explicitXMLTransport === undefined
                 ? explicitXML?.yamlValue ?? yamlValue
-                : xmlScalarTagValue(explicitXMLTransport),
+                : xmlAnomalyTagValue("xml/value", explicitXMLTransport),
               taggedPaths: [],
             }
       const exportedYamlValue = transported.yamlValue
@@ -556,7 +560,12 @@ export function importPropertiesFromXMLToYAML(params: {
         })
       }
       if (explicitXML !== undefined || explicitXMLTransport !== undefined) {
-        markYAMLScalarTag(result, propertyRule.yaml!, "xml")
+        const tag = explicitXMLTransport !== undefined
+          ? "xml/value"
+          : explicitXML?.action === "omit"
+            ? "xml/absent"
+            : "xml/present"
+        markYAMLScalarTag(result, propertyRule.yaml!, tag)
       }
       for (const path of transported.taggedPaths) {
         markRelativeYAMLScalarTag(result, propertyRule.yaml!, path)

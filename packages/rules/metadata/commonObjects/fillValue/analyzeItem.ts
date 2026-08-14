@@ -24,7 +24,7 @@ import {
 } from "./effectiveType"
 import type { FillValueClassification, FillValueTransport } from "./types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
 import { fillValueDiagnostic } from "../../ruleRuntime/property/fillValueSemantics"
 import { effectiveFillValueType } from "../../ruleRuntime/property/fillValueSemantics"
@@ -111,9 +111,10 @@ function analyzeTransport(
 export function parseFillValueItem(
   item: Readonly<Record<string, unknown>>
 ): { readonly tagged: boolean; readonly value: MetadataTypedValue; readonly transport?: FillValueTransport } | undefined {
-  const tagged = yamlScalarTagAt(item, fillValueYamlKey) === "xml"
+  const tag = yamlScalarTagAt(item, fillValueYamlKey)
+  const tagged = tag === "xml/value" || tag === "xml/reference"
   const rawValue = item[fillValueYamlKey]
-  const payload = tagged && typeof rawValue === "string" ? xmlScalarTagPayload(rawValue) : undefined
+  const payload = tagged && typeof rawValue === "string" ? xmlAnomalyTagPayload(tag, rawValue) : undefined
   if (payload !== undefined && isFillValueTransport(payload)) {
     return {
       tagged: true,

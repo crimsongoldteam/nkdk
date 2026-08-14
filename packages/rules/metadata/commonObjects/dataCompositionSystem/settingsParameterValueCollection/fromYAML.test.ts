@@ -141,19 +141,19 @@ describe("import SettingsParameterValueCollection from YAML", { timeout: 60_000 
     })
   })
 
-  it("imports !xml Nil only for the parameter value", () => {
+  it("imports !xml/value Nil only for the parameter value", () => {
     const result = testAtomicFromYAML({
       rule,
-      value: importFromYAML("Параметр1:\n  Значение: !xml Nil\n"),
+      value: importFromYAML("Параметр1:\n  Значение: !xml/value Nil\n"),
     })
 
     expect(result).toMatchObject({ parameters: { Параметр1: { xmlNil: true } } })
   })
 
-  it("rejects another !xml marker", () => {
+  it("rejects another !xml/value marker", () => {
     expect(() => testAtomicFromYAML({
       rule,
-      value: importFromYAML("Параметр1:\n  Значение: !xml Undefined\n"),
-    })).toThrow("допустим только !xml Nil")
+      value: importFromYAML("Параметр1:\n  Значение: !xml/value Undefined\n"),
+    })).toThrow("допустим только !xml/value Nil")
   })
 })

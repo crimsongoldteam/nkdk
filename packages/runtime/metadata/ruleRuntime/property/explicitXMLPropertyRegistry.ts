@@ -1,6 +1,8 @@
 import {
-  EMPTY_XML_TAG_VALUE,
-  xmlScalarTagPayload,
+  XML_ABSENT_TAG_VALUE,
+  XML_PRESENT_TAG_VALUE,
+  type XMLAnomalyTag,
+  xmlAnomalyTagPayload,
   yamlScalarTagAt,
 } from "../../../yaml/scalarTags"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
@@ -11,13 +13,13 @@ export type ExplicitXMLPropertyRegistration =
       readonly itemType: string
       readonly propertyKey: string
       readonly xmlValue: unknown
-      readonly yamlValue: unknown
+      readonly yamlValue: typeof XML_PRESENT_TAG_VALUE
     }
   | {
       readonly action: "omit"
       readonly itemType: string
       readonly propertyKey: string
-      readonly yamlValue: typeof EMPTY_XML_TAG_VALUE
+      readonly yamlValue: typeof XML_ABSENT_TAG_VALUE
     }
   | {
       readonly action: "transportScalar"
@@ -35,7 +37,7 @@ export type ExplicitXMLPropertyRegistration =
 export interface ExplicitXMLPropertyTypeRegistration {
   readonly action: "materializeCollection"
   readonly propertyType: string
-  readonly yamlValue: typeof EMPTY_XML_TAG_VALUE
+  readonly yamlValue: typeof XML_PRESENT_TAG_VALUE
 }
 
 export type ExplicitXMLPropertyAction =
@@ -81,11 +83,11 @@ interface ContextualExplicitXMLPropertyRegistry extends ExplicitXMLPropertyMatch
     readonly properties: Readonly<Record<string, { readonly type?: string; readonly yaml?: string }>>
   }): ReadonlyMap<string, ExplicitXMLPropertyAction>
   hasExplicitXMLProperty(itemType: string, propertyKey: string): boolean
-  explicitXMLPropertyValidationMode(
+  explicitXMLPropertyValidationTag(
     itemType: string,
     propertyKey: string,
     propertyType?: string,
-  ): "empty" | "scalar" | undefined
+  ): XMLAnomalyTag | undefined
 }
 
 export function registerExplicitXMLProperty(registration: ExplicitXMLPropertyRegistration): void {
@@ -158,24 +160,24 @@ export function collectExplicitXMLPropertyActions(params: {
       const rawValue = yaml[rule.yaml]
       if (
         typeRegistration === undefined ||
-        yamlScalarTagAt(yaml, rule.yaml) !== "xml" ||
+        yamlScalarTagAt(yaml, rule.yaml) !== "xml/present" ||
         typeof rawValue !== "string"
       ) {
         continue
       }
-      const payload = xmlScalarTagPayload(rawValue)
+      const payload = xmlAnomalyTagPayload("xml/present", rawValue)
       actions.set(
         propertyKey,
         payload.length === 0
           ? { kind: "materializeCollection" }
-          : { kind: "invalid", message: `${rule.yaml} допускает только пустой !xml` }
+          : { kind: "invalid", message: `${rule.yaml} допускает только пустой !xml/present` }
       )
       continue
     }
     if (registration.action === "carrier") {
       const rawValue = yaml[rule.yaml]
-      const payload = yamlScalarTagAt(yaml, rule.yaml) === "xml" && typeof rawValue === "string"
-        ? xmlScalarTagPayload(rawValue)
+      const payload = yamlScalarTagAt(yaml, rule.yaml) === "xml/reference" && typeof rawValue === "string"
+        ? xmlAnomalyTagPayload("xml/reference", rawValue)
         : undefined
       if (payload?.startsWith(registration.prefix)) {
         actions.set(propertyKey, { kind: "deferToAugmenter" })
@@ -184,8 +186,12 @@ export function collectExplicitXMLPropertyActions(params: {
     }
     if (registration.action === "transportScalar") {
       const rawValue = yaml[rule.yaml]
-      if (yamlScalarTagAt(yaml, rule.yaml) === "xml" && typeof rawValue === "string") {
-        const payload = xmlScalarTagPayload(rawValue)
+      if (yamlScalarTagAt(yaml, rule.yaml) === "xml/value" && typeof rawValue === "string") {
+        const payload = xmlAnomalyTagPayload("xml/value", rawValue)
+        if (payload.length === 0) {
+          actions.set(propertyKey, { kind: "invalid", message: `${rule.yaml} требует payload после !xml/value` })
+          continue
+        }
         const override = registration.overrides?.[payload]
         actions.set(propertyKey, override === undefined
           ? { kind: "useYamlValue", yamlValue: payload }
@@ -193,6 +199,8 @@ export function collectExplicitXMLPropertyActions(params: {
       }
       continue
     }
+    const expectedTag = registration.action === "omit" ? "xml/absent" : "xml/present"
+    if (yamlScalarTagAt(yaml, rule.yaml) !== expectedTag) continue
     if (!Object.is(yaml[rule.yaml], registration.yamlValue)) continue
     actions.set(
       propertyKey,
@@ -210,22 +218,24 @@ export function hasExplicitXMLPropertyRegistration(itemType: string, propertyKey
     ?? false
 }
 
-export function explicitXMLPropertyValidationMode(
+export function explicitXMLPropertyValidationTag(
   itemType: string,
   propertyKey: string,
   propertyType?: string,
   registry?: ExplicitXMLPropertyRegistryView,
-): "empty" | "scalar" | undefined {
+): XMLAnomalyTag | undefined {
   const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
   if (registry === undefined) {
     if (contextual === undefined) throw new Error("Не задан execution context property rules")
-    return contextual.explicitXMLPropertyValidationMode(itemType, propertyKey, propertyType)
+    return contextual.explicitXMLPropertyValidationTag(itemType, propertyKey, propertyType)
   }
   const registration = registry.properties.get(registrationKey(itemType, propertyKey))
   if (registration !== undefined) {
-    return registration.action === "transportScalar" || registration.action === "carrier" ? "scalar" : "empty"
+    if (registration.action === "transportScalar") return "xml/value"
+    if (registration.action === "carrier") return "xml/reference"
+    return registration.action === "omit" ? "xml/absent" : "xml/present"
   }
-  return propertyType !== undefined && registry.propertyTypes.has(propertyType) ? "empty" : undefined
+  return propertyType !== undefined && registry.propertyTypes.has(propertyType) ? "xml/present" : undefined
 }
 
 export function registrationKey(itemType: string, propertyKey: string): string {

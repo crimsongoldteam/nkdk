@@ -1,6 +1,6 @@
 import { registerExplicitXMLProperty } from "../../metadata/ruleRuntime/property/explicitXMLPropertyRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_ABSENT_TAG_VALUE, XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 
 export function registeredExplicitXMLTestRule(itemType: string): MetadataItemRule {
   const rule = {
@@ -13,7 +13,7 @@ export function registeredExplicitXMLTestRule(itemType: string): MetadataItemRul
     itemType,
     propertyKey: "mode",
     xmlValue: "Auto",
-    yamlValue: EMPTY_XML_TAG_VALUE,
+    yamlValue: XML_PRESENT_TAG_VALUE,
   })
   return rule
 }
@@ -30,7 +30,7 @@ export function registeredMissingExplicitXMLTestRule(): MetadataItemRule {
     itemType,
     propertyKey: "value",
     action: "omit",
-    yamlValue: EMPTY_XML_TAG_VALUE,
+    yamlValue: XML_ABSENT_TAG_VALUE,
   })
   return rule
 }

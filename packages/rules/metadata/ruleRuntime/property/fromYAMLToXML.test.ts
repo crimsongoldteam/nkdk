@@ -126,7 +126,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
 
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
-      yaml: importFromYAML("Режим: !xml"),
+      yaml: importFromYAML("Режим: !xml/present"),
       rule,
       outputs: [{ key: "owner" }],
     })
@@ -137,7 +137,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
   it("does not materialize a default for a registered missing XML property", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
-      yaml: importFromYAML("Поле: !xml"),
+      yaml: importFromYAML("Поле: !xml/absent"),
       rule: registeredMissingExplicitXMLTestRule(),
       outputs: [{ key: "owner" }],
     })
@@ -145,7 +145,18 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
-  it("передаёт payload зарегистрированного скалярного !xml штатному типу", () => {
+  it("не принимает обычную строку за тег !xml/present", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: importFromYAML('Режим: "!xml/present"'),
+      rule: registeredExplicitXMLTestRule("TestQuotedExplicitXMLDefault"),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Mode: "!xml/present" })
+  })
+
+  it("передаёт payload зарегистрированного !xml/value штатному типу", () => {
     const rule = {
       itemType: "ExplicitXMLScalarProbe",
       properties: {
@@ -160,7 +171,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
 
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
-      yaml: importFromYAML("ЗначениеЗаполнения: !xml Справочник.Роли.ПустаяСсылка"),
+      yaml: importFromYAML("ЗначениеЗаполнения: !xml/value Справочник.Роли.ПустаяСсылка"),
       rule,
       outputs: [{ key: "owner" }],
     })
@@ -170,10 +181,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
-  it("не распаковывает скалярный !xml у незарегистрированной пары", () => {
+  it("не распаковывает !xml/value у незарегистрированной пары", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
-      yaml: importFromYAML("ЗначениеЗаполнения: !xml Справочник.Роли.ПустаяСсылка"),
+      yaml: importFromYAML("ЗначениеЗаполнения: !xml/value Справочник.Роли.ПустаяСсылка"),
       rule: {
         itemType: "UnregisteredExplicitXMLScalarProbe",
         properties: {
@@ -184,14 +195,14 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({
-      FillValue: { "_xsi:type": "xs:string", "#text": "!xml Справочник.Роли.ПустаяСсылка" },
+      FillValue: { "_xsi:type": "xs:string", "#text": "!xml/value Справочник.Роли.ПустаяСсылка" },
     })
   })
 
-  it("экспортирует незарегистрированный !xml как обычный текст", () => {
+  it("экспортирует незарегистрированный !xml/present как обычный текст", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
-      yaml: importFromYAML("Комментарий: !xml"),
+      yaml: importFromYAML("Комментарий: !xml/present"),
       rule: {
         itemType: "CommentProbe",
         properties: { comment: { type: "string", xml: "Comment", yaml: "Комментарий" } },
@@ -199,7 +210,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Comment: "!xml" })
+    expect(result.outputs.get("owner")).toEqual({ Comment: "!xml/present" })
   })
 
   it("не применяет регистрацию к другому тексту", () => {
@@ -211,17 +222,17 @@ describe("convertPropertiesFromYAMLToXML", () => {
       itemType: rule.itemType,
       propertyKey: "mode",
       xmlValue: "Auto",
-      yamlValue: "!xml",
+      yamlValue: "!xml/present",
     })
 
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
-      yaml: importFromYAML("Режим: !xml Left"),
+      yaml: importFromYAML("Режим: !xml/absent"),
       rule,
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Mode: "!xml Left" })
+    expect(result.outputs.get("owner")).toEqual({ Mode: "!xml/absent" })
   })
 
   it("экспортирует свойства по xmlOrder независимо от reference XML", () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { readAppliedObjectFixture, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
-import { EMPTY_XML_TAG_VALUE, exportToYAML, importContentFromXML } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE, exportToYAML, importContentFromXML } from "@nkdk/runtime"
 import { ClientApplicationInterfaceRules } from "./rules"
 
 import "./register"
@@ -18,7 +18,7 @@ describe("ClientApplicationInterface XML → YAML", () => {
       xml: importContentFromXML<Record<string, unknown>>(emptyStandardRootXML),
     }).yaml
 
-    expect(yaml).toBe(EMPTY_XML_TAG_VALUE)
+    expect(yaml).toBe(XML_PRESENT_TAG_VALUE)
   })
 
   it("treats whitespace in a panel definition as formatting", () => {
@@ -32,7 +32,7 @@ describe("ClientApplicationInterface XML → YAML", () => {
       ),
     }).yaml
 
-    expect(yaml).toBe(EMPTY_XML_TAG_VALUE)
+    expect(yaml).toBe(XML_PRESENT_TAG_VALUE)
   })
 
   it.each([
@@ -64,7 +64,7 @@ describe("ClientApplicationInterface XML → YAML", () => {
       xml: importContentFromXML<Record<string, unknown>>(xml),
     }).yaml
 
-    expect(yaml).not.toBe(EMPTY_XML_TAG_VALUE)
+    expect(yaml).not.toBe(XML_PRESENT_TAG_VALUE)
   })
 
   it("imports sections, panels, groups and panel definitions", () => {

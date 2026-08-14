@@ -25,7 +25,7 @@ import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
 import { importFromYAML } from "@nkdk/runtime"
 import { serializeYAMLDocument } from "@nkdk/runtime"
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
 
@@ -279,7 +279,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   it("exports a tagged forbidden boolean through MetadataValue", () => {
     const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
   Предопределенный:
-    ЗначениеЗаполнения: !xml Ложь
+    ЗначениеЗаполнения: !xml/value Ложь
 `, { Predefined: "Предопределенный" })
 
     expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xs:boolean", "#text": "false" })
@@ -295,10 +295,10 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       "Owner",
       "Владелец",
     ],
-  ] as const)("exports !xml %s as exact FillValue XML", (fillValue, expected, xmlName, yamlName) => {
+  ] as const)("exports !xml/value %s as exact FillValue XML", (fillValue, expected, xmlName, yamlName) => {
     const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
   ${yamlName}:
-    ЗначениеЗаполнения: !xml ${fillValue}
+    ЗначениеЗаполнения: !xml/value ${fillValue}
 `, { [xmlName]: yamlName })
 
     expect(item["xr:FillValue"]).toEqual(expected)
@@ -621,8 +621,8 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     }
     const { exported, imported } = roundTripStandardAttributes(itemRule, sourceXML)
 
-    expect(imported.yaml).toEqual({ СтандартныеРеквизиты: EMPTY_XML_TAG_VALUE })
-    expect(serializeYAMLDocument(imported.yaml).text).toBe("СтандартныеРеквизиты: !xml")
+    expect(imported.yaml).toEqual({ СтандартныеРеквизиты: XML_PRESENT_TAG_VALUE })
+    expect(serializeYAMLDocument(imported.yaml).text).toBe("СтандартныеРеквизиты: !xml/present")
     const items = standardAttributeItems(exported.xml)
     expect(items).toHaveLength(1)
     expect(items[0]).toMatchObject({
@@ -641,9 +641,9 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(() =>
       testPropertyFromYAMLToXML({
         rule: itemRule,
-        yaml: importFromYAML("СтандартныеРеквизиты: !xml payload\n"),
+        yaml: importFromYAML("СтандартныеРеквизиты: !xml/present payload\n"),
       })
-    ).toThrow("СтандартныеРеквизиты допускает только пустой !xml")
+    ).toThrow("СтандартныеРеквизиты допускает только пустой !xml/present")
   })
 
   it("отклоняет маркер владельца без канонических имён", () => {
@@ -652,7 +652,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(() =>
       testPropertyFromYAMLToXML({
         rule: itemRule,
-        yaml: importFromYAML("СтандартныеРеквизиты: !xml\n"),
+        yaml: importFromYAML("СтандартныеРеквизиты: !xml/present\n"),
       })
     ).toThrow("Для свойства СтандартныеРеквизиты не определены канонические стандартные реквизиты")
   })
@@ -795,7 +795,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       ТабличныеЧасти: Record<string, Record<string, unknown>>
     }).ТабличныеЧасти
 
-    expect(sections.СНомеромСтроки?.СтандартныеРеквизиты).toBe(EMPTY_XML_TAG_VALUE)
+    expect(sections.СНомеромСтроки?.СтандартныеРеквизиты).toBe(XML_PRESENT_TAG_VALUE)
     expect(sections.БезНомераСтроки).not.toHaveProperty("СтандартныеРеквизиты")
     expect(canonicalXML(serializeDirectXML(exported.xml))).toEqual(
       canonicalXML(serializeDirectXML(sourceXML))

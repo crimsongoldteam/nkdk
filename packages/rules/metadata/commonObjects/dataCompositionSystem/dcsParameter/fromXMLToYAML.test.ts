@@ -62,7 +62,7 @@ describe("export DCSParameter to YAML", () => {
     [
       "Undefined",
       `<Parameter><dcssch:name>P</dcssch:name><dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value></Parameter>`,
-      "!xml Undefined",
+      "!xml/value Undefined",
     ],
   ])("imports %s value", (caseName, xmlString, expected) => {
     const parameter = importParameterYAML(xmlString).Параметры.P
@@ -171,7 +171,7 @@ describe("export DCSParameter to YAML", () => {
         ТипЗначенияКлюча: {
           Заголовок: "Тип значения ключа",
           ТипЗначения: "Тип",
-          Значение: "!xml Undefined",
+          Значение: "!xml/value Undefined",
           ОграничениеИспользования: "Истина",
         },
       },

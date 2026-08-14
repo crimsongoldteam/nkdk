@@ -57,7 +57,7 @@ describe("CharacteristicsDescriptions XML → YAML", () => {
       xml: characteristicWithTypesFilterValue({ "_xsi:type": "xr:DesignTimeRef" }),
     })
 
-    expect(exportToYAML(result.yaml)).toContain("ЗначениеОтбораВидов: !xml DesignTimeRef")
+    expect(exportToYAML(result.yaml)).toContain("ЗначениеОтбораВидов: !xml/value DesignTimeRef")
     const fragment = contexts.importContext.fromXML.configurationIndex?.collector.fragment("Тест.yaml")
     expect(JSON.stringify(fragment?.entities)).not.toContain("typesFilterValue")
   })
@@ -76,10 +76,10 @@ describe("CharacteristicsDescriptions XML → YAML", () => {
       "отсутствуют все четыре XML-default",
       {},
       [
-        "ПолеПутиКДанным: !xml",
-        "ПолеИспользованияМножественныхЗначений: !xml",
-        "ПолеКлючаМножественныхЗначений: !xml",
-        "ПолеПорядкаМножественныхЗначений: !xml",
+        "ПолеПутиКДанным: !xml/absent",
+        "ПолеИспользованияМножественныхЗначений: !xml/absent",
+        "ПолеКлючаМножественныхЗначений: !xml/absent",
+        "ПолеПорядкаМножественныхЗначений: !xml/absent",
       ],
     ],
     [
@@ -87,9 +87,9 @@ describe("CharacteristicsDescriptions XML → YAML", () => {
       { dataPathField: "Data.Path" },
       [
         "ПолеПутиКДанным: Data.Path",
-        "ПолеИспользованияМножественныхЗначений: !xml",
-        "ПолеКлючаМножественныхЗначений: !xml",
-        "ПолеПорядкаМножественныхЗначений: !xml",
+        "ПолеИспользованияМножественныхЗначений: !xml/absent",
+        "ПолеКлючаМножественныхЗначений: !xml/absent",
+        "ПолеПорядкаМножественныхЗначений: !xml/absent",
       ],
     ],
     [
@@ -100,7 +100,7 @@ describe("CharacteristicsDescriptions XML → YAML", () => {
         multipleValuesOrderField: "Order.Path",
       },
       [
-        "ПолеПутиКДанным: !xml",
+        "ПолеПутиКДанным: !xml/absent",
         "ПолеИспользованияМножественныхЗначений: Use.Path",
         "ПолеКлючаМножественныхЗначений: Key.Path",
         "ПолеПорядкаМножественныхЗначений: Order.Path",

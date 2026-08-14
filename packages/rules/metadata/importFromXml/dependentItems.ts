@@ -7,7 +7,7 @@ import {
 } from "../ruleRuntime/property/dependentItemRegistry"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { markYAMLScalarTag, xmlScalarTagValue, yamlScalarTagAt } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
 import { matchExplicitXMLTransportFromXML } from "../ruleRuntime/property/explicitXMLPropertyRegistry"
 
 export function normalizeImportedDependentItems(params: {
@@ -33,8 +33,8 @@ export function normalizeImportedDependentItems(params: {
       xmlValue: candidate.xmlValue,
     })
     if (transport !== undefined) {
-      item[yamlKey] = xmlScalarTagValue(transport)
-      markYAMLScalarTag(item, yamlKey, "xml")
+      item[yamlKey] = xmlAnomalyTagValue("xml/value", transport)
+      markYAMLScalarTag(item, yamlKey, "xml/value")
       if (
         transport === "Nil" &&
         !shouldRemoveImportedDependentProperty(dependentParamsForCandidate(params, candidate, item))
@@ -46,16 +46,16 @@ export function normalizeImportedDependentItems(params: {
     if (!Object.prototype.hasOwnProperty.call(item, yamlKey)) continue
     const dependentParams = dependentParamsForCandidate(params, candidate, item)
     if (isEmptyDesignTimeRef(candidate)) {
-      item[yamlKey] = xmlScalarTagValue("DesignTimeRef")
-      markYAMLScalarTag(item, yamlKey, "xml")
+      item[yamlKey] = xmlAnomalyTagValue("xml/value", "DesignTimeRef")
+      markYAMLScalarTag(item, yamlKey, "xml/value")
       continue
     }
     const shouldRemove = shouldRemoveImportedDependentProperty(dependentParams)
     if (shouldRemove) {
       const value = item[yamlKey]
       if (hasExplicitXMLText(candidate.xmlValue) && (typeof value === "string" || typeof value === "number")) {
-        item[yamlKey] = xmlScalarTagValue(String(value))
-        markYAMLScalarTag(item, yamlKey, "xml")
+        item[yamlKey] = xmlAnomalyTagValue("xml/value", String(value))
+        markYAMLScalarTag(item, yamlKey, "xml/value")
         continue
       }
       delete item[yamlKey]
@@ -66,11 +66,11 @@ export function normalizeImportedDependentItems(params: {
     const value = item[yamlKey]
     if (
       shouldTagXML &&
-      yamlScalarTagAt(item, yamlKey) !== "xml" &&
+      yamlScalarTagAt(item, yamlKey) !== "xml/value" &&
       (typeof value === "string" || typeof value === "number")
     ) {
-      item[yamlKey] = xmlScalarTagValue(String(value))
-      markYAMLScalarTag(item, yamlKey, "xml")
+      item[yamlKey] = xmlAnomalyTagValue("xml/value", String(value))
+      markYAMLScalarTag(item, yamlKey, "xml/value")
     }
   }
   return removed

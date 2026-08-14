@@ -8,7 +8,7 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
 import {
-  EMPTY_XML_TAG_VALUE,
+  XML_ABSENT_TAG_VALUE,
   importContentFromXML,
   markYAMLScalarTag,
   xmlExport,
@@ -65,8 +65,8 @@ describe("FormAttributes XML → YAML → XML", () => {
     })
     const item = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение.Список!
 
-    expect(item.ТипЗначения).toBe(EMPTY_XML_TAG_VALUE)
-    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml")
+    expect(item.ТипЗначения).toBe(XML_ABSENT_TAG_VALUE)
+    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml/absent")
   })
 
   it("не помечает отсутствие Settings у составного типа", () => {
@@ -107,9 +107,9 @@ describe("FormAttributes XML → YAML → XML", () => {
   it("не создаёт Settings по маркеру отсутствия", () => {
     const item = {
       Тип: "СписокЗначений",
-      ТипЗначения: EMPTY_XML_TAG_VALUE,
+      ТипЗначения: XML_ABSENT_TAG_VALUE,
     }
-    markYAMLScalarTag(item, "ТипЗначения", "xml")
+    markYAMLScalarTag(item, "ТипЗначения", "xml/absent")
 
     const { xml } = testPropertyFromYAMLToXML({
       rule,

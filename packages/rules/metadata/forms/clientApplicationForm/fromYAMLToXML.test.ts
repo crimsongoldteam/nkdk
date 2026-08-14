@@ -2,7 +2,7 @@ import fs from "fs"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 
-import { childSegmentUid, childUid, EMPTY_XML_TAG_VALUE, importFromYAML, markYAMLScalarTag } from "@nkdk/runtime"
+import { childSegmentUid, childUid, XML_PRESENT_TAG_VALUE, importFromYAML, markYAMLScalarTag } from "@nkdk/runtime"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
@@ -327,8 +327,8 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
   })
 
   it("восстанавливает пустой контейнер реквизитов из !xml без reference XML", () => {
-    const yaml = { Реквизиты: EMPTY_XML_TAG_VALUE } as unknown as ClientApplicationFormYAML
-    markYAMLScalarTag(yaml, "Реквизиты", "xml")
+    const yaml = { Реквизиты: XML_PRESENT_TAG_VALUE } as unknown as ClientApplicationFormYAML
+    markYAMLScalarTag(yaml, "Реквизиты", "xml/present")
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
       yaml,

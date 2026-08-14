@@ -3,9 +3,7 @@ import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import type { StandardAttributeDescriptionsPropertyRule } from "@nkdk/runtime/rule-kit"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML, type StandartAttributeName } from "./standartAttributeNames"
-import {
-  EMPTY_XML_TAG_VALUE,
-} from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 
 export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYAMLFunction = (params) => {
   const rule = params.rule as StandardAttributeDescriptionsPropertyRule
@@ -33,7 +31,7 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
     if (isEmptyRecord(yaml[yamlKey])) delete yaml[yamlKey]
   }
 
-  return Object.keys(yaml).length === 0 ? EMPTY_XML_TAG_VALUE : yaml
+  return Object.keys(yaml).length === 0 ? XML_PRESENT_TAG_VALUE : yaml
 }
 
 function collectPreservedEmptyNames(xml: unknown): Set<string> {

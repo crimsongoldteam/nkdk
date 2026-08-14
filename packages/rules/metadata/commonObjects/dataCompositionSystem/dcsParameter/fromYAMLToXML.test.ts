@@ -43,9 +43,9 @@ const parameterXML = (name: string, ...values: unknown[]) => ({
 })
 
 describe("export DCSParameter to XML", () => {
-  it("exports !xml Undefined without reference XML", () => {
+  it("exports !xml/value Undefined without reference XML", () => {
     const yaml = importFromYAML(`ТипЗначенияКлюча:
-  Значение: !xml Undefined
+  Значение: !xml/value Undefined
 `)
     const result = exportDCSParameters([], yaml)
 

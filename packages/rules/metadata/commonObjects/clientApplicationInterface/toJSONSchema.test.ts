@@ -35,12 +35,12 @@ describe("ClientApplicationInterfaceItems JSON Schema", () => {
     expect(validation.Check([{
       Панель: {
         UUID: "8e10648b-f52d-4ec2-b4dd-87de33778d95",
-        ПустоеОпределение: "!xml",
+        ПустоеОпределение: "!xml/present",
       },
     }])).toBe(true)
     expect(validation.Check([{
       Панель: {
-        UUID: "!xml 8e10648b-f52d-4ec2-b4dd-87de33778d95",
+        UUID: "!xml/present 8e10648b-f52d-4ec2-b4dd-87de33778d95",
       },
     }])).toBe(false)
     expect(JSON.stringify(hintSchema)).not.toContain("ПустоеОпределение")

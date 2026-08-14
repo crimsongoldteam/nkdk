@@ -16,10 +16,10 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import "./register"
 
 describe("ClientApplicationInterface YAML → XML", () => {
-  it("materializes an empty standard root from !xml", () => {
+  it("materializes an empty standard root from !xml/present", () => {
     const result = serializeDirectXML(testPropertyFromYAMLToXML({
       rule: clientApplicationInterfaceOwnerRule,
-      yaml: importFromYAML("ИнтерфейсКлиентскогоПриложения: !xml"),
+      yaml: importFromYAML("ИнтерфейсКлиентскогоПриложения: !xml/present"),
     }).xml)
 
     const panelDefIds = [...result.matchAll(/<panelDef id="([^"]+)"\/>/g)].map((match) => match[1])
@@ -132,33 +132,33 @@ describe("ClientApplicationInterface YAML → XML", () => {
       "Верх:",
       "  - Панель:",
       `      UUID: ${uuid}`,
-      "      ПустоеОпределение: !xml",
+      "      ПустоеОпределение: !xml/present",
     ].join("\n")))
 
     expect(plain).not.toContain(`<panelDef id="${uuid}"`)
     expect(explicit).toContain(`<panelDef id="${uuid}"/>`)
   })
 
-  it("отклоняет прежнюю форму !xml у UUID", () => {
+  it("отклоняет тег XML-аномалии у UUID", () => {
     const uuid = "8e10648b-f52d-4ec2-b4dd-87de33778d95"
-    const yaml = importFromYAML(`Верх:\n  - Панель:\n      UUID: !xml ${uuid}`)
+    const yaml = importFromYAML(`Верх:\n  - Панель:\n      UUID: !xml/present ${uuid}`)
 
-    expect(() => convertYAML(yaml)).toThrow("UUID панели не допускает !xml")
+    expect(() => convertYAML(yaml)).toThrow("UUID панели не допускает тег XML-аномалии")
   })
 
-  it("экспортирует !xml в имени панели как обычный текст", () => {
+  it("экспортирует !xml/present в имени панели как обычный текст", () => {
     const result = convertYAML(
-      importFromYAML("Право:\n  - Панель:\n      Имя: !xml НестандартнаяПанель")
+      importFromYAML("Право:\n  - Панель:\n      Имя: !xml/present НестандартнаяПанель")
     )
 
-    expect(result).toContain("<name>!xml НестандартнаяПанель</name>")
+    expect(result).toContain("<name>!xml/present НестандартнаяПанель</name>")
   })
 
   it.each([
-    ["стандартный UUID", "UUID: b553047f-c9aa-4157-978d-448ecad24248\n      ПустоеОпределение: !xml"],
+    ["стандартный UUID", "UUID: b553047f-c9aa-4157-978d-448ecad24248\n      ПустоеОпределение: !xml/present"],
     ["другое значение", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      ПустоеОпределение: Истина"],
-    ["имя панели", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      Имя: Панель\n      ПустоеОпределение: !xml"],
-    ["представление панели", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      Представление: Текст\n      ПустоеОпределение: !xml"],
+    ["имя панели", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      Имя: Панель\n      ПустоеОпределение: !xml/present"],
+    ["представление панели", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      Представление: Текст\n      ПустоеОпределение: !xml/present"],
   ])("отклоняет ПустоеОпределение: %s", (_name, panel) => {
     const yaml = importFromYAML(`Верх:\n  - Панель:\n      ${panel}`)
 

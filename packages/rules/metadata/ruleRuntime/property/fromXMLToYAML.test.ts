@@ -4,6 +4,7 @@ import {
   runWithConfigurationIndexPropertyContext,
   withConfigurationIndexCollector,
   withConfigurationIndexLogicalAddress,
+  XML_PRESENT_TAG_VALUE,
 } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
@@ -25,7 +26,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       itemType: "TestExplicitXMLRegistrationConflict",
       propertyKey: "mode",
       xmlValue: "Auto",
-      yamlValue: "Auto",
+      yamlValue: XML_PRESENT_TAG_VALUE,
     })
 
     expect(() =>
@@ -33,7 +34,7 @@ describe("importPropertiesFromXMLToYAML", () => {
         itemType: "TestExplicitXMLRegistrationConflict",
         propertyKey: "mode",
         xmlValue: "Left",
-        yamlValue: "Left",
+        yamlValue: XML_PRESENT_TAG_VALUE,
       })
     ).toThrow(/Конфликт регистрации[\s\S]*TestExplicitXMLRegistrationConflict\.mode/)
   })
@@ -51,8 +52,8 @@ describe("importPropertiesFromXMLToYAML", () => {
       collector: createLocalIndexesCollector(),
     })
 
-    expect(yaml).toEqual({ Режим: "!xml" })
-    expect(yamlScalarTagAt(yaml, "Режим")).toBe("xml")
+    expect(yaml).toEqual({ Режим: "!xml/present" })
+    expect(yamlScalarTagAt(yaml, "Режим")).toBe("xml/present")
   })
 
   it("preserves a registered missing XML default as an empty tagged YAML scalar", () => {
@@ -68,8 +69,8 @@ describe("importPropertiesFromXMLToYAML", () => {
       collector: createLocalIndexesCollector(),
     })
 
-    expect(yaml).toEqual({ Поле: "!xml" })
-    expect(yamlScalarTagAt(yaml, "Поле")).toBe("xml")
+    expect(yaml).toEqual({ Поле: "!xml/absent" })
+    expect(yamlScalarTagAt(yaml, "Поле")).toBe("xml/absent")
   })
 
   it("sorts only properties produced by the current rules", () => {

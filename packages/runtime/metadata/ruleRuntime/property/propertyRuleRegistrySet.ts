@@ -4,7 +4,7 @@ import type {
 } from "../definition"
 import {
   collectExplicitXMLPropertyActions,
-  explicitXMLPropertyValidationMode,
+  explicitXMLPropertyValidationTag,
   type ExplicitXMLPropertyMatcher,
   registrationKey as propertyRegistrationKey,
   type ExplicitXMLPropertyAction,
@@ -26,6 +26,7 @@ import type { MetadataItemXmlImportAugmenter } from "../metadataItem/augmenterRe
 import type { MetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
 import type { MetadataImportedYamlFinalizer, MetadataImportedYamlFinalizerParams } from "../definition"
 import type { MetadataItemRule } from "./types"
+import type { XMLAnomalyTag } from "../../../yaml/scalarTags"
 import {
   createBrokenXMLReferenceCarrierRegistry,
   type BrokenXMLReferenceCarrierRegistry,
@@ -118,11 +119,11 @@ export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, Dep
       Record<string, { readonly type?: string; readonly yaml?: string }>
     >
   }): ReadonlyMap<string, ExplicitXMLPropertyAction>
-  explicitXMLPropertyValidationMode(
+  explicitXMLPropertyValidationTag(
     itemType: string,
     propertyKey: string,
     propertyType?: string,
-  ): "empty" | "scalar" | undefined
+  ): XMLAnomalyTag | undefined
   indexValueFromYAML<T>(propertyType: string, value: unknown): T | undefined
   getMetadataTargetOwnerResolver(
     itemType: string,
@@ -335,8 +336,8 @@ export function createPropertyRuleRegistrySet(
         propertyTypes: explicitXMLPropertyTypes,
       })
     },
-    explicitXMLPropertyValidationMode(itemType, propertyKey, propertyType) {
-      return explicitXMLPropertyValidationMode(itemType, propertyKey, propertyType, {
+    explicitXMLPropertyValidationTag(itemType, propertyKey, propertyType) {
+      return explicitXMLPropertyValidationTag(itemType, propertyKey, propertyType, {
         properties: explicitXMLProperties,
         propertyTypes: explicitXMLPropertyTypes,
       })

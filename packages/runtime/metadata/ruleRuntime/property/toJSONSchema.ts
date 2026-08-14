@@ -11,8 +11,7 @@ import {
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import { getSystemEnumeration } from "./systemEnumerationRegistry"
-import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
-import { explicitXMLPropertyValidationMode } from "./explicitXMLPropertyRegistry"
+import { explicitXMLPropertyValidationTag } from "./explicitXMLPropertyRegistry"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 function notSchema(schema: TSchema): TSchema {
@@ -57,19 +56,22 @@ function withExplicitXMLValidationValue(params: {
   ) {
     schema = Type.Union([schema, Type.String({ pattern: "^!xml[ \\t]+\\S.*$" })])
   }
-  const mode = params.execution === undefined
-    ? explicitXMLPropertyValidationMode(params.itemType, params.propertyKey, params.rule.type)
-    : params.execution.explicitXMLPropertyValidationMode(
+  const tag = params.execution === undefined
+    ? explicitXMLPropertyValidationTag(params.itemType, params.propertyKey, params.rule.type)
+    : params.execution.explicitXMLPropertyValidationTag(
         params.itemType,
         params.propertyKey,
         params.rule.type,
       )
-  if (mode === "empty") {
+  if (tag === "xml/present" || tag === "xml/absent") {
+    const marker = `!${tag}`
     schema = shouldProcessProperty({ rule: params.rule, operation: "importFromYAML" })
-      ? Type.Union([schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
-      : Type.Literal(EMPTY_XML_TAG_VALUE)
+      ? Type.Union([schema, Type.Literal(marker)])
+      : Type.Literal(marker)
   }
-  if (mode === "scalar") schema = Type.Union([schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
+  if (tag === "xml/value" || tag === "xml/reference") {
+    schema = Type.Union([schema, Type.String({ pattern: `^!${tag}[ \\t]+\\S.*$` })])
+  }
   const brokenReferenceRegistry = params.execution ?? currentPropertyRuleRegistrySet<Pick<
     PropertyRuleExecution,
     "brokenXMLReferenceValidationSchema"
@@ -142,8 +144,8 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       (params.context.exportToJSONSchema?.explicitXMLValues === true ||
         params.context.exportToJSONSchema?.validationPropertyRefs === true) &&
       (params.execution === undefined
-        ? explicitXMLPropertyValidationMode(rule.itemType, key, ruleProp.type)
-        : params.execution.explicitXMLPropertyValidationMode(rule.itemType, key, ruleProp.type)) !== undefined
+        ? explicitXMLPropertyValidationTag(rule.itemType, key, ruleProp.type)
+        : params.execution.explicitXMLPropertyValidationTag(rule.itemType, key, ruleProp.type)) !== undefined
     if (!importsFromYAML && !validatesExplicitXML) continue
 
     const yamlKey = ruleProp.yaml
