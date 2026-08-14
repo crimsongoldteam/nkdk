@@ -115,7 +115,7 @@ describe("rewriteDataPathSegments", () => {
       "НовоеИмя",
     ))
     const element = (item.yaml.Элементы as Record<string, Record<string, unknown>>).Поле!
-    expect(element.ПутьКДанным).toBe("Объект.НовоеИмя")
+    expect(element.ПутьКДанным).toBe("!xml/value Объект.НовоеИмя")
     expect(yamlScalarTagAt(element, "ПутьКДанным")).toBe("xml/value")
   })
 })
