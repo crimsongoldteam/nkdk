@@ -226,10 +226,13 @@ describe("partial XML impact planner", () => {
     expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
   })
 
-  it("при добавлении файлового дочернего объекта включает владельца и соседние объекты", () => {
+  it.each([
+    ["добавлении", "added"],
+    ["изменении", "changed"],
+  ] as const)("при %s файлового дочернего объекта включает владельца и соседние объекты", (_title, kind) => {
     const result = plan(
       [root, language, owner, firstTable, secondTable],
-      changes({ added: [secondTable] }),
+      changes({ [kind]: [secondTable] }),
     )
 
     expect(result.selection).toEqual({
