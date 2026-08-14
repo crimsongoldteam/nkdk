@@ -304,7 +304,7 @@ addInlineChild({
   childItemType: "MetadataExternalDataSourceCubeDimension",
   section: "Измерения",
   name: "ПроверочноеИзмерение",
-  body: "Тип: ВнешнийИсточникДанныхПроверкаЧастичнойСинхронизацииВнешнийИсточникДанных.КубПроверочныйКуб.ТаблицаИзмеренияПроверочнаяТаблицаИзмерения",
+  body: "Тип: Строка(10)",
   dependsOn: [dimensionTable.key],
 })
 addInlineChild({
