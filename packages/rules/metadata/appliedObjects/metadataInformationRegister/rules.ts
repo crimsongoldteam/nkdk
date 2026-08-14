@@ -124,6 +124,7 @@ export const MetadataInformationRegisterRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",

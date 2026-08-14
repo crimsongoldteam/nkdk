@@ -50,6 +50,7 @@ export const MetadataCommandGroupRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     representation: systemEnumerationRule({
       yaml: "Представление",

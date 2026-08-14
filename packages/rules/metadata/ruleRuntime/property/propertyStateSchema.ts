@@ -49,14 +49,16 @@ export function exportBorrowedPropertyStateSchema(params: {
       const propertyRule = propertyKey === undefined ? undefined : params.rule.properties[propertyKey]
       const withImplicitValue = propertyRule === undefined
         ? schema
-        : implicitValueSchema(
-            capability?.representation === "plain"
-              ? plainEmptySchema(schema, propertyRule)
-              : isScalarMetadataTarget(propertyRule)
-                ? Type.Union([schema, Type.Null()])
-                : schema,
-            getImplicitValueYAML(propertyRule),
-          )
+        : capability?.availability === "own"
+          ? ownPropertySchema(schema, propertyRule)
+          : implicitValueSchema(
+              capability?.representation === "plain"
+                ? plainEmptySchema(schema, propertyRule)
+                : isScalarMetadataTarget(propertyRule)
+                  ? Type.Union([schema, Type.Null()])
+                  : schema,
+              getImplicitValueYAML(propertyRule),
+            )
       return [[yamlName, capability?.representation === "tagged"
         ? taggedScalarSchema(withImplicitValue)
         : withImplicitValue]]
@@ -117,6 +119,22 @@ function plainEmptySchema(
     return Type.Union([schema, Type.Literal("")])
   }
   return schema
+}
+
+function ownPropertySchema(source: TSchema, rule: PropertyRule): TSchema {
+  if (rule.preserveExplicitDefaultXML === true) return source
+  const implicit = getImplicitValueYAML(rule) ?? (
+    (rule.type === "string" || rule.type === "I8nText") && rule.defaultValueXMLRaw === ""
+      ? ""
+      : undefined
+  )
+  return implicit === undefined
+    ? source
+    : Type.Intersect([source, notSchema(Type.Literal(implicit))])
+}
+
+function notSchema(source: TSchema): TSchema {
+  return { not: source } as TSchema
 }
 
 function localSchemaRoot(source: TSchema): { readonly key: string; readonly schema: TSchema } | undefined {

@@ -57,6 +57,7 @@ export const MetadataCommonFormRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     form: clientApplicationFormRule({
       yaml: "Форма",

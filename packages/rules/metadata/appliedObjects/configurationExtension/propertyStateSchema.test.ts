@@ -38,6 +38,53 @@ const capability: ResolvedPropertyStateItemCapability = {
 }
 
 describe("borrowed property-state schema", () => {
+  it("запрещает пустое собственное поле и разрешает очистку заимствованного plain-поля", () => {
+    const localRule = {
+      itemType: "OwnAndBorrowedPlainProperties",
+      properties: {
+        comment: {
+          type: "string",
+          yaml: "Комментарий",
+          defaultValueXMLRaw: "",
+          defaultValueAdoptedXML: "",
+        },
+        toolTip: {
+          type: "string",
+          yaml: "Подсказка",
+          defaultValueXMLRaw: "",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const localCapability: ResolvedPropertyStateItemCapability = {
+      itemType: localRule.itemType,
+      properties: {
+        comment: {
+          availability: "own",
+          modes: [],
+          representation: "plain",
+        },
+        toolTip: {
+          availability: "borrowed",
+          modes: ["extend"],
+          representation: "plain",
+        },
+      },
+    }
+    const validator = compileValidationSchema(exportBorrowedPropertyStateSchema({
+      rule: localRule,
+      capability: localCapability,
+      source: Type.Object({
+        Комментарий: Type.Optional(Type.String()),
+        Подсказка: Type.Optional(Type.String()),
+      }, { additionalProperties: false }),
+    }))
+
+    expect(validator.Check({})).toBe(true)
+    expect(validator.Check({ Комментарий: "Текст" })).toBe(true)
+    expect(validator.Check({ Комментарий: "" })).toBe(false)
+    expect(validator.Check({ Подсказка: "" })).toBe(true)
+  })
+
   it("разрешает оба явных значения Balance только в режимах контроля и проверки", () => {
     const registry = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
     const item = registry.item(MetadataAccountingRegisterDimensionRules.itemType)!
