@@ -321,6 +321,14 @@ export function buildPartialXmlImpactPlan(params: {
     for (const current of currentByPath.values()) {
       if (current.assignment?.id !== assignment.id) continue
       if (expandMetadataPathPattern(assignment.ownerProjectPattern, current.values) !== ownerPath) continue
+      if (current.kind === "content") includeAssignmentSubtreePayload(current)
+    }
+  }
+
+  function includeAssignmentSubtreePayload(resource: MetadataProjectResourceMatch): void {
+    const directory = posix.dirname(resource.projectPath)
+    for (const current of currentByPath.values()) {
+      if (current.projectPath !== resource.projectPath && !current.projectPath.startsWith(`${directory}/`)) continue
       if (current.kind === "content") includeAssignment(current, false)
       if (current.kind === "externalFile") includeExternal(current, false)
     }

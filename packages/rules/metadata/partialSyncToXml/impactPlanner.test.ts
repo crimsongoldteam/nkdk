@@ -62,6 +62,22 @@ const topology = compileMetadataResourceTopology([{
       "metadata",
       true,
     ),
+    {
+      ...content(
+        "Объект/{ownerName}/Таблицы/{itemName}/Вложения/{nestedName}/Свойства.yaml",
+        "fileItem",
+        fileItemRule,
+        "configurationComposition",
+      ),
+      ownerProjectPattern: "Объект/{ownerName}/Таблицы/{itemName}/Свойства.yaml",
+      logicalAddressSegment: "Вложение",
+    },
+    document(
+      "",
+      "Objects/{ownerName}/Tables/{itemName}/Nested/{nestedName}.xml",
+      "metadata",
+      true,
+    ),
     content("Особый.yaml", "properties", objectRule, "none"),
     document("", "Objects/Товары.xml", "metadata", true),
     {
@@ -145,6 +161,7 @@ const secondForm = "Объект/Товары/Формы/Вторая/Форма
 const secondModule = "Объект/Товары/Формы/Вторая/Модуль.bsl"
 const firstTable = "Объект/Товары/Таблицы/Первая/Свойства.yaml"
 const secondTable = "Объект/Товары/Таблицы/Вторая/Свойства.yaml"
+const secondNestedTable = "Объект/Товары/Таблицы/Вторая/Вложения/Вложенная/Свойства.yaml"
 
 describe("partial XML impact planner", () => {
   it("выбирает metadata владельца при изменении его YAML", () => {
@@ -227,17 +244,22 @@ describe("partial XML impact planner", () => {
   })
 
   it.each([
-    ["добавлении", "added"],
-    ["изменении", "changed"],
-  ] as const)("при %s файлового дочернего объекта включает владельца и соседние объекты", (_title, kind) => {
+    ["добавлении", "added", [], []],
+    ["изменении", "changed", [secondNestedTable], [secondNestedTable]],
+  ] as const)("при %s файлового дочернего объекта включает владельца и соседние объекты", (
+    _title,
+    kind,
+    extraCurrent,
+    extraExpected,
+  ) => {
     const result = plan(
-      [root, language, owner, firstTable, secondTable],
+      [root, language, owner, firstTable, secondTable, ...extraCurrent],
       changes({ [kind]: [secondTable] }),
     )
 
     expect(result.selection).toEqual({
       kind: "selected",
-      projectPaths: [owner, firstTable, secondTable].sort(utf8),
+      projectPaths: [owner, firstTable, secondTable, ...extraExpected].sort(utf8),
     })
     expect(result.loadTargets).toEqual([
       "Objects/Товары.xml",
