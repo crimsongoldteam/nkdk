@@ -22,6 +22,16 @@ describe("partial sync workspace", () => {
     })
   })
 
+  it("ignores the macOS service file when initializing a directory", async () => {
+    const root = await temporaryRoot("macos-")
+    await writeFile(join(root, ".DS_Store"), "finder metadata")
+
+    await openScenarioWorkspace(root, { planHash, reset: false })
+
+    await expect(readFile(join(root, ".DS_Store"), "utf8")).resolves.toBe("finder metadata")
+    expect(await readState(root)).toEqual(matrixState(planHash))
+  })
+
   it.each([
     ["a relative path", "relative/workspace"],
     ["the filesystem root", "/"],

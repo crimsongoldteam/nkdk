@@ -39,6 +39,19 @@ describe("partial sync matrix", () => {
     }
   })
 
+  it("does not create register resources in the root-object layer", () => {
+    for (const key of [
+      "object:information-register",
+      "object:accumulation-register",
+      "object:accounting-register",
+    ]) {
+      const declaration = rootObjectDeclarations.find((item) => item.key === key)
+      const properties = declaration?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))
+
+      expect(properties?.after, key).not.toContain("Ресурсы:")
+    }
+  })
+
   it("declares every reachable owner-child capability", () => {
     expect(childCapabilityExclusions).toEqual([])
     const ownerItemTypes = new Map(

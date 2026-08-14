@@ -52,6 +52,7 @@ const managedDirectoryNames = [
 ] as const
 const resetDirectoryNames = managedDirectoryNames.filter((name) => name !== "logs")
 const allowedEntryNames = new Set(["state.json", ...managedDirectoryNames])
+const ignoredEntryNames = new Set([".DS_Store"])
 
 export async function openScenarioWorkspace(
   root: string,
@@ -82,11 +83,12 @@ export async function openScenarioWorkspace(
   }
 
   const entries = await readdir(canonicalRoot)
+  const scenarioEntries = entries.filter((entry) => !ignoredEntryNames.has(entry))
   const statePath = join(canonicalRoot, "state.json")
-  if (entries.length > 0 && !entries.includes("state.json")) {
+  if (scenarioEntries.length > 0 && !scenarioEntries.includes("state.json")) {
     throw new Error(`Каталог не принадлежит сценарию: ${canonicalRoot}`)
   }
-  const foreignEntry = entries.find((entry) => !allowedEntryNames.has(entry))
+  const foreignEntry = scenarioEntries.find((entry) => !allowedEntryNames.has(entry))
   if (foreignEntry !== undefined) {
     throw new Error(`Каталог содержит неизвестный путь ${foreignEntry}: ${canonicalRoot}`)
   }

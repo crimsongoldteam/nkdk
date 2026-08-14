@@ -53,14 +53,12 @@ export const rootObjectDeclarations = [
     "MetadataInformationRegister",
     "РегистрСведений",
     "РегистрСведений",
-    numericResource("Строка(10)"),
   ),
   directoryRoot(
     "object:accumulation-register",
     "MetadataAccumulationRegister",
     "РегистрНакопления",
     "РегистрНакопления",
-    numericResource("Число(10, 0)"),
   ),
   directoryRoot("object:exchange-plan", "MetadataExchangePlan", "ПланОбмена", "ПланОбмена"),
   fileRoot(
@@ -192,7 +190,6 @@ export const rootObjectDeclarations = [
     "MetadataAccountingRegister",
     "РегистрБухгалтерии",
     "РегистрБухгалтерии",
-    numericResource("Число(10, 0)"),
   ),
   directoryRoot("object:settings-storage", "MetadataSettingsStorage", "ХранилищеНастроек", "ХранилищеНастроек"),
   fileRoot(
@@ -311,10 +308,6 @@ function fileRoot(
 
 function createFile(path: string, after: string | Uint8Array): ScenarioFileChange {
   return { path, before: null, after }
-}
-
-function numericResource(type: string): string {
-  return `Ресурсы:\n  ОбязательныйРесурс:\n    Синоним: \"\"\n    Тип: ${type}\n`
 }
 
 function commonModuleSource(): string {

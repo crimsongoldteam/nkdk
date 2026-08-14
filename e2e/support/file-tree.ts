@@ -26,6 +26,7 @@ export async function compareFileTrees(params: {
   readonly actualDir: string
   readonly reportDir: string
   readonly xmlComparison?: "bytes" | "semantic"
+  readonly yamlComparison?: "bytes" | "ignore-final-line-ending"
   readonly ignoredPaths?: readonly string[]
 }): Promise<FileTreeComparison> {
   const ignoredPaths = new Set(params.ignoredPaths ?? [])
@@ -44,6 +45,11 @@ export async function compareFileTrees(params: {
       extname(path).toLowerCase() === ".xml" &&
       semanticXML(expectedContent) === semanticXML(actualContent)
     ) continue
+    if (
+      params.yamlComparison === "ignore-final-line-ending" &&
+      [".yaml", ".yml"].includes(extname(path).toLowerCase()) &&
+      withoutFinalLineEnding(expectedContent).equals(withoutFinalLineEnding(actualContent))
+    ) continue
     changed.push(path)
   }
   if (added.length === 0 && removed.length === 0 && changed.length === 0) {
@@ -51,6 +57,14 @@ export async function compareFileTrees(params: {
   }
   await writeReport({ ...params, added, removed, changed })
   return { equal: false, added, removed, changed, reportDir: params.reportDir }
+}
+
+function withoutFinalLineEnding(content: Buffer): Buffer {
+  const end = content.length
+  if (end > 0 && content[end - 1] === 0x0a) {
+    return content.subarray(0, end > 1 && content[end - 2] === 0x0d ? end - 2 : end - 1)
+  }
+  return content
 }
 
 async function fileMap(root: string, ignoredPaths: ReadonlySet<string>): Promise<Map<string, Buffer>> {

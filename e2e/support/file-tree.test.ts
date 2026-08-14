@@ -78,6 +78,22 @@ describe("compareFileTrees", () => {
     })
   })
 
+  it("может не учитывать завершающий перевод строки в YAML", async () => {
+    const fixture = await treeFixture()
+    await write(fixture.expectedDir, "Свойства.yaml", "Значение: Истина\n")
+    await write(fixture.actualDir, "Свойства.yaml", "Значение: Истина")
+
+    await expect(compareFileTrees({
+      ...fixture,
+      yamlComparison: "ignore-final-line-ending",
+    })).resolves.toEqual({
+      equal: true,
+      added: [],
+      removed: [],
+      changed: [],
+    })
+  })
+
   it("позволяет исключить служебный ConfigDumpInfo.xml", async () => {
     const fixture = await treeFixture()
     await write(fixture.expectedDir, "ConfigDumpInfo.xml", "<ConfigDumpInfo/>")
