@@ -4,6 +4,8 @@ import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { hashConfigurationProjectFileList } from "../configurationIndex"
 import { readComponentProjectStructure } from "../project/componentState/structure"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import { buildFullXmlSyncPlan } from "./discovery"
 
 describe("full XML sync discovery", () => {
@@ -43,6 +45,8 @@ describe("full XML sync discovery", () => {
     touch(projectDir, "Справочник/Товары/Свойства.yaml")
     touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml")
     touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl")
+    touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/ДинамическийСписок/Список.query")
+    touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Неизвестный.bin")
 
     const plan = await buildPlan(projectDir)
 
@@ -81,14 +85,57 @@ describe("full XML sync discovery", () => {
         expect.objectContaining({ targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml" }),
       ]),
     })
-    expect(plan.externalFiles).toEqual([
+    expect(plan.externalFiles.map(({ sourceProjectPath }) => sourceProjectPath)).toEqual([
+      "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl",
+      "Справочник/Товары/Формы/ФормаЭлемента/Неизвестный.bin",
+    ])
+    expect(plan.externalFiles).toContainEqual(
       expect.objectContaining({
         sourceProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl",
         sourcePath: join(projectDir, "cf", "Справочник", "Товары", "Формы", "ФормаЭлемента", "Модуль.bsl"),
         targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form/Module.bsl",
         transferCapabilityId: "ChildFormNames",
       }),
-    ])
+    )
+    expect(classifyMetadataProjectPath(
+      compileRegisteredMetadataResourceTopology(),
+      "Справочник/Товары/Формы/ФормаЭлемента/ДинамическийСписок/Список.query",
+    )).toMatchObject({
+      kind: "assignmentInput",
+      assignment: {
+        projectPattern: "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
+      },
+    })
+  })
+
+  it("tracks embedded query files in component state without planning a separate XML file", async () => {
+    const projectDir = createProject()
+    const queryPath =
+      "Справочник/Товары/Формы/ФормаЭлемента/ДинамическийСписок/Список.query"
+    touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml")
+    touch(projectDir, queryPath)
+
+    const structure = await readComponentProjectStructure({
+      projectDir,
+      address: { kind: "configuration" },
+    })
+    const hashes = {
+      componentPath: structure.componentPath,
+      projectFiles: await hashConfigurationProjectFileList(
+        structure.componentDir,
+        structure.projectPaths
+      ),
+    }
+    const plan = buildFullXmlSyncPlan({ structure, hashes })
+
+    expect(structure.projectPaths).toContain(queryPath)
+    expect(hashes.projectFiles.map(({ projectPath }) => projectPath)).toContain(queryPath)
+    expect(plan.assignments.map(({ sourceProjectPath }) => sourceProjectPath)).not.toContain(
+      queryPath
+    )
+    expect(plan.externalFiles.map(({ sourceProjectPath }) => sourceProjectPath)).not.toContain(
+      queryPath
+    )
   })
 
   it("uses the file parameter as the semantic name of a flat assignment", async () => {

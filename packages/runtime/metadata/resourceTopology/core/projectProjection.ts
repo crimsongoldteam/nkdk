@@ -3,6 +3,7 @@ import { join, resolve } from "path"
 import { expandMetadataPathPattern } from "./patterns"
 import type {
   CompiledMetadataAssignmentNode,
+  CompiledMetadataAssignmentInputNode,
   CompiledMetadataExternalFileNode,
   CompiledMetadataIgnoredPathNode,
   CompiledMetadataPathCursor,
@@ -24,11 +25,12 @@ export interface MetadataProjectResourceOwner {
 }
 
 export interface MetadataProjectResourceMatch {
-  readonly kind: "content" | "yamlCompanion" | "externalFile" | "ignore"
+  readonly kind: "content" | "yamlCompanion" | "assignmentInput" | "externalFile" | "ignore"
   readonly projectPath: string
   readonly assignment: CompiledMetadataAssignmentNode | undefined
   readonly externalFile?: CompiledMetadataExternalFileNode
   readonly yamlCompanion?: CompiledMetadataYamlCompanionNode
+  readonly assignmentInput?: CompiledMetadataAssignmentInputNode
   readonly ignoredPath?: CompiledMetadataIgnoredPathNode
   readonly values: Readonly<Record<string, string>>
   readonly role: MetadataResourceRole
@@ -165,6 +167,14 @@ function createMetadataProjectMatchResolver(
       assignment.yamlCompanions.map((yamlCompanion) => [yamlCompanion.id, { assignment, yamlCompanion }] as const)
     )
   )
+  const assignmentInputsById = new Map(
+    topology.assignments.flatMap((assignment) =>
+      assignment.assignmentInputs.map((assignmentInput) => [
+        assignmentInput.id,
+        { assignment, assignmentInput },
+      ] as const)
+    )
+  )
   const ignoredById = new Map(
     topology.ignoredPaths.filter((path) => path.side === "project").map((path) => [path.id, path])
   )
@@ -175,6 +185,7 @@ function createMetadataProjectMatchResolver(
     assignmentsByProjectPattern,
     externalById,
     companionsById,
+    assignmentInputsById,
     ignoredById,
   })
 }
@@ -192,6 +203,10 @@ function classifyMetadataProjectPathWithMatches(params: {
     readonly assignment: CompiledMetadataAssignmentNode
     readonly yamlCompanion: CompiledMetadataYamlCompanionNode
   }>
+  readonly assignmentInputsById: ReadonlyMap<string, {
+    readonly assignment: CompiledMetadataAssignmentNode
+    readonly assignmentInput: CompiledMetadataAssignmentInputNode
+  }>
   readonly ignoredById: ReadonlyMap<string, CompiledMetadataIgnoredPathNode>
 }): MetadataProjectResourceMatch | undefined {
   const {
@@ -201,6 +216,7 @@ function classifyMetadataProjectPathWithMatches(params: {
     assignmentsByProjectPattern,
     externalById,
     companionsById,
+    assignmentInputsById,
     ignoredById,
   } = params
   const candidates = matches.flatMap((match): MetadataProjectResourceMatch[] => {
@@ -258,6 +274,26 @@ function classifyMetadataProjectPathWithMatches(params: {
         compositionImpact: "none",
       }]
     }
+    const input = assignmentInputsById.get(match.nodeId)
+    if (input !== undefined) {
+      return [{
+        kind: "assignmentInput",
+        projectPath,
+        assignment: input.assignment,
+        assignmentInput: input.assignmentInput,
+        values: match.values,
+        role: "external",
+        rule: undefined,
+        owner: resolveOwner(assignmentsByProjectPattern, input.assignment),
+        metadataTarget: resolveMetadataTarget(
+          assignmentsByProjectPattern,
+          input.assignment,
+          match.values,
+          projectPath,
+        ),
+        compositionImpact: "none",
+      }]
+    }
     const ignoredPath = ignoredById.get(match.nodeId)
     return ignoredPath === undefined
       ? []
@@ -303,7 +339,8 @@ export async function* iterateMetadataProjectResources(params: {
 }): AsyncGenerator<MetadataProjectResourceMatch> {
   for await (const candidate of iterateMetadataProjectPathCandidates(params)) {
     const match = candidate.classify()
-    if (match === undefined || match.kind === "ignore") continue
+    if (match === undefined) continue
+    if (match.kind === "ignore") continue
     yield match
   }
 }

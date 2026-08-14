@@ -144,6 +144,13 @@ export interface MetadataYamlCompanionDeclaration {
   readonly source: MetadataResourceSource
 }
 
+export interface MetadataAssignmentInputDeclaration {
+  readonly kind: "assignmentInput"
+  readonly assignmentProjectPattern: string
+  readonly projectPattern: string
+  readonly source: MetadataResourceSource
+}
+
 export interface MetadataIgnoredPathDeclaration {
   readonly kind: "ignore"
   readonly side: "project" | "xml"
@@ -167,6 +174,7 @@ export type MetadataResourceDeclaration =
   | MetadataContentDeclaration
   | MetadataXmlDocumentDeclaration
   | MetadataYamlCompanionDeclaration
+  | MetadataAssignmentInputDeclaration
   | MetadataExternalFileDeclaration
   | MetadataIgnoredPathDeclaration
   | MetadataChildCollectionDeclaration
@@ -192,6 +200,11 @@ export interface CompiledMetadataYamlCompanionNode extends MetadataYamlCompanion
   readonly projectPattern: string
 }
 
+export interface CompiledMetadataAssignmentInputNode extends MetadataAssignmentInputDeclaration {
+  readonly id: string
+  readonly projectPattern: string
+}
+
 export interface CompiledMetadataAssignmentNode
   extends Omit<MetadataContentDeclaration, "fileBackedTarget"> {
   readonly id: string
@@ -199,6 +212,7 @@ export interface CompiledMetadataAssignmentNode
   readonly fileBackedTarget?: CompiledMetadataFileBackedMemberTargetDeclaration
   readonly xmlDocuments: readonly CompiledMetadataXmlDocumentNode[]
   readonly yamlCompanions: readonly CompiledMetadataYamlCompanionNode[]
+  readonly assignmentInputs: readonly CompiledMetadataAssignmentInputNode[]
   readonly externalFiles: readonly CompiledMetadataExternalFileNode[]
 }
 

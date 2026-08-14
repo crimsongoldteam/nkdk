@@ -7,6 +7,8 @@ import { MetadataConfigurationRules } from "../appliedObjects/configuration/rule
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
 import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
 import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
+import { MetadataAccumulationRegisterRules } from "../appliedObjects/metadataAccumulationRegister/rules"
+import { importFromYAML } from "@nkdk/runtime"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import {
   exportJSONSchemaForSchemaName,
@@ -495,6 +497,20 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     }
 
     expect(JSON.stringify(root.properties?.СтандартныеРеквизиты)).toContain('"const":"!xml/present"')
+  })
+
+  it("разрешает !xml/absent для стандартного реквизита регистра накопления", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      roots: [{ key: "register", rule: MetadataAccumulationRegisterRules }],
+    })
+    const compiled = compileValidationSchema(graph.schemas, graph.roots.register!)
+    const yaml = importFromYAML(`СтандартныеРеквизиты:
+  ВидДвижения: !xml/absent
+`)
+
+    expect(compiled.Check(yaml), JSON.stringify([...compiled.Errors(yaml)], null, 2)).toBe(true)
   })
 
   it("откладывает required для заимствованного ресурса куба в extension overlay", () => {

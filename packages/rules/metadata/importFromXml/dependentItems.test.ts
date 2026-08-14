@@ -11,9 +11,43 @@ import {
   normalizeImportedDependentItems,
   partitionImportedDependentItems,
 } from "./dependentItems"
+import { ordinaryFillValueItemTypes } from "../commonObjects/fillValue/ordinaryItemTypes"
 
 
 describe("normalizeImportedDependentItems", () => {
+  it.each(ordinaryFillValueItemTypes)("сохраняет строковый xsi:nil через !xml/value Nil у %s", (itemType) => {
+    const item = { Тип: "Строка", ЗначениеЗаполнения: "" }
+    const yaml = { Поля: { Поле: item } }
+
+    normalizeImportedDependentItems({
+      yaml,
+      rule: MetadataCatalogRules,
+      candidates: [candidate(itemType, ["Поля", "Поле"], "Поле", { "_xsi:nil": true })],
+      owner: { dir: "РегистрСведений", name: "Проба" },
+    })
+
+    expect(item.ЗначениеЗаполнения).toBe("!xml/value Nil")
+    expect(yamlScalarTagAt(item, "ЗначениеЗаполнения")).toBe("xml/value")
+  })
+
+  it.each(
+    ordinaryFillValueItemTypes.flatMap((itemType) => [
+      ["нестрокового", itemType, "Булево", "Ложь"],
+      ["составного", itemType, ["Строка", "Булево"], ""],
+    ] as const),
+  )("не сохраняет xsi:nil у %s %s", (_case, itemType, type, fillValue) => {
+    const item: Record<string, unknown> = { Тип: type, ЗначениеЗаполнения: fillValue }
+
+    normalizeImportedDependentItems({
+      yaml: { Поля: { Поле: item } },
+      rule: MetadataCatalogRules,
+      candidates: [candidate(itemType, ["Поля", "Поле"], "Поле", { "_xsi:nil": true })],
+      owner: { dir: "РегистрСведений", name: "Проба" },
+    })
+
+    expect(item).not.toHaveProperty("ЗначениеЗаполнения")
+  })
+
   it.each([
     [{ Тип: "Строка(10)", ЗначениеЗаполнения: "" }],
     [{ ЗначениеЗаполнения: "", Тип: "Строка(10)" }],

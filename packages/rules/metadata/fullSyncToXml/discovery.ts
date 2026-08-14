@@ -21,7 +21,10 @@ export function buildFullXmlSyncPlan(params: {
 
 export async function discoverFullXmlSyncPlan(componentDir: string): Promise<FullXmlSyncPlan> {
   const topology = compileRegisteredMetadataResourceTopology()
-  const resources = await discoverMetadataProjectResources({ topology, projectDir: componentDir })
+  const resources = await discoverMetadataProjectResources({
+    topology,
+    projectDir: componentDir,
+  })
   const projectPaths = resources.map(({ projectPath }) => projectPath)
   const structure: ComponentProjectStructure = {
     address: { kind: "configuration" },

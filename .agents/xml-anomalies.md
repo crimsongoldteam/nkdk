@@ -1,10 +1,10 @@
 | Объект с аномалией | Свойство | Классифицированный YAML-тег | Текст в XML |
 |---|---|---|---|
-| `MetadataAttribute`, `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |
-| `MetadataAttribute`, `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value DesignTimeRef` | `<FillValue xsi:type="xr:DesignTimeRef"/>` или `<xr:FillValue xsi:type="xr:DesignTimeRef"/>` |
+| обычное поле (`MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension`, `MetadataExternalDataSourceCubeResource`) либо стандартный реквизит `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |
+| обычное поле (`MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension`, `MetadataExternalDataSourceCubeResource`) либо стандартный реквизит `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value DesignTimeRef` | `<FillValue xsi:type="xr:DesignTimeRef"/>` или `<xr:FillValue xsi:type="xr:DesignTimeRef"/>` |
 | стандартный реквизит `Predefined`, для которого FillValue запрещён | `ЗначениеЗаполнения` | `!xml/value Ложь` | `<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>` |
 | ссылочный стандартный реквизит `Parent` с ошибочным булевым значением | `ЗначениеЗаполнения` | `!xml/value Ложь` | `<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>` |
-| обычный `MetadataAttribute` с единственным строковым типом | `ЗначениеЗаполнения` | `!xml/value Nil` | `<FillValue xsi:nil="true"/>` |
+| обычное поле `MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension` или `MetadataExternalDataSourceCubeResource` с единственным строковым типом | `ЗначениеЗаполнения` | `!xml/value Nil` | `<FillValue xsi:nil="true"/>` |
 | строковый `StandardAttributeDescription` (`Code`, `Description`, `Number`) | `ЗначениеЗаполнения` | `!xml/value String` | `<xr:FillValue xsi:type="xs:string"/>` |
 | `StandardAttributeDescription` с именем `ValueType` | `ЗначениеЗаполнения` | `!xml/value TypeDescription` | `<xr:FillValue xsi:type="v8:TypeDescription"/>` |
 | поле внешнего источника данных | `ЗначениеЗаполнения` | `!xml/value Null` | `<FillValue xsi:type="v8:Null"/>` |
@@ -24,6 +24,7 @@
 | реквизит формы с единственным типом `СписокЗначений` | `ТипЗначения` | `!xml/absent` | элемент `<Settings>` отсутствует вопреки каноническому экспорту пустого `v8:TypeDescription` |
 | свойство типа `TypeDescription` | `Тип` | `!xml/type <исходный префикс>:<русское имя типа>` | `v8:Type` с исходным namespace-префиксом, например `d7p1:Chart` |
 | `StandardAttributeDescriptions` | `СтандартныеРеквизиты` | `!xml/present` | канонические элементы `<xr:StandardAttribute name="…">…</xr:StandardAttribute>` |
+| отсутствующий канонический элемент `StandardAttributeDescriptions` внутри присутствующей коллекции | ключ соответствующего стандартного реквизита | `!xml/absent` | соответствующий `<xr:StandardAttribute>` отсутствует |
 | `CharacteristicsDescription` | `ПолеПутиКДанным` | `!xml/absent` | `<xr:DataPathField>` отсутствует |
 | `CharacteristicsDescription` | `ПолеИспользованияМножественныхЗначений` | `!xml/absent` | `<xr:MultipleValuesUseField>` отсутствует |
 | `CharacteristicsDescription` | `ПолеКлючаМножественныхЗначений` | `!xml/absent` | `<xr:MultipleValuesKeyField>` отсутствует |

@@ -28,6 +28,7 @@ import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
 import { fillValueDiagnostic } from "../../ruleRuntime/property/fillValueSemantics"
 import { effectiveFillValueType } from "../../ruleRuntime/property/fillValueSemantics"
+import { isOrdinaryFillValueItemType } from "./ordinaryItemTypes"
 
 const validationContext: ConfigurationContext = { version: "2.20", defaultLanguage: "ru" }
 const fillValueYamlKey = "ЗначениеЗаполнения"
@@ -204,7 +205,7 @@ function designTimeRefDiagnostic(
   params: DependentYamlItemParams,
   fallback: FillValueClassification,
 ): { readonly message: string; readonly severity: "error" | "warning" } | undefined {
-  if (params.itemType === "MetadataAttribute") {
+  if (isOrdinaryFillValueItemType(params.itemType)) {
     const effectiveType = effectiveFillValueType(metadataAttributeType(params.item), params.definedTypeLookup)
     if (effectiveType.status === "unresolved") return { message: effectiveType.reason, severity: "warning" }
     if (effectiveType.status === "known" && effectiveType.alternatives.some(({ kind }) => kind === "reference")) {

@@ -99,6 +99,22 @@ describe("элементы формы XML → YAML → XML", () => {
     )
   })
 
+  it("выводит TextEdit раньше ChoiceForm у обычного InputField", () => {
+    const { xml } = testMetadataItemFromYAMLToXML({
+      rule: InputFieldRules,
+      name: "Поле",
+      yaml: {
+        РедактированиеТекста: "Ложь",
+        ФормаВыбора: "Справочник.Товары.Форма.ФормаВыбора",
+      },
+    })
+
+    expect(Object.keys(xml).filter((key) => key === "TextEdit" || key === "ChoiceForm")).toEqual([
+      "TextEdit",
+      "ChoiceForm",
+    ])
+  })
+
   it("восстанавливает обязательный RadioButtonType=Auto без reference", () => {
     const yaml = testMetadataItemFromXMLToYAML({
       rule: RadioButtonFieldRules,
