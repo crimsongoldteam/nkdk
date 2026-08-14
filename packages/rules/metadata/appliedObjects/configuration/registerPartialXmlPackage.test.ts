@@ -12,6 +12,9 @@ it("регистрирует корневые спутники частично�
   const clientInterface = assignment.xmlDocuments.find(
     (document) => document.xmlPattern === "Ext/ClientApplicationInterface.xml"
   )!
+  const mainSectionCommandInterface = assignment.xmlDocuments.find(
+    (document) => document.xmlPattern === "Ext/MainSectionCommandInterface.xml"
+  )!
   const policy = resolvePartialXmlPackagePolicy(topology).assignments.get(assignment.id)
 
   expect(policy).toEqual({
@@ -22,7 +25,10 @@ it("регистрирует корневые спутники частично�
       includeCurrentMemberSubtree: false,
       stopAtOwner: true,
     },
-    companionDocuments: [{ documentId: clientInterface.id, loadTarget: false }],
+    companionDocuments: [
+      { documentId: clientInterface.id, loadTarget: true },
+      { documentId: mainSectionCommandInterface.id, loadTarget: true },
+    ],
     companionReferences: [{
       yamlPath: ["ОсновнойЯзык"],
       include: "targetAssignment",

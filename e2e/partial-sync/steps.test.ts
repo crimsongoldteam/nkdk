@@ -89,7 +89,6 @@ describe("partial sync steps", () => {
       "Реквизиты:",
       "  ТестоваяСтрока:",
       "    Тип: Строка(20)",
-      "",
     ].join("\n"))
     expect(syncStatuses(fixture.calls)).toEqual(["synchronized", "unchanged"])
     expect(fixture.comparisons).toHaveLength(2)

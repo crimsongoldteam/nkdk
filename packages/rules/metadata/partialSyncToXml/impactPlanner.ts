@@ -305,7 +305,13 @@ export function buildPartialXmlImpactPlan(params: {
       resource.kind === "content" && resource.assignment?.role === "configuration"
     )
     if (roots.length !== 1) throw new Error(`Ожидалось одно текущее корневое XML-задание, найдено ${roots.length}`)
-    includeAssignment(roots[0]!, true)
+    const root = roots[0]!
+    includeAssignment(root, true)
+    for (const resource of currentByPath.values()) {
+      if (resource.kind === "externalFile" && resource.assignment?.id === root.assignment?.id) {
+        includeExternal(resource, true)
+      }
+    }
   }
 
   function memberCollectionKey(resource: MetadataProjectResourceMatch): string {

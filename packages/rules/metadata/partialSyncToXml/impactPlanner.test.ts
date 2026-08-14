@@ -26,6 +26,17 @@ const topology = compileMetadataResourceTopology([{
     content("Конфигурация.yaml", "configuration", configurationRule, "none"),
     document("", "Configuration.xml", "metadata", true),
     document("", "Ext/ClientApplicationInterface.xml", "property", false),
+    document("", "Ext/MainSectionCommandInterface.xml", "property", false),
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Конфигурация.yaml",
+      projectPattern: "МодульПриложения.bsl",
+      xmlPattern: "Ext/ManagedApplicationModule.bsl",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      source,
+    },
     content("Язык/{ownerName}.yaml", "properties", languageRule, "configurationComposition"),
     document("", "Languages/{ownerName}.xml", "metadata", true),
     content("Объект/{ownerName}/Свойства.yaml", "properties", objectRule, "configurationComposition"),
@@ -91,14 +102,19 @@ registry.register({
       includeCurrentMemberSubtree: false,
       stopAtOwner: true,
     },
-    companionDocuments: [{ xmlPattern: "Ext/ClientApplicationInterface.xml", loadTarget: false }],
+    companionDocuments: [
+      { xmlPattern: "Ext/ClientApplicationInterface.xml", loadTarget: true },
+      { xmlPattern: "Ext/MainSectionCommandInterface.xml", loadTarget: true },
+    ],
     companionReferences: [{ yamlPath: ["ОсновнойЯзык"], include: "targetAssignment", loadTarget: true }],
   },
+  externalFiles: [{ projectPattern: "МодульПриложения.bsl", loadTarget: true }],
 })
 registry.register(childFormPartialXmlPackagePolicy)
 const policies = registry.resolve(topology)
 
 const root = "Конфигурация.yaml"
+const rootModule = "МодульПриложения.bsl"
 const language = "Язык/Русский.yaml"
 const owner = "Объект/Товары/Свойства.yaml"
 const firstForm = "Объект/Товары/Формы/Первая/Форма.yaml"
@@ -188,26 +204,36 @@ describe("partial XML impact planner", () => {
   })
 
   it("при добавлении и удалении верхнего объекта включает корень и его явных спутников", () => {
-    const added = plan([root, language, owner], changes({ added: [owner] }))
+    const added = plan([root, rootModule, language, owner], changes({ added: [owner] }))
     expect(added.selection).toEqual({
       kind: "selected",
-      projectPaths: [root, language, owner].sort(utf8),
+      projectPaths: [root, rootModule, language, owner].sort(utf8),
     })
     expect(documentPaths(added)).toEqual([
       "Configuration.xml",
       "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
       "Languages/Русский.xml",
       "Objects/Товары.xml",
     ].sort(utf8))
     expect(added.loadTargets).toEqual([
       "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
+      "Ext/ManagedApplicationModule.bsl",
       "Languages/Русский.xml",
       "Objects/Товары.xml",
     ].sort(utf8))
 
-    const deleted = plan([root, language], changes({ deleted: [owner] }))
-    expect(deleted.selection).toEqual({ kind: "selected", projectPaths: [root, language].sort(utf8) })
-    expect(deleted.loadTargets).toEqual(["Configuration.xml", "Languages/Русский.xml"].sort(utf8))
+    const deleted = plan([root, rootModule, language], changes({ deleted: [owner] }))
+    expect(deleted.selection).toEqual({ kind: "selected", projectPaths: [root, rootModule, language].sort(utf8) })
+    expect(deleted.loadTargets).toEqual([
+      "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
+      "Ext/ManagedApplicationModule.bsl",
+      "Languages/Русский.xml",
+    ].sort(utf8))
   })
 
   it("объединяет удаление и добавление переименованного объекта", () => {
@@ -217,6 +243,8 @@ describe("partial XML impact planner", () => {
     expect(result.selection).toEqual({ kind: "selected", projectPaths: [root, language, renamed].sort(utf8) })
     expect(result.loadTargets).toEqual([
       "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
       "Languages/Русский.xml",
       "Objects/НовыеТовары.xml",
     ].sort(utf8))
@@ -226,7 +254,12 @@ describe("partial XML impact planner", () => {
     const result = plan([root, language], changes({ deleted: [owner, firstForm, firstModule] }))
 
     expect(result.selection).toEqual({ kind: "selected", projectPaths: [root, language].sort(utf8) })
-    expect(result.loadTargets).toEqual(["Configuration.xml", "Languages/Русский.xml"].sort(utf8))
+    expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
+      "Languages/Русский.xml",
+    ].sort(utf8))
   })
 
   it("не расширяет пакет по обычной канонической ссылке", () => {

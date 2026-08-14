@@ -17,7 +17,7 @@ import { attachBorrowedFormPaths } from "../fullSyncToXml/borrowedFormPlan"
 import { readProfileComponentStates } from "../fullSyncToXml/componentRuntime"
 import { buildXmlSyncPlan } from "../fullSyncToXml/selection"
 import { createFullXmlSyncCompositionSnapshot } from "../fullSyncToXml/sharedMetadata"
-import type { FullXmlSyncDiagnostic, FullXmlSyncPlan } from "../fullSyncToXml/types"
+import type { FullXmlSyncAssignment, FullXmlSyncDiagnostic, FullXmlSyncPlan } from "../fullSyncToXml/types"
 import { withConfigurationIndexSources } from "../fullSyncToXml/configurationIndexSources"
 import {
   createFullXmlSyncWorkerPool,
@@ -194,7 +194,21 @@ async function prepareValidatedPackage(
     hashes: runtime.target.hashes,
     selection: impact.selection,
   }), runtime)
-  return writePreparedPackage({ ...params, runtime, plan, impact, migration, changes, diagnostics })
+  const compositionPlan = attachBorrowedFormPaths(buildXmlSyncPlan({
+    structure: runtime.target.structure,
+    hashes: runtime.target.hashes,
+    selection: { kind: "all" },
+  }), runtime)
+  return writePreparedPackage({
+    ...params,
+    runtime,
+    plan,
+    compositionAssignments: compositionPlan.assignments,
+    impact,
+    migration,
+    changes,
+    diagnostics,
+  })
 }
 
 function isMissingFile(caught: unknown): caught is NodeJS.ErrnoException {
@@ -204,6 +218,7 @@ function isMissingFile(caught: unknown): caught is NodeJS.ErrnoException {
 async function writePreparedPackage(params: ValidatedPreparationParams & {
   readonly runtime: FullXmlSyncProfileRuntime
   readonly plan: FullXmlSyncPlan
+  readonly compositionAssignments: readonly FullXmlSyncAssignment[]
   readonly impact: ReturnType<typeof buildPartialXmlImpactPlan>
   readonly migration: Awaited<ReturnType<typeof evaluatePartialXmlSyncMigrationState>>
   readonly changes: ReturnType<typeof detectPartialXmlChanges>
@@ -243,7 +258,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
           ...params.runtime.workerProfile,
           referencePathByCurrentPath: params.migration.referencePathByCurrentPath,
         },
-        composition: createFullXmlSyncCompositionSnapshot(params.plan.assignments),
+        composition: createFullXmlSyncCompositionSnapshot(params.compositionAssignments),
         targetIndex: params.runtime.target.snapshot.descriptor,
         ...(params.runtime.base === undefined ? {} : { baseIndex: params.runtime.base.snapshot.descriptor }),
         operationSeed: randomBytes(32),

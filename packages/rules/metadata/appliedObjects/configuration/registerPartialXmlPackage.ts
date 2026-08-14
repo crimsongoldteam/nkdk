@@ -9,10 +9,16 @@ registerPartialXmlPackagePolicy({
       includeCurrentMemberSubtree: false,
       stopAtOwner: true,
     },
-    companionDocuments: [{
-      xmlPattern: "Ext/ClientApplicationInterface.xml",
-      loadTarget: false,
-    }],
+    companionDocuments: [
+      {
+        xmlPattern: "Ext/ClientApplicationInterface.xml",
+        loadTarget: true,
+      },
+      {
+        xmlPattern: "Ext/MainSectionCommandInterface.xml",
+        loadTarget: true,
+      },
+    ],
     companionReferences: [{
       yamlPath: ["ОсновнойЯзык"],
       include: "targetAssignment",

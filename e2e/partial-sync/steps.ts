@@ -191,7 +191,6 @@ async function writeCatalog(projectDir: string, withAttribute: boolean): Promise
         "Реквизиты:",
         "  ТестоваяСтрока:",
         "    Тип: Строка(20)",
-        "",
       ].join("\n")
     : ""
   await writeFile(join(directory, "Свойства.yaml"), source, "utf8")
