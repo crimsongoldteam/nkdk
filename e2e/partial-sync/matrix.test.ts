@@ -103,7 +103,8 @@ describe("partial sync matrix", () => {
       const source = properties as string
       expect(source.indexOf("Измерения:"), owner).toBeLessThan(source.indexOf("Реквизиты:"))
       expect(source.indexOf("Реквизиты:"), owner).toBeLessThan(source.indexOf("Ресурсы:"))
-      expect(source.match(/ЗначениеЗаполнения: ""/gu), owner).toHaveLength(2)
+      expect(source.match(/ЗначениеЗаполнения: ""/gu) ?? [], owner)
+        .toHaveLength(owner === "information-register" ? 2 : 0)
     }
   })
 

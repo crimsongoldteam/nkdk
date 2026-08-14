@@ -84,6 +84,10 @@ for (const ownerKey of [
   "object:accounting-register",
   "object:calculation-register",
 ] as const) {
+  const stringFieldBody = ownerKey === "object:information-register"
+    ? "Тип: Строка(10)\nЗначениеЗаполнения: \"\""
+    : "Тип: Строка(10)"
+
   addInlineChild({
     ownerKey,
     propertyKey: "resources",
@@ -98,7 +102,7 @@ for (const ownerKey of [
     childItemType: "MetadataRegisterDimension",
     section: "Измерения",
     name: "ПроверочноеИзмерение",
-    body: "Тип: Строка(10)\nЗначениеЗаполнения: \"\"",
+    body: stringFieldBody,
   })
   addInlineChild({
     ownerKey,
@@ -106,7 +110,7 @@ for (const ownerKey of [
     childItemType: "MetadataRegisterAttribute",
     section: "Реквизиты",
     name: "ПроверочныйРеквизитРегистра",
-    body: "Тип: Строка(10)\nЗначениеЗаполнения: \"\"",
+    body: stringFieldBody,
   })
 }
 
