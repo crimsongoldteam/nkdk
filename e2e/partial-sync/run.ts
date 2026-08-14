@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url"
 
 export type PartialSyncArgs = {
   readonly root: string
+  readonly reset: boolean
 }
 
 export type PartialSyncCliDependencies = {
@@ -18,9 +19,15 @@ export type PartialSyncCliDependencies = {
 
 export function parsePartialSyncArgs(argv: readonly string[]): PartialSyncArgs {
   let root: string | undefined
+  let reset = false
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]
     if (index === 0 && argument === "--") continue
+    if (argument === "--reset") {
+      if (reset) throw new Error("Аргумент --reset можно передать только один раз")
+      reset = true
+      continue
+    }
     if (argument !== "--root") throw new Error(`Неизвестный аргумент: ${argument}`)
     if (root !== undefined) throw new Error("Аргумент --root можно передать только один раз")
     const value = argv[index + 1]
@@ -32,18 +39,21 @@ export function parsePartialSyncArgs(argv: readonly string[]): PartialSyncArgs {
     index += 1
   }
   if (root === undefined) throw new Error("Не задан обязательный аргумент --root")
-  return { root }
+  return { root, reset }
 }
 
 export async function runPartialSyncCli(
   argv: readonly string[],
   dependencies: PartialSyncCliDependencies = nodeDependencies
 ): Promise<void> {
-  const { root } = parsePartialSyncArgs(argv)
+  const { root, reset } = parsePartialSyncArgs(argv)
+  const env: NodeJS.ProcessEnv = { ...process.env, NKDK_PARTIAL_SYNC_ROOT: root }
+  if (reset) env.NKDK_PARTIAL_SYNC_RESET = "1"
+  else delete env.NKDK_PARTIAL_SYNC_RESET
   const outcome = await dependencies.runProcess(
     process.execPath,
     [dependencies.vitestPath, "run", "--config", "e2e/partial-sync/vitest.config.ts"],
-    { env: { ...process.env, NKDK_PARTIAL_SYNC_ROOT: root } }
+    { env }
   )
   if (outcome.exitCode !== 0) {
     throw new Error(`Сценарий partial sync завершился с кодом ${outcome.exitCode}`)

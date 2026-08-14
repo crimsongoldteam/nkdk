@@ -7,7 +7,8 @@ describe("partial sync command", () => {
       "--",
       "--root",
       "/Users/nikita/Базы 1С/temp_test",
-    ])).toEqual({ root: "/Users/nikita/Базы 1С/temp_test" })
+      "--reset",
+    ])).toEqual({ root: "/Users/nikita/Базы 1С/temp_test", reset: true })
   })
 
   it.each([
@@ -16,11 +17,19 @@ describe("partial sync command", () => {
     ["duplicate root", ["--root", "/first", "--root", "/second"]],
     ["relative root", ["--root", "relative"]],
     ["unknown argument", ["--other", "/workspace"]],
+    ["duplicate reset", ["--root", "/workspace", "--reset", "--reset"]],
   ])("rejects %s", (_name, argv) => {
     expect(() => parsePartialSyncArgs(argv)).toThrow()
   })
 
-  it("passes the scenario root only through the child environment", async () => {
+  it.each([
+    ["without reset", [], undefined],
+    ["with reset", ["--reset"], "1"],
+  ] as const)("passes the scenario root through the child environment %s", async (
+    _name,
+    resetArgs,
+    expectedReset,
+  ) => {
     const launches: Array<{
       command: string
       args: readonly string[]
@@ -30,6 +39,7 @@ describe("partial sync command", () => {
     await expect(runPartialSyncCli([
       "--root",
       "/Users/nikita/Базы 1С/temp_test",
+      ...resetArgs,
     ], {
       vitestPath: "/repo/node_modules/vitest/vitest.mjs",
       async runProcess(command, args, options) {
@@ -46,5 +56,6 @@ describe("partial sync command", () => {
       }),
     })])
     expect(launches[0]?.args).not.toContain("/Users/nikita/Базы 1С/temp_test")
+    expect(launches[0]?.env.NKDK_PARTIAL_SYNC_RESET).toBe(expectedReset)
   })
 })
