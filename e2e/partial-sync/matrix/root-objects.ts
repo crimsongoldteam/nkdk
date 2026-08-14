@@ -34,6 +34,9 @@ export const matrixChildInsertionAnchors: Readonly<Record<string, Readonly<Recor
   "object:task": {
     РеквизитыАдресации: "ТабличныеЧасти",
   },
+  "object:document-journal": {
+    Графы: "РегистрируемыеДокументы",
+  },
   "object:information-register": registerFieldInsertionAnchors(),
   "object:accumulation-register": registerFieldInsertionAnchors(),
   "object:accounting-register": registerFieldInsertionAnchors(),

@@ -147,6 +147,15 @@ describe("partial sync matrix", () => {
     }
   })
 
+  it("emits document journal columns before registered documents", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const operation = plan.find(({ key }) => key === "child:document-journal:columns")
+    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+    expect(properties).toEqual(expect.any(String))
+    const source = properties as string
+    expect(source.indexOf("Графы:")).toBeLessThan(source.indexOf("РегистрируемыеДокументы:"))
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",
