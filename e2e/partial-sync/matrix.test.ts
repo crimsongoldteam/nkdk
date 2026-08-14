@@ -348,6 +348,14 @@ describe("partial sync matrix", () => {
     expect(unique(formDeclarations.map(({ key }) => key))).toBe(true)
   })
 
+  it("uses the canonical minimal client form", () => {
+    for (const declaration of formDeclarations) {
+      expect(declaration.changes[0]?.after, declaration.key).toBe(
+        "Синоним: \"\"\nНазначенияИспользования: ПлатформаИМобильноеПриложение",
+      )
+    }
+  })
+
   it("forms one continuous and reversible transition for every declared path", () => {
     const files = new Map<string, string | Uint8Array>()
 

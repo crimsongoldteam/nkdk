@@ -35,7 +35,7 @@ export const formDeclarations = formOwnerKeys.map((ownerKey): FormDeclaration =>
     changes: [{
       path: `${ownerDirectory}/Формы/ПроверочнаяФорма/Форма.yaml`,
       before: null,
-      after: "ИспользоватьСтандартныеКоманды: Истина\n",
+      after: "Синоним: \"\"\nНазначенияИспользования: ПлатформаИМобильноеПриложение",
     }],
   }
 })
