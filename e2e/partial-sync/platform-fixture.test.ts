@@ -30,7 +30,7 @@ describe("partial sync platform fixture", () => {
     expect(fixture.launches[2]?.args).toEqual(expect.arrayContaining([
       "/LoadConfigFromFiles",
       extensionXmlDir,
-      "/Extension",
+      "-Extension",
       "Расширение_All",
     ]))
     expect(fixture.launches.every(({ command }) => command === "/opt/platform/1cv8")).toBe(true)

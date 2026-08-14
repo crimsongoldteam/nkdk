@@ -78,7 +78,7 @@ export async function prepareInfobaseFixture(
         `/F${params.baseDir}`,
         "/LoadConfigFromFiles",
         params.extensionXmlDir,
-        "/Extension",
+        "-Extension",
         params.extensionName,
         "/UpdateDBCfg",
       ],
