@@ -9,6 +9,7 @@ import {
   isAbsentStandardAttributeItem,
   sourceWithoutAbsentStandardAttributes,
 } from "./absentItems"
+import { exportStandardAttributeDescriptionToJSONSchema } from "./toJSONSchema"
 
 function buildNameFromYAML(rule: PropertyRule | undefined): (yamlKey: string) => string {
   const names = (rule as StandardAttributeDescriptionsPropertyRule | undefined)?.standartAttributeNames
@@ -47,10 +48,21 @@ const collectionRule = defineMetadataItemCollectionRule({
   omitEmptyOutput: true,
   recordYamlKeyFromYAML: ({ name }) => StandartAttributeNameToYAML[name as keyof typeof StandartAttributeNameToYAML],
   fromXMLToYAML: importStandardAttributeDescriptionsFromXMLToYAML,
+  toJSONSchema: exportStandardAttributeDescriptionToJSONSchema,
 })
 
 export const metadataRuleLayer000 = defineMetadataRules({
   ...collectionRule,
+  schemaPropertyRefs: {
+    ...collectionRule.schemaPropertyRefs,
+    StandardAttributeDescriptions: ({ context, rule, execution }) =>
+      exportStandardAttributeDescriptionToJSONSchema({
+        context,
+        rule,
+        value: undefined,
+        execution,
+      }),
+  },
   explicitXMLPropertyTypes: {
     StandardAttributeDescriptions: {
       propertyType: "StandardAttributeDescriptions",
