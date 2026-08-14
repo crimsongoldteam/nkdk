@@ -2,6 +2,8 @@
 |---|---|---|---|
 | `MetadataAttribute`, `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |
 | `MetadataAttribute`, `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml DesignTimeRef` | `<FillValue xsi:type="xr:DesignTimeRef"/>` или `<xr:FillValue xsi:type="xr:DesignTimeRef"/>` |
+| стандартный реквизит `Predefined`, для которого FillValue запрещён | `ЗначениеЗаполнения` | `!xml Ложь` | `<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>` |
+| ссылочный стандартный реквизит `Parent` с ошибочным булевым значением | `ЗначениеЗаполнения` | `!xml Ложь` | `<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>` |
 | обычный `MetadataAttribute` с единственным строковым типом | `ЗначениеЗаполнения` | `!xml Nil` | `<FillValue xsi:nil="true"/>` |
 | строковый `StandardAttributeDescription` (`Code`, `Description`, `Number`) | `ЗначениеЗаполнения` | `!xml String` | `<xr:FillValue xsi:type="xs:string"/>` |
 | `StandardAttributeDescription` с именем `ValueType` | `ЗначениеЗаполнения` | `!xml TypeDescription` | `<xr:FillValue xsi:type="v8:TypeDescription"/>` |
