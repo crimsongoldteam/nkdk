@@ -1,9 +1,11 @@
 import { z } from "zod/v4"
 import { toolErrorOutputShape } from "./common"
 import { failedObjectSchema, importWarningSchema } from "./importFromXml"
+import { configurationComponentPathSchema } from "./configurationComponentPath"
 
 export const importFromInfobaseInputShape = {
   projectDir: z.string().min(1),
+  componentPath: configurationComponentPathSchema.optional(),
   allowWrite: z.boolean().optional(),
 }
 

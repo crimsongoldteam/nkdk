@@ -73,7 +73,10 @@ describe("registerNkdkCapabilities", () => {
     )?.[1] as { description: string } | undefined
     expect(infobaseImportTool?.description).toContain("allowWrite=true")
     expect(infobaseImportTool?.description).toContain(".nkdk/project.yaml")
-    expect(infobaseImportTool?.description).toContain("пустой cf")
+    expect(infobaseImportTool?.description).toContain("по умолчанию cf")
+    expect(infobaseImportTool?.description).toContain("cfe/<Имя>")
+    expect(infobaseImportTool?.description).toContain("цель должна отсутствовать или быть пустой")
+    expect(infobaseImportTool?.description).toContain("cf импортируется первым")
     expect(infobaseImportTool?.description).toContain("Запускает 1С")
     expect(infobaseImportTool?.description).toContain("повторить импорт")
     const infobaseImportOptions = server.registerTool.mock.calls.find(
@@ -326,7 +329,7 @@ describe("registerNkdkCapabilities", () => {
     const success = {
       ok: true as const,
       status: "unchanged" as const,
-      componentPath: "cf",
+      componentPath: "cf" as const,
       diagnostics: [],
     }
     expect(registerToolsModule.syncToInfobaseToolResult(success).content).toEqual([

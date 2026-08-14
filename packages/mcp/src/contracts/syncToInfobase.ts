@@ -6,15 +6,11 @@ import {
   projectSettingsRequiredSchema,
 } from "./importFromInfobase"
 import { metadataDiagnosticSchema } from "./diagnostics"
-
-const componentPathSchema = z.string().refine(
-  (value) => value === "cf" || /^cfe\/[^/\\.][^/\\]*$/u.test(value),
-  "Ожидался путь cf или cfe/<Имя>",
-)
+import { configurationComponentPathSchema } from "./configurationComponentPath"
 
 export const syncToInfobaseInputShape = {
   projectDir: z.string().min(1),
-  componentPath: componentPathSchema.optional(),
+  componentPath: configurationComponentPathSchema.optional(),
   allowWrite: z.boolean().optional(),
   forceClearPending: z.boolean().optional(),
 }
@@ -24,14 +20,14 @@ export const syncToInfobaseInputSchema = z.strictObject(syncToInfobaseInputShape
 const unchangedSchema = z.strictObject({
   ok: z.literal(true),
   status: z.literal("unchanged"),
-  componentPath: componentPathSchema,
+  componentPath: configurationComponentPathSchema,
   diagnostics: z.array(metadataDiagnosticSchema),
 })
 
 const synchronizedSchema = z.strictObject({
   ok: z.literal(true),
   status: z.literal("synchronized"),
-  componentPath: componentPathSchema,
+  componentPath: configurationComponentPathSchema,
   packageId: z.string().min(1),
   entries: z.array(z.string()),
   loadTargets: z.array(z.string()),
@@ -48,7 +44,7 @@ const unknownDeliverySchema = z.strictObject({
   message: z.string(),
   details: z.strictObject({
     packageId: z.string().min(1),
-    componentPath: componentPathSchema,
+    componentPath: configurationComponentPathSchema,
     temporaryDirectory: z.string().min(1),
     stage: z.literal("configuration-load"),
     mode: z.literal("designer-agent"),

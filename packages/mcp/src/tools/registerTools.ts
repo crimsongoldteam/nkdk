@@ -150,7 +150,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Import 1C infobase to NKDK YAML",
       description:
-        "Импортирует основную конфигурацию информационной базы только в отсутствующий или пустой cf проекта. Перед операцией нужно создать .nkdk/project.yaml по опубликованной схеме, вручную внести нужные пароли, а затем повторить импорт. Запускает 1С и пишет файлы только при allowWrite=true.",
+        "Импортирует один компонент информационной базы: по умолчанию cf, расширение выбирается через cfe/<Имя>; цель должна отсутствовать или быть пустой. Перед расширением cf импортируется первым. Перед операцией нужно создать .nkdk/project.yaml по опубликованной схеме, вручную внести нужные пароли, а затем повторить импорт. Запускает 1С и пишет файлы только при allowWrite=true.",
       inputSchema: importFromInfobaseInputShape,
       outputSchema: importFromInfobaseOutputShape,
     },
