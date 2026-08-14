@@ -20,6 +20,7 @@ export function parsePartialSyncArgs(argv: readonly string[]): PartialSyncArgs {
   let root: string | undefined
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]
+    if (index === 0 && argument === "--") continue
     if (argument !== "--root") throw new Error(`Неизвестный аргумент: ${argument}`)
     if (root !== undefined) throw new Error("Аргумент --root можно передать только один раз")
     const value = argv[index + 1]

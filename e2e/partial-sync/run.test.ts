@@ -4,6 +4,7 @@ import { parsePartialSyncArgs, runPartialSyncCli } from "./run"
 describe("partial sync command", () => {
   it("parses an absolute root containing spaces", () => {
     expect(parsePartialSyncArgs([
+      "--",
       "--root",
       "/Users/nikita/Базы 1С/temp_test",
     ])).toEqual({ root: "/Users/nikita/Базы 1С/temp_test" })
