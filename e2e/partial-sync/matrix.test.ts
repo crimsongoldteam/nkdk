@@ -156,6 +156,15 @@ describe("partial sync matrix", () => {
     expect(source.indexOf("Графы:")).toBeLessThan(source.indexOf("РегистрируемыеДокументы:"))
   })
 
+  it("emits HTTP methods before the URL template", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const operation = plan.find(({ key }) => key === "child:http-service-urlTemplates:methods")
+    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+    expect(properties).toEqual(expect.any(String))
+    const template = (properties as string).slice((properties as string).indexOf("ПроверочныйШаблонURL:"))
+    expect(template.indexOf("Методы:")).toBeLessThan(template.indexOf("Шаблон:"))
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",

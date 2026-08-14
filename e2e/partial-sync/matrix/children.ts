@@ -25,6 +25,7 @@ type InlineChildSpec = {
   readonly dependsOn?: readonly string[]
   readonly extraChanges?: readonly ScenarioFileChange[]
   readonly exposeAsOwner?: boolean
+  readonly insertionAnchors?: Readonly<Record<string, string>>
 }
 
 const declarations: ChildDeclaration[] = []
@@ -183,6 +184,7 @@ const httpTemplate = addInlineChild({
   name: "ПроверочныйШаблонURL",
   body: "Шаблон: /partial-sync",
   exposeAsOwner: true,
+  insertionAnchors: { Методы: "Шаблон" },
 })
 addInlineChild({
   ownerKey: httpTemplate.key,
@@ -385,7 +387,12 @@ function addInlineChild(spec: InlineChildSpec): ChildDeclaration {
   }
   declarations.push(declaration)
   if (spec.exposeAsOwner === true) {
-    ownerStates.set(key, { path: owner.path, document: owner.document, indent: owner.indent + 4 })
+    ownerStates.set(key, {
+      path: owner.path,
+      document: owner.document,
+      indent: owner.indent + 4,
+      insertionAnchors: spec.insertionAnchors,
+    })
   }
   return declaration
 }
