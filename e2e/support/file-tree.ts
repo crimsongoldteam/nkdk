@@ -27,6 +27,7 @@ export async function compareFileTrees(params: {
   readonly reportDir: string
   readonly xmlComparison?: "bytes" | "semantic"
   readonly yamlComparison?: "bytes" | "ignore-final-line-ending"
+  readonly textComparison?: "bytes" | "ignore-utf8-bom"
   readonly ignoredPaths?: readonly string[]
 }): Promise<FileTreeComparison> {
   const ignoredPaths = new Set(params.ignoredPaths ?? [])
@@ -50,6 +51,11 @@ export async function compareFileTrees(params: {
       [".yaml", ".yml"].includes(extname(path).toLowerCase()) &&
       withoutFinalLineEnding(expectedContent).equals(withoutFinalLineEnding(actualContent))
     ) continue
+    if (
+      params.textComparison === "ignore-utf8-bom" &&
+      isTextPath(path) &&
+      withoutUtf8Bom(expectedContent).equals(withoutUtf8Bom(actualContent))
+    ) continue
     changed.push(path)
   }
   if (added.length === 0 && removed.length === 0 && changed.length === 0) {
@@ -65,6 +71,17 @@ function withoutFinalLineEnding(content: Buffer): Buffer {
     return content.subarray(0, end > 1 && content[end - 2] === 0x0d ? end - 2 : end - 1)
   }
   return content
+}
+
+function withoutUtf8Bom(content: Buffer): Buffer {
+  return content.length >= 3 && content[0] === 0xef && content[1] === 0xbb && content[2] === 0xbf
+    ? content.subarray(3)
+    : content
+}
+
+function isTextPath(path: string): boolean {
+  return new Set([".bsl", ".css", ".html", ".js", ".json", ".os", ".txt", ".xml", ".yaml", ".yml"])
+    .has(extname(path).toLowerCase())
 }
 
 async function fileMap(root: string, ignoredPaths: ReadonlySet<string>): Promise<Map<string, Buffer>> {

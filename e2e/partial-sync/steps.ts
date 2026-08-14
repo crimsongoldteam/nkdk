@@ -71,6 +71,7 @@ export function createPartialSyncSteps(
           reportDir: join(attemptLogDir, "compare-baseline-cf"),
           xmlComparison: "semantic",
           yamlComparison: "ignore-final-line-ending",
+          textComparison: "ignore-utf8-bom",
         })
       } finally {
         if (verificationOpen) await closePlatformConnection(session, verificationProjectDir)
@@ -108,6 +109,7 @@ export function createPartialSyncSteps(
           reportDir: join(attemptLogDir, `compare-${safeKey}-cf`),
           xmlComparison: "semantic",
           yamlComparison: "ignore-final-line-ending",
+          textComparison: "ignore-utf8-bom",
         })
         await closePlatformConnection(session, verificationProjectDir)
         verificationOpen = false

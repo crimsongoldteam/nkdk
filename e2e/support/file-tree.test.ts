@@ -94,6 +94,22 @@ describe("compareFileTrees", () => {
     })
   })
 
+  it("может не учитывать UTF-8 BOM в текстовых файлах", async () => {
+    const fixture = await treeFixture()
+    await write(fixture.expectedDir, "Модуль.bsl", "Процедура Проверка()\nКонецПроцедуры\n")
+    await write(fixture.actualDir, "Модуль.bsl", "\uFEFFПроцедура Проверка()\nКонецПроцедуры\n")
+
+    await expect(compareFileTrees({
+      ...fixture,
+      textComparison: "ignore-utf8-bom",
+    })).resolves.toEqual({
+      equal: true,
+      added: [],
+      removed: [],
+      changed: [],
+    })
+  })
+
   it("позволяет исключить служебный ConfigDumpInfo.xml", async () => {
     const fixture = await treeFixture()
     await write(fixture.expectedDir, "ConfigDumpInfo.xml", "<ConfigDumpInfo/>")
