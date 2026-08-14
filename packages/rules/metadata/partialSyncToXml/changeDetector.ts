@@ -1,5 +1,17 @@
 import type { PartialXmlChanges, PartialXmlFileVersion } from "./types"
 
+export async function supplementCurrentVersions(params: {
+  readonly current: readonly PartialXmlFileVersion[]
+  readonly previous: readonly PartialXmlFileVersion[]
+  readonly read: (projectPath: string) => Promise<PartialXmlFileVersion | undefined>
+}): Promise<PartialXmlFileVersion[]> {
+  const currentPaths = new Set(params.current.map(({ projectPath }) => projectPath))
+  const missing = params.previous.filter(({ projectPath }) => !currentPaths.has(projectPath))
+  const supplemental = (await Promise.all(missing.map(({ projectPath }) => params.read(projectPath))))
+    .filter((version): version is PartialXmlFileVersion => version !== undefined)
+  return [...params.current, ...supplemental]
+}
+
 export function detectPartialXmlChanges(params: {
   readonly current: readonly PartialXmlFileVersion[]
   readonly previous: readonly PartialXmlFileVersion[]

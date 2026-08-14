@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from "node:crypto"
+import { readFile } from "node:fs/promises"
 import { join, resolve } from "node:path"
-import { componentPath, parseComponentPath } from "@nkdk/runtime"
+import { componentPath, hashFileBytes, parseComponentPath } from "@nkdk/runtime"
 import {
   openConfigurationIndexStore,
   type ConfigurationIndexPendingDelta,
@@ -30,7 +31,7 @@ import {
   readComponentProjectStructure,
 } from "../project/componentState"
 import type { ProjectStateReadToken, ProjectStateService } from "../projectState"
-import { detectPartialXmlChanges } from "./changeDetector"
+import { detectPartialXmlChanges, supplementCurrentVersions } from "./changeDetector"
 import { buildPartialXmlImpactPlan } from "./impactPlanner"
 import { evaluatePartialXmlSyncMigrationState } from "./migrationState"
 import { resolvePartialXmlPackagePolicy } from "./packagePolicy"
@@ -150,8 +151,21 @@ async function prepareValidatedPackage(
     },
   })
   const runtime = await profile.confirm(states)
-  const changes = detectPartialXmlChanges({
+  const currentVersions = await supplementCurrentVersions({
     current: runtime.target.hashes.projectFiles,
+    previous: runtime.target.snapshot.projectFiles,
+    async read(projectPath) {
+      try {
+        const content = await readFile(join(runtime.target.structure.componentDir, ...projectPath.split("/")))
+        return { projectPath, contentHash: hashFileBytes(content) }
+      } catch (caught) {
+        if (isMissingFile(caught)) return undefined
+        throw caught
+      }
+    },
+  })
+  const changes = detectPartialXmlChanges({
+    current: currentVersions,
     previous: runtime.target.snapshot.projectFiles,
   })
   const migration = await evaluatePartialXmlSyncMigrationState({
@@ -181,6 +195,10 @@ async function prepareValidatedPackage(
     selection: impact.selection,
   }), runtime)
   return writePreparedPackage({ ...params, runtime, plan, impact, migration, changes, diagnostics })
+}
+
+function isMissingFile(caught: unknown): caught is NodeJS.ErrnoException {
+  return caught instanceof Error && "code" in caught && caught.code === "ENOENT"
 }
 
 async function writePreparedPackage(params: ValidatedPreparationParams & {
