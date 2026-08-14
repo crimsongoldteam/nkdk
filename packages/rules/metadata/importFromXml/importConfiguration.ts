@@ -355,6 +355,10 @@ export async function importConfigurationFromXml(
       externalWriter.appendImportFinal(externalFinalState)
       await importSession.writeStateFragment(externalWriter.finish())
     }
+    await importSession.replaceFinalHashes(projectFiles.map((file) => ({
+      projectPath: `${validationComponent.componentPath}/${file.projectPath}`,
+      hash: file.contentHash,
+    })))
     indexCandidate.replaceHashes(projectFiles)
     indexCandidate.validateCandidate()
     const candidateToPublish = indexCandidate

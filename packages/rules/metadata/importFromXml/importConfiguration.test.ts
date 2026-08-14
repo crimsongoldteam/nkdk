@@ -373,8 +373,9 @@ describe("configuration XML import coordinator", () => {
   it("writes the snapshot strictly after direct YAML output, copying and hashing", async () => {
     const params = createParams("configuration")
     const calls: string[] = []
+    const replacedFinalHashes: Array<readonly { readonly projectPath: string; readonly hash: bigint }[]> = []
 
-    const result = await importConfigurationFromXml(params, fakeDependencies({ calls }))
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls, replacedFinalHashes }))
 
     expect(calls).toEqual([
       "discover",
@@ -387,6 +388,10 @@ describe("configuration XML import coordinator", () => {
       "publishCandidate",
       "closeWorkers",
     ])
+    expect(replacedFinalHashes).toEqual([projectFiles.map((file) => ({
+      projectPath: `cf/${file.projectPath}`,
+      hash: file.contentHash,
+    }))])
     expect(result.configurationIndexPath).toBe(configurationIndexDataPath(params.projectDir, { kind: "configuration" }))
   })
 
@@ -705,6 +710,7 @@ function fakeDependencies(params: {
     rootItemName?: string
   }>
   transfers?: string[]
+  replacedFinalHashes?: Array<readonly { readonly projectPath: string; readonly hash: bigint }[]>
   workerCloseFailure?: Error
   projectStateCloseFailure?: Error
 }): ImportCoordinatorDependencies {
@@ -777,7 +783,7 @@ function fakeDependencies(params: {
       return { assignments }
     },
     createProjectStateService() {
-      return fakeProjectState(params.calls, params.projectStateCloseFailure)
+      return fakeProjectState(params.calls, params.projectStateCloseFailure, params.replacedFinalHashes)
     },
     mergeFiles(files) {
       call("mergeFiles")
@@ -883,7 +889,11 @@ function finalStateFragment(batch: ProjectStateImportFinalFileStateBatch) {
   return writer.finish()
 }
 
-function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateService {
+function fakeProjectState(
+  calls: string[],
+  closeFailure?: Error,
+  replacedFinalHashes?: Array<readonly { readonly projectPath: string; readonly hash: bigint }[]>,
+): ProjectStateService {
   let nextToken = 1
   const readToken = () => new Uint8Array([nextToken++]) as never
   return {
@@ -900,6 +910,7 @@ function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateSe
           structuredClone(fragment, { transfer: buffers })
           expect(buffers.every((buffer) => buffer.byteLength === 0)).toBe(true)
         },
+        async replaceFinalHashes(files) { replacedFinalHashes?.push(files) },
         async finalize(beforeCheckpoint) {
           importParams.profile?.onPhase?.({ phase: "finalBuild", elapsedMs: 1 })
           importParams.profile?.onPhase?.({ phase: "dependencyValidation", elapsedMs: 1 })
@@ -954,6 +965,7 @@ function projectStateWithImportSession(
   const unexpected = async (): Promise<never> => { throw new Error("unexpected import session call") }
   const session: ProjectStateImportSession = {
     async writeStateFragment() {},
+    async replaceFinalHashes() {},
     commitWorkingIndex: unexpected,
     createReadToken: unexpected,
     finalize: unexpected,

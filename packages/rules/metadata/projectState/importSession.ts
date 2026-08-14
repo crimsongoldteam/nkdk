@@ -10,7 +10,11 @@ import type {
 export type { ProjectStateImportIndexContribution } from "./fileUpdate"
 import type { ProjectStateRefreshResult } from "./refresh"
 import type { ProjectStateWriterHandle } from "./writerHandle"
-import { openProjectStateFragment, type ProjectStateFragment } from "./binary/fragment"
+import {
+  createProjectStateFragmentWriter,
+  openProjectStateFragment,
+  type ProjectStateFragment,
+} from "./binary/fragment"
 import {
   assertProjectStateImportFinalFileState,
   assertProjectStatePortableData,
@@ -59,6 +63,7 @@ export interface ProjectStateImportFinalFileStateBatch {
 
 export interface ProjectStateImportSession {
   writeStateFragment(fragment: ProjectStateFragment): Promise<void>
+  replaceFinalHashes(files: readonly { readonly projectPath: string; readonly hash: bigint }[]): Promise<void>
   commitWorkingIndex(): Promise<ProjectStateReadToken>
   /** Выдаёт отдельный одноразовый token следующему worker после фиксации индекса. */
   createReadToken(): Promise<ProjectStateReadToken>
@@ -139,6 +144,32 @@ export async function createProjectStateImportSession(
         changedPaths.add(checked.stringValue(checked.fileRecord(id).projectPathId))
       }
       await startFinalWrite(() => params.writer.writeFragment(fragment))
+    },
+    async replaceFinalHashes(files) {
+      const hashes = new Map<string, bigint>()
+      for (const file of files) {
+        if (hashes.has(file.projectPath)) throw new Error(`Повторный путь окончательного хэша: ${file.projectPath}`)
+        hashes.set(file.projectPath, file.hash)
+      }
+      await startFinalWrite(async () => {
+        const entries = []
+        for (const componentPath of params.output.componentPaths) {
+          const projection = await params.writer.readComponentProjection(componentPath)
+          for (const update of projection.updates) {
+            const hash = hashes.get(update.projectPath)
+            if (hash === undefined) continue
+            entries.push({ update, hash })
+            hashes.delete(update.projectPath)
+          }
+        }
+        if (hashes.size > 0) {
+          throw new Error(`Окончательное состояние не содержит файлы: ${[...hashes.keys()].join(", ")}`)
+        }
+        if (entries.length === 0) return
+        const writer = createProjectStateFragmentWriter()
+        for (const { update, hash } of entries) writer.appendFile(update, hash)
+        await params.writer.writeFragment(writer.finish())
+      })
     },
     async commitWorkingIndex() {
       if (phase !== "index") throw new Error("Рабочий индекс import уже зафиксирован")

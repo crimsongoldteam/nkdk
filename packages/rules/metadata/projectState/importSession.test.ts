@@ -89,14 +89,7 @@ describe("ProjectState import session", () => {
       async save(_projectDir, buffers) { saved.push(buffers) },
     })
     const indexed = indexContribution("cf/a.yaml", "Товары")
-    const importSession = await createProjectStateImportSession({
-      projectDir: "/project",
-      workerCount: 1,
-      output: { componentPaths: ["cf"] },
-      writer,
-      async publish() {},
-      async discard() {},
-    })
+    const importSession = await createTestImportSession(writer)
 
     await importSession.writeStateFragment(stateFragment([indexed]))
     const firstToken = await importSession.commitWorkingIndex()
@@ -109,6 +102,27 @@ describe("ProjectState import session", () => {
     await importSession.finalize()
     await writer.flushCheckpoint()
     expect(saved).toHaveLength(1)
+    await writer.close()
+  })
+
+  it("заменяет хэш окончательного состояния, сохраняя сведения о файле", async () => {
+    const writer = createProjectStateWriterHandle({
+      openStore: async () => createBinaryProjectStateTestFixture().store,
+    })
+    const indexed = indexContribution("cf/a.yaml", "Товары")
+    const importSession = await createTestImportSession(writer)
+
+    await importSession.writeStateFragment(stateFragment([indexed]))
+    await importSession.commitWorkingIndex()
+    await importSession.writeStateFragment(stateFragment([indexed], [finalBatch(indexed.projectPath, 4n)]))
+    const before = await writer.readComponentProjection("cf")
+    await importSession.replaceFinalHashes([{ projectPath: indexed.projectPath, hash: 9n }])
+
+    const projection = await writer.readComponentProjection("cf")
+    expect(new DataView(projection.hashBytes.buffer).getBigUint64(0, false)).toBe(9n)
+    expect(projection.updates).toEqual(before.updates)
+
+    await importSession.abort(new Error("test complete"))
     await writer.close()
   })
 
@@ -373,6 +387,17 @@ function indexContribution(projectPath: string, name: string): ProjectStateImpor
     fields: [],
     forms: [],
   }
+}
+
+function createTestImportSession(writer: ProjectStateWriterHandle): Promise<ProjectStateImportSession> {
+  return createProjectStateImportSession({
+    projectDir: "/project",
+    workerCount: 1,
+    output: { componentPaths: ["cf"] },
+    writer,
+    async publish() {},
+    async discard() {},
+  })
 }
 
 function stateFragment(
