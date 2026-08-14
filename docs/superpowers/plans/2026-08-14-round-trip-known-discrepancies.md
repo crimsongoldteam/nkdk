@@ -319,7 +319,8 @@ if (
 Добавить round-trip проверку, что полученный YAML экспортируется обратно в один `xr:DesignTimeRef` с исходным текстом. Запустить:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/importFromXml/dependentItems.test.ts metadata/importFromXml/fillValueImport.test.ts metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/importFromXml/dependentItems.test.ts metadata/importFromXml/fillValueImport.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/commonObjects/metadataValue/brokenDesignTimeRef.test.ts
 ```
 
 Expected: PASS.
