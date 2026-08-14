@@ -53,7 +53,8 @@ export function createPlatformSessionManager(
         outputDir,
         operationLog,
         params.unresolvedReferences,
-        params.signal
+        params.signal,
+        params.extensionName
       )
     )
     return {

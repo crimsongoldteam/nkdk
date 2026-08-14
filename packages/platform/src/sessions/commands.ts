@@ -63,6 +63,7 @@ export function buildStandaloneConfigExport(params: {
   user?: string
   password?: string
   unresolvedReferences: UnresolvedReferencesMode
+  extensionName?: string
 }): ProcessLaunch {
   return {
     command: params.ibcmdPath,
@@ -73,6 +74,7 @@ export function buildStandaloneConfigExport(params: {
       ...(params.user === undefined ? [] : [`--user=${params.user}`]),
       ...(params.password === undefined ? [] : [`--password=${params.password}`]),
       ...(params.unresolvedReferences === "omit" ? ["--ignore-unresolved-refs"] : []),
+      ...(params.extensionName === undefined ? [] : [`--extension=${params.extensionName}`]),
       `--config=${params.configPath}`,
       params.outputDir,
     ],
@@ -120,12 +122,16 @@ export function buildStandaloneLaunch(params: {
 
 export function buildDumpConfigurationCommand(
   outputDir: string,
-  unresolvedReferences: UnresolvedReferencesMode
+  unresolvedReferences: UnresolvedReferencesMode,
+  extensionName?: string
 ): string {
   return [
     `config dump-config-to-files --dir="${interactiveValue(outputDir)}"`,
     "--format=hierarchical",
     ...(unresolvedReferences === "omit" ? ["--ignore-unresolved-refs"] : []),
+    ...(extensionName === undefined
+      ? []
+      : [`--extension="${interactiveValue(extensionName)}"`]),
   ].join(" ")
 }
 

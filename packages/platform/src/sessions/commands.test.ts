@@ -167,6 +167,21 @@ describe("platform session commands", () => {
     expect(standalone.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
   })
 
+  it("selects one extension for export in both platform modes", () => {
+    expect(buildDumpConfigurationCommand("/xml", "include", "Расширение_All")).toBe(
+      'config dump-config-to-files --dir="/xml" --format=hierarchical --extension="Расширение_All"'
+    )
+    expect(
+      buildStandaloneConfigExport({
+        ibcmdPath: "ibcmd",
+        configPath: "/session/config.yaml",
+        outputDir: "/xml",
+        unresolvedReferences: "include",
+        extensionName: "Расширение_All",
+      }).args
+    ).toContain("--extension=Расширение_All")
+  })
+
   it("quotes a dump directory for the interactive 1C shell", () => {
     expect(buildDumpConfigurationCommand("/project/.nkdk/tmp/op/xml", "include")).toBe(
       'config dump-config-to-files --dir="/project/.nkdk/tmp/op/xml" --format=hierarchical'
@@ -230,8 +245,13 @@ describe("platform session commands", () => {
     ])
   })
 
-  it.each(["/project/a\nb", "/project/a\0b"])("rejects unsafe interactive values", (path) => {
-    expect(() => buildDumpConfigurationCommand(path, "include")).toThrowError(
+  it.each([
+    ["/project/a\nb", undefined],
+    ["/project/a\0b", undefined],
+    ["/project/xml", "Расширение\nb"],
+    ["/project/xml", "Расширение\0b"],
+  ])("rejects unsafe interactive values", (path, extensionName) => {
+    expect(() => buildDumpConfigurationCommand(path, "include", extensionName)).toThrowError(
       expect.objectContaining<Partial<PlatformSessionError>>({ code: "platform_command_failed" })
     )
   })

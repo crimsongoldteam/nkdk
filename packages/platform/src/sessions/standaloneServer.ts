@@ -141,7 +141,7 @@ export async function createStandaloneServerSession(
     isAlive() {
       return !closed
     },
-    async exportConfiguration(outputDir, operationLog, unresolvedReferences, signal) {
+    async exportConfiguration(outputDir, operationLog, unresolvedReferences, signal, extensionName) {
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
@@ -150,6 +150,7 @@ export async function createStandaloneServerSession(
         configPath,
         outputDir,
         unresolvedReferences,
+        extensionName,
         ...(params.settings.user === undefined ? {} : { user: params.settings.user }),
         ...(params.settings.password === undefined
           ? {}

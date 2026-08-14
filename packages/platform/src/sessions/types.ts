@@ -35,6 +35,7 @@ export type ExportConfigurationParams = NormalizedPlatformConnectionSettings & {
   logPath: string
   mode: PlatformSessionMode
   unresolvedReferences: UnresolvedReferencesMode
+  extensionName?: string
   signal?: AbortSignal
 }
 
@@ -93,7 +94,8 @@ export interface PlatformSession {
     outputDir: string,
     operationLog: PlatformOperationLog,
     unresolvedReferences: UnresolvedReferencesMode,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    extensionName?: string
   ): Promise<void>
   listExtensions(signal?: AbortSignal): Promise<ConfigurationExtensionInfo[]>
   loadPartialConfiguration?(

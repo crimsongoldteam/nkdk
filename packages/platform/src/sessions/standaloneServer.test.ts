@@ -82,6 +82,23 @@ describe("standalone server session", () => {
     )
   })
 
+  it("exports only the selected extension", async () => {
+    const fixture = createFixture()
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    await session.exportConfiguration(
+      "/project/.nkdk/tmp/op/xml",
+      fixture.operationLog,
+      "include",
+      undefined,
+      "Расширение_All"
+    )
+
+    expect(fixture.calls).toContain(
+      "run ibcmd infobase config export --password=secret --extension=Расширение_All --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=false grace=5000"
+    )
+  })
+
   it("lists and normalizes extensions with one ibcmd command", async () => {
     const fixture = createFixture({
       listStdout: `${ibcmdExtension("First")}\n\n${ibcmdExtension("Second")}\n`,

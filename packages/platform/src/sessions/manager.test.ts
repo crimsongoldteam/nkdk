@@ -23,6 +23,15 @@ describe("platform session manager", () => {
     ]))
   })
 
+  it("passes the selected extension to the session export", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await manager.exportConfiguration(exportParams({ extensionName: "Расширение_All" }))
+
+    expect(fixture.exportedExtensionNames).toEqual(["Расширение_All"])
+  })
+
   it("decorates a missing platform with discovery details and a log path", async () => {
     const fixture = createFixture({ platformMissing: true })
     const manager = createPlatformSessionManager(fixture.dependencies)
@@ -526,6 +535,7 @@ function createFixture(
   listStarts: string[]
   exportedOutputDirs: string[]
   exportedUnresolvedReferences: string[]
+  exportedExtensionNames: Array<string | undefined>
   loadedArchives: string[]
   logEvents: string[]
   findPlatformCalls: number
@@ -543,6 +553,7 @@ function createFixture(
   const listStarts: string[] = []
   const exportedOutputDirs: string[] = []
   const exportedUnresolvedReferences: string[] = []
+  const exportedExtensionNames: Array<string | undefined> = []
   const loadedArchives: string[] = []
   const logEvents: string[] = []
   let findPlatformCalls = 0
@@ -566,12 +577,13 @@ function createFixture(
       ownedProcess: true,
       closeCalls: 0,
       cancelCalls: 0,
-      async exportConfiguration(outputDir, _operationLogPath, unresolvedReferences, signal) {
+      async exportConfiguration(outputDir, _operationLogPath, unresolvedReferences, signal, extensionName) {
         exportCalls += 1
         exportStarts.push(`${params.projectDir}:${exportCalls}`)
         notify(exportStartWaiters, `${params.projectDir}:${exportCalls}`)
         exportedOutputDirs.push(outputDir)
         exportedUnresolvedReferences.push(unresolvedReferences)
+        exportedExtensionNames.push(extensionName)
         await options.exportHook?.(params.projectDir, exportCalls, signal)
       },
       async listExtensions(signal) {
@@ -621,6 +633,7 @@ function createFixture(
     listStarts,
     exportedOutputDirs,
     exportedUnresolvedReferences,
+    exportedExtensionNames,
     loadedArchives,
     logEvents,
     get findPlatformCalls() {

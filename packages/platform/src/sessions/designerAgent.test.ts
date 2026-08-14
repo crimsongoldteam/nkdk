@@ -120,6 +120,23 @@ describe("Designer agent session", () => {
     expect(fixture.calls.some((call) => call.includes("--server"))).toBe(false)
   })
 
+  it("exports only the selected extension", async () => {
+    const fixture = createFixture()
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await session.exportConfiguration(
+      "/project/.nkdk/tmp/op/xml",
+      fixture.operationLog,
+      "include",
+      undefined,
+      "Расширение_All"
+    )
+
+    expect(fixture.calls).toContain(
+      'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical --extension="Расширение_All"'
+    )
+  })
+
   it("lists and normalizes extensions through one agent command", async () => {
     const fixture = createFixture({
       extensionInfo: [extensionRecord("First"), extensionRecord("Second")],
