@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { yamlScalarTagAt } from "@nkdk/runtime"
+import {
+  createConfigurationIndexCollector,
+  importFromYAML,
+  xmlScalarTagPayload,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import {
   normalizeImportedDependentItems,
@@ -105,6 +109,51 @@ describe("normalizeImportedDependentItems", () => {
 
     expect(normalizeMetadataAttribute(attribute)).toBe(0)
     expect(attribute.ЗначениеЗаполнения).toBe("!xml 1")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+  })
+
+  it.each([
+    [
+      "обычного реквизита",
+      "MetadataAttribute",
+      ["Реквизиты", "Получатель"],
+      `Реквизиты:\n  Получатель:\n    Тип: Справочник.Контрагенты\n    ЗначениеЗаполнения: !xml`,
+    ],
+    [
+      "стандартного реквизита",
+      "StandardAttributeDescription",
+      ["СтандартныеРеквизиты", "Владелец"],
+      `Владельцы: []\nСтандартныеРеквизиты:\n  Владелец:\n    ЗначениеЗаполнения: !xml`,
+    ],
+  ] as const)("не дублирует тег уже перенесённой битой DesignTimeRef %s", (
+    _name,
+    itemType,
+    itemYamlPath,
+    yamlPrefix,
+  ) => {
+    const pair = "c794310a-bab9-4917-b1d0-e3438282256a.00000000-0000-0000-0000-000000000000"
+    const yaml = importFromYAML(`${yamlPrefix} ${pair}\n`)
+    const attribute = requiredRecordAt(yaml, itemYamlPath)
+    const itemName = itemYamlPath.at(-1)
+    if (itemName === undefined) throw new Error("Путь реквизита не должен быть пустым")
+
+    normalizeImportedDependentItems({
+      yaml,
+      rule: MetadataCatalogRules,
+      candidates: [candidate(
+        itemType,
+        itemYamlPath,
+        itemName,
+        { "_xsi:type": "xr:DesignTimeRef", "#text": pair },
+      )],
+      collector: createConfigurationIndexCollector(),
+      owner: { dir: "Справочник", name: "Товары" },
+    })
+
+    const fillValue = attribute.ЗначениеЗаполнения
+    expect(fillValue).toBe(`!xml ${pair}`)
+    if (typeof fillValue !== "string") throw new Error("Значение заполнения должно быть строкой")
+    expect(xmlScalarTagPayload(fillValue)).toBe(pair)
     expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
   })
 
@@ -367,4 +416,18 @@ function partitionCandidate(yaml: unknown, imported: ImportedDependentPropertyCa
     candidates: [imported],
     owner: { dir: "Справочник", name: "Товары" },
   })
+}
+
+function requiredRecordAt(root: unknown, path: readonly string[]): Record<string, unknown> {
+  let value = root
+  for (const segment of path) {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+      throw new Error(`По пути ${path.join(".")} ожидался объект`)
+    }
+    value = (value as Record<string, unknown>)[segment]
+  }
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error(`По пути ${path.join(".")} ожидался объект`)
+  }
+  return value as Record<string, unknown>
 }

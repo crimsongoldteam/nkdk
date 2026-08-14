@@ -7,7 +7,7 @@ import {
 } from "../ruleRuntime/property/dependentItemRegistry"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlScalarTagValue, yamlScalarTagAt } from "@nkdk/runtime"
 import { matchExplicitXMLTransportFromXML } from "../ruleRuntime/property/explicitXMLPropertyRegistry"
 
 export function normalizeImportedDependentItems(params: {
@@ -64,7 +64,11 @@ export function normalizeImportedDependentItems(params: {
     }
     const shouldTagXML = shouldTagImportedDependentProperty(dependentParams)
     const value = item[yamlKey]
-    if (shouldTagXML && (typeof value === "string" || typeof value === "number")) {
+    if (
+      shouldTagXML &&
+      yamlScalarTagAt(item, yamlKey) !== "xml" &&
+      (typeof value === "string" || typeof value === "number")
+    ) {
       item[yamlKey] = xmlScalarTagValue(String(value))
       markYAMLScalarTag(item, yamlKey, "xml")
     }
