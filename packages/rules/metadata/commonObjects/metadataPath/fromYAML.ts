@@ -6,7 +6,7 @@ import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegis
 import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
@@ -134,9 +134,9 @@ const importDataPathFromYAML: ImportFromYAMLFunctionNew = ({ context, rule, yaml
   if (
     typeof value === "string" &&
     typeof rule.yaml === "string" &&
-    yamlScalarTagAt(yaml, rule.yaml) === "xml"
+    yamlScalarTagAt(yaml, rule.yaml) === "xml/value"
   ) {
-    return xmlScalarTagPayload(value)
+    return xmlAnomalyTagPayload("xml/value", value)
   }
   return importDataPathStandardMembersFromYAML(context, value)
 }

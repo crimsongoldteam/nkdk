@@ -72,8 +72,8 @@ describe("importMetadataValueStringFromYAML", () => {
 })
 
 describe("importDataPathStandardMembersFromYAML", () => {
-  test("выгружает !xml как точный внутренний путь без повторного преобразования", () => {
-    const parsed = parseMetadataYaml("ПутьКДанным: !xml Объект.Owner\n")
+  test("выгружает !xml/value как точный внутренний путь без повторного преобразования", () => {
+    const parsed = parseMetadataYaml("ПутьКДанным: !xml/value Объект.Owner\n")
     const yaml = parsed.data as Record<string, unknown>
     const importFromYAML = getTypeRule("DataPath", "importFromYAML")
     if (importFromYAML === undefined) throw new Error("DataPath importer is not registered")

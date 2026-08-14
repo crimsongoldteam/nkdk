@@ -326,7 +326,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
   })
 
-  it("восстанавливает пустой контейнер реквизитов из !xml без reference XML", () => {
+  it("восстанавливает пустой контейнер реквизитов из !xml/present без reference XML", () => {
     const yaml = { Реквизиты: XML_PRESENT_TAG_VALUE } as unknown as ClientApplicationFormYAML
     markYAMLScalarTag(yaml, "Реквизиты", "xml/present")
     const result = convertClientApplicationFormFromYAMLToXML({
@@ -526,7 +526,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     )
   })
 
-  it("восстанавливает исключительный RowFilter из пустого !xml без reference и configuration index", () => {
+  it("восстанавливает исключительный RowFilter из !xml/present без reference и configuration index", () => {
     const yaml = importFromYAML<ClientApplicationFormYAML>([
       "Реквизиты:",
       "  КомпоновщикНастроек:",
@@ -538,7 +538,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       "  Порядок:",
       "    Вид: ТаблицаФормы",
       "    ПутьКДанным: Элементы.Настройки.ТекущиеДанные.ЭлементПорядок",
-      "    ОтборСтрок: !xml",
+      "    ОтборСтрок: !xml/present",
     ].join("\n"))
 
     const result = convertClientApplicationFormFromYAMLToXML({
@@ -912,7 +912,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       "Элементы:",
       "  Наименование:",
       "    Вид: ПолеВвода",
-      "    ПутьКДанным: !xml Объект.Description",
+      "    ПутьКДанным: !xml/value Объект.Description",
     ].join("\n"))
 
     const result = convertClientApplicationFormFromYAMLToXML({

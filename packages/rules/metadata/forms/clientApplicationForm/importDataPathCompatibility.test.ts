@@ -36,8 +36,8 @@ describe("finalizeImportedFormDataPathCompatibility", () => {
     })
 
     const element = (yaml.Элементы as Record<string, Record<string, unknown>>).Поле!
-    expect(yamlScalarTagAt(element, "ПутьКДанным") === "xml").toBe(expectsTag)
-    expect(serializeYAMLDocument(yaml).text.includes("ПутьКДанным: !xml Значение")).toBe(expectsTag)
+    expect(yamlScalarTagAt(element, "ПутьКДанным") === "xml/value").toBe(expectsTag)
+    expect(serializeYAMLDocument(yaml).text.includes("ПутьКДанным: !xml/value Значение")).toBe(expectsTag)
   })
 
   it("не помечает неразрешимый путь", () => {
@@ -55,7 +55,7 @@ describe("finalizeImportedFormDataPathCompatibility", () => {
     expect(yamlScalarTagAt(yaml.Элементы.Поле, "ПутьКДанным")).toBeUndefined()
   })
 
-  it("возвращает исходное внутреннее имя стандартного реквизита в payload !xml", () => {
+  it("возвращает исходное внутреннее имя стандартного реквизита в payload !xml/value", () => {
     const yaml = {
       Реквизиты: { Объект: { Тип: "СправочникОбъект.СправочникПолный" } },
       Элементы: {
@@ -72,8 +72,8 @@ describe("finalizeImportedFormDataPathCompatibility", () => {
       ownerCache: catalogOwnerCache(),
     })
 
-    expect(yaml.Элементы.Поле.ПутьКДанным).toBe("Объект.Description")
-    expect(serializeYAMLDocument(yaml).text).toContain("ПутьКДанным: !xml Объект.Description")
+    expect(yaml.Элементы.Поле.ПутьКДанным).toBe("!xml/value Объект.Description")
+    expect(serializeYAMLDocument(yaml).text).toContain("ПутьКДанным: !xml/value Объект.Description")
   })
 })
 

@@ -32,7 +32,7 @@ describe("validatePendingChecks", () => {
       "Элементы:",
       "  Поле:",
       "    Вид: ПолеФлажок",
-      "    ПутьКДанным: !xml",
+      "    ПутьКДанным: !xml/value",
     ].join("\n"))
     const facts = extractValidationYamlFacts({
       file,
@@ -43,12 +43,12 @@ describe("validatePendingChecks", () => {
     expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toEqual([
       expect.objectContaining({
         path: "/Элементы/Поле/ПутьКДанным",
-        message: "!xml для ПутьКДанным требует непустой путь",
+        message: "!xml/value для ПутьКДанным требует непустой путь",
       }),
     ])
   })
 
-  it("применяет !xml только к разрешённому несовместимому ПутьКДанным", () => {
+  it("применяет !xml/value только к разрешённому несовместимому ПутьКДанным", () => {
     const projectDir = "/project"
     const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
@@ -63,13 +63,16 @@ describe("validatePendingChecks", () => {
         "Элементы:",
         "  ДопустимоеИсключение:",
         "    Вид: ПолеФлажок",
-        "    ПутьКДанным: !xml СтроковоеЗначение",
+        "    ПутьКДанным: !xml/value СтроковоеЗначение",
         "  ЛишнееИсключение:",
         "    Вид: ПолеФлажок",
-        "    ПутьКДанным: !xml БулевоЗначение",
+        "    ПутьКДанным: !xml/value БулевоЗначение",
         "  НеизвестныйПуть:",
         "    Вид: ПолеФлажок",
-        "    ПутьКДанным: !xml НеизвестноеЗначение",
+        "    ПутьКДанным: !xml/value НеизвестноеЗначение",
+        "  БитаяСсылкаНеТойКатегории:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: !xml/value 1/0:8969c93a-23e5-4bef-941d-aaef315858d2",
         "  ОбычнаяОшибка:",
         "    Вид: ПолеФлажок",
         "    ПутьКДанным: СтроковоеЗначение",
@@ -85,11 +88,15 @@ describe("validatePendingChecks", () => {
       expect.arrayContaining([
         expect.objectContaining({
           path: "/Элементы/ЛишнееИсключение/ПутьКДанным",
-          message: "!xml допустим только для несовместимого ПутьКДанным",
+          message: "!xml/value допустим только для несовместимого ПутьКДанным",
         }),
         expect.objectContaining({
           path: "/Элементы/НеизвестныйПуть/ПутьКДанным",
           message: expect.stringContaining('неизвестный корень "НеизвестноеЗначение"'),
+        }),
+        expect.objectContaining({
+          path: "/Элементы/БитаяСсылкаНеТойКатегории/ПутьКДанным",
+          message: expect.stringContaining('неизвестный корень "1/0:8969c93a-23e5-4bef-941d-aaef315858d2"'),
         }),
         expect.objectContaining({
           path: "/Элементы/ОбычнаяОшибка/ПутьКДанным",
@@ -97,7 +104,7 @@ describe("validatePendingChecks", () => {
         }),
       ])
     )
-    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toHaveLength(3)
+    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toHaveLength(4)
   })
 
   it.each([

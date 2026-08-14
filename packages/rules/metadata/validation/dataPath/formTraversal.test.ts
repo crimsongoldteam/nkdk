@@ -134,13 +134,13 @@ describe("collectFormDataPathOccurrences", () => {
 })
 
 describe("collectFormDataPathOccurrencesFromYAML", () => {
-  it("распознаёт !xml как внутренний ПутьКДанным", () => {
+  it("распознаёт !xml/value как внутренний ПутьКДанным", () => {
     const parsed = parseMetadataYaml(
       [
         "Элементы:",
         "  Флаг:",
         "    Вид: ПолеФлажок",
-        "    ПутьКДанным: !xml Объект.InvalidFlag",
+        "    ПутьКДанным: !xml/value Объект.InvalidFlag",
       ].join("\n")
     )
 

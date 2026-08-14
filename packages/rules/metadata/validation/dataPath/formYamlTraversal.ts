@@ -4,7 +4,7 @@ import type { DataPathPropertyRule, MetadataItemRule, PropertyRule } from "@nkdk
 import type { TableContext } from "./resolver"
 import type { FormDataPathOccurrence } from "./formTraversal"
 import type { YamlPath } from "../yamlLocations"
-import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { isTransportedBrokenPropertyScalar } from "../transportedBrokenReference"
 
 export interface FormYAMLItemVisit {
@@ -84,13 +84,15 @@ function collectItem(params: {
     if (typeof propertyRule.yaml !== "string") continue
     const rawValue = record[propertyRule.yaml]
     if (isDataPathRule(propertyRule) && typeof rawValue === "string") {
-      const tagged = yamlScalarTagAt(record, propertyRule.yaml) === "xml"
+      const tag = yamlScalarTagAt(record, propertyRule.yaml)
+      const transportedReference = tag === "xml/reference"
       if (isTransportedBrokenPropertyScalar({
         rule: propertyRule,
         yamlValue: rawValue,
-        tagged,
+        tagged: transportedReference,
       })) continue
-      const value = tagged ? xmlScalarTagPayload(rawValue) : rawValue
+      const tagged = tag === "xml/value"
+      const value = tagged ? xmlAnomalyTagPayload("xml/value", rawValue) : rawValue
       if (value.trim().length === 0) continue
       occurrences.push({
         rule: propertyRule,

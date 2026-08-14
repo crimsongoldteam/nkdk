@@ -54,7 +54,7 @@ function withExplicitXMLValidationValue(params: {
     params.rule.yaml === "ПутьКДанным" &&
     params.rule.allowedKinds !== undefined
   ) {
-    schema = Type.Union([schema, Type.String({ pattern: "^!xml[ \\t]+\\S.*$" })])
+    schema = Type.Union([schema, Type.String({ pattern: "^!xml/value[ \\t]+\\S.*$" })])
   }
   const tag = params.execution === undefined
     ? explicitXMLPropertyValidationTag(params.itemType, params.propertyKey, params.rule.type)

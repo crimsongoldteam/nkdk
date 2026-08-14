@@ -190,9 +190,9 @@ describe("explicit XML property validation schema", () => {
       execution: defaultExecution,
     })
 
-    expect(validation.Check({ [dataPathRule.yaml!]: "!xml Объект.Invalid" })).toBe(accepted)
-    expect(validation.Check({ [dataPathRule.yaml!]: "!xml" })).toBe(false)
-    expect(validation.Check({ [dataPathRule.yaml!]: "!xml   " })).toBe(false)
+    expect(validation.Check({ [dataPathRule.yaml!]: "!xml/value Объект.Invalid" })).toBe(accepted)
+    expect(validation.Check({ [dataPathRule.yaml!]: "!xml/value" })).toBe(false)
+    expect(validation.Check({ [dataPathRule.yaml!]: "!xml/value   " })).toBe(false)
     expect(JSON.stringify(externalProperties)).not.toContain("!xml")
   })
 

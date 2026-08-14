@@ -62,7 +62,7 @@ import { createFormDataPathIndexFromYAML } from "./dataPath/formYamlIndex"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 import type { FormElementNameCollectorView, FormStructuredComponent } from "./formContracts"
 import { requireFormValidationAdapter } from "./formValidationRegistry"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import {
   collectAddressableMetadataObjectEntries,
   objectTargetForProjectFile,
@@ -1231,14 +1231,16 @@ function collectRuleDataPathChecks(params: {
 
     const rawValue = params.owner[rule.yaml]
     if (typeof rawValue !== "string") continue
-    const tagged = yamlScalarTagAt(params.owner, rule.yaml) === "xml"
+    const tag = yamlScalarTagAt(params.owner, rule.yaml)
+    const transportedReference = tag === "xml/reference"
     if (isTransportedBrokenPropertyScalar({
       execution: params.runtime?.rules.execution,
       rule,
       yamlValue: rawValue,
-      tagged,
+      tagged: transportedReference,
     })) continue
-    const value = tagged ? xmlScalarTagPayload(rawValue) : rawValue
+    const tagged = tag === "xml/value"
+    const value = tagged ? xmlAnomalyTagPayload("xml/value", rawValue) : rawValue
     if (value.trim().length === 0 && !tagged) continue
     const yamlPath = enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath
     checks.push({
