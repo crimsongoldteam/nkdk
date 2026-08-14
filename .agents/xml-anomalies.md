@@ -33,7 +33,7 @@
 | нестандартная панель `ClientApplicationInterface` с UUID | `ПустоеОпределение` | `!xml/present` | `<panelDef id="<UUID панели>"/>` |
 | корневой `ClientApplicationInterface` без размещённых панелей | `ИнтерфейсКлиентскогоПриложения` | `!xml/present` | существующий `Ext/ClientApplicationInterface.xml` только с пятью стандартными `<panelDef>` и без `top`, `left`, `right`, `bottom` |
 | управляемая форма | `ПутьКДанным` | `!xml/value <исходный внутренний путь>` | `<DataPath><исходный внутренний путь></DataPath>` |
-| `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | битая ссылка типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml/reference <UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><UUID>.<UUID></…>` |
+| `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | битая ссылка типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml/reference <ссылка>`; низкоуровневая битая ссылка — `<UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><внутренняя ссылка></…>` |
 | `Subsystem` | битая ссылка в элементе состава подсистемы | `!xml/reference <UUID>` | `<xr:Item xsi:type="xr:MDObjectRef"><UUID></xr:Item>` |
 | корневой `CommandInterface` | битая ссылка в `ПорядокПодсистем` | `!xml/reference <UUID>` | `<SubsystemsOrder><Subsystem><UUID></Subsystem></SubsystemsOrder>` |
 | форма `Catalog`, `ChartOfAccounts`, `ChartOfCharacteristicTypes`, `CommonForm`, `DataProcessor`, `DocumentJournal`, `Document`, `ExchangePlan`, `InformationRegister`, `Report` или `Subsystem` | битая локальная ссылка `Command` | `!xml/reference <исходная битая ссылка>` | `<Command><исходная битая ссылка></Command>` |
