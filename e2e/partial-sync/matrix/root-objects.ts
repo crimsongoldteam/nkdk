@@ -25,7 +25,10 @@ export const matrixChildInsertionAnchors: Readonly<Record<string, Readonly<Recor
   "object:information-register": registerFieldInsertionAnchors(),
   "object:accumulation-register": registerFieldInsertionAnchors(),
   "object:accounting-register": registerFieldInsertionAnchors(),
-  "object:calculation-register": registerFieldInsertionAnchors(),
+  "object:calculation-register": {
+    Измерения: "ПланВидовРасчета",
+    Реквизиты: "Ресурсы",
+  },
 }
 
 export const rootObjectDeclarations = [
