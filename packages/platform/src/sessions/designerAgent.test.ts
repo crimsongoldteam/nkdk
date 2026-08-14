@@ -175,7 +175,7 @@ describe("Designer agent session", () => {
       "Catalogs/Справочник1.xml\nCatalogs/Справочник1/Ext/ObjectModule.bsl\n",
     ])
     expect(fixture.calls.find((call) => call.startsWith("shell.run config load-files"))).toMatch(
-      /^shell\.run config load-files --dir="\.nkdk-load\/[^/]+" --archive="package\.zip" --no-check --list-file="\.nkdk-load\/[^/]+\/load\.lst" --partial --update-config-dump-info --extension="Расширение"$/u
+      /^shell\.run config load-files --dir="\.nkdk-load\/[^/]+" --archive="package\.zip" --no-check --list-file="\.nkdk-load\/[^/]+\/load\.lst" --update-config-dump-info --extension="Расширение"$/u
     )
     expect(fixture.calls.findLast((call) => call.startsWith("rm "))).toMatch(
       /^rm \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+$/u

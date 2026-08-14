@@ -102,6 +102,30 @@ export function buildStandaloneListExtensions(params: {
   }
 }
 
+export function buildStandalonePartialConfigImport(params: {
+  ibcmdPath: string
+  configPath: string
+  archivePath: string
+  user?: string
+  password?: string
+  extensionName?: string
+}): ProcessLaunch {
+  return {
+    command: params.ibcmdPath,
+    args: [
+      "infobase",
+      "config",
+      "import",
+      "files",
+      ...(params.user === undefined ? [] : [`--user=${params.user}`]),
+      ...(params.password === undefined ? [] : [`--password=${params.password}`]),
+      ...(params.extensionName === undefined ? [] : [`--extension=${params.extensionName}`]),
+      `--archive=${params.archivePath}`,
+      `--config=${params.configPath}`,
+    ],
+  }
+}
+
 export function buildStandaloneLaunch(params: {
   ibsrvPath: string
   dataDir: string
@@ -150,7 +174,6 @@ export function buildLoadPartialConfigurationCommand(params: {
     '--archive="package.zip"',
     "--no-check",
     `--list-file="${stagingDir}/load.lst"`,
-    "--partial",
     "--update-config-dump-info",
     ...(params.extensionName === undefined
       ? []
