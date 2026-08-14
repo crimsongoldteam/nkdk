@@ -1,4 +1,6 @@
 import { resolve } from "node:path"
+import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises"
+import { tmpdir } from "node:os"
 import { describe, expect, it } from "vitest"
 import type { ProjectStateRefreshParams, ProjectStateRefreshResult } from "../projectState/refresh"
 import type { ProjectStateService } from "../projectState/service"
@@ -8,7 +10,7 @@ import {
   toRootProjectDiagnostic,
   validateProject,
 } from "./validateProject"
-import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
+import { createConfigurationLanguages, createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { createBinaryProjectStateTestFixture } from "../projectState/binary/testFixture"
 import { emptyYamlUpdate } from "../projectState/binary/testData"
@@ -17,13 +19,45 @@ import type { ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "../proj
 import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import { collectAppliedObjectDataTables } from "../appliedObjects/dataTableRules"
 
+const testLanguages = createConfigurationLanguages({ default: "ru", registered: ["ru"] })
+
 describe("validateProject", () => {
+  it("builds the language registry before refreshing the project", async () => {
+    const projectDir = await mkdtemp(resolve(tmpdir(), "nkdk-validate-languages-"))
+    await writeLanguageProject(projectDir, { Русский: "ru", English: "en" })
+    const projectState = testProjectState([])
+
+    try {
+      await validateProject({ projectDir, concurrency: 1, projectState })
+      expect(projectState.refreshes[0]?.context?.languages).toMatchObject({
+        default: "ru",
+        registered: ["ru", "en"],
+      })
+    } finally {
+      await rm(projectDir, { recursive: true, force: true })
+    }
+  })
+
+  it("останавливает validation до refresh при повторном коде языка", async () => {
+    const projectDir = await mkdtemp(resolve(tmpdir(), "nkdk-validate-languages-invalid-"))
+    await writeLanguageProject(projectDir, { Русский: "ru", Дубликат: "ru" })
+    const projectState = testProjectState([])
+
+    try {
+      await expect(validateProject({ projectDir, concurrency: 1, projectState }))
+        .rejects.toThrow("код языка ru уже зарегистрирован")
+      expect(projectState.refreshes).toEqual([])
+    } finally {
+      await rm(projectDir, { recursive: true, force: true })
+    }
+  })
+
   it("всегда актуализирует весь проект через переданное состояние и не закрывает его", async () => {
     const projectState = testProjectState([
       diagnostic("cf/Конфигурация.yaml", "invalid", "structure"),
     ])
 
-    const result = await validateProject({
+    const result = await validateTestProject({
       projectDir: "/project",
       concurrency: 2,
       projectState,
@@ -35,7 +69,7 @@ describe("validateProject", () => {
     expect(projectState.refreshes).toEqual([{
       projectDir: "/project",
       concurrency: 2,
-      context: undefined,
+      context: { version: "2.20", languages: testLanguages },
     }])
     expect(projectState.closed).toBe(0)
   })
@@ -47,17 +81,17 @@ describe("validateProject", () => {
     appendStateFiles(store, [facts.configuration, facts.source, facts.baseTarget])
     const projectState = testProjectState(() => store.validateDependencies({ requests: [] }))
 
-    expect(messages(await validateProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([
+    expect(messages(await validateTestProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([
       'Ссылка "Catalog.Номенклатура" не включена в расширение',
       'Ссылка "Catalog.Номенклатура.Attribute.Артикул" не включена в расширение',
     ])
 
     appendStateFiles(store, [facts.extensionObject])
-    expect(messages(await validateProject({ projectDir: "/project", concurrency: 1, projectState })))
+    expect(messages(await validateTestProject({ projectDir: "/project", concurrency: 1, projectState })))
       .toEqual(['Ссылка "Catalog.Номенклатура.Attribute.Артикул" не включена в расширение'])
 
     appendStateFiles(store, [facts.extensionObjectWithAttribute])
-    expect(messages(await validateProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([])
+    expect(messages(await validateTestProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([])
     store.rollbackUpdate()
   })
 
@@ -71,12 +105,12 @@ describe("validateProject", () => {
     appendStateFiles(store, [facts.configuration, facts.register, facts.form])
     const projectState = testProjectState(() => store.validateDependencies({ requests: [] }))
 
-    expect(messages(await validateProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([
+    expect(messages(await validateTestProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([
       'Не найдена ссылка "AccumulationRegister.Продажи.Balance"',
     ])
 
     appendStateFiles(store, [dataTableValidationFacts("РегистрНакопления.Продажи.Обороты").form])
-    expect(messages(await validateProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([])
+    expect(messages(await validateTestProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([])
     store.rollbackUpdate()
   })
 
@@ -142,6 +176,18 @@ function testProjectState(diagnostics: readonly Diagnostic[] | (() => readonly D
       this.closed += 1
     },
   }
+}
+
+function validateTestProject(params: Parameters<typeof validateProject>[0]) {
+  return validateProject(params, { async loadLanguages() { return testLanguages } })
+}
+
+async function writeLanguageProject(projectDir: string, languages: Readonly<Record<string, string>>): Promise<void> {
+  const configurationDir = resolve(projectDir, "cf")
+  await mkdir(resolve(configurationDir, "Язык"), { recursive: true })
+  await writeFile(resolve(configurationDir, "Конфигурация.yaml"), "ОсновнойЯзык: Язык.Русский\n")
+  await Promise.all(Object.entries(languages).map(([name, code]) =>
+    writeFile(resolve(configurationDir, "Язык", `${name}.yaml`), `КодЯзыка: ${code}\n`)))
 }
 
 function refreshResult(diagnostics: readonly Diagnostic[]): ProjectStateRefreshResult {

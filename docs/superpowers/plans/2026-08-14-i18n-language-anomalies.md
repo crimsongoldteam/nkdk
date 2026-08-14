@@ -363,7 +363,7 @@ Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit meta
 
 Expected: PASS для всей матрицы и прежних случаев.
 
-- [ ] **Step 8: Проверить дубли и закоммитить слой**
+- [x] **Step 8: Проверить дубли и закоммитить слой**
 
 Run: `pnpm duplicates -- --base 13ba5eac5`
 
@@ -388,16 +388,27 @@ git commit -m "feat: :sparkles: сохранять языковые XML-аном
 - Modify: `packages/rules/metadata/validation/yamlFactExtractor.ts`
 - Modify: `packages/rules/metadata/validation/excludeIfEqualNameYAML.test.ts`
 - Modify: `packages/rules/metadata/validation/projectValidationPasses.integration.test.ts`
+- Modify: `packages/runtime/metadata/context/types.ts`
+- Modify: `packages/rules/metadata/workerPool/workerState.ts`
+- Modify: `packages/rules/metadata/workerPool/workerState.test.ts`
+- Modify: `packages/rules/metadata/project/preparedYamlProjectWorker.ts`
+- Modify: `packages/rules/metadata/project/preparedYamlProjectWorker.integration.test.ts`
+- Modify: `packages/rules/metadata/commonObjects/i8nText/types.ts`
+- Modify: `packages/rules/metadata/commonObjects/i8nText/toJSONSchema.ts`
+- Create: `packages/rules/metadata/commonObjects/i8nText/toJSONSchema.test.ts`
+- Modify: `packages/rules/metadata/commonObjects/formattedI8nText/types.ts`
+- Modify: `packages/rules/metadata/commonObjects/formattedI8nText/toJSONSchema.ts`
+- Modify: `packages/rules/metadata/commonObjects/formattedI8nText/toJSONSchema.test.ts`
 
 **Interfaces:**
 - Consumes: concrete XML/YAML registry builders from Task 3 and existing recursive `validateExcludedEqualNameYAML` traversal.
 - Produces: подготовленный `ConfigurationContext` до worker; `validateLocalizedTextYAMLProperty(...)` invoked inside that existing traversal; diagnostics at exact language paths.
 
-- [ ] **Step 1: Написать RED-интеграции обязательного реестра**
+- [x] **Step 1: Написать RED-интеграции обязательного реестра**
 
 Проверить, что XML-import строит registry до создания worker pool; full sync и `validateProject` строят его из YAML до первого файла; пустой/повторный `КодЯзыка` и неразрешимый `ОсновнойЯзык` прекращают операцию до обработки локализованных строк.
 
-- [ ] **Step 2: Написать RED-таблицу semantic validation**
+- [x] **Step 2: Написать RED-таблицу semantic validation**
 
 Для сворачиваемого и обычного rules проверить диагностики:
 
@@ -412,17 +423,19 @@ git commit -m "feat: :sparkles: сохранять языковые XML-аном
 - пустое значение у несворачиваемого rules;
 - строка с `#` или пустым ключом не получает новых diagnostics.
 
-- [ ] **Step 3: Подтвердить RED**
+- [x] **Step 3: Подтвердить RED**
 
-Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/project/validateProject.test.ts metadata/validation/excludeIfEqualNameYAML.test.ts metadata/validation/projectValidationPasses.integration.test.ts metadata/importFromXml/importConfiguration.test.ts metadata/fullSyncToXml/syncConfiguration.test.ts`
+Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/project/validateProject.test.ts metadata/validation/excludeIfEqualNameYAML.test.ts metadata/importFromXml/importConfiguration.test.ts metadata/fullSyncToXml/syncConfiguration.test.ts`
+
+Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration metadata/validation/projectValidationPasses.integration.test.ts`
 
 Expected: FAIL на отсутствующем построении реестра и языковых diagnostics.
 
-- [ ] **Step 4: Подготовить контекст в границах операций**
+- [x] **Step 4: Подготовить контекст в границах операций**
 
 До запуска worker вызывать XML- или YAML-сборщик и заменять только `context.languages`. Нейтральные worker/pool получают готовый сериализуемый реестр; после structured clone восстанавливать `registeredSet` один раз при инициализации worker из `registered`.
 
-- [ ] **Step 5: Объединить языковую проверку с существующим обходом правил**
+- [x] **Step 5: Объединить языковую проверку с существующим обходом правил**
 
 Расширить существующий рекурсивный валидатор сворачиваемых имён обработкой каждого `I8nText`/`FormattedI8nText` свойства в той же итерации `Object.values(rule.properties)`. Вынести только предметную функцию одного значения в runtime helper; не добавлять второй обход файла и не добавлять private-условия в `projectState`.
 
@@ -444,17 +457,19 @@ for (const code of effectiveCodes) {
 return true
 ```
 
-- [ ] **Step 6: Проверить JSON Schema границы**
+- [x] **Step 6: Проверить JSON Schema границы**
 
 Добавить проверки, что обычная пользовательская схема по-прежнему принимает string/mapping и не кодирует список registered или порядок, а внутренняя схема принимает форму значений с sidecar только через parser/runtime. Пустой marker разрешён формой только у `excludeIfEqualNameYAML`.
 
-- [ ] **Step 7: Проверить операции и validation**
+- [x] **Step 7: Проверить операции и validation**
 
-Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/project/validateProject.test.ts metadata/validation/excludeIfEqualNameYAML.test.ts metadata/validation/projectValidationPasses.integration.test.ts metadata/importFromXml/importConfiguration.test.ts metadata/fullSyncToXml/syncConfiguration.test.ts`
+Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/project/validateProject.test.ts metadata/validation/excludeIfEqualNameYAML.test.ts metadata/importFromXml/importConfiguration.test.ts metadata/fullSyncToXml/syncConfiguration.test.ts`
+
+Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration metadata/validation/projectValidationPasses.integration.test.ts metadata/project/preparedYamlProjectWorker.integration.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 8: Проверить дубли и закоммитить слой**
+- [x] **Step 8: Проверить дубли и закоммитить слой**
 
 Run: `pnpm duplicates -- --base 13ba5eac5`
 

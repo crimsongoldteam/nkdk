@@ -7,7 +7,7 @@ import { mockContext } from "../../tests/mockContext"
 import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createTestValidationSchemaCache } from "../validation/tests/testValidationSchemaCache"
-import { hashFileBytes } from "@nkdk/runtime"
+import { hashFileBytes, type ConfigurationContext } from "@nkdk/runtime"
 import {
   openProjectStateFileUpdateBatch,
 } from "../projectState/binary/contribution"
@@ -51,6 +51,27 @@ afterEach(() => {
 })
 
 describe("project-state refresh worker", () => {
+  it("восстанавливает индекс языков при инициализации validation worker", async () => {
+    let initializedContext: ConfigurationContext | undefined
+    const createValidationSchemaCache = vi.fn(async (params: { context: ConfigurationContext }) => {
+      initializedContext = params.context
+      return createTestValidationSchemaCache()
+    })
+    const clonedContext = {
+      ...mockContext,
+      languages: { ...mockContext.languages, registeredSet: undefined },
+    } as unknown as typeof mockContext
+
+    await runPreparedYamlProjectWorkerTask({
+      kind: "initValidation",
+      workerIndex: 0,
+      context: clonedContext,
+      rulesSnapshot,
+    }, { createValidationSchemaCache })
+
+    expect(initializedContext?.languages.registeredSet).toBeInstanceOf(Set)
+  })
+
   it("читает режим совместимости из корня расширения для дочернего YAML", async () => {
     const projectDir = createTempDir()
     const child = componentProperties(projectDir, "cfe/Расширение", "Товары")

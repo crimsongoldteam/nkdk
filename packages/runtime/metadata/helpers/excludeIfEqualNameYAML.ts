@@ -2,6 +2,8 @@ import type { TSchema } from "typebox"
 import type { ConfigurationContext } from "../context/types"
 import type { PropertyRule } from "../ruleRuntime/property/types"
 import { canConvertToPascalCase } from "./canConvertToPascalCase"
+import { yamlMappingTagOf } from "../../yaml/mappingTags"
+import { yamlScalarTagAt } from "../../yaml/scalarTags"
 
 type YamlPath = readonly (string | number)[]
 
@@ -72,6 +74,10 @@ function findI8nTextOccurrence(params: {
 
   const record = asRecord(value)
   if (!record) return undefined
+  if (
+    yamlMappingTagOf(record) === "xml/order" ||
+    yamlScalarTagAt(record, context.languages.default) === "xml/duplicate"
+  ) return undefined
 
   const defaultLanguageValue = record[context.languages.default]
   if (typeof defaultLanguageValue !== "string") return undefined

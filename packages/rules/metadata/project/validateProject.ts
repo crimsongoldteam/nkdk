@@ -4,6 +4,8 @@ import { projectPathFromFileSystem } from "../projectDefinition/path"
 import { createProjectStateService, type ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "../validation/types"
 import type { MetadataDiagnosticCollection } from "@nkdk/runtime"
+import { join } from "node:path"
+import { loadConfigurationLanguagesFromYAML } from "../appliedObjects/configuration/languageRegistry"
 
 export interface ValidateProjectParams {
   projectDir: string
@@ -20,13 +22,26 @@ export interface ValidationWorkerPoolHandle {
   validateProject(params: Omit<ValidateProjectParams, "concurrency">): Promise<ValidateProjectResult>
 }
 
-export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
+export interface ValidateProjectDependencies {
+  loadLanguages(configurationDir: string): ReturnType<typeof loadConfigurationLanguagesFromYAML>
+}
+
+const defaultDependencies: ValidateProjectDependencies = {
+  loadLanguages: loadConfigurationLanguagesFromYAML,
+}
+
+export async function validateProject(
+  params: ValidateProjectParams,
+  deps: ValidateProjectDependencies = defaultDependencies,
+): Promise<ValidateProjectResult> {
   const projectState = params.projectState ?? createProjectStateService()
   const ownsProjectState = params.projectState === undefined
   try {
+    const languages = await deps.loadLanguages(join(params.projectDir, "cf"))
+    const context = { ...(params.context ?? { version: "2.20" }), languages }
     const result = await projectState.refreshAndValidate({
       projectDir: params.projectDir,
-      context: params.context,
+      context,
       concurrency: normalizeValidationConcurrency(params.concurrency),
     })
     return { diagnostics: result.diagnostics }

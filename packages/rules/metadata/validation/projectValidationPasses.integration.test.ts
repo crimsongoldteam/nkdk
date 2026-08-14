@@ -185,6 +185,32 @@ describe("validateProjectFileFirstPass references", () => {
     ))).toContainEqual(expect.objectContaining({ path: "/ВводПоСтроке/0" }))
   })
 
+  it("validates localized language tags and order in the existing first pass", () => {
+    const missingLanguageTag = validationErrors(validateAppliedObject(
+      "Справочник/Тест/Свойства.yaml",
+      "Синоним:\n  ru: Текст\n  en: Text",
+    ))
+    expect(missingLanguageTag).toContainEqual(expect.objectContaining({
+      path: "/Синоним/en",
+      message: expect.stringMatching(/незарегистрирован/iu),
+    }))
+
+    const classified = validationErrors(validateAppliedObject(
+      "Справочник/Тест/Свойства.yaml",
+      "Синоним:\n  ru: Текст\n  en: !xml/language Text",
+    ))
+    expect(classified).toEqual([])
+
+    const missingOrderTag = validationErrors(validateAppliedObject(
+      "Справочник/Тест/Свойства.yaml",
+      "Синоним:\n  en: !xml/language Text\n  ru: Текст",
+    ))
+    expect(missingOrderTag).toContainEqual(expect.objectContaining({
+      path: "/Синоним",
+      message: expect.stringMatching(/порядок/iu),
+    }))
+  })
+
   function formFirstPassUpdate(lines: string[]) {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

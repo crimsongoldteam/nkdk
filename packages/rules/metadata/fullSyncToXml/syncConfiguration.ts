@@ -3,7 +3,6 @@ import { randomBytes } from "node:crypto"
 import { resolve } from "node:path"
 import {
   componentPath,
-  createConfigurationLanguages,
   parseComponentPath,
   type ComponentAddress,
 } from "@nkdk/runtime"
@@ -39,6 +38,7 @@ import {
 } from "./componentRuntime"
 import { assertNoPendingPartialXmlSync } from "../partialSyncToXml/pendingStore"
 import { withConfigurationIndexSources } from "./configurationIndexSources"
+import { loadConfigurationLanguagesFromYAML } from "../appliedObjects/configuration/languageRegistry"
 
 export interface SyncComponentToXmlParams {
   readonly context: ConfigurationContext
@@ -96,6 +96,7 @@ export interface FullXmlSyncCoordinatorDependencies extends FullXmlSyncComponent
   readonly resolveProfile: typeof resolveFullXmlSyncComponentProfile
   readonly buildPlan: typeof buildXmlSyncPlan
   readonly createWorkerPool?: (params: { concurrency: number }) => FullXmlSyncWorkerPool
+  readonly loadLanguages?: typeof loadConfigurationLanguagesFromYAML
   readonly transferExternalFiles: typeof transferFullXmlSyncExternalFiles
   readonly validateWrittenFiles: typeof validateFullXmlSyncWrittenFiles
   readonly openIndexStore?: typeof openConfigurationIndexStore
@@ -128,6 +129,7 @@ const defaultDependencies: FullXmlSyncCoordinatorDependencies = {
   buildPlan: buildXmlSyncPlan,
   transferExternalFiles: transferFullXmlSyncExternalFiles,
   validateWrittenFiles: validateFullXmlSyncWrittenFiles,
+  loadLanguages: loadConfigurationLanguagesFromYAML,
   async publishCandidate({ active, candidate }) {
     await active.replaceActiveFrom(candidate)
   },
@@ -153,11 +155,13 @@ export async function syncComponentToXml(
   const profiler = createValidationProfiler({ scope: "main" })
 
   try {
+    const languages = await (deps.loadLanguages ?? loadConfigurationLanguagesFromYAML)(resolve(projectDir, "cf"))
+    const context = { ...params.context, languages }
     if (params.componentPath === "cf" || params.componentPath.startsWith("cfe/")) {
       const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
       await assertNoPending(projectDir, params.componentPath)
     }
-    const refreshed = await refreshSyncProject({ ...params, projectDir })
+    const refreshed = await refreshSyncProject({ ...params, projectDir, context })
     diagnostics = refreshed.diagnostics
     const refreshErrors = diagnostics.filter(({ severity }) => severity === "error")
     warnings = diagnostics.filter(({ severity }) => severity === "warning")
@@ -176,6 +180,7 @@ export async function syncComponentToXml(
 
     const { target, base } = await readProfileComponentStates({
       ...params,
+      context,
       projectDir,
       address,
       profile,
@@ -217,7 +222,7 @@ export async function syncComponentToXml(
           operation: await params.projectState.workers.beginOperation({
             id: `full-xml-sync-${Date.now()}-${Math.random()}`,
             concurrency: workerConcurrency,
-            context: params.context,
+            context,
           }),
         })
       : deps.createWorkerPool!({ concurrency: workerConcurrency })
@@ -233,7 +238,7 @@ export async function syncComponentToXml(
       componentPath: target.structure.componentPath,
       componentDir: target.structure.componentDir,
       outputTarget: { kind: "directory", outputDir: xmlDir },
-      context: params.context,
+      context,
       profile: runtime.workerProfile,
       composition: createFullXmlSyncCompositionSnapshot(plan.assignments),
       targetIndex: target.snapshot.descriptor,
@@ -340,9 +345,10 @@ export async function planSyncConfigurationToXml(
   const xmlDir = resolve(params.xmlDir)
   let diagnostics: FullXmlSyncDiagnostic[] = []
   try {
+    const languages = await (deps.loadLanguages ?? loadConfigurationLanguagesFromYAML)(resolve(projectDir, "cf"))
     const context = {
       version: "2.20",
-      languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+      languages,
     } as const
     const refreshed = await refreshSyncProject({ ...params, projectDir, context })
     diagnostics = refreshed.diagnostics

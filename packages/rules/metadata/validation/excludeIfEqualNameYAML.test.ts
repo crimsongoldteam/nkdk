@@ -8,11 +8,11 @@ import {
 } from "@nkdk/runtime/rule-kit"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { parseMetadataYaml } from "@nkdk/runtime"
+import { createConfigurationLanguages, parseMetadataYaml } from "@nkdk/runtime"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 
 const context = {
-  languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
+  languages: createConfigurationLanguages({ default: "ru", registered: ["ru", "en"] }),
   version: "2.20",
 } as const
 
@@ -114,6 +114,27 @@ describe("validateExcludedEqualNameYAML", () => {
         path: "/Реквизиты/КакоеТоПоле/Заголовок/Текст/ru",
       }),
     ])
+  })
+
+  it.each([
+    ["order anomaly", "Синоним: !xml/order\n  en: Text\n  ru: Какое то поле"],
+    ["duplicate anomaly", "Синоним:\n  ru: !xml/duplicate Какое то поле"],
+  ])("allows an explicit calculated value for $name", (_name, source) => {
+    const parsed = parseMetadataYaml(source)
+    const rule: MetadataItemRule = {
+      itemType: "MetadataCatalog",
+      properties: {
+        synonym: { type: "I8nText", yaml: "Синоним", excludeIfEqualNameYAML: true },
+      },
+    } as never
+
+    expect(validateExcludedEqualNameYAML({
+      context,
+      filePath: "/tmp/Свойства.yaml",
+      parsed,
+      rule,
+      name: "КакоеТоПоле",
+    })).toEqual([])
   })
 })
 

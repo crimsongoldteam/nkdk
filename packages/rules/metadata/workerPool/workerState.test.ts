@@ -10,6 +10,23 @@ import { createMetadataWorkerPersistentState } from "./workerState"
 const context = { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "8.3.27" }
 
 describe("состояние универсального worker", () => {
+  it("восстанавливает индекс зарегистрированных языков после structured clone", async () => {
+    const clonedContext = {
+      ...context,
+      languages: { ...context.languages, registeredSet: undefined },
+    } as unknown as typeof context
+    const state = await createMetadataWorkerPersistentState(
+      { workerIndex: 0, context: clonedContext },
+      {
+        createSchemaCache: async () => ({}) as never,
+        createRulesSnapshot: () => ({ version: 1, specs: [], items: [] }),
+      },
+    )
+
+    expect(state.context.languages.registeredSet).toBeInstanceOf(Set)
+    expect(state.context.languages.registeredSet.has("ru")).toBe(true)
+  })
+
   it("устанавливает снимок в существующие и будущие линии, затем очищает его", async () => {
     const lines = createMetadataWorkerLineFactory()
     const handle = createMetadataWorkerPoolHandle({ createLine: lines.factory })

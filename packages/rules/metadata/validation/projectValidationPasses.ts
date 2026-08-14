@@ -544,6 +544,7 @@ export function extractProjectValidationFileFacts(params: {
   validationDiagnostics?: boolean
   runtime?: ValidationRegistrySet
   propertyStateCompatibilityMode?: string
+  context?: ConfigurationContext
 }): ProjectValidationFileFacts {
   const parsed = parsedForProjectFile(params.file, params.entry.parsed)
   const measuredYamlFacts = measureValidationPhase(() =>
@@ -554,6 +555,7 @@ export function extractProjectValidationFileFacts(params: {
       runtime: params.runtime,
       propertyStateCompatibilityMode: params.propertyStateCompatibilityMode,
       borrowedLogicalAddresses: params.borrowedLogicalAddresses,
+      context: params.context,
       ...(params.validationDiagnostics === undefined
         ? {}
         : { validationDiagnostics: params.validationDiagnostics }),
@@ -750,6 +752,24 @@ interface ProjectValidationFirstPassInternalParams {
   borrowedLogicalAddresses?: ReadonlySet<string>
 }
 
+function extractFirstPassFacts(
+  params: ProjectValidationFirstPassInternalParams,
+  entry: ProjectYamlEntry,
+  propertyStateCompatibilityMode: string | undefined,
+) {
+  return extractProjectValidationFileFacts({
+    projectDir: params.projectDir,
+    file: params.file,
+    entry,
+    borrowedLogicalAddresses: params.borrowedLogicalAddresses ?? collectBorrowedExtensionLogicalAddresses(
+      params.file, (filePath) => params.cache.get(filePath)),
+    rulesSnapshot: requireRulesSnapshot(params.rulesSnapshot),
+    context: params.context,
+    runtime: params.runtime,
+    propertyStateCompatibilityMode,
+  })
+}
+
 function validateProjectFormFirstPass(
   params: ProjectValidationFirstPassInternalParams
 ): ProjectValidationFirstPassResult {
@@ -787,16 +807,7 @@ function validateProjectFormFirstPass(
     )
   }
 
-  const facts = extractProjectValidationFileFacts({
-    projectDir: params.projectDir,
-    file: params.file,
-    entry,
-    borrowedLogicalAddresses: params.borrowedLogicalAddresses ?? collectBorrowedExtensionLogicalAddresses(
-      params.file, (filePath) => params.cache.get(filePath)),
-    rulesSnapshot: requireRulesSnapshot(params.rulesSnapshot),
-    runtime: params.runtime,
-    propertyStateCompatibilityMode: compatibilityMode,
-  })
+  const facts = extractFirstPassFacts(params, entry, compatibilityMode)
   const diagnostics = [...schemaDiagnostics, ...facts.diagnostics]
 
   return {
@@ -937,16 +948,7 @@ function validateProjectPropertiesFirstPass(
     name: equalNameValidationName,
   })
   const equalNameMs = performance.now() - equalNameStartedAt
-  const facts = extractProjectValidationFileFacts({
-    projectDir: params.projectDir,
-    file: params.file,
-    entry: { ...entry, parsed },
-    borrowedLogicalAddresses: params.borrowedLogicalAddresses ?? collectBorrowedExtensionLogicalAddresses(
-      params.file, (filePath) => params.cache.get(filePath)),
-    rulesSnapshot: requireRulesSnapshot(params.rulesSnapshot),
-    runtime: params.runtime,
-    propertyStateCompatibilityMode: compatibilityMode,
-  })
+  const facts = extractFirstPassFacts(params, { ...entry, parsed }, compatibilityMode)
   const publishedSchemaDiagnostics = suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics)
   const diagnostics = [
     ...publishedSchemaDiagnostics,

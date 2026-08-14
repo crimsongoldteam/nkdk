@@ -42,6 +42,17 @@ export function createConfigurationLanguages(params: {
   })
 }
 
+/** Восстанавливает вычисляемый индекс языков после передачи контекста через structured clone. */
+export function rehydrateConfigurationContext(context: ConfigurationContext): ConfigurationContext {
+  return {
+    ...context,
+    languages: createConfigurationLanguages({
+      default: context.languages.default,
+      registered: context.languages.registered,
+    }),
+  }
+}
+
 function compareLanguageCodes(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0
 }

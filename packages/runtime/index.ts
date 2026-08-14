@@ -61,6 +61,7 @@ export type { DiagnosticAtYamlPathParams } from "./metadata/validation/yamlLocat
 export * from "./metadata/validation/dataPath/formatContracts"
 export * from "./metadata/validation/diagnostics"
 export * from "./metadata/validation/excludeIfEqualNameYAML"
+export * from "./metadata/validation/localizedTextYAML"
 export * from "./metadata/validation/formContracts"
 export * from "./metadata/validation/formDataPathProjectionRegistry"
 export * from "./metadata/validation/metadataTargetTraversal"

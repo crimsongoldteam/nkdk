@@ -7,20 +7,28 @@ import { Type } from "typebox"
 import type { Static } from "typebox"
 import type { BasePropertyRule } from "@nkdk/runtime/rule-kit"
 import { StringboolXML } from "../boolean/types"
-import { I8nText, I8nTextJSONSchema, I8nTextXML } from "../i8nText/types"
+import {
+  FoldableI8nTextJSONSchema,
+  I8nText,
+  I8nTextJSONSchema,
+  I8nTextXML,
+} from "../i8nText/types"
 
 export interface FormattedI8nText extends I8nText {
   formatted: boolean
   items: Record<string, string>
 }
 
-export const FormattedI8nTextJSONSchema = Type.Object(
+const formattedI8nTextJSONSchema = (textSchema: typeof I8nTextJSONSchema) => Type.Object(
   {
     Форматированный: Type.Optional(Type.Literal("Истина")),
-    Текст: I8nTextJSONSchema,
+    Текст: textSchema,
   },
   { additionalProperties: false }
 )
+
+export const FormattedI8nTextJSONSchema = formattedI8nTextJSONSchema(I8nTextJSONSchema)
+export const FoldableFormattedI8nTextJSONSchema = formattedI8nTextJSONSchema(FoldableI8nTextJSONSchema)
 
 export type FormattedI8nTextValueYAML = Static<typeof FormattedI8nTextJSONSchema>
 export type FormattedI8nTextYAML = FormattedI8nTextValueYAML

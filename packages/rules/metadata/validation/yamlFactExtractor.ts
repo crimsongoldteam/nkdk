@@ -15,7 +15,7 @@ import { exportPropertyValueToYAML } from "../ruleRuntime/property/toYAML"
 import { getElementRule } from "../ruleRuntime/formElement/ruleFactory"
 import { enterNestedYamlRule, enterYamlProperty } from "../ruleRuntime/property/yamlRuleCursor"
 import type { YamlRuleCursor } from "@nkdk/runtime/rule-kit"
-import { createConfigurationLanguages, type ParsedYaml } from "@nkdk/runtime"
+import { createConfigurationLanguages, type ConfigurationContext, type ParsedYaml } from "@nkdk/runtime"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -105,10 +105,13 @@ export function extractValidationYamlFacts(params: {
   runtime?: ValidationRegistrySet
   propertyStateCompatibilityMode?: string
   borrowedLogicalAddresses?: ReadonlySet<string>
+  context?: ConfigurationContext
 }): ValidationYamlFacts {
   const validationDiagnostics = params.validationDiagnostics !== false
   if (params.file.kind === "form") {
-    return validationDiagnostics ? extractFormYamlFacts(params.file, params.parsed, params.runtime) : emptyFacts()
+    return validationDiagnostics
+      ? extractFormYamlFacts(params.file, params.parsed, params.context, params.runtime)
+      : emptyFacts()
   }
 
   const spec = findValidationRulesItem(
@@ -912,6 +915,7 @@ const targetKey = projectMetadataTargetIndexKey
 function extractFormYamlFacts(
   file: ValidationProjectFile,
   parsed: ParsedYaml,
+  context: ConfigurationContext | undefined,
   runtime?: ValidationRegistrySet,
 ): ValidationYamlFacts {
   const data = asRecord(parsed.data)
@@ -931,17 +935,17 @@ function extractFormYamlFacts(
     yamlPath: [],
   })
   const root = rootFromYAML[file.owner.dir]
+  const validationContext = context ?? {
+    version: "2.20",
+    languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+  }
   const structuralReferences = collectStructuralYamlReferences({
     filePath: file.absolutePath,
     parsed,
     rule: adapter.formRule,
     yaml: data,
     owner: root === undefined ? undefined : { root, objectName: file.owner.name },
-    context: {
-      version: "2.20",
-      languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
-      exportToYAML: { toTyped: false },
-    },
+    context: { ...validationContext, exportToYAML: { toTyped: false } },
     runtime: createPropertyStructuralReferenceRuntime(runtime),
   })
   if (!structuralReferences.ok) throw new Error(structuralReferences.message)
@@ -972,10 +976,7 @@ function extractFormYamlFacts(
         filePath: file.absolutePath,
         parsed,
         rule: adapter.formRule,
-        context: {
-          version: "2.20",
-          languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
-        },
+        context: validationContext,
         name: file.formName,
       }),
       ...collected.formElementNameDiagnostics,
