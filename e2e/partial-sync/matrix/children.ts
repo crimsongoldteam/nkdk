@@ -324,7 +324,6 @@ const recalculation = addInlineChild({
   childItemType: "Recalculation",
   section: "Перерасчеты",
   name: recalculationName,
-  body: "Синоним: \"\"",
   exposeAsOwner: true,
   extraChanges: [{
     path: `РегистрРасчета/${matrixObjectNames.calculationRegister}/Перерасчеты/${recalculationName}/Свойства.xml`,
@@ -498,31 +497,32 @@ function childKey(ownerKey: string, propertyKey: string): string {
 }
 
 function recalculationXml(name: string): string {
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" version="2.20">
-  <Recalculation uuid="10000000-0000-4000-8000-000000000001">
-    <InternalInfo>
-      <xr:GeneratedType name="RecalculationRecord.${matrixObjectNames.calculationRegister}.${name}" category="Record">
-        <xr:TypeId>10000000-0000-4000-8000-000000000002</xr:TypeId>
-        <xr:ValueId>10000000-0000-4000-8000-000000000003</xr:ValueId>
-      </xr:GeneratedType>
-      <xr:GeneratedType name="RecalculationManager.${matrixObjectNames.calculationRegister}.${name}" category="Manager">
-        <xr:TypeId>10000000-0000-4000-8000-000000000004</xr:TypeId>
-        <xr:ValueId>10000000-0000-4000-8000-000000000005</xr:ValueId>
-      </xr:GeneratedType>
-      <xr:GeneratedType name="RecalculationRecordSet.${matrixObjectNames.calculationRegister}.${name}" category="RecordSet">
-        <xr:TypeId>10000000-0000-4000-8000-000000000006</xr:TypeId>
-        <xr:ValueId>10000000-0000-4000-8000-000000000007</xr:ValueId>
-      </xr:GeneratedType>
-    </InternalInfo>
-    <Properties>
-      <Name>${name}</Name>
-      <Synonym />
-      <Comment />
-      <DataLockControlMode>Managed</DataLockControlMode>
-    </Properties>
-    <ChildObjects />
-  </Recalculation>
-</MetaDataObject>
-`
+  return [
+    '\uFEFF<?xml version="1.0" encoding="UTF-8"?>',
+    '<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">',
+    '\t<Recalculation uuid="10000000-0000-4000-8000-000000000001">',
+    '\t\t<InternalInfo>',
+    `\t\t\t<xr:GeneratedType name="RecalculationRecord.${matrixObjectNames.calculationRegister}.${name}" category="Record">`,
+    '\t\t\t\t<xr:TypeId>10000000-0000-4000-8000-000000000002</xr:TypeId>',
+    '\t\t\t\t<xr:ValueId>10000000-0000-4000-8000-000000000003</xr:ValueId>',
+    '\t\t\t</xr:GeneratedType>',
+    `\t\t\t<xr:GeneratedType name="RecalculationManager.${matrixObjectNames.calculationRegister}.${name}" category="Manager">`,
+    '\t\t\t\t<xr:TypeId>10000000-0000-4000-8000-000000000004</xr:TypeId>',
+    '\t\t\t\t<xr:ValueId>10000000-0000-4000-8000-000000000005</xr:ValueId>',
+    '\t\t\t</xr:GeneratedType>',
+    `\t\t\t<xr:GeneratedType name="RecalculationRecordSet.${matrixObjectNames.calculationRegister}.${name}" category="RecordSet">`,
+    '\t\t\t\t<xr:TypeId>10000000-0000-4000-8000-000000000006</xr:TypeId>',
+    '\t\t\t\t<xr:ValueId>10000000-0000-4000-8000-000000000007</xr:ValueId>',
+    '\t\t\t</xr:GeneratedType>',
+    '\t\t</InternalInfo>',
+    '\t\t<Properties>',
+    `\t\t\t<Name>${name}</Name>`,
+    '\t\t\t<Synonym/>',
+    '\t\t\t<Comment/>',
+    '\t\t\t<DataLockControlMode>Managed</DataLockControlMode>',
+    '\t\t</Properties>',
+    '\t\t<ChildObjects/>',
+    '\t</Recalculation>',
+    '</MetaDataObject>',
+  ].join("\r\n")
 }

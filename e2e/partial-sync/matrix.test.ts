@@ -227,11 +227,20 @@ describe("partial sync matrix", () => {
   it("uses the canonical recalculation XML project path", () => {
     const plan = buildScenarioPlan(partialSyncMatrix)
     const operation = plan.find(({ key }) => key === "child:calculation-register:recalculations")
+    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after as string
+    const recalculationXml = operation?.changes.find(({ path }) => path.endsWith("/Перерасчеты/ПроверочныйПерерасчет/Свойства.xml"))?.after as string
 
     expect(operation?.changes.map(({ path }) => path)).toContain(
       "РегистрРасчета/ЯПроверкаЧастичнойСинхронизацииРегистрРасчета/Перерасчеты/ПроверочныйПерерасчет/Свойства.xml",
     )
     expect(operation?.changes.some(({ path }) => path.endsWith("/Recalculation.xml"))).toBe(false)
+    expect(properties.indexOf("Перерасчеты:")).toBeLessThan(properties.indexOf("ПланВидовРасчета:"))
+    expect(properties).toContain("  ПроверочныйПерерасчет:\n")
+    expect(properties).not.toContain("Синоним: \"\"")
+    expect(recalculationXml).toMatch(/^\uFEFF<\?xml version="1.0" encoding="UTF-8"\?>\r\n/)
+    expect(recalculationXml).toContain("xmlns:app=\"http://v8.1c.ru/8.2/managed-application/core\"")
+    expect(recalculationXml).toContain("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"")
+    expect(recalculationXml.endsWith("\n")).toBe(false)
   })
 
   it("does not create register resources in the root-object layer", () => {
