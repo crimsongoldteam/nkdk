@@ -592,7 +592,7 @@ function recalculationDimensionXml(name: string): readonly string[] {
     `\t\t\t\t\t<Name>${name}</Name>`,
     "\t\t\t\t\t<Synonym/>",
     "\t\t\t\t\t<Comment/>",
-    `\t\t\t\t\t<RegisterDimension xsi:type="xr:MDObjectRef">${registerDimension}</RegisterDimension>`,
+    `\t\t\t\t\t<RegisterDimension>${registerDimension}</RegisterDimension>`,
     "\t\t\t\t\t<LeadingRegisterData>",
     `\t\t\t\t\t\t<xr:Item xsi:type="xr:MDObjectRef">${registerDimension}</xr:Item>`,
     "\t\t\t\t\t</LeadingRegisterData>",
