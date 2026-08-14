@@ -98,6 +98,10 @@ export function xmlAnomalyTagValue(tag: XMLAnomalyTag, payload = ""): string {
   return payload === "" ? marker : `${marker} ${payload}`
 }
 
+export function isXMLAnomalyTag(tag: unknown): tag is XMLAnomalyTag {
+  return typeof tag === "string" && XML_ANOMALY_TAGS.some((candidate) => candidate === tag)
+}
+
 export function xmlAnomalyTagPayload(tag: XMLAnomalyTag, value: string): string {
   const marker = `!${tag}`
   if (value === marker) return ""
