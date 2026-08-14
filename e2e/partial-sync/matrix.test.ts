@@ -194,6 +194,17 @@ describe("partial sync matrix", () => {
     expect(properties).not.toContain("  ПроверочныйКанал: {}\n")
   })
 
+  it("emits external-data-source table fields before table properties", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const operation = plan.find(({ key }) => key === "child:external-data-source:tables")
+    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+
+    expect(properties).toEqual(expect.any(String))
+    const source = properties as string
+    expect(source.indexOf("Поля:")).toBeLessThan(source.indexOf("ТипТаблицы:"))
+    expect(source.indexOf("Поля:")).toBeLessThan(source.indexOf("ТолькоЧтение:"))
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",
