@@ -365,7 +365,7 @@ describe("borrowed property-state schema", () => {
     expect(JSON.stringify(schema.properties?.Реквизиты)).not.toContain("configurationExtensionPropertyStateXML")
   })
 
-  it("разрешает только Ложь или пустой !проверять для флажка расширяемого объекта", () => {
+  it("разрешает только пустые формы флажка расширяемого объекта", () => {
     const serviceRule = {
       ...rule,
       properties: {
@@ -395,8 +395,10 @@ describe("borrowed property-state schema", () => {
     })
     const validator = compileValidationSchema(schema)
 
-    expect(validator.Check({ ОбъектРасширяемойКонфигурации: "Ложь" })).toBe(true)
+    expect(validator.Check({})).toBe(true)
     expect(validator.Check({ ОбъектРасширяемойКонфигурации: {} })).toBe(true)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: "" })).toBe(true)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: "Ложь" })).toBe(false)
     expect(validator.Check({ ОбъектРасширяемойКонфигурации: false })).toBe(false)
     expect(validator.Check({ ОбъектРасширяемойКонфигурации: true })).toBe(false)
     expect(validator.Check({ ОбъектРасширяемойКонфигурации: "11111111-1111-4111-8111-111111111111" })).toBe(false)

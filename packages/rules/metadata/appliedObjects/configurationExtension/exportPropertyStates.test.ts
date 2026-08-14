@@ -13,6 +13,8 @@ import { MetadataConfigurationExtensionRules } from "./rules"
 import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 import { metadataExternalDataSourceTablePropertyStateCapabilities } from "../../commonObjects/metadataExternalDataSourceTable/propertyStates"
 import { configurationExtensionPropertyStateProfiles } from "./propertyStateProfiles"
+import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
+import { writeExtendedConfigurationObjectYAML } from "./extendedConfigurationObjectYAML"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import { clearedReferencePropertyStateCapabilities, clearedReferenceRule } from "./clearedReference.testFixture"
 
@@ -455,21 +457,35 @@ describe("configuration extension YAML-to-XML augmenter", () => {
   })
 
   it.each([
-    ["included", {}, { ObjectBelonging: "Adopted", ExtendedConfigurationObject: BASE_UUID }],
-    ["omitted for a false flag", { ОбъектРасширяемойКонфигурации: "Ложь" }, { ObjectBelonging: "Adopted" }],
-  ] as const)("writes canonical ExtendedConfigurationObject: %s", (_case, yaml, expected) => {
-    const outputs = new Map<string, Record<string, unknown>>([
-      ["metadata", { Form: { Properties: {} } }],
-    ])
-    configurationExtensionYamlToXmlAugmenter.augment({
-      context: context({ adoptedUuids: { [logicalAddress]: BASE_UUID } }),
-      rule,
+    { uuidPresent: true, mode: "control" },
+    { uuidPresent: false, mode: "control" },
+    { uuidPresent: true, mode: "notify" },
+    { uuidPresent: false, mode: "notify" },
+  ] as const)("writes ExtendedConfigurationObject: $uuidPresent $mode", (state) => {
+    const outputs = new Map<string, Record<string, unknown>>([["metadata", { Properties: {} }]])
+    const yaml: Record<string, unknown> = {}
+    writeExtendedConfigurationObjectYAML(yaml, state)
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({
+        adoptedUuids: state.uuidPresent ? { Конфигурация: BASE_UUID } : {},
+      }),
+      rule: MetadataConfigurationExtensionRules,
       yaml,
       outputs,
-      logicalAddress,
-    })
+      logicalAddress: "Конфигурация",
+    }))
 
-    expect(record(record(outputs.get("metadata")).Form).Properties).toEqual(expected)
+    expect(record(outputs.get("metadata")).Properties).toEqual({
+      ObjectBelonging: "Adopted",
+      ...(state.uuidPresent ? { ExtendedConfigurationObject: BASE_UUID } : {}),
+    })
+    const states = record(record(outputs.get("metadata")).InternalInfo)["xr:PropertyState"]
+    expect(states).toEqual(state.mode === "notify"
+      ? [{ "xr:Property": "ExtendedConfigurationObject", "xr:State": "Notify" }]
+      : undefined)
   })
 
   it("does not restore owner InternalInfo into an external XML file", () => {

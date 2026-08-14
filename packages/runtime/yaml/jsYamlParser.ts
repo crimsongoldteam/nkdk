@@ -93,7 +93,13 @@ function visitYamlData(
 ): unknown {
   if (isTaggedYAMLScalar(value)) {
     if (parent !== undefined && key !== undefined) markYAMLScalarTag(parent, key, value.tag)
-    return value.value
+    const resolvedValue = isEmptyRecord(value.value) && isDoubleQuotedTaggedValue(path, lines, locations)
+      ? ""
+      : value.value
+    if (parent !== undefined && key !== undefined && resolvedValue === "") {
+      markDoubleQuotedScalar(parent, key)
+    }
+    return resolvedValue
   }
 
   if (value === null) return isExplicitNullValue(path, lines, locations) ? null : {}
@@ -152,13 +158,34 @@ function isDoubleQuotedValue(
   lines: readonly string[],
   locations: YamlLocationIndex
 ): boolean {
+  return sourceAtValuePosition(path, lines, locations).startsWith('"')
+}
+
+function isDoubleQuotedTaggedValue(
+  path: readonly (string | number)[],
+  lines: readonly string[],
+  locations: YamlLocationIndex
+): boolean {
+  return /^!(?:проверять|изменять)\s+"/u.test(sourceAtValuePosition(path, lines, locations))
+}
+
+function sourceAtValuePosition(
+  path: readonly (string | number)[],
+  lines: readonly string[],
+  locations: YamlLocationIndex
+): string {
   const position = locations.valuePosition(path) ?? locations.nodePosition(path)
-  if (position === undefined) return false
-  return lines[position.line - 1]?.[position.col - 1] === '"'
+  return position === undefined
+    ? ""
+    : (lines[position.line - 1]?.slice(position.col - 1).trimStart() ?? "")
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function isEmptyRecord(value: unknown): value is Record<string, never> {
+  return isRecord(value) && Object.keys(value).length === 0
 }
 
 function toSyntaxError(error: unknown, text: string): JsYamlSyntaxError {

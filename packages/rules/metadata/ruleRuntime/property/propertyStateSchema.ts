@@ -75,8 +75,8 @@ export function exportBorrowedPropertyStateSchema(params: {
     params.capability.properties.extendedConfigurationObject !== undefined
   ) {
     properties.ОбъектРасширяемойКонфигурации = Type.Optional(Type.Union([
-      Type.Literal("Ложь"),
       Type.Object({}, { additionalProperties: false, maxProperties: 0 }),
+      Type.Literal(""),
     ]))
   }
   if (params.closed !== false) {

@@ -203,35 +203,43 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml.ИзмерениеАдресации).toEqual({})
     expect(yamlScalarTagAt(yaml, "ИзмерениеАдресации")).toBe("изменять")
   })
-  it("записывает снятый флажок заимствованного объекта как Ложь", () => {
+  it.each([
+    [true, false, undefined, undefined],
+    [false, false, {}, undefined],
+    [true, true, {}, "проверять"],
+    [false, true, "", "проверять"],
+  ] as const)("кодирует ExtendedConfigurationObject: uuid=%s notify=%s", (
+    uuidPresent,
+    notify,
+    expectedValue,
+    expectedTag,
+  ) => {
     const yaml: Record<string, unknown> = {}
-
-    configurationExtensionPropertyStatesAugmenter.augment({
-      context: extensionContext(),
-      rule: MetadataCatalogRules,
-      source: { Properties: { ObjectBelonging: "Adopted" } },
-      yaml,
-    })
-
-    expect(yaml).toEqual({ ОбъектРасширяемойКонфигурации: "Ложь" })
-  })
-
-  it("не записывает включённый флажок без Notify в YAML", () => {
-    const yaml: Record<string, unknown> = {}
-
-    configurationExtensionPropertyStatesAugmenter.augment({
-      context: extensionContext(),
-      rule: MetadataCatalogRules,
-      source: {
-        Properties: {
-          ObjectBelonging: "Adopted",
-          ExtendedConfigurationObject: "11111111-1111-4111-8111-111111111111",
-        },
+    const source = {
+      ...(notify ? propertyStates(["ExtendedConfigurationObject", "Notify"]) : {}),
+      Properties: {
+        ObjectBelonging: "Adopted",
+        ...(uuidPresent
+          ? { ExtendedConfigurationObject: "11111111-1111-4111-8111-111111111111" }
+          : {}),
       },
-      yaml,
-    })
+    }
 
-    expect(yaml).toEqual({})
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule: MetadataCatalogRules,
+      source,
+      yaml,
+    }))
+
+    if (expectedValue === undefined) {
+      expect(yaml).not.toHaveProperty("ОбъектРасширяемойКонфигурации")
+    } else {
+      expect(yaml.ОбъектРасширяемойКонфигурации).toEqual(expectedValue)
+    }
+    expect(yamlScalarTagAt(yaml, "ОбъектРасширяемойКонфигурации")).toBe(expectedTag)
   })
 
   it("преобразует Notify по каноническому XML-имени builder-rule без явного xml", () => {
@@ -267,7 +275,7 @@ describe("configuration extension PropertyState augmenter", () => {
 
     expect(yaml).toEqual({
       РежимСовместимости: "Version8_3_27",
-      ОбъектРасширяемойКонфигурации: {},
+      ОбъектРасширяемойКонфигурации: "",
     })
     expect(yamlScalarTagAt(yaml, "РежимСовместимости")).toBe("проверять")
     expect(yamlScalarTagAt(yaml, "ОбъектРасширяемойКонфигурации")).toBe("проверять")
@@ -449,7 +457,12 @@ describe("configuration extension PropertyState augmenter", () => {
         yaml,
       }))
 
-    expect(yaml).toEqual({ Изменять: [externalName] })
+    expect(yaml).toEqual({
+      Изменять: [externalName],
+      ...(itemType === "MetadataConfigurationExtension"
+        ? { ОбъектРасширяемойКонфигурации: {} }
+        : {}),
+    })
     expect(yaml).not.toHaveProperty("Контроль")
   })
 

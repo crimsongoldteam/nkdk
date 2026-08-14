@@ -7,20 +7,21 @@ import { currentOperationRegistrySet } from "../../operations/operationExecution
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
 import { readPropertyStateSections } from "../../ruleRuntime/property/propertyStateSections"
-
-const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
+import {
+  EXTENDED_CONFIGURATION_OBJECT_YAML,
+  readExtendedConfigurationObjectYAML,
+} from "./extendedConfigurationObjectYAML"
 
 export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugmenter = {
   augment({ context, rule, yaml, outputs, logicalAddress }) {
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
-    const extensionObject = yaml[EXTENDED_CONFIGURATION_OBJECT_YAML]
-    const enabled = extensionObject !== "Ложь"
     const adopted = rule.itemType === "MetadataConfigurationExtension" ||
       adoptedUuid !== undefined ||
       context.exportToXML.xmlDefaultVariantByLogicalAddress?.[logicalAddress] === "adopted"
     if (adopted && supportsAdoptionServiceProperties(rule)) {
+      const extensionObject = readExtendedConfigurationObjectYAML(yaml)
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-      if (enabled) {
+      if (extensionObject.uuidPresent) {
         if (adoptedUuid === undefined) {
           throw new Error(`Не найден UUID основной конфигурации: ${logicalAddress}`)
         }
@@ -185,7 +186,7 @@ function propertyStates(params: {
     const propertyRule = params.rule.properties[propertyKey]
     statesByPropertyKey.set(propertyKey, propertyState(propertyRule?.xml ?? capitalize(propertyKey), state))
   }
-  if (yamlScalarTagAt(params.yaml, EXTENDED_CONFIGURATION_OBJECT_YAML) === "проверять") {
+  if (readExtendedConfigurationObjectYAML(params.yaml).mode === "notify") {
     addState("extendedConfigurationObject", "Notify")
   }
 

@@ -6,14 +6,15 @@ import { currentOperationRegistrySet } from "../../operations/operationExecution
 import type { PropertyStateCapabilityRegistry, ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
 import { writePropertyStateSection } from "../../ruleRuntime/property/propertyStateSections"
-
-const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
-  ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",
-}
+import {
+  EXTENDED_CONFIGURATION_OBJECT_YAML,
+  writeExtendedConfigurationObjectYAML,
+} from "./extendedConfigurationObjectYAML"
 
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
   augment({ context, rule, source, yaml }): void {
     const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
+    let extendedConfigurationObjectNotify = false
     for (const propertyState of propertyStates(source)) {
       const property = propertyState["xr:Property"]
       const state = propertyState["xr:State"]
@@ -29,6 +30,10 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       })
       if (mode === undefined || capability === undefined || !capability.modes.includes(mode)) {
         throw new Error(`Недопустимый PropertyState ${rule.itemType}.${property}=${state}`)
+      }
+      if (propertyKey === "extendedConfigurationObject") {
+        extendedConfigurationObjectNotify = mode === "notify"
+        continue
       }
       if (capability.representation === "section") {
         if (capability.externalName === undefined) {
@@ -58,13 +63,14 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
     }
     importPresentProperties({ context, rule, source, yaml, compatibilityMode })
     const serviceProperties = extensionServiceProperties(source, rule)
-    if (
-      supportsAdoptionServiceProperties(rule) &&
-      serviceProperties?.objectBelonging === "Adopted" &&
-      !serviceProperties.hasExtendedConfigurationObject &&
-      !Object.prototype.hasOwnProperty.call(yaml, NOTIFY_ALIASES.ExtendedConfigurationObject)
-    ) {
-      yaml[NOTIFY_ALIASES.ExtendedConfigurationObject] = "Ложь"
+    if (supportsAdoptionServiceProperties(rule) && (
+      rule.itemType === "MetadataConfigurationExtension" ||
+      serviceProperties?.objectBelonging === "Adopted"
+    )) {
+      writeExtendedConfigurationObjectYAML(yaml, {
+        uuidPresent: serviceProperties?.hasExtendedConfigurationObject === true,
+        mode: extendedConfigurationObjectNotify ? "notify" : "control",
+      })
     }
   },
 }
@@ -227,8 +233,7 @@ function propertyStates(source: Record<string, unknown>): Record<string, unknown
 }
 
 function propertyYamlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {
-  const alias = NOTIFY_ALIASES[xmlProperty]
-  if (alias !== undefined) return alias
+  if (xmlProperty === "ExtendedConfigurationObject") return EXTENDED_CONFIGURATION_OBJECT_YAML
   for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
     if ((propertyRule.xml ?? capitalize(propertyKey)) === xmlProperty && typeof propertyRule.yaml === "string") {
       return propertyRule.yaml

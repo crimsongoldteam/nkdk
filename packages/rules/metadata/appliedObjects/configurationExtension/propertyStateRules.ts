@@ -63,7 +63,7 @@ const metadataConfigurationExtensionPropertyStateCapabilities = definePropertySt
       ...externalProperty("mainSectionPicture", "КартинкаОсновногоРаздела", ["extend"]),
       ...externalProperty("logo", "Логотип", ["extend"]),
       ...externalProperty("splash", "Заставка", ["extend"]),
-      ...controlled("compatibilityMode", "defaultRunMode"),
+      ...controlled("extendedConfigurationObject", "compatibilityMode", "defaultRunMode"),
       ...extended("defaultRoles"),
     },
   },
