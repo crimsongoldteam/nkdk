@@ -55,6 +55,7 @@ describe("partial sync platform fixture", () => {
           `--database-path=${baseDir}`,
           "--data=/Users/nikita/Базы 1С/temp_test/data",
           "--extension=Расширение_All",
+          "--force",
         ],
       },
     ])

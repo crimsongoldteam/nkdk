@@ -96,6 +96,7 @@ export async function prepareInfobaseFixture(
         `--database-path=${params.baseDir}`,
         `--data=${params.dataDir}`,
         `--extension=${params.extensionName}`,
+        "--force",
       ],
     },
   ] as const
