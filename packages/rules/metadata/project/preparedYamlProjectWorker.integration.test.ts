@@ -69,7 +69,7 @@ describe("project-state refresh worker", () => {
       rulesSnapshot,
     }, { createValidationSchemaCache })
 
-    expect(initializedContext?.languages.registeredSet).toBeInstanceOf(Set)
+    expect(Object.isFrozen(initializedContext?.languages.registeredSet)).toBe(true)
   })
 
   it("читает режим совместимости из корня расширения для дочернего YAML", async () => {

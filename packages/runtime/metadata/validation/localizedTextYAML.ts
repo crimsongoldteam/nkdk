@@ -1,6 +1,6 @@
 import type { ConfigurationLanguages } from "../context/types"
-import { yamlMappingTagOf } from "../../yaml/mappingTags"
-import { yamlScalarTagAt, type YAMLScalarTag } from "../../yaml/scalarTags"
+import { yamlMappingKeys, yamlMappingTagOf } from "../../yaml/mappingTags"
+import { isXMLAnomalyTag, yamlScalarTagAt, type YAMLScalarTag } from "../../yaml/scalarTags"
 import type { YamlPath } from "../diagnostics/types"
 
 export interface LocalizedTextYAMLIssue {
@@ -17,14 +17,14 @@ export function validateLocalizedTextYAMLProperty(params: {
 }): LocalizedTextYAMLIssue[] {
   const { languages, value, valueTag, path, foldable } = params
   if (typeof value === "string") {
-    return valueTag === "xml/language" || valueTag === "xml/duplicate"
-      ? [{ path, message: `Тег !${valueTag} допустим только у языка внутри локализованной строки` }]
-      : []
+    return !isXMLAnomalyTag(valueTag)
+      ? []
+      : [{ path, message: `Тег !${valueTag} недопустим у скалярной локализованной строки` }]
   }
 
   const items = asRecord(value)
   if (items === undefined) return []
-  const codes = Object.keys(items)
+  const codes = yamlMappingKeys(items)
   if (codes.includes("") || codes.includes("#")) return []
 
   const issues: LocalizedTextYAMLIssue[] = []
@@ -36,6 +36,11 @@ export function validateLocalizedTextYAMLProperty(params: {
     const itemValue = items[code]
     const tag = yamlScalarTagAt(items, code)
     const registered = languages.registeredSet.has(code)
+
+    if (isXMLAnomalyTag(tag) && tag !== "xml/language" && tag !== "xml/duplicate") {
+      issues.push({ path: itemPath, message: `Тег !${tag} недопустим у языка локализованной строки` })
+      continue
+    }
 
     if (itemValue === "") {
       if (!foldable || code !== languages.default) {

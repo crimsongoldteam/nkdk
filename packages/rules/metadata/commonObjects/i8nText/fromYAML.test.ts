@@ -6,6 +6,7 @@ import { I8nTextPropertyRule } from "./types"
 import {
   createConfigurationLanguages,
   parseMetadataYaml,
+  yamlMappingKeys,
   yamlMappingTagOf,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
@@ -33,6 +34,18 @@ describe("importI8nTextFromYAML", () => {
       })
 
       expect(result).toEqual(fixture.text)
+    })
+
+    it("preserves YAML order before source-only languages", () => {
+      const value = parseMetadataYaml(": Leading\nru: Override").data as Record<string, string>
+      const result = importI8nTextFromYAML({
+        context: mockContext,
+        rule: mockRule,
+        value,
+        source: { items: { ru: "Source" } },
+      })!
+
+      expect(yamlMappingKeys(result.items)).toEqual(["", "ru"])
     })
   })
 

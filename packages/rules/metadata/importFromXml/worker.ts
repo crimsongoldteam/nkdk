@@ -1,7 +1,7 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { join, posix } from "node:path"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
-import { hashFileBytes } from "@nkdk/runtime"
+import { hashFileBytes, rehydrateConfigurationContext } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
@@ -194,6 +194,7 @@ async function runImportWorkerCommand(
     firstPassAccumulator?.fragmentWriter.discard()
     const projectDir = command.projectDir ?? command.outputDir
     const componentPath = command.componentPath ?? "cf"
+    const context = rehydrateConfigurationContext(command.context)
     const validationComponent = validationProjectComponentFromAddress(projectDir, {
       componentPath,
       componentDir: command.outputDir,
@@ -201,16 +202,16 @@ async function runImportWorkerCommand(
     initializedState = {
       operationId: command.operationId,
       workerIndex: command.workerIndex,
-      context: command.context,
+      context,
       outputDir: command.outputDir,
       projectDir,
       componentPath,
       topology: validationComponent.topology,
       schemaCache: options.persistentValidationState?.schemaCache
         ?? schemaCacheForTests
-        ?? createValidationSchemaCache(command.context),
+        ?? createValidationSchemaCache(context),
       rulesSnapshot: options.persistentValidationState?.rulesSnapshot
-        ?? createValidationRulesSnapshot(command.context, validationComponent.topology),
+        ?? createValidationRulesSnapshot(context, validationComponent.topology),
     }
     firstPassAccumulator = createFirstPassAccumulator(command.workerIndex)
     return undefined

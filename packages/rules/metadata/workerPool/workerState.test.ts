@@ -23,7 +23,7 @@ describe("состояние универсального worker", () => {
       },
     )
 
-    expect(state.context.languages.registeredSet).toBeInstanceOf(Set)
+    expect(Object.isFrozen(state.context.languages.registeredSet)).toBe(true)
     expect(state.context.languages.registeredSet.has("ru")).toBe(true)
   })
 

@@ -39,7 +39,7 @@
 - Consumes: отдельную composition-точку production build `packages/rules/dist/validationProfile.js` и `packages/rules/dist/worker.js` пакета `@nkdk/rules`; корневой экспорт пакета не расширяется.
 - Produces: неизменённый CLI `node .agents/skills/validation-profile/validation-profile.mjs <yaml-dir> ...`, работающий после переименования `packages/core` в `packages/rules`.
 
-- [ ] **Step 1: Добавить падающий контракт текущего пути production build**
+- [x] **Step 1: Добавить падающий контракт текущего пути production build**
 
 В `validation-profile.test.mjs` импортировать экспортируемый helper пути и проверить:
 
@@ -50,13 +50,13 @@ test("compiled runtime загружается из packages/rules", () => {
 })
 ```
 
-- [ ] **Step 2: Подтвердить RED**
+- [x] **Step 2: Подтвердить RED**
 
 Run: `node --test .agents/skills/validation-profile/validation-profile.test.mjs`
 
 Expected: FAIL, потому что отдельная compiled-точка профильного runtime ещё не существует.
 
-- [ ] **Step 3: Перевести runner и документацию на текущий пакет**
+- [x] **Step 3: Перевести runner и документацию на текущий пакет**
 
 В `validation-profile.mjs` определить и использовать:
 
@@ -71,13 +71,13 @@ export function compiledRuntimePaths(root) {
 
 Добавить `validationProfile.ts`, который собирает `metadataRules`, четыре compiled worker URL и экспортирует фабрику runtime вместе с `createValidationProfileResult`. Низкоуровневую профильную актуализацию выполнять в экземплярном rule-контексте, который обычная валидация получает через runtime API. Добавить эту точку в production build, external `lmdb` и прямую зависимость пакета. Заменить команды и сообщения runner на `pnpm --filter @nkdk/rules build`, не меняя формат результата профиля.
 
-- [ ] **Step 4: Проверить инструмент**
+- [x] **Step 4: Проверить инструмент**
 
 Run: `node --test .agents/skills/validation-profile/validation-profile.test.mjs`
 
 Expected: PASS.
 
-- [ ] **Step 5: Подготовить временный профильный проект и baseline**
+- [x] **Step 5: Подготовить временный профильный проект и baseline**
 
 Создать временный каталог через `mktemp -d`, скопировать в него содержимое `e2e/fixtures/nkdk` без `.nkdk`, затем выполнить:
 
@@ -88,7 +88,7 @@ node .agents/skills/validation-profile/validation-profile.mjs <temp-project> --r
 
 Сохранить JSON только в `/private/tmp/nkdk-i18n-validation-baseline.json`; записать путь временного проекта в `/private/tmp/nkdk-i18n-validation-project-path.txt`. Не добавлять оба файла в git.
 
-- [ ] **Step 6: Проверить дубли и закоммитить слой**
+- [x] **Step 6: Проверить дубли и закоммитить слой**
 
 Run: `pnpm duplicates -- --base 13ba5eac5`
 
@@ -112,7 +112,7 @@ git commit -m "fix: :wrench: актуализировать профиль valid
 - Consumes: существующие `markYAMLScalarTag`, `copyYAMLScalarTags`, `taggedYAMLScalar` и js-yaml `defineMappingTag`.
 - Produces: `XMLAnomalyTag` с `xml/language | xml/duplicate`; тип `YAMLMappingTag = "xml/order"`; функции `markYAMLMappingTag(value, tag)`, `yamlMappingTagOf(value)`, `copyYAMLMappingTag(source, target)` и внутренний tagged mapping carrier.
 
-- [ ] **Step 1: Написать RED-тесты scalar-тегов**
+- [x] **Step 1: Написать RED-тесты scalar-тегов**
 
 Добавить к таблицам parser/export случаи:
 
@@ -124,7 +124,7 @@ git commit -m "fix: :wrench: актуализировать профиль valid
 
 Проверить `yamlScalarTagAt(Заголовок, "en") === "xml/language"`, `yamlScalarTagAt(..., "ru") === "xml/duplicate"` и точную обратную сериализацию.
 
-- [ ] **Step 2: Написать RED-тесты mapping-sidecar**
+- [x] **Step 2: Написать RED-тесты mapping-sidecar**
 
 ```ts
 const parsed = parseMetadataYaml("Заголовок: !xml/order\n  en: Text\n  ru: Текст\n")
@@ -138,13 +138,13 @@ expect(serializeYAMLDocument({ Заголовок: copied }).text)
 
 Также проверить, что `!xml/order payload` и применение `!xml/order` к scalar/sequence дают синтаксическую ошибку.
 
-- [ ] **Step 3: Подтвердить RED**
+- [x] **Step 3: Подтвердить RED**
 
 Run: `pnpm --filter @nkdk/runtime exec vitest run yaml/jsYamlParser.test.ts yaml/export.test.ts`
 
 Expected: FAIL с неизвестными тегами и отсутствующими mapping-sidecar API.
 
-- [ ] **Step 4: Реализовать scalar-категории и mapping-sidecar**
+- [x] **Step 4: Реализовать scalar-категории и mapping-sidecar**
 
 Расширить закрытый список:
 
@@ -157,11 +157,11 @@ export const XML_ANOMALY_TAGS = [
 
 В `mappingTags.ts` хранить тег в `WeakMap<object, YAMLMappingTag>`. `defineMappingTag("!xml/order", ...)` должен создавать обычный insertion-ordered object, маркировать его при `finalize`, а `represent` возвращать `new Map(Object.entries(value))`.
 
-- [ ] **Step 5: Перенести mapping-sidecar через parse, dump и копии**
+- [x] **Step 5: Перенести mapping-sidecar через parse, dump и копии**
 
 В `visitYamlData` после рекурсивной подготовки mapping копировать тег с carrier на итоговый object. В `prepareForDump` копировать тег с предметного object на `dumpValue` и `data`, чтобы js-yaml выбрал `!xml/order` только по sidecar; payload в предметной модели не добавлять.
 
-- [ ] **Step 6: Проверить runtime и типы**
+- [x] **Step 6: Проверить runtime и типы**
 
 Run: `pnpm --filter @nkdk/runtime exec vitest run yaml/jsYamlParser.test.ts yaml/export.test.ts`
 
@@ -169,7 +169,7 @@ Run: `pnpm --filter @nkdk/runtime exec tsc --noEmit`
 
 Expected: PASS.
 
-- [ ] **Step 7: Проверить дубли и закоммитить слой**
+- [x] **Step 7: Проверить дубли и закоммитить слой**
 
 Run: `pnpm duplicates -- --base 13ba5eac5`
 
@@ -215,11 +215,11 @@ export function createConfigurationLanguages(params: {
 
 - Consumes: `Configuration.xml` (`DefaultLanguage`, `ChildObjects/Language`) и `Languages/<Имя>.xml` (`LanguageCode`), либо `Конфигурация.yaml` (`ОсновнойЯзык`) и `Язык/*.yaml` (`КодЯзыка`).
 
-- [ ] **Step 1: Написать RED-тесты инвариантов реестра**
+- [x] **Step 1: Написать RED-тесты инвариантов реестра**
 
 Проверить успешный `default=ru, registered=[ru,en]` и ошибки для пустого/повторного кода, отсутствующего основного объекта, двух объектов с именем основного языка и основного кода вне registered. Проверить стабильную `version` как `JSON.stringify([default, [...registered].sort(codeCompare)])`, чтобы не добавлять криптографию в runtime.
 
-- [ ] **Step 2: Написать RED-тесты XML- и YAML-сборщиков**
+- [x] **Step 2: Написать RED-тесты XML- и YAML-сборщиков**
 
 Во временных каталогах создать минимальные файлы без изменения fixture:
 
@@ -236,23 +236,23 @@ export function createConfigurationLanguages(params: {
 
 Ожидать одинаковый реестр и диагностичную ошибку с путём файла при каждом нарушенном инварианте.
 
-- [ ] **Step 3: Подтвердить RED**
+- [x] **Step 3: Подтвердить RED**
 
 Run: `pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/appliedObjects/configuration/languageRegistry.test.ts`
 
 Expected: FAIL, модуль отсутствует.
 
-- [ ] **Step 4: Реализовать неизменяемый реестр**
+- [x] **Step 4: Реализовать неизменяемый реестр**
 
 `createConfigurationLanguages` обязан копировать и замораживать `registered`, создать `ReadonlySet`, проверить инварианты и вычислить стабильную `version`. Сборщики читают только необходимые поля существующим XML/YAML parser и не запускают полный import/validation.
 
-- [ ] **Step 5: Мигрировать контекст без совместимого alias**
+- [x] **Step 5: Мигрировать контекст без совместимого alias**
 
 Заменить `context.defaultLanguage` на `context.languages.default` во всём production-коде и тестах. `defaultMetadataOperationsContext()` временно создаёт полный реестр `ru/[ru]`; внешние API больше не принимают отдельный `defaultLanguage`.
 
 JSON Schema cache key использует только `languages.default`, потому что схема не зависит от registered; `languages.version` в ключ схемы не добавлять.
 
-- [ ] **Step 6: Проверить отсутствие старого поля и целевые тесты**
+- [x] **Step 6: Проверить отсутствие старого поля и целевые тесты**
 
 Run: `rg -n "\\.defaultLanguage\\b|Pick<ConfigurationContext, \"defaultLanguage\">" packages --glob '!**/*.map'`
 
@@ -264,7 +264,7 @@ Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit --pr
 
 Expected: PASS.
 
-- [ ] **Step 7: Проверить дубли и закоммитить слой**
+- [x] **Step 7: Проверить дубли и закоммитить слой**
 
 Run: `pnpm duplicates -- --base 13ba5eac5`
 
@@ -644,19 +644,19 @@ git commit -m "docs: :memo: зарегистрировать языковые XM
 - Consumes: завершённая реализация и результаты всех проверок.
 - Produces: один независимый отчёт с приоритетами P0–P2, таблицей покрытия требований и перечнем отклонений от плана.
 
-- [ ] **Step 1: Запустить одного review-субагента только после реализации**
+- [x] **Step 1: Запустить одного review-субагента только после реализации**
 
 Поручить ему read-only ревью диапазона `13ba5eac5...HEAD`: искать потерю XML, неверную грамматику тегов, нарушение архитектурных границ, лишние обходы/сортировки, неполную инвалидацию и расхождения со спецификацией/планом. Запретить редактирование файлов.
 
-- [ ] **Step 2: Самостоятельно сопоставить план и фактические изменения**
+- [x] **Step 2: Самостоятельно сопоставить план и фактические изменения**
 
 Составить таблицу `требование → задача плана → файлы реализации → тест`; отдельно перечислить осознанные отклонения. Любое несогласованное изменение поведения считать замечанием, а не молча принимать.
 
-- [ ] **Step 3: Исправить подтверждённые замечания через TDD**
+- [x] **Step 3: Исправить подтверждённые замечания через TDD**
 
 Для каждого P0/P1 или подтверждённого расхождения сначала добавить RED-тест, затем минимальное исправление, целевые тесты и `pnpm duplicates -- --base 13ba5eac5`. Не принимать спорное решение без вопроса пользователю.
 
-- [ ] **Step 4: Повторить итоговые проверки после исправлений**
+- [x] **Step 4: Повторить итоговые проверки после исправлений**
 
 Run вне песочницы: `pnpm test`
 
@@ -670,7 +670,7 @@ Run: `pnpm duplicates -- --base 13ba5eac5`
 
 Expected: PASS.
 
-- [ ] **Step 5: Закоммитить только реальные исправления ревью**
+- [x] **Step 5: Закоммитить только реальные исправления ревью**
 
 Если изменения понадобились:
 

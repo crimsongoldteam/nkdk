@@ -5,7 +5,7 @@ import {
   encodeProjectStateHeader,
 } from "./format"
 
-it("восстанавливает заголовок 0.5.0 и отвергает другую версию", () => {
+it("восстанавливает заголовок 0.6.0 и отвергает другую версию", () => {
   const bytes = encodeProjectStateHeader({
     sections: [{ kind: "strings", offset: 128, byteLength: 64, records: 2 }],
     payloadHash: 7n,
@@ -19,7 +19,17 @@ it("восстанавливает заголовок 0.5.0 и отвергае�
 
   new DataView(bytes.buffer).setUint16(12, 1, true)
 
-  expect(() => decodeProjectStateHeader(bytes)).toThrow(/0\.5\.0/iu)
+  expect(() => decodeProjectStateHeader(bytes)).toThrow(/0\.6\.0/iu)
+})
+
+it("отвергает снимок 0.5.0 без зависимостей validation-контекста", () => {
+  const bytes = encodeProjectStateHeader({ sections: [], payloadHash: 0n })
+  const view = new DataView(bytes.buffer)
+  view.setUint16(8, 0, true)
+  view.setUint16(10, 5, true)
+  view.setUint16(12, 0, true)
+
+  expect(() => decodeProjectStateHeader(bytes)).toThrow(/несовместимая версия/iu)
 })
 
 it.each([

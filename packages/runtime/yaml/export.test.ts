@@ -117,6 +117,14 @@ describe("exportToYAML", () => {
     expect(yamlMappingTagOf(reparsedTitle)).toBe("xml/order")
   })
 
+  it("сохраняет порядок числовых ключей в mapping с !xml/order", () => {
+    const parsed = parseMetadataYaml("Заголовок: !xml/order\n  '10': Ten\n  '2': Two\n")
+
+    expect(serializeYAMLDocument(parsed.data).text).toBe(
+      'Заголовок: !xml/order\n  "10": Ten\n  "2": Two',
+    )
+  })
+
   it("preserves explicit string style in serialized semantic data", () => {
     const serialized = serializeYAMLDocument({ Внешний: { Значение: explicitYAMLString("001") } })
     const outer = (serialized.data as { Внешний: { Значение: string } }).Внешний

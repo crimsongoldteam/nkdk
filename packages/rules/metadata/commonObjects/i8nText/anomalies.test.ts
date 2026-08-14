@@ -27,6 +27,16 @@ const contextWithoutEnglish = {
   languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
 }
 
+const numericLanguageContext = {
+  ...mockContext,
+  languages: createConfigurationLanguages({ default: "10", registered: ["10", "2"] }),
+}
+
+const numericLanguageContextWithTwoAsDefault = {
+  ...mockContext,
+  languages: createConfigurationLanguages({ default: "2", registered: ["2", "10"] }),
+}
+
 const item = (language: string, content: string): I8nTextLanguageXML => ({
   "v8:lang": language,
   "v8:content": content,
@@ -156,6 +166,13 @@ describe("localized XML language anomalies", () => {
     ])
   })
 
+  it("rejects an unrelated anomaly tag during export", () => {
+    const items = { ru: xmlAnomalyTagValue("xml/present", "Текст") }
+    markYAMLScalarTag(items, "ru", "xml/present")
+
+    expect(() => exportLocalizedItems({ context, items })).toThrow(/!xml\/present/u)
+  })
+
   it("preserves insertion order with mapping tag", () => {
     const items = { en: "Text", ru: "Текст" }
     markYAMLMappingTag(items, "xml/order")
@@ -164,6 +181,48 @@ describe("localized XML language anomalies", () => {
       item("en", "Text"),
       item("ru", "Текст"),
     ])
+  })
+
+  it("preserves canonical numeric-like language order through YAML", () => {
+    const originalItems = [item("10", "Ten"), item("2", "Two")]
+    const localized = importLocalizedItems({ context: numericLanguageContext, items: originalItems })
+    const serialized = serializeYAMLDocument({ Заголовок: localized }).text
+    const parsed = parseMetadataYaml(serialized).data as { Заголовок: Record<string, string> }
+    const restored = importI8nTextFromYAML({
+      context: numericLanguageContext,
+      rule: { type: "I8nText" },
+      value: parsed.Заголовок,
+    })
+
+    expect(serialized).toBe('Заголовок:\n  "10": Ten\n  "2": Two')
+    expect(exportI8nTextToXML(numericLanguageContext, { type: "I8nText" }, restored)?.["v8:item"]).toEqual(originalItems)
+  })
+
+  it("preserves anomalous numeric-like language order through YAML", () => {
+    const originalItems = [item("10", "Ten"), item("2", "Two")]
+    const localized = importLocalizedItems({ context: numericLanguageContextWithTwoAsDefault, items: originalItems })
+    const serialized = serializeYAMLDocument({ Заголовок: localized }).text
+    const parsed = parseMetadataYaml(serialized).data as { Заголовок: Record<string, string> }
+    const restored = importI8nTextFromYAML({
+      context: numericLanguageContextWithTwoAsDefault,
+      rule: { type: "I8nText" },
+      value: parsed.Заголовок,
+    })
+
+    expect(serialized).toBe('Заголовок: !xml/order\n  "10": Ten\n  "2": Two')
+    expect(exportI8nTextToXML(numericLanguageContextWithTwoAsDefault, { type: "I8nText" }, restored)?.["v8:item"]).toEqual(originalItems)
+  })
+
+  it("preserves the special language code __proto__", () => {
+    const specialContext = {
+      ...mockContext,
+      languages: createConfigurationLanguages({ default: "ru", registered: ["ru", "__proto__"] }),
+    }
+    const originalItems = [item("ru", "Текст"), item("__proto__", "Prototype")]
+    const localized = importLocalizedItems({ context: specialContext, items: originalItems })
+
+    expect(Object.hasOwn(localized, "__proto__")).toBe(true)
+    expect(exportLocalizedItems({ context: specialContext, items: localized })).toEqual(originalItems)
   })
 
   it("preserves combined anomalies through serialized YAML", () => {

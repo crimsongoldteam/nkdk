@@ -23,6 +23,7 @@ import { createValidationRegistrySet } from "./validationRegistrySet"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "../appliedObjects/configurationExtension/propertyStateRules"
 import { withOperationRegistrySet } from "../operations/operationExecutionContext"
+import { createConfigurationLanguages } from "@nkdk/runtime"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -101,6 +102,7 @@ describe("validateProjectFileFirstPass references", () => {
     projectPath: string,
     yaml: string,
     kind: "cf" | "cfe" = "cf",
+    context = mockContext,
   ) => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-input-by-string-validation-"))
     tempDirs.push(projectDir)
@@ -115,7 +117,7 @@ describe("validateProjectFileFirstPass references", () => {
       projectDir,
       file,
       cache: createProjectYamlCache(),
-      context: mockContext,
+      context,
       schemaCache: appliedObjectSchemaCache,
       rulesSnapshot,
       runtime: appliedObjectRuntime,
@@ -186,9 +188,15 @@ describe("validateProjectFileFirstPass references", () => {
   })
 
   it("validates localized language tags and order in the existing first pass", () => {
+    const singleLanguageContext = {
+      ...mockContext,
+      languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+    }
     const missingLanguageTag = validationErrors(validateAppliedObject(
       "Справочник/Тест/Свойства.yaml",
       "Синоним:\n  ru: Текст\n  en: Text",
+      "cf",
+      singleLanguageContext,
     ))
     expect(missingLanguageTag).toContainEqual(expect.objectContaining({
       path: "/Синоним/en",
@@ -198,12 +206,16 @@ describe("validateProjectFileFirstPass references", () => {
     const classified = validationErrors(validateAppliedObject(
       "Справочник/Тест/Свойства.yaml",
       "Синоним:\n  ru: Текст\n  en: !xml/language Text",
+      "cf",
+      singleLanguageContext,
     ))
     expect(classified).toEqual([])
 
     const missingOrderTag = validationErrors(validateAppliedObject(
       "Справочник/Тест/Свойства.yaml",
       "Синоним:\n  en: !xml/language Text\n  ru: Текст",
+      "cf",
+      singleLanguageContext,
     ))
     expect(missingOrderTag).toContainEqual(expect.objectContaining({
       path: "/Синоним",

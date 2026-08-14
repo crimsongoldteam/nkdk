@@ -7,6 +7,7 @@ import {
   NKDK_YAML_SCHEMA,
   prepareYAMLScalarTagsForParser,
 } from "./scalarTags"
+import { markYAMLMappingKeyOrder, yamlMappingKeys } from "./mappingTags"
 
 export interface JsYamlSyntaxError {
   message: string
@@ -122,10 +123,29 @@ function visitYamlData(
   }
 
   if (!isRecord(value)) return value
-  for (const [entryKey, entryValue] of Object.entries(value)) {
+  const sourceKeys = sourceKeyOrder(value, path, locations)
+  const runtimeKeys = Object.keys(value)
+  if (sourceKeys.some((entryKey, index) => entryKey !== runtimeKeys[index])) {
+    markYAMLMappingKeyOrder(value, sourceKeys)
+  }
+  for (const entryKey of yamlMappingKeys(value)) {
+    const entryValue = value[entryKey]
     value[entryKey] = visitYamlData(entryValue, [...path, entryKey], lines, locations, value, entryKey)
   }
   return value
+}
+
+function sourceKeyOrder(
+  value: Record<string, unknown>,
+  path: readonly (string | number)[],
+  locations: YamlLocationIndex,
+): string[] {
+  return Object.keys(value).sort((left, right) => {
+    const leftPosition = locations.keyPosition([...path, left])
+    const rightPosition = locations.keyPosition([...path, right])
+    if (leftPosition === undefined || rightPosition === undefined) return 0
+    return leftPosition.line - rightPosition.line || leftPosition.col - rightPosition.col
+  })
 }
 
 function isSourceEmptyValue(

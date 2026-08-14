@@ -1,6 +1,8 @@
 import {
   ConfigurationContext,
   copyYAMLScalarTags,
+  markYAMLMappingKeyOrder,
+  yamlMappingKeys,
   yamlMappingTagOf,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
@@ -39,7 +41,13 @@ export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
     yamlMappingTagOf(text.items) !== "xml/order"
   ) {
     const items = { [context.languages.default]: "", ...(textClean?.items ?? {}) }
-    if (textClean !== undefined) copyYAMLScalarTags(textClean.items, items)
+    if (textClean !== undefined) {
+      copyLocalizedItemTags(textClean.items, items)
+      markYAMLMappingKeyOrder(items, [
+        context.languages.default,
+        ...yamlMappingKeys(textClean.items).filter((language) => language !== context.languages.default),
+      ])
+    }
     return items
   }
 
@@ -90,7 +98,7 @@ const exportFullI8nTextToYAML = (
 
   const defaultLanguage = context.languages.default
   const items = title.items
-  const languages = Object.keys(items)
+  const languages = yamlMappingKeys(items)
 
   if (languages.length === 0) return undefined
   if (
@@ -110,6 +118,7 @@ const exportFullI8nTextToYAML = (
 
   const canonicalItems = Object.fromEntries(canonicalLanguages.map((language) => [language, items[language]]))
   copyYAMLScalarTags(items, canonicalItems)
+  markYAMLMappingKeyOrder(canonicalItems, canonicalLanguages)
 
   return canonicalItems
 }

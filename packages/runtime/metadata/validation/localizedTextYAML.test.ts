@@ -33,6 +33,18 @@ describe("validateLocalizedTextYAMLProperty", () => {
       message: "избыточ",
     },
     {
+      name: "unrelated tag on scalar",
+      source: "Заголовок: !xml/present Текст",
+      path: ["Заголовок"],
+      message: "!xml/present",
+    },
+    {
+      name: "unrelated tag on language",
+      source: "Заголовок:\n  ru: !xml/present Текст\n  en: Text",
+      path: ["Заголовок", "ru"],
+      message: "!xml/present",
+    },
+    {
       name: "duplicate tag on unregistered language",
       source: "Заголовок:\n  ru: Текст\n  de: !xml/duplicate Text",
       path: ["Заголовок", "de"],
@@ -67,6 +79,7 @@ describe("validateLocalizedTextYAMLProperty", () => {
 
   it.each([
     ["canonical mapping", "Заголовок:\n  ru: Текст\n  en: Text", false],
+    ["property state tag", "Заголовок: !проверять Текст", false],
     ["classified unregistered language", "Заголовок:\n  ru: Текст\n  de: !xml/language Text", false],
     ["classified duplicate", "Заголовок:\n  ru: !xml/duplicate Текст\n  en: Text", false],
     ["classified order", "Заголовок: !xml/order\n  en: Text\n  ru: Текст", false],

@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { createConfigurationLanguages } from "@nkdk/runtime"
+import { createConfigurationLanguages, rehydrateConfigurationContext } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import {
   loadConfigurationLanguagesFromXML,
@@ -21,10 +21,15 @@ describe("createConfigurationLanguages", () => {
     expect(Object.isFrozen(languages)).toBe(true)
     expect(Object.isFrozen(languages.registered)).toBe(true)
     expect(Object.isFrozen(languages.registeredSet)).toBe(true)
+    expect(() => (languages.registeredSet as Set<string>).add("de")).toThrow()
+    expect(() => (languages.registeredSet as Set<string>).delete("en")).toThrow()
+    expect(() => (languages.registeredSet as Set<string>).clear()).toThrow()
+    expect(() => Set.prototype.add.call(languages.registeredSet, "de")).toThrow()
+    expect([...languages.registeredSet]).toEqual(["ru", "en"])
     expect(structuredClone(languages)).toMatchObject({
       default: "ru",
       registered: ["ru", "en"],
-      registeredSet: new Set(["ru", "en"]),
+      version: JSON.stringify(["ru", ["en", "ru"]]),
     })
   })
 
@@ -35,6 +40,18 @@ describe("createConfigurationLanguages", () => {
     ["основной код не зарегистрирован", { default: "ru", registered: ["en"] }],
   ])("отклоняет %s", (_name, params) => {
     expect(() => createConfigurationLanguages(params)).toThrow()
+  })
+
+  it("восстанавливает неизменяемый индекс после structured clone", () => {
+    const source = {
+      version: "test",
+      languages: createConfigurationLanguages({ default: "ru", registered: ["ru", "en"] }),
+    }
+    const cloned = structuredClone(source) as typeof source
+    const restored = rehydrateConfigurationContext(cloned)
+
+    expect(restored.languages.registeredSet.has("en")).toBe(true)
+    expect(() => Set.prototype.add.call(restored.languages.registeredSet, "de")).toThrow()
   })
 })
 

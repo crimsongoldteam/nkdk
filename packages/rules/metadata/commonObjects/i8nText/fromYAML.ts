@@ -1,5 +1,7 @@
 import {
   ConfigurationContext,
+  markYAMLMappingKeyOrder,
+  yamlMappingKeys,
   yamlMappingTagOf,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
@@ -38,6 +40,10 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
     const combined = { ...result.items, ...otherLanguages.items }
     copyLocalizedItemTags(result.items, combined)
     copyLocalizedItemTags(otherLanguages.items, combined)
+    markYAMLMappingKeyOrder(combined, [
+      ...yamlMappingKeys(otherLanguages.items),
+      ...yamlMappingKeys(result.items).filter((code) => !Object.hasOwn(otherLanguages.items, code)),
+    ])
     result.items = combined
   }
 
@@ -51,6 +57,10 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
         Object.entries(result.items).filter(([language]) => language !== defaultLanguage),
       )
       copyLocalizedItemTags(result.items, withoutMarker)
+      markYAMLMappingKeyOrder(
+        withoutMarker,
+        yamlMappingKeys(result.items).filter((language) => language !== defaultLanguage),
+      )
       result.items = withoutMarker
     }
     if (name === undefined) return result
