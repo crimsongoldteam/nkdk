@@ -59,12 +59,8 @@ const requiredStandardPanelUuids = [
 
 const standardPanelUuids = new Set<string>(Object.keys(standardPanelsByUuid))
 const requiredStandardPanelUuidSet = new Set<string>(requiredStandardPanelUuids)
-const clientApplicationInterfaceRootAttributeKeys = new Set([
-  "_xmlns",
-  "_xmlns:xs",
-  "_xmlns:xsi",
-  "_xsi:type",
-])
+const clientApplicationInterfaceRootAttributes = ClientApplicationInterfaceRules.properties.xmlRoot.rootAttributes
+const clientApplicationInterfaceRootAttributeKeys = new Set(Object.keys(clientApplicationInterfaceRootAttributes))
 
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 const XML_METADATA = Symbol.for("metadata")
@@ -547,6 +543,7 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
         clientApplicationInterfaceRootAttributeKeys.has(key) ||
         (key === "#text" && typeof value === "string" && value.trim() === "")
     ) &&
+    Object.entries(clientApplicationInterfaceRootAttributes).every(([key, value]) => source[key] === value) &&
     panelDefs?.length === requiredStandardPanelUuidSet.size &&
     sourcePanelDefs.length === requiredStandardPanelUuidSet.size &&
     new Set(panelDefs.map(({ id }) => id)).size === requiredStandardPanelUuidSet.size &&
@@ -557,7 +554,10 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
         isRecord(panelDef) &&
         id !== undefined &&
         requiredStandardPanelUuidSet.has(id) &&
-        Object.keys(panelDef).every((key) => key === "_id" || key === "id")
+        Object.entries(panelDef).every(
+          ([key, value]) =>
+            key === "_id" || key === "id" || (key === "#text" && typeof value === "string" && value.trim() === "")
+        )
       )
     }) &&
     panelDefs.every(

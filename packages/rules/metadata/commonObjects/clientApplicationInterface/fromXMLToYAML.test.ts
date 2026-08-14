@@ -21,6 +21,20 @@ describe("ClientApplicationInterface XML → YAML", () => {
     expect(yaml).toBe(EMPTY_XML_TAG_VALUE)
   })
 
+  it("treats whitespace in a panel definition as formatting", () => {
+    const yaml = testMetadataItemFromXMLToYAML({
+      rule: ClientApplicationInterfaceRules,
+      xml: importContentFromXML<Record<string, unknown>>(
+        emptyStandardRootXML.replace(
+          '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>',
+          '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248">\n  </panelDef>'
+        )
+      ),
+    }).yaml
+
+    expect(yaml).toBe(EMPTY_XML_TAG_VALUE)
+  })
+
   it.each([
     [
       "additional panel definition attribute",
@@ -34,6 +48,13 @@ describe("ClientApplicationInterface XML → YAML", () => {
       emptyStandardRootXML.replace(
         '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>',
         '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"><extra/></panelDef>'
+      ),
+    ],
+    [
+      "changed root namespace",
+      emptyStandardRootXML.replace(
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+        'xmlns:xsi="urn:changed"'
       ),
     ],
     ["unknown root child", emptyStandardRootXML.replace("</ClientApplicationInterface>", "  <extra/>\n</ClientApplicationInterface>")],
@@ -123,7 +144,7 @@ function interfaceXML(uuid: string, panelDef = ""): string {
 </ClientApplicationInterface>`
 }
 
-const emptyStandardRootXML = `<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+const emptyStandardRootXML = `<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
   <panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>
   <panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>
   <panelDef id="c933ac92-92cd-459d-81cc-e0c8a83ced99"/>
