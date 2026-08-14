@@ -63,6 +63,16 @@ const topology = compileMetadataResourceTopology([{
       true,
     ),
     {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Таблицы/{itemName}/Свойства.yaml",
+      projectPattern: "Объект/{ownerName}/Таблицы/{itemName}/Команды/Проверочная.bsl",
+      xmlPattern: "Objects/{ownerName}/Tables/{itemName}/Commands/Проверочная/Ext/CommandModule.bsl",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      source,
+    },
+    {
       ...content(
         "Объект/{ownerName}/Таблицы/{itemName}/Вложения/{nestedName}/Свойства.yaml",
         "fileItem",
@@ -161,6 +171,7 @@ const secondForm = "Объект/Товары/Формы/Вторая/Форма
 const secondModule = "Объект/Товары/Формы/Вторая/Модуль.bsl"
 const firstTable = "Объект/Товары/Таблицы/Первая/Свойства.yaml"
 const secondTable = "Объект/Товары/Таблицы/Вторая/Свойства.yaml"
+const secondTableModule = "Объект/Товары/Таблицы/Вторая/Команды/Проверочная.bsl"
 const secondNestedTable = "Объект/Товары/Таблицы/Вторая/Вложения/Вложенная/Свойства.yaml"
 
 describe("partial XML impact planner", () => {
@@ -286,6 +297,23 @@ describe("partial XML impact planner", () => {
       projectPaths: [owner, firstTable].sort(utf8),
     })
     expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
+  it("при изменении вложенного файлового объекта сохраняет внешние файлы его владельца", () => {
+    const result = plan(
+      [root, language, owner, secondTable, secondTableModule, secondNestedTable],
+      changes({ changed: [secondNestedTable] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [secondTable, secondTableModule, secondNestedTable].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([secondTableModule])
+    expect(result.loadTargets).toEqual([
+      "Objects/Товары/Tables/Вторая.xml",
+      "Objects/Товары/Tables/Вторая/Nested/Вложенная.xml",
+    ].sort(utf8))
   })
 
   it("при добавлении и удалении верхнего объекта включает корень и его явных спутников", () => {

@@ -317,6 +317,7 @@ export function buildPartialXmlImpactPlan(params: {
       throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
     }
     includeAssignment(owner, true)
+    if (owner.assignment?.role === "fileItem") includeAssignmentSubtree(owner, false)
     const currentTarget = currentByPath.get(resource.projectPath)
 
     for (const current of currentByPath.values()) {
