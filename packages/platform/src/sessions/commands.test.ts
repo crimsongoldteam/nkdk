@@ -165,6 +165,7 @@ describe("platform session commands", () => {
 
     expect(designer.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
     expect(standalone.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
+    expect(standalone).toContain("--force")
   })
 
   it("selects one extension for export in both platform modes", () => {

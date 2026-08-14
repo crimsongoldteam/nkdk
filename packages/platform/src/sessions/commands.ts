@@ -71,6 +71,7 @@ export function buildStandaloneConfigExport(params: {
       "infobase",
       "config",
       "export",
+      "--force",
       ...(params.user === undefined ? [] : [`--user=${params.user}`]),
       ...(params.password === undefined ? [] : [`--password=${params.password}`]),
       ...(params.unresolvedReferences === "omit" ? ["--ignore-unresolved-refs"] : []),

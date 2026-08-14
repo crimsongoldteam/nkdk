@@ -26,7 +26,7 @@ describe("standalone server session", () => {
       "run ibcmd server config init --database-path=/bases/demo timeout=1800000",
       "write /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
       "chmod /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
-      "run ibcmd infobase config export --password=secret --ignore-unresolved-refs --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=true grace=5000",
+      "run ibcmd infobase config export --force --password=secret --ignore-unresolved-refs --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=true grace=5000",
       "rm /project/.nkdk/platform-sessions/standalone/config.yaml",
     ])
     expect(fixture.writes.get("/project/.nkdk/platform-sessions/standalone/config.yaml")).toBe(
@@ -78,7 +78,7 @@ describe("standalone server session", () => {
       "run ibcmd server config init --dbms=PostgreSQL --database-server=db.example.local --database-name=production --database-user=dbuser --database-password=dbsecret timeout=1800000"
     )
     expect(fixture.calls).toContain(
-      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=false grace=5000"
+      "run ibcmd infobase config export --force --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=false grace=5000"
     )
   })
 
@@ -95,7 +95,7 @@ describe("standalone server session", () => {
     )
 
     expect(fixture.calls).toContain(
-      "run ibcmd infobase config export --password=secret --extension=Расширение_All --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=false grace=5000"
+      "run ibcmd infobase config export --force --password=secret --extension=Расширение_All --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=false grace=5000"
     )
   })
 
