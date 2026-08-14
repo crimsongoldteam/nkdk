@@ -317,20 +317,26 @@ export function buildPartialXmlImpactPlan(params: {
       throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
     }
     includeAssignment(owner, true)
+    const currentTarget = currentByPath.get(resource.projectPath)
 
     for (const current of currentByPath.values()) {
       if (current.assignment?.id !== assignment.id) continue
       if (expandMetadataPathPattern(assignment.ownerProjectPattern, current.values) !== ownerPath) continue
-      if (current.kind === "content") includeAssignmentSubtreePayload(current)
+      if (current.kind === "content") {
+        includeAssignmentSubtree(current, current.projectPath === currentTarget?.projectPath)
+      }
     }
   }
 
-  function includeAssignmentSubtreePayload(resource: MetadataProjectResourceMatch): void {
+  function includeAssignmentSubtree(
+    resource: MetadataProjectResourceMatch,
+    requestLoad: boolean,
+  ): void {
     const directory = posix.dirname(resource.projectPath)
     for (const current of currentByPath.values()) {
       if (current.projectPath !== resource.projectPath && !current.projectPath.startsWith(`${directory}/`)) continue
-      if (current.kind === "content") includeAssignment(current, false)
-      if (current.kind === "externalFile") includeExternal(current, false)
+      if (current.kind === "content") includeAssignment(current, requestLoad)
+      if (current.kind === "externalFile") includeExternal(current, requestLoad)
     }
   }
 

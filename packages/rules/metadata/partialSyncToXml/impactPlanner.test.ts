@@ -244,13 +244,20 @@ describe("partial XML impact planner", () => {
   })
 
   it.each([
-    ["добавлении", "added", [], []],
-    ["изменении", "changed", [secondNestedTable], [secondNestedTable]],
+    ["добавлении", "added", [], [], []],
+    [
+      "изменении",
+      "changed",
+      [secondNestedTable],
+      [secondNestedTable],
+      ["Objects/Товары/Tables/Вторая/Nested/Вложенная.xml"],
+    ],
   ] as const)("при %s файлового дочернего объекта включает владельца и соседние объекты", (
     _title,
     kind,
     extraCurrent,
     extraExpected,
+    extraLoadTargets,
   ) => {
     const result = plan(
       [root, language, owner, firstTable, secondTable, ...extraCurrent],
@@ -264,6 +271,7 @@ describe("partial XML impact planner", () => {
     expect(result.loadTargets).toEqual([
       "Objects/Товары.xml",
       "Objects/Товары/Tables/Вторая.xml",
+      ...extraLoadTargets,
     ].sort(utf8))
   })
 
