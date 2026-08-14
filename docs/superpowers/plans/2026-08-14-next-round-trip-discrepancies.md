@@ -513,19 +513,20 @@ git commit -m "fix: :bug: сохранить Nil у обычных полей"
 
 **Files:**
 - Modify: `packages/runtime/metadata/resourceTopology/core/types.ts`
+- Modify: `packages/runtime/metadata/resourceTopology/core/compiler.ts`
 - Modify: `packages/runtime/metadata/resourceTopology/core/projectProjection.ts`
+- Modify: `packages/rules/metadata/resourceTopology/adapters/ruleTopology.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/childFormNamesPropertyRules.ts`
-- Modify: `packages/rules/metadata/project/syncStateFiles.ts`
 - Modify: `packages/rules/metadata/project/syncStateFiles.test.ts`
 - Modify: `packages/rules/metadata/appliedObjects/configuration/syncState.test.ts`
-- Modify: `packages/rules/metadata/project/componentState/structure.ts`
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.ts`
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts`
 - Modify: `packages/rules/metadata/fullSyncToXml/discovery.test.ts`
-- Modify: `packages/rules/metadata/fullSyncToXml/discovery.ts`
 - Modify: `packages/rules/metadata/fullSyncToXml/writeAssignment.integration.test.ts`
 
 **Interfaces:**
-- Consumes: `MetadataIgnoredPathDeclaration`, существующий приоритет точного ресурса над `externalFile.fallback`, `PropertyRule.externalFile` для `DynamicList.queryText`.
-- Produces: project-side `ignore` для `${folderName}/{itemName}/ДинамическийСписок/{queryName}.query`; QueryText остаётся входом Form.xml.
+- Consumes: связь ресурсов с assignment в компиляторе топологии, `PropertyRule.externalFile` для `DynamicList.queryText`, приоритет точного ресурса над `externalFile.fallback`.
+- Produces: `MetadataAssignmentInputDeclaration`, скомпилированный вход assignment и выбор владеющего `Форма.yaml` в частичном sync.
 
 - [ ] **Step 1: Добавить RED классификации `.query` и границы fallback**
 
@@ -545,6 +546,9 @@ expect(plan.externalFiles.map(({ sourceProjectPath }) => sourceProjectPath)).toE
 ])
 ```
 
+Отдельно ожидать от `classifyMetadataProjectPath`, что `.query` имеет
+`kind: "assignmentInput"` и ссылается на assignment `Форма.yaml`.
+
 - [ ] **Step 2: Добавить сквозную характеристическую проверку QueryText в Form.xml**
 
 В тесте `writes form metadata and body XML from prepared YAML` добавить динамический реквизит:
@@ -559,7 +563,30 @@ expect(plan.externalFiles.map(({ sourceProjectPath }) => sourceProjectPath)).toE
 
 Создать рядом с `Форма.yaml` файл `ДинамическийСписок/Список.query` с текстом `ВЫБРАТЬ 1`. После `writePreparedAssignmentForTest` прочитать итоговый `Form.xml` и проверить `<QueryText>ВЫБРАТЬ 1</QueryText>`. Отдельный путь `Ext/ДинамическийСписок/Список.query` не должен входить в `writtenFiles` и не должен существовать.
 
-- [ ] **Step 3: Подтвердить RED топологии и исходный GREEN встраивания**
+- [ ] **Step 3: Добавить RED влияния assignment input на частичный sync**
+
+В `impactPlanner.test.ts` добавить топологию входа:
+
+```ts
+{
+  kind: "assignmentInput",
+  assignmentProjectPattern: "Объект/{ownerName}/Формы/{itemName}/Форма.yaml",
+  projectPattern: "Объект/{ownerName}/Формы/{itemName}/ДинамическийСписок/{queryName}.query",
+  source,
+}
+```
+
+Для `changed`, `added` и `deleted` проверить один результат:
+
+```ts
+expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstForm] })
+expect(documentPaths(result)).toEqual([
+  "Objects/Товары/Forms/Первая.xml",
+  "Objects/Товары/Forms/Первая/Ext/Form.xml",
+])
+```
+
+- [ ] **Step 4: Подтвердить RED топологии и GREEN существующего встраивания**
 
 Run:
 
@@ -569,46 +596,48 @@ pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration met
 ```
 
 Expected: discovery FAIL, потому что включает `.query` через fallback;
-интеграционный тест PASS и фиксирует уже существующее встраивание QueryText.
+тесты частичного sync FAIL, потому что вида `assignmentInput` нет; интеграционный тест
+PASS и фиксирует уже существующее встраивание QueryText.
 
-- [ ] **Step 4: Добавить декларативный project-side ignore перед fallback**
+- [ ] **Step 5: Добавить общий `assignmentInput` и декларацию запроса**
 
-В `ChildFormNames` resource topology перед общим fallback добавить:
+В runtime-топологию добавить `MetadataAssignmentInputDeclaration` с
+`assignmentProjectPattern`, `projectPattern` и `source`. Компилятор привязывает его к
+assignment, добавляет в `projectIndex`, а project projection возвращает
+`kind: "assignmentInput"` вместе с assignment и параметрами пути.
+
+В `ChildFormNames` resource topology перед fallback добавить:
 
 ```ts
 {
-  kind: "ignore",
-  side: "project",
-  pattern: `${folderName}/{itemName}/ДинамическийСписок/{queryName}.query`,
-  syncState: true,
+  kind: "assignmentInput",
+  assignmentProjectPattern: "",
+  projectPattern: `${folderName}/{itemName}/ДинамическийСписок/{queryName}.query`,
   source,
 },
 ```
 
 Не добавлять проверок расширения в `fullSyncToXml`, не менять `DynamicListRules.properties.queryText` и не удалять fallback.
-`syncState: true` означает, что проигнорированный для самостоятельного переноса
-файл остаётся значимым входом sync и участвует в хэшах проекта.
-И сбор хэшей, и `readComponentProjectStructure` должны вызывать обнаружение с
-`includeSyncStateIgnored: true`, чтобы структура и хэши относились к одному составу
-файлов. Ресурс `ignore` остаётся в структуре, но `buildXmlSyncPlan` не создаёт для него
-ни XML-задания, ни внешнего файла.
+В `impactPlanner` изменённый, добавленный или удалённый `assignmentInput` разрешает
+путь assignment по параметрам ресурса и вызывает `includeAssignment`.
 
-- [ ] **Step 5: Подтвердить GREEN слоя**
+- [ ] **Step 6: Подтвердить GREEN слоя**
 
 Run:
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/fullSyncToXml/discovery.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/partialSyncToXml/impactPlanner.test.ts
 pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration metadata/fullSyncToXml/writeAssignment.integration.test.ts
 pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base ec88eacbc
 ```
 
-Expected: `.query` отсутствует в `externalFiles`, неизвестный `.bin` сохраняется fallback, QueryText встроен в Form.xml.
-Существующие проверки sync-state продолжают включать `.query` в список
-отслеживаемых файлов.
+Expected: `.query` классифицируется как `assignmentInput`, отсутствует в
+`externalFiles`, входит в sync-state, а любое его изменение выбирает форму.
+Неизвестный `.bin` сохраняется fallback, QueryText встроен в Form.xml.
 
-- [ ] **Step 6: Закоммитить слой**
+- [ ] **Step 7: Закоммитить слой**
 
 ```bash
 git add packages/rules/metadata/forms/clientApplicationForm/childFormNamesPropertyRules.ts packages/rules/metadata/fullSyncToXml/discovery.test.ts packages/rules/metadata/fullSyncToXml/writeAssignment.integration.test.ts
