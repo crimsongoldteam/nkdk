@@ -27,7 +27,7 @@ export async function compareFileTrees(params: {
   readonly reportDir: string
   readonly xmlComparison?: "bytes" | "semantic"
   readonly yamlComparison?: "bytes" | "ignore-final-line-ending"
-  readonly textComparison?: "bytes" | "ignore-utf8-bom"
+  readonly textComparison?: "bytes" | "normalize"
   readonly ignoredPaths?: readonly string[]
 }): Promise<FileTreeComparison> {
   const ignoredPaths = new Set(params.ignoredPaths ?? [])
@@ -52,9 +52,9 @@ export async function compareFileTrees(params: {
       withoutFinalLineEnding(expectedContent).equals(withoutFinalLineEnding(actualContent))
     ) continue
     if (
-      params.textComparison === "ignore-utf8-bom" &&
+      params.textComparison === "normalize" &&
       isTextPath(path) &&
-      withoutUtf8Bom(expectedContent).equals(withoutUtf8Bom(actualContent))
+      normalizedText(expectedContent) === normalizedText(actualContent)
     ) continue
     changed.push(path)
   }
@@ -77,6 +77,10 @@ function withoutUtf8Bom(content: Buffer): Buffer {
   return content.length >= 3 && content[0] === 0xef && content[1] === 0xbb && content[2] === 0xbf
     ? content.subarray(3)
     : content
+}
+
+function normalizedText(content: Buffer): string {
+  return withoutUtf8Bom(content).toString("utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n")
 }
 
 function isTextPath(path: string): boolean {

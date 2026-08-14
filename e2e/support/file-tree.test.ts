@@ -101,13 +101,24 @@ describe("compareFileTrees", () => {
 
     await expect(compareFileTrees({
       ...fixture,
-      textComparison: "ignore-utf8-bom",
+      textComparison: "normalize",
     })).resolves.toEqual({
       equal: true,
       added: [],
       removed: [],
       changed: [],
     })
+  })
+
+  it("может нормализовать окончания строк в текстовых файлах", async () => {
+    const fixture = await treeFixture()
+    await write(fixture.expectedDir, "Модуль.bsl", "Строка1\nСтрока2\n")
+    await write(fixture.actualDir, "Модуль.bsl", "Строка1\r\nСтрока2\r\n")
+
+    await expect(compareFileTrees({
+      ...fixture,
+      textComparison: "normalize",
+    })).resolves.toMatchObject({ equal: true })
   })
 
   it("позволяет исключить служебный ConfigDumpInfo.xml", async () => {
