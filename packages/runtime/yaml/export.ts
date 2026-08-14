@@ -6,6 +6,7 @@ import {
   restoreYAMLScalarTagsAfterDump,
   taggedScalarForDump,
 } from "./scalarTags"
+import { copyYAMLMappingTag } from "./mappingTags"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
 const UNDEFINED_VALUE_MARKER_PREFIX = "__NKDK_UNDEFINED_VALUE_"
@@ -87,6 +88,8 @@ function prepareForDump(
       if (item.doubleQuoted === true) markDoubleQuotedScalar(data, key)
     }
     copyYAMLScalarTags(value, data)
+    copyYAMLMappingTag(value, dumpValue)
+    copyYAMLMappingTag(value, data)
     return { dumpValue, data }
   }
   return { dumpValue: value, data: value }
@@ -139,7 +142,7 @@ function normalizeQuotedTypeLinkValues(yaml: string): string {
 }
 
 function normalizeEmptyXMLTags(yaml: string): string {
-  return yaml.replace(/!xml\/(present|absent|name|type|value|reference) ""(?=[ \t]*(?:#.*)?$)/gm, "!xml/$1")
+  return yaml.replace(/!xml\/(present|absent|name|type|value|reference|language|duplicate) ""(?=[ \t]*(?:#.*)?$)/gm, "!xml/$1")
 }
 
 function normalizeEmptyMappings(yaml: string): string {

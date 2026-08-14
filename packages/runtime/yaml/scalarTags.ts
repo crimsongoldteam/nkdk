@@ -1,4 +1,5 @@
 import { JSON_SCHEMA, defineScalarTag, load } from "js-yaml"
+import { NKDK_YAML_MAPPING_TAGS } from "./mappingTags"
 
 export const XML_ANOMALY_TAGS = [
   "xml/present",
@@ -7,6 +8,8 @@ export const XML_ANOMALY_TAGS = [
   "xml/type",
   "xml/value",
   "xml/reference",
+  "xml/language",
+  "xml/duplicate",
 ] as const
 
 export type XMLAnomalyTag = (typeof XML_ANOMALY_TAGS)[number]
@@ -157,4 +160,8 @@ function replacePropertyStateTags(
   return result
 }
 
-export const NKDK_YAML_SCHEMA = JSON_SCHEMA.withTags(xmlAnomalyTags, propertyStateTags)
+export const NKDK_YAML_SCHEMA = JSON_SCHEMA.withTags(
+  xmlAnomalyTags,
+  propertyStateTags,
+  NKDK_YAML_MAPPING_TAGS,
+)
