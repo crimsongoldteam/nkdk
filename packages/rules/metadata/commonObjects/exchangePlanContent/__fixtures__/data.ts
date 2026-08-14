@@ -37,6 +37,7 @@ export const contentFromCompactYAML: ExchangePlanContentFromCompactYAML = {
 export const contentYAML: ExchangePlanContentYAML = [
   {
     Метаданные: "Справочник.Номенклатура",
+    Авторегистрация: "Разрешить",
   },
   {
     Метаданные: "Документ.Заказ",

@@ -5,6 +5,9 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { exportBorrowedPropertyStateSchema } from "../../ruleRuntime/property/propertyStateSchema"
 import { exportNestedPropertyStateSchema } from "../../ruleRuntime/property/propertyStateSchema"
+import { MetadataAccountingRegisterDimensionRules } from "../metadataAccountingRegister/childRules"
+import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
+import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
 
 const rule = {
   itemType: "MetadataCatalog",
@@ -35,6 +38,73 @@ const capability: ResolvedPropertyStateItemCapability = {
 }
 
 describe("borrowed property-state schema", () => {
+  it("запрещает пустое собственное поле и разрешает очистку заимствованного plain-поля", () => {
+    const localRule = {
+      itemType: "OwnAndBorrowedPlainProperties",
+      properties: {
+        comment: {
+          type: "string",
+          yaml: "Комментарий",
+          defaultValueXMLRaw: "",
+          defaultValueAdoptedXML: "",
+        },
+        toolTip: {
+          type: "string",
+          yaml: "Подсказка",
+          defaultValueXMLRaw: "",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const localCapability: ResolvedPropertyStateItemCapability = {
+      itemType: localRule.itemType,
+      properties: {
+        comment: {
+          availability: "own",
+          modes: [],
+          representation: "plain",
+        },
+        toolTip: {
+          availability: "borrowed",
+          modes: ["extend"],
+          representation: "plain",
+        },
+      },
+    }
+    const validator = compileValidationSchema(exportBorrowedPropertyStateSchema({
+      rule: localRule,
+      capability: localCapability,
+      source: Type.Object({
+        Комментарий: Type.Optional(Type.String()),
+        Подсказка: Type.Optional(Type.String()),
+      }, { additionalProperties: false }),
+    }))
+
+    expect(validator.Check({})).toBe(true)
+    expect(validator.Check({ Комментарий: "Текст" })).toBe(true)
+    expect(validator.Check({ Комментарий: "" })).toBe(false)
+    expect(validator.Check({ Подсказка: "" })).toBe(true)
+  })
+
+  it("разрешает оба явных значения Balance только в режимах контроля и проверки", () => {
+    const registry = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
+    const item = registry.item(MetadataAccountingRegisterDimensionRules.itemType)!
+    const schema = exportBorrowedPropertyStateSchema({
+      rule: MetadataAccountingRegisterDimensionRules,
+      capability: item,
+      source: Type.Object({
+        Балансовый: Type.Optional(Type.Enum(["Истина", "Ложь"])),
+      }, { additionalProperties: false }),
+    })
+    const validator = compileValidationSchema(schema)
+
+    expect(validator.Check({ Балансовый: "Истина" })).toBe(true)
+    expect(validator.Check({ Балансовый: "Ложь" })).toBe(true)
+    expect(registry.resolve({
+      itemType: MetadataAccountingRegisterDimensionRules.itemType,
+      propertyKey: "balance",
+    })?.modes).toEqual(["control", "notify"])
+  })
+
   it("расширяет корень схемы, упакованный в $defs", () => {
     const source = {
       $defs: {
@@ -129,6 +199,54 @@ describe("borrowed property-state schema", () => {
       ]) }),
       expect.objectContaining({ type: "object", maxProperties: 0 }),
     ]))
+  })
+
+  it("разрешает null только предметной ссылке", () => {
+    const referenceRule = {
+      itemType: "MetadataTaskAddressingAttribute",
+      properties: {
+        addressingDimension: {
+          type: "string",
+          yaml: "ИзмерениеАдресации",
+          metadataTarget: { kind: "member", owner: "explicit", objectRoots: ["InformationRegister"], memberKinds: ["Dimension"] },
+        },
+        ordinary: { type: "string", yaml: "ОбычнаяСтрока" },
+        collection: {
+          type: "MetadataObjectRefCollection",
+          yaml: "ОбычнаяКоллекция",
+          metadataTarget: { kind: "object", roots: ["Catalog"] },
+        },
+        object: {
+          type: "Picture",
+          yaml: "ОбычныйОбъект",
+          metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+        },
+      },
+    } as MetadataItemRule
+    const schema = exportBorrowedPropertyStateSchema({
+      rule: referenceRule,
+      capability: {
+        itemType: referenceRule.itemType,
+        properties: {
+          addressingDimension: { availability: "borrowed", modes: ["control", "notify", "extend"], representation: "tagged" },
+          ordinary: { availability: "borrowed", modes: ["control", "notify", "extend"], representation: "tagged" },
+          collection: { availability: "borrowed", modes: ["control", "notify", "extend"], representation: "tagged" },
+          object: { availability: "borrowed", modes: ["control", "notify", "extend"], representation: "tagged" },
+        },
+      },
+      source: Type.Object({
+        ИзмерениеАдресации: Type.Optional(Type.String()),
+        ОбычнаяСтрока: Type.Optional(Type.String()),
+        ОбычнаяКоллекция: Type.Optional(Type.Array(Type.String())),
+        ОбычныйОбъект: Type.Optional(Type.Object({ Значение: Type.Optional(Type.String()) })),
+      }, { additionalProperties: false }),
+    })
+    const validator = compileValidationSchema(schema)
+
+    expect(validator.Check({ ИзмерениеАдресации: null })).toBe(true)
+    expect(validator.Check({ ОбычнаяСтрока: null })).toBe(false)
+    expect(validator.Check({ ОбычнаяКоллекция: null })).toBe(false)
+    expect(validator.Check({ ОбычныйОбъект: null })).toBe(false)
   })
 
   it("сохраняет остальные поля корня расширения, но расширяет схему локального тега", () => {
@@ -243,12 +361,11 @@ describe("borrowed property-state schema", () => {
       explicitXMLPropertyKeys: ["attributes"],
     }) as { properties?: Record<string, unknown> }
 
-    expect(schema.properties?.Реквизиты).toMatchObject({
-      pattern: "^!xml configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$",
-    })
+    expect(schema.properties?.Реквизиты).toEqual(expect.objectContaining({ type: "object" }))
+    expect(JSON.stringify(schema.properties?.Реквизиты)).not.toContain("configurationExtensionPropertyStateXML")
   })
 
-  it("добавляет служебный маркер расширяемого объекта", () => {
+  it("разрешает только пустые формы флажка расширяемого объекта", () => {
     const serviceRule = {
       ...rule,
       properties: {
@@ -256,6 +373,7 @@ describe("borrowed property-state schema", () => {
         extendedConfigurationObject: {
           type: "string",
           xml: "ExtendedConfigurationObject",
+          xmlParents: ["Properties"],
           runtimeOnly: true,
         },
       },
@@ -274,8 +392,15 @@ describe("borrowed property-state schema", () => {
         },
       },
       source: Type.Object({ ДлинаКода: Type.Optional(Type.Number()) }, { additionalProperties: false }),
-    }) as { properties?: Record<string, unknown> }
+    })
+    const validator = compileValidationSchema(schema)
 
-    expect(schema.properties).toHaveProperty("ОбъектРасширяемойКонфигурации")
+    expect(validator.Check({})).toBe(true)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: {} })).toBe(true)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: "" })).toBe(true)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: "Ложь" })).toBe(false)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: false })).toBe(false)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: true })).toBe(false)
+    expect(validator.Check({ ОбъектРасширяемойКонфигурации: "11111111-1111-4111-8111-111111111111" })).toBe(false)
   })
 })

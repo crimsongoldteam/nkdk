@@ -47,6 +47,7 @@ export const MetadataSessionParameterRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     type: typeDescriptionRule({
       ownerFactRole: "type",

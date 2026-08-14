@@ -1,8 +1,8 @@
 import {
-  decodeConfigurationIndexFragments,
-  encodeConfigurationIndexFragments,
+  decodeConfigurationBlockFragments,
+  encodeConfigurationBlockFragments,
 } from "@nkdk/runtime"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import {
   BinaryStringPoolBuilder,
   openBinaryStringPool,
@@ -61,7 +61,7 @@ export function createFullXmlSyncBinaryResult(params: {
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
   readonly expectedOutputs: readonly FullXmlSyncExpectedOutput[]
   readonly generatedDocuments?: readonly FullXmlSyncGeneratedDocument[]
-  readonly configurationFragments?: readonly ConfigurationSnapshotFragment[]
+  readonly configurationFragments?: readonly ConfigurationIndexBlockFragment[]
   readonly fragmentBuffer?: ArrayBuffer
 }): MetadataWorkerBinaryResult {
   if ((params.configurationFragments === undefined) === (params.fragmentBuffer === undefined)) {
@@ -76,7 +76,7 @@ export function createFullXmlSyncBinaryResult(params: {
       { name: "payload", buffer: encodePayload({ ...params, generatedDocuments }) },
       {
         name: "configuration",
-        buffer: params.fragmentBuffer ?? encodeConfigurationIndexFragments(params.configurationFragments!),
+        buffer: params.fragmentBuffer ?? encodeConfigurationBlockFragments(params.configurationFragments!),
       },
       ...generatedDocuments.map((document, index) => ({
         name: `document:${index}`,
@@ -100,7 +100,7 @@ export function openFullXmlSyncBinaryResult(value: unknown): FullXmlSyncBinaryBa
     const generatedDocuments = openGeneratedDocuments(payload.documentRecords, buffers)
     if (buffers.size !== 2 + generatedDocuments.count) throw new Error("повреждён состав буферов")
     const fragmentBuffer = buffers.get("configuration")!
-    decodeConfigurationIndexFragments(fragmentBuffer)
+    decodeConfigurationBlockFragments(fragmentBuffer)
     return {
       diagnostics: payload.diagnostics,
       warnings: payload.warnings,

@@ -4,9 +4,6 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import { childUid } from "@nkdk/runtime"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
@@ -17,6 +14,7 @@ import {
   createFullXmlSyncCompositionReader,
   createFullXmlSyncCompositionSnapshot,
 } from "./sharedMetadata"
+import { testConfigurationIndexReader } from "../../tests/configurationIndex"
 
 describe("writeFullXmlSyncAssignment for root Configuration", () => {
   const tempDirs: string[] = []
@@ -62,7 +60,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
       composition: createFullXmlSyncCompositionReader(createFullXmlSyncCompositionSnapshot(assignments)),
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
     })
     const result = await writeFullXmlSyncAssignment({
       prepared: preparedAssignment,
@@ -105,24 +103,15 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
       catalogAssignment(projectDir, "Контрагенты"),
       catalogAssignment(projectDir, "Товары"),
     ]
-    const baseIndex = sampleSnapshot()
-    const index = {
-      ...baseIndex,
-      entities: [
-        ...baseIndex.entities,
+    const index = testConfigurationIndexReader([
         {
           logicalAddress: childUid("Конфигурация", "Свойство", "childObjects"),
-          sourceProjectPath: "Configuration.yaml",
-          omittedChildren: {
-            kind: "typedNames" as const,
-            items: [
+          children: [
               { xmlName: "Catalog", name: "Товары" },
               { xmlName: "Catalog", name: "Контрагенты" },
             ],
-          },
         },
-      ],
-    }
+      ])
 
     const context = mockContextToXML()
     const preparedAssignment = prepareFullXmlSyncAssignment({
@@ -130,7 +119,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
       composition: createFullXmlSyncCompositionReader(createFullXmlSyncCompositionSnapshot(assignments)),
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(index))),
+      index,
     })
     await writeFullXmlSyncAssignment({
       prepared: preparedAssignment,

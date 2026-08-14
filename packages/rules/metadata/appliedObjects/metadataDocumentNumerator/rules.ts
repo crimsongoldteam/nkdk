@@ -52,6 +52,7 @@ export const MetadataDocumentNumeratorRules = {
       yaml: "Комментарий",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     numberType: systemEnumerationRule({
       yaml: "ТипНомера",
@@ -81,12 +82,14 @@ export const MetadataDocumentNumeratorRules = {
       yaml: "ПериодичностьНомера",
       typeSE: "DocumentNumberPeriodicity",
       defaultValueXML: "Nonperiodical",
+      preserveExplicitDefaultXML: true,
       xmlParents: ["Properties"],
       implicitValueYAML: "Nonperiodical",
     }),
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
       defaultValueXML: true,
+      preserveExplicitDefaultXML: true,
       xmlParents: ["Properties"],
       implicitValueYAML: true,
     }),

@@ -11,6 +11,10 @@ describe("exportFieldsListToXML", () => {
     expect(result).toBeUndefined()
   })
 
+  it("exports an explicit empty list as an empty XML element", () => {
+    expect(exportFieldsListToXML(mockContext, mockRule, [])).toEqual({})
+  })
+
   it("should export full", () => {
     const expectedResult = readXMLFileAsString("fieldsList/full.xml")
 

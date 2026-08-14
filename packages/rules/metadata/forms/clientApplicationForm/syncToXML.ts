@@ -7,7 +7,7 @@ import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataX
 import { xmlExport } from "@nkdk/runtime"
 import type { XmlWriteManifest } from "../../ruleRuntime/xmlWriteManifest"
 import type { PreparedYamlFile } from "../../project/preparedYamlProject"
-import type { ConfigurationIndexReader } from "@nkdk/runtime"
+import type { LocalConfigurationIndexReader } from "@nkdk/runtime"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { ClientApplicationFormRules } from "./rules"
@@ -25,7 +25,7 @@ export const prepareFormXML = (params: {
   baseFormPreparedYamlFile?: PreparedYamlFile
   currentConfigurationFormPreparedYamlFile?: PreparedYamlFile
   baseFormSourceKind?: "saved" | "projected"
-  baseConfigurationIndex?: ConfigurationIndexReader
+  baseConfigurationIndex?: LocalConfigurationIndexReader
   baseFormContext?: ConfigurationContextWithExportToXML
   rule?: MetadataItemRule
 }): readonly {
@@ -72,8 +72,7 @@ export const prepareFormXML = (params: {
               ? { baseIndex: requireBaseConfigurationIndex(params), extensionYaml: yamlObj }
               : {}),
             baseYaml: params.baseFormPreparedYamlFile.data as ClientApplicationFormYAML,
-            ...(params.baseFormSourceKind === "projected" &&
-              params.currentConfigurationFormPreparedYamlFile !== undefined
+            ...(params.currentConfigurationFormPreparedYamlFile !== undefined
               ? {
                   currentConfigurationFormYaml:
                     params.currentConfigurationFormPreparedYamlFile.data as ClientApplicationFormYAML,
@@ -118,8 +117,8 @@ export const prepareFormXML = (params: {
 
 function requireBaseConfigurationIndex(params: {
   readonly baseFormPreparedYamlFile?: PreparedYamlFile
-  readonly baseConfigurationIndex?: ConfigurationIndexReader
-}): ConfigurationIndexReader {
+  readonly baseConfigurationIndex?: LocalConfigurationIndexReader
+}): LocalConfigurationIndexReader {
   if (params.baseConfigurationIndex !== undefined) {
     return params.baseConfigurationIndex
   }

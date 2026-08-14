@@ -8,7 +8,11 @@ import {
   createImportProjectStateTestService,
   createXmlImportWorkerTestPool,
 } from "../../../tests/xmlImportWorkerTestPool"
-import { readConfigurationIndex } from "../../configurationIndex"
+import {
+  type ConfigurationIndexBlockEntity,
+  type ConfigurationProjectFile,
+} from "../../configurationIndex"
+import { configurationIndexStoreDescriptor, openConfigurationIndexStore } from "../../configurationIndex/store"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
@@ -76,7 +80,7 @@ describe("sync configuration from xml", () => {
     hasNumerator: boolean
     hasLegacyNumerator: boolean
     hasSequence: boolean
-    snapshot: Awaited<ReturnType<typeof readConfigurationIndex>>
+    snapshot: Awaited<ReturnType<typeof readTestConfigurationIndex>>
     operationTempExists: boolean
   }
   let partialImportResult: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
@@ -194,7 +198,7 @@ describe("sync configuration from xml", () => {
         join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml"),
       ),
       hasSequence: fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml")),
-      snapshot: await readConfigurationIndex({ projectDir, address: { kind: "configuration" } }),
+      snapshot: await readTestConfigurationIndex(projectDir),
       operationTempExists: fs.existsSync(join(projectDir, ".nkdk", "tmp", "import", operationId)),
     }
     partialImportResult = await importTemporaryConfiguration(
@@ -258,11 +262,6 @@ describe("sync configuration from xml", () => {
       expect.objectContaining({ code: "project_validation", severity: "error" }),
     ]))
     expect(primaryImport.result.warnings).toEqual([])
-    expect(primaryImport.snapshot).toMatchObject({
-      specificationVersion: "1.4",
-      componentPath: "cf",
-      indexGeneration: 1n,
-    })
     expect(
       primaryImport.snapshot.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты")
     ).toMatchObject({
@@ -282,7 +281,7 @@ describe("sync configuration from xml", () => {
     ).toBe(true)
     expect(
       primaryImport.snapshot.entities.every(
-        (entity) => entity.identities !== undefined || entity.omittedChildren !== undefined || entity.xml !== undefined
+        (entity) => entity.uuid !== undefined || entity.xmlId !== undefined || entity.children !== undefined
       )
     ).toBe(true)
     expect(primaryImport.operationTempExists).toBe(false)
@@ -347,3 +346,22 @@ describe("sync configuration from xml", () => {
     expect(rootExternalFiles.configurationYaml).not.toContain("МодульПриложения")
   })
 })
+
+async function readTestConfigurationIndex(projectDir: string): Promise<{
+  readonly files: readonly ConfigurationProjectFile[]
+  readonly entities: readonly (ConfigurationIndexBlockEntity & { readonly sourceProjectPath: string })[]
+}> {
+  const descriptor = configurationIndexStoreDescriptor(projectDir, { kind: "configuration" })
+  const store = openConfigurationIndexStore(descriptor, "readOnly")
+  try {
+    const files = store.readHashes()
+    const blocks = store.getBlocks(files.map(({ projectPath }) => projectPath))
+    return {
+      files,
+      entities: [...blocks].flatMap(([sourceProjectPath, block]) =>
+        block.entities.map((entity) => ({ ...entity, sourceProjectPath }))),
+    }
+  } finally {
+    await store.close()
+  }
+}

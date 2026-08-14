@@ -57,6 +57,7 @@ export const MetadataCommonFormRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     form: clientApplicationFormRule({
       yaml: "Форма",
@@ -75,6 +76,7 @@ export const MetadataCommonFormRules = {
       typeSE: "FormType",
       xmlParents: properties,
       defaultValueXML: "Managed",
+      defaultValueAdoptedXML: "Managed",
       implicitValueYAML: "Managed",
     }),
     includeHelpInContents: booleanRule({
@@ -109,6 +111,7 @@ export const MetadataCommonFormRules = {
       xml: "ExtendedPresentation",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     explanation: i8nTextRule({
       yaml: "Пояснение",

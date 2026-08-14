@@ -240,7 +240,7 @@ export async function roundTripMetadataProject(params: {
         actualDir: xmlDir,
         reportDir: resolve(params.reportRoot, component.reportName),
         compareOptions: {
-          xmlComparison: "semantic",
+          xmlComparison: "bytes",
           ignoredPaths: ["ConfigDumpInfo.xml"],
         },
       })

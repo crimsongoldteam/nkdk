@@ -2,11 +2,13 @@ import { getParentFromContext } from "../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { MetadataItemRule, YAMLPropertySource } from "@nkdk/runtime/rule-kit"
+import { exportExplicitAdoptedValue } from "../../ruleRuntime/property/xmlDefaultVariant"
 import { commonBasedOnObjectPaths } from "../metadataTargets"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 import { characteristicsDescriptionsRule } from "../characteristicsDescription/types"
 import { internalInfoRule } from "../internalInfo/types"
+import { externalDataSourceNamedProperties } from "../metadataExternalDataSourceShared"
 
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -55,30 +57,7 @@ const tableProperties = {
       { name: "ExternalDataSourceTableRecordManager", category: "RecordManager" },
     ] as { name: string; category: string }[],
   }),
-  uuid: {
-    type: "uuid",
-    xml: "_uuid",
-    forReferenceOnly: true,
-    xmlParents: root,
-  },
-  name: {
-    type: "string",
-    xmlParents: properties,
-    required: true,
-  },
-  synonym: {
-    yaml: "Синоним",
-    type: "I8nText",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-    excludeIfEqualNameYAML: true,
-  },
-  comment: {
-    yaml: "Комментарий",
-    type: "string",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-  },
+  ...externalDataSourceNamedProperties(root, properties),
   tableType: {
     yaml: "ТипТаблицы",
     xml: "TableType",
@@ -86,6 +65,7 @@ const tableProperties = {
     typeSE: "ExternalDataSourceTableType",
     xmlParents: properties,
     defaultValueXML: "Table",
+    preserveExplicitDefaultXML: true,
     implicitValueYAML: "Table",
   },
   nameInDataSource: {
@@ -118,6 +98,8 @@ const tableProperties = {
     fieldsListXMLItem: "xr:Field",
     xmlParents: properties,
     defaultValueXMLRaw: "",
+    toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+      exportExplicitAdoptedValue(source, context, "keyFields"),
   },
   presentationField: {
     yaml: "ПолеПредставления",
@@ -301,6 +283,7 @@ const tableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
+    preserveExplicitDefaultXML: true,
     implicitValueYAML: false,
   },
   transactionsIsolationLevel: {

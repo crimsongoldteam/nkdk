@@ -22,6 +22,7 @@ import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { createValidationRegistrySet } from "./validationRegistrySet"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "../appliedObjects/configurationExtension/propertyStateRules"
+import { withOperationRegistrySet } from "../operations/operationExecutionContext"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -333,6 +334,29 @@ describe("validateProjectFileFirstPass references", () => {
     expect(result.schemaDiagnostics).toEqual([])
   })
 
+  it("разрешает явно присутствующее пустое свойство с неявным значением у заимствованного объекта", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const component = createExtensionComponent(projectDir)
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    writeProjectFile(component.componentDir, projectPath, "ОсновнаяФормаСписка: \"\"")
+    writeProjectFile(join(projectDir, "cf"), projectPath, "Комментарий: исходный")
+
+    const propertyStates = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
+    const runtime = createValidationRegistrySet(metadataRules, createRuleRegistrySet(metadataRules), propertyStates)
+    const result = withOperationRegistrySet({ propertyStates }, () => validateProjectFileFirstPass({
+      projectDir,
+      file: requireValidationProjectFile(component, projectPath),
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot,
+      runtime,
+    }))
+
+    expect(result.schemaDiagnostics).toEqual([])
+  })
+
   it("сохраняет содержимое заимствованной формы cfe и добавляет схему PropertyState", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
@@ -395,31 +419,47 @@ describe("validateProjectFileFirstPass references", () => {
     expectPropertyStateRejected(projectDir, component, projectPath)
   })
 
-  it("сохраняет полную структуру корня cfe и поддерживает его локальные теги", () => {
+  it.each([
+    ["пустое поле", "ОбъектРасширяемойКонфигурации:", true],
+    ["Notify без UUID", "ОбъектРасширяемойКонфигурации: !проверять \"\"", true],
+    ["старое Ложь", "ОбъектРасширяемойКонфигурации: Ложь", false],
+    ["JS boolean", "ОбъектРасширяемойКонфигурации: false", false],
+  ] as const)("проверяет форму служебного флажка: %s", (_case, field, valid) => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
     const component = createValidationProjectComponent(projectDir, {
       kind: "configurationExtension",
       name: "X",
     })
+    writeProjectFile(join(projectDir, "cf"), "Конфигурация.yaml", "Имя: Основная")
     writeProjectFile(component.componentDir, "Конфигурация.yaml", [
       "Имя: X",
       "НазначениеРасширенияКонфигурации: Адаптация",
       "РежимСовместимости: !проверять",
+      field,
     ])
     const file = requireValidationProjectFile(component, "Конфигурация.yaml")
-    const properties = vi.fn(sharedSchemaCache.properties)
-    const result = validateProjectFileFirstPass({
-      projectDir,
-      file,
-      cache: createProjectYamlCache(),
-      context: mockContext,
-      schemaCache: { ...sharedSchemaCache, properties },
-      rulesSnapshot,
-    })
+    const properties = vi.fn(appliedObjectSchemaCache.properties)
+    const propertyStates = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
+    const runtime = createValidationRegistrySet(metadataRules, createRuleRegistrySet(metadataRules), propertyStates)
+    const result = withOperationRegistrySet({ propertyStates }, () => validateProjectFileFirstPass({
+        projectDir,
+        file,
+        cache: createProjectYamlCache(),
+        context: mockContext,
+        schemaCache: { ...appliedObjectSchemaCache, properties },
+        rulesSnapshot,
+        runtime,
+      }))
 
     expect(properties).toHaveBeenCalledWith(file.itemRule, "extension-root")
-    expect(result.schemaDiagnostics).toEqual([])
+    if (valid) {
+      expect(result.schemaDiagnostics).toEqual([])
+    } else {
+      expect(result.schemaDiagnostics).toContainEqual(expect.objectContaining({
+        path: "/ОбъектРасширяемойКонфигурации",
+      }))
+    }
   })
 
   it.each([

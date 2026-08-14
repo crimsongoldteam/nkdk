@@ -14,15 +14,10 @@ import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import {
-  createConfigurationIndexReader,
-  snapshotConfigurationIndex,
-} from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import { prepareFormDataPathContextFromYAML } from "./formDataPathContext"
 import { createDirectRoundTripContexts } from "../../../tests/directConversion"
 
@@ -276,7 +271,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     const identities = new Map(
       context.exportToXML.configurationIndex?.collector
         .fragment("Справочники/Товары/Формы/ФормаЭлемента.yaml")
-        .entities.map((entity) => [entity.logicalAddress, entity.identities?.xmlId]),
+        .entities.map((entity) => [entity.logicalAddress, entity.xmlId]),
     )
     expect(identities.get(childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"))).toBe("-1")
     expect(identities.get(inputAddress)).toBe(inputField._id)
@@ -341,6 +336,23 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
 
     expect(result.formXML.Attributes).toEqual({})
+  })
+
+  it("создаёт обязательный пустой Attributes формы расширения без YAML-поля", () => {
+    const baseContext = mockContextToXML()
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: {
+        ...baseContext,
+        exportToXML: {
+          ...baseContext.exportToXML,
+          xmlDefaultVariantByLogicalAddress: { "ОбщаяФорма.Форма": "adopted" },
+        },
+      },
+      yaml: {},
+      name: "Форма",
+    })
+
+    expect(result.formXML.Attributes).toEqual({ Attribute: [] })
   })
 
   it("добавляет служебные узлы по конечному источнику таблицы без reference XML", () => {
@@ -926,11 +938,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       context: mockContextToXML(),
       yaml: { Ширина: 100 },
       baseYAML: { Ширина: 80 },
-      baseConfigurationIndex: createConfigurationIndexReader(
-        snapshotConfigurationIndex(
-          encodeConfigurationIndex(sampleSnapshot())
-        )
-      ),
+      baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ОбщаяФорма",
       referenceXML: undefined,
     })
@@ -959,15 +967,23 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
           Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" },
         },
       },
-      baseConfigurationIndex: createConfigurationIndexReader(
-        snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
-      ),
+      baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ОбщаяФорма",
       referenceXML: undefined,
     })
     const form = result.Form as ClientApplicationFormXML
 
     expect(elementByName(form, "Список").DataPath).toBeUndefined()
+    expect(elementByName(form, "Список")).toMatchObject({
+      AllowGettingCurrentRowURL: true,
+      AllowRootChoice: false,
+      AutoRefresh: false,
+      AutoRefreshPeriod: 60,
+      ChoiceFoldersAndItems: "Items",
+      RestoreCurrentRow: false,
+      ShowRoot: true,
+      UpdateOnDataChange: "Auto",
+    })
     expect(elementByName(form, "Список").Period).toEqual({
       "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
       "v8:startDate": "0001-01-01T00:00:00",
@@ -986,17 +1002,22 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         Элементы: {
           Номер: { Вид: "ПолеВвода" },
           Дата: { Вид: "ПолеВвода" },
+          Список: { Вид: "ТаблицаФормы" },
         },
       },
       baseYAML: {
         kind: "selectedBaseYAML",
         baseFormSourceKind: "saved",
-        baseFormYAML: { Ширина: 80 },
+        baseFormYAML: { Ширина: 80, Элементы: { Список: { Вид: "ТаблицаФормы" } } },
         currentConfigurationFormYAML: {
           Реквизиты: {
             Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+            Список: { Тип: "ДинамическийСписок" },
           },
-          Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+          Элементы: {
+            Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" },
+            Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" },
+          },
         },
       },
       baseYAMLContext: context,
@@ -1008,6 +1029,9 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(form.BaseForm).toMatchObject({ Width: 80 })
     expect(elementByName(form, "Номер").DataPath).toBeUndefined()
     expect(elementByName(form, "Дата").DataPath).toBe("Объект.Date")
+    expect(elementByName(form, "Список")).toMatchObject({ AutoRefresh: false, ShowRoot: true })
+    expect(elementByName(form.BaseForm as ClientApplicationFormXML, "Список"))
+      .toMatchObject({ AutoRefresh: false, ShowRoot: true })
   })
 })
 

@@ -38,6 +38,7 @@ export const MetadataWebServiceParameterRules = {
       type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
       defaultValueXMLEmpty: "",
     },
     xdtoValueType: {
@@ -122,6 +123,7 @@ export const MetadataWebServiceOperationRules = {
       type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
       defaultValueXMLEmpty: "",
     },
     xdtoReturningValueType: {

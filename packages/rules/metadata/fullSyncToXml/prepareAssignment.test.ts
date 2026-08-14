@@ -4,9 +4,6 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
@@ -23,10 +20,21 @@ import { MetadataConfigurationExtensionRules } from "../appliedObjects/configura
 import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "../forms/clientApplicationForm/rules"
+import { TEST_CONFIGURATION_UUID, testConfigurationIndexReader } from "../../tests/configurationIndex"
 
 describe("prepareFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
   const emptyComposition = { children: () => [] }
+  const prepare = (
+    assignment: FullXmlSyncAssignment,
+    preparedYamlFile: Parameters<typeof prepareFullXmlSyncAssignment>[0]["preparedYamlFile"],
+  ) => prepareFullXmlSyncAssignment({
+    assignment,
+    preparedYamlFile,
+    context: mockContextToXML(),
+    index: testConfigurationIndexReader(),
+    composition: emptyComposition,
+  })
 
   afterEach(() => {
     vi.restoreAllMocks()
@@ -77,27 +85,19 @@ describe("prepareFullXmlSyncAssignment", () => {
       required: document.required,
       prepareCapabilityId: "test-two-documents",
     }))
-    const baseConfigurationIndex = createConfigurationIndexReader(
-      snapshotConfigurationIndex(
-        encodeConfigurationIndex({
-          ...sampleSnapshot(),
-          entities: [
+    const baseConfigurationIndex = testConfigurationIndexReader([
             {
               logicalAddress: "Объект.One",
-              sourceProjectPath: "Configuration.yaml",
-              identities: { xmlId: "base-marker" },
+              xmlId: "base-marker",
             },
-          ],
-        })
-      )
-    )
+          ])
     const run = vi.fn(({ outputs: requested, baseConfigurationIndex: baseIndex }) =>
       requested.map((output: (typeof outputs)[number]) => ({
         declarationId: output.declarationId,
         targetXmlPath: output.targetXmlPath,
         xml: {
           Root: output.role,
-          BaseMarker: baseIndex?.entity("Объект.One")?.identities?.xmlId,
+          BaseMarker: baseIndex?.entity("Объект.One")?.xmlId,
         },
         deferred: [],
         rootRule: rule,
@@ -131,7 +131,7 @@ describe("prepareFullXmlSyncAssignment", () => {
         syntaxDiagnostics: [],
       },
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
       baseConfigurationIndex,
       composition: emptyComposition,
       topology,
@@ -192,9 +192,10 @@ describe("prepareFullXmlSyncAssignment", () => {
         exportToXML: {
           ...mockContextToXML().exportToXML,
           componentKind: "configurationExtension",
+          adoptedUuids: { Конфигурация: TEST_CONFIGURATION_UUID },
         },
       },
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
       composition: emptyComposition,
       topology,
     })
@@ -232,11 +233,7 @@ describe("prepareFullXmlSyncAssignment", () => {
         syntaxDiagnostics: [],
       },
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(
-        snapshotConfigurationIndex(
-          encodeConfigurationIndex(sampleSnapshot())
-        )
-      ),
+      index: testConfigurationIndexReader(),
       composition: emptyComposition,
     })
     const metadataDocument = prepared.documents.find((document) =>
@@ -310,13 +307,7 @@ describe("prepareFullXmlSyncAssignment", () => {
     }
     const writeFile = vi.spyOn(fs.promises, "writeFile")
 
-    const prepared = prepareFullXmlSyncAssignment({
-      assignment,
-      preparedYamlFile: yaml,
-      context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
-      composition: emptyComposition,
-    })
+    const prepared = prepare(assignment, yaml)
 
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
       "DataProcessors/ОбработкаВсеСвойства.xml",
@@ -379,13 +370,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       ...fullXmlSyncTestTopologyFields(sourceProjectPath),
     }
 
-    const prepared = prepareFullXmlSyncAssignment({
-      assignment,
-      preparedYamlFile: yaml,
-      context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
-      composition: emptyComposition,
-    })
+    const prepared = prepare(assignment, yaml)
 
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
       "Catalogs/Товары.xml",
@@ -449,7 +434,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: yaml,
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
       composition: emptyComposition,
     })
 
@@ -517,7 +502,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: yaml,
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
       composition: emptyComposition,
     })
 
@@ -598,7 +583,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: yaml,
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      index: testConfigurationIndexReader(),
       composition: { children },
     })
 

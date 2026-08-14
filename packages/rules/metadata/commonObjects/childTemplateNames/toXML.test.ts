@@ -66,7 +66,7 @@ describe("exportChildTemplateNamesToXML", () => {
     expect(exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities).toEqual([])
   })
 
-  it("сохраняет порядок актуальных макетов и обновляет omittedChildren", () => {
+  it("сохраняет порядок актуальных макетов и обновляет children", () => {
     const contexts = createDirectRoundTripContexts()
     const itemRule = {
       itemType: "TestChildTemplateNames",
@@ -87,10 +87,11 @@ describe("exportChildTemplateNamesToXML", () => {
 
     expect(exported.xml).toEqual({ Template: ["МакетБ", "МакетА", "Новый"] })
     expect(
-      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.omittedChildren
-    ).toEqual({
-      kind: "names",
-      names: ["МакетБ", "МакетА", "Новый"],
-    })
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.children
+    ).toEqual([
+      { xmlName: "Template", name: "МакетБ" },
+      { xmlName: "Template", name: "МакетА" },
+      { xmlName: "Template", name: "Новый" },
+    ])
   })
 })

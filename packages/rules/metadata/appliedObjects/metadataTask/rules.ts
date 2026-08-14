@@ -138,6 +138,7 @@ export const MetadataTaskRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
@@ -172,6 +173,7 @@ export const MetadataTaskRules = {
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
       defaultValueXML: true,
+      preserveExplicitDefaultXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
     }),

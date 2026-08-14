@@ -6,6 +6,8 @@ export const metadataChartOfCalculationTypesPropertyStateCapabilities = definePr
   properties: {
     ...controlled("actionPeriodUse", "dependenceOnCalculationTypes"),
     ...allPropertyStateModes("codeLength", "descriptionLength", "codeType", "codeAllowedLength"),
+    ...externalProperty("objectModule", "МодульОбъекта", ["extend"]),
+    ...externalProperty("managerModule", "МодульМенеджера", ["extend"]),
     ...externalProperty("predefined", "Предопределенные", ["extend"]),
   },
 })

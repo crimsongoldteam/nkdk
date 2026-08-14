@@ -147,8 +147,6 @@ export const importMetadataSimpleValueFromXML = (
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataValue", "configurationIndexValueFromXML", {
-  xsiNilWhenNotRepresentable: true,
-  xsiTypeWhenNotRepresentable: true,
 })
 
 /** @deprecated Используй importFormChoiceListFromXML из submodule formChoiceList/fromXML */

@@ -8,12 +8,10 @@ import { createMetadataWorkerHandler } from "../workerPool/metadataWorkerHandler
 import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 import { mockContextFromXML } from "../../tests/mockContext"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
+import { testConfigurationIndexReader } from "../../tests/configurationIndex"
 
 it("runs the worker operation from the owning registry", async () => {
   const createRules = (value: string) =>
@@ -117,7 +115,7 @@ it("owns XML import and YAML-to-XML augmenters from its rules", () => {
       itemsTree: [],
       componentKind: "sample",
       configurationIndex: createConfigurationIndexExportRuntime({
-        source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+        source: testConfigurationIndexReader(),
         collector: createConfigurationIndexCollector(),
         targetProjectPath: "root.yaml",
         logicalAddress: "Root",

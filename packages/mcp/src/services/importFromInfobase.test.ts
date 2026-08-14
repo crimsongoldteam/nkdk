@@ -33,7 +33,7 @@ describe("import from infobase", () => {
       succeeded: 2,
       failed: [],
       warnings: [],
-      configurationIndexPath: "/project/.nkdk/configuration-index/default.bin",
+      configurationIndexPath: "/project/.nkdk/components/default/configuration-index.lmdb",
       settingsPath: "/project/.nkdk/project.yaml",
       mode: "designer-agent",
       reusedConnection: false,
@@ -225,7 +225,7 @@ function createFixture(options: {
         succeeded: 2,
         failed: [],
         warnings: [],
-        configurationIndexPath: "/project/.nkdk/configuration-index/default.bin",
+        configurationIndexPath: "/project/.nkdk/components/default/configuration-index.lmdb",
       }
     },
     resolveTarget({ projectDir, componentPath }) {

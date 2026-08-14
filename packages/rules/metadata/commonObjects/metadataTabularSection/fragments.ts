@@ -71,6 +71,7 @@ export const tabularSectionPresentationFragment = metadataRuleFragment(
       type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     },
     toolTip: {
       yaml: "Подсказка",

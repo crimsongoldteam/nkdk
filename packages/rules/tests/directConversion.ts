@@ -3,12 +3,8 @@ import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML }
 import type { MetadataTargetOwnerContext } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import {
-  createConfigurationIndexReader,
-  snapshotConfigurationIndex,
-} from "@nkdk/runtime"
+import { createLocalConfigurationIndexReader } from "@nkdk/runtime"
 import { importMetadataItemFromXMLToYAML } from "../metadata/ruleRuntime/metadataItem/fromXMLToYAML"
 import { convertMetadataItemFromYAMLToXML } from "../metadata/ruleRuntime/metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../metadata/ruleRuntime/property/fromYAMLToXML"
@@ -71,17 +67,7 @@ export function createDirectRoundTripContexts(
     ),
     exportContext(base = mockContextToXML()) {
       const fragment = imported.fragment(targetProjectPath)
-      const source = createConfigurationIndexReader(
-        snapshotConfigurationIndex(
-          encodeConfigurationIndex({
-            specificationVersion: "1.4",
-            indexGeneration: 1n,
-            componentPath: "cf",
-            files: [{ projectPath: targetProjectPath, contentHash: 1n }],
-            entities: fragment.entities,
-          })
-        )
-      )
+      const source = createLocalConfigurationIndexReader(new Map([[targetProjectPath, { entities: fragment.entities }]]))
       return {
         ...base,
         importFromYAML: {
@@ -97,9 +83,26 @@ export function createDirectRoundTripContexts(
             collector: createConfigurationIndexCollector(),
             targetProjectPath,
             logicalAddress,
+            operationSeed: new Uint8Array(32),
           }),
         },
       }
+    },
+  }
+}
+
+export function createDirectAdoptedExportContext(
+  logicalAddress: string,
+): ConfigurationContextWithExportToXML {
+  const contexts = createDirectRoundTripContexts({ logicalAddress })
+  const context = contexts.exportContext()
+  return {
+    ...context,
+    exportToXML: {
+      ...context.exportToXML,
+      componentKind: "configurationExtension",
+      adoptedUuids: { [logicalAddress]: "11111111-1111-4111-8111-111111111111" },
+      xmlDefaultVariantByLogicalAddress: { [logicalAddress]: "adopted" },
     },
   }
 }

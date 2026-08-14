@@ -65,6 +65,7 @@ export const MetadataSequenceRules = {
       yaml: "Комментарий",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     moveBoundaryOnPosting: systemEnumerationRule({
       yaml: "ПеремещениеГраницыПриПроведении",

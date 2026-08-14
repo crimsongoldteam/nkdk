@@ -219,8 +219,7 @@ describe("prepareImportYaml", () => {
     expect(substeps).not.toContain("XML в YAML: выбор свойств")
     expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства.Элемент.КонстантаВсеСвойства",
-      sourceProjectPath: "ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml",
-      identities: { xmlId: "1" },
+      xmlId: "1",
     })
   })
 
@@ -254,8 +253,7 @@ describe("prepareImportYaml", () => {
     expect(JSON.stringify(prepared.yaml)).not.toContain("ФормаЭлемента")
     expect(collector.fragment(assignment.targetProjectPath).entities).toContainEqual({
       logicalAddress: "Справочник.Контрагенты",
-      sourceProjectPath: assignment.targetProjectPath,
-      identities: { uuid: "0f4c2a9b-1d3e-4b6f-8a7c-9e1d2c3b4a5f" },
+      uuid: "0f4c2a9b-1d3e-4b6f-8a7c-9e1d2c3b4a5f",
     })
     expect(writeFile).not.toHaveBeenCalled()
   })
@@ -334,8 +332,7 @@ describe("prepareImportYaml", () => {
 
       expect(collector.fragment(targetProjectPath).entities).toContainEqual({
         logicalAddress: "Справочник.ТестСправочник.Команда.Обновить",
-        sourceProjectPath: targetProjectPath,
-        identities: { uuid: "00000000-0000-0000-0000-000000000002" },
+        uuid: "00000000-0000-0000-0000-000000000002",
       })
     } finally { fs.rmSync(inputDir, { recursive: true, force: true }) }
   })
@@ -374,8 +371,7 @@ describe("prepareImportYaml", () => {
       expect(yamlScalarTagAt(yaml, "ЗначениеЗаполнения")).toBeUndefined()
       expect(collector.fragment(targetProjectPath).entities).toEqual([{
         logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию",
-        sourceProjectPath: targetProjectPath,
-        identities: { uuid: "b82a1fc0-ce4b-4270-b9b7-018c35ab718e" },
+        uuid: "b82a1fc0-ce4b-4270-b9b7-018c35ab718e",
       }])
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })

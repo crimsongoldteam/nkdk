@@ -44,10 +44,8 @@ import { metadataDefinedTypePropertyStateCapabilities } from "../metadataDefined
 import { metadataFilterCriterionPropertyStateCapabilities } from "../metadataFilterCriterion/propertyStates"
 import { metadataSessionParameterPropertyStateCapabilities } from "../metadataSessionParameter/propertyStates"
 import { metadataTabularSectionPropertyStateCapabilities } from "../../commonObjects/metadataTabularSection/propertyStates"
-import { CONFIGURATION_EXTENSION_PROPERTY_STATE_XML_CARRIER } from "./explicitXMLState"
 import {
   controlled,
-  createPropertyStateCapabilityRegistry,
   definePropertyStateItemCapabilities,
   extended,
   externalProperty,
@@ -59,14 +57,14 @@ const metadataConfigurationExtensionPropertyStateCapabilities = definePropertySt
   MetadataConfigurationExtensionRules,
   {
     properties: {
-      ...controlled("compatibilityMode"),
-      ...extended("defaultRoles"),
       ...externalProperty("commandInterface", "КомандныйИнтерфейс", ["extend"]),
       ...externalProperty("homePageWorkArea", "РабочаяОбластьНачальнойСтраницы", ["extend"]),
       ...externalProperty("mainSectionCommandInterface", "КомандныйИнтерфейсОсновногоРаздела", ["extend"]),
       ...externalProperty("mainSectionPicture", "КартинкаОсновногоРаздела", ["extend"]),
       ...externalProperty("logo", "Логотип", ["extend"]),
       ...externalProperty("splash", "Заставка", ["extend"]),
+      ...controlled("extendedConfigurationObject", "compatibilityMode", "defaultRunMode"),
+      ...extended("defaultRoles"),
     },
   },
 )
@@ -176,42 +174,7 @@ export const configurationExtensionPropertyStateCapabilities = [
 export const configurationExtensionPropertyStateRules = defineMetadataRules({
   ...emptyMetadataRules,
   propertyStateCapabilities: configurationExtensionPropertyStateCapabilities,
-  explicitXMLProperties: {
-    ...propertyStateXMLCarriers(),
-    ...confirmedUnsupportedPropertyStateXMLCarriers(),
-  },
 })
-
-function confirmedUnsupportedPropertyStateXMLCarriers() {
-  return Object.fromEntries([
-    ["MetadataChartOfAccounts", "codeLength"],
-    ["MetadataChartOfAccounts", "descriptionLength"],
-  ].map(([itemType, propertyKey]) => [
-    `${itemType}.${propertyKey}`,
-    {
-      action: "carrier" as const,
-      itemType,
-      propertyKey,
-      prefix: CONFIGURATION_EXTENSION_PROPERTY_STATE_XML_CARRIER,
-    },
-  ]))
-}
-
-function propertyStateXMLCarriers() {
-  const registry = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
-  const itemTypes = new Set(configurationExtensionPropertyStateCapabilities.flatMap((contribution) =>
-    "item" in contribution && contribution.item !== undefined ? [contribution.item.itemType] : []))
-  return Object.fromEntries([...itemTypes].flatMap((itemType) =>
-    Object.keys(registry.item(itemType)?.properties ?? {}).map((propertyKey) => [
-      `${itemType}.${propertyKey}`,
-      {
-        action: "carrier" as const,
-        itemType,
-        propertyKey,
-        prefix: CONFIGURATION_EXTENSION_PROPERTY_STATE_XML_CARRIER,
-      },
-    ])))
-}
 
 function propertyStateIntroductionDelta(
   contributions: readonly PropertyStateCapabilityContribution[],

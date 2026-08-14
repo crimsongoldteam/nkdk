@@ -14,6 +14,7 @@ describe("матрица PropertyState расширения", () => {
     ["MetadataDocument", "numerator"],
     ["MetadataTask", "addressing"],
     ["MetadataExternalDataSourceTable", "nameInDataSource"],
+    ["MetadataAttribute", "format"],
   ])("разрешает все режимы для %s.%s", (itemType, propertyKey) => {
     expect(registry.resolve({ itemType, propertyKey })?.modes).toEqual([
       "control",
@@ -26,6 +27,7 @@ describe("матрица PropertyState расширения", () => {
     ["MetadataChartOfCharacteristicTypes", "type"],
     ["MetadataLanguage", "languageCode"],
     ["MetadataConfigurationExtension", "compatibilityMode"],
+    ["MetadataConfigurationExtension", "defaultRunMode"],
   ])("контролирует %s.%s", (itemType, propertyKey) => {
     expect(registry.resolve({ itemType, propertyKey })?.modes).toEqual([
       "control",
@@ -48,6 +50,19 @@ describe("матрица PropertyState расширения", () => {
   it("разрешает содержимое вынесенной общей формы", () => {
     expect(registry.resolve({ itemType: "MetadataCommonForm", propertyKey: "form" }))
       .toEqual({ availability: "borrowed", modes: ["extend"], representation: "section", externalName: "Форма" })
+  })
+
+  it.each(["childItems", "commands", "parameters"])(
+    "считает структурный контейнер формы %s собственным",
+    (propertyKey) => {
+      expect(registry.resolve({ itemType: "ClientApplicationForm", propertyKey }))
+        .toEqual({ availability: "own", modes: [] })
+    },
+  )
+
+  it("сохраняет присутствие пустого расширенного представления формы", () => {
+    expect(registry.resolve({ itemType: "ClientApplicationForm", propertyKey: "extendedPresentation" }))
+      .toEqual({ availability: "borrowed", modes: ["control", "notify"], representation: "tagged" })
   })
 
   it("различает группу общей и объектной команды", () => {
@@ -89,11 +104,33 @@ describe("матрица PropertyState расширения", () => {
       .toBeUndefined()
   })
 
-  it("регистрирует подтверждённые переносчики недопустимого PropertyState", () => {
-    expect(configurationExtensionPropertyStateRules.explicitXMLProperties)
-      .toHaveProperty("MetadataChartOfAccounts.codeLength")
-    expect(configurationExtensionPropertyStateRules.explicitXMLProperties)
-      .toHaveProperty("MetadataChartOfAccounts.descriptionLength")
+  it.each([
+    ["MetadataConfigurationExtension", ["commandInterface", "homePageWorkArea", "mainSectionCommandInterface", "mainSectionPicture", "logo", "splash", "compatibilityMode"]],
+    ["MetadataAccumulationRegister", ["recordSetModule", "managerModule"]],
+    ["MetadataBusinessProcess", ["objectModule", "managerModule", "flowchart", "numberType", "numberLength", "numberAllowedLength", "task"]],
+    ["MetadataChartOfAccounts", ["maxExtDimensionCount", "codeLength", "descriptionLength", "predefined", "objectModule", "managerModule", "orderLength", "extDimensionTypes"]],
+    ["MetadataChartOfCalculationTypes", ["codeLength", "descriptionLength", "codeType", "codeAllowedLength", "objectModule", "managerModule", "predefined"]],
+    ["MetadataConstant", ["valueManagerModule", "managerModule"]],
+    ["MetadataTask", ["objectModule", "managerModule", "numberType", "numberLength", "numberAllowedLength", "descriptionLength", "addressing", "mainAddressingAttribute", "currentPerformer"]],
+  ] as const)("сохраняет предметный порядок PropertyState для %s", (itemType, expected) => {
+    const expectedSet = new Set<string>(expected)
+    expect(Object.keys(registry.item(itemType)!.properties).filter((key) => expectedSet.has(key)))
+      .toEqual(expected)
+  })
+
+  it.each([
+    ["codeLength", ["control", "notify", "extend"]],
+    ["descriptionLength", ["control", "notify", "extend"]],
+    ["extDimensionTypes", ["control", "notify"]],
+    ["orderLength", ["control", "notify"]],
+    ["maxExtDimensionCount", ["control", "notify"]],
+  ])("описывает режимы плана счетов для %s", (propertyKey, modes) => {
+    expect(registry.resolve({ itemType: "MetadataChartOfAccounts", propertyKey })?.modes).toEqual(modes)
+  })
+
+  it("не регистрирует служебные переносчики PropertyState", () => {
+    expect(JSON.stringify(configurationExtensionPropertyStateRules.explicitXMLProperties))
+      .not.toContain("configurationExtensionPropertyStateXML")
   })
 
   it("не переносит возможность по совпадению имени свойства", () => {
@@ -117,6 +154,26 @@ describe("матрица PropertyState расширения", () => {
   it("treats the style item value as changed by the extension", () => {
     expect(registry.resolve({ itemType: "MetadataStyleItem", propertyKey: "value" }))
       .toEqual({ availability: "borrowed", modes: ["extend"], representation: "plain" })
+  })
+
+  it.each([
+    ["MetadataCatalog", "defaultListForm"],
+    ["MetadataCatalog", "objectPresentation"],
+    ["MetadataCatalog", "owners"],
+    ["MetadataFunctionalOption", "content"],
+    ["MetadataAccountingRegister", "explanation"],
+    ["MetadataExternalDataSourceCube", "defaultRecordForm"],
+    ["MetadataSettingsStorage", "defaultLoadForm"],
+  ])("регистрирует изменяемое plain-свойство %s.%s", (itemType, propertyKey) => {
+    expect(registry.resolve({ itemType, propertyKey })).toEqual({
+      availability: "borrowed",
+      modes: ["extend"],
+      representation: "plain",
+    })
+  })
+
+  it("не регистрирует стандартный plain-ключ, отсутствующий в правиле вида", () => {
+    expect(registry.resolve({ itemType: "MetadataLanguage", propertyKey: "owners" })).toBeUndefined()
   })
 
   it("applies the confirmed compatibility boundaries", () => {
@@ -211,6 +268,13 @@ describe("матрица PropertyState расширения", () => {
     "MetadataXDTOPackage",
     "MetadataExternalDataSource",
     "MetadataConfigurationExtension",
+    "AccountingFlag",
+    "ExtDimensionAccountingFlag",
+    "MetadataExternalDataSourceCubeDimension",
+    "MetadataHTTPServiceURLTemplate",
+    "MetadataHTTPServiceMethod",
+    "MetadataWebServiceOperation",
+    "MetadataWebServiceParameter",
   ])("содержит закрытую запись вида %s", (itemType) => {
     expect(registry.item(itemType)).toBeDefined()
   })

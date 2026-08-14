@@ -17,7 +17,8 @@ import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXM
 import { MetadataItemRule, PropertyRule } from "../../ruleRuntime"
 import { importInternalInfoFromXML } from "./fromXML"
 import { exportInternalInfoToXML } from "./toXML"
-import { InternalInfoRootXML } from "./types"
+import { InternalInfoRootXML, internalInfoRule } from "./types"
+import { collectInternalInfoConfigurationIndexFromXML } from "./configurationIndex"
 
 const rule: PropertyRule = {
   type: "InternalInfo",
@@ -84,6 +85,16 @@ const importContainedObjectsFixture = () => {
 }
 
 describe("importInternalInfoFromXML", () => {
+  it("создаёт пустой InternalInfo для правила без вычисляемых UUID", () => {
+    expect(exportInternalInfoToXML({
+      context: mockContextToXML(),
+      rule: containedObjectsRule,
+      value: undefined,
+      referenceMetadata: undefined,
+      metadataItem: { itemType: "MetadataConfiguration" as never },
+    })).toEqual({})
+  })
+
   it("collects every InternalInfo UUID without exposing InternalInfo in YAML", () => {
     const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xmlWithContainedObject)
     const indexCollector = createConfigurationIndexCollector()
@@ -109,7 +120,7 @@ describe("importInternalInfoFromXML", () => {
     expect(yaml).toEqual({})
     expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").entities.map((entity) => ({
       logicalAddress: entity.logicalAddress,
-      uuid: entity.identities?.uuid,
+      uuid: entity.uuid,
     }))).toEqual([
       {
         logicalAddress:
@@ -129,6 +140,36 @@ describe("importInternalInfoFromXML", () => {
         uuid: "00000000-0000-0000-0000-000000000002",
       },
     ])
+  })
+
+  it("пропускает отсутствующий InternalInfo у правила с обязательным пустым XML", () => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Справочник.Товары" })
+
+    expect(() => collectInternalInfoConfigurationIndexFromXML({
+      context: contexts.importContext,
+      rule: internalInfoRule({ xml: "InternalInfo", xmlParents: [], forReferenceOnly: true, items: [] }),
+      xml: undefined,
+      propertyKey: "internalInfo",
+    })).not.toThrow()
+
+    expect(importPropertiesFromXMLToYAML({
+      context: contexts.importContext,
+      rule: {
+        itemType: "TestInternalInfoItem",
+        properties: {
+          internalInfo: internalInfoRule({
+            xml: "InternalInfo",
+            xmlParents: [],
+            forReferenceOnly: true,
+            items: [],
+          }),
+        },
+      } as MetadataItemRule,
+      sources: [{ context: contexts.importContext, xml: {} }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })).toEqual({})
   })
 
   it("restores every InternalInfo UUID from the configuration snapshot", () => {
@@ -266,7 +307,7 @@ describe("importInternalInfoFromXML", () => {
     const collected = exportContext.exportToXML.configurationIndex?.collector
       .fragment("Справочник/Товары/Свойства.yaml").entities
     expect(collected).toHaveLength(4)
-    expect(collected?.some((entity) => entity.xml !== undefined)).toBe(false)
+    expect(collected?.every((entity) => Object.keys(entity).every((key) => ["logicalAddress", "uuid", "xmlId", "children"].includes(key)))).toBe(true)
   })
 
   it("imports GeneratedType and ThisNode", () => {

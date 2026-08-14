@@ -912,7 +912,7 @@ describe("ProjectStateService", () => {
       tokenValid = false
     }
     const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.bin")
-    const configurationIndexPath = join(projectDir, ".nkdk", "components", "cf", "configuration-index.bin")
+    const configurationIndexPath = join(projectDir, ".nkdk", "components", "cf", "configuration-index.lmdb")
     let refreshCalls = 0
     const service = createProjectStateService({
       createWriter: () => writer,

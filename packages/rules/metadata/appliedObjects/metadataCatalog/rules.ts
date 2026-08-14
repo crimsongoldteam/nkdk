@@ -18,7 +18,16 @@ import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type {
+  ConfigurationContextWithExportToXML,
+  MetadataItemRule,
+  YAMLPropertySource,
+} from "@nkdk/runtime/rule-kit"
+import {
+  exportDependentAdoptedDefault,
+  hasYAMLProperty,
+  xmlDefaultVariant,
+} from "../../ruleRuntime/property/xmlDefaultVariant"
 import { commonBasedOnObjectPaths } from "../../ruleRuntime/metadataTarget"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 import { appliedObjectInputByStringRule, inputByStringStandardField, NUMERIC_LENGTH_HINT } from "../inputByStringDeclarations"
@@ -215,13 +224,17 @@ export const MetadataCatalogRules = {
       xmlParents: ["Properties"],
       implicitValueYAML: "BothWays",
     }),
-    codeAllowedLength: systemEnumerationRule({
-      yaml: "ДопустимаяДлинаКода",
-      typeSE: "AllowedLength",
-      defaultValueXML: "Variable",
-      xmlParents: ["Properties"],
-      implicitValueYAML: "Variable",
-    }),
+    codeAllowedLength: {
+      ...systemEnumerationRule({
+        yaml: "ДопустимаяДлинаКода",
+        typeSE: "AllowedLength",
+        defaultValueXML: "Variable",
+        xmlParents: ["Properties"],
+        implicitValueYAML: "Variable",
+      }),
+      toXML: (source, context) =>
+        exportDependentAdoptedDefault(source, context, "codeAllowedLength", ["codeLength", "codeType"]),
+    },
     codeLength: numberRule({
       yaml: "ДлинаКода",
       description: `Длина кода. ${NUMERIC_LENGTH_HINT}`,
@@ -250,6 +263,7 @@ export const MetadataCatalogRules = {
       yaml: "Комментарий",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     createOnInput: systemEnumerationRule({
       yaml: "СозданиеПриВводе",
@@ -371,19 +385,27 @@ export const MetadataCatalogRules = {
       xmlParents: ["Properties"],
       implicitValueYAML: "DontUse",
     }),
-    hierarchical: booleanRule({
-      yaml: "Иерархический",
-      defaultValueXML: false,
-      implicitValueYAML: false,
-      xmlParents: ["Properties"],
-    }),
-    hierarchyType: systemEnumerationRule({
-      yaml: "ВидИерархии",
-      typeSE: "HierarchyType",
-      defaultValueXML: "HierarchyFoldersAndItems",
-      xmlParents: ["Properties"],
-      implicitValueYAML: "HierarchyFoldersAndItems",
-    }),
+    hierarchical: {
+      ...booleanRule({
+        yaml: "Иерархический",
+        defaultValueXML: false,
+        implicitValueYAML: false,
+        xmlParents: ["Properties"],
+      }),
+      toXML: (source, context) =>
+        exportCatalogHierarchyDefault(source, context, "hierarchical"),
+    },
+    hierarchyType: {
+      ...systemEnumerationRule({
+        yaml: "ВидИерархии",
+        typeSE: "HierarchyType",
+        defaultValueXML: "HierarchyFoldersAndItems",
+        xmlParents: ["Properties"],
+        implicitValueYAML: "HierarchyFoldersAndItems",
+      }),
+      toXML: (source, context) =>
+        exportCatalogHierarchyDefault(source, context, "hierarchyType"),
+    },
     includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       defaultValueXML: false,
@@ -551,3 +573,13 @@ export const MetadataCatalogRules = {
     { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataCommandRules },
   ],
 } as const satisfies MetadataItemRule
+
+function exportCatalogHierarchyDefault(
+  source: YAMLPropertySource,
+  context: ConfigurationContextWithExportToXML | undefined,
+  propertyKey: "hierarchical" | "hierarchyType",
+): boolean {
+  if (xmlDefaultVariant(context) !== "adopted") return true
+  return hasYAMLProperty(source, propertyKey) ||
+    (source.has("codeType") && source.raw("codeType") === "Строка")
+}

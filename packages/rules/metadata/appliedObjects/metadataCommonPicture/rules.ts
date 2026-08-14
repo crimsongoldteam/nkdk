@@ -49,6 +49,7 @@ export const MetadataCommonPictureRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     picture: externalPictureRule({
       nkdkDir: "Картинка",

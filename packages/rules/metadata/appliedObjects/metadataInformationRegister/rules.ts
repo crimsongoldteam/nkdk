@@ -124,6 +124,7 @@ export const MetadataInformationRegisterRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
@@ -172,6 +173,7 @@ export const MetadataInformationRegisterRules = {
       yaml: "Периодичность",
       typeSE: "InformationRegisterPeriodicity",
       defaultValueXML: "Nonperiodical",
+      defaultValueAdoptedXML: "Nonperiodical",
       implicitValueYAML: "Nonperiodical",
       xmlParents: properties,
     }),
@@ -179,6 +181,7 @@ export const MetadataInformationRegisterRules = {
       yaml: "РежимЗаписи",
       typeSE: "RegisterWriteMode",
       defaultValueXML: "Independent",
+      defaultValueAdoptedXML: "Independent",
       implicitValueYAML: "Independent",
       xmlParents: properties,
     }),

@@ -1,7 +1,7 @@
 import type { XmlImportConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { MetadataWorkerBinaryResult } from "./binaryResult"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
@@ -79,7 +79,7 @@ export interface ImportFirstPassResult {
   kind: "firstPassResult"
   diagnostics: ImportDiagnostic[]
   files: ImportResultFile[]
-  configurationFragments: ConfigurationSnapshotFragment[]
+  configurationFragments: ConfigurationIndexBlockFragment[]
   stateFragment?: ProjectStateFragment
 }
 
@@ -88,7 +88,7 @@ export interface ImportSecondPassResult {
   diagnostics: ImportDiagnostic[]
   warnings: ImportDiagnostic[]
   files: ImportResultFile[]
-  configurationFragments: ConfigurationSnapshotFragment[]
+  configurationFragments: ConfigurationIndexBlockFragment[]
   stateFragment?: ProjectStateFragment
 }
 

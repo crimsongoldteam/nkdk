@@ -13,8 +13,8 @@ const rule = { type: "ChildFileItemNames" as const, xml: "Table", forReferenceOn
 describe("exportChildFileItemNamesToXML", () => {
   it("возвращает непустой массив имён file-item объектов", () => {
     expect(exportChildFileItemNamesToXML({ context: mockContextToXML(), rule, value: ["Таблица", "Куб"] })).toEqual([
-      "Таблица",
       "Куб",
+      "Таблица",
     ])
   })
 
@@ -56,10 +56,11 @@ describe("exportChildFileItemNamesToXML", () => {
       ChildObjects: { Table: ["Все", "ПоУмолчанию", "Модуль"] },
     })
     expect(
-      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.omittedChildren
-    ).toEqual({
-      kind: "names",
-      names: ["Все", "ПоУмолчанию", "Модуль"],
-    })
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.children
+    ).toEqual([
+      { xmlName: "Table", name: "Все" },
+      { xmlName: "Table", name: "ПоУмолчанию" },
+      { xmlName: "Table", name: "Модуль" },
+    ])
   })
 })

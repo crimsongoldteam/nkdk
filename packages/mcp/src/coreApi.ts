@@ -145,6 +145,7 @@ export interface CoreApi {
   markPartialSyncPreparedAfterRejection: MetadataRuntimePartialSync["markPreparedAfterRejection"]
   markPartialSyncApplied: MetadataRuntimePartialSync["markApplied"]
   finalizePartialSync: MetadataRuntimePartialSync["finalize"]
+  forceClearPendingSync: MetadataRuntimePartialSync["forceClear"]
 }
 
 type MetadataRuntimePartialSync = Awaited<ReturnType<typeof metadataRuntimeHandle.get>>["sync"]["partial"]
@@ -213,6 +214,7 @@ export async function loadCoreApi(): Promise<CoreApi> {
     markPartialSyncPreparedAfterRejection: runtime.sync.partial.markPreparedAfterRejection,
     markPartialSyncApplied: runtime.sync.partial.markApplied,
     finalizePartialSync: runtime.sync.partial.finalize,
+    forceClearPendingSync: runtime.sync.partial.forceClear,
   }
 }
 

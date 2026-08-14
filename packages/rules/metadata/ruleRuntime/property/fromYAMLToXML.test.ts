@@ -13,19 +13,13 @@ import { registerTypeRule } from "./typeRuleRegistry"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
 import type { PropertyRuleType } from "./registry"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import {
-  createConfigurationIndexReader,
-  snapshotConfigurationIndex,
-} from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
-import type { ConfigurationSnapshotXml } from "@nkdk/runtime"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
 import {
   registeredExplicitXMLTestRule,
   registeredMissingExplicitXMLTestRule,
 } from "../../../tests/property/explicitXMLPropertyRegistry"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
@@ -79,50 +73,19 @@ const contextWithXMLDefaultVariant = (
   present: readonly string[] = [],
   storePresenceAsOrder = false,
   currentLogicalAddress = DEFAULT_TEST_LOGICAL_ADDRESS,
-  xmlValues: readonly ({ logicalAddress: string } & ConfigurationSnapshotXml & {
+  xmlValues: readonly ({ logicalAddress: string } & Record<string, unknown> & {
     excludedEqualName?: true
   })[] = []
 ): ConfigurationContextWithExportToXML => {
-  const source = sampleSnapshot()
-  const data = {
-    ...source,
-    entities: [
-      ...source.entities,
-      ...(storePresenceAsOrder ? [] : present)
-        .filter(
-          (propertyKey) =>
-            !xmlValues.some(({ logicalAddress }) => logicalAddress === `${currentLogicalAddress}.${propertyKey}`)
-        )
-        .map((propertyKey) => ({
-          logicalAddress: `${currentLogicalAddress}.${propertyKey}`,
-          sourceProjectPath: "Configuration.yaml",
-          xml: { present: true as const },
-        })),
-      ...xmlValues.flatMap(({ logicalAddress, excludedEqualName: _excludedEqualName, ...xml }) =>
-        Object.keys(xml).length === 0
-          ? []
-          : [{
-              logicalAddress,
-              sourceProjectPath: "Configuration.yaml",
-              xml: {
-                ...xml,
-                ...(present.some(
-                  (propertyKey) => logicalAddress === `${currentLogicalAddress}.${propertyKey}`
-                )
-                  ? { present: true as const }
-                  : {}),
-              },
-            }]
-      ),
-    ],
-  }
-  const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(data))
+  void present
+  void storePresenceAsOrder
+  void xmlValues
   return {
     ...context(),
     exportToXML: {
       ...context().exportToXML,
       configurationIndex: createConfigurationIndexExportRuntime({
-        source: createConfigurationIndexReader(snapshot),
+        source: testConfigurationIndexReader(),
         collector: createConfigurationIndexCollector(),
         targetProjectPath: "Справочник/Товары/Свойства.yaml",
         logicalAddress: currentLogicalAddress,
@@ -616,6 +579,75 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
+  it("применяет предметно обязательный XML-default к заимствованному объекту", () => {
+    const property = {
+      type: "string",
+      yaml: "Режим",
+      xml: "Mode",
+      defaultValue: "default",
+      defaultValueXML: "xml-default",
+      toXML: () => true,
+    } as const
+
+    const adopted = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted"),
+      yaml: {},
+      rule: testRule({ value: property }),
+      outputs: [{ key: "owner" }],
+    })
+    const full = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("full"),
+      yaml: {},
+      rule: testRule({ value: property }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(adopted.outputs.get("owner")).toEqual({ Mode: "xml-default" })
+    expect(full.outputs.get("owner")).toEqual({ Mode: "xml-default" })
+  })
+
+  it("вычисляет предметно обязательный default внутри разреженного заимствованного объекта", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted"),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Режим",
+          xml: "Mode",
+          defaultValue: "default",
+          defaultValueAdoptedXML: "adopted-xml",
+          toXML: () => true,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+      sparseYAML: true,
+      omitDefaultsForSparseYAML: true,
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Mode: "adopted-xml" })
+  })
+
+  it("не применяет XML-default к заимствованному объекту при ложном предметном условии", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted"),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Режим",
+          xml: "Mode",
+          defaultValue: "default",
+          defaultValueXML: "xml-default",
+          toXML: () => false,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
   it("восстанавливает XML-default индексного варианта без состояния XML в снимке", () => {
     const property = {
       type: "string",
@@ -706,125 +738,6 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: 9 })
   })
 
-  it("восстанавливает сохранённое скалярное значение вместо неоднозначного XML-default", () => {
-    const testContext = contextWithXMLDefaultVariant(
-      "indexed",
-      ["value"],
-      false,
-      DEFAULT_TEST_LOGICAL_ADDRESS,
-      [{ logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.value`, xmlText: "30" }]
-    )
-    const result = convertPropertiesFromYAMLToXML({
-      context: testContext,
-      yaml: {},
-      rule: testRule({
-        value: {
-          type: "number",
-          yaml: "Значение",
-          xml: "Value",
-          defaultValueXML: 25,
-          implicitValueYAML: 30,
-        },
-      }),
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Value: 30 })
-    expect(
-      testContext.exportToXML.configurationIndex!.collector.fragment("Свойства.yaml")
-        .entities
-    ).toContainEqual({
-      logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.value`,
-      sourceProjectPath: "Свойства.yaml",
-      xml: { present: true, xmlText: "30" },
-    })
-  })
-
-  it("восстанавливает XML-state YAML-path свойства без reference XML", () => {
-    const xmlStates = [
-      {
-        logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.NilЗначение`,
-        xsiNil: true as const,
-      },
-      {
-        logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.ТипизированноеЗначение`,
-        xsiType: "xs:string",
-        xmlText: "значение",
-        xmlPrefix: "xs",
-      },
-      {
-        logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.ПустоеЗначение`,
-        explicitEmpty: true as const,
-      },
-      {
-        logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.РасширенноеЗначение`,
-        extended: true as const,
-      },
-    ]
-    const testContext = contextWithXMLDefaultVariant(
-      "indexed",
-      [],
-      false,
-      DEFAULT_TEST_LOGICAL_ADDRESS,
-      xmlStates
-    )
-    const yamlPathRule = (yaml: string, xml: string): PropertyRule => ({
-      type: "string",
-      yaml,
-      xml,
-      configurationIndexAddressing: "yamlPath",
-    })
-
-    const result = convertPropertiesFromYAMLToXML({
-      context: testContext,
-      yaml: {},
-      rule: testRule({
-        nilValue: yamlPathRule("NilЗначение", "NilValue"),
-        typedValue: yamlPathRule("ТипизированноеЗначение", "TypedValue"),
-        emptyValue: yamlPathRule("ПустоеЗначение", "EmptyValue"),
-        extendedValue: yamlPathRule("РасширенноеЗначение", "ExtendedValue"),
-      }),
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({
-      NilValue: { "_xsi:nil": true },
-      TypedValue: {
-        "_xsi:type": "xs:string",
-        _xmlns: "xs",
-        "#text": "значение",
-      },
-      EmptyValue: {},
-    })
-    const targetEntities =
-      testContext.exportToXML.configurationIndex!.collector.fragment("Свойства.yaml").entities
-    expect(targetEntities).toHaveLength(4)
-    expect(targetEntities).toEqual(
-      expect.arrayContaining([
-        {
-          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.NilЗначение`,
-          sourceProjectPath: "Свойства.yaml",
-          xml: { xsiNil: true },
-        },
-        {
-          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.ТипизированноеЗначение`,
-          sourceProjectPath: "Свойства.yaml",
-          xml: { xsiType: "xs:string", xmlText: "значение", xmlPrefix: "xs" },
-        },
-        {
-          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.ПустоеЗначение`,
-          sourceProjectPath: "Свойства.yaml",
-          xml: { explicitEmpty: true },
-        },
-        {
-          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.РасширенноеЗначение`,
-          sourceProjectPath: "Свойства.yaml",
-          xml: { extended: true },
-        },
-      ])
-    )
-  })
-
   it.each([
     undefined,
     { xsiNil: true as const },
@@ -904,54 +817,6 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toMatchObject({ FillValue: expected })
-  })
-
-  it("восстанавливает присутствие пустого XML-default из снимка", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: contextWithXMLDefaultVariant("indexed", ["value"]),
-      yaml: {},
-      rule: testRule({
-        value: {
-          type: "boolean",
-          yaml: "Значение",
-          xml: "Value",
-          defaultValueXMLEmpty: false,
-          implicitValueYAML: "Ложь",
-        },
-      }),
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Value: {} })
-  })
-
-  it("восстанавливает явно пустой I8nText без служебного items", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: contextWithXMLDefaultVariant(
-        "indexed",
-        ["value"],
-        false,
-        DEFAULT_TEST_LOGICAL_ADDRESS,
-        [{
-          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.value`,
-          explicitEmpty: true,
-        }]
-      ),
-      yaml: {},
-      rule: testRule({
-        value: {
-          type: "I8nText",
-          yaml: "Значение",
-          xml: "Value",
-          defaultValueXMLRaw: "",
-          defaultValueXMLEmpty: { items: {} },
-          defaultValue: { items: {} },
-        },
-      }),
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Value: {} })
   })
 
   it("восстанавливает исключённый из YAML синоним по rules без данных снимка", () => {
@@ -1077,26 +942,6 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({})
-  })
-
-  it("восстанавливает явно присутствовавшее значение заимствованного объекта", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: contextWithXMLDefaultVariant("adopted", ["value"]),
-      yaml: {},
-      rule: testRule({
-        value: {
-          type: "boolean",
-          yaml: "Значение",
-          xml: "Value",
-          defaultValue: false,
-          defaultValueXML: false,
-          implicitValueYAML: false,
-        },
-      }),
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Value: false })
   })
 
   it("наследует вариант XML-default во вложенном логическом адресе", () => {

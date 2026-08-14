@@ -17,11 +17,12 @@ describe("migration state частичной XML-синхронизации", ()
   it("считает отсутствие component-local state пустым и не пишет кандидат при оценке", async () => {
     const { projectDir, componentDir } = project()
     const migrationName = "2026-06-30-120000.yaml"
-    fs.mkdirSync(join(componentDir, "Миграции"), { recursive: true })
-    fs.writeFileSync(join(componentDir, "Миграции", migrationName), '"Справочник.Старое": Новое\n')
+    writeMigration(componentDir, migrationName, "Справочник.Старое", "Новое")
 
     expect(await readPartialXmlSyncAppliedMigrations(projectDir, "cf")).toEqual([])
-    const result = await evaluatePartialXmlSyncMigrationState({ projectDir, componentPath: "cf", componentDir })
+    const result = await evaluatePartialXmlSyncMigrationState({
+      projectDir, componentPath: "cf", componentDir, hasFileChanges: true,
+    })
 
     expect(result.pending.map(({ fileName }) => fileName)).toEqual([migrationName])
     expect(result.candidateAppliedNames).toEqual([migrationName])
@@ -32,12 +33,13 @@ describe("migration state частичной XML-синхронизации", ()
     const { projectDir, componentDir } = project()
     const applied = "2026-06-30-120000.yaml"
     const pending = "2026-06-30-120001.yaml"
-    fs.mkdirSync(join(componentDir, "Миграции"), { recursive: true })
-    fs.writeFileSync(join(componentDir, "Миграции", applied), '"Справочник.Старое": Текущее\n')
-    fs.writeFileSync(join(componentDir, "Миграции", pending), '"Справочник.Текущее": Новое\n')
+    writeMigration(componentDir, applied, "Справочник.Старое", "Текущее")
+    writeMigration(componentDir, pending, "Справочник.Текущее", "Новое")
     await publishPartialXmlSyncAppliedMigrations({ projectDir, componentPath: "cf", applied: [applied] })
 
-    const result = await evaluatePartialXmlSyncMigrationState({ projectDir, componentPath: "cf", componentDir })
+    const result = await evaluatePartialXmlSyncMigrationState({
+      projectDir, componentPath: "cf", componentDir, hasFileChanges: true,
+    })
     expect(result.pending.map(({ fileName }) => fileName)).toEqual([pending])
     expect(result.referencePathByCurrentPath.get("Справочник.Новое")).toBe("Справочник.Текущее")
     expect(await readPartialXmlSyncAppliedMigrations(projectDir, "cf")).toEqual([applied])
@@ -50,11 +52,29 @@ describe("migration state частичной XML-синхронизации", ()
     expect(await readPartialXmlSyncAppliedMigrations(projectDir, "cf")).toEqual([applied, pending])
   })
 
+  it("отклоняет неприменённую migration без файловой дельты", async () => {
+    const { projectDir, componentDir } = project()
+    const migrationName = "2026-06-30-120000.yaml"
+    writeMigration(componentDir, migrationName, "Справочник.Старое", "Новое")
+
+    await expect(evaluatePartialXmlSyncMigrationState({
+      projectDir,
+      componentPath: "cf",
+      componentDir,
+      hasFileChanges: false,
+    })).rejects.toThrow(/migration.*файловой дельты/i)
+  })
+
   function project(): { projectDir: string; componentDir: string } {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-partial-migrations-"))
     tempDirs.push(projectDir)
     const componentDir = join(projectDir, "cf")
     fs.mkdirSync(componentDir)
     return { projectDir, componentDir }
+  }
+
+  function writeMigration(componentDir: string, name: string, path: string, value: string): void {
+    fs.mkdirSync(join(componentDir, "Миграции"), { recursive: true })
+    fs.writeFileSync(join(componentDir, "Миграции", name), `"${path}": ${value}\n`)
   }
 })

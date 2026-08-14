@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest"
 
 import { testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
+import { mockContextFromXML } from "../../../tests/mockContext"
 import { MetadataTaskAddressingAttributeRules } from "./rules"
 
 describe("MetadataTaskAddressingAttribute XML → YAML", () => {
+  it("uses a dedicated item type for PropertyState capabilities", () => {
+    expect(MetadataTaskAddressingAttributeRules.itemType).toBe("MetadataTaskAddressingAttribute")
+  })
+
   it("does not expose fields that are not valid for task addressing attributes", () => {
     expect(MetadataTaskAddressingAttributeRules.properties).not.toHaveProperty("use")
     expect(MetadataTaskAddressingAttributeRules.properties).not.toHaveProperty("binaryDataStorageLocationUse")
@@ -27,7 +32,42 @@ describe("MetadataTaskAddressingAttribute XML → YAML", () => {
 
     expect(result).toMatchObject({
       Тип: "Строка",
-      ИзмерениеАдресации: "InformationRegister.Адресация.Dimension.Исполнитель",
+      ИзмерениеАдресации: "РегистрСведений.Адресация.Измерение.Исполнитель",
     })
+  })
+
+  it("импортирует очищенное измерение адресации как null", () => {
+    const baseContext = mockContextFromXML()
+    const context = {
+      ...baseContext,
+      fromXML: { ...baseContext.fromXML, propertyStateCompatibilityMode: "Version8_3_27" },
+    }
+    const result = testMetadataItemFromXMLToYAML({
+      rule: MetadataTaskAddressingAttributeRules,
+      context,
+      xml: {
+        Properties: {
+          Name: "РеквизитАдресации",
+          Type: { "v8:Type": "xs:string" },
+          AddressingDimension: undefined,
+        },
+      },
+    }).yaml
+
+    expect(result).toHaveProperty("ИзмерениеАдресации", null)
+  })
+
+  it("не добавляет отсутствующее измерение адресации", () => {
+    const result = testMetadataItemFromXMLToYAML({
+      rule: MetadataTaskAddressingAttributeRules,
+      xml: {
+        Properties: {
+          Name: "РеквизитАдресации",
+          Type: { "v8:Type": "xs:string" },
+        },
+      },
+    }).yaml
+
+    expect(result).not.toHaveProperty("ИзмерениеАдресации")
   })
 })

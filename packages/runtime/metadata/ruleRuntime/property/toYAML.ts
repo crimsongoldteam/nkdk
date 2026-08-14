@@ -112,17 +112,27 @@ export const getExportToYAMLResult = (
   }
 
   if (
+    rule.preserveExplicitDefaultXML !== true &&
     rule.omitImplicitValueYAMLBySource === true &&
     "implicitValueYAML" in rule &&
     sourceValue === (rule as any).implicitValueYAML
   ) {
     return undefined
   }
-  if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
+  if (
+    rule.preserveExplicitDefaultXML !== true &&
+    "implicitValueYAML" in rule &&
+    value === (rule as any).implicitValueYAML
+  ) return undefined
 
+  const preservesPresence = (execution === undefined
+    ? getTypeRule(rule.type, "xmlImportPropertyBehavior")
+    : execution.getTypeRule(rule.type, "xmlImportPropertyBehavior"))
+    ?.presenceAffectsExport === true
   if (
     Array.isArray(value) &&
     value.length === 0 &&
+    !preservesPresence &&
     !(
       rule.yamlInline === true &&
       Array.isArray(rule.defaultValue) &&
@@ -132,10 +142,6 @@ export const getExportToYAMLResult = (
   )
     return undefined
 
-  const preservesPresence = (execution === undefined
-    ? getTypeRule(rule.type, "xmlImportPropertyBehavior")
-    : execution.getTypeRule(rule.type, "xmlImportPropertyBehavior"))
-    ?.presenceAffectsExport === true
   if (
     value &&
     typeof value === "object" &&

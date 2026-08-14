@@ -11,5 +11,7 @@ export const exportStringToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchem
 export const metadataPropertyRule000 = definePropertyTypeRule("string", "exportToJSONSchema", exportStringToJSONSchema)
 export const metadataPropertyRule001 = definePropertyTypeRule("string", "validationSchemaRef", ({ rule }) => {
   if (rule.metadataTarget !== undefined) return undefined
-  return rule.implicitValueYAML === "" ? "string/without-empty" : "string/base"
+  return rule.preserveExplicitDefaultXML !== true && rule.implicitValueYAML === ""
+    ? "string/without-empty"
+    : "string/base"
 })

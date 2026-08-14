@@ -1,13 +1,15 @@
-import { createConfigurationIndexReader } from "../../configurationIndex"
 import type { ProjectStateReadToken } from "../../projectState"
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure, ConfirmedComponentState } from "./types"
-import type { SharedConfigurationIndexSnapshot } from "../../configurationIndex"
+import type { ConfigurationIndexStoreDescriptor } from "../../configurationIndex"
 
 export function confirmComponentState(params: {
   readonly structure: ComponentProjectStructure
   readonly hashes: ComponentHashState
   readonly indexes: ComponentIndexes
-  readonly snapshot: SharedConfigurationIndexSnapshot
+  readonly snapshot: {
+    readonly descriptor: ConfigurationIndexStoreDescriptor
+    readonly projectFiles: readonly { readonly projectPath: string; readonly contentHash: bigint }[]
+  }
   readonly projectStateReadToken: ProjectStateReadToken
 }): ConfirmedComponentState {
   if (
@@ -24,9 +26,6 @@ export function confirmComponentState(params: {
     !equalProjectFiles(params.hashes.projectFiles, params.indexes.sourceProjectFiles)
   ) {
     throw new Error("индексы относятся к другому состоянию файлов")
-  }
-  if (createConfigurationIndexReader(params.snapshot).header().componentPath !== params.structure.componentPath) {
-    throw new Error("снимок относится к другому компоненту")
   }
   return Object.freeze({ ...params })
 }

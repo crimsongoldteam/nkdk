@@ -14,6 +14,7 @@ function dynamicListTableProperty<const Rule extends CompactScalarRule>(rule: Ru
   return {
     ...rule,
     defaultValueXML: rule.implicitValueYAML,
+    defaultValueAdoptedXML: rule.implicitValueYAML,
     toXML: isDirectDynamicListTable,
     description:
       `Доступно только для таблицы, чей ПутьКДанным напрямую указывает на реквизит DynamicList. Неявное значение — ${implicitLabel}.`,

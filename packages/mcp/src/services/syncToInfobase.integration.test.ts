@@ -4,11 +4,17 @@ import { join } from "node:path"
 import { BlobReader, TextWriter, ZipReader } from "@zip.js/zip.js"
 import {
   createMetadataRuntime,
-  decodeConfigurationIndex,
   hashFileBytes,
-  writeConfigurationIndex,
+  parseComponentPath,
+  type ConfigurationIndexBlockEntity,
+  type ConfigurationProjectFile,
   type MetadataRuntime,
 } from "@nkdk/runtime"
+import {
+  configurationIndexStoreDescriptor,
+  createConfigurationIndexCandidateStore,
+  openConfigurationIndexStore,
+} from "@nkdk/runtime/configuration-index-store"
 import { metadataRules } from "@nkdk/rules"
 import { PlatformSessionError, recordPartialSyncDeliveryPhase } from "@nkdk/platform"
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
@@ -47,13 +53,13 @@ describe("полный цикл частичной синхронизации б
     const first = await syncToInfobase(input(fixture.projectDir), fixture.dependencies)
     const second = await syncToInfobase(input(fixture.projectDir), fixture.dependencies)
 
-    expect(first).toMatchObject({ ok: true, status: "synchronized", finalizeStatus: "published" })
+    expect(first, JSON.stringify(first)).toMatchObject({ ok: true, status: "synchronized", finalizeStatus: "published" })
     expect(second).toMatchObject({ ok: true, status: "unchanged" })
     expect(fixture.platformCalls).toBe(1)
     expect(fixture.deliveryDuringLoad).toBe("transferring")
     expect(fixture.zipEntries).toEqual(expect.arrayContaining(["Catalogs/Test.xml", "load.lst"]))
     expect(fixture.loadList).toBe("Catalogs/Test.xml\n")
-    expect(await publishedGeneration(fixture.projectDir)).toBe(2n)
+    expect(await publishedHash(fixture.projectDir)).toBe(hashFileBytes(Buffer.from("Синоним: Изменённый\n")))
     expect(await fixture.runtime.sync.partial.readPending(
       fixture.projectDir,
       fixture.componentPath,
@@ -70,7 +76,7 @@ describe("полный цикл частичной синхронизации б
     expect(first).toMatchObject({ ok: false, code: "core_error" })
     expect(second).toMatchObject({ ok: true, status: "synchronized", finalizeStatus: "published" })
     expect(fixture.platformCalls).toBe(1)
-    expect(await publishedGeneration(fixture.projectDir)).toBe(2n)
+    expect(await publishedHash(fixture.projectDir)).toBe(hashFileBytes(Buffer.from("Синоним: Изменённый\n")))
   }, 30_000)
 
   it("после подтверждённого отказа сохраняет журнал и готовит пакет заново", async () => {
@@ -131,7 +137,9 @@ describe("полный цикл частичной синхронизации б
       componentPath: "cfe/Расширение",
     })
     expect(fixture.extensionName).toBe("Расширение")
-    expect(await publishedGeneration(fixture.projectDir, fixture.componentPath)).toBe(2n)
+    expect(await publishedHash(fixture.projectDir, fixture.componentPath)).toBe(
+      hashFileBytes(Buffer.from("Синоним: Изменённый\n")),
+    )
   }, 30_000)
 
   async function createFixture(options: {
@@ -163,35 +171,24 @@ describe("полный цикл частичной синхронизации б
       fs.mkdirSync(join(languagePath, ".."), { recursive: true })
       fs.writeFileSync(join(projectDir, "cf", "Конфигурация.yaml"), baseRootYaml)
       fs.writeFileSync(languagePath, languageYaml)
-      await writeConfigurationIndex({
+      await writeIndex({
         projectDir,
-        address: { kind: "configuration" },
-        data: {
-          specificationVersion: "1.4",
-          indexGeneration: 1n,
-          componentPath: "cf",
-          files: [
+        componentPath: "cf",
+        files: [
             { projectPath: "Конфигурация.yaml", contentHash: hashFileBytes(Buffer.from(baseRootYaml)) },
             { projectPath: "Язык/Русский.yaml", contentHash: hashFileBytes(Buffer.from(languageYaml)) },
-          ],
-          entities: [{
-            logicalAddress: "Язык.Русский",
-            sourceProjectPath: "Язык/Русский.yaml",
-            identities: { uuid: "00000000-0000-4000-8000-000000000002", xmlName: "Русский" },
-          }],
-        },
+        ],
+        blockPath: "Конфигурация.yaml",
+        entities: [{
+          logicalAddress: "Конфигурация",
+          uuid: "00000000-0000-4000-8000-000000000002",
+        }],
       })
     }
-    await writeConfigurationIndex({
+    await writeIndex({
       projectDir,
-      address: componentPath === "cf"
-        ? { kind: "configuration" }
-        : { kind: "configurationExtension", name: componentPath.slice("cfe/".length) },
-      data: {
-        specificationVersion: "1.4",
-        indexGeneration: 1n,
-        componentPath,
-        files: [
+      componentPath,
+      files: [
           ...(componentPath === "cf" ? [] : [{
             projectPath: "Конфигурация.yaml",
             contentHash: hashFileBytes(Buffer.from(rootYaml)),
@@ -201,15 +198,11 @@ describe("полный цикл частичной синхронизации б
           contentHash: hashFileBytes(Buffer.from(initialYaml)),
           },
         ],
-        entities: [{
+      blockPath: "Справочник/Test/Свойства.yaml",
+      entities: [{
           logicalAddress: "Справочник.Test",
-          sourceProjectPath: "Справочник/Test/Свойства.yaml",
-          identities: {
-            uuid: "00000000-0000-4000-8000-000000000001",
-            xmlName: "Test",
-          },
+          uuid: "00000000-0000-4000-8000-000000000001",
         }],
-      },
     })
     fs.writeFileSync(catalogPath, "Синоним: Изменённый\n")
 
@@ -251,6 +244,7 @@ describe("полный цикл частичной синхронизации б
         markPartialSyncTransferring: runtime.sync.partial.markTransferring,
         markPartialSyncPreparedAfterRejection: runtime.sync.partial.markPreparedAfterRejection,
         markPartialSyncApplied: runtime.sync.partial.markApplied,
+        forceClearPendingSync: runtime.sync.partial.forceClear,
         async finalizePartialSync(params) {
           if (failFinalize) {
             failFinalize = false
@@ -320,9 +314,37 @@ function input(projectDir: string) {
   return { projectDir, allowWrite: true as const }
 }
 
-async function publishedGeneration(projectDir: string, componentPath = "cf"): Promise<bigint> {
-  const bytes = await fs.promises.readFile(join(
-    projectDir, ".nkdk", "components", ...componentPath.split("/"), "configuration-index.bin",
-  ))
-  return decodeConfigurationIndex(bytes, { expectedComponentPath: componentPath }).indexGeneration
+async function publishedHash(projectDir: string, componentPath = "cf"): Promise<bigint | undefined> {
+  const store = openConfigurationIndexStore(
+    configurationIndexStoreDescriptor(projectDir, parseComponentPath(componentPath)),
+    "readOnly",
+  )
+  try {
+    return store.readHashes().find(({ projectPath }) => projectPath === "Справочник/Test/Свойства.yaml")?.contentHash
+  } finally {
+    await store.close()
+  }
+}
+
+async function writeIndex(params: {
+  readonly projectDir: string
+  readonly componentPath: string
+  readonly files: readonly ConfigurationProjectFile[]
+  readonly blockPath: string
+  readonly entities: readonly ConfigurationIndexBlockEntity[]
+}): Promise<void> {
+  const address = parseComponentPath(params.componentPath)
+  const candidate = await createConfigurationIndexCandidateStore({
+    projectDir: params.projectDir,
+    address,
+    operationId: `test-${Math.random()}`,
+    purpose: "import",
+  })
+  candidate.replaceHashes(params.files)
+  candidate.mergeBlockFragment({ targetProjectPath: params.blockPath, entities: params.entities })
+  const active = openConfigurationIndexStore(
+    configurationIndexStoreDescriptor(params.projectDir, address),
+    "readWrite",
+  )
+  await active.publishImportedCandidate(candidate)
 }

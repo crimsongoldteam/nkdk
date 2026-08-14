@@ -50,6 +50,7 @@ export const MetadataCommandGroupRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     representation: systemEnumerationRule({
       yaml: "Представление",
@@ -78,6 +79,7 @@ export const MetadataCommandGroupRules = {
       typeSE: "CommandGroupCategory",
       xmlParents: properties,
       defaultValueXML: "NavigationPanel",
+      defaultValueAdoptedXML: "NavigationPanel",
       implicitValueYAML: "NavigationPanel",
     }),
     objectBelonging: systemEnumerationRule({

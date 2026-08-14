@@ -121,6 +121,7 @@ export function attributePresentationFragment(params: {
         type: "string",
         xmlParents: propertiesParents,
         defaultValueXMLRaw: "",
+        defaultValueAdoptedXML: "",
       },
       type: {
         yaml: "Тип",

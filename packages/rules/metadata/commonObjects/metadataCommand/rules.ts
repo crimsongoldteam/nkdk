@@ -46,6 +46,7 @@ export const MetadataCommandRules = {
       xml: "Comment",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     group: metadataCommandGroupRule({
       yaml: "Группа",

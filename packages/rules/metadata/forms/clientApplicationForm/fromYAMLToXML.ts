@@ -1,4 +1,4 @@
-import type { ConfigurationIndexReader } from "@nkdk/runtime"
+import type { LocalConfigurationIndexReader } from "@nkdk/runtime"
 import "../../commonObjects"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
@@ -44,12 +44,13 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
                 }
               : {}),
             baseYaml: baseFormYAML as ClientApplicationFormYAML,
-            ...(selectedBase?.baseFormSourceKind === "projected"
-              ? {
+            ...(selectedBase === undefined
+              ? {}
+              : {
                   currentConfigurationFormYaml:
                     selectedBase.currentConfigurationFormYAML as ClientApplicationFormYAML,
                 }
-              : {}),
+            ),
             formName: name,
             rule,
           })
@@ -87,8 +88,8 @@ function selectedBaseYAMLInput(value: unknown): SelectedBaseYAMLInput | undefine
 }
 
 function requireBaseConfigurationIndex(
-  baseConfigurationIndex: ConfigurationIndexReader | undefined
-): ConfigurationIndexReader {
+  baseConfigurationIndex: LocalConfigurationIndexReader | undefined
+): LocalConfigurationIndexReader {
   if (baseConfigurationIndex !== undefined) return baseConfigurationIndex
   throw new Error("Для построения BaseForm не передан индекс основной конфигурации")
 }

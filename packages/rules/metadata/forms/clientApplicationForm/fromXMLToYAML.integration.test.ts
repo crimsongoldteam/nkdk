@@ -6,7 +6,7 @@ import { xmlExport } from "@nkdk/runtime"
 import { importContentFromXML } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import type { ConfigurationSnapshotEntity } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from "./__fixtures__/data"
 import {
   importClientApplicationFormBodyFromXML,
@@ -508,8 +508,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 
     expect(collector.fragment("Форма.yaml").entities).toEqual([{
       logicalAddress,
-      sourceProjectPath: "Форма.yaml",
-      identities: { uuid: "00000000-0000-4000-8000-000000000001" },
+      uuid: "00000000-0000-4000-8000-000000000001",
     }])
   })
 
@@ -558,15 +557,43 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       expect.objectContaining({ logicalAddress: `${logicalAddress}.form` })
     )
   })
+
+  it("сохраняет пустое расширенное представление заимствованной формы", () => {
+    const baseContext = mockXmlImportContext()
+    const collector = createConfigurationIndexCollector()
+    const extensionContext = {
+      ...baseContext,
+      fromXML: { ...baseContext.fromXML, metadataItemAugmenter: "configurationExtension" },
+    }
+    const context = withConfigurationIndexCollector(extensionContext, collector, "ОбщаяФорма.Форма")
+    const result = importClientApplicationFormFromXMLToYAML({
+      context,
+      formName: "Форма",
+      formXML: {},
+      metadataXML: {
+        Form: {
+          Properties: {
+            ObjectBelonging: "Adopted",
+            Name: "Форма",
+            FormType: "Managed",
+            ExtendedPresentation: "",
+          },
+        },
+      },
+      rule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+
+    expect(result.yaml).toMatchObject({ РасширенноеПредставление: "" })
+  })
 })
 
-function identityFacts(entities: readonly ConfigurationSnapshotEntity[]) {
+function identityFacts(entities: readonly ConfigurationIndexBlockEntity[]) {
   return entities.flatMap((entity) =>
-    Object.entries(entity.identities ?? {}).map(([kind, value]) => ({
+    (["uuid", "xmlId"] as const).flatMap((kind) => entity[kind] === undefined ? [] : [{
       logicalAddress: entity.logicalAddress,
       kind,
-      value,
-    }))
+      value: entity[kind],
+    }])
   )
 }
 

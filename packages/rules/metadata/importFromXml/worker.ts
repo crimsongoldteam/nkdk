@@ -4,7 +4,7 @@ import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import { hashFileBytes } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "@nkdk/runtime"
-import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import { withExportMetadataTargetOwners } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
 import { finalizeImportedYamlValues } from "../ruleRuntime/property/finalizeImportedYAML"
 import {
@@ -162,7 +162,7 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
 interface FirstPassAccumulator {
   readonly diagnostics: ImportDiagnostic[]
   readonly files: ImportResultFile[]
-  readonly configurationFragments: ConfigurationSnapshotFragment[]
+  readonly configurationFragments: ConfigurationIndexBlockFragment[]
   readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
   readonly profiler: ValidationProfiler
   stateEntries: number
@@ -172,7 +172,7 @@ interface SecondPassAccumulator {
   readonly diagnostics: ImportDiagnostic[]
   readonly warnings: ImportDiagnostic[]
   readonly files: ImportResultFile[]
-  readonly configurationFragments: ConfigurationSnapshotFragment[]
+  readonly configurationFragments: ConfigurationIndexBlockFragment[]
   readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
   readonly profiler: ValidationProfiler
   stateEntries: number
@@ -402,7 +402,7 @@ async function writePreparedYamlToOutput(
   files: ImportResultFile[]
   indexContributions: ProjectStateImportIndexContribution[]
   finalStates: ProjectStateImportFinalFileStateBatch[]
-  configurationFragments: ConfigurationSnapshotFragment[]
+  configurationFragments: ConfigurationIndexBlockFragment[]
 }> {
   const contextWithOwners = profiler.measure(
     "Подготовка импорта конфигурации",
@@ -524,16 +524,12 @@ async function writePreparedYamlToOutput(
 }
 
 function retargetConfigurationFragment(
-  fragment: ConfigurationSnapshotFragment,
+  fragment: ConfigurationIndexBlockFragment,
   targetProjectPath: string,
-): ConfigurationSnapshotFragment {
+): ConfigurationIndexBlockFragment {
   return {
     ...fragment,
     targetProjectPath,
-    entities: fragment.entities.map((entity) => ({
-      ...entity,
-      sourceProjectPath: targetProjectPath,
-    })),
   }
 }
 
@@ -578,7 +574,7 @@ async function writePreparedBaseFormCandidate(params: {
   file: ImportResultFile
   indexContribution: ProjectStateImportIndexContribution
   finalState: ProjectStateImportFinalFileStateBatch
-  configurationFragment: ConfigurationSnapshotFragment
+  configurationFragment: ConfigurationIndexBlockFragment
 } | undefined> {
   const serialized = serializePreparedYaml(
     params.candidate.targetProjectPath,

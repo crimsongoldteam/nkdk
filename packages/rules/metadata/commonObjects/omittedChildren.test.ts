@@ -1,58 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { mergeOmittedNames, readOmittedNames, readOmittedTypedNames } from "./omittedChildren"
+import {
+  canonicalNamedChildren,
+  childrenToPersist,
+  mergeSavedChildren,
+} from "./omittedChildren"
 
-describe("mergeOmittedNames", () => {
-  it("сохраняет порядок существующих имён и добавляет новые в текущем порядке", () => {
-    expect(
-      mergeOmittedNames(["Новая", "Б", "А"], {
-        kind: "names",
-        names: ["А", "Удалена", "Б"],
-      })
-    ).toEqual(["А", "Б", "Новая"])
+describe("configuration index children", () => {
+  it.each(["Form", "Template", "Table", "Cube", "DimensionTable"])(
+    "builds canonical UTF-8 order for %s",
+    (xmlName) => {
+      expect(canonicalNamedChildren(xmlName, ["Я", "A", "А"])).toEqual([
+        { xmlName, name: "A" },
+        { xmlName, name: "А" },
+        { xmlName, name: "Я" },
+      ])
+    },
+  )
+
+  it("omits canonical order and preserves a complete noncanonical order", () => {
+    const canonical = canonicalNamedChildren("Form", ["А", "Б"])
+    expect(childrenToPersist(canonical, canonical)).toBeUndefined()
+    expect(childrenToPersist([...canonical].reverse(), canonical)).toEqual([...canonical].reverse())
   })
 
-  it("возвращает текущий порядок без сохранённого списка", () => {
-    expect(mergeOmittedNames(["Б", "А"], undefined)).toEqual(["Б", "А"])
+  it("removes absent children and appends new children in canonical order", () => {
+    const current = canonicalNamedChildren("Form", ["НоваяБ", "Б", "НоваяА"])
+    const saved = canonicalNamedChildren("Form", ["А", "Удалена", "Б"])
+    expect(mergeSavedChildren(current, saved, current)).toEqual([
+      { xmlName: "Form", name: "Б" },
+      { xmlName: "Form", name: "НоваяА" },
+      { xmlName: "Form", name: "НоваяБ" },
+    ])
   })
 
-  it("отклоняет дубли в текущем списке", () => {
-    expect(() => mergeOmittedNames(["А", "А"], undefined)).toThrow("Дублирующееся имя А")
+  it("uses canonical order when saved children are absent", () => {
+    const canonical = canonicalNamedChildren("Template", ["Б", "А"])
+    expect(mergeSavedChildren([...canonical].reverse(), undefined, canonical)).toEqual(canonical)
   })
 
-  it("отклоняет дубли в сохранённом списке", () => {
-    expect(() =>
-      mergeOmittedNames(["А"], {
-        kind: "names",
-        names: ["А", "А"],
-      })
-    ).toThrow("Дублирующееся имя А")
-  })
-})
-
-describe("readOmittedNames", () => {
-  it("читает names и пропускает отсутствие значения", () => {
-    expect(readOmittedNames({ kind: "names", names: ["Форма"] }, "ChildFormNames")).toEqual(["Форма"])
-    expect(readOmittedNames(undefined, "ChildFormNames")).toBeUndefined()
-  })
-
-  it("отклоняет typedNames", () => {
-    expect(() => readOmittedNames({ kind: "typedNames", items: [] }, "ChildFormNames")).toThrow(
-      "ChildFormNames ожидает omittedChildren.kind = names"
-    )
-  })
-})
-
-describe("readOmittedTypedNames", () => {
-  it("читает typedNames и пропускает отсутствие значения", () => {
-    const items = [{ xmlName: "Catalog", name: "Товары" }]
-
-    expect(readOmittedTypedNames({ kind: "typedNames", items }, "ConfigurationChildObjects")).toEqual(items)
-    expect(readOmittedTypedNames(undefined, "ConfigurationChildObjects")).toBeUndefined()
-  })
-
-  it("отклоняет names", () => {
-    expect(() => readOmittedTypedNames({ kind: "names", names: [] }, "ConfigurationChildObjects")).toThrow(
-      "ConfigurationChildObjects ожидает omittedChildren.kind = typedNames"
-    )
+  it("rejects duplicate pairs", () => {
+    expect(() => canonicalNamedChildren("Form", ["А", "А"])).toThrow("Дублирующийся")
   })
 })

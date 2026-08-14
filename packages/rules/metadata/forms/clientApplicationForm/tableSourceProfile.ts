@@ -27,9 +27,13 @@ export function classifyTableSource(params: {
   if (typeof params.dataPath !== "string" || params.dataPath.trim().length === 0) return "rowFilter"
   const resolved = params.resolve?.(params.dataPath)
   if (resolved === undefined) return classifyDirectRoot(params.dataPath, params.index)
-  if (resolved.status === "error") return "rowFilter"
+  if (resolved.status === "error") {
+    const direct = classifyDirectRoot(params.dataPath, params.index)
+    return direct === "none" ? "rowFilter" : direct
+  }
   const target = resolved.target
-  if (target === undefined || target.typeInfo.isComposite === true || target.typeInfo.nextTypes.length > 1) return "none"
+  if (target === undefined) return classifyDirectRoot(params.dataPath, params.index)
+  if (target.typeInfo.isComposite === true || target.typeInfo.nextTypes.length > 1) return "none"
 
   const kind = target.typeInfo.table?.kind
   if (kind === "DynamicList" && target.source.kind === "formAttribute" && target.segments.length === 1) {

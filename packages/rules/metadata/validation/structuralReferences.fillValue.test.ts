@@ -96,6 +96,18 @@ describe("fill value structural references", () => {
 
     expect(result).toMatchObject({ ok: true, references: [] })
   })
+
+  it("не проверяет очищенную ссылку, отмеченную режимом PropertyState", () => {
+    const parsed = parseMetadataYaml("ОсновнаяФормаСписка: !изменять\n")
+
+    expect(collect(parsed)).toMatchObject({ ok: true, references: [] })
+  })
+
+  it("не проверяет естественное пустое значение plain-ссылки", () => {
+    const parsed = parseMetadataYaml('ОсновнаяФормаСписка: ""\n')
+
+    expect(collect(parsed)).toMatchObject({ ok: true, references: [] })
+  })
 })
 
 function collect(parsed: ReturnType<typeof parseMetadataYaml>) {

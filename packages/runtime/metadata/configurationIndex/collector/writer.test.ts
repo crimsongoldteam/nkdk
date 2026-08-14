@@ -3,91 +3,63 @@ import { createConfigurationIndexCollector, createDiscardingConfigurationIndexCo
 
 const UUID = "00000000-0000-4000-8000-000000000001"
 
-describe("configuration snapshot collector", () => {
-  it("собирает одну содержательную entity и назначает путь задания", () => {
+describe("configuration index collector", () => {
+  it("собирает только закрытый набор полей BlockV1", () => {
     const collector = createConfigurationIndexCollector()
     collector.setIdentity("Справочник.Товары", "uuid", UUID)
-    collector.setIdentity("Справочник.Товары", "xmlName", "")
-    collector.setXmlFlag("Справочник.Товары.Свойство.Тип", "xsiNil")
+    collector.setIdentity("Справочник.Товары", "xmlId", "1")
+    collector.setChildren("Справочник.Товары.Свойство.ДочерниеОбъекты", [
+      { xmlName: "Form", name: "ФормаЭлемента" },
+    ])
 
-    expect(collector.fragment("Справочники/Товары.yaml")).toEqual({
+    const fragment = collector.fragment("Справочники/Товары.yaml")
+    expect(fragment).toEqual({
       targetProjectPath: "Справочники/Товары.yaml",
       entities: [
+        { logicalAddress: "Справочник.Товары", uuid: UUID, xmlId: "1" },
         {
-          logicalAddress: "Справочник.Товары",
-          sourceProjectPath: "Справочники/Товары.yaml",
-          identities: { uuid: UUID, xmlName: "" },
-        },
-        {
-          logicalAddress: "Справочник.Товары.Свойство.Тип",
-          sourceProjectPath: "Справочники/Товары.yaml",
-          xml: { xsiNil: true },
+          logicalAddress: "Справочник.Товары.Свойство.ДочерниеОбъекты",
+          children: [{ xmlName: "Form", name: "ФормаЭлемента" }],
         },
       ],
     })
+    for (const entity of fragment.entities) {
+      expect(Object.keys(entity).sort()).toEqual(
+        ["children", "logicalAddress", "uuid", "xmlId"].filter((key) => key in entity).sort(),
+      )
+    }
   })
 
   it("не создаёт entity только из logicalAddress и пути", () => {
     expect(createConfigurationIndexCollector().fragment("Конфигурация.yaml").entities).toEqual([])
   })
 
-  it("отклоняет разные значения одного поля", () => {
-    const collector = createConfigurationIndexCollector()
-    collector.setIdentity("Справочник.Товары", "xmlId", "one")
-
-    expect(() => collector.setIdentity("Справочник.Товары", "xmlId", "two")).toThrow(
-      "Конфликт logicalAddress Справочник.Товары"
-    )
-  })
-
-  it("объединяет одинаковые наблюдения и отклоняет конфликт каждого поля", () => {
+  it("объединяет одинаковые наблюдения и отклоняет конфликт", () => {
     const collector = createConfigurationIndexCollector()
     const address = "Справочник.Товары"
-
     collector.setIdentity(address, "uuid", UUID)
     collector.setIdentity(address, "uuid", UUID)
     expect(() => collector.setIdentity(address, "uuid", "00000000-0000-4000-8000-000000000002")).toThrow(
-      "Конфликт logicalAddress"
+      "Конфликт logicalAddress",
     )
-
-    collector.setIdentity(address, "xmlId", "same")
-    collector.setIdentity(address, "xmlId", "same")
-    expect(() => collector.setIdentity(address, "xmlId", "other")).toThrow("Конфликт logicalAddress")
-
-    collector.setIdentity(address, "xmlName", "")
-    collector.setIdentity(address, "xmlName", "")
-    expect(() => collector.setIdentity(address, "xmlName", "other")).toThrow("Конфликт logicalAddress")
-
-    for (const field of ["extended", "xsiNil", "explicitEmpty"] as const) {
-      collector.setXmlFlag(address, field)
-      collector.setXmlFlag(address, field)
-    }
-    for (const field of ["xsiType", "xmlText", "xmlPrefix"] as const) {
-      collector.setXmlValue(address, field, "same")
-      collector.setXmlValue(address, field, "same")
-      expect(() => collector.setXmlValue(address, field, "other")).toThrow("Конфликт logicalAddress")
-    }
-
-    collector.setOmittedChildren(address, { kind: "names", names: ["Форма"] })
-    collector.setOmittedChildren(address, { kind: "names", names: ["Форма"] })
-    expect(() => collector.setOmittedChildren(address, { kind: "names", names: ["Макет"] })).toThrow(
-      "Конфликт logicalAddress"
+    collector.setChildren(address, [{ xmlName: "Form", name: "А" }])
+    collector.setChildren(address, [{ xmlName: "Form", name: "А" }])
+    expect(() => collector.setChildren(address, [{ xmlName: "Form", name: "Б" }])).toThrow(
+      "Конфликт logicalAddress",
     )
   })
 
-  it("проверяет обязательные идентификаторы и копирует omittedChildren", () => {
+  it("проверяет идентификаторы и копирует children", () => {
     const collector = createConfigurationIndexCollector()
     expect(() => collector.setIdentity("Объект", "uuid", "not-a-uuid")).toThrow("Некорректный UUID")
-    expect(() => collector.setIdentity("Объект", "uuid", "00000000-0000-0000-0000-000000000001")).not.toThrow()
     expect(() => collector.setIdentity("Объект", "xmlId", "")).toThrow("Пустой xmlId")
-    expect(() => collector.setOmittedChildren("Объект", { kind: "names", names: [] })).toThrow("Пустой список")
+    expect(() => collector.setChildren("Объект", [])).toThrow("Пустой список")
 
-    const omittedChildren = { kind: "typedNames" as const, items: [{ xmlName: "Attribute", name: "Код" }] }
-    collector.setOmittedChildren("Объект", omittedChildren)
-    omittedChildren.items[0]!.name = "Изменён"
-
+    const children = [{ xmlName: "Attribute", name: "Код" }]
+    collector.setChildren("Объект", children)
+    children[0]!.name = "Изменён"
     expect(collector.fragment("Объект.yaml").entities[0]).toMatchObject({
-      omittedChildren: { kind: "typedNames", items: [{ xmlName: "Attribute", name: "Код" }] },
+      children: [{ xmlName: "Attribute", name: "Код" }],
     })
   })
 
@@ -95,7 +67,7 @@ describe("configuration snapshot collector", () => {
     const collector = createDiscardingConfigurationIndexCollector()
     collector.setIdentity("Объект", "xmlId", "one")
     collector.setIdentity("Объект", "xmlId", "two")
-
+    collector.setChildren("Объект", [])
     expect(collector.fragment("ignored.yaml")).toEqual({ targetProjectPath: "ignored.yaml", entities: [] })
   })
 })

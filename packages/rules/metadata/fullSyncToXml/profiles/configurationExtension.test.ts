@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { snapshotConfigurationIndex } from "@nkdk/runtime"
-import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockEntity, ConfigurationProjectFile } from "@nkdk/runtime"
+import { createLocalConfigurationIndexReader } from "../../configurationIndex"
 import type { ConfirmedComponentState } from "../../project/componentState/types"
 import { createTestProjectStateReadToken } from "../../projectState/tests/readToken"
-import { configurationExtensionFullXmlSyncProfile } from "./configurationExtension"
-import { configurationFullXmlSyncProfile } from "./configuration"
+import {
+  configurationExtensionFullXmlSyncProfile,
+  confirmConfigurationExtensionFullXmlSync,
+} from "./configurationExtension"
+import { confirmConfigurationFullXmlSync } from "./configuration"
 import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../../resourceTopology/core/projectProjection"
+
+const blockEntitiesByStore = new Map<string, readonly ConfigurationIndexBlockEntity[]>()
 
 describe("configuration extension full XML sync profile", () => {
   it.each([
@@ -16,7 +20,7 @@ describe("configuration extension full XML sync profile", () => {
     [undefined, "AnyIBRef"],
   ] as const)("prepares the TypeDescription policy for %s", (mode, expected) => {
     const target = state({ componentPath: "cfe/Дополнение" })
-    const runtime = configurationExtensionFullXmlSyncProfile.confirm({
+    const runtime = confirmExtension({
       target,
       base: state({ componentPath: "cf" }),
     })
@@ -36,7 +40,7 @@ describe("configuration extension full XML sync profile", () => {
     })
 
     expect(() =>
-      configurationExtensionFullXmlSyncProfile.confirm({
+      confirmExtension({
         target: state({ componentPath: "cfe/Дополнение" }),
         base,
       })
@@ -60,7 +64,7 @@ describe("configuration extension full XML sync profile", () => {
       logicalAddresses: [adopted, withoutUuid, snapshotOnly],
     })
 
-    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+    const runtime = confirmExtension({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).toEqual({
       "Справочник.Товары": "11111111-1111-4111-8111-111111111111",
@@ -81,7 +85,7 @@ describe("configuration extension full XML sync profile", () => {
       logicalAddresses: adopted,
     })
 
-    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+    const runtime = confirmExtension({ target, base })
 
     expect(runtime.target).toBe(target)
     expect(runtime.base).toBe(base)
@@ -99,9 +103,31 @@ describe("configuration extension full XML sync profile", () => {
       componentDir: "/project/cf",
       projectFiles: base.hashes.projectFiles,
       targetProjectFiles: target.hashes.projectFiles,
-      snapshot: base.snapshot,
+      snapshot: base.snapshot.descriptor,
     })
     expect(Object.keys(runtime)).toEqual(["kind", "target", "base", "workerProfile"])
+  })
+
+  it("assigns an explicit default variant to borrowed and own target objects", () => {
+    const borrowed = "Catalog.Заимствованный"
+    const own = "Catalog.Собственный"
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: [borrowed],
+      entities: [uuidEntity(borrowed, "11111111-1111-4111-8111-111111111111")],
+    })
+    const target = state({
+      componentPath: "cfe/Дополнение",
+      logicalAddresses: [borrowed, own],
+    })
+
+    const runtime = confirmExtension({ target, base })
+
+    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toEqual({
+      Конфигурация: "adopted",
+      "Справочник.Заимствованный": "adopted",
+      "Справочник.Собственный": "full",
+    })
   })
 
   it.each([
@@ -146,7 +172,7 @@ describe("configuration extension full XML sync profile", () => {
       },
     }
 
-    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base: baseWithAddress })
+    const runtime = confirmExtension({ target, base: baseWithAddress })
 
     expect(runtime.borrowedForms).toEqual([{
       logicalAddress,
@@ -168,7 +194,7 @@ describe("configuration extension full XML sync profile", () => {
       entities: [uuidEntity(logicalAddress, "22222222-2222-4222-8222-222222222222")],
     })
 
-    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+    const runtime = confirmExtension({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty(logicalAddress)
   })
@@ -186,7 +212,7 @@ describe("configuration extension full XML sync profile", () => {
       logicalAddresses: [logicalAddress],
     })
 
-    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+    const runtime = confirmExtension({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).toEqual({
       [workerLogicalAddress]: "33333333-3333-4333-8333-333333333333",
@@ -231,13 +257,13 @@ describe("configuration extension full XML sync profile", () => {
       logicalAddresses: [canonical],
     })
 
-    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+    const runtime = confirmExtension({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).toEqual({ [workerLogicalAddress]: uuid })
     expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty(canonical)
   })
 
-  it("does not treat the extension root as an adopted base object", () => {
+  it("requires the base UUID for the extension root", () => {
     const base = state({
       componentPath: "cf",
       logicalAddresses: ["Конфигурация"],
@@ -248,12 +274,15 @@ describe("configuration extension full XML sync profile", () => {
       logicalAddresses: ["Конфигурация"],
     })
 
-    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+    const runtime = confirmExtension({ target, base })
 
-    expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty("Конфигурация")
+    expect(runtime.workerProfile.adoptedUuids).toHaveProperty(
+      "Конфигурация",
+      "11111111-1111-4111-8111-111111111111",
+    )
   })
 
-  it("uses the base UUID only when the extension root entity is extended", () => {
+  it("uses the base UUID for the extension root without snapshot XML flags", () => {
     const baseUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
     const base = state({
       componentPath: "cf",
@@ -263,16 +292,9 @@ describe("configuration extension full XML sync profile", () => {
     const target = state({
       componentPath: "cfe/Дополнение",
       logicalAddresses: ["Конфигурация"],
-      entities: [
-        {
-          logicalAddress: "Конфигурация",
-          sourceProjectPath: "Свойства.yaml",
-          xml: { extended: true },
-        },
-      ],
     })
 
-    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+    const runtime = confirmExtension({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).toHaveProperty("Конфигурация", baseUuid)
     expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toHaveProperty("Конфигурация", "adopted")
@@ -282,19 +304,17 @@ describe("configuration extension full XML sync profile", () => {
 describe("configuration full XML sync profile", () => {
   it("uses indexed defaults only below metadata items present in the snapshot", () => {
     const existing = "ПланВидовХарактеристик.ВидыСвойств"
-    const runtime = configurationFullXmlSyncProfile.confirm({
+    const runtime = confirmConfigurationFullXmlSync({
       target: state({
         componentPath: "cf",
         entities: [
           uuidEntity(existing, "11111111-1111-4111-8111-111111111111"),
           {
             logicalAddress: `${existing}.Характеристики[0].ПолеПутиКДанным`,
-            sourceProjectPath: "Свойства.yaml",
-            xml: { present: true },
           },
         ],
       }),
-    })
+    }, testIndexReader)
 
     expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toEqual({
       [existing]: "indexed",
@@ -304,19 +324,14 @@ describe("configuration full XML sync profile", () => {
 
 function state(params: {
   componentPath: string
-  projectFiles?: ConfigurationSnapshot["files"]
-  snapshotProjectFiles?: ConfigurationSnapshot["files"]
-  entities?: readonly ConfigurationSnapshotEntity[]
+  projectFiles?: readonly ConfigurationProjectFile[]
+  snapshotProjectFiles?: readonly ConfigurationProjectFile[]
+  entities?: readonly ConfigurationIndexBlockEntity[]
   logicalAddresses?: readonly string[]
 }): ConfirmedComponentState {
   const projectFiles = params.projectFiles ?? [{ projectPath: "Свойства.yaml", contentHash: 1n }]
-  const snapshot: ConfigurationSnapshot = {
-    specificationVersion: "1.4",
-    indexGeneration: 1n,
-    componentPath: params.componentPath,
-    files: params.snapshotProjectFiles ?? projectFiles,
-    entities: params.entities ?? [],
-  }
+  const dataPath = `/project/.nkdk/components/${params.componentPath}/configuration-index.lmdb`
+  blockEntitiesByStore.set(dataPath, params.entities ?? [])
   const address =
     params.componentPath === "cf"
       ? { kind: "configuration" as const }
@@ -339,15 +354,32 @@ function state(params: {
         sourceProjectPath: projectFiles[0]!.projectPath,
       })),
     },
-    snapshot: snapshotConfigurationIndex(encodeConfigurationIndex(snapshot)),
+    snapshot: {
+      descriptor: {
+        dataPath,
+        lockPath: `${dataPath}-lock`,
+        schemaVersion: 1,
+      },
+      projectFiles: params.snapshotProjectFiles ?? projectFiles,
+    },
     projectStateReadToken: createTestProjectStateReadToken(),
   }
 }
 
-function uuidEntity(logicalAddress: string, uuid: string): ConfigurationSnapshotEntity {
+function uuidEntity(logicalAddress: string, uuid: string): ConfigurationIndexBlockEntity {
   return {
     logicalAddress,
-    sourceProjectPath: "Свойства.yaml",
-    identities: { uuid },
+    uuid,
   }
+}
+
+function confirmExtension(
+  params: Parameters<typeof confirmConfigurationExtensionFullXmlSync>[0],
+) {
+  return confirmConfigurationExtensionFullXmlSync(params, testIndexReader)
+}
+
+function testIndexReader(state: ConfirmedComponentState) {
+  const entities = blockEntitiesByStore.get(state.snapshot.descriptor.dataPath) ?? []
+  return createLocalConfigurationIndexReader(new Map([["Свойства.yaml", { entities }]]))
 }

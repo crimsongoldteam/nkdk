@@ -77,6 +77,9 @@ export function convertClientApplicationFormYAMLToXMLCore(
     ...params.context,
     importFromYAML: {
       ...params.context.importFromYAML,
+      ...(formDataPathContext.effectiveMainAttribute === undefined
+        ? {}
+        : { effectiveMainAttribute: formDataPathContext.effectiveMainAttribute }),
       formDataPathIndex,
       ownerMetadataCache,
       resolveTableSourceProfile: (dataPath: unknown, elementName?: string) =>

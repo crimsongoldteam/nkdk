@@ -1,7 +1,7 @@
 import { join, resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import { componentPath, parseComponentPath } from "./address"
-import { configurationIndexPath } from "../configurationIndex/fileIO"
+import { configurationIndexStoreDescriptor } from "../configurationIndex/storePath"
 
 describe("component address", () => {
   it("maps supported component addresses to stable paths", () => {
@@ -21,11 +21,11 @@ describe("component address", () => {
   it("places indexes under the addressed component", () => {
     const projectDir = resolve("/project")
 
-    expect(configurationIndexPath(projectDir, { kind: "configuration" })).toBe(
-      join(projectDir, ".nkdk", "components", "cf", "configuration-index.bin")
+    expect(configurationIndexStoreDescriptor(projectDir, { kind: "configuration" }).dataPath).toBe(
+      join(projectDir, ".nkdk", "components", "cf", "configuration-index.lmdb")
     )
-    expect(configurationIndexPath(projectDir, { kind: "configurationExtension", name: "Расширение_All" })).toBe(
-      join(projectDir, ".nkdk", "components", "cfe", "Расширение_All", "configuration-index.bin")
+    expect(configurationIndexStoreDescriptor(projectDir, { kind: "configurationExtension", name: "Расширение_All" }).dataPath).toBe(
+      join(projectDir, ".nkdk", "components", "cfe", "Расширение_All", "configuration-index.lmdb")
     )
   })
 

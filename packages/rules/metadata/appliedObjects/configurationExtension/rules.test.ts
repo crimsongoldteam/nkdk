@@ -119,6 +119,7 @@ describe("MetadataConfigurationExtensionRules", () => {
         exportToXML: {
           ...exportContext.exportToXML,
           componentKind: "configurationExtension",
+          adoptedUuids: { Конфигурация: "11111111-1111-1111-1111-111111111111" },
           xmlDefaultVariantByLogicalAddress: { Конфигурация: "adopted" },
         },
       },
@@ -164,6 +165,7 @@ describe("MetadataConfigurationExtensionRules", () => {
         exportToXML: {
           ...contexts.exportContext().exportToXML,
           componentKind: "configurationExtension",
+          adoptedUuids: { Конфигурация: "11111111-1111-1111-1111-111111111111" },
           xmlDefaultVariantByLogicalAddress: { Конфигурация: "adopted" },
         },
       },
@@ -174,6 +176,43 @@ describe("MetadataConfigurationExtensionRules", () => {
       "MetaDataObject.Configuration.Properties.Synonym.v8:item",
       [{ "v8:lang": "ru", "v8:content": "Расширение по умолчанию" }]
     )
+  })
+
+  it("восстанавливает подтверждённые обязательные свойства корня расширения", () => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Конфигурация" })
+    const exportContext = contexts.exportContext()
+    const exported = testMetadataItemFromYAMLToXML({
+      rule: MetadataConfigurationExtensionRules,
+      yaml: {
+        Имя: "Расширение",
+        НазначениеРасширенияКонфигурации: "Адаптация",
+      },
+      context: {
+        ...exportContext,
+        exportToXML: {
+          ...exportContext.exportToXML,
+          componentKind: "configurationExtension",
+          adoptedUuids: { Конфигурация: "11111111-1111-1111-1111-111111111111" },
+          xmlDefaultVariantByLogicalAddress: { Конфигурация: "adopted" },
+        },
+      },
+      name: "Расширение",
+    })
+
+    expect(exported.xml).toHaveProperty("MetaDataObject.Configuration.Properties", expect.objectContaining({
+      Comment: "",
+      ConfigurationExtensionCompatibilityMode: "Version8_3_27",
+      ScriptVariant: "Russian",
+      DefaultRoles: "",
+      Vendor: "",
+      Version: "",
+      BriefInformation: "",
+      DetailedInformation: "",
+      Copyright: "",
+      VendorInformationAddress: "",
+      ConfigurationInformationAddress: "",
+    }))
+    expect(exported.xml).toHaveProperty("MetaDataObject.Configuration.Properties.UsePurposes")
   })
 
   it("использует общий формат интерфейса клиентского приложения", () => {

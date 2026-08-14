@@ -52,6 +52,7 @@ export const MetadataIntegrationServiceChannelRules = {
       type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     },
     externalIntegrationServiceChannelName: {
       yaml: "ИмяКаналаВнешнегоСервисаИнтеграции",

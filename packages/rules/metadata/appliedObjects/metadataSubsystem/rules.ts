@@ -112,6 +112,7 @@ export const MetadataSubsystemRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",

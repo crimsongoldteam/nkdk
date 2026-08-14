@@ -3,17 +3,14 @@ import { availableParallelism } from "node:os"
 import { join } from "node:path"
 import {
   componentPath,
-  configurationIndexPath,
-  createConfigurationIndexFragmentBuilder,
+  configurationIndexStoreDescriptor,
+  decodeConfigurationBlockFragments,
   hashConfigurationProjectFileList,
-  writeConfigurationIndex,
   type ComponentAddress,
-  type ConfigurationIndexFragmentBuilder,
-  type ConfigurationSnapshot,
-  type ConfigurationSnapshotFile,
-  type ConfigurationSnapshotFragment,
-  type MergedConfigurationSnapshotFragments,
+  type ConfigurationProjectFile,
+  type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
+import type { ConfigurationIndexCandidateStore } from "../configurationIndex/store"
 import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import {
@@ -48,7 +45,6 @@ import {
   type XmlImportWorkerPool,
   type XmlImportWorkerPoolHandle,
 } from "./workerPool"
-import { assertNoPendingPartialXmlSync } from "../partialSyncToXml/pendingStore"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -75,7 +71,7 @@ export interface ImportConfigurationFromXmlParams {
 
 export interface ImportCoordinatorDependencies {
   resolveComponent?(root: Record<string, unknown>): XmlImportComponentDescriptor
-  assertNoPending?(projectDir: string, componentPath: string): void
+  assertNoPending?(projectDir: string, componentPath: string): void | Promise<void>
   createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
   discover(params: {
     xmlDir: string
@@ -85,7 +81,8 @@ export interface ImportCoordinatorDependencies {
   collectSnapshotFragments?(params: {
     context: ConfigurationContextFromXML
     files: readonly ImportSnapshotFile[]
-  }): Promise<ConfigurationSnapshotFragment[]>
+  }): Promise<ConfigurationIndexBlockFragment[]>
+  createIndexCandidate?: CreateConfigurationIndexCandidate
   createProjectStateService?(): ProjectStateService
   mergeFiles(files: readonly ImportResultFile[]): ImportResultFile[]
   transferExternalFiles(params: {
@@ -98,8 +95,12 @@ export interface ImportCoordinatorDependencies {
     projectDir: string,
     projectPaths: readonly string[],
     options: { concurrency?: number }
-  ): Promise<ConfigurationSnapshotFile[]>
-  writeIndex(params: { projectDir: string; address: ComponentAddress; data: ConfigurationSnapshot }): Promise<void>
+  ): Promise<ConfigurationProjectFile[]>
+  publishCandidate?(params: {
+    readonly projectDir: string
+    readonly address: ComponentAddress
+    readonly candidate: ConfigurationIndexCandidateStore
+  }): Promise<void>
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
@@ -112,7 +113,30 @@ const defaultImportDependencies: ImportCoordinatorDependencies = {
   mergeFiles: mergeImportResultFiles,
   transferExternalFiles: transferXmlImportExternalFiles,
   hashProject: hashConfigurationProjectFileList,
-  writeIndex: writeConfigurationIndex,
+  async publishCandidate({ projectDir, address, candidate }) {
+    const { configurationIndexStoreDescriptor, openConfigurationIndexStore } = await import("../configurationIndex/store")
+    const active = openConfigurationIndexStore(configurationIndexStoreDescriptor(projectDir, address), "readWrite")
+    await active.publishImportedCandidate(candidate)
+  },
+}
+
+type CreateConfigurationIndexCandidate = (params: {
+  readonly projectDir: string
+  readonly address: ComponentAddress
+  readonly operationId: string
+  readonly purpose: "import" | "full" | "partial"
+}) => Promise<ConfigurationIndexCandidateStore>
+
+async function createDefaultConfigurationIndexCandidate(
+  params: Parameters<CreateConfigurationIndexCandidate>[0],
+): Promise<ConfigurationIndexCandidateStore> {
+  const { createConfigurationIndexCandidateStore } = await import("../configurationIndex/store")
+  return createConfigurationIndexCandidateStore(params)
+}
+
+async function assertNoPendingDefault(projectDir: string, selectedComponentPath: string): Promise<void> {
+  const { assertNoPendingPartialXmlSync } = await import("../partialSyncToXml/pendingStore")
+  await assertNoPendingPartialXmlSync(projectDir, selectedComponentPath)
 }
 
 export function createImportCoordinatorDependencies(
@@ -141,6 +165,7 @@ export async function importConfigurationFromXml(
         }))
   const ownsProjectState = params.projectState === undefined
   let importSession: ProjectStateImportSession | undefined
+  let indexCandidate: ConfigurationIndexCandidateStore | undefined
   let poolCloseAttempted = false
   let finalized = false
   let outcome: ConfigurationImportResult | undefined
@@ -167,8 +192,8 @@ export async function importConfigurationFromXml(
       : params.context
     const { address } = resolvedRoot
     const selectedComponentPath = componentPath(address)
-    const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
-    assertNoPending(params.projectDir, selectedComponentPath)
+    const assertNoPending = deps.assertNoPending ?? assertNoPendingDefault
+    await assertNoPending(params.projectDir, selectedComponentPath)
     const validationComponent = createValidationProjectComponent(params.projectDir, address)
     resolvedComponentPath = selectedComponentPath
     assertRequestedComponentPath(params.requestedComponentPath, selectedComponentPath)
@@ -196,12 +221,17 @@ export async function importConfigurationFromXml(
         },
       },
     })
-    const fragmentBuilder = createConfigurationIndexFragmentBuilder()
+    indexCandidate = await (deps.createIndexCandidate ?? createDefaultConfigurationIndexCandidate)({
+      projectDir: params.projectDir,
+      address,
+      operationId,
+      purpose: "import",
+    })
     const stateSink = createImportStateSink(
       importSession,
       importFileHashes,
       selectedComponentPath,
-      fragmentBuilder,
+      indexCandidate,
     )
     if (params.xmlImportWorkerPoolHandle !== undefined) {
       pool = params.xmlImportWorkerPoolHandle.createOperationPool()
@@ -263,7 +293,7 @@ export async function importConfigurationFromXml(
       context: params.context,
       files: discovered.snapshotFiles ?? [],
     })
-    for (const fragment of snapshotFragments) fragmentBuilder.add(fragment)
+    for (const fragment of snapshotFragments) indexCandidate.mergeBlockFragment(fragment)
     const firstReadToken = await importSession.commitWorkingIndex()
     const readTokens = [firstReadToken]
     for (let index = 1; index < pool.workerCount(); index += 1) readTokens.push(await importSession.createReadToken())
@@ -284,12 +314,6 @@ export async function importConfigurationFromXml(
       const cleanup = await abortCleanupDiagnostics(importSession, secondDiagnostics, closePoolForCleanup)
       return outcome = failedResult([...secondDiagnostics, ...cleanup], warnings, resolvedComponentPath)
     }
-    const fragmentData = fragmentBuilder.finish()
-    profiler.record("Подготовка импорта конфигурации", "Обобщение фрагментов данных файла индекса конфигурации", {
-      items: discovered.assignments.length,
-      timeMs: 0,
-    })
-
     const allFiles = [...first.files, ...second.files]
     const files = profiler.measure(
       "Подготовка импорта конфигурации",
@@ -331,25 +355,22 @@ export async function importConfigurationFromXml(
       await importSession.writeStateFragment(externalWriter.finish())
     }
     const projectFiles = snapshotFilesFromState(files, importFileHashes)
-    const indexData = profiler.measure(
-      "Подготовка импорта конфигурации",
-      "Формирование данных файла индекса конфигурации",
-      { items: projectFiles.length },
-      () =>
-        buildImportedConfigurationSnapshot({
-          componentPath: selectedComponentPath,
-          projectFiles,
-          fragmentData,
-        })
-    )
-    const stateResult = await importSession.finalize(() =>
-      profiler.measureAsync(
+    indexCandidate.replaceHashes(projectFiles)
+    indexCandidate.validateCandidate()
+    const candidateToPublish = indexCandidate
+    const stateResult = await importSession.finalize(() => profiler.measureAsync(
         "Подготовка импорта конфигурации",
         "Запись файла индекса конфигурации",
         { items: projectFiles.length },
-        () => deps.writeIndex({ projectDir: params.projectDir, address, data: indexData })
-      )
-    )
+        async () => {
+          await (deps.publishCandidate ?? defaultImportDependencies.publishCandidate!)({
+            projectDir: params.projectDir,
+            address,
+            candidate: candidateToPublish,
+          })
+        },
+      ))
+    indexCandidate = undefined
     finalized = true
     const validationFailures = [...stateResult.diagnostics].map((diagnostic) => ({
       severity: diagnostic.severity,
@@ -385,6 +406,13 @@ export async function importConfigurationFromXml(
     }
     if (!finalized && outcome !== undefined) {
       outcome.failed.push(...cleanupFailures.map(operationDiagnostic))
+    }
+    if (indexCandidate !== undefined) {
+      try {
+        await indexCandidate.discard()
+      } catch (caught) {
+        if (outcome !== undefined) outcome.failed.push(...flattenFailures(caught).map(operationDiagnostic))
+      }
     }
   }
 }
@@ -458,11 +486,15 @@ function createImportStateSink(
   session: ProjectStateImportSession,
   hashes: Map<string, bigint>,
   selectedComponentPath: string,
-  fragmentBuilder: ConfigurationIndexFragmentBuilder,
+  candidate: ConfigurationIndexCandidateStore,
 ): XmlImportStateSink {
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
-    if (batch.configurationFragment !== undefined) fragmentBuilder.add(batch.configurationFragment)
-    if (batch.configurationFragmentBuffer !== undefined) fragmentBuilder.addEncoded(batch.configurationFragmentBuffer)
+    if (batch.configurationFragment !== undefined) candidate.mergeBlockFragment(batch.configurationFragment)
+    if (batch.configurationFragmentBuffer !== undefined) {
+      for (const fragment of decodeConfigurationBlockFragments(batch.configurationFragmentBuffer)) {
+        candidate.mergeBlockFragment(fragment)
+      }
+    }
     if (batch.stateFragment !== undefined) {
       await writeStreamedImportState(session, hashes, selectedComponentPath, batch.stateFragment)
     }
@@ -495,7 +527,7 @@ async function writeStreamedImportState(
 async function collectSnapshotFragments(params: {
   context: ConfigurationContextFromXML
   files: readonly ImportSnapshotFile[]
-}): Promise<ConfigurationSnapshotFragment[]> {
+}): Promise<ConfigurationIndexBlockFragment[]> {
   return Promise.all(
     params.files.map(async (file) => {
       const capability = getMetadataSnapshotImportCapability(file.capabilityId)
@@ -537,7 +569,7 @@ async function assertComponentPreflight(params: {
     }
   }
 
-  const snapshotPath = configurationIndexPath(params.projectDir, params.address)
+  const snapshotPath = configurationIndexStoreDescriptor(params.projectDir, params.address).dataPath
   if ((await statIfExists(snapshotPath)) !== undefined) {
     throw new Error(`Снимок компонента уже существует: ${componentPath(params.address)}`)
   }
@@ -564,23 +596,9 @@ function assertRequestedComponentPath(requestedComponentPath: string | undefined
   }
 }
 
-function buildImportedConfigurationSnapshot(params: {
-  componentPath: string
-  projectFiles: readonly ConfigurationSnapshotFile[]
-  fragmentData: MergedConfigurationSnapshotFragments
-}): ConfigurationSnapshot {
-  return {
-    specificationVersion: "1.4",
-    indexGeneration: 1n,
-    componentPath: params.componentPath,
-    files: params.projectFiles,
-    entities: params.fragmentData.entities,
-  }
-}
-
 export function externalFileStateBatch(
   component: ValidationProjectComponent,
-  files: readonly ConfigurationSnapshotFile[],
+  files: readonly ConfigurationProjectFile[],
 ): ProjectStateImportFinalFileStateBatch {
   const entries = files.map((file) => {
     const resource = classifyMetadataProjectPath(file.projectPath, component)
@@ -616,7 +634,7 @@ function rememberImportFileHashes(
 function snapshotFilesFromState(
   files: readonly ImportResultFile[],
   hashes: ReadonlyMap<string, bigint>,
-): ConfigurationSnapshotFile[] {
+): ConfigurationProjectFile[] {
   return files.map(({ targetProjectPath }) => {
     const contentHash = hashes.get(targetProjectPath)
     if (contentHash === undefined) throw new Error(`Import не передал хэш готового файла: ${targetProjectPath}`)
@@ -635,7 +653,7 @@ function successResult(
     succeeded,
     failed: [],
     warnings,
-    configurationIndexPath: configurationIndexPath(projectDir, address),
+    configurationIndexPath: configurationIndexStoreDescriptor(projectDir, address).dataPath,
   }
 }
 

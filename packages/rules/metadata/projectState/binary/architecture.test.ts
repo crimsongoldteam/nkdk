@@ -28,7 +28,7 @@ it("не сохраняет неизменившийся снимок", () => {
 it("не восстанавливает полные локальные lookup-структуры в full sync worker", () => {
   const composition = source("fullSyncToXml/sharedMetadata.ts")
   const worker = source("fullSyncToXml/worker.ts")
-  const configurationIndex = sourceRuntime("configurationIndex/sharedSnapshot.ts")
+  const configurationIndex = sourceRuntime("configurationIndex/fragment.ts")
 
   expect(worker).not.toContain("composition.assignments()")
   expect(configurationIndex).not.toContain("private stringIds?: Map")
@@ -36,7 +36,6 @@ it("не восстанавливает полные локальные lookup-�
   expect(configurationIndex).not.toContain("entityOffsetByAddressId?: Map")
   expect(configurationIndex).not.toContain("entityOffsetsBySourcePathId?: Map")
   expect(composition).toContain("findBinaryHashIndex")
-  expect(configurationIndex).toContain("findBinaryHashIndex")
 })
 
 function source(relativePath: string): string {

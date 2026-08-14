@@ -6,6 +6,7 @@ import {
   getConfigurationIndexCollectionXmlNodeLogicalAddress,
 } from "@nkdk/runtime"
 import type { ConfigurationIndexCollector } from "@nkdk/runtime"
+import { canonicalNamedChildren, childrenToPersist } from "../omittedChildren"
 
 export const importChildFileItemNamesFromXML = (
   _context: ConfigurationContextFromXML,
@@ -18,7 +19,7 @@ export const importChildFileItemNamesFromXML = (
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("ChildFileItemNames", "importFromXML", importChildFileItemNamesFromXML)
-export const metadataPropertyRule001 = definePropertyTypeRule("ChildFileItemNames", "collectConfigurationIndexFromXML", ({ context, xml }) => {
+export const metadataPropertyRule001 = definePropertyTypeRule("ChildFileItemNames", "collectConfigurationIndexFromXML", ({ context, xml, rule }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return
   const names = Array.isArray(xml) ? xml : [xml]
@@ -26,15 +27,19 @@ export const metadataPropertyRule001 = definePropertyTypeRule("ChildFileItemName
   setChildFileItemNamesOmittedChildren(
     collection.collector,
     getConfigurationIndexCollectionXmlNodeLogicalAddress(collection),
-    names
+    names,
+    rule.xml,
   )
 })
 
 export function setChildFileItemNamesOmittedChildren(
   collector: ConfigurationIndexCollector,
   address: string,
-  names: readonly string[]
+  names: readonly string[],
+  xmlName = "Table",
 ): void {
   if (names.length === 0) return
-  collector.setOmittedChildren(address, { kind: "names", names })
+  const actual = names.map((name) => ({ xmlName, name }))
+  const saved = childrenToPersist(actual, canonicalNamedChildren(xmlName, names))
+  if (saved !== undefined) collector.setChildren(address, saved)
 }

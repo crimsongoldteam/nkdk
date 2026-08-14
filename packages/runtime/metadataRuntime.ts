@@ -131,16 +131,11 @@ export type PartialSyncDelivery =
     }
 
 export interface PendingPartialSyncState {
-  readonly version: 2
+  readonly version: 3
   readonly packageId: string
   readonly componentPath: string
   readonly archiveProjectPath: string
   readonly archiveHash: string
-  readonly sourceSnapshotHash: string
-  readonly sourceSnapshotGeneration: string
-  readonly candidateSnapshotHash: string
-  readonly baseSnapshotHash?: string
-  readonly baseSnapshotGeneration?: string
   readonly candidateAppliedMigrations: readonly string[]
   readonly entries: readonly string[]
   readonly loadTargets: readonly string[]
@@ -279,6 +274,7 @@ export interface MetadataRuntime {
         readonly status: "published" | "alreadyPublished"
         readonly configurationIndexPath: string
       }>
+      forceClear(projectDir: string, componentPath: string): Promise<void>
     }
   }
   readonly metadata: {

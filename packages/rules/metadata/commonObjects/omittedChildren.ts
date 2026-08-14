@@ -1,45 +1,89 @@
-import type { OmittedChildren } from "@nkdk/runtime"
+import type { ConfigurationIndexChild, ConfigurationIndexExportRuntime } from "@nkdk/runtime"
 
-export function mergeOmittedNames(current: readonly string[], saved: OmittedChildren | undefined): string[] {
-  assertUniqueNames(current)
-  if (saved === undefined) return [...current]
-  if (saved.kind !== "names") {
-    throw new Error("mergeOmittedNames ожидает omittedChildren.kind = names")
+export function orderAndPersistNamedChildren(params: {
+  readonly xmlName: string
+  readonly names: readonly string[]
+  readonly saved?: readonly ConfigurationIndexChild[]
+  readonly runtime?: ConfigurationIndexExportRuntime
+}): string[] {
+  const canonical = canonicalNamedChildren(params.xmlName, params.names)
+  const orderedChildren = mergeSavedChildren(canonical, params.saved, canonical)
+  const children = childrenToPersist(orderedChildren, canonical)
+  if (children !== undefined && params.runtime !== undefined) {
+    params.runtime.collector.setChildren(
+      params.runtime.xmlNodeLogicalAddress ?? params.runtime.logicalAddress,
+      children,
+    )
   }
-  assertUniqueNames(saved.names)
-
-  const currentNames = new Set(current)
-  const preserved = saved.names.filter((name) => currentNames.has(name))
-  const preservedNames = new Set(preserved)
-  return [...preserved, ...current.filter((name) => !preservedNames.has(name))]
+  return orderedChildren.map(({ name }) => name)
 }
 
-export function readOmittedNames(
-  saved: OmittedChildren | undefined,
-  propertyType: string
-): readonly string[] | undefined {
-  if (saved === undefined) return undefined
-  if (saved.kind !== "names") {
-    throw new Error(`${propertyType} ожидает omittedChildren.kind = names`)
-  }
-  return saved.names
+export function canonicalNamedChildren(
+  xmlName: string,
+  names: readonly string[],
+): ConfigurationIndexChild[] {
+  const result = names.map((name) => ({ xmlName, name }))
+  assertUniqueChildren(result)
+  return result.sort((left, right) => compareUtf8(left.name, right.name))
 }
 
-export function readOmittedTypedNames(
-  saved: OmittedChildren | undefined,
-  propertyType: string
-): readonly { xmlName: string; name: string }[] | undefined {
-  if (saved === undefined) return undefined
-  if (saved.kind !== "typedNames") {
-    throw new Error(`${propertyType} ожидает omittedChildren.kind = typedNames`)
-  }
-  return saved.items
+export function mergeSavedChildren(
+  current: readonly ConfigurationIndexChild[],
+  saved: readonly ConfigurationIndexChild[] | undefined,
+  canonical: readonly ConfigurationIndexChild[],
+): ConfigurationIndexChild[] {
+  assertUniqueChildren(current)
+  assertUniqueChildren(canonical)
+  if (saved === undefined) return canonical.map(copyChild)
+  assertUniqueChildren(saved)
+  const currentByKey = new Map(current.map((child) => [childKey(child), child]))
+  const preserved = saved.flatMap((child) => {
+    const actual = currentByKey.get(childKey(child))
+    return actual === undefined ? [] : [actual]
+  })
+  const preservedKeys = new Set(preserved.map(childKey))
+  return [
+    ...preserved.map(copyChild),
+    ...canonical.filter((child) => !preservedKeys.has(childKey(child))).map(copyChild),
+  ]
 }
 
-function assertUniqueNames(names: readonly string[]): void {
+export function childrenToPersist(
+  actual: readonly ConfigurationIndexChild[],
+  canonical: readonly ConfigurationIndexChild[],
+): ConfigurationIndexChild[] | undefined {
+  assertUniqueChildren(actual)
+  assertUniqueChildren(canonical)
+  return equalChildren(actual, canonical) ? undefined : actual.map(copyChild)
+}
+
+function assertUniqueChildren(children: readonly ConfigurationIndexChild[]): void {
   const seen = new Set<string>()
-  for (const name of names) {
-    if (seen.has(name)) throw new Error(`Дублирующееся имя ${name} в omittedChildren`)
-    seen.add(name)
+  for (const child of children) {
+    if (child.xmlName.length === 0 || child.name.length === 0) throw new Error("Пустое поле children")
+    const key = childKey(child)
+    if (seen.has(key)) throw new Error(`Дублирующийся child ${child.xmlName}/${child.name}`)
+    seen.add(key)
   }
+}
+
+function equalChildren(
+  left: readonly ConfigurationIndexChild[],
+  right: readonly ConfigurationIndexChild[],
+): boolean {
+  return left.length === right.length && left.every(
+    (child, index) => child.xmlName === right[index]?.xmlName && child.name === right[index]?.name,
+  )
+}
+
+function childKey(child: ConfigurationIndexChild): string {
+  return `${child.xmlName}\0${child.name}`
+}
+
+function copyChild(child: ConfigurationIndexChild): ConfigurationIndexChild {
+  return { xmlName: child.xmlName, name: child.name }
+}
+
+function compareUtf8(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
 }

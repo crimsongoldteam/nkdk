@@ -1,18 +1,20 @@
 import fs from "node:fs"
+import { randomBytes } from "node:crypto"
 import { resolve } from "node:path"
 import { componentPath, parseComponentPath, type ComponentAddress } from "@nkdk/runtime"
-import { configurationIndexPath, writeConfigurationIndex } from "@nkdk/runtime"
-import { decodeConfigurationIndex, readConfigurationIndexSnapshot } from "../configurationIndex"
-import type {
-  ConfigurationSnapshot,
-} from "@nkdk/runtime"
+import {
+  type ConfigurationIndexCandidateStore,
+} from "../configurationIndex/store"
+import {
+  configurationIndexStoreDescriptor,
+} from "../configurationIndex"
+import { createConfigurationIndexCandidateStore, openConfigurationIndexStore } from "../configurationIndex/store"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import {
   confirmComponentState,
   readComponentHashState,
   readComponentIndexes,
   readComponentProjectStructure,
-  type ConfirmedComponentState,
 } from "../project/componentState"
 import { createValidationProfiler } from "../validation/profile"
 import type { Diagnostic } from "../validation/types"
@@ -26,14 +28,12 @@ import type { FullXmlSyncDiagnostic, FullXmlSyncPlan } from "./types"
 import { createFullXmlSyncWorkerPool, normalizeFullXmlSyncConcurrency, type FullXmlSyncWorkerPool } from "./workerPool"
 import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
 import { prepareFullXmlSyncProfileRuntime } from "./prepareProfileRuntime"
-import { buildXmlSyncConfigurationSnapshot } from "./snapshotBuilder"
 import {
   readProfileComponentStates,
   type FullXmlSyncComponentRuntimeDependencies,
 } from "./componentRuntime"
 import { assertNoPendingPartialXmlSync } from "../partialSyncToXml/pendingStore"
-
-export { replaceSnapshotEntities } from "./snapshotBuilder"
+import { withConfigurationIndexSources } from "./configurationIndexSources"
 
 export interface SyncComponentToXmlParams {
   readonly context: ConfigurationContext
@@ -83,7 +83,7 @@ export type FullXmlSyncPlanResult =
     }
 
 export interface FullXmlSyncCoordinatorDependencies extends FullXmlSyncComponentRuntimeDependencies {
-  readonly assertNoPending?: (projectDir: string, componentPath: string) => void
+  readonly assertNoPending?: (projectDir: string, componentPath: string) => void | Promise<void>
   readonly exists: (path: string) => Promise<boolean>
   readonly isDirectoryEmpty: (path: string) => Promise<boolean>
   readonly mkdir: (path: string) => Promise<void>
@@ -93,10 +93,11 @@ export interface FullXmlSyncCoordinatorDependencies extends FullXmlSyncComponent
   readonly createWorkerPool?: (params: { concurrency: number }) => FullXmlSyncWorkerPool
   readonly transferExternalFiles: typeof transferFullXmlSyncExternalFiles
   readonly validateWrittenFiles: typeof validateFullXmlSyncWrittenFiles
-  readonly writeIndex: (params: {
-    projectDir: string
-    address: ComponentAddress
-    data: ConfigurationSnapshot
+  readonly openIndexStore?: typeof openConfigurationIndexStore
+  readonly createIndexCandidate?: typeof createConfigurationIndexCandidateStore
+  readonly publishCandidate?: (params: {
+    readonly active: ReturnType<typeof openConfigurationIndexStore>
+    readonly candidate: ConfigurationIndexCandidateStore
   }) => Promise<void>
 }
 
@@ -115,7 +116,6 @@ const defaultDependencies: FullXmlSyncCoordinatorDependencies = {
   },
   readFile: fs.promises.readFile,
   readStructure: readComponentProjectStructure,
-  readSnapshot: readConfigurationIndexSnapshot,
   readHashes: readComponentHashState,
   readIndexes: readComponentIndexes,
   confirmState: confirmComponentState,
@@ -123,7 +123,9 @@ const defaultDependencies: FullXmlSyncCoordinatorDependencies = {
   buildPlan: buildXmlSyncPlan,
   transferExternalFiles: transferFullXmlSyncExternalFiles,
   validateWrittenFiles: validateFullXmlSyncWrittenFiles,
-  writeIndex: writeConfigurationIndex,
+  async publishCandidate({ active, candidate }) {
+    await active.replaceActiveFrom(candidate)
+  },
 }
 
 export function createFullXmlSyncCoordinatorDependencies(
@@ -139,6 +141,8 @@ export async function syncComponentToXml(
   const projectDir = resolve(params.projectDir)
   const xmlDir = resolve(params.xmlDir)
   let pool: FullXmlSyncWorkerPool | undefined
+  let activeIndex: ReturnType<typeof openConfigurationIndexStore> | undefined
+  let indexCandidate: ConfigurationIndexCandidateStore | undefined
   let warnings: FullXmlSyncDiagnostic[] = []
   let diagnostics: FullXmlSyncDiagnostic[] = []
   const profiler = createValidationProfiler({ scope: "main" })
@@ -146,7 +150,7 @@ export async function syncComponentToXml(
   try {
     if (params.componentPath === "cf" || params.componentPath.startsWith("cfe/")) {
       const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
-      assertNoPending(projectDir, params.componentPath)
+      await assertNoPending(projectDir, params.componentPath)
     }
     const refreshed = await refreshSyncProject({ ...params, projectDir })
     diagnostics = refreshed.diagnostics
@@ -175,7 +179,7 @@ export async function syncComponentToXml(
       targetProjection,
       deps,
     })
-    const confirmedRuntime = profile.confirm({ target, ...(base === undefined ? {} : { base }) })
+    const confirmedRuntime = await profile.confirm({ target, ...(base === undefined ? {} : { base }) })
     const runtime = await prepareFullXmlSyncProfileRuntime({
       profile,
       runtime: confirmedRuntime,
@@ -187,6 +191,18 @@ export async function syncComponentToXml(
       selection,
     })
     const plan = attachBorrowedFormPaths(basePlan, runtime)
+    activeIndex = (deps.openIndexStore ?? openConfigurationIndexStore)(target.snapshot.descriptor, "readWrite")
+    indexCandidate = await (deps.createIndexCandidate ?? createConfigurationIndexCandidateStore)({
+      projectDir,
+      address,
+      operationId: `full-${Date.now()}-${Math.random()}`,
+      purpose: "full",
+    })
+    indexCandidate.replaceHashes(target.hashes.projectFiles)
+    indexCandidate.copyActiveBlocksFrom(activeIndex, new Set(plan.assignments.flatMap((assignment) => [
+      assignment.sourceProjectPath,
+      ...(assignment.baseFormPaths?.savedProjectPath === undefined ? [] : [assignment.baseFormPaths.savedProjectPath]),
+    ])))
 
     const workerConcurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
     const usesUniversalWorkers = deps.createWorkerPool === undefined
@@ -215,10 +231,22 @@ export async function syncComponentToXml(
       context: params.context,
       profile: runtime.workerProfile,
       composition: createFullXmlSyncCompositionSnapshot(plan.assignments),
-      targetIndex: target.snapshot,
+      targetIndex: target.snapshot.descriptor,
+      ...(base === undefined ? {} : { baseIndex: base.snapshot.descriptor }),
+      operationSeed: randomBytes(32),
       ...(projectStateReadTokens === undefined ? {} : { projectStateReadTokens }),
     })
-    const execution = await pool.execute(plan.assignments)
+    const candidateForBatches = indexCandidate
+    const executionAssignments = plan.assignments.map((assignment) => withConfigurationIndexSources({
+      assignment,
+      targetLogicalAddresses: target.indexes.logicalAddresses,
+      ...(base === undefined ? {} : { baseLogicalAddresses: base.indexes.logicalAddresses }),
+    }))
+    const execution = await pool.execute(executionAssignments, {
+      async onBatch(batch) {
+        for (const fragment of batch.configurationFragments) candidateForBatches.mergeBlockFragment(fragment)
+      },
+    })
     const executionDiagnostics = [...execution.diagnostics]
     const executionWarnings = [...execution.warnings]
     const expectedOutputs = [...execution.expectedOutputs]
@@ -247,27 +275,23 @@ export async function syncComponentToXml(
     diagnostics = [...diagnostics, ...outputDiagnostics]
     if (hasErrors(outputDiagnostics)) return await complete(failedResult(outputDiagnostics, warnings, diagnostics))
 
-    const previous = decodeSnapshot(target.snapshot)
-    const indexData = buildXmlSyncConfigurationSnapshot({
-      previous,
-      currentFiles: target.hashes.projectFiles,
-      currentLogicalAddresses: target.indexes.logicalAddresses,
-      fragmentData: execution.fragmentData,
-    })
-    await deps.writeIndex({ projectDir, address, data: indexData })
+    indexCandidate.validateCandidate()
+    await (deps.publishCandidate ?? defaultDependencies.publishCandidate!)({ active: activeIndex, candidate: indexCandidate })
 
     return await complete({
       succeeded: plan.assignments.length + plan.externalFiles.length,
       failed: [],
       warnings,
       diagnostics,
-      configurationIndexPath: configurationIndexPath(projectDir, address),
+      configurationIndexPath: configurationIndexStoreDescriptor(projectDir, address).dataPath,
     })
   } catch (caught) {
     const failure = operationDiagnostic(diagnosticCode(caught), errorMessage(caught))
     return await complete(failedResult([failure], warnings, [...diagnostics, failure]))
   } finally {
     profiler.flush()
+    await activeIndex?.close().catch(() => undefined)
+    await indexCandidate?.discard().catch(() => undefined)
   }
 
   async function complete(result: FullXmlSyncResult): Promise<FullXmlSyncResult> {
@@ -334,7 +358,7 @@ export async function planSyncConfigurationToXml(
       targetProjection,
       deps,
     })
-    const confirmedRuntime = profile.confirm({ target, ...(base === undefined ? {} : { base }) })
+    const confirmedRuntime = await profile.confirm({ target, ...(base === undefined ? {} : { base }) })
     await prepareFullXmlSyncProfileRuntime({
       profile,
       runtime: confirmedRuntime,
@@ -350,7 +374,7 @@ export async function planSyncConfigurationToXml(
       mode: "plan",
       assignments: plan.assignments.length,
       externalFiles: plan.externalFiles.length,
-      configurationIndexPath: configurationIndexPath(projectDir, address),
+      configurationIndexPath: configurationIndexStoreDescriptor(projectDir, address).dataPath,
       diagnostics,
     }
   } catch (caught) {
@@ -403,10 +427,6 @@ async function preflightFullXmlSync(params: {
     return { targetExists: true }
   }
   return { targetExists: false }
-}
-
-function decodeSnapshot(snapshot: ConfirmedComponentState["snapshot"]): ConfigurationSnapshot {
-  return decodeConfigurationIndex(new Uint8Array(snapshot.bytes, 0, snapshot.byteLength))
 }
 
 function withExternalAssignmentIds(

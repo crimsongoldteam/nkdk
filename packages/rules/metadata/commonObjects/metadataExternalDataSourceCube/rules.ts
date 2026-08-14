@@ -10,6 +10,7 @@ import {
   MetadataExternalDataSourceDimensionTableRules,
 } from "../metadataExternalDataSourceDimensionTable/rules"
 import { characteristicsDescriptionsRule } from "../characteristicsDescription/types"
+import { externalDataSourceNamedProperties } from "../metadataExternalDataSourceShared"
 
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -57,30 +58,7 @@ const cubeProperties = {
       { name: "ExternalDataSourceCubeDimensionsTablesManager", category: "DimensionTables" },
     ] as { name: string; category: string }[],
   }),
-  uuid: {
-    type: "uuid",
-    xml: "_uuid",
-    forReferenceOnly: true,
-    xmlParents: root,
-  },
-  name: {
-    type: "string",
-    xmlParents: properties,
-    required: true,
-  },
-  synonym: {
-    yaml: "Синоним",
-    type: "I8nText",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-    excludeIfEqualNameYAML: true,
-  },
-  comment: {
-    yaml: "Комментарий",
-    type: "string",
-    xmlParents: properties,
-    defaultValueXMLRaw: "",
-  },
+  ...externalDataSourceNamedProperties(root, properties),
   nameInDataSource: {
     yaml: "ИмяВИсточникеДанных",
     xml: "NameInDataSource",

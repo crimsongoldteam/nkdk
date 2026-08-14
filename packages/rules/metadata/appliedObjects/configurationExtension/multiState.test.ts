@@ -71,6 +71,45 @@ describe("configuration extension MultiState type", () => {
     })
   })
 
+  it.each([
+    [
+      "ExtendValue перед NotifyValue",
+      ["Булево", "Дата"],
+      ["изменять", "проверять"],
+      ["_xsi:type", "xr:ExtendValue", "xr:NotifyValue"],
+    ],
+    [
+      "CheckValue перед ExtendValue",
+      ["Строка", "Булево"],
+      [undefined, "изменять"],
+      ["_xsi:type", "xr:CheckValue", "xr:ExtendValue"],
+    ],
+    [
+      "одиночный ExtendValue",
+      ["Строка"],
+      ["изменять"],
+      ["_xsi:type", "xr:ExtendValue"],
+    ],
+  ] as const)("сохраняет порядок первого появления групп: %s", (_name, parts, tags, expectedKeys) => {
+    const yaml: unknown[] = [...parts]
+    tags.forEach((tag, index) => {
+      if (tag !== undefined) markYAMLScalarTag(yaml, index, tag)
+    })
+
+    expect(Object.keys(exportMultiStateType(mockContext, undefined, yaml).value)).toEqual(expectedKeys)
+  })
+
+  it("сохраняет порядок элементов внутри группы", () => {
+    const yaml: unknown[] = ["Булево", "Строка"]
+    markYAMLScalarTag(yaml, 0, "изменять")
+    markYAMLScalarTag(yaml, 1, "изменять")
+
+    expect(exportMultiStateType(mockContext, undefined, yaml).value["xr:ExtendValue"]?.["v8:Type"]).toEqual([
+      "xs:boolean",
+      "xs:string",
+    ])
+  })
+
   it("exports an empty CheckValue and rejects unrelated tags", () => {
     const yaml: unknown[] = [[], "Строка"]
     markYAMLScalarTag(yaml, 1, "изменять")

@@ -22,7 +22,7 @@ export const exportSystemEnumerationToJSONSchema: ExportToJSONSchemaFn = (params
 export const systemEnumerationValidationSchemaRef: ValidationSchemaRefFn = ({ rule }) => {
   const systemEnumerationRule = rule as SystemEnumerationPropertyRule
   const implicitValueYAML = systemEnumerationRule.implicitValueYAML
-  if (typeof implicitValueYAML !== "string") {
+  if (systemEnumerationRule.preserveExplicitDefaultXML === true || typeof implicitValueYAML !== "string") {
     return `SystemEnumeration/${systemEnumerationRule.typeSE}`
   }
 

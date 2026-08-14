@@ -17,11 +17,12 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node ../../scripts/run-test-duration-check.mjs -- --no-isolate --project unit --project bundle-contract --project core-metadata --sequence.shuffle && pnpm run test:integration",
+    "test": "node ../../scripts/run-test-duration-check.mjs -- --no-isolate --project unit --project bundle-contract --project core-metadata --sequence.shuffle && pnpm run test:native && pnpm run test:integration",
+    "test:native": "vitest run --no-isolate --project native-lmdb && vitest run --no-isolate --project native-lmdb-integration",
     "test:integration": "node ../../scripts/run-test-duration-check.mjs --integration -- --no-isolate --project integration --sequence.shuffle",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
-    "measure:configuration-snapshot": "node scripts/measure-configuration-snapshot.mjs",
+    "benchmark:configuration-index": "tsx scripts/benchmark-configuration-index.mjs",
     "measure:project-state-binary": "tsx scripts/measure-binary-project-state.ts",
     "measure:validation-schemas": "tsx --expose-gc scripts/measure-validation-schemas.mjs",
     "measure:validation-workers": "node scripts/measure-validation-workers.mjs"

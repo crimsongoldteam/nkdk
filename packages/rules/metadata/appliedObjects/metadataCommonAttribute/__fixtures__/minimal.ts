@@ -12,4 +12,5 @@ export const minimal: MetadataCommonAttribute = {
 export const minimalYAML: MetadataCommonAttributeYAML = {
   Тип: "Строка(10)",
   ЗначениеЗаполнения: explicitYAMLString(""),
+  РазделениеДанных: "НеИспользовать",
 }

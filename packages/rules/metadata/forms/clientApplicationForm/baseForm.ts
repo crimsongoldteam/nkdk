@@ -2,7 +2,7 @@ import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import { childUid } from "@nkdk/runtime"
-import type { ConfigurationIndexReader } from "@nkdk/runtime"
+import type { LocalConfigurationIndexReader } from "@nkdk/runtime"
 import type {
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
@@ -15,7 +15,7 @@ import { ClientApplicationFormRules } from "./rules"
 
 export function buildClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
-  readonly baseIndex?: ConfigurationIndexReader
+  readonly baseIndex?: LocalConfigurationIndexReader
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml?: ClientApplicationFormYAML
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
@@ -37,7 +37,7 @@ export function buildClientApplicationBaseForm(params: {
 
 function buildProjectedClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
-  readonly baseIndex: ConfigurationIndexReader
+  readonly baseIndex: LocalConfigurationIndexReader
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml: ClientApplicationFormYAML
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
@@ -105,7 +105,7 @@ function buildSavedClientApplicationBaseForm(params: {
 
 function withDiscardedConfigurationIndexWrites(
   context: ConfigurationContextWithExportToXML,
-  source: ConfigurationIndexReader | undefined
+  source: LocalConfigurationIndexReader | undefined
 ): ConfigurationContextWithExportToXML {
   const runtime = context.exportToXML.configurationIndex
   if (runtime === undefined) return context
@@ -114,6 +114,7 @@ function withDiscardedConfigurationIndexWrites(
     collector: createConfigurationIndexCollector(),
     targetProjectPath: runtime.targetProjectPath,
     logicalAddress: runtime.logicalAddress,
+    operationSeed: runtime.operationSeed,
     ...(runtime.xmlNodeLogicalAddress === undefined
       ? {}
       : { xmlNodeLogicalAddress: runtime.xmlNodeLogicalAddress }),

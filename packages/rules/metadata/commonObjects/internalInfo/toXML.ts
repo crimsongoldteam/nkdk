@@ -84,7 +84,7 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
     result["xr:ContainedObject"] = containedObjects
   }
 
-  return Object.keys(result).length === 0 ? undefined : result
+  return result
 }
 
 const getInternalInfoItem = (value: InternalInfo[string]): { typeId: string; valueId: string } | undefined => {

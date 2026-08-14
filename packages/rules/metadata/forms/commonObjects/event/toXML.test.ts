@@ -4,21 +4,17 @@ import { InputFieldRules } from "../../elements/inputField/rules"
 import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import { mockContextFromXML, mockContextToXML } from "../../../../tests/mockContext"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import { importEventsFromXML } from "./fromXML"
 import { exportEventsToXML } from "./toXML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { testConfigurationIndexReader } from "../../../../tests/configurationIndex"
 
 const eventRule = ClientApplicationFormRules.properties.events
 
 function contextWithSnapshot() {
   const collector = createConfigurationIndexCollector()
-  const source = createConfigurationIndexReader(
-    snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
-  )
+  const source = testConfigurationIndexReader()
   const configurationIndex = createConfigurationIndexExportRuntime({
     source,
     collector,

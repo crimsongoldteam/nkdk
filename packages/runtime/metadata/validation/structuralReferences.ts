@@ -184,6 +184,12 @@ function collectObjectReferences(params: {
     if (typeof propertyRule.yaml !== "string") continue
     const yamlValue = record[propertyRule.yaml]
     if (yamlValue === undefined) continue
+    if (propertyRule.metadataTarget !== undefined && yamlValue === "") continue
+    const propertyStateTag = yamlScalarTagAt(record, propertyRule.yaml)
+    if (
+      (propertyStateTag === "проверять" || propertyStateTag === "изменять") &&
+      isEmptyMapping(yamlValue)
+    ) continue
     const isTagged = (path: readonly (string | number)[]) =>
       isRelativeYAMLScalarTagged(record, propertyRule.yaml!, path)
     const isTransported = (path: readonly (string | number)[]) =>
@@ -306,6 +312,10 @@ function structuralPropertyYamlValue(
   }
   const record = asRecord(exported)
   return record === undefined ? exported : record[rule.yaml]
+}
+
+function isEmptyMapping(value: unknown): boolean {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0
 }
 
 function isRelativeYAMLScalarTagged(

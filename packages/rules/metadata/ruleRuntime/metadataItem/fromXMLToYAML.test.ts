@@ -9,6 +9,9 @@ import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { registerMetadataItemRule } from "./ruleFactory"
 import { yamlScalarTagAt } from "@nkdk/runtime"
+import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
+import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities } from "../../appliedObjects/configurationExtension/propertyStateCapabilities"
+import type { PropertyStateCapabilityContribution } from "../definition"
 
 describe("importMetadataItemFromXMLToYAML", () => {
   it("builds a nested item without returning its model shape", () => {
@@ -71,7 +74,11 @@ describe("importMetadataItemFromXMLToYAML", () => {
           "xr:State": "Notify",
         },
       },
-    })
+    }, [definePropertyStateItemCapabilities(rule, {
+      properties: {
+        defaultRunMode: { availability: "borrowed", modes: ["control", "notify"], representation: "tagged" },
+      },
+    })])
 
     expect(yaml).toEqual({ ОсновнойРежимЗапуска: "ManagedApplication" })
     expect(yamlScalarTagAt(yaml, "ОсновнойРежимЗапуска")).toBe("проверять")
@@ -81,9 +88,11 @@ describe("importMetadataItemFromXMLToYAML", () => {
     const attributeRule = {
       itemType: "Task4NestedAttribute",
       properties: {
+        uuid: { type: "UUID", xml: "_uuid", forReferenceOnly: true },
         name: { type: "string", xml: "Name", yaml: "Имя", xmlParents: ["Properties"] },
         type: { type: "string", xml: "Type", yaml: "Тип", xmlParents: ["Properties"] },
         format: { type: "string", xml: "Format", yaml: "Формат", xmlParents: ["Properties"] },
+        extendedConfigurationObject: { type: "string", runtimeOnly: true, xmlParents: ["Properties"] },
       },
     } as MetadataItemRule
     registerMetadataItemCollectionRule({
@@ -108,9 +117,11 @@ describe("importMetadataItemFromXMLToYAML", () => {
       ChildObjects: {
         Attribute: {
           Properties: {
+            ObjectBelonging: "Adopted",
             Name: "РеквизитСправочника",
             Type: "Дата",
             Format: "ffff",
+            ExtendedConfigurationObject: "11111111-1111-4111-8111-111111111111",
           },
           InternalInfo: {
             "xr:PropertyState": [
@@ -126,7 +137,16 @@ describe("importMetadataItemFromXMLToYAML", () => {
           },
         },
       },
-    })
+    }, [definePropertyStateItemCapabilities(attributeRule, {
+      properties: {
+        extendedConfigurationObject: {
+          availability: "borrowed",
+          modes: ["control", "notify"],
+          representation: "tagged",
+        },
+        format: { availability: "borrowed", modes: ["control", "notify"], representation: "tagged" },
+      },
+    })])
 
     expect(yaml).toMatchObject({
       Реквизиты: {
@@ -157,7 +177,11 @@ function runDirectRule(rule: MetadataItemRule, xml: Record<string, unknown>) {
   return { yaml, localIndexes: collector.finish() }
 }
 
-function runMetadataItemRule(rule: MetadataItemRule, xml: Record<string, unknown>) {
+function runMetadataItemRule(
+  rule: MetadataItemRule,
+  xml: Record<string, unknown>,
+  contributions: readonly PropertyStateCapabilityContribution[],
+) {
   const collector = createLocalIndexesCollector()
   const baseContext = mockXmlImportContext()
   const extensionContext = {
@@ -165,10 +189,12 @@ function runMetadataItemRule(rule: MetadataItemRule, xml: Record<string, unknown
     exportToYAML: { toTyped: true },
     fromXML: { ...baseContext.fromXML, metadataItemAugmenter: "configurationExtension" },
   }
-  return importMetadataItemFromXMLToYAML({
-    context: extensionContext,
-    rule,
-    xml,
-    traversal: { yamlPath: [], rulePath: [], collector },
-  })
+  return withOperationRegistrySet({
+    propertyStates: createPropertyStateCapabilityRegistry(contributions),
+  }, () => importMetadataItemFromXMLToYAML({
+      context: extensionContext,
+      rule,
+      xml,
+      traversal: { yamlPath: [], rulePath: [], collector },
+    }))
 }

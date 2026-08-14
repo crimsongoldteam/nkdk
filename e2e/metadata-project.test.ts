@@ -32,7 +32,13 @@ describe.sequential("metadata project E2E", () => {
     for (const result of baseline.results) {
       expect(result.failed).toEqual([])
       expect(result.succeeded).toBeGreaterThan(0)
-      expect(result.configurationIndexPath).toBeDefined()
+      expect(result.configurationIndexPath).toBe(join(
+        baseline.projectDir,
+        ".nkdk/components",
+        result.componentPath!,
+        "configuration-index.lmdb",
+      ))
+      await expect(access(result.configurationIndexPath!)).resolves.toBeUndefined()
     }
     for (const { componentPath } of E2E_COMPONENTS) {
       await expect(access(join(baseline.projectDir, componentPath, "Конфигурация.yaml")))
@@ -119,7 +125,7 @@ describe.sequential("metadata project E2E", () => {
     console.info("E2E validation durations, ms", result.durationsMs)
   })
 
-  it("restores every XML component semantically from the committed NKDK project", async () => {
+  it("restores every XML component byte for byte from the imported NKDK project", async () => {
     if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
     const projectDir = await cloneImportedProject(baseline, "round-trip")
     const reportRoot = resolve(import.meta.dirname, "../reports/e2e/round-trip")

@@ -4,6 +4,40 @@ import type {
 } from "./contracts"
 import type { MetadataItemRule } from "../property/types"
 
+const MODULE_EXTERNAL_NAMES: Readonly<Record<string, string>> = {
+  objectModule: "МодульОбъекта",
+  managerModule: "МодульМенеджера",
+  recordSetModule: "МодульНабораЗаписей",
+  module: "Модуль",
+  valueManagerModule: "МодульМенеджераЗначения",
+  commandModule: "МодульКоманды",
+}
+
+const STANDARD_PLAIN_KEYS = [
+  "defaultForm",
+  "defaultObjectForm",
+  "defaultFolderForm",
+  "defaultListForm",
+  "defaultChoiceForm",
+  "defaultFolderChoiceForm",
+  "defaultRecordForm",
+  "defaultSaveForm",
+  "defaultLoadForm",
+  "defaultReportForm",
+  "defaultReportSettingsForm",
+  "defaultReportVariantForm",
+  "defaultDynamicListSettingsForm",
+  "defaultSettingsForm",
+  "defaultVariantForm",
+  "objectPresentation",
+  "extendedObjectPresentation",
+  "listPresentation",
+  "extendedListPresentation",
+  "owners",
+  "content",
+  "explanation",
+] as const
+
 export function definePropertyStateProfile(
   id: string,
   properties: Readonly<Record<string, PropertyStatePropertyCapability>>,
@@ -22,13 +56,27 @@ export function definePropertyStateItemCapabilities<
     readonly properties?: Properties
   },
 ): PropertyStateCapabilityContribution {
+  const properties: Record<string, PropertyStatePropertyCapability> = {}
+  for (const [propertyKey, capability] of Object.entries(options.properties ?? {})) {
+    if (capability !== undefined) properties[propertyKey] = capability
+  }
+  for (const propertyKey of STANDARD_PLAIN_KEYS) {
+    if (rule.properties[propertyKey] !== undefined && properties[propertyKey] === undefined) {
+      Object.assign(properties, extended(propertyKey))
+    }
+  }
+  for (const propertyKey of Object.keys(rule.properties)) {
+    const externalName = MODULE_EXTERNAL_NAMES[propertyKey]
+    if (externalName === undefined || properties[propertyKey] !== undefined) continue
+    Object.assign(properties, externalProperty(propertyKey, externalName, ["extend"]))
+  }
   return {
     kind: "propertyStateCapability",
     id: `item:${options.itemType ?? rule.itemType}`,
     item: {
       itemType: options.itemType ?? rule.itemType,
       profiles: options.profiles ?? [],
-      properties: options.properties as Readonly<Record<string, PropertyStatePropertyCapability>> | undefined,
+      properties,
     },
   }
 }

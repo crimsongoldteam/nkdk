@@ -28,6 +28,11 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     ["с явным noImplicitValueYAML", { type: "boolean", noImplicitValueYAML: true }, ["Истина", "Ложь"]],
     ["с неявной Истиной", { type: "boolean", implicitValueYAML: true }, ["Ложь"]],
     ["с неявной Ложью", { type: "boolean", implicitValueYAML: false }, ["Истина"]],
+    [
+      "с сохраняемым явным XML-default",
+      { type: "boolean", implicitValueYAML: true, preserveExplicitDefaultXML: true },
+      ["Истина", "Ложь"],
+    ],
   ] as const)("оставляет допустимые boolean-значения %s", (_name, rule, allowedValues) => {
     const schema = exportPropertyToJSONSchema({
       context: validationContext,
@@ -67,6 +72,34 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     const check = compileValidationSchema(withoutTruth)
     expect(check.Check("Истина")).toBe(false)
     expect(check.Check("Ложь")).toBe(true)
+  })
+
+  it("использует базовые validation refs для сохраняемого явного XML-default", () => {
+    const session = createValidationSchemaTestSession(mockContext, "inline", {
+      excludeImplicitValueYAML: true,
+    })
+    const rules = [
+      { type: "boolean", implicitValueYAML: true, preserveExplicitDefaultXML: true },
+      { type: "number", implicitValueYAML: 9, preserveExplicitDefaultXML: true },
+      { type: "string", implicitValueYAML: "", preserveExplicitDefaultXML: true },
+      {
+        type: "SystemEnumeration",
+        typeSE: "ModalityUseMode",
+        implicitValueYAML: "Use",
+        preserveExplicitDefaultXML: true,
+      },
+    ] as const
+
+    expect(rules.map((rule) => (exportPropertyToJSONSchema({
+      context: session.context,
+      rule,
+      value: undefined,
+    }) as { $ref?: string }).$ref)).toEqual([
+      "nkdk://schema/validation/2.20/ru/boolean/base",
+      "nkdk://schema/validation/2.20/ru/number/base",
+      "nkdk://schema/validation/2.20/ru/string/base",
+      "nkdk://schema/validation/2.20/ru/SystemEnumeration/ModalityUseMode",
+    ])
   })
 
   it("creates distinct validation refs for SystemEnumeration implicit values", () => {

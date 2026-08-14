@@ -1,13 +1,16 @@
 import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "../../ruleRuntime/definition/propertyStateDeclarations"
 import { MetadataExternalDataSourceTableRules } from "./rules"
+import { borrowedExternalDataSourceRecordPresentationProperties } from "../metadataExternalDataSourceShared"
 
 export const metadataExternalDataSourceTablePropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataExternalDataSourceTableRules, {
   profiles: ["borrowed-base", "mutable-synonym"],
   properties: {
     ...controlled("tableType"),
-    ...allPropertyStateModes("nameInDataSource", "keyFields", "readOnly"),
+    ...allPropertyStateModes("nameInDataSource", "keyFields"),
+    ...borrowedExternalDataSourceRecordPresentationProperties,
+    ...externalProperty("recordSetModule", "МодульНабораЗаписей", ["extend"]),
     ...externalProperty("managerModule", "МодульМенеджера", ["extend"]),
     ...externalProperty("objectModule", "МодульОбъекта", ["extend"]),
-    ...externalProperty("recordSetModule", "МодульНабораЗаписей", ["extend"]),
+    ...allPropertyStateModes("readOnly"),
   },
 })

@@ -54,6 +54,7 @@ export const MetadataDefinedTypeRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     type: typeDescriptionRule({
       ownerFactRole: "type",

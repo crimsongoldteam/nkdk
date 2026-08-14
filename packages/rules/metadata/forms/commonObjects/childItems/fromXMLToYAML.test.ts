@@ -60,15 +60,15 @@ describe("importChildItemsFromXMLToYAML", () => {
       expect.arrayContaining([
         expect.objectContaining({
           logicalAddress: "Форма.Элемент.Поле",
-          identities: expect.objectContaining({ xmlId: "1" }),
+          xmlId: "1",
         }),
         expect.objectContaining({
           logicalAddress: "Форма.Элемент.Поле.КонтекстноеМеню",
-          identities: expect.objectContaining({ xmlId: "2" }),
+          xmlId: "2",
         }),
         expect.objectContaining({
           logicalAddress: "Форма.Элемент.Поле.РасширеннаяПодсказка",
-          identities: expect.objectContaining({ xmlId: "3" }),
+          xmlId: "3",
         }),
       ])
     )

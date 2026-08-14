@@ -6,49 +6,29 @@ export {
   type ConfigurationIndexCollectionContext,
 } from "@nkdk/runtime"
 export { createConfigurationIndexCollector, type ConfigurationIndexCollector } from "@nkdk/runtime"
-export {
-  ConfigurationIndexCompatibilityError,
-  decodeConfigurationIndex,
-  type DecodeConfigurationIndexOptions,
-} from "@nkdk/runtime"
-export { encodeConfigurationIndex } from "@nkdk/runtime"
+export { configurationIndexStoreDescriptor, type ConfigurationIndexStoreDescriptor } from "@nkdk/runtime"
 export {
   createConfigurationIndexExportRuntime,
   type ConfigurationIndexExportRuntime,
   type CreateConfigurationIndexExportRuntimeOptions,
 } from "@nkdk/runtime"
 export {
-  configurationIndexPath,
-  readConfigurationIndex,
-  writeConfigurationIndex,
+  createLocalConfigurationIndexReader,
+  type LocalConfigurationIndexReader,
 } from "@nkdk/runtime"
 export {
   createConfigurationIndexFragmentBuilder,
-  decodeConfigurationIndexFragments,
-  encodeConfigurationIndexFragments,
+  decodeConfigurationBlockFragments,
+  encodeConfigurationBlockFragments,
   mergeConfigurationIndexFragments,
   type ConfigurationIndexFragmentBuilder,
 } from "@nkdk/runtime"
 export { hashConfigurationProjectFiles, hashConfigurationProjectFileList, type HashConfigurationProjectFilesOptions } from "./projectFiles"
-export {
-  createConfigurationIndexAssignmentLookupStats,
-  createConfigurationIndexReader,
-  readConfigurationIndexSnapshot,
-  snapshotConfigurationIndex,
-  type AssignmentScopedConfigurationIndexReader,
-  type ConfigurationIndexAssignmentLookupStats,
-  type ConfigurationIndexEntityRange,
-  type ConfigurationIndexReader,
-  type SharedConfigurationIndexSnapshot,
-} from "@nkdk/runtime"
 export type {
   ConfigurationProjectFile,
-  ConfigurationSnapshot,
-  ConfigurationSnapshotEntity,
-  ConfigurationSnapshotFile,
-  ConfigurationSnapshotFragment,
-  ConfigurationSnapshotXml,
-  MergedConfigurationSnapshotFragments,
-  OmittedChildren,
+  ConfigurationIndexBlockFragment,
+  ConfigurationIndexBlock,
+  ConfigurationIndexBlockEntity,
+  ConfigurationIndexFragmentCollection,
 } from "@nkdk/runtime"
 export { componentPath, type ComponentAddress } from "@nkdk/runtime"

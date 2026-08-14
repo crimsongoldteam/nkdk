@@ -109,15 +109,18 @@ async function writeFileDiffs(difference: FileTreeDifference, path: string): Pro
   const diffPath = resolve(difference.reportDir, `${path}.diff`)
   const normalizedDiffPath = resolve(difference.reportDir, `${path}.normalized.diff`)
   await mkdir(dirname(diffPath), { recursive: true })
-  await writeFile(diffPath, isBinaryPath(path)
+  await writeFile(diffPath, await isBinaryFile(path, expectedPath, actualPath)
     ? "Текстовый diff недоступен для двоичного файла.\n"
     : gitDiff(expectedPath, actualPath))
   await writeFile(normalizedDiffPath, await normalizedDiff(expectedPath, actualPath))
 }
 
-function isBinaryPath(path: string): boolean {
-  return new Set([".bin", ".zip", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".pdf"])
+async function isBinaryFile(path: string, expectedPath: string, actualPath: string): Promise<boolean> {
+  const binaryExtension = new Set([".bin", ".zip", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".pdf"])
     .has(extname(path).toLowerCase())
+  if (binaryExtension) return true
+  const [expected, actual] = await Promise.all([readFile(expectedPath), readFile(actualPath)])
+  return expected.includes(0) || actual.includes(0)
 }
 
 function gitDiff(expectedPath: string, actualPath: string): string {

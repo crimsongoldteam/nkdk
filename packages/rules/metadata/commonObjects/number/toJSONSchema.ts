@@ -8,7 +8,7 @@ export const exportNumberToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchem
   })
 
 export const numberValidationSchemaRef: ValidationSchemaRefFn = ({ rule }) => {
-  const implicit = typeof rule.implicitValueYAML === "number"
+  const implicit = rule.preserveExplicitDefaultXML !== true && typeof rule.implicitValueYAML === "number"
     ? `without-${rule.implicitValueYAML}`
     : "base"
   if (typeof rule.minimum !== "number" && typeof rule.maximum !== "number") {

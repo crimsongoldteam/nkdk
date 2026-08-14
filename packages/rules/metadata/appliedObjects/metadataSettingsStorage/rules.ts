@@ -52,6 +52,12 @@ export const MetadataSettingsStorageRules = {
       xmlParents: properties,
       required: true,
     }),
+    defaultSaveForm: stringRule({
+      yaml: "ОсновнаяФормаСохранения",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
     synonym: i8nTextRule({
       yaml: "Синоним",
       xmlParents: properties,
@@ -62,6 +68,7 @@ export const MetadataSettingsStorageRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
@@ -74,12 +81,6 @@ export const MetadataSettingsStorageRules = {
     extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
-    }),
-    defaultSaveForm: stringRule({
-      yaml: "ОсновнаяФормаСохранения",
-      xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-      defaultValueXMLRaw: "",
     }),
     defaultLoadForm: stringRule({
       yaml: "ОсновнаяФормаЗагрузки",

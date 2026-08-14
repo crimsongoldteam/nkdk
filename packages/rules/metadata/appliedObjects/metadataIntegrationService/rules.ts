@@ -60,6 +60,7 @@ export const MetadataIntegrationServiceRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     externalIntegrationServiceAddress: stringRule({
       yaml: "АдресВнешнегоСервисаИнтеграции",

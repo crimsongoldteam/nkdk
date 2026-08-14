@@ -17,9 +17,9 @@ export const MetadataDocumentJournalColumnRules = {
     "uuid",
   ],
   properties: {
-    uuid: uuidPropertyRule,
     name: stringRule({
       xml: "Name",
+      description: "Имя колонки журнала документов.",
       required: true,
       xmlParents: ["Properties"],
     }),
@@ -30,17 +30,6 @@ export const MetadataDocumentJournalColumnRules = {
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
     }),
-    comment: stringRule({
-      yaml: "Комментарий",
-      xml: "Comment",
-      xmlParents: ["Properties"],
-      defaultValueXMLRaw: "",
-    }),
-    type: typeDescriptionRule({
-      yaml: "Тип",
-      xml: "Type",
-      xmlParents: ["Properties"],
-    }),
     references: metadataItemLinksRule({
       yaml: "Ссылки",
       xml: "References",
@@ -48,6 +37,20 @@ export const MetadataDocumentJournalColumnRules = {
       xmlParents: ["Properties"],
       defaultValueXMLRaw: {},
     }),
+    comment: stringRule({
+      yaml: "Комментарий",
+      xml: "Comment",
+      description: "Комментарий колонки журнала документов.",
+      xmlParents: ["Properties"],
+      defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
+    }),
+    type: typeDescriptionRule({
+      yaml: "Тип",
+      xml: "Type",
+      xmlParents: ["Properties"],
+    }),
+    uuid: uuidPropertyRule,
     indexing: systemEnumerationRule({
       yaml: "Индексирование",
       xml: "Indexing",

@@ -9,6 +9,10 @@ describe("importFieldsListFromYAML", () => {
     expect(result).toBeUndefined()
   })
 
+  it("imports an empty tagged marker as an explicit empty list", () => {
+    expect(importFieldsListFromYAML(mockContext, mockRule, {})).toEqual([])
+  })
+
   it("should import full", () => {
     const result = importFieldsListFromYAML(mockContext, mockRule, fullFieldsListYAML)
 

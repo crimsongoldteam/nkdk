@@ -1,4 +1,5 @@
 import {
+  allPropertyStateModes,
   controlled,
   definePropertyStateProfile,
   extended,
@@ -15,14 +16,17 @@ export const configurationExtensionPropertyStateProfiles = [
   definePropertyStateProfile("typed-field", {
     ...extended("synonym"),
     ...multiState("type"),
-    ...extended("format", "editFormat", "toolTip", "choiceForm"),
+    ...allPropertyStateModes("format"),
+    ...extended("editFormat", "toolTip", "choiceForm"),
   }),
   definePropertyStateProfile("tabular-section", extended("synonym", "toolTip")),
   definePropertyStateProfile("command", {
     ...extended("synonym", "toolTip", "picture"),
   }),
   definePropertyStateProfile("register-field", {
-    ...extended("synonym", "format", "editFormat", "toolTip", "choiceForm"),
+    ...extended("synonym"),
+    ...allPropertyStateModes("format"),
+    ...extended("editFormat", "toolTip", "choiceForm"),
     ...multiState("type"),
   }),
 ] as const

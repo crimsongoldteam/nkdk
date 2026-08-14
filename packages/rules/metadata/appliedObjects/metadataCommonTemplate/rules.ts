@@ -47,6 +47,7 @@ export const MetadataCommonTemplateRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     templateType: systemEnumerationRule({
       yaml: "ВидМакета",
@@ -54,6 +55,7 @@ export const MetadataCommonTemplateRules = {
       typeSE: "TemplateType",
       xmlParents: properties,
       defaultValueXML: "SpreadsheetDocument",
+      defaultValueAdoptedXML: "SpreadsheetDocument",
       implicitValueYAML: "SpreadsheetDocument",
     }),
     template: templateRule({

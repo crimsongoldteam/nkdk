@@ -27,6 +27,7 @@ type PartialCore = Pick<CoreApi,
   | "markPartialSyncPreparedAfterRejection"
   | "markPartialSyncApplied"
   | "finalizePartialSync"
+  | "forceClearPendingSync"
 >
 
 type OutputDiagnostic = {
@@ -111,6 +112,10 @@ async function syncToInfobaseExclusive(
     })
     if (!component.ok) return component.error
 
+    if (input.forceClearPending === true) {
+      await dependencies.core.forceClearPendingSync(component.projectDir, component.componentPath)
+    }
+
     const pending = await dependencies.core.readPendingPartialSync(
       component.projectDir,
       component.componentPath,
@@ -130,12 +135,23 @@ async function syncToInfobaseExclusive(
       })
     }
 
-    const prepared = await dependencies.core.preparePartialSync({
-      context: { defaultLanguage: "ru", version: "2.20" },
-      projectDir: component.projectDir,
-      componentPath: component.componentPath,
-      projectState: dependencies.projectState,
-    })
+    const prepared = pending?.delivery.status === "prepared"
+      ? {
+          ok: true as const,
+          status: "prepared" as const,
+          packageId: pending.packageId,
+          archivePath: join(component.projectDir, ...pending.archiveProjectPath.split("/")),
+          archiveHash: pending.archiveHash,
+          entries: pending.entries,
+          loadTargets: pending.loadTargets,
+          diagnostics: [],
+        }
+      : await dependencies.core.preparePartialSync({
+          context: { defaultLanguage: "ru", version: "2.20" },
+          projectDir: component.projectDir,
+          componentPath: component.componentPath,
+          projectState: dependencies.projectState,
+        })
     if (!prepared.ok) {
       return toolError("core_error", "Не удалось подготовить частичную синхронизацию", {
         componentPath: component.componentPath,

@@ -13,6 +13,7 @@ import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { exportDependentAdoptedDefault } from "../../ruleRuntime/property/xmlDefaultVariant"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataFilterCriterionRules = {
@@ -73,6 +74,7 @@ export const MetadataFilterCriterionRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
@@ -92,12 +94,17 @@ export const MetadataFilterCriterionRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    useStandardCommands: booleanRule({
-      yaml: "ИспользоватьСтандартныеКоманды",
-      defaultValueXML: true,
-      implicitValueYAML: true,
-      xmlParents: properties,
-    }),
+    useStandardCommands: {
+      ...booleanRule({
+        yaml: "ИспользоватьСтандартныеКоманды",
+        defaultValueXML: true,
+        defaultValueAdoptedXML: true,
+        implicitValueYAML: true,
+        xmlParents: properties,
+      }),
+      toXML: (source, context) =>
+        exportDependentAdoptedDefault(source, context, "useStandardCommands", ["commands"]),
+    },
     content: metadataItemLinksRule({
       yaml: "Состав",
       metadataTarget: { kind: "member", owner: "explicit" },

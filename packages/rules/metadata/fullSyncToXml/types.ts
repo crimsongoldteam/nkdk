@@ -1,6 +1,5 @@
 import type { ConfigurationContext } from "@nkdk/runtime"
-import type { SharedConfigurationIndexSnapshot } from "@nkdk/runtime"
-import type { ConfigurationIndexEntityRange } from "@nkdk/runtime"
+import type { ConfigurationIndexStoreDescriptor } from "@nkdk/runtime"
 import type { FullXmlSyncSharedCompositionSnapshot } from "./sharedMetadataTypes"
 import type { DeferredObjectValue } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -40,7 +39,10 @@ export interface FullXmlSyncAssignment {
 }
 
 export interface FullXmlSyncExecutionAssignment extends FullXmlSyncAssignment {
-  readonly configurationIndexEntityRange: ConfigurationIndexEntityRange
+  readonly configurationIndexSources: {
+    readonly targetProjectPaths: readonly string[]
+    readonly baseProjectPaths: readonly string[]
+  }
 }
 
 export interface FullXmlSyncExternalFile {
@@ -117,7 +119,9 @@ export type FullXmlSyncWorkerCommand =
       readonly context: ConfigurationContext
       readonly profile: FullXmlSyncWorkerProfileRuntime
       readonly composition: FullXmlSyncSharedCompositionSnapshot
-      readonly targetIndex: SharedConfigurationIndexSnapshot
+      readonly targetIndex: ConfigurationIndexStoreDescriptor
+      readonly baseIndex?: ConfigurationIndexStoreDescriptor
+      readonly operationSeed: Uint8Array
       readonly projectStateReadToken?: ProjectStateReadToken
     }
   | { readonly kind: "execute"; readonly assignments: readonly FullXmlSyncExecutionAssignment[] }

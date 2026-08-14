@@ -2,10 +2,13 @@ import {
   booleanProperty,
   stringProperty,
 } from "../metadataRuleFragment"
+import { hasYAMLProperty, xmlDefaultVariant } from "../../ruleRuntime/property/xmlDefaultVariant"
 
 export interface RegisterFieldExportContext {
   exportToXML: {
     itemsTree: readonly { itemType: string }[]
+    configurationIndex?: { readonly logicalAddress: string }
+    xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, "full" | "adopted" | "indexed">>
   }
 }
 
@@ -14,6 +17,7 @@ export const registerFieldBalanceProperty = booleanProperty({
   xml: "Balance",
   xmlParents: ["Properties"],
   defaultValueXML: true,
+  defaultValueAdoptedXML: true,
   implicitValueYAML: true,
   toXML: (_source: unknown, context?: RegisterFieldExportContext) =>
     isAccountingRegisterField(context),
@@ -24,8 +28,8 @@ export const registerFieldAccountingFlagProperty = stringProperty({
   xml: "AccountingFlag",
   xmlParents: ["Properties"],
   defaultValueXMLRaw: "",
-  toXML: (_source: unknown, context?: RegisterFieldExportContext) =>
-    isAccountingRegisterField(context),
+  toXML: (source: unknown, context?: RegisterFieldExportContext) =>
+    exportAccountingFieldDefault("accountingFlag", source, context),
 })
 
 export const isAccountingRegisterField = (
@@ -42,3 +46,11 @@ export const isAccountingRegisterField = (
   }
   return false
 }
+
+export const exportAccountingFieldDefault = (
+  propertyKey: string,
+  source: unknown,
+  context?: RegisterFieldExportContext,
+): boolean =>
+  isAccountingRegisterField(context) &&
+  (xmlDefaultVariant(context) !== "adopted" || hasYAMLProperty(source, propertyKey))

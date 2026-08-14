@@ -1,5 +1,4 @@
 import { capitalize, yamlScalarTagAt } from "@nkdk/runtime"
-import { childSegmentUid } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -8,23 +7,31 @@ import { currentOperationRegistrySet } from "../../operations/operationExecution
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
 import { exportMultiStateType, isMultiStateTypeYAML } from "./multiState"
 import { readPropertyStateSections } from "../../ruleRuntime/property/propertyStateSections"
-import { decodeExplicitXMLPropertyState, isExplicitXMLPropertyState } from "./explicitXMLState"
-
-const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
+import {
+  EXTENDED_CONFIGURATION_OBJECT_YAML,
+  readExtendedConfigurationObjectYAML,
+} from "./extendedConfigurationObjectYAML"
 
 export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugmenter = {
   augment({ context, rule, yaml, outputs, logicalAddress }) {
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
-    if (rule.itemType === "MetadataConfigurationExtension") {
+    const adopted = rule.itemType === "MetadataConfigurationExtension" ||
+      adoptedUuid !== undefined ||
+      context.exportToXML.xmlDefaultVariantByLogicalAddress?.[logicalAddress] === "adopted"
+    if (adopted && supportsAdoptionServiceProperties(rule)) {
+      const extensionObject = readExtendedConfigurationObjectYAML(yaml)
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-      if (adoptedUuid !== undefined) {
-        writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
-        context.exportToXML.configurationIndex?.collector.setXmlFlag(logicalAddress, "extended")
-      }
-    } else if (adoptedUuid !== undefined && supportsAdoptionServiceProperties(rule)) {
-      writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-      if (context.exportToXML.configurationIndex?.xml(logicalAddress)?.extended === true) {
-        writeServiceProperty(outputs, rule, "extendedConfigurationObject", "ExtendedConfigurationObject", adoptedUuid)
+      if (extensionObject.uuidPresent) {
+        if (adoptedUuid === undefined) {
+          throw new Error(`Не найден UUID основной конфигурации: ${logicalAddress}`)
+        }
+        writeServiceProperty(
+          outputs,
+          rule,
+          "extendedConfigurationObject",
+          "ExtendedConfigurationObject",
+          adoptedUuid,
+        )
       }
     }
 
@@ -39,7 +46,9 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       logicalAddress,
     })
     if (states.length > 0) writePropertyStates(outputs, rule, states)
-    restoreIndexedInternalInfo(context, outputs, rule, logicalAddress)
+    else if (adopted && propertyStateRegistry()?.item(rule.itemType) !== undefined) {
+      ensureInternalInfo(outputs, rule)
+    }
     reorderServiceProperties(outputs, rule)
     reorderMetadataRoot(outputs, rule)
   },
@@ -138,27 +147,6 @@ function currentPropertyOrder(rule: MetadataItemRule): readonly string[] {
   return order
 }
 
-function restoreIndexedInternalInfo(
-  context: ConfigurationContextWithExportToXML,
-  outputs: ReadonlyMap<string, Record<string, unknown>>,
-  rule: MetadataItemRule,
-  logicalAddress: string
-): void {
-  const xmlRoot = rule.properties.xmlRoot
-  if (xmlRoot?.type === "XMLRoot" && xmlRoot.isFileRoot === true) return
-  if (
-    context.exportToXML.configurationIndex?.xml(childSegmentUid(logicalAddress, "InternalInfo"))?.present !== true
-  ) {
-    return
-  }
-  const propertiesParents = rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"]
-  const output = findMetadataOutput(outputs, propertiesParents)
-  if (output === undefined) return
-  const ownerParents = rule.itemType === "ClientApplicationForm" ? ["Form"] : []
-  const owner = recordAt(output, ownerParents)
-  if (!Object.prototype.hasOwnProperty.call(owner, "InternalInfo")) owner.InternalInfo = {}
-}
-
 function insertAfter(
   order: string[],
   propertyKey: string,
@@ -180,37 +168,63 @@ function propertyStates(params: {
   readonly outputs: ReadonlyMap<string, Record<string, unknown>>
   readonly logicalAddress: string
 }): Record<string, string>[] {
-  const states: Record<string, string>[] = []
-  const itemCapability = propertyStateRegistry()?.item(params.rule.itemType)
+  const registry = propertyStateRegistry()
+  const itemCapability = registry?.item(params.rule.itemType)
   const sectionStates = itemCapability === undefined
     ? new Map<string, "notify" | "extend">()
     : readPropertyStateSections(params.yaml, itemCapability)
-  const consumedSectionKeys = new Set<string>()
-  if (yamlScalarTagAt(params.yaml, EXTENDED_CONFIGURATION_OBJECT_YAML) === "проверять") {
-    states.push(propertyState("ExtendedConfigurationObject", "Notify"))
+  const statesByPropertyKey = new Map<string, Record<string, string>>()
+  const addState = (
+    propertyKey: string,
+    state: "Notify" | "Extended" | "MultiState",
+  ): void => {
+    const mode = state === "Notify" ? "notify" : state === "Extended" ? "extend" : "multi"
+    const capability = registry?.resolve({ itemType: params.rule.itemType, propertyKey })
+    if (capability === undefined || !capability.modes.includes(mode)) {
+      throw new Error(`Недопустимый PropertyState ${params.rule.itemType}.${propertyKey}=${state}`)
+    }
+    const propertyRule = params.rule.properties[propertyKey]
+    statesByPropertyKey.set(propertyKey, propertyState(propertyRule?.xml ?? capitalize(propertyKey), state))
+  }
+  if (readExtendedConfigurationObjectYAML(params.yaml).mode === "notify") {
+    addState("extendedConfigurationObject", "Notify")
   }
 
   for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
     const yamlName = propertyRule.yaml
     const xmlName = propertyRule.xml ?? capitalize(propertyKey)
     const yamlValue = typeof yamlName === "string" ? params.yaml[yamlName] : undefined
-    const sectionMode = sectionStates.get(propertyKey)
+    const scalarTag = typeof yamlName === "string" ? yamlScalarTagAt(params.yaml, yamlName) : undefined
+    const capability = registry?.resolve({ itemType: params.rule.itemType, propertyKey })
     if (
-      typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "xml" &&
-      typeof yamlValue === "string" && isExplicitXMLPropertyState(yamlValue)
+      capability !== undefined &&
+      typeof yamlName === "string" &&
+      Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&
+      yamlValue === ""
     ) {
-      const explicit = decodeExplicitXMLPropertyState(yamlValue, {
-        itemType: params.rule.itemType,
-        propertyKey,
-        xmlProperty: xmlName,
-      })
-      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, explicit.propertyXML)
-      states.push({ ...explicit.propertyStateXML })
-      continue
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
     }
+    if (
+      capability !== undefined &&
+      typeof yamlName === "string" &&
+      propertyRule.type === "TypeDescription" &&
+      Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&
+      Array.isArray(yamlValue) &&
+      yamlValue.length === 0
+    ) {
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
+    }
+    if (
+      typeof yamlName === "string" &&
+      propertyRule.metadataTarget !== undefined &&
+      Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&
+      (yamlValue === null || (isEmptyRecord(yamlValue) && scalarTag !== undefined))
+    ) {
+      writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
+    }
+    const sectionMode = sectionStates.get(propertyKey)
     if (sectionMode !== undefined) {
-      consumedSectionKeys.add(propertyKey)
-      states.push(propertyState(xmlName, sectionMode === "notify" ? "Notify" : "Extended"))
+      addState(propertyKey, sectionMode === "notify" ? "Notify" : "Extended")
       continue
     }
     if (
@@ -220,30 +234,40 @@ function propertyStates(params: {
     ) {
       const multiState = exportMultiStateType(params.context, propertyRule, yamlValue)
       writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, multiState.value)
-      states.push(propertyState(xmlName, multiState.state))
+      addState(propertyKey, multiState.state)
       continue
     }
     if (
       typeof yamlName === "string" &&
       yamlName !== EXTENDED_CONFIGURATION_OBJECT_YAML &&
-      yamlScalarTagAt(params.yaml, yamlName) === "проверять"
+      scalarTag === "проверять"
     ) {
-      states.push(propertyState(xmlName, "Notify"))
+      addState(propertyKey, "Notify")
       continue
     }
-    if (typeof yamlName === "string" && yamlScalarTagAt(params.yaml, yamlName) === "изменять") {
-      if (isEmptyRecord(yamlValue)) {
-        writePropertyValue(params.outputs, propertyRule.xmlParents ?? [], xmlName, "")
-      }
-      states.push(propertyState(xmlName, "Extended"))
+    if (typeof yamlName === "string" && scalarTag === "изменять") {
+      addState(propertyKey, "Extended")
       continue
     }
   }
   for (const [propertyKey, mode] of sectionStates) {
-    if (consumedSectionKeys.has(propertyKey)) continue
-    states.push(propertyState(capitalize(propertyKey), mode === "notify" ? "Notify" : "Extended"))
+    if (statesByPropertyKey.has(propertyKey)) continue
+    addState(propertyKey, mode === "notify" ? "Notify" : "Extended")
   }
-  return states
+  if (statesByPropertyKey.size === 0) return []
+  if (itemCapability === undefined) {
+    throw new Error(`Не зарегистрирован порядок PropertyState для ${params.rule.itemType}`)
+  }
+  const ordered = Object.keys(itemCapability.properties).flatMap((propertyKey) => {
+    const state = statesByPropertyKey.get(propertyKey)
+    if (state === undefined) return []
+    statesByPropertyKey.delete(propertyKey)
+    return [state]
+  })
+  if (statesByPropertyKey.size > 0) {
+    throw new Error(`Не зарегистрирован порядок PropertyState для ${params.rule.itemType}.${statesByPropertyKey.keys().next().value}`)
+  }
+  return ordered
 }
 
 function writePropertyValue(
@@ -286,6 +310,16 @@ function writePropertyStates(
   const output = findMetadataOutput(outputs, serviceParents) ?? outputs.values().next().value
   if (output === undefined) return
   recordAt(output, parents)["xr:PropertyState"] = [...states]
+}
+
+function ensureInternalInfo(
+  outputs: ReadonlyMap<string, Record<string, unknown>>,
+  rule: MetadataItemRule,
+): void {
+  const parents = rule.itemType === "ClientApplicationForm" ? ["Form", "InternalInfo"] : ["InternalInfo"]
+  const serviceParents = rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"]
+  const output = findMetadataOutput(outputs, serviceParents) ?? outputs.values().next().value
+  if (output !== undefined) recordAt(output, parents)
 }
 
 function findMetadataOutput(

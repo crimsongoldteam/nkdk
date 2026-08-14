@@ -22,6 +22,7 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { commonBasedOnObjectPaths } from "../../ruleRuntime/metadataTarget"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 import { appliedObjectInputByStringRule, inputByStringStandardField, NUMERIC_LENGTH_HINT } from "../inputByStringDeclarations"
+import { exportDependentAdoptedDefault } from "../../ruleRuntime/property/xmlDefaultVariant"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataBusinessProcessStandardAttributeNames: Record<string, string> = {
@@ -131,6 +132,7 @@ export const MetadataBusinessProcessRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
@@ -247,12 +249,17 @@ export const MetadataBusinessProcessRules = {
       implicitValueYAML: "Variable",
       xmlParents: properties,
     }),
-    checkUnique: booleanRule({
-      yaml: "КонтрольУникальности",
-      defaultValueXML: true,
-      implicitValueYAML: true,
-      xmlParents: properties,
-    }),
+    checkUnique: {
+      ...booleanRule({
+        yaml: "КонтрольУникальности",
+        defaultValueXML: true,
+        defaultValueAdoptedXML: true,
+        implicitValueYAML: true,
+        xmlParents: properties,
+      }),
+      toXML: (source, context) =>
+        exportDependentAdoptedDefault(source, context, "checkUnique", ["numberType"]),
+    },
     standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
       standartAttributeNames: MetadataBusinessProcessStandardAttributeNames,

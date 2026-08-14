@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { resolve } from "node:path"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { snapshotConfigurationIndex } from "@nkdk/runtime"
 import type { ConfirmedComponentState } from "../project/componentState/types"
 import type { MetadataProjectResourceMatch } from "../resourceTopology/core/projectProjection"
 import type { CompiledMetadataResourceTopology } from "@nkdk/runtime/rule-kit"
@@ -119,15 +117,14 @@ function createState(resources: readonly MetadataProjectResourceMatch[]): Confir
     },
     hashes: { componentPath: "cfe/Дополнение", projectFiles: [] },
     indexes: { componentPath: "cfe/Дополнение", sourceProjectFiles: [], logicalAddresses: [] },
-    snapshot: snapshotConfigurationIndex(
-      encodeConfigurationIndex({
-        specificationVersion: "1.4",
-        indexGeneration: 1n,
-        componentPath: "cfe/Дополнение",
-        files: [],
-        entities: [],
-      })
-    ),
+    snapshot: {
+      descriptor: {
+        dataPath: "/project/.nkdk/components/cfe/Дополнение/configuration-index.lmdb",
+        lockPath: "/project/.nkdk/components/cfe/Дополнение/configuration-index.lmdb-lock",
+        schemaVersion: 1,
+      },
+      projectFiles: [],
+    },
     projectStateReadToken: createTestProjectStateReadToken(),
   }
 }

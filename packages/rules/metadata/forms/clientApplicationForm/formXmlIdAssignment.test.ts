@@ -3,15 +3,13 @@ import { describe, expect, it } from "vitest"
 import {
   createConfigurationIndexCollector,
   createConfigurationIndexExportRuntime,
-  createConfigurationIndexReader,
-  encodeConfigurationIndex,
   registerFormXmlIdReservation,
-  snapshotConfigurationIndex,
   type ConfigurationIndexExportRuntime,
-  type ConfigurationSnapshotEntity,
+  type ConfigurationIndexBlockEntity,
   type FormXmlIdSpace,
 } from "@nkdk/runtime"
 import { assignFormXmlIds } from "./formXmlIdAssignment"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 describe("assignFormXmlIds", () => {
   it.each([
@@ -32,7 +30,7 @@ describe("assignFormXmlIds", () => {
 
     expect(node._id).toBe(expected)
     expect(setup.collector.fragment("Форма.yaml").entities).toContainEqual(
-      expect.objectContaining({ logicalAddress: address, identities: { xmlId: expected } }),
+      expect.objectContaining({ logicalAddress: address, xmlId: expected }),
     )
   })
 
@@ -99,26 +97,12 @@ function registerElementPair(
   return { first, second }
 }
 
-function entity(logicalAddress: string, xmlId: string): ConfigurationSnapshotEntity {
-  return {
-    logicalAddress,
-    sourceProjectPath: "Форма.yaml",
-    identities: { xmlId },
-  }
+function entity(logicalAddress: string, xmlId: string): ConfigurationIndexBlockEntity {
+  return { logicalAddress, xmlId }
 }
 
-function runtimeSetup(entities: ConfigurationSnapshotEntity[]) {
-  const source = createConfigurationIndexReader(
-    snapshotConfigurationIndex(
-      encodeConfigurationIndex({
-        specificationVersion: "1.4",
-        indexGeneration: 1n,
-        componentPath: "cf",
-        files: [{ projectPath: "Форма.yaml", contentHash: 1n }],
-        entities,
-      }),
-    ),
-  )
+function runtimeSetup(entities: ConfigurationIndexBlockEntity[]) {
+  const source = testConfigurationIndexReader(entities)
   const collector = createConfigurationIndexCollector()
   return {
     collector,

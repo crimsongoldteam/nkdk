@@ -8,7 +8,8 @@ export const exportFieldsListToXML = (
   rule: PropertyRule | undefined,
   data: FieldsList | undefined
 ): FieldsListXML | undefined => {
-  if (!data || data.length === 0) return undefined
+  if (!data) return undefined
+  if (data.length === 0) return {}
 
   const xmlItem = (rule as FieldsListPropertyRule | undefined)?.fieldsListXMLItem ?? "Field"
 

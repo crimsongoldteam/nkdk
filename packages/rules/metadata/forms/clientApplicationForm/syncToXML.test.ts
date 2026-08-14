@@ -5,9 +5,36 @@ import { describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixtureDir } from "../../../tests/readFixtureXML"
 import { prepareYamlFiles } from "../../project/prepareYamlFiles"
-import { writePreparedFormToXML } from "./syncToXML"
+import { prepareFormXML, writePreparedFormToXML } from "./syncToXML"
 
 describe("writePreparedFormToXML", () => {
+  it("классифицирует таблицу сохранённого BaseForm по текущей форме основной конфигурации", () => {
+    const prepared = (data: unknown) => ({
+      projectPath: "Справочник/Товары/Формы/ФормаСписка/Форма.yaml",
+      filePath: "/tmp/Форма.yaml",
+      role: "form" as const,
+      owner: { dir: "Справочник", name: "Товары" },
+      data,
+      syntaxDiagnostics: [],
+    })
+    const result = prepareFormXML({
+      context: mockContextToXML(),
+      preparedYamlFile: prepared({ Элементы: { Список: { Вид: "ТаблицаФормы" } } }),
+      baseFormPreparedYamlFile: prepared({ Элементы: { Список: { Вид: "ТаблицаФормы" } } }),
+      currentConfigurationFormPreparedYamlFile: prepared({
+        Реквизиты: { Список: { Тип: "ДинамическийСписок" } },
+        Элементы: { Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" } },
+      }),
+      baseFormSourceKind: "saved",
+      baseFormContext: mockContextToXML(),
+      formName: "ФормаСписка",
+    })
+    const body = result.find(({ targetKind }) => targetKind === "body")?.xml as Record<string, any>
+    const table = body.Form.BaseForm.ChildItems[0].Table
+
+    expect(table).toMatchObject({ AutoRefresh: false, ShowRoot: true })
+  })
+
   it("пишет managed form из подготовленного YAML после удаления исходного файла", async () => {
     const inputDir = getXMLFixtureDir(import.meta.url, "sync/yaml")
     const formName = "ФормаЭлемента"

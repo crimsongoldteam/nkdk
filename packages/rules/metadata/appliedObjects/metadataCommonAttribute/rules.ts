@@ -88,6 +88,7 @@ export const MetadataCommonAttributeRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     type: typeDescriptionRule({
       ownerFactRole: "type",
@@ -237,6 +238,7 @@ export const MetadataCommonAttributeRules = {
       yaml: "РазделениеДанных",
       typeSE: "CommonAttributeDataSeparation",
       defaultValueXML: "DontUse",
+      preserveExplicitDefaultXML: true,
       implicitValueYAML: "DontUse",
       xmlParents: properties,
     }),

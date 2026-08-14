@@ -6,6 +6,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { exportDependentAdoptedDefault } from "../../ruleRuntime/property/xmlDefaultVariant"
 const properties = ["Properties"]
 export const MetadataStyleItemRules = {
   itemType: "MetadataStyleItem",
@@ -48,14 +49,19 @@ export const MetadataStyleItemRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
-    type: systemEnumerationRule({
-      yaml: "Тип",
-      typeSE: "StyleElementType",
-      xmlParents: properties,
-      implicitValueYAML: "Font",
-      defaultValueXML: "Font",
-    }),
+    type: {
+      ...systemEnumerationRule({
+        yaml: "Тип",
+        typeSE: "StyleElementType",
+        xmlParents: properties,
+        implicitValueYAML: "Font",
+        defaultValueXML: "Font",
+      }),
+      toXML: (source, context) =>
+        exportDependentAdoptedDefault(source, context, "type", ["value"]),
+    },
     value: styleItemValueRule({
       yaml: "Значение",
       xml: "Value",

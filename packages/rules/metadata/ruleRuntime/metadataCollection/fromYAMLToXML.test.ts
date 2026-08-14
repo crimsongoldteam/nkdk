@@ -1,16 +1,14 @@
 import { describe, expect, it } from "vitest"
 
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule } from "../property/types"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "./fromYAMLToXML"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 const context = (): ConfigurationContextWithExportToXML => ({
   defaultLanguage: "ru",
@@ -126,7 +124,7 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
   it("не сохраняет общий порядок элементов массива в снимке", () => {
     const collector = createConfigurationIndexCollector()
     const configurationIndex = createConfigurationIndexExportRuntime({
-      source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      source: testConfigurationIndexReader(),
       collector,
       targetProjectPath: "test.yaml",
       logicalAddress: "Тест",

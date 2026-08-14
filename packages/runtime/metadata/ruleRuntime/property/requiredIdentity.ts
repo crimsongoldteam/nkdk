@@ -9,6 +9,7 @@ export function assertRequiredConfigurationIdentity(params: {
   // XML-id формы может быть восстановлен из целевого XML или назначен после
   // построения всей формы, когда известны ID остальных элементов.
   if (params.kind === "xmlId") return
+  if (params.kind === "xmlName") return
   if (
     params.kind === undefined ||
     params.context.exportToXML.requireExistingConfigurationIdentities !== true

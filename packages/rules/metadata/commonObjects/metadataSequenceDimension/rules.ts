@@ -35,6 +35,7 @@ export const MetadataSequenceDimensionRules = {
       xml: "Comment",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     type: typeDescriptionRule({
       yaml: "Тип",

@@ -207,8 +207,7 @@ function completeCollectionEntries(params: {
 }): { yaml: unknown; name?: string }[] {
   if (params.descriptor.yamlShape !== "record") return params.entries
   const referenceNames = collectReferenceNames(params)
-  const savedNames = collectSavedNames(params)
-  const shapeNames = savedNames.length > 0 ? savedNames : referenceNames
+  const shapeNames = referenceNames
   const shouldComplete = params.entries.length > 0 || params.materializeCanonicalItems === true
   const ruleNames =
     shouldComplete && params.propertyRule !== undefined && params.source !== undefined
@@ -228,18 +227,8 @@ function completeCollectionEntries(params: {
       : ruleNames.filter((name) => sourceNames.has(name))
   const requestedNames = params.descriptor.preserveReferenceItems !== true
     ? completedNames
-    : savedNames.length > 0
-      ? [...savedNames, ...completedNames.filter((name) => !savedNames.includes(name))]
-      : [...completedNames, ...referenceNames.filter((name) => !completedNames.includes(name))]
+    : [...completedNames, ...referenceNames.filter((name) => !completedNames.includes(name))]
   if (requestedNames.length === 0) return params.entries
-
-  const runtime = params.context.exportToXML.configurationIndex
-  if (params.descriptor.preserveReferenceItems === true && runtime !== undefined) {
-    runtime.collector.setOmittedChildren(
-      runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress,
-      { kind: "names", names: requestedNames },
-    )
-  }
 
   const byName = new Map(params.entries.map((entry) => [entry.name, entry]))
   const result = requestedNames.map((name) => byName.get(name) ?? { name, yaml: {} })
@@ -247,19 +236,6 @@ function completeCollectionEntries(params: {
     if (entry.name === undefined || !requestedNames.includes(entry.name)) result.push(entry)
   }
   return result
-}
-
-function collectSavedNames(params: {
-  descriptor: CollectionDescriptor
-  context: ConfigurationContextWithExportToXML
-}): string[] {
-  if (params.descriptor.preserveReferenceItems !== true) return []
-  const saved = params.context.exportToXML.configurationIndex?.omittedChildren()
-  if (saved === undefined) return []
-  if (saved.kind !== "names") {
-    throw new Error(`Коллекция ${params.descriptor.itemRule.itemType} ожидает omittedChildren.kind = names`)
-  }
-  return [...saved.names]
 }
 
 function collectReferenceNames(params: {

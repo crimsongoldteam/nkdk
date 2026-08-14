@@ -1,7 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { snapshotConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot } from "@nkdk/runtime"
 import type { ComponentIndexes, ComponentProjectStructure } from "./types"
 import { confirmComponentState } from "./confirm"
 import { createTestProjectStateReadToken } from "../../projectState/tests/readToken"
@@ -16,13 +13,14 @@ describe("confirmed component state", () => {
     resources: [],
     projectPaths: ["Конфигурация.yaml"],
   } satisfies ComponentProjectStructure
-  const snapshot = snapshotConfigurationIndex(
-    encodeConfigurationIndex({
-      ...sampleSnapshot(),
-      files: [],
-      entities: [],
-    })
-  )
+  const snapshot = {
+    descriptor: {
+      dataPath: "/project/.nkdk/components/cf/configuration-index.lmdb",
+      lockPath: "/project/.nkdk/components/cf/configuration-index.lmdb-lock",
+      schemaVersion: 1 as const,
+    },
+    projectFiles,
+  }
   const indexes = {
     componentPath: "cf",
     sourceProjectFiles: projectFiles,
@@ -57,24 +55,21 @@ describe("confirmed component state", () => {
     ).toThrow("индексы относятся к другому состоянию файлов")
   })
 
-  it("rejects a snapshot bound to another component", () => {
-    const data = sampleSnapshot()
-    const other = snapshotConfigurationIndex(
-      encodeConfigurationIndex({
-        ...data,
-        componentPath: "cfe/Другое",
-      })
-    )
+  it("keeps the previous snapshot for change detection", () => {
+    const other = {
+      ...snapshot,
+      projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 2n }],
+    }
 
-    expect(() =>
-      confirmComponentState({
-        structure,
-        hashes: { componentPath: "cf", projectFiles },
-        indexes,
-        snapshot: other,
-        projectStateReadToken,
-      })
-    ).toThrow("снимок относится к другому компоненту")
+    const confirmed = confirmComponentState({
+      structure,
+      hashes: { componentPath: "cf", projectFiles },
+      indexes,
+      snapshot: other,
+      projectStateReadToken,
+    })
+
+    expect(confirmed.snapshot.projectFiles).toEqual(other.projectFiles)
   })
 
   it("keeps the snapshot separate from current logical addresses", () => {

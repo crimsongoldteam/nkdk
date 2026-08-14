@@ -38,6 +38,7 @@ export const MetadataExternalDataSourceFunctionRules = {
       xml: "Comment",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     returnValue: booleanRule({
       yaml: "ВозвращаемоеЗначение",
@@ -51,6 +52,7 @@ export const MetadataExternalDataSourceFunctionRules = {
       xml: "Type",
       required: true,
       xmlParents: propertiesParents,
+      defaultValueAdoptedXML: { type: [] },
     }),
     expressionInDataSource: stringRule({
       yaml: "ВыражениеВИсточникеДанных",

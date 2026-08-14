@@ -3,57 +3,27 @@ export interface ConfigurationProjectFile {
   contentHash: bigint
 }
 
-export interface ConfigurationSnapshot {
-  readonly specificationVersion: "1.4"
-  readonly indexGeneration: bigint
-  readonly componentPath: string
-  readonly files: readonly ConfigurationSnapshotFile[]
-  readonly entities: readonly ConfigurationSnapshotEntity[]
+export interface ConfigurationIndexChild {
+  readonly xmlName: string
+  readonly name: string
 }
 
-export interface ConfigurationSnapshotFile {
-  readonly projectPath: string
-  readonly contentHash: bigint
-}
-
-export interface ConfigurationSnapshotEntity {
+export interface ConfigurationIndexBlockEntity {
   readonly logicalAddress: string
-  readonly sourceProjectPath: string
-  readonly identities?: {
-    readonly uuid?: string
-    readonly xmlId?: string
-    readonly xmlName?: string
-  }
-  readonly omittedChildren?: OmittedChildren
-  readonly xml?: ConfigurationSnapshotXml
+  readonly uuid?: string
+  readonly xmlId?: string
+  readonly children?: readonly ConfigurationIndexChild[]
 }
 
-export type OmittedChildren =
-  | { readonly kind: "names"; readonly names: readonly string[] }
-  | {
-      readonly kind: "typedNames"
-      readonly items: readonly {
-        readonly xmlName: string
-        readonly name: string
-      }[]
-    }
-
-export interface ConfigurationSnapshotXml {
-  readonly present?: true
-  readonly extended?: true
-  readonly xsiNil?: true
-  readonly explicitEmpty?: true
-  readonly xsiType?: string
-  readonly xmlText?: string
-  readonly xmlPrefix?: string
+export interface ConfigurationIndexBlock {
+  readonly entities: readonly ConfigurationIndexBlockEntity[]
 }
 
-export interface ConfigurationSnapshotFragment {
+export interface ConfigurationIndexBlockFragment {
   readonly targetProjectPath: string
-  readonly entities: readonly ConfigurationSnapshotEntity[]
+  readonly entities: readonly ConfigurationIndexBlockEntity[]
 }
 
-export interface MergedConfigurationSnapshotFragments {
-  readonly sourceProjectPaths: readonly string[]
-  readonly entities: readonly ConfigurationSnapshotEntity[]
+export interface ConfigurationIndexFragmentCollection {
+  readonly fragments: readonly ConfigurationIndexBlockFragment[]
 }

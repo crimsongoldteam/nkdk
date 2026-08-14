@@ -51,6 +51,7 @@ export const collectInternalInfoConfigurationIndexFromXML: CollectConfigurationI
   context,
   xml,
 }) => {
+  if (xml === undefined) return
   collectInternalInfoIdentities(context, xml as InternalInfoRootXML)
 }
 

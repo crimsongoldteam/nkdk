@@ -5,6 +5,8 @@ import { mockContextToXML } from "../../../tests/mockContext"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 import { MetadataInformationRegisterDimensionRules } from "../../appliedObjects/metadataInformationRegister/childRules"
+import { MetadataAccountingRegisterDimensionRules } from "../../appliedObjects/metadataAccountingRegister/childRules"
+import { accountingRegisterContext } from "../../../tests/accountingRegisterContext"
 
 const rule = {
   itemType: "MetadataInformationRegisterDimensionsProbe",
@@ -19,6 +21,14 @@ const rule = {
 } as MetadataItemRule
 
 describe("MetadataInformationRegisterDimensions YAML → XML", () => {
+  it("объявляет Balance обязательным для полного и заимствованного реквизита", () => {
+    expect(MetadataAccountingRegisterDimensionRules.properties.balance).toMatchObject({
+      defaultValueXML: true,
+      defaultValueAdoptedXML: true,
+      implicitValueYAML: true,
+    })
+  })
+
   it("round-trips register dimensions", () => {
     const result = testPropertyFixtureThroughYAML({
       propertyType: "MetadataInformationRegisterDimensions",
@@ -67,6 +77,26 @@ describe("MetadataInformationRegisterDimensions YAML → XML", () => {
     expect(serializeDirectXML(result.xml)).toMatch(
       /<ChoiceHistoryOnInput>DontUse<\/ChoiceHistoryOnInput>[\s\S]*<Balance>false<\/Balance>[\s\S]*<AccountingFlag>ChartOfAccounts\.ПланСчетовВсеСвойства\.AccountingFlag\.ПризнакУчетаВсеСвойства<\/AccountingFlag>[\s\S]*<DenyIncompleteValues>false<\/DenyIncompleteValues>[\s\S]*<Indexing>DontIndex<\/Indexing>[\s\S]*<FullTextSearch>DontUse<\/FullTextSearch>/
     )
+  })
+
+  it.each(["full", "adopted"] as const)("выводит обязательный Balance в варианте %s", (variant) => {
+    const result = testPropertyFromYAMLToXML({
+      context: accountingRegisterContext(variant),
+      rule,
+      yaml: { Значение: { Измерение: { Тип: "Булево" } } },
+    })
+
+    expect(serializeDirectXML(result.xml)).toContain("<Balance>true</Balance>")
+  })
+
+  it("не создаёт отсутствующий признак учёта у заимствованного измерения", () => {
+    const result = testPropertyFromYAMLToXML({
+      context: accountingRegisterContext("adopted"),
+      rule,
+      yaml: { Значение: { Измерение: { Тип: "Булево" } } },
+    })
+
+    expect(serializeDirectXML(result.xml)).not.toContain("<AccountingFlag")
   })
 })
 

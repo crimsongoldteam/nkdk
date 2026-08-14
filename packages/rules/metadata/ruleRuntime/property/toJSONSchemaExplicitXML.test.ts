@@ -80,6 +80,24 @@ function explicitXMLSchemas(rule: MetadataItemRule, execution = defaultExecution
 }
 
 describe("explicit XML property validation schema", () => {
+  it("разрешает null для явно очищенной скалярной ссылки расширения", () => {
+    const rule = {
+      itemType: "ExplicitClearedReferenceProbe",
+      properties: {
+        form: {
+          type: "string",
+          yaml: "Форма",
+          metadataTarget: { kind: "object", roots: ["CommonForm"] },
+        },
+      },
+    } as MetadataItemRule
+    const exported = explicitXMLSchemas(rule)
+
+    expect(compileValidationSchema(exported.validationSchemas(), exported.validationProperties.Форма!).Check(null))
+      .toBe(true)
+    expect(JSON.stringify(exported.externalProperties)).not.toContain('"null"')
+  })
+
   it.each([
     [
       "ДополнительныеПоля",

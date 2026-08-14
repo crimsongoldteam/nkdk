@@ -27,6 +27,7 @@ export const StandardTabularSectionDescriptionRules = {
       yaml: "Комментарий",
       xml: "xr:Comment",
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     toolTip: i8nTextRule({
       yaml: "Подсказка",

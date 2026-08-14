@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
-import { sampleSnapshot, TEST_UUID } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { getUUID, UUID_TEST } from "./uuid"
+import { TEST_CONFIGURATION_UUID, testConfigurationIndexReader } from "../../tests/configurationIndex"
 
 describe("getUUID", () => {
   it("keeps legacy test mode without export runtime", () => {
@@ -14,18 +12,10 @@ describe("getUUID", () => {
 
   it("uses configuration index export runtime when it is present", () => {
     const collector = createConfigurationIndexCollector()
-    const snapshot = sampleSnapshot()
-    const source = createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex({
-      ...snapshot,
-      entities: [
-        ...snapshot.entities,
-        {
+    const source = testConfigurationIndexReader([{
           logicalAddress: "Справочник.Товары",
-          sourceProjectPath: "Configuration.yaml",
-          identities: { uuid: TEST_UUID },
-        },
-      ],
-    })))
+          uuid: TEST_CONFIGURATION_UUID,
+        }])
     const configurationIndex = createConfigurationIndexExportRuntime({
       source,
       collector,
@@ -44,6 +34,6 @@ describe("getUUID", () => {
       },
     }
 
-    expect(getUUID(context)).toBe(TEST_UUID)
+    expect(getUUID(context)).toBe(TEST_CONFIGURATION_UUID)
   })
 })

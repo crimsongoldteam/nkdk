@@ -55,6 +55,7 @@ export const fullConditionalAppearanceItemsYAML = [
       Элементы: [
         {
           ЛевоеЗначение: ".Реквизит1",
+          ВидСравнения: "Равно",
           ПравоеЗначение: "Истина",
         },
         {

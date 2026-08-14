@@ -146,6 +146,7 @@ export const MetadataFunctionalOptionRules = {
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
     }),
     location: stringRule({
       yaml: "Размещение",
@@ -183,6 +184,11 @@ export const MetadataFunctionalOptionRules = {
       metadataItemLinksXMLItem: "xr:Object",
       defaultValueXMLRaw: "",
     }),
+    extendedConfigurationObject: stringRule({
+      xml: "ExtendedConfigurationObject",
+      xmlParents: properties,
+      runtimeOnly: true,
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
@@ -191,11 +197,6 @@ export const MetadataFunctionalOptionRules = {
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    }),
-    extendedConfigurationObject: stringRule({
-      xml: "ExtendedConfigurationObject",
-      xmlParents: properties,
-      runtimeOnly: true,
     }),
   },
 } as const satisfies MetadataItemRule

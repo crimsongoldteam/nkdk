@@ -1,20 +1,50 @@
-import type { FullXmlSyncComponentProfile } from "../componentProfile"
-import { createConfigurationIndexReader } from "../../configurationIndex"
+import {
+  readConfirmedComponentIndex,
+  type FullXmlSyncComponentProfile,
+  type FullXmlSyncProfileRuntime,
+} from "../componentProfile"
 
 export const configurationFullXmlSyncProfile: FullXmlSyncComponentProfile = {
   kind: "configuration",
   supports: (address) => address.kind === "configuration",
   baseAddress: () => undefined,
-  confirm({ target, base }) {
+  confirm: confirmConfigurationFullXmlSync,
+}
+
+type ReadIndex = (
+  state: Parameters<typeof readConfirmedComponentIndex>[0],
+) => Awaited<ReturnType<typeof readConfirmedComponentIndex>>
+
+export function confirmConfigurationFullXmlSync(
+  params: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
+  readIndex: ReadIndex,
+): FullXmlSyncProfileRuntime
+export function confirmConfigurationFullXmlSync(
+  params: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
+): Promise<FullXmlSyncProfileRuntime>
+export function confirmConfigurationFullXmlSync(
+  { target, base }: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
+  readIndex: ReadIndex | typeof readConfirmedComponentIndex = readConfirmedComponentIndex,
+): FullXmlSyncProfileRuntime | Promise<FullXmlSyncProfileRuntime> {
     if (target.structure.address.kind !== "configuration") {
       throw new Error("Профиль configuration получил другой вид компонента")
     }
     if (base !== undefined) {
       throw new Error("Для основной конфигурации не должна передаваться базовая конфигурация")
     }
-    const reader = createConfigurationIndexReader(target.snapshot)
+    const reader = readIndex(target)
+    if (reader instanceof Promise) {
+      return reader.then((resolved) => confirmedRuntime(target, resolved))
+    }
+    return confirmedRuntime(target, reader)
+}
+
+function confirmedRuntime(
+  target: Parameters<FullXmlSyncComponentProfile["confirm"]>[0]["target"],
+  reader: Awaited<ReturnType<typeof readConfirmedComponentIndex>>,
+): FullXmlSyncProfileRuntime {
     const indexedItems = [...reader.entities()].flatMap((entity) =>
-      entity.identities === undefined ? [] : [[entity.logicalAddress, "indexed"] as const]
+      entity.uuid === undefined && entity.xmlId === undefined ? [] : [[entity.logicalAddress, "indexed"] as const]
     )
     return {
       kind: "configuration",
@@ -26,5 +56,4 @@ export const configurationFullXmlSyncProfile: FullXmlSyncComponentProfile = {
         xmlDefaultVariantByLogicalAddress: Object.fromEntries(indexedItems),
       },
     }
-  },
 }

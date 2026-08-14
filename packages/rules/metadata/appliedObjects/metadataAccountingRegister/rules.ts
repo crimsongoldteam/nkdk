@@ -27,6 +27,7 @@ const childObjects = ["ChildObjects"]
 export const MetadataAccountingRegisterStandardAttributeNames: Record<string, string> = {
   PeriodAdjustment: "УточнениеПериода",
   Account: "Счет",
+  RecordType: "ВидДвижения",
   Active: "Активность",
   LineNumber: "НомерСтроки",
   Recorder: "Регистратор",
@@ -47,13 +48,17 @@ export const MetadataAccountingRegisterStandardAttributeNamesXML = (
 ): Record<string, string> => {
   if (typeof source === "object" && source !== null && "raw" in source && typeof source.raw === "function") {
     const standardAttributes = source.raw("standardAttributes")
+    const periodAdjustmentLength = Number(source.raw("periodAdjustmentLength") ?? 0)
     const yamlNames =
       standardAttributes !== null && typeof standardAttributes === "object" && !Array.isArray(standardAttributes)
         ? new Set(Object.keys(standardAttributes))
         : new Set<string>()
     return Object.fromEntries(
       Object.entries(MetadataAccountingRegisterStandardAttributeNames).filter(
-        ([name, yamlName]) => !extDimensionStandardAttributeName.test(name) || yamlNames.has(yamlName)
+        ([name, yamlName]) =>
+          (name !== "PeriodAdjustment" || periodAdjustmentLength !== 0) &&
+          (name !== "RecordType" || yamlNames.has(yamlName)) &&
+          (!extDimensionStandardAttributeName.test(name) || yamlNames.has(yamlName))
       )
     )
   }
@@ -79,7 +84,9 @@ export const MetadataAccountingRegisterStandardAttributeNamesXML = (
   )
   return Object.fromEntries(
     Object.entries(MetadataAccountingRegisterStandardAttributeNames).filter(
-      ([name]) => !extDimensionStandardAttributeName.test(name) || explicitExtDimensions.has(name)
+      ([name]) =>
+        name !== "RecordType" &&
+        (!extDimensionStandardAttributeName.test(name) || explicitExtDimensions.has(name))
     )
   )
 }
@@ -162,7 +169,12 @@ export const MetadataAccountingRegisterRules = {
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
     }),
-    comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
+    comment: stringRule({
+      yaml: "Комментарий",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      defaultValueAdoptedXML: "",
+    }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,

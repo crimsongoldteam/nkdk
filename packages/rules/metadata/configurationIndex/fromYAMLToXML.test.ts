@@ -9,13 +9,11 @@ import { convertPropertiesFromYAMLToXML } from "../ruleRuntime/property/fromYAML
 import type { TypeRulesOperations } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
 import { importFromYAML } from "@nkdk/runtime"
-import { sampleSnapshot, TEST_UUID } from "@nkdk/runtime"
-import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "@nkdk/runtime"
+import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import { registeredExplicitXMLTestRule } from "../../tests/property/explicitXMLPropertyRegistry"
+import { TEST_CONFIGURATION_UUID, testConfigurationIndexReader } from "../../tests/configurationIndex"
 
 import "../commonObjects/metadataValue/toXML"
 import "../commonObjects/metadataValue/fromXML"
@@ -36,24 +34,17 @@ import "../systemEnumerations/fromYAML"
 import "../systemEnumerations/toXML"
 import "../systemEnumerations/toYAML"
 
-function contextWithIndex(extraEntities: readonly ConfigurationSnapshotEntity[] = []): {
+function contextWithIndex(extraEntities: readonly ConfigurationIndexBlockEntity[] = []): {
   context: ConfigurationContextWithExportToXML
   collector: ReturnType<typeof createConfigurationIndexCollector>
 } {
-  const snapshot = sampleSnapshot()
-  const data = {
-    ...snapshot,
-    entities: [
-      ...snapshot.entities,
+  const source = testConfigurationIndexReader([
       {
         logicalAddress: "Справочник.Товары",
-        sourceProjectPath: "Configuration.yaml",
-        identities: { uuid: TEST_UUID },
+        uuid: TEST_CONFIGURATION_UUID,
       },
       ...extraEntities,
-    ],
-  }
-  const source = createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(data)))
+    ])
   const collector = createConfigurationIndexCollector()
   const configurationIndex = createConfigurationIndexExportRuntime({
     source,
@@ -77,13 +68,7 @@ function contextWithIndex(extraEntities: readonly ConfigurationSnapshotEntity[] 
 }
 
 function contextWithEmptyIndex(): ConfigurationContextWithExportToXML {
-  const source = createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex({
-    specificationVersion: "1.4",
-    indexGeneration: 1n,
-    componentPath: "cf",
-    files: [],
-    entities: [],
-  } satisfies ConfigurationSnapshot)))
+  const source = testConfigurationIndexReader()
   const collector = createConfigurationIndexCollector()
   return {
     defaultLanguage: "ru",
@@ -571,7 +556,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({ Имя: "Код" })
-    expect(exported.xml).toEqual({ Properties: { Name: "Код" } })
+    expect(exported.xml).toEqual({ InternalInfo: {}, Properties: { Name: "Код" } })
   })
 
   it("does not create an absent reference-only property in indexed round-trip", () => {
@@ -602,10 +587,6 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       xml: { Name: "Код" },
       name: "Код",
     })
-    contexts.importContext.fromXML.configurationIndex?.collector.setXmlFlag(
-      "Catalog.Товары.Attribute.Код",
-      "present",
-    )
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
       rule,
@@ -613,7 +594,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       name: "Код",
     })
 
-    expect(exported.xml).toEqual({ Name: "Код" })
+    expect(exported.xml).toEqual({ InternalInfo: {}, Name: "Код" })
   })
 
 
@@ -639,70 +620,6 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       .not.toMatch(/aliases|present/u)
   })
 
-  it("не читает обычное XML-состояние старого снимка", () => {
-    const { context } = contextWithIndex([
-      {
-        logicalAddress: "Справочник.Товары.fillValue",
-        sourceProjectPath: "Configuration.yaml",
-        xml: { xsiNil: true },
-      },
-    ])
-    const rule = {
-      itemType: "Catalog",
-      properties: {
-        fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
-      },
-    } as const satisfies MetadataItemRule
-
-    const result = convertPropertiesFromYAMLToXML({
-      context,
-      yaml: {},
-      rule,
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({})
-  })
-
-  it("сохраняет XML-состояние расширения", () => {
-    const { context, collector } = contextWithIndex([
-      {
-        logicalAddress: "Справочник.Товары.fillValue",
-        sourceProjectPath: "Configuration.yaml",
-        xml: { extended: true, xsiNil: true },
-      },
-    ])
-    const extensionContext: ConfigurationContextWithExportToXML = {
-      ...context,
-      exportToXML: {
-        ...context.exportToXML,
-        componentKind: "configurationExtension",
-        xmlDefaultVariantByLogicalAddress: { "Справочник.Товары": "indexed" },
-      },
-    }
-    const rule = {
-      itemType: "Catalog",
-      properties: {
-        fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
-      },
-    } as const satisfies MetadataItemRule
-
-    const result = convertPropertiesFromYAMLToXML({
-      context: extensionContext,
-      yaml: {},
-      rule,
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ FillValue: { "_xsi:nil": true } })
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual(
-      expect.objectContaining({
-        logicalAddress: "Справочник.Товары.fillValue",
-        xml: { extended: true, xsiNil: true },
-      })
-    )
-  })
-
   it("восстанавливает служебную XML-идентичность без reference XML", () => {
     const { context, collector } = contextWithIndex()
     const rule = {
@@ -719,11 +636,11 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ _uuid: "00000000-0000-4000-8000-000000000001" })
+    expect(result.outputs.get("owner")).toEqual({ _uuid: TEST_CONFIGURATION_UUID })
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual(
       expect.objectContaining({
         logicalAddress: "Справочник.Товары",
-        identities: { uuid: TEST_UUID },
+        uuid: TEST_CONFIGURATION_UUID,
       })
     )
   })

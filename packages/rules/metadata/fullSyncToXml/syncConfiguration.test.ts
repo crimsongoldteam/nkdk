@@ -1,13 +1,10 @@
 import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "@nkdk/runtime"
-import { snapshotConfigurationIndex } from "@nkdk/runtime"
 import type {
-  ConfigurationSnapshot,
-  ConfigurationSnapshotEntity,
-  MergedConfigurationSnapshotFragments,
+  ConfigurationIndexBlockFragment,
+  ConfigurationProjectFile,
 } from "@nkdk/runtime"
-import { entity } from "@nkdk/runtime"
+import type { ConfigurationIndexCandidateStore } from "@nkdk/runtime/configuration-index-store"
 import type { ComponentAddress } from "@nkdk/runtime"
 import type {
   ComponentHashState,
@@ -21,11 +18,14 @@ import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncDiagnostic } from "./types"
 import {
   planSyncConfigurationToXml,
-  replaceSnapshotEntities,
   syncComponentToXml,
   type FullXmlSyncCoordinatorDependencies,
 } from "./syncConfiguration"
-import { createMockFullSyncDependencies, emptyProjectStateReadSession } from "./testHelpers"
+import {
+  createFakeConfigurationIndexStore,
+  createMockFullSyncDependencies,
+  emptyProjectStateReadSession,
+} from "./testHelpers"
 import {
   createFullXmlSyncDiagnosticCollectionFromDiagnostics,
   createFullXmlSyncFileCollectionFromFiles,
@@ -70,35 +70,32 @@ describe("shared full XML sync coordinator", () => {
       "refresh",
       "preflight",
       "targetStructure",
-      "targetSnapshot",
       "targetHashes",
+      "targetSnapshot",
       "confirmTarget",
       "buildSelection",
       "execute",
       "transferExternal",
       "validateOutput",
-      "writeTargetSnapshot",
+      "publishTargetIndex",
       "close",
     ])
-    expect(harness.writtenIndex).toMatchObject({
-      specificationVersion: "1.4",
-      componentPath: "cf",
-      indexGeneration: 2n,
-    })
-    expect(harness.writtenIndex?.files).toEqual([
+    expect(harness.writtenIndex?.hashes).toEqual([
       { projectPath: "Конфигурация.yaml", contentHash: 10n },
     ])
-    expect(harness.writtenIndex?.entities).toEqual([])
+    expect(harness.writtenIndex?.fragments).toEqual([
+      { targetProjectPath: "Конфигурация.yaml", entities: [] },
+    ])
   })
 
   it("записывает тонкий снимок результата полного sync через публичный entrypoint", async () => {
     const harness = createHarness({
       fragmentData: {
-        sourceProjectPaths: ["Конфигурация.yaml"],
+        targetProjectPath: "Конфигурация.yaml",
         entities: [{
           logicalAddress: "Конфигурация",
-          sourceProjectPath: "Конфигурация.yaml",
-          identities: { uuid: "00000000-0000-4000-8000-000000000001", xmlId: "Configuration42" },
+          uuid: "00000000-0000-4000-8000-000000000001",
+          xmlId: "Configuration42",
         }],
       },
     })
@@ -112,7 +109,7 @@ describe("shared full XML sync coordinator", () => {
     }, harness.deps)
 
     expect(result.failed).toEqual([])
-    expect(JSON.stringify(harness.writtenIndex?.entities)).not.toMatch(
+    expect(JSON.stringify(harness.writtenIndex?.fragments)).not.toMatch(
       /"xmlName"|"present"|"xsiNil"|"explicitEmpty"|"xsiType"|"xmlText"|"xmlPrefix"/u,
     )
   })
@@ -157,8 +154,8 @@ describe("shared full XML sync coordinator", () => {
     expect(harness.events).toEqual(outcome === "blocked"
       ? ["refresh"]
       : [
-          "refresh", "preflight", "targetStructure", "targetSnapshot", "targetHashes", "confirmTarget",
-          "buildSelection", "execute", "transferExternal", "validateOutput", "writeTargetSnapshot", "close",
+          "refresh", "preflight", "targetStructure", "targetHashes", "targetSnapshot", "confirmTarget",
+          "buildSelection", "execute", "transferExternal", "validateOutput", "publishTargetIndex", "close",
         ])
     expect(result.diagnostics).toEqual([
       expect.objectContaining({ code: "project_validation", source: "structure", sourcePath: validationError.filePath }),
@@ -190,7 +187,7 @@ describe("shared full XML sync coordinator", () => {
 
     expect(result).toMatchObject({ ok: true, diagnostics: [] })
     expect(harness.events.slice(0, 6)).toEqual([
-      "refresh", "preflight", "targetStructure", "targetSnapshot", "targetHashes", "confirmTarget",
+      "refresh", "preflight", "targetStructure", "targetHashes", "targetSnapshot", "confirmTarget",
     ])
     expect(harness.events).not.toContain("targetIndexes")
   })
@@ -331,25 +328,22 @@ describe("shared full XML sync coordinator", () => {
       "refresh",
       "preflight",
       "targetStructure",
-      "targetSnapshot",
       "targetHashes",
+      "targetSnapshot",
       "confirmTarget",
       "baseStructure",
-      "baseSnapshot",
       "baseHashes",
+      "baseSnapshot",
       "confirmBase",
       "buildSelection",
       "execute",
       "transferExternal",
       "validateOutput",
-      "writeTargetSnapshot",
+      "publishTargetIndex",
       "close",
     ])
     expect(harness.initializedWithBase).toBe(true)
-    expect(harness.writtenAddress).toEqual({
-      kind: "configurationExtension",
-      name: "Дополнение",
-    })
+    expect(result.configurationIndexPath).toContain("cfe/Дополнение/configuration-index.lmdb")
   })
 
   it.each(["sync", "preview"] as const)("prepares the component profile before %s", async (mode) => {
@@ -497,75 +491,12 @@ describe("shared full XML sync coordinator", () => {
     },
   )
 
-  it("не публикует снимок при конфликте logicalAddress с неизменённым файлом", async () => {
-    const harness = createHarness({
-      previousFiles: [
-        { projectPath: "Конфигурация.yaml", contentHash: 10n },
-        { projectPath: "Неизменённый.yaml", contentHash: 20n },
-      ],
-      previousEntities: [entity("Конфликт", "Неизменённый.yaml")],
-      fragmentData: {
-        sourceProjectPaths: ["Конфигурация.yaml"],
-        entities: [entity("Конфликт", "Конфигурация.yaml")],
-      },
-    })
-
-    const result = await syncComponentToXml({
-      context,
-      projectDir: "/project",
-      componentPath: "cf",
-      xmlDir: "/out",
-      projectState: harness.projectState,
-    }, harness.deps)
-
-    expect(result.failed).toEqual([
-      expect.objectContaining({ message: expect.stringContaining("Повторный logicalAddress") }),
-    ])
-    expect(harness.writtenIndex).toBeUndefined()
-    expect(harness.events).not.toContain("writeTargetSnapshot")
-  })
-})
-
-describe("replaceSnapshotEntities", () => {
-  it("целиком заменяет entity изменённого файла и сохраняет неизменённый", () => {
-    expect(replaceSnapshotEntities({
-      previous: [
-        entity("Старый", "А.yaml"),
-        entity("Остаётся", "Б.yaml"),
-      ],
-      replacements: {
-        sourceProjectPaths: ["А.yaml"],
-        entities: [entity("Новый", "А.yaml")],
-      },
-    })).toEqual([
-      entity("Новый", "А.yaml"),
-      entity("Остаётся", "Б.yaml"),
-    ])
-  })
-
-  it("удаляет все entity файла при пустом фрагменте", () => {
-    expect(replaceSnapshotEntities({
-      previous: [entity("Старый", "А.yaml")],
-      replacements: { sourceProjectPaths: ["А.yaml"], entities: [] },
-    })).toEqual([])
-  })
-
-  it("отклоняет глобальный конфликт logicalAddress", () => {
-    expect(() => replaceSnapshotEntities({
-      previous: [entity("Объект", "Б.yaml")],
-      replacements: {
-        sourceProjectPaths: ["А.yaml"],
-        entities: [entity("Объект", "А.yaml")],
-      },
-    })).toThrow("Повторный logicalAddress")
-  })
 })
 
 interface HarnessOptions {
   readonly executionDiagnostics?: readonly FullXmlSyncDiagnostic[]
-  readonly fragmentData?: MergedConfigurationSnapshotFragments
-  readonly previousFiles?: ConfigurationSnapshot["files"]
-  readonly previousEntities?: readonly ConfigurationSnapshotEntity[]
+  readonly fragmentData?: ConfigurationIndexBlockFragment
+  readonly previousFiles?: readonly ConfigurationProjectFile[]
   readonly refreshDiagnostics?: readonly {
     readonly filePath: string
     readonly line: number
@@ -592,8 +523,7 @@ function incompleteSelectionWarning() {
 function createHarness(options: HarnessOptions = {}) {
   const events: string[] = []
   const projectionReads: string[] = []
-  let writtenIndex: ConfigurationSnapshot | undefined
-  let writtenAddress: ComponentAddress | undefined
+  let writtenIndex: { hashes: readonly ConfigurationProjectFile[]; fragments: readonly ConfigurationIndexBlockFragment[] } | undefined
   let initializedWithBase = false
   let initializedProfile: import("./componentProfile").FullXmlSyncWorkerProfileRuntime | undefined
   let ensureXmlDirectoryCalls = 0
@@ -692,7 +622,7 @@ function createHarness(options: HarnessOptions = {}) {
                     baseForms: {
                       componentDir: base.structure.componentDir,
                       projectFiles: base.hashes.projectFiles,
-                      snapshot: base.snapshot,
+                      snapshot: base.snapshot.descriptor,
                     },
                   }),
             },
@@ -726,8 +656,15 @@ function createHarness(options: HarnessOptions = {}) {
           initializedWithBase = params.componentPath.startsWith("cfe/")
           initializedProfile = params.profile
         },
-        async execute(): Promise<FullXmlSyncExecutionPoolResult> {
+        async execute(_assignments, executionOptions): Promise<FullXmlSyncExecutionPoolResult> {
           events.push("execute")
+          await executionOptions?.onBatch?.({
+            generatedDocuments: [],
+            configurationFragments: [options.fragmentData ?? {
+              targetProjectPath: "Конфигурация.yaml",
+              entities: [],
+            }],
+          })
           return {
             diagnostics: createFullXmlSyncDiagnosticCollectionFromDiagnostics(options.executionDiagnostics ?? []),
             warnings: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
@@ -739,10 +676,6 @@ function createHarness(options: HarnessOptions = {}) {
               assignmentId: "Конфигурация.yaml",
               targetXmlPath: "Configuration.xml",
             }]),
-            fragmentData: options.fragmentData ?? {
-              sourceProjectPaths: ["Конфигурация.yaml"],
-              entities: [],
-            },
           }
         },
         async close() {
@@ -759,10 +692,12 @@ function createHarness(options: HarnessOptions = {}) {
       events.push("validateOutput")
       return []
     },
-    async writeIndex(params) {
-      events.push("writeTargetSnapshot")
-      writtenIndex = params.data
-      writtenAddress = params.address
+    openIndexStore: () => createFakeConfigurationIndexStore(),
+    async createIndexCandidate() { return fakeCandidateStore() },
+    async publishCandidate({ candidate }) {
+      events.push("publishTargetIndex")
+      const captured = candidate as ReturnType<typeof fakeCandidateStore>
+      writtenIndex = { hashes: captured.capturedHashes(), fragments: captured.capturedFragments() }
     },
   })
 
@@ -773,9 +708,6 @@ function createHarness(options: HarnessOptions = {}) {
     projectState,
     get writtenIndex() {
       return writtenIndex
-    },
-    get writtenAddress() {
-      return writtenAddress
     },
     get initializedWithBase() {
       return initializedWithBase
@@ -829,7 +761,7 @@ function configurationResource(projectPath: string): MetadataProjectResourceMatc
 
 function hashes(
   structure: ComponentProjectStructure,
-  projectFiles: ConfigurationSnapshot["files"] = [{ projectPath: "Конфигурация.yaml", contentHash: 10n }]
+  projectFiles: readonly ConfigurationProjectFile[] = [{ projectPath: "Конфигурация.yaml", contentHash: 10n }]
 ): ComponentHashState {
   return {
     componentPath: structure.componentPath,
@@ -840,11 +772,30 @@ function hashes(
 function snapshot(address: ComponentAddress, options: HarnessOptions) {
   const componentPath =
     address.kind === "configuration" ? "cf" : `cfe/${address.name}`
-  return snapshotConfigurationIndex(encodeConfigurationIndex({
-    specificationVersion: "1.4",
-    indexGeneration: 1n,
-    componentPath,
-    files: options.previousFiles ?? [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
-    entities: options.previousEntities ?? [entity("СтароеСостояние", "Конфигурация.yaml")],
-  }))
+  return {
+    descriptor: {
+      dataPath: `/project/.nkdk/components/${componentPath}/configuration-index.lmdb`,
+      lockPath: `/project/.nkdk/components/${componentPath}/configuration-index.lmdb-lock`,
+      schemaVersion: 1,
+    },
+    projectFiles: options.previousFiles ?? [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+  }
+}
+
+function fakeCandidateStore(): ConfigurationIndexCandidateStore & {
+  capturedHashes(): readonly ConfigurationProjectFile[]
+  capturedFragments(): readonly ConfigurationIndexBlockFragment[]
+} {
+  let hashes: readonly ConfigurationProjectFile[] = []
+  const fragments: ConfigurationIndexBlockFragment[] = []
+  return {
+    ...createFakeConfigurationIndexStore(),
+    replaceHashes(value) { hashes = [...value] },
+    mergeBlockFragment(fragment) { fragments.push(fragment) },
+    copyActiveBlocksFrom() {},
+    validateCandidate() {},
+    async discard() {},
+    capturedHashes: () => hashes,
+    capturedFragments: () => fragments,
+  }
 }

@@ -46,6 +46,7 @@ import { discoverProjectStateValidationFileBatches } from "../projectState/proje
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 import {
   finalizePartialXmlSyncPackage,
+  forceClearPendingPartialXmlSync,
   markPartialSyncApplied,
   markPartialSyncPreparedAfterRejection,
   markPartialSyncTransferring,
@@ -164,6 +165,7 @@ export function createMetadataRuntime(
         markPreparedAfterRejection: markPartialSyncPreparedAfterRejection,
         markApplied: markPartialSyncApplied,
         finalize: finalizePartialXmlSyncPackage,
+        forceClear: forceClearPendingPartialXmlSync,
       },
     },
     metadata: {

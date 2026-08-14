@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { transferableSymbol } from "piscina"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
-import { fragment } from "@nkdk/runtime"
-import { decodeConfigurationIndexFragments } from "@nkdk/runtime"
+import { decodeConfigurationBlockFragments } from "@nkdk/runtime"
 import { createFullXmlSyncBinaryResult, openFullXmlSyncBinaryResult } from "./binaryResult"
 
 describe("двоичный результат полной синхронизации", () => {
@@ -29,7 +28,7 @@ describe("двоичный результат полной синхрониза�
         targetXmlPath: "Catalogs/Товары.xml",
         content: new TextEncoder().encode("<Catalog>Товары</Catalog>"),
       }],
-      configurationFragments: [fragment("Справочник/Товары.yaml")],
+      configurationFragments: [{ targetProjectPath: "Справочник/Товары.yaml", entities: [] }],
     })
 
     const view = openFullXmlSyncBinaryResult(result)
@@ -54,7 +53,9 @@ describe("двоичный результат полной синхрониза�
       targetXmlPath: "Catalogs/Товары.xml",
       content: new TextEncoder().encode("<Catalog>Товары</Catalog>"),
     })
-    expect(decodeConfigurationIndexFragments(view.fragmentBuffer)).toEqual([fragment("Справочник/Товары.yaml")])
+    expect(decodeConfigurationBlockFragments(view.fragmentBuffer)).toEqual([
+      { targetProjectPath: "Справочник/Товары.yaml", entities: [] },
+    ])
 
     const transferables = (createMovableBinaryResult(result) as unknown as {
       readonly [transferableSymbol]: readonly ArrayBuffer[]

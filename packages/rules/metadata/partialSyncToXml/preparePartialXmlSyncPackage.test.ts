@@ -36,7 +36,6 @@ describe("подготовка частичного XML-пакета", () => {
     const result = await preparePartialXmlSyncPackage(params(), dependencies)
 
     expect(result).toEqual({ ok: true, status: "unchanged", diagnostics: [] })
-    expect(dependencies.cleanup).toHaveBeenCalledOnce()
     expect(dependencies.prepareValidated).toHaveBeenCalledOnce()
   })
 
@@ -61,7 +60,7 @@ describe("подготовка частичного XML-пакета", () => {
     expect(dependencies.prepareValidated).not.toHaveBeenCalled()
   })
 
-  it("при сбое удаляет незавершённый результат, чтобы следующий запуск начал заново", async () => {
+  it("возвращает диагностику при сбое подготовки", async () => {
     const dependencies = boundary({ ok: true, status: "unchanged", diagnostics: [] })
     dependencies.prepareValidated.mockRejectedValue(new Error("ZIP close failed"))
 
@@ -69,7 +68,6 @@ describe("подготовка частичного XML-пакета", () => {
 
     expect(result.ok).toBe(false)
     expect(result.diagnostics[0]?.message).toContain("ZIP close failed")
-    expect(dependencies.cleanup).toHaveBeenCalledTimes(2)
   })
 
   it("возвращает подготовленный пакет, не выполняя отдельную фиксацию", async () => {
@@ -86,7 +84,6 @@ describe("подготовка частичного XML-пакета", () => {
     const dependencies = boundary(prepared)
 
     await expect(preparePartialXmlSyncPackage(params(), dependencies)).resolves.toEqual(prepared)
-    expect(dependencies.cleanup).toHaveBeenCalledOnce()
   })
 
   it.each(["transferring", "applied"] as const)(
@@ -98,7 +95,6 @@ describe("подготовка частичного XML-пакета", () => {
       const result = await preparePartialXmlSyncPackage(params(), dependencies)
 
       expect(result).toMatchObject({ ok: false })
-      expect(dependencies.cleanup).not.toHaveBeenCalled()
       expect(dependencies.refresh).not.toHaveBeenCalled()
     },
   )
@@ -133,7 +129,6 @@ function boundary(
 ) {
   return {
     readPending: vi.fn(async () => undefined),
-    cleanup: vi.fn(async () => undefined),
     refresh: vi.fn(async () => ({
       diagnostics: [] as readonly Diagnostic[],
       readToken: createTestProjectStateReadToken(),

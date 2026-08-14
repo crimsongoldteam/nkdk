@@ -96,7 +96,7 @@ describe("sync to infobase", () => {
       status: "synchronized",
       mode: "designer-agent",
       reusedConnection: false,
-      configurationIndexPath: "/project/.nkdk/configuration-index/cf.bin",
+      configurationIndexPath: "/project/.nkdk/components/cf/configuration-index.lmdb",
     })
     expect(fixture.events).toEqual([
       "readSettings",
@@ -350,8 +350,12 @@ function createFixture(options: {
         delivery = undefined
         return {
           status: options.pendingStatus === "applied" ? "alreadyPublished" as const : "published" as const,
-          configurationIndexPath: "/project/.nkdk/configuration-index/cf.bin",
+          configurationIndexPath: "/project/.nkdk/components/cf/configuration-index.lmdb",
         }
+      },
+      async forceClearPendingSync() {
+        events.push("forceClear")
+        delivery = undefined
       },
     },
     async recordDeliveryPhase({ phase }) {
@@ -396,14 +400,11 @@ const readySettings = {
 
 function pending(status: "transferring" | "applied") {
   return {
-    version: 2 as const,
+    version: 3 as const,
     packageId: "package-1",
     componentPath: "cf",
     archiveProjectPath: ".nkdk/tmp/incremental-sync/cf/package-1.zip",
     archiveHash: "1111111111111111",
-    sourceSnapshotHash: "2222222222222222",
-    sourceSnapshotGeneration: "1",
-    candidateSnapshotHash: "3333333333333333",
     candidateAppliedMigrations: [],
     entries: ["Catalogs/Test.xml", "load.lst"],
     loadTargets: ["Catalogs/Test.xml"],
