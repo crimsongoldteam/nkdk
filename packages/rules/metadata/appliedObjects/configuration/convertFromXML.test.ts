@@ -88,6 +88,10 @@ describe("sync configuration from xml", () => {
     result: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
     yaml: string
   }
+  let emptyClientApplicationInterfaceImport: {
+    result: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
+    yaml: string
+  }
 
   beforeAll(async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-from-xml-"))
@@ -206,15 +210,32 @@ describe("sync configuration from xml", () => {
       true,
     ).then(({ result }) => result)
     fullRootImport = await importTemporaryConfiguration(join(__dirname, "__fixtures__/full.xml"))
+    emptyClientApplicationInterfaceImport = await importTemporaryConfiguration(
+      join(__dirname, "__fixtures__/full.xml"),
+      false,
+      emptyClientApplicationInterfaceXML,
+    )
   })
 
-  async function importTemporaryConfiguration(xmlPath: string, withCatalogs = false) {
+  async function importTemporaryConfiguration(
+    xmlPath: string,
+    withCatalogs = false,
+    clientApplicationInterfaceXML?: string,
+  ) {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-from-xml-"))
     const rootInput = join(tmp, "xml")
     const rootProject = join(tmp, "project")
     try {
       fs.mkdirSync(withCatalogs ? join(rootInput, "Catalogs") : rootInput, { recursive: true })
       fs.copyFileSync(xmlPath, join(rootInput, CONFIGURATION_XML_FILE))
+      if (clientApplicationInterfaceXML !== undefined) {
+        fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
+        fs.writeFileSync(
+          join(rootInput, "Ext", "ClientApplicationInterface.xml"),
+          clientApplicationInterfaceXML,
+          "utf-8"
+        )
+      }
       const result = await syncConfigurationFromXMLForTest({
         context: mockContextFromXML(),
         inputDir: rootInput,
@@ -322,6 +343,11 @@ describe("sync configuration from xml", () => {
     expect(yaml).toContain("ОтображениеКомандногоИнтерфейса: Верх")
   })
 
+  it("сохраняет пустой корневой интерфейс приложения, но не создаёт отсутствующий", () => {
+    expect(emptyClientApplicationInterfaceImport.yaml).toContain("ИнтерфейсКлиентскогоПриложения: !xml")
+    expect(fullRootImport.yaml).not.toContain("ИнтерфейсКлиентскогоПриложения:")
+  })
+
   it("сохраняет простые корневые внешние файлы конфигурации", () => {
     const managedApplicationModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
     const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
@@ -346,6 +372,15 @@ describe("sync configuration from xml", () => {
     expect(rootExternalFiles.configurationYaml).not.toContain("МодульПриложения")
   })
 })
+
+const emptyClientApplicationInterfaceXML = `<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+  <panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>
+  <panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>
+  <panelDef id="c933ac92-92cd-459d-81cc-e0c8a83ced99"/>
+  <panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+  <panelDef id="b2735bd3-d822-4430-ba59-c9e869693b24"/>
+</ClientApplicationInterface>`
 
 async function readTestConfigurationIndex(projectDir: string): Promise<{
   readonly files: readonly ConfigurationProjectFile[]

@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { readAppliedObjectFixture, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
-import { exportToYAML } from "@nkdk/runtime"
+import { EMPTY_XML_TAG_VALUE, exportToYAML, importContentFromXML } from "@nkdk/runtime"
 import { ClientApplicationInterfaceRules } from "./rules"
 
 import "./register"
@@ -13,6 +12,15 @@ const convert = (fixture: string) => {
 }
 
 describe("ClientApplicationInterface XML → YAML", () => {
+  it("imports an empty standard root as !xml", () => {
+    const yaml = testMetadataItemFromXMLToYAML({
+      rule: ClientApplicationInterfaceRules,
+      xml: importContentFromXML<Record<string, unknown>>(emptyStandardRootXML),
+    }).yaml
+
+    expect(yaml).toBe(EMPTY_XML_TAG_VALUE)
+  })
+
   it("imports sections, panels, groups and panel definitions", () => {
     const result = convert("ClientApplicationInterface.xml")
 
@@ -89,3 +97,11 @@ function interfaceXML(uuid: string, panelDef = ""): string {
   ${panelDef}
 </ClientApplicationInterface>`
 }
+
+const emptyStandardRootXML = `<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+  <panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>
+  <panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>
+  <panelDef id="c933ac92-92cd-459d-81cc-e0c8a83ced99"/>
+  <panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+  <panelDef id="b2735bd3-d822-4430-ba59-c9e869693b24"/>
+</ClientApplicationInterface>`

@@ -6,15 +6,27 @@ import {
   serializeDirectXML,
   testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
+  testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { importContentFromXML } from "@nkdk/runtime"
-import { importFromYAML } from "@nkdk/runtime"
+import { importContentFromXML, importFromYAML } from "@nkdk/runtime"
 import { ClientApplicationInterfaceRules } from "./rules"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 import "./register"
 
 describe("ClientApplicationInterface YAML → XML", () => {
+  it("materializes an empty standard root from !xml", () => {
+    const result = serializeDirectXML(testPropertyFromYAMLToXML({
+      rule: clientApplicationInterfaceOwnerRule,
+      yaml: importFromYAML("ИнтерфейсКлиентскогоПриложения: !xml"),
+    }).xml)
+
+    const panelDefIds = [...result.matchAll(/<panelDef id="([^"]+)"\/>/g)].map((match) => match[1])
+    expect(result).toContain('<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core"')
+    expect(panelDefIds).toEqual(requiredPanelDefIds)
+  })
+
   it("imports sections, short panels, expanded panels and groups", () => {
     const result = convertYAML({
       Верх: [{ Панель: "ПанельФункцийТекущегоРаздела" }, { Панель: "ПанельОткрытых" }, { Панель: "СтандартнаяПанель" }],
@@ -330,6 +342,17 @@ const requiredPanelDefIds = [
   "cbab57f2-a0f3-4f0a-89ea-4cb19570ab75",
   "b2735bd3-d822-4430-ba59-c9e869693b24",
 ]
+
+const clientApplicationInterfaceOwnerRule = {
+  itemType: "ClientApplicationInterfaceOwner",
+  properties: {
+    clientApplicationInterface: {
+      type: "ClientApplicationInterface",
+      yaml: "ИнтерфейсКлиентскогоПриложения",
+      xml: "ClientApplicationInterface",
+    },
+  },
+} as const satisfies MetadataItemRule
 
 function withRequiredPanelDefs(xml: string): string {
   const panelDefPattern = /\n\t<panelDef id="([^"]+)"[^>]*(?:\/>|>[\s\S]*?<\/panelDef>)/g

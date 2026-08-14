@@ -1,6 +1,6 @@
 import { Type } from "typebox"
 import { getUUID } from "../../helpers/uuid"
-import { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew, defineMetadataItemRule, definePropertyTypeRule, type ImportFromXMLToYAMLFunction, type PropertyRule } from "../../ruleRuntime"
+import { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew, defineMetadataItemRule, defineMetadataRules, definePropertyTypeRule, type ImportFromXMLToYAMLFunction, type PropertyRule } from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
@@ -58,6 +58,7 @@ const requiredStandardPanelUuids = [
 ] as const
 
 const standardPanelUuids = new Set<string>(Object.keys(standardPanelsByUuid))
+const requiredStandardPanelUuidSet = new Set<string>(requiredStandardPanelUuids)
 
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 const XML_METADATA = Symbol.for("metadata")
@@ -526,7 +527,18 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
     if (yaml !== undefined) result[rule.yaml] = yaml
   }
   collectClientApplicationInterfaceConfigurationIndex(context, sections, panelDefs)
-  return result
+  const emptyStandardRoot =
+    Object.keys(result).length === 0 &&
+    panelDefs?.length === requiredStandardPanelUuidSet.size &&
+    new Set(panelDefs.map(({ id }) => id)).size === requiredStandardPanelUuidSet.size &&
+    panelDefs.every(
+      (panelDef) =>
+        requiredStandardPanelUuidSet.has(panelDef.id) &&
+        panelDef.name === undefined &&
+        panelDef.spr === undefined &&
+        Object.keys(getReferenceRawXML(panelDef) ?? panelDef).every((key) => key === "_id" || key === "id")
+    )
+  return emptyStandardRoot ? EMPTY_XML_TAG_VALUE : result
 }
 
 const importPanelFromYAML = (
@@ -869,9 +881,18 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
   return result.length > 0 ? result : undefined
 }
 
-export const metadataRuleLayer000 = defineMetadataItemRule({
-  propertyType: "ClientApplicationInterface",
-  itemRule: ClientApplicationInterfaceRules,
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...defineMetadataItemRule({
+    propertyType: "ClientApplicationInterface",
+    itemRule: ClientApplicationInterfaceRules,
+  }),
+  explicitXMLPropertyTypes: {
+    ClientApplicationInterface: {
+      propertyType: "ClientApplicationInterface",
+      action: "materializeCollection",
+      yamlValue: EMPTY_XML_TAG_VALUE,
+    },
+  },
 })
 export const metadataPropertyRule001 = definePropertyTypeRule("ClientApplicationInterface", "importFromXMLToYAML", importClientApplicationInterfaceFromXMLToYAML)
 
