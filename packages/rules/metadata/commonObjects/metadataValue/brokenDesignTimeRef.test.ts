@@ -1,7 +1,10 @@
 import { expect, it } from "vitest"
 
 import { importFromYAML, yamlScalarTagAt } from "@nkdk/runtime"
-import { createPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import {
+  createPropertyRuleExecutor,
+  createPropertyRuleRegistrySet,
+} from "@nkdk/runtime/rule-kit"
 import { metadataRules } from "../../composition/metadataRules"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
@@ -49,7 +52,7 @@ it("registers the strict DesignTimeRef UUID grammar", () => {
 })
 
 it("round-trips a broken DesignTimeRef without reference XML", () => {
-  const execution = createPropertyRuleRegistrySet(metadataRules).execution
+  const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
   const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
   const yaml = importPropertiesFromXMLToYAML({
     context,
@@ -90,7 +93,7 @@ it.each([
   ["Ложь", { "_xsi:type": "xs:string", "#text": "!xml Ложь" }],
   ["Справочник.Роли.ПустаяСсылка", { "_xsi:type": "xs:string", "#text": "!xml Справочник.Роли.ПустаяСсылка" }],
 ] as const)("не перехватывает чужой tagged payload %s", (value, expected) => {
-  const execution = createPropertyRuleRegistrySet(metadataRules).execution
+  const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
   const exported = convertPropertiesFromYAMLToXML({
     context: {
       defaultLanguage: "ru",
