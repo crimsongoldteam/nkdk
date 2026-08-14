@@ -10,7 +10,10 @@ import type {
 } from "@nkdk/runtime/rule-kit"
 import type { DataPathAllowedKind } from "@nkdk/runtime/rule-kit"
 import type { MetadataTargetConstraint, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
-import type { ProjectStateFileIdentity } from "./fileIdentity"
+import type {
+  ProjectStateFileIdentity,
+  ProjectStateValidationContextDependency,
+} from "./fileIdentity"
 import type { FillValueTypedValue } from "../../ruleRuntime/property/fillValueSemantics"
 
 export type ProjectStateDiagnostic = Omit<Diagnostic, "filePath">
@@ -34,10 +37,6 @@ export interface ProjectStateLocalValidationResult {
   readonly contributedFacts: boolean
   readonly diagnostics: readonly ProjectStateDiagnostic[]
   readonly schemaDiagnostics: readonly ProjectStateDiagnostic[]
-}
-export interface ProjectStateValidationContextDependency {
-  readonly key: string
-  readonly version: string
 }
 export interface ProjectStateReferenceDetails {
   readonly kind?: "attribute" | "standardAttribute"
@@ -169,4 +168,7 @@ export type ProjectStateFileUpdateBatchEntry =
   | { readonly update: ProjectStateFileUpdate; readonly hash?: never; readonly hashBytes: Uint8Array }
 
 export type ProjectStateOwnerFactRole = OwnerFactRole
-export type { ProjectStateFileIdentity } from "./fileIdentity"
+export type {
+  ProjectStateFileIdentity,
+  ProjectStateValidationContextDependency,
+} from "./fileIdentity"

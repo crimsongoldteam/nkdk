@@ -4,7 +4,7 @@ import {
   withPropertyRuleRegistrySet,
   withRuleRegistrySet,
 } from "@nkdk/runtime/rule-kit"
-import { loadConfigurationLanguagesFromYAML } from "../appliedObjects/configuration/languageRegistry"
+import { loadConfigurationLanguagesFromYAML } from "../context/configurationLanguages"
 import { withConfigurationValidationContextVersions } from "../context/validationContextVersions"
 import { metadataRules } from "./metadataRules"
 import { createMetadataRuntime } from "../runtime/createMetadataRuntime"

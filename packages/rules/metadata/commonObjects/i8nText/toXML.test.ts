@@ -9,12 +9,6 @@ import { I8nTextPropertyRule, type I8nTextXML } from "./types"
 import { markYAMLMappingTag, markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 import { staticPropertyTypes } from "../../composition/staticPropertyRules"
 
-const preserveEmptyXMLRule: I8nTextPropertyRule = {
-  yaml: "Шапка",
-  type: "I8nText",
-  preserveEmptyXML: true,
-}
-
 const excludeEqualNameRule: I8nTextPropertyRule = {
   yaml: "Синоним",
   type: "I8nText",
@@ -49,18 +43,19 @@ describe("exportI8nTextToXML", () => {
       })
     })
 
-    it("does not export an empty language marker", () => {
-      const result = exportI8nTextToXML(mockContext, mockRule, { items: { ru: "" } })
+    it("does not export an empty default-language marker for a foldable property", () => {
+      const result = exportI8nTextToXML(mockContext, excludeEqualNameRule, { items: { ru: "" } })
       const xml = result ? xmlExport({ Title: result }, false) : undefined
 
       expect(xml).toEqual("<Title/>")
     })
 
-    it("exports empty text as raw XML when rule opts in", () => {
-      const result = exportI8nTextToXML(mockContext, preserveEmptyXMLRule, { items: { ru: "" } })
-      const xml = result ? xmlExport({ Title: result }, false) : undefined
+    it("exports an explicit empty translation for a non-foldable property", () => {
+      const result = exportI8nTextToXML(mockContext, mockRule, { items: { ru: "" } })
 
-      expect(xml).toEqual("<Title/>")
+      expect(result).toEqual({
+        "v8:item": [{ "v8:lang": "ru", "v8:content": "" }],
+      })
     })
 
     it("exports explicit empty text as raw XML for excludeIfEqualNameYAML", () => {

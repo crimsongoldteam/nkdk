@@ -30,7 +30,7 @@ import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/
 import {
   loadConfigurationLanguagesFromXML,
   loadConfigurationLanguagesFromYAML,
-} from "../appliedObjects/configuration/languageRegistry"
+} from "../context/configurationLanguages"
 import { configurationValidationContextVersions } from "../context/validationContextVersions"
 import { createValidationProjectComponent, type ValidationProjectComponent } from "../validation/projectComponents"
 import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"

@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import type { ComponentAddress } from "@nkdk/runtime"
+import { createConfigurationLanguages, type ComponentAddress } from "@nkdk/runtime"
 import type { ConfigurationIndexCandidateStore, ConfigurationIndexStore } from "@nkdk/runtime/configuration-index-store"
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
@@ -61,6 +61,9 @@ export function createMockFullSyncDependencies(
       return true
     },
     async mkdir() {},
+    async loadLanguages() {
+      return createConfigurationLanguages({ default: "ru", registered: ["ru"] })
+    },
     async readStructure({ address }) {
       return structure(address, topology)
     },

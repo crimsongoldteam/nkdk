@@ -100,6 +100,7 @@ const exportFullI8nTextToYAML = (
   ) return items[defaultLanguage]
 
   if (yamlMappingTagOf(items) === "xml/order") return items
+  if (languages.some((language) => language === "" || language === "#")) return items
 
   const canonicalLanguages = [
     ...(languages.includes(defaultLanguage) ? [defaultLanguage] : []),

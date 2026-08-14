@@ -5,7 +5,7 @@ import { createProjectStateService, type ProjectStateService } from "../projectS
 import type { Diagnostic } from "../validation/types"
 import type { MetadataDiagnosticCollection } from "@nkdk/runtime"
 import { join } from "node:path"
-import { loadConfigurationLanguagesFromYAML } from "../appliedObjects/configuration/languageRegistry"
+import { loadConfigurationLanguagesFromYAML } from "../context/configurationLanguages"
 import { configurationValidationContextVersions } from "../context/validationContextVersions"
 
 export interface ValidateProjectParams {

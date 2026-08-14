@@ -346,8 +346,12 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
   fs.copyFileSync(join(configurationFixtureDir, "minimal.xml"), configurationPath)
   replaceExactlyOnce(
     configurationPath,
-    "\t\t\t<Name>Конфигурация</Name>",
-    "\t\t\t<Name>Конфигурация</Name>\n\t\t\t<DefaultLanguage>Language.БазовыйЯзык</DefaultLanguage>",
+    "\t\t</Properties>",
+    [
+      "\t\t\t<DefaultLanguage>Language.БазовыйЯзык</DefaultLanguage>",
+      "\t\t</Properties>",
+      "\t\t<ChildObjects><Language>БазовыйЯзык</Language></ChildObjects>",
+    ].join("\n"),
   )
 
   const catalogPath = join(inputDir, "Catalogs", "СправочникПолный.xml")

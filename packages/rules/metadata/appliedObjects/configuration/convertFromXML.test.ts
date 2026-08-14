@@ -2,7 +2,7 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML } from "../../../tests/mockContext"
+import { mockContextFromXML, mockLanguages } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import {
   createImportProjectStateTestService,
@@ -13,7 +13,11 @@ import {
   type ConfigurationProjectFile,
 } from "../../configurationIndex"
 import { configurationIndexStoreDescriptor, openConfigurationIndexStore } from "../../configurationIndex/store"
-import { syncConfigurationFromXML } from "./convertFromXML"
+import {
+  createImportCoordinatorDependencies,
+  importConfigurationFromXml,
+} from "../../importFromXml/importConfiguration"
+import { resolveXmlImportComponent } from "../../importFromXml/componentDescriptor"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
 describe("sync configuration from xml", () => {
@@ -28,9 +32,16 @@ describe("sync configuration from xml", () => {
   )
   const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
   const projectState = createImportProjectStateTestService()
+  const importDependencies = {
+    ...createImportCoordinatorDependencies(resolveXmlImportComponent),
+    loadLanguagesFromXML: async () => mockLanguages,
+  }
   const syncConfigurationFromXMLForTest = (
-    params: Omit<Parameters<typeof syncConfigurationFromXML>[0], "xmlImportWorkerPoolHandle">
-  ) => syncConfigurationFromXML({ ...params, xmlImportWorkerPoolHandle, projectState })
+    params: Omit<Parameters<typeof importConfigurationFromXml>[0], "xmlImportWorkerPoolHandle">
+  ) => importConfigurationFromXml(
+    { ...params, xmlImportWorkerPoolHandle, projectState },
+    importDependencies,
+  )
   const homePageWorkAreaXML = `<?xml version="1.0" encoding="UTF-8"?>
 <HomePageWorkArea xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 \t<WorkingAreaTemplate>TwoColumnsVariableWidth</WorkingAreaTemplate>

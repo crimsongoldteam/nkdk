@@ -16,7 +16,9 @@ export function importLocalizedItems(params: {
   items: readonly I8nTextLanguageXML[]
 }): Record<string, string> {
   const { context, items } = params
-  if (items.some((item) => item["v8:lang"] === "" || item["v8:lang"] === "#")) {
+  if (items.some((item) =>
+    typeof item !== "object" || item === null ||
+    item["v8:lang"] === undefined || item["v8:lang"] === "" || item["v8:lang"] === "#")) {
     return importLegacyItems(items)
   }
 
@@ -67,6 +69,7 @@ export function importLocalizedItems(params: {
 export function exportLocalizedItems(params: {
   context: ConfigurationContext
   items: Record<string, string>
+  emptyDefaultIsMarker?: boolean
 }): I8nTextLanguageXML[] {
   const { context, items } = params
   const sourceCodes = Object.keys(items)
@@ -78,7 +81,7 @@ export function exportLocalizedItems(params: {
 
   for (const code of codes) {
     const stored = items[code] ?? ""
-    if (stored === "") continue
+    if (stored === "" && params.emptyDefaultIsMarker === true && code === context.languages.default) continue
     const tag = yamlScalarTagAt(items, code)
     const content =
       tag === "xml/language" || tag === "xml/duplicate"
@@ -117,6 +120,10 @@ function codeCompare(left: string, right: string): number {
 function importLegacyItems(items: readonly I8nTextLanguageXML[]): Record<string, string> {
   const result: Record<string, string> = {}
   for (const item of items) {
+    if (typeof item !== "object" || item === null) {
+      result[""] = ""
+      continue
+    }
     result[item["v8:lang"] ?? ""] = normalizedContent(item["v8:content"])
   }
   return result

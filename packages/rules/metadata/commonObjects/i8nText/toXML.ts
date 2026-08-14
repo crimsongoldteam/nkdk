@@ -39,7 +39,11 @@ export const exportI8nTextToXML = (
     }
   }
 
-  const v8Items: I8nTextLanguageXML[] = exportLocalizedItems({ context, items: data.items })
+  const v8Items: I8nTextLanguageXML[] = exportLocalizedItems({
+    context,
+    items: data.items,
+    emptyDefaultIsMarker: narrowRule.excludeIfEqualNameYAML === true,
+  })
 
   const base: I8nTextXML = { "v8:item": v8Items }
   if (narrowRule.typedXML) {

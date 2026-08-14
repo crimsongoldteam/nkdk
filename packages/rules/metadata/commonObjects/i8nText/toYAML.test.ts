@@ -87,6 +87,15 @@ describe("exportI8nTextToYAML", () => {
 
       expect(result).toBeUndefined()
     })
+
+    it("preserves the source order when an empty service language is present", () => {
+      const rule: I8nTextPropertyRule = { type: "I8nText" }
+
+      expect(importAndSerialize([
+        ["", "Служебный текст"],
+        ["ru", "Русский текст"],
+      ], rule)).toBe("Заголовок:\n  : Служебный текст\n  ru: Русский текст")
+    })
   })
 
   describe("excludeIfEqualNameYAML", () => {

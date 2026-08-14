@@ -8,7 +8,7 @@ import {
 } from "@nkdk/runtime"
 import { resolveDataPathCore } from "../metadata/validation/dataPath/coreResolver"
 
-export const mockLanguages = createConfigurationLanguages({ default: "ru", registered: ["ru"] })
+export const mockLanguages = createConfigurationLanguages({ default: "ru", registered: ["ru", "en"] })
 
 export const mockContext: ConfigurationContext = {
   version: "2.20",

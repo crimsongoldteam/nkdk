@@ -572,7 +572,7 @@ git commit -m "perf: :zap: точечно обновлять языковую va
 - Consumes: все предыдущие слои.
 - Produces: подтверждённый round-trip для Storekeeper, SMTL, ERP и Mhcsk; публичный реестр трёх новых тегов и окончательное ограничение обязательного реестра/порядка.
 
-- [ ] **Step 1: Добавить интеграционные проверки исследованных XML-фрагментов**
+- [x] **Step 1: Добавить интеграционные проверки исследованных XML-фрагментов**
 
 Копировать только необходимые `Configuration.xml`, `Languages/*.xml` и XML владельца во временный каталог. Проверить:
 
@@ -580,17 +580,17 @@ git commit -m "perf: :zap: точечно обновлять языковую va
 - SMTL и ERP: реальные нарушения порядка получают `!xml/order` и сохраняют порядок;
 - Mhcsk: три реальные пары одинакового `ru` получают `!xml/duplicate` и экспортируют по два соседних item.
 
-- [ ] **Step 2: Подтвердить RED или сразу зафиксировать GREEN интеграцию**
+- [x] **Step 2: Подтвердить RED или сразу зафиксировать GREEN интеграцию**
 
 Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration metadata/commonObjects/i8nText/roundTrip.integration.test.ts`
 
 Expected: PASS после Tasks 2–6; если тест выявляет расхождение, остановиться, установить причину через systematic-debugging и исправить минимальный слой с новым RED-тестом.
 
-- [ ] **Step 3: Обновить публичные ограничения**
+- [x] **Step 3: Обновить публичные ограничения**
 
 В `.agents/xml-anomalies.md` добавить строки `!xml/language`, `!xml/order`, `!xml/duplicate` с точной грамматикой и местом. В `.agents/restrictions.md` заменить формулировку «согласованные будущие теги» на реализованный закрытый список и сохранить все ограничения из спецификации без расширения на `#`, пустой код или namespace.
 
-- [ ] **Step 4: Выполнить целевые проверки и type-check**
+- [x] **Step 4: Выполнить целевые проверки и type-check**
 
 Run: `pnpm type-check`
 
@@ -600,7 +600,7 @@ Run: `pnpm --filter @nkdk/rules test:native` вне песочницы.
 
 Expected: PASS.
 
-- [ ] **Step 5: Выполнить итоговый compiled-runtime профиль**
+- [x] **Step 5: Выполнить итоговый compiled-runtime профиль**
 
 На том же пути из `/private/tmp/nkdk-i18n-validation-project-path.txt` удалить только `.nkdk/cache/project-state.bin` через `--timing-only`, затем выполнить свежую сборку и тот же трёхкратный профиль:
 
@@ -612,7 +612,7 @@ node .agents/skills/validation-profile/validation-profile.mjs <same-temp-project
 
 Сохранить результат только в `/private/tmp/nkdk-i18n-validation-after.json`. Сравнить cold/warm, hashed/parsed, snapshot, diagnostics digest и peak RSS с baseline; устойчивое ухудшение вне разброса повторных прогонов считать блокером и показать пользователю.
 
-- [ ] **Step 6: Выполнить обязательные полные проверки**
+- [x] **Step 6: Выполнить обязательные полные проверки**
 
 Run вне песочницы: `pnpm test`
 
@@ -626,7 +626,7 @@ Run: `pnpm duplicates -- --base 13ba5eac5`
 
 Expected: все команды PASS, новых дублей и архитектурных нарушений нет.
 
-- [ ] **Step 7: Закоммитить итоговый слой**
+- [x] **Step 7: Закоммитить итоговый слой**
 
 ```bash
 git add .agents/restrictions.md .agents/xml-anomalies.md packages/rules

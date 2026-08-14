@@ -38,7 +38,7 @@ import {
 } from "./componentRuntime"
 import { assertNoPendingPartialXmlSync } from "../partialSyncToXml/pendingStore"
 import { withConfigurationIndexSources } from "./configurationIndexSources"
-import { loadConfigurationLanguagesFromYAML } from "../appliedObjects/configuration/languageRegistry"
+import { loadConfigurationLanguagesFromYAML } from "../context/configurationLanguages"
 import { withConfigurationValidationContextVersions } from "../context/validationContextVersions"
 
 export interface SyncComponentToXmlParams {
