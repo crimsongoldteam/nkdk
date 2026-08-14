@@ -31,7 +31,7 @@ describe("partial sync steps", () => {
     ])
     const settings = await readFile(join(fixture.workspace.projectDir, ".nkdk/project.yaml"), "utf8")
     expect(settings).toContain(`connectionString: 'File="${fixture.workspace.baseDir}";'`)
-    expect(settings).toContain("mode: designer-agent")
+    expect(settings).toContain("mode: standalone-server")
     expect(fixture.comparisons.map(({ expectedDir, actualDir }) => [expectedDir, actualDir]))
       .toEqual([
         [fixture.paths.cfNkdkDir, join(fixture.workspace.projectDir, "cf")],

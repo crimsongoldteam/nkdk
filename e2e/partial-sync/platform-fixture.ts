@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process"
-import { mkdir } from "node:fs/promises"
+import { mkdir, writeFile } from "node:fs/promises"
 import { join } from "node:path"
 import { findPlatform, type PlatformInstallation } from "@nkdk/platform"
 
@@ -22,11 +22,12 @@ export class PlatformFixtureError extends Error {
 export type PlatformFixtureDependencies = {
   findPlatform(): Promise<PlatformInstallation | undefined>
   mkdir(path: string): Promise<void>
+  writeFile(path: string, content: string): Promise<void>
   runProcess(
     command: string,
     args: readonly string[],
     options: { readonly cwd: string }
-  ): Promise<{ readonly exitCode: number }>
+  ): Promise<{ readonly exitCode: number; readonly stdout: string; readonly stderr: string }>
 }
 
 type PrepareInfobaseFixtureParams = {
@@ -49,47 +50,59 @@ export async function prepareInfobaseFixture(
       "Не найдена поддерживаемая платформа версии 8.3.27"
     )
   }
-  if (installation.enterprisePath === undefined) {
+  if (installation.ibcmdPath === undefined) {
     throw new PlatformFixtureError(
       "platform_component_missing",
-      "В установке платформы отсутствует исполняемый файл предприятия"
+      "В установке платформы отсутствует ibcmd"
     )
   }
 
   await dependencies.mkdir(params.dataDir)
   await dependencies.mkdir(params.logsDir)
-  const connectionString = `File="${params.baseDir}";`
   const operations = [
     {
-      step: "create-base",
-      logPath: join(params.logsDir, "01-create-base.log"),
-      args: ["CREATEINFOBASE", connectionString],
-    },
-    {
-      step: "load-configuration",
-      logPath: join(params.logsDir, "02-load-configuration.log"),
-      args: ["DESIGNER", `/F${params.baseDir}`, "/LoadConfigFromFiles", params.cfXmlDir, "/UpdateDBCfg"],
+      step: "create-and-load-configuration",
+      logPath: join(params.logsDir, "01-create-and-load-configuration.log"),
+      args: [
+        "infobase",
+        "create",
+        `--database-path=${params.baseDir}`,
+        `--data=${params.dataDir}`,
+        `--import=${params.cfXmlDir}`,
+        "--apply",
+      ],
     },
     {
       step: "load-extension",
-      logPath: join(params.logsDir, "03-load-extension.log"),
+      logPath: join(params.logsDir, "02-load-extension.log"),
       args: [
-        "DESIGNER",
-        `/F${params.baseDir}`,
-        "/LoadConfigFromFiles",
+        "infobase",
+        "config",
+        "import",
+        `--database-path=${params.baseDir}`,
+        `--data=${params.dataDir}`,
+        `--extension=${params.extensionName}`,
         params.extensionXmlDir,
-        "-Extension",
-        params.extensionName,
-        "/UpdateDBCfg",
+      ],
+    },
+    {
+      step: "apply-extension",
+      logPath: join(params.logsDir, "03-apply-extension.log"),
+      args: [
+        "infobase",
+        "config",
+        "apply",
+        `--database-path=${params.baseDir}`,
+        `--data=${params.dataDir}`,
+        `--extension=${params.extensionName}`,
       ],
     },
   ] as const
 
   for (const operation of operations) {
-    const args = [...operation.args, "/DisableStartupMessages", "/Out", operation.logPath]
-    let outcome: { readonly exitCode: number }
+    let outcome: { readonly exitCode: number; readonly stdout: string; readonly stderr: string }
     try {
-      outcome = await dependencies.runProcess(installation.enterprisePath, args, {
+      outcome = await dependencies.runProcess(installation.ibcmdPath, operation.args, {
         cwd: params.dataDir,
       })
     } catch (caught) {
@@ -99,6 +112,10 @@ export async function prepareInfobaseFixture(
         { step: operation.step, logPath: operation.logPath }
       )
     }
+    await dependencies.writeFile(
+      operation.logPath,
+      `stdout: ${outcome.stdout}\nstderr: ${outcome.stderr}\n`
+    )
     if (outcome.exitCode !== 0) {
       throw new PlatformFixtureError(
         "platform_command_failed",
@@ -114,20 +131,29 @@ const nodeDependencies: PlatformFixtureDependencies = {
   async mkdir(path) {
     await mkdir(path, { recursive: true })
   },
+  async writeFile(path, content) {
+    await writeFile(path, content, "utf8")
+  },
   runProcess(command, args, options) {
     return new Promise((resolve, reject) => {
+      let stdout = ""
+      let stderr = ""
       const child = spawn(command, args, {
         cwd: options.cwd,
         shell: false,
-        stdio: "ignore",
+        stdio: ["ignore", "pipe", "pipe"],
       })
+      child.stdout.setEncoding("utf8")
+      child.stderr.setEncoding("utf8")
+      child.stdout.on("data", (chunk: string) => { stdout += chunk })
+      child.stderr.on("data", (chunk: string) => { stderr += chunk })
       child.once("error", reject)
       child.once("exit", (code, signal) => {
         if (signal !== null) {
           reject(new Error(`Процесс остановлен сигналом ${signal}`))
           return
         }
-        resolve({ exitCode: code ?? 1 })
+        resolve({ exitCode: code ?? 1, stdout, stderr })
       })
     })
   },

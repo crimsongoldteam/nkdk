@@ -202,7 +202,7 @@ async function writeProjectSettings(projectDir: string, baseDir: string): Promis
     `  connectionString: 'File="${baseDir.replaceAll("'", "''")}";'`,
     "  operations:",
     "    import:",
-    "      mode: designer-agent",
+    "      mode: standalone-server",
     "",
   ].join("\n"), { encoding: "utf8", mode: 0o600 })
 }
