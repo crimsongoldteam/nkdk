@@ -1,4 +1,6 @@
-import { isAbsolute } from "node:path"
+import { cp, mkdtemp } from "node:fs/promises"
+import { tmpdir } from "node:os"
+import { isAbsolute, join, resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { TopLevelMetadataItemRules } from "../../packages/rules/metadata/appliedObjects/configuration/topLevelRules"
@@ -11,6 +13,8 @@ import { formDeclarations } from "./matrix/forms"
 import { partialSyncMatrix } from "./matrix"
 import { rootObjectDeclarations } from "./matrix/root-objects"
 import { buildScenarioPlan } from "./plan"
+import { applyScenarioOperation } from "./operation"
+import { compareFileTrees } from "../support/file-tree"
 
 describe("partial sync matrix", () => {
   it("covers every registered top-level metadata type exactly once", () => {
@@ -87,6 +91,24 @@ describe("partial sync matrix", () => {
     }
 
     expect(files).toEqual(new Map())
+  })
+
+  it("returns a real NKDK fixture tree to its initial state after the full plan", async () => {
+    const temporaryRoot = await mkdtemp(join(tmpdir(), "nkdk-matrix-reversible-"))
+    const source = resolve(import.meta.dirname, "../fixtures/nkdk")
+    const projectDir = join(temporaryRoot, "project")
+    await cp(source, projectDir, { recursive: true })
+
+    for (const operation of buildScenarioPlan(partialSyncMatrix)) {
+      await applyScenarioOperation(projectDir, operation)
+    }
+
+    const comparison = await compareFileTrees({
+      expectedDir: source,
+      actualDir: projectDir,
+      reportDir: join(temporaryRoot, "report"),
+    })
+    expect(comparison).toMatchObject({ equal: true })
   })
 })
 
