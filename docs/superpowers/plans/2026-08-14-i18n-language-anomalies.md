@@ -284,6 +284,7 @@ git commit -m "refactor: :recycle: ввести реестр языков кон
 - Modify: `packages/rules/metadata/commonObjects/i8nText/toXML.ts`
 - Modify: corresponding `fromXML.test.ts`, `toYAML.test.ts`, `fromYAML.test.ts`, `toXML.test.ts`
 - Modify: `packages/rules/metadata/commonObjects/formattedI8nText/{fromXML,toYAML,fromYAML,toXML}.test.ts`
+- Modify: `packages/rules/metadata/composition/staticPropertyRules.ts` — вернуть отсутствовавшие `toXML` contributions для I8nText и FormattedI8nText, без которых operation registry обходит эти exporters.
 
 **Interfaces:**
 - Consumes: `context.languages`, scalar-sidecar на `I8nText.items`, mapping-sidecar `xml/order`, `excludeIfEqualNameYAML`.
@@ -303,11 +304,11 @@ export function exportLocalizedItems(params: {
 export function isCanonicalLanguageOrder(codes: readonly string[], defaultCode: string): boolean
 ```
 
-- [ ] **Step 1: Перенести матрицу спецификации в parameterized RED-тест XML → YAML**
+- [x] **Step 1: Перенести матрицу спецификации в parameterized RED-тест XML → YAML**
 
 Добавить все строки матрицы: канонические `ru→en`, отсутствующий основной, `en→ru`, зарегистрированные/незарегистрированные коды, `!xml/order + !xml/language`, обычные и сворачиваемые свойства. Проверять не только object, но и sidecar и точный `serializeYAMLDocument`.
 
-- [ ] **Step 2: Добавить RED-тесты дублей и неподдержанных XML**
+- [x] **Step 2: Добавить RED-тесты дублей и неподдержанных XML**
 
 Проверить:
 
@@ -320,17 +321,17 @@ ru:A, en:B, ru:A -> throw
 unregistered en,en -> throw
 ```
 
-- [ ] **Step 3: Добавить RED-тесты YAML → XML и свёртки**
+- [x] **Step 3: Добавить RED-тесты YAML → XML и свёртки**
 
 Проверить два элемента для `!xml/duplicate`, сохранение insertion order при `!xml/order`, каноническую сортировку без тега, отсутствие `v8:item` для маркера `default: ""`, запрет восстановления имени при `!xml/order` и `!xml/duplicate`, восстановление имени только без запрещающего маркера.
 
-- [ ] **Step 4: Подтвердить RED**
+- [x] **Step 4: Подтвердить RED**
 
-Run: `pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/i8nText metadata/commonObjects/formattedI8nText`
+Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/commonObjects/i8nText metadata/commonObjects/formattedI8nText`
 
 Expected: FAIL на новой матрице.
 
-- [ ] **Step 5: Реализовать линейную классификацию XML**
+- [x] **Step 5: Реализовать линейную классификацию XML**
 
 `importLocalizedItems` сначала возвращает исходное поведение без классификации, если встречен `""` или `"#"`. Иначе один линейный проход:
 
@@ -352,13 +353,13 @@ for (let index = 0; index < items.length;) {
 
 Повтор уже встреченного кода после другой позиции также отклонять. После свёртки определить порядок за `O(k)` и поставить mapping-sidecar только при неканоничности; незарегистрированные scalar пометить `xml/language`.
 
-- [ ] **Step 6: Реализовать экспорт YAML и XML**
+- [x] **Step 6: Реализовать экспорт YAML и XML**
 
 При копировании `items` обязательно переносить оба sidecar. Без `xml/order` строить новый object: необходимый пустой default-маркер первым, затем явные коды через `Object.keys(...).sort(codeCompare)`; с тегом сохранять insertion order. `xml/duplicate` разворачивать в две одинаковые пары; пустой маркер пропускать.
 
-- [ ] **Step 7: Проверить I8nText и FormattedI8nText**
+- [x] **Step 7: Проверить I8nText и FormattedI8nText**
 
-Run: `pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/i8nText metadata/commonObjects/formattedI8nText`
+Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/commonObjects/i8nText metadata/commonObjects/formattedI8nText`
 
 Expected: PASS для всей матрицы и прежних случаев.
 

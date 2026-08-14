@@ -2,6 +2,7 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "@nkdk/runtime"
 import type { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
+import { importLocalizedItems } from "./anomalies"
 
 export const importI8nTextFromXML = (
   _context: ConfigurationContext,
@@ -23,16 +24,7 @@ export const importI8nTextFromXML = (
 
   if (items.length === 0) return undefined
 
-  const result: I8nText = {
-    items: {},
-  }
-
-  for (const item of items) {
-    const { "v8:lang": lang, "v8:content": content } = item
-    result.items[lang ?? ""] = content != null && content !== "" ? String(content) : ""
-  }
-
-  return result
+  return { items: importLocalizedItems({ context: _context, items }) }
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("I8nText", "importFromXML", importI8nTextFromXML)

@@ -1,12 +1,58 @@
 import { describe, expect, it } from "vitest"
 import { i8nTextFixtures } from "./__fixtures__/legacy/data"
-import { mockContext } from "../../../tests/mockContext"
+import { mockContext, mockContextFromXML } from "../../../tests/mockContext"
 import { exportI8nTextDefaultToYAML, exportI8nTextToYAML } from "./toYAML"
-import { I8nTextPropertyRule } from "./types"
+import { I8nTextPropertyRule, type I8nTextXML } from "./types"
+import { createConfigurationLanguages, serializeYAMLDocument } from "@nkdk/runtime"
+import { importI8nTextFromXML } from "./fromXML"
 
 const contextWithExportToYAML = {
   ...mockContext,
   exportToYAML: { toTyped: false },
+}
+
+const multilingualContext = {
+  ...contextWithExportToYAML,
+  languages: createConfigurationLanguages({ default: "ru", registered: ["ru", "en"] }),
+}
+
+const multilingualXMLContext = {
+  ...mockContextFromXML(),
+  languages: multilingualContext.languages,
+}
+
+const russianOnlyContext = {
+  ...contextWithExportToYAML,
+  languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+}
+
+const russianOnlyXMLContext = {
+  ...mockContextFromXML(),
+  languages: russianOnlyContext.languages,
+}
+
+function xmlItems(entries: readonly (readonly [string, string])[]): I8nTextXML {
+  return {
+    "v8:item": entries.map(([language, content]) => ({
+      "v8:lang": language,
+      "v8:content": content,
+    })),
+  }
+}
+
+function importAndSerialize(
+  entries: readonly (readonly [string, string])[],
+  rule: I8nTextPropertyRule,
+  contexts = { xml: multilingualXMLContext, yaml: multilingualContext },
+): string {
+  const value = importI8nTextFromXML(contexts.xml, rule, xmlItems(entries))
+  const yaml = exportI8nTextToYAML({
+    context: contexts.yaml,
+    rule,
+    value,
+    name: "НеВыходить",
+  })
+  return serializeYAMLDocument({ Заголовок: yaml }).text
 }
 
 describe("exportI8nTextToYAML", () => {
@@ -82,6 +128,55 @@ describe("exportI8nTextToYAML", () => {
       })
 
       expect(result).toEqual({ en: "Rating sent" })
+    })
+
+    it.each([
+      {
+        name: "folds a canonical calculated default language",
+        entries: [["ru", "Не выходить"], ["en", "Dont exit"]],
+        contexts: undefined,
+        expected: "Заголовок:\n  en: Dont exit",
+      },
+      {
+        name: "marks an absent default language",
+        entries: [["en", "Dont exit"]],
+        contexts: undefined,
+        expected: 'Заголовок:\n  ru: ""\n  en: Dont exit',
+      },
+      {
+        name: "does not fold a noncanonical collection",
+        entries: [["en", "Dont exit"], ["ru", "Не выходить"]],
+        contexts: undefined,
+        expected: "Заголовок: !xml/order\n  en: Dont exit\n  ru: Не выходить",
+      },
+      {
+        name: "does not fold a duplicated calculated value",
+        entries: [["ru", "Не выходить"], ["ru", "Не выходить"]],
+        contexts: undefined,
+        expected: "Заголовок:\n  ru: !xml/duplicate Не выходить",
+      },
+      {
+        name: "classifies an unregistered language after folding",
+        entries: [["ru", "Не выходить"], ["en", "Buttons"]],
+        contexts: { xml: russianOnlyXMLContext, yaml: russianOnlyContext },
+        expected: "Заголовок:\n  en: !xml/language Buttons",
+      },
+      {
+        name: "combines an absent default marker with an unregistered language",
+        entries: [["en", "Buttons"]],
+        contexts: { xml: russianOnlyXMLContext, yaml: russianOnlyContext },
+        expected: 'Заголовок:\n  ru: ""\n  en: !xml/language Buttons',
+      },
+      {
+        name: "combines order and language anomalies",
+        entries: [["en", "Buttons"], ["ru", "Не выходить"]],
+        contexts: { xml: russianOnlyXMLContext, yaml: russianOnlyContext },
+        expected: "Заголовок: !xml/order\n  en: !xml/language Buttons\n  ru: Не выходить",
+      },
+    ] as const)("$name", ({ entries, contexts, expected }) => {
+      const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
+
+      expect(importAndSerialize(entries, rule, contexts)).toBe(expected)
     })
   })
 

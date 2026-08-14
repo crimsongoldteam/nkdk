@@ -1,8 +1,13 @@
-import { ConfigurationContext } from "@nkdk/runtime"
+import {
+  ConfigurationContext,
+  yamlMappingTagOf,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import { ImportFromYAMLFunctionNew, PropertyRule } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
+import { copyLocalizedItemTags } from "./anomalies"
 
 export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
@@ -21,25 +26,43 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
       : undefined
   }
 
-  const result: I8nText = {
-    items: {},
-  }
+  const result: I8nText = { items: {} }
 
   if (source !== undefined) {
-    result.items = { ...result.items, ...source.items }
+    result.items = { ...source.items }
+    copyLocalizedItemTags(source.items, result.items)
   }
 
   if (value !== undefined) {
     const otherLanguages = importFromYAML(context, value)!
-    result.items = { ...result.items, ...otherLanguages.items }
+    const combined = { ...result.items, ...otherLanguages.items }
+    copyLocalizedItemTags(result.items, combined)
+    copyLocalizedItemTags(otherLanguages.items, combined)
+    result.items = combined
   }
 
   if (Object.keys(result.items).length === 0) return undefined
 
   if (i8nRule.excludeIfEqualNameYAML) {
+    const defaultLanguage = context.languages.default
+    const hasAbsentDefaultMarker = result.items[defaultLanguage] === ""
+    if (hasAbsentDefaultMarker) {
+      const withoutMarker = Object.fromEntries(
+        Object.entries(result.items).filter(([language]) => language !== defaultLanguage),
+      )
+      copyLocalizedItemTags(result.items, withoutMarker)
+      result.items = withoutMarker
+    }
     if (name === undefined) return result
     if (source !== undefined && source.items[context.languages.default] === undefined) return result
-    return addDefaultLanguageNameToSynonym(context, result, name)
+    if (
+      hasAbsentDefaultMarker ||
+      yamlMappingTagOf(result.items) === "xml/order" ||
+      yamlScalarTagAt(result.items, defaultLanguage) === "xml/duplicate"
+    ) return result
+    const restored = addDefaultLanguageNameToSynonym(context, result, name)
+    if (restored.items !== result.items) copyLocalizedItemTags(result.items, restored.items)
+    return restored
   }
 
   return result
@@ -57,8 +80,14 @@ const importFromYAML = (context: ConfigurationContext, data: I8nTextYAML | undef
   }
 
   return {
-    items: data,
+    items: copyItems(data),
   }
+}
+
+function copyItems(items: Record<string, string>): Record<string, string> {
+  const copy = { ...items }
+  copyLocalizedItemTags(items, copy)
+  return copy
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("I8nText", "importFromYAML", importI8nTextFromYAML)
