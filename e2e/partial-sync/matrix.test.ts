@@ -136,6 +136,7 @@ describe("partial sync matrix", () => {
       const source = properties as string
       expect(source.indexOf("Предопределенные:"), owner).toBeLessThan(source.indexOf("Реквизиты:"))
       expect(source.indexOf("Предопределенные:"), owner).toBeLessThan(source.indexOf("ТабличныеЧасти:"))
+      if (owner !== "catalog") expect(source, owner).toMatch(/    Код: (?:1|"1")/u)
     }
   })
 

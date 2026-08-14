@@ -138,13 +138,19 @@ for (const ownerKey of [
   "object:chart-of-calculation-types",
   "object:chart-of-characteristic-types",
 ] as const) {
+  const predefinedBody = ownerKey === "object:catalog"
+    ? "Наименование: Проверочный элемент"
+    : ownerKey === "object:chart-of-calculation-types"
+      ? "Код: 1\nНаименование: Проверочный элемент"
+      : "Код: \"1\"\nНаименование: Проверочный элемент"
+
   addInlineChild({
     ownerKey,
     propertyKey: "predefined",
     childItemType: "Predefined",
     section: "Предопределенные",
     name: "ПроверочныйПредопределенныйЭлемент",
-    body: "Наименование: Проверочный элемент",
+    body: predefinedBody,
   })
 }
 
