@@ -21,7 +21,7 @@ afterEach(() => {
 })
 
 describe("fill value XML import", () => {
-  it("сохраняет булево Ложь для допустимых и запрещённого стандартного реквизита", async () => {
+  it("сохраняет булево Ложь для допустимых и запрещённых стандартных реквизитов", async () => {
     const sourcePath = copiedBooleanFillValuesFixture()
     const prepared = await prepareImportYaml({
       assignment: assignment(sourcePath),
@@ -34,11 +34,13 @@ describe("fill value XML import", () => {
       СтандартныеРеквизиты: {
         ПометкаУдаления: Record<string, unknown>
         Предопределенный: Record<string, unknown>
+        Владелец: Record<string, unknown>
       }
     }
     const booleanFillValue = yaml.Реквизиты.БулевоПоле
     const deletionMarkFillValue = yaml.СтандартныеРеквизиты.ПометкаУдаления
     const predefinedFillValue = yaml.СтандартныеРеквизиты.Предопределенный
+    const ownerFillValue = yaml.СтандартныеРеквизиты.Владелец
 
     expect(booleanFillValue.ЗначениеЗаполнения).toBe("Ложь")
     expect(yamlScalarTagAt(booleanFillValue, "ЗначениеЗаполнения")).toBeUndefined()
@@ -46,6 +48,8 @@ describe("fill value XML import", () => {
     expect(yamlScalarTagAt(deletionMarkFillValue, "ЗначениеЗаполнения")).toBeUndefined()
     expect(predefinedFillValue.ЗначениеЗаполнения).toBe("!xml Ложь")
     expect(yamlScalarTagAt(predefinedFillValue, "ЗначениеЗаполнения")).toBe("xml")
+    expect(ownerFillValue.ЗначениеЗаполнения).toBe("!xml Ложь")
+    expect(yamlScalarTagAt(ownerFillValue, "ЗначениеЗаполнения")).toBe("xml")
   })
 
   it("сохраняет начальную дату через !xml без снимка", async () => {
@@ -239,6 +243,12 @@ function copiedBooleanFillValuesFixture(): string {
     xml,
     '<xr:StandardAttribute name="Predefined">',
     '<xr:FillValue xsi:nil="true"/>',
+    '<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>',
+  )
+  xml = replaceFillValueAfter(
+    xml,
+    '<xr:StandardAttribute name="Owner">',
+    '<xr:FillValue xsi:type="xr:DesignTimeRef">447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231</xr:FillValue>',
     '<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>',
   )
   xml = replaceFillValueAfter(
