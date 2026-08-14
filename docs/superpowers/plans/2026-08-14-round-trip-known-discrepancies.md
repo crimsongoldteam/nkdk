@@ -168,7 +168,7 @@ const emptyStandardRoot =
 Проверить, что `ИнтерфейсКлиентскогоПриложения: !xml` материализует корень с пятью стандартными `panelDef`, а отсутствие поля не создаёт файл. Запустить оба узких набора:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.test.ts metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.test.ts metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts
 pnpm --filter @nkdk/rules exec vitest run --no-isolate --project native-lmdb metadata/appliedObjects/configuration/convertFromXML.test.ts
 ```
 
