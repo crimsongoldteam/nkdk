@@ -185,13 +185,12 @@ async function writeCatalog(projectDir: string, withAttribute: boolean): Promise
   await mkdir(directory, { recursive: true })
   const source = withAttribute
     ? [
-        "Синоним: Проверка частичной синхронизации",
         "Реквизиты:",
         "  ТестоваяСтрока:",
         "    Тип: Строка(20)",
         "",
       ].join("\n")
-    : "Синоним: Проверка частичной синхронизации\n"
+    : ""
   await writeFile(join(directory, "Свойства.yaml"), source, "utf8")
 }
 

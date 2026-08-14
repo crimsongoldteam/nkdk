@@ -67,9 +67,7 @@ describe("partial sync steps", () => {
       fixture.workspace.projectDir,
       "cf/Справочник/ПроверкаЧастичнойСинхронизации/Свойства.yaml"
     )
-    await expect(readFile(catalogPath, "utf8")).resolves.toBe(
-      "Синоним: Проверка частичной синхронизации\n"
-    )
+    await expect(readFile(catalogPath, "utf8")).resolves.toBe("")
     expect(syncStatuses(fixture.calls)).toEqual(["synchronized", "unchanged"])
     expect(fixture.calls.map(([name]) => name)).toEqual([
       "nkdk.validate_project",
@@ -88,7 +86,6 @@ describe("partial sync steps", () => {
     await steps.attribute()
 
     await expect(readFile(catalogPath, "utf8")).resolves.toBe([
-      "Синоним: Проверка частичной синхронизации",
       "Реквизиты:",
       "  ТестоваяСтрока:",
       "    Тип: Строка(20)",
