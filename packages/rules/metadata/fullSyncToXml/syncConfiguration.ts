@@ -39,6 +39,7 @@ import {
 import { assertNoPendingPartialXmlSync } from "../partialSyncToXml/pendingStore"
 import { withConfigurationIndexSources } from "./configurationIndexSources"
 import { loadConfigurationLanguagesFromYAML } from "../appliedObjects/configuration/languageRegistry"
+import { withConfigurationValidationContextVersions } from "../context/validationContextVersions"
 
 export interface SyncComponentToXmlParams {
   readonly context: ConfigurationContext
@@ -407,11 +408,11 @@ async function refreshSyncProject(params: {
   readonly context: ConfigurationContext
   readonly concurrency?: number
 }): Promise<{ readonly diagnostics: FullXmlSyncDiagnostic[]; readonly readToken: ProjectStateReadToken }> {
-  const result = await params.projectState.refreshAndValidate({
+  const result = await params.projectState.refreshAndValidate(withConfigurationValidationContextVersions({
     projectDir: params.projectDir,
     context: params.context,
     ...(params.concurrency === undefined ? {} : { concurrency: params.concurrency }),
-  })
+  }))
   const diagnostics = [...result.diagnostics].map(projectValidationDiagnostic)
   result.diagnostics.release()
   return { diagnostics, readToken: result.readToken }

@@ -102,6 +102,7 @@ export interface ProjectValidationFirstPassResult {
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
   dependencies: string[]
+  validationContextDependencies?: readonly import("../projectState/contracts/fileUpdate").ProjectStateValidationContextDependency[]
   logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
   structuredComponents?: readonly FormStructuredComponent[]
@@ -135,6 +136,7 @@ export interface ProjectValidationFileFacts {
   pendingReferences: PendingMetadataTargetReference[]
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
+  localizedTextProperties: number
   localDependencies: import("../projectDefinition/componentIndexFacts").ProjectLocalDependency[]
   logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
@@ -584,6 +586,7 @@ export function extractProjectValidationFileFacts(params: {
       pendingReferences: yamlFacts.pendingReferences,
       pendingChecks,
       diagnostics: yamlFacts.diagnostics,
+      localizedTextProperties: yamlFacts.localizedTextProperties,
       localDependencies: [],
       ...(yamlFacts.formDataPathIndex === undefined
         ? {}
@@ -649,6 +652,7 @@ export function extractProjectValidationFileFacts(params: {
     pendingReferences: yamlFacts.pendingReferences,
     pendingChecks,
     diagnostics: [...yamlFacts.diagnostics, ...measuredOwner.value.fieldIndex.diagnostics],
+    localizedTextProperties: yamlFacts.localizedTextProperties,
     localDependencies: projectLocalDependenciesFromFacts(
       params.file.projectPath,
       yamlFacts.localIndexes?.metadata.metadataTargets ?? []
@@ -832,6 +836,7 @@ function validateProjectFormFirstPass(
         ...facts.pendingReferences.map(({ canonical }) => canonical),
       ]),
     ],
+    ...languageValidationDependency(facts.localizedTextProperties, params.context),
     ...(facts.logicalAddresses === undefined ? {} : { logicalAddresses: facts.logicalAddresses }),
     ...(facts.form === undefined ? {} : { form: facts.form }),
     ...(facts.structuredComponents === undefined
@@ -940,12 +945,14 @@ function validateProjectPropertiesFirstPass(
   const equalNameValidationName =
     params.file.kind === "configuration" ? rootStringProperty(parsed.data, "Имя") : params.file.owner.name
   const equalNameStartedAt = performance.now()
+  let localizedTextProperties = 0
   const equalNameDiagnostics = validateExcludedEqualNameYAML({
     filePath: params.file.absolutePath,
     parsed,
     rule: params.file.owner.spec.rule,
     context: params.context,
     name: equalNameValidationName,
+    onLocalizedTextProperty: () => { localizedTextProperties += 1 },
   })
   const equalNameMs = performance.now() - equalNameStartedAt
   const facts = extractFirstPassFacts(params, { ...entry, parsed }, compatibilityMode)
@@ -972,6 +979,7 @@ function validateProjectPropertiesFirstPass(
     valueIndexEntries: facts.valueIndexEntries,
     pendingReferences: facts.pendingReferences,
     dependencies: facts.localDependencies.map(({ canonical }) => canonical),
+    ...languageValidationDependency(localizedTextProperties, params.context),
     ...(facts.logicalAddresses === undefined ? {} : { logicalAddresses: facts.logicalAddresses }),
     objectRecords: facts.objectRecords,
     profile: {
@@ -991,6 +999,15 @@ function validateProjectPropertiesFirstPass(
       propertyEvents: facts.profile.propertyEvents,
     },
   }
+}
+
+function languageValidationDependency(
+  localizedTextProperties: number,
+  context: ConfigurationContext,
+): Pick<ProjectValidationFirstPassResult, "validationContextDependencies"> {
+  return localizedTextProperties === 0
+    ? {}
+    : { validationContextDependencies: [{ key: "languages", version: context.languages.version }] }
 }
 
 function isExtensionOverlayFile(file: ValidationProjectFile): file is ValidationProjectFile & {

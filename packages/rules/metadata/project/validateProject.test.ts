@@ -70,6 +70,7 @@ describe("validateProject", () => {
       projectDir: "/project",
       concurrency: 2,
       context: { version: "2.20", languages: testLanguages },
+      validationContextVersions: new Map([["languages", testLanguages.version]]),
     }])
     expect(projectState.closed).toBe(0)
   })

@@ -108,6 +108,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
       "pendingChecks",
       "dependencies",
       "structuredDocuments",
+      "validationContextDependencies",
     ],
     path
   )
@@ -192,6 +193,16 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   if (!Array.isArray(update["dependencies"]) || !update["dependencies"].every((item) => typeof item === "string")) {
     throw new Error(`${path}.dependencies должен быть массивом строк`)
   }
+  assertRows(
+    update["validationContextDependencies"] ?? [],
+    `${path}.validationContextDependencies`,
+    ["key", "version"],
+    (row, rowPath) => {
+      assertString(row["key"], `${rowPath}.key`)
+      if (row["key"] === "") throw new Error(`${rowPath}.key должен быть непустой строкой`)
+      assertString(row["version"], `${rowPath}.version`)
+    },
+  )
   assertPortableData(update, path)
 }
 

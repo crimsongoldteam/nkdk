@@ -35,6 +35,10 @@ export interface ProjectStateLocalValidationResult {
   readonly diagnostics: readonly ProjectStateDiagnostic[]
   readonly schemaDiagnostics: readonly ProjectStateDiagnostic[]
 }
+export interface ProjectStateValidationContextDependency {
+  readonly key: string
+  readonly version: string
+}
 export interface ProjectStateReferenceDetails {
   readonly kind?: "attribute" | "standardAttribute"
   readonly typeInfo?: { readonly kinds: readonly string[]; readonly sourceText?: string; readonly definedTypes?: readonly string[] }
@@ -145,6 +149,7 @@ export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly forms: readonly ProjectStateFormEntry[]
   readonly pendingChecks: readonly ProjectStatePendingDependencyCheck[]
   readonly dependencies: readonly string[]
+  readonly validationContextDependencies?: readonly ProjectStateValidationContextDependency[]
   readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
 }
 export interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {

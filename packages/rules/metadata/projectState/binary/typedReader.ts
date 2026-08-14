@@ -56,7 +56,7 @@ function targetPairs(parts: readonly string[]): readonly (readonly [string, stri
 const RECORDS = PROJECT_STATE_FACT_RECORD_VIEWS
 
 export interface TypedProjectStateReader {
-  yamlFacts(fileId: number): Pick<ProjectStateYamlFileUpdate, "targets" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies" | "structuredDocuments"> | undefined
+  yamlFacts(fileId: number): Pick<ProjectStateYamlFileUpdate, "targets" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies" | "structuredDocuments" | "validationContextDependencies"> | undefined
   referenceDetails(
     fileId: number,
     kind: ProjectStateYamlFileUpdate["targets"][number]["kind"],
@@ -69,6 +69,7 @@ export interface TypedProjectStateReader {
   localValidation(fileId: number): ProjectStateLocalValidationResult | undefined
   pendingReferences(fileId: number): ProjectStateYamlFileUpdate["pendingReferences"]
   pendingChecks(fileId: number): ProjectStateYamlFileUpdate["pendingChecks"]
+  validationContextDependencies(fileId: number): NonNullable<ProjectStateYamlFileUpdate["validationContextDependencies"]>
   fileUpdate(fileId: number): ProjectStateFileUpdate
 }
 
@@ -119,6 +120,7 @@ export function createTypedProjectStateReader(
     localValidation,
     pendingReferences,
     pendingChecks,
+    validationContextDependencies,
     fileUpdate,
   }
 
@@ -346,6 +348,7 @@ export function createTypedProjectStateReader(
     if (yamlCache.has(fileId)) return yamlCache.get(fileId)
     if (snapshot.fileRecord(fileId).updateKind !== 1) return undefined
     const documents = structuredDocuments(fileId)
+    const contextDependencies = validationContextDependencies(fileId)
     const result: NonNullable<ReturnType<TypedProjectStateReader["yamlFacts"]>> = {
       targets: fileRows("targets", fileId).map(reference),
       pendingReferences: pendingReferences(fileId),
@@ -355,9 +358,17 @@ export function createTypedProjectStateReader(
       ...(documents.length === 0 ? {} : { structuredDocuments: documents }),
       pendingChecks: pendingChecks(fileId),
       dependencies: fileRows("dependencies", fileId).map((value) => string(value.projectPathId)),
+      ...(contextDependencies.length === 0 ? {} : { validationContextDependencies: contextDependencies }),
     }
     yamlCache.set(fileId, result)
     return result
+  }
+
+  function validationContextDependencies(fileId: number) {
+    return fileRows("validationContextDependencies", fileId).map((value) => ({
+      key: string(value.keyId),
+      version: string(value.versionId),
+    }))
   }
 
   function reference(value: Record<string, number>): ProjectStateYamlFileUpdate["targets"][number] {

@@ -26,6 +26,9 @@ export interface ProjectStateFileBaselinePage {
   readonly hashBytes: Uint8Array
   readonly previousFileIds: Int32Array
   readonly storedFileCount: number
+  readonly validationContextDependencies?: readonly (
+    readonly import("./fileUpdate").ProjectStateValidationContextDependency[] | undefined
+  )[]
 }
 
 export type ProjectStateFileBaselinePathPage = ProjectStateFileBaselinePage

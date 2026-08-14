@@ -72,7 +72,9 @@ export function assertProjectStateFileBaselinePage(
     throw new Error("ProjectStateFileBaselinePage должен быть объектом")
   }
   const page = value as Record<string, unknown>
-  assertExactKeys(page, ["knownHashBits", "hashBytes", "previousFileIds", "storedFileCount"], "ProjectStateFileBaselinePage")
+  assertExactKeys(page, [
+    "knownHashBits", "hashBytes", "previousFileIds", "storedFileCount", "validationContextDependencies",
+  ], "ProjectStateFileBaselinePage")
   assertOwnedBytes(page["knownHashBits"], Math.ceil(fileCount / 8), "knownHashBits")
   assertOwnedBytes(page["hashBytes"], fileCount * PROJECT_STATE_HASH_BYTE_LENGTH, "hashBytes")
   if (!(page["previousFileIds"] instanceof Int32Array) || page["previousFileIds"].length !== fileCount) {
@@ -84,6 +86,20 @@ export function assertProjectStateFileBaselinePage(
   const storedFileCount = page["storedFileCount"] as number
   for (const id of page["previousFileIds"] as Int32Array) {
     if (id < -1 || id >= storedFileCount) throw new Error("previousFileIds содержит неизвестный файл")
+  }
+  const dependencies = page["validationContextDependencies"]
+  if (dependencies !== undefined) {
+    if (!Array.isArray(dependencies) || dependencies.length !== fileCount) {
+      throw new Error(`validationContextDependencies должен содержать ${fileCount} значений`)
+    }
+    dependencies.forEach((items, index) => {
+      if (items === undefined) return
+      if (!Array.isArray(items)) throw new Error(`validationContextDependencies[${index}] должен быть массивом`)
+      items.forEach((item, itemIndex) => assertValidationContextDependency(
+        item,
+        `validationContextDependencies[${index}][${itemIndex}]`,
+      ))
+    })
   }
 }
 
@@ -118,4 +134,16 @@ function assertOwnedBytes(value: unknown, expectedLength: number, path: string):
   if (value.byteLength !== expectedLength || value.buffer.byteLength !== expectedLength) {
     throw new Error(`${path} должен занимать ${expectedLength} байт`)
   }
+}
+
+function assertValidationContextDependency(value: unknown, path: string): void {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error(`${path} должен быть объектом`)
+  }
+  const dependency = value as Record<string, unknown>
+  assertExactKeys(dependency, ["key", "version"], path)
+  if (typeof dependency["key"] !== "string" || dependency["key"] === "") {
+    throw new Error(`${path}.key должен быть непустой строкой`)
+  }
+  if (typeof dependency["version"] !== "string") throw new Error(`${path}.version должен быть строкой`)
 }

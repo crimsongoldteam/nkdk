@@ -81,6 +81,9 @@ export function toProjectStateFileUpdate(
         ? firstPassResult.state.pendingChecks.map(projectStatePendingCheck)
         : [],
     dependencies: [...new Set(firstPassResult.dependencies ?? [])],
+    ...(firstPassResult.validationContextDependencies === undefined
+      ? {}
+      : { validationContextDependencies: firstPassResult.validationContextDependencies }),
     ...(structuredDocuments.length === 0 ? {} : { structuredDocuments }),
   }
 }

@@ -485,12 +485,27 @@ git commit -m "feat: :white_check_mark: проверять языковые ан
 - Modify: `packages/rules/metadata/projectState/contracts.ts`
 - Modify: `packages/rules/metadata/projectState/fileUpdate.ts`
 - Modify: `packages/rules/metadata/projectState/binary/fragment.ts`
-- Modify: `packages/rules/metadata/projectState/binary/readSession.ts`
+- Modify: `packages/rules/metadata/projectState/binary/factTables.ts`
+- Modify: `packages/rules/metadata/projectState/binary/layouts.ts`
+- Modify: `packages/rules/metadata/projectState/binary/store.ts`
+- Modify: `packages/rules/metadata/projectState/binary/store.test.ts`
+- Modify: `packages/rules/metadata/projectState/binary/typedBuilder.ts`
+- Modify: `packages/rules/metadata/projectState/binary/typedReader.ts`
+- Modify: `packages/rules/metadata/projectState/fileUpdateValidation.ts`
 - Modify: `packages/rules/metadata/projectState/refresh.ts`
 - Modify: `packages/rules/metadata/projectState/refresh.test.ts`
-- Modify: `packages/rules/metadata/projectState/service.test.ts`
-- Modify: `packages/rules/metadata/project/preparedYamlProjectWorker.ts`
+- Modify: `packages/runtime/metadata/validation/excludeIfEqualNameYAML.ts`
+- Create: `packages/rules/metadata/context/validationContextVersions.ts`
+- Modify: `packages/rules/metadata/fullSyncToXml/syncConfiguration.ts`
+- Modify: `packages/rules/metadata/importFromXml/importConfiguration.ts`
+- Modify: `packages/rules/metadata/partialSyncToXml/preparePartialXmlSyncPackage.ts`
+- Modify: `packages/rules/metadata/project/validateProject.ts`
+- Modify: `packages/rules/metadata/project/validateProject.test.ts`
+- Modify: `packages/rules/metadata/project/preparedYamlProject.integration.test.ts`
 - Modify: `packages/rules/metadata/project/preparedYamlProjectWorker.integration.test.ts`
+- Modify: `packages/rules/metadata/project/preparedYamlProjectWorkerPool.ts`
+- Modify: `packages/rules/metadata/validation/projectValidationPasses.ts`
+- Modify: `packages/rules/metadata/validation/yamlFactExtractor.ts`
 
 **Interfaces:**
 - Produces generic cache contract:
@@ -508,35 +523,35 @@ interface ProjectStateYamlFileUpdate {
 
 - Consumes: текущая версия `context.languages.version`; worker публикует зависимость `{ key: "languages", version }` только если traversal встретил `I8nText` или `FormattedI8nText`.
 
-- [ ] **Step 1: Написать RED-тест выбора файлов при смене контекста**
+- [x] **Step 1: Написать RED-тест выбора файлов при смене контекста**
 
 Создать baseline из трёх файлов: один с I8nText, один без него, один изменённый по байтам. При новой `languages.version` ожидать повторную обработку первого и третьего, но не второго. При неизменной версии не перечитывать первые два.
 
-- [ ] **Step 2: Написать RED-тест двоичного round-trip зависимости**
+- [x] **Step 2: Написать RED-тест двоичного round-trip зависимости**
 
 Закодировать/прочитать fragment и проверить точное сохранение пары `languages/<version>` без изменения старых записей, у которых зависимость отсутствует.
 
-- [ ] **Step 3: Подтвердить RED**
+- [x] **Step 3: Подтвердить RED**
 
 Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/projectState/refresh.test.ts metadata/projectState/binary metadata/project/preparedYamlProjectWorker.integration.test.ts`
 
 Expected: FAIL, зависимость контекста пока не хранится.
 
-- [ ] **Step 4: Добавить общий механизм версии контекста**
+- [x] **Step 4: Добавить общий механизм версии контекста**
 
 Baseline reader возвращает сохранённые зависимости файла. `selectValidationFiles` сравнивает их с переданным общим `ReadonlyMap<string,string>` текущих версий; файл выбирается при изменении байтов, отсутствии файла или несовпадении любой объявленной версии. Код ProjectState не проверяет имя `languages` и не знает типы свойств.
 
-- [ ] **Step 5: Публиковать зависимость из существующего traversal**
+- [x] **Step 5: Публиковать зависимость из существующего traversal**
 
 Предметный валидатор увеличивает счётчик `localizedTextProperties`; first-pass worker добавляет зависимость `languages` только при значении больше нуля. Файл без локализованных свойств остаётся независимым от реестра.
 
-- [ ] **Step 6: Проверить cold/warm поведение**
+- [x] **Step 6: Проверить cold/warm поведение**
 
 Run: `pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/projectState metadata/project/preparedYamlProjectWorker.integration.test.ts`
 
 Expected: PASS; тест явно проверяет `parsedYamlFiles` для трёх описанных случаев.
 
-- [ ] **Step 7: Проверить дубли и закоммитить слой**
+- [x] **Step 7: Проверить дубли и закоммитить слой**
 
 Run: `pnpm duplicates -- --base 13ba5eac5`
 

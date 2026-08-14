@@ -85,6 +85,7 @@ export interface ValidationYamlFacts {
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
   localValueValidationProfile: LocalValueValidationProfile
+  localizedTextProperties: number
   fieldIndex?: ObjectFieldIndex
   formDataPathIndex?: FormDataPathIndex
   localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
@@ -227,6 +228,7 @@ export function extractValidationYamlFacts(params: {
         ]
       : [],
     localValueValidationProfile,
+    localizedTextProperties: 0,
     localIndexes,
     ...(structuredDocuments.length === 0
       ? {}
@@ -408,6 +410,7 @@ function emptyFacts(): ValidationYamlFacts {
     pendingChecks: [],
     diagnostics: [],
     localValueValidationProfile: {},
+    localizedTextProperties: 0,
   }
 }
 
@@ -955,6 +958,15 @@ function extractFormYamlFacts(
     commitStaged: _commitStaged,
     ...reference
   }) => reference)
+  let localizedTextProperties = 0
+  const localizedTextDiagnostics = validateExcludedEqualNameYAML({
+    filePath: file.absolutePath,
+    parsed,
+    rule: adapter.formRule,
+    context: validationContext,
+    name: file.formName,
+    onLocalizedTextProperty: () => { localizedTextProperties += 1 },
+  })
 
   return {
     ...emptyFacts(),
@@ -965,6 +977,7 @@ function extractFormYamlFacts(
     }),
     pendingReferences,
     pendingChecks: collected.pendingChecks,
+    localizedTextProperties,
     localValueValidationProfile: {
       [adapter.elementNamesProfileSubstep]: {
         items: 1,
@@ -972,13 +985,7 @@ function extractFormYamlFacts(
       },
     },
     diagnostics: [
-      ...validateExcludedEqualNameYAML({
-        filePath: file.absolutePath,
-        parsed,
-        rule: adapter.formRule,
-        context: validationContext,
-        name: file.formName,
-      }),
+      ...localizedTextDiagnostics,
       ...collected.formElementNameDiagnostics,
       ...index.duplicateDiagnostics,
     ],

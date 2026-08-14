@@ -14,6 +14,7 @@ export interface ValidateExcludedEqualNameYAMLParams {
   parsed: ParsedYaml
   rule: MetadataItemRule
   name: string | undefined
+  onLocalizedTextProperty?: () => void
 }
 
 export function validateExcludedEqualNameYAML(params: ValidateExcludedEqualNameYAMLParams): Diagnostic[] {
@@ -43,6 +44,7 @@ function validateObject(
     const propertyPath = [...params.yamlPath, propRule.yaml]
     const localizedText = localizedTextValue(propRule, yamlValue)
     if (localizedText !== undefined) {
+      params.onLocalizedTextProperty?.()
       const localizedOwner = propRule.type === "FormattedI8nText" ? asRecord(yamlValue) : record
       const localizedKey = propRule.type === "FormattedI8nText" ? "Текст" : propRule.yaml
       const localizedPath = propRule.type === "FormattedI8nText" ? [...propertyPath, "Текст"] : propertyPath

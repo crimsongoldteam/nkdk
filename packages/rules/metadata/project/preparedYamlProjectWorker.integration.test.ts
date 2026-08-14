@@ -305,6 +305,51 @@ describe("project-state refresh worker", () => {
     expect(fragment.stringValue(fragment.fileRecord(0).projectPathId)).toBe(identity.projectPath)
   })
 
+  it("повторно разбирает context-sensitive и изменённый файл, но пропускает обычный неизменный", async () => {
+    const projectDir = createTempDir()
+    const descriptors = ["СЯзыком", "Обычный", "Изменённый"].map((name) =>
+      componentProperties(projectDir, "cf", name))
+    const identities = descriptors.map((descriptor): ProjectStateFileIdentity => ({
+      projectPath: descriptor.rootProjectPath,
+      componentPath: "cf",
+      resourceKind: "yaml",
+      yamlRole: "properties",
+    }))
+    const expectedHashBytes = new Uint8Array(identities.length * 8)
+    const expectedHashes = new DataView(expectedHashBytes.buffer)
+    identities.forEach((_identity, index) => expectedHashes.setBigUint64(index * 8, 1n, false))
+    const classify = vi.fn((task: { readonly projectPath: string }) => {
+      const index = identities.findIndex(({ projectPath }) => projectPath === task.projectPath)
+      return { identity: identities[index]!, descriptor: descriptors[index]!, targets: [] }
+    })
+    let hashIndex = 0
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: identities.map((identity, index) => ({
+        projectPath: identity.projectPath,
+        componentPath: identity.componentPath,
+        absolutePath: descriptors[index]!.filePath,
+      })),
+      knownHashBits: Uint8Array.of(0b0000_0110),
+      expectedHashBytes,
+    }, {
+      readFile: async () => new TextEncoder().encode("{}\n"),
+      hashBytes: () => hashIndex++ === 2 ? 2n : 1n,
+      classifyProjectStateFile: classify,
+    })
+
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    expect(refresh).toMatchObject({ hashedFiles: 3, parsedYamlFiles: 2, changedFiles: 2 })
+    expect(classify.mock.calls.map(([task]) => task.projectPath)).toEqual([
+      identities[0]!.projectPath,
+      identities[2]!.projectPath,
+    ])
+  })
+
   it("восстанавливает описание изменённого известного пути из topology worker", () => {
     const projectDir = createTempDir()
     const descriptor = componentProperties(projectDir, "cf", "КлассифицированныйWorker")
@@ -656,6 +701,47 @@ describe("validation first-pass worker boundary", () => {
       .toEqual(Array(3).fill(hashFileBytes(Buffer.from("{}\n"))))
     expect(structuredClone(encodedFileUpdateBatch)).toEqual(encodedFileUpdateBatch)
   }, 120_000)
+
+  it("публикует зависимость от языков только для файла с локализованным свойством", async () => {
+    const projectDir = createTempDir()
+    const componentDir = join(projectDir, "cf")
+    const descriptor = (name: string): PreparedYamlProjectFileDescriptor => {
+      const projectPath = `Справочник/Товары/Формы/${name}/Форма.yaml`
+      const filePath = join(componentDir, ...projectPath.split("/"))
+      mkdirSync(dirname(filePath), { recursive: true })
+      return {
+        componentPath: "cf",
+        componentDir,
+        rootProjectPath: `cf/${projectPath}`,
+        projectPath,
+        filePath,
+        role: "form",
+        owner: { dir: "Справочник", name: "Товары" },
+        itemType: "ClientApplicationForm",
+      }
+    }
+    const localized = descriptor("СЗаголовком")
+    const ordinary = descriptor("БезЗаголовка")
+    writeFileSync(localized.filePath, "Заголовок: Форма\n")
+    writeFileSync(ordinary.filePath, "{}\n")
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "validateFirstPass",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [localized, ordinary],
+    })
+    if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
+    const batch = openProjectStateFileUpdateBatch(result.fileUpdateBatches[0]!)
+    const updates = Array.from({ length: batch.fileCount }, (_, index) => batch.update(index))
+    const byPath = new Map(updates.map((update) => [update.projectPath, update]))
+
+    expect(byPath.get(localized.rootProjectPath)).toMatchObject({
+      validationContextDependencies: [{ key: "languages", version: mockContext.languages.version }],
+    })
+    expect(byPath.get(ordinary.rootProjectPath)).not.toHaveProperty("validationContextDependencies")
+  })
 
   it("returns portable form checks without rule objects or index functions", async () => {
     const projectDir = createTempDir()

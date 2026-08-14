@@ -5,7 +5,11 @@ import {
   type MetadataDiagnosticCollection,
 } from "@nkdk/runtime"
 import type { ProjectStateFragment } from "./binary/fragment"
-import type { ProjectStateFileBaselinePathPage, ProjectStateReadToken } from "./contracts"
+import type {
+  ProjectStateFileBaselinePathPage,
+  ProjectStateReadToken,
+  ProjectStateValidationContextDependency,
+} from "./contracts"
 import {
   discoverProjectStateValidationFileBatches,
   type ProjectStateDiscoveredFileBatch,
@@ -94,6 +98,7 @@ export interface ProjectStateRefreshParams {
   readonly concurrency?: number
   readonly signal?: AbortSignal
   readonly profile?: true | ProjectStateProfileOptions
+  readonly validationContextVersions?: ReadonlyMap<string, string>
 }
 
 export interface ProjectStateRefreshDependencies {
@@ -140,7 +145,12 @@ export async function refreshProjectState(
     operation.signal.throwIfAborted()
     await dependencies.handle.beginUpdate(params.projectDir, operation.signal)
     updateActive = true
-    const scan = createBaselineScan(dependencies.discoverFiles(operationParams), dependencies.handle, operation.signal)
+    const scan = createBaselineScan(
+      dependencies.discoverFiles(operationParams),
+      dependencies.handle,
+      operation.signal,
+      params.validationContextVersions,
+    )
     const workerStats = await dependencies.processFiles(
       scan.batches,
       dependencies.handle,
@@ -191,6 +201,7 @@ function createBaselineScan(
   discovered: AsyncIterable<ProjectStateDiscoveredFileBatch>,
   handle: Pick<ProjectStateRefreshHandle, "readFileBaselinePathPage">,
   signal: AbortSignal,
+  validationContextVersions: ReadonlyMap<string, string> | undefined,
 ): { readonly batches: AsyncIterable<ProjectStateValidationFileBatch>; finish(): Promise<Uint8Array> } {
   let storedFileCount: number | undefined
   let seenFileIds: Uint8Array | undefined
@@ -205,7 +216,7 @@ function createBaselineScan(
       for (const fileId of baseline.previousFileIds) {
         if (fileId >= 0) seenFileIds[Math.floor(fileId / 8)]! |= 1 << (fileId % 8)
       }
-      const selected = selectValidationFiles(batch, baseline)
+      const selected = selectValidationFiles(batch, baseline, validationContextVersions)
       if (selected.files.length > 0) yield selected
     }
     completed = true
@@ -224,6 +235,7 @@ function createBaselineScan(
 function selectValidationFiles(
   batch: ProjectStateDiscoveredFileBatch,
   baseline: ProjectStateFileBaselinePathPage,
+  validationContextVersions: ReadonlyMap<string, string> | undefined,
 ): ProjectStateValidationFileBatch {
   const files: ProjectStateValidationFileTask[] = []
   const known: boolean[] = []
@@ -237,7 +249,10 @@ function selectValidationFiles(
         componentPath: path.componentPath,
         absolutePath: path.absolutePath,
       })
-      known.push(true)
+      known.push(validationContextDependenciesMatch(
+        baseline.validationContextDependencies?.[index],
+        validationContextVersions,
+      ))
       hashes.push(baseline.hashBytes.slice(index * 8, (index + 1) * 8))
       previousFileIds.push(previousFileId)
       return
@@ -269,6 +284,13 @@ function selectValidationFiles(
     previousFileIds: Int32Array.from(previousFileIds),
     storedFileCount: baseline.storedFileCount,
   }
+}
+
+function validationContextDependenciesMatch(
+  dependencies: readonly ProjectStateValidationContextDependency[] | undefined,
+  currentVersions: ReadonlyMap<string, string> | undefined,
+): boolean {
+  return dependencies?.every(({ key, version }) => currentVersions?.get(key) === version) ?? true
 }
 
 function errorMessage(caught: unknown): string {

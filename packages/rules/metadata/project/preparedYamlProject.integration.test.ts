@@ -401,6 +401,15 @@ describe("prepareYamlProject", () => {
       try {
         const first = await pool.initValidation(context)
         const second = await pool.initValidation(context)
+        const changedLanguages = await pool.initValidation({
+          ...context,
+          languages: {
+            default: "ru",
+            registered: ["ru", "en"],
+            registeredSet: new Set(["ru", "en"]),
+            version: '["ru",["en","ru"]]',
+          },
+        })
 
         expect(first.reused).toBeUndefined()
         expect(second).toMatchObject({
@@ -409,6 +418,7 @@ describe("prepareYamlProject", () => {
           formSchemaMs: first.formSchemaMs,
           propertiesSchemaMs: first.propertiesSchemaMs,
         })
+        expect(changedLanguages.reused).toBeUndefined()
       } finally {
         await testPool.close()
       }

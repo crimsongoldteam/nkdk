@@ -31,6 +31,7 @@ import {
   loadConfigurationLanguagesFromXML,
   loadConfigurationLanguagesFromYAML,
 } from "../appliedObjects/configuration/languageRegistry"
+import { configurationValidationContextVersions } from "../context/validationContextVersions"
 import { createValidationProjectComponent, type ValidationProjectComponent } from "../validation/projectComponents"
 import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import { resolveXmlImportComponent, type XmlImportComponentDescriptor } from "./componentDescriptor"
@@ -220,7 +221,12 @@ export async function importConfigurationFromXml(
 
     const concurrency = normalizeConcurrency(params.concurrency)
     if (descriptor.baseAddress !== undefined) {
-      await projectState.refreshAndValidate({ projectDir: params.projectDir, context: operationContext, concurrency })
+      await projectState.refreshAndValidate({
+        projectDir: params.projectDir,
+        context: operationContext,
+        validationContextVersions: configurationValidationContextVersions(operationContext),
+        concurrency,
+      })
     }
     importSession = await projectState.beginImport({
       projectDir: params.projectDir,

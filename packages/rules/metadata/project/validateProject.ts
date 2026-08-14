@@ -6,6 +6,7 @@ import type { Diagnostic } from "../validation/types"
 import type { MetadataDiagnosticCollection } from "@nkdk/runtime"
 import { join } from "node:path"
 import { loadConfigurationLanguagesFromYAML } from "../appliedObjects/configuration/languageRegistry"
+import { configurationValidationContextVersions } from "../context/validationContextVersions"
 
 export interface ValidateProjectParams {
   projectDir: string
@@ -42,6 +43,7 @@ export async function validateProject(
     const result = await projectState.refreshAndValidate({
       projectDir: params.projectDir,
       context,
+      validationContextVersions: configurationValidationContextVersions(context),
       concurrency: normalizeValidationConcurrency(params.concurrency),
     })
     return { diagnostics: result.diagnostics }
