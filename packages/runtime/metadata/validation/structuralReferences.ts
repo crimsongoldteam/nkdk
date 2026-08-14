@@ -329,7 +329,7 @@ function isEmptyMapping(value: unknown): boolean {
   return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0
 }
 
-function isRelativeYAMLScalarTagged(
+export function isRelativeYAMLScalarTagged(
   parent: Readonly<Record<string, unknown>>,
   propertyKey: string,
   path: readonly (string | number)[],

@@ -41,9 +41,11 @@ import {
 } from "./rulesSnapshot"
 import {
   collectStructuralYamlReferences,
+  isRelativeYAMLScalarTagged,
   type StructuralReferenceNestedRule,
   type StructuralReferenceRuntime,
 } from "./structuralReferences"
+import { resolveDeferredPropertyRule } from "../ruleRuntime/property/finalizeImportedYAML"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
@@ -540,7 +542,7 @@ function collectPendingReferences(params: {
   localValueValidationProfile: LocalValueValidationProfile
   collector: LocalIndexesCollector
   fileOwner: ValidationProjectFile["owner"]
-  rulePath: readonly { propertyKey: string }[]
+  rulePath: readonly { propertyKey: string; nestedItemType?: string }[]
   rootYaml: unknown
   rootRule: MetadataItemRule
   validationDiagnostics: boolean
@@ -555,7 +557,15 @@ function collectPendingReferences(params: {
     const value = valueAtPath(record, property.yamlPath)
     if (value === undefined) continue
     const yamlPath = [...params.yamlPath, ...property.yamlPath]
-    const rulePath = [...params.rulePath, { propertyKey: property.modelKey }]
+    const rulePath = [
+      ...params.rulePath,
+      {
+        propertyKey: property.modelKey,
+        ...(property.nestedItemType === undefined
+          ? {}
+          : { nestedItemType: property.nestedItemType }),
+      },
+    ]
     if (property.type !== undefined) {
       if (params.validationDiagnostics) {
         collectLocalValueValidation({
@@ -584,6 +594,12 @@ function collectPendingReferences(params: {
     }
 
     if (property.metadataTarget !== undefined) {
+      const execution = params.runtime?.rules.execution
+        ?? currentPropertyRuleRegistrySet<PropertyRuleExecution>()
+      const propertyRule = execution === undefined
+        ? undefined
+        : resolveDeferredPropertyRule(params.rootRule, rulePath, execution)
+      const yamlKey = property.yamlPath.at(-1)
       const siblingValue = (propertyKey: string) => {
         const sibling = params.properties.find((candidate) => candidate.modelKey === propertyKey)
         return sibling === undefined ? undefined : valueAtPath(record, sibling.yamlPath)
@@ -620,6 +636,17 @@ function collectPendingReferences(params: {
           yamlPath,
           diagnostics: params.diagnostics,
           validationDiagnostics: params.validationDiagnostics,
+          ...(execution === undefined || propertyRule === undefined || yamlKey === undefined
+            ? {}
+            : {
+                brokenReferenceTransport: {
+                  execution,
+                  rule: propertyRule,
+                  yamlValue: value,
+                  isTagged: (path: readonly (string | number)[]) =>
+                    isRelativeYAMLScalarTagged(record, yamlKey, path),
+                },
+              }),
         })
       )
     }
@@ -665,7 +692,7 @@ function collectNestedReferences(params: {
   localValueValidationProfile: LocalValueValidationProfile
   collector: LocalIndexesCollector
   fileOwner: ValidationProjectFile["owner"]
-  rulePath: readonly { propertyKey: string }[]
+  rulePath: readonly { propertyKey: string; nestedItemType?: string }[]
   rootYaml: unknown
   rootRule: MetadataItemRule
   nestedItemType?: string
@@ -746,6 +773,13 @@ function collectTargetValues(params: {
   diagnostics: Diagnostic[]
   validationDiagnostics: boolean
   runtime?: ValidationRegistrySet
+  relativePath?: readonly (string | number)[]
+  brokenReferenceTransport?: {
+    execution: PropertyRuleExecution
+    rule: PropertyRule
+    yamlValue: unknown
+    isTagged: (path: readonly (string | number)[]) => boolean
+  }
 }): PendingMetadataTargetReference[] {
   if ((params.constraint.kind === "dataTable" || params.constraint.kind === "dataTableField")
     && params.constraint.validation === "translateOnly") return []
@@ -756,13 +790,25 @@ function collectTargetValues(params: {
 
   if (typeof params.value === "string") {
     if (params.value === "") return []
+    const relativePath = params.relativePath ?? []
+    if (params.brokenReferenceTransport?.execution.isTransportedBrokenXMLReference({
+      rule: params.brokenReferenceTransport.rule,
+      yamlValue: params.brokenReferenceTransport.yamlValue,
+      path: relativePath,
+      isTagged: params.brokenReferenceTransport.isTagged,
+    })) return []
     const reference = pendingReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })
     return reference === undefined ? [] : [reference]
   }
 
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) =>
-      collectTargetValues({ ...params, value: item, yamlPath: [...params.yamlPath, index] })
+      collectTargetValues({
+        ...params,
+        value: item,
+        yamlPath: [...params.yamlPath, index],
+        relativePath: [...(params.relativePath ?? []), index],
+      })
     )
   }
 
