@@ -2,20 +2,30 @@ import { randomUUID } from "node:crypto"
 import { mkdir, rm, writeFile } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import { compareFileTrees, type FileTreeComparison } from "../support/file-tree"
+import type { ScenarioOperation } from "./matrix/types"
 import { openScenarioMcpSession, type ScenarioMcpSession } from "./mcp-session"
+import { applyScenarioOperation } from "./operation"
 import { prepareInfobaseFixture } from "./platform-fixture"
-import type { ScenarioStages } from "./scenario"
 import type { ScenarioWorkspace } from "./workspace"
 
-const extensionName = "Расширение_All"
-const componentPaths = ["cf", `cfe/${extensionName}`] as const
+export type ScenarioProgress = {
+  readonly index: number
+  readonly total: number
+}
+
+export type PartialSyncSteps = {
+  prepareBaseline(): Promise<void>
+  executeOperation(operation: ScenarioOperation, progress: ScenarioProgress): Promise<void>
+}
 
 export type PartialSyncStepDependencies = {
   readonly cfXmlDir: string
   readonly extensionXmlDir: string
-  readonly cfNkdkDir: string
-  readonly extensionNkdkDir: string
+  readonly extensionName: string
   operationId(): string
+  now(): number
+  writeProgress(message: string): void
+  applyScenarioOperation: typeof applyScenarioOperation
   prepareInfobaseFixture: typeof prepareInfobaseFixture
   openMcpSession(params: { attemptLogDir: string }): Promise<ScenarioMcpSession>
   compareFileTrees(params: Parameters<typeof compareFileTrees>[0]): Promise<FileTreeComparison>
@@ -27,11 +37,11 @@ type CreatePartialSyncStepsParams = {
 
 export function createPartialSyncSteps(
   params: CreatePartialSyncStepsParams,
-  dependencies: PartialSyncStepDependencies = defaultDependencies
-): ScenarioStages {
+  dependencies: PartialSyncStepDependencies = defaultDependencies,
+): PartialSyncSteps {
   const { workspace } = params
   return {
-    async baseline() {
+    async prepareBaseline() {
       await resetDirectory(workspace.baseDir)
       await resetDirectory(workspace.dataDir)
       await resetDirectory(workspace.projectDir)
@@ -42,90 +52,96 @@ export function createPartialSyncSteps(
         logsDir: attemptLogDir,
         cfXmlDir: dependencies.cfXmlDir,
         extensionXmlDir: dependencies.extensionXmlDir,
-        extensionName,
+        extensionName: dependencies.extensionName,
       })
       await writeProjectSettings(workspace.projectDir, workspace.baseDir)
       const session = await dependencies.openMcpSession({ attemptLogDir })
-      const verificationProjectDir = join(workspace.verificationDir, "baseline")
-      let verificationStarted = false
+      const verificationProjectDir = join(workspace.verificationDir, "current")
+      let projectOpen = false
+      let verificationOpen = false
       try {
-        const listed = await session.call<ExtensionListPayload>(
-          "nkdk.list_infobase_extensions",
-          { projectDir: workspace.projectDir }
-        )
-        expectOnlyExtension(listed)
-        await importComponents(session, workspace.projectDir)
-        verificationStarted = true
-        await verifyComponents({
-          session,
-          workspace,
-          stage: "baseline",
-          attemptLogDir,
-          dependencies,
+        await importCf(session, workspace.projectDir)
+        projectOpen = true
+        await prepareVerificationProject(verificationProjectDir, workspace.baseDir)
+        await importCf(session, verificationProjectDir)
+        verificationOpen = true
+        await expectEqualCf(dependencies, {
+          expectedDir: join(workspace.projectDir, "cf"),
+          actualDir: join(verificationProjectDir, "cf"),
+          reportDir: join(attemptLogDir, "compare-baseline-cf"),
         })
       } finally {
-        if (verificationStarted) await closePlatformConnection(session, verificationProjectDir)
-        await closePlatformConnection(session, workspace.projectDir)
+        if (verificationOpen) await closePlatformConnection(session, verificationProjectDir)
+        if (projectOpen) await closePlatformConnection(session, workspace.projectDir)
         await session.close()
       }
     },
-    async catalog() {
-      await writeCatalog(workspace.projectDir, false)
-      await runChangedStage("catalog", workspace, dependencies)
-    },
-    async attribute() {
-      await writeCatalog(workspace.projectDir, true)
-      await runChangedStage("attribute", workspace, dependencies)
+
+    async executeOperation(operation, progress) {
+      const startedAt = dependencies.now()
+      const safeKey = operation.key.replaceAll(/[^a-zA-Z0-9а-яА-ЯёЁ._-]/gu, "-")
+      const attemptLogDir = join(
+        workspace.logsDir,
+        `${dependencies.operationId()}-${safeKey}`,
+      )
+      const paths = operation.changes.map(({ path }) => path).toSorted()
+      let session: ScenarioMcpSession | undefined
+      let projectOpen = false
+      let verificationOpen = false
+      const verificationProjectDir = join(workspace.verificationDir, "current")
+      try {
+        await dependencies.applyScenarioOperation(workspace.projectDir, operation)
+        session = await dependencies.openMcpSession({ attemptLogDir })
+        projectOpen = true
+        await expectSuccessfulValidation(session, workspace.projectDir)
+        await syncAndExpectStable(session, workspace.projectDir)
+        await closePlatformConnection(session, workspace.projectDir)
+        projectOpen = false
+        await prepareVerificationProject(verificationProjectDir, workspace.baseDir)
+        await importCf(session, verificationProjectDir)
+        verificationOpen = true
+        await expectEqualCf(dependencies, {
+          expectedDir: join(workspace.projectDir, "cf"),
+          actualDir: join(verificationProjectDir, "cf"),
+          reportDir: join(attemptLogDir, `compare-${safeKey}-cf`),
+        })
+        await closePlatformConnection(session, verificationProjectDir)
+        verificationOpen = false
+      } catch (caught) {
+        const detail = caught instanceof Error ? caught.message : String(caught)
+        throw new Error(
+          `Операция ${operation.key} завершилась ошибкой: ${detail}; пути: ${paths.join(", ")}; журнал: ${attemptLogDir}`,
+          { cause: caught },
+        )
+      } finally {
+        if (session !== undefined) {
+          if (verificationOpen) await closePlatformConnection(session, verificationProjectDir)
+          if (projectOpen) await closePlatformConnection(session, workspace.projectDir)
+          await session.close()
+        }
+      }
+      const elapsedSeconds = (dependencies.now() - startedAt) / 1_000
+      dependencies.writeProgress(
+        `[${progress.index}/${progress.total}] ${operation.key} — ${elapsedSeconds.toFixed(2)}s`,
+      )
     },
   }
 }
 
-async function runChangedStage(
-  stage: "catalog" | "attribute",
-  workspace: ScenarioWorkspace,
-  dependencies: PartialSyncStepDependencies
-): Promise<void> {
-  const attemptLogDir = join(workspace.logsDir, `${dependencies.operationId()}-${stage}`)
-  const verificationProjectDir = join(workspace.verificationDir, stage)
-  const session = await dependencies.openMcpSession({ attemptLogDir })
-  let verificationStarted = false
-  let projectConnectionOpen = true
-  try {
-    await expectSuccessfulValidation(session, workspace.projectDir)
-    await syncAndExpectStable(session, workspace.projectDir)
-    await closePlatformConnection(session, workspace.projectDir)
-    projectConnectionOpen = false
-    verificationStarted = true
-    await verifyComponents({
-      session,
-      workspace,
-      stage,
-      attemptLogDir,
-      dependencies,
-    })
-  } finally {
-    if (verificationStarted) await closePlatformConnection(session, verificationProjectDir)
-    if (projectConnectionOpen) await closePlatformConnection(session, workspace.projectDir)
-    await session.close()
-  }
-}
-
-async function importComponents(session: ScenarioMcpSession, projectDir: string): Promise<void> {
-  for (const componentPath of componentPaths) {
-    const payload = await session.call<ImportPayload>("nkdk.import_from_infobase", {
-      projectDir,
-      componentPath,
-      allowWrite: true,
-    })
-    if (payload.ok !== true || (payload.failed?.length ?? 0) > 0) {
-      throw new Error(`Импорт ${componentPath} завершился с ошибками`)
-    }
+async function importCf(session: ScenarioMcpSession, projectDir: string): Promise<void> {
+  const payload = await session.call<ImportPayload>("nkdk.import_from_infobase", {
+    projectDir,
+    componentPath: "cf",
+    allowWrite: true,
+  })
+  if (payload.ok !== true || (payload.failed?.length ?? 0) > 0) {
+    throw new Error("Импорт cf завершился с ошибками")
   }
 }
 
 async function expectSuccessfulValidation(
   session: ScenarioMcpSession,
-  projectDir: string
+  projectDir: string,
 ): Promise<void> {
   const payload = await session.call<ValidationPayload>("nkdk.validate_project", { projectDir })
   const errors = payload.diagnostics?.filter(({ severity }) => severity === "error") ?? []
@@ -146,32 +162,9 @@ async function syncAndExpectStable(session: ScenarioMcpSession, projectDir: stri
   }
 }
 
-async function verifyComponents(params: {
-  readonly session: ScenarioMcpSession
-  readonly workspace: ScenarioWorkspace
-  readonly stage: "baseline" | "catalog" | "attribute"
-  readonly attemptLogDir: string
-  readonly dependencies: PartialSyncStepDependencies
-}): Promise<void> {
-  const verificationProjectDir = join(params.workspace.verificationDir, params.stage)
-  await resetDirectory(verificationProjectDir)
-  await writeProjectSettings(verificationProjectDir, params.workspace.baseDir)
-  await importComponents(params.session, verificationProjectDir)
-  await expectEqualTrees(params.dependencies, {
-    expectedDir: join(params.workspace.projectDir, "cf"),
-    actualDir: join(verificationProjectDir, "cf"),
-    reportDir: join(params.attemptLogDir, `compare-${params.stage}-cf`),
-  })
-  await expectEqualTrees(params.dependencies, {
-    expectedDir: join(params.workspace.projectDir, "cfe", extensionName),
-    actualDir: join(verificationProjectDir, "cfe", extensionName),
-    reportDir: join(params.attemptLogDir, `compare-${params.stage}-extension`),
-  })
-}
-
-async function expectEqualTrees(
+async function expectEqualCf(
   dependencies: PartialSyncStepDependencies,
-  params: Parameters<typeof compareFileTrees>[0]
+  params: Parameters<typeof compareFileTrees>[0],
 ): Promise<void> {
   const comparison = await dependencies.compareFileTrees(params)
   if (!comparison.equal) {
@@ -183,17 +176,9 @@ async function closePlatformConnection(session: ScenarioMcpSession, projectDir: 
   await session.call("nkdk.close_platform_connection", { projectDir })
 }
 
-async function writeCatalog(projectDir: string, withAttribute: boolean): Promise<void> {
-  const directory = join(projectDir, "cf", "Справочник", "ПроверкаЧастичнойСинхронизации")
-  await mkdir(directory, { recursive: true })
-  const source = withAttribute
-    ? [
-        "Реквизиты:",
-        "  ТестоваяСтрока:",
-        "    Тип: Строка(20)",
-      ].join("\n")
-    : ""
-  await writeFile(join(directory, "Свойства.yaml"), source, "utf8")
+async function prepareVerificationProject(projectDir: string, baseDir: string): Promise<void> {
+  await resetDirectory(projectDir)
+  await writeProjectSettings(projectDir, baseDir)
 }
 
 async function writeProjectSettings(projectDir: string, baseDir: string): Promise<void> {
@@ -212,17 +197,6 @@ async function writeProjectSettings(projectDir: string, baseDir: string): Promis
 async function resetDirectory(path: string): Promise<void> {
   await rm(path, { recursive: true, force: true })
   await mkdir(path, { recursive: true })
-}
-
-function expectOnlyExtension(payload: ExtensionListPayload): void {
-  if (payload.ok !== true || payload.extensions?.length !== 1 || payload.extensions[0]?.name !== extensionName) {
-    throw new Error(`Ожидалось единственное расширение ${extensionName}`)
-  }
-}
-
-type ExtensionListPayload = {
-  readonly ok?: boolean
-  readonly extensions?: ReadonlyArray<{ readonly name?: string }>
 }
 
 type ImportPayload = {
@@ -245,9 +219,11 @@ const fixturesRoot = resolve(import.meta.dirname, "../fixtures")
 const defaultDependencies: PartialSyncStepDependencies = {
   cfXmlDir: join(fixturesRoot, "xml", "cf"),
   extensionXmlDir: join(fixturesRoot, "xml", "cfe", "all-extension"),
-  cfNkdkDir: join(fixturesRoot, "nkdk", "cf"),
-  extensionNkdkDir: join(fixturesRoot, "nkdk", "cfe", extensionName),
+  extensionName: "Расширение_All",
   operationId: randomUUID,
+  now: Date.now,
+  writeProgress(message) { process.stdout.write(`${message}\n`) },
+  applyScenarioOperation,
   prepareInfobaseFixture,
   openMcpSession: openScenarioMcpSession,
   compareFileTrees,
