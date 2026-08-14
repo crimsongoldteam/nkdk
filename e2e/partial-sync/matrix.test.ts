@@ -112,6 +112,16 @@ describe("partial sync matrix", () => {
     }
   })
 
+  it("emits task addressing attributes before tabular sections with a string fill value", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const operation = plan.find(({ key }) => key === "child:task:addressingAttributes")
+    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+    expect(properties).toEqual(expect.any(String))
+    const source = properties as string
+    expect(source.indexOf("РеквизитыАдресации:")).toBeLessThan(source.indexOf("ТабличныеЧасти:"))
+    expect(source).toContain("    ЗначениеЗаполнения: \"\"")
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",

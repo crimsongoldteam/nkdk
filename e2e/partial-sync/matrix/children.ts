@@ -129,7 +129,7 @@ addInlineChild({
   childItemType: "MetadataTaskAddressingAttribute",
   section: "РеквизитыАдресации",
   name: "ПроверочныйРеквизитАдресации",
-  body: "Тип: Строка(10)",
+  body: "Тип: Строка(10)\nЗначениеЗаполнения: \"\"",
 })
 
 for (const ownerKey of [

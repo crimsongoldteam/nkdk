@@ -22,6 +22,9 @@ export const matrixChildInsertionAnchors: Readonly<Record<string, Readonly<Recor
     ТабличныеЧасти: "ТипЗначения",
     Предопределенные: "ТипЗначения",
   },
+  "object:task": {
+    РеквизитыАдресации: "ТабличныеЧасти",
+  },
   "object:information-register": registerFieldInsertionAnchors(),
   "object:accumulation-register": registerFieldInsertionAnchors(),
   "object:accounting-register": registerFieldInsertionAnchors(),
