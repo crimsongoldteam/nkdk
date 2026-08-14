@@ -57,6 +57,7 @@ describe("partial sync matrix", () => {
     const properties = commonForm?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))
 
     expect(properties?.after).not.toContain("ИспользоватьСтандартныеКоманды")
+    expect(properties?.after).toBe("НазначенияИспользования: ПлатформаИМобильноеПриложение\n")
   })
 
   it("declares every reachable owner-child capability", () => {

@@ -163,6 +163,7 @@ export const rootObjectDeclarations = [
     "MetadataCommonForm",
     "ОбщаяФорма",
     "ОбщаяФорма",
+    "НазначенияИспользования: ПлатформаИМобильноеПриложение\n",
   ),
   directoryRoot("object:common-picture", "MetadataCommonPicture", "ОбщаяКартинка", "ОбщаяКартинка"),
   directoryRoot("object:style", "MetadataStyle", "Стиль", "Стиль"),
