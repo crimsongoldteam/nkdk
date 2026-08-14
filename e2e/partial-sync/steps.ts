@@ -46,6 +46,8 @@ export function createPartialSyncSteps(
       })
       await writeProjectSettings(workspace.projectDir, workspace.baseDir)
       const session = await dependencies.openMcpSession({ attemptLogDir })
+      const verificationProjectDir = join(workspace.verificationDir, "baseline")
+      let verificationStarted = false
       try {
         const listed = await session.call<ExtensionListPayload>(
           "nkdk.list_infobase_extensions",
@@ -53,17 +55,16 @@ export function createPartialSyncSteps(
         )
         expectOnlyExtension(listed)
         await importComponents(session, workspace.projectDir)
-        await expectEqualTrees(dependencies, {
-          expectedDir: dependencies.cfNkdkDir,
-          actualDir: join(workspace.projectDir, "cf"),
-          reportDir: join(attemptLogDir, "compare-baseline-cf"),
-        })
-        await expectEqualTrees(dependencies, {
-          expectedDir: dependencies.extensionNkdkDir,
-          actualDir: join(workspace.projectDir, "cfe", extensionName),
-          reportDir: join(attemptLogDir, "compare-baseline-extension"),
+        verificationStarted = true
+        await verifyComponents({
+          session,
+          workspace,
+          stage: "baseline",
+          attemptLogDir,
+          dependencies,
         })
       } finally {
+        if (verificationStarted) await closePlatformConnection(session, verificationProjectDir)
         await closePlatformConnection(session, workspace.projectDir)
         await session.close()
       }
@@ -145,7 +146,7 @@ async function syncAndExpectStable(session: ScenarioMcpSession, projectDir: stri
 async function verifyComponents(params: {
   readonly session: ScenarioMcpSession
   readonly workspace: ScenarioWorkspace
-  readonly stage: "catalog" | "attribute"
+  readonly stage: "baseline" | "catalog" | "attribute"
   readonly attemptLogDir: string
   readonly dependencies: PartialSyncStepDependencies
 }): Promise<void> {
@@ -159,7 +160,7 @@ async function verifyComponents(params: {
     reportDir: join(params.attemptLogDir, `compare-${params.stage}-cf`),
   })
   await expectEqualTrees(params.dependencies, {
-    expectedDir: params.dependencies.extensionNkdkDir,
+    expectedDir: join(params.workspace.projectDir, "cfe", extensionName),
     actualDir: join(verificationProjectDir, "cfe", extensionName),
     reportDir: join(params.attemptLogDir, `compare-${params.stage}-extension`),
   })

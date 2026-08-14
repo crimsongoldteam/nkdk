@@ -27,6 +27,19 @@ describe("partial sync steps", () => {
         componentPath: "cfe/Расширение_All",
         allowWrite: true,
       }],
+      ["nkdk.import_from_infobase", {
+        projectDir: join(fixture.workspace.verificationDir, "baseline"),
+        componentPath: "cf",
+        allowWrite: true,
+      }],
+      ["nkdk.import_from_infobase", {
+        projectDir: join(fixture.workspace.verificationDir, "baseline"),
+        componentPath: "cfe/Расширение_All",
+        allowWrite: true,
+      }],
+      ["nkdk.close_platform_connection", {
+        projectDir: join(fixture.workspace.verificationDir, "baseline"),
+      }],
       ["nkdk.close_platform_connection", { projectDir: fixture.workspace.projectDir }],
     ])
     const settings = await readFile(join(fixture.workspace.projectDir, ".nkdk/project.yaml"), "utf8")
@@ -34,8 +47,14 @@ describe("partial sync steps", () => {
     expect(settings).toContain("mode: standalone-server")
     expect(fixture.comparisons.map(({ expectedDir, actualDir }) => [expectedDir, actualDir]))
       .toEqual([
-        [fixture.paths.cfNkdkDir, join(fixture.workspace.projectDir, "cf")],
-        [fixture.paths.extensionNkdkDir, join(fixture.workspace.projectDir, "cfe/Расширение_All")],
+        [
+          join(fixture.workspace.projectDir, "cf"),
+          join(fixture.workspace.verificationDir, "baseline", "cf"),
+        ],
+        [
+          join(fixture.workspace.projectDir, "cfe/Расширение_All"),
+          join(fixture.workspace.verificationDir, "baseline", "cfe/Расширение_All"),
+        ],
       ])
   })
 
