@@ -139,7 +139,7 @@ function normalizeQuotedTypeLinkValues(yaml: string): string {
 }
 
 function normalizeEmptyXMLTags(yaml: string): string {
-  return yaml.replace(/!xml ""(?=[ \t]*(?:#.*)?$)/gm, "!xml")
+  return yaml.replace(/!xml\/(present|absent|name|type|value|reference) ""(?=[ \t]*(?:#.*)?$)/gm, "!xml/$1")
 }
 
 function normalizeEmptyMappings(yaml: string): string {
