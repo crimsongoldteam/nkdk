@@ -69,6 +69,7 @@ export function createPartialSyncSteps(
           expectedDir: join(workspace.projectDir, "cf"),
           actualDir: join(verificationProjectDir, "cf"),
           reportDir: join(attemptLogDir, "compare-baseline-cf"),
+          xmlComparison: "semantic",
           yamlComparison: "ignore-final-line-ending",
         })
       } finally {
@@ -105,6 +106,7 @@ export function createPartialSyncSteps(
           expectedDir: join(workspace.projectDir, "cf"),
           actualDir: join(verificationProjectDir, "cf"),
           reportDir: join(attemptLogDir, `compare-${safeKey}-cf`),
+          xmlComparison: "semantic",
           yamlComparison: "ignore-final-line-ending",
         })
         await closePlatformConnection(session, verificationProjectDir)
