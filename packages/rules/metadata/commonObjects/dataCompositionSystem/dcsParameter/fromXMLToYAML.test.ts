@@ -141,7 +141,7 @@ describe("export DCSParameter to YAML", () => {
     })
   })
 
-  it("preserves xs:string title through !xml", () => {
+  it("preserves xs:string title through !xml/type", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule,
       value: undefined,
@@ -152,7 +152,7 @@ describe("export DCSParameter to YAML", () => {
     expect(result).toEqual({
       Параметры: {
         StringTitleParameter: {
-          Заголовок: "!xml String String title",
+          Заголовок: "!xml/type String String title",
         },
       },
     })

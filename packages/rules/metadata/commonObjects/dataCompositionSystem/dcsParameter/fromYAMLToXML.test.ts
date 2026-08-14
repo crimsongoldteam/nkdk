@@ -110,7 +110,7 @@ describe("export DCSParameter to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("preserves xs:string title from !xml", () => {
+  it("preserves xs:string title from !xml/type", () => {
     const xmlString = `<Settings>
 	<Parameter>
 		<dcssch:name>StringTitleParameter</dcssch:name>
@@ -121,7 +121,7 @@ describe("export DCSParameter to XML", () => {
       rule,
       value: undefined,
       yaml: importFromYAML(`StringTitleParameter:
-  Заголовок: !xml String String title
+  Заголовок: !xml/type String String title
 `),
       xmlRootTag: "Settings",
       xmlString,

@@ -9,16 +9,18 @@ import "./toJSONSchema"
 const rule = { type: "DcsLocalStringType", yaml: "Заголовок" } as PropertyRule
 
 describe("DcsLocalStringType JSON Schema", () => {
-  it("shows !xml String only in the internal validation schema", () => {
+  it("shows !xml/type String only in the internal validation schema", () => {
     const internal = validationFor({
       ...mockContext,
       exportToJSONSchema: { mode: "inline", refs: new Set(), explicitXMLValues: true },
     })
     const external = validationFor(mockContext)
 
-    expect(internal.Check("!xml String Текст")).toBe(true)
-    expect(internal.Check("!xml Raw Текст")).toBe(false)
-    expect(external.Check("!xml String Текст")).toBe(false)
+    expect(internal.Check("!xml/type String Текст")).toBe(true)
+    expect(internal.Check("!xml/type")).toBe(false)
+    expect(internal.Check("!xml/value String Текст")).toBe(false)
+    expect(internal.Check("!xml/type Raw Текст")).toBe(false)
+    expect(external.Check("!xml/type String Текст")).toBe(false)
   })
 })
 

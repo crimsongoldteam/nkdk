@@ -73,9 +73,9 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     const external = compileValidationSchema({}, externalSchema)
     const internal = compileValidationSchema({}, internalSchema)
 
-    expect(internal.Check("!xml d7p1:Диаграмма")).toBe(true)
-    expect(internal.Check("!xml d7p1:")).toBe(false)
-    expect(external.Check("!xml d7p1:Диаграмма")).toBe(false)
+    expect(internal.Check("!xml/type d7p1:Диаграмма")).toBe(true)
+    expect(internal.Check("!xml/type d7p1:")).toBe(false)
+    expect(external.Check("!xml/type d7p1:Диаграмма")).toBe(false)
   })
 
   it("allows a prefix marker inside a restricted compound type only in the internal schema", () => {
@@ -95,7 +95,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     if (externalSchema === undefined || internalSchema === undefined) throw new Error("TypeDescription schema is missing")
     const external = compileValidationSchema({}, externalSchema)
     const internal = compileValidationSchema({}, internalSchema)
-    const value = ["!xml d6p1:Справочник.Товары", "Строка"]
+    const value = ["!xml/type d6p1:Справочник.Товары", "Строка"]
 
     expect(internal.Check(value)).toBe(true)
     expect(external.Check(value)).toBe(false)

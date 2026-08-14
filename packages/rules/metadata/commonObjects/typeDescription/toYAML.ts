@@ -5,7 +5,7 @@ import {
   isTaggedYAMLScalar,
   markYAMLScalarTag,
   taggedYAMLScalar,
-  xmlScalarTagValue,
+  xmlAnomalyTagValue,
 } from "@nkdk/runtime"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationYAMLType, getTypeDescriptionRule, getTypePrefix } from "./helper"
@@ -65,7 +65,7 @@ function exportSingleTypeToYAML(
     : undefined
   if (sourcePrefix !== undefined && sourcePrefix === contextualPrefix) return yamlType
   if (sourcePrefix !== undefined && sourcePrefix !== canonicalPrefix) {
-    return taggedYAMLScalar("xml", xmlScalarTagValue(`${sourcePrefix}:${yamlType}`)) as unknown as TypeDescriptionYAML
+    return taggedYAMLScalar("xml/type", xmlAnomalyTagValue("xml/type", `${sourcePrefix}:${yamlType}`)) as unknown as TypeDescriptionYAML
   }
   return yamlType
 }
