@@ -84,14 +84,24 @@
 
 ```ts
 type ScenarioOperation =
-  | { kind: "create-object"; key: string; files: readonly ScenarioFile[] }
-  | { kind: "add-child"; key: string; ownerKey: string; files: readonly ScenarioFile[] }
-  | { kind: "add-form"; key: string; ownerKey: string; files: readonly ScenarioFile[] }
-  | { kind: "remove"; key: string; targetKey: string }
+  | { kind: "create-object"; key: string; changes: readonly ScenarioFileChange[] }
+  | { kind: "add-child"; key: string; ownerKey: string; changes: readonly ScenarioFileChange[] }
+  | { kind: "add-form"; key: string; ownerKey: string; changes: readonly ScenarioFileChange[] }
+  | { kind: "remove"; key: string; targetKey: string; changes: readonly ScenarioFileChange[] }
+
+type ScenarioFileChange = {
+  path: string
+  before: string | Uint8Array | null
+  after: string | Uint8Array | null
+}
 ```
 
 Исполнитель знает только семантику этих четырёх операций. Особенности типов,
-пути, YAML и дополнительные файлы находятся в матрице. Зависимости образуют
+пути, YAML и дополнительные файлы находятся в матрице. `null` означает
+отсутствующий файл. Перед применением исполнитель побайтово проверяет состояние
+`before`; обратная операция автоматически меняет `before` и `after` местами.
+Поэтому удаление inline-дочернего элемента восстанавливает прежний
+`Свойства.yaml`, а не удаляет файл владельца. Зависимости образуют
 ацикличный граф; создание выполняется в его топологическом порядке, удаление —
 в обратном. Порядок групп фиксирован:
 
@@ -158,9 +168,9 @@ type ScenarioOperation =
 Состояние существующего трёхэтапного сценария несовместимо с новой матрицей.
 Команда без дополнительных параметров не удаляет его и сообщает о
 несовместимости. Явный параметр `--reset` разрешает удалить только управляемые
-пути уже распознанного каталога сценария, создать состояние версии 2 и заново
-подготовить исходную базу. Неизвестный каталог и символические ссылки остаются
-запрещены.
+пути уже распознанного каталога сценария, кроме накопленных журналов, создать
+состояние версии 2 и заново подготовить исходную базу. Неизвестный каталог и
+символические ссылки остаются запрещены.
 
 ## Диагностика и устойчивость
 
