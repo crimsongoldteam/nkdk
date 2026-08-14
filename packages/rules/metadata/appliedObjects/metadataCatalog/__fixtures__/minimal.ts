@@ -11,4 +11,6 @@ export const minimal: MetadataCatalog = {
   },
 }
 
-export const minimalYAML: MetadataCatalogYAML = {}
+export const minimalYAML: MetadataCatalogYAML = {
+  ВводПоСтроке: [],
+}

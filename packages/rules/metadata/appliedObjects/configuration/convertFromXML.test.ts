@@ -273,7 +273,7 @@ describe("sync configuration from xml", () => {
       join("sync/syncConfiguration/yaml/Справочник/Контрагенты", "Свойства.yaml")
     )
 
-    expect(primaryImport.catalogYaml).toBe(expectedCatalogYaml.replaceAll("\r\n", "\n"))
+    expect(primaryImport.catalogYaml).toBe(`${expectedCatalogYaml.replaceAll("\r\n", "\n")}\nВводПоСтроке: []`)
     expect(primaryImport.formYaml).toBe(expectedFormYaml.replaceAll("\r\n", "\n"))
     expect(primaryImport.hasDocument).toBe(true)
     expect(primaryImport.hasNumerator).toBe(true)
