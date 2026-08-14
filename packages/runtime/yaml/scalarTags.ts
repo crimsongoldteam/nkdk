@@ -10,10 +10,9 @@ export const XML_ANOMALY_TAGS = [
 ] as const
 
 export type XMLAnomalyTag = (typeof XML_ANOMALY_TAGS)[number]
-export type YAMLScalarTag = XMLAnomalyTag | "xml" | "проверять" | "изменять"
+export type YAMLScalarTag = XMLAnomalyTag | "проверять" | "изменять"
 export type YAMLScalarTagKey = string | number
 
-export const EMPTY_XML_TAG_VALUE = "!xml" as const
 export const XML_PRESENT_TAG_VALUE = "!xml/present" as const
 export const XML_ABSENT_TAG_VALUE = "!xml/absent" as const
 export const PROPERTY_STATE_YAML_TAGS = ["проверять", "изменять"] as const
@@ -80,17 +79,6 @@ export function propertyStateScalarTagPayload(
   }
   if (typeof value === "number" || typeof value === "boolean" || value === null) return String(value)
   throw new TypeError("Локальный тег режима поддерживает только скалярное или пустое значение")
-}
-
-export function xmlScalarTagValue(payload: string): string {
-  return payload === "" ? EMPTY_XML_TAG_VALUE : `${EMPTY_XML_TAG_VALUE} ${payload}`
-}
-
-export function xmlScalarTagPayload(value: string): string {
-  if (value === EMPTY_XML_TAG_VALUE) return ""
-  return value.startsWith(`${EMPTY_XML_TAG_VALUE} `)
-    ? value.slice(EMPTY_XML_TAG_VALUE.length + 1)
-    : value
 }
 
 export function xmlAnomalyTagValue(tag: XMLAnomalyTag, payload = ""): string {

@@ -295,7 +295,7 @@ describe("extractValidationYamlFacts form", () => {
       "Реквизиты:",
       "  РедактируемыйСписок:",
       "    Тип: СписокЗначений",
-      "    ТипЗначения: !xml",
+      "    ТипЗначения: !xml/absent",
     ].join("\n"))
 
     expect(facts.diagnostics).toEqual([])

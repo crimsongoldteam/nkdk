@@ -35,17 +35,17 @@ describe("битый UUID в порядке подсистем CommandInterface"
     })
 
     expect(yaml).toEqual({
-      ПорядокПодсистем: [`!xml ${UUID}`, "Подсистема.Продажи"],
+      ПорядокПодсистем: [`!xml/reference ${UUID}`, "Подсистема.Продажи"],
     })
     const order = (yaml as { ПорядокПодсистем: unknown[] }).ПорядокПодсистем
-    expect(yamlScalarTagAt(order, 0)).toBe("xml")
+    expect(yamlScalarTagAt(order, 0)).toBe("xml/reference")
     expect(yamlScalarTagAt(order, 1)).toBeUndefined()
 
     const exported = convertPropertiesFromYAMLToXML({
       context: mockContextToXML(),
       yaml: importFromYAML([
         "ПорядокПодсистем:",
-        `  - !xml ${UUID}`,
+        `  - !xml/reference ${UUID}`,
         "  - Подсистема.Продажи",
       ].join("\n")),
       rule: RootCommandInterfaceRules,
@@ -75,7 +75,7 @@ describe("битый UUID в порядке подсистем CommandInterface"
     })
     const validation = compileValidationSchema({}, Type.Object(properties))
 
-    expect(validation.Check({ ПорядокПодсистем: [`!xml ${UUID}`] })).toBe(true)
+    expect(validation.Check({ ПорядокПодсистем: [`!xml/reference ${UUID}`] })).toBe(true)
     expect(validation.Check({ ПорядокПодсистем: [UUID] })).toBe(false)
   })
 })

@@ -108,7 +108,7 @@ it("keeps identical property keys isolated between registry sets", () => {
 it("matches broken XML reference carriers only for their property type", () => {
   const carrier = brokenXMLReferenceCarrier("sample", "Sample", {
     tryImport: ({ xmlValue }: { xmlValue: unknown }) => xmlValue === "broken"
-      ? { yamlValue: "!xml broken", taggedPaths: [[]] }
+      ? { yamlValue: "!xml/reference broken", taggedPaths: [[]] }
       : undefined,
   })
   const registries = createPropertyRuleRegistrySet(defineMetadataRules({
@@ -120,7 +120,7 @@ it("matches broken XML reference carriers only for their property type", () => {
     rule: { type: "Sample" },
     xmlValue: "broken",
     yamlValue: "ordinary",
-  })).toEqual({ yamlValue: "!xml broken", taggedPaths: [[]] })
+  })).toEqual({ yamlValue: "!xml/reference broken", taggedPaths: [[]] })
   expect(registries.normalizeImportedBrokenXMLReferences({
     rule: { type: "Other" },
     xmlValue: "broken",
@@ -130,7 +130,7 @@ it("matches broken XML reference carriers only for their property type", () => {
 
 it("rejects ambiguous broken XML reference carrier matches", () => {
   const carrier = (name: string) => brokenXMLReferenceCarrier(name, "Sample", {
-    tryImport: () => ({ yamlValue: `!xml ${name}`, taggedPaths: [[]] }),
+    tryImport: () => ({ yamlValue: `!xml/reference ${name}`, taggedPaths: [[]] }),
   })
   const registries = createPropertyRuleRegistrySet(defineMetadataRules({
     ...emptyMetadataRules,

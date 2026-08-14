@@ -135,7 +135,9 @@ describe("explicit XML property validation schema", () => {
     expect(execution.explicitXMLPropertyValidationTag(rule.itemType, propertyKey))
       .toBe(yamlKey === "ТипЗначения" ? "xml/absent" : "xml/present")
     expect(execution.explicitXMLPropertyValidationTag(otherOwner.itemType, propertyKey)).toBeUndefined()
-    expect(JSON.stringify(accepted.externalProperties)).not.toContain("!xml")
+    const external = JSON.stringify(accepted.externalProperties)
+    expect(external).not.toContain(`\"const\":\"${XML_PRESENT_TAG_VALUE}\"`)
+    expect(external).not.toContain(`\"const\":\"${XML_ABSENT_TAG_VALUE}\"`)
   })
 
   it("разрешает пустой !xml для точного типа коллекции", () => {
@@ -156,7 +158,7 @@ describe("explicit XML property validation schema", () => {
     expect(validation.Check({ СтандартныеРеквизиты: XML_PRESENT_TAG_VALUE })).toBe(true)
     expect(validation.Check({ СтандартныеРеквизиты: "!xml/present payload" })).toBe(false)
     expect(validation.Check({ СтандартныеРеквизиты: XML_ABSENT_TAG_VALUE })).toBe(false)
-    expect(JSON.stringify(externalProperties)).not.toContain("!xml")
+    expect(JSON.stringify(externalProperties)).not.toContain(`\"const\":\"${XML_PRESENT_TAG_VALUE}\"`)
   })
 
   it.each([

@@ -550,6 +550,38 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(tableByName(result.formXML, "Порядок").RowFilter).toEqual({ "_xsi:nil": "true" })
   })
 
+  it("не заменяет !xml/present RowFilter таблицы значений на false", () => {
+    const yaml = importFromYAML<ClientApplicationFormYAML>([
+      "Реквизиты:",
+      "  Строки:",
+      "    Тип: ТаблицаЗначений",
+      "    Колонки:",
+      "      Значение:",
+      "        Тип: Строка",
+      "Элементы:",
+      "  Строки:",
+      "    Вид: ТаблицаФормы",
+      "    ПутьКДанным: Строки",
+      "    ОтборСтрок: !xml/present",
+      "    Элементы:",
+      "      СтрокиЗначение:",
+      "        Вид: ПолеВвода",
+    ].join("\n"))
+
+    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
+    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
+    const result = nestedRule.convert({
+      context: mockContextToXML(),
+      yaml,
+      baseConfigurationIndex: testConfigurationIndexReader(),
+      name: "Форма",
+      referenceXML: undefined,
+    })
+
+    expect(tableByName(result.Form as ClientApplicationFormXML, "Строки").RowFilter)
+      .toEqual({ "_xsi:nil": "true" })
+  })
+
   it("восстанавливает свойства таблицы только для прямого динамического списка", () => {
     const convert = (requisites: ClientApplicationFormYAML["Реквизиты"], dataPath: string) =>
       convertClientApplicationFormFromYAMLToXML({

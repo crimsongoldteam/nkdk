@@ -125,7 +125,7 @@ describe("ClientApplicationInterface XML → YAML", () => {
     expect(exportToYAML(withoutPanelDef)).toContain(`UUID: ${uuid}`)
     expect(exportToYAML(withoutPanelDef)).not.toContain("ПустоеОпределение")
     expect(exportToYAML(withEmptyPanelDef)).toContain(`UUID: ${uuid}`)
-    expect(exportToYAML(withEmptyPanelDef)).toContain("ПустоеОпределение: !xml")
+    expect(exportToYAML(withEmptyPanelDef)).toContain("ПустоеОпределение: !xml/present")
     expect(exportToYAML(withEmptyPanelDef)).not.toContain("UUID: !xml")
   })
 })

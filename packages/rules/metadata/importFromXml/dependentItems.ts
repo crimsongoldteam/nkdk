@@ -7,7 +7,7 @@ import {
 } from "../ruleRuntime/property/dependentItemRegistry"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { markYAMLScalarTag, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
+import { isXMLAnomalyTag, markYAMLScalarTag, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
 import { matchExplicitXMLTransportFromXML } from "../ruleRuntime/property/explicitXMLPropertyRegistry"
 
 export function normalizeImportedDependentItems(params: {
@@ -64,16 +64,28 @@ export function normalizeImportedDependentItems(params: {
     }
     const shouldTagXML = shouldTagImportedDependentProperty(dependentParams)
     const value = item[yamlKey]
+    const currentTag = yamlScalarTagAt(item, yamlKey)
     if (
       shouldTagXML &&
-      yamlScalarTagAt(item, yamlKey) !== "xml/value" &&
+      !isXMLAnomalyTag(currentTag) &&
       (typeof value === "string" || typeof value === "number")
     ) {
-      item[yamlKey] = xmlAnomalyTagValue("xml/value", String(value))
-      markYAMLScalarTag(item, yamlKey, "xml/value")
+      const anomalyTag = importedDependentAnomalyTag(params, candidate, String(value))
+      item[yamlKey] = xmlAnomalyTagValue(anomalyTag, String(value))
+      markYAMLScalarTag(item, yamlKey, anomalyTag)
     }
   }
   return removed
+}
+
+function importedDependentAnomalyTag(
+  params: Pick<DependentItemParams, "metadataTargetLookup">,
+  candidate: ImportedDependentPropertyCandidate,
+  value: string,
+): "xml/value" | "xml/reference" {
+  return isNamedDesignTimeRef(candidate) && params.metadataTargetLookup?.(value) === "missing"
+    ? "xml/reference"
+    : "xml/value"
 }
 
 export function partitionImportedDependentItems(params: {
@@ -127,6 +139,12 @@ function isEmptyDesignTimeRef(candidate: ImportedDependentPropertyCandidate): bo
   if (!candidate.presentInXML || candidate.xmlValue === null || typeof candidate.xmlValue !== "object") return false
   const value = candidate.xmlValue as Record<string, unknown>
   return Object.keys(value).length === 1 && value["_xsi:type"] === "xr:DesignTimeRef"
+}
+
+function isNamedDesignTimeRef(candidate: ImportedDependentPropertyCandidate): boolean {
+  if (!candidate.presentInXML || candidate.xmlValue === null || typeof candidate.xmlValue !== "object") return false
+  const value = candidate.xmlValue as Record<string, unknown>
+  return value["_xsi:type"] === "xr:DesignTimeRef" && typeof value["#text"] === "string" && value["#text"].length > 0
 }
 
 function hasExplicitXMLText(value: unknown): boolean {

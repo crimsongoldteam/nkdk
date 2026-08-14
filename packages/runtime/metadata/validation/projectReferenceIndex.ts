@@ -136,7 +136,7 @@ export function unnecessaryXmlReferenceResult(
   return {
     ok: false,
     reason: "filter",
-    diagnostics: [referenceDiagnostic(reference, "!xml не требуется: ссылка доступна в расширении")],
+    diagnostics: [referenceDiagnostic(reference, "!xml/reference не требуется: ссылка доступна в расширении")],
   }
 }
 

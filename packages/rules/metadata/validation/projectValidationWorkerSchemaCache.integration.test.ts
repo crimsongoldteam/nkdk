@@ -27,7 +27,7 @@ describe("projectValidationWorkerSchemaCache", () => {
     rejectsNonObjectForm = cache.form(registeredProjectValidationFormRules()[0]!.rule).Check(42)
     acceptsExplicitStandardAttributes = cache
       .properties(MetadataBusinessProcessTabularSectionRules)
-      .Check({ СтандартныеРеквизиты: "!xml" })
+      .Check({ СтандартныеРеквизиты: "!xml/present" })
   })
 
   it("компилирует runtime cache независимо от расположения worker", () => {

@@ -61,6 +61,6 @@ describe("standard attribute description JSON Schema", () => {
 
     expect(properties?.Предопределенный?.properties).not.toHaveProperty("ЗначениеЗаполнения")
     expect(properties?.ПометкаУдаления?.properties).toHaveProperty("ЗначениеЗаполнения")
-    expect(JSON.stringify(schema)).not.toContain("!xml")
+    expect(JSON.stringify(schema)).not.toContain("^!xml/value[ \\\\t]+\\\\S.*$")
   })
 })

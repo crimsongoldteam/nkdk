@@ -141,7 +141,7 @@ describe("extractValidationYamlFacts", () => {
   })
 
   it("не проверяет перенесённый битый элемент состава подсистемы как metadata target", () => {
-    const facts = subsystemCompositionFacts("!xml 6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4")
+    const facts = subsystemCompositionFacts("!xml/reference 6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4")
 
     expect(facts.diagnostics).toEqual([])
     expect(facts.pendingReferences).toEqual([
@@ -154,7 +154,7 @@ describe("extractValidationYamlFacts", () => {
 
   it.each([
     ["нетегированный UUID", "6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4", "6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4"],
-    ["нераспознанный !xml", "!xml не-uuid", "!xml не-uuid"],
+    ["нераспознанный !xml/reference", "!xml/reference не-uuid", "!xml/reference не-uuid"],
   ])("сохраняет диагностику для %s в составе подсистемы", (_name, value, root) => {
     const facts = subsystemCompositionFacts(value)
 

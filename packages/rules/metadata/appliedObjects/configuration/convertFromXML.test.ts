@@ -344,7 +344,7 @@ describe("sync configuration from xml", () => {
   })
 
   it("сохраняет пустой корневой интерфейс приложения, но не создаёт отсутствующий", () => {
-    expect(emptyClientApplicationInterfaceImport.yaml).toContain("ИнтерфейсКлиентскогоПриложения: !xml")
+    expect(emptyClientApplicationInterfaceImport.yaml).toContain("ИнтерфейсКлиентскогоПриложения: !xml/present")
     expect(fullRootImport.yaml).not.toContain("ИнтерфейсКлиентскогоПриложения:")
   })
 

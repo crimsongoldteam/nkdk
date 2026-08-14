@@ -483,7 +483,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(refs).not.toContain("/extension-overlay/validation/")
   })
 
-  it("разрешает пустой !xml для стандартных реквизитов в extension overlay", () => {
+  it("разрешает !xml/present для стандартных реквизитов в extension overlay", () => {
     const graph = exportJSONSchemaGraph({
       context,
       validationPropertyRefs: true,
@@ -494,7 +494,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
       properties?: Record<string, unknown>
     }
 
-    expect(JSON.stringify(root.properties?.СтандартныеРеквизиты)).toContain('"const":"!xml"')
+    expect(JSON.stringify(root.properties?.СтандартныеРеквизиты)).toContain('"const":"!xml/present"')
   })
 
   it("откладывает required для заимствованного ресурса куба в extension overlay", () => {
@@ -539,7 +539,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     const autoCommandBar = Object.entries(graph.schemas).find(([key]) => key.endsWith("/AutoCommandBar"))?.[1]
 
     expect(JSON.stringify(autoCommandBar)).toContain('"Имя"')
-    expect(JSON.stringify(autoCommandBar)).toContain("^!xml")
+    expect(JSON.stringify(autoCommandBar)).toContain("^!xml/name")
   })
 
   it("keeps DataPath and Events inline in validation schemas", () => {

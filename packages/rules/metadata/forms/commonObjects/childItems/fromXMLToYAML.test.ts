@@ -114,7 +114,7 @@ describe("importChildItemsFromXMLToYAML", () => {
     expect(yaml).toEqual({ ОК: { Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" } })
   })
 
-  it("сохраняет !xml у явного Auto в колонке таблицы", () => {
+  it("сохраняет !xml/present у явного Auto в колонке таблицы", () => {
     const yaml = importChildItemsFromXMLToYAML({
       context: mockContextFromXML(),
       rule: { type: "TableChildItems", yaml: "Элементы" },
@@ -132,7 +132,7 @@ describe("importChildItemsFromXMLToYAML", () => {
       },
     })
 
-    expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml")
+    expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml/present")
     expect(exportToYAML(yaml)).not.toContain("!xml Авто")
   })
 })

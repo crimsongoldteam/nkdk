@@ -88,14 +88,14 @@ describe("configuration extension PropertyState facts", () => {
   })
 
   it("marks !xml as a subject-validation bypass", () => {
-    const parsed = parseMetadataYaml("Заголовок: !xml сырой\n")
+    const parsed = parseMetadataYaml("Заголовок: !xml/value сырой\n")
     const [document] = collectConfigurationExtensionPropertyStateDocuments({
       yaml: parsed.data as Record<string, unknown>, rule, capability,
       logicalAddress: "Example.Один", workingProjectPath: "Пример/Один/Свойства.yaml",
     })
 
     expect(JSON.parse(document!.payload!)).toEqual({
-      version: 1, itemType: "MetadataExample", propertyKey: "title", mode: "xml", value: "!xml сырой", explicitMode: true,
+      version: 1, itemType: "MetadataExample", propertyKey: "title", mode: "xml", value: "!xml/value сырой", explicitMode: true,
     })
   })
 

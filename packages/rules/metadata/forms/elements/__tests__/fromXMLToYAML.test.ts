@@ -277,14 +277,14 @@ describe("элементы формы XML → YAML → XML", () => {
   })
 
   it.each([TableInputFieldRules, TableLabelFieldRules, TablePictureFieldRules, TableCheckBoxFieldRules])(
-    "preserves explicit table HeaderHorizontalAlign=Auto through !xml",
+    "preserves explicit table HeaderHorizontalAlign=Auto through !xml/present",
     (rule) => {
       const yaml = testMetadataItemFromXMLToYAML({
         rule,
         xml: { _name: "Колонка", DataPath: "Таблица.Поле", HeaderHorizontalAlign: "Auto" },
         name: "Колонка",
       }).yaml
-      expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml")
+      expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml/present")
       expect(exportToYAML(yaml)).not.toContain("!xml Авто")
       expect(testMetadataItemFromYAMLToXML({ rule, yaml, name: "Колонка" }).xml).toHaveProperty(
         "HeaderHorizontalAlign",

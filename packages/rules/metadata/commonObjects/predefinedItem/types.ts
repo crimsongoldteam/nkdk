@@ -92,8 +92,8 @@ function hasExplicitTypePrefix(yaml: unknown, index: number): boolean {
   if (item === undefined) return false
   const type = item.ТипЗначения
   return Array.isArray(type)
-    ? yamlScalarTagAt(type, index) === "xml"
-    : index === 0 && yamlScalarTagAt(item, "ТипЗначения") === "xml"
+    ? yamlScalarTagAt(type, index) === "xml/type"
+    : index === 0 && yamlScalarTagAt(item, "ТипЗначения") === "xml/type"
 }
 
 export const metadataRuleLayer000 = defineMetadataItemRule({

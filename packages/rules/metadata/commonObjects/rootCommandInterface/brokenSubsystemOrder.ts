@@ -1,6 +1,6 @@
 import { Type } from "typebox"
 
-import { xmlScalarTagPayload } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload } from "@nkdk/runtime"
 import {
   defineMetadataRules,
   emptyMetadataRules,
@@ -46,7 +46,7 @@ export const brokenCommandInterfaceSubsystemOrderCarrier: BrokenXMLReferenceCarr
     if (!validationGraph) return base
     return commandInterfaceSubsystemsOrderSchema(
       rule,
-      Type.String({ pattern: `^!xml ${MD_OBJECT_REF_UUID_SOURCE}$` }),
+      Type.String({ pattern: `^!xml/reference ${MD_OBJECT_REF_UUID_SOURCE}$` }),
     )
   },
   matchesTaggedYAML({ yamlValue, path, isTagged }) {
@@ -62,14 +62,14 @@ export const brokenCommandInterfaceSubsystemOrderRules = defineMetadataRules({
 })
 
 function isBrokenSubsystemOrderYAML(value: unknown): value is string {
-  return typeof value === "string" && isMDObjectRefUuid(xmlScalarTagPayload(value))
+  return typeof value === "string" && isMDObjectRefUuid(xmlAnomalyTagPayload("xml/reference", value))
 }
 
 function brokenSubsystemOrderPayload(value: unknown): string {
   if (!isBrokenSubsystemOrderYAML(value)) {
     throw new Error("Битая ссылка порядка подсистем должна содержать канонический UUID")
   }
-  return xmlScalarTagPayload(value)
+  return xmlAnomalyTagPayload("xml/reference", value)
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

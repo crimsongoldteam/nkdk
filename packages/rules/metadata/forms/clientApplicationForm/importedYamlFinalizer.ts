@@ -45,7 +45,7 @@ function hasTaggedRowFilter(value: unknown): boolean {
   if (Array.isArray(value)) return value.some(hasTaggedRowFilter)
   if (value === null || typeof value !== "object") return false
   const record = value as Record<string, unknown>
-  if (yamlScalarTagAt(record, "ОтборСтрок") === "xml") return true
+  if (yamlScalarTagAt(record, "ОтборСтрок") === "xml/present") return true
   return Object.values(record).some(hasTaggedRowFilter)
 }
 

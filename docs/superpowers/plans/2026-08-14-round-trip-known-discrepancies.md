@@ -13,11 +13,11 @@
 - Не изменять существующие XML-фикстуры: они являются источником истины.
 - `!xml` разрешён только для формы XML, которую нельзя однозначно восстановить из смысловых данных YAML и индексов метаданных.
 - Обычный или разрешённый стандартный реквизит единственного булевого типа хранит явные `Истина` и `Ложь` без `!xml`; отсутствующий, пустой или `xsi:nil` FillValue не создаёт поле YAML.
-- Ошибочный булевый FillValue стандартных `Предопределенный` и `Владелец` сохраняется как `ЗначениеЗаполнения: !xml Ложь`.
-- Битая `DesignTimeRef` хранится ровно как один тег `!xml <UUID>.<UUID>`; повторный текст `!xml` внутри payload запрещён.
+- Ошибочный булевый FillValue стандартных `Предопределенный` и `Владелец` сохраняется как `ЗначениеЗаполнения: !xml/value Ложь`.
+- Битая `DesignTimeRef` хранится ровно как один тег `!xml/reference <UUID>.<UUID>`; повторный текст `!xml` внутри payload запрещён.
 - Переносчик битой XML-ссылки объявляет совпадение только для своей строгой грамматики и не перехватывает другие допустимые значения `!xml` того же типа свойства.
 - Битая `MDObjectRef` исключается из проверки metadata target только при наличии YAML-тега `!xml` и успешном распознавании зарегистрированным переносчиком для текущего правила свойства и относительного YAML-пути.
-- Пустой существующий `Ext/ClientApplicationInterface.xml`, содержащий только пять стандартных `panelDef`, хранится как `ИнтерфейсКлиентскогоПриложения: !xml`; отсутствующий файл не создаёт поле.
+- Пустой существующий `Ext/ClientApplicationInterface.xml`, содержащий только пять стандартных `panelDef`, хранится как `ИнтерфейсКлиентскогоПриложения: !xml/present`; отсутствующий файл не создаёт поле.
 - Расхождение старых форм Tester по `xmlns:dcssch` в этот план не входит: решение по нему отложено.
 - LMDB использует mmap и файловые блокировки; `pnpm --filter @nkdk/rules test:native`, `pnpm test:e2e`, полный `pnpm test` и round-trip запускать вне песочницы с `sandbox_permissions: require_escalated`.
 - Если Vitest worker завершается с SIGABRT, сначала повторить запуск вне песочницы; не пересобирать LMDB как первичное исправление.
@@ -49,7 +49,7 @@
 неоднозначности.
 
 В тестах `MetadataValue` подтвердить, что переносчик `DesignTimeRef` не
-перехватывает `!xml Ложь` и `!xml Справочник.Роли.ПустаяСсылка`. В тестах формы
+перехватывает `!xml/value Ложь` и `!xml/value Справочник.Роли.ПустаяСсылка`. В тестах формы
 подтвердить, что переносчик `DataPath` не перехватывает допустимый tagged
 payload другой зарегистрированной формы.
 
@@ -76,7 +76,7 @@ Expected: строгие переносчики бросают ошибку на
 - [ ] **Step 4: Correct only the stale expectation**
 
 В тесте импорта пары UUID заменить ожидание обычной строки на
-`!xml <UUID>.<UUID>`. Остальные шесть исходных падений исправить кодом, не
+`!xml/reference <UUID>.<UUID>`. Остальные шесть исходных падений исправить кодом, не
 ослабляя их ожидания.
 
 - [ ] **Step 5: Verify baseline recovery, duplication and commit**
@@ -118,7 +118,7 @@ git commit -m "fix: :bug: не перехватывать чужие значе�
 Проверить сериализованный результат:
 
 ```yaml
-ИнтерфейсКлиентскогоПриложения: !xml
+ИнтерфейсКлиентскогоПриложения: !xml/present
 ```
 
 В том же тесте подтвердить, что отсутствие внешнего файла не создаёт поле.
@@ -165,7 +165,7 @@ const emptyStandardRoot =
 
 - [ ] **Step 4: Add the export regression and verify GREEN**
 
-Проверить, что `ИнтерфейсКлиентскогоПриложения: !xml` материализует корень с пятью стандартными `panelDef`, а отсутствие поля не создаёт файл. Запустить оба узких набора:
+Проверить, что `ИнтерфейсКлиентскогоПриложения: !xml/present` материализует корень с пятью стандартными `panelDef`, а отсутствие поля не создаёт файл. Запустить оба узких набора:
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.test.ts metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts
@@ -241,7 +241,7 @@ if (alternative.kind === "boolean") return false
   ПометкаУдаления:
     ЗначениеЗаполнения: Ложь
   Предопределенный:
-    ЗначениеЗаполнения: !xml Ложь
+    ЗначениеЗаполнения: !xml/value Ложь
 ```
 
 Проверить `yamlScalarTagAt`: у первых двух значений тега нет, у запретного стандартного реквизита тег равен `xml`. Запустить:
@@ -285,7 +285,7 @@ git commit -m "fix: :bug: сохранить явное булево FillValue"
 Проверить точный YAML и внутренний payload:
 
 ```ts
-expect(value).toBe("!xml c794310a-bab9-4917-b1d0-e3438282256a.00000000-0000-0000-0000-000000000000")
+expect(value).toBe("!xml/reference c794310a-bab9-4917-b1d0-e3438282256a.00000000-0000-0000-0000-000000000000")
 expect(xmlScalarTagPayload(value)).toBe("c794310a-bab9-4917-b1d0-e3438282256a.00000000-0000-0000-0000-000000000000")
 ```
 
@@ -354,7 +354,7 @@ git commit -m "fix: :bug: не дублировать тег битой DesignTi
 ```yaml
 Состав:
   - ОбщаяФорма.ОценитьПриложение
-  - !xml 6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4
+  - !xml/reference 6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4
 ```
 
 Проверить:
@@ -377,7 +377,7 @@ expect(facts.pendingReferences).toEqual([
 pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/validation/yamlFactExtractor.test.ts
 ```
 
-Expected: тегированный UUID ошибочно диагностируется как корень `!xml <UUID>`.
+Expected: тегированный UUID ошибочно диагностируется как корень `!xml/reference <UUID>`.
 
 - [ ] **Step 3: Reuse the structural tag-path contract**
 
@@ -476,7 +476,7 @@ Run outside sandbox:
 env NKDK_XML_REPO=/Users/nikita/git/round-trip-compact NKDK_XML_DIR=/Users/nikita/git/round-trip-compact/cf/StorekeeperDevelopers_2_0_108_1_setup1c ./.agents/skills/round-trip-yaml/round-trip.sh --triage --batch-size 10
 ```
 
-Expected: отсутствуют все прежние 57 ошибок: 9 диагностик `!xml`, 42 неизвестных корня `!xml <UUID>` и 6 ошибок экспорта битой `DesignTimeRef`. Если после успешной синхронизации обнаружится новое XML-расхождение, остановиться и зарегистрировать его отдельно, не расширяя этот план.
+Expected: отсутствуют все прежние 57 ошибок: 9 диагностик `!xml`, 42 неизвестных корня `!xml/reference <UUID>` и 6 ошибок экспорта битой `DesignTimeRef`. Если после успешной синхронизации обнаружится новое XML-расхождение, остановиться и зарегистрировать его отдельно, не расширяя этот план.
 
 - [ ] **Step 4: Record verification evidence**
 
