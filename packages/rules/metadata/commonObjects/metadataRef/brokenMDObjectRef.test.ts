@@ -50,11 +50,11 @@ it("round-trips a broken MDObjectRef inside an ordered mixed collection", () => 
   })
 
   expect(yaml).toEqual({
-    Состав: ["Справочник.Товары", `!xml ${UUID}`, "Документ.Заказ"],
+    Состав: ["Справочник.Товары", `!xml/reference ${UUID}`, "Документ.Заказ"],
   })
   const content = (yaml as { Состав: unknown[] }).Состав
   expect(yamlScalarTagAt(content, 0)).toBeUndefined()
-  expect(yamlScalarTagAt(content, 1)).toBe("xml")
+  expect(yamlScalarTagAt(content, 1)).toBe("xml/reference")
   expect(yamlScalarTagAt(content, 2)).toBeUndefined()
 
   const exported = convertPropertiesFromYAMLToXML({
@@ -63,7 +63,7 @@ it("round-trips a broken MDObjectRef inside an ordered mixed collection", () => 
       version: "test",
       exportToXML: { version: "test", itemsTree: [] },
     },
-    yaml: importFromYAML(`Состав:\n  - Справочник.Товары\n  - !xml ${UUID}\n  - Документ.Заказ\n`),
+    yaml: importFromYAML(`Состав:\n  - Справочник.Товары\n  - !xml/reference ${UUID}\n  - Документ.Заказ\n`),
     rule,
     outputs: [{ key: "owner" }],
     execution,
@@ -94,7 +94,7 @@ it("accepts only a canonical UUID in a typed MDObjectRef", () => {
     rule: propertyRule,
     xmlValue: { "xr:Item": { "_xsi:type": "xr:MDObjectRef", "#text": UUID } },
     yamlValue: [undefined],
-  })).toEqual({ yamlValue: [`!xml ${UUID}`], taggedPaths: [[0]] })
+  })).toEqual({ yamlValue: [`!xml/reference ${UUID}`], taggedPaths: [[0]] })
   expect(carrier.tryImport({
     rule: propertyRule,
     xmlValue: { "xr:Item": UUID },
@@ -127,8 +127,9 @@ it("rejects an invalid tagged UUID in the validation graph", () => {
   })
   const validation = compileValidationSchema({}, Type.Object(properties))
 
-  expect(validation.Check({ Состав: [`!xml ${UUID}`] })).toBe(true)
-  expect(validation.Check({ Состав: [`!xml ${UUID}x`] })).toBe(false)
+  expect(validation.Check({ Состав: [`!xml/reference ${UUID}`] })).toBe(true)
+  expect(validation.Check({ Состав: [`!xml/reference ${UUID}x`] })).toBe(false)
+  expect(validation.Check({ Состав: [`!xml/value ${UUID}`] })).toBe(false)
   expect(validation.Check({ Состав: [UUID] })).toBe(false)
 })
 
@@ -142,7 +143,7 @@ it("does not transport an untagged value and rejects malformed tagged payload be
   })
 
   expect(() => convert(`Состав: [${UUID}]`)).toThrow("Неизвестный корень")
-  expect(() => convert(`Состав: [!xml ${UUID}x]`)).toThrow(
+  expect(() => convert(`Состав: [!xml/reference ${UUID}x]`)).toThrow(
     "Битая MDObjectRef-ссылка должна содержать канонический UUID",
   )
 })

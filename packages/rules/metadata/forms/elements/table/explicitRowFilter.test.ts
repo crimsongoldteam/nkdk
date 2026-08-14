@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { EMPTY_XML_TAG_VALUE, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
 import { explicitRowFilterRules } from "./explicitRowFilter"
 import type { ClientApplicationFormYAML } from "../../clientApplicationForm/types"
 import { classifyTableSource } from "../../clientApplicationForm/tableSourceProfile"
@@ -9,7 +9,7 @@ describe("explicit RowFilter", () => {
     expect(explicitRowFilterRules.explicitXMLProperties.tableRowFilter).toEqual({
       itemType: "Table",
       propertyKey: "rowFilter",
-      yamlValue: EMPTY_XML_TAG_VALUE,
+      yamlValue: XML_PRESENT_TAG_VALUE,
       xmlValue: { "_xsi:nil": "true" },
     })
   })
@@ -24,23 +24,23 @@ describe("explicit RowFilter", () => {
         Настройки: {
           Вид: "ТаблицаФормы",
           ПутьКДанным: "Компоновщик.Настройки",
-          ОтборСтрок: EMPTY_XML_TAG_VALUE,
+          ОтборСтрок: XML_PRESENT_TAG_VALUE,
         },
         Строки: {
           Вид: "ТаблицаФормы",
           ПутьКДанным: "Строки",
-          ОтборСтрок: EMPTY_XML_TAG_VALUE,
+          ОтборСтрок: XML_PRESENT_TAG_VALUE,
         },
       },
     } as unknown as ClientApplicationFormYAML
     const settings = yaml.Элементы?.Настройки as unknown as Record<string, unknown>
     const rows = yaml.Элементы?.Строки as unknown as Record<string, unknown>
-    markYAMLScalarTag(settings, "ОтборСтрок", "xml")
-    markYAMLScalarTag(rows, "ОтборСтрок", "xml")
-    expect(settings.ОтборСтрок).toBe(EMPTY_XML_TAG_VALUE)
-    expect(yamlScalarTagAt(settings, "ОтборСтрок")).toBe("xml")
-    expect(rows.ОтборСтрок).toBe(EMPTY_XML_TAG_VALUE)
-    expect(yamlScalarTagAt(rows, "ОтборСтрок")).toBe("xml")
+    markYAMLScalarTag(settings, "ОтборСтрок", "xml/present")
+    markYAMLScalarTag(rows, "ОтборСтрок", "xml/present")
+    expect(settings.ОтборСтрок).toBe(XML_PRESENT_TAG_VALUE)
+    expect(yamlScalarTagAt(settings, "ОтборСтрок")).toBe("xml/present")
+    expect(rows.ОтборСтрок).toBe(XML_PRESENT_TAG_VALUE)
+    expect(yamlScalarTagAt(rows, "ОтборСтрок")).toBe("xml/present")
   })
 
   it.each([

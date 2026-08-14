@@ -1,4 +1,5 @@
 import type { DataPathPropertyRule, MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { copyYAMLScalarTags } from "@nkdk/runtime"
 import type { ElementType } from "../../ruleRuntime/formElement/types"
 import type { FormDataPathTabularElementDeclaration } from "@nkdk/runtime/rule-kit"
 import { acceptFormTabularElementVisit } from "../../ruleRuntime/formElement/formTableDataPaths"
@@ -511,7 +512,9 @@ function mutableRecordAtPath(params: {
 }
 
 function cloneContainer<T extends object>(value: T): T {
-  return (Array.isArray(value) ? [...value] : { ...value }) as T
+  const clone = (Array.isArray(value) ? [...value] : { ...value }) as T
+  copyYAMLScalarTags(value, clone)
+  return clone
 }
 
 function isContainer(value: unknown): value is Record<string | number, unknown> | unknown[] {

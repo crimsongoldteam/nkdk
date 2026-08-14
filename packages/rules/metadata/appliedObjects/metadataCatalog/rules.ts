@@ -413,7 +413,6 @@ export const MetadataCatalogRules = {
       xmlParents: ["Properties"],
     }),
     inputByString: appliedObjectInputByStringRule({
-      defaultValue: [],
       defaultValueXMLRaw: {},
       xmlParents: ["Properties"],
       standardFields: [

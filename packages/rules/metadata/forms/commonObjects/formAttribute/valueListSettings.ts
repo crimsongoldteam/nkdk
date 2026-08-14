@@ -1,4 +1,4 @@
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_ABSENT_TAG_VALUE } from "@nkdk/runtime"
 import { defineMetadataRules } from "../../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 
@@ -9,7 +9,7 @@ export const formAttributeValueTypeSettingsRules = defineMetadataRules({
       action: "omit",
       itemType: "FormAttribute",
       propertyKey: "valueType",
-      yamlValue: EMPTY_XML_TAG_VALUE,
+      yamlValue: XML_ABSENT_TAG_VALUE,
     },
   },
 })

@@ -1,4 +1,4 @@
-import { yamlScalarTagAt } from "@nkdk/runtime"
+import { isXMLAnomalyTag, yamlScalarTagAt } from "@nkdk/runtime"
 import { dirname, join } from "node:path/posix"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type {
@@ -97,7 +97,7 @@ function scalarMode(
   tag: ReturnType<typeof yamlScalarTagAt>,
   value: unknown,
 ): ConfigurationExtensionPropertyStateFactMode {
-  if (tag === "xml") return "xml"
+  if (isXMLAnomalyTag(tag)) return "xml"
   if (tag === "проверять") return "notify"
   if (tag === "изменять") return "extend"
   if (representation === "multi" && Array.isArray(value)) return "multi"

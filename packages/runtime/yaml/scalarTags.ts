@@ -1,9 +1,20 @@
 import { JSON_SCHEMA, defineScalarTag, load } from "js-yaml"
 
-export type YAMLScalarTag = "xml" | "проверять" | "изменять"
+export const XML_ANOMALY_TAGS = [
+  "xml/present",
+  "xml/absent",
+  "xml/name",
+  "xml/type",
+  "xml/value",
+  "xml/reference",
+] as const
+
+export type XMLAnomalyTag = (typeof XML_ANOMALY_TAGS)[number]
+export type YAMLScalarTag = XMLAnomalyTag | "проверять" | "изменять"
 export type YAMLScalarTagKey = string | number
 
-export const EMPTY_XML_TAG_VALUE = "!xml" as const
+export const XML_PRESENT_TAG_VALUE = "!xml/present" as const
+export const XML_ABSENT_TAG_VALUE = "!xml/absent" as const
 export const PROPERTY_STATE_YAML_TAGS = ["проверять", "изменять"] as const
 
 const propertyStateTagAliases = {
@@ -70,28 +81,35 @@ export function propertyStateScalarTagPayload(
   throw new TypeError("Локальный тег режима поддерживает только скалярное или пустое значение")
 }
 
-export function xmlScalarTagValue(payload: string): string {
-  return payload === "" ? EMPTY_XML_TAG_VALUE : `${EMPTY_XML_TAG_VALUE} ${payload}`
+export function xmlAnomalyTagValue(tag: XMLAnomalyTag, payload = ""): string {
+  const marker = `!${tag}`
+  return payload === "" ? marker : `${marker} ${payload}`
 }
 
-export function xmlScalarTagPayload(value: string): string {
-  if (value === EMPTY_XML_TAG_VALUE) return ""
-  return value.startsWith(`${EMPTY_XML_TAG_VALUE} `)
-    ? value.slice(EMPTY_XML_TAG_VALUE.length + 1)
-    : value
+export function isXMLAnomalyTag(tag: unknown): tag is XMLAnomalyTag {
+  return typeof tag === "string" && XML_ANOMALY_TAGS.some((candidate) => candidate === tag)
 }
 
-const explicitXmlTag = defineScalarTag("!xml", {
-  resolve(value) {
-    return taggedYAMLScalar("xml", xmlScalarTagValue(value))
-  },
-  identify(value) {
-    return isTaggedYAMLScalar(value) && value.tag === "xml"
-  },
-  represent(value) {
-    return xmlScalarTagPayload((value as TaggedYAMLScalar).value as string)
-  },
-})
+export function xmlAnomalyTagPayload(tag: XMLAnomalyTag, value: string): string {
+  const marker = `!${tag}`
+  if (value === marker) return ""
+  if (value.startsWith(`${marker} `)) return value.slice(marker.length + 1)
+  throw new TypeError(`Значение не соответствует тегу ${marker}`)
+}
+
+const xmlAnomalyTags = XML_ANOMALY_TAGS.map((tag) =>
+  defineScalarTag(`!${tag}`, {
+    resolve(value) {
+      return taggedYAMLScalar(tag, xmlAnomalyTagValue(tag, value))
+    },
+    identify(value) {
+      return isTaggedYAMLScalar(value) && value.tag === tag
+    },
+    represent(value) {
+      return xmlAnomalyTagPayload(tag, (value as TaggedYAMLScalar).value as string)
+    },
+  })
+)
 
 const propertyStateTags = PROPERTY_STATE_YAML_TAGS.map((tag) =>
   defineScalarTag(`!${propertyStateTagAliases[tag]}`, {
@@ -139,4 +157,4 @@ function replacePropertyStateTags(
   return result
 }
 
-export const NKDK_YAML_SCHEMA = JSON_SCHEMA.withTags(explicitXmlTag, propertyStateTags)
+export const NKDK_YAML_SCHEMA = JSON_SCHEMA.withTags(xmlAnomalyTags, propertyStateTags)

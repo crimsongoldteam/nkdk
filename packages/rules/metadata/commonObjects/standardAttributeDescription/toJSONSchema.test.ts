@@ -44,7 +44,7 @@ describe("standard attribute description JSON Schema", () => {
     })
     if (schema === undefined) throw new Error("Standard attributes schema is missing")
 
-    expect(JSON.stringify(schema)).toContain("^!xml(?: .*)?$")
+    expect(JSON.stringify(schema)).toContain("^!xml/value[ \\\\t]+\\\\S.*$")
   })
 
   it("не предлагает запрещённое значение заполнения во внешней схеме", () => {
@@ -61,6 +61,6 @@ describe("standard attribute description JSON Schema", () => {
 
     expect(properties?.Предопределенный?.properties).not.toHaveProperty("ЗначениеЗаполнения")
     expect(properties?.ПометкаУдаления?.properties).toHaveProperty("ЗначениеЗаполнения")
-    expect(JSON.stringify(schema)).not.toContain("!xml")
+    expect(JSON.stringify(schema)).not.toContain("^!xml/value[ \\\\t]+\\\\S.*$")
   })
 })

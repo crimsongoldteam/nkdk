@@ -90,9 +90,9 @@ export const PopupRules = {
       fromYAML: false,
     },
     extendedTooltip: {
-      ...formGroupCommonProperties.extendedTooltip,
-      toYAML: false,
-      fromYAML: false,
+      yaml: "РасширеннаяПодсказка",
+      type: "PopupExtendedTooltip",
+      toEnterprise: false,
     },
     visible: {
       ...formGroupCommonProperties.visible,

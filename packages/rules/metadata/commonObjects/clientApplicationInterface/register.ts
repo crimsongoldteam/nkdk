@@ -1,6 +1,6 @@
 import { Type } from "typebox"
 import { getUUID } from "../../helpers/uuid"
-import { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew, defineMetadataItemRule, definePropertyTypeRule, type ImportFromXMLToYAMLFunction, type PropertyRule } from "../../ruleRuntime"
+import { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew, defineMetadataItemRule, defineMetadataRules, definePropertyTypeRule, type ImportFromXMLToYAMLFunction, type PropertyRule } from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
@@ -34,7 +34,7 @@ import {
   ClientApplicationInterfaceItemsHintYAMLSchema,
   ClientApplicationInterfaceItemsValidationYAMLSchema,
 } from "./types"
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 
 const standardPanelsByUuid = {
   "b553047f-c9aa-4157-978d-448ecad24248": "ПанельИстории",
@@ -58,6 +58,9 @@ const requiredStandardPanelUuids = [
 ] as const
 
 const standardPanelUuids = new Set<string>(Object.keys(standardPanelsByUuid))
+const requiredStandardPanelUuidSet = new Set<string>(requiredStandardPanelUuids)
+const clientApplicationInterfaceRootAttributes = ClientApplicationInterfaceRules.properties.xmlRoot.rootAttributes
+const clientApplicationInterfaceRootAttributeKeys = new Set(Object.keys(clientApplicationInterfaceRootAttributes))
 
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 const XML_METADATA = Symbol.for("metadata")
@@ -112,6 +115,11 @@ const getReferenceRawXML = (referenceMetadata: unknown): Record<string, unknown>
 }
 
 const getXMLId = (xml: { _id?: string; id?: string } | undefined): string | undefined => xml?._id ?? xml?.id
+
+const getRawXMLId = (xml: unknown): string | undefined => {
+  if (!isRecord(xml)) return undefined
+  return typeof xml._id === "string" ? xml._id : typeof xml.id === "string" ? xml.id : undefined
+}
 
 const getXMLChildOrder = (xml: unknown): Array<{ key: string; index: number }> | undefined => {
   if (!isRecord(xml)) return undefined
@@ -526,7 +534,40 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
     if (yaml !== undefined) result[rule.yaml] = yaml
   }
   collectClientApplicationInterfaceConfigurationIndex(context, sections, panelDefs)
-  return result
+  const sourcePanelDefs = toArray(source["panelDef"])
+  const emptyStandardRoot =
+    Object.keys(result).length === 0 &&
+    Object.entries(source).every(
+      ([key, value]) =>
+        key === "panelDef" ||
+        clientApplicationInterfaceRootAttributeKeys.has(key) ||
+        (key === "#text" && typeof value === "string" && value.trim() === "")
+    ) &&
+    Object.entries(clientApplicationInterfaceRootAttributes).every(([key, value]) => source[key] === value) &&
+    panelDefs?.length === requiredStandardPanelUuidSet.size &&
+    sourcePanelDefs.length === requiredStandardPanelUuidSet.size &&
+    new Set(panelDefs.map(({ id }) => id)).size === requiredStandardPanelUuidSet.size &&
+    new Set(sourcePanelDefs.map(getRawXMLId)).size === requiredStandardPanelUuidSet.size &&
+    sourcePanelDefs.every((panelDef) => {
+      const id = getRawXMLId(panelDef)
+      return (
+        isRecord(panelDef) &&
+        id !== undefined &&
+        requiredStandardPanelUuidSet.has(id) &&
+        Object.entries(panelDef).every(
+          ([key, value]) =>
+            key === "_id" || key === "id" || (key === "#text" && typeof value === "string" && value.trim() === "")
+        )
+      )
+    }) &&
+    panelDefs.every(
+      (panelDef) =>
+        requiredStandardPanelUuidSet.has(panelDef.id) &&
+        panelDef.name === undefined &&
+        panelDef.spr === undefined &&
+        Object.keys(getReferenceRawXML(panelDef) ?? panelDef).every((key) => key === "_id" || key === "id")
+    )
+  return emptyStandardRoot ? XML_PRESENT_TAG_VALUE : result
 }
 
 const importPanelFromYAML = (
@@ -545,8 +586,8 @@ const importPanelFromYAML = (
 
   const uuid =
     yaml.UUID ?? (yaml.Имя !== undefined ? standardPanelUuidByName[yaml.Имя] : undefined) ?? sourcePanel?.uuid
-  if (uuid === EMPTY_XML_TAG_VALUE || uuid?.startsWith(`${EMPTY_XML_TAG_VALUE} `) === true) {
-    throw new Error("UUID панели не допускает !xml")
+  if (uuid?.startsWith("!xml/") === true) {
+    throw new Error("UUID панели не допускает тег XML-аномалии")
   }
   if (uuid !== undefined) result.uuid = uuid
   if (yaml.Имя !== undefined && standardPanelUuidByName[yaml.Имя] === undefined) result.name = yaml.Имя
@@ -869,9 +910,18 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
   return result.length > 0 ? result : undefined
 }
 
-export const metadataRuleLayer000 = defineMetadataItemRule({
-  propertyType: "ClientApplicationInterface",
-  itemRule: ClientApplicationInterfaceRules,
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...defineMetadataItemRule({
+    propertyType: "ClientApplicationInterface",
+    itemRule: ClientApplicationInterfaceRules,
+  }),
+  explicitXMLPropertyTypes: {
+    ClientApplicationInterface: {
+      propertyType: "ClientApplicationInterface",
+      action: "materializeCollection",
+      yamlValue: XML_PRESENT_TAG_VALUE,
+    },
+  },
 })
 export const metadataPropertyRule001 = definePropertyTypeRule("ClientApplicationInterface", "importFromXMLToYAML", importClientApplicationInterfaceFromXMLToYAML)
 

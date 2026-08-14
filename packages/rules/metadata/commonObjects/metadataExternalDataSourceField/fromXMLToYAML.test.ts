@@ -8,7 +8,7 @@ describe("MetadataExternalDataSourceField XML → YAML → XML", () => {
     const result = testPropertyFixtureThroughYAML({ propertyType: "MetadataExternalDataSourceField", xmlRootTag: "Field", importMetaUrl: import.meta.url, fixture })
     expect(normalize(result.result)).toBe(normalize(result.expected))
     if (fixture === "full.xml") {
-      expect(serializeYAMLDocument(result.yaml).text).toContain("ЗначениеЗаполнения: !xml Null")
+      expect(serializeYAMLDocument(result.yaml).text).toContain("ЗначениеЗаполнения: !xml/value Null")
     }
   })
 

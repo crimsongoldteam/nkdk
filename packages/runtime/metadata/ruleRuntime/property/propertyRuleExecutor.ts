@@ -67,8 +67,8 @@ export function createPropertyRuleExecutor(
     getSystemEnumeration(name) {
       return registries.getSystemEnumeration(name)
     },
-    explicitXMLPropertyValidationMode(itemType, propertyKey, propertyType) {
-      return registries.explicitXMLPropertyValidationMode(
+    explicitXMLPropertyValidationTag(itemType, propertyKey, propertyType) {
+      return registries.explicitXMLPropertyValidationTag(
         itemType,
         propertyKey,
         propertyType,

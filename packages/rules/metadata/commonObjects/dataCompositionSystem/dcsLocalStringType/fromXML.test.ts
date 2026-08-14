@@ -14,8 +14,8 @@ const rule: PropertyRule = { type: "DcsLocalStringType", yaml: "Заголово
 const xmlRootTag = "dcsset:userSettingPresentation"
 
 describe("DcsLocalStringType XML → YAML", () => {
-  it("stores xs:string as !xml String", () => {
-    expect(importAndSerialize("string.xml")).toBe("Заголовок: !xml String Один язык - string")
+  it("stores xs:string as !xml/type String", () => {
+    expect(importAndSerialize("string.xml")).toBe("Заголовок: !xml/type String Один язык - string")
   })
 
   it("imports one-language LocalStringType as ordinary YAML", () => {

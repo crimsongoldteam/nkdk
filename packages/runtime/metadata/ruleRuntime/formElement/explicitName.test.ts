@@ -9,11 +9,11 @@ describe("явное XML-имя встроенного элемента форм
     writeExplicitElementXMLName(yaml, name)
 
     expect(readExplicitElementXMLName(yaml)).toBe(name)
-    expect(yamlScalarTagAt(yaml, "Имя")).toBe("xml")
+    expect(yamlScalarTagAt(yaml, "Имя")).toBe("xml/name")
   })
 
   it("отклоняет обычное поле Имя", () => {
     expect(() => readExplicitElementXMLName({ Имя: "СтароеИмя" }))
-      .toThrow("Поле Имя встроенного элемента допустимо только с тегом !xml")
+      .toThrow("Поле Имя встроенного элемента допустимо только с тегом !xml/name")
   })
 })

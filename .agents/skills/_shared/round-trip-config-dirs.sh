@@ -1,18 +1,8 @@
 #!/usr/bin/env bash
 
-ROUND_TRIP_KNOWN_XML_DIRS=("Catalogs" "Documents" "DocumentNumerators" "Sequences" "Enums")
-
 round_trip_is_config_dir() {
   local candidate="$1"
-  local xml_dir
-
-  for xml_dir in "${ROUND_TRIP_KNOWN_XML_DIRS[@]}"; do
-    if [ -d "${candidate}/${xml_dir}" ]; then
-      return 0
-    fi
-  done
-
-  return 1
+  [ -f "${candidate}/Configuration.xml" ]
 }
 
 round_trip_collect_run_dirs() {

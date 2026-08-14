@@ -104,7 +104,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
             },
           },
         } as const satisfies MetadataItemRule
-    const yaml = kind === "explicitXML" ? importFromYAML("Режим: !xml") : {}
+    const yaml = kind === "explicitXML" ? importFromYAML("Режим: !xml/present") : {}
     const withoutSnapshot = testPropertyFromYAMLToXML({ rule, yaml }).xml
     const withEmptySnapshot = testPropertyFromYAMLToXML({
       context: contextWithEmptyIndex(),

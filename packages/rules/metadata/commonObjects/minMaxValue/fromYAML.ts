@@ -1,12 +1,21 @@
-import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { parseMinMaxXMLPayload } from "./types"
+import { parseMinMaxXMLTypePayload } from "./types"
+import { getRuleMinMaxValueXsiType } from "./fromXML"
 
 const importMinMaxValueFromYAML: ImportFromYAMLFunctionNew = ({ rule, value, yaml }) => {
-  if (yamlScalarTagAt(yaml, rule.yaml!) === "xml") {
-    if (typeof value !== "string") throw new Error(`${rule.yaml}: после !xml ожидается строка`)
-    return parseMinMaxXMLPayload(xmlScalarTagPayload(value))
+  const tag = yamlScalarTagAt(yaml, rule.yaml!)
+  if (tag === "xml/type" || tag === "xml/value") {
+    if (typeof value !== "string") throw new Error(`${rule.yaml}: после !${tag} ожидается строка`)
+    const payload = xmlAnomalyTagPayload(tag, value)
+    if (tag === "xml/type") return parseMinMaxXMLTypePayload(payload)
+    if (payload.length === 0) throw new Error(`${rule.yaml}: после !xml/value ожидается значение`)
+    return {
+      kind: "xml",
+      xsiType: getRuleMinMaxValueXsiType(rule) ?? "xs:decimal",
+      text: payload,
+    }
   }
   if (value === undefined) return undefined
   if (typeof value !== "number" || !Number.isFinite(value)) {

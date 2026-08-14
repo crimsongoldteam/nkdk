@@ -71,3 +71,11 @@ export const metadataPropertyRule007 = definePropertyTypeRule(
   "structuralReferences",
   collectStringTargetReferenceList
 )
+export const metadataPropertyRule008 = definePropertyTypeRule(
+  "InputByStringFields",
+  "xmlImportPropertyBehavior",
+  {
+    presenceAffectsExport: true,
+    explicitEmptyValue: () => [],
+  }
+)

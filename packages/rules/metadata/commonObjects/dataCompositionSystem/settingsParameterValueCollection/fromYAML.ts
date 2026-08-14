@@ -2,7 +2,7 @@ import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { importParameterValueFromYAML } from "../parameterValue/fromYAML"
 import type { SettingsParameterValueYAML } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
@@ -75,11 +75,11 @@ function settingsNilTransport(
   parameterName: string,
   fragment: unknown,
 ): SettingsNilTransport | undefined {
-  if (yamlScalarTagAt(collection, parameterName) === "xml") {
+  if (yamlScalarTagAt(collection, parameterName) === "xml/value") {
     assertNilPayload(fragment)
     return "scalar"
   }
-  if (isPlainObject(fragment) && yamlScalarTagAt(fragment, "Значение") === "xml") {
+  if (isPlainObject(fragment) && yamlScalarTagAt(fragment, "Значение") === "xml/value") {
     assertNilPayload(fragment.Значение)
     return "value"
   }
@@ -87,8 +87,8 @@ function settingsNilTransport(
 }
 
 function assertNilPayload(value: unknown): void {
-  if (typeof value !== "string" || xmlScalarTagPayload(value) !== "Nil") {
-    throw new Error("для значения параметра настройки допустим только !xml Nil")
+  if (typeof value !== "string" || xmlAnomalyTagPayload("xml/value", value) !== "Nil") {
+    throw new Error("для значения параметра настройки допустим только !xml/value Nil")
   }
 }
 

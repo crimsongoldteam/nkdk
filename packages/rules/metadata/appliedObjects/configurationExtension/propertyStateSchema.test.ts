@@ -161,7 +161,7 @@ describe("borrowed property-state schema", () => {
     expect(schema.properties).not.toHaveProperty("Проверять")
     expect(schema.additionalProperties).toBe(false)
     expect(schema.properties.Реквизиты).not.toMatchObject({
-      pattern: "^!xml configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$",
+      pattern: "^!xml/reference configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$",
     })
   })
 

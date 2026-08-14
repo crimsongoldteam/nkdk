@@ -140,6 +140,38 @@ describe("extractValidationYamlFacts", () => {
     ])
   })
 
+  it("не проверяет перенесённый битый элемент состава подсистемы как metadata target", () => {
+    const facts = subsystemCompositionFacts("!xml/reference 6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4")
+
+    expect(facts.diagnostics).toEqual([])
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({
+        canonical: "CommonForm.ОценитьПриложение",
+        yamlPath: ["Состав", 0],
+      }),
+    ])
+  })
+
+  it.each([
+    ["нетегированный UUID", "6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4", "6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4"],
+    ["нераспознанный !xml/reference", "!xml/reference не-uuid", "!xml/reference не-uuid"],
+  ])("сохраняет диагностику для %s в составе подсистемы", (_name, value, root) => {
+    const facts = subsystemCompositionFacts(value)
+
+    expect(facts.diagnostics).toEqual([
+      expect.objectContaining({
+        path: "/Состав/1",
+        message: `Неизвестный корень "${root}"`,
+      }),
+    ])
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({
+        canonical: "CommonForm.ОценитьПриложение",
+        yamlPath: ["Состав", 0],
+      }),
+    ])
+  })
+
   it("extracts form additional columns for data path checks", () => {
     const projectDir = "/project"
     const filePath = "/project/Документ/Заказ/Формы/ФормаДокумента/Форма.yaml"
@@ -542,6 +574,22 @@ function catalogAttributeFacts(lines: readonly string[]) {
   return extractValidationYamlFacts({
     file,
     parsed: parseMetadataYaml(lines.join("\n")),
+    rulesSnapshot,
+  })
+}
+
+function subsystemCompositionFacts(brokenValue: string) {
+  const projectDir = "/project"
+  const filePath = "/project/Подсистема/ОбщийФункционал/Подсистемы/ОбратнаяСвязь/Свойства.yaml"
+  const file = resolveValidationProjectFile(projectDir, filePath)
+  if (file === undefined) throw new Error("file not resolved")
+  return extractValidationYamlFacts({
+    file,
+    parsed: parseMetadataYaml([
+      "Состав:",
+      "  - ОбщаяФорма.ОценитьПриложение",
+      `  - ${brokenValue}`,
+    ].join("\n")),
     rulesSnapshot,
   })
 }

@@ -4,7 +4,7 @@ import { testExportPropertyModelThroughXMLToYAML } from "../../../tests/property
 import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { serializeYAMLDocument } from "@nkdk/runtime"
-import { EMPTY_XML_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { allYAML } from "./__fixtures__/data"
 import { StandartAttributeNameToYAML } from "./types"
@@ -37,8 +37,8 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual({ СтандартныеРеквизиты: EMPTY_XML_TAG_VALUE })
-    expect(serializeYAMLDocument(result).text).toBe("СтандартныеРеквизиты: !xml")
+    expect(result).toEqual({ СтандартныеРеквизиты: XML_PRESENT_TAG_VALUE })
+    expect(serializeYAMLDocument(result).text).toBe("СтандартныеРеквизиты: !xml/present")
   })
 
   it("не создаёт маркер для отсутствующей коллекции", () => {
@@ -115,7 +115,7 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     expect(result).toEqual({
       СтандартныеРеквизиты: {
         Ссылка: {
-          ЗначениеЗаполнения: "!xml DesignTimeRef",
+          ЗначениеЗаполнения: "!xml/value DesignTimeRef",
         },
       },
     })
@@ -147,7 +147,7 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
       },
     }).yaml
 
-    expect(serializeYAMLDocument(imported).text).toContain(`ЗначениеЗаполнения: !xml ${marker}`)
+    expect(serializeYAMLDocument(imported).text).toContain(`ЗначениеЗаполнения: !xml/value ${marker}`)
   })
 
   it("exports explicit accounting ExtDimension attributes", () => {

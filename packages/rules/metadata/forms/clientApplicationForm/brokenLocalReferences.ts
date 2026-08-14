@@ -1,6 +1,6 @@
 import { Type, type TSchema } from "typebox"
 
-import { xmlScalarTagPayload, xmlScalarTagValue } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, xmlAnomalyTagValue } from "@nkdk/runtime"
 import {
   defineMetadataRules,
   emptyMetadataRules,
@@ -177,7 +177,7 @@ function importScalar(
 ) {
   const text = scalarXMLText(xmlValue)
   return text !== undefined && yamlValue === text && isBrokenLocalFormReference(element, text)
-    ? { yamlValue: xmlScalarTagValue(text), taggedPaths: [[]] }
+    ? { yamlValue: xmlAnomalyTagValue("xml/reference", text), taggedPaths: [[]] }
     : undefined
 }
 
@@ -186,7 +186,7 @@ function prepareScalar(
   yamlValue: unknown,
   isTagged: (path: readonly (string | number)[]) => boolean,
 ) {
-  return isTagged([])
+  return isTagged([]) && validTaggedPayload(element, yamlValue)
     ? { yamlValue: scalarPayload(element, yamlValue), transportedPaths: [[]] }
     : undefined
 }
@@ -204,16 +204,16 @@ function scalarPayload(element: LocalFormReferenceElement, value: unknown): stri
   if (!validTaggedPayload(element, value)) {
     throw new Error(`Битая локальная ссылка ${element} не соответствует зарегистрированной грамматике`)
   }
-  return xmlScalarTagPayload(value)
+  return xmlAnomalyTagPayload("xml/reference", value)
 }
 
 function validTaggedPayload(element: LocalFormReferenceElement, value: unknown): value is string {
   return typeof value === "string" &&
-    isBrokenLocalFormReference(element, xmlScalarTagPayload(value))
+    isBrokenLocalFormReference(element, xmlAnomalyTagPayload("xml/reference", value))
 }
 
 function taggedSchema(element: LocalFormReferenceElement): TSchema {
-  return Type.String({ pattern: `^!xml (?:${LOCAL_FORM_REFERENCE_PATTERNS[element].source.slice(1, -1)})$` })
+  return Type.String({ pattern: `^!xml/reference (?:${LOCAL_FORM_REFERENCE_PATTERNS[element].source.slice(1, -1)})$` })
 }
 
 function formStringElement(rule: PropertyRule): "GroupList" | "UserSettingsGroup" | undefined {
@@ -246,7 +246,7 @@ function collectionCarrier(params: CollectionCarrierParams): BrokenXMLReferenceC
       })
       if (matches.length === 0) return undefined
       const normalized = [...yamlValue]
-      for (const { index, text } of matches) normalized[index] = xmlScalarTagValue(text)
+      for (const { index, text } of matches) normalized[index] = xmlAnomalyTagValue("xml/reference", text)
       return { yamlValue: normalized, taggedPaths: matches.map(({ index }) => [index]) }
     },
     prepareExport({ yamlValue, isTagged }) {
@@ -310,7 +310,7 @@ function nestedCarrier(params: {
           if (text === undefined || !isBrokenLocalFormReference(location.element, text)) continue
           const yamlItem = yamlItems[index]
           if (!isRecord(yamlItem)) continue
-          ;(yamlItem as Record<string, unknown>)[location.yamlProperty] = xmlScalarTagValue(text)
+          ;(yamlItem as Record<string, unknown>)[location.yamlProperty] = xmlAnomalyTagValue("xml/reference", text)
           paths.push([...location.yamlCollection, index, location.yamlProperty])
         }
       }

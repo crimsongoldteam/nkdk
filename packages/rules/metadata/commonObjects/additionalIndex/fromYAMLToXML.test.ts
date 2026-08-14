@@ -127,8 +127,8 @@ describe("AdditionalIndex YAML → XML", () => {
       yaml: imported.yaml,
     })
     const item = (imported.yaml as Array<Record<string, unknown>>)[0]!
-    expect(item.ДополнительныеПоля).toBe("!xml")
-    expect(yamlScalarTagAt(item, "ДополнительныеПоля")).toBe("xml")
+    expect(item.ДополнительныеПоля).toBe("!xml/present")
+    expect(yamlScalarTagAt(item, "ДополнительныеПоля")).toBe("xml/present")
 
     expect(exported.xml).toMatchObject({
       AdditionalIndexes: {

@@ -12,7 +12,7 @@ import {
   propertyTypesFromContributions,
 } from "./propertyRuleRegistrySet"
 import { createPropertyRuleExecutor } from "./propertyRuleExecutor"
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_ABSENT_TAG_VALUE, XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 import { importFromYAML } from "@nkdk/runtime"
 import { exportPropertiesToJSONSchema } from "./toJSONSchema"
 import { exportPropertyValueToYAML } from "./toYAML"
@@ -65,7 +65,7 @@ function explicitXMLExecution(withExplicitXML: boolean) {
               itemType: "Owner",
               propertyKey: "value",
               xmlValue: "explicit",
-              yamlValue: "marker",
+              yamlValue: XML_PRESENT_TAG_VALUE,
             },
           }
         : {},
@@ -108,7 +108,7 @@ it("keeps identical property keys isolated between registry sets", () => {
 it("matches broken XML reference carriers only for their property type", () => {
   const carrier = brokenXMLReferenceCarrier("sample", "Sample", {
     tryImport: ({ xmlValue }: { xmlValue: unknown }) => xmlValue === "broken"
-      ? { yamlValue: "!xml broken", taggedPaths: [[]] }
+      ? { yamlValue: "!xml/reference broken", taggedPaths: [[]] }
       : undefined,
   })
   const registries = createPropertyRuleRegistrySet(defineMetadataRules({
@@ -120,7 +120,7 @@ it("matches broken XML reference carriers only for their property type", () => {
     rule: { type: "Sample" },
     xmlValue: "broken",
     yamlValue: "ordinary",
-  })).toEqual({ yamlValue: "!xml broken", taggedPaths: [[]] })
+  })).toEqual({ yamlValue: "!xml/reference broken", taggedPaths: [[]] })
   expect(registries.normalizeImportedBrokenXMLReferences({
     rule: { type: "Other" },
     xmlValue: "broken",
@@ -130,7 +130,7 @@ it("matches broken XML reference carriers only for their property type", () => {
 
 it("rejects ambiguous broken XML reference carrier matches", () => {
   const carrier = (name: string) => brokenXMLReferenceCarrier(name, "Sample", {
-    tryImport: () => ({ yamlValue: `!xml ${name}`, taggedPaths: [[]] }),
+    tryImport: () => ({ yamlValue: `!xml/reference ${name}`, taggedPaths: [[]] }),
   })
   const registries = createPropertyRuleRegistrySet(defineMetadataRules({
     ...emptyMetadataRules,
@@ -212,7 +212,7 @@ it("copies auxiliary property declarations into the registry instance", () => {
           itemType: "Owner",
           propertyKey: "Value",
           xmlValue: "xml",
-          yamlValue: "yaml",
+          yamlValue: XML_PRESENT_TAG_VALUE,
         },
       },
       dependentItems: { Owner: { yaml: dependentYaml } },
@@ -247,7 +247,7 @@ it("keeps explicit XML property-type policies inside the registry instance", () 
         Collection: {
           propertyType: "Collection",
           action: "materializeCollection",
-          yamlValue: EMPTY_XML_TAG_VALUE,
+          yamlValue: XML_PRESENT_TAG_VALUE,
         },
       },
     }),
@@ -256,7 +256,7 @@ it("keeps explicit XML property-type policies inside the registry instance", () 
     defineMetadataRules({ ...emptyMetadataRules }),
   )
 
-  const yaml = importFromYAML<Record<string, unknown>>("Value: !xml\n")
+  const yaml = importFromYAML<Record<string, unknown>>("Value: !xml/present\n")
   const params = {
     yaml,
     itemType: "Owner",
@@ -265,10 +265,10 @@ it("keeps explicit XML property-type policies inside the registry instance", () 
 
   expect(withPolicy.collectExplicitXMLPropertyActions(params).get("value"))
     .toEqual({ kind: "materializeCollection" })
-  expect(withPolicy.explicitXMLPropertyValidationMode("Owner", "value", "Collection"))
-    .toBe("empty")
+  expect(withPolicy.explicitXMLPropertyValidationTag("Owner", "value", "Collection"))
+    .toBe("xml/present")
   expect(withoutPolicy.collectExplicitXMLPropertyActions(params)).toEqual(new Map())
-  expect(withoutPolicy.explicitXMLPropertyValidationMode("Owner", "value", "Collection"))
+  expect(withoutPolicy.explicitXMLPropertyValidationTag("Owner", "value", "Collection"))
     .toBeUndefined()
 })
 
@@ -289,7 +289,7 @@ it("defers a registered PropertyState carrier to the item augmenter", () => {
   }))
   const execution = createPropertyRuleExecutor(registry)
   const yaml = importFromYAML<Record<string, unknown>>(
-    "Значение: !xml configurationExtensionPropertyStateXML:payload\n",
+    "Значение: !xml/reference configurationExtensionPropertyStateXML:payload\n",
   )
   const rule = {
     itemType: "Owner",
@@ -321,7 +321,7 @@ it("exports explicit XML validation from the owning registry only", () => {
             action: "omit" as const,
             itemType: "Owner",
             propertyKey: "value",
-            yamlValue: EMPTY_XML_TAG_VALUE,
+            yamlValue: XML_ABSENT_TAG_VALUE,
           },
         }
       : {},
@@ -344,7 +344,7 @@ it("exports explicit XML validation from the owning registry only", () => {
     .toMatchObject({
       "Значение": {
         anyOf: expect.arrayContaining([
-          expect.objectContaining({ const: EMPTY_XML_TAG_VALUE }),
+          expect.objectContaining({ const: XML_ABSENT_TAG_VALUE }),
         ]),
       },
     })
@@ -652,14 +652,14 @@ it("applies explicit XML actions from the owning registry", () => {
   const convert = (withExplicitXML: boolean) =>
     convertPropertiesFromYAMLToXML({
       context,
-      yaml: { "Значение": "marker" },
+      yaml: importFromYAML("Значение: !xml/present"),
       rule,
       outputs: [{ key: "main" }],
       execution: explicitXMLExecution(withExplicitXML),
     }).outputs.get("main")
 
   expect(convert(true)).toEqual({ Value: "explicit" })
-  expect(convert(false)).toEqual({ Value: "marker" })
+  expect(convert(false)).toEqual({ Value: XML_PRESENT_TAG_VALUE })
 })
 
 it("matches explicit XML imports from the owning registry", () => {
@@ -675,7 +675,7 @@ it("matches explicit XML imports from the owning registry", () => {
     execution: explicitXMLExecution(withExplicitXML),
   })
 
-  expect(convert(true)).toEqual({ "Значение": "marker" })
+  expect(convert(true)).toEqual({ "Значение": XML_PRESENT_TAG_VALUE })
   expect(convert(false)).toEqual({ "Значение": "explicit" })
 })
 

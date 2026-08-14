@@ -17,7 +17,7 @@ import type { MetadataTargetOwner } from "../metadataTargets/types"
 import type { ParsedYaml } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
-import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 
@@ -72,8 +72,8 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
         currentValue,
       )
       if (parsed.tagged) {
-        params.item["ЗначениеЗаполнения"] = xmlScalarTagValue(String(yamlValue))
-        markYAMLScalarTag(params.item, "ЗначениеЗаполнения", "xml")
+        params.item["ЗначениеЗаполнения"] = xmlAnomalyTagValue("xml/value", String(yamlValue))
+        markYAMLScalarTag(params.item, "ЗначениеЗаполнения", "xml/value")
       } else {
         params.item["ЗначениеЗаполнения"] = yamlValue
       }

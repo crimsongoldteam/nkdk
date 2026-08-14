@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "@nkdk/runtime"
-import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import { exportParameterValueToYAML } from "../parameterValue/toYAML"
@@ -41,8 +41,8 @@ function withNilTransport(fragment: unknown): Record<string, unknown> {
   const result = typeof fragment === "object" && fragment !== null && !Array.isArray(fragment)
     ? { ...fragment as Record<string, unknown> }
     : {}
-  result.Значение = xmlScalarTagValue("Nil")
-  markYAMLScalarTag(result, "Значение", "xml")
+  result.Значение = xmlAnomalyTagValue("xml/value", "Nil")
+  markYAMLScalarTag(result, "Значение", "xml/value")
   return result
 }
 

@@ -212,7 +212,7 @@ describe("MetadataAttributes YAML → XML", () => {
     const yaml = importFromYAML(`Значение:
   Исполнитель:
     Тип: Справочник.ПолныеРоли
-    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+    ЗначениеЗаполнения: !xml/value Справочник.РолиИсполнителей.ПустаяСсылка
 `)
     const result = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
 
@@ -225,7 +225,7 @@ describe("MetadataAttributes YAML → XML", () => {
     const yaml = importFromYAML(`Значение:
   Получатель:
     Тип: Справочник.Контрагенты
-    ЗначениеЗаполнения: !xml DesignTimeRef
+    ЗначениеЗаполнения: !xml/value DesignTimeRef
 `)
     const result = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
 

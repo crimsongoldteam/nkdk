@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { MetadataItemRule, PropertyRule } from "../../../ruleRuntime"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import { serializeDirectXML, testPropertyFromYAMLToXML } from "../../../../tests/directConversion"
-import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 import {
   fullConditionalAppearanceItems,
   minimalConditionalAppearanceItems,
@@ -18,8 +18,8 @@ const rule: PropertyRule = {
 describe("export ConditionalAppearanceItems to XML", () => {
   it("exports full.xml", () => {
     const item = { ...fullConditionalAppearanceItemsYAML[0] } as Record<string, unknown>
-    item.Представление = xmlScalarTagValue("String Выделение цветом состояния")
-    markYAMLScalarTag(item, "Представление", "xml")
+    item.Представление = xmlAnomalyTagValue("xml/type", "String Выделение цветом состояния")
+    markYAMLScalarTag(item, "Представление", "xml/type")
     const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
       rule,
       value: fullConditionalAppearanceItems,

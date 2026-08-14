@@ -61,25 +61,25 @@ describe("broken local form reference grammar", () => {
     [
       { type: "CommandName", xml: "CommandName", yaml: "ИмяКоманды" },
       `1:${UUID}`,
-      `ИмяКоманды: !xml 1:${UUID}`,
+      `ИмяКоманды: !xml/reference 1:${UUID}`,
     ],
     [
       { type: "DataPath", xml: "DataPath", yaml: "ПутьКДанным" },
       `1/0:${UUID}`,
-      `ПутьКДанным: !xml 1/0:${UUID}`,
+      `ПутьКДанным: !xml/reference 1/0:${UUID}`,
     ],
     [
       { type: "string", xml: "GroupList", yaml: "СписокГрупп" },
       `5:${UUID}`,
-      `СписокГрупп: !xml 5:${UUID}`,
+      `СписокГрупп: !xml/reference 5:${UUID}`,
     ],
   ] as const)("round-trips scalar %s without reference XML", (propertyRule, xmlValue, source) => {
     const property = propertyRule as PropertyRule
     const rule = probeRule(property)
     const imported = importProbe(rule, { [property.xml!]: xmlValue })
 
-    expect(imported).toEqual({ [property.yaml!]: `!xml ${xmlValue}` })
-    expect(yamlScalarTagAt(imported, property.yaml!)).toBe("xml")
+    expect(imported).toEqual({ [property.yaml!]: `!xml/reference ${xmlValue}` })
+    expect(yamlScalarTagAt(imported, property.yaml!)).toBe("xml/reference")
     expect(exportProbe(rule, source)).toEqual({ [property.xml!]: xmlValue })
   })
 
@@ -91,10 +91,10 @@ describe("broken local form reference grammar", () => {
       Сохранение: string[]
     }
 
-    expect(imported.Сохранение).toEqual(["Объект.Код", `!xml ${broken}`])
+    expect(imported.Сохранение).toEqual(["Объект.Код", `!xml/reference ${broken}`])
     expect(yamlScalarTagAt(imported.Сохранение, 0)).toBeUndefined()
-    expect(yamlScalarTagAt(imported.Сохранение, 1)).toBe("xml")
-    expect(exportProbe(rule, `Сохранение:\n  - Объект.Код\n  - !xml ${broken}\n`)).toEqual({
+    expect(yamlScalarTagAt(imported.Сохранение, 1)).toBe("xml/reference")
+    expect(exportProbe(rule, `Сохранение:\n  - Объект.Код\n  - !xml/reference ${broken}\n`)).toEqual({
       Save: { Field: ["Объект.Код", broken] },
     })
   })
@@ -117,9 +117,9 @@ describe("broken local form reference grammar", () => {
     })).toEqual({
       yamlValue: {
         ПанельНавигации: [{
-          Команда: `!xml 0:${UUID}`,
+          Команда: `!xml/reference 0:${UUID}`,
           Тип: "Auto",
-          ГруппаКоманд: `!xml ${UUID}`,
+          ГруппаКоманд: `!xml/reference ${UUID}`,
         }],
       },
       taggedPaths: [
@@ -138,11 +138,11 @@ describe("broken local form reference grammar", () => {
       ИнтерфейсКоманды: { ПанельНавигации: Record<string, unknown>[] }
     }
     const item = imported.ИнтерфейсКоманды.ПанельНавигации[0]!
-    expect(yamlScalarTagAt(item, "Команда")).toBe("xml")
-    expect(yamlScalarTagAt(item, "ГруппаКоманд")).toBe("xml")
+    expect(yamlScalarTagAt(item, "Команда")).toBe("xml/reference")
+    expect(yamlScalarTagAt(item, "ГруппаКоманд")).toBe("xml/reference")
     expect(exportProbe(
       rule,
-      `ИнтерфейсКоманды:\n  ПанельНавигации:\n    - Команда: !xml 0:${UUID}\n      Тип: Auto\n      ГруппаКоманд: !xml ${UUID}\n`,
+      `ИнтерфейсКоманды:\n  ПанельНавигации:\n    - Команда: !xml/reference 0:${UUID}\n      Тип: Auto\n      ГруппаКоманд: !xml/reference ${UUID}\n`,
     )).toEqual({ CommandInterface: xmlValue })
   })
 
@@ -153,14 +153,14 @@ describe("broken local form reference grammar", () => {
       xmlValue: { "xr:Link": [{ "xr:DataPath": path }] },
       yamlValue: [{ ПутьКДанным: path }],
     })).toMatchObject({
-      yamlValue: [{ ПутьКДанным: `!xml ${path}` }],
+      yamlValue: [{ ПутьКДанным: `!xml/reference ${path}` }],
       taggedPaths: [[0, "ПутьКДанным"]],
     })
     expect(carrierNamed("typeLink").tryImport({
       rule: { type: "TypeLink" } as PropertyRule,
       xmlValue: { "xr:DataPath": path, "xr:LinkItem": 0 },
       yamlValue: path,
-    })).toEqual({ yamlValue: `!xml ${path}`, taggedPaths: [[]] })
+    })).toEqual({ yamlValue: `!xml/reference ${path}`, taggedPaths: [[]] })
   })
 })
 

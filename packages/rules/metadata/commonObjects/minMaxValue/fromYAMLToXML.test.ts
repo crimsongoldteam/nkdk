@@ -14,10 +14,10 @@ const execution = createRuleRegistrySet(metadataRules).execution
 describe("MinMaxValue YAML → XML", () => {
   it.each([
     ["МинимальноеЗначение: 1", decimalRule, '<MinValue xsi:type="xs:decimal">1</MinValue>'],
-    ["МинимальноеЗначение: !xml String 001.00", decimalRule, '<MinValue xsi:type="xs:string">001.00</MinValue>'],
-    ["МинимальноеЗначение: !xml Decimal 001.00", stringRule, '<MinValue xsi:type="xs:decimal">001.00</MinValue>'],
-    ["МинимальноеЗначение: !xml Raw xs:dateTime bad", stringRule, '<MinValue xsi:type="xs:dateTime">bad</MinValue>'],
-    ["МинимальноеЗначение: !xml Raw - bad", stringRule, "<MinValue>bad</MinValue>"],
+    ["МинимальноеЗначение: !xml/value 001.00", decimalRule, '<MinValue xsi:type="xs:decimal">001.00</MinValue>'],
+    ["МинимальноеЗначение: !xml/type xs:string 001.00", decimalRule, '<MinValue xsi:type="xs:string">001.00</MinValue>'],
+    ["МинимальноеЗначение: !xml/type xs:dateTime bad", stringRule, '<MinValue xsi:type="xs:dateTime">bad</MinValue>'],
+    ['МинимальноеЗначение: !xml/type "- bad"', stringRule, "<MinValue>bad</MinValue>"],
   ] as const)("exports %s without reference XML", (yamlText, rule, expected) => {
     const xml = serializeDirectXML(testPropertyFromYAMLToXML({
       rule,
@@ -29,10 +29,9 @@ describe("MinMaxValue YAML → XML", () => {
   })
 
   it.each([
-    "МинимальноеЗначение: !xml String",
-    "МинимальноеЗначение: !xml Decimal nope",
-    "МинимальноеЗначение: !xml Raw",
-    "МинимальноеЗначение: !xml Unknown 1",
+    "МинимальноеЗначение: !xml/value",
+    "МинимальноеЗначение: !xml/type",
+    "МинимальноеЗначение: !xml/type xs:string",
   ])("rejects invalid transport %s", (yamlText) => {
     expect(() => testPropertyFromYAMLToXML({
       rule: stringRule,

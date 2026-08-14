@@ -7,7 +7,7 @@ import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToXML } from "./toXML"
 import { TYPE_DESCRIPTION_SOURCE_TYPES, TypeDescription, TypeDescriptionXML } from "./types"
 import { importTaggedTypeDescriptionFromYAML } from "./fromYAML"
-import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 
 const typeDescriptionRule = { type: "TypeDescription" } as const
 const typeDescriptionRuleWithLocalNamespace = {
@@ -32,9 +32,9 @@ describe("exportTypeDescriptionToXML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("restores an exact prefix from !xml without a reference or snapshot", () => {
-    const yaml = { Тип: xmlScalarTagValue("d7p1:Диаграмма") }
-    markYAMLScalarTag(yaml, "Тип", "xml")
+  it("restores an exact prefix from !xml/type without a reference or snapshot", () => {
+    const yaml = { Тип: xmlAnomalyTagValue("xml/type", "d7p1:Диаграмма") }
+    markYAMLScalarTag(yaml, "Тип", "xml/type")
     const value = importTaggedTypeDescriptionFromYAML({
       context: mockContext,
       rule: { type: "TypeDescription", yaml: "Тип" },

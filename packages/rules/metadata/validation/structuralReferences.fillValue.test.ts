@@ -48,7 +48,7 @@ describe("fill value structural references", () => {
     const parsed = parseMetadataYaml(`Реквизиты:
   Исполнитель:
     Тип: Справочник.ПолныеРоли
-    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.СтараяРоль
+    ЗначениеЗаполнения: !xml/value Справочник.РолиИсполнителей.СтараяРоль
 `)
     const result = collect(parsed)
 
@@ -59,9 +59,9 @@ describe("fill value structural references", () => {
 
     const attribute = (parsed.data as { Реквизиты: { Исполнитель: Record<string, unknown> } })
       .Реквизиты.Исполнитель
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/value")
     expect(serializeYAMLDocument(parsed.data).text).toContain(
-      "ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.НоваяРоль"
+      "ЗначениеЗаполнения: !xml/value Справочник.РолиИсполнителей.НоваяРоль"
     )
   })
 
@@ -69,7 +69,7 @@ describe("fill value structural references", () => {
     const parsed = parseMetadataYaml(`Владельцы: []
 СтандартныеРеквизиты:
   Владелец:
-    ЗначениеЗаполнения: !xml Справочник.ПапкиФайлов.ПустаяСсылка
+    ЗначениеЗаполнения: !xml/value Справочник.ПапкиФайлов.ПустаяСсылка
 `)
     const result = collect(parsed)
 
@@ -80,15 +80,15 @@ describe("fill value structural references", () => {
 
     const attribute = (parsed.data as { СтандартныеРеквизиты: { Владелец: Record<string, unknown> } })
       .СтандартныеРеквизиты.Владелец
-    expect(attribute.ЗначениеЗаполнения).toBe("!xml Справочник.КаталогиФайлов.ПустаяСсылка")
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml/value Справочник.КаталогиФайлов.ПустаяСсылка")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/value")
     expect(serializeYAMLDocument(parsed.data).text).toContain(
-      "ЗначениеЗаполнения: !xml Справочник.КаталогиФайлов.ПустаяСсылка"
+      "ЗначениеЗаполнения: !xml/value Справочник.КаталогиФайлов.ПустаяСсылка"
     )
   })
 
   it("не добавляет транспортный DesignTimeRef в граф ссылок", () => {
-    const parsed = parseMetadataYaml(`Реквизиты:\n  Получатель:\n    Тип: Справочник.Контрагенты\n    ЗначениеЗаполнения: !xml 447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231\n`)
+    const parsed = parseMetadataYaml(`Реквизиты:\n  Получатель:\n    Тип: Справочник.Контрагенты\n    ЗначениеЗаполнения: !xml/reference 447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231\n`)
     const result = withPropertyRuleRegistrySet(
       createPropertyRuleRegistrySet(metadataRules),
       () => collect(parsed),

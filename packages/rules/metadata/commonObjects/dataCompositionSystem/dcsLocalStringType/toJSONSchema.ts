@@ -4,10 +4,10 @@ import { definePropertyTypeRule } from "../../../ruleRuntime"
 
 const ordinaryString = Type.Intersect([
   Type.String(),
-  { not: Type.String({ pattern: "^!xml(?: |$)" }) } as TSchema,
+  { not: Type.String({ pattern: "^!xml/(?:[^ ]+)(?: |$)" }) } as TSchema,
 ])
 const ordinaryValue = Type.Union([ordinaryString, Type.Record(Type.String(), Type.String())])
-const xmlString = Type.String({ pattern: "^!xml String(?: .*)?$" })
+const xmlString = Type.String({ pattern: "^!xml/type String(?: .*)?$" })
 
 const exportDcsLocalStringTypeToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
   context.exportToJSONSchema?.explicitXMLValues === true ||

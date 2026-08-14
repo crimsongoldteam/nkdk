@@ -49,14 +49,14 @@ describe.sequential("metadata project E2E", () => {
       "cfe/Расширение_All/БизнесПроцесс/БизнесПроцессВсеСвойстваExt/Свойства.yaml",
     ), "utf8")
     expect(missingTargetYaml).toContain(
-      "ЗначениеЗаполнения: !xml Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+      "ЗначениеЗаполнения: !xml/reference Справочник.СправочникРеквизит.ПредопредленноеЗначение",
     )
     const ordinaryValueYaml = await readFile(join(
       baseline.projectDir,
       "cfe/Расширение_All/Справочник/СправочникВладелецExt/Свойства.yaml",
     ), "utf8")
     expect(ordinaryValueYaml).toContain("ЗначениеЗаполнения: Истина")
-    expect(ordinaryValueYaml).not.toContain("ЗначениеЗаполнения: !xml Истина")
+    expect(ordinaryValueYaml).not.toContain("ЗначениеЗаполнения: !xml/value Истина")
     const settingsComposerYaml = await readFile(join(
       baseline.projectDir,
       "cf/ОбщаяФорма/КомпоновщикНастроек/Свойства.yaml",
@@ -71,8 +71,8 @@ describe.sequential("metadata project E2E", () => {
     expect(settingsComposerYaml).toContain(
       "ПутьКДанным: КомпоновщикНастроек.ФиксированныеНастройки.СтруктураОтчета",
     )
-    expect(settingsComposerYaml).not.toContain("!xml КомпоновщикНастроек.Settings.ReportStructure")
-    expect(settingsComposerYaml).not.toContain("!xml КомпоновщикНастроек.FixedSettings.ReportStructure")
+    expect(settingsComposerYaml).not.toContain("!xml/value КомпоновщикНастроек.Settings.ReportStructure")
+    expect(settingsComposerYaml).not.toContain("!xml/value КомпоновщикНастроек.FixedSettings.ReportStructure")
     await expect(access(join(baseline.projectDir, ".nkdk"))).resolves.toBeUndefined()
     console.info("E2E import durations, ms", baseline.durationsMs)
   })

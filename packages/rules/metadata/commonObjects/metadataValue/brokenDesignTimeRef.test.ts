@@ -1,7 +1,10 @@
 import { expect, it } from "vitest"
 
 import { importFromYAML, yamlScalarTagAt } from "@nkdk/runtime"
-import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import {
+  createPropertyRuleExecutor,
+  createPropertyRuleRegistrySet,
+} from "@nkdk/runtime/rule-kit"
 import { metadataRules } from "../../composition/metadataRules"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
@@ -24,9 +27,24 @@ const rule = {
   },
 } as MetadataItemRule
 
+function exportFillValue(yaml: string): unknown {
+  const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
+  return convertPropertiesFromYAMLToXML({
+    context: {
+      defaultLanguage: "ru",
+      version: "test",
+      exportToXML: { version: "test", itemsTree: [] },
+    },
+    yaml: importFromYAML(yaml),
+    rule,
+    outputs: [{ key: "owner" }],
+    execution,
+  }).outputs.get("owner")
+}
+
 it("registers the strict DesignTimeRef UUID grammar", () => {
   const carrier = metadataRules.brokenXMLReferenceCarriers.find(
-    ({ name }) => name === "metadataValue.designTimeRefUuid",
+    ({ name }) => name === "metadataValue.designTimeRef",
   )
 
   expect(carrier).toBeDefined()
@@ -35,7 +53,7 @@ it("registers the strict DesignTimeRef UUID grammar", () => {
     rule: rule.properties.fillValue!,
     xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": UUID_PAIR },
     yamlValue: UUID_PAIR,
-  })).toEqual({ yamlValue: `!xml ${UUID_PAIR}`, taggedPaths: [[]] })
+  })).toEqual({ yamlValue: `!xml/reference ${UUID_PAIR}`, taggedPaths: [[]] })
   expect(carrier.tryImport({
     rule: rule.properties.fillValue!,
     xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": `${UUID_PAIR}.extra` },
@@ -49,7 +67,7 @@ it("registers the strict DesignTimeRef UUID grammar", () => {
 })
 
 it("round-trips a broken DesignTimeRef without reference XML", () => {
-  const execution = createRuleRegistrySet(metadataRules).execution
+  const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
   const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
   const yaml = importPropertiesFromXMLToYAML({
     context,
@@ -66,22 +84,24 @@ it("round-trips a broken DesignTimeRef without reference XML", () => {
     execution,
   })
 
-  expect(yaml).toEqual({ ЗначениеЗаполнения: `!xml ${UUID_PAIR}` })
-  expect(yamlScalarTagAt(yaml, "ЗначениеЗаполнения")).toBe("xml")
+  expect(yaml).toEqual({ ЗначениеЗаполнения: `!xml/reference ${UUID_PAIR}` })
+  expect(yamlScalarTagAt(yaml, "ЗначениеЗаполнения")).toBe("xml/reference")
 
-  const exported = convertPropertiesFromYAMLToXML({
-    context: {
-      defaultLanguage: "ru",
-      version: "test",
-      exportToXML: { version: "test", itemsTree: [] },
-    },
-    yaml: importFromYAML(`ЗначениеЗаполнения: !xml ${UUID_PAIR}`),
-    rule,
-    outputs: [{ key: "owner" }],
-    execution,
-  })
-
-  expect(exported.outputs.get("owner")).toEqual({
+  expect(exportFillValue(`ЗначениеЗаполнения: !xml/reference ${UUID_PAIR}`)).toEqual({
     FillValue: { "_xsi:type": "xr:DesignTimeRef", "#text": UUID_PAIR },
+  })
+})
+
+it("восстанавливает именованную отсутствующую ссылку как DesignTimeRef", () => {
+  expect(exportFillValue(
+    "ЗначениеЗаполнения: !xml/reference Справочник.Роли.ПустаяСсылка",
+  )).toEqual({
+    FillValue: { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.Роли.EmptyRef" },
+  })
+})
+
+it("не перехватывает чужой tagged payload", () => {
+  expect(exportFillValue("ЗначениеЗаполнения: !xml/reference Ложь")).toEqual({
+    FillValue: { "_xsi:type": "xs:string", "#text": "!xml/reference Ложь" },
   })
 })

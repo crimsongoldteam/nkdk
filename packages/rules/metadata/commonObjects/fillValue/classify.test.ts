@@ -16,7 +16,7 @@ describe("classifyFillValue", () => {
     [{ type: ["decimal"] }, { type: "decimal", value: 0 }, "implicit"],
     [{ type: ["decimal"] }, { type: "string", value: "12" }, "invalid"],
     [{ type: ["boolean"] }, { type: "boolean", value: true }, "valid"],
-    [{ type: ["boolean"] }, { type: "boolean", value: false }, "implicit"],
+    [{ type: ["boolean"] }, { type: "boolean", value: false }, "valid"],
   ]
 
   it.each(primitiveCases)("classifies %j against %j as %s", (type, value, expected) => {

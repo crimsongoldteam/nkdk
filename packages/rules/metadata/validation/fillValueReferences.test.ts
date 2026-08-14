@@ -61,7 +61,7 @@ describe("fill value references", () => {
     const facts = extract(`Реквизиты:
   Исполнитель:
     Тип: Справочник.ПолныеРоли
-    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+    ЗначениеЗаполнения: !xml/value Справочник.РолиИсполнителей.ПустаяСсылка
 `)
 
     expect(facts.pendingReferences).toEqual([
@@ -83,7 +83,7 @@ describe("fill value references", () => {
     const facts = extract(`Реквизиты:
   Автор:
     Тип: ОпределяемыйТип.АвторДействия
-    ЗначениеЗаполнения: !xml Справочник.Пользователи.Администратор
+    ЗначениеЗаполнения: !xml/value Справочник.Пользователи.Администратор
 `)
 
     expect(facts.pendingReferences).toEqual([
@@ -96,7 +96,7 @@ describe("fill value references", () => {
     const facts = extract(`Реквизиты:
   Получатель:
     Тип: Справочник.Контрагенты
-    ЗначениеЗаполнения: !xml Справочник.Контрагенты.Поставщик
+    ЗначениеЗаполнения: !xml/value Справочник.Контрагенты.Поставщик
 `)
 
     expect(facts.pendingReferences).toEqual([
@@ -109,7 +109,7 @@ describe("fill value references", () => {
     const facts = extract(`Владельцы: []
 СтандартныеРеквизиты:
   Владелец:
-    ЗначениеЗаполнения: !xml Справочник.ПапкиФайлов.ПустаяСсылка
+    ЗначениеЗаполнения: !xml/value Справочник.ПапкиФайлов.ПустаяСсылка
 `)
     const fillValueReferences = facts.pendingReferences.filter(
       ({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения"

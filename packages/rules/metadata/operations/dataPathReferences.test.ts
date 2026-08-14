@@ -63,7 +63,7 @@ describe("rewriteDataPathSegments", () => {
       "Элементы:",
       "  Поле:",
       "    Вид: ПолеВвода",
-      "    ПутьКДанным: !xml Объект.Description",
+      "    ПутьКДанным: !xml/value Объект.Description",
     ].join("\n"))
     const resource = resolveValidationProjectFile(
       "/project",
@@ -115,7 +115,7 @@ describe("rewriteDataPathSegments", () => {
       "НовоеИмя",
     ))
     const element = (item.yaml.Элементы as Record<string, Record<string, unknown>>).Поле!
-    expect(element.ПутьКДанным).toBe("Объект.НовоеИмя")
-    expect(yamlScalarTagAt(element, "ПутьКДанным")).toBe("xml")
+    expect(element.ПутьКДанным).toBe("!xml/value Объект.НовоеИмя")
+    expect(yamlScalarTagAt(element, "ПутьКДанным")).toBe("xml/value")
   })
 })

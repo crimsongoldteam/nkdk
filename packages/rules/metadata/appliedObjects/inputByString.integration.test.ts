@@ -101,6 +101,25 @@ describe("ВводПоСтроке through property runtime", () => {
       expect(inputByStringXML(testPropertyFromYAMLToXML({ rule, name: "Тест", yaml }).xml)).toEqual(fields)
     }))
 
+  it("preserves an explicitly empty list when the computed list is not empty", () =>
+    withMetadataExecutionRegistrySets(metadataRegistries, () => {
+      const { rule, yaml } = importCatalogInputByString({
+        DescriptionLength: 100,
+        CodeLength: 0,
+        InputByString: undefined,
+      })
+
+      expect(yaml.ВводПоСтроке).toEqual([])
+      expect(inputByStringXML(testPropertyFromYAMLToXML({ rule, name: "Тест", yaml }).xml)).toEqual([])
+    }))
+
+  it("does not turn an absent XML input list into an explicitly empty YAML list", () =>
+    withMetadataExecutionRegistrySets(metadataRegistries, () => {
+      const { yaml } = importCatalogInputByString({ DescriptionLength: 100, CodeLength: 0 })
+
+      expect(yaml).not.toHaveProperty("ВводПоСтроке")
+    }))
+
   it("restores only the task description when number length is zero", () =>
     withMetadataExecutionRegistrySets(metadataRegistries, () => {
       const rule = cases.find(({ itemType }) => itemType === "MetadataTask")!.rule
@@ -174,6 +193,20 @@ function inputByStringXML(xml: Record<string, unknown>): unknown[] {
   const properties = xml.Properties as { InputByString?: { "xr:Field"?: unknown | unknown[] } }
   const fields = properties.InputByString?.["xr:Field"]
   return fields === undefined ? [] : Array.isArray(fields) ? fields : [fields]
+}
+
+function importCatalogInputByString(properties: Record<string, unknown>) {
+  const rule = cases.find(({ itemType }) => itemType === "MetadataCatalog")!.rule
+  const imported = testPropertyFromXMLToYAML({
+    rule,
+    name: "Тест",
+    xml: { Properties: properties },
+  })
+  const yaml = imported.yaml as Record<string, unknown>
+
+  createInputByStringFinalizer(rule).finalize({ yaml, rule, ownerMetadataCache: {} as never })
+
+  return { rule, yaml }
 }
 
 function extensionContext(

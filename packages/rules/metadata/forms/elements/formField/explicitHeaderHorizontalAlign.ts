@@ -1,4 +1,4 @@
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 import { defineMetadataRules } from "../../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 
@@ -7,7 +7,7 @@ export function defineExplicitHeaderHorizontalAlign(itemType: string) {
     itemType,
     propertyKey: "headerHorizontalAlign",
     xmlValue: "Auto",
-    yamlValue: EMPTY_XML_TAG_VALUE,
+    yamlValue: XML_PRESENT_TAG_VALUE,
   } as const
   return defineMetadataRules({
     ...emptyMetadataRules,
