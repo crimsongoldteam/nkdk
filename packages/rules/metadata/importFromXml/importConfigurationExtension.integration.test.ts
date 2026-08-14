@@ -4,6 +4,7 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import {
+  exportToYAML,
   parseWithJsYaml,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
@@ -113,11 +114,13 @@ describe("configuration extension XML import", () => {
       Имя: "РасширениеКонтроль",
       НазначениеРасширенияКонфигурации: "Адаптация",
       РежимСовместимостиРасширенияКонфигурации: "Версия8_3_20",
-      ОбъектРасширяемойКонфигурации: "Ложь",
+      ОбъектРасширяемойКонфигурации: {},
       ОсновнойРежимЗапуска: "УправляемоеПриложение",
       ОсновнойЯзык: "БазовыйЯзык",
     })
     expect(yamlScalarTagAt(configuration, "ОсновнойРежимЗапуска")).toBe("проверять")
+    expect(exportToYAML(configuration)).toContain("ОбъектРасширяемойКонфигурации:")
+    expect(exportToYAML(configuration)).not.toContain("Ложь")
     expect(configuration).not.toHaveProperty("Синоним")
 
     expect(catalog).toEqual({
@@ -135,6 +138,8 @@ describe("configuration extension XML import", () => {
       },
     })
     const borrowedAttribute = ((catalog as Record<string, unknown>).Реквизиты as Record<string, Record<string, unknown>>).РеквизитСправочника
+    expect(borrowedAttribute).not.toHaveProperty("Комментарий")
+    expect(borrowedAttribute.Синоним).toBe("")
     expect(yamlScalarTagAt(borrowedAttribute, "ОбъектРасширяемойКонфигурации")).toBe("проверять")
     expect(yamlScalarTagAt(borrowedAttribute, "Формат")).toBe("проверять")
 

@@ -88,10 +88,11 @@ describe("importMetadataItemFromXMLToYAML", () => {
     const attributeRule = {
       itemType: "Task4NestedAttribute",
       properties: {
+        uuid: { type: "UUID", xml: "_uuid", forReferenceOnly: true },
         name: { type: "string", xml: "Name", yaml: "Имя", xmlParents: ["Properties"] },
         type: { type: "string", xml: "Type", yaml: "Тип", xmlParents: ["Properties"] },
         format: { type: "string", xml: "Format", yaml: "Формат", xmlParents: ["Properties"] },
-        extendedConfigurationObject: { type: "string", runtimeOnly: true },
+        extendedConfigurationObject: { type: "string", runtimeOnly: true, xmlParents: ["Properties"] },
       },
     } as MetadataItemRule
     registerMetadataItemCollectionRule({
@@ -116,9 +117,11 @@ describe("importMetadataItemFromXMLToYAML", () => {
       ChildObjects: {
         Attribute: {
           Properties: {
+            ObjectBelonging: "Adopted",
             Name: "РеквизитСправочника",
             Type: "Дата",
             Format: "ffff",
+            ExtendedConfigurationObject: "11111111-1111-4111-8111-111111111111",
           },
           InternalInfo: {
             "xr:PropertyState": [

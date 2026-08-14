@@ -122,15 +122,19 @@ function plainEmptySchema(
 }
 
 function ownPropertySchema(source: TSchema, rule: PropertyRule): TSchema {
-  if (rule.preserveExplicitDefaultXML === true) return source
-  const implicit = getImplicitValueYAML(rule) ?? (
+  const implicit = getOwnPropertyImplicitValueYAML(rule)
+  return implicit === undefined
+    ? source
+    : Type.Intersect([source, notSchema(Type.Literal(implicit))])
+}
+
+export function getOwnPropertyImplicitValueYAML(rule: PropertyRule): string | number | undefined {
+  if (rule.preserveExplicitDefaultXML === true) return undefined
+  return getImplicitValueYAML(rule) ?? (
     (rule.type === "string" || rule.type === "I8nText") && rule.defaultValueXMLRaw === ""
       ? ""
       : undefined
   )
-  return implicit === undefined
-    ? source
-    : Type.Intersect([source, notSchema(Type.Literal(implicit))])
 }
 
 function notSchema(source: TSchema): TSchema {

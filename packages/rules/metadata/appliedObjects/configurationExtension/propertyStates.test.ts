@@ -92,14 +92,23 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml).toEqual({})
   })
 
-  it("не переносит пустое собственное свойство заимствованного объекта", () => {
+  it.each([
+    ["заимствованного", { ObjectBelonging: "Adopted", Comment: undefined }],
+    ["собственного", { Comment: undefined }],
+  ] as const)("не переносит пустое собственное свойство %s объекта", (_kind, properties) => {
     const rule = {
       itemType: "OwnPropertyOfBorrowedItem",
       properties: {
-        comment: { type: "string", yaml: "Комментарий", xml: "Comment", xmlParents: ["Properties"] },
+        comment: {
+          type: "string",
+          yaml: "Комментарий",
+          xml: "Comment",
+          xmlParents: ["Properties"],
+          defaultValueXMLRaw: "",
+        },
       },
     } as MetadataItemRule
-    const yaml: Record<string, unknown> = {}
+    const yaml: Record<string, unknown> = { Комментарий: "" }
 
     withOperationRegistrySet({
       propertyStates: createPropertyStateCapabilityRegistry([
@@ -110,7 +119,7 @@ describe("configuration extension PropertyState augmenter", () => {
     }, () => configurationExtensionPropertyStatesAugmenter.augment({
       context: extensionContext(),
       rule,
-      source: { Properties: { ObjectBelonging: "Adopted", Comment: undefined } },
+      source: { Properties: properties },
       yaml,
     }))
 

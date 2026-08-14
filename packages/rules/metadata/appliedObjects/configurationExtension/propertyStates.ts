@@ -6,6 +6,7 @@ import { currentOperationRegistrySet } from "../../operations/operationExecution
 import type { PropertyStateCapabilityRegistry, ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
 import { writePropertyStateSection } from "../../ruleRuntime/property/propertyStateSections"
+import { getOwnPropertyImplicitValueYAML } from "../../ruleRuntime/property/propertyStateSchema"
 import {
   EXTENDED_CONFIGURATION_OBJECT_YAML,
   writeExtendedConfigurationObjectYAML,
@@ -99,12 +100,19 @@ function importPresentProperties(params: {
   readonly yaml: Record<string, unknown>
   readonly compatibilityMode?: string
 }): void {
-  if (extensionServiceProperties(params.source, params.rule)?.objectBelonging !== "Adopted") return
+  const borrowed = extensionServiceProperties(params.source, params.rule)?.objectBelonging === "Adopted"
   const item = propertyStateRegistry()?.item(params.rule.itemType, params.compatibilityMode)
   for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
-    if (capability.availability !== "borrowed") continue
     const propertyRule = params.rule.properties[propertyKey]
     if (propertyRule === undefined || typeof propertyRule.yaml !== "string") continue
+    if (capability.availability === "own") {
+      const implicit = getOwnPropertyImplicitValueYAML(propertyRule)
+      if (implicit !== undefined && params.yaml[propertyRule.yaml] === implicit) {
+        delete params.yaml[propertyRule.yaml]
+      }
+      continue
+    }
+    if (!borrowed) continue
     const xmlProperty = propertyRule.xml ?? capitalize(propertyKey)
     const owner = asRecord(valueAtImportXmlPath(params.source, params.rule, propertyRule.xmlParents ?? []))
     if (owner === undefined || !Object.prototype.hasOwnProperty.call(owner, xmlProperty)) continue
