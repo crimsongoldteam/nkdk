@@ -4,7 +4,7 @@ import type { DataPathPropertyRule, MetadataItemRule, PropertyRule } from "@nkdk
 import type { TableContext } from "./resolver"
 import type { FormDataPathOccurrence } from "./formTraversal"
 import type { YamlPath } from "../yamlLocations"
-import { markYAMLScalarTag, xmlAnomalyTagPayload, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { isTransportedBrokenPropertyScalar } from "../transportedBrokenReference"
 
 export interface FormYAMLItemVisit {
@@ -98,9 +98,7 @@ function collectItem(params: {
         rule: propertyRule,
         value,
         setValue: (nextValue) => {
-          record[propertyRule.yaml as string] = tagged
-            ? xmlAnomalyTagValue("xml/value", nextValue)
-            : nextValue
+          record[propertyRule.yaml as string] = nextValue
         },
         markTag: (tag) => {
           markYAMLScalarTag(record, propertyRule.yaml as string, tag)
