@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
 import { describe, expect, it } from "vitest"
-import { openScenarioWorkspace } from "./workspace"
+import { openScenarioWorkspace, writeScenarioState } from "./workspace"
 import {
   createCheckpointDependencies,
   publishCheckpoint,
@@ -39,6 +39,24 @@ describe("partial sync checkpoints", () => {
     ).rejects.toThrow("planned copy failure")
 
     await expect(readFile(fixture.workspace.statePath, "utf8")).resolves.toBe(before)
+  })
+
+  it("completes state publication from an existing verified checkpoint", async () => {
+    const fixture = await checkpointFixture()
+    await writeFile(join(fixture.workspace.baseDir, "1Cv8.1CD"), "saved base")
+    await writeFile(join(fixture.workspace.projectDir, "cf.yaml"), "saved project")
+    await publishCheckpoint(fixture.workspace, "01-baseline")
+    await writeScenarioState(fixture.workspace, {
+      version: 1,
+      scenario: "partial-sync-catalog-attribute",
+      completedStage: null,
+      checkpoint: null,
+    })
+
+    await expect(publishCheckpoint(fixture.workspace, "01-baseline")).resolves.toMatchObject({
+      completedStage: "01-baseline",
+      checkpoint: "checkpoints/01-baseline",
+    })
   })
 
   it("restores both working copies from the last checkpoint", async () => {

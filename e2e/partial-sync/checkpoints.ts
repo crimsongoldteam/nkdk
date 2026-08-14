@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto"
 import {
+  lstat,
   mkdir,
   readFile,
   readdir,
@@ -36,8 +37,14 @@ export async function publishCheckpoint(
   stage: StageId,
   dependencies: CheckpointDependencies = createCheckpointDependencies()
 ): Promise<ScenarioState> {
-  const temporaryDir = join(workspace.checkpointsDir, `.${stage}-${dependencies.operationId()}.tmp`)
   const checkpointDir = join(workspace.checkpointsDir, stage)
+  if (await pathExists(checkpointDir)) {
+    await verifyCheckpoint(checkpointDir, stage)
+    const state = checkpointState(stage)
+    await writeScenarioState(workspace, state)
+    return state
+  }
+  const temporaryDir = join(workspace.checkpointsDir, `.${stage}-${dependencies.operationId()}.tmp`)
   await mkdir(temporaryDir)
   try {
     await dependencies.copyDirectory(workspace.baseDir, join(temporaryDir, "base"))
@@ -46,12 +53,7 @@ export async function publishCheckpoint(
     await writeFile(join(temporaryDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`)
     await verifyCheckpoint(temporaryDir, stage)
     await rename(temporaryDir, checkpointDir)
-    const state: ScenarioState = {
-      version: 1,
-      scenario: "partial-sync-catalog-attribute",
-      completedStage: stage,
-      checkpoint: `checkpoints/${stage}`,
-    }
+    const state = checkpointState(stage)
     await writeScenarioState(workspace, state)
     return state
   } catch (caught) {
@@ -126,6 +128,10 @@ async function buildManifest(checkpointDir: string, stage: StageId): Promise<Che
 }
 
 async function verifyCheckpoint(checkpointDir: string, stage: StageId): Promise<void> {
+  const checkpointStats = await lstat(checkpointDir)
+  if (!checkpointStats.isDirectory() || checkpointStats.isSymbolicLink()) {
+    throw new Error(`Контрольная точка не является обычным каталогом: ${checkpointDir}`)
+  }
   const manifestPath = join(checkpointDir, "manifest.json")
   const parsed: unknown = JSON.parse(await readFile(manifestPath, "utf8"))
   if (!isManifest(parsed, stage)) throw new Error(`Повреждён manifest: ${manifestPath}`)
@@ -170,4 +176,23 @@ function isManifest(value: unknown, stage: StageId): value is CheckpointManifest
 
 function sha256(contents: Buffer): string {
   return createHash("sha256").update(contents).digest("hex")
+}
+
+function checkpointState(stage: StageId): ScenarioState {
+  return {
+    version: 1,
+    scenario: "partial-sync-catalog-attribute",
+    completedStage: stage,
+    checkpoint: `checkpoints/${stage}`,
+  }
+}
+
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await lstat(path)
+    return true
+  } catch (caught) {
+    if (caught instanceof Error && "code" in caught && caught.code === "ENOENT") return false
+    throw caught
+  }
 }
