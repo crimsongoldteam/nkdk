@@ -327,7 +327,7 @@ const recalculation = addInlineChild({
   body: "Синоним: \"\"",
   exposeAsOwner: true,
   extraChanges: [{
-    path: `РегистрРасчета/${matrixObjectNames.calculationRegister}/Перерасчеты/${recalculationName}/Recalculation.xml`,
+    path: `РегистрРасчета/${matrixObjectNames.calculationRegister}/Перерасчеты/${recalculationName}/Свойства.xml`,
     before: null,
     after: recalculationXml(recalculationName),
   }],

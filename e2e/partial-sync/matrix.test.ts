@@ -224,6 +224,16 @@ describe("partial sync matrix", () => {
     expect(source.indexOf("Измерения:")).toBeLessThan(source.indexOf("ИмяВИсточникеДанных:"))
   })
 
+  it("uses the canonical recalculation XML project path", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const operation = plan.find(({ key }) => key === "child:calculation-register:recalculations")
+
+    expect(operation?.changes.map(({ path }) => path)).toContain(
+      "РегистрРасчета/ЯПроверкаЧастичнойСинхронизацииРегистрРасчета/Перерасчеты/ПроверочныйПерерасчет/Свойства.xml",
+    )
+    expect(operation?.changes.some(({ path }) => path.endsWith("/Recalculation.xml"))).toBe(false)
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",
