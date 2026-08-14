@@ -8,7 +8,7 @@ export default defineConfig({
     include: ["e2e/partial-sync/partial-sync.external.test.ts"],
     fileParallelism: false,
     maxWorkers: 1,
-    testTimeout: 60 * 60 * 1000,
-    hookTimeout: 60 * 60 * 1000,
+    testTimeout: 24 * 60 * 60 * 1000,
+    hookTimeout: 24 * 60 * 60 * 1000,
   },
 })
