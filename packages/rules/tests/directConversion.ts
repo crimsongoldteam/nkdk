@@ -91,6 +91,22 @@ export function createDirectRoundTripContexts(
   }
 }
 
+export function createDirectAdoptedExportContext(
+  logicalAddress: string,
+): ConfigurationContextWithExportToXML {
+  const contexts = createDirectRoundTripContexts({ logicalAddress })
+  const context = contexts.exportContext()
+  return {
+    ...context,
+    exportToXML: {
+      ...context.exportToXML,
+      componentKind: "configurationExtension",
+      adoptedUuids: { [logicalAddress]: "11111111-1111-4111-8111-111111111111" },
+      xmlDefaultVariantByLogicalAddress: { [logicalAddress]: "adopted" },
+    },
+  }
+}
+
 export function testPropertyFromXMLToYAML(params: {
   rule: MetadataItemRule
   xml: Record<string, unknown>

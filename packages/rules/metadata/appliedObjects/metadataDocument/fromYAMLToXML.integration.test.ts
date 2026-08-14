@@ -4,7 +4,10 @@ import { fullYAML } from "./__fixtures__/full"
 import { minimalYAML } from "./__fixtures__/minimal"
 import { withNumeratorYAML } from "./__fixtures__/withNumerator"
 import { describe, expect, it } from "vitest"
-import { testMetadataItemFromYAMLToXML } from "../../../tests/directConversion"
+import {
+  createDirectAdoptedExportContext,
+  testMetadataItemFromYAMLToXML,
+} from "../../../tests/directConversion"
 
 const cases = [
   { fixture: "full.xml", yaml: fullYAML },
@@ -21,6 +24,21 @@ describeAppliedObjectYAMLToXMLFixtures({
 })
 
 describe("MetadataDocument YAML restrictions", () => {
+  it("restores an empty own movements collection for an adopted document", () => {
+    const logicalAddress = "Document.ДокументБезДвижений"
+    const result = testMetadataItemFromYAMLToXML({
+      rule: MetadataDocumentRules,
+      name: "ДокументБезДвижений",
+      yaml: {},
+      context: createDirectAdoptedExportContext(logicalAddress),
+    })
+
+    expect(result.xml).toHaveProperty(
+      "MetaDataObject.Document.Properties.RegisterRecords",
+      {},
+    )
+  })
+
   it("restores scalar configurator defaults without reference XML", () => {
     const result = testMetadataItemFromYAMLToXML({
       rule: MetadataDocumentRules,

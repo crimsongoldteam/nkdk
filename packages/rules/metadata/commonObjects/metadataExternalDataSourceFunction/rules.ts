@@ -52,6 +52,7 @@ export const MetadataExternalDataSourceFunctionRules = {
       xml: "Type",
       required: true,
       xmlParents: propertiesParents,
+      defaultValueAdoptedXML: { type: [] },
     }),
     expressionInDataSource: stringRule({
       yaml: "ВыражениеВИсточникеДанных",

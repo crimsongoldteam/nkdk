@@ -447,6 +447,7 @@ export const MetadataDocumentRules = {
       },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
+      defaultValueAdoptedXML: [],
     }),
     registerRecordsDeletion: systemEnumerationRule({
       yaml: "УдалениеДвижений",
