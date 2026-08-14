@@ -123,6 +123,19 @@ describe("partial sync matrix", () => {
     }
   })
 
+  it("places command sections in canonical top-level key order", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    for (const operation of plan.filter(({ key }) => key.endsWith(":commands"))) {
+      const properties = operation.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+      if (typeof properties !== "string") continue
+      const keys = properties.split("\n")
+        .filter((line) => /^\S[^:]*:/u.test(line))
+        .map((line) => line.slice(0, line.indexOf(":")))
+
+      expect(keys, operation.key).toEqual([...keys].sort((left, right) => left.localeCompare(right, "ru")))
+    }
+  })
+
   it("emits task addressing attributes before tabular sections with a string fill value", () => {
     const plan = buildScenarioPlan(partialSyncMatrix)
     const operation = plan.find(({ key }) => key === "child:task:addressingAttributes")

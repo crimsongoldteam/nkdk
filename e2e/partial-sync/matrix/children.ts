@@ -26,6 +26,7 @@ type InlineChildSpec = {
   readonly section: string
   readonly name: string
   readonly body?: string
+  readonly insertionAnchor?: string
   readonly dependsOn?: readonly string[]
   readonly extraChanges?: readonly ScenarioFileChange[]
   readonly exposeAsOwner?: boolean
@@ -385,7 +386,7 @@ function addInlineChild(spec: InlineChildSpec): ChildDeclaration {
   const owner = requireOwnerState(spec.ownerKey)
   const key = childKey(spec.ownerKey, spec.propertyKey)
   const before = owner.document.content
-  const after = appendYamlItem(owner, spec.section, spec.name, spec.body)
+  const after = appendYamlItem(owner, spec.section, spec.name, spec.body, spec.insertionAnchor)
   owner.document.content = after
   const declaration: ChildDeclaration = {
     key,
@@ -455,6 +456,7 @@ function addCommand(ownerKey: string): void {
     section: "Команды",
     name: "ПроверочнаяКоманда",
     body: "Синоним: \"\"\nГруппа: ПанельДействийСоздать",
+    insertionAnchor: findCanonicalKeyAnchor(owner, "Команды"),
     extraChanges: [{
       path: `${ownerDirectory}/Команды/ПроверочнаяКоманда.bsl`,
       before: null,
@@ -484,7 +486,13 @@ function requireOwnerState(ownerKey: string): OwnerState {
   return owner
 }
 
-function appendYamlItem(owner: OwnerState, section: string, name: string, body = ""): string {
+function appendYamlItem(
+  owner: OwnerState,
+  section: string,
+  name: string,
+  body = "",
+  explicitInsertionAnchor?: string,
+): string {
   const indentation = " ".repeat(owner.indent)
   const sectionMarker = `${indentation}${section}:\n`
   const source = owner.document.content === "" || owner.document.content.endsWith("\n")
@@ -493,7 +501,16 @@ function appendYamlItem(owner: OwnerState, section: string, name: string, body =
   const scope = owner.scope === undefined
     ? { prefix: "", content: source, suffix: "" }
     : findOwnerScope(source, owner.scope)
-  const changedContent = appendYamlItemToSource(scope.content, owner, sectionMarker, indentation, section, name, body)
+  const changedContent = appendYamlItemToSource(
+    scope.content,
+    owner,
+    sectionMarker,
+    indentation,
+    section,
+    name,
+    body,
+    explicitInsertionAnchor,
+  )
   return `${scope.prefix}${changedContent}${scope.suffix}`
 }
 
@@ -505,8 +522,9 @@ function appendYamlItemToSource(
   section: string,
   name: string,
   body: string,
+  explicitInsertionAnchor?: string,
 ): string {
-  const insertionAnchor = owner.insertionAnchors?.[section]
+  const insertionAnchor = explicitInsertionAnchor ?? owner.insertionAnchors?.[section]
   const anchorMarker = insertionAnchor === undefined
     ? undefined
     : `${indentation}${insertionAnchor}:`
@@ -519,6 +537,20 @@ function appendYamlItemToSource(
   const bodyIndentation = `${indentation}    `
   const indentedBody = body.split("\n").map((line) => `${bodyIndentation}${line}`).join("\n")
   return `${prefix}${sectionPrefix}${itemIndentation}${name}:\n${indentedBody}\n${suffix}`
+}
+
+function findCanonicalKeyAnchor(owner: OwnerState, section: string): string | undefined {
+  const source = owner.document.content === "" || owner.document.content.endsWith("\n")
+    ? owner.document.content
+    : `${owner.document.content}\n`
+  const content = owner.scope === undefined ? source : findOwnerScope(source, owner.scope).content
+  const indentation = " ".repeat(owner.indent)
+  const keys = content.split("\n").flatMap((line) => {
+    if (!line.startsWith(indentation) || line[indentation.length] === " ") return []
+    const separator = line.indexOf(":", indentation.length)
+    return separator < 0 ? [] : [line.slice(indentation.length, separator)]
+  })
+  return keys.find((key) => key.localeCompare(section, "ru") > 0)
 }
 
 function findOwnerScope(
