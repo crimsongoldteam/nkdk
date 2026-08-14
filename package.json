@@ -34,6 +34,7 @@
     "test:e2e": "vitest run --config e2e/vitest.config.ts"
   },
   "devDependencies": {
+    "@nkdk/platform": "workspace:*",
     "@nkdk/runtime": "workspace:*",
     "@types/node": "^26.1.2",
     "jscpd": "5.0.12",

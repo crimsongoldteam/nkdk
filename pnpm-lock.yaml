@@ -16,6 +16,9 @@ importers:
 
   .:
     devDependencies:
+      '@nkdk/platform':
+        specifier: workspace:*
+        version: link:packages/platform
       '@nkdk/runtime':
         specifier: workspace:*
         version: link:packages/runtime
