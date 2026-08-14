@@ -432,8 +432,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     ]))
     const input = (imported.yaml as ClientApplicationFormYAML).Элементы?.ПолеВвода1 as Record<string, unknown>
     const menu = input.КонтекстноеМеню as Record<string, unknown>
-    expect(menu.Имя).toBe("!xml НестандартноеКонтекстноеМеню")
-    expect(yamlScalarTagAt(menu, "Имя")).toBe("xml")
+    expect(menu.Имя).toBe("!xml/name НестандартноеКонтекстноеМеню")
+    expect(yamlScalarTagAt(menu, "Имя")).toBe("xml/name")
     expect(identities).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.НестандартноеКонтекстноеМеню` }),
