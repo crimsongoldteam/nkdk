@@ -215,7 +215,7 @@ expect(classify(catalogMember("Владелец"), { type: "boolean", value: fal
 - [ ] **Step 2: Run classification tests and verify RED**
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/commonObjects/fillValue/classify.test.ts metadata/commonObjects/fillValue/standardMember.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/commonObjects/fillValue/classify.test.ts metadata/commonObjects/fillValue/standardMember.test.ts
 ```
 
 Expected: `false` всё ещё классифицируется как `implicit`.
@@ -247,7 +247,8 @@ if (alternative.kind === "boolean") return false
 Проверить `yamlScalarTagAt`: у первых двух значений тега нет, у запретного стандартного реквизита тег равен `xml`. Запустить:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/commonObjects/fillValue/classify.test.ts metadata/commonObjects/fillValue/standardMember.test.ts metadata/importFromXml/fillValueImport.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/commonObjects/fillValue/classify.test.ts metadata/commonObjects/fillValue/standardMember.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/importFromXml/fillValueImport.test.ts
 ```
 
 Expected: PASS.
