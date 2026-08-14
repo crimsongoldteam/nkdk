@@ -140,9 +140,11 @@ for (const ownerKey of [
 ] as const) {
   const predefinedBody = ownerKey === "object:catalog"
     ? "Наименование: Проверочный элемент"
-    : ownerKey === "object:chart-of-calculation-types"
-      ? "Код: 1\nНаименование: Проверочный элемент"
-      : "Код: \"1\"\nНаименование: Проверочный элемент"
+    : ownerKey === "object:chart-of-accounts"
+      ? "Забалансовый: Ложь\nКод: \"1\"\nНаименование: Проверочный элемент\nПорядок: \"\""
+      : ownerKey === "object:chart-of-calculation-types"
+        ? "Код: 1\nНаименование: Проверочный элемент\nПериодДействияБазовый: Ложь"
+        : "Код: \"1\"\nНаименование: Проверочный элемент"
 
   addInlineChild({
     ownerKey,

@@ -137,6 +137,13 @@ describe("partial sync matrix", () => {
       expect(source.indexOf("Предопределенные:"), owner).toBeLessThan(source.indexOf("Реквизиты:"))
       expect(source.indexOf("Предопределенные:"), owner).toBeLessThan(source.indexOf("ТабличныеЧасти:"))
       if (owner !== "catalog") expect(source, owner).toMatch(/    Код: (?:1|"1")/u)
+      if (owner === "chart-of-accounts") {
+        expect(source, owner).toContain("    Забалансовый: Ложь")
+        expect(source, owner).toContain("    Порядок: \"\"")
+      }
+      if (owner === "chart-of-calculation-types") {
+        expect(source, owner).toContain("    ПериодДействияБазовый: Ложь")
+      }
     }
   })
 
