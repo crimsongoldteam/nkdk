@@ -30,9 +30,13 @@
 - Modify: `.agents/skills/validation-profile/SKILL.md`
 - Modify: `.agents/skills/validation-profile/validation-profile.mjs`
 - Modify: `.agents/skills/validation-profile/validation-profile.test.mjs`
+- Create: `packages/rules/metadata/composition/validationProfile.ts`
+- Modify: `packages/rules/scripts/build.mjs`
+- Modify: `packages/rules/package.json`
+- Modify: `pnpm-lock.yaml`
 
 **Interfaces:**
-- Consumes: production build `packages/rules/dist/index.js` и `packages/rules/dist/worker.js` пакета `@nkdk/rules`.
+- Consumes: отдельную composition-точку production build `packages/rules/dist/validationProfile.js` и `packages/rules/dist/worker.js` пакета `@nkdk/rules`; корневой экспорт пакета не расширяется.
 - Produces: неизменённый CLI `node .agents/skills/validation-profile/validation-profile.mjs <yaml-dir> ...`, работающий после переименования `packages/core` в `packages/rules`.
 
 - [ ] **Step 1: Добавить падающий контракт текущего пути production build**
@@ -41,7 +45,7 @@
 
 ```js
 test("compiled runtime загружается из packages/rules", () => {
-  assert.equal(compiledRuntimePaths(repoRoot).index, resolve(repoRoot, "packages/rules/dist/index.js"))
+  assert.equal(compiledRuntimePaths(repoRoot).profile, resolve(repoRoot, "packages/rules/dist/validationProfile.js"))
   assert.equal(compiledRuntimePaths(repoRoot).worker, resolve(repoRoot, "packages/rules/dist/worker.js"))
 })
 ```
@@ -50,7 +54,7 @@ test("compiled runtime загружается из packages/rules", () => {
 
 Run: `node --test .agents/skills/validation-profile/validation-profile.test.mjs`
 
-Expected: FAIL, потому что runner всё ещё использует `packages/core` и не экспортирует `compiledRuntimePaths`.
+Expected: FAIL, потому что отдельная compiled-точка профильного runtime ещё не существует.
 
 - [ ] **Step 3: Перевести runner и документацию на текущий пакет**
 
@@ -59,13 +63,13 @@ Expected: FAIL, потому что runner всё ещё использует `p
 ```js
 export function compiledRuntimePaths(root) {
   return {
-    index: resolve(root, "packages/rules/dist/index.js"),
+    profile: resolve(root, "packages/rules/dist/validationProfile.js"),
     worker: resolve(root, "packages/rules/dist/worker.js"),
   }
 }
 ```
 
-Заменить команды и сообщения на `pnpm --filter @nkdk/rules build`, не меняя формат результата профиля.
+Добавить `validationProfile.ts`, который собирает `metadataRules`, четыре compiled worker URL и экспортирует фабрику runtime вместе с `createValidationProfileResult`. Низкоуровневую профильную актуализацию выполнять в экземплярном rule-контексте, который обычная валидация получает через runtime API. Добавить эту точку в production build, external `lmdb` и прямую зависимость пакета. Заменить команды и сообщения runner на `pnpm --filter @nkdk/rules build`, не меняя формат результата профиля.
 
 - [ ] **Step 4: Проверить инструмент**
 

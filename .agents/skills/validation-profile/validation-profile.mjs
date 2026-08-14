@@ -78,20 +78,26 @@ function parseArgs(argv) {
   return options
 }
 
-async function loadCompiledCore() {
-  const distIndex = resolve(repoRoot, "packages/core/dist/index.js")
-  const worker = resolve(repoRoot, "packages/core/dist/worker.js")
+export function compiledRuntimePaths(root) {
+  return {
+    profile: resolve(root, "packages/rules/dist/validationProfile.js"),
+    worker: resolve(root, "packages/rules/dist/worker.js"),
+  }
+}
 
-  if (!existsSync(distIndex) || !existsSync(worker)) {
+async function loadCompiledCore() {
+  const { profile, worker } = compiledRuntimePaths(repoRoot)
+
+  if (!existsSync(profile) || !existsSync(worker)) {
     fail(
       [
         "compiled validation files are missing.",
-        "Перед запуском выполни: pnpm --filter @nkdk/core build",
+        "Перед запуском выполни: pnpm --filter @nkdk/rules build",
       ].join(" ")
     )
   }
 
-  return import(pathToFileURL(distIndex).href)
+  return import(pathToFileURL(profile).href)
 }
 
 function memorySnapshot() {
@@ -120,7 +126,8 @@ function average(values) {
 
 async function runProfile(options) {
   const core = await loadCompiledCore()
-  const service = core.createProjectStateService()
+  const runtime = core.createValidationProfileRuntime()
+  const service = runtime.projects.createState()
   const runs = []
   const workerPoolSize = options.concurrency ?? Math.max(1, Math.min(4, availableParallelism() - 1))
   let peakRssBytes = process.memoryUsage().rss
@@ -133,7 +140,7 @@ async function runProfile(options) {
       const started = performance.now()
       let saveBinaryCompleted = false
       const phaseAccumulator = createPhaseAccumulator()
-      const validation = await service.refreshAndValidate({
+      const validation = await runtime.refreshAndValidate(service, {
         projectDir: options.projectDir,
         concurrency: options.concurrency,
         profile: {
@@ -182,7 +189,7 @@ async function runProfile(options) {
     }
   } finally {
     clearInterval(timer)
-    await service.close()
+    await runtime.close()
   }
 
   const warm = runs.slice(1).map((run) => run.elapsedMs)
@@ -233,16 +240,17 @@ export function createPhaseAccumulator() {
 
 function runTimingPass(options) {
   const script = [
-    "import { createProjectStateService, createValidationProfileResult } from './packages/core/dist/index.js';",
+    "import { createValidationProfileRuntime, createValidationProfileResult } from './packages/rules/dist/validationProfile.js';",
     `const projectDir = ${JSON.stringify(options.projectDir)};`,
-    "const service = createProjectStateService();",
+    "const runtime = createValidationProfileRuntime();",
+    "const service = runtime.projects.createState();",
     `const concurrency = ${JSON.stringify(options.concurrency)};`,
     "try {",
     "  const startedAt = performance.now();",
-    "  const validation = await service.refreshAndValidate({ projectDir, concurrency, profile: true });",
+    "  const validation = await runtime.refreshAndValidate(service, { projectDir, concurrency, profile: true });",
     "  const profile = createValidationProfileResult({ diagnostics: validation.diagnostics, stats: validation.stats, ...validation.profile });",
     "  console.log(JSON.stringify({ elapsedMs: performance.now() - startedAt, diagnostics: validation.diagnostics.length, stats: validation.stats, profile }));",
-    "} finally { await service.close(); }",
+    "} finally { await runtime.close(); }",
   ].join("\n")
 
   const spawned = spawnSync(process.execPath, ["--input-type=module", "-e", script], {
@@ -270,7 +278,7 @@ function runTimingPass(options) {
 
   const stepLines = spawned.stderr.split(/\r?\n/).filter((line) => line.startsWith("[nkdk-profile-step] "))
   if (stepLines.length === 0) {
-    throw new Error("timing pass did not emit [nkdk-profile-step] records. Rebuild @nkdk/core before profiling.")
+    throw new Error("timing pass did not emit [nkdk-profile-step] records. Rebuild @nkdk/rules before profiling.")
   }
   return {
     steps: stepLines.map(parseValidationStepLine),
