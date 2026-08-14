@@ -42,7 +42,10 @@ export const matrixChildInsertionAnchors: Readonly<Record<string, Readonly<Recor
   },
   "object:information-register": registerFieldInsertionAnchors(),
   "object:accumulation-register": registerFieldInsertionAnchors(),
-  "object:accounting-register": registerFieldInsertionAnchors(),
+  "object:accounting-register": {
+    ...registerFieldInsertionAnchors(),
+    Команды: "Реквизиты",
+  },
   "object:calculation-register": {
     Измерения: "ПланВидовРасчета",
     Перерасчеты: "ПланВидовРасчета",
