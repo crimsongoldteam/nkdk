@@ -128,6 +128,7 @@ export const childFormNamesPropertyRules = defineMetadataRules({
           kind: "ignore",
           side: "project",
           pattern: `${folderName}/{itemName}/ДинамическийСписок/{queryName}.query`,
+          syncState: true,
           source,
         },
         {

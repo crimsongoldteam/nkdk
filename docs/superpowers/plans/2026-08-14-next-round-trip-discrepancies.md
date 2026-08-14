@@ -512,7 +512,12 @@ git commit -m "fix: :bug: сохранить Nil у обычных полей"
 ### Task 4: Закрепить владение `.query` за Form.xml
 
 **Files:**
+- Modify: `packages/runtime/metadata/resourceTopology/core/types.ts`
+- Modify: `packages/runtime/metadata/resourceTopology/core/projectProjection.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/childFormNamesPropertyRules.ts`
+- Modify: `packages/rules/metadata/project/syncStateFiles.ts`
+- Modify: `packages/rules/metadata/project/syncStateFiles.test.ts`
+- Modify: `packages/rules/metadata/appliedObjects/configuration/syncState.test.ts`
 - Modify: `packages/rules/metadata/fullSyncToXml/discovery.test.ts`
 - Modify: `packages/rules/metadata/fullSyncToXml/writeAssignment.integration.test.ts`
 
@@ -573,11 +578,14 @@ Expected: discovery FAIL, потому что включает `.query` чере
   kind: "ignore",
   side: "project",
   pattern: `${folderName}/{itemName}/ДинамическийСписок/{queryName}.query`,
+  syncState: true,
   source,
 },
 ```
 
 Не добавлять проверок расширения в `fullSyncToXml`, не менять `DynamicListRules.properties.queryText` и не удалять fallback.
+`syncState: true` означает, что проигнорированный для самостоятельного переноса
+файл остаётся значимым входом sync и участвует в хэшах проекта.
 
 - [ ] **Step 5: Подтвердить GREEN слоя**
 
@@ -591,6 +599,8 @@ pnpm duplicates -- --base ec88eacbc
 ```
 
 Expected: `.query` отсутствует в `externalFiles`, неизвестный `.bin` сохраняется fallback, QueryText встроен в Form.xml.
+Существующие проверки sync-state продолжают включать `.query` в список
+отслеживаемых файлов.
 
 - [ ] **Step 6: Закоммитить слой**
 

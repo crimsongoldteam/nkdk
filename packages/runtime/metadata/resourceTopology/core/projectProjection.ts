@@ -287,6 +287,7 @@ export async function discoverMetadataProjectResources(params: {
   readonly topology: CompiledMetadataResourceTopology
   readonly projectDir: string
   readonly include?: "all" | "content"
+  readonly includeSyncStateIgnored?: true
   readonly sort?: boolean
 }): Promise<readonly MetadataProjectResourceMatch[]> {
   const matches: MetadataProjectResourceMatch[] = []
@@ -300,10 +301,15 @@ export async function* iterateMetadataProjectResources(params: {
   readonly topology: CompiledMetadataResourceTopology
   readonly projectDir: string
   readonly include?: "all" | "content"
+  readonly includeSyncStateIgnored?: true
 }): AsyncGenerator<MetadataProjectResourceMatch> {
   for await (const candidate of iterateMetadataProjectPathCandidates(params)) {
     const match = candidate.classify()
-    if (match === undefined || match.kind === "ignore") continue
+    if (match === undefined) continue
+    if (match.kind === "ignore") {
+      if (params.includeSyncStateIgnored === true && match.ignoredPath?.syncState === true) yield match
+      continue
+    }
     yield match
   }
 }

@@ -148,6 +148,7 @@ export interface MetadataIgnoredPathDeclaration {
   readonly kind: "ignore"
   readonly side: "project" | "xml"
   readonly pattern: string
+  readonly syncState?: true
   readonly snapshotImport?: {
     readonly capabilityId: string
     readonly targetProjectPath: string
