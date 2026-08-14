@@ -112,13 +112,15 @@ describe("partial sync matrix", () => {
     }
   })
 
-  it("places accounting-register commands after dimensions", () => {
+  it("places ordinary register commands after dimensions", () => {
     const plan = buildScenarioPlan(partialSyncMatrix)
-    const operation = plan.find(({ key }) => key === "child:accounting-register:commands")
-    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after as string
+    for (const owner of ["accounting-register", "accumulation-register", "information-register"]) {
+      const operation = plan.find(({ key }) => key === `child:${owner}:commands`)
+      const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after as string
 
-    expect(properties.indexOf("Измерения:")).toBeLessThan(properties.indexOf("Команды:"))
-    expect(properties.indexOf("Команды:")).toBeLessThan(properties.indexOf("Реквизиты:"))
+      expect(properties.indexOf("Измерения:"), owner).toBeLessThan(properties.indexOf("Команды:"))
+      expect(properties.indexOf("Команды:"), owner).toBeLessThan(properties.indexOf("Реквизиты:"))
+    }
   })
 
   it("emits task addressing attributes before tabular sections with a string fill value", () => {
