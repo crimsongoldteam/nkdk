@@ -20,6 +20,11 @@ const objectRule = {
   metadataTargetOwner: { kind: "self", root: "Catalog" },
 } as MetadataItemRule
 const formRule = { itemType: "TestForm", properties: {} } as MetadataItemRule
+const fileItemRule = {
+  itemType: "TestTable",
+  properties: {},
+  externalMetadata: { segment: "Table", placement: "ownedEntry" },
+} as MetadataItemRule
 
 const topology = compileMetadataResourceTopology([{
   resources: [
@@ -41,6 +46,22 @@ const topology = compileMetadataResourceTopology([{
     document("", "Languages/{ownerName}.xml", "metadata", true),
     content("Объект/{ownerName}/Свойства.yaml", "properties", objectRule, "configurationComposition"),
     document("", "Objects/{ownerName}.xml", "metadata", true),
+    {
+      ...content(
+        "Объект/{ownerName}/Таблицы/{itemName}/Свойства.yaml",
+        "fileItem",
+        fileItemRule,
+        "configurationComposition",
+      ),
+      ownerProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+      logicalAddressSegment: "Таблица",
+    },
+    document(
+      "",
+      "Objects/{ownerName}/Tables/{itemName}.xml",
+      "metadata",
+      true,
+    ),
     content("Особый.yaml", "properties", objectRule, "none"),
     document("", "Objects/Товары.xml", "metadata", true),
     {
@@ -122,6 +143,8 @@ const firstModule = "Объект/Товары/Формы/Первая/Моду�
 const firstBaseForm = "Объект/Товары/Формы/Первая/БазоваяФорма.yaml"
 const secondForm = "Объект/Товары/Формы/Вторая/Форма.yaml"
 const secondModule = "Объект/Товары/Формы/Вторая/Модуль.bsl"
+const firstTable = "Объект/Товары/Таблицы/Первая/Свойства.yaml"
+const secondTable = "Объект/Товары/Таблицы/Вторая/Свойства.yaml"
 
 describe("partial XML impact planner", () => {
   it("выбирает metadata владельца при изменении его YAML", () => {
@@ -199,6 +222,35 @@ describe("partial XML impact planner", () => {
     expect(result.selection).toEqual({
       kind: "selected",
       projectPaths: [owner, firstForm, firstModule].sort(utf8),
+    })
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
+  it("при добавлении файлового дочернего объекта включает владельца и соседние объекты", () => {
+    const result = plan(
+      [root, language, owner, firstTable, secondTable],
+      changes({ added: [secondTable] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, firstTable, secondTable].sort(utf8),
+    })
+    expect(result.loadTargets).toEqual([
+      "Objects/Товары.xml",
+      "Objects/Товары/Tables/Вторая.xml",
+    ].sort(utf8))
+  })
+
+  it("при удалении файлового дочернего объекта включает владельца и оставшиеся объекты", () => {
+    const result = plan(
+      [root, language, owner, firstTable],
+      changes({ deleted: [secondTable] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, firstTable].sort(utf8),
     })
     expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
   })
