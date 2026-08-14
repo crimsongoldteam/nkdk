@@ -18,7 +18,7 @@ import {
   type PreparedWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
-import { createProjectStateFragmentWriter, openProjectStateFragment, type ProjectStateFragment } from "../projectState/binary/fragment"
+import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import {
   createProjectStateService,
   type ProjectStateImportFinalFileStateBatch,
@@ -169,7 +169,6 @@ export async function importConfigurationFromXml(
   let poolCloseAttempted = false
   let finalized = false
   let outcome: ConfigurationImportResult | undefined
-  const importFileHashes = new Map<string, bigint>()
   const temporaryCollections: Array<{ release(): void }> = []
 
   async function closePoolForCleanup(): Promise<unknown[]> {
@@ -229,8 +228,6 @@ export async function importConfigurationFromXml(
     })
     const stateSink = createImportStateSink(
       importSession,
-      importFileHashes,
-      selectedComponentPath,
       indexCandidate,
     )
     if (params.xmlImportWorkerPoolHandle !== undefined) {
@@ -333,28 +330,31 @@ export async function importConfigurationFromXml(
           ...(params.copyExternalConcurrency === undefined ? {} : { concurrency: params.copyExternalConcurrency }),
         })
     )
-    const xmlFiles = files.filter(({ sourceKind }) => sourceKind === "xml")
-    const externalProjectFiles = await profiler.measureAsync(
+    const projectFiles = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Вычисление хэшей файлов проекта",
       {},
       () =>
         deps.hashProject(
           componentDir,
-          xmlFiles.map((file) => file.targetProjectPath),
+          files.map((file) => file.targetProjectPath),
           {
             ...(params.hashConcurrency === undefined ? {} : { concurrency: params.hashConcurrency }),
           }
         )
     )
+    const externalPaths = new Set(
+      files
+        .filter(({ sourceKind }) => sourceKind === "xml")
+        .map(({ targetProjectPath }) => targetProjectPath)
+    )
+    const externalProjectFiles = projectFiles.filter(({ projectPath }) => externalPaths.has(projectPath))
     const externalFinalState = externalFileStateBatch(validationComponent, externalProjectFiles)
     if (externalFinalState.updates.length > 0) {
-      rememberImportFileHashes(importFileHashes, selectedComponentPath, externalFinalState)
       const externalWriter = createProjectStateFragmentWriter()
       externalWriter.appendImportFinal(externalFinalState)
       await importSession.writeStateFragment(externalWriter.finish())
     }
-    const projectFiles = snapshotFilesFromState(files, importFileHashes)
     indexCandidate.replaceHashes(projectFiles)
     indexCandidate.validateCandidate()
     const candidateToPublish = indexCandidate
@@ -484,8 +484,6 @@ function flattenFailures(caught: unknown): unknown[] {
 
 function createImportStateSink(
   session: ProjectStateImportSession,
-  hashes: Map<string, bigint>,
-  selectedComponentPath: string,
   candidate: ConfigurationIndexCandidateStore,
 ): XmlImportStateSink {
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
@@ -496,32 +494,13 @@ function createImportStateSink(
       }
     }
     if (batch.stateFragment !== undefined) {
-      await writeStreamedImportState(session, hashes, selectedComponentPath, batch.stateFragment)
+      await session.writeStateFragment(batch.stateFragment)
     }
   }
   return {
     writeFirstPassState: writeState,
     writeSecondPassState: writeState,
   }
-}
-
-async function writeStreamedImportState(
-  session: ProjectStateImportSession,
-  hashes: Map<string, bigint>,
-  selectedComponentPath: string,
-  fragment: ProjectStateFragment,
-): Promise<void> {
-  const view = openProjectStateFragment(fragment)
-  for (let fileId = 0; fileId < view.fileCount; fileId += 1) {
-    const file = view.fileRecord(fileId)
-    if (view.stringValue(file.componentPathId) === selectedComponentPath && file.hash !== 0n) {
-      const projectPath = view.stringValue(file.projectPathId)
-      const prefix = `${selectedComponentPath}/`
-      if (!projectPath.startsWith(prefix)) throw new Error(`Файл состояния вне компонента: ${projectPath}`)
-      hashes.set(projectPath.slice(prefix.length), file.hash)
-    }
-  }
-  await session.writeStateFragment(fragment)
 }
 
 async function collectSnapshotFragments(params: {
@@ -616,30 +595,6 @@ export function externalFileStateBatch(
   })
   const batch = createProjectStateFileUpdateBatch(entries)
   return { updates: entries.map(({ update }) => update), hashBytes: batch.hashBytes }
-}
-
-function rememberImportFileHashes(
-  hashes: Map<string, bigint>,
-  selectedComponentPath: string,
-  batch: ProjectStateImportFinalFileStateBatch,
-): void {
-  const view = new DataView(batch.hashBytes.buffer, batch.hashBytes.byteOffset, batch.hashBytes.byteLength)
-  batch.updates.forEach((update, index) => {
-    const prefix = `${selectedComponentPath}/`
-    if (!update.projectPath.startsWith(prefix)) throw new Error(`Файл состояния вне компонента: ${update.projectPath}`)
-    hashes.set(update.projectPath.slice(prefix.length), view.getBigUint64(index * 8, false))
-  })
-}
-
-function snapshotFilesFromState(
-  files: readonly ImportResultFile[],
-  hashes: ReadonlyMap<string, bigint>,
-): ConfigurationProjectFile[] {
-  return files.map(({ targetProjectPath }) => {
-    const contentHash = hashes.get(targetProjectPath)
-    if (contentHash === undefined) throw new Error(`Import не передал хэш готового файла: ${targetProjectPath}`)
-    return { projectPath: targetProjectPath, contentHash }
-  })
 }
 
 function successResult(

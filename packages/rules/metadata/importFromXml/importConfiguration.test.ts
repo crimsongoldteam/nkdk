@@ -92,7 +92,7 @@ const fragmentData: readonly ConfigurationIndexBlockFragment[] = [
 ]
 const projectFiles = resultFiles.map((file, index) => ({
   projectPath: file.targetProjectPath,
-  contentHash: BigInt(index + 1),
+  contentHash: BigInt(index + 101),
 })).sort((left, right) => Buffer.compare(Buffer.from(left.projectPath), Buffer.from(right.projectPath)))
 type PublishedCandidate = {
   readonly address: ComponentAddress
@@ -789,8 +789,8 @@ function fakeDependencies(params: {
     },
     async hashProject(_projectDir, projectPaths) {
       call("hashProject")
-      expect(projectPaths).toEqual([])
-      return []
+      expect(projectPaths).toEqual(resultFiles.map(({ targetProjectPath }) => targetProjectPath))
+      return projectFiles
     },
     async publishCandidate({ address, candidate }) {
       call("publishCandidate")
