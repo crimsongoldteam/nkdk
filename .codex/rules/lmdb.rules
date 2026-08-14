@@ -1,0 +1,17 @@
+prefix_rule(
+    pattern = ["pnpm", "test:e2e"],
+    decision = "allow",
+    justification = "E2E использует LMDB mmap и файловые блокировки",
+)
+
+prefix_rule(
+    pattern = ["pnpm", "--filter", "@nkdk/rules", "test:native"],
+    decision = "allow",
+    justification = "Нативные LMDB-тесты несовместимы с песочницей",
+)
+
+prefix_rule(
+    pattern = ["pnpm", "test"],
+    decision = "allow",
+    justification = "Полный набор включает нативные LMDB-тесты",
+)
