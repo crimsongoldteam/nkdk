@@ -28,6 +28,7 @@
 | `TableInputField`, `TableCheckBoxField`, `TablePictureField`, `TableLabelField` | `ГоризонтальноеПоложениеВШапке` | `!xml` | `<HeaderHorizontalAlign>Auto</HeaderHorizontalAlign>` |
 | `Table` с источником-коллекцией `КомпоновщикНастроекКомпоновкиДанных`, для которого вычислен профиль `none` ([проверка](../packages/rules/metadata/forms/elements/table/explicitRowFilter.test.ts)) | `ОтборСтрок` | `!xml` | явно присутствующий `<RowFilter xsi:nil="true"/>` |
 | нестандартная панель `ClientApplicationInterface` с UUID | `ПустоеОпределение` | `!xml` | `<panelDef id="<UUID панели>"/>` |
+| корневой `ClientApplicationInterface` без размещённых панелей | `ИнтерфейсКлиентскогоПриложения` | `!xml` | существующий `Ext/ClientApplicationInterface.xml` только с пятью стандартными `<panelDef>` и без `top`, `left`, `right`, `bottom` |
 | управляемая форма | `ПутьКДанным` | `!xml <исходный внутренний путь>` | `<DataPath><исходный внутренний путь></DataPath>` |
 | `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | битая ссылка типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml <UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><UUID>.<UUID></…>` |
 | `Subsystem` | битая ссылка в элементе состава подсистемы | `!xml <UUID>` | `<xr:Item xsi:type="xr:MDObjectRef"><UUID></xr:Item>` |
