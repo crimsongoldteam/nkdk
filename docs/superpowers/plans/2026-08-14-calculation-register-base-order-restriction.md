@@ -35,7 +35,7 @@
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm exec vitest run --config e2e/partial-sync/vitest.config.ts e2e/partial-sync/matrix.test.ts`
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts`
 
 Expected: FAIL, потому что корневая декларация ещё использует `ПроверкаЧастичнойСинхронизацииРегистрРасчета`.
 
@@ -45,7 +45,7 @@ Expected: FAIL, потому что корневая декларация ещё
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm exec vitest run --config e2e/partial-sync/vitest.config.ts e2e/partial-sync/matrix.test.ts`
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts`
 
 Expected: PASS.
 

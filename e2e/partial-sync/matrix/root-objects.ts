@@ -5,9 +5,9 @@ import type {
 
 const prefix = "ПроверкаЧастичнойСинхронизации"
 
-const names = {
+export const matrixObjectNames = {
   businessProcess: `${prefix}БизнесПроцесс`,
-  calculationRegister: `${prefix}РегистрРасчета`,
+  calculationRegister: `Я${prefix}РегистрРасчета`,
   catalog: `${prefix}Справочник`,
   chartOfCalculationTypes: `${prefix}ПланВидовРасчета`,
   commonModule: `${prefix}ОбщийМодуль`,
@@ -38,7 +38,7 @@ export const rootObjectDeclarations = [
     "MetadataDocumentJournal",
     "ЖурналДокументов",
     "ЖурналДокументов",
-    `РегистрируемыеДокументы:\n  - ${names.document}\n`,
+    `РегистрируемыеДокументы:\n  - ${matrixObjectNames.document}\n`,
     ["object:document"],
   ),
   directoryRoot(
@@ -74,7 +74,7 @@ export const rootObjectDeclarations = [
     "MetadataSequence",
     "Последовательность",
     "Последовательность",
-    `Документы:\n  - Документ.${names.document}\n`,
+    `Документы:\n  - Документ.${matrixObjectNames.document}\n`,
     ["object:document"],
   ),
   fileRoot(
@@ -97,8 +97,8 @@ export const rootObjectDeclarations = [
     "ПодпискаНаСобытие",
     "ПодпискаНаСобытие",
     [
-      `Источник: СправочникОбъект.${names.catalog}`,
-      `Обработчик: CommonModule.${names.commonModule}.ОбработатьСобытие`,
+      `Источник: СправочникОбъект.${matrixObjectNames.catalog}`,
+      `Обработчик: CommonModule.${matrixObjectNames.commonModule}.ОбработатьСобытие`,
       "Событие: OnSetNewCode",
       "",
     ].join("\n"),
@@ -110,7 +110,7 @@ export const rootObjectDeclarations = [
     "MetadataFunctionalOption",
     "ФункциональнаяОпция",
     "ФункциональнаяОпция",
-    `Размещение: Константа.${names.constant}\n`,
+    `Размещение: Константа.${matrixObjectNames.constant}\n`,
     ["object:constant"],
   ),
   fileRoot(
@@ -118,7 +118,7 @@ export const rootObjectDeclarations = [
     "MetadataFunctionalOptionsParameter",
     "ПараметрФункциональныхОпций",
     "ПараметрФункциональныхОпций",
-    `Использование:\n  - Справочник.${names.catalog}\n`,
+    `Использование:\n  - Справочник.${matrixObjectNames.catalog}\n`,
     ["object:catalog"],
   ),
   directoryRoot("object:role", "MetadataRole", "Роль", "Роль", "", [], [{
@@ -130,7 +130,7 @@ export const rootObjectDeclarations = [
     "MetadataScheduledJob",
     "РегламентноеЗадание",
     "РегламентноеЗадание",
-    `ИмяМетода: CommonModule.${names.commonModule}.ВыполнитьРегламентноеЗадание\n`,
+    `ИмяМетода: CommonModule.${matrixObjectNames.commonModule}.ВыполнитьРегламентноеЗадание\n`,
     ["object:common-module"],
   ),
   fileRoot("object:language", "MetadataLanguage", "Язык", "Язык", "КодЯзыка: zz\n"),
@@ -211,7 +211,7 @@ export const rootObjectDeclarations = [
     "MetadataBusinessProcess",
     "БизнесПроцесс",
     "БизнесПроцесс",
-    `Задача: ${names.task}\n`,
+    `Задача: ${matrixObjectNames.task}\n`,
     ["object:task"],
   ),
   directoryRoot(
@@ -219,8 +219,10 @@ export const rootObjectDeclarations = [
     "MetadataCalculationRegister",
     "РегистрРасчета",
     "РегистрРасчета",
-    `ПланВидовРасчета: ChartOfCalculationTypes.${names.chartOfCalculationTypes}\n`,
+    `ПланВидовРасчета: ChartOfCalculationTypes.${matrixObjectNames.chartOfCalculationTypes}\n`,
     ["object:chart-of-calculation-types"],
+    [],
+    matrixObjectNames.calculationRegister,
   ),
   directoryRoot("object:chart-of-accounts", "MetadataChartOfAccounts", "ПланСчетов", "ПланСчетов"),
   directoryRoot(
@@ -273,8 +275,9 @@ function directoryRoot(
   properties = "",
   dependsOn: readonly string[] = [],
   extraFiles: readonly ExtraFile[] = [],
+  explicitName?: string,
 ): RootObjectDeclaration {
-  const name = `${prefix}${suffix}`
+  const name = explicitName ?? `${prefix}${suffix}`
   const root = `${segment}/${name}`
   return {
     key,

@@ -39,6 +39,23 @@ describe("partial sync matrix", () => {
     }
   })
 
+  it("adds the calculation register after existing registers", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const creation = plan.find(({ key }) => key === "object:calculation-register")
+    const serialized = JSON.stringify(plan)
+
+    expect(creation?.changes[0]?.path).toBe(
+      "РегистрРасчета/ЯПроверкаЧастичнойСинхронизацииРегистрРасчета/Свойства.yaml",
+    )
+    expect(serialized).toContain("ЯПроверкаЧастичнойСинхронизацииРегистрРасчета")
+    expect(new Set(serialized.match(/Я?ПроверкаЧастичнойСинхронизацииРегистрРасчета/gu))).toEqual(
+      new Set(["ЯПроверкаЧастичнойСинхронизацииРегистрРасчета"]),
+    )
+    expect(plan.findIndex(({ key }) => key === "object:calculation-register")).toBe(
+      plan.findIndex(({ key }) => key === "object:chart-of-calculation-types") + 1,
+    )
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",

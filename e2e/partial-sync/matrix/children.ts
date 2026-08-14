@@ -2,7 +2,7 @@ import type {
   ChildDeclaration,
   ScenarioFileChange,
 } from "./types"
-import { rootObjectDeclarations } from "./root-objects"
+import { matrixObjectNames, rootObjectDeclarations } from "./root-objects"
 
 type OwnerState = {
   readonly path: string
@@ -303,7 +303,7 @@ const recalculation = addInlineChild({
   body: "Синоним: \"\"",
   exposeAsOwner: true,
   extraChanges: [{
-    path: `РегистрРасчета/ПроверкаЧастичнойСинхронизацииРегистрРасчета/Перерасчеты/${recalculationName}/Recalculation.xml`,
+    path: `РегистрРасчета/${matrixObjectNames.calculationRegister}/Перерасчеты/${recalculationName}/Recalculation.xml`,
     before: null,
     after: recalculationXml(recalculationName),
   }],
@@ -459,15 +459,15 @@ function recalculationXml(name: string): string {
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" version="2.20">
   <Recalculation uuid="10000000-0000-4000-8000-000000000001">
     <InternalInfo>
-      <xr:GeneratedType name="RecalculationRecord.ПроверкаЧастичнойСинхронизацииРегистрРасчета.${name}" category="Record">
+      <xr:GeneratedType name="RecalculationRecord.${matrixObjectNames.calculationRegister}.${name}" category="Record">
         <xr:TypeId>10000000-0000-4000-8000-000000000002</xr:TypeId>
         <xr:ValueId>10000000-0000-4000-8000-000000000003</xr:ValueId>
       </xr:GeneratedType>
-      <xr:GeneratedType name="RecalculationManager.ПроверкаЧастичнойСинхронизацииРегистрРасчета.${name}" category="Manager">
+      <xr:GeneratedType name="RecalculationManager.${matrixObjectNames.calculationRegister}.${name}" category="Manager">
         <xr:TypeId>10000000-0000-4000-8000-000000000004</xr:TypeId>
         <xr:ValueId>10000000-0000-4000-8000-000000000005</xr:ValueId>
       </xr:GeneratedType>
-      <xr:GeneratedType name="RecalculationRecordSet.ПроверкаЧастичнойСинхронизацииРегистрРасчета.${name}" category="RecordSet">
+      <xr:GeneratedType name="RecalculationRecordSet.${matrixObjectNames.calculationRegister}.${name}" category="RecordSet">
         <xr:TypeId>10000000-0000-4000-8000-000000000006</xr:TypeId>
         <xr:ValueId>10000000-0000-4000-8000-000000000007</xr:ValueId>
       </xr:GeneratedType>
