@@ -12,6 +12,7 @@ import {
 } from "@nkdk/runtime/configuration-index-store"
 import {
   assertNoPendingPartialXmlSync,
+  cleanupPendingPartialXmlSync,
   forceClearPendingPartialXmlSync,
   partialXmlSyncArchiveProjectPath,
   pendingPartialXmlSyncPaths,
@@ -65,6 +66,22 @@ describe("ожидающее состояние частичной XML-синх�
     expect((await readPendingPartialXmlSync(projectDir, "cf"))?.packageId).toBe("first")
   })
 
+  it("при очистке временных файлов сохраняет чужой pending-пакет", async () => {
+    const projectDir = tempProject()
+    const first = createState(projectDir, "first")
+    const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
+    fs.mkdirSync(join(paths.pendingPath, ".."), { recursive: true })
+    fs.writeFileSync(paths.pendingPath, JSON.stringify(first))
+    const orphanPath = join(projectDir, ...partialXmlSyncArchiveProjectPath("cf", "orphan").split("/"))
+    fs.writeFileSync(orphanPath, "orphan")
+
+    await cleanupPendingPartialXmlSync(projectDir, "cf")
+
+    expect((await readPendingPartialXmlSync(projectDir, "cf"))?.packageId).toBe("first")
+    expect(fs.existsSync(join(projectDir, ...first.archiveProjectPath.split("/")))).toBe(true)
+    expect(fs.existsSync(orphanPath)).toBe(false)
+  })
+
   it("блокирует обычную синхронизацию, даже если осталась только LMDB-дельта", async () => {
     const projectDir = tempProject()
     const state = createState(projectDir, "first")
@@ -84,6 +101,33 @@ describe("ожидающее состояние частичной XML-синх�
     expect(await readPendingPartialXmlSync(projectDir, "cf")).toBeUndefined()
     expect(fs.existsSync(join(projectDir, ...state.archiveProjectPath.split("/")))).toBe(false)
     await expect(assertNoPendingPartialXmlSync(projectDir, "cf")).resolves.toBeUndefined()
+  })
+
+  it("принудительно очищает состояние при повреждённом manifest", async () => {
+    const projectDir = tempProject()
+    const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
+    const archiveProjectPath = partialXmlSyncArchiveProjectPath("cf", "first")
+    const archivePath = join(projectDir, ...archiveProjectPath.split("/"))
+    fs.mkdirSync(join(archivePath, ".."), { recursive: true })
+    fs.writeFileSync(archivePath, "first")
+    fs.mkdirSync(join(paths.pendingPath, ".."), { recursive: true })
+    fs.writeFileSync(paths.pendingPath, "{")
+
+    await expect(forceClearPendingPartialXmlSync(projectDir, "cf")).resolves.toBeUndefined()
+
+    expect(fs.existsSync(paths.pendingPath)).toBe(false)
+    expect(fs.existsSync(archivePath)).toBe(false)
+    await expect(assertNoPendingPartialXmlSync(projectDir, "cf")).resolves.toBeUndefined()
+  })
+
+  it("отклоняет лишние поля manifest версии 3", async () => {
+    const projectDir = tempProject()
+    const state = createState(projectDir, "first")
+    const paths = pendingPartialXmlSyncPaths(projectDir, "cf")
+    fs.mkdirSync(join(paths.pendingPath, ".."), { recursive: true })
+    fs.writeFileSync(paths.pendingPath, JSON.stringify({ ...state, candidateSnapshotHash: "0000000000000001" }))
+
+    await expect(readPendingPartialXmlSync(projectDir, "cf")).rejects.toThrow(/лишн.*пол/i)
   })
 
   it("ожидает закрытие LMDB и возвращает ошибку закрытия", async () => {

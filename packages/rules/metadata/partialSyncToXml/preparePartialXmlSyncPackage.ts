@@ -158,6 +158,7 @@ async function prepareValidatedPackage(
     projectDir: params.projectDir,
     componentPath: params.componentPath,
     componentDir: runtime.target.structure.componentDir,
+    hasFileChanges: !isEmptyChanges(changes),
   })
   const diagnostics = params.diagnostics
   if (isEmptyChanges(changes) && migration.pending.length === 0) {

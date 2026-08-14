@@ -54,6 +54,7 @@ export async function evaluatePartialXmlSyncMigrationState(params: {
   readonly projectDir: string
   readonly componentPath: string
   readonly componentDir: string
+  readonly hasFileChanges: boolean
 }): Promise<ReturnType<typeof evaluateMigrationChain>> {
   const appliedNames = new Set(await readPartialXmlSyncAppliedMigrations(params.projectDir, params.componentPath))
   const migrations = listMigrationFileNames(params.componentDir).map((fileName): MetadataMigration => {
@@ -62,7 +63,11 @@ export async function evaluatePartialXmlSyncMigrationState(params: {
     if (entry === undefined) throw new Error(`Пустая migration: ${fileName}`)
     return { fileName, path: entry.path, value: entry.value }
   })
-  return evaluateMigrationChain({ migrations, appliedNames })
+  const result = evaluateMigrationChain({ migrations, appliedNames })
+  if (!params.hasFileChanges && result.pending.length > 0) {
+    throw new Error("Неприменённая migration не имеет файловой дельты")
+  }
+  return result
 }
 
 export async function publishPartialXmlSyncAppliedMigrations(params: {

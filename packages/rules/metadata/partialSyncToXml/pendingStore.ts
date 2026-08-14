@@ -158,20 +158,25 @@ export async function cleanupPendingPartialXmlSync(
 ): Promise<void> {
   const paths = pendingPartialXmlSyncPaths(projectDir, componentPath)
   const pending = await readPendingPartialXmlSync(projectDir, componentPath)
-  if (pending !== undefined && pending.archiveProjectPath !== preserveArchiveProjectPath) {
-    await fs.promises.rm(projectPathToAbsolute(projectDir, pending.archiveProjectPath), { force: true })
-  }
+  const preservedArchiveProjectPath = pending?.archiveProjectPath ?? preserveArchiveProjectPath
+  await cleanupPartialXmlSyncArchives(paths.archiveDir, preservedArchiveProjectPath)
+  if (pending === undefined) await fs.promises.rm(paths.pendingPath, { force: true })
+}
+
+async function cleanupPartialXmlSyncArchives(
+  archiveDir: string,
+  preserveArchiveProjectPath?: string,
+): Promise<void> {
   let entries: fs.Dirent[] = []
   try {
-    entries = await fs.promises.readdir(paths.archiveDir, { withFileTypes: true })
+    entries = await fs.promises.readdir(archiveDir, { withFileTypes: true })
   } catch (caught) {
     if (!hasCode(caught, "ENOENT")) throw caught
   }
   const preservedName = preserveArchiveProjectPath?.split("/").at(-1)
   await Promise.all(entries
     .filter((entry) => entry.isFile() && entry.name.endsWith(".zip") && entry.name !== preservedName)
-    .map((entry) => fs.promises.rm(join(paths.archiveDir, entry.name), { force: true })))
-  await fs.promises.rm(paths.pendingPath, { force: true })
+    .map((entry) => fs.promises.rm(join(archiveDir, entry.name), { force: true })))
 }
 
 export async function forceClearPendingPartialXmlSync(projectDir: string, componentPath: string): Promise<void> {
@@ -180,7 +185,9 @@ export async function forceClearPendingPartialXmlSync(projectDir: string, compon
     const store = openConfigurationIndexStore(descriptor, "readWrite")
     try { await store.clearPending() } finally { await store.close() }
   }
-  await cleanupPendingPartialXmlSync(projectDir, componentPath)
+  const paths = pendingPartialXmlSyncPaths(projectDir, componentPath)
+  await cleanupPartialXmlSyncArchives(paths.archiveDir)
+  await fs.promises.rm(paths.pendingPath, { force: true })
 }
 
 export async function writeFileAtomic(path: string, bytes: Uint8Array): Promise<void> {
@@ -199,6 +206,12 @@ function validatePendingState(value: unknown, expectedComponentPath: string): Pe
   if (!isRecord(value) || value.version !== 3) {
     throw new Error("Некорректная версия pending state")
   }
+  const allowedKeys = new Set([
+    "version", "packageId", "componentPath", "archiveProjectPath", "archiveHash",
+    "candidateAppliedMigrations", "entries", "loadTargets", "delivery",
+  ])
+  const extraKey = Object.keys(value).find((key) => !allowedKeys.has(key))
+  if (extraKey !== undefined) throw new Error(`Лишнее поле pending state: ${extraKey}`)
   const requiredStrings = [
     "packageId", "componentPath", "archiveProjectPath", "archiveHash",
   ] as const
@@ -220,7 +233,17 @@ function validatePendingState(value: unknown, expectedComponentPath: string): Pe
   const entries = validateStringList(value.entries, "entries")
   const loadTargets = validateStringList(value.loadTargets, "loadTargets")
   const delivery = validateDelivery(value.delivery)
-  const state = { ...value, version: 3, entries, loadTargets, delivery } as unknown as PendingPartialXmlSyncStateV3
+  const state: PendingPartialXmlSyncStateV3 = {
+    version: 3,
+    packageId: value.packageId as string,
+    componentPath: value.componentPath as string,
+    archiveProjectPath: value.archiveProjectPath as string,
+    archiveHash: value.archiveHash as string,
+    candidateAppliedMigrations: migrations,
+    entries,
+    loadTargets,
+    delivery,
+  }
   if (state.archiveProjectPath !== partialXmlSyncArchiveProjectPath(state.componentPath, state.packageId)) {
     throw new Error("Некорректный путь ZIP в pending state")
   }
