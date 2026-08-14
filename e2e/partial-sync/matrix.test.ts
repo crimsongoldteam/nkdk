@@ -243,6 +243,22 @@ describe("partial sync matrix", () => {
     expect(recalculationXml.endsWith("\n")).toBe(false)
   })
 
+  it("adds recalculation dimensions inside their owner", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const operation = plan.find(({ key }) => key === "child:calculation-register-recalculations:dimensions")
+    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after as string
+
+    expect(properties).toContain([
+      "Перерасчеты:",
+      "  ПроверочныйПерерасчет:",
+      "    Измерения:",
+      "      ПроверочноеИзмерение:",
+      "        Тип: Строка(10)",
+      "ПланВидовРасчета:",
+    ].join("\n"))
+    expect(properties).not.toContain("Тип: Число(10, 0)\n    Измерения:")
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",

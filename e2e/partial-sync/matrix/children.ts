@@ -13,6 +13,10 @@ type OwnerState = {
   readonly document: { content: string }
   readonly indent: number
   readonly insertionAnchors?: Readonly<Record<string, string>>
+  readonly scope?: {
+    readonly header: string
+    readonly indentation: number
+  }
 }
 
 type InlineChildSpec = {
@@ -396,6 +400,10 @@ function addInlineChild(spec: InlineChildSpec): ChildDeclaration {
       document: owner.document,
       indent: owner.indent + 4,
       insertionAnchors: spec.insertionAnchors,
+      scope: {
+        header: `${" ".repeat(owner.indent + 2)}${spec.name}:\n`,
+        indentation: owner.indent + 2,
+      },
     })
   }
   return declaration
@@ -477,6 +485,22 @@ function appendYamlItem(owner: OwnerState, section: string, name: string, body =
   const source = owner.document.content === "" || owner.document.content.endsWith("\n")
     ? owner.document.content
     : `${owner.document.content}\n`
+  const scope = owner.scope === undefined
+    ? { prefix: "", content: source, suffix: "" }
+    : findOwnerScope(source, owner.scope)
+  const changedContent = appendYamlItemToSource(scope.content, owner, sectionMarker, indentation, section, name, body)
+  return `${scope.prefix}${changedContent}${scope.suffix}`
+}
+
+function appendYamlItemToSource(
+  source: string,
+  owner: OwnerState,
+  sectionMarker: string,
+  indentation: string,
+  section: string,
+  name: string,
+  body: string,
+): string {
   const insertionAnchor = owner.insertionAnchors?.[section]
   const anchorMarker = insertionAnchor === undefined
     ? undefined
@@ -490,6 +514,30 @@ function appendYamlItem(owner: OwnerState, section: string, name: string, body =
   const bodyIndentation = `${indentation}    `
   const indentedBody = body.split("\n").map((line) => `${bodyIndentation}${line}`).join("\n")
   return `${prefix}${sectionPrefix}${itemIndentation}${name}:\n${indentedBody}\n${suffix}`
+}
+
+function findOwnerScope(
+  source: string,
+  scope: NonNullable<OwnerState["scope"]>,
+): { readonly prefix: string, readonly content: string, readonly suffix: string } {
+  const headerIndex = source.indexOf(scope.header)
+  if (headerIndex < 0) throw new Error(`Не найден заголовок владельца ${scope.header.trim()}`)
+  const contentStart = headerIndex + scope.header.length
+  const linePattern = /^( *)(?=\S)/gmu
+  linePattern.lastIndex = contentStart
+  let contentEnd = source.length
+  for (let match = linePattern.exec(source); match !== null; match = linePattern.exec(source)) {
+    if (match.index < contentStart) continue
+    if ((match[1]?.length ?? 0) <= scope.indentation) {
+      contentEnd = match.index
+      break
+    }
+  }
+  return {
+    prefix: source.slice(0, contentStart),
+    content: source.slice(contentStart, contentEnd),
+    suffix: source.slice(contentEnd),
+  }
 }
 
 function childKey(ownerKey: string, propertyKey: string): string {
