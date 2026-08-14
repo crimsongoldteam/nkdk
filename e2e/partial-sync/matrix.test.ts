@@ -255,7 +255,13 @@ describe("partial sync matrix", () => {
     expect(change?.before).not.toContain("<Dimension ")
     expect(change?.after).toContain('<Dimension uuid="10000000-0000-4000-8000-000000000008">')
     expect(change?.after).toContain("<Name>ПроверочноеИзмерение</Name>")
-    expect(change?.after).toContain("<v8:Length>10</v8:Length>")
+    expect(change?.after).toContain(
+      '<RegisterDimension xsi:type="xr:MDObjectRef">CalculationRegister.ЯПроверкаЧастичнойСинхронизацииРегистрРасчета.Dimension.ПроверочноеИзмерение</RegisterDimension>',
+    )
+    expect(change?.after).toContain(
+      '<xr:Item xsi:type="xr:MDObjectRef">CalculationRegister.ЯПроверкаЧастичнойСинхронизацииРегистрРасчета.Dimension.ПроверочноеИзмерение</xr:Item>',
+    )
+    expect(change?.after).not.toContain("<Type>")
   })
 
   it("does not create register resources in the root-object layer", () => {
