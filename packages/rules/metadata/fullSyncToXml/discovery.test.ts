@@ -43,6 +43,8 @@ describe("full XML sync discovery", () => {
     touch(projectDir, "Справочник/Товары/Свойства.yaml")
     touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml")
     touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl")
+    touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/ДинамическийСписок/Список.query")
+    touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Неизвестный.bin")
 
     const plan = await buildPlan(projectDir)
 
@@ -81,14 +83,18 @@ describe("full XML sync discovery", () => {
         expect.objectContaining({ targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml" }),
       ]),
     })
-    expect(plan.externalFiles).toEqual([
+    expect(plan.externalFiles.map(({ sourceProjectPath }) => sourceProjectPath)).toEqual([
+      "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl",
+      "Справочник/Товары/Формы/ФормаЭлемента/Неизвестный.bin",
+    ])
+    expect(plan.externalFiles).toContainEqual(
       expect.objectContaining({
         sourceProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl",
         sourcePath: join(projectDir, "cf", "Справочник", "Товары", "Формы", "ФормаЭлемента", "Модуль.bsl"),
         targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form/Module.bsl",
         transferCapabilityId: "ChildFormNames",
       }),
-    ])
+    )
   })
 
   it("uses the file parameter as the semantic name of a flat assignment", async () => {

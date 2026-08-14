@@ -194,12 +194,19 @@ describe("writeFullXmlSyncAssignment", () => {
         "Реквизиты:",
         "  Объект:",
         "    Тип: Строка",
+        "  Список:",
+        "    Тип: ДинамическийСписок",
+        "    ДинамическийСписок:",
+        "      ПроизвольныйЗапрос: Истина",
         "Элементы:",
         "  Поле:",
         "    Вид: ПолеВвода",
         "    ПутьКДанным: Объект",
       ].join("\n")
     )
+    const queryPath = join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "ДинамическийСписок", "Список.query")
+    fs.mkdirSync(join(queryPath, ".."), { recursive: true })
+    fs.writeFileSync(queryPath, "ВЫБРАТЬ 1")
     const prepared = prepareYamlFiles({
       files: [
         {
@@ -236,6 +243,23 @@ describe("writeFullXmlSyncAssignment", () => {
     ])
     expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента.xml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента", "Ext", "Form.xml"))).toBe(true)
+    expect(fs.readFileSync(
+      join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента", "Ext", "Form.xml"),
+      "utf-8",
+    )).toContain("<QueryText>ВЫБРАТЬ 1</QueryText>")
+    expect(result.writtenFiles.map((file) => file.targetXmlPath)).not.toContain(
+      "Catalogs/Товары/Forms/ФормаЭлемента/Ext/ДинамическийСписок/Список.query",
+    )
+    expect(fs.existsSync(join(
+      outputDir,
+      "Catalogs",
+      "Товары",
+      "Forms",
+      "ФормаЭлемента",
+      "Ext",
+      "ДинамическийСписок",
+      "Список.query",
+    ))).toBe(false)
     expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента", "Ext", "Module.bsl"))).toBe(
       false
     )
