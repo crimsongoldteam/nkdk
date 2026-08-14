@@ -184,6 +184,16 @@ describe("partial sync matrix", () => {
     expect(parameterSource).toContain("        Комментарий: \"\"")
   })
 
+  it("emits an empty integration-service channel in the platform canonical form", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const operation = plan.find(({ key }) => key === "child:integration-service:channels")
+    const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+
+    expect(properties).toEqual(expect.any(String))
+    expect(properties).toContain("  ПроверочныйКанал:\n")
+    expect(properties).not.toContain("  ПроверочныйКанал: {}\n")
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",

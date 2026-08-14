@@ -479,7 +479,7 @@ function appendYamlItem(owner: OwnerState, section: string, name: string, body =
   const suffix = insertionIndex < 0 ? "" : source.slice(insertionIndex)
   const sectionPrefix = prefix.includes(sectionMarker) ? "" : sectionMarker
   const itemIndentation = `${indentation}  `
-  if (body === "") return `${prefix}${sectionPrefix}${itemIndentation}${name}: {}\n${suffix}`
+  if (body === "") return `${prefix}${sectionPrefix}${itemIndentation}${name}:\n${suffix}`
   const bodyIndentation = `${indentation}    `
   const indentedBody = body.split("\n").map((line) => `${bodyIndentation}${line}`).join("\n")
   return `${prefix}${sectionPrefix}${itemIndentation}${name}:\n${indentedBody}\n${suffix}`
