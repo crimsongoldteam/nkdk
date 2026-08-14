@@ -16,6 +16,10 @@ export const matrixObjectNames = {
   task: `${prefix}Задача`,
 } as const
 
+export const matrixChildInsertionAnchors: Readonly<Record<string, string>> = {
+  "object:chart-of-characteristic-types": "ТипЗначения",
+}
+
 export const rootObjectDeclarations = [
   directoryRoot("object:catalog", "MetadataCatalog", "Справочник", "Справочник"),
   directoryRoot(

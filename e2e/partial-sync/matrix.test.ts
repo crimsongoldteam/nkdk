@@ -70,6 +70,25 @@ describe("partial sync matrix", () => {
     expect(definition).toContain("<soapbind:address")
   })
 
+  it("places characteristic type children before the value type", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    for (const key of [
+      "child:chart-of-characteristic-types:attributes",
+      "child:chart-of-characteristic-types:tabularSections",
+      "child:chart-of-characteristic-types:predefined",
+    ]) {
+      const operation = plan.find((candidate) => candidate.key === key)
+      const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+      expect(properties, key).toEqual(expect.any(String))
+      const source = properties as string
+      expect(source.indexOf("ТипЗначения:"), key).toBeGreaterThan(0)
+      for (const section of ["Реквизиты:", "ТабличныеЧасти:", "Предопределенные:"]) {
+        const sectionIndex = source.indexOf(section)
+        if (sectionIndex >= 0) expect(sectionIndex, `${key}: ${section}`).toBeLessThan(source.indexOf("ТипЗначения:"))
+      }
+    }
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",

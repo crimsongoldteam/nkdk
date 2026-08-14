@@ -2,12 +2,17 @@ import type {
   ChildDeclaration,
   ScenarioFileChange,
 } from "./types"
-import { matrixObjectNames, rootObjectDeclarations } from "./root-objects"
+import {
+  matrixChildInsertionAnchors,
+  matrixObjectNames,
+  rootObjectDeclarations,
+} from "./root-objects"
 
 type OwnerState = {
   readonly path: string
   readonly document: { content: string }
   readonly indent: number
+  readonly insertionAnchor?: string
 }
 
 type InlineChildSpec = {
@@ -425,6 +430,7 @@ function createRootOwnerStates(): Map<string, OwnerState> {
       path: properties.path,
       document: { content: properties.after },
       indent: 0,
+      insertionAnchor: matrixChildInsertionAnchors[root.key],
     })
   }
   return result
@@ -442,12 +448,18 @@ function appendYamlItem(owner: OwnerState, section: string, name: string, body =
   const source = owner.document.content === "" || owner.document.content.endsWith("\n")
     ? owner.document.content
     : `${owner.document.content}\n`
-  const sectionPrefix = source.includes(sectionMarker) ? "" : sectionMarker
+  const anchorMarker = owner.insertionAnchor === undefined
+    ? undefined
+    : `${indentation}${owner.insertionAnchor}:`
+  const insertionIndex = anchorMarker === undefined ? -1 : source.indexOf(anchorMarker)
+  const prefix = insertionIndex < 0 ? source : source.slice(0, insertionIndex)
+  const suffix = insertionIndex < 0 ? "" : source.slice(insertionIndex)
+  const sectionPrefix = prefix.includes(sectionMarker) ? "" : sectionMarker
   const itemIndentation = `${indentation}  `
-  if (body === "") return `${source}${sectionPrefix}${itemIndentation}${name}: {}\n`
+  if (body === "") return `${prefix}${sectionPrefix}${itemIndentation}${name}: {}\n${suffix}`
   const bodyIndentation = `${indentation}    `
   const indentedBody = body.split("\n").map((line) => `${bodyIndentation}${line}`).join("\n")
-  return `${source}${sectionPrefix}${itemIndentation}${name}:\n${indentedBody}\n`
+  return `${prefix}${sectionPrefix}${itemIndentation}${name}:\n${indentedBody}\n${suffix}`
 }
 
 function childKey(ownerKey: string, propertyKey: string): string {
