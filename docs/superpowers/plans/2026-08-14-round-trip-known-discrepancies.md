@@ -417,7 +417,8 @@ execution.isTransportedBrokenXMLReference({
 - [ ] **Step 5: Verify validation and structural operations GREEN**
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/validation/yamlFactExtractor.test.ts metadata/validation/structuralReferences.test.ts metadata/commonObjects/metadataRef/brokenMDObjectRef.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/validation/yamlFactExtractor.test.ts metadata/validation/structuralReferences.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit metadata/commonObjects/metadataRef/brokenMDObjectRef.test.ts
 pnpm --filter @nkdk/rules type-check
 ```
 
