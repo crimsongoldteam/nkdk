@@ -269,6 +269,17 @@ describe("partial XML impact planner", () => {
     ].sort(utf8))
   })
 
+  it("при удалении внешнего файла принимает изменённое задание владельца", () => {
+    const result = plan(
+      [root, language, owner],
+      changes({ changed: [owner], deleted: [ownerModule] }),
+    )
+
+    expect(result.selection).toEqual({ kind: "selected", projectPaths: [owner] })
+    expect(result.externalProjectPaths).toEqual([])
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
   it("при удалении формы включает владельца и оставшийся подкаталог, но загружает только владельца", () => {
     const result = plan(
       [root, language, owner, firstForm, firstModule],

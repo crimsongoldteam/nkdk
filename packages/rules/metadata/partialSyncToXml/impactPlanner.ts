@@ -109,6 +109,10 @@ export function buildPartialXmlImpactPlan(params: {
     if (match.kind === "externalFile") {
       if (match.assignment?.fileBackedTarget !== undefined &&
         structurallyDeletedCollections.has(memberCollectionKey(match))) continue
+      if (match.assignment !== undefined) {
+        const assignmentPath = expandMetadataPathPattern(match.assignment.projectPattern, match.values)
+        if (assignmentStates.get(assignmentPath)?.payload === true) continue
+      }
       throw new Error(`Удалённый внешний файл нельзя включить в XML-пакет: ${version.projectPath}`)
     }
     if (match.kind === "yamlCompanion") {
