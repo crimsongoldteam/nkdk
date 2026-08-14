@@ -57,6 +57,11 @@ export type StructuralReferenceNestedRule =
     }
 
 export interface StructuralReferenceRuntime {
+  readonly omittedExplicitXMLPropertyKeys: (params: {
+    readonly yaml: unknown
+    readonly itemType: string
+    readonly properties: Readonly<Record<string, StructuralReferencePropertyRule>>
+  }) => ReadonlySet<string>
   readonly valueFromYAML: (params: {
     context: unknown
     rule: StructuralReferencePropertyRule
@@ -145,6 +150,11 @@ function collectObjectReferences(params: {
   if (record === undefined) return { ok: true, references: [] }
 
   const references: StructuralYamlReference[] = []
+  const omittedExplicitXMLPropertyKeys = params.runtime.omittedExplicitXMLPropertyKeys({
+    yaml: record,
+    itemType: params.rule.itemType,
+    properties: params.rule.properties,
+  })
   const dependentReferences = collectDependentStructuralItemReferences({
     itemType: params.rule.itemType,
     ...(params.itemName === undefined ? {} : { itemName: params.itemName }),
@@ -184,6 +194,7 @@ function collectObjectReferences(params: {
     if (typeof propertyRule.yaml !== "string") continue
     const yamlValue = record[propertyRule.yaml]
     if (yamlValue === undefined) continue
+    if (omittedExplicitXMLPropertyKeys.has(propertyName)) continue
     if (propertyRule.metadataTarget !== undefined && yamlValue === "") continue
     const propertyStateTag = yamlScalarTagAt(record, propertyRule.yaml)
     if (

@@ -289,6 +289,18 @@ describe("extractValidationYamlFacts form", () => {
       { componentKind: "parameter", name: "Режим", yamlPath: ["Параметры", "Режим"] },
     ])
   })
+
+  it("не преобразует зарегистрированный omit при сборе ссылок формы", () => {
+    const facts = extractFormFacts([
+      "Реквизиты:",
+      "  РедактируемыйСписок:",
+      "    Тип: СписокЗначений",
+      "    ТипЗначения: !xml",
+    ].join("\n"))
+
+    expect(facts.diagnostics).toEqual([])
+    expect(facts.pendingReferences).toEqual([])
+  })
 })
 
 function extractFormFacts(yaml: string): ReturnType<typeof extractValidationYamlFacts> {

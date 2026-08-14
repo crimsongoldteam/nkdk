@@ -71,6 +71,7 @@ import type { ProjectStateStructuredDocumentEntry } from "../projectState/contra
 import { collectConfigurationExtensionPropertyStateDocuments } from "./configurationExtensionPropertyStateFacts"
 import { configurationExtensionStructureDocument } from "../ruleRuntime/property/configurationExtensionStructureFacts"
 import { traverseMetadataRuleYaml } from "./metadataRuleYamlTraversal"
+import { collectOmittedExplicitXMLPropertyKeys } from "../ruleRuntime/property/explicitXMLStructuralReferences"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -933,6 +934,8 @@ function extractFormYamlFacts(
 function createPropertyStructuralReferenceRuntime(runtime?: ValidationRegistrySet): StructuralReferenceRuntime {
   const transportRegistry = () => runtime?.rules.execution ?? currentPropertyRuleRegistrySet<PropertyRuleExecution>()
   return {
+    omittedExplicitXMLPropertyKeys: (params) =>
+      collectOmittedExplicitXMLPropertyKeys(transportRegistry(), params),
     valueFromYAML: (params) => callAtomicFromYAML(
       params as Parameters<typeof callAtomicFromYAML>[0]
     ),
