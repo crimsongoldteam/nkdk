@@ -21,6 +21,31 @@ describe("ClientApplicationInterface XML → YAML", () => {
     expect(yaml).toBe(EMPTY_XML_TAG_VALUE)
   })
 
+  it.each([
+    [
+      "additional panel definition attribute",
+      emptyStandardRootXML.replace(
+        'panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>',
+        'panelDef id="b553047f-c9aa-4157-978d-448ecad24248" foo="bar"/>'
+      ),
+    ],
+    [
+      "additional panel definition child",
+      emptyStandardRootXML.replace(
+        '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>',
+        '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"><extra/></panelDef>'
+      ),
+    ],
+    ["unknown root child", emptyStandardRootXML.replace("</ClientApplicationInterface>", "  <extra/>\n</ClientApplicationInterface>")],
+  ])("does not collapse a root with %s into !xml", (_name, xml) => {
+    const yaml = testMetadataItemFromXMLToYAML({
+      rule: ClientApplicationInterfaceRules,
+      xml: importContentFromXML<Record<string, unknown>>(xml),
+    }).yaml
+
+    expect(yaml).not.toBe(EMPTY_XML_TAG_VALUE)
+  })
+
   it("imports sections, panels, groups and panel definitions", () => {
     const result = convert("ClientApplicationInterface.xml")
 

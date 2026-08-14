@@ -59,6 +59,12 @@ const requiredStandardPanelUuids = [
 
 const standardPanelUuids = new Set<string>(Object.keys(standardPanelsByUuid))
 const requiredStandardPanelUuidSet = new Set<string>(requiredStandardPanelUuids)
+const clientApplicationInterfaceRootAttributeKeys = new Set([
+  "_xmlns",
+  "_xmlns:xs",
+  "_xmlns:xsi",
+  "_xsi:type",
+])
 
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 const XML_METADATA = Symbol.for("metadata")
@@ -113,6 +119,11 @@ const getReferenceRawXML = (referenceMetadata: unknown): Record<string, unknown>
 }
 
 const getXMLId = (xml: { _id?: string; id?: string } | undefined): string | undefined => xml?._id ?? xml?.id
+
+const getRawXMLId = (xml: unknown): string | undefined => {
+  if (!isRecord(xml)) return undefined
+  return typeof xml._id === "string" ? xml._id : typeof xml.id === "string" ? xml.id : undefined
+}
 
 const getXMLChildOrder = (xml: unknown): Array<{ key: string; index: number }> | undefined => {
   if (!isRecord(xml)) return undefined
@@ -527,10 +538,28 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
     if (yaml !== undefined) result[rule.yaml] = yaml
   }
   collectClientApplicationInterfaceConfigurationIndex(context, sections, panelDefs)
+  const sourcePanelDefs = toArray(source["panelDef"])
   const emptyStandardRoot =
     Object.keys(result).length === 0 &&
+    Object.entries(source).every(
+      ([key, value]) =>
+        key === "panelDef" ||
+        clientApplicationInterfaceRootAttributeKeys.has(key) ||
+        (key === "#text" && typeof value === "string" && value.trim() === "")
+    ) &&
     panelDefs?.length === requiredStandardPanelUuidSet.size &&
+    sourcePanelDefs.length === requiredStandardPanelUuidSet.size &&
     new Set(panelDefs.map(({ id }) => id)).size === requiredStandardPanelUuidSet.size &&
+    new Set(sourcePanelDefs.map(getRawXMLId)).size === requiredStandardPanelUuidSet.size &&
+    sourcePanelDefs.every((panelDef) => {
+      const id = getRawXMLId(panelDef)
+      return (
+        isRecord(panelDef) &&
+        id !== undefined &&
+        requiredStandardPanelUuidSet.has(id) &&
+        Object.keys(panelDef).every((key) => key === "_id" || key === "id")
+      )
+    }) &&
     panelDefs.every(
       (panelDef) =>
         requiredStandardPanelUuidSet.has(panelDef.id) &&
