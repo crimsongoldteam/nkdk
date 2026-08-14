@@ -122,6 +122,23 @@ describe("partial sync matrix", () => {
     expect(source).toContain("    ЗначениеЗаполнения: \"\"")
   })
 
+  it("emits predefined values before object fields", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    for (const owner of [
+      "catalog",
+      "chart-of-accounts",
+      "chart-of-calculation-types",
+      "chart-of-characteristic-types",
+    ]) {
+      const operation = plan.find(({ key }) => key === `child:${owner}:predefined`)
+      const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+      expect(properties, owner).toEqual(expect.any(String))
+      const source = properties as string
+      expect(source.indexOf("Предопределенные:"), owner).toBeLessThan(source.indexOf("Реквизиты:"))
+      expect(source.indexOf("Предопределенные:"), owner).toBeLessThan(source.indexOf("ТабличныеЧасти:"))
+    }
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",

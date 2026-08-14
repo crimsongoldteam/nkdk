@@ -17,10 +17,19 @@ export const matrixObjectNames = {
 } as const
 
 export const matrixChildInsertionAnchors: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  "object:catalog": {
+    Предопределенные: "Реквизиты",
+  },
+  "object:chart-of-accounts": {
+    Предопределенные: "Реквизиты",
+  },
+  "object:chart-of-calculation-types": {
+    Предопределенные: "Реквизиты",
+  },
   "object:chart-of-characteristic-types": {
     Реквизиты: "ТипЗначения",
     ТабличныеЧасти: "ТипЗначения",
-    Предопределенные: "ТипЗначения",
+    Предопределенные: "Реквизиты",
   },
   "object:task": {
     РеквизитыАдресации: "ТабличныеЧасти",
