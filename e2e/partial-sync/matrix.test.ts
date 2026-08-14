@@ -165,6 +165,25 @@ describe("partial sync matrix", () => {
     expect(template.indexOf("Методы:")).toBeLessThan(template.indexOf("Шаблон:"))
   })
 
+  it("emits web-service operations and parameters in canonical order", () => {
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const operation = plan.find(({ key }) => key === "child:web-service:operations")
+    const operationProperties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+    expect(operationProperties).toEqual(expect.any(String))
+    const operationSource = operationProperties as string
+    expect(operationSource.indexOf("Операции:")).toBeLessThan(operationSource.indexOf("ПространствоИмен:"))
+    expect(operationSource).toContain("    Комментарий: \"\"")
+
+    const parameter = plan.find(({ key }) => key === "child:web-service-operations:parameters")
+    const parameterProperties = parameter?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+    expect(parameterProperties).toEqual(expect.any(String))
+    const parameterSource = parameterProperties as string
+    expect(parameterSource.indexOf("    Параметры:")).toBeLessThan(
+      parameterSource.indexOf("    РежимУправленияБлокировкойДанных:"),
+    )
+    expect(parameterSource).toContain("        Комментарий: \"\"")
+  })
+
   it("does not create register resources in the root-object layer", () => {
     for (const key of [
       "object:information-register",

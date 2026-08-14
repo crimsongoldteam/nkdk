@@ -203,6 +203,7 @@ const webServiceOperation = addInlineChild({
   name: "ПроверочнаяОперация",
   body: [
     "ИмяПроцедуры: ПроверочнаяОперация",
+    "Комментарий: \"\"",
     "МожетБытьНеопределено: Ложь",
     "РежимУправленияБлокировкойДанных: Управляемый",
     "ТипВозвращаемогоЗначенияXDTO:",
@@ -211,6 +212,7 @@ const webServiceOperation = addInlineChild({
     "Транзакционный: Ложь",
   ].join("\n"),
   exposeAsOwner: true,
+  insertionAnchors: { Параметры: "РежимУправленияБлокировкойДанных" },
 })
 addInlineChild({
   ownerKey: webServiceOperation.key,
@@ -219,6 +221,7 @@ addInlineChild({
   section: "Параметры",
   name: "ПроверочныйПараметр",
   body: [
+    "Комментарий: \"\"",
     "МожетБытьНеопределено: Ложь",
     "НаправлениеПередачи: Входной",
     "ТипЗначенияXDTO:",
