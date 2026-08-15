@@ -18,6 +18,7 @@ const commonOptions = {
     "date-fns",
     "fast-xml-parser",
     "js-yaml",
+    "lmdb",
     "p-limit",
     "piscina",
     "structurae",
@@ -38,6 +39,12 @@ await esbuild.build({
   ...commonOptions,
   entryPoints: ["index.ts"],
   outfile: new URL("index.js", outdir).pathname,
+})
+
+await esbuild.build({
+  ...commonOptions,
+  entryPoints: ["metadata/composition/validationProfile.ts"],
+  outfile: new URL("validationProfile.js", outdir).pathname,
 })
 
 await esbuild.build({

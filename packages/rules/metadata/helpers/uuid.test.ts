@@ -7,7 +7,7 @@ import { TEST_CONFIGURATION_UUID, testConfigurationIndexReader } from "../../tes
 
 describe("getUUID", () => {
   it("keeps legacy test mode without export runtime", () => {
-    expect(getUUID({ defaultLanguage: "ru", version: "2.20", testMode: true })).toBe(UUID_TEST)
+    expect(getUUID({ languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "2.20", testMode: true })).toBe(UUID_TEST)
   })
 
   it("uses configuration index export runtime when it is present", () => {
@@ -23,7 +23,7 @@ describe("getUUID", () => {
       logicalAddress: "Справочник.Товары",
     })
     const context: ConfigurationContext = {
-      defaultLanguage: "ru",
+      languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
       version: "2.20",
       testMode: true,
       exportToXML: {

@@ -15,7 +15,7 @@ import { exportPropertyValueToYAML } from "../ruleRuntime/property/toYAML"
 import { getElementRule } from "../ruleRuntime/formElement/ruleFactory"
 import { enterNestedYamlRule, enterYamlProperty } from "../ruleRuntime/property/yamlRuleCursor"
 import type { YamlRuleCursor } from "@nkdk/runtime/rule-kit"
-import type { ParsedYaml } from "@nkdk/runtime"
+import { createConfigurationLanguages, type ConfigurationContext, type ParsedYaml } from "@nkdk/runtime"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -85,6 +85,7 @@ export interface ValidationYamlFacts {
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
   localValueValidationProfile: LocalValueValidationProfile
+  localizedTextProperties: number
   fieldIndex?: ObjectFieldIndex
   formDataPathIndex?: FormDataPathIndex
   localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
@@ -105,10 +106,13 @@ export function extractValidationYamlFacts(params: {
   runtime?: ValidationRegistrySet
   propertyStateCompatibilityMode?: string
   borrowedLogicalAddresses?: ReadonlySet<string>
+  context?: ConfigurationContext
 }): ValidationYamlFacts {
   const validationDiagnostics = params.validationDiagnostics !== false
   if (params.file.kind === "form") {
-    return validationDiagnostics ? extractFormYamlFacts(params.file, params.parsed, params.runtime) : emptyFacts()
+    return validationDiagnostics
+      ? extractFormYamlFacts(params.file, params.parsed, params.context, params.runtime)
+      : emptyFacts()
   }
 
   const spec = findValidationRulesItem(
@@ -224,6 +228,7 @@ export function extractValidationYamlFacts(params: {
         ]
       : [],
     localValueValidationProfile,
+    localizedTextProperties: 0,
     localIndexes,
     ...(structuredDocuments.length === 0
       ? {}
@@ -405,6 +410,7 @@ function emptyFacts(): ValidationYamlFacts {
     pendingChecks: [],
     diagnostics: [],
     localValueValidationProfile: {},
+    localizedTextProperties: 0,
   }
 }
 
@@ -912,6 +918,7 @@ const targetKey = projectMetadataTargetIndexKey
 function extractFormYamlFacts(
   file: ValidationProjectFile,
   parsed: ParsedYaml,
+  context: ConfigurationContext | undefined,
   runtime?: ValidationRegistrySet,
 ): ValidationYamlFacts {
   const data = asRecord(parsed.data)
@@ -931,13 +938,17 @@ function extractFormYamlFacts(
     yamlPath: [],
   })
   const root = rootFromYAML[file.owner.dir]
+  const validationContext = context ?? {
+    version: "2.20",
+    languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+  }
   const structuralReferences = collectStructuralYamlReferences({
     filePath: file.absolutePath,
     parsed,
     rule: adapter.formRule,
     yaml: data,
     owner: root === undefined ? undefined : { root, objectName: file.owner.name },
-    context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+    context: { ...validationContext, exportToYAML: { toTyped: false } },
     runtime: createPropertyStructuralReferenceRuntime(runtime),
   })
   if (!structuralReferences.ok) throw new Error(structuralReferences.message)
@@ -947,6 +958,15 @@ function extractFormYamlFacts(
     commitStaged: _commitStaged,
     ...reference
   }) => reference)
+  let localizedTextProperties = 0
+  const localizedTextDiagnostics = validateExcludedEqualNameYAML({
+    filePath: file.absolutePath,
+    parsed,
+    rule: adapter.formRule,
+    context: validationContext,
+    name: file.formName,
+    onLocalizedTextProperty: () => { localizedTextProperties += 1 },
+  })
 
   return {
     ...emptyFacts(),
@@ -957,6 +977,7 @@ function extractFormYamlFacts(
     }),
     pendingReferences,
     pendingChecks: collected.pendingChecks,
+    localizedTextProperties,
     localValueValidationProfile: {
       [adapter.elementNamesProfileSubstep]: {
         items: 1,
@@ -964,13 +985,7 @@ function extractFormYamlFacts(
       },
     },
     diagnostics: [
-      ...validateExcludedEqualNameYAML({
-        filePath: file.absolutePath,
-        parsed,
-        rule: adapter.formRule,
-        context: { version: "2.20", defaultLanguage: "ru" },
-        name: file.formName,
-      }),
+      ...localizedTextDiagnostics,
       ...collected.formElementNameDiagnostics,
       ...index.duplicateDiagnostics,
     ],

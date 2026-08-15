@@ -1,5 +1,5 @@
 export interface MobileApplicationPermissionContext {
-  defaultLanguage: string
+  languages: { readonly default: string }
 }
 
 export interface MobileApplicationPermissionDescription {
@@ -41,7 +41,7 @@ export const exportMobileApplicationPermissionDescriptionToXML = (
   value: MobileApplicationPermissionDescription
 ): MobileApplicationPermissionDescriptionXML => {
   const entries = Object.entries(value.items)
-  const isEmpty = entries.every(([language, content]) => language === context.defaultLanguage && content === "")
+  const isEmpty = entries.every(([language, content]) => language === context.languages.default && content === "")
   if (isEmpty) return {}
 
   const items = entries.map(([language, content]) => ({
@@ -55,7 +55,7 @@ export const importMobileApplicationPermissionDescriptionFromYAML = (
   context: MobileApplicationPermissionContext,
   value: MobileApplicationPermissionDescriptionYAML
 ): MobileApplicationPermissionDescription => ({
-  items: typeof value === "string" ? { [context.defaultLanguage]: value } : value,
+  items: typeof value === "string" ? { [context.languages.default]: value } : value,
 })
 
 export const exportMobileApplicationPermissionDescriptionToYAML = (
@@ -64,8 +64,8 @@ export const exportMobileApplicationPermissionDescriptionToYAML = (
 ): MobileApplicationPermissionDescriptionYAML => {
   const languages = Object.keys(value.items)
   if (languages.length === 0) return ""
-  if (languages.length === 1 && value.items[context.defaultLanguage] !== undefined) {
-    return value.items[context.defaultLanguage]
+  if (languages.length === 1 && value.items[context.languages.default] !== undefined) {
+    return value.items[context.languages.default]
   }
   return value.items
 }

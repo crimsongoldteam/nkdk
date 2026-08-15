@@ -5,6 +5,7 @@ import { importFromYAML } from "./import"
 import { parseWithJsYaml } from "./jsYamlParser"
 import { parseMetadataYaml } from "./parseMetadataYaml"
 import { markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "./scalarTags"
+import { copyYAMLMappingTag, yamlMappingTagOf } from "./mappingTags"
 
 describe("exportToYAML", () => {
   it.each([
@@ -70,6 +71,8 @@ describe("exportToYAML", () => {
     ["xml/name", "!xml/name ФункцииExtendedTooltip", "Значение: !xml/name ФункцииExtendedTooltip"],
     ["xml/type", "!xml/type d7p1:Диаграмма", "Значение: !xml/type d7p1:Диаграмма"],
     ["xml/value", "!xml/value Nil", "Значение: !xml/value Nil"],
+    ["xml/language", "!xml/language Buttons", "Значение: !xml/language Buttons"],
+    ["xml/duplicate", "!xml/duplicate Группа", "Значение: !xml/duplicate Группа"],
     [
       "xml/reference",
       "!xml/reference 00000000-0000-0000-0000-000000000000",
@@ -96,6 +99,30 @@ describe("exportToYAML", () => {
     expect(exportToYAML(data)).toBe("Комментарий: !xml/value Текст")
     expect(data).toEqual({ Комментарий: "!xml/value Текст" })
     expect(xmlAnomalyTagPayload("xml/value", data.Комментарий)).toBe("Текст")
+  })
+
+  it("сериализует и сохраняет mapping-тег нарушения порядка", () => {
+    const parsed = parseMetadataYaml("Заголовок: !xml/order\n  en: Text\n  ru: Текст\n")
+    const title = (parsed.data as { Заголовок: Record<string, string> }).Заголовок
+    const copied = { ...title }
+    copyYAMLMappingTag(title, copied)
+
+    const serialized = serializeYAMLDocument({ Заголовок: copied })
+    const reparsed = parseMetadataYaml(serialized.text)
+    const reparsedTitle = (reparsed.data as { Заголовок: Record<string, string> }).Заголовок
+
+    expect(serialized.text).toBe("Заголовок: !xml/order\n  en: Text\n  ru: Текст")
+    expect(serialized.data).toEqual({ Заголовок: copied })
+    expect(yamlMappingTagOf((serialized.data as { Заголовок: object }).Заголовок)).toBe("xml/order")
+    expect(yamlMappingTagOf(reparsedTitle)).toBe("xml/order")
+  })
+
+  it("сохраняет порядок числовых ключей в mapping с !xml/order", () => {
+    const parsed = parseMetadataYaml("Заголовок: !xml/order\n  '10': Ten\n  '2': Two\n")
+
+    expect(serializeYAMLDocument(parsed.data).text).toBe(
+      'Заголовок: !xml/order\n  "10": Ten\n  "2": Two',
+    )
   })
 
   it("preserves explicit string style in serialized semantic data", () => {

@@ -6,6 +6,13 @@ import {
   restoreYAMLScalarTagsAfterDump,
   taggedScalarForDump,
 } from "./scalarTags"
+import {
+  copyYAMLMappingKeyOrder,
+  copyYAMLMappingTag,
+  createYAMLOrderedMapping,
+  hasYAMLMappingKeyOrder,
+  yamlMappingEntries,
+} from "./mappingTags"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
 const UNDEFINED_VALUE_MARKER_PREFIX = "__NKDK_UNDEFINED_VALUE_"
@@ -75,18 +82,29 @@ function prepareForDump(
     return { dumpValue, data }
   }
   if (value !== null && typeof value === "object") {
-    const entries = Object.entries(value)
+    const entries = yamlMappingEntries(value as Record<string, unknown>)
     if (entries.length === 0) return { dumpValue: value, data: value }
     const prepared = entries.map(([key, item]) => [
       key,
       prepareChildForDump(value, key, item, explicitStrings, undefinedValues),
     ] as const)
-    const dumpValue = Object.fromEntries(prepared.map(([key, item]) => [key, item.dumpValue]))
-    const data = Object.fromEntries(prepared.map(([key, item]) => [key, item.data]))
+    const preparedDumpEntries = prepared.map(([key, item]) => [key, item.dumpValue] as const)
+    const preparedDataEntries = prepared.map(([key, item]) => [key, item.data] as const)
+    const preserveOrder = hasYAMLMappingKeyOrder(value)
+    const dumpValue = preserveOrder
+      ? createYAMLOrderedMapping(preparedDumpEntries)
+      : Object.fromEntries(preparedDumpEntries)
+    const data = preserveOrder
+      ? createYAMLOrderedMapping(preparedDataEntries)
+      : Object.fromEntries(preparedDataEntries)
     for (const [key, item] of prepared) {
       if (item.doubleQuoted === true) markDoubleQuotedScalar(data, key)
     }
     copyYAMLScalarTags(value, data)
+    copyYAMLMappingTag(value, dumpValue)
+    copyYAMLMappingTag(value, data)
+    copyYAMLMappingKeyOrder(value, dumpValue)
+    copyYAMLMappingKeyOrder(value, data)
     return { dumpValue, data }
   }
   return { dumpValue: value, data: value }
@@ -139,7 +157,7 @@ function normalizeQuotedTypeLinkValues(yaml: string): string {
 }
 
 function normalizeEmptyXMLTags(yaml: string): string {
-  return yaml.replace(/!xml\/(present|absent|name|type|value|reference) ""(?=[ \t]*(?:#.*)?$)/gm, "!xml/$1")
+  return yaml.replace(/!xml\/(present|absent|name|type|value|reference|language|duplicate) ""(?=[ \t]*(?:#.*)?$)/gm, "!xml/$1")
 }
 
 function normalizeEmptyMappings(yaml: string): string {

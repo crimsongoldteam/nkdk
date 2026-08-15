@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { i8nTextFixtures } from "./__fixtures__/legacy/data"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
-import { importContentFromXML } from "@nkdk/runtime"
+import { createConfigurationLanguages, importContentFromXML } from "@nkdk/runtime"
 import { importI8nTextFromXML } from "./fromXML"
 import { I8nTextPropertyRule, I8nTextXML } from "./types"
 
@@ -17,10 +17,15 @@ const excludeEqualNameRule: I8nTextPropertyRule = {
   excludeIfEqualNameYAML: true,
 }
 
+const multilingualXMLContext = {
+  ...mockContextFromXML(),
+  languages: createConfigurationLanguages({ default: "ru", registered: ["ru", "en", "de"] }),
+}
+
 describe("importI8nTextFromXML", () => {
   it.each(i8nTextFixtures)("should import: $name", (fixture) => {
     const xml = fixture.xml ? importContentFromXML<{ Title: I8nTextXML }>(fixture.xml) : undefined
-    const result = importI8nTextFromXML(mockContextFromXML(), mockRule, xml?.Title)
+    const result = importI8nTextFromXML(multilingualXMLContext, mockRule, xml?.Title)
     expect(result).toEqual(fixture.text)
   })
 

@@ -10,12 +10,12 @@ description: Use when the user asks to measure YAML project validation speed or 
 Скилл выполняет benchmark валидации YAML-проекта через production build с runtime-компиляцией схем в worker:
 
 ```text
-packages/core/dist/index.js
-  -> packages/core/dist/worker.js
+packages/rules/dist/validationProfile.js
+  -> packages/rules/dist/worker.js
 ```
 
-Он не использует MCP service и не импортирует `packages/core/index.ts`, потому что это source/tsx path.
-Core выводит профиль при `NKDK_PROFILE=1`.
+Он не использует MCP service и не импортирует `packages/rules/index.ts`, потому что это source/tsx path.
+Runtime выводит профиль при `NKDK_PROFILE=1`.
 
 Runner использует один `ProjectStateService` для последовательных запусков: первый запуск является cold, последующие — warm. Машинный результат каждого запуска содержит счётчики состояния проекта, размер снимка, времена загрузки и checkpoint, а также SHA-256 digest полного стабильного представления diagnostics. Во время профильного запуска stderr получает отметки `[nkdk-project-state-phase]` для обнаружения путей, чтения исходных хэшей, обработки файлов в worker, чтения локальных diagnostics, dependency validation и checkpoint; итоговый JSON содержит длительность каждой фазы.
 
@@ -26,7 +26,7 @@ Runner использует один `ProjectStateService` для последо
 
 ## Жёсткие инварианты
 
-- Перед каждым замером выполняй свежую сборку: `pnpm --filter @nkdk/core build`.
+- Перед каждым замером выполняй свежую сборку: `pnpm --filter @nkdk/rules build`.
 - Запускай только `node .agents/skills/validation-profile/validation-profile.mjs ...`.
 - Не запускай `pnpm test`.
 - Не исправляй validation diagnostics в рамках этого скилла.
@@ -38,21 +38,21 @@ Runner использует один `ProjectStateService` для последо
 ## Быстрый запуск
 
 ```bash
-pnpm --filter @nkdk/core build
+pnpm --filter @nkdk/rules build
 node .agents/skills/validation-profile/validation-profile.mjs /path/to/yaml
 ```
 
 С одним прогоном:
 
 ```bash
-pnpm --filter @nkdk/core build
+pnpm --filter @nkdk/rules build
 node .agents/skills/validation-profile/validation-profile.mjs /path/to/yaml --runs 1
 ```
 
 С worker timing:
 
 ```bash
-pnpm --filter @nkdk/core build
+pnpm --filter @nkdk/rules build
 node .agents/skills/validation-profile/validation-profile.mjs /path/to/yaml --runs 1 --timing
 ```
 

@@ -1,7 +1,7 @@
 import { readdir, stat } from "node:fs/promises"
 import { resolve } from "node:path"
 import { performance } from "node:perf_hooks"
-import { createMetadataRuntime } from "@nkdk/runtime"
+import { createConfigurationLanguages, createMetadataRuntime } from "@nkdk/runtime"
 import {
   configurationIndexStoreDescriptor,
   openConfigurationIndexStore,
@@ -34,7 +34,7 @@ let importResult
 try {
   importResult = await runtime.import.configurationFromXml({
     context: {
-      defaultLanguage: "ru",
+      languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
       version: "2.20",
       exportToYAML: { toTyped: false },
       fromXML: { forReference: false },

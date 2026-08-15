@@ -11,7 +11,7 @@ import {
 } from "./workerPool"
 
 describe("full XML sync failure integration", () => {
-  const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
+  const context = { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, exportToYAML: { toTyped: false } } as const
 
   it("не трогает непустой XML-каталог", async () => {
     const dependencies = createMockFullSyncDependencies({

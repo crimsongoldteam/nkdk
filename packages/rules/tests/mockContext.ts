@@ -1,15 +1,18 @@
 import { PropertyRule } from "../metadata/forms/elements/calendarField/rules"
 import {
-  ConfigurationContext,
-  ConfigurationContextFromXML,
-  ConfigurationContextWithExportToXML,
-  XmlImportConfigurationContext,
+  createConfigurationLanguages,
+  type ConfigurationContext,
+  type ConfigurationContextFromXML,
+  type ConfigurationContextWithExportToXML,
+  type XmlImportConfigurationContext,
 } from "@nkdk/runtime"
 import { resolveDataPathCore } from "../metadata/validation/dataPath/coreResolver"
 
+export const mockLanguages = createConfigurationLanguages({ default: "ru", registered: ["ru", "en"] })
+
 export const mockContext: ConfigurationContext = {
   version: "2.20",
-  defaultLanguage: "ru",
+  languages: mockLanguages,
   testMode: true,
   exportToYAML: { toTyped: false },
 }

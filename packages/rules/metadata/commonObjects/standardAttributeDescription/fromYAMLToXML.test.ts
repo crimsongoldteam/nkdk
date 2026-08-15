@@ -30,7 +30,7 @@ import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCo
 import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
 
 const context: ConfigurationContextWithExportToXML = {
-  defaultLanguage: "ru",
+  languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   version: "2.20",
   exportToXML: { version: "2.20", itemsTree: [] },
 }

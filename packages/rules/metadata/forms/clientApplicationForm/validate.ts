@@ -1,6 +1,6 @@
 import { join } from "path"
 import { rootFromYAML } from "@nkdk/runtime/rule-kit"
-import type { ConfigurationContext } from "@nkdk/runtime"
+import { createConfigurationLanguages, type ConfigurationContext } from "@nkdk/runtime"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { toDataPathPolicyInput, validateResolvedDataPathPolicy } from "../../validation/dataPath/policies"
@@ -456,7 +456,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function defaultValidationContext(): ConfigurationContext {
   return {
     version: "2.20",
-    defaultLanguage: "ru",
+    languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
     exportToYAML: { toTyped: false },
   }
 }

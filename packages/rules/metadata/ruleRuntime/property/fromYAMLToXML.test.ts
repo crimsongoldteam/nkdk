@@ -25,7 +25,7 @@ import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
 
 const context = (): ConfigurationContextWithExportToXML => ({
-  defaultLanguage: "ru",
+  languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   version: "2.20",
   exportToXML: {
 

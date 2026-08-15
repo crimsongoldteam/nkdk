@@ -21,7 +21,7 @@ import "../commonObjects/string/toJSONSchema"
 import "../forms/commonObjects/event/toJSONSchema"
 
 const baseContext = {
-  defaultLanguage: "ru",
+  languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   version: "2.20",
 } as const
 

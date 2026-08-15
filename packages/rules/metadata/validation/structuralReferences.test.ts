@@ -62,7 +62,7 @@ it.each([
       parsed,
       rule,
       yaml: parsed.data,
-      context: { version: "2.20", defaultLanguage: "ru" },
+      context: { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' } },
       runtime: createPropertyStructuralReferenceRuntime(),
     }))).toThrow(message)
 })

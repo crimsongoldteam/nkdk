@@ -145,6 +145,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
   const activeWorkerIndexes = new Set<number>()
   const initializedValidationWorkerIndexes = new Set<number>()
   let validationStartProfile: ValidationWorkerPoolStartProfile | undefined
+  let validationContextFingerprint: string | undefined
 
   return {
     async run(runParams) {
@@ -233,6 +234,11 @@ export function createPreparedYamlProjectWorkerPool(params: {
     async initValidation(context, suppliedOperation) {
       const operation = suppliedOperation ?? createPreparedYamlValidationOperation()
       operation.signal.throwIfAborted()
+      const nextContextFingerprint = JSON.stringify([context.version, context.languages.version])
+      if (validationContextFingerprint !== undefined && validationContextFingerprint !== nextContextFingerprint) {
+        initializedValidationWorkerIndexes.clear()
+        validationStartProfile = undefined
+      }
       const indexesToInit = Array.from({ length: params.concurrency }, (_, index) => index).filter(
         (index) => !initializedValidationWorkerIndexes.has(index)
       )
@@ -264,6 +270,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
       const results = fulfilledValues(settled)
 
       for (const index of indexesToInit) initializedValidationWorkerIndexes.add(index)
+      validationContextFingerprint = nextContextFingerprint
       const startProfile = {
         workerInitMs: performance.now() - startedAt,
         schemaCompileMs: results.reduce((sum, result) => sum + result.totalMs, 0),
@@ -494,6 +501,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
       activeWorkerIndexes.clear()
       initializedValidationWorkerIndexes.clear()
       validationStartProfile = undefined
+      validationContextFingerprint = undefined
       await params.operation?.finish(operationFailed ? "failure" : "success")
     },
     size() {

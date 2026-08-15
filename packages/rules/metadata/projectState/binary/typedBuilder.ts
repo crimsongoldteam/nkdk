@@ -183,7 +183,7 @@ function markReachableRows(source: Source): void {
   const roots: readonly ProjectStateFactTableKind[] = [
     "validationStatus", "targets", "pendingReferences", "owners", "fields",
     "forms", "formColumns", "pendingChecks", "dependencies",
-    "structuredDocuments",
+    "structuredDocuments", "validationContextDependencies",
   ]
   for (const kind of roots) {
     const range = source.tables.get(kind)
@@ -354,6 +354,7 @@ function remapRow(source: Source, kind: ProjectStateFactTableKind, original: Rec
     case "forms": case "formColumns": file(); ref("ownerTypeId", "ownerTypes"); string("nameId", "tablePathId"); ref("typeInfoId", "typeInfo"); ref("tableInfoId", "tableInfo"); break
     case "pendingChecks": file(); ref("yamlPathId", "yamlPaths"); string("kindId", "payloadId", "pathId", "valueId", "policyYamlId", "elementTypeId", "tableContextId"); ref("ownerTypeId", "ownerTypes"); range("allowedKindsStart", "allowedKindsCount", "allowedKinds"); break
     case "dependencies": file(); string("projectPathId"); break
+    case "validationContextDependencies": file(); string("keyId", "versionId"); break
     case "structuredDocuments":
       file()
       string("documentKindId", "representationId", "logicalAddressId", "workingProjectPathId", "componentKindId", "nameId", "payloadId")

@@ -82,7 +82,7 @@ const importFilterItemLocalStringTypeFromYAML = (
   sourceValue?: unknown
 ) => {
   if (typeof value === "string" && typeof sourceValue === "object" && sourceValue !== null) {
-    if ("items" in sourceValue) return { items: { [context.defaultLanguage]: value } }
+    if ("items" in sourceValue) return { items: { [context.languages.default]: value } }
     if ("type" in sourceValue && (sourceValue as Record<string, unknown>).type === "string") {
       return { type: "string", value }
     }

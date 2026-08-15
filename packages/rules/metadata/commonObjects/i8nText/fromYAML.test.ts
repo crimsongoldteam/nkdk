@@ -3,6 +3,18 @@ import { i8nTextFixtures } from "./__fixtures__/legacy/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importI8nTextFromYAML } from "./fromYAML"
 import { I8nTextPropertyRule } from "./types"
+import {
+  createConfigurationLanguages,
+  parseMetadataYaml,
+  yamlMappingKeys,
+  yamlMappingTagOf,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
+
+const multilingualContext = {
+  ...mockContext,
+  languages: createConfigurationLanguages({ default: "ru", registered: ["ru", "en"] }),
+}
 
 describe("importI8nTextFromYAML", () => {
   describe("importI8nTextFromYAML", () => {
@@ -22,6 +34,18 @@ describe("importI8nTextFromYAML", () => {
       })
 
       expect(result).toEqual(fixture.text)
+    })
+
+    it("preserves YAML order before source-only languages", () => {
+      const value = parseMetadataYaml(": Leading\nru: Override").data as Record<string, string>
+      const result = importI8nTextFromYAML({
+        context: mockContext,
+        rule: mockRule,
+        value,
+        source: { items: { ru: "Source" } },
+      })!
+
+      expect(yamlMappingKeys(result.items)).toEqual(["", "ru"])
     })
   })
 
@@ -91,6 +115,36 @@ describe("importI8nTextFromYAML", () => {
           en: "Оценка отправлена",
         },
       })
+    })
+
+    it("does not restore an explicitly absent default language", () => {
+      const parsed = parseMetadataYaml('ru: ""\nen: Dont exit')
+      const value = parsed.data as Record<string, string>
+
+      const result = importI8nTextFromYAML({
+        context: multilingualContext,
+        rule: { type: "I8nText", excludeIfEqualNameYAML: true },
+        name: "НеВыходить",
+        value,
+      })
+
+      expect(result).toEqual({ items: { en: "Dont exit" } })
+    })
+
+    it("preserves order and scalar sidecars in the model", () => {
+      const parsed = parseMetadataYaml("!xml/order\nen: Text\nru: !xml/duplicate Текст")
+      const value = parsed.data as Record<string, string>
+
+      const result = importI8nTextFromYAML({
+        context: multilingualContext,
+        rule: { type: "I8nText", excludeIfEqualNameYAML: true },
+        name: "НеВыходить",
+        value,
+      })!
+
+      expect(yamlMappingTagOf(result.items)).toBe("xml/order")
+      expect(yamlScalarTagAt(result.items, "ru")).toBe("xml/duplicate")
+      expect(Object.keys(result.items)).toEqual(["en", "ru"])
     })
   })
 })

@@ -269,6 +269,7 @@ interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly pendingChecks: readonly ProjectStatePendingCheck[]
   readonly dependencies: readonly string[]
   readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
+  readonly validationContextDependencies?: readonly { readonly key: string; readonly version: string }[]
 }
 interface ProjectStateStructuredDocumentEntry {
   readonly documentKind: string; readonly representation: string; readonly logicalAddress: string
@@ -572,7 +573,7 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function appendFinalFacts(
-    update: Pick<ProjectStateYamlFileUpdate, "pendingReferences" | "pendingChecks" | "dependencies">,
+    update: Pick<ProjectStateYamlFileUpdate, "pendingReferences" | "pendingChecks" | "dependencies" | "validationContextDependencies">,
     fileId: number,
   ): void {
     for (const reference of update.pendingReferences) {
@@ -663,6 +664,13 @@ export function createProjectStateFragmentWriter(options: {
     }
     for (const dependency of update.dependencies) {
       rows.dependencies.push({ sourceFileId: fileId, projectPathId: strings.intern(dependency) })
+    }
+    for (const dependency of update.validationContextDependencies ?? []) {
+      rows.validationContextDependencies.push({
+        sourceFileId: fileId,
+        keyId: strings.intern(dependency.key),
+        versionId: strings.intern(dependency.version),
+      })
     }
   }
 
@@ -980,7 +988,7 @@ function emptyRows(): Record<ProjectStateFactTableKind, Record<string, number>[]
     validationStatus: [], targets: [], referenceDetails: [], pendingReferences: [],
     owners: [], ownerFacts: [], ownerFactItems: [], fields: [], typeInfo: [], typeKinds: [], definedTypes: [],
     ownerTypes: [], tableInfo: [], forms: [], formColumns: [], pendingChecks: [],
-    allowedKinds: [], dependencies: [], yamlPaths: [], yamlPathSegments: [],
+    allowedKinds: [], dependencies: [], validationContextDependencies: [], yamlPaths: [], yamlPathSegments: [],
     typeDescriptions: [], typeDescriptionValues: [], structuredDocuments: [],
   }
 }

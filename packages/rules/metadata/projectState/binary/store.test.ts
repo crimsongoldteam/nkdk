@@ -99,6 +99,28 @@ describe("BinaryProjectStateStore", () => {
     expect(store.commitUpdate()).toBe(false)
   })
 
+  it("сохраняет зависимости файла от версий validation-контекста", () => {
+    const { store } = createBinaryProjectStateTestFixture()
+    const sensitive = {
+      ...yamlUpdate("cf/СЯзыком.yaml", "cf", "Catalog.СЯзыком"),
+      validationContextDependencies: [{ key: "languages", version: "v1" }],
+    }
+    const ordinary = yamlUpdate("cf/Обычный.yaml", "cf", "Catalog.Обычный")
+    const writer = createProjectStateFragmentWriter()
+    writer.appendFile(sensitive, 11n)
+    writer.appendFile(ordinary, 12n)
+    store.beginUpdate()
+    store.appendFragment(writer.finish())
+    store.commitUpdate()
+
+    const page = store.readFileBaselinePathPage([sensitive.projectPath, ordinary.projectPath])
+
+    expect(page.validationContextDependencies).toEqual([
+      [{ key: "languages", version: "v1" }],
+      undefined,
+    ])
+  })
+
   it("переиспользует разбиение двоичных записей между чтениями снимка", () => {
     const { store } = createBinaryProjectStateTestFixture()
     store.beginUpdate()

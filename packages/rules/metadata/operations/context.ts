@@ -1,8 +1,8 @@
-import type { ConfigurationContext } from "@nkdk/runtime"
+import { createConfigurationLanguages, type ConfigurationContext } from "@nkdk/runtime"
 
 export function defaultMetadataOperationsContext(): ConfigurationContext {
   return {
-    defaultLanguage: "ru",
+    languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
     version: "2.20",
     exportToYAML: { toTyped: false },
   }

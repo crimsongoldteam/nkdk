@@ -5,6 +5,8 @@ import { resolveComponent } from "./componentResolver"
 import { projectStateHandle } from "./projectStateHandle"
 import { withDiagnosticOutput, type DiagnosticReportFileSystem } from "./diagnosticReport"
 import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
+import type { ConfigurationLanguages } from "@nkdk/runtime"
+import { defaultMcpConfigurationLanguages } from "../configurationContext"
 
 interface CoreImportDiagnostic {
   severity: "error" | "warning"
@@ -28,7 +30,7 @@ interface ImportFromXmlDeps {
   diagnosticReportFileSystem?: DiagnosticReportFileSystem
   importConfigurationFromXml: (params: {
     context: {
-      defaultLanguage: "ru"
+      languages: ConfigurationLanguages
       version: "2.20"
       exportToYAML: { toTyped: false }
       fromXML: { forReference: false }
@@ -80,7 +82,7 @@ export async function importFromXml(
     const projectState = deps?.projectState ?? await projectStateHandle.get()
     const result = await core.importConfigurationFromXml({
       context: {
-        defaultLanguage: "ru",
+        languages: defaultMcpConfigurationLanguages,
         version: "2.20",
         exportToYAML: { toTyped: false },
         fromXML: { forReference: false },

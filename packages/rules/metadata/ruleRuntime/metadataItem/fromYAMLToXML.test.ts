@@ -10,9 +10,10 @@ import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { PropertyRuleType } from "../property/registry"
 import type { ExportToXMLFunctionNew } from "../property/fn"
+import { mockLanguages } from "../../../tests/mockContext"
 
 const context = (): ConfigurationContextWithExportToXML => ({
-  defaultLanguage: "ru",
+  languages: mockLanguages,
   version: "2.20",
   exportToXML: { version: "2.20", itemsTree: [] },
 })

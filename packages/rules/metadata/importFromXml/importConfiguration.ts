@@ -27,6 +27,11 @@ import {
 } from "../projectState"
 import { getMetadataSnapshotImportCapability } from "../resourceTopology/adapters/capabilities"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
+import {
+  loadConfigurationLanguagesFromXML,
+  loadConfigurationLanguagesFromYAML,
+} from "../context/configurationLanguages"
+import { configurationValidationContextVersions } from "../context/validationContextVersions"
 import { createValidationProjectComponent, type ValidationProjectComponent } from "../validation/projectComponents"
 import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import { resolveXmlImportComponent, type XmlImportComponentDescriptor } from "./componentDescriptor"
@@ -73,6 +78,8 @@ export interface ImportCoordinatorDependencies {
   resolveComponent?(root: Record<string, unknown>): XmlImportComponentDescriptor
   assertNoPending?(projectDir: string, componentPath: string): void | Promise<void>
   createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
+  loadLanguagesFromXML?(xmlDir: string): ReturnType<typeof loadConfigurationLanguagesFromXML>
+  loadLanguagesFromYAML?(configurationDir: string): ReturnType<typeof loadConfigurationLanguagesFromYAML>
   discover(params: {
     xmlDir: string
     topology: CompiledMetadataResourceTopology
@@ -187,9 +194,6 @@ export async function importConfigurationFromXml(
     const root = await readXmlImportComponentRoot(params.inputDir)
     const descriptor = (deps.resolveComponent ?? resolveXmlImportComponent)(root)
     const resolvedRoot = descriptor.resolveRoot(root)
-    const importContext = descriptor.metadataItemAugmenter === "configurationExtension"
-      ? withPropertyStateCompatibilityMode(params.context, root)
-      : params.context
     const { address } = resolvedRoot
     const selectedComponentPath = componentPath(address)
     const assertNoPending = deps.assertNoPending ?? assertNoPendingDefault
@@ -207,9 +211,22 @@ export async function importConfigurationFromXml(
     })
     await fs.promises.mkdir(params.projectDir, { recursive: true })
 
+    const languages = descriptor.baseAddress === undefined
+      ? await (deps.loadLanguagesFromXML ?? loadConfigurationLanguagesFromXML)(params.inputDir)
+      : await (deps.loadLanguagesFromYAML ?? loadConfigurationLanguagesFromYAML)(join(params.projectDir, "cf"))
+    const operationContext = { ...params.context, languages }
+    const importContext = descriptor.metadataItemAugmenter === "configurationExtension"
+      ? withPropertyStateCompatibilityMode(operationContext, root)
+      : operationContext
+
     const concurrency = normalizeConcurrency(params.concurrency)
     if (descriptor.baseAddress !== undefined) {
-      await projectState.refreshAndValidate({ projectDir: params.projectDir, context: params.context, concurrency })
+      await projectState.refreshAndValidate({
+        projectDir: params.projectDir,
+        context: operationContext,
+        validationContextVersions: configurationValidationContextVersions(operationContext),
+        concurrency,
+      })
     }
     importSession = await projectState.beginImport({
       projectDir: params.projectDir,
@@ -290,7 +307,7 @@ export async function importConfigurationFromXml(
       return outcome = failedResult([...firstDiagnostics, ...cleanup], [], resolvedComponentPath)
     }
     const snapshotFragments = await (deps.collectSnapshotFragments ?? collectSnapshotFragments)({
-      context: params.context,
+      context: operationContext,
       files: discovered.snapshotFiles ?? [],
     })
     for (const fragment of snapshotFragments) indexCandidate.mergeBlockFragment(fragment)

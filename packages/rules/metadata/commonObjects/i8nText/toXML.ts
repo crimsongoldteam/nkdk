@@ -4,6 +4,7 @@ import { ConfigurationContext } from "@nkdk/runtime"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { isEmptyI8nText } from "./helper"
 import type { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
+import { exportLocalizedItems } from "./anomalies"
 
 /** @deprecated */
 export const exportI8nTextToXMLWithDefaultLanguage = (
@@ -38,9 +39,10 @@ export const exportI8nTextToXML = (
     }
   }
 
-  const v8Items: I8nTextLanguageXML[] = []
-  Object.entries(data.items).forEach(([lang, content]) => {
-    v8Items.push({ "v8:lang": lang, "v8:content": content })
+  const v8Items: I8nTextLanguageXML[] = exportLocalizedItems({
+    context,
+    items: data.items,
+    emptyDefaultIsMarker: narrowRule.excludeIfEqualNameYAML === true,
   })
 
   const base: I8nTextXML = { "v8:item": v8Items }

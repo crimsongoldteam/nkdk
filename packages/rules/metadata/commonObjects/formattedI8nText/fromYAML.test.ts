@@ -3,6 +3,7 @@ import { formattedI8nTextFixtures } from "./__fixtures__/data"
 import { mockContext } from "../../../tests/mockContext"
 import { importFormattedI8nTextFromYAML } from "./fromYAML"
 import { FormattedI8nTextPropertyRule } from "./types"
+import { parseMetadataYaml, yamlMappingTagOf, yamlScalarTagAt } from "@nkdk/runtime"
 
 const formattedI8nTextRule: FormattedI8nTextPropertyRule = {
   type: "FormattedI8nText",
@@ -45,6 +46,21 @@ describe("importFormattedI8nTextFromYAML", () => {
       formatted: false,
       items: {},
     })
+  })
+
+  it("preserves language anomaly sidecars", () => {
+    const parsed = parseMetadataYaml("Текст: !xml/order\n  en: Text\n  ru: !xml/duplicate Текст")
+    const value = parsed.data as { Текст: Record<string, string> }
+
+    const result = importFormattedI8nTextFromYAML({
+      context: mockContext,
+      rule: { type: "FormattedI8nText", yaml: "Заголовок", excludeIfEqualNameYAML: true },
+      name: "Текст",
+      value,
+    })!
+
+    expect(yamlMappingTagOf(result.items)).toBe("xml/order")
+    expect(yamlScalarTagAt(result.items, "ru")).toBe("xml/duplicate")
   })
 
   describe("value-based YAML", () => {

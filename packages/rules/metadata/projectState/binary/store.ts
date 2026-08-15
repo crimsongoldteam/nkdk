@@ -89,10 +89,15 @@ export function createBinaryProjectStateStore(
     },
     readFileBaselinePathPage(projectPaths) {
       assertOpen()
-      const snapshot = new ProjectStateSnapshotView(published)
+      const context = readContext(published)
+      const { snapshot } = context
+      const typed = createTypedProjectStateReader(snapshot, context.readIndex)
       const knownHashBits = new Uint8Array(Math.ceil(projectPaths.length / 8))
       const hashBytes = new Uint8Array(projectPaths.length * 8)
       const previousFileIds = new Int32Array(projectPaths.length).fill(-1)
+      const validationContextDependencies = projectPaths.map(() => undefined as ReturnType<
+        typeof typed.validationContextDependencies
+      > | undefined)
       const hashes = new DataView(hashBytes.buffer)
       projectPaths.forEach((projectPath, index) => {
         const fileId = snapshot.findFile(projectPath)
@@ -100,8 +105,16 @@ export function createBinaryProjectStateStore(
         previousFileIds[index] = fileId
         knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
         hashes.setBigUint64(index * 8, snapshot.fileRecord(fileId).hash, false)
+        const dependencies = typed.validationContextDependencies(fileId)
+        if (dependencies.length > 0) validationContextDependencies[index] = dependencies
       })
-      const result = { knownHashBits, hashBytes, previousFileIds, storedFileCount: snapshot.fileCount }
+      const result = {
+        knownHashBits,
+        hashBytes,
+        previousFileIds,
+        storedFileCount: snapshot.fileCount,
+        validationContextDependencies,
+      }
       assertProjectStateFileBaselinePage(result, projectPaths.length)
       return result
     },

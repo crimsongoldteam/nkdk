@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "@nkdk/runtime"
+import { rehydrateConfigurationContext, type ConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import { openBinaryProjectStateReadSession } from "../projectState/binary/readSession"
@@ -37,10 +37,11 @@ export async function createMetadataWorkerPersistentState(
   params: { readonly workerIndex: number; readonly context: ConfigurationContext },
   dependencies: MetadataWorkerStateDependencies = {},
 ): Promise<MetadataWorkerPersistentState> {
+  const context = rehydrateConfigurationContext(params.context)
   const schemaCache = await (dependencies.createSchemaCache ?? createProjectValidationWorkerSchemaCache)({
-    context: params.context,
+    context,
   })
-  const rulesSnapshot = (dependencies.createRulesSnapshot ?? createValidationRulesSnapshot)(params.context)
+  const rulesSnapshot = (dependencies.createRulesSnapshot ?? createValidationRulesSnapshot)(context)
   const openReadSession = dependencies.openReadSession
     ?? ((token) => openBinaryProjectStateReadSession(token, createProjectStateDependencyValidator()))
   let projectState: ProjectStateReadSession | undefined
@@ -48,7 +49,7 @@ export async function createMetadataWorkerPersistentState(
 
   return {
     workerIndex: params.workerIndex,
-    context: params.context,
+    context,
     schemaCache,
     rulesSnapshot,
     validationRuntime: dependencies.validationRuntime,

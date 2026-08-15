@@ -9,7 +9,7 @@ import {
 } from "./excludeIfEqualNameYAML"
 
 const context = {
-  defaultLanguage: "ru",
+  languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   version: "2.20",
 } as const
 

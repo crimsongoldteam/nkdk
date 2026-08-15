@@ -1,7 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { spawnSync } from "node:child_process"
-import { cp, mkdtemp, rm } from "node:fs/promises"
+import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -73,11 +73,15 @@ try {
     if (result.isError) throw new Error("nkdk.get_schema returned MCP error")
 
     const projectDir = join(tmpRoot, "project")
+    const configurationDir = join(projectDir, "cf")
     await cp(
       join(packageRoot, "../rules/metadata/validation/__fixtures__/project-with-form"),
-      projectDir,
+      configurationDir,
       { recursive: true },
     )
+    await mkdir(join(configurationDir, "Язык"), { recursive: true })
+    await writeFile(join(configurationDir, "Конфигурация.yaml"), "ОсновнойЯзык: Язык.Русский\n")
+    await writeFile(join(configurationDir, "Язык", "Русский.yaml"), "КодЯзыка: ru\n")
     const validation = await client.callTool({
       name: "nkdk.validate_project",
       arguments: { projectDir },

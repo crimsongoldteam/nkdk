@@ -43,6 +43,7 @@ import {
   type PendingPartialXmlSyncStateV3,
 } from "./pendingStore"
 import { createPartialXmlArchiveWriter, type PartialXmlArchiveWriter } from "./archiveWriter"
+import { withConfigurationValidationContextVersions } from "../context/validationContextVersions"
 
 export interface PreparePartialXmlSyncPackageParams {
   readonly context: ConfigurationContext
@@ -116,11 +117,12 @@ export async function preparePartialXmlSyncPackage(
 }
 
 async function refreshProject(params: PreparePartialXmlSyncPackageParams) {
-  const refreshed = await params.projectState.refreshAndValidate({
+  const refreshParams = withConfigurationValidationContextVersions({
     projectDir: params.projectDir,
     context: params.context,
     ...(params.concurrency === undefined ? {} : { concurrency: params.concurrency }),
   })
+  const refreshed = await params.projectState.refreshAndValidate(refreshParams)
   const diagnostics = [...refreshed.diagnostics]
   refreshed.diagnostics.release()
   return { diagnostics, readToken: refreshed.readToken }

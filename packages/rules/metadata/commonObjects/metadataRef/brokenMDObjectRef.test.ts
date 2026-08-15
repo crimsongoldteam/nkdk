@@ -10,7 +10,7 @@ import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromY
 import { exportPropertiesToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
-import { mockContext, mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { mockContext, mockContextFromXML, mockContextToXML, mockLanguages } from "../../../tests/mockContext"
 import { MetadataSubsystemRules } from "../../appliedObjects/metadataSubsystem/rules"
 
 const UUID = "447e2bd8-fa43-442e-91db-b17634e036d9"
@@ -59,7 +59,7 @@ it("round-trips a broken MDObjectRef inside an ordered mixed collection", () => 
 
   const exported = convertPropertiesFromYAMLToXML({
     context: {
-      defaultLanguage: "ru",
+      languages: mockLanguages,
       version: "test",
       exportToXML: { version: "test", itemsTree: [] },
     },

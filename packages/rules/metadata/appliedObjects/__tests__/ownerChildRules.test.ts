@@ -89,7 +89,7 @@ import {
 } from "../metadataCalculationRegister/childRules"
 import { MetadataCalculationRegisterRules } from "../metadataCalculationRegister/rules"
 
-const context = { defaultLanguage: "ru", version: "2.20" } as const
+const context = { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "2.20" } as const
 const identity = ["objectBelonging", "name"]
 const presentation = [
   "synonym",

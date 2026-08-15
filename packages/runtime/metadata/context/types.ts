@@ -11,6 +11,117 @@ export type ContextElementToXML = {
   externalMetadata?: ExternalMetadataItemRule
 }
 
+export interface ConfigurationLanguages {
+  readonly default: string
+  readonly registered: readonly string[]
+  readonly registeredSet: ReadonlySet<string>
+  readonly version: string
+}
+
+class ImmutableSet<T> implements ReadonlySet<T> {
+  readonly #values: Set<T>
+
+  constructor(values: Iterable<T>) {
+    this.#values = new Set(values)
+    Object.freeze(this)
+  }
+
+  get size(): number {
+    return this.#values.size
+  }
+
+  has(value: T): boolean {
+    return this.#values.has(value)
+  }
+
+  entries(): SetIterator<[T, T]> {
+    return this.#values.entries()
+  }
+
+  keys(): SetIterator<T> {
+    return this.#values.keys()
+  }
+
+  values(): SetIterator<T> {
+    return this.#values.values()
+  }
+
+  forEach(callback: (value: T, key: T, set: ReadonlySet<T>) => void, thisArg?: unknown): void {
+    for (const value of this.#values) callback.call(thisArg, value, value, this)
+  }
+
+  union<U>(other: ReadonlySetLike<U>): Set<T | U> {
+    return this.#values.union(other)
+  }
+
+  intersection<U>(other: ReadonlySetLike<U>): Set<T & U> {
+    return this.#values.intersection(other)
+  }
+
+  difference<U>(other: ReadonlySetLike<U>): Set<T> {
+    return this.#values.difference(other)
+  }
+
+  symmetricDifference<U>(other: ReadonlySetLike<U>): Set<T | U> {
+    return this.#values.symmetricDifference(other)
+  }
+
+  isSubsetOf(other: ReadonlySetLike<unknown>): boolean {
+    return this.#values.isSubsetOf(other)
+  }
+
+  isSupersetOf(other: ReadonlySetLike<unknown>): boolean {
+    return this.#values.isSupersetOf(other)
+  }
+
+  isDisjointFrom(other: ReadonlySetLike<unknown>): boolean {
+    return this.#values.isDisjointFrom(other)
+  }
+
+  [Symbol.iterator](): SetIterator<T> {
+    return this.#values[Symbol.iterator]()
+  }
+}
+
+export function createConfigurationLanguages(params: {
+  readonly default: string
+  readonly registered: readonly string[]
+}): ConfigurationLanguages {
+  if (params.default.trim() === "") throw new Error("Код основного языка не должен быть пустым")
+  const registered = [...params.registered]
+  const values = new Set<string>()
+  for (const code of registered) {
+    if (code.trim() === "") throw new Error("Код зарегистрированного языка не должен быть пустым")
+    if (values.has(code)) throw new Error(`Код языка зарегистрирован повторно: ${code}`)
+    values.add(code)
+  }
+  if (!values.has(params.default)) {
+    throw new Error(`Основной язык не зарегистрирован: ${params.default}`)
+  }
+  const frozenRegistered = Object.freeze(registered)
+  return Object.freeze({
+    default: params.default,
+    registered: frozenRegistered,
+    registeredSet: new ImmutableSet(values),
+    version: JSON.stringify([params.default, [...registered].sort(compareLanguageCodes)]),
+  })
+}
+
+/** Восстанавливает вычисляемый индекс языков после передачи контекста через structured clone. */
+export function rehydrateConfigurationContext<T extends ConfigurationContext>(context: T): T {
+  return {
+    ...context,
+    languages: createConfigurationLanguages({
+      default: context.languages.default,
+      registered: context.languages.registered,
+    }),
+  }
+}
+
+function compareLanguageCodes(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0
+}
+
 export type JSONSchemaExportMode = "externalRefs" | "inline"
 
 export interface MetadataContextTypeMap {}
@@ -55,7 +166,7 @@ export type ContextElementToEnterprise =
 
 export interface ConfigurationContext {
   testMode?: boolean
-  defaultLanguage: string
+  languages: ConfigurationLanguages
   version: string
   context?: object
   exportToYAML?: FormExportToYAMLContext

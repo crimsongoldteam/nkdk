@@ -46,7 +46,7 @@ describe("full XML sync worker", () => {
   const tempDirs: string[] = []
   const context = {
     version: "2.20",
-    defaultLanguage: "ru",
+    languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
     exportToYAML: { toTyped: false },
   } as const
   const readToken = createTestProjectStateReadToken()

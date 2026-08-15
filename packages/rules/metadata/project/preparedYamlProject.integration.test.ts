@@ -18,7 +18,7 @@ import {
 
 describe("prepareYamlProject", () => {
   const testTimeout = 20_000
-  const validationContext = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
+  const validationContext = { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, exportToYAML: { toTyped: false } } as const
   const tempDirs: string[] = []
   const validationTestPool = createPreparedYamlWorkerTestPool()
   const prepareTestPool1 = createPreparedYamlWorkerTestPool()
@@ -396,11 +396,20 @@ describe("prepareYamlProject", () => {
     async () => {
       const testPool = createPreparedYamlWorkerTestPool()
       const pool = testPool.pool
-      const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
+      const context = { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, exportToYAML: { toTyped: false } } as const
 
       try {
         const first = await pool.initValidation(context)
         const second = await pool.initValidation(context)
+        const changedLanguages = await pool.initValidation({
+          ...context,
+          languages: {
+            default: "ru",
+            registered: ["ru", "en"],
+            registeredSet: new Set(["ru", "en"]),
+            version: '["ru",["en","ru"]]',
+          },
+        })
 
         expect(first.reused).toBeUndefined()
         expect(second).toMatchObject({
@@ -409,6 +418,7 @@ describe("prepareYamlProject", () => {
           formSchemaMs: first.formSchemaMs,
           propertiesSchemaMs: first.propertiesSchemaMs,
         })
+        expect(changedLanguages.reused).toBeUndefined()
       } finally {
         await testPool.close()
       }
@@ -515,7 +525,7 @@ describe("prepareYamlProject", () => {
     try {
       const result = await pool.run({
         projectDir: "/project",
-        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+        context: { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, exportToYAML: { toTyped: false } },
         files: [
           {
             ...componentFileAddress("/project", "Справочник/Товары/Свойства.yaml"),

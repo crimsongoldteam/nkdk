@@ -15,6 +15,11 @@ export interface ProjectStateFileHashBatch {
   readonly hashBytes: Uint8Array
 }
 
+export interface ProjectStateValidationContextDependency {
+  readonly key: string
+  readonly version: string
+}
+
 export interface ProjectStateFileBaseline {
   readonly knownHashBits: Uint8Array
   readonly hashBytes: Uint8Array
@@ -26,6 +31,9 @@ export interface ProjectStateFileBaselinePage {
   readonly hashBytes: Uint8Array
   readonly previousFileIds: Int32Array
   readonly storedFileCount: number
+  readonly validationContextDependencies?: readonly (
+    readonly ProjectStateValidationContextDependency[] | undefined
+  )[]
 }
 
 export type ProjectStateFileBaselinePathPage = ProjectStateFileBaselinePage

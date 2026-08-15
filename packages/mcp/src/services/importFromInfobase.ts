@@ -14,6 +14,7 @@ import { assertImportTargetEmpty, resolveComponent } from "./componentResolver"
 import { getPlatformSessionManager } from "./platformSessionHandle"
 import { projectSettingsFailure } from "./projectSettingsFailure"
 import { temporaryDirectoryFileSystem } from "./temporaryDirectory"
+import { defaultMcpConfigurationLanguages } from "../configurationContext"
 
 type CoreImportDiagnostic = {
   severity: "error" | "warning"
@@ -97,7 +98,7 @@ export async function importFromInfobase(
     throwIfCancelled(signal)
     const result = await dependencies.importXml({
       context: {
-        defaultLanguage: "ru",
+        languages: defaultMcpConfigurationLanguages,
         version: "2.20",
         exportToYAML: { toTyped: false },
         fromXML: { forReference: false },

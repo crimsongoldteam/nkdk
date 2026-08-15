@@ -13,7 +13,11 @@ import type {
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { MetadataProjectResourceMatch } from "../resourceTopology/core/projectProjection"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
-import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
+import {
+  createConfigurationLanguages,
+  createMetadataDiagnosticCollectionFromDiagnostics,
+  type ConfigurationLanguages,
+} from "@nkdk/runtime"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncDiagnostic } from "./types"
 import {
@@ -33,10 +37,12 @@ import {
 } from "./workerPool"
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 
+const defaultHarnessLanguages = createConfigurationLanguages({ default: "ru", registered: ["ru"] })
+
 describe("shared full XML sync coordinator", () => {
   const context = {
     version: "2.20",
-    defaultLanguage: "ru",
+    languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
     exportToYAML: { toTyped: false },
   } as const
   const runHarnessSync = (harness: ReturnType<typeof createHarness>, options: {
@@ -86,6 +92,28 @@ describe("shared full XML sync coordinator", () => {
     expect(harness.writtenIndex?.fragments).toEqual([
       { targetProjectPath: "Конфигурация.yaml", entities: [] },
     ])
+  })
+
+  it("loads project languages before refresh and worker initialization", async () => {
+    const loadedLanguages = createConfigurationLanguages({ default: "ru", registered: ["ru", "en"] })
+    const harness = createHarness({ loadedLanguages })
+
+    const result = await runHarnessSync(harness, { ignoreValidationErrors: false, selected: false })
+
+    expect(result.failed).toEqual([])
+    expect(harness.refreshedLanguages).toBe(loadedLanguages)
+    expect(harness.initializedLanguages).toBe(loadedLanguages)
+  })
+
+  it("останавливает full sync до refresh при ошибке реестра языков", async () => {
+    const harness = createHarness({ languageRegistryFailure: new Error("Основной язык не зарегистрирован: ru") })
+
+    const result = await runHarnessSync(harness, { ignoreValidationErrors: false, selected: false })
+
+    expect(result.succeeded).toBe(0)
+    expect(result.failed).toEqual([expect.objectContaining({ message: "Основной язык не зарегистрирован: ru" })])
+    expect(harness.events).not.toContain("refresh")
+    expect(harness.workerPoolCreations).toBe(0)
   })
 
   it("записывает тонкий снимок результата полного sync через публичный entrypoint", async () => {
@@ -494,6 +522,8 @@ describe("shared full XML sync coordinator", () => {
 })
 
 interface HarnessOptions {
+  readonly loadedLanguages?: ConfigurationLanguages
+  readonly languageRegistryFailure?: Error
   readonly executionDiagnostics?: readonly FullXmlSyncDiagnostic[]
   readonly fragmentData?: ConfigurationIndexBlockFragment
   readonly previousFiles?: readonly ConfigurationProjectFile[]
@@ -530,6 +560,8 @@ function createHarness(options: HarnessOptions = {}) {
   let confirmStateCalls = 0
   let profileConfirmCalls = 0
   let workerPoolCreations = 0
+  let refreshedLanguages: ConfigurationLanguages | undefined
+  let initializedLanguages: ConfigurationLanguages | undefined
   let targetKind: ComponentAddress["kind"] = "configuration"
   let readingBase = false
   const topology = compileRegisteredMetadataResourceTopology()
@@ -537,8 +569,9 @@ function createHarness(options: HarnessOptions = {}) {
   const projectState = {
     workers: createUnusedMetadataWorkerPool(),
     async beginImport() { throw new Error("not used") },
-    async refreshAndValidate() {
+    async refreshAndValidate(params) {
       events.push("refresh")
+      refreshedLanguages = params.context?.languages
       if (options.refreshFailure !== undefined) throw options.refreshFailure
       return {
         diagnostics: createMetadataDiagnosticCollectionFromDiagnostics(options.refreshDiagnostics ?? []),
@@ -560,6 +593,10 @@ function createHarness(options: HarnessOptions = {}) {
   } satisfies import("../projectState").ProjectStateService
 
   const deps: FullXmlSyncCoordinatorDependencies = createMockFullSyncDependencies({
+    async loadLanguages() {
+      if (options.languageRegistryFailure !== undefined) throw options.languageRegistryFailure
+      return options.loadedLanguages ?? defaultHarnessLanguages
+    },
     async exists(path) {
       if (path === resolve("/project")) events.push("preflight")
       return path === resolve("/project")
@@ -655,6 +692,7 @@ function createHarness(options: HarnessOptions = {}) {
         async initialize(params) {
           initializedWithBase = params.componentPath.startsWith("cfe/")
           initializedProfile = params.profile
+          initializedLanguages = params.context.languages
         },
         async execute(_assignments, executionOptions): Promise<FullXmlSyncExecutionPoolResult> {
           events.push("execute")
@@ -726,6 +764,12 @@ function createHarness(options: HarnessOptions = {}) {
     },
     get workerPoolCreations() {
       return workerPoolCreations
+    },
+    get refreshedLanguages() {
+      return refreshedLanguages
+    },
+    get initializedLanguages() {
+      return initializedLanguages
     },
   }
 }

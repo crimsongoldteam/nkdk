@@ -22,7 +22,7 @@ import {
   callAtomicToXML,
   convertPropertiesFromYAMLToXML,
 } from "./fromYAMLToXML"
-import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { mockContextFromXML, mockContextToXML, mockLanguages } from "../../../tests/mockContext"
 import { importPropertiesFromXMLToYAML } from "./fromXMLToYAML"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { createImportedDependentPropertyCollector } from "./importYamlTypes"
@@ -36,7 +36,7 @@ import { withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
 function inlineValidationSchemaContext() {
   return {
-    defaultLanguage: "ru",
+    languages: mockLanguages,
     version: "test",
     exportToJSONSchema: {
       mode: "inline" as const,
@@ -183,7 +183,7 @@ it("executes a conversion through the owning registry", () => {
   expect(
     executor.fromXML({
       context: {
-        defaultLanguage: "ru",
+        languages: mockLanguages,
         version: "test",
         fromXML: { forReference: false },
       },
@@ -398,7 +398,7 @@ it("exports YAML through the owning registry", () => {
     })),
   )
   const context = {
-    defaultLanguage: "ru",
+    languages: mockLanguages,
     version: "test",
     exportToYAML: { toTyped: true },
   }
@@ -428,7 +428,7 @@ it("imports XML through the owning registry", () => {
     })),
   )
   const context = {
-    defaultLanguage: "ru",
+    languages: mockLanguages,
     version: "test",
     fromXML: { forReference: false },
   }
@@ -457,7 +457,7 @@ it("imports YAML through the owning registry", () => {
       },
     })),
   )
-  const context = { defaultLanguage: "ru", version: "test" }
+  const context = { languages: mockLanguages, version: "test" }
   const rule = { type: "Sample" }
 
   expect(callAtomicFromYAML({
@@ -579,7 +579,7 @@ it("finalizes imported YAML through the owning registry", () => {
         valuePath: ["Value"],
         rulePath: [{ propertyKey: "value" }],
       }]),
-      context: { defaultLanguage: "ru", version: "test" },
+      context: { languages: mockLanguages, version: "test" },
       execution: executionWithValue(value),
     })
     return yaml
@@ -610,7 +610,7 @@ it("finalizes exported XML through the owning registry", () => {
         valuePath: ["Value"],
         rulePath: [{ propertyKey: "value" }],
       }]),
-      context: { defaultLanguage: "ru", version: "test" },
+      context: { languages: mockLanguages, version: "test" },
       execution: executionWithValue(value),
     })
     return xml
@@ -629,7 +629,7 @@ it("exports enterprise values through the owning registry", () => {
       },
     })),
   )
-  const context = { defaultLanguage: "ru", version: "test" }
+  const context = { languages: mockLanguages, version: "test" }
   const rule = { type: "Sample" }
 
   expect(exportPropertyToEnterprise({

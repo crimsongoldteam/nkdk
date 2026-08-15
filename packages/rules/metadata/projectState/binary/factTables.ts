@@ -20,6 +20,7 @@ import {
   ProjectStateTypeInfoRecordView,
   ProjectStateTypeDescriptionRecordView,
   ProjectStateValidationStatusRecordView,
+  ProjectStateValidationContextDependencyRecordView,
   ProjectStateYamlPathRecordView,
   ProjectStateYamlPathSegmentRecordView,
 } from "./layouts"
@@ -48,6 +49,7 @@ export type ProjectStateFactTableKind =
   | "typeDescriptions"
   | "typeDescriptionValues"
   | "structuredDocuments"
+  | "validationContextDependencies"
 
 export const PROJECT_STATE_FACT_TABLE_IDS: Readonly<Record<ProjectStateFactTableKind, number>> = {
   validationStatus: 1,
@@ -73,6 +75,7 @@ export const PROJECT_STATE_FACT_TABLE_IDS: Readonly<Record<ProjectStateFactTable
   typeDescriptions: 21,
   typeDescriptionValues: 22,
   structuredDocuments: 23,
+  validationContextDependencies: 24,
 }
 
 export interface ProjectStateFactTableRange {
@@ -115,6 +118,7 @@ export const PROJECT_STATE_FACT_RECORD_VIEWS = {
   typeDescriptions: ProjectStateTypeDescriptionRecordView,
   typeDescriptionValues: ProjectStateStringValueRecordView,
   structuredDocuments: ProjectStateStructuredDocumentRecordView,
+  validationContextDependencies: ProjectStateValidationContextDependencyRecordView,
 } as unknown as Readonly<Record<ProjectStateFactTableKind, ProjectStateFactRecordView>>
 
 const NONE = 0xffff_ffff
@@ -340,6 +344,16 @@ function validateFactRows(params: {
     assertFileId(record.sourceFileId, params.fileCount, "dependency.sourceFileId")
     assertStringId(record.projectPathId, params.stringCount, "dependency.projectPathId")
   })
+  forEachRecord(
+    params.tables.get("validationContextDependencies"),
+    ProjectStateValidationContextDependencyRecordView,
+    view,
+    (record) => {
+      assertFileId(record.sourceFileId, params.fileCount, "validationContextDependency.sourceFileId")
+      assertStringId(record.keyId, params.stringCount, "validationContextDependency.keyId")
+      assertStringId(record.versionId, params.stringCount, "validationContextDependency.versionId")
+    },
+  )
   forEachRecord(params.tables.get("structuredDocuments"), ProjectStateStructuredDocumentRecordView, view, (record) => {
     assertFileId(record.sourceFileId, params.fileCount, "structuredDocument.sourceFileId")
     for (const id of [record.documentKindId, record.representationId, record.logicalAddressId,

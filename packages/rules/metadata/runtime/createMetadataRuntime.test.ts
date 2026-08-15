@@ -11,6 +11,7 @@ import { defineMetadataItemCollectionRule } from "../ruleRuntime/metadataCollect
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 import { compileMetadataResourceTopologyForProjectSpecs } from "../resourceTopology/adapters/ruleTopology"
 import { createMetadataItemProjectSchemaExporter } from "../projectDefinition/projectSpecHelpers"
+import { mockLanguages } from "../../tests/mockContext"
 
 const workers = {
   preparedYamlProject: new URL("file:///test/prepared.js"),
@@ -91,7 +92,7 @@ describe("createMetadataRuntime", () => {
       second.validation.validateProject({ projectDir: "test", projectState: state }),
     ).rejects.toThrow("другому runtime")
     await expect(second.sync.partial.prepare({
-      context: { defaultLanguage: "ru", version: "2.20" },
+      context: { languages: mockLanguages, version: "2.20" },
       projectDir: "test",
       componentPath: "cf",
       projectState: state,
@@ -125,7 +126,7 @@ describe("createMetadataRuntime", () => {
     })
     const { first, second } = createRuntimePair(rulesWithValue)
 
-    const context = { defaultLanguage: "ru", version: "test" }
+    const context = { languages: mockLanguages, version: "test" }
     const firstSchema = first.schemas.exportByName({ context, name: "SampleItem" })
     const secondSchema = second.schemas.exportByName({ context, name: "SampleItem" })
 
@@ -162,7 +163,7 @@ describe("createMetadataRuntime", () => {
       )
     }
     const { first, second } = createRuntimePair(rulesWithValue)
-    const context = { defaultLanguage: "ru", version: "test" }
+    const context = { languages: mockLanguages, version: "test" }
 
     expect(first.schemas.exportByName({ context, name: "BuiltSampleItem" }))
       .toMatchObject({ properties: { "Значение": { const: "first" } } })
@@ -198,7 +199,7 @@ describe("createMetadataRuntime", () => {
       )
     }
     const { first, second } = createRuntimePair(rulesWithValue)
-    const context = { defaultLanguage: "ru", version: "test" }
+    const context = { languages: mockLanguages, version: "test" }
 
     expect(first.schemas.exportByName({ context, name: "BuiltCollectionItem" }))
       .toMatchObject({
@@ -259,7 +260,7 @@ describe("createMetadataRuntime", () => {
       ...runtimeOptions,
       rules: rulesWithImplicit("second"),
     })
-    const context = { defaultLanguage: "ru", version: "test" }
+    const context = { languages: mockLanguages, version: "test" }
 
     expect(first.schemas.exportByName({
       context,
@@ -348,7 +349,7 @@ describe("createMetadataRuntime", () => {
       })
     }
     const { first, second } = createRuntimePair(rulesWithValue)
-    const context = { defaultLanguage: "ru", version: "test" }
+    const context = { languages: mockLanguages, version: "test" }
 
     expect(first.schemas.exportForProjectFile({
       context,

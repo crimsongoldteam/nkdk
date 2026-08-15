@@ -1,6 +1,7 @@
 import { Type } from "typebox"
 
 import {
+  createConfigurationLanguages,
   xmlAnomalyTagPayload,
   xmlAnomalyTagValue,
 } from "@nkdk/runtime"
@@ -15,7 +16,10 @@ import {
 } from "./handlers"
 import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
 
-const referenceContext = { version: "test", defaultLanguage: "ru" } as const
+const referenceContext = {
+  version: "test",
+  languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+} as const
 const DESIGN_TIME_REF_YAML_SOURCE =
   `(?:${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}|[^\\s.]+(?:\\.[^\\s.]+){2,})`
 

@@ -55,7 +55,7 @@ function contextWithIndex(extraEntities: readonly ConfigurationIndexBlockEntity[
   return {
     collector,
     context: {
-      defaultLanguage: "ru",
+      languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
       version: "2.20",
       exportToXML: {
 
@@ -71,7 +71,7 @@ function contextWithEmptyIndex(): ConfigurationContextWithExportToXML {
   const source = testConfigurationIndexReader()
   const collector = createConfigurationIndexCollector()
   return {
-    defaultLanguage: "ru",
+    languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
     version: "2.20",
     exportToXML: {
       version: "2.20",

@@ -2,6 +2,8 @@ import type { TSchema } from "typebox"
 import type { ConfigurationContext } from "../context/types"
 import type { PropertyRule } from "../ruleRuntime/property/types"
 import { canConvertToPascalCase } from "./canConvertToPascalCase"
+import { yamlMappingTagOf } from "../../yaml/mappingTags"
+import { yamlScalarTagAt } from "../../yaml/scalarTags"
 
 type YamlPath = readonly (string | number)[]
 
@@ -14,7 +16,7 @@ export interface ExcludedEqualNameYAMLOccurrence {
 }
 
 export interface FindExcludedEqualNameYAMLOccurrenceParams {
-  context: Pick<ConfigurationContext, "defaultLanguage">
+  context: Pick<ConfigurationContext, "languages">
   rule: PropertyRule
   value: unknown
   name: string | undefined
@@ -59,7 +61,7 @@ export function applyExcludedEqualNameYAMLToJSONSchema(params: ApplyExcludedEqua
 }
 
 function findI8nTextOccurrence(params: {
-  context: Pick<ConfigurationContext, "defaultLanguage">
+  context: Pick<ConfigurationContext, "languages">
   value: unknown
   name: string
   path: YamlPath
@@ -72,12 +74,16 @@ function findI8nTextOccurrence(params: {
 
   const record = asRecord(value)
   if (!record) return undefined
+  if (
+    yamlMappingTagOf(record) === "xml/order" ||
+    yamlScalarTagAt(record, context.languages.default) === "xml/duplicate"
+  ) return undefined
 
-  const defaultLanguageValue = record[context.defaultLanguage]
+  const defaultLanguageValue = record[context.languages.default]
   if (typeof defaultLanguageValue !== "string") return undefined
 
   return canConvertToPascalCase(defaultLanguageValue, name)
-    ? { path: [...path, context.defaultLanguage], value: defaultLanguageValue }
+    ? { path: [...path, context.languages.default], value: defaultLanguageValue }
     : undefined
 }
 

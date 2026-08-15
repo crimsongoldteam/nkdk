@@ -126,6 +126,40 @@ describe("refreshProjectState", () => {
     expect(handle.seenFileIds).toEqual(Uint8Array.of(0b0000_0001))
   })
 
+  it("сбрасывает известный hash только у файлов с изменившейся версией контекста", async () => {
+    const paths = ["cf/СЯзыком.yaml", "cf/Обычный.yaml", "cf/БезИзменений.yaml"]
+    const handle = new TrackingRefreshHandle([], {
+      knownProjectPaths: paths,
+      validationContextDependencies: [
+        [{ key: "languages", version: "v1" }],
+        undefined,
+        [{ key: "languages", version: "v2" }],
+      ],
+    })
+    let knownHashBits: Uint8Array<ArrayBufferLike> = new Uint8Array()
+
+    await refreshProjectState({
+      projectDir: "/project",
+      validationContextVersions: new Map([["languages", "v2"]]),
+    }, {
+      ...emptyDependencies(handle),
+      discoverFiles: async function* () {
+        yield { paths: paths.map((projectPath) => ({
+          projectPath,
+          componentPath: "cf",
+          absolutePath: `/project/${projectPath}`,
+          classify: () => undefined,
+        })) }
+      },
+      processFiles: async (batches) => {
+        for await (const batch of batches) knownHashBits = batch.knownHashBits
+        return { hashedFiles: 3, parsedYamlFiles: 1, changedFiles: 1, missingFiles: 0 }
+      },
+    })
+
+    expect(knownHashBits).toEqual(Uint8Array.of(0b0000_0110))
+  })
+
   it("представляет переименование удалением старого и появлением нового пути", async () => {
     const old = identity("cf/СтароеИмя.yaml", "yaml")
     const fresh = identity("cf/НовоеИмя.yaml", "yaml")
@@ -315,6 +349,7 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
     readonly localDiagnostics?: readonly Diagnostic[]
     readonly dependencyDiagnostics?: readonly Diagnostic[]
     readonly knownProjectPaths?: readonly string[]
+    readonly validationContextDependencies?: ProjectStateFileBaselinePathPage["validationContextDependencies"]
   }
   signal?: AbortSignal
   beginCalls = 0
@@ -344,6 +379,9 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
       hashBytes: new Uint8Array(projectPaths.length * 8),
       previousFileIds,
       storedFileCount: this.options.knownProjectPaths?.length ?? (this.options.deleted === undefined ? 0 : 1),
+      ...(this.options.validationContextDependencies === undefined
+        ? {}
+        : { validationContextDependencies: this.options.validationContextDependencies }),
     }
   }
 

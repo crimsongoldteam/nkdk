@@ -7,7 +7,7 @@ export const excludeNameFromI8nText = (
   synonym: I8nText,
   name: string
 ): I8nText | undefined => {
-  const defaultLanguage = context.defaultLanguage
+  const defaultLanguage = context.languages.default
   const defaultLanguageValue = synonym.items[defaultLanguage]
   if (defaultLanguageValue === undefined || !canConvertToPascalCase(defaultLanguageValue, name)) return synonym
 
@@ -27,7 +27,7 @@ export const addDefaultLanguageNameToSynonym = (
   synonym: I8nText | undefined,
   name: string
 ): I8nText => {
-  const defaultLanguage = context.defaultLanguage
+  const defaultLanguage = context.languages.default
   const defaultName = splitPascalCase(name)
 
   // Если синоним не существует, создаем новый с языком по умолчанию

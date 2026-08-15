@@ -9,7 +9,15 @@ export interface I8nText {
   items: Record<string, string>
 }
 
-export const I8nTextJSONSchema = Type.Union([Type.String(), Type.Record(Type.String(), Type.String())])
+export const I8nTextJSONSchema = Type.Union([
+  Type.String(),
+  Type.Record(Type.String(), Type.String({ minLength: 1 })),
+])
+
+export const FoldableI8nTextJSONSchema = Type.Union([
+  Type.String(),
+  Type.Record(Type.String(), Type.String()),
+])
 
 export type I8nTextYAML = Static<typeof I8nTextJSONSchema>
 
