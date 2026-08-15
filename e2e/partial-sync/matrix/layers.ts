@@ -1,7 +1,10 @@
 import type { ScenarioLayer, ScenarioMatrix, ScenarioOperation } from "./types"
 import { createRootPropertyOperations } from "./root-property-operations"
 
-type MatrixDeclarations = Pick<ScenarioMatrix, "roots" | "children" | "forms">
+type MatrixDeclarations = Pick<
+  ScenarioMatrix,
+  "configurationOperations" | "roots" | "children" | "forms"
+>
 
 export const recoveryProbeBlockKey = "roots:create:probe"
 
@@ -20,8 +23,12 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
     key, kind: "add-form", ownerKey, changes, dependsOn: [ownerKey],
   }))
   const rootProperties = createRootPropertyOperations(matrix.roots)
+  const configurationOperations = matrix.configurationOperations ?? []
 
   return [
+    ...(configurationOperations.length === 0 ? [] : [
+      layer("configuration:change", "configuration:comment", configurationOperations),
+    ]),
     layer("roots:create", "object:catalog", roots),
     ...(rootProperties.length === 0 ? [] : [
       layer("roots:properties", "change:object:catalog:comment", rootProperties),
@@ -31,6 +38,13 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
     layer("forms:remove", "remove:form:task", reverse(forms)),
     layer("children:remove", "remove:child:task:commands", reverse(children)),
     layer("roots:remove", "remove:object:ws-reference", removeRoots(matrix.roots)),
+    ...(configurationOperations.length === 0 ? [] : [
+      layer(
+        "configuration:restore",
+        "restore:configuration:command-interface",
+        restore(configurationOperations),
+      ),
+    ]),
   ]
 }
 
@@ -47,6 +61,16 @@ function reverse(operations: readonly ScenarioOperation[]): readonly ScenarioOpe
     key: `remove:${operation.key}`,
     kind: "remove",
     targetKey: operation.key,
+    changes: operation.changes.map(({ path, before, after }) => ({ path, before: after, after: before })),
+    dependsOn: [],
+  }))
+}
+
+function restore(operations: readonly ScenarioOperation[]): readonly ScenarioOperation[] {
+  return operations.toReversed().map((operation) => ({
+    key: `restore:${operation.key}`,
+    kind: "change",
+    targetKey: operation.targetKey,
     changes: operation.changes.map(({ path, before, after }) => ({ path, before: after, after: before })),
     dependsOn: [],
   }))

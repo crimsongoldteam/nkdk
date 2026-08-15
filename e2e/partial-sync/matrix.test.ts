@@ -9,6 +9,7 @@ import {
   childCapabilityExclusions,
   childDeclarations,
 } from "./matrix/children"
+import { configurationOperations } from "./matrix/configuration-operations"
 import { formDeclarations } from "./matrix/forms"
 import { partialSyncMatrix } from "./matrix"
 import { rootObjectDeclarations } from "./matrix/root-objects"
@@ -39,6 +40,35 @@ describe("partial sync matrix", () => {
         "Комментарий: После изменения",
       )
     }
+  })
+
+  it("changes and restores configuration properties as one continuous chain", () => {
+    expect(configurationOperations.map(({ key }) => key)).toEqual([
+      "configuration:comment",
+      "configuration:command-interface",
+    ])
+    expect(configurationOperations.map(({ changes }) => changes[0]?.path)).toEqual([
+      "Конфигурация.yaml",
+      "Конфигурация.yaml",
+    ])
+    expect(configurationOperations[0]?.changes[0]?.after).toContain(
+      "Комментарий: Проверка частичной синхронизации",
+    )
+    expect(configurationOperations[1]?.changes[0]?.after).toContain(
+      "Команда: Перечисление.ПеречислениеВсеСвойства.Команда.Команда1\n      Общее: Истина",
+    )
+  })
+
+  it("wraps object layers between configuration change and restore", () => {
+    const blockKeys = buildScenarioPlan(partialSyncMatrix).map(({ key }) => key)
+    expect(blockKeys.slice(0, 2)).toEqual([
+      "configuration:change:probe",
+      "configuration:change:bulk",
+    ])
+    expect(blockKeys.slice(-2)).toEqual([
+      "configuration:restore:probe",
+      "configuration:restore:bulk",
+    ])
   })
 
   it("applies root property changes before child creation", () => {
@@ -386,7 +416,11 @@ describe("partial sync matrix", () => {
   })
 
   it("forms one continuous and reversible transition for every declared path", () => {
-    const files = new Map<string, string | Uint8Array>()
+    const initialConfiguration = configurationOperations[0]?.changes[0]?.before
+    expect(initialConfiguration).toEqual(expect.any(String))
+    const files = new Map<string, string | Uint8Array>([
+      ["Конфигурация.yaml", initialConfiguration as string],
+    ])
 
     for (const operation of scenarioOperations()) {
       for (const change of operation.changes) {
@@ -397,7 +431,9 @@ describe("partial sync matrix", () => {
       }
     }
 
-    expect(files).toEqual(new Map())
+    expect(files).toEqual(new Map([
+      ["Конфигурация.yaml", initialConfiguration as string],
+    ]))
   })
 
   it("returns a real NKDK fixture tree to its initial state after the full plan", async () => {

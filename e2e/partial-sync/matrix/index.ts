@@ -3,8 +3,10 @@ import { childDeclarations } from "./children"
 import { formDeclarations } from "./forms"
 import { rootObjectDeclarations } from "./root-objects"
 import { createInitialScenarioLayers } from "./layers"
+import { configurationOperations } from "./configuration-operations"
 
 const declarations = {
+  configurationOperations,
   roots: rootObjectDeclarations,
   children: childDeclarations,
   forms: formDeclarations,
