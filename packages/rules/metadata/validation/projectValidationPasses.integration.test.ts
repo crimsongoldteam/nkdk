@@ -129,54 +129,86 @@ describe("validateProjectFileFirstPass references", () => {
     ...result.diagnostics,
   ].filter(({ severity }) => severity === "error")
 
-  it.each([
-    ["ПланОбмена/Тест/Свойства.yaml", "ДлинаКода", 1, 50, 0, 51],
-    ["ПланОбмена/Тест/Свойства.yaml", "ДлинаНаименования", 1, 250, 0, 251],
-    ["Справочник/Тест/Свойства.yaml", "ДлинаКода", 0, 50, -1, 51],
-    ["Задача/Тест/Свойства.yaml", "ДлинаНаименования", 0, 150, -1, 151],
-    ["ПланСчетов/Тест/Свойства.yaml", "ДлинаКода", 0, 628, -1, 629],
-    ["ПланВидовРасчета/Тест/Свойства.yaml", "ДлинаКода", 0, 40, -1, 41],
-    ["ПланВидовРасчета/Тест/Свойства.yaml", "ДлинаНаименования", 0, 100, -1, 101],
-  ] as const)(
-    "validates real schema bounds for %s.%s",
-    (projectPath, field, minimum, maximum, below, above) => {
-      expect(validationErrors(validateAppliedObject(projectPath, `${field}: ${minimum}`))).toEqual([])
-      expect(validationErrors(validateAppliedObject(projectPath, `${field}: ${maximum}`))).toEqual([])
-      expect(validationErrors(validateAppliedObject(projectPath, `${field}: ${below}`)))
-        .toContainEqual(expect.objectContaining({ path: `/${field}` }))
-      expect(validationErrors(validateAppliedObject(projectPath, `${field}: ${above}`)))
-        .toContainEqual(expect.objectContaining({ path: `/${field}` }))
+  describe("applied-object schema boundaries", () => {
+    const bounds = [
+      ["ПланОбмена/Тест/Свойства.yaml", "ДлинаКода", 1, 50, 0, 51],
+      ["ПланОбмена/Тест/Свойства.yaml", "ДлинаНаименования", 1, 250, 0, 251],
+      ["Справочник/Тест/Свойства.yaml", "ДлинаКода", 0, 50, -1, 51],
+      ["Задача/Тест/Свойства.yaml", "ДлинаНаименования", 0, 150, -1, 151],
+      ["ПланСчетов/Тест/Свойства.yaml", "ДлинаКода", 0, 628, -1, 629],
+      ["ПланВидовРасчета/Тест/Свойства.yaml", "ДлинаКода", 0, 40, -1, 41],
+      ["ПланВидовРасчета/Тест/Свойства.yaml", "ДлинаНаименования", 0, 100, -1, 101],
+    ] as const
+    const errorsByScenario = new Map<string, ReturnType<typeof validationErrors>>()
+    const scenarioKey = (projectPath: string, field: string, value: number) => `${projectPath}:${field}:${value}`
+
+    beforeAll(() => {
+      for (const [projectPath, field, minimum, maximum, below, above] of bounds) {
+        for (const value of [minimum, maximum, below, above]) {
+          errorsByScenario.set(
+            scenarioKey(projectPath, field, value),
+            validationErrors(validateAppliedObject(projectPath, `${field}: ${value}`)),
+          )
+        }
+      }
+      errorsByScenario.set("conditional-valid", validationErrors(validateAppliedObject(
+        "Документ/Тест/Свойства.yaml",
+        "ТипНомера: Число\nДлинаНомера: 38",
+      )))
+      errorsByScenario.set("conditional-invalid", validationErrors(validateAppliedObject(
+        "Документ/Тест/Свойства.yaml",
+        "ТипНомера: Число\nДлинаНомера: 39",
+      )))
+      errorsByScenario.set("conditional-string", validationErrors(validateAppliedObject(
+        "Документ/Тест/Свойства.yaml",
+        "ДлинаНомера: 50",
+      )))
+      errorsByScenario.set("computed-fields", validationErrors(validateAppliedObject(
+        "Задача/Тест/Свойства.yaml",
+        "ВводПоСтроке:\n  - СтандартныйРеквизит.Наименование\n  - СтандартныйРеквизит.Номер",
+      )))
+      errorsByScenario.set("zero-length-input", validationErrors(validateAppliedObject(
+        "Задача/Тест/Свойства.yaml",
+        "ДлинаНомера: 0\nВводПоСтроке:\n  - СтандартныйРеквизит.Номер",
+      )))
+      errorsByScenario.set("zero-length-valid", validationErrors(validateAppliedObject(
+        "Задача/Тест/Свойства.yaml",
+        "ДлинаНомера: 0",
+      )))
+    })
+
+    const scenarioErrors = (key: string) => {
+      const errors = errorsByScenario.get(key)
+      if (errors === undefined) throw new Error(`Не подготовлен validation-сценарий: ${key}`)
+      return errors
     }
-  )
 
-  it("validates conditional number length and string maximum through the project pass", () => {
-    expect(validationErrors(validateAppliedObject(
-      "Документ/Тест/Свойства.yaml",
-      "ТипНомера: Число\nДлинаНомера: 38",
-    ))).toEqual([])
-    expect(validationErrors(validateAppliedObject(
-      "Документ/Тест/Свойства.yaml",
-      "ТипНомера: Число\nДлинаНомера: 39",
-    ))).toContainEqual(expect.objectContaining({ path: "/ДлинаНомера" }))
-    expect(validationErrors(validateAppliedObject(
-      "Документ/Тест/Свойства.yaml",
-      "ДлинаНомера: 50",
-    ))).toEqual([])
-  })
+    it.each(bounds)(
+      "validates real schema bounds for %s.%s",
+      (projectPath, field, minimum, maximum, below, above) => {
+        expect(scenarioErrors(scenarioKey(projectPath, field, minimum))).toEqual([])
+        expect(scenarioErrors(scenarioKey(projectPath, field, maximum))).toEqual([])
+        expect(scenarioErrors(scenarioKey(projectPath, field, below)))
+          .toContainEqual(expect.objectContaining({ path: `/${field}` }))
+        expect(scenarioErrors(scenarioKey(projectPath, field, above)))
+          .toContainEqual(expect.objectContaining({ path: `/${field}` }))
+      }
+    )
 
-  it("validates computed and zero-length input fields through the project pass", () => {
-    expect(validationErrors(validateAppliedObject(
-      "Задача/Тест/Свойства.yaml",
-      "ВводПоСтроке:\n  - СтандартныйРеквизит.Наименование\n  - СтандартныйРеквизит.Номер",
-    ))).toContainEqual(expect.objectContaining({ path: "/ВводПоСтроке" }))
-    expect(validationErrors(validateAppliedObject(
-      "Задача/Тест/Свойства.yaml",
-      "ДлинаНомера: 0\nВводПоСтроке:\n  - СтандартныйРеквизит.Номер",
-    ))).toContainEqual(expect.objectContaining({ path: "/ВводПоСтроке/0" }))
-    expect(validationErrors(validateAppliedObject(
-      "Задача/Тест/Свойства.yaml",
-      "ДлинаНомера: 0",
-    ))).toEqual([])
+    it("validates conditional number length and string maximum through the project pass", () => {
+      expect(scenarioErrors("conditional-valid")).toEqual([])
+      expect(scenarioErrors("conditional-invalid"))
+        .toContainEqual(expect.objectContaining({ path: "/ДлинаНомера" }))
+      expect(scenarioErrors("conditional-string")).toEqual([])
+    })
+
+    it("validates computed and zero-length input fields through the project pass", () => {
+      expect(scenarioErrors("computed-fields"))
+        .toContainEqual(expect.objectContaining({ path: "/ВводПоСтроке" }))
+      expect(scenarioErrors("zero-length-input"))
+        .toContainEqual(expect.objectContaining({ path: "/ВводПоСтроке/0" }))
+      expect(scenarioErrors("zero-length-valid")).toEqual([])
+    })
   })
 
   it("applies the same input field contributions to cfe", () => {

@@ -550,7 +550,7 @@ describe("prepareYamlProject", () => {
     }
   })
 
-  it("dispatches fact-only extraction to physical workers with round-robin partitions", async () => {
+  describe("fact-only round-robin dispatch", () => {
     const descriptors = ["Товары", "Услуги", "Материалы"].map((name) => ({
       ...componentFileAddress("/project", `Справочник/${name}/Свойства.yaml`),
       projectPath: `Справочник/${name}/Свойства.yaml`,
@@ -560,42 +560,52 @@ describe("prepareYamlProject", () => {
       itemType: "Catalog",
     }))
     const workerTasks: PreparedYamlProjectWorkerTask[][] = [[], []]
-    let workerIndex = 0
-    const pool = createPreparedYamlProjectWorkerPool({
-      concurrency: 2,
-      createWorkerPool: () => {
-        const tasks = workerTasks[workerIndex++]
-        if (tasks === undefined) throw new Error("Создан лишний physical worker")
-        return {
-          async run(task: PreparedYamlProjectWorkerTask) {
-            tasks.push(task)
-            return {
-              kind: "collectValidationFactsResult" as const,
-              contribution: {
-                objectRecords: [],
-                objectIndexEntries: [],
-                memberIndexEntries: [],
-                valueIndexEntries: [],
-                pendingReferences: [],
-                localDependencies: [],
-                logicalAddresses: [],
-              },
-            }
-          },
-          async destroy() {
-            return undefined
-          },
-        }
-      },
-    })
+    let contribution: Awaited<ReturnType<
+      ReturnType<typeof createPreparedYamlProjectWorkerPool>["runValidationFactPass"]
+    >>
 
-    try {
-      const contribution = await pool.runValidationFactPass({
-        projectDir: "/project",
-        context: validationContext,
-        files: descriptors,
+    beforeAll(async () => {
+      let workerIndex = 0
+      const pool = createPreparedYamlProjectWorkerPool({
+        concurrency: 2,
+        createWorkerPool: () => {
+          const tasks = workerTasks[workerIndex++]
+          if (tasks === undefined) throw new Error("Создан лишний physical worker")
+          return {
+            async run(task: PreparedYamlProjectWorkerTask) {
+              tasks.push(task)
+              return {
+                kind: "collectValidationFactsResult" as const,
+                contribution: {
+                  objectRecords: [],
+                  objectIndexEntries: [],
+                  memberIndexEntries: [],
+                  valueIndexEntries: [],
+                  pendingReferences: [],
+                  localDependencies: [],
+                  logicalAddresses: [],
+                },
+              }
+            },
+            async destroy() {
+              return undefined
+            },
+          }
+        },
       })
 
+      try {
+        contribution = await pool.runValidationFactPass({
+          projectDir: "/project",
+          context: validationContext,
+          files: descriptors,
+        })
+      } finally {
+        await pool.close()
+      }
+    })
+
+    it("dispatches fact-only extraction to physical workers with round-robin partitions", () => {
       expect(contribution).toEqual({
         objectRecords: [],
         objectIndexEntries: [],
@@ -622,9 +632,7 @@ describe("prepareYamlProject", () => {
       })
       expect(workerTasks[0]?.[0]).toHaveProperty("rulesSnapshot")
       expect(workerTasks[1]?.[0]).toHaveProperty("rulesSnapshot")
-    } finally {
-      await pool.close()
-    }
+    })
   })
 
   function componentFileAddress(projectDir: string, projectPath: string) {
