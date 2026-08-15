@@ -145,7 +145,60 @@ git add e2e/partial-sync/matrix/types.ts e2e/partial-sync/plan.ts e2e/partial-sy
 git commit -m "test: :white_check_mark: разделить массовое создание объектов"
 ```
 
-### Task 2: Проверка автономным сервером
+### Task 2: Удаление неявных пустых значений заполнения
+
+**Files:**
+- Modify: `e2e/partial-sync/matrix/children.ts`
+- Modify: `e2e/partial-sync/matrix.test.ts`
+
+**Interfaces:**
+- Consumes: договор проверки проекта, запрещающий явное пустое строковое
+  `ЗначениеЗаполнения` как неявное значение типа.
+- Produces: четыре декларации полей без `ЗначениеЗаполнения: ""` — измерение и
+  реквизит регистра сведений, реквизит адресации задачи и измерение куба
+  внешнего источника данных.
+
+- [ ] **Step 1: Change focused expectations and verify they fail**
+
+В существующих проверках `e2e/partial-sync/matrix.test.ts` заменить ожидание
+явных пустых значений заполнения на их отсутствие для четырёх перечисленных
+полей.
+
+Run:
+
+```bash
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts
+```
+
+Expected: FAIL в трёх проверках, потому что декларации пока содержат четыре
+строки `ЗначениеЗаполнения: ""`.
+
+- [ ] **Step 2: Remove only the four implicit values**
+
+В `e2e/partial-sync/matrix/children.ts` использовать `Тип: Строка(10)` без
+`ЗначениеЗаполнения` для регистра сведений, реквизита адресации задачи и
+измерения куба. Остальные значения заполнения матрицы не менять.
+
+- [ ] **Step 3: Run focused verification and commit**
+
+Run:
+
+```bash
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts
+pnpm type-check
+pnpm duplicates -- --base 54d6a21e3
+```
+
+Expected: проверки PASS, TypeScript без ошибок, новые дубли отсутствуют.
+
+Commit:
+
+```bash
+git add e2e/partial-sync/matrix/children.ts e2e/partial-sync/matrix.test.ts
+git commit -m "test: :white_check_mark: убрать неявные значения заполнения"
+```
+
+### Task 3: Проверка автономным сервером
 
 **Files:**
 - Inspect: `/Users/nikita/Базы 1С/temp_test/logs/timings.json`
@@ -155,7 +208,18 @@ git commit -m "test: :white_check_mark: разделить массовое со
 - Consumes: сценарий из Task 1 и параметризованный каталог `/Users/nikita/Базы 1С/temp_test`.
 - Produces: подтверждение прохождения четырёх массовых блоков либо точный ключ первой проблемной группы и сохранённый частичный ZIP.
 
-- [ ] **Step 1: Run the real scenario from a clean managed root**
+- [ ] **Step 1: Resume from the last checkpoint**
+
+Сначала запустить без `--reset`, чтобы повторить только незавершённый блок:
+
+```bash
+pnpm test:partial-sync -- --root '/Users/nikita/Базы 1С/temp_test' --mode standalone-server
+```
+
+Если контрольная копия работающей файловой базы не принимается новым
+автономным сервером, повторить сценарий с `--reset`.
+
+- [ ] **Step 2: Run the real scenario from a clean managed root if recovery is unavailable**
 
 Run outside the sandbox:
 
@@ -165,6 +229,6 @@ pnpm test:partial-sync -- --root '/Users/nikita/Базы 1С/temp_test' --mode s
 
 Expected: блоки `roots:create:bulk:1`–`roots:create:bulk:4` проходят без аварийного завершения `ibsrv`; сценарий продолжает следующие слои.
 
-- [ ] **Step 2: Inspect timings and failure evidence**
+- [ ] **Step 3: Inspect timings and failure evidence**
 
 Если сценарий проходит, сравнить время подготовки и четырёх блоков с предыдущими 103,8 секунды до падения. Если `ibsrv` снова падает, зафиксировать ключ блока, список его операций, ответ MCP, `platform.log`, системный `.ips` и ZIP; не запускать полный массив повторно до локализации внутри этой группы.
