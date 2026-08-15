@@ -1,7 +1,7 @@
 import type { InfobaseConnection } from "../infobases/types"
 import { PlatformSessionError } from "./errors"
 import type { ProcessLaunch } from "./runtime"
-import type { DatabaseConnectionSettings, UnresolvedReferencesMode } from "./types"
+import type { DatabaseConnectionSettings, PartialLoadMode, UnresolvedReferencesMode } from "./types"
 
 export function buildDesignerAgentLaunch(params: {
   enterprisePath: string
@@ -140,8 +140,15 @@ export function buildListDesignerExtensionsCommand(): string {
   return "config extensions properties get --all-extensions"
 }
 
+export function classifyPartialLoad(loadTargets: readonly string[]): PartialLoadMode {
+  return loadTargets.length > 0 && loadTargets.every((target) => target.toLowerCase().endsWith(".bsl"))
+    ? "partial"
+    : "selected"
+}
+
 export function buildLoadPartialConfigurationCommand(params: {
   stagingDir: string
+  loadMode: PartialLoadMode
   extensionName?: string
   updateDumpInfo?: boolean
 }): string {
@@ -151,6 +158,7 @@ export function buildLoadPartialConfigurationCommand(params: {
     '--archive="package.zip"',
     "--no-check",
     `--list-file="${stagingDir}/load.lst"`,
+    ...(params.loadMode === "partial" ? ["--partial"] : []),
     ...(params.updateDumpInfo === true ? ["--update-config-dump-info"] : []),
     ...(params.extensionName === undefined
       ? []

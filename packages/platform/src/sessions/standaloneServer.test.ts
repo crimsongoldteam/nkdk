@@ -126,9 +126,9 @@ describe("standalone server session", () => {
 
     await expect(session.loadPartialConfiguration?.(
       "/project/package.zip",
-      ["Catalogs/Справочник.xml"],
+      ["Catalogs/Справочник/Ext/ObjectModule.bsl"],
       fixture.operationLog
-    )).resolves.toEqual({ warnings: [] })
+    )).resolves.toEqual({ warnings: [], loadMode: "partial" })
 
     expect(fixture.calls).toContain("spawn ibsrv --data /project/.nkdk/platform-sessions/standalone/server-data --session-data /project/.nkdk/platform-sessions/standalone/session-data --config /project/.nkdk/platform-sessions/standalone/config.yaml cwd=/project/.nkdk/platform-sessions/standalone")
     expect(fixture.calls).toContain("process.waitForOutput Stand-alone Server ready. timeout=60000")
@@ -137,7 +137,22 @@ describe("standalone server session", () => {
     expect(loadCall).toContain('--list-file=".nkdk-load/')
     expect(loadCall).toContain('/load.lst"')
     expect(fixture.calls.some((call) => call.includes("--update-config-dump-info"))).toBe(false)
-    expect(fixture.calls.some((call) => call.includes("--partial"))).toBe(false)
+    expect(loadCall).toContain("--partial")
+    expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
+  })
+
+  it("omits --partial for a selected structural load", async () => {
+    const fixture = createFixture({ agentEnabled: true })
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration?.(
+      "/project/package.zip",
+      ["Catalogs/Справочник.xml"],
+      fixture.operationLog,
+    )).resolves.toEqual({ warnings: [], loadMode: "selected" })
+
+    const loadCall = fixture.calls.find((call) => call.startsWith("shell.run config load-files"))
+    expect(loadCall).not.toContain("--partial")
     expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
   })
 

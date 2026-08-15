@@ -165,7 +165,7 @@ describe("Designer agent session", () => {
       ["Catalogs/Справочник1.xml", "Catalogs/Справочник1/Ext/ObjectModule.bsl"],
       fixture.operationLog,
       "Расширение"
-    )).resolves.toEqual({ warnings: [] })
+    )).resolves.toEqual({ warnings: [], loadMode: "selected" })
 
     expect(fixture.calls.find((call) => call.startsWith("copy "))).toMatch(
       /^copy \/project\/\.nkdk\/tmp\/op\/package\.zip \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+\/package\.zip$/u
@@ -177,6 +177,7 @@ describe("Designer agent session", () => {
     expect(fixture.calls.find((call) => call.startsWith("shell.run config load-files"))).toMatch(
       /^shell\.run config load-files --dir="\.nkdk-load\/[^/]+" --archive="package\.zip" --no-check --list-file="\.nkdk-load\/[^/]+\/load\.lst" --update-config-dump-info --extension="Расширение"$/u
     )
+    expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
     expect(fixture.calls.findLast((call) => call.startsWith("rm "))).toMatch(
       /^rm \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+$/u
     )
@@ -194,6 +195,21 @@ describe("Designer agent session", () => {
     )
   })
 
+  it("uses --partial only for module-only loads", async () => {
+    const fixture = createFixture()
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1/Ext/ObjectModule.bsl"],
+      fixture.operationLog,
+    )).resolves.toEqual({ warnings: [], loadMode: "partial" })
+
+    expect(fixture.calls.find((call) => call.startsWith("shell.run config load-files")))
+      .toContain(" --partial --update-config-dump-info")
+    expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
+  })
+
   it("сохраняет успешный результат загрузки при отказе журнала после команды", async () => {
     const fixture = createFixture({ logAppendFailureAt: 3 })
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
@@ -204,6 +220,7 @@ describe("Designer agent session", () => {
       fixture.operationLog,
     )).resolves.toEqual({
       warnings: ["Не удалось дополнить журнал после успешной загрузки"],
+      loadMode: "selected",
     })
   })
 
@@ -268,6 +285,7 @@ describe("Designer agent session", () => {
       fixture.operationLog
     )).resolves.toEqual({
       warnings: ["Не удалось удалить служебную копию ZIP после успешной загрузки"],
+      loadMode: "selected",
     })
     expect(fixture.writes.get(fixture.operationLog.path)).toContain(
       "cleanup stage=configuration-load status=failed"

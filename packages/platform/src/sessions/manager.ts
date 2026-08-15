@@ -109,6 +109,7 @@ export function createPlatformSessionManager(
     )
     return {
       mode,
+      loadMode: result.value.loadMode,
       reusedConnection: result.reusedConnection,
       warnings: result.value.warnings,
     }

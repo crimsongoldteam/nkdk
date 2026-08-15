@@ -107,6 +107,7 @@ describe("platform session manager", () => {
 
     await expect(manager.loadPartialConfiguration(loadParams())).resolves.toEqual({
       mode: "designer-agent",
+      loadMode: "selected",
       reusedConnection: false,
       warnings: [],
     })
@@ -593,12 +594,17 @@ function createFixture(
         await options.listHook?.(params.projectDir, listCalls, signal)
         return [listedExtension]
       },
-      async loadPartialConfiguration(archivePath, _loadTargets, operationLog, _extensionName, signal) {
+      async loadPartialConfiguration(archivePath, loadTargets, operationLog, _extensionName, signal) {
         loadedArchives.push(archivePath)
         await operationLog.append("stage=configuration-load status=start")
         await options.loadHook?.(params.projectDir, signal)
         await operationLog.append("stage=configuration-load status=ready")
-        return { warnings: [] }
+        return {
+          warnings: [],
+          loadMode: loadTargets.length > 0 && loadTargets.every((target) => target.endsWith(".bsl"))
+            ? "partial"
+            : "selected",
+        }
       },
       isAlive: () => alive,
       async close() {

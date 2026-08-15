@@ -7,6 +7,7 @@ import {
   buildDumpConfigurationCommand,
   buildListDesignerExtensionsCommand,
   buildLoadPartialConfigurationCommand,
+  classifyPartialLoad,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
 import { platformFailure, type PlatformOperationLog } from "./operationLog"
@@ -355,8 +356,10 @@ export async function createDesignerAgentSession(
         processLogPath,
         dependencies.processLogReader
       )
+      const loadMode = classifyPartialLoad(loadTargets)
       const command = buildLoadPartialConfigurationCommand({
         stagingDir: relativeAgentPath(userServiceDir, stagingDir),
+        loadMode,
         updateDumpInfo: true,
         ...(extensionName === undefined ? {} : { extensionName }),
       })
@@ -366,6 +369,11 @@ export async function createDesignerAgentSession(
           command,
           { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog }
         )
+        await commandSession.run('config update-db-cfg --session-terminate="prompt"', {
+          signal,
+          timeoutMs: dependencies.commandTimeoutMs,
+          operationLog,
+        })
       } catch (caught) {
         await cleanupStaging()
         const cause = caught instanceof PlatformSessionError && caught.commandOutcome === "unknown"
@@ -405,7 +413,7 @@ export async function createDesignerAgentSession(
         warnings.push("Не удалось удалить служебную копию ZIP после успешной загрузки")
       }
       await appendAfterSuccess("stage=configuration-load status=ready")
-      return { warnings }
+      return { warnings, loadMode }
     },
     async close() {
       if (closed) return { stoppedOwnedProcess: false }

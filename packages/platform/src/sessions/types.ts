@@ -3,6 +3,7 @@ import type { ConfigurationExtensionInfo } from "../extensions/types"
 import type { PlatformOperationLog } from "./runtime"
 
 export type PlatformSessionMode = "designer-agent" | "standalone-server"
+export type PartialLoadMode = "partial" | "selected"
 
 export type UnresolvedReferencesMode = "include" | "omit"
 
@@ -68,6 +69,7 @@ export type LoadPartialConfigurationParams = NormalizedPlatformConnectionSetting
 
 export type LoadPartialConfigurationResult = {
   mode: PlatformSessionMode
+  loadMode: PartialLoadMode
   reusedConnection: boolean
   warnings: readonly string[]
 }
@@ -105,7 +107,7 @@ export interface PlatformSession {
     operationLog: PlatformOperationLog,
     extensionName?: string,
     signal?: AbortSignal
-  ): Promise<{ warnings: readonly string[] }>
+  ): Promise<{ warnings: readonly string[]; loadMode: PartialLoadMode }>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>
   cancel(): Promise<{ stoppedOwnedProcess: boolean }>

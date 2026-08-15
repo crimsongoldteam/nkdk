@@ -9,6 +9,7 @@ import {
   buildStandaloneListExtensions,
   buildStandaloneLaunch,
   buildLoadPartialConfigurationCommand,
+  classifyPartialLoad,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
 import { platformFailure, type PlatformOperationLog } from "./operationLog"
@@ -252,8 +253,10 @@ export async function createStandaloneServerSession(
           timeoutMs: dependencies.startupTimeoutMs,
           operationLog,
         })
+        const loadMode = classifyPartialLoad(loadTargets)
         const command = buildLoadPartialConfigurationCommand({
           stagingDir: relativeStagingDir,
+          loadMode,
           ...(extensionName === undefined ? {} : { extensionName }),
         })
         await operationLog.append(`command ${command}`)
@@ -270,7 +273,7 @@ export async function createStandaloneServerSession(
         await dependencies.fileSystem.rm(stagingDir).catch(() => undefined)
         await dependencies.fileSystem.writeFile(configPath, initialized.stdout, { mode: PRIVATE_FILE_MODE })
       }
-      return { warnings: [] }
+      return { warnings: [], loadMode: classifyPartialLoad(loadTargets) }
     },
     async listExtensions(signal) {
       if (closed) {
