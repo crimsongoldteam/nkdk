@@ -66,6 +66,49 @@ describe("partial sync checkpoints", () => {
       .resolves.toBe("saved project")
   })
 
+  it("excludes live platform session state from publication and restore", async () => {
+    const fixture = await checkpointFixture()
+    await writeWorking(fixture, "saved")
+    const platformState = join(
+      fixture.workspace.projectDir,
+      ".nkdk/platform-sessions/standalone/server-data/lock.pid",
+    )
+    const temporaryAttempt = join(
+      fixture.workspace.projectDir,
+      ".nkdk/tmp/sync-to-infobase/attempt/platform.log",
+    )
+    await mkdir(join(platformState, ".."), { recursive: true })
+    await mkdir(join(temporaryAttempt, ".."), { recursive: true })
+    await writeFile(platformState, "123")
+    await writeFile(temporaryAttempt, "temporary")
+
+    const state = await publishCheckpoint(fixture.workspace, {
+      completedOperation: "object:catalog",
+      planHash,
+    })
+
+    for (const relativePath of [
+      "project/.nkdk/platform-sessions/standalone/server-data/lock.pid",
+      "project/.nkdk/tmp/sync-to-infobase/attempt/platform.log",
+    ]) {
+      await expect(readFile(join(
+        fixture.workspace.checkpointsDir,
+        "current",
+        relativePath,
+      ))).rejects.toMatchObject({ code: "ENOENT" })
+    }
+
+    await restoreCheckpoint(fixture.workspace, state)
+    await expect(readFile(join(
+      fixture.workspace.projectDir,
+      ".nkdk/platform-sessions/standalone/server-data/lock.pid",
+    ))).rejects.toMatchObject({ code: "ENOENT" })
+    await expect(readFile(join(
+      fixture.workspace.projectDir,
+      ".nkdk/tmp/sync-to-infobase/attempt/platform.log",
+    ))).rejects.toMatchObject({ code: "ENOENT" })
+  })
+
   it("preserves state and current when copying the replacement fails", async () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "saved")

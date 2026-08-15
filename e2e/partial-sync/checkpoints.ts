@@ -60,6 +60,15 @@ export async function publishCheckpoint(
   try {
     await dependencies.copyDirectory(workspace.baseDir, join(temporaryDir, "base"))
     await dependencies.copyDirectory(workspace.projectDir, join(temporaryDir, "project"))
+    for (const path of [
+      "project/.nkdk/platform-sessions",
+      "project/.nkdk/tmp",
+    ]) {
+      await dependencies.remove(join(temporaryDir, ...path.split("/")), {
+        recursive: true,
+        force: true,
+      })
+    }
     const manifest = await buildManifest(temporaryDir, publication)
     await writeFile(join(temporaryDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`)
     await verifyCheckpoint(temporaryDir, publication)

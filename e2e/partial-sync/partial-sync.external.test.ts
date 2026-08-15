@@ -11,6 +11,10 @@ import { openScenarioWorkspace } from "./workspace"
 it("последовательно синхронизирует полную матрицу метаданных с продолжением", async () => {
   const root = process.env["NKDK_PARTIAL_SYNC_ROOT"]
   if (root === undefined) throw new Error("NKDK_PARTIAL_SYNC_ROOT не задан")
+  const mode = process.env["NKDK_PARTIAL_SYNC_MODE"]
+  if (mode !== "designer-agent" && mode !== "standalone-server") {
+    throw new Error("NKDK_PARTIAL_SYNC_MODE должен быть designer-agent или standalone-server")
+  }
   const plan = buildScenarioPlan(partialSyncMatrix)
   const planHash = scenarioPlanHash(plan)
   const workspace = await openScenarioWorkspace(root, {
@@ -25,7 +29,7 @@ it("последовательно синхронизирует полную м�
       workspace,
       plan,
       planHash,
-      steps: createPartialSyncSteps({ workspace, session }),
+      steps: createPartialSyncSteps({ workspace, session, mode }),
     })
   } finally {
     await session.close()

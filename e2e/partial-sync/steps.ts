@@ -34,13 +34,14 @@ export type PartialSyncStepDependencies = {
 type CreatePartialSyncStepsParams = {
   readonly workspace: ScenarioWorkspace
   readonly session: ScenarioMcpSession
+  readonly mode: "designer-agent" | "standalone-server"
 }
 
 export function createPartialSyncSteps(
   params: CreatePartialSyncStepsParams,
   dependencies: PartialSyncStepDependencies = defaultDependencies,
 ): PartialSyncSteps {
-  const { workspace, session } = params
+  const { workspace, session, mode } = params
   return {
     async prepareBaseline() {
       await resetDirectory(workspace.baseDir)
@@ -55,7 +56,7 @@ export function createPartialSyncSteps(
         extensionXmlDir: dependencies.extensionXmlDir,
         extensionName: dependencies.extensionName,
       })
-      await writeProjectSettings(workspace.projectDir, workspace.baseDir)
+      await writeProjectSettings(workspace.projectDir, workspace.baseDir, mode)
       await importCf(session, workspace.projectDir, attemptLogDir)
     },
 
@@ -91,7 +92,7 @@ export function createPartialSyncSteps(
       )
       const verificationProjectDir = join(workspace.verificationDir, "current")
       await closePlatformConnection(session, workspace.projectDir, attemptLogDir)
-      await prepareVerificationProject(verificationProjectDir, workspace.baseDir)
+      await prepareVerificationProject(verificationProjectDir, workspace.baseDir, mode)
       try {
         await importCf(session, verificationProjectDir, attemptLogDir)
         await expectEqualCf(dependencies, {
@@ -186,12 +187,20 @@ async function closePlatformConnection(
   )
 }
 
-async function prepareVerificationProject(projectDir: string, baseDir: string): Promise<void> {
+async function prepareVerificationProject(
+  projectDir: string,
+  baseDir: string,
+  mode: "designer-agent" | "standalone-server",
+): Promise<void> {
   await resetDirectory(projectDir)
-  await writeProjectSettings(projectDir, baseDir)
+  await writeProjectSettings(projectDir, baseDir, mode)
 }
 
-async function writeProjectSettings(projectDir: string, baseDir: string): Promise<void> {
+async function writeProjectSettings(
+  projectDir: string,
+  baseDir: string,
+  mode: "designer-agent" | "standalone-server",
+): Promise<void> {
   const settingsDir = join(projectDir, ".nkdk")
   await mkdir(settingsDir, { recursive: true })
   await writeFile(join(settingsDir, "project.yaml"), [
@@ -199,7 +208,7 @@ async function writeProjectSettings(projectDir: string, baseDir: string): Promis
     `  connectionString: 'File="${baseDir.replaceAll("'", "''")}";'`,
     "  operations:",
     "    import:",
-    "      mode: standalone-server",
+    `      mode: ${mode}`,
     "",
   ].join("\n"), { encoding: "utf8", mode: 0o600 })
 }

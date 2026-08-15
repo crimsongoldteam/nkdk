@@ -16,7 +16,7 @@ describe("partial sync steps", () => {
   it("uses one MCP session for consecutive operations and verifies only at the end", async () => {
     const fixture = await createFixture()
     const steps = createPartialSyncSteps(
-      { workspace: fixture.workspace, session: fixture.session },
+      { workspace: fixture.workspace, session: fixture.session, mode: "standalone-server" },
       fixture.dependencies
     )
 
@@ -42,7 +42,7 @@ describe("partial sync steps", () => {
   it("prepares the base and imports only cf through public MCP", async () => {
     const fixture = await createFixture()
     const steps = createPartialSyncSteps(
-      { workspace: fixture.workspace, session: fixture.session },
+      { workspace: fixture.workspace, session: fixture.session, mode: "standalone-server" },
       fixture.dependencies
     )
 
@@ -65,7 +65,7 @@ describe("partial sync steps", () => {
   it("applies one operation, validates and synchronizes twice", async () => {
     const fixture = await createFixture({ nowValues: [1_000, 13_340] })
     const steps = createPartialSyncSteps(
-      { workspace: fixture.workspace, session: fixture.session },
+      { workspace: fixture.workspace, session: fixture.session, mode: "standalone-server" },
       fixture.dependencies
     )
     const operation = testOperation()
@@ -89,7 +89,7 @@ describe("partial sync steps", () => {
   it("wraps a validation error with operation paths and the attempt log directory", async () => {
     const fixture = await createFixture({ validationErrors: 1 })
     const steps = createPartialSyncSteps(
-      { workspace: fixture.workspace, session: fixture.session },
+      { workspace: fixture.workspace, session: fixture.session, mode: "standalone-server" },
       fixture.dependencies
     )
 
@@ -103,7 +103,7 @@ describe("partial sync steps", () => {
   it("fails final verification when the imported cf tree differs", async () => {
     const fixture = await createFixture({ comparisonEqual: false })
     const steps = createPartialSyncSteps(
-      { workspace: fixture.workspace, session: fixture.session },
+      { workspace: fixture.workspace, session: fixture.session, mode: "standalone-server" },
       fixture.dependencies
     )
 

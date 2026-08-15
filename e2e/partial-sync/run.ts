@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url"
 export type PartialSyncArgs = {
   readonly root: string
   readonly reset: boolean
+  readonly mode: "designer-agent" | "standalone-server"
 }
 
 export type PartialSyncCliDependencies = {
@@ -20,12 +21,25 @@ export type PartialSyncCliDependencies = {
 export function parsePartialSyncArgs(argv: readonly string[]): PartialSyncArgs {
   let root: string | undefined
   let reset = false
+  let mode: PartialSyncArgs["mode"] | undefined
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]
     if (index === 0 && argument === "--") continue
     if (argument === "--reset") {
       if (reset) throw new Error("Аргумент --reset можно передать только один раз")
       reset = true
+      continue
+    }
+    if (argument === "--mode") {
+      if (mode !== undefined) {
+        throw new Error("Аргумент --mode можно передать только один раз")
+      }
+      const value = argv[index + 1]
+      if (value !== "designer-agent" && value !== "standalone-server") {
+        throw new Error("Аргумент --mode требует designer-agent или standalone-server")
+      }
+      mode = value
+      index += 1
       continue
     }
     if (argument !== "--root") throw new Error(`Неизвестный аргумент: ${argument}`)
@@ -39,15 +53,19 @@ export function parsePartialSyncArgs(argv: readonly string[]): PartialSyncArgs {
     index += 1
   }
   if (root === undefined) throw new Error("Не задан обязательный аргумент --root")
-  return { root, reset }
+  return { root, reset, mode: mode ?? "standalone-server" }
 }
 
 export async function runPartialSyncCli(
   argv: readonly string[],
   dependencies: PartialSyncCliDependencies = nodeDependencies
 ): Promise<void> {
-  const { root, reset } = parsePartialSyncArgs(argv)
-  const env: NodeJS.ProcessEnv = { ...process.env, NKDK_PARTIAL_SYNC_ROOT: root }
+  const { root, reset, mode } = parsePartialSyncArgs(argv)
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    NKDK_PARTIAL_SYNC_ROOT: root,
+    NKDK_PARTIAL_SYNC_MODE: mode,
+  }
   if (reset) env.NKDK_PARTIAL_SYNC_RESET = "1"
   else delete env.NKDK_PARTIAL_SYNC_RESET
   const outcome = await dependencies.runProcess(

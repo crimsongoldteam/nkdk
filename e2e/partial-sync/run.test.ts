@@ -8,7 +8,20 @@ describe("partial sync command", () => {
       "--root",
       "/Users/nikita/Базы 1С/temp_test",
       "--reset",
-    ])).toEqual({ root: "/Users/nikita/Базы 1С/temp_test", reset: true })
+    ])).toEqual({
+      root: "/Users/nikita/Базы 1С/temp_test",
+      reset: true,
+      mode: "standalone-server",
+    })
+  })
+
+  it("parses an explicit Designer agent mode", () => {
+    expect(parsePartialSyncArgs([
+      "--root",
+      "/workspace",
+      "--mode",
+      "designer-agent",
+    ])).toEqual({ root: "/workspace", reset: false, mode: "designer-agent" })
   })
 
   it.each([
@@ -18,6 +31,8 @@ describe("partial sync command", () => {
     ["relative root", ["--root", "relative"]],
     ["unknown argument", ["--other", "/workspace"]],
     ["duplicate reset", ["--root", "/workspace", "--reset", "--reset"]],
+    ["unknown mode", ["--root", "/workspace", "--mode", "unknown"]],
+    ["duplicate mode", ["--root", "/workspace", "--mode", "designer-agent", "--mode", "standalone-server"]],
   ])("rejects %s", (_name, argv) => {
     expect(() => parsePartialSyncArgs(argv)).toThrow()
   })
@@ -53,6 +68,7 @@ describe("partial sync command", () => {
       args: ["/repo/node_modules/vitest/vitest.mjs", "run", "--config", "e2e/partial-sync/vitest.config.ts"],
       env: expect.objectContaining({
         NKDK_PARTIAL_SYNC_ROOT: "/Users/nikita/Базы 1С/temp_test",
+        NKDK_PARTIAL_SYNC_MODE: "standalone-server",
       }),
     })])
     expect(launches[0]?.args).not.toContain("/Users/nikita/Базы 1С/temp_test")
