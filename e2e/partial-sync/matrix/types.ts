@@ -32,12 +32,23 @@ export type FormDeclaration = {
   readonly changes: readonly ScenarioFileChange[]
 }
 
+export type TemplateDeclaration = {
+  readonly key: string
+  readonly ownerKey: string
+  readonly retainedWithOwner: boolean
+  readonly changes: readonly ScenarioFileChange[]
+}
+
 export type ScenarioMatrix = {
   readonly configurationOperations?: readonly ScenarioOperation[]
   readonly structuralOperations?: readonly ScenarioOperation[]
   readonly childPropertyOperations?: readonly ScenarioOperation[]
   readonly orderSetupOperations?: readonly ScenarioOperation[]
   readonly orderOperations?: readonly ScenarioOperation[]
+  readonly formLifecycleOperations?: readonly ScenarioOperation[]
+  readonly templates?: readonly TemplateDeclaration[]
+  readonly templateChangeOperations?: readonly ScenarioOperation[]
+  readonly templateRemovalOperations?: readonly ScenarioOperation[]
   readonly roots: readonly RootObjectDeclaration[]
   readonly children: readonly ChildDeclaration[]
   readonly forms: readonly FormDeclaration[]

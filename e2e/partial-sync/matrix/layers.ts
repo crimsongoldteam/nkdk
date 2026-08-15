@@ -3,7 +3,7 @@ import { createRootPropertyOperations } from "./root-property-operations"
 
 type MatrixDeclarations = Pick<
   ScenarioMatrix,
-  "configurationOperations" | "structuralOperations" | "childPropertyOperations" | "orderSetupOperations" | "orderOperations" | "roots" | "children" | "forms"
+  "configurationOperations" | "structuralOperations" | "childPropertyOperations" | "orderSetupOperations" | "orderOperations" | "formLifecycleOperations" | "templates" | "templateChangeOperations" | "templateRemovalOperations" | "roots" | "children" | "forms"
 >
 
 export const recoveryProbeBlockKey = "roots:create:probe"
@@ -22,12 +22,28 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
   const forms = matrix.forms.map(({ key, ownerKey, changes }): ScenarioOperation => ({
     key, kind: "add-form", ownerKey, changes, dependsOn: [ownerKey],
   }))
+  const retainedOwnerKey = "object:task"
+  const formsToRemove = forms.filter(({ ownerKey }) => ownerKey !== retainedOwnerKey)
   const rootProperties = createRootPropertyOperations(matrix.roots)
   const configurationOperations = matrix.configurationOperations ?? []
   const structuralOperations = matrix.structuralOperations ?? []
   const childPropertyOperations = matrix.childPropertyOperations ?? []
   const orderSetupOperations = matrix.orderSetupOperations ?? []
   const orderOperations = matrix.orderOperations ?? []
+  const formLifecycleOperations = matrix.formLifecycleOperations ?? []
+  const templates = (matrix.templates ?? []).map(({ key, ownerKey, changes }): ScenarioOperation => ({
+    key,
+    kind: "add-child",
+    ownerKey,
+    changes,
+    dependsOn: [ownerKey],
+  }))
+  const templateChangeOperations = matrix.templateChangeOperations ?? []
+  const templateRemovalOperations = matrix.templateRemovalOperations ?? []
+  const retainedChanges = [
+    ...matrix.forms.filter(({ ownerKey }) => ownerKey === retainedOwnerKey).flatMap(({ changes }) => changes),
+    ...(matrix.templates ?? []).filter(({ ownerKey, retainedWithOwner }) => ownerKey === retainedOwnerKey && retainedWithOwner).flatMap(({ changes }) => changes),
+  ]
 
   return [
     ...(configurationOperations.length === 0 ? [] : [
@@ -49,6 +65,9 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
       layer("children:order:remove", `remove:${orderSetupOperations.at(-1)?.key ?? ""}`, reverse(orderSetupOperations)),
     ]),
     layer("forms:create", "form:catalog", forms),
+    ...formLifecycleOperations.map((operation) => layer(operation.key, operation.key, [operation])),
+    ...(templates.length === 0 ? [] : [layer("templates:create", "template:report", templates)]),
+    ...templateChangeOperations.map((operation) => layer(operation.key, operation.key, [operation])),
     ...(structuralOperations.length === 0 ? [] : [
       layer("structural:change", "structural:catalog-attribute-length", structuralOperations),
       layer(
@@ -57,9 +76,13 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
         restore(structuralOperations),
       ),
     ]),
-    layer("forms:remove", "remove:form:task", reverse(forms)),
+    ...templateRemovalOperations.map((operation) => layer(operation.key, operation.key, [operation])),
+    layer("forms:remove", "remove:form:catalog", reverse(formsToRemove)),
     layer("children:remove", "remove:child:task:commands", reverse(children)),
-    layer("roots:remove", "remove:object:ws-reference", removeRoots(matrix.roots)),
+    layer("roots:remove", "remove:object:ws-reference", removeRoots(
+      matrix.roots,
+      retainedChanges.length === 0 ? new Map() : new Map([[retainedOwnerKey, retainedChanges]]),
+    )),
     ...(configurationOperations.length === 0 ? [] : [
       layer(
         "configuration:restore",
@@ -103,16 +126,22 @@ function restore(operations: readonly ScenarioOperation[]): readonly ScenarioOpe
   }))
 }
 
-function removeRoots(roots: MatrixDeclarations["roots"]): readonly ScenarioOperation[] {
+function removeRoots(
+  roots: MatrixDeclarations["roots"],
+  retainedChangesByOwner: ReadonlyMap<string, readonly import("./types").ScenarioFileChange[]>,
+): readonly ScenarioOperation[] {
   return roots.toReversed().map((root) => ({
     key: `remove:${root.key}`,
     kind: "remove",
     targetKey: root.key,
-    changes: root.changes.map(({ path, before, after }) => ({
-      path,
-      before: root.propertyChanges.find((change) => change.path === path)?.after ?? after,
-      after: before,
-    })),
+    changes: [
+      ...root.changes.map(({ path, before, after }) => ({
+        path,
+        before: root.propertyChanges.find((change) => change.path === path)?.after ?? after,
+        after: before,
+      })),
+      ...(retainedChangesByOwner.get(root.key) ?? []).map(({ path, after }) => ({ path, before: after, after: null })),
+    ],
     dependsOn: [],
   }))
 }

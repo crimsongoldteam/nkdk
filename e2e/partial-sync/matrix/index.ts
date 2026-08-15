@@ -1,12 +1,13 @@
 import type { ScenarioMatrix } from "./types"
 import { childDeclarations } from "./children"
-import { formDeclarations } from "./forms"
+import { formDeclarations, formLifecycleOperations } from "./forms"
 import { rootObjectDeclarations } from "./root-objects"
 import { createInitialScenarioLayers } from "./layers"
 import { configurationOperations } from "./configuration-operations"
 import { structuralPropertyOperations } from "./structural-property-operations"
 import { childPropertyOperations } from "./child-property-operations"
 import { orderOperations, orderSetupOperations } from "./order-operations"
+import { templateChangeOperations, templateDeclarations, templateRemovalOperations } from "./templates"
 
 const declarations = {
   configurationOperations,
@@ -14,9 +15,13 @@ const declarations = {
   childPropertyOperations,
   orderSetupOperations,
   orderOperations,
+  formLifecycleOperations,
   roots: rootObjectDeclarations,
   children: childDeclarations,
   forms: formDeclarations,
+  templates: templateDeclarations,
+  templateChangeOperations,
+  templateRemovalOperations,
 } as const
 
 export const partialSyncMatrix = {

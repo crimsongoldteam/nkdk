@@ -11,7 +11,8 @@ import {
 } from "./matrix/children"
 import { configurationOperations } from "./matrix/configuration-operations"
 import { childPropertyOperations } from "./matrix/child-property-operations"
-import { formDeclarations } from "./matrix/forms"
+import { formDeclarations, formLifecycleKinds } from "./matrix/forms"
+import { templateLifecycleKinds } from "./matrix/templates"
 import { orderOperations } from "./matrix/order-operations"
 import { partialSyncMatrix } from "./matrix"
 import { rootObjectDeclarations } from "./matrix/root-objects"
@@ -477,6 +478,16 @@ describe("partial sync matrix", () => {
         "Синоним: \"\"\nНазначенияИспользования: ПлатформаИМобильноеПриложение",
       )
     }
+  })
+
+  it("covers the complete form and text-template lifecycle", () => {
+    expect(formLifecycleKinds).toEqual([
+      "create", "add-attribute", "add-command", "add-elements", "change-properties",
+      "change-module", "remove-content", "remove-form-only", "remove-owner-with-form",
+    ])
+    expect(templateLifecycleKinds).toEqual([
+      "create", "change-text", "remove-template-only", "remove-owner-with-template",
+    ])
   })
 
   it("forms one continuous and reversible transition for every declared path", () => {
