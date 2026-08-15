@@ -384,14 +384,49 @@ git commit -m "test: :white_check_mark: сверять расширение в p
 
 **Files:**
 - Modify: `e2e/partial-sync/partial-sync.external.test.ts`
+- Create: `e2e/partial-sync/external-scenario.ts`
+- Create: `e2e/partial-sync/external-scenario.test.ts`
 - Create: `e2e/partial-sync/recovery-probe.ts`
 - Create: `e2e/partial-sync/recovery-probe.test.ts`
 
 **Interfaces:**
 - Consumes: `openScenarioMcpSession`, обычный `runPartialSyncScenario` и подменяемые зависимости checkpoint.
-- Produces: один MCP- и платформенный сеанс в external test; отдельно — unit-проверку `runScenarioWithRecoveryProbe` без запуска платформы.
+- Produces: `runExternalPartialSyncScenario`, который владеет ровно одним сеансом; отдельно — unit-проверку `runScenarioWithRecoveryProbe` без запуска платформы.
 
-- [ ] **Step 1: Сохранить управляемый тест координатора восстановления**
+- [ ] **Step 1: Написать падающий тест единого сеанса**
+
+Тест `external-scenario.test.ts` передаёт поддельную фабрику сеанса и поддельный
+`runScenario`, затем проверяет наблюдаемое управление ресурсом: фабрика вызвана
+один раз, тот же объект шагов передан сценарию, а `close` выполнен один раз
+после успешного сценария и один раз после ошибки:
+
+```ts
+await runExternalPartialSyncScenario(params, {
+  async openSession() { opened += 1; return fakeSession },
+  createSteps({ session }) { receivedSession = session; return fakeSteps },
+  async runScenario(input) { receivedSteps = input.steps },
+})
+expect({ opened, closed, receivedSession, receivedSteps }).toEqual({
+  opened: 1,
+  closed: 1,
+  receivedSession: fakeSession,
+  receivedSteps: fakeSteps,
+})
+```
+
+- [ ] **Step 2: Запустить тест и подтвердить отсутствие координатора**
+
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/external-scenario.test.ts`
+
+Expected: FAIL с отсутствующим `runExternalPartialSyncScenario`.
+
+- [ ] **Step 3: Реализовать минимального владельца сеанса**
+
+`external-scenario.ts` один раз вызывает `openSession`, создаёт шаги и передаёт
+их в `runPartialSyncScenario`. Закрытие находится только в `finally`; повторное
+открытие и восстановительная инъекция в этом модуле отсутствуют.
+
+- [ ] **Step 4: Сохранить управляемый тест координатора восстановления**
 
 Использовать фейковые сессии и checkpoint-зависимости. Первая попытка должна
 завершить блок и выбросить `ExpectedRecoveryProbeInterruption` до публикации;
@@ -403,13 +438,14 @@ expect(executedBlockKeys).toEqual([probeKey, probeKey, nextKey])
 expect(restoredStates).toEqual([expect.objectContaining({ completedBlock: previousKey })])
 ```
 
-- [ ] **Step 2: Запустить тест и подтвердить падение**
+- [ ] **Step 5: Запустить тест восстановления**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/recovery-probe.test.ts`
 
-Expected: FAIL с отсутствующим координатором.
+Expected: PASS, потому что координатор уже реализован и остаётся отдельной
+модульной диагностикой.
 
-- [ ] **Step 3: Оставить тестовый координатор двух запусков вне external test**
+- [ ] **Step 6: Оставить тестовый координатор двух запусков вне external test**
 
 Обернуть `publishCheckpoint` только для выбранного блока: после успешного
 `executeBlock`, но до публикации, завершить первую попытку ожидаемым исключением.
@@ -418,43 +454,37 @@ Expected: FAIL с отсутствующим координатором.
 записывать маркер в checkpoint. Этот координатор используется только
 `recovery-probe.test.ts` и не доказывает согласованность копии `1Cv8.1CD`.
 
-- [ ] **Step 4: Перевести external test на обычный запуск в одном сеансе**
+- [ ] **Step 7: Перевести external test на обычный запуск в одном сеансе**
 
 Удалить импорты `recoveryProbeBlockKey` и `runScenarioWithRecoveryProbe`.
-External test один раз открывает `openScenarioMcpSession`, создаёт
-`createPartialSyncSteps`, вызывает `runPartialSyncScenario`, а в `finally`
-закрывает сессию:
+External test передаёт workspace, plan, mode и отчёт в
+`runExternalPartialSyncScenario`. Открытие `openScenarioMcpSession`, создание
+`createPartialSyncSteps`, вызов `runPartialSyncScenario` и закрытие находятся
+в `external-scenario.ts`:
 
 ```ts
-const session = await openScenarioMcpSession({
-  attemptLogDir: join(workspace.logsDir, `${randomUUID()}-scenario`),
+await runExternalPartialSyncScenario({
+  workspace,
+  plan,
+  planHash,
+  mode,
+  timingReport: createScenarioTimingReport(workspace.logsDir),
+  now: Date.now,
 })
-try {
-  await runPartialSyncScenario({
-    workspace,
-    plan,
-    planHash,
-    steps: createPartialSyncSteps({ workspace, session, mode }),
-    timingReport: createScenarioTimingReport(workspace.logsDir),
-    now: Date.now,
-  })
-} finally {
-  await session.close()
-}
 ```
 
-- [ ] **Step 5: Запустить unit/e2e-проверки сценария**
+- [ ] **Step 8: Запустить unit/e2e-проверки сценария**
 
-Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/recovery-probe.test.ts e2e/partial-sync/scenario.test.ts`
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/external-scenario.test.ts e2e/partial-sync/recovery-probe.test.ts e2e/partial-sync/scenario.test.ts`
 
-Expected: PASS. Проверка по исходному коду external test требует ровно один
-`openScenarioMcpSession`, один `runPartialSyncScenario` и отсутствие
-`runScenarioWithRecoveryProbe`; компиляцию отдельно подтверждает `pnpm type-check`.
+Expected: PASS; поведенческий тест подтверждает ровно одно открытие и закрытие
+сеанса. Компиляцию изменённого external test отдельно подтверждает
+`pnpm type-check`.
 
-- [ ] **Step 6: Зафиксировать изменение**
+- [ ] **Step 9: Зафиксировать изменение**
 
 ```bash
-git add e2e/partial-sync/partial-sync.external.test.ts e2e/partial-sync/recovery-probe.ts e2e/partial-sync/recovery-probe.test.ts
+git add e2e/partial-sync/partial-sync.external.test.ts e2e/partial-sync/external-scenario.ts e2e/partial-sync/external-scenario.test.ts e2e/partial-sync/recovery-probe.ts e2e/partial-sync/recovery-probe.test.ts
 git commit -m "test: :white_check_mark: сохранить единый сеанс partial e2e"
 ```
 
@@ -469,7 +499,7 @@ git commit -m "test: :white_check_mark: сохранить единый сеан
 
 - [ ] **Step 1: Запустить все быстрые partial-sync тесты**
 
-Run: `pnpm exec vitest run --config e2e/vitest.config.ts 'e2e/partial-sync/*.test.ts'`
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/*.test.ts`
 
 Expected: PASS; реальный `*.external.test.ts` не запускает платформу.
 

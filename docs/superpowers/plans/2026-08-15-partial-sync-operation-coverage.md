@@ -428,7 +428,7 @@ git commit -m "test: :white_check_mark: собрать полную слоист
 
 - [ ] **Step 1: Запустить быстрые проверки partial-sync**
 
-Run: `pnpm exec vitest run --config e2e/vitest.config.ts 'e2e/partial-sync/*.test.ts'`
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/*.test.ts`
 
 - [ ] **Step 2: Выполнить обязательные проверки проекта**
 
