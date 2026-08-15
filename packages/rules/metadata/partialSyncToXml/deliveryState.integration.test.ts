@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { hashFileBytes } from "@nkdk/runtime"
 import type { ConfigurationIndexPendingDelta } from "@nkdk/runtime/configuration-index-store"
 import {
@@ -18,7 +18,21 @@ import {
 
 describe("фазы передачи частичного XML-пакета", () => {
   const tempDirs: string[] = []
-  afterEach(cleanTempDirs)
+  const operationLogProjectPath = ".nkdk/tmp/sync-to-infobase/attempt-1/platform.log"
+  let transferringProjectDir: string
+
+  beforeAll(async () => {
+    transferringProjectDir = await prepare()
+    await markPartialSyncTransferring({
+      projectDir: transferringProjectDir,
+      componentPath: "cf",
+      packageId: "package-1",
+      attemptId: "attempt-1",
+      operationLogProjectPath,
+    })
+  })
+
+  afterAll(cleanTempDirs)
 
   it("проводит подготовленный пакет через передачу, отказ и успешное применение", async () => {
     const projectDir = await prepare()
@@ -28,8 +42,6 @@ describe("фазы передачи частичного XML-пакета", () =
       packageId: "package-1",
       attemptId: "attempt-1",
     }
-    const operationLogProjectPath = ".nkdk/tmp/sync-to-infobase/attempt-1/platform.log"
-
     await markPartialSyncTransferring({ ...transition, operationLogProjectPath })
     expect((await readPendingPartialXmlSync(projectDir, "cf"))?.delivery).toEqual({
       status: "transferring",
@@ -51,20 +63,11 @@ describe("фазы передачи частичного XML-пакета", () =
     ["wrong-package", "attempt-1"],
     ["package-1", "wrong-attempt"],
   ])("не меняет состояние при неверной идентичности %s/%s", async (packageId, attemptId) => {
-    const projectDir = await prepare()
-    const operationLogProjectPath = ".nkdk/tmp/sync-to-infobase/attempt-1/platform.log"
-    await markPartialSyncTransferring({
-      projectDir,
-      componentPath: "cf",
-      packageId: "package-1",
-      attemptId: "attempt-1",
-      operationLogProjectPath,
-    })
-    const pendingPath = pendingPartialXmlSyncPaths(projectDir, "cf").pendingPath
+    const pendingPath = pendingPartialXmlSyncPaths(transferringProjectDir, "cf").pendingPath
     const before = fs.readFileSync(pendingPath)
 
     await expect(markPartialSyncApplied({
-      projectDir,
+      projectDir: transferringProjectDir,
       componentPath: "cf",
       packageId,
       attemptId,
