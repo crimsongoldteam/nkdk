@@ -134,6 +134,20 @@ describe("exportToYAML", () => {
     )).toBe("xml/reference")
   })
 
+  it("сериализует пустой ключ с !xml/reference", () => {
+    const roles = { "": "Ложь" }
+    markYAMLMappingKeyTag(roles, "", "xml/reference")
+
+    const serialized = serializeYAMLDocument({ Роли: roles })
+    const reparsed = parseMetadataYaml(serialized.text)
+
+    expect(serialized.text).toBe('Роли:\n  !xml/reference "": Ложь')
+    expect(yamlMappingKeyTagAt(
+      (reparsed.data as { Роли: Record<string, string> }).Роли,
+      "",
+    )).toBe("xml/reference")
+  })
+
   it("сериализует и сохраняет mapping-тег нарушения порядка", () => {
     const parsed = parseMetadataYaml("Заголовок: !xml/order\n  en: Text\n  ru: Текст\n")
     const title = (parsed.data as { Заголовок: Record<string, string> }).Заголовок
