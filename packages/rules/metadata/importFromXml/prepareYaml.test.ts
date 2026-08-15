@@ -337,7 +337,7 @@ describe("prepareImportYaml", () => {
     } finally { fs.rmSync(inputDir, { recursive: true, force: true }) }
   })
 
-  it("не сохраняет xsi:nil общего реквизита в снимке", async () => {
+  it("сохраняет xsi:nil общего реквизита через !xml/value Nil", async () => {
     const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-xsi-nil-"))
     const metadataPath = join(inputDir, "ОбщийРеквизит.xml")
     try {
@@ -367,8 +367,8 @@ describe("prepareImportYaml", () => {
       })
 
       const yaml = prepared.yaml as Record<string, unknown>
-      expect(yaml).not.toHaveProperty("ЗначениеЗаполнения")
-      expect(yamlScalarTagAt(yaml, "ЗначениеЗаполнения")).toBeUndefined()
+      expect(yaml).toHaveProperty("ЗначениеЗаполнения", "!xml/value Nil")
+      expect(yamlScalarTagAt(yaml, "ЗначениеЗаполнения")).toBe("xml/value")
       expect(collector.fragment(targetProjectPath).entities).toEqual([{
         logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию",
         uuid: "b82a1fc0-ce4b-4270-b9b7-018c35ab718e",

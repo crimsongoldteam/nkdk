@@ -227,6 +227,49 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result.indexOf('name="RecordType"')).toBeLessThan(result.indexOf('name="Active"'))
   })
 
+  it("исключает отмеченный стандартный реквизит и материализует остальные", () => {
+    const parsed = importFromYAML(`СтандартныеРеквизиты:
+  Наименование:
+    ПроверкаЗаполнения: ВыдаватьОшибку
+  ДатаОбмена: !xml/absent
+`)
+    const { result } = testExportPropertyModelThroughYAMLToXML({
+      rule: {
+        type: "StandardAttributeDescriptions",
+        standartAttributeNames: {
+          Code: "Код",
+          Description: "Наименование",
+          ExchangeDate: "ДатаОбмена",
+        },
+      },
+      value: undefined,
+      yaml: (parsed as Record<string, unknown>).СтандартныеРеквизиты,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('name="Code"')
+    expect(result).toContain('name="Description"')
+    expect(result).not.toContain('name="ExchangeDate"')
+  })
+
+  it("материализует остальные реквизиты, когда YAML содержит только !xml/absent", () => {
+    const parsed = importFromYAML(`СтандартныеРеквизиты:
+  ДатаОбмена: !xml/absent
+`)
+    const { result } = testExportPropertyModelThroughYAMLToXML({
+      rule: {
+        type: "StandardAttributeDescriptions",
+        standartAttributeNames: { Code: "Код", ExchangeDate: "ДатаОбмена" },
+      },
+      value: undefined,
+      yaml: (parsed as Record<string, unknown>).СтандартныеРеквизиты,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('name="Code"')
+    expect(result).not.toContain('name="ExchangeDate"')
+  })
+
   it("строит канонический порядок стандартных реквизитов без снимка", () => {
     const xmlString = `<StandardAttributes>
 	<xr:StandardAttribute name="Active">
@@ -582,6 +625,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
         ВидСубконто1: {},
       },
     })
+    expect(serializeYAMLDocument(imported.yaml).text).toContain("Счет: !xml/absent")
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
       rule: itemRule,
@@ -590,11 +634,6 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
 
     const items = standardAttributeItems(exported.xml)
     expect(items.map((item) => item._name)).toEqual([
-      "Account",
-      "Active",
-      "LineNumber",
-      "Recorder",
-      "Period",
       "ExtDimension1",
       "ExtDimensionType1",
     ])
@@ -719,7 +758,6 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     const items = standardAttributeItems(exported.xml)
 
     expect(items.map((item) => item._name)).toEqual([
-      "PeriodAdjustment",
       "Account",
       "Active",
       "LineNumber",

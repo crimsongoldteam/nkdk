@@ -63,6 +63,12 @@ const topology = compileMetadataResourceTopology([{
       source,
     },
     {
+      kind: "assignmentInput" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Формы/{itemName}/Форма.yaml",
+      projectPattern: "Объект/{ownerName}/Формы/{itemName}/ДинамическийСписок/{queryName}.query",
+      source,
+    },
+    {
       kind: "externalFile" as const,
       assignmentProjectPattern: "",
       projectPattern: "Объект/{ownerName}/Формы/{itemName}/Модуль.bsl",
@@ -104,6 +110,7 @@ const owner = "Объект/Товары/Свойства.yaml"
 const firstForm = "Объект/Товары/Формы/Первая/Форма.yaml"
 const firstModule = "Объект/Товары/Формы/Первая/Модуль.bsl"
 const firstBaseForm = "Объект/Товары/Формы/Первая/БазоваяФорма.yaml"
+const firstQuery = "Объект/Товары/Формы/Первая/ДинамическийСписок/Список.query"
 const secondForm = "Объект/Товары/Формы/Вторая/Форма.yaml"
 const secondModule = "Объект/Товары/Формы/Вторая/Модуль.bsl"
 
@@ -148,6 +155,21 @@ describe("partial XML impact planner", () => {
     )
 
     expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstForm] })
+  })
+
+  it.each(["changed", "added", "deleted"] as const)("включает задание формы при %s входа задания", (kind) => {
+    const result = plan(
+      kind === "deleted"
+        ? [root, language, owner, firstForm]
+        : [root, language, owner, firstForm, firstQuery],
+      changes({ [kind]: [firstQuery] }),
+    )
+
+    expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstForm] })
+    expect(documentPaths(result)).toEqual([
+      "Objects/Товары/Forms/Первая.xml",
+      "Objects/Товары/Forms/Первая/Ext/Form.xml",
+    ])
   })
 
   it("выбирает только изменённый модуль и загружает его", () => {

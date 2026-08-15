@@ -15,10 +15,22 @@ const rule: PropertyRule = {
   standartAttributeNames: StandartAttributeNameToYAML,
 }
 
+const allFixtureNames = {
+  Owner: "Владелец",
+  PredefinedDataName: "ИмяПредопределенныхДанных",
+  Code: "Код",
+  Description: "Наименование",
+  DeletionMark: "ПометкаУдаления",
+  Predefined: "Предопределенный",
+  Parent: "Родитель",
+  Ref: "Ссылка",
+  IsFolder: "ЭтоГруппа",
+} as const
+
 describe("StandardAttributeDescriptions XML → YAML", () => {
   it("exports all.xml directly to YAML", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
-      rule,
+      rule: { ...rule, standartAttributeNames: allFixtureNames },
       value: undefined,
       path: "all.xml",
       xmlRootTag: "StandardAttributes",
@@ -30,7 +42,7 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
 
   it("помечает присутствующую дефолтную коллекцию пустым !xml", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
-      rule,
+      rule: { ...rule, standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" } },
       value: undefined,
       path: "minimal.xml",
       xmlRootTag: "StandardAttributes",
@@ -83,7 +95,13 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
 
   it("exports multiple.xml directly to YAML", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
-      rule,
+      rule: {
+        ...rule,
+        standartAttributeNames: {
+          PredefinedDataName: "ИмяПредопределенныхДанных",
+          Predefined: "Предопределенный",
+        },
+      },
       value: undefined,
       path: "multiple.xml",
       xmlRootTag: "StandardAttributes",
@@ -103,9 +121,41 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     })
   })
 
+  it("помечает отсутствующие канонические элементы через !xml/absent", () => {
+    const itemRule = {
+      itemType: "StandardAttributeAbsenceProbe",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames: {
+            Code: "Код",
+            Description: "Наименование",
+            ExchangeDate: "ДатаОбмена",
+          },
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      rule: itemRule,
+      xml: {
+        StandardAttributes: {
+          "xr:StandardAttribute": {
+            _name: "Code",
+            "xr:FillChecking": "ShowError",
+          },
+        },
+      },
+    }).yaml
+
+    expect(serializeYAMLDocument(imported).text).toContain("ДатаОбмена: !xml/absent")
+    expect(serializeYAMLDocument(imported).text).toContain("Наименование: !xml/absent")
+  })
+
   it("exports empty reference fill value without losing its type", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
-      rule,
+      rule: { ...rule, standartAttributeNames: { Ref: "Ссылка" } },
       value: undefined,
       path: "fillValueEmptyRefTypeLoss.xml",
       xmlRootTag: "StandardAttributes",

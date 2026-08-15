@@ -9,6 +9,7 @@ import type { MetadataItem } from "@nkdk/runtime/rule-kit"
 import type { OwnerMetadata } from "./ownerCache"
 import { buildObjectFieldIndex, resolveObjectFieldSegment } from "./objectFields"
 import { createValidationOwnerFacts } from "./ownerFacts"
+import { XML_ABSENT_TAG_VALUE } from "@nkdk/runtime"
 
 describe("buildObjectFieldIndex", () => {
   it("indexes catalog attributes and standard attributes", () => {
@@ -37,6 +38,24 @@ describe("buildObjectFieldIndex", () => {
         nextTypes: [{ kind: "Справочник", name: "Номенклатура" }],
       },
     })
+    expect(index.fields.get("Наименование")).toMatchObject({
+      name: "Наименование",
+      kind: "standardAttribute",
+    })
+  })
+
+  it("сохраняет отсутствующий в XML стандартный реквизит доступным для DataPath", () => {
+    const index = buildObjectFieldIndex(
+      owner({
+        ref: { kind: "Справочник", name: "Номенклатура" },
+        rule: MetadataCatalogRules,
+        model: {
+          itemType: "MetadataCatalog",
+          standardAttributes: { Description: XML_ABSENT_TAG_VALUE },
+        } as never,
+      }),
+    )
+
     expect(index.fields.get("Наименование")).toMatchObject({
       name: "Наименование",
       kind: "standardAttribute",

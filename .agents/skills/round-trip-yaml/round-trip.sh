@@ -6,6 +6,8 @@ REPO_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 # shellcheck source=../_shared/round-trip-config-dirs.sh
 . "${REPO_DIR}/.agents/skills/_shared/round-trip-config-dirs.sh"
+# shellcheck source=../_shared/round-trip-git-diff.sh
+. "${REPO_DIR}/.agents/skills/_shared/round-trip-git-diff.sh"
 
 MODE="single"
 DIFF_INDEX="1"
@@ -395,12 +397,12 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   CURRENT_DIFF_FILES=()
   while IFS= read -r diff_file; do
     CURRENT_DIFF_FILES+=("${diff_file}")
-  done < <(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort)
+  done < <(round_trip_collect_diff_files "${RUN_XML_DIR}")
 
   if [ "${#CURRENT_DIFF_FILES[@]}" -gt 0 ]; then
     ACCEPTED_DIFF_COUNT="${#DIFF_FILES[@]}"
     for diff_file in "${CURRENT_DIFF_FILES[@]}"; do
-      diff_text="$(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --relative -- "${diff_file}")"
+      diff_text="$(round_trip_diff_text "${RUN_XML_DIR}" "${diff_file}")"
       if is_known_acceptable_yaml_diff "${diff_file}" "${diff_text}"; then
         echo "[diff] Пропущен известный допустимый diff ошибочных дублей кнопок: ${diff_file}"
         continue
