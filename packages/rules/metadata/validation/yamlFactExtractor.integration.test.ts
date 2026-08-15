@@ -140,6 +140,30 @@ describe("extractValidationYamlFacts", () => {
     ])
   })
 
+  it("uses the parent object as the reference owner of an inherited file item", () => {
+    const projectDir = "/project"
+    const filePath =
+      "/project/РегистрРасчета/Основной/Перерасчеты/Перерасчет/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml([
+        "Измерения:",
+        "  Связь:",
+        "    ИзмерениеРегистра: Организация",
+      ].join("\n")),
+      rulesSnapshot,
+    })
+
+    expect(facts.pendingReferences).toContainEqual(
+      expect.objectContaining({
+        canonical: "CalculationRegister.Основной.Dimension.Организация",
+      })
+    )
+  })
+
   it("не проверяет перенесённый битый элемент состава подсистемы как metadata target", () => {
     const facts = subsystemCompositionFacts("!xml/reference 6f583fdc-08d4-45d8-9dd0-45aaff4cb2f4")
 

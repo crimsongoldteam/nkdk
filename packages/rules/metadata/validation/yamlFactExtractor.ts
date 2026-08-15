@@ -122,9 +122,7 @@ export function extractValidationYamlFacts(params: {
     params.file.topologyNodeId,
   ) ?? findValidationRulesSpec(params.rulesSnapshot, params.file.owner.dir)
   const objectTarget = objectTargetForProjectFile(params.file)
-  const owner = objectTarget === undefined || params.file.metadataTarget === undefined
-    ? undefined
-    : { root: objectTarget.root, objectName: params.file.metadataTarget.owner.objectName }
+  const owner = referenceOwnerForProjectFile(params.file, objectTarget)
   const referenceDiagnostics: Diagnostic[] = []
   const localValueDiagnostics: Diagnostic[] = []
   const localValueValidationProfile: LocalValueValidationProfile = {}
@@ -397,6 +395,27 @@ export function extractValidationOwnerYamlFacts(params: {
 function objectIndexDetails(data: unknown): { type?: string } {
   const type = metadataRecord(data)["Тип"]
   return typeof type === "string" ? { type } : {}
+}
+
+function referenceOwnerForProjectFile(
+  file: ValidationProjectFile,
+  objectTarget: ReturnType<typeof objectTargetForProjectFile>,
+): MetadataTargetOwner | undefined {
+  if (objectTarget === undefined || file.metadataTarget === undefined) return undefined
+
+  const currentOwner = {
+    root: objectTarget.root,
+    objectName: file.metadataTarget.owner.objectName,
+  }
+  if (file.itemRule.metadataTargetOwner?.kind !== "inherit") return currentOwner
+
+  const segment = file.itemRule.externalMetadata?.segment
+  if (segment === undefined) return currentOwner
+  const marker = `.${segment}.`
+  const markerIndex = currentOwner.objectName.lastIndexOf(marker)
+  return markerIndex <= 0
+    ? currentOwner
+    : { root: currentOwner.root, objectName: currentOwner.objectName.slice(0, markerIndex) }
 }
 
 function metadataRecord(value: unknown): Record<string, unknown> {

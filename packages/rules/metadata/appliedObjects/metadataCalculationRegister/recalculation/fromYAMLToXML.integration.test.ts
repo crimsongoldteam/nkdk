@@ -2,13 +2,26 @@ import { describe, expect, it } from "vitest"
 
 import {
   createDirectAdoptedExportContext,
+  createDirectRoundTripContexts,
   serializeDirectXML,
 } from "../../../../tests/directConversion"
 import { exportRecalculationYAML } from "./testSupport"
 
 describe("Recalculation YAML → XML", () => {
   it("exports a semantic recalculation file", () => {
+    const baseContext = createDirectRoundTripContexts().exportContext()
     const result = exportRecalculationYAML({
+      context: {
+        ...baseContext,
+        exportToXML: {
+          ...baseContext.exportToXML,
+          itemsTree: [{
+            itemType: "MetadataCalculationRegister",
+            name: "РегистрРасчетаВсеСвойства",
+            path: "",
+          }],
+        },
+      },
       metadataTargetOwners: [{
         itemType: "MetadataCalculationRegisterRecalculationDimension",
         name: "ИзмерениеПерерасчетаВсеСвойства",
@@ -30,6 +43,14 @@ describe("Recalculation YAML → XML", () => {
     expect(result.xml).toMatchObject({
       MetaDataObject: {
         Recalculation: {
+          InternalInfo: {
+            "xr:GeneratedType": expect.arrayContaining([
+              expect.objectContaining({
+                _name:
+                  "RecalculationRecord.РегистрРасчетаВсеСвойства.ПерерасчетВсеСвойства",
+              }),
+            ]),
+          },
           Properties: {
             Name: "ПерерасчетВсеСвойства",
             Comment: "Комментарий",

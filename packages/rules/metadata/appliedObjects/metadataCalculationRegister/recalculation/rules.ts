@@ -8,6 +8,8 @@ import { xmlRootRule } from "../../../commonObjects/xmlRoot/types"
 import { V8_MDCLASSES_ROOT } from "../../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { MetadataCalculationRegisterRecalculationDimensionRules } from "./dimension/rules"
+import { getParentFromContext } from "../../../context/helpers"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const RecalculationRules = {
@@ -41,13 +43,13 @@ export const RecalculationRules = {
         { name: "RecalculationManager", category: "Manager" },
         { name: "RecalculationRecordSet", category: "RecordSet" },
       ],
-      getName: ({
-        metadata,
-      }: {
-        metadata: {
-          name: string
-        }
-      }) => `Recalculation${metadata.name}`,
+      getName: ({ context, metadata }: {
+        context: ConfigurationContextWithExportToXML
+        metadata: { name: string }
+      }) => {
+        const parent = getParentFromContext(context, ["MetadataCalculationRegister"])
+        return [parent.name, metadata.name].filter(Boolean).join(".")
+      },
     }),
     uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
     name: stringRule({ xml: "Name", required: true, xmlParents: properties }),
