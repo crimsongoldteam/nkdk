@@ -5,9 +5,8 @@ import {
   buildDumpConfigurationCommand,
   buildListDesignerExtensionsCommand,
   buildLoadPartialConfigurationCommand,
-  buildStandaloneConfigExport,
+  classifyPartialLoad,
   buildStandaloneConfigInit,
-  buildStandaloneListExtensions,
   buildStandaloneLaunch,
 } from "./commands"
 
@@ -155,16 +154,15 @@ describe("platform session commands", () => {
     ["include", false],
     ["omit", true],
   ] as const)("maps unresolved references %s", (value, expectedFlag) => {
-    const designer = buildDumpConfigurationCommand("/xml", value)
-    const standalone = buildStandaloneConfigExport({
-      ibcmdPath: "ibcmd",
-      configPath: "/session/config.yaml",
-      outputDir: "/xml",
-      unresolvedReferences: value,
-    }).args
+    const command = buildDumpConfigurationCommand("/xml", value)
 
-    expect(designer.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
-    expect(standalone.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
+    expect(command.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
+  })
+
+  it("selects one extension for interactive export", () => {
+    expect(buildDumpConfigurationCommand("/xml", "include", "Расширение_All")).toBe(
+      'config dump-config-to-files --dir="/xml" --format=hierarchical --extension="Расширение_All"'
+    )
   })
 
   it("quotes a dump directory for the interactive 1C shell", () => {
@@ -174,75 +172,62 @@ describe("platform session commands", () => {
     expect(buildDumpConfigurationCommand('/project/a"b', "include")).toContain('--dir="/project/a""b"')
   })
 
-  it("builds list extension commands for both platform modes", () => {
+  it("builds the interactive extension list command", () => {
     expect(buildListDesignerExtensionsCommand()).toBe(
       "config extensions properties get --all-extensions"
     )
-    expect(
-      buildStandaloneListExtensions({
-        ibcmdPath: "ibcmd",
-        configPath: "/session/config.yaml",
-        user: "Admin",
-        password: "secret",
-      })
-    ).toEqual({
-      command: "ibcmd",
-      args: [
-        "infobase",
-        "config",
-        "extension",
-        "list",
-        "--user=Admin",
-        "--password=secret",
-        "--config=/session/config.yaml",
-      ],
-    })
   })
 
-  it("builds a partial configuration load command for a configuration or extension", () => {
+  it.each([
+    [["Catalogs/Test/Ext/ObjectModule.bsl"], "partial"],
+    [["CommonModules/Test/Ext/Module.bsl", "Catalogs/Test/Ext/ObjectModule.bsl"], "partial"],
+    [["Catalogs/Test.xml"], "selected"],
+    [["Catalogs/Test.xml", "Catalogs/Test/Ext/ObjectModule.bsl"], "selected"],
+    [[], "selected"],
+  ] as const)("classifies %j as %s load", (loadTargets, expected) => {
+    expect(classifyPartialLoad(loadTargets)).toBe(expected)
+  })
+
+  it("builds a selected or module-only configuration load command", () => {
     expect(
-      buildLoadPartialConfigurationCommand({ stagingDir: "staging" })
+      buildLoadPartialConfigurationCommand({
+        stagingDir: "staging",
+        loadMode: "selected",
+        updateDumpInfo: true,
+      })
     ).toBe(
-      'config load-files --dir="staging" --archive="package.zip" --no-check --list-file="staging/load.lst" --partial --update-config-dump-info'
+      'config load-files --dir="staging" --archive="package.zip" --no-check --list-file="staging/load.lst" --update-config-dump-info'
     )
     expect(
       buildLoadPartialConfigurationCommand({
         stagingDir: 'staging"dir',
+        loadMode: "partial",
         extensionName: 'Расширение "Тест"',
+        updateDumpInfo: true,
       })
     ).toBe(
       'config load-files --dir="staging""dir" --archive="package.zip" --no-check --list-file="staging""dir/load.lst" --partial --update-config-dump-info --extension="Расширение ""Тест"""'
     )
   })
 
-  it("omits absent infobase credentials from extension list arguments", () => {
-    expect(
-      buildStandaloneListExtensions({
-        ibcmdPath: "ibcmd",
-        configPath: "/session/config.yaml",
-      }).args
-    ).toEqual([
-      "infobase",
-      "config",
-      "extension",
-      "list",
-      "--config=/session/config.yaml",
-    ])
-  })
-
-  it.each(["/project/a\nb", "/project/a\0b"])("rejects unsafe interactive values", (path) => {
-    expect(() => buildDumpConfigurationCommand(path, "include")).toThrowError(
+  it.each([
+    ["/project/a\nb", undefined],
+    ["/project/a\0b", undefined],
+    ["/project/xml", "Расширение\nb"],
+    ["/project/xml", "Расширение\0b"],
+  ])("rejects unsafe interactive values", (path, extensionName) => {
+    expect(() => buildDumpConfigurationCommand(path, "include", extensionName)).toThrowError(
       expect.objectContaining<Partial<PlatformSessionError>>({ code: "platform_command_failed" })
     )
   })
 
   it.each([
-    { stagingDir: "staging\0dir" },
-    { stagingDir: "staging\ndir" },
-    { stagingDir: "staging\rdir" },
-    { stagingDir: "staging", extensionName: "Расширение\0" },
-    { stagingDir: "staging", extensionName: "Расширение\n" },
-    { stagingDir: "staging", extensionName: "Расширение\r" },
+    { stagingDir: "staging\0dir", loadMode: "selected" as const },
+    { stagingDir: "staging\ndir", loadMode: "selected" as const },
+    { stagingDir: "staging\rdir", loadMode: "selected" as const },
+    { stagingDir: "staging", loadMode: "selected" as const, extensionName: "Расширение\0" },
+    { stagingDir: "staging", loadMode: "selected" as const, extensionName: "Расширение\n" },
+    { stagingDir: "staging", loadMode: "selected" as const, extensionName: "Расширение\r" },
   ])("rejects unsafe partial load command values", (params) => {
     expect(() => buildLoadPartialConfigurationCommand(params)).toThrowError(
       expect.objectContaining<Partial<PlatformSessionError>>({ code: "platform_command_failed" })

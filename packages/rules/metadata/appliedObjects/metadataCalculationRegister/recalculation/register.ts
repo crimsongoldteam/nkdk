@@ -10,7 +10,7 @@ import type { Recalculation } from "./types"
 
 const RECALCULATIONS_XML_DIR = "Recalculations"
 const RECALCULATIONS_NKDK_DIR = "Перерасчеты"
-const RECALCULATION_NKDK_XML = "Recalculation.xml"
+const RECALCULATION_NKDK_XML = "Свойства.xml"
 
 export const metadataPropertyRule000 = definePropertyTypeRule("Recalculations", "importFromXML", (_context: ConfigurationContextFromXML, _rule, xml) => {
   if (xml === undefined || xml === null) return undefined

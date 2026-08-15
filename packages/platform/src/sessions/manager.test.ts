@@ -23,6 +23,15 @@ describe("platform session manager", () => {
     ]))
   })
 
+  it("passes the selected extension to the session export", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await manager.exportConfiguration(exportParams({ extensionName: "Расширение_All" }))
+
+    expect(fixture.exportedExtensionNames).toEqual(["Расширение_All"])
+  })
+
   it("decorates a missing platform with discovery details and a log path", async () => {
     const fixture = createFixture({ platformMissing: true })
     const manager = createPlatformSessionManager(fixture.dependencies)
@@ -98,6 +107,7 @@ describe("platform session manager", () => {
 
     await expect(manager.loadPartialConfiguration(loadParams())).resolves.toEqual({
       mode: "designer-agent",
+      loadMode: "selected",
       reusedConnection: false,
       warnings: [],
     })
@@ -117,6 +127,22 @@ describe("platform session manager", () => {
       expect.stringContaining("operation mode=designer-agent"),
       expect.stringContaining("configuration-load"),
     ]))
+  })
+
+  it("reuses a healthy autonomous session for consecutive partial loads", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    const params = loadParams({ mode: "standalone-server" })
+
+    await expect(manager.loadPartialConfiguration(params)).resolves.toMatchObject({
+      mode: "standalone-server",
+      reusedConnection: false,
+    })
+    await expect(manager.loadPartialConfiguration(params)).resolves.toMatchObject({
+      mode: "standalone-server",
+      reusedConnection: true,
+    })
+    expect(fixture.created).toEqual(["/project:standalone-server"])
   })
 
   it("discards the session after an unknown partial load outcome", async () => {
@@ -482,6 +508,7 @@ function loadParams(overrides: Partial<LoadPartialConfigurationParams> = {}): Lo
     password: "secret",
     sessionIdleTimeout: 900,
     ...overrides,
+    mode: overrides.mode ?? "designer-agent",
   }
 }
 
@@ -526,6 +553,7 @@ function createFixture(
   listStarts: string[]
   exportedOutputDirs: string[]
   exportedUnresolvedReferences: string[]
+  exportedExtensionNames: Array<string | undefined>
   loadedArchives: string[]
   logEvents: string[]
   findPlatformCalls: number
@@ -543,6 +571,7 @@ function createFixture(
   const listStarts: string[] = []
   const exportedOutputDirs: string[] = []
   const exportedUnresolvedReferences: string[] = []
+  const exportedExtensionNames: Array<string | undefined> = []
   const loadedArchives: string[] = []
   const logEvents: string[] = []
   let findPlatformCalls = 0
@@ -566,12 +595,13 @@ function createFixture(
       ownedProcess: true,
       closeCalls: 0,
       cancelCalls: 0,
-      async exportConfiguration(outputDir, _operationLogPath, unresolvedReferences, signal) {
+      async exportConfiguration(outputDir, _operationLogPath, unresolvedReferences, signal, extensionName) {
         exportCalls += 1
         exportStarts.push(`${params.projectDir}:${exportCalls}`)
         notify(exportStartWaiters, `${params.projectDir}:${exportCalls}`)
         exportedOutputDirs.push(outputDir)
         exportedUnresolvedReferences.push(unresolvedReferences)
+        exportedExtensionNames.push(extensionName)
         await options.exportHook?.(params.projectDir, exportCalls, signal)
       },
       async listExtensions(signal) {
@@ -580,12 +610,17 @@ function createFixture(
         await options.listHook?.(params.projectDir, listCalls, signal)
         return [listedExtension]
       },
-      async loadPartialConfiguration(archivePath, _loadTargets, operationLog, _extensionName, signal) {
+      async loadPartialConfiguration(archivePath, loadTargets, operationLog, _extensionName, signal) {
         loadedArchives.push(archivePath)
         await operationLog.append("stage=configuration-load status=start")
         await options.loadHook?.(params.projectDir, signal)
         await operationLog.append("stage=configuration-load status=ready")
-        return { warnings: [] }
+        return {
+          warnings: [],
+          loadMode: loadTargets.length > 0 && loadTargets.every((target) => target.endsWith(".bsl"))
+            ? "partial"
+            : "selected",
+        }
       },
       isAlive: () => alive,
       async close() {
@@ -621,6 +656,7 @@ function createFixture(
     listStarts,
     exportedOutputDirs,
     exportedUnresolvedReferences,
+    exportedExtensionNames,
     loadedArchives,
     logEvents,
     get findPlatformCalls() {

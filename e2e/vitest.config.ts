@@ -6,7 +6,10 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["e2e/**/*.test.ts"],
-    exclude: ["e2e/fixtures/**"],
+    exclude: [
+      "e2e/fixtures/**",
+      "e2e/partial-sync/partial-sync.external.test.ts",
+    ],
     fileParallelism: false,
     maxWorkers: 1,
     testTimeout: 600_000,

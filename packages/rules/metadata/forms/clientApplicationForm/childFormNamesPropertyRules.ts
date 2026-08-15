@@ -9,7 +9,10 @@ import {
 import type { MetadataResourceDeclaration } from "@nkdk/runtime/rule-kit"
 import { syncChildFormNamesFromXML } from "./childFormNamesImportAdapter"
 import { ClientApplicationFormRules } from "./rules"
-import { describeFormExternalResourceDeclarations } from "./externalItemFiles"
+import {
+  describeFormAssignmentInputResourceDeclarations,
+  describeFormExternalResourceDeclarations,
+} from "./externalItemFiles"
 
 export const childFormNamesPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -124,12 +127,10 @@ export const childFormNamesPropertyRules = defineMetadataRules({
           compositionImpact: "none",
           source,
         },
-        {
-          kind: "assignmentInput",
-          assignmentProjectPattern: "",
-          projectPattern: `${folderName}/{itemName}/ДинамическийСписок/{queryName}.query`,
+        ...describeFormAssignmentInputResourceDeclarations({
+          targetFormDirPattern: `${folderName}/{itemName}`,
           source,
-        },
+        }),
         {
           kind: "externalFile",
           assignmentProjectPattern: "",

@@ -1,9 +1,11 @@
 import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { publishedToolOutputSchema, toolErrorOutputShape } from "./common"
 import { failedObjectSchema, importWarningSchema } from "./importFromXml"
+import { configurationComponentPathSchema } from "./configurationComponentPath"
 
 export const importFromInfobaseInputShape = {
   projectDir: z.string().min(1),
+  componentPath: configurationComponentPathSchema.optional(),
   allowWrite: z.boolean().optional(),
 }
 
@@ -29,6 +31,10 @@ export const importFromInfobaseSuccessOutputShape = {
   reusedConnection: z.boolean(),
   temporaryDirectory: z.string().optional(),
 }
+
+export const importFromInfobaseSuccessOutputSchema = z.strictObject(
+  importFromInfobaseSuccessOutputShape
+)
 
 export const projectSettingsRequiredSchema = z.strictObject({
   ok: z.literal(false),
@@ -79,12 +85,17 @@ const platformFailureSchema = z.strictObject({
 })
 
 export const importFromInfobaseOutputShape = z.union([
-  z.strictObject(importFromInfobaseSuccessOutputShape),
+  importFromInfobaseSuccessOutputSchema,
   projectSettingsRequiredSchema,
   invalidProjectSettingsSchema,
   platformFailureSchema,
   z.object(toolErrorOutputShape),
 ])
+
+export const importFromInfobasePublishedOutputSchema = publishedToolOutputSchema(
+  importFromInfobaseSuccessOutputSchema,
+  importFromInfobaseOutputShape,
+)
 
 export type ImportFromInfobaseInput = z.infer<z.ZodObject<typeof importFromInfobaseInputShape>>
 export type ImportFromInfobaseOutput = z.infer<typeof importFromInfobaseOutputShape>

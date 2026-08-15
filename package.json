@@ -32,12 +32,15 @@
     "test:architecture": "node tools/dependency-cruiser/src/check.mjs",
     "test:architecture:rules": "node --test 'tools/dependency-cruiser/test/*.test.mjs'",
     "test:profile": "node packages/rules/scripts/run-test-duration-profile.mjs",
-    "test:e2e": "vitest run --config e2e/vitest.config.ts"
+    "test:e2e": "vitest run --config e2e/vitest.config.ts",
+    "test:partial-sync": "pnpm --filter @nkdk/mcp build && tsx e2e/partial-sync/run.ts"
   },
   "devDependencies": {
+    "@nkdk/platform": "workspace:*",
     "@nkdk/runtime": "workspace:*",
     "@types/node": "^26.1.2",
     "jscpd": "5.0.12",
+    "tsx": "^4.23.1",
     "tsc-alias": "^1.9.1",
     "typescript": "~7.0.0",
     "vitest": "^4.1.10"

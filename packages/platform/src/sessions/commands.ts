@@ -1,7 +1,7 @@
 import type { InfobaseConnection } from "../infobases/types"
 import { PlatformSessionError } from "./errors"
 import type { ProcessLaunch } from "./runtime"
-import type { DatabaseConnectionSettings, UnresolvedReferencesMode } from "./types"
+import type { DatabaseConnectionSettings, PartialLoadMode, UnresolvedReferencesMode } from "./types"
 
 export function buildDesignerAgentLaunch(params: {
   enterprisePath: string
@@ -56,49 +56,6 @@ export function buildStandaloneConfigInit(
   }
 }
 
-export function buildStandaloneConfigExport(params: {
-  ibcmdPath: string
-  configPath: string
-  outputDir: string
-  user?: string
-  password?: string
-  unresolvedReferences: UnresolvedReferencesMode
-}): ProcessLaunch {
-  return {
-    command: params.ibcmdPath,
-    args: [
-      "infobase",
-      "config",
-      "export",
-      ...(params.user === undefined ? [] : [`--user=${params.user}`]),
-      ...(params.password === undefined ? [] : [`--password=${params.password}`]),
-      ...(params.unresolvedReferences === "omit" ? ["--ignore-unresolved-refs"] : []),
-      `--config=${params.configPath}`,
-      params.outputDir,
-    ],
-  }
-}
-
-export function buildStandaloneListExtensions(params: {
-  ibcmdPath: string
-  configPath: string
-  user?: string
-  password?: string
-}): ProcessLaunch {
-  return {
-    command: params.ibcmdPath,
-    args: [
-      "infobase",
-      "config",
-      "extension",
-      "list",
-      ...(params.user === undefined ? [] : [`--user=${params.user}`]),
-      ...(params.password === undefined ? [] : [`--password=${params.password}`]),
-      `--config=${params.configPath}`,
-    ],
-  }
-}
-
 export function buildStandaloneLaunch(params: {
   ibsrvPath: string
   dataDir: string
@@ -120,12 +77,16 @@ export function buildStandaloneLaunch(params: {
 
 export function buildDumpConfigurationCommand(
   outputDir: string,
-  unresolvedReferences: UnresolvedReferencesMode
+  unresolvedReferences: UnresolvedReferencesMode,
+  extensionName?: string
 ): string {
   return [
     `config dump-config-to-files --dir="${interactiveValue(outputDir)}"`,
     "--format=hierarchical",
     ...(unresolvedReferences === "omit" ? ["--ignore-unresolved-refs"] : []),
+    ...(extensionName === undefined
+      ? []
+      : [`--extension="${interactiveValue(extensionName)}"`]),
   ].join(" ")
 }
 
@@ -133,9 +94,17 @@ export function buildListDesignerExtensionsCommand(): string {
   return "config extensions properties get --all-extensions"
 }
 
+export function classifyPartialLoad(loadTargets: readonly string[]): PartialLoadMode {
+  return loadTargets.length > 0 && loadTargets.every((target) => target.toLowerCase().endsWith(".bsl"))
+    ? "partial"
+    : "selected"
+}
+
 export function buildLoadPartialConfigurationCommand(params: {
   stagingDir: string
+  loadMode: PartialLoadMode
   extensionName?: string
+  updateDumpInfo?: boolean
 }): string {
   const stagingDir = interactiveValue(params.stagingDir)
   return [
@@ -143,8 +112,8 @@ export function buildLoadPartialConfigurationCommand(params: {
     '--archive="package.zip"',
     "--no-check",
     `--list-file="${stagingDir}/load.lst"`,
-    "--partial",
-    "--update-config-dump-info",
+    ...(params.loadMode === "partial" ? ["--partial"] : []),
+    ...(params.updateDumpInfo === true ? ["--update-config-dump-info"] : []),
     ...(params.extensionName === undefined
       ? []
       : [`--extension="${interactiveValue(params.extensionName)}"`]),

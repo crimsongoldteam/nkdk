@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { SessionClock } from "./runtime"
+import { openPlatformCommandSession } from "./sshProtocol"
 import {
   createSsh2Transport,
   type Ssh2ClientLike,
@@ -35,6 +36,7 @@ describe("ssh2 loopback transport", () => {
     const chunks: string[] = []
     shell.onData((chunk) => chunks.push(chunk))
     client.stream.emit("data", Buffer.from("designer> "))
+    await Promise.resolve()
 
     expect(chunks).toEqual(["designer> "])
     expect(shell.isOpen()).toBe(true)
@@ -49,14 +51,7 @@ describe("ssh2 loopback transport", () => {
 
   it("notifies shell close listeners exactly once", async () => {
     const client = fakeClient()
-    const pending = createSsh2Transport({ createClient: () => client }).connect({
-      host: "127.0.0.1",
-      port: 58248,
-      timeoutMs: 1_000,
-      expectedHostKeyHash: "trusted",
-    })
-    client.emit("ready")
-    const shell = await pending
+    const shell = await connectShell(client)
     let closeCalls = 0
     shell.onClose(() => closeCalls += 1)
 
@@ -66,6 +61,101 @@ describe("ssh2 loopback transport", () => {
 
     expect(closeCalls).toBe(1)
     expect(shell.isOpen()).toBe(false)
+  })
+
+  it("replays data received before the first subscriber asynchronously", async () => {
+    const client = fakeClient()
+    const shell = await connectShell(client)
+    client.stream.emit("data", Buffer.from("designer> "))
+    const chunks: string[] = []
+
+    shell.onData((chunk) => chunks.push(chunk))
+
+    expect(chunks).toEqual([])
+    await Promise.resolve()
+    expect(chunks).toEqual(["designer> "])
+  })
+
+  it("preserves data order when a chunk arrives while replaying startup data", async () => {
+    const client = fakeClient()
+    const shell = await connectShell(client)
+    client.stream.emit("data", Buffer.from("first"))
+    const chunks: string[] = []
+    shell.onData((chunk) => {
+      chunks.push(chunk)
+      if (chunk === "first") client.stream.emit("data", Buffer.from("second"))
+    })
+
+    await Promise.resolve()
+
+    expect(chunks).toEqual(["first", "second"])
+  })
+
+  it("does not resume buffering after the first subscriber leaves", async () => {
+    const client = fakeClient()
+    const shell = await connectShell(client)
+    const received: string[] = []
+    const unsubscribe = shell.onData((chunk) => received.push(chunk))
+    await Promise.resolve()
+    unsubscribe()
+    client.stream.emit("data", Buffer.from("discarded"))
+
+    shell.onData((chunk) => received.push(chunk))
+    await Promise.resolve()
+
+    expect(received).toEqual([])
+  })
+
+  it("closes an overflowing startup stream before the protocol opens", async () => {
+    const client = fakeClient()
+    const shell = await connectShell(client)
+    let closeCalls = 0
+    shell.onClose(() => closeCalls += 1)
+
+    client.stream.emit("data", Buffer.alloc(64 * 1024 + 1, "a"))
+
+    expect(shell.isOpen()).toBe(false)
+    expect(client.stream.ended).toBe(true)
+    expect(client.destroyed).toBe(true)
+    expect(closeCalls).toBe(1)
+    await expect(openPlatformCommandSession({ shell, timeoutMs: 100 })).rejects.toMatchObject({
+      code: "session_start_failed",
+    })
+  })
+
+  it("keeps a shell closed when it ends before the first subscriber", async () => {
+    const client = fakeClient()
+    const shell = await connectShell(client)
+    client.stream.emit("data", Buffer.from("designer> "))
+    client.stream.emit("close")
+    const chunks: string[] = []
+
+    shell.onData((chunk) => chunks.push(chunk))
+    await Promise.resolve()
+
+    expect(shell.isOpen()).toBe(false)
+    expect(chunks).toEqual([])
+  })
+
+  it("opens the command protocol after startup output arrived during a delay", async () => {
+    const client = fakeClient()
+    const shell = await connectShell(client)
+    client.stream.emit("data", Buffer.from("1C Designer Shell\r\ndesigner> "))
+    await Promise.resolve()
+    await Promise.resolve()
+
+    const opening = openPlatformCommandSession({ shell, timeoutMs: 100 })
+    await waitForWrites(client, 1)
+    expect(client.stream.writes).toEqual(["options set --output-format=json\n"])
+    client.stream.emit("data", Buffer.from('[{"type":"success","message":"JSON"}]\ndesigner> '))
+    await waitForWrites(client, 2)
+    expect(client.stream.writes).toEqual([
+      "options set --output-format=json\n",
+      "common connect-ib\n",
+    ])
+    client.stream.emit("data", Buffer.from('[{"type":"success","message":"Connected"}]\ndesigner> '))
+
+    await expect(opening).resolves.toMatchObject({ isAlive: expect.any(Function) })
   })
 
   it("uses the injected timeout and destroys an unready client", async () => {
@@ -118,6 +208,17 @@ type FakeClient = Ssh2ClientLike & {
   ended: boolean
   destroyed: boolean
   emit(event: string, value?: unknown): void
+}
+
+async function connectShell(client: FakeClient) {
+  const connected = createSsh2Transport({ createClient: () => client }).connect({
+    host: "127.0.0.1",
+    port: 58248,
+    timeoutMs: 1_000,
+    expectedHostKeyHash: "trusted",
+  })
+  client.emit("ready")
+  return connected
 }
 
 function fakeClient(): FakeClient {
@@ -187,5 +288,11 @@ function controlledClock(): SessionClock & { expire(): void } {
       callback = undefined
       current?.()
     },
+  }
+}
+
+async function waitForWrites(client: FakeClient, count: number): Promise<void> {
+  for (let attempt = 0; attempt < 20 && client.stream.writes.length < count; attempt += 1) {
+    await Promise.resolve()
   }
 }

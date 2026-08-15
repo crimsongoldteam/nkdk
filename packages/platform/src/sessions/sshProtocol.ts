@@ -33,6 +33,9 @@ type ExchangeOptions = {
   operationLog?: PlatformOperationLog
 }
 
+export type PlatformCommandConnectionStage = "protocol-handshake" | "authentication"
+export type PlatformCommandConnectionStatus = "start" | "ready"
+
 export async function openPlatformCommandSession(params: {
   shell: SshShell
   user?: string
@@ -41,11 +44,16 @@ export async function openPlatformCommandSession(params: {
   clock?: SessionClock
   diagnostic?: (message: string) => void
   operationLog?: PlatformOperationLog
+  onStage?: (
+    stage: PlatformCommandConnectionStage,
+    status: PlatformCommandConnectionStatus
+  ) => Promise<void>
 }): Promise<PlatformCommandSession> {
   if (!params.shell.isOpen()) {
     throw new PlatformSessionError("session_start_failed", "SSH-сеанс платформы закрыт")
   }
 
+  await params.onStage?.("protocol-handshake", "start")
   const protocol = new PlatformCommandProtocol({
     shell: params.shell,
     user: params.user ?? "",
@@ -62,12 +70,15 @@ export async function openPlatformCommandSession(params: {
       false,
       { timeoutMs: params.timeoutMs, operationLog: params.operationLog }
     )
+    await params.onStage?.("protocol-handshake", "ready")
+    await params.onStage?.("authentication", "start")
     await protocol.execute(
       "common connect-ib",
       "authentication_failed",
       true,
       { timeoutMs: params.timeoutMs, operationLog: params.operationLog }
     )
+    await params.onStage?.("authentication", "ready")
     return protocol
   } catch (caught) {
     await protocol.close()
@@ -320,6 +331,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       })
       return
     }
+    if (type === "progress" || type === "dbstru" || type === "generation-id") return
     if (type === "error" || type === "cancel") {
       const platformMessage = extractFailureMessage(message)
       const fallback = safeFailureMessage(pending.errorCode)
@@ -332,6 +344,10 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       return
     }
     if (type !== "question" || !pending.allowQuestions || typeof message["message"] !== "string") {
+      const text = pending.operationLog?.sanitize(JSON.stringify(message)) ?? JSON.stringify(message)
+      pending.logWrites = pending.logWrites.then(async () => {
+        await pending.operationLog?.append(`unsupported-command-message ${text}`)
+      })
       throw new Error("unexpected message")
     }
 

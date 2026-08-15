@@ -3,6 +3,7 @@ import type { ConfigurationExtensionInfo } from "../extensions/types"
 import type { PlatformOperationLog } from "./runtime"
 
 export type PlatformSessionMode = "designer-agent" | "standalone-server"
+export type PartialLoadMode = "partial" | "selected"
 
 export type UnresolvedReferencesMode = "include" | "omit"
 
@@ -35,6 +36,7 @@ export type ExportConfigurationParams = NormalizedPlatformConnectionSettings & {
   logPath: string
   mode: PlatformSessionMode
   unresolvedReferences: UnresolvedReferencesMode
+  extensionName?: string
   signal?: AbortSignal
 }
 
@@ -56,6 +58,7 @@ export type ListConfigurationExtensionsResult = {
 }
 
 export type LoadPartialConfigurationParams = NormalizedPlatformConnectionSettings & {
+  mode: PlatformSessionMode
   projectDir: string
   archivePath: string
   loadTargets: readonly string[]
@@ -65,7 +68,8 @@ export type LoadPartialConfigurationParams = NormalizedPlatformConnectionSetting
 }
 
 export type LoadPartialConfigurationResult = {
-  mode: "designer-agent"
+  mode: PlatformSessionMode
+  loadMode: PartialLoadMode
   reusedConnection: boolean
   warnings: readonly string[]
 }
@@ -93,7 +97,8 @@ export interface PlatformSession {
     outputDir: string,
     operationLog: PlatformOperationLog,
     unresolvedReferences: UnresolvedReferencesMode,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    extensionName?: string
   ): Promise<void>
   listExtensions(signal?: AbortSignal): Promise<ConfigurationExtensionInfo[]>
   loadPartialConfiguration?(
@@ -102,7 +107,7 @@ export interface PlatformSession {
     operationLog: PlatformOperationLog,
     extensionName?: string,
     signal?: AbortSignal
-  ): Promise<{ warnings: readonly string[] }>
+  ): Promise<{ warnings: readonly string[]; loadMode: PartialLoadMode }>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>
   cancel(): Promise<{ stoppedOwnedProcess: boolean }>

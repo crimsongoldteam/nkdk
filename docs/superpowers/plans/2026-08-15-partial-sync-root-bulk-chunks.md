@@ -1,0 +1,392 @@
+# Partial Sync Root Bulk Chunks Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Разделить массовое создание корневых объектов partial e2e на последовательные блоки максимум по 12 операций, не меняя остальные слои.
+
+**Architecture:** Необязательное поле `bulkBlockSize` принадлежит декларации слоя. `buildScenarioPlan` сначала выполняет существующую топологическую сортировку, отделяет пробную операцию и только затем нарезает остаток на стабильные массовые блоки; исполнитель сценария продолжает работать с обычным `ScenarioBlock` без специальных условий.
+
+**Tech Stack:** TypeScript, Vitest, декларативная матрица `e2e/partial-sync`, ручной автономный e2e.
+
+## Global Constraints
+
+- Ограничение `bulkBlockSize: 12` задаётся только для слоя `roots:create`.
+- Разбиение выполняется после топологической сортировки и сохраняет порядок зависимостей.
+- Слой без ограничения сохраняет ключ `${layer}:bulk`; разделённые блоки получают ключи `${layer}:bulk:1`, `${layer}:bulk:2` и далее.
+- Сценарий не добавляется в обычные `pnpm test`, `pnpm test:e2e` или CI.
+- Существующие XML-фикстуры не изменяются.
+
+---
+
+### Task 1: Декларативное разбиение массового блока
+
+**Files:**
+- Modify: `e2e/partial-sync/matrix/types.ts`
+- Modify: `e2e/partial-sync/plan.ts`
+- Modify: `e2e/partial-sync/plan.test.ts`
+- Modify: `e2e/partial-sync/matrix/layers.ts`
+- Modify: `e2e/partial-sync/matrix.test.ts`
+
+**Interfaces:**
+- Consumes: существующие `ScenarioLayer`, `ScenarioBlock`, `buildScenarioPlan(matrix)` и топологически отсортированный список операций слоя.
+- Produces: `ScenarioLayer.bulkBlockSize?: number`; ключ `ScenarioBlock.key` допускает `${string}:bulk:${number}`; `roots:create` объявляет `bulkBlockSize: 12`.
+
+- [ ] **Step 1: Write the failing plan test**
+
+Добавить в `e2e/partial-sync/plan.test.ts` проверку слоя из пяти операций с пробной операцией в середине, зависимостью потребителя от более ранней операции и `bulkBlockSize: 2`:
+
+```ts
+it("splits the sorted bulk into stable dependency-safe chunks", () => {
+  const source = matrix()
+  const base = creationOperations(source)
+  const operation = (key: string, dependsOn: readonly string[] = []): ScenarioOperation => ({
+    ...base[0],
+    key,
+    changes: [{ path: `${key}.yaml`, before: null, after: key }],
+    dependsOn,
+  })
+  const operations = [
+    operation("object:first"),
+    operation("object:probe"),
+    operation("object:consumer", ["object:dependency"]),
+    operation("object:dependency"),
+    operation("object:last"),
+  ]
+  const layered = withLayers(source, [{
+    key: "roots:create",
+    componentPath: "cf",
+    probeOperationKey: "object:probe",
+    bulkBlockSize: 2,
+    operations,
+  }])
+
+  expect(buildScenarioPlan(layered).map((block) => ({
+    key: block.key,
+    operations: block.operations.map(({ key }) => key),
+  }))).toEqual([
+    { key: "roots:create:probe", operations: ["object:probe"] },
+    { key: "roots:create:bulk:1", operations: ["object:first", "object:dependency"] },
+    { key: "roots:create:bulk:2", operations: ["object:consumer", "object:last"] },
+  ])
+})
+```
+
+В существующий `it.each` недопустимых деклараций добавить размеры `0`, `-1` и
+`1.5`; каждый случай должен отклоняться с сообщением, содержащим
+`bulkBlockSize` и ключ слоя.
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/plan.test.ts`
+
+Expected: FAIL, потому что `ScenarioLayer` пока не принимает `bulkBlockSize`, а построитель создаёт один `roots:create:bulk`.
+
+- [ ] **Step 3: Implement minimal chunking**
+
+В `e2e/partial-sync/matrix/types.ts` добавить поле и расширить тип ключа:
+
+```ts
+export type ScenarioLayer = {
+  readonly key: string
+  readonly componentPath: ScenarioComponentPath
+  readonly probeOperationKey: string
+  readonly bulkBlockSize?: number
+  readonly operations: readonly ScenarioOperation[]
+}
+
+export type ScenarioBlock = {
+  readonly key: `${string}:probe` | `${string}:bulk` | `${string}:bulk:${number}`
+  readonly layerKey: string
+  readonly componentPath: ScenarioComponentPath
+  readonly operations: readonly ScenarioOperation[]
+}
+```
+
+В `e2e/partial-sync/plan.ts` проверить, что размер — положительное целое число, и заменить создание единственного массового блока на помощник, который возвращает один прежний блок без ограничения либо пронумерованные части с ограничением. Каждая часть добавляет свои операции в `available` до проверки следующей части.
+
+- [ ] **Step 4: Run plan tests to verify they pass**
+
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/plan.test.ts`
+
+Expected: PASS для нового договора и существующего поведения без ограничения.
+
+- [ ] **Step 5: Configure only root creation and strengthen the matrix test**
+
+В `e2e/partial-sync/matrix/layers.ts` передать `bulkBlockSize: 12` только для `roots:create`. В `e2e/partial-sync/matrix.test.ts` проверить ключи и размеры:
+
+```ts
+expect(rootCreateBlocks.map(({ key, operations }) => [key, operations.length])).toEqual([
+  ["roots:create:probe", 1],
+  ["roots:create:bulk:1", 12],
+  ["roots:create:bulk:2", 12],
+  ["roots:create:bulk:3", 12],
+  ["roots:create:bulk:4", 10],
+])
+```
+
+Обновить существующие проверки порядка, чтобы они находили последний массовый блок слоя, а не старый ключ `roots:create:bulk`.
+
+- [ ] **Step 6: Run focused and fast verification**
+
+Run:
+
+```bash
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/plan.test.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/scenario.test.ts e2e/partial-sync/checkpoints.test.ts e2e/partial-sync/timing.test.ts
+pnpm type-check
+pnpm duplicates -- --base 8f5032124^
+```
+
+Expected: все проверки PASS, TypeScript без ошибок, новые дубли отсутствуют.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add e2e/partial-sync/matrix/types.ts e2e/partial-sync/plan.ts e2e/partial-sync/plan.test.ts e2e/partial-sync/matrix/layers.ts e2e/partial-sync/matrix.test.ts
+git commit -m "test: :white_check_mark: разделить массовое создание объектов"
+```
+
+### Task 2: Удаление неявных пустых значений заполнения
+
+**Files:**
+- Modify: `e2e/partial-sync/matrix/children.ts`
+- Modify: `e2e/partial-sync/matrix.test.ts`
+- Modify: `e2e/partial-sync/matrix/structural-property-operations.ts`
+
+**Interfaces:**
+- Consumes: договор проверки проекта, запрещающий явное пустое строковое
+  `ЗначениеЗаполнения` как неявное значение типа.
+- Produces: четыре декларации полей без `ЗначениеЗаполнения: ""` — измерение и
+  реквизит регистра сведений, реквизит адресации задачи и измерение куба
+  внешнего источника данных.
+
+- [ ] **Step 1: Change focused expectations and verify they fail**
+
+В существующих проверках `e2e/partial-sync/matrix.test.ts` заменить ожидание
+явных пустых значений заполнения на их отсутствие для четырёх перечисленных
+полей.
+
+Run:
+
+```bash
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts
+```
+
+Expected: FAIL в трёх проверках, потому что декларации пока содержат четыре
+строки `ЗначениеЗаполнения: ""`.
+
+- [ ] **Step 2: Remove only the four implicit values**
+
+В `e2e/partial-sync/matrix/children.ts` использовать `Тип: Строка(10)` без
+`ЗначениеЗаполнения` для регистра сведений, реквизита адресации задачи и
+измерения куба. Остальные значения заполнения матрицы не менять.
+В `e2e/partial-sync/matrix/structural-property-operations.ts` синхронно убрать
+это поле из исходного и конечного фрагментов изменения индексирования.
+
+- [ ] **Step 3: Run focused verification and commit**
+
+Run:
+
+```bash
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts
+pnpm type-check
+pnpm duplicates -- --base 54d6a21e3
+```
+
+Expected: проверки PASS, TypeScript без ошибок, новые дубли отсутствуют.
+
+Commit:
+
+```bash
+git add e2e/partial-sync/matrix/children.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/matrix/structural-property-operations.ts
+git commit -m "test: :white_check_mark: убрать неявные значения заполнения"
+```
+
+### Task 3: Поглощение вложенных удалений файловым владельцем
+
+**Files:**
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.ts`
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts`
+
+**Interfaces:**
+- Consumes: `PartialXmlChanges.deleted`, нейтральную классификацию топологии и
+  `assignment.role === "fileItem"`.
+- Produces: план удаления файлового объекта, который включает XML текущего
+  родителя и оставшихся соседей, но не пытается отдельно обработать удалённые
+  ресурсы внутри каталога удалённого `fileItem`.
+
+- [ ] **Step 1: Write the failing nested-deletion test**
+
+Добавить в `impactPlanner.test.ts` рядом с проверками файловых дочерних объектов:
+
+```ts
+it("поглощает вложенные удаления удалённым файловым владельцем", () => {
+  const result = plan(
+    [root, language, owner, firstTable],
+    changes({ deleted: [secondTable, secondTableModule, secondNestedTable] }),
+  )
+
+  expect(result.selection).toEqual({
+    kind: "selected",
+    projectPaths: [owner, firstTable].sort(utf8),
+  })
+  expect(result.externalProjectPaths).toEqual([])
+  expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+})
+```
+
+- [ ] **Step 2: Run the test and verify the owner lookup failure**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run metadata/partialSyncToXml/impactPlanner.test.ts
+```
+
+Expected: FAIL с `Не найден текущий владелец файлового metadata` для
+`secondTable`, потому что обработка `secondNestedTable` пока требует удалённый
+файл владельца.
+
+- [ ] **Step 3: Implement topology-neutral absorption**
+
+В начале `buildPartialXmlImpactPlan` заранее классифицировать удалённые
+`content`-ресурсы с `assignment.role === "fileItem"` и сохранить их пути и
+каталоги. Перед обоими проходами по `changes.deleted` пропускать путь, если он
+не является самим удалённым владельцем, но находится внутри каталога любого
+удалённого `fileItem`. Проверка строится по полной дельте и не зависит от её
+порядка.
+
+Не добавлять условия по `itemType`, внешнему источнику данных, кубу или русским
+именам каталогов.
+
+- [ ] **Step 4: Run focused and neighboring tests**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run metadata/partialSyncToXml/impactPlanner.test.ts
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/scenario.test.ts
+pnpm type-check
+pnpm duplicates -- --base ea785c8a8
+```
+
+Expected: все проверки PASS, TypeScript без ошибок, новые дубли отсутствуют.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add packages/rules/metadata/partialSyncToXml/impactPlanner.ts packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts
+git commit -m "fix: :bug: поглотить вложенные удаления файлового объекта"
+```
+
+### Task 4: Сохранение внешних файлов при изменении конфигурации
+
+**Files:**
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.ts`
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts`
+
+**Interfaces:**
+- Consumes: прямое изменение текущего `content`-ресурса с
+  `assignment.role === "configuration"` и существующий
+  `includeConfigurationRoot()`.
+- Produces: частичный пакет корня, содержащий корневое XML-задание, его
+  документы-спутники, ссылочный основной язык и все текущие внешние файлы
+  assignment как payload и load targets.
+
+- [ ] **Step 1: Write the failing root-external-files test**
+
+Добавить в `impactPlanner.test.ts`:
+
+```ts
+it("при изменении конфигурации сохраняет корневые внешние файлы", () => {
+  const result = plan(
+    [root, rootModule, language],
+    changes({ changed: [root] }),
+  )
+
+  expect(result.selection).toEqual({
+    kind: "selected",
+    projectPaths: [root, rootModule, language].sort(utf8),
+  })
+  expect(result.externalProjectPaths).toEqual([rootModule])
+  expect(result.loadTargets).toEqual([
+    "Configuration.xml",
+    "Ext/ClientApplicationInterface.xml",
+    "Ext/MainSectionCommandInterface.xml",
+    "Ext/ManagedApplicationModule.bsl",
+    "Languages/Русский.xml",
+  ].sort(utf8))
+})
+```
+
+- [ ] **Step 2: Run the test and verify the missing external file**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run metadata/partialSyncToXml/impactPlanner.test.ts
+```
+
+Expected: FAIL — `rootModule` отсутствует в selection, externalProjectPaths и
+loadTargets.
+
+- [ ] **Step 3: Reuse the complete configuration-root path**
+
+В `includeDirectCurrent` для `content` с ролью assignment `configuration`
+вызывать `includeConfigurationRoot()`, для остальных ресурсов сохранять
+`includeAssignment(resource, true)`. Не перечислять конкретные внешние файлы и
+не добавлять условия по `itemType`.
+
+- [ ] **Step 4: Run verification and commit**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run metadata/partialSyncToXml/impactPlanner.test.ts
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/scenario.test.ts
+pnpm type-check
+pnpm duplicates -- --base 1235a30f9
+```
+
+Expected: все проверки PASS, TypeScript без ошибок, новые дубли отсутствуют.
+
+Commit:
+
+```bash
+git add packages/rules/metadata/partialSyncToXml/impactPlanner.ts packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts
+git commit -m "fix: :bug: сохранить внешние файлы конфигурации"
+```
+
+### Task 5: Проверка автономным сервером
+
+**Files:**
+- Inspect: `/Users/nikita/Базы 1С/temp_test/logs/timings.json`
+- Inspect on failure: `/Users/nikita/Базы 1С/temp_test/logs/**/013-nkdk.sync_to_infobase.response.json`
+
+**Interfaces:**
+- Consumes: сценарий из Task 1 и параметризованный каталог `/Users/nikita/Базы 1С/temp_test`.
+- Produces: подтверждение прохождения четырёх массовых блоков либо точный ключ первой проблемной группы и сохранённый частичный ZIP.
+
+- [ ] **Step 1: Resume from the last checkpoint**
+
+Сначала запустить без `--reset`, чтобы повторить только незавершённый блок:
+
+```bash
+pnpm test:partial-sync -- --root '/Users/nikita/Базы 1С/temp_test' --mode standalone-server
+```
+
+Если контрольная копия работающей файловой базы не принимается новым
+автономным сервером, повторить сценарий с `--reset`.
+
+- [ ] **Step 2: Run the real scenario from a clean managed root if recovery is unavailable**
+
+Run outside the sandbox:
+
+```bash
+pnpm test:partial-sync -- --root '/Users/nikita/Базы 1С/temp_test' --mode standalone-server --reset
+```
+
+Expected: блоки `roots:create:bulk:1`–`roots:create:bulk:4` проходят без аварийного завершения `ibsrv`; сценарий продолжает следующие слои.
+
+- [ ] **Step 3: Inspect timings and failure evidence**
+
+Если сценарий проходит, сравнить время подготовки и четырёх блоков с предыдущими 103,8 секунды до падения. Если `ibsrv` снова падает, зафиксировать ключ блока, список его операций, ответ MCP, `platform.log`, системный `.ips` и ZIP; не запускать полный массив повторно до локализации внутри этой группы.
