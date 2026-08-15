@@ -128,6 +128,7 @@ export function attributePresentationFragment(params: {
         type: "TypeDescription",
         xml: "Type",
         xmlParents: propertiesParents,
+        declareTypeNamespaceXML: ["dcsset"],
         defaultValueXMLRaw: "",
         ...(params.allowedTypes === undefined ? {} : { allowedTypes: params.allowedTypes }),
       },

@@ -45,6 +45,32 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     )
   })
 
+  it("не создаёт Form.xml для обычной формы", () => {
+    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
+    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
+
+    expect(nestedRule.convert({
+      context: mockContextToXML(),
+      yaml: { ТипФормы: "Обычная" },
+      ownerYAML: { ТипФормы: "Обычная" },
+      name: "ОбычнаяФорма",
+      referenceXML: undefined,
+    })).toBeUndefined()
+  })
+
+  it("создаёт Form.xml для управляемой формы с неявным типом", () => {
+    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
+    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
+
+    expect(nestedRule.convert({
+      context: mockContextToXML(),
+      yaml: {},
+      ownerYAML: {},
+      name: "УправляемаяФорма",
+      referenceXML: undefined,
+    })).toHaveProperty("Form")
+  })
+
   it("восстанавливает платформенное назначение при отсутствии YAML-поля", () => {
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
@@ -573,10 +599,12 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     const result = nestedRule.convert({
       context: mockContextToXML(),
       yaml,
+      ownerYAML: {},
       baseConfigurationIndex: testConfigurationIndexReader(),
       name: "Форма",
       referenceXML: undefined,
     })
+    if (result === undefined) throw new Error("Управляемая форма не преобразована")
 
     expect(tableByName(result.Form as ClientApplicationFormXML, "Строки").RowFilter)
       .toEqual({ "_xsi:nil": "true" })
@@ -829,6 +857,9 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
             Вид: "ТаблицаФормы",
             ПутьКДанным: "",
             ПутьКДаннымКартинкиСтроки: "Объект.Товары.Количество",
+            Элементы: {
+              ТоварыКоличество: { Вид: "ПолеВвода", ПутьКДанным: "" },
+            },
           },
         },
       } as ClientApplicationFormYAML,
@@ -836,6 +867,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
 
     expect(elementByName(result.formXML, "Товары").DataPath).toBeUndefined()
+    expect(elementByName(result.formXML, "ТоварыКоличество").DataPath).toBeUndefined()
     expect(elementByName(result.formXML, "Товары").RowPictureDataPath).toBe("Объект.Товары.Количество")
   })
 
@@ -969,11 +1001,13 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     const result = nestedRule.convert({
       context: mockContextToXML(),
       yaml: { Ширина: 100 },
+      ownerYAML: {},
       baseYAML: { Ширина: 80 },
       baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ОбщаяФорма",
       referenceXML: undefined,
     })
+    if (result === undefined) throw new Error("Управляемая форма не преобразована")
 
     expect(result.Form).toMatchObject({
       Width: 100,
@@ -993,6 +1027,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       yaml: {
         Элементы: { Список: { Вид: "ТаблицаФормы" } },
       },
+      ownerYAML: {},
       baseYAML: {
         Реквизиты: { Список: { Тип: "ДинамическийСписок" } },
         Элементы: {
@@ -1003,6 +1038,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       name: "ОбщаяФорма",
       referenceXML: undefined,
     })
+    if (result === undefined) throw new Error("Управляемая форма не преобразована")
     const form = result.Form as ClientApplicationFormXML
 
     expect(elementByName(form, "Список").DataPath).toBeUndefined()
@@ -1037,6 +1073,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
           Список: { Вид: "ТаблицаФормы" },
         },
       },
+      ownerYAML: {},
       baseYAML: {
         kind: "selectedBaseYAML",
         baseFormSourceKind: "saved",
@@ -1056,6 +1093,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       name: "ФормаДокумента",
       referenceXML: undefined,
     })
+    if (result === undefined) throw new Error("Управляемая форма не преобразована")
     const form = result.Form as ClientApplicationFormXML
 
     expect(form.BaseForm).toMatchObject({ Width: 80 })

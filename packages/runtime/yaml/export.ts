@@ -237,6 +237,7 @@ function applyYAMLMappingKeyTagsToNode(node: Node | null, source: unknown): void
       }
       item.key.tag = `!${tag}`
       item.key.style.tagged = true
+      if (key === "") item.key.style.doubleQuoted = true
     }
     applyYAMLMappingKeyTagsToNode(item.value, source[key])
   }

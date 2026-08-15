@@ -45,7 +45,7 @@ function collectPanel(
   if (typeof panel.UUID !== "string" || standardPanelUUIDs.has(panel.UUID)) {
     throw new Error("ПустоеОпределение допускается только у нестандартной панели с UUID")
   }
-  if (panel.Имя !== undefined || panel.Представление !== undefined) {
+  if (panel.Имя !== undefined) {
     throw new Error("ПустоеОпределение допускается только для пустого определения нестандартной панели")
   }
   result.add(panel.UUID)

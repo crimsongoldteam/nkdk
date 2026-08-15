@@ -348,6 +348,18 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(JSON.stringify(item["xr:FillValue"])).not.toContain("!xml")
   })
 
+  it("восстанавливает несовместимую пробельную строку FillValue дословно", () => {
+    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
+  Код:
+    ЗначениеЗаполнения: !xml/value "    "
+`, { Code: "Код" })
+
+    expect(item["xr:FillValue"]).toEqual({
+      "_xsi:type": "xs:string",
+      "#text": "    ",
+    })
+  })
+
   function standardAttributeFillValueXML(
     yaml: string,
     standartAttributeNames: Record<string, string>,

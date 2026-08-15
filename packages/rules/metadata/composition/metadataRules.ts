@@ -63,10 +63,12 @@ import { metadataExternalDataSourceTableOwnerRules } from "../commonObjects/meta
 import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/register"
 import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenDesignTimeRef"
 import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
+import { brokenDirectMetadataTargetReferenceRules } from "../commonObjects/metadataTargets/brokenDirectReference"
 import { brokenCommandInterfaceSubsystemOrderRules } from "../commonObjects/rootCommandInterface/brokenSubsystemOrder"
 import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
 import { configurationExtensionPropertyStateRules } from "../appliedObjects/configurationExtension/propertyStateRules"
 import { dcsParameterExplicitUndefinedRules } from "../commonObjects/dataCompositionSystem/dcsParameter/explicitUndefined"
+import { settingsParameterValueCollectionExplicitEmptyRules } from "../commonObjects/dataCompositionSystem/settingsParameterValueCollection/explicitEmpty"
 import { explicitAdditionalFieldsRules } from "../commonObjects/indexField/explicitAdditionalFields"
 import { explicitEmptyAttributesRules } from "../forms/clientApplicationForm/explicitEmptyAttributes"
 import { explicitEmptyFormElementTitleRules } from "../forms/clientApplicationForm/explicitEmptyTitle"
@@ -75,6 +77,7 @@ import { formAttributeValueTypeSettingsRules } from "../forms/commonObjects/form
 import { appliedObjectInputByStringRules } from "../appliedObjects/inputByStringRules"
 import { appliedObjectDataTableRules } from "../appliedObjects/dataTableRules"
 import { popupExtendedTooltipRules } from "../forms/elements/popup/extendedTooltip"
+import { brokenEventReferenceRules } from "../forms/commonObjects/event/brokenReference"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -119,8 +122,10 @@ export const legacyCoreRules = composeMetadataRules(
   appliedObjectInputByStringRules,
   brokenDesignTimeRefRules,
   brokenMDObjectRefRules,
+  brokenDirectMetadataTargetReferenceRules,
   brokenCommandInterfaceSubsystemOrderRules,
   brokenLocalFormReferenceRules,
+  brokenEventReferenceRules,
   popupExtendedTooltipRules,
   typeDescriptionIndexRules,
   metadataExternalDataSourceCubeOwnerRules,
@@ -135,6 +140,7 @@ export const legacyCoreRules = composeMetadataRules(
   childFormNamesPropertyRules,
   fillValueRules,
   dcsParameterExplicitUndefinedRules,
+  settingsParameterValueCollectionExplicitEmptyRules,
   explicitAdditionalFieldsRules,
   explicitEmptyAttributesRules,
   explicitEmptyFormElementTitleRules,

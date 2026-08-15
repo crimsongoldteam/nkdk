@@ -38,6 +38,23 @@ describe("classifyFillValue", () => {
     ).toBe("invalid")
   })
 
+  it.each([
+    [0, "Variable", "текст", "valid"],
+    [0, "Fixed", "     ", "valid"],
+    [3, "Variable", "12", "valid"],
+    [3, "Variable", "    ", "invalid"],
+    [3, "Fixed", "123", "valid"],
+    [3, "Fixed", "  ", "invalid"],
+  ] as const)(
+    "проверяет строку длины %s с ограничением %s: %j → %s",
+    (length, allowedLength, value, expected) => {
+      expect(classify(
+        { type: ["string"], stringQualifiers: { length, allowedLength } },
+        { type: "string", value },
+      ).kind).toBe(expected)
+    },
+  )
+
   it("validates a single reference and treats its EmptyRef as implicit", () => {
     const type = { type: ["CatalogRef.Контрагенты"] }
     expect(classify(type, { type: "ref", value: "Catalog.Контрагенты.Поставщик" }).kind).toBe(

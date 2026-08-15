@@ -9,6 +9,7 @@ import type {
   SettingsParameterValuePropertyRule,
   SettingsParameterValueYAML,
 } from "../parameterValue/types"
+import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 
 /** Набор правил для элементов коллекции `dcscor:item` (настройки параметра СКД). */
 export type SettingsParameterValueRuleSet = {
@@ -22,7 +23,9 @@ export type SettingsParameterValueCollection = {
 }
 
 /** Под ключом YAML — имя параметра (как в `dcscor:parameter`). */
-export type SettingsParameterValueCollectionYAML = Record<string, SettingsParameterValueYAML>
+export type SettingsParameterValueCollectionYAML =
+  | Record<string, SettingsParameterValueYAML>
+  | typeof XML_PRESENT_TAG_VALUE
 
 export type SettingsParameterValueCollectionXML = {
   "dcscor:item"?: ParameterValueXML | ParameterValueXML[]

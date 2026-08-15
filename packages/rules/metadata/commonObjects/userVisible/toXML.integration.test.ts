@@ -104,6 +104,33 @@ describe("exportUserVisibleToXML", () => {
     expect(() => convert(uuid)).toThrow("Неизвестный корень")
   })
 
+  it.each([
+    ["Ложь", false],
+    ["Истина", true],
+  ] as const)("восстанавливает тегированный пустой ключ роли со значением %s", (yamlValue, xmlValue) => {
+    const rule = {
+      itemType: "UserVisibleEmptyBrokenReferenceProbe",
+      properties: {
+        use: { type: "UserVisible", xml: "Use", yaml: "Использование" },
+      },
+    } as MetadataItemRule
+    const convert = (source: string) => convertPropertiesFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: importFromYAML(source),
+      rule,
+      outputs: [{ key: "owner" }],
+      execution: createRuleRegistrySet(metadataRules).execution,
+    }).outputs.get("owner")
+
+    expect(convert(`Использование:\n  Роли:\n    !xml/reference "": ${yamlValue}`)).toEqual({
+      Use: {
+        "xr:Common": true,
+        "xr:Value": [{ _name: "", "#text": xmlValue }],
+      },
+    })
+    expect(() => convert('Использование:\n  Роли:\n    "": Ложь')).toThrow()
+  })
+
   it("не теряет обычную роль с именем, похожим на временное", () => {
     const uuid = "6537a19c-3357-46a2-96a6-1fe4619ddbc8"
     const rule = {

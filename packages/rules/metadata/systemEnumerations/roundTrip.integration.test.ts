@@ -5,11 +5,49 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../tests/directConversion"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import {
+  createPropertyRuleExecutor,
+  createPropertyRuleRegistrySet,
+  type MetadataItemRule,
+} from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../composition/metadataRules"
 
 import "./index"
 
+const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
+
 describe("SystemEnumeration XML → YAML → XML", () => {
+  it("преобразует XML Switcher в YAML Выключатель и обратно", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "CheckBoxTypeAliasProbe",
+      properties: {
+        mode: {
+          type: "SystemEnumeration",
+          typeSE: "CheckBoxType",
+          xml: "CheckBoxType",
+          yaml: "ВидФлажка",
+        },
+      },
+    } as const satisfies MetadataItemRule
+
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      execution,
+      rule,
+      xml: { CheckBoxType: "Switcher" },
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      execution,
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({ ВидФлажка: "Выключатель" })
+    expect(exported.xml).toEqual({ CheckBoxType: "Switcher" })
+  })
+
   it("преобразует XML RadioButtons в YAML Переключатель и обратно без снимка", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
@@ -26,11 +64,13 @@ describe("SystemEnumeration XML → YAML → XML", () => {
 
     const imported = testPropertyFromXMLToYAML({
       context: contexts.importContext,
+      execution,
       rule,
       xml: { RadioButtonType: "RadioButtons" },
     })
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
+      execution,
       rule,
       yaml: imported.yaml,
     })
@@ -53,6 +93,7 @@ describe("SystemEnumeration XML → YAML → XML", () => {
     } as const satisfies MetadataItemRule
 
     const exported = testPropertyFromYAMLToXML({
+      execution,
       rule,
       yaml: { Вид: "Переключатель" },
     })

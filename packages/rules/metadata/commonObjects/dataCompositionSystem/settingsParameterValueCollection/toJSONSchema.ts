@@ -16,7 +16,7 @@ const schemaForParameterRule = (context: ConfigurationContext, rule: SettingsPar
       ])
   ) as Record<string, TSchema>
 
-  return Type.Object(parameterRules, { additionalProperties: false })
+  return Type.Object(parameterRules, { additionalProperties: false, minProperties: 1 })
 }
 
 export const exportSettingsParameterValueCollectionToJSONSchema: ExportToJSONSchemaFn = ({
@@ -28,7 +28,7 @@ export const exportSettingsParameterValueCollectionToJSONSchema: ExportToJSONSch
   if (collectionRule.defaultItemRule !== undefined) {
     const defaultSchema = requiredSettingsParameterValueSchema(context, collectionRule.defaultItemRule)
     const parameterRules = schemaForParameterRule(context, collectionRule)
-    return Type.Object(parameterRules.properties, { additionalProperties: defaultSchema })
+    return Type.Object(parameterRules.properties, { additionalProperties: defaultSchema, minProperties: 1 })
   }
 
   return schemaForParameterRule(context, collectionRule)

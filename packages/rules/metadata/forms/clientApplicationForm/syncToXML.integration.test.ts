@@ -8,6 +8,50 @@ import { prepareYamlFiles } from "../../project/prepareYamlFiles"
 import { prepareFormXML, writePreparedFormToXML } from "./syncToXML"
 
 describe("writePreparedFormToXML", () => {
+  it("готовит для обычной формы только metadata XML", () => {
+    const prepared = {
+      projectPath: "Справочник/Товары/Формы/Обычная/Форма.yaml",
+      filePath: "/tmp/Обычная/Форма.yaml",
+      role: "form" as const,
+      owner: { dir: "Справочник", name: "Товары" },
+      data: { ТипФормы: "Обычная" },
+      syntaxDiagnostics: [],
+    }
+
+    const result = prepareFormXML({
+      context: mockContextToXML(),
+      preparedYamlFile: prepared,
+      formName: "Обычная",
+    })
+
+    expect(result.map(({ targetKind }) => targetKind)).toEqual(["metadata"])
+    expect(result[0]?.xml).toHaveProperty("MetaDataObject.Form.Properties.FormType", "Ordinary")
+  })
+
+  it("не записывает Form.xml обычной формы", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-ordinary-form-"))
+    try {
+      await writePreparedFormToXML({
+        context: mockContextToXML(),
+        preparedYamlFile: {
+          projectPath: "Справочник/Товары/Формы/Обычная/Форма.yaml",
+          filePath: join(tmpRoot, "project", "Форма.yaml"),
+          role: "form",
+          owner: { dir: "Справочник", name: "Товары" },
+          data: { ТипФормы: "Обычная" },
+          syntaxDiagnostics: [],
+        },
+        outputDir: join(tmpRoot, "xml"),
+        formName: "Обычная",
+      })
+
+      expect(fs.existsSync(join(tmpRoot, "xml", "Forms", "Обычная.xml"))).toBe(true)
+      expect(fs.existsSync(join(tmpRoot, "xml", "Forms", "Обычная", "Ext", "Form.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
   it("сохраняет !xml/present RowFilter после подготовки YAML-файла", () => {
     const filePath = "/tmp/Форма.yaml"
     const prepared = prepareYamlFiles({

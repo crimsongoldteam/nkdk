@@ -139,8 +139,8 @@ function collectMappingKeyTags(
       if (key.tag !== "!xml/reference") {
         throw new YAMLException(`Тег ${key.tag} недопустим для ключа YAML`)
       }
-      if (key.kind !== "scalar" || key.value === "") {
-        throw new YAMLException("!xml/reference поддерживает только непустой скалярный ключ")
+      if (key.kind !== "scalar") {
+        throw new YAMLException("!xml/reference поддерживает только скалярный ключ")
       }
       tags.push({ containerPath: path, key: key.value })
       key.tag = "tag:yaml.org,2002:str"

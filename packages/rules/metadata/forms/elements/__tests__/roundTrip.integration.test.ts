@@ -157,8 +157,13 @@ function isDynamicListTableFixture(fixture: string): boolean {
 }
 
 function withCanonicalSystemEnumerationAliases(xml: string): string {
-  return xml.replace(
-    "<RadioButtonType>RadioButton</RadioButtonType>",
-    "<RadioButtonType>RadioButtons</RadioButtonType>",
-  )
+  return xml
+    .replace(
+      "<RadioButtonType>RadioButton</RadioButtonType>",
+      "<RadioButtonType>RadioButtons</RadioButtonType>",
+    )
+    .replace(
+      "<CheckBoxType>Switch</CheckBoxType>",
+      "<CheckBoxType>Switcher</CheckBoxType>",
+    )
 }

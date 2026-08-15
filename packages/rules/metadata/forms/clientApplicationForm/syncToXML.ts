@@ -87,7 +87,12 @@ export const prepareFormXML = (params: {
   })
   const metadataDocument = { MetaDataObject: converted.metadataXML }
   const formDocument = { Form: converted.formXML }
-  return [
+  const documents: Array<{
+    targetKind: "metadata" | "body"
+    xml: Record<string, unknown>
+    deferred: readonly DeferredObjectValue[]
+    rootRule: MetadataItemRule
+  }> = [
     {
       targetKind: "metadata",
       xml: metadataDocument,
@@ -100,7 +105,8 @@ export const prepareFormXML = (params: {
       ),
       rootRule: rule,
     },
-    {
+  ]
+  if (yamlObj.ТипФормы !== "Обычная") documents.push({
       targetKind: "body",
       xml: formDocument,
       deferred: bindDeferredObjectValues(
@@ -111,8 +117,8 @@ export const prepareFormXML = (params: {
         }))
       ),
       rootRule: rule,
-    },
-  ]
+    })
+  return documents
 }
 
 function requireBaseConfigurationIndex(params: {

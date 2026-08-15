@@ -37,6 +37,8 @@ export function classifyStandardMemberFillValue(params: {
       return classifyFillValue({ effectiveType: effectiveTypeFromDeclaration(params.declaration), value: params.value })
     case "codeFromOwner":
       return classifyCode(params.value, params.ownerProperties, policy)
+    case "stringFromOwner":
+      return classifyStringFromOwner(params.value, params.ownerProperties, policy)
     case "ownerReference":
       return classifyOwnerReference(params.value, params.ownerProperties[policy.ownersProperty])
   }
@@ -72,10 +74,6 @@ function classifyCode(
   const allowedLength = owner[policy.allowedLengthProperty]
   if (typeof length !== "number") return { kind: "unresolved", reason: "не определена длина кода" }
 
-  if ((type === "String" || type === "Строка") && value.type === "string" && /^\s+$/.test(value.value)) {
-    return { kind: "implicit" }
-  }
-
   if (type === "String" || type === "Строка") {
     return classifyFillValue({
       effectiveType: {
@@ -105,6 +103,25 @@ function classifyCode(
   }
 
   return { kind: "unresolved", reason: "не определён тип кода" }
+}
+
+function classifyStringFromOwner(
+  value: MetadataTypedValue,
+  owner: Readonly<Record<string, unknown>>,
+  policy: Extract<NonNullable<StandardMemberDeclaration["fillValue"]>, { policy: "stringFromOwner" }>,
+): FillValueClassification {
+  const length = owner[policy.lengthProperty]
+  if (typeof length !== "number") {
+    return { kind: "unresolved", reason: "не определена длина строки" }
+  }
+  return classifyFillValue({
+    effectiveType: {
+      status: "known",
+      alternatives: [{ kind: "string", length, allowedLength: "Variable" }],
+      composite: false,
+    },
+    value,
+  })
 }
 
 function classifyOwnerReference(value: MetadataTypedValue, ownersValue: unknown): FillValueClassification {

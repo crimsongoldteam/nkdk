@@ -201,6 +201,23 @@ describe("dependent fill value validation", () => {
     ]))
   })
 
+  it.each([
+    ["допустимую пробельную строку", 'ЗначениеЗаполнения: "   "', false],
+    ["слишком длинную пробельную строку", 'ЗначениеЗаполнения: "    "', true],
+    ["помеченную слишком длинную строку", 'ЗначениеЗаполнения: !xml/value "    "', false],
+    ["лишний тег допустимой строки", 'ЗначениеЗаполнения: !xml/value "   "', true],
+  ] as const)("проверяет %s стандартного Кода", (_name, fillValue, expectsError) => {
+    const diagnostics = extractDiagnostics(`ТипКода: Строка
+ДлинаКода: 3
+ДопустимаяДлинаКода: Переменная
+СтандартныеРеквизиты:
+  Код:
+    ${fillValue}
+`).filter(({ path }) => path === "/СтандартныеРеквизиты/Код/ЗначениеЗаполнения")
+
+    expect(diagnostics.some(({ severity }) => severity === "error")).toBe(expectsError)
+  })
+
   it("откладывает проверку DefinedType без локального предупреждения", () => {
     const facts = extractValidationYamlFacts({
       file: catalogFile(),

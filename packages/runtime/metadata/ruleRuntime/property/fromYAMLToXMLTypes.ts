@@ -63,12 +63,13 @@ export type YAMLToXMLNestedRule =
       readonly convert: (params: {
         context: import("../../context/types").ConfigurationContextWithExportToXML
         yaml: unknown
+        ownerYAML: unknown
         baseYAML?: unknown
         baseYAMLContext?: import("../../context/types").ConfigurationContextWithExportToXML
         baseConfigurationIndex?: import("../../configurationIndex/localReader").LocalConfigurationIndexReader
         name: string
         referenceXML: Record<string, unknown> | undefined
-      }) => Record<string, unknown>
+      }) => Record<string, unknown> | undefined
     }
   | {
       readonly kind: "item"

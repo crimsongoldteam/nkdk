@@ -502,6 +502,7 @@ export const ClientApplicationFormRules = {
       xmlParents: ["Form", "Properties"],
     }),
     formType: systemEnumerationRule({
+      yaml: "ТипФормы",
       typeSE: "FormType",
       tag: FormRulesTags.Metadata,
       defaultValueXML: "Managed",

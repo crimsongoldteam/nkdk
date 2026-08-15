@@ -100,8 +100,16 @@ describe("parseWithJsYaml", () => {
     )).toBe("xml/reference")
   })
 
+  it("разбирает пустой скалярный ключ с !xml/reference", () => {
+    const parsed = parseWithJsYaml('Роли:\n  !xml/reference "": Ложь')
+    const roles = (parsed.data as { Роли: Record<string, string> }).Роли
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(roles).toEqual({ "": "Ложь" })
+    expect(yamlMappingKeyTagAt(roles, "")).toBe("xml/reference")
+  })
+
   it.each([
-    "Роли:\n  !xml/reference: Истина",
     "Роли:\n  ? !xml/reference\n    - uuid\n  : Истина",
     "Роли:\n  !xml/value uuid: Истина",
   ])("отклоняет недопустимый тег скалярного ключа: %s", (source) => {

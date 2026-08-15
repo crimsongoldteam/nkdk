@@ -134,6 +134,21 @@ describe("MetadataAttributes YAML → XML", () => {
     expect(result).toContain("8c1e3694-da12-44d5-8b1f-d134b89a1282")
   })
 
+  it("объявляет dcsset локально у типа прикладного реквизита", () => {
+    const result = serializeDirectXML(testPropertyFromYAMLToXML({
+      rule: probeRule("MetadataDataProcessorAttributes", MetadataDataProcessorAttributeRules),
+      yaml: {
+        Значение: {
+          Компоновщик: { Тип: "КомпоновщикНастроекКомпоновкиДанных" },
+        },
+      },
+    }).xml)
+
+    expect(result).toContain(
+      '<v8:Type xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings">dcsset:SettingsComposer</v8:Type>',
+    )
+  })
+
   it("should import multilanguage object format", () => {
     const result = convertYAML({ ТестовыйРеквизит: { Тип: "Строка", Синоним: { en: "Test attribute" } } })
     expect(result).toContain("<v8:lang>en</v8:lang>")
