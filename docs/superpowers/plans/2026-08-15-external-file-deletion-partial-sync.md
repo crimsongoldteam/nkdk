@@ -109,6 +109,8 @@ git commit -m "test: :white_check_mark: исключить удаление вн
 ### Task 2: Перенести контрольную точку и продолжить автономный e2e
 
 **Files:**
+- Modify: `e2e/partial-sync/operation.test.ts`
+- Modify: `e2e/partial-sync/operation.ts`
 - Verify only: `/Users/nikita/Базы 1С/temp_test/full-current-standalone`
 
 **Interfaces:**
@@ -121,13 +123,20 @@ git commit -m "test: :white_check_mark: исключить удаление вн
 блоками нового плана до `module:object:add:probe`. Ожидать полное равенство 38
 блоков; при любом отличии не переносить checkpoint.
 
-- [ ] **Step 2: Перенести только `planHash`**
+- [ ] **Step 2: Нормализовать переводы строк текстового перехода**
+
+Добавить unit-тест с фактическим CRLF и декларативным LF. В
+`assertBeforeMatches` для строк преобразовывать `\r\n` и одиночный `\r` в
+`\n` перед сравнением; `Uint8Array` сравнивать побайтово. Значение `after`
+записывается как объявлено и тем самым переводит изменяемый файл в LF.
+
+- [ ] **Step 3: Перенести только `planHash`**
 
 В `state.json` и `checkpoints/current/manifest.json` заменить старый `planHash`
 на хэш нового плана. Не изменять `completedBlock`, базу, проект и список хэшей
 файлов manifest. После записи вызвать штатную проверку checkpoint.
 
-- [ ] **Step 3: Продолжить без `--reset`**
+- [ ] **Step 4: Продолжить без `--reset`**
 
 Run outside sandbox:
 

@@ -64,6 +64,23 @@ describe("scenario file operation", () => {
     await expect(readFile(path, "utf8")).resolves.toBe("before")
   })
 
+  it("normalizes CRLF to LF before applying a text transition", async () => {
+    const projectDir = await projectFixture()
+    const path = join(projectDir, "cf/Роль/Администратор/Rights.xml")
+    await mkdir(join(projectDir, "cf/Роль/Администратор"), { recursive: true })
+    await writeFile(path, "первая\r\nвторая\r\n")
+
+    await applyScenarioOperation(projectDir, operation([
+      {
+        path: "Роль/Администратор/Rights.xml",
+        before: "первая\nвторая\n",
+        after: "изменено\n",
+      },
+    ]))
+
+    await expect(readFile(path, "utf8")).resolves.toBe("изменено\n")
+  })
+
   it("deletes a created file and removes empty directories only up to cf", async () => {
     const projectDir = await projectFixture()
     const path = join(projectDir, "cf/Справочник/Тест/Свойства.yaml")

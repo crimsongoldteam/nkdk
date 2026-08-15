@@ -150,9 +150,16 @@ async function assertBeforeMatches(change: ScenarioFileChange, target: string): 
   }
   if (kind !== "file") throw new Error(`Исходное состояние before не совпадает: ${change.path}`)
   const actual = await readFile(target)
-  if (!actual.equals(asBuffer(change.before))) {
+  const matches = typeof change.before === "string"
+    ? normalizeTextLineEndings(actual.toString("utf8")) === normalizeTextLineEndings(change.before)
+    : actual.equals(asBuffer(change.before))
+  if (!matches) {
     throw new Error(`Исходное состояние before не совпадает: ${change.path}`)
   }
+}
+
+function normalizeTextLineEndings(value: string): string {
+  return value.replaceAll(/\r\n?/gu, "\n")
 }
 
 async function writeAtomic(path: string, contents: ScenarioFileContents): Promise<void> {
