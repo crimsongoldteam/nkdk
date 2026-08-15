@@ -102,7 +102,7 @@ it("сохраняет декларации табличных элементо�
   }
   const session = openSessionWithUpdates([update])
   const dependencyCheck = source.pendingChecks[0]
-  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck === undefined) {
+  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck?.kind === "referenceCoverage" || dependencyCheck === undefined) {
     throw new Error("Ожидалась dependency-проверка")
   }
 
@@ -167,7 +167,7 @@ it("сохраняет произвольный тип колонки в дво�
   }
   const session = openSessionWithUpdates([update])
   const dependencyCheck = source.pendingChecks[0]
-  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck === undefined) {
+  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck?.kind === "referenceCoverage" || dependencyCheck === undefined) {
     throw new Error("Ожидалась dependency-проверка")
   }
 
@@ -316,6 +316,23 @@ it("читает fillValue-проверку из двоичного состоя
 it("читает addressableRequired-проверку из двоичного состояния без потери payload", () => {
   const expected = addressableRequiredPendingCheck()
   const update = richYamlUpdate("cfe/X/source.yaml", "cfe/X", "Catalog.Source")
+  const snapshot = new ProjectStateSnapshotView(typedSnapshot([{ ...update, pendingChecks: [expected] }]))
+
+  expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])
+})
+
+it("читает referenceCoverage-проверку из двоичного состояния без потери payload", () => {
+  const expected = {
+    kind: "referenceCoverage" as const,
+    yamlPath: ["Измерения", "Второе"],
+    location: { line: 8, col: 5, path: "/Измерения/Второе" },
+    requirements: [{
+      message: "требуется связь",
+      candidates: ["CalculationRegister.Ведущий.Dimension.Ключ"],
+      coveredBy: [],
+    }],
+  }
+  const update = richYamlUpdate("cf/source.yaml", "cf", "CalculationRegister.Source")
   const snapshot = new ProjectStateSnapshotView(typedSnapshot([{ ...update, pendingChecks: [expected] }]))
 
   expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])

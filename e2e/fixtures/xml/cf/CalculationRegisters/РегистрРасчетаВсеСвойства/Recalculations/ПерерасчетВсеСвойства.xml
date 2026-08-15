@@ -26,6 +26,41 @@
 			<Comment>Комментарий</Comment>
 			<DataLockControlMode>Automatic</DataLockControlMode>
 		</Properties>
-		<ChildObjects/>
+		<ChildObjects>
+			<Dimension uuid="5684dcd4-1685-4fc0-879a-c584a0768a94">
+				<Properties>
+					<Name>ИзмерениеПерерасчетаВсеСвойства</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Синоним</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment>Комментарий</Comment>
+					<RegisterDimension>CalculationRegister.РегистрРасчетаВсеСвойства.Dimension.ИзмерениеВсеСвойства</RegisterDimension>
+					<LeadingRegisterData>
+						<xr:Item xsi:type="xr:MDObjectRef">CalculationRegister.РегистрРасчетаВсеСвойства.Dimension.ИзмерениеВсеСвойства</xr:Item>
+						<xr:Item xsi:type="xr:MDObjectRef">CalculationRegister.РегистрРасчетаВедущий.Dimension.ИзмерениеПараметрыВыбора</xr:Item>
+					</LeadingRegisterData>
+				</Properties>
+			</Dimension>
+			<Dimension uuid="16783e34-9766-4fe1-89ea-39fba43ed0a9">
+				<Properties>
+					<Name>ИзмерениеПоУмолчанию</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Измерение по умолчанию</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+					<RegisterDimension>CalculationRegister.РегистрРасчетаВсеСвойства.Dimension.ИзмерениеПоУмолчанию</RegisterDimension>
+					<LeadingRegisterData>
+						<xr:Item xsi:type="xr:MDObjectRef">CalculationRegister.РегистрРасчетаВсеСвойства.Dimension.ИзмерениеПоУмолчанию</xr:Item>
+						<xr:Item xsi:type="xr:MDObjectRef">CalculationRegister.РегистрРасчетаВедущий.Dimension.ИзмерениеСтрока</xr:Item>
+					</LeadingRegisterData>
+				</Properties>
+			</Dimension>
+		</ChildObjects>
 	</Recalculation>
 </MetaDataObject>

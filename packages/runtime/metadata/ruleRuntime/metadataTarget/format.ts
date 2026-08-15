@@ -127,6 +127,7 @@ function formatMemberTargetToYAML(
     memberKindToYAML[segment.kind],
     formatMemberSegmentName(segment),
   ])
+  if (target.segments.some((segment) => !memberKinds.includes(segment.kind))) return full
   if (target.segments.length === 1 && memberKinds.length === 1) return formatMemberSegmentName(target.segments[0])
   return localSegments.join(".")
 }

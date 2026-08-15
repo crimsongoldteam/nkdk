@@ -9,7 +9,7 @@ import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
 import { helpRule } from "../../commonObjects/help/types"
 import { internalInfoRule } from "../../commonObjects/internalInfo/types"
-import { recalculationsRule } from "./recalculation/builders"
+import { childFileItemNamesRule } from "../../commonObjects/childFileItemNames/types"
 import { standardAttributeDescriptionsRule } from "../../commonObjects/standardAttributeDescription/builders"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
@@ -222,7 +222,13 @@ export const MetadataCalculationRegisterRules = {
       xml: "Attribute",
       xmlParents: childObjects,
     }),
-    recalculations: recalculationsRule({ yaml: "Перерасчеты", xml: "Recalculation", xmlParents: childObjects }),
+    recalculations: childFileItemNamesRule({
+      yaml: "Перерасчеты",
+      xml: "Recalculation",
+      xmlParents: childObjects,
+      folderName: "Перерасчеты",
+      forReferenceOnly: true,
+    }),
     forms: childFormNamesRule({
       yaml: "Формы",
       xml: "Form",
@@ -274,6 +280,13 @@ export const MetadataCalculationRegisterRules = {
       configurationIndexUidSegment: "Команда",
       itemRule: MetadataCalculationRegisterCommandRules,
     },
-    { propertyKey: "recalculations", configurationIndexUidSegment: "Перерасчёт", itemRule: RecalculationRules },
+    {
+      propertyKey: "recalculations",
+      configurationIndexUidSegment: "Перерасчёт",
+      itemRule: RecalculationRules,
+      fileItemRule: RecalculationRules,
+      nkdkDir: ({ name }: { name: string }) => `Перерасчеты/${name}`,
+      xmlDir: ({ name }: { name: string }) => `Recalculations/${name}`,
+    },
   ],
 } as const satisfies MetadataItemRule

@@ -1,17 +1,40 @@
-import { metadataCalculationRegisterDimensionsRule } from "../../metadataAccountingRegister/builders"
 import { internalInfoRule } from "../../../commonObjects/internalInfo/types"
-import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { moduleRule } from "../../../commonObjects/module/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { uuidPropertyRule } from "../../../commonObjects/uuid/rule"
+import { uuidRule } from "../../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../../commonObjects/xmlRoot/types"
+import { V8_MDCLASSES_ROOT } from "../../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { MetadataCalculationRegisterRecalculationDimensionRules } from "./dimension/rules"
+import { getParentFromContext } from "../../../context/helpers"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const RecalculationRules = {
-  itemType: "Recalculation",
+  itemType: "MetadataCalculationRegisterRecalculation",
+  metadataTargetOwner: { kind: "inherit" },
+  externalMetadata: { segment: "Recalculation", placement: "ownedEntry" },
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "dataLockControlMode",
+    "extendedConfigurationObject",
+    "dimensions",
+    "uuid",
+  ],
   properties: {
+    xmlRoot: xmlRootRule({
+      container: "Recalculation",
+      rootAttributes: V8_MDCLASSES_ROOT,
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    }),
     internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
@@ -20,15 +43,15 @@ export const RecalculationRules = {
         { name: "RecalculationManager", category: "Manager" },
         { name: "RecalculationRecordSet", category: "RecordSet" },
       ],
-      getName: ({
-        metadata,
-      }: {
-        metadata: {
-          name: string
-        }
-      }) => `Recalculation${metadata.name}`,
+      getName: ({ context, metadata }: {
+        context: ConfigurationContextWithExportToXML
+        metadata: { name: string }
+      }) => {
+        const parent = getParentFromContext(context, ["MetadataCalculationRegister"])
+        return [parent.name, metadata.name].filter(Boolean).join(".")
+      },
     }),
-    uuid: uuidPropertyRule,
+    uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
     name: stringRule({ xml: "Name", required: true, xmlParents: properties }),
     synonym: i8nTextRule({
       yaml: "Синоним",
@@ -44,13 +67,6 @@ export const RecalculationRules = {
       defaultValueXMLRaw: "",
       defaultValueAdoptedXML: "",
     }),
-    use: booleanRule({
-      yaml: "Использование",
-      xml: "Use",
-      xmlParents: properties,
-      defaultValueXML: true,
-      implicitValueYAML: true,
-    }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       xml: "DataLockControlMode",
@@ -59,13 +75,15 @@ export const RecalculationRules = {
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
     }),
-    dimensions: metadataCalculationRegisterDimensionsRule({
+    dimensions: {
+      type: "MetadataCalculationRegisterRecalculationDimensions",
       yaml: "Измерения",
       xml: "Dimension",
       xmlParents: childObjects,
+      itemRule: MetadataCalculationRegisterRecalculationDimensionRules,
       defaultValue: [],
       defaultValueXMLRaw: {},
-    }),
+    },
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
@@ -81,8 +99,8 @@ export const RecalculationRules = {
       runtimeOnly: true,
     }),
     recordSetModule: moduleRule({
-      nkdkPath: ({ name }: { name: string }) => `Перерасчеты/${name}/МодульНабораЗаписей.bsl`,
-      xmlPath: ({ name }: { name: string }) => `Recalculations/${name}/Ext/RecordSetModule.bsl`,
+      nkdkPath: "МодульНабораЗаписей.bsl",
+      xmlPath: "Ext/RecordSetModule.bsl",
       toXML: false,
       fromXML: false,
     }),

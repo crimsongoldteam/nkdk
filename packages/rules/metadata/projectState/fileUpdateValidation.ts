@@ -189,6 +189,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     "transport",
     "canonicalTarget",
     "missing",
+    "requirements",
   ], assertPendingCheck)
   if (!Array.isArray(update["dependencies"]) || !update["dependencies"].every((item) => typeof item === "string")) {
     throw new Error(`${path}.dependencies должен быть массивом строк`)
@@ -706,6 +707,20 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
     if (!Array.isArray(row["missing"]) || !row["missing"].every((item) => typeof item === "string")) {
       throw new Error(`${path}.missing должен быть массивом строк`)
     }
+    return
+  }
+  if (row["kind"] === "referenceCoverage") {
+    if (!Array.isArray(row["requirements"])) throw new Error(`${path}.requirements должен быть массивом`)
+    row["requirements"].forEach((item, index) => {
+      const requirement = requiredRecord(item, `${path}.requirements[${index}]`)
+      assertExactKeys(requirement, ["message", "candidates", "coveredBy"], `${path}.requirements[${index}]`)
+      assertString(requirement["message"], `${path}.requirements[${index}].message`)
+      for (const key of ["candidates", "coveredBy"] as const) {
+        if (!Array.isArray(requirement[key]) || !requirement[key].every((value) => typeof value === "string")) {
+          throw new Error(`${path}.requirements[${index}].${key} должен быть массивом строк`)
+        }
+      }
+    })
     return
   }
   if (row["kind"] !== "dataPath" || row["policy"] !== "formDataPath") throw new Error(`${path} имеет неизвестный вид`)

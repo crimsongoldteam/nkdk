@@ -26,6 +26,23 @@
 			<Comment>Комментарий</Comment>
 			<DataLockControlMode>Automatic</DataLockControlMode>
 		</Properties>
-		<ChildObjects/>
+		<ChildObjects>
+			<Dimension uuid="b1c77d5f-8fe3-4099-9150-1b696ba39049">
+				<Properties>
+					<Name>ИзмерениеВсеСвойства</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Синоним</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment>Комментарий</Comment>
+					<RegisterDimension>CalculationRegister.РегистрРасчетаВсеСвойстваExt.Dimension.ИзмерениеВсеСвойства</RegisterDimension>
+					<LeadingRegisterData>
+						<xr:Item xsi:type="xr:MDObjectRef">CalculationRegister.РегистрРасчетаВсеСвойстваExt.Attribute.РеквизитВсеСвойства</xr:Item>
+					</LeadingRegisterData>
+				</Properties>
+			</Dimension>
+		</ChildObjects>
 	</Recalculation>
 </MetaDataObject>

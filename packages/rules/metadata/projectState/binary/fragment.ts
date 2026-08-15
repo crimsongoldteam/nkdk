@@ -257,6 +257,16 @@ type ProjectStatePendingCheck =
       readonly canonicalTarget: string
       readonly missing: readonly string[]
     }
+  | {
+      readonly kind: "referenceCoverage"
+      readonly yamlPath: readonly (string | number)[]
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly requirements: readonly {
+        readonly message: string
+        readonly candidates: readonly string[]
+        readonly coveredBy: readonly string[]
+      }[]
+    }
 
 interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"
@@ -597,7 +607,7 @@ export function createProjectStateFragmentWriter(options: {
     }
     const appendPayloadPendingCheck = (
       check: ProjectStatePendingCheck,
-      kind: "addressableRequired" | "fillValue",
+      kind: "addressableRequired" | "fillValue" | "referenceCoverage",
       payload: object,
     ): void => {
       rows.pendingChecks.push({
@@ -635,6 +645,12 @@ export function createProjectStateFragmentWriter(options: {
           value: check.value,
           tagged: check.tagged,
           ...(check.transport === undefined ? {} : { transport: check.transport }),
+        })
+        continue
+      }
+      if (check.kind === "referenceCoverage") {
+        appendPayloadPendingCheck(check, "referenceCoverage", {
+          requirements: check.requirements,
         })
         continue
       }

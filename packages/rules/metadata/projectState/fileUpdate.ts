@@ -252,6 +252,14 @@ function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePe
       missing: check.missing,
     }
   }
+  if (check.kind === "referenceCoverage") {
+    return {
+      kind: "referenceCoverage",
+      yamlPath: check.yamlPath,
+      location,
+      requirements: check.requirements,
+    }
+  }
   return {
     kind: "dataPath",
     yamlPath: check.yamlPath,

@@ -45,6 +45,16 @@ export type ValidationPendingCheck =
       canonicalTarget: string
       missing: readonly string[]
     }
+  | {
+      kind: "referenceCoverage"
+      yamlPath: YamlPath
+      location: YamlDiagnosticLocation
+      requirements: readonly {
+        message: string
+        candidates: readonly string[]
+        coveredBy: readonly string[]
+      }[]
+    }
 
 export type DataPathValidationPendingCheck = Extract<ValidationPendingCheck, { kind: "dataPath" }>
 
@@ -55,11 +65,28 @@ export interface ValidationPendingCheckResult {
 export function validatePendingChecks(params: {
   ownerCache: OwnerMetadataCache
   checks: readonly ValidationPendingCheck[]
+  resolveReference?: (canonical: string) => "found" | "missing" | "ambiguous"
 }): ValidationPendingCheckResult {
   const diagnostics: Diagnostic[] = []
 
   for (const check of params.checks) {
     if (check.kind === "addressableRequired") continue
+    if (check.kind === "referenceCoverage") {
+      if (params.resolveReference === undefined) continue
+      for (const requirement of check.requirements) {
+        const participates = requirement.candidates.some((canonical) => params.resolveReference!(canonical) === "found")
+        const covered = requirement.coveredBy.length > 0
+        if (participates && !covered) {
+          diagnostics.push(diagnosticAtYamlLocation({
+            location: check.location,
+            severity: "error",
+            source: "cross-file",
+            message: requirement.message,
+          }))
+        }
+      }
+      continue
+    }
     if (check.kind === "fillValue") {
       diagnostics.push(...validateFillValueCheck(params.ownerCache, check))
       continue

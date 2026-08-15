@@ -521,6 +521,19 @@ describe("metadataTargets parser", () => {
     }
   })
 
+  it("parses and formats calculation register recalculations", () => {
+    const constraint = {
+      kind: "object",
+      allowedObjectPaths: [["CalculationRegister", "Recalculation"]],
+    } as const
+    const yaml = "РегистрРасчета.Основной.Перерасчет.Проверка"
+    const canonical = "CalculationRegister.Основной.Recalculation.Проверка"
+
+    expect(parseMetadataTargetFromYAML({ value: yaml, constraint })).toMatchObject({ ok: true, canonical })
+    expect(parseMetadataTargetFromModel({ canonical, constraint })).toMatchObject({ ok: true, canonical })
+    expect(formatMetadataTargetToYAML({ canonical, constraint })).toBe(yaml)
+  })
+
   it("parses and formats exact external data source member paths", () => {
     const constraint = {
       kind: "member",

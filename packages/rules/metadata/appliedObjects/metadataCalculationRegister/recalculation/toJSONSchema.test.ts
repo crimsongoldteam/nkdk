@@ -1,45 +1,44 @@
-import { compileValidationSchema } from "../../../validation/compileValidationSchema"
 import { beforeAll, describe, expect, it } from "vitest"
-import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+
 import { mockContext } from "../../../../tests/mockContext"
+import { metadataRules } from "../../../composition/metadataRules"
+import {
+  createMetadataExecutionRegistrySets,
+  withMetadataExecutionRegistrySets,
+} from "../../../composition/metadataExecutionContext"
+import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
+import { compileValidationSchema } from "../../../validation/compileValidationSchema"
+import { RecalculationRules } from "./rules"
 
-const compileSchema = () => {
-  const exportToJSONSchema = getTypeRule("Recalculations", "exportToJSONSchema")
-  expect(exportToJSONSchema).toBeDefined()
-  if (exportToJSONSchema === undefined) throw new Error("Recalculations JSON schema export is not registered")
-  const schema = exportToJSONSchema({
-    context: mockContext,
-    rule: { type: "Recalculations", yaml: "Перерасчеты" },
-    value: undefined,
-  })
-  if (schema === undefined) throw new Error("Recalculations JSON schema export returned undefined")
+let schema: ReturnType<typeof compileValidationSchema>
 
-  return compileValidationSchema(schema)
-}
-
-let schema: ReturnType<typeof compileSchema>
-
-describe("Recalculations exportToJSONSchema", () => {
+describe("Recalculation JSON Schema", () => {
   beforeAll(() => {
-    schema = compileSchema()
+    schema = withMetadataExecutionRegistrySets(
+      createMetadataExecutionRegistrySets(metadataRules),
+      () => compileValidationSchema(exportMetadataItemToJSONSchema({
+        context: mockContext,
+        rule: RecalculationRules,
+      })),
+    )
   })
 
-  it("accepts empty recalculation items", () => {
-    expect(
-      schema.Check({
-        ПерерасчетВсеСвойства: {},
-        ПерерасчетПоУмолчанию: {},
-      })
-    ).toBe(true)
-  })
-
-  it("rejects unknown recalculation item properties", () => {
-    expect(
-      schema.Check({
-        ПерерасчетВсеСвойства: {
-          НеизвестноеПоле: "значение",
+  it("accepts semantic recalculation properties", () => {
+    expect(schema.Check({
+      Синоним: "Перерасчет все свойства",
+      Комментарий: "Комментарий",
+      РежимУправленияБлокировкойДанных: "Автоматический",
+      Измерения: {
+        ИзмерениеПерерасчетаВсеСвойства: {
+          ИзмерениеРегистра: "ИзмерениеВсеСвойства",
+          ДанныеВедущихРегистров: ["ИзмерениеВсеСвойства"],
         },
-      })
-    ).toBe(false)
+      },
+    })).toBe(true)
+  })
+
+  it("rejects removed and unknown properties", () => {
+    expect(schema.Check({ Использование: "Истина" })).toBe(false)
+    expect(schema.Check({ НеизвестноеПоле: "значение" })).toBe(false)
   })
 })

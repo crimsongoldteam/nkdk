@@ -7,6 +7,7 @@ const exactProjectObjectPaths = [
   ["ExternalDataSource", "Cube"],
   ["ExternalDataSource", "Cube", "DimensionTable"],
   ["ExternalDataSource", "Function"],
+  ["CalculationRegister", "Recalculation"],
 ] as const
 
 const exactProjectMemberPaths = [

@@ -22,7 +22,6 @@ const externalTransferCapabilityIds = [
   "ExternalFile",
   "ExternalPicture",
   "WSDefinitionSchemas",
-  "Recalculations",
   "ChildFormNames",
   "ChildTemplateNames",
 ] as const
@@ -188,14 +187,5 @@ export const metadataPropertyRule005 = definePropertyTypeRule("WSDefinitionSchem
     projectPattern: "XSD/{itemName}.xsd",
     xmlPattern: "Ext/{itemName}.xsd",
     transferCapabilityId: "WSDefinitionSchemas",
-  }),
-])
-
-export const metadataPropertyRule006 = definePropertyTypeRule("Recalculations", "resourceTopology", () => [
-  external({
-    description: "Recalculations",
-    projectPattern: "Перерасчеты/{itemName}/Свойства.xml",
-    xmlPattern: "Recalculations/{itemName}.xml",
-    transferCapabilityId: "Recalculations",
   }),
 ])

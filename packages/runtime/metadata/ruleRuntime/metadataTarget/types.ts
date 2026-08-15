@@ -52,7 +52,7 @@ export type MetadataRootName =
   | "WSReference"
   | "Sequence"
 
-export type MetadataObjectPathKind = "Table" | "Cube" | "DimensionTable" | "Function"
+export type MetadataObjectPathKind = "Table" | "Cube" | "DimensionTable" | "Function" | "Recalculation"
 
 export type MetadataMemberKind =
   | "Attribute"

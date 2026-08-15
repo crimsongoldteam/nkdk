@@ -1253,7 +1253,7 @@ function pagedDependencyQueryPort(params: {
 
 function dependencyQuery(requestId: string, source: ProjectStateYamlFileUpdate) {
   const check = source.pendingChecks[0]
-  if (check?.kind === "addressableRequired" || check === undefined) {
+  if (check?.kind === "addressableRequired" || check?.kind === "referenceCoverage" || check === undefined) {
     throw new Error("Ожидалась dependency-проверка")
   }
   return {

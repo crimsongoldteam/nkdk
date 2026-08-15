@@ -515,6 +515,7 @@
 			<CalculationRegister>РегистрРасчета1</CalculationRegister>
 			<CalculationRegister>РегистрРасчетаВсеСвойства</CalculationRegister>
 			<CalculationRegister>РегистрРасчетаПоУмолчанию</CalculationRegister>
+			<CalculationRegister>РегистрРасчетаВедущий</CalculationRegister>
 			<BusinessProcess>БизнесПроцесс1</BusinessProcess>
 			<BusinessProcess>БизнесПроцессВсеСвойства</BusinessProcess>
 			<BusinessProcess>БизнесПроцессПоУмолчанию</BusinessProcess>
