@@ -336,7 +336,7 @@ const recalculationPath = `РегистрРасчета/${matrixObjectNames.calc
 const recalculation = addInlineChild({
   ownerKey: "object:calculation-register",
   propertyKey: "recalculations",
-  childItemType: "Recalculation",
+  childItemType: "MetadataCalculationRegisterRecalculation",
   section: "Перерасчеты",
   name: recalculationName,
   exposeAsOwner: true,
@@ -357,7 +357,7 @@ declarations.push({
   name: "ПроверочноеИзмерение",
   ownerKey: recalculation.key,
   propertyKey: "dimensions",
-  childItemType: "MetadataRegisterDimension",
+  childItemType: "MetadataCalculationRegisterRecalculationDimension",
   dependsOn: [],
   propertyChanges: [],
   changes: [{
