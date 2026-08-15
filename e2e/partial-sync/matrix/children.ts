@@ -90,9 +90,7 @@ for (const ownerKey of [
   "object:accounting-register",
   "object:calculation-register",
 ] as const) {
-  const stringFieldBody = ownerKey === "object:information-register"
-    ? "Тип: Строка(10)\nЗначениеЗаполнения: \"\""
-    : "Тип: Строка(10)"
+  const stringFieldBody = "Тип: Строка(10)"
 
   addInlineChild({
     ownerKey,
@@ -135,7 +133,7 @@ addInlineChild({
   childItemType: "MetadataTaskAddressingAttribute",
   section: "РеквизитыАдресации",
   name: "ПроверочныйРеквизитАдресации",
-  body: "Тип: Строка(10)\nЗначениеЗаполнения: \"\"",
+  body: "Тип: Строка(10)",
 })
 
 for (const ownerKey of [
@@ -310,7 +308,7 @@ addInlineChild({
   childItemType: "MetadataExternalDataSourceCubeDimension",
   section: "Измерения",
   name: "ПроверочноеИзмерение",
-  body: "Тип: Строка(10)\nЗначениеЗаполнения: \"\"",
+  body: "Тип: Строка(10)",
   dependsOn: [dimensionTable.key],
 })
 addInlineChild({

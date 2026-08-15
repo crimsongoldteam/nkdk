@@ -194,7 +194,7 @@ describe("partial sync matrix", () => {
     }
   })
 
-  it("emits register fields in canonical section order with string fill values", () => {
+  it("emits register fields in canonical section order without implicit fill values", () => {
     const plan = scenarioOperations()
     for (const owner of [
       "information-register",
@@ -212,8 +212,7 @@ describe("partial sync matrix", () => {
         expect(source.indexOf("Измерения:"), owner).toBeLessThan(source.indexOf("ПланВидовРасчета:"))
         expect(source.indexOf("ПланВидовРасчета:"), owner).toBeLessThan(source.indexOf("Реквизиты:"))
       }
-      expect(source.match(/ЗначениеЗаполнения: ""/gu) ?? [], owner)
-        .toHaveLength(owner === "information-register" ? 2 : 0)
+      expect(source.match(/ЗначениеЗаполнения: ""/gu) ?? [], owner).toHaveLength(0)
     }
   })
 
@@ -241,14 +240,14 @@ describe("partial sync matrix", () => {
     }
   })
 
-  it("emits task addressing attributes before tabular sections with a string fill value", () => {
+  it("emits task addressing attributes before tabular sections without an implicit fill value", () => {
     const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:task:addressingAttributes")
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
     expect(properties).toEqual(expect.any(String))
     const source = properties as string
     expect(source.indexOf("РеквизитыАдресации:")).toBeLessThan(source.indexOf("ТабличныеЧасти:"))
-    expect(source).toContain("    ЗначениеЗаполнения: \"\"")
+    expect(source).not.toContain("    ЗначениеЗаполнения: \"\"")
   })
 
   it("emits predefined values before object fields", () => {
@@ -347,7 +346,7 @@ describe("partial sync matrix", () => {
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
 
     expect(properties).toContain("    Тип: Строка(10)")
-    expect(properties).toContain("    ЗначениеЗаполнения: \"\"")
+    expect(properties).not.toContain("    ЗначениеЗаполнения: \"\"")
     expect(properties).not.toContain("ТаблицаИзмерения")
     const source = properties as string
     expect(source.indexOf("Измерения:")).toBeLessThan(source.indexOf("ИмяВИсточникеДанных:"))

@@ -150,6 +150,7 @@ git commit -m "test: :white_check_mark: разделить массовое со
 **Files:**
 - Modify: `e2e/partial-sync/matrix/children.ts`
 - Modify: `e2e/partial-sync/matrix.test.ts`
+- Modify: `e2e/partial-sync/matrix/structural-property-operations.ts`
 
 **Interfaces:**
 - Consumes: договор проверки проекта, запрещающий явное пустое строковое
@@ -178,6 +179,8 @@ Expected: FAIL в трёх проверках, потому что деклар�
 В `e2e/partial-sync/matrix/children.ts` использовать `Тип: Строка(10)` без
 `ЗначениеЗаполнения` для регистра сведений, реквизита адресации задачи и
 измерения куба. Остальные значения заполнения матрицы не менять.
+В `e2e/partial-sync/matrix/structural-property-operations.ts` синхронно убрать
+это поле из исходного и конечного фрагментов изменения индексирования.
 
 - [ ] **Step 3: Run focused verification and commit**
 
@@ -194,7 +197,7 @@ Expected: проверки PASS, TypeScript без ошибок, новые ду
 Commit:
 
 ```bash
-git add e2e/partial-sync/matrix/children.ts e2e/partial-sync/matrix.test.ts
+git add e2e/partial-sync/matrix/children.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/matrix/structural-property-operations.ts
 git commit -m "test: :white_check_mark: убрать неявные значения заполнения"
 ```
 
