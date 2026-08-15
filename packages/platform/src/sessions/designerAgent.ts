@@ -16,6 +16,7 @@ import { openPlatformCommandSession } from "./sshProtocol"
 import type {
   OwnedProcess,
   PlatformCommandSession,
+  PlatformFailureStage,
   SessionPortRuntime,
   SessionProcessRuntime,
   SshTransport,
@@ -120,7 +121,7 @@ export async function createDesignerAgentSession(
   let commandSession: PlatformCommandSession
   let userServiceDir: string
   let canonicalAgentBaseDir: string
-  let failureStage: "session-start" | "authentication" = "session-start"
+  let failureStage: PlatformFailureStage = "session-start"
   try {
     const shell = await connectWithRetry({
       port,
@@ -130,20 +131,19 @@ export async function createDesignerAgentSession(
       user: params.settings.user,
       password: params.settings.password,
     })
-    failureStage = "authentication"
-    if (params.operationLog !== undefined) {
-      await appendAgentLog(params.operationLog, "stage=authentication status=start")
-    }
     commandSession = await dependencies.openCommandSession({
       shell,
       user: params.settings.user,
       password: params.settings.password,
       timeoutMs: dependencies.startupTimeoutMs,
       operationLog: params.operationLog,
+      onStage: async (stage, status) => {
+        failureStage = stage
+        if (params.operationLog !== undefined) {
+          await appendAgentLog(params.operationLog, `stage=${stage} status=${status}`)
+        }
+      },
     })
-    if (params.operationLog !== undefined) {
-      await appendAgentLog(params.operationLog, "stage=authentication status=ready")
-    }
     failureStage = "session-start"
     const directories = await readAgentDirectories(
       params.projectDir,
@@ -483,7 +483,7 @@ async function appendAgentLog(operationLog: PlatformOperationLog, message: strin
 
 async function agentFailure(
   cause: unknown,
-  stage: "session-start" | "authentication" | "configuration-export" | "configuration-load",
+  stage: "session-start" | "protocol-handshake" | "authentication" | "configuration-export" | "configuration-load",
   operationLog: PlatformOperationLog,
   processLogPath: string,
   dependencies: DesignerAgentDependencies,

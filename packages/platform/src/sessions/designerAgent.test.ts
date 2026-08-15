@@ -3,6 +3,7 @@ import { PlatformSessionError } from "./errors"
 import type { PlatformOperationLog } from "./operationLog"
 import { createProcessLogReader } from "./processLog"
 import { recordedPath } from "../testing/recordedPath"
+import { simulatePlatformConnectionStages } from "../testing/platformConnectionStages"
 import type { CreatePlatformSessionParams } from "./types"
 import {
   createDesignerAgentSession,
@@ -69,7 +70,10 @@ describe("Designer agent session", () => {
     const text = fixture.writes.get(fixture.operationLog.path)
     expect(text).toContain("stage=session-start")
     expect(text).toContain("authentication=credentials")
-    expect(text).toContain("stage=authentication")
+    expect(text).toContain("stage=protocol-handshake status=start")
+    expect(text).toContain("stage=protocol-handshake status=ready")
+    expect(text).toContain("stage=authentication status=start")
+    expect(text).toContain("stage=authentication status=ready")
     expect(text).toContain("1cv8 DESIGNER")
     expect(text).not.toContain("secret")
     expect(text).not.toContain("Администратор")
@@ -96,6 +100,28 @@ describe("Designer agent session", () => {
       },
     })
     expect(fixture.writes.get(fixture.operationLog.path)).toContain("authentication detail ***")
+  })
+
+  it("classifies a timeout before the initial prompt as a protocol handshake failure", async () => {
+    const fixture = createFixture({
+      openCommandError: new PlatformSessionError("session_timeout", "Prompt timeout secret"),
+      openCommandErrorStage: "protocol-handshake",
+    })
+
+    const error = await createDesignerAgentSession(
+      createParams({ operationLog: fixture.operationLog }),
+      fixture.dependencies
+    ).catch((caught: unknown) => caught)
+
+    expect(error).toMatchObject({
+      code: "session_timeout",
+      message: "Prompt timeout ***",
+      details: {
+        stage: "protocol-handshake",
+        mode: "designer-agent",
+        logPath: fixture.operationLog.path,
+      },
+    })
   })
 
   it("exports a file connection relative to AgentBaseDir without --server", async () => {
@@ -732,6 +758,7 @@ function createFixture(
     processLogDuringLoad?: string
     processLogReadFailure?: boolean
     openCommandError?: Error
+    openCommandErrorStage?: "protocol-handshake" | "authentication"
     loadError?: PlatformSessionError
     loadCleanupFailure?: boolean
     logAppendFailureAt?: number
@@ -950,9 +977,17 @@ function createFixture(
           }
         },
       },
-      async openCommandSession() {
+      async openCommandSession(params) {
         calls.push("shell.connect-ib")
-        if (options.openCommandError !== undefined) throw options.openCommandError
+        await simulatePlatformConnectionStages(
+          params.onStage,
+          options.openCommandError === undefined
+            ? undefined
+            : {
+                stage: options.openCommandErrorStage ?? "authentication",
+                error: options.openCommandError,
+              }
+        )
         return commandSession
       },
       clock: {

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
+import { PlatformSessionError } from "./errors"
 import { redactPlatformText, type PlatformOperationLog } from "./operationLog"
 import { recordedArgument, recordedPath } from "../testing/recordedPath"
+import { simulatePlatformConnectionStages } from "../testing/platformConnectionStages"
 import type { CreatePlatformSessionParams } from "./types"
 import {
   createStandaloneServerSession,
@@ -108,6 +110,10 @@ describe("standalone server session", () => {
     expect(fixture.calls.some((call) => call.includes("--update-config-dump-info"))).toBe(false)
     expect(loadCall).toContain("--partial")
     expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
+    expect(fixture.operationLogText).toContain("stage=protocol-handshake status=start")
+    expect(fixture.operationLogText).toContain("stage=protocol-handshake status=ready")
+    expect(fixture.operationLogText).toContain("stage=authentication status=start")
+    expect(fixture.operationLogText).toContain("stage=authentication status=ready")
   })
 
   it("omits --partial for a selected structural load", async () => {
@@ -123,6 +129,68 @@ describe("standalone server session", () => {
     const loadCall = fixture.calls.find((call) => call.startsWith("shell.run config load-files"))
     expect(loadCall).not.toContain("--partial")
     expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
+  })
+
+  it.each([
+    [
+      "initial prompt timeout",
+      "protocol-handshake",
+      new PlatformSessionError("session_timeout", "Prompt timeout secret"),
+      "session_timeout",
+    ],
+    [
+      "rejected login",
+      "authentication",
+      new PlatformSessionError("authentication_failed", "Access denied secret"),
+      "authentication_failed",
+    ],
+  ] as const)("classifies %s at the exact connection stage", async (
+    _case,
+    openCommandErrorStage,
+    openCommandError,
+    code,
+  ) => {
+    const fixture = createFixture({
+      agentEnabled: true,
+      openCommandError,
+      openCommandErrorStage,
+    })
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    const error = await session.loadPartialConfiguration?.(
+      "/project/package.zip",
+      ["Catalogs/Справочник/Ext/ObjectModule.bsl"],
+      fixture.operationLog,
+    ).catch((caught: unknown) => caught)
+
+    expect(error).toMatchObject({
+      code,
+      details: {
+        stage: openCommandErrorStage,
+        mode: "standalone-server",
+        logPath: fixture.operationLog.path,
+      },
+    })
+    expect(String(error)).not.toContain("secret")
+  })
+
+  it("keeps a load command failure at the configuration load stage", async () => {
+    const fixture = createFixture({
+      agentEnabled: true,
+      loadCommandError: new PlatformSessionError("platform_command_failed", "Load failed secret"),
+    })
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    const error = await session.loadPartialConfiguration?.(
+      "/project/package.zip",
+      ["Catalogs/Справочник.xml"],
+      fixture.operationLog,
+    ).catch((caught: unknown) => caught)
+
+    expect(error).toMatchObject({
+      code: "platform_command_failed",
+      details: { stage: "configuration-load" },
+    })
   })
 
   it.each([
@@ -398,6 +466,9 @@ function createFixture(
     listCancelled?: boolean
     logAppendFails?: boolean
     agentEnabled?: boolean
+    openCommandError?: PlatformSessionError
+    openCommandErrorStage?: "protocol-handshake" | "authentication"
+    loadCommandError?: PlatformSessionError
   } = {}
 ): {
   calls: string[]
@@ -554,11 +625,24 @@ function createFixture(
           }
         },
       },
-      async openCommandSession() {
+      async openCommandSession(params) {
         if (options.agentEnabled !== true) throw new Error("unexpected command session")
+        await simulatePlatformConnectionStages(
+          params.onStage,
+          options.openCommandError === undefined
+            ? undefined
+            : {
+                stage: options.openCommandErrorStage ?? "authentication",
+                error: options.openCommandError,
+              }
+        )
         return {
           async run(command) {
             calls.push(`shell.run ${command}`)
+            if (command.startsWith("config load-files")
+              && options.loadCommandError !== undefined) {
+              throw options.loadCommandError
+            }
             return {}
           },
           isAlive: () => true,

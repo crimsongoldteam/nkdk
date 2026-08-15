@@ -15,6 +15,7 @@ import { PlatformSessionError } from "./errors"
 import { platformFailure, type PlatformOperationLog } from "./operationLog"
 import type {
   PlatformCommandSession,
+  PlatformFailureStage,
   SessionPortRuntime,
   SessionProcessRuntime,
   SshTransport,
@@ -231,6 +232,7 @@ export async function createStandaloneServerSession(
         cwd: params.sessionDir,
       })
       let commandSession: PlatformCommandSession | undefined
+      let failureStage: PlatformFailureStage = "configuration-load"
       try {
         await processHandle.waitForOutput("Stand-alone Server ready.", dependencies.startupTimeoutMs)
         const shell = await dependencies.sshTransport.connect({
@@ -246,7 +248,14 @@ export async function createStandaloneServerSession(
           password: params.settings.password,
           timeoutMs: dependencies.startupTimeoutMs,
           operationLog,
+          onStage: async (stage, status) => {
+            failureStage = stage
+            if (!(await operationLog.append(`stage=${stage} status=${status}`))) {
+              throw await logWriteFailure(operationLog)
+            }
+          },
         })
+        failureStage = "configuration-load"
         const loadMode = classifyPartialLoad(loadTargets)
         const command = buildLoadPartialConfigurationCommand({
           stagingDir: relativeStagingDir,
@@ -261,7 +270,15 @@ export async function createStandaloneServerSession(
           operationLog,
         })
       } catch (cause) {
-        throw await processFailure(operationLog, "platform_command_failed", "configuration-load", cause instanceof Error ? cause.message : "", "Автономный сервер не смог частично загрузить конфигурацию", cause)
+        if (cause instanceof PlatformSessionError && cause.details !== undefined) throw cause
+        throw await processFailure(
+          operationLog,
+          cause instanceof PlatformSessionError ? cause.code : "platform_command_failed",
+          failureStage,
+          cause instanceof Error ? cause.message : "",
+          "Автономный сервер не смог частично загрузить конфигурацию",
+          cause
+        )
       } finally {
         await stopStandaloneAgent(commandSession, processHandle, dependencies.closeTimeoutMs)
         await dependencies.fileSystem.rm(stagingDir).catch(() => undefined)
