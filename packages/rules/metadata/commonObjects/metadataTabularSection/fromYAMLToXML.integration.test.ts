@@ -8,8 +8,13 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { mockContextToXML } from "../../../tests/mockContext"
-import { importContentFromXML } from "@nkdk/runtime"
+import {
+  createConfigurationIndexCollector,
+  createConfigurationIndexExportRuntime,
+  importContentFromXML,
+} from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { MetadataCatalogTabularSectionRules } from "../../appliedObjects/metadataCatalog/childRules"
 import { MetadataBusinessProcessTabularSectionRules } from "../../appliedObjects/metadataBusinessProcess/childRules"
@@ -37,6 +42,34 @@ describe("MetadataTabularSections YAML → XML", () => {
     )
     expect(result).toContain("<Synonym/>")
     expect(result).not.toContain("<v8:content>Исполнители</v8:content>")
+  })
+
+  it("assigns a UUID to a new tabular section from the configuration index", () => {
+    const base = mockContextToXML()
+    base.exportToXML.itemsTree.push({
+      itemType: "MetadataCatalog",
+      name: "Тест",
+      path: "MetadataCatalog.Тест",
+    })
+    const context = {
+      ...base,
+      exportToXML: {
+        ...base.exportToXML,
+        configurationIndex: createConfigurationIndexExportRuntime({
+          source: testConfigurationIndexReader(),
+          collector: createConfigurationIndexCollector(),
+          targetProjectPath: "Справочник/Тест/Свойства.yaml",
+          logicalAddress: "Справочник.Тест",
+        }),
+      },
+    }
+    const result = serializeDirectXML(testPropertyFromYAMLToXML({
+      rule: probeRule("MetadataCatalogTabularSections", MetadataCatalogTabularSectionRules),
+      yaml: { Значение: { Новая: {} } },
+      context,
+    }).xml)
+
+    expect(result).toMatch(/<TabularSection uuid="[0-9a-f-]{36}">/u)
   })
 
   it("should return undefined when data is undefined", () => {

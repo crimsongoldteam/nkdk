@@ -1,20 +1,16 @@
 import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { publishedToolOutputSchema, toolErrorOutputShape } from "./common"
 import {
   importResourceReferenceSchema,
   invalidProjectSettingsSchema,
   projectSettingsRequiredSchema,
 } from "./importFromInfobase"
 import { metadataDiagnosticSchema } from "./diagnostics"
-
-const componentPathSchema = z.string().refine(
-  (value) => value === "cf" || /^cfe\/[^/\\.][^/\\]*$/u.test(value),
-  "Ожидался путь cf или cfe/<Имя>",
-)
+import { configurationComponentPathSchema } from "./configurationComponentPath"
 
 export const syncToInfobaseInputShape = {
   projectDir: z.string().min(1),
-  componentPath: componentPathSchema.optional(),
+  componentPath: configurationComponentPathSchema.optional(),
   allowWrite: z.boolean().optional(),
   forceClearPending: z.boolean().optional(),
 }
@@ -24,22 +20,47 @@ export const syncToInfobaseInputSchema = z.strictObject(syncToInfobaseInputShape
 const unchangedSchema = z.strictObject({
   ok: z.literal(true),
   status: z.literal("unchanged"),
-  componentPath: componentPathSchema,
+  componentPath: configurationComponentPathSchema,
   diagnostics: z.array(metadataDiagnosticSchema),
 })
 
 const synchronizedSchema = z.strictObject({
   ok: z.literal(true),
   status: z.literal("synchronized"),
-  componentPath: componentPathSchema,
+  componentPath: configurationComponentPathSchema,
   packageId: z.string().min(1),
   entries: z.array(z.string()),
   loadTargets: z.array(z.string()),
-  mode: z.literal("designer-agent"),
+  mode: z.enum(["designer-agent", "standalone-server"]),
+  loadMode: z.enum(["partial", "selected"]),
   reusedConnection: z.boolean(),
   finalizeStatus: z.enum(["published", "alreadyPublished"]),
   configurationIndexPath: z.string().min(1),
   warnings: z.array(metadataDiagnosticSchema),
+})
+
+export const syncToInfobaseSuccessOutputSchema = z.strictObject({
+  ok: z.literal(true),
+  status: z.enum(["unchanged", "synchronized"]),
+  componentPath: configurationComponentPathSchema,
+  diagnostics: z.array(metadataDiagnosticSchema).optional(),
+  packageId: z.string().min(1).optional(),
+  entries: z.array(z.string()).optional(),
+  loadTargets: z.array(z.string()).optional(),
+  mode: z.enum(["designer-agent", "standalone-server"]).optional(),
+  loadMode: z.enum(["partial", "selected"]).optional(),
+  reusedConnection: z.boolean().optional(),
+  finalizeStatus: z.enum(["published", "alreadyPublished"]).optional(),
+  configurationIndexPath: z.string().min(1).optional(),
+  warnings: z.array(metadataDiagnosticSchema).optional(),
+}).superRefine((value, context) => {
+  const result = value.status === "unchanged"
+    ? unchangedSchema.safeParse(value)
+    : synchronizedSchema.safeParse(value)
+  if (result.success) return
+  for (const issue of result.error.issues) {
+    context.addIssue({ code: "custom", path: issue.path, message: issue.message })
+  }
 })
 
 const unknownDeliverySchema = z.strictObject({
@@ -48,10 +69,10 @@ const unknownDeliverySchema = z.strictObject({
   message: z.string(),
   details: z.strictObject({
     packageId: z.string().min(1),
-    componentPath: componentPathSchema,
+    componentPath: configurationComponentPathSchema,
     temporaryDirectory: z.string().min(1),
     stage: z.literal("configuration-load"),
-    mode: z.literal("designer-agent"),
+    mode: z.enum(["designer-agent", "standalone-server"]),
     log: importResourceReferenceSchema.optional(),
   }),
 })
@@ -68,6 +89,11 @@ export const syncToInfobaseOutputShape = z.union([
   unknownDeliverySchema,
   otherErrorSchema,
 ])
+
+export const syncToInfobasePublishedOutputSchema = publishedToolOutputSchema(
+  syncToInfobaseSuccessOutputSchema,
+  syncToInfobaseOutputShape,
+)
 
 export type SyncToInfobaseInput = z.infer<typeof syncToInfobaseInputSchema>
 export type SyncToInfobaseOutput = z.infer<typeof syncToInfobaseOutputShape>

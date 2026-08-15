@@ -5,20 +5,9 @@ import { createProjectStateService, type CreateProjectStateServiceOptions } from
 import { createBinaryProjectStateStore } from "../metadata/projectState/binary/store"
 import type { ProjectStateSharedBuffers } from "../metadata/projectState/binary/snapshot"
 import { createProjectStateWriterHandle } from "../metadata/projectState/writerHandle"
-import type { ValidationSchemaCache } from "../metadata/validation/projectValidationPasses"
 import { createProjectStateDependencyValidator } from "../metadata/validation/projectStateDependencyValidation"
 import { createMockWorkerThreadPoolFactory } from "./mockWorkerThreadPool"
-
-const validSchema = {
-  Check: () => true,
-  Errors: (): [boolean, []] => [true, []],
-}
-
-const fastSchemaCache: ValidationSchemaCache = {
-  form: () => validSchema,
-  properties: () => validSchema,
-  compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
-}
+import { permissiveValidationSchemaCache } from "./permissiveValidationSchemaCache"
 
 export function createImportProjectStateTestService(
   options: Pick<CreateProjectStateServiceOptions, "createPool"> = {},
@@ -53,7 +42,7 @@ export function createInspectableXmlImportWorkerTestPool(concurrency = 1): {
       const worker = workers.get(workerIndex) ?? createImportWorkerCommandRunner()
       workers.set(workerIndex, worker)
       if (command.kind !== "initialize") return worker.run(command)
-      worker.setSchemaCacheForTests(fastSchemaCache)
+      worker.setSchemaCacheForTests(permissiveValidationSchemaCache)
       try {
         return await worker.run(command)
       } finally {

@@ -20,16 +20,132 @@ const objectRule = {
   metadataTargetOwner: { kind: "self", root: "Catalog" },
 } as MetadataItemRule
 const formRule = { itemType: "TestForm", properties: {} } as MetadataItemRule
+const fileItemRule = {
+  itemType: "TestTable",
+  properties: {},
+  externalMetadata: { segment: "Table", placement: "ownedEntry" },
+} as MetadataItemRule
+const templateTarget = {
+  kind: "member" as const,
+  memberKind: "Template" as const,
+  itemNameParameter: "itemName",
+  itemProjectPattern: "Объект/{ownerName}/Макеты/{itemName}",
+  owner: "assignment" as const,
+}
 
 const topology = compileMetadataResourceTopology([{
   resources: [
     content("Конфигурация.yaml", "configuration", configurationRule, "none"),
     document("", "Configuration.xml", "metadata", true),
     document("", "Ext/ClientApplicationInterface.xml", "property", false),
+    document("", "Ext/MainSectionCommandInterface.xml", "property", false),
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Конфигурация.yaml",
+      projectPattern: "МодульПриложения.bsl",
+      xmlPattern: "Ext/ManagedApplicationModule.bsl",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      source,
+    },
     content("Язык/{ownerName}.yaml", "properties", languageRule, "configurationComposition"),
     document("", "Languages/{ownerName}.xml", "metadata", true),
     content("Объект/{ownerName}/Свойства.yaml", "properties", objectRule, "configurationComposition"),
     document("", "Objects/{ownerName}.xml", "metadata", true),
+    content("ОбъектСМанифестом/{ownerName}/Свойства.yaml", "properties", objectRule, "none"),
+    document("", "ManifestObjects/{ownerName}.xml", "metadata", true),
+    document("", "ManifestObjects/{ownerName}/Ext/Help.xml", "property", false),
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "ОбъектСМанифестом/{ownerName}/Свойства.yaml",
+      projectPattern: "ОбъектСМанифестом/{ownerName}/Справка/{relativePath...}",
+      xmlPattern: "ManifestObjects/{ownerName}/Ext/Help/{relativePath...}",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      selection: {
+        manifestPattern: "ManifestObjects/{ownerName}/Ext/Help.xml",
+        listPath: ["Help", "Page"],
+        candidateParameter: "relativePath",
+        candidateSuffix: ".html",
+      },
+      source,
+    },
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+      projectPattern: "Объект/{ownerName}/Команды/Проверочная.bsl",
+      xmlPattern: "Objects/{ownerName}/Commands/Проверочная/Ext/CommandModule.bsl",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      source,
+    },
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+      projectPattern: "Объект/{ownerName}/Макеты/{itemName}/Template.xml",
+      xmlPattern: "Objects/{ownerName}/Templates/{itemName}.xml",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      fileBackedTarget: templateTarget,
+      source,
+    },
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+      projectPattern: "Объект/{ownerName}/Макеты/{itemName}/Template.txt",
+      xmlPattern: "Objects/{ownerName}/Templates/{itemName}/Ext/Template.txt",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      fileBackedTarget: templateTarget,
+      source,
+    },
+    {
+      ...content(
+        "Объект/{ownerName}/Таблицы/{itemName}/Свойства.yaml",
+        "fileItem",
+        fileItemRule,
+        "configurationComposition",
+      ),
+      ownerProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+      logicalAddressSegment: "Таблица",
+    },
+    document(
+      "",
+      "Objects/{ownerName}/Tables/{itemName}.xml",
+      "metadata",
+      true,
+    ),
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Таблицы/{itemName}/Свойства.yaml",
+      projectPattern: "Объект/{ownerName}/Таблицы/{itemName}/Команды/Проверочная.bsl",
+      xmlPattern: "Objects/{ownerName}/Tables/{itemName}/Commands/Проверочная/Ext/CommandModule.bsl",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      source,
+    },
+    {
+      ...content(
+        "Объект/{ownerName}/Таблицы/{itemName}/Вложения/{nestedName}/Свойства.yaml",
+        "fileItem",
+        fileItemRule,
+        "configurationComposition",
+      ),
+      ownerProjectPattern: "Объект/{ownerName}/Таблицы/{itemName}/Свойства.yaml",
+      logicalAddressSegment: "Вложение",
+    },
+    document(
+      "",
+      "Objects/{ownerName}/Tables/{itemName}/Nested/{nestedName}.xml",
+      "metadata",
+      true,
+    ),
     content("Особый.yaml", "properties", objectRule, "none"),
     document("", "Objects/Товары.xml", "metadata", true),
     {
@@ -97,24 +213,60 @@ registry.register({
       includeCurrentMemberSubtree: false,
       stopAtOwner: true,
     },
-    companionDocuments: [{ xmlPattern: "Ext/ClientApplicationInterface.xml", loadTarget: false }],
+    companionDocuments: [
+      { xmlPattern: "Ext/ClientApplicationInterface.xml", loadTarget: true },
+      { xmlPattern: "Ext/MainSectionCommandInterface.xml", loadTarget: true },
+    ],
     companionReferences: [{ yamlPath: ["ОсновнойЯзык"], include: "targetAssignment", loadTarget: true }],
   },
+  externalFiles: [{ projectPattern: "МодульПриложения.bsl", loadTarget: true }],
 })
 registry.register(childFormPartialXmlPackagePolicy)
 const policies = registry.resolve(topology)
 
 const root = "Конфигурация.yaml"
+const rootModule = "МодульПриложения.bsl"
 const language = "Язык/Русский.yaml"
 const owner = "Объект/Товары/Свойства.yaml"
+const manifestOwner = "ОбъектСМанифестом/Товары/Свойства.yaml"
+const ownerHelp = "ОбъектСМанифестом/Товары/Справка/ru.html"
+const ownerModule = "Объект/Товары/Команды/Проверочная.bsl"
+const firstTemplateXml = "Объект/Товары/Макеты/Первый/Template.xml"
+const firstTemplateText = "Объект/Товары/Макеты/Первый/Template.txt"
+const secondTemplateXml = "Объект/Товары/Макеты/Второй/Template.xml"
+const secondTemplateText = "Объект/Товары/Макеты/Второй/Template.txt"
 const firstForm = "Объект/Товары/Формы/Первая/Форма.yaml"
 const firstModule = "Объект/Товары/Формы/Первая/Модуль.bsl"
 const firstBaseForm = "Объект/Товары/Формы/Первая/БазоваяФорма.yaml"
 const firstQuery = "Объект/Товары/Формы/Первая/ДинамическийСписок/Список.query"
 const secondForm = "Объект/Товары/Формы/Вторая/Форма.yaml"
 const secondModule = "Объект/Товары/Формы/Вторая/Модуль.bsl"
+const firstTable = "Объект/Товары/Таблицы/Первая/Свойства.yaml"
+const secondTable = "Объект/Товары/Таблицы/Вторая/Свойства.yaml"
+const secondTableModule = "Объект/Товары/Таблицы/Вторая/Команды/Проверочная.bsl"
+const secondNestedTable = "Объект/Товары/Таблицы/Вторая/Вложения/Вложенная/Свойства.yaml"
 
 describe("partial XML impact planner", () => {
+  it("при изменении конфигурации сохраняет корневые внешние файлы", () => {
+    const result = plan(
+      [root, rootModule, language],
+      changes({ changed: [root] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [root, rootModule, language].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([rootModule])
+    expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
+      "Ext/ManagedApplicationModule.bsl",
+      "Languages/Русский.xml",
+    ].sort(utf8))
+  })
+
   it("выбирает metadata владельца при изменении его YAML", () => {
     expect(plan([root, language, owner], changes({ changed: [owner] }))).toMatchObject({
       selection: { kind: "selected", projectPaths: [owner] },
@@ -123,6 +275,32 @@ describe("partial XML impact planner", () => {
     expect(documentPaths(plan([root, language, owner], changes({ changed: [owner] })))).toEqual([
       "Objects/Товары.xml",
     ])
+  })
+
+  it("добавляет внешние файлы, перечисленные в созданном XML-манифесте", () => {
+    const result = plan([root, manifestOwner, ownerHelp], changes({ changed: [manifestOwner] }))
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [manifestOwner, ownerHelp].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([ownerHelp])
+    expect(result.loadTargets).toEqual([
+      "ManifestObjects/Товары.xml",
+      "ManifestObjects/Товары/Ext/Help.xml",
+    ].sort(utf8))
+  })
+
+  it("загружает изменённый внешний файл через его XML-манифест", () => {
+    const result = plan([root, manifestOwner, ownerHelp], changes({ changed: [ownerHelp] }))
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [manifestOwner, ownerHelp].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([ownerHelp])
+    expect(documentPaths(result)).toEqual(["ManifestObjects/Товары/Ext/Help.xml"])
+    expect(result.loadTargets).toEqual(["ManifestObjects/Товары/Ext/Help.xml"])
   })
 
   it("разделяет payload и load target формы", () => {
@@ -180,6 +358,68 @@ describe("partial XML impact planner", () => {
     expect(result.loadTargets).toEqual(["Objects/Товары/Forms/Первая/Ext/Form/Module.bsl"])
   })
 
+  it("при изменении файла внешнего объекта не расширяет пакет до владельца", () => {
+    const result = plan(
+      [root, language, owner, firstTemplateXml, firstTemplateText],
+      changes({ changed: [firstTemplateText] }),
+    )
+
+    expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstTemplateText] })
+    expect(result.externalProjectPaths).toEqual([firstTemplateText])
+    expect(result.loadTargets).toEqual([
+      "Objects/Товары/Templates/Первый/Ext/Template.txt",
+    ])
+  })
+
+  it("при создании внешнего файлового объекта загружает владельца и передаёт всю коллекцию", () => {
+    const result = plan(
+      [
+        root,
+        language,
+        owner,
+        firstTemplateXml,
+        firstTemplateText,
+        secondTemplateXml,
+        secondTemplateText,
+      ],
+      changes({ added: [secondTemplateXml, secondTemplateText] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [
+        owner,
+        firstTemplateXml,
+        firstTemplateText,
+        secondTemplateXml,
+        secondTemplateText,
+      ].sort(utf8),
+    })
+    expect(documentPaths(result)).toEqual(["Objects/Товары.xml"])
+    expect(result.externalProjectPaths).toEqual([
+      firstTemplateXml,
+      firstTemplateText,
+      secondTemplateXml,
+      secondTemplateText,
+    ].sort(utf8))
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
+  it("при удалении внешнего файлового объекта загружает владельца и оставшуюся коллекцию", () => {
+    const result = plan(
+      [root, language, owner, firstTemplateXml, firstTemplateText],
+      changes({ deleted: [secondTemplateXml, secondTemplateText] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, firstTemplateXml, firstTemplateText].sort(utf8),
+    })
+    expect(documentPaths(result)).toEqual(["Objects/Товары.xml"])
+    expect(result.externalProjectPaths).toEqual([firstTemplateXml, firstTemplateText].sort(utf8))
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
   it("при добавлении формы включает владельца и весь актуальный подкаталог, но загружает новую форму", () => {
     const result = plan(
       [root, language, owner, firstForm, firstModule, secondForm, secondModule],
@@ -196,6 +436,34 @@ describe("partial XML impact planner", () => {
     ].sort(utf8))
   })
 
+  it("при добавлении формы сохраняет внешние файлы владельца", () => {
+    const result = plan(
+      [root, language, owner, ownerModule, firstForm],
+      changes({ added: [firstForm] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, ownerModule, firstForm].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([ownerModule])
+    expect(result.loadTargets).toEqual([
+      "Objects/Товары.xml",
+      "Objects/Товары/Forms/Первая.xml",
+    ].sort(utf8))
+  })
+
+  it("при удалении внешнего файла принимает изменённое задание владельца", () => {
+    const result = plan(
+      [root, language, owner],
+      changes({ changed: [owner], deleted: [ownerModule] }),
+    )
+
+    expect(result.selection).toEqual({ kind: "selected", projectPaths: [owner] })
+    expect(result.externalProjectPaths).toEqual([])
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
   it("при удалении формы включает владельца и оставшийся подкаталог, но загружает только владельца", () => {
     const result = plan(
       [root, language, owner, firstForm, firstModule],
@@ -209,27 +477,113 @@ describe("partial XML impact planner", () => {
     expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
   })
 
+  it.each([
+    ["добавлении", "added", [], [], []],
+    [
+      "изменении",
+      "changed",
+      [secondNestedTable],
+      [secondNestedTable],
+      ["Objects/Товары/Tables/Вторая/Nested/Вложенная.xml"],
+    ],
+  ] as const)("при %s файлового дочернего объекта включает владельца и соседние объекты", (
+    _title,
+    kind,
+    extraCurrent,
+    extraExpected,
+    extraLoadTargets,
+  ) => {
+    const result = plan(
+      [root, language, owner, firstTable, secondTable, ...extraCurrent],
+      changes({ [kind]: [secondTable] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, firstTable, secondTable, ...extraExpected].sort(utf8),
+    })
+    expect(result.loadTargets).toEqual([
+      "Objects/Товары.xml",
+      "Objects/Товары/Tables/Вторая.xml",
+      ...extraLoadTargets,
+    ].sort(utf8))
+  })
+
+  it("при удалении файлового дочернего объекта включает владельца и оставшиеся объекты", () => {
+    const result = plan(
+      [root, language, owner, firstTable],
+      changes({ deleted: [secondTable] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, firstTable].sort(utf8),
+    })
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
+  it("поглощает вложенные удаления удалённым файловым владельцем", () => {
+    const result = plan(
+      [root, language, owner, firstTable],
+      changes({ deleted: [secondTable, secondTableModule, secondNestedTable] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, firstTable].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([])
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
+  it("при изменении вложенного файлового объекта сохраняет внешние файлы его владельца", () => {
+    const result = plan(
+      [root, language, owner, secondTable, secondTableModule, secondNestedTable],
+      changes({ changed: [secondNestedTable] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [secondTable, secondTableModule, secondNestedTable].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([secondTableModule])
+    expect(result.loadTargets).toEqual([
+      "Objects/Товары/Tables/Вторая.xml",
+      "Objects/Товары/Tables/Вторая/Nested/Вложенная.xml",
+    ].sort(utf8))
+  })
+
   it("при добавлении и удалении верхнего объекта включает корень и его явных спутников", () => {
-    const added = plan([root, language, owner], changes({ added: [owner] }))
+    const added = plan([root, rootModule, language, owner], changes({ added: [owner] }))
     expect(added.selection).toEqual({
       kind: "selected",
-      projectPaths: [root, language, owner].sort(utf8),
+      projectPaths: [root, rootModule, language, owner].sort(utf8),
     })
     expect(documentPaths(added)).toEqual([
       "Configuration.xml",
       "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
       "Languages/Русский.xml",
       "Objects/Товары.xml",
     ].sort(utf8))
     expect(added.loadTargets).toEqual([
       "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
+      "Ext/ManagedApplicationModule.bsl",
       "Languages/Русский.xml",
       "Objects/Товары.xml",
     ].sort(utf8))
 
-    const deleted = plan([root, language], changes({ deleted: [owner] }))
-    expect(deleted.selection).toEqual({ kind: "selected", projectPaths: [root, language].sort(utf8) })
-    expect(deleted.loadTargets).toEqual(["Configuration.xml", "Languages/Русский.xml"].sort(utf8))
+    const deleted = plan([root, rootModule, language], changes({ deleted: [owner] }))
+    expect(deleted.selection).toEqual({ kind: "selected", projectPaths: [root, rootModule, language].sort(utf8) })
+    expect(deleted.loadTargets).toEqual([
+      "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
+      "Ext/ManagedApplicationModule.bsl",
+      "Languages/Русский.xml",
+    ].sort(utf8))
   })
 
   it("объединяет удаление и добавление переименованного объекта", () => {
@@ -239,6 +593,8 @@ describe("partial XML impact planner", () => {
     expect(result.selection).toEqual({ kind: "selected", projectPaths: [root, language, renamed].sort(utf8) })
     expect(result.loadTargets).toEqual([
       "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
       "Languages/Русский.xml",
       "Objects/НовыеТовары.xml",
     ].sort(utf8))
@@ -248,7 +604,12 @@ describe("partial XML impact planner", () => {
     const result = plan([root, language], changes({ deleted: [owner, firstForm, firstModule] }))
 
     expect(result.selection).toEqual({ kind: "selected", projectPaths: [root, language].sort(utf8) })
-    expect(result.loadTargets).toEqual(["Configuration.xml", "Languages/Русский.xml"].sort(utf8))
+    expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
+      "Languages/Русский.xml",
+    ].sort(utf8))
   })
 
   it("не расширяет пакет по обычной канонической ссылке", () => {

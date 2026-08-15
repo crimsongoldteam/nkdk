@@ -9,6 +9,7 @@ import {
   type PreparedYamlProjectWorkerPool,
 } from "../metadata/project/preparedYamlProjectWorkerPool"
 import { createMockWorkerThreadPoolFactory } from "./mockWorkerThreadPool"
+import { permissiveValidationSchemaCache } from "./permissiveValidationSchemaCache"
 import { valueSymbol } from "piscina"
 
 export function createPreparedYamlWorkerTestPool(
@@ -37,7 +38,9 @@ export function createPreparedYamlWorkerThreadPoolFactory(): () => PreparedWorke
     const movable = command as PreparedYamlProjectWorkerTask & {
       readonly [valueSymbol]?: PreparedYamlProjectWorkerTask
     }
-    return runPreparedYamlProjectWorkerTask(movable[valueSymbol] ?? command)
+    return runPreparedYamlProjectWorkerTask(movable[valueSymbol] ?? command, {
+      createValidationSchemaCache: async () => permissiveValidationSchemaCache,
+    })
   })
   return threadPools.factory
 }

@@ -153,8 +153,9 @@ export function tabularSectionAttributesFragment<
 
 export const tabularSectionUuidFragment = metadataRuleFragment(["uuid"], {
   uuid: {
-    type: "UUID",
+    type: "uuid",
     xml: "_uuid",
+    evaluateWhenYAMLMissing: true,
     forReferenceOnly: true,
     toYAML: false,
     fromYAML: false,

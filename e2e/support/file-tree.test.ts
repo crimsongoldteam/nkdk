@@ -78,6 +78,49 @@ describe("compareFileTrees", () => {
     })
   })
 
+  it("может не учитывать завершающий перевод строки в YAML", async () => {
+    const fixture = await treeFixture()
+    await write(fixture.expectedDir, "Свойства.yaml", "Значение: Истина\n")
+    await write(fixture.actualDir, "Свойства.yaml", "Значение: Истина")
+
+    await expect(compareFileTrees({
+      ...fixture,
+      yamlComparison: "ignore-final-line-ending",
+    })).resolves.toEqual({
+      equal: true,
+      added: [],
+      removed: [],
+      changed: [],
+    })
+  })
+
+  it("может не учитывать UTF-8 BOM в текстовых файлах", async () => {
+    const fixture = await treeFixture()
+    await write(fixture.expectedDir, "Модуль.bsl", "Процедура Проверка()\nКонецПроцедуры\n")
+    await write(fixture.actualDir, "Модуль.bsl", "\uFEFFПроцедура Проверка()\nКонецПроцедуры\n")
+
+    await expect(compareFileTrees({
+      ...fixture,
+      textComparison: "normalize",
+    })).resolves.toEqual({
+      equal: true,
+      added: [],
+      removed: [],
+      changed: [],
+    })
+  })
+
+  it("может нормализовать окончания строк в текстовых файлах", async () => {
+    const fixture = await treeFixture()
+    await write(fixture.expectedDir, "Модуль.bsl", "Строка1\nСтрока2\n")
+    await write(fixture.actualDir, "Модуль.bsl", "Строка1\r\nСтрока2\r\n")
+
+    await expect(compareFileTrees({
+      ...fixture,
+      textComparison: "normalize",
+    })).resolves.toMatchObject({ equal: true })
+  })
+
   it("позволяет исключить служебный ConfigDumpInfo.xml", async () => {
     const fixture = await treeFixture()
     await write(fixture.expectedDir, "ConfigDumpInfo.xml", "<ConfigDumpInfo/>")

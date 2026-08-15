@@ -273,6 +273,7 @@ export function createProjectStateService(
   ): ProjectStateImportSession {
     return {
       writeStateFragment: (fragment) => session.writeStateFragment(fragment),
+      replaceFinalHashes: (files) => session.replaceFinalHashes(files),
       commitWorkingIndex: () => session.commitWorkingIndex(),
       createReadToken: () => session.createReadToken(),
       async finalize(beforeCheckpoint) {

@@ -27,6 +27,24 @@ export const toolErrorOutputShape = {
   details: z.unknown().optional(),
 }
 
+export function publishedToolOutputSchema<Shape extends z.ZodRawShape>(
+  successSchema: z.ZodObject<Shape>,
+  fullOutputSchema: z.ZodType,
+) {
+  return z.strictObject(successSchema.shape).partial().extend({
+    ok: z.boolean(),
+    code: toolErrorOutputShape.code.optional(),
+    message: toolErrorOutputShape.message.optional(),
+    details: toolErrorOutputShape.details,
+  }).superRefine((value, context) => {
+    const result = fullOutputSchema.safeParse(value)
+    if (result.success) return
+    for (const issue of result.error.issues) {
+      context.addIssue({ code: "custom", path: issue.path, message: issue.message })
+    }
+  })
+}
+
 export type ToolErrorCode = z.infer<typeof errorCodeSchema>
 
 export interface ToolFailure extends Record<string, unknown> {

@@ -2,7 +2,11 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { expect, it } from "vitest"
+import { metadataRules } from "../composition/metadataRules"
+import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { discoverProjectStateValidationFileBatches } from "./projectFiles"
+
+const rules = createRuleRegistrySet(metadataRules)
 
 it.each([1, 2])("выдаёт ленивые пути пачками по %s без общего массива", async (batchSize) => {
   const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-files-"))
@@ -15,7 +19,9 @@ it.each([1, 2])("выдаёт ленивые пути пачками по %s б�
     await writeFile(join(projectDir, "cf", "Документ", "Заказ", "Свойства.yaml"), "{}\n")
 
     const batches = []
-    for await (const batch of discoverProjectStateValidationFileBatches(projectDir, batchSize)) batches.push(batch)
+    for await (const batch of discoverProjectStateValidationFileBatches(projectDir, batchSize, rules)) {
+      batches.push(batch)
+    }
 
     expect(batches.map(({ paths }) => paths.length)).toEqual(
       batchSize === 1 ? [1, 1, 1] : [2, 1],
@@ -49,7 +55,7 @@ it("проецирует цели формы и всех файлов макет
     }
 
     const files = []
-    for await (const batch of discoverProjectStateValidationFileBatches(projectDir, 256)) {
+    for await (const batch of discoverProjectStateValidationFileBatches(projectDir, 256, rules)) {
       files.push(...batch.paths.map((path) => path.classify()).filter((file) => file !== undefined))
     }
 
@@ -79,6 +85,25 @@ it("проецирует цели формы и всех файлов макет
         }])
       }
     }
+  } finally {
+    await rm(projectDir, { recursive: true, force: true })
+  }
+})
+
+it("включает текст запроса динамического списка в состояние проекта", async () => {
+  const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-query-"))
+  try {
+    const formDir = join(projectDir, "cf", "ОбщаяФорма", "Таблица")
+    await mkdir(join(formDir, "ДинамическийСписок"), { recursive: true })
+    await writeFile(join(formDir, "Свойства.yaml"), "Форма: {}\n")
+    await writeFile(join(formDir, "ДинамическийСписок", "Запрос.query"), "ВЫБРАТЬ 1\n")
+
+    const projectPaths = []
+    for await (const batch of discoverProjectStateValidationFileBatches(projectDir, 256, rules)) {
+      projectPaths.push(...batch.paths.map(({ projectPath }) => projectPath))
+    }
+
+    expect(projectPaths).toContain("cf/ОбщаяФорма/Таблица/ДинамическийСписок/Запрос.query")
   } finally {
     await rm(projectDir, { recursive: true, force: true })
   }

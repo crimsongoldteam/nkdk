@@ -69,7 +69,9 @@ async function writePreparedAssignment(
       }
     }
     for (const declarationId of requestedDocumentIds) {
-      if (!foundDocumentIds.has(declarationId)) {
+      const output = params.prepared.assignment.potentialOutputs.find((candidate) =>
+        candidate.declarationId === declarationId)
+      if (!foundDocumentIds.has(declarationId) && output?.required !== false) {
         throw new Error(`Не сформирован запрошенный XML-документ: ${declarationId}`)
       }
     }

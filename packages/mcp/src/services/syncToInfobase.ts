@@ -2,10 +2,13 @@ import { randomUUID } from "node:crypto"
 import { join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import {
+  classifyPartialLoad,
   PlatformSessionError,
   recordPartialSyncDeliveryPhase,
   readProjectSettings,
   type PlatformSessionManager,
+  type PlatformSessionMode,
+  type PartialLoadMode,
 } from "@nkdk/platform"
 import {
   loadCoreApi,
@@ -54,19 +57,27 @@ export interface SyncToInfobaseDependencies {
   readonly attemptId: () => string
 }
 
-export type SyncToInfobasePayload = ToolPayload<{
-  readonly status: "unchanged" | "synchronized"
+type UnchangedPayload = {
+  readonly status: "unchanged"
   readonly componentPath: string
-  readonly diagnostics?: readonly OutputDiagnostic[]
-  readonly packageId?: string
-  readonly entries?: readonly string[]
-  readonly loadTargets?: readonly string[]
-  readonly mode?: "designer-agent"
-  readonly reusedConnection?: boolean
-  readonly finalizeStatus?: "published" | "alreadyPublished"
-  readonly configurationIndexPath?: string
-  readonly warnings?: readonly OutputDiagnostic[]
-}>
+  readonly diagnostics: readonly OutputDiagnostic[]
+}
+
+type SynchronizedPayload = {
+  readonly status: "synchronized"
+  readonly componentPath: string
+  readonly packageId: string
+  readonly entries: readonly string[]
+  readonly loadTargets: readonly string[]
+  readonly mode: PlatformSessionMode
+  readonly loadMode: PartialLoadMode
+  readonly reusedConnection: boolean
+  readonly finalizeStatus: "published" | "alreadyPublished"
+  readonly configurationIndexPath: string
+  readonly warnings: readonly OutputDiagnostic[]
+}
+
+export type SyncToInfobasePayload = ToolPayload<UnchangedPayload | SynchronizedPayload>
 
 const projectSyncQueues = new Map<string, Promise<void>>()
 
@@ -122,7 +133,11 @@ async function syncToInfobaseExclusive(
       component.componentPath,
     )
     if (pending?.delivery.status === "transferring") {
-      return unknownPreviousDelivery(component.projectDir, pending)
+      return unknownPreviousDelivery(
+        component.projectDir,
+        pending,
+        settingsRead.settings.infobase.operations.import.mode,
+      )
     }
     if (pending?.delivery.status === "applied") {
       return await finalizeApplied({
@@ -133,6 +148,8 @@ async function syncToInfobaseExclusive(
         entries: pending.entries,
         loadTargets: pending.loadTargets,
         attemptId: pending.delivery.attemptId,
+        mode: settingsRead.settings.infobase.operations.import.mode,
+        loadMode: classifyPartialLoad(pending.loadTargets),
       })
     }
 
@@ -171,6 +188,13 @@ async function syncToInfobaseExclusive(
     const temporaryDirectory = attemptDirectory(component.projectDir, attemptId)
     const operationLogProjectPath = operationLogPath(attemptId)
     const logPath = join(temporaryDirectory, "platform.log")
+    const unknownCurrentDelivery = () => unknownDelivery(
+      prepared.packageId,
+      component.componentPath,
+      temporaryDirectory,
+      logPath,
+      settingsRead.settings.infobase.operations.import.mode,
+    )
     await dependencies.fs.mkdir(temporaryDirectory)
     await dependencies.core.markPartialSyncTransferring({
       projectDir: component.projectDir,
@@ -184,6 +208,7 @@ async function syncToInfobaseExclusive(
     try {
       const { operations: _operations, ...connectionSettings } = settingsRead.settings.infobase
       loaded = await dependencies.platformManager.loadPartialConfiguration({
+        mode: settingsRead.settings.infobase.operations.import.mode,
         projectDir: component.projectDir,
         archivePath: prepared.archivePath,
         loadTargets: prepared.loadTargets,
@@ -204,7 +229,7 @@ async function syncToInfobaseExclusive(
             attemptId,
           })
         } catch {
-          return unknownDelivery(prepared.packageId, component.componentPath, temporaryDirectory, logPath)
+          return unknownCurrentDelivery()
         }
         await dependencies.recordDeliveryPhase({ path: logPath, phase: "prepared" }).catch(() => undefined)
       }
@@ -219,7 +244,7 @@ async function syncToInfobaseExclusive(
         attemptId,
       })
     } catch {
-      return unknownDelivery(prepared.packageId, component.componentPath, temporaryDirectory, logPath)
+      return unknownCurrentDelivery()
     }
     try {
       await dependencies.recordDeliveryPhase({ path: logPath, phase: "applied" })
@@ -238,6 +263,8 @@ async function syncToInfobaseExclusive(
       entries: prepared.entries,
       loadTargets: prepared.loadTargets,
       attemptId,
+      mode: loaded.mode,
+      loadMode: loaded.loadMode,
       loaded,
       preparationDiagnostics: prepared.diagnostics,
     })
@@ -280,6 +307,8 @@ async function finalizeApplied(params: {
   readonly entries: readonly string[]
   readonly loadTargets: readonly string[]
   readonly attemptId: string
+  readonly mode: PlatformSessionMode
+  readonly loadMode: PartialLoadMode
   readonly loaded?: Awaited<ReturnType<PlatformSessionManager["loadPartialConfiguration"]>>
   readonly preparationDiagnostics?: readonly OutputDiagnostic[]
 }): Promise<SyncToInfobasePayload> {
@@ -298,7 +327,7 @@ async function finalizeApplied(params: {
       componentPath: params.componentPath,
       temporaryDirectory,
       stage: "finalize",
-      mode: "designer-agent",
+      mode: params.mode,
       log: logReference(logPath),
     })
   }
@@ -326,7 +355,8 @@ async function finalizeApplied(params: {
     packageId: params.packageId,
     entries: params.entries,
     loadTargets: params.loadTargets,
-    mode: "designer-agent" as const,
+    mode: params.mode,
+    loadMode: params.loadMode,
     reusedConnection: params.loaded?.reusedConnection ?? true,
     finalizeStatus: finalized.status,
     configurationIndexPath: finalized.configurationIndexPath,
@@ -337,6 +367,7 @@ async function finalizeApplied(params: {
 function unknownPreviousDelivery(
   projectDir: string,
   pending: Awaited<ReturnType<CoreApi["readPendingPartialSync"]>> & {},
+  mode: PlatformSessionMode,
 ): SyncToInfobasePayload {
   const delivery = pending.delivery
   if (delivery.status !== "transferring") throw new Error("Ожидалась незавершённая передача")
@@ -349,7 +380,7 @@ function unknownPreviousDelivery(
       componentPath: pending.componentPath,
       temporaryDirectory,
       stage: "configuration-load",
-      mode: "designer-agent",
+      mode,
       log: logReference(resolve(projectDir, ...delivery.operationLogProjectPath.split("/"))),
     },
   )
@@ -384,6 +415,7 @@ function unknownDelivery(
   componentPath: string,
   temporaryDirectory: string,
   logPath: string,
+  mode: PlatformSessionMode,
 ): SyncToInfobasePayload {
   return toolError(
     "delivery_outcome_unknown",
@@ -393,7 +425,7 @@ function unknownDelivery(
       componentPath,
       temporaryDirectory,
       stage: "configuration-load",
-      mode: "designer-agent",
+      mode,
       log: logReference(logPath),
     },
   )

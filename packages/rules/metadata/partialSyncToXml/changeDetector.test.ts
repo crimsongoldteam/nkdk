@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { detectPartialXmlChanges } from "./changeDetector"
+import { detectPartialXmlChanges, supplementCurrentVersions } from "./changeDetector"
 import type { PartialXmlFileVersion } from "./types"
 
 const version = (projectPath: string, contentHash: bigint): PartialXmlFileVersion => ({
@@ -8,6 +8,20 @@ const version = (projectPath: string, contentHash: bigint): PartialXmlFileVersio
 })
 
 describe("detectPartialXmlChanges", () => {
+  it("добавляет в текущий набор существующие пути предыдущего снимка", async () => {
+    const read = async (projectPath: string) =>
+      projectPath === "Форма.query" ? version(projectPath, 7n) : undefined
+
+    await expect(supplementCurrentVersions({
+      current: [version("Свойства.yaml", 1n)],
+      previous: [version("Свойства.yaml", 1n), version("Форма.query", 7n), version("Удалён.bin", 2n)],
+      read,
+    })).resolves.toEqual([
+      version("Свойства.yaml", 1n),
+      version("Форма.query", 7n),
+    ])
+  })
+
   it.each([
     {
       name: "неизменившийся файл",

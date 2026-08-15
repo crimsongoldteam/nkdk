@@ -8,6 +8,7 @@ import {
 } from "../resourceTopology/core/projectProjection"
 import type {
   CompiledMetadataAssignmentNode,
+  CompiledMetadataFileBackedMemberTargetDeclaration,
   CompiledMetadataResourceTopology,
   CompiledMetadataXmlDocumentNode,
 } from "@nkdk/runtime/rule-kit"
@@ -52,19 +53,29 @@ export function buildPartialXmlImpactPlan(params: {
       : []
   }))
   const deletedCompositionDirectories = new Set([...deletedCompositionPaths].map(posix.dirname))
+  const deletedFileItemPaths = new Set(params.changes.deleted.flatMap((version) => {
+    const resource = classifyMetadataProjectPath(params.topology, version.projectPath)
+    return resource?.kind === "content" && resource.assignment?.role === "fileItem"
+      ? [version.projectPath]
+      : []
+  }))
 
   for (const version of params.changes.deleted) {
-    if (isInsideDeletedComposition(version.projectPath)) {
+    if (isInsideDeletedComposition(version.projectPath) || isInsideDeletedFileItem(version.projectPath)) {
       handledDeletedContent.add(version.projectPath)
       continue
     }
     const match = classifyDeletedPath(version.projectPath)
-    if (match?.kind !== "content" || match.assignment?.fileBackedTarget === undefined) continue
-    const policy = params.policies.assignments.get(match.assignment.id)
-    if (policy?.structural === undefined) continue
-    includeMemberCollection(match, policy)
-    structurallyDeletedCollections.add(memberCollectionKey(match))
-    handledDeletedContent.add(version.projectPath)
+    if (match === undefined) continue
+    const declaration = declaredFileBackedTarget(match)
+    if (declaration !== undefined) {
+      includeMemberCollection(match, declaration)
+      structurallyDeletedCollections.add(memberCollectionKey(match))
+      handledDeletedContent.add(version.projectPath)
+    } else if (match.kind === "content" && match.assignment?.role === "fileItem") {
+      includeFileItemCollection(match)
+      handledDeletedContent.add(version.projectPath)
+    }
   }
 
   for (const version of params.changes.changed.map(({ current }) => current)) {
@@ -72,22 +83,28 @@ export function buildPartialXmlImpactPlan(params: {
     if (match === undefined || match.kind === "ignore") continue
     const current = requiredCurrentResource(version.projectPath)
     includeDirectCurrent(current)
+    if (current.kind === "content" && current.assignment?.role === "fileItem" &&
+      current.assignment.fileBackedTarget === undefined) {
+      includeFileItemCollection(current)
+    }
   }
 
   for (const version of params.changes.added) {
     const match = classifyChangedPath(version.projectPath)
     if (match === undefined || match.kind === "ignore") continue
     const current = requiredCurrentResource(version.projectPath)
-    includeDirectCurrent(current)
-    if (current.kind === "content" && current.assignment?.fileBackedTarget !== undefined) {
-      const policy = params.policies.assignments.get(current.assignment.id)
-      if (policy?.structural === undefined) {
-        throw new Error(`Для файлового metadata-ресурса отсутствует структурная политика: ${version.projectPath}`)
+    const declaration = declaredFileBackedTarget(current)
+    if (declaration !== undefined) {
+      if (current.kind === "content") includeDirectCurrent(current)
+      includeMemberCollection(current, declaration)
+    } else {
+      includeDirectCurrent(current)
+      if (current.kind === "content" && current.assignment?.role === "fileItem") {
+        includeFileItemCollection(current)
+      } else if (current.compositionImpact === "configurationComposition") {
+        includeCurrentAssignmentSubtree(current)
+        includeConfigurationRoot()
       }
-      includeMemberCollection(current, policy)
-    } else if (current.compositionImpact === "configurationComposition") {
-      includeCurrentAssignmentSubtree(current)
-      includeConfigurationRoot()
     }
   }
 
@@ -96,8 +113,12 @@ export function buildPartialXmlImpactPlan(params: {
     const match = classifyDeletedPath(version.projectPath)
     if (match === undefined || match.kind === "ignore") continue
     if (match.kind === "externalFile") {
-      if (match.assignment?.fileBackedTarget !== undefined &&
+      if (collectionFileBackedTarget(match) !== undefined &&
         structurallyDeletedCollections.has(memberCollectionKey(match))) continue
+      if (match.assignment !== undefined) {
+        const assignmentPath = expandMetadataPathPattern(match.assignment.projectPattern, match.values)
+        if (assignmentStates.get(assignmentPath)?.payload === true) continue
+      }
       throw new Error(`Удалённый внешний файл нельзя включить в XML-пакет: ${version.projectPath}`)
     }
     if (match.kind === "yamlCompanion") {
@@ -145,6 +166,11 @@ export function buildPartialXmlImpactPlan(params: {
       && [...deletedCompositionDirectories].some((directory) => projectPath.startsWith(`${directory}/`))
   }
 
+  function isInsideDeletedFileItem(projectPath: string): boolean {
+    return [...deletedFileItemPaths].some((ownerPath) =>
+      ownerPath !== projectPath && projectPath.startsWith(`${posix.dirname(ownerPath)}/`))
+  }
+
   function classifyDeletedPath(projectPath: string): MetadataProjectResourceMatch | undefined {
     const impact = resolveMetadataProjectChangeImpact(params.topology, projectPath)
     if (impact === undefined) {
@@ -167,7 +193,8 @@ export function buildPartialXmlImpactPlan(params: {
 
   function includeDirectCurrent(resource: MetadataProjectResourceMatch): void {
     if (resource.kind === "content") {
-      includeAssignment(resource, true)
+      if (resource.assignment?.role === "configuration") includeConfigurationRoot()
+      else includeAssignment(resource, true)
     } else if (resource.kind === "externalFile") {
       includeExternal(resource, true)
     } else if (resource.kind === "yamlCompanion") {
@@ -221,7 +248,10 @@ export function buildPartialXmlImpactPlan(params: {
 
     if (!state.payload) {
       state.payload = true
-      for (const document of assignment.xmlDocuments.filter((candidate) => candidate.required)) {
+      const payloadDocuments = policy === undefined
+        ? assignment.xmlDocuments
+        : assignment.xmlDocuments.filter((candidate) => candidate.required)
+      for (const document of payloadDocuments) {
         addDocument(resource, document, false)
       }
       for (const companion of policy?.companionDocuments ?? []) {
@@ -233,7 +263,6 @@ export function buildPartialXmlImpactPlan(params: {
     if (requestLoad && !state.load) {
       state.load = true
       const loadDocumentIds = policy?.loadDocumentIds ?? assignment.xmlDocuments
-        .filter((document) => document.required)
         .map((document) => document.id)
       for (const documentId of loadDocumentIds) {
         addDocument(resource, requiredDocument(assignment, documentId), true)
@@ -273,7 +302,28 @@ export function buildPartialXmlImpactPlan(params: {
     const ids = assignmentDocumentIds.get(resource.projectPath) ?? new Set<string>()
     ids.add(document.id)
     assignmentDocumentIds.set(resource.projectPath, ids)
+    includeManifestExternalFiles(resource, target)
     if (loadTarget) loadTargets.add(target)
+  }
+
+  function includeManifestExternalFiles(
+    resource: MetadataProjectResourceMatch,
+    manifestTarget: string,
+  ): void {
+    const assignmentId = resource.assignment?.id
+    if (assignmentId === undefined) return
+    for (const current of currentByPath.values()) {
+      const external = current.externalFile
+      if (
+        current.kind !== "externalFile" ||
+        current.assignment?.id !== assignmentId ||
+        external?.selection === undefined
+      ) continue
+      const candidateManifest = normalizedXmlPath(
+        expandMetadataPathPattern(external.selection.manifestPattern, current.values),
+      )
+      if (candidateManifest === manifestTarget) includeExternal(current, false)
+    }
   }
 
   function includeExternal(resource: MetadataProjectResourceMatch, requestLoad: boolean): void {
@@ -282,32 +332,117 @@ export function buildPartialXmlImpactPlan(params: {
       throw new Error(`Ожидался внешний файл: ${resource.projectPath}`)
     }
     const target = normalizedXmlPath(expandMetadataPathPattern(external.xmlPattern, resource.values))
-    addPayloadTarget(target, resource.projectPath)
-    selectedProjectPaths.add(resource.projectPath)
-    externalProjectPaths.add(resource.projectPath)
+    if (!externalProjectPaths.has(resource.projectPath)) {
+      addPayloadTarget(target, resource.projectPath)
+      selectedProjectPaths.add(resource.projectPath)
+      externalProjectPaths.add(resource.projectPath)
+    }
     const policy = params.policies.externalFiles.get(external.id)
-    if (requestLoad && (policy?.loadTarget ?? true)) loadTargets.add(target)
+    if (!requestLoad || !(policy?.loadTarget ?? true)) return
+    if (external.selection === undefined) {
+      loadTargets.add(target)
+      return
+    }
+    includeExternalManifest(resource, external.selection.manifestPattern)
+  }
+
+  function includeExternalManifest(
+    resource: MetadataProjectResourceMatch,
+    manifestPattern: string,
+  ): void {
+    const assignment = resource.assignment
+    if (assignment === undefined) {
+      throw new Error(`Внешний файл с манифестом не связан с XML-заданием: ${resource.projectPath}`)
+    }
+    const ownerPath = expandMetadataPathPattern(assignment.projectPattern, resource.values)
+    const owner = currentByPath.get(ownerPath)
+    if (owner?.kind !== "content") {
+      throw new Error(`Для внешнего файла с манифестом не найдено XML-задание: ${resource.projectPath}`)
+    }
+    const manifestTarget = normalizedXmlPath(expandMetadataPathPattern(manifestPattern, resource.values))
+    const manifest = assignment.xmlDocuments.find((document) =>
+      normalizedXmlPath(expandMetadataPathPattern(document.xmlPattern, resource.values)) === manifestTarget)
+    if (manifest === undefined) {
+      throw new Error(`XML-манифест внешнего файла не найден в задании: ${manifestTarget}`)
+    }
+    selectedProjectPaths.add(owner.projectPath)
+    addDocument(owner, manifest, true)
   }
 
   function includeMemberCollection(
     resource: MetadataProjectResourceMatch,
-    policy: ResolvedPartialXmlAssignmentPolicy,
+    declaration: CompiledMetadataFileBackedMemberTargetDeclaration,
   ): void {
-    const declaration = resource.assignment?.fileBackedTarget
-    if (declaration === undefined || policy.structural === undefined) return
+    const policy = resource.assignment === undefined
+      ? undefined
+      : params.policies.assignments.get(resource.assignment.id)
+    const structural = policy?.structural
     const ownerPath = expandMetadataPathPattern(declaration.ownerProjectPattern, resource.values)
-    if (policy.structural.includeOwnerAssignment) {
-      const owner = currentByPath.get(ownerPath)
-      if (owner?.kind !== "content") throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
+    const owner = currentByPath.get(ownerPath)
+    if (owner?.kind !== "content") {
+      throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
+    }
+    if (structural?.includeOwnerAssignment !== false) {
       includeAssignment(owner, true)
     }
-    if (policy.structural.includeCurrentMemberSubtree) {
-      for (const current of currentByPath.values()) {
-        const currentDeclaration = current.assignment?.fileBackedTarget
-        if (currentDeclaration === undefined || currentDeclaration.memberKind !== declaration.memberKind) continue
-        if (expandMetadataPathPattern(currentDeclaration.ownerProjectPattern, current.values) !== ownerPath) continue
-        if (current.kind === "content") includeAssignment(current, false)
-        if (current.kind === "externalFile") includeExternal(current, false)
+    if (structural?.includeOwnerAssignment === true) {
+      includeAssignmentExternalFiles(owner)
+    }
+    if (structural?.includeCurrentMemberSubtree === false) return
+
+    for (const current of currentByPath.values()) {
+      const currentDeclaration = collectionFileBackedTarget(current)
+      if (currentDeclaration?.memberKind !== declaration.memberKind) continue
+      if (expandMetadataPathPattern(currentDeclaration.ownerProjectPattern, current.values) !== ownerPath) continue
+      if (current.kind === "content") includeAssignment(current, false)
+      if (current.kind === "externalFile") includeExternal(current, false)
+    }
+  }
+
+  function includeFileItemCollection(resource: MetadataProjectResourceMatch): void {
+    const assignment = resource.assignment
+    if (resource.kind !== "content" || assignment?.role !== "fileItem" ||
+      assignment.ownerProjectPattern === undefined) {
+      throw new Error(`Ожидался файловый дочерний metadata-ресурс: ${resource.projectPath}`)
+    }
+    const ownerPath = expandMetadataPathPattern(assignment.ownerProjectPattern, resource.values)
+    const owner = currentByPath.get(ownerPath)
+    if (owner?.kind !== "content") {
+      throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
+    }
+    includeAssignment(owner, true)
+    if (owner.assignment?.role === "fileItem") includeAssignmentSubtree(owner, false)
+    const currentTarget = currentByPath.get(resource.projectPath)
+
+    for (const current of currentByPath.values()) {
+      if (current.assignment?.id !== assignment.id) continue
+      if (expandMetadataPathPattern(assignment.ownerProjectPattern, current.values) !== ownerPath) continue
+      if (current.kind === "content") {
+        includeAssignmentSubtree(current, current.projectPath === currentTarget?.projectPath)
+      }
+    }
+  }
+
+  function includeAssignmentSubtree(
+    resource: MetadataProjectResourceMatch,
+    requestLoad: boolean,
+  ): void {
+    const directory = posix.dirname(resource.projectPath)
+    for (const current of currentByPath.values()) {
+      if (current.projectPath !== resource.projectPath && !current.projectPath.startsWith(`${directory}/`)) continue
+      if (current.kind === "content") includeAssignment(current, requestLoad)
+      if (current.kind === "externalFile") includeExternal(current, requestLoad)
+    }
+  }
+
+  function includeAssignmentExternalFiles(resource: MetadataProjectResourceMatch): void {
+    const assignment = resource.assignment
+    if (resource.kind !== "content" || assignment === undefined) {
+      throw new Error(`Ожидалось XML-задание владельца: ${resource.projectPath}`)
+    }
+    for (const current of currentByPath.values()) {
+      if (current.kind === "externalFile" && current.assignment?.id === assignment.id) {
+        includeExternal(current, false)
       }
     }
   }
@@ -325,11 +460,17 @@ export function buildPartialXmlImpactPlan(params: {
       resource.kind === "content" && resource.assignment?.role === "configuration"
     )
     if (roots.length !== 1) throw new Error(`Ожидалось одно текущее корневое XML-задание, найдено ${roots.length}`)
-    includeAssignment(roots[0]!, true)
+    const root = roots[0]!
+    includeAssignment(root, true)
+    for (const resource of currentByPath.values()) {
+      if (resource.kind === "externalFile" && resource.assignment?.id === root.assignment?.id) {
+        includeExternal(resource, true)
+      }
+    }
   }
 
   function memberCollectionKey(resource: MetadataProjectResourceMatch): string {
-    const declaration = resource.assignment?.fileBackedTarget
+    const declaration = collectionFileBackedTarget(resource)
     if (declaration === undefined) throw new Error(`Ресурс не относится к файловой коллекции: ${resource.projectPath}`)
     return [
       declaration.ownerAssignmentNodeId,
@@ -344,6 +485,21 @@ export function buildPartialXmlImpactPlan(params: {
       throw new Error(`Повторный XML-путь ${target}: ${previous} и ${owner}`)
     }
     payloadOwnersByTarget.set(target, owner)
+  }
+
+  function declaredFileBackedTarget(
+    resource: MetadataProjectResourceMatch,
+  ): CompiledMetadataFileBackedMemberTargetDeclaration | undefined {
+    if (resource.kind === "content") return resource.assignment?.fileBackedTarget
+    if (resource.kind === "externalFile") return resource.externalFile?.fileBackedTarget
+    return undefined
+  }
+
+  function collectionFileBackedTarget(
+    resource: MetadataProjectResourceMatch,
+  ): CompiledMetadataFileBackedMemberTargetDeclaration | undefined {
+    return declaredFileBackedTarget(resource)
+      ?? (resource.kind === "externalFile" ? resource.assignment?.fileBackedTarget : undefined)
   }
 }
 
