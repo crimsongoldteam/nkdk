@@ -52,30 +52,24 @@ export async function createStandaloneServerSession(
     throw missingComponent("ibcmd")
   }
   const connection = parseConnection(params.settings.connectionString)
-  if (connection.type !== "file" && connection.type !== "server") {
+  if (connection.type === "server") {
     throw new PlatformSessionError(
       "unsupported_connection",
-      "Offline-режим ibcmd поддерживает только файловые и клиент-серверные базы"
+      "Автономный режим временно не поддерживает клиент-серверные информационные базы",
     )
   }
-  const database = params.settings.database
+  if (connection.type !== "file") {
+    throw new PlatformSessionError(
+      "unsupported_connection",
+      "Автономный режим поддерживает только файловые информационные базы",
+    )
+  }
 
   const configPath = join(params.sessionDir, "config.yaml")
-  let init
-  if (connection.type === "file") {
-    init = buildStandaloneConfigInit({
-      ibcmdPath,
-      databasePath: connection.path,
-    })
-  } else {
-    if (database === undefined) {
-      throw new PlatformSessionError(
-        "invalid_project_settings",
-        "Для offline-доступа к клиент-серверной базе нужны параметры СУБД"
-      )
-    }
-    init = buildStandaloneConfigInit({ ibcmdPath, database })
-  }
+  const init = buildStandaloneConfigInit({
+    ibcmdPath,
+    databasePath: connection.path,
+  })
   await dependencies.fileSystem.mkdir(params.sessionDir)
   try {
     await dependencies.fileSystem.rm(configPath)

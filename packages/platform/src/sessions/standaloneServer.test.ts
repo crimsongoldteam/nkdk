@@ -51,37 +51,6 @@ describe("standalone server session", () => {
     expect(fixture.calls).toEqual([])
   })
 
-  it("prepares an offline client-server configuration from database credentials", async () => {
-    const fixture = createFixture()
-    const session = await createStandaloneServerSession(
-      createParams({
-        settings: {
-          connectionString: 'Srvr="cluster";Ref="production";',
-          database: {
-            dbms: "PostgreSQL",
-            server: "db.example.local",
-            name: "production",
-            user: "dbuser",
-            password: "dbsecret",
-          },
-        },
-      }),
-      fixture.dependencies
-    )
-    await session.exportConfiguration(
-      "/project/.nkdk/tmp/op/xml",
-      fixture.operationLog,
-      "include"
-    )
-
-    expect(fixture.calls).toContain(
-      "run ibcmd server config init --dbms=PostgreSQL --database-server=db.example.local --database-name=production --database-user=dbuser --database-password=dbsecret timeout=1800000"
-    )
-    expect(fixture.calls).toContain(
-      "run ibcmd infobase config export --force --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=false grace=5000"
-    )
-  })
-
   it("exports only the selected extension", async () => {
     const fixture = createFixture()
     const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
@@ -169,15 +138,27 @@ describe("standalone server session", () => {
     expect(String(error)).not.toContain("secret")
   })
 
-  it("rejects a client-server connection without database credentials", async () => {
+  it("rejects a client-server connection before touching runtime boundaries", async () => {
     const fixture = createFixture()
 
-    await expect(
-      createStandaloneServerSession(
-        createParams({ settings: { connectionString: 'Srvr="server";Ref="base";' } }),
-        fixture.dependencies
-      )
-    ).rejects.toMatchObject({ code: "invalid_project_settings" })
+    const error = await createStandaloneServerSession(
+      createParams({
+        settings: {
+          connectionString: 'Srvr="server";Ref="base";',
+          database: {
+            dbms: "PostgreSQL",
+            server: "database-server",
+            name: "base",
+          },
+        },
+      }),
+      fixture.dependencies,
+    ).catch((caught: unknown) => caught)
+
+    expect(error).toMatchObject({
+      code: "unsupported_connection",
+      message: expect.stringContaining("клиент-сервер"),
+    })
     expect(fixture.calls).toEqual([])
   })
 
