@@ -649,7 +649,13 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     })
     assertAllYAMLMappingKeyReferenceTagsTransported(
       sourceValue,
-      transportPreparation?.transportedLocations ?? [],
+      (location) => transportPreparation?.transportedLocations.some((transported) =>
+        transported.kind === "key"
+        && location.kind === "key"
+        && transported.key === location.key
+        && transported.path.length === location.path.length
+        && transported.path.every((segment, index) => segment === location.path[index])) === true,
+      yamlKey === undefined ? [] : [yamlKey],
     )
     const importSourceValue = transportPreparation?.yamlValue ?? sourceValue
     const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {

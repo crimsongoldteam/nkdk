@@ -23,6 +23,7 @@ import { metadataRules } from "../composition/metadataRules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 import { MetadataSubsystemRules } from "../appliedObjects/metadataSubsystem/rules"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import { mockContext } from "../../tests/mockContext"
 import { functionalOptionsPropertyRule } from "../commonObjects/functionalOptionsProperty/types"
 import { userVisibleRule } from "../commonObjects/userVisible/types"
@@ -139,6 +140,41 @@ it.each([
   } as MetadataItemRule
 
   expect(() => collectProbeReferences(parsed, rule, registry)).toThrow("Неизвестный корень")
+})
+
+it.each([
+  [
+    "атомарного",
+    "Заголовок:\n  !xml/reference \"\": Текст",
+    {
+      itemType: "UnsupportedAtomicBrokenKeyProbe",
+      properties: { title: { type: "I8nText", yaml: "Заголовок" } },
+    },
+    'Заголовок.""',
+  ],
+  [
+    "вложенного",
+    "Форма:\n  Заголовок:\n    !xml/reference \"\": Текст",
+    {
+      itemType: "UnsupportedNestedBrokenKeyProbe",
+      properties: {
+        form: {
+          type: "ClientApplicationForm",
+          yaml: "Форма",
+          itemRule: ClientApplicationFormRules,
+        },
+      },
+    },
+    'Форма.Заголовок.""',
+  ],
+] as const)("сообщает путь неподдержанного ключа %s свойства", (_kind, source, rule, yamlPath) => {
+  const parsed = parseMetadataYaml(source)
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+
+  expect(collectProbeReferences(parsed, rule as MetadataItemRule, registry)).toEqual({
+    ok: false,
+    message: `Тег !xml/reference у ключа не поддерживается типом свойства: ${yamlPath}`,
+  })
 })
 
 it("resolves and preserves a short member reference owned by the sibling type", () => {

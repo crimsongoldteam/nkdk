@@ -84,11 +84,18 @@ export function isRelativeYAMLReferenceTagged(
 
 export function assertAllYAMLMappingKeyReferenceTagsTransported(
   yamlValue: unknown,
-  transportedLocations: readonly BrokenXMLReferenceLocation[],
+  isTransported: (location: BrokenXMLReferenceLocation) => boolean,
+  yamlPath: YamlPath = [],
 ): void {
   for (const location of collectYAMLMappingKeyReferenceTags(yamlValue)) {
-    if (transportedLocations.some((transported) => sameKeyLocation(transported, location))) continue
-    throw new Error("Тег !xml/reference у ключа не поддерживается типом свойства")
+    if (location.kind !== "key") continue
+    if (isTransported(location)) continue
+    const locationPath = [...yamlPath, ...location.path, location.key]
+      .map((segment) => segment === "" ? '""' : String(segment))
+      .join(".")
+    throw new Error(
+      `Тег !xml/reference у ключа не поддерживается типом свойства: ${locationPath}`,
+    )
   }
 }
 
@@ -227,15 +234,4 @@ function collectYAMLMappingKeyReferenceTags(
       [...path, key],
     ),
   ])
-}
-
-function sameKeyLocation(
-  left: BrokenXMLReferenceLocation,
-  right: BrokenXMLReferenceLocation,
-): boolean {
-  return left.kind === "key"
-    && right.kind === "key"
-    && left.key === right.key
-    && left.path.length === right.path.length
-    && left.path.every((segment, index) => segment === right.path[index])
 }
