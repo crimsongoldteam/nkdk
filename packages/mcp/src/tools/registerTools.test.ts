@@ -92,6 +92,12 @@ describe("registerNkdkCapabilities", () => {
     }).success).toBe(false)
     expect(infobaseImportOptions?.outputSchema).toBeDefined()
     expect(infobaseImportOptions?.outputSchema).toBeInstanceOf(z.ZodObject)
+    expect(infobaseImportOptions?.outputSchema?.safeParse({
+      ok: false,
+      code: "confirmation_required",
+      message: "Нужно подтвердить запись",
+      details: { projectDir: "/project", componentPath: "cf" },
+    }).success).toBe(true)
 
     const infobaseSync = server.registerTool.mock.calls.find(
       ([name]) => name === "nkdk.sync_to_infobase"
@@ -129,6 +135,12 @@ describe("registerNkdkCapabilities", () => {
       diagnostics: [],
       packageId: "unexpected",
     }).success).toBe(false)
+    expect(infobaseSyncOutput.safeParse({
+      ok: false,
+      code: "confirmation_required",
+      message: "Нужно подтвердить запись",
+      details: { projectDir: "/project", componentPath: "cf" },
+    }).success).toBe(true)
 
     for (const name of [
       "nkdk.close_platform_connection",

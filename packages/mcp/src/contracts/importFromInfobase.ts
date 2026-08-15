@@ -1,5 +1,5 @@
 import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { publishedToolOutputSchema, toolErrorOutputShape } from "./common"
 import { failedObjectSchema, importWarningSchema } from "./importFromXml"
 import { configurationComponentPathSchema } from "./configurationComponentPath"
 
@@ -91,6 +91,11 @@ export const importFromInfobaseOutputShape = z.union([
   platformFailureSchema,
   z.object(toolErrorOutputShape),
 ])
+
+export const importFromInfobasePublishedOutputSchema = publishedToolOutputSchema(
+  importFromInfobaseSuccessOutputSchema,
+  importFromInfobaseOutputShape,
+)
 
 export type ImportFromInfobaseInput = z.infer<z.ZodObject<typeof importFromInfobaseInputShape>>
 export type ImportFromInfobaseOutput = z.infer<typeof importFromInfobaseOutputShape>

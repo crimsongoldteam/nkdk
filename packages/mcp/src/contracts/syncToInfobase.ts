@@ -1,5 +1,5 @@
 import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { publishedToolOutputSchema, toolErrorOutputShape } from "./common"
 import {
   importResourceReferenceSchema,
   invalidProjectSettingsSchema,
@@ -89,6 +89,11 @@ export const syncToInfobaseOutputShape = z.union([
   unknownDeliverySchema,
   otherErrorSchema,
 ])
+
+export const syncToInfobasePublishedOutputSchema = publishedToolOutputSchema(
+  syncToInfobaseSuccessOutputSchema,
+  syncToInfobaseOutputShape,
+)
 
 export type SyncToInfobaseInput = z.infer<typeof syncToInfobaseInputSchema>
 export type SyncToInfobaseOutput = z.infer<typeof syncToInfobaseOutputShape>
