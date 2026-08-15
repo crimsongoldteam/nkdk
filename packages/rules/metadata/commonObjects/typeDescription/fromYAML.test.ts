@@ -3,7 +3,7 @@ import { mockContext, mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromYAML } from "./fromYAML"
 import { TypeDescriptionYAML } from "./types"
-import { markYAMLScalarTag, taggedYAMLScalar, xmlScalarTagValue, yamlScalarTagAt } from "@nkdk/runtime"
+import { markYAMLScalarTag, taggedYAMLScalar, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
 import { importTaggedTypeDescriptionFromYAML } from "./fromYAML"
 import {
   createDirectRoundTripContexts,
@@ -85,8 +85,8 @@ describe("importTypeDescriptionFromYAML", () => {
 
 describe("importTaggedTypeDescriptionFromYAML", () => {
   const tagged = (payload: string) => {
-    const yaml = { Тип: xmlScalarTagValue(payload) }
-    markYAMLScalarTag(yaml, "Тип", "xml")
+    const yaml = { Тип: xmlAnomalyTagValue("xml/type", payload) }
+    markYAMLScalarTag(yaml, "Тип", "xml/type")
     return yaml
   }
 
@@ -103,8 +103,8 @@ describe("importTaggedTypeDescriptionFromYAML", () => {
   })
 
   it("imports an exact prefix from the in-memory tagged scalar", () => {
-    const yaml = { Тип: taggedYAMLScalar("xml", xmlScalarTagValue("d7p1:Диаграмма")) }
-    markYAMLScalarTag(yaml, "Тип", "xml")
+    const yaml = { Тип: taggedYAMLScalar("xml/type", xmlAnomalyTagValue("xml/type", "d7p1:Диаграмма")) }
+    markYAMLScalarTag(yaml, "Тип", "xml/type")
 
     expect(importTaggedTypeDescriptionFromYAML({
       context: mockContext,
@@ -116,7 +116,7 @@ describe("importTaggedTypeDescriptionFromYAML", () => {
 
   it("ignores a stale tag of an omitted type", () => {
     const yaml = { Тип: undefined }
-    markYAMLScalarTag(yaml, "Тип", "xml")
+    markYAMLScalarTag(yaml, "Тип", "xml/type")
 
     expect(importTaggedTypeDescriptionFromYAML({
       context: mockContext,
@@ -126,8 +126,8 @@ describe("importTaggedTypeDescriptionFromYAML", () => {
     })).toBeUndefined()
   })
 
-  it.each(["Диаграмма", "d7p1:", "d7p1:Строка", "d7p1:Справочник.Товары", "d6p1:Диаграмма"])(
-    "rejects incompatible !xml payload %s",
+  it.each(["Диаграмма", "d7p1:", "d7p1:Chart", "d7p1:Строка", "d7p1:Справочник.Товары", "d6p1:Диаграмма"])(
+    "rejects incompatible !xml/type payload %s",
     (payload) => {
       const yaml = tagged(payload)
       expect(() =>
@@ -137,7 +137,7 @@ describe("importTaggedTypeDescriptionFromYAML", () => {
           yaml,
           value: yaml.Тип,
         })
-      ).toThrow("Тип: недопустимое значение !xml")
+      ).toThrow("Тип: недопустимое значение !xml/type")
     }
   )
 })
@@ -186,8 +186,8 @@ describe("importTypeDescriptionFromYAML with allowedTypes", () => {
     const { contexts, imported } = importRestrictedCompound("CatalogRef.Товары")
     const type = (imported.yaml as { Тип: string[] }).Тип
 
-    expect(type).toEqual(["!xml d6p1:Справочник.Товары", "Строка"])
-    expect(yamlScalarTagAt(type, 0)).toBe("xml")
+    expect(type).toEqual(["!xml/type d6p1:Справочник.Товары", "Строка"])
+    expect(yamlScalarTagAt(type, 0)).toBe("xml/type")
 
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),

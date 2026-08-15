@@ -25,7 +25,7 @@ describe("full XML sync worker pool", () => {
     outputTarget: { kind: "directory", outputDir: "/out" },
     context: {
       version: "2.20",
-      defaultLanguage: "ru",
+      languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
       exportToYAML: { toTyped: false },
     },
     profile: {

@@ -38,6 +38,7 @@ const nativeLmdbTests = [
 const bundleContractTests = [
   "metadata/composition/metadataRules.test.ts",
   "metadata/composition/runtimeSchemaContract.test.ts",
+  "metadata/composition/validationProfile.test.ts",
   "packageExports.test.ts",
 ]
 

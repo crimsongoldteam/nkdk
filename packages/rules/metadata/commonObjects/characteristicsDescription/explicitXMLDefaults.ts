@@ -1,4 +1,4 @@
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_ABSENT_TAG_VALUE } from "@nkdk/runtime"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 
@@ -17,7 +17,7 @@ export const characteristicsDescriptionExplicitXmlRules = defineMetadataRules({
         itemType: "CharacteristicsDescription",
         propertyKey,
         action: "omit" as const,
-        yamlValue: EMPTY_XML_TAG_VALUE,
+        yamlValue: XML_ABSENT_TAG_VALUE,
       }
       return [`CharacteristicsDescription\0${propertyKey}`, registration]
     }),

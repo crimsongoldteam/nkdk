@@ -55,7 +55,7 @@ function contextWithIndex(extraEntities: readonly ConfigurationIndexBlockEntity[
   return {
     collector,
     context: {
-      defaultLanguage: "ru",
+      languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
       version: "2.20",
       exportToXML: {
 
@@ -71,7 +71,7 @@ function contextWithEmptyIndex(): ConfigurationContextWithExportToXML {
   const source = testConfigurationIndexReader()
   const collector = createConfigurationIndexCollector()
   return {
-    defaultLanguage: "ru",
+    languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
     version: "2.20",
     exportToXML: {
       version: "2.20",
@@ -104,7 +104,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
             },
           },
         } as const satisfies MetadataItemRule
-    const yaml = kind === "explicitXML" ? importFromYAML("Режим: !xml") : {}
+    const yaml = kind === "explicitXML" ? importFromYAML("Режим: !xml/present") : {}
     const withoutSnapshot = testPropertyFromYAMLToXML({ rule, yaml }).xml
     const withEmptySnapshot = testPropertyFromYAMLToXML({
       context: contextWithEmptyIndex(),

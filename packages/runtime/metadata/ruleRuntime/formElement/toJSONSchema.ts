@@ -116,6 +116,6 @@ function acceptsExplicitXMLValues(context: ConfigurationContext): boolean {
 
 function explicitXMLNameProperty(context: ConfigurationContext, enabled: true | undefined): TProperties {
   return enabled === true && acceptsExplicitXMLValues(context)
-    ? { Имя: Type.Optional(Type.String({ pattern: "^!xml(?: .*)?$" })) }
+    ? { Имя: Type.Optional(Type.String({ pattern: "^!xml/name(?: .*)?$" })) }
     : {}
 }

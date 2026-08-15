@@ -5,7 +5,7 @@ import {
   testMetadataItemFromYAMLToXML,
 } from "../../../../tests/directConversion"
 import { LabelDecorationRules } from "./rules"
-import { EMPTY_XML_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
 
 describe("LabelDecoration rules", () => {
   it("сохраняет пустой форматированный заголовок в YAML и восстанавливает без reference XML", () => {
@@ -24,8 +24,8 @@ describe("LabelDecoration rules", () => {
       name: "Надпись",
     })
 
-    expect(yaml).toHaveProperty("Заголовок", EMPTY_XML_TAG_VALUE)
-    expect(yamlScalarTagAt(yaml, "Заголовок")).toBe("xml")
+    expect(yaml).toHaveProperty("Заголовок", XML_PRESENT_TAG_VALUE)
+    expect(yamlScalarTagAt(yaml, "Заголовок")).toBe("xml/present")
 
     const { xml } = testMetadataItemFromYAMLToXML({
       rule: LabelDecorationRules,

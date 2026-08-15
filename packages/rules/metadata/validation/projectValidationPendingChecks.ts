@@ -69,7 +69,7 @@ export function validatePendingChecks(params: {
         location: check.location,
         severity: "error",
         source: "structure",
-        message: "!xml для ПутьКДанным требует непустой путь",
+        message: "!xml/value для ПутьКДанным требует непустой путь",
       }))
       continue
     }

@@ -12,7 +12,7 @@ import {
   legacyDataCompositionSchemaDataSetFieldYAML,
 } from "./__fixtures__/data"
 import "./types"
-import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 
 describe("export DataCompositionSchemaDataSetField to XML", () => {
   it("exports full.xml", () => {
@@ -117,9 +117,9 @@ describe("export DataCompositionSchemaDataSetField to XML", () => {
       Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
       ПутьКДанным: "StringTitleField",
       Поле: "StringTitleField",
-      Заголовок: xmlScalarTagValue("String String title"),
+      Заголовок: xmlAnomalyTagValue("xml/type", "String String title"),
     }
-    markYAMLScalarTag(yaml, "Заголовок", "xml")
+    markYAMLScalarTag(yaml, "Заголовок", "xml/type")
     const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
       rule: { type: "DataCompositionSchemaDataSetField" },
       value: undefined,

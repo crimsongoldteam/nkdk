@@ -6,6 +6,7 @@ import { validateFile } from "./validateFile"
 import { validateForm } from "./validateForm"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { createOwnerMetadataCache } from "./dataPath/ownerCache"
+import { createConfigurationLanguages } from "@nkdk/runtime"
 
 export interface ValidateItemParams {
   itemDir: string
@@ -31,7 +32,7 @@ export function validateItem({ itemDir, schema }: ValidateItemParams): Diagnosti
     const cache = createProjectYamlCache()
     const context = {
       version: "2.20",
-      defaultLanguage: "ru",
+      languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
       exportToYAML: { toTyped: false },
     }
     const ownerCache = createOwnerMetadataCache({ projectDir, yamlCache: cache, context })

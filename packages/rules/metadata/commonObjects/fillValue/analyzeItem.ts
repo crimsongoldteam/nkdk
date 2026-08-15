@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "@nkdk/runtime"
+import { createConfigurationLanguages, type ConfigurationContext } from "@nkdk/runtime"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { ParsedYaml } from "@nkdk/runtime"
 import type {
@@ -24,12 +24,16 @@ import {
 } from "./effectiveType"
 import type { FillValueClassification, FillValueTransport } from "./types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
 import { fillValueDiagnostic } from "../../ruleRuntime/property/fillValueSemantics"
 import { effectiveFillValueType } from "../../ruleRuntime/property/fillValueSemantics"
+import { isOrdinaryFillValueItemType } from "./ordinaryItemTypes"
 
-const validationContext: ConfigurationContext = { version: "2.20", defaultLanguage: "ru" }
+const validationContext: ConfigurationContext = {
+  version: "2.20",
+  languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+}
 const fillValueYamlKey = "ЗначениеЗаполнения"
 const typeYamlKey = "Тип"
 const ownerRoots: readonly MetadataRootName[] = [
@@ -111,9 +115,10 @@ function analyzeTransport(
 export function parseFillValueItem(
   item: Readonly<Record<string, unknown>>
 ): { readonly tagged: boolean; readonly value: MetadataTypedValue; readonly transport?: FillValueTransport } | undefined {
-  const tagged = yamlScalarTagAt(item, fillValueYamlKey) === "xml"
+  const tag = yamlScalarTagAt(item, fillValueYamlKey)
+  const tagged = tag === "xml/value" || tag === "xml/reference"
   const rawValue = item[fillValueYamlKey]
-  const payload = tagged && typeof rawValue === "string" ? xmlScalarTagPayload(rawValue) : undefined
+  const payload = tagged && typeof rawValue === "string" ? xmlAnomalyTagPayload(tag, rawValue) : undefined
   if (payload !== undefined && isFillValueTransport(payload)) {
     return {
       tagged: true,
@@ -203,7 +208,7 @@ function designTimeRefDiagnostic(
   params: DependentYamlItemParams,
   fallback: FillValueClassification,
 ): { readonly message: string; readonly severity: "error" | "warning" } | undefined {
-  if (params.itemType === "MetadataAttribute") {
+  if (isOrdinaryFillValueItemType(params.itemType)) {
     const effectiveType = effectiveFillValueType(metadataAttributeType(params.item), params.definedTypeLookup)
     if (effectiveType.status === "unresolved") return { message: effectiveType.reason, severity: "warning" }
     if (effectiveType.status === "known" && effectiveType.alternatives.some(({ kind }) => kind === "reference")) {

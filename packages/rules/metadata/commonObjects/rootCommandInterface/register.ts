@@ -2,11 +2,10 @@ import { Type } from "typebox"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { buildMetadataTargetSchema } from "../metadataTargets"
 import { importMetadataItemLinksFromXML } from "../metadataRef/fromXML"
 import {
   importMetadataItemLinkFromYAML,
-  importMetadataItemLinksFromYAML,
+  importMetadataItemLinksFromYAMLProperty,
 } from "../metadataRef/fromYAML"
 import { exportMetadataItemLinksToXML } from "../metadataRef/toXML"
 import {
@@ -36,6 +35,7 @@ import {
   CommandInterfaceVisibilityXML,
 } from "./types"
 import { RootCommandInterfaceRules } from "./rules"
+import { commandInterfaceSubsystemsOrderSchema } from "./subsystemsOrderSchema"
 
 const placementToYAML = {
   Auto: "Авто",
@@ -587,10 +587,7 @@ const importMetadataItemLinksFromYAMLWithCommandGroups = (
 ): string[] | undefined => value?.map(commandGroupFromYAML)
 
 const exportCommandInterfaceSubsystemsOrderToJSONSchema: ExportToJSONSchemaFn = ({ rule }) => {
-  const subsystemSchema = buildMetadataTargetSchema(
-    rule.metadataTarget ?? { kind: "object", roots: ["Subsystem"], allowNested: true }
-  )
-  return Type.Array(Type.Union([subsystemSchema, Type.Literal("")]))
+  return commandInterfaceSubsystemsOrderSchema(rule)
 }
 
 const importCommandGroupsFromXML = (
@@ -651,7 +648,7 @@ export const metadataPropertyRule022 = definePropertyTypeRule("CommandInterfaceS
 export const metadataPropertyRule023 = definePropertyTypeRule(
   "CommandInterfaceSubsystemsOrder",
   "importFromYAML",
-  importMetadataItemLinksFromYAML
+  importMetadataItemLinksFromYAMLProperty
 )
 export const metadataPropertyRule024 = definePropertyTypeRule(
   "CommandInterfaceSubsystemsOrder",

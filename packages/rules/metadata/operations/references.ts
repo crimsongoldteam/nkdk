@@ -17,6 +17,7 @@ import { defaultMetadataOperationsContext } from "./context"
 import type { MetadataOperationRules } from "./targetResolver"
 import { currentPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import type { PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
+import { collectOmittedExplicitXMLPropertyKeys } from "../ruleRuntime/property/explicitXMLStructuralReferences"
 
 export type StructuralReferenceInput = Pick<
   StructuralYamlReference,
@@ -90,6 +91,8 @@ export function createPropertyStructuralReferenceRuntime(
   const execution = rules?.execution
   const transportRegistry = () => execution ?? currentPropertyRuleRegistrySet<PropertyRuleExecution>()
   return {
+    omittedExplicitXMLPropertyKeys: (params) =>
+      collectOmittedExplicitXMLPropertyKeys(transportRegistry(), params),
     valueFromYAML: (params) => callAtomicFromYAML(
       { ...params, execution } as Parameters<typeof callAtomicFromYAML>[0]
     ),

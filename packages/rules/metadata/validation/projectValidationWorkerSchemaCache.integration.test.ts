@@ -6,7 +6,7 @@ import { MetadataBusinessProcessTabularSectionRules } from "../appliedObjects/me
 
 const context = {
   version: "2.20",
-  defaultLanguage: "ru",
+  languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   exportToYAML: { toTyped: false },
 } as const
 
@@ -27,7 +27,7 @@ describe("projectValidationWorkerSchemaCache", () => {
     rejectsNonObjectForm = cache.form(registeredProjectValidationFormRules()[0]!.rule).Check(42)
     acceptsExplicitStandardAttributes = cache
       .properties(MetadataBusinessProcessTabularSectionRules)
-      .Check({ СтандартныеРеквизиты: "!xml" })
+      .Check({ СтандартныеРеквизиты: "!xml/present" })
   })
 
   it("компилирует runtime cache независимо от расположения worker", () => {

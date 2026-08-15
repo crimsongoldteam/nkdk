@@ -91,11 +91,11 @@ export interface PropertyRuleExecution extends ExplicitXMLPropertyMatcher, Broke
   ): MetadataItemRule | undefined
   getDeclaredPropertyItemRule(propertyType: string): MetadataItemRule | undefined
   getSystemEnumeration(name: string): RegisteredSystemEnumeration | undefined
-  explicitXMLPropertyValidationMode(
+  explicitXMLPropertyValidationTag(
     itemType: string,
     propertyKey: string,
     propertyType?: string,
-  ): "empty" | "scalar" | undefined
+  ): import("../../../yaml/scalarTags").XMLAnomalyTag | undefined
   validationSchemaRef(params: {
     readonly context: ConfigurationContext
     readonly rule: PropertyRule

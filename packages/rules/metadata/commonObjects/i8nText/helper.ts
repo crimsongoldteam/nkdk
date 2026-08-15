@@ -3,11 +3,11 @@ import { I8nText } from "./types"
 
 export const isEmptyI8nText = (context: ConfigurationContext, data: I8nText): boolean => {
   for (const [lang, content] of Object.entries(data.items)) {
-    if (lang === context.defaultLanguage && content !== "") {
+    if (lang === context.languages.default && content !== "") {
       return false
     }
 
-    if (lang !== context.defaultLanguage) {
+    if (lang !== context.languages.default) {
       return false
     }
   }
@@ -39,7 +39,7 @@ export function importI8nTextFromString(params: {
   if (value === undefined) return undefined
   return {
     items: {
-      [context.defaultLanguage]: trim ? value.trim() : value,
+      [context.languages.default]: trim ? value.trim() : value,
     },
   }
 }

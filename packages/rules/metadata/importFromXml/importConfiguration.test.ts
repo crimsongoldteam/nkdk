@@ -9,7 +9,7 @@ import {
   type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
 import type { ConfigurationIndexCandidateStore } from "../configurationIndex/store"
-import type { ComponentAddress } from "@nkdk/runtime"
+import type { ComponentAddress, ConfigurationLanguages } from "@nkdk/runtime"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
@@ -133,6 +133,34 @@ afterEach(async () => {
 })
 
 describe("configuration XML import coordinator", () => {
+  it("builds the XML language registry before worker initialization", async () => {
+    const params = createParams("configuration")
+    const initializedLanguages: ConfigurationLanguages[] = []
+
+    const result = await importConfigurationFromXml(
+      params,
+      fakeDependencies({ calls: [], initializedLanguages }),
+    )
+
+    expect(result.failed).toEqual([])
+    expect(initializedLanguages).toHaveLength(1)
+    expect(initializedLanguages[0]).toMatchObject({ default: "ru", registered: ["ru", "en"] })
+  })
+
+  it("останавливает XML-import до worker при пустом коде языка", async () => {
+    const params = createParams("configuration")
+    fs.writeFileSync(join(params.inputDir, "Languages", "English.xml"), languageXml("English", ""))
+    const calls: string[] = []
+
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls }))
+
+    expect(result.succeeded).toBe(0)
+    expect(result.failed).toEqual([expect.objectContaining({
+      message: expect.stringContaining("поле LanguageCode должно быть непустой строкой"),
+    })])
+    expect(calls).not.toContain("initialize")
+  })
+
   it("останавливается до создания выходных файлов при ожидающем частичном пакете", async () => {
     const calls: string[] = []
     const params = createParams("configuration")
@@ -690,6 +718,11 @@ function createParams(kind: "configuration" | "configurationExtension" | "unknow
         ? configurationExtensionXml()
         : "<MetaDataObject><Unknown/></MetaDataObject>"
   )
+  if (kind === "configuration") {
+    fs.mkdirSync(join(inputDir, "Languages"), { recursive: true })
+    fs.writeFileSync(join(inputDir, "Languages", "Русский.xml"), languageXml("Русский", "ru"))
+    fs.writeFileSync(join(inputDir, "Languages", "English.xml"), languageXml("English", "en"))
+  }
   return {
     context: mockContextFromXML(),
     inputDir,
@@ -704,6 +737,7 @@ function fakeDependencies(params: {
   failurePhase?: FailurePhase
   writtenIndexes?: PublishedCandidate[]
   initialized?: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }>
+  initializedLanguages?: ConfigurationLanguages[]
   discovered?: Array<{
     xmlDir: string
     topology?: CompiledMetadataResourceTopology
@@ -731,6 +765,7 @@ function fakeDependencies(params: {
           params.calls.push("initialize")
           componentDir = initializeParams.outputDir
           selectedComponentPath = initializeParams.componentPath ?? "cf"
+          params.initializedLanguages?.push(initializeParams.context.languages)
           params.initialized?.push({
             outputDir: initializeParams.outputDir,
             componentKind: initializeParams.componentKind,
@@ -976,7 +1011,9 @@ function projectStateWithImportSession(
 }
 
 function createBaseConfiguration(projectDir: string): void {
-  fs.mkdirSync(join(projectDir, "cf"), { recursive: true })
+  fs.mkdirSync(join(projectDir, "cf", "Язык"), { recursive: true })
+  fs.writeFileSync(join(projectDir, "cf", "Конфигурация.yaml"), "ОсновнойЯзык: Язык.Русский\n")
+  fs.writeFileSync(join(projectDir, "cf", "Язык", "Русский.yaml"), "КодЯзыка: ru\n")
 }
 
 function configurationXml(): string {
@@ -985,8 +1022,26 @@ function configurationXml(): string {
   <Configuration>
     <Properties>
       <Name>Основная</Name>
+      <DefaultLanguage>Language.Русский</DefaultLanguage>
     </Properties>
+    <ChildObjects>
+      <Language>Русский</Language>
+      <Language>English</Language>
+    </ChildObjects>
   </Configuration>
+</MetaDataObject>
+`
+}
+
+function languageXml(name: string, code: string): string {
+  return `
+<MetaDataObject>
+  <Language>
+    <Properties>
+      <Name>${name}</Name>
+      <LanguageCode>${code}</LanguageCode>
+    </Properties>
+  </Language>
 </MetaDataObject>
 `
 }

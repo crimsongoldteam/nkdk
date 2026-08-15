@@ -24,13 +24,13 @@ export const metadataChildSynonymProperty = {
     name,
     operation,
   }: {
-    context: { defaultLanguage: string }
+    context: { languages: { readonly default: string } }
     name?: string
     operation?: string
   }) =>
     operation === "importFromYAML" && name
-      ? { items: { [context.defaultLanguage]: splitPascalCase(name) } }
-      : { items: { [context.defaultLanguage]: "" } },
+      ? { items: { [context.languages.default]: splitPascalCase(name) } }
+      : { items: { [context.languages.default]: "" } },
   xmlParents: propertiesParents,
   defaultValueXMLEmpty: { items: {} },
   defaultValueXMLRaw: "",

@@ -2,7 +2,7 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML } from "../../../tests/mockContext"
+import { mockContextFromXML, mockLanguages } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import {
   createImportProjectStateTestService,
@@ -13,7 +13,11 @@ import {
   type ConfigurationProjectFile,
 } from "../../configurationIndex"
 import { configurationIndexStoreDescriptor, openConfigurationIndexStore } from "../../configurationIndex/store"
-import { syncConfigurationFromXML } from "./convertFromXML"
+import {
+  createImportCoordinatorDependencies,
+  importConfigurationFromXml,
+} from "../../importFromXml/importConfiguration"
+import { resolveXmlImportComponent } from "../../importFromXml/componentDescriptor"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
 describe("sync configuration from xml", () => {
@@ -28,9 +32,16 @@ describe("sync configuration from xml", () => {
   )
   const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
   const projectState = createImportProjectStateTestService()
+  const importDependencies = {
+    ...createImportCoordinatorDependencies(resolveXmlImportComponent),
+    loadLanguagesFromXML: async () => mockLanguages,
+  }
   const syncConfigurationFromXMLForTest = (
-    params: Omit<Parameters<typeof syncConfigurationFromXML>[0], "xmlImportWorkerPoolHandle">
-  ) => syncConfigurationFromXML({ ...params, xmlImportWorkerPoolHandle, projectState })
+    params: Omit<Parameters<typeof importConfigurationFromXml>[0], "xmlImportWorkerPoolHandle">
+  ) => importConfigurationFromXml(
+    { ...params, xmlImportWorkerPoolHandle, projectState },
+    importDependencies,
+  )
   const homePageWorkAreaXML = `<?xml version="1.0" encoding="UTF-8"?>
 <HomePageWorkArea xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 \t<WorkingAreaTemplate>TwoColumnsVariableWidth</WorkingAreaTemplate>
@@ -85,6 +96,10 @@ describe("sync configuration from xml", () => {
   }
   let partialImportResult: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
   let fullRootImport: {
+    result: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
+    yaml: string
+  }
+  let emptyClientApplicationInterfaceImport: {
     result: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
     yaml: string
   }
@@ -206,15 +221,32 @@ describe("sync configuration from xml", () => {
       true,
     ).then(({ result }) => result)
     fullRootImport = await importTemporaryConfiguration(join(__dirname, "__fixtures__/full.xml"))
+    emptyClientApplicationInterfaceImport = await importTemporaryConfiguration(
+      join(__dirname, "__fixtures__/full.xml"),
+      false,
+      emptyClientApplicationInterfaceXML,
+    )
   })
 
-  async function importTemporaryConfiguration(xmlPath: string, withCatalogs = false) {
+  async function importTemporaryConfiguration(
+    xmlPath: string,
+    withCatalogs = false,
+    clientApplicationInterfaceXML?: string,
+  ) {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-from-xml-"))
     const rootInput = join(tmp, "xml")
     const rootProject = join(tmp, "project")
     try {
       fs.mkdirSync(withCatalogs ? join(rootInput, "Catalogs") : rootInput, { recursive: true })
       fs.copyFileSync(xmlPath, join(rootInput, CONFIGURATION_XML_FILE))
+      if (clientApplicationInterfaceXML !== undefined) {
+        fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
+        fs.writeFileSync(
+          join(rootInput, "Ext", "ClientApplicationInterface.xml"),
+          clientApplicationInterfaceXML,
+          "utf-8"
+        )
+      }
       const result = await syncConfigurationFromXMLForTest({
         context: mockContextFromXML(),
         inputDir: rootInput,
@@ -252,7 +284,7 @@ describe("sync configuration from xml", () => {
       join("sync/syncConfiguration/yaml/Справочник/Контрагенты", "Свойства.yaml")
     )
 
-    expect(primaryImport.catalogYaml).toBe(expectedCatalogYaml.replaceAll("\r\n", "\n"))
+    expect(primaryImport.catalogYaml).toBe(`${expectedCatalogYaml.replaceAll("\r\n", "\n")}\nВводПоСтроке: []`)
     expect(primaryImport.formYaml).toBe(expectedFormYaml.replaceAll("\r\n", "\n"))
     expect(primaryImport.hasDocument).toBe(true)
     expect(primaryImport.hasNumerator).toBe(true)
@@ -322,6 +354,11 @@ describe("sync configuration from xml", () => {
     expect(yaml).toContain("ОтображениеКомандногоИнтерфейса: Верх")
   })
 
+  it("сохраняет пустой корневой интерфейс приложения, но не создаёт отсутствующий", () => {
+    expect(emptyClientApplicationInterfaceImport.yaml).toContain("ИнтерфейсКлиентскогоПриложения: !xml/present")
+    expect(fullRootImport.yaml).not.toContain("ИнтерфейсКлиентскогоПриложения:")
+  })
+
   it("сохраняет простые корневые внешние файлы конфигурации", () => {
     const managedApplicationModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
     const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
@@ -346,6 +383,15 @@ describe("sync configuration from xml", () => {
     expect(rootExternalFiles.configurationYaml).not.toContain("МодульПриложения")
   })
 })
+
+const emptyClientApplicationInterfaceXML = `<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+  <panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>
+  <panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>
+  <panelDef id="c933ac92-92cd-459d-81cc-e0c8a83ced99"/>
+  <panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+  <panelDef id="b2735bd3-d822-4430-ba59-c9e869693b24"/>
+</ClientApplicationInterface>`
 
 async function readTestConfigurationIndex(projectDir: string): Promise<{
   readonly files: readonly ConfigurationProjectFile[]

@@ -13,7 +13,7 @@ it("exports a named schema through the rules-bound runtime without legacy regist
   const runtime = metadataRules.createRuntime({ workers })
 
   const schema = runtime.schemas.exportByName({
-    context: { defaultLanguage: "ru", version: "2.20" },
+    context: { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "2.20" },
     name: "InputField",
     mode: "externalRefs",
   })

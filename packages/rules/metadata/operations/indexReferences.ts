@@ -2,6 +2,7 @@ import type { ProjectReferenceLocation } from "../projectState/readSession"
 import type { ProjectStateService } from "../projectState/service"
 import type { MetadataOperationCanonicalTargetResult } from "./targetResolver"
 import { openIndexedReferencesResult } from "../workerPool/projectQueries"
+import { createConfigurationLanguages } from "@nkdk/runtime"
 
 export type IndexedOperationReferencesResult =
   | {
@@ -26,7 +27,10 @@ export async function readIndexedOperationReferences(params: {
   const operation = await params.projectState.workers.beginOperation({
     id: `project-query-${Date.now()}-${Math.random()}`,
     concurrency: 1,
-    context: { version: "2.20", defaultLanguage: "ru" },
+    context: {
+      version: "2.20",
+      languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+    },
   })
   let outcome: "success" | "failure" = "success"
   try {

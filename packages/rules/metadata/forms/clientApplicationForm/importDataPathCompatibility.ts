@@ -5,6 +5,7 @@ import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { evaluateDataPathCompatibility, toDataPathPolicyInput } from "../../validation/dataPath/policies"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 import { ClientApplicationFormRules } from "./rules"
+import { xmlAnomalyTagValue } from "@nkdk/runtime"
 
 export function finalizeImportedFormDataPathCompatibility(params: {
   yaml: unknown
@@ -41,8 +42,8 @@ export function finalizeImportedFormDataPathCompatibility(params: {
     })
     if (compatibility.status !== "incompatible") continue
 
-    occurrence.setValue(original.value)
-    occurrence.markTag?.("xml")
+    occurrence.setValue(xmlAnomalyTagValue("xml/value", original.value))
+    occurrence.markTag?.("xml/value")
   }
 }
 

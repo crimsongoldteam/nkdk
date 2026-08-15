@@ -7,7 +7,7 @@ import {
 } from "../ruleRuntime/property/dependentItemRegistry"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { isXMLAnomalyTag, markYAMLScalarTag, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
 import { matchExplicitXMLTransportFromXML } from "../ruleRuntime/property/explicitXMLPropertyRegistry"
 
 export function normalizeImportedDependentItems(params: {
@@ -33,8 +33,8 @@ export function normalizeImportedDependentItems(params: {
       xmlValue: candidate.xmlValue,
     })
     if (transport !== undefined) {
-      item[yamlKey] = xmlScalarTagValue(transport)
-      markYAMLScalarTag(item, yamlKey, "xml")
+      item[yamlKey] = xmlAnomalyTagValue("xml/value", transport)
+      markYAMLScalarTag(item, yamlKey, "xml/value")
       if (
         transport === "Nil" &&
         !shouldRemoveImportedDependentProperty(dependentParamsForCandidate(params, candidate, item))
@@ -46,16 +46,16 @@ export function normalizeImportedDependentItems(params: {
     if (!Object.prototype.hasOwnProperty.call(item, yamlKey)) continue
     const dependentParams = dependentParamsForCandidate(params, candidate, item)
     if (isEmptyDesignTimeRef(candidate)) {
-      item[yamlKey] = xmlScalarTagValue("DesignTimeRef")
-      markYAMLScalarTag(item, yamlKey, "xml")
+      item[yamlKey] = xmlAnomalyTagValue("xml/value", "DesignTimeRef")
+      markYAMLScalarTag(item, yamlKey, "xml/value")
       continue
     }
     const shouldRemove = shouldRemoveImportedDependentProperty(dependentParams)
     if (shouldRemove) {
       const value = item[yamlKey]
       if (hasExplicitXMLText(candidate.xmlValue) && (typeof value === "string" || typeof value === "number")) {
-        item[yamlKey] = xmlScalarTagValue(String(value))
-        markYAMLScalarTag(item, yamlKey, "xml")
+        item[yamlKey] = xmlAnomalyTagValue("xml/value", String(value))
+        markYAMLScalarTag(item, yamlKey, "xml/value")
         continue
       }
       delete item[yamlKey]
@@ -64,12 +64,28 @@ export function normalizeImportedDependentItems(params: {
     }
     const shouldTagXML = shouldTagImportedDependentProperty(dependentParams)
     const value = item[yamlKey]
-    if (shouldTagXML && (typeof value === "string" || typeof value === "number")) {
-      item[yamlKey] = xmlScalarTagValue(String(value))
-      markYAMLScalarTag(item, yamlKey, "xml")
+    const currentTag = yamlScalarTagAt(item, yamlKey)
+    if (
+      shouldTagXML &&
+      !isXMLAnomalyTag(currentTag) &&
+      (typeof value === "string" || typeof value === "number")
+    ) {
+      const anomalyTag = importedDependentAnomalyTag(params, candidate, String(value))
+      item[yamlKey] = xmlAnomalyTagValue(anomalyTag, String(value))
+      markYAMLScalarTag(item, yamlKey, anomalyTag)
     }
   }
   return removed
+}
+
+function importedDependentAnomalyTag(
+  params: Pick<DependentItemParams, "metadataTargetLookup">,
+  candidate: ImportedDependentPropertyCandidate,
+  value: string,
+): "xml/value" | "xml/reference" {
+  return isNamedDesignTimeRef(candidate) && params.metadataTargetLookup?.(value) === "missing"
+    ? "xml/reference"
+    : "xml/value"
 }
 
 export function partitionImportedDependentItems(params: {
@@ -123,6 +139,12 @@ function isEmptyDesignTimeRef(candidate: ImportedDependentPropertyCandidate): bo
   if (!candidate.presentInXML || candidate.xmlValue === null || typeof candidate.xmlValue !== "object") return false
   const value = candidate.xmlValue as Record<string, unknown>
   return Object.keys(value).length === 1 && value["_xsi:type"] === "xr:DesignTimeRef"
+}
+
+function isNamedDesignTimeRef(candidate: ImportedDependentPropertyCandidate): boolean {
+  if (!candidate.presentInXML || candidate.xmlValue === null || typeof candidate.xmlValue !== "object") return false
+  const value = candidate.xmlValue as Record<string, unknown>
+  return value["_xsi:type"] === "xr:DesignTimeRef" && typeof value["#text"] === "string" && value["#text"].length > 0
 }
 
 function hasExplicitXMLText(value: unknown): boolean {

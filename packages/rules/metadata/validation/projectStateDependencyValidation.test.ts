@@ -296,7 +296,7 @@ describe("dependency validation из ProjectState", () => {
 
     expect(diagnostics).toHaveLength(errors)
     if (tagged && status === "found") {
-      expect(diagnostics[0]?.message).toBe("!xml не требуется: ссылка доступна в расширении")
+      expect(diagnostics[0]?.message).toBe("!xml/reference не требуется: ссылка доступна в расширении")
     }
     if (!tagged && status === "missing") {
       expect(diagnostics[0]?.message).toBe(`Не найдена ссылка "${reference.canonical}"`)

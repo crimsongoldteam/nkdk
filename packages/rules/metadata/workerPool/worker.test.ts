@@ -4,7 +4,7 @@ import { createMetadataWorkerCommandHandler } from "./worker"
 import { createMetadataWorkerOperationRegistry } from "./operationRegistry"
 import { createMetadataWorkerOperations } from "../composition/workerOperations"
 
-const context = { defaultLanguage: "ru", version: "8.3.27" }
+const context = { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "8.3.27" }
 
 describe("единая точка входа worker", () => {
   it("uses the operation registry supplied by its entrypoint", async () => {

@@ -14,6 +14,7 @@ import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metada
 import { metadataExternalDataSourceTablePropertyStateCapabilities } from "../../commonObjects/metadataExternalDataSourceTable/propertyStates"
 import { configurationExtensionPropertyStateProfiles } from "./propertyStateProfiles"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
+import { mockLanguages } from "../../../tests/mockContext"
 import { writeExtendedConfigurationObjectYAML } from "./extendedConfigurationObjectYAML"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import { clearedReferencePropertyStateCapabilities, clearedReferenceRule } from "./clearedReference.testFixture"
@@ -634,7 +635,7 @@ function context(params: {
 }): ConfigurationContextWithExportToXML {
   return {
     version: "2.20",
-    defaultLanguage: "ru",
+    languages: mockLanguages,
     exportToXML: {
       version: "2.20",
       itemsTree: [],

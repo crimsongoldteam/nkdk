@@ -101,8 +101,8 @@ describe("PredefinedItem XML → YAML", () => {
     }).yaml as Record<string, any>
     const item = yaml.Значение.Первый
 
-    expect(item.ТипЗначения).toBe("!xml d6p1:Справочник.Товары")
-    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml")
+    expect(item.ТипЗначения).toBe("!xml/type d6p1:Справочник.Товары")
+    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml/type")
   })
 
   it("точно восстанавливает неканонический d6p1 у Type на глубине 1", () => {
@@ -110,8 +110,8 @@ describe("PredefinedItem XML → YAML", () => {
     const { yaml, xml } = roundTrip(source)
     const item = (yaml as Record<string, any>).Значение.Первый
 
-    expect(item.ТипЗначения).toBe("!xml d6p1:Справочник.Товары")
-    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml")
+    expect(item.ТипЗначения).toBe("!xml/type d6p1:Справочник.Товары")
+    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml/type")
     expect(xml).toMatchObject({
       Item: [{
         Type: {
@@ -172,8 +172,8 @@ describe("PredefinedItem XML → YAML", () => {
     const { yaml, xml } = roundTrip(source)
     const type = (yaml as Record<string, any>).Значение.Первый.ТипЗначения
 
-    expect(type).toEqual(["!xml d6p1:Справочник.Товары", "Строка"])
-    expect(yamlScalarTagAt(type, 0)).toBe("xml")
+    expect(type).toEqual(["!xml/type d6p1:Справочник.Товары", "Строка"])
+    expect(yamlScalarTagAt(type, 0)).toBe("xml/type")
     expect(yamlScalarTagAt(type, 1)).toBeUndefined()
     expect(xml).toMatchObject({
       Item: [{

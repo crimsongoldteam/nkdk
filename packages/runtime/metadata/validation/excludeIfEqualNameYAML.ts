@@ -5,6 +5,8 @@ import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/typ
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "./types"
 import { diagnosticAtYamlPath, type YamlPath } from "./yamlLocations"
+import { yamlScalarTagAt } from "../../yaml/scalarTags"
+import { validateLocalizedTextYAMLProperty } from "./localizedTextYAML"
 
 export interface ValidateExcludedEqualNameYAMLParams {
   context: ConfigurationContext
@@ -12,6 +14,7 @@ export interface ValidateExcludedEqualNameYAMLParams {
   parsed: ParsedYaml
   rule: MetadataItemRule
   name: string | undefined
+  onLocalizedTextProperty?: () => void
 }
 
 export function validateExcludedEqualNameYAML(params: ValidateExcludedEqualNameYAMLParams): Diagnostic[] {
@@ -39,6 +42,28 @@ function validateObject(
     if (yamlValue === undefined) continue
 
     const propertyPath = [...params.yamlPath, propRule.yaml]
+    const localizedText = localizedTextValue(propRule, yamlValue)
+    if (localizedText !== undefined) {
+      params.onLocalizedTextProperty?.()
+      const localizedOwner = propRule.type === "FormattedI8nText" ? asRecord(yamlValue) : record
+      const localizedKey = propRule.type === "FormattedI8nText" ? "Текст" : propRule.yaml
+      const localizedPath = propRule.type === "FormattedI8nText" ? [...propertyPath, "Текст"] : propertyPath
+      const issues = validateLocalizedTextYAMLProperty({
+        languages: params.context.languages,
+        value: localizedText,
+        valueTag: localizedOwner === undefined ? undefined : yamlScalarTagAt(localizedOwner, localizedKey),
+        path: localizedPath,
+        foldable: propRule.excludeIfEqualNameYAML === true,
+      })
+      diagnostics.push(...issues.map((issue) => diagnosticAtYamlPath({
+        filePath: params.filePath,
+        parsed: params.parsed,
+        path: issue.path,
+        severity: "error",
+        source: "structure",
+        message: issue.message,
+      })))
+    }
     const occurrence = findExcludedEqualNameYAMLOccurrence({
       context: params.context,
       rule: propRule,
@@ -74,6 +99,12 @@ function validateObject(
   }
 
   return diagnostics
+}
+
+function localizedTextValue(rule: PropertyRule, value: unknown): unknown {
+  if (rule.type === "I8nText") return value
+  if (rule.type !== "FormattedI8nText") return undefined
+  return asRecord(value)?.Текст
 }
 
 function validateNestedItems(

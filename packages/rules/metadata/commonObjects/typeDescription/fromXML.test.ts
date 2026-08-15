@@ -4,7 +4,7 @@ import { importContentFromXML } from "@nkdk/runtime"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToYAML } from "./toYAML"
-import { isTaggedYAMLScalar, xmlScalarTagPayload } from "@nkdk/runtime"
+import { isTaggedYAMLScalar, xmlAnomalyTagPayload } from "@nkdk/runtime"
 import { TypeDescriptionXML } from "./types"
 
 describe("importTypeDescriptionFromXML", () => {
@@ -60,7 +60,8 @@ describe("importTypeDescriptionFromXML", () => {
     const yaml = exportTypeDescriptionToYAML(mockContextFromXML(), mockRule, result)
     expect(isTaggedYAMLScalar(yaml)).toBe(true)
     if (!isTaggedYAMLScalar(yaml)) throw new Error("Expected !xml scalar")
-    expect(xmlScalarTagPayload(yaml.value as string)).toBe("d7p1:Диаграмма")
+    expect(yaml.tag).toBe("xml/type")
+    expect(xmlAnomalyTagPayload("xml/type", yaml.value as string)).toBe("d7p1:Диаграмма")
   })
 
   it("does not mark the canonical type prefix", () => {

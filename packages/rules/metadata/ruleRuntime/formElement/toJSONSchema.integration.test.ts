@@ -15,7 +15,7 @@ import { getElementRule } from "./ruleFactory"
 import { exportElementRuleToJSONSchema } from "./toJSONSchema"
 
 const context = {
-  defaultLanguage: "ru",
+  languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   version: "2.20",
 } as const
 
@@ -71,7 +71,7 @@ describe("form element JSON Schema", () => {
     expect(check.Check("Авто")).toBe(false)
   })
 
-  it("разрешает !xml для HeaderHorizontalAlign табличного поля в validation", () => {
+  it("разрешает !xml/present для HeaderHorizontalAlign табличного поля в validation", () => {
     const session = createValidationSchemaTestSession(context, "inline", {
       excludeImplicitValueYAML: true,
     })
@@ -92,7 +92,7 @@ describe("form element JSON Schema", () => {
     }))
     const check = compileValidationSchema(schemaContext, headerSchema)
 
-    expect(check.Check("!xml")).toBe(true)
+    expect(check.Check("!xml/present")).toBe(true)
     expect(check.Check("Авто")).toBe(false)
     expect(check.Check("!xml Авто")).toBe(false)
   })

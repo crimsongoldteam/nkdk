@@ -66,7 +66,7 @@ describe("export SettingsParameterValueCollection to YAML", () => {
     })
   })
 
-  it("exports the Nil transport as !xml", () => {
+  it("exports the Nil transport as !xml/value", () => {
     const result = testExportPropertyToYAML({
       rule,
       value: {
@@ -75,6 +75,6 @@ describe("export SettingsParameterValueCollection to YAML", () => {
       },
     })
 
-    expect(serializeYAMLDocument(result).text).toContain("Значение: !xml Nil")
+    expect(serializeYAMLDocument(result).text).toContain("Значение: !xml/value Nil")
   })
 })

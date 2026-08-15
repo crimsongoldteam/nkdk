@@ -4,7 +4,8 @@ import { exportToYAML, serializeYAMLDocument } from "./export"
 import { importFromYAML } from "./import"
 import { parseWithJsYaml } from "./jsYamlParser"
 import { parseMetadataYaml } from "./parseMetadataYaml"
-import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "./scalarTags"
+import { markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "./scalarTags"
+import { copyYAMLMappingTag, yamlMappingTagOf } from "./mappingTags"
 
 describe("exportToYAML", () => {
   it.each([
@@ -64,34 +65,64 @@ describe("exportToYAML", () => {
     expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
   })
 
-  it("сериализует строковое значение !xml каноническим локальным тегом", () => {
-    const source = { Значение: "!xml" }
-    markYAMLScalarTag(source, "Значение", "xml")
+  it.each([
+    ["xml/present", "!xml/present", "Значение: !xml/present"],
+    ["xml/absent", "!xml/absent", "Значение: !xml/absent"],
+    ["xml/name", "!xml/name ФункцииExtendedTooltip", "Значение: !xml/name ФункцииExtendedTooltip"],
+    ["xml/type", "!xml/type d7p1:Диаграмма", "Значение: !xml/type d7p1:Диаграмма"],
+    ["xml/value", "!xml/value Nil", "Значение: !xml/value Nil"],
+    ["xml/language", "!xml/language Buttons", "Значение: !xml/language Buttons"],
+    ["xml/duplicate", "!xml/duplicate Группа", "Значение: !xml/duplicate Группа"],
+    [
+      "xml/reference",
+      "!xml/reference 00000000-0000-0000-0000-000000000000",
+      "Значение: !xml/reference 00000000-0000-0000-0000-000000000000",
+    ],
+  ] as const)("сериализует классифицированную XML-аномалию %s", (tag, value, expected) => {
+    const source = { Значение: value }
+    markYAMLScalarTag(source, "Значение", tag)
 
     const serialized = serializeYAMLDocument(source)
     const reparsed = parseMetadataYaml(serialized.text)
 
-    expect(serialized.text).toBe("Значение: !xml")
-    expect(serialized.data).toEqual({ Значение: "!xml" })
-    expect(yamlScalarTagAt(serialized.data, "Значение")).toBe("xml")
-    expect(serialized.data).toEqual(reparsed.data)
-    expect(yamlScalarTagAt(reparsed.data, "Значение")).toBe("xml")
+    expect(serialized.text).toBe(expected)
+    expect(serialized.data).toEqual(source)
+    expect(yamlScalarTagAt(serialized.data, "Значение")).toBe(tag)
+    expect(reparsed.data).toEqual(source)
+    expect(yamlScalarTagAt(reparsed.data, "Значение")).toBe(tag)
   })
 
-  it("сохраняет текст непустого локального тега", () => {
-    const parsed = parseMetadataYaml("Комментарий: !xml Текст")
+  it("сохраняет payload классифицированного тега", () => {
+    const parsed = parseMetadataYaml("Комментарий: !xml/value Текст")
     const data = parsed.data as { Комментарий: string }
 
-    expect(exportToYAML(data)).toBe("Комментарий: !xml Текст")
-    expect(data).toEqual({ Комментарий: "!xml Текст" })
-    expect(xmlScalarTagPayload(data.Комментарий)).toBe("Текст")
+    expect(exportToYAML(data)).toBe("Комментарий: !xml/value Текст")
+    expect(data).toEqual({ Комментарий: "!xml/value Текст" })
+    expect(xmlAnomalyTagPayload("xml/value", data.Комментарий)).toBe("Текст")
   })
 
-  it("exports a marked scalar with the local xml tag", () => {
-    const data = { Поле: "Авто" }
-    markYAMLScalarTag(data, "Поле", "xml")
+  it("сериализует и сохраняет mapping-тег нарушения порядка", () => {
+    const parsed = parseMetadataYaml("Заголовок: !xml/order\n  en: Text\n  ru: Текст\n")
+    const title = (parsed.data as { Заголовок: Record<string, string> }).Заголовок
+    const copied = { ...title }
+    copyYAMLMappingTag(title, copied)
 
-    expect(exportToYAML(data)).toBe("Поле: !xml Авто")
+    const serialized = serializeYAMLDocument({ Заголовок: copied })
+    const reparsed = parseMetadataYaml(serialized.text)
+    const reparsedTitle = (reparsed.data as { Заголовок: Record<string, string> }).Заголовок
+
+    expect(serialized.text).toBe("Заголовок: !xml/order\n  en: Text\n  ru: Текст")
+    expect(serialized.data).toEqual({ Заголовок: copied })
+    expect(yamlMappingTagOf((serialized.data as { Заголовок: object }).Заголовок)).toBe("xml/order")
+    expect(yamlMappingTagOf(reparsedTitle)).toBe("xml/order")
+  })
+
+  it("сохраняет порядок числовых ключей в mapping с !xml/order", () => {
+    const parsed = parseMetadataYaml("Заголовок: !xml/order\n  '10': Ten\n  '2': Two\n")
+
+    expect(serializeYAMLDocument(parsed.data).text).toBe(
+      'Заголовок: !xml/order\n  "10": Ten\n  "2": Two',
+    )
   })
 
   it("preserves explicit string style in serialized semantic data", () => {
@@ -101,10 +132,10 @@ describe("exportToYAML", () => {
     expect(asExplicitYAMLStringIfMarked(outer, "Значение", outer.Значение)).toEqual(explicitYAMLString("001"))
   })
 
-  it("preserves the local xml tag across parse and export", () => {
-    const parsed = parseWithJsYaml("Поле: !xml Авто")
+  it("preserves a classified local xml tag across parse and export", () => {
+    const parsed = parseWithJsYaml("Поле: !xml/value Авто")
 
-    expect(exportToYAML(parsed.data)).toBe("Поле: !xml Авто")
+    expect(exportToYAML(parsed.data)).toBe("Поле: !xml/value Авто")
   })
 
   it("preserves newline-only block scalar values", () => {

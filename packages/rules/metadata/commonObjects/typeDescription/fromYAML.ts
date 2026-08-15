@@ -2,7 +2,7 @@ import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleR
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
-import { ConfigurationContext, isTaggedYAMLScalar, xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { ConfigurationContext, isTaggedYAMLScalar, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { assertTypeDescriptionYAMLAllowed, METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
@@ -56,7 +56,7 @@ export function parseTypeDescriptionYAML(value: unknown): TypeDescription | unde
   const sourceValues = Array.isArray(value) ? value : [value]
   const stringValues = sourceValues.flatMap((item, index) =>
     typeof item === "string" && item.trim() !== ""
-      ? [{ value: item, tagged: Array.isArray(value) && yamlScalarTagAt(value, index) === "xml" }]
+      ? [{ value: item, tagged: Array.isArray(value) && yamlScalarTagAt(value, index) === "xml/type" }]
       : []
   )
   if (stringValues.length === 0) return undefined
@@ -151,14 +151,14 @@ export const importTypeDescriptionFromYAML = (
 function semanticTypeDescriptionYAML(value: TypeDescriptionYAML): TypeDescriptionYAML {
   if (!Array.isArray(value)) return value
   return value.map((item, index) =>
-    yamlScalarTagAt(value, index) === "xml" ? semanticTaggedType(item) : item
+    yamlScalarTagAt(value, index) === "xml/type" ? semanticTaggedType(item) : item
   ) as TypeDescriptionYAML
 }
 
 function semanticTaggedType(value: unknown): unknown {
-  const scalar = isTaggedYAMLScalar(value) && value.tag === "xml" ? value.value : value
+  const scalar = isTaggedYAMLScalar(value) && value.tag === "xml/type" ? value.value : value
   if (typeof scalar !== "string") return value
-  const payload = xmlScalarTagPayload(scalar)
+  const payload = xmlAnomalyTagPayload("xml/type", scalar)
   const separator = payload.indexOf(":")
   return separator <= 0 ? value : payload.slice(separator + 1)
 }
@@ -178,10 +178,10 @@ const isCompatibleGeneratedPrefix = (prefix: string, type: string): boolean => {
 }
 
 const parseTaggedTypeDescription = (propertyName: string, value: unknown): TypeDescription => {
-  const error = `${propertyName}: недопустимое значение !xml для типа`
-  const scalar = isTaggedYAMLScalar(value) && value.tag === "xml" ? value.value : value
+  const error = `${propertyName}: недопустимое значение !xml/type для типа`
+  const scalar = isTaggedYAMLScalar(value) && value.tag === "xml/type" ? value.value : value
   if (typeof scalar !== "string") throw new Error(error)
-  const payload = xmlScalarTagPayload(scalar)
+  const payload = xmlAnomalyTagPayload("xml/type", scalar)
   const separator = payload.indexOf(":")
   if (separator <= 0 || separator === payload.length - 1) throw new Error(error)
   const prefix = payload.slice(0, separator)
@@ -198,6 +198,12 @@ const parseTaggedTypeDescription = (propertyName: string, value: unknown): TypeD
   const type = parsed.type[0]!
   const dot = type.indexOf(".")
   const rule = getTypeDescriptionRule(dot === -1 ? type : type.slice(0, dot))
+  const expectedYamlType = rule === undefined
+    ? undefined
+    : dot === -1
+      ? rule.enterprise
+      : `${rule.enterprise}.${type.slice(dot + 1)}`
+  if (yamlType !== expectedYamlType) throw new Error(error)
   const namespace = rule?.prefix === "cfg" ? currentConfigNamespace : rule?.namespace
   if (namespace === undefined || !isCompatibleGeneratedPrefix(prefix, type)) throw new Error(error)
 
@@ -211,12 +217,12 @@ const parseTaggedTypeDescription = (propertyName: string, value: unknown): TypeD
 export const importTaggedTypeDescriptionFromYAML: ImportFromYAMLFunctionNew = (params) => {
   const propertyName = params.rule.yaml ?? "Тип"
   if (params.value === undefined) return undefined
-  if (yamlScalarTagAt(params.yaml, propertyName) === "xml") {
+  if (yamlScalarTagAt(params.yaml, propertyName) === "xml/type") {
     const parsed = parseTaggedTypeDescription(propertyName, params.value)
     if (params.rule.allowedTypes !== undefined) {
       const scalar = isTaggedYAMLScalar(params.value) ? params.value.value : params.value
-      if (typeof scalar !== "string") throw new Error(`${propertyName}: недопустимое значение !xml для типа`)
-      const payload = xmlScalarTagPayload(scalar)
+      if (typeof scalar !== "string") throw new Error(`${propertyName}: недопустимое значение !xml/type для типа`)
+      const payload = xmlAnomalyTagPayload("xml/type", scalar)
       assertTypeDescriptionYAMLAllowed({ value: payload.slice(payload.indexOf(":") + 1), allowedTypes: params.rule.allowedTypes })
     }
     return parsed

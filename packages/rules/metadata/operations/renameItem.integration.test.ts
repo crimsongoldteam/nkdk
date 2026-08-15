@@ -416,7 +416,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
 
   it.each([
     ["обычном", ""],
-    ["tagged", "!xml "],
+    ["tagged", "!xml/value "],
   ] as const)("переписывает ссылку и сохраняет тег в %s DataPath", async (_case, tagPrefix) => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])

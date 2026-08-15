@@ -4,6 +4,7 @@ import { performance } from "node:perf_hooks"
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { hashFileBytes } from "@nkdk/runtime"
 import { parseMetadataYaml } from "@nkdk/runtime"
+import { rehydrateConfigurationContext } from "@nkdk/runtime"
 import {
   createProjectStateFileUpdateBatch,
   type ProjectStateFileIdentity,
@@ -145,13 +146,15 @@ export async function runPreparedYamlProjectWorkerTask(
   } = {},
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   if (message.kind === "initValidation") {
+    const context = rehydrateConfigurationContext(message.context)
+    validationContext = context
     const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
     validationSchemaCache = options.persistentValidationState?.schemaCache ?? await profiler.measureAsync(
       "Инициализация",
       "Инициализация validation worker",
       { items: 1 },
       () => (options.createValidationSchemaCache ?? createProjectValidationWorkerSchemaCache)({
-        context: message.context,
+        context,
       })
     )
     validationRulesSnapshot = options.persistentValidationState?.rulesSnapshot ?? message.rulesSnapshot
@@ -171,7 +174,7 @@ export async function runPreparedYamlProjectWorkerTask(
     const result = runValidationFirstPass({
       workerIndex: message.workerIndex,
       projectDir: message.projectDir,
-      context: message.context,
+      context: requireValidationContext(),
       files: message.files.map((descriptor) => ({ descriptor })),
     })
     return {
@@ -228,6 +231,7 @@ async function refreshProjectStateFiles(
     classifyProjectStateFile?: typeof classifyChangedProjectStateFile
   },
 ): Promise<MetadataWorkerBinaryResult> {
+  const context = requireValidationContext()
   const profileEnabled = process.env["NKDK_PROFILE"] === "1"
   const profiler = profileEnabled
     ? createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
@@ -279,7 +283,7 @@ async function refreshProjectStateFiles(
           yamlValidation ??= createValidationFirstPassAccumulator(message.workerIndex)
           const parsed = processValidationFirstPassFile(yamlValidation, {
             projectDir: message.projectDir,
-            context: message.context,
+            context,
             descriptor: classified.descriptor,
             bytes,
             hash: currentHash,
@@ -526,6 +530,7 @@ function estimateProfilePayloadBytes(value: unknown): number | undefined {
 let validationSchemaCache: ValidationSchemaCache | undefined
 let validationRulesSnapshot: ValidationRulesSnapshot | undefined
 let validationRuntime: ValidationRegistrySet | undefined
+let validationContext: ConfigurationContext | undefined
 let projectStateComponentTemplates: {
   readonly configuration: ValidationProjectComponent
   readonly configurationExtension: ValidationProjectComponent
@@ -916,4 +921,9 @@ function requireValidationSchemaCache(): ValidationSchemaCache {
 function requireValidationRulesSnapshot(): ValidationRulesSnapshot {
   if (validationRulesSnapshot === undefined) throw new Error("Prepared YAML worker rulesSnapshot не инициализирован")
   return validationRulesSnapshot
+}
+
+function requireValidationContext(): ConfigurationContext {
+  if (validationContext === undefined) throw new Error("Prepared YAML worker context не инициализирован")
+  return validationContext
 }

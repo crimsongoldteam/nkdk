@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { EMPTY_XML_TAG_VALUE, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
 import {
   testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
@@ -14,11 +14,11 @@ describe("пустые виды субконто предопределённо�
       name: "Основной",
     }).yaml as Record<string, unknown>
 
-    expect(imported.ВидыСубконто).toBe(EMPTY_XML_TAG_VALUE)
-    expect(yamlScalarTagAt(imported, "ВидыСубконто")).toBe("xml")
+    expect(imported.ВидыСубконто).toBe(XML_PRESENT_TAG_VALUE)
+    expect(yamlScalarTagAt(imported, "ВидыСубконто")).toBe("xml/present")
 
-    const yaml = { ВидыСубконто: EMPTY_XML_TAG_VALUE }
-    markYAMLScalarTag(yaml, "ВидыСубконто", "xml")
+    const yaml = { ВидыСубконто: XML_PRESENT_TAG_VALUE }
+    markYAMLScalarTag(yaml, "ВидыСубконто", "xml/present")
     expect(testMetadataItemFromYAMLToXML({
       rule: ChartOfAccountsPredefinedItemRules,
       yaml,

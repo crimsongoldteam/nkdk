@@ -2,6 +2,7 @@ import { compileMetadataPathIndex } from "./pathIndex"
 import { joinMetadataPathPatterns } from "./patterns"
 import type {
   CompiledMetadataAssignmentNode,
+  CompiledMetadataAssignmentInputNode,
   CompiledMetadataExternalFileNode,
   CompiledMetadataFileBackedMemberTargetDeclaration,
   CompiledMetadataIgnoredPathNode,
@@ -25,6 +26,7 @@ interface MutableAssignment extends Omit<MetadataContentDeclaration, "fileBacked
   fileBackedTarget?: CompiledMetadataFileBackedMemberTargetDeclaration
   readonly xmlDocuments: CompiledMetadataXmlDocumentNode[]
   readonly yamlCompanions: CompiledMetadataYamlCompanionNode[]
+  readonly assignmentInputs: CompiledMetadataAssignmentInputNode[]
   readonly externalFiles: CompiledMetadataExternalFileNode[]
 }
 
@@ -52,6 +54,9 @@ export function compileMetadataResourceTopology<Spec extends MetadataResourceTop
       ...frozenAssignments.map((assignment) => [assignment.id, assignment.projectPattern] as const),
       ...frozenAssignments.flatMap((assignment) =>
         assignment.yamlCompanions.map((companion) => [companion.id, companion.projectPattern] as const)
+      ),
+      ...frozenAssignments.flatMap((assignment) =>
+        assignment.assignmentInputs.map((input) => [input.id, input.projectPattern] as const)
       ),
       ...frozenAssignments.flatMap((assignment) =>
         assignment.externalFiles.map((file) => [file.id, file.projectPattern] as const)
@@ -95,6 +100,7 @@ function compileDeclarations(
           : { ownerProjectPattern: declaration.ownerProjectPattern ?? context.ownerProjectPattern }),
         xmlDocuments: [],
         yamlCompanions: [],
+        assignmentInputs: [],
         externalFiles: [],
       }
       assignments.push(currentAssignment)
@@ -156,6 +162,16 @@ function compileDeclarations(
       assignment.yamlCompanions.push({
         ...declaration,
         id: stableId("yamlCompanion", assignment.projectPattern, projectPattern),
+        projectPattern,
+      })
+      continue
+    }
+
+    if (declaration.kind === "assignmentInput") {
+      const projectPattern = joinMetadataPathPatterns(context.projectBasePattern, declaration.projectPattern)
+      assignment.assignmentInputs.push({
+        ...declaration,
+        id: stableId("assignmentInput", assignment.projectPattern, projectPattern),
         projectPattern,
       })
       continue
@@ -282,6 +298,7 @@ function freezeAssignment(assignment: MutableAssignment): CompiledMetadataAssign
     ...assignment,
     xmlDocuments: Object.freeze([...assignment.xmlDocuments]),
     yamlCompanions: Object.freeze([...assignment.yamlCompanions]),
+    assignmentInputs: Object.freeze([...assignment.assignmentInputs]),
     externalFiles: Object.freeze([...assignment.externalFiles]),
   })
 }

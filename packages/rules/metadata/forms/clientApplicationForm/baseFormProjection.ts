@@ -1,4 +1,5 @@
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
+import { copyYAMLScalarTags } from "@nkdk/runtime"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { resolveFormElementRule } from "../elements/ruleRuntime/fromYAMLToXML"
 import type { FormElementTreeNodeYAML, FormElementTreeYAML } from "../commonObjects/childItems/types"
@@ -167,6 +168,7 @@ function projectElementSelection(params: {
     Вид: params.baseElement.Вид,
     ...properties,
   }
+  copyYAMLScalarTags(properties, result)
 
   if (params.baseElement.Элементы !== undefined) {
     const childCollectionRule = propertyRuleByYamlKey(baseRule, "Элементы")
@@ -218,6 +220,7 @@ function normalizeProjectionAliases(
   aliases: Readonly<Record<string, string>>
 ): Record<string, unknown> {
   const result = { ...yaml }
+  copyYAMLScalarTags(yaml, result)
   for (const [ruleYamlKey, treeYamlKey] of Object.entries(aliases)) {
     if (Object.hasOwn(yaml, treeYamlKey)) {
       result[ruleYamlKey] = yaml[treeYamlKey]
@@ -234,13 +237,14 @@ function restoreProjectionAliases(
   aliases: Readonly<Record<string, string>>
 ): Record<string, unknown> {
   const result = { ...projected }
+  copyYAMLScalarTags(projected, result)
   for (const [ruleYamlKey, treeYamlKey] of Object.entries(aliases)) {
     if (Object.hasOwn(result, ruleYamlKey)) {
       result[treeYamlKey] = result[ruleYamlKey]
       delete result[ruleYamlKey]
     }
   }
-  return {
+  const restored = {
     ...Object.fromEntries(
       Object.keys(aliases).flatMap((ruleYamlKey) =>
         Object.hasOwn(baseYaml, ruleYamlKey)
@@ -250,6 +254,8 @@ function restoreProjectionAliases(
     ),
     ...result,
   }
+  copyYAMLScalarTags(result, restored)
+  return restored
 }
 
 function projectMetadataItemProperties(params: {
@@ -303,6 +309,7 @@ function projectMetadataItemProperties(params: {
         : intersectBaseFormValues(projection.value, extensionValue)
   }
 
+  copyYAMLScalarTags(params.baseYaml, result)
   return result
 }
 

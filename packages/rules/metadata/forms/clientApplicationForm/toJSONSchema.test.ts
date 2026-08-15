@@ -46,7 +46,7 @@ describe("ClientApplicationForm exportToJSONSchema type rule", () => {
     })
 
     expect(JSON.stringify(internal)).toContain('"Имя"')
-    expect(JSON.stringify(internal)).toContain("^!xml")
+    expect(JSON.stringify(internal)).toContain("^!xml/name")
     expect(JSON.stringify(external)).not.toContain('"Имя"')
   })
 

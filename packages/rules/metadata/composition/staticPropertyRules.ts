@@ -381,6 +381,14 @@ import { metadataPropertyRule004 as rule381 } from "../commonObjects/inputByStri
 import { metadataPropertyRule005 as rule382 } from "../commonObjects/inputByStringFields/propertyRules"
 import { metadataPropertyRule006 as rule383 } from "../commonObjects/inputByStringFields/propertyRules"
 import { metadataPropertyRule007 as rule384 } from "../commonObjects/inputByStringFields/propertyRules"
+import { metadataPropertyRule008 as rule389 } from "../commonObjects/inputByStringFields/propertyRules"
+import { metadataPropertyRule000 as rule390 } from "../forms/elements/popup/extendedTooltip"
+import { metadataPropertyRule001 as rule391 } from "../forms/elements/popup/extendedTooltip"
+import { metadataPropertyRule002 as rule392 } from "../forms/elements/popup/extendedTooltip"
+import { metadataPropertyRule003 as rule393 } from "../forms/elements/popup/extendedTooltip"
+import { metadataPropertyRule004 as rule394 } from "../forms/elements/popup/extendedTooltip"
+import { metadataPropertyRule000 as rule395 } from "../commonObjects/formattedI8nText/toXML"
+import { metadataPropertyRule000 as rule396 } from "../commonObjects/i8nText/toXML"
 
 import { propertyTypesFromContributions } from "../ruleRuntime/property/propertyRuleRegistrySet"
 
@@ -768,4 +776,12 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule386,
   rule387,
   rule388,
+  rule389,
+  rule390,
+  rule391,
+  rule392,
+  rule393,
+  rule394,
+  rule395,
+  rule396,
 ])

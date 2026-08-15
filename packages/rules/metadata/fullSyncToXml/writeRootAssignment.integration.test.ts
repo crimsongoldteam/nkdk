@@ -29,11 +29,10 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     return dir
   }
 
-  it("writes Configuration.xml from prepared YAML and project composition", async () => {
-    const projectDir = tempDir()
+  function prepareConfigurationYaml(projectDir: string, yaml: string) {
     const sourcePath = join(projectDir, "Конфигурация.yaml")
-    fs.writeFileSync(sourcePath, "Имя: Конфигурация\n")
-    const prepared = prepareYamlFiles({
+    fs.writeFileSync(sourcePath, yaml)
+    return prepareYamlFiles({
       files: [
         {
           projectPath: "Конфигурация.yaml",
@@ -44,7 +43,34 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
         },
       ],
       itemTypeByYamlDir: {},
+    }).yamlFiles[0]!
+  }
+
+  async function writeRoot(
+    projectDir: string,
+    preparedYamlFile: ReturnType<typeof prepareConfigurationYaml>,
+    assignments: readonly FullXmlSyncAssignment[],
+    index = testConfigurationIndexReader()
+  ) {
+    const context = mockContextToXML()
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment: assignments[0]!,
+      composition: createFullXmlSyncCompositionReader(createFullXmlSyncCompositionSnapshot(assignments)),
+      preparedYamlFile,
+      context,
+      index,
     })
+    return writeFullXmlSyncAssignment({
+      prepared,
+      context,
+      outputTarget: { kind: "directory", outputDir: join(projectDir, "xml") },
+    })
+  }
+
+  it("writes Configuration.xml from prepared YAML and project composition", async () => {
+    const projectDir = tempDir()
+    const sourcePath = join(projectDir, "Конфигурация.yaml")
+    const prepared = prepareConfigurationYaml(projectDir, "Имя: Конфигурация\n")
     fs.rmSync(sourcePath)
     const root = configurationAssignment(projectDir)
     const assignments = [
@@ -54,19 +80,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
       flatSessionParameterAssignment(projectDir, "ТекущийПользователь"),
     ]
 
-    const context = mockContextToXML()
-    const preparedAssignment = prepareFullXmlSyncAssignment({
-      assignment: root,
-      composition: createFullXmlSyncCompositionReader(createFullXmlSyncCompositionSnapshot(assignments)),
-      preparedYamlFile: prepared.yamlFiles[0]!,
-      context,
-      index: testConfigurationIndexReader(),
-    })
-    const result = await writeFullXmlSyncAssignment({
-      prepared: preparedAssignment,
-      context,
-      outputTarget: { kind: "directory", outputDir: join(projectDir, "xml") },
-    })
+    const result = await writeRoot(projectDir, prepared, assignments)
 
     expect(result.diagnostics).toEqual([])
     expect(result.writtenFiles).toEqual([{ assignmentId: root.id, targetXmlPath: "Configuration.xml" }])
@@ -80,22 +94,24 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
   })
 
+  it("materializes an empty ClientApplicationInterface from !xml/present", async () => {
+    const projectDir = tempDir()
+    const prepared = prepareConfigurationYaml(
+      projectDir,
+      "Имя: Конфигурация\nИнтерфейсКлиентскогоПриложения: !xml/present\n"
+    )
+    const root = configurationAssignment(projectDir)
+    const result = await writeRoot(projectDir, prepared, [root])
+
+    expect(result.diagnostics).toEqual([])
+    const xml = fs.readFileSync(join(projectDir, "xml", "Ext", "ClientApplicationInterface.xml"), "utf-8")
+    expect(xml.match(/<panelDef id=/gu)).toHaveLength(5)
+  })
+
   it("restores ChildObjects order from the configuration index", async () => {
     const projectDir = tempDir()
     const sourcePath = join(projectDir, "Конфигурация.yaml")
-    fs.writeFileSync(sourcePath, "Имя: Конфигурация\n")
-    const prepared = prepareYamlFiles({
-      files: [
-        {
-          projectPath: "Конфигурация.yaml",
-          filePath: sourcePath,
-          role: "configuration",
-          owner: { dir: "", name: "Конфигурация" },
-          itemType: "MetadataConfiguration",
-        },
-      ],
-      itemTypeByYamlDir: {},
-    })
+    const prepared = prepareConfigurationYaml(projectDir, "Имя: Конфигурация\n")
     fs.rmSync(sourcePath)
     const root = configurationAssignment(projectDir)
     const assignments = [
@@ -113,19 +129,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
         },
       ])
 
-    const context = mockContextToXML()
-    const preparedAssignment = prepareFullXmlSyncAssignment({
-      assignment: root,
-      composition: createFullXmlSyncCompositionReader(createFullXmlSyncCompositionSnapshot(assignments)),
-      preparedYamlFile: prepared.yamlFiles[0]!,
-      context,
-      index,
-    })
-    await writeFullXmlSyncAssignment({
-      prepared: preparedAssignment,
-      context,
-      outputTarget: { kind: "directory", outputDir: join(projectDir, "xml") },
-    })
+    await writeRoot(projectDir, prepared, assignments, index)
 
     const xml = fs.readFileSync(join(projectDir, "xml", "Configuration.xml"), "utf-8")
     expect(xml.indexOf("<Catalog>Товары</Catalog>")).toBeLessThan(

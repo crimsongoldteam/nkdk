@@ -15,7 +15,7 @@ import { exportPropertyValueToYAML } from "../ruleRuntime/property/toYAML"
 import { getElementRule } from "../ruleRuntime/formElement/ruleFactory"
 import { enterNestedYamlRule, enterYamlProperty } from "../ruleRuntime/property/yamlRuleCursor"
 import type { YamlRuleCursor } from "@nkdk/runtime/rule-kit"
-import type { ParsedYaml } from "@nkdk/runtime"
+import { createConfigurationLanguages, type ConfigurationContext, type ParsedYaml } from "@nkdk/runtime"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -41,9 +41,11 @@ import {
 } from "./rulesSnapshot"
 import {
   collectStructuralYamlReferences,
+  isRelativeYAMLScalarTagged,
   type StructuralReferenceNestedRule,
   type StructuralReferenceRuntime,
 } from "./structuralReferences"
+import { resolveDeferredPropertyRule } from "../ruleRuntime/property/finalizeImportedYAML"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
@@ -60,7 +62,7 @@ import { createFormDataPathIndexFromYAML } from "./dataPath/formYamlIndex"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 import type { FormElementNameCollectorView, FormStructuredComponent } from "./formContracts"
 import { requireFormValidationAdapter } from "./formValidationRegistry"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import {
   collectAddressableMetadataObjectEntries,
   objectTargetForProjectFile,
@@ -71,6 +73,7 @@ import type { ProjectStateStructuredDocumentEntry } from "../projectState/contra
 import { collectConfigurationExtensionPropertyStateDocuments } from "./configurationExtensionPropertyStateFacts"
 import { configurationExtensionStructureDocument } from "../ruleRuntime/property/configurationExtensionStructureFacts"
 import { traverseMetadataRuleYaml } from "./metadataRuleYamlTraversal"
+import { collectOmittedExplicitXMLPropertyKeys } from "../ruleRuntime/property/explicitXMLStructuralReferences"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -82,6 +85,7 @@ export interface ValidationYamlFacts {
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
   localValueValidationProfile: LocalValueValidationProfile
+  localizedTextProperties: number
   fieldIndex?: ObjectFieldIndex
   formDataPathIndex?: FormDataPathIndex
   localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
@@ -102,10 +106,13 @@ export function extractValidationYamlFacts(params: {
   runtime?: ValidationRegistrySet
   propertyStateCompatibilityMode?: string
   borrowedLogicalAddresses?: ReadonlySet<string>
+  context?: ConfigurationContext
 }): ValidationYamlFacts {
   const validationDiagnostics = params.validationDiagnostics !== false
   if (params.file.kind === "form") {
-    return validationDiagnostics ? extractFormYamlFacts(params.file, params.parsed, params.runtime) : emptyFacts()
+    return validationDiagnostics
+      ? extractFormYamlFacts(params.file, params.parsed, params.context, params.runtime)
+      : emptyFacts()
   }
 
   const spec = findValidationRulesItem(
@@ -221,6 +228,7 @@ export function extractValidationYamlFacts(params: {
         ]
       : [],
     localValueValidationProfile,
+    localizedTextProperties: 0,
     localIndexes,
     ...(structuredDocuments.length === 0
       ? {}
@@ -402,6 +410,7 @@ function emptyFacts(): ValidationYamlFacts {
     pendingChecks: [],
     diagnostics: [],
     localValueValidationProfile: {},
+    localizedTextProperties: 0,
   }
 }
 
@@ -539,7 +548,7 @@ function collectPendingReferences(params: {
   localValueValidationProfile: LocalValueValidationProfile
   collector: LocalIndexesCollector
   fileOwner: ValidationProjectFile["owner"]
-  rulePath: readonly { propertyKey: string }[]
+  rulePath: readonly { propertyKey: string; nestedItemType?: string }[]
   rootYaml: unknown
   rootRule: MetadataItemRule
   validationDiagnostics: boolean
@@ -554,7 +563,15 @@ function collectPendingReferences(params: {
     const value = valueAtPath(record, property.yamlPath)
     if (value === undefined) continue
     const yamlPath = [...params.yamlPath, ...property.yamlPath]
-    const rulePath = [...params.rulePath, { propertyKey: property.modelKey }]
+    const rulePath = [
+      ...params.rulePath,
+      {
+        propertyKey: property.modelKey,
+        ...(property.nestedItemType === undefined
+          ? {}
+          : { nestedItemType: property.nestedItemType }),
+      },
+    ]
     if (property.type !== undefined) {
       if (params.validationDiagnostics) {
         collectLocalValueValidation({
@@ -583,6 +600,12 @@ function collectPendingReferences(params: {
     }
 
     if (property.metadataTarget !== undefined) {
+      const execution = params.runtime?.rules.execution
+        ?? currentPropertyRuleRegistrySet<PropertyRuleExecution>()
+      const propertyRule = execution === undefined
+        ? undefined
+        : resolveDeferredPropertyRule(params.rootRule, rulePath, execution)
+      const yamlKey = property.yamlPath.at(-1)
       const siblingValue = (propertyKey: string) => {
         const sibling = params.properties.find((candidate) => candidate.modelKey === propertyKey)
         return sibling === undefined ? undefined : valueAtPath(record, sibling.yamlPath)
@@ -619,6 +642,17 @@ function collectPendingReferences(params: {
           yamlPath,
           diagnostics: params.diagnostics,
           validationDiagnostics: params.validationDiagnostics,
+          ...(execution === undefined || propertyRule === undefined || yamlKey === undefined
+            ? {}
+            : {
+                brokenReferenceTransport: {
+                  execution,
+                  rule: propertyRule,
+                  yamlValue: value,
+                  isTagged: (path: readonly (string | number)[]) =>
+                    isRelativeYAMLScalarTagged(record, yamlKey, path),
+                },
+              }),
         })
       )
     }
@@ -664,7 +698,7 @@ function collectNestedReferences(params: {
   localValueValidationProfile: LocalValueValidationProfile
   collector: LocalIndexesCollector
   fileOwner: ValidationProjectFile["owner"]
-  rulePath: readonly { propertyKey: string }[]
+  rulePath: readonly { propertyKey: string; nestedItemType?: string }[]
   rootYaml: unknown
   rootRule: MetadataItemRule
   nestedItemType?: string
@@ -745,6 +779,13 @@ function collectTargetValues(params: {
   diagnostics: Diagnostic[]
   validationDiagnostics: boolean
   runtime?: ValidationRegistrySet
+  relativePath?: readonly (string | number)[]
+  brokenReferenceTransport?: {
+    execution: PropertyRuleExecution
+    rule: PropertyRule
+    yamlValue: unknown
+    isTagged: (path: readonly (string | number)[]) => boolean
+  }
 }): PendingMetadataTargetReference[] {
   if ((params.constraint.kind === "dataTable" || params.constraint.kind === "dataTableField")
     && params.constraint.validation === "translateOnly") return []
@@ -755,13 +796,25 @@ function collectTargetValues(params: {
 
   if (typeof params.value === "string") {
     if (params.value === "") return []
+    const relativePath = params.relativePath ?? []
+    if (params.brokenReferenceTransport?.execution.isTransportedBrokenXMLReference({
+      rule: params.brokenReferenceTransport.rule,
+      yamlValue: params.brokenReferenceTransport.yamlValue,
+      path: relativePath,
+      isTagged: params.brokenReferenceTransport.isTagged,
+    })) return []
     const reference = pendingReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })
     return reference === undefined ? [] : [reference]
   }
 
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) =>
-      collectTargetValues({ ...params, value: item, yamlPath: [...params.yamlPath, index] })
+      collectTargetValues({
+        ...params,
+        value: item,
+        yamlPath: [...params.yamlPath, index],
+        relativePath: [...(params.relativePath ?? []), index],
+      })
     )
   }
 
@@ -865,6 +918,7 @@ const targetKey = projectMetadataTargetIndexKey
 function extractFormYamlFacts(
   file: ValidationProjectFile,
   parsed: ParsedYaml,
+  context: ConfigurationContext | undefined,
   runtime?: ValidationRegistrySet,
 ): ValidationYamlFacts {
   const data = asRecord(parsed.data)
@@ -884,13 +938,17 @@ function extractFormYamlFacts(
     yamlPath: [],
   })
   const root = rootFromYAML[file.owner.dir]
+  const validationContext = context ?? {
+    version: "2.20",
+    languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+  }
   const structuralReferences = collectStructuralYamlReferences({
     filePath: file.absolutePath,
     parsed,
     rule: adapter.formRule,
     yaml: data,
     owner: root === undefined ? undefined : { root, objectName: file.owner.name },
-    context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+    context: { ...validationContext, exportToYAML: { toTyped: false } },
     runtime: createPropertyStructuralReferenceRuntime(runtime),
   })
   if (!structuralReferences.ok) throw new Error(structuralReferences.message)
@@ -900,6 +958,15 @@ function extractFormYamlFacts(
     commitStaged: _commitStaged,
     ...reference
   }) => reference)
+  let localizedTextProperties = 0
+  const localizedTextDiagnostics = validateExcludedEqualNameYAML({
+    filePath: file.absolutePath,
+    parsed,
+    rule: adapter.formRule,
+    context: validationContext,
+    name: file.formName,
+    onLocalizedTextProperty: () => { localizedTextProperties += 1 },
+  })
 
   return {
     ...emptyFacts(),
@@ -910,6 +977,7 @@ function extractFormYamlFacts(
     }),
     pendingReferences,
     pendingChecks: collected.pendingChecks,
+    localizedTextProperties,
     localValueValidationProfile: {
       [adapter.elementNamesProfileSubstep]: {
         items: 1,
@@ -917,13 +985,7 @@ function extractFormYamlFacts(
       },
     },
     diagnostics: [
-      ...validateExcludedEqualNameYAML({
-        filePath: file.absolutePath,
-        parsed,
-        rule: adapter.formRule,
-        context: { version: "2.20", defaultLanguage: "ru" },
-        name: file.formName,
-      }),
+      ...localizedTextDiagnostics,
       ...collected.formElementNameDiagnostics,
       ...index.duplicateDiagnostics,
     ],
@@ -933,6 +995,8 @@ function extractFormYamlFacts(
 function createPropertyStructuralReferenceRuntime(runtime?: ValidationRegistrySet): StructuralReferenceRuntime {
   const transportRegistry = () => runtime?.rules.execution ?? currentPropertyRuleRegistrySet<PropertyRuleExecution>()
   return {
+    omittedExplicitXMLPropertyKeys: (params) =>
+      collectOmittedExplicitXMLPropertyKeys(transportRegistry(), params),
     valueFromYAML: (params) => callAtomicFromYAML(
       params as Parameters<typeof callAtomicFromYAML>[0]
     ),
@@ -1182,14 +1246,16 @@ function collectRuleDataPathChecks(params: {
 
     const rawValue = params.owner[rule.yaml]
     if (typeof rawValue !== "string") continue
-    const tagged = yamlScalarTagAt(params.owner, rule.yaml) === "xml"
+    const tag = yamlScalarTagAt(params.owner, rule.yaml)
+    const transportedReference = tag === "xml/reference"
     if (isTransportedBrokenPropertyScalar({
       execution: params.runtime?.rules.execution,
       rule,
       yamlValue: rawValue,
-      tagged,
+      tagged: transportedReference,
     })) continue
-    const value = tagged ? xmlScalarTagPayload(rawValue) : rawValue
+    const tagged = tag === "xml/value"
+    const value = tagged ? xmlAnomalyTagPayload("xml/value", rawValue) : rawValue
     if (value.trim().length === 0 && !tagged) continue
     const yamlPath = enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath
     checks.push({

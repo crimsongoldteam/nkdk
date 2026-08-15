@@ -2,7 +2,7 @@ import fs from "fs"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 
-import { childSegmentUid, childUid, EMPTY_XML_TAG_VALUE, importFromYAML, markYAMLScalarTag } from "@nkdk/runtime"
+import { childSegmentUid, childUid, XML_PRESENT_TAG_VALUE, importFromYAML, markYAMLScalarTag } from "@nkdk/runtime"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
@@ -326,9 +326,9 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
   })
 
-  it("восстанавливает пустой контейнер реквизитов из !xml без reference XML", () => {
-    const yaml = { Реквизиты: EMPTY_XML_TAG_VALUE } as unknown as ClientApplicationFormYAML
-    markYAMLScalarTag(yaml, "Реквизиты", "xml")
+  it("восстанавливает пустой контейнер реквизитов из !xml/present без reference XML", () => {
+    const yaml = { Реквизиты: XML_PRESENT_TAG_VALUE } as unknown as ClientApplicationFormYAML
+    markYAMLScalarTag(yaml, "Реквизиты", "xml/present")
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
       yaml,
@@ -526,7 +526,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     )
   })
 
-  it("восстанавливает исключительный RowFilter из пустого !xml без reference и configuration index", () => {
+  it("восстанавливает исключительный RowFilter из !xml/present без reference и configuration index", () => {
     const yaml = importFromYAML<ClientApplicationFormYAML>([
       "Реквизиты:",
       "  КомпоновщикНастроек:",
@@ -538,7 +538,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       "  Порядок:",
       "    Вид: ТаблицаФормы",
       "    ПутьКДанным: Элементы.Настройки.ТекущиеДанные.ЭлементПорядок",
-      "    ОтборСтрок: !xml",
+      "    ОтборСтрок: !xml/present",
     ].join("\n"))
 
     const result = convertClientApplicationFormFromYAMLToXML({
@@ -548,6 +548,38 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
 
     expect(tableByName(result.formXML, "Порядок").RowFilter).toEqual({ "_xsi:nil": "true" })
+  })
+
+  it("не заменяет !xml/present RowFilter таблицы значений на false", () => {
+    const yaml = importFromYAML<ClientApplicationFormYAML>([
+      "Реквизиты:",
+      "  Строки:",
+      "    Тип: ТаблицаЗначений",
+      "    Колонки:",
+      "      Значение:",
+      "        Тип: Строка",
+      "Элементы:",
+      "  Строки:",
+      "    Вид: ТаблицаФормы",
+      "    ПутьКДанным: Строки",
+      "    ОтборСтрок: !xml/present",
+      "    Элементы:",
+      "      СтрокиЗначение:",
+      "        Вид: ПолеВвода",
+    ].join("\n"))
+
+    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
+    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
+    const result = nestedRule.convert({
+      context: mockContextToXML(),
+      yaml,
+      baseConfigurationIndex: testConfigurationIndexReader(),
+      name: "Форма",
+      referenceXML: undefined,
+    })
+
+    expect(tableByName(result.Form as ClientApplicationFormXML, "Строки").RowFilter)
+      .toEqual({ "_xsi:nil": "true" })
   })
 
   it("восстанавливает свойства таблицы только для прямого динамического списка", () => {
@@ -912,7 +944,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       "Элементы:",
       "  Наименование:",
       "    Вид: ПолеВвода",
-      "    ПутьКДанным: !xml Объект.Description",
+      "    ПутьКДанным: !xml/value Объект.Description",
     ].join("\n"))
 
     const result = convertClientApplicationFormFromYAMLToXML({

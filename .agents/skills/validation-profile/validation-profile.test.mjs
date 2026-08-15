@@ -1,18 +1,56 @@
 import assert from "node:assert/strict"
 import { execFileSync } from "node:child_process"
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
-import { dirname, join } from "node:path"
+import { dirname, join, resolve } from "node:path"
 import test from "node:test"
-import { fileURLToPath } from "node:url"
+import { fileURLToPath, pathToFileURL } from "node:url"
 import {
   aggregateRows,
   clearBinaryProjectStateCache,
+  compiledRuntimePaths,
   createPhaseAccumulator,
   summarizeWorkerPoolSteps,
 } from "./validation-profile.mjs"
 
 const skillDir = dirname(fileURLToPath(import.meta.url))
+const repoRoot = resolve(skillDir, "../../..")
+
+test("compiled runtime загружается из packages/rules", () => {
+  assert.deepEqual(compiledRuntimePaths(repoRoot), {
+    profile: resolve(repoRoot, "packages/rules/dist/validationProfile.js"),
+    worker: resolve(repoRoot, "packages/rules/dist/worker.js"),
+  })
+})
+
+test("свежая production-сборка валидирует профильный проект", () => {
+  execFileSync("pnpm", ["--filter", "@nkdk/rules", "build"], {
+    cwd: repoRoot,
+    stdio: "pipe",
+  })
+  const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-profile-project-"))
+  try {
+    cpSync(join(repoRoot, "e2e/fixtures/nkdk"), projectDir, {
+      recursive: true,
+      filter: (source) => !source.split("/").includes(".nkdk"),
+    })
+    const moduleUrl = pathToFileURL(compiledRuntimePaths(repoRoot).profile).href
+    const script = [
+      `const profile = await import(${JSON.stringify(moduleUrl)});`,
+      "const runtime = profile.createValidationProfileRuntime();",
+      "const service = runtime.projects.createState();",
+      "try {",
+      `  await runtime.refreshAndValidate(service, { projectDir: ${JSON.stringify(projectDir)}, concurrency: 1 });`,
+      "} finally { await runtime.close(); }",
+    ].join("\n")
+    execFileSync(process.execPath, ["--input-type=module", "-e", script], {
+      cwd: repoRoot,
+      stdio: "pipe",
+    })
+  } finally {
+    rmSync(projectDir, { recursive: true, force: true })
+  }
+})
 
 test("справка содержит одиночный холодный подробный прогон", () => {
   const output = execFileSync(process.execPath, [join(skillDir, "validation-profile.mjs"), "--help"], {

@@ -62,13 +62,13 @@ it.each([
       parsed,
       rule,
       yaml: parsed.data,
-      context: { version: "2.20", defaultLanguage: "ru" },
+      context: { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' } },
       runtime: createPropertyStructuralReferenceRuntime(),
     }))).toThrow(message)
 })
 
 it("excludes only tagged transported MDObjectRef from structural references", () => {
-  const parsed = parseMetadataYaml(`Состав:\n  - Справочник.Товары\n  - !xml 447e2bd8-fa43-442e-91db-b17634e036d9\n`)
+  const parsed = parseMetadataYaml(`Состав:\n  - Справочник.Товары\n  - !xml/reference 447e2bd8-fa43-442e-91db-b17634e036d9\n`)
   const registry = createPropertyRuleRegistrySet(metadataRules)
   const rule = {
     itemType: "BrokenMDObjectRefStructuralProbe",

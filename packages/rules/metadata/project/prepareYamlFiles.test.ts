@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { hashFileBytes } from "@nkdk/runtime"
+import { hashFileBytes, yamlScalarTagAt } from "@nkdk/runtime"
 import { prepareYamlFiles } from "./prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
 
@@ -83,6 +83,21 @@ describe("prepareYamlFiles", () => {
 
     expect(readFileSync).not.toHaveBeenCalled()
     expect(result.yamlFiles[0]?.data).toEqual({ Имя: "Товары" })
+  })
+
+  it("сохраняет классификацию XML-аномалии в подготовленных YAML-данных", () => {
+    const projectDir = createProject()
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    const filePath = join(projectDir, ...projectPath.split("/"))
+    const result = prepareYamlFiles({
+      files: [descriptor(projectDir, projectPath, "Catalog")],
+      itemTypeByYamlDir: { Справочник: "Catalog" },
+      sourceBytes: new Map([[filePath, Buffer.from("Значение: !xml/present\n")]]),
+    })
+    const data = result.yamlFiles[0]?.data as Record<string, unknown>
+
+    expect(data.Значение).toBe("!xml/present")
+    expect(yamlScalarTagAt(data, "Значение")).toBe("xml/present")
   })
 
   it("extracts declarations and dependencies without schema or reference validation", () => {

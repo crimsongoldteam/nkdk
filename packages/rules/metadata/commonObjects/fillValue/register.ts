@@ -17,9 +17,10 @@ import type { MetadataTargetOwner } from "../metadataTargets/types"
 import type { ParsedYaml } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
-import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
+import { ordinaryFillValueItemTypes } from "./ordinaryItemTypes"
 
 function shouldTagFillValueXML(
   params: DependentImportParams,
@@ -72,8 +73,8 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
         currentValue,
       )
       if (parsed.tagged) {
-        params.item["ЗначениеЗаполнения"] = xmlScalarTagValue(String(yamlValue))
-        markYAMLScalarTag(params.item, "ЗначениеЗаполнения", "xml")
+        params.item["ЗначениеЗаполнения"] = xmlAnomalyTagValue("xml/value", String(yamlValue))
+        markYAMLScalarTag(params.item, "ЗначениеЗаполнения", "xml/value")
       } else {
         params.item["ЗначениеЗаполнения"] = yamlValue
       }
@@ -100,15 +101,23 @@ const standardAttributeImport: DependentImportItemHandler = {
 export const fillValueRules = defineMetadataRules({
   ...emptyMetadataRules,
   explicitXMLProperties: {
-    metadataAttributeFillValue: {
-      action: "transportScalar",
-      itemType: "MetadataAttribute",
-      propertyKey: "fillValue",
-      overrides: {
-        Nil: { "_xsi:nil": true },
-        DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" },
-      },
-    },
+    ...Object.fromEntries(
+      ordinaryFillValueItemTypes.map((itemType) => [
+        `ordinary${itemType}FillValue`,
+        {
+          action: "transportScalar" as const,
+          itemType,
+          propertyKey: "fillValue",
+          overrides: {
+            Nil: { "_xsi:nil": true },
+            DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" },
+            ...(itemType === "MetadataExternalDataSourceField"
+              ? { Null: { "_xsi:type": "v8:Null" } }
+              : {}),
+          },
+        },
+      ]),
+    ),
     standardAttributeFillValue: {
       action: "transportScalar",
       itemType: "StandardAttributeDescription",
@@ -119,15 +128,6 @@ export const fillValueRules = defineMetadataRules({
         TypeDescription: { "_xsi:type": "v8:TypeDescription" },
       },
     },
-    externalDataSourceFieldFillValue: {
-      action: "transportScalar",
-      itemType: "MetadataExternalDataSourceField",
-      propertyKey: "fillValue",
-      overrides: {
-        DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" },
-        Null: { "_xsi:type": "v8:Null" },
-      },
-    },
     characteristicTypesFilterValue: {
       action: "transportScalar",
       itemType: "CharacteristicsDescription",
@@ -136,20 +136,20 @@ export const fillValueRules = defineMetadataRules({
     },
   },
   dependentItems: {
-    MetadataAttribute: {
-      yaml: analyzeMetadataAttributeFillValue,
-      structural: collectFillValueStructuralReference,
-      imported: metadataAttributeImport,
-    },
+    ...Object.fromEntries(
+      ordinaryFillValueItemTypes.map((itemType) => [
+        itemType,
+        {
+          yaml: analyzeMetadataAttributeFillValue,
+          structural: collectFillValueStructuralReference,
+          imported: metadataAttributeImport,
+        },
+      ]),
+    ),
     StandardAttributeDescription: {
       yaml: analyzeStandardAttributeFillValue,
       structural: collectFillValueStructuralReference,
       imported: standardAttributeImport,
-    },
-    MetadataExternalDataSourceField: {
-      yaml: analyzeMetadataAttributeFillValue,
-      structural: collectFillValueStructuralReference,
-      imported: metadataAttributeImport,
     },
     CharacteristicsDescription: {
       imported: {

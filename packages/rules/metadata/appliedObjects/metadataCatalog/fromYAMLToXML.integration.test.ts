@@ -21,7 +21,7 @@ describe("MetadataCatalog YAML → XML", () => {
     expect(result.result).toEqual(withKnownXMLDefaults(result.expected))
   })
 
-  it("restores computed input fields for minimal.xml", () => {
+  it("preserves explicitly empty input fields for minimal.xml", () => {
     const result = testAppliedObjectFromYAMLToXML({
       rule: MetadataCatalogRules,
       importMetaUrl: import.meta.url,
@@ -29,7 +29,7 @@ describe("MetadataCatalog YAML → XML", () => {
       yaml: minimalYAML,
     })
 
-    expect(result.result).toEqual(withComputedCatalogInputByString(withKnownXMLDefaults(result.expected)))
+    expect(result.result).toEqual(withKnownXMLDefaults(result.expected))
   })
 
   it.each([
@@ -104,15 +104,3 @@ describe("MetadataCatalog YAML → XML", () => {
     ).toThrow(message)
   })
 })
-
-function withComputedCatalogInputByString(xml: string): string {
-  return xml.replace(
-    "\t\t\t<InputByString/>",
-    [
-      "\t\t\t<InputByString>",
-      "\t\t\t\t<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Description</xr:Field>",
-      "\t\t\t\t<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Code</xr:Field>",
-      "\t\t\t</InputByString>",
-    ].join("\n")
-  )
-}

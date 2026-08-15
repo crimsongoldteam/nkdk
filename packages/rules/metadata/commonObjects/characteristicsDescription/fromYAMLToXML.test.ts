@@ -90,7 +90,7 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
   })
 
   it("exports !xml DesignTimeRef without reference XML", () => {
-    const yaml = importFromYAML("Характеристики:\n  - ЗначениеОтбораВидов: !xml DesignTimeRef\n")
+    const yaml = importFromYAML("Характеристики:\n  - ЗначениеОтбораВидов: !xml/value DesignTimeRef\n")
     const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
 
     expect(xml).toContain('<xr:TypesFilterValue xsi:type="xr:DesignTimeRef"/>')
@@ -139,10 +139,10 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
     [
       "отсутствуют все четыре XML-default",
       [
-        "ПолеПутиКДанным: !xml",
-        "ПолеИспользованияМножественныхЗначений: !xml",
-        "ПолеКлючаМножественныхЗначений: !xml",
-        "ПолеПорядкаМножественныхЗначений: !xml",
+        "ПолеПутиКДанным: !xml/absent",
+        "ПолеИспользованияМножественныхЗначений: !xml/absent",
+        "ПолеКлючаМножественныхЗначений: !xml/absent",
+        "ПолеПорядкаМножественныхЗначений: !xml/absent",
       ],
       ["DataPathField", "MultipleValuesUseField", "MultipleValuesKeyField", "MultipleValuesOrderField"],
     ],
@@ -150,16 +150,16 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
       "присутствует только DataPathField",
       [
         "ПолеПутиКДанным: Data.Path",
-        "ПолеИспользованияМножественныхЗначений: !xml",
-        "ПолеКлючаМножественныхЗначений: !xml",
-        "ПолеПорядкаМножественныхЗначений: !xml",
+        "ПолеИспользованияМножественныхЗначений: !xml/absent",
+        "ПолеКлючаМножественныхЗначений: !xml/absent",
+        "ПолеПорядкаМножественныхЗначений: !xml/absent",
       ],
       ["MultipleValuesUseField", "MultipleValuesKeyField", "MultipleValuesOrderField"],
     ],
     [
       "отсутствует только DataPathField",
       [
-        "ПолеПутиКДанным: !xml",
+        "ПолеПутиКДанным: !xml/absent",
         "ПолеИспользованияМножественныхЗначений: Use.Path",
         "ПолеКлючаМножественныхЗначений: Key.Path",
         "ПолеПорядкаМножественныхЗначений: Order.Path",
@@ -174,10 +174,10 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
   })
 
   it("экспортирует !xml незарегистрированного ПолеКлюча как текст", () => {
-    const yaml = importFromYAML("Характеристики:\n  - ПолеКлюча: !xml")
+    const yaml = importFromYAML("Характеристики:\n  - ПолеКлюча: !xml/absent")
     const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
 
-    expect(xml).toContain("<xr:KeyField>!xml</xr:KeyField>")
+    expect(xml).toContain("<xr:KeyField>!xml/absent</xr:KeyField>")
   })
 })
 

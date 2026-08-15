@@ -125,6 +125,12 @@ export const childFormNamesPropertyRules = defineMetadataRules({
           source,
         },
         {
+          kind: "assignmentInput",
+          assignmentProjectPattern: "",
+          projectPattern: `${folderName}/{itemName}/ДинамическийСписок/{queryName}.query`,
+          source,
+        },
+        {
           kind: "externalFile",
           assignmentProjectPattern: "",
           projectPattern: `${folderName}/{itemName}/{relativePath...}`,

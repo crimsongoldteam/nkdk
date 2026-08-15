@@ -22,7 +22,6 @@ export function inputByStringStandardField(
 export function appliedObjectInputByStringRule(params: {
   xmlParents: string[]
   standardFields: readonly InputByStringStandardField[]
-  defaultValue?: []
   defaultValueXMLRaw?: {}
 }) {
   return inputByStringFieldsRule({

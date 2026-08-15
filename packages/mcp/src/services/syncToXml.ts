@@ -5,6 +5,7 @@ import { resolveComponent } from "./componentResolver"
 import { projectStateHandle } from "./projectStateHandle"
 import { withDiagnosticOutput } from "./diagnosticReport"
 import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
+import { defaultMcpConfigurationLanguages } from "../configurationContext"
 
 interface SyncToXmlDeps {
   readonly projectState?: CoreProjectStateService
@@ -68,7 +69,7 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
 
     const syncParams: Parameters<CoreApi["syncConfigurationToXML"]>[0] = {
       context: {
-        defaultLanguage: "ru",
+        languages: defaultMcpConfigurationLanguages,
         version: "2.20",
         exportToYAML: { toTyped: false },
         exportToXML: {

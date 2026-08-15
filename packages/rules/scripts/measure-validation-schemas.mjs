@@ -8,10 +8,15 @@ import { metadataRules } from "../metadata/composition/metadataRules.ts"
 import { exportJSONSchemaGraph } from "../metadata/validation/projectFileSchema.ts"
 import { discoverValidationProjectFiles } from "../metadata/validation/projectFiles.ts"
 import { createValidationSchemaCache } from "../metadata/validation/projectValidationPasses.ts"
+import { createConfigurationLanguages } from "@nkdk/runtime"
 
+const defaultLanguage = process.env["NKDK_DEFAULT_LANGUAGE"] ?? "ru"
 const context = {
   version: process.env["NKDK_VERSION"] ?? "2.20",
-  defaultLanguage: process.env["NKDK_DEFAULT_LANGUAGE"] ?? "ru",
+  languages: createConfigurationLanguages({
+    default: defaultLanguage,
+    registered: [defaultLanguage],
+  }),
 }
 
 const projectDir = process.argv[2] === undefined ? undefined : resolve(process.argv[2])

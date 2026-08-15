@@ -3,6 +3,7 @@ import { tmpdir } from "node:os"
 import { dirname, isAbsolute, join, relative, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import {
+  createConfigurationLanguages,
   createMetadataRuntime,
   exportToYAML,
   parseMetadataYaml,
@@ -79,6 +80,11 @@ export type ComponentRoundTripResult = {
 const fixturesRoot = resolve(import.meta.dirname, "../fixtures/xml")
 export const NKDK_FIXTURES_ROOT = resolve(import.meta.dirname, "../fixtures/nkdk")
 
+const e2eLanguages = createConfigurationLanguages({
+  default: "ru",
+  registered: ["ru"],
+})
+
 export const E2E_COMPONENTS = [
   { fixturePath: "cf", componentPath: "cf", reportName: "cf" },
   {
@@ -100,6 +106,7 @@ export const E2E_COMPONENTS = [
 
 export const IMPORT_CONTEXT = {
   defaultLanguage: "ru",
+  languages: e2eLanguages,
   version: "2.20",
   exportToYAML: { toTyped: false },
   fromXML: { forReference: false },
@@ -107,6 +114,7 @@ export const IMPORT_CONTEXT = {
 
 export const SYNC_CONTEXT = {
   defaultLanguage: "ru",
+  languages: e2eLanguages,
   version: "2.20",
   exportToYAML: { toTyped: false },
 } as const

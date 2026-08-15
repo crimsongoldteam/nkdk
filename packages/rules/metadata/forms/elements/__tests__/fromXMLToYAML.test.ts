@@ -11,7 +11,7 @@ import { ExtendedTooltipRules } from "../extendedTooltip/rules"
 import { TableLabelFieldRules } from "../labelField/rules"
 import { TablePictureFieldRules } from "../pictureField/rules"
 import { GraphicalSchemaFieldRules } from "../graphicalSchemaField/rules"
-import { EMPTY_XML_TAG_VALUE, exportToYAML, yamlScalarTagAt } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE, exportToYAML, yamlScalarTagAt } from "@nkdk/runtime"
 
 import "../index"
 
@@ -97,6 +97,22 @@ describe("элементы формы XML → YAML → XML", () => {
       "AutoCellHeight",
       true
     )
+  })
+
+  it("выводит TextEdit раньше ChoiceForm у обычного InputField", () => {
+    const { xml } = testMetadataItemFromYAMLToXML({
+      rule: InputFieldRules,
+      name: "Поле",
+      yaml: {
+        РедактированиеТекста: "Ложь",
+        ФормаВыбора: "Справочник.Товары.Форма.ФормаВыбора",
+      },
+    })
+
+    expect(Object.keys(xml).filter((key) => key === "TextEdit" || key === "ChoiceForm")).toEqual([
+      "TextEdit",
+      "ChoiceForm",
+    ])
   })
 
   it("восстанавливает обязательный RadioButtonType=Auto без reference", () => {
@@ -255,8 +271,8 @@ describe("элементы формы XML → YAML → XML", () => {
       name: "ПолеРасширеннаяПодсказка",
     }).yaml
 
-    expect(yaml).toHaveProperty("Заголовок", EMPTY_XML_TAG_VALUE)
-    expect(yamlScalarTagAt(yaml, "Заголовок")).toBe("xml")
+    expect(yaml).toHaveProperty("Заголовок", XML_PRESENT_TAG_VALUE)
+    expect(yamlScalarTagAt(yaml, "Заголовок")).toBe("xml/present")
     expect(
       testMetadataItemFromYAMLToXML({
         rule: ExtendedTooltipRules,
@@ -277,14 +293,14 @@ describe("элементы формы XML → YAML → XML", () => {
   })
 
   it.each([TableInputFieldRules, TableLabelFieldRules, TablePictureFieldRules, TableCheckBoxFieldRules])(
-    "preserves explicit table HeaderHorizontalAlign=Auto through !xml",
+    "preserves explicit table HeaderHorizontalAlign=Auto through !xml/present",
     (rule) => {
       const yaml = testMetadataItemFromXMLToYAML({
         rule,
         xml: { _name: "Колонка", DataPath: "Таблица.Поле", HeaderHorizontalAlign: "Auto" },
         name: "Колонка",
       }).yaml
-      expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml")
+      expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml/present")
       expect(exportToYAML(yaml)).not.toContain("!xml Авто")
       expect(testMetadataItemFromYAMLToXML({ rule, yaml, name: "Колонка" }).xml).toHaveProperty(
         "HeaderHorizontalAlign",

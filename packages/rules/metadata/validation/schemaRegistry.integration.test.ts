@@ -7,6 +7,8 @@ import { MetadataConfigurationRules } from "../appliedObjects/configuration/rule
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
 import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
 import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
+import { MetadataAccumulationRegisterRules } from "../appliedObjects/metadataAccumulationRegister/rules"
+import { importFromYAML } from "@nkdk/runtime"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import {
   exportJSONSchemaForSchemaName,
@@ -15,7 +17,7 @@ import {
 } from "./schemaRegistry"
 
 const context = {
-  defaultLanguage: "ru",
+  languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   version: "2.20",
 } as const
 
@@ -483,7 +485,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(refs).not.toContain("/extension-overlay/validation/")
   })
 
-  it("разрешает пустой !xml для стандартных реквизитов в extension overlay", () => {
+  it("разрешает !xml/present для стандартных реквизитов в extension overlay", () => {
     const graph = exportJSONSchemaGraph({
       context,
       validationPropertyRefs: true,
@@ -494,7 +496,21 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
       properties?: Record<string, unknown>
     }
 
-    expect(JSON.stringify(root.properties?.СтандартныеРеквизиты)).toContain('"const":"!xml"')
+    expect(JSON.stringify(root.properties?.СтандартныеРеквизиты)).toContain('"const":"!xml/present"')
+  })
+
+  it("разрешает !xml/absent для стандартного реквизита регистра накопления", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      roots: [{ key: "register", rule: MetadataAccumulationRegisterRules }],
+    })
+    const compiled = compileValidationSchema(graph.schemas, graph.roots.register!)
+    const yaml = importFromYAML(`СтандартныеРеквизиты:
+  ВидДвижения: !xml/absent
+`)
+
+    expect(compiled.Check(yaml), JSON.stringify([...compiled.Errors(yaml)], null, 2)).toBe(true)
   })
 
   it("откладывает required для заимствованного ресурса куба в extension overlay", () => {
@@ -539,7 +555,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     const autoCommandBar = Object.entries(graph.schemas).find(([key]) => key.endsWith("/AutoCommandBar"))?.[1]
 
     expect(JSON.stringify(autoCommandBar)).toContain('"Имя"')
-    expect(JSON.stringify(autoCommandBar)).toContain("^!xml")
+    expect(JSON.stringify(autoCommandBar)).toContain("^!xml/name")
   })
 
   it("keeps DataPath and Events inline in validation schemas", () => {

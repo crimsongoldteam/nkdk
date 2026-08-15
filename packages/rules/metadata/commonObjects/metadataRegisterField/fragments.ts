@@ -37,7 +37,7 @@ export const commonRegisterFieldProperties = {
       name,
       operation,
     }: {
-      context: { defaultLanguage: string }
+      context: { languages: { readonly default: string } }
       yaml?: unknown
       name?: string
       operation?: string
@@ -47,7 +47,7 @@ export const commonRegisterFieldProperties = {
       yaml !== null &&
       typeof yaml === "object" &&
       !Array.isArray(yaml)
-        ? { items: { [context.defaultLanguage]: splitPascalCase(name) } }
+        ? { items: { [context.languages.default]: splitPascalCase(name) } }
         : emptySynonym,
     defaultValueXMLEmpty: emptySynonym,
     xmlParents: propertiesParents,

@@ -5,7 +5,7 @@ import { ConfigurationContext } from "@nkdk/runtime"
 import type { MetadataTargetOwner } from "../metadataTargets/types"
 import { importMetadataObjectStringFromYAML } from "../metadataPath/fromYAML"
 import type { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { isMDObjectRefUuid } from "./brokenMDObjectRef"
 
 export const importMetadataItemLinkFromYAML = (
@@ -30,8 +30,11 @@ export const importMetadataItemLinksFromYAML = (
   if (!data) return undefined
 
   return data.flatMap((item, index) => {
-    const payload = xmlScalarTagPayload(item)
-    if (isTransported?.(index) === true && isMDObjectRefUuid(payload)) {
+    const transported = isTransported?.(index) === true
+    const payload = transported && item.startsWith("!xml/reference")
+      ? xmlAnomalyTagPayload("xml/reference", item)
+      : item
+    if (transported && isMDObjectRefUuid(payload)) {
       return [payload]
     }
     const imported = importMetadataItemLinkFromYAML(context, rule, item, owner)
@@ -42,7 +45,7 @@ export const importMetadataItemLinksFromYAML = (
 const importMetadataItemLinkFromYAMLProperty: ImportFromYAMLFunctionNew = (params) =>
   importMetadataItemLinkFromYAML(params.context, params.rule, params.value, params.owner)
 
-const importMetadataItemLinksFromYAMLProperty: ImportFromYAMLFunctionNew = (params) => {
+export const importMetadataItemLinksFromYAMLProperty: ImportFromYAMLFunctionNew = (params) => {
   const yamlCollection = typeof params.rule.yaml === "string"
     ? params.yaml?.[params.rule.yaml]
     : undefined
@@ -51,7 +54,7 @@ const importMetadataItemLinksFromYAMLProperty: ImportFromYAMLFunctionNew = (para
     params.rule,
     params.value,
     params.owner,
-    (index) => yamlScalarTagAt(yamlCollection, index) === "xml",
+    (index) => yamlScalarTagAt(yamlCollection, index) === "xml/reference",
   )
 }
 

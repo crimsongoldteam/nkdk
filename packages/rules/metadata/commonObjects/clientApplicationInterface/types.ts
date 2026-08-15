@@ -4,7 +4,7 @@ import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import type { SectionsPanelRepresentation } from "../../systemEnumerations/types"
 import { ClientApplicationInterfaceRules } from "./rules"
-import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 
 export type ClientApplicationInterfaceStandardPanel =
   | "ПанельИстории"
@@ -74,7 +74,7 @@ const clientApplicationInterfacePanelYAMLSchema = (includeXMLTransport: boolean)
     Высота: Type.Optional(Type.Number()),
     Представление: Type.Optional(Type.String()),
     ...(includeXMLTransport
-      ? { ПустоеОпределение: Type.Optional(Type.Literal(EMPTY_XML_TAG_VALUE)) }
+      ? { ПустоеОпределение: Type.Optional(Type.Literal(XML_PRESENT_TAG_VALUE)) }
       : {}),
   })
 
@@ -106,7 +106,7 @@ export interface ClientApplicationInterfacePanelYAML {
   UUID?: string
   Высота?: number
   Представление?: string
-  ПустоеОпределение?: typeof EMPTY_XML_TAG_VALUE
+  ПустоеОпределение?: typeof XML_PRESENT_TAG_VALUE
 }
 
 export type ClientApplicationInterfaceItemYAML =

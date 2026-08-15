@@ -188,7 +188,7 @@ export function decodeValidationSchemaKey(key: string): string {
 }
 
 function validationSchemaRefName(context: ConfigurationContext, key: string): string {
-  return createSchemaRef(`validation/${context.version}/${context.defaultLanguage}/${encodeValidationSchemaKey(key)}`)
+  return createSchemaRef(`validation/${context.version}/${context.languages.default}/${encodeValidationSchemaKey(key)}`)
 }
 
 function encodeValidationSchemaKeySegment(segment: string): string {

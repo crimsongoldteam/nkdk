@@ -1,8 +1,16 @@
-import { ConfigurationContext } from "@nkdk/runtime"
+import {
+  ConfigurationContext,
+  copyYAMLScalarTags,
+  markYAMLMappingKeyOrder,
+  yamlMappingKeys,
+  yamlMappingTagOf,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import { excludeNameFromI8nText } from "../../helpers/synonymHelpers"
 import { ExportToYAMLFunctionNew, PropertyRule } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
+import { copyLocalizedItemTags } from "./anomalies"
 
 export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
   context: ConfigurationContext
@@ -25,6 +33,24 @@ export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
     return ""
   }
 
+  if (
+    i8nRule.excludeIfEqualNameYAML &&
+    text !== undefined &&
+    Object.keys(text.items).length > 0 &&
+    text.items[context.languages.default] === undefined &&
+    yamlMappingTagOf(text.items) !== "xml/order"
+  ) {
+    const items = { [context.languages.default]: "", ...(textClean?.items ?? {}) }
+    if (textClean !== undefined) {
+      copyLocalizedItemTags(textClean.items, items)
+      markYAMLMappingKeyOrder(items, [
+        context.languages.default,
+        ...yamlMappingKeys(textClean.items).filter((language) => language !== context.languages.default),
+      ])
+    }
+    return items
+  }
+
   return exportFullI8nTextToYAML(context, textClean)
 }
 
@@ -34,7 +60,7 @@ export const exportI8nTextDefaultToYAML = (
 ): string | undefined => {
   if (!title) return undefined
 
-  const defaultLanguage = context.defaultLanguage
+  const defaultLanguage = context.languages.default
 
   return title.items[defaultLanguage]
 }
@@ -51,7 +77,16 @@ const getTextWithoutName = (params: {
   if (!rule.excludeIfEqualNameYAML) return text
   if (!name) return text
 
-  return excludeNameFromI8nText(context, text, name)
+  if (
+    yamlMappingTagOf(text.items) === "xml/order" ||
+    yamlScalarTagAt(text.items, context.languages.default) === "xml/duplicate"
+  ) {
+    return text
+  }
+
+  const result = excludeNameFromI8nText(context, text, name)
+  if (result !== undefined && result.items !== text.items) copyLocalizedItemTags(text.items, result.items)
+  return result
 }
 
 const exportFullI8nTextToYAML = (
@@ -61,14 +96,31 @@ const exportFullI8nTextToYAML = (
   if (!title) return undefined
   if (!title.items) return undefined
 
-  const defaultLanguage = context.defaultLanguage
+  const defaultLanguage = context.languages.default
   const items = title.items
-  const languages = Object.keys(items)
+  const languages = yamlMappingKeys(items)
 
   if (languages.length === 0) return undefined
-  if (languages.length === 1 && items[defaultLanguage] !== undefined) return items[defaultLanguage]
+  if (
+    languages.length === 1 &&
+    items[defaultLanguage] !== undefined &&
+    yamlScalarTagAt(items, defaultLanguage) === undefined
+  ) return items[defaultLanguage]
 
-  return items
+  if (yamlMappingTagOf(items) === "xml/order") return items
+  if (languages.some((language) => language === "" || language === "#")) return items
+
+  const canonicalLanguages = [
+    ...(languages.includes(defaultLanguage) ? [defaultLanguage] : []),
+    ...languages.filter((language) => language !== defaultLanguage).sort(),
+  ]
+  if (canonicalLanguages.every((language, index) => language === languages[index])) return items
+
+  const canonicalItems = Object.fromEntries(canonicalLanguages.map((language) => [language, items[language]]))
+  copyYAMLScalarTags(items, canonicalItems)
+  markYAMLMappingKeyOrder(canonicalItems, canonicalLanguages)
+
+  return canonicalItems
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("I8nText", "exportToYAML", exportI8nTextToYAML)

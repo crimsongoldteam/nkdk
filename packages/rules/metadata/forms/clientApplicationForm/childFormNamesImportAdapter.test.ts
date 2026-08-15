@@ -2,10 +2,14 @@ import fs from "node:fs"
 import os from "node:os"
 import { dirname, join } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import { mockContextFromXML } from "../../../tests/mockContext"
+import { mockContextFromXML, mockLanguages } from "../../../tests/mockContext"
 import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
 import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
-import { importConfigurationFromXml } from "../../importFromXml/importConfiguration"
+import {
+  createImportCoordinatorDependencies,
+  importConfigurationFromXml,
+} from "../../importFromXml/importConfiguration"
+import { resolveXmlImportComponent } from "../../importFromXml/componentDescriptor"
 import "../../appliedObjects/metadataCatalog/register"
 import { syncChildFormNamesFromXML } from "./childFormNamesImportAdapter"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
@@ -51,13 +55,19 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
     const inputDir = preparedInputDirectory(sourceDir)
     const projectDir = temporaryDirectory("nkdk-child-form-project-")
     importedFormPath = join(projectDir, "cf", "Справочник", name, "Формы", "ФормаЭлемента", "Форма.yaml")
-    const result = await importConfigurationFromXml({
-      context: mockContextFromXML(),
-      inputDir,
-      projectDir,
-      concurrency: 1,
-      xmlImportWorkerPoolHandle,
-    })
+    const result = await importConfigurationFromXml(
+      {
+        context: mockContextFromXML(),
+        inputDir,
+        projectDir,
+        concurrency: 1,
+        xmlImportWorkerPoolHandle,
+      },
+      {
+        ...createImportCoordinatorDependencies(resolveXmlImportComponent),
+        loadLanguagesFromXML: async () => mockLanguages,
+      },
+    )
     importFailures = result.failed
   })
 

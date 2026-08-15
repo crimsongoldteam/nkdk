@@ -11,7 +11,7 @@ describe("getParentFromContext", () => {
   const createContext = (
     itemsTree: ConfigurationContextWithExportToXML["exportToXML"]["itemsTree"]
   ): ConfigurationContextWithExportToXML => ({
-    defaultLanguage: "ru",
+    languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
     version: "2.20",
     exportToXML: {
       itemsTree,
@@ -93,7 +93,7 @@ describe("getParentFromContext", () => {
 
 describe("getCurrentTableFromContext", () => {
   const createEnterpriseContext = (elementsTree: EnterpriseContext["elementsTree"]): ConfigurationContext => ({
-    defaultLanguage: "ru",
+    languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
     version: "2.20",
     enterprise: {
       prefix: "",
@@ -104,7 +104,7 @@ describe("getCurrentTableFromContext", () => {
   })
 
   it("throws when enterprise is not defined", () => {
-    const context: ConfigurationContext = { defaultLanguage: "ru", version: "2.20" }
+    const context: ConfigurationContext = { languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, version: "2.20" }
 
     expect(() => getCurrentTableFromContext(context)).toThrow("Enterprise context is not defined")
   })
@@ -118,7 +118,7 @@ describe("getCurrentTableFromContext", () => {
   it("returns undefined when elementsTree is undefined", () => {
     const context: ConfigurationContext = {
       version: "2.20",
-      defaultLanguage: "ru",
+      languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
       enterprise: { prefix: "", attributes: {}, elementsTree: undefined!, allElementsNames: [] },
     }
 

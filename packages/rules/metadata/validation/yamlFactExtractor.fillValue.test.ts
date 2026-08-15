@@ -91,16 +91,16 @@ describe("dependent fill value validation", () => {
   })
 
   it.each([
-    ["invalid ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml 1", false],
-    ["valid ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml текст", true],
-    ["implicit ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml", true],
-    ["unresolved ordinary", "Тип: НеизвестныйТип\n    ЗначениеЗаполнения: !xml текст", true],
+    ["invalid ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml/value 1", false],
+    ["valid ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml/value текст", true],
+    ["implicit ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml/value", true],
+    ["unresolved ordinary", "Тип: НеизвестныйТип\n    ЗначениеЗаполнения: !xml/value текст", true],
   ] as const)("checks %s XML exception", (_name, body, expectsTagError) => {
     const diagnostics = extractAttributeDiagnostics(body)
     expect(diagnostics.some(({ message }) => message.includes("!xml"))).toBe(expectsTagError)
   })
 
-  it.each(["!xml", "!xml Ложь", "!xml произвольный-текст"])(
+  it.each(["!xml/value Ложь", "!xml/value произвольный-текст"])(
     "разрешает %s для запрещённого стандартного реквизита",
     (fillValue) => {
       const diagnostics = extractDiagnostics(
@@ -111,7 +111,7 @@ describe("dependent fill value validation", () => {
   )
 
   it("игнорирует транспортный маркер коллекции стандартных реквизитов", () => {
-    const facts = extractFacts("СтандартныеРеквизиты: !xml\n")
+    const facts = extractFacts("СтандартныеРеквизиты: !xml/present\n")
 
     expect(facts.diagnostics.filter(({ path }) => path?.startsWith("/СтандартныеРеквизиты"))).toEqual([])
     expect(facts.pendingReferences.filter(({ yamlPath }) => yamlPath[0] === "СтандартныеРеквизиты")).toEqual([])
@@ -126,7 +126,7 @@ describe("dependent fill value validation", () => {
 
   it("отклоняет !xml у стандартного реквизита без политики", () => {
     const diagnostics = extractDiagnostics(
-      "СтандартныеРеквизиты:\n  Наименование:\n    ЗначениеЗаполнения: !xml текст\n"
+      "СтандартныеРеквизиты:\n  Наименование:\n    ЗначениеЗаполнения: !xml/value текст\n"
     )
     expect(diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Наименование/ЗначениеЗаполнения")).toEqual([
       expect.objectContaining({ message: expect.stringContaining("!xml") }),
@@ -154,7 +154,7 @@ describe("dependent fill value validation", () => {
   it.each(["", "Владельцы: []\n"])(
     "разрешает XML-исключения и отсутствие значения владельца при пустом списке",
     (ownersYaml) => {
-      for (const fillValue of ["!xml DesignTimeRef", "!xml Справочник.ПапкиФайлов.ПустаяСсылка"]) {
+      for (const fillValue of ["!xml/value DesignTimeRef", "!xml/value Справочник.ПапкиФайлов.ПустаяСсылка"]) {
         const facts = extractFacts(`${ownersYaml}СтандартныеРеквизиты:
   Владелец:
     ЗначениеЗаполнения: ${fillValue}
@@ -232,23 +232,23 @@ describe("dependent fill value validation", () => {
       parsed: parseMetadataYaml(`Реквизиты:
   Получатель:
     Тип: Справочник.Контрагенты
-    ЗначениеЗаполнения: !xml DesignTimeRef
+    ЗначениеЗаполнения: !xml/value DesignTimeRef
 `),
       rulesSnapshot,
     })
     expect(referenceFacts.diagnostics.filter(({ path }) => path === "/Реквизиты/Получатель/ЗначениеЗаполнения")).toEqual([])
     expect(referenceFacts.pendingReferences.filter(({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения")).toEqual([])
 
-    const stringDiagnostics = extractAttributeDiagnostics("Тип: Строка\n    ЗначениеЗаполнения: !xml DesignTimeRef")
+    const stringDiagnostics = extractAttributeDiagnostics("Тип: Строка\n    ЗначениеЗаполнения: !xml/value DesignTimeRef")
     expect(stringDiagnostics).toEqual([])
   })
 
   it.each([
-    ["Nil у строкового реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml Nil", false],
-    ["Nil у нестрокового реквизита", "Тип: Булево\n    ЗначениеЗаполнения: !xml Nil", true],
-    ["String у обычного реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml String", true],
-    ["TypeDescription у обычного реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml TypeDescription", true],
-    ["Null у обычного реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml Null", true],
+    ["Nil у строкового реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml/value Nil", false],
+    ["Nil у нестрокового реквизита", "Тип: Булево\n    ЗначениеЗаполнения: !xml/value Nil", true],
+    ["String у обычного реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml/value String", true],
+    ["TypeDescription у обычного реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml/value TypeDescription", true],
+    ["Null у обычного реквизита", "Тип: Строка\n    ЗначениеЗаполнения: !xml/value Null", true],
   ] as const)("проверяет транспортный маркер %s", (_name, body, expectsError) => {
     const diagnostics = extractAttributeDiagnostics(body)
 
@@ -256,9 +256,9 @@ describe("dependent fill value validation", () => {
   })
 
   it.each([
-    ["String для строкового Кода", "ТипКода: Строка\nСтандартныеРеквизиты:\n  Код:\n    ЗначениеЗаполнения: !xml String", false],
-    ["String для числового Кода", "ТипКода: Число\nСтандартныеРеквизиты:\n  Код:\n    ЗначениеЗаполнения: !xml String", true],
-    ["TypeDescription для Наименования", "СтандартныеРеквизиты:\n  Наименование:\n    ЗначениеЗаполнения: !xml TypeDescription", true],
+    ["String для строкового Кода", "ТипКода: Строка\nСтандартныеРеквизиты:\n  Код:\n    ЗначениеЗаполнения: !xml/value String", false],
+    ["String для числового Кода", "ТипКода: Число\nСтандартныеРеквизиты:\n  Код:\n    ЗначениеЗаполнения: !xml/value String", true],
+    ["TypeDescription для Наименования", "СтандартныеРеквизиты:\n  Наименование:\n    ЗначениеЗаполнения: !xml/value TypeDescription", true],
   ] as const)("проверяет %s", (_name, yaml, expectsError) => {
     const diagnostics = extractDiagnostics(yaml)
       .filter(({ path }) => path?.endsWith("/ЗначениеЗаполнения"))
@@ -269,7 +269,7 @@ describe("dependent fill value validation", () => {
   it("разрешает TypeDescription для стандартного реквизита ТипЗначения", () => {
     const facts = extractValidationYamlFacts({
       file: characteristicTypeFile(),
-      parsed: parseMetadataYaml("СтандартныеРеквизиты:\n  ТипЗначения:\n    ЗначениеЗаполнения: !xml TypeDescription\n"),
+      parsed: parseMetadataYaml("СтандартныеРеквизиты:\n  ТипЗначения:\n    ЗначениеЗаполнения: !xml/value TypeDescription\n"),
       rulesSnapshot,
     })
 
@@ -284,7 +284,7 @@ describe("dependent fill value validation", () => {
       file: fileFactory(),
       parsed: parseMetadataYaml(`СтандартныеРеквизиты:
   ${member}:
-    ЗначениеЗаполнения: !xml DesignTimeRef
+    ЗначениеЗаполнения: !xml/value DesignTimeRef
 `),
       rulesSnapshot,
     })

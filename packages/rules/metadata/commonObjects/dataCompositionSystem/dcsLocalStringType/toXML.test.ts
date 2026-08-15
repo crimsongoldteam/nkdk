@@ -15,14 +15,14 @@ const rule = {
 } as MetadataItemRule
 
 describe("DcsLocalStringType YAML → XML", () => {
-  it("exports !xml String without reference XML", () => {
-    expect(convert('Заголовок: !xml "String Текст"')).toContain(
+  it("exports !xml/type String without reference XML", () => {
+    expect(convert('Заголовок: !xml/type "String Текст"')).toContain(
       '<dcsset:userSettingPresentation xsi:type="xs:string">Текст</dcsset:userSettingPresentation>',
     )
   })
 
-  it("exports an empty !xml String", () => {
-    expect(convert("Заголовок: !xml String")).toContain(
+  it("exports an empty !xml/type String", () => {
+    expect(convert("Заголовок: !xml/type String")).toContain(
       '<dcsset:userSettingPresentation xsi:type="xs:string"/>',
     )
   })
@@ -42,7 +42,7 @@ describe("DcsLocalStringType YAML → XML", () => {
     expect(xml).toContain("English language - local string")
   })
 
-  it.each(["Заголовок: !xml", "Заголовок: !xml Raw Текст"]) (
+  it.each(["Заголовок: !xml/type", "Заголовок: !xml/value String Текст", "Заголовок: !xml/type Raw Текст"]) (
     "rejects an unsupported marker: %s",
     (yaml) => expect(() => testPropertyFromYAMLToXML({ rule, yaml: importFromYAML(yaml) })).toThrow(),
   )

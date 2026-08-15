@@ -291,6 +291,12 @@ export interface ProjectStateDependencyRecord {
   readonly projectPathId: number
 }
 
+export interface ProjectStateValidationContextDependencyRecord {
+  readonly sourceFileId: number
+  readonly keyId: number
+  readonly versionId: number
+}
+
 export interface ProjectStateYamlPathRecord {
   readonly segmentsStart: number
   readonly segmentsCount: number
@@ -741,6 +747,16 @@ export const ProjectStateDependencyRecordView = projectStateView.create<ProjectS
   properties: {
     sourceFileId: { type: "integer", btype: "uint32" },
     projectPathId: { type: "integer", btype: "uint32" },
+  },
+})
+
+export const ProjectStateValidationContextDependencyRecordView = projectStateView.create<ProjectStateValidationContextDependencyRecord>({
+  $id: "ProjectStateValidationContextDependencyRecord",
+  type: "object",
+  properties: {
+    sourceFileId: { type: "integer", btype: "uint32" },
+    keyId: { type: "integer", btype: "uint32" },
+    versionId: { type: "integer", btype: "uint32" },
   },
 })
 

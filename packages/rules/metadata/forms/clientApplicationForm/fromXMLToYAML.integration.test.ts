@@ -24,7 +24,7 @@ import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeI
 import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
-import { EMPTY_XML_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -192,8 +192,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       },
     })
     const parameters = yaml.Элементы?.КомпоновщикНастроекНастройкиЭлементПараметрыДанных as unknown as Record<string, unknown>
-    expect(parameters.ОтборСтрок).toBe(EMPTY_XML_TAG_VALUE)
-    expect(yamlScalarTagAt(parameters, "ОтборСтрок")).toBe("xml")
+    expect(parameters.ОтборСтрок).toBe(XML_PRESENT_TAG_VALUE)
+    expect(yamlScalarTagAt(parameters, "ОтборСтрок")).toBe("xml/present")
   })
 
   it("индексирует дополнительные колонки до уточнения CurrentData", () => {
@@ -386,8 +386,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       formXML: form.Form,
       metadataXML: metadata.MetaDataObject,
     })
-    expect(imported.yaml).toHaveProperty("Реквизиты", EMPTY_XML_TAG_VALUE)
-    expect(yamlScalarTagAt(imported.yaml, "Реквизиты")).toBe("xml")
+    expect(imported.yaml).toHaveProperty("Реквизиты", XML_PRESENT_TAG_VALUE)
+    expect(yamlScalarTagAt(imported.yaml, "Реквизиты")).toBe("xml/present")
     const converted = convertClientApplicationFormFromYAMLToXML({
       context: contexts.exportContext(),
       yaml: imported.yaml as ClientApplicationFormYAML,
@@ -432,8 +432,8 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     ]))
     const input = (imported.yaml as ClientApplicationFormYAML).Элементы?.ПолеВвода1 as Record<string, unknown>
     const menu = input.КонтекстноеМеню as Record<string, unknown>
-    expect(menu.Имя).toBe("!xml НестандартноеКонтекстноеМеню")
-    expect(yamlScalarTagAt(menu, "Имя")).toBe("xml")
+    expect(menu.Имя).toBe("!xml/name НестандартноеКонтекстноеМеню")
+    expect(yamlScalarTagAt(menu, "Имя")).toBe("xml/name")
     expect(identities).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.НестандартноеКонтекстноеМеню` }),

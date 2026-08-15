@@ -1,15 +1,53 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { yamlScalarTagAt } from "@nkdk/runtime"
+import {
+  createConfigurationIndexCollector,
+  importFromYAML,
+  xmlAnomalyTagPayload,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import {
   normalizeImportedDependentItems,
   partitionImportedDependentItems,
 } from "./dependentItems"
+import { ordinaryFillValueItemTypes } from "../commonObjects/fillValue/ordinaryItemTypes"
 
 
 describe("normalizeImportedDependentItems", () => {
+  it.each(ordinaryFillValueItemTypes)("сохраняет строковый xsi:nil через !xml/value Nil у %s", (itemType) => {
+    const item = { Тип: "Строка", ЗначениеЗаполнения: "" }
+    const yaml = { Поля: { Поле: item } }
+
+    normalizeImportedDependentItems({
+      yaml,
+      rule: MetadataCatalogRules,
+      candidates: [candidate(itemType, ["Поля", "Поле"], "Поле", { "_xsi:nil": true })],
+      owner: { dir: "РегистрСведений", name: "Проба" },
+    })
+
+    expect(item.ЗначениеЗаполнения).toBe("!xml/value Nil")
+    expect(yamlScalarTagAt(item, "ЗначениеЗаполнения")).toBe("xml/value")
+  })
+
+  it.each(
+    ordinaryFillValueItemTypes.flatMap((itemType) => [
+      ["нестрокового", itemType, "Булево", "Ложь"],
+      ["составного", itemType, ["Строка", "Булево"], ""],
+    ] as const),
+  )("не сохраняет xsi:nil у %s %s", (_case, itemType, type, fillValue) => {
+    const item: Record<string, unknown> = { Тип: type, ЗначениеЗаполнения: fillValue }
+
+    normalizeImportedDependentItems({
+      yaml: { Поля: { Поле: item } },
+      rule: MetadataCatalogRules,
+      candidates: [candidate(itemType, ["Поля", "Поле"], "Поле", { "_xsi:nil": true })],
+      owner: { dir: "РегистрСведений", name: "Проба" },
+    })
+
+    expect(item).not.toHaveProperty("ЗначениеЗаполнения")
+  })
+
   it.each([
     [{ Тип: "Строка(10)", ЗначениеЗаполнения: "" }],
     [{ ЗначениеЗаполнения: "", Тип: "Строка(10)" }],
@@ -52,8 +90,8 @@ describe("normalizeImportedDependentItems", () => {
       definedTypeLookup: () => ({ status: "ok", type: { type: ["CatalogRef.Пользователи"] } }),
       preserveRawXML: false,
     })).toBe(0)
-    expect(attribute.ЗначениеЗаполнения).toBe("!xml Справочник.Пользователи.ПустаяСсылка")
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml/value Справочник.Пользователи.ПустаяСсылка")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/value")
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 
@@ -62,7 +100,7 @@ describe("normalizeImportedDependentItems", () => {
     ["содержательную ссылку", "Справочник.Пользователи.Администратор", "CatalogRef.Пользователи", false],
   ] as const)("нормализует %s после DefinedType lookup", (_name, fillValue, sourceType, tagged) => {
     const attribute = normalizeDefinedTypeAttribute(fillValue, () => ({ status: "ok", type: { type: [sourceType] } }))
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения") === "xml").toBe(tagged)
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения") === "xml/value").toBe(tagged)
   })
 
   it("не маркирует неразрешимый DefinedType автоматически", () => {
@@ -79,7 +117,7 @@ describe("normalizeImportedDependentItems", () => {
     ["цель неоднозначна", "ambiguous", false],
   ] as const)("нормализует DesignTimeRef, когда %s", (_name, status, tagged) => {
     const attribute = normalizeReferenceAttribute(status)
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения") === "xml").toBe(tagged)
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe(tagged ? "xml/reference" : undefined)
   })
 
   it("откладывает именованный DesignTimeRef до компонентного lookup", () => {
@@ -104,8 +142,53 @@ describe("normalizeImportedDependentItems", () => {
     const attribute: Record<string, unknown> = { Тип: "Строка(10)", ЗначениеЗаполнения: 1 }
 
     expect(normalizeMetadataAttribute(attribute)).toBe(0)
-    expect(attribute.ЗначениеЗаполнения).toBe("!xml 1")
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml/value 1")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/value")
+  })
+
+  it.each([
+    [
+      "обычного реквизита",
+      "MetadataAttribute",
+      ["Реквизиты", "Получатель"],
+      `Реквизиты:\n  Получатель:\n    Тип: Справочник.Контрагенты\n    ЗначениеЗаполнения: !xml/reference`,
+    ],
+    [
+      "стандартного реквизита",
+      "StandardAttributeDescription",
+      ["СтандартныеРеквизиты", "Владелец"],
+      `Владельцы: []\nСтандартныеРеквизиты:\n  Владелец:\n    ЗначениеЗаполнения: !xml/reference`,
+    ],
+  ] as const)("не дублирует тег уже перенесённой битой DesignTimeRef %s", (
+    _name,
+    itemType,
+    itemYamlPath,
+    yamlPrefix,
+  ) => {
+    const pair = "c794310a-bab9-4917-b1d0-e3438282256a.00000000-0000-0000-0000-000000000000"
+    const yaml = importFromYAML(`${yamlPrefix} ${pair}\n`)
+    const attribute = requiredRecordAt(yaml, itemYamlPath)
+    const itemName = itemYamlPath.at(-1)
+    if (itemName === undefined) throw new Error("Путь реквизита не должен быть пустым")
+
+    normalizeImportedDependentItems({
+      yaml,
+      rule: MetadataCatalogRules,
+      candidates: [candidate(
+        itemType,
+        itemYamlPath,
+        itemName,
+        { "_xsi:type": "xr:DesignTimeRef", "#text": pair },
+      )],
+      collector: createConfigurationIndexCollector(),
+      owner: { dir: "Справочник", name: "Товары" },
+    })
+
+    const fillValue = attribute.ЗначениеЗаполнения
+    expect(fillValue).toBe(`!xml/reference ${pair}`)
+    if (typeof fillValue !== "string") throw new Error("Значение заполнения должно быть строкой")
+    expect(xmlAnomalyTagPayload("xml/reference", fillValue)).toBe(pair)
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/reference")
   })
 
   it("маркирует запрещённое значение стандартного реквизита", () => {
@@ -124,8 +207,8 @@ describe("normalizeImportedDependentItems", () => {
       collector: createConfigurationIndexCollector(),
       owner: { dir: "Справочник", name: "Товары" },
     })).toBe(0)
-    expect(attribute.ЗначениеЗаполнения).toBe("!xml Ложь")
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml/value Ложь")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/value")
   })
 
   it.each([
@@ -169,8 +252,8 @@ describe("normalizeImportedDependentItems", () => {
     })
 
     expect(removed).toBe(0)
-    expect(yaml.СтандартныеРеквизиты.Код.ЗначениеЗаполнения).toBe(`!xml ${fillValue}`)
-    expect(yamlScalarTagAt(yaml.СтандартныеРеквизиты.Код, "ЗначениеЗаполнения")).toBe("xml")
+    expect(yaml.СтандартныеРеквизиты.Код.ЗначениеЗаполнения).toBe(`!xml/value ${fillValue}`)
+    expect(yamlScalarTagAt(yaml.СтандартныеРеквизиты.Код, "ЗначениеЗаполнения")).toBe("xml/value")
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 
@@ -192,8 +275,8 @@ describe("normalizeImportedDependentItems", () => {
     })
 
     expect(removed).toBe(0)
-    expect(attribute.ЗначениеЗаполнения).toBe("!xml 01.01.0001 00:00:00")
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml/value 01.01.0001 00:00:00")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/value")
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 
@@ -244,8 +327,8 @@ describe("normalizeImportedDependentItems", () => {
       owner: { dir: "Справочник", name: "Товары" },
     })
 
-    expect(attribute.ЗначениеЗаполнения).toBe("!xml DesignTimeRef")
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml/value DesignTimeRef")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/value")
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 
@@ -274,8 +357,8 @@ describe("normalizeImportedDependentItems", () => {
       owner: { dir: "Справочник", name: "Товары" },
     })).toBe(0)
 
-    expect(attribute.ЗначениеЗаполнения).toBe(`!xml ${expected}`)
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(attribute.ЗначениеЗаполнения).toBe(`!xml/value ${expected}`)
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/value")
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).not.toContainEqual(
       expect.objectContaining({ logicalAddress }),
     )
@@ -367,4 +450,18 @@ function partitionCandidate(yaml: unknown, imported: ImportedDependentPropertyCa
     candidates: [imported],
     owner: { dir: "Справочник", name: "Товары" },
   })
+}
+
+function requiredRecordAt(root: unknown, path: readonly string[]): Record<string, unknown> {
+  let value = root
+  for (const segment of path) {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+      throw new Error(`По пути ${path.join(".")} ожидался объект`)
+    }
+    value = (value as Record<string, unknown>)[segment]
+  }
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error(`По пути ${path.join(".")} ожидался объект`)
+  }
+  return value as Record<string, unknown>
 }

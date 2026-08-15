@@ -55,7 +55,7 @@ export function validateResolvedDataPathPolicy(params: DataPathPolicyParams): Di
   if (params.tagged === true) {
     if (compatibility.status === "incompatible") return []
     if (compatibility.status === "compatible") {
-      return [policyDiagnostic(params, "!xml допустим только для несовместимого ПутьКДанным")]
+      return [policyDiagnostic(params, "!xml/value допустим только для несовместимого ПутьКДанным")]
     }
   }
   const message =

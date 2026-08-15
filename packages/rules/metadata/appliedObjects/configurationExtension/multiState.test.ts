@@ -123,7 +123,7 @@ describe("configuration extension MultiState type", () => {
       },
     })
 
-    markYAMLScalarTag(yaml, 1, "xml")
+    markYAMLScalarTag(yaml, 1, "xml/value")
     expect(() => exportMultiStateType(mockContext, undefined, yaml)).toThrow("Недопустимый тег части MultiState: xml")
   })
 })
