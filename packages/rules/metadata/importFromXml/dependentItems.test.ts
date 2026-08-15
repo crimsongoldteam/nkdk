@@ -232,7 +232,7 @@ describe("normalizeImportedDependentItems", () => {
     expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
   })
 
-  it.each([" ", "   "])("сохраняет неявный код %j через !xml", (fillValue) => {
+  it.each([" ", "   "])("сохраняет допустимый пробельный код %j без тега", (fillValue) => {
     const yaml = {
       СтандартныеРеквизиты: { Код: { ЗначениеЗаполнения: fillValue } },
     }
@@ -252,8 +252,8 @@ describe("normalizeImportedDependentItems", () => {
     })
 
     expect(removed).toBe(0)
-    expect(yaml.СтандартныеРеквизиты.Код.ЗначениеЗаполнения).toBe(`!xml/value ${fillValue}`)
-    expect(yamlScalarTagAt(yaml.СтандартныеРеквизиты.Код, "ЗначениеЗаполнения")).toBe("xml/value")
+    expect(yaml.СтандартныеРеквизиты.Код.ЗначениеЗаполнения).toBe(fillValue)
+    expect(yamlScalarTagAt(yaml.СтандартныеРеквизиты.Код, "ЗначениеЗаполнения")).toBeUndefined()
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 

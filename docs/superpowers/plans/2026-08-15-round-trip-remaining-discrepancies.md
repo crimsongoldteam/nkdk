@@ -231,7 +231,7 @@ git commit -m "feat: :sparkles: переносить битые ссылки с�
 - Consumes: `classifyStandardMemberFillValue`, общий `classifyFillValue`, импортированный dependent-item handler.
 - Produces: пробельная строка является обычной строкой; только фактическое нарушение эффективной длины получает `!xml/value`.
 
-- [ ] **Step 1: Add failing classifier tests**
+- [x] **Step 1: Add failing classifier tests**
 
 Таблично проверить текст и пробелы для:
 
@@ -241,7 +241,7 @@ git commit -m "feat: :sparkles: переносить битые ссылки с�
 
 Отдельно проверить строковые `Код`, `Номер`, `Наименование` и обычный реквизит, а также существующие пустые формы `Nil`/`String`.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/fillValue/standardMember.test.ts metadata/commonObjects/fillValue/classify.test.ts
@@ -249,11 +249,11 @@ pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commo
 
 Expected: FAIL — `classifyCode` считает любую непустую пробельную строку неявной.
 
-- [ ] **Step 3: Remove the whitespace shortcut**
+- [x] **Step 3: Remove the whitespace shortcut**
 
 Удалить ветвь `/^\s+$/` из `classifyCode`; всегда передавать строку в общий `classifyFillValue` с ограничениями владельца. Убедиться, что общий классификатор трактует длину `0` как отсутствие ограничения; при необходимости исправить только общий расчёт строковой альтернативы.
 
-- [ ] **Step 4: Cover import tags and validation**
+- [x] **Step 4: Cover import tags and validation**
 
 Проверить:
 
@@ -262,7 +262,7 @@ Expected: FAIL — `classifyCode` считает любую непустую п�
 - то же значение без тега даёт ошибку длины;
 - лишний `!xml/value` у допустимой строки даёт ошибку ненужного тега.
 
-- [ ] **Step 5: Verify GREEN and document the anomaly**
+- [x] **Step 5: Verify GREEN and document the anomaly**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/fillValue packages/rules/metadata/validation/yamlFactExtractor.fillValue.test.ts
@@ -271,7 +271,7 @@ pnpm duplicates -- --base 8fba09946
 
 В `.agents/xml-anomalies.md` уточнить: тег означает нарушение эффективного типа/длины, а не наличие пробелов.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/rules/metadata/commonObjects/fillValue packages/rules/metadata/validation/yamlFactExtractor.fillValue.test.ts .agents/xml-anomalies.md docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md

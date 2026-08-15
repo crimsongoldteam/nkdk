@@ -7,7 +7,13 @@ import {
 } from "../ruleRuntime/property/dependentItemRegistry"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { isXMLAnomalyTag, markYAMLScalarTag, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
+import {
+  isXMLAnomalyTag,
+  markYAMLScalarTag,
+  unwrapExplicitYAMLString,
+  xmlAnomalyTagValue,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import { matchExplicitXMLTransportFromXML } from "../ruleRuntime/property/explicitXMLPropertyRegistry"
 
 export function normalizeImportedDependentItems(params: {
@@ -53,8 +59,9 @@ export function normalizeImportedDependentItems(params: {
     const shouldRemove = shouldRemoveImportedDependentProperty(dependentParams)
     if (shouldRemove) {
       const value = item[yamlKey]
-      if (hasExplicitXMLText(candidate.xmlValue) && (typeof value === "string" || typeof value === "number")) {
-        item[yamlKey] = xmlAnomalyTagValue("xml/value", String(value))
+      const scalar = unwrapExplicitYAMLString(value)
+      if (hasExplicitXMLText(candidate.xmlValue) && (typeof scalar === "string" || typeof scalar === "number")) {
+        item[yamlKey] = xmlAnomalyTagValue("xml/value", String(scalar))
         markYAMLScalarTag(item, yamlKey, "xml/value")
         continue
       }
@@ -64,14 +71,15 @@ export function normalizeImportedDependentItems(params: {
     }
     const shouldTagXML = shouldTagImportedDependentProperty(dependentParams)
     const value = item[yamlKey]
+    const scalar = unwrapExplicitYAMLString(value)
     const currentTag = yamlScalarTagAt(item, yamlKey)
     if (
       shouldTagXML &&
       !isXMLAnomalyTag(currentTag) &&
-      (typeof value === "string" || typeof value === "number")
+      (typeof scalar === "string" || typeof scalar === "number")
     ) {
-      const anomalyTag = importedDependentAnomalyTag(params, candidate, String(value))
-      item[yamlKey] = xmlAnomalyTagValue(anomalyTag, String(value))
+      const anomalyTag = importedDependentAnomalyTag(params, candidate, String(scalar))
+      item[yamlKey] = xmlAnomalyTagValue(anomalyTag, String(scalar))
       markYAMLScalarTag(item, yamlKey, anomalyTag)
     }
   }

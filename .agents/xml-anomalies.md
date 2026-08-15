@@ -3,6 +3,13 @@
 переименования. Поддержанные формы перечислены ниже; пустое значение разрешено
 только ключу роли `UserVisible`.
 
+Для строкового `ЗначениеЗаполнения` сам факт наличия пробелов не является
+аномалией: пробелы сохраняются обычной строкой и учитываются при проверке
+длины. `!xml/value` ставится только тогда, когда исходная строка не
+соответствует эффективному типу: при переменной длине она длиннее ограничения,
+при фиксированной — её длина не равна ограничению. Длина `0` не ограничивает
+строку.
+
 | Объект с аномалией | Свойство | Классифицированный YAML-тег | Текст в XML |
 |---|---|---|---|
 | обычное поле (`MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension`, `MetadataExternalDataSourceCubeResource`) либо стандартный реквизит `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |

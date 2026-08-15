@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import "../../appliedObjects/metadataCatalog/standardMembers"
 import "../../appliedObjects/metadataTask/standardMembers"
+import "../../appliedObjects/metadataDocument/standardMembers"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { getStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -10,6 +11,12 @@ import { classifyStandardMemberFillValue } from "./effectiveType"
 
 const catalogMember = (name: string): StandardMemberDeclaration => {
   const member = getStandardMembers("Справочник").find((item) => item.names.yaml === name)
+  if (member === undefined) throw new Error(`Не найден стандартный реквизит ${name}`)
+  return member
+}
+
+const documentMember = (name: string): StandardMemberDeclaration => {
+  const member = getStandardMembers("Документ").find((item) => item.names.yaml === name)
   if (member === undefined) throw new Error(`Не найден стандартный реквизит ${name}`)
   return member
 }
@@ -63,13 +70,35 @@ describe("standard member fill value", () => {
     const stringOwner = { codeType: "String", codeLength: 3, codeAllowedLength: "Variable" }
     expect(classify(member, { type: "string", value: "12" }, stringOwner).kind).toBe("valid")
     expect(classify(member, { type: "string", value: "1234" }, stringOwner).kind).toBe("invalid")
-    expect(classify(member, { type: "string", value: "   " }, stringOwner).kind).toBe("implicit")
+    expect(classify(member, { type: "string", value: "   " }, stringOwner).kind).toBe("valid")
+    expect(classify(member, { type: "string", value: "    " }, stringOwner).kind).toBe("invalid")
+    expect(classify(member, { type: "string", value: "         " }, {
+      codeType: "String",
+      codeLength: 0,
+      codeAllowedLength: "Fixed",
+    }).kind).toBe("valid")
 
     const numberOwner = { codeType: "Number", codeLength: 3, codeAllowedLength: "Variable" }
     expect(classify(member, { type: "decimal", value: 12 }, numberOwner).kind).toBe("valid")
     expect(classify(member, { type: "decimal", value: 0 }, numberOwner).kind).toBe("implicit")
     expect(classify(member, { type: "decimal", value: 1234 }, numberOwner).kind).toBe("invalid")
     expect(classify(member, { type: "decimal", value: 1.2 }, numberOwner).kind).toBe("invalid")
+  })
+
+  it("проверяет строковый Номер по свойствам владельца", () => {
+    const member = documentMember("Номер")
+    const owner = { numberType: "String", numberLength: 3, numberAllowedLength: "Fixed" }
+
+    expect(classify(member, { type: "string", value: "   " }, owner).kind).toBe("valid")
+    expect(classify(member, { type: "string", value: "  " }, owner).kind).toBe("invalid")
+  })
+
+  it("проверяет Наименование по длине владельца", () => {
+    const member = catalogMember("Наименование")
+
+    expect(classify(member, { type: "string", value: "   " }, { descriptionLength: 3 }).kind).toBe("valid")
+    expect(classify(member, { type: "string", value: "    " }, { descriptionLength: 3 }).kind).toBe("invalid")
+    expect(classify(member, { type: "string", value: "любая длина" }, { descriptionLength: 0 }).kind).toBe("valid")
   })
 
   it("uses static implicit YAML properties of the catalog", () => {
@@ -157,6 +186,15 @@ describe("standard member fill value", () => {
   })
 
   it("does not diagnose an undeclared policy", () => {
-    expect(classify(catalogMember("Наименование"), { type: "string", value: "" }).kind).toBe("notSpecified")
+    const member = {
+      memberKind: "standardAttribute",
+      names: { internal: "VendorValue", yaml: "ЗначениеПоставщика" },
+      family: "primitive",
+      phase: "index-time",
+      sourceScope: "self",
+      kind: "string",
+    } as const satisfies StandardMemberDeclaration
+
+    expect(classify(member, { type: "string", value: "" }).kind).toBe("notSpecified")
   })
 })
