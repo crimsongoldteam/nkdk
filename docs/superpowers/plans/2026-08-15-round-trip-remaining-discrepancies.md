@@ -100,19 +100,19 @@ git commit -m "fix: :bug: подавить пустой DataPath формы"
 - Consumes: `explicitXMLPropertyTypes` и существующий `materializeCollection`.
 - Produces: тип `SettingsParameterValueCollection` поддерживает пустой `!xml/present` во всех местах применения.
 
-- [ ] **Step 1: Add failing XML → YAML and YAML → XML tests**
+- [x] **Step 1: Add failing XML → YAML and YAML → XML tests**
 
 Проверить три состояния свойства-владельца: отсутствует, `!xml/present`, непустой словарь. Для пустого XML ожидать сериализацию `ПараметрыДанных: !xml/present`; для YAML-маркера — пустой `dcsset:dataParameters`.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromXML.integration.test.ts metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toXML.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration --sequence.shuffle
 ```
 
 Expected: FAIL — пустой контейнер сворачивается в отсутствие.
 
-- [ ] **Step 3: Register the property type**
+- [x] **Step 3: Register the property type**
 
 Добавить слой `defineMetadataRules`:
 
@@ -126,19 +126,20 @@ explicitXMLPropertyTypes: {
 },
 ```
 
-Подключить слой через `index.ts`. Не менять `fromXML.ts`, `fromYAML.ts`, `toXML.ts` и `toYAML.ts`: пустое присутствие должен обрабатывать общий реестр.
+Подключить слой через `metadata/composition/metadataRules.ts`. Локальные преобразователи типа сохраняют пустую модель до границы общего реестра и материализуют пустой XML-корень; классификацию и допустимость `!xml/present` определяет общий реестр.
 
-- [ ] **Step 4: Cover validation boundaries and verify GREEN**
+- [x] **Step 4: Cover validation boundaries and verify GREEN**
 
 Проверить JSON Schema: пустой `!xml/present` допустим; `{}`, `!xml/present payload` и другой тег недопустимы.
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromXML.integration.test.ts metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/toXML.integration.test.ts
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration --sequence.shuffle
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit --project bundle-contract --project core-metadata --sequence.shuffle
+pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base 8fba09946
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/rules/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md

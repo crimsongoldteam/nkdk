@@ -12,6 +12,7 @@ const exportSettingsParameterValueCollectionToXML = (
   referenceMetadata?: SettingsParameterValueCollection | undefined
 ): SettingsParameterValueCollectionXML | ParameterValueXML | ParameterValueXML[] | undefined => {
   if (!value?.parameters) return undefined
+  if (Object.keys(value.parameters).length === 0) return {}
 
   const collRule = rule as SettingsParameterValueCollectionPropertyRule
   const wrapped = exportSettingsParameterValueDcscorItemsToXML({

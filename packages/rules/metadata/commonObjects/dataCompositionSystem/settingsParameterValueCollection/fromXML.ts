@@ -20,7 +20,11 @@ const importSettingsParameterValueCollectionFromXML = (
     skipUnknownParameters: collRule.defaultItemRule === undefined,
   })
 
-  if (!parameters || Object.keys(parameters).length === 0) return undefined
+  if (!parameters || Object.keys(parameters).length === 0) {
+    return xml === undefined
+      ? undefined
+      : { itemType: "SettingsParameterValueCollection", parameters: {} }
+  }
 
   return {
     itemType: "SettingsParameterValueCollection",

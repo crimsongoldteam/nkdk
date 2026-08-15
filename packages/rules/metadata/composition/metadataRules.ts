@@ -68,6 +68,7 @@ import { brokenCommandInterfaceSubsystemOrderRules } from "../commonObjects/root
 import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
 import { configurationExtensionPropertyStateRules } from "../appliedObjects/configurationExtension/propertyStateRules"
 import { dcsParameterExplicitUndefinedRules } from "../commonObjects/dataCompositionSystem/dcsParameter/explicitUndefined"
+import { settingsParameterValueCollectionExplicitEmptyRules } from "../commonObjects/dataCompositionSystem/settingsParameterValueCollection/explicitEmpty"
 import { explicitAdditionalFieldsRules } from "../commonObjects/indexField/explicitAdditionalFields"
 import { explicitEmptyAttributesRules } from "../forms/clientApplicationForm/explicitEmptyAttributes"
 import { explicitEmptyFormElementTitleRules } from "../forms/clientApplicationForm/explicitEmptyTitle"
@@ -137,6 +138,7 @@ export const legacyCoreRules = composeMetadataRules(
   childFormNamesPropertyRules,
   fillValueRules,
   dcsParameterExplicitUndefinedRules,
+  settingsParameterValueCollectionExplicitEmptyRules,
   explicitAdditionalFieldsRules,
   explicitEmptyAttributesRules,
   explicitEmptyFormElementTitleRules,

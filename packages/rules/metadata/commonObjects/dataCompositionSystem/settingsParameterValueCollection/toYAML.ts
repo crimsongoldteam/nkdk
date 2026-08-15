@@ -1,10 +1,11 @@
 import { ConfigurationContext } from "@nkdk/runtime"
-import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, XML_PRESENT_TAG_VALUE, xmlAnomalyTagValue } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import { exportParameterValueToYAML } from "../parameterValue/toYAML"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
 import type { SettingsParameterValueCollection, SettingsParameterValueCollectionYAML } from "./types"
+import type { SettingsParameterValueYAML } from "../parameterValue/types"
 
 const exportSettingsParameterValueCollectionToYAML = (
   context: ConfigurationContext,
@@ -12,9 +13,10 @@ const exportSettingsParameterValueCollectionToYAML = (
   value: SettingsParameterValueCollection | undefined
 ): SettingsParameterValueCollectionYAML | undefined => {
   if (!value?.parameters) return undefined
+  if (Object.keys(value.parameters).length === 0) return XML_PRESENT_TAG_VALUE
 
   const collRule = rule as SettingsParameterValueCollectionPropertyRule
-  const result: SettingsParameterValueCollectionYAML = {}
+  const result: Record<string, SettingsParameterValueYAML> = {}
 
   for (const paramName of Object.keys(value.parameters)) {
     const data = value.parameters[paramName]
@@ -30,7 +32,7 @@ const exportSettingsParameterValueCollectionToYAML = (
     })
     if (yamlFragment !== undefined) {
       const transported = data.xmlNil === true ? withNilTransport(yamlFragment) : yamlFragment
-      result[paramName] = transported as SettingsParameterValueCollectionYAML[string]
+      result[paramName] = transported as SettingsParameterValueYAML
     }
   }
 
