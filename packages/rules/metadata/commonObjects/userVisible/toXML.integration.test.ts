@@ -104,7 +104,10 @@ describe("exportUserVisibleToXML", () => {
     expect(() => convert(uuid)).toThrow("Неизвестный корень")
   })
 
-  it("восстанавливает только тегированный пустой ключ роли", () => {
+  it.each([
+    ["Ложь", false],
+    ["Истина", true],
+  ] as const)("восстанавливает тегированный пустой ключ роли со значением %s", (yamlValue, xmlValue) => {
     const rule = {
       itemType: "UserVisibleEmptyBrokenReferenceProbe",
       properties: {
@@ -119,10 +122,10 @@ describe("exportUserVisibleToXML", () => {
       execution: createRuleRegistrySet(metadataRules).execution,
     }).outputs.get("owner")
 
-    expect(convert('Использование:\n  Роли:\n    !xml/reference "": Ложь')).toEqual({
+    expect(convert(`Использование:\n  Роли:\n    !xml/reference "": ${yamlValue}`)).toEqual({
       Use: {
         "xr:Common": true,
-        "xr:Value": [{ _name: "", "#text": false }],
+        "xr:Value": [{ _name: "", "#text": xmlValue }],
       },
     })
     expect(() => convert('Использование:\n  Роли:\n    "": Ложь')).toThrow()

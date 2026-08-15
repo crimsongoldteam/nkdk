@@ -82,6 +82,16 @@ export function isRelativeYAMLReferenceTagged(
   return key !== undefined && yamlScalarTagAt(current, key) === "xml/reference"
 }
 
+export function assertAllYAMLMappingKeyReferenceTagsTransported(
+  yamlValue: unknown,
+  transportedLocations: readonly BrokenXMLReferenceLocation[],
+): void {
+  for (const location of collectYAMLMappingKeyReferenceTags(yamlValue)) {
+    if (transportedLocations.some((transported) => sameKeyLocation(transported, location))) continue
+    throw new Error("Тег !xml/reference у ключа не поддерживается типом свойства")
+  }
+}
+
 export interface BrokenXMLReferenceCarrierRegistry {
   normalizeImportedBrokenXMLReferences(params: {
     readonly rule: PropertyRule
@@ -197,4 +207,35 @@ function assertSingleMatch(
   throw new Error(
     `Конфликт переносчиков битой XML-ссылки: ${matches.map(({ name }) => name).join(", ")}`,
   )
+}
+
+function collectYAMLMappingKeyReferenceTags(
+  value: unknown,
+  path: YamlPath = [],
+): BrokenXMLReferenceLocation[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) => collectYAMLMappingKeyReferenceTags(item, [...path, index]))
+  }
+  if (typeof value !== "object" || value === null) return []
+
+  return Object.keys(value).flatMap((key) => [
+    ...(yamlMappingKeyTagAt(value, key) === "xml/reference"
+      ? [{ kind: "key", path, key } as const]
+      : []),
+    ...collectYAMLMappingKeyReferenceTags(
+      (value as Readonly<Record<string, unknown>>)[key],
+      [...path, key],
+    ),
+  ])
+}
+
+function sameKeyLocation(
+  left: BrokenXMLReferenceLocation,
+  right: BrokenXMLReferenceLocation,
+): boolean {
+  return left.kind === "key"
+    && right.kind === "key"
+    && left.key === right.key
+    && left.path.length === right.path.length
+    && left.path.every((segment, index) => segment === right.path[index])
 }

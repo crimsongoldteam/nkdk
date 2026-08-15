@@ -162,6 +162,23 @@ describe("broken XML reference property pipeline", () => {
     })
   })
 
+  it("отклоняет пустой тегированный ключ вне поддерживающего его типа", () => {
+    const rule = {
+      itemType: "UnsupportedEmptyBrokenKeyProbe",
+      properties: {
+        reference: { type: "KeyReferenceProbe", xml: "Reference", yaml: "Ссылка" },
+      },
+    } as MetadataItemRule
+
+    expect(() => convertYAMLToXML([
+      "Ссылка:",
+      "  Роли:",
+      '    !xml/reference "": Истина',
+    ].join("\n"), rule, execution)).toThrow(
+      "Тег !xml/reference у ключа не поддерживается типом свойства",
+    )
+  })
+
   it("выбирает переносчик только после принятия tagged payload", () => {
     const carrier = (name: string, accepted: readonly string[]) => brokenXMLReferenceCarrier(name, "CoexistingProbe", {
       prepareExport: ({ yamlValue, isTagged }) =>

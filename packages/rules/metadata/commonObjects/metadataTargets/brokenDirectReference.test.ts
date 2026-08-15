@@ -84,6 +84,14 @@ describe("прямая битая metadataTarget-ссылка", () => {
     })).toThrow()
   })
 
+  it("не принимает текст тега в кавычках за тегированную ссылку", () => {
+    expect(() => testPropertyFromYAMLToXML({
+      execution,
+      rule: rules.MetadataItemLink,
+      yaml: importFromYAML(`Ссылка: "!xml/reference ${UUID}"`),
+    })).toThrow()
+  })
+
   it("отклоняет неверное содержимое !xml/reference", () => {
     expect(() => testPropertyFromYAMLToXML({
       execution,
@@ -138,6 +146,31 @@ describe("прямая битая metadataTarget-ссылка", () => {
       rule,
       yaml: imported.yaml,
     }).xml).toEqual({ SettingsStorage: UUID })
+  })
+
+  it("сохраняет обычное имя реального свойства SettingsStorage", () => {
+    const rule = propertyProbe(
+      "ClientApplicationForm",
+      "settingsStorage",
+      ClientApplicationFormRules.properties.settingsStorage,
+    )
+
+    expect(testPropertyFromYAMLToXML({
+      execution,
+      rule,
+      name: "ФормаЭлемента",
+      yaml: { ХранилищеНастроек: "ФормаЭлемента" },
+      context: createDirectRoundTripContexts({
+        logicalAddress: "Catalog.Товары.Form.ФормаЭлемента",
+        metadataTargetOwners: [{
+          itemType: "ClientApplicationForm",
+          name: "ФормаЭлемента",
+          owner: { root: "Catalog", objectName: "Товары" },
+        }],
+      }).exportContext(),
+    }).xml).toEqual({
+      SettingsStorage: "Catalog.Товары.Form.ФормаЭлемента",
+    })
   })
 
   it("переносит число:UUID реальной основной таблицы DynamicList", () => {

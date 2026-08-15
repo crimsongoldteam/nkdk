@@ -346,7 +346,7 @@ Run:
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/metadataTargets/brokenDirectReference.test.ts
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/validation/structuralReferences.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata metadata/validation/structuralReferences.test.ts
 pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base ee7c54e7c
 ```

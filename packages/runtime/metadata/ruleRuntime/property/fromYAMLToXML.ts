@@ -42,7 +42,10 @@ import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
-import { isRelativeYAMLReferenceTagged } from "./brokenXMLReferenceCarrierRegistry"
+import {
+  assertAllYAMLMappingKeyReferenceTagsTransported,
+  isRelativeYAMLReferenceTagged,
+} from "./brokenXMLReferenceCarrierRegistry"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
@@ -644,6 +647,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       isTagged: (location) => yaml !== undefined && yamlKey !== undefined
         && isRelativeYAMLReferenceTagged(yaml, yamlKey, location),
     })
+    assertAllYAMLMappingKeyReferenceTagsTransported(
+      sourceValue,
+      transportPreparation?.transportedLocations ?? [],
+    )
     const importSourceValue = transportPreparation?.yamlValue ?? sourceValue
     const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
       propertyPath: [yamlKey ?? propertyKey],

@@ -1,3 +1,8 @@
+`!xml/reference` обозначает строго распознанное внутреннее представление
+ссылки: оно сохраняется дословно и исключается из разрешения, поиска и
+переименования. Поддержанные формы перечислены ниже; пустое значение разрешено
+только ключу роли `UserVisible`.
+
 | Объект с аномалией | Свойство | Классифицированный YAML-тег | Текст в XML |
 |---|---|---|---|
 | обычное поле (`MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension`, `MetadataExternalDataSourceCubeResource`) либо стандартный реквизит `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |

@@ -121,6 +121,26 @@ it.each([
   })
 })
 
+it.each([
+  "3062c54f-92ed-42c5-b62f-1c0e685cfe75",
+  "1:93701593-5ac8-4266-b471-7e9ed35a9c3e",
+])("сообщает структурную ошибку для нетегированной внутренней ссылки %s", (payload) => {
+  const parsed = parseMetadataYaml(`Ссылка: ${payload}`)
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const rule = {
+    itemType: "UntaggedDirectBrokenReferenceProbe",
+    properties: {
+      reference: {
+        type: "string",
+        yaml: "Ссылка",
+        metadataTarget: { kind: "object", roots: ["Catalog"] },
+      },
+    },
+  } as MetadataItemRule
+
+  expect(() => collectProbeReferences(parsed, rule, registry)).toThrow("Неизвестный корень")
+})
+
 it("resolves and preserves a short member reference owned by the sibling type", () => {
   const parsed = parseMetadataYaml("Тип: Справочник.Товары\nФормаВыбора: ФормаВыбора\n")
   const registry = createPropertyRuleRegistrySet(metadataRules)
