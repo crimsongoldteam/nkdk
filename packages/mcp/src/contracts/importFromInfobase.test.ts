@@ -8,9 +8,18 @@ import {
 describe("import_from_infobase contract", () => {
   const inputSchema = z.strictObject(importFromInfobaseInputShape)
 
-  it("accepts only the project and write confirmation", () => {
-    expect(inputSchema.parse({ projectDir: "/project", allowWrite: true }))
-      .toEqual({ projectDir: "/project", allowWrite: true })
+  it("accepts a configuration component", () => {
+    expect(inputSchema.parse({
+      projectDir: "/project",
+      componentPath: "cfe/Расширение_All",
+      allowWrite: true,
+    })).toEqual({
+      projectDir: "/project",
+      componentPath: "cfe/Расширение_All",
+      allowWrite: true,
+    })
+    expect(inputSchema.safeParse({ projectDir: "/project", componentPath: "cfe/.." }).success)
+      .toBe(false)
   })
 
   it.each([
@@ -87,5 +96,14 @@ describe("import_from_infobase contract", () => {
       reusedConnection: false,
       temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
     })).toMatchObject({ ok: true })
+  })
+
+  it("parses a core failure with a preserved temporary directory", () => {
+    expect(importFromInfobaseOutputShape.parse({
+      ok: false,
+      code: "core_error",
+      message: "Не удалось импортировать конфигурацию",
+      details: { temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1" },
+    })).toMatchObject({ ok: false, code: "core_error" })
   })
 })

@@ -73,7 +73,10 @@ describe("registerNkdkCapabilities", () => {
     )?.[1] as { description: string } | undefined
     expect(infobaseImportTool?.description).toContain("allowWrite=true")
     expect(infobaseImportTool?.description).toContain(".nkdk/project.yaml")
-    expect(infobaseImportTool?.description).toContain("пустой cf")
+    expect(infobaseImportTool?.description).toContain("по умолчанию cf")
+    expect(infobaseImportTool?.description).toContain("cfe/<Имя>")
+    expect(infobaseImportTool?.description).toContain("цель должна отсутствовать или быть пустой")
+    expect(infobaseImportTool?.description).toContain("cf импортируется первым")
     expect(infobaseImportTool?.description).toContain("Запускает 1С")
     expect(infobaseImportTool?.description).toContain("повторить импорт")
     const infobaseImportOptions = server.registerTool.mock.calls.find(
@@ -88,6 +91,13 @@ describe("registerNkdkCapabilities", () => {
       connectionString: 'File="/base";',
     }).success).toBe(false)
     expect(infobaseImportOptions?.outputSchema).toBeDefined()
+    expect(infobaseImportOptions?.outputSchema).toBeInstanceOf(z.ZodObject)
+    expect(infobaseImportOptions?.outputSchema?.safeParse({
+      ok: false,
+      code: "confirmation_required",
+      message: "Нужно подтвердить запись",
+      details: { projectDir: "/project", componentPath: "cf" },
+    }).success).toBe(true)
 
     const infobaseSync = server.registerTool.mock.calls.find(
       ([name]) => name === "nkdk.sync_to_infobase"
@@ -95,9 +105,9 @@ describe("registerNkdkCapabilities", () => {
     expect(infobaseSync?.description.toLowerCase()).toContain("частично")
     expect(infobaseSync?.description).toContain("cf")
     expect(infobaseSync?.description).toContain("cfe/<Имя>")
-    expect(infobaseSync?.description).toContain("Запускает 1С")
+    expect(infobaseSync?.description).toContain("Запускает платформу")
     expect(infobaseSync?.description).toContain("allowWrite=true")
-    expect(infobaseSync?.description).toContain("не обновляет конфигурацию базы данных")
+    expect(infobaseSync?.description).toContain("обновляет конфигурацию базы данных")
     expect(infobaseSync?.inputSchema.safeParse({
       projectDir: "/project",
       componentPath: "cf",
@@ -108,7 +118,29 @@ describe("registerNkdkCapabilities", () => {
       componentPath: "cfe/..",
       allowWrite: true,
     }).success).toBe(false)
-    expect(infobaseSync?.outputSchema).toBeDefined()
+    const infobaseSyncOutput = infobaseSync?.outputSchema
+    expect(infobaseSyncOutput).toBeDefined()
+    if (infobaseSyncOutput === undefined) throw new Error("sync_to_infobase outputSchema отсутствует")
+    expect(infobaseSyncOutput).toBeInstanceOf(z.ZodObject)
+    expect(infobaseSyncOutput.safeParse({
+      ok: true,
+      status: "unchanged",
+      componentPath: "cf",
+      diagnostics: [],
+    }).success).toBe(true)
+    expect(infobaseSyncOutput.safeParse({
+      ok: true,
+      status: "unchanged",
+      componentPath: "cf",
+      diagnostics: [],
+      packageId: "unexpected",
+    }).success).toBe(false)
+    expect(infobaseSyncOutput.safeParse({
+      ok: false,
+      code: "confirmation_required",
+      message: "Нужно подтвердить запись",
+      details: { projectDir: "/project", componentPath: "cf" },
+    }).success).toBe(true)
 
     for (const name of [
       "nkdk.close_platform_connection",
@@ -326,7 +358,7 @@ describe("registerNkdkCapabilities", () => {
     const success = {
       ok: true as const,
       status: "unchanged" as const,
-      componentPath: "cf",
+      componentPath: "cf" as const,
       diagnostics: [],
     }
     expect(registerToolsModule.syncToInfobaseToolResult(success).content).toEqual([

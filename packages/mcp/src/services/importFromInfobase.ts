@@ -56,7 +56,7 @@ export async function importFromInfobase(
     return toolError(
       "confirmation_required",
       "import_from_infobase запускает 1С и пишет YAML-файлы; повторите вызов с allowWrite=true",
-      { projectDir: input.projectDir, componentPath: "cf" }
+      { projectDir: input.projectDir, componentPath: input.componentPath ?? "cf" }
     )
   }
 
@@ -66,12 +66,16 @@ export async function importFromInfobase(
     const settingsRead = await dependencies.readSettings(input.projectDir)
     if (settingsRead.status !== "ready") return projectSettingsFailure(settingsRead)!
 
+    const requestedComponentPath = input.componentPath ?? "cf"
     const component = dependencies.resolveTarget({
       projectDir: settingsRead.projectDir,
-      componentPath: "cf",
+      componentPath: requestedComponentPath,
       createIfMissing: true,
     })
     if (!component.ok) return component.error
+    const extensionName = component.componentPath === "cf"
+      ? undefined
+      : component.componentPath.slice("cfe/".length)
     const targetError = dependencies.assertTargetEmpty(component.componentDir)
     if (targetError !== undefined) return targetError
 
@@ -93,6 +97,7 @@ export async function importFromInfobase(
       ...connectionSettings,
       mode: operations.import.mode,
       unresolvedReferences: operations.import.unresolvedReferences,
+      ...(extensionName === undefined ? {} : { extensionName }),
       ...(signal === undefined ? {} : { signal }),
     })
     throwIfCancelled(signal)

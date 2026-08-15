@@ -6,6 +6,7 @@ export type ProcessLaunch = {
 export type PlatformFailureStage =
   | "platform-discovery"
   | "session-start"
+  | "protocol-handshake"
   | "authentication"
   | "configuration-export"
   | "configuration-load"

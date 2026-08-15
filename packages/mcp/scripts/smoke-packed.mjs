@@ -104,6 +104,20 @@ try {
       throw new Error("nkdk.import_from_infobase started without allowWrite=true")
     }
 
+    const syncConfirmation = await client.callTool({
+      name: "nkdk.sync_to_infobase",
+      arguments: {
+        projectDir: tmpRoot,
+        componentPath: "cf",
+      },
+    })
+    if (
+      !syncConfirmation.isError ||
+      syncConfirmation.structuredContent?.code !== "confirmation_required"
+    ) {
+      throw new Error("nkdk.sync_to_infobase started without allowWrite=true")
+    }
+
     const closeOne = await client.callTool({
       name: "nkdk.close_platform_connection",
       arguments: { projectDir: tmpRoot },

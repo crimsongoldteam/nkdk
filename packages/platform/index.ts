@@ -34,9 +34,11 @@ export type {
   PlatformSession,
   PlatformSessionManager,
   PlatformSessionMode,
+  PartialLoadMode,
   ProjectSettings,
   UnresolvedReferencesMode,
 } from "./src/sessions/types"
+export { classifyPartialLoad } from "./src/sessions/commands"
 export {
   parseProjectSettingsYaml,
   readProjectSettings,

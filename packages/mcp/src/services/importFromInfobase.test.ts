@@ -10,8 +10,15 @@ const platformLogPath = join(temporaryDirectory, "platform.log")
 describe("import from infobase", () => {
   it("requires explicit write confirmation before reading settings", async () => {
     const fixture = createFixture()
-    const result = await importFromInfobase({ projectDir: "/project" }, fixture.dependencies)
-    expect(result).toMatchObject({ ok: false, code: "confirmation_required" })
+    const result = await importFromInfobase({
+      projectDir: "/project",
+      componentPath: "cfe/Расширение",
+    }, fixture.dependencies)
+    expect(result).toMatchObject({
+      ok: false,
+      code: "confirmation_required",
+      details: { componentPath: "cfe/Расширение" },
+    })
     expect(fixture.calls).toEqual([])
   })
 
@@ -47,6 +54,18 @@ describe("import from infobase", () => {
       unresolvedReferences: "include",
     })
     expect(fixture.exportedSettings).not.toHaveProperty("operations")
+  })
+
+  it("exports and imports the selected extension", async () => {
+    const fixture = createFixture()
+    await importFromInfobase({
+      ...input(),
+      componentPath: "cfe/Расширение_All",
+    }, fixture.dependencies)
+
+    expect(fixture.calls).toContain("resolveTarget /project cfe/Расширение_All")
+    expect(fixture.exportedSettings).toMatchObject({ extensionName: "Расширение_All" })
+    expect(fixture.importedOutputDirs).toEqual(["/project/cfe/Расширение_All"])
   })
 
   it.each([
@@ -205,6 +224,7 @@ function createFixture(options: {
 } = {}) {
   const calls: string[] = []
   const exportedSettings: Record<string, unknown> = {}
+  const importedOutputDirs: string[] = []
   const dependencies: ImportFromInfobaseDependencies = {
     async readSettings(projectDir) {
       calls.push(`readProjectSettings ${projectDir}`)
@@ -221,6 +241,7 @@ function createFixture(options: {
     },
     async importXml(params) {
       calls.push(`syncConfigurationFromXML ${params.externalFileTransfer}`)
+      importedOutputDirs.push(params.outputDir)
       return options.importResult ?? {
         succeeded: 2,
         failed: [],
@@ -230,11 +251,12 @@ function createFixture(options: {
     },
     resolveTarget({ projectDir, componentPath }) {
       calls.push(`resolveTarget ${projectDir} ${componentPath ?? "cf"}`)
+      const selectedComponentPath = componentPath ?? "cf"
       return {
         ok: true,
         projectDir,
-        componentDir: `${projectDir}/cf`,
-        componentPath: "cf",
+        componentDir: `${projectDir}/${selectedComponentPath}`,
+        componentPath: selectedComponentPath,
         nkdkDir: `${projectDir}/.nkdk`,
       }
     },
@@ -252,5 +274,5 @@ function createFixture(options: {
     },
     operationId: () => "op-1",
   }
-  return { calls, exportedSettings, dependencies }
+  return { calls, exportedSettings, importedOutputDirs, dependencies }
 }

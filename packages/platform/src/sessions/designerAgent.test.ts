@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "./errors"
 import type { PlatformOperationLog } from "./operationLog"
 import { createProcessLogReader } from "./processLog"
+import { extensionPropertyRecord } from "../testing/extensionFixture"
 import { recordedPath } from "../testing/recordedPath"
+import { simulatePlatformConnectionStages } from "../testing/platformConnectionStages"
 import type { CreatePlatformSessionParams } from "./types"
 import {
   createDesignerAgentSession,
@@ -69,7 +71,10 @@ describe("Designer agent session", () => {
     const text = fixture.writes.get(fixture.operationLog.path)
     expect(text).toContain("stage=session-start")
     expect(text).toContain("authentication=credentials")
-    expect(text).toContain("stage=authentication")
+    expect(text).toContain("stage=protocol-handshake status=start")
+    expect(text).toContain("stage=protocol-handshake status=ready")
+    expect(text).toContain("stage=authentication status=start")
+    expect(text).toContain("stage=authentication status=ready")
     expect(text).toContain("1cv8 DESIGNER")
     expect(text).not.toContain("secret")
     expect(text).not.toContain("Администратор")
@@ -98,6 +103,28 @@ describe("Designer agent session", () => {
     expect(fixture.writes.get(fixture.operationLog.path)).toContain("authentication detail ***")
   })
 
+  it("classifies a timeout before the initial prompt as a protocol handshake failure", async () => {
+    const fixture = createFixture({
+      openCommandError: new PlatformSessionError("session_timeout", "Prompt timeout secret"),
+      openCommandErrorStage: "protocol-handshake",
+    })
+
+    const error = await createDesignerAgentSession(
+      createParams({ operationLog: fixture.operationLog }),
+      fixture.dependencies
+    ).catch((caught: unknown) => caught)
+
+    expect(error).toMatchObject({
+      code: "session_timeout",
+      message: "Prompt timeout ***",
+      details: {
+        stage: "protocol-handshake",
+        mode: "designer-agent",
+        logPath: fixture.operationLog.path,
+      },
+    })
+  })
+
   it("exports a file connection relative to AgentBaseDir without --server", async () => {
     const fixture = createFixture()
 
@@ -120,9 +147,26 @@ describe("Designer agent session", () => {
     expect(fixture.calls.some((call) => call.includes("--server"))).toBe(false)
   })
 
+  it("exports only the selected extension", async () => {
+    const fixture = createFixture()
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await session.exportConfiguration(
+      "/project/.nkdk/tmp/op/xml",
+      fixture.operationLog,
+      "include",
+      undefined,
+      "Расширение_All"
+    )
+
+    expect(fixture.calls).toContain(
+      'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical --extension="Расширение_All"'
+    )
+  })
+
   it("lists and normalizes extensions through one agent command", async () => {
     const fixture = createFixture({
-      extensionInfo: [extensionRecord("First"), extensionRecord("Second")],
+      extensionInfo: [extensionPropertyRecord("First"), extensionPropertyRecord("Second")],
     })
     const session = await createDesignerAgentSession(
       createParams(),
@@ -148,7 +192,7 @@ describe("Designer agent session", () => {
       ["Catalogs/Справочник1.xml", "Catalogs/Справочник1/Ext/ObjectModule.bsl"],
       fixture.operationLog,
       "Расширение"
-    )).resolves.toEqual({ warnings: [] })
+    )).resolves.toEqual({ warnings: [], loadMode: "selected" })
 
     expect(fixture.calls.find((call) => call.startsWith("copy "))).toMatch(
       /^copy \/project\/\.nkdk\/tmp\/op\/package\.zip \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+\/package\.zip$/u
@@ -158,8 +202,9 @@ describe("Designer agent session", () => {
       "Catalogs/Справочник1.xml\nCatalogs/Справочник1/Ext/ObjectModule.bsl\n",
     ])
     expect(fixture.calls.find((call) => call.startsWith("shell.run config load-files"))).toMatch(
-      /^shell\.run config load-files --dir="\.nkdk-load\/[^/]+" --archive="package\.zip" --no-check --list-file="\.nkdk-load\/[^/]+\/load\.lst" --partial --update-config-dump-info --extension="Расширение"$/u
+      /^shell\.run config load-files --dir="\.nkdk-load\/[^/]+" --archive="package\.zip" --no-check --list-file="\.nkdk-load\/[^/]+\/load\.lst" --update-config-dump-info --extension="Расширение"$/u
     )
+    expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
     expect(fixture.calls.findLast((call) => call.startsWith("rm "))).toMatch(
       /^rm \/project\/\.nkdk\/0\/\.nkdk-load\/[^/]+$/u
     )
@@ -177,6 +222,21 @@ describe("Designer agent session", () => {
     )
   })
 
+  it("uses --partial only for module-only loads", async () => {
+    const fixture = createFixture()
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1/Ext/ObjectModule.bsl"],
+      fixture.operationLog,
+    )).resolves.toEqual({ warnings: [], loadMode: "partial" })
+
+    expect(fixture.calls.find((call) => call.startsWith("shell.run config load-files")))
+      .toContain(" --partial --update-config-dump-info")
+    expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
+  })
+
   it("сохраняет успешный результат загрузки при отказе журнала после команды", async () => {
     const fixture = createFixture({ logAppendFailureAt: 3 })
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
@@ -187,6 +247,7 @@ describe("Designer agent session", () => {
       fixture.operationLog,
     )).resolves.toEqual({
       warnings: ["Не удалось дополнить журнал после успешной загрузки"],
+      loadMode: "selected",
     })
   })
 
@@ -251,6 +312,7 @@ describe("Designer agent session", () => {
       fixture.operationLog
     )).resolves.toEqual({
       warnings: ["Не удалось удалить служебную копию ZIP после успешной загрузки"],
+      loadMode: "selected",
     })
     expect(fixture.writes.get(fixture.operationLog.path)).toContain(
       "cleanup stage=configuration-load status=failed"
@@ -697,6 +759,7 @@ function createFixture(
     processLogDuringLoad?: string
     processLogReadFailure?: boolean
     openCommandError?: Error
+    openCommandErrorStage?: "protocol-handshake" | "authentication"
     loadError?: PlatformSessionError
     loadCleanupFailure?: boolean
     logAppendFailureAt?: number
@@ -915,9 +978,17 @@ function createFixture(
           }
         },
       },
-      async openCommandSession() {
+      async openCommandSession(params) {
         calls.push("shell.connect-ib")
-        if (options.openCommandError !== undefined) throw options.openCommandError
+        await simulatePlatformConnectionStages(
+          params.onStage,
+          options.openCommandError === undefined
+            ? undefined
+            : {
+                stage: options.openCommandErrorStage ?? "authentication",
+                error: options.openCommandError,
+              }
+        )
         return commandSession
       },
       clock: {
@@ -932,21 +1003,6 @@ function createFixture(
       retryDelayMs: 100,
       closeTimeoutMs: 5_000,
     },
-  }
-}
-
-function extensionRecord(name: string) {
-  return {
-    name,
-    version: "",
-    active: "yes",
-    purpose: "customization",
-    "safe-mode": "yes",
-    "security-profile-name": "",
-    "unsafe-action-protection": "yes",
-    "used-in-distributed-infobase": "no",
-    scope: "infobase",
-    "hash-sum": `${name}-hash`,
   }
 }
 

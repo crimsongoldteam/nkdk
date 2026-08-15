@@ -8,6 +8,7 @@ import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 import {
   copyFormItemExternalFilesFromXML,
+  describeFormAssignmentInputResourceDeclarations,
   describeFormExternalResourceDeclarations,
 } from "./externalItemFiles"
 import { copyExistingRawFile } from "./externalRawFiles"
@@ -109,6 +110,10 @@ export const clientApplicationFormPropertyRules = defineMetadataRules({
           ...describeFormExternalResourceDeclarations({
             xmlFormDirPattern: xmlFormDir,
             targetFormDirPattern: "",
+          }),
+          ...describeFormAssignmentInputResourceDeclarations({
+            targetFormDirPattern: "",
+            source: { kind: "property", description: "ClientApplicationForm" },
           }),
         ]
       },
