@@ -290,7 +290,28 @@ export function buildPartialXmlImpactPlan(params: {
     const ids = assignmentDocumentIds.get(resource.projectPath) ?? new Set<string>()
     ids.add(document.id)
     assignmentDocumentIds.set(resource.projectPath, ids)
+    includeManifestExternalFiles(resource, target)
     if (loadTarget) loadTargets.add(target)
+  }
+
+  function includeManifestExternalFiles(
+    resource: MetadataProjectResourceMatch,
+    manifestTarget: string,
+  ): void {
+    const assignmentId = resource.assignment?.id
+    if (assignmentId === undefined) return
+    for (const current of currentByPath.values()) {
+      const external = current.externalFile
+      if (
+        current.kind !== "externalFile" ||
+        current.assignment?.id !== assignmentId ||
+        external?.selection === undefined
+      ) continue
+      const candidateManifest = normalizedXmlPath(
+        expandMetadataPathPattern(external.selection.manifestPattern, current.values),
+      )
+      if (candidateManifest === manifestTarget) includeExternal(current, false)
+    }
   }
 
   function includeExternal(resource: MetadataProjectResourceMatch, requestLoad: boolean): void {

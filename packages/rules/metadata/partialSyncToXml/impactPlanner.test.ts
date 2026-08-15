@@ -46,6 +46,25 @@ const topology = compileMetadataResourceTopology([{
     document("", "Languages/{ownerName}.xml", "metadata", true),
     content("Объект/{ownerName}/Свойства.yaml", "properties", objectRule, "configurationComposition"),
     document("", "Objects/{ownerName}.xml", "metadata", true),
+    content("ОбъектСМанифестом/{ownerName}/Свойства.yaml", "properties", objectRule, "none"),
+    document("", "ManifestObjects/{ownerName}.xml", "metadata", true),
+    document("", "ManifestObjects/{ownerName}/Ext/Help.xml", "property", false),
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "ОбъектСМанифестом/{ownerName}/Свойства.yaml",
+      projectPattern: "ОбъектСМанифестом/{ownerName}/Справка/{relativePath...}",
+      xmlPattern: "ManifestObjects/{ownerName}/Ext/Help/{relativePath...}",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      selection: {
+        manifestPattern: "ManifestObjects/{ownerName}/Ext/Help.xml",
+        listPath: ["Help", "Page"],
+        candidateParameter: "relativePath",
+        candidateSuffix: ".html",
+      },
+      source,
+    },
     {
       kind: "externalFile" as const,
       assignmentProjectPattern: "Объект/{ownerName}/Свойства.yaml",
@@ -180,6 +199,8 @@ const root = "Конфигурация.yaml"
 const rootModule = "МодульПриложения.bsl"
 const language = "Язык/Русский.yaml"
 const owner = "Объект/Товары/Свойства.yaml"
+const manifestOwner = "ОбъектСМанифестом/Товары/Свойства.yaml"
+const ownerHelp = "ОбъектСМанифестом/Товары/Справка/ru.html"
 const ownerModule = "Объект/Товары/Команды/Проверочная.bsl"
 const firstForm = "Объект/Товары/Формы/Первая/Форма.yaml"
 const firstModule = "Объект/Товары/Формы/Первая/Модуль.bsl"
@@ -201,6 +222,20 @@ describe("partial XML impact planner", () => {
     expect(documentPaths(plan([root, language, owner], changes({ changed: [owner] })))).toEqual([
       "Objects/Товары.xml",
     ])
+  })
+
+  it("добавляет внешние файлы, перечисленные в созданном XML-манифесте", () => {
+    const result = plan([root, manifestOwner, ownerHelp], changes({ changed: [manifestOwner] }))
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [manifestOwner, ownerHelp].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([ownerHelp])
+    expect(result.loadTargets).toEqual([
+      "ManifestObjects/Товары.xml",
+      "ManifestObjects/Товары/Ext/Help.xml",
+    ].sort(utf8))
   })
 
   it("разделяет payload и load target формы", () => {
