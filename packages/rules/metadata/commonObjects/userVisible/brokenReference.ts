@@ -18,7 +18,7 @@ export const brokenUserVisibleReferenceCarrier: BrokenXMLReferenceTypeCarrier = 
     if (rawValues === undefined) return undefined
     const values = Array.isArray(rawValues) ? rawValues : [rawValues]
     const taggedLocations = values.flatMap((item): BrokenXMLReferenceLocation[] => {
-      if (!isRecord(item) || typeof item._name !== "string" || !isMDObjectRefUuid(item._name)) return []
+      if (!isRecord(item) || typeof item._name !== "string" || !isBrokenUserVisibleRoleName(item._name)) return []
       if (!Object.prototype.hasOwnProperty.call(roles, item._name)) return []
       markYAMLMappingKeyTag(roles, item._name, "xml/reference")
       return [{ kind: "key", path: ["Роли"], key: item._name }]
@@ -34,8 +34,8 @@ export const brokenUserVisibleReferenceCarrier: BrokenXMLReferenceTypeCarrier = 
     for (const [index, key] of Object.keys(roles).entries()) {
       const location = { kind: "key", path: ["Роли"], key } as const
       if (!isTagged(location)) continue
-      if (!isMDObjectRefUuid(key)) {
-        throw new Error("Битая ссылка роли должна содержать канонический UUID")
+      if (!isBrokenUserVisibleRoleName(key)) {
+        throw new Error("Битая ссылка роли должна содержать канонический UUID или пустое имя")
       }
       renameMetadataTargetMappingKey(preparedRoles, key, temporaryRoleName(index, preparedRoles))
       transportedLocations.push(location)
@@ -71,8 +71,12 @@ export const brokenUserVisibleReferenceCarrier: BrokenXMLReferenceTypeCarrier = 
       && location.path.length === 1
       && location.path[0] === "Роли"
       && isTagged(location)
-      && isMDObjectRefUuid(location.key)
+      && isBrokenUserVisibleRoleName(location.key)
   },
+}
+
+export function isBrokenUserVisibleRoleName(value: string): boolean {
+  return value === "" || isMDObjectRefUuid(value)
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule(

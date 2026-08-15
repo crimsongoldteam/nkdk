@@ -40,7 +40,7 @@ export const UserEditKeysYAML = {
 } as const
 
 const USER_VISIBLE_ROLE_KEY_PATTERN = "^[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*$"
-const USER_VISIBLE_ROLE_OR_UUID_KEY_PATTERN = "^(?:[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$"
+const USER_VISIBLE_ROLE_OR_BROKEN_REFERENCE_KEY_PATTERN = "^(?:[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|)$"
 
 function createUserVisibleJSONSchema(roleKeyPattern: string) {
   const roles = Type.Record(
@@ -69,7 +69,7 @@ function createUserVisibleJSONSchema(roleKeyPattern: string) {
 
 export const UserVisibleJSONSchema = createUserVisibleJSONSchema(USER_VISIBLE_ROLE_KEY_PATTERN)
 export const UserVisibleBrokenReferenceJSONSchema = createUserVisibleJSONSchema(
-  USER_VISIBLE_ROLE_OR_UUID_KEY_PATTERN,
+  USER_VISIBLE_ROLE_OR_BROKEN_REFERENCE_KEY_PATTERN,
 )
 
 export type UserVisibleYAML = Static<typeof UserVisibleJSONSchema>

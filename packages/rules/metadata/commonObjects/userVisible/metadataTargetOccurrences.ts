@@ -6,7 +6,7 @@ import {
 } from "@nkdk/runtime/rule-kit"
 import { parseMetadataTargetFromModel } from "../metadataTargets/parse"
 import { yamlMappingKeyTagAt } from "@nkdk/runtime"
-import { isMDObjectRefUuid } from "../metadataRef/brokenMDObjectRef"
+import { isBrokenUserVisibleRoleName } from "./brokenReference"
 
 export const userVisibleRoleTarget = {
   kind: "object",
@@ -22,7 +22,7 @@ export const collectUserVisibleMetadataTargetOccurrences: MetadataTargetOccurren
         key: roleNameFromCanonical(item.name),
       },
       constraint: userVisibleRoleTarget,
-      representation: isMDObjectRefUuid(item.name)
+      representation: isBrokenUserVisibleRoleName(item.name)
         ? { kind: "brokenXMLReference", payload: item.name, grammar: "uuid" }
         : { kind: "canonical", canonical: item.name },
       setValue: (nextValue) => { item.name = nextValue },
@@ -35,7 +35,7 @@ export const collectUserVisibleMetadataTargetOccurrences: MetadataTargetOccurren
   return Object.keys(roles).map((key): MetadataTargetOccurrence => ({
     location: { kind: "key", path: [...params.yamlPath, "Роли"], key },
     constraint: userVisibleRoleTarget,
-    representation: isMDObjectRefUuid(key) && yamlMappingKeyTagAt(roles, key) === "xml/reference"
+    representation: isBrokenUserVisibleRoleName(key) && yamlMappingKeyTagAt(roles, key) === "xml/reference"
       ? { kind: "brokenXMLReference", payload: key, grammar: "uuid" }
       : { kind: "canonical", canonical: key },
     setValue: (nextValue) => renameMetadataTargetMappingKey(roles, key, nextValue),
