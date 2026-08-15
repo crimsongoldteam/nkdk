@@ -29,17 +29,18 @@ export const analyzeRecalculationDimensionLinks: DependentYamlItemHandler = (par
   const dimensions = recalculationDimensions(params.rootYaml)
   if (dimensions === undefined || isSparseAdoptedDimension(params.item)) return emptyAnalysis()
 
-  const ownersByDimension = new Map<string, ReadonlySet<string>>()
+  const linksByDimension = new Map<string, readonly LeadingRegisterLink[]>()
   const allOwners = new Set<string>()
   for (const [dimensionName, rawDimension] of Object.entries(dimensions)) {
     const dimension = asRecord(rawDimension)
     if (dimension === undefined || isSparseAdoptedDimension(dimension)) continue
-    const owners = leadingRegisterOwners(params, dimension)
-    ownersByDimension.set(dimensionName, owners)
-    for (const owner of owners) allOwners.add(owner)
+    const links = leadingRegisterLinks(params, dimension)
+    linksByDimension.set(dimensionName, links)
+    for (const { owner } of links) allOwners.add(owner)
   }
 
-  const currentOwners = ownersByDimension.get(params.itemName ?? "") ?? new Set<string>()
+  const currentLinks = linksByDimension.get(params.itemName ?? "") ?? []
+  const currentOwners = new Set(currentLinks.map(({ owner }) => owner))
   const diagnostics = [...allOwners]
     .filter((owner) => !currentOwners.has(owner))
     .map((owner) => diagnosticAtYamlPath({
@@ -53,22 +54,47 @@ export const analyzeRecalculationDimensionLinks: DependentYamlItemHandler = (par
         "этот регистр указан в других измерениях перерасчёта",
     }))
 
-  return { diagnostics, references: [], projectChecks: [] }
+  if (params.metadataTargetLookup !== undefined) {
+    return { diagnostics, references: [], projectChecks: [] }
+  }
+
+  return {
+    diagnostics: [],
+    references: [],
+    projectChecks: [{
+      kind: "referenceCoverage",
+      yamlPath: [...params.itemYamlPath, leadingRegisterDataYamlKey],
+      requirements: [...allOwners].map((owner) => ({
+        message:
+          `В «${leadingRegisterDataYamlKey}» требуется измерение или реквизит регистра расчёта «${owner}»: ` +
+          "этот регистр указан в других измерениях перерасчёта",
+        candidates: [...linksByDimension.values()].flat()
+          .filter((link) => link.owner === owner)
+          .map((link) => link.canonical),
+        coveredBy: currentLinks.filter((link) => link.owner === owner).map((link) => link.canonical),
+      })),
+    }],
+  }
 }
 
-function leadingRegisterOwners(
+interface LeadingRegisterLink {
+  readonly owner: string
+  readonly canonical: string
+}
+
+function leadingRegisterLinks(
   params: DependentYamlItemParams,
   dimension: Readonly<Record<string, unknown>>,
-): ReadonlySet<string> {
+): readonly LeadingRegisterLink[] {
   const values = dimension[leadingRegisterDataYamlKey]
-  if (!Array.isArray(values)) return new Set()
+  if (!Array.isArray(values)) return []
 
-  const owners = new Set<string>()
+  const links: LeadingRegisterLink[] = []
   for (const value of values) {
     if (typeof value !== "string" || value.length === 0) continue
     if (!value.includes(".")) {
       const canonical = `CalculationRegister.${params.owner.name}.Dimension.${value}`
-      if (targetExists(params, canonical)) owners.add(params.owner.name)
+      if (targetExists(params, canonical)) links.push({ owner: params.owner.name, canonical })
       continue
     }
 
@@ -76,13 +102,13 @@ function leadingRegisterOwners(
       ? parseMetadataTargetFromModel({ canonical: value, constraint: leadingRegisterTarget })
       : parseMetadataTargetFromYAML({ value, constraint: leadingRegisterTarget })
     if (!parsed.ok || parsed.target.kind !== "member" || !targetExists(params, parsed.canonical)) continue
-    owners.add(parsed.target.objectName)
+    links.push({ owner: parsed.target.objectName, canonical: parsed.canonical })
   }
-  return owners
+  return links
 }
 
 function targetExists(params: DependentYamlItemParams, canonical: string): boolean {
-  const status = params.metadataTargetLookup?.(canonical)
+  const status = params.metadataTargetLookup?.(canonical) ?? "found"
   return status !== "missing" && status !== "ambiguous"
 }
 

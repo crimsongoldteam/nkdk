@@ -51,15 +51,25 @@ export interface DependentYamlItemAnalysis {
   readonly projectChecks: readonly DependentProjectCheckCandidate[]
 }
 
-export interface DependentProjectCheckCandidate {
-  readonly kind: "fillValue"
-  readonly yamlPath: DependentYamlPath
-  readonly itemType: string
-  readonly type: TypeDescriptionView
-  readonly value: FillValueTypedValue
-  readonly tagged: boolean
-  readonly transport?: "DesignTimeRef"
-}
+export type DependentProjectCheckCandidate =
+  | {
+      readonly kind: "fillValue"
+      readonly yamlPath: DependentYamlPath
+      readonly itemType: string
+      readonly type: TypeDescriptionView
+      readonly value: FillValueTypedValue
+      readonly tagged: boolean
+      readonly transport?: "DesignTimeRef"
+    }
+  | {
+      readonly kind: "referenceCoverage"
+      readonly yamlPath: DependentYamlPath
+      readonly requirements: readonly {
+        readonly message: string
+        readonly candidates: readonly string[]
+        readonly coveredBy: readonly string[]
+      }[]
+    }
 
 export interface DependentYamlItemParams extends DependentItemParams {
   readonly filePath: string

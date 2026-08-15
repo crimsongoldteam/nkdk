@@ -291,6 +291,10 @@
 - Create: `packages/rules/metadata/appliedObjects/metadataCalculationRegister/recalculation/validation.test.ts`
 - Modify: `packages/rules/metadata/appliedObjects/metadataCalculationRegister/recalculation/register.ts`
 - Modify: `packages/rules/metadata/composition/staticFactoryRules.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/property/dependentItemRegistry.ts`
+- Modify: `packages/rules/metadata/validation/projectValidationPendingChecks.ts`
+- Modify: `packages/rules/metadata/validation/projectValidationPasses.ts`
+- Modify: `packages/rules/metadata/projectState/**`
 
 - [x] **Step 1: Написать таблицу падающих и проходящих тестов**
 
@@ -317,13 +321,20 @@
   2. Для каждого элемента `ДанныеВедущихРегистров` определить владельца: короткое имя измерения — служебный ключ текущего регистра; полная русская/модельная ссылка — разобрать существующим metadata-target parser с `CalculationRegister/Dimension|Attribute`.
   3. Ссылки, которые parser не разобрал, исключить из предметного анализа: их обработает обычная ссылочная диагностика. Если `params.metadataTargetLookup` передан и возвращает `missing` или `ambiguous`, также не учитывать владельца этой ссылки; unit-тест передаёт lookup явно и подтверждает отсутствие каскадной ошибки.
   4. Построить объединение владельцев по всем измерениям.
-  5. Для текущего измерения выдать по одной диагностике на каждого отсутствующего владельца:
+  5. При явном `metadataTargetLookup` выдать для текущего измерения по одной диагностике на каждого отсутствующего владельца:
 
      ```text
      В «ДанныеВедущихРегистров» требуется измерение или реквизит регистра расчёта «<Имя>»: этот регистр указан в других измерениях перерасчёта
      ```
 
      Диагностику создать через `diagnosticAtYamlPath`, передав `params.filePath`, `params.parsed`, путь `params.itemYamlPath.concat("ДанныеВедущихРегистров")`, severity `error` и source `cross-file`.
+
+  6. В обычной проверке проекта вернуть нейтральную отложенную проверку
+     `referenceCoverage`: `candidates` содержат ссылки владельца во всей
+     матрице, `coveredBy` — ссылки владельца в текущем измерении. На втором
+     проходе требование действует, только если разрешилась хотя бы одна ссылка
+     из `candidates`; непустой `coveredBy` подавляет каскадную предметную ошибку,
+     оставляя диагностику битой ссылки общему ссылочному валидатору.
 
 - [x] **Step 4: Зарегистрировать предметный вклад**
 
@@ -340,7 +351,10 @@
   })
   ```
 
-  Подключить его в `staticFactoryRules.ts`. Не добавлять новый `DependentProjectCheckCandidate.kind` и не менять бинарное состояние проекта.
+  Подключить его в `staticFactoryRules.ts`. По согласованию расширить общий
+  `DependentProjectCheckCandidate` вариантом `referenceCoverage`, провести его
+  через обычный второй проход и бинарный `ProjectState`, не добавляя в
+  нейтральные слои условий по типу объекта перерасчёта.
 
 - [x] **Step 5: Провести unit и integration-проверку проекта**
 
@@ -504,10 +518,11 @@
 
   Expected: PASS. Если duration-check единственный сбой после холодного запуска, повторить один раз вне песочницы и зафиксировать оба результата; функциональные падения исправить.
 
-  Результат: два полных запуска прошли 4434/4434 функциональных проверки rules, но оба
-  завершились кодом 1 из-за нестабильного порога длительности `toJSONSchema.test.ts` (1035 и
-  1106 мс при лимите 1000 мс). Пропущенные из-за этого native/integration-наборы rules и MCP запущены
-  отдельно: функциональных падений нет.
+  Результат после исправления замечания ревью: полный запуск завершился кодом 0.
+  В частности, rules прошёл 4439 unit/core-проверок, 41 native LMDB-проверку и
+  2752 integration-проверки; MCP прошёл 122 unit и 67 integration-проверок,
+  ещё 2 integration-проверки пропущены штатно. Предупреждения о превышении
+  целевого времени остались информационными.
 
 - [x] **Step 3: Проверить архитектуру**
 

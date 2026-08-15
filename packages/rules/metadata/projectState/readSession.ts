@@ -81,7 +81,7 @@ export interface ProjectDependencyInputQuery {
   readonly requestId: string
   readonly componentPath: string
   readonly projectPath: string
-  readonly check: Exclude<ProjectStatePendingDependencyCheck, { kind: "addressableRequired" }>
+  readonly check: Exclude<ProjectStatePendingDependencyCheck, { kind: "addressableRequired" | "referenceCoverage" }>
 }
 
 export interface ProjectDependencyInput {

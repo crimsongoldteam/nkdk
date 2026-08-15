@@ -35,7 +35,7 @@ export type ProjectDependencyInputQuery = Readonly<{
   requestId: string
   componentPath: string
   projectPath: string
-  check: Exclude<ProjectStatePendingDependencyCheck, { kind: "addressableRequired" }>
+  check: Exclude<ProjectStatePendingDependencyCheck, { kind: "addressableRequired" | "referenceCoverage" }>
 }>
 export interface ProjectDependencyInput { readonly owners: readonly { readonly owner: OwnerTypeRef; readonly facts: ProjectStateOwnerFacts }[]; readonly fields: readonly ProjectStateFieldEntry[]; readonly forms: readonly ProjectStateFormEntry[] }
 export type ProjectDependencyInputResult = { readonly requestId: string; readonly status: "found"; readonly input: ProjectDependencyInput } | { readonly requestId: string; readonly status: "missing" }
@@ -90,6 +90,7 @@ export interface ProjectStatePendingReferenceCheck { readonly requestId: string;
 export interface ProjectStatePendingOwnerCheck { readonly requestId: string; readonly componentPath: string; readonly owner: OwnerTypeRef }
 export interface ProjectStateDataPathReferenceCheck { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "dataPath" }> }
 export interface ProjectStateAddressableRequiredCheck { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "addressableRequired" }> }
+export interface ProjectStateReferenceCoverageCheck { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "referenceCoverage" }> }
 export interface ProjectStateDependencyReadiness { readonly blockedComponentPaths: ReadonlySet<string>; readonly diagnostics: readonly Diagnostic[] }
 export interface ProjectStateResolvedDataPathProjection { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly resolvedSegments: readonly string[]; readonly sourceOwner: OwnerTypeRef; readonly sourceFieldName?: string }
 
@@ -106,6 +107,7 @@ export interface ProjectStateReferenceValidationParams {
 export interface ProjectStateOwnerValidationParams { readonly checks: readonly ProjectStatePendingOwnerCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "readOwners"> }
 export interface ProjectStateDependencyValidationParams { readonly checks: readonly ProjectDependencyInputQuery[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "readDependencyInputs" | "readDependencyOwnerInputs" | "readOwnerRefPage"> }
 export interface ProjectStateAddressableRequiredValidationParams { readonly checks: readonly ProjectStateAddressableRequiredCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets"> }
+export interface ProjectStateReferenceCoverageValidationParams { readonly checks: readonly ProjectStateReferenceCoverageCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets"> }
 export interface ProjectStateStructuredDocumentValidationParams {
   readonly facts: readonly ProjectStateStructuredDocumentFact[]
   readonly projectDir: string
@@ -123,5 +125,6 @@ export interface ProjectStateDependencyValidator {
   validateOwners(params: ProjectStateOwnerValidationParams): readonly Diagnostic[]
   validateDependencies(params: ProjectStateDependencyValidationParams): readonly Diagnostic[]
   validateAddressableRequired(params: ProjectStateAddressableRequiredValidationParams): readonly Diagnostic[]
+  validateReferenceCoverage(params: ProjectStateReferenceCoverageValidationParams): readonly Diagnostic[]
   validateStructuredDocuments(params: ProjectStateStructuredDocumentValidationParams): readonly Diagnostic[]
 }

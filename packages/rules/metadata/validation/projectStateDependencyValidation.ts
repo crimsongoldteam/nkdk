@@ -43,6 +43,7 @@ import type { ProjectStateStructuredDocumentValidator } from "../projectState/co
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 import { diagnosticAtYamlLocation } from "./yamlLocations"
 import type { ProjectStateAddressableRequiredCheck } from "../projectState/contracts/dependencyValidation"
+import type { ProjectStateReferenceCoverageCheck } from "../projectState/contracts/dependencyValidation"
 import type { DataTableDeclarationContributor } from "./dataTables"
 import { validateProjectStateDataTableReferenceBatch } from "./dataTables/projectState"
 import type { DataTableRegistrySet } from "./dataTables/registry"
@@ -74,9 +75,46 @@ export function createProjectStateDependencyValidator(params: {
     validateOwners: validateProjectStateOwnerBatch,
     validateDependencies: validateProjectStateDependencyBatch,
     validateAddressableRequired: validateProjectStateAddressableRequiredBatch,
+    validateReferenceCoverage: validateProjectStateReferenceCoverageBatch,
     validateStructuredDocuments: (validationParams) =>
       (params.structuredDocumentValidators ?? []).flatMap((validator) => validator(validationParams)),
   }
+}
+
+export function validateProjectStateReferenceCoverageBatch(params: {
+  readonly checks: readonly ProjectStateReferenceCoverageCheck[]
+  readonly projectDir: string
+  readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets">
+}): readonly Diagnostic[] {
+  const requests = params.checks.flatMap((entry, checkIndex) =>
+    entry.check.requirements.flatMap((requirement, requirementIndex) =>
+      [...new Set(requirement.candidates)].map((canonicalTarget, targetIndex) => ({
+        requestId: `coverage:${checkIndex}:${requirementIndex}:${targetIndex}`,
+        componentPath: entry.componentPath,
+        canonicalTarget,
+      }))))
+  const results = params.queryPort.resolveTargets(requests)
+  const statuses = new Map(results.map((result) => [result.requestId, result.status]))
+  const diagnostics: Diagnostic[] = []
+  for (const [checkIndex, entry] of params.checks.entries()) {
+    for (const [requirementIndex, requirement] of entry.check.requirements.entries()) {
+      const targets = [...new Set(requirement.candidates)]
+      const targetStatuses = new Map(targets.map((target, targetIndex) => [
+        target,
+        statuses.get(`coverage:${checkIndex}:${requirementIndex}:${targetIndex}`),
+      ]))
+      const participates = requirement.candidates.some((target) => targetStatuses.get(target) === "found")
+      const covered = requirement.coveredBy.length > 0
+      if (!participates || covered) continue
+      diagnostics.push(diagnosticAtYamlLocation({
+        location: { ...entry.check.location, filePath: entry.projectPath },
+        severity: "error",
+        source: "cross-file",
+        message: requirement.message,
+      }))
+    }
+  }
+  return diagnostics
 }
 
 export function validateProjectStateAddressableRequiredBatch(params: {

@@ -7,6 +7,7 @@ import type { Diagnostic, DiagnosticSource, DiagnosticSeverity } from "@nkdk/run
 import type {
   ProjectStateDependencyValidator,
   ProjectStateAddressableRequiredCheck,
+  ProjectStateReferenceCoverageCheck,
   ProjectStatePendingOwnerCheck,
   ProjectStatePendingReferenceCheck,
 } from "../contracts/dependencyValidation"
@@ -95,7 +96,7 @@ export function validateSnapshotDependencyDiagnostics(
 ): Diagnostic[] {
   const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: typed, dependencyValidator })
   const readiness = dependencyValidator.readReadiness({ queryPort })
-  const { references, dependencies, addressableRequired, owners, structuredDocuments } = collectDependencyChecks(
+  const { references, dependencies, addressableRequired, referenceCoverage, owners, structuredDocuments } = collectDependencyChecks(
     snapshot,
     typed,
     readiness.blockedComponentPaths,
@@ -105,6 +106,7 @@ export function validateSnapshotDependencyDiagnostics(
     ...dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }),
     ...dependencyValidator.validateDependencies({ checks: dependencies, projectDir, queryPort }),
     ...dependencyValidator.validateAddressableRequired({ checks: addressableRequired, projectDir, queryPort }),
+    ...dependencyValidator.validateReferenceCoverage({ checks: referenceCoverage, projectDir, queryPort }),
     ...dependencyValidator.validateStructuredDocuments({ facts: structuredDocuments, projectDir, queryPort }),
     ...readiness.diagnostics,
   ]
@@ -118,6 +120,7 @@ export function collectDependencyChecks(
   const references: ProjectStatePendingReferenceCheck[] = []
   const dependencies: ProjectDependencyInputQuery[] = []
   const addressableRequired: ProjectStateAddressableRequiredCheck[] = []
+  const referenceCoverage: ProjectStateReferenceCoverageCheck[] = []
   const owners: ProjectStatePendingOwnerCheck[] = []
   const structuredDocuments = []
   const seenOwners = new Set<string>()
@@ -143,6 +146,15 @@ export function collectDependencyChecks(
         })
         continue
       }
+      if (check.kind === "referenceCoverage") {
+        referenceCoverage.push({
+          requestId: `coverage:${fileId}:${index}`,
+          componentPath,
+          projectPath,
+          check,
+        })
+        continue
+      }
       dependencies.push({
         requestId: `dependency:${fileId}:${index}`,
         componentPath,
@@ -156,7 +168,7 @@ export function collectDependencyChecks(
       owners.push({ requestId: `owner:${fileId}:${index}`, componentPath, owner: check.owner })
     }
   }
-  return { references, dependencies, addressableRequired, owners, structuredDocuments }
+  return { references, dependencies, addressableRequired, referenceCoverage, owners, structuredDocuments }
 }
 
 function* yamlFileIds(snapshot: ProjectStateSnapshotView): IterableIterator<number> {

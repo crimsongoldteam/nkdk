@@ -138,6 +138,16 @@ export type ProjectStatePendingDependencyCheck =
       readonly canonicalTarget: string
       readonly missing: readonly string[]
     }
+  | {
+      readonly kind: "referenceCoverage"
+      readonly yamlPath: ProjectStateYamlPath
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly requirements: readonly {
+        readonly message: string
+        readonly candidates: readonly string[]
+        readonly coveredBy: readonly string[]
+      }[]
+    }
 export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"
   readonly localValidation: ProjectStateLocalValidationResult

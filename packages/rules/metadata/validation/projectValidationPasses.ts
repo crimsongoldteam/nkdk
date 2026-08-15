@@ -712,7 +712,11 @@ export function validateProjectFileSecondPass(
       status: "ok",
       diagnostics: [
         ...referenceDiagnostics,
-        ...validatePendingChecks({ ownerCache: params.ownerCache, checks: params.state.pendingChecks }).diagnostics,
+        ...validatePendingChecks({
+          ownerCache: params.ownerCache,
+          checks: params.state.pendingChecks,
+          resolveReference: pendingReferenceResolver(params),
+        }).diagnostics,
       ],
     }
   }
@@ -723,8 +727,28 @@ export function validateProjectFileSecondPass(
   const diagnostics = [
     ...collected.diagnostics,
     ...validateSecondPassReferences(params, collected.references),
+    ...validatePendingChecks({
+      ownerCache: params.ownerCache,
+      checks: params.state.pendingChecks,
+      resolveReference: pendingReferenceResolver(params),
+    }).diagnostics,
   ]
   return { status: "ok", diagnostics }
+}
+
+function pendingReferenceResolver(
+  params: ProjectValidationSecondPassParams,
+): (canonical: string) => "found" | "missing" | "ambiguous" {
+  const references = new Map(params.state.kind === "failed"
+    ? []
+    : params.state.pendingReferences.map((reference) => [reference.canonical, reference]))
+  return (canonical) => {
+    const reference = references.get(canonical)
+    if (reference === undefined) return "missing"
+    const result = params.referenceIndex.resolve(reference)
+    if (result.ok) return "found"
+    return result.reason === "conflict" ? "ambiguous" : "missing"
+  }
 }
 
 function validateSecondPassReferences(

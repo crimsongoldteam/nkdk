@@ -16,6 +16,8 @@ import {
   validateProjectFileFirstPass,
 } from "../../../validation/projectValidationPasses"
 import { createValidationRulesSnapshot } from "../../../validation/rulesSnapshot"
+import { validatePendingChecks } from "../../../validation/projectValidationPendingChecks"
+import { missingOwnerMetadataCache } from "../../../validation/tests/validationTestSupport"
 
 describe("Recalculation project validation", () => {
   it("reports an incomplete leading-register link matrix", () => {
@@ -53,11 +55,22 @@ describe("Recalculation project validation", () => {
         },
       )
 
-      expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      if (result.state.kind !== "properties") throw new Error("Ожидались свойства перерасчёта")
+      const found = validatePendingChecks({
+        ownerCache: missingOwnerMetadataCache,
+        checks: result.state.pendingChecks,
+        resolveReference: () => "found",
+      })
+      expect(found.diagnostics).toContainEqual(expect.objectContaining({
         path: "/Измерения/Второе/ДанныеВедущихРегистров",
         source: "cross-file",
         message: expect.stringContaining("Ведущий"),
       }))
+      expect(validatePendingChecks({
+        ownerCache: missingOwnerMetadataCache,
+        checks: result.state.pendingChecks,
+        resolveReference: () => "missing",
+      }).diagnostics).toEqual([])
     } finally {
       rmSync(projectDir, { recursive: true, force: true })
     }

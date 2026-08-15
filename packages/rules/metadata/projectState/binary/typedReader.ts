@@ -499,6 +499,14 @@ export function createTypedProjectStateReader(
           ...decodeAddressableRequiredPayload(string(value.payloadId)),
         }
       }
+      if (kind === "referenceCoverage") {
+        return {
+          kind: "referenceCoverage" as const,
+          yamlPath: yamlPath(value.yamlPathId),
+          location,
+          ...decodeReferenceCoveragePayload(string(value.payloadId)),
+        }
+      }
       if (kind !== "dataPath") throw new Error(`Неизвестный вид project-state проверки: ${kind}`)
       return {
         kind: "dataPath" as const, yamlPath: yamlPath(value.yamlPathId),
@@ -539,6 +547,45 @@ export function createTypedProjectStateReader(
       throw new Error("Неподдерживаемая project-state проверка addressableRequired")
     }
     return { canonicalTarget: value.canonicalTarget, missing: value.missing as string[] }
+  }
+
+  function decodeReferenceCoveragePayload(payload: string): {
+    requirements: readonly { message: string; candidates: readonly string[]; coveredBy: readonly string[] }[]
+  } {
+    let decoded: unknown
+    try {
+      decoded = JSON.parse(payload)
+    } catch {
+      throw new Error("Повреждён JSON project-state проверки referenceCoverage")
+    }
+    if (typeof decoded !== "object" || decoded === null || Array.isArray(decoded)) {
+      throw new Error("Повреждена project-state проверка referenceCoverage")
+    }
+    const value = decoded as Record<string, unknown>
+    if (value.version !== 1 || !Array.isArray(value.requirements)) {
+      throw new Error("Неподдерживаемая project-state проверка referenceCoverage")
+    }
+    const requirements = value.requirements.map((item) => {
+      if (typeof item !== "object" || item === null || Array.isArray(item)) {
+        throw new Error("Повреждена project-state проверка referenceCoverage")
+      }
+      const requirement = item as Record<string, unknown>
+      if (
+        typeof requirement.message !== "string" ||
+        !Array.isArray(requirement.candidates) ||
+        !requirement.candidates.every((candidate) => typeof candidate === "string") ||
+        !Array.isArray(requirement.coveredBy) ||
+        !requirement.coveredBy.every((candidate) => typeof candidate === "string")
+      ) {
+        throw new Error("Неподдерживаемая project-state проверка referenceCoverage")
+      }
+      return {
+        message: requirement.message,
+        candidates: requirement.candidates as string[],
+        coveredBy: requirement.coveredBy as string[],
+      }
+    })
+    return { requirements }
   }
 
   function decodeFillValuePayload(payload: string): {
