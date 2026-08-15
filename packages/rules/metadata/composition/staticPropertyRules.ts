@@ -293,7 +293,6 @@ import { metadataPropertyRule002 as rule263 } from "../commonObjects/resourceTop
 import { metadataPropertyRule003 as rule264 } from "../commonObjects/resourceTopology"
 import { metadataPropertyRule004 as rule265 } from "../commonObjects/resourceTopology"
 import { metadataPropertyRule005 as rule266 } from "../commonObjects/resourceTopology"
-import { metadataPropertyRule006 as rule267 } from "../commonObjects/resourceTopology"
 import { metadataPropertyRule000 as rule268 } from "../commonObjects/standardAttributeDescription/toJSONSchema"
 import { metadataPropertyRule000 as rule269 } from "../commonObjects/string/fromXML"
 import { metadataPropertyRule000 as rule270 } from "../commonObjects/string/toJSONSchema"
@@ -679,7 +678,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule264,
   rule265,
   rule266,
-  rule267,
   rule268,
   rule269,
   rule270,

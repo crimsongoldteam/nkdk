@@ -164,7 +164,6 @@ describe("property resource topology registry", () => {
       { type: "ExternalPicture", xmlPath: "Ext/Picture.xml", payloadXmlDir: "Ext/Picture", nkdkDir: "Картинка" },
     ],
     ["WSDefinitionSchemas", { type: "WSDefinitionSchemas" }],
-    ["Recalculations", { type: "Recalculations" }],
   ] as const)("describes %s resources through the common contribution", (_type, rule) => {
     expect(describePropertyResourceTopology("value", rule as PropertyRule)).not.toEqual([])
   })
