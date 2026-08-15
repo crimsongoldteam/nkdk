@@ -63,7 +63,7 @@ describe("resolveXmlSyncAreaForProjectPath", () => {
   })
 
   it("does not contain private ruleRuntime knowledge", () => {
-    const source = readFileSync(fileURLToPath(import.meta.url).replace(/\.test\.ts$/, ".ts"), "utf-8")
+    const source = readFileSync(fileURLToPath(import.meta.url).replace(/(?:\.integration)?\.test\.ts$/, ".ts"), "utf-8")
     expect(source).not.toContain('parts[2] === "Формы"')
     expect(source).not.toContain('parts[2] === "Макеты"')
     expect(source).not.toContain('rule.itemType === "MetadataCatalog"')

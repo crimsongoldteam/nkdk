@@ -445,7 +445,7 @@ describe("XML import worker second pass", () => {
 
   it("writes a cross-object DataPath through the shared snapshot without reading a YAML project", async () => {
     const tempDir = createTempDir("worker")
-    const projectDir = createTempDir("empty-project")
+    const projectDir = join(tempDir, "empty-project")
     const { assignments, first, second } = await runCatalogAndFormSecondPass(
       tempDir,
       "Объект.Товары.LineNumber",
@@ -489,26 +489,26 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it("даёт одинаковый YAML при прямом и обратном порядке второго прохода", async () => {
-    const forward = await runCatalogAndFormSecondPass(
-      createTempDir("second-pass-owner-first"),
-      "Объект.Товары.LineNumber",
-      undefined,
-      undefined,
-      "LabelField",
-      "owner-first",
-    )
-    const reverse = await runCatalogAndFormSecondPass(
-      createTempDir("second-pass-consumer-first"),
-      "Объект.Товары.LineNumber",
-      undefined,
-      undefined,
-      "LabelField",
-      "consumer-first",
-    )
+  describe.sequential("порядок второго прохода", () => {
+    const yamlByOrder = new Map<"owner-first" | "consumer-first", string>()
 
-    expect(readImportedFormYaml(reverse)).toBe(readImportedFormYaml(forward))
-    expect(readImportedFormYaml(reverse)).toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
+    it.each(["owner-first", "consumer-first"] as const)("формирует YAML при порядке %s", async (order) => {
+      const result = await runCatalogAndFormSecondPass(
+        createTempDir(`second-pass-${order}`),
+        "Объект.Товары.LineNumber",
+        undefined,
+        undefined,
+        "LabelField",
+        order,
+      )
+      const yaml = readImportedFormYaml(result)
+      yamlByOrder.set(order, yaml)
+      expect(yaml).toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
+    })
+
+    it("даёт одинаковый YAML при прямом и обратном порядке", () => {
+      expect(yamlByOrder.get("consumer-first")).toBe(yamlByOrder.get("owner-first"))
+    })
   })
 
   it("публикует структуру импортированной формы в окончательном ProjectState", async () => {

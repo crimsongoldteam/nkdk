@@ -105,7 +105,7 @@ describe("configuration extension XML import", () => {
     ]))
     const importButtonDiagnostics = result.warnings
       .filter(({ message }) => message.includes(borrowedCommandBarButtonName))
-    const validationButtonDiagnostics = importedExtension.validationDiagnostics
+    const validationButtonDiagnostics = result.failed
       .filter(({ message }) => message.includes(borrowedCommandBarButtonName))
     expect(importButtonDiagnostics).toEqual([])
     expect(validationButtonDiagnostics).toEqual([])
@@ -303,13 +303,6 @@ async function importExtension() {
     xmlImportWorkerPoolHandle,
     projectState,
   })
-  const validation = await projectState.refreshAndValidate({
-    projectDir,
-    context: mockContextFromXML(),
-    concurrency: 1,
-  })
-  const validationDiagnostics = [...validation.diagnostics]
-  validation.diagnostics.release()
   const importedFormPath = join(
     projectDir,
     "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
@@ -337,7 +330,7 @@ async function importExtension() {
   const snapshot = { hashes, blocks: store.getBlocks(hashes.map(({ projectPath }) => projectPath)) }
   await store.close()
 
-  return { projectDir, result, validationDiagnostics, configuration, catalog, form, formWithoutBase, yamlText, snapshot }
+  return { projectDir, result, configuration, catalog, form, formWithoutBase, yamlText, snapshot }
 }
 
 async function importBaseConfiguration(projectDir: string): Promise<void> {

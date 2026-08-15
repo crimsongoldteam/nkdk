@@ -13,6 +13,6 @@ describe("readSourceTreeOnce", () => {
     expect(second).toBe(first)
     expect(Object.isFrozen(first)).toBe(true)
     expect(first.every(Object.isFrozen)).toBe(true)
-    expect(first.map((file) => file.relativePath)).toContain("sourceTreeSnapshot.test.ts")
+    expect(first.map((file) => file.relativePath)).toContain("sourceTreeSnapshot.integration.test.ts")
   })
 })

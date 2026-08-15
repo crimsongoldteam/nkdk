@@ -24,6 +24,7 @@ describe("prepareYamlProject", () => {
   const prepareTestPool1 = createPreparedYamlWorkerTestPool()
   const prepareTestPool2 = createPreparedYamlWorkerTestPool(2)
   const prepareTestPool4 = createPreparedYamlWorkerTestPool(4)
+  const cacheTestPool = createPreparedYamlWorkerTestPool()
   const validationPool = validationTestPool.pool
   const preparePool1 = prepareTestPool1.pool
   const preparePool2 = prepareTestPool2.pool
@@ -68,6 +69,7 @@ describe("prepareYamlProject", () => {
       prepareTestPool1.close(),
       prepareTestPool2.close(),
       prepareTestPool4.close(),
+      cacheTestPool.close(),
     ])
   })
 
@@ -391,40 +393,43 @@ describe("prepareYamlProject", () => {
     testTimeout
   )
 
-  it(
-    "reuses validation schema cache on repeated initValidation",
-    async () => {
-      const testPool = createPreparedYamlWorkerTestPool()
-      const pool = testPool.pool
-      const context = { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, exportToYAML: { toTyped: false } } as const
+  describe("validation schema cache", () => {
+    const context = { version: "2.20", languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' }, exportToYAML: { toTyped: false } } as const
+    let first: Awaited<ReturnType<typeof cacheTestPool.pool.initValidation>>
+    let second: Awaited<ReturnType<typeof cacheTestPool.pool.initValidation>>
+    let changedLanguages: Awaited<ReturnType<typeof cacheTestPool.pool.initValidation>>
 
-      try {
-        const first = await pool.initValidation(context)
-        const second = await pool.initValidation(context)
-        const changedLanguages = await pool.initValidation({
-          ...context,
-          languages: {
-            default: "ru",
-            registered: ["ru", "en"],
-            registeredSet: new Set(["ru", "en"]),
-            version: '["ru",["en","ru"]]',
-          },
-        })
+    beforeAll(async () => {
+      first = await cacheTestPool.pool.initValidation(context)
+      second = await cacheTestPool.pool.initValidation(context)
+      changedLanguages = await cacheTestPool.pool.initValidation({
+        ...context,
+        languages: {
+          default: "ru",
+          registered: ["ru", "en"],
+          registeredSet: new Set(["ru", "en"]),
+          version: '["ru",["en","ru"]]',
+        },
+      })
+    })
 
-        expect(first.reused).toBeUndefined()
-        expect(second).toMatchObject({
-          reused: true,
-          schemaCompileMs: first.schemaCompileMs,
-          formSchemaMs: first.formSchemaMs,
-          propertiesSchemaMs: first.propertiesSchemaMs,
-        })
-        expect(changedLanguages.reused).toBeUndefined()
-      } finally {
-        await testPool.close()
-      }
-    },
-    testTimeout
-  )
+    it("compiles validation schemas on first init", () => {
+      expect(first.reused).toBeUndefined()
+    }, testTimeout)
+
+    it("reuses validation schemas for the same context", () => {
+      expect(second).toMatchObject({
+        reused: true,
+        schemaCompileMs: first.schemaCompileMs,
+        formSchemaMs: first.formSchemaMs,
+        propertiesSchemaMs: first.propertiesSchemaMs,
+      })
+    }, testTimeout)
+
+    it("invalidates validation schemas when languages change", () => {
+      expect(changedLanguages.reused).toBeUndefined()
+    }, testTimeout)
+  })
 
   it(
     "builds metadata declarations and keeps dependencies on the source worker",

@@ -109,7 +109,7 @@ export default defineConfig({
           name: "integration",
           runner: metadataTestRunner,
           include: integrationTests,
-          exclude: [...nativeLmdbTests, ...nativeLmdbIntegrationTests],
+          exclude: [...configDefaults.exclude, ...nativeLmdbTests, ...nativeLmdbIntegrationTests],
           sequence: { groupOrder: 4 },
           setupFiles: [
             lightweightSetup,
