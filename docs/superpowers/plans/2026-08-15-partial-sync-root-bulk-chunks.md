@@ -77,7 +77,7 @@ it("splits the sorted bulk into stable dependency-safe chunks", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm exec vitest run e2e/partial-sync/plan.test.ts`
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/plan.test.ts`
 
 Expected: FAIL, потому что `ScenarioLayer` пока не принимает `bulkBlockSize`, а построитель создаёт один `roots:create:bulk`.
 
@@ -106,7 +106,7 @@ export type ScenarioBlock = {
 
 - [ ] **Step 4: Run plan tests to verify they pass**
 
-Run: `pnpm exec vitest run e2e/partial-sync/plan.test.ts`
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/plan.test.ts`
 
 Expected: PASS для нового договора и существующего поведения без ограничения.
 
@@ -131,7 +131,7 @@ expect(rootCreateBlocks.map(({ key, operations }) => [key, operations.length])).
 Run:
 
 ```bash
-pnpm exec vitest run e2e/partial-sync/plan.test.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/scenario.test.ts e2e/partial-sync/checkpoints.test.ts e2e/partial-sync/timing.test.ts
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/plan.test.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/scenario.test.ts e2e/partial-sync/checkpoints.test.ts e2e/partial-sync/timing.test.ts
 pnpm type-check
 pnpm duplicates -- --base 8f5032124^
 ```
