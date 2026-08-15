@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto"
 import { mkdir, rm, writeFile } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import { compareFileTrees, type FileTreeComparison } from "../support/file-tree"
-import type { ScenarioOperation } from "./matrix/types"
+import type { ScenarioBlock } from "./matrix/types"
 import type { ScenarioMcpSession } from "./mcp-session"
 import { applyScenarioOperation } from "./operation"
 import { prepareInfobaseFixture } from "./platform-fixture"
@@ -15,7 +15,7 @@ export type ScenarioProgress = {
 
 export type PartialSyncSteps = {
   prepareBaseline(): Promise<void>
-  executeOperation(operation: ScenarioOperation, progress: ScenarioProgress): Promise<void>
+  executeBlock(block: ScenarioBlock, progress: ScenarioProgress): Promise<void>
   verifyFinalState(): Promise<void>
 }
 

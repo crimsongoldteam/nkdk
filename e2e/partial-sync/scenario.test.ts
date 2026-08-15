@@ -1,18 +1,19 @@
 import { describe, expect, it } from "vitest"
-import type { ScenarioOperation } from "./matrix/types"
+import type { ScenarioBlock } from "./matrix/types"
 import type { PartialSyncSteps } from "./steps"
 import type { ScenarioState, ScenarioWorkspace } from "./workspace"
 import { runPartialSyncScenario } from "./scenario"
 
 const planHash = "a".repeat(64)
-const plan = ["one", "two", "three", "four"].map((key): ScenarioOperation => ({
-  key: `object:${key}`,
-  kind: "create-object",
-  changes: [],
+const plan = ["one:probe", "one:bulk", "two:probe", "two:bulk"].map((key): ScenarioBlock => ({
+  key,
+  layerKey: key.split(":")[0],
+  componentPath: "cf",
+  operations: [{ key: `object:${key}`, kind: "create-object", changes: [] }],
 }))
 
 describe("partial sync scenario", () => {
-  it("prepares baseline and publishes every operation from empty state", async () => {
+  it("prepares baseline and publishes every completed block", async () => {
     const fixture = scenarioFixture(scenarioState(null, null))
 
     await runPartialSyncScenario({ workspace, plan, planHash, steps: fixture.steps }, fixture.dependencies)
@@ -20,61 +21,42 @@ describe("partial sync scenario", () => {
     expect(fixture.calls).toEqual([
       "baseline",
       "publish:baseline",
-      "execute:object:one:1/4",
-      "publish:object:one",
-      "execute:object:two:2/4",
-      "publish:object:two",
-      "execute:object:three:3/4",
-      "publish:object:three",
-      "execute:object:four:4/4",
-      "publish:object:four",
+      "execute:one:probe:1/4",
+      "publish:one:probe",
+      "execute:one:bulk:2/4",
+      "publish:one:bulk",
+      "execute:two:probe:3/4",
+      "publish:two:probe",
+      "execute:two:bulk:4/4",
+      "publish:two:bulk",
       "verify-final",
     ])
   })
 
-  it("restores the checkpoint and continues after the completed key", async () => {
-    const fixture = scenarioFixture(scenarioState("object:three"))
+  it("restores and continues with the block after completedBlock", async () => {
+    const fixture = scenarioFixture(scenarioState("one:bulk"))
 
     await runPartialSyncScenario({ workspace, plan, planHash, steps: fixture.steps }, fixture.dependencies)
 
     expect(fixture.calls).toEqual([
-      "restore:object:three",
-      "execute:object:four:4/4",
-      "publish:object:four",
+      "restore:one:bulk",
+      "execute:two:probe:3/4",
+      "publish:two:probe",
+      "execute:two:bulk:4/4",
+      "publish:two:bulk",
       "verify-final",
     ])
   })
 
-  it("only restores when the last operation is already complete", async () => {
-    const fixture = scenarioFixture(scenarioState("object:four"))
-
-    await runPartialSyncScenario({ workspace, plan, planHash, steps: fixture.steps }, fixture.dependencies)
-
-    expect(fixture.calls).toEqual(["restore:object:four", "verify-final"])
-  })
-
-  it.each([
-    ["unknown completed key", scenarioState("object:unknown"), /object:unknown/u],
-    ["different plan hash", { ...scenarioState("object:one"), planHash: "b".repeat(64) }, /хэш|план/iu],
-  ] as const)("rejects %s before restoring", async (_name, state, message) => {
-    const fixture = scenarioFixture(state)
+  it("does not publish a failed block and repeats it on the next run", async () => {
+    const fixture = scenarioFixture(scenarioState("one:probe"), "one:bulk")
 
     await expect(runPartialSyncScenario(
       { workspace, plan, planHash, steps: fixture.steps },
       fixture.dependencies,
-    )).rejects.toThrow(message)
-    expect(fixture.calls).toEqual([])
-  })
-
-  it("does not publish a failed operation and retries it on the next run", async () => {
-    const fixture = scenarioFixture(scenarioState("object:one"), "object:two")
-
-    await expect(runPartialSyncScenario(
-      { workspace, plan, planHash, steps: fixture.steps },
-      fixture.dependencies,
-    )).rejects.toThrow("planned operation failure")
-    expect(fixture.state.completedOperation).toBe("object:one")
-    expect(fixture.calls).not.toContain("verify-final")
+    )).rejects.toThrow("planned block failure")
+    expect(fixture.state.completedBlock).toBe("one:probe")
+    expect(fixture.calls).not.toContain("publish:one:bulk")
 
     fixture.failKey = undefined
     fixture.calls.length = 0
@@ -82,12 +64,22 @@ describe("partial sync scenario", () => {
       { workspace, plan, planHash, steps: fixture.steps },
       fixture.dependencies,
     )
-
     expect(fixture.calls.slice(0, 3)).toEqual([
-      "restore:object:one",
-      "execute:object:two:2/4",
-      "publish:object:two",
+      "restore:one:probe",
+      "execute:one:bulk:2/4",
+      "publish:one:bulk",
     ])
+  })
+
+  it.each([
+    ["unknown completed key", scenarioState("unknown:probe"), /unknown:probe/u],
+    ["different plan hash", { ...scenarioState("one:probe"), planHash: "b".repeat(64) }, /хэш|план/iu],
+  ] as const)("rejects %s before restoring", async (_name, state, message) => {
+    const fixture = scenarioFixture(state)
+    await expect(runPartialSyncScenario(
+      { workspace, plan, planHash, steps: fixture.steps }, fixture.dependencies,
+    )).rejects.toThrow(message)
+    expect(fixture.calls).toEqual([])
   })
 })
 
@@ -99,23 +91,23 @@ function scenarioFixture(initialState: ScenarioState, initialFailKey?: string) {
     failKey: initialFailKey as string | undefined,
     steps: {
       async prepareBaseline() { calls.push("baseline") },
-      async executeOperation(operation, progress) {
-        calls.push(`execute:${operation.key}:${progress.index}/${progress.total}`)
-        if (operation.key === fixture.failKey) throw new Error("planned operation failure")
+      async executeBlock(block, progress) {
+        calls.push(`execute:${block.key}:${progress.index}/${progress.total}`)
+        if (block.key === fixture.failKey) throw new Error("planned block failure")
       },
       async verifyFinalState() { calls.push("verify-final") },
     } satisfies PartialSyncSteps,
     dependencies: {
       async readState() { return fixture.state },
       async restoreCheckpoint(_workspace: ScenarioWorkspace, state: ScenarioState) {
-        calls.push(`restore:${state.completedOperation ?? "baseline"}`)
+        calls.push(`restore:${state.completedBlock ?? "baseline"}`)
       },
       async publishCheckpoint(
         _workspace: ScenarioWorkspace,
-        publication: { completedOperation: string | null; planHash: string },
+        publication: { completedBlock: string | null; planHash: string },
       ) {
-        calls.push(`publish:${publication.completedOperation ?? "baseline"}`)
-        fixture.state = scenarioState(publication.completedOperation)
+        calls.push(`publish:${publication.completedBlock ?? "baseline"}`)
+        fixture.state = scenarioState(publication.completedBlock)
         return fixture.state
       },
     },
@@ -124,13 +116,13 @@ function scenarioFixture(initialState: ScenarioState, initialFailKey?: string) {
 }
 
 function scenarioState(
-  completedOperation: string | null,
+  completedBlock: string | null,
   checkpoint: "checkpoints/current" | null = "checkpoints/current",
 ): ScenarioState {
   return {
-    version: 2,
-    scenario: "partial-sync-matrix",
-    completedOperation,
+    version: 3,
+    scenario: "partial-sync-layered-matrix",
+    completedBlock,
     checkpoint,
     planHash,
   }

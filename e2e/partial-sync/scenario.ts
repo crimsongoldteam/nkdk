@@ -3,13 +3,13 @@ import {
   restoreCheckpoint,
   type CheckpointPublication,
 } from "./checkpoints"
-import type { ScenarioOperation } from "./matrix/types"
+import type { ScenarioBlock } from "./matrix/types"
 import type { PartialSyncSteps } from "./steps"
 import { readState, type ScenarioState, type ScenarioWorkspace } from "./workspace"
 
 export type RunPartialSyncScenarioParams = {
   readonly workspace: ScenarioWorkspace
-  readonly plan: readonly ScenarioOperation[]
+  readonly plan: readonly ScenarioBlock[]
   readonly planHash: string
   readonly steps: PartialSyncSteps
 }
@@ -34,20 +34,20 @@ export async function runPartialSyncScenario(
     throw new Error("Хэш плана не совпадает с состоянием матричного сценария")
   }
 
-  const completedIndex = state.completedOperation === null
+  const completedIndex = state.completedBlock === null
     ? -1
-    : plan.findIndex(({ key }) => key === state.completedOperation)
-  if (state.completedOperation !== null && completedIndex < 0) {
-    throw new Error(`Неизвестный ключ завершённой операции: ${state.completedOperation}`)
+    : plan.findIndex(({ key }) => key === state.completedBlock)
+  if (state.completedBlock !== null && completedIndex < 0) {
+    throw new Error(`Неизвестный ключ завершённого блока: ${state.completedBlock}`)
   }
-  if (state.checkpoint === null && state.completedOperation !== null) {
-    throw new Error("Состояние завершённой операции не содержит контрольную копию")
+  if (state.checkpoint === null && state.completedBlock !== null) {
+    throw new Error("Состояние завершённого блока не содержит контрольную копию")
   }
 
   if (state.checkpoint === null) {
     await steps.prepareBaseline()
     state = await dependencies.publishCheckpoint(workspace, {
-      completedOperation: null,
+      completedBlock: null,
       planHash,
     })
   } else {
@@ -55,10 +55,10 @@ export async function runPartialSyncScenario(
   }
 
   for (let index = completedIndex + 1; index < plan.length; index += 1) {
-    const operation = plan[index]
-    await steps.executeOperation(operation, { index: index + 1, total: plan.length })
+    const block = plan[index]
+    await steps.executeBlock(block, { index: index + 1, total: plan.length })
     state = await dependencies.publishCheckpoint(workspace, {
-      completedOperation: operation.key,
+      completedBlock: block.key,
       planHash,
     })
   }
