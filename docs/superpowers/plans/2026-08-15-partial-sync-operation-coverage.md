@@ -31,7 +31,7 @@
 **Interfaces:**
 - Produces: `replaceYamlLine`, `appendYamlSection`, `replaceText`, `replaceBinary`, `chainChanges`.
 
-- [ ] **Step 1: Написать падающие тесты точных переходов**
+- [x] **Step 1: Написать падающие тесты точных переходов**
 
 ```ts
 expect(replaceYamlLine({ path, contents: "Комментарий: Старый\n", key: "Комментарий", value: "Новый" }))
@@ -41,18 +41,18 @@ expect(() => replaceYamlLine({ path, contents, key: "Нет", value: "X" }))
 expect(chainChanges(first, second)).toEqual([first, second])
 ```
 
-- [ ] **Step 2: Запустить тест и подтвердить падение**
+- [x] **Step 2: Запустить тест и подтвердить падение**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix/change-builders.test.ts`
 
-- [ ] **Step 3: Реализовать строгие построители**
+- [x] **Step 3: Реализовать строгие построители**
 
 Построители не разбирают YAML семантически: они требуют единственное точное
 место замены и возвращают полные байты `before/after`. `chainChanges` проверяет,
 что `after` предыдущего перехода побайтово равен `before` следующего для того же
 пути. Двоичные значения копируются в новые `Uint8Array`.
 
-- [ ] **Step 4: Запустить тест и зафиксировать изменение**
+- [x] **Step 4: Запустить тест и зафиксировать изменение**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix/change-builders.test.ts`
 
@@ -74,7 +74,7 @@ git commit -m "test: :white_check_mark: добавить переходы мат
 - Consumes: `replaceYamlLine`, `rootObjectDeclarations`.
 - Produces: слои `cf:configuration`, `cf:root-properties`, `cf:structural-properties`.
 
-- [ ] **Step 1: Добавить проверки полноты изменений**
+- [x] **Step 1: Добавить проверки полноты изменений**
 
 ```ts
 expect(rootPropertyOperations.map(({ targetKey }) => targetKey).toSorted())
@@ -89,11 +89,11 @@ expect(configurationOperations.map(({ key }) => key)).toEqual([
 тип `Строка(10) -> Справочник.<тестовый справочник>`, обязательность,
 индексирование и ссылка регистратора/бизнес-процесса.
 
-- [ ] **Step 2: Запустить matrix test и увидеть падение**
+- [x] **Step 2: Запустить matrix test и увидеть падение**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts`
 
-- [ ] **Step 3: Добавить безопасную мутацию в декларацию каждого корня**
+- [x] **Step 3: Добавить безопасную мутацию в декларацию каждого корня**
 
 Расширить `RootObjectDeclaration` полем
 `propertyChanges: readonly ScenarioFileChange[]`. Для directory- и file-root
@@ -102,17 +102,17 @@ Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix
 не принимает комментарий, использовать существующее безопасное скалярное поле
 полной NKDK-фикстуры и закрепить его отдельным случаем в `matrix.test.ts`.
 
-- [ ] **Step 4: Объявить операции корня конфигурации и структурные представители**
+- [x] **Step 4: Объявить операции корня конфигурации и структурные представители**
 
 Изменить комментарий `Конфигурация.yaml`, внешний файл интерфейса команд и
 пять перечисленных структурных свойств. Все ссылки должны указывать на уже
 созданные тестовые объекты и иметь явные `dependsOn`.
 
-- [ ] **Step 5: Запустить тесты матрицы и плана**
+- [x] **Step 5: Запустить тесты матрицы и плана**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/plan.test.ts`
 
-- [ ] **Step 6: Проверить дубли и зафиксировать слой**
+- [x] **Step 6: Проверить дубли и зафиксировать слой**
 
 Run: `pnpm duplicates -- --base 83c40f5e4`
 
