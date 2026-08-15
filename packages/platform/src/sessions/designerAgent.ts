@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto"
-import { isAbsolute, join, relative, resolve, sep } from "node:path"
+import { join, resolve } from "node:path"
 import { parseConnection } from "../infobases/parseConnection"
 import { parseExtensionPropertyRecords } from "../extensions/parse"
 import {
@@ -10,6 +10,13 @@ import {
   classifyPartialLoad,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
+import {
+  checkedOperationOutputDir,
+  isPathInside,
+  prepareSessionStagingDirectory,
+  publishSessionStagingDirectory,
+  relativeServicePath,
+} from "./interactiveSessionFiles"
 import { platformFailure, type PlatformOperationLog } from "./operationLog"
 import type { ProcessLogCursor, ProcessLogReader } from "./processLog"
 import { openPlatformCommandSession } from "./sshProtocol"
@@ -198,10 +205,10 @@ export async function createDesignerAgentSession(
   const finalizeCancelledDump = async () => {
     const pending = pendingCancelledDump
     if (pending === undefined) return
-    await moveStagingDirectory(
+    await publishSessionStagingDirectory(
       pending.stagingDir,
       pending.outputDir,
-      dependencies
+      dependencies.fileSystem
     )
     pendingCancelledDump = undefined
   }
@@ -220,14 +227,19 @@ export async function createDesignerAgentSession(
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
-      const resolvedOutputDir = await checkedOutputDir(
+      const resolvedOutputDir = await checkedOperationOutputDir(
         canonicalAgentBaseDir,
         outputDir,
-        dependencies
+        dependencies.fileSystem,
+        "Каталог выгрузки должен находиться внутри AgentBaseDir"
       )
       const stagingDir = join(userServiceDir, ".nkdk-export")
       await appendAgentLog(operationLog, "stage=configuration-export status=start")
-      await prepareStagingDirectory(stagingDir, dependencies)
+      await prepareSessionStagingDirectory(
+        stagingDir,
+        dependencies.fileSystem,
+        "Не удалось подготовить каталог выгрузки агента"
+      )
       const processLogCursor = await captureProcessLogCursor(
         processLogPath,
         dependencies.processLogReader
@@ -236,7 +248,7 @@ export async function createDesignerAgentSession(
       try {
         await commandSession.run(
           buildDumpConfigurationCommand(
-            relativeAgentPath(userServiceDir, stagingDir),
+            relativeServicePath(userServiceDir, stagingDir),
             unresolvedReferences,
             extensionName
           ),
@@ -268,7 +280,11 @@ export async function createDesignerAgentSession(
         commandFailure = caught
       }
       try {
-        await moveStagingDirectory(stagingDir, resolvedOutputDir, dependencies)
+        await publishSessionStagingDirectory(
+          stagingDir,
+          resolvedOutputDir,
+          dependencies.fileSystem
+        )
       } catch {
         if (commandFailure === undefined) {
           throw await agentFailure(
@@ -358,7 +374,7 @@ export async function createDesignerAgentSession(
       )
       const loadMode = classifyPartialLoad(loadTargets)
       const command = buildLoadPartialConfigurationCommand({
-        stagingDir: relativeAgentPath(userServiceDir, stagingDir),
+        stagingDir: relativeServicePath(userServiceDir, stagingDir),
         loadMode,
         updateDumpInfo: true,
         ...(extensionName === undefined ? {} : { extensionName }),
@@ -590,29 +606,6 @@ async function readAgentDirectories(
   }
 }
 
-async function checkedOutputDir(
-  agentBaseDir: string,
-  outputDir: string,
-  dependencies: DesignerAgentDependencies
-): Promise<string> {
-  let resolvedOutputDir: string
-  try {
-    resolvedOutputDir = await dependencies.fileSystem.realpath(outputDir)
-  } catch {
-    throw new PlatformSessionError(
-      "platform_command_failed",
-      "Не удалось канонизировать каталог выгрузки"
-    )
-  }
-  if (!isPathInside(agentBaseDir, resolvedOutputDir)) {
-    throw new PlatformSessionError(
-      "platform_command_failed",
-      "Каталог выгрузки должен находиться внутри AgentBaseDir"
-    )
-  }
-  return resolvedOutputDir
-}
-
 async function checkedArchivePath(
   projectDir: string,
   archivePath: string,
@@ -629,44 +622,6 @@ async function checkedArchivePath(
       "ZIP частичной загрузки должен находиться внутри проекта"
     )
   }
-}
-
-function relativeAgentPath(userServiceDir: string, stagingDir: string): string {
-  return relative(userServiceDir, stagingDir).split(sep).join("/")
-}
-
-async function prepareStagingDirectory(
-  stagingDir: string,
-  dependencies: DesignerAgentDependencies
-): Promise<void> {
-  try {
-    await dependencies.fileSystem.rm(stagingDir)
-    await dependencies.fileSystem.mkdir(stagingDir)
-  } catch {
-    throw new PlatformSessionError(
-      "platform_command_failed",
-      "Не удалось подготовить каталог выгрузки агента"
-    )
-  }
-}
-
-async function moveStagingDirectory(
-  stagingDir: string,
-  outputDir: string,
-  dependencies: DesignerAgentDependencies
-): Promise<void> {
-  await dependencies.fileSystem.rm(outputDir)
-  await dependencies.fileSystem.rename(stagingDir, outputDir)
-}
-
-function isPathInside(baseDir: string, targetDir: string): boolean {
-  const result = relative(resolve(baseDir), resolve(targetDir))
-  return (
-    result !== "" &&
-    result !== ".." &&
-    !result.startsWith(`..${sep}`) &&
-    !isAbsolute(result)
-  )
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
