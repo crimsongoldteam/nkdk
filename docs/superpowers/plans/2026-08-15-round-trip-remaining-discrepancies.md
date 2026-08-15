@@ -545,7 +545,7 @@ git commit -m "fix: :bug: исправить настройки панелей �
 - Modify: `docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md`
 - Modify only if observations require clarification: `docs/superpowers/specs/2026-08-15-round-trip-next-discrepancies-design.md`
 
-- [ ] **Step 1: Run focused round-trip checks in order**
+- [x] **Step 1: Run focused round-trip checks in order**
 
 Не сбрасывать весь репозиторий `round-trip-compact`; для каждого запуска использовать отдельную копию проверяемой конфигурации либо диагностический каталог навыка.
 
@@ -557,7 +557,15 @@ git commit -m "fix: :bug: исправить настройки панелей �
 
 Expected: согласованные расхождения исчезли; новое независимое расхождение только фиксируется, но не исправляется в этой ветке.
 
-- [ ] **Step 2: Run package checks**
+Результат сверки на чистых временных копиях конфигураций:
+
+- `CashdeskDev_3_32_26_0_setup1c` — round-trip чистый после уточнения общего договора пустого вложенного XML-контейнера: производственный парсер сохраняет существующий пустой элемент как ключ со значением `undefined`, а экспорт должен материализовать последний `xmlParents`, не дочерний `xml`-элемент;
+- `Contracts_1_0_7_2_setup1c` — следующее независимое отклонение: теряется `v8:TypeId` составного `TypeDescription` в форме `ПанельДругихОтчетов`;
+- `Conversion_3_1_6_15_setup1c` — следующие независимые отклонения: удаляется служебный `.DS_Store`, а имена `ContextMenu` и `ExtendedTooltip` трёх дополнений таблицы заменяются вычисленными именами владельца.
+
+Новые независимые отклонения в этой ветке не исправляются.
+
+- [x] **Step 2: Run package checks**
 
 ```bash
 pnpm --filter @nkdk/runtime type-check

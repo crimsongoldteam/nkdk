@@ -7,12 +7,13 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
-import { xmlExport } from "@nkdk/runtime"
+import { importContentFromXML, XML_PRESENT_TAG_VALUE, xmlExport } from "@nkdk/runtime"
 import { mockContext } from "../../../../tests/mockContext"
 import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { DynamicListRules } from "./rules"
+import { metadataRules } from "../../../composition/metadataRules"
+import { createRuleRegistrySet } from "../../../ruleRuntime/ruleRegistrySet"
 
 import "./types"
 
@@ -82,6 +83,39 @@ describe("DynamicList XML → YAML → XML", () => {
       expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
     }
   )
+
+  it("сохраняет пустые параметры данных внутри ListSettings", () => {
+    const xml = {
+      Settings: {
+        "_xsi:type": "DynamicList",
+        ListSettings: { "dcsset:dataParameters": undefined },
+      },
+    }
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const yaml = testPropertyFromXMLToYAML({ rule, xml, execution }).yaml
+
+    expect(yaml).toHaveProperty("Значение.ПараметрыДанных", XML_PRESENT_TAG_VALUE)
+    expect(testPropertyFromYAMLToXML({ rule, yaml, execution }).xml).toMatchObject({
+      Settings: {
+        "_xsi:type": "DynamicList",
+        ListSettings: { "dcsset:dataParameters": {} },
+      },
+    })
+  })
+
+  it("не считает контейнер с неизвестным дочерним узлом пустым", () => {
+    const yaml = testPropertyFromXMLToYAML({
+      rule,
+      xml: {
+        Settings: {
+          "_xsi:type": "DynamicList",
+          ListSettings: { "dcsset:dataParameters": { unknown: {} } },
+        },
+      },
+    }).yaml
+
+    expect(yaml).not.toHaveProperty("Значение.ПараметрыДанных")
+  })
 
   it("не выводит в YAML значение ManualQuery=false по умолчанию", () => {
     const expected = fs.readFileSync(

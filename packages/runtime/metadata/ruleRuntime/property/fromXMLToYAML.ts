@@ -690,6 +690,36 @@ export function importPropertiesFromXMLToYAML(params: {
     }
     for (const entry of sourceState.plan.entriesByPropertyKey.values()) {
       if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
+      const explicitCollection = params.execution === undefined
+        ? matchExplicitXMLPropertyTypeFromXML({
+            propertyType: entry.rule.type,
+            presentInXML: true,
+            yamlValue: [],
+          })
+        : params.execution.matchExplicitXMLPropertyTypeFromXML({
+            propertyType: entry.rule.type,
+            presentInXML: true,
+            yamlValue: [],
+          })
+      const emptyCollectionContainer =
+        explicitCollection?.action === "materializeCollection"
+          ? emptyXMLContainerAtPath(sourceState.source.xml, entry.rule.xmlParents ?? [])
+          : undefined
+      if (emptyCollectionContainer !== undefined) {
+        sourceState.foundPropertyKeys.add(entry.propertyKey)
+        const conversionStartedAt = performance.now()
+        importMatch({
+          sourceState,
+          entry,
+          sourceXMLKey: entry.rule.xmlParents?.at(-1),
+          xmlPath: entry.rule.xmlParents,
+          sourceXMLValue: emptyCollectionContainer,
+          presentInXML: true,
+          ambiguousXMLKey: false,
+        })
+        conversionMs += performance.now() - conversionStartedAt
+        continue
+      }
       if (
         matchExplicitXMLPropertyFromXML({
           itemType: rule.itemType,
@@ -707,6 +737,28 @@ export function importPropertiesFromXMLToYAML(params: {
 
   normalizeTypeOwnedMetadataTargets({ result, rule })
   return sortYamlRuleProperties(result)
+}
+
+function emptyXMLContainerAtPath(
+  xml: Record<string, unknown>,
+  path: readonly string[],
+): Record<string, unknown> | undefined {
+  if (path.length === 0) return undefined
+  let value: unknown = xml
+  for (const [index, segment] of path.entries()) {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) return undefined
+    const record = value as Record<string, unknown>
+    if (!Object.prototype.hasOwnProperty.call(record, segment)) return undefined
+    value = record[segment]
+    if (value === undefined && index === path.length - 1) return {}
+  }
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return undefined
+  const entries = Object.entries(value as Record<string, unknown>)
+  return entries.every(
+    ([key, item]) => key === "#text" && typeof item === "string" && item.trim() === "",
+  )
+    ? value as Record<string, unknown>
+    : undefined
 }
 
 function normalizeTypeOwnedMetadataTargets(params: {

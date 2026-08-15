@@ -419,6 +419,16 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
 
     const nestedRule = typeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
+    if (
+      explicitXMLAction?.kind === "materializeCollection" &&
+      nestedRule === undefined &&
+      (planned.propertyRule.xmlParents?.length ?? 0) > 0
+    ) {
+      matchingOutputs.forEach((output) => {
+        setAtPath(output.xml, planned.propertyRule.xmlParents!, {})
+      })
+      continue
+    }
     if (nestedRule !== undefined && nestedRule.kind !== "externalFile") {
       const childCollection = params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)
       const effectiveNestedRule =
