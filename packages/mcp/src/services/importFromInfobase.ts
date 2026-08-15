@@ -56,7 +56,7 @@ export async function importFromInfobase(
     return toolError(
       "confirmation_required",
       "import_from_infobase запускает 1С и пишет YAML-файлы; повторите вызов с allowWrite=true",
-      { projectDir: input.projectDir, componentPath: "cf" }
+      { projectDir: input.projectDir, componentPath: input.componentPath ?? "cf" }
     )
   }
 

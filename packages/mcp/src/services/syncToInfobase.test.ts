@@ -95,6 +95,7 @@ describe("sync to infobase", () => {
       ok: true,
       status: "synchronized",
       mode: "designer-agent",
+      loadMode: "selected",
       reusedConnection: false,
       configurationIndexPath: "/project/.nkdk/components/cf/configuration-index.lmdb",
     })
@@ -264,7 +265,7 @@ describe("sync to infobase", () => {
           firstLoadStarted()
           await firstLoad
         }
-        return { mode: "designer-agent", reusedConnection: false, warnings: [] }
+        return { mode: "designer-agent", loadMode: "selected", reusedConnection: false, warnings: [] }
       },
     })
 
@@ -391,7 +392,7 @@ function createFixture(options: {
         Object.assign(platformParams, params)
         if (options.platformLoad !== undefined) return options.platformLoad(params)
         if (options.platformError !== undefined) throw options.platformError
-        return { mode: params.mode, reusedConnection: false, warnings: [] }
+        return { mode: params.mode, loadMode: "selected", reusedConnection: false, warnings: [] }
       },
     },
     fs: {

@@ -32,26 +32,17 @@ const synchronizedSchema = z.strictObject({
   entries: z.array(z.string()),
   loadTargets: z.array(z.string()),
   mode: z.enum(["designer-agent", "standalone-server"]),
+  loadMode: z.enum(["partial", "selected"]),
   reusedConnection: z.boolean(),
   finalizeStatus: z.enum(["published", "alreadyPublished"]),
   configurationIndexPath: z.string().min(1),
   warnings: z.array(metadataDiagnosticSchema),
 })
 
-export const syncToInfobaseSuccessOutputSchema = z.strictObject({
-  ok: z.literal(true),
-  status: z.enum(["unchanged", "synchronized"]),
-  componentPath: configurationComponentPathSchema,
-  diagnostics: z.array(metadataDiagnosticSchema).optional(),
-  packageId: z.string().min(1).optional(),
-  entries: z.array(z.string()).optional(),
-  loadTargets: z.array(z.string()).optional(),
-  mode: z.enum(["designer-agent", "standalone-server"]).optional(),
-  reusedConnection: z.boolean().optional(),
-  finalizeStatus: z.enum(["published", "alreadyPublished"]).optional(),
-  configurationIndexPath: z.string().min(1).optional(),
-  warnings: z.array(metadataDiagnosticSchema).optional(),
-})
+export const syncToInfobaseSuccessOutputSchema = z.union([
+  unchangedSchema,
+  synchronizedSchema,
+])
 
 const unknownDeliverySchema = z.strictObject({
   ok: z.literal(false),

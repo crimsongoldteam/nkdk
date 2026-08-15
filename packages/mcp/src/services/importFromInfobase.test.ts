@@ -10,8 +10,15 @@ const platformLogPath = join(temporaryDirectory, "platform.log")
 describe("import from infobase", () => {
   it("requires explicit write confirmation before reading settings", async () => {
     const fixture = createFixture()
-    const result = await importFromInfobase({ projectDir: "/project" }, fixture.dependencies)
-    expect(result).toMatchObject({ ok: false, code: "confirmation_required" })
+    const result = await importFromInfobase({
+      projectDir: "/project",
+      componentPath: "cfe/Расширение",
+    }, fixture.dependencies)
+    expect(result).toMatchObject({
+      ok: false,
+      code: "confirmation_required",
+      details: { componentPath: "cfe/Расширение" },
+    })
     expect(fixture.calls).toEqual([])
   })
 

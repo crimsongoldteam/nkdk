@@ -310,7 +310,7 @@ describe("полный цикл частичной синхронизации б
           if (listEntry === undefined || listEntry.directory) throw new Error("load.lst отсутствует")
           loadList = await listEntry.getData(new TextWriter())
           await reader.close()
-          return { mode: "designer-agent", reusedConnection: false, warnings: [] }
+          return { mode: "designer-agent", loadMode: "selected", reusedConnection: false, warnings: [] }
         },
       },
       recordDeliveryPhase: recordPartialSyncDeliveryPhase,

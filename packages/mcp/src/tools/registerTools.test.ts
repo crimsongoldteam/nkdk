@@ -113,7 +113,13 @@ describe("registerNkdkCapabilities", () => {
       allowWrite: true,
     }).success).toBe(false)
     expect(infobaseSync?.outputSchema).toBeDefined()
-    expect(infobaseSync?.outputSchema).toBeInstanceOf(z.ZodObject)
+    expect(infobaseSync?.outputSchema).toBeInstanceOf(z.ZodUnion)
+    expect(infobaseSync?.outputSchema.safeParse({
+      ok: true,
+      status: "unchanged",
+      componentPath: "cf",
+      diagnostics: [],
+    }).success).toBe(true)
 
     for (const name of [
       "nkdk.close_platform_connection",

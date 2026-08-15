@@ -2,11 +2,13 @@ import { randomUUID } from "node:crypto"
 import { join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import {
+  classifyPartialLoad,
   PlatformSessionError,
   recordPartialSyncDeliveryPhase,
   readProjectSettings,
   type PlatformSessionManager,
   type PlatformSessionMode,
+  type PartialLoadMode,
 } from "@nkdk/platform"
 import {
   loadCoreApi,
@@ -55,19 +57,27 @@ export interface SyncToInfobaseDependencies {
   readonly attemptId: () => string
 }
 
-export type SyncToInfobasePayload = ToolPayload<{
-  readonly status: "unchanged" | "synchronized"
+type UnchangedPayload = {
+  readonly status: "unchanged"
   readonly componentPath: string
-  readonly diagnostics?: readonly OutputDiagnostic[]
-  readonly packageId?: string
-  readonly entries?: readonly string[]
-  readonly loadTargets?: readonly string[]
-  readonly mode?: PlatformSessionMode
-  readonly reusedConnection?: boolean
-  readonly finalizeStatus?: "published" | "alreadyPublished"
-  readonly configurationIndexPath?: string
-  readonly warnings?: readonly OutputDiagnostic[]
-}>
+  readonly diagnostics: readonly OutputDiagnostic[]
+}
+
+type SynchronizedPayload = {
+  readonly status: "synchronized"
+  readonly componentPath: string
+  readonly packageId: string
+  readonly entries: readonly string[]
+  readonly loadTargets: readonly string[]
+  readonly mode: PlatformSessionMode
+  readonly loadMode: PartialLoadMode
+  readonly reusedConnection: boolean
+  readonly finalizeStatus: "published" | "alreadyPublished"
+  readonly configurationIndexPath: string
+  readonly warnings: readonly OutputDiagnostic[]
+}
+
+export type SyncToInfobasePayload = ToolPayload<UnchangedPayload | SynchronizedPayload>
 
 const projectSyncQueues = new Map<string, Promise<void>>()
 
@@ -139,6 +149,7 @@ async function syncToInfobaseExclusive(
         loadTargets: pending.loadTargets,
         attemptId: pending.delivery.attemptId,
         mode: settingsRead.settings.infobase.operations.import.mode,
+        loadMode: classifyPartialLoad(pending.loadTargets),
       })
     }
 
@@ -253,6 +264,7 @@ async function syncToInfobaseExclusive(
       loadTargets: prepared.loadTargets,
       attemptId,
       mode: loaded.mode,
+      loadMode: loaded.loadMode,
       loaded,
       preparationDiagnostics: prepared.diagnostics,
     })
@@ -296,6 +308,7 @@ async function finalizeApplied(params: {
   readonly loadTargets: readonly string[]
   readonly attemptId: string
   readonly mode: PlatformSessionMode
+  readonly loadMode: PartialLoadMode
   readonly loaded?: Awaited<ReturnType<PlatformSessionManager["loadPartialConfiguration"]>>
   readonly preparationDiagnostics?: readonly OutputDiagnostic[]
 }): Promise<SyncToInfobasePayload> {
@@ -343,6 +356,7 @@ async function finalizeApplied(params: {
     entries: params.entries,
     loadTargets: params.loadTargets,
     mode: params.mode,
+    loadMode: params.loadMode,
     reusedConnection: params.loaded?.reusedConnection ?? true,
     finalizeStatus: finalized.status,
     configurationIndexPath: finalized.configurationIndexPath,

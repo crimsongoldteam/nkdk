@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { syncToInfobaseInputSchema, syncToInfobaseOutputShape } from "./syncToInfobase"
+import {
+  syncToInfobaseInputSchema,
+  syncToInfobaseOutputShape,
+  syncToInfobaseSuccessOutputSchema,
+} from "./syncToInfobase"
 
 describe("sync_to_infobase contract", () => {
   it.each(["cf", "cfe/Расширение"])("accepts component %s", (componentPath) => {
@@ -35,6 +39,7 @@ describe("sync_to_infobase contract", () => {
       entries: [],
       loadTargets: [],
       mode: "standalone-server",
+      loadMode: "selected",
       reusedConnection: false,
       finalizeStatus: "published",
       configurationIndexPath: "/project/index.lmdb",
@@ -52,6 +57,29 @@ describe("sync_to_infobase contract", () => {
         mode: "designer-agent",
       },
     }).success).toBe(true)
+  })
+
+  it("keeps successful variants strict", () => {
+    expect(syncToInfobaseSuccessOutputSchema.safeParse({
+      ok: true,
+      status: "unchanged",
+      componentPath: "cf",
+      diagnostics: [],
+      packageId: "unexpected",
+    }).success).toBe(false)
+    expect(syncToInfobaseSuccessOutputSchema.safeParse({
+      ok: true,
+      status: "synchronized",
+      componentPath: "cf",
+      packageId: "package-1",
+      entries: [],
+      loadTargets: [],
+      mode: "standalone-server",
+      reusedConnection: false,
+      finalizeStatus: "published",
+      configurationIndexPath: "/project/index.lmdb",
+      warnings: [],
+    }).success).toBe(false)
   })
 
   it("отклоняет неполные подробности неизвестного результата", () => {
