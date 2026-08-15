@@ -849,7 +849,7 @@ git commit -m "feat: :sparkles: переносить UUID ссылочных с�
 - Consumes: все слои Tasks 1–5.
 - Produces: подтверждённый XML → YAML → XML для четырёх UUID CashdeskDev без изменения исходной конфигурации.
 
-- [ ] **Step 1: Зарегистрировать наблюдаемую аномалию**
+- [x] **Step 1: Зарегистрировать наблюдаемую аномалию**
 
 В `.agents/xml-anomalies.md` указать четыре файла и два UUID:
 
@@ -860,12 +860,12 @@ git commit -m "feat: :sparkles: переносить UUID ссылочных с�
 - договор: `FunctionalOptionsProperty.Item` переносится как
   `!xml/reference`, UUID не ищется.
 
-- [ ] **Step 2: Актуализировать классифицированные теги**
+- [x] **Step 2: Актуализировать классифицированные теги**
 
 В общей спецификации тега `!xml/reference` заменить обобщённое `!xml` и
 зафиксировать синтаксис ключа. Не добавлять новые категории аномалий.
 
-- [ ] **Step 3: Выполнить адресные проверки**
+- [x] **Step 3: Выполнить адресные проверки**
 
 Run:
 
@@ -893,7 +893,7 @@ pnpm --filter @nkdk/rules exec vitest run \
 
 Expected: PASS.
 
-- [ ] **Step 4: Выполнить round-trip на копии одной конфигурации**
+- [x] **Step 4: Выполнить round-trip на копии одной конфигурации**
 
 Не изменять `/Users/nikita/git/round-trip-compact` и не копировать весь
 репозиторий. Создать временный каталог и скопировать только конфигурацию:
@@ -913,7 +913,7 @@ Expected: четыре текущих расхождения `FunctionalOptionsP
 git -C /Users/nikita/git/round-trip-compact status --short
 ```
 
-- [ ] **Step 5: Выполнить обязательные проверки**
+- [x] **Step 5: Выполнить обязательные проверки**
 
 Run outside sandbox where required:
 
@@ -927,14 +927,14 @@ pnpm test:architecture
 
 Expected: все команды PASS; новых дублей и архитектурных нарушений нет.
 
-- [ ] **Step 6: Зафиксировать документацию**
+- [x] **Step 6: Зафиксировать документацию**
 
 ```bash
 git add .agents/xml-anomalies.md docs/superpowers/specs/2026-08-14-classified-xml-anomaly-tags-design.md docs/superpowers/plans/2026-08-15-general-broken-reference-transport.md
 git commit -m "docs: :memo: зарегистрировать битые функциональные опции"
 ```
 
-- [ ] **Step 7: Проверить итог ветки**
+- [x] **Step 7: Проверить итог ветки**
 
 ```bash
 git status --short
