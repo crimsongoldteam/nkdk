@@ -5,6 +5,7 @@ import { openPlatformCommandSession } from "./sshProtocol"
 describe("platform SSH command protocol", () => {
   it("selects JSON, connects to the infobase, and completes a command", async () => {
     const diagnostics: string[] = []
+    const stages: Array<[string, string]> = []
     const shell = scriptedShell([
       "1C:Enterprise 8.3 1C Designer Shell © 1C-Soft LLC 1996-2023\r\ndesigner> ",
       '[\r\n{\r\n"type": "success",\r\n"message": "",\r\n"body": []\r\n}\r\n]designer> ',
@@ -20,6 +21,9 @@ describe("platform SSH command protocol", () => {
       password: "secret",
       timeoutMs: 60_000,
       diagnostic: (message) => diagnostics.push(message),
+      onStage: async (stage: "protocol-handshake" | "authentication", status: "start" | "ready") => {
+        stages.push([stage, status])
+      },
     })
     await expect(
       session.run('config dump-config-to-files --dir="xml"')
@@ -34,19 +38,37 @@ describe("platform SSH command protocol", () => {
     ])
     expect(JSON.stringify(diagnostics)).not.toContain("secret")
     expect(JSON.stringify(diagnostics)).not.toContain("Администратор")
+    expect(stages).toEqual([
+      ["protocol-handshake", "start"],
+      ["protocol-handshake", "ready"],
+      ["authentication", "start"],
+      ["authentication", "ready"],
+    ])
   })
 
   it("preserves the platform message for a rejected login", async () => {
+    const stages: Array<[string, string]> = []
     const shell = scriptedShell([
       "designer> ",
       '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
       '[{"type":"error","message":"Неверное имя пользователя или пароль"}]\ndesigner> ',
     ])
 
-    await expect(openPlatformCommandSession({ shell, timeoutMs: 100 })).rejects.toMatchObject({
+    await expect(openPlatformCommandSession({
+      shell,
+      timeoutMs: 100,
+      onStage: async (stage: "protocol-handshake" | "authentication", status: "start" | "ready") => {
+        stages.push([stage, status])
+      },
+    })).rejects.toMatchObject({
       code: "authentication_failed",
       message: "Неверное имя пользователя или пароль",
     })
+    expect(stages).toEqual([
+      ["protocol-handshake", "start"],
+      ["protocol-handshake", "ready"],
+      ["authentication", "start"],
+    ])
   })
 
   it("accepts the standalone server UUID prompt without a trailing space", async () => {
@@ -256,15 +278,21 @@ describe("platform SSH command protocol", () => {
 
   it("uses the injected timer and maps expiry to session_timeout", async () => {
     const clock = controlledClock()
+    const stages: Array<[string, string]> = []
     const pending = openPlatformCommandSession({
       shell: scriptedShell([]),
       timeoutMs: 100,
       clock,
+      onStage: async (stage: "protocol-handshake" | "authentication", status: "start" | "ready") => {
+        stages.push([stage, status])
+      },
     })
 
+    await Promise.resolve()
     clock.expire()
 
     await expect(pending).rejects.toMatchObject({ code: "session_timeout" })
+    expect(stages).toEqual([["protocol-handshake", "start"]])
   })
 
   it("does not arm a timer for a platform command", async () => {
