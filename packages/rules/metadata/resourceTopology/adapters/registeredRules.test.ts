@@ -235,6 +235,27 @@ describe("property resource topology registry", () => {
     })
   })
 
+  it("описывает необязательное тело и внешний Form.bin формы", () => {
+    const assignment = topology.assignments.find(
+      (candidate) => candidate.projectPattern === "ОбщаяФорма/{ownerName}/Свойства.yaml"
+    )
+
+    expect(assignment?.xmlDocuments.find(
+      (candidate) => candidate.xmlPattern === "CommonForms/{ownerName}/Ext/Form.xml"
+    )).toMatchObject({ role: "body", required: false })
+    expect(assignment?.externalFiles).toContainEqual(expect.objectContaining({
+      projectPattern: "ОбщаяФорма/{ownerName}/Form.bin",
+      xmlPattern: "CommonForms/{ownerName}/Ext/Form.bin",
+    }))
+
+    const childAssignment = topology.assignments.find(
+      (candidate) => candidate.projectPattern === "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml"
+    )
+    expect(childAssignment?.xmlDocuments.find(
+      (candidate) => candidate.xmlPattern === "Catalogs/{ownerName}/Forms/{itemName}/Ext/Form.xml"
+    )).toMatchObject({ role: "body", required: false })
+  })
+
   it.each(flatProjectSpecs)("регистрирует плоский файл %s", (dir, itemType) => {
     const assignment = topology.assignments.find(
       (candidate) => candidate.projectPattern === `${dir}/{ownerName}.yaml`,

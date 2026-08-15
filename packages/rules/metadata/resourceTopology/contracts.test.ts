@@ -16,6 +16,22 @@ describe("registered metadata resource topology contracts", () => {
     topology = compileRegisteredMetadataResourceTopology()
   })
 
+  const commonFormBodyContract = () => {
+    const assignment = topology.assignments.find(
+      (candidate) => candidate.projectPattern === "ОбщаяФорма/{ownerName}/Свойства.yaml"
+    )
+    const output = assignment?.xmlDocuments.find(
+      (candidate) => candidate.xmlPattern === "CommonForms/{ownerName}/Ext/Form.xml"
+    )
+    const capability = output?.prepareCapabilityId === undefined
+      ? undefined
+      : getMetadataXmlPrepareCapability(output.prepareCapabilityId)
+    expect(assignment).toBeDefined()
+    expect(output).toBeDefined()
+    expect(capability).toBeDefined()
+    return { assignment: assignment!, output: output!, capability: capability! }
+  }
+
   it("gives every assignment XML or external resources", () => {
     for (const assignment of topology.assignments) {
       expect(
@@ -47,17 +63,7 @@ describe("registered metadata resource topology contracts", () => {
   })
 
   it("prepares a required external XML property even when it is omitted from YAML", () => {
-    const assignment = topology.assignments.find(
-      (candidate) => candidate.projectPattern === "ОбщаяФорма/{ownerName}/Свойства.yaml"
-    )
-    const output = assignment?.xmlDocuments.find(
-      (candidate) => candidate.xmlPattern === "CommonForms/{ownerName}/Ext/Form.xml"
-    )
-    const capability =
-      output?.prepareCapabilityId === undefined ? undefined : getMetadataXmlPrepareCapability(output.prepareCapabilityId)
-    expect(assignment).toBeDefined()
-    expect(output).toBeDefined()
-    expect(capability).toBeDefined()
+    const { assignment, output, capability } = commonFormBodyContract()
 
     const documents = capability!.run({
       context: mockContextToXML(),
@@ -69,12 +75,12 @@ describe("registered metadata resource topology contracts", () => {
         data: {},
         syntaxDiagnostics: [],
       },
-      assignment: assignment!,
+      assignment,
       itemName: "Пустая",
       logicalAddress: "ОбщаяФорма.Пустая",
       outputs: [
         {
-          declarationId: output!.id,
+          declarationId: output.id,
           targetXmlPath: "CommonForms/Пустая/Ext/Form.xml",
           role: "body",
           propertyName: "form",
@@ -87,6 +93,36 @@ describe("registered metadata resource topology contracts", () => {
 
     expect(documents).toHaveLength(1)
     expect(documents[0]?.xml).toHaveProperty("Form")
+  })
+
+  it("не готовит внешний Form.xml обычной общей формы", () => {
+    const { assignment, output, capability } = commonFormBodyContract()
+
+    const documents = capability.run({
+      context: mockContextToXML(),
+      preparedYamlFile: {
+        projectPath: "ОбщаяФорма/Обычная/Свойства.yaml",
+        filePath: "/project/ОбщаяФорма/Обычная/Свойства.yaml",
+        role: "properties",
+        owner: { dir: "ОбщаяФорма", name: "Обычная" },
+        data: { ТипФормы: "Обычная" },
+        syntaxDiagnostics: [],
+      },
+      assignment,
+      itemName: "Обычная",
+      logicalAddress: "ОбщаяФорма.Обычная",
+      outputs: [{
+        declarationId: output.id,
+        targetXmlPath: "CommonForms/Обычная/Ext/Form.xml",
+        role: "body",
+        propertyName: "form",
+      }],
+      index: testConfigurationIndexReader(),
+      composition: { children: () => [] },
+      profile: createYAMLToXMLProfile(),
+    })
+
+    expect(documents).toEqual([])
   })
 
   it.each([

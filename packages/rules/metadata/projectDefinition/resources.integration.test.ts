@@ -301,6 +301,21 @@ describe("metadata project resources", () => {
     expect(resources.map((file) => file.kind)).toEqual(["resource", "yaml"])
   })
 
+  it("находит Form.bin обычной формы как отдельный двоичный ресурс", async () => {
+    const projectDir = createProject()
+    touchProjectFile(projectDir, "Справочник/Товары/Формы/Обычная/Форма.yaml")
+    touchProjectFile(projectDir, "Справочник/Товары/Формы/Обычная/Form.bin")
+
+    const resources = await discoverMetadataProjectResources(projectDir)
+
+    expect(resources).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "resource",
+        projectPath: "Справочник/Товары/Формы/Обычная/Form.bin",
+      }),
+    ]))
+  })
+
   it("discovers only YAML project files when include is yaml", async () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Конфигурация.yaml")

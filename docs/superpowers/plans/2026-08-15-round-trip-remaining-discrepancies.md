@@ -340,24 +340,27 @@ git commit -m "fix: :bug: объявить namespace типа локально"
 **Files:**
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/rules.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/propertyTypeRules.ts`
+- Modify: `packages/rules/metadata/forms/clientApplicationForm/childFormNamesPropertyRules.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.ts`
+- Modify: `packages/rules/metadata/forms/clientApplicationForm/syncToXML.ts`
 - Modify: `packages/runtime/metadata/ruleRuntime/property/fromYAMLToXMLTypes.ts`
 - Modify: `packages/rules/metadata/ruleRuntime/appliedObject/syncToXML.ts`
-- Create: `packages/rules/metadata/ruleRuntime/appliedObject/syncToXML.test.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.integration.test.ts`
+- Modify: `packages/rules/metadata/forms/clientApplicationForm/syncToXML.integration.test.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/toJSONSchema.test.ts`
 - Modify: `packages/rules/metadata/projectDefinition/resources.integration.test.ts`
+- Modify: `packages/rules/metadata/resourceTopology/contracts.test.ts`
 
 **Interfaces:**
 - Consumes: существующий `formType`, `ClientApplicationForm` resource topology и внешний `Form.bin`.
 - Produces: `ТипФормы: Обычная` сохраняет дескриптор и запрещает создание управляемого тела.
 
-- [ ] **Step 1: Add failing descriptor tests**
+- [x] **Step 1: Add failing descriptor tests**
 
 Для metadata XML с `<FormType>Ordinary</FormType>` без тела ожидать `ТипФормы: Обычная`; для `Managed` поле должно остаться неявным.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project integration metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts
@@ -365,11 +368,11 @@ pnpm --filter @nkdk/rules exec vitest run --project integration metadata/forms/c
 
 Expected: FAIL — у `ClientApplicationFormRules.properties.formType` нет YAML-имени.
 
-- [ ] **Step 3: Expose the existing formType rule**
+- [x] **Step 3: Expose the existing formType rule**
 
 Добавить `yaml: "ТипФормы"` к существующему `systemEnumerationRule`; сохранить `Managed` как `implicitValueYAML`.
 
-- [ ] **Step 4: Add failing resource/export tests**
+- [x] **Step 4: Add failing resource/export tests**
 
 Проверить:
 
@@ -379,22 +382,23 @@ Expected: FAIL — у `ClientApplicationFormRules.properties.formType` нет YA
 - управляемая форма по-прежнему требует/создаёт `Form.xml`;
 - управляемые свойства формы вместе с `ТипФормы: Обычная` дают ошибку проверки.
 
-- [ ] **Step 5: Make the body conditional**
+- [x] **Step 5: Make the body conditional**
 
 Разрешить общему преобразователю внешнего XML-файла вернуть `undefined`, что означает отсутствие цели записи; `syncToXML` в этом случае не создаёт выход. Конкретный `ClientApplicationForm` возвращает `undefined` только для `ТипФормы: Обычная`. Не добавлять знание о форме в `resourceTopology/core` или общий исполнитель.
 
-- [ ] **Step 6: Verify GREEN**
+- [x] **Step 6: Verify GREEN**
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project integration metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts metadata/forms/clientApplicationForm/fromYAMLToXML.integration.test.ts metadata/projectDefinition/resources.integration.test.ts metadata/ruleRuntime/appliedObject/syncToXML.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration metadata/forms/clientApplicationForm/fromXMLToYAML.integration.test.ts metadata/forms/clientApplicationForm/fromYAMLToXML.integration.test.ts metadata/forms/clientApplicationForm/syncToXML.integration.test.ts metadata/projectDefinition/resources.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/resourceTopology/contracts.test.ts metadata/resourceTopology/adapters/registeredRules.test.ts
 pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/forms/clientApplicationForm/toJSONSchema.test.ts
 pnpm duplicates -- --base 8fba09946
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
-git add packages/runtime/metadata/ruleRuntime/property/fromYAMLToXMLTypes.ts packages/rules/metadata/forms/clientApplicationForm packages/rules/metadata/projectDefinition/resources.integration.test.ts packages/rules/metadata/ruleRuntime/appliedObject/syncToXML.ts packages/rules/metadata/ruleRuntime/appliedObject/syncToXML.test.ts docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md
+git add packages/runtime/metadata/ruleRuntime/property/fromYAMLToXMLTypes.ts packages/rules/metadata/forms/clientApplicationForm packages/rules/metadata/importFromXml/prepareYaml.integration.test.ts packages/rules/metadata/projectDefinition/resources.integration.test.ts packages/rules/metadata/resourceTopology packages/rules/metadata/ruleRuntime/appliedObject/syncToXML.ts docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md
 git commit -m "feat: :sparkles: поддержать обычные формы"
 ```
 

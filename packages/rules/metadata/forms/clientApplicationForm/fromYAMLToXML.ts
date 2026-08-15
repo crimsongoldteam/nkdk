@@ -22,6 +22,7 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
   convert: ({
     context,
     yaml,
+    ownerYAML,
     baseYAML,
     baseYAMLContext,
     baseConfigurationIndex,
@@ -29,7 +30,9 @@ export const clientApplicationFormYamlToXmlNestedRule: Extract<
     referenceXML,
   }) => {
     const rule = ClientApplicationFormRules
-    const extensionYaml = yaml as ClientApplicationFormYAML
+    const extensionYaml = (yaml ?? {}) as ClientApplicationFormYAML
+    const owner = (ownerYAML ?? {}) as ClientApplicationFormYAML
+    if (extensionYaml.ТипФормы === "Обычная" || owner.ТипФормы === "Обычная") return undefined
     const selectedBase = selectedBaseYAMLInput(baseYAML)
     const baseFormYAML = selectedBase?.baseFormYAML ?? baseYAML
     const baseFormXML =

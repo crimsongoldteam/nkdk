@@ -77,6 +77,28 @@ function importValueTableCurrentDataForm(columns: FormAttributeColumnsXML, colum
 }
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it("сохраняет тип обычной формы без Form.xml", () => {
+    const result = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "ОбычнаяФорма",
+      formXML: undefined,
+      metadataXML: { Form: { Properties: { FormType: "Ordinary" } } },
+    })
+
+    expect(result.yaml).toEqual({ ТипФормы: "Обычная" })
+  })
+
+  it("не выводит тип управляемой формы", () => {
+    const result = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "УправляемаяФорма",
+      formXML: {},
+      metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+    })
+
+    expect(result.yaml).not.toHaveProperty("ТипФормы")
+  })
+
   it("импортирует только тело формы через отдельные накопители", () => {
     const collector = createLocalIndexesCollector()
     const deferred = createDeferredValuePathCollector()

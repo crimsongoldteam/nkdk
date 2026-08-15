@@ -73,7 +73,7 @@ export const childFormNamesPropertyRules = defineMetadataRules({
           assignmentProjectPattern: "",
           xmlPattern: "Forms/{itemName}/Ext/Form.xml",
           role: "body",
-          required: true,
+          required: false,
           read: { inputRole: "body" },
           prepareCapabilityId: "ClientApplicationForm",
           baseInput: { kind: "sameProjectPath", value: "wholeYaml" },

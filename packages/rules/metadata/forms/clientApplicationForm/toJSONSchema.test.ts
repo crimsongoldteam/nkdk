@@ -8,6 +8,7 @@ import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 
 
 let usePurposesSchema: ReturnType<typeof compileValidationSchema>
+let formSchema: ReturnType<typeof compileValidationSchema>
 
 describe("ClientApplicationForm exportToJSONSchema type rule", () => {
   beforeAll(() => {
@@ -18,6 +19,13 @@ describe("ClientApplicationForm exportToJSONSchema type rule", () => {
     })
     if (schema === undefined) throw new Error("UsePurposes schema is not registered")
     usePurposesSchema = compileValidationSchema(schema)
+    const formRuleSchema = exportClientApplicationFormToJSONSchema({
+      context: mockContext,
+      rule: { type: "ClientApplicationForm" },
+      value: undefined,
+    })
+    if (formRuleSchema === undefined) throw new Error("ClientApplicationForm schema is not registered")
+    formSchema = compileValidationSchema(formRuleSchema)
   })
 
   it("registers client form JSON Schema exporter", () => {
@@ -56,5 +64,20 @@ describe("ClientApplicationForm exportToJSONSchema type rule", () => {
     ["Произвольное", false],
   ])("validates use purpose %s", (yaml, expected) => {
     expect(usePurposesSchema.Check(yaml)).toBe(expected)
+  })
+
+  it("разрешает обычную форму без тела", () => {
+    expect(formSchema.Check({ ТипФормы: "Обычная" })).toBe(true)
+  })
+
+  it.each([
+    ["Элементы", { Поле: { Вид: "ПолеВвода" } }],
+    ["Реквизиты", { Значение: { Тип: "Строка" } }],
+  ])("запрещает свойство тела %s у обычной формы", (property, value) => {
+    expect(formSchema.Check({ ТипФормы: "Обычная", [property]: value })).toBe(false)
+  })
+
+  it("разрешает свойства тела у управляемой формы", () => {
+    expect(formSchema.Check({ Ширина: 100 })).toBe(true)
   })
 })
