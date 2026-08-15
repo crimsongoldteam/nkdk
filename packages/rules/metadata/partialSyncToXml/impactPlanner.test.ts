@@ -25,6 +25,13 @@ const fileItemRule = {
   properties: {},
   externalMetadata: { segment: "Table", placement: "ownedEntry" },
 } as MetadataItemRule
+const templateTarget = {
+  kind: "member" as const,
+  memberKind: "Template" as const,
+  itemNameParameter: "itemName",
+  itemProjectPattern: "Объект/{ownerName}/Макеты/{itemName}",
+  owner: "assignment" as const,
+}
 
 const topology = compileMetadataResourceTopology([{
   resources: [
@@ -73,6 +80,28 @@ const topology = compileMetadataResourceTopology([{
       direction: "both" as const,
       transferCapabilityId: "test",
       compositionImpact: "none" as const,
+      source,
+    },
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+      projectPattern: "Объект/{ownerName}/Макеты/{itemName}/Template.xml",
+      xmlPattern: "Objects/{ownerName}/Templates/{itemName}.xml",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      fileBackedTarget: templateTarget,
+      source,
+    },
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+      projectPattern: "Объект/{ownerName}/Макеты/{itemName}/Template.txt",
+      xmlPattern: "Objects/{ownerName}/Templates/{itemName}/Ext/Template.txt",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      fileBackedTarget: templateTarget,
       source,
     },
     {
@@ -202,6 +231,10 @@ const owner = "Объект/Товары/Свойства.yaml"
 const manifestOwner = "ОбъектСМанифестом/Товары/Свойства.yaml"
 const ownerHelp = "ОбъектСМанифестом/Товары/Справка/ru.html"
 const ownerModule = "Объект/Товары/Команды/Проверочная.bsl"
+const firstTemplateXml = "Объект/Товары/Макеты/Первый/Template.xml"
+const firstTemplateText = "Объект/Товары/Макеты/Первый/Template.txt"
+const secondTemplateXml = "Объект/Товары/Макеты/Второй/Template.xml"
+const secondTemplateText = "Объект/Товары/Макеты/Второй/Template.txt"
 const firstForm = "Объект/Товары/Формы/Первая/Форма.yaml"
 const firstModule = "Объект/Товары/Формы/Первая/Модуль.bsl"
 const firstBaseForm = "Объект/Товары/Формы/Первая/БазоваяФорма.yaml"
@@ -311,6 +344,68 @@ describe("partial XML impact planner", () => {
     expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstModule] })
     expect(result.externalProjectPaths).toEqual([firstModule])
     expect(result.loadTargets).toEqual(["Objects/Товары/Forms/Первая/Ext/Form/Module.bsl"])
+  })
+
+  it("при изменении файла внешнего объекта не расширяет пакет до владельца", () => {
+    const result = plan(
+      [root, language, owner, firstTemplateXml, firstTemplateText],
+      changes({ changed: [firstTemplateText] }),
+    )
+
+    expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstTemplateText] })
+    expect(result.externalProjectPaths).toEqual([firstTemplateText])
+    expect(result.loadTargets).toEqual([
+      "Objects/Товары/Templates/Первый/Ext/Template.txt",
+    ])
+  })
+
+  it("при создании внешнего файлового объекта загружает владельца и передаёт всю коллекцию", () => {
+    const result = plan(
+      [
+        root,
+        language,
+        owner,
+        firstTemplateXml,
+        firstTemplateText,
+        secondTemplateXml,
+        secondTemplateText,
+      ],
+      changes({ added: [secondTemplateXml, secondTemplateText] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [
+        owner,
+        firstTemplateXml,
+        firstTemplateText,
+        secondTemplateXml,
+        secondTemplateText,
+      ].sort(utf8),
+    })
+    expect(documentPaths(result)).toEqual(["Objects/Товары.xml"])
+    expect(result.externalProjectPaths).toEqual([
+      firstTemplateXml,
+      firstTemplateText,
+      secondTemplateXml,
+      secondTemplateText,
+    ].sort(utf8))
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
+  it("при удалении внешнего файлового объекта загружает владельца и оставшуюся коллекцию", () => {
+    const result = plan(
+      [root, language, owner, firstTemplateXml, firstTemplateText],
+      changes({ deleted: [secondTemplateXml, secondTemplateText] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, firstTemplateXml, firstTemplateText].sort(utf8),
+    })
+    expect(documentPaths(result)).toEqual(["Objects/Товары.xml"])
+    expect(result.externalProjectPaths).toEqual([firstTemplateXml, firstTemplateText].sort(utf8))
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
   })
 
   it("при добавлении формы включает владельца и весь актуальный подкаталог, но загружает новую форму", () => {
