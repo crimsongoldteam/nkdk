@@ -83,9 +83,7 @@ it("round-trips a broken MDObjectRef inside an ordered mixed collection", () => 
 })
 
 it("accepts only a canonical UUID in a typed MDObjectRef", () => {
-  const carrier = metadataRules.brokenXMLReferenceCarriers.find(
-    ({ name }) => name === "metadataRef.mdObjectRefUuid",
-  )
+  const carrier = execution.getTypeRule("MetadataItemLinks", "brokenXMLReferenceCarrier")
 
   expect(carrier).toBeDefined()
   if (carrier === undefined) return
@@ -94,7 +92,10 @@ it("accepts only a canonical UUID in a typed MDObjectRef", () => {
     rule: propertyRule,
     xmlValue: { "xr:Item": { "_xsi:type": "xr:MDObjectRef", "#text": UUID } },
     yamlValue: [undefined],
-  })).toEqual({ yamlValue: [`!xml/reference ${UUID}`], taggedPaths: [[0]] })
+  })).toEqual({
+    yamlValue: [`!xml/reference ${UUID}`],
+    taggedLocations: [{ kind: "value", path: [0] }],
+  })
   expect(carrier.tryImport({
     rule: propertyRule,
     xmlValue: { "xr:Item": UUID },

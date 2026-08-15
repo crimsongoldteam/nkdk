@@ -43,9 +43,8 @@ function exportFillValue(yaml: string): unknown {
 }
 
 it("registers the strict DesignTimeRef UUID grammar", () => {
-  const carrier = metadataRules.brokenXMLReferenceCarriers.find(
-    ({ name }) => name === "metadataValue.designTimeRef",
-  )
+  const carrier = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
+    .getTypeRule("MetadataValue", "brokenXMLReferenceCarrier")
 
   expect(carrier).toBeDefined()
   if (carrier === undefined) return
@@ -53,7 +52,10 @@ it("registers the strict DesignTimeRef UUID grammar", () => {
     rule: rule.properties.fillValue!,
     xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": UUID_PAIR },
     yamlValue: UUID_PAIR,
-  })).toEqual({ yamlValue: `!xml/reference ${UUID_PAIR}`, taggedPaths: [[]] })
+  })).toEqual({
+    yamlValue: `!xml/reference ${UUID_PAIR}`,
+    taggedLocations: [{ kind: "value", path: [] }],
+  })
   expect(carrier.tryImport({
     rule: rule.properties.fillValue!,
     xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": `${UUID_PAIR}.extra` },

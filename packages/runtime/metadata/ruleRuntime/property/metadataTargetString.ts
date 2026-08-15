@@ -59,6 +59,7 @@ export function exportStringMetadataTargetToYAML(params: {
     return value.map((item) => exportStringMetadataTargetToYAML({ ...params, value: item }))
   }
   if (typeof value !== "string" || value === "") return value
+  if (value.startsWith("!xml/reference ")) return value
   try {
     return formatMetadataTargetToYAML({
       canonical: value,

@@ -41,6 +41,21 @@ export function exportPropertyValueToYAML(params: {
   execution?: PropertyRuleExecution
   preserveImplicitValue?: boolean
 }): unknown {
+  return exportPropertyMetadataTargetsToYAML(
+    params,
+    exportPropertyValueBeforeMetadataTargetsToYAML(params),
+  )
+}
+
+export function exportPropertyValueBeforeMetadataTargetsToYAML(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: unknown
+  name?: string
+  owner?: MetadataTargetOwner
+  execution?: PropertyRuleExecution
+  preserveImplicitValue?: boolean
+}): unknown {
   const { context, rule, value, name } = params
 
   if (!canExportPropertyToYAML({ context, rule })) return undefined
@@ -54,7 +69,7 @@ export function exportPropertyValueToYAML(params: {
     ? getTypeRule(rule.type, "exportToYAML")
     : params.execution.getTypeRule(rule.type, "exportToYAML")
 
-  if (!typeExportFn) return exportMetadataTargets(params, value)
+  if (!typeExportFn) return value
 
   const nestedContext = contextWithPropertyParentName(context, name)
 
@@ -66,14 +81,14 @@ export function exportPropertyValueToYAML(params: {
       name: name,
       owner: params.owner,
     })
-    return exportMetadataTargets(params, typedValue)
+    return typedValue
   }
 
   const typedResult = (typeExportFn as ExportToYAMLFunction)(nestedContext, rule, value)
-  return exportMetadataTargets(params, typedResult)
+  return typedResult
 }
 
-function exportMetadataTargets(
+export function exportPropertyMetadataTargetsToYAML(
   params: Parameters<typeof exportPropertyValueToYAML>[0],
   value: unknown,
 ): unknown {

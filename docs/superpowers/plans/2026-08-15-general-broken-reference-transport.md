@@ -479,7 +479,7 @@ git commit -m "refactor: :recycle: унифицировать обход metadat
 - Produces: type operation `brokenXMLReferenceCarrier`.
 - Preserves: ручные регистрации только для локальных ссылок форм.
 
-- [ ] **Step 1: Добавить падающий тест ключевого вхождения**
+- [x] **Step 1: Добавить падающий тест ключевого вхождения**
 
 Расширить тестовый переносчик случаем:
 
@@ -498,7 +498,7 @@ git commit -m "refactor: :recycle: унифицировать обход metadat
 тот же UUID. Добавить соседнюю обычную роль и проверить, что она проходит
 обычный преобразователь.
 
-- [ ] **Step 2: Подтвердить падение**
+- [x] **Step 2: Подтвердить падение**
 
 Run:
 
@@ -509,7 +509,7 @@ pnpm --filter @nkdk/rules exec vitest run metadata/ruleRuntime/property/brokenXM
 Expected: FAIL — реестр поддерживает только пути значений и ручной
 `propertyType`.
 
-- [ ] **Step 3: Сделать положение ссылки явным**
+- [x] **Step 3: Сделать положение ссылки явным**
 
 Заменить `taggedPaths/transportedPaths` на:
 
@@ -526,7 +526,7 @@ export type BrokenXMLReferenceLocation =
 `isTagged` принимает location. Общие функции чтения и установки тега
 выбирают `yamlScalarTagAt` либо `yamlMappingKeyTagAt`.
 
-- [ ] **Step 4: Подключить переносчик как операцию типа**
+- [x] **Step 4: Подключить переносчик как операцию типа**
 
 Определить:
 
@@ -547,7 +547,7 @@ typeCarrier: (type) =>
 ручные локальные переносчики того же `propertyType`; два фактических совпадения
 сохраняют текущую ошибку конфликта.
 
-- [ ] **Step 5: Применить теги ключей в общем XML-конвейере**
+- [x] **Step 5: Применить теги ключей в общем XML-конвейере**
 
 В `fromXMLToYAML.ts` применять каждую location после записи свойства:
 
@@ -563,7 +563,7 @@ markRelativeYAMLReferenceTag(
 В `fromYAMLToXML.ts`, structural validation и извлечении фактов использовать
 одну `isRelativeYAMLReferenceTagged`, понимающую значения и ключи.
 
-- [ ] **Step 6: Проверить нетегированный UUID и неверный payload**
+- [x] **Step 6: Проверить нетегированный UUID и неверный payload**
 
 Добавить в pipeline-test:
 
@@ -573,7 +573,7 @@ markRelativeYAMLReferenceTag(
 - обычная отсутствующая именованная ссылка не принимается переносчиком;
 - исключение обычного fromXML не перехватывается.
 
-- [ ] **Step 7: Проверить и зафиксировать слой**
+- [x] **Step 7: Проверить и зафиксировать слой**
 
 Run:
 
@@ -617,7 +617,7 @@ git commit -m "refactor: :recycle: перенести битые ссылки в
 - Produces: прежние строгие XML-грамматики без ручной регистрации для ссылок метаданных.
 - Preserves: локальные ссылки формы как ручные регистрации совместимости.
 
-- [ ] **Step 1: Переписать тесты регистрации**
+- [x] **Step 1: Переписать тесты регистрации**
 
 Для `MetadataItemLinks`, `MetadataValue` и корневого
 `CommandInterface` получать carrier через:
@@ -629,7 +629,7 @@ execution.getTypeRule(rule.type, "brokenXMLReferenceCarrier")
 Ожидать locations вида `{ kind: "value", path: [...] }`. Для локальных ссылок
 оставить проверку `metadataRules.brokenXMLReferenceCarriers`.
 
-- [ ] **Step 2: Подтвердить падение**
+- [x] **Step 2: Подтвердить падение**
 
 Run:
 
@@ -646,7 +646,7 @@ pnpm --filter @nkdk/rules exec vitest run \
 
 Expected: FAIL — существующие переносчики ещё находятся в ручном массиве.
 
-- [ ] **Step 3: Зарегистрировать переносчики общих типов**
+- [x] **Step 3: Зарегистрировать переносчики общих типов**
 
 Каждый модуль экспортирует `definePropertyTypeRule`:
 
@@ -661,19 +661,19 @@ export const metadataPropertyRule000 = definePropertyTypeRule(
 Аналогично для `MetadataValue` и `CommandInterface`. Удалить их из
 `brokenXMLReferenceCarriers` соответствующих `defineMetadataRules`.
 
-- [ ] **Step 4: Перевести пути на locations**
+- [x] **Step 4: Перевести пути на locations**
 
 Коллекционные помощники создают
 `{ kind: "value", path: [index] }`; `DesignTimeRef` —
 `{ kind: "value", path: [] }`. Грамматики UUID и UUID.UUID не расширять.
 
-- [ ] **Step 5: Адаптировать локальные ссылки без изменения грамматик**
+- [x] **Step 5: Адаптировать локальные ссылки без изменения грамматик**
 
 Ручные переносчики форм переходят на locations и общий запрос тегов. Не
 переносить их в `metadataTarget`: они не являются ссылками проекта. Все
 существующие положительные и отрицательные примеры должны остаться зелёными.
 
-- [ ] **Step 6: Проверить и зафиксировать слой**
+- [x] **Step 6: Проверить и зафиксировать слой**
 
 Run:
 

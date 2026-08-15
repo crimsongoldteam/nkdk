@@ -10,9 +10,15 @@ import {
 import { exportMetadataItemLinksToXML } from "../metadataRef/toXML"
 import {
   exportMetadataItemLinkToYAML,
-  exportMetadataItemLinksToYAML,
 } from "../metadataRef/toYAML"
-import { ExportToXMLFunctionNew, type ExportToJSONSchemaFn, defineMetadataItemRule, definePropertyTypeRule, type PropertyRule } from "../../ruleRuntime"
+import {
+  ExportToXMLFunctionNew,
+  type ExportToJSONSchemaFn,
+  type ExportToYAMLFunctionNew,
+  defineMetadataItemRule,
+  definePropertyTypeRule,
+  type PropertyRule,
+} from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   CommandInterfaceOrder,
@@ -653,7 +659,7 @@ export const metadataPropertyRule023 = definePropertyTypeRule(
 export const metadataPropertyRule024 = definePropertyTypeRule(
   "CommandInterfaceSubsystemsOrder",
   "exportToYAML",
-  exportMetadataItemLinksToYAML
+  ((params) => params.value) satisfies ExportToYAMLFunctionNew,
 )
 export const metadataPropertyRule025 = definePropertyTypeRule(
   "CommandInterfaceSubsystemsOrder",

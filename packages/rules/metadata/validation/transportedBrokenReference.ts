@@ -15,7 +15,7 @@ export function isTransportedBrokenPropertyScalar(params: {
   return registry?.isTransportedBrokenXMLReference({
     rule: params.rule,
     yamlValue: params.yamlValue,
-    path: [],
-    isTagged: (path) => path.length === 0,
+    location: { kind: "value", path: [] },
+    isTagged: (location) => location.kind === "value" && location.path.length === 0,
   }) ?? false
 }

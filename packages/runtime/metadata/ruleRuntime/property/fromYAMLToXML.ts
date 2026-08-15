@@ -43,8 +43,8 @@ import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
+import { isRelativeYAMLReferenceTagged } from "./brokenXMLReferenceCarrierRegistry"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
-import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly execution?: PropertyRuleExecution
@@ -642,7 +642,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     const transportPreparation = brokenReferenceRegistry?.prepareBrokenXMLReferenceExport({
       rule: planned.propertyRule,
       yamlValue: sourceValue,
-      isTagged: (path) => isRelativeYAMLScalarTagged(yaml, yamlKey, path),
+      isTagged: (location) => yaml !== undefined && yamlKey !== undefined
+        && isRelativeYAMLReferenceTagged(yaml, yamlKey, location),
     })
     const importSourceValue = transportPreparation?.yamlValue ?? sourceValue
     const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
@@ -762,22 +763,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     deferredByOutput: new Map(outputs.map(({ request, deferred }) => [request.key, deferred])),
     externalWrites,
   }
-}
-
-function isRelativeYAMLScalarTagged(
-  yaml: Readonly<Record<string, unknown>> | undefined,
-  propertyKey: string | undefined,
-  path: readonly (string | number)[],
-): boolean {
-  if (yaml === undefined || propertyKey === undefined) return false
-  if (path.length === 0) return yamlScalarTagAt(yaml, propertyKey) === "xml/reference"
-  let parent: unknown = yaml[propertyKey]
-  for (const segment of path.slice(0, -1)) {
-    if (typeof parent !== "object" || parent === null) return false
-    parent = (parent as Readonly<Record<string | number, unknown>>)[segment]
-  }
-  const key = path[path.length - 1]
-  return key !== undefined && yamlScalarTagAt(parent, key) === "xml/reference"
 }
 
 function formatRulePath(path: readonly (string | number)[]): string {

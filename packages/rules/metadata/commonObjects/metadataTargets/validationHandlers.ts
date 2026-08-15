@@ -325,7 +325,7 @@ const collectDirectMetadataTargetOccurrences: MetadataTargetOccurrencesFunction 
   }]
 }
 
-const collectListMetadataTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => {
+export const collectListMetadataTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => {
   const constraint = params.propRule.metadataTarget
   if (constraint === undefined || !Array.isArray(params.value)) return []
   return params.value.flatMap((value, index): MetadataTargetOccurrence[] =>
@@ -335,7 +335,8 @@ const collectListMetadataTargetOccurrences: MetadataTargetOccurrencesFunction = 
           location: { kind: "value", path: [...params.yamlPath, index] },
           constraint,
           representation: params.representation === "yaml"
-            && yamlScalarTagAt(params.value, index) === "xml/reference"
+            && (yamlScalarTagAt(params.value, index) === "xml/reference"
+              || value.startsWith("!xml/reference "))
             ? {
                 kind: "brokenXMLReference",
                 payload: xmlAnomalyTagPayload("xml/reference", value),
@@ -620,3 +621,6 @@ export const metadataPropertyRule051 = definePropertyTypeRule("MetadataItemLinks
 export const metadataPropertyRule052 = definePropertyTypeRule("MetadataFields", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
 export const metadataPropertyRule053 = definePropertyTypeRule("MetadataObjectRefCollection", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
 export const metadataPropertyRule054 = definePropertyTypeRule("UserVisible", "structuralReferences", structuralReferencesFromOccurrences(collectUserVisibleMetadataTargetOccurrences))
+export const metadataPropertyRule055 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
+export const metadataPropertyRule056 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule057 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))

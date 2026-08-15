@@ -2,6 +2,7 @@ import { xmlAnomalyTagValue } from "@nkdk/runtime"
 import type {
   BrokenXMLReferenceExportResult,
   BrokenXMLReferenceImportResult,
+  BrokenXMLReferenceLocation,
 } from "@nkdk/runtime/rule-kit"
 
 export interface IndexedBrokenReference {
@@ -18,24 +19,25 @@ export function normalizeImportedBrokenReferenceCollection(
   for (const { index, value } of broken) normalized[index] = xmlAnomalyTagValue("xml/reference", value)
   return {
     yamlValue: normalized,
-    taggedPaths: broken.map(({ index }) => [index]),
+    taggedLocations: broken.map(({ index }) => ({ kind: "value", path: [index] })),
   }
 }
 
 export function prepareBrokenReferenceCollectionExport(params: {
   readonly yamlValue: unknown
-  readonly isTagged: (path: readonly (string | number)[]) => boolean
+  readonly isTagged: (location: BrokenXMLReferenceLocation) => boolean
   readonly payload: (value: unknown) => string
 }): BrokenXMLReferenceExportResult | undefined {
   if (!Array.isArray(params.yamlValue)) return undefined
-  const transportedPaths: number[][] = []
+  const transportedLocations: BrokenXMLReferenceLocation[] = []
   const prepared = params.yamlValue.map((item, index) => {
-    if (!params.isTagged([index])) return item
-    const payload = params.payload(item)
-    transportedPaths.push([index])
-    return payload
+    const location = { kind: "value", path: [index] } as const
+    if (!params.isTagged(location)) return item
+    params.payload(item)
+    transportedLocations.push(location)
+    return ""
   })
-  return transportedPaths.length === 0
+  return transportedLocations.length === 0
     ? undefined
-    : { yamlValue: prepared, transportedPaths }
+    : { yamlValue: prepared, transportedLocations }
 }

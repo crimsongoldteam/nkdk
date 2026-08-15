@@ -41,7 +41,7 @@ import {
 } from "./rulesSnapshot"
 import {
   collectStructuralYamlReferences,
-  isRelativeYAMLScalarTagged,
+  isRelativeYAMLReferenceTagged,
   type StructuralReferenceNestedRule,
   type StructuralReferenceRuntime,
 } from "./structuralReferences"
@@ -649,8 +649,8 @@ function collectPendingReferences(params: {
                   execution,
                   rule: propertyRule,
                   yamlValue: value,
-                  isTagged: (path: readonly (string | number)[]) =>
-                    isRelativeYAMLScalarTagged(record, yamlKey, path),
+                  isTagged: (location) =>
+                    isRelativeYAMLReferenceTagged(record, yamlKey, location),
                 },
               }),
         })
@@ -784,7 +784,7 @@ function collectTargetValues(params: {
     execution: PropertyRuleExecution
     rule: PropertyRule
     yamlValue: unknown
-    isTagged: (path: readonly (string | number)[]) => boolean
+    isTagged: (location: import("@nkdk/runtime/rule-kit").BrokenXMLReferenceLocation) => boolean
   }
 }): PendingMetadataTargetReference[] {
   if ((params.constraint.kind === "dataTable" || params.constraint.kind === "dataTableField")
@@ -800,7 +800,7 @@ function collectTargetValues(params: {
     if (params.brokenReferenceTransport?.execution.isTransportedBrokenXMLReference({
       rule: params.brokenReferenceTransport.rule,
       yamlValue: params.brokenReferenceTransport.yamlValue,
-      path: relativePath,
+      location: { kind: "value", path: relativePath },
       isTagged: params.brokenReferenceTransport.isTagged,
     })) return []
     const reference = pendingReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })

@@ -27,7 +27,12 @@ import {
   metadataTargetOwnerFromRule,
 } from "./metadataTargetString"
 import { importPropertyFromXML } from "./fromXML"
-import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
+import {
+  canExportPropertyToYAML,
+  exportPropertyMetadataTargetsToYAML,
+  exportPropertyValueBeforeMetadataTargetsToYAML,
+  getExportToYAMLResult,
+} from "./toYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import { getXMLImportPlan, visitXMLImportPlan, type XMLImportPlanEntry } from "./xmlImportPlan"
@@ -49,6 +54,8 @@ import {
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
+import { markYAMLMappingKeyTag } from "../../../yaml/mappingKeyTags"
+import type { BrokenXMLReferenceLocation } from "./brokenXMLReferenceCarrierRegistry"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -456,10 +463,10 @@ export function importPropertiesFromXMLToYAML(params: {
         },
         owner,
       })
-      const yamlValue = clearedMetadataTarget
+      const yamlValueBeforeMetadataTargets = clearedMetadataTarget
         ? null
         : !convertedDirectly
-        ? exportPropertyValueToYAML({
+        ? exportPropertyValueBeforeMetadataTargetsToYAML({
             context: sourceContext,
             rule: propertyRule,
             value,
@@ -469,6 +476,24 @@ export function importPropertiesFromXMLToYAML(params: {
             preserveImplicitValue: preserveExplicitDefault,
           })
         : value
+      const transportedBeforeMetadataTargets = brokenReferenceRegistry === undefined
+        ? { yamlValue: yamlValueBeforeMetadataTargets, taggedLocations: [] }
+        : brokenReferenceRegistry.normalizeImportedBrokenXMLReferences({
+            rule: propertyRule,
+            xmlValue,
+            yamlValue: yamlValueBeforeMetadataTargets,
+          })
+      const yamlValue = !convertedDirectly
+        ? exportPropertyMetadataTargetsToYAML({
+            context: sourceContext,
+            rule: propertyRule,
+            value,
+            name: itemName,
+            owner: propertyOwner,
+            execution: params.execution,
+            preserveImplicitValue: preserveExplicitDefault,
+          }, transportedBeforeMetadataTargets.yamlValue)
+        : transportedBeforeMetadataTargets.yamlValue
       const explicitXML =
         explicitXMLByProperty ??
         (params.execution === undefined
@@ -483,17 +508,13 @@ export function importPropertiesFromXMLToYAML(params: {
           yamlValue,
             }))
       const transported =
-        explicitXML === undefined && explicitXMLTransport === undefined && brokenReferenceRegistry !== undefined
-          ? brokenReferenceRegistry.normalizeImportedBrokenXMLReferences({
-              rule: propertyRule,
-              xmlValue,
-              yamlValue,
-            })
+        explicitXML === undefined && explicitXMLTransport === undefined
+          ? { ...transportedBeforeMetadataTargets, yamlValue }
           : {
               yamlValue: explicitXMLTransport === undefined
                 ? explicitXML?.yamlValue ?? yamlValue
                 : xmlAnomalyTagValue("xml/value", explicitXMLTransport),
-              taggedPaths: [],
+              taggedLocations: [],
             }
       const exportedYamlValue = transported.yamlValue
       if (!convertedDirectly) {
@@ -567,8 +588,8 @@ export function importPropertiesFromXMLToYAML(params: {
             : "xml/present"
         markYAMLScalarTag(result, propertyRule.yaml!, tag)
       }
-      for (const path of transported.taggedPaths) {
-        markRelativeYAMLScalarTag(result, propertyRule.yaml!, path)
+      for (const location of transported.taggedLocations) {
+        markRelativeYAMLReferenceTag(result, propertyRule.yaml!, location)
       }
       const profile = params.profile
       if (profile !== undefined) profile.exportedCount++
@@ -721,12 +742,21 @@ function isScalarMetadataTarget(rule: PropertyRule): boolean {
     (rule.type === "string" || rule.type === "MetadataItemLink" || rule.type === "MetadataField")
 }
 
-function markRelativeYAMLScalarTag(
+function markRelativeYAMLReferenceTag(
   result: Record<string, unknown>,
   propertyKey: string,
-  path: YamlPath,
+  location: BrokenXMLReferenceLocation,
 ): void {
+  const path = location.path
   if (path.length === 0) {
+    if (location.kind === "key") {
+      const parent = result[propertyKey]
+      if (typeof parent !== "object" || parent === null) {
+        throw new Error(`Не найден YAML-путь переносчика: ${propertyKey}`)
+      }
+      markYAMLMappingKeyTag(parent, location.key, "xml/reference")
+      return
+    }
     markYAMLScalarTag(result, propertyKey, "xml/reference")
     return
   }
@@ -740,6 +770,14 @@ function markRelativeYAMLScalarTag(
   const key = path[path.length - 1]
   if (typeof parent !== "object" || parent === null || key === undefined) {
     throw new Error(`Не найден YAML-путь переносчика: ${[propertyKey, ...path].join("/")}`)
+  }
+  if (location.kind === "key") {
+    const mapping = (parent as Record<string | number, unknown>)[key]
+    if (typeof mapping !== "object" || mapping === null) {
+      throw new Error(`Не найден YAML-путь переносчика: ${[propertyKey, ...path].join("/")}`)
+    }
+    markYAMLMappingKeyTag(mapping, location.key, "xml/reference")
+    return
   }
   markYAMLScalarTag(parent, key, "xml/reference")
 }

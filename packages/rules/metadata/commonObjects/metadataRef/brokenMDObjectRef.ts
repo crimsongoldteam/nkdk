@@ -4,7 +4,9 @@ import { xmlAnomalyTagPayload } from "@nkdk/runtime"
 import {
   defineMetadataRules,
   emptyMetadataRules,
-  type BrokenXMLReferenceCarrierRegistration,
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+  type BrokenXMLReferenceTypeCarrier,
 } from "@nkdk/runtime/rule-kit"
 import {
   normalizeImportedBrokenReferenceCollection,
@@ -20,9 +22,8 @@ export function isMDObjectRefUuid(value: string): boolean {
   return MD_OBJECT_REF_UUID.test(value)
 }
 
-export const brokenMDObjectRefCarrier: BrokenXMLReferenceCarrierRegistration = {
+export const brokenMDObjectRefCarrier: BrokenXMLReferenceTypeCarrier = {
   name: "metadataRef.mdObjectRefUuid",
-  propertyType: "MetadataItemLinks",
   tryImport({ rule, xmlValue, yamlValue }) {
     if (!Array.isArray(yamlValue)) return undefined
     const items = metadataItemLinksXMLItems(rule, xmlValue)
@@ -41,13 +42,14 @@ export const brokenMDObjectRefCarrier: BrokenXMLReferenceCarrierRegistration = {
       payload: brokenMDObjectRefPayload,
     })
   },
-  patchExportedXML({ rule, yamlValue, xmlValue, transportedPaths }) {
+  patchExportedXML({ rule, yamlValue, xmlValue, transportedLocations }) {
     if (!Array.isArray(yamlValue) || !isRecord(xmlValue)) return xmlValue
     const itemTag = metadataItemLinksXMLItemTag(rule)
     const rawItems = xmlValue[itemTag]
     const items = Array.isArray(rawItems) ? [...rawItems] : [rawItems]
-    for (const path of transportedPaths) {
-      const index = path[0]
+    for (const location of transportedLocations) {
+      if (location.kind !== "value") continue
+      const index = location.path[0]
       if (typeof index !== "number") continue
       items[index] = {
         "_xsi:type": "xr:MDObjectRef",
@@ -66,18 +68,21 @@ export const brokenMDObjectRefCarrier: BrokenXMLReferenceCarrierRegistration = {
       ]),
     }
   },
-  matchesTaggedYAML({ yamlValue, path, isTagged }) {
-    if (!Array.isArray(yamlValue) || path.length !== 1 || !isTagged(path)) {
+  matchesTaggedYAML({ yamlValue, location, isTagged }) {
+    if (location.kind !== "value" || !Array.isArray(yamlValue)
+      || location.path.length !== 1 || !isTagged(location)) {
       return false
     }
-    const index = path[0]
+    const index = location.path[0]
     return typeof index === "number" && isBrokenMDObjectRefYAML(yamlValue[index])
   },
 }
 
 export const brokenMDObjectRefRules = defineMetadataRules({
   ...emptyMetadataRules,
-  brokenXMLReferenceCarriers: [brokenMDObjectRefCarrier],
+  propertyTypes: propertyTypesFromContributions([
+    definePropertyTypeRule("MetadataItemLinks", "brokenXMLReferenceCarrier", brokenMDObjectRefCarrier),
+  ]),
 })
 
 function metadataItemLinksXMLItems(

@@ -8,7 +8,9 @@ import {
 import {
   defineMetadataRules,
   emptyMetadataRules,
-  type BrokenXMLReferenceCarrierRegistration,
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+  type BrokenXMLReferenceTypeCarrier,
 } from "@nkdk/runtime/rule-kit"
 import {
   DESIGN_TIME_REF_UUID_SOURCE,
@@ -23,23 +25,23 @@ const referenceContext = {
 const DESIGN_TIME_REF_YAML_SOURCE =
   `(?:${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}|[^\\s.]+(?:\\.[^\\s.]+){2,})`
 
-export const brokenDesignTimeRefCarrier: BrokenXMLReferenceCarrierRegistration = {
+export const brokenDesignTimeRefCarrier: BrokenXMLReferenceTypeCarrier = {
   name: "metadataValue.designTimeRef",
-  propertyType: "MetadataValue",
   tryImport({ xmlValue, yamlValue }) {
     const text = designTimeRefText(xmlValue)
     if (text === undefined || yamlValue !== text) return undefined
     return {
       yamlValue: xmlAnomalyTagValue("xml/reference", text),
-      taggedPaths: [[]],
+      taggedLocations: [{ kind: "value", path: [] }],
     }
   },
   prepareExport({ yamlValue, isTagged }) {
-    if (!isTagged([]) || !isBrokenDesignTimeRefYAML(yamlValue)) return undefined
+    const location = { kind: "value", path: [] } as const
+    if (!isTagged(location) || !isBrokenDesignTimeRefYAML(yamlValue)) return undefined
     const payload = brokenDesignTimeRefPayload(yamlValue)
     return {
       yamlValue: payload,
-      transportedPaths: [[]],
+      transportedLocations: [location],
     }
   },
   patchExportedXML({ xmlValue }) {
@@ -62,15 +64,17 @@ export const brokenDesignTimeRefCarrier: BrokenXMLReferenceCarrierRegistration =
         ])
       : base
   },
-  matchesTaggedYAML({ yamlValue, path, isTagged }) {
-    if (path.length !== 0 || !isTagged(path)) return false
+  matchesTaggedYAML({ yamlValue, location, isTagged }) {
+    if (location.kind !== "value" || location.path.length !== 0 || !isTagged(location)) return false
     return isBrokenDesignTimeRefYAML(yamlValue)
   },
 }
 
 export const brokenDesignTimeRefRules = defineMetadataRules({
   ...emptyMetadataRules,
-  brokenXMLReferenceCarriers: [brokenDesignTimeRefCarrier],
+  propertyTypes: propertyTypesFromContributions([
+    definePropertyTypeRule("MetadataValue", "brokenXMLReferenceCarrier", brokenDesignTimeRefCarrier),
+  ]),
 })
 
 function designTimeRefText(value: unknown): string | undefined {

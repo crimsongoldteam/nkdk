@@ -122,9 +122,9 @@ describe("broken local form reference grammar", () => {
           ГруппаКоманд: `!xml/reference ${UUID}`,
         }],
       },
-      taggedPaths: [
-        ["ПанельНавигации", 0, "Команда"],
-        ["ПанельНавигации", 0, "ГруппаКоманд"],
+      taggedLocations: [
+        { kind: "value", path: ["ПанельНавигации", 0, "Команда"] },
+        { kind: "value", path: ["ПанельНавигации", 0, "ГруппаКоманд"] },
       ],
     })
 
@@ -154,13 +154,16 @@ describe("broken local form reference grammar", () => {
       yamlValue: [{ ПутьКДанным: path }],
     })).toMatchObject({
       yamlValue: [{ ПутьКДанным: `!xml/reference ${path}` }],
-      taggedPaths: [[0, "ПутьКДанным"]],
+      taggedLocations: [{ kind: "value", path: [0, "ПутьКДанным"] }],
     })
     expect(carrierNamed("typeLink").tryImport({
       rule: { type: "TypeLink" } as PropertyRule,
       xmlValue: { "xr:DataPath": path, "xr:LinkItem": 0 },
       yamlValue: path,
-    })).toEqual({ yamlValue: `!xml/reference ${path}`, taggedPaths: [[]] })
+    })).toEqual({
+      yamlValue: `!xml/reference ${path}`,
+      taggedLocations: [{ kind: "value", path: [] }],
+    })
   })
 })
 
