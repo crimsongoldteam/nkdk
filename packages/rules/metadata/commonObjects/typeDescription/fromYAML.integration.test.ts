@@ -111,7 +111,31 @@ describe("importTaggedTypeDescriptionFromYAML", () => {
   })
 
   it.each([
+    {
+      label: "property",
+      value: "Строка",
+      mark: (yaml: { Тип: unknown }) => markYAMLScalarTag(yaml, "Тип", "изменять"),
+    },
+    {
+      label: "sequence item",
+      value: ["Строка"],
+      mark: (yaml: { Тип: unknown }) => markYAMLScalarTag(yaml.Тип as unknown[], 0, "изменять"),
+    },
+  ])("keeps the PropertyState tag on a $label outside TypeDescription semantics", ({ value, mark }) => {
+    const yaml = { Тип: value }
+    mark(yaml)
+
+    expect(importTaggedTypeDescriptionFromYAML({
+      context: mockContext,
+      rule: { ...restrictedCatalogAttributeRule, yaml: "Тип" },
+      yaml,
+      value: yaml.Тип,
+    })).toEqual({ type: ["string"] })
+  })
+
+  it.each([
     { label: "untagged UUID", value: typeId },
+    { label: "UUID under PropertyState", value: typeId, tag: "изменять" },
     { label: "invalid UUID", value: xmlAnomalyTagValue("xml/reference", "not-a-uuid"), tag: "xml/reference" },
     { label: "wrong tag", value: xmlAnomalyTagValue("xml/type", typeId), tag: "xml/type" },
     { label: "legacy object", value: { ИдентификаторТипа: [typeId] } },

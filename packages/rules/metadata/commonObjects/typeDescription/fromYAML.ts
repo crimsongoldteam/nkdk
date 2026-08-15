@@ -53,19 +53,22 @@ export function parseTypeDescriptionYAML(
 
   for (const { value: rawValue, tag } of yamlItems) {
     const scalar = isTaggedYAMLScalar(rawValue) ? rawValue.value : rawValue
-    if (tag === "xml/reference") {
+    const typeDescriptionTag = tag === "проверять" || tag === "изменять" ? undefined : tag
+    if (typeDescriptionTag === "xml/reference") {
       if (typeof scalar !== "string") throw new Error("Тип: после !xml/reference ожидается UUID")
       const typeId = xmlAnomalyTagPayload("xml/reference", scalar)
       if (!UUID_PATTERN.test(typeId)) throw new Error("Тип: после !xml/reference ожидается UUID")
       typeIds.push(typeId)
       continue
     }
-    if (tag !== undefined && tag !== "xml/type") throw new Error(`Тип: недопустим тег !${tag}`)
+    if (typeDescriptionTag !== undefined && typeDescriptionTag !== "xml/type") {
+      throw new Error(`Тип: недопустим тег !${typeDescriptionTag}`)
+    }
     if (typeof scalar !== "string" || scalar.trim() === "") continue
-    if (tag === undefined && UUID_PATTERN.test(scalar)) {
+    if (typeDescriptionTag === undefined && UUID_PATTERN.test(scalar)) {
       throw new Error("Тип: UUID допустим только с тегом !xml/reference")
     }
-    if (tag === "xml/type") {
+    if (typeDescriptionTag === "xml/type") {
       const parsed = parseTaggedTypeDescription("Тип", scalar)
       types.push(...parsed.type)
       Object.assign(sourceTypes, parsed[TYPE_DESCRIPTION_SOURCE_TYPES])

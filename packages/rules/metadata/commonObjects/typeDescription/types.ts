@@ -771,7 +771,7 @@ export interface TypeDescription {
 
 export const TypeDescriptionJSONSchema = Type.Union([
   Type.String(),
-  Type.Array(Type.String(), { minItems: 1 }),
+  Type.Array(Type.String()),
 ])
 export type TypeDescriptionYAML = Static<typeof TypeDescriptionJSONSchema>
 

@@ -116,6 +116,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     }
     const compiled = compileValidationSchema(schema)
     expect(compiled.Check("Строка")).toBe(true)
+    expect(compiled.Check([])).toBe(true)
     expect(compiled.Check(["Строка", "Число"])).toBe(true)
     expect(compiled.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(false)
     expect(compiled.Check({})).toBe(false)
