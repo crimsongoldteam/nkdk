@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Заменить пооперационный partial e2e исполнителем пробных и массовых блоков с состоянием версии 3, измерением стадий и реальным восстановлением после прерывания.
+**Goal:** Заменить пооперационный partial e2e исполнителем пробных и массовых блоков с состоянием версии 3, измерением стадий и одним постоянным платформенным сеансом.
 
 **Architecture:** Матрица остаётся декларативным источником файловых операций, а `plan.ts` группирует их в слои и блоки. `scenario.ts` исполняет и подтверждает блок целиком; `steps.ts` владеет validation и MCP-синхронизацией, а отдельный отчёт собирает длительности без условий по metadata-типам.
 
@@ -15,6 +15,8 @@
 - Основной MCP- и платформенный сеансы переиспользуются между блоками.
 - Формат состояния становится версией 3; версия 2 без `--reset` только отклоняется.
 - Контрольная копия остаётся единственной и исключает `.nkdk/platform-sessions` и `.nkdk/tmp`.
+- Реальный сценарий не прерывает автономный сервер намеренно: копия работающей файловой базы является только негарантированным резервом.
+- Координатор восстановления проверяется быстрым тестом с подменёнными зависимостями, но не включается в реальный external test.
 - XML-фикстуры не изменять.
 - Автономный режим клиент-серверных баз остаётся запрещён.
 - Базовый коммит для проверок дублей этого плана: `83c40f5e4`.
@@ -378,7 +380,7 @@ git add e2e/partial-sync/steps.ts e2e/partial-sync/steps.test.ts
 git commit -m "test: :white_check_mark: сверять расширение в partial e2e"
 ```
 
-### Task 7: Реальное прерывание и повтор блока
+### Task 7: Один реальный сеанс и изолированная проверка восстановления
 
 **Files:**
 - Modify: `e2e/partial-sync/partial-sync.external.test.ts`
@@ -386,10 +388,10 @@ git commit -m "test: :white_check_mark: сверять расширение в p
 - Create: `e2e/partial-sync/recovery-probe.test.ts`
 
 **Interfaces:**
-- Consumes: стабильный `recoveryProbeBlockKey`, фабрику `openScenarioMcpSession`.
-- Produces: `runScenarioWithRecoveryProbe`, который закрывает первый сеанс до checkpoint и повторно запускает координатор.
+- Consumes: `openScenarioMcpSession`, обычный `runPartialSyncScenario` и подменяемые зависимости checkpoint.
+- Produces: один MCP- и платформенный сеанс в external test; отдельно — unit-проверку `runScenarioWithRecoveryProbe` без запуска платформы.
 
-- [ ] **Step 1: Написать управляемый тест прерывания**
+- [ ] **Step 1: Сохранить управляемый тест координатора восстановления**
 
 Использовать фейковые сессии и checkpoint-зависимости. Первая попытка должна
 завершить блок и выбросить `ExpectedRecoveryProbeInterruption` до публикации;
@@ -407,33 +409,53 @@ Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/recove
 
 Expected: FAIL с отсутствующим координатором.
 
-- [ ] **Step 3: Реализовать тестовый координатор двух запусков**
+- [ ] **Step 3: Оставить тестовый координатор двух запусков вне external test**
 
 Обернуть `publishCheckpoint` только для выбранного блока: после успешного
 `executeBlock`, но до публикации, завершить первую попытку ожидаемым исключением.
 Закрыть первую сессию, заново открыть workspace и вторую сессию, затем вызвать
 обычный `runPartialSyncScenario` без инъекции. Не добавлять параметров MCP и не
-записывать маркер в checkpoint.
+записывать маркер в checkpoint. Этот координатор используется только
+`recovery-probe.test.ts` и не доказывает согласованность копии `1Cv8.1CD`.
 
-- [ ] **Step 4: Подключить координатор к external test**
+- [ ] **Step 4: Перевести external test на обычный запуск в одном сеансе**
 
-Экспортировать стабильный ключ пробного блока создания корней из
-`matrix/layers.ts`. External test передаёт фабрику сессий и вызывает
-`runScenarioWithRecoveryProbe`; если этот блок уже подтверждён при продолжении,
-инъекция пропускается.
+Удалить импорты `recoveryProbeBlockKey` и `runScenarioWithRecoveryProbe`.
+External test один раз открывает `openScenarioMcpSession`, создаёт
+`createPartialSyncSteps`, вызывает `runPartialSyncScenario`, а в `finally`
+закрывает сессию:
+
+```ts
+const session = await openScenarioMcpSession({
+  attemptLogDir: join(workspace.logsDir, `${randomUUID()}-scenario`),
+})
+try {
+  await runPartialSyncScenario({
+    workspace,
+    plan,
+    planHash,
+    steps: createPartialSyncSteps({ workspace, session, mode }),
+    timingReport: createScenarioTimingReport(workspace.logsDir),
+    now: Date.now,
+  })
+} finally {
+  await session.close()
+}
+```
 
 - [ ] **Step 5: Запустить unit/e2e-проверки сценария**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/recovery-probe.test.ts e2e/partial-sync/scenario.test.ts`
 
-Expected: PASS. Компиляцию изменённого external test отдельно подтверждает
-`pnpm type-check` в Task 8.
+Expected: PASS. Проверка по исходному коду external test требует ровно один
+`openScenarioMcpSession`, один `runPartialSyncScenario` и отсутствие
+`runScenarioWithRecoveryProbe`; компиляцию отдельно подтверждает `pnpm type-check`.
 
 - [ ] **Step 6: Зафиксировать изменение**
 
 ```bash
-git add e2e/partial-sync/partial-sync.external.test.ts e2e/partial-sync/recovery-probe.ts e2e/partial-sync/recovery-probe.test.ts e2e/partial-sync/matrix/layers.ts
-git commit -m "test: :white_check_mark: восстановить прерванный блок"
+git add e2e/partial-sync/partial-sync.external.test.ts e2e/partial-sync/recovery-probe.ts e2e/partial-sync/recovery-probe.test.ts
+git commit -m "test: :white_check_mark: сохранить единый сеанс partial e2e"
 ```
 
 ### Task 8: Проверка готового механизма
@@ -465,7 +487,7 @@ Run: `pnpm duplicates -- --base 83c40f5e4`
 
 Expected: все команды завершаются с кодом 0, новых дублей нет.
 
-- [ ] **Step 3: Выполнить два реальных пробных блока**
+- [ ] **Step 3: Выполнить реальный автономный сценарий без прерывания**
 
 Run outside sandbox:
 
@@ -476,7 +498,8 @@ pnpm test:partial-sync -- --root '/Users/nikita/Базы 1С/temp_test' --mode s
 Существующая матрица после группировки содержит только шесть слоёв, поэтому
 выполнить её полностью. Проверить в `logs/timings.json`, что каждый массовый
 блок отправил один ZIP, второй вызов вернул `unchanged`, а последующие блоки
-использовали существующее соединение.
+использовали существующее соединение. Не останавливать `ibsrv` между блоками и
+не проверять открытие контрольной копии новым сервером.
 
 - [ ] **Step 4: Зафиксировать только необходимые исправления проверки**
 
