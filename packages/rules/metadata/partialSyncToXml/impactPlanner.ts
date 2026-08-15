@@ -52,9 +52,15 @@ export function buildPartialXmlImpactPlan(params: {
       : []
   }))
   const deletedCompositionDirectories = new Set([...deletedCompositionPaths].map(posix.dirname))
+  const deletedFileItemPaths = new Set(params.changes.deleted.flatMap((version) => {
+    const resource = classifyMetadataProjectPath(params.topology, version.projectPath)
+    return resource?.kind === "content" && resource.assignment?.role === "fileItem"
+      ? [version.projectPath]
+      : []
+  }))
 
   for (const version of params.changes.deleted) {
-    if (isInsideDeletedComposition(version.projectPath)) {
+    if (isInsideDeletedComposition(version.projectPath) || isInsideDeletedFileItem(version.projectPath)) {
       handledDeletedContent.add(version.projectPath)
       continue
     }
@@ -158,6 +164,11 @@ export function buildPartialXmlImpactPlan(params: {
   function isInsideDeletedComposition(projectPath: string): boolean {
     return !deletedCompositionPaths.has(projectPath)
       && [...deletedCompositionDirectories].some((directory) => projectPath.startsWith(`${directory}/`))
+  }
+
+  function isInsideDeletedFileItem(projectPath: string): boolean {
+    return [...deletedFileItemPaths].some((ownerPath) =>
+      ownerPath !== projectPath && projectPath.startsWith(`${posix.dirname(ownerPath)}/`))
   }
 
   function classifyDeletedPath(projectPath: string): MetadataProjectResourceMatch | undefined {

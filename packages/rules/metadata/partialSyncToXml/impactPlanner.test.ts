@@ -395,6 +395,20 @@ describe("partial XML impact planner", () => {
     expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
   })
 
+  it("поглощает вложенные удаления удалённым файловым владельцем", () => {
+    const result = plan(
+      [root, language, owner, firstTable],
+      changes({ deleted: [secondTable, secondTableModule, secondNestedTable] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [owner, firstTable].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([])
+    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+  })
+
   it("при изменении вложенного файлового объекта сохраняет внешние файлы его владельца", () => {
     const result = plan(
       [root, language, owner, secondTable, secondTableModule, secondNestedTable],
