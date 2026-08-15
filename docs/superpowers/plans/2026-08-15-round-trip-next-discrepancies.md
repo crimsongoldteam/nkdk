@@ -595,7 +595,7 @@ git add .agents/xml-anomalies.md docs/superpowers/specs/2026-08-15-round-trip-ne
 git commit -m "docs: :memo: зафиксировать проверенные XML-аномалии"
 ```
 
-- [ ] **Step 5: Request final conformance review in one subagent**
+- [x] **Step 5: Request final conformance review in one subagent**
 
 После всех коммитов создать ровно одного субагента с задачей:
 
