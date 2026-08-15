@@ -12,6 +12,8 @@ import { dirname, isAbsolute, join, resolve, sep } from "node:path"
 import type {
   ScenarioFileChange,
   ScenarioFileContents,
+  ScenarioBlock,
+  ScenarioComponentPath,
   ScenarioOperation,
 } from "./matrix/types"
 
@@ -28,28 +30,60 @@ export async function applyScenarioOperation(
   operation: ScenarioOperation,
   dependencies: OperationDependencies = createOperationDependencies(),
 ): Promise<readonly string[]> {
-  const cfDir = join(projectDir, "cf")
+  return applyOperationToComponent(projectDir, "cf", operation, dependencies)
+}
+
+export async function applyScenarioBlock(
+  projectDir: string,
+  block: ScenarioBlock,
+  dependencies: OperationDependencies = createOperationDependencies(),
+): Promise<readonly string[]> {
+  const changedPaths = new Set<string>()
+  for (const operation of block.operations) {
+    try {
+      const operationPaths = await applyOperationToComponent(
+        projectDir,
+        block.componentPath,
+        operation,
+        dependencies,
+      )
+      for (const path of operationPaths) changedPaths.add(path)
+    } catch (caught) {
+      const detail = caught instanceof Error ? `: ${caught.message}` : ""
+      throw new Error(`Не удалось применить блок ${block.key}, операция ${operation.key}${detail}`, { cause: caught })
+    }
+  }
+  return [...changedPaths].toSorted()
+}
+
+async function applyOperationToComponent(
+  projectDir: string,
+  componentPath: ScenarioComponentPath,
+  operation: ScenarioOperation,
+  dependencies: OperationDependencies,
+): Promise<readonly string[]> {
+  const componentDir = join(projectDir, ...componentPath.split("/"))
   const resolvedChanges = operation.changes.map((change) => ({
     change,
-    target: resolveScenarioPath(cfDir, change.path),
+    target: resolveScenarioPath(componentDir, change.path),
   }))
   assertUniquePaths(operation)
 
   for (const { change, target } of resolvedChanges) {
-    await assertSafeFilesystemPath(cfDir, target)
+    await assertSafeFilesystemPath(componentDir, target)
     await assertBeforeMatches(change, target)
   }
 
   const applied: typeof resolvedChanges = []
   try {
     for (const entry of resolvedChanges) {
-      await applyChange(cfDir, entry.target, entry.change.after, dependencies)
+      await applyChange(componentDir, entry.target, entry.change.after, dependencies)
       applied.push(entry)
     }
   } catch (caught) {
     try {
       for (const entry of applied.toReversed()) {
-        await applyChange(cfDir, entry.target, entry.change.before, dependencies)
+        await applyChange(componentDir, entry.target, entry.change.before, dependencies)
       }
     } catch (rollbackError) {
       throw new AggregateError(

@@ -2,13 +2,37 @@ import { mkdir, mkdtemp, readFile, stat, symlink, writeFile } from "node:fs/prom
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { describe, expect, it } from "vitest"
-import type { ScenarioOperation } from "./matrix/types"
+import type { ScenarioBlock, ScenarioOperation } from "./matrix/types"
 import {
+  applyScenarioBlock,
   applyScenarioOperation,
   createOperationDependencies,
 } from "./operation"
 
 describe("scenario file operation", () => {
+  it("applies sequential transitions to the selected extension component", async () => {
+    const projectDir = await projectFixture()
+    const componentDir = join(projectDir, "cfe/Расширение_All")
+    await mkdir(componentDir, { recursive: true })
+    const path = join(componentDir, "Конфигурация.yaml")
+    await writeFile(path, "первое состояние")
+
+    const changed = await applyScenarioBlock(projectDir, block("cfe/Расширение_All", [
+      operation([{ path: "Конфигурация.yaml", before: "первое состояние", after: "второе состояние" }]),
+      operation([{ path: "Конфигурация.yaml", before: "второе состояние", after: "третье состояние" }], "operation:second"),
+    ]))
+
+    expect(changed).toEqual(["Конфигурация.yaml"])
+    await expect(readFile(path, "utf8")).resolves.toBe("третье состояние")
+  })
+
+  it("rejects traversal relative to the selected component", async () => {
+    const projectDir = await projectFixture()
+    await expect(applyScenarioBlock(projectDir, block("cf", [operation([
+      { path: "../outside.yaml", before: null, after: "value" },
+    ])]))).rejects.toThrow(/путь/iu)
+  })
+
   it("creates multiple files atomically and returns sorted relative paths", async () => {
     const projectDir = await projectFixture()
     const changed = await applyScenarioOperation(projectDir, operation([
@@ -112,8 +136,15 @@ describe("scenario file operation", () => {
   })
 })
 
-function operation(changes: ScenarioOperation["changes"]): ScenarioOperation {
-  return { key: "operation:test", kind: "add-child", changes }
+function operation(changes: ScenarioOperation["changes"], key = "operation:test"): ScenarioOperation {
+  return { key, kind: "add-child", changes }
+}
+
+function block(
+  componentPath: ScenarioBlock["componentPath"],
+  operations: readonly ScenarioOperation[],
+): ScenarioBlock {
+  return { key: "test:probe", layerKey: "test", componentPath, operations }
 }
 
 async function projectFixture(): Promise<string> {
