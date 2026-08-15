@@ -181,7 +181,6 @@ export const MetadataExchangePlanRules = {
     content: exchangePlanContentRule({
       yaml: "Состав",
       filePath: "Ext/Content.xml",
-      exportReferenceFileOnMissingValue: true,
     }),
     defaultPresentation: systemEnumerationRule({
       yaml: "ОсновноеПредставление",

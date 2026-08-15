@@ -408,21 +408,24 @@ git commit -m "feat: :sparkles: поддержать обычные формы"
 
 **Files:**
 - Modify: `packages/rules/metadata/commonObjects/exchangePlanContent/register.ts`
+- Modify: `packages/rules/metadata/commonObjects/exchangePlanContent/types.ts`
 - Modify: `packages/rules/metadata/commonObjects/exchangePlanContent/fromXMLToYAML.integration.test.ts`
 - Modify: `packages/rules/metadata/commonObjects/exchangePlanContent/fromYAMLToXML.integration.test.ts`
 - Modify: `packages/rules/metadata/commonObjects/exchangePlanContent/toJSONSchema.test.ts`
 - Modify: `packages/rules/metadata/appliedObjects/metadataExchangePlan/rules.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/property/propertyRuleRegistrySet.ts`
+- Modify: `packages/rules/metadata/ruleRuntime/property/propertyRuleRegistrySet.test.ts`
 - Modify: `.agents/xml-anomalies.md`
 
 **Interfaces:**
 - Consumes: `explicitXMLPropertyTypes` для `ExchangePlanContent`.
 - Produces: отсутствие `Состав` удаляет файл; `!xml/present` создаёт пустой `Content.xml`; список создаёт непустой файл.
 
-- [ ] **Step 1: Add failing owner-property tests without changing the internal item contract**
+- [x] **Step 1: Add failing owner-property tests without changing the internal item contract**
 
 Существующий прямой договор `ExchangePlanContentRules` может сохранять внутреннее пустое значение `[]`. Через минимальное правило-владелец проверить внешний YAML-договор: пустой XML-корень импортируется как `Состав: !xml/present`, YAML `Состав: []` отклоняется. Добавить проверку отсутствующего свойства на уровне владельца — файл не создаётся.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonObjects/exchangePlanContent/fromXMLToYAML.integration.test.ts metadata/commonObjects/exchangePlanContent/fromYAMLToXML.integration.test.ts
@@ -430,26 +433,26 @@ pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonO
 
 Expected: FAIL — текущий договор использует `[]`.
 
-- [ ] **Step 3: Register explicit presence and remove reference fallback**
+- [x] **Step 3: Register explicit presence and remove reference fallback**
 
 Зарегистрировать `ExchangePlanContent` как `materializeCollection`. В `metadataExchangePlan/rules.ts` удалить `exportReferenceFileOnMissingValue: true` у `content`.
 
-- [ ] **Step 4: Cover schema boundaries and verify GREEN**
+- [x] **Step 4: Cover schema boundaries and verify GREEN**
 
 Проверить `!xml/present`, непустой список, запрет `[]`, payload и чужого тега.
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonObjects/exchangePlanContent
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/exchangePlanContent/toJSONSchema.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/exchangePlanContent/toJSONSchema.test.ts metadata/ruleRuntime/property/propertyRuleRegistrySet.test.ts
 pnpm duplicates -- --base 8fba09946
 ```
 
 Добавить пустой `ExchangePlanContent` в `.agents/xml-anomalies.md`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
-git add packages/rules/metadata/commonObjects/exchangePlanContent packages/rules/metadata/appliedObjects/metadataExchangePlan/rules.ts .agents/xml-anomalies.md docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md
+git add packages/runtime/metadata/ruleRuntime/property/propertyRuleRegistrySet.ts packages/rules/metadata/ruleRuntime/property/propertyRuleRegistrySet.test.ts packages/rules/metadata/commonObjects/exchangePlanContent packages/rules/metadata/appliedObjects/metadataExchangePlan/rules.ts .agents/xml-anomalies.md docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md
 git commit -m "feat: :sparkles: различить пустой состав плана обмена"
 ```
 

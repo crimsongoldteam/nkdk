@@ -33,6 +33,7 @@
 | управляемая форма | `Реквизиты` | `!xml/present` | `<Attributes/>` |
 | `LabelDecoration`, `ExtendedTooltip` | `Заголовок` | `!xml/present` | `<Title formatted="true"/>` |
 | предопределённый счёт | `ВидыСубконто` | `!xml/present` | `<ExtDimensionTypes/>` |
+| план обмена | `Состав` | `!xml/present` | существующий пустой `Ext/Content.xml` с корнем `<ExchangePlanContent/>`; отсутствие свойства означает отсутствие файла |
 | реквизит формы с единственным типом `СписокЗначений` | `ТипЗначения` | `!xml/absent` | элемент `<Settings>` отсутствует вопреки каноническому экспорту пустого `v8:TypeDescription` |
 | свойство типа `TypeDescription` | `Тип` | `!xml/type <исходный префикс>:<русское имя типа>` | `v8:Type` с исходным namespace-префиксом, например `d7p1:Chart` |
 | `StandardAttributeDescriptions` | `СтандартныеРеквизиты` | `!xml/present` | канонические элементы `<xr:StandardAttribute name="…">…</xr:StandardAttribute>` |

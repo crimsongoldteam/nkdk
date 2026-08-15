@@ -316,7 +316,8 @@ export function createPropertyRuleRegistrySet(
       const registration = explicitXMLPropertyTypes.get(params.propertyType)
       return registration !== undefined &&
         params.presentInXML &&
-        Object.is(params.yamlValue, registration.yamlValue)
+        (Object.is(params.yamlValue, registration.yamlValue) ||
+          (Array.isArray(params.yamlValue) && params.yamlValue.length === 0))
         ? registration
         : undefined
     },
