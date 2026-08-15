@@ -9,15 +9,15 @@ export const templateLifecycleKinds = [
 ] as const
 
 const templateOwners = [
-  { ownerKey: "object:report", name: "ПроверочныйМакет", retained: false },
-  { ownerKey: "object:task", name: "ПроверочныйМакетСВладельцем", retained: true },
+  { ownerKey: "object:report", folder: "Шаблоны", name: "ПроверочныйМакет", retained: false },
+  { ownerKey: "object:task", folder: "Макеты", name: "ПроверочныйМакетСВладельцем", retained: true },
 ] as const
 
-export const templateDeclarations = templateOwners.map(({ ownerKey, name, retained }, index): TemplateDeclaration => {
+export const templateDeclarations = templateOwners.map(({ ownerKey, folder, name, retained }, index): TemplateDeclaration => {
   const root = rootObjectDeclarations.find(({ key }) => key === ownerKey)
   const propertiesPath = root?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.path
   if (propertiesPath === undefined) throw new Error(`Не найден каталог владельца макета ${ownerKey}`)
-  const directory = `${propertiesPath.slice(0, -"/Свойства.yaml".length)}/Макеты/${name}`
+  const directory = `${propertiesPath.slice(0, -"/Свойства.yaml".length)}/${folder}/${name}`
   return {
     key: `template:${ownerKey.slice("object:".length)}`,
     ownerKey,

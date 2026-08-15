@@ -495,6 +495,17 @@ describe("partial sync matrix", () => {
     ])
   })
 
+  it("uses the owner-specific project folder for text templates", () => {
+    const templatePaths = partialSyncMatrix.templates.flatMap(({ changes }) => changes.map(({ path }) => path))
+    expect(templatePaths.some((path) => path.startsWith("Отчет/") && path.includes("/Шаблоны/"))).toBe(true)
+    expect(templatePaths.some((path) => path.startsWith("Задача/") && path.includes("/Макеты/"))).toBe(true)
+
+    const extensionPaths = partialSyncMatrix.extensionLayers.flatMap(({ operations }) => operations)
+      .flatMap(({ changes }) => changes.map(({ path }) => path))
+    expect(extensionPaths.filter((path) => /^(Справочник|Документ)\//u.test(path) && path.includes("Template.")))
+      .toSatisfy((paths: string[]) => paths.every((path) => path.includes("/Шаблоны/")))
+  })
+
   it("uses a concrete input-field kind for the added form field", () => {
     const operation = partialSyncMatrix.formLifecycleOperations.find(({ key }) => key === "form-content:add-elements")
     expect(operation?.changes[0]?.after).toContain("ПроверочноеПоле:\n    Вид: ПолеВвода")

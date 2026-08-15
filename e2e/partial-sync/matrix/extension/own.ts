@@ -29,8 +29,8 @@ const commandModule = "&НаКлиенте\nПроцедура Обработк�
 
 const firstPropertiesPath = `${firstDirectory}/Свойства.yaml`
 const firstFormPath = `${firstDirectory}/Формы/ПроверочнаяФорма/Форма.yaml`
-const firstTemplateXmlPath = `${firstDirectory}/Макеты/ПроверочныйМакет/Template.xml`
-const firstTemplateTextPath = `${firstDirectory}/Макеты/ПроверочныйМакет/Template.txt`
+const firstTemplateXmlPath = `${firstDirectory}/Шаблоны/ПроверочныйМакет/Template.xml`
+const firstTemplateTextPath = `${firstDirectory}/Шаблоны/ПроверочныйМакет/Template.txt`
 const firstModulePath = `${firstDirectory}/МодульОбъекта.bsl`
 const firstCommandPath = `${firstDirectory}/Команды/ПроверочнаяКоманда.bsl`
 
@@ -60,8 +60,8 @@ function secondOwnerCreation(): ScenarioFileChange[] {
   return [
     file(`${secondDirectory}/Свойства.yaml`, null, baseProperties),
     file(`${secondDirectory}/Формы/ПроверочнаяФорма/Форма.yaml`, null, formInitial),
-    file(`${secondDirectory}/Макеты/ПроверочныйМакет/Template.xml`, null, templateXml("ПроверочныйМакет", "302")),
-    file(`${secondDirectory}/Макеты/ПроверочныйМакет/Template.txt`, null, templateInitial),
+    file(`${secondDirectory}/Шаблоны/ПроверочныйМакет/Template.xml`, null, templateXml("ПроверочныйМакет", "302")),
+    file(`${secondDirectory}/Шаблоны/ПроверочныйМакет/Template.txt`, null, templateInitial),
   ]
 }
 

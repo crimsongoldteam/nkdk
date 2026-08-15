@@ -43,8 +43,8 @@ const extendedForm = [
 const formModule = "&НаКлиенте\nПроцедура КомандаРасширенияФормы(Команда)\nКонецПроцедуры\n"
 const ownFormPath = `${catalogDirectory}/Формы/ФормаРасширения/Форма.yaml`
 const ownForm = "Синоним: Форма расширения\nНазначенияИспользования: ПлатформаИМобильноеПриложение"
-const templateXmlPath = `${catalogDirectory}/Макеты/МакетРасширения/Template.xml`
-const templateTextPath = `${catalogDirectory}/Макеты/МакетРасширения/Template.txt`
+const templateXmlPath = `${catalogDirectory}/Шаблоны/МакетРасширения/Template.xml`
+const templateTextPath = `${catalogDirectory}/Шаблоны/МакетРасширения/Template.txt`
 const templateText = "\uFEFFМакет заимствованного объекта"
 
 const catalogRemovalChanges: ScenarioFileChange[] = [
@@ -81,8 +81,8 @@ function documentCreation(): ScenarioFileChange[] {
   return [
     file(`${documentDirectory}/Свойства.yaml`, null, `ДлинаНомера: !изменять 11\n`),
     file(`${documentDirectory}/Формы/ФормаРасширения/Форма.yaml`, null, ownForm),
-    file(`${documentDirectory}/Макеты/МакетРасширения/Template.xml`, null, templateXml("МакетРасширения", "402")),
-    file(`${documentDirectory}/Макеты/МакетРасширения/Template.txt`, null, templateText),
+    file(`${documentDirectory}/Шаблоны/МакетРасширения/Template.xml`, null, templateXml("МакетРасширения", "402")),
+    file(`${documentDirectory}/Шаблоны/МакетРасширения/Template.txt`, null, templateText),
   ]
 }
 
