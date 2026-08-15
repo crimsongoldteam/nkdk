@@ -12,6 +12,14 @@ import { homedir } from "node:os"
 import { dirname, isAbsolute, join, resolve } from "node:path"
 
 export type ScenarioState = {
+  readonly version: 3
+  readonly scenario: "partial-sync-layered-matrix"
+  readonly completedBlock: string | null
+  readonly checkpoint: "checkpoints/current" | null
+  readonly planHash: string
+}
+
+type PreviousScenarioState = {
   readonly version: 2
   readonly scenario: "partial-sync-matrix"
   readonly completedOperation: string | null
@@ -124,7 +132,7 @@ export async function openScenarioWorkspace(
     }
   }
 
-  let storedState: ScenarioState | LegacyScenarioState | undefined
+  let storedState: ScenarioState | PreviousScenarioState | LegacyScenarioState | undefined
   if (entries.includes("state.json")) {
     storedState = await readRecognizedState(statePath)
     if (entries.includes("state.json.tmp")) await rm(temporaryStatePath)
@@ -183,22 +191,24 @@ export async function writeScenarioState(
 
 function initialState(planHash: string): ScenarioState {
   return {
-    version: 2,
-    scenario: "partial-sync-matrix",
-    completedOperation: null,
+    version: 3,
+    scenario: "partial-sync-layered-matrix",
+    completedBlock: null,
     checkpoint: null,
     planHash,
   }
 }
 
-async function readRecognizedState(path: string): Promise<ScenarioState | LegacyScenarioState> {
+async function readRecognizedState(
+  path: string,
+): Promise<ScenarioState | PreviousScenarioState | LegacyScenarioState> {
   let parsed: unknown
   try {
     parsed = JSON.parse(await readFile(path, "utf8"))
   } catch (caught) {
     throw new Error(`Повреждено состояние сценария: ${path}`, { cause: caught })
   }
-  if (!isScenarioState(parsed) && !isLegacyScenarioState(parsed)) {
+  if (!isScenarioState(parsed) && !isPreviousScenarioState(parsed) && !isLegacyScenarioState(parsed)) {
     throw new Error(`Повреждено или неизвестно состояние сценария: ${path}`)
   }
   return parsed
@@ -212,6 +222,16 @@ async function writeState(path: string, state: ScenarioState): Promise<void> {
 }
 
 function isScenarioState(value: unknown): value is ScenarioState {
+  if (typeof value !== "object" || value === null) return false
+  const state = value as Record<string, unknown>
+  return state["version"] === 3 &&
+    state["scenario"] === "partial-sync-layered-matrix" &&
+    (state["completedBlock"] === null || typeof state["completedBlock"] === "string") &&
+    (state["checkpoint"] === null || state["checkpoint"] === "checkpoints/current") &&
+    typeof state["planHash"] === "string" && /^[a-f0-9]{64}$/u.test(state["planHash"])
+}
+
+function isPreviousScenarioState(value: unknown): value is PreviousScenarioState {
   if (typeof value !== "object" || value === null) return false
   const state = value as Record<string, unknown>
   return state["version"] === 2 &&

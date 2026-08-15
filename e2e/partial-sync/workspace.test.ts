@@ -14,12 +14,26 @@ describe("partial sync workspace", () => {
 
     expect(workspace.root).toBe(await realpath(root))
     expect(await readState(root)).toEqual({
-      version: 2,
-      scenario: "partial-sync-matrix",
-      completedOperation: null,
+      version: 3,
+      scenario: "partial-sync-layered-matrix",
+      completedBlock: null,
       checkpoint: null,
       planHash,
     })
+  })
+
+  it("rejects version 2 without an explicit reset", async () => {
+    const root = await temporaryRoot("version-2-")
+    await writeState(root, {
+      version: 2,
+      scenario: "partial-sync-matrix",
+      completedOperation: "object:catalog",
+      checkpoint: "checkpoints/current",
+      planHash,
+    })
+
+    await expect(openScenarioWorkspace(root, { planHash, reset: false }))
+      .rejects.toThrow(/несовместимая версия/iu)
   })
 
   it("ignores the macOS service file when initializing a directory", async () => {
@@ -148,9 +162,9 @@ function temporaryRoot(suffix = ""): Promise<string> {
 
 function matrixState(hash: string) {
   return {
-    version: 2,
-    scenario: "partial-sync-matrix",
-    completedOperation: null,
+    version: 3,
+    scenario: "partial-sync-layered-matrix",
+    completedBlock: null,
     checkpoint: null,
     planHash: hash,
   } as const

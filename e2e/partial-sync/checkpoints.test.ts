@@ -17,30 +17,30 @@ describe("partial sync checkpoints", () => {
     await writeWorking(fixture, "first")
 
     const state = await publishCheckpoint(fixture.workspace, {
-      completedOperation: null,
+      completedBlock: null,
       planHash,
     })
 
     expect(state).toEqual({
-      version: 2,
-      scenario: "partial-sync-matrix",
-      completedOperation: null,
+      version: 3,
+      scenario: "partial-sync-layered-matrix",
+      completedBlock: null,
       checkpoint: "checkpoints/current",
       planHash,
     })
     await expect(readFile(join(
       fixture.workspace.checkpointsDir,
       "current/manifest.json",
-    ), "utf8")).resolves.toContain("base/1Cv8.1CD")
+    ), "utf8")).resolves.toMatch(/"version": 3[\s\S]*"completedBlock": null[\s\S]*base\/1Cv8\.1CD/u)
   })
 
   it("replaces current and leaves no historical copies after ordinary successes", async () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "first")
-    await publishCheckpoint(fixture.workspace, { completedOperation: "object:first", planHash })
+    await publishCheckpoint(fixture.workspace, { completedBlock: "roots:create:probe", planHash })
     await writeWorking(fixture, "second")
 
-    await publishCheckpoint(fixture.workspace, { completedOperation: "object:second", planHash })
+    await publishCheckpoint(fixture.workspace, { completedBlock: "roots:create:bulk", planHash })
 
     expect(await readdir(fixture.workspace.checkpointsDir)).toEqual(["current"])
     await expect(readFile(join(
@@ -53,7 +53,7 @@ describe("partial sync checkpoints", () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "saved")
     const state = await publishCheckpoint(fixture.workspace, {
-      completedOperation: "object:catalog",
+      completedBlock: "roots:create:probe",
       planHash,
     })
     await writeWorking(fixture, "broken")
@@ -83,7 +83,7 @@ describe("partial sync checkpoints", () => {
     await writeFile(temporaryAttempt, "temporary")
 
     const state = await publishCheckpoint(fixture.workspace, {
-      completedOperation: "object:catalog",
+      completedBlock: "roots:create:probe",
       planHash,
     })
 
@@ -112,7 +112,7 @@ describe("partial sync checkpoints", () => {
   it("preserves state and current when copying the replacement fails", async () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "saved")
-    await publishCheckpoint(fixture.workspace, { completedOperation: "object:first", planHash })
+    await publishCheckpoint(fixture.workspace, { completedBlock: "roots:create:probe", planHash })
     const beforeState = await readFile(fixture.workspace.statePath, "utf8")
     const dependencies = {
       ...createCheckpointDependencies(),
@@ -121,7 +121,7 @@ describe("partial sync checkpoints", () => {
 
     await expect(publishCheckpoint(
       fixture.workspace,
-      { completedOperation: "object:second", planHash },
+      { completedBlock: "roots:create:bulk", planHash },
       dependencies,
     )).rejects.toThrow("planned copy failure")
 
@@ -135,7 +135,7 @@ describe("partial sync checkpoints", () => {
   it("rolls current back when state publication fails after switching directories", async () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "saved")
-    await publishCheckpoint(fixture.workspace, { completedOperation: "object:first", planHash })
+    await publishCheckpoint(fixture.workspace, { completedBlock: "roots:create:probe", planHash })
     await writeWorking(fixture, "replacement")
     const dependencies = {
       ...createCheckpointDependencies(),
@@ -144,7 +144,7 @@ describe("partial sync checkpoints", () => {
 
     await expect(publishCheckpoint(
       fixture.workspace,
-      { completedOperation: "object:second", planHash },
+      { completedBlock: "roots:create:bulk", planHash },
       dependencies,
     )).rejects.toThrow("planned state failure")
 
@@ -152,13 +152,13 @@ describe("partial sync checkpoints", () => {
       fixture.workspace.checkpointsDir,
       "current/base/1Cv8.1CD",
     ), "utf8")).resolves.toBe("saved base")
-    expect((await readState(fixture.workspace.root)).completedOperation).toBe("object:first")
+    expect((await readState(fixture.workspace.root)).completedBlock).toBe("roots:create:probe")
   })
 
   it("keeps a committed replacement when removing previous fails and cleans it next time", async () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "first")
-    await publishCheckpoint(fixture.workspace, { completedOperation: "object:first", planHash })
+    await publishCheckpoint(fixture.workspace, { completedBlock: "roots:create:probe", planHash })
     await writeWorking(fixture, "second")
     const dependencies = {
       ...createCheckpointDependencies(),
@@ -170,15 +170,15 @@ describe("partial sync checkpoints", () => {
 
     await expect(publishCheckpoint(
       fixture.workspace,
-      { completedOperation: "object:second", planHash },
+      { completedBlock: "roots:create:bulk", planHash },
       dependencies,
-    )).resolves.toMatchObject({ completedOperation: "object:second" })
+    )).resolves.toMatchObject({ completedBlock: "roots:create:bulk" })
 
-    expect((await readState(fixture.workspace.root)).completedOperation).toBe("object:second")
+    expect((await readState(fixture.workspace.root)).completedBlock).toBe("roots:create:bulk")
     expect((await readdir(fixture.workspace.checkpointsDir)).some((name) => name.endsWith(".previous"))).toBe(true)
 
     await writeWorking(fixture, "third")
-    await publishCheckpoint(fixture.workspace, { completedOperation: "object:third", planHash })
+    await publishCheckpoint(fixture.workspace, { completedBlock: "children:create:probe", planHash })
     expect(await readdir(fixture.workspace.checkpointsDir)).toEqual(["current"])
   })
 
@@ -186,7 +186,7 @@ describe("partial sync checkpoints", () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "first")
     const firstState = await publishCheckpoint(fixture.workspace, {
-      completedOperation: "object:first",
+      completedBlock: "roots:create:probe",
       planHash,
     })
     const current = join(fixture.workspace.checkpointsDir, "current")
@@ -194,7 +194,7 @@ describe("partial sync checkpoints", () => {
     const crashPrevious = join(fixture.workspace.checkpointsDir, ".current-crash.previous")
     await cp(current, savedFirst, { recursive: true })
     await writeWorking(fixture, "second")
-    await publishCheckpoint(fixture.workspace, { completedOperation: "object:second", planHash })
+    await publishCheckpoint(fixture.workspace, { completedBlock: "roots:create:bulk", planHash })
     await cp(savedFirst, crashPrevious, { recursive: true })
     await writeScenarioState(fixture.workspace, firstState)
 
@@ -211,7 +211,7 @@ describe("partial sync checkpoints", () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "saved")
     const state = await publishCheckpoint(fixture.workspace, {
-      completedOperation: "object:catalog",
+      completedBlock: "roots:create:probe",
       planHash,
     })
     const current = join(fixture.workspace.checkpointsDir, "current")
@@ -228,7 +228,7 @@ describe("partial sync checkpoints", () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "saved")
     const state = await publishCheckpoint(fixture.workspace, {
-      completedOperation: "object:catalog",
+      completedBlock: "roots:create:probe",
       planHash,
     })
     await writeWorking(fixture, "working")
@@ -253,7 +253,7 @@ describe("partial sync checkpoints", () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "saved")
     const state = await publishCheckpoint(fixture.workspace, {
-      completedOperation: "object:catalog",
+      completedBlock: "roots:create:probe",
       planHash,
     })
     await writeWorking(fixture, "working")
@@ -278,7 +278,7 @@ describe("partial sync checkpoints", () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "saved")
     const state = await publishCheckpoint(fixture.workspace, {
-      completedOperation: "object:catalog",
+      completedBlock: "roots:create:probe",
       planHash,
     })
     await writeWorking(fixture, "working")

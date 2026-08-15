@@ -15,14 +15,14 @@ import { writeScenarioState } from "./workspace"
 type ManifestPath = `base/${string}` | `project/${string}`
 
 type CheckpointManifest = {
-  readonly version: 2
-  readonly completedOperation: string | null
+  readonly version: 3
+  readonly completedBlock: string | null
   readonly planHash: string
   readonly files: Readonly<Record<ManifestPath, string>>
 }
 
 export type CheckpointPublication = {
-  readonly completedOperation: string | null
+  readonly completedBlock: string | null
   readonly planHash: string
 }
 
@@ -172,7 +172,7 @@ async function recoverPreviousCheckpoint(
   }
   if (matching.length !== 1) {
     if (matching.length === 0 && currentFailure !== undefined) throw currentFailure
-    throw new Error(`Не найдена единственная согласованная предыдущая контрольная копия для ${state.completedOperation ?? "baseline"}`)
+    throw new Error(`Не найдена единственная согласованная предыдущая контрольная копия для ${state.completedBlock ?? "baseline"}`)
   }
 
   const discarded = join(
@@ -224,8 +224,8 @@ async function buildManifest(
   publication: CheckpointPublication,
 ): Promise<CheckpointManifest> {
   return {
-    version: 2,
-    completedOperation: publication.completedOperation,
+    version: 3,
+    completedBlock: publication.completedBlock,
     planHash: publication.planHash,
     files: await buildFileHashes(checkpointDir),
   }
@@ -244,7 +244,7 @@ async function buildFileHashes(checkpointDir: string): Promise<Record<ManifestPa
 
 async function verifyCheckpoint(
   checkpointDir: string,
-  expected?: Pick<CheckpointPublication, "completedOperation" | "planHash">,
+  expected?: Pick<CheckpointPublication, "completedBlock" | "planHash">,
 ): Promise<CheckpointManifest> {
   const checkpointStats = await lstat(checkpointDir)
   if (!checkpointStats.isDirectory() || checkpointStats.isSymbolicLink()) {
@@ -286,8 +286,8 @@ async function sortedEntries(path: string) {
 function isManifest(value: unknown): value is CheckpointManifest {
   if (typeof value !== "object" || value === null) return false
   const manifest = value as Record<string, unknown>
-  if (manifest["version"] !== 2 ||
-    (manifest["completedOperation"] !== null && typeof manifest["completedOperation"] !== "string") ||
+  if (manifest["version"] !== 3 ||
+    (manifest["completedBlock"] !== null && typeof manifest["completedBlock"] !== "string") ||
     typeof manifest["planHash"] !== "string" || !/^[a-f0-9]{64}$/u.test(manifest["planHash"])) {
     return false
   }
@@ -303,17 +303,17 @@ function isManifest(value: unknown): value is CheckpointManifest {
 
 function manifestMatches(
   manifest: CheckpointManifest,
-  expected: Pick<CheckpointPublication, "completedOperation" | "planHash">,
+  expected: Pick<CheckpointPublication, "completedBlock" | "planHash">,
 ): boolean {
-  return manifest.completedOperation === expected.completedOperation &&
+  return manifest.completedBlock === expected.completedBlock &&
     manifest.planHash === expected.planHash
 }
 
 function checkpointState(publication: CheckpointPublication): ScenarioState {
   return {
-    version: 2,
-    scenario: "partial-sync-matrix",
-    completedOperation: publication.completedOperation,
+    version: 3,
+    scenario: "partial-sync-layered-matrix",
+    completedBlock: publication.completedBlock,
     checkpoint: "checkpoints/current",
     planHash: publication.planHash,
   }
