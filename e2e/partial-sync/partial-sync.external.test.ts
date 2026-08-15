@@ -1,12 +1,7 @@
-import { randomUUID } from "node:crypto"
-import { join } from "node:path"
 import { it } from "vitest"
-import { openScenarioMcpSession } from "./mcp-session"
-import { createPartialSyncSteps } from "./steps"
+import { runExternalPartialSyncScenario } from "./external-scenario"
 import { partialSyncMatrix } from "./matrix"
-import { recoveryProbeBlockKey } from "./matrix/layers"
 import { buildScenarioPlan, scenarioPlanHash } from "./plan"
-import { runScenarioWithRecoveryProbe } from "./recovery-probe"
 import { createScenarioTimingReport } from "./timing"
 import { openScenarioWorkspace } from "./workspace"
 
@@ -23,22 +18,12 @@ it("последовательно синхронизирует полную м�
     planHash,
     reset: process.env["NKDK_PARTIAL_SYNC_RESET"] === "1",
   })
-  await runScenarioWithRecoveryProbe({
+  await runExternalPartialSyncScenario({
     workspace,
     plan,
     planHash,
-    recoveryProbeBlockKey,
+    mode,
     timingReport: createScenarioTimingReport(workspace.logsDir),
     now: Date.now,
-    async openAttempt(attemptWorkspace) {
-      const session = await openScenarioMcpSession({
-        attemptLogDir: join(attemptWorkspace.logsDir, `${randomUUID()}-scenario`),
-      })
-      return {
-        steps: createPartialSyncSteps({ workspace: attemptWorkspace, session, mode }),
-        close: () => session.close(),
-      }
-    },
-    reopenWorkspace: () => openScenarioWorkspace(root, { planHash, reset: false }),
   })
 }, 24 * 60 * 60 * 1000)
