@@ -59,7 +59,10 @@ export function createPartialSyncSteps(
         extensionName: dependencies.extensionName,
       })
       await writeProjectSettings(workspace.projectDir, workspace.baseDir, mode)
-      await importCf(session, workspace.projectDir, attemptLogDir)
+      await importComponent(session, workspace.projectDir, "cf", attemptLogDir)
+      await importComponent(
+        session, workspace.projectDir, `cfe/${dependencies.extensionName}`, attemptLogDir,
+      )
     },
 
     async executeBlock(block, progress) {
@@ -111,11 +114,21 @@ export function createPartialSyncSteps(
       await closePlatformConnection(session, workspace.projectDir, attemptLogDir)
       await prepareVerificationProject(verificationProjectDir, workspace.baseDir, mode)
       try {
-        await importCf(session, verificationProjectDir, attemptLogDir)
-        await expectEqualCf(dependencies, {
+        const extensionComponentPath = `cfe/${dependencies.extensionName}` as const
+        await importComponent(session, verificationProjectDir, "cf", attemptLogDir)
+        await importComponent(session, verificationProjectDir, extensionComponentPath, attemptLogDir)
+        await expectEqualComponent(dependencies, {
           expectedDir: join(workspace.projectDir, "cf"),
           actualDir: join(verificationProjectDir, "cf"),
           reportDir: join(attemptLogDir, "compare-final-cf"),
+          xmlComparison: "semantic",
+          yamlComparison: "ignore-final-line-ending",
+          textComparison: "normalize",
+        })
+        await expectEqualComponent(dependencies, {
+          expectedDir: join(workspace.projectDir, extensionComponentPath),
+          actualDir: join(verificationProjectDir, extensionComponentPath),
+          reportDir: join(attemptLogDir, "compare-final-extension"),
           xmlComparison: "semantic",
           yamlComparison: "ignore-final-line-ending",
           textComparison: "normalize",
@@ -127,18 +140,19 @@ export function createPartialSyncSteps(
   }
 }
 
-async function importCf(
+async function importComponent(
   session: ScenarioMcpSession,
   projectDir: string,
+  componentPath: ScenarioBlock["componentPath"],
   attemptLogDir: string,
 ): Promise<void> {
   const payload = await session.call<ImportPayload>("nkdk.import_from_infobase", {
     projectDir,
-    componentPath: "cf",
+    componentPath,
     allowWrite: true,
   }, { attemptLogDir })
   if (payload.ok !== true || (payload.failed?.length ?? 0) > 0) {
-    throw new Error("Импорт cf завершился с ошибками")
+    throw new Error(`Импорт ${componentPath} завершился с ошибками`)
   }
 }
 
@@ -175,7 +189,7 @@ async function syncAndExpectStatus(
   }
 }
 
-async function expectEqualCf(
+async function expectEqualComponent(
   dependencies: PartialSyncStepDependencies,
   params: Parameters<typeof compareFileTrees>[0],
 ): Promise<void> {

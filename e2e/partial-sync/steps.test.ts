@@ -37,9 +37,17 @@ describe("partial sync steps", () => {
         ["nkdk.close_platform_connection", { projectDir: fixture.workspace.projectDir }],
         ["nkdk.close_platform_connection", { projectDir: verificationProjectDir }],
       ])
+    expect(fixture.calls
+      .filter(([name]) => name === "nkdk.import_from_infobase")
+      .map(([, input]) => input.componentPath))
+      .toEqual(["cf", "cfe/Расширение_All", "cf", "cfe/Расширение_All"])
+    expect(fixture.comparisons.map(({ expectedDir }) => expectedDir)).toEqual([
+      join(fixture.workspace.projectDir, "cf"),
+      join(fixture.workspace.projectDir, "cfe/Расширение_All"),
+    ])
   })
 
-  it("prepares the base and imports only cf through public MCP", async () => {
+  it("imports both configuration components through public MCP", async () => {
     const fixture = await createFixture()
     const steps = createPartialSyncSteps(
       { workspace: fixture.workspace, session: fixture.session, mode: "standalone-server" },
@@ -54,9 +62,12 @@ describe("partial sync steps", () => {
         componentPath: "cf",
         allowWrite: true,
       }],
+      ["nkdk.import_from_infobase", {
+        projectDir: fixture.workspace.projectDir,
+        componentPath: "cfe/Расширение_All",
+        allowWrite: true,
+      }],
     ])
-    expect(fixture.calls.some(([, input]) => String(input.componentPath).startsWith("cfe/")))
-      .toBe(false)
     expect(fixture.comparisons).toEqual([])
     const settings = await readFile(join(fixture.workspace.projectDir, ".nkdk/project.yaml"), "utf8")
     expect(settings).toContain("mode: standalone-server")
