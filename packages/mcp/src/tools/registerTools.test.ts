@@ -99,9 +99,9 @@ describe("registerNkdkCapabilities", () => {
     expect(infobaseSync?.description.toLowerCase()).toContain("частично")
     expect(infobaseSync?.description).toContain("cf")
     expect(infobaseSync?.description).toContain("cfe/<Имя>")
-    expect(infobaseSync?.description).toContain("Запускает 1С")
+    expect(infobaseSync?.description).toContain("Запускает платформу")
     expect(infobaseSync?.description).toContain("allowWrite=true")
-    expect(infobaseSync?.description).toContain("не обновляет конфигурацию базы данных")
+    expect(infobaseSync?.description).toContain("обновляет конфигурацию базы данных")
     expect(infobaseSync?.inputSchema.safeParse({
       projectDir: "/project",
       componentPath: "cf",
@@ -112,14 +112,23 @@ describe("registerNkdkCapabilities", () => {
       componentPath: "cfe/..",
       allowWrite: true,
     }).success).toBe(false)
-    expect(infobaseSync?.outputSchema).toBeDefined()
-    expect(infobaseSync?.outputSchema).toBeInstanceOf(z.ZodUnion)
-    expect(infobaseSync?.outputSchema.safeParse({
+    const infobaseSyncOutput = infobaseSync?.outputSchema
+    expect(infobaseSyncOutput).toBeDefined()
+    if (infobaseSyncOutput === undefined) throw new Error("sync_to_infobase outputSchema отсутствует")
+    expect(infobaseSyncOutput).toBeInstanceOf(z.ZodObject)
+    expect(infobaseSyncOutput.safeParse({
       ok: true,
       status: "unchanged",
       componentPath: "cf",
       diagnostics: [],
     }).success).toBe(true)
+    expect(infobaseSyncOutput.safeParse({
+      ok: true,
+      status: "unchanged",
+      componentPath: "cf",
+      diagnostics: [],
+      packageId: "unexpected",
+    }).success).toBe(false)
 
     for (const name of [
       "nkdk.close_platform_connection",

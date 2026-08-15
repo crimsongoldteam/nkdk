@@ -39,10 +39,29 @@ const synchronizedSchema = z.strictObject({
   warnings: z.array(metadataDiagnosticSchema),
 })
 
-export const syncToInfobaseSuccessOutputSchema = z.union([
-  unchangedSchema,
-  synchronizedSchema,
-])
+export const syncToInfobaseSuccessOutputSchema = z.strictObject({
+  ok: z.literal(true),
+  status: z.enum(["unchanged", "synchronized"]),
+  componentPath: configurationComponentPathSchema,
+  diagnostics: z.array(metadataDiagnosticSchema).optional(),
+  packageId: z.string().min(1).optional(),
+  entries: z.array(z.string()).optional(),
+  loadTargets: z.array(z.string()).optional(),
+  mode: z.enum(["designer-agent", "standalone-server"]).optional(),
+  loadMode: z.enum(["partial", "selected"]).optional(),
+  reusedConnection: z.boolean().optional(),
+  finalizeStatus: z.enum(["published", "alreadyPublished"]).optional(),
+  configurationIndexPath: z.string().min(1).optional(),
+  warnings: z.array(metadataDiagnosticSchema).optional(),
+}).superRefine((value, context) => {
+  const result = value.status === "unchanged"
+    ? unchangedSchema.safeParse(value)
+    : synchronizedSchema.safeParse(value)
+  if (result.success) return
+  for (const issue of result.error.issues) {
+    context.addIssue({ code: "custom", path: issue.path, message: issue.message })
+  }
+})
 
 const unknownDeliverySchema = z.strictObject({
   ok: z.literal(false),

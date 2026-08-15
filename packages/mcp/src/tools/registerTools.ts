@@ -164,7 +164,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Partially sync NKDK YAML to 1C infobase",
       description:
-        "Частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы через агент Конфигуратора. Запускает 1С и изменяет конфигурацию только при allowWrite=true; не обновляет конфигурацию базы данных.",
+        "Частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы через агентный или автономный режим и обновляет конфигурацию базы данных. Запускает платформу и изменяет конфигурацию только при allowWrite=true.",
       inputSchema: syncToInfobaseInputSchema,
       outputSchema: syncToInfobaseSuccessOutputSchema,
     },
