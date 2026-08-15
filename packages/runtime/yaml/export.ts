@@ -2,9 +2,13 @@ import { dump, type Document, type Node } from "js-yaml"
 import { isExplicitYAMLString, markDoubleQuotedScalar, unwrapExplicitYAMLString } from "./explicitString"
 import {
   copyYAMLScalarTags,
+  isXMLAnomalyTag,
   NKDK_YAML_SCHEMA,
   restoreYAMLScalarTagsAfterDump,
   taggedScalarForDump,
+  xmlAnomalyTagPayload,
+  xmlAnomalyTagValue,
+  yamlScalarTagAt,
 } from "./scalarTags"
 import {
   copyYAMLMappingKeyOrder,
@@ -123,6 +127,16 @@ function prepareChildForDump(
   explicitStrings: Map<string, string>,
   undefinedValues: Set<string>
 ): PreparedYAMLNode {
+  const tag = yamlScalarTagAt(parent, key)
+  if (isXMLAnomalyTag(tag)) {
+    const taggedValue = typeof value === "string"
+      ? xmlAnomalyTagValue(tag, prepareXMLAnomalyPayload(tag, value, explicitStrings))
+      : value
+    return {
+      dumpValue: taggedScalarForDump(parent, key, taggedValue),
+      data: value,
+    }
+  }
   if (value === undefined && !Array.isArray(parent)) {
     const marker = `${UNDEFINED_VALUE_MARKER_PREFIX}${undefinedValues.size}__`
     undefinedValues.add(marker)
@@ -136,6 +150,17 @@ function prepareChildForDump(
     data: prepared.data,
     ...(prepared.doubleQuoted === true ? { doubleQuoted: true } : {}),
   }
+}
+
+function prepareXMLAnomalyPayload(
+  tag: Parameters<typeof xmlAnomalyTagPayload>[0],
+  value: string,
+  explicitStrings: Map<string, string>,
+): string {
+  const payload = xmlAnomalyTagPayload(tag, value)
+  return shouldExportAsExplicitString(payload)
+    ? explicitStringMarker(payload, explicitStrings)
+    : payload
 }
 
 function explicitStringMarker(value: string, explicitStrings: Map<string, string>): string {

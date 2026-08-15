@@ -1,10 +1,18 @@
 import { TypeDescription, TypeDescriptionYAML } from "../types"
+import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 
 export interface TypeFixture {
   internal: TypeDescription
   YAML: TypeDescriptionYAML
   xml: string
 }
+
+const typeIdYAML = [
+  xmlAnomalyTagValue("xml/reference", "8c1e3694-da12-44d5-8b1f-d134b89a1282"),
+  xmlAnomalyTagValue("xml/reference", "6b99868d-5f3a-44e2-bb6d-3ad3b5d3198c"),
+]
+markYAMLScalarTag(typeIdYAML, 0, "xml/reference")
+markYAMLScalarTag(typeIdYAML, 1, "xml/reference")
 
 export const typeFixturesTable: TypeFixture[] = [
   //#region Primitive Types
@@ -185,9 +193,7 @@ export const typeFixturesTable: TypeFixture[] = [
       type: [],
       typeId: ["8c1e3694-da12-44d5-8b1f-d134b89a1282", "6b99868d-5f3a-44e2-bb6d-3ad3b5d3198c"],
     },
-    YAML: {
-      ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282", "6b99868d-5f3a-44e2-bb6d-3ad3b5d3198c"],
-    },
+    YAML: typeIdYAML,
     xml: `<TypeDescription>
 	<v8:TypeId>8c1e3694-da12-44d5-8b1f-d134b89a1282</v8:TypeId>
 	<v8:TypeId>6b99868d-5f3a-44e2-bb6d-3ad3b5d3198c</v8:TypeId>

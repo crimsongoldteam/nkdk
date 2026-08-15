@@ -26,8 +26,8 @@ const execution = createRuleRegistrySet(metadataRules).execution
 describe("MinMaxValue XML → YAML", () => {
   it.each([
     ['<MinValue xsi:type="xs:string">1</MinValue>', stringRule, "МинимальноеЗначение: 1"],
-    ['<MinValue xsi:type="xs:string">001.00</MinValue>', stringRule, "МинимальноеЗначение: !xml/value 001.00"],
-    ['<MinValue xsi:type="xs:decimal">001.00</MinValue>', decimalRule, "МинимальноеЗначение: !xml/value 001.00"],
+    ['<MinValue xsi:type="xs:string">001.00</MinValue>', stringRule, 'МинимальноеЗначение: !xml/value "001.00"'],
+    ['<MinValue xsi:type="xs:decimal">001.00</MinValue>', decimalRule, 'МинимальноеЗначение: !xml/value "001.00"'],
     ['<MinValue xsi:type="xs:dateTime">bad</MinValue>', stringRule, "МинимальноеЗначение: !xml/type xs:dateTime bad"],
     ["<MinValue>bad</MinValue>", stringRule, 'МинимальноеЗначение: !xml/type "- bad"'],
   ] as const)("imports exact representation from %s", (xmlString, rule, expected) => {

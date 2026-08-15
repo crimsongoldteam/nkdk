@@ -2,29 +2,22 @@ import { existsSync } from "node:fs"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { configurationIndexStoreDescriptor } from "./storePath"
 import { ConfigurationIndexStoreTestScope } from "./storeTestScope"
-import type { ConfigurationIndexCandidateStore, ConfigurationIndexStore } from "./store"
+import type { ConfigurationIndexStore } from "./store"
 
 const scope = new ConfigurationIndexStoreTestScope()
 
-let replacementActive: ConfigurationIndexStore
-let replacement: ConfigurationIndexCandidateStore
-let mvccActive: ConfigurationIndexStore
-let mvccDescriptor: ReturnType<typeof configurationIndexStoreDescriptor>
-let oldReader: ConfigurationIndexStore
-let mvccReplacement: ConfigurationIndexCandidateStore
-let pendingActive: ConfigurationIndexStore
-let invalidActive: ConfigurationIndexStore
-let invalidCandidate: ConfigurationIndexCandidateStore
-let blockedActive: ConfigurationIndexStore
-let blockedReplacement: ConfigurationIndexCandidateStore
-let importedActive: ConfigurationIndexStore
-let importedDescriptor: ReturnType<typeof configurationIndexStoreDescriptor>
-let importedCandidate: ConfigurationIndexCandidateStore
-let importedCandidatePath: string
+let replacementState: ReturnType<typeof readReplacementState>
+let mvccState: ReturnType<typeof readMvccState>
+let pendingInvisibleState: ReturnType<typeof readPendingPublicationState>
+let pendingAppliedState: ReturnType<typeof readPendingPublicationState>
+let pendingCleared: boolean
+let invalidState: ReturnType<typeof readInvalidState>
+let blockedState: ReturnType<typeof readBlockedState>
+let importedState: ReturnType<typeof readImportedState>
 
 beforeAll(async () => {
   const replacementProject = await scope.temporaryProject()
-  replacementActive = scope.open(
+  const replacementActive = scope.open(
     configurationIndexStoreDescriptor(replacementProject, { kind: "configuration" }),
     "readWrite",
   )
@@ -35,7 +28,7 @@ beforeAll(async () => {
     entities: [{ logicalAddress: "Старый", xmlId: "1" }],
   })
   await replacementActive.replaceActiveFrom(initial)
-  replacement = await scope.candidate({ projectDir: replacementProject, operationId: "replacement" })
+  const replacement = await scope.candidate({ projectDir: replacementProject, operationId: "replacement" })
   replacement.replaceHashes([
     { projectPath: "new.yaml", contentHash: 2n },
     { projectPath: "module.bsl", contentHash: 3n },
@@ -44,20 +37,24 @@ beforeAll(async () => {
     targetProjectPath: "new.yaml",
     entities: [{ logicalAddress: "Новый", xmlId: "2" }],
   })
+  await replacementActive.replaceActiveFrom(replacement)
+  replacementState = readReplacementState(replacementActive)
 
   const mvccProject = await scope.temporaryProject()
-  mvccDescriptor = configurationIndexStoreDescriptor(mvccProject, { kind: "configuration" })
-  mvccActive = scope.open(mvccDescriptor, "readWrite")
+  const mvccDescriptor = configurationIndexStoreDescriptor(mvccProject, { kind: "configuration" })
+  const mvccActive = scope.open(mvccDescriptor, "readWrite")
   const mvccInitial = await scope.candidate({ projectDir: mvccProject, operationId: "mvcc-initial" })
   mvccInitial.replaceHashes([{ projectPath: "А.yaml", contentHash: 1n }])
   await mvccActive.replaceActiveFrom(mvccInitial)
-  oldReader = scope.open(mvccDescriptor, "readOnly")
-  expect(oldReader.readHashes()).toEqual([{ projectPath: "А.yaml", contentHash: 1n }])
-  mvccReplacement = await scope.candidate({ projectDir: mvccProject, operationId: "mvcc-replacement" })
+  const oldReader = scope.open(mvccDescriptor, "readOnly")
+  const mvccReplacement = await scope.candidate({ projectDir: mvccProject, operationId: "mvcc-replacement" })
   mvccReplacement.replaceHashes([{ projectPath: "Б.yaml", contentHash: 2n }])
+  await mvccActive.replaceActiveFrom(mvccReplacement)
+  const newReader = scope.open(mvccDescriptor, "readOnly")
+  mvccState = readMvccState(oldReader, newReader)
 
   const pendingProject = await scope.temporaryProject()
-  pendingActive = scope.open(
+  const pendingActive = scope.open(
     configurationIndexStoreDescriptor(pendingProject, { kind: "configuration" }),
     "readWrite",
   )
@@ -68,20 +65,32 @@ beforeAll(async () => {
     entities: [{ logicalAddress: "А", xmlId: "1" }],
   })
   await pendingActive.replaceActiveFrom(pendingInitial)
+  await pendingActive.writePending({
+    hashes: new Map([["Б.bsl", { kind: "put", contentHash: 2n }]]),
+    blocks: new Map([["А.yaml", { kind: "delete" }]]),
+  })
+  pendingInvisibleState = readPendingPublicationState(pendingActive)
+  await pendingActive.applyPending()
+  pendingAppliedState = readPendingPublicationState(pendingActive)
+  await pendingActive.clearPending()
+  pendingCleared = pendingActive.hasPending()
 
   const invalidProject = await scope.temporaryProject()
-  invalidActive = scope.open(
+  const invalidActive = scope.open(
     configurationIndexStoreDescriptor(invalidProject, { kind: "configuration" }),
     "readWrite",
   )
-  invalidCandidate = await scope.candidate({ projectDir: invalidProject, operationId: "invalid" })
+  const invalidCandidate = await scope.candidate({ projectDir: invalidProject, operationId: "invalid" })
   invalidCandidate.mergeBlockFragment({
     targetProjectPath: "missing.yaml",
     entities: [{ logicalAddress: "А", xmlId: "1" }],
   })
+  const validationError = captureError(() => invalidCandidate.validateCandidate())
+  const replacementError = await captureAsyncError(() => invalidActive.replaceActiveFrom(invalidCandidate))
+  invalidState = readInvalidState(validationError, replacementError, invalidActive)
 
   const blockedProject = await scope.temporaryProject()
-  blockedActive = scope.open(
+  const blockedActive = scope.open(
     configurationIndexStoreDescriptor(blockedProject, { kind: "configuration" }),
     "readWrite",
   )
@@ -89,19 +98,28 @@ beforeAll(async () => {
     hashes: new Map([["А.yaml", { kind: "put", contentHash: 1n }]]),
     blocks: new Map(),
   })
-  blockedReplacement = await scope.candidate({ projectDir: blockedProject, operationId: "blocked" })
+  const blockedReplacement = await scope.candidate({ projectDir: blockedProject, operationId: "blocked" })
   blockedReplacement.replaceHashes([{ projectPath: "А.yaml", contentHash: 1n }])
+  const fullPublicationError = await captureAsyncError(() => blockedActive.replaceActiveFrom(blockedReplacement))
+  const secondPrepareError = await captureAsyncError(() => blockedActive.writePending({
+    hashes: new Map([["Б.yaml", { kind: "delete" }]]),
+    blocks: new Map(),
+  }))
+  blockedState = readBlockedState(fullPublicationError, secondPrepareError)
 
   const importedProject = await scope.temporaryProject()
-  importedDescriptor = configurationIndexStoreDescriptor(importedProject, { kind: "configuration" })
-  importedActive = scope.open(importedDescriptor, "readWrite")
-  importedCandidate = await scope.candidate({
+  const importedDescriptor = configurationIndexStoreDescriptor(importedProject, { kind: "configuration" })
+  const importedActive = scope.open(importedDescriptor, "readWrite")
+  const importedCandidate = await scope.candidate({
     projectDir: importedProject,
     operationId: "imported",
     purpose: "import",
   })
   importedCandidate.replaceHashes([{ projectPath: "А.yaml", contentHash: 4n }])
-  importedCandidatePath = importedCandidate.descriptor().dataPath
+  const importedCandidatePath = importedCandidate.descriptor().dataPath
+  await importedActive.publishImportedCandidate(importedCandidate)
+  const importedReader = scope.open(importedDescriptor, "readOnly")
+  importedState = readImportedState(importedCandidatePath, importedReader)
 })
 
 afterAll(async () => {
@@ -109,77 +127,142 @@ afterAll(async () => {
 })
 
 describe("configuration index publication", () => {
-  it("replaces all active hashes and blocks in one publication", async () => {
-    await replacementActive.replaceActiveFrom(replacement)
-
-    expect(replacementActive.readHashes()).toEqual([
-      { projectPath: "module.bsl", contentHash: 3n },
-      { projectPath: "new.yaml", contentHash: 2n },
-    ])
-    expect(replacementActive.getBlocks(["old.yaml", "new.yaml"])).toEqual(
-      new Map([["new.yaml", { entities: [{ logicalAddress: "Новый", xmlId: "2" }] }]]),
-    )
+  it("replaces all active hashes and blocks in one publication", () => {
+    expect(replacementState).toEqual({
+      hashes: [
+        { projectPath: "module.bsl", contentHash: 3n },
+        { projectPath: "new.yaml", contentHash: 2n },
+      ],
+      blocks: new Map([["new.yaml", { entities: [{ logicalAddress: "Новый", xmlId: "2" }] }]]),
+    })
   })
 
-  it("keeps an earlier read session on its MVCC view", async () => {
-    await mvccActive.replaceActiveFrom(mvccReplacement)
-
-    expect(oldReader.readHashes()).toEqual([{ projectPath: "А.yaml", contentHash: 1n }])
-    const newReader = scope.open(mvccDescriptor, "readOnly")
-    expect(newReader.readHashes()).toEqual([{ projectPath: "Б.yaml", contentHash: 2n }])
+  it("keeps an earlier read session on its MVCC view", () => {
+    expect(mvccState).toEqual({
+      oldHashes: [{ projectPath: "А.yaml", contentHash: 1n }],
+      newHashes: [{ projectPath: "Б.yaml", contentHash: 2n }],
+    })
   })
 
-  describe.sequential("pending publication", () => {
-    it("keeps disjoint pending hashes and blocks invisible", async () => {
-      await pendingActive.writePending({
-        hashes: new Map([["Б.bsl", { kind: "put", contentHash: 2n }]]),
-        blocks: new Map([["А.yaml", { kind: "delete" }]]),
+  describe("pending publication", () => {
+    it("keeps disjoint pending hashes and blocks invisible", () => {
+      expect(pendingInvisibleState).toEqual({
+        hashes: [{ projectPath: "А.yaml", contentHash: 1n }],
+        hasBlock: true,
+        hasPending: true,
+        alreadyApplied: false,
       })
-
-      expect(pendingActive.hasPending()).toBe(true)
-      expect(pendingActive.readHashes()).toEqual([{ projectPath: "А.yaml", contentHash: 1n }])
-      expect(pendingActive.hasBlock("А.yaml")).toBe(true)
-      expect(pendingActive.pendingAlreadyApplied()).toBe(false)
     })
 
-    it("applies pending hashes and blocks atomically", async () => {
-      await pendingActive.applyPending()
-
-      expect(pendingActive.readHashes()).toEqual([
-        { projectPath: "А.yaml", contentHash: 1n },
-        { projectPath: "Б.bsl", contentHash: 2n },
-      ])
-      expect(pendingActive.hasBlock("А.yaml")).toBe(false)
-      expect(pendingActive.hasPending()).toBe(true)
-      expect(pendingActive.pendingAlreadyApplied()).toBe(true)
+    it("applies pending hashes and blocks atomically", () => {
+      expect(pendingAppliedState).toEqual({
+        hashes: [
+          { projectPath: "А.yaml", contentHash: 1n },
+          { projectPath: "Б.bsl", contentHash: 2n },
+        ],
+        hasBlock: false,
+        hasPending: true,
+        alreadyApplied: true,
+      })
     })
 
-    it("clears an applied pending publication", async () => {
-      await pendingActive.clearPending()
-
-      expect(pendingActive.hasPending()).toBe(false)
+    it("clears an applied pending publication", () => {
+      expect(pendingCleared).toBe(false)
     })
   })
 
-  it("rejects a candidate block without a hash before changing active state", async () => {
-    expect(() => invalidCandidate.validateCandidate()).toThrow("missing.yaml")
-    await expect(invalidActive.replaceActiveFrom(invalidCandidate)).rejects.toThrow("missing.yaml")
-    expect(invalidActive.readHashes()).toEqual([])
+  it("rejects a candidate block without a hash before changing active state", () => {
+    expect(invalidState).toEqual({
+      validationError: expect.stringContaining("missing.yaml"),
+      replacementError: expect.stringContaining("missing.yaml"),
+      hashes: [],
+    })
   })
 
-  it("blocks full publication and a second prepare while pending exists", async () => {
-    await expect(blockedActive.replaceActiveFrom(blockedReplacement)).rejects.toThrow("pending")
-    await expect(
-      blockedActive.writePending({ hashes: new Map([["Б.yaml", { kind: "delete" }]]), blocks: new Map() }),
-    ).rejects.toThrow("pending")
+  it("blocks full publication and a second prepare while pending exists", () => {
+    expect(blockedState).toEqual({
+      fullPublicationError: expect.stringContaining("pending"),
+      secondPrepareError: expect.stringContaining("pending"),
+    })
   })
 
-  it("publishes an imported candidate by moving its data file", async () => {
-    await importedActive.publishImportedCandidate(importedCandidate)
-
-    expect(existsSync(importedCandidatePath)).toBe(false)
-    expect(existsSync(`${importedCandidatePath}-lock`)).toBe(false)
-    const reader = scope.open(importedDescriptor, "readOnly")
-    expect(reader.readHashes()).toEqual([{ projectPath: "А.yaml", contentHash: 4n }])
+  it("publishes an imported candidate by moving its data file", () => {
+    expect(importedState).toEqual({
+      candidateExists: false,
+      candidateLockExists: false,
+      hashes: [{ projectPath: "А.yaml", contentHash: 4n }],
+    })
   })
 })
+
+function readReplacementState(store: ConfigurationIndexStore) {
+  return {
+    hashes: store.readHashes(),
+    blocks: store.getBlocks(["old.yaml", "new.yaml"]),
+  }
+}
+
+function readMvccState(oldReader: ConfigurationIndexStore, newReader: ConfigurationIndexStore) {
+  return {
+    oldHashes: oldReader.readHashes(),
+    newHashes: newReader.readHashes(),
+  }
+}
+
+function readPendingPublicationState(store: ConfigurationIndexStore) {
+  return {
+    hashes: store.readHashes(),
+    hasBlock: store.hasBlock("А.yaml"),
+    hasPending: store.hasPending(),
+    alreadyApplied: store.pendingAlreadyApplied(),
+  }
+}
+
+function readInvalidState(
+  validationError: unknown,
+  replacementError: unknown,
+  store: ConfigurationIndexStore,
+) {
+  return {
+    validationError: errorMessage(validationError),
+    replacementError: errorMessage(replacementError),
+    hashes: store.readHashes(),
+  }
+}
+
+function readBlockedState(fullPublicationError: unknown, secondPrepareError: unknown) {
+  return {
+    fullPublicationError: errorMessage(fullPublicationError),
+    secondPrepareError: errorMessage(secondPrepareError),
+  }
+}
+
+function readImportedState(candidatePath: string, reader: ConfigurationIndexStore) {
+  return {
+    candidateExists: existsSync(candidatePath),
+    candidateLockExists: existsSync(`${candidatePath}-lock`),
+    hashes: reader.readHashes(),
+  }
+}
+
+function captureError(operation: () => void): unknown {
+  try {
+    operation()
+    return undefined
+  } catch (error) {
+    return error
+  }
+}
+
+async function captureAsyncError(operation: () => Promise<void>): Promise<unknown> {
+  try {
+    await operation()
+    return undefined
+  } catch (error) {
+    return error
+  }
+}
+
+function errorMessage(error: unknown): string | undefined {
+  return error instanceof Error ? error.message : undefined
+}

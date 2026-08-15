@@ -9,6 +9,7 @@ import { getChildContextToXML } from "../../context/childContext"
 import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
+import { resolveFormElementXMLId } from "./xmlIdentity"
 
 type FormElementCollectionNestedRule = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -89,8 +90,7 @@ function withNameAndId(
 ): Record<string, unknown> {
   const { _name, _id, ...properties } = xml
   const runtime = context.exportToXML.configurationIndex
-  const indexedId = runtime?.identity("xmlId")
-  if (indexedId !== undefined) runtime?.collector.setIdentity(runtime.logicalAddress, "xmlId", indexedId)
+  const indexedId = resolveFormElementXMLId(context)
   const result = {
     _name: typeof _name === "string" ? _name : name,
     _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),

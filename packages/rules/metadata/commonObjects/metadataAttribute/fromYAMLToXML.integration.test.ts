@@ -10,8 +10,8 @@ import {
 } from "../../../tests/directConversion"
 import { mockContext } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
-import { importContentFromXML } from "@nkdk/runtime"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { importContentFromXML, markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
+import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { MetadataCatalogAttributeRules } from "../../appliedObjects/metadataCatalog/childRules"
@@ -23,6 +23,7 @@ import {
 } from "../../appliedObjects/metadataDataProcessor/childRules"
 import { MetadataDocumentTabularSectionAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
 import { importFromYAML } from "@nkdk/runtime"
+import { metadataRules } from "../../composition/metadataRules"
 
 const rule = probeRule("MetadataCatalogAttributes", MetadataCatalogAttributeRules)
 
@@ -120,18 +121,22 @@ describe("MetadataAttributes YAML → XML", () => {
     expect(() => convertYAML({ ТестовыйРеквизит: "Строка" })).toThrow("MetadataAttribute: ожидался YAML-объект")
   })
 
-  it("should import TypeDescription typeId object format", () => {
+  it("should import TypeDescription TypeId from !xml/reference", () => {
+    const typeId = "8c1e3694-da12-44d5-8b1f-d134b89a1282"
+    const attribute = { Тип: xmlAnomalyTagValue("xml/reference", typeId) }
+    markYAMLScalarTag(attribute, "Тип", "xml/reference")
     const result = serializeDirectXML(
       testPropertyFromYAMLToXML({
+        execution: createRuleRegistrySet(metadataRules).execution,
         rule: probeRule("MetadataDataProcessorAttributes", MetadataDataProcessorAttributeRules),
         yaml: {
           Значение: {
-            ТестовыйРеквизит: { Тип: { ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] } },
+            ТестовыйРеквизит: attribute,
           },
         },
       }).xml
     )
-    expect(result).toContain("8c1e3694-da12-44d5-8b1f-d134b89a1282")
+    expect(result).toContain(`<v8:TypeId>${typeId}</v8:TypeId>`)
   })
 
   it("объявляет dcsset локально у типа прикладного реквизита", () => {

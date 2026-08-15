@@ -465,14 +465,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
             })
           : nestedPropertyContext
-      const nestedItemContext =
-        effectiveNestedRule.kind === "item" && effectiveNestedRule.resolveItemContext !== undefined
-          ? effectiveNestedRule.resolveItemContext({
-              context: nestedContext,
-              name: params.name,
-              propertyRule: planned.propertyRule,
-            })
-          : nestedContext
       const materializeCollection = explicitXMLAction?.kind === "materializeCollection"
       const sourceNestedYAML =
         materializeCollection
@@ -521,6 +513,23 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
             })
           : nestedYAML
+      const itemName = effectiveNestedRule.kind === "item"
+        ? effectiveNestedRule.resolveItemName?.({
+            context: nestedContext,
+            yaml: normalizedNestedYAML,
+            ownerName: params.name,
+            propertyRule: planned.propertyRule,
+          })
+        : undefined
+      const nestedItemContext =
+        effectiveNestedRule.kind === "item" && effectiveNestedRule.resolveItemContext !== undefined
+          ? effectiveNestedRule.resolveItemContext({
+              context: nestedContext,
+              name: params.name,
+              itemName,
+              propertyRule: planned.propertyRule,
+            })
+          : nestedContext
       if (
         effectiveNestedRule.kind === "collection" &&
         Array.isArray(nestedYAML) &&
@@ -575,7 +584,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
                 effectiveNestedRule.kind === "item" && effectiveNestedRule.injectOwnerName === true
                   ? params.name
                   : undefined,
-              sourceItemName: params.name,
+              sourceItemName: itemName ?? params.name,
               outputs: nestedOutputs,
               sparseYAML: effectiveNestedRule.kind === "item" ? effectiveNestedRule.sparseYAML : undefined,
               externalWriteFactory: params.externalWriteFactory,
@@ -602,6 +611,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             referenceXML: isRecord(references[index]?.value) ? references[index]?.value : undefined,
             propertyRule: planned.propertyRule,
             source,
+            itemName,
           })
         }
         if (

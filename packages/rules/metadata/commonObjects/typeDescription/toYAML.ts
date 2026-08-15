@@ -8,7 +8,12 @@ import {
   xmlAnomalyTagValue,
 } from "@nkdk/runtime"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
-import { getSystemEnumerationYAMLType, getTypeDescriptionRule, getTypePrefix } from "./helper"
+import {
+  getSystemEnumerationYAMLType,
+  getTypeDescriptionRule,
+  getTypeDescriptionRuleOrSystemEnumeration,
+  getTypePrefix,
+} from "./helper"
 import { PrimitiveTypeToYAML, TYPE_DESCRIPTION_SOURCE_TYPES, type TypeDescription, type TypeDescriptionYAML } from "./types"
 
 const GENERATED_PREFIX_PATTERN = /^d(\d+)p1$/
@@ -23,19 +28,13 @@ export const exportTypeDescriptionToYAML = (
     return undefined
   }
 
-  const types = typeDescription.type
-
-  if (types.length === 0) {
-    if (typeDescription.typeId === undefined || typeDescription.typeId.length === 0) {
-      return undefined
-    }
-
-    return {
-      ИдентификаторТипа: typeDescription.typeId,
-    }
+  const exportedTypes: unknown[] = typeDescription.type.map(
+    (type) => exportSingleTypeToYAML(context, type, typeDescription),
+  )
+  for (const typeId of typeDescription.typeId ?? []) {
+    exportedTypes.push(taggedYAMLScalar("xml/reference", xmlAnomalyTagValue("xml/reference", typeId)))
   }
-
-  const exportedTypes = types.map((type) => exportSingleTypeToYAML(context, type, typeDescription))
+  if (exportedTypes.length === 0) return undefined
   if (exportedTypes.length === 1) return exportedTypes[0] as TypeDescriptionYAML
 
   const yamlTypes = exportedTypes.map((type) => isTaggedYAMLScalar(type) ? type.value : type)
@@ -55,7 +54,7 @@ function exportSingleTypeToYAML(
   const sourcePrefix = sourceType === undefined ? undefined : getTypePrefix(sourceType.value)
   const separator = type.indexOf(".")
   const baseType = separator === -1 ? type : type.slice(0, separator)
-  const typeRule = getTypeDescriptionRule(baseType)
+  const typeRule = getTypeDescriptionRuleOrSystemEnumeration(baseType)
   const canonicalPrefix = typeRule?.prefix
   if (sourcePrefix !== undefined && !isCompatibleSourcePrefix(sourcePrefix, sourceType?.namespace, typeRule)) {
     throw new Error(`Тип ${yamlType}: несовместимый XML-префикс ${sourcePrefix}`)
