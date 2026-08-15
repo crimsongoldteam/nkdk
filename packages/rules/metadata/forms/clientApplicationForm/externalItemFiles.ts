@@ -3,7 +3,7 @@ import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } 
 import type { XmlWriteManifest } from "../../ruleRuntime/xmlWriteManifest"
 import type { PropertyRule } from "../../ruleRuntime"
 import { ClientApplicationFormRules } from "./rules"
-import type { MetadataResourceDeclaration } from "@nkdk/runtime/rule-kit"
+import type { MetadataResourceDeclaration, MetadataResourceSource } from "@nkdk/runtime/rule-kit"
 
 type ExternalFormItemFileSpec = {
   propertyName: string
@@ -64,6 +64,22 @@ export function describeFormExternalResourceDeclarations(params: {
     },
     ...describeFormItemResourceDeclarations(params),
   ]
+}
+
+export function describeFormAssignmentInputResourceDeclarations(params: {
+  targetFormDirPattern: string
+  source: MetadataResourceSource
+}): MetadataResourceDeclaration[] {
+  return [{
+    kind: "assignmentInput",
+    assignmentProjectPattern: "",
+    projectPattern: joinImportPattern(
+      params.targetFormDirPattern,
+      "ДинамическийСписок",
+      "{queryName}.query",
+    ),
+    source: params.source,
+  }]
 }
 
 function joinImportPattern(...parts: string[]): string {

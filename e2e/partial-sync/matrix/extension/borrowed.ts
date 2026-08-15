@@ -19,13 +19,13 @@ const documentDirectory = `Документ/${matrixObjectNames.document}`
 const propertiesPath = `${catalogDirectory}/Свойства.yaml`
 const borrowed = "ДлинаКода: 9\n"
 const changedState = "ДлинаКода: !изменять 9\n"
-const changedReference = `${changedState}ВводитсяНаОсновании:\n  - Документ.${matrixObjectNames.document}\n`
-const withAttribute = `${changedReference}Реквизиты:\n  РеквизитРасширения:\n    Тип: Строка(10)\n`
+const changedReference = `${changedState}Реквизиты:\n  РеквизитСсылкиРасширения:\n    Тип: Справочник.СправочникРеквизит\n`
+const withAttribute = `${changedReference}  РеквизитРасширения:\n    Тип: Строка(10)\n`
 const withCommand = `${withAttribute}Команды:\n  КомандаРасширения:\n    Группа: ПанельДействийСервис\n`
 const commandPath = `${catalogDirectory}/Команды/КомандаРасширения.bsl`
 const commandModule = "&НаКлиенте\nПроцедура ОбработкаКоманды(ПараметрКоманды, ПараметрыВыполненияКоманды)\nКонецПроцедуры\n"
 const borrowedFormDirectory = `${catalogDirectory}/Формы/ПроверочнаяФорма`
-const borrowedBaseForm = "Синоним: Заимствованная форма\nИзменять:\n  - ФормаСиноним"
+const borrowedBaseForm = "Синоним: \"\"\nНазначенияИспользования: ПлатформаИМобильноеПриложение"
 const extendedForm = [
   "Синоним: \"\"",
   "Команды:",
@@ -36,13 +36,12 @@ const extendedForm = [
   "    Тип: Строка(10)",
   "Элементы:",
   "  ПолеРасширения:",
-  "    Вид: Поле",
+  "    Вид: ПолеВвода",
   "    ПутьКДанным: РеквизитРасширенияФормы",
-  "    ВидПоля: ПолеВвода",
 ].join("\n")
 const formModule = "&НаКлиенте\nПроцедура КомандаРасширенияФормы(Команда)\nКонецПроцедуры\n"
 const ownFormPath = `${catalogDirectory}/Формы/ФормаРасширения/Форма.yaml`
-const ownForm = "Синоним: Форма расширения\nНазначенияИспользования: ПлатформаИМобильноеПриложение"
+const ownForm = "Синоним: Собственная форма расширения\nНазначенияИспользования: ПлатформаИМобильноеПриложение"
 const templateXmlPath = `${catalogDirectory}/Шаблоны/МакетРасширения/Template.xml`
 const templateTextPath = `${catalogDirectory}/Шаблоны/МакетРасширения/Template.txt`
 const templateText = "\uFEFFМакет заимствованного объекта"

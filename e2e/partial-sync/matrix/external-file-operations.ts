@@ -3,16 +3,13 @@ import { rootObjectDeclarations } from "./root-objects"
 import type { ScenarioOperation } from "./types"
 
 export type ExternalFileOperation = ScenarioOperation & {
-  readonly payloadKind: "binary" | "html" | "rights-xml" | "ws-or-xdto"
+  readonly payloadKind: "binary" | "rights-xml" | "ws-or-xdto"
 }
 
 const fixture = (path: string) => new URL(`../../fixtures/nkdk/cf/${path}`, import.meta.url)
 const rightsPath = "Роль/Администратор/Rights.xml"
 const rightsBefore = readFileSync(fixture(rightsPath), "utf8")
 const rightsAfter = replaceOnce(rightsBefore, "<setForNewObjects>false</setForNewObjects>", "<setForNewObjects>true</setForNewObjects>")
-const htmlPath = "Задача/ЗадачаВсеСвойства/Справка/ru.html"
-const htmlBefore = readFileSync(fixture(htmlPath), "utf8")
-const htmlAfter = replaceOnce(htmlBefore, "Справка</body>", "Справка partial sync</body>")
 const binaryPath = "Логотип/Picture.png"
 const binaryBefore = new Uint8Array(readFileSync(fixture(binaryPath)))
 const binaryAfter = new Uint8Array(readFileSync(fixture("ОбщаяКартинка/ОбщаяКартинкаОднаКартинка/Картинка/Picture.png")))
@@ -27,7 +24,6 @@ const wsAfter = replaceOnce(
 
 export const externalFileOperations: readonly ExternalFileOperation[] = [
   operation("external:rights", "rights-xml", rightsPath, rightsBefore, rightsAfter),
-  operation("external:html", "html", htmlPath, htmlBefore, htmlAfter),
   operation("external:binary", "binary", binaryPath, binaryBefore, binaryAfter),
   operation("external:ws", "ws-or-xdto", wsChange.path, wsChange.after, wsAfter),
 ]

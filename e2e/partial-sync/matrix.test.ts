@@ -21,6 +21,7 @@ import {
 } from "./matrix/module-operations"
 import { ownExtensionOperationKinds } from "./matrix/extension/own"
 import { borrowedOperationKinds } from "./matrix/extension/borrowed"
+import { extensionConfigurationVerificationOperations } from "./matrix/extension/configuration"
 import { orderOperations } from "./matrix/order-operations"
 import { partialSyncMatrix } from "./matrix"
 import { operationLayerMembership } from "./matrix/layers"
@@ -55,6 +56,13 @@ describe("partial sync matrix", () => {
     }
   })
 
+  it("creates the information register with a platform-valid seed resource", () => {
+    const declaration = rootObjectDeclarations.find(({ key }) => key === "object:information-register")
+    expect(declaration?.changes[0]?.after).toContain(
+      "Ресурсы:\n  НачальныйРесурс:\n    Тип: Строка(10)",
+    )
+  })
+
   it("changes and restores configuration properties as one continuous chain", () => {
     expect(configurationOperations.map(({ key }) => key)).toEqual([
       "configuration:comment",
@@ -78,9 +86,13 @@ describe("partial sync matrix", () => {
       "configuration:change:probe",
       "configuration:change:bulk",
     ])
-    expect(blockKeys.slice(-2)).toEqual([
+    expect(blockKeys.slice(-4, -2)).toEqual([
       "configuration:restore:probe",
       "configuration:restore:bulk",
+    ])
+    expect(blockKeys.slice(-2)).toEqual([
+      "extension:configuration:companion-documents:probe",
+      "extension:configuration:companion-documents:restore:probe",
     ])
   })
 
@@ -404,9 +416,8 @@ describe("partial sync matrix", () => {
     expect(change?.after).not.toContain("<Type>")
   })
 
-  it("does not create register resources in the root-object layer", () => {
+  it("defers non-required register resources to the child layer", () => {
     for (const key of [
-      "object:information-register",
       "object:accumulation-register",
       "object:accounting-register",
     ]) {
@@ -523,7 +534,7 @@ describe("partial sync matrix", () => {
 
   it("covers module and external payload classes", () => {
     expect(externalFileOperations.map(({ payloadKind }) => payloadKind).toSorted())
-      .toEqual(["binary", "html", "rights-xml", "ws-or-xdto"])
+      .toEqual(["binary", "rights-xml", "ws-or-xdto"])
     expect(moduleOperations.map(({ moduleKind }) => moduleKind).toSorted())
       .toEqual(["command", "common", "form", "object"])
     expect(moduleSupplementalOperations.map(({ key }) => key)).toEqual([
@@ -532,19 +543,43 @@ describe("partial sync matrix", () => {
       "module:object:change",
     ])
     expect(moduleRestoreOperations.map(({ key }) => key)).toEqual([
-      "module:object:remove",
-      "module:form:remove",
       "module:common:restore",
     ])
+    const plan = buildScenarioPlan(partialSyncMatrix)
+    const removals = plan.flatMap(({ operations }) => operations).filter(({ kind }) => kind === "remove")
+    expect(removals.find(({ targetKey }) => targetKey === "object:catalog")?.changes)
+      .toContainEqual(expect.objectContaining({
+        path: expect.stringMatching(/\/МодульОбъекта\.bsl$/u),
+        after: null,
+      }))
+    expect(removals.find(({ targetKey }) => targetKey === "form:catalog")?.changes)
+      .toContainEqual(expect.objectContaining({
+        path: expect.stringMatching(/\/Формы\/ПроверочнаяФорма\/Модуль\.bsl$/u),
+        after: null,
+      }))
   })
 
   it("covers own extension objects and both child-removal variants", () => {
+    expect(extensionConfigurationVerificationOperations.map(({ key }) => key)).toEqual([
+      "extension:configuration:companion-documents",
+      "extension:configuration:companion-documents:restore",
+    ])
     expect(ownExtensionOperationKinds).toEqual([
       "create-owner", "change-owner", "add-attribute", "change-attribute",
       "add-tabular-section", "change-tabular-section", "add-command", "change-command",
       "add-form", "change-form", "add-template", "change-template", "add-module", "change-module",
       "remove-form-only", "remove-template-only", "remove-owner", "remove-owner-with-children",
     ])
+    const creation = partialSyncMatrix.layers.flatMap(({ operations }) => operations)
+      .find(({ key }) => key === "extension:own:create-owner")
+    const properties = creation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+    expect(properties).toContain("ДлинаКода: 11")
+    expect(properties).toContain("ДлинаНаименования: 30")
+    expect(properties).not.toContain("ТипКода: Строка")
+    const tabularChange = partialSyncMatrix.layers.flatMap(({ operations }) => operations)
+      .find(({ key }) => key === "extension:own:change-tabular-section")
+      ?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+    expect(tabularChange).toContain("Синоним: Изменённая табличная часть")
   })
 
   it("covers borrowed extension objects without deleting cf objects", () => {
@@ -553,6 +588,25 @@ describe("partial sync matrix", () => {
       "add-own-command", "extend-borrowed-form", "add-own-form", "add-own-template",
       "remove-extension-additions", "remove-borrowed-owner",
     ])
+    const referenceChange = partialSyncMatrix.layers.flatMap(({ operations }) => operations)
+      .find(({ key }) => key === "extension:borrowed:change-reference")
+      ?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
+    expect(referenceChange).toContain("Тип: Справочник.СправочникРеквизит")
+    expect(referenceChange).not.toContain("ВводитсяНаОсновании")
+    const formExtension = partialSyncMatrix.layers.flatMap(({ operations }) => operations)
+      .find(({ key }) => key === "extension:borrowed:extend-borrowed-form")
+      ?.changes.find(({ path }) => path.endsWith("/Форма.yaml"))?.after
+    expect(formExtension).toContain("Вид: ПолеВвода")
+    expect(formExtension).not.toContain("ВидПоля:")
+    const baseForm = partialSyncMatrix.layers.flatMap(({ operations }) => operations)
+      .find(({ key }) => key === "extension:borrowed:extend-borrowed-form")
+      ?.changes.find(({ path }) => path.endsWith("/БазоваяФорма.yaml"))?.after
+    expect(baseForm).toContain("НазначенияИспользования: ПлатформаИМобильноеПриложение")
+    expect(baseForm).not.toContain("Изменять:")
+    const ownForm = partialSyncMatrix.layers.flatMap(({ operations }) => operations)
+      .find(({ key }) => key === "extension:borrowed:add-own-form")
+      ?.changes.find(({ path }) => path.endsWith("/Форма.yaml"))?.after
+    expect(ownForm).toContain("Синоним: Собственная форма расширения")
   })
 
   it("assigns every operation to one component layer and orders both removal variants", () => {

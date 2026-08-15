@@ -39,8 +39,14 @@ export type TemplateDeclaration = {
   readonly changes: readonly ScenarioFileChange[]
 }
 
+export type OwnerRemovalChange = {
+  readonly ownerKey: string
+  readonly change: ScenarioFileChange
+}
+
 export type ScenarioMatrix = {
   readonly extensionLayers?: readonly ScenarioLayer[]
+  readonly extensionVerificationLayers?: readonly ScenarioLayer[]
   readonly configurationOperations?: readonly ScenarioOperation[]
   readonly structuralOperations?: readonly ScenarioOperation[]
   readonly childPropertyOperations?: readonly ScenarioOperation[]
@@ -53,6 +59,7 @@ export type ScenarioMatrix = {
   readonly moduleOperations?: readonly ScenarioOperation[]
   readonly moduleSupplementalOperations?: readonly ScenarioOperation[]
   readonly moduleRestoreOperations?: readonly ScenarioOperation[]
+  readonly moduleOwnerRemovalChanges?: readonly OwnerRemovalChange[]
   readonly externalFileOperations?: readonly ScenarioOperation[]
   readonly externalFileRestoreOperations?: readonly ScenarioOperation[]
   readonly roots: readonly RootObjectDeclaration[]

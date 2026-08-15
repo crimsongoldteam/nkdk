@@ -8,13 +8,22 @@ import { structuralPropertyOperations } from "./structural-property-operations"
 import { childPropertyOperations } from "./child-property-operations"
 import { orderOperations, orderSetupOperations } from "./order-operations"
 import { templateChangeOperations, templateDeclarations, templateRemovalOperations } from "./templates"
-import { moduleOperations, moduleRestoreOperations, moduleSupplementalOperations } from "./module-operations"
-import { externalFileOperations, externalFileRestoreOperations } from "./external-file-operations"
-import { createExtensionLayers } from "./extension/layers"
+import {
+  moduleOperations,
+  moduleOwnerRemovalChanges,
+  moduleRestoreOperations,
+  moduleSupplementalOperations,
+} from "./module-operations"
+import {
+  externalFileOperations,
+  externalFileRestoreOperations,
+} from "./external-file-operations"
+import { createExtensionLayers, createExtensionVerificationLayers } from "./extension/layers"
 import { borrowedExtensionOperations } from "./extension/borrowed"
 
 const declarations = {
   extensionLayers: createExtensionLayers(borrowedExtensionOperations),
+  extensionVerificationLayers: createExtensionVerificationLayers(),
   configurationOperations,
   structuralOperations: structuralPropertyOperations,
   childPropertyOperations,
@@ -30,6 +39,7 @@ const declarations = {
   moduleOperations,
   moduleSupplementalOperations,
   moduleRestoreOperations,
+  moduleOwnerRemovalChanges,
   externalFileOperations,
   externalFileRestoreOperations,
 } as const

@@ -1,5 +1,5 @@
 import { matrixObjectNames, rootObjectDeclarations } from "./root-objects"
-import type { ScenarioOperation } from "./types"
+import type { OwnerRemovalChange, ScenarioOperation } from "./types"
 
 export type ModuleOperation = ScenarioOperation & {
   readonly moduleKind: "command" | "common" | "form" | "object"
@@ -33,9 +33,18 @@ export const moduleSupplementalOperations: readonly ScenarioOperation[] = [
 ]
 
 export const moduleRestoreOperations: readonly ScenarioOperation[] = [
-  operation("module:object:remove", "object", objectPath, objectChanged, null),
-  operation("module:form:remove", "form", formPath, formChanged, null),
   operation("module:common:restore", "common", commonChange.path, commonChanged, commonChange.after),
+]
+
+export const moduleOwnerRemovalChanges: readonly OwnerRemovalChange[] = [
+  {
+    ownerKey: "object:catalog",
+    change: { path: objectPath, before: objectChanged, after: null },
+  },
+  {
+    ownerKey: "form:catalog",
+    change: { path: formPath, before: formChanged, after: null },
+  },
 ]
 
 function operation(

@@ -1,16 +1,23 @@
 import { expect, it } from "vitest"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../../composition/metadataRules"
 import { resolvePartialXmlPackagePolicy } from "../../partialSyncToXml/packagePolicy"
-import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
 
 
 it("регистрирует корневые спутники частичного XML-пакета", () => {
-  const topology = compileRegisteredMetadataResourceTopology()
+  const topology = createRuleRegistrySet(metadataRules).resourceTopology.get()
   const assignment = topology.assignments.find((candidate) => candidate.projectPattern === "Конфигурация.yaml")!
   const configuration = assignment.xmlDocuments.find(
     (document) => document.xmlPattern === "Configuration.xml"
   )!
   const clientInterface = assignment.xmlDocuments.find(
     (document) => document.xmlPattern === "Ext/ClientApplicationInterface.xml"
+  )!
+  const commandInterface = assignment.xmlDocuments.find(
+    (document) => document.xmlPattern === "Ext/CommandInterface.xml"
+  )!
+  const homePageWorkArea = assignment.xmlDocuments.find(
+    (document) => document.xmlPattern === "Ext/HomePageWorkArea.xml"
   )!
   const mainSectionCommandInterface = assignment.xmlDocuments.find(
     (document) => document.xmlPattern === "Ext/MainSectionCommandInterface.xml"
@@ -27,6 +34,8 @@ it("регистрирует корневые спутники частично�
     },
     companionDocuments: [
       { documentId: clientInterface.id, loadTarget: true },
+      { documentId: commandInterface.id, loadTarget: true },
+      { documentId: homePageWorkArea.id, loadTarget: true },
       { documentId: mainSectionCommandInterface.id, loadTarget: true },
     ],
     companionReferences: [{

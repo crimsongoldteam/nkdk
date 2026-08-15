@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Временно исключить небезопасное удаление модуля команды из partial e2e, зафиксировать ограничение и продолжить полную платформенную матрицу.
+**Goal:** Временно исключить небезопасное отдельное удаление внешних модулей из partial e2e, зафиксировать ограничение и продолжить полную платформенную матрицу.
 
-**Architecture:** Декларативная матрица перестаёт объявлять удаление модуля команды, а зависимое повторное добавление заменяет обычным восстановлением текста. Production-планировщик не изменяется; ограничение документирует, почему операция остаётся запрещённой до отдельного исследования.
+**Architecture:** Декларативная матрица перестаёт объявлять отдельное удаление модулей. Модуль команды восстанавливается обычным изменением текста, а добавленные модули формы и объекта удаляются одним блоком с владельцем. Production-планировщик не изменяется; ограничение документирует, почему отдельная операция остаётся запрещённой до исследования.
 
 **Tech Stack:** TypeScript 7, Vitest 4, декларативный partial e2e, автономный сервер и агентный режим конфигуратора.
 
@@ -28,7 +28,7 @@
 
 **Interfaces:**
 - Consumes: `moduleOperations`, `moduleSupplementalOperations`, `moduleRestoreOperations`.
-- Produces: матрица из 96 блоков без `module:command:remove`, с безопасным `module:command:restore`.
+- Produces: матрица из 96 блоков без отдельных удалений модулей, с безопасным `module:command:restore`, удалением добавленных модулей вместе с владельцами, проверкой сопутствующих XML расширения и ограничением на изменение HTML-справки.
 
 - [ ] **Step 1: Написать падающую проверку состава модульных операций**
 
@@ -41,14 +41,12 @@ expect(moduleSupplementalOperations.map(({ key }) => key)).toEqual([
   "module:object:change",
 ])
 expect(moduleRestoreOperations.map(({ key }) => key)).toEqual([
-  "module:object:remove",
-  "module:form:remove",
   "module:common:restore",
 ])
 ```
 
-Добавить недостающие импорты `moduleSupplementalOperations` и
-`moduleRestoreOperations` из `matrix/module-operations`.
+Дополнительно проверить, что объектный и форменный модули входят соответственно
+в удаления `object:catalog` и `form:catalog`.
 
 - [ ] **Step 2: Запустить RED**
 
@@ -81,7 +79,8 @@ operation("module:command:restore", "command", commandPath, commandChanged, comm
 
 - [ ] **Step 4: Зафиксировать ограничение**
 
-Добавить в `.agents/restrictions.md` пункт:
+Добавить в `.agents/restrictions.md` пункт о запрете отдельного удаления и
+допустимом удалении в одном блоке с владельцем.
 
 ```markdown
 - Отдельное удаление внешнего модуля пока запрещено в partial sync. Загрузка XML владельца без полного набора его файлов удаляет не только целевой модуль, но и другие отсутствующие в ZIP модули и файловые части. До исследования безопасного состава пакета partial e2e не удаляет модуль команды, а восстанавливает его текст обычным изменением; создание и изменение модулей остаются покрыты.
@@ -154,7 +153,7 @@ Expected: сценарий начинает со следующего блока
 - Verify only: `/Users/nikita/Базы 1С/temp_test/full-current-designer-agent`
 
 **Interfaces:**
-- Consumes: сокращённая матрица из 96 блоков.
+- Consumes: матрица из 96 блоков.
 - Produces: полный результат агентного режима и проверки репозитория.
 
 - [ ] **Step 1: Запустить чистый агентный прогон**

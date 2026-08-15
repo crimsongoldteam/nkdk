@@ -332,11 +332,41 @@ export function buildPartialXmlImpactPlan(params: {
       throw new Error(`Ожидался внешний файл: ${resource.projectPath}`)
     }
     const target = normalizedXmlPath(expandMetadataPathPattern(external.xmlPattern, resource.values))
-    addPayloadTarget(target, resource.projectPath)
-    selectedProjectPaths.add(resource.projectPath)
-    externalProjectPaths.add(resource.projectPath)
+    if (!externalProjectPaths.has(resource.projectPath)) {
+      addPayloadTarget(target, resource.projectPath)
+      selectedProjectPaths.add(resource.projectPath)
+      externalProjectPaths.add(resource.projectPath)
+    }
     const policy = params.policies.externalFiles.get(external.id)
-    if (requestLoad && (policy?.loadTarget ?? true)) loadTargets.add(target)
+    if (!requestLoad || !(policy?.loadTarget ?? true)) return
+    if (external.selection === undefined) {
+      loadTargets.add(target)
+      return
+    }
+    includeExternalManifest(resource, external.selection.manifestPattern)
+  }
+
+  function includeExternalManifest(
+    resource: MetadataProjectResourceMatch,
+    manifestPattern: string,
+  ): void {
+    const assignment = resource.assignment
+    if (assignment === undefined) {
+      throw new Error(`Внешний файл с манифестом не связан с XML-заданием: ${resource.projectPath}`)
+    }
+    const ownerPath = expandMetadataPathPattern(assignment.projectPattern, resource.values)
+    const owner = currentByPath.get(ownerPath)
+    if (owner?.kind !== "content") {
+      throw new Error(`Для внешнего файла с манифестом не найдено XML-задание: ${resource.projectPath}`)
+    }
+    const manifestTarget = normalizedXmlPath(expandMetadataPathPattern(manifestPattern, resource.values))
+    const manifest = assignment.xmlDocuments.find((document) =>
+      normalizedXmlPath(expandMetadataPathPattern(document.xmlPattern, resource.values)) === manifestTarget)
+    if (manifest === undefined) {
+      throw new Error(`XML-манифест внешнего файла не найден в задании: ${manifestTarget}`)
+    }
+    selectedProjectPaths.add(owner.projectPath)
+    addDocument(owner, manifest, true)
   }
 
   function includeMemberCollection(

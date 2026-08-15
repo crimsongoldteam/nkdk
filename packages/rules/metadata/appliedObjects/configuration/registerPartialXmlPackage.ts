@@ -15,6 +15,14 @@ registerPartialXmlPackagePolicy({
         loadTarget: true,
       },
       {
+        xmlPattern: "Ext/CommandInterface.xml",
+        loadTarget: true,
+      },
+      {
+        xmlPattern: "Ext/HomePageWorkArea.xml",
+        loadTarget: true,
+      },
+      {
         xmlPattern: "Ext/MainSectionCommandInterface.xml",
         loadTarget: true,
       },

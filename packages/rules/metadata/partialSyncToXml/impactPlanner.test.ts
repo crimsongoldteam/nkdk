@@ -291,6 +291,18 @@ describe("partial XML impact planner", () => {
     ].sort(utf8))
   })
 
+  it("загружает изменённый внешний файл через его XML-манифест", () => {
+    const result = plan([root, manifestOwner, ownerHelp], changes({ changed: [ownerHelp] }))
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [manifestOwner, ownerHelp].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([ownerHelp])
+    expect(documentPaths(result)).toEqual(["ManifestObjects/Товары/Ext/Help.xml"])
+    expect(result.loadTargets).toEqual(["ManifestObjects/Товары/Ext/Help.xml"])
+  })
+
   it("разделяет payload и load target формы", () => {
     const result = plan([root, language, owner, firstForm], changes({ changed: [firstForm] }))
 

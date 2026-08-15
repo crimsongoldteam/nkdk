@@ -89,6 +89,7 @@ export const rootObjectDeclarations = [
     "MetadataInformationRegister",
     "РегистрСведений",
     "РегистрСведений",
+    "Ресурсы:\n  НачальныйРесурс:\n    Тип: Строка(10)\n",
   ),
   directoryRoot(
     "object:accumulation-register",

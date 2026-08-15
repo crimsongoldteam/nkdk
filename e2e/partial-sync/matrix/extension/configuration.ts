@@ -17,6 +17,11 @@ export const extensionConfigurationRestoreOperations = extensionConfigurationOpe
   changes: source.changes.map((change) => ({ path: change.path, before: change.after, after: change.before })),
 }))
 
+export const extensionConfigurationVerificationOperations: readonly ScenarioOperation[] = [
+  operation("extension:configuration:companion-documents", before, commentChanged),
+  operation("extension:configuration:companion-documents:restore", commentChanged, before),
+]
+
 function operation(key: string, source: string, target: string): ScenarioOperation {
   return { key, kind: "change", changes: [{ path, before: source, after: target }], dependsOn: [] }
 }

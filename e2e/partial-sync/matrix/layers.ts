@@ -3,7 +3,7 @@ import { createRootPropertyOperations } from "./root-property-operations"
 
 type MatrixDeclarations = Pick<
   ScenarioMatrix,
-  "extensionLayers" | "configurationOperations" | "structuralOperations" | "childPropertyOperations" | "orderSetupOperations" | "orderOperations" | "formLifecycleOperations" | "templates" | "templateChangeOperations" | "templateRemovalOperations" | "moduleOperations" | "moduleSupplementalOperations" | "moduleRestoreOperations" | "externalFileOperations" | "externalFileRestoreOperations" | "roots" | "children" | "forms"
+  "extensionLayers" | "extensionVerificationLayers" | "configurationOperations" | "structuralOperations" | "childPropertyOperations" | "orderSetupOperations" | "orderOperations" | "formLifecycleOperations" | "templates" | "templateChangeOperations" | "templateRemovalOperations" | "moduleOperations" | "moduleSupplementalOperations" | "moduleRestoreOperations" | "moduleOwnerRemovalChanges" | "externalFileOperations" | "externalFileRestoreOperations" | "roots" | "children" | "forms"
 >
 
 export const recoveryProbeBlockKey = "roots:create:probe"
@@ -55,6 +55,7 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
   const moduleOperations = matrix.moduleOperations ?? []
   const moduleSupplementalOperations = matrix.moduleSupplementalOperations ?? []
   const moduleRestoreOperations = matrix.moduleRestoreOperations ?? []
+  const moduleOwnerRemovalChanges = matrix.moduleOwnerRemovalChanges ?? []
   const externalFileOperations = matrix.externalFileOperations ?? []
   const externalFileRestoreOperations = matrix.externalFileRestoreOperations ?? []
 
@@ -96,12 +97,23 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
     ...(externalFileRestoreOperations.length === 0 ? [] : [layer("external-files:restore", "external:ws:restore", externalFileRestoreOperations)]),
     ...moduleRestoreOperations.map((operation) => layer(operation.key, operation.key, [operation])),
     ...templateRemovalOperations.map((operation) => layer(operation.key, operation.key, [operation])),
-    layer("forms:remove", "remove:form:catalog", reverse(formsToRemove)),
+    layer(
+      "forms:remove",
+      "remove:form:catalog",
+      attachOwnerRemovalChanges(reverse(formsToRemove), moduleOwnerRemovalChanges),
+    ),
     layer("children:remove", "remove:child:task:commands", reverse(children)),
-    layer("roots:remove", "remove:object:ws-reference", removeRoots(
-      matrix.roots,
-      retainedChanges.length === 0 ? new Map() : new Map([[retainedOwnerKey, retainedChanges]]),
-    )),
+    layer(
+      "roots:remove",
+      "remove:object:ws-reference",
+      attachOwnerRemovalChanges(
+        removeRoots(
+          matrix.roots,
+          retainedChanges.length === 0 ? new Map() : new Map([[retainedOwnerKey, retainedChanges]]),
+        ),
+        moduleOwnerRemovalChanges,
+      ),
+    ),
     ...(configurationOperations.length === 0 ? [] : [
       layer(
         "configuration:restore",
@@ -109,7 +121,22 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
         restore(configurationOperations),
       ),
     ]),
+    ...(matrix.extensionVerificationLayers ?? []),
   ]
+}
+
+function attachOwnerRemovalChanges(
+  operations: readonly ScenarioOperation[],
+  additions: readonly import("./types").OwnerRemovalChange[],
+): readonly ScenarioOperation[] {
+  return operations.map((operation) => {
+    const ownerChanges = additions
+      .filter(({ ownerKey }) => ownerKey === operation.targetKey)
+      .map(({ change }) => change)
+    return ownerChanges.length === 0
+      ? operation
+      : { ...operation, changes: [...operation.changes, ...ownerChanges] }
+  })
 }
 
 function layer(
