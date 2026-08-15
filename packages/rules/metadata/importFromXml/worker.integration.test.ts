@@ -515,37 +515,8 @@ describe("XML import worker second pass", () => {
       )
 
       expect(readImportedFormYaml(result).trimEnd()).toBe(expectedYaml)
+      if (order === "owner-first") expectStructuredFormPublished(result)
     })
-  })
-
-  it("публикует структуру импортированной формы в окончательном ProjectState", async () => {
-    const outputDir = createTempDir("structured-form")
-    const { assignments, second } = await runCatalogAndFormSecondPass(
-      outputDir,
-      "Объект.Товары.LineNumber",
-    )
-    expect(second).toMatchObject({ diagnostics: [], warnings: [] })
-
-    const snapshot = buildProjectStateSnapshot({
-      fragments: second.stateFragments.map(openProjectStateFragment),
-      deletions: [],
-    })
-    const query = createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(snapshot), {
-      dependencyValidator: createProjectStateDependencyValidator(),
-    })
-
-    expect(query.readStructuredDocumentEntries({
-      componentPath: "cf",
-      logicalAddress: assignments.form.logicalAddress,
-    })).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        documentKind: "clientApplicationForm",
-        representation: "working",
-        componentKind: "element",
-        name: "Путь",
-      }),
-      expect.objectContaining({ componentKind: "attribute", name: "Объект" }),
-    ]))
   })
 
   it("writes a user DataPath after building the layered owner snapshot", async () => {
@@ -858,6 +829,31 @@ function readImportedFormYaml(result: Awaited<ReturnType<typeof runCatalogAndFor
   )
   if (formFile === undefined) throw new Error("Ожидался импортированный YAML формы")
   return readFileSync(formFile.sourcePath, "utf-8")
+}
+
+function expectStructuredFormPublished(
+  result: Awaited<ReturnType<typeof runCatalogAndFormSecondPass>>,
+): void {
+  const snapshot = buildProjectStateSnapshot({
+    fragments: result.second.stateFragments.map(openProjectStateFragment),
+    deletions: [],
+  })
+  const query = createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(snapshot), {
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
+
+  expect(query.readStructuredDocumentEntries({
+    componentPath: "cf",
+    logicalAddress: result.assignments.form.logicalAddress,
+  })).toEqual(expect.arrayContaining([
+    expect.objectContaining({
+      documentKind: "clientApplicationForm",
+      representation: "working",
+      componentKind: "element",
+      name: "Путь",
+    }),
+    expect.objectContaining({ componentKind: "attribute", name: "Объект" }),
+  ]))
 }
 
 function createCatalogAndFormAssignments(
