@@ -516,7 +516,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       const itemName = effectiveNestedRule.kind === "item"
         ? effectiveNestedRule.resolveItemName?.({
             context: nestedContext,
-            yaml: nestedYAML,
+            yaml: normalizedNestedYAML,
             ownerName: params.name,
             propertyRule: planned.propertyRule,
           })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { importFromYAML, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { importFromYAML, markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import "../../commonObjects/i8nText/fromXML"
 import "../../commonObjects/i8nText/fromYAML"
 import "../../commonObjects/i8nText/toXML"
@@ -1412,10 +1412,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
         context: ConfigurationContextWithExportToXML
         itemName: string | undefined
       }) => appendTestItemContext(context, "Child", itemName),
-      transformOutput: ({ xml, itemName }: { xml: Record<string, unknown>; itemName: string | undefined }) => ({
-        Name: itemName,
-        ...xml,
-      }),
+      transformOutput: includeEffectiveTestItemName,
     } as YAMLToXMLNestedRule)
     const parentRule = testRule({
       child: { type: "EffectiveNameChild" as never, yaml: "Дочерний", xml: "Child" },
@@ -1423,20 +1420,12 @@ describe("convertPropertiesFromYAMLToXML", () => {
     rules.property.registerTypeRule("EffectiveNameParent" as never, "yamlToXMLNestedRule", {
       kind: "item",
       itemRule: parentRule,
-      resolveItemName: ({ yaml }: { yaml: unknown }) => {
-        const record = yaml as Record<string, unknown>
-        const explicitName = record.Имя
-        if (yamlScalarTagAt(record, "Имя") !== "xml/name" || typeof explicitName !== "string") return undefined
-        return xmlAnomalyTagPayload("xml/name", explicitName)
-      },
+      resolveItemName: resolveExplicitTestItemName,
       resolveItemContext: ({ context, itemName }: {
         context: ConfigurationContextWithExportToXML
         itemName: string | undefined
       }) => appendTestItemContext(context, "Parent", itemName),
-      transformOutput: ({ xml, itemName }: { xml: Record<string, unknown>; itemName: string | undefined }) => ({
-        Name: itemName,
-        ...xml,
-      }),
+      transformOutput: includeEffectiveTestItemName,
     } as YAMLToXMLNestedRule)
 
     const result = convertPropertiesFromYAMLToXML({
@@ -1459,6 +1448,34 @@ describe("convertPropertiesFromYAMLToXML", () => {
         Child: { Name: "СтарыйРодительРебёнок" },
       },
     })
+  })
+
+  it("вычисляет имя одиночного элемента после нормализации YAML", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    rules.property.registerTypeRule("NormalizedEffectiveName" as never, "yamlToXMLNestedRule", {
+      kind: "item",
+      itemRule: testRule({}),
+      normalizeYAML: ({ yaml }: { yaml: unknown }) => {
+        if (typeof yaml !== "string") throw new Error("Ожидался скаляр !xml/name")
+        const normalized = { Имя: yaml }
+        markYAMLScalarTag(normalized, "Имя", "xml/name")
+        return normalized
+      },
+      resolveItemName: resolveExplicitTestItemName,
+      transformOutput: includeEffectiveTestItemName,
+    } as YAMLToXMLNestedRule)
+
+    const result = convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml: importFromYAML("Родитель: !xml/name СтарыйРодитель"),
+      rule: testRule({
+        parent: { type: "NormalizedEffectiveName" as never, yaml: "Родитель", xml: "Parent" },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Parent: { Name: "СтарыйРодитель" } })
   })
 
   it("не обходит отсутствующий необязательный вложенный объект", () => {
@@ -1499,6 +1516,23 @@ function appendTestItemContext(
       ],
     },
   }
+}
+
+function resolveExplicitTestItemName({ yaml }: { yaml: unknown }): string | undefined {
+  const record = yaml as Record<string, unknown>
+  const explicitName = record.Имя
+  if (yamlScalarTagAt(record, "Имя") !== "xml/name" || typeof explicitName !== "string") return undefined
+  return xmlAnomalyTagPayload("xml/name", explicitName)
+}
+
+function includeEffectiveTestItemName({
+  xml,
+  itemName,
+}: {
+  xml: Record<string, unknown>
+  itemName: string | undefined
+}): Record<string, unknown> {
+  return { Name: itemName, ...xml }
 }
 
 function synonymRule(): MetadataItemRule {

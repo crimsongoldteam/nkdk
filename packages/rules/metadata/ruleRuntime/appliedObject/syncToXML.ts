@@ -222,7 +222,7 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
         nestedRule.resolveContext?.({ context: propertyContext, name: itemName, propertyRule }) ?? propertyContext
       const nestedItemName = nestedRule.resolveItemName?.({
         context: nestedContext,
-        yaml: nestedYAML,
+        yaml: normalizedYAML,
         ownerName: itemName,
         propertyRule,
       })
