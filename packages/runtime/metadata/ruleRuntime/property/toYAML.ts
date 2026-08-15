@@ -9,7 +9,6 @@ import {
   cloneMetadataTargetValue,
   exportMetadataTargetOccurrencesToYAML,
 } from "./metadataTargetOccurrences"
-import { exportStringMetadataTargetToYAML } from "./metadataTargetString"
 import type { PropertyRule } from "./types"
 import type { MetadataTargetOwner } from "../metadataTarget/types"
 import { isTaggedYAMLScalar, markYAMLScalarTag } from "../../../yaml/scalarTags"
@@ -96,7 +95,7 @@ export function exportPropertyMetadataTargetsToYAML(
     ? getTypeRule(params.rule.type, "metadataTargetOccurrences")
     : params.execution.getTypeRule(params.rule.type, "metadataTargetOccurrences")
   if (handler === undefined) {
-    return exportStringMetadataTargetToYAML({ rule: params.rule, value, owner: params.owner })
+    return value
   }
   const prepared = cloneMetadataTargetValue(value)
   const occurrences = handler({

@@ -10,7 +10,6 @@ import {
   isTypeOwnedMetadataTargetUnavailable,
   metadataTargetOwnerForProperty,
   metadataTargetOwnerFromRule,
-  importStringMetadataTargetFromYAML,
 } from "./metadataTargetString"
 import {
   cloneMetadataTargetValue,
@@ -792,9 +791,7 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
     ? getTypeRule(rule.type, "metadataTargetOccurrences")
     : params.execution.getTypeRule(rule.type, "metadataTargetOccurrences")
   const importedValue = occurrenceHandler === undefined
-    ? (handler === undefined || rule.type === "IndexField" || rule.type === "FunctionalOptionsProperty"
-        ? importStringMetadataTargetFromYAML({ rule, value, owner })
-        : value)
+    ? value
     : importMetadataTargetsFromYAML({
         value,
         handler: occurrenceHandler,

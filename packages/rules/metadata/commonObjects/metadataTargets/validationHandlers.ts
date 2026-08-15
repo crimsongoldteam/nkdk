@@ -608,3 +608,4 @@ export const metadataPropertyRule055 = definePropertyTypeRule("CommandInterfaceS
 export const metadataPropertyRule056 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectListMetadataTargetOccurrences))
 export const metadataPropertyRule057 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
 export const metadataPropertyRule058 = definePropertyTypeRule("FunctionalOptionsProperty", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
+export const metadataPropertyRule059 = definePropertyTypeRule("IndexField", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)

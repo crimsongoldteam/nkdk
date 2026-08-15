@@ -255,6 +255,7 @@ import { metadataPropertyRule057 as rule420 } from "../commonObjects/metadataTar
 import { metadataPropertyRule058 as rule421 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule000 as rule422 } from "../commonObjects/functionalOptionsProperty/brokenReference"
 import { metadataPropertyRule000 as rule423 } from "../commonObjects/userVisible/brokenReference"
+import { metadataPropertyRule059 as rule424 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule000 as rule228 } from "../commonObjects/metadataValue/associatedTableToJSONSchema"
 import { metadataPropertyRule000 as rule229 } from "../commonObjects/metadataValue/fromXML"
 import { metadataPropertyRule001 as rule230 } from "../commonObjects/metadataValue/fromXML"
@@ -838,4 +839,5 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule421,
   rule422,
   rule423,
+  rule424,
 ])
