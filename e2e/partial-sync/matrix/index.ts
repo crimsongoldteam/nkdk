@@ -11,9 +11,10 @@ import { templateChangeOperations, templateDeclarations, templateRemovalOperatio
 import { moduleOperations, moduleRestoreOperations, moduleSupplementalOperations } from "./module-operations"
 import { externalFileOperations, externalFileRestoreOperations } from "./external-file-operations"
 import { createExtensionLayers } from "./extension/layers"
+import { borrowedExtensionOperations } from "./extension/borrowed"
 
 const declarations = {
-  extensionLayers: createExtensionLayers(),
+  extensionLayers: createExtensionLayers(borrowedExtensionOperations),
   configurationOperations,
   structuralOperations: structuralPropertyOperations,
   childPropertyOperations,

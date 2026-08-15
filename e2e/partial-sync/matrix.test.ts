@@ -16,6 +16,7 @@ import { templateLifecycleKinds } from "./matrix/templates"
 import { externalFileOperations } from "./matrix/external-file-operations"
 import { moduleOperations } from "./matrix/module-operations"
 import { ownExtensionOperationKinds } from "./matrix/extension/own"
+import { borrowedOperationKinds } from "./matrix/extension/borrowed"
 import { orderOperations } from "./matrix/order-operations"
 import { partialSyncMatrix } from "./matrix"
 import { rootObjectDeclarations } from "./matrix/root-objects"
@@ -506,6 +507,14 @@ describe("partial sync matrix", () => {
       "add-tabular-section", "change-tabular-section", "add-command", "change-command",
       "add-form", "change-form", "add-template", "change-template", "add-module", "change-module",
       "remove-form-only", "remove-template-only", "remove-owner", "remove-owner-with-children",
+    ])
+  })
+
+  it("covers borrowed extension objects without deleting cf objects", () => {
+    expect(borrowedOperationKinds).toEqual([
+      "borrow-owner", "change-property-state", "change-reference", "add-own-attribute",
+      "add-own-command", "extend-borrowed-form", "add-own-form", "add-own-template",
+      "remove-extension-additions", "remove-borrowed-owner",
     ])
   })
 
