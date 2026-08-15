@@ -109,6 +109,32 @@ describe("partial sync checkpoints", () => {
     ))).rejects.toMatchObject({ code: "ENOENT" })
   })
 
+  it("excludes transient file-database locks from publication and restore", async () => {
+    const fixture = await checkpointFixture()
+    await writeWorking(fixture, "saved")
+    for (const name of ["1Cv8.1CD.cfl", "1Cv8.cgr.cfl", "1Cv8.cgr", "1Cv8.1CL"]) {
+      await writeFile(join(fixture.workspace.baseDir, name), "")
+    }
+
+    const state = await publishCheckpoint(fixture.workspace, {
+      completedBlock: "roots:create:probe",
+      planHash,
+    })
+
+    for (const name of ["1Cv8.1CD.cfl", "1Cv8.cgr.cfl", "1Cv8.cgr", "1Cv8.1CL"]) {
+      await expect(readFile(join(
+        fixture.workspace.checkpointsDir, "current/base", name,
+      ))).rejects.toMatchObject({ code: "ENOENT" })
+    }
+    await expect(readFile(join(
+      fixture.workspace.checkpointsDir, "current/base/1Cv8.1CD",
+    ), "utf8")).resolves.toBe("saved base")
+
+    await restoreCheckpoint(fixture.workspace, state)
+    await expect(readFile(join(fixture.workspace.baseDir, "1Cv8.1CD"), "utf8"))
+      .resolves.toBe("saved base")
+  })
+
   it("preserves state and current when copying the replacement fails", async () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "saved")

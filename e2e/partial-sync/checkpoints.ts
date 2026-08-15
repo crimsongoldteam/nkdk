@@ -61,6 +61,10 @@ export async function publishCheckpoint(
     await dependencies.copyDirectory(workspace.baseDir, join(temporaryDir, "base"))
     await dependencies.copyDirectory(workspace.projectDir, join(temporaryDir, "project"))
     for (const path of [
+      "base/1Cv8.1CD.cfl",
+      "base/1Cv8.cgr.cfl",
+      "base/1Cv8.cgr",
+      "base/1Cv8.1CL",
       "project/.nkdk/platform-sessions",
       "project/.nkdk/tmp",
     ]) {
