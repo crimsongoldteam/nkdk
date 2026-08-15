@@ -198,7 +198,7 @@ describe("элементы формы XML → YAML → XML", () => {
           yaml: { ВидФлажка: "Выключатель" },
           name: "Флажок",
         }).xml
-      ).toHaveProperty("CheckBoxType", "Switch")
+      ).toHaveProperty("CheckBoxType", "Switcher")
 
       expect(
         testMetadataItemFromYAMLToXML({
@@ -206,7 +206,7 @@ describe("элементы формы XML → YAML → XML", () => {
           yaml: { ТриСостояния: "Истина", ВидФлажка: "Выключатель" },
           name: "Флажок",
         }).xml
-      ).toMatchObject({ ThreeState: true, CheckBoxType: "Switch" })
+      ).toMatchObject({ ThreeState: true, CheckBoxType: "Switcher" })
     }
   )
 
