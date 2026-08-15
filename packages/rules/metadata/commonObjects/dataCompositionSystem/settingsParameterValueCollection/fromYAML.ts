@@ -2,6 +2,7 @@ import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { importParameterValueFromYAML } from "../parameterValue/fromYAML"
 import type { SettingsParameterValueYAML } from "../parameterValue/types"
@@ -33,6 +34,9 @@ const importSettingsParameterValueCollectionFromYAML = (
   source?: SettingsParameterValueCollection
 ): SettingsParameterValueCollection | undefined => {
   if (value === undefined || value === null) return undefined
+  if (value === XML_PRESENT_TAG_VALUE) {
+    return { itemType: "SettingsParameterValueCollection", parameters: {} }
+  }
   if (!isPlainObject(value)) return undefined
 
   const collRule = rule as SettingsParameterValueCollectionPropertyRule

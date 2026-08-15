@@ -3,7 +3,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
-import { createConfigurationIndexCollector, yamlScalarTagAt } from "@nkdk/runtime"
+import { createConfigurationIndexCollector, unwrapExplicitYAMLString, yamlScalarTagAt } from "@nkdk/runtime"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 import { serializeYAMLDocument } from "@nkdk/runtime"
@@ -136,6 +136,26 @@ describe("fill value XML import", () => {
     expect(prepared.yaml).not.toHaveProperty("ТипКода")
     expect(prepared.yaml).toHaveProperty("ДлинаКода", 3)
     expect(serializeYAMLDocument(prepared.yaml).text).toContain('ЗначениеЗаполнения: "--"')
+  })
+
+  it.each([
+    ["допустимую", "   ", undefined],
+    ["несовместимую", "    ", "xml/value"],
+    ["при нулевой длине", "         ", undefined],
+  ] as const)("сохраняет %s пробельную строку Кода", async (_name, value, expectedTag) => {
+    const sourcePath = copiedCatalogCodeFixture(value, value.length === 9 ? 0 : 3)
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+    })
+    const code = (prepared.yaml as {
+      СтандартныеРеквизиты: { Код: Record<string, unknown> }
+    }).СтандартныеРеквизиты.Код
+
+    expect(unwrapExplicitYAMLString(code.ЗначениеЗаполнения))
+      .toBe(expectedTag === undefined ? value : `!xml/value ${value}`)
+    expect(yamlScalarTagAt(code, "ЗначениеЗаполнения")).toBe(expectedTag)
   })
 
   it("откладывает DefinedType без сохранения исходного XML в снимке", async () => {
@@ -303,18 +323,18 @@ function copiedStringNilFixture(): string {
   return sourcePath
 }
 
-function copiedCatalogCodeFixture(): string {
+function copiedCatalogCodeFixture(value = "--", length = 3): string {
   const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-code-import-"))
   tempDirs.push(dir)
   const sourcePath = join(dir, "СправочникПолный.xml")
   let xml = fs.readFileSync(fixture, "utf8")
-    .replace("<CodeLength>11</CodeLength>", "<CodeLength>3</CodeLength>")
+    .replace("<CodeLength>11</CodeLength>", `<CodeLength>${length}</CodeLength>`)
     .replace("\n\t\t\t<CodeType>Number</CodeType>", "")
   const codeStart = xml.indexOf('<xr:StandardAttribute name="Code">')
   const fillStart = xml.indexOf('<xr:FillValue xsi:nil="true"/>', codeStart)
   if (codeStart === -1 || fillStart === -1) throw new Error("Не найден стандартный реквизит Code")
   const emptyFill = '<xr:FillValue xsi:nil="true"/>'
-  xml = `${xml.slice(0, fillStart)}<xr:FillValue xsi:type="xs:string">--</xr:FillValue>${xml.slice(fillStart + emptyFill.length)}`
+  xml = `${xml.slice(0, fillStart)}<xr:FillValue xsi:type="xs:string">${value}</xr:FillValue>${xml.slice(fillStart + emptyFill.length)}`
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
 }

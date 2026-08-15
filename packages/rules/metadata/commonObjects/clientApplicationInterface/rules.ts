@@ -1,5 +1,6 @@
 import { clientApplicationInterfaceItemsRule, clientApplicationInterfacePanelDefsRule } from "./builders"
 import { xmlRootRule } from "../xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const clientApplicationInterfaceRootAttributes = {
   _xmlns: "http://v8.1c.ru/8.2/managed-application/core",
@@ -24,6 +25,13 @@ export const ClientApplicationInterfaceRules = {
       toYAML: false,
       fromYAML: false,
       evaluateWhenYAMLMissing: true,
+    }),
+    sectionsPanelRepresentation: systemEnumerationRule({
+      yaml: "ОтображениеПанелиРазделов",
+      typeSE: "SectionsPanelRepresentation",
+      toXML: false,
+      fromXML: false,
+      toYAML: false,
     }),
     top: clientApplicationInterfaceItemsRule({
       yaml: "Верх",

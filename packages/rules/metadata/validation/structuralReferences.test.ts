@@ -23,6 +23,7 @@ import { metadataRules } from "../composition/metadataRules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 import { MetadataSubsystemRules } from "../appliedObjects/metadataSubsystem/rules"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import { mockContext } from "../../tests/mockContext"
 import { functionalOptionsPropertyRule } from "../commonObjects/functionalOptionsProperty/types"
 import { userVisibleRule } from "../commonObjects/userVisible/types"
@@ -95,6 +96,84 @@ it("excludes only tagged transported MDObjectRef from structural references", ()
   expect(result).toMatchObject({
     ok: true,
     references: [{ canonical: "Catalog.Товары" }],
+  })
+})
+
+it.each([
+  "3062c54f-92ed-42c5-b62f-1c0e685cfe75",
+  "1:93701593-5ac8-4266-b471-7e9ed35a9c3e",
+])("не включает прямую битую ссылку %s в структурный поиск", (payload) => {
+  const parsed = parseMetadataYaml(`Ссылка: !xml/reference ${payload}`)
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const rule = {
+    itemType: "DirectBrokenReferenceStructuralProbe",
+    properties: {
+      reference: {
+        type: "string",
+        yaml: "Ссылка",
+        metadataTarget: { kind: "object", roots: ["Catalog"] },
+      },
+    },
+  } as MetadataItemRule
+
+  expect(collectProbeReferences(parsed, rule, registry)).toEqual({
+    ok: true,
+    references: [],
+  })
+})
+
+it.each([
+  "3062c54f-92ed-42c5-b62f-1c0e685cfe75",
+  "1:93701593-5ac8-4266-b471-7e9ed35a9c3e",
+])("сообщает структурную ошибку для нетегированной внутренней ссылки %s", (payload) => {
+  const parsed = parseMetadataYaml(`Ссылка: ${payload}`)
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const rule = {
+    itemType: "UntaggedDirectBrokenReferenceProbe",
+    properties: {
+      reference: {
+        type: "string",
+        yaml: "Ссылка",
+        metadataTarget: { kind: "object", roots: ["Catalog"] },
+      },
+    },
+  } as MetadataItemRule
+
+  expect(() => collectProbeReferences(parsed, rule, registry)).toThrow("Неизвестный корень")
+})
+
+it.each([
+  [
+    "атомарного",
+    "Заголовок:\n  !xml/reference \"\": Текст",
+    {
+      itemType: "UnsupportedAtomicBrokenKeyProbe",
+      properties: { title: { type: "I8nText", yaml: "Заголовок" } },
+    },
+    'Заголовок.""',
+  ],
+  [
+    "вложенного",
+    "Форма:\n  Заголовок:\n    !xml/reference \"\": Текст",
+    {
+      itemType: "UnsupportedNestedBrokenKeyProbe",
+      properties: {
+        form: {
+          type: "ClientApplicationForm",
+          yaml: "Форма",
+          itemRule: ClientApplicationFormRules,
+        },
+      },
+    },
+    'Форма.Заголовок.""',
+  ],
+] as const)("сообщает путь неподдержанного ключа %s свойства", (_kind, source, rule, yamlPath) => {
+  const parsed = parseMetadataYaml(source)
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+
+  expect(collectProbeReferences(parsed, rule as MetadataItemRule, registry)).toEqual({
+    ok: false,
+    message: `Тег !xml/reference у ключа не поддерживается типом свойства: ${yamlPath}`,
   })
 })
 

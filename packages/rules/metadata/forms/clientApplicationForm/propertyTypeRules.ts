@@ -94,7 +94,7 @@ export const clientApplicationFormPropertyRules = defineMetadataRules({
             assignmentProjectPattern: "",
             xmlPattern: filePath,
             role: "body",
-            required: true,
+            required: false,
             read: { inputRole: "body" },
             prepareCapabilityId: "externalFileProperty",
             baseInput: {

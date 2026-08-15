@@ -29,12 +29,13 @@ describe("ClientApplicationInterface YAML → XML", () => {
 
   it("imports sections, short panels, expanded panels and groups", () => {
     const result = convertYAML({
-      Верх: [{ Панель: "ПанельФункцийТекущегоРаздела" }, { Панель: "ПанельОткрытых" }, { Панель: "СтандартнаяПанель" }],
+      ОтображениеПанелиРазделов: "КартинкаСлеваИТекст",
+      Верх: [{ Панель: "ПанельИзбранного" }],
       Лево: [
-        { Панель: { Имя: "ПанельИстории", Высота: 1, Представление: "КартинкаСлеваИТекст" } },
+        { Панель: { Имя: "ПанельРазделов", Высота: 2 } },
         { Группа: { Элементы: [] } },
       ],
-      Низ: [{ Панель: "ПанельРазделов" }],
+      Право: [{ Панель: "ПанельИстории" }],
     })
 
     expect(result).toContain("<top>")
@@ -108,7 +109,7 @@ describe("ClientApplicationInterface YAML → XML", () => {
     })
 
     expect(result).toContain('<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>')
-    expect(result).toContain('<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>')
+    expect(result).toContain('<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>')
   })
 
   it("always creates the five standard panel definitions in canonical order", () => {
@@ -158,7 +159,6 @@ describe("ClientApplicationInterface YAML → XML", () => {
     ["стандартный UUID", "UUID: b553047f-c9aa-4157-978d-448ecad24248\n      ПустоеОпределение: !xml/present"],
     ["другое значение", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      ПустоеОпределение: Истина"],
     ["имя панели", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      Имя: Панель\n      ПустоеОпределение: !xml/present"],
-    ["представление панели", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      Представление: Текст\n      ПустоеОпределение: !xml/present"],
   ])("отклоняет ПустоеОпределение: %s", (_name, panel) => {
     const yaml = importFromYAML(`Верх:\n  - Панель:\n      ${panel}`)
 
@@ -178,21 +178,21 @@ describe("ClientApplicationInterface YAML → XML", () => {
     )
 
     expect(result).toContain('<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>')
-    expect(result).toContain('<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>')
+    expect(result).toContain('<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>')
   })
 
   it("creates default panel definition for used standard panel restored from reference without panel definition", () => {
     const referenceXml = interfaceXML(`<top>
 \t\t<panel id="sections-panel">
-\t\t\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>
+\t\t\t<uuid>b553047f-c9aa-4157-978d-448ecad24248</uuid>
 \t\t</panel>
 \t</top>`)
     const result = convertYAML({ Верх: [{ Панель: "ПанельРазделов" }] }, referenceXml)
 
     expect(result).toContain(`<panel id="sections-panel">
-\t\t\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>
+\t\t\t<uuid>b553047f-c9aa-4157-978d-448ecad24248</uuid>
 \t\t</panel>`)
-    expect(result).toContain('<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>')
+    expect(result).toContain('<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>')
   })
 
   it("preserves reference panel definitions even when panels are not used", () => {
@@ -235,18 +235,18 @@ describe("ClientApplicationInterface YAML → XML", () => {
 \t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
 \t\t</panel>
 \t\t<panel id="sections-panel">
-\t\t\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>
+\t\t\t<uuid>b553047f-c9aa-4157-978d-448ecad24248</uuid>
 \t\t</panel>
 \t</top>
 \t<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
-\t<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>`)
+\t<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>`)
     const result = convertYAML(
       { Верх: [{ Панель: "ПанельРазделов" }, { Панель: "ПанельОткрытых" }] },
       referenceXml
     )
 
     expect(result).toContain(`<panel id="sections-panel">
-\t\t\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>
+\t\t\t<uuid>b553047f-c9aa-4157-978d-448ecad24248</uuid>
 \t\t</panel>`)
     expect(result).toContain(`<panel id="opened-panel">
 \t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
@@ -286,13 +286,21 @@ describe("ClientApplicationInterface YAML → XML", () => {
     expect(result).not.toContain("<group id=")
   })
 
-  it("creates panel definition for a new non-standard panel with presentation", () => {
-    const result = convertYAML({
-      Верх: [{ Панель: { UUID: "11111111-1111-1111-1111-111111111111", Представление: "КартинкаСлеваИТекст" } }],
-    })
+  it.each([
+    ["Текст", "Text"],
+    ["КартинкаСлеваИТекст", "PictureOnLeftAndText"],
+  ])("writes %s to the sections panel definition even when the panel is hidden", (yaml, xml) => {
+    const result = convertYAML({ ОтображениеПанелиРазделов: yaml })
 
-    expect(result).toContain('<panelDef id="11111111-1111-1111-1111-111111111111">')
-    expect(result).toContain("<spr>PictureOnLeftAndText</spr>")
+    expect(result).toContain(`<panelDef id="b553047f-c9aa-4157-978d-448ecad24248">`)
+    expect(result).toContain(`<spr>${xml}</spr>`)
+  })
+
+  it("does not write spr when the interface setting is absent", () => {
+    const result = convertYAML({ Лево: [{ Панель: "ПанельРазделов" }] })
+
+    expect(result).toContain("<uuid>b553047f-c9aa-4157-978d-448ecad24248</uuid>")
+    expect(result).not.toContain("<spr>")
   })
 })
 

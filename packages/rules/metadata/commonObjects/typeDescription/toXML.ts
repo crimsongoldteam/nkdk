@@ -56,12 +56,18 @@ export const exportTypeDescriptionToXML = (
   return result
 }
 
-const shouldDeclareTypeNamespace = (rule: PropertyRule | undefined): boolean =>
-  Boolean(rule && "declareTypeNamespaceXML" in rule && rule.declareTypeNamespaceXML)
+const shouldDeclareTypeNamespace = (rule: PropertyRule | undefined): ((prefix: string) => boolean) => {
+  const policy = rule && "declareTypeNamespaceXML" in rule
+    ? rule.declareTypeNamespaceXML
+    : undefined
+  if (policy === true) return () => true
+  if (Array.isArray(policy)) return (prefix) => policy.includes(prefix)
+  return () => false
+}
 
 const getTypesXML = (
   typeDescription: TypeDescription,
-  declareTypeNamespace: boolean,
+  declareTypeNamespace: (prefix: string) => boolean,
   referenceSourceTypes: TypeDescriptionSourceTypes | undefined,
   xmlNameByType: Readonly<Record<string, string>> | undefined
 ): {
@@ -112,13 +118,13 @@ const getReferenceSourceTypes = (
 
 const getCanonicalTypeNamespace = (
   rule: ReturnType<typeof getTypeDescriptionRule>,
-  declareTypeNamespace: boolean
+  declareTypeNamespace: (prefix: string) => boolean
 ): string | undefined => {
   if (!rule) return undefined
   if (rule.namespace !== undefined) {
-    return declareTypeNamespace || rule.prefix !== "dcsset" ? rule.namespace : undefined
+    return declareTypeNamespace(rule.prefix) || rule.prefix !== "dcsset" ? rule.namespace : undefined
   }
-  return declareTypeNamespace && rule.prefix === "cfg" ? ENTERPRISE_CURRENT_CONFIG_NAMESPACE : undefined
+  return declareTypeNamespace(rule.prefix) && rule.prefix === "cfg" ? ENTERPRISE_CURRENT_CONFIG_NAMESPACE : undefined
 }
 
 const getMatchingReferenceSourceType = (
@@ -151,7 +157,7 @@ const getSourceTypeXML = (sourceType: TypeDescriptionSourceType): TypeDescriptio
 const getCanonicalTypeXML = (
   type: string,
   rule: TypeDescriptionRule,
-  declareTypeNamespace: boolean,
+  declareTypeNamespace: (prefix: string) => boolean,
   xmlBaseType: string = type.includes(".") ? type.slice(0, type.indexOf(".")) : type
 ): TypeDescriptionXMLType => {
   const dotIndex = type.indexOf(".")

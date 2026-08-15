@@ -14,6 +14,10 @@ const typeDescriptionRuleWithLocalNamespace = {
   type: "TypeDescription",
   declareTypeNamespaceXML: true,
 } as const
+const typeDescriptionRuleWithDcssetNamespace = {
+  type: "TypeDescription",
+  declareTypeNamespaceXML: ["dcsset"],
+} as const
 
 const contextWithTypeNamePolicy = (xmlName: "AnyRef" | "AnyIBRef") => {
   const context = mockContextToXML()
@@ -143,6 +147,20 @@ describe("exportTypeDescriptionToXML", () => {
     expect(result).toEqual(
       '<TypeDescription>\n\t<v8:Type xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config">cfg:CatalogRef.ЗначенияХарактеристик</v8:Type>\n</TypeDescription>'
     )
+  })
+
+  it("объявляет только перечисленный dcsset namespace", () => {
+    expect(exportTypeDescriptionToXML(mockContext, typeDescriptionRuleWithDcssetNamespace, {
+      type: ["SettingsComposer", "CatalogRef.ЗначенияХарактеристик"],
+    })).toEqual({
+      "v8:Type": [
+        {
+          "_xmlns:dcsset": "http://v8.1c.ru/8.1/data-composition-system/settings",
+          "#text": "dcsset:SettingsComposer",
+        },
+        "cfg:CatalogRef.ЗначенияХарактеристик",
+      ],
+    })
   })
 
   it("does not export local type namespace by default", () => {

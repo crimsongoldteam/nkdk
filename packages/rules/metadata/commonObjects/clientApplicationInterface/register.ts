@@ -37,13 +37,15 @@ import {
 import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 
 const standardPanelsByUuid = {
-  "b553047f-c9aa-4157-978d-448ecad24248": "ПанельИстории",
-  "13322b22-3960-4d68-93a6-fe2dd7f28ca3": "ПанельРазделов",
+  "b553047f-c9aa-4157-978d-448ecad24248": "ПанельРазделов",
+  "13322b22-3960-4d68-93a6-fe2dd7f28ca3": "ПанельИстории",
   "c933ac92-92cd-459d-81cc-e0c8a83ced99": "ПанельФункцийТекущегоРаздела",
   "cbab57f2-a0f3-4f0a-89ea-4cb19570ab75": "ПанельОткрытых",
   "b2735bd3-d822-4430-ba59-c9e869693b24": "ПанельИзбранного",
   "00000000-0000-0000-0000-000000000000": "СтандартнаяПанель",
 } as const
+
+const sectionsPanelUuid = "b553047f-c9aa-4157-978d-448ecad24248"
 
 const standardPanelUuidByName = Object.fromEntries(
   Object.entries(standardPanelsByUuid).map(([uuid, name]) => [name, uuid])
@@ -67,11 +69,6 @@ const XML_METADATA = Symbol.for("metadata")
 const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 const XML_SECTION_LENGTHS = Symbol("clientApplicationInterfaceSectionLengths")
 const SECTION_KEYS = ["top", "left", "right", "bottom"] as const
-
-interface ClientApplicationInterfaceContext extends ConfigurationContext {
-  clientApplicationInterfacePanelDefsById?: Map<string, ClientApplicationInterfacePanelDef>
-  clientApplicationInterfacePanelsByUuid?: Map<string, ClientApplicationInterfacePanel[]>
-}
 
 const toArray = <T>(value: T | T[] | undefined): T[] =>
   value === undefined ? [] : Array.isArray(value) ? value : [value]
@@ -347,17 +344,6 @@ const importPanelFromXML = (
   if (xml.uuid !== undefined) panel.uuid = xml.uuid
   if (xml.name !== undefined) panel.name = xml.name
   if (xml.height !== undefined) panel.height = Number(xml.height)
-  if (xml.uuid !== undefined) {
-    const clientInterfaceContext = context as ClientApplicationInterfaceContext
-    const spr = clientInterfaceContext.clientApplicationInterfacePanelDefsById?.get(xml.uuid)?.spr
-    if (spr !== undefined) panel.spr = spr
-    const panels = clientInterfaceContext.clientApplicationInterfacePanelsByUuid?.get(xml.uuid) ?? []
-    panels.push(panel)
-    if (clientInterfaceContext.clientApplicationInterfacePanelsByUuid === undefined) {
-      clientInterfaceContext.clientApplicationInterfacePanelsByUuid = new Map()
-    }
-    clientInterfaceContext.clientApplicationInterfacePanelsByUuid.set(xml.uuid, panels)
-  }
   defineReferenceRawXML({ context, target: panel, xml })
   return panel
 }
@@ -419,24 +405,8 @@ const importPanelDefsFromXML = (
     })
     .filter((panelDef): panelDef is ClientApplicationInterfacePanelDef => panelDef !== undefined)
 
-  ;(context as ClientApplicationInterfaceContext).clientApplicationInterfacePanelDefsById = new Map(
-    panelDefs.map((panelDef) => [panelDef.id, panelDef])
-  )
-  const panelsByUuid = (context as ClientApplicationInterfaceContext).clientApplicationInterfacePanelsByUuid
-  for (const panelDef of panelDefs) {
-    if (panelDef.spr === undefined) continue
-    for (const panel of panelsByUuid?.get(panelDef.id) ?? []) {
-      panel.spr = panelDef.spr
-    }
-  }
-
   return panelDefs.length > 0 ? panelDefs : undefined
 }
-
-const getPanelPresentation = (
-  panel: ClientApplicationInterfacePanel,
-  panelDefsById: Map<string, ClientApplicationInterfacePanelDef>
-): SectionsPanelRepresentation | undefined => panel.spr ?? (panel.uuid ? panelDefsById.get(panel.uuid)?.spr : undefined)
 
 const panelPresentationToYAML = (
   presentation: SectionsPanelRepresentation | undefined
@@ -458,10 +428,8 @@ const exportPanelToYAML = (
     panel.uuid !== undefined && panel.uuid in standardPanelsByUuid
       ? standardPanelsByUuid[panel.uuid as keyof typeof standardPanelsByUuid]
       : undefined
-  const presentation = panelPresentationToYAML(getPanelPresentation(panel, panelDefsById))
   const displayName = panel.name ?? standardName
-  const needsExpanded =
-    panel.height !== undefined || panel.name !== undefined || presentation !== undefined || standardName === undefined
+  const needsExpanded = panel.height !== undefined || panel.name !== undefined || standardName === undefined
 
   if (!needsExpanded && standardName !== undefined) return { Панель: standardName }
 
@@ -469,7 +437,6 @@ const exportPanelToYAML = (
     ...(displayName !== undefined ? { Имя: displayName } : {}),
     ...(panel.uuid !== undefined && standardName === undefined ? { UUID: panel.uuid } : {}),
     ...(panel.height !== undefined ? { Высота: panel.height } : {}),
-    ...(presentation !== undefined ? { Представление: presentation } : {}),
   }
   const panelDef = panel.uuid === undefined ? undefined : panelDefsById.get(panel.uuid)
   if (
@@ -478,8 +445,7 @@ const exportPanelToYAML = (
     panelDef !== undefined &&
     panelDef.name === undefined &&
     panelDef.spr === undefined &&
-    yamlPanel.Имя === undefined &&
-    yamlPanel.Представление === undefined
+    yamlPanel.Имя === undefined
   ) {
     markExplicitEmptyPanelDefinition(yamlPanel)
   }
@@ -525,6 +491,10 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
   )
   const panelDefsById = new Map((panelDefs ?? []).map((panelDef) => [panelDef.id, panelDef]))
   const result: Record<string, unknown> = {}
+  const sectionsPanelRepresentation = panelPresentationToYAML(panelDefsById.get(sectionsPanelUuid)?.spr)
+  if (sectionsPanelRepresentation !== undefined) {
+    result[ClientApplicationInterfaceRules.properties.sectionsPanelRepresentation.yaml] = sectionsPanelRepresentation
+  }
   const sections: Partial<Record<(typeof SECTION_KEYS)[number], ClientApplicationInterfaceItems>> = {}
   for (const key of SECTION_KEYS) {
     const rule = ClientApplicationInterfaceRules.properties[key]
@@ -592,8 +562,6 @@ const importPanelFromYAML = (
   if (uuid !== undefined) result.uuid = uuid
   if (yaml.Имя !== undefined && standardPanelUuidByName[yaml.Имя] === undefined) result.name = yaml.Имя
   if (yaml.Высота !== undefined) result.height = yaml.Высота
-  const spr = panelPresentationFromYAML(yaml.Представление)
-  if (spr !== undefined) result.spr = spr
   return result
 }
 
@@ -871,16 +839,23 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
             [...collectExplicitEmptyPanelDefinitionUUIDs(source.raw(propertyKey), standardPanelUuids)]
           )
         )
+  const metadataSectionsPanelRepresentation = (metadataItem as Record<string, unknown> | undefined)
+    ?.sectionsPanelRepresentation as SectionsPanelRepresentation | undefined
+  const sectionsPanelRepresentation =
+    source === undefined
+      ? metadataSectionsPanelRepresentation
+      : panelPresentationFromYAML(
+          source.raw("sectionsPanelRepresentation") as SectionsPanelRepresentationYAML | undefined
+        ) ?? metadataSectionsPanelRepresentation
   const emittedIds = new Set<string>()
   const result: Record<string, unknown>[] = []
 
   for (const id of requiredStandardPanelUuids) {
     emittedIds.add(id)
-    const panel = panels.find((item) => item.uuid === id)
     result.push(
       mergePanelDefWithReference({
         id,
-        spr: panel?.spr ?? byId.get(id)?.spr,
+        spr: id === sectionsPanelUuid ? sectionsPanelRepresentation : undefined,
         referencePanelDef: referenceById.get(id),
       })
     )
@@ -891,7 +866,6 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
     const panelDef = byId.get(panel.uuid)
     const shouldCreatePanelDef =
       panel.name !== undefined ||
-      panel.spr !== undefined ||
       panelDef?.name !== undefined ||
       panelDef?.spr !== undefined ||
       explicitPanelDefIds.has(panel.uuid)
@@ -901,7 +875,7 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
       mergePanelDefWithReference({
         id: panel.uuid,
         name: panel.name ?? panelDef?.name,
-        spr: panel.spr ?? panelDef?.spr,
+        spr: panelDef?.spr,
         referencePanelDef: referenceById.get(panel.uuid),
       })
     )

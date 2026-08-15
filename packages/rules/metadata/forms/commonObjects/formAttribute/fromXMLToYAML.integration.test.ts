@@ -9,8 +9,10 @@ import {
 } from "../../../../tests/directConversion"
 import {
   XML_ABSENT_TAG_VALUE,
+  XML_PRESENT_TAG_VALUE,
   importContentFromXML,
   markYAMLScalarTag,
+  serializeYAMLDocument,
   xmlExport,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
@@ -19,6 +21,8 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import "../index"
 import "./fromXMLToYAML"
 import "./rules"
+import { metadataRules } from "../../../composition/metadataRules"
+import { createRuleRegistrySet } from "../../../ruleRuntime/ruleRegistrySet"
 
 const rule = {
   itemType: "FormAttributesProbe",
@@ -53,6 +57,30 @@ const settingsFixtures = [
 ] as const
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it("сохраняет пустые параметры данных вложенного динамического списка", () => {
+    const execution = createRuleRegistrySet(metadataRules).execution
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule,
+      xml: {
+        Attribute: {
+          _name: "Список",
+          Type: { "v8:Type": "cfg:DynamicList" },
+          Settings: {
+            "_xsi:type": "DynamicList",
+            ListSettings: { "dcsset:dataParameters": undefined },
+          },
+        },
+      },
+      execution,
+    })
+
+    expect(yaml).toHaveProperty(
+      "Значение.Список.ДинамическийСписок.ПараметрыДанных",
+      XML_PRESENT_TAG_VALUE,
+    )
+    expect(serializeYAMLDocument(yaml).text).toContain("ПараметрыДанных: !xml/present")
+  })
+
   it("различает отсутствие Settings у единственного ValueListType", () => {
     const { yaml } = testPropertyFromXMLToYAML({
       rule,

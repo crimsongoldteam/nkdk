@@ -1,3 +1,21 @@
+`!xml/reference` обозначает строго распознанное внутреннее представление
+ссылки: оно сохраняется дословно и исключается из разрешения, поиска и
+переименования. Поддержанные формы перечислены ниже; пустое значение разрешено
+только ключу роли `UserVisible`.
+
+Для строкового `ЗначениеЗаполнения` сам факт наличия пробелов не является
+аномалией: пробелы сохраняются обычной строкой и учитываются при проверке
+длины. `!xml/value` ставится только тогда, когда исходная строка не
+соответствует эффективному типу: при переменной длине она длиннее ограничения,
+при фиксированной — её длина не равна ограничению. Длина `0` не ограничивает
+строку.
+
+`ОтображениеПанелиРазделов` является обычным свойством всего
+`ClientApplicationInterface`, а не XML-аномалией размещённой панели. Оно
+восстанавливает `spr` в стандартном `panelDef` панели разделов независимо от
+того, размещена эта панель или скрыта. `!xml/present` у всего интерфейса
+обозначает только существующий файл с пятью пустыми стандартными `panelDef`.
+
 | Объект с аномалией | Свойство | Классифицированный YAML-тег | Текст в XML |
 |---|---|---|---|
 | обычное поле (`MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension`, `MetadataExternalDataSourceCubeResource`) либо стандартный реквизит `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |
@@ -21,6 +39,7 @@
 | управляемая форма | `Реквизиты` | `!xml/present` | `<Attributes/>` |
 | `LabelDecoration`, `ExtendedTooltip` | `Заголовок` | `!xml/present` | `<Title formatted="true"/>` |
 | предопределённый счёт | `ВидыСубконто` | `!xml/present` | `<ExtDimensionTypes/>` |
+| план обмена | `Состав` | `!xml/present` | существующий пустой `Ext/Content.xml` с корнем `<ExchangePlanContent/>`; отсутствие свойства означает отсутствие файла |
 | реквизит формы с единственным типом `СписокЗначений` | `ТипЗначения` | `!xml/absent` | элемент `<Settings>` отсутствует вопреки каноническому экспорту пустого `v8:TypeDescription` |
 | свойство типа `TypeDescription` | `Тип` | `!xml/type <исходный префикс>:<русское имя типа>` | `v8:Type` с исходным namespace-префиксом, например `d7p1:Chart` |
 | `StandardAttributeDescriptions` | `СтандартныеРеквизиты` | `!xml/present` | канонические элементы `<xr:StandardAttribute name="…">…</xr:StandardAttribute>` |
@@ -37,6 +56,9 @@
 | `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | битая ссылка типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml/reference <ссылка>`; низкоуровневая битая ссылка — `<UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><внутренняя ссылка></…>` |
 | `Subsystem` | битая ссылка в элементе состава подсистемы | `!xml/reference <UUID>` | `<xr:Item xsi:type="xr:MDObjectRef"><UUID></xr:Item>` |
 | корневой `CommandInterface` | битая ссылка в `ПорядокПодсистем` | `!xml/reference <UUID>` | `<SubsystemsOrder><Subsystem><UUID></Subsystem></SubsystemsOrder>` |
+| прямое ссылочное свойство с `metadataTarget`, включая `SettingsStorage` формы | строгое внутреннее значение UUID | `!xml/reference <UUID>` | исходный UUID сохраняется дословно, без разрешения через индекс и поиска ссылок |
+| `DynamicList.MainTable` | строгое внутреннее значение `число:UUID` | `!xml/reference <число:UUID>` | `<MainTable><число:UUID></MainTable>`; оба сегмента сохраняются дословно и не участвуют в поиске |
+| `UserVisible` | пустое имя роли | `!xml/reference ""` на ключе `Роли` | `<xr:Value name="">true|false</xr:Value>`; пустое имя допустимо только в этом типе и только с тегом |
 | `CashdeskDev_3_32_26_0_setup1c`: `DataProcessors/Отчеты/Forms/ОтчетПоСкупкам/Ext/Form.xml`, `DataProcessors/Отчеты/Forms/ОтчетПоГеолокацииЧеков/Ext/Form.xml`, `DataProcessors/Отчеты/Forms/ОтчетПоПродажам/Ext/Form.xml` | битая ссылка в `FunctionalOptionsProperty.Item` | `!xml/reference 76e70e66-9e54-4a40-95ce-cff9444899e7` | `<FunctionalOptions><Item>76e70e66-9e54-4a40-95ce-cff9444899e7</Item></FunctionalOptions>`; UUID переносится без поиска |
 | `CashdeskDev_3_32_26_0_setup1c`: `CommonForms/РедактированиеСтроки/Ext/Form.xml` | битая ссылка в `FunctionalOptionsProperty.Item` | `!xml/reference 6537a19c-3357-46a2-96a6-1fe4619ddbc8` | `<FunctionalOptions><Item>6537a19c-3357-46a2-96a6-1fe4619ddbc8</Item></FunctionalOptions>`; UUID переносится без поиска |
 | `I8nText`, текстовая часть `FormattedI8nText` | значение незарегистрированного языка | scalar `!xml/language <исходный текст>` на значении кода языка | `<v8:item>` с непустым `v8:lang`, отсутствующим в реестре языков конфигурации, и исходным `v8:content` |

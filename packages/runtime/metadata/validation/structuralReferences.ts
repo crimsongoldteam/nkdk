@@ -9,6 +9,7 @@ import {
   type DependentStructuralItemReference,
 } from "../ruleRuntime/property/dependentItemRegistry"
 import {
+  assertAllYAMLMappingKeyReferenceTagsTransported,
   isRelativeYAMLReferenceTagged,
   type BrokenXMLReferenceLocation,
 } from "../ruleRuntime/property/brokenXMLReferenceCarrierRegistry"
@@ -216,6 +217,19 @@ function collectObjectReferences(params: {
         isTagged,
       })
     if (isTransported({ kind: "value", path: [] })) continue
+
+    const nestedRule = params.runtime.nestedRule(propertyRule)
+    if (nestedRule === undefined || nestedRule.kind === "externalFile") {
+      try {
+        assertAllYAMLMappingKeyReferenceTagsTransported(
+          yamlValue,
+          isTransported,
+          [...params.yamlPath, propertyRule.yaml],
+        )
+      } catch (error) {
+        return { ok: false, message: error instanceof Error ? error.message : String(error) }
+      }
+    }
 
     const siblingValue = (propertyKey: string) => {
       const siblingYaml = params.rule.properties[propertyKey]?.yaml

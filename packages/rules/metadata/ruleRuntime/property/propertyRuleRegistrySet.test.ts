@@ -270,6 +270,16 @@ it("keeps explicit XML property-type policies inside the registry instance", () 
     .toEqual({ kind: "materializeCollection" })
   expect(withPolicy.explicitXMLPropertyValidationTag("Owner", "value", "Collection"))
     .toBe("xml/present")
+  expect(withPolicy.matchExplicitXMLPropertyTypeFromXML({
+    propertyType: "Collection",
+    presentInXML: true,
+    yamlValue: [],
+  })).toMatchObject({ action: "materializeCollection" })
+  expect(withPolicy.matchExplicitXMLPropertyTypeFromXML({
+    propertyType: "Collection",
+    presentInXML: true,
+    yamlValue: ["value"],
+  })).toBeUndefined()
   expect(withoutPolicy.collectExplicitXMLPropertyActions(params)).toEqual(new Map())
   expect(withoutPolicy.explicitXMLPropertyValidationTag("Owner", "value", "Collection"))
     .toBeUndefined()

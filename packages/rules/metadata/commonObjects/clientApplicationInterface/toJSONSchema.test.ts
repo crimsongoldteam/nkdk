@@ -3,11 +3,22 @@ import { mockContext } from "../../../tests/mockContext"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { createValidationSchemaTestSession } from "../../ruleRuntime/jsonSchemaTestSupport"
 import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ClientApplicationInterfaceRules } from "./rules"
 import "./register"
 
 
 describe("ClientApplicationInterfaceItems JSON Schema", () => {
+  it("проверяет ОтображениеПанелиРазделов как системное перечисление", () => {
+    const validation = compileValidationSchema(
+      exportMetadataItemToJSONSchema({ context: mockContext, rule: ClientApplicationInterfaceRules })
+    )
+
+    expect(validation.Check({ ОтображениеПанелиРазделов: "Текст" })).toBe(true)
+    expect(validation.Check({ ОтображениеПанелиРазделов: "Неизвестно" })).toBe(false)
+  })
+
   it("показывает ПустоеОпределение только validation-схеме", () => {
     const rule = { type: "ClientApplicationInterfaceItems" } as PropertyRule
     const session = createValidationSchemaTestSession(mockContext, "inline")
@@ -41,6 +52,12 @@ describe("ClientApplicationInterfaceItems JSON Schema", () => {
     expect(validation.Check([{
       Панель: {
         UUID: "!xml/present 8e10648b-f52d-4ec2-b4dd-87de33778d95",
+      },
+    }])).toBe(false)
+    expect(validation.Check([{
+      Панель: {
+        UUID: "8e10648b-f52d-4ec2-b4dd-87de33778d95",
+        Представление: "Текст",
       },
     }])).toBe(false)
     expect(JSON.stringify(hintSchema)).not.toContain("ПустоеОпределение")

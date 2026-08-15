@@ -42,7 +42,10 @@ import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
-import { isRelativeYAMLReferenceTagged } from "./brokenXMLReferenceCarrierRegistry"
+import {
+  assertAllYAMLMappingKeyReferenceTagsTransported,
+  isRelativeYAMLReferenceTagged,
+} from "./brokenXMLReferenceCarrierRegistry"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
@@ -416,6 +419,16 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
 
     const nestedRule = typeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
+    if (
+      explicitXMLAction?.kind === "materializeCollection" &&
+      nestedRule === undefined &&
+      (planned.propertyRule.xmlParents?.length ?? 0) > 0
+    ) {
+      matchingOutputs.forEach((output) => {
+        setAtPath(output.xml, planned.propertyRule.xmlParents!, {})
+      })
+      continue
+    }
     if (nestedRule !== undefined && nestedRule.kind !== "externalFile") {
       const childCollection = params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)
       const effectiveNestedRule =
@@ -644,6 +657,16 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       isTagged: (location) => yaml !== undefined && yamlKey !== undefined
         && isRelativeYAMLReferenceTagged(yaml, yamlKey, location),
     })
+    assertAllYAMLMappingKeyReferenceTagsTransported(
+      sourceValue,
+      (location) => transportPreparation?.transportedLocations.some((transported) =>
+        transported.kind === "key"
+        && location.kind === "key"
+        && transported.key === location.key
+        && transported.path.length === location.path.length
+        && transported.path.every((segment, index) => segment === location.path[index])) === true,
+      yamlKey === undefined ? [] : [yamlKey],
+    )
     const importSourceValue = transportPreparation?.yamlValue ?? sourceValue
     const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
       propertyPath: [yamlKey ?? propertyKey],

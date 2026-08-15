@@ -317,6 +317,7 @@ const externalFilePropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapab
       const xml = nestedRule.convert({
         context: propertyContext,
         yaml: source.raw(propertyKey),
+        ownerYAML: preparedYamlFile.data,
         ...(baseFormPreparedYamlFile !== undefined &&
         currentConfigurationFormPreparedYamlFile !== undefined &&
         baseFormSourceKind !== undefined
@@ -352,6 +353,7 @@ const externalFilePropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapab
           : { baseConfigurationIndex }),
         ...(baseFormContext === undefined ? {} : { baseYAMLContext: baseFormContext }),
       })
+      if (xml === undefined) return []
       return [
         {
           declarationId: output.declarationId,

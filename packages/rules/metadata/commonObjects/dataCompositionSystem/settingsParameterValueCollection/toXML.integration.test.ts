@@ -7,6 +7,7 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
+import { exportToYAML, importFromYAML, yamlScalarTagAt } from "@nkdk/runtime"
 import type { MetadataItemRule } from "../../../ruleRuntime"
 
 const rule: PropertyRule = {
@@ -18,6 +19,45 @@ const rule: PropertyRule = {
 }
 
 describe("export SettingsParameterValueCollection to XML", () => {
+  it("сохраняет явно пустой контейнер через !xml/present", () => {
+    const metadataRule = {
+      itemType: "SettingsParameterValueCollectionProbe",
+      properties: {
+        value: { ...rule, yaml: "ПараметрыДанных", xml: "DataParameters" },
+      },
+    } as const satisfies MetadataItemRule
+
+    const imported = testPropertyFromXMLToYAML({
+      rule: metadataRule,
+      xml: { DataParameters: {} },
+    })
+
+    expect(exportToYAML(imported.yaml)).toBe("ПараметрыДанных: !xml/present")
+    expect(yamlScalarTagAt(imported.yaml, "ПараметрыДанных")).toBe("xml/present")
+
+    const restored = testPropertyFromYAMLToXML({
+      rule: metadataRule,
+      yaml: importFromYAML("ПараметрыДанных: !xml/present"),
+    })
+
+    expect(restored.xml).toEqual({ DataParameters: {} })
+  })
+
+  it("различает отсутствующий и непустой контейнер", () => {
+    const metadataRule = {
+      itemType: "SettingsParameterValueCollectionProbe",
+      properties: {
+        value: { ...rule, yaml: "ПараметрыДанных", xml: "DataParameters" },
+      },
+    } as const satisfies MetadataItemRule
+
+    expect(testPropertyFromYAMLToXML({ rule: metadataRule, yaml: {} }).xml).toEqual({})
+    expect(testPropertyFromYAMLToXML({
+      rule: metadataRule,
+      yaml: { ПараметрыДанных: { Параметр1: "Значение" } },
+    }).xml).toHaveProperty("DataParameters.dcscor:item")
+  })
+
   it("exports full fixture", () => {
     const { result, expectedResult } = testAtomicToXML({
       rule,

@@ -12,6 +12,7 @@ import type {
 import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
 import {
   compactImportedFormDataPaths,
+  materializeImplicitFormDataPaths,
   prepareFormDataPathContextFromYAML,
 } from "./formDataPathContext"
 import type { ClientApplicationFormYAML } from "./types"
@@ -119,6 +120,40 @@ describe("prepareFormDataPathContextFromYAML", () => {
 
     expect(context.effectiveMainAttribute).toBeUndefined()
     expect(context.elementsByName.get("Поле")?.candidateYaml).toBeUndefined()
+  })
+
+  it("удаляет пустой путь собственного элемента без вычислимого кандидата", () => {
+    const yaml = {
+      Элементы: {
+        Поле: { Вид: "ПолеВвода", ПутьКДанным: "" },
+      },
+    } satisfies ClientApplicationFormYAML
+    const context = prepareFormDataPathContextFromYAML({ yaml, ownerCache: catalogOwnerCache() })
+
+    const prepared = materializeImplicitFormDataPaths(yaml, context)
+
+    expect(prepared.Элементы.Поле).not.toHaveProperty("ПутьКДанным")
+    expect(yaml.Элементы.Поле).toHaveProperty("ПутьКДанным", "")
+  })
+
+  it("удаляет пустые пути таблицы и колонки при пустом пути таблицы", () => {
+    const yaml = {
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          ПутьКДанным: "",
+          Элементы: {
+            ТаблицаКолонка: { Вид: "ПолеВвода", ПутьКДанным: "" },
+          },
+        },
+      },
+    } satisfies ClientApplicationFormYAML
+    const context = prepareFormDataPathContextFromYAML({ yaml, ownerCache: catalogOwnerCache() })
+
+    const prepared = materializeImplicitFormDataPaths(yaml, context)
+
+    expect(prepared.Элементы.Таблица).not.toHaveProperty("ПутьКДанным")
+    expect(prepared.Элементы.Таблица.Элементы.ТаблицаКолонка).not.toHaveProperty("ПутьКДанным")
   })
 
   it("уплотняет импортированные пути и различает отсутствующий XML-тег", () => {

@@ -622,7 +622,7 @@ describe("prepareImportYaml", () => {
         collector: createConfigurationIndexCollector(),
       })
 
-      expect(prepared.yaml).toEqual({})
+      expect(prepared.yaml).toEqual({ ТипФормы: "Обычная" })
       expect(prepared).not.toHaveProperty("baseFormCandidate")
       expect(prepared).not.toHaveProperty("model")
     } finally {

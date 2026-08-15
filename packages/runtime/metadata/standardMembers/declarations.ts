@@ -22,6 +22,10 @@ export type StandardMemberFillValuePolicy =
       readonly allowedLengthProperty: string
     }
   | {
+      readonly policy: "stringFromOwner"
+      readonly lengthProperty: string
+    }
+  | {
       readonly policy: "ownerReference"
       readonly ownersProperty: string
       readonly predefinedOnly: true
@@ -35,6 +39,13 @@ const commonStandardAttributeFillValuePolicies: Readonly<Record<string, Standard
   Predefined: { policy: "forbidden" },
   PredefinedDataName: { policy: "forbidden" },
   DeletionMark: { policy: "byEffectiveType", implicitValue: false },
+  Description: { policy: "stringFromOwner", lengthProperty: "descriptionLength" },
+  Number: {
+    policy: "codeFromOwner",
+    typeProperty: "numberType",
+    lengthProperty: "numberLength",
+    allowedLengthProperty: "numberAllowedLength",
+  },
 }
 
 export function commonStandardMemberFillValuePolicy(

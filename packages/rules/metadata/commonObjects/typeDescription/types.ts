@@ -816,7 +816,7 @@ export interface TypeDescriptionEnterprise {
 export interface TypeDescriptionPropertyRule extends BasePropertyRule {
   type: "TypeDescription"
   addTypeDescriptionAttributeToXML?: true
-  declareTypeNamespaceXML?: boolean
+  declareTypeNamespaceXML?: boolean | readonly string[]
   allowedTypes?: TypeDescriptionAllowedTypes
   preserveEmptyXML?: true
 }
