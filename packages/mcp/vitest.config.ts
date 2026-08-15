@@ -1,10 +1,8 @@
-import { defineConfig } from "vitest/config"
+import { unitIntegrationVitestConfig } from "../../scripts/vitest/unit-integration-projects"
 
-export default defineConfig({
-  test: {
-    environment: "node",
-    globals: true,
-    testTimeout: 10_000,
-    watch: false,
-  },
+export default unitIntegrationVitestConfig(import.meta.url, {
+  environment: "node",
+  globals: true,
+  testTimeout: 10_000,
+  watch: false,
 })

@@ -1,7 +1,3 @@
-import { defineConfig } from "vitest/config"
+import { unitIntegrationVitestConfig } from "../../scripts/vitest/unit-integration-projects"
 
-export default defineConfig({
-  test: {
-    include: ["**/*.test.ts"],
-  },
-})
+export default unitIntegrationVitestConfig(import.meta.url)
