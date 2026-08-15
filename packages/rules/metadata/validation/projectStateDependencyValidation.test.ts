@@ -205,6 +205,7 @@ describe("dependency validation из ProjectState", () => {
     Тип: Строка(10)
 `),
       rulesSnapshot,
+      fileExists: () => false,
     })
     const get = vi.fn<OwnerMetadataCache["get"]>(() => {
       throw new Error("Стандартные реквизиты заимствованного объекта не должны читаться из cf")

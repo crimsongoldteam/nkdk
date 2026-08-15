@@ -1,36 +1,22 @@
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-} from "node:fs"
-import { tmpdir } from "node:os"
-import { dirname, join } from "node:path"
+import { existsSync, readFileSync } from "node:fs"
+import { join } from "node:path"
 import {
   importContentFromXML,
   serializeYAMLDocument,
   yamlMappingTagOf,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
-import { afterEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { loadConfigurationLanguagesFromXML } from "../../context/configurationLanguages"
 import { exportLocalizedItems, importLocalizedItems } from "./anomalies"
 import type { I8nTextLanguageXML } from "./types"
 
 const corpusRoot = "/Users/nikita/git/round-trip-compact/cf"
-const tempDirs: string[] = []
-
-afterEach(() => {
-  for (const directory of tempDirs.splice(0)) rmSync(directory, { recursive: true, force: true })
-})
 
 describe.skipIf(!existsSync(corpusRoot))("real localized XML anomalies", () => {
   it("сохраняет незарегистрированный en из Storekeeper", async () => {
-    const fixture = copyConfigurationFragment({
+    const fixture = configurationFragment({
       configuration: "StorekeeperDevelopers_2_0_108_1_setup1c",
       owner: "SessionParameters/ПоддерживаетсяТелефония.xml",
     })
@@ -67,7 +53,7 @@ describe.skipIf(!existsSync(corpusRoot))("real localized XML anomalies", () => {
       text: "EnterpriseData 1.20.2",
     },
   ])("сохраняет нарушенный порядок $name", async ({ configuration, owner, text }) => {
-    const fixture = copyConfigurationFragment({ configuration, owner })
+    const fixture = configurationFragment({ configuration, owner })
     const items = onlyMatchingItems(fixture.ownerPath, [item("en", text), item("ru", text)])
     const context = { ...mockContext, languages: await loadConfigurationLanguagesFromXML(fixture.configurationDir) }
 
@@ -78,7 +64,7 @@ describe.skipIf(!existsSync(corpusRoot))("real localized XML anomalies", () => {
   })
 
   it("сохраняет три реальные пары-дубли Mhcsk", async () => {
-    const fixture = copyConfigurationFragment({
+    const fixture = configurationFragment({
       configuration: "Mhcsk_3_1_202_14_setup1c",
       owner: "DataProcessors/РаспознаваниеДокументовОтправкаФайлов/Forms/ФормированиеПакетаМК/Ext/Form.xml",
     })
@@ -95,20 +81,9 @@ describe.skipIf(!existsSync(corpusRoot))("real localized XML anomalies", () => {
   })
 })
 
-function copyConfigurationFragment(params: { configuration: string; owner: string }) {
-  const sourceDir = join(corpusRoot, params.configuration)
-  const configurationDir = mkdtempSync(join(tmpdir(), "nkdk-i18n-round-trip-"))
-  tempDirs.push(configurationDir)
-  copyFileSync(join(sourceDir, "Configuration.xml"), join(configurationDir, "Configuration.xml"))
-  const languagesDir = join(configurationDir, "Languages")
-  mkdirSync(languagesDir)
-  for (const name of readdirSync(join(sourceDir, "Languages")).filter((name) => name.endsWith(".xml"))) {
-    copyFileSync(join(sourceDir, "Languages", name), join(languagesDir, name))
-  }
-  const ownerPath = join(configurationDir, params.owner)
-  mkdirSync(dirname(ownerPath), { recursive: true })
-  copyFileSync(join(sourceDir, params.owner), ownerPath)
-  return { configurationDir, ownerPath }
+function configurationFragment(params: { configuration: string; owner: string }) {
+  const configurationDir = join(corpusRoot, params.configuration)
+  return { configurationDir, ownerPath: join(configurationDir, params.owner) }
 }
 
 function onlyMatchingItems(filePath: string, expected: readonly I8nTextLanguageXML[]): I8nTextLanguageXML[] {

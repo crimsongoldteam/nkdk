@@ -22,7 +22,7 @@ const coreMetadataTests = [
   "metadata/ruleRuntime/metadataItem/**/*.test.ts",
   "metadata/validation/**/*.test.ts",
 ]
-const forbiddenPiscinaSetup = resolve(__dirname, "./tests/forbidRealPiscina")
+const unitDependencyGuard = resolve(__dirname, "../../scripts/vitest/forbid-unit-external-dependencies")
 const lightweightSetup = resolve(__dirname, "./tests/setupTests")
 const metadataTestRunner = resolve(__dirname, "./tests/metadataTestRunner")
 const integrationTests = ["**/*.integration.test.ts"]
@@ -31,9 +31,9 @@ const nativeLmdbIntegrationTests = [
   "metadata/importFromXml/importConfigurationExtension.integration.test.ts",
 ]
 const nativeLmdbTests = [
-  "metadata/appliedObjects/configuration/convertFromXML.test.ts",
-  "metadata/partialSyncToXml/deliveryState.test.ts",
-  "metadata/partialSyncToXml/pendingStore.test.ts",
+  "metadata/appliedObjects/configuration/convertFromXML.integration.test.ts",
+  "metadata/partialSyncToXml/deliveryState.integration.test.ts",
+  "metadata/partialSyncToXml/pendingStore.integration.test.ts",
 ]
 const bundleContractTests = [
   "metadata/composition/metadataRules.test.ts",
@@ -71,7 +71,7 @@ export default defineConfig({
             ...nativeLmdbTests,
           ],
           sequence: { groupOrder: 0 },
-          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
+          setupFiles: [unitDependencyGuard, lightweightSetup],
         },
       },
       {
@@ -79,7 +79,7 @@ export default defineConfig({
           name: "bundle-contract",
           include: bundleContractTests,
           sequence: { groupOrder: 1 },
-          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
+          setupFiles: [unitDependencyGuard, lightweightSetup],
         },
       },
       {
@@ -90,7 +90,7 @@ export default defineConfig({
           exclude: [...integrationTests, ...nativeLmdbTests],
           sequence: { groupOrder: 2 },
           setupFiles: [
-            forbiddenPiscinaSetup,
+            unitDependencyGuard,
             lightweightSetup,
           ],
         },
@@ -101,7 +101,7 @@ export default defineConfig({
           runner: metadataTestRunner,
           include: nativeLmdbTests,
           sequence: { groupOrder: 3 },
-          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
+          setupFiles: [lightweightSetup],
         },
       },
       {
@@ -109,10 +109,9 @@ export default defineConfig({
           name: "integration",
           runner: metadataTestRunner,
           include: integrationTests,
-          exclude: nativeLmdbIntegrationTests,
+          exclude: [...configDefaults.exclude, ...nativeLmdbTests, ...nativeLmdbIntegrationTests],
           sequence: { groupOrder: 4 },
           setupFiles: [
-            forbiddenPiscinaSetup,
             lightweightSetup,
           ],
         },
@@ -123,7 +122,7 @@ export default defineConfig({
           runner: metadataTestRunner,
           include: nativeLmdbIntegrationTests,
           sequence: { groupOrder: 5 },
-          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
+          setupFiles: [lightweightSetup],
         },
       },
     ],

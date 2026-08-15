@@ -107,6 +107,7 @@ export function extractValidationYamlFacts(params: {
   propertyStateCompatibilityMode?: string
   borrowedLogicalAddresses?: ReadonlySet<string>
   context?: ConfigurationContext
+  fileExists?: (absolutePath: string) => boolean
 }): ValidationYamlFacts {
   const validationDiagnostics = params.validationDiagnostics !== false
   if (params.file.kind === "form") {
@@ -185,8 +186,9 @@ export function extractValidationYamlFacts(params: {
         }),
       ]
   const extensionComponent = params.file.componentPath.startsWith("cfe/")
+  const fileExists = params.fileExists ?? existsSync
   const belongsToBorrowedPair = extensionComponent && (
-    existsSync(resolve(params.file.componentDir, "..", "..", "cf", ...params.file.projectPath.split("/")))
+    fileExists(resolve(params.file.componentDir, "..", "..", "cf", ...params.file.projectPath.split("/")))
   )
   const extensionLogicalAddress = params.file.logicalAddress
     ?? (params.file.componentPath.startsWith("cfe/") && objectTarget !== undefined
@@ -204,7 +206,7 @@ export function extractValidationYamlFacts(params: {
         borrowed: belongsToBorrowedPair,
         borrowedLogicalAddresses: params.borrowedLogicalAddresses,
         propertyStateCompatibilityMode: params.propertyStateCompatibilityMode,
-        projectFileExists: (projectPath) => existsSync(resolve(params.file.componentDir, ...projectPath.split("/"))),
+        projectFileExists: (projectPath) => fileExists(resolve(params.file.componentDir, ...projectPath.split("/"))),
       })
   const propertyStatePendingReferences = pendingReferences.map((reference) => {
     const propertyStateMode = pendingReferencePropertyStateMode(

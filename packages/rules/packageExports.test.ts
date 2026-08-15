@@ -1,12 +1,10 @@
-import { beforeAll, expect, it } from "vitest"
+import { expectTypeOf, it } from "vitest"
 
-let packageExports: typeof import("./index")
+import type * as PackageExports from "./index"
 
-beforeAll(async () => {
-  packageExports = await import("./index")
+type PackageExportName = keyof typeof PackageExports
+
+it("exports only metadataRules from the package root", () => {
+  expectTypeOf<PackageExportName>().toEqualTypeOf<"metadataRules">()
+  expectTypeOf<typeof PackageExports.metadataRules>().toBeObject()
 })
-
-it("exports only metadataRules from the package root", async () => {
-  expect(Object.keys(packageExports)).toEqual(["metadataRules"])
-  expect(packageExports.metadataRules).toEqual(expect.any(Object))
-}, 30_000)
