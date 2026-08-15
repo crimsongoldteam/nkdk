@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync } from "node:fs"
 import { rename, rm } from "node:fs/promises"
-import { dirname, posix } from "node:path"
+import { dirname } from "node:path"
 import { open, type Database, type RootDatabase, type Transaction } from "lmdb"
 import {
   decodeBlockV1,
@@ -23,7 +23,12 @@ export {
   configurationIndexCandidateStoreDescriptor,
   configurationIndexStoreDescriptor,
 } from "./storePath"
-import { compareConfigurationIndexUtf8, configurationIndexErrorMessage } from "./utilities"
+import {
+  compareConfigurationIndexUtf8,
+  configurationIndexErrorMessage,
+  validateConfigurationIndexProjectPath as validateProjectPath,
+} from "./utilities"
+export { validateConfigurationIndexProjectPath } from "./utilities"
 import {
   CONFIGURATION_INDEX_SCHEMA_VERSION,
   configurationIndexCandidateStoreDescriptor,
@@ -462,24 +467,6 @@ function validateDescriptor(descriptor: ConfigurationIndexStoreDescriptor): void
     throw new Error(`Неподдерживаемая версия descriptor: ${descriptor.schemaVersion}`)
   }
   if (descriptor.lockPath !== `${descriptor.dataPath}-lock`) throw new Error("Некорректный путь lock-файла")
-}
-
-export function validateConfigurationIndexProjectPath(projectPath: string): string {
-  return validateProjectPath(projectPath)
-}
-
-function validateProjectPath(projectPath: string): string {
-  if (projectPath.length === 0 || projectPath.includes("\0") || projectPath.includes("\\")) {
-    throw new Error(`Недопустимый project path: ${projectPath}`)
-  }
-  if (posix.isAbsolute(projectPath) || posix.normalize(projectPath) !== projectPath) {
-    throw new Error(`Недопустимый project path: ${projectPath}`)
-  }
-  const encoded = Buffer.from(projectPath, "utf8")
-  if (new TextDecoder("utf-8", { fatal: true }).decode(encoded) !== projectPath) {
-    throw new Error(`Недопустимый UTF-8 project path: ${projectPath}`)
-  }
-  return projectPath
 }
 
 function errorMessage(error: unknown): string {

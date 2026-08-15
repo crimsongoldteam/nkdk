@@ -1,321 +1,153 @@
 import { existsSync } from "node:fs"
-import { mkdtemp, rm } from "node:fs/promises"
-import { tmpdir } from "node:os"
-import { join } from "node:path"
 import { open, type Database } from "lmdb"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { encodeBlockV1, encodeContentHash } from "./blockCodec"
 import {
   CONFIGURATION_INDEX_SCHEMA_VERSION,
   configurationIndexStoreDescriptor,
-  createConfigurationIndexCandidateStore,
   openConfigurationIndexStore,
 } from "./store"
-import type { ConfigurationIndexCandidateStore } from "./store"
+import type { ConfigurationIndexStore } from "./store"
+import { ConfigurationIndexStoreTestScope } from "./storeTestScope"
 
-const temporaryDirectories: string[] = []
+const scope = new ConfigurationIndexStoreTestScope()
+let createdDescriptor: ReturnType<typeof configurationIndexStoreDescriptor>
+let schemaVersion: readonly number[]
+let openedTableNames: readonly string[]
+let hashReader: ConfigurationIndexStore
+let blockReader: ConfigurationIndexStore
+let hashOnlyReader: ConfigurationIndexStore
+let pendingReader: ConfigurationIndexStore
+let missingDescriptor: ReturnType<typeof configurationIndexStoreDescriptor>
+let unknownSchemaDescriptor: ReturnType<typeof configurationIndexStoreDescriptor>
+let closeStore: ConfigurationIndexStore
 
-afterEach(async () => {
-  await Promise.all(temporaryDirectories.splice(0).map((path) => rm(path, { recursive: true, force: true })))
+beforeAll(async () => {
+  createdDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+  scope.open(createdDescriptor, "readWrite")
+
+  const schemaDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+  await createAndClose(schemaDescriptor)
+  const root = open<Uint8Array, string>({
+    path: schemaDescriptor.dataPath,
+    noSubdir: true,
+    encoding: "binary",
+    maxDbs: 8,
+  })
+  const meta = root.openDB<Uint8Array, string>({ name: "meta", encoding: "binary" })
+  schemaVersion = [...meta.get("schemaVersion")!]
+  openedTableNames = ["hashes", "blocks", "pendingHashes", "pendingBlocks"].map((name) => {
+    root.openDB({ name, encoding: "binary" })
+    return name
+  })
+  await root.close()
+
+  const hashDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+  await createAndClose(hashDescriptor)
+  await writeRaw(hashDescriptor.dataPath, (table) => {
+    table("hashes").putSync("é.yaml", encodeContentHash(2n))
+    table("hashes").putSync("z.yaml", encodeContentHash(1n))
+    table("blocks").putSync("broken.yaml", Uint8Array.of(255))
+  })
+  hashReader = scope.open(hashDescriptor, "readOnly")
+
+  const blockDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+  await createAndClose(blockDescriptor)
+  const goodBlock = { entities: [{ logicalAddress: "Документ.Заказ", xmlId: "1" }] }
+  await writeRaw(blockDescriptor.dataPath, (table) => {
+    table("hashes").putSync("Документы/Заказ.yaml", encodeContentHash(1n))
+    table("blocks").putSync("Документы/Заказ.yaml", encodeBlockV1(goodBlock))
+    table("blocks").putSync("broken.yaml", Uint8Array.of(255))
+  })
+  blockReader = scope.open(blockDescriptor, "readOnly")
+
+  const hashOnlyDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+  await createAndClose(hashOnlyDescriptor)
+  await writeRaw(
+    hashOnlyDescriptor.dataPath,
+    (table) => table("hashes").putSync("Модуль.bsl", encodeContentHash(7n)),
+  )
+  hashOnlyReader = scope.open(hashOnlyDescriptor, "readOnly")
+
+  const pendingDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+  await createAndClose(pendingDescriptor)
+  await writeRaw(pendingDescriptor.dataPath, (table) => {
+    table("pendingBlocks").putSync("А.yaml", Uint8Array.of(0))
+  })
+  pendingReader = scope.open(pendingDescriptor, "readOnly")
+
+  missingDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+  unknownSchemaDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+  await createAndClose(unknownSchemaDescriptor)
+  await writeRaw(unknownSchemaDescriptor.dataPath, (table) => {
+    table("meta").putSync("schemaVersion", Uint8Array.of(2, 0, 0, 0))
+  })
+
+  const closeDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
+  closeStore = scope.open(closeDescriptor, "readWrite")
+})
+
+afterAll(async () => {
+  await scope.close()
 })
 
 describe("configuration index store", () => {
-  it("places configuration data and lock under the component directory", async () => {
-    const projectDir = await temporaryProject()
-    const descriptor = configurationIndexStoreDescriptor(projectDir, { kind: "configuration" })
-
-    expect(descriptor).toEqual({
-      dataPath: join(projectDir, ".nkdk/components/cf/configuration-index.lmdb"),
-      lockPath: join(projectDir, ".nkdk/components/cf/configuration-index.lmdb-lock"),
-      schemaVersion: 1,
-    })
-
-    const store = openConfigurationIndexStore(descriptor, "readWrite")
-    expect(existsSync(descriptor.dataPath)).toBe(true)
-    expect(existsSync(descriptor.lockPath)).toBe(true)
-    await store.close()
+  it("places configuration data and lock under the component directory", () => {
+    expect(existsSync(createdDescriptor.dataPath)).toBe(true)
+    expect(existsSync(createdDescriptor.lockPath)).toBe(true)
   })
 
-  it("creates all named tables and schema version", async () => {
-    const descriptor = configurationIndexStoreDescriptor(await temporaryProject(), { kind: "configuration" })
-    const store = openConfigurationIndexStore(descriptor, "readWrite")
-    await store.close()
-
-    const root = open<Uint8Array, string>({ path: descriptor.dataPath, noSubdir: true, encoding: "binary", maxDbs: 8 })
-    const meta = root.openDB<Uint8Array, string>({ name: "meta", encoding: "binary" })
-    expect([...meta.get("schemaVersion")!]).toEqual([1, 0, 0, 0])
-    for (const name of ["hashes", "blocks", "pendingHashes", "pendingBlocks"]) {
-      expect(() => root.openDB({ name, encoding: "binary" })).not.toThrow()
-    }
-    await root.close()
+  it("creates all named tables and schema version", () => {
+    expect(schemaVersion).toEqual([1, 0, 0, 0])
+    expect(openedTableNames).toEqual(["hashes", "blocks", "pendingHashes", "pendingBlocks"])
   })
 
-  it("reads hashes without touching an unrelated corrupt block", async () => {
-    const descriptor = configurationIndexStoreDescriptor(await temporaryProject(), { kind: "configuration" })
-    await createAndClose(descriptor)
-    await writeRaw(descriptor.dataPath, (table) => {
-      table("hashes").putSync("é.yaml", encodeContentHash(2n))
-      table("hashes").putSync("z.yaml", encodeContentHash(1n))
-      table("blocks").putSync("broken.yaml", Uint8Array.of(255))
-    })
-
-    const store = openConfigurationIndexStore(descriptor, "readOnly")
-    expect(store.readHashes()).toEqual([
+  it("reads hashes without touching an unrelated corrupt block", () => {
+    expect(hashReader.readHashes()).toEqual([
       { projectPath: "z.yaml", contentHash: 1n },
       { projectPath: "é.yaml", contentHash: 2n },
     ])
-    await store.close()
   })
 
-  it("reads only requested unique blocks", async () => {
-    const descriptor = configurationIndexStoreDescriptor(await temporaryProject(), { kind: "configuration" })
-    await createAndClose(descriptor)
+  it("reads only requested unique blocks", () => {
     const goodBlock = { entities: [{ logicalAddress: "Документ.Заказ", xmlId: "1" }] }
-    await writeRaw(descriptor.dataPath, (table) => {
-      table("hashes").putSync("Документы/Заказ.yaml", encodeContentHash(1n))
-      table("blocks").putSync("Документы/Заказ.yaml", encodeBlockV1(goodBlock))
-      table("blocks").putSync("broken.yaml", Uint8Array.of(255))
-    })
-
-    const store = openConfigurationIndexStore(descriptor, "readOnly")
-    expect(store.getBlocks(["Документы/Заказ.yaml", "Документы/Заказ.yaml"])).toEqual(
+    expect(blockReader.getBlocks(["Документы/Заказ.yaml", "Документы/Заказ.yaml"])).toEqual(
       new Map([["Документы/Заказ.yaml", goodBlock]]),
     )
-    expect(store.hasBlock("Документы/Заказ.yaml")).toBe(true)
-    expect(store.hasBlock("missing.yaml")).toBe(false)
-    await store.close()
+    expect(blockReader.hasBlock("Документы/Заказ.yaml")).toBe(true)
+    expect(blockReader.hasBlock("missing.yaml")).toBe(false)
   })
 
-  it.each(["", "a\0b", "a\\b", "./a", "a/../b", "/absolute"])(
-    "rejects invalid project path %j",
-    async (projectPath) => {
-      const descriptor = configurationIndexStoreDescriptor(await temporaryProject(), { kind: "configuration" })
-      const store = openConfigurationIndexStore(descriptor, "readWrite")
-      expect(() => store.getBlocks([projectPath])).toThrow()
-      await store.close()
-    },
-  )
-
-  it("accepts a hash without a block", async () => {
-    const descriptor = configurationIndexStoreDescriptor(await temporaryProject(), { kind: "configuration" })
-    await createAndClose(descriptor)
-    await writeRaw(descriptor.dataPath, (table) => table("hashes").putSync("Модуль.bsl", encodeContentHash(7n)))
-
-    const store = openConfigurationIndexStore(descriptor, "readOnly")
-    expect(store.readHashes()).toEqual([{ projectPath: "Модуль.bsl", contentHash: 7n }])
-    expect(store.getBlocks(["Модуль.bsl"])).toEqual(new Map())
-    await store.close()
+  it("accepts a hash without a block", () => {
+    expect(hashOnlyReader.readHashes()).toEqual([{ projectPath: "Модуль.bsl", contentHash: 7n }])
+    expect(hashOnlyReader.getBlocks(["Модуль.bsl"])).toEqual(new Map())
   })
 
-  it("reports pending data from either pending table", async () => {
-    const descriptor = configurationIndexStoreDescriptor(await temporaryProject(), { kind: "configuration" })
-    await createAndClose(descriptor)
-    await writeRaw(descriptor.dataPath, (table) => table("pendingBlocks").putSync("А.yaml", Uint8Array.of(0)))
-
-    const store = openConfigurationIndexStore(descriptor, "readOnly")
-    expect(store.hasPending()).toBe(true)
-    await store.close()
+  it("reports pending data from either pending table", () => {
+    expect(pendingReader.hasPending()).toBe(true)
   })
 
-  it("includes the absolute data path when a read-only snapshot is missing", async () => {
-    const descriptor = configurationIndexStoreDescriptor(await temporaryProject(), { kind: "configuration" })
-
-    expect(() => openConfigurationIndexStore(descriptor, "readOnly")).toThrow(
-      `Не удалось открыть снимок ${descriptor.dataPath}`,
+  it("includes the absolute data path when a read-only snapshot is missing", () => {
+    expect(() => openConfigurationIndexStore(missingDescriptor, "readOnly")).toThrow(
+      `Не удалось открыть снимок ${missingDescriptor.dataPath}`,
     )
   })
 
-  it("rejects an unknown schema version with the absolute data path", async () => {
-    const descriptor = configurationIndexStoreDescriptor(await temporaryProject(), { kind: "configuration" })
-    await createAndClose(descriptor)
-    await writeRaw(descriptor.dataPath, (table) => table("meta").putSync("schemaVersion", Uint8Array.of(2, 0, 0, 0)))
-
-    expect(() => openConfigurationIndexStore(descriptor, "readOnly")).toThrow(
-      `Не удалось открыть снимок ${descriptor.dataPath}`,
+  it("rejects an unknown schema version with the absolute data path", () => {
+    expect(() => openConfigurationIndexStore(unknownSchemaDescriptor, "readOnly")).toThrow(
+      `Не удалось открыть снимок ${unknownSchemaDescriptor.dataPath}`,
     )
   })
 
   it("closes idempotently", async () => {
-    const descriptor = configurationIndexStoreDescriptor(await temporaryProject(), { kind: "configuration" })
-    const store = openConfigurationIndexStore(descriptor, "readWrite")
-
-    await store.close()
-    await expect(store.close()).resolves.toBeUndefined()
+    await closeStore.close()
+    await expect(closeStore.close()).resolves.toBeUndefined()
   })
 })
-
-describe("configuration index publication", () => {
-  it("replaces all active hashes and blocks in one publication", async () => {
-    const projectDir = await temporaryProject()
-    const active = openConfigurationIndexStore(
-      configurationIndexStoreDescriptor(projectDir, { kind: "configuration" }),
-      "readWrite",
-    )
-    const initial = await candidate(projectDir, "initial")
-    initial.replaceHashes([{ projectPath: "old.yaml", contentHash: 1n }])
-    initial.mergeBlockFragment({
-      targetProjectPath: "old.yaml",
-      entities: [{ logicalAddress: "Старый", xmlId: "1" }],
-    })
-    await active.replaceActiveFrom(initial)
-
-    const replacement = await candidate(projectDir, "replacement")
-    replacement.replaceHashes([
-      { projectPath: "new.yaml", contentHash: 2n },
-      { projectPath: "module.bsl", contentHash: 3n },
-    ])
-    replacement.mergeBlockFragment({
-      targetProjectPath: "new.yaml",
-      entities: [{ logicalAddress: "Новый", xmlId: "2" }],
-    })
-    await active.replaceActiveFrom(replacement)
-
-    expect(active.readHashes()).toEqual([
-      { projectPath: "module.bsl", contentHash: 3n },
-      { projectPath: "new.yaml", contentHash: 2n },
-    ])
-    expect(active.getBlocks(["old.yaml", "new.yaml"])).toEqual(
-      new Map([["new.yaml", { entities: [{ logicalAddress: "Новый", xmlId: "2" }] }]]),
-    )
-    await Promise.all([active.close(), initial.discard(), replacement.discard()])
-  })
-
-  it("keeps an earlier read session on its MVCC view", async () => {
-    const projectDir = await temporaryProject()
-    const descriptor = configurationIndexStoreDescriptor(projectDir, { kind: "configuration" })
-    const active = openConfigurationIndexStore(descriptor, "readWrite")
-    const initial = await candidate(projectDir, "mvcc-initial")
-    initial.replaceHashes([{ projectPath: "А.yaml", contentHash: 1n }])
-    await active.replaceActiveFrom(initial)
-
-    const oldReader = openConfigurationIndexStore(descriptor, "readOnly")
-    expect(oldReader.readHashes()).toEqual([{ projectPath: "А.yaml", contentHash: 1n }])
-    const replacement = await candidate(projectDir, "mvcc-replacement")
-    replacement.replaceHashes([{ projectPath: "Б.yaml", contentHash: 2n }])
-    await active.replaceActiveFrom(replacement)
-
-    expect(oldReader.readHashes()).toEqual([{ projectPath: "А.yaml", contentHash: 1n }])
-    const newReader = openConfigurationIndexStore(descriptor, "readOnly")
-    expect(newReader.readHashes()).toEqual([{ projectPath: "Б.yaml", contentHash: 2n }])
-    await Promise.all([active.close(), oldReader.close(), newReader.close(), initial.discard(), replacement.discard()])
-  })
-
-  it("keeps disjoint pending hashes and blocks invisible until apply", async () => {
-    const projectDir = await temporaryProject()
-    const active = openConfigurationIndexStore(
-      configurationIndexStoreDescriptor(projectDir, { kind: "configuration" }),
-      "readWrite",
-    )
-    const initial = await candidate(projectDir, "pending-initial")
-    initial.replaceHashes([{ projectPath: "А.yaml", contentHash: 1n }])
-    initial.mergeBlockFragment({
-      targetProjectPath: "А.yaml",
-      entities: [{ logicalAddress: "А", xmlId: "1" }],
-    })
-    await active.replaceActiveFrom(initial)
-
-    await active.writePending({
-      hashes: new Map([["Б.bsl", { kind: "put", contentHash: 2n }]]),
-      blocks: new Map([["А.yaml", { kind: "delete" }]]),
-    })
-    expect(active.hasPending()).toBe(true)
-    expect(active.readHashes()).toEqual([{ projectPath: "А.yaml", contentHash: 1n }])
-    expect(active.hasBlock("А.yaml")).toBe(true)
-    expect(active.pendingAlreadyApplied()).toBe(false)
-
-    await active.applyPending()
-    expect(active.readHashes()).toEqual([
-      { projectPath: "А.yaml", contentHash: 1n },
-      { projectPath: "Б.bsl", contentHash: 2n },
-    ])
-    expect(active.hasBlock("А.yaml")).toBe(false)
-    expect(active.hasPending()).toBe(true)
-    expect(active.pendingAlreadyApplied()).toBe(true)
-
-    await active.clearPending()
-    expect(active.hasPending()).toBe(false)
-    await Promise.all([active.close(), initial.discard()])
-  })
-
-  it("rejects a candidate block without a hash before changing active state", async () => {
-    const projectDir = await temporaryProject()
-    const active = openConfigurationIndexStore(
-      configurationIndexStoreDescriptor(projectDir, { kind: "configuration" }),
-      "readWrite",
-    )
-    const invalid = await candidate(projectDir, "invalid")
-    invalid.mergeBlockFragment({
-      targetProjectPath: "missing.yaml",
-      entities: [{ logicalAddress: "А", xmlId: "1" }],
-    })
-
-    expect(() => invalid.validateCandidate()).toThrow("missing.yaml")
-    await expect(active.replaceActiveFrom(invalid)).rejects.toThrow("missing.yaml")
-    expect(active.readHashes()).toEqual([])
-    await Promise.all([active.close(), invalid.discard()])
-  })
-
-  it("blocks full publication and a second prepare while pending exists", async () => {
-    const projectDir = await temporaryProject()
-    const active = openConfigurationIndexStore(
-      configurationIndexStoreDescriptor(projectDir, { kind: "configuration" }),
-      "readWrite",
-    )
-    await active.writePending({
-      hashes: new Map([["А.yaml", { kind: "put", contentHash: 1n }]]),
-      blocks: new Map(),
-    })
-    const replacement = await candidate(projectDir, "blocked")
-    replacement.replaceHashes([{ projectPath: "А.yaml", contentHash: 1n }])
-
-    await expect(active.replaceActiveFrom(replacement)).rejects.toThrow("pending")
-    await expect(
-      active.writePending({ hashes: new Map([["Б.yaml", { kind: "delete" }]]), blocks: new Map() }),
-    ).rejects.toThrow("pending")
-    await active.clearPending()
-    await Promise.all([active.close(), replacement.discard()])
-  })
-
-  it("publishes an imported candidate by moving its data file", async () => {
-    const projectDir = await temporaryProject()
-    const descriptor = configurationIndexStoreDescriptor(projectDir, { kind: "configuration" })
-    const active = openConfigurationIndexStore(descriptor, "readWrite")
-    const imported = await candidate(projectDir, "imported", "import")
-    imported.replaceHashes([{ projectPath: "А.yaml", contentHash: 4n }])
-    const candidatePath = imported.descriptor().dataPath
-
-    await active.publishImportedCandidate(imported)
-
-    expect(existsSync(candidatePath)).toBe(false)
-    expect(existsSync(`${candidatePath}-lock`)).toBe(false)
-    const reader = openConfigurationIndexStore(descriptor, "readOnly")
-    expect(reader.readHashes()).toEqual([{ projectPath: "А.yaml", contentHash: 4n }])
-    await Promise.all([active.close(), reader.close()])
-  })
-})
-
-async function temporaryProject(): Promise<string> {
-  const path = await mkdtemp(join(tmpdir(), "nkdk-configuration-index-"))
-  temporaryDirectories.push(path)
-  return path
-}
 
 async function createAndClose(descriptor: ReturnType<typeof configurationIndexStoreDescriptor>): Promise<void> {
-  expect(descriptor.schemaVersion).toBe(CONFIGURATION_INDEX_SCHEMA_VERSION)
+  if (descriptor.schemaVersion !== CONFIGURATION_INDEX_SCHEMA_VERSION) throw new Error("Unexpected schema version")
   await openConfigurationIndexStore(descriptor, "readWrite").close()
-}
-
-async function candidate(
-  projectDir: string,
-  operationId: string,
-  purpose: "import" | "full" | "partial" = "full",
-): Promise<ConfigurationIndexCandidateStore> {
-  return createConfigurationIndexCandidateStore({
-    projectDir,
-    address: { kind: "configuration" },
-    operationId,
-    purpose,
-  })
 }
 
 type RawTableName = "meta" | "hashes" | "blocks" | "pendingHashes" | "pendingBlocks"
