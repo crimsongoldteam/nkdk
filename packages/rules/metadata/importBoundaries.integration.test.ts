@@ -43,8 +43,8 @@ const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "metadata/validation/dataPath/formTraversal.ts",
   "metadata/forms/clientApplicationForm/convertFromXML.ts",
   "metadata/validation/schemaRegistry.integration.test.ts",
-  "metadata/validation/validateForm.test.ts",
-  "metadata/validation/dataPath/formTraversal.test.ts",
+  "metadata/validation/validateForm.integration.test.ts",
+  "metadata/validation/dataPath/formTraversal.integration.test.ts",
   "metadata/appliedObjects/metadataWebSocketClient/fromYAML.test.ts",
   "metadata/appliedObjects/metadataWebSocketClient/toYAML.test.ts",
   "metadata/appliedObjects/metadataXDTOPackage/fromYAML.test.ts",
@@ -56,7 +56,9 @@ const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "metadata/appliedObjects/metadataExternalDataSource/toYAML.test.ts",
 ])
 const BROAD_METADATA_REGISTRATION_IMPORTS = ["../appliedObjects", "../commonObjects", "../forms"] as const
-const LEGACY_FULL_VALIDATION_INDEX_ALLOWLIST = new Set(["packages/rules/metadata/importBoundaries.test.ts"])
+const LEGACY_FULL_VALIDATION_INDEX_ALLOWLIST = new Set([
+  "packages/rules/metadata/importBoundaries.integration.test.ts",
+])
 const FORBIDDEN_LEGACY_FULL_VALIDATION_MODULE_SUFFIXES = [
   "/sharedProjectReferenceIndex",
   "/sharedValidationBinaryOwners",

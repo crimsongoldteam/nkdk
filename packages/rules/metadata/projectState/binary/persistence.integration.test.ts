@@ -1,6 +1,6 @@
 import fs from "node:fs"
-import { basename } from "node:path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { basename, dirname } from "node:path"
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import { trackTempProjectDirs } from "../tests/tempProjectDir"
 import { buildProjectStateSnapshot } from "./builder"
 import { createBinaryProjectStateQueryPort } from "./readSession"
@@ -16,6 +16,14 @@ import { createProjectStateDependencyValidator } from "../../validation/projectS
 
 describe("двоичный файл состояния проекта", () => {
   const projects = trackTempProjectDirs("nkdk-binary-state-")
+  let validStateBytes: Buffer
+
+  beforeAll(async () => {
+    const projectDir = await projects.create()
+    const target = projectStateBinaryPath(projectDir)
+    await saveBinaryProjectState(projectDir, resourceSnapshot())
+    validStateBytes = await fs.promises.readFile(target)
+  })
 
   afterEach(async () => {
     vi.restoreAllMocks()
@@ -90,8 +98,8 @@ describe("двоичный файл состояния проекта", () => {
   ] as const)("удаляет повреждённый кэш: %s", async (_name, corrupt) => {
     const projectDir = await projects.create()
     const target = projectStateBinaryPath(projectDir)
-    await saveBinaryProjectState(projectDir, resourceSnapshot())
-    const bytes = corrupt(await fs.promises.readFile(target))
+    const bytes = corrupt(Buffer.from(validStateBytes))
+    await fs.promises.mkdir(dirname(target), { recursive: true })
     await fs.promises.writeFile(target, bytes)
 
     await expect(loadBinaryProjectState(projectDir)).resolves.toBeUndefined()

@@ -1,12 +1,7 @@
-import { beforeAll, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
-
-let metadataRules: (typeof import("./metadataRules"))["metadataRules"]
-
-beforeAll(async () => {
-  ({ metadataRules } = await import("./metadataRules"))
-})
+import { metadataRules } from "./metadataRules"
 
 describe("metadataRules", () => {
   it(
