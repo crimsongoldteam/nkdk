@@ -18,7 +18,7 @@
     "prepack": "pnpm run build",
     "smoke:packed": "node scripts/smoke-packed.mjs",
     "test": "node ../../scripts/run-test-duration-check.mjs -- --passWithNoTests --exclude '**/*.integration.test.ts' && pnpm run test:integration",
-    "test:integration": "vitest run --config vitest.config.ts src/services/syncToInfobase.integration.test.ts",
+    "test:integration": "node ../../scripts/run-test-duration-check.mjs --integration -- --config vitest.config.ts src/services/syncToInfobase.integration.test.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
