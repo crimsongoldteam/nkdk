@@ -15,13 +15,14 @@ import { formDeclarations, formLifecycleKinds } from "./matrix/forms"
 import { templateLifecycleKinds } from "./matrix/templates"
 import { externalFileOperations } from "./matrix/external-file-operations"
 import { moduleOperations } from "./matrix/module-operations"
+import { ownExtensionOperationKinds } from "./matrix/extension/own"
 import { orderOperations } from "./matrix/order-operations"
 import { partialSyncMatrix } from "./matrix"
 import { rootObjectDeclarations } from "./matrix/root-objects"
 import { rootPropertyOperations } from "./matrix/root-property-operations"
 import { structuralPropertyOperations } from "./matrix/structural-property-operations"
 import { buildScenarioPlan } from "./plan"
-import { applyScenarioOperation } from "./operation"
+import { applyScenarioBlock } from "./operation"
 import { compareFileTrees } from "../support/file-tree"
 
 describe("partial sync matrix", () => {
@@ -499,27 +500,38 @@ describe("partial sync matrix", () => {
       .toEqual(["command", "common", "form", "object"])
   })
 
+  it("covers own extension objects and both child-removal variants", () => {
+    expect(ownExtensionOperationKinds).toEqual([
+      "create-owner", "change-owner", "add-attribute", "change-attribute",
+      "add-tabular-section", "change-tabular-section", "add-command", "change-command",
+      "add-form", "change-form", "add-template", "change-template", "add-module", "change-module",
+      "remove-form-only", "remove-template-only", "remove-owner", "remove-owner-with-children",
+    ])
+  })
+
   it("forms one continuous and reversible transition for every declared path", () => {
     const initialConfiguration = configurationOperations[0]?.changes[0]?.before
     expect(initialConfiguration).toEqual(expect.any(String))
     const initialFiles = new Map<string, string | Uint8Array>([
-      ["Конфигурация.yaml", initialConfiguration as string],
+      ["cf/Конфигурация.yaml", initialConfiguration as string],
     ])
     const seenPaths = new Set(initialFiles.keys())
-    for (const operation of scenarioOperations()) {
-      for (const change of operation.changes) {
-        if (!seenPaths.has(change.path) && change.before !== null) initialFiles.set(change.path, change.before)
-        seenPaths.add(change.path)
+    for (const block of buildScenarioPlan(partialSyncMatrix)) {
+      for (const operation of block.operations) for (const change of operation.changes) {
+        const path = `${block.componentPath}/${change.path}`
+        if (!seenPaths.has(path) && change.before !== null) initialFiles.set(path, change.before)
+        seenPaths.add(path)
       }
     }
     const files = new Map(initialFiles)
 
-    for (const operation of scenarioOperations()) {
-      for (const change of operation.changes) {
-        expect(files.get(change.path) ?? null, `${operation.key}: ${change.path}`)
+    for (const block of buildScenarioPlan(partialSyncMatrix)) {
+      for (const operation of block.operations) for (const change of operation.changes) {
+        const path = `${block.componentPath}/${change.path}`
+        expect(files.get(path) ?? null, `${operation.key}: ${path}`)
           .toEqual(change.before)
-        if (change.after === null) files.delete(change.path)
-        else files.set(change.path, change.after)
+        if (change.after === null) files.delete(path)
+        else files.set(path, change.after)
       }
     }
 
@@ -532,8 +544,8 @@ describe("partial sync matrix", () => {
     const projectDir = join(temporaryRoot, "project")
     await cp(source, projectDir, { recursive: true })
 
-    for (const operation of scenarioOperations()) {
-      await applyScenarioOperation(projectDir, operation)
+    for (const block of buildScenarioPlan(partialSyncMatrix)) {
+      await applyScenarioBlock(projectDir, block)
     }
 
     const comparison = await compareFileTrees({

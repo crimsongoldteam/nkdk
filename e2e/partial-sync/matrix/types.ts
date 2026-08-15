@@ -40,6 +40,7 @@ export type TemplateDeclaration = {
 }
 
 export type ScenarioMatrix = {
+  readonly extensionLayers?: readonly ScenarioLayer[]
   readonly configurationOperations?: readonly ScenarioOperation[]
   readonly structuralOperations?: readonly ScenarioOperation[]
   readonly childPropertyOperations?: readonly ScenarioOperation[]

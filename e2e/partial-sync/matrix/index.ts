@@ -10,8 +10,10 @@ import { orderOperations, orderSetupOperations } from "./order-operations"
 import { templateChangeOperations, templateDeclarations, templateRemovalOperations } from "./templates"
 import { moduleOperations, moduleRestoreOperations, moduleSupplementalOperations } from "./module-operations"
 import { externalFileOperations, externalFileRestoreOperations } from "./external-file-operations"
+import { createExtensionLayers } from "./extension/layers"
 
 const declarations = {
+  extensionLayers: createExtensionLayers(),
   configurationOperations,
   structuralOperations: structuralPropertyOperations,
   childPropertyOperations,

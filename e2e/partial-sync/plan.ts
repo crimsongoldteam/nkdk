@@ -130,10 +130,11 @@ function assertContinuousTransitions(blocks: readonly ScenarioBlock[]): void {
   for (const block of blocks) {
     for (const operation of block.operations) {
       for (const change of operation.changes) {
-        if (previous.has(change.path) && !contentsEqual(previous.get(change.path) ?? null, change.before)) {
-          throw new Error(`Разрыв переходов ${change.path} в операции ${operation.key}`)
+        const fileKey = `${block.componentPath}\u0000${change.path}`
+        if (previous.has(fileKey) && !contentsEqual(previous.get(fileKey) ?? null, change.before)) {
+          throw new Error(`Разрыв переходов ${block.componentPath}/${change.path} в операции ${operation.key}`)
         }
-        previous.set(change.path, change.after)
+        previous.set(fileKey, change.after)
       }
     }
   }

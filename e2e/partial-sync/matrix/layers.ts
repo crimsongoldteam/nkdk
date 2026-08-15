@@ -3,7 +3,7 @@ import { createRootPropertyOperations } from "./root-property-operations"
 
 type MatrixDeclarations = Pick<
   ScenarioMatrix,
-  "configurationOperations" | "structuralOperations" | "childPropertyOperations" | "orderSetupOperations" | "orderOperations" | "formLifecycleOperations" | "templates" | "templateChangeOperations" | "templateRemovalOperations" | "moduleOperations" | "moduleSupplementalOperations" | "moduleRestoreOperations" | "externalFileOperations" | "externalFileRestoreOperations" | "roots" | "children" | "forms"
+  "extensionLayers" | "configurationOperations" | "structuralOperations" | "childPropertyOperations" | "orderSetupOperations" | "orderOperations" | "formLifecycleOperations" | "templates" | "templateChangeOperations" | "templateRemovalOperations" | "moduleOperations" | "moduleSupplementalOperations" | "moduleRestoreOperations" | "externalFileOperations" | "externalFileRestoreOperations" | "roots" | "children" | "forms"
 >
 
 export const recoveryProbeBlockKey = "roots:create:probe"
@@ -76,6 +76,7 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
     ...moduleOperations.map((operation) => layer(operation.key, operation.key, [operation])),
     ...moduleSupplementalOperations.map((operation) => layer(operation.key, operation.key, [operation])),
     ...(externalFileOperations.length === 0 ? [] : [layer("external-files:change", "external:rights", externalFileOperations)]),
+    ...(matrix.extensionLayers ?? []),
     ...(structuralOperations.length === 0 ? [] : [
       layer("structural:change", "structural:catalog-attribute-length", structuralOperations),
       layer(
