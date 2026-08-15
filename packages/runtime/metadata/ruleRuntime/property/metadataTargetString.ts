@@ -8,6 +8,8 @@ import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataT
 import { getMetadataTargetOwnerResolver, type MetadataTargetOwnerFrame } from "./metadataTargetOwnerRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { PropertyRuleExecution } from "./fn"
+import { metadataTargetConstraintForOwner } from "./metadataTargetOccurrences"
+export { metadataTargetConstraintForOwner } from "./metadataTargetOccurrences"
 
 export function metadataTargetOwnerFromRule(params: {
   itemRule: MetadataItemRule
@@ -138,15 +140,6 @@ export function isTypeOwnedMetadataTargetUnavailable(params: {
     && constraint.owner === "type"
     && constraint.typeProperty !== undefined
     && Array.isArray(params.siblingValue(constraint.typeProperty))
-}
-
-export function metadataTargetConstraintForOwner(
-  constraint: MetadataTargetConstraint,
-  owner: MetadataTargetOwner | undefined,
-): MetadataTargetConstraint {
-  if (constraint.kind !== "member" || constraint.owner !== "type") return constraint
-  const { typeProperty: _typeProperty, ...rest } = constraint
-  return { ...rest, owner: owner === undefined ? "explicit" : "this" }
 }
 
 function isTranslateOnlyConstraint(constraint: MetadataTargetConstraint): boolean {

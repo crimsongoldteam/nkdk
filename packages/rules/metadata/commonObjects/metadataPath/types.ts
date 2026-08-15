@@ -282,8 +282,14 @@ export type MetadataItemLinksRuleParams = Omit<MetadataItemLinksWidePropertyRule
 
 export function metadataItemLinksRule<const Params extends MetadataItemLinksRuleParams>(
   params: WideExactRuleParams<MetadataItemLinksRuleParams, Params>
-): Readonly<{ type: "MetadataItemLinks" } & Params> {
-  return defineWidePropertyRule("MetadataItemLinks", params)
+): Readonly<{
+  type: "MetadataItemLinks"
+  metadataTarget: { readonly kind: "object" }
+} & Params> {
+  return defineWidePropertyRule("MetadataItemLinks", {
+    metadataTarget: { kind: "object" },
+    ...params,
+  })
 }
 export interface MetadataItemLinkWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataItemLink"
@@ -293,6 +299,12 @@ export type MetadataItemLinkRuleParams = Omit<MetadataItemLinkWidePropertyRule, 
 
 export function metadataItemLinkRule<const Params extends MetadataItemLinkRuleParams>(
   params: WideExactRuleParams<MetadataItemLinkRuleParams, Params>
-): Readonly<{ type: "MetadataItemLink" } & Params> {
-  return defineWidePropertyRule("MetadataItemLink", params)
+): Readonly<{
+  type: "MetadataItemLink"
+  metadataTarget: { readonly kind: "object" }
+} & Params> {
+  return defineWidePropertyRule("MetadataItemLink", {
+    metadataTarget: { kind: "object" },
+    ...params,
+  })
 }

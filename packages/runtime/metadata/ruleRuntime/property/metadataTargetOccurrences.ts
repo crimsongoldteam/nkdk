@@ -14,7 +14,6 @@ import {
 } from "../../../yaml/mappingKeyTags"
 import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
 import type { PropertyRule } from "./types"
-import { metadataTargetConstraintForOwner } from "./metadataTargetString"
 
 export type MetadataTargetLocation =
   | { readonly kind: "value"; readonly path: YamlPath }
@@ -121,6 +120,15 @@ export function renameMetadataTargetMappingKey(
   for (const key of Object.keys(parent)) delete parent[key]
   for (const [key, value] of entries) parent[key] = value
   moveYAMLMappingKeyTag(parent, currentKey, nextKey)
+}
+
+export function metadataTargetConstraintForOwner(
+  constraint: MetadataTargetConstraint,
+  owner: MetadataTargetOwner | undefined,
+): MetadataTargetConstraint {
+  if (constraint.kind !== "member" || constraint.owner !== "type") return constraint
+  const { typeProperty: _typeProperty, ...rest } = constraint
+  return { ...rest, owner: owner === undefined ? "explicit" : "this" }
 }
 
 function isTranslateOnlyConstraint(constraint: MetadataTargetConstraint): boolean {
