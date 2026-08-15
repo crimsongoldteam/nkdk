@@ -201,7 +201,84 @@ git add e2e/partial-sync/matrix/children.ts e2e/partial-sync/matrix.test.ts e2e/
 git commit -m "test: :white_check_mark: убрать неявные значения заполнения"
 ```
 
-### Task 3: Проверка автономным сервером
+### Task 3: Поглощение вложенных удалений файловым владельцем
+
+**Files:**
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.ts`
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts`
+
+**Interfaces:**
+- Consumes: `PartialXmlChanges.deleted`, нейтральную классификацию топологии и
+  `assignment.role === "fileItem"`.
+- Produces: план удаления файлового объекта, который включает XML текущего
+  родителя и оставшихся соседей, но не пытается отдельно обработать удалённые
+  ресурсы внутри каталога удалённого `fileItem`.
+
+- [ ] **Step 1: Write the failing nested-deletion test**
+
+Добавить в `impactPlanner.test.ts` рядом с проверками файловых дочерних объектов:
+
+```ts
+it("поглощает вложенные удаления удалённым файловым владельцем", () => {
+  const result = plan(
+    [root, language, owner, firstTable],
+    changes({ deleted: [secondTable, secondTableModule, secondNestedTable] }),
+  )
+
+  expect(result.selection).toEqual({
+    kind: "selected",
+    projectPaths: [owner, firstTable].sort(utf8),
+  })
+  expect(result.externalProjectPaths).toEqual([])
+  expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+})
+```
+
+- [ ] **Step 2: Run the test and verify the owner lookup failure**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run metadata/partialSyncToXml/impactPlanner.test.ts
+```
+
+Expected: FAIL с `Не найден текущий владелец файлового metadata` для
+`secondTable`, потому что обработка `secondNestedTable` пока требует удалённый
+файл владельца.
+
+- [ ] **Step 3: Implement topology-neutral absorption**
+
+В начале `buildPartialXmlImpactPlan` заранее классифицировать удалённые
+`content`-ресурсы с `assignment.role === "fileItem"` и сохранить их пути и
+каталоги. Перед обоими проходами по `changes.deleted` пропускать путь, если он
+не является самим удалённым владельцем, но находится внутри каталога любого
+удалённого `fileItem`. Проверка строится по полной дельте и не зависит от её
+порядка.
+
+Не добавлять условия по `itemType`, внешнему источнику данных, кубу или русским
+именам каталогов.
+
+- [ ] **Step 4: Run focused and neighboring tests**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run metadata/partialSyncToXml/impactPlanner.test.ts
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/scenario.test.ts
+pnpm type-check
+pnpm duplicates -- --base ea785c8a8
+```
+
+Expected: все проверки PASS, TypeScript без ошибок, новые дубли отсутствуют.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add packages/rules/metadata/partialSyncToXml/impactPlanner.ts packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts
+git commit -m "fix: :bug: поглотить вложенные удаления файлового объекта"
+```
+
+### Task 4: Проверка автономным сервером
 
 **Files:**
 - Inspect: `/Users/nikita/Базы 1С/temp_test/logs/timings.json`
