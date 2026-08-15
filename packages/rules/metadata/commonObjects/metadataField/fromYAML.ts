@@ -28,11 +28,9 @@ export const importMetadataFieldFromYAML = (
   return importMetadataFieldFromYAMLPath(context, rule, data, owner)
 }
 
-const importMetadataFieldFromYAMLProperty: ImportFromYAMLFunctionNew = (params) =>
-  importMetadataFieldFromYAML(params.context, params.rule, params.value, params.owner)
+const importMetadataFieldFromYAMLProperty: ImportFromYAMLFunctionNew = (params) => params.value
 
-const importMetadataFieldsFromYAMLProperty: ImportFromYAMLFunctionNew = (params) =>
-  importMetadataFieldsFromYAML(params.context, params.rule, params.value, params.owner)
+const importMetadataFieldsFromYAMLProperty: ImportFromYAMLFunctionNew = (params) => params.value
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataField", "importFromYAML", importMetadataFieldFromYAMLProperty)
 export const metadataPropertyRule001 = definePropertyTypeRule("MetadataFields", "importFromYAML", importMetadataFieldsFromYAMLProperty)

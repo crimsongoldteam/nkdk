@@ -34,6 +34,8 @@ import type {
 } from "./explicitXMLPropertyRegistry"
 import type { MetadataTargetOwnerResolver } from "./metadataTargetOwnerRegistry"
 import type { BrokenXMLReferenceCarrierRegistry } from "./brokenXMLReferenceCarrierRegistry"
+import type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
+export type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
 export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
 
 export type ExportToXMLFunction = (
@@ -311,6 +313,7 @@ export interface TypeRule {
   validateMetadataTarget?: ValidateMetadataTargetFunction
   collectMetadataTargetReferences?: CollectMetadataTargetReferencesFunction
   structuralReferences?: StructuralReferencesFunction
+  metadataTargetOccurrences?: MetadataTargetOccurrencesFunction
   resourceTopology?: MetadataResourceTopologyFunction
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   configurationIndexValueFromXML?: ConfigurationIndexValueFromXMLDescriptor
@@ -358,6 +361,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                         ? CollectMetadataTargetReferencesFunction | undefined
                         : O extends "structuralReferences"
                           ? StructuralReferencesFunction | undefined
+                          : O extends "metadataTargetOccurrences"
+                            ? MetadataTargetOccurrencesFunction | undefined
                           : O extends "resourceTopology"
                             ? MetadataResourceTopologyFunction | undefined
                             : O extends "fileChildNamesDescriptor"

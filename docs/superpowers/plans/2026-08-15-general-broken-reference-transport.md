@@ -225,6 +225,14 @@ git commit -m "feat: :sparkles: поддержать теги ссылочных
 - Modify: `packages/rules/metadata/commonObjects/metadataTargets/validationHandlers.ts`
 - Modify: `packages/rules/metadata/commonObjects/userVisible/fromYAML.ts`
 - Modify: `packages/rules/metadata/commonObjects/userVisible/toYAML.ts`
+- Create: `packages/rules/metadata/commonObjects/userVisible/metadataTargetOccurrences.ts`
+- Modify: `packages/rules/metadata/commonObjects/metadataRef/fromYAML.ts`
+- Modify: `packages/rules/metadata/commonObjects/metadataRef/toYAML.ts`
+- Modify: `packages/rules/metadata/commonObjects/metadataField/fromYAML.ts`
+- Modify: `packages/rules/metadata/commonObjects/metadataField/toYAML.ts`
+- Modify: `packages/rules/metadata/commonObjects/metadataObjectRefCollection/fromYAML.ts`
+- Modify: `packages/rules/metadata/commonObjects/metadataObjectRefCollection/toYAML.ts`
+- Modify: `packages/rules/metadata/composition/staticPropertyRules.ts`
 - Modify: `packages/runtime/metadata/validation/structuralReferences.ts`
 - Test: `packages/rules/metadata/validation/structuralReferences.test.ts`
 - Test: `packages/rules/metadata/validation/schemaRegistry.integration.test.ts`
@@ -238,7 +246,7 @@ git commit -m "feat: :sparkles: поддержать теги ссылочных
 - Produces: одна структура для прямых значений, коллекций, вложенных значений и ключей.
 - Replaces: отдельные `collectMetadataTargetReferences` и `structuralReferences` для мигрированных типов.
 
-- [ ] **Step 1: Добавить падающий тест единого обхода**
+- [x] **Step 1: Добавить падающий тест единого обхода**
 
 В `structuralReferences.test.ts` одним набором проверить обычную строку,
 элемент массива и ключ `UserVisible.Роли`. Для каждого ожидать одинаковое
@@ -268,7 +276,7 @@ expect(occurrences.map(({ location, constraint }) => ({
 порождает межфайловую диагностику и UUID не получает автоматическое право на
 `!xml/reference` без зарегистрированной грамматики типа.
 
-- [ ] **Step 2: Запустить тест и подтвердить падение**
+- [x] **Step 2: Запустить тест и подтвердить падение**
 
 Run:
 
@@ -280,7 +288,7 @@ pnpm --filter @nkdk/rules exec vitest run \
 
 Expected: FAIL — операции `metadataTargetOccurrences` ещё нет.
 
-- [ ] **Step 3: Описать нейтральный договор**
+- [x] **Step 3: Описать нейтральный договор**
 
 В новом runtime-файле определить:
 
@@ -321,7 +329,7 @@ export type MetadataTargetOccurrencesFunction = (params: {
 `setValue` используется на подготовленной копии значения: при экспорте в YAML
 он записывает сокращённое имя, при импорте из YAML — каноническое.
 
-- [ ] **Step 4: Добавить type-rule operation**
+- [x] **Step 4: Добавить type-rule operation**
 
 Добавить `"metadataTargetOccurrences"` в `TypeRulesOperations`,
 `TypeRule`, `importExportFunction` и `getTypeRule`. Не добавлять ничего в
@@ -332,7 +340,7 @@ export type MetadataTargetOccurrencesFunction = (params: {
 `validation: "translateOnly"` возвращать канонические вхождения, но сохранять
 текущий отказ от проверки существования.
 
-- [ ] **Step 5: Перевести преобразование обычных ссылок**
+- [x] **Step 5: Перевести преобразование обычных ссылок**
 
 В `metadataTargetOccurrences.ts` добавить две общие операции:
 
@@ -361,7 +369,7 @@ type-specific `importFromYAML`. `metadataTargetString.ts` оставить то�
 адаптером прямого string-вхождения и удалить перечень типов
 `supportsGenericStringMetadataTarget` как источник предметных исключений.
 
-- [ ] **Step 6: Перевести проверку и структурный поиск**
+- [x] **Step 6: Перевести проверку и структурный поиск**
 
 В `validationHandlers.ts` сформировать
 `collectMetadataTargetReferences` и `structuralReferences` как два адаптера
@@ -377,7 +385,7 @@ const canonicalOccurrences = occurrences.filter(
 `canonical/setValue`. Вхождения `brokenXMLReference` оба адаптера
 пропускают без обращения к индексу.
 
-- [ ] **Step 7: Описать `UserVisible` тем же механизмом**
+- [x] **Step 7: Описать `UserVisible` тем же механизмом**
 
 Удалить локальные дубли `roleConstraint` из преобразований и проверки.
 Зарегистрировать `metadataTargetOccurrences` для `UserVisible`:
@@ -395,7 +403,7 @@ const roleTarget = {
 имена — как `canonical`. `setValue` ключа обязан перенести значение,
 порядок и тег ключа.
 
-- [ ] **Step 8: Удалить специальные обходы `UserVisible`**
+- [x] **Step 8: Удалить специальные обходы `UserVisible`**
 
 Удалить `collectUserVisibleTargets`, `collectUserVisibleReferences` и
 `isUuid` из `validationHandlers.ts`. В `UserVisible.fromYAML/toYAML` обходить
@@ -403,7 +411,7 @@ const roleTarget = {
 `collectStructuralYamlReferences` и `findMetadataReferences` используют
 общий адаптер и продолжают находить обычную роль.
 
-- [ ] **Step 9: Проверить и зафиксировать слой**
+- [x] **Step 9: Проверить и зафиксировать слой**
 
 Run:
 

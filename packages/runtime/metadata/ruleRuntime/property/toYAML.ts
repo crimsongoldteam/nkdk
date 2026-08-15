@@ -5,6 +5,10 @@ import {
   ExportToYAMLFunctionNew,
   type PropertyRuleExecution,
 } from "./fn"
+import {
+  cloneMetadataTargetValue,
+  exportMetadataTargetOccurrencesToYAML,
+} from "./metadataTargetOccurrences"
 import { exportStringMetadataTargetToYAML } from "./metadataTargetString"
 import type { PropertyRule } from "./types"
 import type { MetadataTargetOwner } from "../metadataTarget/types"
@@ -50,9 +54,7 @@ export function exportPropertyValueToYAML(params: {
     ? getTypeRule(rule.type, "exportToYAML")
     : params.execution.getTypeRule(rule.type, "exportToYAML")
 
-  if (!typeExportFn) {
-    return exportStringMetadataTargetToYAML({ rule, value, owner: params.owner })
-  }
+  if (!typeExportFn) return exportMetadataTargets(params, value)
 
   const nestedContext = contextWithPropertyParentName(context, name)
 
@@ -64,11 +66,32 @@ export function exportPropertyValueToYAML(params: {
       name: name,
       owner: params.owner,
     })
-    return exportStringMetadataTargetToYAML({ rule, value: typedValue, owner: params.owner })
+    return exportMetadataTargets(params, typedValue)
   }
 
   const typedResult = (typeExportFn as ExportToYAMLFunction)(nestedContext, rule, value)
-  return exportStringMetadataTargetToYAML({ rule, value: typedResult, owner: params.owner })
+  return exportMetadataTargets(params, typedResult)
+}
+
+function exportMetadataTargets(
+  params: Parameters<typeof exportPropertyValueToYAML>[0],
+  value: unknown,
+): unknown {
+  const handler = params.execution === undefined
+    ? getTypeRule(params.rule.type, "metadataTargetOccurrences")
+    : params.execution.getTypeRule(params.rule.type, "metadataTargetOccurrences")
+  if (handler === undefined) {
+    return exportStringMetadataTargetToYAML({ rule: params.rule, value, owner: params.owner })
+  }
+  const prepared = cloneMetadataTargetValue(value)
+  const occurrences = handler({
+    value: prepared,
+    representation: "yaml",
+    yamlPath: typeof params.rule.yaml === "string" ? [params.rule.yaml] : [],
+    propRule: params.rule,
+    owner: params.owner,
+  })
+  return exportMetadataTargetOccurrencesToYAML({ value: prepared, occurrences, owner: params.owner })
 }
 
 export function canExportPropertyToYAML(params: { context: ConfigurationContext; rule: PropertyRule }): boolean {

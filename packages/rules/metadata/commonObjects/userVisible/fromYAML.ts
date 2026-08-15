@@ -3,15 +3,35 @@ import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ImportFromYAMLFunctionNew } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "@nkdk/runtime"
+import {
+  cloneMetadataTargetValue,
+  importMetadataTargetOccurrencesFromYAML,
+} from "@nkdk/runtime/rule-kit"
 import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
-import { importStringMetadataTargetFromYAML } from "../../ruleRuntime/property/metadataTargetString"
-
-const roleTargetRule = {
-  type: "string",
-  metadataTarget: { kind: "object", roots: ["Role"] },
-} as const
+import { collectUserVisibleMetadataTargetOccurrences } from "./metadataTargetOccurrences"
 
 export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: UserVisibleYAML | undefined
+  source?: UserVisible | undefined
+  yaml?: Record<string, any> | undefined
+}): UserVisible | undefined => {
+  if (params.value === undefined) return undefined
+  const prepared = cloneMetadataTargetValue(params.value) as UserVisibleYAML
+  const value = importMetadataTargetOccurrencesFromYAML({
+    value: prepared,
+    occurrences: collectUserVisibleMetadataTargetOccurrences({
+      value: prepared,
+      representation: "yaml",
+      yamlPath: typeof params.rule.yaml === "string" ? [params.rule.yaml] : [],
+      propRule: params.rule,
+    }),
+  }) as UserVisibleYAML
+  return importPreparedUserVisibleFromYAML({ ...params, value })
+}
+
+const importPreparedUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: UserVisibleYAML | undefined
@@ -25,9 +45,7 @@ export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   const values = Object.entries(roles).map(([key, val]) => {
     const parsedValue = importBooleanFromYAML(context, undefined, val)
     return {
-      name: isUuid(key)
-        ? key
-        : importStringMetadataTargetFromYAML({ rule: roleTargetRule, value: key, owner: undefined }) as string,
+      name: key,
       value: parsedValue!,
     }
   })
@@ -38,8 +56,4 @@ export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   }
 }
 
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
-}
-
-export const metadataPropertyRule000 = definePropertyTypeRule("UserVisible", "importFromYAML", importUserVisibleFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("UserVisible", "importFromYAML", importPreparedUserVisibleFromYAML)

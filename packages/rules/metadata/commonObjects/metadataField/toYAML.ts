@@ -28,11 +28,9 @@ export const exportMetadataFieldToYAML = (
   return exportMetadataFieldToYAMLPath(context, rule, data, owner)
 }
 
-const exportMetadataFieldToYAMLProperty: ExportToYAMLFunctionNew = (params) =>
-  exportMetadataFieldToYAML(params.context, params.rule, params.value, params.owner)
+const exportMetadataFieldToYAMLProperty: ExportToYAMLFunctionNew = (params) => params.value
 
-const exportMetadataFieldsToYAMLProperty: ExportToYAMLFunctionNew = (params) =>
-  exportMetadataFieldsToYAML(params.context, params.rule, params.value, params.owner)
+const exportMetadataFieldsToYAMLProperty: ExportToYAMLFunctionNew = (params) => params.value
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataField", "exportToYAML", exportMetadataFieldToYAMLProperty)
 export const metadataPropertyRule001 = definePropertyTypeRule("MetadataFields", "exportToYAML", exportMetadataFieldsToYAMLProperty)

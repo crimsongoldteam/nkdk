@@ -18,6 +18,7 @@ import {
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
   MetadataResourceTopologyFunction,
+  MetadataTargetOccurrencesFunction,
   StructuralReferencesFunction,
   SyncExternalFromXMLFunction,
   TypeRulesOperations,
@@ -106,6 +107,8 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                         ? CollectMetadataTargetReferencesFunction | undefined
                         : O extends "structuralReferences"
                           ? StructuralReferencesFunction | undefined
+                          : O extends "metadataTargetOccurrences"
+                            ? MetadataTargetOccurrencesFunction | undefined
                           : O extends "resourceTopology"
                             ? MetadataResourceTopologyFunction | undefined
                             : O extends "fileChildNamesDescriptor"

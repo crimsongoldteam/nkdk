@@ -37,7 +37,7 @@ describe("importMetadataFieldFromYAML", () => {
     expect(() =>
       callAtomicFromYAML({
         context: mockContext,
-        rule: { ...mockRule, type: "MetadataField" },
+        rule: { ...mockRule, type: "MetadataField", metadataTarget: { kind: "member", owner: "explicit" } },
         value: "Справочник.Номенклатура.Количество",
       })
     ).toThrow("Некорректный формат цели метаданных")
@@ -46,7 +46,7 @@ describe("importMetadataFieldFromYAML", () => {
   it("imports full field paths in registered metadata field importer", () => {
     const result = callAtomicFromYAML({
       context: mockContext,
-      rule: { ...mockRule, type: "MetadataField" },
+      rule: { ...mockRule, type: "MetadataField", metadataTarget: { kind: "member", owner: "explicit" } },
       value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",
     })
 

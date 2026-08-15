@@ -12,6 +12,11 @@ import {
   metadataTargetOwnerFromRule,
   importStringMetadataTargetFromYAML,
 } from "./metadataTargetString"
+import {
+  cloneMetadataTargetValue,
+  importMetadataTargetOccurrencesFromYAML,
+  type MetadataTargetOccurrencesFunction,
+} from "./metadataTargetOccurrences"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"
 import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
@@ -798,9 +803,19 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const handler = params.handler ?? (params.execution === undefined
     ? getTypeRule(rule.type, "importFromYAML")
     : params.execution.getTypeRule(rule.type, "importFromYAML"))
-  const importedValue = handler === undefined || rule.type === "IndexField" || rule.type === "FunctionalOptionsProperty"
-    ? importStringMetadataTargetFromYAML({ rule, value, owner })
-    : value
+  const occurrenceHandler = params.execution === undefined
+    ? getTypeRule(rule.type, "metadataTargetOccurrences")
+    : params.execution.getTypeRule(rule.type, "metadataTargetOccurrences")
+  const importedValue = occurrenceHandler === undefined
+    ? (handler === undefined || rule.type === "IndexField" || rule.type === "FunctionalOptionsProperty"
+        ? importStringMetadataTargetFromYAML({ rule, value, owner })
+        : value)
+    : importMetadataTargetsFromYAML({
+        value,
+        handler: occurrenceHandler,
+        rule,
+        owner,
+      })
   if (handler === undefined) {
     const imported = importedValue ?? referenceValue
     return imported === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : imported
@@ -824,6 +839,27 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
     ? imported
     : (imported ?? normalizeReferenceFallback(rule, referenceValue))
   return resolved === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : resolved
+}
+
+function importMetadataTargetsFromYAML(params: {
+  value: unknown
+  handler: MetadataTargetOccurrencesFunction
+  rule: PropertyRule
+  owner?: MetadataTargetOwner
+}): unknown {
+  const prepared = cloneMetadataTargetValue(params.value)
+  const occurrences = params.handler({
+    value: prepared,
+    representation: "yaml",
+    yamlPath: typeof params.rule.yaml === "string" ? [params.rule.yaml] : [],
+    propRule: params.rule,
+    owner: params.owner,
+  })
+  return importMetadataTargetOccurrencesFromYAML({
+    value: prepared,
+    occurrences,
+    owner: params.owner,
+  })
 }
 
 function shouldUseOnlyImportedValue(params: { rule: PropertyRule; value: unknown }): boolean {

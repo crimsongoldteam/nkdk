@@ -35,6 +35,7 @@ export type TypeRulesOperations =
   | "validateMetadataTarget"
   | "collectMetadataTargetReferences"
   | "structuralReferences"
+  | "metadataTargetOccurrences"
   | "resourceTopology"
   | "fileChildNamesDescriptor"
   | "configurationIndexValueFromXML"

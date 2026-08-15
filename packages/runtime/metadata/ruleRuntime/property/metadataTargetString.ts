@@ -53,7 +53,7 @@ export function exportStringMetadataTargetToYAML(params: {
 }): unknown {
   const value = params.value
   const constraint = params.rule.metadataTarget
-  if (!supportsGenericStringMetadataTarget(params.rule) || !isSupportedStringMetadataTarget(constraint)) return value
+  if (!isSupportedStringMetadataTarget(constraint)) return value
 
   if (Array.isArray(value)) {
     return value.map((item) => exportStringMetadataTargetToYAML({ ...params, value: item }))
@@ -78,7 +78,7 @@ export function importStringMetadataTargetFromYAML(params: {
 }): unknown {
   const value = params.value
   const constraint = params.rule.metadataTarget
-  if (!supportsGenericStringMetadataTarget(params.rule) || !isSupportedStringMetadataTarget(constraint)) return value
+  if (!isSupportedStringMetadataTarget(constraint)) return value
 
   if (Array.isArray(value)) {
     return value.map((item) => importStringMetadataTargetFromYAML({ ...params, value: item }))
@@ -146,10 +146,6 @@ export function metadataTargetConstraintForOwner(
   if (constraint.kind !== "member" || constraint.owner !== "type") return constraint
   const { typeProperty: _typeProperty, ...rest } = constraint
   return { ...rest, owner: owner === undefined ? "explicit" : "this" }
-}
-
-function supportsGenericStringMetadataTarget(rule: PropertyRule): boolean {
-  return rule.type === "string" || rule.type === "IndexField" || rule.type === "FunctionalOptionsProperty"
 }
 
 function isTranslateOnlyConstraint(constraint: MetadataTargetConstraint): boolean {

@@ -19,7 +19,7 @@ describe("importMetadataItemLinkFromYAML", () => {
   it("should register metadata item link YAML importer", () => {
     const result = callAtomicFromYAML({
       context: mockContext,
-      rule: { ...mockRule, type: "MetadataItemLink" },
+      rule: { ...mockRule, type: "MetadataItemLink", metadataTarget: { kind: "object" } },
       value: "Справочник.ПланСчетов",
     })
 
@@ -30,7 +30,7 @@ describe("importMetadataItemLinkFromYAML", () => {
     expect(() =>
       callAtomicFromYAML({
         context: mockContext,
-        rule: { ...mockRule, type: "MetadataItemLink" },
+        rule: { ...mockRule, type: "MetadataItemLink", metadataTarget: { kind: "object" } },
         value: "Catalog.Контрагенты",
       })
     ).toThrow('Неизвестный корень "Catalog"')
@@ -39,7 +39,7 @@ describe("importMetadataItemLinkFromYAML", () => {
   it("imports russian roots in registered metadata item link importer", () => {
     const result = callAtomicFromYAML({
       context: mockContext,
-      rule: { ...mockRule, type: "MetadataItemLink" },
+      rule: { ...mockRule, type: "MetadataItemLink", metadataTarget: { kind: "object" } },
       value: "Справочник.Контрагенты",
     })
 
@@ -81,7 +81,7 @@ describe("importMetadataItemLinksFromYAML", () => {
     expect(() =>
       callAtomicFromYAML({
         context: mockContext,
-        rule: { ...mockRule, type: "MetadataItemLinks" },
+        rule: { ...mockRule, type: "MetadataItemLinks", metadataTarget: { kind: "object" } },
         value: ["Catalog.Контрагенты"],
       })
     ).toThrow('Неизвестный корень "Catalog"')
