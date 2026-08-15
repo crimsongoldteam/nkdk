@@ -5,10 +5,15 @@ import { rootObjectDeclarations } from "./root-objects"
 import { createInitialScenarioLayers } from "./layers"
 import { configurationOperations } from "./configuration-operations"
 import { structuralPropertyOperations } from "./structural-property-operations"
+import { childPropertyOperations } from "./child-property-operations"
+import { orderOperations, orderSetupOperations } from "./order-operations"
 
 const declarations = {
   configurationOperations,
   structuralOperations: structuralPropertyOperations,
+  childPropertyOperations,
+  orderSetupOperations,
+  orderOperations,
   roots: rootObjectDeclarations,
   children: childDeclarations,
   forms: formDeclarations,

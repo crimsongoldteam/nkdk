@@ -17,10 +17,12 @@ export type RootObjectDeclaration = {
 
 export type ChildDeclaration = {
   readonly key: string
+  readonly name: string
   readonly ownerKey: string
   readonly propertyKey: string
   readonly childItemType: string
   readonly changes: readonly ScenarioFileChange[]
+  readonly propertyChanges: readonly ScenarioFileChange[]
   readonly dependsOn: readonly string[]
 }
 
@@ -33,6 +35,9 @@ export type FormDeclaration = {
 export type ScenarioMatrix = {
   readonly configurationOperations?: readonly ScenarioOperation[]
   readonly structuralOperations?: readonly ScenarioOperation[]
+  readonly childPropertyOperations?: readonly ScenarioOperation[]
+  readonly orderSetupOperations?: readonly ScenarioOperation[]
+  readonly orderOperations?: readonly ScenarioOperation[]
   readonly roots: readonly RootObjectDeclaration[]
   readonly children: readonly ChildDeclaration[]
   readonly forms: readonly FormDeclaration[]

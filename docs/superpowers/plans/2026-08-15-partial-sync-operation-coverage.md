@@ -133,7 +133,7 @@ git commit -m "test: :white_check_mark: изменять свойства кор
 **Interfaces:**
 - Produces: изменение каждого `ChildDeclaration` и порядок четырёх классов коллекций.
 
-- [ ] **Step 1: Добавить проверку покрытия всех 76 детей**
+- [x] **Step 1: Добавить проверку покрытия всех 76 детей**
 
 ```ts
 expect(childPropertyOperations.map(({ targetKey }) => targetKey).toSorted())
@@ -142,11 +142,11 @@ expect(new Set(orderOperations.map(({ collectionKind }) => collectionKind)))
   .toEqual(new Set(["attributes", "register-fields", "commands", "values"]))
 ```
 
-- [ ] **Step 2: Запустить matrix test и подтвердить падение**
+- [x] **Step 2: Запустить matrix test и подтвердить падение**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts`
 
-- [ ] **Step 3: Добавить `propertyChanges` детям**
+- [x] **Step 3: Добавить `propertyChanges` детям**
 
 Расширить `ChildDeclaration` тем же полем. Использовать безопасный `Синоним`
 для metadata-полей, команд, значений и контейнеров; для URL, методов, операций,
@@ -154,13 +154,13 @@ Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix
 соответствующей полной e2e NKDK-фикстуры. Тест требует непустой переход у
 каждой декларации.
 
-- [ ] **Step 4: Объявить операции порядка**
+- [x] **Step 4: Объявить операции порядка**
 
 Создать по два элемента в выбранных коллекциях и отдельным переходом поменять
 их порядок: реквизиты/табличные части, измерения/ресурсы, команды,
 перечисления/предопределённые элементы. UUID и содержимое элементов не менять.
 
-- [ ] **Step 5: Запустить тесты и зафиксировать изменение**
+- [x] **Step 5: Запустить тесты и зафиксировать изменение**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/plan.test.ts`
 

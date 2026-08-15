@@ -3,7 +3,7 @@ import { createRootPropertyOperations } from "./root-property-operations"
 
 type MatrixDeclarations = Pick<
   ScenarioMatrix,
-  "configurationOperations" | "structuralOperations" | "roots" | "children" | "forms"
+  "configurationOperations" | "structuralOperations" | "childPropertyOperations" | "orderSetupOperations" | "orderOperations" | "roots" | "children" | "forms"
 >
 
 export const recoveryProbeBlockKey = "roots:create:probe"
@@ -25,6 +25,9 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
   const rootProperties = createRootPropertyOperations(matrix.roots)
   const configurationOperations = matrix.configurationOperations ?? []
   const structuralOperations = matrix.structuralOperations ?? []
+  const childPropertyOperations = matrix.childPropertyOperations ?? []
+  const orderSetupOperations = matrix.orderSetupOperations ?? []
+  const orderOperations = matrix.orderOperations ?? []
 
   return [
     ...(configurationOperations.length === 0 ? [] : [
@@ -35,6 +38,16 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
       layer("roots:properties", "change:object:catalog:comment", rootProperties),
     ]),
     layer("children:create", "child:catalog:attributes", children),
+    ...(childPropertyOperations.length === 0 ? [] : [
+      layer("children:properties", "change:child:catalog:attributes:property", childPropertyOperations),
+      layer("children:properties:restore", `restore:${childPropertyOperations.at(-1)?.key ?? ""}`, restore(childPropertyOperations)),
+    ]),
+    ...(orderSetupOperations.length === 0 ? [] : [
+      layer("children:order:setup", "order-setup:attributes", orderSetupOperations),
+      layer("children:order:change", "order:attributes", orderOperations),
+      layer("children:order:restore", `restore:${orderOperations.at(-1)?.key ?? ""}`, restore(orderOperations)),
+      layer("children:order:remove", `remove:${orderSetupOperations.at(-1)?.key ?? ""}`, reverse(orderSetupOperations)),
+    ]),
     layer("forms:create", "form:catalog", forms),
     ...(structuralOperations.length === 0 ? [] : [
       layer("structural:change", "structural:catalog-attribute-length", structuralOperations),

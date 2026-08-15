@@ -209,10 +209,12 @@ function matrix(): ScenarioMatrix {
     ],
     children: [{
       key: "child:catalog:attribute",
+      name: "Реквизит",
       ownerKey: "object:catalog",
       propertyKey: "attributes",
       childItemType: "MetadataAttribute",
       changes: [{ path: "Справочник/Тест.yaml", before: "catalog", after: "catalog+attribute" }],
+      propertyChanges: [],
       dependsOn: [],
     }],
     forms: [{

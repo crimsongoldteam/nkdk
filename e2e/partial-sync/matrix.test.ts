@@ -10,7 +10,9 @@ import {
   childDeclarations,
 } from "./matrix/children"
 import { configurationOperations } from "./matrix/configuration-operations"
+import { childPropertyOperations } from "./matrix/child-property-operations"
 import { formDeclarations } from "./matrix/forms"
+import { orderOperations } from "./matrix/order-operations"
 import { partialSyncMatrix } from "./matrix"
 import { rootObjectDeclarations } from "./matrix/root-objects"
 import { rootPropertyOperations } from "./matrix/root-property-operations"
@@ -300,7 +302,7 @@ describe("partial sync matrix", () => {
     expect(operationProperties).toEqual(expect.any(String))
     const operationSource = operationProperties as string
     expect(operationSource.indexOf("Операции:")).toBeLessThan(operationSource.indexOf("ПространствоИмен:"))
-    expect(operationSource).toContain("    Комментарий: \"\"")
+    expect(operationSource).toContain("    Комментарий: До изменения")
 
     const parameter = plan.find(({ key }) => key === "child:web-service-operations:parameters")
     const parameterProperties = parameter?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
@@ -309,7 +311,7 @@ describe("partial sync matrix", () => {
     expect(parameterSource.indexOf("    Параметры:")).toBeLessThan(
       parameterSource.indexOf("    РежимУправленияБлокировкойДанных:"),
     )
-    expect(parameterSource).toContain("        Комментарий: \"\"")
+    expect(parameterSource).toContain("        Комментарий: До изменения")
   })
 
   it("emits an empty integration-service channel in the platform canonical form", () => {
@@ -437,6 +439,21 @@ describe("partial sync matrix", () => {
     expect(new Set([...declared, ...exclusions])).toEqual(discovered)
     expect(childDeclarations).toHaveLength(discovered.size - exclusions.size)
     expect(unique(childDeclarations.map(({ key }) => key))).toBe(true)
+  })
+
+  it("changes a property of every declared child", () => {
+    expect(childPropertyOperations.map(({ targetKey }) => targetKey).toSorted()).toEqual(
+      childDeclarations.map(({ key }) => key).toSorted(),
+    )
+    for (const operation of childPropertyOperations) {
+      expect(operation.changes.length, operation.key).toBeGreaterThan(0)
+    }
+  })
+
+  it("changes order in every representative collection class", () => {
+    expect(new Set(orderOperations.map(({ collectionKind }) => collectionKind))).toEqual(
+      new Set(["attributes", "register-fields", "commands", "values"]),
+    )
   })
 
   it("declares exactly one form for every top-level owner that supports forms", () => {

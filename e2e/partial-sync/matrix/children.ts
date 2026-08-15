@@ -31,9 +31,20 @@ type InlineChildSpec = {
   readonly extraChanges?: readonly ScenarioFileChange[]
   readonly exposeAsOwner?: boolean
   readonly insertionAnchors?: Readonly<Record<string, string>>
+  readonly propertyMutation?: PropertyMutation | false
 }
 
-const declarations: ChildDeclaration[] = []
+type MutableChildDeclaration = Omit<ChildDeclaration, "propertyChanges"> & {
+  propertyChanges: ScenarioFileChange[]
+}
+
+type PropertyMutation =
+  | { readonly kind: "yaml-item"; readonly path: string; readonly name: string; readonly source: string; readonly replacement: string }
+  | { readonly kind: "yaml-root"; readonly path: string; readonly source: string; readonly replacement: string }
+  | { readonly kind: "file"; readonly path: string; readonly source: string; readonly replacement: string }
+
+const declarations: MutableChildDeclaration[] = []
+const propertyMutations = new Map<string, PropertyMutation>()
 const ownerStates = createRootOwnerStates()
 
 const attributeOwners = [
@@ -329,6 +340,12 @@ const recalculation = addInlineChild({
   section: "Перерасчеты",
   name: recalculationName,
   exposeAsOwner: true,
+  propertyMutation: {
+    kind: "file",
+    path: recalculationPath,
+    source: `<Name>${recalculationName}</Name>\r\n\t\t\t<Synonym/>\r\n\t\t\t<Comment>До изменения</Comment>`,
+    replacement: `<Name>${recalculationName}</Name>\r\n\t\t\t<Synonym/>\r\n\t\t\t<Comment>После изменения</Comment>`,
+  },
   extraChanges: [{
     path: recalculationPath,
     before: null,
@@ -337,15 +354,23 @@ const recalculation = addInlineChild({
 })
 declarations.push({
   key: childKey(recalculation.key, "dimensions"),
+  name: "ПроверочноеИзмерение",
   ownerKey: recalculation.key,
   propertyKey: "dimensions",
   childItemType: "MetadataRegisterDimension",
   dependsOn: [],
+  propertyChanges: [],
   changes: [{
     path: recalculationPath,
     before: recalculationXml(recalculationName),
     after: recalculationXml(recalculationName, "ПроверочноеИзмерение"),
   }],
+})
+propertyMutations.set(childKey(recalculation.key, "dimensions"), {
+  kind: "file",
+  path: recalculationPath,
+  source: "<Name>ПроверочноеИзмерение</Name>\r\n\t\t\t\t\t<Synonym/>\r\n\t\t\t\t\t<Comment>До изменения</Comment>",
+  replacement: "<Name>ПроверочноеИзмерение</Name>\r\n\t\t\t\t\t<Synonym/>\r\n\t\t\t\t\t<Comment>После изменения</Comment>",
 })
 
 for (const ownerKey of [
@@ -373,6 +398,8 @@ for (const ownerKey of [
   addCommand(ownerKey)
 }
 
+assignChildPropertyChanges()
+
 export const childDeclarations = declarations as readonly ChildDeclaration[]
 
 export function terminalOwnerYaml(ownerKey: string): { readonly path: string, readonly contents: string } {
@@ -385,24 +412,50 @@ export const childCapabilityExclusions: readonly {
   reason: string
 }[] = []
 
-function addInlineChild(spec: InlineChildSpec): ChildDeclaration {
+function addInlineChild(spec: InlineChildSpec): MutableChildDeclaration {
   const owner = requireOwnerState(spec.ownerKey)
   const key = childKey(spec.ownerKey, spec.propertyKey)
   const before = owner.document.content
-  const after = appendYamlItem(owner, spec.section, spec.name, spec.body, spec.insertionAnchor)
+  const body = spec.childItemType === "Predefined" || spec.propertyMutation !== undefined
+    ? spec.body
+    : withInitialChildComment(spec.body)
+  const after = appendYamlItem(owner, spec.section, spec.name, body, spec.insertionAnchor)
   owner.document.content = after
-  const declaration: ChildDeclaration = {
+  const declaration: MutableChildDeclaration = {
     key,
+    name: spec.name,
     ownerKey: spec.ownerKey,
     propertyKey: spec.propertyKey,
     childItemType: spec.childItemType,
     dependsOn: spec.dependsOn ?? [],
+    propertyChanges: [],
     changes: [
       { path: owner.path, before, after },
       ...(spec.extraChanges ?? []),
     ],
   }
   declarations.push(declaration)
+  if (spec.propertyMutation === false) {
+    // Подчинённый контейнер меняется через отдельный внешний файл.
+  } else if (spec.propertyMutation !== undefined) {
+    propertyMutations.set(key, spec.propertyMutation)
+  } else if (spec.childItemType === "Predefined") {
+    propertyMutations.set(key, {
+      kind: "yaml-item",
+      path: owner.path,
+      name: spec.name,
+      source: "Наименование: Проверочный элемент",
+      replacement: "Наименование: Проверочный элемент изменён",
+    })
+  } else {
+    propertyMutations.set(key, {
+      kind: "yaml-item",
+      path: owner.path,
+      name: spec.name,
+      source: "Комментарий: До изменения",
+      replacement: "Комментарий: После изменения",
+    })
+  }
   if (spec.exposeAsOwner === true) {
     ownerStates.set(key, {
       path: owner.path,
@@ -431,18 +484,27 @@ function addDirectoryChild(spec: {
   const ownerDirectory = owner.path.slice(0, -"/Свойства.yaml".length)
   const path = `${ownerDirectory}/${spec.directory}/${spec.name}/Свойства.yaml`
   const key = childKey(spec.ownerKey, spec.propertyKey)
-  const declaration: ChildDeclaration = {
+  const properties = withInitialChildComment(spec.properties)
+  const declaration: MutableChildDeclaration = {
     key,
+    name: spec.name,
     ownerKey: spec.ownerKey,
     propertyKey: spec.propertyKey,
     childItemType: spec.childItemType,
     dependsOn: [],
-    changes: [{ path, before: null, after: spec.properties }],
+    propertyChanges: [],
+    changes: [{ path, before: null, after: properties }],
   }
   declarations.push(declaration)
+  propertyMutations.set(key, {
+    kind: "yaml-root",
+    path,
+    source: "Комментарий: До изменения",
+    replacement: "Комментарий: После изменения",
+  })
   ownerStates.set(key, {
     path,
-    document: { content: spec.properties },
+    document: { content: properties },
     indent: 0,
     insertionAnchors: spec.insertionAnchors,
   })
@@ -492,6 +554,97 @@ function requireOwnerState(ownerKey: string): OwnerState {
   return owner
 }
 
+function assignChildPropertyChanges(): void {
+  const currentFiles = new Map<string, string>()
+  for (const declaration of declarations) {
+    for (const change of declaration.changes) {
+      if (typeof change.after === "string") currentFiles.set(change.path, change.after)
+    }
+  }
+
+  for (const declaration of declarations) {
+    const mutation = propertyMutations.get(declaration.key)
+    if (mutation === undefined) throw new Error(`Не объявлено изменение свойства ${declaration.key}`)
+    const before = currentFiles.get(mutation.path)
+    if (before === undefined) throw new Error(`Не найден текстовый файл свойства ${declaration.key}: ${mutation.path}`)
+    let after: string
+    try {
+      after = mutation.kind === "yaml-item"
+        ? replaceInYamlItem(before, mutation.name, mutation.source, mutation.replacement)
+        : mutation.kind === "yaml-root"
+          ? replaceInYamlRoot(before, mutation.source, mutation.replacement)
+          : replaceExactlyOnce(before, mutation.source, mutation.replacement)
+    } catch (caught) {
+      throw new Error(`Не удалось изменить свойство ${declaration.key}: ${caught instanceof Error ? caught.message : String(caught)}`)
+    }
+    declaration.propertyChanges = [{ path: mutation.path, before, after }]
+    currentFiles.set(mutation.path, after)
+  }
+}
+
+function withInitialChildComment(body = ""): string {
+  const source = body === "" || body.endsWith("\n") ? body : `${body}\n`
+  if (/^Комментарий:/mu.test(source)) {
+    return source.replace(/^Комментарий:.*$/mu, "Комментарий: До изменения").replace(/\n$/u, "")
+  }
+  const insertion = [...source.matchAll(/^(\S[^:\r\n]*):/gmu)]
+    .find((match) => (match[1] ?? "").localeCompare("Комментарий", "ru") > 0)
+  const comment = "Комментарий: До изменения\n"
+  const result = insertion === undefined
+    ? `${source}${comment}`
+    : `${source.slice(0, insertion.index)}${comment}${source.slice(insertion.index)}`
+  return result.replace(/\n$/u, "")
+}
+
+function replaceInYamlItem(source: string, name: string, before: string, after: string): string {
+  const lines = source.split("\n")
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")
+  const header = new RegExp(`^(\\s*)${escapedName}:\\s*$`, "u")
+  const headerIndex = lines.findIndex((line) => header.test(line))
+  if (headerIndex < 0) throw new Error(`Не найден YAML-элемент ${name}`)
+  const indentation = header.exec(lines[headerIndex] ?? "")?.[1].length ?? 0
+  let endIndex = lines.length
+  for (let index = headerIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index] ?? ""
+    if (line.trim() === "") continue
+    const currentIndentation = line.length - line.trimStart().length
+    if (currentIndentation <= indentation) {
+      endIndex = index
+      break
+    }
+  }
+  const matches: number[] = []
+  for (let index = headerIndex + 1; index < endIndex; index += 1) {
+    const line = lines[index] ?? ""
+    const currentIndentation = line.length - line.trimStart().length
+    if (currentIndentation === indentation + 2 && line.trim() === before) matches.push(index)
+  }
+  if (matches.length !== 1) {
+    throw new Error(`Ожидалось одно прямое свойство ${before}, найдено ${matches.length}: ${lines.slice(Math.max(0, headerIndex - 6), Math.min(lines.length, endIndex + 12)).join("\\n")}`)
+  }
+  const index = matches[0]!
+  lines[index] = `${" ".repeat(indentation + 2)}${after}`
+  return lines.join("\n")
+}
+
+function replaceInYamlRoot(source: string, before: string, after: string): string {
+  const lines = source.split("\n")
+  const matches = lines.flatMap((line, index) => line === before ? [index] : [])
+  if (matches.length !== 1) {
+    throw new Error(`Ожидалось одно корневое свойство ${before}, найдено ${matches.length}`)
+  }
+  lines[matches[0]!] = after
+  return lines.join("\n")
+}
+
+function replaceExactlyOnce(source: string, before: string, after: string): string {
+  const first = source.indexOf(before)
+  if (first < 0 || source.indexOf(before, first + before.length) >= 0) {
+    throw new Error(`Ожидалось одно вхождение изменения свойства: ${before}`)
+  }
+  return `${source.slice(0, first)}${after}${source.slice(first + before.length)}`
+}
+
 function appendYamlItem(
   owner: OwnerState,
   section: string,
@@ -536,10 +689,9 @@ function appendYamlItemToSource(
     section,
     configuredAnchor,
   )
-  const anchorMarker = insertionAnchor === undefined
-    ? undefined
-    : `${indentation}${insertionAnchor}:`
-  const insertionIndex = anchorMarker === undefined ? -1 : source.indexOf(anchorMarker)
+  const insertionIndex = insertionAnchor === undefined
+    ? -1
+    : yamlKeyLineIndex(source, indentation, insertionAnchor)
   const prefix = insertionIndex < 0 ? source : source.slice(0, insertionIndex)
   const suffix = insertionIndex < 0 ? "" : source.slice(insertionIndex)
   const sectionPrefix = prefix.includes(sectionMarker) ? "" : sectionMarker
@@ -564,8 +716,8 @@ function earlierInsertionAnchor(
     : `${owner.document.content}\n`
   const content = owner.scope === undefined ? source : findOwnerScope(source, owner.scope).content
   const indentation = " ".repeat(owner.indent)
-  const configuredIndex = content.indexOf(`${indentation}${configuredAnchor}:`)
-  const canonicalIndex = content.indexOf(`${indentation}${canonicalAnchor}:`)
+  const configuredIndex = yamlKeyLineIndex(content, indentation, configuredAnchor)
+  const canonicalIndex = yamlKeyLineIndex(content, indentation, canonicalAnchor)
   if (configuredIndex < 0) return canonicalAnchor
   if (canonicalIndex < 0) return configuredAnchor
   return configuredIndex <= canonicalIndex ? configuredAnchor : canonicalAnchor
@@ -583,6 +735,16 @@ function findCanonicalKeyAnchor(owner: OwnerState, section: string): string | un
     return separator < 0 ? [] : [line.slice(indentation.length, separator)]
   })
   return keys.find((key) => key.localeCompare(section, "ru") > 0)
+}
+
+function yamlKeyLineIndex(source: string, indentation: string, key: string): number {
+  const marker = `${indentation}${key}:`
+  let offset = 0
+  for (const line of source.split("\n")) {
+    if (line.startsWith(marker)) return offset
+    offset += line.length + 1
+  }
+  return -1
 }
 
 function findOwnerScope(
@@ -638,7 +800,7 @@ function recalculationXml(name: string, dimensionName?: string): string {
     '\t\t<Properties>',
     `\t\t\t<Name>${name}</Name>`,
     '\t\t\t<Synonym/>',
-    '\t\t\t<Comment/>',
+    '\t\t\t<Comment>До изменения</Comment>',
     '\t\t\t<DataLockControlMode>Managed</DataLockControlMode>',
     '\t\t</Properties>',
     ...childObjects,
@@ -655,7 +817,7 @@ function recalculationDimensionXml(name: string): readonly string[] {
     "\t\t\t\t<Properties>",
     `\t\t\t\t\t<Name>${name}</Name>`,
     "\t\t\t\t\t<Synonym/>",
-    "\t\t\t\t\t<Comment/>",
+    "\t\t\t\t\t<Comment>До изменения</Comment>",
     `\t\t\t\t\t<RegisterDimension>${registerDimension}</RegisterDimension>`,
     "\t\t\t\t\t<LeadingRegisterData>",
     `\t\t\t\t\t\t<xr:Item xsi:type="xr:MDObjectRef">${registerDimension}</xr:Item>`,
