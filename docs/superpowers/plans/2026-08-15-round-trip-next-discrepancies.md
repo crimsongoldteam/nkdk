@@ -204,8 +204,7 @@ git commit -m "feat: :sparkles: поддержать пустой тегиров
 - Create: `packages/rules/metadata/commonObjects/metadataTargets/brokenDirectReference.test.ts`
 - Modify: `packages/rules/metadata/commonObjects/metadataTargets/validationHandlers.ts`
 - Modify: `packages/rules/metadata/composition/metadataRules.ts`
-- Modify: `packages/rules/metadata/forms/clientApplicationForm/childFormNamesImportAdapter.integration.test.ts`
-- Modify: `packages/rules/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.integration.test.ts`
+- Modify: `packages/rules/metadata/validation/structuralReferences.test.ts`
 
 **Interfaces:**
 - Consumes: `BrokenXMLReferenceTypeCarrier`, `PropertyRule.metadataTarget`, `taggedYAMLScalar`, `xmlAnomalyTagPayload`, прямые `metadataTargetOccurrences` типов `string`, `MetadataItemLink`, `MetadataField`.
@@ -346,8 +345,8 @@ return [{
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/metadataTargets/brokenDirectReference.test.ts metadata/commonObjects/metadataTargets/validationHandlers.test.ts
-pnpm --filter @nkdk/rules exec vitest run --project integration metadata/forms/clientApplicationForm/childFormNamesImportAdapter.integration.test.ts metadata/forms/commonObjects/dynamicList/fromXMLToYAML.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/metadataTargets/brokenDirectReference.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/validation/structuralReferences.test.ts
 pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base ee7c54e7c
 ```
@@ -357,7 +356,7 @@ Expected: PASS; тесты с поддельным индексом дополн
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/rules/metadata/commonObjects/metadataTargets packages/rules/metadata/composition/metadataRules.ts packages/rules/metadata/forms/clientApplicationForm/childFormNamesImportAdapter.integration.test.ts packages/rules/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.integration.test.ts
+git add packages/rules/metadata/commonObjects/metadataTargets packages/rules/metadata/composition/metadataRules.ts packages/rules/metadata/validation/structuralReferences.test.ts
 git commit -m "feat: :sparkles: переносить прямые битые ссылки"
 ```
 
@@ -367,11 +366,10 @@ git commit -m "feat: :sparkles: переносить прямые битые с�
 
 **Files:**
 - Modify: `packages/rules/metadata/commonObjects/userVisible/brokenReference.ts`
-- Modify: `packages/rules/metadata/commonObjects/userVisible/brokenReference.test.ts`
 - Modify: `packages/rules/metadata/commonObjects/userVisible/metadataTargetOccurrences.ts`
 - Modify: `packages/rules/metadata/commonObjects/userVisible/types.ts`
-- Modify: `packages/rules/metadata/commonObjects/userVisible/fromXML.test.ts`
-- Modify: `packages/rules/metadata/commonObjects/userVisible/toXML.test.ts`
+- Modify: `packages/rules/metadata/commonObjects/userVisible/fromXML.integration.test.ts`
+- Modify: `packages/rules/metadata/commonObjects/userVisible/toXML.integration.test.ts`
 
 **Interfaces:**
 - Consumes: YAML runtime из Task 2, `userVisibleRoleTarget`, `BrokenXMLReferenceTypeCarrier`.
@@ -399,7 +397,7 @@ expect(yamlMappingKeyTagAt(yaml.Роли, "")).toBe("xml/reference")
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/userVisible/brokenReference.test.ts metadata/commonObjects/userVisible/fromXML.test.ts metadata/commonObjects/userVisible/toXML.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonObjects/userVisible/fromXML.integration.test.ts metadata/commonObjects/userVisible/toXML.integration.test.ts
 ```
 
 Expected: FAIL — переносчик и validation graph разрешают только UUID.
@@ -436,7 +434,7 @@ representation: isBrokenUserVisibleRoleName(key)
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/userVisible/brokenReference.test.ts metadata/commonObjects/userVisible/fromXML.test.ts metadata/commonObjects/userVisible/toXML.test.ts metadata/commonObjects/userVisible/metadataTargetOccurrences.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonObjects/userVisible/fromXML.integration.test.ts metadata/commonObjects/userVisible/toXML.integration.test.ts
 pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base ee7c54e7c
 ```
@@ -491,7 +489,7 @@ it.each([
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project unit metadata/projectState/fileUpdate.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/projectState/fileUpdate.test.ts
 ```
 
 Expected: FAIL только для трёх положительных вариантов с `kind: "Registered"`.
@@ -515,7 +513,7 @@ if (table["kind"] === "Registered") {
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project unit metadata/projectState/fileUpdate.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/projectState/fileUpdate.test.ts
 pnpm --filter @nkdk/rules exec vitest run --project integration metadata/projectState/importSession.integration.test.ts
 pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base ee7c54e7c

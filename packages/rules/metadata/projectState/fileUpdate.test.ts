@@ -403,6 +403,71 @@ describe("ProjectStateFileUpdateBatch", () => {
   })
 
   it.each([
+    ["typeInfo.table", (registered: object) => ({
+      fields: [{
+        owner: { kind: "Справочник", name: "Товары" },
+        name: "Код",
+        kind: "attribute",
+        typeInfo: { kinds: ["scalar"], nextTypes: [], table: registered },
+      }],
+    })],
+    ["field.table", (registered: object) => ({
+      fields: [{
+        owner: { kind: "Справочник", name: "Товары" },
+        name: "Код",
+        kind: "attribute",
+        typeInfo: { kinds: ["scalar"], nextTypes: [] },
+        table: registered,
+      }],
+    })],
+    ["form source.table", (registered: object) => ({
+      forms: [{
+        kind: "root",
+        owner: { kind: "Справочник", name: "Товары" },
+        name: "Объект",
+        source: {
+          kind: "formAttribute",
+          name: "Объект",
+          typeInfo: { kinds: ["scalar"], nextTypes: [] },
+          table: registered,
+        },
+      }],
+    })],
+  ])("принимает Registered в %s", (_name, place) => {
+    const update = {
+      ...yamlUpdate("a.yaml"),
+      ...place({ kind: "Registered", type: "DataCompositionSettingsComposer" }),
+    }
+
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [update],
+      hashBytes: new Uint8Array(8),
+    })).not.toThrow()
+  })
+
+  it.each([
+    ["без type", { kind: "Registered" }],
+    ["type не строка", { kind: "Registered", type: 1 }],
+    ["лишнее поле", { kind: "Registered", type: "X", extra: true }],
+    ["неизвестный kind", { kind: "Unknown", type: "X" }],
+  ])("отклоняет неверный Registered: %s", (_name, table) => {
+    const update = {
+      ...yamlUpdate("a.yaml"),
+      fields: [{
+        owner: { kind: "Справочник", name: "Товары" },
+        name: "Код",
+        kind: "attribute",
+        typeInfo: { kinds: ["scalar"], nextTypes: [], table },
+      }],
+    }
+
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [update],
+      hashBytes: new Uint8Array(8),
+    })).toThrow()
+  })
+
+  it.each([
     ["unknown YAML role", { yamlRole: "unknown" }],
     ["unknown target kind", { targets: [{ kind: "unknown", canonical: "Catalog.Товары" }] }],
     [
