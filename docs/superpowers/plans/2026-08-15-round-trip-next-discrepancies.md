@@ -34,7 +34,7 @@
 - Consumes: `applySystemEnumerationXMLAlias(type, direction, value)`.
 - Produces: двусторонний псевдоним `CheckBoxType.Switcher` ↔ внутреннее значение `Switch`.
 
-- [ ] **Step 1: Add the failing round-trip test**
+- [x] **Step 1: Add the failing round-trip test**
 
 Добавить самостоятельный договор рядом с тестами `RadioButtonType`:
 
@@ -69,7 +69,7 @@ it("преобразует XML Switcher в YAML Выключатель и обр
 })
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run:
 
@@ -79,7 +79,7 @@ pnpm --filter @nkdk/rules exec vitest run --project integration metadata/systemE
 
 Expected: FAIL — импорт оставляет `Switcher` неизвестным либо обратный экспорт выдаёт `Switch`.
 
-- [ ] **Step 3: Register the alias**
+- [x] **Step 3: Register the alias**
 
 Добавить в `systemEnumerationXMLAliases`:
 
@@ -90,7 +90,7 @@ CheckBoxType: {
 },
 ```
 
-- [ ] **Step 4: Verify GREEN and unchanged neighbors**
+- [x] **Step 4: Verify GREEN and unchanged neighbors**
 
 Run:
 
@@ -101,7 +101,7 @@ pnpm duplicates -- --base ee7c54e7c
 
 Expected: PASS; существующие проверки `RadioButtonType` остаются зелёными. Полный набор форм проверяется в Task 6.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/rules/metadata/systemEnumerations/xmlAliases.ts packages/rules/metadata/systemEnumerations/roundTrip.integration.test.ts packages/rules/tests/directConversion.ts docs/superpowers/plans/2026-08-15-round-trip-next-discrepancies.md
@@ -121,7 +121,7 @@ git commit -m "fix: :bug: восстановить XML-псевдоним Switch
 - Consumes: `markYAMLMappingKeyTag`, `yamlMappingKeyTagAt`, `serializeYAMLDocument`.
 - Produces: синтаксический разбор и сериализация ключа `!xml/reference ""`; смысловую допустимость определяет тип свойства, а не YAML runtime.
 
-- [ ] **Step 1: Add failing parser and serializer tests**
+- [x] **Step 1: Add failing parser and serializer tests**
 
 В `jsYamlParser.test.ts` заменить пустой тегированный ключ в таблице недопустимых случаев на отдельный положительный тест:
 
@@ -154,7 +154,7 @@ it("сериализует пустой ключ с !xml/reference", () => {
 })
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run:
 
@@ -164,7 +164,7 @@ pnpm --filter @nkdk/runtime exec vitest run --project unit yaml/jsYamlParser.tes
 
 Expected: FAIL с сообщением, что `!xml/reference` поддерживает только непустой ключ.
 
-- [ ] **Step 3: Permit an empty scalar payload syntactically**
+- [x] **Step 3: Permit an empty scalar payload syntactically**
 
 В `collectMappingKeyTags` оставить запрет составного ключа, но убрать запрет `key.value === ""`:
 
@@ -176,7 +176,7 @@ if (key.kind !== "scalar") {
 
 Не добавлять сведения о `UserVisible` в YAML runtime.
 
-- [ ] **Step 4: Verify GREEN**
+- [x] **Step 4: Verify GREEN**
 
 Run:
 
@@ -188,7 +188,7 @@ pnpm duplicates -- --base ee7c54e7c
 
 Expected: PASS; составной ключ и чужая категория по-прежнему отклоняются.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/runtime/yaml/jsYamlParser.ts packages/runtime/yaml/jsYamlParser.test.ts packages/runtime/yaml/export.test.ts
@@ -210,7 +210,7 @@ git commit -m "feat: :sparkles: поддержать пустой тегиров
 - Consumes: `BrokenXMLReferenceTypeCarrier`, `PropertyRule.metadataTarget`, `taggedYAMLScalar`, `xmlAnomalyTagPayload`, прямые `metadataTargetOccurrences` типов `string`, `MetadataItemLink`, `MetadataField`.
 - Produces: `brokenDirectMetadataTargetReferenceCarrier` и `brokenDirectMetadataTargetReferenceRules`; строгие формы `UUID` и `число:UUID` переносятся без поиска.
 
-- [ ] **Step 1: Add focused failing carrier tests**
+- [x] **Step 1: Add focused failing carrier tests**
 
 В новом тесте получить переносчик из собранного исполнения и проверить оба направления для `MetadataItemLink` и `string`:
 
@@ -252,7 +252,7 @@ it.each([
 
 Добавить отрицательные случаи: нет `metadataTarget`; произвольная строка; `число:UUID` для нетегированного YAML; неверный payload тега.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run:
 
@@ -262,7 +262,7 @@ pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/
 
 Expected: FAIL — общий переносчик прямых ссылок ещё не зарегистрирован.
 
-- [ ] **Step 3: Implement the contextual direct carrier**
+- [x] **Step 3: Implement the contextual direct carrier**
 
 В `brokenDirectReference.ts` определить строгие грамматики и переносчик:
 
@@ -310,7 +310,7 @@ export const brokenDirectMetadataTargetReferenceRules = defineMetadataRules({
 
 Подключить набор в `legacyCoreRules` рядом с существующими переносчиками.
 
-- [ ] **Step 4: Teach direct occurrences to recognize transported scalar wrappers**
+- [x] **Step 4: Teach direct occurrences to recognize transported scalar wrappers**
 
 В `collectDirectMetadataTargetOccurrences` до проверки строки распаковать `TaggedYAMLScalar` только при теге `xml/reference` и вернуть представление битой ссылки:
 
@@ -334,13 +334,13 @@ return [{
 
 Если существующий тип `grammar` различает `uuid` и сегментированную форму, использовать соответствующее уже объявленное значение; не расширять общий тип ради строки `число:UUID`, если проверка целиком принадлежит переносчику.
 
-- [ ] **Step 5: Add property-level integration regressions**
+- [x] **Step 5: Add property-level integration regressions**
 
 Для формы добавить прямой XML → YAML → XML случай `SettingsStorage` с UUID и проверить тег через `yamlScalarTagAt`. Для `DynamicList` добавить `MainTable: "1:93701593-5ac8-4266-b471-7e9ed35a9c3e"`, ожидать смысловое значение `!xml/reference ...`, отметку `xml/reference` и точный обратный XML.
 
 Проверить отдельно, что обычные ссылки `SettingsStorage.Имя` и `Catalog.Справочник1` сохраняют прежнее преобразование и что нетегированная внутренняя форма выдаёт структурную диагностику.
 
-- [ ] **Step 6: Verify GREEN and no lookup**
+- [x] **Step 6: Verify GREEN and no lookup**
 
 Run:
 
@@ -353,7 +353,7 @@ pnpm duplicates -- --base ee7c54e7c
 
 Expected: PASS; тесты с поддельным индексом дополнительно утверждают отсутствие вызовов разрешения и поиска для обеих внутренних форм.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add packages/rules/metadata/commonObjects/metadataTargets packages/rules/metadata/composition/metadataRules.ts packages/rules/metadata/validation/structuralReferences.test.ts
@@ -375,7 +375,7 @@ git commit -m "feat: :sparkles: переносить прямые битые с�
 - Consumes: YAML runtime из Task 2, `userVisibleRoleTarget`, `BrokenXMLReferenceTypeCarrier`.
 - Produces: пустой ключ роли является битой ссылкой только с `!xml/reference`; XML `<xr:Value name="">false</xr:Value>` восстанавливается дословно.
 
-- [ ] **Step 1: Add failing carrier and conversion tests**
+- [x] **Step 1: Add failing carrier and conversion tests**
 
 Расширить таблицы существующих UUID-проверок пустым ключом:
 
@@ -392,7 +392,7 @@ expect(yamlMappingKeyTagAt(yaml.Роли, "")).toBe("xml/reference")
 
 Добавить YAML → XML проверку тегированного пустого ключа и отрицательную проверку того же ключа без тега. В проверках вхождений убедиться, что тегированный пустой ключ получает `brokenXMLReference`, а нетегированный — `canonical` и далее структурную ошибку отсутствующей роли.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run:
 
@@ -402,7 +402,7 @@ pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonO
 
 Expected: FAIL — переносчик и validation graph разрешают только UUID.
 
-- [ ] **Step 3: Extend only the UserVisible carrier grammar**
+- [x] **Step 3: Extend only the UserVisible carrier grammar**
 
 Ввести локальную проверку:
 
@@ -416,7 +416,7 @@ function isBrokenUserVisibleRoleName(value: string): boolean {
 
 Расширить validation graph только для переносчика `UserVisible`: шаблон ключа допускает `""` или UUID, тогда как обычная `UserVisibleJSONSchema` продолжает требовать непустое имя.
 
-- [ ] **Step 4: Mark empty tagged occurrences as broken**
+- [x] **Step 4: Mark empty tagged occurrences as broken**
 
 В `collectUserVisibleMetadataTargetOccurrences` использовать единый предикат пустого имени/UUID и наличие `yamlMappingKeyTagAt(...)= "xml/reference"`:
 
@@ -429,7 +429,7 @@ representation: isBrokenUserVisibleRoleName(key)
 
 Для model-представления пустое `item.name` также считать битой ссылкой до разбора цели. Не добавлять пустую строку в общий UUID-предикат.
 
-- [ ] **Step 5: Verify GREEN and semantic boundary**
+- [x] **Step 5: Verify GREEN and semantic boundary**
 
 Run:
 
@@ -441,7 +441,7 @@ pnpm duplicates -- --base ee7c54e7c
 
 Expected: PASS; пустой тегированный ключ допустим только в `UserVisible`, пустой нетегированный ключ и произвольное содержимое тега отклоняются.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/rules/metadata/commonObjects/userVisible
@@ -460,7 +460,7 @@ git commit -m "feat: :sparkles: переносить пустую ссылку �
 - Consumes: существующий вариант `DataPathTableInfo` `{ kind: "Registered"; type: string }` и `assertExactKeys`.
 - Produces: одинаковая проверка `Registered` в `typeInfo.table`, поле `table` и `source.table`.
 
-- [ ] **Step 1: Add failing boundary tests**
+- [x] **Step 1: Add failing boundary tests**
 
 В существующую таблицу переносимых `DataPath`-данных добавить три положительных варианта расположения `Registered`:
 
@@ -484,7 +484,7 @@ it.each([
 })
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run:
 
@@ -494,7 +494,7 @@ pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/proje
 
 Expected: FAIL только для трёх положительных вариантов с `kind: "Registered"`.
 
-- [ ] **Step 3: Extend the exact boundary validator**
+- [x] **Step 3: Extend the exact boundary validator**
 
 В `assertDataPathTableInfo` перед `RegisterRecordSet` добавить:
 
@@ -508,7 +508,7 @@ if (table["kind"] === "Registered") {
 
 Не менять `DataPathTableInfo`, двоичный writer/reader или правила DataPath.
 
-- [ ] **Step 4: Verify GREEN**
+- [x] **Step 4: Verify GREEN**
 
 Run:
 
@@ -521,7 +521,7 @@ pnpm duplicates -- --base ee7c54e7c
 
 Команду с `native-lmdb` выполнить вне песочницы. Expected: PASS; неизвестные варианты и неточные поля по-прежнему отклоняются.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/rules/metadata/projectState/fileUpdateValidation.ts packages/rules/metadata/projectState/fileUpdate.test.ts
@@ -541,7 +541,7 @@ git commit -m "fix: :bug: принять Registered в состоянии DataPa
 - Consumes: Tasks 1–5.
 - Produces: доказанный round-trip для CashdeskDev, Contracts и Conversion, перечень известных XML-аномалий и полностью отмеченный план.
 
-- [ ] **Step 1: Run targeted configuration checks**
+- [x] **Step 1: Run targeted configuration checks**
 
 Run the round-trip skill outside the sandbox, one configuration at a time and without `all`:
 
@@ -559,7 +559,7 @@ Expected:
 
 Если имя каталога отличается, выбрать его точное имя командой `find /Users/nikita/git/round-trip-compact/cf -maxdepth 1 -type d -name '<prefix>*'`; каталог `all` не использовать.
 
-- [ ] **Step 2: Record only verified anomaly evidence**
+- [x] **Step 2: Record only verified anomaly evidence**
 
 В `.agents/xml-anomalies.md` добавить четыре уже подтверждённых случая `FunctionalOptionsProperty` CashdeskDev и общую запись:
 
@@ -572,7 +572,7 @@ Expected:
 
 В спецификации добавить только фактические результаты команд: какие проверки прошли и на каком следующем независимом расхождении остановилась каждая конфигурация.
 
-- [ ] **Step 3: Run full verification**
+- [x] **Step 3: Run full verification**
 
 Run:
 
@@ -586,7 +586,7 @@ pnpm duplicates -- --base ee7c54e7c
 
 `pnpm test` выполнить вне песочницы из-за LMDB. Expected: все команды завершаются с кодом 0; новые дубли отсутствуют.
 
-- [ ] **Step 4: Mark plan completion and commit documentation**
+- [x] **Step 4: Mark plan completion and commit documentation**
 
 Отметить выполненные пункты `- [x]`, затем:
 
