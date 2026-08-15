@@ -19,11 +19,6 @@ import { metadataPropertyRule011 as rule17 } from "../appliedObjects/configurati
 import { metadataPropertyRule012 as rule18 } from "../appliedObjects/configuration/mobileApplicationURLs"
 import { metadataPropertyRule013 as rule19 } from "../appliedObjects/configuration/mobileApplicationURLs"
 import { metadataPropertyRule014 as rule20 } from "../appliedObjects/configuration/mobileApplicationURLs"
-import { metadataPropertyRule000 as rule21 } from "../appliedObjects/metadataCalculationRegister/recalculation/register"
-import { metadataPropertyRule001 as rule22 } from "../appliedObjects/metadataCalculationRegister/recalculation/register"
-import { metadataPropertyRule002 as rule23 } from "../appliedObjects/metadataCalculationRegister/recalculation/register"
-import { metadataPropertyRule003 as rule24 } from "../appliedObjects/metadataCalculationRegister/recalculation/register"
-import { metadataPropertyRule004 as rule25 } from "../appliedObjects/metadataCalculationRegister/recalculation/register"
 import { metadataPropertyRule000 as rule26 } from "../commonObjects/boolean/fromXML"
 import { metadataPropertyRule000 as rule27 } from "../commonObjects/boolean/fromYAML"
 import { metadataPropertyRule000 as rule28 } from "../commonObjects/boolean/toJSONSchema"
@@ -445,11 +440,6 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule18,
   rule19,
   rule20,
-  rule21,
-  rule22,
-  rule23,
-  rule24,
-  rule25,
   rule26,
   rule27,
   rule28,
