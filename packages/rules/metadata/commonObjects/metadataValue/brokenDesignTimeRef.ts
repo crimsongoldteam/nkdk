@@ -1,45 +1,41 @@
 import { Type } from "typebox"
 
-import {
-  createConfigurationLanguages,
-  xmlAnomalyTagPayload,
-  xmlAnomalyTagValue,
-} from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, xmlAnomalyTagValue } from "@nkdk/runtime"
 import {
   defineMetadataRules,
   emptyMetadataRules,
-  type BrokenXMLReferenceCarrierRegistration,
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+  type BrokenXMLReferenceTypeCarrier,
 } from "@nkdk/runtime/rule-kit"
 import {
   DESIGN_TIME_REF_UUID_SOURCE,
   isDesignTimeRefUuid,
+  isNamedMetadataValueReference,
 } from "./handlers"
-import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
-
-const referenceContext = {
-  version: "test",
-  languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
-} as const
 const DESIGN_TIME_REF_YAML_SOURCE =
-  `(?:${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}|[^\\s.]+(?:\\.[^\\s.]+){2,})`
+  `${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}`
 
-export const brokenDesignTimeRefCarrier: BrokenXMLReferenceCarrierRegistration = {
+export const brokenDesignTimeRefCarrier: BrokenXMLReferenceTypeCarrier = {
   name: "metadataValue.designTimeRef",
-  propertyType: "MetadataValue",
   tryImport({ xmlValue, yamlValue }) {
     const text = designTimeRefText(xmlValue)
     if (text === undefined || yamlValue !== text) return undefined
     return {
       yamlValue: xmlAnomalyTagValue("xml/reference", text),
-      taggedPaths: [[]],
+      taggedLocations: [{ kind: "value", path: [] }],
     }
   },
   prepareExport({ yamlValue, isTagged }) {
-    if (!isTagged([]) || !isBrokenDesignTimeRefYAML(yamlValue)) return undefined
+    const location = { kind: "value", path: [] } as const
+    if (!isTagged(location)) return undefined
+    if (!isBrokenDesignTimeRefYAML(yamlValue)) {
+      throw new Error("Битая DesignTimeRef-ссылка должна содержать ссылку или пару канонических UUID")
+    }
     const payload = brokenDesignTimeRefPayload(yamlValue)
     return {
       yamlValue: payload,
-      transportedPaths: [[]],
+      transportedLocations: [location],
     }
   },
   patchExportedXML({ xmlValue }) {
@@ -62,15 +58,17 @@ export const brokenDesignTimeRefCarrier: BrokenXMLReferenceCarrierRegistration =
         ])
       : base
   },
-  matchesTaggedYAML({ yamlValue, path, isTagged }) {
-    if (path.length !== 0 || !isTagged(path)) return false
+  matchesTaggedYAML({ yamlValue, location, isTagged }) {
+    if (location.kind !== "value" || location.path.length !== 0 || !isTagged(location)) return false
     return isBrokenDesignTimeRefYAML(yamlValue)
   },
 }
 
 export const brokenDesignTimeRefRules = defineMetadataRules({
   ...emptyMetadataRules,
-  brokenXMLReferenceCarriers: [brokenDesignTimeRefCarrier],
+  propertyTypes: propertyTypesFromContributions([
+    definePropertyTypeRule("MetadataValue", "brokenXMLReferenceCarrier", brokenDesignTimeRefCarrier),
+  ]),
 })
 
 function designTimeRefText(value: unknown): string | undefined {
@@ -89,14 +87,13 @@ function designTimeRefText(value: unknown): string | undefined {
 function isBrokenDesignTimeRefYAML(value: unknown): value is string {
   if (typeof value !== "string") return false
   const payload = xmlAnomalyTagPayload("xml/reference", value)
-  if (isDesignTimeRefUuid(payload)) return true
-  return importMetadataValueStringFromYAML(referenceContext, undefined, payload)?.includes(".") === true
+  return isDesignTimeRefUuid(payload) || isNamedMetadataValueReference(payload)
 }
 
 function brokenDesignTimeRefPayload(value: unknown): string {
   if (!isBrokenDesignTimeRefYAML(value)) {
     throw new Error(
-      "Битая DesignTimeRef-ссылка должна содержать ссылочное значение",
+      "Битая DesignTimeRef-ссылка должна содержать ссылку или пару канонических UUID",
     )
   }
   return xmlAnomalyTagPayload("xml/reference", value)

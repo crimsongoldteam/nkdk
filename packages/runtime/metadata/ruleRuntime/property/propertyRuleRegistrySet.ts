@@ -182,6 +182,7 @@ export function createPropertyRuleRegistrySet(
   const dependentItems = new Map(Object.entries(definition.dependentItems))
   const brokenXMLReferenceCarriers = createBrokenXMLReferenceCarrierRegistry(
     definition.brokenXMLReferenceCarriers,
+    (propertyType) => typeRules.get(propertyType)?.brokenXMLReferenceCarrier,
   )
   const xmlImportAugmenters = new Map<string, MetadataItemXmlImportAugmenter>()
   const yamlToXmlAugmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()

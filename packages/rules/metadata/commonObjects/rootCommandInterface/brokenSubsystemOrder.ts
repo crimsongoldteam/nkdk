@@ -4,7 +4,9 @@ import { xmlAnomalyTagPayload } from "@nkdk/runtime"
 import {
   defineMetadataRules,
   emptyMetadataRules,
-  type BrokenXMLReferenceCarrierRegistration,
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+  type BrokenXMLReferenceTypeCarrier,
 } from "@nkdk/runtime/rule-kit"
 import {
   isMDObjectRefUuid,
@@ -16,9 +18,8 @@ import {
 } from "../metadataRef/brokenReferenceCollection"
 import { commandInterfaceSubsystemsOrderSchema } from "./subsystemsOrderSchema"
 
-export const brokenCommandInterfaceSubsystemOrderCarrier: BrokenXMLReferenceCarrierRegistration = {
+export const brokenCommandInterfaceSubsystemOrderCarrier: BrokenXMLReferenceTypeCarrier = {
   name: "rootCommandInterface.subsystemsOrderUuid",
-  propertyType: "CommandInterfaceSubsystemsOrder",
   tryImport({ rule, xmlValue, yamlValue }) {
     if (!Array.isArray(yamlValue) || !isRecord(xmlValue)) return undefined
     const itemTag = rule.metadataItemLinksXMLItem ?? "Subsystem"
@@ -39,8 +40,17 @@ export const brokenCommandInterfaceSubsystemOrderCarrier: BrokenXMLReferenceCarr
       payload: brokenSubsystemOrderPayload,
     })
   },
-  patchExportedXML({ xmlValue }) {
-    return xmlValue
+  patchExportedXML({ rule, yamlValue, xmlValue, transportedLocations }) {
+    if (!Array.isArray(yamlValue) || !isRecord(xmlValue)) return xmlValue
+    const itemTag = rule.metadataItemLinksXMLItem ?? "Subsystem"
+    const current = xmlValue[itemTag]
+    const items = Array.isArray(current) ? [...current] : [current]
+    for (const location of transportedLocations) {
+      if (location.kind !== "value") continue
+      const index = location.path[0]
+      if (typeof index === "number") items[index] = brokenSubsystemOrderPayload(yamlValue[index])
+    }
+    return { ...xmlValue, [itemTag]: items }
   },
   validationSchema({ rule, base, validationGraph }) {
     if (!validationGraph) return base
@@ -49,16 +59,23 @@ export const brokenCommandInterfaceSubsystemOrderCarrier: BrokenXMLReferenceCarr
       Type.String({ pattern: `^!xml/reference ${MD_OBJECT_REF_UUID_SOURCE}$` }),
     )
   },
-  matchesTaggedYAML({ yamlValue, path, isTagged }) {
-    if (!Array.isArray(yamlValue) || path.length !== 1 || !isTagged(path)) return false
-    const index = path[0]
+  matchesTaggedYAML({ yamlValue, location, isTagged }) {
+    if (location.kind !== "value" || !Array.isArray(yamlValue)
+      || location.path.length !== 1 || !isTagged(location)) return false
+    const index = location.path[0]
     return typeof index === "number" && isBrokenSubsystemOrderYAML(yamlValue[index])
   },
 }
 
 export const brokenCommandInterfaceSubsystemOrderRules = defineMetadataRules({
   ...emptyMetadataRules,
-  brokenXMLReferenceCarriers: [brokenCommandInterfaceSubsystemOrderCarrier],
+  propertyTypes: propertyTypesFromContributions([
+    definePropertyTypeRule(
+      "CommandInterfaceSubsystemsOrder",
+      "brokenXMLReferenceCarrier",
+      brokenCommandInterfaceSubsystemOrderCarrier,
+    ),
+  ]),
 })
 
 function isBrokenSubsystemOrderYAML(value: unknown): value is string {

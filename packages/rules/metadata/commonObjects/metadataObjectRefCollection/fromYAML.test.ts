@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest"
 import { multiple, multipleYAML, single, singleYAML } from "./__fixtures__/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importMetadataObjectRefCollectionFromYAML } from "./fromYAML"
+import { callAtomicFromYAML } from "../../ruleRuntime"
+import { createPropertyRuleExecutor, createPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../../composition/metadataRules"
 
 describe("importMetadataObjectRefCollectionFromYAML", () => {
   it("should return undefined when data is undefined", () => {
@@ -12,6 +15,20 @@ describe("importMetadataObjectRefCollectionFromYAML", () => {
   it("should return undefined when data is empty array", () => {
     const result = importMetadataObjectRefCollectionFromYAML(mockContext, mockRule, [])
     expect(result).toBeUndefined()
+  })
+
+  it("сохраняет отсутствие значения для пустой коллекции в общем пути rules", () => {
+    const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
+    expect(callAtomicFromYAML({
+      context: mockContext,
+      rule: {
+        type: "MetadataObjectRefCollection",
+        yaml: "Владельцы",
+        metadataTarget: { kind: "object", roots: ["Catalog"] },
+      },
+      value: [],
+      execution,
+    })).toBeUndefined()
   })
 
   it("should import with single value", () => {

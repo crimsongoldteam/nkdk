@@ -43,9 +43,8 @@ function exportFillValue(yaml: string): unknown {
 }
 
 it("registers the strict DesignTimeRef UUID grammar", () => {
-  const carrier = metadataRules.brokenXMLReferenceCarriers.find(
-    ({ name }) => name === "metadataValue.designTimeRef",
-  )
+  const carrier = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
+    .getTypeRule("MetadataValue", "brokenXMLReferenceCarrier")
 
   expect(carrier).toBeDefined()
   if (carrier === undefined) return
@@ -53,7 +52,10 @@ it("registers the strict DesignTimeRef UUID grammar", () => {
     rule: rule.properties.fillValue!,
     xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": UUID_PAIR },
     yamlValue: UUID_PAIR,
-  })).toEqual({ yamlValue: `!xml/reference ${UUID_PAIR}`, taggedPaths: [[]] })
+  })).toEqual({
+    yamlValue: `!xml/reference ${UUID_PAIR}`,
+    taggedLocations: [{ kind: "value", path: [] }],
+  })
   expect(carrier.tryImport({
     rule: rule.properties.fillValue!,
     xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": `${UUID_PAIR}.extra` },
@@ -92,16 +94,18 @@ it("round-trips a broken DesignTimeRef without reference XML", () => {
   })
 })
 
-it("восстанавливает именованную отсутствующую ссылку как DesignTimeRef", () => {
+it("сохраняет совместимую именованную DesignTimeRef-ссылку", () => {
   expect(exportFillValue(
     "ЗначениеЗаполнения: !xml/reference Справочник.Роли.ПустаяСсылка",
   )).toEqual({
-    FillValue: { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.Роли.EmptyRef" },
+    FillValue: {
+      "_xsi:type": "xr:DesignTimeRef",
+      "#text": "Catalog.Роли.EmptyRef",
+    },
   })
 })
 
-it("не перехватывает чужой tagged payload", () => {
-  expect(exportFillValue("ЗначениеЗаполнения: !xml/reference Ложь")).toEqual({
-    FillValue: { "_xsi:type": "xs:string", "#text": "!xml/reference Ложь" },
-  })
+it("отклоняет нессылочное содержимое !xml/reference", () => {
+  expect(() => exportFillValue("ЗначениеЗаполнения: !xml/reference Ложь"))
+    .toThrow("Битая DesignTimeRef-ссылка должна содержать ссылку или пару канонических UUID")
 })

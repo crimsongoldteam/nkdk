@@ -8,6 +8,7 @@ import {
   yamlScalarTagAt,
 } from "./scalarTags"
 import { copyYAMLMappingTag, yamlMappingTagOf } from "./mappingTags"
+import { yamlMappingKeyTagAt } from "./mappingKeyTags"
 
 describe("parseWithJsYaml", () => {
   it.each([
@@ -73,6 +74,40 @@ describe("parseWithJsYaml", () => {
     copyYAMLScalarTags(parsed.data as object, target)
 
     expect(yamlScalarTagAt(target, "Поле")).toBe("xml/value")
+  })
+
+  it("разбирает !xml/reference на скалярном ключе как строковый ключ", () => {
+    const parsed = parseWithJsYaml([
+      "Использование:",
+      "  Роли:",
+      "    !xml/reference 6537a19c-3357-46a2-96a6-1fe4619ddbc8: Истина",
+    ].join("\n"))
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(parsed.data).toEqual({
+      Использование: {
+        Роли: {
+          "6537a19c-3357-46a2-96a6-1fe4619ddbc8": "Истина",
+        },
+      },
+    })
+    const roles = (parsed.data as {
+      Использование: { Роли: Record<string, string> }
+    }).Использование.Роли
+    expect(yamlMappingKeyTagAt(
+      roles,
+      "6537a19c-3357-46a2-96a6-1fe4619ddbc8",
+    )).toBe("xml/reference")
+  })
+
+  it.each([
+    "Роли:\n  !xml/reference: Истина",
+    "Роли:\n  ? !xml/reference\n    - uuid\n  : Истина",
+    "Роли:\n  !xml/value uuid: Истина",
+  ])("отклоняет недопустимый тег скалярного ключа: %s", (source) => {
+    const parsed = parseWithJsYaml(source)
+
+    expect(parsed.syntaxErrors).toHaveLength(1)
   })
 
   it("отклоняет старый неклассифицированный тег !xml", () => {

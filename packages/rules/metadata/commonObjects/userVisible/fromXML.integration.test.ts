@@ -5,6 +5,11 @@ import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { readAndParseXMLFile } from "../../../tests/readAndParseXMLFile"
 import { importUserVisibleFromXML } from "./fromXML"
 import { UserVisible, UserVisibleXML } from "./types"
+import { yamlMappingKeyTagAt } from "@nkdk/runtime"
+import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../../composition/metadataRules"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
+import { importPropertiesFromXMLToYAML } from "../../ruleRuntime"
 
 describe("importUserVisibleFromXML", () => {
   it("should import Use from XML", () => {
@@ -66,5 +71,38 @@ describe("importUserVisibleFromXML", () => {
         { name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", value: true },
       ],
     })
+  })
+
+  it("помечает UUID-ключ роли через !xml/reference", () => {
+    const uuid = "6537a19c-3357-46a2-96a6-1fe4619ddbc8"
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "UserVisibleBrokenReferenceProbe",
+        properties: {
+          use: { type: "UserVisible", xml: "Use", yaml: "Использование" },
+        },
+      } as MetadataItemRule,
+      sources: [{
+        context,
+        xml: {
+          Use: {
+            "xr:Common": true,
+            "xr:Value": [
+              { _name: "Role.Кассир", "#text": true },
+              { _name: uuid, "#text": false },
+            ],
+          },
+        },
+      }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      execution: createRuleRegistrySet(metadataRules).execution,
+    }) as { Использование: { Роли: Record<string, string> } }
+
+    expect(yaml.Использование.Роли).toEqual({ Кассир: "Истина", [uuid]: "Ложь" })
+    expect(yamlMappingKeyTagAt(yaml.Использование.Роли, uuid)).toBe("xml/reference")
   })
 })

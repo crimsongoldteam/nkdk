@@ -10,8 +10,12 @@ import {
   isTypeOwnedMetadataTargetUnavailable,
   metadataTargetOwnerForProperty,
   metadataTargetOwnerFromRule,
-  importStringMetadataTargetFromYAML,
 } from "./metadataTargetString"
+import {
+  cloneMetadataTargetValue,
+  importMetadataTargetOccurrencesFromYAML,
+  type MetadataTargetOccurrencesFunction,
+} from "./metadataTargetOccurrences"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"
 import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
@@ -38,8 +42,8 @@ import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
+import { isRelativeYAMLReferenceTagged } from "./brokenXMLReferenceCarrierRegistry"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
-import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly execution?: PropertyRuleExecution
@@ -637,7 +641,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     const transportPreparation = brokenReferenceRegistry?.prepareBrokenXMLReferenceExport({
       rule: planned.propertyRule,
       yamlValue: sourceValue,
-      isTagged: (path) => isRelativeYAMLScalarTagged(yaml, yamlKey, path),
+      isTagged: (location) => yaml !== undefined && yamlKey !== undefined
+        && isRelativeYAMLReferenceTagged(yaml, yamlKey, location),
     })
     const importSourceValue = transportPreparation?.yamlValue ?? sourceValue
     const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
@@ -759,22 +764,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
   }
 }
 
-function isRelativeYAMLScalarTagged(
-  yaml: Readonly<Record<string, unknown>> | undefined,
-  propertyKey: string | undefined,
-  path: readonly (string | number)[],
-): boolean {
-  if (yaml === undefined || propertyKey === undefined) return false
-  if (path.length === 0) return yamlScalarTagAt(yaml, propertyKey) === "xml/reference"
-  let parent: unknown = yaml[propertyKey]
-  for (const segment of path.slice(0, -1)) {
-    if (typeof parent !== "object" || parent === null) return false
-    parent = (parent as Readonly<Record<string | number, unknown>>)[segment]
-  }
-  const key = path[path.length - 1]
-  return key !== undefined && yamlScalarTagAt(parent, key) === "xml/reference"
-}
-
 function formatRulePath(path: readonly (string | number)[]): string {
   return path.map(String).join("/")
 }
@@ -798,9 +787,17 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const handler = params.handler ?? (params.execution === undefined
     ? getTypeRule(rule.type, "importFromYAML")
     : params.execution.getTypeRule(rule.type, "importFromYAML"))
-  const importedValue = handler === undefined || rule.type === "IndexField" || rule.type === "FunctionalOptionsProperty"
-    ? importStringMetadataTargetFromYAML({ rule, value, owner })
-    : value
+  const occurrenceHandler = params.execution === undefined
+    ? getTypeRule(rule.type, "metadataTargetOccurrences")
+    : params.execution.getTypeRule(rule.type, "metadataTargetOccurrences")
+  const importedValue = occurrenceHandler === undefined
+    ? value
+    : importMetadataTargetsFromYAML({
+        value,
+        handler: occurrenceHandler,
+        rule,
+        owner,
+      })
   if (handler === undefined) {
     const imported = importedValue ?? referenceValue
     return imported === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : imported
@@ -824,6 +821,27 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
     ? imported
     : (imported ?? normalizeReferenceFallback(rule, referenceValue))
   return resolved === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : resolved
+}
+
+function importMetadataTargetsFromYAML(params: {
+  value: unknown
+  handler: MetadataTargetOccurrencesFunction
+  rule: PropertyRule
+  owner?: MetadataTargetOwner
+}): unknown {
+  const prepared = cloneMetadataTargetValue(params.value)
+  const occurrences = params.handler({
+    value: prepared,
+    representation: "yaml",
+    yamlPath: typeof params.rule.yaml === "string" ? [params.rule.yaml] : [],
+    propRule: params.rule,
+    owner: params.owner,
+  })
+  return importMetadataTargetOccurrencesFromYAML({
+    value: prepared,
+    occurrences,
+    owner: params.owner,
+  })
 }
 
 function shouldUseOnlyImportedValue(params: { rule: PropertyRule; value: unknown }): boolean {

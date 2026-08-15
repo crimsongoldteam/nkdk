@@ -1,18 +1,21 @@
 import type {
   CollectMetadataTargetReferencesFunction,
+  MetadataTargetOccurrence,
+  MetadataTargetOccurrencesFunction,
   PendingMetadataTargetReferenceCandidate,
   StructuralReferencesFunction,
   ValidateMetadataTargetFunction,
 } from "@nkdk/runtime/rule-kit"
 import { dataTableCanonical } from "@nkdk/runtime/rule-kit"
+import { yamlScalarTagAt, xmlAnomalyTagPayload } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
 import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import { parseMetadataTargetFromModel } from "./parse"
-import type { StyleItemTargetType } from "./types"
 import type { MetadataTargetConstraint, ParsedMetadataTarget } from "./types"
-import { materializeCanonicalMetadataReference, materializeMetadataValueReference } from "./referenceMaterializer"
+import { materializeCanonicalMetadataReference } from "./referenceMaterializer"
+import { collectUserVisibleMetadataTargetOccurrences } from "../userVisible/metadataTargetOccurrences"
 
 const validateStringTarget: ValidateMetadataTargetFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return []
@@ -44,16 +47,10 @@ const collectStringTargetReference: StructuralReferencesFunction = (params) => {
       yamlPath: params.yamlPath,
       canonical: baseRegister,
       setCanonical: (nextCanonical: string) => {
-        const next = parseMetadataTargetFromModel({
-          canonical: nextCanonical,
-          constraint: calculationRegisterConstraint,
-        })
-        if (!next.ok || next.target.kind !== "object" || next.target.root !== "CalculationRegister") {
-          throw new Error(`Не удалось записать ссылку на базовый регистр расчёта: ${nextCanonical}`)
-        }
+        const nextName = calculationRegisterName(nextCanonical)
         params.setValue(dataTableCanonical({
           ...dataTable,
-          virtualTable: `Base${next.target.objectName}`,
+          virtualTable: `Base${nextName}`,
         }))
       },
     })
@@ -89,36 +86,6 @@ export const collectStringTargetReferenceList: StructuralReferencesFunction = (p
   })
 }
 
-const validateMetadataValueTarget: ValidateMetadataTargetFunction = (params) => {
-  if (!isRecord(params.value) || params.value.type !== "ref" || typeof params.value.value !== "string") return []
-  if (params.value.value === "" || isDesignTimeRefUuid(params.value.value)) return []
-
-  return validateCanonicalTarget(params, params.value.value)
-}
-
-const collectMetadataValueReference: StructuralReferencesFunction = (params) => {
-  if (!params.propRule.metadataTarget) return []
-  if (!isRecord(params.value) || params.value.type !== "ref" || typeof params.value.value !== "string") return []
-  if (params.value.value === "" || isDesignTimeRefUuid(params.value.value)) return []
-
-  const parsed = parseMetadataTargetFromModel({
-    canonical: params.value.value,
-    constraint: params.propRule.metadataTarget,
-    owner: params.owner,
-  })
-  if (!parsed.ok) return []
-
-  return [
-    {
-      yamlPath: params.yamlPath,
-      canonical: parsed.canonical,
-      setCanonical: (nextCanonical: string) => {
-        if (isRecord(params.value)) params.value.value = nextCanonical
-      },
-    },
-  ]
-}
-
 const collectStringTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return { references: [], diagnostics: [] }
   if (!isValidatedStringTarget(params.propRule.type, params.propRule.metadataTarget)) {
@@ -150,6 +117,14 @@ function baseCalculationRegisterReference(target: ParsedMetadataTarget): string 
     return undefined
   }
   return `CalculationRegister.${virtualTable.slice("Base".length)}`
+}
+
+function calculationRegisterName(canonical: string): string {
+  const parsed = parseMetadataTargetFromModel({ canonical, constraint: calculationRegisterConstraint })
+  if (!parsed.ok || parsed.target.kind !== "object" || parsed.target.root !== "CalculationRegister") {
+    throw new Error(`Не удалось записать ссылку на базовый регистр расчёта: ${canonical}`)
+  }
+  return parsed.target.objectName
 }
 
 function isValidatedStringTarget(
@@ -188,189 +163,285 @@ export const collectStringTargetListForValidation: CollectMetadataTargetReferenc
   return { references, diagnostics }
 }
 
-const collectMetadataValueTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
-  if (!isRecord(params.value) || params.value.type !== "ref" || typeof params.value.value !== "string") {
-    return { references: [], diagnostics: [] }
-  }
-  const constraint = params.propRule.metadataTarget
-  if (constraint === undefined) return { references: [], diagnostics: [] }
-  return materializeMetadataValueReference({
-    value: { type: "ref", value: params.value.value },
+const collectDirectMetadataTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => {
+  const constraint = occurrenceMetadataTarget(params.propRule)
+  if (constraint === undefined || typeof params.value !== "string" || params.value === "") return []
+  return [{
+    location: { kind: "value", path: params.yamlPath },
     constraint,
-    owner: params.owner,
-    filePath: params.filePath,
-    parsed: params.parsed,
-    yamlPath: params.yamlPath,
-  })
+    representation: { kind: "canonical", canonical: params.value },
+    setValue: (_nextValue) => undefined,
+  }]
 }
 
-const collectColorTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
-  if (!isRecord(params.value) || params.value.type !== "StyleItem" || typeof params.value.value !== "string") {
-    return { references: [], diagnostics: [] }
+const collectMetadataValueTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => withTargetConstraint(params, (value, constraint) => {
+  if (params.representation === "model") {
+    if (!isRecord(value) || value.type !== "ref" || typeof value.value !== "string" || value.value === "") return []
+    return [nestedValueOccurrence({
+      canonical: value.value,
+      constraint,
+      path: params.yamlPath,
+      setValue: (nextValue) => { value.value = nextValue },
+    })]
   }
-  if (isKnownStyleColor(params.value.value)) return { references: [], diagnostics: [] }
+  return []
+})
 
-  return collectCanonicalTargetWithConstraint(params, `StyleItem.${params.value.value}`, {
-    kind: "object",
-    roots: ["StyleItem"],
-    filters: [{ kind: "styleItemType", values: ["Color"] }],
-  })
-}
-
-const collectFontTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
-  if (!isRecord(params.value) || params.value.kind !== "StyleItem" || typeof params.value.ref !== "string") {
-    return { references: [], diagnostics: [] }
+const collectColorTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => withTargetConstraint(params, (value) => {
+  if (params.representation === "model") {
+    if (!isRecord(value) || value.type !== "StyleItem" || typeof value.value !== "string"
+      || isKnownStyleColor(value.value)) return []
+    return modelObjectNameOccurrences({
+      params,
+      name: value.value,
+      root: "StyleItem",
+      setName: (nextName) => { value.value = nextName },
+    })
   }
-  if (isKnownStyleFont(params.value.ref)) return { references: [], diagnostics: [] }
+  return []
+})
 
-  return collectCanonicalTargetWithConstraint(params, `StyleItem.${params.value.ref}`, {
-    kind: "object",
-    roots: ["StyleItem"],
-    filters: [{ kind: "styleItemType", values: ["Font"] }],
-  })
-}
-
-const collectBorderTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
-  if (!isRecord(params.value) || typeof params.value.ref !== "string") return { references: [], diagnostics: [] }
-
-  return collectCanonicalTargetWithConstraint(params, `StyleItem.${params.value.ref}`, {
-    kind: "object",
-    roots: ["StyleItem"],
-    filters: [{ kind: "styleItemType", values: ["Border"] }],
-  })
-}
-
-const collectPictureTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
-  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string") {
-    return { references: [], diagnostics: [] }
+const collectFontTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => withTargetConstraint(params, (value) => {
+  if (!isRecord(value)) return []
+  if (params.representation === "model") {
+    if (value.kind !== "StyleItem" || typeof value.ref !== "string" || isKnownStyleFont(value.ref)) return []
+    return modelObjectNameOccurrences({
+      params,
+      name: value.ref,
+      root: "StyleItem",
+      setName: (nextName) => { value.ref = nextName },
+    })
   }
+  return []
+})
 
-  return collectCanonicalTargetWithConstraint(params, `CommonPicture.${params.value.ref}`, {
-    kind: "object",
-    roots: ["CommonPicture"],
-  })
+const collectBorderTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => withTargetConstraint(params, (value) => {
+  if (!isRecord(value)) return []
+  if (params.representation === "model") {
+    if (typeof value.ref !== "string") return []
+    return modelObjectNameOccurrences({
+      params,
+      name: value.ref,
+      root: "StyleItem",
+      setName: (nextName) => { value.ref = nextName },
+    })
+  }
+  return []
+})
+
+const collectPictureTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => withTargetConstraint(params, (value) => {
+  if (params.representation === "model") {
+    if (!isRecord(value) || value.type !== "CommonPicture" || typeof value.ref !== "string") return []
+    return modelObjectNameOccurrences({
+      params,
+      name: value.ref,
+      root: "CommonPicture",
+      setName: (nextName) => { value.ref = nextName },
+    })
+  }
+  return []
+})
+
+function withTargetConstraint(
+  params: Parameters<MetadataTargetOccurrencesFunction>[0],
+  collect: (value: unknown, constraint: MetadataTargetConstraint) => readonly MetadataTargetOccurrence[],
+): readonly MetadataTargetOccurrence[] {
+  const constraint = params.propRule.metadataTarget
+  return constraint === undefined ? [] : collect(params.value, constraint)
 }
 
-const validateColorTarget: ValidateMetadataTargetFunction = (params) => {
-  if (!isRecord(params.value) || params.value.type !== "StyleItem" || typeof params.value.value !== "string") return []
-  if (isKnownStyleColor(params.value.value)) return []
-
-  return resolveStyleItem(params, params.value.value, ["Color"])
+function nestedValueOccurrence(params: {
+  canonical: string
+  constraint: MetadataTargetConstraint
+  path: readonly (string | number)[]
+  setValue(nextValue: string): void
+}): MetadataTargetOccurrence {
+  return {
+    location: { kind: "value", path: params.path },
+    constraint: params.constraint,
+    representation: { kind: "canonical", canonical: params.canonical },
+    setValue: params.setValue,
+  }
 }
 
-const validateFontTarget: ValidateMetadataTargetFunction = (params) => {
-  if (!isRecord(params.value) || params.value.kind !== "StyleItem" || typeof params.value.ref !== "string") return []
-  if (isKnownStyleFont(params.value.ref)) return []
-
-  return resolveStyleItem(params, params.value.ref, ["Font"])
+function modelObjectNameOccurrences(params: {
+  params: Parameters<MetadataTargetOccurrencesFunction>[0]
+  name: string
+  root: string
+  setName(nextName: string): void
+}): MetadataTargetOccurrence[] {
+  const constraint = params.params.propRule.metadataTarget
+  if (constraint === undefined) return []
+  return [objectNameOccurrence({
+    canonical: `${params.root}.${params.name}`,
+    constraint,
+    path: params.params.yamlPath,
+    root: params.root,
+    owner: params.params.owner,
+    setName: params.setName,
+  })]
 }
 
-const validateBorderTarget: ValidateMetadataTargetFunction = (params) => {
-  if (!isRecord(params.value) || typeof params.value.ref !== "string") return []
-
-  return resolveStyleItem(params, params.value.ref, ["Border"])
-}
-
-const validatePictureTarget: ValidateMetadataTargetFunction = (params) => {
-  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string")
-    return []
-
-  const result = params.resolver.resolveCommonPicture({ name: params.value.ref })
-  return result.ok ? [] : result.diagnostics
-}
-
-const collectPictureReference: StructuralReferencesFunction = (params) => {
-  if (!params.propRule.metadataTarget) return []
-  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string")
-    return []
-
-  return [
-    {
-      yamlPath: params.yamlPath,
-      canonical: `CommonPicture.${params.value.ref}`,
-      setCanonical: (nextCanonical: string) => {
-        const parsed = parseMetadataTargetFromModel({
-          canonical: nextCanonical,
-          constraint: params.propRule.metadataTarget!,
-          owner: params.owner,
-        })
-        if (!parsed.ok || parsed.target.kind !== "object" || parsed.target.root !== "CommonPicture") {
-          throw new Error(`Не удалось записать ссылку на общую картинку: ${nextCanonical}`)
-        }
-        if (isRecord(params.value)) params.value.ref = parsed.target.objectName
-      },
+function objectNameOccurrence(params: {
+  canonical: string
+  constraint: MetadataTargetConstraint
+  path: readonly (string | number)[]
+  root: string
+  owner: Parameters<MetadataTargetOccurrencesFunction>[0]["owner"]
+  setName(nextName: string): void
+}): MetadataTargetOccurrence {
+  return nestedValueOccurrence({
+    canonical: params.canonical,
+    constraint: params.constraint,
+    path: params.path,
+    setValue: (nextValue) => {
+      const parsed = parseMetadataTargetFromModel({
+        canonical: nextValue,
+        constraint: params.constraint,
+        owner: params.owner,
+      })
+      if (!parsed.ok || parsed.target.kind !== "object" || parsed.target.root !== params.root) {
+        throw new Error(`Не удалось записать ссылку ${params.root}: ${nextValue}`)
+      }
+      params.setName(parsed.target.objectName)
     },
-  ]
+  })
 }
 
-const functionalOptionConstraint = {
-  kind: "object",
-  roots: ["FunctionalOption"],
-} as const satisfies MetadataTargetConstraint
+export const collectListMetadataTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => {
+  const constraint = occurrenceMetadataTarget(params.propRule)
+  if (constraint === undefined || !Array.isArray(params.value)) return []
+  return params.value.flatMap((value, index): MetadataTargetOccurrence[] =>
+    typeof value !== "string" || value === ""
+      ? []
+      : [{
+          location: { kind: "value", path: [...params.yamlPath, index] },
+          constraint,
+          representation: params.representation === "yaml"
+            && yamlScalarTagAt(params.value, index) === "xml/reference"
+            ? {
+                kind: "brokenXMLReference",
+                payload: xmlAnomalyTagPayload("xml/reference", value),
+                grammar: "transported",
+              }
+            : { kind: "canonical", canonical: value },
+          setValue: (nextValue) => {
+            if (Array.isArray(params.value)) params.value[index] = nextValue
+          },
+        }])
+}
 
-const roleConstraint = {
-  kind: "object",
-  roots: ["Role"],
-} as const satisfies MetadataTargetConstraint
+function occurrenceMetadataTarget(
+  propRule: Parameters<MetadataTargetOccurrencesFunction>[0]["propRule"],
+): MetadataTargetConstraint | undefined {
+  if (propRule.metadataTarget !== undefined) return propRule.metadataTarget
+  if (propRule.type === "MetadataItemLink" || propRule.type === "MetadataItemLinks") {
+    return { kind: "object" }
+  }
+  if (propRule.type === "MetadataField" || propRule.type === "MetadataFields") {
+    return { kind: "member", owner: "explicit" }
+  }
+  return undefined
+}
 
-const collectFunctionalOptionReferences: StructuralReferencesFunction = (params) =>
-  collectStringTargetReferenceList({
-    ...params,
-    propRule: { ...params.propRule, metadataTarget: functionalOptionConstraint },
-  })
-
-const collectFunctionalOptionTargets: CollectMetadataTargetReferencesFunction = (params) =>
-  collectStringTargetListForValidation({
-    ...params,
-    propRule: { ...params.propRule, metadataTarget: functionalOptionConstraint },
-  })
-
-const collectUserVisibleReferences: StructuralReferencesFunction = (params) => {
-  const values = userVisibleValues(params.value)
-  return values.flatMap((item) => {
-    if (isUuid(item.name)) return []
-    const parsed = parseMetadataTargetFromModel({ canonical: item.name, constraint: roleConstraint })
-    if (!parsed.ok || parsed.target.kind !== "object") return []
-    return [{
-      yamlPath: [...params.yamlPath, "Роли", parsed.target.objectName],
+function structuralReferencesFromOccurrences(
+  occurrences: MetadataTargetOccurrencesFunction,
+): StructuralReferencesFunction {
+  return (params) => occurrences({
+    value: params.value,
+    representation: "model",
+    yamlPath: params.yamlPath,
+    propRule: params.propRule,
+    owner: params.owner,
+  }).flatMap((occurrence) => {
+    if (occurrence.representation.kind !== "canonical") return []
+    const parsed = parseMetadataTargetFromModel({
+      canonical: occurrence.representation.canonical,
+      constraint: occurrence.constraint,
+      owner: params.owner,
+    })
+    if (!parsed.ok) return []
+    const primary = {
+      yamlPath: occurrence.location.kind === "key"
+        ? [...occurrence.location.path, occurrence.location.key]
+        : occurrence.location.path,
       canonical: parsed.canonical,
       setCanonical: (nextCanonical: string) => {
-        item.name = nextCanonical
+        occurrence.setValue(nextCanonical)
+        if (typeof params.value === "string") params.setValue(nextCanonical)
+      },
+    }
+    const baseRegister = baseCalculationRegisterReference(parsed.target)
+    if (baseRegister === undefined || parsed.target.kind !== "dataTable") return [primary]
+    const dataTable = parsed.target
+    return [primary, {
+      yamlPath: primary.yamlPath,
+      canonical: baseRegister,
+      setCanonical: (nextCanonical: string) => {
+        const nextValue = dataTableCanonical({
+          ...dataTable,
+          virtualTable: `Base${calculationRegisterName(nextCanonical)}`,
+        })
+        occurrence.setValue(nextValue)
+        if (typeof params.value === "string") params.setValue(nextValue)
       },
     }]
   })
 }
 
-const collectUserVisibleTargets: CollectMetadataTargetReferencesFunction = (params) => {
-  const references: PendingMetadataTargetReferenceCandidate[] = []
-  const diagnostics: Diagnostic[] = []
-  for (const item of userVisibleValues(params.value)) {
-    if (isUuid(item.name)) continue
-    const parsed = parseMetadataTargetFromModel({ canonical: item.name, constraint: roleConstraint })
-    const yamlPath = [...params.yamlPath, "Роли", parsed.ok && parsed.target.kind === "object"
-      ? parsed.target.objectName
-      : item.name]
-    const result = materializeCanonicalMetadataReference({
-      canonical: item.name,
-      constraint: roleConstraint,
-      filePath: params.filePath,
-      parsed: params.parsed,
-      yamlPath,
-    })
-    references.push(...result.references)
-    diagnostics.push(...result.diagnostics)
+function collectedReferencesFromOccurrences(
+  occurrences: MetadataTargetOccurrencesFunction,
+): CollectMetadataTargetReferencesFunction {
+  return (params) => {
+    const references: PendingMetadataTargetReferenceCandidate[] = []
+    const diagnostics: Diagnostic[] = []
+    for (const occurrence of occurrences({
+      value: params.value,
+      representation: "model",
+      yamlPath: params.yamlPath,
+      propRule: params.propRule,
+      owner: params.owner,
+    })) {
+      if (occurrence.representation.kind !== "canonical") continue
+      if (isTranslateOnlyConstraint(occurrence.constraint)) continue
+      const yamlPath = occurrence.location.kind === "key"
+        ? [...occurrence.location.path, occurrence.location.key]
+        : occurrence.location.path
+      const result = materializeCanonicalMetadataReference({
+        canonical: occurrence.representation.canonical,
+        constraint: occurrence.constraint,
+        owner: params.owner,
+        filePath: params.filePath,
+        parsed: params.parsed,
+        yamlPath,
+      })
+      references.push(...result.references)
+      diagnostics.push(...result.diagnostics)
+
+      const parsed = parseMetadataTargetFromModel({
+        canonical: occurrence.representation.canonical,
+        constraint: occurrence.constraint,
+        owner: params.owner,
+      })
+      const baseRegister = parsed.ok ? baseCalculationRegisterReference(parsed.target) : undefined
+      if (baseRegister === undefined) continue
+      const baseResult = materializeCanonicalMetadataReference({
+        canonical: baseRegister,
+        constraint: calculationRegisterConstraint,
+        filePath: params.filePath,
+        parsed: params.parsed,
+        yamlPath,
+      })
+      references.push(...baseResult.references)
+      diagnostics.push(...baseResult.diagnostics)
+    }
+    return { references, diagnostics }
   }
-  return { references, diagnostics }
 }
 
-function userVisibleValues(value: unknown): Array<{ name: string; value: unknown }> {
-  if (!isRecord(value) || !Array.isArray(value.values)) return []
-  return value.values.filter((item): item is { name: string; value: unknown } =>
-    isRecord(item) && typeof item.name === "string")
-}
-
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+function isTranslateOnlyConstraint(constraint: MetadataTargetConstraint): boolean {
+  return (constraint.kind === "dataTable" || constraint.kind === "dataTableField")
+    && constraint.validation === "translateOnly"
 }
 
 function validateCanonicalTarget(
@@ -451,23 +522,8 @@ function resolveParsedTarget(params: {
   return []
 }
 
-function resolveStyleItem(
-  params: Parameters<ValidateMetadataTargetFunction>[0],
-  name: string,
-  expectedTypes: readonly StyleItemTargetType[]
-): ReturnType<ValidateMetadataTargetFunction> {
-  const result = params.resolver.resolveStyleItem({ name, expectedTypes })
-  return result.ok ? [] : result.diagnostics
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
-}
-
-function isDesignTimeRefUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-    value
-  )
 }
 
 function isKnownStyleColor(value: string): value is SE.StyleColors {
@@ -484,31 +540,60 @@ export const metadataPropertyRule002 = definePropertyTypeRule("MetadataItemLinks
 export const metadataPropertyRule003 = definePropertyTypeRule("MetadataField", "validateMetadataTarget", validateStringTarget)
 export const metadataPropertyRule004 = definePropertyTypeRule("MetadataFields", "validateMetadataTarget", validateStringTargetList)
 export const metadataPropertyRule005 = definePropertyTypeRule("MetadataObjectRefCollection", "validateMetadataTarget", validateStringTargetList)
-export const metadataPropertyRule006 = definePropertyTypeRule("MetadataValue", "validateMetadataTarget", validateMetadataValueTarget)
+export const metadataPropertyRule006 = definePropertyTypeRule("MetadataValue", "metadataTargetOccurrences", collectMetadataValueTargetOccurrences)
 export const metadataPropertyRule007 = definePropertyTypeRule("MetadataItemLink", "collectMetadataTargetReferences", collectStringTargetForValidation)
 export const metadataPropertyRule008 = definePropertyTypeRule("string", "collectMetadataTargetReferences", collectStringTargetForValidation)
 export const metadataPropertyRule009 = definePropertyTypeRule("MetadataItemLinks", "collectMetadataTargetReferences", collectStringTargetListForValidation)
 export const metadataPropertyRule010 = definePropertyTypeRule("MetadataField", "collectMetadataTargetReferences", collectStringTargetForValidation)
 export const metadataPropertyRule011 = definePropertyTypeRule("MetadataFields", "collectMetadataTargetReferences", collectStringTargetListForValidation)
 export const metadataPropertyRule012 = definePropertyTypeRule("MetadataObjectRefCollection", "collectMetadataTargetReferences", collectStringTargetListForValidation)
-export const metadataPropertyRule013 = definePropertyTypeRule("MetadataValue", "collectMetadataTargetReferences", collectMetadataValueTargetForValidation)
-export const metadataPropertyRule014 = definePropertyTypeRule("Color", "collectMetadataTargetReferences", collectColorTargetForValidation)
-export const metadataPropertyRule015 = definePropertyTypeRule("Font", "collectMetadataTargetReferences", collectFontTargetForValidation)
-export const metadataPropertyRule016 = definePropertyTypeRule("Border", "collectMetadataTargetReferences", collectBorderTargetForValidation)
-export const metadataPropertyRule017 = definePropertyTypeRule("Picture", "collectMetadataTargetReferences", collectPictureTargetForValidation)
+export const metadataPropertyRule013 = definePropertyTypeRule("MetadataValue", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectMetadataValueTargetOccurrences))
+export const metadataPropertyRule014 = definePropertyTypeRule("Color", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectColorTargetOccurrences))
+export const metadataPropertyRule015 = definePropertyTypeRule("Font", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectFontTargetOccurrences))
+export const metadataPropertyRule016 = definePropertyTypeRule("Border", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectBorderTargetOccurrences))
+export const metadataPropertyRule017 = definePropertyTypeRule("Picture", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectPictureTargetOccurrences))
 export const metadataPropertyRule018 = definePropertyTypeRule("MetadataItemLink", "structuralReferences", collectStringTargetReference)
 export const metadataPropertyRule019 = definePropertyTypeRule("string", "structuralReferences", collectStringTargetReference)
 export const metadataPropertyRule020 = definePropertyTypeRule("MetadataItemLinks", "structuralReferences", collectStringTargetReferenceList)
 export const metadataPropertyRule021 = definePropertyTypeRule("MetadataField", "structuralReferences", collectStringTargetReference)
 export const metadataPropertyRule022 = definePropertyTypeRule("MetadataFields", "structuralReferences", collectStringTargetReferenceList)
 export const metadataPropertyRule023 = definePropertyTypeRule("MetadataObjectRefCollection", "structuralReferences", collectStringTargetReferenceList)
-export const metadataPropertyRule024 = definePropertyTypeRule("MetadataValue", "structuralReferences", collectMetadataValueReference)
-export const metadataPropertyRule025 = definePropertyTypeRule("Picture", "structuralReferences", collectPictureReference)
-export const metadataPropertyRule026 = definePropertyTypeRule("Color", "validateMetadataTarget", validateColorTarget)
-export const metadataPropertyRule027 = definePropertyTypeRule("Font", "validateMetadataTarget", validateFontTarget)
-export const metadataPropertyRule028 = definePropertyTypeRule("Border", "validateMetadataTarget", validateBorderTarget)
-export const metadataPropertyRule029 = definePropertyTypeRule("Picture", "validateMetadataTarget", validatePictureTarget)
-export const metadataPropertyRule030 = definePropertyTypeRule("FunctionalOptionsProperty", "collectMetadataTargetReferences", collectFunctionalOptionTargets)
-export const metadataPropertyRule031 = definePropertyTypeRule("FunctionalOptionsProperty", "structuralReferences", collectFunctionalOptionReferences)
-export const metadataPropertyRule032 = definePropertyTypeRule("UserVisible", "collectMetadataTargetReferences", collectUserVisibleTargets)
-export const metadataPropertyRule033 = definePropertyTypeRule("UserVisible", "structuralReferences", collectUserVisibleReferences)
+export const metadataPropertyRule024 = definePropertyTypeRule("MetadataValue", "structuralReferences", structuralReferencesFromOccurrences(collectMetadataValueTargetOccurrences))
+export const metadataPropertyRule025 = definePropertyTypeRule("Picture", "structuralReferences", structuralReferencesFromOccurrences(collectPictureTargetOccurrences))
+export const metadataPropertyRule026 = definePropertyTypeRule("Color", "structuralReferences", structuralReferencesFromOccurrences(collectColorTargetOccurrences))
+export const metadataPropertyRule027 = definePropertyTypeRule("Font", "structuralReferences", structuralReferencesFromOccurrences(collectFontTargetOccurrences))
+export const metadataPropertyRule028 = definePropertyTypeRule("Border", "structuralReferences", structuralReferencesFromOccurrences(collectBorderTargetOccurrences))
+export const metadataPropertyRule029 = definePropertyTypeRule("Picture", "metadataTargetOccurrences", collectPictureTargetOccurrences)
+export const metadataPropertyRule030 = definePropertyTypeRule("FunctionalOptionsProperty", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule031 = definePropertyTypeRule("FunctionalOptionsProperty", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule032 = definePropertyTypeRule("UserVisible", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectUserVisibleMetadataTargetOccurrences))
+export const metadataPropertyRule033 = definePropertyTypeRule("UserVisible", "structuralReferences", structuralReferencesFromOccurrences(collectUserVisibleMetadataTargetOccurrences))
+export const metadataPropertyRule034 = definePropertyTypeRule("string", "metadataTargetOccurrences", collectDirectMetadataTargetOccurrences)
+export const metadataPropertyRule035 = definePropertyTypeRule("MetadataItemLink", "metadataTargetOccurrences", collectDirectMetadataTargetOccurrences)
+export const metadataPropertyRule036 = definePropertyTypeRule("MetadataField", "metadataTargetOccurrences", collectDirectMetadataTargetOccurrences)
+export const metadataPropertyRule037 = definePropertyTypeRule("MetadataItemLinks", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
+export const metadataPropertyRule038 = definePropertyTypeRule("MetadataFields", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
+export const metadataPropertyRule039 = definePropertyTypeRule("MetadataObjectRefCollection", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
+export const metadataPropertyRule040 = definePropertyTypeRule("UserVisible", "metadataTargetOccurrences", collectUserVisibleMetadataTargetOccurrences)
+export const metadataPropertyRule041 = definePropertyTypeRule("string", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectDirectMetadataTargetOccurrences))
+export const metadataPropertyRule042 = definePropertyTypeRule("MetadataItemLink", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectDirectMetadataTargetOccurrences))
+export const metadataPropertyRule043 = definePropertyTypeRule("MetadataField", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectDirectMetadataTargetOccurrences))
+export const metadataPropertyRule044 = definePropertyTypeRule("MetadataItemLinks", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule045 = definePropertyTypeRule("MetadataFields", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule046 = definePropertyTypeRule("MetadataObjectRefCollection", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule047 = definePropertyTypeRule("UserVisible", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectUserVisibleMetadataTargetOccurrences))
+export const metadataPropertyRule048 = definePropertyTypeRule("string", "structuralReferences", structuralReferencesFromOccurrences(collectDirectMetadataTargetOccurrences))
+export const metadataPropertyRule049 = definePropertyTypeRule("MetadataItemLink", "structuralReferences", structuralReferencesFromOccurrences(collectDirectMetadataTargetOccurrences))
+export const metadataPropertyRule050 = definePropertyTypeRule("MetadataField", "structuralReferences", structuralReferencesFromOccurrences(collectDirectMetadataTargetOccurrences))
+export const metadataPropertyRule051 = definePropertyTypeRule("MetadataItemLinks", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule052 = definePropertyTypeRule("MetadataFields", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule053 = definePropertyTypeRule("MetadataObjectRefCollection", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule054 = definePropertyTypeRule("UserVisible", "structuralReferences", structuralReferencesFromOccurrences(collectUserVisibleMetadataTargetOccurrences))
+export const metadataPropertyRule055 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
+export const metadataPropertyRule056 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule057 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule058 = definePropertyTypeRule("FunctionalOptionsProperty", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
+export const metadataPropertyRule059 = definePropertyTypeRule("IndexField", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
+export const metadataPropertyRule060 = definePropertyTypeRule("Color", "metadataTargetOccurrences", collectColorTargetOccurrences)
+export const metadataPropertyRule061 = definePropertyTypeRule("Font", "metadataTargetOccurrences", collectFontTargetOccurrences)
+export const metadataPropertyRule062 = definePropertyTypeRule("Border", "metadataTargetOccurrences", collectBorderTargetOccurrences)

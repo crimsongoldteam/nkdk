@@ -6,6 +6,7 @@ import { parseWithJsYaml } from "./jsYamlParser"
 import { parseMetadataYaml } from "./parseMetadataYaml"
 import { markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "./scalarTags"
 import { copyYAMLMappingTag, yamlMappingTagOf } from "./mappingTags"
+import { markYAMLMappingKeyTag, yamlMappingKeyTagAt } from "./mappingKeyTags"
 
 describe("exportToYAML", () => {
   it.each([
@@ -99,6 +100,38 @@ describe("exportToYAML", () => {
     expect(exportToYAML(data)).toBe("Комментарий: !xml/value Текст")
     expect(data).toEqual({ Комментарий: "!xml/value Текст" })
     expect(xmlAnomalyTagPayload("xml/value", data.Комментарий)).toBe("Текст")
+  })
+
+  it("сохраняет !xml/reference на скалярном ключе", () => {
+    const expected = [
+      "Роли:",
+      "  !xml/reference 6537a19c-3357-46a2-96a6-1fe4619ddbc8: Истина",
+      "  Администратор: Ложь",
+    ].join("\n")
+    const roles = {
+      "6537a19c-3357-46a2-96a6-1fe4619ddbc8": "Истина",
+      Администратор: "Ложь",
+    }
+    markYAMLMappingKeyTag(
+      roles,
+      "6537a19c-3357-46a2-96a6-1fe4619ddbc8",
+      "xml/reference",
+    )
+
+    const serialized = serializeYAMLDocument({ Роли: roles })
+    const reparsed = parseMetadataYaml(serialized.text)
+    const serializedRoles = (serialized.data as { Роли: Record<string, string> }).Роли
+    const reparsedRoles = (reparsed.data as { Роли: Record<string, string> }).Роли
+
+    expect(serialized.text).toBe(expected)
+    expect(yamlMappingKeyTagAt(
+      serializedRoles,
+      "6537a19c-3357-46a2-96a6-1fe4619ddbc8",
+    )).toBe("xml/reference")
+    expect(yamlMappingKeyTagAt(
+      reparsedRoles,
+      "6537a19c-3357-46a2-96a6-1fe4619ddbc8",
+    )).toBe("xml/reference")
   })
 
   it("сериализует и сохраняет mapping-тег нарушения порядка", () => {

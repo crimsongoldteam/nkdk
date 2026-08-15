@@ -1,4 +1,4 @@
-import { dump } from "js-yaml"
+import { dump, type Document, type Node } from "js-yaml"
 import { isExplicitYAMLString, markDoubleQuotedScalar, unwrapExplicitYAMLString } from "./explicitString"
 import {
   copyYAMLScalarTags,
@@ -13,6 +13,10 @@ import {
   hasYAMLMappingKeyOrder,
   yamlMappingEntries,
 } from "./mappingTags"
+import {
+  copyYAMLMappingKeyTags,
+  yamlMappingKeyTagAt,
+} from "./mappingKeyTags"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
 const UNDEFINED_VALUE_MARKER_PREFIX = "__NKDK_UNDEFINED_VALUE_"
@@ -105,6 +109,8 @@ function prepareForDump(
     copyYAMLMappingTag(value, data)
     copyYAMLMappingKeyOrder(value, dumpValue)
     copyYAMLMappingKeyOrder(value, data)
+    copyYAMLMappingKeyTags(value, dumpValue)
+    copyYAMLMappingKeyTags(value, data)
     return { dumpValue, data }
   }
   return { dumpValue: value, data: value }
@@ -186,6 +192,9 @@ export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
     sortKeys: false,
     forceQuotes: false,
     quoteStyle: "double",
+    transform(documents) {
+      applyYAMLMappingKeyTagsToAST(documents, prepared.dumpValue)
+    },
   })
   const text = restoreYAMLScalarTagsAfterDump(
     removeDocumentFinalLineEnding(
@@ -199,6 +208,42 @@ export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
     )
   )
   return { text, data: prepared.data }
+}
+
+function applyYAMLMappingKeyTagsToAST(
+  documents: Document[],
+  source: unknown,
+): void {
+  const document = documents[0]
+  if (document !== undefined) applyYAMLMappingKeyTagsToNode(document.contents, source)
+}
+
+function applyYAMLMappingKeyTagsToNode(node: Node | null, source: unknown): void {
+  if (node === null || node.kind === "alias") return
+  if (node.kind === "sequence") {
+    if (!Array.isArray(source)) return
+    node.items.forEach((item, index) => applyYAMLMappingKeyTagsToNode(item, source[index]))
+    return
+  }
+  if (node.kind !== "mapping" || !isRecord(source)) return
+
+  for (const item of node.items) {
+    if (item.key.kind !== "scalar") continue
+    const key = item.key.value
+    const tag = yamlMappingKeyTagAt(source, key)
+    if (tag !== undefined) {
+      if (tag !== "xml/reference") {
+        throw new TypeError(`Тег !${tag} недопустим для ключа YAML`)
+      }
+      item.key.tag = `!${tag}`
+      item.key.style.tagged = true
+    }
+    applyYAMLMappingKeyTagsToNode(item.value, source[key])
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
 export const exportToYAML = <T>(data: T): string => serializeYAMLDocument(data).text

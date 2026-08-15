@@ -3,6 +3,7 @@ import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegis
 import { ConfigurationContext } from "@nkdk/runtime"
 import { importMetadataObjectStringFromYAML } from "../metadataPath/fromYAML"
 import type { MetadataObjectRefCollection, MetadataObjectRefCollectionYAML } from "./types"
+import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 
 const metadataObjectRefCollectionTargetRule = {
   type: "MetadataItemLink",
@@ -24,4 +25,10 @@ export const importMetadataObjectRefCollectionFromYAML = (
   return data.map((item) => importMetadataObjectStringFromYAML(context, objectRule, item)!)
 }
 
-export const metadataPropertyRule000 = definePropertyTypeRule("MetadataObjectRefCollection", "importFromYAML", importMetadataObjectRefCollectionFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule(
+  "MetadataObjectRefCollection",
+  "importFromYAML",
+  ((params) => Array.isArray(params.value) && params.value.length === 0
+    ? undefined
+    : params.value) satisfies ImportFromYAMLFunctionNew,
+)

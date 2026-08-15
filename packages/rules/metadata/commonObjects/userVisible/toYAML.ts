@@ -2,18 +2,38 @@ import { exportBooleanToYAML } from "../boolean/toYAML"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { UserVisiblePropertyRule } from "@nkdk/runtime/rule-kit"
 import { ConfigurationContext } from "@nkdk/runtime"
+import {
+  cloneMetadataTargetValue,
+  exportMetadataTargetOccurrencesToYAML,
+} from "@nkdk/runtime/rule-kit"
 import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
-import { exportStringMetadataTargetToYAML } from "../../ruleRuntime/property/metadataTargetString"
-
-const roleTargetRule = {
-  type: "string",
-  metadataTarget: { kind: "object", roots: ["Role"] },
-} as const
+import { collectUserVisibleMetadataTargetOccurrences } from "./metadataTargetOccurrences"
+import { markYAMLMappingKeyTag } from "@nkdk/runtime"
+import { isMDObjectRefUuid } from "../metadataRef/brokenMDObjectRef"
 
 export const exportUserVisibleToYAML = (
   context: ConfigurationContext,
   rule: UserVisiblePropertyRule,
   userVisible: UserVisible | undefined
+): Partial<Record<string, UserVisibleYAML>> | undefined => {
+  const raw = exportPreparedUserVisibleToYAML(context, rule, userVisible)
+  if (raw === undefined) return undefined
+  const prepared = cloneMetadataTargetValue(raw)
+  return exportMetadataTargetOccurrencesToYAML({
+    value: prepared,
+    occurrences: collectUserVisibleMetadataTargetOccurrences({
+      value: prepared,
+      representation: "yaml",
+      yamlPath: [rule.yaml!],
+      propRule: rule,
+    }),
+  }) as Partial<Record<string, UserVisibleYAML>>
+}
+
+const exportPreparedUserVisibleToYAML = (
+  context: ConfigurationContext,
+  rule: UserVisiblePropertyRule,
+  userVisible: UserVisible | undefined,
 ): Partial<Record<string, UserVisibleYAML>> | undefined => {
   if (!userVisible) return undefined
   if (!rule.yaml) throw new Error("UserVisiblePropertyRule must have yaml property")
@@ -29,10 +49,10 @@ export const exportUserVisibleToYAML = (
 
   const roles: UserVisibleRolesYAML = {}
   userVisible.values.forEach((item) => {
-    const name = isUuid(item.name)
-      ? item.name
-      : exportStringMetadataTargetToYAML({ rule: roleTargetRule, value: item.name, owner: undefined }) as string
-    roles[name] = exportBooleanToYAML(context, undefined, item.value)!
+    roles[item.name] = exportBooleanToYAML(context, undefined, item.value)!
+    if (isMDObjectRefUuid(item.name)) {
+      markYAMLMappingKeyTag(roles, item.name, "xml/reference")
+    }
   })
 
   return {
@@ -43,8 +63,4 @@ export const exportUserVisibleToYAML = (
   }
 }
 
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
-}
-
-export const metadataPropertyRule000 = definePropertyTypeRule("UserVisible", "exportToYAML", exportUserVisibleToYAML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("UserVisible", "exportToYAML", exportPreparedUserVisibleToYAML as any)
