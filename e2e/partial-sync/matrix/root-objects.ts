@@ -14,6 +14,7 @@ export const matrixObjectNames = {
   commonModule: `${prefix}ОбщийМодуль`,
   constant: `${prefix}Константа`,
   document: `${prefix}Документ`,
+  informationRegister: `${prefix}РегистрСведений`,
   task: `${prefix}Задача`,
 } as const
 

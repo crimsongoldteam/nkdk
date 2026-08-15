@@ -377,6 +377,11 @@ for (const ownerKey of [
 
 export const childDeclarations = declarations as readonly ChildDeclaration[]
 
+export function terminalOwnerYaml(ownerKey: string): { readonly path: string, readonly contents: string } {
+  const owner = requireOwnerState(ownerKey)
+  return { path: owner.path, contents: owner.document.content }
+}
+
 export const childCapabilityExclusions: readonly {
   capability: string
   reason: string

@@ -14,6 +14,7 @@ import { formDeclarations } from "./matrix/forms"
 import { partialSyncMatrix } from "./matrix"
 import { rootObjectDeclarations } from "./matrix/root-objects"
 import { rootPropertyOperations } from "./matrix/root-property-operations"
+import { structuralPropertyOperations } from "./matrix/structural-property-operations"
 import { buildScenarioPlan } from "./plan"
 import { applyScenarioOperation } from "./operation"
 import { compareFileTrees } from "../support/file-tree"
@@ -78,6 +79,40 @@ describe("partial sync matrix", () => {
     )
     expect(blockKeys.indexOf("roots:properties:bulk")).toBeLessThan(
       blockKeys.indexOf("children:create:bulk"),
+    )
+  })
+
+  it("covers representative structural property transitions", () => {
+    expect(structuralPropertyOperations.map(({ key }) => key)).toEqual([
+      "structural:catalog-attribute-length",
+      "structural:document-attribute-type",
+      "structural:task-attribute-required",
+      "structural:information-register-dimension-index",
+      "structural:document-register-link",
+      "structural:task-business-process-link",
+    ])
+    const finalStates = structuralPropertyOperations.map(({ changes }) => changes[0]?.after)
+    expect(finalStates[0]).toContain("Тип: Строка(20)")
+    expect(finalStates[1]).toContain(
+      "Тип: Справочник.ПроверкаЧастичнойСинхронизацииСправочник",
+    )
+    expect(finalStates[2]).toContain("ПроверкаЗаполнения: ВыдаватьОшибку")
+    expect(finalStates[3]).toContain("Индексирование: Индексировать")
+    expect(finalStates[4]).toContain(
+      "РегистрСведений.ПроверкаЧастичнойСинхронизацииРегистрСведений",
+    )
+    expect(finalStates[5]).toContain(
+      "БизнесПроцесс.ПроверкаЧастичнойСинхронизацииБизнесПроцесс",
+    )
+  })
+
+  it("restores structural properties before removing children", () => {
+    const blockKeys = buildScenarioPlan(partialSyncMatrix).map(({ key }) => key)
+    expect(blockKeys.indexOf("structural:change:bulk")).toBeGreaterThan(
+      blockKeys.indexOf("forms:create:bulk"),
+    )
+    expect(blockKeys.indexOf("structural:restore:bulk")).toBeLessThan(
+      blockKeys.indexOf("forms:remove:bulk"),
     )
   })
 

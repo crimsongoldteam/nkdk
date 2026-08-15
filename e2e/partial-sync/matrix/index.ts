@@ -4,9 +4,11 @@ import { formDeclarations } from "./forms"
 import { rootObjectDeclarations } from "./root-objects"
 import { createInitialScenarioLayers } from "./layers"
 import { configurationOperations } from "./configuration-operations"
+import { structuralPropertyOperations } from "./structural-property-operations"
 
 const declarations = {
   configurationOperations,
+  structuralOperations: structuralPropertyOperations,
   roots: rootObjectDeclarations,
   children: childDeclarations,
   forms: formDeclarations,

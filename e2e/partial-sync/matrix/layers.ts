@@ -3,7 +3,7 @@ import { createRootPropertyOperations } from "./root-property-operations"
 
 type MatrixDeclarations = Pick<
   ScenarioMatrix,
-  "configurationOperations" | "roots" | "children" | "forms"
+  "configurationOperations" | "structuralOperations" | "roots" | "children" | "forms"
 >
 
 export const recoveryProbeBlockKey = "roots:create:probe"
@@ -24,6 +24,7 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
   }))
   const rootProperties = createRootPropertyOperations(matrix.roots)
   const configurationOperations = matrix.configurationOperations ?? []
+  const structuralOperations = matrix.structuralOperations ?? []
 
   return [
     ...(configurationOperations.length === 0 ? [] : [
@@ -35,6 +36,14 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
     ]),
     layer("children:create", "child:catalog:attributes", children),
     layer("forms:create", "form:catalog", forms),
+    ...(structuralOperations.length === 0 ? [] : [
+      layer("structural:change", "structural:catalog-attribute-length", structuralOperations),
+      layer(
+        "structural:restore",
+        "restore:structural:task-business-process-link",
+        restore(structuralOperations),
+      ),
+    ]),
     layer("forms:remove", "remove:form:task", reverse(forms)),
     layer("children:remove", "remove:child:task:commands", reverse(children)),
     layer("roots:remove", "remove:object:ws-reference", removeRoots(matrix.roots)),

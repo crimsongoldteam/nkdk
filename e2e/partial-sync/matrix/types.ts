@@ -32,6 +32,7 @@ export type FormDeclaration = {
 
 export type ScenarioMatrix = {
   readonly configurationOperations?: readonly ScenarioOperation[]
+  readonly structuralOperations?: readonly ScenarioOperation[]
   readonly roots: readonly RootObjectDeclaration[]
   readonly children: readonly ChildDeclaration[]
   readonly forms: readonly FormDeclaration[]
