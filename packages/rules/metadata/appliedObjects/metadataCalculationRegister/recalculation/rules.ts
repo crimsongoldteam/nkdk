@@ -1,4 +1,3 @@
-import { metadataCalculationRegisterDimensionsRule } from "../../metadataAccountingRegister/builders"
 import { internalInfoRule } from "../../../commonObjects/internalInfo/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
@@ -7,6 +6,7 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { uuidPropertyRule } from "../../../commonObjects/uuid/rule"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { MetadataCalculationRegisterRecalculationDimensionRules } from "./dimension/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const RecalculationRules = {
@@ -59,13 +59,15 @@ export const RecalculationRules = {
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
     }),
-    dimensions: metadataCalculationRegisterDimensionsRule({
+    dimensions: {
+      type: "MetadataCalculationRegisterRecalculationDimensions",
       yaml: "Измерения",
       xml: "Dimension",
       xmlParents: childObjects,
+      itemRule: MetadataCalculationRegisterRecalculationDimensionRules,
       defaultValue: [],
       defaultValueXMLRaw: {},
-    }),
+    },
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
