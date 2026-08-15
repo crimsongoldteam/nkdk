@@ -22,6 +22,16 @@
 			<Comment/>
 			<ExtendedConfigurationObject>fe3ce121-d6fc-409c-9b83-19e551d26b21</ExtendedConfigurationObject>
 		</Properties>
-		<ChildObjects/>
+		<ChildObjects>
+			<Dimension uuid="ee8ca2b8-0098-4b86-9c3f-dc1c60e9901c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИзмерениеПерерасчетаВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>5684dcd4-1685-4fc0-879a-c584a0768a94</ExtendedConfigurationObject>
+				</Properties>
+			</Dimension>
+		</ChildObjects>
 	</Recalculation>
 </MetaDataObject>
