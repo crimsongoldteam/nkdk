@@ -19,6 +19,7 @@ import { ownExtensionOperationKinds } from "./matrix/extension/own"
 import { borrowedOperationKinds } from "./matrix/extension/borrowed"
 import { orderOperations } from "./matrix/order-operations"
 import { partialSyncMatrix } from "./matrix"
+import { operationLayerMembership } from "./matrix/layers"
 import { rootObjectDeclarations } from "./matrix/root-objects"
 import { rootPropertyOperations } from "./matrix/root-property-operations"
 import { structuralPropertyOperations } from "./matrix/structural-property-operations"
@@ -516,6 +517,27 @@ describe("partial sync matrix", () => {
       "add-own-command", "extend-borrowed-form", "add-own-form", "add-own-template",
       "remove-extension-additions", "remove-borrowed-owner",
     ])
+  })
+
+  it("assigns every operation to one component layer and orders both removal variants", () => {
+    const layers = partialSyncMatrix.layers
+    const membership = operationLayerMembership(layers)
+    expect([...membership.values()].every((count) => count === 1)).toBe(true)
+    expect(membership.size).toBe(layers.reduce((count, layer) => count + layer.operations.length, 0))
+
+    for (const layer of layers.filter(({ key }) => key.startsWith("extension:"))) {
+      expect(layer.componentPath, layer.key).toBe("cfe/Расширение_All")
+    }
+
+    const keys = layers.flatMap(({ operations }) => operations.map(({ key }) => key))
+    expect(keys.indexOf("extension:own:remove-form-only")).toBeLessThan(keys.indexOf("extension:own:remove-owner"))
+    expect(keys.indexOf("extension:own:remove-template-only")).toBeLessThan(keys.indexOf("extension:own:remove-owner"))
+    expect(keys.indexOf("extension:borrowed:remove-extension-additions")).toBeLessThan(keys.indexOf("extension:borrowed:remove-borrowed-owner"))
+
+    const taskRemoval = layers.flatMap(({ operations }) => operations)
+      .find(({ key }) => key === "remove:object:task")
+    expect(taskRemoval?.changes.some(({ path }) => path.includes("/Формы/ПроверочнаяФорма/"))).toBe(true)
+    expect(taskRemoval?.changes.some(({ path }) => path.includes("/Макеты/ПроверочныйМакетСВладельцем/"))).toBe(true)
   })
 
   it("forms one continuous and reversible transition for every declared path", () => {

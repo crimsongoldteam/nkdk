@@ -391,7 +391,7 @@ git commit -m "test: :white_check_mark: проверить заимствова�
 - Consumes: все операции Tasks 2–7.
 - Produces: единый упорядоченный план без потерянных или повторных операций.
 
-- [ ] **Step 1: Добавить проверку принадлежности ровно одному слою**
+- [x] **Step 1: Добавить проверку принадлежности ровно одному слою**
 
 ```ts
 const counts = operationLayerMembership(partialSyncMatrix.layers)
@@ -402,14 +402,14 @@ expect([...counts.keys()].toSorted()).toEqual(allDeclaredOperationKeys.toSorted(
 Также проверить, что отдельные удаления форм/макетов предшествуют удалению их
 владельцев, а владельцы с оставшимися детьми удаляются отдельными операциями.
 
-- [ ] **Step 2: Запустить тест и исправить только декларативный порядок**
+- [x] **Step 2: Запустить тест и исправить только декларативный порядок**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/plan.test.ts`
 
 Expected: PASS после устранения всех пропусков/повторов; production-исполнитель
 не должен получать исключений по конкретным типам.
 
-- [ ] **Step 3: Проверить дубли и зафиксировать сборку матрицы**
+- [x] **Step 3: Проверить дубли и зафиксировать сборку матрицы**
 
 Run: `pnpm duplicates -- --base 83c40f5e4`
 

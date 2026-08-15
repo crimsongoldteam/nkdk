@@ -8,6 +8,14 @@ type MatrixDeclarations = Pick<
 
 export const recoveryProbeBlockKey = "roots:create:probe"
 
+export function operationLayerMembership(layers: readonly ScenarioLayer[]): ReadonlyMap<string, number> {
+  const counts = new Map<string, number>()
+  for (const layer of layers) {
+    for (const operation of layer.operations) counts.set(operation.key, (counts.get(operation.key) ?? 0) + 1)
+  }
+  return counts
+}
+
 export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonly ScenarioLayer[] {
   const roots = matrix.roots.map(({ key, changes, dependsOn }): ScenarioOperation => ({
     key, kind: "create-object", changes, dependsOn,
