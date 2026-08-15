@@ -164,7 +164,7 @@ git commit -m "feat: :sparkles: сохранить пустые параметр
 - Consumes: общий `BrokenXMLReferenceCarrierRegistry`, отметки YAML-ключей и `metadataTargetOccurrences`.
 - Produces: `Event.name`, являющийся UUID, переносится как ключ `!xml/reference UUID` и исключается из разрешения/поиска.
 
-- [ ] **Step 1: Add failing import tests**
+- [x] **Step 1: Add failing import tests**
 
 Для XML:
 
@@ -176,7 +176,7 @@ git commit -m "feat: :sparkles: сохранить пустые параметр
 
 ожидать YAML с тем же ключом и `yamlMappingKeyTagAt(events, uuid) === "xml/reference"`. Отдельно проверить обычное известное и неизвестное текстовое событие без тега.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/forms/commonObjects/event/fromXML.test.ts
@@ -184,7 +184,7 @@ pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/forms
 
 Expected: FAIL — UUID нормализуется как имя обычного события и не получает отметку ключа.
 
-- [ ] **Step 3: Add an Events carrier and metadata-target occurrences**
+- [x] **Step 3: Add an Events carrier and metadata-target occurrences**
 
 По образцу `UserVisible`:
 
@@ -196,11 +196,11 @@ Expected: FAIL — UUID нормализуется как имя обычног�
 
 Не добавлять поиск UUID по индексам и не определять событие по имени функции.
 
-- [ ] **Step 4: Add negative and structural tests**
+- [x] **Step 4: Add negative and structural tests**
 
 Проверить: нетегированный UUID-ключ и произвольный payload `!xml/reference` отклоняются; tagged UUID отсутствует в структурном поиске; обычные события и `callType` не меняются.
 
-- [ ] **Step 5: Verify GREEN**
+- [x] **Step 5: Verify GREEN**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/forms/commonObjects/event
@@ -208,7 +208,7 @@ pnpm --filter @nkdk/rules exec vitest run --project integration metadata/forms/c
 pnpm duplicates -- --base 8fba09946
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/rules/metadata/forms/commonObjects/event docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md

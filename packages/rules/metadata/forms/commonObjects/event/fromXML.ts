@@ -80,28 +80,18 @@ function throwBindingConflict(key: string, callType: EventCallTypeXML | undefine
 }
 
 function eventRuleKeys(rule: PropertyRule, events: readonly EventXML[]): ReadonlyMap<string, string> {
-  const handlersByXmlName = new Map<string, string[]>()
-  for (const event of events) {
-    const handlers = handlersByXmlName.get(event._name) ?? []
-    handlers.push(event["#text"])
-    handlersByXmlName.set(event._name, handlers)
-  }
   return new Map(
-    [...handlersByXmlName].map(([xmlName, handlerNames]) => [
+    events.map(({ _name: xmlName }) => [
       xmlName,
-      eventRuleKey(rule, xmlName, handlerNames),
+      eventRuleKey(rule, xmlName),
     ])
   )
 }
 
-function eventRuleKey(rule: PropertyRule, xmlName: string, handlerNames: readonly string[]): string {
+function eventRuleKey(rule: PropertyRule, xmlName: string): string {
   const canonicalKey = `${xmlName[0]!.toLowerCase()}${xmlName.slice(1)}`
   if (rule.type !== "Events") return canonicalKey
   const items = (rule as EventsPropertyRule).items
   if (Object.prototype.hasOwnProperty.call(items, canonicalKey)) return canonicalKey
-  if (handlerNames.length === 1) {
-    const handlerName = handlerNames[0]!
-    return Object.entries(items).find(([, yamlKey]) => yamlKey === handlerName)?.[0] ?? canonicalKey
-  }
   return canonicalKey
 }

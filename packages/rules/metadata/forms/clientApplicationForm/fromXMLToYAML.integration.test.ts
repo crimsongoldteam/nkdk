@@ -24,7 +24,7 @@ import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeI
 import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
-import { XML_PRESENT_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
+import { XML_PRESENT_TAG_VALUE, yamlMappingKeyTagAt, yamlScalarTagAt } from "@nkdk/runtime"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -695,7 +695,7 @@ describe("форма XML → YAML → XML", () => {
     ])
   })
 
-  it("сохраняет нестандартное XML-имя события как identity без aliases", () => {
+  it("сохраняет UUID-имена событий как битые ссылки", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "БизнесПроцесс.Заказ.Форма.ФормаЗадачи",
     })
@@ -725,13 +725,17 @@ describe("форма XML → YAML → XML", () => {
 
     expect(importedForm).toMatchObject({
       События: {
-        ПередВыполнением: "ПередВыполнением",
+        "81c01005-9b73-4278-853b-1a8d203c8e8c": "ОбработкаАктивации",
+        "ea0a9886-1607-44fe-a446-2cc57548f57d": "ПередВыполнением",
       },
     })
-    expect(importedForm.События).not.toHaveProperty("ОбработкаАктивации")
+    expect(yamlMappingKeyTagAt(importedForm.События, "81c01005-9b73-4278-853b-1a8d203c8e8c"))
+      .toBe("xml/reference")
+    expect(yamlMappingKeyTagAt(importedForm.События, "ea0a9886-1607-44fe-a446-2cc57548f57d"))
+      .toBe("xml/reference")
     expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
       "81c01005-9b73-4278-853b-1a8d203c8e8c",
-      "BeforeExecute",
+      "ea0a9886-1607-44fe-a446-2cc57548f57d",
     ])
   })
 

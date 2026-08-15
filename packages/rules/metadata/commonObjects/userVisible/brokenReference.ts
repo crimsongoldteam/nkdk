@@ -8,6 +8,8 @@ import { isMDObjectRefUuid } from "../metadataRef/brokenMDObjectRef"
 import { UserVisibleBrokenReferenceJSONSchema } from "./types"
 import { markYAMLMappingKeyTag } from "@nkdk/runtime"
 import { Type } from "typebox"
+import { temporaryMappingKey } from "../metadataTargets/temporaryMappingKey"
+import { isMutableRecord, isRecord } from "../metadataTargets/record"
 
 export const brokenUserVisibleReferenceCarrier: BrokenXMLReferenceTypeCarrier = {
   name: "userVisible.roleUuid",
@@ -37,7 +39,7 @@ export const brokenUserVisibleReferenceCarrier: BrokenXMLReferenceTypeCarrier = 
       if (!isBrokenUserVisibleRoleName(key)) {
         throw new Error("Битая ссылка роли должна содержать канонический UUID или пустое имя")
       }
-      renameMetadataTargetMappingKey(preparedRoles, key, temporaryRoleName(index, preparedRoles))
+      renameMetadataTargetMappingKey(preparedRoles, key, temporaryMappingKey("broken_role", index, preparedRoles))
       transportedLocations.push(location)
     }
     return transportedLocations.length === 0
@@ -56,7 +58,7 @@ export const brokenUserVisibleReferenceCarrier: BrokenXMLReferenceTypeCarrier = 
       const index = keys.indexOf(location.key)
       if (index < 0) continue
       const item = values.find((candidate) =>
-        isRecord(candidate) && candidate._name === `Role.${temporaryRoleName(index, roles)}`)
+        isRecord(candidate) && candidate._name === `Role.${temporaryMappingKey("broken_role", index, roles)}`)
       if (isMutableRecord(item)) item._name = location.key
     }
     return { ...xmlValue, "xr:Value": Array.isArray(rawValues) ? values : values[0] }
@@ -100,20 +102,4 @@ function cloneRecordWithRoles(value: unknown, roles: Record<string, unknown>): R
   if (isRecord(value.Роли)) return { ...value, Роли: { ...roles } }
   const key = Object.keys(value).find((candidate) => isRecord(value[candidate]) && value[candidate]!.Роли === roles)
   return key === undefined ? { ...value } : { ...value, [key]: { ...(value[key] as object), Роли: { ...roles } } }
-}
-
-function temporaryRoleName(index: number, roles?: Readonly<Record<string, unknown>>): string {
-  const base = `__nkdk_broken_role_${index}`
-  if (roles === undefined || !Object.prototype.hasOwnProperty.call(roles, base)) return base
-  let suffix = 1
-  while (Object.prototype.hasOwnProperty.call(roles, `${base}_${suffix}`)) suffix += 1
-  return `${base}_${suffix}`
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
-}
-
-function isMutableRecord(value: unknown): value is Record<string, unknown> {
-  return isRecord(value)
 }

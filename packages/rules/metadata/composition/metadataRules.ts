@@ -77,6 +77,7 @@ import { formAttributeValueTypeSettingsRules } from "../forms/commonObjects/form
 import { appliedObjectInputByStringRules } from "../appliedObjects/inputByStringRules"
 import { appliedObjectDataTableRules } from "../appliedObjects/dataTableRules"
 import { popupExtendedTooltipRules } from "../forms/elements/popup/extendedTooltip"
+import { brokenEventReferenceRules } from "../forms/commonObjects/event/brokenReference"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -124,6 +125,7 @@ export const legacyCoreRules = composeMetadataRules(
   brokenDirectMetadataTargetReferenceRules,
   brokenCommandInterfaceSubsystemOrderRules,
   brokenLocalFormReferenceRules,
+  brokenEventReferenceRules,
   popupExtendedTooltipRules,
   typeDescriptionIndexRules,
   metadataExternalDataSourceCubeOwnerRules,
