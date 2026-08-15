@@ -33,7 +33,7 @@
 - Consumes: `materializeImplicitFormDataPaths(yaml, context)`.
 - Produces: пустой `ПутьКДанным` собственного элемента всегда удаляется из подготовленной копии YAML и не создаёт `<DataPath/>`.
 
-- [ ] **Step 1: Add failing unit tests**
+- [x] **Step 1: Add failing unit tests**
 
 Добавить в `formDataPathContext.test.ts` проверки:
 
@@ -51,33 +51,33 @@ it("удаляет пустой путь собственного элемент
 
 Добавить случай таблицы и колонки с пустыми путями и сохранить существующие проверки отсутствующего и непустого пути.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/forms/clientApplicationForm/formDataPathContext.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit --project bundle-contract --project core-metadata --sequence.shuffle
 ```
 
 Expected: FAIL — пустой путь без вычислимого кандидата остаётся в подготовленном YAML.
 
-- [ ] **Step 3: Implement the minimal preparation change**
+- [x] **Step 3: Implement the minimal preparation change**
 
 В `materializeImplicitFormDataPaths` для собственного элемента с явно присутствующим пустым значением всегда добавлять изменение `delete`; проверку `candidateYaml` оставить только для материализации отсутствующего пути.
 
-- [ ] **Step 4: Add the XML boundary test and verify GREEN**
+- [x] **Step 4: Add the XML boundary test and verify GREEN**
 
 В `fromYAMLToXML.integration.test.ts` проверить отсутствие `<DataPath/>` у таблицы и колонки при пустом пути таблицы.
 
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/forms/clientApplicationForm/formDataPathContext.test.ts
-pnpm --filter @nkdk/rules exec vitest run --project integration metadata/forms/clientApplicationForm/fromYAMLToXML.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project unit --project bundle-contract --project core-metadata --sequence.shuffle
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project integration --sequence.shuffle
 pnpm duplicates -- --base 8fba09946
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/rules/metadata/forms/clientApplicationForm/formDataPathContext.ts packages/rules/metadata/forms/clientApplicationForm/formDataPathContext.test.ts packages/rules/metadata/forms/clientApplicationForm/fromYAMLToXML.integration.test.ts docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md

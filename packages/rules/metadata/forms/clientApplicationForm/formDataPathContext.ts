@@ -123,7 +123,7 @@ export function materializeImplicitFormDataPaths(
   for (const element of context.elementsByName.values()) {
     if (element.origin !== "own") continue
     if (element.present) {
-      if (element.value === "" && element.candidateYaml !== undefined) {
+      if (element.value === "") {
         changes.push({ yamlPath: element.yamlPath, kind: "delete" })
       }
       continue

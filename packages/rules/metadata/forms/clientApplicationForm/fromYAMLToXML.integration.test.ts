@@ -829,6 +829,9 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
             Вид: "ТаблицаФормы",
             ПутьКДанным: "",
             ПутьКДаннымКартинкиСтроки: "Объект.Товары.Количество",
+            Элементы: {
+              ТоварыКоличество: { Вид: "ПолеВвода", ПутьКДанным: "" },
+            },
           },
         },
       } as ClientApplicationFormYAML,
@@ -836,6 +839,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
 
     expect(elementByName(result.formXML, "Товары").DataPath).toBeUndefined()
+    expect(elementByName(result.formXML, "ТоварыКоличество").DataPath).toBeUndefined()
     expect(elementByName(result.formXML, "Товары").RowPictureDataPath).toBe("Объект.Товары.Количество")
   })
 
