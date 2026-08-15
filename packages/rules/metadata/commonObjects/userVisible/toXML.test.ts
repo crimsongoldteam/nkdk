@@ -3,7 +3,11 @@ import { withMultipleValuesUserVisible } from "./__fixtures__/withMultipleValues
 import { withSingleValueUserVisible } from "./__fixtures__/withSingleValue"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
-import { xmlExport } from "@nkdk/runtime"
+import { importFromYAML, xmlExport } from "@nkdk/runtime"
+import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../../composition/metadataRules"
+import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime"
+import { mockContextToXML } from "../../../tests/mockContext"
 import { exportUserVisibleToXML } from "./toXML"
 import { UserVisible } from "./types"
 
@@ -69,5 +73,34 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Value name="Role.ПолныеПрава">true</xr:Value>
 	<xr:Value name="b1d9c8b4-d05c-45c7-8db2-abc84e597700">true</xr:Value>
 </UserVisible>`)
+  })
+
+  it("восстанавливает только тегированный UUID-ключ роли", () => {
+    const uuid = "6537a19c-3357-46a2-96a6-1fe4619ddbc8"
+    const rule = {
+      itemType: "UserVisibleBrokenReferenceProbe",
+      properties: {
+        use: { type: "UserVisible", xml: "Use", yaml: "Использование" },
+      },
+    } as MetadataItemRule
+    const convert = (key: string) => convertPropertiesFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: importFromYAML([
+        "Использование:",
+        "  Роли:",
+        `    ${key}: Ложь`,
+      ].join("\n")),
+      rule,
+      outputs: [{ key: "owner" }],
+      execution: createRuleRegistrySet(metadataRules).execution,
+    }).outputs.get("owner")
+
+    expect(convert(`!xml/reference ${uuid}`)).toEqual({
+      Use: {
+        "xr:Common": true,
+        "xr:Value": [{ _name: uuid, "#text": false }],
+      },
+    })
+    expect(() => convert(uuid)).toThrow("Неизвестный корень")
   })
 })

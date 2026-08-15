@@ -722,7 +722,7 @@ git commit -m "refactor: :recycle: унифицировать перенос б�
 - Produces: строгий UUID carrier для ключей `UserVisible.Роли`.
 - Consumes: единое перечисление `metadataTarget`; XML-кодеки не повторяют ограничения `FunctionalOption` и `Role`.
 
-- [ ] **Step 1: Добавить падающие тесты функциональных опций**
+- [x] **Step 1: Добавить падающие тесты функциональных опций**
 
 Использовать оба UUID CashdeskDev:
 
@@ -739,7 +739,7 @@ it.each([
 должна стать коротким именем, UUID — `!xml/reference`. Добавить ошибки
 нетегированного UUID и тегированной произвольной строки.
 
-- [ ] **Step 2: Добавить падающие тесты `UserVisible`**
+- [x] **Step 2: Добавить падающие тесты `UserVisible`**
 
 В XML-модели задать обычную роль и UUID. Ожидать:
 
@@ -753,7 +753,7 @@ it.each([
 Проверить обратный XML `<xr:Value name="...">false</xr:Value>`, отсутствие
 UUID в `findMetadataReferences` и наличие обычной роли.
 
-- [ ] **Step 3: Подтвердить падение**
+- [x] **Step 3: Подтвердить падение**
 
 Run:
 
@@ -775,7 +775,7 @@ pnpm --filter @nkdk/rules exec vitest run \
 Expected: FAIL — функциональная опция падает при разборе metadataTarget, а
 UUID-ключ `UserVisible` не имеет тега.
 
-- [ ] **Step 4: Реализовать carrier функциональных опций**
+- [x] **Step 4: Реализовать carrier функциональных опций**
 
 `tryImport` сопоставляет XML `Item` с YAML-массивом и принимает только
 канонический UUID:
@@ -790,7 +790,7 @@ const UUID_PATTERN =
 соответствующем `Item`. Результаты брать из
 `metadataTargetOccurrences`; не выполнять поиск UUID.
 
-- [ ] **Step 5: Реализовать carrier ключей `UserVisible`**
+- [x] **Step 5: Реализовать carrier ключей `UserVisible`**
 
 Перечислитель Task 2 определяет UUID-ключ как
 `brokenXMLReference`. Carrier ставит key-location на контейнер `Роли`.
@@ -798,7 +798,7 @@ const UUID_PATTERN =
 после toXML вернуть исходный UUID в `_name`. Не хранить временное имя в
 итоговых данных.
 
-- [ ] **Step 6: Удалить неявную поддержку UUID**
+- [x] **Step 6: Удалить неявную поддержку UUID**
 
 Из `UserVisibleJSONSchema` убрать UUID из обычного пользовательского шаблона
 ключа. Внутренняя validation-схема carrier-а добавляет строгий UUID-вариант
@@ -808,7 +808,7 @@ const UUID_PATTERN =
 через общий тегированный перенос. Пользовательская схема предлагает только обычные
 имена ролей.
 
-- [ ] **Step 7: Проверить и зафиксировать слой**
+- [x] **Step 7: Проверить и зафиксировать слой**
 
 Run:
 

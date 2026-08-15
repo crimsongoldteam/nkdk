@@ -309,11 +309,6 @@ const collectPictureReference: StructuralReferencesFunction = (params) => {
   ]
 }
 
-const functionalOptionConstraint = {
-  kind: "object",
-  roots: ["FunctionalOption"],
-} as const satisfies MetadataTargetConstraint
-
 const collectDirectMetadataTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => {
   const constraint = params.propRule.metadataTarget
   if (constraint === undefined || typeof params.value !== "string" || params.value === "") return []
@@ -448,18 +443,6 @@ function isTranslateOnlyConstraint(constraint: MetadataTargetConstraint): boolea
   return (constraint.kind === "dataTable" || constraint.kind === "dataTableField")
     && constraint.validation === "translateOnly"
 }
-
-const collectFunctionalOptionReferences: StructuralReferencesFunction = (params) =>
-  collectStringTargetReferenceList({
-    ...params,
-    propRule: { ...params.propRule, metadataTarget: functionalOptionConstraint },
-  })
-
-const collectFunctionalOptionTargets: CollectMetadataTargetReferencesFunction = (params) =>
-  collectStringTargetListForValidation({
-    ...params,
-    propRule: { ...params.propRule, metadataTarget: functionalOptionConstraint },
-  })
 
 function validateCanonicalTarget(
   params: Parameters<ValidateMetadataTargetFunction>[0],
@@ -596,8 +579,8 @@ export const metadataPropertyRule026 = definePropertyTypeRule("Color", "validate
 export const metadataPropertyRule027 = definePropertyTypeRule("Font", "validateMetadataTarget", validateFontTarget)
 export const metadataPropertyRule028 = definePropertyTypeRule("Border", "validateMetadataTarget", validateBorderTarget)
 export const metadataPropertyRule029 = definePropertyTypeRule("Picture", "validateMetadataTarget", validatePictureTarget)
-export const metadataPropertyRule030 = definePropertyTypeRule("FunctionalOptionsProperty", "collectMetadataTargetReferences", collectFunctionalOptionTargets)
-export const metadataPropertyRule031 = definePropertyTypeRule("FunctionalOptionsProperty", "structuralReferences", collectFunctionalOptionReferences)
+export const metadataPropertyRule030 = definePropertyTypeRule("FunctionalOptionsProperty", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule031 = definePropertyTypeRule("FunctionalOptionsProperty", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
 export const metadataPropertyRule032 = definePropertyTypeRule("UserVisible", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectUserVisibleMetadataTargetOccurrences))
 export const metadataPropertyRule033 = definePropertyTypeRule("UserVisible", "structuralReferences", structuralReferencesFromOccurrences(collectUserVisibleMetadataTargetOccurrences))
 export const metadataPropertyRule034 = definePropertyTypeRule("string", "metadataTargetOccurrences", collectDirectMetadataTargetOccurrences)
@@ -624,3 +607,4 @@ export const metadataPropertyRule054 = definePropertyTypeRule("UserVisible", "st
 export const metadataPropertyRule055 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)
 export const metadataPropertyRule056 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "collectMetadataTargetReferences", collectedReferencesFromOccurrences(collectListMetadataTargetOccurrences))
 export const metadataPropertyRule057 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "structuralReferences", structuralReferencesFromOccurrences(collectListMetadataTargetOccurrences))
+export const metadataPropertyRule058 = definePropertyTypeRule("FunctionalOptionsProperty", "metadataTargetOccurrences", collectListMetadataTargetOccurrences)

@@ -218,10 +218,12 @@ it("collects and rewrites functional-option references", () => {
 })
 
 it("collects and rewrites role keys in user visibility", () => {
+  const brokenUuid = "11763128-1d0a-4c4a-a51a-bce645342b30"
   const parsed = parseMetadataYaml([
     "Использование:",
     "  Роли:",
     "    Администратор: Ложь",
+    `    !xml/reference ${brokenUuid}: Истина`,
   ].join("\n"))
   const registry = createPropertyRuleRegistrySet(metadataRules)
   const rule = {
@@ -239,7 +241,9 @@ it("collects and rewrites role keys in user visibility", () => {
   })
   if (!result.ok) throw new Error(result.message)
   result.references[0]?.setCanonical("Role.Аудитор")
-  expect(parsed.data).toMatchObject({ Использование: { Роли: { Аудитор: "Ложь" } } })
+  const roles = (parsed.data as { Использование: { Роли: Record<string, unknown> } }).Использование.Роли
+  expect(roles).toMatchObject({ Аудитор: "Ложь", [brokenUuid]: "Истина" })
+  expect(yamlMappingKeyTagAt(roles, brokenUuid)).toBe("xml/reference")
 })
 
 it("перечисляет значения, элементы списка и ключи ролей единым metadataTarget-договором", () => {

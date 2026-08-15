@@ -1,5 +1,3 @@
-import { Type, type TSchema } from "typebox"
-
 import { xmlAnomalyTagPayload } from "@nkdk/runtime"
 import {
   defineMetadataRules,
@@ -9,6 +7,7 @@ import {
   type BrokenXMLReferenceTypeCarrier,
 } from "@nkdk/runtime/rule-kit"
 import {
+  brokenReferenceCollectionValidationSchema,
   normalizeImportedBrokenReferenceCollection,
   prepareBrokenReferenceCollectionExport,
 } from "./brokenReferenceCollection"
@@ -59,14 +58,11 @@ export const brokenMDObjectRefCarrier: BrokenXMLReferenceTypeCarrier = {
     return { ...xmlValue, [itemTag]: items }
   },
   validationSchema({ base, validationGraph }) {
-    if (!validationGraph || !("items" in base)) return base
-    return {
-      ...base,
-      items: Type.Union([
-        base.items as TSchema,
-        Type.String({ pattern: `^!xml/reference ${MD_OBJECT_REF_UUID_SOURCE}$` }),
-      ]),
-    }
+    return brokenReferenceCollectionValidationSchema({
+      base,
+      validationGraph,
+      payloadPattern: MD_OBJECT_REF_UUID_SOURCE,
+    })
   },
   matchesTaggedYAML({ yamlValue, location, isTagged }) {
     if (location.kind !== "value" || !Array.isArray(yamlValue)

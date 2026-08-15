@@ -5,6 +5,7 @@ import {
   type MetadataTargetOccurrencesFunction,
 } from "@nkdk/runtime/rule-kit"
 import { parseMetadataTargetFromModel } from "../metadataTargets/parse"
+import { yamlMappingKeyTagAt } from "@nkdk/runtime"
 
 export const userVisibleRoleTarget = {
   kind: "object",
@@ -33,7 +34,7 @@ export const collectUserVisibleMetadataTargetOccurrences: MetadataTargetOccurren
   return Object.keys(roles).map((key): MetadataTargetOccurrence => ({
     location: { kind: "key", path: [...params.yamlPath, "Роли"], key },
     constraint: userVisibleRoleTarget,
-    representation: isUuid(key)
+    representation: isUuid(key) && yamlMappingKeyTagAt(roles, key) === "xml/reference"
       ? { kind: "brokenXMLReference", payload: key, grammar: "uuid" }
       : { kind: "canonical", canonical: key },
     setValue: (nextValue) => renameMetadataTargetMappingKey(roles, key, nextValue),
