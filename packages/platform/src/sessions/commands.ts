@@ -56,52 +56,6 @@ export function buildStandaloneConfigInit(
   }
 }
 
-export function buildStandaloneConfigExport(params: {
-  ibcmdPath: string
-  configPath: string
-  outputDir: string
-  user?: string
-  password?: string
-  unresolvedReferences: UnresolvedReferencesMode
-  extensionName?: string
-}): ProcessLaunch {
-  return {
-    command: params.ibcmdPath,
-    args: [
-      "infobase",
-      "config",
-      "export",
-      "--force",
-      ...(params.user === undefined ? [] : [`--user=${params.user}`]),
-      ...(params.password === undefined ? [] : [`--password=${params.password}`]),
-      ...(params.unresolvedReferences === "omit" ? ["--ignore-unresolved-refs"] : []),
-      ...(params.extensionName === undefined ? [] : [`--extension=${params.extensionName}`]),
-      `--config=${params.configPath}`,
-      params.outputDir,
-    ],
-  }
-}
-
-export function buildStandaloneListExtensions(params: {
-  ibcmdPath: string
-  configPath: string
-  user?: string
-  password?: string
-}): ProcessLaunch {
-  return {
-    command: params.ibcmdPath,
-    args: [
-      "infobase",
-      "config",
-      "extension",
-      "list",
-      ...(params.user === undefined ? [] : [`--user=${params.user}`]),
-      ...(params.password === undefined ? [] : [`--password=${params.password}`]),
-      `--config=${params.configPath}`,
-    ],
-  }
-}
-
 export function buildStandaloneLaunch(params: {
   ibsrvPath: string
   dataDir: string

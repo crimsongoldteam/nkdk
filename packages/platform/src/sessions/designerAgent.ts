@@ -12,6 +12,7 @@ import {
 import { PlatformSessionError } from "./errors"
 import {
   checkedOperationOutputDir,
+  createInteractiveCommandSessionOpener,
   isPathInside,
   prepareSessionStagingDirectory,
   publishSessionStagingDirectory,
@@ -129,6 +130,12 @@ export async function createDesignerAgentSession(
   let userServiceDir: string
   let canonicalAgentBaseDir: string
   let failureStage: PlatformFailureStage = "session-start"
+  const openCommandSession = createInteractiveCommandSessionOpener({
+    openCommandSession: dependencies.openCommandSession,
+    settings: params.settings,
+    timeoutMs: dependencies.startupTimeoutMs,
+    operationLog: params.operationLog,
+  })
   try {
     const shell = await connectWithRetry({
       port,
@@ -138,19 +145,15 @@ export async function createDesignerAgentSession(
       user: params.settings.user,
       password: params.settings.password,
     })
-    commandSession = await dependencies.openCommandSession({
+    commandSession = await openCommandSession(
       shell,
-      user: params.settings.user,
-      password: params.settings.password,
-      timeoutMs: dependencies.startupTimeoutMs,
-      operationLog: params.operationLog,
-      onStage: async (stage, status) => {
+      async (stage, status) => {
         failureStage = stage
         if (params.operationLog !== undefined) {
           await appendAgentLog(params.operationLog, `stage=${stage} status=${status}`)
         }
-      },
-    })
+      }
+    )
     failureStage = "session-start"
     const directories = await readAgentDirectories(
       params.projectDir,

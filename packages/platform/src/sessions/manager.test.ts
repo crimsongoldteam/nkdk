@@ -129,6 +129,22 @@ describe("platform session manager", () => {
     ]))
   })
 
+  it("reuses a healthy autonomous session for consecutive partial loads", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    const params = loadParams({ mode: "standalone-server" })
+
+    await expect(manager.loadPartialConfiguration(params)).resolves.toMatchObject({
+      mode: "standalone-server",
+      reusedConnection: false,
+    })
+    await expect(manager.loadPartialConfiguration(params)).resolves.toMatchObject({
+      mode: "standalone-server",
+      reusedConnection: true,
+    })
+    expect(fixture.created).toEqual(["/project:standalone-server"])
+  })
+
   it("discards the session after an unknown partial load outcome", async () => {
     const fixture = createFixture({
       loadHook: async () => {

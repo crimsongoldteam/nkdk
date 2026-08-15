@@ -1,17 +1,24 @@
 import { randomUUID } from "node:crypto"
 import { join } from "node:path"
 import { parse, stringify } from "yaml"
-import { parseIbcmdExtensionList } from "../extensions/parse"
+import { parseExtensionPropertyRecords } from "../extensions/parse"
 import { parseConnection } from "../infobases/parseConnection"
 import {
-  buildStandaloneConfigExport,
+  buildDumpConfigurationCommand,
+  buildListDesignerExtensionsCommand,
   buildStandaloneConfigInit,
-  buildStandaloneListExtensions,
   buildStandaloneLaunch,
   buildLoadPartialConfigurationCommand,
   classifyPartialLoad,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
+import {
+  checkedOperationOutputDir,
+  createInteractiveCommandSessionOpener,
+  prepareSessionStagingDirectory,
+  publishSessionStagingDirectory,
+  relativeServicePath,
+} from "./interactiveSessionFiles"
 import { platformFailure, type PlatformOperationLog } from "./operationLog"
 import type {
   PlatformCommandSession,
@@ -31,6 +38,8 @@ export interface StandaloneServerDependencies {
     copyFile(from: string, to: string): Promise<void>
     writeFile(path: string, content: string, options?: { mode?: number }): Promise<void>
     chmod(path: string, mode: number): Promise<void>
+    realpath(path: string): Promise<string>
+    rename(from: string, to: string): Promise<void>
     rm(path: string): Promise<void>
   }
   processRuntime: Pick<SessionProcessRuntime, "run" | "spawn">
@@ -65,6 +74,8 @@ export async function createStandaloneServerSession(
       "Автономный режим поддерживает только файловые информационные базы",
     )
   }
+  const ibsrvPath = params.installation.ibsrvPath
+  if (ibsrvPath === undefined) throw missingComponent("ibsrv")
 
   const configPath = join(params.sessionDir, "config.yaml")
   const init = buildStandaloneConfigInit({
@@ -139,132 +150,191 @@ export async function createStandaloneServerSession(
     )
   }
 
+  const serverDataDir = join(params.sessionDir, "server-data")
+  const sessionDataDir = join(params.sessionDir, "session-data")
+  const userServiceDir = join(serverDataDir, "users-data")
+  const keyDir = join(params.sessionDir, ".ssh")
+  const hostKeyPath = join(keyDir, "host.key")
+  let processHandle: ReturnType<SessionProcessRuntime["spawn"]> | undefined
+  let commandSession: PlatformCommandSession | undefined
+  let failureStage: PlatformFailureStage = "session-start"
+  const openCommandSession = createInteractiveCommandSessionOpener({
+    openCommandSession: dependencies.openCommandSession,
+    settings: params.settings,
+    timeoutMs: dependencies.startupTimeoutMs,
+    operationLog: params.operationLog,
+  })
+  try {
+    const [serverPort, sshPort] = await Promise.all([
+      dependencies.portRuntime.reservePort("127.0.0.1"),
+      dependencies.portRuntime.reservePort("127.0.0.1"),
+    ])
+    await dependencies.fileSystem.mkdir(keyDir)
+    const hostKeyHash = await dependencies.generateHostKey(hostKeyPath)
+    const configuration = parseConfiguration(initialized.stdout)
+    configureServerGateway(configuration, { serverPort, sshPort, hostKeyPath })
+    await dependencies.fileSystem.writeFile(
+      configPath,
+      stringify(configuration),
+      { mode: PRIVATE_FILE_MODE }
+    )
+    await dependencies.fileSystem.mkdir(serverDataDir)
+    await dependencies.fileSystem.mkdir(sessionDataDir)
+    const launch = buildStandaloneLaunch({
+      ibsrvPath,
+      dataDir: serverDataDir,
+      sessionDataDir,
+      configPath,
+    })
+    processHandle = dependencies.processRuntime.spawn(launch.command, launch.args, {
+      cwd: params.sessionDir,
+    })
+    await processHandle.waitForOutput(
+      "Stand-alone Server ready.",
+      dependencies.startupTimeoutMs
+    )
+    const shell = await dependencies.sshTransport.connect({
+      host: "127.0.0.1",
+      port: sshPort,
+      timeoutMs: dependencies.startupTimeoutMs,
+      expectedHostKeyHash: hostKeyHash,
+      ...infobaseCredentials(params.settings),
+    })
+    commandSession = await openCommandSession(
+      shell,
+      async (stage, status) => {
+        failureStage = stage
+        if (
+          params.operationLog !== undefined &&
+          !(await params.operationLog.append(`stage=${stage} status=${status}`))
+        ) {
+          throw await logWriteFailure(params.operationLog)
+        }
+      }
+    )
+  } catch (cause) {
+    if (processHandle !== undefined) {
+      await stopStandaloneAgent(commandSession, processHandle, dependencies.closeTimeoutMs)
+    }
+    await dependencies.fileSystem.rm(configPath).catch(() => undefined)
+    if (params.operationLog === undefined) {
+      if (cause instanceof PlatformSessionError) throw cause
+      throw new PlatformSessionError(
+        "session_start_failed",
+        "Автономный сервер не смог открыть командный сеанс",
+        { cause }
+      )
+    }
+    if (cause instanceof PlatformSessionError && cause.details !== undefined) throw cause
+    throw await processFailure(
+      params.operationLog,
+      cause instanceof PlatformSessionError ? cause.code : "session_start_failed",
+      failureStage,
+      cause instanceof Error ? cause.message : "",
+      "Автономный сервер не смог открыть командный сеанс",
+      cause
+    )
+  }
+  if (processHandle === undefined || commandSession === undefined) {
+    throw new PlatformSessionError(
+      "session_start_failed",
+      "Автономный сервер не открыл командный сеанс"
+    )
+  }
+  const residentProcess = processHandle
+  const residentCommandSession = commandSession
+
+  let runtimeStopped = false
   let closed = false
   const closeSession = async () => {
     if (closed) return { stoppedOwnedProcess: false }
+    let stoppedOwnedProcess = false
+    if (!runtimeStopped) {
+      await stopStandaloneAgent(
+        residentCommandSession,
+        residentProcess,
+        dependencies.closeTimeoutMs
+      )
+      runtimeStopped = true
+      stoppedOwnedProcess = true
+    }
     await dependencies.fileSystem.rm(configPath)
     closed = true
-    return { stoppedOwnedProcess: false }
+    return { stoppedOwnedProcess }
   }
   return {
     mode: "standalone-server",
-    ownedProcess: false,
+    ownedProcess: residentProcess.owned,
     isAlive() {
-      return !closed
+      return !closed && !runtimeStopped
+        && residentProcess.isAlive()
+        && residentCommandSession.isAlive()
     },
     async exportConfiguration(outputDir, operationLog, unresolvedReferences, signal, extensionName) {
-      if (closed) {
+      if (closed || runtimeStopped) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
-      const command = buildStandaloneConfigExport({
-        ibcmdPath,
-        configPath,
+      const resolvedOutputDir = await checkedOperationOutputDir(
+        params.projectDir,
         outputDir,
-        unresolvedReferences,
-        extensionName,
-        ...infobaseCredentials(params.settings),
-      })
-      let exported
+        dependencies.fileSystem
+      )
+      const stagingDir = join(userServiceDir, ".nkdk-export", randomUUID())
+      await prepareSessionStagingDirectory(
+        stagingDir,
+        dependencies.fileSystem,
+        "Не удалось подготовить каталог выгрузки автономного сервера"
+      )
       try {
-        exported = await dependencies.processRuntime.run(command.command, command.args, {
-          timeoutMs: dependencies.commandTimeoutMs,
-          signal,
-          terminationGraceMs: dependencies.closeTimeoutMs,
-        })
+        await residentCommandSession.run(
+          buildDumpConfigurationCommand(
+            relativeServicePath(userServiceDir, stagingDir),
+            unresolvedReferences,
+            extensionName
+          ),
+          { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog }
+        )
+        await publishSessionStagingDirectory(
+          stagingDir,
+          resolvedOutputDir,
+          dependencies.fileSystem
+        )
       } catch (cause) {
-        throw await processFailure(operationLog, "platform_command_failed", "configuration-export", cause instanceof Error ? cause.message : "", "Не удалось запустить выгрузку конфигурации через ibcmd", cause)
-      }
-      if (!(await operationLog.process("configuration-export", command, exported))) {
-        throw await logWriteFailure(operationLog)
-      }
-      if (exported.cancelled === true) {
         throw await processFailure(
           operationLog,
-          "operation_cancelled",
+          cause instanceof PlatformSessionError
+            ? cause.code
+            : "platform_command_failed",
           "configuration-export",
-          "",
-          exported.terminationFailed === true
-            ? "Выгрузка конфигурации через ibcmd отменена после ошибки остановки процесса"
-            : "Выгрузка конфигурации через ibcmd отменена"
+          cause instanceof Error ? cause.message : "",
+          "Автономный сервер не смог выгрузить конфигурацию",
+          cause
         )
-      }
-      if (exported.timedOut === true) {
-        throw await processFailure(operationLog, "session_timeout", "configuration-export", "", "Истекло время выгрузки конфигурации через ibcmd")
-      }
-      if (exported.exitCode !== 0) {
-        throw await processFailure(operationLog, "platform_command_failed", "configuration-export", processText(exported), "ibcmd не смог выгрузить конфигурацию в XML")
+      } finally {
+        await dependencies.fileSystem.rm(stagingDir).catch(() => undefined)
       }
     },
     async loadPartialConfiguration(archivePath, loadTargets, operationLog, extensionName, signal) {
-      if (closed) throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
-      const ibsrvPath = params.installation.ibsrvPath
-      if (ibsrvPath === undefined) throw missingComponent("ibsrv")
-      const serverDataDir = join(params.sessionDir, "server-data")
-      const sessionDataDir = join(params.sessionDir, "session-data")
-      const userServiceDir = join(serverDataDir, "users-data")
-      const keyDir = join(params.sessionDir, ".ssh")
-      const hostKeyPath = join(keyDir, "host.key")
-      const [serverPort, sshPort] = await Promise.all([
-        dependencies.portRuntime.reservePort("127.0.0.1"),
-        dependencies.portRuntime.reservePort("127.0.0.1"),
-      ])
-      await dependencies.fileSystem.mkdir(keyDir)
-      const hostKeyHash = await dependencies.generateHostKey(hostKeyPath)
-      const configuration = parseConfiguration(initialized.stdout)
-      configureServerGateway(configuration, { serverPort, sshPort, hostKeyPath })
-      await dependencies.fileSystem.writeFile(configPath, stringify(configuration), { mode: PRIVATE_FILE_MODE })
+      if (closed || runtimeStopped) {
+        throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
+      }
       const stagingDir = join(userServiceDir, ".nkdk-load", randomUUID())
-      const relativeStagingDir = stagingDir.slice(userServiceDir.length + 1)
       const stagedArchivePath = join(stagingDir, "package.zip")
       const stagedLoadListPath = join(stagingDir, "load.lst")
-      await dependencies.fileSystem.mkdir(serverDataDir)
-      await dependencies.fileSystem.mkdir(sessionDataDir)
       await dependencies.fileSystem.mkdir(stagingDir)
       await dependencies.fileSystem.copyFile(archivePath, stagedArchivePath)
       await dependencies.fileSystem.writeFile(stagedLoadListPath, formatLoadList(loadTargets))
-      const launch = buildStandaloneLaunch({
-        ibsrvPath,
-        dataDir: serverDataDir,
-        sessionDataDir,
-        configPath,
-      })
-      const processHandle = dependencies.processRuntime.spawn(launch.command, launch.args, {
-        cwd: params.sessionDir,
-      })
-      let commandSession: PlatformCommandSession | undefined
       let failureStage: PlatformFailureStage = "configuration-load"
       try {
-        await processHandle.waitForOutput("Stand-alone Server ready.", dependencies.startupTimeoutMs)
-        const shell = await dependencies.sshTransport.connect({
-          host: "127.0.0.1",
-          port: sshPort,
-          timeoutMs: dependencies.startupTimeoutMs,
-          expectedHostKeyHash: hostKeyHash,
-          ...infobaseCredentials(params.settings),
-        })
-        commandSession = await dependencies.openCommandSession({
-          shell,
-          user: params.settings.user,
-          password: params.settings.password,
-          timeoutMs: dependencies.startupTimeoutMs,
-          operationLog,
-          onStage: async (stage, status) => {
-            failureStage = stage
-            if (!(await operationLog.append(`stage=${stage} status=${status}`))) {
-              throw await logWriteFailure(operationLog)
-            }
-          },
-        })
-        failureStage = "configuration-load"
         const loadMode = classifyPartialLoad(loadTargets)
         const command = buildLoadPartialConfigurationCommand({
-          stagingDir: relativeStagingDir,
+          stagingDir: relativeServicePath(userServiceDir, stagingDir),
           loadMode,
           ...(extensionName === undefined ? {} : { extensionName }),
         })
         await operationLog.append(`command ${command}`)
-        await commandSession.run(command, { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog })
-        await commandSession.run('config update-db-cfg --session-terminate="prompt"', {
+        await residentCommandSession.run(command, { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog })
+        await residentCommandSession.run('config update-db-cfg --session-terminate="prompt"', {
           signal,
           timeoutMs: dependencies.commandTimeoutMs,
           operationLog,
@@ -280,14 +350,12 @@ export async function createStandaloneServerSession(
           cause
         )
       } finally {
-        await stopStandaloneAgent(commandSession, processHandle, dependencies.closeTimeoutMs)
         await dependencies.fileSystem.rm(stagingDir).catch(() => undefined)
-        await dependencies.fileSystem.writeFile(configPath, initialized.stdout, { mode: PRIVATE_FILE_MODE })
       }
       return { warnings: [], loadMode: classifyPartialLoad(loadTargets) }
     },
     async listExtensions(signal) {
-      if (closed) {
+      if (closed || runtimeStopped) {
         throw new PlatformSessionError(
           "platform_command_failed",
           "Соединение с платформой закрыто"
@@ -296,47 +364,27 @@ export async function createStandaloneServerSession(
       if (signal?.aborted === true) {
         throw new PlatformSessionError(
           "operation_cancelled",
-          "Получение списка расширений через ibcmd отменено"
+          "Получение списка расширений отменено"
         )
       }
-      const command = buildStandaloneListExtensions({
-        ibcmdPath,
-        configPath,
-        ...(params.settings.user === undefined
-          ? {}
-          : { user: params.settings.user }),
-        ...(params.settings.password === undefined
-          ? {}
-          : { password: params.settings.password }),
-      })
-      const listed = await dependencies.processRuntime.run(
-        command.command,
-        command.args,
-        {
-          timeoutMs: dependencies.commandTimeoutMs,
-          signal,
-          terminationGraceMs: dependencies.closeTimeoutMs,
-        }
-      )
-      if (listed.cancelled === true) {
-        throw new PlatformSessionError(
-          "operation_cancelled",
-          "Получение списка расширений через ibcmd отменено"
+      let result
+      try {
+        result = await residentCommandSession.run(
+          buildListDesignerExtensionsCommand(),
+          { signal, timeoutMs: dependencies.commandTimeoutMs }
         )
+      } catch (cause) {
+        const code = cause instanceof PlatformSessionError
+          ? cause.code
+          : "platform_command_failed"
+        const message = code === "operation_cancelled"
+          ? "Получение списка расширений отменено"
+          : code === "session_timeout"
+            ? "Истекло время получения списка расширений"
+            : "Автономный сервер не смог получить список расширений"
+        throw new PlatformSessionError(code, message, { cause })
       }
-      if (listed.timedOut === true) {
-        throw new PlatformSessionError(
-          "session_timeout",
-          "Истекло время получения списка расширений через ibcmd"
-        )
-      }
-      if (listed.exitCode !== 0) {
-        throw new PlatformSessionError(
-          "platform_command_failed",
-          "ibcmd не смог получить список расширений"
-        )
-      }
-      return parseIbcmdExtensionList(listed.stdout)
+      return parseExtensionPropertyRecords(result.extensionInfo ?? [])
     },
     close: closeSession,
     cancel: closeSession,

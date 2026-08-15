@@ -6,9 +6,7 @@ import {
   buildListDesignerExtensionsCommand,
   buildLoadPartialConfigurationCommand,
   classifyPartialLoad,
-  buildStandaloneConfigExport,
   buildStandaloneConfigInit,
-  buildStandaloneListExtensions,
   buildStandaloneLaunch,
 } from "./commands"
 
@@ -156,32 +154,15 @@ describe("platform session commands", () => {
     ["include", false],
     ["omit", true],
   ] as const)("maps unresolved references %s", (value, expectedFlag) => {
-    const designer = buildDumpConfigurationCommand("/xml", value)
-    const standalone = buildStandaloneConfigExport({
-      ibcmdPath: "ibcmd",
-      configPath: "/session/config.yaml",
-      outputDir: "/xml",
-      unresolvedReferences: value,
-    }).args
+    const command = buildDumpConfigurationCommand("/xml", value)
 
-    expect(designer.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
-    expect(standalone.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
-    expect(standalone).toContain("--force")
+    expect(command.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
   })
 
-  it("selects one extension for export in both platform modes", () => {
+  it("selects one extension for interactive export", () => {
     expect(buildDumpConfigurationCommand("/xml", "include", "Расширение_All")).toBe(
       'config dump-config-to-files --dir="/xml" --format=hierarchical --extension="Расширение_All"'
     )
-    expect(
-      buildStandaloneConfigExport({
-        ibcmdPath: "ibcmd",
-        configPath: "/session/config.yaml",
-        outputDir: "/xml",
-        unresolvedReferences: "include",
-        extensionName: "Расширение_All",
-      }).args
-    ).toContain("--extension=Расширение_All")
   })
 
   it("quotes a dump directory for the interactive 1C shell", () => {
@@ -191,29 +172,10 @@ describe("platform session commands", () => {
     expect(buildDumpConfigurationCommand('/project/a"b', "include")).toContain('--dir="/project/a""b"')
   })
 
-  it("builds list extension commands for both platform modes", () => {
+  it("builds the interactive extension list command", () => {
     expect(buildListDesignerExtensionsCommand()).toBe(
       "config extensions properties get --all-extensions"
     )
-    expect(
-      buildStandaloneListExtensions({
-        ibcmdPath: "ibcmd",
-        configPath: "/session/config.yaml",
-        user: "Admin",
-        password: "secret",
-      })
-    ).toEqual({
-      command: "ibcmd",
-      args: [
-        "infobase",
-        "config",
-        "extension",
-        "list",
-        "--user=Admin",
-        "--password=secret",
-        "--config=/session/config.yaml",
-      ],
-    })
   })
 
   it.each([
@@ -246,21 +208,6 @@ describe("platform session commands", () => {
     ).toBe(
       'config load-files --dir="staging""dir" --archive="package.zip" --no-check --list-file="staging""dir/load.lst" --partial --update-config-dump-info --extension="Расширение ""Тест"""'
     )
-  })
-
-  it("omits absent infobase credentials from extension list arguments", () => {
-    expect(
-      buildStandaloneListExtensions({
-        ibcmdPath: "ibcmd",
-        configPath: "/session/config.yaml",
-      }).args
-    ).toEqual([
-      "infobase",
-      "config",
-      "extension",
-      "list",
-      "--config=/session/config.yaml",
-    ])
   })
 
   it.each([

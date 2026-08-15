@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "./errors"
 import type { PlatformOperationLog } from "./operationLog"
 import { createProcessLogReader } from "./processLog"
+import { extensionPropertyRecord } from "../testing/extensionFixture"
 import { recordedPath } from "../testing/recordedPath"
 import { simulatePlatformConnectionStages } from "../testing/platformConnectionStages"
 import type { CreatePlatformSessionParams } from "./types"
@@ -165,7 +166,7 @@ describe("Designer agent session", () => {
 
   it("lists and normalizes extensions through one agent command", async () => {
     const fixture = createFixture({
-      extensionInfo: [extensionRecord("First"), extensionRecord("Second")],
+      extensionInfo: [extensionPropertyRecord("First"), extensionPropertyRecord("Second")],
     })
     const session = await createDesignerAgentSession(
       createParams(),
@@ -1002,21 +1003,6 @@ function createFixture(
       retryDelayMs: 100,
       closeTimeoutMs: 5_000,
     },
-  }
-}
-
-function extensionRecord(name: string) {
-  return {
-    name,
-    version: "",
-    active: "yes",
-    purpose: "customization",
-    "safe-mode": "yes",
-    "security-profile-name": "",
-    "unsafe-action-protection": "yes",
-    "used-in-distributed-infobase": "no",
-    scope: "infobase",
-    "hash-sum": `${name}-hash`,
   }
 }
 

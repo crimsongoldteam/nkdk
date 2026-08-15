@@ -1,11 +1,36 @@
 import { isAbsolute, relative, resolve, sep } from "node:path"
 import { PlatformSessionError } from "./errors"
-import type { SessionFileSystem } from "./runtime"
+import type {
+  PlatformCommandSession,
+  SessionFileSystem,
+  SshShell,
+} from "./runtime"
+import type { openPlatformCommandSession } from "./sshProtocol"
+import type { NormalizedPlatformConnectionSettings } from "./types"
 
 export type InteractiveSessionFileSystem = Pick<
   SessionFileSystem,
   "mkdir" | "realpath" | "rename" | "rm"
 >
+
+export function createInteractiveCommandSessionOpener(params: {
+  openCommandSession: typeof openPlatformCommandSession
+  settings: Pick<NormalizedPlatformConnectionSettings, "password" | "user">
+  timeoutMs: number
+  operationLog?: Parameters<typeof openPlatformCommandSession>[0]["operationLog"]
+}): (
+  shell: SshShell,
+  onStage: NonNullable<Parameters<typeof openPlatformCommandSession>[0]["onStage"]>
+) => Promise<PlatformCommandSession> {
+  return (shell, onStage) => params.openCommandSession({
+    shell,
+    user: params.settings.user,
+    password: params.settings.password,
+    timeoutMs: params.timeoutMs,
+    operationLog: params.operationLog,
+    onStage,
+  })
+}
 
 export function relativeServicePath(userServiceDir: string, path: string): string {
   return relative(userServiceDir, path).split(sep).join("/")
