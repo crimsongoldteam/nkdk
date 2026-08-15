@@ -4,7 +4,7 @@ import { join, resolve } from "node:path"
 import { compareFileTrees, type FileTreeComparison } from "../support/file-tree"
 import type { ScenarioBlock } from "./matrix/types"
 import type { ScenarioMcpSession } from "./mcp-session"
-import { applyScenarioOperation } from "./operation"
+import { applyScenarioBlock } from "./operation"
 import { prepareInfobaseFixture } from "./platform-fixture"
 import type { ScenarioWorkspace } from "./workspace"
 
@@ -15,9 +15,11 @@ export type ScenarioProgress = {
 
 export type PartialSyncSteps = {
   prepareBaseline(): Promise<void>
-  executeBlock(block: ScenarioBlock, progress: ScenarioProgress): Promise<void>
+  executeBlock(block: ScenarioBlock, progress: ScenarioProgress): Promise<BlockStepTiming>
   verifyFinalState(): Promise<void>
 }
+
+export type BlockStepTiming = Omit<import("./timing").BlockExecutionTiming, "blockKey" | "checkpointMs">
 
 export type PartialSyncStepDependencies = {
   readonly cfXmlDir: string
@@ -26,7 +28,7 @@ export type PartialSyncStepDependencies = {
   operationId(): string
   now(): number
   writeProgress(message: string): void
-  applyScenarioOperation: typeof applyScenarioOperation
+  applyScenarioBlock: typeof applyScenarioBlock
   prepareInfobaseFixture: typeof prepareInfobaseFixture
   compareFileTrees(params: Parameters<typeof compareFileTrees>[0]): Promise<FileTreeComparison>
 }
@@ -60,29 +62,44 @@ export function createPartialSyncSteps(
       await importCf(session, workspace.projectDir, attemptLogDir)
     },
 
-    async executeOperation(operation, progress) {
+    async executeBlock(block, progress) {
       const startedAt = dependencies.now()
-      const safeKey = operation.key.replaceAll(/[^a-zA-Z0-9а-яА-ЯёЁ._-]/gu, "-")
+      const safeKey = block.key.replaceAll(/[^a-zA-Z0-9а-яА-ЯёЁ._-]/gu, "-")
       const attemptLogDir = join(
         workspace.logsDir,
         `${dependencies.operationId()}-${safeKey}`,
       )
-      const paths = operation.changes.map(({ path }) => path).toSorted()
+      const paths = [...new Set(block.operations.flatMap(({ changes }) => changes.map(({ path }) => path)))].toSorted()
       try {
-        await dependencies.applyScenarioOperation(workspace.projectDir, operation)
+        await dependencies.applyScenarioBlock(workspace.projectDir, block)
+        const appliedAt = dependencies.now()
         await expectSuccessfulValidation(session, workspace.projectDir, attemptLogDir)
-        await syncAndExpectStable(session, workspace.projectDir, attemptLogDir)
+        const validatedAt = dependencies.now()
+        await syncAndExpectStatus(
+          session, workspace.projectDir, block.componentPath, attemptLogDir, "synchronized",
+        )
+        const synchronizedAt = dependencies.now()
+        await syncAndExpectStatus(
+          session, workspace.projectDir, block.componentPath, attemptLogDir, "unchanged",
+        )
+        const unchangedAt = dependencies.now()
+        const elapsedSeconds = (unchangedAt - startedAt) / 1_000
+        dependencies.writeProgress(
+          `[${progress.index}/${progress.total}] ${block.key} — ${elapsedSeconds.toFixed(2)}s`,
+        )
+        return {
+          applyMs: appliedAt - startedAt,
+          validationMs: validatedAt - appliedAt,
+          synchronizeMs: synchronizedAt - validatedAt,
+          unchangedMs: unchangedAt - synchronizedAt,
+        }
       } catch (caught) {
         const detail = caught instanceof Error ? caught.message : String(caught)
         throw new Error(
-          `Операция ${operation.key} завершилась ошибкой: ${detail}; пути: ${paths.join(", ")}; журнал: ${attemptLogDir}`,
+          `Блок ${block.key} завершился ошибкой: ${detail}; пути: ${paths.join(", ")}; журнал: ${attemptLogDir}`,
           { cause: caught },
         )
       }
-      const elapsedSeconds = (dependencies.now() - startedAt) / 1_000
-      dependencies.writeProgress(
-        `[${progress.index}/${progress.total}] ${operation.key} — ${elapsedSeconds.toFixed(2)}s`,
-      )
     },
 
     async verifyFinalState() {
@@ -141,27 +158,20 @@ async function expectSuccessfulValidation(
   }
 }
 
-async function syncAndExpectStable(
+async function syncAndExpectStatus(
   session: ScenarioMcpSession,
   projectDir: string,
+  componentPath: ScenarioBlock["componentPath"],
   attemptLogDir: string,
+  expectedStatus: "synchronized" | "unchanged",
 ): Promise<void> {
-  const input = { projectDir, componentPath: "cf", allowWrite: true }
-  const synchronized = await session.call<SyncPayload>(
+  const payload = await session.call<SyncPayload>(
     "nkdk.sync_to_infobase",
-    input,
+    { projectDir, componentPath, allowWrite: true },
     { attemptLogDir },
   )
-  if (synchronized.ok !== true || synchronized.status !== "synchronized") {
-    throw new Error("Первичная частичная синхронизация не вернула synchronized")
-  }
-  const unchanged = await session.call<SyncPayload>(
-    "nkdk.sync_to_infobase",
-    input,
-    { attemptLogDir },
-  )
-  if (unchanged.ok !== true || unchanged.status !== "unchanged") {
-    throw new Error("Повторная частичная синхронизация не вернула unchanged")
+  if (payload.ok !== true || payload.status !== expectedStatus) {
+    throw new Error(`Частичная синхронизация не вернула ${expectedStatus}`)
   }
 }
 
@@ -242,7 +252,7 @@ const defaultDependencies: PartialSyncStepDependencies = {
   operationId: randomUUID,
   now: Date.now,
   writeProgress(message) { process.stdout.write(`${message}\n`) },
-  applyScenarioOperation,
+  applyScenarioBlock,
   prepareInfobaseFixture,
   compareFileTrees,
 }

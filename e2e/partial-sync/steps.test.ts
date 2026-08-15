@@ -2,8 +2,8 @@ import { mkdtemp, readFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { describe, expect, it } from "vitest"
-import type { ScenarioOperation } from "./matrix/types"
-import { applyScenarioOperation } from "./operation"
+import type { ScenarioBlock, ScenarioOperation } from "./matrix/types"
+import { applyScenarioBlock } from "./operation"
 import {
   createPartialSyncSteps,
   type PartialSyncStepDependencies,
@@ -21,8 +21,8 @@ describe("partial sync steps", () => {
     )
 
     await steps.prepareBaseline()
-    await steps.executeOperation(testOperation(), { index: 1, total: 2 })
-    await steps.executeOperation(testOperation("object:second"), { index: 2, total: 2 })
+    await steps.executeBlock(testBlock([testOperation()]), { index: 1, total: 2 })
+    await steps.executeBlock(testBlock([testOperation("object:second")], "objects:bulk"), { index: 2, total: 2 })
     await steps.verifyFinalState()
 
     expect(fixture.openSessionCalls()).toBe(0)
@@ -62,15 +62,19 @@ describe("partial sync steps", () => {
     expect(settings).toContain("mode: standalone-server")
   })
 
-  it("applies one operation, validates and synchronizes twice", async () => {
-    const fixture = await createFixture({ nowValues: [1_000, 13_340] })
+  it("applies a multi-operation block, validates once and synchronizes twice", async () => {
+    const fixture = await createFixture({ nowValues: [1_000, 2_000, 4_000, 7_000, 13_340] })
     const steps = createPartialSyncSteps(
       { workspace: fixture.workspace, session: fixture.session, mode: "standalone-server" },
       fixture.dependencies
     )
-    const operation = testOperation()
+    const block = testBlock([
+      testOperation(),
+      testOperation("object:second"),
+      testOperation("object:third"),
+    ])
 
-    await steps.executeOperation(operation, { index: 38, total: 280 })
+    await steps.executeBlock(block, { index: 3, total: 12 })
 
     await expect(readFile(join(
       fixture.workspace.projectDir,
@@ -83,7 +87,7 @@ describe("partial sync steps", () => {
       "nkdk.sync_to_infobase",
     ])
     expect(fixture.comparisons).toHaveLength(0)
-    expect(fixture.progress).toEqual(["[38/280] object:test — 12.34s"])
+    expect(fixture.progress).toEqual(["[3/12] objects:probe — 12.34s"])
   })
 
   it("wraps a validation error with operation paths and the attempt log directory", async () => {
@@ -93,8 +97,8 @@ describe("partial sync steps", () => {
       fixture.dependencies
     )
 
-    await expect(steps.executeOperation(testOperation(), { index: 1, total: 280 }))
-      .rejects.toThrow(/object:test.*Справочник\/Проверочный\/Свойства.yaml.*logs.*attempt-1/isu)
+    await expect(steps.executeBlock(testBlock([testOperation()]), { index: 1, total: 12 }))
+      .rejects.toThrow(/objects:probe.*Справочник\/Проверочный\/Свойства.yaml.*logs.*attempt-1/isu)
 
     expect(fixture.calls.some(([name]) => name === "nkdk.sync_to_infobase")).toBe(false)
     expect(fixture.comparisons).toEqual([])
@@ -107,7 +111,7 @@ describe("partial sync steps", () => {
       fixture.dependencies
     )
 
-    await steps.executeOperation(testOperation(), { index: 1, total: 280 })
+    await steps.executeBlock(testBlock([testOperation()]), { index: 1, total: 12 })
     await expect(steps.verifyFinalState()).rejects.toThrow(/сравнение/iu)
 
     expect(fixture.comparisons).toHaveLength(1)
@@ -156,7 +160,7 @@ async function createFixture(options: {
     operationId: () => "attempt-1",
     now: () => nowValues.shift() ?? 1_000,
     writeProgress(message) { progress.push(message) },
-    applyScenarioOperation,
+    applyScenarioBlock,
     async prepareInfobaseFixture() {},
     async compareFileTrees(params) {
       comparisons.push({ expectedDir: params.expectedDir, actualDir: params.actualDir })
@@ -180,7 +184,8 @@ async function createFixture(options: {
 }
 
 function testOperation(key = "object:test"): ScenarioOperation {
-  const objectName = key === "object:test" ? "Проверочный" : "Проверочный2"
+  const suffix = key === "object:test" ? "" : key.split(":").at(-1)
+  const objectName = `Проверочный${suffix}`
   return {
     key,
     kind: "create-object",
@@ -190,6 +195,13 @@ function testOperation(key = "object:test"): ScenarioOperation {
       after: "",
     }],
   }
+}
+
+function testBlock(
+  operations: readonly ScenarioOperation[],
+  key: ScenarioBlock["key"] = "objects:probe",
+): ScenarioBlock {
+  return { key, layerKey: "objects", componentPath: "cf", operations }
 }
 
 function syncStatuses(calls: Array<[string, Record<string, unknown>]>): unknown[] {

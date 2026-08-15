@@ -6,6 +6,7 @@ import { createPartialSyncSteps } from "./steps"
 import { partialSyncMatrix } from "./matrix"
 import { buildScenarioPlan, scenarioPlanHash } from "./plan"
 import { runPartialSyncScenario } from "./scenario"
+import { createScenarioTimingReport } from "./timing"
 import { openScenarioWorkspace } from "./workspace"
 
 it("последовательно синхронизирует полную матрицу метаданных с продолжением", async () => {
@@ -30,6 +31,8 @@ it("последовательно синхронизирует полную м�
       plan,
       planHash,
       steps: createPartialSyncSteps({ workspace, session, mode }),
+      timingReport: createScenarioTimingReport(workspace.logsDir),
+      now: Date.now,
     })
   } finally {
     await session.close()

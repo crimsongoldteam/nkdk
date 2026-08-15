@@ -5,6 +5,7 @@ import {
 } from "./checkpoints"
 import type { ScenarioBlock } from "./matrix/types"
 import type { PartialSyncSteps } from "./steps"
+import type { ScenarioTimingReport } from "./timing"
 import { readState, type ScenarioState, type ScenarioWorkspace } from "./workspace"
 
 export type RunPartialSyncScenarioParams = {
@@ -12,6 +13,8 @@ export type RunPartialSyncScenarioParams = {
   readonly plan: readonly ScenarioBlock[]
   readonly planHash: string
   readonly steps: PartialSyncSteps
+  readonly timingReport?: ScenarioTimingReport
+  readonly now?: () => number
 }
 
 export type ScenarioDependencies = {
@@ -56,11 +59,19 @@ export async function runPartialSyncScenario(
 
   for (let index = completedIndex + 1; index < plan.length; index += 1) {
     const block = plan[index]
-    await steps.executeBlock(block, { index: index + 1, total: plan.length })
+    const timing = await steps.executeBlock(block, { index: index + 1, total: plan.length })
+    const checkpointStartedAt = params.now?.() ?? 0
     state = await dependencies.publishCheckpoint(workspace, {
       completedBlock: block.key,
       planHash,
     })
+    if (params.timingReport !== undefined) {
+      await params.timingReport.record({
+        blockKey: block.key,
+        ...timing,
+        checkpointMs: (params.now?.() ?? checkpointStartedAt) - checkpointStartedAt,
+      })
+    }
   }
   await steps.verifyFinalState()
 }

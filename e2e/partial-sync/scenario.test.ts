@@ -5,7 +5,7 @@ import type { ScenarioState, ScenarioWorkspace } from "./workspace"
 import { runPartialSyncScenario } from "./scenario"
 
 const planHash = "a".repeat(64)
-const plan = ["one:probe", "one:bulk", "two:probe", "two:bulk"].map((key): ScenarioBlock => ({
+const plan = (["one:probe", "one:bulk", "two:probe", "two:bulk"] as const).map((key): ScenarioBlock => ({
   key,
   layerKey: key.split(":")[0],
   componentPath: "cf",
@@ -71,6 +71,30 @@ describe("partial sync scenario", () => {
     ])
   })
 
+  it("records checkpoint time together with the block stages", async () => {
+    const fixture = scenarioFixture(scenarioState("two:probe"))
+    const recorded: unknown[] = []
+    const nowValues = [100, 150]
+
+    await runPartialSyncScenario({
+      workspace,
+      plan,
+      planHash,
+      steps: fixture.steps,
+      timingReport: { async record(timing) { recorded.push(timing) } },
+      now: () => nowValues.shift() ?? 150,
+    }, fixture.dependencies)
+
+    expect(recorded).toEqual([{
+      blockKey: "two:bulk",
+      applyMs: 1,
+      validationMs: 2,
+      synchronizeMs: 3,
+      unchangedMs: 4,
+      checkpointMs: 50,
+    }])
+  })
+
   it.each([
     ["unknown completed key", scenarioState("unknown:probe"), /unknown:probe/u],
     ["different plan hash", { ...scenarioState("one:probe"), planHash: "b".repeat(64) }, /хэш|план/iu],
@@ -94,6 +118,7 @@ function scenarioFixture(initialState: ScenarioState, initialFailKey?: string) {
       async executeBlock(block, progress) {
         calls.push(`execute:${block.key}:${progress.index}/${progress.total}`)
         if (block.key === fixture.failKey) throw new Error("planned block failure")
+        return { applyMs: 1, validationMs: 2, synchronizeMs: 3, unchangedMs: 4 }
       },
       async verifyFinalState() { calls.push("verify-final") },
     } satisfies PartialSyncSteps,
