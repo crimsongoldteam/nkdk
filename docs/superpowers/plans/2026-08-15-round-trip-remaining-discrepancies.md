@@ -474,7 +474,7 @@ git commit -m "feat: :sparkles: различить пустой состав п�
 - Consumes: `SectionsPanelRepresentation`, существующие стандартные UUID и `!xml/present` пустого определения.
 - Produces: `ОтображениеПанелиРазделов` — свойство всего интерфейса; UUID панели разделов/истории исправлены; `Представление` размещённой панели удалено.
 
-- [ ] **Step 1: Add failing import and mapping tests**
+- [x] **Step 1: Add failing import and mapping tests**
 
 Проверить:
 
@@ -483,7 +483,7 @@ git commit -m "feat: :sparkles: различить пустой состав п�
 - `b553...` называется `ПанельРазделов`, `13322...` — `ПанельИстории`;
 - размещённая панель не получает `Представление`.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.integration.test.ts
@@ -491,7 +491,7 @@ pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonO
 
 Expected: FAIL — UUID перепутаны, `spr` привязан к размещённой панели или теряется.
 
-- [ ] **Step 3: Move spr to the interface rule**
+- [x] **Step 3: Move spr to the interface rule**
 
 Добавить в `ClientApplicationInterfaceRules` обычное свойство:
 
@@ -499,14 +499,15 @@ Expected: FAIL — UUID перепутаны, `spr` привязан к разм
 sectionsPanelRepresentation: systemEnumerationRule({
   yaml: "ОтображениеПанелиРазделов",
   typeSE: "SectionsPanelRepresentation",
+  toXML: false,
+  fromXML: false,
   toYAML: false,
-  fromYAML: false,
 })
 ```
 
 Конкретная регистрация интерфейса читает и пишет значение в `panelDef` UUID `b553...` независимо от размещения. Тестовый XML задавать строкой в тесте, не изменяя существующую фикстуру. Удалить `spr`/`Представление` из размещённой панели и проверки пустого нестандартного определения.
 
-- [ ] **Step 4: Fix the standard UUID map and preserve empty definitions**
+- [x] **Step 4: Fix the standard UUID map and preserve empty definitions**
 
 Исправить два имени UUID. Сохранить:
 
@@ -515,21 +516,21 @@ sectionsPanelRepresentation: systemEnumerationRule({
 - нестандартное пустое определение как `ПустоеОпределение: !xml/present`;
 - отсутствие нестандартного определения как отсутствие поля.
 
-- [ ] **Step 5: Add export and schema boundaries**
+- [x] **Step 5: Add export and schema boundaries**
 
 Проверить оба значения перечисления, отсутствие `spr`, отказ для старого `Представление`, правильный XML `panelDef`, Tester-подобный пустой корень и нестандартное пустое определение.
 
-- [ ] **Step 6: Verify GREEN**
+- [x] **Step 6: Verify GREEN**
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project integration metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.integration.test.ts metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.integration.test.ts
-pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/clientApplicationInterface/toJSONSchema.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration --no-isolate metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.integration.test.ts metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit --no-isolate metadata/commonObjects/clientApplicationInterface/toJSONSchema.test.ts
 pnpm duplicates -- --base 8fba09946
 ```
 
 Обновить `.agents/xml-anomalies.md` описанием независимой настройки панели разделов и пустого интерфейса.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add packages/rules/metadata/commonObjects/clientApplicationInterface .agents/xml-anomalies.md docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md

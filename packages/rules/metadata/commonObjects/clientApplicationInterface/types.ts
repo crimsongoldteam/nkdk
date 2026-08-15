@@ -20,7 +20,6 @@ export interface ClientApplicationInterfacePanel {
   uuid?: string
   name?: string
   height?: number
-  spr?: SectionsPanelRepresentation
 }
 
 export interface ClientApplicationInterfaceGroup {
@@ -68,15 +67,17 @@ export interface ClientApplicationInterfacePanelDefXML {
 }
 
 const clientApplicationInterfacePanelYAMLSchema = (includeXMLTransport: boolean) =>
-  Type.Object({
-    Имя: Type.Optional(Type.String()),
-    UUID: Type.Optional(includeXMLTransport ? Type.String({ format: "uuid" }) : Type.String()),
-    Высота: Type.Optional(Type.Number()),
-    Представление: Type.Optional(Type.String()),
-    ...(includeXMLTransport
-      ? { ПустоеОпределение: Type.Optional(Type.Literal(XML_PRESENT_TAG_VALUE)) }
-      : {}),
-  })
+  Type.Object(
+    {
+      Имя: Type.Optional(Type.String()),
+      UUID: Type.Optional(includeXMLTransport ? Type.String({ format: "uuid" }) : Type.String()),
+      Высота: Type.Optional(Type.Number()),
+      ...(includeXMLTransport
+        ? { ПустоеОпределение: Type.Optional(Type.Literal(XML_PRESENT_TAG_VALUE)) }
+        : {}),
+    },
+    { additionalProperties: false }
+  )
 
 const clientApplicationInterfaceItemsYAMLSchema = (includeXMLTransport: boolean) => {
   const panel = clientApplicationInterfacePanelYAMLSchema(includeXMLTransport)
@@ -105,7 +106,6 @@ export interface ClientApplicationInterfacePanelYAML {
   Имя?: string
   UUID?: string
   Высота?: number
-  Представление?: string
   ПустоеОпределение?: typeof XML_PRESENT_TAG_VALUE
 }
 

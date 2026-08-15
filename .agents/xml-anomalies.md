@@ -10,6 +10,12 @@
 при фиксированной — её длина не равна ограничению. Длина `0` не ограничивает
 строку.
 
+`ОтображениеПанелиРазделов` является обычным свойством всего
+`ClientApplicationInterface`, а не XML-аномалией размещённой панели. Оно
+восстанавливает `spr` в стандартном `panelDef` панели разделов независимо от
+того, размещена эта панель или скрыта. `!xml/present` у всего интерфейса
+обозначает только существующий файл с пятью пустыми стандартными `panelDef`.
+
 | Объект с аномалией | Свойство | Классифицированный YAML-тег | Текст в XML |
 |---|---|---|---|
 | обычное поле (`MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension`, `MetadataExternalDataSourceCubeResource`) либо стандартный реквизит `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |
