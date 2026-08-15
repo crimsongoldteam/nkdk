@@ -8,7 +8,12 @@ import {
   xmlAnomalyTagValue,
 } from "@nkdk/runtime"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
-import { getSystemEnumerationYAMLType, getTypeDescriptionRule, getTypePrefix } from "./helper"
+import {
+  getSystemEnumerationYAMLType,
+  getTypeDescriptionRule,
+  getTypeDescriptionRuleOrSystemEnumeration,
+  getTypePrefix,
+} from "./helper"
 import { PrimitiveTypeToYAML, TYPE_DESCRIPTION_SOURCE_TYPES, type TypeDescription, type TypeDescriptionYAML } from "./types"
 
 const GENERATED_PREFIX_PATTERN = /^d(\d+)p1$/
@@ -55,7 +60,7 @@ function exportSingleTypeToYAML(
   const sourcePrefix = sourceType === undefined ? undefined : getTypePrefix(sourceType.value)
   const separator = type.indexOf(".")
   const baseType = separator === -1 ? type : type.slice(0, separator)
-  const typeRule = getTypeDescriptionRule(baseType)
+  const typeRule = getTypeDescriptionRuleOrSystemEnumeration(baseType)
   const canonicalPrefix = typeRule?.prefix
   if (sourcePrefix !== undefined && !isCompatibleSourcePrefix(sourcePrefix, sourceType?.namespace, typeRule)) {
     throw new Error(`Тип ${yamlType}: несовместимый XML-префикс ${sourcePrefix}`)
