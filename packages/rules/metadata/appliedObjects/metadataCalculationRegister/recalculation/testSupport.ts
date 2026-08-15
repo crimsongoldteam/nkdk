@@ -1,4 +1,4 @@
-import type { MetadataTargetOwnerContext } from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML, MetadataTargetOwnerContext } from "@nkdk/runtime"
 
 import {
   createDirectRoundTripContexts,
@@ -14,15 +14,20 @@ import { RecalculationRules } from "./rules"
 export function exportRecalculationYAML(params: {
   readonly yaml: unknown
   readonly metadataTargetOwners: readonly MetadataTargetOwnerContext[]
+  readonly referenceXML?: unknown
+  readonly logicalAddress?: string
+  readonly context?: ConfigurationContextWithExportToXML
 }) {
   const contexts = createDirectRoundTripContexts({
+    logicalAddress: params.logicalAddress,
     metadataTargetOwners: params.metadataTargetOwners,
   })
   return withMetadataExecutionRegistrySets(createMetadataExecutionRegistrySets(metadataRules), () =>
     testMetadataItemFromYAMLToXML({
-      context: contexts.exportContext(),
+      context: contexts.exportContext(params.context),
       rule: RecalculationRules,
       name: "ПерерасчетВсеСвойства",
       yaml: params.yaml,
+      referenceXML: params.referenceXML,
     }))
 }

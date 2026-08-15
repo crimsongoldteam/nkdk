@@ -9,6 +9,10 @@ import { metadataChartOfAccountsPropertyStateCapabilities } from "../metadataCha
 import { metadataChartOfCharacteristicTypesPropertyStateCapabilities } from "../metadataChartOfCharacteristicTypes/propertyStates"
 import { metadataCommonCommandPropertyStateCapabilities } from "../metadataCommonCommand/propertyStates"
 import { metadataCalculationRegisterPropertyStateCapabilities } from "../metadataCalculationRegister/propertyStates"
+import {
+  metadataCalculationRegisterRecalculationDimensionPropertyStateCapabilities,
+  metadataCalculationRegisterRecalculationPropertyStateCapabilities,
+} from "../metadataCalculationRegister/recalculation/propertyStates"
 import { metadataCommandGroupPropertyStateCapabilities } from "../metadataCommandGroup/propertyStates"
 import { metadataConstantPropertyStateCapabilities } from "../metadataConstant/propertyStates"
 import { metadataDocumentPropertyStateCapabilities } from "../metadataDocument/propertyStates"
@@ -128,6 +132,8 @@ const currentPropertyStateCapabilities = [
   metadataBusinessProcessPropertyStateCapabilities,
   metadataTaskPropertyStateCapabilities,
   metadataCalculationRegisterPropertyStateCapabilities,
+  metadataCalculationRegisterRecalculationPropertyStateCapabilities,
+  metadataCalculationRegisterRecalculationDimensionPropertyStateCapabilities,
   metadataAccountingRegisterPropertyStateCapabilities,
   metadataAccumulationRegisterPropertyStateCapabilities,
   metadataInformationRegisterPropertyStateCapabilities,
