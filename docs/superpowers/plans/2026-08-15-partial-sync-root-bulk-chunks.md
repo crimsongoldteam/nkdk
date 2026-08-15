@@ -278,7 +278,85 @@ git add packages/rules/metadata/partialSyncToXml/impactPlanner.ts packages/rules
 git commit -m "fix: :bug: поглотить вложенные удаления файлового объекта"
 ```
 
-### Task 4: Проверка автономным сервером
+### Task 4: Сохранение внешних файлов при изменении конфигурации
+
+**Files:**
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.ts`
+- Modify: `packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts`
+
+**Interfaces:**
+- Consumes: прямое изменение текущего `content`-ресурса с
+  `assignment.role === "configuration"` и существующий
+  `includeConfigurationRoot()`.
+- Produces: частичный пакет корня, содержащий корневое XML-задание, его
+  документы-спутники, ссылочный основной язык и все текущие внешние файлы
+  assignment как payload и load targets.
+
+- [ ] **Step 1: Write the failing root-external-files test**
+
+Добавить в `impactPlanner.test.ts`:
+
+```ts
+it("при изменении конфигурации сохраняет корневые внешние файлы", () => {
+  const result = plan(
+    [root, rootModule, language],
+    changes({ changed: [root] }),
+  )
+
+  expect(result.selection).toEqual({
+    kind: "selected",
+    projectPaths: [root, rootModule, language].sort(utf8),
+  })
+  expect(result.externalProjectPaths).toEqual([rootModule])
+  expect(result.loadTargets).toEqual([
+    "Configuration.xml",
+    "Ext/ClientApplicationInterface.xml",
+    "Ext/MainSectionCommandInterface.xml",
+    "Ext/ManagedApplicationModule.bsl",
+    "Languages/Русский.xml",
+  ].sort(utf8))
+})
+```
+
+- [ ] **Step 2: Run the test and verify the missing external file**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run metadata/partialSyncToXml/impactPlanner.test.ts
+```
+
+Expected: FAIL — `rootModule` отсутствует в selection, externalProjectPaths и
+loadTargets.
+
+- [ ] **Step 3: Reuse the complete configuration-root path**
+
+В `includeDirectCurrent` для `content` с ролью assignment `configuration`
+вызывать `includeConfigurationRoot()`, для остальных ресурсов сохранять
+`includeAssignment(resource, true)`. Не перечислять конкретные внешние файлы и
+не добавлять условия по `itemType`.
+
+- [ ] **Step 4: Run verification and commit**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run metadata/partialSyncToXml/impactPlanner.test.ts
+pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/scenario.test.ts
+pnpm type-check
+pnpm duplicates -- --base 1235a30f9
+```
+
+Expected: все проверки PASS, TypeScript без ошибок, новые дубли отсутствуют.
+
+Commit:
+
+```bash
+git add packages/rules/metadata/partialSyncToXml/impactPlanner.ts packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts
+git commit -m "fix: :bug: сохранить внешние файлы конфигурации"
+```
+
+### Task 5: Проверка автономным сервером
 
 **Files:**
 - Inspect: `/Users/nikita/Базы 1С/temp_test/logs/timings.json`
