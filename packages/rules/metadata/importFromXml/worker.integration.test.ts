@@ -489,10 +489,22 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  describe.sequential("порядок второго прохода", () => {
-    const yamlByOrder = new Map<"owner-first" | "consumer-first", string>()
+  describe("порядок второго прохода", () => {
+    const expectedYaml = [
+      "Синоним: \"\"",
+      "НазначенияИспользования: ПлатформаИМобильноеПриложение",
+      "Реквизиты:",
+      "  Объект:",
+      "    Заголовок: \"\"",
+      "    Тип: СправочникОбъект.Товары",
+      "    ОсновнойРеквизит: Истина",
+      "Элементы:",
+      "  Путь:",
+      "    Вид: ПолеНадписи",
+      "    ПутьКДанным: Объект.Товары.НомерСтроки",
+    ].join("\n")
 
-    it.each(["owner-first", "consumer-first"] as const)("формирует YAML при порядке %s", async (order) => {
+    it.each(["owner-first", "consumer-first"] as const)("формирует одинаковый YAML при порядке %s", async (order) => {
       const result = await runCatalogAndFormSecondPass(
         createTempDir(`second-pass-${order}`),
         "Объект.Товары.LineNumber",
@@ -501,13 +513,8 @@ describe("XML import worker second pass", () => {
         "LabelField",
         order,
       )
-      const yaml = readImportedFormYaml(result)
-      yamlByOrder.set(order, yaml)
-      expect(yaml).toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
-    })
 
-    it("даёт одинаковый YAML при прямом и обратном порядке", () => {
-      expect(yamlByOrder.get("consumer-first")).toBe(yamlByOrder.get("owner-first"))
+      expect(readImportedFormYaml(result).trimEnd()).toBe(expectedYaml)
     })
   })
 

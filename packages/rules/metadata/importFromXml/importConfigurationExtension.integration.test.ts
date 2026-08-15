@@ -27,7 +27,8 @@ const catalogFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataC
 const formFixtureDir = join(import.meta.dirname, "../forms/clientApplicationForm/__fixtures__")
 const languageFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataLanguage/__fixtures__")
 const borrowedCommandBarButtonName = "ОбщаяПанельнаяКнопка"
-const temporaryDirectories: string[] = []
+const temporaryRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-extension-import-"))
+let temporaryDirectoryIndex = 0
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
 const preparedYamlWorkerFactory = createPreparedYamlWorkerThreadPoolFactory()
 const projectState = createImportProjectStateTestService({
@@ -42,9 +43,8 @@ afterAll(async () => {
   await Promise.all([
     xmlImportWorkerPoolHandle.close(),
     projectState.close(),
-    ...temporaryDirectories.splice(0).map((directory) =>
-      fs.promises.rm(directory, { recursive: true, force: true })),
   ])
+  await fs.promises.rm(temporaryRoot, { recursive: true, force: true })
 })
 
 describe("configuration extension XML import", () => {
@@ -70,24 +70,10 @@ describe("configuration extension XML import", () => {
           code: "project_validation",
           message: 'ПутьКДанным "БазовыйОбъект.БазовыйРеквизит.Description": неизвестный реквизит "БазовыйРеквизит"',
           targetProjectPath:
-            "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаБезОсновы/Форма.yaml",
-        },
-        {
-          severity: "error",
-          code: "project_validation",
-          message: 'ПутьКДанным "БазовыйОбъект.БазовыйРеквизит.Description": неизвестный реквизит "БазовыйРеквизит"',
-          targetProjectPath:
             "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
         },
       ],
       warnings: [
-        {
-          severity: "warning",
-          code: "unresolved_data_path",
-          message: "Не удалось преобразовать ПутьКДанным: БазовыйОбъект.БазовыйРеквизит.Description",
-          targetProjectPath: "Справочник/СправочникПолный/Формы/ФормаБезОсновы/Форма.yaml",
-          value: "БазовыйОбъект.БазовыйРеквизит.Description",
-        },
         {
           severity: "warning",
           code: "unresolved_data_path",
@@ -381,30 +367,24 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
           "\t</AutoCommandBar>",
         ].join("\n"),
       )
+      replaceExactlyOnce(
+        bodyPath,
+        "\t<Attributes/>",
+        [
+          "\t<ChildItems>",
+          "\t\t<InputField name=\"БазовоеПоле\" id=\"1\">",
+          "\t\t\t<DataPath>БазовыйРеквизитФормы</DataPath>",
+          "\t\t\t<Width>99</Width>",
+          "\t\t\t<ContextMenu name=\"БазовоеПолеКонтекстноеМеню\" id=\"2\"/>",
+          "\t\t\t<ExtendedTooltip name=\"БазовоеПолеРасширеннаяПодсказка\" id=\"3\"/>",
+          "\t\t</InputField>",
+          "\t</ChildItems>",
+          ...baseFormAttributesXml(),
+        ].join("\n"),
+      )
+    } else {
+      replaceExactlyOnce(bodyPath, "\t<Attributes/>", baseFormAttributesXml().join("\n"))
     }
-    replaceExactlyOnce(
-      bodyPath,
-      "\t<Attributes/>",
-      [
-        "\t<ChildItems>",
-        "\t\t<InputField name=\"БазовоеПоле\" id=\"1\">",
-        "\t\t\t<DataPath>БазовыйРеквизитФормы</DataPath>",
-        "\t\t\t<Width>99</Width>",
-        "\t\t\t<ContextMenu name=\"БазовоеПолеКонтекстноеМеню\" id=\"2\"/>",
-        "\t\t\t<ExtendedTooltip name=\"БазовоеПолеРасширеннаяПодсказка\" id=\"3\"/>",
-        "\t\t</InputField>",
-        "\t</ChildItems>",
-        "\t<Attributes>",
-        "\t\t<Attribute name=\"БазовыйРеквизитФормы\" id=\"4\">",
-        "\t\t\t<Type><v8:Type>xs:dateTime</v8:Type></Type>",
-        "\t\t</Attribute>",
-        "\t\t<Attribute name=\"БазовыйОбъект\" id=\"5\">",
-        "\t\t\t<Type><v8:Type>cfg:CatalogObject.СправочникПолный</v8:Type></Type>",
-        "\t\t\t<MainAttribute>true</MainAttribute>",
-        "\t\t</Attribute>",
-        "\t</Attributes>",
-      ].join("\n"),
-    )
   }
 
   const languagePath = join(inputDir, "Languages", "БазовыйЯзык.xml")
@@ -426,6 +406,20 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
   expect(result.succeeded).toBe(5)
 }
 
+function baseFormAttributesXml(): string[] {
+  return [
+    "\t<Attributes>",
+    "\t\t<Attribute name=\"БазовыйРеквизитФормы\" id=\"4\">",
+    "\t\t\t<Type><v8:Type>xs:dateTime</v8:Type></Type>",
+    "\t\t</Attribute>",
+    "\t\t<Attribute name=\"БазовыйОбъект\" id=\"5\">",
+    "\t\t\t<Type><v8:Type>cfg:CatalogObject.СправочникПолный</v8:Type></Type>",
+    "\t\t\t<MainAttribute>true</MainAttribute>",
+    "\t\t</Attribute>",
+    "\t</Attributes>",
+  ]
+}
+
 function addFormWithoutBase(inputDir: string): void {
   const catalogDir = join(inputDir, "Catalogs", "СправочникПолный")
   const formsDir = join(catalogDir, "Forms")
@@ -445,7 +439,19 @@ function addFormWithoutBase(inputDir: string): void {
     "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
   )
   replaceExactlyOnce(targetMetadataPath, "<Name>ФормаОтчета</Name>", "<Name>ФормаБезОсновы</Name>")
-  removeBaseFormElement(join(targetFormDir, "Ext", "Form.xml"))
+  const targetFormPath = join(targetFormDir, "Ext", "Form.xml")
+  removeBaseFormElement(targetFormPath)
+  replaceExactlyOnce(
+    targetFormPath,
+    [
+      "\t\t<LabelField name=\"ПолеБазовогоРеквизита\" id=\"5\">",
+      "\t\t\t<DataPath>БазовыйОбъект.БазовыйРеквизит.Description</DataPath>",
+      "\t\t\t<ContextMenu name=\"ПолеБазовогоРеквизитаКонтекстноеМеню\" id=\"6\"/>",
+      "\t\t\t<ExtendedTooltip name=\"ПолеБазовогоРеквизитаРасширеннаяПодсказка\" id=\"7\"/>",
+      "\t\t</LabelField>\n",
+    ].join("\n"),
+    "",
+  )
   replaceExactlyOnce(
     join(inputDir, "Catalogs", "СправочникПолный.xml"),
     "\t\t\t<Form>ФормаОтчета</Form>",
@@ -490,8 +496,8 @@ function removeUnknownPropertyStates(path: string): void {
 }
 
 function temporaryDirectory(): string {
-  const directory = fs.mkdtempSync(join(os.tmpdir(), "nkdk-extension-import-"))
-  temporaryDirectories.push(directory)
+  const directory = join(temporaryRoot, String(temporaryDirectoryIndex++))
+  fs.mkdirSync(directory)
   return directory
 }
 
