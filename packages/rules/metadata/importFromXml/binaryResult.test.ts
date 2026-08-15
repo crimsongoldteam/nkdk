@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { transferableSymbol } from "piscina"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import {
@@ -7,6 +6,8 @@ import {
   importDiagnostic,
   openImportBinaryResult,
 } from "./binaryResult"
+
+const transferableSymbol = Symbol.for("Piscina.transferable")
 
 describe("двоичный результат import", () => {
   it("передаёт diagnostics, файлы, индекс и состояние отдельными буферами", () => {

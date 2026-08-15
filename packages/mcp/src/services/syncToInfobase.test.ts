@@ -49,6 +49,21 @@ describe("sync to infobase", () => {
     expect(fixture.events).toEqual(["readSettings", "resolveComponent", "readPending", "prepare"])
   })
 
+  it("передаёт подготовленный пакет, публикует его и затем возвращает unchanged", async () => {
+    const fixture = createFixture({ prepare: [preparedResult(), unchangedResult()] })
+
+    await expect(syncToInfobase(input(), fixture.dependencies)).resolves.toMatchObject({
+      ok: true,
+      status: "synchronized",
+      finalizeStatus: "published",
+    })
+    await expect(syncToInfobase(input(), fixture.dependencies)).resolves.toMatchObject({
+      ok: true,
+      status: "unchanged",
+    })
+    expect(fixture.events.filter((event) => event === "platformLoad")).toHaveLength(1)
+  })
+
   it("blocks a new attempt while the previous delivery outcome is unknown", async () => {
     const fixture = createFixture({ pendingStatus: "transferring" })
 
@@ -173,6 +188,13 @@ describe("sync to infobase", () => {
     expect(fixture.events).toContain("markPreparedAfterRejection")
     expect(fixture.events).toContain("recordPhase prepared")
     expect(fixture.events).not.toContain("markApplied")
+
+    const retry = await syncToInfobase(input(), fixture.dependencies)
+    expect(retry).toMatchObject({
+      ok: true,
+      status: "synchronized",
+    })
+    expect(fixture.events.filter((event) => event === "platformLoad")).toHaveLength(2)
   })
 
   it("сохраняет подтверждённый отказ при ошибке записи конечной фазы", async () => {
@@ -201,6 +223,8 @@ describe("sync to infobase", () => {
 
     expectUnknownDelivery(await syncToInfobase(input(), fixture.dependencies))
     expect(fixture.events).not.toContain("markPreparedAfterRejection")
+    expectUnknownDelivery(await syncToInfobase(input(), fixture.dependencies))
+    expect(fixture.events.filter((event) => event === "platformLoad")).toHaveLength(1)
   })
 
   it("does not expose a log link when the platform did not create one", async () => {
@@ -317,7 +341,8 @@ function preparedResult() {
 
 function createFixture(options: {
   settings?: Awaited<ReturnType<SyncToInfobaseDependencies["readSettings"]>>
-  prepare?: ReturnType<typeof preparedResult> | ReturnType<typeof unchangedResult>
+  prepare?: ReturnType<typeof preparedResult> | ReturnType<typeof unchangedResult> |
+    readonly (ReturnType<typeof preparedResult> | ReturnType<typeof unchangedResult>)[]
   pendingStatus?: "transferring" | "applied"
   platformError?: Error
   markAppliedError?: Error
@@ -329,6 +354,10 @@ function createFixture(options: {
   const events: string[] = []
   let delivery = options.pendingStatus
   let finalizeFailures = options.finalizeFailures ?? 0
+  let platformError = options.platformError
+  const prepareResults = Array.isArray(options.prepare)
+    ? [...options.prepare]
+    : [options.prepare ?? preparedResult()]
   const platformParams: Record<string, unknown> = {}
   const dependencies: SyncToInfobaseDependencies = {
     async readSettings() {
@@ -353,7 +382,7 @@ function createFixture(options: {
       },
       async preparePartialSync() {
         events.push("prepare")
-        return options.prepare ?? preparedResult()
+        return prepareResults.shift() ?? preparedResult()
       },
       async markPartialSyncTransferring() {
         events.push("markTransferring")
@@ -391,7 +420,11 @@ function createFixture(options: {
         events.push("platformLoad")
         Object.assign(platformParams, params)
         if (options.platformLoad !== undefined) return options.platformLoad(params)
-        if (options.platformError !== undefined) throw options.platformError
+        if (platformError !== undefined) {
+          const error = platformError
+          platformError = undefined
+          throw error
+        }
         return { mode: params.mode, loadMode: "selected", reusedConnection: false, warnings: [] }
       },
     },

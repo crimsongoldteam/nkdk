@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { transferableSymbol, valueSymbol } from "piscina"
 import {
   assertMetadataWorkerBinaryResult,
   createMovableBinaryResult,
   type MetadataWorkerBinaryResult,
 } from "./binaryResult"
+
+const transferableSymbol = Symbol.for("Piscina.transferable")
+const valueSymbol = Symbol.for("Piscina.valueOf")
 
 describe("двоичный результат универсального worker", () => {
   it("передаёт каждый именованный ArrayBuffer ровно один раз", () => {

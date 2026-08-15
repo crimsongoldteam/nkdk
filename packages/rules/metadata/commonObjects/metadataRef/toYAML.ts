@@ -34,11 +34,9 @@ export const exportMetadataItemLinksToYAML = (
   )
 }
 
-const exportMetadataItemLinkToYAMLProperty: ExportToYAMLFunctionNew = (params) =>
-  exportMetadataItemLinkToYAML(params.context, params.rule, params.value, params.owner)
+const exportMetadataItemLinkToYAMLProperty: ExportToYAMLFunctionNew = (params) => params.value
 
-const exportMetadataItemLinksToYAMLProperty: ExportToYAMLFunctionNew = (params) =>
-  exportMetadataItemLinksToYAML(params.context, params.rule, params.value, params.owner)
+const exportMetadataItemLinksToYAMLProperty: ExportToYAMLFunctionNew = (params) => params.value
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataItemLink", "exportToYAML", exportMetadataItemLinkToYAMLProperty)
 export const metadataPropertyRule001 = definePropertyTypeRule("MetadataItemLinks", "exportToYAML", exportMetadataItemLinksToYAMLProperty)

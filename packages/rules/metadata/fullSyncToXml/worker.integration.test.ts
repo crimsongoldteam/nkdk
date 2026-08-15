@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import { decodeConfigurationBlockFragments } from "@nkdk/runtime"
 import { hashFileBytes } from "@nkdk/runtime"
 import { childSegmentUid, childUid } from "@nkdk/runtime"
@@ -11,7 +11,6 @@ import {
   type ConfigurationIndexStoreDescriptor,
 } from "@nkdk/runtime"
 import {
-  configurationIndexStoreDescriptor,
   createConfigurationIndexCandidateStore,
   openConfigurationIndexStore,
 } from "@nkdk/runtime/configuration-index-store"
@@ -41,15 +40,98 @@ const fullSyncWorker = createFullXmlSyncWorkerCommandRunner()
 const runFullXmlSyncWorkerCommand = fullSyncWorker.run
 const fullXmlSyncWorkerStateForTests = fullSyncWorker.stateForTests
 const resetFullXmlSyncWorkerStateForTests = fullSyncWorker.resetForTests
+const baseFormModes = ["saved", "projected", "own"] as const
+type BaseFormMode = (typeof baseFormModes)[number]
+
+interface BaseFormFixture {
+  mode: BaseFormMode
+  adopted: boolean
+  projectDir: string
+  componentDir: string
+  baseComponentDir: string
+  projectPath: string
+  sourcePath: string
+  baseSourcePath: string
+  savedProjectPath: string
+  savedSourcePath: string
+  logicalAddress: string
+  assigned: FullXmlSyncExecutionAssignment
+  baseDescriptor: ConfigurationIndexStoreDescriptor
+  targetDescriptor: ConfigurationIndexStoreDescriptor
+}
 
 describe("full XML sync worker", () => {
   const tempDirs: string[] = []
+  const persistentDirs: string[] = []
+  let sharedEmptyIndexDir: string
+  let sharedEmptyIndexDescriptor: ConfigurationIndexStoreDescriptor
+  let oldXmlStateFixture: {
+    projectDir: string
+    assigned: FullXmlSyncExecutionAssignment
+    targetSnapshot: TestIndex
+    targetDescriptor: ConfigurationIndexStoreDescriptor
+    profile: FullXmlSyncWorkerProfileRuntime
+  }
+  let partialRoundTripFixture: {
+    projectDir: string
+    assigned: FullXmlSyncExecutionAssignment
+    declarationId: string
+    descriptor: ConfigurationIndexStoreDescriptor
+  }
+  const baseFormFixtures = new Map<BaseFormMode, BaseFormFixture>()
   const context = {
     version: "2.20",
     languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
     exportToYAML: { toTyped: false },
   } as const
   const readToken = createTestProjectStateReadToken()
+
+  beforeAll(async () => {
+    sharedEmptyIndexDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-empty-index-"))
+    sharedEmptyIndexDescriptor = await installTestIndex(
+      sharedEmptyIndexDir,
+      { kind: "configuration" },
+      emptyTestIndex(),
+    )
+
+    const oldProjectDir = createPersistentProject(["Товары"])
+    const baseAssignment = assignment(oldProjectDir, "Товары")
+    const targetSnapshot: TestIndex = {
+      files: [{ projectPath: baseAssignment.sourceProjectPath, contentHash: baseAssignment.expectedContentHash }],
+      fragments: [{ targetProjectPath: baseAssignment.sourceProjectPath, entities: [{
+        logicalAddress: baseAssignment.logicalAddress,
+        uuid: "00000000-0000-4000-8000-000000000001",
+      }]}],
+    }
+    const assigned: FullXmlSyncExecutionAssignment = {
+      ...baseAssignment,
+      configurationIndexSources: { targetProjectPaths: [baseAssignment.sourceProjectPath], baseProjectPaths: [] },
+    }
+    const targetDescriptor = await installTestIndex(oldProjectDir, { kind: "configuration" }, targetSnapshot)
+    const profile = (await configurationFullXmlSyncProfile.confirm({
+      target: configurationState(oldProjectDir, assigned, targetDescriptor),
+    })).workerProfile
+    oldXmlStateFixture = { projectDir: oldProjectDir, assigned, targetSnapshot, targetDescriptor, profile }
+
+    const partialProjectDir = createPersistentProject(["Товары"])
+    const partialAssignment = assignment(partialProjectDir, "Товары")
+    partialRoundTripFixture = {
+      projectDir: partialProjectDir,
+      assigned: partialAssignment,
+      declarationId: partialAssignment.potentialOutputs[0]!.declarationId,
+      descriptor: await installTestIndex(
+        partialProjectDir,
+        { kind: "configuration" },
+        targetIndexForAssignment(partialAssignment),
+      ),
+    }
+    for (const mode of baseFormModes) baseFormFixtures.set(mode, await prepareBaseFormFixture(mode))
+  })
+
+  afterAll(() => {
+    fs.rmSync(sharedEmptyIndexDir, { recursive: true, force: true })
+    for (const dir of persistentDirs) fs.rmSync(dir, { recursive: true, force: true })
+  })
 
   afterEach(() => {
     vi.unstubAllEnvs()
@@ -107,23 +189,7 @@ describe("full XML sync worker", () => {
   })
 
   it("не переносит обычное XML-состояние старого снимка при полном sync конфигурации", async () => {
-    const projectDir = createProject(["Товары"])
-    const baseAssignment = assignment(projectDir, "Товары")
-    const targetSnapshot: TestIndex = {
-      files: [{ projectPath: baseAssignment.sourceProjectPath, contentHash: baseAssignment.expectedContentHash }],
-      fragments: [{ targetProjectPath: baseAssignment.sourceProjectPath, entities: [{
-          logicalAddress: baseAssignment.logicalAddress,
-          uuid: "00000000-0000-4000-8000-000000000001",
-        }]}],
-    }
-    const assigned: FullXmlSyncExecutionAssignment = {
-      ...baseAssignment,
-      configurationIndexSources: { targetProjectPaths: [baseAssignment.sourceProjectPath], baseProjectPaths: [] },
-    }
-    const targetDescriptor = await installTestIndex(projectDir, { kind: "configuration" }, targetSnapshot)
-    const profile = (await configurationFullXmlSyncProfile.confirm({
-      target: configurationState(projectDir, assigned, targetDescriptor),
-    })).workerProfile
+    const { projectDir, assigned, targetSnapshot, targetDescriptor, profile } = oldXmlStateFixture
     await initialize(
       projectDir,
       [assigned],
@@ -135,6 +201,7 @@ describe("full XML sync worker", () => {
       undefined,
       undefined,
       profile,
+      targetDescriptor,
     )
 
     const result = await runFullXmlSyncWorkerCommand({ kind: "execute", assignments: [assigned] })
@@ -193,18 +260,11 @@ describe("full XML sync worker", () => {
   })
 
   it("восстанавливает те же XML-байты из блока, опубликованного частичной синхронизацией", async () => {
-    const projectDir = createProject(["Товары"])
-    const assigned = assignment(projectDir, "Товары")
-    const declarationId = assigned.potentialOutputs[0]!.declarationId
+    const { projectDir, assigned, declarationId, descriptor } = partialRoundTripFixture
     const outputTarget: FullXmlSyncOutputTarget = {
       kind: "memory",
       documentIdsByAssignment: { [assigned.id]: [declarationId] },
     }
-    const descriptor = await installTestIndex(
-      projectDir,
-      { kind: "configuration" },
-      targetIndexForAssignment(assigned),
-    )
     const initializeFromPublishedIndex = async (operationSeed: Uint8Array) => {
       await runFullXmlSyncWorkerCommand({
         kind: "initialize",
@@ -370,7 +430,7 @@ describe("full XML sync worker", () => {
     const baseSnapshot = emptyTestIndex()
     await initialize(projectDir, [assigned], context, baseSnapshot)
 
-    expect(fullXmlSyncWorkerStateForTests().baseIndexPath).toContain("configuration-index.lmdb")
+    expect(fullXmlSyncWorkerStateForTests().baseIndexPath).toMatch(/\.lmdb$/u)
 
     await runFullXmlSyncWorkerCommand({ kind: "dispose" })
 
@@ -524,100 +584,11 @@ describe("full XML sync worker", () => {
     expect(xml).not.toContain("<ExtendedConfigurationObject>")
   })
 
-  it("строит BaseForm заимствованной общей формы и не строит его собственной", async () => {
-    for (const mode of ["saved", "projected", "own"] as const) {
-      const adopted = mode !== "own"
-      resetFullXmlSyncWorkerStateForTests()
-      const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-common-form-"))
-      tempDirs.push(projectDir)
-      const componentDir = join(projectDir, "cfe", "Расширение")
-      const baseComponentDir = join(projectDir, "cf")
-      const projectPath = "ОбщаяФорма/ФормаПродаж/Свойства.yaml"
-      const sourcePath = join(componentDir, ...projectPath.split("/"))
-      const baseSourcePath = join(baseComponentDir, ...projectPath.split("/"))
-      const savedProjectPath = "ОбщаяФорма/ФормаПродаж/БазоваяФорма.yaml"
-      const savedSourcePath = join(componentDir, ...savedProjectPath.split("/"))
-      fs.mkdirSync(join(sourcePath, ".."), { recursive: true })
-      fs.mkdirSync(join(baseSourcePath, ".."), { recursive: true })
-      fs.writeFileSync(
-        sourcePath,
-        ["Имя: ФормаПродаж", "Форма:", "  Ширина: 100", "  Элементы:", "    Поле:", "      Вид: ПолеВвода", ""].join(
-          "\n"
-        )
-      )
-      fs.writeFileSync(
-        baseSourcePath,
-        ["Имя: ФормаПродаж", "Форма:", "  Ширина: 80", "  Элементы:", "    Поле:", "      Вид: ПолеВвода", ""].join(
-          "\n"
-        )
-      )
-      if (mode === "saved") {
-        fs.writeFileSync(
-          savedSourcePath,
-          ["Ширина: 70", "Элементы:", "  ИсторическоеПоле:", "    Вид: ПолеВвода", ""].join("\n")
-        )
-      }
-      const logicalAddress = "ОбщаяФорма.ФормаПродаж"
-      const formAddress = logicalAddress
-      const elementAddress = childUid(formAddress, "Элемент", "Поле")
-      const baseSnapshot: TestIndex = {
-          files: [
-            {
-              projectPath,
-              contentHash: hashFileBytes(fs.readFileSync(baseSourcePath)),
-            },
-          ],
-          fragments: [{ targetProjectPath: projectPath, entities: [
-            {
-              logicalAddress: childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"),
-              xmlId: "9",
-            },
-            {
-              logicalAddress: elementAddress,
-              xmlId: "10",
-            },
-            {
-              logicalAddress: childSegmentUid(elementAddress, "КонтекстноеМеню"),
-              xmlId: "11",
-            },
-            {
-              logicalAddress: childSegmentUid(elementAddress, "РасширеннаяПодсказка"),
-              xmlId: "12",
-            },
-          ]}],
-        }
-      const assigned: FullXmlSyncExecutionAssignment = {
-        id: projectPath,
-        sourceProjectPath: projectPath,
-        sourcePath,
-        expectedContentHash: hashFileBytes(fs.readFileSync(sourcePath)),
-        role: "properties",
-        itemType: "MetadataCommonForm",
-        itemName: "ФормаПродаж",
-        logicalAddress,
-        configurationIndexSources: {
-          targetProjectPaths: [projectPath, ...(mode === "saved" ? [savedProjectPath] : [])],
-          baseProjectPaths: adopted ? [projectPath] : [],
-        },
-        ...(adopted
-          ? {
-              baseFormPaths: {
-                baseProjectPath: projectPath,
-                ...(mode === "saved" ? { savedProjectPath } : {}),
-              },
-            }
-          : {}),
-        ...fullXmlSyncTestTopologyFields(projectPath),
-      }
-      const targetSnapshot: TestIndex = {
-          files: [{ projectPath, contentHash: hashFileBytes(fs.readFileSync(sourcePath)) }],
-          fragments: [{ targetProjectPath: projectPath, entities: [{
-            logicalAddress: elementAddress,
-            xmlId: "1000010",
-          }]}],
-        }
-      const baseDescriptor = await installTestIndex(projectDir, { kind: "configuration" }, baseSnapshot)
-      const targetDescriptor = await installTestIndex(projectDir, { kind: "configurationExtension", name: "Продажи" }, targetSnapshot)
+  it.each(baseFormModes)("строит BaseForm заимствованной общей формы в режиме %s", async (mode) => {
+      const fixture = baseFormFixtures.get(mode)
+      if (fixture === undefined) throw new Error(`Не подготовлен режим ${mode}`)
+      const { adopted, projectDir, componentDir, baseComponentDir, projectPath, sourcePath, baseSourcePath,
+        savedProjectPath, savedSourcePath, logicalAddress, assigned, baseDescriptor, targetDescriptor } = fixture
       await runFullXmlSyncWorkerCommand({
         kind: "initialize",
         workerIndex: 0,
@@ -686,8 +657,92 @@ describe("full XML sync worker", () => {
       } else {
         expect(formXml).not.toContain("<BaseForm")
       }
-    }
   })
+
+  async function prepareBaseFormFixture(mode: BaseFormMode): Promise<BaseFormFixture> {
+    const adopted = mode !== "own"
+    const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-common-form-"))
+    persistentDirs.push(projectDir)
+    const componentDir = join(projectDir, "cfe", "Расширение")
+    const baseComponentDir = join(projectDir, "cf")
+    const projectPath = "ОбщаяФорма/ФормаПродаж/Свойства.yaml"
+    const sourcePath = join(componentDir, ...projectPath.split("/"))
+    const baseSourcePath = join(baseComponentDir, ...projectPath.split("/"))
+    const savedProjectPath = "ОбщаяФорма/ФормаПродаж/БазоваяФорма.yaml"
+    const savedSourcePath = join(componentDir, ...savedProjectPath.split("/"))
+    fs.mkdirSync(join(sourcePath, ".."), { recursive: true })
+    fs.mkdirSync(join(baseSourcePath, ".."), { recursive: true })
+    fs.writeFileSync(
+      sourcePath,
+      ["Имя: ФормаПродаж", "Форма:", "  Ширина: 100", "  Элементы:", "    Поле:", "      Вид: ПолеВвода", ""].join("\n"),
+    )
+    fs.writeFileSync(
+      baseSourcePath,
+      ["Имя: ФормаПродаж", "Форма:", "  Ширина: 80", "  Элементы:", "    Поле:", "      Вид: ПолеВвода", ""].join("\n"),
+    )
+    if (mode === "saved") {
+      fs.writeFileSync(
+        savedSourcePath,
+        ["Ширина: 70", "Элементы:", "  ИсторическоеПоле:", "    Вид: ПолеВвода", ""].join("\n"),
+      )
+    }
+    const logicalAddress = "ОбщаяФорма.ФормаПродаж"
+    const elementAddress = childUid(logicalAddress, "Элемент", "Поле")
+    const baseSnapshot: TestIndex = {
+      files: [{ projectPath, contentHash: hashFileBytes(fs.readFileSync(baseSourcePath)) }],
+      fragments: [{ targetProjectPath: projectPath, entities: [
+        { logicalAddress: childUid(logicalAddress, "Элемент", "ФормаКоманднаяПанель"), xmlId: "9" },
+        { logicalAddress: elementAddress, xmlId: "10" },
+        { logicalAddress: childSegmentUid(elementAddress, "КонтекстноеМеню"), xmlId: "11" },
+        { logicalAddress: childSegmentUid(elementAddress, "РасширеннаяПодсказка"), xmlId: "12" },
+      ]}],
+    }
+    const assigned: FullXmlSyncExecutionAssignment = {
+      id: projectPath,
+      sourceProjectPath: projectPath,
+      sourcePath,
+      expectedContentHash: hashFileBytes(fs.readFileSync(sourcePath)),
+      role: "properties",
+      itemType: "MetadataCommonForm",
+      itemName: "ФормаПродаж",
+      logicalAddress,
+      configurationIndexSources: {
+        targetProjectPaths: [projectPath, ...(mode === "saved" ? [savedProjectPath] : [])],
+        baseProjectPaths: adopted ? [projectPath] : [],
+      },
+      ...(adopted ? {
+        baseFormPaths: {
+          baseProjectPath: projectPath,
+          ...(mode === "saved" ? { savedProjectPath } : {}),
+        },
+      } : {}),
+      ...fullXmlSyncTestTopologyFields(projectPath),
+    }
+    const targetSnapshot: TestIndex = {
+      files: [{ projectPath, contentHash: hashFileBytes(fs.readFileSync(sourcePath)) }],
+      fragments: [{ targetProjectPath: projectPath, entities: [{ logicalAddress: elementAddress, xmlId: "1000010" }]}],
+    }
+    return {
+      mode,
+      adopted,
+      projectDir,
+      componentDir,
+      baseComponentDir,
+      projectPath,
+      sourcePath,
+      baseSourcePath,
+      savedProjectPath,
+      savedSourcePath,
+      logicalAddress,
+      assigned,
+      baseDescriptor: await installTestIndex(projectDir, { kind: "configuration" }, baseSnapshot),
+      targetDescriptor: await installTestIndex(
+        projectDir,
+        { kind: "configurationExtension", name: "Продажи" },
+        targetSnapshot,
+      ),
+    }
+  }
 
   function createProject(names: readonly string[]): string {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-worker-"))
@@ -700,6 +755,13 @@ describe("full XML sync worker", () => {
     return projectDir
   }
 
+  function createPersistentProject(names: readonly string[]): string {
+    const projectDir = createProject(names)
+    tempDirs.splice(tempDirs.indexOf(projectDir), 1)
+    persistentDirs.push(projectDir)
+    return projectDir
+  }
+
   async function initialize(
     projectDir: string,
     assignments: readonly FullXmlSyncAssignment[],
@@ -707,12 +769,15 @@ describe("full XML sync worker", () => {
     baseSnapshot?: TestIndex,
     openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession = () => emptyReadSession(),
     projectStateReadSession?: ProjectStateReadSession,
-    targetSnapshot: TestIndex = emptyTestIndex(),
+    targetSnapshot?: TestIndex,
     outputTarget: FullXmlSyncOutputTarget = { kind: "directory", outputDir: join(projectDir, ".out") },
     typeDescriptionXMLNameByType?: Readonly<Record<string, string>>,
     profileOverride?: FullXmlSyncWorkerProfileRuntime,
+    targetDescriptorOverride?: ConfigurationIndexStoreDescriptor,
   ): Promise<void> {
-    const targetDescriptor = await installTestIndex(projectDir, { kind: "configuration" }, targetSnapshot)
+    const targetDescriptor = targetDescriptorOverride ?? (targetSnapshot === undefined
+      ? sharedEmptyIndexDescriptor
+      : await installTestIndex(projectDir, { kind: "configuration" }, targetSnapshot))
     const baseDescriptor = baseSnapshot === undefined
       ? undefined
       : await installTestIndex(projectDir, { kind: "configurationExtension", name: "base-test" }, baseSnapshot)
@@ -848,11 +913,7 @@ async function installTestIndex(
   })
   candidate.replaceHashes(snapshot.files)
   for (const fragment of snapshot.fragments) candidate.mergeBlockFragment(fragment)
-  const descriptor = configurationIndexStoreDescriptor(projectDir, address)
-  const active = openConfigurationIndexStore(descriptor, "readWrite")
-  try { await active.replaceActiveFrom(candidate) } finally {
-    await active.close()
-    await candidate.discard()
-  }
+  await candidate.close()
+  const descriptor = candidate.descriptor()
   return descriptor
 }

@@ -1,6 +1,14 @@
 import { expect, it } from "vitest"
-import { parseMetadataYaml } from "@nkdk/runtime"
-import type { StructuralReferenceCandidate } from "@nkdk/runtime/rule-kit"
+import {
+  markYAMLMappingKeyTag,
+  parseMetadataYaml,
+  yamlMappingKeyTagAt,
+} from "@nkdk/runtime"
+import type {
+  MetadataTargetOccurrence,
+  PropertyRule,
+  StructuralReferenceCandidate,
+} from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
   composeMetadataRules,
@@ -211,10 +219,12 @@ it("collects and rewrites functional-option references", () => {
 })
 
 it("collects and rewrites role keys in user visibility", () => {
+  const brokenUuid = "11763128-1d0a-4c4a-a51a-bce645342b30"
   const parsed = parseMetadataYaml([
     "Использование:",
     "  Роли:",
     "    Администратор: Ложь",
+    `    !xml/reference ${brokenUuid}: Истина`,
   ].join("\n"))
   const registry = createPropertyRuleRegistrySet(metadataRules)
   const rule = {
@@ -232,7 +242,96 @@ it("collects and rewrites role keys in user visibility", () => {
   })
   if (!result.ok) throw new Error(result.message)
   result.references[0]?.setCanonical("Role.Аудитор")
-  expect(parsed.data).toMatchObject({ Использование: { Роли: { Аудитор: "Ложь" } } })
+  const roles = (parsed.data as { Использование: { Роли: Record<string, unknown> } }).Использование.Роли
+  expect(roles).toMatchObject({ Аудитор: "Ложь", [brokenUuid]: "Истина" })
+  expect(yamlMappingKeyTagAt(roles, brokenUuid)).toBe("xml/reference")
+})
+
+it("перечисляет значения, элементы списка и ключи ролей единым metadataTarget-договором", () => {
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const directRule = {
+    type: "string",
+    metadataTarget: { kind: "object", roots: ["Catalog"] },
+  } as const
+  const listRule = {
+    type: "MetadataItemLinks",
+    metadataTarget: { kind: "object", roots: ["Catalog"] },
+  } as const
+  const userVisibleProperty = userVisibleRule({ yaml: "Использование", xml: "Use" })
+  const roles = {
+    Администратор: "Ложь",
+    Аудитор: "Истина",
+  }
+  markYAMLMappingKeyTag(roles, "Администратор", "xml/reference")
+  const use = { Роли: roles }
+
+  const occurrences = [
+    ...registry.getTypeRule("string", "metadataTargetOccurrences")!({
+      value: "Catalog.Товары",
+      representation: "model",
+      yamlPath: ["Ссылка"],
+      propRule: directRule,
+    }),
+    ...registry.getTypeRule("MetadataItemLinks", "metadataTargetOccurrences")!({
+      value: ["Catalog.Услуги"],
+      representation: "model",
+      yamlPath: ["Ссылки"],
+      propRule: listRule,
+    }),
+    ...registry.getTypeRule("UserVisible", "metadataTargetOccurrences")!({
+      value: use,
+      representation: "yaml",
+      yamlPath: ["Использование"],
+      propRule: userVisibleProperty,
+    }),
+  ] satisfies readonly MetadataTargetOccurrence[]
+
+  expect(occurrences.map(({ location, constraint }) => ({ location, constraint }))).toEqual([
+    {
+      location: { kind: "value", path: ["Ссылка"] },
+      constraint: { kind: "object", roots: ["Catalog"] },
+    },
+    {
+      location: { kind: "value", path: ["Ссылки", 0] },
+      constraint: { kind: "object", roots: ["Catalog"] },
+    },
+    {
+      location: { kind: "key", path: ["Использование", "Роли"], key: "Администратор" },
+      constraint: { kind: "object", roots: ["Role"] },
+    },
+    {
+      location: { kind: "key", path: ["Использование", "Роли"], key: "Аудитор" },
+      constraint: { kind: "object", roots: ["Role"] },
+    },
+  ])
+
+  occurrences[2]!.setValue("Role.Кассир")
+  expect(Object.keys(roles)).toEqual(["Role.Кассир", "Аудитор"])
+  expect(roles).toEqual({ "Role.Кассир": "Ложь", Аудитор: "Истина" })
+  expect(yamlMappingKeyTagAt(roles, "Role.Кассир")).toBe("xml/reference")
+  expect(yamlMappingKeyTagAt(roles, "Администратор")).toBeUndefined()
+})
+
+it.each([
+  ["MetadataValue", { type: "ref", value: "Catalog.Товары.EmptyRef" }, { kind: "value", roots: ["Catalog"], valueKinds: ["emptyRef"] }, "Catalog.Товары.EmptyRef"],
+  ["Color", { type: "StyleItem", value: "ОсновнойЦвет" }, { kind: "object", roots: ["StyleItem"] }, "StyleItem.ОсновнойЦвет"],
+  ["Font", { kind: "StyleItem", ref: "ОсновнойШрифт" }, { kind: "object", roots: ["StyleItem"] }, "StyleItem.ОсновнойШрифт"],
+  ["Border", { ref: "ОсновнаяРамка" }, { kind: "object", roots: ["StyleItem"] }, "StyleItem.ОсновнаяРамка"],
+  ["Picture", { type: "CommonPicture", ref: "Логотип" }, { kind: "object", roots: ["CommonPicture"] }, "CommonPicture.Логотип"],
+] as const)("перечисляет вложенную ссылку типа %s через metadataTargetOccurrences", (type, value, metadataTarget, canonical) => {
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const occurrences = registry.getTypeRule(type, "metadataTargetOccurrences")!({
+    value,
+    representation: "model",
+    yamlPath: ["Значение"],
+    propRule: { type, metadataTarget } as PropertyRule,
+  })
+
+  expect(occurrences).toHaveLength(1)
+  expect(occurrences[0]).toMatchObject({
+    location: { kind: "value", path: ["Значение"] },
+    representation: { kind: "canonical", canonical },
+  })
 })
 
 function collectProbeReferences(

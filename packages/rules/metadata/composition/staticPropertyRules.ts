@@ -228,6 +228,37 @@ import { metadataPropertyRule030 as rule385 } from "../commonObjects/metadataTar
 import { metadataPropertyRule031 as rule386 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule032 as rule387 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule033 as rule388 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule034 as rule397 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule035 as rule398 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule036 as rule399 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule037 as rule400 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule038 as rule401 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule039 as rule402 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule040 as rule403 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule041 as rule404 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule042 as rule405 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule043 as rule406 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule044 as rule407 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule045 as rule408 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule046 as rule409 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule047 as rule410 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule048 as rule411 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule049 as rule412 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule050 as rule413 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule051 as rule414 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule052 as rule415 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule053 as rule416 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule054 as rule417 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule055 as rule418 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule056 as rule419 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule057 as rule420 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule058 as rule421 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule000 as rule422 } from "../commonObjects/functionalOptionsProperty/brokenReference"
+import { metadataPropertyRule000 as rule423 } from "../commonObjects/userVisible/brokenReference"
+import { metadataPropertyRule059 as rule424 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule060 as rule425 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule061 as rule426 } from "../commonObjects/metadataTargets/validationHandlers"
+import { metadataPropertyRule062 as rule427 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule000 as rule228 } from "../commonObjects/metadataValue/associatedTableToJSONSchema"
 import { metadataPropertyRule000 as rule229 } from "../commonObjects/metadataValue/fromXML"
 import { metadataPropertyRule001 as rule230 } from "../commonObjects/metadataValue/fromXML"
@@ -784,4 +815,35 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule394,
   rule395,
   rule396,
+  rule397,
+  rule398,
+  rule399,
+  rule400,
+  rule401,
+  rule402,
+  rule403,
+  rule404,
+  rule405,
+  rule406,
+  rule407,
+  rule408,
+  rule409,
+  rule410,
+  rule411,
+  rule412,
+  rule413,
+  rule414,
+  rule415,
+  rule416,
+  rule417,
+  rule418,
+  rule419,
+  rule420,
+  rule421,
+  rule422,
+  rule423,
+  rule424,
+  rule425,
+  rule426,
+  rule427,
 ])

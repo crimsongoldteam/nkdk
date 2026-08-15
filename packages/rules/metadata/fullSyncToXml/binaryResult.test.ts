@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { transferableSymbol } from "piscina"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import { decodeConfigurationBlockFragments } from "@nkdk/runtime"
 import { createFullXmlSyncBinaryResult, openFullXmlSyncBinaryResult } from "./binaryResult"
+
+const transferableSymbol = Symbol.for("Piscina.transferable")
 
 describe("двоичный результат полной синхронизации", () => {
   it("передаёт diagnostics, пути и фрагмент индекса без предметных массивов", () => {

@@ -41,7 +41,7 @@ import {
 } from "./rulesSnapshot"
 import {
   collectStructuralYamlReferences,
-  isRelativeYAMLScalarTagged,
+  isRelativeYAMLReferenceTagged,
   type StructuralReferenceNestedRule,
   type StructuralReferenceRuntime,
 } from "./structuralReferences"
@@ -107,6 +107,7 @@ export function extractValidationYamlFacts(params: {
   propertyStateCompatibilityMode?: string
   borrowedLogicalAddresses?: ReadonlySet<string>
   context?: ConfigurationContext
+  fileExists?: (absolutePath: string) => boolean
 }): ValidationYamlFacts {
   const validationDiagnostics = params.validationDiagnostics !== false
   if (params.file.kind === "form") {
@@ -185,8 +186,9 @@ export function extractValidationYamlFacts(params: {
         }),
       ]
   const extensionComponent = params.file.componentPath.startsWith("cfe/")
+  const fileExists = params.fileExists ?? existsSync
   const belongsToBorrowedPair = extensionComponent && (
-    existsSync(resolve(params.file.componentDir, "..", "..", "cf", ...params.file.projectPath.split("/")))
+    fileExists(resolve(params.file.componentDir, "..", "..", "cf", ...params.file.projectPath.split("/")))
   )
   const extensionLogicalAddress = params.file.logicalAddress
     ?? (params.file.componentPath.startsWith("cfe/") && objectTarget !== undefined
@@ -204,7 +206,7 @@ export function extractValidationYamlFacts(params: {
         borrowed: belongsToBorrowedPair,
         borrowedLogicalAddresses: params.borrowedLogicalAddresses,
         propertyStateCompatibilityMode: params.propertyStateCompatibilityMode,
-        projectFileExists: (projectPath) => existsSync(resolve(params.file.componentDir, ...projectPath.split("/"))),
+        projectFileExists: (projectPath) => fileExists(resolve(params.file.componentDir, ...projectPath.split("/"))),
       })
   const propertyStatePendingReferences = pendingReferences.map((reference) => {
     const propertyStateMode = pendingReferencePropertyStateMode(
@@ -649,8 +651,8 @@ function collectPendingReferences(params: {
                   execution,
                   rule: propertyRule,
                   yamlValue: value,
-                  isTagged: (path: readonly (string | number)[]) =>
-                    isRelativeYAMLScalarTagged(record, yamlKey, path),
+                  isTagged: (location) =>
+                    isRelativeYAMLReferenceTagged(record, yamlKey, location),
                 },
               }),
         })
@@ -784,7 +786,7 @@ function collectTargetValues(params: {
     execution: PropertyRuleExecution
     rule: PropertyRule
     yamlValue: unknown
-    isTagged: (path: readonly (string | number)[]) => boolean
+    isTagged: (location: import("@nkdk/runtime/rule-kit").BrokenXMLReferenceLocation) => boolean
   }
 }): PendingMetadataTargetReference[] {
   if ((params.constraint.kind === "dataTable" || params.constraint.kind === "dataTableField")
@@ -800,7 +802,7 @@ function collectTargetValues(params: {
     if (params.brokenReferenceTransport?.execution.isTransportedBrokenXMLReference({
       rule: params.brokenReferenceTransport.rule,
       yamlValue: params.brokenReferenceTransport.yamlValue,
-      path: relativePath,
+      location: { kind: "value", path: relativePath },
       isTagged: params.brokenReferenceTransport.isTagged,
     })) return []
     const reference = pendingReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })

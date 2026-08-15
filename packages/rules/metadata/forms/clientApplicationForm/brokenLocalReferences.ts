@@ -5,6 +5,7 @@ import {
   defineMetadataRules,
   emptyMetadataRules,
   type BrokenXMLReferenceCarrierRegistration,
+  type BrokenXMLReferenceLocation,
   type PropertyRule,
 } from "@nkdk/runtime/rule-kit"
 
@@ -70,9 +71,9 @@ const formStringCarrier: BrokenXMLReferenceCarrierRegistration = {
       ? base
       : Type.Union([base, taggedSchema(element)])
   },
-  matchesTaggedYAML({ rule, yamlValue, path, isTagged }) {
+  matchesTaggedYAML({ rule, yamlValue, location, isTagged }) {
     const element = formStringElement(rule)
-    return element !== undefined && matchesScalar(element, yamlValue, path, isTagged)
+    return element !== undefined && matchesScalar(element, yamlValue, location, isTagged)
   },
 }
 
@@ -164,8 +165,8 @@ function scalarCarrier(params: {
     validationSchema({ base, validationGraph }) {
       return validationGraph ? Type.Union([base, taggedSchema(params.element)]) : base
     },
-    matchesTaggedYAML({ yamlValue, path, isTagged }) {
-      return matchesScalar(params.element, yamlValue, path, isTagged)
+    matchesTaggedYAML({ yamlValue, location, isTagged }) {
+      return matchesScalar(params.element, yamlValue, location, isTagged)
     },
   }
 }
@@ -177,27 +178,29 @@ function importScalar(
 ) {
   const text = scalarXMLText(xmlValue)
   return text !== undefined && yamlValue === text && isBrokenLocalFormReference(element, text)
-    ? { yamlValue: xmlAnomalyTagValue("xml/reference", text), taggedPaths: [[]] }
+    ? { yamlValue: xmlAnomalyTagValue("xml/reference", text), taggedLocations: [valueLocation([])] }
     : undefined
 }
 
 function prepareScalar(
   element: LocalFormReferenceElement,
   yamlValue: unknown,
-  isTagged: (path: readonly (string | number)[]) => boolean,
+  isTagged: (location: BrokenXMLReferenceLocation) => boolean,
 ) {
-  return isTagged([]) && validTaggedPayload(element, yamlValue)
-    ? { yamlValue: scalarPayload(element, yamlValue), transportedPaths: [[]] }
+  const location = valueLocation([])
+  return isTagged(location) && validTaggedPayload(element, yamlValue)
+    ? { yamlValue: scalarPayload(element, yamlValue), transportedLocations: [location] }
     : undefined
 }
 
 function matchesScalar(
   element: LocalFormReferenceElement,
   yamlValue: unknown,
-  path: readonly (string | number)[],
-  isTagged: (path: readonly (string | number)[]) => boolean,
+  location: BrokenXMLReferenceLocation,
+  isTagged: (location: BrokenXMLReferenceLocation) => boolean,
 ): boolean {
-  return path.length === 0 && isTagged(path) && validTaggedPayload(element, yamlValue)
+  return location.kind === "value" && location.path.length === 0
+    && isTagged(location) && validTaggedPayload(element, yamlValue)
 }
 
 function scalarPayload(element: LocalFormReferenceElement, value: unknown): string {
@@ -247,24 +250,27 @@ function collectionCarrier(params: CollectionCarrierParams): BrokenXMLReferenceC
       if (matches.length === 0) return undefined
       const normalized = [...yamlValue]
       for (const { index, text } of matches) normalized[index] = xmlAnomalyTagValue("xml/reference", text)
-      return { yamlValue: normalized, taggedPaths: matches.map(({ index }) => [index]) }
+      return { yamlValue: normalized, taggedLocations: matches.map(({ index }) => valueLocation([index])) }
     },
     prepareExport({ yamlValue, isTagged }) {
       if (!Array.isArray(yamlValue)) return undefined
-      const paths: number[][] = []
+      const locations: BrokenXMLReferenceLocation[] = []
       const prepared = yamlValue.map((value, index) => {
-        if (!isTagged([index])) return value
-        paths.push([index])
+        const location = valueLocation([index])
+        if (!isTagged(location)) return value
+        locations.push(location)
         return scalarPayload(params.element, value)
       })
-      return paths.length === 0 ? undefined : { yamlValue: prepared, transportedPaths: paths }
+      return locations.length === 0 ? undefined : { yamlValue: prepared, transportedLocations: locations }
     },
-    patchExportedXML({ rule, yamlValue, xmlValue, transportedPaths }) {
+    patchExportedXML({ rule, yamlValue, xmlValue, transportedLocations }) {
       if (!Array.isArray(yamlValue)) return xmlValue
       const current = params.xmlItems(rule, xmlValue)
       if (current === undefined) return xmlValue
       const values = [...current]
-      for (const [index] of transportedPaths) {
+      for (const location of transportedLocations) {
+        if (location.kind !== "value") continue
+        const [index] = location.path
         if (typeof index === "number") values[index] = scalarPayload(params.element, yamlValue[index])
       }
       return params.patch(rule, xmlValue, values)
@@ -274,10 +280,11 @@ function collectionCarrier(params: CollectionCarrierParams): BrokenXMLReferenceC
         ? { ...base, items: Type.Union([base.items as TSchema, taggedSchema(params.element)]) }
         : base
     },
-    matchesTaggedYAML({ yamlValue, path, isTagged }) {
-      const index = path[0]
-      return Array.isArray(yamlValue) && path.length === 1 && typeof index === "number" &&
-        isTagged(path) && validTaggedPayload(params.element, yamlValue[index])
+    matchesTaggedYAML({ yamlValue, location, isTagged }) {
+      const index = location.path[0]
+      return location.kind === "value" && Array.isArray(yamlValue)
+        && location.path.length === 1 && typeof index === "number" &&
+        isTagged(location) && validTaggedPayload(params.element, yamlValue[index])
     },
   }
 }
@@ -300,7 +307,7 @@ function nestedCarrier(params: {
     propertyType: params.propertyType,
     tryImport({ xmlValue, yamlValue }) {
       const normalized = cloneValue(yamlValue)
-      const paths: (string | number)[][] = []
+      const locations: BrokenXMLReferenceLocation[] = []
       for (const location of params.locations) {
         const xmlItems = nestedCollection(xmlValue, location.xmlCollection)
         const yamlItems = nestedCollection(normalized, location.yamlCollection)
@@ -311,32 +318,33 @@ function nestedCarrier(params: {
           const yamlItem = yamlItems[index]
           if (!isRecord(yamlItem)) continue
           ;(yamlItem as Record<string, unknown>)[location.yamlProperty] = xmlAnomalyTagValue("xml/reference", text)
-          paths.push([...location.yamlCollection, index, location.yamlProperty])
+          locations.push(valueLocation([...location.yamlCollection, index, location.yamlProperty]))
         }
       }
-      return paths.length === 0 ? undefined : { yamlValue: normalized, taggedPaths: paths }
+      return locations.length === 0 ? undefined : { yamlValue: normalized, taggedLocations: locations }
     },
     prepareExport({ yamlValue, isTagged }) {
       const prepared = cloneValue(yamlValue)
-      const paths: (string | number)[][] = []
+      const locations: BrokenXMLReferenceLocation[] = []
       for (const location of params.locations) {
         const items = nestedCollection(prepared, location.yamlCollection)
         if (items === undefined) continue
         for (let index = 0; index < items.length; index++) {
           const path = [...location.yamlCollection, index, location.yamlProperty]
-          if (!isTagged(path)) continue
+          const referenceLocation = valueLocation(path)
+          if (!isTagged(referenceLocation)) continue
           const item = items[index]
           if (!isRecord(item)) continue
           ;(item as Record<string, unknown>)[location.yamlProperty] = scalarPayload(
             location.element,
             item[location.yamlProperty],
           )
-          paths.push(path)
+          locations.push(referenceLocation)
         }
       }
-      return paths.length === 0 ? undefined : { yamlValue: prepared, transportedPaths: paths }
+      return locations.length === 0 ? undefined : { yamlValue: prepared, transportedLocations: locations }
     },
-    patchExportedXML({ yamlValue, xmlValue, transportedPaths }) {
+    patchExportedXML({ yamlValue, xmlValue, transportedLocations }) {
       const patched = cloneValue(xmlValue)
       for (const location of params.locations) {
         const xmlItems = nestedCollection(patched, location.xmlCollection)
@@ -344,7 +352,7 @@ function nestedCarrier(params: {
         if (xmlItems === undefined || yamlItems === undefined) continue
         for (let index = 0; index < yamlItems.length; index++) {
           const path = [...location.yamlCollection, index, location.yamlProperty]
-          if (!hasPath(transportedPaths, path)) continue
+          if (!hasLocationPath(transportedLocations, path)) continue
           const xmlItem = xmlItems[index]
           const yamlItem = yamlItems[index]
           if (!isRecord(xmlItem) || !isRecord(yamlItem)) continue
@@ -359,8 +367,9 @@ function nestedCarrier(params: {
     validationSchema({ base }) {
       return base
     },
-    matchesTaggedYAML({ yamlValue, path, isTagged }) {
-      if (!isTagged(path)) return false
+    matchesTaggedYAML({ yamlValue, location, isTagged }) {
+      if (location.kind !== "value" || !isTagged(location)) return false
+      const path = location.path
       return params.locations.some((location) => {
         if (path.length !== location.yamlCollection.length + 2) return false
         if (!location.yamlCollection.every((part, index) => path[index] === part)) return false
@@ -397,8 +406,17 @@ function valueAtPath(value: unknown, path: readonly (string | number)[]): unknow
   return current
 }
 
-function hasPath(paths: readonly (readonly (string | number)[])[], expected: readonly (string | number)[]): boolean {
-  return paths.some((path) => path.length === expected.length && path.every((part, index) => part === expected[index]))
+function hasLocationPath(
+  locations: readonly BrokenXMLReferenceLocation[],
+  expected: readonly (string | number)[],
+): boolean {
+  return locations.some((location) => location.kind === "value"
+    && location.path.length === expected.length
+    && location.path.every((part, index) => part === expected[index]))
+}
+
+function valueLocation(path: readonly (string | number)[]): BrokenXMLReferenceLocation {
+  return { kind: "value", path }
 }
 
 function recordValue(value: unknown, key: string): unknown {

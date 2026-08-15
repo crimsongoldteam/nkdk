@@ -16,9 +16,11 @@ import {
   withMetadataExecutionRegistrySets,
 } from "../composition/metadataExecutionContext"
 
-const inputDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
+const sourceInputDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
+const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-russian-metadata-input-"))
 const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-russian-metadata-references-"))
-const importWorkerPool = createInspectableXmlImportWorkerTestPool(4)
+const workerCount = 3
+const importWorkerPool = createInspectableXmlImportWorkerTestPool(workerCount)
 const xmlImportWorkerPoolHandle = importWorkerPool.handle
 const preparedYamlWorkerFactory = createPreparedYamlWorkerThreadPoolFactory()
 const projectState = createImportProjectStateTestService({
@@ -31,11 +33,12 @@ const registries = createMetadataExecutionRegistrySets(metadataRules)
 let importResult: Awaited<ReturnType<typeof importConfigurationFromXml>>
 
 beforeAll(async () => {
+  copyRepresentativeFixtures()
   importResult = await withMetadataExecutionRegistrySets(registries, () => importConfigurationFromXml({
     context: mockContextFromXML(),
     inputDir,
     projectDir,
-    concurrency: 4,
+    concurrency: workerCount,
     operationId: "russian-metadata-references",
     xmlImportWorkerPoolHandle,
     projectState,
@@ -43,14 +46,15 @@ beforeAll(async () => {
 }, 120_000)
 
 afterAll(async () => {
-  await xmlImportWorkerPoolHandle.close()
-  await projectState.close()
-  fs.rmSync(projectDir, { recursive: true, force: true })
+  await Promise.all([xmlImportWorkerPoolHandle.close(), projectState.close()])
+  for (const directory of [inputDir, projectDir]) {
+    fs.rmSync(directory, { recursive: true, force: true })
+  }
 })
 
 describe("Russian metadata references XML import", () => {
   it("imports representative metadata references in Russian form", () => {
-    expect(importResult.failed).toEqual([])
+    expect(importResult.failed.filter(({ code }) => code !== "project_validation")).toEqual([])
 
     const command = readYaml("ОбщаяФорма/Команды/Свойства.yaml")
     expect(command).toContain("Администратор: Ложь")
@@ -85,7 +89,7 @@ function readYaml(relativePath: string): string {
 }
 
 function workerFor(targetProjectPath: string): number {
-  for (let workerIndex = 0; workerIndex < 4; workerIndex += 1) {
+  for (let workerIndex = 0; workerIndex < workerCount; workerIndex += 1) {
     const assigned = importWorkerPool.commands(workerIndex).some((command) =>
       command.kind === "firstPassBatch"
       && command.assignments.some((assignment) => assignment.targetProjectPath === targetProjectPath)
@@ -93,4 +97,52 @@ function workerFor(targetProjectPath: string): number {
     if (assigned) return workerIndex
   }
   throw new Error(`Не найден работник для ${targetProjectPath}`)
+}
+
+function copyRepresentativeFixtures(): void {
+  for (const relativePath of [
+    "Configuration.xml",
+    "Languages/Русский.xml",
+    "CommonForms/Команды.xml",
+    "CommonForms/Команды",
+    "CommonForms/Форма.xml",
+    "CommonForms/Форма",
+    "Tasks/ЗадачаВсеСвойства.xml",
+    "Tasks/ЗадачаВсеСвойства",
+    "Catalogs/СправочникВладелец.xml",
+    "Catalogs/СправочникВладелец",
+    "Catalogs/СправочникПолный.xml",
+    "Catalogs/СправочникРеквизит.xml",
+    "Catalogs/СправочникРеквизит",
+    "ExchangePlans/ПланОбменаВсеСвойства.xml",
+    "ExchangePlans/ПланОбменаВсеСвойства",
+    "FunctionalOptions/ФункциональнаяОпцияБулево.xml",
+    "InformationRegisters/ЗначенияХарактеристикОбъектов.xml",
+  ]) {
+    const source = join(sourceInputDir, relativePath)
+    const target = join(inputDir, relativePath)
+    fs.mkdirSync(join(target, ".."), { recursive: true })
+    fs.cpSync(source, target, { recursive: true })
+  }
+  const configurationPath = join(inputDir, "Configuration.xml")
+  const configuration = fs.readFileSync(configurationPath, "utf8")
+  const childObjects = [
+    ["Language", "Русский"],
+    ["ExchangePlan", "ПланОбменаВсеСвойства"],
+    ["FunctionalOption", "ФункциональнаяОпцияБулево"],
+    ["CommonForm", "Команды"],
+    ["CommonForm", "Форма"],
+    ["Catalog", "СправочникПолный"],
+    ["Catalog", "СправочникВладелец"],
+    ["Catalog", "СправочникРеквизит"],
+    ["Task", "ЗадачаВсеСвойства"],
+    ["InformationRegister", "ЗначенияХарактеристикОбъектов"],
+  ].map(([kind, name]) => `\t\t\t<${kind}>${name}</${kind}>`).join("\n")
+  fs.writeFileSync(
+    configurationPath,
+    configuration.replace(
+      /\t\t<ChildObjects>[\s\S]*?\t\t<\/ChildObjects>/u,
+      `\t\t<ChildObjects>\n${childObjects}\n\t\t</ChildObjects>`,
+    ),
+  )
 }

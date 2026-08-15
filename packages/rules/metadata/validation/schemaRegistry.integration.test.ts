@@ -537,7 +537,11 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(inputField.properties?.Шрифт).toMatchObject({ $ref: `${prefix}Font/base` })
     expect(inputField.properties?.КартинкаКнопкиВыбора).toMatchObject({ $ref: `${prefix}Picture/base` })
     expect(inputField.properties?.Заголовок).toMatchObject({ $ref: `${prefix}I8nText/base` })
-    expect(inputField.properties?.Использование).toMatchObject({ $ref: `${prefix}UserVisible/base` })
+    expect(inputField.properties?.Использование).toMatchObject({
+      anyOf: expect.arrayContaining([
+        expect.objectContaining({ $ref: `${prefix}UserVisible/base` }),
+      ]),
+    })
     expect(inputField.properties?.СписокВыбора).toMatchObject({ $ref: `${prefix}ChoiceList/base` })
 
     expect(graph.schemas[`${prefix}Color/base`]).toMatchObject({ $id: `${prefix}Color/base` })

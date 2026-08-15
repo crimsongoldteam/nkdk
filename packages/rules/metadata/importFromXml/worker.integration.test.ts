@@ -445,7 +445,7 @@ describe("XML import worker second pass", () => {
 
   it("writes a cross-object DataPath through the shared snapshot without reading a YAML project", async () => {
     const tempDir = createTempDir("worker")
-    const projectDir = createTempDir("empty-project")
+    const projectDir = join(tempDir, "empty-project")
     const { assignments, first, second } = await runCatalogAndFormSecondPass(
       tempDir,
       "Объект.Товары.LineNumber",
@@ -489,74 +489,58 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it("даёт одинаковый YAML при прямом и обратном порядке второго прохода", async () => {
-    const forward = await runCatalogAndFormSecondPass(
-      createTempDir("second-pass-owner-first"),
-      "Объект.Товары.LineNumber",
-      undefined,
-      undefined,
-      "LabelField",
-      "owner-first",
-    )
-    const reverse = await runCatalogAndFormSecondPass(
-      createTempDir("second-pass-consumer-first"),
-      "Объект.Товары.LineNumber",
-      undefined,
-      undefined,
-      "LabelField",
-      "consumer-first",
-    )
+  describe("порядок второго прохода", () => {
+    const expectedYaml = [
+      "Синоним: \"\"",
+      "НазначенияИспользования: ПлатформаИМобильноеПриложение",
+      "Реквизиты:",
+      "  Объект:",
+      "    Заголовок: \"\"",
+      "    Тип: СправочникОбъект.Товары",
+      "    ОсновнойРеквизит: Истина",
+      "Элементы:",
+      "  Путь:",
+      "    Вид: ПолеНадписи",
+      "    ПутьКДанным: Объект.Товары.НомерСтроки",
+    ].join("\n")
 
-    expect(readImportedFormYaml(reverse)).toBe(readImportedFormYaml(forward))
-    expect(readImportedFormYaml(reverse)).toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
+    it.each(["owner-first", "consumer-first"] as const)("формирует одинаковый YAML при порядке %s", async (order) => {
+      const result = await runCatalogAndFormSecondPass(
+        createTempDir(`second-pass-${order}`),
+        "Объект.Товары.LineNumber",
+        undefined,
+        undefined,
+        "LabelField",
+        order,
+      )
+
+      expect(readImportedFormYaml(result).trimEnd()).toBe(expectedYaml)
+      if (order === "owner-first") expectStructuredFormPublished(result)
+    })
   })
 
-  it("публикует структуру импортированной формы в окончательном ProjectState", async () => {
-    const outputDir = createTempDir("structured-form")
-    const { assignments, second } = await runCatalogAndFormSecondPass(
-      outputDir,
-      "Объект.Товары.LineNumber",
-    )
-    expect(second).toMatchObject({ diagnostics: [], warnings: [] })
+  describe("layered owner snapshot", () => {
+    let scenario: Awaited<ReturnType<typeof runCatalogAndFormSecondPass>>
 
-    const snapshot = buildProjectStateSnapshot({
-      fragments: second.stateFragments.map(openProjectStateFragment),
-      deletions: [],
-    })
-    const query = createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(snapshot), {
-      dependencyValidator: createProjectStateDependencyValidator(),
+    beforeAll(async () => {
+      scenario = await runCatalogAndFormSecondPass(
+        createTempDir("worker-layered"),
+        "Объект.БазовыйРеквизит",
+        "Базовый",
+      )
     })
 
-    expect(query.readStructuredDocumentEntries({
-      componentPath: "cf",
-      logicalAddress: assignments.form.logicalAddress,
-    })).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        documentKind: "clientApplicationForm",
-        representation: "working",
-        componentKind: "element",
-        name: "Путь",
-      }),
-      expect.objectContaining({ componentKind: "attribute", name: "Объект" }),
-    ]))
-  })
+    it("writes a user DataPath after building the layered owner snapshot", () => {
+      const { assignments, first, second } = scenario
 
-  it("writes a user DataPath after building the layered owner snapshot", async () => {
-    const tempDir = createTempDir("worker-layered")
-    const { assignments, first, second } = await runCatalogAndFormSecondPass(
-      tempDir,
-      "Объект.БазовыйРеквизит",
-      "Базовый",
-    )
-
-    expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [], warnings: [] })
-    if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
-    const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
-    if (formFile === undefined) throw new Error("Ожидался файл формы")
-    expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.БазовыйРеквизит")
-    appendSharedStateFragments(second.stateFragments)
-    expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.БазовыйРеквизит")
-    expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(assignments.form.targetProjectPath)
+      expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [], warnings: [] })
+      const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
+      if (formFile === undefined) throw new Error("Ожидался файл формы")
+      expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.БазовыйРеквизит")
+      appendSharedStateFragments(second.stateFragments)
+      expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.БазовыйРеквизит")
+      expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(assignments.form.targetProjectPath)
+    })
   })
 
   it("preserves an unresolved DataPath, returns one warning and releases the YAML", async () => {
@@ -851,6 +835,31 @@ function readImportedFormYaml(result: Awaited<ReturnType<typeof runCatalogAndFor
   )
   if (formFile === undefined) throw new Error("Ожидался импортированный YAML формы")
   return readFileSync(formFile.sourcePath, "utf-8")
+}
+
+function expectStructuredFormPublished(
+  result: Awaited<ReturnType<typeof runCatalogAndFormSecondPass>>,
+): void {
+  const snapshot = buildProjectStateSnapshot({
+    fragments: result.second.stateFragments.map(openProjectStateFragment),
+    deletions: [],
+  })
+  const query = createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(snapshot), {
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
+
+  expect(query.readStructuredDocumentEntries({
+    componentPath: "cf",
+    logicalAddress: result.assignments.form.logicalAddress,
+  })).toEqual(expect.arrayContaining([
+    expect.objectContaining({
+      documentKind: "clientApplicationForm",
+      representation: "working",
+      componentKind: "element",
+      name: "Путь",
+    }),
+    expect.objectContaining({ componentKind: "attribute", name: "Объект" }),
+  ]))
 }
 
 function createCatalogAndFormAssignments(

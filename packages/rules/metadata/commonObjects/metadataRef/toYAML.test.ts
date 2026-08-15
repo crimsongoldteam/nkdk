@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "../../ruleRuntime"
-import { ExportToYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
+import { exportPropertyValueToYAML } from "../../ruleRuntime"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "./toYAML"
 
@@ -18,9 +17,11 @@ describe("exportMetadataItemLinkToYAML", () => {
   })
 
   it("should register metadata item link YAML exporter", () => {
-    const exportToYAML = getTypeRule("MetadataItemLink", "exportToYAML") as ExportToYAMLFunctionNew
-
-    const result = exportToYAML({ context: mockContext, rule: mockRule, value: "Document.Встреча" })
+    const result = exportPropertyValueToYAML({
+      context: mockContext,
+      rule: { ...mockRule, type: "MetadataItemLink", metadataTarget: { kind: "object" } },
+      value: "Document.Встреча",
+    })
 
     expect(result).toEqual("Документ.Встреча")
   })

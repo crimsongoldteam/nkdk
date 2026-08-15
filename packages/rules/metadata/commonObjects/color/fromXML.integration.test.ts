@@ -4,8 +4,30 @@ import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { readAndParseXMLFile } from "../../../tests/readAndParseXMLFile"
 import { importColorFromXML } from "./fromXML"
 import { ColorXML } from "./types"
+import { colorStyleItemTarget } from "./types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 
 describe("importColorFromXML", () => {
+  it("не применяет общий metadataTarget поверх предметного преобразования цвета", () => {
+    const rule = {
+      itemType: "ColorMetadataTargetProbe",
+      properties: {
+        color: {
+          type: "Color",
+          yaml: "Цвет",
+          xml: "Color",
+          metadataTarget: colorStyleItemTarget,
+        },
+      },
+    } as const satisfies MetadataItemRule
+
+    expect(testPropertyFromXMLToYAML({
+      rule,
+      xml: { Color: "style:SpecialTextColor" },
+    }).yaml).toEqual({ Цвет: "ЦветОсобогоТекста" })
+  })
+
   it.each(colorTestCases.filter((testCase) => testCase.fixture))(
     "should import $name from XML",
     ({ fixture, color }) => {

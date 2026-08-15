@@ -255,6 +255,36 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     })
   })
 
+  it("находит обычную роль и не возвращает UUID-ключ UserVisible", async () => {
+    const projectDir = createProject()
+    const uuid = "6537a19c-3357-46a2-96a6-1fe4619ddbc8"
+    writeProjectFile(projectDir, "Роль/Кассир/Свойства.yaml", "{}")
+    writeProjectFile(projectDir, "ОбщаяФорма/Продажи/Форма.yaml", [
+      "Команды:",
+      "  Открыть:",
+      "    Использование:",
+      "      Роли:",
+      "        Кассир: Истина",
+      `        !xml/reference ${uuid}: Ложь`,
+    ])
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/ОбщаяФорма/Продажи/Форма.yaml",
+        ["Команды", "Открыть", "Использование", "Роли", "Кассир"],
+        "Role.Кассир",
+      )],
+    })
+
+    const result = await findInValidProject(projectDir, "Роль.Кассир")
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "references_found",
+      blockedReferences: [expect.objectContaining({ value: "Role.Кассир" })],
+    })
+    expect(JSON.stringify(result)).not.toContain(uuid)
+  })
+
   it("blocks delete when a form DataPath points to the target", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])

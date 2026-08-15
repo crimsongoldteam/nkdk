@@ -39,19 +39,21 @@ export const UserEditKeysYAML = {
   Value: "Редактирование",
 } as const
 
-const USER_VISIBLE_ROLE_KEY_PATTERN = "^(?:[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$"
-const UserVisibleRolesJSONSchema = Type.Record(
-  Type.String({ pattern: USER_VISIBLE_ROLE_KEY_PATTERN }),
-  BooleanJSONSchema,
-  { minProperties: 1, additionalProperties: false },
-)
+const USER_VISIBLE_ROLE_KEY_PATTERN = "^[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*$"
+const USER_VISIBLE_ROLE_OR_UUID_KEY_PATTERN = "^(?:[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$"
 
-export const UserVisibleJSONSchema = Type.Union(
+function createUserVisibleJSONSchema(roleKeyPattern: string) {
+  const roles = Type.Record(
+    Type.String({ pattern: roleKeyPattern }),
+    BooleanJSONSchema,
+    { minProperties: 1, additionalProperties: false },
+  )
+  return Type.Union(
   [
     Type.Object(
       {
         Разрешить: Type.Optional(Type.Literal("Ложь")),
-        Роли: UserVisibleRolesJSONSchema,
+        Роли: roles,
       },
       { additionalProperties: false }
     ),
@@ -62,10 +64,16 @@ export const UserVisibleJSONSchema = Type.Union(
       { additionalProperties: false }
     ),
   ],
+  )
+}
+
+export const UserVisibleJSONSchema = createUserVisibleJSONSchema(USER_VISIBLE_ROLE_KEY_PATTERN)
+export const UserVisibleBrokenReferenceJSONSchema = createUserVisibleJSONSchema(
+  USER_VISIBLE_ROLE_OR_UUID_KEY_PATTERN,
 )
 
 export type UserVisibleYAML = Static<typeof UserVisibleJSONSchema>
-export type UserVisibleRolesYAML = Static<typeof UserVisibleRolesJSONSchema>
+export type UserVisibleRolesYAML = Record<string, Static<typeof BooleanJSONSchema>>
 
 export type UserVisibleKeysYAML = (typeof UserVisibleKeysYAML)[keyof typeof UserVisibleKeysYAML]
 

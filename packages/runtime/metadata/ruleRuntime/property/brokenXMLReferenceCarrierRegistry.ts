@@ -2,16 +2,22 @@ import type { TSchema } from "typebox"
 
 import type { YamlPath } from "../../diagnostics/types"
 import type { PropertyRule } from "./types"
+import { yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { yamlMappingKeyTagAt } from "../../../yaml/mappingKeyTags"
 
 export interface BrokenXMLReferenceImportResult {
   readonly yamlValue: unknown
-  readonly taggedPaths: readonly YamlPath[]
+  readonly taggedLocations: readonly BrokenXMLReferenceLocation[]
 }
 
 export interface BrokenXMLReferenceExportResult {
   readonly yamlValue: unknown
-  readonly transportedPaths: readonly YamlPath[]
+  readonly transportedLocations: readonly BrokenXMLReferenceLocation[]
 }
+
+export type BrokenXMLReferenceLocation =
+  | { readonly kind: "value"; readonly path: YamlPath }
+  | { readonly kind: "key"; readonly path: YamlPath; readonly key: string }
 
 export interface PreparedBrokenXMLReferenceExport
   extends BrokenXMLReferenceExportResult {
@@ -29,13 +35,13 @@ export interface BrokenXMLReferenceCarrierRegistration {
   prepareExport(params: {
     readonly rule: PropertyRule
     readonly yamlValue: unknown
-    readonly isTagged: (path: YamlPath) => boolean
+    readonly isTagged: (location: BrokenXMLReferenceLocation) => boolean
   }): BrokenXMLReferenceExportResult | undefined
   patchExportedXML(params: {
     readonly rule: PropertyRule
     readonly yamlValue: unknown
     readonly xmlValue: unknown
-    readonly transportedPaths: readonly YamlPath[]
+    readonly transportedLocations: readonly BrokenXMLReferenceLocation[]
   }): unknown
   validationSchema(params: {
     readonly rule: PropertyRule
@@ -45,9 +51,35 @@ export interface BrokenXMLReferenceCarrierRegistration {
   matchesTaggedYAML(params: {
     readonly rule: PropertyRule
     readonly yamlValue: unknown
-    readonly path: YamlPath
-    readonly isTagged: (path: YamlPath) => boolean
+    readonly location: BrokenXMLReferenceLocation
+    readonly isTagged: (location: BrokenXMLReferenceLocation) => boolean
   }): boolean
+}
+
+export type BrokenXMLReferenceTypeCarrier = Omit<BrokenXMLReferenceCarrierRegistration, "propertyType">
+
+export function isRelativeYAMLReferenceTagged(
+  parent: Readonly<Record<string, unknown>>,
+  propertyKey: string,
+  location: BrokenXMLReferenceLocation,
+): boolean {
+  const path = location.path
+  if (location.kind === "key") {
+    let mapping: unknown = parent[propertyKey]
+    for (const segment of path) {
+      if (typeof mapping !== "object" || mapping === null) return false
+      mapping = (mapping as Readonly<Record<string | number, unknown>>)[segment]
+    }
+    return yamlMappingKeyTagAt(mapping, location.key) === "xml/reference"
+  }
+  if (path.length === 0) return yamlScalarTagAt(parent, propertyKey) === "xml/reference"
+  let current: unknown = parent[propertyKey]
+  for (const segment of path.slice(0, -1)) {
+    if (typeof current !== "object" || current === null) return false
+    current = (current as Readonly<Record<string | number, unknown>>)[segment]
+  }
+  const key = path[path.length - 1]
+  return key !== undefined && yamlScalarTagAt(current, key) === "xml/reference"
 }
 
 export interface BrokenXMLReferenceCarrierRegistry {
@@ -59,7 +91,7 @@ export interface BrokenXMLReferenceCarrierRegistry {
   prepareBrokenXMLReferenceExport(params: {
     readonly rule: PropertyRule
     readonly yamlValue: unknown
-    readonly isTagged: (path: YamlPath) => boolean
+    readonly isTagged: (location: BrokenXMLReferenceLocation) => boolean
   }): PreparedBrokenXMLReferenceExport
   patchExportedBrokenXMLReferences(params: {
     readonly rule: PropertyRule
@@ -75,13 +107,14 @@ export interface BrokenXMLReferenceCarrierRegistry {
   isTransportedBrokenXMLReference(params: {
     readonly rule: PropertyRule
     readonly yamlValue: unknown
-    readonly path: YamlPath
-    readonly isTagged: (path: YamlPath) => boolean
+    readonly location: BrokenXMLReferenceLocation
+    readonly isTagged: (location: BrokenXMLReferenceLocation) => boolean
   }): boolean
 }
 
 export function createBrokenXMLReferenceCarrierRegistry(
   registrations: readonly BrokenXMLReferenceCarrierRegistration[],
+  typeCarrier: (propertyType: string) => BrokenXMLReferenceTypeCarrier | undefined = () => undefined,
 ): BrokenXMLReferenceCarrierRegistry {
   const byPropertyType = new Map<string, BrokenXMLReferenceCarrierRegistration[]>()
   const byName = new Map<string, BrokenXMLReferenceCarrierRegistration>()
@@ -95,7 +128,11 @@ export function createBrokenXMLReferenceCarrierRegistry(
   }
 
   function carriers(rule: PropertyRule): readonly BrokenXMLReferenceCarrierRegistration[] {
-    return byPropertyType.get(rule.type) ?? []
+    const common = typeCarrier(rule.type)
+    return [
+      ...(common === undefined ? [] : [{ ...common, propertyType: rule.type }]),
+      ...(byPropertyType.get(rule.type) ?? []),
+    ]
   }
 
   return {
@@ -107,7 +144,7 @@ export function createBrokenXMLReferenceCarrierRegistry(
       assertSingleMatch(matches.map(({ registration }) => registration))
       return matches[0]?.result ?? {
         yamlValue: params.yamlValue,
-        taggedPaths: [],
+        taggedLocations: [],
       }
     },
     prepareBrokenXMLReferenceExport(params) {
@@ -118,12 +155,12 @@ export function createBrokenXMLReferenceCarrierRegistry(
       assertSingleMatch(matches.map(({ registration }) => registration))
       const match = matches[0]
       return match === undefined
-        ? { yamlValue: params.yamlValue, transportedPaths: [] }
+        ? { yamlValue: params.yamlValue, transportedLocations: [] }
         : { ...match.result, carrierName: match.registration.name }
     },
     patchExportedBrokenXMLReferences(params) {
       if (params.preparation.carrierName === undefined) return params.xmlValue
-      const registration = byName.get(params.preparation.carrierName)
+      const registration = carriers(params.rule).find(({ name }) => name === params.preparation.carrierName)
       if (registration === undefined) {
         throw new Error(`Не найден переносчик битой XML-ссылки: ${params.preparation.carrierName}`)
       }
@@ -131,7 +168,7 @@ export function createBrokenXMLReferenceCarrierRegistry(
         rule: params.rule,
         yamlValue: params.yamlValue,
         xmlValue: params.xmlValue,
-        transportedPaths: params.preparation.transportedPaths,
+        transportedLocations: params.preparation.transportedLocations,
       })
     },
     brokenXMLReferenceValidationSchema(params) {

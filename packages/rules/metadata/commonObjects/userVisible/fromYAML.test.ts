@@ -3,6 +3,7 @@ import type { UserVisiblePropertyRule } from "@nkdk/runtime/rule-kit"
 import { mockContext } from "../../../tests/mockContext"
 import { importUserVisibleFromYAML } from "./fromYAML"
 import { UserVisibleKeysYAML } from "./types"
+import { markYAMLMappingKeyTag } from "@nkdk/runtime"
 
 const userVisibleRule: UserVisiblePropertyRule = {
   type: "UserVisible",
@@ -11,14 +12,16 @@ const userVisibleRule: UserVisiblePropertyRule = {
 
 describe("importUserVisibleFromYAML", () => {
   it("imports allow mode from current YAML", () => {
+    const roles = {
+      Администратор: "Истина" as const,
+      "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь" as const,
+    }
+    markYAMLMappingKeyTag(roles, "b1d9c8b4-d05c-45c7-8db2-abc84e597700", "xml/reference")
     const result = importUserVisibleFromYAML({
       context: mockContext,
       rule: userVisibleRule,
       value: {
-        Роли: {
-          Администратор: "Истина",
-          "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь",
-        },
+        Роли: roles,
       },
     })
 
@@ -32,15 +35,17 @@ describe("importUserVisibleFromYAML", () => {
   })
 
   it("imports deny mode from current YAML", () => {
+    const roles = {
+      Администратор: "Истина" as const,
+      "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь" as const,
+    }
+    markYAMLMappingKeyTag(roles, "b1d9c8b4-d05c-45c7-8db2-abc84e597700", "xml/reference")
     const result = importUserVisibleFromYAML({
       context: mockContext,
       rule: userVisibleRule,
       value: {
         Разрешить: "Ложь",
-        Роли: {
-          Администратор: "Истина",
-          "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь",
-        },
+        Роли: roles,
       },
     })
 
