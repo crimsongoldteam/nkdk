@@ -24,7 +24,18 @@ import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeI
 import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
-import { XML_PRESENT_TAG_VALUE, yamlMappingKeyTagAt, yamlScalarTagAt } from "@nkdk/runtime"
+import {
+  createMetadataExecutionRegistrySets,
+  withMetadataExecutionRegistrySets,
+} from "../../composition/metadataExecutionContext"
+import { metadataRules } from "../../composition/metadataRules"
+import {
+  markYAMLScalarTag,
+  XML_PRESENT_TAG_VALUE,
+  xmlAnomalyTagValue,
+  yamlMappingKeyTagAt,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -821,7 +832,8 @@ describe("форма XML → YAML → XML", () => {
     expect(converted.formXML.AutoCommandBar).toEqual(expect.objectContaining({ _name: "", _id: "-1" }))
   })
 
-  it("восстанавливает имена подсказок вложенных дополнений таблицы без reference XML", () => {
+  it("восстанавливает имена подсказок вложенных дополнений таблицы без reference XML", () =>
+    withMetadataExecutionRegistrySets(createMetadataExecutionRegistrySets(metadataRules), () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "reportForm.xml")
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
       import.meta.url,
@@ -836,6 +848,18 @@ describe("форма XML → YAML → XML", () => {
       formXML: form.Form,
       metadataXML: metadata.MetaDataObject,
     })
+    const tableYAML = findRecordWithValue(imported.yaml, "Вид", "ТаблицаФормы")
+    if (tableYAML === undefined) throw new Error("В YAML не найдена таблица")
+    const searchStringYAML: Record<string, unknown> = { РасширеннаяПодсказка: {} }
+    tableYAML.ОтображениеСтрокиПоиска = searchStringYAML
+    searchStringYAML.Имя = xmlAnomalyTagValue("xml/name", "СвязиНеУдаленныхСтрокаПоиска")
+    markYAMLScalarTag(searchStringYAML, "Имя", "xml/name")
+
+    const viewStatusTooltipYAML: Record<string, unknown> = {}
+    tableYAML.ОтображениеСостоянияПросмотра = { РасширеннаяПодсказка: viewStatusTooltipYAML }
+    viewStatusTooltipYAML.Имя = xmlAnomalyTagValue("xml/name", "СобственноеИмяПодсказки")
+    markYAMLScalarTag(viewStatusTooltipYAML, "Имя", "xml/name")
+
     const converted = convertClientApplicationFormFromYAMLToXML({
       context: contexts.exportContext(),
       yaml: imported.yaml as ClientApplicationFormYAML,
@@ -852,15 +876,15 @@ describe("форма XML → YAML → XML", () => {
     ).find((item) => item.Table !== undefined)?.Table
 
     expect(table?.SearchStringAddition?.ExtendedTooltip?._name).toBe(
-      "ТабличнаяЧастьВсеСвойстваСтрокаПоискаРасширеннаяПодсказка"
+      "СвязиНеУдаленныхСтрокаПоискаРасширеннаяПодсказка"
     )
     expect(table?.ViewStatusAddition?.ExtendedTooltip?._name).toBe(
-      "ТабличнаяЧастьВсеСвойстваСостояниеПросмотраРасширеннаяПодсказка"
+      "СобственноеИмяПодсказки"
     )
     expect(table?.SearchControlAddition?.ExtendedTooltip?._name).toBe(
       "ТабличнаяЧастьВсеСвойстваУправлениеПоискомРасширеннаяПодсказка"
     )
-  })
+  }))
 
   it("восстанавливает порядок metadata-свойств по адресу metadata-файла", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
@@ -973,6 +997,30 @@ describe("форма XML → YAML → XML", () => {
     )
   })
 })
+
+function asTestRecord(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined
+}
+
+function findRecordWithValue(value: unknown, property: string, expected: unknown): Record<string, unknown> | undefined {
+  const record = asTestRecord(value)
+  if (record === undefined) {
+    if (!Array.isArray(value)) return undefined
+    for (const item of value) {
+      const found = findRecordWithValue(item, property, expected)
+      if (found !== undefined) return found
+    }
+    return undefined
+  }
+  if (record[property] === expected) return record
+  for (const child of Object.values(record)) {
+    const found = findRecordWithValue(child, property, expected)
+    if (found !== undefined) return found
+  }
+  return undefined
+}
 
 function canonicalXML(xml: string): unknown {
   return withoutFormattingText(importContentFromXML(xml))

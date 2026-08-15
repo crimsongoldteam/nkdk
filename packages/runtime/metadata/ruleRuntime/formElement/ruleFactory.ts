@@ -23,6 +23,7 @@ import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
 import { readExplicitElementXMLName } from "./explicitName"
 import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
+import { resolveFormElementXMLId } from "./xmlIdentity"
 export {
   defineElementRule,
   getElementRule,
@@ -58,8 +59,10 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
           : configurationIndexExportFormElementLogicalAddress(context, canonicalName)
     return logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
   },
-  resolveItemContext: ({ context }) => {
-    const itemName = params.toXML({ context }).name
+  resolveItemName: ({ context, yaml }) =>
+    (params.nameStyle?.explicitXMLName === true ? readExplicitElementXMLName(yaml) : undefined)
+    ?? params.toXML({ context }).name,
+  resolveItemContext: ({ context, itemName }) => {
     return itemName === undefined
       ? context
       : getChildContextToXML({
@@ -70,21 +73,16 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
         })
   },
   transformOutput: (outputParams) => {
-    const { context, xml, yaml } = outputParams
-    const extra = params.toXML({ context })
+    const { context, itemName, xml } = outputParams
     const { _name, _id, ...properties } = xml
     const runtime = context.exportToXML.configurationIndex
-    const explicitName = params.nameStyle?.explicitXMLName === true
-      ? readExplicitElementXMLName(yaml)
-      : undefined
-    const indexedId = runtime?.identity("xmlId")
-    if (indexedId !== undefined) runtime?.collector.setIdentity(runtime.logicalAddress, "xmlId", indexedId)
+    const indexedId = resolveFormElementXMLId(context)
     const result = {
       _name:
-        explicitName ?? (
+        itemName ?? (
           typeof _name === "string" && _name.length > 0
             ? _name
-            : extra.name
+            : ""
         ),
       _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
       ...properties,

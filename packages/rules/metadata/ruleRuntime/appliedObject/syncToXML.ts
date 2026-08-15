@@ -220,15 +220,26 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
       )
       const nestedContext =
         nestedRule.resolveContext?.({ context: propertyContext, name: itemName, propertyRule }) ?? propertyContext
+      const nestedItemName = nestedRule.resolveItemName?.({
+        context: nestedContext,
+        yaml: nestedYAML,
+        ownerName: itemName,
+        propertyRule,
+      })
       const nestedItemContext =
-        nestedRule.resolveItemContext?.({ context: nestedContext, name: itemName, propertyRule }) ?? nestedContext
+        nestedRule.resolveItemContext?.({
+          context: nestedContext,
+          name: itemName,
+          itemName: nestedItemName,
+          propertyRule,
+        }) ?? nestedContext
       const converted = convertMetadataItemFromYAMLToXML({
         convertProperties: convertPropertiesFromYAMLToXML,
         context: nestedItemContext,
         yaml: normalizedYAML,
         rule: itemRule,
         name: nestedRule.injectOwnerName === true ? itemName : undefined,
-        sourceItemName: itemName,
+        sourceItemName: nestedItemName ?? itemName,
         outputs: [{ key: "property" }],
         sparseYAML: nestedRule.sparseYAML,
         ownerYAML: { itemType: assignment.itemRule.itemType },

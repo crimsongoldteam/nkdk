@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { importFromYAML } from "@nkdk/runtime"
+import { importFromYAML, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import "../../commonObjects/i8nText/fromXML"
 import "../../commonObjects/i8nText/fromYAML"
 import "../../commonObjects/i8nText/toXML"
@@ -12,6 +12,9 @@ import type { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew } from "./fn"
 import { registerTypeRule } from "./typeRuleRegistry"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
 import type { PropertyRuleType } from "./registry"
+import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../../composition/metadataRules"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
@@ -1395,6 +1398,69 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Item: [{ Name: "Первый", Value: "A" }] })
   })
 
+  it("передаёт вычисленное имя одиночного родителя его дочернему элементу", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const childRule = testRule({})
+    rules.property.registerTypeRule("EffectiveNameChild" as never, "yamlToXMLNestedRule", {
+      kind: "item",
+      itemRule: childRule,
+      resolveItemName: ({ context }: { context: ConfigurationContextWithExportToXML }) => {
+        const parentName = context.exportToXML.itemsTree.at(-1)?.name
+        return parentName === undefined ? undefined : `${parentName}Ребёнок`
+      },
+      resolveItemContext: ({ context, itemName }: {
+        context: ConfigurationContextWithExportToXML
+        itemName: string | undefined
+      }) => appendTestItemContext(context, "Child", itemName),
+      transformOutput: ({ xml, itemName }: { xml: Record<string, unknown>; itemName: string | undefined }) => ({
+        Name: itemName,
+        ...xml,
+      }),
+    } as YAMLToXMLNestedRule)
+    const parentRule = testRule({
+      child: { type: "EffectiveNameChild" as never, yaml: "Дочерний", xml: "Child" },
+    })
+    rules.property.registerTypeRule("EffectiveNameParent" as never, "yamlToXMLNestedRule", {
+      kind: "item",
+      itemRule: parentRule,
+      resolveItemName: ({ yaml }: { yaml: unknown }) => {
+        const record = yaml as Record<string, unknown>
+        const explicitName = record.Имя
+        if (yamlScalarTagAt(record, "Имя") !== "xml/name" || typeof explicitName !== "string") return undefined
+        return xmlAnomalyTagPayload("xml/name", explicitName)
+      },
+      resolveItemContext: ({ context, itemName }: {
+        context: ConfigurationContextWithExportToXML
+        itemName: string | undefined
+      }) => appendTestItemContext(context, "Parent", itemName),
+      transformOutput: ({ xml, itemName }: { xml: Record<string, unknown>; itemName: string | undefined }) => ({
+        Name: itemName,
+        ...xml,
+      }),
+    } as YAMLToXMLNestedRule)
+
+    const result = convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml: importFromYAML([
+        "Родитель:",
+        "  Имя: !xml/name СтарыйРодитель",
+        "  Дочерний: {}",
+      ].join("\n")),
+      rule: testRule({
+        parent: { type: "EffectiveNameParent" as never, yaml: "Родитель", xml: "Parent" },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Parent: {
+        Name: "СтарыйРодитель",
+        Child: { Name: "СтарыйРодительРебёнок" },
+      },
+    })
+  })
+
   it("не обходит отсутствующий необязательный вложенный объект", () => {
     const nestedItemRule = testRule({
       child: { type: "OptionalNested" as never, yaml: "Дочерний", xml: "Child" },
@@ -1416,6 +1482,24 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 })
+
+function appendTestItemContext(
+  source: ConfigurationContextWithExportToXML,
+  itemType: string,
+  name: string | undefined,
+): ConfigurationContextWithExportToXML {
+  if (name === undefined) return source
+  return {
+    ...source,
+    exportToXML: {
+      ...source.exportToXML,
+      itemsTree: [
+        ...source.exportToXML.itemsTree,
+        { itemType, name, path: `${itemType}.${name}` },
+      ],
+    },
+  }
+}
 
 function synonymRule(): MetadataItemRule {
   return testRule({

@@ -90,9 +90,16 @@ export type YAMLToXMLNestedRule =
         name: string | undefined
         propertyRule: PropertyRule
       }) => import("../../context/types").ConfigurationContextWithExportToXML
+      readonly resolveItemName?: (params: {
+        context: import("../../context/types").ConfigurationContextWithExportToXML
+        yaml: unknown
+        ownerName: string | undefined
+        propertyRule: PropertyRule
+      }) => string | undefined
       readonly resolveItemContext?: (params: {
         context: import("../../context/types").ConfigurationContextWithExportToXML
         name: string | undefined
+        itemName: string | undefined
         propertyRule: PropertyRule
       }) => import("../../context/types").ConfigurationContextWithExportToXML
       readonly transformOutput?: (params: {
@@ -102,6 +109,7 @@ export type YAMLToXMLNestedRule =
         referenceXML: Record<string, unknown> | undefined
         propertyRule: PropertyRule
         source: YAMLPropertySource
+        itemName: string | undefined
       }) => unknown
     }
   | {
