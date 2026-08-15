@@ -11,6 +11,7 @@ export type RootObjectDeclaration = {
   readonly itemType: string
   readonly name: string
   readonly changes: readonly ScenarioFileChange[]
+  readonly propertyChanges: readonly ScenarioFileChange[]
   readonly dependsOn: readonly string[]
 }
 
@@ -38,7 +39,7 @@ export type ScenarioMatrix = {
 
 export type ScenarioOperation = {
   readonly key: string
-  readonly kind: "create-object" | "add-child" | "add-form" | "remove"
+  readonly kind: "create-object" | "add-child" | "add-form" | "change" | "remove"
   readonly ownerKey?: string
   readonly targetKey?: string
   readonly changes: readonly ScenarioFileChange[]

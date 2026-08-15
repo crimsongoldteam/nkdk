@@ -12,6 +12,7 @@ import {
 import { formDeclarations } from "./matrix/forms"
 import { partialSyncMatrix } from "./matrix"
 import { rootObjectDeclarations } from "./matrix/root-objects"
+import { rootPropertyOperations } from "./matrix/root-property-operations"
 import { buildScenarioPlan } from "./plan"
 import { applyScenarioOperation } from "./operation"
 import { compareFileTrees } from "../support/file-tree"
@@ -22,6 +23,32 @@ describe("partial sync matrix", () => {
       new Set(TopLevelMetadataItemRules.map(({ itemType }) => itemType)),
     )
     expect(rootObjectDeclarations).toHaveLength(47)
+  })
+
+  it("changes the comment of every created root object", () => {
+    expect(rootPropertyOperations.map(({ targetKey }) => targetKey).toSorted()).toEqual(
+      rootObjectDeclarations.map(({ key }) => key).toSorted(),
+    )
+    expect(rootPropertyOperations).toHaveLength(47)
+    for (const operation of rootPropertyOperations) {
+      expect(operation.changes, operation.key).toHaveLength(1)
+      expect(operation.changes[0]?.before, operation.key).toContain(
+        "Комментарий: До изменения",
+      )
+      expect(operation.changes[0]?.after, operation.key).toContain(
+        "Комментарий: После изменения",
+      )
+    }
+  })
+
+  it("applies root property changes before child creation", () => {
+    const blockKeys = buildScenarioPlan(partialSyncMatrix).map(({ key }) => key)
+    expect(blockKeys.indexOf("roots:properties:bulk")).toBeGreaterThan(
+      blockKeys.indexOf("roots:create:bulk"),
+    )
+    expect(blockKeys.indexOf("roots:properties:bulk")).toBeLessThan(
+      blockKeys.indexOf("children:create:bulk"),
+    )
   })
 
   it("uses unique stable identities and project-relative file paths", () => {
@@ -306,7 +333,9 @@ describe("partial sync matrix", () => {
     const properties = commonForm?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))
 
     expect(properties?.after).not.toContain("ИспользоватьСтандартныеКоманды")
-    expect(properties?.after).toBe("НазначенияИспользования: ПлатформаИМобильноеПриложение\n")
+    expect(properties?.after).toBe(
+      "Комментарий: До изменения\nНазначенияИспользования: ПлатформаИМобильноеПриложение\n",
+    )
   })
 
   it("declares every reachable owner-child capability", () => {

@@ -470,9 +470,12 @@ function createRootOwnerStates(): Map<string, OwnerState> {
   for (const root of rootObjectDeclarations) {
     const properties = root.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))
     if (properties === undefined || typeof properties.after !== "string") continue
+    const changedProperties = root.propertyChanges.find(({ path }) => path === properties.path)
+    const content = changedProperties?.after ?? properties.after
+    if (typeof content !== "string") throw new Error(`Свойства ${root.key} перестали быть текстовыми`)
     result.set(root.key, {
       path: properties.path,
-      document: { content: properties.after },
+      document: { content },
       indent: 0,
       insertionAnchors: matrixChildInsertionAnchors[root.key],
     })
@@ -524,7 +527,12 @@ function appendYamlItemToSource(
   body: string,
   explicitInsertionAnchor?: string,
 ): string {
-  const insertionAnchor = explicitInsertionAnchor ?? owner.insertionAnchors?.[section]
+  const configuredAnchor = explicitInsertionAnchor ?? owner.insertionAnchors?.[section]
+  const insertionAnchor = earlierInsertionAnchor(
+    owner,
+    section,
+    configuredAnchor,
+  )
   const anchorMarker = insertionAnchor === undefined
     ? undefined
     : `${indentation}${insertionAnchor}:`
@@ -537,6 +545,27 @@ function appendYamlItemToSource(
   const bodyIndentation = `${indentation}    `
   const indentedBody = body.split("\n").map((line) => `${bodyIndentation}${line}`).join("\n")
   return `${prefix}${sectionPrefix}${itemIndentation}${name}:\n${indentedBody}\n${suffix}`
+}
+
+function earlierInsertionAnchor(
+  owner: OwnerState,
+  section: string,
+  configuredAnchor: string | undefined,
+): string | undefined {
+  const canonicalAnchor = findCanonicalKeyAnchor(owner, section)
+  if (configuredAnchor === undefined || canonicalAnchor === undefined) {
+    return configuredAnchor ?? canonicalAnchor
+  }
+  const source = owner.document.content === "" || owner.document.content.endsWith("\n")
+    ? owner.document.content
+    : `${owner.document.content}\n`
+  const content = owner.scope === undefined ? source : findOwnerScope(source, owner.scope).content
+  const indentation = " ".repeat(owner.indent)
+  const configuredIndex = content.indexOf(`${indentation}${configuredAnchor}:`)
+  const canonicalIndex = content.indexOf(`${indentation}${canonicalAnchor}:`)
+  if (configuredIndex < 0) return canonicalAnchor
+  if (canonicalIndex < 0) return configuredAnchor
+  return configuredIndex <= canonicalIndex ? configuredAnchor : canonicalAnchor
 }
 
 function findCanonicalKeyAnchor(owner: OwnerState, section: string): string | undefined {

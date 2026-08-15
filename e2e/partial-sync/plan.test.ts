@@ -148,6 +148,7 @@ function matrix(): ScenarioMatrix {
         itemType: "MetadataCatalog",
         name: "Тест",
         changes: [{ path: "Справочник/Тест.yaml", before: null, after: "catalog" }],
+        propertyChanges: [],
         dependsOn: [],
       },
       {
@@ -155,6 +156,7 @@ function matrix(): ScenarioMatrix {
         itemType: "MetadataDocument",
         name: "Тест",
         changes: [{ path: "Документ/Тест.yaml", before: null, after: "document" }],
+        propertyChanges: [],
         dependsOn: ["object:catalog"],
       },
     ],

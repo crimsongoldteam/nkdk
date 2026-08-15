@@ -2,6 +2,7 @@ import type {
   RootObjectDeclaration,
   ScenarioFileChange,
 } from "./types"
+import { replaceYamlLine } from "./change-builders"
 
 const prefix = "ПроверкаЧастичнойСинхронизации"
 
@@ -313,15 +314,18 @@ function directoryRoot(
 ): RootObjectDeclaration {
   const name = explicitName ?? `${prefix}${suffix}`
   const root = `${segment}/${name}`
+  const propertyPath = `${root}/Свойства.yaml`
+  const initialProperties = withInitialComment(properties)
   return {
     key,
     itemType,
     name,
     dependsOn,
     changes: [
-      createFile(`${root}/Свойства.yaml`, properties),
+      createFile(propertyPath, initialProperties),
       ...extraFiles.map(({ path, contents }) => createFile(`${root}/${path}`, contents)),
     ],
+    propertyChanges: [changeComment(propertyPath, initialProperties)],
   }
 }
 
@@ -334,13 +338,34 @@ function fileRoot(
   dependsOn: readonly string[] = [],
 ): RootObjectDeclaration {
   const name = `${prefix}${suffix}`
+  const path = `${segment}/${name}.yaml`
+  const initialProperties = withInitialComment(properties)
   return {
     key,
     itemType,
     name,
     dependsOn,
-    changes: [createFile(`${segment}/${name}.yaml`, properties)],
+    changes: [createFile(path, initialProperties)],
+    propertyChanges: [changeComment(path, initialProperties)],
   }
+}
+
+function withInitialComment(properties: string): string {
+  const source = properties === "" || properties.endsWith("\n") ? properties : `${properties}\n`
+  const insertion = [...source.matchAll(/^(\S[^:\r\n]*):/gmu)]
+    .find((match) => (match[1] ?? "").localeCompare("Комментарий", "ru") > 0)
+  const comment = "Комментарий: До изменения\n"
+  if (insertion === undefined) return `${source}${comment}`
+  return `${source.slice(0, insertion.index)}${comment}${source.slice(insertion.index)}`
+}
+
+function changeComment(path: string, contents: string): ScenarioFileChange {
+  return replaceYamlLine({
+    path,
+    contents,
+    key: "Комментарий",
+    value: "После изменения",
+  })
 }
 
 function createFile(path: string, after: string | Uint8Array): ScenarioFileChange {
