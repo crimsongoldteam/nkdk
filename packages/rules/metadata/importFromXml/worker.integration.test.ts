@@ -519,22 +519,28 @@ describe("XML import worker second pass", () => {
     })
   })
 
-  it("writes a user DataPath after building the layered owner snapshot", async () => {
-    const tempDir = createTempDir("worker-layered")
-    const { assignments, first, second } = await runCatalogAndFormSecondPass(
-      tempDir,
-      "Объект.БазовыйРеквизит",
-      "Базовый",
-    )
+  describe("layered owner snapshot", () => {
+    let scenario: Awaited<ReturnType<typeof runCatalogAndFormSecondPass>>
 
-    expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [], warnings: [] })
-    if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
-    const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
-    if (formFile === undefined) throw new Error("Ожидался файл формы")
-    expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.БазовыйРеквизит")
-    appendSharedStateFragments(second.stateFragments)
-    expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.БазовыйРеквизит")
-    expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(assignments.form.targetProjectPath)
+    beforeAll(async () => {
+      scenario = await runCatalogAndFormSecondPass(
+        createTempDir("worker-layered"),
+        "Объект.БазовыйРеквизит",
+        "Базовый",
+      )
+    })
+
+    it("writes a user DataPath after building the layered owner snapshot", () => {
+      const { assignments, first, second } = scenario
+
+      expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [], warnings: [] })
+      const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
+      if (formFile === undefined) throw new Error("Ожидался файл формы")
+      expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.БазовыйРеквизит")
+      appendSharedStateFragments(second.stateFragments)
+      expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.БазовыйРеквизит")
+      expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(assignments.form.targetProjectPath)
+    })
   })
 
   it("preserves an unresolved DataPath, returns one warning and releases the YAML", async () => {
