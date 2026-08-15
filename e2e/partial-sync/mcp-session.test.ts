@@ -58,6 +58,34 @@ describe("partial sync MCP session", () => {
     expect(lowLevel.closeCalls).toBe(1)
   })
 
+  it("writes consecutive calls to different attempt log directories", async () => {
+    const root = await mkdtemp(join(tmpdir(), "nkdk-mcp-session-attempts-"))
+    const firstDir = join(root, "first")
+    const secondDir = join(root, "second")
+    const lowLevel = fakeLowLevel([
+      { result: { content: [] }, payload: { ok: true } },
+      { result: { content: [] }, payload: { ok: true } },
+    ])
+    const session = await openScenarioMcpSession({
+      attemptLogDir: root,
+      createSession: async () => lowLevel,
+    })
+
+    await session.call("nkdk.validate_project", {}, { attemptLogDir: firstDir })
+    await session.call("nkdk.sync_to_infobase", {}, { attemptLogDir: secondDir })
+    await session.close()
+
+    await expect(readJson(join(
+      firstDir,
+      "001-nkdk.validate_project.request.json"
+    ))).resolves.toMatchObject({ name: "nkdk.validate_project" })
+    await expect(readJson(join(
+      secondDir,
+      "002-nkdk.sync_to_infobase.request.json"
+    ))).resolves.toMatchObject({ name: "nkdk.sync_to_infobase" })
+    expect(lowLevel.closeCalls).toBe(1)
+  })
+
   it.each([
     ["tool payload", { result: { content: [] }, payload: { ok: false, code: "invalid", message: "bad" } }],
     ["MCP error", { result: { isError: true, content: [{ type: "text", text: "bad" }] }, payload: undefined }],

@@ -62,6 +62,7 @@ export async function runPartialSyncScenario(
       planHash,
     })
   }
+  await steps.verifyFinalState()
 }
 
 function defaultDependencies(workspace: ScenarioWorkspace): ScenarioDependencies {

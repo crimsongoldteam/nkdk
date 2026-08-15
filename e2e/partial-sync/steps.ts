@@ -3,7 +3,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import { compareFileTrees, type FileTreeComparison } from "../support/file-tree"
 import type { ScenarioOperation } from "./matrix/types"
-import { openScenarioMcpSession, type ScenarioMcpSession } from "./mcp-session"
+import type { ScenarioMcpSession } from "./mcp-session"
 import { applyScenarioOperation } from "./operation"
 import { prepareInfobaseFixture } from "./platform-fixture"
 import type { ScenarioWorkspace } from "./workspace"
@@ -16,6 +16,7 @@ export type ScenarioProgress = {
 export type PartialSyncSteps = {
   prepareBaseline(): Promise<void>
   executeOperation(operation: ScenarioOperation, progress: ScenarioProgress): Promise<void>
+  verifyFinalState(): Promise<void>
 }
 
 export type PartialSyncStepDependencies = {
@@ -27,19 +28,19 @@ export type PartialSyncStepDependencies = {
   writeProgress(message: string): void
   applyScenarioOperation: typeof applyScenarioOperation
   prepareInfobaseFixture: typeof prepareInfobaseFixture
-  openMcpSession(params: { attemptLogDir: string }): Promise<ScenarioMcpSession>
   compareFileTrees(params: Parameters<typeof compareFileTrees>[0]): Promise<FileTreeComparison>
 }
 
 type CreatePartialSyncStepsParams = {
   readonly workspace: ScenarioWorkspace
+  readonly session: ScenarioMcpSession
 }
 
 export function createPartialSyncSteps(
   params: CreatePartialSyncStepsParams,
   dependencies: PartialSyncStepDependencies = defaultDependencies,
 ): PartialSyncSteps {
-  const { workspace } = params
+  const { workspace, session } = params
   return {
     async prepareBaseline() {
       await resetDirectory(workspace.baseDir)
@@ -55,29 +56,7 @@ export function createPartialSyncSteps(
         extensionName: dependencies.extensionName,
       })
       await writeProjectSettings(workspace.projectDir, workspace.baseDir)
-      const session = await dependencies.openMcpSession({ attemptLogDir })
-      const verificationProjectDir = join(workspace.verificationDir, "current")
-      let projectOpen = false
-      let verificationOpen = false
-      try {
-        await importCf(session, workspace.projectDir)
-        projectOpen = true
-        await prepareVerificationProject(verificationProjectDir, workspace.baseDir)
-        await importCf(session, verificationProjectDir)
-        verificationOpen = true
-        await expectEqualCf(dependencies, {
-          expectedDir: join(workspace.projectDir, "cf"),
-          actualDir: join(verificationProjectDir, "cf"),
-          reportDir: join(attemptLogDir, "compare-baseline-cf"),
-          xmlComparison: "semantic",
-          yamlComparison: "ignore-final-line-ending",
-          textComparison: "normalize",
-        })
-      } finally {
-        if (verificationOpen) await closePlatformConnection(session, verificationProjectDir)
-        if (projectOpen) await closePlatformConnection(session, workspace.projectDir)
-        await session.close()
-      }
+      await importCf(session, workspace.projectDir, attemptLogDir)
     },
 
     async executeOperation(operation, progress) {
@@ -88,58 +67,58 @@ export function createPartialSyncSteps(
         `${dependencies.operationId()}-${safeKey}`,
       )
       const paths = operation.changes.map(({ path }) => path).toSorted()
-      let session: ScenarioMcpSession | undefined
-      let projectOpen = false
-      let verificationOpen = false
-      const verificationProjectDir = join(workspace.verificationDir, "current")
       try {
         await dependencies.applyScenarioOperation(workspace.projectDir, operation)
-        session = await dependencies.openMcpSession({ attemptLogDir })
-        projectOpen = true
-        await expectSuccessfulValidation(session, workspace.projectDir)
-        await syncAndExpectStable(session, workspace.projectDir)
-        await closePlatformConnection(session, workspace.projectDir)
-        projectOpen = false
-        await prepareVerificationProject(verificationProjectDir, workspace.baseDir)
-        await importCf(session, verificationProjectDir)
-        verificationOpen = true
-        await expectEqualCf(dependencies, {
-          expectedDir: join(workspace.projectDir, "cf"),
-          actualDir: join(verificationProjectDir, "cf"),
-          reportDir: join(attemptLogDir, `compare-${safeKey}-cf`),
-          xmlComparison: "semantic",
-          yamlComparison: "ignore-final-line-ending",
-          textComparison: "normalize",
-        })
-        await closePlatformConnection(session, verificationProjectDir)
-        verificationOpen = false
+        await expectSuccessfulValidation(session, workspace.projectDir, attemptLogDir)
+        await syncAndExpectStable(session, workspace.projectDir, attemptLogDir)
       } catch (caught) {
         const detail = caught instanceof Error ? caught.message : String(caught)
         throw new Error(
           `Операция ${operation.key} завершилась ошибкой: ${detail}; пути: ${paths.join(", ")}; журнал: ${attemptLogDir}`,
           { cause: caught },
         )
-      } finally {
-        if (session !== undefined) {
-          if (verificationOpen) await closePlatformConnection(session, verificationProjectDir)
-          if (projectOpen) await closePlatformConnection(session, workspace.projectDir)
-          await session.close()
-        }
       }
       const elapsedSeconds = (dependencies.now() - startedAt) / 1_000
       dependencies.writeProgress(
         `[${progress.index}/${progress.total}] ${operation.key} — ${elapsedSeconds.toFixed(2)}s`,
       )
     },
+
+    async verifyFinalState() {
+      const attemptLogDir = join(
+        workspace.logsDir,
+        `${dependencies.operationId()}-verify-final`,
+      )
+      const verificationProjectDir = join(workspace.verificationDir, "current")
+      await closePlatformConnection(session, workspace.projectDir, attemptLogDir)
+      await prepareVerificationProject(verificationProjectDir, workspace.baseDir)
+      try {
+        await importCf(session, verificationProjectDir, attemptLogDir)
+        await expectEqualCf(dependencies, {
+          expectedDir: join(workspace.projectDir, "cf"),
+          actualDir: join(verificationProjectDir, "cf"),
+          reportDir: join(attemptLogDir, "compare-final-cf"),
+          xmlComparison: "semantic",
+          yamlComparison: "ignore-final-line-ending",
+          textComparison: "normalize",
+        })
+      } finally {
+        await closePlatformConnection(session, verificationProjectDir, attemptLogDir)
+      }
+    },
   }
 }
 
-async function importCf(session: ScenarioMcpSession, projectDir: string): Promise<void> {
+async function importCf(
+  session: ScenarioMcpSession,
+  projectDir: string,
+  attemptLogDir: string,
+): Promise<void> {
   const payload = await session.call<ImportPayload>("nkdk.import_from_infobase", {
     projectDir,
     componentPath: "cf",
     allowWrite: true,
-  })
+  }, { attemptLogDir })
   if (payload.ok !== true || (payload.failed?.length ?? 0) > 0) {
     throw new Error("Импорт cf завершился с ошибками")
   }
@@ -148,21 +127,38 @@ async function importCf(session: ScenarioMcpSession, projectDir: string): Promis
 async function expectSuccessfulValidation(
   session: ScenarioMcpSession,
   projectDir: string,
+  attemptLogDir: string,
 ): Promise<void> {
-  const payload = await session.call<ValidationPayload>("nkdk.validate_project", { projectDir })
+  const payload = await session.call<ValidationPayload>(
+    "nkdk.validate_project",
+    { projectDir },
+    { attemptLogDir },
+  )
   const errors = payload.diagnostics?.filter(({ severity }) => severity === "error") ?? []
   if (payload.ok !== true || errors.length > 0 || (payload.summary?.errors ?? 0) > 0) {
     throw new Error(`Project validation завершилась с ${Math.max(errors.length, payload.summary?.errors ?? 0)} ошибками`)
   }
 }
 
-async function syncAndExpectStable(session: ScenarioMcpSession, projectDir: string): Promise<void> {
+async function syncAndExpectStable(
+  session: ScenarioMcpSession,
+  projectDir: string,
+  attemptLogDir: string,
+): Promise<void> {
   const input = { projectDir, componentPath: "cf", allowWrite: true }
-  const synchronized = await session.call<SyncPayload>("nkdk.sync_to_infobase", input)
+  const synchronized = await session.call<SyncPayload>(
+    "nkdk.sync_to_infobase",
+    input,
+    { attemptLogDir },
+  )
   if (synchronized.ok !== true || synchronized.status !== "synchronized") {
     throw new Error("Первичная частичная синхронизация не вернула synchronized")
   }
-  const unchanged = await session.call<SyncPayload>("nkdk.sync_to_infobase", input)
+  const unchanged = await session.call<SyncPayload>(
+    "nkdk.sync_to_infobase",
+    input,
+    { attemptLogDir },
+  )
   if (unchanged.ok !== true || unchanged.status !== "unchanged") {
     throw new Error("Повторная частичная синхронизация не вернула unchanged")
   }
@@ -178,8 +174,16 @@ async function expectEqualCf(
   }
 }
 
-async function closePlatformConnection(session: ScenarioMcpSession, projectDir: string): Promise<void> {
-  await session.call("nkdk.close_platform_connection", { projectDir })
+async function closePlatformConnection(
+  session: ScenarioMcpSession,
+  projectDir: string,
+  attemptLogDir: string,
+): Promise<void> {
+  await session.call(
+    "nkdk.close_platform_connection",
+    { projectDir },
+    { attemptLogDir },
+  )
 }
 
 async function prepareVerificationProject(projectDir: string, baseDir: string): Promise<void> {
@@ -231,6 +235,5 @@ const defaultDependencies: PartialSyncStepDependencies = {
   writeProgress(message) { process.stdout.write(`${message}\n`) },
   applyScenarioOperation,
   prepareInfobaseFixture,
-  openMcpSession: openScenarioMcpSession,
   compareFileTrees,
 }

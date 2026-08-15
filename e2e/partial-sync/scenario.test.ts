@@ -28,6 +28,7 @@ describe("partial sync scenario", () => {
       "publish:object:three",
       "execute:object:four:4/4",
       "publish:object:four",
+      "verify-final",
     ])
   })
 
@@ -40,6 +41,7 @@ describe("partial sync scenario", () => {
       "restore:object:three",
       "execute:object:four:4/4",
       "publish:object:four",
+      "verify-final",
     ])
   })
 
@@ -48,7 +50,7 @@ describe("partial sync scenario", () => {
 
     await runPartialSyncScenario({ workspace, plan, planHash, steps: fixture.steps }, fixture.dependencies)
 
-    expect(fixture.calls).toEqual(["restore:object:four"])
+    expect(fixture.calls).toEqual(["restore:object:four", "verify-final"])
   })
 
   it.each([
@@ -72,6 +74,7 @@ describe("partial sync scenario", () => {
       fixture.dependencies,
     )).rejects.toThrow("planned operation failure")
     expect(fixture.state.completedOperation).toBe("object:one")
+    expect(fixture.calls).not.toContain("verify-final")
 
     fixture.failKey = undefined
     fixture.calls.length = 0
@@ -100,6 +103,7 @@ function scenarioFixture(initialState: ScenarioState, initialFailKey?: string) {
         calls.push(`execute:${operation.key}:${progress.index}/${progress.total}`)
         if (operation.key === fixture.failKey) throw new Error("planned operation failure")
       },
+      async verifyFinalState() { calls.push("verify-final") },
     } satisfies PartialSyncSteps,
     dependencies: {
       async readState() { return fixture.state },

@@ -13,8 +13,16 @@ export type LowLevelMcpSession = {
   close(): Promise<void>
 }
 
+export type ScenarioMcpCallOptions = {
+  readonly attemptLogDir?: string
+}
+
 export type ScenarioMcpSession = {
-  call<T>(toolName: string, input: unknown): Promise<T>
+  call<T>(
+    toolName: string,
+    input: unknown,
+    options?: ScenarioMcpCallOptions,
+  ): Promise<T>
   close(): Promise<void>
 }
 
@@ -33,14 +41,20 @@ export async function openScenarioMcpSession(
   let closed = false
 
   return {
-    async call<T>(toolName: string, input: unknown): Promise<T> {
+    async call<T>(
+      toolName: string,
+      input: unknown,
+      options?: ScenarioMcpCallOptions,
+    ): Promise<T> {
       if (closed) throw new Error("MCP-сеанс уже закрыт")
       if (!/^[a-z0-9_.-]+$/u.test(toolName)) throw new Error(`Недопустимое имя MCP-инструмента: ${toolName}`)
       callNumber += 1
       const prefix = `${String(callNumber).padStart(3, "0")}-${toolName}`
-      const requestPath = join(params.attemptLogDir, `${prefix}.request.json`)
-      const responsePath = join(params.attemptLogDir, `${prefix}.response.json`)
-      const stderrPath = join(params.attemptLogDir, `${prefix}.server.stderr.log`)
+      const attemptLogDir = options?.attemptLogDir ?? params.attemptLogDir
+      await mkdir(attemptLogDir, { recursive: true })
+      const requestPath = join(attemptLogDir, `${prefix}.request.json`)
+      const responsePath = join(attemptLogDir, `${prefix}.response.json`)
+      const stderrPath = join(attemptLogDir, `${prefix}.server.stderr.log`)
       lastStderrPath = stderrPath
       await writeJson(requestPath, { name: toolName, arguments: input })
 

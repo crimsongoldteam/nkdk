@@ -1,4 +1,7 @@
+import { randomUUID } from "node:crypto"
+import { join } from "node:path"
 import { it } from "vitest"
+import { openScenarioMcpSession } from "./mcp-session"
 import { createPartialSyncSteps } from "./steps"
 import { partialSyncMatrix } from "./matrix"
 import { buildScenarioPlan, scenarioPlanHash } from "./plan"
@@ -14,10 +17,17 @@ it("последовательно синхронизирует полную м�
     planHash,
     reset: process.env["NKDK_PARTIAL_SYNC_RESET"] === "1",
   })
-  await runPartialSyncScenario({
-    workspace,
-    plan,
-    planHash,
-    steps: createPartialSyncSteps({ workspace }),
+  const session = await openScenarioMcpSession({
+    attemptLogDir: join(workspace.logsDir, `${randomUUID()}-scenario`),
   })
+  try {
+    await runPartialSyncScenario({
+      workspace,
+      plan,
+      planHash,
+      steps: createPartialSyncSteps({ workspace, session }),
+    })
+  } finally {
+    await session.close()
+  }
 }, 24 * 60 * 60 * 1000)
