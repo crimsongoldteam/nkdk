@@ -214,6 +214,26 @@ const secondTableModule = "Объект/Товары/Таблицы/Вторая
 const secondNestedTable = "Объект/Товары/Таблицы/Вторая/Вложения/Вложенная/Свойства.yaml"
 
 describe("partial XML impact planner", () => {
+  it("при изменении конфигурации сохраняет корневые внешние файлы", () => {
+    const result = plan(
+      [root, rootModule, language],
+      changes({ changed: [root] }),
+    )
+
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [root, rootModule, language].sort(utf8),
+    })
+    expect(result.externalProjectPaths).toEqual([rootModule])
+    expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Ext/ClientApplicationInterface.xml",
+      "Ext/MainSectionCommandInterface.xml",
+      "Ext/ManagedApplicationModule.bsl",
+      "Languages/Русский.xml",
+    ].sort(utf8))
+  })
+
   it("выбирает metadata владельца при изменении его YAML", () => {
     expect(plan([root, language, owner], changes({ changed: [owner] }))).toMatchObject({
       selection: { kind: "selected", projectPaths: [owner] },

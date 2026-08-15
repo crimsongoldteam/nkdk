@@ -193,7 +193,8 @@ export function buildPartialXmlImpactPlan(params: {
 
   function includeDirectCurrent(resource: MetadataProjectResourceMatch): void {
     if (resource.kind === "content") {
-      includeAssignment(resource, true)
+      if (resource.assignment?.role === "configuration") includeConfigurationRoot()
+      else includeAssignment(resource, true)
     } else if (resource.kind === "externalFile") {
       includeExternal(resource, true)
     } else if (resource.kind === "yamlCompanion") {
