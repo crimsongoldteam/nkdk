@@ -499,7 +499,7 @@ git commit -m "test: :white_check_mark: сохранить единый сеан
 
 - [ ] **Step 1: Запустить все быстрые partial-sync тесты**
 
-Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/*.test.ts`
+Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync`
 
 Expected: PASS; реальный `*.external.test.ts` не запускает платформу.
 
