@@ -164,7 +164,7 @@ export const collectStringTargetListForValidation: CollectMetadataTargetReferenc
 }
 
 const collectDirectMetadataTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => {
-  const constraint = params.propRule.metadataTarget
+  const constraint = occurrenceMetadataTarget(params.propRule)
   if (constraint === undefined || typeof params.value !== "string" || params.value === "") return []
   return [{
     location: { kind: "value", path: params.yamlPath },
@@ -309,7 +309,7 @@ function objectNameOccurrence(params: {
 }
 
 export const collectListMetadataTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => {
-  const constraint = params.propRule.metadataTarget
+  const constraint = occurrenceMetadataTarget(params.propRule)
   if (constraint === undefined || !Array.isArray(params.value)) return []
   return params.value.flatMap((value, index): MetadataTargetOccurrence[] =>
     typeof value !== "string" || value === ""
@@ -329,6 +329,19 @@ export const collectListMetadataTargetOccurrences: MetadataTargetOccurrencesFunc
             if (Array.isArray(params.value)) params.value[index] = nextValue
           },
         }])
+}
+
+function occurrenceMetadataTarget(
+  propRule: Parameters<MetadataTargetOccurrencesFunction>[0]["propRule"],
+): MetadataTargetConstraint | undefined {
+  if (propRule.metadataTarget !== undefined) return propRule.metadataTarget
+  if (propRule.type === "MetadataItemLink" || propRule.type === "MetadataItemLinks") {
+    return { kind: "object" }
+  }
+  if (propRule.type === "MetadataField" || propRule.type === "MetadataFields") {
+    return { kind: "member", owner: "explicit" }
+  }
+  return undefined
 }
 
 function structuralReferencesFromOccurrences(

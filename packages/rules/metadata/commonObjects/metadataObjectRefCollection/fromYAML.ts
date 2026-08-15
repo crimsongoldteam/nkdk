@@ -28,5 +28,7 @@ export const importMetadataObjectRefCollectionFromYAML = (
 export const metadataPropertyRule000 = definePropertyTypeRule(
   "MetadataObjectRefCollection",
   "importFromYAML",
-  ((params) => params.value) satisfies ImportFromYAMLFunctionNew,
+  ((params) => Array.isArray(params.value) && params.value.length === 0
+    ? undefined
+    : params.value) satisfies ImportFromYAMLFunctionNew,
 )

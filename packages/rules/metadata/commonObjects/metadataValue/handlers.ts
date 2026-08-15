@@ -11,6 +11,7 @@ import { importBooleanFromXML } from "../boolean/fromXML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
 import { exportMetadataValueStringToYAML } from "../metadataPath/toYAML"
+import { isMetadataRootName, rootFromYAML } from "../metadataTargets/roots"
 import {
   MetadataBooleanValue,
   MetadataDateTimeValue,
@@ -76,6 +77,13 @@ export const DESIGN_TIME_REF_UUID_PATTERN = new RegExp(
 
 export function isDesignTimeRefUuid(value: string): boolean {
   return DESIGN_TIME_REF_UUID_PATTERN.test(value)
+}
+
+export function isNamedMetadataValueReference(value: string): boolean {
+  const parts = value.split(".")
+  const root = parts[0]
+  return parts.length > 1 && parts.every((part) => part.length > 0) && root !== undefined &&
+    (rootFromYAML[root] !== undefined || isMetadataRootName(root))
 }
 
 /**

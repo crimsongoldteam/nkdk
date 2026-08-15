@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
+import { createPropertyRuleExecutor, createPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataFieldToYAML } from "./toYAML"
+import { exportPropertyValueToYAML } from "../../ruleRuntime"
+import { metadataRules } from "../../composition/metadataRules"
 
 describe("exportMetadataFieldToYAML", () => {
   it("should export metadata field to enterprise", () => {
@@ -30,5 +33,17 @@ describe("exportMetadataFieldToYAML", () => {
   it("skips form-local data paths", () => {
     const metadataField = "Объект.Организация"
     expect(exportMetadataFieldToYAML(mockContext, mockRule, metadataField)).toBeUndefined()
+  })
+
+  it("сохраняет типовое преобразование коллекции без явного metadataTarget", () => {
+    const execution = createPropertyRuleExecutor(createPropertyRuleRegistrySet(metadataRules))
+    expect(exportPropertyValueToYAML({
+      context: mockContext,
+      rule: { type: "MetadataFields", yaml: "ПоляБлокировкиДанных" },
+      value: ["BusinessProcess.БизнесПроцессВсеСвойства.StandardAttribute.Number"],
+      execution,
+    })).toEqual([
+      "БизнесПроцесс.БизнесПроцессВсеСвойства.СтандартныйРеквизит.Номер",
+    ])
   })
 })

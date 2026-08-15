@@ -11,6 +11,7 @@ import {
 import {
   DESIGN_TIME_REF_UUID_SOURCE,
   isDesignTimeRefUuid,
+  isNamedMetadataValueReference,
 } from "./handlers"
 const DESIGN_TIME_REF_YAML_SOURCE =
   `${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}`
@@ -29,7 +30,7 @@ export const brokenDesignTimeRefCarrier: BrokenXMLReferenceTypeCarrier = {
     const location = { kind: "value", path: [] } as const
     if (!isTagged(location)) return undefined
     if (!isBrokenDesignTimeRefYAML(yamlValue)) {
-      throw new Error("Битая DesignTimeRef-ссылка должна содержать пару канонических UUID")
+      throw new Error("Битая DesignTimeRef-ссылка должна содержать ссылку или пару канонических UUID")
     }
     const payload = brokenDesignTimeRefPayload(yamlValue)
     return {
@@ -85,13 +86,14 @@ function designTimeRefText(value: unknown): string | undefined {
 
 function isBrokenDesignTimeRefYAML(value: unknown): value is string {
   if (typeof value !== "string") return false
-  return isDesignTimeRefUuid(xmlAnomalyTagPayload("xml/reference", value))
+  const payload = xmlAnomalyTagPayload("xml/reference", value)
+  return isDesignTimeRefUuid(payload) || isNamedMetadataValueReference(payload)
 }
 
 function brokenDesignTimeRefPayload(value: unknown): string {
   if (!isBrokenDesignTimeRefYAML(value)) {
     throw new Error(
-      "Битая DesignTimeRef-ссылка должна содержать пару канонических UUID",
+      "Битая DesignTimeRef-ссылка должна содержать ссылку или пару канонических UUID",
     )
   }
   return xmlAnomalyTagPayload("xml/reference", value)
