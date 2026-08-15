@@ -86,9 +86,11 @@ XML владельца является единственной точкой з
 `packages/rules/metadata/partialSyncToXml/impactPlanner.ts`.
 
 Структурная ветка должна принимать оба вида ресурсов — `content` и
-`externalFile` — если у их assignment есть `fileBackedTarget`. Общую операцию
-включения коллекции следует отделить от assignment-политики: сам договор уже
-полностью выражен топологией через `fileBackedTarget`.
+`externalFile`. Для `content` объявление берётся из
+`assignment.fileBackedTarget`, для `externalFile` — из
+`externalFile.fileBackedTarget`. Общую операцию включения коллекции следует
+отделить от assignment-политики: сам договор уже полностью выражен топологией
+через `fileBackedTarget`.
 
 Операция структурного включения получает классифицированный ресурс и:
 
