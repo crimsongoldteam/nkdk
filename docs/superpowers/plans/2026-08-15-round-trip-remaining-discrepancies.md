@@ -283,18 +283,17 @@ git commit -m "fix: :bug: сохранить строковый FillValue"
 ### Task 5: Объявить локальный namespace типа декларативно
 
 **Files:**
-- Modify: `packages/runtime/metadata/ruleRuntime/property/types.ts`
 - Modify: `packages/rules/metadata/commonObjects/typeDescription/types.ts`
 - Modify: `packages/rules/metadata/commonObjects/typeDescription/toXML.ts`
 - Modify: `packages/rules/metadata/commonObjects/typeDescription/toXML.test.ts`
-- Modify: `packages/rules/metadata/commonObjects/metadataAttribute/rules.ts`
+- Modify: `packages/rules/metadata/commonObjects/metadataAttribute/fragments.ts`
 - Modify: `packages/rules/metadata/commonObjects/metadataAttribute/fromYAMLToXML.integration.test.ts`
 
 **Interfaces:**
 - Consumes: `declareTypeNamespaceXML`.
 - Produces: `boolean | readonly string[]`; список объявляет только перечисленные префиксы.
 
-- [ ] **Step 1: Add failing TypeDescription tests**
+- [x] **Step 1: Add failing TypeDescription tests**
 
 Добавить правила с `declareTypeNamespaceXML: ["dcsset"]` и проверить:
 
@@ -302,7 +301,7 @@ git commit -m "fix: :bug: сохранить строковый FillValue"
 - `cfg:*` не получает локальный namespace;
 - `true` по-прежнему объявляет оба поддерживаемых namespace.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/typeDescription/toXML.test.ts
@@ -310,15 +309,15 @@ pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commo
 
 Expected: FAIL на типе правила либо на безусловном булевом поведении.
 
-- [ ] **Step 3: Extend the existing policy**
+- [x] **Step 3: Extend the existing policy**
 
 Изменить тип поля на `boolean | readonly string[]`. Передавать в `getTypesXML` предикат по префиксу: `true` разрешает все прежние объявления, список — только `includes(prefix)`, отсутствие — ни одного дополнительного объявления. Не добавлять условий по `SettingsComposer`.
 
-- [ ] **Step 4: Configure ordinary applied-object attributes**
+- [x] **Step 4: Configure ordinary applied-object attributes**
 
 В общем `rules.ts` обычного реквизита прикладного объекта добавить `declareTypeNamespaceXML: ["dcsset"]`; формы оставить без параметра.
 
-- [ ] **Step 5: Verify GREEN**
+- [x] **Step 5: Verify GREEN**
 
 ```bash
 pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/commonObjects/typeDescription/toXML.test.ts
@@ -327,10 +326,10 @@ pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base 8fba09946
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
-git add packages/runtime/metadata/ruleRuntime/property/types.ts packages/rules/metadata/commonObjects/typeDescription packages/rules/metadata/commonObjects/metadataAttribute docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md
+git add packages/rules/metadata/commonObjects/typeDescription packages/rules/metadata/commonObjects/metadataAttribute docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md
 git commit -m "fix: :bug: объявить namespace типа локально"
 ```
 
