@@ -103,4 +103,36 @@ describe("exportUserVisibleToXML", () => {
     })
     expect(() => convert(uuid)).toThrow("Неизвестный корень")
   })
+
+  it("не теряет обычную роль с именем, похожим на временное", () => {
+    const uuid = "6537a19c-3357-46a2-96a6-1fe4619ddbc8"
+    const rule = {
+      itemType: "UserVisibleTemporaryRoleProbe",
+      properties: {
+        use: { type: "UserVisible", xml: "Use", yaml: "Использование" },
+      },
+    } as MetadataItemRule
+    const yaml = importFromYAML([
+      "Использование:",
+      "  Роли:",
+      "    __nkdk_broken_role_1: Истина",
+      `    !xml/reference ${uuid}: Ложь`,
+    ].join("\n"))
+
+    expect(convertPropertiesFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml,
+      rule,
+      outputs: [{ key: "owner" }],
+      execution: createRuleRegistrySet(metadataRules).execution,
+    }).outputs.get("owner")).toEqual({
+      Use: {
+        "xr:Common": true,
+        "xr:Value": [
+          { _name: "Role.__nkdk_broken_role_1", "#text": true },
+          { _name: uuid, "#text": false },
+        ],
+      },
+    })
+  })
 })

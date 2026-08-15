@@ -94,16 +94,11 @@ it("round-trips a broken DesignTimeRef without reference XML", () => {
   })
 })
 
-it("восстанавливает именованную отсутствующую ссылку как DesignTimeRef", () => {
-  expect(exportFillValue(
-    "ЗначениеЗаполнения: !xml/reference Справочник.Роли.ПустаяСсылка",
-  )).toEqual({
-    FillValue: { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.Роли.EmptyRef" },
-  })
-})
-
-it("не перехватывает чужой tagged payload", () => {
-  expect(exportFillValue("ЗначениеЗаполнения: !xml/reference Ложь")).toEqual({
-    FillValue: { "_xsi:type": "xs:string", "#text": "!xml/reference Ложь" },
-  })
+it.each([
+  "Справочник.Роли.ПустаяСсылка",
+  "Ложь",
+])("отклоняет незарегистрированное содержимое !xml/reference: %s", (value) => {
+  expect(() => exportFillValue(`ЗначениеЗаполнения: !xml/reference ${value}`)).toThrow(
+    "Битая DesignTimeRef-ссылка должна содержать пару канонических UUID",
+  )
 })

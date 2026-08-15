@@ -69,7 +69,7 @@ const referenceValueRule = {
 } as const satisfies MetadataValuePropertyRule
 
 export const DESIGN_TIME_REF_UUID_SOURCE =
-  "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+  "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 export const DESIGN_TIME_REF_UUID_PATTERN = new RegExp(
   `^${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}$`,
 )

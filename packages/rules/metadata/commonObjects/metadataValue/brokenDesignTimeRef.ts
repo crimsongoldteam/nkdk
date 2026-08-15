@@ -1,10 +1,6 @@
 import { Type } from "typebox"
 
-import {
-  createConfigurationLanguages,
-  xmlAnomalyTagPayload,
-  xmlAnomalyTagValue,
-} from "@nkdk/runtime"
+import { xmlAnomalyTagPayload, xmlAnomalyTagValue } from "@nkdk/runtime"
 import {
   defineMetadataRules,
   emptyMetadataRules,
@@ -16,14 +12,8 @@ import {
   DESIGN_TIME_REF_UUID_SOURCE,
   isDesignTimeRefUuid,
 } from "./handlers"
-import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
-
-const referenceContext = {
-  version: "test",
-  languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
-} as const
 const DESIGN_TIME_REF_YAML_SOURCE =
-  `(?:${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}|[^\\s.]+(?:\\.[^\\s.]+){2,})`
+  `${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}`
 
 export const brokenDesignTimeRefCarrier: BrokenXMLReferenceTypeCarrier = {
   name: "metadataValue.designTimeRef",
@@ -37,7 +27,10 @@ export const brokenDesignTimeRefCarrier: BrokenXMLReferenceTypeCarrier = {
   },
   prepareExport({ yamlValue, isTagged }) {
     const location = { kind: "value", path: [] } as const
-    if (!isTagged(location) || !isBrokenDesignTimeRefYAML(yamlValue)) return undefined
+    if (!isTagged(location)) return undefined
+    if (!isBrokenDesignTimeRefYAML(yamlValue)) {
+      throw new Error("Битая DesignTimeRef-ссылка должна содержать пару канонических UUID")
+    }
     const payload = brokenDesignTimeRefPayload(yamlValue)
     return {
       yamlValue: payload,
@@ -92,15 +85,13 @@ function designTimeRefText(value: unknown): string | undefined {
 
 function isBrokenDesignTimeRefYAML(value: unknown): value is string {
   if (typeof value !== "string") return false
-  const payload = xmlAnomalyTagPayload("xml/reference", value)
-  if (isDesignTimeRefUuid(payload)) return true
-  return importMetadataValueStringFromYAML(referenceContext, undefined, payload)?.includes(".") === true
+  return isDesignTimeRefUuid(xmlAnomalyTagPayload("xml/reference", value))
 }
 
 function brokenDesignTimeRefPayload(value: unknown): string {
   if (!isBrokenDesignTimeRefYAML(value)) {
     throw new Error(
-      "Битая DesignTimeRef-ссылка должна содержать ссылочное значение",
+      "Битая DesignTimeRef-ссылка должна содержать пару канонических UUID",
     )
   }
   return xmlAnomalyTagPayload("xml/reference", value)

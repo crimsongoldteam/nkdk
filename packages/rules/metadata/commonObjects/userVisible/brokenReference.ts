@@ -37,7 +37,7 @@ export const brokenUserVisibleReferenceCarrier: BrokenXMLReferenceTypeCarrier = 
       if (!isMDObjectRefUuid(key)) {
         throw new Error("Битая ссылка роли должна содержать канонический UUID")
       }
-      renameMetadataTargetMappingKey(preparedRoles, key, temporaryRoleName(index))
+      renameMetadataTargetMappingKey(preparedRoles, key, temporaryRoleName(index, preparedRoles))
       transportedLocations.push(location)
     }
     return transportedLocations.length === 0
@@ -56,7 +56,7 @@ export const brokenUserVisibleReferenceCarrier: BrokenXMLReferenceTypeCarrier = 
       const index = keys.indexOf(location.key)
       if (index < 0) continue
       const item = values.find((candidate) =>
-        isRecord(candidate) && candidate._name === `Role.${temporaryRoleName(index)}`)
+        isRecord(candidate) && candidate._name === `Role.${temporaryRoleName(index, roles)}`)
       if (isMutableRecord(item)) item._name = location.key
     }
     return { ...xmlValue, "xr:Value": Array.isArray(rawValues) ? values : values[0] }
@@ -98,8 +98,12 @@ function cloneRecordWithRoles(value: unknown, roles: Record<string, unknown>): R
   return key === undefined ? { ...value } : { ...value, [key]: { ...(value[key] as object), Роли: { ...roles } } }
 }
 
-function temporaryRoleName(index: number): string {
-  return `__nkdk_broken_role_${index}`
+function temporaryRoleName(index: number, roles?: Readonly<Record<string, unknown>>): string {
+  const base = `__nkdk_broken_role_${index}`
+  if (roles === undefined || !Object.prototype.hasOwnProperty.call(roles, base)) return base
+  let suffix = 1
+  while (Object.prototype.hasOwnProperty.call(roles, `${base}_${suffix}`)) suffix += 1
+  return `${base}_${suffix}`
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

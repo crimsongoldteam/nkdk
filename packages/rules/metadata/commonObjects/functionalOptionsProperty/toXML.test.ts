@@ -49,6 +49,10 @@ describe("exportFunctionalOptionsToXML", () => {
       FunctionalOptions: { Item: uuid },
     })
     expect(() => convert(uuid)).toThrow("Неизвестный корень")
+    expect(() => convert(`"!xml/reference ${uuid}"`)).toThrow("Неизвестный корень")
+    expect(() => convert("!xml/reference 6537a19c-3357-06a2-96a6-1fe4619ddbc8")).toThrow(
+      "Битая ссылка функциональной опции должна содержать канонический UUID",
+    )
     expect(() => convert(`!xml/reference ${uuid}x`)).toThrow(
       "Битая ссылка функциональной опции должна содержать канонический UUID",
     )

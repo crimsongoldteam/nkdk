@@ -6,6 +6,7 @@ import {
 } from "@nkdk/runtime/rule-kit"
 import { parseMetadataTargetFromModel } from "../metadataTargets/parse"
 import { yamlMappingKeyTagAt } from "@nkdk/runtime"
+import { isMDObjectRefUuid } from "../metadataRef/brokenMDObjectRef"
 
 export const userVisibleRoleTarget = {
   kind: "object",
@@ -21,7 +22,7 @@ export const collectUserVisibleMetadataTargetOccurrences: MetadataTargetOccurren
         key: roleNameFromCanonical(item.name),
       },
       constraint: userVisibleRoleTarget,
-      representation: isUuid(item.name)
+      representation: isMDObjectRefUuid(item.name)
         ? { kind: "brokenXMLReference", payload: item.name, grammar: "uuid" }
         : { kind: "canonical", canonical: item.name },
       setValue: (nextValue) => { item.name = nextValue },
@@ -34,7 +35,7 @@ export const collectUserVisibleMetadataTargetOccurrences: MetadataTargetOccurren
   return Object.keys(roles).map((key): MetadataTargetOccurrence => ({
     location: { kind: "key", path: [...params.yamlPath, "Роли"], key },
     constraint: userVisibleRoleTarget,
-    representation: isUuid(key) && yamlMappingKeyTagAt(roles, key) === "xml/reference"
+    representation: isMDObjectRefUuid(key) && yamlMappingKeyTagAt(roles, key) === "xml/reference"
       ? { kind: "brokenXMLReference", payload: key, grammar: "uuid" }
       : { kind: "canonical", canonical: key },
     setValue: (nextValue) => renameMetadataTargetMappingKey(roles, key, nextValue),
@@ -61,10 +62,6 @@ function userVisibleYAMLValue(
   return typeof yamlKey === "string" && isRecord(value[yamlKey])
     ? value[yamlKey] as Record<string, unknown>
     : undefined
-}
-
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -102,6 +102,10 @@ export function cloneMetadataTargetValue(value: unknown): unknown {
   if (!isRecord(value)) return value
   const result: Record<string, unknown> = {}
   for (const [key, item] of Object.entries(value)) result[key] = cloneMetadataTargetValue(item)
+  for (const key of Object.getOwnPropertySymbols(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)
+    if (descriptor !== undefined) Object.defineProperty(result, key, descriptor)
+  }
   copyYAMLScalarTags(value, result)
   copyYAMLMappingKeyTags(value, result)
   return result

@@ -1,4 +1,4 @@
-import { xmlAnomalyTagValue } from "@nkdk/runtime"
+import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 import { Type, type TSchema } from "typebox"
 import type {
   BrokenXMLReferenceExportResult,
@@ -25,7 +25,10 @@ export function normalizeImportedBrokenReferenceCollection(
 ): BrokenXMLReferenceImportResult | undefined {
   if (broken.length === 0) return undefined
   const normalized = [...yamlValue]
-  for (const { index, value } of broken) normalized[index] = xmlAnomalyTagValue("xml/reference", value)
+  for (const { index, value } of broken) {
+    normalized[index] = xmlAnomalyTagValue("xml/reference", value)
+    markYAMLScalarTag(normalized, index, "xml/reference")
+  }
   return {
     yamlValue: normalized,
     taggedLocations: broken.map(({ index }) => ({ kind: "value", path: [index] })),

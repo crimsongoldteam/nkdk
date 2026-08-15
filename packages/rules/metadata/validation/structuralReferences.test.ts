@@ -6,6 +6,7 @@ import {
 } from "@nkdk/runtime"
 import type {
   MetadataTargetOccurrence,
+  PropertyRule,
   StructuralReferenceCandidate,
 } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -309,6 +310,28 @@ it("перечисляет значения, элементы списка и к
   expect(roles).toEqual({ "Role.Кассир": "Ложь", Аудитор: "Истина" })
   expect(yamlMappingKeyTagAt(roles, "Role.Кассир")).toBe("xml/reference")
   expect(yamlMappingKeyTagAt(roles, "Администратор")).toBeUndefined()
+})
+
+it.each([
+  ["MetadataValue", { type: "ref", value: "Catalog.Товары.EmptyRef" }, { kind: "value", roots: ["Catalog"], valueKinds: ["emptyRef"] }, "Catalog.Товары.EmptyRef"],
+  ["Color", { type: "StyleItem", value: "ОсновнойЦвет" }, { kind: "object", roots: ["StyleItem"] }, "StyleItem.ОсновнойЦвет"],
+  ["Font", { kind: "StyleItem", ref: "ОсновнойШрифт" }, { kind: "object", roots: ["StyleItem"] }, "StyleItem.ОсновнойШрифт"],
+  ["Border", { ref: "ОсновнаяРамка" }, { kind: "object", roots: ["StyleItem"] }, "StyleItem.ОсновнаяРамка"],
+  ["Picture", { type: "CommonPicture", ref: "Логотип" }, { kind: "object", roots: ["CommonPicture"] }, "CommonPicture.Логотип"],
+] as const)("перечисляет вложенную ссылку типа %s через metadataTargetOccurrences", (type, value, metadataTarget, canonical) => {
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const occurrences = registry.getTypeRule(type, "metadataTargetOccurrences")!({
+    value,
+    representation: "model",
+    yamlPath: ["Значение"],
+    propRule: { type, metadataTarget } as PropertyRule,
+  })
+
+  expect(occurrences).toHaveLength(1)
+  expect(occurrences[0]).toMatchObject({
+    location: { kind: "value", path: ["Значение"] },
+    representation: { kind: "canonical", canonical },
+  })
 })
 
 function collectProbeReferences(
