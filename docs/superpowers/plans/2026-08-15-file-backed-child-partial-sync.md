@@ -142,7 +142,7 @@ expect(result.loadTargets).toEqual([
 Run:
 
 ```bash
-pnpm exec vitest run --config packages/rules/vitest.config.ts --project core-metadata packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts
+pnpm exec vitest run --config packages/rules/vitest.config.ts --project unit packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts
 ```
 
 Expected: тест создания падает, потому что в payload и `loadTargets` попадают
@@ -248,7 +248,7 @@ if (declaration !== undefined) {
 Run:
 
 ```bash
-pnpm exec vitest run --config packages/rules/vitest.config.ts --project core-metadata packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts
+pnpm exec vitest run --config packages/rules/vitest.config.ts --project unit packages/rules/metadata/partialSyncToXml/impactPlanner.test.ts
 pnpm type-check
 pnpm duplicates -- --base 22ae13c99
 ```
