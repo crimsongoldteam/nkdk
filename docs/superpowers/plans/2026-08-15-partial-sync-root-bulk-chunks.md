@@ -39,12 +39,18 @@
 it("splits the sorted bulk into stable dependency-safe chunks", () => {
   const source = matrix()
   const base = creationOperations(source)
+  const operation = (key: string, dependsOn: readonly string[] = []): ScenarioOperation => ({
+    ...base[0],
+    key,
+    changes: [{ path: `${key}.yaml`, before: null, after: key }],
+    dependsOn,
+  })
   const operations = [
-    { ...base[0], key: "object:first", dependsOn: [] },
-    { ...base[0], key: "object:probe", dependsOn: [] },
-    { ...base[0], key: "object:consumer", dependsOn: ["object:dependency"] },
-    { ...base[0], key: "object:dependency", dependsOn: [] },
-    { ...base[0], key: "object:last", dependsOn: [] },
+    operation("object:first"),
+    operation("object:probe"),
+    operation("object:consumer", ["object:dependency"]),
+    operation("object:dependency"),
+    operation("object:last"),
   ]
   const layered = withLayers(source, [{
     key: "roots:create",
@@ -64,6 +70,10 @@ it("splits the sorted bulk into stable dependency-safe chunks", () => {
   ])
 })
 ```
+
+В существующий `it.each` недопустимых деклараций добавить размеры `0`, `-1` и
+`1.5`; каждый случай должен отклоняться с сообщением, содержащим
+`bulkBlockSize` и ключ слоя.
 
 - [ ] **Step 2: Run test to verify it fails**
 
