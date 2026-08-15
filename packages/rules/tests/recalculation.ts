@@ -1,15 +1,15 @@
 import type { ConfigurationContextWithExportToXML, MetadataTargetOwnerContext } from "@nkdk/runtime"
 
-import {
-  createDirectRoundTripContexts,
-  testMetadataItemFromYAMLToXML,
-} from "../../../../tests/directConversion"
+import { RecalculationRules } from "../metadata/appliedObjects/metadataCalculationRegister/recalculation/rules"
 import {
   createMetadataExecutionRegistrySets,
   withMetadataExecutionRegistrySets,
-} from "../../../composition/metadataExecutionContext"
-import { metadataRules } from "../../../composition/metadataRules"
-import { RecalculationRules } from "./rules"
+} from "../metadata/composition/metadataExecutionContext"
+import { metadataRules } from "../metadata/composition/metadataRules"
+import {
+  createDirectRoundTripContexts,
+  testMetadataItemFromYAMLToXML,
+} from "./directConversion"
 
 export function exportRecalculationYAML(params: {
   readonly yaml: unknown

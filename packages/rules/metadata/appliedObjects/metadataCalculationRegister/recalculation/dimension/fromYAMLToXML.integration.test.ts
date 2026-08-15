@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { serializeDirectXML } from "../../../../../tests/directConversion"
-import { exportRecalculationYAML } from "../testSupport"
+import { exportRecalculationYAML } from "../../../../../tests/recalculation"
 
 describe("Recalculation dimension YAML → XML", () => {
   it("exports register links as MDObjectRef values", () => {

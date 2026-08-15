@@ -5,7 +5,7 @@ import {
   createDirectRoundTripContexts,
   serializeDirectXML,
 } from "../../../../tests/directConversion"
-import { exportRecalculationYAML } from "./testSupport"
+import { exportRecalculationYAML } from "../../../../tests/recalculation"
 
 describe("Recalculation YAML → XML", () => {
   it("exports a semantic recalculation file", () => {
