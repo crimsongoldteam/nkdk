@@ -32,6 +32,29 @@ describe("partial sync workspace", () => {
     expect(await readState(root)).toEqual(matrixState(planHash))
   })
 
+  it("promotes a valid temporary state when the main state is absent", async () => {
+    const root = await temporaryRoot("temporary-state-")
+    await writeFile(join(root, "state.json.tmp"), JSON.stringify(matrixState(planHash)))
+
+    await openScenarioWorkspace(root, { planHash, reset: false })
+
+    expect(await readState(root)).toEqual(matrixState(planHash))
+    await expect(readFile(join(root, "state.json.tmp"), "utf8"))
+      .rejects.toMatchObject({ code: "ENOENT" })
+  })
+
+  it("removes a stale temporary state only after accepting the main state", async () => {
+    const root = await temporaryRoot("stale-temporary-state-")
+    await writeState(root, matrixState(planHash))
+    await writeFile(join(root, "state.json.tmp"), "incomplete")
+
+    await openScenarioWorkspace(root, { planHash, reset: false })
+
+    expect(await readState(root)).toEqual(matrixState(planHash))
+    await expect(readFile(join(root, "state.json.tmp"), "utf8"))
+      .rejects.toMatchObject({ code: "ENOENT" })
+  })
+
   it.each([
     ["a relative path", "relative/workspace"],
     ["the filesystem root", "/"],

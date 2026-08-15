@@ -51,7 +51,7 @@ const managedDirectoryNames = [
   "logs",
 ] as const
 const resetDirectoryNames = managedDirectoryNames.filter((name) => name !== "logs")
-const allowedEntryNames = new Set(["state.json", ...managedDirectoryNames])
+const allowedEntryNames = new Set(["state.json", "state.json.tmp", ...managedDirectoryNames])
 const ignoredEntryNames = new Set([".DS_Store"])
 
 export async function openScenarioWorkspace(
@@ -85,7 +85,10 @@ export async function openScenarioWorkspace(
   const entries = await readdir(canonicalRoot)
   const scenarioEntries = entries.filter((entry) => !ignoredEntryNames.has(entry))
   const statePath = join(canonicalRoot, "state.json")
-  if (scenarioEntries.length > 0 && !scenarioEntries.includes("state.json")) {
+  const temporaryStatePath = `${statePath}.tmp`
+  if (scenarioEntries.length > 0 &&
+    !scenarioEntries.includes("state.json") &&
+    !scenarioEntries.includes("state.json.tmp")) {
     throw new Error(`Каталог не принадлежит сценарию: ${canonicalRoot}`)
   }
   const foreignEntry = scenarioEntries.find((entry) => !allowedEntryNames.has(entry))
@@ -100,6 +103,15 @@ export async function openScenarioWorkspace(
     }
     if (stateKind !== "file") throw new Error(`Состояние сценария не является файлом: ${statePath}`)
   }
+  if (entries.includes("state.json.tmp")) {
+    const stateKind = await pathKind(temporaryStatePath)
+    if (stateKind === "symlink") {
+      throw new Error(`Временное состояние сценария не может быть символической ссылкой: ${temporaryStatePath}`)
+    }
+    if (stateKind !== "file") {
+      throw new Error(`Временное состояние сценария не является файлом: ${temporaryStatePath}`)
+    }
+  }
 
   for (const name of managedDirectoryNames) {
     const path = join(canonicalRoot, name)
@@ -112,9 +124,14 @@ export async function openScenarioWorkspace(
     }
   }
 
-  const storedState = entries.includes("state.json")
-    ? await readRecognizedState(statePath)
-    : undefined
+  let storedState: ScenarioState | LegacyScenarioState | undefined
+  if (entries.includes("state.json")) {
+    storedState = await readRecognizedState(statePath)
+    if (entries.includes("state.json.tmp")) await rm(temporaryStatePath)
+  } else if (entries.includes("state.json.tmp")) {
+    storedState = await readRecognizedState(temporaryStatePath)
+    await rename(temporaryStatePath, statePath)
+  }
 
   if (options.reset) {
     for (const name of resetDirectoryNames) {

@@ -1,4 +1,4 @@
-import { cp, mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises"
+import { cp, mkdir, mkdtemp, readFile, readdir, rename, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { describe, expect, it } from "vitest"
@@ -112,6 +112,33 @@ describe("partial sync checkpoints", () => {
     expect((await readState(fixture.workspace.root)).completedOperation).toBe("object:first")
   })
 
+  it("keeps a committed replacement when removing previous fails and cleans it next time", async () => {
+    const fixture = await checkpointFixture()
+    await writeWorking(fixture, "first")
+    await publishCheckpoint(fixture.workspace, { completedOperation: "object:first", planHash })
+    await writeWorking(fixture, "second")
+    const dependencies = {
+      ...createCheckpointDependencies(),
+      async remove(path: string, options?: { recursive?: boolean; force?: boolean }) {
+        if (path.endsWith(".previous")) throw new Error("planned cleanup failure")
+        await rm(path, options)
+      },
+    }
+
+    await expect(publishCheckpoint(
+      fixture.workspace,
+      { completedOperation: "object:second", planHash },
+      dependencies,
+    )).resolves.toMatchObject({ completedOperation: "object:second" })
+
+    expect((await readState(fixture.workspace.root)).completedOperation).toBe("object:second")
+    expect((await readdir(fixture.workspace.checkpointsDir)).some((name) => name.endsWith(".previous"))).toBe(true)
+
+    await writeWorking(fixture, "third")
+    await publishCheckpoint(fixture.workspace, { completedOperation: "object:third", planHash })
+    expect(await readdir(fixture.workspace.checkpointsDir)).toEqual(["current"])
+  })
+
   it("recovers a consistent previous copy left before state publication", async () => {
     const fixture = await checkpointFixture()
     await writeWorking(fixture, "first")
@@ -120,10 +147,12 @@ describe("partial sync checkpoints", () => {
       planHash,
     })
     const current = join(fixture.workspace.checkpointsDir, "current")
+    const savedFirst = join(fixture.workspace.root, ".saved-first")
     const crashPrevious = join(fixture.workspace.checkpointsDir, ".current-crash.previous")
-    await cp(current, crashPrevious, { recursive: true })
+    await cp(current, savedFirst, { recursive: true })
     await writeWorking(fixture, "second")
     await publishCheckpoint(fixture.workspace, { completedOperation: "object:second", planHash })
+    await cp(savedFirst, crashPrevious, { recursive: true })
     await writeScenarioState(fixture.workspace, firstState)
 
     await restoreCheckpoint(fixture.workspace, firstState)
@@ -133,6 +162,73 @@ describe("partial sync checkpoints", () => {
     await expect(readFile(join(fixture.workspace.baseDir, "1Cv8.1CD"), "utf8"))
       .resolves.toBe("first base")
     expect(await readdir(fixture.workspace.checkpointsDir)).toEqual(["current"])
+  })
+
+  it("recovers the only matching previous copy when current is absent", async () => {
+    const fixture = await checkpointFixture()
+    await writeWorking(fixture, "saved")
+    const state = await publishCheckpoint(fixture.workspace, {
+      completedOperation: "object:catalog",
+      planHash,
+    })
+    const current = join(fixture.workspace.checkpointsDir, "current")
+    await rename(current, join(fixture.workspace.checkpointsDir, ".current-crash.previous"))
+    await writeWorking(fixture, "working")
+
+    await restoreCheckpoint(fixture.workspace, state)
+
+    await expect(readFile(join(current, "base/1Cv8.1CD"), "utf8")).resolves.toBe("saved base")
+    await expect(readFile(join(fixture.workspace.baseDir, "1Cv8.1CD"), "utf8")).resolves.toBe("saved base")
+  })
+
+  it("rolls back only completed working-directory moves", async () => {
+    const fixture = await checkpointFixture()
+    await writeWorking(fixture, "saved")
+    const state = await publishCheckpoint(fixture.workspace, {
+      completedOperation: "object:catalog",
+      planHash,
+    })
+    await writeWorking(fixture, "working")
+    const dependencies = {
+      ...createCheckpointDependencies(),
+      async move(from: string, to: string) {
+        if (from.endsWith(".restore.tmp") && to === fixture.workspace.projectDir) {
+          throw new Error("planned project install failure")
+        }
+        await rename(from, to)
+      },
+    }
+
+    await expect(restoreCheckpoint(fixture.workspace, state, dependencies))
+      .rejects.toThrow("planned project install failure")
+
+    await expect(readFile(join(fixture.workspace.baseDir, "1Cv8.1CD"), "utf8")).resolves.toBe("working base")
+    await expect(readFile(join(fixture.workspace.projectDir, "cf.yaml"), "utf8")).resolves.toBe("working project")
+  })
+
+  it("restores base when moving the original project fails", async () => {
+    const fixture = await checkpointFixture()
+    await writeWorking(fixture, "saved")
+    const state = await publishCheckpoint(fixture.workspace, {
+      completedOperation: "object:catalog",
+      planHash,
+    })
+    await writeWorking(fixture, "working")
+    const dependencies = {
+      ...createCheckpointDependencies(),
+      async move(from: string, to: string) {
+        if (from === fixture.workspace.projectDir && to.endsWith(".previous")) {
+          throw new Error("planned original project move failure")
+        }
+        await rename(from, to)
+      },
+    }
+
+    await expect(restoreCheckpoint(fixture.workspace, state, dependencies))
+      .rejects.toThrow("planned original project move failure")
+
+    await expect(readFile(join(fixture.workspace.baseDir, "1Cv8.1CD"), "utf8")).resolves.toBe("working base")
+    await expect(readFile(join(fixture.workspace.projectDir, "cf.yaml"), "utf8")).resolves.toBe("working project")
   })
 
   it("rejects a corrupted current without changing working copies", async () => {

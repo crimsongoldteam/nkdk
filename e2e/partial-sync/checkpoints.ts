@@ -28,6 +28,8 @@ export type CheckpointPublication = {
 
 export type CheckpointDependencies = {
   copyDirectory(source: string, destination: string): Promise<void>
+  move(source: string, destination: string): Promise<void>
+  remove(path: string, options?: { recursive?: boolean; force?: boolean }): Promise<void>
   operationId(): string
   writeState(workspace: ScenarioWorkspace, state: ScenarioState): Promise<void>
 }
@@ -35,6 +37,8 @@ export type CheckpointDependencies = {
 export function createCheckpointDependencies(): CheckpointDependencies {
   return {
     copyDirectory,
+    move: rename,
+    remove: rm,
     operationId: randomUUID,
     writeState: writeScenarioState,
   }
@@ -62,23 +66,23 @@ export async function publishCheckpoint(
 
     if (await pathExists(currentDir)) {
       await verifyCheckpoint(currentDir)
-      await rename(currentDir, previousDir)
+      await dependencies.move(currentDir, previousDir)
       previousMoved = true
     }
     try {
-      await rename(temporaryDir, currentDir)
+      await dependencies.move(temporaryDir, currentDir)
       currentSwitched = true
       const state = checkpointState(publication)
       await dependencies.writeState(workspace, state)
-      if (previousMoved) await rm(previousDir, { recursive: true })
+      await cleanupPreviousCheckpoints(workspace, dependencies).catch(() => undefined)
       return state
     } catch (caught) {
-      if (currentSwitched) await rm(currentDir, { recursive: true, force: true })
-      if (previousMoved) await rename(previousDir, currentDir)
+      if (currentSwitched) await dependencies.remove(currentDir, { recursive: true, force: true })
+      if (previousMoved) await dependencies.move(previousDir, currentDir)
       throw caught
     }
   } finally {
-    await rm(temporaryDir, { recursive: true, force: true })
+    await dependencies.remove(temporaryDir, { recursive: true, force: true })
   }
 }
 
@@ -97,26 +101,34 @@ export async function restoreCheckpoint(
   const temporaryProject = join(workspace.root, `.project-${operationId}.restore.tmp`)
   const previousBase = join(workspace.root, `.base-${operationId}.previous`)
   const previousProject = join(workspace.root, `.project-${operationId}.previous`)
+  let baseMoved = false
+  let projectMoved = false
+  let baseInstalled = false
+  let projectInstalled = false
   try {
     await dependencies.copyDirectory(join(checkpointDir, "base"), temporaryBase)
     await dependencies.copyDirectory(join(checkpointDir, "project"), temporaryProject)
-    await rename(workspace.baseDir, previousBase)
-    await rename(workspace.projectDir, previousProject)
     try {
-      await rename(temporaryBase, workspace.baseDir)
-      await rename(temporaryProject, workspace.projectDir)
+      await dependencies.move(workspace.baseDir, previousBase)
+      baseMoved = true
+      await dependencies.move(workspace.projectDir, previousProject)
+      projectMoved = true
+      await dependencies.move(temporaryBase, workspace.baseDir)
+      baseInstalled = true
+      await dependencies.move(temporaryProject, workspace.projectDir)
+      projectInstalled = true
     } catch (caught) {
-      await rm(workspace.baseDir, { recursive: true, force: true })
-      await rm(workspace.projectDir, { recursive: true, force: true })
-      await rename(previousBase, workspace.baseDir)
-      await rename(previousProject, workspace.projectDir)
+      if (projectInstalled) await dependencies.remove(workspace.projectDir, { recursive: true, force: true })
+      if (baseInstalled) await dependencies.remove(workspace.baseDir, { recursive: true, force: true })
+      if (projectMoved) await dependencies.move(previousProject, workspace.projectDir)
+      if (baseMoved) await dependencies.move(previousBase, workspace.baseDir)
       throw caught
     }
-    await rm(previousBase, { recursive: true })
-    await rm(previousProject, { recursive: true })
+    await dependencies.remove(previousBase, { recursive: true }).catch(() => undefined)
+    await dependencies.remove(previousProject, { recursive: true }).catch(() => undefined)
   } finally {
-    await rm(temporaryBase, { recursive: true, force: true })
-    await rm(temporaryProject, { recursive: true, force: true })
+    await dependencies.remove(temporaryBase, { recursive: true, force: true })
+    await dependencies.remove(temporaryProject, { recursive: true, force: true })
   }
 }
 
@@ -126,8 +138,16 @@ async function recoverPreviousCheckpoint(
   dependencies: CheckpointDependencies,
 ): Promise<void> {
   const currentDir = join(workspace.checkpointsDir, "current")
-  const currentManifest = await verifyCheckpoint(currentDir)
-  if (manifestMatches(currentManifest, state)) return
+  let currentFailure: unknown
+  try {
+    const currentManifest = await verifyCheckpoint(currentDir)
+    if (manifestMatches(currentManifest, state)) {
+      await cleanupPreviousCheckpoints(workspace, dependencies).catch(() => undefined)
+      return
+    }
+  } catch (caught) {
+    currentFailure = caught
+  }
 
   const candidates = (await readdir(workspace.checkpointsDir))
     .filter((name) => /^\.current-.+\.previous$/u.test(name))
@@ -142,6 +162,7 @@ async function recoverPreviousCheckpoint(
     }
   }
   if (matching.length !== 1) {
+    if (matching.length === 0 && currentFailure !== undefined) throw currentFailure
     throw new Error(`Не найдена единственная согласованная предыдущая контрольная копия для ${state.completedOperation ?? "baseline"}`)
   }
 
@@ -149,14 +170,27 @@ async function recoverPreviousCheckpoint(
     workspace.checkpointsDir,
     `.current-${dependencies.operationId()}.discarded.tmp`,
   )
-  await rename(currentDir, discarded)
+  const currentExists = await pathExists(currentDir)
+  if (currentExists) await dependencies.move(currentDir, discarded)
   try {
-    await rename(matching[0], currentDir)
+    await dependencies.move(matching[0], currentDir)
   } catch (caught) {
-    await rename(discarded, currentDir)
+    if (currentExists) await dependencies.move(discarded, currentDir)
     throw caught
   }
-  await rm(discarded, { recursive: true })
+  if (currentExists) await dependencies.remove(discarded, { recursive: true })
+  await cleanupPreviousCheckpoints(workspace, dependencies).catch(() => undefined)
+}
+
+async function cleanupPreviousCheckpoints(
+  workspace: ScenarioWorkspace,
+  dependencies: CheckpointDependencies,
+): Promise<void> {
+  const names = (await readdir(workspace.checkpointsDir))
+    .filter((name) => /^\.current-.+\.previous$/u.test(name))
+  for (const name of names) {
+    await dependencies.remove(join(workspace.checkpointsDir, name), { recursive: true })
+  }
 }
 
 async function copyDirectory(source: string, destination: string): Promise<void> {
