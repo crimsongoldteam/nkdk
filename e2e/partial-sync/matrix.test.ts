@@ -495,6 +495,11 @@ describe("partial sync matrix", () => {
     ])
   })
 
+  it("uses a concrete input-field kind for the added form field", () => {
+    const operation = partialSyncMatrix.formLifecycleOperations.find(({ key }) => key === "form-content:add-elements")
+    expect(operation?.changes[0]?.after).toContain("ПроверочноеПоле:\n    Вид: ПолеВвода")
+  })
+
   it("covers module and external payload classes", () => {
     expect(externalFileOperations.map(({ payloadKind }) => payloadKind).toSorted())
       .toEqual(["binary", "html", "rights-xml", "ws-or-xdto"])
