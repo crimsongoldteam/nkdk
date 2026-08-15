@@ -1,13 +1,66 @@
 import { describe, expect, it } from "vitest"
 import type {
+  ScenarioLayer,
   ScenarioMatrix,
   ScenarioOperation,
 } from "./matrix/types"
 import { buildScenarioPlan, scenarioPlanHash } from "./plan"
 
 describe("declarative partial sync plan", () => {
+  it("splits every layer into an explicit probe and the remaining bulk", () => {
+    const source = matrix()
+    const operations = creationOperations(source)
+    const layered = withLayers(source, [{
+      key: "roots:create",
+      componentPath: "cf",
+      probeOperationKey: "object:catalog",
+      operations: operations.slice(0, 2),
+    }])
+
+    expect(buildScenarioPlan(layered)).toMatchObject([
+      {
+        key: "roots:create:probe",
+        componentPath: "cf",
+        operations: [{ key: "object:catalog" }],
+      },
+      {
+        key: "roots:create:bulk",
+        componentPath: "cf",
+        operations: [{ key: "object:document" }],
+      },
+    ])
+  })
+
+  it("does not create an empty bulk block", () => {
+    const source = matrix()
+    const [catalog] = creationOperations(source)
+    const layered = withLayers(source, [{
+      key: "roots:create",
+      componentPath: "cf",
+      probeOperationKey: catalog.key,
+      operations: [catalog],
+    }])
+
+    expect(buildScenarioPlan(layered).map(({ key }) => key)).toEqual([
+      "roots:create:probe",
+    ])
+  })
+
+  it("rejects a probe whose dependency is only available in the bulk block", () => {
+    const source = matrix()
+    const operations = creationOperations(source)
+    const layered = withLayers(source, [{
+      key: "roots:create",
+      componentPath: "cf",
+      probeOperationKey: "object:document",
+      operations: operations.slice(0, 2),
+    }])
+
+    expect(() => buildScenarioPlan(layered)).toThrow(/Пробная операция.*object:catalog/u)
+  })
+
   it("creates dependencies before consumers and removes everything in reverse order", () => {
-    const plan = buildScenarioPlan(matrix())
+    const plan = flatten(buildScenarioPlan(matrix()))
 
     expect(plan.map(({ key }) => key)).toEqual([
       "object:catalog",
@@ -24,19 +77,19 @@ describe("declarative partial sync plan", () => {
     ])
   })
 
-  it("keeps matrix order between independent roots", () => {
+  it("places the explicit probe before independent bulk operations", () => {
     const source = matrix()
-    const plan = buildScenarioPlan({
+    const plan = flatten(buildScenarioPlan({
       ...source,
       roots: [
         { ...source.roots[1], dependsOn: [] },
         { ...source.roots[0], dependsOn: [] },
       ],
-    })
+    }))
 
     expect(plan.slice(0, 2).map(({ key }) => key)).toEqual([
-      "object:document",
       "object:catalog",
+      "object:document",
     ])
   })
 
@@ -71,15 +124,19 @@ describe("declarative partial sync plan", () => {
       key: "object:catalog",
       kind: "create-object",
       changes: [{ path: "a", before: null, after: new Uint8Array([2, 1]) }],
+      dependsOn: [],
     }]
     const second = [{
       changes: [{ after: new Uint8Array([2, 1]), before: null, path: "a" }],
       kind: "create-object",
       key: "object:catalog",
+      dependsOn: [],
     }] satisfies ScenarioOperation[]
 
-    expect(scenarioPlanHash(first)).toMatch(/^[a-f0-9]{64}$/)
-    expect(scenarioPlanHash(second)).toBe(scenarioPlanHash(first))
+    const firstPlan = singleBlock(first)
+    const secondPlan = singleBlock(second)
+    expect(scenarioPlanHash(firstPlan)).toMatch(/^[a-f0-9]{64}$/)
+    expect(scenarioPlanHash(secondPlan)).toBe(scenarioPlanHash(firstPlan))
   })
 })
 
@@ -115,4 +172,30 @@ function matrix(): ScenarioMatrix {
       changes: [{ path: "Справочник/Тест/Формы/Форма.yaml", before: null, after: "form" }],
     }],
   }
+}
+
+function creationOperations(source: ScenarioMatrix): ScenarioOperation[] {
+  return source.roots.map(({ key, changes, dependsOn }) => ({
+    key,
+    kind: "create-object",
+    changes,
+    dependsOn,
+  }))
+}
+
+function withLayers(source: ScenarioMatrix, layers: readonly ScenarioLayer[]): ScenarioMatrix {
+  return { ...source, layers }
+}
+
+function flatten(plan: ReturnType<typeof buildScenarioPlan>): ScenarioOperation[] {
+  return plan.flatMap(({ operations }) => operations)
+}
+
+function singleBlock(operations: readonly ScenarioOperation[]) {
+  return [{
+    key: "test:probe" as const,
+    layerKey: "test",
+    componentPath: "cf" as const,
+    operations,
+  }]
 }

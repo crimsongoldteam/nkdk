@@ -40,7 +40,7 @@ describe("partial sync matrix", () => {
   })
 
   it("adds the calculation register after existing registers", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const creation = plan.find(({ key }) => key === "object:calculation-register")
     const serialized = JSON.stringify(plan)
 
@@ -71,7 +71,7 @@ describe("partial sync matrix", () => {
   })
 
   it("places characteristic type children before the value type", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     for (const key of [
       "child:chart-of-characteristic-types:attributes",
       "child:chart-of-characteristic-types:tabularSections",
@@ -90,7 +90,7 @@ describe("partial sync matrix", () => {
   })
 
   it("emits register fields in canonical section order with string fill values", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     for (const owner of [
       "information-register",
       "accumulation-register",
@@ -113,7 +113,7 @@ describe("partial sync matrix", () => {
   })
 
   it("places ordinary register commands after dimensions", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     for (const owner of ["accounting-register", "accumulation-register", "information-register"]) {
       const operation = plan.find(({ key }) => key === `child:${owner}:commands`)
       const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after as string
@@ -124,7 +124,7 @@ describe("partial sync matrix", () => {
   })
 
   it("places command sections in canonical top-level key order", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     for (const operation of plan.filter(({ key }) => key.endsWith(":commands"))) {
       const properties = operation.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
       if (typeof properties !== "string") continue
@@ -137,7 +137,7 @@ describe("partial sync matrix", () => {
   })
 
   it("emits task addressing attributes before tabular sections with a string fill value", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:task:addressingAttributes")
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
     expect(properties).toEqual(expect.any(String))
@@ -147,7 +147,7 @@ describe("partial sync matrix", () => {
   })
 
   it("emits predefined values before object fields", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     for (const owner of [
       "catalog",
       "chart-of-accounts",
@@ -172,7 +172,7 @@ describe("partial sync matrix", () => {
   })
 
   it("emits document journal columns before registered documents", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:document-journal:columns")
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
     expect(properties).toEqual(expect.any(String))
@@ -181,7 +181,7 @@ describe("partial sync matrix", () => {
   })
 
   it("emits HTTP methods before the URL template", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:http-service-urlTemplates:methods")
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
     expect(properties).toEqual(expect.any(String))
@@ -190,7 +190,7 @@ describe("partial sync matrix", () => {
   })
 
   it("emits web-service operations and parameters in canonical order", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:web-service:operations")
     const operationProperties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
     expect(operationProperties).toEqual(expect.any(String))
@@ -209,7 +209,7 @@ describe("partial sync matrix", () => {
   })
 
   it("emits an empty integration-service channel in the platform canonical form", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:integration-service:channels")
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
 
@@ -219,7 +219,7 @@ describe("partial sync matrix", () => {
   })
 
   it("emits external-data-source table fields before table properties", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:external-data-source:tables")
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
 
@@ -237,7 +237,7 @@ describe("partial sync matrix", () => {
   })
 
   it("emits a standalone string type for an external-data-source cube dimension", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:external-data-source-cubes:dimensions")
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after
 
@@ -249,7 +249,7 @@ describe("partial sync matrix", () => {
   })
 
   it("uses the canonical recalculation XML project path", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:calculation-register:recalculations")
     const properties = operation?.changes.find(({ path }) => path.endsWith("/Свойства.yaml"))?.after as string
     const recalculationXml = operation?.changes.find(({ path }) => path.endsWith("/Перерасчеты/ПроверочныйПерерасчет/Свойства.xml"))?.after as string
@@ -268,7 +268,7 @@ describe("partial sync matrix", () => {
   })
 
   it("adds recalculation dimensions to the external recalculation XML", () => {
-    const plan = buildScenarioPlan(partialSyncMatrix)
+    const plan = scenarioOperations()
     const operation = plan.find(({ key }) => key === "child:calculation-register-recalculations:dimensions")
     const change = operation?.changes[0]
 
@@ -359,7 +359,7 @@ describe("partial sync matrix", () => {
   it("forms one continuous and reversible transition for every declared path", () => {
     const files = new Map<string, string | Uint8Array>()
 
-    for (const operation of buildScenarioPlan(partialSyncMatrix)) {
+    for (const operation of scenarioOperations()) {
       for (const change of operation.changes) {
         expect(files.get(change.path) ?? null, `${operation.key}: ${change.path}`)
           .toEqual(change.before)
@@ -377,7 +377,7 @@ describe("partial sync matrix", () => {
     const projectDir = join(temporaryRoot, "project")
     await cp(source, projectDir, { recursive: true })
 
-    for (const operation of buildScenarioPlan(partialSyncMatrix)) {
+    for (const operation of scenarioOperations()) {
       await applyScenarioOperation(projectDir, operation)
     }
 
@@ -392,6 +392,10 @@ describe("partial sync matrix", () => {
 
 function unique(values: readonly string[]): boolean {
   return new Set(values).size === values.length
+}
+
+function scenarioOperations() {
+  return buildScenarioPlan(partialSyncMatrix).flatMap(({ operations }) => operations)
 }
 
 function collectRuleChildCapabilities(): Set<string> {

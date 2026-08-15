@@ -1,120 +1,126 @@
 import { createHash } from "node:crypto"
+import { createInitialScenarioLayers } from "./matrix/layers"
 import type {
-  ChildDeclaration,
-  ScenarioFileChange,
+  ScenarioBlock,
+  ScenarioFileContents,
+  ScenarioLayer,
   ScenarioMatrix,
   ScenarioOperation,
 } from "./matrix/types"
 
-type DependencyDeclaration = {
-  readonly key: string
-  readonly dependsOn: readonly string[]
-}
+export function buildScenarioPlan(matrix: ScenarioMatrix): readonly ScenarioBlock[] {
+  const layers = matrix.layers ?? createInitialScenarioLayers(matrix)
+  assertUniqueKeys(layers.map(({ key }) => key), "layer")
 
-export function buildScenarioPlan(matrix: ScenarioMatrix): readonly ScenarioOperation[] {
-  assertUniqueDeclarationKeys(matrix)
+  const blocks: ScenarioBlock[] = []
+  const available = new Set<string>()
+  assertUniqueKeys(layers.flatMap(({ operations }) => operations.map(({ key }) => key)), "operation")
 
-  const rootKeys = new Set(matrix.roots.map(({ key }) => key))
-  const roots = stableTopologicalSort(matrix.roots, rootKeys)
-  const childKeys = new Set(matrix.children.map(({ key }) => key))
-  const childDependencies = matrix.children.map((child) => ({
-    ...child,
-    dependsOn: childDependenciesFor(child, rootKeys, childKeys),
-  }))
-  const children = stableTopologicalSort(childDependencies, new Set([...rootKeys, ...childKeys]))
-  const availableOwnerKeys = new Set([...rootKeys, ...childKeys])
+  for (const layer of layers) {
+    const operations = stableTopologicalSort(layer.operations, available)
+    const probeIndex = operations.findIndex(({ key }) => key === layer.probeOperationKey)
+    if (probeIndex < 0) {
+      throw new Error(`Пробная операция ${layer.probeOperationKey} отсутствует в слое ${layer.key}`)
+    }
+    const probe = operations[probeIndex]
+    const unavailableDependency = probe.dependsOn?.find((key) => !available.has(key))
+    if (unavailableDependency !== undefined) {
+      throw new Error(`Пробная операция ${probe.key} зависит от ${unavailableDependency}, доступного только после неё`)
+    }
+    blocks.push(block(layer, "probe", [probe]))
+    available.add(probe.key)
 
-  for (const form of matrix.forms) {
-    assertKnownKey(form.ownerKey, availableOwnerKeys, form.key)
+    const bulk = operations.filter((_, index) => index !== probeIndex)
+    if (bulk.length > 0) {
+      assertDependenciesAvailable(bulk, available)
+      blocks.push(block(layer, "bulk", bulk))
+      for (const operation of bulk) available.add(operation.key)
+    }
   }
 
-  const creations: ScenarioOperation[] = [
-    ...roots.map(({ key, changes }) => ({ key, kind: "create-object" as const, changes })),
-    ...children.map(({ key, ownerKey, changes }) => ({
-      key,
-      kind: "add-child" as const,
-      ownerKey,
-      changes,
-    })),
-    ...matrix.forms.map(({ key, ownerKey, changes }) => ({
-      key,
-      kind: "add-form" as const,
-      ownerKey,
-      changes,
-    })),
-  ]
-  const removals = creations.toReversed().map(reverseOperation)
-  assertUniqueOperationKeys([...creations, ...removals])
-
-  return [...creations, ...removals]
+  assertUniqueKeys(blocks.map(({ key }) => key), "block")
+  assertContinuousTransitions(blocks)
+  return blocks
 }
 
-export function scenarioPlanHash(plan: readonly ScenarioOperation[]): string {
+export function scenarioPlanHash(plan: readonly ScenarioBlock[]): string {
   return createHash("sha256").update(JSON.stringify(canonicalize(plan))).digest("hex")
 }
 
-function childDependenciesFor(
-  child: ChildDeclaration,
-  rootKeys: ReadonlySet<string>,
-  childKeys: ReadonlySet<string>,
-): readonly string[] {
-  assertKnownKey(child.ownerKey, new Set([...rootKeys, ...childKeys]), child.key)
-  return [...new Set([child.ownerKey, ...child.dependsOn])]
+function block(
+  layer: ScenarioLayer,
+  kind: "probe" | "bulk",
+  operations: readonly ScenarioOperation[],
+): ScenarioBlock {
+  return {
+    key: `${layer.key}:${kind}`,
+    layerKey: layer.key,
+    componentPath: layer.componentPath,
+    operations,
+  }
 }
 
-function stableTopologicalSort<T extends DependencyDeclaration>(
-  declarations: readonly T[],
-  knownKeys: ReadonlySet<string>,
-): readonly T[] {
-  for (const declaration of declarations) {
-    for (const dependency of declaration.dependsOn) {
-      assertKnownKey(dependency, knownKeys, declaration.key)
+function stableTopologicalSort(
+  operations: readonly ScenarioOperation[],
+  available: ReadonlySet<string>,
+): readonly ScenarioOperation[] {
+  const localKeys = new Set(operations.map(({ key }) => key))
+  for (const operation of operations) {
+    for (const dependency of operation.dependsOn ?? []) {
+      if (!localKeys.has(dependency) && !available.has(dependency)) {
+        throw new Error(`Unknown dependency ${dependency} for ${operation.key}`)
+      }
     }
   }
 
-  const pending = [...declarations]
-  const result: T[] = []
-  const completed = new Set<string>()
-
+  const pending = [...operations]
+  const result: ScenarioOperation[] = []
+  const completed = new Set(available)
   while (pending.length > 0) {
     const index = pending.findIndex(({ dependsOn }) =>
-      dependsOn.every((dependency) => completed.has(dependency) || !pending.some(({ key }) => key === dependency))
-    )
-    if (index < 0) {
-      throw new Error(`Dependency cycle: ${pending.map(({ key }) => key).join(", ")}`)
-    }
+      (dependsOn ?? []).every((dependency) => completed.has(dependency)))
+    if (index < 0) throw new Error(`Dependency cycle: ${pending.map(({ key }) => key).join(", ")}`)
     const [next] = pending.splice(index, 1)
     result.push(next)
     completed.add(next.key)
   }
-
   return result
 }
 
-function reverseOperation(operation: ScenarioOperation): ScenarioOperation {
-  return {
-    key: `remove:${operation.key}`,
-    kind: "remove",
-    targetKey: operation.key,
-    changes: operation.changes.map(reverseChange),
+function assertDependenciesAvailable(
+  operations: readonly ScenarioOperation[],
+  initialAvailable: ReadonlySet<string>,
+): void {
+  const available = new Set(initialAvailable)
+  for (const operation of operations) {
+    for (const dependency of operation.dependsOn ?? []) {
+      if (!available.has(dependency)) {
+        throw new Error(`Операция ${operation.key} выполняется раньше зависимости ${dependency}`)
+      }
+    }
+    available.add(operation.key)
   }
 }
 
-function reverseChange(change: ScenarioFileChange): ScenarioFileChange {
-  return { path: change.path, before: change.after, after: change.before }
+function assertContinuousTransitions(blocks: readonly ScenarioBlock[]): void {
+  const previous = new Map<string, ScenarioFileContents | null>()
+  for (const block of blocks) {
+    for (const operation of block.operations) {
+      for (const change of operation.changes) {
+        if (previous.has(change.path) && !contentsEqual(previous.get(change.path) ?? null, change.before)) {
+          throw new Error(`Разрыв переходов ${change.path} в операции ${operation.key}`)
+        }
+        previous.set(change.path, change.after)
+      }
+    }
+  }
 }
 
-function assertUniqueDeclarationKeys(matrix: ScenarioMatrix): void {
-  const keys = [
-    ...matrix.roots.map(({ key }) => key),
-    ...matrix.children.map(({ key }) => key),
-    ...matrix.forms.map(({ key }) => key),
-  ]
-  assertUniqueKeys(keys, "declaration")
-}
-
-function assertUniqueOperationKeys(operations: readonly ScenarioOperation[]): void {
-  assertUniqueKeys(operations.map(({ key }) => key), "operation")
+function contentsEqual(left: ScenarioFileContents | null, right: ScenarioFileContents | null): boolean {
+  if (left instanceof Uint8Array && right instanceof Uint8Array) {
+    return Buffer.from(left).equals(Buffer.from(right))
+  }
+  return left === right
 }
 
 function assertUniqueKeys(keys: readonly string[], subject: string): void {
@@ -125,16 +131,8 @@ function assertUniqueKeys(keys: readonly string[], subject: string): void {
   }
 }
 
-function assertKnownKey(key: string, knownKeys: ReadonlySet<string>, consumerKey: string): void {
-  if (!knownKeys.has(key)) {
-    throw new Error(`Unknown dependency ${key} for ${consumerKey}`)
-  }
-}
-
 function canonicalize(value: unknown): unknown {
-  if (value instanceof Uint8Array) {
-    return { $bytes: Buffer.from(value).toString("base64") }
-  }
+  if (value instanceof Uint8Array) return { $bytes: Buffer.from(value).toString("base64") }
   if (Array.isArray(value)) return value.map(canonicalize)
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(
