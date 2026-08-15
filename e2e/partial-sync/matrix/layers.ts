@@ -2,6 +2,8 @@ import type { ScenarioLayer, ScenarioMatrix, ScenarioOperation } from "./types"
 
 type MatrixDeclarations = Pick<ScenarioMatrix, "roots" | "children" | "forms">
 
+export const recoveryProbeBlockKey = "roots:create:probe"
+
 export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonly ScenarioLayer[] {
   const roots = matrix.roots.map(({ key, changes, dependsOn }): ScenarioOperation => ({
     key, kind: "create-object", changes, dependsOn,

@@ -4,8 +4,9 @@ import { it } from "vitest"
 import { openScenarioMcpSession } from "./mcp-session"
 import { createPartialSyncSteps } from "./steps"
 import { partialSyncMatrix } from "./matrix"
+import { recoveryProbeBlockKey } from "./matrix/layers"
 import { buildScenarioPlan, scenarioPlanHash } from "./plan"
-import { runPartialSyncScenario } from "./scenario"
+import { runScenarioWithRecoveryProbe } from "./recovery-probe"
 import { createScenarioTimingReport } from "./timing"
 import { openScenarioWorkspace } from "./workspace"
 
@@ -22,19 +23,22 @@ it("последовательно синхронизирует полную м�
     planHash,
     reset: process.env["NKDK_PARTIAL_SYNC_RESET"] === "1",
   })
-  const session = await openScenarioMcpSession({
-    attemptLogDir: join(workspace.logsDir, `${randomUUID()}-scenario`),
+  await runScenarioWithRecoveryProbe({
+    workspace,
+    plan,
+    planHash,
+    recoveryProbeBlockKey,
+    timingReport: createScenarioTimingReport(workspace.logsDir),
+    now: Date.now,
+    async openAttempt(attemptWorkspace) {
+      const session = await openScenarioMcpSession({
+        attemptLogDir: join(attemptWorkspace.logsDir, `${randomUUID()}-scenario`),
+      })
+      return {
+        steps: createPartialSyncSteps({ workspace: attemptWorkspace, session, mode }),
+        close: () => session.close(),
+      }
+    },
+    reopenWorkspace: () => openScenarioWorkspace(root, { planHash, reset: false }),
   })
-  try {
-    await runPartialSyncScenario({
-      workspace,
-      plan,
-      planHash,
-      steps: createPartialSyncSteps({ workspace, session, mode }),
-      timingReport: createScenarioTimingReport(workspace.logsDir),
-      now: Date.now,
-    })
-  } finally {
-    await session.close()
-  }
 }, 24 * 60 * 60 * 1000)
