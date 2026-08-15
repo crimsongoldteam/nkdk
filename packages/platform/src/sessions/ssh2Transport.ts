@@ -103,18 +103,50 @@ function isAuthenticationFailure(value: unknown): boolean {
 }
 
 function createShell(client: Ssh2ClientLike, stream: Ssh2ShellStream): SshShell {
+  const maxStartupBufferBytes = 64 * 1024
+  type DataPhase = "buffering" | "draining" | "live"
   let open = true
+  let dataPhase: DataPhase = "buffering"
+  let startupBytes = 0
+  const startupChunks: string[] = []
   const dataListeners = new Set<(chunk: string) => void>()
   const closeListeners = new Set<() => void>()
   const markClosed = () => {
     if (!open) return
     open = false
+    startupChunks.length = 0
+    startupBytes = 0
     for (const listener of closeListeners) listener()
+  }
+  const closeOverflowingShell = () => {
+    markClosed()
+    stream.end()
+    client.destroy()
+  }
+  const drainStartup = () => {
+    if (!open) return
+    while (startupChunks.length > 0) {
+      const chunk = startupChunks.shift()
+      if (chunk === undefined) continue
+      startupBytes -= Buffer.byteLength(chunk, "utf8")
+      for (const listener of dataListeners) listener(chunk)
+    }
+    dataPhase = "live"
   }
   stream
     .on("data", (value) => {
+      if (!open) return
       const chunk = Buffer.isBuffer(value) ? value.toString("utf8") : String(value ?? "")
-      for (const listener of dataListeners) listener(chunk)
+      if (dataPhase === "live") {
+        for (const listener of dataListeners) listener(chunk)
+        return
+      }
+      startupBytes += Buffer.byteLength(chunk, "utf8")
+      if (startupBytes > maxStartupBufferBytes) {
+        closeOverflowingShell()
+        return
+      }
+      startupChunks.push(chunk)
     })
     .on("error", markClosed)
     .on("close", markClosed)
@@ -128,6 +160,10 @@ function createShell(client: Ssh2ClientLike, stream: Ssh2ShellStream): SshShell 
     },
     onData(listener) {
       dataListeners.add(listener)
+      if (open && dataPhase === "buffering") {
+        dataPhase = "draining"
+        queueMicrotask(drainStartup)
+      }
       return () => dataListeners.delete(listener)
     },
     onClose(listener) {
