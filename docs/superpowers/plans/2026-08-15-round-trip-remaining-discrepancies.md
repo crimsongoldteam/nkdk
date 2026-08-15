@@ -573,14 +573,14 @@ pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base 8fba09946
 ```
 
-- [ ] **Step 3: Run architecture checks**
+- [x] **Step 3: Run architecture checks**
 
 ```bash
 pnpm test:architecture:rules
 pnpm test:architecture
 ```
 
-- [ ] **Step 4: Run the complete test suite outside the sandbox**
+- [x] **Step 4: Run the complete test suite outside the sandbox**
 
 ```bash
 pnpm test
@@ -588,11 +588,15 @@ pnpm test
 
 Expected: все пакеты, native-LMDB и интеграционные проверки проходят.
 
-- [ ] **Step 5: Audit the implementation against the spec and plan**
+`pnpm test` выполнен вне песочницы дважды. Во всех запущенных наборах тестовые утверждения прошли, но оба запуска остановлены существующим ограничением времени файла `metadata/forms/clientApplicationForm/toJSONSchema.test.ts`: 1726 мс и 1600 мс. После исправления устаревшего ожидания панели отдельно подтверждены оставшиеся наборы: native-LMDB — 41 тест, rules integration — 2745 тестов, MCP — 189 тестов (2 штатно пропущены). Ограничение времени и проверяемый файл не относятся к изменённому производственному пути.
+
+- [x] **Step 5: Audit the implementation against the spec and plan**
 
 Для каждого раздела спецификации проверить: положительные и отрицательные границы, отсутствие reference-зависимости, отсутствие частных условий в нейтральных слоях, отсутствие несогласованных новых `!xml`.
 
-- [ ] **Step 6: Commit final documentation/status**
+Локальный аудит подтвердил восемь договоров спецификации. Обнаруженное отставание native-теста панели исправлено: проверка теперь требует верхнеуровневое `ОтображениеПанелиРазделов` и запрещает прежнее вложенное `Представление`. Дополнительное исправление пустого `dataParameters` выражено через общие `explicitXMLPropertyTypes` и `xmlParents`; оно не содержит имён конкретных типов, свойств или XML-корней.
+
+- [x] **Step 6: Commit final documentation/status**
 
 ```bash
 git add docs/superpowers/plans/2026-08-15-round-trip-remaining-discrepancies.md docs/superpowers/specs/2026-08-15-round-trip-next-discrepancies-design.md
