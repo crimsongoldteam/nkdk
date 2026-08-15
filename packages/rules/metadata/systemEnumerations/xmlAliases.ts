@@ -1,4 +1,8 @@
 export const systemEnumerationXMLAliases = {
+  CheckBoxType: {
+    toXML: { Switch: "Switcher" },
+    fromXML: { Switcher: "Switch" },
+  },
   RadioButtonType: {
     toXML: { RadioButton: "RadioButtons" },
     fromXML: { RadioButtons: "RadioButton" },

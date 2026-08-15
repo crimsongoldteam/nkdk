@@ -28,6 +28,7 @@
 **Files:**
 - Modify: `packages/rules/metadata/systemEnumerations/xmlAliases.ts`
 - Modify: `packages/rules/metadata/systemEnumerations/roundTrip.integration.test.ts`
+- Modify: `packages/rules/tests/directConversion.ts`
 
 **Interfaces:**
 - Consumes: `applySystemEnumerationXMLAlias(type, direction, value)`.
@@ -73,7 +74,7 @@ it("преобразует XML Switcher в YAML Выключатель и обр
 Run:
 
 ```bash
-pnpm exec vitest run --project core-metadata packages/rules/metadata/systemEnumerations/roundTrip.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration metadata/systemEnumerations/roundTrip.integration.test.ts
 ```
 
 Expected: FAIL — импорт оставляет `Switcher` неизвестным либо обратный экспорт выдаёт `Switch`.
@@ -94,16 +95,16 @@ CheckBoxType: {
 Run:
 
 ```bash
-pnpm exec vitest run --project core-metadata packages/rules/metadata/systemEnumerations/roundTrip.integration.test.ts packages/rules/metadata/forms/elements/__tests__/roundTrip.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration metadata/systemEnumerations/roundTrip.integration.test.ts
 pnpm duplicates -- --base ee7c54e7c
 ```
 
-Expected: PASS; договор отсутствующего `ВидФлажка` → `Auto` и значения `Auto`, `Tumbler`, `CheckBox` остаются зелёными.
+Expected: PASS; существующие проверки `RadioButtonType` остаются зелёными. Полный набор форм проверяется в Task 6.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/rules/metadata/systemEnumerations/xmlAliases.ts packages/rules/metadata/systemEnumerations/roundTrip.integration.test.ts
+git add packages/rules/metadata/systemEnumerations/xmlAliases.ts packages/rules/metadata/systemEnumerations/roundTrip.integration.test.ts packages/rules/tests/directConversion.ts docs/superpowers/plans/2026-08-15-round-trip-next-discrepancies.md
 git commit -m "fix: :bug: восстановить XML-псевдоним Switcher"
 ```
 
@@ -158,7 +159,7 @@ it("сериализует пустой ключ с !xml/reference", () => {
 Run:
 
 ```bash
-pnpm exec vitest run --project unit packages/runtime/yaml/jsYamlParser.test.ts packages/runtime/yaml/export.test.ts
+pnpm --filter @nkdk/runtime exec vitest run --project unit yaml/jsYamlParser.test.ts yaml/export.test.ts
 ```
 
 Expected: FAIL с сообщением, что `!xml/reference` поддерживает только непустой ключ.
@@ -180,7 +181,7 @@ if (key.kind !== "scalar") {
 Run:
 
 ```bash
-pnpm exec vitest run --project unit packages/runtime/yaml/jsYamlParser.test.ts packages/runtime/yaml/export.test.ts
+pnpm --filter @nkdk/runtime exec vitest run --project unit yaml/jsYamlParser.test.ts yaml/export.test.ts
 pnpm --filter @nkdk/runtime type-check
 pnpm duplicates -- --base ee7c54e7c
 ```
@@ -257,7 +258,7 @@ it.each([
 Run:
 
 ```bash
-pnpm exec vitest run --project unit packages/rules/metadata/commonObjects/metadataTargets/brokenDirectReference.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/metadataTargets/brokenDirectReference.test.ts
 ```
 
 Expected: FAIL — общий переносчик прямых ссылок ещё не зарегистрирован.
@@ -345,8 +346,8 @@ return [{
 Run:
 
 ```bash
-pnpm exec vitest run --project unit packages/rules/metadata/commonObjects/metadataTargets/brokenDirectReference.test.ts packages/rules/metadata/commonObjects/metadataTargets/validationHandlers.test.ts
-pnpm exec vitest run --project core-metadata packages/rules/metadata/forms/clientApplicationForm/childFormNamesImportAdapter.integration.test.ts packages/rules/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/metadataTargets/brokenDirectReference.test.ts metadata/commonObjects/metadataTargets/validationHandlers.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration metadata/forms/clientApplicationForm/childFormNamesImportAdapter.integration.test.ts metadata/forms/commonObjects/dynamicList/fromXMLToYAML.integration.test.ts
 pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base ee7c54e7c
 ```
@@ -398,7 +399,7 @@ expect(yamlMappingKeyTagAt(yaml.Роли, "")).toBe("xml/reference")
 Run:
 
 ```bash
-pnpm exec vitest run --project unit packages/rules/metadata/commonObjects/userVisible/brokenReference.test.ts packages/rules/metadata/commonObjects/userVisible/fromXML.test.ts packages/rules/metadata/commonObjects/userVisible/toXML.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/userVisible/brokenReference.test.ts metadata/commonObjects/userVisible/fromXML.test.ts metadata/commonObjects/userVisible/toXML.test.ts
 ```
 
 Expected: FAIL — переносчик и validation graph разрешают только UUID.
@@ -435,7 +436,7 @@ representation: isBrokenUserVisibleRoleName(key)
 Run:
 
 ```bash
-pnpm exec vitest run --project unit packages/rules/metadata/commonObjects/userVisible/brokenReference.test.ts packages/rules/metadata/commonObjects/userVisible/fromXML.test.ts packages/rules/metadata/commonObjects/userVisible/toXML.test.ts packages/rules/metadata/commonObjects/userVisible/metadataTargetOccurrences.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/commonObjects/userVisible/brokenReference.test.ts metadata/commonObjects/userVisible/fromXML.test.ts metadata/commonObjects/userVisible/toXML.test.ts metadata/commonObjects/userVisible/metadataTargetOccurrences.test.ts
 pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base ee7c54e7c
 ```
@@ -490,7 +491,7 @@ it.each([
 Run:
 
 ```bash
-pnpm exec vitest run --project unit packages/rules/metadata/projectState/fileUpdate.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/projectState/fileUpdate.test.ts
 ```
 
 Expected: FAIL только для трёх положительных вариантов с `kind: "Registered"`.
@@ -514,8 +515,8 @@ if (table["kind"] === "Registered") {
 Run:
 
 ```bash
-pnpm exec vitest run --project unit packages/rules/metadata/projectState/fileUpdate.test.ts
-pnpm exec vitest run --project native-lmdb packages/rules/metadata/projectState/importSession.integration.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project unit metadata/projectState/fileUpdate.test.ts
+pnpm --filter @nkdk/rules exec vitest run --project integration metadata/projectState/importSession.integration.test.ts
 pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base ee7c54e7c
 ```

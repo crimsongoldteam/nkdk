@@ -111,6 +111,7 @@ export function testPropertyFromXMLToYAML(params: {
   rule: MetadataItemRule
   xml: Record<string, unknown>
   context?: ConfigurationContextFromXML
+  execution?: PropertyRuleExecution
   name?: string
 }): FromXMLResult {
   const context = params.context ?? mockContextFromXML()
@@ -123,6 +124,7 @@ export function testPropertyFromXMLToYAML(params: {
     yamlPath: [],
     rulePath: [],
     collector,
+    execution: params.execution,
   })
   return { yaml, indexes: collector.finish() }
 }
