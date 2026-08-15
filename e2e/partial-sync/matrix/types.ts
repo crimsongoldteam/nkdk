@@ -54,11 +54,12 @@ export type ScenarioLayer = {
   readonly key: string
   readonly componentPath: ScenarioComponentPath
   readonly probeOperationKey: string
+  readonly bulkBlockSize?: number
   readonly operations: readonly ScenarioOperation[]
 }
 
 export type ScenarioBlock = {
-  readonly key: `${string}:probe` | `${string}:bulk`
+  readonly key: `${string}:probe` | `${string}:bulk` | `${string}:bulk:${number}`
   readonly layerKey: string
   readonly componentPath: ScenarioComponentPath
   readonly operations: readonly ScenarioOperation[]

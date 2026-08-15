@@ -30,7 +30,7 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
     ...(configurationOperations.length === 0 ? [] : [
       layer("configuration:change", "configuration:comment", configurationOperations),
     ]),
-    layer("roots:create", "object:catalog", roots),
+    layer("roots:create", "object:catalog", roots, 12),
     ...(rootProperties.length === 0 ? [] : [
       layer("roots:properties", "change:object:catalog:comment", rootProperties),
     ]),
@@ -57,12 +57,17 @@ export function createInitialScenarioLayers(matrix: MatrixDeclarations): readonl
   ]
 }
 
-function layer(key: string, preferredProbeKey: string, operations: readonly ScenarioOperation[]): ScenarioLayer {
+function layer(
+  key: string,
+  preferredProbeKey: string,
+  operations: readonly ScenarioOperation[],
+  bulkBlockSize?: number,
+): ScenarioLayer {
   const probeOperationKey = operations.some(({ key: operationKey }) => operationKey === preferredProbeKey)
     ? preferredProbeKey
     : operations[0]?.key
   if (probeOperationKey === undefined) throw new Error(`Слой ${key} не содержит операций`)
-  return { key, componentPath: "cf", probeOperationKey, operations }
+  return { key, componentPath: "cf", probeOperationKey, bulkBlockSize, operations }
 }
 
 function reverse(operations: readonly ScenarioOperation[]): readonly ScenarioOperation[] {

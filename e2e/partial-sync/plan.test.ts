@@ -46,6 +46,53 @@ describe("declarative partial sync plan", () => {
     ])
   })
 
+  it("splits the sorted bulk into stable dependency-safe chunks", () => {
+    const source = matrix()
+    const [base] = creationOperations(source)
+    const operation = (key: string, dependsOn: readonly string[] = []): ScenarioOperation => ({
+      ...base,
+      key,
+      changes: [{ path: `${key}.yaml`, before: null, after: key }],
+      dependsOn,
+    })
+    const layered = withLayers(source, [{
+      key: "roots:create",
+      componentPath: "cf",
+      probeOperationKey: "object:probe",
+      bulkBlockSize: 2,
+      operations: [
+        operation("object:first"),
+        operation("object:probe"),
+        operation("object:consumer", ["object:dependency"]),
+        operation("object:dependency"),
+        operation("object:last"),
+      ],
+    }])
+
+    expect(buildScenarioPlan(layered).map((block) => ({
+      key: block.key,
+      operations: block.operations.map(({ key }) => key),
+    }))).toEqual([
+      { key: "roots:create:probe", operations: ["object:probe"] },
+      { key: "roots:create:bulk:1", operations: ["object:first", "object:dependency"] },
+      { key: "roots:create:bulk:2", operations: ["object:consumer", "object:last"] },
+    ])
+  })
+
+  it.each([0, -1, 1.5])("rejects bulkBlockSize %s", (bulkBlockSize) => {
+    const source = matrix()
+    const operations = creationOperations(source)
+    const layered = withLayers(source, [{
+      key: "roots:create",
+      componentPath: "cf",
+      probeOperationKey: "object:catalog",
+      bulkBlockSize,
+      operations,
+    }])
+
+    expect(() => buildScenarioPlan(layered)).toThrow(/roots:create.*bulkBlockSize/u)
+  })
+
   it("rejects a probe whose dependency is only available in the bulk block", () => {
     const source = matrix()
     const operations = creationOperations(source)

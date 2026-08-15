@@ -17,6 +17,7 @@ export function buildScenarioPlan(matrix: ScenarioMatrix): readonly ScenarioBloc
   assertUniqueKeys(layers.flatMap(({ operations }) => operations.map(({ key }) => key)), "operation")
 
   for (const layer of layers) {
+    assertValidBulkBlockSize(layer)
     const operations = stableTopologicalSort(layer.operations, available)
     const probeIndex = operations.findIndex(({ key }) => key === layer.probeOperationKey)
     if (probeIndex < 0) {
@@ -31,10 +32,10 @@ export function buildScenarioPlan(matrix: ScenarioMatrix): readonly ScenarioBloc
     available.add(probe.key)
 
     const bulk = operations.filter((_, index) => index !== probeIndex)
-    if (bulk.length > 0) {
-      assertDependenciesAvailable(bulk, available)
-      blocks.push(block(layer, "bulk", bulk))
-      for (const operation of bulk) available.add(operation.key)
+    for (const bulkBlock of createBulkBlocks(layer, bulk)) {
+      assertDependenciesAvailable(bulkBlock.operations, available)
+      blocks.push(bulkBlock)
+      for (const operation of bulkBlock.operations) available.add(operation.key)
     }
   }
 
@@ -49,7 +50,7 @@ export function scenarioPlanHash(plan: readonly ScenarioBlock[]): string {
 
 function block(
   layer: ScenarioLayer,
-  kind: "probe" | "bulk",
+  kind: "probe" | "bulk" | `bulk:${number}`,
   operations: readonly ScenarioOperation[],
 ): ScenarioBlock {
   return {
@@ -57,6 +58,28 @@ function block(
     layerKey: layer.key,
     componentPath: layer.componentPath,
     operations,
+  }
+}
+
+function createBulkBlocks(
+  layer: ScenarioLayer,
+  operations: readonly ScenarioOperation[],
+): readonly ScenarioBlock[] {
+  if (operations.length === 0) return []
+  if (layer.bulkBlockSize === undefined) return [block(layer, "bulk", operations)]
+
+  const blocks: ScenarioBlock[] = []
+  for (let offset = 0; offset < operations.length; offset += layer.bulkBlockSize) {
+    const index = blocks.length + 1
+    blocks.push(block(layer, `bulk:${index}`, operations.slice(offset, offset + layer.bulkBlockSize)))
+  }
+  return blocks
+}
+
+function assertValidBulkBlockSize(layer: ScenarioLayer): void {
+  if (layer.bulkBlockSize === undefined) return
+  if (!Number.isInteger(layer.bulkBlockSize) || layer.bulkBlockSize <= 0) {
+    throw new Error(`Слой ${layer.key}: bulkBlockSize должен быть положительным целым числом`)
   }
 }
 

@@ -72,10 +72,23 @@ describe("partial sync matrix", () => {
     ])
   })
 
+  it("splits root creation into bounded bulk blocks", () => {
+    const blocks = buildScenarioPlan(partialSyncMatrix)
+      .filter(({ layerKey }) => layerKey === "roots:create")
+
+    expect(blocks.map(({ key, operations }) => [key, operations.length])).toEqual([
+      ["roots:create:probe", 1],
+      ["roots:create:bulk:1", 12],
+      ["roots:create:bulk:2", 12],
+      ["roots:create:bulk:3", 12],
+      ["roots:create:bulk:4", 10],
+    ])
+  })
+
   it("applies root property changes before child creation", () => {
     const blockKeys = buildScenarioPlan(partialSyncMatrix).map(({ key }) => key)
     expect(blockKeys.indexOf("roots:properties:bulk")).toBeGreaterThan(
-      blockKeys.indexOf("roots:create:bulk"),
+      blockKeys.indexOf("roots:create:bulk:4"),
     )
     expect(blockKeys.indexOf("roots:properties:bulk")).toBeLessThan(
       blockKeys.indexOf("children:create:bulk"),
