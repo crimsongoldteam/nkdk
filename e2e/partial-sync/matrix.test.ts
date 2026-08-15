@@ -501,6 +501,11 @@ describe("partial sync matrix", () => {
     expect(operation?.changes[0]?.after).toContain("ПроверочнаяТаблица:\n    Вид: ТаблицаФормы")
   })
 
+  it("changes the form synonym to a value not inferred from its name", () => {
+    const operation = partialSyncMatrix.formLifecycleOperations.find(({ key }) => key === "form-content:change-properties")
+    expect(operation?.changes[0]?.after).toContain("Синоним: Изменённая форма")
+  })
+
   it("covers module and external payload classes", () => {
     expect(externalFileOperations.map(({ payloadKind }) => payloadKind).toSorted())
       .toEqual(["binary", "html", "rights-xml", "ws-or-xdto"])
