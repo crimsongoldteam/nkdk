@@ -8,6 +8,8 @@ import { structuralPropertyOperations } from "./structural-property-operations"
 import { childPropertyOperations } from "./child-property-operations"
 import { orderOperations, orderSetupOperations } from "./order-operations"
 import { templateChangeOperations, templateDeclarations, templateRemovalOperations } from "./templates"
+import { moduleOperations, moduleRestoreOperations, moduleSupplementalOperations } from "./module-operations"
+import { externalFileOperations, externalFileRestoreOperations } from "./external-file-operations"
 
 const declarations = {
   configurationOperations,
@@ -22,6 +24,11 @@ const declarations = {
   templates: templateDeclarations,
   templateChangeOperations,
   templateRemovalOperations,
+  moduleOperations,
+  moduleSupplementalOperations,
+  moduleRestoreOperations,
+  externalFileOperations,
+  externalFileRestoreOperations,
 } as const
 
 export const partialSyncMatrix = {

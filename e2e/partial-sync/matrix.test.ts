@@ -13,6 +13,8 @@ import { configurationOperations } from "./matrix/configuration-operations"
 import { childPropertyOperations } from "./matrix/child-property-operations"
 import { formDeclarations, formLifecycleKinds } from "./matrix/forms"
 import { templateLifecycleKinds } from "./matrix/templates"
+import { externalFileOperations } from "./matrix/external-file-operations"
+import { moduleOperations } from "./matrix/module-operations"
 import { orderOperations } from "./matrix/order-operations"
 import { partialSyncMatrix } from "./matrix"
 import { rootObjectDeclarations } from "./matrix/root-objects"
@@ -490,12 +492,27 @@ describe("partial sync matrix", () => {
     ])
   })
 
+  it("covers module and external payload classes", () => {
+    expect(externalFileOperations.map(({ payloadKind }) => payloadKind).toSorted())
+      .toEqual(["binary", "html", "rights-xml", "ws-or-xdto"])
+    expect(moduleOperations.map(({ moduleKind }) => moduleKind).toSorted())
+      .toEqual(["command", "common", "form", "object"])
+  })
+
   it("forms one continuous and reversible transition for every declared path", () => {
     const initialConfiguration = configurationOperations[0]?.changes[0]?.before
     expect(initialConfiguration).toEqual(expect.any(String))
-    const files = new Map<string, string | Uint8Array>([
+    const initialFiles = new Map<string, string | Uint8Array>([
       ["Конфигурация.yaml", initialConfiguration as string],
     ])
+    const seenPaths = new Set(initialFiles.keys())
+    for (const operation of scenarioOperations()) {
+      for (const change of operation.changes) {
+        if (!seenPaths.has(change.path) && change.before !== null) initialFiles.set(change.path, change.before)
+        seenPaths.add(change.path)
+      }
+    }
+    const files = new Map(initialFiles)
 
     for (const operation of scenarioOperations()) {
       for (const change of operation.changes) {
@@ -506,9 +523,7 @@ describe("partial sync matrix", () => {
       }
     }
 
-    expect(files).toEqual(new Map([
-      ["Конфигурация.yaml", initialConfiguration as string],
-    ]))
+    expect(files).toEqual(initialFiles)
   })
 
   it("returns a real NKDK fixture tree to its initial state after the full plan", async () => {

@@ -234,7 +234,7 @@ git commit -m "test: :white_check_mark: проверить формы и тек�
 **Interfaces:**
 - Produces: слои текстовых, XML- и двоичных файлов и проверку сохранности спутников.
 
-- [ ] **Step 1: Написать проверку классов внешних файлов**
+- [x] **Step 1: Написать проверку классов внешних файлов**
 
 ```ts
 expect(externalFileOperations.map(({ payloadKind }) => payloadKind).toSorted())
@@ -243,24 +243,24 @@ expect(moduleOperations.map(({ moduleKind }) => moduleKind).toSorted())
   .toEqual(["command", "common", "form", "object"])
 ```
 
-- [ ] **Step 2: Запустить matrix test и увидеть падение**
+- [x] **Step 2: Запустить matrix test и увидеть падение**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts`
 
-- [ ] **Step 3: Объявить операции модулей**
+- [x] **Step 3: Объявить операции модулей**
 
 Изменить объектный, общий и модуль формы. Для команды выполнить
 add/change/remove module без удаления команды. Добавить переход свойства
 владельца после создания команд, форм и макетов; итоговый полный импорт должен
 подтвердить, что неизменённые спутники сохранились.
 
-- [ ] **Step 4: Объявить внешние файлы**
+- [x] **Step 4: Объявить внешние файлы**
 
 Использовать существующие bytes из e2e NKDK-фикстур как `before`: `Rights.xml`,
 `Справка/ru.html`, файл общей картинки и `WSDefinition.xml` либо файл пакета
 XDTO. `after` должен быть валидным минимальным изменением того же формата.
 
-- [ ] **Step 5: Запустить тесты и зафиксировать изменение**
+- [x] **Step 5: Запустить тесты и зафиксировать изменение**
 
 Run: `pnpm exec vitest run --config e2e/vitest.config.ts e2e/partial-sync/matrix.test.ts e2e/partial-sync/plan.test.ts`
 
