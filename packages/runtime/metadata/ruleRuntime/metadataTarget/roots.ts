@@ -123,6 +123,7 @@ export const objectPathKindToYAML = {
   Cube: "Куб",
   DimensionTable: "ТаблицаИзмерения",
   Function: "Функция",
+  Recalculation: "Перерасчет",
 } as const satisfies Record<MetadataObjectPathKind, string>
 
 export const objectPathKindFromYAML = Object.fromEntries(

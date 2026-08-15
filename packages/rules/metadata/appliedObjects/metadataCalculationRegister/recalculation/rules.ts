@@ -13,6 +13,7 @@ const childObjects = ["ChildObjects"]
 export const RecalculationRules = {
   itemType: "MetadataCalculationRegisterRecalculation",
   metadataTargetOwner: { kind: "inherit" },
+  externalMetadata: { segment: "Recalculation", placement: "ownedEntry" },
   xmlOrder: [
     "internalInfo",
     "objectBelonging",
