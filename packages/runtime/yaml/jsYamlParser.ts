@@ -1,4 +1,11 @@
-import { YAMLException, load } from "js-yaml"
+import {
+  eventsToAst,
+  load,
+  parseEvents,
+  present,
+  YAMLException,
+  type Node,
+} from "js-yaml"
 import { markDoubleQuotedScalar, type YAMLStyleKey } from "./explicitString"
 import { buildYamlLocationIndex, type YamlLocationIndex } from "./locationIndex"
 import {
@@ -8,6 +15,7 @@ import {
   prepareYAMLScalarTagsForParser,
 } from "./scalarTags"
 import { markYAMLMappingKeyOrder, yamlMappingKeys } from "./mappingTags"
+import { markYAMLMappingKeyTag } from "./mappingKeyTags"
 
 export interface JsYamlSyntaxError {
   message: string
@@ -39,10 +47,13 @@ export function parseWithJsYaml(text: string): JsParsedYaml {
   }
 
   try {
-    const data = load(prepareYAMLScalarTagsForParser(text), { schema: NKDK_YAML_SCHEMA })
+    const prepared = prepareMappingKeyTags(text)
+    const data = load(prepared.loadText, { schema: NKDK_YAML_SCHEMA })
+    const normalized = prepareJsYamlData(data, text, locations)
+    applyParsedMappingKeyTags(normalized, prepared.tags)
     return {
       text,
-      data: prepareJsYamlData(data, text, locations),
+      data: normalized,
       locations,
       syntaxErrors: [],
     }
@@ -66,9 +77,12 @@ export function parseDataWithJsYaml(text: string): JsParsedYamlData {
 
   try {
     const locations = buildYamlLocationIndex(text)
-    const data = load(prepareYAMLScalarTagsForParser(text), { schema: NKDK_YAML_SCHEMA })
+    const prepared = prepareMappingKeyTags(text)
+    const data = load(prepared.loadText, { schema: NKDK_YAML_SCHEMA })
+    const normalized = prepareJsYamlData(data, text, locations)
+    applyParsedMappingKeyTags(normalized, prepared.tags)
     return {
-      data: prepareJsYamlData(data, text, locations),
+      data: normalized,
       syntaxErrors: [],
     }
   } catch (error) {
@@ -77,6 +91,92 @@ export function parseDataWithJsYaml(text: string): JsParsedYamlData {
       syntaxErrors: [toSyntaxError(error, text)],
     }
   }
+}
+
+interface ParsedMappingKeyTag {
+  readonly containerPath: readonly (string | number)[]
+  readonly key: string
+}
+
+function prepareMappingKeyTags(text: string): {
+  readonly loadText: string
+  readonly tags: readonly ParsedMappingKeyTag[]
+} {
+  const source = prepareYAMLScalarTagsForParser(text)
+  const documents = eventsToAst(parseEvents(source, {}), {
+    source,
+    schema: NKDK_YAML_SCHEMA,
+  })
+  const tags: ParsedMappingKeyTag[] = []
+  for (const document of documents) {
+    collectMappingKeyTags(document.contents, [], tags)
+  }
+  if (tags.length === 0) return { loadText: source, tags }
+  return {
+    loadText: present(documents, {
+      schema: NKDK_YAML_SCHEMA,
+      indent: 2,
+      lineWidth: -1,
+    }),
+    tags,
+  }
+}
+
+function collectMappingKeyTags(
+  node: Node | null,
+  path: readonly (string | number)[],
+  tags: ParsedMappingKeyTag[],
+): void {
+  if (node === null || node.kind === "alias") return
+  if (node.kind === "sequence") {
+    node.items.forEach((item, index) => collectMappingKeyTags(item, [...path, index], tags))
+    return
+  }
+  if (node.kind !== "mapping") return
+
+  for (const { key, value } of node.items) {
+    if (key.tag.startsWith("!xml/")) {
+      if (key.tag !== "!xml/reference") {
+        throw new YAMLException(`Тег ${key.tag} недопустим для ключа YAML`)
+      }
+      if (key.kind !== "scalar" || key.value === "") {
+        throw new YAMLException("!xml/reference поддерживает только непустой скалярный ключ")
+      }
+      tags.push({ containerPath: path, key: key.value })
+      key.tag = "tag:yaml.org,2002:str"
+      key.style.tagged = false
+    }
+    if (key.kind !== "scalar") continue
+    collectMappingKeyTags(value, [...path, key.value], tags)
+  }
+}
+
+function applyParsedMappingKeyTags(
+  data: unknown,
+  tags: readonly ParsedMappingKeyTag[],
+): void {
+  for (const { containerPath, key } of tags) {
+    const container = valueAtPath(data, containerPath)
+    if (isRecord(container) && Object.prototype.hasOwnProperty.call(container, key)) {
+      markYAMLMappingKeyTag(container, key, "xml/reference")
+    }
+  }
+}
+
+function valueAtPath(value: unknown, path: readonly (string | number)[]): unknown {
+  let current = value
+  for (const segment of path) {
+    if (Array.isArray(current) && typeof segment === "number") {
+      current = current[segment]
+      continue
+    }
+    if (isRecord(current) && typeof segment === "string") {
+      current = current[segment]
+      continue
+    }
+    return undefined
+  }
+  return current
 }
 
 function prepareJsYamlData(data: unknown, text: string, locations: YamlLocationIndex): unknown {

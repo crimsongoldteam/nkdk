@@ -43,7 +43,7 @@
 - Produces: `moveYAMLMappingKeyTag(parent, currentKey, nextKey): void`.
 - Preserves: JS-ключ остаётся строкой; координаты и порядок читаются из исходного YAML.
 
-- [ ] **Step 1: Добавить падающие тесты разбора ключа**
+- [x] **Step 1: Добавить падающие тесты разбора ключа**
 
 В `jsYamlParser.test.ts` проверить строковый ключ и отдельную отметку:
 
@@ -67,7 +67,7 @@ expect(yamlMappingKeyTagAt(
 В том же `it.each` добавить ошибки для пустого, составного и
 `!xml/value`-ключа. Обычный UUID-ключ без тега должен остаться обычной строкой.
 
-- [ ] **Step 2: Запустить тест разбора и подтвердить падение**
+- [x] **Step 2: Запустить тест разбора и подтвердить падение**
 
 Run:
 
@@ -78,7 +78,7 @@ pnpm --filter @nkdk/runtime exec vitest run yaml/jsYamlParser.test.ts
 Expected: FAIL — текущий scalar-tag создаёт объект и `js-yaml` сообщает
 `object-based map does not support complex keys`.
 
-- [ ] **Step 3: Реализовать служебные отметки ключей**
+- [x] **Step 3: Реализовать служебные отметки ключей**
 
 В `mappingKeyTags.ts` определить:
 
@@ -129,7 +129,7 @@ export function moveYAMLMappingKeyTag(
 }
 ```
 
-- [ ] **Step 4: Читать теги ключей через AST**
+- [x] **Step 4: Читать теги ключей через AST**
 
 В `jsYamlParser.ts` заменить прямой `load` подготовкой на публичных
 `parseEvents` и `eventsToAst`:
@@ -138,7 +138,6 @@ export function moveYAMLMappingKeyTag(
 interface ParsedMappingKeyTag {
   readonly containerPath: readonly (string | number)[]
   readonly key: string
-  readonly tag: YAMLScalarTag
 }
 
 function prepareMappingKeyTags(text: string): {
@@ -148,13 +147,13 @@ function prepareMappingKeyTags(text: string): {
 ```
 
 Рекурсивно обойти `Document.contents`. Для mapping-пары со скалярным ключом
-и `tag === "!xml/reference"` сохранить путь, затем на копии AST заменить тег
+и `tag === "!xml/reference"` сохранить путь, затем в подготовленном AST заменить тег
 ключа на строковый и снять `style.tagged`. Сериализовать копию через
 `present`, загрузить штатной схемой и после `prepareJsYamlData` поставить
 отметки на найденные контейнеры. Иные XML-теги ключей, пустой и составной ключ
 возвращают `YAMLException` с положением исходного узла.
 
-- [ ] **Step 5: Добавить падающий тест сериализации**
+- [x] **Step 5: Добавить падающий тест сериализации**
 
 В `export.test.ts` создать объект, пометить UUID-ключ и проверить точный текст,
 повторный разбор и перенос отметки в `serialized.data`:
@@ -177,7 +176,7 @@ expect(serializeYAMLDocument({ Роли: roles }).text).toBe([
 ].join("\n"))
 ```
 
-- [ ] **Step 6: Сериализовать отметки ключей через `dump.transform`**
+- [x] **Step 6: Сериализовать отметки ключей через `dump.transform`**
 
 В `prepareForDump` копировать отметки и в `dump` передать:
 
@@ -192,7 +191,7 @@ JS-значение. Для отмеченной mapping-пары устанав
 `key.tag = "!xml/reference"` и `key.style.tagged = true`. Не изменять
 послетекстовыми заменами payload ключа.
 
-- [ ] **Step 7: Проверить и зафиксировать слой**
+- [x] **Step 7: Проверить и зафиксировать слой**
 
 Run:
 
