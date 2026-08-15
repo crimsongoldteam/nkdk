@@ -28,19 +28,13 @@ export const exportTypeDescriptionToYAML = (
     return undefined
   }
 
-  const types = typeDescription.type
-
-  if (types.length === 0) {
-    if (typeDescription.typeId === undefined || typeDescription.typeId.length === 0) {
-      return undefined
-    }
-
-    return {
-      ИдентификаторТипа: typeDescription.typeId,
-    }
+  const exportedTypes: unknown[] = typeDescription.type.map(
+    (type) => exportSingleTypeToYAML(context, type, typeDescription),
+  )
+  for (const typeId of typeDescription.typeId ?? []) {
+    exportedTypes.push(taggedYAMLScalar("xml/reference", xmlAnomalyTagValue("xml/reference", typeId)))
   }
-
-  const exportedTypes = types.map((type) => exportSingleTypeToYAML(context, type, typeDescription))
+  if (exportedTypes.length === 0) return undefined
   if (exportedTypes.length === 1) return exportedTypes[0] as TypeDescriptionYAML
 
   const yamlTypes = exportedTypes.map((type) => isTaggedYAMLScalar(type) ? type.value : type)

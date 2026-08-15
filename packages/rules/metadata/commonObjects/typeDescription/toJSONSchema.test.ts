@@ -60,18 +60,26 @@ const findSchemaBranchByPattern = (schema: unknown, pattern: string): SchemaBran
   return undefined
 }
 
+function compileExternalAndInternalSchemas(rule: typeof unrestrictedRule | typeof restrictedRule) {
+  const externalSchema = exportTypeDescriptionToJSONSchema({ context: mockContext, rule, value: undefined })
+  const internalSchema = exportTypeDescriptionToJSONSchema({
+    context: {
+      ...mockContext,
+      exportToJSONSchema: { mode: "inline", refs: new Set(), validationPropertyRefs: true },
+    },
+    rule,
+    value: undefined,
+  })
+  if (externalSchema === undefined || internalSchema === undefined) throw new Error("TypeDescription schema is missing")
+  return {
+    external: compileValidationSchema({}, externalSchema),
+    internal: compileValidationSchema({}, internalSchema),
+  }
+}
+
 describe("exportTypeDescriptionToJSONSchema", () => {
   it("allows the type prefix marker only in the internal schema", () => {
-    const rule = { type: "TypeDescription" } as const
-    const externalSchema = exportTypeDescriptionToJSONSchema({ context: mockContext, rule, value: undefined })
-    const internalSchema = exportTypeDescriptionToJSONSchema({
-      context: { ...mockContext, exportToJSONSchema: { mode: "inline", refs: new Set(), explicitXMLValues: true } },
-      rule,
-      value: undefined,
-    })
-    if (externalSchema === undefined || internalSchema === undefined) throw new Error("TypeDescription schema is missing")
-    const external = compileValidationSchema({}, externalSchema)
-    const internal = compileValidationSchema({}, internalSchema)
+    const { external, internal } = compileExternalAndInternalSchemas(unrestrictedRule)
 
     expect(internal.Check("!xml/type d7p1:Диаграмма")).toBe(true)
     expect(internal.Check("!xml/type d7p1:")).toBe(false)
@@ -79,26 +87,21 @@ describe("exportTypeDescriptionToJSONSchema", () => {
   })
 
   it("allows a prefix marker inside a restricted compound type only in the internal schema", () => {
-    const externalSchema = exportTypeDescriptionToJSONSchema({
-      context: mockContext,
-      rule: restrictedRule,
-      value: undefined,
-    })
-    const internalSchema = exportTypeDescriptionToJSONSchema({
-      context: {
-        ...mockContext,
-        exportToJSONSchema: { mode: "inline", refs: new Set(), validationPropertyRefs: true },
-      },
-      rule: restrictedRule,
-      value: undefined,
-    })
-    if (externalSchema === undefined || internalSchema === undefined) throw new Error("TypeDescription schema is missing")
-    const external = compileValidationSchema({}, externalSchema)
-    const internal = compileValidationSchema({}, internalSchema)
+    const { external, internal } = compileExternalAndInternalSchemas(restrictedRule)
     const value = ["!xml/type d6p1:Справочник.Товары", "Строка"]
 
     expect(internal.Check(value)).toBe(true)
     expect(external.Check(value)).toBe(false)
+  })
+
+  it("allows an exact TypeId marker only in the internal schema", () => {
+    const { external, internal } = compileExternalAndInternalSchemas(restrictedRule)
+    const typeId = "!xml/reference 8c1e3694-da12-44d5-8b1f-d134b89a1282"
+
+    expect(internal.Check(typeId)).toBe(true)
+    expect(internal.Check(["Строка", typeId])).toBe(true)
+    expect(internal.Check("!xml/reference not-a-uuid")).toBe(false)
+    expect(external.Check(typeId)).toBe(false)
   })
 
   it("keeps broad schema when allowedTypes is absent", () => {
@@ -114,8 +117,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     const compiled = compileValidationSchema(schema)
     expect(compiled.Check("Строка")).toBe(true)
     expect(compiled.Check(["Строка", "Число"])).toBe(true)
-    expect(compiled.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(true)
-    expect(compiled.Check({ ИдентификаторТипа: [] })).toBe(false)
+    expect(compiled.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(false)
     expect(compiled.Check({})).toBe(false)
   })
 

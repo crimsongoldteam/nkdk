@@ -760,10 +760,6 @@ export type TypeDescriptionSourceType = {
 export type TypeDescriptionSourceTypes = Partial<Record<TypeDescriptionType, TypeDescriptionSourceType>>
 export const TYPE_DESCRIPTION_SOURCE_TYPES = Symbol("typeDescriptionSourceTypes")
 
-export interface TypeDescriptionTypeIdYAML {
-  ИдентификаторТипа?: string[]
-}
-
 export interface TypeDescription {
   type: TypeDescriptionType[]
   typeId?: string[]
@@ -775,13 +771,7 @@ export interface TypeDescription {
 
 export const TypeDescriptionJSONSchema = Type.Union([
   Type.String(),
-  Type.Array(Type.String()),
-  Type.Object(
-    {
-      ИдентификаторТипа: Type.Array(Type.String(), { minItems: 1 }),
-    },
-    { additionalProperties: false }
-  ),
+  Type.Array(Type.String(), { minItems: 1 }),
 ])
 export type TypeDescriptionYAML = Static<typeof TypeDescriptionJSONSchema>
 

@@ -12,9 +12,14 @@ describe("parseTypeDescriptionYAML", () => {
     "",
     "   ",
     123,
-    { ИдентификаторТипа: "8c1e3694-da12-44d5-8b1f-d134b89a1282" },
-    { ИдентификаторТипа: [123] },
   ])("не создаёт описание из структурно неподходящего значения %#", (value) => {
     expect(parseTypeDescriptionYAML(value)).toBeUndefined()
+  })
+
+  it.each([
+    { ИдентификаторТипа: "8c1e3694-da12-44d5-8b1f-d134b89a1282" },
+    { ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] },
+  ])("отклоняет прежнюю объектную форму TypeId %#", (value) => {
+    expect(() => parseTypeDescriptionYAML(value)).toThrow("объектная форма ИдентификаторТипа не поддерживается")
   })
 })

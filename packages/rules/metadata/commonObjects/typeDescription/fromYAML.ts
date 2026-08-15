@@ -17,18 +17,7 @@ import {
   TypeDescriptionYAML,
 } from "./types"
 
-interface TypeDescriptionYAMLObject {
-  ИдентификаторТипа: unknown
-}
-
-const isTypeDescriptionYAMLObject = (value: unknown): value is TypeDescriptionYAMLObject =>
-  typeof value === "object" && value !== null && !Array.isArray(value) && "ИдентификаторТипа" in value
-
-const getTypeIdsFromYAML = (typeId: unknown): string[] | undefined => {
-  if (!Array.isArray(typeId)) return undefined
-  const typeIds = typeId.filter((item): item is string => typeof item === "string" && item.trim() !== "")
-  return typeIds.length > 0 ? typeIds : undefined
-}
+const UUID_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
 
 const externalDataSourceTablePattern = new RegExp(
   `^ВнешнийИсточникДанных${METADATA_NAME_YAML_PATTERN}\\.Таблица${METADATA_NAME_YAML_PATTERN}$`
@@ -45,33 +34,44 @@ const getExternalDataSourceTypeFromYAML = (type: string): string | undefined => 
   return undefined
 }
 
-export function parseTypeDescriptionYAML(value: unknown): TypeDescription | undefined {
+export function parseTypeDescriptionYAML(
+  value: unknown,
+  scalarOwner?: object,
+  scalarKey?: string | number,
+): TypeDescription | undefined {
   if (value === undefined) return undefined
-
-  if (isTypeDescriptionYAMLObject(value)) {
-    const typeId = getTypeIdsFromYAML(value.ИдентификаторТипа)
-    return typeId === undefined ? undefined : { type: [], typeId }
+  if (typeof value === "object" && value !== null && !Array.isArray(value) && !isTaggedYAMLScalar(value)) {
+    throw new Error("Тип: объектная форма ИдентификаторТипа не поддерживается")
   }
 
-  const sourceValues = Array.isArray(value) ? value : [value]
-  const stringValues = sourceValues.flatMap((item, index) =>
-    typeof item === "string" && item.trim() !== ""
-      ? [{ value: item, tagged: Array.isArray(value) && yamlScalarTagAt(value, index) === "xml/type" }]
-      : []
-  )
-  if (stringValues.length === 0) return undefined
+  const yamlItems = typeDescriptionYAMLItems(value, scalarOwner, scalarKey)
 
   const types: string[] = []
   const result: TypeDescription = { type: types }
+  const typeIds: string[] = []
   const sourceTypes: NonNullable<TypeDescription[typeof TYPE_DESCRIPTION_SOURCE_TYPES]> = {}
 
-  for (const { value: stringValue, tagged } of stringValues) {
-    if (tagged) {
-      const parsed = parseTaggedTypeDescription("Тип", stringValue)
+  for (const { value: rawValue, tag } of yamlItems) {
+    const scalar = isTaggedYAMLScalar(rawValue) ? rawValue.value : rawValue
+    if (tag === "xml/reference") {
+      if (typeof scalar !== "string") throw new Error("Тип: после !xml/reference ожидается UUID")
+      const typeId = xmlAnomalyTagPayload("xml/reference", scalar)
+      if (!UUID_PATTERN.test(typeId)) throw new Error("Тип: после !xml/reference ожидается UUID")
+      typeIds.push(typeId)
+      continue
+    }
+    if (tag !== undefined && tag !== "xml/type") throw new Error(`Тип: недопустим тег !${tag}`)
+    if (typeof scalar !== "string" || scalar.trim() === "") continue
+    if (tag === undefined && UUID_PATTERN.test(scalar)) {
+      throw new Error("Тип: UUID допустим только с тегом !xml/reference")
+    }
+    if (tag === "xml/type") {
+      const parsed = parseTaggedTypeDescription("Тип", scalar)
       types.push(...parsed.type)
       Object.assign(sourceTypes, parsed[TYPE_DESCRIPTION_SOURCE_TYPES])
       continue
     }
+    const stringValue = scalar
     const { formula: type, parameters } = formulaFormatParser(stringValue)
 
     if (type === "Строка" || type === "ФиксированнаяСтрока") {
@@ -130,7 +130,23 @@ export function parseTypeDescriptionYAML(value: unknown): TypeDescription | unde
       enumerable: false,
     })
   }
-  return types.length === 0 ? undefined : result
+  if (typeIds.length > 0) result.typeId = typeIds
+  return types.length === 0 && typeIds.length === 0 ? undefined : result
+}
+
+function typeDescriptionYAMLItems(value: unknown, scalarOwner?: object, scalarKey?: string | number) {
+  if (Array.isArray(value)) {
+    return value.map((item, index) => ({
+      value: item,
+      tag: yamlScalarTagAt(value, index) ?? (isTaggedYAMLScalar(item) ? item.tag : undefined),
+    }))
+  }
+  return [{
+    value,
+    tag: scalarOwner !== undefined && scalarKey !== undefined
+      ? yamlScalarTagAt(scalarOwner, scalarKey) ?? (isTaggedYAMLScalar(value) ? value.tag : undefined)
+      : isTaggedYAMLScalar(value) ? value.tag : undefined,
+  }]
 }
 
 export const importTypeDescriptionFromYAML = (
@@ -138,21 +154,36 @@ export const importTypeDescriptionFromYAML = (
   rule: PropertyRule | undefined,
   value: TypeDescriptionYAML | undefined
 ): TypeDescription | undefined => {
-  if (value === undefined) return undefined
-  if (rule?.type === "TypeDescription" && rule.allowedTypes !== undefined) {
-    assertTypeDescriptionYAMLAllowed({
-      value: semanticTypeDescriptionYAML(value),
-      allowedTypes: rule.allowedTypes,
-    })
-  }
-  return parseTypeDescriptionYAML(value)
+  return importTypeDescriptionYAMLValue(rule, value)
 }
 
-function semanticTypeDescriptionYAML(value: TypeDescriptionYAML): TypeDescriptionYAML {
-  if (!Array.isArray(value)) return value
-  return value.map((item, index) =>
-    yamlScalarTagAt(value, index) === "xml/type" ? semanticTaggedType(item) : item
-  ) as TypeDescriptionYAML
+function importTypeDescriptionYAMLValue(
+  rule: PropertyRule | undefined,
+  value: unknown,
+  scalarOwner?: object,
+  scalarKey?: string | number,
+): TypeDescription | undefined {
+  if (value === undefined) return undefined
+  const parsed = parseTypeDescriptionYAML(value, scalarOwner, scalarKey)
+  if (rule?.type === "TypeDescription" && rule.allowedTypes !== undefined) {
+    const semanticValue = semanticTypeDescriptionYAML(value, scalarOwner, scalarKey)
+    if (semanticValue !== undefined) {
+      assertTypeDescriptionYAMLAllowed({ value: semanticValue, allowedTypes: rule.allowedTypes })
+    }
+  }
+  return parsed
+}
+
+function semanticTypeDescriptionYAML(
+  value: unknown,
+  scalarOwner?: object,
+  scalarKey?: string | number,
+): TypeDescriptionYAML | undefined {
+  const values = typeDescriptionYAMLItems(value, scalarOwner, scalarKey)
+    .filter(({ tag }) => tag !== "xml/reference")
+    .map(({ value: item, tag }) => tag === "xml/type" ? semanticTaggedType(item) : item)
+  if (values.length === 0) return undefined
+  return (values.length === 1 ? values[0] : values) as TypeDescriptionYAML
 }
 
 function semanticTaggedType(value: unknown): unknown {
@@ -217,17 +248,7 @@ const parseTaggedTypeDescription = (propertyName: string, value: unknown): TypeD
 export const importTaggedTypeDescriptionFromYAML: ImportFromYAMLFunctionNew = (params) => {
   const propertyName = params.rule.yaml ?? "Тип"
   if (params.value === undefined) return undefined
-  if (yamlScalarTagAt(params.yaml, propertyName) === "xml/type") {
-    const parsed = parseTaggedTypeDescription(propertyName, params.value)
-    if (params.rule.allowedTypes !== undefined) {
-      const scalar = isTaggedYAMLScalar(params.value) ? params.value.value : params.value
-      if (typeof scalar !== "string") throw new Error(`${propertyName}: недопустимое значение !xml/type для типа`)
-      const payload = xmlAnomalyTagPayload("xml/type", scalar)
-      assertTypeDescriptionYAMLAllowed({ value: payload.slice(payload.indexOf(":") + 1), allowedTypes: params.rule.allowedTypes })
-    }
-    return parsed
-  }
-  return importTypeDescriptionFromYAML(params.context, params.rule, params.value)
+  return importTypeDescriptionYAMLValue(params.rule, params.value, params.yaml, propertyName)
 }
 
 const getStringQualifiers = (parameters: string[], type: string): TypeDescriptionStringQualifiers | undefined => {

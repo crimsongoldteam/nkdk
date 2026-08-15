@@ -323,8 +323,7 @@ describe("exportJSONSchemaForProjectFile", () => {
         text: [
           "Реквизиты:",
           "  Идентификатор:",
-          "    ИдентификаторТипа:",
-          "      - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
+          "    Тип: !xml/reference 8c1e3694-da12-44d5-8b1f-d134b89a1282",
         ].join("\n"),
       })
     ).not.toEqual([])
@@ -411,9 +410,7 @@ describe("exportJSONSchemaForProjectFile", () => {
         text: [
           "Реквизиты:",
           "  Идентификатор:",
-          "    Тип:",
-          "      ИдентификаторТипа:",
-          "        - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
+          "    Тип: !xml/reference 8c1e3694-da12-44d5-8b1f-d134b89a1282",
         ].join("\n"),
       })
     ).not.toEqual([])
