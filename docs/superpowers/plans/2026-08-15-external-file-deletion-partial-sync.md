@@ -4,7 +4,7 @@
 
 **Goal:** Временно исключить небезопасное удаление модуля команды из partial e2e, зафиксировать ограничение и продолжить полную платформенную матрицу.
 
-**Architecture:** Декларативная матрица перестаёт объявлять зависимую пару удаления и повторного добавления модуля команды. Production-планировщик не изменяется; ограничение документирует, почему операция остаётся запрещённой до отдельного исследования.
+**Architecture:** Декларативная матрица перестаёт объявлять удаление модуля команды, а зависимое повторное добавление заменяет обычным восстановлением текста. Production-планировщик не изменяется; ограничение документирует, почему операция остаётся запрещённой до отдельного исследования.
 
 **Tech Stack:** TypeScript 7, Vitest 4, декларативный partial e2e, автономный сервер и агентный режим конфигуратора.
 
@@ -28,7 +28,7 @@
 
 **Interfaces:**
 - Consumes: `moduleOperations`, `moduleSupplementalOperations`, `moduleRestoreOperations`.
-- Produces: матрица из 95 блоков без `module:command:remove` и `module:command:add`.
+- Produces: матрица из 96 блоков без `module:command:remove`, с безопасным `module:command:restore`.
 
 - [ ] **Step 1: Написать падающую проверку состава модульных операций**
 
@@ -36,6 +36,7 @@
 
 ```ts
 expect(moduleSupplementalOperations.map(({ key }) => key)).toEqual([
+  "module:command:restore",
   "module:form:change",
   "module:object:change",
 ])
@@ -58,15 +59,21 @@ pnpm exec vitest run --config e2e/partial-sync/vitest.config.ts e2e/partial-sync
 ```
 
 Expected: тест падает, потому что `moduleSupplementalOperations` ещё содержит
-`module:command:remove` и `module:command:add`.
+`module:command:remove` и `module:command:add` вместо восстановления.
 
 - [ ] **Step 3: Удалить зависимую пару деклараций**
 
-В `moduleSupplementalOperations` удалить:
+В `moduleSupplementalOperations` заменить:
 
 ```ts
 operation("module:command:remove", "command", commandPath, commandChanged, null),
 operation("module:command:add", "command", commandPath, null, commandInitial),
+```
+
+на:
+
+```ts
+operation("module:command:restore", "command", commandPath, commandChanged, commandInitial),
 ```
 
 Константы `commandInitial` и `commandChanged` оставить: они используются
@@ -77,7 +84,7 @@ operation("module:command:add", "command", commandPath, null, commandInitial),
 Добавить в `.agents/restrictions.md` пункт:
 
 ```markdown
-- Отдельное удаление внешнего модуля пока запрещено в partial sync. Загрузка XML владельца без полного набора его файлов удаляет не только целевой модуль, но и другие отсутствующие в ZIP модули и файловые части. До исследования безопасного состава пакета partial e2e не выполняет пару удаления и повторного добавления модуля команды; создание и изменение модулей остаются покрыты.
+- Отдельное удаление внешнего модуля пока запрещено в partial sync. Загрузка XML владельца без полного набора его файлов удаляет не только целевой модуль, но и другие отсутствующие в ZIP модули и файловые части. До исследования безопасного состава пакета partial e2e не удаляет модуль команды, а восстанавливает его текст обычным изменением; создание и изменение модулей остаются покрыты.
 ```
 
 - [ ] **Step 5: Запустить GREEN и проверки слоя**
@@ -138,7 +145,7 @@ Expected: сценарий начинает со следующего блока
 - Verify only: `/Users/nikita/Базы 1С/temp_test/full-current-designer-agent`
 
 **Interfaces:**
-- Consumes: сокращённая матрица из 95 блоков.
+- Consumes: сокращённая матрица из 96 блоков.
 - Produces: полный результат агентного режима и проверки репозитория.
 
 - [ ] **Step 1: Запустить чистый агентный прогон**

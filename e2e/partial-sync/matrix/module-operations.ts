@@ -27,8 +27,7 @@ export const moduleOperations: readonly ModuleOperation[] = [
 ]
 
 export const moduleSupplementalOperations: readonly ScenarioOperation[] = [
-  operation("module:command:remove", "command", commandPath, commandChanged, null),
-  operation("module:command:add", "command", commandPath, null, commandInitial),
+  operation("module:command:restore", "command", commandPath, commandChanged, commandInitial),
   operation("module:form:change", "form", formPath, formInitial, formChanged),
   operation("module:object:change", "object", objectPath, objectInitial, objectChanged),
 ]

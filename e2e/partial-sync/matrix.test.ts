@@ -14,7 +14,11 @@ import { childPropertyOperations } from "./matrix/child-property-operations"
 import { formDeclarations, formLifecycleKinds } from "./matrix/forms"
 import { templateLifecycleKinds } from "./matrix/templates"
 import { externalFileOperations } from "./matrix/external-file-operations"
-import { moduleOperations } from "./matrix/module-operations"
+import {
+  moduleOperations,
+  moduleRestoreOperations,
+  moduleSupplementalOperations,
+} from "./matrix/module-operations"
 import { ownExtensionOperationKinds } from "./matrix/extension/own"
 import { borrowedOperationKinds } from "./matrix/extension/borrowed"
 import { orderOperations } from "./matrix/order-operations"
@@ -522,6 +526,16 @@ describe("partial sync matrix", () => {
       .toEqual(["binary", "html", "rights-xml", "ws-or-xdto"])
     expect(moduleOperations.map(({ moduleKind }) => moduleKind).toSorted())
       .toEqual(["command", "common", "form", "object"])
+    expect(moduleSupplementalOperations.map(({ key }) => key)).toEqual([
+      "module:command:restore",
+      "module:form:change",
+      "module:object:change",
+    ])
+    expect(moduleRestoreOperations.map(({ key }) => key)).toEqual([
+      "module:object:remove",
+      "module:form:remove",
+      "module:common:restore",
+    ])
   })
 
   it("covers own extension objects and both child-removal variants", () => {
