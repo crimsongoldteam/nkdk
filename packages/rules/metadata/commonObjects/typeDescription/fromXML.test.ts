@@ -39,6 +39,17 @@ describe("importTypeDescriptionFromXML", () => {
     expect(exportTypeDescriptionToYAML(mockContextFromXML(), mockRule, result)).toBe("ЛюбаяСсылка")
   })
 
+  it("imports a system enumeration with its canonical v8 prefix", () => {
+    const xmlData = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+      "<Type><v8:Type>v8:FillChecking</v8:Type></Type>"
+    )
+
+    const result = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, xmlData.Type)
+
+    expect(exportTypeDescriptionToYAML(mockContextFromXML(), mockRule, result))
+      .toBe("СистемноеПеречисление.ПроверкаЗаполнения")
+  })
+
   it("should import ConditionalAppearance type from XML", () => {
     const xmlData = importContentFromXML<{ Type?: TypeDescriptionXML }>(
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.3/data/entext">d7p1:ConditionalAppearance</v8:Type>\n</Type>'

@@ -4,6 +4,9 @@ import { buildTypeDescriptionJSONSchema } from "./allowedTypes"
 import { TypeDescriptionJSONSchema } from "./types"
 
 const xmlTypePrefix = Type.String({ pattern: "^!xml/type d[0-9]+p1:[^:]+$" })
+const xmlTypeId = Type.String({
+  pattern: "^!xml/reference [0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+})
 const withoutExplicitXML = (schema: TSchema): TSchema => Type.Intersect([
   schema,
   { not: Type.String({ pattern: "^!xml/(?:[^ ]+)(?: |$)" }) } as TSchema,
@@ -17,7 +20,7 @@ export const exportTypeDescriptionToJSONSchema: ExportToJSONSchemaFn = ({ contex
   if (
     context.exportToJSONSchema?.explicitXMLValues === true ||
     context.exportToJSONSchema?.validationPropertyRefs === true
-  ) return Type.Union([withoutExplicitXML(withExplicitXMLCompoundItems(base)), xmlTypePrefix])
+  ) return Type.Union([withoutExplicitXML(withExplicitXMLCompoundItems(base)), xmlTypePrefix, xmlTypeId])
   return ordinary
 }
 
@@ -32,7 +35,7 @@ function withExplicitXMLCompoundItems(schema: TSchema): TSchema {
     return { ...schema, anyOf: branches.map(withExplicitXMLCompoundItems) }
   }
   if (navigable.type !== "array" || navigable.items === undefined) return schema
-  return { ...schema, items: Type.Union([navigable.items, xmlTypePrefix]) }
+  return { ...schema, items: Type.Union([navigable.items, xmlTypePrefix, xmlTypeId]) }
 }
 
 /**

@@ -93,6 +93,36 @@ describe("exportToYAML", () => {
     expect(yamlScalarTagAt(reparsed.data, "Значение")).toBe(tag)
   })
 
+  it.each([
+    ["xml/language", "!xml/language Products marked for SPMS ", '!xml/language "Products marked for SPMS "'],
+    ["xml/value", "!xml/value    ", '!xml/value "   "'],
+    ["xml/name", "!xml/name 001", '!xml/name "001"'],
+    ["xml/duplicate", "!xml/duplicate @text", '!xml/duplicate "@text"'],
+  ] as const)("сохраняет требующее кавычек содержимое %s", (tag, value, expectedScalar) => {
+    const mapping = { Значение: value }
+    markYAMLScalarTag(mapping, "Значение", tag)
+
+    const serializedMapping = serializeYAMLDocument(mapping)
+    const reparsedMapping = parseMetadataYaml(serializedMapping.text)
+
+    expect(serializedMapping.text).toBe(`Значение: ${expectedScalar}`)
+    expect(serializedMapping.data).toEqual(mapping)
+    expect(reparsedMapping.data).toEqual(mapping)
+    expect(yamlScalarTagAt(reparsedMapping.data, "Значение")).toBe(tag)
+
+    const sequence = { Значения: [value] }
+    markYAMLScalarTag(sequence.Значения, 0, tag)
+
+    const serializedSequence = serializeYAMLDocument(sequence)
+    const reparsedSequence = parseMetadataYaml(serializedSequence.text)
+    const reparsedValues = (reparsedSequence.data as { Значения: string[] }).Значения
+
+    expect(serializedSequence.text).toBe(`Значения:\n  - ${expectedScalar}`)
+    expect(serializedSequence.data).toEqual(sequence)
+    expect(reparsedSequence.data).toEqual(sequence)
+    expect(yamlScalarTagAt(reparsedValues, 0)).toBe(tag)
+  })
+
   it("сохраняет payload классифицированного тега", () => {
     const parsed = parseMetadataYaml("Комментарий: !xml/value Текст")
     const data = parsed.data as { Комментарий: string }
