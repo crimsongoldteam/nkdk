@@ -1,35 +1,26 @@
 import { spawn } from "node:child_process"
 import { realpathSync, unwatchFile, watchFile } from "node:fs"
-import { resolve } from "path"
-import { pathToFileURL } from "url"
-import { McpServer } from "@modelcontextprotocol/server"
-import { StdioServerTransport } from "@modelcontextprotocol/server/stdio"
-import { registerNkdkCapabilities } from "./tools/registerTools"
+import { resolve } from "node:path"
+import { pathToFileURL } from "node:url"
+import { serveStdio, type StdioServerHandle } from "@modelcontextprotocol/server/stdio"
+import { McpCliUsageError, parseMcpCli } from "./cli"
+import { runHttpServer } from "./httpServer"
+import { createNkdkMcpServer } from "./mcpServer"
 import { metadataRuntimeHandle } from "./metadataRuntimeHandle"
 import { closePlatformSessionManager } from "./services/platformSessionHandle"
+import { createShutdownCoordinator, type ShutdownCloser } from "./shutdown"
 import { createMcpWatchHost } from "./watchHost"
 
-declare const __NKDK_MCP_VERSION__: string | undefined
+export { createNkdkMcpServer } from "./mcpServer"
 
-const MCP_SERVER_VERSION =
-  typeof __NKDK_MCP_VERSION__ === "string" && __NKDK_MCP_VERSION__.length > 0 ? __NKDK_MCP_VERSION__ : "0.0.0-dev"
-
-export function createNkdkMcpServer(): McpServer {
-  const server = new McpServer({
-    name: "nkdk-mcp",
-    version: MCP_SERVER_VERSION,
-  })
-  registerNkdkCapabilities(server)
-  return server
+export function runStdioServer(onerror?: (error: Error) => void): StdioServerHandle {
+  return serveStdio(createNkdkMcpServer, { legacy: "reject", onerror })
 }
 
-export async function runStdioServer(): Promise<void> {
-  const server = createNkdkMcpServer()
-  const transport = new StdioServerTransport()
-  await runServerUntilTransportCloses(server, transport)
-}
-
-export function runWatchServer(entrypoint: string): void {
+export function runWatchServer(
+  entrypoint: string,
+  onFatal: (message: string) => void,
+): { close(): Promise<void> } {
   const host = createMcpWatchHost({
     createWorker() {
       const child = spawn(process.execPath, [entrypoint, "--worker"], {
@@ -40,6 +31,9 @@ export function runWatchServer(entrypoint: string): void {
         write(message) {
           child.stdin.write(message)
         },
+        onExit(listener) {
+          child.once("exit", listener)
+        },
         kill() {
           child.kill()
         },
@@ -48,51 +42,99 @@ export function runWatchServer(entrypoint: string): void {
     writeOutput(message) {
       process.stdout.write(`${message}\n`)
     },
+    onFatal,
   })
   host.start()
 
   let input = ""
   process.stdin.setEncoding("utf8")
-  process.stdin.on("data", (chunk: string) => {
+  const onData = (chunk: string) => {
     input += chunk
-    const lines = input.split(/\r?\n/)
+    const lines = input.split(/\r?\n/u)
     input = lines.pop() ?? ""
     for (const line of lines) {
       if (line.length > 0) host.receive(line)
     }
-  })
+  }
 
   const onBuild = (current: { size: number; mtimeMs: number }, previous: { mtimeMs: number }) => {
     if (current.size > 0 && current.mtimeMs !== previous.mtimeMs) host.reload()
   }
+  process.stdin.on("data", onData)
   watchFile(entrypoint, { interval: 500 }, onBuild)
-  process.stdin.once("end", () => unwatchFile(entrypoint, onBuild))
-}
 
-export async function runServerUntilTransportCloses(
-  server: { connect(transport: { onclose?: () => void }): Promise<void> },
-  transport: { onclose?: () => void }
-): Promise<void> {
-  let resolveClosed!: () => void
-  const closed = new Promise<void>((resolve) => {
-    resolveClosed = resolve
-  })
-  transport.onclose = resolveClosed
-  try {
-    await server.connect(transport)
-    await closed
-  } finally {
-    await shutdownNkdkMcpServer()
+  let closing: Promise<void> | undefined
+  return {
+    close() {
+      closing ??= Promise.resolve().then(() => {
+        process.stdin.off("data", onData)
+        unwatchFile(entrypoint, onBuild)
+        host.close()
+      })
+      return closing
+    },
   }
 }
 
-export async function shutdownNkdkMcpServer(): Promise<void> {
-  const results = await Promise.allSettled([
-    metadataRuntimeHandle.close(),
-    closePlatformSessionManager(),
+export async function main(
+  argv: readonly string[] = process.argv.slice(2),
+  entrypoint: string = process.argv[1] ?? "",
+): Promise<void> {
+  let closeTransport: ShutdownCloser = () => undefined
+  const shutdownCoordinator = createShutdownCoordinator([
+    () => closeTransport(),
+    () => metadataRuntimeHandle.close(),
+    async () => {
+      await closePlatformSessionManager()
+    },
   ])
-  const rejected = results.find((result) => result.status === "rejected")
-  if (rejected?.status === "rejected") throw rejected.reason
+  const shutdown = () => shutdownCoordinator.shutdown().catch((error: unknown) => {
+    reportError(error)
+    process.exitCode = 1
+  })
+  const onSignal = () => {
+    void shutdown()
+  }
+  process.once("SIGINT", onSignal)
+  process.once("SIGTERM", onSignal)
+
+  try {
+    const options = parseMcpCli(argv)
+    if (options.mode === "http") {
+      const http = await runHttpServer({ port: options.port, onerror: reportTransportError })
+      closeTransport = http.close
+      process.stderr.write(`${http.address}\n`)
+      return
+    }
+
+    if (options.watch) {
+      const watch = runWatchServer(entrypoint, (message) => {
+        reportTransportError(new Error(message))
+        void shutdown()
+      })
+      closeTransport = watch.close
+      process.stdin.once("end", onSignal)
+      return
+    }
+
+    const stdio = runStdioServer(reportTransportError)
+    closeTransport = stdio.close
+    process.stdin.once("end", onSignal)
+  } catch (error) {
+    reportError(error)
+    process.exitCode = error instanceof McpCliUsageError ? error.exitCode : 1
+    await shutdown()
+  }
+
+  function reportTransportError(error: Error): void {
+    reportError(error)
+    process.exitCode = 1
+  }
+}
+
+function reportError(error: unknown): void {
+  const message = error instanceof Error ? error.message : String(error)
+  process.stderr.write(`${message}\n`)
 }
 
 function isMainEntrypoint(): boolean {
@@ -110,27 +152,5 @@ function isMainEntrypoint(): boolean {
 }
 
 if (isMainEntrypoint()) {
-  installShutdownHooks()
-  if (process.argv.includes("--watch")) {
-    runWatchServer(process.argv[1]!)
-  } else {
-    runStdioServer().catch((err: unknown) => {
-      const message = err instanceof Error ? err.message : String(err)
-      process.stderr.write(`${message}\n`)
-      process.exitCode = 1
-    })
-  }
-}
-
-function installShutdownHooks(): void {
-  const shutdown = async () => {
-    try {
-      await shutdownNkdkMcpServer()
-    } finally {
-      process.exit()
-    }
-  }
-
-  process.once("SIGINT", shutdown)
-  process.once("SIGTERM", shutdown)
+  void main()
 }

@@ -3,75 +3,115 @@ import type { EventEmitter } from "node:events"
 export interface McpWatchWorker {
   readonly stdout: Pick<EventEmitter, "on">
   write(message: string): void
+  onExit(listener: () => void): void
   kill(): void
 }
 
 interface McpWatchHostOptions {
   readonly createWorker: () => McpWatchWorker
   readonly writeOutput: (message: string) => void
+  readonly onFatal: (message: string) => void
 }
 
 export interface McpWatchHost {
   start(): void
   receive(message: string): void
   reload(): void
+  close(): void
+}
+
+type WorkerState = {
+  readonly worker: McpWatchWorker
+  readonly generation: number
+  buffer: string
 }
 
 export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
-  let worker: McpWatchWorker | undefined
-  let initialization: Record<string, unknown> | undefined
-  let initializedNotification: string | undefined
+  let active: WorkerState | undefined
+  let successfulDiscover: Record<string, unknown> | undefined
+  let pendingDiscover: Record<string, unknown> | undefined
   let ready = false
+  let failed = false
+  let closed = false
   let generation = 0
   const queued: string[] = []
 
   return {
     start() {
-      if (worker !== undefined) return
+      if (active !== undefined || failed || closed) return
       startWorker()
     },
     receive(message) {
+      if (failed || closed) return
       const parsed = parseMessage(message)
-      if (isInitializeRequest(parsed)) initialization = parsed
-      if (isInitializedNotification(parsed)) initializedNotification = message
-      if (worker === undefined) startWorker()
-      if (!ready && !isInitializeRequest(parsed)) {
+      if (isDiscoverRequest(parsed)) pendingDiscover = parsed
+      if (active === undefined) startWorker()
+      if (!ready) {
         queued.push(message)
         return
       }
       send(message)
     },
     reload() {
-      worker?.kill()
-      worker = undefined
+      if (failed || closed) return
+      const previous = active
+      active = undefined
       ready = false
+      previous?.worker.kill()
       startWorker()
+    },
+    close() {
+      if (closed) return
+      closed = true
+      const current = active
+      active = undefined
+      ready = false
+      queued.length = 0
+      current?.worker.kill()
     },
   }
 
   function startWorker(): void {
     generation += 1
-    worker = options.createWorker()
-    worker.stdout.on("data", onWorkerOutput)
-    if (initialization === undefined) {
+    const state: WorkerState = {
+      worker: options.createWorker(),
+      generation,
+      buffer: "",
+    }
+    active = state
+    state.worker.stdout.on("data", (chunk) => onWorkerOutput(state, chunk))
+    state.worker.onExit(() => {
+      if (active === state) fail("MCP worker завершился во время watch-подключения")
+    })
+    if (successfulDiscover === undefined) {
       ready = true
       drainQueue()
       return
     }
-    ready = false
-    const request = { ...initialization, id: `nkdk-watch-initialize-${generation}` }
+    const request = { ...successfulDiscover, id: internalDiscoverId(state.generation) }
     send(JSON.stringify(request))
   }
 
-  function onWorkerOutput(chunk: unknown): void {
-    for (const line of String(chunk).split(/\r?\n/)) {
+  function onWorkerOutput(state: WorkerState, chunk: unknown): void {
+    if (active !== state || failed) return
+    state.buffer += String(chunk)
+    const lines = state.buffer.split(/\r?\n/u)
+    state.buffer = lines.pop() ?? ""
+    for (const line of lines) {
       if (line.length === 0) continue
       const parsed = parseMessage(line)
-      if (parsed?.id === `nkdk-watch-initialize-${generation}`) {
+      if (parsed?.id === internalDiscoverId(state.generation)) {
+        if ("error" in parsed) {
+          fail("Не удалось восстановить server/discover после обновления")
+          return
+        }
         ready = true
-        if (initializedNotification !== undefined) send(initializedNotification)
         drainQueue()
         continue
+      }
+      if (pendingDiscover !== undefined && parsed !== undefined && parsed.id === pendingDiscover.id) {
+        if (!("error" in parsed) && "result" in parsed) successfulDiscover = pendingDiscover
+        pendingDiscover = undefined
       }
       options.writeOutput(line)
     }
@@ -82,8 +122,23 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
   }
 
   function send(message: string): void {
-    worker?.write(`${message}\n`)
+    active?.worker.write(`${message}\n`)
   }
+
+  function fail(message: string): void {
+    if (failed) return
+    failed = true
+    const current = active
+    active = undefined
+    ready = false
+    queued.length = 0
+    current?.worker.kill()
+    options.onFatal(message)
+  }
+}
+
+function internalDiscoverId(generation: number): string {
+  return `nkdk-watch-discover-${generation}`
 }
 
 function parseMessage(message: string): Record<string, unknown> | undefined {
@@ -97,10 +152,6 @@ function parseMessage(message: string): Record<string, unknown> | undefined {
   }
 }
 
-function isInitializeRequest(message: Record<string, unknown> | undefined): boolean {
-  return message?.method === "initialize" && "id" in message
-}
-
-function isInitializedNotification(message: Record<string, unknown> | undefined): boolean {
-  return message?.method === "notifications/initialized"
+function isDiscoverRequest(message: Record<string, unknown> | undefined): boolean {
+  return message?.method === "server/discover" && "id" in message
 }
