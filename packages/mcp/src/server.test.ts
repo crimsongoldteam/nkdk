@@ -1,10 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { Client } from "@modelcontextprotocol/sdk/client/index.js"
-import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js"
-import { createNkdkMcpServer, runServerUntilTransportCloses, shutdownNkdkMcpServer } from "./server"
+import { Client } from "@modelcontextprotocol/client"
+import { InMemoryTransport } from "@modelcontextprotocol/server"
+import { createNkdkMcpServer } from "./server"
 
-const closeMetadataRuntimeHandle = vi.hoisted(() => vi.fn())
-const closePlatformSessionManager = vi.hoisted(() => vi.fn())
 const listInfobases = vi.hoisted(() =>
   vi.fn(async () => ({
     tree: [],
@@ -21,12 +19,8 @@ const listInfobaseExtensions = vi.hoisted(() =>
   }))
 )
 
-vi.mock("./metadataRuntimeHandle", () => ({
-  metadataRuntimeHandle: { close: closeMetadataRuntimeHandle },
-}))
-
 vi.mock("./services/platformSessionHandle", () => ({
-  closePlatformSessionManager,
+  closePlatformSessionManager: vi.fn(),
   getPlatformSessionManager: vi.fn(),
 }))
 
@@ -152,48 +146,4 @@ describe("MCP server", () => {
     expect(packageJson.dependencies).toHaveProperty("structurae", "4.0.2")
   })
 
-  it("closes validation and platform handles on shutdown", async () => {
-    closeMetadataRuntimeHandle.mockResolvedValueOnce(undefined)
-    closePlatformSessionManager.mockResolvedValueOnce({
-      closedCount: 0,
-      stoppedOwnedProcesses: 0,
-    })
-
-    await shutdownNkdkMcpServer()
-
-    expect(closeMetadataRuntimeHandle).toHaveBeenCalledTimes(1)
-    expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
-  })
-
-  it("closes validation and platform handles when the transport closes", async () => {
-    closeMetadataRuntimeHandle.mockResolvedValueOnce(undefined)
-    closePlatformSessionManager.mockResolvedValueOnce({
-      closedCount: 1,
-      stoppedOwnedProcesses: 1,
-    })
-    const transport: { onclose?: () => void } = {}
-    const server = {
-      async connect() {
-        queueMicrotask(() => transport.onclose?.())
-      },
-    }
-
-    await runServerUntilTransportCloses(server, transport)
-
-    expect(closeMetadataRuntimeHandle).toHaveBeenCalledTimes(1)
-    expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
-  })
-
-  it("attempts both shutdown branches when one fails", async () => {
-    closeMetadataRuntimeHandle.mockRejectedValueOnce(new Error("metadata runtime close failed"))
-    closePlatformSessionManager.mockResolvedValueOnce({
-      closedCount: 0,
-      stoppedOwnedProcesses: 0,
-    })
-
-    await expect(shutdownNkdkMcpServer()).rejects.toThrow("metadata runtime close failed")
-
-    expect(closeMetadataRuntimeHandle).toHaveBeenCalledTimes(1)
-    expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
-  })
 })

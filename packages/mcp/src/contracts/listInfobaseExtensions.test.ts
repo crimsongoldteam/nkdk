@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest"
+import { Value } from "typebox/value"
 import {
   listInfobaseExtensionsInputSchema,
   listInfobaseExtensionsInputShape,
   listInfobaseExtensionsOutputShape,
   listInfobaseExtensionsSuccessSchema,
 } from "./listInfobaseExtensions"
+import { parseTypeBox } from "./mcpSchema"
 
 const extension = {
   name: "Patch",
@@ -23,18 +25,18 @@ describe("list_infobase_extensions contract", () => {
   const inputSchema = listInfobaseExtensionsInputSchema
 
   it("accepts only a non-empty project directory", () => {
-    expect(inputSchema.parse({ projectDir: "/project" })).toEqual({
+    expect(parseTypeBox(inputSchema, { projectDir: "/project" })).toEqual({
       projectDir: "/project",
     })
-    expect(() => inputSchema.parse({ projectDir: "" })).toThrow()
+    expect(() => parseTypeBox(inputSchema, { projectDir: "" })).toThrow()
     expect(() =>
-      inputSchema.parse({ projectDir: "/project", user: "Admin" })
+      parseTypeBox(inputSchema, { projectDir: "/project", user: "Admin" })
     ).toThrow()
   })
 
   it("accepts full and empty successful results", () => {
     expect(
-      listInfobaseExtensionsOutputShape.parse({
+      parseTypeBox(listInfobaseExtensionsOutputShape, {
         ok: true,
         extensions: [extension],
         mode: "standalone-server",
@@ -42,7 +44,7 @@ describe("list_infobase_extensions contract", () => {
       })
     ).toMatchObject({ ok: true, extensions: [extension] })
     expect(
-      listInfobaseExtensionsOutputShape.parse({
+      parseTypeBox(listInfobaseExtensionsOutputShape, {
         ok: true,
         extensions: [],
         mode: "designer-agent",
@@ -53,7 +55,7 @@ describe("list_infobase_extensions contract", () => {
 
   it("rejects unknown extension properties", () => {
     expect(() =>
-      listInfobaseExtensionsOutputShape.parse({
+      parseTypeBox(listInfobaseExtensionsOutputShape, {
         ok: true,
         extensions: [{ ...extension, secretRawField: "raw" }],
         mode: "designer-agent",
@@ -64,7 +66,7 @@ describe("list_infobase_extensions contract", () => {
 
   it("publishes the strict successful output schema", () => {
     expect(
-      listInfobaseExtensionsSuccessSchema.parse({
+      parseTypeBox(listInfobaseExtensionsSuccessSchema, {
         ok: true,
         extensions: [],
         mode: "designer-agent",
@@ -72,7 +74,7 @@ describe("list_infobase_extensions contract", () => {
       })
     ).toMatchObject({ ok: true, extensions: [] })
     expect(() =>
-      listInfobaseExtensionsSuccessSchema.parse({
+      parseTypeBox(listInfobaseExtensionsSuccessSchema, {
         ok: true,
         extensions: [],
         mode: "designer-agent",
@@ -80,5 +82,15 @@ describe("list_infobase_extensions contract", () => {
         raw: "unexpected",
       })
     ).toThrow()
+  })
+
+  it("отклоняет лишние свойства без преобразования данных", () => {
+    expect(Value.Check(listInfobaseExtensionsSuccessSchema, {
+      ok: true,
+      extensions: [],
+      mode: "designer-agent",
+      reusedConnection: false,
+      raw: "unexpected",
+    })).toBe(false)
   })
 })

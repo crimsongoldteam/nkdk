@@ -1,35 +1,36 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
+import type { McpServer } from "@modelcontextprotocol/server"
 import { jsonToolResult } from "../contracts/common"
-import { describeProjectStructureInputShape } from "../contracts/describeProjectStructure"
-import { getSchemaInputShape } from "../contracts/getSchema"
-import { importFromXmlInputShape, importFromXmlSuccessOutputShape } from "../contracts/importFromXml"
+import { describeProjectStructureInputShape, describeProjectStructureOutputShape } from "../contracts/describeProjectStructure"
+import { getSchemaInputShape, getSchemaOutputShape } from "../contracts/getSchema"
+import { importFromXmlInputShape, importFromXmlOutputShape } from "../contracts/importFromXml"
 import {
   importFromInfobaseInputShape,
   importFromInfobaseOutputShape,
-  importFromInfobasePublishedOutputSchema,
   type ImportFromInfobaseOutput,
 } from "../contracts/importFromInfobase"
 import {
   syncToInfobaseInputSchema,
   syncToInfobaseOutputShape,
-  syncToInfobasePublishedOutputSchema,
   type SyncToInfobaseOutput,
 } from "../contracts/syncToInfobase"
-import { initSyncStateInputShape } from "../contracts/initSyncState"
-import { listInfobasesInputShape } from "../contracts/listInfobases"
+import { initSyncStateInputShape, initSyncStateOutputShape } from "../contracts/initSyncState"
+import { listInfobasesInputShape, listInfobasesOutputShape } from "../contracts/listInfobases"
 import {
   listInfobaseExtensionsInputSchema,
-  listInfobaseExtensionsSuccessSchema,
+  listInfobaseExtensionsOutputShape,
 } from "../contracts/listInfobaseExtensions"
 import { findReferencesInputShape, metadataOperationOutputSchema, renameItemInputShape } from "../contracts/operations"
-import { syncToXmlInputShape, syncToXmlSuccessOutputShape } from "../contracts/syncToXml"
-import { validateProjectInputShape, validateProjectSuccessOutputShape } from "../contracts/validateProject"
-import { projectCacheInputSchema, rebuildProjectCacheOutputSchema } from "../contracts/projectCache"
+import { syncToXmlInputShape, syncToXmlOutputShape } from "../contracts/syncToXml"
+import { validateProjectInputShape, validateProjectOutputShape } from "../contracts/validateProject"
+import { projectCacheInputSchema, rebuildProjectCacheOutputSchema, resetProjectCacheOutputSchema } from "../contracts/projectCache"
 import type { ToolPayload } from "../contracts/common"
 import {
   closeAllPlatformConnectionsInputShape,
+  closeAllPlatformConnectionsOutputShape,
   closePlatformConnectionInputShape,
+  closePlatformConnectionOutputShape,
 } from "../contracts/platformConnections"
+import { toMcpSchema } from "../contracts/mcpSchema"
 import { guideDefinitions } from "../guides"
 import { promptDefinitions } from "../prompts"
 import { registerProjectSettingsSchemaResource } from "../resources/projectSettingsSchema"
@@ -53,6 +54,39 @@ import {
 
 type RegisterableServer = Pick<McpServer, "registerTool" | "registerResource" | "registerPrompt">
 
+const mcpSchemas = {
+  getSchemaInput: toMcpSchema(getSchemaInputShape),
+  getSchemaOutput: toMcpSchema(getSchemaOutputShape),
+  describeProjectStructureInput: toMcpSchema(describeProjectStructureInputShape),
+  describeProjectStructureOutput: toMcpSchema(describeProjectStructureOutputShape),
+  listInfobasesInput: toMcpSchema(listInfobasesInputShape),
+  listInfobasesOutput: toMcpSchema(listInfobasesOutputShape),
+  listInfobaseExtensionsInput: toMcpSchema(listInfobaseExtensionsInputSchema),
+  listInfobaseExtensionsOutput: toMcpSchema(listInfobaseExtensionsOutputShape),
+  validateProjectInput: toMcpSchema(validateProjectInputShape),
+  validateProjectOutput: toMcpSchema(validateProjectOutputShape),
+  projectCacheInput: toMcpSchema(projectCacheInputSchema),
+  resetProjectCacheOutput: toMcpSchema(resetProjectCacheOutputSchema),
+  rebuildProjectCacheOutput: toMcpSchema(rebuildProjectCacheOutputSchema),
+  importFromXmlInput: toMcpSchema(importFromXmlInputShape),
+  importFromXmlOutput: toMcpSchema(importFromXmlOutputShape),
+  importFromInfobaseInput: toMcpSchema(importFromInfobaseInputShape),
+  importFromInfobaseOutput: toMcpSchema(importFromInfobaseOutputShape),
+  syncToInfobaseInput: toMcpSchema(syncToInfobaseInputSchema),
+  syncToInfobaseOutput: toMcpSchema(syncToInfobaseOutputShape),
+  closePlatformConnectionInput: toMcpSchema(closePlatformConnectionInputShape),
+  closePlatformConnectionOutput: toMcpSchema(closePlatformConnectionOutputShape),
+  closeAllPlatformConnectionsInput: toMcpSchema(closeAllPlatformConnectionsInputShape),
+  closeAllPlatformConnectionsOutput: toMcpSchema(closeAllPlatformConnectionsOutputShape),
+  syncToXmlInput: toMcpSchema(syncToXmlInputShape),
+  syncToXmlOutput: toMcpSchema(syncToXmlOutputShape),
+  initSyncStateInput: toMcpSchema(initSyncStateInputShape),
+  initSyncStateOutput: toMcpSchema(initSyncStateOutputShape),
+  renameItemInput: toMcpSchema(renameItemInputShape),
+  metadataOperationOutput: toMcpSchema(metadataOperationOutputSchema),
+  findReferencesInput: toMcpSchema(findReferencesInputShape),
+} as const
+
 export function registerNkdkCapabilities(server: RegisterableServer): void {
   registerProjectSettingsSchemaResource(server)
 
@@ -62,7 +96,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Get NKDK YAML schema",
       description:
         "Возвращает JSON Schema или краткую JSON-сводку: по metadataRef или по structurePath внутри компонента NKDK-проекта. projectDir - корень проекта, componentPath по умолчанию cf.",
-      inputSchema: getSchemaInputShape,
+      inputSchema: mcpSchemas.getSchemaInput,
+      outputSchema: mcpSchemas.getSchemaOutput,
     },
     async (input) => jsonToolResult(await getSchema(input))
   )
@@ -73,7 +108,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Describe NKDK project structure",
       description:
         "Возвращает допустимые файлы и подкаталоги для structurePath внутри компонента NKDK-проекта. projectDir - корень проекта, componentPath по умолчанию cf.",
-      inputSchema: describeProjectStructureInputShape,
+      inputSchema: mcpSchemas.describeProjectStructureInput,
+      outputSchema: mcpSchemas.describeProjectStructureOutput,
     },
     async (input) => jsonToolResult(await describeProjectStructure(input))
   )
@@ -84,7 +120,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "List 1C infobases",
       description:
         "Возвращает дерево баз из личного и общих списков 1С вместе с источниками и предупреждениями. Не изменяет файлы.",
-      inputSchema: listInfobasesInputShape,
+      inputSchema: mcpSchemas.listInfobasesInput,
+      outputSchema: mcpSchemas.listInfobasesOutput,
     },
     async () => jsonToolResult(await listInfobasesService())
   )
@@ -95,8 +132,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "List 1C infobase extensions",
       description:
         "Возвращает свойства расширений информационной базы по настройкам .nkdk/project.yaml. Поддерживает соединение через агент 1С и offline-режим ibcmd. Не изменяет базу и файлы проекта.",
-      inputSchema: listInfobaseExtensionsInputSchema,
-      outputSchema: listInfobaseExtensionsSuccessSchema,
+      inputSchema: mcpSchemas.listInfobaseExtensionsInput,
+      outputSchema: mcpSchemas.listInfobaseExtensionsOutput,
     },
     createListInfobaseExtensionsHandler()
   )
@@ -106,8 +143,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Validate NKDK YAML project",
       description: "Проверяет все компоненты в корне NKDK-проекта и возвращает diagnostics в JSON.",
-      inputSchema: validateProjectInputShape,
-      outputSchema: validateProjectSuccessOutputShape,
+      inputSchema: mcpSchemas.validateProjectInput,
+      outputSchema: mcpSchemas.validateProjectOutput,
     },
     async (input) => metadataToolResult(await validateYamlProject(input), "Validation")
   )
@@ -118,7 +155,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Reset NKDK project cache",
       description:
         "Закрывает состояние проекта и удаляет только .nkdk/cache/project-state.bin. Не запускает validation и не изменяет configuration-index. Требует allowWrite=true.",
-      inputSchema: projectCacheInputSchema,
+      inputSchema: mcpSchemas.projectCacheInput,
+      outputSchema: mcpSchemas.resetProjectCacheOutput,
     },
     async (input) => jsonToolResult(await resetProjectCache(input))
   )
@@ -129,8 +167,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Rebuild NKDK project cache",
       description:
         "Строит отдельное полное состояние проекта, выполняет validation и атомарно заменяет cache даже при обычных diagnostics. Возвращает diagnostics и статистику. Требует allowWrite=true.",
-      inputSchema: projectCacheInputSchema,
-      outputSchema: rebuildProjectCacheOutputSchema,
+      inputSchema: mcpSchemas.projectCacheInput,
+      outputSchema: mcpSchemas.rebuildProjectCacheOutput,
     },
     async (input) => metadataToolResult(await rebuildProjectCache(input), "Перестроение состояния проекта")
   )
@@ -141,8 +179,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Import 1C XML to NKDK YAML",
       description:
         "Импортирует готовую XML-выгрузку одного компонента из xmlDir в projectDir. Для расширения путь определяется из Configuration.xml, componentPath передавать не требуется; при передаче он служит ограничением, цель должна отсутствовать или быть пустой. Операция не подключается к 1С и не импортирует все компоненты за один вызов. Пишет файлы только при allowWrite=true.",
-      inputSchema: importFromXmlInputShape,
-      outputSchema: importFromXmlSuccessOutputShape,
+      inputSchema: mcpSchemas.importFromXmlInput,
+      outputSchema: mcpSchemas.importFromXmlOutput,
     },
     async (input) => metadataToolResult(await importFromXml(input), "Импорт")
   )
@@ -153,8 +191,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Import 1C infobase to NKDK YAML",
       description:
         "Импортирует один компонент информационной базы: по умолчанию cf, расширение выбирается через cfe/<Имя>; цель должна отсутствовать или быть пустой. Перед расширением cf импортируется первым. Перед операцией нужно создать .nkdk/project.yaml по опубликованной схеме, вручную внести нужные пароли, а затем повторить импорт. Запускает 1С и пишет файлы только при allowWrite=true.",
-      inputSchema: importFromInfobaseInputShape,
-      outputSchema: importFromInfobasePublishedOutputSchema,
+      inputSchema: mcpSchemas.importFromInfobaseInput,
+      outputSchema: mcpSchemas.importFromInfobaseOutput,
     },
     createImportFromInfobaseHandler()
   )
@@ -165,8 +203,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Partially sync NKDK YAML to 1C infobase",
       description:
         "Частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы через агентный или автономный режим и обновляет конфигурацию базы данных. Запускает платформу и изменяет конфигурацию только при allowWrite=true.",
-      inputSchema: syncToInfobaseInputSchema,
-      outputSchema: syncToInfobasePublishedOutputSchema,
+      inputSchema: mcpSchemas.syncToInfobaseInput,
+      outputSchema: mcpSchemas.syncToInfobaseOutput,
     },
     createSyncToInfobaseHandler()
   )
@@ -177,7 +215,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Close project platform connection",
       description:
         "Закрывает сохранённое соединение проекта с платформой; завершает только процесс 1С, запущенный текущим MCP-процессом.",
-      inputSchema: closePlatformConnectionInputShape,
+      inputSchema: mcpSchemas.closePlatformConnectionInput,
+      outputSchema: mcpSchemas.closePlatformConnectionOutput,
     },
     async (input) => jsonToolResult(await closePlatformConnection(input))
   )
@@ -188,7 +227,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Close all platform connections",
       description:
         "Закрывает все сохранённые соединения с платформой; завершает только процессы 1С, запущенные текущим MCP-процессом.",
-      inputSchema: closeAllPlatformConnectionsInputShape,
+      inputSchema: mcpSchemas.closeAllPlatformConnectionsInput,
+      outputSchema: mcpSchemas.closeAllPlatformConnectionsOutput,
     },
     async () => jsonToolResult(await closeAllPlatformConnections())
   )
@@ -199,8 +239,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Sync NKDK YAML to 1C XML",
       description:
         "Выгружает один YAML-компонент projectDir/componentPath в заданный xmlDir через файл индекса конфигурации. componentPath по умолчанию cf; xmlDir не вычисляется как xmlRootDir/componentPath. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics. Файлы пишутся только при allowWrite=true.",
-      inputSchema: syncToXmlInputShape,
-      outputSchema: syncToXmlSuccessOutputShape,
+      inputSchema: mcpSchemas.syncToXmlInput,
+      outputSchema: mcpSchemas.syncToXmlOutput,
     },
     async (input) => metadataToolResult(await syncToXml(input), "Синхронизация")
   )
@@ -211,7 +251,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Initialize NKDK XML sync state",
       description:
         "Создаёт .nkdk-sync.yaml для выбранного YAML-компонента projectDir/componentPath. componentPath по умолчанию cf. Пишет файл только при allowWrite=true.",
-      inputSchema: initSyncStateInputShape,
+      inputSchema: mcpSchemas.initSyncStateInput,
+      outputSchema: mcpSchemas.initSyncStateOutput,
     },
     async (input) => jsonToolResult(await initSyncState(input))
   )
@@ -222,8 +263,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Rename NKDK metadata item",
       description:
         "Единственный MCP-способ сохранить XML/reference identity при переименовании metadataRef в выбранном компоненте projectDir/componentPath. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics.",
-      inputSchema: renameItemInputShape,
-      outputSchema: metadataOperationOutputSchema,
+      inputSchema: mcpSchemas.renameItemInput,
+      outputSchema: mcpSchemas.metadataOperationOutput,
     },
     async (input) => metadataToolResult(await renameItem(input), "Переименование")
   )
@@ -234,8 +275,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Find NKDK metadata references",
       description:
         "Ищет внешние ссылки на metadataRef в выбранном компоненте projectDir/componentPath. componentPath по умолчанию cf. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics. Файлы не изменяет.",
-      inputSchema: findReferencesInputShape,
-      outputSchema: metadataOperationOutputSchema,
+      inputSchema: mcpSchemas.findReferencesInput,
+      outputSchema: mcpSchemas.metadataOperationOutput,
     },
     async (input) => metadataToolResult(await findReferences(input), "Поиск ссылок")
   )
@@ -340,9 +381,9 @@ export function createImportFromInfobaseHandler(
 ) {
   return async (
     input: Parameters<typeof importFromInfobase>[0],
-    extra: { signal: AbortSignal }
+    context: { mcpReq: { signal: AbortSignal } }
   ) => importFromInfobaseToolResult(
-    await service(input, undefined, extra.signal) as ImportFromInfobaseOutput
+    await service(input, undefined, context.mcpReq.signal) as ImportFromInfobaseOutput
   )
 }
 
@@ -355,9 +396,9 @@ export function createSyncToInfobaseHandler(
 ) {
   return async (
     input: Parameters<typeof syncToInfobase>[0],
-    extra: { signal: AbortSignal }
+    context: { mcpReq: { signal: AbortSignal } }
   ) => syncToInfobaseToolResult(
-    await service(input, undefined, extra.signal) as SyncToInfobaseOutput
+    await service(input, undefined, context.mcpReq.signal) as SyncToInfobaseOutput
   )
 }
 
@@ -402,6 +443,6 @@ export function createListInfobaseExtensionsHandler(
 ) {
   return async (
     input: Parameters<typeof listInfobaseExtensions>[0],
-    extra: { signal: AbortSignal }
-  ) => jsonToolResult(await service(input, undefined, extra.signal))
+    context: { mcpReq: { signal: AbortSignal } }
+  ) => jsonToolResult(await service(input, undefined, context.mcpReq.signal))
 }

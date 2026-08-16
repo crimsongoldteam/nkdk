@@ -27,7 +27,8 @@ const commonOptions = {
   absWorkingDir: repoRoot,
   bundle: true,
   external: [
-    "@modelcontextprotocol/sdk",
+    "@modelcontextprotocol/node",
+    "@modelcontextprotocol/server",
     "@node-rs/xxhash",
     "date-fns",
     "fast-xml-parser",
@@ -40,7 +41,6 @@ const commonOptions = {
     "typebox",
     "uuid",
     "yaml",
-    "zod",
   ],
   format: "esm",
   logLevel: "info",

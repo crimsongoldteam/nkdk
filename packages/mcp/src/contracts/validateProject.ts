@@ -1,29 +1,26 @@
-import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { Type, type Static } from "typebox"
+import { toolErrorOutputSchema } from "./common"
 import { diagnosticReportSchema, diagnosticSummarySchema } from "./diagnostics"
 
-export const validateProjectInputShape = {
-  projectDir: z.string().min(1),
-}
+export const validateProjectInputShape = Type.Object({
+  projectDir: Type.String({ minLength: 1 }),
+}, { additionalProperties: false })
 
-export const diagnosticSchema = z.object({
-  filePath: z.string(),
-  severity: z.enum(["error", "warning"]),
-  message: z.string(),
-  path: z.string().optional(),
-})
+export const diagnosticSchema = Type.Object({
+  filePath: Type.String(),
+  severity: Type.Union([Type.Literal("error"), Type.Literal("warning")]),
+  message: Type.String(),
+  path: Type.Optional(Type.String()),
+}, { additionalProperties: false })
 
-export const validateProjectSuccessOutputShape = {
-  ok: z.literal(true),
-  diagnostics: z.array(diagnosticSchema),
+export const validateProjectSuccessOutputShape = Type.Object({
+  ok: Type.Literal(true),
+  diagnostics: Type.Array(diagnosticSchema),
   summary: diagnosticSummarySchema,
-  truncated: z.boolean(),
-  report: diagnosticReportSchema.optional(),
-}
+  truncated: Type.Boolean(),
+  report: Type.Optional(diagnosticReportSchema),
+}, { additionalProperties: false })
 
-export const validateProjectOutputShape = z.union([
-  z.object(validateProjectSuccessOutputShape),
-  z.object(toolErrorOutputShape),
-])
+export const validateProjectOutputShape = Type.Union([validateProjectSuccessOutputShape, toolErrorOutputSchema])
 
-export type ValidateProjectInput = z.infer<z.ZodObject<typeof validateProjectInputShape>>
+export type ValidateProjectInput = Static<typeof validateProjectInputShape>

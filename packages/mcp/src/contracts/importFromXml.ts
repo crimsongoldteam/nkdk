@@ -1,41 +1,38 @@
-import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { Type, type Static } from "typebox"
+import { toolErrorOutputSchema } from "./common"
 import { diagnosticOutputShape } from "./diagnostics"
 
-export const failedObjectSchema = z.object({
-  severity: z.literal("error"),
-  code: z.string(),
-  message: z.string(),
-  targetProjectPath: z.string().optional(),
-})
+export const failedObjectSchema = Type.Object({
+  severity: Type.Literal("error"),
+  code: Type.String(),
+  message: Type.String(),
+  targetProjectPath: Type.Optional(Type.String()),
+}, { additionalProperties: false })
 
-export const importWarningSchema = z.object({
-  code: z.string(),
-  message: z.string(),
-  targetProjectPath: z.string().optional(),
-})
+export const importWarningSchema = Type.Object({
+  code: Type.String(),
+  message: Type.String(),
+  targetProjectPath: Type.Optional(Type.String()),
+}, { additionalProperties: false })
 
-export const importFromXmlInputShape = {
-  xmlDir: z.string().min(1),
-  projectDir: z.string().min(1),
-  componentPath: z.string().min(1).optional(),
-  concurrency: z.number().int().positive().optional(),
-  allowWrite: z.boolean().optional(),
-}
+export const importFromXmlInputShape = Type.Object({
+  xmlDir: Type.String({ minLength: 1 }),
+  projectDir: Type.String({ minLength: 1 }),
+  componentPath: Type.Optional(Type.String({ minLength: 1 })),
+  concurrency: Type.Optional(Type.Integer({ minimum: 1 })),
+  allowWrite: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false })
 
-export const importFromXmlSuccessOutputShape = {
-  ok: z.literal(true),
+export const importFromXmlSuccessOutputShape = Type.Object({
+  ok: Type.Literal(true),
   ...diagnosticOutputShape,
-  componentPath: z.string(),
-  succeeded: z.number(),
-  failed: z.array(failedObjectSchema),
-  warnings: z.array(importWarningSchema),
-  configurationIndexPath: z.string().optional(),
-}
+  componentPath: Type.String(),
+  succeeded: Type.Number(),
+  failed: Type.Array(failedObjectSchema),
+  warnings: Type.Array(importWarningSchema),
+  configurationIndexPath: Type.Optional(Type.String()),
+}, { additionalProperties: false })
 
-export const importFromXmlOutputShape = z.union([
-  z.object(importFromXmlSuccessOutputShape),
-  z.object(toolErrorOutputShape),
-])
+export const importFromXmlOutputShape = Type.Union([importFromXmlSuccessOutputShape, toolErrorOutputSchema])
 
-export type ImportFromXmlInput = z.infer<z.ZodObject<typeof importFromXmlInputShape>>
+export type ImportFromXmlInput = Static<typeof importFromXmlInputShape>

@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest"
+import { Value } from "typebox/value"
 import { listInfobasesOutputShape } from "./listInfobases"
 
 describe("listInfobases contract", () => {
   it("accepts the public recursive tree and all connection variants", () => {
-    const result = listInfobasesOutputShape.safeParse({
+    const result = Value.Check(listInfobasesOutputShape, {
       ok: true,
       tree: [
         {
@@ -52,11 +53,11 @@ describe("listInfobases contract", () => {
       ],
     })
 
-    expect(result.success).toBe(true)
+    expect(result).toBe(true)
   })
 
   it("rejects internal parser fields", () => {
-    const result = listInfobasesOutputShape.safeParse({
+    const result = Value.Check(listInfobasesOutputShape, {
       ok: true,
       tree: [
         {
@@ -72,6 +73,6 @@ describe("listInfobases contract", () => {
       warnings: [],
     })
 
-    expect(result.success).toBe(false)
+    expect(result).toBe(false)
   })
 })

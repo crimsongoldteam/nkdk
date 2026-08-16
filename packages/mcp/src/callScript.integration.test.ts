@@ -50,6 +50,22 @@ describe("MCP call script", () => {
     expect(client.close).toHaveBeenCalledTimes(1)
   })
 
+  it("фиксирует внутренний клиент на MCP 2026-07-28", async () => {
+    const client = {
+      connect: vi.fn().mockResolvedValue(undefined),
+      close: vi.fn().mockResolvedValue(undefined),
+    }
+    const session = await createMcpToolSession({
+      createClient: (options: unknown) => {
+        expect(options).toEqual({ versionNegotiation: { mode: { pin: "2026-07-28" } } })
+        return client
+      },
+      createTransport: () => ({ stderr: undefined }),
+    })
+
+    await session.close()
+  })
+
   it("persists and prints server stderr once when an MCP call fails", async () => {
     const logPath = join(mkdtempSync(join(tmpdir(), "nkdk-mcp-stderr-")), "server.log")
     const written: string[] = []

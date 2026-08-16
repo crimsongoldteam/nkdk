@@ -1,21 +1,18 @@
-import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { Type, type Static } from "typebox"
+import { toolErrorOutputSchema } from "./common"
 
-export const initSyncStateInputShape = {
-  projectDir: z.string().min(1),
-  componentPath: z.string().min(1).optional(),
-  xmlDir: z.string().min(1),
-  allowWrite: z.boolean().optional(),
-}
+export const initSyncStateInputShape = Type.Object({
+  projectDir: Type.String({ minLength: 1 }),
+  componentPath: Type.Optional(Type.String({ minLength: 1 })),
+  xmlDir: Type.String({ minLength: 1 }),
+  allowWrite: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false })
 
-export const initSyncStateSuccessOutputShape = {
-  ok: z.literal(true),
-  stateFile: z.literal(".nkdk-sync.yaml"),
-}
+export const initSyncStateSuccessOutputShape = Type.Object({
+  ok: Type.Literal(true),
+  stateFile: Type.Literal(".nkdk-sync.yaml"),
+}, { additionalProperties: false })
 
-export const initSyncStateOutputShape = z.union([
-  z.object(initSyncStateSuccessOutputShape),
-  z.object(toolErrorOutputShape),
-])
+export const initSyncStateOutputShape = Type.Union([initSyncStateSuccessOutputShape, toolErrorOutputSchema])
 
-export type InitSyncStateInput = z.infer<z.ZodObject<typeof initSyncStateInputShape>>
+export type InitSyncStateInput = Static<typeof initSyncStateInputShape>

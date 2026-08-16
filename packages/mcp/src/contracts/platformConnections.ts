@@ -1,30 +1,28 @@
-import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { Type, type Static } from "typebox"
+import { toolErrorOutputSchema } from "./common"
 
-export const closePlatformConnectionInputShape = {
-  projectDir: z.string().min(1),
-}
+export const closePlatformConnectionInputShape = Type.Object({
+  projectDir: Type.String({ minLength: 1 }),
+}, { additionalProperties: false })
 
-export const closeAllPlatformConnectionsInputShape = {}
+export const closeAllPlatformConnectionsInputShape = Type.Object({}, { additionalProperties: false })
 
-export const closePlatformConnectionOutputShape = z.union([
-  z.object({
-    ok: z.literal(true),
-    closed: z.boolean(),
-    stoppedOwnedProcess: z.boolean(),
-  }),
-  z.object(toolErrorOutputShape),
+export const closePlatformConnectionOutputShape = Type.Union([
+  Type.Object({
+    ok: Type.Literal(true),
+    closed: Type.Boolean(),
+    stoppedOwnedProcess: Type.Boolean(),
+  }, { additionalProperties: false }),
+  toolErrorOutputSchema,
 ])
 
-export const closeAllPlatformConnectionsOutputShape = z.union([
-  z.object({
-    ok: z.literal(true),
-    closedCount: z.number().int().nonnegative(),
-    stoppedOwnedProcesses: z.number().int().nonnegative(),
-  }),
-  z.object(toolErrorOutputShape),
+export const closeAllPlatformConnectionsOutputShape = Type.Union([
+  Type.Object({
+    ok: Type.Literal(true),
+    closedCount: Type.Integer({ minimum: 0 }),
+    stoppedOwnedProcesses: Type.Integer({ minimum: 0 }),
+  }, { additionalProperties: false }),
+  toolErrorOutputSchema,
 ])
 
-export type ClosePlatformConnectionInput = z.infer<
-  z.ZodObject<typeof closePlatformConnectionInputShape>
->
+export type ClosePlatformConnectionInput = Static<typeof closePlatformConnectionInputShape>

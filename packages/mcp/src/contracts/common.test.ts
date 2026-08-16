@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { errorCodeSchema, jsonToolResult, toolError, toolSuccess } from "./common"
+import { parseTypeBox } from "./mcpSchema"
 
 describe("common MCP contracts", () => {
   it.each([
@@ -13,7 +14,7 @@ describe("common MCP contracts", () => {
     "platform_command_failed",
     "operation_cancelled",
   ])("accepts the stable platform error code %s", (code) => {
-    expect(errorCodeSchema.parse(code)).toBe(code)
+    expect(parseTypeBox(errorCodeSchema, code)).toBe(code)
   })
 
   it("возвращает structuredContent без дублирования всего payload в тексте", () => {

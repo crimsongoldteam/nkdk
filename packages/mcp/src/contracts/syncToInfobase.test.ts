@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest"
+import { Value } from "typebox/value"
 import {
   syncToInfobaseInputSchema,
   syncToInfobaseOutputShape,
   syncToInfobaseSuccessOutputSchema,
 } from "./syncToInfobase"
+import { parseTypeBox } from "./mcpSchema"
 
 describe("sync_to_infobase contract", () => {
   it.each(["cf", "cfe/Расширение"])("accepts component %s", (componentPath) => {
-    expect(syncToInfobaseInputSchema.parse({ projectDir: "/project", componentPath })).toEqual({
+    expect(parseTypeBox(syncToInfobaseInputSchema, { projectDir: "/project", componentPath })).toEqual({
       projectDir: "/project",
       componentPath,
     })
@@ -16,22 +18,22 @@ describe("sync_to_infobase contract", () => {
   it.each(["cfe", "cfe/", "cfe/..", "../cf", "/cf", "erf/Report"])(
     "rejects unsupported component %s",
     (componentPath) => {
-      expect(() => syncToInfobaseInputSchema.parse({ projectDir: "/project", componentPath })).toThrow()
+      expect(() => parseTypeBox(syncToInfobaseInputSchema, { projectDir: "/project", componentPath })).toThrow()
     },
   )
 
   it("rejects unknown input fields", () => {
-    expect(() => syncToInfobaseInputSchema.parse({ projectDir: "/project", force: true })).toThrow()
+    expect(() => parseTypeBox(syncToInfobaseInputSchema, { projectDir: "/project", force: true })).toThrow()
   })
 
   it("accepts both successful results and an unknown delivery", () => {
-    expect(syncToInfobaseOutputShape.safeParse({
+    expect(Value.Check(syncToInfobaseOutputShape, {
       ok: true,
       status: "unchanged",
       componentPath: "cf",
       diagnostics: [],
-    }).success).toBe(true)
-    expect(syncToInfobaseOutputShape.safeParse({
+    })).toBe(true)
+    expect(Value.Check(syncToInfobaseOutputShape, {
       ok: true,
       status: "synchronized",
       componentPath: "cf",
@@ -44,8 +46,8 @@ describe("sync_to_infobase contract", () => {
       finalizeStatus: "published",
       configurationIndexPath: "/project/index.lmdb",
       warnings: [],
-    }).success).toBe(true)
-    expect(syncToInfobaseOutputShape.safeParse({
+    })).toBe(true)
+    expect(Value.Check(syncToInfobaseOutputShape, {
       ok: false,
       code: "delivery_outcome_unknown",
       message: "Неизвестно",
@@ -56,18 +58,18 @@ describe("sync_to_infobase contract", () => {
         stage: "configuration-load",
         mode: "designer-agent",
       },
-    }).success).toBe(true)
+    })).toBe(true)
   })
 
   it("keeps successful variants strict", () => {
-    expect(syncToInfobaseSuccessOutputSchema.safeParse({
+    expect(Value.Check(syncToInfobaseSuccessOutputSchema, {
       ok: true,
       status: "unchanged",
       componentPath: "cf",
       diagnostics: [],
       packageId: "unexpected",
-    }).success).toBe(false)
-    expect(syncToInfobaseSuccessOutputSchema.safeParse({
+    })).toBe(false)
+    expect(Value.Check(syncToInfobaseSuccessOutputSchema, {
       ok: true,
       status: "synchronized",
       componentPath: "cf",
@@ -79,15 +81,15 @@ describe("sync_to_infobase contract", () => {
       finalizeStatus: "published",
       configurationIndexPath: "/project/index.lmdb",
       warnings: [],
-    }).success).toBe(false)
+    })).toBe(false)
   })
 
   it("отклоняет неполные подробности неизвестного результата", () => {
-    expect(syncToInfobaseOutputShape.safeParse({
+    expect(Value.Check(syncToInfobaseOutputShape, {
       ok: false,
       code: "delivery_outcome_unknown",
       message: "Неизвестно",
       details: { packageId: "package-1" },
-    }).success).toBe(false)
+    })).toBe(false)
   })
 })

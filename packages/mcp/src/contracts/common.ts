@@ -1,51 +1,36 @@
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js"
-import { z } from "zod/v4"
+import type { CallToolResult } from "@modelcontextprotocol/server"
+import { Type, type Static } from "typebox"
 
-export const errorCodeSchema = z.enum([
-  "confirmation_required",
-  "invalid_arguments",
-  "not_found",
-  "sync_state_required",
-  "core_error",
-  "project_settings_required",
-  "platform_not_found",
-  "platform_component_missing",
-  "unsupported_connection",
-  "invalid_project_settings",
-  "authentication_failed",
-  "session_start_failed",
-  "session_timeout",
-  "platform_command_failed",
-  "delivery_outcome_unknown",
-  "operation_cancelled",
+export const errorCodeSchema = Type.Union([
+  Type.Literal("confirmation_required"),
+  Type.Literal("invalid_arguments"),
+  Type.Literal("not_found"),
+  Type.Literal("sync_state_required"),
+  Type.Literal("core_error"),
+  Type.Literal("project_settings_required"),
+  Type.Literal("platform_not_found"),
+  Type.Literal("platform_component_missing"),
+  Type.Literal("unsupported_connection"),
+  Type.Literal("invalid_project_settings"),
+  Type.Literal("authentication_failed"),
+  Type.Literal("session_start_failed"),
+  Type.Literal("session_timeout"),
+  Type.Literal("platform_command_failed"),
+  Type.Literal("delivery_outcome_unknown"),
+  Type.Literal("operation_cancelled"),
 ])
 
 export const toolErrorOutputShape = {
-  ok: z.literal(false),
+  ok: Type.Literal(false),
   code: errorCodeSchema,
-  message: z.string(),
-  details: z.unknown().optional(),
+  message: Type.String(),
+  details: Type.Optional(Type.Unknown()),
 }
 
-export function publishedToolOutputSchema<Shape extends z.ZodRawShape>(
-  successSchema: z.ZodObject<Shape>,
-  fullOutputSchema: z.ZodType,
-) {
-  return z.strictObject(successSchema.shape).partial().extend({
-    ok: z.boolean(),
-    code: toolErrorOutputShape.code.optional(),
-    message: toolErrorOutputShape.message.optional(),
-    details: toolErrorOutputShape.details,
-  }).superRefine((value, context) => {
-    const result = fullOutputSchema.safeParse(value)
-    if (result.success) return
-    for (const issue of result.error.issues) {
-      context.addIssue({ code: "custom", path: issue.path, message: issue.message })
-    }
-  })
-}
+export const toolErrorOutputSchema = Type.Object(toolErrorOutputShape)
+export const strictToolErrorOutputSchema = Type.Object(toolErrorOutputShape, { additionalProperties: false })
 
-export type ToolErrorCode = z.infer<typeof errorCodeSchema>
+export type ToolErrorCode = Static<typeof errorCodeSchema>
 
 export interface ToolFailure extends Record<string, unknown> {
   ok: false
