@@ -1,34 +1,34 @@
-import { z } from "zod/v4"
+import { Type, type Static } from "typebox"
 
-export const diagnosticSummarySchema = z.object({
-  errors: z.number().int().nonnegative(),
-  warnings: z.number().int().nonnegative(),
-  shown: z.number().int().nonnegative().max(100),
-  omitted: z.number().int().nonnegative(),
-})
+export const diagnosticSummarySchema = Type.Object({
+  errors: Type.Integer({ minimum: 0 }),
+  warnings: Type.Integer({ minimum: 0 }),
+  shown: Type.Integer({ minimum: 0, maximum: 100 }),
+  omitted: Type.Integer({ minimum: 0 }),
+}, { additionalProperties: false })
 
-export const diagnosticReportSchema = z.object({
-  uri: z.string().url(),
-  format: z.literal("application/x-ndjson"),
-})
+export const diagnosticReportSchema = Type.Object({
+  uri: Type.String({ format: "uri" }),
+  format: Type.Literal("application/x-ndjson"),
+}, { additionalProperties: false })
 
-export const metadataDiagnosticSchema = z.object({
-  severity: z.enum(["error", "warning"]),
-  message: z.string(),
-  code: z.string().optional(),
-  filePath: z.string().optional(),
-  path: z.string().optional(),
-  kind: z.string().optional(),
-  name: z.string().optional(),
-  targetProjectPath: z.string().optional(),
-})
+export const metadataDiagnosticSchema = Type.Object({
+  severity: Type.Union([Type.Literal("error"), Type.Literal("warning")]),
+  message: Type.String(),
+  code: Type.Optional(Type.String()),
+  filePath: Type.Optional(Type.String()),
+  path: Type.Optional(Type.String()),
+  kind: Type.Optional(Type.String()),
+  name: Type.Optional(Type.String()),
+  targetProjectPath: Type.Optional(Type.String()),
+}, { additionalProperties: false })
 
 export const diagnosticOutputShape = {
-  diagnostics: z.array(metadataDiagnosticSchema),
+  diagnostics: Type.Array(metadataDiagnosticSchema),
   summary: diagnosticSummarySchema,
-  truncated: z.boolean(),
-  report: diagnosticReportSchema.optional(),
+  truncated: Type.Boolean(),
+  report: Type.Optional(diagnosticReportSchema),
 }
 
-export type DiagnosticSummary = z.infer<typeof diagnosticSummarySchema>
-export type DiagnosticReportReference = z.infer<typeof diagnosticReportSchema>
+export type DiagnosticSummary = Static<typeof diagnosticSummarySchema>
+export type DiagnosticReportReference = Static<typeof diagnosticReportSchema>

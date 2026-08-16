@@ -1,7 +1,7 @@
-import { z } from "zod/v4"
+import { Type, type Static } from "typebox"
 
-export const configurationComponentPathSchema = z.string().refine(
-  (value): value is "cf" | `cfe/${string}` =>
-    value === "cf" || /^cfe\/[^/\\.][^/\\]*$/u.test(value),
-  "Ожидался путь cf или cfe/<Имя>"
-)
+export const configurationComponentPathSchema = Type.String({
+  pattern: "^(?:cf|cfe/[^/\\\\.][^/\\\\]*)$",
+})
+
+export type ConfigurationComponentPath = Static<typeof configurationComponentPathSchema>

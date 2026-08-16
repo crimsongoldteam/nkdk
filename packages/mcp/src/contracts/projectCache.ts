@@ -1,5 +1,5 @@
-import { Type } from "typebox"
-import { z } from "zod/v4"
+import { Type, type Static } from "typebox"
+import { toolErrorOutputSchema } from "./common"
 import { diagnosticOutputShape } from "./diagnostics"
 
 export const ProjectCacheInput = Type.Object({
@@ -7,20 +7,27 @@ export const ProjectCacheInput = Type.Object({
   allowWrite: Type.Literal(true),
 }, { additionalProperties: false })
 
-export type ProjectCacheInput = Type.Static<typeof ProjectCacheInput>
+export type ProjectCacheInput = Static<typeof ProjectCacheInput>
 
-export const projectCacheInputSchema = z.strictObject({
-  projectDir: z.string().min(1),
-  allowWrite: z.literal(true),
-})
+export const projectCacheInputSchema = ProjectCacheInput
 
-export const rebuildProjectCacheOutputSchema = z.looseObject({
-  ok: z.literal(true),
+export const resetProjectCacheOutputSchema = Type.Union([
+  Type.Object({ ok: Type.Literal(true), reset: Type.Literal(true) }, { additionalProperties: false }),
+  toolErrorOutputSchema,
+])
+
+const rebuildProjectCacheSuccessOutputSchema = Type.Object({
+  ok: Type.Literal(true),
   ...diagnosticOutputShape,
-  stats: z.object({
-    hashedFiles: z.number().int().nonnegative(),
-    parsedYamlFiles: z.number().int().nonnegative(),
-    changedFiles: z.number().int().nonnegative(),
-    deletedFiles: z.number().int().nonnegative(),
-  }),
-})
+  stats: Type.Object({
+    hashedFiles: Type.Integer({ minimum: 0 }),
+    parsedYamlFiles: Type.Integer({ minimum: 0 }),
+    changedFiles: Type.Integer({ minimum: 0 }),
+    deletedFiles: Type.Integer({ minimum: 0 }),
+  }, { additionalProperties: false }),
+}, { additionalProperties: true })
+
+export const rebuildProjectCacheOutputSchema = Type.Union([
+  rebuildProjectCacheSuccessOutputSchema,
+  toolErrorOutputSchema,
+])

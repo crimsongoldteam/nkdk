@@ -1,11 +1,21 @@
 import { describe, expect, it, vi } from "vitest"
-import { z } from "zod/v4"
 import * as registerToolsModule from "./registerTools"
 
 const { registerNkdkCapabilities } = registerToolsModule
 
+type RegisteredSchema = {
+  readonly "~standard": {
+    validate(value: unknown): { value: unknown } | { issues: readonly unknown[] } | Promise<{ value: unknown } | { issues: readonly unknown[] }>
+  }
+}
+
+async function accepts(schema: RegisteredSchema | undefined, value: unknown): Promise<boolean> {
+  if (schema === undefined) return false
+  return !("issues" in await schema["~standard"].validate(value))
+}
+
 describe("registerNkdkCapabilities", () => {
-  it("registers operation tools, base tools, resources, and prompts", () => {
+  it("registers operation tools, base tools, resources, and prompts", async () => {
     const calls = {
       tools: [] as string[],
       resources: [] as string[],
@@ -81,66 +91,64 @@ describe("registerNkdkCapabilities", () => {
     expect(infobaseImportTool?.description).toContain("повторить импорт")
     const infobaseImportOptions = server.registerTool.mock.calls.find(
       ([name]) => name === "nkdk.import_from_infobase"
-    )?.[1] as { inputSchema: Record<string, z.ZodType>; outputSchema?: z.ZodType } | undefined
-    expect(z.strictObject(infobaseImportOptions?.inputSchema ?? {}).safeParse({
+    )?.[1] as { inputSchema: RegisteredSchema; outputSchema?: RegisteredSchema } | undefined
+    expect(await accepts(infobaseImportOptions?.inputSchema, {
       projectDir: "/project",
       allowWrite: true,
-    }).success).toBe(true)
-    expect(z.strictObject(infobaseImportOptions?.inputSchema ?? {}).safeParse({
+    })).toBe(true)
+    expect(await accepts(infobaseImportOptions?.inputSchema, {
       projectDir: "/project",
       connectionString: 'File="/base";',
-    }).success).toBe(false)
+    })).toBe(false)
     expect(infobaseImportOptions?.outputSchema).toBeDefined()
-    expect(infobaseImportOptions?.outputSchema).toBeInstanceOf(z.ZodObject)
-    expect(infobaseImportOptions?.outputSchema?.safeParse({
+    expect(await accepts(infobaseImportOptions?.outputSchema, {
       ok: false,
       code: "confirmation_required",
       message: "Нужно подтвердить запись",
       details: { projectDir: "/project", componentPath: "cf" },
-    }).success).toBe(true)
+    })).toBe(true)
 
     const infobaseSync = server.registerTool.mock.calls.find(
       ([name]) => name === "nkdk.sync_to_infobase"
-    )?.[1] as { description: string; inputSchema: z.ZodType; outputSchema?: z.ZodType } | undefined
+    )?.[1] as { description: string; inputSchema: RegisteredSchema; outputSchema?: RegisteredSchema } | undefined
     expect(infobaseSync?.description.toLowerCase()).toContain("частично")
     expect(infobaseSync?.description).toContain("cf")
     expect(infobaseSync?.description).toContain("cfe/<Имя>")
     expect(infobaseSync?.description).toContain("Запускает платформу")
     expect(infobaseSync?.description).toContain("allowWrite=true")
     expect(infobaseSync?.description).toContain("обновляет конфигурацию базы данных")
-    expect(infobaseSync?.inputSchema.safeParse({
+    expect(await accepts(infobaseSync?.inputSchema, {
       projectDir: "/project",
       componentPath: "cf",
       allowWrite: true,
-    }).success).toBe(true)
-    expect(infobaseSync?.inputSchema.safeParse({
+    })).toBe(true)
+    expect(await accepts(infobaseSync?.inputSchema, {
       projectDir: "/project",
       componentPath: "cfe/..",
       allowWrite: true,
-    }).success).toBe(false)
+    })).toBe(false)
     const infobaseSyncOutput = infobaseSync?.outputSchema
     expect(infobaseSyncOutput).toBeDefined()
     if (infobaseSyncOutput === undefined) throw new Error("sync_to_infobase outputSchema отсутствует")
-    expect(infobaseSyncOutput).toBeInstanceOf(z.ZodObject)
-    expect(infobaseSyncOutput.safeParse({
+    expect(await accepts(infobaseSyncOutput, {
       ok: true,
       status: "unchanged",
       componentPath: "cf",
       diagnostics: [],
-    }).success).toBe(true)
-    expect(infobaseSyncOutput.safeParse({
+    })).toBe(true)
+    expect(await accepts(infobaseSyncOutput, {
       ok: true,
       status: "unchanged",
       componentPath: "cf",
       diagnostics: [],
       packageId: "unexpected",
-    }).success).toBe(false)
-    expect(infobaseSyncOutput.safeParse({
+    })).toBe(false)
+    expect(await accepts(infobaseSyncOutput, {
       ok: false,
       code: "confirmation_required",
       message: "Нужно подтвердить запись",
       details: { projectDir: "/project", componentPath: "cf" },
-    }).success).toBe(true)
+    })).toBe(true)
 
     for (const name of [
       "nkdk.close_platform_connection",
@@ -169,12 +177,7 @@ describe("registerNkdkCapabilities", () => {
     }
 
     for (const name of [
-      "nkdk.validate_project",
-      "nkdk.rebuild_project_cache",
-      "nkdk.import_from_xml",
-      "nkdk.sync_to_xml",
-      "nkdk.rename_item",
-      "nkdk.find_references",
+      ...calls.tools,
     ]) {
       const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
         | { outputSchema?: unknown }
@@ -184,11 +187,11 @@ describe("registerNkdkCapabilities", () => {
 
     for (const name of ["nkdk.reset_project_cache", "nkdk.rebuild_project_cache"]) {
       const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
-        | { inputSchema: z.ZodType }
+        | { inputSchema: RegisteredSchema }
         | undefined
-      expect(tool?.inputSchema.safeParse({ projectDir: "/project", allowWrite: true }).success).toBe(true)
-      expect(tool?.inputSchema.safeParse({ projectDir: "/project", allowWrite: false }).success).toBe(false)
-      expect(tool?.inputSchema.safeParse({ projectDir: "/project", allowWrite: true, extra: 1 }).success).toBe(false)
+      expect(await accepts(tool?.inputSchema, { projectDir: "/project", allowWrite: true })).toBe(true)
+      expect(await accepts(tool?.inputSchema, { projectDir: "/project", allowWrite: false })).toBe(false)
+      expect(await accepts(tool?.inputSchema, { projectDir: "/project", allowWrite: true, extra: 1 })).toBe(false)
     }
 
     const listInfobasesTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.list_infobases")?.[1] as
@@ -208,21 +211,21 @@ describe("registerNkdkCapabilities", () => {
     const listExtensionsOptions = server.registerTool.mock.calls.find(
       ([name]) => name === "nkdk.list_infobase_extensions"
     )?.[1] as
-      | { inputSchema: z.ZodType; outputSchema: z.ZodType }
+      | { inputSchema: RegisteredSchema; outputSchema: RegisteredSchema }
       | undefined
     expect(
-      listExtensionsOptions?.inputSchema.safeParse({
+      await accepts(listExtensionsOptions?.inputSchema, {
         projectDir: "/project",
         user: "Admin",
-      }).success
+      })
     ).toBe(false)
     expect(
-      listExtensionsOptions?.outputSchema.safeParse({
+      await accepts(listExtensionsOptions?.outputSchema, {
         ok: true,
         extensions: [],
         mode: "designer-agent",
         reusedConnection: false,
-      }).success
+      })
     ).toBe(true)
   })
 
@@ -267,7 +270,7 @@ describe("registerNkdkCapabilities", () => {
         serviceFunction: typeof service
       ) => (
         input: Record<string, unknown>,
-        extra: { signal: AbortSignal }
+        context: { mcpReq: { signal: AbortSignal } }
       ) => Promise<unknown>
     )(service)
     const input = {
@@ -276,7 +279,7 @@ describe("registerNkdkCapabilities", () => {
     }
     const controller = new AbortController()
 
-    await handler(input, { signal: controller.signal })
+    await handler(input, { mcpReq: { signal: controller.signal } })
 
     expect(service).toHaveBeenCalledWith(input, undefined, controller.signal)
   })
@@ -339,6 +342,11 @@ describe("registerNkdkCapabilities", () => {
       code: "delivery_outcome_unknown" as const,
       message: "Неизвестно",
       details: {
+        packageId: "package-1",
+        componentPath: "cf" as const,
+        temporaryDirectory: "/project/.nkdk/tmp/sync-to-infobase/attempt-1",
+        stage: "configuration-load" as const,
+        mode: "designer-agent" as const,
         log: {
           uri: "file:///project/.nkdk/tmp/sync-to-infobase/attempt-1/platform.log",
           format: "text/plain" as const,
@@ -381,13 +389,13 @@ describe("registerNkdkCapabilities", () => {
         serviceFunction: typeof service
       ) => (
         input: Record<string, unknown>,
-        extra: { signal: AbortSignal }
+        context: { mcpReq: { signal: AbortSignal } }
       ) => Promise<unknown>
     )(service)
     const input = { projectDir: "/project" }
     const controller = new AbortController()
 
-    await handler(input, { signal: controller.signal })
+    await handler(input, { mcpReq: { signal: controller.signal } })
 
     expect(service).toHaveBeenCalledWith(input, undefined, controller.signal)
   })

@@ -42,7 +42,6 @@ const commonOptions = {
     "typebox",
     "uuid",
     "yaml",
-    "zod",
   ],
   format: "esm",
   logLevel: "info",

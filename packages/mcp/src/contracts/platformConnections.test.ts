@@ -1,19 +1,19 @@
 import { describe, expect, it } from "vitest"
-import { z } from "zod/v4"
 import {
   closeAllPlatformConnectionsInputShape,
   closeAllPlatformConnectionsOutputShape,
   closePlatformConnectionInputShape,
   closePlatformConnectionOutputShape,
 } from "./platformConnections"
+import { parseTypeBox } from "./mcpSchema"
 
 describe("platform connection contracts", () => {
   it("accepts one project path without write confirmation", () => {
-    expect(z.strictObject(closePlatformConnectionInputShape).parse({ projectDir: "/project" })).toEqual({
+    expect(parseTypeBox(closePlatformConnectionInputShape, { projectDir: "/project" })).toEqual({
       projectDir: "/project",
     })
     expect(() =>
-      z.strictObject(closePlatformConnectionInputShape).parse({
+      parseTypeBox(closePlatformConnectionInputShape, {
         projectDir: "/project",
         allowWrite: true,
       })
@@ -21,19 +21,19 @@ describe("platform connection contracts", () => {
   })
 
   it("accepts an empty close-all input", () => {
-    expect(z.strictObject(closeAllPlatformConnectionsInputShape).parse({})).toEqual({})
+    expect(parseTypeBox(closeAllPlatformConnectionsInputShape, {})).toEqual({})
   })
 
   it("accepts both close result shapes", () => {
     expect(
-      closePlatformConnectionOutputShape.parse({
+      parseTypeBox(closePlatformConnectionOutputShape, {
         ok: true,
         closed: true,
         stoppedOwnedProcess: true,
       })
     ).toMatchObject({ ok: true })
     expect(
-      closeAllPlatformConnectionsOutputShape.parse({
+      parseTypeBox(closeAllPlatformConnectionsOutputShape, {
         ok: true,
         closedCount: 2,
         stoppedOwnedProcesses: 2,

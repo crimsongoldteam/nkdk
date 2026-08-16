@@ -1,87 +1,66 @@
-import { z } from "zod/v4"
-import { publishedToolOutputSchema, toolErrorOutputShape } from "./common"
+import { Type, type Static } from "typebox"
+import { errorCodeSchema, toolErrorOutputShape } from "./common"
+import { configurationComponentPathSchema } from "./configurationComponentPath"
+import { metadataDiagnosticSchema } from "./diagnostics"
 import {
   importResourceReferenceSchema,
   invalidProjectSettingsSchema,
   projectSettingsRequiredSchema,
 } from "./importFromInfobase"
-import { metadataDiagnosticSchema } from "./diagnostics"
-import { configurationComponentPathSchema } from "./configurationComponentPath"
 
 export const syncToInfobaseInputShape = {
-  projectDir: z.string().min(1),
-  componentPath: configurationComponentPathSchema.optional(),
-  allowWrite: z.boolean().optional(),
-  forceClearPending: z.boolean().optional(),
+  projectDir: Type.String({ minLength: 1 }),
+  componentPath: Type.Optional(configurationComponentPathSchema),
+  allowWrite: Type.Optional(Type.Boolean()),
+  forceClearPending: Type.Optional(Type.Boolean()),
 }
 
-export const syncToInfobaseInputSchema = z.strictObject(syncToInfobaseInputShape)
+export const syncToInfobaseInputSchema = Type.Object(syncToInfobaseInputShape, { additionalProperties: false })
 
-const unchangedSchema = z.strictObject({
-  ok: z.literal(true),
-  status: z.literal("unchanged"),
+const unchangedSchema = Type.Object({
+  ok: Type.Literal(true),
+  status: Type.Literal("unchanged"),
   componentPath: configurationComponentPathSchema,
-  diagnostics: z.array(metadataDiagnosticSchema),
-})
+  diagnostics: Type.Array(metadataDiagnosticSchema),
+}, { additionalProperties: false })
 
-const synchronizedSchema = z.strictObject({
-  ok: z.literal(true),
-  status: z.literal("synchronized"),
+const synchronizedSchema = Type.Object({
+  ok: Type.Literal(true),
+  status: Type.Literal("synchronized"),
   componentPath: configurationComponentPathSchema,
-  packageId: z.string().min(1),
-  entries: z.array(z.string()),
-  loadTargets: z.array(z.string()),
-  mode: z.enum(["designer-agent", "standalone-server"]),
-  loadMode: z.enum(["partial", "selected"]),
-  reusedConnection: z.boolean(),
-  finalizeStatus: z.enum(["published", "alreadyPublished"]),
-  configurationIndexPath: z.string().min(1),
-  warnings: z.array(metadataDiagnosticSchema),
-})
+  packageId: Type.String({ minLength: 1 }),
+  entries: Type.Array(Type.String()),
+  loadTargets: Type.Array(Type.String()),
+  mode: Type.Union([Type.Literal("designer-agent"), Type.Literal("standalone-server")]),
+  loadMode: Type.Union([Type.Literal("partial"), Type.Literal("selected")]),
+  reusedConnection: Type.Boolean(),
+  finalizeStatus: Type.Union([Type.Literal("published"), Type.Literal("alreadyPublished")]),
+  configurationIndexPath: Type.String({ minLength: 1 }),
+  warnings: Type.Array(metadataDiagnosticSchema),
+}, { additionalProperties: false })
 
-export const syncToInfobaseSuccessOutputSchema = z.strictObject({
-  ok: z.literal(true),
-  status: z.enum(["unchanged", "synchronized"]),
-  componentPath: configurationComponentPathSchema,
-  diagnostics: z.array(metadataDiagnosticSchema).optional(),
-  packageId: z.string().min(1).optional(),
-  entries: z.array(z.string()).optional(),
-  loadTargets: z.array(z.string()).optional(),
-  mode: z.enum(["designer-agent", "standalone-server"]).optional(),
-  loadMode: z.enum(["partial", "selected"]).optional(),
-  reusedConnection: z.boolean().optional(),
-  finalizeStatus: z.enum(["published", "alreadyPublished"]).optional(),
-  configurationIndexPath: z.string().min(1).optional(),
-  warnings: z.array(metadataDiagnosticSchema).optional(),
-}).superRefine((value, context) => {
-  const result = value.status === "unchanged"
-    ? unchangedSchema.safeParse(value)
-    : synchronizedSchema.safeParse(value)
-  if (result.success) return
-  for (const issue of result.error.issues) {
-    context.addIssue({ code: "custom", path: issue.path, message: issue.message })
-  }
-})
+export const syncToInfobaseSuccessOutputSchema = Type.Union([unchangedSchema, synchronizedSchema])
 
-const unknownDeliverySchema = z.strictObject({
-  ok: z.literal(false),
-  code: z.literal("delivery_outcome_unknown"),
-  message: z.string(),
-  details: z.strictObject({
-    packageId: z.string().min(1),
+const unknownDeliverySchema = Type.Object({
+  ok: Type.Literal(false),
+  code: Type.Literal("delivery_outcome_unknown"),
+  message: Type.String(),
+  details: Type.Object({
+    packageId: Type.String({ minLength: 1 }),
     componentPath: configurationComponentPathSchema,
-    temporaryDirectory: z.string().min(1),
-    stage: z.literal("configuration-load"),
-    mode: z.enum(["designer-agent", "standalone-server"]),
-    log: importResourceReferenceSchema.optional(),
-  }),
+    temporaryDirectory: Type.String({ minLength: 1 }),
+    stage: Type.Literal("configuration-load"),
+    mode: Type.Union([Type.Literal("designer-agent"), Type.Literal("standalone-server")]),
+    log: Type.Optional(importResourceReferenceSchema),
+  }, { additionalProperties: false }),
+}, { additionalProperties: false })
+
+const otherErrorSchema = Type.Object({
+  ...toolErrorOutputShape,
+  code: Type.Exclude(errorCodeSchema, Type.Literal("delivery_outcome_unknown")),
 })
 
-const otherErrorSchema = z.object(toolErrorOutputShape).refine(
-  ({ code }) => code !== "delivery_outcome_unknown",
-)
-
-export const syncToInfobaseOutputShape = z.union([
+export const syncToInfobaseOutputShape = Type.Union([
   unchangedSchema,
   synchronizedSchema,
   projectSettingsRequiredSchema,
@@ -90,10 +69,7 @@ export const syncToInfobaseOutputShape = z.union([
   otherErrorSchema,
 ])
 
-export const syncToInfobasePublishedOutputSchema = publishedToolOutputSchema(
-  syncToInfobaseSuccessOutputSchema,
-  syncToInfobaseOutputShape,
-)
+export const syncToInfobasePublishedOutputSchema = syncToInfobaseOutputShape
 
-export type SyncToInfobaseInput = z.infer<typeof syncToInfobaseInputSchema>
-export type SyncToInfobaseOutput = z.infer<typeof syncToInfobaseOutputShape>
+export type SyncToInfobaseInput = Static<typeof syncToInfobaseInputSchema>
+export type SyncToInfobaseOutput = Static<typeof syncToInfobaseOutputShape>

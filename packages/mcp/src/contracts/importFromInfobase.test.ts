@@ -1,15 +1,16 @@
 import { describe, expect, it } from "vitest"
-import { z } from "zod/v4"
+import { Value } from "typebox/value"
 import {
   importFromInfobaseInputShape,
   importFromInfobaseOutputShape,
 } from "./importFromInfobase"
+import { parseTypeBox } from "./mcpSchema"
 
 describe("import_from_infobase contract", () => {
-  const inputSchema = z.strictObject(importFromInfobaseInputShape)
+  const inputSchema = importFromInfobaseInputShape
 
   it("accepts a configuration component", () => {
-    expect(inputSchema.parse({
+    expect(parseTypeBox(inputSchema, {
       projectDir: "/project",
       componentPath: "cfe/Расширение_All",
       allowWrite: true,
@@ -18,8 +19,7 @@ describe("import_from_infobase contract", () => {
       componentPath: "cfe/Расширение_All",
       allowWrite: true,
     })
-    expect(inputSchema.safeParse({ projectDir: "/project", componentPath: "cfe/.." }).success)
-      .toBe(false)
+    expect(Value.Check(inputSchema, { projectDir: "/project", componentPath: "cfe/.." })).toBe(false)
   })
 
   it.each([
@@ -29,12 +29,11 @@ describe("import_from_infobase contract", () => {
     "database",
     "useStandaloneServer",
   ])("rejects the connection field %s", (forbidden) => {
-    expect(inputSchema.safeParse({ projectDir: "/project", [forbidden]: "x" }).success)
-      .toBe(false)
+    expect(Value.Check(inputSchema, { projectDir: "/project", [forbidden]: "x" })).toBe(false)
   })
 
   it("parses a missing settings result with a schema reference", () => {
-    expect(importFromInfobaseOutputShape.parse({
+    expect(parseTypeBox(importFromInfobaseOutputShape, {
       ok: false,
       code: "project_settings_required",
       message: "Создайте файл настроек проекта и повторите импорт.",
@@ -49,7 +48,7 @@ describe("import_from_infobase contract", () => {
   })
 
   it("parses invalid settings diagnostics", () => {
-    expect(importFromInfobaseOutputShape.parse({
+    expect(parseTypeBox(importFromInfobaseOutputShape, {
       ok: false,
       code: "invalid_project_settings",
       message: "Исправьте файл настроек проекта и повторите импорт.",
@@ -65,7 +64,7 @@ describe("import_from_infobase contract", () => {
   })
 
   it("parses typed platform failure details", () => {
-    expect(importFromInfobaseOutputShape.parse({
+    expect(parseTypeBox(importFromInfobaseOutputShape, {
       ok: false,
       code: "authentication_failed",
       message: "Access denied",
@@ -82,7 +81,7 @@ describe("import_from_infobase contract", () => {
   })
 
   it("accepts a preserved temporary directory in a successful partial import", () => {
-    expect(importFromInfobaseOutputShape.parse({
+    expect(parseTypeBox(importFromInfobaseOutputShape, {
       ok: true,
       succeeded: 1,
       failed: [{
@@ -99,7 +98,7 @@ describe("import_from_infobase contract", () => {
   })
 
   it("parses a core failure with a preserved temporary directory", () => {
-    expect(importFromInfobaseOutputShape.parse({
+    expect(parseTypeBox(importFromInfobaseOutputShape, {
       ok: false,
       code: "core_error",
       message: "Не удалось импортировать конфигурацию",

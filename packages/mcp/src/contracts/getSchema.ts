@@ -1,41 +1,32 @@
-import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { Type, type Static } from "typebox"
+import { toolErrorOutputSchema } from "./common"
 
-export const getSchemaInputShape = {
-  projectDir: z.string().min(1),
-  componentPath: z.string().min(1).optional(),
-  metadataRef: z.string().min(1).optional(),
-  structurePath: z.string().min(1).optional(),
-  format: z.enum(["summary", "jsonSchema"]).optional(),
-  mode: z.enum(["externalRefs", "inline"]).optional(),
-  keys: z.union([z.literal(true), z.string().min(1)]).optional(),
-  required: z.boolean().optional(),
-  search: z.string().optional(),
-  exact: z.boolean().optional(),
-}
+export const getSchemaInputShape = Type.Object({
+  projectDir: Type.String({ minLength: 1 }),
+  componentPath: Type.Optional(Type.String({ minLength: 1 })),
+  metadataRef: Type.Optional(Type.String({ minLength: 1 })),
+  structurePath: Type.Optional(Type.String({ minLength: 1 })),
+  format: Type.Optional(Type.Union([Type.Literal("summary"), Type.Literal("jsonSchema")])),
+  mode: Type.Optional(Type.Union([Type.Literal("externalRefs"), Type.Literal("inline")])),
+  keys: Type.Optional(Type.Union([Type.Literal(true), Type.String({ minLength: 1 })])),
+  required: Type.Optional(Type.Boolean()),
+  search: Type.Optional(Type.String()),
+  exact: Type.Optional(Type.Boolean()),
+}, { additionalProperties: false })
 
-export const getSchemaResultSchema = z.union([
-  z.object({
-    kind: z.literal("keys"),
-    keys: z.array(z.string()),
-  }),
-  z.object({
-    kind: z.literal("summary"),
-    summary: z.unknown().nullable(),
-  }),
-  z.object({
-    kind: z.literal("jsonSchema"),
-    schema: z.unknown(),
-  }),
+export const getSchemaResultSchema = Type.Union([
+  Type.Object({ kind: Type.Literal("keys"), keys: Type.Array(Type.String()) }, { additionalProperties: false }),
+  Type.Object({ kind: Type.Literal("summary"), summary: Type.Union([Type.Unknown(), Type.Null()]) }, { additionalProperties: false }),
+  Type.Object({ kind: Type.Literal("jsonSchema"), schema: Type.Unknown() }, { additionalProperties: false }),
 ])
 
-export const getSchemaSuccessOutputShape = {
-  ok: z.literal(true),
-  target: z.string(),
-  format: z.enum(["summary", "jsonSchema"]),
+export const getSchemaSuccessOutputShape = Type.Object({
+  ok: Type.Literal(true),
+  target: Type.String(),
+  format: Type.Union([Type.Literal("summary"), Type.Literal("jsonSchema")]),
   result: getSchemaResultSchema,
-}
+}, { additionalProperties: false })
 
-export const getSchemaOutputShape = z.union([z.object(getSchemaSuccessOutputShape), z.object(toolErrorOutputShape)])
+export const getSchemaOutputShape = Type.Union([getSchemaSuccessOutputShape, toolErrorOutputSchema])
 
-export type GetSchemaInput = z.infer<z.ZodObject<typeof getSchemaInputShape>>
+export type GetSchemaInput = Static<typeof getSchemaInputShape>

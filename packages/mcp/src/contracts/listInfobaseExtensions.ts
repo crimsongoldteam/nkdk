@@ -1,44 +1,38 @@
-import type { ConfigurationExtensionInfo } from "@nkdk/platform"
-import { z } from "zod/v4"
-import { toolErrorOutputShape } from "./common"
+import { Type, type Static } from "typebox"
+import { strictToolErrorOutputSchema } from "./common"
 
 export const listInfobaseExtensionsInputShape = {
-  projectDir: z.string().min(1),
+  projectDir: Type.String({ minLength: 1 }),
 }
 
-export const listInfobaseExtensionsInputSchema = z.strictObject(
-  listInfobaseExtensionsInputShape
+export const listInfobaseExtensionsInputSchema = Type.Object(
+  listInfobaseExtensionsInputShape,
+  { additionalProperties: false },
 )
 
-export type ListInfobaseExtensionsInput = z.infer<
-  typeof listInfobaseExtensionsInputSchema
->
+export type ListInfobaseExtensionsInput = Static<typeof listInfobaseExtensionsInputSchema>
 
-const configurationExtensionSchema: z.ZodType<ConfigurationExtensionInfo> = z
-  .object({
-    name: z.string(),
-    version: z.string(),
-    active: z.boolean(),
-    purpose: z.enum(["patch", "customization", "add-on"]),
-    safeMode: z.boolean(),
-    securityProfileName: z.string(),
-    unsafeActionProtection: z.boolean(),
-    usedInDistributedInfobase: z.boolean(),
-    scope: z.enum(["infobase", "data-separation"]),
-    hashSum: z.string(),
-  })
-  .strict()
+const configurationExtensionSchema = Type.Object({
+  name: Type.String(),
+  version: Type.String(),
+  active: Type.Boolean(),
+  purpose: Type.Union([Type.Literal("patch"), Type.Literal("customization"), Type.Literal("add-on")]),
+  safeMode: Type.Boolean(),
+  securityProfileName: Type.String(),
+  unsafeActionProtection: Type.Boolean(),
+  usedInDistributedInfobase: Type.Boolean(),
+  scope: Type.Union([Type.Literal("infobase"), Type.Literal("data-separation")]),
+  hashSum: Type.String(),
+}, { additionalProperties: false })
 
-export const listInfobaseExtensionsSuccessSchema = z
-  .object({
-    ok: z.literal(true),
-    extensions: z.array(configurationExtensionSchema),
-    mode: z.enum(["designer-agent", "standalone-server"]),
-    reusedConnection: z.boolean(),
-  })
-  .strict()
+export const listInfobaseExtensionsSuccessSchema = Type.Object({
+  ok: Type.Literal(true),
+  extensions: Type.Array(configurationExtensionSchema),
+  mode: Type.Union([Type.Literal("designer-agent"), Type.Literal("standalone-server")]),
+  reusedConnection: Type.Boolean(),
+}, { additionalProperties: false })
 
-export const listInfobaseExtensionsOutputShape = z.union([
+export const listInfobaseExtensionsOutputShape = Type.Union([
   listInfobaseExtensionsSuccessSchema,
-  z.object(toolErrorOutputShape).strict(),
+  strictToolErrorOutputSchema,
 ])
