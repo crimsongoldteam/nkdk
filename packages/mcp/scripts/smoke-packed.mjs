@@ -47,8 +47,9 @@ try {
     throw new Error("packed MCP server depends on the development-only client package")
   }
 
-  const command = join(tmpRoot, "node_modules/.bin/nkdk-mcp")
-  const transport = new StdioClientTransport({ command, args: [] })
+  const command = process.execPath
+  const commandArgs = [join(tmpRoot, "node_modules/@nkdk/mcp/dist/bin/nkdk-mcp")]
+  const transport = new StdioClientTransport({ command, args: commandArgs })
   const client = new Client({ name: "nkdk-packed-stdio-smoke", version: "1.0.0" }, modernClientOptions)
 
   await client.connect(transport)
@@ -162,7 +163,7 @@ try {
   }
 
   const port = await findFreeLoopbackPort()
-  const httpProcess = spawn(command, ["--http", "--port", String(port)], {
+  const httpProcess = spawn(command, [...commandArgs, "--http", "--port", String(port)], {
     cwd: tmpRoot,
     stdio: ["ignore", "pipe", "pipe"],
   })
