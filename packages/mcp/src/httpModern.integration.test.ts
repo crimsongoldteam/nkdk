@@ -81,7 +81,41 @@ describe("modern-only MCP HTTP", () => {
     expect(response.status).toBe(400)
     await expect(response.json()).resolves.toMatchObject({ error: { code: expect.any(Number) } })
   })
+
+  it("возвращает протокольную ошибку для неподдерживаемой MCP-версии", async () => {
+    const response = await handler.fetch(discoverRequest({
+      protocolVersion: "2099-01-01",
+      methodHeader: "server/discover",
+    }))
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toMatchObject({ error: { code: expect.any(Number) } })
+  })
 })
+
+function discoverRequest(options: { protocolVersion: string; methodHeader: string }): Request {
+  return new Request(endpoint, {
+    method: "POST",
+    headers: {
+      host: `127.0.0.1:${port}`,
+      "content-type": "application/json",
+      "mcp-protocol-version": options.protocolVersion,
+      "mcp-method": options.methodHeader,
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "server/discover",
+      params: {
+        _meta: {
+          "io.modelcontextprotocol/protocolVersion": options.protocolVersion,
+          "io.modelcontextprotocol/clientInfo": { name: "version-test", version: "1" },
+          "io.modelcontextprotocol/clientCapabilities": {},
+        },
+      },
+    }),
+  })
+}
 
 function inProcessFetch(fetchHandler: (request: Request) => Promise<Response>): FetchLike {
   return async (input, init) => {

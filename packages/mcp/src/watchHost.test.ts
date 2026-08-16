@@ -67,6 +67,28 @@ describe("MCP watch host", () => {
     expect(harness.fatal).toEqual(["Не удалось восстановить server/discover после обновления"])
   })
 
+  it("не выпускает очередь после malformed discover-ответа нового worker", () => {
+    const harness = createHarness()
+    completeInitialDiscover(harness)
+    harness.host.reload()
+    harness.host.receive(request(2, "tools/list"))
+
+    harness.workers[1]!.respond({ jsonrpc: "2.0", id: "nkdk-watch-discover-2" })
+
+    expect(harness.workers[1]!.written).toHaveLength(1)
+    expect(harness.fatal).toEqual(["Не удалось восстановить server/discover после обновления"])
+  })
+
+  it("явно завершает соединение при выходе нового worker", () => {
+    const harness = createHarness()
+    completeInitialDiscover(harness)
+    harness.host.reload()
+
+    harness.workers[1]!.exit()
+
+    expect(harness.fatal).toEqual(["MCP worker завершился во время watch-подключения"])
+  })
+
   it("закрывает активный worker без ложной fatal-ошибки", () => {
     const harness = createHarness()
     harness.host.start()

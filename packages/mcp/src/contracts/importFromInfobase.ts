@@ -90,7 +90,5 @@ export const importFromInfobaseOutputShape = Type.Union([
   toolErrorOutputSchema,
 ])
 
-export const importFromInfobasePublishedOutputSchema = importFromInfobaseOutputShape
-
 export type ImportFromInfobaseInput = Static<typeof importFromInfobaseInputShape>
 export type ImportFromInfobaseOutput = Static<typeof importFromInfobaseOutputShape>

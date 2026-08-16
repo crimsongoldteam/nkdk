@@ -79,6 +79,16 @@ try {
     })
     if (result.isError) throw new Error("nkdk.get_schema returned MCP error")
 
+    const guide = await client.readResource({ uri: "nkdk://guides/config-edit-yaml" })
+    if (guide.contents[0]?.uri !== "nkdk://guides/config-edit-yaml") {
+      throw new Error("packed stdio resource returned an unexpected result")
+    }
+
+    const prompt = await client.getPrompt({ name: "nkdk_config_edit_yaml" })
+    if (prompt.messages[0]?.role !== "user") {
+      throw new Error("packed stdio prompt returned an unexpected result")
+    }
+
     const projectDir = join(tmpRoot, "project")
     const configurationDir = join(projectDir, "cf")
     await cp(

@@ -69,7 +69,5 @@ export const syncToInfobaseOutputShape = Type.Union([
   otherErrorSchema,
 ])
 
-export const syncToInfobasePublishedOutputSchema = syncToInfobaseOutputShape
-
 export type SyncToInfobaseInput = Static<typeof syncToInfobaseInputSchema>
 export type SyncToInfobaseOutput = Static<typeof syncToInfobaseOutputShape>

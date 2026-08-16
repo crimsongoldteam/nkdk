@@ -5,12 +5,12 @@ import { getSchemaInputShape, getSchemaOutputShape } from "../contracts/getSchem
 import { importFromXmlInputShape, importFromXmlOutputShape } from "../contracts/importFromXml"
 import {
   importFromInfobaseInputShape,
-  importFromInfobasePublishedOutputSchema,
+  importFromInfobaseOutputShape,
   type ImportFromInfobaseOutput,
 } from "../contracts/importFromInfobase"
 import {
   syncToInfobaseInputSchema,
-  syncToInfobasePublishedOutputSchema,
+  syncToInfobaseOutputShape,
   type SyncToInfobaseOutput,
 } from "../contracts/syncToInfobase"
 import { initSyncStateInputShape, initSyncStateOutputShape } from "../contracts/initSyncState"
@@ -71,9 +71,9 @@ const mcpSchemas = {
   importFromXmlInput: toMcpSchema(importFromXmlInputShape),
   importFromXmlOutput: toMcpSchema(importFromXmlOutputShape),
   importFromInfobaseInput: toMcpSchema(importFromInfobaseInputShape),
-  importFromInfobaseOutput: toMcpSchema(importFromInfobasePublishedOutputSchema),
+  importFromInfobaseOutput: toMcpSchema(importFromInfobaseOutputShape),
   syncToInfobaseInput: toMcpSchema(syncToInfobaseInputSchema),
-  syncToInfobaseOutput: toMcpSchema(syncToInfobasePublishedOutputSchema),
+  syncToInfobaseOutput: toMcpSchema(syncToInfobaseOutputShape),
   closePlatformConnectionInput: toMcpSchema(closePlatformConnectionInputShape),
   closePlatformConnectionOutput: toMcpSchema(closePlatformConnectionOutputShape),
   closeAllPlatformConnectionsInput: toMcpSchema(closeAllPlatformConnectionsInputShape),

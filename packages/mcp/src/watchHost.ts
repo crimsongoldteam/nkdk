@@ -101,7 +101,7 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
       if (line.length === 0) continue
       const parsed = parseMessage(line)
       if (parsed?.id === internalDiscoverId(state.generation)) {
-        if ("error" in parsed) {
+        if ("error" in parsed || !("result" in parsed)) {
           fail("Не удалось восстановить server/discover после обновления")
           return
         }

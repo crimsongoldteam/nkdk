@@ -4,6 +4,7 @@ import { createNkdkMcpHttpHandler } from "./httpServer"
 describe("локальный MCP HTTP", () => {
   it.each([
     ["wrong path", request("http://127.0.0.1:3000/other"), 404],
+    ["query string", request("http://127.0.0.1:3000/mcp?debug=1"), 404],
     ["wrong method", request("http://127.0.0.1:3000/mcp", { method: "GET" }), 405],
     ["remote host", request("http://evil.test/mcp", { headers: baseHeaders({ host: "evil.test" }) }), 400],
     ["wrong port", request("http://127.0.0.1:3001/mcp", { headers: baseHeaders({ host: "127.0.0.1:3001" }) }), 400],
