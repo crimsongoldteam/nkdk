@@ -28,7 +28,6 @@ const commonOptions = {
   bundle: true,
   external: [
     "@modelcontextprotocol/node",
-    "@modelcontextprotocol/sdk",
     "@modelcontextprotocol/server",
     "@node-rs/xxhash",
     "date-fns",

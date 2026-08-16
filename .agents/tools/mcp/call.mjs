@@ -7,8 +7,8 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url))
 const requireFromHere = createRequire(import.meta.url)
 const mcpPackageRoot = `${repoRoot}/packages/mcp`
-const { Client } = requireFromMcpPackage("@modelcontextprotocol/sdk/client/index.js")
-const { StdioClientTransport } = requireFromMcpPackage("@modelcontextprotocol/sdk/client/stdio.js")
+const { Client } = requireFromMcpPackage("@modelcontextprotocol/client")
+const { StdioClientTransport } = requireFromMcpPackage("@modelcontextprotocol/client/stdio")
 const tsxLoader = requireFromHere.resolve("tsx", { paths: [mcpPackageRoot] })
 
 function requireFromMcpPackage(specifier) {
@@ -95,6 +95,9 @@ export async function reportServerStderr({
 }
 
 export const MCP_CALL_TIMEOUT_MS = 2_147_483_647
+export const MCP_CLIENT_OPTIONS = {
+  versionNegotiation: { mode: { pin: "2026-07-28" } },
+}
 
 export function callToolWithoutPracticalLimit(client, request) {
   return client.callTool(request, undefined, { timeout: MCP_CALL_TIMEOUT_MS })
@@ -153,7 +156,7 @@ export async function createMcpToolSession({
   debug = false,
   env = childEnvironment(),
   createTransport = (options) => new StdioClientTransport(options),
-  createClient = () => new Client({ name: "nkdk-round-trip", version: "1.0.0" }),
+  createClient = (options) => new Client({ name: "nkdk-round-trip", version: "1.0.0" }, options),
 } = {}) {
   const launch = resolveServerLaunch(serverMode)
   if (debug) process.stderr.write(`[mcp] ${launch.command} ${launch.args.join(" ")}\n`)
@@ -163,7 +166,7 @@ export async function createMcpToolSession({
     env,
     stderr: "pipe",
   })
-  const client = createClient()
+  const client = createClient(MCP_CLIENT_OPTIONS)
   let stderr = ""
   let closed = false
 

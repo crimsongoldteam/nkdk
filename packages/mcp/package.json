@@ -19,12 +19,11 @@
     "smoke:packed": "node scripts/smoke-packed.mjs",
     "test": "node ../../scripts/run-test-duration-check.mjs -- --project unit && pnpm run test:integration",
     "test:isolated": "node ../../scripts/run-test-duration-check.mjs -- --project unit",
-    "test:integration": "node ../../scripts/run-test-duration-check.mjs --integration -- --project integration",
+    "test:integration": "node ../../scripts/run-test-duration-check.mjs --integration -- --maxWorkers=1 --project integration",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@modelcontextprotocol/node": "^2.0.0",
-    "@modelcontextprotocol/sdk": "^1.30.0",
     "@modelcontextprotocol/server": "^2.0.0",
     "@node-rs/xxhash": "^1.7.6",
     "date-fns": "^4.4.0",
