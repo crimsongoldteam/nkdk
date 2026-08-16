@@ -27,7 +27,9 @@ const commonOptions = {
   absWorkingDir: repoRoot,
   bundle: true,
   external: [
+    "@modelcontextprotocol/node",
     "@modelcontextprotocol/sdk",
+    "@modelcontextprotocol/server",
     "@node-rs/xxhash",
     "date-fns",
     "fast-xml-parser",

@@ -23,7 +23,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@modelcontextprotocol/node": "^2.0.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/server": "^2.0.0",
     "@node-rs/xxhash": "^1.7.6",
     "date-fns": "^4.4.0",
     "fast-xml-parser": "^5.10.1",
@@ -44,6 +46,7 @@
     "@nkdk/rules": "workspace:*",
     "@nkdk/platform": "workspace:*",
     "@zip.js/zip.js": "^2.8.34",
+    "@modelcontextprotocol/client": "^2.0.0",
     "@types/node": "^26.1.2",
     "esbuild": "^0.28.1",
     "typescript": "~7.0.0",
