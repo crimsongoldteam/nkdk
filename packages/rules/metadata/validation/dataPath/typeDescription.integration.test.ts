@@ -176,28 +176,30 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
 
   it("maps SettingsComposer through the registered typed graph", () => {
     expect(typeDescriptionToDataPathTypeInfo({ type: ["SettingsComposer"] })).toMatchObject({
-      kinds: ["tableSource"],
+      kinds: ["structured"],
       nextTypes: [],
       terminalTypes: ["DataCompositionSettingsComposer"],
-      table: { kind: "Registered", type: "DataCompositionSettingsComposer" },
+      structuredType: "DataCompositionSettingsComposer",
     })
     expect(typeDescriptionToDataPathTypeInfo({ type: ["КомпоновщикНастроекКомпоновкиДанных"] })).toMatchObject({
-      kinds: ["tableSource"],
+      kinds: ["structured"],
       nextTypes: [],
       terminalTypes: ["DataCompositionSettingsComposer"],
-      table: { kind: "Registered", type: "DataCompositionSettingsComposer" },
+      structuredType: "DataCompositionSettingsComposer",
     })
   })
 
-  it("maps StandardPeriod as a standard period source", () => {
+  it("maps StandardPeriod as a structured source", () => {
     expect(typeDescriptionToDataPathTypeInfo({ type: ["StandardPeriod"] })).toMatchObject({
-      kinds: ["standardPeriod"],
+      kinds: ["structured"],
       nextTypes: [],
+      structuredType: "StandardPeriod",
       sourceText: "StandardPeriod",
     })
     expect(typeDescriptionToDataPathTypeInfo({ type: ["СтандартныйПериод"] })).toMatchObject({
-      kinds: ["standardPeriod"],
+      kinds: ["structured"],
       nextTypes: [],
+      structuredType: "StandardPeriod",
       sourceText: "СтандартныйПериод",
     })
   })

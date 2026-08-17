@@ -1,12 +1,13 @@
 import type { DataPathContribution } from "../../validation/dataPath/registry"
 import {
-  resolveSettingsComposerProperty,
   SETTINGS_COMPOSER_TYPE,
+  settingsComposerGraph,
   settingsComposerNamePairs,
   settingsComposerTypeInfo,
-} from "./dataPathModel"
+} from "./dataPathGraph"
 
 export const settingsComposerDataPathRules: readonly DataPathContribution[] = [
+  { kind: "typedGraph", types: settingsComposerGraph },
   {
     kind: "formattingNamePairs",
     pairs: settingsComposerNamePairs.map(([internal, yaml]) => ({ internal, yaml })),
@@ -43,7 +44,7 @@ export const settingsComposerDataPathRules: readonly DataPathContribution[] = [
           typeInfo: settingsComposerTypeInfo(SETTINGS_COMPOSER_TYPE),
         }
       }
-      return table.kind === "Registered" ? resolveSettingsComposerProperty(table.type, segment) : undefined
+      return undefined
     },
   },
 ]

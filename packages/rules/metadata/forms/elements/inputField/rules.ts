@@ -19,7 +19,7 @@ import type { DataPathAllowedKind, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
-import { settingsComposerValueFieldKinds } from "../../settingsComposer/dataPathModel"
+import { settingsComposerValueFieldKinds } from "../../settingsComposer/dataPathGraph"
 export type { ElementRule, PropertyRule }
 const inputFieldDataPathKinds = [
   "string", "decimal", "boolean", "dateTime", "UUID", "Null", "<any>",

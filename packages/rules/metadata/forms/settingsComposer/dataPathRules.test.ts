@@ -25,7 +25,8 @@ describe("settingsComposerDataPathRules", () => {
 
       expect(contribution?.kind === "typeResolver" && contribution.resolver({ baseType })).toMatchObject({
         terminalTypes: ["DataCompositionSettingsComposer"],
-        table: { kind: "Registered", type: "DataCompositionSettingsComposer" },
+        kinds: ["structured"],
+        structuredType: "DataCompositionSettingsComposer",
       })
     },
   )
@@ -40,7 +41,10 @@ describe("settingsComposerDataPathRules", () => {
     })).toMatchObject({
       name: "КомпоновщикНастроек",
       targetName: "SettingsComposer",
-      typeInfo: { terminalTypes: ["DataCompositionSettingsComposer"] },
+      typeInfo: {
+        terminalTypes: ["DataCompositionSettingsComposer"],
+        structuredType: "DataCompositionSettingsComposer",
+      },
     })
   })
 })

@@ -48,7 +48,6 @@ export type ResolvedDataPathTargetSource =
   | { kind: "constant"; name: string }
   | { kind: "registerRecords"; owner: OwnerTypeRef; name: string }
   | { kind: "registerRecordSet"; owner: OwnerTypeRef; name: string }
-  | { kind: "standardPeriodField"; name: string }
   | { kind: "typedMember"; type: string; name: string }
 
 export interface ResolvedDataPathSegmentReplacement {
@@ -282,21 +281,6 @@ function resolveDataPathCoreWithCurrentData(
       return okWithoutTarget({ value, segments, replacements })
     }
 
-    if (state.typeInfo.kinds.includes("standardPeriod")) {
-      const field = standardPeriodField(lookupSegment)
-      if (field === undefined) {
-        return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
-      }
-
-      state = {
-        typeInfo: field.typeInfo,
-        source: { kind: "standardPeriodField", name: lookupSegment },
-      }
-
-      if (isLast) return okTarget({ value, segments, state, replacements })
-      continue
-    }
-
     if (state.typeInfo.kinds.includes("structured")) {
       const structuredType = state.typeInfo.structuredType
       const member = structuredType === undefined
@@ -304,6 +288,13 @@ function resolveDataPathCoreWithCurrentData(
         : resolveTypedDataPathMember({ type: structuredType, segment: lookupSegment })
       if (member === undefined) {
         return error(params, `ПутьКДанным "${value}": неизвестное свойство "${segment}"`)
+      }
+      if (params.nameMode === "yaml" && lookupSegment === member.internal && member.internal !== member.yaml) {
+        return error(
+          params,
+          `ПутьКДанным "${value}": в YAML используйте "${member.yaml}" вместо "${segment}"`,
+          "internal_standard_member_in_yaml",
+        )
       }
 
       recordStandardMemberReplacement({
@@ -625,23 +616,6 @@ function tableSourceFromObjectField(field: {
   }
 }
 
-function standardPeriodField(segment: string): { typeInfo: DataPathTypeInfo } | undefined {
-  if (segment === "Variant") {
-    return { typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "StandardPeriod.Variant" } }
-  }
-  if (segment === "StartDate" || segment === "EndDate") {
-    return {
-      typeInfo: {
-        kinds: ["dateTime"],
-        nextTypes: [],
-        terminalTypes: ["dateTime"],
-        sourceText: `StandardPeriod.${segment}`,
-      },
-    }
-  }
-  return undefined
-}
-
 function resolveConstantSetItem(params: {
   params: ResolveDataPathCoreParams
   segment: string
@@ -890,6 +864,39 @@ function resolveTableColumn(params: {
     return { status: "done", result: registeredColumnResult.result }
   }
 
+  if (registeredColumnResult.typedMember !== undefined) {
+    if (
+      params.params.nameMode === "yaml" &&
+      lookupSegment === registeredColumnResult.typedMember.internal &&
+      registeredColumnResult.typedMember.internal !== registeredColumnResult.typedMember.yaml
+    ) {
+      return {
+        status: "done",
+        result: error(
+          params.params,
+          `ПутьКДанным "${params.value}": в YAML используйте "${registeredColumnResult.typedMember.yaml}" вместо "${params.segment}"`,
+          "internal_standard_member_in_yaml",
+        ),
+      }
+    }
+    recordStandardMemberReplacement({
+      replacements: params.replacements,
+      nameMode: params.params.nameMode,
+      segmentIndex: params.segmentIndex,
+      input: lookupSegment,
+      internalName: registeredColumnResult.typedMember.internal,
+      yamlName: registeredColumnResult.typedMember.yaml,
+    })
+    const state = stateFromTypedMember(registeredColumnResult.typedMember, params.state.trace ?? [])
+    if (params.isLast) {
+      return {
+        status: "done",
+        result: okTarget({ value: params.value, segments: params.segments, state, replacements: params.replacements }),
+      }
+    }
+    return { status: "continue", state }
+  }
+
   if (tableSource.table.kind === "DynamicList" && registeredColumnResult.column === undefined) {
     return {
       status: "done",
@@ -994,7 +1001,11 @@ function resolveRegisteredColumn(params: {
   tableSource: FormDataPathTableSource | ObjectFieldTableSource
   segment: string
   replacements: readonly ResolvedDataPathSegmentReplacement[]
-}): { status: "ok"; column?: TableColumnSource } | { status: "error"; result: ResolveDataPathCoreResult } {
+}): {
+  status: "ok"
+  column?: TableColumnSource
+  typedMember?: ResolvedTypedDataPathMember
+} | { status: "error"; result: ResolveDataPathCoreResult } {
   const ownerResult =
     params.tableSource.table.kind === "RegisterRecordSet"
       ? params.params.ownerCache.get(params.tableSource.table.owner)
@@ -1020,6 +1031,9 @@ function resolveRegisteredColumn(params: {
     ...(ownerResult?.status === "ok" ? { owner: ownerResult.owner } : {}),
     ...(field !== undefined ? { field } : {}),
   })
+  const typedMember = column === undefined && params.tableSource.table.kind === "Registered"
+    ? resolveTypedDataPathMember({ type: params.tableSource.table.type, segment: params.segment })
+    : undefined
   if (
     params.params.nameMode === "yaml" &&
     column?.targetName === params.segment &&
@@ -1037,6 +1051,7 @@ function resolveRegisteredColumn(params: {
   return {
     status: "ok",
     ...(column !== undefined ? { column } : {}),
+    ...(typedMember !== undefined ? { typedMember } : {}),
   }
 }
 
@@ -1198,7 +1213,6 @@ function validateIntermediateType(params: {
   if (typeInfo.kinds.includes("constantSet")) return undefined
   if (typeInfo.kinds.includes("registerRecords")) return undefined
   if (typeInfo.kinds.includes("platformSource")) return undefined
-  if (typeInfo.kinds.includes("standardPeriod")) return undefined
   if (typeInfo.kinds.includes("structured")) return undefined
   if ((typeInfo.definedTypes?.length ?? 0) > 0) return undefined
 
