@@ -9,7 +9,7 @@ export function createNkdkMcpHttpHandler(
   port: number,
   factory: McpServerFactory = createNkdkMcpServer,
 ): McpHttpHandler {
-  const mcp = createMcpHandler(factory, { legacy: "reject" })
+  const mcp = createMcpHandler(factory, { legacy: "stateless" })
   return {
     fetch: async (request, options) => {
       const rejection = validateLocalRequest(request, port)

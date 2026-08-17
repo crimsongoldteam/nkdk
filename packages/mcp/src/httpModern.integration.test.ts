@@ -6,6 +6,7 @@ const port = 3000
 const endpoint = new URL(`http://127.0.0.1:${port}/mcp`)
 const handler = createNkdkMcpHttpHandler(port)
 let client: Client
+let legacyClient: Client
 let readOnlyResult: Awaited<ReturnType<Client["callTool"]>>
 let confirmationResult: Awaited<ReturnType<Client["callTool"]>>
 
@@ -15,6 +16,14 @@ beforeAll(async () => {
     { versionNegotiation: { mode: { pin: "2026-07-28" } } },
   )
   await client.connect(new StreamableHTTPClientTransport(endpoint, { fetch: inProcessFetch(handler.fetch) }))
+  legacyClient = new Client(
+    { name: "nkdk-legacy-http-test", version: "1.0.0" },
+    {
+      supportedProtocolVersions: ["2025-06-18"],
+      versionNegotiation: { mode: "legacy" },
+    },
+  )
+  await legacyClient.connect(new StreamableHTTPClientTransport(endpoint, { fetch: inProcessFetch(handler.fetch) }))
   readOnlyResult = await client.callTool({ name: "nkdk.list_infobases", arguments: {} })
   confirmationResult = await client.callTool({
     name: "nkdk.import_from_infobase",
@@ -23,10 +32,10 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await Promise.allSettled([client.close(), handler.close()])
+  await Promise.allSettled([client.close(), legacyClient.close(), handler.close()])
 })
 
-describe("modern-only MCP HTTP", () => {
+describe("MCP HTTP", () => {
   it("обслуживает MCP 2026-07-28 stateless-запросами", async () => {
     expect(client.getProtocolEra()).toBe("modern")
     expect(client.getNegotiatedProtocolVersion()).toBe("2026-07-28")
@@ -53,6 +62,14 @@ describe("modern-only MCP HTTP", () => {
   it("получает prompt", async () => {
     const prompt = await client.getPrompt({ name: "nkdk_config_edit_yaml" })
     expect(prompt.messages[0]?.role).toBe("user")
+  })
+
+  it("обслуживает MCP 2025-06-18 stateless-запросами", async () => {
+    expect(legacyClient.getProtocolEra()).toBe("legacy")
+    expect(legacyClient.getNegotiatedProtocolVersion()).toBe("2025-06-18")
+
+    const tools = await legacyClient.listTools()
+    expect(tools.tools.map((tool) => tool.name)).toContain("nkdk.list_infobases")
   })
 
   it("возвращает протокольную ошибку при конфликте standard MCP headers", async () => {
