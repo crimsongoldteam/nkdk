@@ -28,11 +28,7 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
         ЦветТекста: "ЭлементСтиля.ТекстЗапрещеннойЯчейкиЦвет",
         Шрифт: { Вид: "ШрифтТекста", Размер: 10 },
         ГоризонтальноеПоложение: "Лево",
-        Видимость: {
-          Тип: "СистемноеПеречисление",
-          Имя: "HorizontalAlign",
-          Значение: "Лево",
-        },
+        Видимость: "Истина",
         Формат: "ЧЦ=3; ЧДЦ=2",
         Текст: { Значение: { ru: "Текст" } },
       })
@@ -44,6 +40,29 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
 
     expect(compiled.Check({ Видимость: { Тип: "ВидСравненияКомпоновкиДанных", Значение: "Равно" } })).toBe(false)
     expect(compiled.Check({ Шрифт: { Вид: "ШрифтТекста", Лишнее: "x" } })).toBe(false)
+  })
+
+  it("rejects an unknown appearance parameter", () => {
+    expect(compiledAppearanceFieldsSchema.Check({ НеизвестноеОформление: "Истина" })).toBe(false)
+  })
+
+  it.each([
+    "ВыделятьОтрицательные",
+    "ОтметкаНезаполненного",
+    "Видимость",
+    "Доступность",
+    "ТолькоПросмотр",
+    "Отображать",
+  ] as const)("accepts only boolean values for %s", (property) => {
+    const check = (value: unknown) => compiledAppearanceFieldsSchema.Check({ [property]: value })
+
+    expect(check("Истина")).toBe(true)
+    expect(check("Ложь")).toBe(true)
+    expect(check({ Значение: "Истина" })).toBe(true)
+    expect(check(null)).toBe(true)
+    expect(check(1)).toBe(false)
+    expect(check("произвольная строка")).toBe(false)
+    expect(check(["Истина"])).toBe(false)
   })
 
   it("accepts only explicit marker for DCS auto color", () => {
