@@ -14,7 +14,7 @@ describe("inferConditionalOperandType", () => {
     [{ Вариант: "НачалоЭтогоДня" }, undefined, "StandardBeginningDate"],
     [
       "Справочник.Номенклатура.ПустаяСсылка",
-      undefined,
+      { type: "ref", value: "Catalog.Номенклатура.EmptyRef" },
       "CatalogRef.*",
     ],
   ])("выводит тип константы %j", (value, sourceValue, expected) => {
@@ -38,6 +38,13 @@ describe("inferConditionalOperandType", () => {
     expect(inferConditionalOperandType({
       context: mockContext,
       value: [1],
+    })).toEqual({ kind: "unknown" })
+  })
+
+  it("не выводит ссылочный тип из одного DesignTimeValue без исходного XML", () => {
+    expect(inferConditionalOperandType({
+      context: mockContext,
+      value: "Справочник.Номенклатура.ПустаяСсылка",
     })).toEqual({ kind: "unknown" })
   })
 })

@@ -26,7 +26,8 @@ DCS, которое общий resolver не смог однозначно ра�
 полным исходным значением элемента `DataPath` и не преобразуется в DCS-поле.
 
 `!xml/reference` в `Поля` условного оформления аналогично создаётся только при
-XML-импорте неизвестного элемента формы. Непустой payload экспортируется
+XML-импорте неизвестного элемента формы либо неразрешимого поля набора данных
+`DynamicList`. Непустой payload экспортируется
 дословно; значение не разрешается повторно и не порождает диагностику
 избыточности. Обычная строка с текстом `!xml/value …` или `!xml/reference …`,
 но без реального YAML-тега, carrier не образует.
@@ -70,7 +71,7 @@ XML-импорте неизвестного элемента формы. Неп�
 | корневой `ClientApplicationInterface` без размещённых панелей | `ИнтерфейсКлиентскогоПриложения` | `!xml/present` | существующий `Ext/ClientApplicationInterface.xml` только с пятью стандартными `<panelDef>` и без `top`, `left`, `right`, `bottom` |
 | управляемая форма | `ПутьКДанным` | `!xml/value <исходный внутренний путь>` | `<DataPath><исходный внутренний путь></DataPath>` |
 | условное оформление управляемой формы или `DynamicList` | неразрешимое поле в `ЛевоеЗначение` или скалярном `ПравоеЗначение` условия | `!xml/value <исходный внутренний путь без ведущей точки>` с непустым payload | `<dcsset:left xsi:type="dcscor:Field"><исходный внутренний путь></dcsset:left>` либо `<dcsset:right xsi:type="dcscor:Field">…</dcsset:right>` |
-| условное оформление реквизитов управляемой формы | неизвестный оформляемый элемент в короткой записи `Поля` либо в свойстве `Поле` расширенной записи | `!xml/reference <исходное имя элемента>` с непустым payload | `<dcsset:field><исходное имя элемента></dcsset:field>` |
+| условное оформление управляемой формы или `DynamicList` | неизвестный оформляемый элемент формы либо неразрешимое поле набора данных списка в короткой записи `Поля` или свойстве `Поле` расширенной записи | `!xml/reference <исходное имя>` с непустым payload | `<dcsset:field><исходное имя></dcsset:field>` |
 | `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | битая ссылка типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml/reference <ссылка>`; низкоуровневая битая ссылка — `<UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><внутренняя ссылка></…>` |
 | `Subsystem` | битая ссылка в элементе состава подсистемы | `!xml/reference <UUID>` | `<xr:Item xsi:type="xr:MDObjectRef"><UUID></xr:Item>` |
 | корневой `CommandInterface` | битая ссылка в `ПорядокПодсистем` | `!xml/reference <UUID>` | `<SubsystemsOrder><Subsystem><UUID></Subsystem></SubsystemsOrder>` |

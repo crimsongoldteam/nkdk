@@ -52,8 +52,7 @@ describe("validateFormConditionalAppearance", () => {
     expect(messages).toContainEqual(expect.stringContaining("несовместимы: decimal и string"))
     expect(messages).toContainEqual(expect.stringContaining('свойство "Вариант" недоступно'))
     expect(messages).toContainEqual(expect.stringContaining('неизвестный корень "Неизвестный"'))
-    expect(messages).toContainEqual(expect.stringContaining("несовместимы: CatalogRef.* и decimal"))
-    expect(messages.filter((message) => message.includes("несовместимы"))).toHaveLength(2)
+    expect(messages.filter((message) => message.includes("несовместимы"))).toHaveLength(1)
   })
 
   it("единым resolver проверяет известный и неизвестный путь DynamicList", () => {
@@ -66,7 +65,8 @@ describe("validateFormConditionalAppearance", () => {
       "    ДинамическийСписок:",
       "      УсловноеОформление:",
       "        Элементы:",
-      "          - Отбор:",
+      "          - Поля: [Количество, НеизвестноеПолеОформления]",
+      "            Отбор:",
       "              Элементы:",
       "                - ЛевоеЗначение: .КомпоновщикНастроек.Настройки.НаличиеОтбора",
       "                  ПравоеЗначение: Истина",
@@ -79,8 +79,9 @@ describe("validateFormConditionalAppearance", () => {
     const yaml = parsed.data as Record<string, unknown>
 
     const messages = runValidation(parsed, yaml).map((item) => item.message)
-    expect(messages).toHaveLength(2)
+    expect(messages).toHaveLength(3)
     expect(messages).toContainEqual(expect.stringContaining('Не удалось определить поле "Список.НеизвестноеПоле"'))
+    expect(messages).toContainEqual(expect.stringContaining('Не удалось определить оформляемое поле "Список.НеизвестноеПолеОформления"'))
     expect(messages).toContainEqual(expect.stringContaining("несовместимы: decimal и string"))
   })
 

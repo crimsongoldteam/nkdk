@@ -74,4 +74,26 @@ describe("finalizeImportedConditionalAppearanceAnomalies", () => {
     expect(serializeYAMLDocument(yaml).text).toContain("ЛевоеЗначение: !xml/value Период.Variant")
     expect(yamlScalarTagAt(comparison, "ЛевоеЗначение")).toBe("xml/value")
   })
+
+  it("разрешает известные оформляемые поля DynamicList и помечает неизвестные", () => {
+    const yaml = {
+      Реквизиты: {
+        Список: {
+          Колонки: { Количество: { Тип: "Число" } },
+          ДинамическийСписок: { УсловноеОформление: { Элементы: [{
+            Поля: ["Количество", "НеизвестноеПоле"],
+          }] } },
+        },
+      },
+    } satisfies ClientApplicationFormYAML
+    const originals = collectConditionalAppearanceOccurrences(yaml)
+    const dataPathContext = prepareFormDataPathContextFromYAML({ yaml, ownerCache })
+
+    withMetadataExecutionRegistrySets(registries, () =>
+      finalizeImportedConditionalAppearanceAnomalies({ yaml, originals, dataPathContext, ownerCache }))
+
+    const fields = yaml.Реквизиты.Список.ДинамическийСписок.УсловноеОформление.Элементы[0]!.Поля
+    expect(yamlScalarTagAt(fields, 0)).toBeUndefined()
+    expect(yamlScalarTagAt(fields, 1)).toBe("xml/reference")
+  })
 })

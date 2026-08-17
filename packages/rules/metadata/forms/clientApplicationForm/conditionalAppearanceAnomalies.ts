@@ -30,7 +30,11 @@ export function finalizeImportedConditionalAppearanceAnomalies(params: {
   }
 
   for (const occurrence of current.targets) {
-    if (occurrence.tagged || params.dataPathContext.elementsByName.has(occurrence.value)) continue
+    if (occurrence.tagged) continue
+    const resolved = occurrence.tableContext === undefined
+      ? params.dataPathContext.elementsByName.has(occurrence.value)
+      : conditionalFieldIsResolved(occurrence, params.dataPathContext, params.ownerCache)
+    if (resolved) continue
     const original = originalTargets.get(pathKey(occurrence.yamlPath))
     if (original === undefined) continue
     tagOccurrence(occurrence, "xml/reference", original.value)
@@ -38,7 +42,7 @@ export function finalizeImportedConditionalAppearanceAnomalies(params: {
 }
 
 function conditionalFieldIsResolved(
-  occurrence: ConditionalOperandOccurrence,
+  occurrence: ConditionalOperandOccurrence | ConditionalTargetOccurrence,
   dataPathContext: FormDataPathContext,
   ownerCache: OwnerMetadataCache,
 ): boolean {

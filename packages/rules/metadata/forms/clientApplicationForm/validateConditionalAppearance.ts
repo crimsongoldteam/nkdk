@@ -9,7 +9,11 @@ import { resolveDataPath, type ResolvedDataPathTarget } from "../../validation/d
 import { dataPathTerminalGroupsIntersect } from "../../validation/dataPath/terminalTypes"
 import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
-import { collectConditionalAppearanceOccurrences, type ConditionalOperandOccurrence } from "./conditionalAppearanceTraversal"
+import {
+  collectConditionalAppearanceOccurrences,
+  type ConditionalOperandOccurrence,
+  type ConditionalTargetOccurrence,
+} from "./conditionalAppearanceTraversal"
 import { inferConditionalOperandType } from "./conditionalOperandTypes"
 import type { FormDataPathContext } from "./formDataPathContext"
 
@@ -29,8 +33,15 @@ export function validateFormConditionalAppearance(params: {
   const diagnostics: Diagnostic[] = []
 
   for (const target of occurrences.targets) {
-    if (target.tagged || params.dataPathContext.elementsByName.has(target.value)) continue
-    diagnostics.push(atPath(params, target.yamlPath, `Неизвестный оформляемый элемент формы "${target.value}".`))
+    if (target.tagged) continue
+    if (target.tableContext === undefined) {
+      if (!params.dataPathContext.elementsByName.has(target.value)) {
+        diagnostics.push(atPath(params, target.yamlPath, `Неизвестный оформляемый элемент формы "${target.value}".`))
+      }
+      continue
+    }
+    const resolution = resolveConditionalAppearanceTarget({ ...params, occurrence: target })
+    if ("diagnostics" in resolution) diagnostics.push(...resolution.diagnostics)
   }
 
   const typesByComparison = new Map<string, Partial<Record<"left" | "right", NormalizedDataPathTerminalType>>>()
@@ -81,10 +92,32 @@ export function resolveConditionalAppearanceField(params: {
   if (occurrence.value === ".") return { status: "empty" }
   if (typeof occurrence.value !== "string") return { status: "deferred", diagnostics: [] }
 
-  const relative = occurrence.value.startsWith(".") ? occurrence.value.slice(1) : occurrence.value
-  const resolverValue = occurrence.tableContext === undefined
-    ? relative
-    : `${occurrence.tableContext.dataPath}.${relative}`
+  return resolveConditionalAppearanceDataPath({ ...params, occurrence, subject: "поле" })
+}
+
+function resolveConditionalAppearanceTarget(params: {
+  filePath: string
+  parsed: ParsedYaml
+  dataPathContext: FormDataPathContext
+  ownerCache: OwnerMetadataCache
+  occurrence: ConditionalTargetOccurrence
+}): ConditionalFieldResolution {
+  if (params.occurrence.tagged) return { status: "tagged" }
+  return resolveConditionalAppearanceDataPath({ ...params, subject: "оформляемое поле" })
+}
+
+function resolveConditionalAppearanceDataPath(params: {
+  filePath: string
+  parsed: ParsedYaml
+  dataPathContext: FormDataPathContext
+  ownerCache: OwnerMetadataCache
+  occurrence: Pick<ConditionalOperandOccurrence | ConditionalTargetOccurrence, "value" | "yamlPath" | "tableContext">
+  subject: "поле" | "оформляемое поле"
+}): ConditionalFieldResolution {
+  const { occurrence } = params
+  if (typeof occurrence.value !== "string") return { status: "deferred", diagnostics: [] }
+  const relative = occurrence.value.replace(/^\./, "")
+  const resolverValue = occurrence.tableContext === undefined ? relative : `${occurrence.tableContext.dataPath}.${relative}`
   const result = resolveDataPath({
     filePath: params.filePath,
     parsed: params.parsed,
@@ -99,7 +132,7 @@ export function resolveConditionalAppearanceField(params: {
       status: "deferred",
       diagnostics: [
         ...result.diagnostics,
-        atPath(params, occurrence.yamlPath, `Не удалось определить поле "${resolverValue}" условного оформления.`),
+        atPath(params, occurrence.yamlPath, `Не удалось определить ${params.subject} "${resolverValue}" условного оформления.`),
       ],
     }
   }
@@ -109,11 +142,15 @@ export function resolveConditionalAppearanceField(params: {
       status: "unavailable",
       diagnostics: [
         ...result.diagnostics,
-        atPath(params, occurrence.yamlPath, `Поле "${resolverValue}": свойство "${leaf}" недоступно в условном оформлении формы.`),
+        atPath(params, occurrence.yamlPath, `${capitalize(params.subject)} "${resolverValue}": свойство "${leaf}" недоступно в условном оформлении формы.`),
       ],
     }
   }
   return { status: "resolved", target: result.target, diagnostics: result.diagnostics }
+}
+
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1)
 }
 
 function atPath(

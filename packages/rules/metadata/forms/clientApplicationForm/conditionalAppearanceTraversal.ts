@@ -19,6 +19,7 @@ export interface ConditionalTargetOccurrence {
   readonly parent: Record<string, unknown> | unknown[]
   readonly key: string | number
   readonly tagged: boolean
+  readonly tableContext?: TableContext
 }
 
 export interface ConditionalAppearanceOccurrences {
@@ -72,7 +73,7 @@ function visitConditionalAppearance(params: ConditionalTraversalParams & {
   items.forEach((item, index) => {
     if (!isRecord(item)) return
     const itemPath = [...params.yamlPath, "Элементы", index]
-    visitTargets(item["Поля"], [...itemPath, "Поля"], params.targets)
+    visitTargets(item["Поля"], [...itemPath, "Поля"], params.targets, params.tableContext)
     visitFilter({
       value: item["Отбор"],
       yamlPath: [...itemPath, "Отбор"],
@@ -82,7 +83,12 @@ function visitConditionalAppearance(params: ConditionalTraversalParams & {
   })
 }
 
-function visitTargets(value: unknown, yamlPath: YamlPath, targets: ConditionalTargetOccurrence[]): void {
+function visitTargets(
+  value: unknown,
+  yamlPath: YamlPath,
+  targets: ConditionalTargetOccurrence[],
+  tableContext?: TableContext,
+): void {
   if (!Array.isArray(value)) return
   value.forEach((item, index) => {
     if (typeof item === "string") {
@@ -92,6 +98,7 @@ function visitTargets(value: unknown, yamlPath: YamlPath, targets: ConditionalTa
         parent: value,
         key: index,
         tagged: yamlScalarTagAt(value, index) === "xml/reference",
+        ...(tableContext === undefined ? {} : { tableContext }),
       })
       return
     }
@@ -102,6 +109,7 @@ function visitTargets(value: unknown, yamlPath: YamlPath, targets: ConditionalTa
       parent: item,
       key: "Поле",
       tagged: yamlScalarTagAt(item, "Поле") === "xml/reference",
+      ...(tableContext === undefined ? {} : { tableContext }),
     })
   })
 }

@@ -19,6 +19,7 @@ describe("collectConditionalAppearanceOccurrences", () => {
           ДинамическийСписок: {
             УсловноеОформление: {
               Элементы: [{
+                Поля: ["Ссылка"],
                 Отбор: { Элементы: [{ ЛевоеЗначение: ".Ссылка", ПравоеЗначение: ".Владелец" }] },
               }],
             },
@@ -29,9 +30,14 @@ describe("collectConditionalAppearanceOccurrences", () => {
 
     const result = collectConditionalAppearanceOccurrences(yaml)
 
-    expect(result.targets.map(({ value, yamlPath }) => ({ value, yamlPath }))).toEqual([
-      { value: "ПолеФормы", yamlPath: ["УсловноеОформлениеРеквизитов", "Элементы", 0, "Поля", 0] },
-      { value: "РасширенноеПоле", yamlPath: ["УсловноеОформлениеРеквизитов", "Элементы", 0, "Поля", 1, "Поле"] },
+    expect(result.targets.map(({ value, yamlPath, tableContext }) => ({ value, yamlPath, tableContext }))).toEqual([
+      { value: "ПолеФормы", yamlPath: ["УсловноеОформлениеРеквизитов", "Элементы", 0, "Поля", 0], tableContext: undefined },
+      { value: "РасширенноеПоле", yamlPath: ["УсловноеОформлениеРеквизитов", "Элементы", 0, "Поля", 1, "Поле"], tableContext: undefined },
+      {
+        value: "Ссылка",
+        yamlPath: ["Реквизиты", "Список", "ДинамическийСписок", "УсловноеОформление", "Элементы", 0, "Поля", 0],
+        tableContext: { dataPath: "Список" },
+      },
     ])
     expect(result.operands.map(({ side, value, yamlPath, tableContext }) => ({ side, value, yamlPath, tableContext }))).toEqual([
       {
