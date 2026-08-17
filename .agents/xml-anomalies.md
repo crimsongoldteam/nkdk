@@ -16,6 +16,21 @@
 того, размещена эта панель или скрыта. `!xml/present` у всего интерфейса
 обозначает только существующий файл с пятью пустыми стандартными `panelDef`.
 
+В условном оформлении `!xml/value` регистрируется только при XML-импорте поля
+DCS, которое общий resolver не смог однозначно разрешить либо признал
+недоступным для условия формы. Payload обязан быть непустым и хранит исходный
+внутренний путь без служебной ведущей точки; при экспорте он дословно
+восстанавливается как `dcscor:Field`. Такой carrier не проходит resolver,
+проверку совместимости типов и проверку избыточности тега. Это отдельный
+договор от `!xml/value` у обычного `ПутьКДанным` формы: там payload является
+полным исходным значением элемента `DataPath` и не преобразуется в DCS-поле.
+
+`!xml/reference` в `Поля` условного оформления аналогично создаётся только при
+XML-импорте неизвестного элемента формы. Непустой payload экспортируется
+дословно; значение не разрешается повторно и не порождает диагностику
+избыточности. Обычная строка с текстом `!xml/value …` или `!xml/reference …`,
+но без реального YAML-тега, carrier не образует.
+
 | Объект с аномалией | Свойство | Классифицированный YAML-тег | Текст в XML |
 |---|---|---|---|
 | обычное поле (`MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension`, `MetadataExternalDataSourceCubeResource`) либо стандартный реквизит `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |
@@ -54,6 +69,8 @@
 | нестандартная панель `ClientApplicationInterface` с UUID | `ПустоеОпределение` | `!xml/present` | `<panelDef id="<UUID панели>"/>` |
 | корневой `ClientApplicationInterface` без размещённых панелей | `ИнтерфейсКлиентскогоПриложения` | `!xml/present` | существующий `Ext/ClientApplicationInterface.xml` только с пятью стандартными `<panelDef>` и без `top`, `left`, `right`, `bottom` |
 | управляемая форма | `ПутьКДанным` | `!xml/value <исходный внутренний путь>` | `<DataPath><исходный внутренний путь></DataPath>` |
+| условное оформление управляемой формы или `DynamicList` | неразрешимое поле в `ЛевоеЗначение` или скалярном `ПравоеЗначение` условия | `!xml/value <исходный внутренний путь без ведущей точки>` с непустым payload | `<dcsset:left xsi:type="dcscor:Field"><исходный внутренний путь></dcsset:left>` либо `<dcsset:right xsi:type="dcscor:Field">…</dcsset:right>` |
+| условное оформление реквизитов управляемой формы | неизвестный оформляемый элемент в короткой записи `Поля` либо в свойстве `Поле` расширенной записи | `!xml/reference <исходное имя элемента>` с непустым payload | `<dcsset:field><исходное имя элемента></dcsset:field>` |
 | `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | битая ссылка типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml/reference <ссылка>`; низкоуровневая битая ссылка — `<UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><внутренняя ссылка></…>` |
 | `Subsystem` | битая ссылка в элементе состава подсистемы | `!xml/reference <UUID>` | `<xr:Item xsi:type="xr:MDObjectRef"><UUID></xr:Item>` |
 | корневой `CommandInterface` | битая ссылка в `ПорядокПодсистем` | `!xml/reference <UUID>` | `<SubsystemsOrder><Subsystem><UUID></Subsystem></SubsystemsOrder>` |
