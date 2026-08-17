@@ -65,16 +65,48 @@ describe("MCP watch host", () => {
       id: "nkdk-watch-opening-2",
     })
 
+    harness.workers[1]!.respond(openingResponse("nkdk-watch-opening-2", "2025-06-18"))
+
+    expectLegacyQueueReleased(harness)
+  })
+
+  it("повторяет незавершённый initialize после reload", () => {
+    const harness = createHarness()
+    harness.host.start()
+    harness.host.receive(JSON.stringify(initialize))
+
+    harness.host.reload()
+    harness.host.receive(request(2, "tools/list"))
+
+    expect(harness.workers[1]!.written.map((line) => JSON.parse(line))).toEqual([initialize])
+
+    harness.workers[1]!.respond(openingResponse(1, "2025-06-18"))
+
+    expectLegacyQueueReleased(harness)
+  })
+
+  it("не перехватывает клиентский id после восстановления handshake", () => {
+    const harness = createHarness()
+    completeInitialDiscover(harness)
+    harness.host.reload()
     harness.workers[1]!.respond({
       jsonrpc: "2.0",
       id: "nkdk-watch-opening-2",
-      result: { protocolVersion: "2025-06-18" },
+      result: { protocolVersion: "2026-07-28" },
     })
 
-    expect(harness.workers[1]!.written.slice(1).map((line) => JSON.parse(line).id)).toEqual([2])
-    expect(harness.output).toEqual([
-      '{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-06-18"}}',
-    ])
+    harness.host.receive(JSON.stringify({
+      jsonrpc: "2.0",
+      id: "nkdk-watch-opening-2",
+      method: "tools/list",
+    }))
+    harness.workers[1]!.respond({
+      jsonrpc: "2.0",
+      id: "nkdk-watch-opening-2",
+      result: { tools: [] },
+    })
+
+    expect(harness.output.at(-1)).toBe('{"jsonrpc":"2.0","id":"nkdk-watch-opening-2","result":{"tools":[]}}')
   })
 
   it("не повторяет неуспешный discover", () => {
@@ -111,6 +143,20 @@ describe("MCP watch host", () => {
     harness.workers[1]!.respond({ jsonrpc: "2.0", id: "nkdk-watch-opening-2" })
 
     expect(harness.workers[1]!.written).toHaveLength(1)
+    expect(harness.fatal).toEqual(["Не удалось восстановить MCP handshake после обновления"])
+  })
+
+  it("завершает соединение при несовместимой версии восстановленного handshake", () => {
+    const harness = createHarness()
+    completeInitialDiscover(harness)
+    harness.host.reload()
+
+    harness.workers[1]!.respond({
+      jsonrpc: "2.0",
+      id: "nkdk-watch-opening-2",
+      result: { protocolVersion: "2025-06-18" },
+    })
+
     expect(harness.fatal).toEqual(["Не удалось восстановить MCP handshake после обновления"])
   })
 
@@ -171,6 +217,15 @@ function completeInitialInitialize(harness: ReturnType<typeof createHarness>): v
 
 function request(id: number, method: string): string {
   return JSON.stringify({ jsonrpc: "2.0", id, method, params: { _meta: discover.params._meta } })
+}
+
+function openingResponse(id: number | string, protocolVersion: string): Record<string, unknown> {
+  return { jsonrpc: "2.0", id, result: { protocolVersion } }
+}
+
+function expectLegacyQueueReleased(harness: ReturnType<typeof createHarness>): void {
+  expect(harness.workers[1]!.written.slice(1).map((line) => JSON.parse(line).id)).toEqual([2])
+  expect(harness.output).toEqual([JSON.stringify(openingResponse(1, "2025-06-18"))])
 }
 
 class FakeWorker {

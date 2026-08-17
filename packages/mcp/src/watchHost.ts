@@ -24,6 +24,7 @@ type WorkerState = {
   readonly worker: McpWatchWorker
   readonly generation: number
   buffer: string
+  openingReplayId?: string
 }
 
 export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
@@ -83,12 +84,17 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
     state.worker.onExit(() => {
       if (active === state) fail("MCP worker завершился во время watch-подключения")
     })
-    if (successfulOpening === undefined) {
+    if (successfulOpening === undefined && pendingOpening === undefined) {
       ready = true
       drainQueue()
       return
     }
-    const request = { ...successfulOpening, id: internalOpeningId(state.generation) }
+    if (successfulOpening === undefined) {
+      send(JSON.stringify(pendingOpening))
+      return
+    }
+    state.openingReplayId = internalOpeningId(state.generation)
+    const request = { ...successfulOpening, id: state.openingReplayId }
     send(JSON.stringify(request))
   }
 
@@ -100,8 +106,9 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
     for (const line of lines) {
       if (line.length === 0) continue
       const parsed = parseMessage(line)
-      if (parsed?.id === internalOpeningId(state.generation)) {
-        if ("error" in parsed || !("result" in parsed)) {
+      if (state.openingReplayId !== undefined && parsed?.id === state.openingReplayId) {
+        state.openingReplayId = undefined
+        if (!isSuccessfulOpeningResponse(successfulOpening, parsed)) {
           fail("Не удалось восстановить MCP handshake после обновления")
           return
         }
@@ -109,11 +116,17 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
         drainQueue()
         continue
       }
+      let completesPendingOpening = false
       if (pendingOpening !== undefined && parsed !== undefined && parsed.id === pendingOpening.id) {
-        if (!("error" in parsed) && "result" in parsed) successfulOpening = pendingOpening
+        if (isSuccessfulOpeningResponse(pendingOpening, parsed)) successfulOpening = pendingOpening
         pendingOpening = undefined
+        completesPendingOpening = !ready
       }
       options.writeOutput(line)
+      if (completesPendingOpening) {
+        ready = true
+        drainQueue()
+      }
     }
   }
 
@@ -154,4 +167,25 @@ function parseMessage(message: string): Record<string, unknown> | undefined {
 
 function isOpeningRequest(message: Record<string, unknown> | undefined): boolean {
   return (message?.method === "server/discover" || message?.method === "initialize") && "id" in message
+}
+
+function isSuccessfulOpeningResponse(
+  opening: Record<string, unknown> | undefined,
+  response: Record<string, unknown>,
+): boolean {
+  if (opening === undefined || response.jsonrpc !== "2.0" || "error" in response) return false
+  const result = asRecord(response.result)
+  return result?.protocolVersion === openingProtocolVersion(opening)
+}
+
+function openingProtocolVersion(opening: Record<string, unknown>): unknown {
+  const params = asRecord(opening.params)
+  if (opening.method === "initialize") return params?.protocolVersion
+  return asRecord(params?._meta)?.["io.modelcontextprotocol/protocolVersion"]
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined
 }
