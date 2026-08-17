@@ -9,7 +9,10 @@ import {
   resolveRegisterRecordsItem as resolveRegisteredMovementItem,
   resolveTraversalTimeStandardMember,
   resolveTraversalTransition,
+  resolveTypedDataPathMember,
   resolveVirtualOwnerField,
+  type DataPathTraceMember,
+  type ResolvedTypedDataPathMember,
 } from "./registry"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import type { DataPathTypeInfo, FormDataPathSource, FormDataPathTableSource, OwnerTypeRef } from "./types"
@@ -34,6 +37,7 @@ export interface ResolvedDataPathTarget {
   segmentIndex: number
   typeInfo: DataPathTypeInfo
   source: ResolvedDataPathTargetSource
+  trace?: readonly DataPathTraceMember[]
 }
 
 export type ResolvedDataPathTargetSource =
@@ -45,6 +49,7 @@ export type ResolvedDataPathTargetSource =
   | { kind: "registerRecords"; owner: OwnerTypeRef; name: string }
   | { kind: "registerRecordSet"; owner: OwnerTypeRef; name: string }
   | { kind: "standardPeriodField"; name: string }
+  | { kind: "typedMember"; type: string; name: string }
 
 export interface ResolvedDataPathSegmentReplacement {
   segmentIndex: number
@@ -117,6 +122,7 @@ interface TraversalState {
   source: ResolvedDataPathTargetSource
   tableSource?: FormDataPathTableSource | ObjectFieldTableSource
   registerRecordsOwner?: OwnerMetadata
+  trace?: readonly DataPathTraceMember[]
 }
 
 interface TableColumnSource {
@@ -286,6 +292,29 @@ function resolveDataPathCoreWithCurrentData(
         typeInfo: field.typeInfo,
         source: { kind: "standardPeriodField", name: lookupSegment },
       }
+
+      if (isLast) return okTarget({ value, segments, state, replacements })
+      continue
+    }
+
+    if (state.typeInfo.kinds.includes("structured")) {
+      const structuredType = state.typeInfo.structuredType
+      const member = structuredType === undefined
+        ? undefined
+        : resolveTypedDataPathMember({ type: structuredType, segment: lookupSegment })
+      if (member === undefined) {
+        return error(params, `ПутьКДанным "${value}": неизвестное свойство "${segment}"`)
+      }
+
+      recordStandardMemberReplacement({
+        replacements,
+        nameMode: params.nameMode,
+        segmentIndex: index,
+        input: lookupSegment,
+        internalName: member.internal,
+        yamlName: member.yaml,
+      })
+      state = stateFromTypedMember(member, state.trace ?? [])
 
       if (isLast) return okTarget({ value, segments, state, replacements })
       continue
@@ -526,6 +555,7 @@ function rebaseCurrentDataResult(params: {
     segmentIndex: 1,
     typeInfo: { kinds: ["tableSource"], nextTypes: [], sourceText: "TabularFormElement" },
     source: { kind: "formElement", name: params.originalSegments[1] ?? "" },
+    trace: [],
   }
   const common = {
     value: params.originalValue,
@@ -832,6 +862,7 @@ function stateFromRoot(root: FormDataPathSource): TraversalState {
     typeInfo: root.typeInfo,
     source: { kind: "formAttribute", name: root.name },
     ...(root.tableSource !== undefined ? { tableSource: root.tableSource } : {}),
+    trace: [],
   }
 }
 
@@ -926,6 +957,7 @@ function resolveTableColumn(params: {
       column,
       tablePath: nestedTablePath,
     }),
+    trace: params.state.trace,
   })
   if (params.isLast)
     return {
@@ -1073,12 +1105,78 @@ function stateFromTableColumn(params: {
   tableName: string
   column: TableColumnSource
   tableSource?: FormDataPathTableSource
+  trace?: readonly DataPathTraceMember[]
 }): TraversalState {
   return {
     typeInfo: params.column.typeInfo,
     source: { kind: "tableColumn", table: params.tableName, name: params.column.name },
     ...(params.tableSource !== undefined ? { tableSource: params.tableSource } : {}),
+    ...(params.trace !== undefined ? { trace: params.trace } : {}),
   }
+}
+
+function stateFromTypedMember(
+  member: ResolvedTypedDataPathMember,
+  trace: readonly DataPathTraceMember[],
+): TraversalState {
+  const nextTrace = [...trace, {
+    type: member.declaringType,
+    internal: member.internal,
+    yaml: member.yaml,
+  }]
+  const source = { kind: "typedMember" as const, type: member.declaringType, name: member.yaml }
+
+  if (member.target.kind === "structured") {
+    return {
+      typeInfo: {
+        kinds: ["structured"],
+        nextTypes: [],
+        structuredType: member.target.type,
+        sourceText: member.target.type,
+      },
+      source,
+      trace: nextTrace,
+    }
+  }
+  if (member.target.kind === "collection") {
+    const table = { kind: "Registered" as const, type: member.target.itemType }
+    return {
+      typeInfo: {
+        kinds: ["tableSource"],
+        nextTypes: [],
+        terminalTypes: [member.target.itemType],
+        table,
+        sourceText: member.target.itemType,
+      },
+      source,
+      tableSource: { table, columns: new Map(), hasColumns: true },
+      trace: nextTrace,
+    }
+  }
+
+  const terminalTypes = [...member.target.terminalTypes]
+  return {
+    typeInfo: {
+      kinds: terminalDataPathKinds(terminalTypes),
+      nextTypes: [],
+      terminalTypes,
+      ...(terminalTypes.length > 1 ? { isComposite: true } : {}),
+      sourceText: terminalTypes.join(" | "),
+    },
+    source,
+    trace: nextTrace,
+  }
+}
+
+function terminalDataPathKinds(terminalTypes: readonly string[]): DataPathTypeInfo["kinds"] {
+  const kinds = terminalTypes.map((type) => {
+    if (type === "boolean") return "boolean" as const
+    if (type === "dateTime") return "dateTime" as const
+    if (type === "Picture") return "Picture" as const
+    if (type === "TypeDescription") return "typeDescription" as const
+    return "scalar" as const
+  })
+  return [...new Set(kinds)]
 }
 
 function validateIntermediateType(params: {
@@ -1101,6 +1199,7 @@ function validateIntermediateType(params: {
   if (typeInfo.kinds.includes("registerRecords")) return undefined
   if (typeInfo.kinds.includes("platformSource")) return undefined
   if (typeInfo.kinds.includes("standardPeriod")) return undefined
+  if (typeInfo.kinds.includes("structured")) return undefined
   if ((typeInfo.definedTypes?.length ?? 0) > 0) return undefined
 
   if (typeInfo.kinds.includes("any")) {
@@ -1187,6 +1286,7 @@ function okTarget(params: {
     segmentIndex: params.segments.length - 1,
     typeInfo: params.state.typeInfo,
     source: params.state.source,
+    trace: params.state.trace ?? [],
   }
   return {
     status: "ok",
