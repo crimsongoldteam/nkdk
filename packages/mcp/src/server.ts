@@ -14,7 +14,7 @@ import { createMcpWatchHost } from "./watchHost"
 export { createNkdkMcpServer } from "./mcpServer"
 
 export function runStdioServer(onerror?: (error: Error) => void): StdioServerHandle {
-  return serveStdio(createNkdkMcpServer, { legacy: "reject", onerror })
+  return serveStdio(createNkdkMcpServer, { legacy: "serve", onerror })
 }
 
 export function runWatchServer(
