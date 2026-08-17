@@ -24,12 +24,13 @@ type WorkerState = {
   readonly worker: McpWatchWorker
   readonly generation: number
   buffer: string
+  openingReplayId?: string
 }
 
 export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
   let active: WorkerState | undefined
-  let successfulDiscover: Record<string, unknown> | undefined
-  let pendingDiscover: Record<string, unknown> | undefined
+  let successfulOpening: Record<string, unknown> | undefined
+  let pendingOpening: Record<string, unknown> | undefined
   let ready = false
   let failed = false
   let closed = false
@@ -44,7 +45,7 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
     receive(message) {
       if (failed || closed) return
       const parsed = parseMessage(message)
-      if (isDiscoverRequest(parsed)) pendingDiscover = parsed
+      if (isOpeningRequest(parsed)) pendingOpening = parsed
       if (active === undefined) startWorker()
       if (!ready) {
         queued.push(message)
@@ -83,12 +84,17 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
     state.worker.onExit(() => {
       if (active === state) fail("MCP worker завершился во время watch-подключения")
     })
-    if (successfulDiscover === undefined) {
+    if (successfulOpening === undefined && pendingOpening === undefined) {
       ready = true
       drainQueue()
       return
     }
-    const request = { ...successfulDiscover, id: internalDiscoverId(state.generation) }
+    if (successfulOpening === undefined) {
+      send(JSON.stringify(pendingOpening))
+      return
+    }
+    state.openingReplayId = internalOpeningId(state.generation)
+    const request = { ...successfulOpening, id: state.openingReplayId }
     send(JSON.stringify(request))
   }
 
@@ -100,20 +106,31 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
     for (const line of lines) {
       if (line.length === 0) continue
       const parsed = parseMessage(line)
-      if (parsed?.id === internalDiscoverId(state.generation)) {
-        if ("error" in parsed || !("result" in parsed)) {
-          fail("Не удалось восстановить server/discover после обновления")
+      if (state.openingReplayId !== undefined && parsed === undefined) {
+        fail("Не удалось восстановить MCP handshake после обновления")
+        return
+      }
+      if (state.openingReplayId !== undefined && parsed?.id === state.openingReplayId) {
+        state.openingReplayId = undefined
+        if (!isSuccessfulOpeningResponse(successfulOpening, parsed)) {
+          fail("Не удалось восстановить MCP handshake после обновления")
           return
         }
         ready = true
         drainQueue()
         continue
       }
-      if (pendingDiscover !== undefined && parsed !== undefined && parsed.id === pendingDiscover.id) {
-        if (!("error" in parsed) && "result" in parsed) successfulDiscover = pendingDiscover
-        pendingDiscover = undefined
+      let completesPendingOpening = false
+      if (pendingOpening !== undefined && parsed !== undefined && parsed.id === pendingOpening.id) {
+        if (isSuccessfulOpeningResponse(pendingOpening, parsed)) successfulOpening = pendingOpening
+        pendingOpening = undefined
+        completesPendingOpening = !ready
       }
       options.writeOutput(line)
+      if (completesPendingOpening) {
+        ready = true
+        drainQueue()
+      }
     }
   }
 
@@ -137,8 +154,8 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
   }
 }
 
-function internalDiscoverId(generation: number): string {
-  return `nkdk-watch-discover-${generation}`
+function internalOpeningId(generation: number): string {
+  return `nkdk-watch-opening-${generation}`
 }
 
 function parseMessage(message: string): Record<string, unknown> | undefined {
@@ -152,6 +169,29 @@ function parseMessage(message: string): Record<string, unknown> | undefined {
   }
 }
 
-function isDiscoverRequest(message: Record<string, unknown> | undefined): boolean {
-  return message?.method === "server/discover" && "id" in message
+function isOpeningRequest(message: Record<string, unknown> | undefined): boolean {
+  return (message?.method === "server/discover" || message?.method === "initialize") && "id" in message
+}
+
+function isSuccessfulOpeningResponse(
+  opening: Record<string, unknown> | undefined,
+  response: Record<string, unknown>,
+): boolean {
+  if (opening === undefined || response.jsonrpc !== "2.0" || "error" in response) return false
+  const result = asRecord(response.result)
+  const protocolVersion = openingProtocolVersion(opening)
+  if (opening.method === "initialize") return result?.protocolVersion === protocolVersion
+  return Array.isArray(result?.supportedVersions) && result.supportedVersions.includes(protocolVersion)
+}
+
+function openingProtocolVersion(opening: Record<string, unknown>): unknown {
+  const params = asRecord(opening.params)
+  if (opening.method === "initialize") return params?.protocolVersion
+  return asRecord(params?._meta)?.["io.modelcontextprotocol/protocolVersion"]
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined
 }

@@ -10,6 +10,10 @@ import { fileURLToPath } from "node:url"
 const packageRoot = fileURLToPath(new URL("..", import.meta.url))
 const tmpRoot = await mkdtemp(join(tmpdir(), "nkdk-mcp-pack-"))
 const modernClientOptions = { versionNegotiation: { mode: { pin: "2026-07-28" } } }
+const legacyClientOptions = {
+  supportedProtocolVersions: ["2025-06-18"],
+  versionNegotiation: { mode: "legacy" },
+}
 
 try {
   await import("./build.mjs")
@@ -162,6 +166,18 @@ try {
     await client.close()
   }
 
+  const legacyTransport = new StdioClientTransport({ command, args: commandArgs })
+  const legacyClient = new Client({ name: "nkdk-packed-legacy-stdio-smoke", version: "1.0.0" }, legacyClientOptions)
+  await legacyClient.connect(legacyTransport)
+  try {
+    const tools = await legacyClient.listTools()
+    if (!tools.tools.some((tool) => tool.name === "nkdk.get_schema")) {
+      throw new Error("packed legacy stdio server did not register nkdk.get_schema")
+    }
+  } finally {
+    await legacyClient.close()
+  }
+
   const port = await findFreeLoopbackPort()
   const httpProcess = spawn(command, [...commandArgs, "--http", "--port", String(port)], {
     cwd: tmpRoot,
@@ -191,6 +207,20 @@ try {
       }
     } finally {
       await httpClient.close()
+    }
+
+    const legacyHttpClient = new Client(
+      { name: "nkdk-packed-legacy-http-smoke", version: "1.0.0" },
+      legacyClientOptions,
+    )
+    await legacyHttpClient.connect(new StreamableHTTPClientTransport(new URL(endpoint)))
+    try {
+      const tools = await legacyHttpClient.listTools()
+      if (!tools.tools.some((tool) => tool.name === "nkdk.get_schema")) {
+        throw new Error("packed legacy HTTP server did not register nkdk.get_schema")
+      }
+    } finally {
+      await legacyHttpClient.close()
     }
   } finally {
     await stopChild(httpProcess)
