@@ -106,6 +106,10 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
     for (const line of lines) {
       if (line.length === 0) continue
       const parsed = parseMessage(line)
+      if (state.openingReplayId !== undefined && parsed === undefined) {
+        fail("Не удалось восстановить MCP handshake после обновления")
+        return
+      }
       if (state.openingReplayId !== undefined && parsed?.id === state.openingReplayId) {
         state.openingReplayId = undefined
         if (!isSuccessfulOpeningResponse(successfulOpening, parsed)) {
@@ -175,7 +179,9 @@ function isSuccessfulOpeningResponse(
 ): boolean {
   if (opening === undefined || response.jsonrpc !== "2.0" || "error" in response) return false
   const result = asRecord(response.result)
-  return result?.protocolVersion === openingProtocolVersion(opening)
+  const protocolVersion = openingProtocolVersion(opening)
+  if (opening.method === "initialize") return result?.protocolVersion === protocolVersion
+  return Array.isArray(result?.supportedVersions) && result.supportedVersions.includes(protocolVersion)
 }
 
 function openingProtocolVersion(opening: Record<string, unknown>): unknown {
