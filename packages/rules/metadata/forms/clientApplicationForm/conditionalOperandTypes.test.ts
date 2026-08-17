@@ -14,7 +14,7 @@ describe("inferConditionalOperandType", () => {
     [{ Вариант: "НачалоЭтогоДня" }, undefined, "StandardBeginningDate"],
     [
       "Справочник.Номенклатура.ПустаяСсылка",
-      { type: "ref", value: "Catalog.Номенклатура.EmptyRef" },
+      undefined,
       "CatalogRef.*",
     ],
   ])("выводит тип константы %j", (value, sourceValue, expected) => {
@@ -34,10 +34,10 @@ describe("inferConditionalOperandType", () => {
     })
   })
 
-  it("не назначает достоверный тип значению времени проектирования", () => {
+  it("не назначает достоверный тип неподдержанному значению", () => {
     expect(inferConditionalOperandType({
       context: mockContext,
-      value: "Справочник.Номенклатура.ПустаяСсылка",
+      value: [1],
     })).toEqual({ kind: "unknown" })
   })
 })

@@ -69,7 +69,8 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
     const compiled = compiledAppearanceFieldsSchema
 
     expect(compiled.Check({ ЦветТекста: "Авто" })).toBe(true)
-    expect(compiled.Check({ ЦветТекста: null })).toBe(false)
+    expect(compiled.Check({ ЦветТекста: null })).toBe(true)
+    expect(compiled.Check({ ЦветТекста: { Значение: null } })).toBe(true)
     expect(compiled.Check({ ЦветТекста: "" })).toBe(false)
     expect(compiled.Check({ ЦветТекста: undefined })).toBe(false)
     expect(compiled.Check({ ЦветФона: { Использовать: "Ложь" } })).toBe(false)

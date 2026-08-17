@@ -559,6 +559,10 @@ function prepareBaseFormCandidate(params: {
     throw new Error(`Не найдена текущая форма cf для ${params.candidate.baseProjectPath}`)
   }
   const originalFormDataPaths = collectImportedFormDataPaths(params.candidate.yaml, params.candidate.rule)
+  const originalConditionalAppearance = collectImportedConditionalAppearance(
+    params.candidate.yaml,
+    params.candidate.rule,
+  )
   finalizeImportedYamlValues({
     yaml: params.candidate.yaml,
     rootRule: params.candidate.rule,
@@ -571,6 +575,12 @@ function prepareBaseFormCandidate(params: {
     rule: params.candidate.rule,
     originalOccurrences: originalFormDataPaths,
     formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
+    ownerMetadataCache: params.ownerMetadataCache,
+  })
+  finalizeImportedConditionalAppearance({
+    yaml: params.candidate.yaml,
+    rule: params.candidate.rule,
+    originals: originalConditionalAppearance,
     ownerMetadataCache: params.ownerMetadataCache,
   })
   const projection = projectClientApplicationBaseForm({

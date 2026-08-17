@@ -10,6 +10,7 @@ import {
   resolveTraversalTimeStandardMember,
   resolveTraversalTransition,
   resolveTypedDataPathMember,
+  resolveTypedDynamicDataPathTarget,
   resolveVirtualOwnerField,
   type DataPathTraceMember,
   type ResolvedTypedDataPathMember,
@@ -305,7 +306,15 @@ function resolveDataPathCoreWithCurrentData(
         internalName: member.internal,
         yamlName: member.yaml,
       })
-      state = stateFromTypedMember(member, state.trace ?? [])
+      const typedState = stateFromTypedMember(member, state.trace ?? [], params)
+      if (typedState === undefined) {
+        return error(
+          params,
+          `ПутьКДанным "${value}": не удалось разрешить динамическое свойство "${segment}"`,
+          "unknown_type",
+        )
+      }
+      state = typedState
 
       if (isLast) return okTarget({ value, segments, state, replacements })
       continue
@@ -887,7 +896,21 @@ function resolveTableColumn(params: {
       internalName: registeredColumnResult.typedMember.internal,
       yamlName: registeredColumnResult.typedMember.yaml,
     })
-    const state = stateFromTypedMember(registeredColumnResult.typedMember, params.state.trace ?? [])
+    const state = stateFromTypedMember(
+      registeredColumnResult.typedMember,
+      params.state.trace ?? [],
+      params.params,
+    )
+    if (state === undefined) {
+      return {
+        status: "done",
+        result: error(
+          params.params,
+          `ПутьКДанным "${params.value}": не удалось разрешить динамическое свойство "${params.segment}"`,
+          "unknown_type",
+        ),
+      }
+    }
     if (params.isLast) {
       return {
         status: "done",
@@ -895,13 +918,6 @@ function resolveTableColumn(params: {
       }
     }
     return { status: "continue", state }
-  }
-
-  if (tableSource.table.kind === "DynamicList" && registeredColumnResult.column === undefined) {
-    return {
-      status: "done",
-      result: okWithoutTarget({ value: params.value, segments: params.segments, replacements: params.replacements }),
-    }
   }
 
   const tablePath = params.segments.slice(0, params.segmentIndex).join(".")
@@ -922,6 +938,12 @@ function resolveTableColumn(params: {
       : undefined)
   const column = resolvedColumn?.column
   if (column === undefined) {
+    if (tableSource.table.kind === "DynamicList") {
+      return {
+        status: "done",
+        result: okWithoutTarget({ value: params.value, segments: params.segments, replacements: params.replacements }),
+      }
+    }
     if (tableSource.hasColumns) {
       return {
         status: "done",
@@ -1133,7 +1155,8 @@ function stateFromTableColumn(params: {
 function stateFromTypedMember(
   member: ResolvedTypedDataPathMember,
   trace: readonly DataPathTraceMember[],
-): TraversalState {
+  params: ResolveDataPathCoreParams,
+): TraversalState | undefined {
   const nextTrace = [...trace, {
     type: member.declaringType,
     internal: member.internal,
@@ -1141,27 +1164,30 @@ function stateFromTypedMember(
   }]
   const source = { kind: "typedMember" as const, type: member.declaringType, name: member.yaml }
 
-  if (member.target.kind === "structured") {
+  const target = resolveTypedDynamicDataPathTarget({ member, index: params.index, ownerCache: params.ownerCache })
+  if (target === undefined) return undefined
+
+  if (target.kind === "structured") {
     return {
       typeInfo: {
         kinds: ["structured"],
         nextTypes: [],
-        structuredType: member.target.type,
-        sourceText: member.target.type,
+        structuredType: target.type,
+        sourceText: target.type,
       },
       source,
       trace: nextTrace,
     }
   }
-  if (member.target.kind === "collection") {
-    const table = { kind: "Registered" as const, type: member.target.itemType }
+  if (target.kind === "collection") {
+    const table = { kind: "Registered" as const, type: target.itemType }
     return {
       typeInfo: {
         kinds: ["tableSource"],
         nextTypes: [],
-        terminalTypes: [member.target.itemType],
+        terminalTypes: [target.itemType],
         table,
-        sourceText: member.target.itemType,
+        sourceText: target.itemType,
       },
       source,
       tableSource: { table, columns: new Map(), hasColumns: true },
@@ -1169,7 +1195,16 @@ function stateFromTypedMember(
     }
   }
 
-  const terminalTypes = [...member.target.terminalTypes]
+  if (target.kind === "metadataObject") {
+    const sourceText = [target.owner.kind, target.owner.name].filter(Boolean).join(".")
+    return {
+      typeInfo: { kinds: ["object"], nextTypes: [target.owner], sourceText },
+      source,
+      trace: nextTrace,
+    }
+  }
+
+  const terminalTypes = [...target.terminalTypes]
   return {
     typeInfo: {
       kinds: terminalDataPathKinds(terminalTypes),

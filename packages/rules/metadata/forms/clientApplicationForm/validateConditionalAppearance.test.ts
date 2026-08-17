@@ -52,13 +52,17 @@ describe("validateFormConditionalAppearance", () => {
     expect(messages).toContainEqual(expect.stringContaining("несовместимы: decimal и string"))
     expect(messages).toContainEqual(expect.stringContaining('свойство "Вариант" недоступно'))
     expect(messages).toContainEqual(expect.stringContaining('неизвестный корень "Неизвестный"'))
-    expect(messages.filter((message) => message.includes("несовместимы"))).toHaveLength(1)
+    expect(messages).toContainEqual(expect.stringContaining("несовместимы: CatalogRef.* и decimal"))
+    expect(messages.filter((message) => message.includes("несовместимы"))).toHaveLength(2)
   })
 
   it("единым resolver проверяет известный и неизвестный путь DynamicList", () => {
     const source = [
       "Реквизиты:",
       "  Список:",
+      "    Колонки:",
+      "      Количество:",
+      "        Тип: Число",
       "    ДинамическийСписок:",
       "      УсловноеОформление:",
       "        Элементы:",
@@ -68,13 +72,16 @@ describe("validateFormConditionalAppearance", () => {
       "                  ПравоеЗначение: Истина",
       "                - ЛевоеЗначение: .НеизвестноеПоле",
       "                  ПравоеЗначение: Истина",
+      "                - ЛевоеЗначение: .Количество",
+      "                  ПравоеЗначение: \"'текст'\"",
     ].join("\n") + "\n"
     const parsed = parseMetadataYaml(source)
     const yaml = parsed.data as Record<string, unknown>
 
     const messages = runValidation(parsed, yaml).map((item) => item.message)
-    expect(messages).toHaveLength(1)
-    expect(messages[0]).toContain('Не удалось определить поле "Список.НеизвестноеПоле"')
+    expect(messages).toHaveLength(2)
+    expect(messages).toContainEqual(expect.stringContaining('Не удалось определить поле "Список.НеизвестноеПоле"'))
+    expect(messages).toContainEqual(expect.stringContaining("несовместимы: decimal и string"))
   })
 
   it("не проверяет помеченные импортные аномалии", () => {

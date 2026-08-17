@@ -24,6 +24,19 @@ const referenceTypeByRoot: Readonly<Record<string, string>> = {
   ChartOfCalculationTypes: "ChartOfCalculationTypesRef",
 }
 
+const localizedReferenceTypeByRoot: Readonly<Record<string, string>> = {
+  Справочник: "CatalogRef",
+  Документ: "DocumentRef",
+  Перечисление: "EnumRef",
+  Задача: "TaskRef",
+  БизнесПроцесс: "BusinessProcessRef",
+  ТочкаМаршрутаБизнесПроцесса: "BusinessProcessRoutePointRef",
+  ПланОбмена: "ExchangePlanRef",
+  ПланСчетов: "ChartOfAccountsRef",
+  ПланВидовХарактеристик: "ChartOfCharacteristicTypesRef",
+  ПланВидовРасчета: "ChartOfCalculationTypesRef",
+}
+
 export function inferConditionalOperandType(params: {
   context: ConfigurationContext
   value: unknown
@@ -43,7 +56,10 @@ export function inferConditionalOperandType(params: {
 
   if (imported === undefined || Array.isArray(imported)) return { kind: "unknown" }
   if (imported.type === "Field") return { kind: "field", value: imported.value }
-  if (imported.type === "DesignTimeValue") return { kind: "unknown" }
+  if (imported.type === "DesignTimeValue") {
+    const terminalType = localizedReferenceTerminalType(imported.value)
+    return terminalType === undefined ? { kind: "unknown" } : { kind: "typed", typeInfo: terminal(terminalType) }
+  }
   if (imported.type === "ref") {
     const terminalType = referenceTerminalType(imported.value)
     return terminalType === undefined ? { kind: "unknown" } : { kind: "typed", typeInfo: terminal(terminalType) }
@@ -66,6 +82,12 @@ export function inferConditionalOperandType(params: {
 function referenceTerminalType(value: string): string | undefined {
   const [root, name] = value.split(".")
   const base = root === undefined ? undefined : referenceTypeByRoot[root]
+  return base === undefined || name === undefined || name.length === 0 ? undefined : `${base}.${name}`
+}
+
+function localizedReferenceTerminalType(value: string): string | undefined {
+  const [root, name] = value.split(".")
+  const base = root === undefined ? undefined : localizedReferenceTypeByRoot[root]
   return base === undefined || name === undefined || name.length === 0 ? undefined : `${base}.${name}`
 }
 

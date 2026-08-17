@@ -73,6 +73,7 @@ const propertySchema = (
         context,
         rawValueSchema: rawValueSchema(context),
         rule: property,
+        preserveNullableColor: true,
       })
 
   return Type.Optional(schema)
@@ -113,6 +114,7 @@ function ensureAppearanceSettingsParameterValueJSONSchema(
       context,
       rawValueSchema: rawValueSchema(context),
       rule: property,
+      preserveNullableColor: true,
     })
   )
   return schemaName

@@ -213,6 +213,24 @@ describe("buildFormDataPathIndex", () => {
     })
   })
 
+  it("keeps explicitly declared DynamicList columns", () => {
+    const index = buildIndex({
+      attributes: [{
+        ...attribute("Список", { type: ["CatalogRef.Номенклатура"] }, [
+          column("Наименование", { type: ["string"] }),
+        ]),
+        dynamicList: {},
+      } as FormAttribute],
+    })
+
+    expect(index.getRoot("Список")?.tableSource).toMatchObject({
+      table: { kind: "DynamicList" },
+      hasColumns: true,
+    })
+    expect(index.getRoot("Список")?.tableSource?.columns.get("Наименование")?.typeInfo)
+      .toMatchObject({ terminalTypes: ["string"] })
+  })
+
   it("keeps the first duplicate root and reports the second duplicate in YAML", () => {
     const parsed = parseMetadataYaml(
       ["Реквизиты:", "  Дубль:", "    Тип: Строка", "  Другой:", "    Тип: Булево", "  Дубль:", "    Тип: Число"].join(

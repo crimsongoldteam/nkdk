@@ -8,15 +8,21 @@ describe("Planner data path declarations", () => {
     ? graph.types.find(({ type }) => type === "Planner")
     : undefined
 
-  it.each([
-    ["BeginOfRepresentationPeriod", "НачалоПериодаОтображения", "dateTime"],
-    ["ShowCurrentDate", "ОтображатьТекущуюДату", "boolean"],
-    ["MinColumnWidth", "МинимальнаяШиринаКолонки", "decimal"],
-  ] as const)("declares %s as %s", (internal, yaml, terminalType) => {
-    expect(planner?.members.find((member) => member.internal === internal)).toEqual({
-      internal,
+  it("declares terminal types for all confirmed fields", () => {
+    const typesByYaml = Object.fromEntries((planner?.members ?? []).map(({ yaml, target }) => [
       yaml,
-      target: { kind: "terminal", terminalTypes: [terminalType] },
+      target.kind === "terminal" ? target.terminalTypes[0] : target.kind,
+    ]))
+
+    expect(typesByYaml).toEqual({
+      НачалоПериодаОтображения: "dateTime", КонецПериодаОтображения: "dateTime",
+      ВыравниватьГраницыЭлементовПоШкалеВремени: "boolean",
+      ОтображатьПеренесенныеЗаголовкиШкалыВремени: "boolean", ОтображатьПеренесенныеЗаголовки: "boolean",
+      КратностьПериодическогоВарианта: "decimal", ОтступСНачалаПереносаШкалыВремени: "decimal",
+      ОтступСКонцаПереносаШкалыВремени: "decimal", ОтображатьТекущуюДату: "boolean",
+      АвтоМинимальнаяШиринаКолонки: "boolean", МинимальнаяШиринаКолонки: "decimal",
+      АвтоМинимальнаяВысотаСтроки: "boolean", МинимальнаяВысотаСтроки: "decimal",
+      ФиксироватьЗаголовокИзмерений: "boolean", ФиксироватьЗаголовокШкалыВремени: "boolean",
     })
   })
 

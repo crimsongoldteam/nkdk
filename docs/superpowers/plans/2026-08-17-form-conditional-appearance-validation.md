@@ -142,6 +142,8 @@
     | { readonly kind: "terminal"; readonly terminalTypes: readonly string[] }
     | { readonly kind: "structured"; readonly type: string }
     | { readonly kind: "collection"; readonly itemType: string }
+    | { readonly kind: "metadataObject"; readonly owner: OwnerTypeRef }
+    | { readonly kind: "dynamic"; readonly resolver: string }
 
   export interface TypedDataPathMemberDeclaration {
     readonly internal: string
@@ -157,6 +159,8 @@
   ```
 
   Добавить `structured` в `DataPathValueKind`. Составной узел хранить отдельно от коллекции, не кодировать фиктивной таблицей `Registered`.
+  Динамическая цель разрешается именованным вкладом `typedGraphDynamicTarget`;
+  незарегистрированный или неразрешимый обработчик возвращает ошибку resolver.
 
 - [x] **Step 5: Расширить registry двумя вкладами**
 

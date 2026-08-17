@@ -10,6 +10,12 @@ const types: readonly TypedDataPathTypeDeclaration[] = [
     members: [
       { internal: "Nested", yaml: "Вложенное", target: { kind: "structured", type: "Nested" } },
       { internal: "Rows", yaml: "Строки", target: { kind: "collection", itemType: "Row" } },
+      {
+        internal: "Owner",
+        yaml: "Объект",
+        target: { kind: "metadataObject", owner: { kind: "Справочник", name: "Номенклатура" } },
+      },
+      { internal: "Computed", yaml: "Вычисляемое", target: { kind: "dynamic", resolver: "computed" } },
       { internal: "Flag", yaml: "Флаг", target: { kind: "terminal", terminalTypes: ["boolean"] } },
     ],
   },
@@ -29,6 +35,11 @@ const view: DataPathViewDeclaration = {
 const contributions: readonly DataPathContribution[] = [
   { kind: "typedGraph", types },
   { kind: "dataPathView", view },
+  {
+    kind: "typedGraphDynamicTarget",
+    name: "computed",
+    resolver: () => ({ kind: "terminal", terminalTypes: ["decimal"] }),
+  },
 ]
 
 describe("typed data path graph", () => {
@@ -46,7 +57,7 @@ describe("typed data path graph", () => {
     })
   })
 
-  it("preserves structured, collection and terminal targets", () => {
+  it("preserves structured, collection, metadata, dynamic and terminal targets", () => {
     const registry = createDataPathRegistrySet(contributions)
 
     expect(registry.resolveTypedMember({ type: "Root", segment: "Nested" })?.target)
@@ -55,6 +66,15 @@ describe("typed data path graph", () => {
       .toEqual({ kind: "collection", itemType: "Row" })
     expect(registry.resolveTypedMember({ type: "Root", segment: "Flag" })?.target)
       .toEqual({ kind: "terminal", terminalTypes: ["boolean"] })
+    expect(registry.resolveTypedMember({ type: "Root", segment: "Owner" })?.target)
+      .toEqual({ kind: "metadataObject", owner: { kind: "Справочник", name: "Номенклатура" } })
+    const dynamicMember = registry.resolveTypedMember({ type: "Root", segment: "Computed" })
+    expect(dynamicMember?.target).toEqual({ kind: "dynamic", resolver: "computed" })
+    expect(dynamicMember === undefined ? undefined : registry.resolveTypedDynamicTarget({
+      member: dynamicMember,
+      index: {} as never,
+      ownerCache: {} as never,
+    })).toEqual({ kind: "terminal", terminalTypes: ["decimal"] })
     expect(registry.resolveTypedMember({ type: "Root", segment: "Unknown" })).toBeUndefined()
   })
 
@@ -87,6 +107,10 @@ describe("typed data path graph", () => {
         { internal: "Second", yaml: "Одинаково", target: { kind: "terminal", terminalTypes: ["string"] } },
       ],
     }] }]],
+    ["duplicate dynamic resolver", [
+      { kind: "typedGraphDynamicTarget", name: "same", resolver: () => undefined },
+      { kind: "typedGraphDynamicTarget", name: "same", resolver: () => undefined },
+    ]],
   ] as const)("rejects %s", (_name, invalid) => {
     expect(() => createDataPathRegistrySet(invalid as readonly DataPathContribution[])).toThrow()
   })

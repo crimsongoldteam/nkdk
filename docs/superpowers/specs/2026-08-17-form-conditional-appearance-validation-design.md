@@ -141,6 +141,10 @@ defineTypedDataPathGraph({
 `DataPathTableInfo.Registered` и `tableColumn` для всех узлов, переносится на
 этот договор. Реальные коллекции остаются коллекциями, но `Planner`,
 `StandardPeriod` и `StandardBeginningDate` становятся составными значениями.
+В частности, показанные платформой узлы `Settings`, `UserSettings` и
+`FixedSettings` являются реальными табличными источниками и остаются
+`collection`; `Registered` для них служит представлением настоящей коллекции,
+а не способом имитировать составное значение.
 
 ## Представления доступности
 

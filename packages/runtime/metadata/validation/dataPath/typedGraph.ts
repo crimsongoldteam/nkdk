@@ -1,7 +1,14 @@
-export type DataPathGraphTarget =
+import type { OwnerTypeRef } from "./types"
+
+export type ResolvedDataPathGraphTarget =
   | { readonly kind: "terminal"; readonly terminalTypes: readonly string[] }
   | { readonly kind: "structured"; readonly type: string }
   | { readonly kind: "collection"; readonly itemType: string }
+  | { readonly kind: "metadataObject"; readonly owner: OwnerTypeRef }
+
+export type DataPathGraphTarget =
+  | ResolvedDataPathGraphTarget
+  | { readonly kind: "dynamic"; readonly resolver: string }
 
 export interface TypedDataPathMemberDeclaration {
   readonly internal: string

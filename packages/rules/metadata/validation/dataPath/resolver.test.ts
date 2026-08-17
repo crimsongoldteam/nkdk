@@ -2296,17 +2296,31 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("ignores DynamicList fields", () => {
+  it("resolves known DynamicList fields before deferring unknown dataset fields", () => {
     const result = resolve("Список.Наименование", {
       index: indexWithAttributes([
-        { ...attribute("Список", { type: ["CatalogRef.Номенклатура"] }), dynamicList: { itemType: "DynamicList" } },
+        {
+          ...attribute(
+            "Список",
+            { type: ["CatalogRef.Номенклатура"] },
+            [column("Наименование", { type: ["string"] })],
+          ),
+          dynamicList: { itemType: "DynamicList" },
+        },
       ]),
     })
 
     expect(result).toMatchObject({
       status: "ok",
       diagnostics: [],
+      target: { typeInfo: { terminalTypes: ["string"] } },
     })
+
+    expect(resolve("Список.НеизвестноеПоле", {
+      index: indexWithAttributes([
+        { ...attribute("Список", { type: ["CatalogRef.Номенклатура"] }), dynamicList: { itemType: "DynamicList" } },
+      ]),
+    })).toMatchObject({ status: "ok", diagnostics: [], target: undefined })
   })
 
   it.each([

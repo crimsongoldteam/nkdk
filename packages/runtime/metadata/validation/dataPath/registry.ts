@@ -8,6 +8,7 @@ import type { StandardMemberDeclaration } from "../../standardMembers/declaratio
 import type {
   DataPathTraceMember,
   DataPathViewDeclaration,
+  ResolvedDataPathGraphTarget,
   ResolvedTypedDataPathMember,
   TypedDataPathTypeDeclaration,
 } from "./typedGraph"
@@ -106,6 +107,12 @@ export interface DataPathElementPropertyRegistration {
   readonly terminalTypes: readonly string[]
 }
 
+export type TypedDataPathDynamicTargetResolver = (params: {
+  readonly member: ResolvedTypedDataPathMember
+  readonly index: FormDataPathIndex
+  readonly ownerCache: OwnerMetadataCache
+}) => ResolvedDataPathGraphTarget | undefined
+
 export interface DataPathOwnerKindLookup {
   get(kind: string): import("./ownerKindRegistry").DataPathOwnerKindRegistration | undefined
   getByItemType(itemType: string): import("./ownerKindRegistry").DataPathOwnerKindRegistration | undefined
@@ -132,6 +139,11 @@ type DataPathRegistrationContribution =
     }
   | { readonly kind: "standardMembers"; readonly ownerKind: string; readonly members: readonly StandardMemberDeclaration[] }
   | { readonly kind: "typedGraph"; readonly types: readonly TypedDataPathTypeDeclaration[] }
+  | {
+      readonly kind: "typedGraphDynamicTarget"
+      readonly name: string
+      readonly resolver: TypedDataPathDynamicTargetResolver
+    }
   | { readonly kind: "dataPathView"; readonly view: DataPathViewDeclaration }
 
 export type DataPathContribution = DataPathRegistrationContribution | {
@@ -161,6 +173,11 @@ export interface DataPathRegistrySet {
   standardMemberYamlToInternalForOwnerKind(ownerKind: string, yamlName: string): string | undefined
   getStandardMemberNamePairs(): readonly import("../../standardMembers/declarations").StandardMemberNames[]
   resolveTypedMember(params: { type: string; segment: string }): ResolvedTypedDataPathMember | undefined
+  resolveTypedDynamicTarget(params: {
+    member: ResolvedTypedDataPathMember
+    index: FormDataPathIndex
+    ownerCache: OwnerMetadataCache
+  }): ResolvedDataPathGraphTarget | undefined
   checkTraceAvailability(purpose: string, trace: readonly DataPathTraceMember[]): boolean
 }
 
@@ -186,6 +203,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
   const typedTypes = new Map<string, TypedDataPathTypeDeclaration>()
   const typedTypeAliases = new Map<string, string>()
   const typedMembers = new Map<string, ReadonlyMap<string, ResolvedTypedDataPathMember>>()
+  const typedDynamicTargets = new Map<string, TypedDataPathDynamicTargetResolver>()
   const dataPathViews = new Map<string, Map<string, Set<string>>>()
   const addStandardMembers = (ownerKind: string, members: readonly StandardMemberDeclaration[]) => {
     const normalized = members.map((member) => {
@@ -266,6 +284,11 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
         purpose.set(type, members)
         for (const memberName of memberNames) members.add(memberName)
       }
+    } else if (contribution.kind === "typedGraphDynamicTarget") {
+      if (typedDynamicTargets.has(contribution.name)) {
+        throw new Error(`Повтор динамического resolver составного пути данных: ${contribution.name}`)
+      }
+      typedDynamicTargets.set(contribution.name, contribution.resolver)
     }
   }
 
@@ -324,6 +347,10 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     resolveTypedMember: ({ type, segment }) => {
       const canonicalType = typedTypeAliases.get(type)
       return canonicalType === undefined ? undefined : typedMembers.get(canonicalType)?.get(segment)
+    },
+    resolveTypedDynamicTarget: ({ member, index, ownerCache }) => {
+      if (member.target.kind !== "dynamic") return member.target
+      return typedDynamicTargets.get(member.target.resolver)?.({ member, index, ownerCache })
     },
     checkTraceAvailability: (purpose, trace) => {
       const view = dataPathViews.get(purpose)
@@ -402,6 +429,14 @@ export function resolveTypedDataPathMember(params: {
   return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveTypedMember(params)
 }
 
+export function resolveTypedDynamicDataPathTarget(params: {
+  member: ResolvedTypedDataPathMember
+  index: FormDataPathIndex
+  ownerCache: OwnerMetadataCache
+}): ResolvedDataPathGraphTarget | undefined {
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveTypedDynamicTarget(params)
+}
+
 export function checkDataPathTraceAvailability(
   purpose: string,
   trace: readonly DataPathTraceMember[],
@@ -411,6 +446,7 @@ export function checkDataPathTraceAvailability(
 
 export type {
   DataPathGraphTarget,
+  ResolvedDataPathGraphTarget,
   DataPathTraceMember,
   DataPathViewDeclaration,
   ResolvedTypedDataPathMember,
