@@ -15,6 +15,17 @@ const discover = {
   },
 }
 
+const initialize = {
+  jsonrpc: "2.0",
+  id: 1,
+  method: "initialize",
+  params: {
+    protocolVersion: "2025-06-18",
+    capabilities: {},
+    clientInfo: { name: "test", version: "1" },
+  },
+}
+
 describe("MCP watch host", () => {
   it("повторяет только успешный discover и сохраняет порядок очереди", () => {
     const harness = createHarness()
@@ -27,18 +38,42 @@ describe("MCP watch host", () => {
     expect(harness.workers[1]!.written).toHaveLength(1)
     expect(JSON.parse(harness.workers[1]!.written[0]!)).toMatchObject({
       method: "server/discover",
-      id: "nkdk-watch-discover-2",
+      id: "nkdk-watch-opening-2",
     })
 
     harness.workers[1]!.respond({
       jsonrpc: "2.0",
-      id: "nkdk-watch-discover-2",
+      id: "nkdk-watch-opening-2",
       result: { protocolVersion: "2026-07-28" },
     })
 
     expect(harness.workers[1]!.written.slice(1).map((line) => JSON.parse(line).id)).toEqual([2, 3])
     expect(harness.output).toEqual([
       '{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2026-07-28"}}',
+    ])
+  })
+
+  it("повторяет успешный legacy initialize и сохраняет порядок очереди", () => {
+    const harness = createHarness()
+    completeInitialInitialize(harness)
+
+    harness.host.reload()
+    harness.host.receive(request(2, "tools/list"))
+
+    expect(JSON.parse(harness.workers[1]!.written[0]!)).toMatchObject({
+      method: "initialize",
+      id: "nkdk-watch-opening-2",
+    })
+
+    harness.workers[1]!.respond({
+      jsonrpc: "2.0",
+      id: "nkdk-watch-opening-2",
+      result: { protocolVersion: "2025-06-18" },
+    })
+
+    expect(harness.workers[1]!.written.slice(1).map((line) => JSON.parse(line).id)).toEqual([2])
+    expect(harness.output).toEqual([
+      '{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-06-18"}}',
     ])
   })
 
@@ -60,11 +95,11 @@ describe("MCP watch host", () => {
 
     harness.workers[1]!.respond({
       jsonrpc: "2.0",
-      id: "nkdk-watch-discover-2",
+      id: "nkdk-watch-opening-2",
       error: { code: -32603, message: "worker failed" },
     })
 
-    expect(harness.fatal).toEqual(["Не удалось восстановить server/discover после обновления"])
+    expect(harness.fatal).toEqual(["Не удалось восстановить MCP handshake после обновления"])
   })
 
   it("не выпускает очередь после malformed discover-ответа нового worker", () => {
@@ -73,10 +108,10 @@ describe("MCP watch host", () => {
     harness.host.reload()
     harness.host.receive(request(2, "tools/list"))
 
-    harness.workers[1]!.respond({ jsonrpc: "2.0", id: "nkdk-watch-discover-2" })
+    harness.workers[1]!.respond({ jsonrpc: "2.0", id: "nkdk-watch-opening-2" })
 
     expect(harness.workers[1]!.written).toHaveLength(1)
-    expect(harness.fatal).toEqual(["Не удалось восстановить server/discover после обновления"])
+    expect(harness.fatal).toEqual(["Не удалось восстановить MCP handshake после обновления"])
   })
 
   it("явно завершает соединение при выходе нового worker", () => {
@@ -126,6 +161,12 @@ function completeInitialDiscover(harness: ReturnType<typeof createHarness>): voi
   harness.host.start()
   harness.host.receive(JSON.stringify(discover))
   harness.workers[0]!.respond({ jsonrpc: "2.0", id: 1, result: { protocolVersion: "2026-07-28" } })
+}
+
+function completeInitialInitialize(harness: ReturnType<typeof createHarness>): void {
+  harness.host.start()
+  harness.host.receive(JSON.stringify(initialize))
+  harness.workers[0]!.respond({ jsonrpc: "2.0", id: 1, result: { protocolVersion: "2025-06-18" } })
 }
 
 function request(id: number, method: string): string {

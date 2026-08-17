@@ -28,8 +28,8 @@ type WorkerState = {
 
 export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
   let active: WorkerState | undefined
-  let successfulDiscover: Record<string, unknown> | undefined
-  let pendingDiscover: Record<string, unknown> | undefined
+  let successfulOpening: Record<string, unknown> | undefined
+  let pendingOpening: Record<string, unknown> | undefined
   let ready = false
   let failed = false
   let closed = false
@@ -44,7 +44,7 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
     receive(message) {
       if (failed || closed) return
       const parsed = parseMessage(message)
-      if (isDiscoverRequest(parsed)) pendingDiscover = parsed
+      if (isOpeningRequest(parsed)) pendingOpening = parsed
       if (active === undefined) startWorker()
       if (!ready) {
         queued.push(message)
@@ -83,12 +83,12 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
     state.worker.onExit(() => {
       if (active === state) fail("MCP worker завершился во время watch-подключения")
     })
-    if (successfulDiscover === undefined) {
+    if (successfulOpening === undefined) {
       ready = true
       drainQueue()
       return
     }
-    const request = { ...successfulDiscover, id: internalDiscoverId(state.generation) }
+    const request = { ...successfulOpening, id: internalOpeningId(state.generation) }
     send(JSON.stringify(request))
   }
 
@@ -100,18 +100,18 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
     for (const line of lines) {
       if (line.length === 0) continue
       const parsed = parseMessage(line)
-      if (parsed?.id === internalDiscoverId(state.generation)) {
+      if (parsed?.id === internalOpeningId(state.generation)) {
         if ("error" in parsed || !("result" in parsed)) {
-          fail("Не удалось восстановить server/discover после обновления")
+          fail("Не удалось восстановить MCP handshake после обновления")
           return
         }
         ready = true
         drainQueue()
         continue
       }
-      if (pendingDiscover !== undefined && parsed !== undefined && parsed.id === pendingDiscover.id) {
-        if (!("error" in parsed) && "result" in parsed) successfulDiscover = pendingDiscover
-        pendingDiscover = undefined
+      if (pendingOpening !== undefined && parsed !== undefined && parsed.id === pendingOpening.id) {
+        if (!("error" in parsed) && "result" in parsed) successfulOpening = pendingOpening
+        pendingOpening = undefined
       }
       options.writeOutput(line)
     }
@@ -137,8 +137,8 @@ export function createMcpWatchHost(options: McpWatchHostOptions): McpWatchHost {
   }
 }
 
-function internalDiscoverId(generation: number): string {
-  return `nkdk-watch-discover-${generation}`
+function internalOpeningId(generation: number): string {
+  return `nkdk-watch-opening-${generation}`
 }
 
 function parseMessage(message: string): Record<string, unknown> | undefined {
@@ -152,6 +152,6 @@ function parseMessage(message: string): Record<string, unknown> | undefined {
   }
 }
 
-function isDiscoverRequest(message: Record<string, unknown> | undefined): boolean {
-  return message?.method === "server/discover" && "id" in message
+function isOpeningRequest(message: Record<string, unknown> | undefined): boolean {
+  return (message?.method === "server/discover" || message?.method === "initialize") && "id" in message
 }
