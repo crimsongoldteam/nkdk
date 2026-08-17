@@ -26,6 +26,7 @@ export type ExplicitXMLPropertyRegistration =
       readonly itemType: string
       readonly propertyKey: string
       readonly overrides?: Readonly<Record<string, unknown>>
+      readonly transformPayload?: (payload: string) => unknown
     }
   | {
       readonly action: "carrier"
@@ -43,7 +44,7 @@ export interface ExplicitXMLPropertyTypeRegistration {
 export type ExplicitXMLPropertyAction =
   | { readonly kind: "emit"; readonly xmlValue: unknown }
   | { readonly kind: "omit" }
-  | { readonly kind: "useYamlValue"; readonly yamlValue: string }
+  | { readonly kind: "useYamlValue"; readonly yamlValue: unknown }
   | { readonly kind: "materializeCollection" }
   | { readonly kind: "deferToAugmenter" }
   | { readonly kind: "invalid"; readonly message: string }
@@ -194,7 +195,12 @@ export function collectExplicitXMLPropertyActions(params: {
         }
         const override = registration.overrides?.[payload]
         actions.set(propertyKey, override === undefined
-          ? { kind: "useYamlValue", yamlValue: payload }
+          ? {
+              kind: "useYamlValue",
+              yamlValue: registration.transformPayload === undefined
+                ? payload
+                : registration.transformPayload(payload),
+            }
           : { kind: "emit", xmlValue: override })
       }
       continue

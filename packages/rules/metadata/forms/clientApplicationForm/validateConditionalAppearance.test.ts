@@ -76,6 +76,25 @@ describe("validateFormConditionalAppearance", () => {
     expect(messages).toHaveLength(1)
     expect(messages[0]).toContain('Не удалось определить поле "Список.НеизвестноеПоле"')
   })
+
+  it("не проверяет помеченные импортные аномалии", () => {
+    const source = [
+      "Реквизиты:",
+      "  Число:",
+      "    Тип: Число",
+      "УсловноеОформлениеРеквизитов:",
+      "  Элементы:",
+      "    - Поля: [!xml/reference НеизвестныйЭлемент]",
+      "      Отбор:",
+      "        Элементы:",
+      "          - ЛевоеЗначение: !xml/value НеизвестныйИсточник.Поле",
+      "            ПравоеЗначение: .Число",
+    ].join("\n") + "\n"
+    const parsed = parseMetadataYaml(source)
+    const yaml = parsed.data as Record<string, unknown>
+
+    expect(runValidation(parsed, yaml)).toEqual([])
+  })
 })
 
 function runValidation(

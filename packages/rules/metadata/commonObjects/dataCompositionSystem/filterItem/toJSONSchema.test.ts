@@ -3,6 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../ruleRuntime/property/toJSONSchema"
 import "./types"
 import { mockLanguages } from "../../../../tests/mockContext"
+import type { ConfigurationContext } from "@nkdk/runtime"
 
 const context = {
   languages: mockLanguages,
@@ -10,9 +11,9 @@ const context = {
 } as const
 
 describe("FilterItem JSON Schema", () => {
-  const compileFilterItemSchema = () => {
+  const compileFilterItemSchema = (schemaContext: ConfigurationContext = context) => {
     const schema = exportPropertyToJSONSchema({
-      context,
+      context: schemaContext,
       rule: { type: "FilterItem", yaml: "Элементы" },
       value: undefined,
     })
@@ -106,6 +107,24 @@ describe("FilterItem JSON Schema", () => {
         },
       ])
     ).toBe(true)
+  })
+
+  it("accepts non-empty !xml/value only in the validation schema", () => {
+    const validation = compileFilterItemSchema({
+      ...context,
+      exportToJSONSchema: { mode: "inline" as const, refs: new Set<string>(), explicitXMLValues: true as const },
+    })
+    const external = compileFilterItemSchema({
+      ...context,
+      exportToJSONSchema: { mode: "externalRefs" as const, refs: new Set<string>() },
+    })
+
+    for (const property of ["ЛевоеЗначение", "ПравоеЗначение"] as const) {
+      const value = [{ [property]: "!xml/value НеизвестныйИсточник.Поле" }]
+      expect(validation.Check(value)).toBe(true)
+      expect(external.Check(value)).toBe(false)
+      expect(validation.Check([{ [property]: "!xml/value" }])).toBe(false)
+    }
   })
 
   it("does not accept array-shaped left value", () => {

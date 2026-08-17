@@ -68,6 +68,9 @@ import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplic
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
+import { collectConditionalAppearanceOccurrences } from "../forms/clientApplicationForm/conditionalAppearanceTraversal"
+import { finalizeImportedConditionalAppearanceAnomalies } from "../forms/clientApplicationForm/conditionalAppearanceAnomalies"
+import { prepareFormDataPathContextFromYAML } from "../forms/clientApplicationForm/formDataPathContext"
 import { getProjectReferenceValueContributor } from "../validation/projectReferenceIndexRegistry"
 import { resolveImportedMetadataTargetStatus } from "./metadataTargetLookup"
 
@@ -420,6 +423,7 @@ async function writePreparedYamlToOutput(
     }
   )
   const originalFormDataPaths = collectImportedFormDataPaths(prepared.yaml, prepared.rule)
+  const originalConditionalAppearance = collectImportedConditionalAppearance(prepared.yaml, prepared.rule)
   profiler.measure(
     "Подготовка импорта конфигурации",
     "Уточнение отложенных значений YAML",
@@ -487,15 +491,25 @@ async function writePreparedYamlToOutput(
     "Подготовка импорта конфигурации",
     "Уточнение импортированного metadata-item",
     { items: 1 },
-    () => finalizeMetadataItemImportedYaml({
-      yaml: prepared.yaml,
-      rule: prepared.rule,
-      ownerMetadataCache,
-      ...(currentConfigurationYAML === undefined ? {} : { currentConfigurationYAML }),
-      ...(preparedBaseFormCandidate === undefined
-        ? {}
-        : { savedBaseYAML: preparedBaseFormCandidate.yaml }),
-    })
+    () => {
+      finalizeImportedConditionalAppearance({
+        yaml: prepared.yaml,
+        rule: prepared.rule,
+        originals: originalConditionalAppearance,
+        ownerMetadataCache,
+        currentConfigurationYAML,
+        savedBaseYAML: preparedBaseFormCandidate?.yaml,
+      })
+      finalizeMetadataItemImportedYaml({
+        yaml: prepared.yaml,
+        rule: prepared.rule,
+        ownerMetadataCache,
+        ...(currentConfigurationYAML === undefined ? {} : { currentConfigurationYAML }),
+        ...(preparedBaseFormCandidate === undefined
+          ? {}
+          : { savedBaseYAML: preparedBaseFormCandidate.yaml }),
+      })
+    }
   )
   const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
@@ -604,6 +618,50 @@ function collectImportedFormDataPaths(yaml: unknown, rule: PreparedImportYaml["r
   return form === undefined
     ? []
     : collectFormDataPathOccurrencesFromYAML(form)
+}
+
+function collectImportedConditionalAppearance(yaml: unknown, rule: PreparedImportYaml["rule"]) {
+  const form = importedClientApplicationForm({ yaml, rule })
+  return form === undefined
+    ? { operands: [], targets: [] }
+    : collectConditionalAppearanceOccurrences(form.yaml)
+}
+
+function finalizeImportedConditionalAppearance(params: {
+  yaml: unknown
+  rule: PreparedImportYaml["rule"]
+  originals: ReturnType<typeof collectImportedConditionalAppearance>
+  ownerMetadataCache: OwnerMetadataCache
+  currentConfigurationYAML?: unknown
+  savedBaseYAML?: unknown
+}): void {
+  if (params.originals.operands.length === 0 && params.originals.targets.length === 0) return
+  const form = importedClientApplicationForm({ yaml: params.yaml, rule: params.rule })
+  if (form === undefined) return
+  const formYaml = clientApplicationFormYaml(form.yaml, "импортируемая форма")
+  const currentForm = params.currentConfigurationYAML === undefined
+    ? undefined
+    : importedClientApplicationForm({ yaml: params.currentConfigurationYAML, rule: params.rule })
+  const savedBaseForm = params.savedBaseYAML === undefined
+    ? undefined
+    : importedClientApplicationForm({ yaml: params.savedBaseYAML, rule: params.rule })
+  const dataPathContext = prepareFormDataPathContextFromYAML({
+    yaml: formYaml,
+    ownerCache: params.ownerMetadataCache,
+    rule: form.rule,
+    ...(currentForm === undefined
+      ? {}
+      : { currentConfigurationFormYaml: clientApplicationFormYaml(currentForm.yaml, "текущая форма") }),
+    ...(savedBaseForm === undefined
+      ? {}
+      : { savedBaseFormYaml: clientApplicationFormYaml(savedBaseForm.yaml, "базовая форма") }),
+  })
+  finalizeImportedConditionalAppearanceAnomalies({
+    yaml: formYaml,
+    originals: params.originals,
+    dataPathContext,
+    ownerCache: params.ownerMetadataCache,
+  })
 }
 
 function finalizeImportedFormDataPaths(params: {

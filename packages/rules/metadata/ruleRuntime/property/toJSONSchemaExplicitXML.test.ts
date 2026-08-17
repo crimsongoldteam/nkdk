@@ -274,6 +274,7 @@ describe("explicit XML property validation schema", () => {
         action: "transportScalar",
         itemType: rule.itemType,
         propertyKey: "flag",
+        transformPayload: (payload) => payload === "Ложь",
       },
     })
     const { validationProperties, externalProperties, validationSchemas } = explicitXMLSchemas(rule, execution)

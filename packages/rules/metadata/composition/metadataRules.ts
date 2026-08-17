@@ -81,6 +81,7 @@ import { appliedObjectInputByStringRules } from "../appliedObjects/inputByString
 import { appliedObjectDataTableRules } from "../appliedObjects/dataTableRules"
 import { popupExtendedTooltipRules } from "../forms/elements/popup/extendedTooltip"
 import { brokenEventReferenceRules } from "../forms/commonObjects/event/brokenReference"
+import { conditionalAppearanceExplicitXMLRules } from "../forms/clientApplicationForm/conditionalAppearanceExplicitXML"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -145,6 +146,7 @@ export const legacyCoreRules = composeMetadataRules(
   ownerFactCollectorRules,
   appliedObjectComponentRules,
   clientApplicationFormValidationRules,
+  conditionalAppearanceExplicitXMLRules,
   clientApplicationFormPropertyRules,
   childFormNamesPropertyRules,
   fillValueRules,

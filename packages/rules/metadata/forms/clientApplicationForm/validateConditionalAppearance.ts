@@ -35,6 +35,7 @@ export function validateFormConditionalAppearance(params: {
 
   const typesByComparison = new Map<string, Partial<Record<"left" | "right", NormalizedDataPathTerminalType>>>()
   for (const operand of occurrences.operands) {
+    if (operand.tagged) continue
     const inferred = inferConditionalOperandType({ context: params.context, value: operand.value })
     let normalized: NormalizedDataPathTerminalType | undefined
 

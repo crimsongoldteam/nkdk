@@ -9,13 +9,25 @@ import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 
 const DcsMetadataTypedValueNilArrayItemJSONSchema = Type.Object({}, { additionalProperties: false })
 
-const FilterItemRightValueArrayItemJSONSchema = Type.Union([
+const ordinaryDcsMetadataTypedValueJSONSchema = Type.Intersect([
   DcsMetadataTypedValueJSONSchema,
+  { not: Type.String({ pattern: "^!xml/(?:[^ ]+)(?: |$)" }) } as TSchema,
+])
+const xmlValueFieldJSONSchema = Type.String({ pattern: "^!xml/value[ \\t]+\\S.*$" })
+
+const dcsMetadataTypedValueSchema = (context: ConfigurationContext): TSchema =>
+  context.exportToJSONSchema?.explicitXMLValues === true ||
+  context.exportToJSONSchema?.validationPropertyRefs === true
+    ? Type.Union([ordinaryDcsMetadataTypedValueJSONSchema, xmlValueFieldJSONSchema])
+    : ordinaryDcsMetadataTypedValueJSONSchema
+
+const FilterItemRightValueArrayItemJSONSchema = Type.Union([
+  ordinaryDcsMetadataTypedValueJSONSchema,
   DcsMetadataTypedValueNilArrayItemJSONSchema,
 ])
 
-const FilterItemRightValueJSONSchema = Type.Union([
-  DcsMetadataTypedValueJSONSchema,
+const filterItemRightValueJSONSchema = (context: ConfigurationContext): TSchema => Type.Union([
+  dcsMetadataTypedValueSchema(context),
   Type.Array(FilterItemRightValueArrayItemJSONSchema),
 ])
 
@@ -42,7 +54,7 @@ const createFilterItemSchemaContext = (
     refs: context.exportToJSONSchema?.refs ?? new Set(),
     propertySchemaOverrides: {
       ...context.exportToJSONSchema?.propertySchemaOverrides,
-      DcsMetadataTypedValue: DcsMetadataTypedValueJSONSchema,
+      DcsMetadataTypedValue: dcsMetadataTypedValueSchema(context),
       ...propertySchemaOverrides,
     },
     schemaStack: context.exportToJSONSchema?.schemaStack,
@@ -66,7 +78,7 @@ const createFilterItemComparisonSchema = (context: ConfigurationContext): TSchem
   return Type.Object(
     {
       ...comparisonSchema.properties,
-      ПравоеЗначение: Type.Optional(FilterItemRightValueJSONSchema),
+      ПравоеЗначение: Type.Optional(filterItemRightValueJSONSchema(context)),
     },
     { additionalProperties: false }
   )
