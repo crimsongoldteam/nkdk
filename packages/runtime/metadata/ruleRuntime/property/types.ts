@@ -321,6 +321,7 @@ export type DataPathAllowedKind =
   | "ValueTable"
   | "ValueTree"
   | "ValueListType"
+  | "Order"
   | "DynamicList"
   | "GanttChart"
   | "FormattedString"

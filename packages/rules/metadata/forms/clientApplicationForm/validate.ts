@@ -1,19 +1,14 @@
 import { join } from "path"
-import { rootFromYAML } from "@nkdk/runtime/rule-kit"
 import { createConfigurationLanguages, type ConfigurationContext } from "@nkdk/runtime"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { toDataPathPolicyInput, validateResolvedDataPathPolicy } from "../../validation/dataPath/policies"
 import { resolveDataPath } from "../../validation/dataPath/resolver"
-import {
-  getFormWarningProviders,
-  type RegisteredFormValidator,
-  type RegisteredFormValidatorParams,
-} from "../../validation/formValidationRegistry"
+import { type RegisteredFormValidator, type RegisteredFormValidatorParams } from "../../validation/formValidationRegistry"
 import { validateExcludedEqualNameYAML } from "../../validation/excludeIfEqualNameYAML"
 import type { Diagnostic } from "../../validation/types"
 import { dedupeDiagnostics } from "../../validation/diagnostics"
-import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"
+import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "@nkdk/runtime"
 import { ClientApplicationFormRules } from "./rules"
 import { validateFormElementNames } from "./validateElementNames"
@@ -31,6 +26,7 @@ import {
   type FormYAMLItemVisit,
 } from "../../validation/dataPath/formYamlTraversal"
 import type { FormDataPathOccurrence } from "../../validation/dataPath/formTraversal"
+import { validateFormConditionalAppearance } from "./validateConditionalAppearance"
 
 const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
 const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])
@@ -49,6 +45,7 @@ interface ClientApplicationFormValidationState {
   occurrences: ClientApplicationFormDataPathPreparation["collected"]["occurrences"]
   dataPathPreparation: ClientApplicationFormDataPathPreparation
   visitedItems: readonly FormYAMLItemVisit[]
+  context: ConfigurationContext
 }
 
 export function validateClientApplicationFormFirstPass(
@@ -109,10 +106,6 @@ export function validateClientApplicationFormFirstPass(
     }),
     ...localDiagnostics,
   ]
-  for (const provider of getFormWarningProviders()) {
-    diagnostics.push(...provider({ filePath: entry.filePath, parsed: entry.parsed }))
-  }
-
   return {
     status: "ok",
     diagnostics,
@@ -123,6 +116,7 @@ export function validateClientApplicationFormFirstPass(
       occurrences,
       dataPathPreparation,
       visitedItems,
+      context,
     },
   }
 }
@@ -214,6 +208,14 @@ export function validateClientApplicationFormSecondPass(params: {
         }]
       : []
   )
+
+  diagnostics.push(...validateFormConditionalAppearance({
+    filePath: params.state.filePath,
+    parsed: params.state.parsed,
+    context: params.state.context,
+    dataPathContext,
+    ownerCache: params.ownerCache,
+  }))
 
   for (const element of dataPathContext.elementsByName.values()) {
     const inheritsExplicitTablePath =
@@ -331,36 +333,6 @@ function syntaxDiagnostics(filePath: string, parsed: ParsedYaml): Diagnostic[] {
   }))
 }
 
-export function collectDynamicListTypeValueWarnings(params: { filePath: string; parsed: ParsedYaml }): Diagnostic[] {
-  const data = params.parsed.data
-  if (!isRecord(data)) return []
-
-  const attributes = data["Реквизиты"]
-  if (!isRecord(attributes)) return []
-
-  const diagnostics: Diagnostic[] = []
-  for (const [attributeName, attributeValue] of Object.entries(attributes)) {
-    if (!isRecord(attributeValue)) continue
-
-    const dynamicList = attributeValue["ДинамическийСписок"]
-    if (!isRecord(dynamicList)) continue
-
-    const conditionalAppearance = dynamicList["УсловноеОформление"]
-    if (!isRecord(conditionalAppearance)) continue
-
-    diagnostics.push(
-      ...collectConditionalAppearanceTypeValueWarnings({
-        filePath: params.filePath,
-        parsed: params.parsed,
-        rootPath: ["Реквизиты", attributeName, "ДинамическийСписок", "УсловноеОформление"],
-        value: conditionalAppearance,
-      })
-    )
-  }
-
-  return diagnostics
-}
-
 function isAcceptedOpaqueMultipleValueDataPath(
   occurrence: ReturnType<typeof collectFormDataPathOccurrencesFromYAML>[number]
 ): boolean {
@@ -371,82 +343,6 @@ function isAcceptedOpaqueMultipleValueDataPath(
       occurrence.value
     )
   )
-}
-
-function collectConditionalAppearanceTypeValueWarnings(params: {
-  filePath: string
-  parsed: ParsedYaml
-  rootPath: YamlPath
-  value: unknown
-}): Diagnostic[] {
-  const diagnostics: Diagnostic[] = []
-  visitConditionalAppearanceNode({
-    filePath: params.filePath,
-    parsed: params.parsed,
-    path: params.rootPath,
-    value: params.value,
-    diagnostics,
-  })
-  return diagnostics
-}
-
-function visitConditionalAppearanceNode(params: {
-  filePath: string
-  parsed: ParsedYaml
-  path: YamlPath
-  value: unknown
-  diagnostics: Diagnostic[]
-}): void {
-  if (Array.isArray(params.value)) {
-    params.value.forEach((item, index) => {
-      visitConditionalAppearanceNode({
-        ...params,
-        path: [...params.path, index],
-        value: item,
-      })
-    })
-    return
-  }
-
-  if (!isRecord(params.value)) return
-
-  const rightValue = params.value["ПравоеЗначение"]
-  const leftValue = params.value["ЛевоеЗначение"]
-  if (isMetadataObjectTargetYAML(rightValue) && !isDynamicListTypeDiscriminatorComparison(leftValue)) {
-    params.diagnostics.push(
-      diagnosticAtYamlPath({
-        filePath: params.filePath,
-        parsed: params.parsed,
-        path: [...params.path, "ПравоеЗначение"],
-        severity: "warning",
-        source: "structure",
-        message: `Проверка значения типа "${rightValue}" в условном оформлении динамического списка пока не реализована и будет добавлена в будущих версиях`,
-      })
-    )
-  }
-
-  for (const [key, value] of Object.entries(params.value)) {
-    if (key === "ПравоеЗначение") continue
-    visitConditionalAppearanceNode({
-      ...params,
-      path: [...params.path, key],
-      value,
-    })
-  }
-}
-
-function isDynamicListTypeDiscriminatorComparison(value: unknown): boolean {
-  return value === ".Тип" || value === "Тип"
-}
-
-function isMetadataObjectTargetYAML(value: unknown): value is string {
-  if (typeof value !== "string") return false
-
-  const parts = value.split(".")
-  if (parts.length !== 2) return false
-
-  const [root, name] = parts
-  return rootFromYAML[root] !== undefined && /^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$/.test(name)
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

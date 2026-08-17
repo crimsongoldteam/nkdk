@@ -1645,6 +1645,54 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("проверяет оформляемые элементы и типы операндов условного оформления формы", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Число:",
+        "    Тип: Число",
+        "Элементы:",
+        "  ПолеФормы:",
+        "    Вид: ПолеВвода",
+        "УсловноеОформлениеРеквизитов:",
+        "  Элементы:",
+        "    - Поля: [ПолеФормы, НеизвестныйЭлемент]",
+        "      Отбор:",
+        "        Элементы:",
+        "          - ЛевоеЗначение: .Число",
+        "            ПравоеЗначение: \"'текст'\"",
+      ],
+    })
+
+    const diagnostics = withMetadataExecutionRegistrySets(metadataRegistries, () => runValidateForm(project))
+    expect(messages(diagnostics)).toEqual(expect.arrayContaining([
+      'Неизвестный оформляемый элемент формы "НеизвестныйЭлемент".',
+      expect.stringContaining("несовместимы: decimal и string"),
+    ]))
+  })
+
+  it("проверяет условное оформление DynamicList без отдельного исключения", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Список:",
+        "    ДинамическийСписок:",
+        "      УсловноеОформление:",
+        "        Элементы:",
+        "          - Отбор:",
+        "              Элементы:",
+        "                - ЛевоеЗначение: .НеизвестноеПоле",
+        "                  ПравоеЗначение: Истина",
+      ],
+    })
+
+    const diagnostics = withMetadataExecutionRegistrySets(metadataRegistries, () => runValidateForm(project))
+    expect(messages(diagnostics)).toContain(
+      'Не удалось определить поле "Список.НеизвестноеПоле" условного оформления.'
+    )
+    expect(diagnostics.every((diagnostic) => diagnostic.severity !== "warning")).toBe(true)
+  })
+
   it("accepts ChartOfAccounts virtual owner fields", () => {
     const project = createProject({
       ownerDir: "ПланСчетов",

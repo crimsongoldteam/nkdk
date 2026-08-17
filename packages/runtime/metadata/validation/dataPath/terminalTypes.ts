@@ -62,6 +62,7 @@ const exactKinds = new Set<DataPathAllowedKind>([
   "ValueTable",
   "ValueTree",
   "ValueListType",
+  "Order",
   "DynamicList",
   "GanttChart",
   "FormattedString",
