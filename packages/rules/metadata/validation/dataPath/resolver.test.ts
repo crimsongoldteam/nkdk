@@ -2296,17 +2296,31 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("ignores DynamicList fields", () => {
+  it("resolves known DynamicList fields before deferring unknown dataset fields", () => {
     const result = resolve("Список.Наименование", {
       index: indexWithAttributes([
-        { ...attribute("Список", { type: ["CatalogRef.Номенклатура"] }), dynamicList: { itemType: "DynamicList" } },
+        {
+          ...attribute(
+            "Список",
+            { type: ["CatalogRef.Номенклатура"] },
+            [column("Наименование", { type: ["string"] })],
+          ),
+          dynamicList: { itemType: "DynamicList" },
+        },
       ]),
     })
 
     expect(result).toMatchObject({
       status: "ok",
       diagnostics: [],
+      target: { typeInfo: { terminalTypes: ["string"] } },
     })
+
+    expect(resolve("Список.НеизвестноеПоле", {
+      index: indexWithAttributes([
+        { ...attribute("Список", { type: ["CatalogRef.Номенклатура"] }), dynamicList: { itemType: "DynamicList" } },
+      ]),
+    })).toMatchObject({ status: "ok", diagnostics: [], target: undefined })
   })
 
   it.each([
@@ -2393,7 +2407,7 @@ describe("resolveDataPath", () => {
   })
 
   it("resolves StandardPeriod Variant as a scalar field", () => {
-    const result = resolve("Период.Variant", {
+    const result = resolve("Период.Вариант", {
       index: indexWithAttributes([attribute("Период", { type: ["StandardPeriod"] })]),
     })
 
@@ -2401,15 +2415,15 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        value: "Период.Variant",
-        source: { kind: "standardPeriodField", name: "Variant" },
-        typeInfo: { kinds: ["scalar"], sourceText: "StandardPeriod.Variant" },
+        value: "Период.Вариант",
+        source: { kind: "typedMember", type: "StandardPeriod", name: "Вариант" },
+        typeInfo: { kinds: ["scalar"], terminalTypes: ["StandardPeriodVariant"] },
       },
     })
   })
 
   it("resolves StandardPeriod boundary dates as dateTime fields", () => {
-    for (const path of ["Период.StartDate", "Период.EndDate"] as const) {
+    for (const path of ["Период.ДатаНачала", "Период.ДатаОкончания"] as const) {
       expect(
         resolve(path, {
           index: indexWithAttributes([attribute("Период", { type: ["StandardPeriod"] })]),
@@ -2419,11 +2433,11 @@ describe("resolveDataPath", () => {
         diagnostics: [],
         target: {
           value: path,
-          source: { kind: "standardPeriodField", name: path.split(".")[1] },
+          source: { kind: "typedMember", type: "StandardPeriod", name: path.split(".")[1] },
           typeInfo: {
             kinds: ["dateTime"],
             terminalTypes: ["dateTime"],
-            sourceText: `StandardPeriod.${path.split(".")[1]}`,
+            sourceText: "dateTime",
           },
         },
       })
@@ -2439,9 +2453,28 @@ describe("resolveDataPath", () => {
       status: "error",
       diagnostics: [
         expect.objectContaining({
-          message: 'ПутьКДанным "Период.Unknown": неизвестный реквизит "Unknown"',
+          message: 'ПутьКДанным "Период.Unknown": неизвестное свойство "Unknown"',
         }),
       ],
+    })
+  })
+
+  it.each([
+    ["Планировщик.НачалоПериодаОтображения", "Planner", "dateTime"],
+    ["Планировщик.ОтображатьТекущуюДату", "Planner", "boolean"],
+    ["Планировщик.МинимальнаяШиринаКолонки", "Planner", "decimal"],
+    ["Начало.Дата", "StandardBeginningDate", "dateTime"],
+  ] as const)("resolves a built-in structured field %s", (path, type, terminalType) => {
+    const root = path.split(".")[0] ?? ""
+    const sourceType = type === "Planner" ? "Planner" : "StandardBeginningDate"
+    expect(resolve(path, {
+      index: indexWithAttributes([attribute(root, { type: [sourceType] })]),
+    })).toMatchObject({
+      status: "ok",
+      target: {
+        source: { kind: "typedMember", type },
+        typeInfo: { terminalTypes: [terminalType] },
+      },
     })
   })
 

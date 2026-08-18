@@ -26,6 +26,7 @@ export function typeDescriptionToDataPathTypeInfo(
   const definedTypes: string[] = []
   const terminalTypes: string[] = []
   let table: DataPathTableInfo | undefined
+  let structuredType: string | undefined
 
   for (const type of types) {
     const mapped = mapType(type)
@@ -35,6 +36,7 @@ export function typeDescriptionToDataPathTypeInfo(
     if (mapped.terminalTypes !== undefined) terminalTypes.push(...mapped.terminalTypes)
     else if (mapped.definedType === undefined) terminalTypes.push(type)
     if (table === undefined && mapped.table !== undefined) table = mapped.table
+    if (structuredType === undefined && mapped.structuredType !== undefined) structuredType = mapped.structuredType
   }
 
   return {
@@ -43,6 +45,7 @@ export function typeDescriptionToDataPathTypeInfo(
     ...(terminalTypes.length > 0 ? { terminalTypes } : {}),
     ...(definedTypes.length > 0 ? { definedTypes } : {}),
     ...(table !== undefined ? { table } : {}),
+    ...(structuredType !== undefined ? { structuredType } : {}),
     ...(types.length > 1 ? { isComposite: true } : {}),
     sourceText: types.join(" | "),
   }
@@ -63,6 +66,7 @@ function mapType(type: string): {
   definedType?: string
   table?: DataPathTableInfo
   terminalTypes?: readonly string[]
+  structuredType?: string
 } {
   switch (type) {
     case "boolean":
@@ -86,9 +90,6 @@ function mapType(type: string): {
     case "ConstantsSet":
     case "КонстантыНабор":
       return { kind: "constantSet" }
-    case "StandardPeriod":
-    case "СтандартныйПериод":
-      return { kind: "standardPeriod" }
   }
 
   const definedTypeName = definedTypeNameFromType(type)
@@ -115,6 +116,7 @@ function mapType(type: string): {
       ...(registered.definedTypes?.[0] !== undefined ? { definedType: registered.definedTypes[0] } : {}),
       ...(registered.table !== undefined ? { table: registered.table } : {}),
       ...(registered.terminalTypes !== undefined ? { terminalTypes: registered.terminalTypes } : {}),
+      ...(registered.structuredType !== undefined ? { structuredType: registered.structuredType } : {}),
     }
   }
 

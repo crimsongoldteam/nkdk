@@ -221,10 +221,11 @@ export const createSettingsParameterValueJSONSchema = (params: {
   context: ConfigurationContext
   rawValueSchema: TSchema
   rule: SettingsParameterValuePropertyRule
+  preserveNullableColor?: boolean
 }): TSchema => {
   const { context, rawValueSchema, rule: settingsRule } = params
   const strictRawValueSchema =
-    settingsRule.valueType === "Color"
+    settingsRule.valueType === "Color" && params.preserveNullableColor !== true
       ? Type.Intersect([rawValueSchema, notSchema(Type.Null())])
       : rawValueSchema
   const compactValueSchema = rejectCompactObjectShapes(strictRawValueSchema, settingsRule)

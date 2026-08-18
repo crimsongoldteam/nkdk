@@ -6,7 +6,6 @@ import {
   validateFormElementNames,
 } from "./validateElementNames"
 import {
-  collectDynamicListTypeValueWarnings,
   validateClientApplicationForm,
   validateClientApplicationFormFirstPass,
   validateClientApplicationFormSecondPass,
@@ -39,10 +38,6 @@ export const clientApplicationFormValidationRules = defineMetadataRules({
         state: state as Parameters<typeof validateClientApplicationFormSecondPass>[0]["state"],
         ownerCache,
       }),
-    },
-    {
-      kind: "formWarningProvider",
-      provider: ({ filePath, parsed }) => collectDynamicListTypeValueWarnings({ filePath, parsed }),
     },
   ],
 })

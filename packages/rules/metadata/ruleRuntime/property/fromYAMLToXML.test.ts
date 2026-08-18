@@ -184,6 +184,30 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
+  it("преобразует payload зарегистрированного !xml/value перед штатным типом", () => {
+    const rule = {
+      itemType: "ExplicitXMLTransformedScalarProbe",
+      properties: {
+        field: { type: "string", yaml: "Поле", xml: "Field" },
+      },
+    } as MetadataItemRule
+    registerExplicitXMLProperty({
+      action: "transportScalar",
+      itemType: rule.itemType,
+      propertyKey: "field",
+      transformPayload: (payload) => `.${payload}`,
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: importFromYAML("Поле: !xml/value Источник.Поле"),
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Field: ".Источник.Поле" })
+  })
+
   it("не распаковывает !xml/value у незарегистрированной пары", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),

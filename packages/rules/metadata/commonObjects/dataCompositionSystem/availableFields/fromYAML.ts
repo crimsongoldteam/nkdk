@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"
@@ -18,15 +18,21 @@ const importBoolean = (value: Exclude<AvailableFieldItemYAML, string>["Испо�
   return value === "Истина"
 }
 
-const importItem = (context: ConfigurationContext, item: AvailableFieldItemYAML): AvailableFieldItem | undefined => {
-  if (typeof item === "string") return item || undefined
+const importItem = (
+  context: ConfigurationContext,
+  collection: AvailableFieldsYAML,
+  index: number,
+  item: AvailableFieldItemYAML,
+): AvailableFieldItem | undefined => {
+  if (typeof item === "string") return importFieldName(collection, index, item)
   if (!isYamlObject(item) || !item.Поле) return undefined
-  if (!hasMetadata(item)) return item.Поле
+  const field = importFieldName(item, "Поле", item.Поле)
+  if (!hasMetadata(item)) return field
 
   const viewMode = item.РежимОтображения
 
   return {
-    field: item.Поле,
+    field,
     ...(item.Использование !== undefined ? { use: importBoolean(item.Использование) } : {}),
     ...(item.Заголовок !== undefined
       ? {
@@ -58,9 +64,16 @@ const importAvailableFieldsFromYAML = (
   if (!yaml) return undefined
 
   const fields = yaml
-    .map((item) => importItem(context, item))
+    .map((item, index) => importItem(context, yaml, index, item))
     .filter((field): field is AvailableFieldItem => Boolean(field))
   return fields.length > 0 ? fields : undefined
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("AvailableFields", "importFromYAML", importAvailableFieldsFromYAML)
+
+function importFieldName(parent: object, key: string | number, value: string): string {
+  if (yamlScalarTagAt(parent, key) !== "xml/reference") return value
+  const payload = xmlAnomalyTagPayload("xml/reference", value)
+  if (payload.length === 0) throw new Error("!xml/reference требует непустое имя поля")
+  return payload
+}

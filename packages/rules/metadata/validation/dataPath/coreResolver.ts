@@ -9,7 +9,11 @@ import {
   resolveRegisterRecordsItem as resolveRegisteredMovementItem,
   resolveTraversalTimeStandardMember,
   resolveTraversalTransition,
+  resolveTypedDataPathMember,
+  resolveTypedDynamicDataPathTarget,
   resolveVirtualOwnerField,
+  type DataPathTraceMember,
+  type ResolvedTypedDataPathMember,
 } from "./registry"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import type { DataPathTypeInfo, FormDataPathSource, FormDataPathTableSource, OwnerTypeRef } from "./types"
@@ -34,6 +38,7 @@ export interface ResolvedDataPathTarget {
   segmentIndex: number
   typeInfo: DataPathTypeInfo
   source: ResolvedDataPathTargetSource
+  trace?: readonly DataPathTraceMember[]
 }
 
 export type ResolvedDataPathTargetSource =
@@ -44,7 +49,7 @@ export type ResolvedDataPathTargetSource =
   | { kind: "constant"; name: string }
   | { kind: "registerRecords"; owner: OwnerTypeRef; name: string }
   | { kind: "registerRecordSet"; owner: OwnerTypeRef; name: string }
-  | { kind: "standardPeriodField"; name: string }
+  | { kind: "typedMember"; type: string; name: string }
 
 export interface ResolvedDataPathSegmentReplacement {
   segmentIndex: number
@@ -117,6 +122,7 @@ interface TraversalState {
   source: ResolvedDataPathTargetSource
   tableSource?: FormDataPathTableSource | ObjectFieldTableSource
   registerRecordsOwner?: OwnerMetadata
+  trace?: readonly DataPathTraceMember[]
 }
 
 interface TableColumnSource {
@@ -276,16 +282,39 @@ function resolveDataPathCoreWithCurrentData(
       return okWithoutTarget({ value, segments, replacements })
     }
 
-    if (state.typeInfo.kinds.includes("standardPeriod")) {
-      const field = standardPeriodField(lookupSegment)
-      if (field === undefined) {
-        return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
+    if (state.typeInfo.kinds.includes("structured")) {
+      const structuredType = state.typeInfo.structuredType
+      const member = structuredType === undefined
+        ? undefined
+        : resolveTypedDataPathMember({ type: structuredType, segment: lookupSegment })
+      if (member === undefined) {
+        return error(params, `ПутьКДанным "${value}": неизвестное свойство "${segment}"`)
+      }
+      if (params.nameMode === "yaml" && lookupSegment === member.internal && member.internal !== member.yaml) {
+        return error(
+          params,
+          `ПутьКДанным "${value}": в YAML используйте "${member.yaml}" вместо "${segment}"`,
+          "internal_standard_member_in_yaml",
+        )
       }
 
-      state = {
-        typeInfo: field.typeInfo,
-        source: { kind: "standardPeriodField", name: lookupSegment },
+      recordStandardMemberReplacement({
+        replacements,
+        nameMode: params.nameMode,
+        segmentIndex: index,
+        input: lookupSegment,
+        internalName: member.internal,
+        yamlName: member.yaml,
+      })
+      const typedState = stateFromTypedMember(member, state.trace ?? [], params)
+      if (typedState === undefined) {
+        return error(
+          params,
+          `ПутьКДанным "${value}": не удалось разрешить динамическое свойство "${segment}"`,
+          "unknown_type",
+        )
       }
+      state = typedState
 
       if (isLast) return okTarget({ value, segments, state, replacements })
       continue
@@ -526,6 +555,7 @@ function rebaseCurrentDataResult(params: {
     segmentIndex: 1,
     typeInfo: { kinds: ["tableSource"], nextTypes: [], sourceText: "TabularFormElement" },
     source: { kind: "formElement", name: params.originalSegments[1] ?? "" },
+    trace: [],
   }
   const common = {
     value: params.originalValue,
@@ -593,23 +623,6 @@ function tableSourceFromObjectField(field: {
       table.kind === "Registered" || table.kind === "ValueList" || table.kind === "GanttChart" ||
       table.kind === "RegisterRecordSet",
   }
-}
-
-function standardPeriodField(segment: string): { typeInfo: DataPathTypeInfo } | undefined {
-  if (segment === "Variant") {
-    return { typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "StandardPeriod.Variant" } }
-  }
-  if (segment === "StartDate" || segment === "EndDate") {
-    return {
-      typeInfo: {
-        kinds: ["dateTime"],
-        nextTypes: [],
-        terminalTypes: ["dateTime"],
-        sourceText: `StandardPeriod.${segment}`,
-      },
-    }
-  }
-  return undefined
 }
 
 function resolveConstantSetItem(params: {
@@ -832,6 +845,7 @@ function stateFromRoot(root: FormDataPathSource): TraversalState {
     typeInfo: root.typeInfo,
     source: { kind: "formAttribute", name: root.name },
     ...(root.tableSource !== undefined ? { tableSource: root.tableSource } : {}),
+    trace: [],
   }
 }
 
@@ -859,11 +873,51 @@ function resolveTableColumn(params: {
     return { status: "done", result: registeredColumnResult.result }
   }
 
-  if (tableSource.table.kind === "DynamicList" && registeredColumnResult.column === undefined) {
-    return {
-      status: "done",
-      result: okWithoutTarget({ value: params.value, segments: params.segments, replacements: params.replacements }),
+  if (registeredColumnResult.typedMember !== undefined) {
+    if (
+      params.params.nameMode === "yaml" &&
+      lookupSegment === registeredColumnResult.typedMember.internal &&
+      registeredColumnResult.typedMember.internal !== registeredColumnResult.typedMember.yaml
+    ) {
+      return {
+        status: "done",
+        result: error(
+          params.params,
+          `ПутьКДанным "${params.value}": в YAML используйте "${registeredColumnResult.typedMember.yaml}" вместо "${params.segment}"`,
+          "internal_standard_member_in_yaml",
+        ),
+      }
     }
+    recordStandardMemberReplacement({
+      replacements: params.replacements,
+      nameMode: params.params.nameMode,
+      segmentIndex: params.segmentIndex,
+      input: lookupSegment,
+      internalName: registeredColumnResult.typedMember.internal,
+      yamlName: registeredColumnResult.typedMember.yaml,
+    })
+    const state = stateFromTypedMember(
+      registeredColumnResult.typedMember,
+      params.state.trace ?? [],
+      params.params,
+    )
+    if (state === undefined) {
+      return {
+        status: "done",
+        result: error(
+          params.params,
+          `ПутьКДанным "${params.value}": не удалось разрешить динамическое свойство "${params.segment}"`,
+          "unknown_type",
+        ),
+      }
+    }
+    if (params.isLast) {
+      return {
+        status: "done",
+        result: okTarget({ value: params.value, segments: params.segments, state, replacements: params.replacements }),
+      }
+    }
+    return { status: "continue", state }
   }
 
   const tablePath = params.segments.slice(0, params.segmentIndex).join(".")
@@ -884,6 +938,12 @@ function resolveTableColumn(params: {
       : undefined)
   const column = resolvedColumn?.column
   if (column === undefined) {
+    if (tableSource.table.kind === "DynamicList") {
+      return {
+        status: "done",
+        result: okWithoutTarget({ value: params.value, segments: params.segments, replacements: params.replacements }),
+      }
+    }
     if (tableSource.hasColumns) {
       return {
         status: "done",
@@ -926,6 +986,7 @@ function resolveTableColumn(params: {
       column,
       tablePath: nestedTablePath,
     }),
+    trace: params.state.trace,
   })
   if (params.isLast)
     return {
@@ -962,7 +1023,11 @@ function resolveRegisteredColumn(params: {
   tableSource: FormDataPathTableSource | ObjectFieldTableSource
   segment: string
   replacements: readonly ResolvedDataPathSegmentReplacement[]
-}): { status: "ok"; column?: TableColumnSource } | { status: "error"; result: ResolveDataPathCoreResult } {
+}): {
+  status: "ok"
+  column?: TableColumnSource
+  typedMember?: ResolvedTypedDataPathMember
+} | { status: "error"; result: ResolveDataPathCoreResult } {
   const ownerResult =
     params.tableSource.table.kind === "RegisterRecordSet"
       ? params.params.ownerCache.get(params.tableSource.table.owner)
@@ -988,6 +1053,9 @@ function resolveRegisteredColumn(params: {
     ...(ownerResult?.status === "ok" ? { owner: ownerResult.owner } : {}),
     ...(field !== undefined ? { field } : {}),
   })
+  const typedMember = column === undefined && params.tableSource.table.kind === "Registered"
+    ? resolveTypedDataPathMember({ type: params.tableSource.table.type, segment: params.segment })
+    : undefined
   if (
     params.params.nameMode === "yaml" &&
     column?.targetName === params.segment &&
@@ -1005,6 +1073,7 @@ function resolveRegisteredColumn(params: {
   return {
     status: "ok",
     ...(column !== undefined ? { column } : {}),
+    ...(typedMember !== undefined ? { typedMember } : {}),
   }
 }
 
@@ -1073,12 +1142,91 @@ function stateFromTableColumn(params: {
   tableName: string
   column: TableColumnSource
   tableSource?: FormDataPathTableSource
+  trace?: readonly DataPathTraceMember[]
 }): TraversalState {
   return {
     typeInfo: params.column.typeInfo,
     source: { kind: "tableColumn", table: params.tableName, name: params.column.name },
     ...(params.tableSource !== undefined ? { tableSource: params.tableSource } : {}),
+    ...(params.trace !== undefined ? { trace: params.trace } : {}),
   }
+}
+
+function stateFromTypedMember(
+  member: ResolvedTypedDataPathMember,
+  trace: readonly DataPathTraceMember[],
+  params: ResolveDataPathCoreParams,
+): TraversalState | undefined {
+  const nextTrace = [...trace, {
+    type: member.declaringType,
+    internal: member.internal,
+    yaml: member.yaml,
+  }]
+  const source = { kind: "typedMember" as const, type: member.declaringType, name: member.yaml }
+
+  const target = resolveTypedDynamicDataPathTarget({ member, index: params.index, ownerCache: params.ownerCache })
+  if (target === undefined) return undefined
+
+  if (target.kind === "structured") {
+    return {
+      typeInfo: {
+        kinds: ["structured"],
+        nextTypes: [],
+        structuredType: target.type,
+        sourceText: target.type,
+      },
+      source,
+      trace: nextTrace,
+    }
+  }
+  if (target.kind === "collection") {
+    const table = { kind: "Registered" as const, type: target.itemType }
+    return {
+      typeInfo: {
+        kinds: ["tableSource"],
+        nextTypes: [],
+        terminalTypes: [target.itemType],
+        table,
+        sourceText: target.itemType,
+      },
+      source,
+      tableSource: { table, columns: new Map(), hasColumns: true },
+      trace: nextTrace,
+    }
+  }
+
+  if (target.kind === "metadataObject") {
+    const sourceText = [target.owner.kind, target.owner.name].filter(Boolean).join(".")
+    return {
+      typeInfo: { kinds: ["object"], nextTypes: [target.owner], sourceText },
+      source,
+      trace: nextTrace,
+    }
+  }
+
+  const terminalTypes = [...target.terminalTypes]
+  return {
+    typeInfo: {
+      kinds: terminalDataPathKinds(terminalTypes),
+      nextTypes: [],
+      terminalTypes,
+      ...(terminalTypes.length > 1 ? { isComposite: true } : {}),
+      sourceText: terminalTypes.join(" | "),
+    },
+    source,
+    trace: nextTrace,
+  }
+}
+
+function terminalDataPathKinds(terminalTypes: readonly string[]): DataPathTypeInfo["kinds"] {
+  const kinds = terminalTypes.map((type) => {
+    if (type === "boolean") return "boolean" as const
+    if (type === "dateTime") return "dateTime" as const
+    if (type === "Picture") return "Picture" as const
+    if (type === "TypeDescription") return "typeDescription" as const
+    return "scalar" as const
+  })
+  return [...new Set(kinds)]
 }
 
 function validateIntermediateType(params: {
@@ -1100,7 +1248,7 @@ function validateIntermediateType(params: {
   if (typeInfo.kinds.includes("constantSet")) return undefined
   if (typeInfo.kinds.includes("registerRecords")) return undefined
   if (typeInfo.kinds.includes("platformSource")) return undefined
-  if (typeInfo.kinds.includes("standardPeriod")) return undefined
+  if (typeInfo.kinds.includes("structured")) return undefined
   if ((typeInfo.definedTypes?.length ?? 0) > 0) return undefined
 
   if (typeInfo.kinds.includes("any")) {
@@ -1187,6 +1335,7 @@ function okTarget(params: {
     segmentIndex: params.segments.length - 1,
     typeInfo: params.state.typeInfo,
     source: params.state.source,
+    trace: params.state.trace ?? [],
   }
   return {
     status: "ok",

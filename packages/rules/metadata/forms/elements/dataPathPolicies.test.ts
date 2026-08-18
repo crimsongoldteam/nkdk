@@ -26,7 +26,7 @@ import {
   settingsComposerRadioFieldKinds,
   settingsComposerTableKinds,
   settingsComposerValueFieldKinds,
-} from "../settingsComposer/dataPathModel"
+} from "../settingsComposer/dataPathGraph"
 
 const inputKinds = [
   ...matrixKinds(`

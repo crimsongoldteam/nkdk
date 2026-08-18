@@ -6,7 +6,7 @@ import {
   dynamicListTableProperties,
   isDirectDynamicListTable,
 } from "./dynamicListProperties"
-import { settingsComposerTableKinds } from "../../settingsComposer/dataPathModel"
+import { settingsComposerTableKinds } from "../../settingsComposer/dataPathGraph"
 export type { ElementRule, PropertyRule }
 
 export const TableRules = {

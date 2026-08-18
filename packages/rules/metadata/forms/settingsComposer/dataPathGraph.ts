@@ -1,4 +1,4 @@
-import type { DataPathTypeInfo, FormDataPathColumnSource } from "../../validation/dataPath/types"
+import type { TypedDataPathMemberDeclaration, TypedDataPathTypeDeclaration } from "@nkdk/runtime/rule-kit"
 
 export const SETTINGS_COMPOSER_TYPE = "DataCompositionSettingsComposer"
 
@@ -38,41 +38,24 @@ export const settingsComposerNamePairs = Object.entries(settingsComposerNames) a
   readonly [internal: keyof typeof settingsComposerNames, yaml: (typeof settingsComposerNames)[keyof typeof settingsComposerNames]]
 )[]
 
-const internalByYaml = new Map(settingsComposerNamePairs.map(([internal, yaml]) => [yaml, internal]))
+export const settingsComposerTableKinds = [
+  "DataCompositionSettings", "DataCompositionUserSettings", "DataCompositionStructure",
+  "DataCompositionDataParameters", "DataCompositionFilter", "DataCompositionGroupFields",
+  "DataCompositionSelection", "DataCompositionOrder", "DataCompositionConditionalAppearance",
+  "DataCompositionAppearance", "DataCompositionAppearanceFields", "DataCompositionAvailableFields",
+  "DataCompositionUserFields",
+] as const
 
-export interface SettingsComposerProperty {
-  readonly internal: string
-  readonly yaml: string
-  readonly typeInfo: DataPathTypeInfo
-}
+export const settingsComposerValueFieldKinds = [
+  "DataCompositionStructure", "DataCompositionFilter", "DataCompositionGroupFields",
+  "DataCompositionSelection", "DataCompositionOrder", "DataCompositionConditionalAppearance",
+  "DataCompositionAppearance", "DataCompositionAppearanceFields",
+] as const
 
-export function settingsComposerInternalToYaml(internal: string): string | undefined {
-  return settingsComposerNames[internal as keyof typeof settingsComposerNames]
-}
-
-export function settingsComposerYamlToInternal(yaml: string): string | undefined {
-  return internalByYaml.get(yaml as (typeof settingsComposerNames)[keyof typeof settingsComposerNames])
-}
-
-export function settingsComposerTypeInfo(type: string): DataPathTypeInfo {
-  return {
-    kinds: ["tableSource"], nextTypes: [], terminalTypes: [type],
-    table: { kind: "Registered", type }, sourceText: type,
-  }
-}
-
-export function settingsComposerTableSource(type: string) {
-  return { table: { kind: "Registered" as const, type }, columns: new Map(), hasColumns: true }
-}
-
-export function resolveSettingsComposerProperty(type: string, segment: string): FormDataPathColumnSource | undefined {
-  const property = settingsComposerGraph.get(type)?.find(
-    (candidate) => candidate.internal === segment || candidate.yaml === segment,
-  )
-  return property === undefined
-    ? undefined
-    : { name: property.yaml, targetName: property.internal, typeInfo: property.typeInfo }
-}
+export const settingsComposerRadioFieldKinds = [
+  "DataCompositionComparisonType", "DataCompositionGroupType", "DataCompositionFilterApplicationType",
+  "DataCompositionFieldPlacement", "DataCompositionPeriodAdditionType", "DataCompositionSortDirection",
+] as const
 
 const collectionTypes = {
   Settings: "DataCompositionSettings", FixedSettings: "DataCompositionSettings",
@@ -94,45 +77,25 @@ const collectionTypes = {
   UserFields: "DataCompositionUserFields", ItemUserFields: "DataCompositionUserFields",
 } as const
 
-export const settingsComposerTableKinds = [
-  "DataCompositionSettings",
-  "DataCompositionUserSettings",
-  "DataCompositionStructure",
-  "DataCompositionDataParameters",
-  "DataCompositionFilter",
-  "DataCompositionGroupFields",
-  "DataCompositionSelection",
-  "DataCompositionOrder",
-  "DataCompositionConditionalAppearance",
-  "DataCompositionAppearance",
-  "DataCompositionAppearanceFields",
-  "DataCompositionAvailableFields",
-  "DataCompositionUserFields",
-] as const
+type Name = keyof typeof settingsComposerNames
+type CollectionName = keyof typeof collectionTypes
 
-export const settingsComposerValueFieldKinds = [
-  "DataCompositionStructure",
-  "DataCompositionFilter",
-  "DataCompositionGroupFields",
-  "DataCompositionSelection",
-  "DataCompositionOrder",
-  "DataCompositionConditionalAppearance",
-  "DataCompositionAppearance",
-  "DataCompositionAppearanceFields",
-] as const
+const member = (internal: Name, target: TypedDataPathMemberDeclaration["target"]): TypedDataPathMemberDeclaration => ({
+  internal,
+  yaml: settingsComposerNames[internal],
+  target,
+})
 
-export const settingsComposerRadioFieldKinds = [
-  "DataCompositionComparisonType",
-  "DataCompositionGroupType",
-  "DataCompositionFilterApplicationType",
-  "DataCompositionFieldPlacement",
-  "DataCompositionPeriodAdditionType",
-  "DataCompositionSortDirection",
-] as const
+const collections = (...names: readonly CollectionName[]): TypedDataPathMemberDeclaration[] =>
+  names.map((name) => member(name, { kind: "collection", itemType: collectionTypes[name] }))
 
-const settingsComposerGraph = new Map<string, readonly SettingsComposerProperty[]>([
-  [SETTINGS_COMPOSER_TYPE, collections("Settings", "UserSettings", "FixedSettings")],
-  ["DataCompositionSettings", [
+const terminals = (values: Partial<Record<Name, readonly string[]>>): TypedDataPathMemberDeclaration[] =>
+  Object.entries(values).map(([name, terminalTypes]) =>
+    member(name as Name, { kind: "terminal", terminalTypes }))
+
+export const settingsComposerGraph: readonly TypedDataPathTypeDeclaration[] = [
+  { type: SETTINGS_COMPOSER_TYPE, aliases: ["SettingsComposer", "КомпоновщикНастроекКомпоновкиДанных"], members: collections("Settings", "UserSettings", "FixedSettings") },
+  { type: "DataCompositionSettings", members: [
     ...collections(
       "Structure", "DataParameters", "Filter", "GroupFields", "Selection", "Order", "ConditionalAppearance",
       "OutputParameters", "UserFields", "ItemDataParameters", "ItemFilter", "ItemGroupFields", "ItemSelection",
@@ -143,21 +106,21 @@ const settingsComposerGraph = new Map<string, readonly SettingsComposerProperty[
       HasSelection: ["boolean"], HasFilter: ["boolean"], HasOrder: ["boolean"],
       HasConditionalAppearance: ["boolean"], HasOutputParameters: ["boolean"],
     }),
-  ]],
-  ["DataCompositionUserSettings", [
+  ] },
+  { type: "DataCompositionUserSettings", members: [
     ...collections("Filter", "Order", "Selection", "ConditionalAppearance", "Structure"),
     ...terminals({
       Use: ["boolean"], SettingPicture: ["Picture"], Setting: ["<any>"],
       ComparisonType: ["DataCompositionComparisonType"], ValuePicture: ["Picture"], Value: ["<any>"],
       EditInReportForm: ["boolean"],
     }),
-  ]],
-  ["DataCompositionStructure", [...collections("GroupFields"), ...terminals({ Use: ["boolean"] })]],
-  ["DataCompositionDataParameters", terminals({
+  ] },
+  { type: "DataCompositionStructure", members: [...collections("GroupFields"), ...terminals({ Use: ["boolean"] })] },
+  { type: "DataCompositionDataParameters", members: terminals({
     Use: ["boolean"], Parameter: ["Field"], ValuePicture: ["Picture"], Value: ["<any>"],
     Date: ["dateTime"], StartDate: ["dateTime"], EndDate: ["dateTime"],
-  })],
-  ["DataCompositionFilter", [
+  }) },
+  { type: "DataCompositionFilter", members: [
     ...collections("FilterAvailableFields"),
     ...terminals({
       Use: ["boolean"], LeftValuePicture: ["Picture"], LeftValue: ["<any>"],
@@ -166,8 +129,8 @@ const settingsComposerGraph = new Map<string, readonly SettingsComposerProperty[
       Application: ["DataCompositionFilterApplicationType"], ViewMode: ["DataCompositionSettingsItemViewMode"],
       Presentation: ["string"],
     }),
-  ]],
-  ["DataCompositionGroupFields", [
+  ] },
+  { type: "DataCompositionGroupFields", members: [
     ...collections("GroupFieldsAvailableFields"),
     ...terminals({
       Use: ["boolean"], FieldPicture: ["Picture"], Field: ["Field"], GroupType: ["DataCompositionGroupType"],
@@ -175,55 +138,41 @@ const settingsComposerGraph = new Map<string, readonly SettingsComposerProperty[
       BeginOfPeriod: ["Field", "dateTime", "DataCompositionPeriodAdditionType"], EndOfPeriodPicture: ["Picture"],
       EndOfPeriod: ["Field", "dateTime", "DataCompositionPeriodAdditionType"],
     }),
-  ]],
-  ["DataCompositionSelection", [
+  ] },
+  { type: "DataCompositionSelection", members: [
     ...collections("SelectionAvailableFields"),
-    ...terminals({ Use: ["boolean"], FieldPicture: ["Picture"], Field: ["Field"], TitlePicture: ["Picture"],
-      Title: ["string"], Placement: ["DataCompositionFieldPlacement"] }),
-  ]],
-  ["DataCompositionOrder", [
+    ...terminals({ Use: ["boolean"], FieldPicture: ["Picture"], Field: ["Field"], TitlePicture: ["Picture"], Title: ["string"], Placement: ["DataCompositionFieldPlacement"] }),
+  ] },
+  { type: "DataCompositionOrder", members: [
     ...collections("OrderAvailableFields"),
-    ...terminals({ Use: ["boolean"], FieldPicture: ["Picture"], Field: ["Field"],
-      OrderType: ["DataCompositionSortDirection"] }),
-  ]],
-  ["DataCompositionConditionalAppearance", [
+    ...terminals({ Use: ["boolean"], FieldPicture: ["Picture"], Field: ["Field"], OrderType: ["DataCompositionSortDirection"] }),
+  ] },
+  { type: "DataCompositionConditionalAppearance", members: [
     ...collections("Appearance", "Filter", "Fields"),
     ...terminals({ Use: ["boolean"], Presentation: ["string"], UseArea: ["<any>"] }),
-  ]],
-  ["DataCompositionAppearance", terminals({
+  ] },
+  { type: "DataCompositionAppearance", members: terminals({
     Use: ["boolean"], Parameter: ["Field"], ValuePicture: ["Picture"], Value: ["<any>"],
     Date: ["dateTime"], StartDate: ["dateTime"], EndDate: ["dateTime"],
-  })],
-  ["DataCompositionAppearanceFields", [
+  }) },
+  { type: "DataCompositionAppearanceFields", members: [
     ...collections("AppearanceFieldsAvailableFields"),
     ...terminals({ Use: ["boolean"], FieldPicture: ["Picture"], Field: ["Field"] }),
-  ]],
-  ["DataCompositionAvailableFields", terminals({ FieldPicture: ["Picture"], Title: ["string"] })],
-  ["DataCompositionUserFields", terminals({ Title: ["string"] })],
-])
+  ] },
+  { type: "DataCompositionAvailableFields", members: terminals({ FieldPicture: ["Picture"], Title: ["string"] }) },
+  { type: "DataCompositionUserFields", members: terminals({ Title: ["string"] }) },
+]
 
-type CollectionName = keyof typeof collectionTypes
-type TerminalName = keyof typeof settingsComposerNames
-
-function collections(...names: readonly CollectionName[]): SettingsComposerProperty[] {
-  return names.map((internal) => property(internal, settingsComposerTypeInfo(collectionTypes[internal])))
+export function settingsComposerTypeInfo(type: string) {
+  return { kinds: ["structured"] as const, nextTypes: [], terminalTypes: [type], structuredType: type, sourceText: type }
 }
 
-function terminals(values: Partial<Record<TerminalName, readonly string[]>>): SettingsComposerProperty[] {
-  return Object.entries(values).map(([internal, terminalTypes]) => property(internal as TerminalName, {
-    kinds: terminalKinds(terminalTypes), nextTypes: [], terminalTypes,
-    ...(terminalTypes.length > 1 ? { isComposite: true } : {}), sourceText: terminalTypes.join(" | "),
-  }))
+export function settingsComposerInternalToYaml(internal: string): string | undefined {
+  return settingsComposerNames[internal as Name]
 }
 
-function property(internal: TerminalName, typeInfo: DataPathTypeInfo): SettingsComposerProperty {
-  return { internal, yaml: settingsComposerNames[internal], typeInfo }
-}
+const internalByYaml = new Map(settingsComposerNamePairs.map(([internal, yaml]) => [yaml, internal]))
 
-function terminalKinds(types: readonly string[]): DataPathTypeInfo["kinds"] {
-  if (types.includes("boolean")) return ["boolean"]
-  if (types.includes("dateTime")) return ["dateTime"]
-  if (types.includes("Picture")) return ["Picture"]
-  if (types.includes("<any>")) return ["any"]
-  return ["scalar"]
+export function settingsComposerYamlToInternal(yaml: string): string | undefined {
+  return internalByYaml.get(yaml as (typeof settingsComposerNames)[Name])
 }

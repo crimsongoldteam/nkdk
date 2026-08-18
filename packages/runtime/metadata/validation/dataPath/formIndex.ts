@@ -109,7 +109,12 @@ function tableSourceFromAttribute(
 }
 
 function tableColumns(attribute: FormAttributeView, table: DataPathTableInfo): readonly FormAttributeColumnView[] {
-  if (table.kind !== "ValueTable" && table.kind !== "ValueTree" && table.kind !== "RegisterRecordSet") return []
+  if (
+    table.kind !== "ValueTable" &&
+    table.kind !== "ValueTree" &&
+    table.kind !== "RegisterRecordSet" &&
+    table.kind !== "DynamicList"
+  ) return []
   return attribute.columns ?? []
 }
 

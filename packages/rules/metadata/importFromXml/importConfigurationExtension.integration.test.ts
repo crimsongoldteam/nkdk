@@ -164,12 +164,18 @@ describe("configuration extension XML import", () => {
     expect(yamlText).not.toContain("БазовыйРеквизитФормы")
     expect(yamlText).not.toContain("UnknownProperty")
     expect(yamlText).not.toContain("FutureState")
-    expect(readYaml(
+    const baseForm = readYaml(
       projectDir,
       "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/БазоваяФорма.yaml",
-    )).toMatchObject({
+    ) as Record<string, unknown>
+    expect(baseForm).toMatchObject({
       Элементы: { БазовоеПоле: { Вид: "ПолеВвода", Ширина: 99 } },
     })
+    const conditionalItem = ((baseForm.УсловноеОформлениеРеквизитов as {
+      Элементы: Array<{ Поля: unknown[]; Отбор: { Элементы: Array<Record<string, unknown>> } }>
+    }).Элементы[0])
+    expect(yamlScalarTagAt(conditionalItem.Поля, 0)).toBe("xml/reference")
+    expect(yamlScalarTagAt(conditionalItem.Отбор.Элементы[0]!, "ЛевоеЗначение")).toBe("xml/value")
 
     const entities = [...snapshot.blocks.values()].flatMap(({ entities }) => entities)
     expect(entities.some(
@@ -247,6 +253,27 @@ async function importExtension() {
       "\t\t\t<ExtendedTooltip name=\"КодРасширеннаяПодсказка\" id=\"22\"/>",
       "\t\t</InputField>",
       "\t\t<LabelField name=\"ПолеБазовогоРеквизита\" id=\"5\">",
+    ].join("\n")
+  )
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml"),
+    "\t\t</Attributes>\n\t</BaseForm>",
+    [
+      "\t\t\t<ConditionalAppearance>",
+      "\t\t\t\t<dcsset:item>",
+      "\t\t\t\t\t<dcsset:selection><dcsset:item><dcsset:field>НеизвестныйЭлементОсновы</dcsset:field></dcsset:item></dcsset:selection>",
+      "\t\t\t\t\t<dcsset:filter>",
+      "\t\t\t\t\t\t<dcsset:item xsi:type=\"dcsset:FilterItemComparison\">",
+      "\t\t\t\t\t\t\t<dcsset:left xsi:type=\"dcscor:Field\">НеизвестныйИсточник.Поле</dcsset:left>",
+      "\t\t\t\t\t\t\t<dcsset:comparisonType>Equal</dcsset:comparisonType>",
+      "\t\t\t\t\t\t\t<dcsset:right xsi:type=\"xs:boolean\">true</dcsset:right>",
+      "\t\t\t\t\t\t</dcsset:item>",
+      "\t\t\t\t\t</dcsset:filter>",
+      "\t\t\t\t\t<dcsset:appearance/>",
+      "\t\t\t\t</dcsset:item>",
+      "\t\t\t</ConditionalAppearance>",
+      "\t\t</Attributes>",
+      "\t</BaseForm>",
     ].join("\n")
   )
   replaceExactlyOnce(

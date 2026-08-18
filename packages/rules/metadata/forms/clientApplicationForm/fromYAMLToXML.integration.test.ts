@@ -2,7 +2,14 @@ import fs from "fs"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 
-import { childSegmentUid, childUid, XML_PRESENT_TAG_VALUE, importFromYAML, markYAMLScalarTag } from "@nkdk/runtime"
+import {
+  childSegmentUid,
+  childUid,
+  XML_PRESENT_TAG_VALUE,
+  importFromYAML,
+  markYAMLScalarTag,
+  xmlExport,
+} from "@nkdk/runtime"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
@@ -987,6 +994,28 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
 
     expect(firstInputField(result.formXML).DataPath).toBe("Объект.Description")
     expect(firstInputField(result.formXML).DataPath).not.toContain("!xml")
+  })
+
+  it("восстанавливает поля отбора условного оформления из !xml/value", () => {
+    const yaml = importFromYAML<ClientApplicationFormYAML>([
+      "УсловноеОформлениеРеквизитов:",
+      "  Элементы:",
+      "    - Отбор:",
+      "        Элементы:",
+      "          - ЛевоеЗначение: !xml/value НеизвестныйИсточник.Поле",
+      "            ПравоеЗначение: !xml/value ДругойИсточник.Поле",
+    ].join("\n"))
+
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml,
+      name: "Форма",
+    })
+    const text = xmlExport({ Form: result.formXML })
+
+    expect(text).toContain('<dcsset:left xsi:type="dcscor:Field">НеизвестныйИсточник.Поле</dcsset:left>')
+    expect(text).toContain('<dcsset:right xsi:type="dcscor:Field">ДругойИсточник.Поле</dcsset:right>')
+    expect(text).not.toContain("!xml/value")
   })
 
   it("строит BaseForm встроенной формы из отдельного базового YAML", () => {

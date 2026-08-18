@@ -15,6 +15,7 @@ export type DataPathValueKind =
   | "registerRecords"
   | "platformSource"
   | "standardPeriod"
+  | "structured"
   | "unsupportedIntermediate"
 
 export type OwnerTypeKind = string & {}
@@ -42,6 +43,7 @@ export interface DataPathTypeInfo {
   table?: DataPathTableInfo
   isComposite?: boolean
   sourceText?: string
+  structuredType?: string
 }
 
 export const unknownDataPathTypeInfo: DataPathTypeInfo = {

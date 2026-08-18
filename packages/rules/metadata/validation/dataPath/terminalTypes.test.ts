@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { createPropertyRuleRegistrySet, withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
-import { normalizeDataPathTerminalType } from "./terminalTypes"
+import { dataPathTerminalGroupsIntersect, normalizeDataPathTerminalType } from "./terminalTypes"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 
 describe("normalizeDataPathTerminalType", () => {
@@ -20,6 +20,7 @@ describe("normalizeDataPathTerminalType", () => {
     ["AccountingRegisterRecordSet.Хозрасчетный", "AccountingRegisterRecordSet.*"],
     ["CalculationRegisterRecordSet.Начисления", "CalculationRegisterRecordSet.*"],
     ["ValueTable", "ValueTable"],
+    ["Order", "Order"],
   ] as const)("normalizes %s to %s", (source, expected) => {
     expect(
       normalizeDataPathTerminalType({
@@ -94,5 +95,26 @@ describe("normalizeDataPathTerminalType", () => {
         table: { kind: "ValueTable" },
       })
     ).toMatchObject({ status: "resolved", groups: ["ValueTable"], composite: false })
+  })
+})
+
+describe("dataPathTerminalGroupsIntersect", () => {
+  const resolved = (...groups: string[]) => ({
+    status: "resolved" as const,
+    groups: groups as never,
+    composite: groups.length > 1,
+    display: groups.join(" | "),
+  })
+
+  it.each([
+    [resolved("decimal"), resolved("decimal"), true],
+    [resolved("decimal"), resolved("string"), false],
+    [resolved("CatalogRef.*"), resolved("CatalogRef.*"), true],
+    [resolved("AnyIBRef"), resolved("DocumentRef.*"), true],
+    [resolved("string", "decimal"), resolved("decimal"), true],
+    [resolved("<any>"), resolved("boolean"), undefined],
+    [{ status: "notResolved" as const, display: "unknown" }, resolved("boolean"), undefined],
+  ])("сравнивает нормализованные группы", (left, right, expected) => {
+    expect(dataPathTerminalGroupsIntersect(left, right)).toBe(expected)
   })
 })

@@ -10,7 +10,7 @@ import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
-import { settingsComposerRadioFieldKinds } from "../../settingsComposer/dataPathModel"
+import { settingsComposerRadioFieldKinds } from "../../settingsComposer/dataPathGraph"
 export type { ElementRule, PropertyRule }
 export const RadioButtonFieldRules = {
   itemType: "RadioButtonField",

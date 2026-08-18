@@ -10,6 +10,9 @@ import { defineAppliedObjectProjectRules } from "../appliedObjects/projectRules"
 import { appliedObjectComponentRules } from "../appliedObjects/componentRules"
 import { clientApplicationFormValidationRules } from "../forms/clientApplicationForm/validationRules"
 import { settingsComposerDataPathRules } from "../forms/settingsComposer/dataPathRules"
+import { plannerDataPathRules } from "../forms/commonObjects/planner/dataPathRules"
+import { standardPeriodDataPathRules } from "../commonObjects/standardPeriod/dataPathRules"
+import { standardBeginningDateDataPathRules } from "../commonObjects/standartBeginningDate/dataPathRules"
 import { clientApplicationFormPropertyRules } from "../forms/clientApplicationForm/propertyTypeRules"
 import { childFormNamesPropertyRules } from "../forms/clientApplicationForm/childFormNamesPropertyRules"
 import { createMetadataResourceTopologyProvider } from "../resourceTopology/adapters/metadataProvider"
@@ -78,6 +81,7 @@ import { appliedObjectInputByStringRules } from "../appliedObjects/inputByString
 import { appliedObjectDataTableRules } from "../appliedObjects/dataTableRules"
 import { popupExtendedTooltipRules } from "../forms/elements/popup/extendedTooltip"
 import { brokenEventReferenceRules } from "../forms/commonObjects/event/brokenReference"
+import { conditionalAppearanceExplicitXMLRules } from "../forms/clientApplicationForm/conditionalAppearanceExplicitXML"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -109,7 +113,13 @@ const projectReferenceRules = defineMetadataRules({
 })
 const dataPathRules = defineMetadataRules({
   ...emptyMetadataRules,
-  dataPaths: [...settingsComposerDataPathRules, ...appliedObjectDataPathRules],
+  dataPaths: [
+    ...settingsComposerDataPathRules,
+    ...plannerDataPathRules,
+    ...standardPeriodDataPathRules,
+    ...standardBeginningDateDataPathRules,
+    ...appliedObjectDataPathRules,
+  ],
 })
 const operationRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -136,6 +146,7 @@ export const legacyCoreRules = composeMetadataRules(
   ownerFactCollectorRules,
   appliedObjectComponentRules,
   clientApplicationFormValidationRules,
+  conditionalAppearanceExplicitXMLRules,
   clientApplicationFormPropertyRules,
   childFormNamesPropertyRules,
   fillValueRules,

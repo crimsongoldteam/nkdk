@@ -3,13 +3,11 @@ import { TSchema, Type } from "typebox"
 import { BooleanJSONSchema } from "../../boolean/types"
 import { ColorJSONSchema } from "../../color/types"
 import { I8nTextJSONSchema } from "../../i8nText/types"
-import { MetadataSingleValueJSONSchema } from "../../metadataValue/types"
 import { ConfigurationContext } from "@nkdk/runtime"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import {
-  StandardPeriodVariantFromYAML,
   type SystemEnumerationPropertyRule,
   type SystemEnumerationTypeMap,
 } from "../../../systemEnumerations/types"
@@ -17,70 +15,9 @@ import { createSettingsParameterValueJSONSchema } from "../parameterValue/toJSON
 import type { SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { AppearanceFieldsRules } from "./rules"
 
-const russianDateTimeWithSecondsPattern =
-  "^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])\\.[0-9]{4} ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
-const standardPeriodVariants = Object.keys(StandardPeriodVariantFromYAML).map((variant) => Type.Literal(variant))
-
-const unionOf = (schemas: TSchema[]): TSchema => {
-  if (schemas.length === 0) return Type.Never()
-  if (schemas.length === 1) return schemas[0]
-  return Type.Union(schemas as [TSchema, TSchema, ...TSchema[]])
-}
-
 const Nullable = (schema: TSchema): TSchema => Type.Union([Type.Null(), schema])
 const notSchema = (schema: TSchema): TSchema => ({ not: schema }) as TSchema
-
-const StrictMetadataExplicitAccountTypeYAMLJSONSchema = Type.Object(
-  {
-    Тип: Type.Literal("ВидСчета"),
-    Значение: Type.String(),
-  },
-  { additionalProperties: false }
-)
-
-const StrictExplicitDcsSystemEnumerationValueJSONSchema = Type.Object(
-  {
-    Тип: Type.Literal("СистемноеПеречисление"),
-    Имя: Type.String(),
-    Значение: Type.String(),
-  },
-  { additionalProperties: false }
-)
-
-const StrictStandardPeriodYAMLJSONSchema = Type.Object(
-  {
-    Вариант: unionOf(standardPeriodVariants),
-    ДатаНачала: Type.Optional(Type.String({ pattern: russianDateTimeWithSecondsPattern })),
-    ДатаОкончания: Type.Optional(Type.String({ pattern: russianDateTimeWithSecondsPattern })),
-  },
-  { additionalProperties: false }
-)
-
-const AppearancePrimitiveSingleValueJSONSchema = Type.Cyclic(
-  {
-    AppearancePrimitiveSingleValue: Type.Union([
-      MetadataSingleValueJSONSchema,
-      StrictMetadataExplicitAccountTypeYAMLJSONSchema,
-      StrictExplicitDcsSystemEnumerationValueJSONSchema,
-      StrictStandardPeriodYAMLJSONSchema,
-      Type.Object(
-        {
-          Представление: I8nTextJSONSchema,
-          Значение: Type.Optional(Type.Ref("AppearancePrimitiveSingleValue")),
-        },
-        { additionalProperties: false }
-      ),
-    ]),
-  },
-  "AppearancePrimitiveSingleValue"
-)
-
-const AppearancePrimitiveValueJSONSchema = Nullable(
-  Type.Union([
-    AppearancePrimitiveSingleValueJSONSchema,
-    Type.Array(Type.Union([AppearancePrimitiveSingleValueJSONSchema, Type.Undefined(), Type.Null()])),
-  ])
-)
+const AppearanceBooleanValueJSONSchema = Nullable(BooleanJSONSchema)
 
 const LanguageMapJSONSchema = Type.Record(Type.String(), Type.String(), { additionalProperties: false })
 
@@ -136,6 +73,7 @@ const propertySchema = (
         context,
         rawValueSchema: rawValueSchema(context),
         rule: property,
+        preserveNullableColor: true,
       })
 
   return Type.Optional(schema)
@@ -176,6 +114,7 @@ function ensureAppearanceSettingsParameterValueJSONSchema(
       context,
       rawValueSchema: rawValueSchema(context),
       rule: property,
+      preserveNullableColor: true,
     })
   )
   return schemaName
@@ -208,18 +147,18 @@ export const exportAppearanceFieldsToJSONSchema: ExportToJSONSchemaFn = ({ conte
         ВыделятьОтрицательные: propertySchema(
           context,
           properties.ВыделятьОтрицательные,
-          () => AppearancePrimitiveValueJSONSchema
+          () => AppearanceBooleanValueJSONSchema
         ),
         ОтметкаНезаполненного: propertySchema(
           context,
           properties.ОтметкаНезаполненного,
-          () => AppearancePrimitiveValueJSONSchema
+          () => AppearanceBooleanValueJSONSchema
         ),
         Текст: appearanceStringPropertySchema(context),
-        Видимость: propertySchema(context, properties.Видимость, () => AppearancePrimitiveValueJSONSchema),
-        Доступность: propertySchema(context, properties.Доступность, () => AppearancePrimitiveValueJSONSchema),
-        ТолькоПросмотр: propertySchema(context, properties.ТолькоПросмотр, () => AppearancePrimitiveValueJSONSchema),
-        Отображать: propertySchema(context, properties.Отображать, () => AppearancePrimitiveValueJSONSchema),
+        Видимость: propertySchema(context, properties.Видимость, () => AppearanceBooleanValueJSONSchema),
+        Доступность: propertySchema(context, properties.Доступность, () => AppearanceBooleanValueJSONSchema),
+        ТолькоПросмотр: propertySchema(context, properties.ТолькоПросмотр, () => AppearanceBooleanValueJSONSchema),
+        Отображать: propertySchema(context, properties.Отображать, () => AppearanceBooleanValueJSONSchema),
       },
       { additionalProperties: false }
     ),

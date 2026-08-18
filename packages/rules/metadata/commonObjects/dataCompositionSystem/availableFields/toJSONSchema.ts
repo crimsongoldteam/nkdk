@@ -10,10 +10,20 @@ const requiredSchema = (schema: TSchema | undefined, name: string): TSchema => {
   return schema
 }
 
+const ordinaryField = Type.Intersect([
+  Type.String(),
+  { not: Type.String({ pattern: "^!xml/(?:[^ ]+)(?: |$)" }) } as TSchema,
+])
+const xmlReference = Type.String({ pattern: "^!xml/reference[ \\t]+\\S.*$" })
+
 export const exportAvailableFieldsToJSONSchema: ExportToJSONSchemaFn = ({ context }) => {
+  const fieldSchema = context.exportToJSONSchema?.explicitXMLValues === true ||
+    context.exportToJSONSchema?.validationPropertyRefs === true
+    ? Type.Union([ordinaryField, xmlReference])
+    : ordinaryField
   const availableFieldItemObjectSchema = Type.Object(
     {
-      Поле: Type.String(),
+      Поле: fieldSchema,
       Использование: Type.Optional(BooleanJSONSchema),
       Заголовок: Type.Optional(
         requiredSchema(exportI8nTextToJSONSchema({ context, rule: { type: "I8nText" }, value: undefined }), "I8nText")
@@ -35,7 +45,7 @@ export const exportAvailableFieldsToJSONSchema: ExportToJSONSchemaFn = ({ contex
     { additionalProperties: false }
   )
 
-  return Type.Array(Type.Union([Type.String(), availableFieldItemObjectSchema]))
+  return Type.Array(Type.Union([fieldSchema, availableFieldItemObjectSchema]))
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("AvailableFields", "exportToJSONSchema", exportAvailableFieldsToJSONSchema)
