@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
+  createXmlImportAuditSession,
+  parseXmlDocumentWithSaxes,
   runWithConfigurationIndexPropertyContext,
   withConfigurationIndexCollector,
   withConfigurationIndexLogicalAddress,
@@ -9,7 +11,10 @@ import {
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML as importPropertiesWithSources } from "./fromXMLToYAML"
-import { createDeferredValuePathCollector } from "./importYamlTypes"
+import {
+  createDeferredValuePathCollector,
+  createImportedDependentPropertyCollector,
+} from "./importYamlTypes"
 import { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
@@ -812,6 +817,97 @@ describe("importPropertiesFromXMLToYAML", () => {
       expect((error as Error).message).toContain("xmlPath=/Attributes/Value")
       expect((error as Error).cause).toMatchObject({ message: "broken" })
     }
+  })
+
+  it("откатывает побочные эффекты сломанного PropertyRule и продолжает assignment", () => {
+    const failedType = "TestTransactionalFailure" as PropertyRuleType
+    registerTypeRule(failedType, "collectLocalFactsFromYAML", ({ writer }) => {
+      writer.setOwnerFact("failed", "leaked")
+      throw new Error("broken local facts")
+    })
+    registerTypeRule(failedType, "importFromXMLToYAML", ({ context, traversal }) => {
+      context.fromXML.configurationIndex?.collector.setIdentity("Лишний", "xmlId", "leaked")
+      traversal.deferred?.accept({ valuePath: traversal.yamlPath, rulePath: traversal.rulePath })
+      traversal.dependent?.accept({
+        itemType: "TestTransactionalItem",
+        itemYamlPath: [],
+        propertyKey: "broken",
+        yamlPath: traversal.yamlPath,
+        xmlValue: "broken",
+        presentInXML: true,
+      })
+      return "leaked"
+    })
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+      indexCollector,
+      "Тест.Объект",
+    )
+    const collector = createLocalIndexesCollector()
+    const deferred = createDeferredValuePathCollector()
+    const dependent = createImportedDependentPropertyCollector()
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Broken>broken</Broken><Good>good</Good></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestTransactionalItem",
+        properties: {
+          broken: { type: failedType, xml: "Broken", yaml: "Сломано" },
+          good: { type: "string", xml: "Good", yaml: "Хорошее" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector,
+      deferred,
+      dependent,
+      audit,
+    })
+
+    expect(yaml).toEqual({ Хорошее: "good" })
+    expect(indexCollector.fragment("test.yaml").entities).toEqual([])
+    expect(collector.finish().metadata).toEqual({
+      events: [
+        {
+          kind: "property",
+          yamlPath: ["Хорошее"],
+          rulePath: [{ propertyKey: "good" }],
+          propertyType: "string",
+        },
+      ],
+    })
+    expect(deferred.finish()).toEqual([])
+    expect(dependent.finish()).toEqual([])
+    expect(
+      audit.outcomes().find(({ node }) => node.path === "/Root[1]/Good[1]")?.boundaries,
+    ).toEqual([
+      {
+        itemType: "TestTransactionalItem",
+        propertyKey: "good",
+        propertyType: "string",
+        yamlPath: ["Хорошее"],
+        rulePath: [{ propertyKey: "good" }],
+      },
+    ])
+    expect(audit.rawCandidates()).toMatchObject([
+      {
+        node: { path: "/Root[1]/Broken[1]" },
+        boundary: {
+          itemType: "TestTransactionalItem",
+          propertyKey: "broken",
+          propertyType: failedType,
+          yamlPath: ["Сломано"],
+          rulePath: [{ propertyKey: "broken" }],
+        },
+        error: { message: expect.stringContaining("broken") },
+      },
+    ])
   })
 
   it("не собирает aliases, present и пустую XML-форму", () => {

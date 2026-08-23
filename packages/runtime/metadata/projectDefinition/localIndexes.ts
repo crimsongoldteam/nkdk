@@ -6,6 +6,7 @@ import type {
   LocalYamlFact,
 } from "../ruleRuntime/property/localFacts"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import { attachXmlImportAttemptAdapter } from "../ruleRuntime/xmlAnomaly/attempt"
 
 export type {
   LocalIndexes,
@@ -19,6 +20,12 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
   const events: LocalMetadataEvent[] = []
   const ownerFacts: Record<string, unknown> = {}
   const metadataTargets: LocalMetadataTargetFact[] = []
+  const ownerFactsUndo: { role: string; present: boolean; value: unknown }[] = []
+  const checkpoints: {
+    events: number
+    metadataTargets: number
+    ownerFactsUndo: number
+  }[] = []
 
   const recordEvent = (kind: "property" | "complete", fact: LocalYamlFact): void => {
     if (options?.recordEvents === false) return
@@ -36,6 +43,13 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
     let metadataTargetValuesHandled = false
     const writer: LocalMetadataFactsWriter = {
       setOwnerFact(role, value) {
+        if (checkpoints.length > 0) {
+          ownerFactsUndo.push({
+            role,
+            present: Object.prototype.hasOwnProperty.call(ownerFacts, role),
+            value: ownerFacts[role],
+          })
+        }
         ownerFacts[role] = value
       },
       setMetadataTargetValues(values) {
@@ -51,7 +65,7 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
     if (!metadataTargetValuesHandled) collectDefaultMetadataTargetFacts(metadataTargets, fact)
   }
 
-  return {
+  const collector: LocalIndexesCollector = {
     acceptItem(fact) {
       if (options?.recordEvents === false) return
       events.push({
@@ -72,6 +86,45 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
       },
     }),
   }
+  attachXmlImportAttemptAdapter(collector, {
+    begin() {
+      const checkpoint = {
+        events: events.length,
+        metadataTargets: metadataTargets.length,
+        ownerFactsUndo: ownerFactsUndo.length,
+      }
+      checkpoints.push(checkpoint)
+      return checkpoint
+    },
+    commit(checkpoint) {
+      closeCheckpoint(checkpoints, checkpoint)
+      if (checkpoints.length === 0) ownerFactsUndo.length = 0
+    },
+    rollback(checkpoint) {
+      const current = closeCheckpoint(checkpoints, checkpoint)
+      events.length = current.events
+      metadataTargets.length = current.metadataTargets
+      for (let index = ownerFactsUndo.length - 1; index >= current.ownerFactsUndo; index -= 1) {
+        const entry = ownerFactsUndo[index]!
+        if (entry.present) ownerFacts[entry.role] = entry.value
+        else delete ownerFacts[entry.role]
+      }
+      ownerFactsUndo.length = current.ownerFactsUndo
+    },
+  })
+  return collector
+}
+
+function closeCheckpoint<Checkpoint extends object>(
+  checkpoints: Checkpoint[],
+  checkpoint: unknown,
+): Checkpoint {
+  const current = checkpoints.at(-1)
+  if (current === undefined || current !== checkpoint) {
+    throw new Error("Нарушен порядок XML-import attempts local facts")
+  }
+  checkpoints.pop()
+  return current
 }
 
 function collectDefaultMetadataTargetFacts(target: LocalMetadataTargetFact[], fact: LocalYamlFact): void {
