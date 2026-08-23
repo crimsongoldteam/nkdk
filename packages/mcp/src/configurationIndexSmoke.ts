@@ -25,7 +25,7 @@ try {
     purpose: "import",
   })
   candidate.replaceHashes([{ projectPath, contentHash }])
-  candidate.mergeBlockFragment({ targetProjectPath: projectPath, entities: block.entities })
+  candidate.mergeBlockFragments([{ targetProjectPath: projectPath, entities: block.entities }])
   candidate.validateCandidate()
 
   const descriptor = configurationIndexStoreDescriptor(projectDir, { kind: "configuration" })

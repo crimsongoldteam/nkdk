@@ -18,7 +18,7 @@ import {
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
 } from "../validation/projectReferenceIndex"
-import { resolveValidationProjectFile, type ValidationProjectFile } from "../validation/projectFiles"
+import type { ValidationProjectFile } from "../validation/projectFiles"
 import type { ValidationIndexContribution, ValidationObjectRecord } from "../validation/projectValidationTypes"
 import type { ProjectLocalDependency } from "../projectDefinition/componentIndexFacts"
 import type { PreparedImportYaml } from "./prepareYaml"
@@ -29,25 +29,43 @@ export interface ImportValidationContribution {
   localDependencies: ProjectLocalDependency[]
 }
 
+export type ImportValidationContributionProfileStep =
+  | "Сбор ссылок и локальных зависимостей"
+  | "Сбор сведений о владельцах и полях"
+  | "Сбор объектов общего индекса"
+  | "Сбор полей общего индекса"
+  | "Формирование записей объектов общего индекса"
+  | "Сбор логических адресов"
+
+export interface ImportValidationContributionMeasure {
+  <T>(step: ImportValidationContributionProfileStep, action: () => T): T
+}
+
 export function extractImportValidationContribution(params: {
   prepared: PreparedImportYaml
   projectDir: string
+  file: ValidationProjectFile
+  measure?: ImportValidationContributionMeasure
 }): ImportValidationContribution {
-  const file = resolveValidationProjectFile(params.projectDir, params.prepared.assignment.targetProjectPath)
-  if (file === undefined) return emptyImportValidationContribution()
+  const measure: ImportValidationContributionMeasure = params.measure ?? ((_step, action) => action())
+  const file = params.file
 
-  const references = extractMetadataTargetReferences(params.prepared)
-  const localDependencies = references.map(({ reference, rulePath }) => ({
-    sourceProjectPath: params.prepared.assignment.targetProjectPath,
-    yamlPath: [...reference.yamlPath],
-    rulePath: rulePath.map((segment) => ({ ...segment })),
-    kind: "metadataTarget" as const,
-    canonical: reference.canonical,
-  }))
-  const pendingReferences = references.map(({ reference }) => reference)
+  const { localDependencies, pendingReferences } = measure("Сбор ссылок и локальных зависимостей", () => {
+    const references = extractMetadataTargetReferences(params.prepared)
+    return {
+      localDependencies: references.map(({ reference, rulePath }) => ({
+        sourceProjectPath: params.prepared.assignment.targetProjectPath,
+        yamlPath: [...reference.yamlPath],
+        rulePath: rulePath.map((segment) => ({ ...segment })),
+        kind: "metadataTarget" as const,
+        canonical: reference.canonical,
+      })),
+      pendingReferences: references.map(({ reference }) => reference),
+    }
+  })
 
   if (file.kind === "form") {
-    const memberIndexEntries = formMemberIndexEntries(file)
+    const memberIndexEntries = measure("Сбор полей общего индекса", () => formMemberIndexEntries(file))
     return {
       localDependencies,
       validationContribution: {
@@ -62,26 +80,49 @@ export function extractImportValidationContribution(params: {
     }
   }
 
-  const ownerFacts = extractImportOwnerFacts(params.prepared)
-  const objectIndexEntries = objectIndexEntriesForFile(file, params.prepared.yaml)
-  const memberIndexEntries = ownerFacts.flatMap((facts) =>
-    ownerMemberIndexEntries({
-      projectDir: params.projectDir,
-      file,
-      prepared: params.prepared,
-      facts,
-    })
+  const ownerFacts = measure(
+    "Сбор сведений о владельцах и полях",
+    () => extractImportOwnerFacts(params.prepared),
   )
-  const objectRecords = ownerFacts.map((facts) =>
-    ownerRecord({
-      file,
-      facts,
-      objectIndexEntries,
-      memberIndexEntries,
-      pendingReferences,
-    })
+  const objectIndexEntries = measure(
+    "Сбор объектов общего индекса",
+    () => objectIndexEntriesForFile(file, params.prepared.yaml),
+  )
+  const memberIndexEntries = measure(
+    "Сбор полей общего индекса",
+    () => ownerFacts.flatMap((facts) =>
+      ownerMemberIndexEntries({
+        projectDir: params.projectDir,
+        file,
+        prepared: params.prepared,
+        facts,
+      })
+    ),
+  )
+  const objectRecords = measure(
+    "Формирование записей объектов общего индекса",
+    () => ownerFacts.map((facts) =>
+      ownerRecord({
+        file,
+        facts,
+        objectIndexEntries,
+        memberIndexEntries,
+        pendingReferences,
+      })
+    ),
   )
   const canonicalTarget = objectIndexEntries[0]?.canonical
+  const logicalAddresses = measure(
+    "Сбор логических адресов",
+    () => canonicalTarget === undefined
+      ? []
+      : collectAddressableMetadataLogicalAddresses({
+          yaml: params.prepared.yaml,
+          rule: file.itemRule,
+          logicalAddress: params.prepared.assignment.logicalAddress,
+          filePath: params.prepared.assignment.targetProjectPath,
+        }),
+  )
 
   return {
     localDependencies,
@@ -92,14 +133,7 @@ export function extractImportValidationContribution(params: {
       valueIndexEntries: [],
       pendingReferences,
       localDependencies: [],
-      logicalAddresses: canonicalTarget === undefined
-        ? []
-        : collectAddressableMetadataLogicalAddresses({
-            yaml: params.prepared.yaml,
-            rule: file.itemRule,
-            logicalAddress: params.prepared.assignment.logicalAddress,
-            filePath: params.prepared.assignment.targetProjectPath,
-          }),
+      logicalAddresses,
     },
   }
 }

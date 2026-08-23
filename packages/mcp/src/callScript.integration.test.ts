@@ -110,7 +110,7 @@ describe("MCP call script", () => {
       ) => Promise<unknown>
     )(client, request)
 
-    expect(client.callTool).toHaveBeenCalledWith(request, undefined, {
+    expect(client.callTool).toHaveBeenCalledWith(request, {
       timeout: 2_147_483_647,
     })
   })

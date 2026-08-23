@@ -100,7 +100,7 @@ export const MCP_CLIENT_OPTIONS = {
 }
 
 export function callToolWithoutPracticalLimit(client, request) {
-  return client.callTool(request, undefined, { timeout: MCP_CALL_TIMEOUT_MS })
+  return client.callTool(request, { timeout: MCP_CALL_TIMEOUT_MS })
 }
 
 function structuredPayload(result) {

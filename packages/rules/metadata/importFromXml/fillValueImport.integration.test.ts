@@ -7,6 +7,7 @@ import { createConfigurationIndexCollector, unwrapExplicitYAMLString, yamlScalar
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 import { serializeYAMLDocument } from "@nkdk/runtime"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 
 
 const fixture = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
@@ -376,8 +377,13 @@ function copiedEmptyOwnerFixture(kind: "typed" | "empty"): string {
 }
 
 function assignment(sourcePath: string): ImportAssignment {
+  const node = compileRegisteredMetadataResourceTopology().assignments.find(
+    ({ projectPattern }) => projectPattern === "Справочник/{ownerName}/Свойства.yaml",
+  )
+  if (node === undefined) throw new Error("Не найден topology-узел справочника")
   return {
     id: "fill-value",
+    topologyAddress: { nodeId: node.id, values: { ownerName: "СправочникПолный" } },
     role: "properties",
     targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
     itemType: "MetadataCatalog",

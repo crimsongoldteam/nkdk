@@ -165,29 +165,48 @@ it("сохраняет произвольный тип колонки в дво�
       },
     ],
   }
-  const session = openSessionWithUpdates([update])
-  const dependencyCheck = source.pendingChecks[0]
-  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck?.kind === "referenceCoverage" || dependencyCheck === undefined) {
-    throw new Error("Ожидалась dependency-проверка")
-  }
-
-  const response = session.readDependencyInputs([
-    {
-      requestId: "dependency",
-      componentPath: "cf",
-      projectPath: update.projectPath,
-      check: dependencyCheck,
-    },
-  ])[0]
-
-  expect(response).toMatchObject({ status: "found" })
-  if (response?.status !== "found") throw new Error("Не прочитаны входы проверки зависимостей")
-  const column = response.input.forms.find(
+  const input = readDependencyInput(update)
+  const column = input.forms.find(
     (entry) => entry.kind === "additionalColumn" && entry.tablePath === "Таблица" && entry.name === "Значение"
   )
   expect(column).toMatchObject({ kind: "additionalColumn" })
   if (column?.kind !== "additionalColumn") throw new Error("Не прочитана колонка формы")
   expect(column.source.typeInfo).toEqual(arbitrary)
+})
+
+it("сохраняет structuredType реквизита формы в двоичном снимке", () => {
+  const source = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
+  const owner = { kind: "Справочник", name: "Catalog.Source" }
+  const structured = {
+    kinds: ["structured"] as const,
+    nextTypes: [],
+    terminalTypes: ["DataCompositionSettingsComposer"],
+    structuredType: "DataCompositionSettingsComposer",
+    sourceText: "КомпоновщикНастроекКомпоновкиДанных",
+  }
+  const update = {
+    ...source,
+    forms: [{
+      kind: "root" as const,
+      owner,
+      name: "КомпоновщикНастроек",
+      source: {
+        kind: "formAttribute" as const,
+        name: "КомпоновщикНастроек",
+        typeInfo: structured,
+      },
+    }],
+  }
+  expect(readDependencyInput(update).forms).toContainEqual({
+    kind: "root",
+    owner,
+    name: "КомпоновщикНастроек",
+    source: {
+      kind: "formAttribute",
+      name: "КомпоновщикНастроек",
+      typeInfo: structured,
+    },
+  })
 })
 
 it("находит точные и префиксные metadata-ссылки", () => {
@@ -515,6 +534,22 @@ function openSessionWithUpdates(updates: ReturnType<typeof richYamlUpdate>[]) {
     createBinaryProjectStateReadToken(buffers),
     createProjectStateDependencyValidator(),
   )
+}
+
+function readDependencyInput(update: ReturnType<typeof richYamlUpdate>) {
+  const dependencyCheck = update.pendingChecks[0]
+  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck?.kind === "referenceCoverage" || dependencyCheck === undefined) {
+    throw new Error("Ожидалась dependency-проверка")
+  }
+  const response = openSessionWithUpdates([update]).readDependencyInputs([{
+    requestId: "dependency",
+    componentPath: "cf",
+    projectPath: update.projectPath,
+    check: dependencyCheck,
+  }])[0]
+  expect(response).toMatchObject({ status: "found" })
+  if (response?.status !== "found") throw new Error("Не прочитаны входы проверки зависимостей")
+  return response.input
 }
 
 function typedSnapshot(updates: ReturnType<typeof richYamlUpdate>[]) {

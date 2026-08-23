@@ -250,7 +250,7 @@ describe("XML import worker first pass", () => {
     const metadataPath = join(syncXmlDir, "Catalogs/Контрагенты.xml")
     const assignment = catalogAssignment({
       id: "unknown-model",
-      topologyNodeId: "unknown-node",
+      topologyAddress: { nodeId: "unknown-node", values: { ownerName: "Контрагенты" } },
       xmlFiles: [
         { role: "metadata", sourcePath: metadataPath },
         {
@@ -309,6 +309,8 @@ describe("XML import worker first pass", () => {
     expect(lines.some((line) => line.includes('substep="Преобразование XML в YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Сбор локальных индексов"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Извлечение данных для индекса конфигурации"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Подготовка описания файла проекта"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Определение вида файла проекта"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Запись основного YAML-файла"'))).toBe(false)
     expect(lines).toContainEqual(
@@ -648,10 +650,10 @@ describe("XML import worker second pass", () => {
 })
 
 function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAssignment {
-  return {
+  const assignment: ImportAssignment = {
     id: "catalog",
     role: "properties",
-    topologyNodeId: catalogTopologyNode.id,
+    topologyAddress: { nodeId: catalogTopologyNode.id, values: { ownerName: "Контрагенты" } },
     targetProjectPath: "Справочник/Контрагенты/Свойства.yaml",
     itemType: "MetadataCatalog",
     itemName: "Контрагенты",
@@ -661,6 +663,15 @@ function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAss
     externalFiles: [],
     ...overrides,
   }
+  return overrides.topologyAddress === undefined
+    ? {
+        ...assignment,
+        topologyAddress: {
+          nodeId: catalogTopologyNode.id,
+          values: { ownerName: assignment.itemName },
+        },
+      }
+    : assignment
 }
 
 function expectFirstPass(result: Awaited<ReturnType<typeof runImportWorkerCommand>>): ImportFirstPassResult {
@@ -932,7 +943,10 @@ function createCatalogAndFormAssignments(
   const form: ImportAssignment = {
     id: "catalog-products-form",
     role: "fileItem",
-    topologyNodeId: catalogFormTopologyNode.id,
+    topologyAddress: {
+      nodeId: catalogFormTopologyNode.id,
+      values: { ownerName: "Товары", itemName: "ФормаЭлемента" },
+    },
     targetProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
     itemType: "ClientApplicationForm",
     itemName: "ФормаЭлемента",

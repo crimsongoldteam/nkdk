@@ -307,7 +307,7 @@ export async function importConfigurationFromXml(
       context: operationContext,
       files: discovered.snapshotFiles ?? [],
     })
-    for (const fragment of snapshotFragments) indexCandidate.mergeBlockFragment(fragment)
+    if (snapshotFragments.length > 0) indexCandidate.mergeBlockFragments(snapshotFragments)
     const firstReadToken = await importSession.commitWorkingIndex()
     const readTokens = [firstReadToken]
     for (let index = 1; index < pool.workerCount(); index += 1) readTokens.push(await importSession.createReadToken())
@@ -508,11 +508,9 @@ function createImportStateSink(
   candidate: ConfigurationIndexCandidateStore,
 ): XmlImportStateSink {
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
-    if (batch.configurationFragment !== undefined) candidate.mergeBlockFragment(batch.configurationFragment)
+    if (batch.configurationFragment !== undefined) candidate.mergeBlockFragments([batch.configurationFragment])
     if (batch.configurationFragmentBuffer !== undefined) {
-      for (const fragment of decodeConfigurationBlockFragments(batch.configurationFragmentBuffer)) {
-        candidate.mergeBlockFragment(fragment)
-      }
+      candidate.mergeBlockFragments(decodeConfigurationBlockFragments(batch.configurationFragmentBuffer))
     }
     if (batch.stateFragment !== undefined) {
       await session.writeStateFragment(batch.stateFragment)

@@ -14,7 +14,7 @@ export interface ImportXmlInput {
 
 export interface ImportAssignment {
   id: string
-  topologyNodeId?: string
+  topologyAddress: ImportTopologyAddress
   role: ImportAssignmentRole
   targetProjectPath: string
   itemType: string
@@ -23,6 +23,11 @@ export interface ImportAssignment {
   owner: { itemType: string; name: string; logicalAddress: string } | undefined
   xmlFiles: readonly ImportXmlInput[]
   externalFiles: readonly ImportExternalFile[]
+}
+
+export interface ImportTopologyAddress {
+  nodeId: string
+  values: Readonly<Record<string, string>>
 }
 
 export interface ImportExternalFile {

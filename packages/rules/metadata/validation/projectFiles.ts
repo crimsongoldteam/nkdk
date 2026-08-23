@@ -1,9 +1,11 @@
 import { isAbsolute, resolve } from "path"
 import {
   assertMetadataProjectPathInside,
+  createMetadataProjectAssignmentResourceProjector,
   discoverMetadataProjectResources,
   resolveMetadataProjectResource,
   type MetadataProjectResourceRef,
+  type MetadataProjectAssignmentAddress,
 } from "../projectDefinition/resources"
 import type { ValidationProjectComponent } from "./projectComponents"
 import type { ValidationProjectSpec } from "./projectSpecs"
@@ -47,6 +49,26 @@ export function resolveValidationProjectFile(
   const componentAddress = componentFileAddress(projectDir, component)
   const resource = resolveMetadataProjectResource(projectDir, filePath, component)
   return resource ? toValidationProjectFile(resource, componentAddress) : undefined
+}
+
+export function createValidationProjectAssignmentFileProjector(
+  projectDir: string,
+  component: ValidationProjectComponent,
+): (params: {
+  readonly projectPath: string
+  readonly topologyAddress: MetadataProjectAssignmentAddress
+}) => ValidationProjectFile | undefined {
+  const componentAddress = componentFileAddress(projectDir, component)
+  const project = createMetadataProjectAssignmentResourceProjector(component)
+  return (params) => {
+    const resource = project(params)
+    return resource === undefined
+      ? undefined
+      : toValidationProjectFile({
+          ...resource,
+          absolutePath: resolve(component.componentDir, ...params.projectPath.split("/")),
+        }, componentAddress)
+  }
 }
 
 export function assertProjectFileInside(projectDir: string, filePath: string): string {

@@ -29,7 +29,7 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/a
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import type { ValidationProfiler } from "../validation/profile"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
-import { expandMetadataPathPattern, matchMetadataPathPattern } from "../resourceTopology/core/patterns"
+import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 import {
   normalizeImportedDependentItems,
@@ -239,21 +239,16 @@ function resolveBaseFormCompanion(
   targetProjectPath: string
   rule: MetadataItemRule
 } | undefined {
-  if (assignment.topologyNodeId === undefined) return undefined
   const node = (topology ?? compileRegisteredMetadataResourceTopology()).assignments.find(
-    ({ id }) => id === assignment.topologyNodeId
+    ({ id }) => id === assignment.topologyAddress.nodeId
   )
-  if (node === undefined) throw new Error(`Не найден узел топологии формы ${assignment.topologyNodeId}`)
-  const values = matchMetadataPathPattern(node.projectPattern, assignment.targetProjectPath)
-  if (values === undefined) {
-    throw new Error(`Путь формы не соответствует topology: ${assignment.targetProjectPath}`)
-  }
+  if (node === undefined) throw new Error(`Не найден узел топологии формы ${assignment.topologyAddress.nodeId}`)
   const companions = node.yamlCompanions.filter(({ projectRole }) => projectRole === "form")
   if (companions.length === 0) return undefined
   if (companions.length > 1) throw new Error(`У задания формы несколько YAML-спутников: ${assignment.targetProjectPath}`)
   const companion = companions[0]!
   return {
-    targetProjectPath: expandMetadataPathPattern(companion.projectPattern, values),
+    targetProjectPath: expandMetadataPathPattern(companion.projectPattern, assignment.topologyAddress.values),
     rule: companion.itemRule,
   }
 }
@@ -264,26 +259,16 @@ export function resolveAssignmentRule(
   topology?: CompiledMetadataResourceTopology,
 ): MetadataItemRule {
   if (assignment.role === "configuration") return getMetadataComponentDescriptor(componentKind).rootRule
-  if (topology !== undefined && assignment.topologyNodeId === undefined) {
-    throw new Error(`Задание XML-import не связано с узлом topology: ${assignment.targetProjectPath}`)
+  const node =
+    (topology ?? compileRegisteredMetadataResourceTopology()).assignments.find(
+      ({ id }) => id === assignment.topologyAddress.nodeId
+    )
+  if (node === undefined) {
+    throw new Error(
+      `Не найден узел topology XML-import: ${assignment.topologyAddress.nodeId}`
+    )
   }
-  if (assignment.topologyNodeId !== undefined) {
-    const node =
-      (topology ?? compileRegisteredMetadataResourceTopology()).assignments.find(
-        ({ id }) => id === assignment.topologyNodeId
-      )
-    if (node === undefined) {
-      throw new Error(
-        `Не найден узел топологии XML-import: ${assignment.topologyNodeId}`
-      )
-    }
-    return node.itemRule
-  }
-  const rule = findRegisteredImportRule(assignment.itemType)
-  if (rule !== undefined) return rule
-  if (assignment.role === "fileItem" && assignment.targetProjectPath.endsWith(".yaml"))
-    return ClientApplicationFormRules
-  throw new Error(`Не найдено правило подготовки XML-import для ${assignment.itemType}`)
+  return node.itemRule
 }
 
 function buildOwnerContext(

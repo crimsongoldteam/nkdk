@@ -54,7 +54,7 @@ export interface ConfigurationIndexStore {
 }
 
 export interface ConfigurationIndexCandidateStore extends ConfigurationIndexStore {
-  mergeBlockFragment(fragment: ConfigurationIndexBlockFragment): void
+  mergeBlockFragments(fragments: readonly ConfigurationIndexBlockFragment[]): void
   replaceHashes(files: readonly ConfigurationProjectFile[]): void
   copyActiveBlocksFrom(source: ConfigurationIndexStore, excludedProjectPaths: ReadonlySet<string>): void
   validateCandidate(): void
@@ -178,18 +178,23 @@ class LmdbConfigurationIndexStore implements ConfigurationIndexStore {
     })
   }
 
-  mergeBlockFragment(fragment: ConfigurationIndexBlockFragment): void {
+  mergeBlockFragments(fragments: readonly ConfigurationIndexBlockFragment[]): void {
     this.assertCandidate()
-    const projectPath = validateProjectPath(fragment.targetProjectPath)
-    if (fragment.entities.length === 0) {
-      this.tables.blocks.removeSync(projectPath)
-      return
-    }
-    const existingValue = this.tables.blocks.get(projectPath)
-    const existing = existingValue === undefined ? { entities: [] } : decodeBlockV1(existingValue)
-    const merged = mergeBlockEntities(existing.entities, fragment.entities)
-    const encoded = encodeBlockV1({ entities: merged })
-    this.tables.blocks.putSync(projectPath, encoded)
+    if (fragments.length === 0) return
+    this.root.transactionSync(() => {
+      for (const fragment of fragments) {
+        const projectPath = validateProjectPath(fragment.targetProjectPath)
+        if (fragment.entities.length === 0) {
+          this.tables.blocks.removeSync(projectPath)
+          continue
+        }
+        const existingValue = this.tables.blocks.get(projectPath)
+        const existing = existingValue === undefined ? { entities: [] } : decodeBlockV1(existingValue)
+        const merged = mergeBlockEntities(existing.entities, fragment.entities)
+        const encoded = encodeBlockV1({ entities: merged })
+        this.tables.blocks.putSync(projectPath, encoded)
+      }
+    })
   }
 
   copyActiveBlocksFrom(source: ConfigurationIndexStore, excludedProjectPaths: ReadonlySet<string>): void {

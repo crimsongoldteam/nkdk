@@ -287,6 +287,7 @@ function validateFactRows(params: {
     assertRange(record.definedTypesStart, record.definedTypesCount, params.tables.get("definedTypes")?.records ?? 0, "typeInfo.definedTypes")
     assertOptionalRowId(record.tableInfoId, params.tables.get("tableInfo")?.records ?? 0, "typeInfo.tableInfoId")
     assertOptionalStringId(record.sourceTextId, params.stringCount, "typeInfo.sourceTextId")
+    assertOptionalStringId(record.structuredTypeId, params.stringCount, "typeInfo.structuredTypeId")
     assertTernary(record.isComposite, "typeInfo.isComposite")
     if (record.reserved16 > record.definedTypesCount) {
       throw new Error("typeInfo.reserved16 превышает число сохранённых точных и определяемых типов")

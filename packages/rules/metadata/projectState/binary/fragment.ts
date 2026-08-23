@@ -127,6 +127,7 @@ interface DataPathTypeInfo {
   readonly nextTypes: readonly OwnerTypeRef[]
   readonly terminalTypes?: readonly string[]
   readonly definedTypes?: readonly string[]
+  readonly structuredType?: string
   readonly table?: DataPathTableInfo
   readonly isComposite?: boolean
   readonly sourceText?: string
@@ -795,7 +796,7 @@ export function createProjectStateFragmentWriter(options: {
     return id
   }
 
-  function appendTypeInfo(typeInfo: Pick<DataPathTypeInfo, "nextTypes" | "terminalTypes" | "definedTypes" | "table" | "isComposite" | "sourceText"> & {
+  function appendTypeInfo(typeInfo: Pick<DataPathTypeInfo, "nextTypes" | "terminalTypes" | "definedTypes" | "table" | "isComposite" | "sourceText" | "structuredType"> & {
     readonly kinds: readonly string[]
   }): number {
     const kindsStart = rows.typeKinds.length
@@ -816,6 +817,7 @@ export function createProjectStateFragmentWriter(options: {
       definedTypesCount: rows.definedTypes.length - definedTypesStart,
       tableInfoId: typeInfo.table === undefined ? NONE : appendTableInfo(typeInfo.table),
       sourceTextId: optionalString(typeInfo.sourceText),
+      structuredTypeId: optionalString(typeInfo.structuredType),
       isComposite: booleanFlag(typeInfo.isComposite),
       reserved8: 0,
       reserved16: terminalTypesCount,

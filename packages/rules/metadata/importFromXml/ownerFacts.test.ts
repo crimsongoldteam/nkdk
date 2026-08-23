@@ -31,6 +31,7 @@ describe("extractImportOwnerFacts", () => {
   it("does not introduce import-only owner facts for a form", () => {
     const assignment: ImportAssignment = {
       id: "form",
+      topologyAddress: { nodeId: "form", values: {} },
       role: "fileItem",
       targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
       itemType: "ClientApplicationForm",
@@ -79,6 +80,7 @@ function preparedYaml(params: {
 function catalogAssignment(): ImportAssignment {
   return {
     id: "catalog",
+    topologyAddress: { nodeId: "catalog", values: {} },
     role: "properties",
     targetProjectPath: "Справочник/Контрагенты/Свойства.yaml",
     itemType: "MetadataCatalog",

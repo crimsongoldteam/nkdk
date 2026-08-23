@@ -6,10 +6,9 @@ export interface ImportAssignmentGroup {
     role: ImportAssignmentRole
     itemType: string
     logicalAddressSegment?: string
-    topologyNodeId?: string
     itemName?: string
   }
-  values: Record<string, string>
+  topologyAddress: ImportAssignment["topologyAddress"]
   targetProjectPath: string
   xmlFiles: ImportXmlInput[]
   externalFiles: ImportExternalFile[]
@@ -54,9 +53,10 @@ function createAssignment(group: ImportAssignmentGroup, context: AssignmentBuild
         : childUid(owner?.logicalAddress ?? group.definition.itemType, logicalAddressSegment, itemName)
   const assignment = {
     id: group.targetProjectPath,
-    ...(group.definition.topologyNodeId === undefined
-      ? {}
-      : { topologyNodeId: group.definition.topologyNodeId }),
+    topologyAddress: {
+      nodeId: group.topologyAddress.nodeId,
+      values: { ...group.topologyAddress.values },
+    },
     role: group.definition.role,
     targetProjectPath: group.targetProjectPath,
     itemType: group.definition.itemType,

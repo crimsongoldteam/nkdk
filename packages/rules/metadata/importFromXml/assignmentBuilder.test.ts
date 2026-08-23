@@ -8,7 +8,7 @@ function group(
   role: ImportAssignmentGroup["definition"]["role"],
   itemType: string,
   logicalAddressSegment?: string,
-  topologyNodeId?: string,
+  topologyNodeId = "test-node",
   itemName?: string,
 ): ImportAssignmentGroup {
   return {
@@ -16,10 +16,9 @@ function group(
       role,
       itemType,
       ...(logicalAddressSegment === undefined ? {} : { logicalAddressSegment }),
-      ...(topologyNodeId === undefined ? {} : { topologyNodeId }),
       ...(itemName === undefined ? {} : { itemName }),
     },
-    values: {},
+    topologyAddress: { nodeId: topologyNodeId, values: {} },
     targetProjectPath,
     xmlFiles: [{ role: "metadata", sourcePath: join("/xml", targetProjectPath.replace(/\.yaml$/, ".xml")) }],
     externalFiles: [],
@@ -76,18 +75,27 @@ describe("XML import assignment builder", () => {
     })
   })
 
-  it("copies the topology node identifier into an assignment", () => {
+  it("copies the topology address into an assignment", () => {
     const [assignment] = createImportAssignments([
-      group(
+      {
+        ...group(
         "Обработка/Загрузка/Формы/Основная/Форма.yaml",
         "fileItem",
         "ClientApplicationForm",
         "Форма",
         "processor-form-node"
-      ),
+        ),
+        topologyAddress: {
+          nodeId: "processor-form-node",
+          values: { ownerName: "Загрузка", itemName: "Основная" },
+        },
+      },
     ])
 
-    expect(assignment?.topologyNodeId).toBe("processor-form-node")
+    expect(assignment?.topologyAddress).toEqual({
+      nodeId: "processor-form-node",
+      values: { ownerName: "Загрузка", itemName: "Основная" },
+    })
   })
 
   it("uses the semantic item name only for an explicitly named group", () => {

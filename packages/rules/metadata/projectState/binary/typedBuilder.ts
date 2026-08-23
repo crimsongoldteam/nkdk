@@ -347,7 +347,7 @@ function remapRow(source: Source, kind: ProjectStateFactTableKind, original: Rec
       break
     case "ownerFactItems": ref("ownerFactId", "ownerFacts"); ref("parentItemId", "ownerFactItems"); string("nameId"); ref("typeDescriptionId", "typeDescriptions"); break
     case "fields": file(); ref("ownerId", "ownerTypes"); string("nameId", "targetNameId", "sourceCollectionId", "parentNameId"); ref("typeInfoId", "typeInfo"); ref("tableInfoId", "tableInfo"); break
-    case "typeInfo": range("kindsStart", "kindsCount", "typeKinds"); range("nextTypesStart", "nextTypesCount", "ownerTypes"); range("definedTypesStart", "definedTypesCount", "definedTypes"); ref("tableInfoId", "tableInfo"); string("sourceTextId"); break
+    case "typeInfo": range("kindsStart", "kindsCount", "typeKinds"); range("nextTypesStart", "nextTypesCount", "ownerTypes"); range("definedTypesStart", "definedTypesCount", "definedTypes"); ref("tableInfoId", "tableInfo"); string("sourceTextId", "structuredTypeId"); break
     case "typeKinds": case "definedTypes": case "allowedKinds": case "typeDescriptionValues": string("valueId"); break
     case "ownerTypes": string("kindId", "nameId"); break
     case "tableInfo": ref("ownerTypeId", "ownerTypes"); string("nameId"); break

@@ -147,6 +147,20 @@ export function createMetadataProjectPathClassifier(
   }
 }
 
+export function createMetadataProjectAssignmentProjector(
+  topology: CompiledMetadataResourceTopology,
+): (params: {
+  readonly nodeId: string
+  readonly projectPath: string
+  readonly values: Readonly<Record<string, string>>
+}) => MetadataProjectResourceMatch | undefined {
+  const resolveMatches = createMetadataProjectMatchResolver(topology)
+  return ({ nodeId, projectPath, values }) => {
+    const match = resolveMatches(projectPath, [{ nodeId, values }])
+    return match?.kind === "content" ? match : undefined
+  }
+}
+
 function createMetadataProjectMatchResolver(
   topology: CompiledMetadataResourceTopology,
 ): (projectPath: string, matches: readonly CompiledMetadataPathMatch[]) => MetadataProjectResourceMatch | undefined {

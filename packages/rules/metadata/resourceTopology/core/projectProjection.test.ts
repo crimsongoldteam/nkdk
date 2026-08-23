@@ -6,6 +6,7 @@ import type { RegisteredProjectSpec } from "../../projectDefinition/projectSpecR
 import { compileMetadataResourceTopology } from "./compiler"
 import {
   classifyMetadataProjectPath,
+  createMetadataProjectAssignmentProjector,
   createMetadataProjectPathClassifier,
   iterateMetadataProjectPathCandidates,
   iterateProjectFiles,
@@ -176,6 +177,23 @@ describe("project resource topology projection", () => {
     ]) {
       expect(classify(path)).toEqual(classifyMetadataProjectPath(topology, path))
     }
+  })
+
+  it("проецирует известное задание без повторного сопоставления пути", () => {
+    const assignment = topology.assignments[0]!
+    const project = createMetadataProjectAssignmentProjector(topology)
+
+    expect(project({
+      nodeId: assignment.id,
+      projectPath: "путь-намеренно-не-соответствует-шаблону",
+      values: { ownerName: "Заказ" },
+    })).toMatchObject({
+      kind: "content",
+      assignment,
+      projectPath: "путь-намеренно-не-соответствует-шаблону",
+      values: { ownerName: "Заказ" },
+      metadataTarget: { canonical: "Catalog.Заказ" },
+    })
   })
 
   it("читает не больше 32 каталогов параллельно", async () => {

@@ -221,6 +221,7 @@ export interface ProjectStateTypeInfoRecord {
   readonly definedTypesCount: number
   readonly tableInfoId: number
   readonly sourceTextId: number
+  readonly structuredTypeId: number
   readonly isComposite: number
   readonly reserved8: number
   readonly reserved16: number
@@ -668,6 +669,7 @@ export const ProjectStateTypeInfoRecordView = projectStateView.create<ProjectSta
     definedTypesCount: { type: "integer", btype: "uint32" },
     tableInfoId: { type: "integer", btype: "uint32" },
     sourceTextId: { type: "integer", btype: "uint32" },
+    structuredTypeId: { type: "integer", btype: "uint32" },
     isComposite: { type: "integer", btype: "uint8" },
     reserved8: { type: "integer", btype: "uint8" },
     reserved16: { type: "integer", btype: "uint16" },

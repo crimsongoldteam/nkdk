@@ -1,6 +1,7 @@
 import { isAbsolute, resolve } from "path"
 import {
   classifyMetadataProjectPath as classifyTopologyProjectPath,
+  createMetadataProjectAssignmentProjector as createTopologyAssignmentProjector,
   discoverMetadataProjectResources as discoverTopologyProjectResources,
   iterateMetadataProjectPathCandidates as iterateTopologyProjectPathCandidates,
   projectMetadataFileBackedTargets,
@@ -42,6 +43,11 @@ export interface MetadataProjectResourceCandidate {
   readonly projectPath: string
   readonly absolutePath: string
   classify(): MetadataProjectResourceRef | undefined
+}
+
+export interface MetadataProjectAssignmentAddress {
+  readonly nodeId: string
+  readonly values: Readonly<Record<string, string>>
 }
 
 export interface MetadataProjectResourceOwner {
@@ -226,6 +232,19 @@ export function resolveMetadataProjectResource(
   const projectPath = assertMetadataProjectPathInside(projectRoot, absolutePath)
   const resource = classifyMetadataProjectPath(projectPath, context)
   return resource === undefined ? undefined : { ...resource, absolutePath }
+}
+
+export function createMetadataProjectAssignmentResourceProjector(
+  context: MetadataProjectResourceContext,
+): (params: {
+  readonly projectPath: string
+  readonly topologyAddress: MetadataProjectAssignmentAddress
+}) => MetadataProjectResourceRef | undefined {
+  const project = createTopologyAssignmentProjector(context.topology)
+  return ({ projectPath, topologyAddress }) => {
+    const match = project({ projectPath, ...topologyAddress })
+    return match === undefined ? undefined : toLegacyResource(match, context)
+  }
 }
 
 function toLegacyResource(
