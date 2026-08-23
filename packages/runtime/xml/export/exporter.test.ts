@@ -123,6 +123,33 @@ describe("xmlExport", () => {
     ].join("\n"))
   })
 
+  it("не подменяет placeholder внутри processing instruction", () => {
+    const document = parseXmlDocumentWithSaxes(
+      "<Root><?future <nkdkXmlMixedContent1/>?><Mixed>before<Child/>after</Mixed></Root>",
+    )
+
+    const xml = xmlExport(document.roots, false)
+    const roundTrippedRoot = parseXmlDocumentWithSaxes(xml).roots[0]
+
+    expect(
+      roundTrippedRoot?.content.flatMap((node) =>
+        node.type === "text"
+          ? []
+          : [node.type === "element" ? node.name : `?${node.target}`],
+      ),
+    ).toEqual(["?future", "Mixed"])
+    expect(
+      roundTrippedRoot?.content.find(
+        (node) => node.type === "processingInstruction",
+      ),
+    ).toMatchObject({
+      type: "processingInstruction",
+      target: "future",
+      body: "<nkdkXmlMixedContent1/>",
+    })
+    expect(xml).toContain("<Mixed>before<Child/>after</Mixed>")
+  })
+
   it("round-trips the authoritative processing instruction body", () => {
     const source =
       '<Root><Before/><?legacy alpha a="1" z="2" a="3" &amp;?><After/></Root>'

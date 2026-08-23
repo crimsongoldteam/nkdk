@@ -177,13 +177,21 @@ const structuralElementToPreserveOrder = (node: XmlElementNode): Record<string, 
 
 const buildStructuralXml = (nodes: readonly XmlElementNode[]): string => {
   const occupiedElementNames = new Set<string>()
-  const collectElementNames = (element: XmlElementNode): void => {
+  const opaquePayloads: string[] = []
+  const collectPlaceholderCollisions = (element: XmlElementNode): void => {
     occupiedElementNames.add(element.name)
+    for (const attribute of element.attributes) {
+      opaquePayloads.push(attribute.value)
+    }
     for (const child of element.content) {
-      if (child.type === "element") collectElementNames(child)
+      if (child.type === "element") {
+        collectPlaceholderCollisions(child)
+      } else {
+        opaquePayloads.push(child.type === "text" ? child.value : child.body)
+      }
     }
   }
-  for (const node of nodes) collectElementNames(node)
+  for (const node of nodes) collectPlaceholderCollisions(node)
 
   const replacements: Array<{ readonly tag: string; readonly xml: string }> = []
   let placeholderIndex = 1
@@ -192,7 +200,10 @@ const buildStructuralXml = (nodes: readonly XmlElementNode[]): string => {
     do {
       tag = `nkdkXmlMixedContent${placeholderIndex}`
       placeholderIndex += 1
-    } while (occupiedElementNames.has(tag))
+    } while (
+      occupiedElementNames.has(tag) ||
+      opaquePayloads.some((payload) => payload.includes(`<${tag}/>`))
+    )
     occupiedElementNames.add(tag)
     return tag
   }
@@ -218,7 +229,21 @@ const buildStructuralXml = (nodes: readonly XmlElementNode[]): string => {
 
   let xml = preserveOrderBuilder.build(nodes.map(elementWithPlaceholders))
   for (const replacement of replacements) {
-    xml = xml.replace(`<${replacement.tag}/>`, () => replacement.xml)
+    const placeholder = `<${replacement.tag}/>`
+    const position = xml.indexOf(placeholder)
+    const duplicatePosition = xml.indexOf(
+      placeholder,
+      position + placeholder.length,
+    )
+    if (position < 0 || duplicatePosition >= 0) {
+      throw new Error(
+        `Служебный XML-placeholder ${replacement.tag} не является однозначным`,
+      )
+    }
+    xml =
+      xml.slice(0, position) +
+      replacement.xml +
+      xml.slice(position + placeholder.length)
   }
   return xml
 }
