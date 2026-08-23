@@ -1,3 +1,5 @@
+import { isProxy } from "node:util/types"
+
 import type { XmlElementNode } from "../../../xml/import/document"
 import { compareXmlStructures } from "../../../xml/structure/compare"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
@@ -18,6 +20,14 @@ class XmlCompactRawInvalidInputError extends XmlCompactRawRecoverableInputError 
 
 class XmlCompactRawUnsupportedYamlDescriptorError
   extends XmlCompactRawRecoverableInputError {}
+
+class XmlCompactRawYamlDescriptorOperationError
+  extends XmlCompactRawRecoverableInputError {
+  constructor(yamlKey: string, cause: unknown) {
+    super(`Ошибка чтения YAML data descriptor ${yamlKey}: ${errorMessage(cause)}`)
+    this.cause = cause
+  }
+}
 
 class XmlCompactRawRegistrationFailure extends Error {}
 
@@ -248,9 +258,18 @@ function extractYamlPropertyPath(params: {
         `Не найден вход compact raw ${params.propertyPath.join(".")}`,
       )
     }
-    const descriptor = typeof yaml === "object" && yaml !== null
-      ? Object.getOwnPropertyDescriptor(yaml, propertyRule.yaml)
-      : undefined
+    let descriptor: PropertyDescriptor | undefined
+    if (typeof yaml === "object" && yaml !== null) {
+      assertNonProxyPlainData(yaml, `YAML ${propertyRule.yaml}`)
+      try {
+        descriptor = Object.getOwnPropertyDescriptor(yaml, propertyRule.yaml)
+      } catch (error) {
+        throw new XmlCompactRawYamlDescriptorOperationError(
+          propertyRule.yaml,
+          error,
+        )
+      }
+    }
     if (descriptor === undefined) {
       throw new XmlCompactRawInputMissingError(
         `Не найден вход compact raw ${params.propertyPath.join(".")}`,
@@ -288,6 +307,7 @@ function extractPlainFieldPath(
     if (typeof value !== "object" || value === null) {
       throw new Error(`Не найден ${description}: ${path.join(".")}`)
     }
+    assertNonProxyPlainData(value, `${description}.${field}`)
     const descriptor = Object.getOwnPropertyDescriptor(value, field)
     if (descriptor === undefined || !("value" in descriptor)) {
       throw new Error(`Не найден ${description}: ${path.join(".")}`)
@@ -365,6 +385,7 @@ function normalizePlainData(
       `Compact raw input ${path} должен быть plain-data`,
     )
   }
+  assertNonProxyPlainData(value, path)
   if (ancestors.has(value)) {
     throw new XmlCompactRawInvalidInputError(
       `Compact raw input ${path} должен быть plain-data без циклов`,
@@ -451,6 +472,14 @@ function isArrayIndex(key: string, length: number): boolean {
   if (!/^(0|[1-9][0-9]*)$/.test(key)) return false
   const index = Number(key)
   return Number.isSafeInteger(index) && index >= 0 && index < length
+}
+
+function assertNonProxyPlainData(value: object, path: string): void {
+  if (isProxy(value)) {
+    throw new XmlCompactRawInvalidInputError(
+      `Compact raw input ${path}: Proxy не входит в plain-data`,
+    )
+  }
 }
 
 function declaredInputView(inputs: XmlCompactRawInputs): XmlCompactRawInputs {

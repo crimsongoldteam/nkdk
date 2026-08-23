@@ -94,6 +94,76 @@ function unexpectedGenerator(): never {
   throw new Error("Генератор не должен запускаться")
 }
 
+function countedModeRuntime() {
+  let generatorCalls = 0
+  const runtime = anomalyRuntime(propertyTypeRegistration(
+    yamlModeInput,
+    (inputs) => {
+      generatorCalls += 1
+      return parseXmlDocumentWithSaxes(
+        `<Transport mode="${String(inputs.mode)}"/>`,
+      ).roots
+    },
+  ))
+  return { runtime, generatorCalls: () => generatorCalls }
+}
+
+function generatedMode(runtime: XmlAnomalyRuntime, mode: unknown) {
+  return runtime.generateCompactRaw(transportParams({
+    Настройки: { Режим: mode },
+  }))?.[0]?.attributes[0]?.value
+}
+
+function captureFailure(action: () => unknown): unknown {
+  try {
+    action()
+    return undefined
+  } catch (error) {
+    return error
+  }
+}
+
+function observedProxy<T extends object>(target: T) {
+  let trapCalls = 0
+  let neighborGetterCalls = 0
+  Object.defineProperty(target, "Несвязанный", {
+    enumerable: true,
+    get: () => {
+      neighborGetterCalls += 1
+      return "unrelated"
+    },
+  })
+  const failTrap = (): never => {
+    trapCalls += 1
+    throw new Error("Proxy trap выполнен")
+  }
+  return {
+    value: new Proxy(target, {
+      getOwnPropertyDescriptor: failTrap,
+      getPrototypeOf: failTrap,
+      ownKeys: failTrap,
+    }),
+    trapCalls: () => trapCalls,
+    neighborGetterCalls: () => neighborGetterCalls,
+  }
+}
+
+function expectRecoverableProxyRejection(params: {
+  readonly runtime: XmlAnomalyRuntime
+  readonly action: () => unknown
+  readonly trapCalls: () => number
+  readonly neighborGetterCalls: () => number
+  readonly generatorCalls: () => number
+}): void {
+  const failure = captureFailure(params.action)
+  expect(params.trapCalls()).toBe(0)
+  expect(params.neighborGetterCalls()).toBe(0)
+  expect(failure).toBeInstanceOf(Error)
+  expect((failure as Error).message).toMatch(/Proxy.*plain-data/i)
+  expect(generatedMode(params.runtime, "strict")).toBe("strict")
+  expect(params.generatorCalls()).toBe(2)
+}
+
 describe("XmlAnomalyRuntime", () => {
   it("дважды проверяет генератор на одном замороженном input и кэширует результат", () => {
     let calls = 0
@@ -156,27 +226,15 @@ describe("XmlAnomalyRuntime", () => {
   })
 
   it("не блокирует регистрацию без обычного YAML input", () => {
-    let generatorCalls = 0
-    const registration = propertyTypeRegistration(
-      yamlModeInput,
-      (inputs) => {
-        generatorCalls += 1
-        return parseXmlDocumentWithSaxes(
-          `<Transport mode="${String(inputs.mode)}"/>`,
-        ).roots
-      },
-    )
-    const runtime = anomalyRuntime(registration)
+    const { runtime, generatorCalls } = countedModeRuntime()
 
     expect(() => runtime.generateCompactRaw({
       rule: itemRule,
       propertyKey: "transport",
       yaml: { Настройки: {} },
     })).toThrow(/не найден.*settings\.mode/i)
-    expect(runtime.generateCompactRaw(transportParams({
-      Настройки: { Режим: "strict" },
-    }))?.[0]?.attributes[0]?.value).toBe("strict")
-    expect(generatorCalls).toBe(2)
+    expect(generatedMode(runtime, "strict")).toBe("strict")
+    expect(generatorCalls()).toBe(2)
   })
 
   it.each(["корневом", "вложенном"])(
@@ -226,6 +284,41 @@ describe("XmlAnomalyRuntime", () => {
       expect(unrelatedGetterCalls).toBe(0)
     },
   )
+
+  it.each(["корневом", "вложенном"])(
+    "отклоняет YAML Proxy на %s уровне до traps и допускает retry",
+    (level) => {
+      const target: Record<string, unknown> = level === "корневом"
+        ? { Настройки: { Режим: "unsafe" } }
+        : { Режим: "unsafe" }
+      const proxy = observedProxy(target)
+      const yaml = level === "корневом"
+        ? proxy.value
+        : { Настройки: proxy.value }
+      const { runtime, generatorCalls } = countedModeRuntime()
+
+      expectRecoverableProxyRejection({
+        runtime,
+        action: () => runtime.generateCompactRaw(transportParams(yaml)),
+        trapCalls: proxy.trapCalls,
+        neighborGetterCalls: proxy.neighborGetterCalls,
+        generatorCalls,
+      })
+    },
+  )
+
+  it("отклоняет Proxy-значение до plain-data traps и допускает retry", () => {
+    const proxy = observedProxy({ value: "unsafe" })
+    const { runtime, generatorCalls } = countedModeRuntime()
+
+    expectRecoverableProxyRejection({
+      runtime,
+      action: () => generatedMode(runtime, proxy.value),
+      trapCalls: proxy.trapCalls,
+      neighborGetterCalls: proxy.neighborGetterCalls,
+      generatorCalls,
+    })
+  })
 
   it("не смешивает разрешённые plain-data inputs в ключе кэша", () => {
     let calls = 0
