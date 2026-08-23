@@ -7,6 +7,8 @@ import type { PropertyRuleExecution } from "../property/fn"
 import { findInlineProperty } from "./yamlInline"
 import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
 import type { MetadataItemXmlImportAugmenter } from "./augmenterRegistry"
+import type { XmlElementNode } from "../../../xml/import/document"
+import { xmlImportCompatibilityContainer } from "../xmlAnomaly/compatibilityView"
 
 type InlineProperty = ReturnType<typeof findInlineProperty>
 
@@ -23,21 +25,46 @@ export function importMetadataItemFromXMLToYAML(params: {
   const xmlRoot = Object.values(params.rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
   )
-  const root = asRecord(params.xml)
-  const source = xmlRoot === undefined ? root : asRecord(root?.[xmlRoot.container])
+  const traversalRootNode = params.traversal.xmlNodes?.length === 1
+    ? params.traversal.xmlNodes[0]
+    : undefined
+  const rootNodeFromTraversal = !isXmlElementNode(params.xml) && traversalRootNode !== undefined
+  const rootNode = isXmlElementNode(params.xml)
+    ? params.xml
+    : rootNodeFromTraversal
+      ? traversalRootNode
+      : undefined
+  const root = asRecord(rootNode?.compatibilityValue ?? params.xml)
+  const sourceNode = rootNode === undefined
+    ? undefined
+    : xmlRoot === undefined
+      ? rootNode
+      : rootNode.content.find(
+          (node): node is XmlElementNode =>
+            node.type === "element" && node.name === xmlRoot.container,
+        )
+  const sourceValue = sourceNode?.compatibilityValue ?? (
+    xmlRoot === undefined ? root : root?.[xmlRoot.container]
+  )
+  const source = asRecord(sourceValue)
   if (source === undefined) return undefined
 
   const context = contextWithItemParent(params.context, params.name, params.rule.itemType)
   const yaml = importPropertiesFromXMLToYAML({
     context,
     rule: params.rule,
-    sources: [{ context, xml: source }],
+    sources: [{
+      context,
+      xml: sourceNode ?? source,
+      claimAuditRoot: !(rootNodeFromTraversal && sourceNode === rootNode),
+    }],
     itemName: params.name,
     yamlPath: params.traversal.yamlPath,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
     deferred: params.traversal.deferred,
     dependent: params.traversal.dependent,
+    audit: params.traversal.audit,
     profile: params.traversal.profile,
     propertyXML: params.propertyXML,
     execution: propertyExecutionFromTraversal(params.traversal),
@@ -49,10 +76,21 @@ export function importMetadataItemFromXMLToYAML(params: {
           value: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0],
         ): void
       }>()
+    const augmenterSource = sourceNode === undefined
+      ? source
+      : asRecord(xmlImportCompatibilityContainer({
+          node: sourceNode,
+          audit: params.traversal.audit,
+          boundary: {
+            itemType: params.rule.itemType,
+            yamlPath: params.traversal.yamlPath,
+            rulePath: params.traversal.rulePath,
+          },
+        })) ?? source
     augmenterRegistry?.applyMetadataItemXmlImportAugmenter({
       context,
       rule: params.rule,
-      source,
+      source: augmenterSource,
       yaml,
     })
   }
@@ -94,4 +132,12 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
+}
+
+function isXmlElementNode(value: unknown): value is XmlElementNode {
+  return value !== null &&
+    typeof value === "object" &&
+    "type" in value &&
+    value.type === "element" &&
+    "compatibilityValue" in value
 }

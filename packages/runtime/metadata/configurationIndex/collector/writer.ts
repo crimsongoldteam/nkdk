@@ -24,42 +24,45 @@ interface MutableEntity {
   children?: readonly ConfigurationIndexChild[]
 }
 
-interface ConfigurationIndexUndoEntry {
+interface ConfigurationIndexWrite {
   readonly address: string
   readonly field: "uuid" | "xmlId" | "children"
-  readonly previous: string | readonly ConfigurationIndexChild[] | undefined
-  readonly entityExisted: boolean
+  readonly value: string | readonly ConfigurationIndexChild[]
+}
+
+interface ConfigurationIndexCheckpoint {
+  readonly position: number
+  state: "active" | "committed"
 }
 
 class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector {
   private readonly entities = new Map<string, MutableEntity>()
-  private readonly undoLog: ConfigurationIndexUndoEntry[] = []
-  private readonly attemptCheckpoints: number[] = []
+  private readonly writes: ConfigurationIndexWrite[] = []
+  private readonly attemptCheckpoints: ConfigurationIndexCheckpoint[] = []
 
   setIdentity(address: string, kind: IdentityKind, value: string): void {
     if (kind === "uuid" && !isUuid(value)) throw new Error("Некорректный UUID")
     if (kind === "xmlId" && value.length === 0) throw new Error("Пустой xmlId")
-    const entityExisted = this.entities.has(address)
     const entity = this.entity(address)
-    const previous = entity[kind]
-    if (previous !== undefined) {
-      assertEqualValues(address, kind, previous, value)
+    const current = entity[kind]
+    if (current !== undefined) {
+      assertEqualValues(address, kind, current, value)
       return
     }
-    this.recordUndo(address, kind, previous, entityExisted)
+    this.writes.push({ address, field: kind, value })
     entity[kind] = value
   }
 
   setChildren(address: string, value: readonly ConfigurationIndexChild[]): void {
     assertChildren(value)
-    const entityExisted = this.entities.has(address)
     const entity = this.entity(address)
     if (entity.children !== undefined) {
       assertEqualValues(address, "children", entity.children, value, equalChildren)
       return
     }
-    this.recordUndo(address, "children", undefined, entityExisted)
-    entity.children = value.map((child) => ({ ...child }))
+    const children = value.map((child) => ({ ...child }))
+    this.writes.push({ address, field: "children", value: children })
+    entity.children = children
   }
 
   fragment(targetProjectPath: string): ConfigurationIndexBlockFragment {
@@ -83,59 +86,52 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
   attemptAdapter(): XmlImportAttemptAdapter {
     return {
       begin: () => {
-        const checkpoint = this.undoLog.length
+        const checkpoint: ConfigurationIndexCheckpoint = {
+          position: this.writes.length,
+          state: "active",
+        }
         this.attemptCheckpoints.push(checkpoint)
         return checkpoint
       },
+      prepare: (checkpoint) => {
+        this.currentAttempt(checkpoint, "active")
+      },
       commit: (checkpoint) => {
-        this.closeAttempt(checkpoint)
-        if (this.attemptCheckpoints.length === 0) this.undoLog.length = 0
+        this.currentAttempt(checkpoint, "active").state = "committed"
+      },
+      release: (checkpoint) => {
+        this.currentAttempt(checkpoint, "committed")
+        this.attemptCheckpoints.pop()
       },
       rollback: (checkpoint) => {
-        const index = this.closeAttempt(checkpoint)
-        for (let position = this.undoLog.length - 1; position >= index; position -= 1) {
-          this.restore(this.undoLog[position]!)
-        }
-        this.undoLog.length = index
+        const current = this.currentAttempt(checkpoint)
+        this.writes.length = current.position
+        this.rebuildEntities()
+        this.attemptCheckpoints.pop()
       },
     }
   }
 
-  private recordUndo(
-    address: string,
-    field: ConfigurationIndexUndoEntry["field"],
-    previous: ConfigurationIndexUndoEntry["previous"],
-    entityExisted: boolean,
-  ): void {
-    if (this.attemptCheckpoints.length === 0) return
-    this.undoLog.push({
-      address,
-      field,
-      previous,
-      entityExisted,
-    })
-  }
-
-  private closeAttempt(checkpoint: unknown): number {
+  private currentAttempt(
+    checkpoint: unknown,
+    state?: ConfigurationIndexCheckpoint["state"],
+  ): ConfigurationIndexCheckpoint {
     const expected = this.attemptCheckpoints.at(-1)
-    if (typeof checkpoint !== "number" || expected !== checkpoint) {
+    if (expected === undefined || expected !== checkpoint || (state !== undefined && expected.state !== state)) {
       throw new Error("Нарушен порядок XML-import attempts configuration index")
     }
-    this.attemptCheckpoints.pop()
-    return checkpoint
+    return expected
   }
 
-  private restore(entry: ConfigurationIndexUndoEntry): void {
-    const entity = this.entities.get(entry.address)
-    if (entity === undefined) return
-    if (entry.previous === undefined) delete entity[entry.field]
-    else if (entry.field === "children") {
-      entity.children = (entry.previous as readonly ConfigurationIndexChild[]).map((child) => ({ ...child }))
-    } else {
-      entity[entry.field] = entry.previous as string
-    }
-    if (!entry.entityExisted && entity.uuid === undefined && entity.xmlId === undefined && entity.children === undefined) {
-      this.entities.delete(entry.address)
+  private rebuildEntities(): void {
+    this.entities.clear()
+    for (const write of this.writes) {
+      const entity = this.entity(write.address)
+      if (write.field === "children") {
+        entity.children = (write.value as readonly ConfigurationIndexChild[]).map((child) => ({ ...child }))
+      } else {
+        entity[write.field] = write.value as string
+      }
     }
   }
 }

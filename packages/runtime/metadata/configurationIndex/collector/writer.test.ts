@@ -91,4 +91,18 @@ describe("configuration index collector", () => {
       { logicalAddress: "Справочник.Товары", uuid: UUID, xmlId: "stable" },
     ])
   })
+
+  it("сохраняет точный nested checkpoint даже без записей", () => {
+    const collector = createConfigurationIndexCollector()
+    const journal = createXmlImportAttemptJournal([collector])
+    const outer = journal.begin()
+    const inner = journal.begin()
+
+    expect(() => outer.commit()).toThrow("порядок XML-import attempts")
+    inner.rollback()
+    collector.setIdentity("Справочник.Товары", "xmlId", "outer")
+    outer.rollback()
+
+    expect(collector.fragment("Справочники/Товары.yaml").entities).toEqual([])
+  })
 })

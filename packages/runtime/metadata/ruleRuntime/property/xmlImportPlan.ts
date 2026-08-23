@@ -6,8 +6,11 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 import type {
   XmlImportAuditBoundary,
   XmlImportAuditSession,
-  XmlImportAuditedNode,
 } from "../xmlAnomaly/importAudit"
+import {
+  xmlImportCompatibilityValue,
+  xmlImportCompatibilityValues,
+} from "../xmlAnomaly/compatibilityView"
 
 export interface XMLImportPlanEntry {
   propertyKey: string
@@ -20,6 +23,7 @@ export interface XMLImportMatch extends XMLImportPlanEntry {
   xmlPath: readonly string[]
   xmlValue: unknown
   xmlNode?: XmlElementNode | XmlAttributeNode
+  xmlNodes?: readonly (XmlElementNode | XmlAttributeNode)[]
   ambiguousXMLKey: boolean
 }
 
@@ -176,6 +180,8 @@ export const visitXMLImportPlan = (params: {
   xml: Record<string, unknown> | XmlElementNode
   audit?: XmlImportAuditSession
   auditBoundary?(entry: XMLImportPlanEntry): XmlImportAuditBoundary
+  isRepeatable?(entry: XMLImportPlanEntry): boolean
+  claimRoot?: boolean
   visit(match: XMLImportMatch): void
 }): void => {
   const compiled = params.plan as CompiledXMLImportPlan
@@ -185,6 +191,8 @@ export const visitXMLImportPlan = (params: {
       root: params.xml,
       audit: params.audit,
       auditBoundary: params.auditBoundary,
+      isRepeatable: params.isRepeatable,
+      claimRoot: params.claimRoot,
       visit: params.visit,
     })
     return
@@ -205,10 +213,15 @@ function visitStructuralXMLImportPlan(params: {
   readonly root: XmlElementNode
   readonly audit?: XmlImportAuditSession
   readonly auditBoundary?: (entry: XMLImportPlanEntry) => XmlImportAuditBoundary
+  readonly isRepeatable?: (entry: XMLImportPlanEntry) => boolean
+  readonly claimRoot?: boolean
   readonly visit: (match: XMLImportMatch) => void
 }): void {
   const itemBoundary: XmlImportAuditBoundary = { itemType: params.plan.itemType }
-  params.audit?.claim(params.root, itemBoundary)
+  const boundaryForEntry = params.auditBoundary ?? (
+    (entry: XMLImportPlanEntry) => defaultPropertyBoundary(params.plan.itemType, entry)
+  )
+  if (params.claimRoot !== false) params.audit?.claim(params.root, itemBoundary)
   const candidates: StructuralCandidate[] = []
   collectStructuralCandidates({
     node: params.plan.root,
@@ -226,27 +239,62 @@ function visitStructuralXMLImportPlan(params: {
     else current.push(candidate)
   }
 
-  const selected = new Set<StructuralCandidate>()
+  const selected = new Map<
+    StructuralCandidate,
+    { readonly candidates: readonly StructuralCandidate[]; readonly repeatable: boolean }
+  >()
   for (const propertyCandidates of candidatesByProperty.values()) {
-    const canonical = propertyCandidates.find(
+    const canonical = propertyCandidates.filter(
       ({ entry, sourceXMLKey }) => sourceXMLKey === entry.canonicalXMLKey,
     )
-    selected.add(canonical ?? propertyCandidates[0]!)
+    const matchingSource = canonical.length > 0
+      ? canonical
+      : propertyCandidates.filter(
+          ({ sourceXMLKey }) => sourceXMLKey === propertyCandidates[0]!.sourceXMLKey,
+        )
+    const repeatable = params.isRepeatable?.(propertyCandidates[0]!.entry) === true
+    selected.set(matchingSource[0]!, {
+      candidates: repeatable ? matchingSource : [matchingSource[0]!],
+      repeatable,
+    })
     auditPropertyCandidates(
       propertyCandidates,
       params.audit,
-      params.auditBoundary ?? ((entry) => defaultPropertyBoundary(params.plan.itemType, entry)),
+      boundaryForEntry,
+      repeatable,
     )
   }
 
   for (const candidate of candidates) {
-    if (!selected.has(candidate)) continue
+    const selection = selected.get(candidate)
+    if (selection === undefined) continue
+    const selectedCandidates = selection.candidates
+    const selectedElements = selectedCandidates.flatMap(({ xmlNode }) =>
+      "type" in xmlNode ? [xmlNode] : [],
+    )
     params.visit({
       ...candidate.entry,
       sourceXMLKey: candidate.sourceXMLKey,
       xmlPath: candidate.xmlPath,
-      xmlValue: compatibilityValue(candidate.xmlNode),
+      xmlValue: selection.repeatable && selectedCandidates.length > 1
+        ? xmlImportCompatibilityValues({
+            nodes: selectedElements,
+            audit: params.audit,
+            boundary: boundaryForEntry(candidate.entry),
+          })
+        : selectedCandidates.length === 1
+          ? xmlImportCompatibilityValue({
+              node: candidate.xmlNode,
+              audit: params.audit,
+              boundary: boundaryForEntry(candidate.entry),
+            })
+          : selectedCandidates.map(({ entry, xmlNode }) => xmlImportCompatibilityValue({
+              node: xmlNode,
+              audit: params.audit,
+              boundary: boundaryForEntry(entry),
+            })),
       xmlNode: candidate.xmlNode,
+      xmlNodes: selectedCandidates.map(({ xmlNode }) => xmlNode),
       ambiguousXMLKey:
         candidate.entriesAtNode.length > 1 ||
         (candidatesByProperty.get(candidate.entry.propertyKey)?.some(
@@ -307,12 +355,13 @@ function auditPropertyCandidates(
   candidates: readonly StructuralCandidate[],
   audit: XmlImportAuditSession | undefined,
   boundaryForEntry: (entry: XMLImportPlanEntry) => XmlImportAuditBoundary,
+  repeatable: boolean,
 ): void {
   if (audit === undefined) return
   const sourceKeys = new Set(candidates.map(({ sourceXMLKey }) => sourceXMLKey))
   if (sourceKeys.size > 1) {
     for (const candidate of candidates) {
-      auditSubtree(candidate.xmlNode, audit, "ambiguous", boundariesAtNode(candidate, boundaryForEntry))
+      audit.ambiguous(candidate.xmlNode, boundariesAtNode(candidate, boundaryForEntry))
     }
     return
   }
@@ -320,27 +369,14 @@ function auditPropertyCandidates(
   candidates.forEach((candidate, index) => {
     const boundaries = boundariesAtNode(candidate, boundaryForEntry)
     if (boundaries.length > 1) {
-      auditSubtree(candidate.xmlNode, audit, "ambiguous", boundaries)
+      audit.ambiguous(candidate.xmlNode, boundaries)
       return
     }
     const boundary = boundaries[0]!
-    auditSubtree(candidate.xmlNode, audit, index === 0 ? "claimed" : "duplicate", [boundary])
+    if (repeatable) return
+    if (index === 0) audit.claim(candidate.xmlNode, boundary)
+    else audit.duplicate(candidate.xmlNode, boundary)
   })
-}
-
-function auditSubtree(
-  node: XmlImportAuditedNode,
-  audit: XmlImportAuditSession,
-  state: "claimed" | "ambiguous" | "duplicate",
-  boundaries: readonly XmlImportAuditBoundary[],
-): void {
-  if (state === "ambiguous") audit.ambiguous(node, boundaries)
-  else if (state === "duplicate") audit.duplicate(node, boundaries[0]!)
-  else audit.claim(node, boundaries[0]!)
-  if (!("type" in node) || node.type === "text") return
-  for (const attribute of node.attributes) auditSubtree(attribute, audit, state, boundaries)
-  if (node.type === "processingInstruction") return
-  for (const child of node.content) auditSubtree(child, audit, state, boundaries)
 }
 
 function boundariesAtNode(
@@ -355,10 +391,6 @@ function defaultPropertyBoundary(
   { propertyKey, rule }: XMLImportPlanEntry,
 ): XmlImportAuditBoundary {
   return { itemType, propertyKey, propertyType: rule.type }
-}
-
-function compatibilityValue(node: XmlElementNode | XmlAttributeNode): unknown {
-  return "type" in node ? node.compatibilityValue : node.value
 }
 
 function elementChildren(node: XmlElementNode): XmlElementNode[] {

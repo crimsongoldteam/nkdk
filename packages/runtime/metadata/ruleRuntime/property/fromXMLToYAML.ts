@@ -16,6 +16,7 @@ import { getValueOrDefault, shouldProcessProperty } from "./helpers"
 import type {
   DeferredRulePathSegment,
   DirectImportProfile,
+  DirectImportTraversal,
   DirectImportXMLSource,
   ImportedDependentPropertyCollector,
 } from "./importYamlTypes"
@@ -159,11 +160,21 @@ export function importPropertiesFromXMLToYAML(params: {
     xmlPath: readonly string[] | undefined
     sourceXMLValue: unknown
     xmlNode?: XmlImportAuditedNode
+    xmlNodes?: readonly XmlElementNode[]
     presentInXML: boolean
     ambiguousXMLKey: boolean
   }): void => {
     if (params.profile !== undefined) params.profile.propertyCount++
-    const { sourceState, entry, sourceXMLKey, xmlPath, sourceXMLValue, presentInXML, xmlNode } = match
+    const {
+      sourceState,
+      entry,
+      sourceXMLKey,
+      xmlPath,
+      sourceXMLValue,
+      presentInXML,
+      xmlNode,
+      xmlNodes,
+    } = match
     const { propertyKey: key, rule: propertyRule } = entry
     const { source, indexCollection, ownerXmlName } = sourceState
     const { context: sourceContext } = source
@@ -321,6 +332,17 @@ export function importPropertiesFromXMLToYAML(params: {
           const direct = typeRule(propertyRule.type, "importFromXMLToYAML")
           const resolveNestedSources = typeRule(propertyRule.type, "resolveNestedImportXMLSources")
           const convertedDirectly = resolveNestedSources !== undefined || direct !== undefined
+          const directTraversal: DirectImportTraversal<PropertyRuleExecution> = {
+            yamlPath: propertyYamlPath,
+            rulePath: propertyRulePath,
+            collector,
+            deferred,
+            dependent: params.dependent,
+            audit: params.audit,
+            xmlNodes,
+            profile: params.profile,
+            execution: params.execution,
+          }
           let importedValue: unknown
           if (explicitXMLTransport !== undefined) {
             importedValue = undefined
@@ -331,14 +353,7 @@ export function importPropertiesFromXMLToYAML(params: {
             }
             const startedAt = performance.now()
             const nestedTraversal = enterNestedYamlRule(
-              {
-                yamlPath: propertyYamlPath,
-                rulePath: propertyRulePath,
-                collector,
-                deferred,
-                audit: params.audit,
-                profile: params.profile,
-              },
+              directTraversal,
               nested.itemRule.itemType
             )
             importedValue = runWithConfigurationIndexPropertyContext(
@@ -369,13 +384,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 }),
               { configurationIndexAddressing: nestedConfigurationIndexAddressing }
             )
-            const elapsedMs = performance.now() - startedAt
-            const profile = params.profile
-            if (profile !== undefined) {
-              profile.directCount++
-              profile.directInclusiveMs += elapsedMs
-              addProfileBucket(profile.directByType, propertyRule.type, elapsedMs)
-            }
+            addDirectImportProfile(params.profile, propertyRule.type, startedAt)
           } else if (direct === undefined) {
             const startedAt = performance.now()
             importedValue =
@@ -416,26 +425,11 @@ export function importPropertiesFromXMLToYAML(params: {
                   xml: xmlValue,
                   name: itemName,
                   ownerXmlName,
-                  traversal: {
-                    yamlPath: propertyYamlPath,
-                    rulePath: propertyRulePath,
-                    collector,
-                    deferred,
-                    dependent: params.dependent,
-                    audit: params.audit,
-                    profile: params.profile,
-                    execution: params.execution,
-                  },
+                  traversal: directTraversal,
                 }),
               { configurationIndexAddressing: nestedConfigurationIndexAddressing }
             )
-            const elapsedMs = performance.now() - startedAt
-            const profile = params.profile
-            if (profile !== undefined) {
-              profile.directCount++
-              profile.directInclusiveMs += elapsedMs
-              addProfileBucket(profile.directByType, propertyRule.type, elapsedMs)
-            }
+            addDirectImportProfile(params.profile, propertyRule.type, startedAt)
           }
           const registeredExplicitEmptyValue =
             importedValue === undefined && presentInXML && (xmlValue === undefined || xmlValue === "")
@@ -649,18 +643,23 @@ export function importPropertiesFromXMLToYAML(params: {
         }
       }
       run()
-      attempt.commit()
     } catch (cause) {
-      attempt.rollback()
-      if (xmlNode !== undefined && params.audit !== undefined) {
-        const error = cause instanceof DirectImportConversionError
-          ? cause
-          : new DirectImportConversionError(propertyYamlPath, propertyRulePath, xmlPath, cause)
-        params.audit.rawCandidate(xmlNode, boundary, error)
+      try {
+        attempt.rollback()
+      } catch (rollbackError) {
+        throw aggregateAttemptFailure(cause, rollbackError)
+      }
+      if (
+        cause instanceof DirectImportConversionError &&
+        xmlNode !== undefined &&
+        params.audit !== undefined
+      ) {
+        params.audit.rawCandidate(xmlNode, boundary, cause)
         return
       }
       throw cause
     }
+    attempt.commit()
   }
 
   const importMissingEntry = (
@@ -676,6 +675,7 @@ export function importPropertiesFromXMLToYAML(params: {
       xmlPath: undefined,
       sourceXMLValue: undefined,
       xmlNode: undefined,
+      xmlNodes: undefined,
       presentInXML: false,
       ambiguousXMLKey: false,
     })
@@ -696,6 +696,9 @@ export function importPropertiesFromXMLToYAML(params: {
         yamlPath: [...yamlPath, propertyRule.yaml ?? propertyKey],
         rulePath: [...rulePath, { propertyKey }],
       }),
+      isRepeatable: ({ rule: propertyRule }) =>
+        typeRule(propertyRule.type, "yamlToXMLNestedRule")?.kind === "collection",
+      claimRoot: sourceState.source.claimAuditRoot,
       visit(match) {
         sourceState.foundPropertyKeys.add(match.propertyKey)
         const conversionStartedAt = performance.now()
@@ -706,6 +709,9 @@ export function importPropertiesFromXMLToYAML(params: {
           xmlPath: match.xmlPath,
           sourceXMLValue: match.xmlValue,
           xmlNode: match.xmlNode,
+          xmlNodes: match.xmlNodes?.filter(
+            (node): node is XmlElementNode => "type" in node && node.type === "element",
+          ),
           presentInXML: true,
           ambiguousXMLKey: match.ambiguousXMLKey,
         })
@@ -731,6 +737,7 @@ export function importPropertiesFromXMLToYAML(params: {
         xmlPath: [entry.canonicalXMLKey],
         sourceXMLValue,
         xmlNode: undefined,
+        xmlNodes: undefined,
         presentInXML: true,
         ambiguousXMLKey: false,
       })
@@ -773,6 +780,7 @@ export function importPropertiesFromXMLToYAML(params: {
           xmlPath: entry.rule.xmlParents,
           sourceXMLValue: emptyCollectionContainer,
           xmlNode: undefined,
+          xmlNodes: undefined,
           presentInXML: true,
           ambiguousXMLKey: false,
         })
@@ -948,6 +956,29 @@ function addProfileBucket(
   }
   current.count++
   current.timeMs += elapsedMs
+}
+
+function addDirectImportProfile(
+  profile: DirectImportProfile | undefined,
+  propertyType: string,
+  startedAt: number,
+): void {
+  if (profile === undefined) return
+  const elapsedMs = performance.now() - startedAt
+  profile.directCount++
+  profile.directInclusiveMs += elapsedMs
+  addProfileBucket(profile.directByType, propertyType, elapsedMs)
+}
+
+function aggregateAttemptFailure(cause: unknown, rollbackError: unknown): AggregateError {
+  const errors = rollbackError instanceof AggregateError
+    ? [cause, ...rollbackError.errors]
+    : [cause, rollbackError]
+  return new AggregateError(
+    errors,
+    "Ошибка XML → YAML и отката XML-import attempt",
+    { cause },
+  )
 }
 
 function errorMessage(error: unknown): string {

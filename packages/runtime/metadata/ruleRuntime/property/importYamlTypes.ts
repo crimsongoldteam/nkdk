@@ -27,6 +27,7 @@ export interface DirectImportTraversal<Execution = unknown> {
   deferred?: DeferredValuePathCollector
   dependent?: ImportedDependentPropertyCollector
   audit?: XmlImportAuditSession
+  xmlNodes?: readonly XmlElementNode[]
   profile?: DirectImportProfile
 }
 
@@ -92,6 +93,7 @@ export interface DirectImportXMLSource {
   context: ConfigurationContextFromXML
   xml: Record<string, unknown> | XmlElementNode
   tags?: string[]
+  claimAuditRoot?: boolean
 }
 
 export interface DirectImportProfile {

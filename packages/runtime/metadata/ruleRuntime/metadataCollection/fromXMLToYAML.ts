@@ -16,6 +16,12 @@ import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
 } from "../../configurationIndex/collector/context"
+import type { XmlElementNode } from "../../../xml/import/document"
+import {
+  arrayLengthXmlImportAttemptAdapter,
+  attachXmlImportAttemptAdapter,
+  createXmlImportBufferedLocalIndexes,
+} from "../xmlAnomaly/attempt"
 
 type MetadataItemCollectionImportOptions = {
   propertyType?: PropertyRuleType
@@ -74,7 +80,13 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
-  const items = normalizeCollectionItems(params.xml, params.xmlElement)
+  const structuralItems = collectionItemNodes(params.traversal.xmlNodes, params.xmlElement)
+  const items: { xml: Record<string, unknown>; node?: XmlElementNode }[] = structuralItems.length === 0
+    ? normalizeCollectionItems(params.xml, params.xmlElement).map((xml) => ({ xml }))
+    : structuralItems.flatMap((node) => {
+        const xml = asRecord(node.compatibilityValue)
+        return xml === undefined ? [] : [{ xml, node }]
+      })
   if (items.length === 0) return undefined
   const sourceItemRule = params.itemRule
   const itemRule =
@@ -83,7 +95,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       : sourceItemRule
   const keyField = params.keyField
   const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
-  const yamlItems = items.flatMap((itemXml, index) => {
+  const yamlItems = items.flatMap(({ xml: itemXml, node: itemNode }, index) => {
     const itemName = itemNameFromXML(itemXml, itemRule, params.keyField)
     const itemContext = configurationIndexItemContext({
       context: params.context,
@@ -105,7 +117,8 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const bufferedCollector =
       params.yamlAsArray === true || keyYaml === undefined || params.recordYamlKeyFromYAML === undefined
         ? undefined
-        : createBufferedItemCollector(params.traversal.collector, yamlPath)
+        : createXmlImportBufferedLocalIndexes(params.traversal.collector, yamlPath) ??
+          createBufferedItemCollector(params.traversal.collector, yamlPath)
     const bufferedDeferred =
       bufferedCollector === undefined || params.traversal.deferred === undefined
         ? undefined
@@ -117,7 +130,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: itemRule,
-      xml: itemXml,
+      xml: itemNode ?? itemXml,
       name: itemName,
       traversal: enterNestedYamlRule(
         {
@@ -183,11 +196,16 @@ function createBufferedDependentCollector(
   sourceItemYamlPath: readonly (string | number)[]
 ) {
   const candidates: ImportedDependentPropertyCandidate[] = []
+  const collector: ImportedDependentPropertyCollector = {
+    accept: (candidate) => candidates.push(candidate),
+    finish: () => candidates,
+  }
+  attachXmlImportAttemptAdapter(
+    collector,
+    arrayLengthXmlImportAttemptAdapter([candidates]),
+  )
   return {
-    collector: {
-      accept: (candidate) => candidates.push(candidate),
-      finish: () => candidates,
-    } satisfies ImportedDependentPropertyCollector,
+    collector,
     flush(itemYamlPath: readonly (string | number)[], itemName: string) {
       for (const candidate of candidates) {
         parent.accept({
@@ -218,11 +236,16 @@ function createBufferedDeferredCollector(
   sourceValuePath: readonly (string | number)[]
 ) {
   const paths: Parameters<DeferredValuePathCollector["accept"]>[0][] = []
+  const collector: DeferredValuePathCollector = {
+    accept: (path) => paths.push(path),
+    finish: () => paths,
+  }
+  attachXmlImportAttemptAdapter(
+    collector,
+    arrayLengthXmlImportAttemptAdapter([paths]),
+  )
   return {
-    collector: {
-      accept: (path) => paths.push(path),
-      finish: () => paths,
-    } satisfies DeferredValuePathCollector,
+    collector,
     flush(valuePath: readonly (string | number)[]) {
       for (const path of paths) {
         parent.accept({
@@ -245,6 +268,10 @@ function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPa
     completeValue: (fact) => facts.push({ kind: "complete", fact }),
     finish: () => parent.finish(),
   }
+  attachXmlImportAttemptAdapter(
+    collector,
+    arrayLengthXmlImportAttemptAdapter([facts]),
+  )
 
   return {
     collector,
@@ -257,6 +284,19 @@ function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPa
       }
     },
   }
+}
+
+function collectionItemNodes(
+  sources: readonly XmlElementNode[] | undefined,
+  xmlElement: string,
+): XmlElementNode[] {
+  if (sources === undefined || sources.length === 0) return []
+  if (sources.every(({ name }) => name === xmlElement)) return [...sources]
+  return sources.flatMap((source) =>
+    source.content.filter(
+      (node): node is XmlElementNode => node.type === "element" && node.name === xmlElement,
+    ),
+  )
 }
 
 function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<string, unknown>[] {

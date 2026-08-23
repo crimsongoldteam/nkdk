@@ -8,7 +8,11 @@ import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { registerMetadataItemRule } from "./ruleFactory"
-import { yamlScalarTagAt } from "@nkdk/runtime"
+import {
+  createXmlImportAuditSession,
+  parseXmlDocumentWithSaxes,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
 import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities } from "../../appliedObjects/configurationExtension/propertyStateCapabilities"
 import type { PropertyStateCapabilityContribution } from "../definition"
@@ -51,6 +55,64 @@ describe("importMetadataItemFromXMLToYAML", () => {
     )
 
     expect(result.yaml).toEqual({ Значение: "payload" })
+  })
+
+  it("протягивает XML-node и audit в nested metadata-item", () => {
+    const failedType = "TestNestedItemFailure" as PropertyRuleType
+    const itemType = "TestAuditedNestedItem" as PropertyRuleType
+    registerTypeRule(failedType, "importFromXMLToYAML", () => {
+      throw new Error("broken nested item")
+    })
+    registerMetadataItemRule({
+      propertyType: itemType,
+      itemRule: {
+        itemType: "TestAuditedNestedItem",
+        properties: {
+          broken: { type: failedType, xml: "Broken", yaml: "Сломано" },
+          good: { type: "string", xml: "Good", yaml: "Хорошо" },
+        },
+      } as MetadataItemRule,
+    })
+    const collector = createLocalIndexesCollector()
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Child><Broken>x</Broken><Good>ok</Good><Unknown>u</Unknown></Child></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestNestedItemOwner",
+        properties: {
+          child: { type: itemType, xml: "Child", yaml: "Дочерний" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector,
+      audit,
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({ Дочерний: { Хорошо: "ok" } })
+    expect(audit.rawCandidates()).toMatchObject([
+      {
+        node: { path: "/Root[1]/Child[1]/Broken[1]" },
+        boundary: {
+          itemType: "TestAuditedNestedItem",
+          propertyKey: "broken",
+          yamlPath: ["Дочерний", "Сломано"],
+        },
+      },
+    ])
+    expect(
+      audit.outcomes().find(({ node }) => node.path === "/Root[1]/Child[1]/Unknown[1]")?.state,
+    ).toBe("unknown")
+    expect(
+      audit.outcomes().find(({ node }) => node.path === "/Root[1]/Child[1]")?.state,
+    ).toBe("claimed")
   })
 
   it("добавляет !проверять корневому metadata-item до возврата YAML", () => {
