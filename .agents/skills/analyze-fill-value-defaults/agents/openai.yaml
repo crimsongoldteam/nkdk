@@ -1,0 +1,3 @@
+interface:
+  display_name: "Значения заполнения"
+  short_description: "Систематизирует FillValue по типам реквизитов"
