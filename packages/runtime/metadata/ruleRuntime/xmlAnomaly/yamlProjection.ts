@@ -249,24 +249,43 @@ function liftElementToStableOwner(
   }
   const owner = elementOutcome.boundaries[0]!
   const ownerKey = xmlImportBoundaryKey(owner)
-  for (const node of subtree(element)) {
+  const elementSubtree = new Set(subtree(element))
+  const checkedBoundaries = new Set<string>()
+  for (const node of elementSubtree) {
     const outcome = outcomes.get(node)
     if (outcome === undefined || isUnknown(outcome.state)) continue
-    if (
-      outcome.state !== "claimed" ||
-      outcome.boundaries.length !== 1 ||
-      xmlImportBoundaryKey(outcome.boundaries[0]!) !== ownerKey
-    ) {
+    if (outcome.state !== "claimed" || outcome.boundaries.length !== 1) {
       throw new Error(
         `Raw XML-граница ${element.path} пересекается с известной XML-границей ${node.path}`,
       )
     }
+    const boundary = outcome.boundaries[0]!
+    const boundaryKey = xmlImportBoundaryKey(boundary)
+    if (checkedBoundaries.has(boundaryKey)) continue
+    checkedBoundaries.add(boundaryKey)
+    if (boundaryKey !== ownerKey && !isDescendantYamlBoundary(boundary, owner)) {
+      throw new Error(
+        `Raw XML-граница ${element.path} пересекается с независимой XML-границей ${node.path}`,
+      )
+    }
+    if (!isBoundaryFullyInsideSubtree(boundaryKey, elementSubtree, outcomes)) {
+      throw new Error(
+        `Raw XML-граница ${element.path} пересекается с выходящей за subtree XML-границей ${node.path}`,
+      )
+    }
   }
 
+  const basePath = params.boundary.yamlPath ?? []
+  if (owner.yamlPath !== undefined && sameYamlPath(owner.yamlPath, basePath)) {
+    if (basePath.length === 0) {
+      throw new Error(`XML-граница ${element.path} совпадает с корнем stable YAML owner`)
+    }
+    return
+  }
   replaceStableOwnerYamlValue({
     yaml: params.yaml,
     annotations: params.annotations,
-    basePath: params.boundary.yamlPath ?? [],
+    basePath,
     ownerPath: owner.yamlPath,
     value: xmlElementRawValue(element),
     xmlPath: element.path,
@@ -274,6 +293,29 @@ function liftElementToStableOwner(
   for (const node of subtree(element)) {
     if (isUnknown(outcomes.get(node)?.state)) params.audit.claim(node, owner)
   }
+}
+
+function isDescendantYamlBoundary(
+  boundary: XmlImportAuditBoundary,
+  owner: XmlImportAuditBoundary,
+): boolean {
+  if (boundary.yamlPath === undefined || owner.yamlPath === undefined) return false
+  return boundary.yamlPath.length > owner.yamlPath.length &&
+    startsWithYamlPath(boundary.yamlPath, owner.yamlPath)
+}
+
+function isBoundaryFullyInsideSubtree(
+  boundaryKey: string,
+  elementSubtree: ReadonlySet<XmlImportAuditedNode>,
+  outcomes: ReadonlyMap<XmlImportAuditedNode, XmlImportAuditOutcome>,
+): boolean {
+  for (const outcome of outcomes.values()) {
+    if (
+      outcome.boundaries.some((boundary) => xmlImportBoundaryKey(boundary) === boundaryKey) &&
+      !elementSubtree.has(outcome.node)
+    ) return false
+  }
+  return true
 }
 
 function replaceStableOwnerYamlValue(params: {
@@ -363,6 +405,13 @@ function startsWithYamlPath(
   return prefix.length <= path.length && prefix.every((segment, index) => path[index] === segment)
 }
 
+function sameYamlPath(
+  left: readonly (string | number)[],
+  right: readonly (string | number)[],
+): boolean {
+  return left.length === right.length && startsWithYamlPath(left, right)
+}
+
 function xmlImportBoundaryKey(boundary: XmlImportAuditBoundary): string {
   return JSON.stringify([
     boundary.itemType,
@@ -410,14 +459,23 @@ function xmlElementRawValue(element: XmlElementNode): XmlRawValue {
     (node): node is XmlTextNode =>
       node.type === "text" && (structured.length === 0 || node.value.trim() !== ""),
   )
-  const text = textNodes.map(({ value }) => value).join("")
-  if (structured.length === 0 && element.attributes.length === 0) return textNodes.length === 0 ? {} : text
+  const textValues = textNodes.map(({ value }) => value)
+  if (structured.length === 0 && element.attributes.length === 0) {
+    return textNodes.length === 0 ? {} : textValues.join("")
+  }
 
   const result: Record<string, XmlRawValue> = { ...attributes }
-  if (textNodes.length > 0) result["#text"] = text
+  if (textNodes.length > 0) {
+    result["#text"] = textValues.length === 1 ? textValues[0]! : textValues
+  }
   const valuesByKey = new Map<string, XmlRawValue[]>()
   const keyOrder: string[] = []
-  for (const child of structured) {
+  const retainedTextNodes = new Set(textNodes)
+  for (const child of element.content) {
+    if (child.type === "text") {
+      if (retainedTextNodes.has(child)) keyOrder.push("#text")
+      continue
+    }
     const key = child.type === "element" ? child.name : `?${child.target}`
     const values = valuesByKey.get(key) ?? []
     values.push(
@@ -429,7 +487,10 @@ function xmlElementRawValue(element: XmlElementNode): XmlRawValue {
     keyOrder.push(key)
   }
   for (const [key, values] of valuesByKey) result[key] = values.length === 1 ? values[0]! : values
-  const canonicalOrder = [...valuesByKey].flatMap(([key, values]) => values.map(() => key))
+  const canonicalOrder = [
+    ...textValues.map(() => "#text"),
+    ...[...valuesByKey].flatMap(([key, values]) => values.map(() => key)),
+  ]
   if (canonicalOrder.some((key, index) => key !== keyOrder[index])) result["#order"] = keyOrder
   return result
 }

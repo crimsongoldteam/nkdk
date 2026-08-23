@@ -150,18 +150,25 @@ describe("YAML-проекция XML-аномалий", () => {
     expect(yaml).toEqual({ Future: { Child: "value" } })
   })
 
-  it("нормализует mixed text без потери текста до и после ребёнка", () => {
+  it("сохраняет точный mixed text до и после ребёнка", () => {
     const { yaml } = projectUnknownRootChildren(
       "<Root><Future>before<Child/>after</Future></Root>",
     )
 
-    expect(yaml).toEqual({ Future: { "#text": "beforeafter", Child: {} } })
+    expect(yaml).toEqual({
+      Future: {
+        "#text": ["before", "after"],
+        Child: {},
+        "#order": ["#text", "Child", "#text"],
+      },
+    })
     const decoded = decodeXmlRawValue(yaml.Future, { elementName: "Future" }).nodes[0]!
     expect(decoded.content.map((node) =>
       node.type === "text" ? node.value : node.type === "element" ? node.name : `?${node.target}`,
     )).toEqual([
-      "beforeafter",
+      "before",
       "Child",
+      "after",
     ])
   })
 
@@ -236,6 +243,32 @@ describe("YAML-проекция XML-аномалий", () => {
     ])
 
     expectProjectionToFail(root, audit, /неоднозначн.*owner boundary/i)
+  })
+
+  it("отклоняет descendant boundary, выходящую за поднимаемый XML subtree", () => {
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Known>future<Child/></Known><Outside/></Root>",
+    ).roots[0]!
+    const known = child(root, "Known")
+    const knownChild = child(known, "Child")
+    const outside = child(root, "Outside")
+    const ownerBoundary: XmlImportAuditBoundary = {
+      itemType: "SyntheticItem",
+      propertyKey: "known",
+      yamlPath: ["Владелец"],
+    }
+    const crossingBoundary: XmlImportAuditBoundary = {
+      itemType: "SyntheticItem",
+      propertyKey: "crossing",
+      yamlPath: ["Владелец", "Потомок"],
+    }
+    const audit = createXmlImportAuditSession([root])
+    audit.claim(root, boundary)
+    audit.claim(known, ownerBoundary)
+    audit.claim(knownChild, crossingBoundary)
+    audit.claim(outside, crossingBoundary)
+
+    expectProjectionToFail(root, audit, /выходящей за subtree/)
   })
 
   it("отклоняет полностью неизвестный XML-корень без stable owner", () => {

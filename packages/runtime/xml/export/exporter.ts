@@ -29,11 +29,18 @@ const options = {
 
 const builder = new XMLBuilder(options)
 const preserveOrderBuilder = new XMLBuilder({ ...options, preserveOrder: true })
+const compactPreserveOrderBuilder = new XMLBuilder({
+  ...options,
+  format: false,
+  preserveOrder: true,
+})
 
 // @ts-ignore
 builder.options.attributesGroupName = "@attributes"
 // @ts-ignore
 preserveOrderBuilder.options.attributesGroupName = "@attributes"
+// @ts-ignore
+compactPreserveOrderBuilder.options.attributesGroupName = "@attributes"
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value)
@@ -177,12 +184,24 @@ export const xmlExport = (
   addDeclaration: boolean = true
 ): string => {
   const xml = Array.isArray(data)
-    ? preserveOrderBuilder.build(structuralNodesToPreserveOrder(data))
+    ? (hasSignificantMixedContent(data) ? compactPreserveOrderBuilder : preserveOrderBuilder)
+        .build(structuralNodesToPreserveOrder(data))
     : buildObjectXml(data)
   const declaration = addDeclaration ? '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n' : ""
   const result = declaration + xml.replace(/^\n/, "")
   return result.trimEnd()
 }
+
+const hasSignificantMixedContent = (nodes: readonly XmlElementNode[]): boolean =>
+  nodes.some((node) => {
+    const hasText = node.content.some(
+      (child) => child.type === "text" && child.value.trim() !== "",
+    )
+    const hasStructuralContent = node.content.some((child) => child.type !== "text")
+    return hasText && hasStructuralContent || hasSignificantMixedContent(
+      node.content.filter((child): child is XmlElementNode => child.type === "element"),
+    )
+  })
 
 const buildObjectXml = (data: Record<string, any>): string => {
   const normalizedData = normalizeChildItemsForExport(data) as Record<string, any>

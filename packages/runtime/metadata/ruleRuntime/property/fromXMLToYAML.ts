@@ -697,6 +697,11 @@ export function importPropertiesFromXMLToYAML(params: {
       plan: sourceState.plan,
       xml: sourceState.xmlNode ?? sourceState.xml,
       audit: params.audit,
+      auditItemBoundary: {
+        itemType: rule.itemType,
+        yamlPath,
+        rulePath,
+      },
       auditBoundary: ({ propertyKey, rule: propertyRule }) => ({
         itemType: rule.itemType,
         propertyKey,

@@ -179,6 +179,7 @@ export const visitXMLImportPlan = (params: {
   plan: XMLImportPlan
   xml: Record<string, unknown> | XmlElementNode
   audit?: XmlImportAuditSession
+  auditItemBoundary?: XmlImportAuditBoundary
   auditBoundary?(entry: XMLImportPlanEntry): XmlImportAuditBoundary
   isRepeatable?(entry: XMLImportPlanEntry): boolean
   claimRoot?: boolean
@@ -190,6 +191,7 @@ export const visitXMLImportPlan = (params: {
       plan: compiled,
       root: params.xml,
       audit: params.audit,
+      auditItemBoundary: params.auditItemBoundary,
       auditBoundary: params.auditBoundary,
       isRepeatable: params.isRepeatable,
       claimRoot: params.claimRoot,
@@ -212,12 +214,15 @@ function visitStructuralXMLImportPlan(params: {
   readonly plan: CompiledXMLImportPlan
   readonly root: XmlElementNode
   readonly audit?: XmlImportAuditSession
+  readonly auditItemBoundary?: XmlImportAuditBoundary
   readonly auditBoundary?: (entry: XMLImportPlanEntry) => XmlImportAuditBoundary
   readonly isRepeatable?: (entry: XMLImportPlanEntry) => boolean
   readonly claimRoot?: boolean
   readonly visit: (match: XMLImportMatch) => void
 }): void {
-  const itemBoundary: XmlImportAuditBoundary = { itemType: params.plan.itemType }
+  const itemBoundary: XmlImportAuditBoundary = params.auditItemBoundary ?? {
+    itemType: params.plan.itemType,
+  }
   const boundaryForEntry = params.auditBoundary ?? (
     (entry: XMLImportPlanEntry) => defaultPropertyBoundary(params.plan.itemType, entry)
   )

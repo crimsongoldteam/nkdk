@@ -18,6 +18,7 @@ import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import { PropertyRuleType } from "../property/registry"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
+import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
 import {
   captureTestXmlImport,
@@ -185,6 +186,56 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         .filter(({ node }) => "type" in node && node.type === "element" && node.name === "Item")
         .map(({ state }) => state),
     ).toEqual(["claimed", "claimed"])
+  })
+
+  it("поднимает PI корня collection item к значению массива", () => {
+    const collectionType = "TestRawItemArrayCollection" as PropertyRuleType
+    registerMetadataItemCollectionRule({
+      propertyType: collectionType,
+      itemRule: {
+        itemType: "TestRawArrayItem",
+        properties: {
+          value: { type: "string", xml: "Value", yaml: "Значение" },
+        },
+      } as MetadataItemRule,
+      xmlElement: "Item",
+      yamlAsArray: true,
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      '<Root><Items><Item><?future mode="x"?><Value>known</Value></Item></Items>' +
+      "<Sibling>keep</Sibling></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const annotations = createXmlAnomalyAnnotations()
+
+    const yaml = importMetadataItemFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestRawCollectionParent",
+        properties: {
+          items: { type: collectionType, xml: "Items", yaml: "Элементы" },
+          sibling: { type: "string", xml: "Sibling", yaml: "Сосед" },
+        },
+      } as MetadataItemRule,
+      xml: root,
+      traversal: {
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+        audit,
+        annotations,
+      },
+    }) as Record<string, unknown>
+
+    expect(yaml).toEqual({
+      Элементы: [{ "?future": { _mode: "x" }, Value: "known" }],
+      Сосед: "keep",
+    })
+    const serialized = serializeYAMLDocument(yaml, annotations).text
+    expect(serialized.match(/!xml\/raw/g)).toHaveLength(1)
+    expect(serialized).not.toContain("Значение")
+    expect(serialized).toContain("Сосед: keep")
   })
 
   it("локализует сбой nested PropertyRule и откатывает три буферных collector", () => {

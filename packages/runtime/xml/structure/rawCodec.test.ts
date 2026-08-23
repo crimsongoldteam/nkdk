@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
+import { xmlExport } from "../export/exporter"
 import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
+import { compareXmlStructures } from "./compare"
 import { decodeXmlRawValue, readdressXmlElementNodes } from "./rawCodec"
 
 describe("decodeXmlRawValue", () => {
@@ -26,7 +28,7 @@ describe("decodeXmlRawValue", () => {
         "#text": "prefix",
         A: ["one", "three"],
         B: { _mode: "new", "#text": "two" },
-        "#order": ["A", "B", "A"],
+        "#order": ["#text", "A", "B", "A"],
       },
       { elementName: "Value" }
     )
@@ -49,6 +51,28 @@ describe("decodeXmlRawValue", () => {
         { type: "element", name: "A", content: [{ type: "text", value: "three" }] },
       ],
     })
+  })
+
+  it("round-trips text occurrences interleaved with an XML child", () => {
+    const source = parseXmlDocumentWithSaxes(
+      "<Value>before<Child/>after</Value>",
+    ).roots
+    const fragment = decodeXmlRawValue(
+      {
+        "#text": ["before", "after"],
+        Child: {},
+        "#order": ["#text", "Child", "#text"],
+      },
+      { elementName: "Value" },
+    )
+
+    expect(fragment.nodes[0]?.content.map((node) =>
+      node.type === "text" ? node.value : node.type === "element" ? node.name : `?${node.target}`,
+    )).toEqual(["before", "Child", "after"])
+    const exportedXml = xmlExport(fragment.nodes, false)
+    expect(exportedXml).toBe("<Value>before<Child/>after</Value>")
+    const exported = parseXmlDocumentWithSaxes(exportedXml).roots
+    expect(compareXmlStructures(source, exported)).toEqual([])
   })
 
   it("uses the SAX-canonical processing instruction body without a leading separator", () => {
@@ -85,9 +109,11 @@ describe("decodeXmlRawValue", () => {
     [true, "строкой"],
     [{ _id: 1 }, "атрибута"],
     [{ "#text": false }, "#text"],
+    [{ "#text": ["before", 1] }, "#text"],
     [{ Child: null }, "null"],
     [{ Child: { "#name": "Renamed" } }, "#name"],
     [{ A: ["one", "two"], "#order": ["A"] }, "#order"],
+    [{ "#text": ["before", "after"], Child: {}, "#order": ["#text", "Child"] }, "#order"],
     [{ "?xml": { _version: "1.0" } }, "декларац"],
     [{ "!DOCTYPE": "Root" }, "DOCTYPE"],
   ])("rejects an invalid raw payload %#", (value, expectedMessage) => {

@@ -41,6 +41,42 @@ describe("mergeXmlRawFragments", () => {
     )
   })
 
+  it("applies a #order terminal to text occurrences and structural children", () => {
+    const ordinary = roots(
+      "<Root><Properties>before<Name>Items</Name>after</Properties></Root>",
+    )
+
+    const merged = mergeXmlRawFragments(ordinary, [
+      {
+        path: "Properties\\#order",
+        value: ["#text", "Name", "#text"],
+        suppressOrdinaryOutput: false,
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toBe(
+      "<Root><Properties>before<Name>Items</Name>after</Properties></Root>",
+    )
+  })
+
+  it("drops formatting-only text when applying a structural #order terminal", () => {
+    const ordinary = roots(
+      "<Root><Properties>\n  <Name>Items</Name>\n</Properties></Root>",
+    )
+
+    const merged = mergeXmlRawFragments(ordinary, [
+      {
+        path: "Properties\\#order",
+        value: ["Name"],
+        suppressOrdinaryOutput: false,
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toBe(
+      ["<Root>", "\t<Properties>", "\t\t<Name>Items</Name>", "\t</Properties>", "</Root>"].join("\n"),
+    )
+  })
+
   it("creates missing wrappers for a path of arbitrary depth", () => {
     const merged = mergeXmlRawFragments(roots("<Root><Properties/></Root>"), [
       {

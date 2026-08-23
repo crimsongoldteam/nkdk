@@ -152,16 +152,21 @@ function decodeElement(defaultName: string, value: unknown, allowExternalName: b
   }
 
   const attributes: DraftXmlAttribute[] = []
-  let text: DraftXmlText | undefined
-  const childrenByName = new Map<string, DraftXmlContent[]>()
+  let texts: readonly DraftXmlText[] = []
+  const contentByName = new Map<string, readonly DraftXmlContent[]>()
   const canonicalOrder: string[] = []
   let explicitOrder: readonly string[] | undefined
 
   for (const [key, item] of Object.entries(value)) {
     if (key === "#name") continue
     if (key === "#text") {
-      if (typeof item !== "string") throw new Error("#text в !xml/raw должен быть строкой")
-      text = { type: "text", value: item }
+      const values = Array.isArray(item) ? item : [item]
+      if (values.some((value) => typeof value !== "string")) {
+        throw new Error("#text в !xml/raw должен быть строкой или YAML-массивом строк")
+      }
+      texts = (values as readonly string[]).map((value) => ({ type: "text", value }))
+      contentByName.set("#text", texts)
+      canonicalOrder.push(...texts.map(() => "#text"))
       continue
     }
     if (key === "#order") {
@@ -187,18 +192,18 @@ function decodeElement(defaultName: string, value: unknown, allowExternalName: b
     }
 
     const children = decodeChildren(key, item)
-    childrenByName.set(key, children)
+    contentByName.set(key, children)
     canonicalOrder.push(...children.map(() => key))
   }
 
   const order = explicitOrder ?? canonicalOrder
-  assertExactOrder(order, childrenByName, "#order")
-  const childOffsets = new Map<string, number>()
-  const content: DraftXmlContent[] = text === undefined ? [] : [text]
-  for (const childName of order) {
-    const offset = childOffsets.get(childName) ?? 0
-    content.push(childrenByName.get(childName)![offset]!)
-    childOffsets.set(childName, offset + 1)
+  assertExactOrder(order, contentByName, "#order")
+  const contentOffsets = new Map<string, number>()
+  const content: DraftXmlContent[] = []
+  for (const contentName of order) {
+    const offset = contentOffsets.get(contentName) ?? 0
+    content.push(contentByName.get(contentName)![offset]!)
+    contentOffsets.set(contentName, offset + 1)
   }
   return { type: "element", name, attributes, content }
 }
@@ -239,11 +244,11 @@ function decodeProcessingInstruction(
 
 function assertExactOrder(
   order: readonly string[],
-  childrenByName: ReadonlyMap<string, readonly DraftXmlContent[]>,
+  contentByName: ReadonlyMap<string, readonly DraftXmlContent[]>,
   description: string
 ): void {
   const expectedCounts = new Map(
-    [...childrenByName].map(([name, children]) => [name, children.length] as const)
+    [...contentByName].map(([name, content]) => [name, content.length] as const)
   )
   const actualCounts = new Map<string, number>()
   for (const name of order) actualCounts.set(name, (actualCounts.get(name) ?? 0) + 1)
@@ -252,7 +257,7 @@ function assertExactOrder(
     [...expectedCounts].some(([name, count]) => actualCounts.get(name) !== count) ||
     [...actualCounts].some(([name]) => !expectedCounts.has(name))
   ) {
-    throw new Error(`${description} должен ровно перечислять все XML-дети с учётом повторов`)
+    throw new Error(`${description} должен ровно перечислять всё XML-содержимое с учётом повторов`)
   }
 }
 

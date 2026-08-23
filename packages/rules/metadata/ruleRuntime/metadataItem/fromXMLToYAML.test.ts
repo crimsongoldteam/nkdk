@@ -38,24 +38,9 @@ describe("importMetadataItemFromXMLToYAML", () => {
         },
       },
     } as MetadataItemRule
-    const root = parseXmlDocumentWithSaxes(
+    const { yaml, annotations } = importAuditedMetadataItem(rule,
       '<Root><Properties><Known>yes</Known><Future mode="x">42</Future></Properties></Root>',
-    ).roots[0]!
-    const audit = createXmlImportAuditSession([root])
-    const annotations = createXmlAnomalyAnnotations()
-
-    const yaml = importMetadataItemFromXMLToYAML({
-      context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
-      rule,
-      xml: root,
-      traversal: {
-        yamlPath: [],
-        rulePath: [],
-        collector: createLocalIndexesCollector(),
-        audit,
-        annotations,
-      },
-    }) as Record<string, unknown>
+    )
 
     expect(yaml).toMatchObject({
       Известное: "yes",
@@ -88,6 +73,42 @@ describe("importMetadataItemFromXMLToYAML", () => {
 
     expect(result.yaml).toEqual({ Дочерний: { Имя: "A", Включено: "Истина" } })
     expect(result.yaml).not.toHaveProperty("child")
+  })
+
+  it("поднимает mixed text nested object к родительской property boundary", () => {
+    const childType = "TestNestedRawOwner" as PropertyRuleType
+    registerMetadataItemRule({
+      propertyType: childType,
+      itemRule: {
+        itemType: "TestNestedRawItem",
+        properties: {
+          known: { type: "string", xml: "Known", yaml: "Известное" },
+        },
+      } as MetadataItemRule,
+    })
+    const rule = {
+      itemType: "TestNestedRawParent",
+      properties: {
+        child: { type: childType, xml: "Child", yaml: "Дочерний" },
+        sibling: { type: "string", xml: "Sibling", yaml: "Сосед" },
+      },
+    } as MetadataItemRule
+    const { yaml, annotations } = importAuditedMetadataItem(rule,
+      "<Root><Child>before<Known>yes</Known>after</Child><Sibling>keep</Sibling></Root>",
+    )
+
+    expect(yaml).toEqual({
+      Дочерний: {
+        "#text": ["before", "after"],
+        Known: "yes",
+        "#order": ["#text", "Known", "#text"],
+      },
+      Сосед: "keep",
+    })
+    const serialized = serializeYAMLDocument(yaml, annotations).text
+    expect(serialized.match(/!xml\/raw/g)).toHaveLength(1)
+    expect(serialized).not.toContain("Известное")
+    expect(serialized).toContain("Сосед: keep")
   })
 
   it("returns the inline YAML property without its service wrapper", () => {
@@ -335,6 +356,31 @@ function runDirectRule(rule: MetadataItemRule, xml: Record<string, unknown>) {
     collector,
   })
   return { yaml, localIndexes: collector.finish() }
+}
+
+function importAuditedMetadataItem(
+  rule: MetadataItemRule,
+  xml: string,
+): {
+  yaml: Record<string, unknown>
+  annotations: ReturnType<typeof createXmlAnomalyAnnotations>
+} {
+  const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+  const audit = createXmlImportAuditSession([root])
+  const annotations = createXmlAnomalyAnnotations()
+  const yaml = importMetadataItemFromXMLToYAML({
+    context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+    rule,
+    xml: root,
+    traversal: {
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      audit,
+      annotations,
+    },
+  }) as Record<string, unknown>
+  return { yaml, annotations }
 }
 
 function runMetadataItemRule(

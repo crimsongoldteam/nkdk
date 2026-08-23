@@ -355,7 +355,7 @@ function validateTerminalBoundaries(
       continue
     }
     assertExactOrder(
-      parent.content.filter((node) => node.type !== "text"),
+      orderableTerminalContent(parent.content),
       boundary.order,
       orderedContentName,
       boundary.path.source
@@ -387,9 +387,11 @@ function applyTerminalBoundaries(
           : reorder(combined, boundary.attributes.order, ({ name }) => `_${name}`)
       continue
     }
-    const texts = parent.content.filter((node) => node.type === "text")
-    const ordered = parent.content.filter((node) => node.type !== "text")
-    parent.content = [...texts, ...reorder(ordered, boundary.order, orderedContentName)]
+    parent.content = reorder(
+      orderableTerminalContent(parent.content),
+      boundary.order,
+      orderedContentName,
+    )
   }
 }
 
@@ -444,8 +446,16 @@ function reorder<T>(
   })
 }
 
-function orderedContentName(node: Exclude<MutableXmlContentNode, { readonly type: "text" }>): string {
+function orderedContentName(node: MutableXmlContentNode): string {
+  if (node.type === "text") return "#text"
   return node.type === "element" ? node.name : `?${node.target}`
+}
+
+function orderableTerminalContent(
+  content: readonly MutableXmlContentNode[],
+): MutableXmlContentNode[] {
+  if (!content.some((node) => node.type !== "text")) return [...content]
+  return content.filter((node) => node.type !== "text" || node.value.trim() !== "")
 }
 
 function childElements(
