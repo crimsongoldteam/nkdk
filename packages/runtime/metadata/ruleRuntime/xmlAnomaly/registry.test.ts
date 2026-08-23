@@ -48,14 +48,103 @@ describe("реестр XML-аномалий", () => {
       kind: "compactRaw",
       boundary: { propertyType: "SyntheticValue" },
       inputs: [
-        { name: "mode", propertyPath: ["settings", "mode"] },
-        { name: "mode", propertyPath: ["otherMode"] },
+        {
+          name: "mode",
+          source: { kind: "yamlProperty", propertyPath: ["settings", "mode"] },
+        },
+        {
+          name: "mode",
+          source: { kind: "yamlProperty", propertyPath: ["otherMode"] },
+        },
       ],
       generate: () => [],
     }
 
     expect(() => createXmlAnomalyRegistry([registration])).toThrow(
       /вход compact raw.*mode.*повтор/i,
+    )
+  })
+
+  it.each([
+    [
+      "YAML property path",
+      [{ name: "value", source: { kind: "yamlProperty", propertyPath: [] } }],
+      /YAML.*path/i,
+    ],
+    [
+      "owner projection",
+      [{ name: "value", source: { kind: "owner", projection: "unknown" } }],
+      /owner.*projection/i,
+    ],
+    [
+      "PropertyRule field path",
+      [{ name: "value", source: { kind: "propertyRule", fieldPath: [] } }],
+      /PropertyRule.*path/i,
+    ],
+    [
+      "standard index name",
+      [{ name: "value", source: { kind: "standardIndex", index: "", keyInputs: [] } }],
+      /index.*name/i,
+    ],
+    [
+      "standard index dependency",
+      [{
+        name: "value",
+        source: { kind: "standardIndex", index: "sample", keyInputs: ["missing"] },
+      }],
+      /index.*dependency.*missing/i,
+    ],
+    [
+      "unique standard index dependencies",
+      [
+        { name: "owner", source: { kind: "owner", projection: "itemType" } },
+        {
+          name: "value",
+          source: {
+            kind: "standardIndex",
+            index: "sample",
+            keyInputs: ["owner", "owner"],
+          },
+        },
+      ],
+      /index.*dependency.*owner.*повтор/i,
+    ],
+  ])("отклоняет неверную декларацию source: %s", (_name, inputs, message) => {
+    expect(() => createXmlAnomalyRegistry([{
+      kind: "compactRaw",
+      boundary: { propertyType: "SyntheticValue" },
+      inputs,
+      generate: () => [],
+    } as XmlCompactRawRegistration])).toThrow(message)
+  })
+
+  it("отклоняет цикл key-input dependencies standard index", () => {
+    const registration: XmlCompactRawRegistration = {
+      kind: "compactRaw",
+      boundary: { propertyType: "SyntheticValue" },
+      inputs: [
+        {
+          name: "first",
+          source: {
+            kind: "standardIndex",
+            index: "sample",
+            keyInputs: ["second"],
+          },
+        },
+        {
+          name: "second",
+          source: {
+            kind: "standardIndex",
+            index: "sample",
+            keyInputs: ["first"],
+          },
+        },
+      ],
+      generate: () => [],
+    }
+
+    expect(() => createXmlAnomalyRegistry([registration])).toThrow(
+      /цикл.*index dependencies/i,
     )
   })
 

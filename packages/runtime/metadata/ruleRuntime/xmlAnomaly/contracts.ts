@@ -10,9 +10,41 @@ export interface XmlAnomalyLocation {
   readonly propertyType: string
 }
 
+export type XmlCompactRawScalar = null | boolean | number | string | bigint
+
+export interface XmlCompactRawRecord {
+  readonly [key: string]: XmlCompactRawValue
+}
+
+export type XmlCompactRawValue =
+  | XmlCompactRawScalar
+  | readonly XmlCompactRawValue[]
+  | XmlCompactRawRecord
+
+export type XmlCompactRawInputs = Readonly<Record<string, XmlCompactRawValue>>
+
+export type XmlCompactRawInputSource =
+  | {
+      readonly kind: "yamlProperty"
+      readonly propertyPath: readonly string[]
+    }
+  | {
+      readonly kind: "owner"
+      readonly projection: "itemType"
+    }
+  | {
+      readonly kind: "propertyRule"
+      readonly fieldPath: readonly string[]
+    }
+  | {
+      readonly kind: "standardIndex"
+      readonly index: string
+      readonly keyInputs: readonly string[]
+    }
+
 export interface XmlCompactRawInput {
   readonly name: string
-  readonly propertyPath: readonly string[]
+  readonly source: XmlCompactRawInputSource
 }
 
 export interface XmlCompactRawRegistration {
@@ -20,7 +52,7 @@ export interface XmlCompactRawRegistration {
   readonly boundary: XmlAnomalyBoundary
   readonly inputs: readonly XmlCompactRawInput[]
   readonly generate: (
-    inputs: Readonly<Record<string, unknown>>,
+    inputs: XmlCompactRawInputs,
   ) => readonly XmlElementNode[]
 }
 

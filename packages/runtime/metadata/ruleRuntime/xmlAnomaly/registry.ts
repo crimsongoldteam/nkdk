@@ -62,22 +62,99 @@ function validateCompactRawInputs(
 ): void {
   const names = new Set<string>()
   for (const input of registration.inputs) {
-    if (input.name.length === 0) {
+    if (typeof input.name !== "string" || input.name.length === 0) {
       throw new Error("Имя входа compact raw не задано")
     }
     if (names.has(input.name)) {
       throw new Error(`Вход compact raw ${input.name} объявлен повторно`)
     }
     names.add(input.name)
-    if (
-      input.propertyPath.length === 0 ||
-      input.propertyPath.some((segment) => segment.length === 0)
-    ) {
-      throw new Error(
-        `PropertyRule path входа compact raw ${input.name} не задан`,
-      )
-    }
   }
+  for (const input of registration.inputs) validateInputSource(input, names)
+  validateIndexDependencyCycles(registration)
+}
+
+function validateInputSource(
+  input: XmlCompactRawRegistration["inputs"][number],
+  names: ReadonlySet<string>,
+): void {
+  const source: unknown = input.source
+  if (typeof source !== "object" || source === null || !("kind" in source)) {
+    throw new Error(`Source входа compact raw ${input.name} не задан`)
+  }
+  const declaration = source as Record<string, unknown>
+  switch (declaration.kind) {
+    case "yamlProperty":
+      validatePath(declaration.propertyPath, `YAML property path входа ${input.name}`)
+      return
+    case "owner":
+      if (declaration.projection !== "itemType") {
+        throw new Error(`Owner projection входа compact raw ${input.name} не поддерживается`)
+      }
+      return
+    case "propertyRule":
+      validatePath(declaration.fieldPath, `PropertyRule field path входа ${input.name}`)
+      return
+    case "standardIndex":
+      if (typeof declaration.index !== "string" || declaration.index.length === 0) {
+        throw new Error(`Standard index name входа compact raw ${input.name} не задан`)
+      }
+      if (
+        !Array.isArray(declaration.keyInputs) ||
+        declaration.keyInputs.some((dependency) => typeof dependency !== "string" || dependency.length === 0)
+      ) {
+        throw new Error(`Standard index dependencies входа compact raw ${input.name} не заданы`)
+      }
+      const dependencies = new Set<string>()
+      for (const dependency of declaration.keyInputs as readonly string[]) {
+        if (dependencies.has(dependency)) {
+          throw new Error(
+            `Standard index dependency ${dependency} входа compact raw ${input.name} объявлена повторно`,
+          )
+        }
+        dependencies.add(dependency)
+        if (!names.has(dependency)) {
+          throw new Error(
+            `Standard index dependency ${dependency} входа compact raw ${input.name} не объявлена`,
+          )
+        }
+      }
+      return
+    default:
+      throw new Error(`Source kind входа compact raw ${input.name} не поддерживается`)
+  }
+}
+
+function validatePath(value: unknown, description: string): void {
+  if (
+    !Array.isArray(value) ||
+    value.length === 0 ||
+    value.some((segment) => typeof segment !== "string" || segment.length === 0)
+  ) {
+    throw new Error(`${description} не задан`)
+  }
+}
+
+function validateIndexDependencyCycles(
+  registration: XmlCompactRawRegistration,
+): void {
+  const byName = new Map(registration.inputs.map((input) => [input.name, input]))
+  const complete = new Set<string>()
+  const active = new Set<string>()
+  const visit = (name: string): void => {
+    if (complete.has(name)) return
+    if (active.has(name)) {
+      throw new Error(`Цикл standard index dependencies compact raw: ${name}`)
+    }
+    active.add(name)
+    const input = byName.get(name)
+    if (input?.source.kind === "standardIndex") {
+      for (const dependency of input.source.keyInputs) visit(dependency)
+    }
+    active.delete(name)
+    complete.add(name)
+  }
+  for (const input of registration.inputs) visit(input.name)
 }
 
 function boundaryKey(boundary: XmlAnomalyBoundary): string {
