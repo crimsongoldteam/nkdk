@@ -205,6 +205,19 @@ describe("parseWithJsYaml", () => {
       target: "value",
     })
   })
+
+  it("сохраняет явный null внутри значения аннотированного ключа", () => {
+    const parsed = parseWithJsYaml("!xml/invalid Код:\n  Значение: null")
+    const data = parsed.data as Record<string, { Значение: unknown }>
+    const runtimeKey = Object.keys(data)[0]!
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(data[runtimeKey]).toEqual({ Значение: null })
+    expect(parsed.annotations.keyAt(data, runtimeKey)).toMatchObject({
+      kind: "invalid",
+      logicalKey: "Код",
+    })
+  })
 })
 
 describe("parseMetadataYaml", () => {

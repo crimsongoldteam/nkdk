@@ -110,7 +110,7 @@ function parseYamlData(
 ): unknown {
   const prepared = prepareMappingKeyTags(text)
   const data = load(prepared.loadText, { schema: NKDK_YAML_SCHEMA })
-  const normalized = prepareJsYamlData(data, text, locations)
+  const normalized = prepareJsYamlData(data, text, locations, prepared.sourcePaths)
   applyParsedMappingKeyTags(normalized, prepared.tags)
   return applyParsedXmlAnomalyAnnotations(normalized, prepared.annotations, annotations)
 }
@@ -131,6 +131,7 @@ function prepareMappingKeyTags(text: string): {
   readonly loadText: string
   readonly tags: readonly ParsedMappingKeyTag[]
   readonly annotations: readonly ParsedXmlAnomalyAnnotation[]
+  readonly sourcePaths: ReadonlyMap<string, readonly (string | number)[]>
 } {
   const source = prepareYAMLScalarTagsForParser(text)
   const documents = eventsToAst(parseEvents(source, {}), {
@@ -139,9 +140,10 @@ function prepareMappingKeyTags(text: string): {
   })
   const tags: ParsedMappingKeyTag[] = []
   const annotations: ParsedXmlAnomalyAnnotation[] = []
-  for (const document of documents) collectYamlTags(document.contents, [], tags, annotations)
+  const sourcePaths = new Map<string, readonly (string | number)[]>()
+  for (const document of documents) collectYamlTags(document.contents, [], [], tags, annotations, sourcePaths)
   if (tags.length === 0 && annotations.every((entry) => entry.annotation.target !== "key")) {
-    return { loadText: source, tags, annotations }
+    return { loadText: source, tags, annotations, sourcePaths }
   }
   return {
     loadText: present(documents, {
@@ -151,14 +153,17 @@ function prepareMappingKeyTags(text: string): {
     }),
     tags,
     annotations,
+    sourcePaths,
   }
 }
 
 function collectYamlTags(
   node: Node | null,
   path: readonly (string | number)[],
+  sourcePath: readonly (string | number)[],
   tags: ParsedMappingKeyTag[],
   annotations: ParsedXmlAnomalyAnnotation[],
+  sourcePaths: Map<string, readonly (string | number)[]>,
 ): void {
   if (node === null || node.kind === "alias") return
   const rootTag = xmlAnomalyTag(node.tag)
@@ -174,7 +179,7 @@ function collectYamlTags(
   if (node.kind === "sequence") {
     node.items.forEach((item, index) => {
       collectValueAnnotation(item, path, index, annotations)
-      collectYamlTags(item, [...path, index], tags, annotations)
+      collectYamlTags(item, [...path, index], [...sourcePath, index], tags, annotations, sourcePaths)
     })
     return
   }
@@ -187,6 +192,7 @@ function collectYamlTags(
   for (const { key, value } of node.items) {
     const annotationTag = xmlAnomalyTag(key.tag)
     let runtimeKey: string | undefined
+    let logicalKey: string | undefined
     if (annotationTag !== undefined) {
       if (annotationTag.kind === "raw") throw new YAMLException("!xml/raw недопустим для ключа YAML")
       if (key.kind !== "scalar") {
@@ -201,6 +207,7 @@ function collectYamlTags(
       }
       expectedOccurrences.set(key.value, expected + 1)
       runtimeKey = uniqueRuntimeKey(usedRuntimeKeys)
+      logicalKey = key.value
       annotations.push({
         annotation: annotationFor(annotationTag, "key", key.value),
         parentPath: path,
@@ -209,6 +216,7 @@ function collectYamlTags(
       key.value = runtimeKey
       key.tag = "tag:yaml.org,2002:str"
       key.style.tagged = false
+      sourcePaths.set(pathKey([...path, runtimeKey]), [...sourcePath, sourceMappingKey(annotationTag, logicalKey)])
     } else if (key.tag.startsWith("!xml/")) {
       if (key.tag !== "!xml/reference") throw new YAMLException(`Тег ${key.tag} недопустим для ключа YAML`)
       if (key.kind !== "scalar") throw new YAMLException("!xml/reference поддерживает только скалярный ключ")
@@ -218,8 +226,9 @@ function collectYamlTags(
     }
     if (key.kind !== "scalar") continue
     const nextKey = runtimeKey ?? key.value
+    const nextSourcePath = sourcePaths.get(pathKey([...path, nextKey])) ?? [...sourcePath, key.value]
     collectValueAnnotation(value, path, nextKey, annotations)
-    collectYamlTags(value, [...path, nextKey], tags, annotations)
+    collectYamlTags(value, [...path, nextKey], nextSourcePath, tags, annotations, sourcePaths)
   }
 }
 
@@ -270,6 +279,18 @@ function uniqueRuntimeKey(usedKeys: Set<string>): string {
   const key = `__NKDK_XML_ANOMALY_KEY_${index}__`
   usedKeys.add(key)
   return key
+}
+
+function pathKey(path: readonly (string | number)[]): string {
+  return JSON.stringify(path)
+}
+
+function sourceMappingKey(
+  tag: { kind: XmlAnomalyKind; occurrence: number },
+  logicalKey: string,
+): string {
+  const suffix = tag.occurrence > 1 ? `/${tag.occurrence}` : ""
+  return `!xml/${tag.kind}${suffix} ${logicalKey}`
 }
 
 function applyParsedMappingKeyTags(
@@ -335,22 +356,29 @@ function valueAtPath(value: unknown, path: readonly (string | number)[]): unknow
   return current
 }
 
-function prepareJsYamlData(data: unknown, text: string, locations: YamlLocationIndex): unknown {
+function prepareJsYamlData(
+  data: unknown,
+  text: string,
+  locations: YamlLocationIndex,
+  sourcePaths: ReadonlyMap<string, readonly (string | number)[]>,
+): unknown {
   const lines = text.split(/\r?\n/)
-  return visitYamlData(data, [], lines, locations)
+  return visitYamlData(data, [], [], lines, locations, sourcePaths)
 }
 
 function visitYamlData(
   value: unknown,
   path: readonly (string | number)[],
+  sourcePath: readonly (string | number)[],
   lines: readonly string[],
   locations: YamlLocationIndex,
+  sourcePaths: ReadonlyMap<string, readonly (string | number)[]>,
   parent?: object,
   key?: YAMLStyleKey
 ): unknown {
   if (isTaggedYAMLScalar(value)) {
     if (parent !== undefined && key !== undefined) markYAMLScalarTag(parent, key, value.tag)
-    const resolvedValue = isEmptyRecord(value.value) && isDoubleQuotedTaggedValue(path, lines, locations)
+    const resolvedValue = isEmptyRecord(value.value) && isDoubleQuotedTaggedValue(sourcePath, lines, locations)
       ? ""
       : value.value
     if (parent !== undefined && key !== undefined && resolvedValue === "") {
@@ -359,34 +387,36 @@ function visitYamlData(
     return resolvedValue
   }
 
-  if (value === null) return isExplicitNullValue(path, lines, locations) ? null : {}
-  if (isSourceEmptyValue(value, path, lines, locations)) return {}
+  if (value === null) return isExplicitNullValue(sourcePath, lines, locations) ? null : {}
+  if (isSourceEmptyValue(value, sourcePath, lines, locations)) return {}
 
   if (
     parent !== undefined &&
     key !== undefined &&
     typeof value === "string" &&
-    isDoubleQuotedValue(path, lines, locations)
+    isDoubleQuotedValue(sourcePath, lines, locations)
   ) {
     markDoubleQuotedScalar(parent, key)
   }
 
   if (Array.isArray(value)) {
     value.forEach((item, index) => {
-      value[index] = visitYamlData(item, [...path, index], lines, locations, value, index)
+      value[index] = visitYamlData(item, [...path, index], [...sourcePath, index], lines, locations, sourcePaths, value, index)
     })
     return value
   }
 
   if (!isRecord(value)) return value
-  const sourceKeys = sourceKeyOrder(value, path, locations)
+  const sourceKeys = sourceKeyOrder(value, path, sourcePath, locations, sourcePaths)
   const runtimeKeys = Object.keys(value)
   if (sourceKeys.some((entryKey, index) => entryKey !== runtimeKeys[index])) {
     markYAMLMappingKeyOrder(value, sourceKeys)
   }
   for (const entryKey of yamlMappingKeys(value)) {
     const entryValue = value[entryKey]
-    value[entryKey] = visitYamlData(entryValue, [...path, entryKey], lines, locations, value, entryKey)
+    const entryPath = [...path, entryKey]
+    const entrySourcePath = sourcePaths.get(pathKey(entryPath)) ?? [...sourcePath, entryKey]
+    value[entryKey] = visitYamlData(entryValue, entryPath, entrySourcePath, lines, locations, sourcePaths, value, entryKey)
   }
   return value
 }
@@ -394,11 +424,13 @@ function visitYamlData(
 function sourceKeyOrder(
   value: Record<string, unknown>,
   path: readonly (string | number)[],
+  sourcePath: readonly (string | number)[],
   locations: YamlLocationIndex,
+  sourcePaths: ReadonlyMap<string, readonly (string | number)[]>,
 ): string[] {
   return Object.keys(value).sort((left, right) => {
-    const leftPosition = locations.keyPosition([...path, left])
-    const rightPosition = locations.keyPosition([...path, right])
+    const leftPosition = locations.keyPosition(sourcePaths.get(pathKey([...path, left])) ?? [...sourcePath, left])
+    const rightPosition = locations.keyPosition(sourcePaths.get(pathKey([...path, right])) ?? [...sourcePath, right])
     if (leftPosition === undefined || rightPosition === undefined) return 0
     return leftPosition.line - rightPosition.line || leftPosition.col - rightPosition.col
   })
