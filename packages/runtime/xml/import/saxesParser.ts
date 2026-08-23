@@ -43,6 +43,7 @@ interface MutableXmlContainer {
   content: XmlDocumentContentNode[]
   textCount: number
   nextContentStart: number
+  canMergeText: boolean
 }
 
 interface MutableXmlDocument extends MutableXmlContainer {
@@ -86,6 +87,7 @@ export function parseXmlDocumentWithSaxes(
     content: [],
     textCount: 0,
     nextContentStart: 0,
+    canMergeText: true,
   }
   const document = createFrame("", documentStructure)
   const stack = [document]
@@ -101,7 +103,7 @@ export function parseXmlDocumentWithSaxes(
   parser.on("xmldecl", (declaration) => {
     if (data.startsWith("\uFEFF")) document.text = "\uFEFF"
     appendDeclaration(document, declaration)
-    document.structural.nextContentStart = parser.position
+    advanceContentBoundary(document, parser.position, true)
   })
   parser.on("opentagstart", (tag: SaxesStartTagPlain) => {
     assertSafeName(tag.name)
@@ -120,7 +122,8 @@ export function parseXmlDocumentWithSaxes(
         content: [],
         textCount: 0,
         nextContentStart: 0,
-        spanStart: findElementStart(data, parser.position),
+        canMergeText: true,
+        spanStart: parent.structural.nextContentStart,
       })
     )
   })
@@ -169,13 +172,17 @@ export function parseXmlDocumentWithSaxes(
     appendText(
       frame,
       text,
-      { start: findMarkupStart(data, parser.position, "<![CDATA["), end: parser.position },
+      { start: frame.structural.nextContentStart, end: parser.position },
       allocateNodeId
     )
   })
   parser.on("comment", () => {
     const frame = stack.at(-1)
-    if (frame !== undefined) frame.structural.nextContentStart = parser.position
+    if (frame !== undefined) advanceContentBoundary(frame, parser.position, true)
+  })
+  parser.on("doctype", () => {
+    const frame = stack.at(-1)
+    if (frame !== undefined) advanceContentBoundary(frame, parser.position, true)
   })
   parser.on("processinginstruction", ({ target, body }) => {
     const attributes: Record<string, string> = {}
@@ -189,7 +196,7 @@ export function parseXmlDocumentWithSaxes(
     const key = `?${target}`
     const occurrence = (parent.childCounts[key] ?? 0) + 1
     const span = {
-      start: findMarkupStart(data, parser.position, "<?"),
+      start: parent.structural.nextContentStart,
       end: parser.position,
     }
     const path = `${parent.structural.path}/${key}[${occurrence}]`
@@ -250,7 +257,7 @@ function appendText(
   if (frame.structural.kind === "element") frame.text += text
   const { content } = frame.structural
   const previous = content.at(-1)
-  if (previous?.type === "text") {
+  if (previous?.type === "text" && frame.structural.canMergeText) {
     content[content.length - 1] = {
       ...previous,
       value: previous.value + text,
@@ -269,6 +276,7 @@ function appendText(
     })
   }
   frame.structural.nextContentStart = span.end
+  frame.structural.canMergeText = true
 }
 
 function finalizeElement(
@@ -369,16 +377,6 @@ function hasXmlDeclaration(data: string): boolean {
   return data.startsWith("<?xml") || data.startsWith("\uFEFF<?xml")
 }
 
-function findElementStart(data: string, parserPosition: number): number {
-  return findMarkupStart(data, parserPosition, "<")
-}
-
-function findMarkupStart(data: string, parserPosition: number, marker: string): number {
-  const start = data.lastIndexOf(marker, parserPosition - 1)
-  if (start < 0) throw new Error(`Не найдена начальная координата XML-маркера ${marker}`)
-  return start
-}
-
 function findAttributeSpan(data: string, parserPosition: number, name: string): XmlSourceSpan {
   const closingQuoteIndex = parserPosition - 1
   const quote = data[closingQuoteIndex]
@@ -398,6 +396,11 @@ function findAttributeSpan(data: string, parserPosition: number, name: string): 
 
 function findTextEnd(data: string, parserPosition: number): number {
   return data[parserPosition - 1] === "<" ? parserPosition - 1 : parserPosition
+}
+
+function advanceContentBoundary(frame: ElementFrame, end: number, separatesText: boolean): void {
+  frame.structural.nextContentStart = end
+  if (separatesText) frame.structural.canMergeText = false
 }
 
 function createProcessingInstructionAttributes(

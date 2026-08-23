@@ -259,4 +259,61 @@ describe("структурный XML-документ", () => {
       ],
     })
   })
+
+  it("не принимает внутренний <? за начало PI", () => {
+    const xml = "<Root><?p alpha <? beta?></Root>"
+    const instruction = parseXmlDocumentWithSaxes(xml).roots[0]?.content[0]
+
+    expect(instruction).toMatchObject({
+      type: "processingInstruction",
+      body: "alpha <? beta",
+    })
+    expect(sourceOf(xml, instruction)).toBe("<?p alpha <? beta?>")
+  })
+
+  it("не принимает внутренний <![CDATA[ за начало CDATA", () => {
+    const xml = "<Root><![CDATA[alpha <![CDATA[ beta]]></Root>"
+    const text = parseXmlDocumentWithSaxes(xml).roots[0]?.content[0]
+
+    expect(text).toMatchObject({
+      type: "text",
+      value: "alpha <![CDATA[ beta",
+    })
+    expect(sourceOf(xml, text)).toBe("<![CDATA[alpha <![CDATA[ beta]]>")
+  })
+
+  it("не включает DOCTYPE в span документного текста", () => {
+    const xml = '<?xml version="1.0"?>\r\n<!DOCTYPE Root>\r\n<Root/>'
+    const document = parseXmlDocumentWithSaxes(xml)
+    const textNodes = document.content.filter((node) => node.type === "text")
+
+    expect(textNodes).toEqual([
+      {
+        type: "text",
+        id: 1,
+        occurrence: 1,
+        path: "/#text[1]",
+        value: "\n",
+        span: { start: 21, end: 23 },
+      },
+      {
+        type: "text",
+        id: 2,
+        occurrence: 2,
+        path: "/#text[2]",
+        value: "\n",
+        span: { start: 38, end: 40 },
+      },
+    ])
+    expect(textNodes.map((node) => sourceOf(xml, node))).toEqual(["\r\n", "\r\n"])
+    expect(document.roots[0]).toMatchObject({
+      id: 3,
+      path: "/Root[1]",
+      span: { start: 40, end: xml.length },
+    })
+    expect(document.compatibility).toEqual({
+      "?xml": { _version: "1.0" },
+      Root: undefined,
+    })
+  })
 })
