@@ -22,7 +22,7 @@ import {
   attachXmlImportAttemptAdapter,
   createXmlImportBufferedLocalIndexes,
 } from "../xmlAnomaly/attempt"
-import { projectNamedXmlCollectionForImport } from "../xmlAnomaly/yamlProjection"
+import { projectNamedXmlCollectionForImportWithRuntimeKeys } from "../xmlAnomaly/yamlProjection"
 
 type MetadataItemCollectionImportOptions = {
   propertyType?: PropertyRuleType
@@ -121,9 +121,9 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const yamlPath =
       params.yamlAsArray === true
         ? [...params.traversal.yamlPath, index]
-        : [...params.traversal.yamlPath, itemName ?? String(index)]
+        : [...params.traversal.yamlPath, index]
     const bufferedCollector =
-      params.yamlAsArray === true || keyYaml === undefined || params.recordYamlKeyFromYAML === undefined
+      params.yamlAsArray === true || keyYaml === undefined
         ? undefined
         : createXmlImportBufferedLocalIndexes(params.traversal.collector, yamlPath) ??
           createBufferedItemCollector(params.traversal.collector, yamlPath)
@@ -170,24 +170,21 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         yamlPath,
         rulePath: itemRulePath,
       })
-    } else if (yamlKey !== undefined) {
-      params.traversal.collector.acceptItem({
-        itemType: itemRule.itemType,
-        name: yamlKey,
-        yamlPath: [...params.traversal.yamlPath, yamlKey],
-        rulePath: itemRulePath,
-      })
-    }
-    if (yamlKey !== undefined) {
-      const targetYamlPath = [...params.traversal.yamlPath, yamlKey]
-      bufferedCollector?.flush(targetYamlPath)
-      bufferedDeferred?.flush(targetYamlPath)
-      bufferedDependent?.flush(targetYamlPath, yamlKey)
     }
     const keyClassification = yamlKey === undefined
       ? undefined
       : params.classifyYamlKey?.({ yaml: itemYaml, name, yamlKey })
-    return [{ yaml: itemYaml, name, yamlKey, keyClassification }]
+    return [{
+      yaml: itemYaml,
+      name,
+      yamlKey,
+      keyClassification,
+      sourceYamlPath: yamlPath,
+      itemRulePath,
+      bufferedCollector,
+      bufferedDeferred,
+      bufferedDependent,
+    }]
   })
   if (yamlItems.length === 0) return undefined
 
@@ -202,10 +199,26 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       ...(keyClassification === "invalid" ? { invalid: true } : {}),
     }
   })
-  return projectNamedXmlCollectionForImport({
+  const projected = projectNamedXmlCollectionForImportWithRuntimeKeys({
     entries,
     annotations: params.traversal.annotations,
   })
+  for (const [index, item] of yamlItems.entries()) {
+    const yamlKey = item.yamlKey!
+    const runtimeKey = projected.runtimeKeys[index]!
+    const targetYamlPath = [...params.traversal.yamlPath, runtimeKey]
+    params.traversal.audit?.rekeyYamlPath(item.sourceYamlPath, targetYamlPath)
+    params.traversal.collector.acceptItem({
+      itemType: itemRule.itemType,
+      name: yamlKey,
+      yamlPath: targetYamlPath,
+      rulePath: item.itemRulePath,
+    })
+    item.bufferedCollector?.flush(targetYamlPath)
+    item.bufferedDeferred?.flush(targetYamlPath)
+    item.bufferedDependent?.flush(targetYamlPath, yamlKey)
+  }
+  return projected.yaml
 }
 
 function createBufferedDependentCollector(

@@ -69,6 +69,60 @@ describe("xmlExport", () => {
     )
   })
 
+  it("сериализует compact только topmost mixed subtree и форматирует ordinary sibling", () => {
+    const document = parseXmlDocumentWithSaxes(
+      "<Root><Mixed>before<Child/>after</Mixed><Ordinary><A/><B/></Ordinary></Root>",
+    )
+
+    expect(xmlExport(document.roots, false)).toBe([
+      "<Root>",
+      "\t<Mixed>before<Child/>after</Mixed>",
+      "\t<Ordinary>",
+      "\t\t<A/>",
+      "\t\t<B/>",
+      "\t</Ordinary>",
+      "</Root>",
+    ].join("\n"))
+  })
+
+  it("сохраняет attrs, entities, PI и nested mixed внутри compact subtree", () => {
+    const source =
+      '<Root><Container><Mixed flag="a&amp;b">left $&amp; &amp; <?future mode="x"?>' +
+      '<Nested>n<Inner/>m</Nested> </Mixed></Container><Ordinary><A/><B/></Ordinary></Root>'
+    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+
+    const xml = xmlExport(document.roots, false)
+
+    expect(xml).toBe([
+      "<Root>",
+      "\t<Container>",
+      '\t\t<Mixed flag="a&amp;b">left $&amp; &amp; <?future mode="x"?><Nested>n<Inner/>m</Nested> </Mixed>',
+      "\t</Container>",
+      "\t<Ordinary>",
+      "\t\t<A/>",
+      "\t\t<B/>",
+      "\t</Ordinary>",
+      "</Root>",
+    ].join("\n"))
+    const roundTripped = parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true })
+    expect(roundTripped.roots[0]?.content.filter((node) => node.type !== "text").map(
+      (node) => node.type === "element" ? node.name : `?${node.target}`,
+    )).toEqual(["Container", "Ordinary"])
+  })
+
+  it("выбирает placeholder без коллизии с настоящим XML-именем", () => {
+    const document = parseXmlDocumentWithSaxes(
+      "<Root><nkdkXmlMixedContent1/><Mixed>before<Child/>after</Mixed></Root>",
+    )
+
+    expect(xmlExport(document.roots, false)).toBe([
+      "<Root>",
+      "\t<nkdkXmlMixedContent1/>",
+      "\t<Mixed>before<Child/>after</Mixed>",
+      "</Root>",
+    ].join("\n"))
+  })
+
   it("round-trips the authoritative processing instruction body", () => {
     const source =
       '<Root><Before/><?legacy alpha a="1" z="2" a="3" &amp;?><After/></Root>'

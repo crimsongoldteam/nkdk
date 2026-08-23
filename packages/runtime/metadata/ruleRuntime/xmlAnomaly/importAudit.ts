@@ -37,6 +37,10 @@ export interface XmlImportRawCandidate {
 
 export interface XmlImportAuditSession {
   outcomes(): readonly XmlImportAuditOutcome[]
+  rekeyYamlPath(
+    sourcePrefix: readonly (string | number)[],
+    targetPrefix: readonly (string | number)[],
+  ): void
   claim(node: XmlImportAuditedNode, boundary: XmlImportAuditBoundary): void
   ambiguous(
     node: XmlImportAuditedNode,
@@ -75,6 +79,22 @@ export function createXmlImportAuditSession(
 
   return {
     outcomes: () => [...outcomes.values()].map(copyOutcome),
+    rekeyYamlPath(sourcePrefix, targetPrefix) {
+      for (const current of outcomes.values()) {
+        current.boundaries = uniqueBoundaries(
+          current.boundaries.map((boundary) =>
+            rekeyBoundaryYamlPath(boundary, sourcePrefix, targetPrefix),
+          ),
+        )
+      }
+      for (let index = 0; index < candidates.length; index += 1) {
+        const candidate = candidates[index]!
+        candidates[index] = {
+          ...candidate,
+          boundary: rekeyBoundaryYamlPath(candidate.boundary, sourcePrefix, targetPrefix),
+        }
+      }
+    },
     claim(node, boundary) {
       const current = outcome(node)
       if (current.state === "unclaimed" || current.state === "unknown") {
@@ -106,6 +126,22 @@ export function createXmlImportAuditSession(
       }
     },
     rawCandidates: () => [...candidates],
+  }
+}
+
+function rekeyBoundaryYamlPath(
+  boundary: XmlImportAuditBoundary,
+  sourcePrefix: readonly (string | number)[],
+  targetPrefix: readonly (string | number)[],
+): XmlImportAuditBoundary {
+  if (
+    boundary.yamlPath === undefined ||
+    sourcePrefix.length > boundary.yamlPath.length ||
+    !sourcePrefix.every((segment, index) => boundary.yamlPath?.[index] === segment)
+  ) return boundary
+  return {
+    ...boundary,
+    yamlPath: [...targetPrefix, ...boundary.yamlPath.slice(sourcePrefix.length)],
   }
 }
 

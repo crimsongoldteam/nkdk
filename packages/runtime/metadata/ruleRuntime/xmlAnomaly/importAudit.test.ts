@@ -73,4 +73,38 @@ describe("XmlImportAuditSession", () => {
 
     expect(session.rawCandidates()).toEqual([{ node, boundary, error }])
   })
+
+  it("системно меняет YAML-префикс у outcomes и raw-кандидатов", () => {
+    const root = parseXmlDocumentWithSaxes("<Root><Value>broken</Value></Root>").roots[0]!
+    const value = root.content.find((node) => node.type === "element")!
+    const session = createXmlImportAuditSession([root])
+    const provisionalBoundary: XmlImportAuditBoundary = {
+      ...boundary,
+      yamlPath: ["Элементы", 0, "Значение"],
+    }
+    const siblingBoundary: XmlImportAuditBoundary = {
+      ...boundary,
+      yamlPath: ["Элементы", 1, "Значение"],
+    }
+    const error = new Error("broken")
+    session.claim(root, provisionalBoundary)
+    session.claim(value, siblingBoundary)
+    session.rawCandidate(value, provisionalBoundary, error)
+
+    session.rekeyYamlPath(["Элементы", 0], ["Элементы", "Финальный"])
+
+    expect(session.outcomes().find(({ node }) => node === root)?.boundaries).toEqual([
+      { ...provisionalBoundary, yamlPath: ["Элементы", "Финальный", "Значение"] },
+    ])
+    expect(session.outcomes().find(({ node }) => node === value)?.boundaries).toEqual([
+      siblingBoundary,
+    ])
+    expect(session.rawCandidates()).toEqual([
+      {
+        node: value,
+        boundary: { ...provisionalBoundary, yamlPath: ["Элементы", "Финальный", "Значение"] },
+        error,
+      },
+    ])
+  })
 })

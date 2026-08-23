@@ -175,33 +175,69 @@ const structuralElementToPreserveOrder = (node: XmlElementNode): Record<string, 
   ...structuralAttributesToPreserveOrder(node),
 })
 
-const structuralNodesToPreserveOrder = (
-  nodes: readonly XmlElementNode[]
-): readonly Record<string, unknown>[] => nodes.map(structuralElementToPreserveOrder)
+const buildStructuralXml = (nodes: readonly XmlElementNode[]): string => {
+  const occupiedElementNames = new Set<string>()
+  const collectElementNames = (element: XmlElementNode): void => {
+    occupiedElementNames.add(element.name)
+    for (const child of element.content) {
+      if (child.type === "element") collectElementNames(child)
+    }
+  }
+  for (const node of nodes) collectElementNames(node)
+
+  const replacements: Array<{ readonly tag: string; readonly xml: string }> = []
+  let placeholderIndex = 1
+  const nextPlaceholderTag = (): string => {
+    let tag: string
+    do {
+      tag = `nkdkXmlMixedContent${placeholderIndex}`
+      placeholderIndex += 1
+    } while (occupiedElementNames.has(tag))
+    occupiedElementNames.add(tag)
+    return tag
+  }
+
+  const contentWithPlaceholders = (node: XmlContentNode): Record<string, unknown> => {
+    if (node.type !== "element") return structuralContentToPreserveOrder(node)
+    return elementWithPlaceholders(node)
+  }
+  const elementWithPlaceholders = (node: XmlElementNode): Record<string, unknown> => {
+    if (hasMixedContent(node)) {
+      const tag = nextPlaceholderTag()
+      replacements.push({
+        tag,
+        xml: compactPreserveOrderBuilder.build([structuralElementToPreserveOrder(node)]),
+      })
+      return { [tag]: [] }
+    }
+    return {
+      [node.name]: node.content.map(contentWithPlaceholders),
+      ...structuralAttributesToPreserveOrder(node),
+    }
+  }
+
+  let xml = preserveOrderBuilder.build(nodes.map(elementWithPlaceholders))
+  for (const replacement of replacements) {
+    xml = xml.replace(`<${replacement.tag}/>`, () => replacement.xml)
+  }
+  return xml
+}
+
+const hasMixedContent = (node: XmlElementNode): boolean =>
+  node.content.some((child) => child.type === "text") &&
+  node.content.some((child) => child.type !== "text")
 
 export const xmlExport = (
   data: Record<string, any> | readonly XmlElementNode[],
   addDeclaration: boolean = true
 ): string => {
   const xml = Array.isArray(data)
-    ? (hasSignificantMixedContent(data) ? compactPreserveOrderBuilder : preserveOrderBuilder)
-        .build(structuralNodesToPreserveOrder(data))
+    ? buildStructuralXml(data)
     : buildObjectXml(data)
   const declaration = addDeclaration ? '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n' : ""
   const result = declaration + xml.replace(/^\n/, "")
   return result.trimEnd()
 }
-
-const hasSignificantMixedContent = (nodes: readonly XmlElementNode[]): boolean =>
-  nodes.some((node) => {
-    const hasText = node.content.some(
-      (child) => child.type === "text" && child.value.trim() !== "",
-    )
-    const hasStructuralContent = node.content.some((child) => child.type !== "text")
-    return hasText && hasStructuralContent || hasSignificantMixedContent(
-      node.content.filter((child): child is XmlElementNode => child.type === "element"),
-    )
-  })
 
 const buildObjectXml = (data: Record<string, any>): string => {
   const normalizedData = normalizeChildItemsForExport(data) as Record<string, any>

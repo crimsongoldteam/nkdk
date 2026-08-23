@@ -4,6 +4,11 @@ import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
 import { compareXmlStructures } from "./compare"
 import { decodeXmlRawValue, readdressXmlElementNodes } from "./rawCodec"
 
+const contentLabels = (nodes: ReturnType<typeof decodeXmlRawValue>["nodes"]): string[] =>
+  nodes[0]?.content.map((node) =>
+    node.type === "text" ? node.value : node.type === "element" ? node.name : `?${node.target}`,
+  ) ?? []
+
 describe("decodeXmlRawValue", () => {
   it("preserves scalar text and distinguishes an absent XML place", () => {
     const scalar = decodeXmlRawValue("01", { elementName: "Value" })
@@ -66,13 +71,28 @@ describe("decodeXmlRawValue", () => {
       { elementName: "Value" },
     )
 
-    expect(fragment.nodes[0]?.content.map((node) =>
-      node.type === "text" ? node.value : node.type === "element" ? node.name : `?${node.target}`,
-    )).toEqual(["before", "Child", "after"])
+    expect(contentLabels(fragment.nodes)).toEqual(["before", "Child", "after"])
     const exportedXml = xmlExport(fragment.nodes, false)
     expect(exportedXml).toBe("<Value>before<Child/>after</Value>")
     const exported = parseXmlDocumentWithSaxes(exportedXml).roots
     expect(compareXmlStructures(source, exported)).toEqual([])
+  })
+
+  it("поддерживает legacy scalar #text как неявный префикс child-only #order", () => {
+    const fragment = decodeXmlRawValue(
+      {
+        "#text": "prefix",
+        A: "one",
+        B: "two",
+        "#order": ["B", "A"],
+      },
+      { elementName: "Value" },
+    )
+
+    expect(contentLabels(fragment.nodes)).toEqual(["prefix", "B", "A"])
+    expect(xmlExport(fragment.nodes, false)).toBe(
+      "<Value>prefix<B>two</B><A>one</A></Value>",
+    )
   })
 
   it("uses the SAX-canonical processing instruction body without a leading separator", () => {

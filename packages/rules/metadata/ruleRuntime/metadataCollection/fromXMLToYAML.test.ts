@@ -422,6 +422,54 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     expect(metadata.ownerFacts).toEqual({ buffered: "ok" })
   })
 
+  it("перепривязывает stable owner к финальному ключу record-коллекции", () => {
+    const { items, annotations, audit } = importRawRecordCollection({
+      collectionType: "TestRekeyedRawCollection",
+      itemType: "TestRekeyedRawItem",
+      ownerType: "TestRekeyedRawOwner",
+      xml: "<Root><Items><Item>future<Name>Исходный</Name><Value>ok</Value></Item></Items></Root>",
+      recordYamlKeyFromYAML: () => "Финальный",
+    })
+
+    expect(xmlAnnotatedMappingEntries(items, annotations)).toEqual([
+      ["Финальный", { "#text": "future", Name: "Исходный", Value: "ok" }],
+    ])
+    expect(annotations.at(items, "Финальный")).toMatchObject({ kind: "raw", target: "value" })
+    const itemBoundaryPaths = audit.outcomes()
+      .filter(({ node }) => "type" in node && node.type === "element" && node.name === "Item")
+      .flatMap(({ boundaries }) => boundaries.map(({ yamlPath }) => yamlPath))
+    expect(itemBoundaryPaths).toEqual([["Элементы", "Финальный"]])
+    expect(itemBoundaryPaths).not.toContainEqual(["Элементы", "Исходный"])
+  })
+
+  it("поднимает raw двух одноимённых record-item к разным physical key", () => {
+    const { items, annotations, audit } = importRawRecordCollection({
+      collectionType: "TestDuplicateRawCollection",
+      itemType: "TestDuplicateRawItem",
+      ownerType: "TestDuplicateRawOwner",
+      xml: "<Root><Items>" +
+      "<Item>first<Name>A</Name><Value>one</Value></Item>" +
+      "<Item>second<Name>A</Name><Value>two</Value></Item>" +
+      "</Items></Root>",
+    })
+    const runtimeKeys = Object.keys(items)
+
+    expect(runtimeKeys).toHaveLength(2)
+    expect(runtimeKeys[0]).not.toBe(runtimeKeys[1])
+    expect(xmlAnnotatedMappingEntries(items, annotations)).toEqual([
+      ["A", { "#text": "first", Name: "A", Value: "one" }],
+      ["A", { "#text": "second", Name: "A", Value: "two" }],
+    ])
+    expect(runtimeKeys.map((runtimeKey) => annotations.at(items, runtimeKey)?.kind)).toEqual([
+      "raw",
+      "raw",
+    ])
+    const itemBoundaryPaths = audit.outcomes()
+      .filter(({ node }) => "type" in node && node.type === "element" && node.name === "Item")
+      .flatMap(({ boundaries }) => boundaries.map(({ yamlPath }) => yamlPath))
+    expect(itemBoundaryPaths).toEqual(runtimeKeys.map((runtimeKey) => ["Элементы", runtimeKey]))
+  })
+
   it.each([
     ["обычный объект-контейнер", { Item: { Name: "A" } }, { Элементы: { A: {} } }],
     [
@@ -670,6 +718,57 @@ function importTestRecordCollection(
     annotations,
   })!
   return { yaml, audit }
+}
+
+function importRawRecordCollection(params: {
+  collectionType: string
+  itemType: string
+  ownerType: string
+  xml: string
+  recordYamlKeyFromYAML?: () => string
+}): {
+  items: Record<string, unknown>
+  annotations: ReturnType<typeof createXmlAnomalyAnnotations>
+  audit: ReturnType<typeof createXmlImportAuditSession>
+} {
+  const collectionType = params.collectionType as PropertyRuleType
+  registerMetadataItemCollectionRule({
+    propertyType: collectionType,
+    itemRule: {
+      itemType: params.itemType,
+      properties: {
+        name: { type: "string", xml: "Name", yaml: "Имя" },
+        value: { type: "string", xml: "Value", yaml: "Значение" },
+      },
+    } as MetadataItemRule,
+    xmlElement: "Item",
+    keyField: "name",
+    ...(params.recordYamlKeyFromYAML === undefined
+      ? {}
+      : { recordYamlKeyFromYAML: params.recordYamlKeyFromYAML }),
+  })
+  const annotations = createXmlAnomalyAnnotations()
+  const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+  const root = parseXmlDocumentWithSaxes(params.xml).roots[0]!
+  const audit = createXmlImportAuditSession([root])
+  const yaml = importMetadataItemFromXMLToYAML({
+    context,
+    rule: {
+      itemType: params.ownerType,
+      properties: {
+        items: { type: collectionType, xml: "Items", yaml: "Элементы" },
+      },
+    } as MetadataItemRule,
+    xml: root,
+    traversal: {
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      audit,
+      annotations,
+    },
+  }) as Record<string, unknown>
+  return { items: yaml.Элементы as Record<string, unknown>, annotations, audit }
 }
 
 function runDirectRule(

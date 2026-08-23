@@ -28,7 +28,15 @@ export function projectNamedXmlCollection<T>(params: {
   readonly entries: readonly NamedXmlCollectionEntry<T>[]
   readonly annotations: XmlAnomalyAnnotationTable
 }): Record<string, T> {
+  return projectNamedXmlCollectionWithRuntimeKeys(params).yaml
+}
+
+function projectNamedXmlCollectionWithRuntimeKeys<T>(params: {
+  readonly entries: readonly NamedXmlCollectionEntry<T>[]
+  readonly annotations: XmlAnomalyAnnotationTable
+}): { readonly yaml: Record<string, T>; readonly runtimeKeys: readonly string[] } {
   const projected: Record<string, T> = {}
+  const runtimeKeys: string[] = []
   const occurrences = new Map<string, number>()
   const annotatedOccurrences = new Map<string, number>()
   for (const entry of params.entries) {
@@ -41,7 +49,7 @@ export function projectNamedXmlCollection<T>(params: {
     if (annotationOccurrence !== undefined) {
       annotatedOccurrences.set(entry.key, annotationOccurrence)
     }
-    appendXmlAnnotatedMappingEntry(projected, params.annotations, {
+    runtimeKeys.push(appendXmlAnnotatedMappingEntry(projected, params.annotations, {
       logicalKey: entry.key,
       value: entry.value,
       ...(annotationOccurrence === undefined
@@ -52,9 +60,9 @@ export function projectNamedXmlCollection<T>(params: {
               occurrence: annotationOccurrence,
             },
           }),
-    })
+    }))
   }
-  return projected
+  return { yaml: projected, runtimeKeys }
 }
 
 /**
@@ -65,8 +73,15 @@ export function projectNamedXmlCollectionForImport<T>(params: {
   readonly entries: readonly NamedXmlCollectionEntry<T>[]
   readonly annotations?: XmlAnomalyAnnotationTable
 }): Record<string, T> {
+  return projectNamedXmlCollectionForImportWithRuntimeKeys(params).yaml
+}
+
+export function projectNamedXmlCollectionForImportWithRuntimeKeys<T>(params: {
+  readonly entries: readonly NamedXmlCollectionEntry<T>[]
+  readonly annotations?: XmlAnomalyAnnotationTable
+}): { readonly yaml: Record<string, T>; readonly runtimeKeys: readonly string[] } {
   const annotations = params.annotations ?? createXmlAnomalyAnnotations()
-  const projected = projectNamedXmlCollection({ entries: params.entries, annotations })
+  const projected = projectNamedXmlCollectionWithRuntimeKeys({ entries: params.entries, annotations })
   if (params.annotations === undefined && Array.from(annotations.entries()).length > 0) {
     throw new Error("Для сохранения XML-аномалий record-коллекции требуется таблица аннотаций")
   }
@@ -117,9 +132,7 @@ export function projectXmlAuditRemainder(params: {
       (node): node is XmlElementNode | XmlProcessingInstructionNode => node.type !== "text",
     )
     const unknownContent = element.content.filter((node) => isUnknown(outcomes.get(node)?.state))
-    const meaningfulUnknownText = unknownContent.some(
-      (node) => node.type === "text" && (node.value.trim() !== "" || structuredContent.length === 0),
-    )
+    const meaningfulUnknownText = unknownContent.some((node) => node.type === "text")
     const unknownProcessingInstruction = unknownContent.some(
       (node) => node.type === "processingInstruction",
     )
@@ -149,12 +162,6 @@ export function projectXmlAuditRemainder(params: {
       }
       appendRaw(terminalPath(path, "#attributes"), value)
       for (const attribute of unknownAttributes) params.audit.claim(attribute, params.boundary)
-    }
-
-    for (const node of element.content) {
-      if (node.type === "text" && isUnknown(outcomes.get(node)?.state) && node.value.trim() === "") {
-        params.audit.claim(node, params.boundary)
-      }
     }
 
     const contentChildren = structuredContent
@@ -350,7 +357,7 @@ function replaceStableOwnerYamlValue(params: {
   if (!isRecord(parent)) {
     throw new Error(`Для XML-границы ${params.xmlPath} не найден stable YAML owner`)
   }
-  const runtimeKeys = logicalRuntimeKeys(parent, key, params.annotations)
+  const runtimeKeys = runtimeKeysForPathSegment(parent, key, params.annotations)
   if (runtimeKeys.length > 1) {
     throw new Error(`Для XML-границы ${params.xmlPath} неоднозначен stable YAML owner`)
   }
@@ -380,7 +387,7 @@ function yamlChildAt(
     return parent[key]
   }
   if (!isRecord(parent)) throw new Error(`Для XML-границы ${xmlPath} не найден stable YAML owner`)
-  const runtimeKeys = logicalRuntimeKeys(parent, key, annotations)
+  const runtimeKeys = runtimeKeysForPathSegment(parent, key, annotations)
   if (runtimeKeys.length !== 1) {
     const reason = runtimeKeys.length === 0 ? "не найден" : "неоднозначен"
     throw new Error(`Для XML-границы ${xmlPath} ${reason} stable YAML owner`)
@@ -388,11 +395,12 @@ function yamlChildAt(
   return parent[runtimeKeys[0]!]
 }
 
-function logicalRuntimeKeys(
+function runtimeKeysForPathSegment(
   mapping: Record<string, unknown>,
   logicalKey: string,
   annotations: XmlAnomalyAnnotationTable,
 ): string[] {
+  if (Object.prototype.hasOwnProperty.call(mapping, logicalKey)) return [logicalKey]
   return Object.keys(mapping).filter((runtimeKey) =>
     (annotations.keyAt(mapping, runtimeKey)?.logicalKey ?? runtimeKey) === logicalKey,
   )
@@ -456,8 +464,7 @@ function xmlElementRawValue(element: XmlElementNode): XmlRawValue {
     (node): node is XmlElementNode | XmlProcessingInstructionNode => node.type !== "text",
   )
   const textNodes = element.content.filter(
-    (node): node is XmlTextNode =>
-      node.type === "text" && (structured.length === 0 || node.value.trim() !== ""),
+    (node): node is XmlTextNode => node.type === "text",
   )
   const textValues = textNodes.map(({ value }) => value)
   if (structured.length === 0 && element.attributes.length === 0) {

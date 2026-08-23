@@ -354,12 +354,10 @@ function validateTerminalBoundaries(
       }
       continue
     }
-    assertExactOrder(
-      orderableTerminalContent(parent.content),
-      boundary.order,
-      orderedContentName,
-      boundary.path.source
-    )
+    const content = boundary.order.includes("#text")
+      ? parent.content
+      : structuralTerminalContent(parent.content)
+    assertExactOrder(content, boundary.order, orderedContentName, boundary.path.source)
   }
 }
 
@@ -387,11 +385,9 @@ function applyTerminalBoundaries(
           : reorder(combined, boundary.attributes.order, ({ name }) => `_${name}`)
       continue
     }
-    parent.content = reorder(
-      orderableTerminalContent(parent.content),
-      boundary.order,
-      orderedContentName,
-    )
+    parent.content = boundary.order.includes("#text")
+      ? reorder(parent.content, boundary.order, orderedContentName)
+      : reorderStructuralContentPreservingText(parent.content, boundary.order)
   }
 }
 
@@ -451,11 +447,21 @@ function orderedContentName(node: MutableXmlContentNode): string {
   return node.type === "element" ? node.name : `?${node.target}`
 }
 
-function orderableTerminalContent(
+function structuralTerminalContent(
   content: readonly MutableXmlContentNode[],
 ): MutableXmlContentNode[] {
-  if (!content.some((node) => node.type !== "text")) return [...content]
-  return content.filter((node) => node.type !== "text" || node.value.trim() !== "")
+  return content.filter((node) => node.type !== "text")
+}
+
+function reorderStructuralContentPreservingText(
+  content: readonly MutableXmlContentNode[],
+  order: readonly string[],
+): MutableXmlContentNode[] {
+  const reordered = reorder(structuralTerminalContent(content), order, orderedContentName)
+  let structuralIndex = 0
+  return content.map((node) =>
+    node.type === "text" ? node : reordered[structuralIndex++]!,
+  )
 }
 
 function childElements(

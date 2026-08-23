@@ -55,13 +55,17 @@ describe("mergeXmlRawFragments", () => {
     ])
 
     expect(xmlExport(merged, false)).toBe(
-      "<Root><Properties>before<Name>Items</Name>after</Properties></Root>",
+      [
+        "<Root>",
+        "\t<Properties>before<Name>Items</Name>after</Properties>",
+        "</Root>",
+      ].join("\n"),
     )
   })
 
-  it("drops formatting-only text when applying a structural #order terminal", () => {
+  it("сохраняет whitespace вокруг ребёнка при legacy child-only #order", () => {
     const ordinary = roots(
-      "<Root><Properties>\n  <Name>Items</Name>\n</Properties></Root>",
+      "<Root><Properties><Name>Items</Name> </Properties></Root>",
     )
 
     const merged = mergeXmlRawFragments(ordinary, [
@@ -73,7 +77,25 @@ describe("mergeXmlRawFragments", () => {
     ])
 
     expect(xmlExport(merged, false)).toBe(
-      ["<Root>", "\t<Properties>", "\t\t<Name>Items</Name>", "\t</Properties>", "</Root>"].join("\n"),
+      ["<Root>", "\t<Properties><Name>Items</Name> </Properties>", "</Root>"].join("\n"),
+    )
+  })
+
+  it("сохраняет scalar text как префикс при legacy child-only #order", () => {
+    const ordinary = roots(
+      "<Root><Properties>prefix<A/><B/></Properties></Root>",
+    )
+
+    const merged = mergeXmlRawFragments(ordinary, [
+      {
+        path: "Properties\\#order",
+        value: ["B", "A"],
+        suppressOrdinaryOutput: false,
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toBe(
+      ["<Root>", "\t<Properties>prefix<B/><A/></Properties>", "</Root>"].join("\n"),
     )
   })
 

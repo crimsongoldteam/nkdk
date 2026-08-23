@@ -153,6 +153,7 @@ function decodeElement(defaultName: string, value: unknown, allowExternalName: b
 
   const attributes: DraftXmlAttribute[] = []
   let texts: readonly DraftXmlText[] = []
+  let textShape: "scalar" | "sequence" | undefined
   const contentByName = new Map<string, readonly DraftXmlContent[]>()
   const canonicalOrder: string[] = []
   let explicitOrder: readonly string[] | undefined
@@ -160,6 +161,7 @@ function decodeElement(defaultName: string, value: unknown, allowExternalName: b
   for (const [key, item] of Object.entries(value)) {
     if (key === "#name") continue
     if (key === "#text") {
+      textShape = Array.isArray(item) ? "sequence" : "scalar"
       const values = Array.isArray(item) ? item : [item]
       if (values.some((value) => typeof value !== "string")) {
         throw new Error("#text в !xml/raw должен быть строкой или YAML-массивом строк")
@@ -196,13 +198,20 @@ function decodeElement(defaultName: string, value: unknown, allowExternalName: b
     canonicalOrder.push(...children.map(() => key))
   }
 
+  const legacyScalarPrefix =
+    explicitOrder !== undefined &&
+    textShape === "scalar" &&
+    !explicitOrder.includes("#text")
   const order = explicitOrder ?? canonicalOrder
-  assertExactOrder(order, contentByName, "#order")
+  const orderedContentByName = legacyScalarPrefix
+    ? new Map([...contentByName].filter(([name]) => name !== "#text"))
+    : contentByName
+  assertExactOrder(order, orderedContentByName, "#order")
   const contentOffsets = new Map<string, number>()
-  const content: DraftXmlContent[] = []
+  const content: DraftXmlContent[] = legacyScalarPrefix ? [...texts] : []
   for (const contentName of order) {
     const offset = contentOffsets.get(contentName) ?? 0
-    content.push(contentByName.get(contentName)![offset]!)
+    content.push(orderedContentByName.get(contentName)![offset]!)
     contentOffsets.set(contentName, offset + 1)
   }
   return { type: "element", name, attributes, content }

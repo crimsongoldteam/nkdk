@@ -7,6 +7,7 @@ import {
 } from "../../../yaml/xmlAnomalyAnnotations"
 import { parseXmlDocumentWithSaxes } from "../../../xml/import/saxesParser"
 import type { XmlElementNode } from "../../../xml/import/document"
+import { xmlExport } from "../../../xml/export/exporter"
 import { decodeXmlRawValue } from "../../../xml/structure/rawCodec"
 import {
   createXmlImportAuditSession,
@@ -74,14 +75,8 @@ describe("YAML-проекция XML-аномалий", () => {
 
   it("сохраняет полностью неизвестный узел одним raw со всем содержимым", () => {
     const root = parseXmlDocumentWithSaxes(
-      [
-        "<Root>",
-        "  <Properties>",
-        '    <Future mode="x">42<Child extra="y">value</Child>',
-        "    </Future>",
-        "  </Properties>",
-        "</Root>",
-      ].join("\n"),
+      '<Root><Properties><Future mode="x">42<Child extra="y">value</Child> ' +
+      "</Future></Properties></Root>",
     ).roots[0]!
     const properties = child(root, "Properties")
     const audit = createXmlImportAuditSession([root])
@@ -95,8 +90,9 @@ describe("YAML-проекция XML-аномалий", () => {
     expect(yaml).toEqual({
       "Properties\\Future": {
         _mode: "x",
-        "#text": "42",
+        "#text": ["42", " "],
         Child: { _extra: "y", "#text": "value" },
+        "#order": ["#text", "Child", "#text"],
       },
     })
     expect(yaml).not.toHaveProperty("Properties")
@@ -142,12 +138,34 @@ describe("YAML-проекция XML-аномалий", () => {
     expect(annotations.at(yaml, "Future")).toMatchObject({ kind: "raw", target: "value" })
   })
 
-  it("отбрасывает форматирующие отступы вокруг structural children", () => {
+  it("сохраняет все whitespace occurrences вокруг structural children", () => {
     const { yaml } = projectUnknownRootChildren(
       "<Root><Future>\n  <Child>value</Child>\n</Future></Root>",
     )
 
-    expect(yaml).toEqual({ Future: { Child: "value" } })
+    expect(yaml).toEqual({
+      Future: {
+        "#text": ["\n  ", "\n"],
+        Child: "value",
+        "#order": ["#text", "Child", "#text"],
+      },
+    })
+  })
+
+  it("сохраняет whitespace occurrence после structural child", () => {
+    const { yaml } = projectUnknownRootChildren(
+      "<Root><Future><Child/> </Future></Root>",
+    )
+
+    expect(yaml).toEqual({
+      Future: {
+        "#text": " ",
+        Child: {},
+        "#order": ["Child", "#text"],
+      },
+    })
+    const decoded = decodeXmlRawValue(yaml.Future, { elementName: "Future" })
+    expect(xmlExport(decoded.nodes, false)).toBe("<Future><Child/> </Future>")
   })
 
   it("сохраняет точный mixed text до и после ребёнка", () => {
