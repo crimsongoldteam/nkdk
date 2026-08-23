@@ -91,6 +91,53 @@ describe("mergeXmlRawFragments", () => {
     )
   })
 
+  it("treats null at an absent deep path as a no-op without creating wrappers", () => {
+    const ordinary = roots("<Root><Properties><Name>Items</Name></Properties></Root>")
+
+    const merged = mergeXmlRawFragments(ordinary, [
+      {
+        path: "Properties\\Missing\\Value",
+        value: null,
+        suppressOrdinaryOutput: true,
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toBe(xmlExport(ordinary, false))
+  })
+
+  it("rejects an effective #name that collides with an ordinary sibling", () => {
+    const ordinary = roots("<Root><Properties><Legacy/></Properties></Root>")
+
+    expect(() =>
+      mergeXmlRawFragments(ordinary, [
+        {
+          path: "Properties\\Future",
+          value: { "#name": "Legacy" },
+          suppressOrdinaryOutput: false,
+        },
+      ])
+    ).toThrow(/обычн.*вывод/)
+  })
+
+  it("rejects equal effective #name values from separate planned children", () => {
+    const ordinary = roots("<Root><Properties/></Root>")
+
+    expect(() =>
+      mergeXmlRawFragments(ordinary, [
+        {
+          path: "Properties\\Future",
+          value: { "#name": "Legacy" },
+          suppressOrdinaryOutput: false,
+        },
+        {
+          path: "Properties\\Other",
+          value: { "#name": "Legacy" },
+          suppressOrdinaryOutput: false,
+        },
+      ])
+    ).toThrow(/обычн.*вывод/)
+  })
+
   it.each<{
     name: string
     boundaries: readonly XmlRawMergeBoundary[]
@@ -112,6 +159,18 @@ describe("mergeXmlRawFragments", () => {
       expectedMessage: /повторн.*пут/,
     },
     {
+      name: "duplicate resolved path with relative and root-inclusive spellings",
+      boundaries: [
+        { path: "Properties\\Future", value: "one", suppressOrdinaryOutput: false },
+        {
+          path: "Root\\Properties\\Future",
+          value: "two",
+          suppressOrdinaryOutput: false,
+        },
+      ],
+      expectedMessage: /повторн.*пут/,
+    },
+    {
       name: "invalid combined order",
       boundaries: [
         {
@@ -128,6 +187,18 @@ describe("mergeXmlRawFragments", () => {
         { path: "Properties\\Future", value: {}, suppressOrdinaryOutput: false },
         {
           path: "Properties\\Future\\Nested",
+          value: "value",
+          suppressOrdinaryOutput: false,
+        },
+      ],
+      expectedMessage: /перекрыв/,
+    },
+    {
+      name: "overlap with relative and root-inclusive spellings",
+      boundaries: [
+        { path: "Properties\\Future", value: {}, suppressOrdinaryOutput: false },
+        {
+          path: "Root\\Properties\\Future\\Nested",
           value: "value",
           suppressOrdinaryOutput: false,
         },

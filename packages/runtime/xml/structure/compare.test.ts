@@ -7,15 +7,25 @@ const roots = (xml: string): readonly XmlElementNode[] =>
   parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }).roots
 
 describe("compareXmlStructures", () => {
-  it("uses the structural hash as a fast equality check", () => {
+  it("confirms equal structural hashes with a deep comparison", () => {
     const original = roots("<Root><Value>one</Value></Root>")[0]!
-    const sameHashWithUnavailableSubtree = {
+    const originalValue = original.content.find(
+      (node): node is XmlElementNode => node.type === "element"
+    )!
+    const originalText = originalValue.content.find((node) => node.type === "text")!
+    const sameHashWithDifferentContent: XmlElementNode = {
       ...original,
-      name: "This subtree must not be inspected",
-      content: [],
+      content: [
+        {
+          ...originalValue,
+          content: [{ ...originalText, value: "two" }],
+        },
+      ],
     }
 
-    expect(compareXmlStructures([original], [sameHashWithUnavailableSubtree])).toEqual([])
+    expect(compareXmlStructures([original], [sameHashWithDifferentContent])).toEqual([
+      "/Root[1]/Value[1]/#text[1]",
+    ])
   })
 
   it("returns only the deepest independently mismatching paths", () => {

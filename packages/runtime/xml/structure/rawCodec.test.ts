@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { decodeXmlRawValue } from "./rawCodec"
+import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
+import { decodeXmlRawValue, readdressXmlElementNodes } from "./rawCodec"
 
 describe("decodeXmlRawValue", () => {
   it("preserves scalar text and distinguishes an absent XML place", () => {
@@ -46,6 +47,35 @@ describe("decodeXmlRawValue", () => {
           content: [{ type: "text", value: "two" }],
         },
         { type: "element", name: "A", content: [{ type: "text", value: "three" }] },
+      ],
+    })
+  })
+
+  it("uses the SAX-canonical processing instruction body without a leading separator", () => {
+    const fragment = decodeXmlRawValue(
+      { "?legacy": { _first: "1", _second: "2" } },
+      { elementName: "Value" }
+    )
+
+    expect(fragment.nodes[0]?.content[0]).toMatchObject({
+      type: "processingInstruction",
+      body: 'first="1" second="2"',
+    })
+  })
+
+  it("readdresses processing instruction pseudo-attributes per name", () => {
+    const roots = parseXmlDocumentWithSaxes(
+      '<Root><?legacy a="1" z="2" a="3"?></Root>',
+      { preserveXsiNil: true }
+    ).roots
+    const instruction = readdressXmlElementNodes(roots)[0]?.content[0]
+
+    expect(instruction).toMatchObject({
+      type: "processingInstruction",
+      attributes: [
+        { name: "a", occurrence: 1, path: "/Root[1]/?legacy[1]/@a[1]" },
+        { name: "z", occurrence: 1, path: "/Root[1]/?legacy[1]/@z[1]" },
+        { name: "a", occurrence: 2, path: "/Root[1]/?legacy[1]/@a[2]" },
       ],
     })
   })

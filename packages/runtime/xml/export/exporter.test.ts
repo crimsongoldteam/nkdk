@@ -68,4 +68,50 @@ describe("xmlExport", () => {
       ].join("\n")
     )
   })
+
+  it("round-trips the authoritative processing instruction body", () => {
+    const source =
+      '<Root><Before/><?legacy alpha a="1" z="2" a="3" &amp;?><After/></Root>'
+    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+
+    const xml = xmlExport(document.roots, false)
+    const roundTrippedRoot = parseXmlDocumentWithSaxes(xml, {
+      preserveXsiNil: true,
+    }).roots[0]
+    const instruction = roundTrippedRoot?.content.find(
+      (node) => node.type === "processingInstruction"
+    )
+
+    expect(xml).toContain('<?legacy alpha a="1" z="2" a="3" &amp;?>')
+    expect(
+      roundTrippedRoot?.content.flatMap((node) =>
+        node.type === "text"
+          ? []
+          : [node.type === "element" ? node.name : `?${node.target}`]
+      )
+    ).toEqual(["Before", "?legacy", "After"])
+    expect(instruction).toMatchObject({
+      type: "processingInstruction",
+      target: "legacy",
+      body: 'alpha a="1" z="2" a="3" &amp;',
+      attributes: [
+        { name: "a", value: "1", occurrence: 1 },
+        { name: "z", value: "2", occurrence: 1 },
+        { name: "a", value: "3", occurrence: 2 },
+      ],
+    })
+  })
+
+  it("escapes normalized XML attribute whitespace as character references", () => {
+    const source = '<Root value="line&#xA;carriage&#xD;tab&#x9;end"/>'
+    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+
+    const xml = xmlExport(document.roots, false)
+    const roundTripped = parseXmlDocumentWithSaxes(xml, {
+      preserveXsiNil: true,
+    }).roots[0]?.attributes[0]
+
+    expect(xml).toBe(source)
+    expect(roundTripped?.value).toBe("line\ncarriage\rtab\tend")
+  })
 })

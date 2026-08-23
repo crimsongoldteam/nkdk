@@ -231,7 +231,7 @@ function decodeProcessingInstruction(
     assertXmlName(name, `имя атрибута processing instruction ?${target}`)
     attributes.push({ name, value: item })
   }
-  const body = attributes.map(({ name, value: item }) => ` ${name}="${item}"`).join("")
+  const body = attributes.map(({ name, value: item }) => `${name}="${item}"`).join(" ")
   return { type: "processingInstruction", target, body, attributes }
 }
 
@@ -306,6 +306,7 @@ function materializeElement(
       const piOccurrence = (processingInstructionOccurrences.get(node.target) ?? 0) + 1
       processingInstructionOccurrences.set(node.target, piOccurrence)
       const piPath = `${path}/?${node.target}[${piOccurrence}]`
+      const pseudoAttributeOccurrences = new Map<string, number>()
       return {
         type: "processingInstruction",
         id: allocateId(),
@@ -313,14 +314,19 @@ function materializeElement(
         occurrence: piOccurrence,
         path: piPath,
         body: node.body,
-        attributes: node.attributes.map((attribute, index) => ({
-          id: allocateId(),
-          name: attribute.name,
-          occurrence: index + 1,
-          path: `${piPath}/@${attribute.name}[${index + 1}]`,
-          value: attribute.value,
-          span: { start: 0, end: 0 },
-        })),
+        attributes: node.attributes.map((attribute) => {
+          const attributeOccurrence =
+            (pseudoAttributeOccurrences.get(attribute.name) ?? 0) + 1
+          pseudoAttributeOccurrences.set(attribute.name, attributeOccurrence)
+          return {
+            id: allocateId(),
+            name: attribute.name,
+            occurrence: attributeOccurrence,
+            path: `${piPath}/@${attribute.name}[${attributeOccurrence}]`,
+            value: attribute.value,
+            span: { start: 0, end: 0 },
+          }
+        }),
         span: { start: 0, end: 0 },
       } satisfies XmlProcessingInstructionNode
     }

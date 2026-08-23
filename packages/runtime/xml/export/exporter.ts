@@ -6,7 +6,12 @@ const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 const escapeText = (value: unknown): string =>
   String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 
-const escapeAttribute = (value: unknown): string => escapeText(value).replace(/"/g, "&quot;")
+const escapeAttribute = (value: unknown): string =>
+  escapeText(value)
+    .replace(/"/g, "&quot;")
+    .replace(/\n/g, "&#xA;")
+    .replace(/\r/g, "&#xD;")
+    .replace(/\t/g, "&#x9;")
 
 const options = {
   attributeNamePrefix: "_",
@@ -150,10 +155,8 @@ const structuralAttributesToPreserveOrder = (
 const structuralContentToPreserveOrder = (node: XmlContentNode): Record<string, unknown> => {
   if (node.type === "text") return { "#text": node.value }
   if (node.type === "processingInstruction") {
-    return {
-      [`?${node.target}`]: [],
-      ...structuralAttributesToPreserveOrder(node),
-    }
+    const separator = node.body.length === 0 ? "" : " "
+    return { [`?${node.target}${separator}${node.body}`]: [] }
   }
   return structuralElementToPreserveOrder(node)
 }

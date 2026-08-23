@@ -22,7 +22,14 @@ function compareElementLists(
 ): void {
   if (
     expected.length === actual.length &&
-    expected.every((node, index) => node.structuralHash === actual[index]?.structuralHash)
+    expected.every((node, index) => {
+      const actualNode = actual[index]
+      return (
+        actualNode !== undefined &&
+        node.structuralHash === actualNode.structuralHash &&
+        sameElementStructure(node, actualNode)
+      )
+    })
   ) return
   if (sameElementOrder(expected, actual) === false && sameElementMultiset(expected, actual)) {
     differences.push(`${parentPath}/#order`)
@@ -37,7 +44,10 @@ function compareElement(
   actual: XmlElementNode,
   differences: string[]
 ): void {
-  if (expected.structuralHash === actual.structuralHash) return
+  if (
+    expected.structuralHash === actual.structuralHash &&
+    sameElementStructure(expected, actual)
+  ) return
   if (expected.name !== actual.name) {
     differences.push(expected.path, actual.path)
     return
@@ -205,4 +215,54 @@ function isOrderedContent(
   node: XmlContentNode
 ): node is XmlElementNode | XmlProcessingInstructionNode {
   return node.type !== "text"
+}
+
+function sameElementStructure(expected: XmlElementNode, actual: XmlElementNode): boolean {
+  return (
+    expected.name === actual.name &&
+    sameAttributeStructure(expected.attributes, actual.attributes) &&
+    expected.content.length === actual.content.length &&
+    expected.content.every((node, index) => {
+      const actualNode = actual.content[index]
+      return actualNode !== undefined && sameContentStructure(node, actualNode)
+    })
+  )
+}
+
+function sameAttributeStructure(
+  expected: readonly XmlAttributeNode[],
+  actual: readonly XmlAttributeNode[]
+): boolean {
+  return (
+    expected.length === actual.length &&
+    expected.every((attribute, index) => {
+      const actualAttribute = actual[index]
+      return (
+        actualAttribute !== undefined &&
+        attribute.name === actualAttribute.name &&
+        attribute.value === actualAttribute.value
+      )
+    })
+  )
+}
+
+function sameContentStructure(expected: XmlContentNode, actual: XmlContentNode): boolean {
+  if (expected.type !== actual.type) return false
+  if (expected.type === "element" && actual.type === "element") {
+    return sameElementStructure(expected, actual)
+  }
+  if (expected.type === "text" && actual.type === "text") {
+    return expected.value === actual.value
+  }
+  if (
+    expected.type === "processingInstruction" &&
+    actual.type === "processingInstruction"
+  ) {
+    return (
+      expected.target === actual.target &&
+      expected.body === actual.body &&
+      sameAttributeStructure(expected.attributes, actual.attributes)
+    )
+  }
+  return false
 }
