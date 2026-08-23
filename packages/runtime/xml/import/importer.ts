@@ -1,4 +1,4 @@
-import { parseXmlWithSaxes } from "./saxesParser"
+import { parseXmlDocumentWithSaxes } from "./saxesParser"
 import type { ImportContentFromXMLOptions } from "./contracts"
 
 export const I8N_TEXT_FIELDS = [
@@ -24,6 +24,6 @@ export type { ImportContentFromXMLOptions } from "./contracts"
 export const importContentFromXML = <T>(
   data: string,
   importOptions: ImportContentFromXMLOptions = {}
-): T => parseXmlWithSaxes<T>(data, importOptions)
+): T => parseXmlDocumentWithSaxes(data, importOptions).compatibility as T
 
 export default importContentFromXML

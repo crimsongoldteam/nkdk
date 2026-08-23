@@ -3,3 +3,13 @@ export type ImportContentFromXMLOptions = {
   preserveEmptyElements?: true
   preserveEmptyElementNames?: readonly string[]
 }
+
+export type {
+  XmlAttributeNode,
+  XmlContentNode,
+  XmlDocument,
+  XmlElementNode,
+  XmlProcessingInstructionNode,
+  XmlSourceSpan,
+  XmlTextNode,
+} from "./document"
