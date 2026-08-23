@@ -108,7 +108,7 @@ function createCompatibilityConsumption(
   ): object => {
     const claimAttribute = (key: PropertyKey): void => {
       if (typeof key !== "string" || !key.startsWith("_")) return
-      const attribute = node.attributes.find(({ name }) => `_${name}` === key)
+      const attribute = findLastAttribute(node.attributes, key)
       if (attribute !== undefined) claim(attribute)
     }
     return wrapObject(
@@ -275,4 +275,15 @@ function compatibilityKey(node: XmlElementNode | XmlProcessingInstructionNode): 
 function arrayIndex(key: PropertyKey): number | undefined {
   if (typeof key !== "string" || !/^(0|[1-9]\d*)$/.test(key)) return undefined
   return Number(key)
+}
+
+function findLastAttribute(
+  attributes: readonly XmlAttributeNode[],
+  compatibilityKey: string,
+): XmlAttributeNode | undefined {
+  for (let index = attributes.length - 1; index >= 0; index -= 1) {
+    const attribute = attributes[index]!
+    if (`_${attribute.name}` === compatibilityKey) return attribute
+  }
+  return undefined
 }

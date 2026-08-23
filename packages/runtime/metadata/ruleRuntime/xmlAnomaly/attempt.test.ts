@@ -4,9 +4,32 @@ import {
   arrayLengthXmlImportAttemptAdapter,
   attachXmlImportAttemptAdapter,
   createXmlImportAttemptJournal,
+  XmlImportAttemptInfrastructureError,
+  type XmlImportAttemptPhase,
 } from "./attempt"
 
 describe("XML import attempt journal", () => {
+  it.each<XmlImportAttemptPhase>([
+    "begin",
+    "prepare",
+    "commit",
+    "rollback",
+    "release",
+  ])("маркирует ошибку инфраструктурной фазы %s и сохраняет cause", (phase) => {
+    const participant = {}
+    const cause = new Error(`${phase} failed`)
+    attachXmlImportAttemptAdapter(participant, failingPhaseAdapter(phase, cause))
+
+    const thrown = captureError(() => {
+      const attempt = createXmlImportAttemptJournal([participant]).begin()
+      if (phase === "rollback") attempt.rollback()
+      else attempt.commit()
+    })
+
+    expect(thrown).toBeInstanceOf(XmlImportAttemptInfrastructureError)
+    expect(thrown).toMatchObject({ phase, cause })
+  })
+
   it("фиксирует успешную попытку постоянным числом служебных вызовов", () => {
     const values: number[] = []
     const calls: string[] = []
@@ -202,4 +225,31 @@ function captureError(run: () => unknown): unknown {
     return error
   }
   return undefined
+}
+
+function failingPhaseAdapter(
+  phase: XmlImportAttemptPhase,
+  cause: Error,
+) {
+  const fail = (current: XmlImportAttemptPhase): void => {
+    if (phase === current) throw cause
+  }
+  return {
+    begin() {
+      fail("begin")
+      return {}
+    },
+    prepare() {
+      fail("prepare")
+    },
+    commit() {
+      fail("commit")
+    },
+    rollback() {
+      fail("rollback")
+    },
+    release() {
+      fail("release")
+    },
+  }
 }

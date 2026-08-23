@@ -63,7 +63,10 @@ import type {
   XmlImportAuditedNode,
   XmlImportAuditSession,
 } from "../xmlAnomaly/importAudit"
-import { createXmlImportAttemptJournal } from "../xmlAnomaly/attempt"
+import {
+  createXmlImportAttemptJournal,
+  XmlImportAttemptInfrastructureError,
+} from "../xmlAnomaly/attempt"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -639,6 +642,7 @@ export function importPropertiesFromXMLToYAML(params: {
           copyYAMLScalarTags(exportedValues, result)
           addProfileTime(params.profile, "collectorMs", collectorStartedAt)
         } catch (cause) {
+          if (cause instanceof XmlImportAttemptInfrastructureError) throw cause
           throw new DirectImportConversionError(propertyYamlPath, propertyRulePath, xmlPath, cause)
         }
       }
@@ -971,6 +975,13 @@ function addDirectImportProfile(
 }
 
 function aggregateAttemptFailure(cause: unknown, rollbackError: unknown): AggregateError {
+  if (rollbackError instanceof XmlImportAttemptInfrastructureError) {
+    return new XmlImportAttemptInfrastructureError(
+      rollbackError.phase,
+      rollbackError.cause,
+      [cause, ...rollbackError.errors],
+    )
+  }
   const errors = rollbackError instanceof AggregateError
     ? [cause, ...rollbackError.errors]
     : [cause, rollbackError]

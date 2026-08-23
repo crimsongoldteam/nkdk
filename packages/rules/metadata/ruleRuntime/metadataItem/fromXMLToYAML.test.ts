@@ -16,6 +16,12 @@ import {
 import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
 import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities } from "../../appliedObjects/configurationExtension/propertyStateCapabilities"
 import type { PropertyStateCapabilityContribution } from "../definition"
+import {
+  captureTestXmlImport,
+  createFailingXmlImportAttempt,
+  expectXmlImportInfrastructureFailure,
+  xmlImportAttemptPhases,
+} from "../../../tests/xmlImportAttempt"
 
 describe("importMetadataItemFromXMLToYAML", () => {
   it("builds a nested item without returning its model shape", () => {
@@ -113,6 +119,54 @@ describe("importMetadataItemFromXMLToYAML", () => {
     expect(
       audit.outcomes().find(({ node }) => node.path === "/Root[1]/Child[1]")?.state,
     ).toBe("claimed")
+  })
+
+  it.each(xmlImportAttemptPhases)("пробрасывает фазу %s через nested metadata-item без raw", (phase) => {
+    const valueType = `TestNestedItemInfrastructureValue${phase}` as PropertyRuleType
+    const itemType = `TestNestedItemInfrastructure${phase}` as PropertyRuleType
+    if (phase === "rollback") {
+      registerTypeRule(valueType, "importFromXMLToYAML", () => {
+        throw new Error("nested conversion failed")
+      })
+    }
+    registerMetadataItemRule({
+      propertyType: itemType,
+      itemRule: {
+        itemType: `TestNestedInfrastructureItem${phase}`,
+        properties: {
+          value: {
+            type: phase === "rollback" ? valueType : "string",
+            xml: "Value",
+            yaml: "Значение",
+          },
+        },
+      } as MetadataItemRule,
+    })
+    const { collector, cause } = createFailingXmlImportAttempt({
+      phase,
+      causeMessage: `${phase} nested item infrastructure failed`,
+      targetAttempt: 2,
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Child><Value>value</Value></Child></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const thrown = captureTestXmlImport({
+      context,
+      xml: root,
+      rule: {
+        itemType: `TestNestedInfrastructureOwner${phase}`,
+        properties: {
+          child: { type: itemType, xml: "Child", yaml: "Дочерний" },
+        },
+      } as MetadataItemRule,
+      collector,
+      audit,
+    })
+
+    expectXmlImportInfrastructureFailure({ thrown, phase, cause, audit })
   })
 
   it("добавляет !проверять корневому metadata-item до возврата YAML", () => {

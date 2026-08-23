@@ -16,6 +16,12 @@ import { PropertyRuleType } from "../property/registry"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
+import {
+  captureTestXmlImport,
+  createFailingXmlImportAttempt,
+  expectXmlImportInfrastructureFailure,
+  xmlImportAttemptPhases,
+} from "../../../tests/xmlImportAttempt"
 
 const itemRule = {
   itemType: "TestItem",
@@ -212,6 +218,56 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         },
       },
     ])
+  })
+
+  it.each(xmlImportAttemptPhases)("пробрасывает фазу %s через nested metadata-collection без raw", (phase) => {
+    const valueType = `TestNestedCollectionInfrastructureValue${phase}` as PropertyRuleType
+    const collectionType = `TestNestedCollectionInfrastructure${phase}` as PropertyRuleType
+    if (phase === "rollback") {
+      registerTypeRule(valueType, "importFromXMLToYAML", () => {
+        throw new Error("nested collection conversion failed")
+      })
+    }
+    registerMetadataItemCollectionRule({
+      propertyType: collectionType,
+      itemRule: {
+        itemType: `TestNestedCollectionInfrastructureItem${phase}`,
+        properties: {
+          value: {
+            type: phase === "rollback" ? valueType : "string",
+            xml: "Value",
+            yaml: "Значение",
+          },
+        },
+      } as MetadataItemRule,
+      xmlElement: "Item",
+      yamlAsArray: true,
+    })
+    const { collector, cause } = createFailingXmlImportAttempt({
+      phase,
+      causeMessage: `${phase} nested collection infrastructure failed`,
+      targetAttempt: 2,
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Item><Value>value</Value></Item></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const thrown = captureTestXmlImport({
+      context,
+      xml: root,
+      rule: {
+        itemType: `TestNestedCollectionInfrastructureOwner${phase}`,
+        properties: {
+          items: { type: collectionType, xml: "Item", yaml: "Элементы" },
+        },
+      } as MetadataItemRule,
+      collector,
+      audit,
+    })
+
+    expectXmlImportInfrastructureFailure({ thrown, phase, cause, audit })
   })
 
   it("публикует готовые local facts с финальным YAML-ключом один раз", () => {

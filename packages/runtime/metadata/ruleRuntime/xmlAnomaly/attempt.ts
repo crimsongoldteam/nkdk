@@ -18,6 +18,28 @@ export interface XmlImportAttemptJournal {
   begin(): XmlImportAttempt
 }
 
+export type XmlImportAttemptPhase =
+  | "begin"
+  | "prepare"
+  | "commit"
+  | "rollback"
+  | "release"
+
+export class XmlImportAttemptInfrastructureError extends AggregateError {
+  constructor(
+    readonly phase: XmlImportAttemptPhase,
+    cause: unknown,
+    errors: readonly unknown[] = [cause],
+  ) {
+    super(
+      errors,
+      `Ошибка инфраструктуры XML-import attempt (${phase}): ${errorMessage(cause)}`,
+      { cause },
+    )
+    this.name = "XmlImportAttemptInfrastructureError"
+  }
+}
+
 const adapters = new WeakMap<object, XmlImportAttemptAdapter>()
 const localIndexesBuffers = new WeakMap<
   LocalIndexesCollector,
@@ -75,14 +97,20 @@ export function createXmlImportAttemptJournal(
           started.push({ adapter, checkpoint: adapter.begin() })
         }
       } catch (error) {
-        throw rollbackAfterFailure(started, error)
+        throw rollbackAfterFailure("begin", started, error).error
       }
 
       let active = true
       return {
         commit() {
-          assertActive(active)
-          prepareStarted(started)
+          assertActive(active, "commit")
+          try {
+            prepareStarted(started)
+          } catch (error) {
+            const failure = rollbackAfterFailure("prepare", started, error)
+            if (!failure.rollbackFailed) active = false
+            throw failure.error
+          }
           try {
             for (let index = started.length - 1; index >= 0; index -= 1) {
               const entry = started[index]!
@@ -90,13 +118,13 @@ export function createXmlImportAttemptJournal(
             }
           } catch (error) {
             active = false
-            throw rollbackAfterFailure(started, error)
+            throw rollbackAfterFailure("commit", started, error).error
           }
           active = false
           releaseStarted(started)
         },
         rollback() {
-          assertActive(active)
+          assertActive(active, "rollback")
           active = false
           rollbackStarted(started)
         },
@@ -161,28 +189,31 @@ function prepareStarted(
 function releaseStarted(
   started: readonly { adapter: XmlImportAttemptAdapter; checkpoint: unknown }[],
 ): void {
-  runBestEffort(
+  const errors = runBestEffort(
     started,
     (entry) => entry.adapter.release?.(entry.checkpoint),
-    "Не удалось освободить XML-import attempt",
   )
+  if (errors.length > 0) {
+    throw new XmlImportAttemptInfrastructureError("release", errors[0], errors)
+  }
 }
 
 function rollbackStarted(
   started: readonly { adapter: XmlImportAttemptAdapter; checkpoint: unknown }[],
 ): void {
-  runBestEffort(
+  const errors = runBestEffort(
     started,
     (entry) => entry.adapter.rollback(entry.checkpoint),
-    "Не удалось откатить XML-import attempt",
   )
+  if (errors.length > 0) {
+    throw new XmlImportAttemptInfrastructureError("rollback", errors[0], errors)
+  }
 }
 
 function runBestEffort<Entry>(
   entries: readonly Entry[],
   run: (entry: Entry) => void,
-  message: string,
-): void {
+): unknown[] {
   const errors: unknown[] = []
   for (let index = entries.length - 1; index >= 0; index -= 1) {
     try {
@@ -191,26 +222,39 @@ function runBestEffort<Entry>(
       errors.push(error)
     }
   }
-  if (errors.length > 0) throw new AggregateError(errors, message)
+  return errors
 }
 
 function rollbackAfterFailure(
+  phase: "begin" | "prepare" | "commit",
   started: readonly { adapter: XmlImportAttemptAdapter; checkpoint: unknown }[],
   cause: unknown,
-): unknown {
-  try {
-    rollbackStarted(started)
-    return cause
-  } catch (rollbackError) {
-    const errors = rollbackError instanceof AggregateError
-      ? [cause, ...rollbackError.errors]
-      : [cause, rollbackError]
-    return new AggregateError(errors, "Не удалось зафиксировать XML-import attempt", { cause })
+): {
+  readonly error: XmlImportAttemptInfrastructureError
+  readonly rollbackFailed: boolean
+} {
+  const rollbackErrors = runBestEffort(
+    started,
+    (entry) => entry.adapter.rollback(entry.checkpoint),
+  )
+  return {
+    error: new XmlImportAttemptInfrastructureError(
+      phase,
+      cause,
+      [cause, ...rollbackErrors],
+    ),
+    rollbackFailed: rollbackErrors.length > 0,
   }
 }
 
-function assertActive(active: boolean): void {
-  if (!active) throw new Error("XML-import attempt уже завершена")
+function assertActive(active: boolean, phase: "commit" | "rollback"): void {
+  if (active) return
+  const cause = new Error("XML-import attempt уже завершена")
+  throw new XmlImportAttemptInfrastructureError(phase, cause)
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
 }
 import type { YamlPath } from "../../diagnostics/types"
 import type { LocalIndexesCollector } from "../property/localFacts"
