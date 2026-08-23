@@ -371,6 +371,7 @@ describe("ProjectStateFileUpdateBatch", () => {
     const updates = [
       { ...yamlUpdate("a.yaml"), fields: [{ ...field, typeInfo: { ...typeInfo, extra: true } }] },
       { ...yamlUpdate("a.yaml"), fields: [{ ...field, typeInfo: { ...typeInfo, isComposite: "yes" } }] },
+      { ...yamlUpdate("a.yaml"), fields: [{ ...field, typeInfo: { ...typeInfo, structuredType: 1 } }] },
       { ...yamlUpdate("a.yaml"), fields: [{ ...field, table: { kind: "ValueTable", extra: true } }] },
       {
         ...yamlUpdate("a.yaml"),
@@ -400,6 +401,31 @@ describe("ProjectStateFileUpdateBatch", () => {
     for (const update of updates) {
       expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) })).toThrow()
     }
+  })
+
+  it("переносит structuredType источника данных формы", () => {
+    const update = {
+      ...yamlUpdate("a.yaml"),
+      forms: [{
+        kind: "root",
+        owner: { kind: "Обработка", name: "Настройки" },
+        name: "КомпоновщикНастроек",
+        source: {
+          kind: "formAttribute",
+          name: "КомпоновщикНастроек",
+          typeInfo: {
+            kinds: ["structured"],
+            nextTypes: [],
+            structuredType: "DataCompositionSettingsComposer",
+          },
+        },
+      }],
+    }
+
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [update],
+      hashBytes: new Uint8Array(8),
+    })).not.toThrow()
   })
 
   it.each([

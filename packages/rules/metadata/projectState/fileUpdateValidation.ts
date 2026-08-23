@@ -261,6 +261,7 @@ const DATA_PATH_VALUE_KINDS = [
   "registerRecords",
   "platformSource",
   "standardPeriod",
+  "structured",
   "unsupportedIntermediate",
 ]
 function elementTypes(): readonly string[] {
@@ -788,7 +789,16 @@ function assertOwnerRef(value: unknown, path: string): void {
 
 function assertTypeInfo(value: unknown, path: string): void {
   const typeInfo = requiredRecord(value, path)
-  assertExactKeys(typeInfo, ["kinds", "nextTypes", "terminalTypes", "definedTypes", "table", "isComposite", "sourceText"], path)
+  assertExactKeys(typeInfo, [
+    "kinds",
+    "nextTypes",
+    "terminalTypes",
+    "definedTypes",
+    "table",
+    "isComposite",
+    "sourceText",
+    "structuredType",
+  ], path)
   assertStringArray(typeInfo["kinds"], `${path}.kinds`, DATA_PATH_VALUE_KINDS)
   if (!Array.isArray(typeInfo["nextTypes"])) throw new Error(`${path}.nextTypes должен быть массивом`)
   typeInfo["nextTypes"].forEach((owner, index) => assertOwnerRef(owner, `${path}.nextTypes[${index}]`))
@@ -797,6 +807,7 @@ function assertTypeInfo(value: unknown, path: string): void {
   if (typeInfo["table"] !== undefined) assertDataPathTableInfo(typeInfo["table"], `${path}.table`)
   assertOptionalBoolean(typeInfo["isComposite"], `${path}.isComposite`)
   assertOptionalString(typeInfo["sourceText"], `${path}.sourceText`)
+  assertOptionalString(typeInfo["structuredType"], `${path}.structuredType`)
 }
 
 function assertDataPathTableInfo(value: unknown, path: string): void {
