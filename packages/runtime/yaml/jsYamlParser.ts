@@ -1,9 +1,16 @@
 import {
   eventsToAst,
+  EVENT_MAPPING,
+  EVENT_POP,
+  EVENT_SCALAR,
+  EVENT_SEQUENCE,
+  SCALAR_STYLE_DOUBLE_QUOTED,
+  SCALAR_STYLE_SINGLE_QUOTED,
   load,
   parseEvents,
   present,
   YAMLException,
+  type Event,
   type Node,
 } from "js-yaml"
 import { markDoubleQuotedScalar, type YAMLStyleKey } from "./explicitString"
@@ -134,14 +141,16 @@ function prepareMappingKeyTags(text: string): {
   readonly sourcePaths: ReadonlyMap<string, readonly (string | number)[]>
 } {
   const source = prepareYAMLScalarTagsForParser(text)
-  const documents = eventsToAst(parseEvents(source, {}), {
+  const events = parseEvents(source, {})
+  const documents = eventsToAst(events, {
     source,
     schema: NKDK_YAML_SCHEMA,
   })
   const tags: ParsedMappingKeyTag[] = []
   const annotations: ParsedXmlAnomalyAnnotation[] = []
   const sourcePaths = new Map<string, readonly (string | number)[]>()
-  for (const document of documents) collectYamlTags(document.contents, [], [], tags, annotations, sourcePaths)
+  const taggedKeySources = annotatedMappingKeySources(source, events)
+  for (const document of documents) collectYamlTags(document.contents, [], [], tags, annotations, sourcePaths, taggedKeySources)
   if (tags.length === 0 && annotations.every((entry) => entry.annotation.target !== "key")) {
     return { loadText: source, tags, annotations, sourcePaths }
   }
@@ -164,6 +173,7 @@ function collectYamlTags(
   tags: ParsedMappingKeyTag[],
   annotations: ParsedXmlAnomalyAnnotation[],
   sourcePaths: Map<string, readonly (string | number)[]>,
+  taggedKeySources: string[],
 ): void {
   if (node === null || node.kind === "alias") return
   const rootTag = xmlAnomalyTag(node.tag)
@@ -179,7 +189,7 @@ function collectYamlTags(
   if (node.kind === "sequence") {
     node.items.forEach((item, index) => {
       collectValueAnnotation(item, path, index, annotations)
-      collectYamlTags(item, [...path, index], [...sourcePath, index], tags, annotations, sourcePaths)
+      collectYamlTags(item, [...path, index], [...sourcePath, index], tags, annotations, sourcePaths, taggedKeySources)
     })
     return
   }
@@ -200,7 +210,8 @@ function collectYamlTags(
       if (annotationTag.numbered && annotationTag.occurrence === 1) {
         throw new YAMLException(`Тег ${key.tag} не использует номер /1`)
       }
-      const sourceKey = sourceMappingKey(key)
+      const sourceKey = taggedKeySources.shift()
+      if (sourceKey === undefined) throw new YAMLException("Не найден исходный ключ XML-аннотации")
       const expected = expectedOccurrences.get(key.value) ?? 1
       if (annotationTag.occurrence !== expected) {
         throw new YAMLException(`Тег ${key.tag} нарушает нумерацию повторного ключа ${key.value}`)
@@ -227,7 +238,7 @@ function collectYamlTags(
     const nextKey = runtimeKey ?? key.value
     const nextSourcePath = sourcePaths.get(pathKey([...path, nextKey])) ?? [...sourcePath, key.value]
     collectValueAnnotation(value, path, nextKey, annotations)
-    collectYamlTags(value, [...path, nextKey], nextSourcePath, tags, annotations, sourcePaths)
+    collectYamlTags(value, [...path, nextKey], nextSourcePath, tags, annotations, sourcePaths, taggedKeySources)
   }
 }
 
@@ -284,11 +295,36 @@ function pathKey(path: readonly (string | number)[]): string {
   return JSON.stringify(path)
 }
 
-function sourceMappingKey(key: Node): string {
-  if (key.kind !== "scalar") throw new TypeError("XML-аннотация ключа ожидает скалярный ключ")
-  if (key.style.doubleQuoted) return `${key.tag} ${JSON.stringify(key.value)}`
-  if (key.style.singleQuoted) return `${key.tag} '${key.value.replaceAll("'", "''")}'`
-  return `${key.tag} ${key.value}`
+function annotatedMappingKeySources(source: string, events: readonly Event[]): string[] {
+  const sources: string[] = []
+  const containers: { readonly mapping: boolean; expectsKey?: boolean }[] = []
+  for (const event of events) {
+    if (event.type === EVENT_POP) {
+      containers.pop()
+      continue
+    }
+    if (event.type !== EVENT_SCALAR && event.type !== EVENT_MAPPING && event.type !== EVENT_SEQUENCE) continue
+    const container = containers[containers.length - 1]
+    const isMappingKey = container?.mapping === true && container.expectsKey === true
+    if (container?.mapping === true) container.expectsKey = !container.expectsKey
+    if (event.type === EVENT_SCALAR && isMappingKey && isXmlAnnotationTagEvent(source, event)) {
+      sources.push(source.slice(event.tagStart, sourceScalarEnd(event)).trim())
+    }
+    if (event.type === EVENT_MAPPING) containers.push({ mapping: true, expectsKey: true })
+    if (event.type === EVENT_SEQUENCE) containers.push({ mapping: false })
+  }
+  return sources
+}
+
+function isXmlAnnotationTagEvent(source: string, event: Extract<Event, { type: typeof EVENT_SCALAR }>): boolean {
+  if (event.tagStart < 0 || event.tagEnd < 0) return false
+  return /^!xml\/(?:raw|invalid|important)(?:\/[1-9]\d*)?$/u.test(source.slice(event.tagStart, event.tagEnd))
+}
+
+function sourceScalarEnd(event: Extract<Event, { type: typeof EVENT_SCALAR }>): number {
+  return event.style === SCALAR_STYLE_DOUBLE_QUOTED || event.style === SCALAR_STYLE_SINGLE_QUOTED
+    ? event.valueEnd + 1
+    : event.valueEnd
 }
 
 function applyParsedMappingKeyTags(

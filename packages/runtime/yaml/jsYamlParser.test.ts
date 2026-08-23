@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitString"
+import { serializeYAMLDocument } from "./export"
 import { parseWithJsYaml } from "./jsYamlParser"
 import {
   copyYAMLScalarTags,
@@ -207,10 +208,11 @@ describe("parseWithJsYaml", () => {
   })
 
   it.each([
-    ["без кавычек", "!xml/invalid Код:\n  Значение: null"],
-    ["в двойных кавычках", '!xml/invalid "Код":\n  Значение: null'],
-    ["в одинарных кавычках", "!xml/invalid 'Код':\n  Значение: null"],
-  ])("сохраняет явный null под аннотированным ключом %s", (_name, source) => {
+    ["без кавычек", "!xml/invalid Код:\n  Значение: null", "Код"],
+    ["в двойных кавычках", '!xml/invalid "Код":\n  Значение: null', "Код"],
+    ["в одинарных кавычках", "!xml/invalid 'Код':\n  Значение: null", "Код"],
+    ["с YAML-escape", '!xml/invalid "\\x41":\n  Значение: null', "A"],
+  ])("сохраняет явный null под аннотированным ключом %s", (_name, source, logicalKey) => {
     const parsed = parseWithJsYaml(source)
     const data = parsed.data as Record<string, { Значение: unknown }>
     const runtimeKey = Object.keys(data)[0]!
@@ -219,9 +221,9 @@ describe("parseWithJsYaml", () => {
     expect(data[runtimeKey]).toEqual({ Значение: null })
     expect(parsed.annotations.keyAt(data, runtimeKey)).toMatchObject({
       kind: "invalid",
-      logicalKey: "Код",
+      logicalKey,
     })
-    expect(runtimeKey).not.toContain("Код")
+    expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).not.toContain("__NKDK_XML_ANOMALY_KEY_")
   })
 })
 
