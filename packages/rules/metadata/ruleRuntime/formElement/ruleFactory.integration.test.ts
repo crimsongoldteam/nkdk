@@ -5,6 +5,12 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
+import {
+  createXmlAnomalyAnnotations,
+  createXmlImportAuditSession,
+  parseXmlDocumentWithSaxes,
+} from "@nkdk/runtime"
+import { createImportedDependentPropertyCollector } from "../property/importYamlTypes"
 import type { MetadataItemRule } from "../property/types"
 import type { ElementRule } from "./types"
 import {
@@ -13,10 +19,82 @@ import {
   getElementRule,
 } from "./ruleFactory"
 import { typeRulesRegistryRevision } from "../property/typeRuleRegistry"
+import { createRuleRegistrySet } from "../ruleRegistrySet"
+import { metadataRules } from "../../composition/metadataRules"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
+import {
+  importFormElementPropertiesFromXMLToYAML,
+  importSingleFormElementFromXMLToYAML,
+} from "./fromXMLToYAML"
+import type { ElementXML } from "./types"
 
 import "../../forms/elements/index"
 
 describe("одиночный элемент формы", () => {
+  it.each(["обычный", "singleton"] as const)(
+    "передаёт полный DirectImportTraversal во вложенные свойства: %s",
+    (mode) => {
+      const registries = createRuleRegistrySet(metadataRules)
+      const root = parseXmlDocumentWithSaxes("<Element><Value>ok</Value></Element>").roots[0]!
+      const valueNode = root.content.find((node) => node.type === "element")!
+      const audit = createXmlImportAuditSession([root])
+      const annotations = createXmlAnomalyAnnotations()
+      const dependent = createImportedDependentPropertyCollector()
+      const observed: unknown[] = []
+      registries.property.registerTypeRule("TraversalProbe" as never, "importFromXMLToYAML", ({ traversal }) => {
+        observed.push({
+          audit: traversal.audit,
+          annotations: traversal.annotations,
+          dependent: traversal.dependent,
+          xmlNodes: traversal.xmlNodes,
+        })
+        return "ok"
+      })
+      const rule = {
+        itemType: "Button",
+        enterpriseField: "FormButton",
+        enterpriseFieldType: "FormButtonType.UsualButton",
+        properties: {
+          value: { type: "TraversalProbe", yaml: "Значение", xml: "Value" },
+        },
+      } as const satisfies ElementRule
+      const traversal = {
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+        dependent,
+        audit,
+        annotations,
+        xmlNodes: [root],
+        execution: registries.execution,
+      }
+
+      if (mode === "обычный") {
+        importFormElementPropertiesFromXMLToYAML({
+          context: createDirectRoundTripContexts().importContext,
+          rule,
+          xml: root as unknown as ElementXML,
+          name: "Элемент",
+          traversal,
+        })
+      } else {
+        importSingleFormElementFromXMLToYAML({
+          context: createDirectRoundTripContexts().importContext,
+          rule,
+          xml: root as unknown as ElementXML,
+          traversal,
+        })
+      }
+
+      expect(observed).toEqual([{
+        audit,
+        annotations,
+        dependent,
+        xmlNodes: [valueNode],
+      }])
+    },
+  )
+
   it("создаёт definition без записи в legacy registry", () => {
     const revision = typeRulesRegistryRevision()
     const elementRule = {

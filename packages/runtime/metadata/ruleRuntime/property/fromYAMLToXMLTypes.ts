@@ -101,6 +101,7 @@ export type YAMLToXMLNestedRule =
       readonly injectOwnerName?: true
       readonly normalizeYAML?: (params: {
         yaml: unknown
+        annotations?: XmlAnomalyAnnotations
         name: string | undefined
         propertyRule: PropertyRule
       }) => unknown
@@ -153,6 +154,7 @@ export type YAMLToXMLNestedRule =
       }) => import("../../context/types").ConfigurationContextWithExportToXML
       readonly normalizeItemYAML?: (params: {
         yaml: unknown
+        annotations?: XmlAnomalyAnnotations
         name: string | undefined
         index: number
         propertyRule: PropertyRule | undefined

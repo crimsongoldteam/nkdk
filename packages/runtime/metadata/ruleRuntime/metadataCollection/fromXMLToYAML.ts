@@ -22,7 +22,7 @@ import {
   attachXmlImportAttemptAdapter,
   createXmlImportBufferedLocalIndexes,
 } from "../xmlAnomaly/attempt"
-import { projectNamedXmlCollection } from "../xmlAnomaly/yamlProjection"
+import { projectNamedXmlCollectionForImport } from "../xmlAnomaly/yamlProjection"
 
 type MetadataItemCollectionImportOptions = {
   propertyType?: PropertyRuleType
@@ -30,6 +30,12 @@ type MetadataItemCollectionImportOptions = {
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
   yamlAsArray?: true
 }
+
+export type ClassifyNamedCollectionYamlKey = (params: {
+  yaml: Record<string, unknown>
+  name: string
+  yamlKey: string
+}) => "valid" | "invalid"
 
 function configurationIndexItemContext(params: {
   context: ConfigurationContextFromXML
@@ -79,6 +85,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
   preserveItemPropertyPresence?: true
   recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
+  classifyYamlKey?: ClassifyNamedCollectionYamlKey
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
   const structuralItems = collectionItemNodes(params.traversal.xmlNodes, params.xmlElement)
@@ -177,20 +184,28 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedDeferred?.flush(targetYamlPath)
       bufferedDependent?.flush(targetYamlPath, yamlKey)
     }
-    return [{ yaml: itemYaml, name, yamlKey }]
+    const keyClassification = yamlKey === undefined
+      ? undefined
+      : params.classifyYamlKey?.({ yaml: itemYaml, name, yamlKey })
+    return [{ yaml: itemYaml, name, yamlKey, keyClassification }]
   })
   if (yamlItems.length === 0) return undefined
 
   if (params.yamlAsArray === true) return yamlItems.map(({ yaml }) => yaml)
 
   if (keyYaml === undefined) return undefined
-  const entries = yamlItems.map(({ yaml, yamlKey }) => {
+  const entries = yamlItems.map(({ yaml, yamlKey, keyClassification }) => {
     delete yaml[keyYaml]
-    return { key: yamlKey!, value: yaml }
+    return {
+      key: yamlKey!,
+      value: yaml,
+      ...(keyClassification === "invalid" ? { invalid: true } : {}),
+    }
   })
-  return params.traversal.annotations === undefined
-    ? Object.fromEntries(entries.map(({ key, value }) => [key, value]))
-    : projectNamedXmlCollection({ entries, annotations: params.traversal.annotations })
+  return projectNamedXmlCollectionForImport({
+    entries,
+    annotations: params.traversal.annotations,
+  })
 }
 
 function createBufferedDependentCollector(

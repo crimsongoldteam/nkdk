@@ -10,6 +10,7 @@ import {
 import {
   XML_ABSENT_TAG_VALUE,
   XML_PRESENT_TAG_VALUE,
+  createXmlAnomalyAnnotations,
   importContentFromXML,
   markYAMLScalarTag,
   serializeYAMLDocument,
@@ -57,6 +58,47 @@ const settingsFixtures = [
 ] as const
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it("сохраняет реквизиты и колонки с повторными именами в XML-порядке", () => {
+    const annotations = createXmlAnomalyAnnotations()
+    const source = {
+      Attribute: [
+        {
+          _name: "Таблица",
+          _id: "1",
+          Type: { "v8:Type": "v8:ValueTable" },
+          Columns: {
+            Column: [
+              { _name: "Колонка", _id: "1", Type: { "v8:Type": "xs:string" } },
+              { _name: "Колонка", _id: "2", Type: { "v8:Type": "xs:boolean" } },
+            ],
+          },
+        },
+        { _name: "Таблица", _id: "2", Type: { "v8:Type": "xs:string" } },
+      ],
+    }
+
+    const { yaml } = testPropertyFromXMLToYAML({ rule, xml: source, annotations })
+    const text = serializeYAMLDocument(yaml, annotations).text
+    expect(text).toContain("!xml/invalid Таблица:")
+    expect(text).toContain("!xml/invalid Колонка:")
+
+    const { xml } = testPropertyFromYAMLToXML({ rule, yaml, annotations })
+    expect(xml).toMatchObject({
+      Attribute: [
+        {
+          _name: "Таблица",
+          Columns: {
+            Column: [
+              { _name: "Колонка", Type: { "v8:Type": "xs:string" } },
+              { _name: "Колонка", Type: { "v8:Type": "xs:boolean" } },
+            ],
+          },
+        },
+        { _name: "Таблица", Type: { "v8:Type": "xs:string" } },
+      ],
+    })
+  })
+
   it("сохраняет пустые параметры данных вложенного динамического списка", () => {
     const execution = createRuleRegistrySet(metadataRules).execution
     const { yaml } = testPropertyFromXMLToYAML({

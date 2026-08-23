@@ -1,4 +1,4 @@
-import { childUid, indexedUid } from "@nkdk/runtime"
+import { childUid, indexedUid, projectNamedXmlCollectionForImport } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
@@ -9,11 +9,12 @@ import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCurso
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import { hasSoleValueListType } from "./valueListSettings"
+import { isMetadataNameYAML } from "../../../commonObjects/metadataName/types"
 
 export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml, traversal }) => {
   const source = asRecord(xml)?.Attribute ?? xml
   const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
-  const result: Record<string, unknown> = {}
+  const entries: Array<{ key: string; value: Record<string, unknown>; invalid?: true }> = []
   const collection = getConfigurationIndexCollectionContext(context)
 
   for (const value of items) {
@@ -67,10 +68,16 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
       yamlPath: itemTraversal.yamlPath,
       rulePath: itemTraversal.rulePath,
     })
-    result[name] = yaml
+    entries.push({
+      key: name,
+      value: yaml,
+      ...(isMetadataNameYAML(name) ? {} : { invalid: true }),
+    })
   }
 
-  return Object.keys(result).length === 0 ? undefined : result
+  return entries.length === 0
+    ? undefined
+    : projectNamedXmlCollectionForImport({ entries, annotations: traversal.annotations })
 }
 
 function importAdditionalColumnsFromXMLToYAML(params: {
@@ -79,7 +86,7 @@ function importAdditionalColumnsFromXMLToYAML(params: {
   traversal: Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]
 }): Record<string, unknown> | undefined {
   const items = Array.isArray(params.xml) ? params.xml : params.xml === undefined ? [] : [params.xml]
-  const result: Record<string, unknown> = {}
+  const entries: Array<{ key: string; value: Record<string, unknown> }> = []
   const collection = getConfigurationIndexCollectionContext(params.context)
 
   for (const [index, value] of items.entries()) {
@@ -101,10 +108,12 @@ function importAdditionalColumnsFromXMLToYAML(params: {
       xml: item.Column,
       traversal: { ...params.traversal, yamlPath: [...params.traversal.yamlPath, table] },
     })
-    result[table] = columns ?? {}
+    entries.push({ key: table, value: columns ?? {} })
   }
 
-  return Object.keys(result).length === 0 ? undefined : result
+  return entries.length === 0
+    ? undefined
+    : projectNamedXmlCollectionForImport({ entries, annotations: params.traversal.annotations })
 }
 
 function importColumnsFromXMLToYAML(params: {
@@ -113,7 +122,7 @@ function importColumnsFromXMLToYAML(params: {
   traversal: Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]
 }): Record<string, unknown> | undefined {
   const items = Array.isArray(params.xml) ? params.xml : params.xml === undefined ? [] : [params.xml]
-  const result: Record<string, unknown> = {}
+  const entries: Array<{ key: string; value: Record<string, unknown>; invalid?: true }> = []
   const duplicatedNames = duplicatedColumnNames(items)
   const collection = getConfigurationIndexCollectionContext(params.context)
 
@@ -146,17 +155,25 @@ function importColumnsFromXMLToYAML(params: {
       traversal: itemTraversal,
     })
     if (yaml !== undefined) {
+      const yamlRecord = asRecord(yaml)
+      if (yamlRecord === undefined) throw new Error(`Колонка формы ${name} должна преобразовываться в YAML-объект`)
       params.traversal.collector.acceptItem({
         itemType: FormAttributeColumnRules.itemType,
         name,
         yamlPath: itemTraversal.yamlPath,
         rulePath: itemTraversal.rulePath,
       })
-      result[name] = yaml
+      entries.push({
+        key: name,
+        value: yamlRecord,
+        ...(isMetadataNameYAML(name) ? {} : { invalid: true }),
+      })
     }
   }
 
-  return Object.keys(result).length === 0 ? undefined : result
+  return entries.length === 0
+    ? undefined
+    : projectNamedXmlCollectionForImport({ entries, annotations: params.traversal.annotations })
 }
 
 function duplicatedColumnNames(items: readonly unknown[]): ReadonlySet<string> {

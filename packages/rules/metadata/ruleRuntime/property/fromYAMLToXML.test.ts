@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { importFromYAML, markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { importFromYAML, markYAMLScalarTag, parseMetadataYaml, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import "../../commonObjects/i8nText/fromXML"
 import "../../commonObjects/i8nText/fromYAML"
 import "../../commonObjects/i8nText/toXML"
@@ -1500,6 +1500,42 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({ Parent: { Name: "СтарыйРодитель" } })
+  })
+
+  it("переносит nested XML-аннотации на новый mapping normalizeYAML", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const parsed = parseMetadataYaml([
+      "Родитель:",
+      "  Вложенное:",
+      "    - Значение: !xml/raw value",
+    ].join("\n"))
+    let normalized: Record<string, unknown> | undefined
+    rules.property.registerTypeRule("AnnotatedNormalizedItem" as never, "yamlToXMLNestedRule", {
+      kind: "item",
+      itemRule: testRule({}),
+      normalizeYAML: ({ yaml, annotations }) => {
+        expect(annotations).toBe(parsed.annotations)
+        normalized = structuredClone(yaml as Record<string, unknown>)
+        return normalized
+      },
+    } as YAMLToXMLNestedRule)
+
+    convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+      rule: testRule({
+        parent: { type: "AnnotatedNormalizedItem" as never, yaml: "Родитель", xml: "Parent" },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    const nested = normalized?.Вложенное as Array<Record<string, unknown>>
+    expect(parsed.annotations.at(nested[0]!, "Значение")).toMatchObject({
+      kind: "raw",
+      target: "value",
+    })
   })
 
   it("не обходит отсутствующий необязательный вложенный объект", () => {

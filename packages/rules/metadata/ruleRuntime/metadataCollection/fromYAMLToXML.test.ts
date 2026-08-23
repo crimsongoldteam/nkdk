@@ -28,6 +28,44 @@ const nestedRule = {
 } as const satisfies MetadataItemRule
 
 describe("convertMetadataCollectionFromYAMLToXML", () => {
+  it("переносит nested XML-аннотации на новый mapping normalizeItemYAML", () => {
+    const parsed = parseMetadataYaml([
+      "Код:",
+      "  Вложенное:",
+      "    - Значение: !xml/raw value",
+    ].join("\n"))
+    let normalized: Record<string, unknown> | undefined
+    const descriptor = {
+      kind: "collection",
+      itemRule: nestedRule,
+      yamlShape: "record",
+      normalizeItemYAML: ({ yaml, annotations }) => {
+        expect(annotations).toBe(parsed.annotations)
+        normalized = structuredClone(yaml as Record<string, unknown>)
+        return normalized
+      },
+    } as const satisfies YAMLToXMLNestedRule
+
+    convertMetadataCollectionFromYAMLToXML({
+      convertItem: (params) => {
+        const nested = (params.yaml as Record<string, unknown>).Вложенное as Array<Record<string, unknown>>
+        expect(params.annotations?.at(nested[0]!, "Значение")).toMatchObject({
+          kind: "raw",
+          target: "value",
+        })
+        return { outputs: new Map([["owner", {}]]), deferredByOutput: new Map(), externalWrites: [] }
+      },
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+      descriptor,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(normalized).toBeDefined()
+  })
+
   it("восстанавливает повторные логические ключи из таблицы XML-аннотаций", () => {
     const parsed = parseMetadataYaml([
       "Код:",

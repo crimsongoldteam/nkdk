@@ -43,6 +43,7 @@ registerMetadataItemCollectionRule({
   itemRule,
   xmlElement: "Item",
   keyField: "name",
+  classifyYamlKey: ({ yamlKey }) => /^[$_\p{L}][$_\p{L}\p{N}]*$/u.test(yamlKey) ? "valid" : "invalid",
 })
 registerMetadataItemCollectionRule({
   propertyType: "TestArrayCollection" as PropertyRuleType,
@@ -100,34 +101,42 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it("помечает первый и следующий элементы с невалидным повторным именем", () => {
+    const annotations = createXmlAnomalyAnnotations()
+    const { yaml } = importTestRecordCollection(
+      "<Root><Items>" +
+      "<Item><Name>1Код</Name><Value>first</Value></Item>" +
+      "<Item><Name>1Код</Name><Value>second</Value></Item>" +
+      "</Items></Root>",
+      annotations,
+    )
+
+    expect(serializeYAMLDocument(yaml, annotations).text).toContain(
+      "Элементы:\n  !xml/invalid 1Код:\n    Значение: first\n  !xml/invalid/2 1Код:\n    Значение: second",
+    )
+  })
+
+  it("не схлопывает повторный ключ при отсутствии таблицы аннотаций", () => {
+    expect(() => importTestRecordCollection(
+      "<Root><Items>" +
+      "<Item><Name>Код</Name><Value>first</Value></Item>" +
+      "<Item><Name>Код</Name><Value>second</Value></Item>" +
+      "</Items></Root>",
+      undefined,
+      false,
+    )).toThrow(/таблиц.*аннотац/i)
+  })
+
   it("сохраняет все элементы record-коллекции с повторным логическим ключом", () => {
-    const collector = createLocalIndexesCollector()
-    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
-    const root = parseXmlDocumentWithSaxes(
+    const annotations = createXmlAnomalyAnnotations()
+    const { yaml, audit } = importTestRecordCollection(
       "<Root><Items>" +
       "<Item><Name>Код</Name><Value>first</Value></Item>" +
       "<Item><Name>Код</Name><Value>second</Value></Item>" +
       "<Item><Name>Код</Name><Value>third</Value></Item>" +
       "</Items></Root>",
-    ).roots[0]!
-    const audit = createXmlImportAuditSession([root])
-    const annotations = createXmlAnomalyAnnotations()
-
-    const yaml = importPropertiesFromXMLToYAML({
-      context,
-      rule: {
-        itemType: "TestDuplicateCollectionOwner",
-        properties: {
-          items: { type: "TestRecordCollection", xml: "Items", yaml: "Элементы" },
-        },
-      } as MetadataItemRule,
-      sources: [{ context, xml: root }],
-      yamlPath: [],
-      rulePath: [],
-      collector,
-      audit,
       annotations,
-    })!
+    )
     const items = yaml.Элементы as Record<string, unknown>
 
     expect(xmlAnnotatedMappingEntries(items, annotations)).toEqual([
@@ -581,6 +590,36 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     })
   })
 })
+
+function importTestRecordCollection(
+  xml: string,
+  annotations?: ReturnType<typeof createXmlAnomalyAnnotations>,
+  withAudit = true,
+): {
+  yaml: Record<string, unknown>
+  audit: ReturnType<typeof createXmlImportAuditSession>
+} {
+  const collector = createLocalIndexesCollector()
+  const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+  const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+  const audit = createXmlImportAuditSession([root])
+  const yaml = importPropertiesFromXMLToYAML({
+    context,
+    rule: {
+      itemType: "TestRecordCollectionOwner",
+      properties: {
+        items: { type: "TestRecordCollection", xml: "Items", yaml: "Элементы" },
+      },
+    } as MetadataItemRule,
+    sources: [{ context, xml: root }],
+    yamlPath: [],
+    rulePath: [],
+    collector,
+    ...(withAudit ? { audit } : {}),
+    annotations,
+  })!
+  return { yaml, audit }
+}
 
 function runDirectRule(
   type: PropertyRuleType,

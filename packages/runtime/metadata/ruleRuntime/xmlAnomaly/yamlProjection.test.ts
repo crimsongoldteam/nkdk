@@ -7,6 +7,7 @@ import {
 } from "../../../yaml/xmlAnomalyAnnotations"
 import { parseXmlDocumentWithSaxes } from "../../../xml/import/saxesParser"
 import type { XmlElementNode } from "../../../xml/import/document"
+import { decodeXmlRawValue } from "../../../xml/structure/rawCodec"
 import {
   createXmlImportAuditSession,
   type XmlImportAuditBoundary,
@@ -134,6 +135,116 @@ describe("YAML-проекция XML-аномалий", () => {
     })
   })
 
+  it("сохраняет whitespace-only текст неизвестного leaf-элемента", () => {
+    const { yaml, annotations } = projectUnknownRootChildren("<Root><Future> \n\t </Future></Root>")
+
+    expect(yaml).toEqual({ Future: " \n\t " })
+    expect(annotations.at(yaml, "Future")).toMatchObject({ kind: "raw", target: "value" })
+  })
+
+  it("отбрасывает форматирующие отступы вокруг structural children", () => {
+    const { yaml } = projectUnknownRootChildren(
+      "<Root><Future>\n  <Child>value</Child>\n</Future></Root>",
+    )
+
+    expect(yaml).toEqual({ Future: { Child: "value" } })
+  })
+
+  it("нормализует mixed text без потери текста до и после ребёнка", () => {
+    const { yaml } = projectUnknownRootChildren(
+      "<Root><Future>before<Child/>after</Future></Root>",
+    )
+
+    expect(yaml).toEqual({ Future: { "#text": "beforeafter", Child: {} } })
+    const decoded = decodeXmlRawValue(yaml.Future, { elementName: "Future" }).nodes[0]!
+    expect(decoded.content.map((node) =>
+      node.type === "text" ? node.value : node.type === "element" ? node.name : `?${node.target}`,
+    )).toEqual([
+      "beforeafter",
+      "Child",
+    ])
+  })
+
+  it("поднимает неизвестный text leaf к однозначной property boundary, не поглощая соседа", () => {
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Known>future text</Known><Neighbor>known</Neighbor></Root>",
+    ).roots[0]!
+    const known = child(root, "Known")
+    const neighbor = child(root, "Neighbor")
+    const knownBoundary: XmlImportAuditBoundary = {
+      itemType: "SyntheticItem",
+      propertyKey: "known",
+      yamlPath: ["Известное"],
+      rulePath: [{ propertyKey: "known" }],
+    }
+    const neighborBoundary: XmlImportAuditBoundary = {
+      itemType: "SyntheticItem",
+      propertyKey: "neighbor",
+      yamlPath: ["Сосед"],
+      rulePath: [{ propertyKey: "neighbor" }],
+    }
+    const audit = createXmlImportAuditSession([root])
+    audit.claim(root, boundary)
+    audit.claim(known, knownBoundary)
+    audit.claim(neighbor, neighborBoundary)
+    audit.claim(neighbor.content[0]!, neighborBoundary)
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml: Record<string, unknown> = { Известное: "semantic", Сосед: "known" }
+
+    projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
+
+    expect(yaml).toEqual({ Известное: "future text", Сосед: "known" })
+    expect(annotations.at(yaml, "Известное")).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+    })
+    expect(annotations.at(yaml, "Сосед")).toBeUndefined()
+  })
+
+  it("поднимает неизвестный processing instruction к property boundary", () => {
+    const root = parseXmlDocumentWithSaxes(
+      '<Root><Known><?future mode="x"?></Known></Root>',
+    ).roots[0]!
+    const known = child(root, "Known")
+    const knownBoundary: XmlImportAuditBoundary = {
+      itemType: "SyntheticItem",
+      propertyKey: "known",
+      yamlPath: ["Известное"],
+      rulePath: [{ propertyKey: "known" }],
+    }
+    const audit = createXmlImportAuditSession([root])
+    audit.claim(root, boundary)
+    audit.claim(known, knownBoundary)
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml: Record<string, unknown> = { Известное: {} }
+
+    projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
+
+    expect(yaml).toEqual({ Известное: { "?future": { _mode: "x" } } })
+    expect(annotations.at(yaml, "Известное")).toMatchObject({ kind: "raw", target: "value" })
+  })
+
+  it("отклоняет подъём raw к неоднозначной owner boundary", () => {
+    const root = parseXmlDocumentWithSaxes("<Root><Known>future text</Known></Root>").roots[0]!
+    const known = child(root, "Known")
+    const audit = createXmlImportAuditSession([root])
+    audit.claim(root, boundary)
+    audit.ambiguous(known, [
+      { itemType: "SyntheticItem", propertyKey: "first", yamlPath: ["Первое"] },
+      { itemType: "SyntheticItem", propertyKey: "second", yamlPath: ["Второе"] },
+    ])
+
+    expectProjectionToFail(root, audit, /неоднозначн.*owner boundary/i)
+  })
+
+  it("отклоняет полностью неизвестный XML-корень без stable owner", () => {
+    const root = parseXmlDocumentWithSaxes("<Future>value</Future>").roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    expectProjectionToFail(root, audit, /Ближайший YAML-владелец не заявил XML-корень/)
+  })
+
   it("отклоняет raw-границу, пересекающуюся с известным потомком", () => {
     const root = parseXmlDocumentWithSaxes(
       "<Root><Future><Known>value</Known></Future></Root>",
@@ -180,6 +291,19 @@ function expectProjectionToFail(
     root,
     boundary,
   })).toThrow(expected)
+}
+
+function projectUnknownRootChildren(xml: string): {
+  yaml: Record<string, unknown>
+  annotations: ReturnType<typeof createXmlAnomalyAnnotations>
+} {
+  const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+  const audit = createXmlImportAuditSession([root])
+  audit.claim(root, boundary)
+  const annotations = createXmlAnomalyAnnotations()
+  const yaml: Record<string, unknown> = {}
+  projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
+  return { yaml, annotations }
 }
 
 function child(parent: XmlElementNode, name: string): XmlElementNode {

@@ -97,6 +97,45 @@ export function copyXmlAnomalyAnnotationsForParent(
   }
 }
 
+/** Переносит out-of-band XML-аннотации между структурно соответствующими YAML-деревьями. */
+export function copyXmlAnomalyAnnotationsDeep(
+  annotations: XmlAnomalyAnnotations | undefined,
+  source: unknown,
+  target: unknown,
+): void {
+  if (annotations === undefined || source === target || !isObject(source) || !isObject(target)) return
+  const copied = new WeakMap<object, WeakSet<object>>()
+
+  const visit = (sourceValue: object, targetValue: object): void => {
+    if (sourceValue === targetValue) return
+    const targets = copied.get(sourceValue) ?? new WeakSet<object>()
+    if (targets.has(targetValue)) return
+    targets.add(targetValue)
+    copied.set(sourceValue, targets)
+    annotations.copy(sourceValue, targetValue)
+
+    if (Array.isArray(sourceValue) || Array.isArray(targetValue)) {
+      if (!Array.isArray(sourceValue) || !Array.isArray(targetValue)) return
+      const length = Math.min(sourceValue.length, targetValue.length)
+      for (let index = 0; index < length; index += 1) {
+        const sourceChild = sourceValue[index]
+        const targetChild = targetValue[index]
+        if (isObject(sourceChild) && isObject(targetChild)) visit(sourceChild, targetChild)
+      }
+      return
+    }
+
+    for (const runtimeKey of Object.keys(targetValue)) {
+      if (!Object.prototype.hasOwnProperty.call(sourceValue, runtimeKey)) continue
+      const sourceChild = (sourceValue as Record<string, unknown>)[runtimeKey]
+      const targetChild = (targetValue as Record<string, unknown>)[runtimeKey]
+      if (isObject(sourceChild) && isObject(targetChild)) visit(sourceChild, targetChild)
+    }
+  }
+
+  visit(source, target)
+}
+
 export function xmlAnnotatedMappingEntries(
   mapping: Record<string, unknown>,
   annotations: XmlAnomalyAnnotations,
@@ -141,4 +180,8 @@ function uniqueXmlAnnotationRuntimeKey(mapping: Record<string, unknown>): string
   let index = 1
   while (Object.prototype.hasOwnProperty.call(mapping, `__NKDK_XML_ANOMALY_KEY_${index}__`)) index += 1
   return `__NKDK_XML_ANOMALY_KEY_${index}__`
+}
+
+function isObject(value: unknown): value is object {
+  return value !== null && typeof value === "object"
 }

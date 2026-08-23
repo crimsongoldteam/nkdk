@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { parseMetadataYaml } from "./parseMetadataYaml"
-import { xmlAnnotatedMappingEntries } from "./xmlAnomalyAnnotations"
+import {
+  copyXmlAnomalyAnnotationsDeep,
+  xmlAnnotatedMappingEntries,
+} from "./xmlAnomalyAnnotations"
 
 describe("XML-аннотации YAML", () => {
   it("хранит теги значений отдельно от смысловых данных", () => {
@@ -46,6 +49,33 @@ describe("XML-аннотации YAML", () => {
     expect(parsed.syntaxErrors).toEqual([])
     expect(parsed.data).toEqual({ Флаг: true })
     expect(parsed.annotations.root()).toEqual({ kind: "invalid", occurrence: 1, target: "root" })
+  })
+
+  it("переносит аннотации во вложенные mapping и sequence нового YAML-дерева", () => {
+    const parsed = parseMetadataYaml([
+      "Коллекция:",
+      "  Код:",
+      "    Дети:",
+      "      - Значение: !xml/raw value",
+      "  !xml/invalid Код:",
+      "    Дети:",
+      "      - Значение: !xml/raw second",
+    ].join("\n"))
+    const source = parsed.data as Record<string, unknown>
+    const target = structuredClone(source)
+
+    copyXmlAnomalyAnnotationsDeep(parsed.annotations, source, target)
+
+    const collection = target.Коллекция as Record<string, unknown>
+    expect(xmlAnnotatedMappingEntries(collection, parsed.annotations).map(([key]) => key)).toEqual([
+      "Код",
+      "Код",
+    ])
+    const second = Object.values(collection)[1] as { Дети: Array<Record<string, unknown>> }
+    expect(parsed.annotations.at(second.Дети[0]!, "Значение")).toMatchObject({
+      kind: "raw",
+      target: "value",
+    })
   })
 
   it("различает компактный raw и raw null", () => {

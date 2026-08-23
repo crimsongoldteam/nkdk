@@ -10,6 +10,7 @@ import type {
   YAMLToXMLResult,
   YAMLToXMLProfile,
 } from "../property/fromYAMLToXMLTypes"
+import { copyXmlAnomalyAnnotationsDeep } from "../../../yaml/xmlAnomalyAnnotations"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
 import { getChildContextToXML } from "../../context/childContext"
@@ -65,7 +66,14 @@ export function convertMetadataCollectionFromYAMLToXML(
     const itemRule =
       params.descriptor.resolveItemRule?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? defaultItemRule
     const normalizedYAML =
-      params.descriptor.normalizeItemYAML?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? yaml
+      params.descriptor.normalizeItemYAML?.({
+        yaml,
+        annotations: params.annotations,
+        name,
+        index,
+        propertyRule: params.propertyRule,
+      }) ?? yaml
+    copyXmlAnomalyAnnotationsDeep(params.annotations, yaml, normalizedYAML)
     const defaultItemContext = configurationIndexItemContext({
       context: params.context,
       descriptor: params.descriptor,

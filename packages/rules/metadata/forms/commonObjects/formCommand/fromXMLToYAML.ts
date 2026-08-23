@@ -1,4 +1,4 @@
-import { childUid } from "@nkdk/runtime"
+import { childUid, projectNamedXmlCollectionForImport } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
@@ -6,6 +6,7 @@ import {
 import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
 import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { FormCommandRules } from "./rules"
+import { isMetadataNameYAML } from "../../../commonObjects/metadataName/types"
 
 export const importFormCommandsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   context,
@@ -36,10 +37,18 @@ export const importFormCommandsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
         yamlPath: [...traversal.yamlPath, item._name],
       },
     })
-    return yaml === undefined ? [] : [[item._name, yaml] as const]
+    return yaml === undefined
+      ? []
+      : [{
+          key: item._name,
+          value: yaml,
+          ...(isMetadataNameYAML(item._name) ? {} : { invalid: true }),
+        }]
   })
 
-  return entries.length === 0 ? undefined : Object.fromEntries(entries)
+  return entries.length === 0
+    ? undefined
+    : projectNamedXmlCollectionForImport({ entries, annotations: traversal.annotations })
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
