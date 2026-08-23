@@ -179,7 +179,7 @@ describe("XML import discovery", () => {
         projectPattern ===
         "Обработка/{ownerName}/Формы/{itemName}/Форма.yaml"
     )
-    expect(form?.topologyNodeId).toBe(processorFormNode?.id)
+    expect(form?.topologyAddress.nodeId).toBe(processorFormNode?.id)
     expect(form?.xmlFiles).toContainEqual({ role: "property", sourcePath: join(xmlDir, helpXml) })
     expect(form?.externalFiles).not.toContainEqual(expect.objectContaining({ sourcePath: join(xmlDir, helpXml) }))
   })

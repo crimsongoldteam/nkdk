@@ -228,6 +228,6 @@ export function createFakeConfigurationIndexStore(): ConfigurationIndexStore {
 
 export function createFakeConfigurationIndexCandidateStore(): ConfigurationIndexCandidateStore {
   return {
-    ...createFakeConfigurationIndexStore(), mergeBlockFragment() {}, replaceHashes() {}, copyActiveBlocksFrom() {}, validateCandidate() {}, async discard() {},
+    ...createFakeConfigurationIndexStore(), mergeBlockFragments() {}, replaceHashes() {}, copyActiveBlocksFrom() {}, validateCandidate() {}, async discard() {},
   }
 }

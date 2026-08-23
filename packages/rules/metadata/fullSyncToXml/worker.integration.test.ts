@@ -912,7 +912,7 @@ async function installTestIndex(
     purpose: "full",
   })
   candidate.replaceHashes(snapshot.files)
-  for (const fragment of snapshot.fragments) candidate.mergeBlockFragment(fragment)
+  candidate.mergeBlockFragments(snapshot.fragments)
   await candidate.close()
   const descriptor = candidate.descriptor()
   return descriptor

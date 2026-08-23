@@ -835,7 +835,7 @@ function fakeCandidateStore(): ConfigurationIndexCandidateStore & {
   return {
     ...createFakeConfigurationIndexStore(),
     replaceHashes(value) { hashes = [...value] },
-    mergeBlockFragment(fragment) { fragments.push(fragment) },
+    mergeBlockFragments(value) { fragments.push(...value) },
     copyActiveBlocksFrom() {},
     validateCandidate() {},
     async discard() {},

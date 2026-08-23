@@ -4,7 +4,12 @@ import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import { discoverValidationProjectComponents } from "./projectComponents"
-import { assertProjectFileInside, discoverValidationProjectFiles, resolveValidationProjectFile } from "./projectFiles"
+import {
+  assertProjectFileInside,
+  createValidationProjectAssignmentFileProjector,
+  discoverValidationProjectFiles,
+  resolveValidationProjectFile,
+} from "./projectFiles"
 import { getValidationProjectSpecs } from "./projectSpecs"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
@@ -100,6 +105,27 @@ describe("validation project files", () => {
       },
     })
     expect(file?.formName).toBeUndefined()
+  })
+
+  it("проецирует файл из topology-адреса без повторного распознавания пути", async () => {
+    const projectDir = createProject()
+    mkdirSync(join(projectDir, "cf"))
+    const component = (await discoverValidationProjectComponents(projectDir)).components[0]!
+    const assignment = component.topology.assignments.find(
+      ({ projectPattern }) => projectPattern === "Справочник/{ownerName}/Свойства.yaml",
+    )!
+    const project = createValidationProjectAssignmentFileProjector(projectDir, component)
+
+    expect(project({
+      projectPath: "Справочник/этот-путь-не-соответствует-шаблону.yaml",
+      topologyAddress: { nodeId: assignment.id, values: { ownerName: "ИзАдреса" } },
+    })).toMatchObject({
+      projectPath: "Справочник/этот-путь-не-соответствует-шаблону.yaml",
+      kind: "properties",
+      itemType: "MetadataCatalog",
+      owner: { dir: "Справочник", name: "ИзАдреса" },
+      metadataTarget: { canonical: "Catalog.ИзАдреса" },
+    })
   })
 
   it("resolves a single absolute form file", () => {

@@ -109,13 +109,12 @@ export async function discoverXmlImport(
         definition: {
           role: compatible.assignment.role,
           itemType: compatible.assignment.itemRule.itemType,
-          topologyNodeId: compatible.assignment.id,
           ...(itemName === undefined ? {} : { itemName }),
           ...(compatible.assignment.logicalAddressSegment === undefined
             ? {}
             : { logicalAddressSegment: compatible.assignment.logicalAddressSegment }),
         },
-        values: compatible.values,
+        topologyAddress: { nodeId: compatible.assignment.id, values: compatible.values },
         targetProjectPath: compatible.assignmentProjectPath,
         xmlFiles: [],
         externalFiles: [],

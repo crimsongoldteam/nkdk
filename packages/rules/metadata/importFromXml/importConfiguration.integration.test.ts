@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import {
   configurationIndexStoreDescriptor,
+  encodeConfigurationBlockFragments,
   type ConfigurationIndexBlock,
   type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
@@ -133,6 +134,17 @@ afterEach(async () => {
 })
 
 describe("configuration XML import coordinator", () => {
+  it("передаёт двоичный конверт индекса одной пачкой", async () => {
+    const fragmentBatches: ConfigurationIndexBlockFragment[][] = []
+    const result = await importConfigurationFromXml(
+      createParams("configuration"),
+      fakeDependencies({ calls: [], fragmentBatches, bufferedFragments: true }),
+    )
+
+    expect(result.failed).toEqual([])
+    expect(fragmentBatches).toEqual([fragmentData])
+  })
+
   it("builds the XML language registry before worker initialization", async () => {
     const params = createParams("configuration")
     const initializedLanguages: ConfigurationLanguages[] = []
@@ -747,6 +759,8 @@ function fakeDependencies(params: {
   replacedFinalHashes?: Array<readonly { readonly projectPath: string; readonly hash: bigint }[]>
   workerCloseFailure?: Error
   projectStateCloseFailure?: Error
+  fragmentBatches?: ConfigurationIndexBlockFragment[][]
+  bufferedFragments?: boolean
 }): ImportCoordinatorDependencies {
   let componentDir: string | undefined
   let selectedComponentPath = "cf"
@@ -757,7 +771,7 @@ function fakeDependencies(params: {
 
   return {
     assertNoPending() {},
-    async createIndexCandidate() { return memoryCandidateStore() },
+    async createIndexCandidate() { return memoryCandidateStore(params.fragmentBatches) },
     createWorkerPool() {
       return {
         async writeStateFragment() {},
@@ -776,13 +790,20 @@ function fakeDependencies(params: {
         },
         async runFirstPass(_assignments, sink) {
           call("firstPass")
-          for (let index = 0; index < fragmentData.length; index += 1) {
+          if (params.bufferedFragments === true) {
             await sink?.writeFirstPassState({
-              configurationFragment: fragmentData[index],
-              ...(index === 0
-                ? { stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)) }
-                : {}),
+              configurationFragmentBuffer: encodeConfigurationBlockFragments(fragmentData),
+              stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)),
             })
+          } else {
+            for (let index = 0; index < fragmentData.length; index += 1) {
+              await sink?.writeFirstPassState({
+                configurationFragment: fragmentData[index],
+                ...(index === 0
+                  ? { stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)) }
+                  : {}),
+              })
+            }
           }
           return {
             diagnostics: diagnosticCollection([]),
@@ -845,7 +866,7 @@ function fakeDependencies(params: {
   }
 }
 
-function memoryCandidateStore(): ConfigurationIndexCandidateStore {
+function memoryCandidateStore(fragmentBatches?: ConfigurationIndexBlockFragment[][]): ConfigurationIndexCandidateStore {
   let hashes: readonly { projectPath: string; contentHash: bigint }[] = []
   const blocks = new Map<string, ConfigurationIndexBlock>()
   return {
@@ -861,13 +882,9 @@ function memoryCandidateStore(): ConfigurationIndexCandidateStore {
     },
     hasBlock: (projectPath) => blocks.has(projectPath),
     hasPending: () => false,
-    mergeBlockFragment(fragment) {
-      if (fragment.entities.length === 0) {
-        blocks.delete(fragment.targetProjectPath)
-        return
-      }
-      const entities = [...blocks.get(fragment.targetProjectPath)?.entities ?? [], ...fragment.entities]
-      blocks.set(fragment.targetProjectPath, { entities })
+    mergeBlockFragments(fragments) {
+      fragmentBatches?.push([...fragments])
+      for (const fragment of fragments) mergeFragment(fragment)
     },
     replaceHashes(value) { hashes = [...value] },
     copyActiveBlocksFrom() {},
@@ -881,6 +898,15 @@ function memoryCandidateStore(): ConfigurationIndexCandidateStore {
     async flush() {},
     async close() {},
     async discard() {},
+  }
+
+  function mergeFragment(fragment: ConfigurationIndexBlockFragment): void {
+    if (fragment.entities.length === 0) {
+      blocks.delete(fragment.targetProjectPath)
+      return
+    }
+    const entities = [...blocks.get(fragment.targetProjectPath)?.entities ?? [], ...fragment.entities]
+    blocks.set(fragment.targetProjectPath, { entities })
   }
 }
 
@@ -1062,6 +1088,7 @@ function configurationExtensionXml(): string {
 function assignment(name: string): ImportAssignment {
   return {
     id: `Справочник/${name}/Свойства.yaml`,
+    topologyAddress: { nodeId: "catalog", values: { ownerName: name } },
     role: "properties",
     targetProjectPath: `Справочник/${name}/Свойства.yaml`,
     itemType: "MetadataCatalog",
@@ -1076,6 +1103,10 @@ function assignment(name: string): ImportAssignment {
 function formAssignment(): ImportAssignment {
   return {
     id: formProjectPath,
+    topologyAddress: {
+      nodeId: "catalog-form",
+      values: { ownerName: "Контрагенты", itemName: "ФормаЭлемента" },
+    },
     role: "fileItem",
     targetProjectPath: formProjectPath,
     itemType: "ClientApplicationForm",
@@ -1094,6 +1125,7 @@ function formAssignment(): ImportAssignment {
 function assignmentWithoutSnapshotFacts(): ImportAssignment {
   return {
     id: emptyProjectPath,
+    topologyAddress: { nodeId: "without-facts", values: {} },
     role: "properties",
     targetProjectPath: emptyProjectPath,
     itemType: "TestWithoutSnapshotFacts",

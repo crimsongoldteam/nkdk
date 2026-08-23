@@ -114,6 +114,7 @@ describe("XML import output", () => {
   it("describes source XML external files without copying them", () => {
     const assignment: ImportAssignment = {
       id: "catalog-help",
+      topologyAddress: { nodeId: "catalog", values: { ownerName: "Товары" } },
       role: "fileItem",
       targetProjectPath: "Справочник/Товары/Свойства.yaml",
       itemType: "MetadataCatalog",

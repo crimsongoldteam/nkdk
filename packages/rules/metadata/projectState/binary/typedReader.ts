@@ -198,6 +198,7 @@ export function createTypedProjectStateReader(
     const terminalTypes = storedTypes.slice(0, value.reserved16)
     const definedTypes = storedTypes.slice(value.reserved16)
     const sourceText = optionalString(value.sourceTextId)
+    const structuredType = optionalString(value.structuredTypeId)
     return {
       kinds: stringValues("typeKinds", value.kindsStart, value.kindsCount) as DataPathTypeInfo["kinds"],
       nextTypes: range("ownerTypes", value.nextTypesStart, value.nextTypesCount).map((_entry, index) => ownerType(value.nextTypesStart + index)),
@@ -206,6 +207,7 @@ export function createTypedProjectStateReader(
       ...(table === undefined ? {} : { table }),
       ...(value.isComposite === 0 ? {} : { isComposite: value.isComposite === 1 }),
       ...(sourceText === undefined ? {} : { sourceText }),
+      ...(structuredType === undefined ? {} : { structuredType }),
     }
   }
 

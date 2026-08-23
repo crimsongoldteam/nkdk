@@ -13,8 +13,15 @@ import {
 } from "../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
-import { resolveValidationProjectFile } from "../validation/projectFiles"
-import { validationProjectComponentFromAddress } from "../validation/projectComponents"
+import {
+  createValidationProjectAssignmentFileProjector,
+  resolveValidationProjectFile,
+  type ValidationProjectFile,
+} from "../validation/projectFiles"
+import {
+  validationProjectComponentFromAddress,
+  type ValidationProjectComponent,
+} from "../validation/projectComponents"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createValidationSchemaCache,
@@ -107,6 +114,8 @@ interface InitializedImportWorkerState {
   projectDir: string
   componentPath: string
   topology: CompiledMetadataResourceTopology
+  validationComponent: ValidationProjectComponent
+  projectFileProjector: ReturnType<typeof createValidationProjectAssignmentFileProjector>
   schemaCache: ValidationSchemaCache
   rulesSnapshot: ValidationRulesSnapshot
 }
@@ -123,6 +132,7 @@ interface DeferredImportYaml {
   dependentDeferred: PreparedImportYaml["dependentDeferred"]
   dependentOwner: PreparedImportYaml["dependentOwner"]
   indexContribution: ProjectStateImportIndexContribution
+  validationFile: ValidationProjectFile
   baseFormCandidate?: NonNullable<PreparedImportYaml["baseFormCandidate"]>
 }
 
@@ -210,6 +220,8 @@ async function runImportWorkerCommand(
       projectDir,
       componentPath,
       topology: validationComponent.topology,
+      validationComponent,
+      projectFileProjector: createValidationProjectAssignmentFileProjector(projectDir, validationComponent),
       schemaCache: options.persistentValidationState?.schemaCache
         ?? schemaCacheForTests
         ?? createValidationSchemaCache(context),
@@ -607,8 +619,16 @@ async function writePreparedBaseFormCandidate(params: {
     params.state,
     params.profiler,
   )
+  const validationFile = resolveValidationProjectFile(
+    params.state.projectDir,
+    params.candidate.targetProjectPath,
+    params.state.validationComponent,
+  )
+  if (validationFile === undefined) {
+    throw new Error(`Не удалось подготовить описание YAML import: ${params.candidate.targetProjectPath}`)
+  }
   const validated = measureSerializedImportYamlValidation(
-    { targetProjectPath: params.candidate.targetProjectPath },
+    { targetProjectPath: params.candidate.targetProjectPath, validationFile },
     serialized,
     params.state,
     params.profiler,
@@ -810,11 +830,33 @@ async function processFirstPass(
         { items: 1 },
         () => collector.fragment(assignment.targetProjectPath)
       )
+      const validationFile = profiler.measure(
+        "Подготовка импорта конфигурации",
+        "Подготовка описания файла проекта",
+        { items: 1 },
+        () => state.projectFileProjector({
+          projectPath: assignment.targetProjectPath,
+          topologyAddress: assignment.topologyAddress,
+        }),
+      )
+      if (validationFile === undefined) {
+        throw new Error(`Не найден узел topology XML-import: ${assignment.topologyAddress.nodeId}`)
+      }
       const validationContribution = profiler.measure(
         "Подготовка импорта конфигурации",
-        "Извлечение validation contribution",
+        "Формирование вклада файла в общий индекс",
         { items: 1 },
-        () => extractImportValidationContribution({ prepared, projectDir: state.outputDir })
+        () => extractImportValidationContribution({
+          prepared,
+          projectDir: state.outputDir,
+          file: validationFile,
+          measure: (step, action) => profiler.measure(
+            "Подготовка импорта конфигурации",
+            step,
+            { items: 1 },
+            action,
+          ),
+        })
       )
       try {
         const externalFiles = xmlExternalImportFiles(assignment)
@@ -866,6 +908,7 @@ async function processFirstPass(
           dependentDeferred: prepared.dependentDeferred,
           dependentOwner: prepared.dependentOwner,
           indexContribution,
+          validationFile,
           ...(prepared.baseFormCandidate === undefined
             ? {}
             : { baseFormCandidate: prepared.baseFormCandidate }),
@@ -1012,18 +1055,13 @@ function serializePreparedYaml(
 }
 
 function validateSerializedImportYaml(
-  prepared: Pick<DeferredImportYaml, "targetProjectPath">,
+  prepared: Pick<DeferredImportYaml, "targetProjectPath" | "validationFile">,
   serialized: SerializedImportYaml,
   state: InitializedImportWorkerState,
   profiler: ValidationProfiler,
   indexContribution: "shared" | "isolated" = "shared",
 ): { index: ProjectStateImportIndexContribution; final: ProjectStateImportFinalFileStateBatch } {
-  const component = validationProjectComponentFromAddress(state.projectDir, {
-    componentPath: state.componentPath,
-    componentDir: state.outputDir,
-  })
-  const file = resolveValidationProjectFile(state.projectDir, prepared.targetProjectPath, component)
-  if (file === undefined) throw new Error(`Не удалось классифицировать YAML import: ${prepared.targetProjectPath}`)
+  const file = prepared.validationFile
   const first = profiler.measure(
     "Локальная валидация готового YAML",
     "Подготовка снимка и локальная проверка",
@@ -1104,7 +1142,7 @@ function importFileBackedTargets(
 }
 
 function measureSerializedImportYamlValidation(
-  prepared: Pick<DeferredImportYaml, "targetProjectPath">,
+  prepared: Pick<DeferredImportYaml, "targetProjectPath" | "validationFile">,
   serialized: SerializedImportYaml,
   state: InitializedImportWorkerState,
   profiler: ValidationProfiler,

@@ -255,7 +255,7 @@ export async function syncComponentToXml(
     }))
     const execution = await pool.execute(executionAssignments, {
       async onBatch(batch) {
-        for (const fragment of batch.configurationFragments) candidateForBatches.mergeBlockFragment(fragment)
+        candidateForBatches.mergeBlockFragments(batch.configurationFragments)
       },
     })
     const executionDiagnostics = [...execution.diagnostics]

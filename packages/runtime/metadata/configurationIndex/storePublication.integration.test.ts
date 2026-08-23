@@ -23,20 +23,20 @@ beforeAll(async () => {
   )
   const initial = await scope.candidate({ projectDir: replacementProject, operationId: "initial" })
   initial.replaceHashes([{ projectPath: "old.yaml", contentHash: 1n }])
-  initial.mergeBlockFragment({
+  initial.mergeBlockFragments([{
     targetProjectPath: "old.yaml",
     entities: [{ logicalAddress: "Старый", xmlId: "1" }],
-  })
+  }])
   await replacementActive.replaceActiveFrom(initial)
   const replacement = await scope.candidate({ projectDir: replacementProject, operationId: "replacement" })
   replacement.replaceHashes([
     { projectPath: "new.yaml", contentHash: 2n },
     { projectPath: "module.bsl", contentHash: 3n },
   ])
-  replacement.mergeBlockFragment({
+  replacement.mergeBlockFragments([{
     targetProjectPath: "new.yaml",
     entities: [{ logicalAddress: "Новый", xmlId: "2" }],
-  })
+  }])
   await replacementActive.replaceActiveFrom(replacement)
   replacementState = readReplacementState(replacementActive)
 
@@ -60,10 +60,10 @@ beforeAll(async () => {
   )
   const pendingInitial = await scope.candidate({ projectDir: pendingProject, operationId: "pending-initial" })
   pendingInitial.replaceHashes([{ projectPath: "А.yaml", contentHash: 1n }])
-  pendingInitial.mergeBlockFragment({
+  pendingInitial.mergeBlockFragments([{
     targetProjectPath: "А.yaml",
     entities: [{ logicalAddress: "А", xmlId: "1" }],
-  })
+  }])
   await pendingActive.replaceActiveFrom(pendingInitial)
   await pendingActive.writePending({
     hashes: new Map([["Б.bsl", { kind: "put", contentHash: 2n }]]),
@@ -81,10 +81,10 @@ beforeAll(async () => {
     "readWrite",
   )
   const invalidCandidate = await scope.candidate({ projectDir: invalidProject, operationId: "invalid" })
-  invalidCandidate.mergeBlockFragment({
+  invalidCandidate.mergeBlockFragments([{
     targetProjectPath: "missing.yaml",
     entities: [{ logicalAddress: "А", xmlId: "1" }],
-  })
+  }])
   const validationError = captureError(() => invalidCandidate.validateCandidate())
   const replacementError = await captureAsyncError(() => invalidActive.replaceActiveFrom(invalidCandidate))
   invalidState = readInvalidState(validationError, replacementError, invalidActive)
@@ -127,6 +127,23 @@ afterAll(async () => {
 })
 
 describe("configuration index publication", () => {
+  it("откатывает всю пачку фрагментов при конфликте", async () => {
+    const projectDir = await scope.temporaryProject()
+    const candidate = await scope.candidate({ projectDir, operationId: "batch-rollback" })
+
+    expect(() => candidate.mergeBlockFragments([
+      {
+        targetProjectPath: "А.yaml",
+        entities: [{ logicalAddress: "Справочник.А", xmlId: "1" }],
+      },
+      {
+        targetProjectPath: "А.yaml",
+        entities: [{ logicalAddress: "Справочник.А", xmlId: "2" }],
+      },
+    ])).toThrow("Конфликт поля xmlId")
+    expect(candidate.hasBlock("А.yaml")).toBe(false)
+  })
+
   it("replaces all active hashes and blocks in one publication", () => {
     expect(replacementState).toEqual({
       hashes: [

@@ -14,6 +14,7 @@ import {
   resolveAssignmentRule,
 } from "./prepareYaml"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import type { ImportAssignment } from "./types"
 import { currentRuleRegistrySet, withRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
@@ -39,6 +40,7 @@ function metadataImportAssignment(params: {
 }): ImportAssignment {
   return {
     id: params.id,
+    topologyAddress: assignmentTopologyAddress(params.targetProjectPath),
     role: "properties",
     targetProjectPath: params.targetProjectPath,
     itemType: params.itemType,
@@ -64,8 +66,9 @@ describe("prepareImportYaml", () => {
     withRuleRegistrySet({ ...current, components }, () => {
       expect(resolveAssignmentRule(
         {
+          ...catalogAssignment(),
           role: "configuration",
-        } as ImportAssignment,
+        },
         "externalReport"
       )).toBe(AlternateComponentRootRule)
     })
@@ -85,23 +88,26 @@ describe("prepareImportYaml", () => {
     expect(
       resolveAssignmentRule(
         {
+          ...catalogAssignment(),
           role: "fileItem",
-          topologyNodeId: processorFormNode.id,
+          topologyAddress: {
+            nodeId: processorFormNode.id,
+            values: { ownerName: "Загрузка", itemName: "Форма" },
+          },
           itemType: ClientApplicationFormRules.itemType,
-        } as ImportAssignment,
+        },
         "configuration"
       )
     ).toBe(ClientApplicationFormWithExtendedPresentationRules)
     expect(() => resolveAssignmentRule(
-      { role: "fileItem", topologyNodeId: "unknown-node" } as ImportAssignment,
+      {
+        ...catalogAssignment(),
+        role: "fileItem",
+        topologyAddress: { nodeId: "unknown-node", values: {} },
+      },
       "configuration",
       topology,
-    )).toThrow("Не найден узел топологии XML-import: unknown-node")
-    expect(() => resolveAssignmentRule(
-      { role: "fileItem" } as ImportAssignment,
-      "configuration",
-      topology,
-    )).toThrow("Задание XML-import не связано с узлом topology")
+    )).toThrow("Не найден узел topology XML-import: unknown-node")
   })
 
   it("prepares a processor form with the rule selected by topology", async () => {
@@ -141,7 +147,10 @@ describe("prepareImportYaml", () => {
       const prepared = await prepareImportYaml({
         assignment: {
           id: "processor-form",
-          topologyNodeId: processorFormNode.id,
+          topologyAddress: {
+            nodeId: processorFormNode.id,
+            values: { ownerName: "Загрузка", itemName: "Форма" },
+          },
           role: "fileItem",
           targetProjectPath:
             "Обработка/Загрузка/Формы/Форма/Форма.yaml",
@@ -185,6 +194,7 @@ describe("prepareImportYaml", () => {
     const prepared = await prepareImportYaml({
       assignment: {
         id: "common-form",
+        topologyAddress: assignmentTopologyAddress("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml"),
         role: "properties",
         targetProjectPath: "ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml",
         itemType: "MetadataCommonForm",
@@ -263,7 +273,7 @@ describe("prepareImportYaml", () => {
       "DocumentNumerator",
       "MetadataDocumentNumerator",
       "НумераторПоУмолчанию",
-      "Документ/Нумераторы/НумераторПоУмолчанию/Свойства.yaml",
+      "Нумератор/НумераторПоУмолчанию.yaml",
       "../appliedObjects/metadataDocumentNumerator/__fixtures__/minimal.xml",
     ],
     [
@@ -284,6 +294,7 @@ describe("prepareImportYaml", () => {
     const prepared = await prepareImportYaml({
       assignment: {
         id: itemName,
+        topologyAddress: assignmentTopologyAddress(target),
         role: "properties",
         targetProjectPath: target,
         itemType,
@@ -381,6 +392,9 @@ describe("prepareImportYaml", () => {
   it("prepares a nested file item through its registered metadata rule", async () => {
     const assignment: ImportAssignment = {
       id: "nested-subsystem",
+      topologyAddress: assignmentTopologyAddress(
+        "Подсистема/Родитель/Подсистемы/Дочерняя/Свойства.yaml",
+      ),
       role: "fileItem",
       targetProjectPath: "Подсистема/Родитель/Подсистемы/Дочерняя/Свойства.yaml",
       itemType: "MetadataSubsystem",
@@ -406,7 +420,7 @@ describe("prepareImportYaml", () => {
     expect(prepared.localIndexes.metadata.formDataPathIndex).toBeUndefined()
   })
 
-  it("reuses registered import rules between assignments of the same item type", async () => {
+  it("не ищет правило задания повторно после получения topology-адреса", async () => {
     resetRegisteredImportRuleLookupCountForTests()
     const assignment = catalogAssignment()
 
@@ -421,7 +435,7 @@ describe("prepareImportYaml", () => {
       collector: createConfigurationIndexCollector(),
     })
 
-    expect(registeredImportRuleLookupCountForTests()).toBe(1)
+    expect(registeredImportRuleLookupCountForTests()).toBe(0)
   })
 
   it("discovers a fixture child template as an owner external file and prepares only the owner model", async () => {
@@ -470,6 +484,7 @@ describe("prepareImportYaml", () => {
     const writeFile = vi.spyOn(fs.promises, "writeFile")
     const assignment: ImportAssignment = {
       id: "configuration",
+      topologyAddress: assignmentTopologyAddress("Конфигурация.yaml"),
       role: "configuration",
       targetProjectPath: "Конфигурация.yaml",
       itemType: "MetadataConfiguration",
@@ -502,6 +517,9 @@ describe("prepareImportYaml", () => {
     const ownerPath = join(syncXmlDir, "Catalogs/Контрагенты.xml")
     const assignment: ImportAssignment = {
       id: "catalog-form",
+      topologyAddress: assignmentTopologyAddress(
+        "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
+      ),
       role: "fileItem",
       targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
       itemType: "ClientApplicationForm",
@@ -545,7 +563,10 @@ describe("prepareImportYaml", () => {
     const prepared = await prepareImportYaml({
       assignment: {
         id: "extension-form",
-        topologyNodeId: topologyNode.id,
+        topologyAddress: {
+          nodeId: topologyNode.id,
+          values: { ownerName: "СправочникПолный", itemName: "ФормаОтчета" },
+        },
         role: "fileItem",
         targetProjectPath: "Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
         itemType: "ClientApplicationForm",
@@ -602,6 +623,9 @@ describe("prepareImportYaml", () => {
       )
       const assignment: ImportAssignment = {
         id: "ordinary-form",
+        topologyAddress: assignmentTopologyAddress(
+          "Справочник/Контрагенты/Формы/ОбычнаяФорма/Форма.yaml",
+        ),
         role: "fileItem",
         targetProjectPath: "Справочник/Контрагенты/Формы/ОбычнаяФорма/Форма.yaml",
         itemType: "ClientApplicationForm",
@@ -645,6 +669,9 @@ describe("prepareImportYaml", () => {
       )
       const assignment: ImportAssignment = {
         id: "managed-form",
+        topologyAddress: assignmentTopologyAddress(
+          "Справочник/Контрагенты/Формы/УправляемаяФорма/Форма.yaml",
+        ),
         role: "fileItem",
         targetProjectPath: "Справочник/Контрагенты/Формы/УправляемаяФорма/Форма.yaml",
         itemType: "ClientApplicationForm",
@@ -675,6 +702,7 @@ describe("prepareImportYaml", () => {
 function catalogAssignment(): ImportAssignment {
   return {
     id: "catalog",
+    topologyAddress: assignmentTopologyAddress("Справочник/Контрагенты/Свойства.yaml"),
     role: "properties",
     targetProjectPath: "Справочник/Контрагенты/Свойства.yaml",
     itemType: "MetadataCatalog",
@@ -684,4 +712,10 @@ function catalogAssignment(): ImportAssignment {
     xmlFiles: [{ role: "metadata", sourcePath: join(syncXmlDir, "Catalogs/Контрагенты.xml") }],
     externalFiles: [],
   }
+}
+
+function assignmentTopologyAddress(projectPath: string): ImportAssignment["topologyAddress"] {
+  const match = classifyMetadataProjectPath(compileRegisteredMetadataResourceTopology(), projectPath)
+  if (match?.assignment === undefined) throw new Error(`Не найден topology-адрес: ${projectPath}`)
+  return { nodeId: match.assignment.id, values: match.values }
 }

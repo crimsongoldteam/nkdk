@@ -559,6 +559,7 @@ describe("XML import worker pool", () => {
 function assignment(id: string, overrides: Partial<ImportAssignment> = {}): ImportAssignment {
   return {
     id,
+    topologyAddress: { nodeId: "catalog", values: { ownerName: id } },
     role: "properties",
     targetProjectPath: `Справочник/${id}/Свойства.yaml`,
     itemType: "MetadataCatalog",
