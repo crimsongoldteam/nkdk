@@ -155,10 +155,16 @@ describe("XmlAnomalyRuntime", () => {
     expectNondeterminismBlocked(runtime, () => calls)
   })
 
-  it("не запускает генератор без объявленного входа PropertyRule", () => {
+  it("не блокирует регистрацию без обычного YAML input", () => {
+    let generatorCalls = 0
     const registration = propertyTypeRegistration(
       yamlModeInput,
-      unexpectedGenerator,
+      (inputs) => {
+        generatorCalls += 1
+        return parseXmlDocumentWithSaxes(
+          `<Transport mode="${String(inputs.mode)}"/>`,
+        ).roots
+      },
     )
     const runtime = anomalyRuntime(registration)
 
@@ -167,7 +173,59 @@ describe("XmlAnomalyRuntime", () => {
       propertyKey: "transport",
       yaml: { Настройки: {} },
     })).toThrow(/не найден.*settings\.mode/i)
+    expect(runtime.generateCompactRaw(transportParams({
+      Настройки: { Режим: "strict" },
+    }))?.[0]?.attributes[0]?.value).toBe("strict")
+    expect(generatorCalls).toBe(2)
   })
+
+  it.each(["корневом", "вложенном"])(
+    "не выполняет YAML getter на %s уровне yamlProperty path",
+    (level) => {
+      let targetGetterCalls = 0
+      let unrelatedGetterCalls = 0
+      const settings: Record<string, unknown> = {}
+      const yaml: Record<string, unknown> = {}
+      Object.defineProperty(settings, "Несвязанный", {
+        enumerable: true,
+        get: () => {
+          unrelatedGetterCalls += 1
+          return "unrelated"
+        },
+      })
+      Object.defineProperty(yaml, "Несвязанный", {
+        enumerable: true,
+        get: () => {
+          unrelatedGetterCalls += 1
+          return "unrelated"
+        },
+      })
+      const target = {
+        enumerable: true,
+        get: () => {
+          targetGetterCalls += 1
+          return level === "корневом" ? settings : "strict"
+        },
+      }
+      if (level === "корневом") {
+        Object.defineProperty(yaml, "Настройки", target)
+        settings.Режим = "strict"
+      } else {
+        yaml.Настройки = settings
+        Object.defineProperty(settings, "Режим", target)
+      }
+      const runtime = anomalyRuntime(propertyTypeRegistration(
+        yamlModeInput,
+        unexpectedGenerator,
+      ))
+
+      expect(() => runtime.generateCompactRaw(transportParams(yaml))).toThrow(
+        /YAML.*data descriptor/i,
+      )
+      expect(targetGetterCalls).toBe(0)
+      expect(unrelatedGetterCalls).toBe(0)
+    },
+  )
 
   it("не смешивает разрешённые plain-data inputs в ключе кэша", () => {
     let calls = 0
@@ -337,16 +395,35 @@ describe("XmlAnomalyRuntime", () => {
   })
 
   it("не передаёт standard index resolver необъявленные key inputs", () => {
+    let resolverCalls = 0
     const registration = propertyTypeRegistration(standardIndexInputs, () => [])
     const runtime = anomalyRuntime(registration, {
-      resolveStandardIndexInput: ({ keyInputs }) => keyInputs.hidden,
+      resolveStandardIndexInput: ({ keyInputs }) => {
+        resolverCalls += 1
+        return keyInputs.hidden
+      },
     })
+    const params = transportParams()
 
-    expect(() => runtime.generateCompactRaw({
-      rule: itemRule,
-      propertyKey: "transport",
-      yaml: {},
-    })).toThrow(/необъявлен.*hidden/i)
+    expect(() => runtime.generateCompactRaw(params)).toThrow(/необъявлен.*hidden/i)
+    expect(() => runtime.generateCompactRaw(params)).toThrow(/заблокирован/i)
+    expect(resolverCalls).toBe(1)
+  })
+
+  it("блокирует регистрацию после любой ошибки standard index resolver", () => {
+    let resolverCalls = 0
+    const registration = propertyTypeRegistration(standardIndexInputs, () => [])
+    const runtime = anomalyRuntime(registration, {
+      resolveStandardIndexInput: () => {
+        resolverCalls += 1
+        throw new Error("index unavailable")
+      },
+    })
+    const params = transportParams()
+
+    expect(() => runtime.generateCompactRaw(params)).toThrow(/index unavailable/i)
+    expect(() => runtime.generateCompactRaw(params)).toThrow(/заблокирован/i)
+    expect(resolverCalls).toBe(1)
   })
 
   it("отклоняет неплоскую PropertyRule projection до генератора", () => {

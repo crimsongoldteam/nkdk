@@ -1,6 +1,5 @@
 import type { XmlElementNode } from "../../../xml/import/document"
 import { compareXmlStructures } from "../../../xml/structure/compare"
-import { createYAMLPropertySource } from "../property/fromYAMLToXML"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import type {
   XmlAnomalyLocation,
@@ -10,6 +9,28 @@ import type {
   XmlCompactRawValue,
 } from "./contracts"
 import type { XmlAnomalyRegistry } from "./registry"
+
+class XmlCompactRawRecoverableInputError extends Error {}
+
+class XmlCompactRawInputMissingError extends XmlCompactRawRecoverableInputError {}
+
+class XmlCompactRawInvalidInputError extends XmlCompactRawRecoverableInputError {}
+
+class XmlCompactRawUnsupportedYamlDescriptorError
+  extends XmlCompactRawRecoverableInputError {}
+
+class XmlCompactRawRegistrationFailure extends Error {}
+
+class XmlCompactRawUndeclaredInputError
+  extends XmlCompactRawRegistrationFailure {}
+
+class XmlCompactRawStandardIndexResolverError
+  extends XmlCompactRawRegistrationFailure {
+  constructor(index: string, cause: unknown) {
+    super(`Ошибка standard index resolver ${index}: ${errorMessage(cause)}`)
+    this.cause = cause
+  }
+}
 
 export interface XmlAnomalyRuntime {
   requiresImportant(location: XmlAnomalyLocation): boolean
@@ -67,14 +88,22 @@ export function createXmlAnomalyRuntime(
         )
       }
 
-      const inputValues = normalizePlainDataInputs(extractInputs({
-        declarations: registration.inputs,
-        rootRule: params.rule,
-        propertyRule,
-        rootYaml: params.yaml,
-        resolvePropertyItemRule: dependencies.resolvePropertyItemRule,
-        resolveStandardIndexInput: dependencies.resolveStandardIndexInput,
-      }))
+      let inputValues: XmlCompactRawInputs
+      try {
+        inputValues = normalizePlainDataInputs(extractInputs({
+          declarations: registration.inputs,
+          rootRule: params.rule,
+          propertyRule,
+          rootYaml: params.yaml,
+          resolvePropertyItemRule: dependencies.resolvePropertyItemRule,
+          resolveStandardIndexInput: dependencies.resolveStandardIndexInput,
+        }))
+      } catch (error) {
+        if (!(error instanceof XmlCompactRawRecoverableInputError)) {
+          blocked.add(registration)
+        }
+        throw error
+      }
       const inputs = declaredInputView(inputValues)
       const cacheKey = canonicalPlainDataKey(inputValues)
       const cached = proven.get(registration)?.get(cacheKey)
@@ -186,10 +215,18 @@ function extractInputSource(params: {
       const keyValues = normalizePlainDataInputs(Object.fromEntries(
         params.input.source.keyInputs.map((name) => [name, params.resolveInput(name)]),
       ))
-      return params.resolveStandardIndexInput({
-        index: params.input.source.index,
-        keyInputs: declaredInputView(keyValues),
-      })
+      try {
+        return params.resolveStandardIndexInput({
+          index: params.input.source.index,
+          keyInputs: declaredInputView(keyValues),
+        })
+      } catch (error) {
+        if (error instanceof XmlCompactRawRegistrationFailure) throw error
+        throw new XmlCompactRawStandardIndexResolverError(
+          params.input.source.index,
+          error,
+        )
+      }
     }
   }
 }
@@ -206,13 +243,25 @@ function extractYamlPropertyPath(params: {
   let yaml = params.rootYaml
   for (const [index, propertyKey] of params.propertyPath.entries()) {
     const propertyRule = itemRule.properties[propertyKey]
-    const source = createYAMLPropertySource({ yaml, rule: itemRule })
-    if (propertyRule === undefined || !source.has(propertyKey)) {
-      throw new Error(
+    if (propertyRule === undefined || typeof propertyRule.yaml !== "string") {
+      throw new XmlCompactRawInputMissingError(
         `Не найден вход compact raw ${params.propertyPath.join(".")}`,
       )
     }
-    yaml = source.raw(propertyKey)
+    const descriptor = typeof yaml === "object" && yaml !== null
+      ? Object.getOwnPropertyDescriptor(yaml, propertyRule.yaml)
+      : undefined
+    if (descriptor === undefined) {
+      throw new XmlCompactRawInputMissingError(
+        `Не найден вход compact raw ${params.propertyPath.join(".")}`,
+      )
+    }
+    if (!("value" in descriptor)) {
+      throw new XmlCompactRawUnsupportedYamlDescriptorError(
+        `YAML property ${propertyRule.yaml} должна иметь data descriptor`,
+      )
+    }
+    yaml = descriptor.value
     if (index === params.propertyPath.length - 1) return yaml
 
     const nestedRule = params.resolvePropertyItemRule?.(propertyRule) ??
@@ -224,7 +273,9 @@ function extractYamlPropertyPath(params: {
     }
     itemRule = nestedRule
   }
-  throw new Error(`Не найден вход compact raw ${params.propertyPath.join(".")}`)
+  throw new XmlCompactRawInputMissingError(
+    `Не найден вход compact raw ${params.propertyPath.join(".")}`,
+  )
 }
 
 function extractPlainFieldPath(
@@ -310,16 +361,22 @@ function normalizePlainData(
     typeof value === "bigint"
   ) return value
   if (typeof value !== "object") {
-    throw new Error(`Compact raw input ${path} должен быть plain-data`)
+    throw new XmlCompactRawInvalidInputError(
+      `Compact raw input ${path} должен быть plain-data`,
+    )
   }
   if (ancestors.has(value)) {
-    throw new Error(`Compact raw input ${path} должен быть plain-data без циклов`)
+    throw new XmlCompactRawInvalidInputError(
+      `Compact raw input ${path} должен быть plain-data без циклов`,
+    )
   }
   ancestors.add(value)
   try {
     if (Array.isArray(value)) {
       if (Object.getPrototypeOf(value) !== Array.prototype) {
-        throw new Error(`Compact raw input ${path} должен быть plain-data array`)
+        throw new XmlCompactRawInvalidInputError(
+          `Compact raw input ${path} должен быть plain-data array`,
+        )
       }
       for (const key of Reflect.ownKeys(value)) {
         if (key === "length") continue
@@ -333,14 +390,18 @@ function normalizePlainData(
           !("value" in descriptor) ||
           descriptor.enumerable !== true
         ) {
-          throw new Error(`Compact raw input ${path} должен быть plain-data array`)
+          throw new XmlCompactRawInvalidInputError(
+            `Compact raw input ${path} должен быть plain-data array`,
+          )
         }
       }
       const result: XmlCompactRawValue[] = []
       for (let index = 0; index < value.length; index += 1) {
         const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
         if (descriptor === undefined || !("value" in descriptor)) {
-          throw new Error(`Compact raw input ${path} должен быть plain-data array без пропусков`)
+          throw new XmlCompactRawInvalidInputError(
+            `Compact raw input ${path} должен быть plain-data array без пропусков`,
+          )
         }
         result.push(normalizePlainData(
           descriptor.value,
@@ -353,12 +414,16 @@ function normalizePlainData(
 
     const prototype: unknown = Object.getPrototypeOf(value)
     if (prototype !== Object.prototype && prototype !== null) {
-      throw new Error(`Compact raw input ${path} должен быть plain-data record`)
+      throw new XmlCompactRawInvalidInputError(
+        `Compact raw input ${path} должен быть plain-data record`,
+      )
     }
     const result: Record<string, XmlCompactRawValue> = Object.create(null)
     for (const key of Reflect.ownKeys(value)) {
       if (typeof key !== "string") {
-        throw new Error(`Compact raw input ${path} должен быть plain-data record без symbol keys`)
+        throw new XmlCompactRawInvalidInputError(
+          `Compact raw input ${path} должен быть plain-data record без symbol keys`,
+        )
       }
       const descriptor = Object.getOwnPropertyDescriptor(value, key)
       if (
@@ -366,7 +431,9 @@ function normalizePlainData(
         !("value" in descriptor) ||
         descriptor.enumerable !== true
       ) {
-        throw new Error(`Compact raw input ${path}.${key} должен быть plain-data field`)
+        throw new XmlCompactRawInvalidInputError(
+          `Compact raw input ${path}.${key} должен быть plain-data field`,
+        )
       }
       result[key] = normalizePlainData(
         descriptor.value,
@@ -390,7 +457,9 @@ function declaredInputView(inputs: XmlCompactRawInputs): XmlCompactRawInputs {
   const declared = new Set(Object.keys(inputs))
   const assertDeclared = (property: PropertyKey): void => {
     if (typeof property !== "string" || !declared.has(property)) {
-      throw new Error(`Необъявленный compact raw input: ${String(property)}`)
+      throw new XmlCompactRawUndeclaredInputError(
+        `Необъявленный compact raw input: ${String(property)}`,
+      )
     }
   }
   return new Proxy(inputs, {
@@ -434,4 +503,8 @@ function canonicalPlainDataKey(value: XmlCompactRawValue): string {
 
 function frame(value: string): string {
   return `${value.length}:${value}`
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
 }
