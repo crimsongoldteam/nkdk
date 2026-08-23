@@ -114,4 +114,24 @@ describe("xmlExport", () => {
     expect(xml).toBe(source)
     expect(roundTripped?.value).toBe("line\ncarriage\rtab\tend")
   })
+
+  it.each([
+    ['a="unterminated', /кавыч/],
+    ['a="1" ?> trailing', /\?>/],
+    ['a="2"', /псевдоатрибут/],
+    ["alpha\u0000omega", /XML/],
+  ])("rejects a processing instruction body that cannot round-trip: %s", (body, message) => {
+    const document = parseXmlDocumentWithSaxes(
+      '<Root><?legacy a="1"?></Root>',
+      { preserveXsiNil: true }
+    )
+    const roots = document.roots.map((root) => ({
+      ...root,
+      content: root.content.map((node) =>
+        node.type === "processingInstruction" ? { ...node, body } : node
+      ),
+    }))
+
+    expect(() => xmlExport(roots, false)).toThrow(message)
+  })
 })

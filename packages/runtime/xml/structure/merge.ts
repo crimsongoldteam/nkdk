@@ -21,25 +21,29 @@ export interface XmlRawMergeBoundary {
 
 type RawPathTerminal = "attributes" | "order"
 
-interface ParsedRawPath {
+interface UnresolvedRawPath {
   readonly source: string
   readonly segments: readonly string[]
   readonly terminal?: RawPathTerminal
 }
 
+interface CanonicalRawPath extends UnresolvedRawPath {
+  readonly rootName: string
+}
+
 type PlannedBoundary =
   | {
-      readonly path: ParsedRawPath
+      readonly path: CanonicalRawPath
       readonly kind: "element"
       readonly fragment: XmlRawFragment
     }
   | {
-      readonly path: ParsedRawPath
+      readonly path: CanonicalRawPath
       readonly kind: "attributes"
       readonly attributes: XmlRawAttributes
     }
   | {
-      readonly path: ParsedRawPath
+      readonly path: CanonicalRawPath
       readonly kind: "order"
       readonly order: readonly string[]
     }
@@ -53,6 +57,7 @@ interface ResolvedTerminalBoundary {
 
 interface MutableXmlElementNode
   extends Omit<XmlElementNode, "attributes" | "content"> {
+  readonly origin: "ordinary" | "planned"
   attributes: XmlAttributeNode[]
   content: MutableXmlContentNode[]
 }
@@ -84,7 +89,7 @@ function applyElementBoundaries(
   ordinaryRoots: readonly XmlElementNode[],
   boundaries: readonly PlannedBoundary[]
 ): MutableXmlElementNode[] {
-  const roots = ordinaryRoots.map(toMutableElement)
+  const roots = ordinaryRoots.map((node) => toMutableElement(node, "ordinary"))
   for (const boundary of boundaries) {
     if (boundary.kind === "element") applyElementBoundary(roots, boundary)
   }
@@ -115,7 +120,7 @@ function planBoundaries(
       assertTerminalDoesNotSuppress(boundary, "#order")
       return { path, kind: "order", order: decodeXmlRawOrder(boundary.value) }
     }
-    const elementName = path.segments.at(-1)!
+    const elementName = path.segments.at(-1) ?? path.rootName
     return {
       path,
       kind: "element",
@@ -128,7 +133,7 @@ function planBoundaries(
   })
 }
 
-function parseRawPath(source: string): ParsedRawPath {
+function parseRawPath(source: string): UnresolvedRawPath {
   const parts = source.split("\\")
   if (source.length === 0 || parts.some((part) => part.length === 0 || part === "." || part === "..")) {
     throw new Error(`Недопустимый XML-путь: ${source}`)
@@ -146,28 +151,44 @@ function parseRawPath(source: string): ParsedRawPath {
 }
 
 function canonicalizeRawPath(
-  path: ParsedRawPath,
+  path: UnresolvedRawPath,
   ordinaryRoots: readonly XmlElementNode[]
-): ParsedRawPath {
+): CanonicalRawPath {
   const soleRoot = ordinaryRoots.length === 1 ? ordinaryRoots[0] : undefined
-  if (
-    soleRoot === undefined ||
-    path.segments.length === 1 ||
-    path.segments[0] !== soleRoot.name
-  ) {
-    return path
+  if (soleRoot !== undefined) {
+    const startsWithRoot = path.segments[0] === soleRoot.name
+    // Пользовательский путь всегда относителен к корню. Поэтому один Root
+    // означает одноимённый wrapper, а root-inclusive Root\Root канонизируется
+    // в ту же цель снятием ровно первого сегмента.
+    const rootIsIncluded = startsWithRoot && path.segments[1] === soleRoot.name
+    return {
+      ...path,
+      rootName: soleRoot.name,
+      segments: rootIsIncluded ? path.segments.slice(1) : path.segments,
+    }
   }
-  return { ...path, segments: path.segments.slice(1) }
+
+  const rootMatches = ordinaryRoots.filter(({ name }) => name === path.segments[0])
+  if (rootMatches.length !== 1) {
+    throw new Error(`XML-путь не имеет однозначного корня: ${path.source}`)
+  }
+  return {
+    ...path,
+    rootName: rootMatches[0]!.name,
+    segments: path.segments.slice(1),
+  }
 }
 
-function canonicalRawPathKey(path: ParsedRawPath): string {
+function canonicalRawPathKey(path: CanonicalRawPath): string {
   const terminal =
     path.terminal === "attributes"
       ? "#attributes"
       : path.terminal === "order"
         ? "#order"
         : undefined
-  return [...path.segments, ...(terminal === undefined ? [] : [terminal])].join("\\")
+  return [path.rootName, ...path.segments, ...(terminal === undefined ? [] : [terminal])].join(
+    "\\"
+  )
 }
 
 function assertTerminalDoesNotSuppress(
@@ -185,8 +206,9 @@ function assertNonOverlappingBoundaries(boundaries: readonly PlannedBoundary[]):
       const left = boundaries[leftIndex]!
       const right = boundaries[rightIndex]!
       if (
-        (left.kind === "element" && isPathPrefix(left.path.segments, right.path.segments)) ||
-        (right.kind === "element" && isPathPrefix(right.path.segments, left.path.segments))
+        left.path.rootName === right.path.rootName &&
+        ((left.kind === "element" && isPathPrefix(left.path.segments, right.path.segments)) ||
+          (right.kind === "element" && isPathPrefix(right.path.segments, left.path.segments)))
       ) {
         throw new Error(`Найдены перекрывающиеся raw-границы: ${left.path.source} и ${right.path.source}`)
       }
@@ -204,25 +226,33 @@ function applyElementBoundary(
 ): void {
   const location = resolveElementLocation(
     roots,
-    boundary.path.segments,
+    boundary.path,
     boundary.fragment.nodes.length > 0
   )
   if (location === undefined) return
-  const inserted = boundary.fragment.nodes.map(toMutableElement)
-  const canonicalName = boundary.path.segments.at(-1)!
+  const inserted = boundary.fragment.nodes.map((node) => toMutableElement(node, "planned"))
+  const canonicalName = boundary.path.segments.at(-1) ?? boundary.path.rootName
   const existingCanonical = location.elements.filter((node) => node.name === canonicalName)
   if (existingCanonical.length > 0 && !boundary.fragment.suppressOrdinaryOutput) {
     throw new Error(`Raw-вставка ${boundary.path.source} пересекается с обычным выводом`)
   }
+  if (
+    boundary.fragment.suppressOrdinaryOutput &&
+    existingCanonical.some((node) => node.origin === "planned")
+  ) {
+    throw new Error(`Raw-вставка ${boundary.path.source} пересекается с обычным выводом`)
+  }
 
-  const retained = boundary.fragment.suppressOrdinaryOutput
-    ? location.elements.filter((node) => node.name !== canonicalName)
-    : [...location.elements]
+  const suppressibleElements = new Set(
+    boundary.fragment.suppressOrdinaryOutput
+      ? existingCanonical.filter((node) => node.origin === "ordinary")
+      : []
+  )
+  const retained = location.elements.filter((node) => !suppressibleElements.has(node))
   const insertedNames = new Set(inserted.map(({ name }) => name))
-  const replacedElements = new Set(location.elements)
-  const collisionCandidates = boundary.fragment.suppressOrdinaryOutput
-    ? location.siblings.filter((node) => !replacedElements.has(node))
-    : location.siblings
+  const collisionCandidates = location.siblings.filter(
+    (node) => !suppressibleElements.has(node)
+  )
   if (collisionCandidates.some(({ name }) => insertedNames.has(name))) {
     throw new Error(`Raw-вставка ${boundary.path.source} пересекается с обычным выводом`)
   }
@@ -237,25 +267,21 @@ interface ElementLocation {
 
 function resolveElementLocation(
   roots: MutableXmlElementNode[],
-  segments: readonly string[],
+  path: CanonicalRawPath,
   createParents: boolean
 ): ElementLocation | undefined {
-  const rootMatches = roots.filter(({ name }) => name === segments[0])
-  if (rootMatches.length > 1) throw new Error(`XML-путь неоднозначен у корня: ${segments.join("\\")}`)
-  if (rootMatches.length === 1) {
-    if (segments.length === 1) {
-      return {
-        elements: rootMatches,
-        siblings: roots,
-        replace: (elements) => replaceNamedElements(roots, segments[0]!, elements),
-      }
-    }
-    return childLocation(rootMatches[0]!, segments.slice(1), createParents)
+  const rootMatches = roots.filter(({ name }) => name === path.rootName)
+  if (rootMatches.length !== 1) {
+    throw new Error(`XML-путь не имеет однозначного корня: ${path.source}`)
   }
-  if (roots.length !== 1) {
-    throw new Error(`XML-путь не имеет однозначного корня: ${segments.join("\\")}`)
+  if (path.segments.length > 0) {
+    return childLocation(rootMatches[0]!, path.segments, createParents)
   }
-  return childLocation(roots[0]!, segments, createParents)
+  return {
+    elements: rootMatches,
+    siblings: roots,
+    replace: (elements) => replaceNamedElements(roots, path.rootName, elements),
+  }
 }
 
 function childLocation(
@@ -302,7 +328,7 @@ function resolveTerminalBoundaries(
   return boundaries.flatMap((boundary) =>
     boundary.kind === "element"
       ? []
-      : [{ boundary, parent: resolveExistingElement(roots, boundary.path.segments) }]
+      : [{ boundary, parent: resolveExistingElement(roots, boundary.path) }]
   )
 }
 
@@ -369,23 +395,18 @@ function applyTerminalBoundaries(
 
 function resolveExistingElement(
   roots: readonly MutableXmlElementNode[],
-  segments: readonly string[]
+  path: CanonicalRawPath
 ): MutableXmlElementNode {
-  const rootMatches = roots.filter(({ name }) => name === segments[0])
-  let current: MutableXmlElementNode
-  let remaining: readonly string[]
-  if (rootMatches.length === 1) {
-    current = rootMatches[0]!
-    remaining = segments.slice(1)
-  } else if (rootMatches.length === 0 && roots.length === 1) {
-    current = roots[0]!
-    remaining = segments
-  } else {
-    throw new Error(`XML-путь не имеет однозначного корня: ${segments.join("\\")}`)
+  const rootMatches = roots.filter(({ name }) => name === path.rootName)
+  if (rootMatches.length !== 1) {
+    throw new Error(`XML-путь не имеет однозначного корня: ${path.source}`)
   }
-  for (const segment of remaining) {
+  let current = rootMatches[0]!
+  for (const segment of path.segments) {
     const matches = childElements(current, segment)
-    if (matches.length !== 1) throw new Error(`Не найден однозначный XML-путь: ${segments.join("\\")}`)
+    if (matches.length !== 1) {
+      throw new Error(`Не найден однозначный XML-путь: ${path.source}`)
+    }
     current = matches[0]!
   }
   return current
@@ -448,15 +469,22 @@ function replaceNamedElements(
 }
 
 function emptyMutableElement(name: string): MutableXmlElementNode {
-  return toMutableElement(decodeXmlRawValue({}, { elementName: name }).nodes[0]!)
+  return toMutableElement(
+    decodeXmlRawValue({}, { elementName: name }).nodes[0]!,
+    "planned"
+  )
 }
 
-function toMutableElement(node: XmlElementNode): MutableXmlElementNode {
+function toMutableElement(
+  node: XmlElementNode,
+  origin: MutableXmlElementNode["origin"]
+): MutableXmlElementNode {
   return {
     ...node,
+    origin,
     attributes: node.attributes.map((attribute) => ({ ...attribute })),
     content: node.content.map((child) =>
-      child.type === "element" ? toMutableElement(child) : { ...child }
+      child.type === "element" ? toMutableElement(child, origin) : { ...child }
     ),
   }
 }

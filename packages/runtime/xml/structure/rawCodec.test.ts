@@ -53,13 +53,13 @@ describe("decodeXmlRawValue", () => {
 
   it("uses the SAX-canonical processing instruction body without a leading separator", () => {
     const fragment = decodeXmlRawValue(
-      { "?legacy": { _first: "1", _second: "2" } },
+      { "?legacy": { _first: "x&amp;y", _second: "2" } },
       { elementName: "Value" }
     )
 
     expect(fragment.nodes[0]?.content[0]).toMatchObject({
       type: "processingInstruction",
-      body: 'first="1" second="2"',
+      body: 'first="x&amp;y" second="2"',
     })
   })
 
@@ -94,6 +94,18 @@ describe("decodeXmlRawValue", () => {
     expect(() => decodeXmlRawValue(value, { elementName: "Value" })).toThrow(
       expectedMessage as string
     )
+  })
+
+  it.each([
+    ['broken"', /кавыч/],
+    ["broken?>", /\?>/],
+  ])("rejects an invalid processing instruction pseudo-attribute value: %s", (value, message) => {
+    expect(() =>
+      decodeXmlRawValue(
+        { "?legacy": { _value: value } },
+        { elementName: "Value" }
+      )
+    ).toThrow(message)
   })
 
   it("rejects !xml/raw on a YAML key", () => {

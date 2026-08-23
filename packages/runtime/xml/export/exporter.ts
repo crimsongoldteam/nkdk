@@ -1,5 +1,6 @@
 import { XMLBuilder } from "fast-xml-parser"
 import type { XmlContentNode, XmlElementNode } from "../import/document"
+import { validateXmlProcessingInstruction } from "../structure/processingInstruction"
 
 const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 
@@ -155,6 +156,7 @@ const structuralAttributesToPreserveOrder = (
 const structuralContentToPreserveOrder = (node: XmlContentNode): Record<string, unknown> => {
   if (node.type === "text") return { "#text": node.value }
   if (node.type === "processingInstruction") {
+    validateXmlProcessingInstruction(node)
     const separator = node.body.length === 0 ? "" : " "
     return { [`?${node.target}${separator}${node.body}`]: [] }
   }

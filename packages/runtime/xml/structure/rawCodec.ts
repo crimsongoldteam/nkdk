@@ -6,6 +6,7 @@ import type {
   XmlTextNode,
 } from "../import/document"
 import { hashXmlElementStructure } from "./hash"
+import { validateXmlProcessingInstruction } from "./processingInstruction"
 
 export interface XmlRawMapping {
   readonly [key: string]: XmlRawValue
@@ -232,6 +233,7 @@ function decodeProcessingInstruction(
     attributes.push({ name, value: item })
   }
   const body = attributes.map(({ name, value: item }) => `${name}="${item}"`).join(" ")
+  validateXmlProcessingInstruction({ target, body, attributes })
   return { type: "processingInstruction", target, body, attributes }
 }
 

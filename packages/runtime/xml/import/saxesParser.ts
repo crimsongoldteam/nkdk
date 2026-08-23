@@ -9,9 +9,9 @@ import type {
   XmlSourceSpan,
 } from "./document"
 import { hashXmlElementStructure } from "../structure/hash"
+import { parseXmlProcessingInstructionAttributes } from "../structure/processingInstruction"
 
 const XML_METADATA = Symbol.for("metadata")
-const PI_ATTRIBUTE = /([^\s=]+)\s*=\s*(["'])([\s\S]*?)\2/gu
 const UNSAFE_NAMES = new Set([
   "__proto__",
   "constructor",
@@ -186,9 +186,7 @@ export function parseXmlDocumentWithSaxes(
   })
   parser.on("processinginstruction", ({ target, body }) => {
     const attributes: Record<string, string> = {}
-    for (const match of body.matchAll(PI_ATTRIBUTE)) {
-      const name = match[1] ?? ""
-      const value = match[3] ?? ""
+    for (const { name, value } of parseXmlProcessingInstructionAttributes(body)) {
       attributes[`_${name}`] = value
     }
     const parent = stack.at(-1)
@@ -412,25 +410,17 @@ function createProcessingInstructionAttributes(
 ): XmlAttributeNode[] {
   const rawBodyStart = span.start + 2 + target.length
   const rawBody = data.slice(rawBodyStart, span.end - 2)
-  const occurrences = new Map<string, number>()
   const attributes: XmlAttributeNode[] = []
-  for (const match of rawBody.matchAll(PI_ATTRIBUTE)) {
-    const name = match[1] ?? ""
-    const occurrence = (occurrences.get(name) ?? 0) + 1
-    occurrences.set(name, occurrence)
-    const start = rawBodyStart + (match.index ?? 0)
+  for (const parsed of parseXmlProcessingInstructionAttributes(rawBody)) {
+    const start = rawBodyStart + parsed.start
     attributes.push({
       id: allocateNodeId(),
-      name,
-      occurrence,
-      path: `${parentPath}/@${name}[${occurrence}]`,
-      value: normalizeXmlLineEndings(match[3] ?? ""),
-      span: { start, end: start + match[0].length },
+      name: parsed.name,
+      occurrence: parsed.occurrence,
+      path: `${parentPath}/@${parsed.name}[${parsed.occurrence}]`,
+      value: parsed.value,
+      span: { start, end: rawBodyStart + parsed.end },
     })
   }
   return attributes
-}
-
-function normalizeXmlLineEndings(value: string): string {
-  return value.replaceAll("\r\n", "\n").replaceAll("\r", "\n")
 }

@@ -63,6 +63,75 @@ describe("mergeXmlRawFragments", () => {
     )
   })
 
+  it.each([
+    ["root-inclusive", "Root\\Root\\Properties\\Future"],
+    ["relative", "Root\\Properties\\Future"],
+  ])("resolves a %s path into a same-name root wrapper exactly once", (_kind, path) => {
+    const ordinary = roots("<Root><Root><Properties/></Root></Root>")
+
+    const merged = mergeXmlRawFragments(ordinary, [
+      { path, value: "42", suppressOrdinaryOutput: false },
+    ])
+
+    expect(xmlExport(merged, false)).toBe(
+      [
+        "<Root>",
+        "\t<Root>",
+        "\t\t<Properties>",
+        "\t\t\t<Future>42</Future>",
+        "\t\t</Properties>",
+        "\t</Root>",
+        "</Root>",
+      ].join("\n")
+    )
+  })
+
+  it("always treats a single leading root name as a relative wrapper", () => {
+    const ordinary = roots("<Root><Properties/></Root>")
+
+    const merged = mergeXmlRawFragments(ordinary, [
+      {
+        path: "Root\\Properties\\Future",
+        value: "42",
+        suppressOrdinaryOutput: false,
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toBe(
+      [
+        "<Root>",
+        "\t<Properties/>",
+        "\t<Root>",
+        "\t\t<Properties>",
+        "\t\t\t<Future>42</Future>",
+        "\t\t</Properties>",
+        "\t</Root>",
+        "</Root>",
+      ].join("\n")
+    )
+  })
+
+  it("canonicalizes relative and root-inclusive paths to the same root wrapper", () => {
+    const ordinary = roots("<Root><Root><Properties/></Root></Root>")
+    const before = xmlExport(ordinary, false)
+
+    expect(() =>
+      mergeXmlRawFragments(ordinary, [
+        {
+          path: "Root\\Root\\Properties\\Future",
+          value: "one",
+          suppressOrdinaryOutput: false,
+        },
+        {
+          path: "Root\\Properties\\Future",
+          value: "two",
+          suppressOrdinaryOutput: false,
+        },
+      ])
+    ).toThrow(/повторн.*пут/)
+    expect(xmlExport(ordinary, false)).toBe(before)
+  })
+
   it("replaces or suppresses ordinary output only for an explicit known boundary", () => {
     const merged = mergeXmlRawFragments(
       roots("<Root><Properties><Visibility>true</Visibility><Default>auto</Default></Properties></Root>"),
@@ -138,6 +207,27 @@ describe("mergeXmlRawFragments", () => {
     ).toThrow(/обычн.*вывод/)
   })
 
+  it("does not let suppression replace a previously planned effective #name", () => {
+    const ordinary = roots("<Root><Properties/></Root>")
+    const before = xmlExport(ordinary, false)
+
+    expect(() =>
+      mergeXmlRawFragments(ordinary, [
+        {
+          path: "Properties\\Future",
+          value: { "#name": "Legacy" },
+          suppressOrdinaryOutput: false,
+        },
+        {
+          path: "Properties\\Legacy",
+          value: { "#name": "Legacy" },
+          suppressOrdinaryOutput: true,
+        },
+      ])
+    ).toThrow(/обычн.*вывод/)
+    expect(xmlExport(ordinary, false)).toBe(before)
+  })
+
   it.each<{
     name: string
     boundaries: readonly XmlRawMergeBoundary[]
@@ -161,9 +251,9 @@ describe("mergeXmlRawFragments", () => {
     {
       name: "duplicate resolved path with relative and root-inclusive spellings",
       boundaries: [
-        { path: "Properties\\Future", value: "one", suppressOrdinaryOutput: false },
+        { path: "Root\\Properties\\Future", value: "one", suppressOrdinaryOutput: false },
         {
-          path: "Root\\Properties\\Future",
+          path: "Root\\Root\\Properties\\Future",
           value: "two",
           suppressOrdinaryOutput: false,
         },
@@ -196,9 +286,9 @@ describe("mergeXmlRawFragments", () => {
     {
       name: "overlap with relative and root-inclusive spellings",
       boundaries: [
-        { path: "Properties\\Future", value: {}, suppressOrdinaryOutput: false },
+        { path: "Root\\Properties\\Future", value: {}, suppressOrdinaryOutput: false },
         {
-          path: "Root\\Properties\\Future\\Nested",
+          path: "Root\\Root\\Properties\\Future\\Nested",
           value: "value",
           suppressOrdinaryOutput: false,
         },
