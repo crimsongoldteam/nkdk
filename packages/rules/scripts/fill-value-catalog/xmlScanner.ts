@@ -8,9 +8,9 @@ import {
   effectiveFillValueType,
   type FillValueClassification,
   type FillValueEffectiveType,
-  type FillValueTypedValue,
 } from "@nkdk/runtime/rule-kit"
 import { importMetadataValueFromXML } from "../../metadata/commonObjects/metadataValue/fromXML"
+import type { MetadataTypedValue } from "../../metadata/commonObjects/metadataValue/types"
 import { importTypeDescriptionFromXML } from "../../metadata/commonObjects/typeDescription/fromXML"
 import type { TypeDescriptionXML } from "../../metadata/commonObjects/typeDescription/types"
 import type {
@@ -56,7 +56,7 @@ export type StandardAttributeEnricher = (params: {
   readonly ownerXml: XmlRecord
   readonly internalName: string
   readonly raw: RawFillValue
-  readonly typedValue?: FillValueTypedValue
+  readonly typedValue?: MetadataTypedValue
 }) => StandardAttributeEnrichment
 
 export interface ScanFillValuesResult {
@@ -249,7 +249,7 @@ export function rawFillValue(value: unknown, present: boolean): RawFillValue {
 }
 
 interface ParsedTypedValue {
-  readonly value?: FillValueTypedValue
+  readonly value?: MetadataTypedValue
   readonly error?: string
 }
 

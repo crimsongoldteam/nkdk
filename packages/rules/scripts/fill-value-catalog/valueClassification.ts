@@ -95,7 +95,7 @@ function normalizeAlternative(alternative: FillValueAlternative): NormalizedType
     case "dateTime": return { kind: "dateTime", dateFractions: alternative.dateFractions }
     case "reference": return {
       kind: "reference",
-      roots: [...alternative.constraint.roots].sort(),
+      roots: [...(alternative.constraint.roots ?? [])].sort(),
       ...(alternative.objectName === undefined ? {} : { objectName: alternative.objectName }),
     }
   }
