@@ -1,5 +1,6 @@
 import {
   eventsToAst,
+  EVENT_ALIAS,
   EVENT_MAPPING,
   EVENT_POP,
   EVENT_SCALAR,
@@ -303,7 +304,12 @@ function annotatedMappingKeySources(source: string, events: readonly Event[]): s
       containers.pop()
       continue
     }
-    if (event.type !== EVENT_SCALAR && event.type !== EVENT_MAPPING && event.type !== EVENT_SEQUENCE) continue
+    if (
+      event.type !== EVENT_SCALAR &&
+      event.type !== EVENT_ALIAS &&
+      event.type !== EVENT_MAPPING &&
+      event.type !== EVENT_SEQUENCE
+    ) continue
     const container = containers[containers.length - 1]
     const isMappingKey = container?.mapping === true && container.expectsKey === true
     if (container?.mapping === true) container.expectsKey = !container.expectsKey

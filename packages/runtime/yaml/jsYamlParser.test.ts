@@ -225,6 +225,29 @@ describe("parseWithJsYaml", () => {
     })
     expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).not.toContain("__NKDK_XML_ANOMALY_KEY_")
   })
+
+  it("сохраняет аннотированный ключ после alias-значения", () => {
+    const parsed = parseWithJsYaml([
+      "base: &b",
+      "  Имя: Основа",
+      "copy: *b",
+      '!xml/invalid "\\x41":',
+      "  Значение: null",
+    ].join("\n"))
+    const data = parsed.data as Record<string, unknown>
+    const runtimeKey = Object.keys(data).find((key) => parsed.annotations.keyAt(data, key) !== undefined)!
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(data.copy).toEqual({ Имя: "Основа" })
+    expect(data[runtimeKey]).toEqual({ Значение: null })
+    expect(parsed.annotations.keyAt(data, runtimeKey)).toEqual({
+      kind: "invalid",
+      occurrence: 1,
+      target: "key",
+      logicalKey: "A",
+    })
+    expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).not.toContain("__NKDK_XML_ANOMALY_KEY_")
+  })
 })
 
 describe("parseMetadataYaml", () => {
