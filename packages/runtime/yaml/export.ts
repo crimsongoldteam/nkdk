@@ -21,6 +21,12 @@ import {
   copyYAMLMappingKeyTags,
   yamlMappingKeyTagAt,
 } from "./mappingKeyTags"
+import {
+  copyXmlAnomalyAnnotationsForParent,
+  createXmlAnomalyAnnotations,
+  type XmlAnomalyAnnotation,
+  type XmlAnomalyAnnotations,
+} from "./xmlAnomalyAnnotations"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
 const UNDEFINED_VALUE_MARKER_PREFIX = "__NKDK_UNDEFINED_VALUE_"
@@ -28,6 +34,7 @@ const UNDEFINED_VALUE_MARKER_PREFIX = "__NKDK_UNDEFINED_VALUE_"
 export interface SerializedYAMLDocument {
   readonly text: string
   readonly data: unknown
+  readonly annotations: XmlAnomalyAnnotations
 }
 
 interface PreparedYAMLNode {
@@ -68,7 +75,10 @@ const removeDocumentFinalLineEnding = (yaml: string): string => {
 function prepareForDump(
   value: unknown,
   explicitStrings: Map<string, string>,
-  undefinedValues: Set<string>
+  undefinedValues: Set<string>,
+  sourceAnnotations: XmlAnomalyAnnotations,
+  dumpAnnotations: ReturnType<typeof createXmlAnomalyAnnotations>,
+  dataAnnotations: ReturnType<typeof createXmlAnomalyAnnotations>,
 ): PreparedYAMLNode {
   if (isExplicitYAMLString(value)) {
     const data = String(unwrapExplicitYAMLString(value))
@@ -79,7 +89,7 @@ function prepareForDump(
   }
   if (Array.isArray(value)) {
     const prepared = value.map((item, index) =>
-      prepareChildForDump(value, index, item, explicitStrings, undefinedValues)
+      prepareChildForDump(value, index, item, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations)
     )
     const dumpValue = prepared.map(({ dumpValue }) => dumpValue)
     const data = prepared.map(({ data }) => data)
@@ -87,6 +97,8 @@ function prepareForDump(
       if (item.doubleQuoted === true) markDoubleQuotedScalar(data, index)
     })
     copyYAMLScalarTags(value, data)
+    copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, dumpValue, dumpAnnotations)
+    copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, data, dataAnnotations)
     return { dumpValue, data }
   }
   if (value !== null && typeof value === "object") {
@@ -94,7 +106,7 @@ function prepareForDump(
     if (entries.length === 0) return { dumpValue: value, data: value }
     const prepared = entries.map(([key, item]) => [
       key,
-      prepareChildForDump(value, key, item, explicitStrings, undefinedValues),
+      prepareChildForDump(value, key, item, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations),
     ] as const)
     const preparedDumpEntries = prepared.map(([key, item]) => [key, item.dumpValue] as const)
     const preparedDataEntries = prepared.map(([key, item]) => [key, item.data] as const)
@@ -115,6 +127,8 @@ function prepareForDump(
     copyYAMLMappingKeyOrder(value, data)
     copyYAMLMappingKeyTags(value, dumpValue)
     copyYAMLMappingKeyTags(value, data)
+    copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, dumpValue, dumpAnnotations)
+    copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, data, dataAnnotations)
     return { dumpValue, data }
   }
   return { dumpValue: value, data: value }
@@ -125,8 +139,13 @@ function prepareChildForDump(
   key: string | number,
   value: unknown,
   explicitStrings: Map<string, string>,
-  undefinedValues: Set<string>
+  undefinedValues: Set<string>,
+  sourceAnnotations: XmlAnomalyAnnotations,
+  dumpAnnotations: ReturnType<typeof createXmlAnomalyAnnotations>,
+  dataAnnotations: ReturnType<typeof createXmlAnomalyAnnotations>,
 ): PreparedYAMLNode {
+  const anomaly = sourceAnnotations.at(parent, key)
+  if (anomaly?.kind === "raw" && value === undefined) return { dumpValue: null, data: undefined }
   const tag = yamlScalarTagAt(parent, key)
   if (isXMLAnomalyTag(tag)) {
     const taggedValue = typeof value === "string"
@@ -144,7 +163,7 @@ function prepareChildForDump(
   }
   const prepared = value === undefined
     ? { dumpValue: null, data: null }
-    : prepareForDump(value, explicitStrings, undefinedValues)
+    : prepareForDump(value, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations)
   return {
     dumpValue: taggedScalarForDump(parent, key, prepared.dumpValue),
     data: prepared.data,
@@ -204,10 +223,19 @@ function quoteExplicitStrings(yaml: string, explicitStrings: Map<string, string>
   return result
 }
 
-export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
+export function serializeYAMLDocument(
+  source: unknown,
+  annotations: XmlAnomalyAnnotations = createXmlAnomalyAnnotations(),
+): SerializedYAMLDocument {
   const explicitStrings = new Map<string, string>()
   const undefinedValues = new Set<string>()
-  const prepared = prepareForDump(source, explicitStrings, undefinedValues)
+  const serializedAnnotations = createXmlAnomalyAnnotations()
+  const dumpAnnotations = createXmlAnomalyAnnotations()
+  if (annotations.root() !== undefined) serializedAnnotations.setRoot(annotations.root()!)
+  if (annotations.root() !== undefined) dumpAnnotations.setRoot(annotations.root()!)
+  const prepared = annotations.root()?.kind === "raw" && source === undefined
+    ? { dumpValue: null, data: undefined }
+    : prepareForDump(source, explicitStrings, undefinedValues, annotations, dumpAnnotations, serializedAnnotations)
   const yaml = dump(prepared.dumpValue, {
     schema: NKDK_YAML_SCHEMA,
     indent: 2,
@@ -219,6 +247,7 @@ export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
     quoteStyle: "double",
     transform(documents) {
       applyYAMLMappingKeyTagsToAST(documents, prepared.dumpValue)
+      applyXmlAnomalyAnnotationsToAST(documents, prepared.dumpValue, prepared.data, dumpAnnotations)
     },
   })
   const text = restoreYAMLScalarTagsAfterDump(
@@ -232,7 +261,63 @@ export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
       )
     )
   )
-  return { text, data: prepared.data }
+  return { text, data: prepared.data, annotations: serializedAnnotations }
+}
+
+function applyXmlAnomalyAnnotationsToAST(
+  documents: Document[],
+  source: unknown,
+  semanticData: unknown,
+  annotations: XmlAnomalyAnnotations,
+): void {
+  const document = documents[0]
+  if (document === undefined || document.contents === null) return
+  const root = annotations.root()
+  if (root !== undefined) applyXmlAnomalyTag(document.contents, root, semanticData)
+  applyXmlAnomalyAnnotationsToNode(document.contents, source, semanticData, annotations)
+}
+
+function applyXmlAnomalyAnnotationsToNode(
+  node: Node | null,
+  source: unknown,
+  semanticData: unknown,
+  annotations: XmlAnomalyAnnotations,
+): void {
+  if (node === null || node.kind === "alias") return
+  if (node.kind === "sequence") {
+    if (!Array.isArray(source) || !Array.isArray(semanticData)) return
+    node.items.forEach((item, index) => {
+      const annotation = annotations.at(source, index)
+      if (annotation !== undefined) applyXmlAnomalyTag(item, annotation, semanticData[index])
+      applyXmlAnomalyAnnotationsToNode(item, source[index], semanticData[index], annotations)
+    })
+    return
+  }
+  if (node.kind !== "mapping" || !isRecord(source) || !isRecord(semanticData)) return
+
+  for (const item of node.items) {
+    if (item.key.kind !== "scalar") continue
+    const runtimeKey = item.key.value
+    const keyAnnotation = annotations.keyAt(source, runtimeKey)
+    if (keyAnnotation !== undefined) {
+      item.key.value = keyAnnotation.logicalKey ?? runtimeKey
+      applyXmlAnomalyTag(item.key, keyAnnotation)
+    }
+    const valueAnnotation = annotations.at(source, runtimeKey)
+    if (valueAnnotation !== undefined) applyXmlAnomalyTag(item.value, valueAnnotation, semanticData[runtimeKey])
+    applyXmlAnomalyAnnotationsToNode(item.value, source[runtimeKey], semanticData[runtimeKey], annotations)
+  }
+}
+
+function applyXmlAnomalyTag(node: Node, annotation: XmlAnomalyAnnotation, value?: unknown): void {
+  const occurrence = annotation.target === "key" && annotation.occurrence > 1
+    ? `/${annotation.occurrence}`
+    : ""
+  node.tag = `!xml/${annotation.kind}${occurrence}`
+  node.style.tagged = true
+  if (annotation.kind === "raw" && annotation.target !== "key" && value === undefined && node.kind === "scalar") {
+    node.value = ""
+  }
 }
 
 function applyYAMLMappingKeyTagsToAST(

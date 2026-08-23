@@ -16,6 +16,12 @@ import {
 } from "./scalarTags"
 import { markYAMLMappingKeyOrder, yamlMappingKeys } from "./mappingTags"
 import { markYAMLMappingKeyTag } from "./mappingKeyTags"
+import {
+  createXmlAnomalyAnnotations,
+  type XmlAnomalyAnnotation,
+  type XmlAnomalyAnnotations,
+  type XmlAnomalyKind,
+} from "./xmlAnomalyAnnotations"
 
 export interface JsYamlSyntaxError {
   message: string
@@ -28,34 +34,36 @@ export interface JsParsedYaml {
   data: unknown
   locations: YamlLocationIndex
   syntaxErrors: JsYamlSyntaxError[]
+  annotations: XmlAnomalyAnnotations
 }
 
 export interface JsParsedYamlData {
   data: unknown
   syntaxErrors: JsYamlSyntaxError[]
+  annotations: XmlAnomalyAnnotations
 }
 
 export function parseWithJsYaml(text: string): JsParsedYaml {
   const locations = buildYamlLocationIndex(text)
+  const annotations = createXmlAnomalyAnnotations()
   if (text.trim() === "") {
     return {
       text,
       data: {},
       locations,
       syntaxErrors: [],
+      annotations,
     }
   }
 
   try {
-    const prepared = prepareMappingKeyTags(text)
-    const data = load(prepared.loadText, { schema: NKDK_YAML_SCHEMA })
-    const normalized = prepareJsYamlData(data, text, locations)
-    applyParsedMappingKeyTags(normalized, prepared.tags)
+    const normalized = parseYamlData(text, locations, annotations)
     return {
       text,
       data: normalized,
       locations,
       syntaxErrors: [],
+      annotations,
     }
   } catch (error) {
     return {
@@ -63,34 +71,48 @@ export function parseWithJsYaml(text: string): JsParsedYaml {
       data: {},
       locations,
       syntaxErrors: [toSyntaxError(error, text)],
+      annotations,
     }
   }
 }
 
 export function parseDataWithJsYaml(text: string): JsParsedYamlData {
+  const annotations = createXmlAnomalyAnnotations()
   if (text.trim() === "") {
     return {
       data: {},
       syntaxErrors: [],
+      annotations,
     }
   }
 
   try {
     const locations = buildYamlLocationIndex(text)
-    const prepared = prepareMappingKeyTags(text)
-    const data = load(prepared.loadText, { schema: NKDK_YAML_SCHEMA })
-    const normalized = prepareJsYamlData(data, text, locations)
-    applyParsedMappingKeyTags(normalized, prepared.tags)
+    const normalized = parseYamlData(text, locations, annotations)
     return {
       data: normalized,
       syntaxErrors: [],
+      annotations,
     }
   } catch (error) {
     return {
       data: undefined,
       syntaxErrors: [toSyntaxError(error, text)],
+      annotations,
     }
   }
+}
+
+function parseYamlData(
+  text: string,
+  locations: YamlLocationIndex,
+  annotations: ReturnType<typeof createXmlAnomalyAnnotations>,
+): unknown {
+  const prepared = prepareMappingKeyTags(text)
+  const data = load(prepared.loadText, { schema: NKDK_YAML_SCHEMA })
+  const normalized = prepareJsYamlData(data, text, locations)
+  applyParsedMappingKeyTags(normalized, prepared.tags)
+  return applyParsedXmlAnomalyAnnotations(normalized, prepared.annotations, annotations)
 }
 
 interface ParsedMappingKeyTag {
@@ -98,9 +120,17 @@ interface ParsedMappingKeyTag {
   readonly key: string
 }
 
+interface ParsedXmlAnomalyAnnotation {
+  readonly annotation: XmlAnomalyAnnotation
+  readonly parentPath: readonly (string | number)[]
+  readonly key: string | number | undefined
+  readonly rawPayload?: "compact" | "null"
+}
+
 function prepareMappingKeyTags(text: string): {
   readonly loadText: string
   readonly tags: readonly ParsedMappingKeyTag[]
+  readonly annotations: readonly ParsedXmlAnomalyAnnotation[]
 } {
   const source = prepareYAMLScalarTagsForParser(text)
   const documents = eventsToAst(parseEvents(source, {}), {
@@ -108,10 +138,11 @@ function prepareMappingKeyTags(text: string): {
     schema: NKDK_YAML_SCHEMA,
   })
   const tags: ParsedMappingKeyTag[] = []
-  for (const document of documents) {
-    collectMappingKeyTags(document.contents, [], tags)
+  const annotations: ParsedXmlAnomalyAnnotation[] = []
+  for (const document of documents) collectYamlTags(document.contents, [], tags, annotations)
+  if (tags.length === 0 && annotations.every((entry) => entry.annotation.target !== "key")) {
+    return { loadText: source, tags, annotations }
   }
-  if (tags.length === 0) return { loadText: source, tags }
   return {
     loadText: present(documents, {
       schema: NKDK_YAML_SCHEMA,
@@ -119,36 +150,126 @@ function prepareMappingKeyTags(text: string): {
       lineWidth: -1,
     }),
     tags,
+    annotations,
   }
 }
 
-function collectMappingKeyTags(
+function collectYamlTags(
   node: Node | null,
   path: readonly (string | number)[],
   tags: ParsedMappingKeyTag[],
+  annotations: ParsedXmlAnomalyAnnotation[],
 ): void {
   if (node === null || node.kind === "alias") return
+  const rootTag = xmlAnomalyTag(node.tag)
+  if (rootTag !== undefined && path.length === 0) {
+    assertValueAnnotation(rootTag, node.tag)
+    annotations.push({
+      annotation: annotationFor(rootTag, "root"),
+      parentPath: [],
+      key: undefined,
+      rawPayload: rawPayloadOf(node, rootTag.kind),
+    })
+  }
   if (node.kind === "sequence") {
-    node.items.forEach((item, index) => collectMappingKeyTags(item, [...path, index], tags))
+    node.items.forEach((item, index) => {
+      collectValueAnnotation(item, path, index, annotations)
+      collectYamlTags(item, [...path, index], tags, annotations)
+    })
     return
   }
   if (node.kind !== "mapping") return
 
+  const usedRuntimeKeys = new Set(
+    node.items.flatMap(({ key }) => key.kind === "scalar" ? [key.value] : []),
+  )
+  const expectedOccurrences = new Map<string, number>()
   for (const { key, value } of node.items) {
-    if (key.tag.startsWith("!xml/")) {
-      if (key.tag !== "!xml/reference") {
-        throw new YAMLException(`Тег ${key.tag} недопустим для ключа YAML`)
-      }
+    const annotationTag = xmlAnomalyTag(key.tag)
+    let runtimeKey: string | undefined
+    if (annotationTag !== undefined) {
+      if (annotationTag.kind === "raw") throw new YAMLException("!xml/raw недопустим для ключа YAML")
       if (key.kind !== "scalar") {
-        throw new YAMLException("!xml/reference поддерживает только скалярный ключ")
+        throw new YAMLException(`${key.tag} поддерживает только скалярный ключ`)
       }
+      if (annotationTag.numbered && annotationTag.occurrence === 1) {
+        throw new YAMLException(`Тег ${key.tag} не использует номер /1`)
+      }
+      const expected = expectedOccurrences.get(key.value) ?? 1
+      if (annotationTag.occurrence !== expected) {
+        throw new YAMLException(`Тег ${key.tag} нарушает нумерацию повторного ключа ${key.value}`)
+      }
+      expectedOccurrences.set(key.value, expected + 1)
+      runtimeKey = uniqueRuntimeKey(usedRuntimeKeys)
+      annotations.push({
+        annotation: annotationFor(annotationTag, "key", key.value),
+        parentPath: path,
+        key: runtimeKey,
+      })
+      key.value = runtimeKey
+      key.tag = "tag:yaml.org,2002:str"
+      key.style.tagged = false
+    } else if (key.tag.startsWith("!xml/")) {
+      if (key.tag !== "!xml/reference") throw new YAMLException(`Тег ${key.tag} недопустим для ключа YAML`)
+      if (key.kind !== "scalar") throw new YAMLException("!xml/reference поддерживает только скалярный ключ")
       tags.push({ containerPath: path, key: key.value })
       key.tag = "tag:yaml.org,2002:str"
       key.style.tagged = false
     }
     if (key.kind !== "scalar") continue
-    collectMappingKeyTags(value, [...path, key.value], tags)
+    const nextKey = runtimeKey ?? key.value
+    collectValueAnnotation(value, path, nextKey, annotations)
+    collectYamlTags(value, [...path, nextKey], tags, annotations)
   }
+}
+
+function collectValueAnnotation(
+  node: Node,
+  parentPath: readonly (string | number)[],
+  key: string | number,
+  annotations: ParsedXmlAnomalyAnnotation[],
+): void {
+  const tag = xmlAnomalyTag(node.tag)
+  if (tag === undefined) return
+  assertValueAnnotation(tag, node.tag)
+  annotations.push({
+    annotation: annotationFor(tag, "value"),
+    parentPath,
+    key,
+    rawPayload: rawPayloadOf(node, tag.kind),
+  })
+}
+
+function rawPayloadOf(node: Node, kind: XmlAnomalyKind): "compact" | "null" | undefined {
+  if (kind !== "raw" || node.kind !== "scalar" || node.style.doubleQuoted || node.style.singleQuoted) return undefined
+  if (node.value === "") return "compact"
+  return node.value === "null" || node.value === "~" ? "null" : undefined
+}
+
+function xmlAnomalyTag(tag: string): { kind: XmlAnomalyKind; occurrence: number; numbered: boolean } | undefined {
+  const match = /^!xml\/(raw|invalid|important)(?:\/([1-9]\d*))?$/u.exec(tag)
+  if (match === null) return undefined
+  return { kind: match[1] as XmlAnomalyKind, occurrence: Number(match[2] ?? 1), numbered: match[2] !== undefined }
+}
+
+function assertValueAnnotation(tag: { kind: XmlAnomalyKind; occurrence: number; numbered: boolean }, tagName: string): void {
+  if (tag.numbered) throw new YAMLException(`Тег ${tagName} допустим только для ключа YAML`)
+}
+
+function annotationFor(
+  tag: { kind: XmlAnomalyKind; occurrence: number },
+  target: XmlAnomalyAnnotation["target"],
+  logicalKey?: string,
+): XmlAnomalyAnnotation {
+  return { kind: tag.kind, occurrence: tag.occurrence, target, ...(logicalKey === undefined ? {} : { logicalKey }) }
+}
+
+function uniqueRuntimeKey(usedKeys: Set<string>): string {
+  let index = 1
+  while (usedKeys.has(`__NKDK_XML_ANOMALY_KEY_${index}__`)) index += 1
+  const key = `__NKDK_XML_ANOMALY_KEY_${index}__`
+  usedKeys.add(key)
+  return key
 }
 
 function applyParsedMappingKeyTags(
@@ -161,6 +282,41 @@ function applyParsedMappingKeyTags(
       markYAMLMappingKeyTag(container, key, "xml/reference")
     }
   }
+}
+
+function applyParsedXmlAnomalyAnnotations(
+  data: unknown,
+  parsed: readonly ParsedXmlAnomalyAnnotation[],
+  annotations: ReturnType<typeof createXmlAnomalyAnnotations>,
+): unknown {
+  let normalized = data
+  for (const entry of parsed) {
+    if (entry.annotation.target === "root") {
+      annotations.setRoot(entry.annotation)
+      if (entry.rawPayload === "compact") normalized = undefined
+      if (entry.rawPayload === "null") normalized = null
+      continue
+    }
+    const parent = valueAtPath(data, entry.parentPath)
+    if (!isRecord(parent) && !Array.isArray(parent)) continue
+    if (entry.annotation.target === "key" && typeof entry.key === "string") {
+      annotations.setKey(parent, entry.key, entry.annotation)
+      continue
+    }
+    if (entry.key !== undefined) {
+      if (entry.rawPayload === "null") setValueAt(parent, entry.key, null)
+      annotations.set(parent, entry.key, entry.annotation)
+    }
+  }
+  return normalized
+}
+
+function setValueAt(parent: Record<string, unknown> | unknown[], key: string | number, value: unknown): void {
+  if (Array.isArray(parent) && typeof key === "number") {
+    parent[key] = value
+    return
+  }
+  if (isRecord(parent) && typeof key === "string") parent[key] = value
 }
 
 function valueAtPath(value: unknown, path: readonly (string | number)[]): unknown {

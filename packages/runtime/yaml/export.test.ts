@@ -215,6 +215,70 @@ describe("exportToYAML", () => {
     expect(exportToYAML(parsed.data)).toBe("Поле: !xml/value Авто")
   })
 
+  it("сохраняет новые XML-аннотации при повторном разборе", () => {
+    const source = [
+      "Флаг: !xml/invalid true",
+      "Объект: !xml/raw",
+      "  _future: x",
+      '  "#text": "42"',
+      "!xml/invalid Код: { Тип: Строка }",
+      "!xml/invalid/2 Код: { Тип: Число }",
+    ].join("\n")
+    const parsed = parseMetadataYaml(source)
+    const serialized = serializeYAMLDocument(parsed.data, parsed.annotations)
+    const reparsed = parseMetadataYaml(serialized.text)
+
+    expect(serialized.text).toBe([
+      "Флаг: !xml/invalid true",
+      "Объект: !xml/raw",
+      "  _future: x",
+      '  "#text": "42"',
+      "!xml/invalid Код:",
+      "  Тип: Строка",
+      "!xml/invalid/2 Код:",
+      "  Тип: Число",
+    ].join("\n"))
+    expect(reparsed.data).toEqual(parsed.data)
+    expect([...reparsed.annotations.entries()].map(({ annotation }) => annotation)).toEqual(
+      [...serialized.annotations.entries()].map(({ annotation }) => annotation),
+    )
+  })
+
+  it("переносит аннотации корня и последовательности в сериализованные данные", () => {
+    const parsed = parseMetadataYaml("!xml/important\nЗначения: !xml/invalid\n  - Первый\n  - Второй")
+    const serialized = serializeYAMLDocument(parsed.data, parsed.annotations)
+    const data = serialized.data as { Значения: string[] }
+
+    expect(serialized.annotations.root()).toEqual({ kind: "important", occurrence: 1, target: "root" })
+    expect(serialized.annotations.at(data, "Значения")).toEqual({ kind: "invalid", occurrence: 1, target: "value" })
+    expect(parseMetadataYaml(serialized.text).annotations.root()).toEqual({
+      kind: "important",
+      occurrence: 1,
+      target: "root",
+    })
+  })
+
+  it("сохраняет компактный raw и raw null", () => {
+    const parsed = parseMetadataYaml("Компактный: !xml/raw\nОтсутствует: !xml/raw null")
+    const serialized = serializeYAMLDocument(parsed.data, parsed.annotations)
+
+    expect(serialized.text).toBe("Компактный: !xml/raw\nОтсутствует: !xml/raw null")
+    expect(parseMetadataYaml(serialized.text).data).toEqual(parsed.data)
+  })
+
+  it("сохраняет компактный raw на корне документа", () => {
+    const parsed = parseMetadataYaml("!xml/raw")
+    const serialized = serializeYAMLDocument(parsed.data, parsed.annotations)
+
+    expect(parsed.data).toBeUndefined()
+    expect(serialized.text).toBe("!xml/raw")
+    expect(parseMetadataYaml(serialized.text).annotations.root()).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "root",
+    })
+  })
+
   it("preserves newline-only block scalar values", () => {
     const yaml = exportToYAML({ Пояснение: "\n" })
 

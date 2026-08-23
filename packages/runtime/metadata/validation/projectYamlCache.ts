@@ -2,6 +2,7 @@ import fs from "fs"
 import { resolve } from "path"
 import type { YamlLocationIndex } from "../../yaml/locationIndex"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
+import { createXmlAnomalyAnnotations } from "../../yaml/xmlAnomalyAnnotations"
 import type { PreparedYamlFile } from "../projectDefinition/preparedYamlContracts"
 
 export interface ProjectYamlEntry {
@@ -80,6 +81,7 @@ export function projectYamlEntryFromPreparedFile(file: PreparedYamlFile): Projec
         col: diagnostic.col,
         message: diagnostic.message,
       })),
+      annotations: createXmlAnomalyAnnotations(),
     },
   }
 }

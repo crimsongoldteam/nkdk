@@ -195,6 +195,16 @@ describe("parseWithJsYaml", () => {
     expect(parsed.syntaxErrors).toEqual([])
     expect(parsed.data).toEqual({ Элементы: [{}] })
   })
+
+  it("возвращает таблицу XML-аннотаций вместе с данными", () => {
+    const parsed = parseWithJsYaml("Значение: !xml/important true")
+
+    expect(parsed.annotations.at(parsed.data as object, "Значение")).toEqual({
+      kind: "important",
+      occurrence: 1,
+      target: "value",
+    })
+  })
 })
 
 describe("parseMetadataYaml", () => {

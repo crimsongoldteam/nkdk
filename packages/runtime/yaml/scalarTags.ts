@@ -1,4 +1,4 @@
-import { JSON_SCHEMA, defineScalarTag, load } from "js-yaml"
+import { JSON_SCHEMA, defineMappingTag, defineScalarTag, defineSequenceTag, load } from "js-yaml"
 import { NKDK_YAML_MAPPING_TAGS } from "./mappingTags"
 
 export const XML_ANOMALY_TAGS = [
@@ -19,6 +19,7 @@ export type YAMLScalarTagKey = string | number
 export const XML_PRESENT_TAG_VALUE = "!xml/present" as const
 export const XML_ABSENT_TAG_VALUE = "!xml/absent" as const
 export const PROPERTY_STATE_YAML_TAGS = ["проверять", "изменять"] as const
+export const XML_ANNOTATION_TAGS = ["raw", "invalid", "important"] as const
 
 const propertyStateTagAliases = {
   проверять: "nkdkcheck",
@@ -128,6 +129,57 @@ const propertyStateTags = PROPERTY_STATE_YAML_TAGS.map((tag) =>
   })
 )
 
+const xmlAnnotationTags = XML_ANNOTATION_TAGS.flatMap((tag) => [
+  defineScalarTag(`!xml/${tag}`, {
+    resolve(value) {
+      return tag === "raw" ? (value === "" ? undefined : value) : parseYAMLScalarPayload(value)
+    },
+    identify: () => false,
+  }),
+  xmlAnnotationMappingTag(`!xml/${tag}`),
+  defineSequenceTag<unknown[], unknown[]>(`!xml/${tag}`, {
+    create: () => [],
+    addItem: (carrier, value) => { carrier.push(value) },
+    identify: () => false,
+  }),
+  ...(tag === "raw" ? [] : [
+    defineScalarTag(`!xml/${tag}/`, {
+      matchByTagPrefix: true,
+      resolve: (value) => parseYAMLScalarPayload(value),
+      identify: () => false,
+    }),
+    xmlAnnotationMappingTag(`!xml/${tag}/`, true),
+    defineSequenceTag<unknown[], unknown[]>(`!xml/${tag}/`, {
+      matchByTagPrefix: true,
+      create: () => [],
+      addItem: (carrier, value) => { carrier.push(value) },
+      identify: () => false,
+    }),
+  ]),
+])
+
+function xmlAnnotationMappingTag(tag: string, matchByTagPrefix = false) {
+  return defineMappingTag<Record<string, unknown>, Record<string, unknown>>(tag, {
+    ...(matchByTagPrefix ? { matchByTagPrefix: true } : {}),
+    create: () => ({}),
+    addPair(carrier, key, value) {
+      const stringKey = String(key)
+      if (Object.prototype.hasOwnProperty.call(carrier, stringKey)) return "duplicated mapping key"
+      carrier[stringKey] = value
+      return ""
+    },
+    has: (carrier, key) => Object.prototype.hasOwnProperty.call(carrier, String(key)),
+    keys: (result) => Object.keys(result),
+    get: (result, key) => result[String(key)],
+    identify: () => false,
+    represent: (value) => new Map(Object.entries(value)),
+  })
+}
+
+function parseYAMLScalarPayload(value: string): unknown {
+  return value === "" ? undefined : load(value, { schema: JSON_SCHEMA })
+}
+
 function parsePropertyStatePayload(payload: string): unknown {
   if (payload === "") return undefined
   return load(payload, { schema: JSON_SCHEMA })
@@ -162,6 +214,7 @@ function replacePropertyStateTags(
 
 export const NKDK_YAML_SCHEMA = JSON_SCHEMA.withTags(
   xmlAnomalyTags,
+  xmlAnnotationTags,
   propertyStateTags,
   NKDK_YAML_MAPPING_TAGS,
 )

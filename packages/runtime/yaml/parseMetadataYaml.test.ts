@@ -3,14 +3,32 @@ import { parsedYamlFromKnownData, parseMetadataYamlData } from "./parseMetadataY
 
 describe("parseMetadataYamlData", () => {
   it.each(["", " \n\t"])("читает пустой корневой документ как пустой объект", (text) => {
-    expect(parseMetadataYamlData(text)).toEqual({ data: {}, syntaxErrors: [] })
+    const parsed = parseMetadataYamlData(text)
+
+    expect(parsed.data).toEqual({})
+    expect(parsed.syntaxErrors).toEqual([])
+    expect([...parsed.annotations.entries()]).toEqual([])
   })
 
   it.each([
     ["null", null],
     ["~", "~"],
   ])("сохраняет явное значение %s", (text, data) => {
-    expect(parseMetadataYamlData(text)).toEqual({ data, syntaxErrors: [] })
+    const parsed = parseMetadataYamlData(text)
+
+    expect(parsed.data).toEqual(data)
+    expect(parsed.syntaxErrors).toEqual([])
+    expect([...parsed.annotations.entries()]).toEqual([])
+  })
+
+  it("возвращает XML-аннотации без индекса координат", () => {
+    const parsed = parseMetadataYamlData("Значение: !xml/raw Текст")
+
+    expect(parsed.annotations.at(parsed.data as object, "Значение")).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+    })
   })
 })
 
