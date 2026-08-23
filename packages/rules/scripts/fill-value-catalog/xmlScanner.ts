@@ -214,7 +214,6 @@ export function scanFillValuesInXml(params: {
         raw: candidate.raw,
         ...(candidate.typed.value === undefined ? {} : { typedValue: candidate.typed.value }),
         effectiveType: candidate.effectiveType,
-        rulesClassification: candidate.rulesClassification,
       }),
       rulesClassification: stable.kind,
       ...(stable.reason === undefined ? {} : { rulesReason: stable.reason }),

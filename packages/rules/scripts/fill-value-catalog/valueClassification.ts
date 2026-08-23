@@ -1,8 +1,8 @@
-import type {
-  FillValueAlternative,
-  FillValueClassification,
-  FillValueEffectiveType,
-  FillValueTypedValue,
+import {
+  classifyFillValue,
+  type FillValueAlternative,
+  type FillValueEffectiveType,
+  type FillValueTypedValue,
 } from "@nkdk/runtime/rule-kit"
 import type {
   NormalizedType,
@@ -57,11 +57,15 @@ export function classifyObservedValue(params: {
   readonly raw: RawFillValue
   readonly typedValue?: FillValueTypedValue
   readonly effectiveType: FillValueEffectiveType
-  readonly rulesClassification: FillValueClassification
 }): ValueCategory {
   if (params.raw.form === "absent") return "absent"
 
-  const referenceCategory = classifyReference(params.typedValue)
+  const semanticClassification = params.typedValue === undefined
+    ? undefined
+    : classifyFillValue({ effectiveType: params.effectiveType, value: params.typedValue })
+  if (semanticClassification?.kind === "invalid") return "invalid"
+
+  const referenceCategory = classifyReference(params.typedValue, params.raw)
   if (referenceCategory !== undefined) return referenceCategory
 
   if (
@@ -74,16 +78,18 @@ export function classifyObservedValue(params: {
       : "xmlEmpty"
   }
 
-  if (params.rulesClassification.kind === "invalid") return "invalid"
-  if (params.rulesClassification.kind === "implicit") return "initial"
+  if (semanticClassification?.kind === "implicit") return "initial"
   return params.typedValue === undefined ? "unparsed" : "explicit"
 }
 
-function classifyReference(value: FillValueTypedValue | undefined): ValueCategory | undefined {
+function classifyReference(
+  value: FillValueTypedValue | undefined,
+  raw: RawFillValue,
+): ValueCategory | undefined {
   if (value?.type !== "ref" || typeof value.value !== "string") return undefined
   if (value.value === "" || value.value.endsWith(".EmptyRef")) return "emptyRef"
-  if (value.value.includes(".PredefinedValue.")) return "predefinedRef"
-  if (value.value.startsWith("Enum.") && value.value.includes(".Value.")) return "enumValue"
+  if (value.value.startsWith("Enum.") && value.value.includes(".EnumValue.")) return "enumValue"
+  if (raw.xsiType === "xr:DesignTimeRef") return "predefinedRef"
   return "concreteRef"
 }
 

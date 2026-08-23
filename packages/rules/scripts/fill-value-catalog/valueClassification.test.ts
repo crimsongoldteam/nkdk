@@ -16,22 +16,36 @@ describe("классификация FillValue для каталога", () => {
       raw: { form: "typedText", xsiType: "xs:dateTime", text },
       typedValue: { type: "dateTime", value: text },
       effectiveType,
-      rulesClassification: { kind: text.startsWith("0001-") ? "implicit" : "valid" },
     })).toBe(category)
   })
 
   it.each([
-    ["Catalog.Контрагенты.EmptyRef", "emptyRef"],
-    ["Catalog.Контрагенты.PredefinedValue.Основной", "predefinedRef"],
-    ["Enum.ВидКонтрагента.Value.Покупатель", "enumValue"],
-    ["Catalog.Контрагенты.Object.123", "concreteRef"],
-  ] as const)("относит ссылку %s к категории %s", (value, category) => {
+    ["Catalog.Контрагенты.EmptyRef", "xr:DesignTimeRef", "emptyRef"],
+    ["Catalog.Контрагенты.Основной", "xr:DesignTimeRef", "predefinedRef"],
+    ["Enum.ВидКонтрагента.EnumValue.Покупатель", "xr:DesignTimeRef", "enumValue"],
+    ["Catalog.Контрагенты.Object.123", "cfg:CatalogRef.Контрагенты", "concreteRef"],
+  ] as const)("относит ссылку %s с xsi:type %s к категории %s", (value, xsiType, category) => {
     expect(classifyObservedValue({
-      raw: { form: "typedText", xsiType: "xr:DesignTimeRef", text: value },
+      raw: { form: "typedText", xsiType, text: value },
       typedValue: { type: "ref", value },
       effectiveType: { status: "notSpecified" },
-      rulesClassification: { kind: "notSpecified" },
     })).toBe(category)
+  })
+
+  it("помечает значение другого типа независимо от policy rules", () => {
+    expect(classifyObservedValue({
+      raw: { form: "typedText", xsiType: "xs:boolean", text: "false" },
+      typedValue: { type: "boolean", value: false },
+      effectiveType: {
+        status: "known",
+        composite: false,
+        alternatives: [{
+          kind: "reference",
+          constraint: { kind: "value", roots: ["Catalog"], valueKinds: ["emptyRef"], allowEmptyRef: true },
+          objectName: "Контрагенты",
+        }],
+      },
+    })).toBe("invalid")
   })
 
   it("строит устойчивую сигнатуру составного типа", () => {

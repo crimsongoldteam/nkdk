@@ -1,18 +1,17 @@
 import { lstat, mkdir, readdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
-import pLimit from "p-limit"
 import {
-  aggregateObservations,
+  createObservationAggregator,
   type CatalogReport,
 } from "./fill-value-catalog/aggregate"
 import { renderCatalogMarkdown } from "./fill-value-catalog/markdown"
-import type {
-  FillValueObservation,
-  UnresolvedXmlObservation,
-} from "./fill-value-catalog/model"
 import { createStandardAttributeEnricher } from "./fill-value-catalog/rulesEnrichment"
-import { scanFillValuesInXml } from "./fill-value-catalog/xmlScanner"
+import {
+  scanFillValuesInXml,
+  type ScanFillValuesResult,
+  type StandardAttributeEnricher,
+} from "./fill-value-catalog/xmlScanner"
 
 const jsonFileName = "fill-value-defaults.json"
 const markdownFileName = "fill-value-defaults.md"
@@ -103,49 +102,25 @@ export async function analyzeFillValueCatalog(
     availableConfigurations,
     options.configurations,
   )
-  const files = (
-    await Promise.all(selectedConfigurations.map(async (configuration) => {
-      const configurationRoot = path.join(options.catalogRoot, configuration)
-      return (await listXmlFiles(configurationRoot)).map((file) => ({
-        configuration,
-        absolutePath: file,
-        relativePath: posixPath(path.relative(configurationRoot, file)),
-      }))
-    }))
-  ).flat().sort(compareCatalogFiles)
-
   const enrichStandard = createStandardAttributeEnricher()
-  const limit = pLimit(options.concurrency)
-  const scanned = await Promise.all(files.map((file) => limit(async () => {
-    let xml: string
-    try {
-      xml = await readFile(file.absolutePath, "utf8")
-    } catch (error) {
-      throw fileError(file, "не удалось прочитать XML", error)
-    }
-    try {
-      return scanFillValuesInXml({
-        configuration: file.configuration,
-        file: file.relativePath,
-        xml,
-        enrichStandard,
+  const aggregator = createObservationAggregator({ examplesLimit: options.examples })
+  for (const configuration of selectedConfigurations) {
+    const configurationRoot = path.join(options.catalogRoot, configuration)
+    let batch: CatalogFile[] = []
+    for await (const absolutePath of iterateXmlFiles(configurationRoot)) {
+      batch.push({
+        configuration,
+        absolutePath,
+        relativePath: posixPath(path.relative(configurationRoot, absolutePath)),
       })
-    } catch (error) {
-      throw fileError(file, "не удалось разобрать XML", error)
+      if (batch.length === options.concurrency) {
+        for (const result of await scanBatch(batch, enrichStandard)) aggregator.add(result)
+        batch = []
+      }
     }
-  })))
-
-  const observations: FillValueObservation[] = []
-  const unresolved: UnresolvedXmlObservation[] = []
-  for (const result of scanned) {
-    observations.push(...result.observations)
-    unresolved.push(...result.unresolved)
+    for (const result of await scanBatch(batch, enrichStandard)) aggregator.add(result)
   }
-  const aggregated = aggregateObservations({
-    observations,
-    unresolved,
-    examplesLimit: options.examples,
-  })
+  const aggregated = aggregator.report()
   const report: CatalogReportFile = {
     formatVersion: aggregated.formatVersion,
     parameters: {
@@ -153,7 +128,10 @@ export async function analyzeFillValueCatalog(
       examples: options.examples,
     },
     examplesLimit: aggregated.examplesLimit,
-    counts: aggregated.counts,
+    counts: {
+      ...aggregated.counts,
+      configurations: selectedConfigurations.length,
+    },
     values: aggregated.values,
     summary: aggregated.summary,
     unresolved: aggregated.unresolved,
@@ -199,28 +177,69 @@ function selectConfigurations(
   return unique
 }
 
-async function listXmlFiles(directory: string): Promise<readonly string[]> {
+async function* iterateXmlFiles(directory: string): AsyncGenerator<string> {
   const entries = await readdir(directory, { withFileTypes: true })
-  const files: string[] = []
   for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
     const target = path.join(directory, entry.name)
     if (entry.isSymbolicLink()) throw new Error(`символические ссылки не поддерживаются: ${target}`)
     if (entry.isDirectory()) {
-      files.push(...await listXmlFiles(target))
+      yield* iterateXmlFiles(target)
     } else if (
       entry.isFile() &&
       path.extname(entry.name).toLowerCase() === ".xml" &&
       entry.name.toLowerCase() !== "configdumpinfo.xml"
     ) {
-      files.push(target)
+      yield target
     }
   }
-  return files
 }
 
-function compareCatalogFiles(left: CatalogFile, right: CatalogFile): number {
-  return left.configuration.localeCompare(right.configuration) ||
-    left.relativePath.localeCompare(right.relativePath)
+async function scanBatch(
+  files: readonly CatalogFile[],
+  enrichStandard: StandardAttributeEnricher,
+): Promise<readonly ScanFillValuesResult[]> {
+  return Promise.all(files.map((file) => scanCatalogFile(file, enrichStandard)))
+}
+
+async function scanCatalogFile(
+  file: CatalogFile,
+  enrichStandard: StandardAttributeEnricher,
+): Promise<ScanFillValuesResult> {
+  let xml: string
+  try {
+    xml = await readFile(file.absolutePath, "utf8")
+  } catch (error) {
+    throw fileError(file, "не удалось прочитать XML", error)
+  }
+  if (!containsCandidateElement(xml)) return { observations: [], unresolved: [] }
+  try {
+    return scanFillValuesInXml({
+      configuration: file.configuration,
+      file: file.relativePath,
+      xml,
+      enrichStandard,
+    })
+  } catch (error) {
+    throw fileError(file, "не удалось разобрать XML", error)
+  }
+}
+
+const candidateElements = [
+  "<CommonAttribute",
+  "<Attribute",
+  "<Dimension",
+  "<Resource",
+  "<AddressingAttribute",
+  "<Field",
+  "<AccountingFlag",
+  "<ExtDimensionAccountingFlag",
+  "<xr:StandardAttribute",
+] as const
+
+function containsCandidateElement(xml: string): boolean {
+  if (xml.includes("<FillValue") || xml.includes("<xr:FillValue")) return true
+  return xml.includes("<MetaDataObject") &&
+    candidateElements.some((element) => xml.includes(element))
 }
 
 function posixPath(value: string): string {

@@ -77,73 +77,119 @@ interface ExactAccumulator {
   readonly examples: Set<string>
 }
 
+interface UnresolvedAccumulator {
+  readonly sample: UnresolvedXmlObservation
+  occurrences: number
+  readonly configurations: Set<string>
+  readonly examples: Set<string>
+}
+
+export interface ObservationBatch {
+  readonly observations: readonly FillValueObservation[]
+  readonly unresolved: readonly UnresolvedXmlObservation[]
+}
+
+export interface ObservationAggregator {
+  add(batch: ObservationBatch): void
+  report(): CatalogReport
+}
+
 export function aggregateObservations(params: {
   readonly observations: readonly FillValueObservation[]
   readonly unresolved: readonly UnresolvedXmlObservation[]
   readonly examplesLimit: number
 }): CatalogReport {
-  const exact = aggregateExactValues(params.observations, params.examplesLimit)
-  const summary = summarize(exact, params.examplesLimit)
-  const unresolved = aggregateUnresolved(params.unresolved, params.examplesLimit)
-  const configurations = new Set([
-    ...params.observations.map(({ configuration }) => configuration),
-    ...params.unresolved.map(({ configuration }) => configuration),
-  ])
+  const aggregator = createObservationAggregator({ examplesLimit: params.examplesLimit })
+  aggregator.add(params)
+  return aggregator.report()
+}
+
+export function createObservationAggregator(params: {
+  readonly examplesLimit: number
+}): ObservationAggregator {
+  const exactAccumulators = new Map<string, ExactAccumulator>()
+  const unresolvedAccumulators = new Map<string, UnresolvedAccumulator>()
+  const configurations = new Set<string>()
+  let observationCount = 0
+  let unresolvedCount = 0
+
   return {
-    formatVersion: 1,
-    examplesLimit: params.examplesLimit,
-    counts: {
-      observations: params.observations.length,
-      exactValues: exact.length,
-      summaryRows: summary.length,
-      configurations: configurations.size,
-      unresolved: params.unresolved.length,
+    add(batch): void {
+      observationCount += batch.observations.length
+      unresolvedCount += batch.unresolved.length
+      for (const observation of batch.observations) {
+        configurations.add(observation.configuration)
+        addExactObservation(exactAccumulators, observation, params.examplesLimit)
+      }
+      for (const value of batch.unresolved) {
+        configurations.add(value.configuration)
+        addUnresolvedObservation(unresolvedAccumulators, value, params.examplesLimit)
+      }
     },
-    values: exact,
-    summary,
-    unresolved,
+    report(): CatalogReport {
+      const exact = exactValues(exactAccumulators, params.examplesLimit)
+      const summary = summarize(exact, params.examplesLimit)
+      const unresolved = unresolvedValues(unresolvedAccumulators, params.examplesLimit)
+      return {
+        formatVersion: 1,
+        examplesLimit: params.examplesLimit,
+        counts: {
+          observations: observationCount,
+          exactValues: exact.length,
+          summaryRows: summary.length,
+          configurations: configurations.size,
+          unresolved: unresolvedCount,
+        },
+        values: exact,
+        summary,
+        unresolved,
+      }
+    },
   }
 }
 
-function aggregateExactValues(
-  observations: readonly FillValueObservation[],
+function addExactObservation(
+  accumulators: Map<string, ExactAccumulator>,
+  observation: FillValueObservation,
+  examplesLimit: number,
+): void {
+  const key = stableStringify([
+    observation.attributeKind,
+    observation.attributeKind === "standard"
+      ? [observation.ownerKind, observation.attributeName]
+      : null,
+    observation.type,
+    observation.valueCategory,
+    observation.raw,
+    observation.rulesClassification,
+    observation.rulesReason ?? null,
+    observation.rulesEvidence ?? null,
+  ])
+  let accumulator = accumulators.get(key)
+  if (accumulator === undefined) {
+    accumulator = {
+      sample: observation,
+      occurrences: 0,
+      ownerKinds: new Set(),
+      attributeNames: new Set(),
+      itemKinds: new Set(),
+      configurations: new Set(),
+      examples: new Set(),
+    }
+    accumulators.set(key, accumulator)
+  }
+  accumulator.occurrences += 1
+  accumulator.ownerKinds.add(observation.ownerKind)
+  accumulator.attributeNames.add(observation.attributeName)
+  accumulator.itemKinds.add(observation.itemKind)
+  accumulator.configurations.add(observation.configuration)
+  addBounded(accumulator.examples, `${observation.configuration}/${observation.file}`, examplesLimit)
+}
+
+function exactValues(
+  accumulators: ReadonlyMap<string, ExactAccumulator>,
   examplesLimit: number,
 ): AggregatedFillValue[] {
-  const accumulators = new Map<string, ExactAccumulator>()
-  for (const observation of observations) {
-    const key = stableStringify([
-      observation.attributeKind,
-      observation.attributeKind === "standard"
-        ? [observation.ownerKind, observation.attributeName]
-        : null,
-      observation.type,
-      observation.valueCategory,
-      observation.raw,
-      observation.rulesClassification,
-      observation.rulesReason ?? null,
-      observation.rulesEvidence ?? null,
-    ])
-    let accumulator = accumulators.get(key)
-    if (accumulator === undefined) {
-      accumulator = {
-        sample: observation,
-        occurrences: 0,
-        ownerKinds: new Set(),
-        attributeNames: new Set(),
-        itemKinds: new Set(),
-        configurations: new Set(),
-        examples: new Set(),
-      }
-      accumulators.set(key, accumulator)
-    }
-    accumulator.occurrences += 1
-    accumulator.ownerKinds.add(observation.ownerKind)
-    accumulator.attributeNames.add(observation.attributeName)
-    accumulator.itemKinds.add(observation.itemKind)
-    accumulator.configurations.add(observation.configuration)
-    accumulator.examples.add(`${observation.configuration}/${observation.file}`)
-  }
-
   return [...accumulators.entries()]
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([, accumulator]) => {
@@ -220,8 +266,8 @@ function summarize(values: readonly AggregatedFillValue[], examplesLimit: number
     group.occurrences += value.occurrences
     group.uniqueValues += 1
     for (const configuration of value.configurations) group.configurations.add(configuration)
-    if (value.exactValue !== undefined) group.exactValues.add(value.exactValue)
-    for (const example of value.examples) group.examples.add(example)
+    if (value.exactValue !== undefined) addBounded(group.exactValues, value.exactValue, examplesLimit)
+    for (const example of value.examples) addBounded(group.examples, example, examplesLimit)
   }
 
   return [...groups.values()]
@@ -259,27 +305,26 @@ function summaryStatus(group: { variants: Set<string>; invalid: boolean; unresol
   return group.variants.size > 1 ? "варианты" : "однозначно"
 }
 
-function aggregateUnresolved(
-  values: readonly UnresolvedXmlObservation[],
+function addUnresolvedObservation(
+  groups: Map<string, UnresolvedAccumulator>,
+  value: UnresolvedXmlObservation,
+  examplesLimit: number,
+): void {
+  const key = stableStringify([value.element, value.reason])
+  let group = groups.get(key)
+  if (group === undefined) {
+    group = { sample: value, occurrences: 0, configurations: new Set(), examples: new Set() }
+    groups.set(key, group)
+  }
+  group.occurrences += 1
+  group.configurations.add(value.configuration)
+  addBounded(group.examples, `${value.configuration}/${value.file}`, examplesLimit)
+}
+
+function unresolvedValues(
+  groups: ReadonlyMap<string, UnresolvedAccumulator>,
   examplesLimit: number,
 ): AggregatedUnresolvedXml[] {
-  const groups = new Map<string, {
-    sample: UnresolvedXmlObservation
-    occurrences: number
-    configurations: Set<string>
-    examples: Set<string>
-  }>()
-  for (const value of values) {
-    const key = stableStringify([value.element, value.reason])
-    let group = groups.get(key)
-    if (group === undefined) {
-      group = { sample: value, occurrences: 0, configurations: new Set(), examples: new Set() }
-      groups.set(key, group)
-    }
-    group.occurrences += 1
-    group.configurations.add(value.configuration)
-    group.examples.add(`${value.configuration}/${value.file}`)
-  }
   return [...groups.entries()]
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([, group]) => ({
@@ -312,6 +357,16 @@ function compareSummaryRows(left: FillValueSummaryRow, right: FillValueSummaryRo
 
 function sorted(values: Iterable<string>): string[] {
   return [...values].sort((left, right) => left.localeCompare(right))
+}
+
+function addBounded(values: Set<string>, value: string, limit: number): void {
+  values.add(value)
+  if (values.size <= limit) return
+  let greatest: string | undefined
+  for (const candidate of values) {
+    if (greatest === undefined || candidate.localeCompare(greatest) > 0) greatest = candidate
+  }
+  if (greatest !== undefined) values.delete(greatest)
 }
 
 function stableStringify(value: unknown): string {

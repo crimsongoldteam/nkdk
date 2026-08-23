@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { FillValueObservation } from "./model"
-import { aggregateObservations } from "./aggregate"
+import { aggregateObservations, createObservationAggregator } from "./aggregate"
 import { referenceObservation } from "./testSupport"
 
 const dateType = {
@@ -34,6 +34,21 @@ function dateObservation(params: {
 }
 
 describe("агрегация наблюдений FillValue", () => {
+  it("даёт тот же результат при добавлении ограниченными пачками", () => {
+    const observations = [
+      dateObservation({ configuration: "doc", file: "Documents/C.xml", attributeName: "Дата3", text: "2026-08-23T10:20:30", valueCategory: "explicit" }),
+      dateObservation({ configuration: "doc", file: "Documents/A.xml", attributeName: "Дата1", text: "0001-01-01T00:00:00", valueCategory: "initial" }),
+      dateObservation({ configuration: "acc", file: "Documents/B.xml", attributeName: "Дата2", text: "0001-01-01T00:00:00", valueCategory: "initial" }),
+    ]
+    const expected = aggregateObservations({ observations, unresolved: [], examplesLimit: 2 })
+    const incremental = createObservationAggregator({ examplesLimit: 2 })
+
+    incremental.add({ observations: observations.slice(0, 1), unresolved: [] })
+    incremental.add({ observations: observations.slice(1), unresolved: [] })
+
+    expect(incremental.report()).toEqual(expected)
+  })
+
   it("объединяет одинаковое значение разных обычных реквизитов", () => {
     const report = aggregateObservations({
       observations: [

@@ -21,6 +21,7 @@ describe("CLI-исследование FillValue", () => {
     const outputDir = path.join(root, "output")
     await mkdir(path.join(catalogRoot, "doc", "CommonAttributes"), { recursive: true })
     await mkdir(path.join(catalogRoot, "acc", "CommonAttributes"), { recursive: true })
+    await mkdir(path.join(catalogRoot, "empty"), { recursive: true })
     await writeFile(
       path.join(catalogRoot, "doc", "CommonAttributes", "Дата.xml"),
       commonAttributeXml("Дата", "xs:dateTime", '<FillValue xsi:type="xs:dateTime">0001-01-01T00:00:00</FillValue>'),
@@ -32,6 +33,14 @@ describe("CLI-исследование FillValue", () => {
         "cfg:CatalogRef.Контрагенты",
         '<FillValue xsi:type="xr:DesignTimeRef">Catalog.Контрагенты.EmptyRef</FillValue>',
       ),
+    )
+    await writeFile(
+      path.join(catalogRoot, "doc", "Form.xml"),
+      '<Form><Attributes><Attribute name="Список"><Type>Строка</Type></Attribute></Attributes></Form>',
+    )
+    await writeFile(
+      path.join(catalogRoot, "doc", "Unknown.xml"),
+      '<MetaDataObject><Unknown><Properties><FillValue xsi:type="xs:string">X</FillValue></Properties></Unknown></MetaDataObject>',
     )
 
     const result = await analyzeFillValueCatalog({
@@ -46,8 +55,8 @@ describe("CLI-исследование FillValue", () => {
 
     expect(JSON.parse(json)).toMatchObject({
       formatVersion: 1,
-      parameters: { configurations: ["acc", "doc"], examples: 2 },
-      counts: { observations: 2, configurations: 2 },
+      parameters: { configurations: ["acc", "doc", "empty"], examples: 2 },
+      counts: { observations: 2, configurations: 3, unresolved: 1 },
     })
     expect(json).not.toContain(root)
     expect(json).toContain("doc/CommonAttributes/Дата.xml")
