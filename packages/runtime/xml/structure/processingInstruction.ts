@@ -6,8 +6,6 @@ export interface ParsedXmlProcessingInstructionAttribute {
   readonly occurrence: number
   readonly start: number
   readonly end: number
-  readonly quoteStart: number
-  readonly quoteEnd: number
 }
 
 type XmlProcessingInstructionAttributeValue = {
@@ -23,30 +21,31 @@ type XmlProcessingInstructionValue = Pick<
   readonly attributes: readonly XmlProcessingInstructionAttributeValue[]
 }
 
-const XML_NAME = /^[:_\p{L}][:_\-.0-9\p{L}\p{M}\p{N}\u00B7]*$/u
-const PI_ATTRIBUTE = /([^\s=]+)\s*=\s*(["'])([\s\S]*?)\2/gu
+const XML_NAME_PATTERN = String.raw`[:_\p{L}][:_\-.0-9\p{L}\p{M}\p{N}\u00B7]*`
+const XML_NAME = new RegExp(`^${XML_NAME_PATTERN}$`, "u")
+const PI_ATTRIBUTE = new RegExp(
+  `(^|\\s+)(${XML_NAME_PATTERN})\\s*=\\s*(["'])([\\s\\S]*?)\\3`,
+  "gu"
+)
 
 export function parseXmlProcessingInstructionAttributes(
   body: string
 ): readonly ParsedXmlProcessingInstructionAttribute[] {
   const occurrences = new Map<string, number>()
   return [...body.matchAll(PI_ATTRIBUTE)].map((match) => {
-    const name = match[1] ?? ""
+    const boundary = match[1] ?? ""
+    const name = match[2] ?? ""
     const occurrence = (occurrences.get(name) ?? 0) + 1
     occurrences.set(name, occurrence)
     const source = match[0]
-    const quote = match[2] ?? '"'
-    const start = match.index ?? 0
-    const relativeQuoteStart = source.indexOf(quote)
-    const relativeQuoteEnd = source.lastIndexOf(quote)
+    const matchStart = match.index ?? 0
+    const start = matchStart + boundary.length
     return {
       name,
-      value: normalizeXmlLineEndings(match[3] ?? ""),
+      value: normalizeXmlLineEndings(match[4] ?? ""),
       occurrence,
       start,
-      end: start + source.length,
-      quoteStart: start + relativeQuoteStart,
-      quoteEnd: start + relativeQuoteEnd,
+      end: matchStart + source.length,
     }
   })
 }
@@ -66,7 +65,6 @@ export function validateXmlProcessingInstruction(
   assertValidXmlCharacters(instruction.body)
 
   const parsedAttributes = parseXmlProcessingInstructionAttributes(instruction.body)
-  assertQuotesBelongToAttributes(instruction.body, parsedAttributes)
   if (
     parsedAttributes.length !== instruction.attributes.length ||
     parsedAttributes.some((parsed, index) => {
@@ -94,27 +92,6 @@ function assertValidXmlCharacters(value: string): void {
       !(codePoint >= 0x10000 && codePoint <= 0x10ffff)
     ) {
       throw new Error("Processing instruction body содержит недопустимый XML-символ")
-    }
-  }
-}
-
-function assertQuotesBelongToAttributes(
-  body: string,
-  attributes: readonly ParsedXmlProcessingInstructionAttribute[]
-): void {
-  const quotedRanges = attributes.map(({ name, quoteStart, quoteEnd }) => {
-    if (!XML_NAME.test(name)) {
-      throw new Error(`Недопустимое имя псевдоатрибута processing instruction: ${name}`)
-    }
-    return { start: quoteStart, end: quoteEnd }
-  })
-  for (let index = 0; index < body.length; index += 1) {
-    const character = body[index]
-    if (
-      (character === '"' || character === "'") &&
-      !quotedRanges.some(({ start, end }) => index >= start && index <= end)
-    ) {
-      throw new Error("Processing instruction body содержит несбалансированную кавычку")
     }
   }
 }

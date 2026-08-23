@@ -96,16 +96,22 @@ describe("decodeXmlRawValue", () => {
     )
   })
 
-  it.each([
-    ['broken"', /кавыч/],
-    ["broken?>", /\?>/],
-  ])("rejects an invalid processing instruction pseudo-attribute value: %s", (value, message) => {
+  it("rejects a pseudo-attribute value that disagrees with its canonical PI body", () => {
     expect(() =>
       decodeXmlRawValue(
-        { "?legacy": { _value: value } },
+        { "?legacy": { _value: 'broken"' } },
         { elementName: "Value" }
       )
-    ).toThrow(message)
+    ).toThrow(/псевдоатрибут/)
+  })
+
+  it("rejects a PI terminator inside a pseudo-attribute value", () => {
+    expect(() =>
+      decodeXmlRawValue(
+        { "?legacy": { _value: "broken?>" } },
+        { elementName: "Value" }
+      )
+    ).toThrow(/\?>/)
   })
 
   it("rejects !xml/raw on a YAML key", () => {

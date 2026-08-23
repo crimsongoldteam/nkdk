@@ -102,6 +102,36 @@ describe("xmlExport", () => {
     })
   })
 
+  it.each([
+    { body: 'say "hello"', attributes: [] },
+    { body: 'url=https://example.test?q="1"', attributes: [] },
+    { body: 'a="unterminated', attributes: [] },
+    {
+      body: 'note a="1"',
+      attributes: [{ name: "a", value: "1", occurrence: 1 }],
+    },
+    { body: ',a="1"', attributes: [] },
+  ])("round-trips free PI data at pseudo-attribute token boundaries: $body", ({
+    body,
+    attributes,
+  }) => {
+    const source = `<Root><?p ${body}?></Root>`
+    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+    const instruction = document.roots[0]?.content.find(
+      (node) => node.type === "processingInstruction"
+    )
+
+    expect(instruction).toMatchObject({ body, attributes })
+
+    const xml = xmlExport(document.roots, false)
+    const roundTrippedInstruction = parseXmlDocumentWithSaxes(xml, {
+      preserveXsiNil: true,
+    }).roots[0]?.content.find((node) => node.type === "processingInstruction")
+
+    expect(xml).toContain(`<?p ${body}?>`)
+    expect(roundTrippedInstruction).toMatchObject({ body, attributes })
+  })
+
   it("escapes normalized XML attribute whitespace as character references", () => {
     const source = '<Root value="line&#xA;carriage&#xD;tab&#x9;end"/>'
     const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
@@ -116,7 +146,6 @@ describe("xmlExport", () => {
   })
 
   it.each([
-    ['a="unterminated', /кавыч/],
     ['a="1" ?> trailing', /\?>/],
     ['a="2"', /псевдоатрибут/],
     ["alpha\u0000omega", /XML/],
