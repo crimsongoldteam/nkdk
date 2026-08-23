@@ -310,7 +310,11 @@ Expected: FAIL because the enricher does not exist.
 
 - [ ] **Step 3: Resolve XML owner tags through registered metadata item rules**
 
-Build a map once from `Object.values(metadataRules.metadataItems)`. For each rule, read the `xmlRoot` property rule's `container`; map that XML container to `registries.validation.dataPaths.getOwnerKindByItemType(rule.itemType)?.kind`. Never hardcode `Document → Документ` in the scanner.
+Build a map once from `Object.values(metadataRules.projectSpecs).map(({ rule })
+=> rule)`. For each rule, read the `xmlRoot` property rule's `container`; map
+that XML container to
+`registries.validation.dataPaths.getOwnerKindByItemType(rule.itemType)?.kind`.
+Never hardcode `Document → Документ` in the scanner.
 
 - [ ] **Step 4: Resolve declarations and normalized types**
 
