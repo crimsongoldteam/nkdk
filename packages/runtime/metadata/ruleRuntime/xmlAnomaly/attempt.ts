@@ -97,7 +97,7 @@ export function createXmlImportAttemptJournal(
           started.push({ adapter, checkpoint: adapter.begin() })
         }
       } catch (error) {
-        throw rollbackAfterFailure("begin", started, error).error
+        throw rollbackAfterFailure("begin", started, error)
       }
 
       let active = true
@@ -107,9 +107,7 @@ export function createXmlImportAttemptJournal(
           try {
             prepareStarted(started)
           } catch (error) {
-            const failure = rollbackAfterFailure("prepare", started, error)
-            if (!failure.rollbackFailed) active = false
-            throw failure.error
+            throw new XmlImportAttemptInfrastructureError("prepare", error)
           }
           try {
             for (let index = started.length - 1; index >= 0; index -= 1) {
@@ -118,7 +116,7 @@ export function createXmlImportAttemptJournal(
             }
           } catch (error) {
             active = false
-            throw rollbackAfterFailure("commit", started, error).error
+            throw rollbackAfterFailure("commit", started, error)
           }
           active = false
           releaseStarted(started)
@@ -226,25 +224,19 @@ function runBestEffort<Entry>(
 }
 
 function rollbackAfterFailure(
-  phase: "begin" | "prepare" | "commit",
+  phase: "begin" | "commit",
   started: readonly { adapter: XmlImportAttemptAdapter; checkpoint: unknown }[],
   cause: unknown,
-): {
-  readonly error: XmlImportAttemptInfrastructureError
-  readonly rollbackFailed: boolean
-} {
+): XmlImportAttemptInfrastructureError {
   const rollbackErrors = runBestEffort(
     started,
     (entry) => entry.adapter.rollback(entry.checkpoint),
   )
-  return {
-    error: new XmlImportAttemptInfrastructureError(
-      phase,
-      cause,
-      [cause, ...rollbackErrors],
-    ),
-    rollbackFailed: rollbackErrors.length > 0,
-  }
+  return new XmlImportAttemptInfrastructureError(
+    phase,
+    cause,
+    [cause, ...rollbackErrors],
+  )
 }
 
 function assertActive(active: boolean, phase: "commit" | "rollback"): void {

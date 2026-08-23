@@ -99,6 +99,78 @@ describe("XML import attempt journal", () => {
     outer.commit()
   })
 
+  it.each([
+    {
+      name: "shared перед outerOnly",
+      order: (shared: object, outerOnly: object) => [shared, outerOnly],
+    },
+    {
+      name: "outerOnly перед shared",
+      order: (shared: object, outerOnly: object) => [outerOnly, shared],
+    },
+  ])(
+    "оставляет все checkpoints активными после prepare-конфликта: $name",
+    ({ order }) => {
+      const sharedValues: string[] = []
+      const outerOnlyValues: string[] = []
+      const shared = {}
+      const outerOnly = {}
+      attachXmlImportAttemptAdapter(
+        shared,
+        arrayLengthXmlImportAttemptAdapter([sharedValues]),
+      )
+      attachXmlImportAttemptAdapter(
+        outerOnly,
+        arrayLengthXmlImportAttemptAdapter([outerOnlyValues]),
+      )
+      const outer = createXmlImportAttemptJournal(
+        order(shared, outerOnly),
+      ).begin()
+      sharedValues.push("outer:shared")
+      outerOnlyValues.push("outer:only")
+      const inner = createXmlImportAttemptJournal([shared]).begin()
+      sharedValues.push("inner:shared")
+
+      const thrown = captureError(() => outer.commit())
+
+      expect(thrown).toBeInstanceOf(XmlImportAttemptInfrastructureError)
+      expect(thrown).toMatchObject({ phase: "prepare" })
+      expect((thrown as XmlImportAttemptInfrastructureError).cause)
+        .toMatchObject({ message: expect.stringContaining("порядок") })
+      expect(sharedValues).toEqual(["outer:shared", "inner:shared"])
+      expect(outerOnlyValues).toEqual(["outer:only"])
+
+      inner.rollback()
+      outer.commit()
+
+      expect(sharedValues).toEqual(["outer:shared"])
+      expect(outerOnlyValues).toEqual(["outer:only"])
+    },
+  )
+
+  it("не компенсирует произвольную prepare-ошибку до явного rollback", () => {
+    const calls: string[] = []
+    const cause = new Error("prepare rejected")
+    const failing = trackedParticipant("failing", calls, cause)
+    const prepared = trackedParticipant("prepared", calls)
+    const attempt = createXmlImportAttemptJournal([
+      failing,
+      prepared,
+    ]).begin()
+    calls.length = 0
+
+    const thrown = captureError(() => attempt.commit())
+
+    expect(thrown).toBeInstanceOf(XmlImportAttemptInfrastructureError)
+    expect(thrown).toMatchObject({ phase: "prepare", cause })
+    expect(calls).toEqual(["prepare:prepared", "prepare:failing"])
+
+    calls.length = 0
+    attempt.rollback()
+
+    expect(calls).toEqual(["rollback:prepared", "rollback:failing"])
+  })
+
   it("откатывает всех участников после ошибки publish", () => {
     const calls: string[] = []
     let published = false
@@ -216,6 +288,34 @@ function throwingParticipants(
     })
     return participant
   })
+}
+
+function trackedParticipant(
+  name: string,
+  calls: string[],
+  prepareFailure?: Error,
+): object {
+  const participant = {}
+  attachXmlImportAttemptAdapter(participant, {
+    begin() {
+      calls.push(`begin:${name}`)
+      return { name }
+    },
+    prepare() {
+      calls.push(`prepare:${name}`)
+      if (prepareFailure !== undefined) throw prepareFailure
+    },
+    commit() {
+      calls.push(`commit:${name}`)
+    },
+    rollback() {
+      calls.push(`rollback:${name}`)
+    },
+    release() {
+      calls.push(`release:${name}`)
+    },
+  })
+  return participant
 }
 
 function captureError(run: () => unknown): unknown {
