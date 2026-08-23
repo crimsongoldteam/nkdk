@@ -9,8 +9,10 @@ import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { registerMetadataItemRule } from "./ruleFactory"
 import {
+  createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
   parseXmlDocumentWithSaxes,
+  serializeYAMLDocument,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
 import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
@@ -24,6 +26,48 @@ import {
 } from "../../../tests/xmlImportAttempt"
 
 describe("importMetadataItemFromXMLToYAML", () => {
+  it("проецирует неизвестный XML-путь на ближайший metadata-item", () => {
+    const rule = {
+      itemType: "TestUnknownPathOwner",
+      properties: {
+        known: {
+          type: "string",
+          xml: "Known",
+          yaml: "Известное",
+          xmlParents: ["Properties"],
+        },
+      },
+    } as MetadataItemRule
+    const root = parseXmlDocumentWithSaxes(
+      '<Root><Properties><Known>yes</Known><Future mode="x">42</Future></Properties></Root>',
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const annotations = createXmlAnomalyAnnotations()
+
+    const yaml = importMetadataItemFromXMLToYAML({
+      context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+      rule,
+      xml: root,
+      traversal: {
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+        audit,
+        annotations,
+      },
+    }) as Record<string, unknown>
+
+    expect(yaml).toMatchObject({
+      Известное: "yes",
+      "Properties\\Future": { _mode: "x", "#text": "42" },
+    })
+    expect(yaml).not.toHaveProperty("Properties")
+    expect(yaml).not.toHaveProperty("Properties\\Future\\#attributes")
+    expect(serializeYAMLDocument(yaml, annotations).text).toContain(
+      "Properties\\Future: !xml/raw",
+    )
+  })
+
   it("builds a nested item without returning its model shape", () => {
     const childRule = {
       itemType: "TestChild",

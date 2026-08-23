@@ -16,6 +16,10 @@ import { getChildContextToXML } from "../../context/childContext"
 import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import type { DeferredValuePath } from "../property/deferredObjectValues"
 import { assertRequiredConfigurationIdentity } from "../property/requiredIdentity"
+import {
+  xmlAnnotatedMappingEntries,
+  type XmlAnomalyAnnotations,
+} from "../../../yaml/xmlAnomalyAnnotations"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -24,6 +28,7 @@ export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly convertProperties: Parameters<typeof convertMetadataItemFromYAMLToXML>[0]["convertProperties"]
   readonly context: ConfigurationContextWithExportToXML
   readonly yaml: unknown
+  readonly annotations?: XmlAnomalyAnnotations
   readonly descriptor: CollectionDescriptor
   readonly propertyRule?: PropertyRule
   readonly source?: YAMLPropertySource
@@ -39,7 +44,7 @@ export function convertMetadataCollectionFromYAMLToXML(
   params: ConvertMetadataCollectionFromYAMLToXMLParams
 ): YAMLToXMLResult {
   const entries = completeCollectionEntries({
-    entries: collectionEntries(params.yaml, params.descriptor, params.propertyRule),
+    entries: collectionEntries(params.yaml, params.annotations, params.descriptor, params.propertyRule),
     descriptor: params.descriptor,
     itemRule: params.descriptor.itemRule,
     propertyRule: params.propertyRule,
@@ -127,6 +132,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       convertProperties: params.convertProperties,
       context: itemContextWithReferenceRemap,
       yaml: normalizedYAML,
+      annotations: params.annotations,
       rule: itemRule,
       name,
       namePropertyKey: params.descriptor.keyField,
@@ -230,6 +236,22 @@ function completeCollectionEntries(params: {
     : [...completedNames, ...referenceNames.filter((name) => !completedNames.includes(name))]
   if (requestedNames.length === 0) return params.entries
 
+  const seenNames = new Set<string>()
+  const containsDuplicates = params.entries.some(({ name }) => {
+    if (name === undefined) return false
+    if (seenNames.has(name)) return true
+    seenNames.add(name)
+    return false
+  })
+  if (containsDuplicates) {
+    return [
+      ...params.entries,
+      ...requestedNames
+        .filter((name) => !seenNames.has(name))
+        .map((name) => ({ name, yaml: {} })),
+    ]
+  }
+
   const byName = new Map(params.entries.map((entry) => [entry.name, entry]))
   const result = requestedNames.map((name) => byName.get(name) ?? { name, yaml: {} })
   for (const entry of params.entries) {
@@ -260,6 +282,7 @@ function collectReferenceNames(params: {
 
 function collectionEntries(
   yaml: unknown,
+  annotations: XmlAnomalyAnnotations | undefined,
   descriptor: CollectionDescriptor,
   propertyRule: PropertyRule | undefined
 ): { yaml: unknown; name?: string }[] {
@@ -267,7 +290,10 @@ function collectionEntries(
     return Array.isArray(yaml) ? yaml.map((item) => ({ yaml: item })) : []
   }
   if (!isRecord(yaml)) return []
-  return Object.entries(yaml).map(([key, value]) => ({
+  const entries = annotations === undefined
+    ? Object.entries(yaml)
+    : xmlAnnotatedMappingEntries(yaml, annotations)
+  return entries.map(([key, value]) => ({
     yaml: value,
     name:
       (propertyRule === undefined

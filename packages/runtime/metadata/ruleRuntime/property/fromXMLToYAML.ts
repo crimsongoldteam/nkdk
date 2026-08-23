@@ -67,6 +67,7 @@ import {
   createXmlImportAttemptJournal,
   XmlImportAttemptInfrastructureError,
 } from "../xmlAnomaly/attempt"
+import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -97,6 +98,7 @@ export function importPropertiesFromXMLToYAML(params: {
   propertyXML?: ReadonlyMap<string, unknown>
   execution?: PropertyRuleExecution
   audit?: XmlImportAuditSession
+  annotations?: XmlAnomalyAnnotationTable
 }): Record<string, unknown> | undefined {
   const { context, rule, sources, itemName, yamlPath, rulePath, collector, deferred, propertyXML } = params
   if (sources.length === 0) return undefined
@@ -342,6 +344,7 @@ export function importPropertiesFromXMLToYAML(params: {
             deferred,
             dependent: params.dependent,
             audit: params.audit,
+            annotations: params.annotations,
             xmlNodes,
             profile: params.profile,
             execution: params.execution,
@@ -382,6 +385,7 @@ export function importPropertiesFromXMLToYAML(params: {
                   deferred,
                   dependent: params.dependent,
                   audit: params.audit,
+                  annotations: params.annotations,
                   profile: params.profile,
                   execution: params.execution,
                 }),

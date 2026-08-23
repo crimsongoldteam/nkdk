@@ -12,6 +12,7 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { XmlElementNode } from "../../../xml/import/document"
 import type { XmlImportAuditSession } from "../xmlAnomaly/importAudit"
+import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
 import {
   arrayLengthXmlImportAttemptAdapter,
   attachXmlImportAttemptAdapter,
@@ -27,6 +28,7 @@ export interface DirectImportTraversal<Execution = unknown> {
   deferred?: DeferredValuePathCollector
   dependent?: ImportedDependentPropertyCollector
   audit?: XmlImportAuditSession
+  annotations?: XmlAnomalyAnnotationTable
   xmlNodes?: readonly XmlElementNode[]
   profile?: DirectImportProfile
 }

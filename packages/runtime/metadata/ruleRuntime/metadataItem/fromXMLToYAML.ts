@@ -9,6 +9,7 @@ import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutio
 import type { MetadataItemXmlImportAugmenter } from "./augmenterRegistry"
 import type { XmlElementNode } from "../../../xml/import/document"
 import { xmlImportCompatibilityContainer } from "../xmlAnomaly/compatibilityView"
+import { projectXmlAuditRemainder } from "../xmlAnomaly/yamlProjection"
 
 type InlineProperty = ReturnType<typeof findInlineProperty>
 
@@ -48,6 +49,7 @@ export function importMetadataItemFromXMLToYAML(params: {
   )
   const source = asRecord(sourceValue)
   if (source === undefined) return undefined
+  const inline = findInlinePropertyCached(params.rule)
 
   const context = contextWithItemParent(params.context, params.name, params.rule.itemType)
   const yaml = importPropertiesFromXMLToYAML({
@@ -65,6 +67,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     deferred: params.traversal.deferred,
     dependent: params.traversal.dependent,
     audit: params.traversal.audit,
+    annotations: params.traversal.annotations,
     profile: params.traversal.profile,
     propertyXML: params.propertyXML,
     execution: propertyExecutionFromTraversal(params.traversal),
@@ -93,8 +96,25 @@ export function importMetadataItemFromXMLToYAML(params: {
       source: augmenterSource,
       yaml,
     })
+    if (
+      sourceNode !== undefined &&
+      params.traversal.audit !== undefined &&
+      params.traversal.annotations !== undefined &&
+      inline === undefined
+    ) {
+      projectXmlAuditRemainder({
+        yaml,
+        annotations: params.traversal.annotations,
+        audit: params.traversal.audit,
+        root: sourceNode,
+        boundary: {
+          itemType: params.rule.itemType,
+          yamlPath: params.traversal.yamlPath,
+          rulePath: params.traversal.rulePath,
+        },
+      })
+    }
   }
-  const inline = findInlinePropertyCached(params.rule)
   return inline === undefined ? yaml : yaml?.[inline.yamlKey]
 }
 

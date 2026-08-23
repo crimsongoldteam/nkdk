@@ -22,6 +22,7 @@ import {
   attachXmlImportAttemptAdapter,
   createXmlImportBufferedLocalIndexes,
 } from "../xmlAnomaly/attempt"
+import { projectNamedXmlCollection } from "../xmlAnomaly/yamlProjection"
 
 type MetadataItemCollectionImportOptions = {
   propertyType?: PropertyRuleType
@@ -183,12 +184,13 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   if (params.yamlAsArray === true) return yamlItems.map(({ yaml }) => yaml)
 
   if (keyYaml === undefined) return undefined
-  return Object.fromEntries(
-    yamlItems.map(({ yaml, yamlKey }) => {
-      delete yaml[keyYaml]
-      return [yamlKey!, yaml]
-    })
-  )
+  const entries = yamlItems.map(({ yaml, yamlKey }) => {
+    delete yaml[keyYaml]
+    return { key: yamlKey!, value: yaml }
+  })
+  return params.traversal.annotations === undefined
+    ? Object.fromEntries(entries.map(({ key, value }) => [key, value]))
+    : projectNamedXmlCollection({ entries, annotations: params.traversal.annotations })
 }
 
 function createBufferedDependentCollector(

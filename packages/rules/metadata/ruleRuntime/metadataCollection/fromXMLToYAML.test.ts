@@ -2,9 +2,12 @@ import { beforeAll, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
   createConfigurationIndexCollector,
+  createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
   parseXmlDocumentWithSaxes,
+  serializeYAMLDocument,
   withConfigurationIndexCollector,
+  xmlAnnotatedMappingEntries,
 } from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import {
@@ -97,6 +100,46 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it("сохраняет все элементы record-коллекции с повторным логическим ключом", () => {
+    const collector = createLocalIndexesCollector()
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Items>" +
+      "<Item><Name>Код</Name><Value>first</Value></Item>" +
+      "<Item><Name>Код</Name><Value>second</Value></Item>" +
+      "<Item><Name>Код</Name><Value>third</Value></Item>" +
+      "</Items></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const annotations = createXmlAnomalyAnnotations()
+
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestDuplicateCollectionOwner",
+        properties: {
+          items: { type: "TestRecordCollection", xml: "Items", yaml: "Элементы" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector,
+      audit,
+      annotations,
+    })!
+    const items = yaml.Элементы as Record<string, unknown>
+
+    expect(xmlAnnotatedMappingEntries(items, annotations)).toEqual([
+      ["Код", { Значение: "first" }],
+      ["Код", { Значение: "second" }],
+      ["Код", { Значение: "third" }],
+    ])
+    expect(serializeYAMLDocument(yaml, annotations).text).toContain(
+      "!xml/invalid/2 Код:",
+    )
+  })
+
   it("передаёт collection все одноимённые Item в исходном порядке", () => {
     const collector = createLocalIndexesCollector()
     const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }

@@ -30,17 +30,15 @@ import { applyAutoRequiredXMLParents, collectAutoRequiredXMLParentRoot, getOrder
 import { getYAMLToXMLPlan, type YAMLToXMLPlannedProperty } from "./fromYAMLToXMLPlan"
 import type {
   YAMLPropertySource,
-  YAMLToXMLExternalWriteFactory,
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
-  YAMLToXMLProfile,
+  YAMLToXMLItemConversionParams,
 } from "./fromYAMLToXMLTypes"
 import { assertRequiredConfigurationIdentity } from "./requiredIdentity"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
-import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
 import {
   assertAllYAMLMappingKeyReferenceTagsTransported,
@@ -48,22 +46,8 @@ import {
 } from "./brokenXMLReferenceCarrierRegistry"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
-export interface ConvertPropertiesFromYAMLToXMLParams {
+export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
   readonly execution?: PropertyRuleExecution
-  readonly context: ConfigurationContextWithExportToXML
-  readonly yaml: unknown
-  readonly rule: MetadataItemRule
-  readonly name?: string
-  readonly namePropertyKey?: string
-  readonly sourceItemName?: string
-  readonly outputs: readonly YAMLToXMLOutputRequest[]
-  readonly propertyValues?: ReadonlyMap<string, unknown>
-  readonly sparseYAML?: true
-  readonly omitDefaultsForSparseYAML?: true
-  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
-  readonly profile?: YAMLToXMLProfile
-  readonly rulePath?: readonly (string | number)[]
-  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
 export interface AtomicFromYAMLParams {
@@ -562,6 +546,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               convertProperties: convertNestedProperties,
               context: nestedContext,
               yaml: nestedYAML,
+              annotations: params.annotations,
               descriptor: effectiveNestedRule,
               propertyRule: planned.propertyRule,
               source,
@@ -576,6 +561,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               convertProperties: convertNestedProperties,
               context: nestedItemContext,
               yaml: normalizedNestedYAML,
+              annotations: params.annotations,
               rule:
                 effectiveNestedRule.kind === "item"
                   ? effectiveNestedRule.itemRule
