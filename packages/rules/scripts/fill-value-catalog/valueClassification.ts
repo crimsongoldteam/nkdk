@@ -18,7 +18,7 @@ export function normalizeEffectiveType(
 ): NormalizedType {
   if (effectiveType.status === "unresolved") {
     return {
-      source: "unresolved",
+      source,
       ...(sourceType === undefined ? {} : { sourceType }),
       family: "unresolved",
       signature: `unresolved(${effectiveType.reason})`,
@@ -28,7 +28,7 @@ export function normalizeEffectiveType(
   }
   if (effectiveType.status === "notSpecified") {
     return {
-      source: "unresolved",
+      source,
       ...(sourceType === undefined ? {} : { sourceType }),
       family: "unresolved",
       signature: "notSpecified",
