@@ -1,4 +1,5 @@
 import { XMLBuilder } from "fast-xml-parser"
+import type { XmlContentNode, XmlElementNode } from "../import/document"
 
 const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 
@@ -135,14 +136,55 @@ const toPreserveOrder = (data: Record<string, unknown>): unknown[] =>
     ...attributesToPreserveOrder(value),
   }))
 
-export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = true): string => {
+const structuralAttributesToPreserveOrder = (
+  node: Pick<XmlElementNode, "attributes">
+): Record<string, unknown> =>
+  node.attributes.length === 0
+    ? {}
+    : {
+        ":@": Object.fromEntries(
+          node.attributes.map(({ name, value }) => [`_${name}`, value])
+        ),
+      }
+
+const structuralContentToPreserveOrder = (node: XmlContentNode): Record<string, unknown> => {
+  if (node.type === "text") return { "#text": node.value }
+  if (node.type === "processingInstruction") {
+    return {
+      [`?${node.target}`]: [],
+      ...structuralAttributesToPreserveOrder(node),
+    }
+  }
+  return structuralElementToPreserveOrder(node)
+}
+
+const structuralElementToPreserveOrder = (node: XmlElementNode): Record<string, unknown> => ({
+  [node.name]: node.content.map(structuralContentToPreserveOrder),
+  ...structuralAttributesToPreserveOrder(node),
+})
+
+const structuralNodesToPreserveOrder = (
+  nodes: readonly XmlElementNode[]
+): readonly Record<string, unknown>[] => nodes.map(structuralElementToPreserveOrder)
+
+export const xmlExport = (
+  data: Record<string, any> | readonly XmlElementNode[],
+  addDeclaration: boolean = true
+): string => {
+  const xml = Array.isArray(data)
+    ? preserveOrderBuilder.build(structuralNodesToPreserveOrder(data))
+    : buildObjectXml(data)
+  const declaration = addDeclaration ? '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n' : ""
+  const result = declaration + xml.replace(/^\n/, "")
+  return result.trimEnd()
+}
+
+const buildObjectXml = (data: Record<string, any>): string => {
   const normalizedData = normalizeChildItemsForExport(data) as Record<string, any>
   const xml = (
     hasOrderedChildren(normalizedData)
       ? preserveOrderBuilder.build(toPreserveOrder(normalizedData))
       : builder.build(normalizedData)
   ).replace(/^\n/, "")
-  const declaration = addDeclaration ? '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n' : ""
-  const result = declaration + xml
-  return result.trimEnd()
+  return xml
 }

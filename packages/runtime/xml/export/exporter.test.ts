@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
 import { xmlExport } from "./exporter"
 
 const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
@@ -48,6 +49,22 @@ describe("xmlExport", () => {
         '\t<group id="middle-group"/>',
         '\t<panel id="last-panel"/>',
         "</top>",
+      ].join("\n")
+    )
+  })
+
+  it("exports structural nodes through the existing ordered XML builder", () => {
+    const document = parseXmlDocumentWithSaxes(
+      '<Root second="2" first="1"><A>one</A><B/><A>three</A></Root>'
+    )
+
+    expect(xmlExport(document.roots, false)).toBe(
+      [
+        '<Root second="2" first="1">',
+        "\t<A>one</A>",
+        "\t<B/>",
+        "\t<A>three</A>",
+        "</Root>",
       ].join("\n")
     )
   })

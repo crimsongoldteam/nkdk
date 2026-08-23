@@ -1,0 +1,396 @@
+import type {
+  XmlAttributeNode,
+  XmlContentNode,
+  XmlElementNode,
+  XmlProcessingInstructionNode,
+  XmlTextNode,
+} from "../import/document"
+import { hashXmlElementStructure } from "./hash"
+
+export interface XmlRawMapping {
+  readonly [key: string]: XmlRawValue
+}
+
+export type XmlRawValue = string | null | readonly XmlRawValue[] | XmlRawMapping
+
+export interface XmlRawFragment {
+  readonly nodes: readonly XmlElementNode[]
+  readonly suppressOrdinaryOutput: boolean
+}
+
+export interface DecodeXmlRawValueOptions {
+  readonly elementName: string
+  readonly suppressOrdinaryOutput?: boolean
+  readonly placement?: "value" | "key"
+}
+
+export interface XmlRawAttribute {
+  readonly name: string
+  readonly value: string
+}
+
+export interface XmlRawAttributes {
+  readonly attributes: readonly XmlRawAttribute[]
+  readonly order?: readonly string[]
+}
+
+interface DraftXmlAttribute {
+  readonly name: string
+  readonly value: string
+}
+
+interface DraftXmlText {
+  readonly type: "text"
+  readonly value: string
+}
+
+interface DraftXmlProcessingInstruction {
+  readonly type: "processingInstruction"
+  readonly target: string
+  readonly body: string
+  readonly attributes: readonly DraftXmlAttribute[]
+}
+
+interface DraftXmlElement {
+  readonly type: "element"
+  readonly name: string
+  readonly attributes: readonly DraftXmlAttribute[]
+  readonly content: readonly DraftXmlContent[]
+}
+
+type DraftXmlContent = DraftXmlElement | DraftXmlText | DraftXmlProcessingInstruction
+
+const XML_NAME = /^[:_\p{L}][:_\-.0-9\p{L}\p{M}\p{N}\u00B7]*$/u
+
+export function decodeXmlRawValue(
+  value: unknown,
+  options: DecodeXmlRawValueOptions
+): XmlRawFragment {
+  if (options.placement === "key") {
+    throw new Error("!xml/raw разрешён только на YAML-значении, но не на ключе")
+  }
+  assertXmlName(options.elementName, "имя XML-элемента")
+  const suppressOrdinaryOutput = options.suppressOrdinaryOutput ?? true
+  if (value === null) {
+    if (!suppressOrdinaryOutput) {
+      throw new Error("!xml/raw null допустим только для известного XML-места")
+    }
+    return { nodes: [], suppressOrdinaryOutput: true }
+  }
+
+  const values = Array.isArray(value) ? value : [value]
+  const drafts = values.map((item) => decodeElement(options.elementName, item, true))
+  return {
+    nodes: materializeXmlElementNodes(drafts),
+    suppressOrdinaryOutput,
+  }
+}
+
+export function decodeXmlRawAttributes(value: unknown): XmlRawAttributes {
+  if (!isRecord(value)) {
+    throw new Error("Терминал #attributes должен содержать YAML mapping")
+  }
+  const attributes: XmlRawAttribute[] = []
+  let order: readonly string[] | undefined
+  for (const [key, item] of Object.entries(value)) {
+    if (key === "#order") {
+      if (order !== undefined) throw new Error("Служебный ключ #order указан повторно")
+      order = decodeXmlRawOrder(item, "порядок атрибутов")
+      continue
+    }
+    if (!key.startsWith("_") || key.length === 1) {
+      throw new Error("Терминал #attributes принимает только _-атрибуты и #order")
+    }
+    if (typeof item !== "string") {
+      throw new Error(`Значение XML-атрибута ${key} должно быть строкой`)
+    }
+    const name = key.slice(1)
+    assertXmlName(name, `имя XML-атрибута ${key}`)
+    attributes.push({ name, value: item })
+  }
+  return { attributes, ...(order === undefined ? {} : { order }) }
+}
+
+export function decodeXmlRawOrder(value: unknown, description = "#order"): readonly string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+    throw new Error(`${description} должен быть YAML-массивом строк`)
+  }
+  return value as readonly string[]
+}
+
+export function readdressXmlElementNodes(
+  nodes: readonly XmlElementNode[]
+): readonly XmlElementNode[] {
+  return materializeXmlElementNodes(nodes.map(toDraftElement))
+}
+
+function decodeElement(defaultName: string, value: unknown, allowExternalName: boolean): DraftXmlElement {
+  if (typeof value === "string") {
+    return {
+      type: "element",
+      name: defaultName,
+      attributes: [],
+      content: [{ type: "text", value }],
+    }
+  }
+  if (value === null) throw new Error("YAML null разрешён только как корневой payload !xml/raw")
+  if (Array.isArray(value)) throw new Error("Вложенная YAML sequence допустима только для повторов XML-детей")
+  if (!isRecord(value)) {
+    throw new Error("Scalar !xml/raw должен быть строкой; YAML number и boolean запрещены")
+  }
+
+  let name = defaultName
+  const externalName = value["#name"]
+  if (externalName !== undefined) {
+    if (!allowExternalName) {
+      throw new Error("#name разрешён только на корне raw-значения или у raw-item sequence")
+    }
+    if (typeof externalName !== "string") throw new Error("#name должен быть строкой")
+    assertXmlName(externalName, "#name")
+    name = externalName
+  }
+
+  const attributes: DraftXmlAttribute[] = []
+  let text: DraftXmlText | undefined
+  const childrenByName = new Map<string, DraftXmlContent[]>()
+  const canonicalOrder: string[] = []
+  let explicitOrder: readonly string[] | undefined
+
+  for (const [key, item] of Object.entries(value)) {
+    if (key === "#name") continue
+    if (key === "#text") {
+      if (typeof item !== "string") throw new Error("#text в !xml/raw должен быть строкой")
+      text = { type: "text", value: item }
+      continue
+    }
+    if (key === "#order") {
+      explicitOrder = decodeXmlRawOrder(item)
+      continue
+    }
+    if (key.startsWith("#")) throw new Error(`Неизвестный служебный ключ !xml/raw: ${key}`)
+    if (key.startsWith("_")) {
+      if (key.length === 1) throw new Error("Имя XML-атрибута после _ не может быть пустым")
+      if (typeof item !== "string") {
+        throw new Error(`Значение XML-атрибута ${key} должно быть строкой`)
+      }
+      const attributeName = key.slice(1)
+      assertXmlName(attributeName, `имя XML-атрибута ${key}`)
+      attributes.push({ name: attributeName, value: item })
+      continue
+    }
+    if (key.toLowerCase() === "?xml") {
+      throw new Error("XML-декларация недопустима внутри свойства !xml/raw")
+    }
+    if (key.toLowerCase().startsWith("!doctype")) {
+      throw new Error("DOCTYPE недопустим внутри свойства !xml/raw")
+    }
+
+    const children = decodeChildren(key, item)
+    childrenByName.set(key, children)
+    canonicalOrder.push(...children.map(() => key))
+  }
+
+  const order = explicitOrder ?? canonicalOrder
+  assertExactOrder(order, childrenByName, "#order")
+  const childOffsets = new Map<string, number>()
+  const content: DraftXmlContent[] = text === undefined ? [] : [text]
+  for (const childName of order) {
+    const offset = childOffsets.get(childName) ?? 0
+    content.push(childrenByName.get(childName)![offset]!)
+    childOffsets.set(childName, offset + 1)
+  }
+  return { type: "element", name, attributes, content }
+}
+
+function decodeChildren(name: string, value: unknown): DraftXmlContent[] {
+  if (name.startsWith("?")) {
+    const target = name.slice(1)
+    if (target.length === 0) throw new Error("Имя processing instruction не может быть пустым")
+    assertXmlName(target, "имя processing instruction")
+    const values = Array.isArray(value) ? value : [value]
+    return values.map((item) => decodeProcessingInstruction(target, item))
+  }
+  assertXmlName(name, `имя XML-элемента ${name}`)
+  const values = Array.isArray(value) ? value : [value]
+  return values.map((item) => decodeElement(name, item, false))
+}
+
+function decodeProcessingInstruction(
+  target: string,
+  value: unknown
+): DraftXmlProcessingInstruction {
+  if (!isRecord(value)) {
+    throw new Error(`Processing instruction ?${target} должен содержать mapping атрибутов`)
+  }
+  const attributes: DraftXmlAttribute[] = []
+  for (const [key, item] of Object.entries(value)) {
+    if (!key.startsWith("_") || key.length === 1 || typeof item !== "string") {
+      throw new Error(`Processing instruction ?${target} принимает только строковые _-атрибуты`)
+    }
+    const name = key.slice(1)
+    assertXmlName(name, `имя атрибута processing instruction ?${target}`)
+    attributes.push({ name, value: item })
+  }
+  const body = attributes.map(({ name, value: item }) => ` ${name}="${item}"`).join("")
+  return { type: "processingInstruction", target, body, attributes }
+}
+
+function assertExactOrder(
+  order: readonly string[],
+  childrenByName: ReadonlyMap<string, readonly DraftXmlContent[]>,
+  description: string
+): void {
+  const expectedCounts = new Map(
+    [...childrenByName].map(([name, children]) => [name, children.length] as const)
+  )
+  const actualCounts = new Map<string, number>()
+  for (const name of order) actualCounts.set(name, (actualCounts.get(name) ?? 0) + 1)
+  if (
+    order.length !== [...expectedCounts.values()].reduce((sum, count) => sum + count, 0) ||
+    [...expectedCounts].some(([name, count]) => actualCounts.get(name) !== count) ||
+    [...actualCounts].some(([name]) => !expectedCounts.has(name))
+  ) {
+    throw new Error(`${description} должен ровно перечислять все XML-дети с учётом повторов`)
+  }
+}
+
+function materializeXmlElementNodes(drafts: readonly DraftXmlElement[]): readonly XmlElementNode[] {
+  let nextId = 1
+  const allocateId = (): number => nextId++
+  const occurrences = new Map<string, number>()
+  return drafts.map((draft) => {
+    const occurrence = (occurrences.get(draft.name) ?? 0) + 1
+    occurrences.set(draft.name, occurrence)
+    return materializeElement(draft, "", occurrence, allocateId)
+  })
+}
+
+function materializeElement(
+  draft: DraftXmlElement,
+  parentPath: string,
+  occurrence: number,
+  allocateId: () => number
+): XmlElementNode {
+  const id = allocateId()
+  const path = `${parentPath}/${draft.name}[${occurrence}]`
+  const attributeOccurrences = new Map<string, number>()
+  const attributes: XmlAttributeNode[] = draft.attributes.map((attribute) => {
+    const attributeOccurrence = (attributeOccurrences.get(attribute.name) ?? 0) + 1
+    attributeOccurrences.set(attribute.name, attributeOccurrence)
+    return {
+      id: allocateId(),
+      name: attribute.name,
+      occurrence: attributeOccurrence,
+      path: `${path}/@${attribute.name}[${attributeOccurrence}]`,
+      value: attribute.value,
+      span: { start: 0, end: 0 },
+    }
+  })
+
+  const elementOccurrences = new Map<string, number>()
+  const processingInstructionOccurrences = new Map<string, number>()
+  let textOccurrence = 0
+  const content: XmlContentNode[] = draft.content.map((node) => {
+    if (node.type === "text") {
+      textOccurrence += 1
+      return {
+        type: "text",
+        id: allocateId(),
+        occurrence: textOccurrence,
+        path: `${path}/#text[${textOccurrence}]`,
+        value: node.value,
+        span: { start: 0, end: 0 },
+      } satisfies XmlTextNode
+    }
+    if (node.type === "processingInstruction") {
+      const piOccurrence = (processingInstructionOccurrences.get(node.target) ?? 0) + 1
+      processingInstructionOccurrences.set(node.target, piOccurrence)
+      const piPath = `${path}/?${node.target}[${piOccurrence}]`
+      return {
+        type: "processingInstruction",
+        id: allocateId(),
+        target: node.target,
+        occurrence: piOccurrence,
+        path: piPath,
+        body: node.body,
+        attributes: node.attributes.map((attribute, index) => ({
+          id: allocateId(),
+          name: attribute.name,
+          occurrence: index + 1,
+          path: `${piPath}/@${attribute.name}[${index + 1}]`,
+          value: attribute.value,
+          span: { start: 0, end: 0 },
+        })),
+        span: { start: 0, end: 0 },
+      } satisfies XmlProcessingInstructionNode
+    }
+    const childOccurrence = (elementOccurrences.get(node.name) ?? 0) + 1
+    elementOccurrences.set(node.name, childOccurrence)
+    return materializeElement(node, path, childOccurrence, allocateId)
+  })
+  const partial = {
+    type: "element" as const,
+    id,
+    name: draft.name,
+    occurrence,
+    path,
+    attributes,
+    content,
+    span: { start: 0, end: 0 },
+    compatibilityValue: compatibilityValue(attributes, content),
+  }
+  return { ...partial, structuralHash: hashXmlElementStructure(partial) }
+}
+
+function compatibilityValue(
+  attributes: readonly XmlAttributeNode[],
+  content: readonly XmlContentNode[]
+): unknown {
+  const value: Record<string, unknown> = {}
+  for (const attribute of attributes) value[`_${attribute.name}`] = attribute.value
+  const texts = content.filter((node): node is XmlTextNode => node.type === "text")
+  if (texts.length > 0) value["#text"] = texts.map(({ value: text }) => text).join("")
+  for (const node of content) {
+    if (node.type === "text") continue
+    const key = node.type === "element" ? node.name : `?${node.target}`
+    const nodeValue =
+      node.type === "element"
+        ? node.compatibilityValue
+        : Object.fromEntries(node.attributes.map(({ name, value: item }) => [`_${name}`, item]))
+    const previous = value[key]
+    if (previous === undefined) value[key] = nodeValue
+    else if (Array.isArray(previous)) previous.push(nodeValue)
+    else value[key] = [previous, nodeValue]
+  }
+  const keys = Object.keys(value)
+  if (attributes.length === 0 && keys.length === 1 && typeof value["#text"] === "string") {
+    return value["#text"]
+  }
+  return value
+}
+
+function toDraftElement(node: XmlElementNode): DraftXmlElement {
+  return {
+    type: "element",
+    name: node.name,
+    attributes: node.attributes.map(({ name, value }) => ({ name, value })),
+    content: node.content.map((child): DraftXmlContent => {
+      if (child.type === "element") return toDraftElement(child)
+      if (child.type === "text") return { type: "text", value: child.value }
+      return {
+        type: "processingInstruction",
+        target: child.target,
+        body: child.body,
+        attributes: child.attributes.map(({ name, value }) => ({ name, value })),
+      }
+    }),
+  }
+}
+
+function assertXmlName(value: string, description: string): void {
+  if (!XML_NAME.test(value)) throw new Error(`Недопустимое ${description}: ${value}`)
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}
