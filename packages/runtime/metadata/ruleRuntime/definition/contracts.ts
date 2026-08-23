@@ -38,6 +38,7 @@ import type {
   RegisteredFormValidator,
 } from "../../validation/formValidationRegistry"
 import type { FormValidationAdapter } from "../../validation/formContracts"
+import type { XmlAnomalyRegistration } from "../xmlAnomaly/contracts"
 
 export type PropertyTypeDefinition = {
   readonly [Operation in TypeRulesOperations]?: NonNullable<
@@ -295,4 +296,5 @@ export interface MetadataRulesDefinition<
   readonly operations: readonly MetadataOperationContribution[]
   readonly workerOperations: readonly MetadataWorkerOperationContribution[]
   readonly propertyStateCapabilities: readonly PropertyStateCapabilityContribution[]
+  readonly xmlAnomalies: readonly XmlAnomalyRegistration[]
 }

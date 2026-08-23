@@ -29,6 +29,7 @@ export const emptyMetadataRules: MetadataRulesDefinition<never, never, never> = 
   operations: [],
   workerOperations: [],
   propertyStateCapabilities: [],
+  xmlAnomalies: [],
 }
 
 export function metadataItemRule(itemType: string): MetadataItemRule {

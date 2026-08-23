@@ -94,6 +94,10 @@ export function composeMetadataRules<
         ...result.propertyStateCapabilities,
         ...layer.propertyStateCapabilities,
       ],
+      xmlAnomalies: [
+        ...result.xmlAnomalies,
+        ...layer.xmlAnomalies,
+      ],
     }),
     emptyMetadataRules as MetadataRulesDefinition<SynchronizationContribution, ReferenceContribution, DataPathContribution>,
   )
