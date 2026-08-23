@@ -6,8 +6,10 @@ export type ImportContentFromXMLOptions = {
 
 export type {
   XmlAttributeNode,
+  XmlAddressedNode,
   XmlContentNode,
   XmlDocument,
+  XmlDocumentContentNode,
   XmlElementNode,
   XmlProcessingInstructionNode,
   XmlSourceSpan,

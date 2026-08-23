@@ -72,5 +72,40 @@ describe("структурный XML-hash", () => {
     expect(values?.[0]?.span).not.toEqual(values?.[2]?.span)
     expect(values?.[0]?.structuralHash).toBe(values?.[2]?.structuralHash)
     expect(values?.[0]?.structuralHash).not.toBe(values?.[1]?.structuralHash)
+
+    const addressed = parseXmlDocumentWithSaxes(
+      '<Root a="1">x<?p alpha?></Root><Root a="1"><![CDATA[x]]><?p alpha?></Root>'
+    ).roots
+    expect(addressed[0]?.id).not.toBe(addressed[1]?.id)
+    expect(addressed[0]?.path).not.toBe(addressed[1]?.path)
+    expect(addressed[0]?.span).not.toEqual(addressed[1]?.span)
+    expect(addressed[0]?.attributes[0]?.id).not.toBe(addressed[1]?.attributes[0]?.id)
+    expect(addressed[0]?.content[0]?.id).not.toBe(addressed[1]?.content[0]?.id)
+    expect(addressed[0]?.content[1]?.id).not.toBe(addressed[1]?.content[1]?.id)
+    expect(addressed[0]?.structuralHash).toBe(addressed[1]?.structuralHash)
+  })
+
+  it("учитывает полный нормализованный PI body", () => {
+    const alpha = parseXmlDocumentWithSaxes("<Root><?p alpha?></Root>").roots[0]
+    const beta = parseXmlDocumentWithSaxes("<Root><?p beta?></Root>").roots[0]
+    const normalized = parseXmlDocumentWithSaxes("<Root><?p   alpha\r\nbeta ?></Root>")
+      .roots[0]
+
+    expect(alpha?.content[0]).toMatchObject({
+      type: "processingInstruction",
+      target: "p",
+      body: "alpha",
+    })
+    expect(beta?.content[0]).toMatchObject({
+      type: "processingInstruction",
+      target: "p",
+      body: "beta",
+    })
+    expect(normalized?.content[0]).toMatchObject({
+      type: "processingInstruction",
+      target: "p",
+      body: "alpha\nbeta ",
+    })
+    expect(alpha?.structuralHash).not.toBe(beta?.structuralHash)
   })
 })

@@ -3,38 +3,45 @@ export interface XmlSourceSpan {
   readonly end: number
 }
 
-export interface XmlAttributeNode {
+export interface XmlAddressedNode {
+  readonly id: number
+  readonly occurrence: number
+  readonly path: string
+  readonly span: XmlSourceSpan
+}
+
+export interface XmlAttributeNode extends XmlAddressedNode {
   readonly name: string
   readonly value: string
 }
 
-export interface XmlTextNode {
+export interface XmlTextNode extends XmlAddressedNode {
   readonly type: "text"
   readonly value: string
 }
 
-export interface XmlProcessingInstructionNode {
+export interface XmlProcessingInstructionNode extends XmlAddressedNode {
   readonly type: "processingInstruction"
   readonly target: string
+  readonly body: string
   readonly attributes: readonly XmlAttributeNode[]
 }
 
 export type XmlContentNode = XmlElementNode | XmlTextNode | XmlProcessingInstructionNode
 
-export interface XmlElementNode {
+export type XmlDocumentContentNode = XmlContentNode
+
+export interface XmlElementNode extends XmlAddressedNode {
   readonly type: "element"
-  readonly id: number
   readonly name: string
-  readonly occurrence: number
-  readonly path: string
   readonly attributes: readonly XmlAttributeNode[]
   readonly content: readonly XmlContentNode[]
-  readonly span: XmlSourceSpan
   readonly structuralHash: bigint
   readonly compatibilityValue: unknown
 }
 
 export interface XmlDocument {
+  readonly content: readonly XmlDocumentContentNode[]
   readonly roots: readonly XmlElementNode[]
   readonly compatibility: Readonly<Record<string, unknown>>
   readonly sourceLength: number

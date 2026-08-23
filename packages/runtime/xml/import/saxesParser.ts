@@ -2,9 +2,11 @@ import { SaxesParser, type SaxesStartTagPlain, type SaxesTagPlain, type XMLDecl 
 import type { ImportContentFromXMLOptions } from "./contracts"
 import type {
   XmlAttributeNode,
-  XmlContentNode,
   XmlDocument,
+  XmlDocumentContentNode,
   XmlElementNode,
+  XmlProcessingInstructionNode,
+  XmlSourceSpan,
 } from "./document"
 import { hashXmlElementStructure } from "../structure/hash"
 
@@ -33,22 +35,32 @@ interface ElementFrame {
   childCounts: Record<string, number>
   childOrder: Array<{ key: string; index: number }>
   orderedChildren: Array<Record<string, unknown>> | undefined
-  structural: MutableXmlElementNode | undefined
+  structural: MutableXmlDocument | MutableXmlElementNode
 }
 
-interface MutableXmlElementNode {
+interface MutableXmlContainer {
+  path: string
+  content: XmlDocumentContentNode[]
+  textCount: number
+  nextContentStart: number
+}
+
+interface MutableXmlDocument extends MutableXmlContainer {
+  kind: "document"
+}
+
+interface MutableXmlElementNode extends MutableXmlContainer {
+  kind: "element"
   id: number
   name: string
   occurrence: number
-  path: string
   attributes: XmlAttributeNode[]
-  content: XmlContentNode[]
   spanStart: number
 }
 
 const createFrame = (
   name: string,
-  structural: MutableXmlElementNode | undefined = undefined
+  structural: MutableXmlDocument | MutableXmlElementNode
 ): ElementFrame => ({
   name,
   attributes: {},
@@ -68,65 +80,138 @@ export function parseXmlDocumentWithSaxes(
   data: string,
   options: ImportContentFromXMLOptions = {}
 ): XmlDocument {
-  const document = createFrame("")
+  const documentStructure: MutableXmlDocument = {
+    kind: "document",
+    path: "",
+    content: [],
+    textCount: 0,
+    nextContentStart: 0,
+  }
+  const document = createFrame("", documentStructure)
   const stack = [document]
   const roots: XmlElementNode[] = []
   let nextNodeId = 1
+  const allocateNodeId = (): number => {
+    const id = nextNodeId
+    nextNodeId += 1
+    return id
+  }
   const parser = new SaxesParser({ xmlns: false, fragment: !hasXmlDeclaration(data) })
 
   parser.on("xmldecl", (declaration) => {
     if (data.startsWith("\uFEFF")) document.text = "\uFEFF"
     appendDeclaration(document, declaration)
+    document.structural.nextContentStart = parser.position
   })
   parser.on("opentagstart", (tag: SaxesStartTagPlain) => {
     assertSafeName(tag.name)
     const parent = stack.at(-1)
     if (parent === undefined) throw new Error("XML-элемент вне документа")
     const occurrence = (parent.childCounts[tag.name] ?? 0) + 1
-    const parentPath = parent.structural?.path ?? ""
+    const parentPath = parent.structural.path
     stack.push(
       createFrame(tag.name, {
-        id: nextNodeId,
+        kind: "element",
+        id: allocateNodeId(),
         name: tag.name,
         occurrence,
         path: `${parentPath}/${tag.name}[${occurrence}]`,
         attributes: [],
         content: [],
+        textCount: 0,
+        nextContentStart: 0,
         spanStart: findElementStart(data, parser.position),
       })
     )
-    nextNodeId += 1
+  })
+  parser.on("attribute", ({ name, value }) => {
+    const frame = stack.at(-1)
+    const structural = frame?.structural
+    if (frame === undefined || structural?.kind !== "element") {
+      throw new Error("XML-атрибут вне элемента")
+    }
+    const occurrence =
+      structural.attributes.filter((attribute) => attribute.name === name).length + 1
+    structural.attributes.push({
+      id: allocateNodeId(),
+      name,
+      occurrence,
+      path: `${structural.path}/@${name}[${occurrence}]`,
+      value,
+      span: findAttributeSpan(data, parser.position, name),
+    })
   })
   parser.on("opentag", (tag: SaxesTagPlain) => {
     const frame = stack.at(-1)
-    if (frame === undefined || frame.name !== tag.name || frame.structural === undefined) {
+    if (
+      frame === undefined ||
+      frame.name !== tag.name ||
+      frame.structural.kind !== "element"
+    ) {
       throw new Error("Несогласованный открывающий XML-тег")
     }
     frame.attributes = tag.attributes
-    frame.structural.attributes = Object.entries(tag.attributes).map(([name, value]) => ({
-      name,
-      value,
-    }))
+    frame.structural.nextContentStart = parser.position
   })
-  parser.on("text", (text) => appendText(stack, text))
-  parser.on("cdata", (text) => appendText(stack, text))
+  parser.on("text", (text) => {
+    const frame = stack.at(-1)
+    if (frame === undefined) throw new Error("XML-текст вне документа")
+    appendText(
+      frame,
+      text,
+      { start: frame.structural.nextContentStart, end: findTextEnd(data, parser.position) },
+      allocateNodeId
+    )
+  })
+  parser.on("cdata", (text) => {
+    const frame = stack.at(-1)
+    if (frame === undefined) throw new Error("CDATA вне документа")
+    appendText(
+      frame,
+      text,
+      { start: findMarkupStart(data, parser.position, "<![CDATA["), end: parser.position },
+      allocateNodeId
+    )
+  })
+  parser.on("comment", () => {
+    const frame = stack.at(-1)
+    if (frame !== undefined) frame.structural.nextContentStart = parser.position
+  })
   parser.on("processinginstruction", ({ target, body }) => {
     const attributes: Record<string, string> = {}
-    const structuralAttributes: XmlAttributeNode[] = []
     for (const match of body.matchAll(PI_ATTRIBUTE)) {
       const name = match[1] ?? ""
       const value = match[3] ?? ""
       attributes[`_${name}`] = value
-      structuralAttributes.push({ name, value })
     }
     const parent = stack.at(-1)
     if (parent === undefined) throw new Error("XML PI вне документа")
-    appendChild(parent, `?${target}`, attributes)
-    parent.structural?.content.push({
+    const key = `?${target}`
+    const occurrence = (parent.childCounts[key] ?? 0) + 1
+    const span = {
+      start: findMarkupStart(data, parser.position, "<?"),
+      end: parser.position,
+    }
+    const path = `${parent.structural.path}/${key}[${occurrence}]`
+    const node: XmlProcessingInstructionNode = {
       type: "processingInstruction",
+      id: allocateNodeId(),
       target,
-      attributes: structuralAttributes,
-    })
+      occurrence,
+      path,
+      body,
+      span,
+      attributes: createProcessingInstructionAttributes(
+        data,
+        target,
+        path,
+        span,
+        allocateNodeId
+      ),
+    }
+    appendChild(parent, `?${target}`, attributes)
+    parent.structural.content.push(node)
+    parent.structural.nextContentStart = span.end
   })
   parser.on("closetag", () => {
     const frame = stack.pop()
@@ -135,8 +220,9 @@ export function parseXmlDocumentWithSaxes(
     const compatibilityValue = finalizeFrame(frame, options)
     const node = finalizeElement(frame, compatibilityValue, parser.position)
     appendChild(parent, frame.name, compatibilityValue)
-    if (parent.structural === undefined) roots.push(node)
-    else parent.structural.content.push(node)
+    if (parent.structural.kind === "document") roots.push(node)
+    parent.structural.content.push(node)
+    parent.structural.nextContentStart = node.span.end
   })
   parser.on("error", (error) => {
     throw error
@@ -147,22 +233,42 @@ export function parseXmlDocumentWithSaxes(
     ...options,
     preserveEmptyElements: true,
   }) as Readonly<Record<string, unknown>>
-  return { roots, compatibility, sourceLength: data.length }
+  return {
+    content: documentStructure.content,
+    roots,
+    compatibility,
+    sourceLength: data.length,
+  }
 }
 
-function appendText(stack: ElementFrame[], text: string): void {
-  if (stack.length === 1) return
-  const current = stack.at(-1)
-  if (current === undefined) return
-  current.text += text
-  const content = current.structural?.content
-  if (content === undefined) return
+function appendText(
+  frame: ElementFrame,
+  text: string,
+  span: XmlSourceSpan,
+  allocateNodeId: () => number
+): void {
+  if (frame.structural.kind === "element") frame.text += text
+  const { content } = frame.structural
   const previous = content.at(-1)
   if (previous?.type === "text") {
-    content[content.length - 1] = { type: "text", value: previous.value + text }
+    content[content.length - 1] = {
+      ...previous,
+      value: previous.value + text,
+      span: { start: previous.span.start, end: span.end },
+    }
   } else {
-    content.push({ type: "text", value: text })
+    frame.structural.textCount += 1
+    const occurrence = frame.structural.textCount
+    content.push({
+      type: "text",
+      id: allocateNodeId(),
+      occurrence,
+      path: `${frame.structural.path}/#text[${occurrence}]`,
+      value: text,
+      span,
+    })
   }
+  frame.structural.nextContentStart = span.end
 }
 
 function finalizeElement(
@@ -171,11 +277,18 @@ function finalizeElement(
   end: number
 ): XmlElementNode {
   const structural = frame.structural
-  if (structural === undefined) throw new Error("Документная рамка не является XML-элементом")
-  const { spanStart, ...element } = structural
+  if (structural.kind !== "element") {
+    throw new Error("Документная рамка не является XML-элементом")
+  }
+  const { id, name, occurrence, path, attributes, content, spanStart } = structural
   const partial = {
     type: "element" as const,
-    ...element,
+    id,
+    name,
+    occurrence,
+    path,
+    attributes,
+    content,
     span: { start: spanStart, end },
     compatibilityValue,
   }
@@ -257,7 +370,64 @@ function hasXmlDeclaration(data: string): boolean {
 }
 
 function findElementStart(data: string, parserPosition: number): number {
-  const start = data.lastIndexOf("<", parserPosition - 1)
-  if (start < 0) throw new Error("Не найдена начальная координата XML-элемента")
+  return findMarkupStart(data, parserPosition, "<")
+}
+
+function findMarkupStart(data: string, parserPosition: number, marker: string): number {
+  const start = data.lastIndexOf(marker, parserPosition - 1)
+  if (start < 0) throw new Error(`Не найдена начальная координата XML-маркера ${marker}`)
   return start
+}
+
+function findAttributeSpan(data: string, parserPosition: number, name: string): XmlSourceSpan {
+  const closingQuoteIndex = parserPosition - 1
+  const quote = data[closingQuoteIndex]
+  if (quote !== '"' && quote !== "'") {
+    throw new Error(`Не найдена конечная кавычка атрибута ${name}`)
+  }
+  const openingQuoteIndex = data.lastIndexOf(quote, closingQuoteIndex - 1)
+  const equalsIndex = data.lastIndexOf("=", openingQuoteIndex - 1)
+  let nameEnd = equalsIndex
+  while (nameEnd > 0 && /\s/u.test(data[nameEnd - 1] ?? "")) nameEnd -= 1
+  const start = nameEnd - name.length
+  if (data.slice(start, nameEnd) !== name) {
+    throw new Error(`Не найдена начальная координата атрибута ${name}`)
+  }
+  return { start, end: parserPosition }
+}
+
+function findTextEnd(data: string, parserPosition: number): number {
+  return data[parserPosition - 1] === "<" ? parserPosition - 1 : parserPosition
+}
+
+function createProcessingInstructionAttributes(
+  data: string,
+  target: string,
+  parentPath: string,
+  span: XmlSourceSpan,
+  allocateNodeId: () => number
+): XmlAttributeNode[] {
+  const rawBodyStart = span.start + 2 + target.length
+  const rawBody = data.slice(rawBodyStart, span.end - 2)
+  const occurrences = new Map<string, number>()
+  const attributes: XmlAttributeNode[] = []
+  for (const match of rawBody.matchAll(PI_ATTRIBUTE)) {
+    const name = match[1] ?? ""
+    const occurrence = (occurrences.get(name) ?? 0) + 1
+    occurrences.set(name, occurrence)
+    const start = rawBodyStart + (match.index ?? 0)
+    attributes.push({
+      id: allocateNodeId(),
+      name,
+      occurrence,
+      path: `${parentPath}/@${name}[${occurrence}]`,
+      value: normalizeXmlLineEndings(match[3] ?? ""),
+      span: { start, end: start + match[0].length },
+    })
+  }
+  return attributes
+}
+
+function normalizeXmlLineEndings(value: string): string {
+  return value.replaceAll("\r\n", "\n").replaceAll("\r", "\n")
 }

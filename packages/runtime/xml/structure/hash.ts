@@ -2,18 +2,26 @@ import { xxh3 } from "@node-rs/xxhash"
 import type {
   XmlAttributeNode,
   XmlElementNode,
-  XmlProcessingInstructionNode,
   XmlTextNode,
 } from "../import/document"
+
+export type XmlStructuralAttribute = Pick<XmlAttributeNode, "name" | "value">
+
+export interface XmlStructuralProcessingInstruction {
+  readonly type: "processingInstruction"
+  readonly target: string
+  readonly body: string
+  readonly attributes: readonly XmlStructuralAttribute[]
+}
 
 export type XmlStructuralContent =
   | Pick<XmlTextNode, "type" | "value">
   | Pick<XmlElementNode, "type" | "structuralHash">
-  | Pick<XmlProcessingInstructionNode, "type" | "target" | "attributes">
+  | XmlStructuralProcessingInstruction
 
 export interface XmlElementStructure {
   readonly name: string
-  readonly attributes: readonly XmlAttributeNode[]
+  readonly attributes: readonly XmlStructuralAttribute[]
   readonly content: readonly XmlStructuralContent[]
 }
 
@@ -47,14 +55,18 @@ function writeContent(hash: Xxh3Stream, node: XmlStructuralContent): void {
   }
 }
 
-function writeProcessingInstruction(hash: Xxh3Stream, node: XmlProcessingInstructionNode): void {
+function writeProcessingInstruction(
+  hash: Xxh3Stream,
+  node: XmlStructuralProcessingInstruction
+): void {
   writeByte(hash, 4)
   writeString(hash, node.target)
+  writeString(hash, node.body)
   writeUnsignedInteger(hash, node.attributes.length)
   for (const attribute of node.attributes) writeAttribute(hash, attribute)
 }
 
-function writeAttribute(hash: Xxh3Stream, attribute: XmlAttributeNode): void {
+function writeAttribute(hash: Xxh3Stream, attribute: XmlStructuralAttribute): void {
   writeString(hash, attribute.name)
   writeString(hash, attribute.value)
 }
