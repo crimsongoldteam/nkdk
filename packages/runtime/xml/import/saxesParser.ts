@@ -178,7 +178,7 @@ export function parseXmlDocumentWithSaxes(
   })
   parser.on("comment", () => {
     const frame = stack.at(-1)
-    if (frame !== undefined) advanceContentBoundary(frame, parser.position, true)
+    if (frame !== undefined) advanceContentBoundary(frame, parser.position + 1, true)
   })
   parser.on("doctype", () => {
     const frame = stack.at(-1)

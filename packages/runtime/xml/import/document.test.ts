@@ -316,4 +316,39 @@ describe("структурный XML-документ", () => {
       Root: undefined,
     })
   })
+
+  it("начинает self-closing root после завершающего > комментария", () => {
+    const xml = "<!--before--><Root/>"
+    const root = parseXmlDocumentWithSaxes(xml).roots[0]
+
+    expect(sourceOf(xml, root)).toBe("<Root/>")
+  })
+
+  it("не сливает текст через comment и не включает его > в следующий span", () => {
+    const xml = "<Root>A<!--between-->B</Root>"
+    const content = parseXmlDocumentWithSaxes(xml).roots[0]?.content ?? []
+
+    expect(content).toMatchObject([
+      { type: "text", value: "A" },
+      { type: "text", value: "B" },
+    ])
+    expect(content.map((node) => sourceOf(xml, node))).toEqual(["A", "B"])
+  })
+
+  it("начинает CDATA, PI и вложенный элемент после полного comment", () => {
+    const xml =
+      "<Root><!--cdata--><![CDATA[x]]><!--pi--><?p y?><!--child--><Child/></Root>"
+    const content = parseXmlDocumentWithSaxes(xml).roots[0]?.content ?? []
+
+    expect(content.map(({ type }) => type)).toEqual([
+      "text",
+      "processingInstruction",
+      "element",
+    ])
+    expect(content.map((node) => sourceOf(xml, node))).toEqual([
+      "<![CDATA[x]]>",
+      "<?p y?>",
+      "<Child/>",
+    ])
+  })
 })
