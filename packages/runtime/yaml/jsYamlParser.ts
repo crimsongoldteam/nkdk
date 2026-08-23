@@ -192,7 +192,6 @@ function collectYamlTags(
   for (const { key, value } of node.items) {
     const annotationTag = xmlAnomalyTag(key.tag)
     let runtimeKey: string | undefined
-    let logicalKey: string | undefined
     if (annotationTag !== undefined) {
       if (annotationTag.kind === "raw") throw new YAMLException("!xml/raw недопустим для ключа YAML")
       if (key.kind !== "scalar") {
@@ -201,13 +200,13 @@ function collectYamlTags(
       if (annotationTag.numbered && annotationTag.occurrence === 1) {
         throw new YAMLException(`Тег ${key.tag} не использует номер /1`)
       }
+      const sourceKey = sourceMappingKey(key)
       const expected = expectedOccurrences.get(key.value) ?? 1
       if (annotationTag.occurrence !== expected) {
         throw new YAMLException(`Тег ${key.tag} нарушает нумерацию повторного ключа ${key.value}`)
       }
       expectedOccurrences.set(key.value, expected + 1)
       runtimeKey = uniqueRuntimeKey(usedRuntimeKeys)
-      logicalKey = key.value
       annotations.push({
         annotation: annotationFor(annotationTag, "key", key.value),
         parentPath: path,
@@ -216,7 +215,7 @@ function collectYamlTags(
       key.value = runtimeKey
       key.tag = "tag:yaml.org,2002:str"
       key.style.tagged = false
-      sourcePaths.set(pathKey([...path, runtimeKey]), [...sourcePath, sourceMappingKey(annotationTag, logicalKey)])
+      sourcePaths.set(pathKey([...path, runtimeKey]), [...sourcePath, sourceKey])
     } else if (key.tag.startsWith("!xml/")) {
       if (key.tag !== "!xml/reference") throw new YAMLException(`Тег ${key.tag} недопустим для ключа YAML`)
       if (key.kind !== "scalar") throw new YAMLException("!xml/reference поддерживает только скалярный ключ")
@@ -285,12 +284,11 @@ function pathKey(path: readonly (string | number)[]): string {
   return JSON.stringify(path)
 }
 
-function sourceMappingKey(
-  tag: { kind: XmlAnomalyKind; occurrence: number },
-  logicalKey: string,
-): string {
-  const suffix = tag.occurrence > 1 ? `/${tag.occurrence}` : ""
-  return `!xml/${tag.kind}${suffix} ${logicalKey}`
+function sourceMappingKey(key: Node): string {
+  if (key.kind !== "scalar") throw new TypeError("XML-аннотация ключа ожидает скалярный ключ")
+  if (key.style.doubleQuoted) return `${key.tag} ${JSON.stringify(key.value)}`
+  if (key.style.singleQuoted) return `${key.tag} '${key.value.replaceAll("'", "''")}'`
+  return `${key.tag} ${key.value}`
 }
 
 function applyParsedMappingKeyTags(

@@ -206,8 +206,12 @@ describe("parseWithJsYaml", () => {
     })
   })
 
-  it("сохраняет явный null внутри значения аннотированного ключа", () => {
-    const parsed = parseWithJsYaml("!xml/invalid Код:\n  Значение: null")
+  it.each([
+    ["без кавычек", "!xml/invalid Код:\n  Значение: null"],
+    ["в двойных кавычках", '!xml/invalid "Код":\n  Значение: null'],
+    ["в одинарных кавычках", "!xml/invalid 'Код':\n  Значение: null"],
+  ])("сохраняет явный null под аннотированным ключом %s", (_name, source) => {
+    const parsed = parseWithJsYaml(source)
     const data = parsed.data as Record<string, { Значение: unknown }>
     const runtimeKey = Object.keys(data)[0]!
 
@@ -217,6 +221,7 @@ describe("parseWithJsYaml", () => {
       kind: "invalid",
       logicalKey: "Код",
     })
+    expect(runtimeKey).not.toContain("Код")
   })
 })
 
