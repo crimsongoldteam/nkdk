@@ -123,9 +123,15 @@ function parseYamlData(
   return applyParsedXmlAnomalyAnnotations(normalized, prepared.annotations, annotations)
 }
 
-interface ParsedMappingKeyTag {
+type ParsedMappingKeyTag = {
+  readonly kind: "xmlReference"
   readonly containerPath: readonly (string | number)[]
   readonly key: string
+} | {
+  readonly kind: "propertyState"
+  readonly containerPath: readonly (string | number)[]
+  readonly key: string
+  readonly tag: "проверять" | "изменять"
 }
 
 interface ParsedXmlAnomalyAnnotation {
@@ -228,10 +234,15 @@ function collectYamlTags(
       key.tag = "tag:yaml.org,2002:str"
       key.style.tagged = false
       sourcePaths.set(pathKey([...path, runtimeKey]), [...sourcePath, sourceKey])
+    } else if (propertyStateKeyTag(key.tag) !== undefined) {
+      if (key.kind !== "scalar") throw new YAMLException("Режим свойства поддерживает только скалярный ключ")
+      tags.push({ kind: "propertyState", containerPath: path, key: key.value, tag: propertyStateKeyTag(key.tag)! })
+      key.tag = "tag:yaml.org,2002:str"
+      key.style.tagged = false
     } else if (key.tag.startsWith("!xml/")) {
       if (key.tag !== "!xml/reference") throw new YAMLException(`Тег ${key.tag} недопустим для ключа YAML`)
       if (key.kind !== "scalar") throw new YAMLException("!xml/reference поддерживает только скалярный ключ")
-      tags.push({ containerPath: path, key: key.value })
+      tags.push({ kind: "xmlReference", containerPath: path, key: key.value })
       key.tag = "tag:yaml.org,2002:str"
       key.style.tagged = false
     }
@@ -241,6 +252,11 @@ function collectYamlTags(
     collectValueAnnotation(value, path, nextKey, annotations)
     collectYamlTags(value, [...path, nextKey], nextSourcePath, tags, annotations, sourcePaths, taggedKeySources)
   }
+}
+
+function propertyStateKeyTag(tag: string): "проверять" | "изменять" | undefined {
+  if (tag === "!nkdkcheck") return "проверять"
+  return tag === "!nkdkextx" ? "изменять" : undefined
 }
 
 function collectValueAnnotation(
@@ -337,10 +353,12 @@ function applyParsedMappingKeyTags(
   data: unknown,
   tags: readonly ParsedMappingKeyTag[],
 ): void {
-  for (const { containerPath, key } of tags) {
+  for (const entry of tags) {
+    const { containerPath, key } = entry
     const container = valueAtPath(data, containerPath)
     if (isRecord(container) && Object.prototype.hasOwnProperty.call(container, key)) {
-      markYAMLMappingKeyTag(container, key, "xml/reference")
+      if (entry.kind === "xmlReference") markYAMLMappingKeyTag(container, key, "xml/reference")
+      else markYAMLScalarTag(container, key, entry.tag)
     }
   }
 }

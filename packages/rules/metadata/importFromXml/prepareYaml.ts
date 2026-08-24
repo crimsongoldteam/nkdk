@@ -237,7 +237,7 @@ export async function prepareImportYaml(params: {
     }))
     const proofAudit = captureXmlAnomalyProofAudit({
       sources: proofSources,
-      boundaries: deriveXmlAnomalyProofBoundaries({ sources: proofSources, audit, rule }),
+      boundaries: deriveXmlAnomalyProofBoundaries({ sources: proofSources, audit, rule, data: result.yaml }),
     })
 
     params.profiler?.record("Подготовка импорта конфигурации", "Сбор локальных индексов", {

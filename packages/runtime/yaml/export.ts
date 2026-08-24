@@ -120,6 +120,7 @@ function prepareForDump(
     for (const [key, item] of prepared) {
       if (item.doubleQuoted === true) markDoubleQuotedScalar(data, key)
     }
+    copyYAMLScalarTags(value, dumpValue)
     copyYAMLScalarTags(value, data)
     copyYAMLMappingTag(value, dumpValue)
     copyYAMLMappingTag(value, data)
@@ -171,6 +172,10 @@ function prepareChildForDump(
     data: prepared.data,
     ...(prepared.doubleQuoted === true ? { doubleQuoted: true } : {}),
   }
+}
+
+function isPropertyStateTag(tag: unknown): tag is "проверять" | "изменять" {
+  return tag === "проверять" || tag === "изменять"
 }
 
 function prepareXMLAnomalyPayload(
@@ -248,7 +253,7 @@ export function serializeYAMLDocument(
     forceQuotes: false,
     quoteStyle: "double",
     transform(documents) {
-      applyYAMLMappingKeyTagsToAST(documents, prepared.dumpValue)
+      applyYAMLMappingKeyTagsToAST(documents, prepared.dumpValue, dumpAnnotations)
       applyXmlAnomalyAnnotationsToAST(documents, prepared.dumpValue, prepared.data, dumpAnnotations)
     },
   })
@@ -325,16 +330,21 @@ function applyXmlAnomalyTag(node: Node, annotation: XmlAnomalyAnnotation, value?
 function applyYAMLMappingKeyTagsToAST(
   documents: Document[],
   source: unknown,
+  annotations: XmlAnomalyAnnotations,
 ): void {
   const document = documents[0]
-  if (document !== undefined) applyYAMLMappingKeyTagsToNode(document.contents, source)
+  if (document !== undefined) applyYAMLMappingKeyTagsToNode(document.contents, source, annotations)
 }
 
-function applyYAMLMappingKeyTagsToNode(node: Node | null, source: unknown): void {
+function applyYAMLMappingKeyTagsToNode(
+  node: Node | null,
+  source: unknown,
+  annotations: XmlAnomalyAnnotations,
+): void {
   if (node === null || node.kind === "alias") return
   if (node.kind === "sequence") {
     if (!Array.isArray(source)) return
-    node.items.forEach((item, index) => applyYAMLMappingKeyTagsToNode(item, source[index]))
+    node.items.forEach((item, index) => applyYAMLMappingKeyTagsToNode(item, source[index], annotations))
     return
   }
   if (node.kind !== "mapping" || !isRecord(source)) return
@@ -342,6 +352,11 @@ function applyYAMLMappingKeyTagsToNode(node: Node | null, source: unknown): void
   for (const item of node.items) {
     if (item.key.kind !== "scalar") continue
     const key = item.key.value
+    const propertyState = yamlScalarTagAt(source, key)
+    if (isPropertyStateTag(propertyState) && annotations.at(source, key) !== undefined) {
+      item.key.tag = propertyState === "проверять" ? "!nkdkcheck" : "!nkdkextx"
+      item.key.style.tagged = true
+    }
     const tag = yamlMappingKeyTagAt(source, key)
     if (tag !== undefined) {
       if (tag !== "xml/reference") {
@@ -351,7 +366,7 @@ function applyYAMLMappingKeyTagsToNode(node: Node | null, source: unknown): void
       item.key.style.tagged = true
       if (key === "") item.key.style.doubleQuoted = true
     }
-    applyYAMLMappingKeyTagsToNode(item.value, source[key])
+    applyYAMLMappingKeyTagsToNode(item.value, source[key], annotations)
   }
 }
 

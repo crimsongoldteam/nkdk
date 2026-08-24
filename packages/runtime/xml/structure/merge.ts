@@ -22,6 +22,8 @@ export interface XmlRawMergeBoundary {
   readonly occurrencePath?: readonly (number | null)[]
   /** Зарегистрированная транспортная замена уже существующего XML-атрибута. */
   readonly attributeOverride?: { readonly name: string; readonly value: string }
+  /** Порядок XML-sibling для вставки поднятой raw-границы. */
+  readonly siblingOrder?: readonly string[]
 }
 
 type RawPathTerminal = "attributes" | "order"
@@ -42,6 +44,7 @@ type PlannedBoundary =
       readonly path: CanonicalRawPath
       readonly kind: "element"
       readonly fragment: XmlRawFragment
+      readonly siblingOrder?: readonly string[]
     }
   | {
       readonly path: CanonicalRawPath
@@ -171,6 +174,7 @@ function planBoundaries(
           nodes: readdressXmlElementNodes(boundary.fragment.nodes),
           suppressOrdinaryOutput: boundary.suppressOrdinaryOutput,
         },
+        ...(boundary.siblingOrder === undefined ? {} : { siblingOrder: boundary.siblingOrder }),
       }
     }
     if (path.terminal === "attributes") {
@@ -190,6 +194,7 @@ function planBoundaries(
         suppressOrdinaryOutput: boundary.suppressOrdinaryOutput,
         placement: boundary.placement,
       }),
+      ...(boundary.siblingOrder === undefined ? {} : { siblingOrder: boundary.siblingOrder }),
     }
   })
 }
@@ -344,12 +349,14 @@ function applyElementBoundary(
     throw new Error(`Raw-вставка ${boundary.path.source} пересекается с обычным выводом`)
   }
   location.replace([...retained, ...inserted])
+  if (boundary.siblingOrder !== undefined) location.reorder(boundary.siblingOrder)
 }
 
 interface ElementLocation {
   readonly elements: readonly MutableXmlElementNode[]
   readonly siblings: () => readonly MutableXmlElementNode[]
   readonly replace: (elements: readonly MutableXmlElementNode[]) => void
+  readonly reorder: (order: readonly string[]) => void
 }
 
 function resolveElementLocation(
@@ -368,6 +375,7 @@ function resolveElementLocation(
     elements: rootMatches,
     siblings: () => roots,
     replace: (elements) => replaceNamedElements(roots, path.rootName, elements),
+    reorder: () => {},
   }
 }
 
@@ -406,6 +414,9 @@ function childLocation(
     siblings: () => parent.content.filter(
       (node): node is MutableXmlElementNode => node.type === "element"
     ),
+    reorder: (order) => {
+      parent.content = reorderStructuralContentPreservingText(parent.content, order)
+    },
     replace: (elements) => {
       if (occurrence === null) {
         const firstIndex = parent.content.findIndex(

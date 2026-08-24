@@ -42,6 +42,13 @@ export async function executeImportControlExport(params: {
   readonly readSource: (sourcePath: string) => Promise<string>
   readonly ordinaryExporter?: typeof prepareFullXmlSyncAssignment
 }): Promise<ProveXmlAnomalyBoundariesResult> {
+  if (params.annotations.root?.kind === "raw") {
+    return {
+      data: params.data,
+      annotations: params.annotations,
+      rereadSourcePaths: [],
+    }
+  }
   const assignment = projectControlAssignment(params.assignment, params.topology)
   const context = controlExportContext(params.context)
   controlExportCountValueForTests += 1
@@ -157,11 +164,12 @@ function matchSource(
   targetXmlPath: string,
 ): ImportXmlInput | undefined {
   const candidates = sources.filter((source) => source.role === role)
-  if (candidates.length <= 1) return candidates[0]
+  if (role !== "property" && candidates.length === 1) return candidates[0]
   const normalizedTarget = targetXmlPath.replaceAll("\\", "/")
-  return candidates.find(({ sourcePath }) => {
+  const matches = candidates.filter(({ sourcePath }) => {
     const normalizedSource = sourcePath.replaceAll("\\", "/")
-    return normalizedSource.endsWith(normalizedTarget)
-      || normalizedSource.endsWith(`/${normalizedTarget.split("/").at(-1) ?? ""}`)
+    return normalizedSource === normalizedTarget
+      || normalizedSource.endsWith(`/${normalizedTarget}`)
   })
+  return matches.length === 1 ? matches[0] : undefined
 }

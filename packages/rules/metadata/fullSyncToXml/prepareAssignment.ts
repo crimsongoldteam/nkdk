@@ -113,10 +113,9 @@ function prepareTopologyAssignmentDocuments(
     preparedYamlFile: params.preparedYamlFile,
     rootRule: effectiveAssignmentNode.itemRule,
     itemName: params.assignment.itemName,
+    mode: params.xmlAnomalyRawFallback === false ? "projectionOnly" : "preserve",
   })
-  const rawBoundaries = params.xmlAnomalyRawFallback === false
-    ? []
-    : anomalyAssignment.rawBoundaries
+  const rawBoundaries = anomalyAssignment.rawBoundaries
   const outputs = params.assignment.potentialOutputs
   const context = withTopologyMetadataTargetOwners(params)
   const outputsByCapability = Map.groupBy(outputs, (output) => output.prepareCapabilityId)

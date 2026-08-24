@@ -584,7 +584,7 @@ function collectPendingReferences(params: {
     const yamlPath = [...params.yamlPath, ...property.yamlPath]
     const hasAnomaly = hasXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)
     if (hasRawXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)) continue
-    const sourceValue = valueAtPath(record, property.yamlPath)
+    const sourceValue = valueAtLogicalPath(record, property.yamlPath, params.parsed)
     if (sourceValue === undefined) continue
     const value = withoutRawDescendants(sourceValue, params.parsed)
     const rulePath = [
@@ -1342,14 +1342,7 @@ function hasXmlAnomalyAtPath(
   parsed: ParsedYaml,
   path: readonly (string | number)[],
 ): boolean {
-  if (parsed.annotations.root() !== undefined) return true
-  let parent = root
-  for (const segment of path) {
-    if (typeof parent !== "object" || parent === null) return false
-    if (parsed.annotations.at(parent, segment) !== undefined) return true
-    parent = (parent as Record<string | number, unknown>)[segment]
-  }
-  return false
+  return hasXmlAnnotationAtPath(root, parsed, path, () => true)
 }
 
 function hasRawXmlAnomalyAtPath(
@@ -1357,14 +1350,58 @@ function hasRawXmlAnomalyAtPath(
   parsed: ParsedYaml,
   path: readonly (string | number)[],
 ): boolean {
-  if (parsed.annotations.root()?.kind === "raw") return true
+  return hasXmlAnnotationAtPath(root, parsed, path, (annotation) => annotation.kind === "raw")
+}
+
+function hasXmlAnnotationAtPath(
+  root: unknown,
+  parsed: ParsedYaml,
+  path: readonly (string | number)[],
+  matches: (annotation: NonNullable<ReturnType<ParsedYaml["annotations"]["root"]>>) => boolean,
+): boolean {
+  const rootAnnotation = parsed.annotations.root()
+  if (rootAnnotation !== undefined && matches(rootAnnotation)) return true
   let parent = root
   for (const segment of path) {
     if (typeof parent !== "object" || parent === null) return false
-    if (parsed.annotations.at(parent, segment)?.kind === "raw") return true
-    parent = (parent as Record<string | number, unknown>)[segment]
+    const runtimeSegment = runtimePathSegment(parent, segment, parsed)
+    const valueAnnotation = parsed.annotations.at(parent, runtimeSegment)
+    if (valueAnnotation !== undefined && matches(valueAnnotation)) return true
+    const keyAnnotation = typeof runtimeSegment === "string"
+      ? parsed.annotations.keyAt(parent, runtimeSegment)
+      : undefined
+    if (keyAnnotation !== undefined && matches(keyAnnotation)) return true
+    parent = (parent as Record<string | number, unknown>)[runtimeSegment]
   }
   return false
+}
+
+function valueAtLogicalPath(
+  value: Record<string, unknown>,
+  path: readonly (string | number)[],
+  parsed: ParsedYaml,
+): unknown {
+  let current: unknown = value
+  for (const segment of path) {
+    if (typeof current !== "object" || current === null) return undefined
+    const runtimeSegment = runtimePathSegment(current, segment, parsed)
+    current = (current as Record<string | number, unknown>)[runtimeSegment]
+  }
+  return current
+}
+
+function runtimePathSegment(
+  parent: object,
+  segment: string | number,
+  parsed: ParsedYaml,
+): string | number {
+  if (typeof segment === "number" || Array.isArray(parent)) return segment
+  const record = parent as Record<string, unknown>
+  if (Object.prototype.hasOwnProperty.call(record, segment)) return segment
+  const matches = Object.keys(record).filter((runtimeKey) =>
+    parsed.annotations.keyAt(parent, runtimeKey)?.logicalKey === segment
+  )
+  return matches.length === 1 ? matches[0]! : segment
 }
 
 function withoutRawDescendants(value: unknown, parsed: ParsedYaml): unknown {

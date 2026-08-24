@@ -2,14 +2,23 @@ import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
   parseXmlDocumentWithSaxes,
+  parseMetadataYaml,
+  restoreXmlAnomalyAnnotations,
+  serializeYAMLDocument,
   snapshotXmlAnomalyAnnotations,
   type XmlElementNode,
 } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import "../../tests/metadataExecutionContext"
 import { MetadataCommonFormRules } from "../appliedObjects/metadataCommonForm/rules"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { mockContextToXML } from "../../tests/mockContext"
+import {
+  buildPreparedAssignmentXml,
+  prepareXmlAnomalyAssignment,
+} from "../fullSyncToXml/xmlAnomalyAssignment"
 import {
   captureXmlAnomalyProofAudit,
   deriveXmlAnomalyProofBoundaries,
@@ -174,6 +183,47 @@ describe("XML anomaly proof", () => {
     }))
   })
 
+  it("планирует отсутствующее поле формы через dynamic resolveItemRule", () => {
+    const document = parseXmlDocumentWithSaxes([
+      '<Form><ChildItems><InputField name="Поле" id="id-1">',
+      "<Visible>true</Visible>",
+      "</InputField></ChildItems></Form>",
+    ].join(""))
+    const root = document.roots[0]!
+    const childItems = root.content.find(
+      (node): node is XmlElementNode => node.type === "element" && node.name === "ChildItems",
+    )!
+    const input = childItems.content.find(
+      (node): node is XmlElementNode => node.type === "element" && node.name === "InputField",
+    )!
+    const audit = createXmlImportAuditSession(document.roots)
+    audit.claim(input, {
+      itemType: "InputField",
+      yamlPath: ["Элементы", "Поле"],
+      rulePath: [{ propertyKey: "childItems" }],
+    })
+
+    const boundaries = deriveXmlAnomalyProofBoundaries({
+      sources: [{ sourcePath: "/source/Ext/Form.xml", role: "body", document }],
+      audit,
+      rule: ClientApplicationFormRules,
+      data: {
+        Элементы: {
+          Поле: { Вид: "ПолеВвода", Видимость: true },
+        },
+      },
+    })
+
+    expect(boundaries).toContainEqual(expect.objectContaining({
+      sourcePath: "/source/Ext/Form.xml",
+      sourceRole: "body",
+      xmlPath: "/Form[1]/ChildItems[1]/InputField[1]/DataPath[1]",
+      yamlPath: ["Элементы", "Поле", "ПутьКДанным"],
+      rulePath: ["childItems", "dataPath"],
+      presentInSource: false,
+    }))
+  })
+
   it("сохраняет между проходами только хэши, координаты и пути", () => {
     const document = parseXmlDocumentWithSaxes(
       "<Root><Flag>true</Flag><Text>ok</Text><Count>12</Count></Root>",
@@ -203,27 +253,16 @@ describe("XML anomaly proof", () => {
     const document = parseXmlDocumentWithSaxes(
       "<Root><Wrapper><Inner><Value>01</Value></Inner><Sibling>ok</Sibling></Wrapper></Root>",
     )
-    const value = [...document.roots[0]!.content]
-      .filter((node) => node.type === "element")[0]!
-      .content.filter((node) => node.type === "element")[0]!
-      .content.filter((node) => node.type === "element")[0]!
-    const auditSession = createXmlImportAuditSession(document.roots)
-    auditSession.claim(value, {
-      itemType: "Owner",
-      propertyKey: "value",
-      yamlPath: ["Значение"],
-      rulePath: [{ propertyKey: "value" }],
-    })
-    const [derived] = deriveXmlAnomalyProofBoundaries({
-      sources: [{ sourcePath, role: "metadata", document }],
-      audit: auditSession,
-      rule: {
+    const [derived] = deriveClaimedValueBoundary(
+      document,
+      ["Wrapper", "Inner", "Value"],
+      {
         itemType: "Owner",
         properties: {
           value: { type: "string", yaml: "Значение", xml: "Value", xmlParents: ["Wrapper", "Inner"] },
         },
       },
-    })
+    )
     const captured = captureXmlAnomalyProofAudit({
       sources: [{ sourcePath, role: "metadata", document }],
       boundaries: [derived!],
@@ -439,6 +478,110 @@ describe("XML anomaly proof", () => {
     ])
   })
 
+  it("сохраняет поднятую compiled XML-границу через YAML serialize→parse и не поглощает sibling", async () => {
+    const source = '<Root><Wrapper marker="x"><Value>01</Value></Wrapper><Sibling>ok</Sibling></Root>'
+    const exported = "<Root><Wrapper><Value>1</Value></Wrapper><Sibling>ok</Sibling></Root>"
+    const sourceDocument = parseXmlDocumentWithSaxes(source)
+    const value = nestedElement(sourceDocument.roots[0]!, ["Wrapper", "Value"])
+    const rule = {
+      itemType: "SerializableLiftOwner",
+      properties: {
+        value: { type: "string", yaml: "Значение", xml: "Value", xmlParents: ["Wrapper"] as string[] },
+        sibling: { type: "string", yaml: "Сосед", xml: "Sibling" },
+      },
+    } as const satisfies MetadataItemRule
+    const auditSession = createXmlImportAuditSession(sourceDocument.roots)
+    auditSession.claim(value, {
+      itemType: rule.itemType,
+      propertyKey: "value",
+      yamlPath: ["Значение"],
+      rulePath: [{ propertyKey: "value" }],
+    })
+    const [derived] = deriveXmlAnomalyProofBoundaries({
+      sources: [{ sourcePath, role: "metadata", document: sourceDocument }],
+      audit: auditSession,
+      rule,
+      data: { Значение: 1, Сосед: "ok" },
+    })
+    const result = await proveXmlAnomalyBoundaries({
+      data: { Значение: 1, Сосед: "ok" },
+      annotations: { version: 1, entries: [] },
+      audit: captureXmlAnomalyProofAudit({
+        sources: [{ sourcePath, role: "metadata", document: sourceDocument }],
+        boundaries: [derived!],
+      }),
+      exported: [{ role: "metadata", document: parseXmlDocumentWithSaxes(exported) }],
+      readSource: async () => source,
+    })
+
+    expect(result.data).toEqual({
+      Wrapper: { _marker: "x", Value: "01" },
+      Сосед: "ok",
+    })
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      parentPath: [],
+      key: "Wrapper",
+      annotation: expect.objectContaining({ kind: "raw" }),
+    }))
+
+    const serialized = serializeYAMLDocument(
+      result.data,
+      restoreXmlAnomalyAnnotations(result.data, result.annotations),
+    )
+    const reparsed = parseMetadataYaml(serialized.text)
+    const anomalyAssignment = prepareXmlAnomalyAssignment({
+      preparedYamlFile: {
+        projectPath: "Объект/Один/Свойства.yaml",
+        filePath: "/project/Объект/Один/Свойства.yaml",
+        role: "properties",
+        owner: { dir: "Объект", name: "Один" },
+        data: reparsed.data,
+        annotations: reparsed.annotations,
+        syntaxDiagnostics: [],
+      },
+      rootRule: rule,
+      itemName: "Один",
+    })
+    const restored = buildPreparedAssignmentXml({
+      document: {
+        targetXmlPath: "Root.xml",
+        xml: { Root: { Sibling: "ok" } },
+        deferred: [],
+        rootRule: rule,
+        rawBoundaries: anomalyAssignment.rawBoundaries,
+      },
+      context: mockContextToXML(),
+    })
+    const restoredDocument = parseXmlDocumentWithSaxes(restored)
+    expect(restoredDocument.compatibility.Root).toMatchObject(sourceDocument.compatibility.Root as object)
+    expect(restoredDocument.roots[0]!.content
+      .filter((node): node is XmlElementNode => node.type === "element")
+      .map(({ name }) => name)).toEqual(["Wrapper", "Sibling"])
+  })
+
+  it("не поднимает raw на XML-родителя с независимым ordinary PropertyRule", async () => {
+    const document = parseXmlDocumentWithSaxes(
+      "<Root><Wrapper><Value>01</Value><Sibling>ok</Sibling></Wrapper></Root>",
+    )
+    const [derived] = deriveClaimedValueBoundary(
+      document,
+      ["Wrapper", "Value"],
+      {
+        itemType: "Owner",
+        properties: {
+          value: { type: "string", yaml: "Значение", xml: "Value", xmlParents: ["Wrapper"] },
+          sibling: { type: "string", yaml: "Сосед", xml: "Sibling", xmlParents: ["Wrapper"] },
+        },
+      },
+    )
+
+    await expect(selectXmlAnomalyRawLevel({
+      boundary: derived!,
+      annotations: { version: 1, entries: [] },
+      verify: async ({ xmlPath }) => xmlPath.endsWith("/Wrapper[1]"),
+    })).rejects.toThrow("ordinary PropertyRule")
+  })
+
   it("не повторяет подъём после несовпавшего родителя", async () => {
     const candidate = proofBoundary(escalationLevels())
     const visited: string[] = []
@@ -577,4 +720,35 @@ function escalationLevels(): NonNullable<XmlAnomalyProofBoundary["levels"]> {
     level("/Root[1]/Wrapper[1]", ["Объект"]),
     level("/Root[1]", []),
   ]
+}
+
+function deriveClaimedValueBoundary(
+  document: ReturnType<typeof parseXmlDocumentWithSaxes>,
+  elementPath: readonly string[],
+  rule: MetadataItemRule,
+) {
+  const audit = createXmlImportAuditSession(document.roots)
+  audit.claim(nestedElement(document.roots[0]!, elementPath), {
+    itemType: rule.itemType,
+    propertyKey: "value",
+    yamlPath: ["Значение"],
+    rulePath: [{ propertyKey: "value" }],
+  })
+  return deriveXmlAnomalyProofBoundaries({
+    sources: [{ sourcePath, role: "metadata", document }],
+    audit,
+    rule,
+  })
+}
+
+function nestedElement(root: XmlElementNode, path: readonly string[]): XmlElementNode {
+  let current = root
+  for (const name of path) {
+    const child = current.content.find(
+      (node): node is XmlElementNode => node.type === "element" && node.name === name,
+    )
+    if (child === undefined) throw new Error(`Не найден XML-элемент ${name}`)
+    current = child
+  }
+  return current
 }

@@ -2,6 +2,7 @@ import {
   parseMetadataYaml,
   parseXmlDocumentWithSaxes,
   xmlAnnotatedMappingEntries,
+  yamlScalarTagAt,
   type XmlAnomalyRuntime,
 } from "@nkdk/runtime"
 import {
@@ -129,6 +130,41 @@ const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
 ))
 
 describe("единое восстановление XML-аномалий assignment", () => {
+  it("projection-only исключает compact/expanded/root raw без генератора и raw plans", () => {
+    const runtime = anomalyRuntime({
+      generateCompactRaw: () => { throw new Error("projection-only не должен запускать генератор") },
+    })
+    const parsed = parseMetadataYaml([
+      "Компактное: !xml/raw",
+      'Развернутое: !xml/raw "01"',
+      "Важное: !xml/important keep",
+    ].join("\n"))
+
+    const prepared = prepareParsedAnomalies(parsed, { runtime, mode: "projectionOnly" })
+
+    expect(prepared.preparedYamlFile.data).toEqual({ Важное: "keep" })
+    expect(prepared.rawBoundaries).toEqual([])
+
+    const root = parseMetadataYaml("!xml/raw\nБудущее: value\n")
+    const rootPrepared = prepareParsedAnomalies(root, { runtime, mode: "projectionOnly" })
+    expect(rootPrepared.preparedYamlFile.data).toEqual({})
+    expect(rootPrepared.rawBoundaries).toEqual([])
+  })
+
+  it("projection-only переносит аннотацию sequence после исключённого raw на новый индекс", () => {
+    const parsed = parseMetadataYaml([
+      "- !xml/raw one",
+      "- !xml/important two",
+    ].join("\n"))
+
+    const prepared = prepareParsedAnomalies(parsed, { mode: "projectionOnly" })
+
+    expect(prepared.preparedYamlFile.data).toEqual(["two"])
+    expect(prepared.preparedYamlFile.annotations.at(prepared.preparedYamlFile.data as object, 0)).toMatchObject({
+      kind: "important",
+    })
+  })
+
   it("передаёт invalid/important обычному экспорту и извлекает raw до fromYAML", () => {
     const yaml = [
       "Неверное: !xml/invalid bad",
@@ -517,6 +553,30 @@ describe("единое восстановление XML-аномалий assignm
       expect.objectContaining({ path: "Expanded", value: "01" }),
     ])
   })
+
+  it("экспортирует режим свойства на ключе и anomaly на значении", () => {
+    const prepared = prepareAnomalies([
+      "!изменять Неверное: !xml/invalid bad",
+      '!проверять Развернутое: !xml/raw "01"',
+    ].join("\n"), anomalyRuntime({ generateCompactRaw: () => undefined }))
+    const semantic = prepared.preparedYamlFile.data as Record<string, unknown>
+    const invalidKey = Object.keys(semantic)[0]!
+
+    expect(yamlScalarTagAt(semantic, invalidKey)).toBe("изменять")
+    expect(prepared.rawBoundaries).toEqual([
+      expect.objectContaining({ path: "Expanded", value: "01" }),
+    ])
+
+    const ordinary = convertMetadataItemFromYAMLToXML({
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: mockContextToXML(),
+      yaml: semantic,
+      annotations: prepared.preparedYamlFile.annotations,
+      rule,
+      outputs: [{ key: "owner" }],
+    }).outputs.get("owner")
+    expect(ordinary).toMatchObject({ Invalid: "bad" })
+  })
 })
 
 function exportFormWithAnomalies(lines: readonly string[]): string {
@@ -595,7 +655,19 @@ function prepareAnomalies(
   registries?: ReturnType<typeof createRuleRegistrySet>,
 ) {
   const parsed = parseMetadataYaml(yaml)
-  const prepare = () => prepareXmlAnomalyAssignment({
+  const prepare = () => prepareParsedAnomalies(parsed, { runtime, rootRule })
+  return registries === undefined ? prepare() : withRuleRegistrySet(registries, prepare)
+}
+
+function prepareParsedAnomalies(
+  parsed: ReturnType<typeof parseMetadataYaml>,
+  options: {
+    readonly runtime?: XmlAnomalyRuntime
+    readonly rootRule?: MetadataItemRule
+    readonly mode?: "preserve" | "projectionOnly"
+  },
+) {
+  return prepareXmlAnomalyAssignment({
     preparedYamlFile: {
       projectPath: "Объект/Один/Свойства.yaml",
       filePath: "/project/Объект/Один/Свойства.yaml",
@@ -605,11 +677,11 @@ function prepareAnomalies(
       annotations: parsed.annotations,
       syntaxDiagnostics: [],
     },
-    rootRule,
+    rootRule: options.rootRule ?? rule,
     itemName: "Один",
-    runtime,
+    ...(options.runtime === undefined ? {} : { runtime: options.runtime }),
+    ...(options.mode === undefined ? {} : { mode: options.mode }),
   })
-  return registries === undefined ? prepare() : withRuleRegistrySet(registries, prepare)
 }
 
 function exportCollectionOwner(prepared: ReturnType<typeof prepareAnomalies>) {

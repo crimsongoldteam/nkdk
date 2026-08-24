@@ -60,17 +60,41 @@ describe("executeImportControlExport", () => {
 
     resetControlExportCountForTests()
     const assignment = { ...catalogAssignment(), targetProjectPath: "Неизвестно/Свойства.yaml" }
-    await expect(executeImportControlExport({
+    await expect(executeCatalogControlExport({
       assignment,
       data: {},
       annotations: { version: 1, entries: [] },
       audit: { sources: [], boundaries: [] },
-      topology,
-      context: mockXmlImportContext(),
       index: createLocalConfigurationIndexReader(new Map()),
-      composition: catalogComposition(),
       readSource: async () => "",
     })).rejects.toThrow("content topology")
+    expect(controlExportCountForTests()).toBe(0)
+  })
+
+  it("не запускает ordinary exporter для корневого raw", async () => {
+    const ordinaryExporter = vi.fn(() => { throw new Error("root raw не должен экспортироваться") })
+    const annotations = {
+      version: 1 as const,
+      root: { kind: "raw" as const, occurrence: 1, target: "root" as const },
+      entries: [],
+    }
+
+    const result = await executeCatalogControlExport({
+      assignment: catalogAssignment(),
+      data: { Future: "value" },
+      annotations,
+      audit: { sources: [], boundaries: [] },
+      index: createLocalConfigurationIndexReader(new Map()),
+      readSource: async () => { throw new Error("root raw не должен перечитывать source") },
+      ordinaryExporter,
+    })
+
+    expect(result).toEqual({
+      data: { Future: "value" },
+      annotations,
+      rereadSourcePaths: [],
+    })
+    expect(ordinaryExporter).not.toHaveBeenCalled()
     expect(controlExportCountForTests()).toBe(0)
   })
 
@@ -133,6 +157,38 @@ describe("executeImportControlExport", () => {
       readdir.mockRestore()
       process.chdir(cwd)
     }
+  })
+
+  it("связывает property source только с точным output, а не со всеми необязательными", async () => {
+    const assignment = catalogAssignment()
+    const helpSourcePath = "/source/Catalogs/Контрагенты/Ext/Help.xml"
+    const propertyTargets: string[] = []
+    const ordinaryExporter = vi.fn((params: Parameters<typeof prepareFullXmlSyncAssignment>[0]) => {
+      propertyTargets.push(...params.assignment.potentialOutputs
+        .filter(({ role }) => role === "property")
+        .map(({ targetXmlPath }) => targetXmlPath))
+      throw new Error("projection captured")
+    })
+
+    await expect(executeCatalogControlExport({
+      assignment: {
+        ...assignment,
+        xmlFiles: [
+          ...assignment.xmlFiles,
+          { role: "property", sourcePath: helpSourcePath },
+        ],
+      },
+      data: {},
+      annotations: { version: 1, entries: [] },
+      audit: { sources: [], boundaries: [] },
+      index: createLocalConfigurationIndexReader(new Map()),
+      readSource: async () => { throw new Error("projection не должен читать файлы") },
+      ordinaryExporter,
+    })).rejects.toThrow("projection captured")
+
+    expect(propertyTargets).toEqual([
+      expect.stringMatching(/Catalogs\/Контрагенты\/Ext\/Help\.xml$/u),
+    ])
   })
 
   it("локализует неканоническое число 01 и перечитывает только его source", async () => {
@@ -221,18 +277,26 @@ async function executePreparedCatalogControlExport(params: {
   readSource: (sourcePath: string) => Promise<string>
   ordinaryExporter?: typeof prepareFullXmlSyncAssignment
 }) {
-  return executeImportControlExport({
+  return executeCatalogControlExport({
     assignment: params.prepared.assignment,
     data: params.data ?? params.prepared.yaml,
     annotations: params.annotations
       ?? snapshotXmlAnomalyAnnotations(params.prepared.yaml, params.prepared.annotations),
     audit: params.prepared.proofAudit,
-    topology,
-    context: mockXmlImportContext(),
     index: params.index,
-    composition: catalogComposition(),
     readSource: params.readSource,
     ...(params.ordinaryExporter === undefined ? {} : { ordinaryExporter: params.ordinaryExporter }),
+  })
+}
+
+function executeCatalogControlExport(
+  params: Omit<Parameters<typeof executeImportControlExport>[0], "topology" | "context" | "composition">,
+) {
+  return executeImportControlExport({
+    ...params,
+    topology,
+    context: mockXmlImportContext(),
+    composition: catalogComposition(),
   })
 }
 

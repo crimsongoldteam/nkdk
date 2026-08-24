@@ -7,7 +7,7 @@ import { parseMetadataYaml } from "./parseMetadataYaml"
 import { markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "./scalarTags"
 import { copyYAMLMappingTag, yamlMappingTagOf } from "./mappingTags"
 import { markYAMLMappingKeyTag, yamlMappingKeyTagAt } from "./mappingKeyTags"
-import { createXmlAnomalyAnnotations } from "./xmlAnomalyAnnotations"
+import { createXmlAnomalyAnnotations, xmlAnnotatedMappingEntries } from "./xmlAnomalyAnnotations"
 
 describe("exportToYAML", () => {
   it.each([
@@ -267,18 +267,105 @@ describe("exportToYAML", () => {
     expect(parseMetadataYaml(serialized.text).data).toEqual(parsed.data)
   })
 
-  it("ставит новую XML-аннотацию выше прежнего скалярного тега", () => {
-    const parsed = parseMetadataYaml("Ссылка: !xml/reference Catalog.Товары")
-    const data = parsed.data as Record<string, unknown>
-    data.Ссылка = null
+  it.each(["raw", "invalid", "important"] as const)(
+    "сохраняет !xml/%s и режим скалярного свойства на разных YAML-узлах",
+    (kind) => {
+    const data = { Ссылка: "Catalog.Товары" }
+    markYAMLScalarTag(data, "Ссылка", "проверять")
     const annotations = createXmlAnomalyAnnotations()
     annotations.set(data, "Ссылка", {
-      kind: "raw",
+      kind,
       occurrence: 1,
       target: "value",
     })
 
-    expect(serializeYAMLDocument(data, annotations).text).toBe("Ссылка: !xml/raw null")
+    const serialized = serializeYAMLDocument(data, annotations)
+    const reparsed = parseMetadataYaml(serialized.text)
+    const runtimeKey = Object.keys(reparsed.data as object)[0]!
+
+    expect(serialized.text).toBe(`!проверять Ссылка: !xml/${kind} Catalog.Товары`)
+    expect(reparsed.data).toEqual(data)
+    expect(reparsed.annotations.at(reparsed.data as object, runtimeKey)).toMatchObject({
+      kind,
+      target: "value",
+    })
+    expect(yamlScalarTagAt(reparsed.data, runtimeKey)).toBe("проверять")
+  })
+
+  it("сохраняет compact raw и режим свойства", () => {
+    const data = { Компактный: undefined }
+    markYAMLScalarTag(data, "Компактный", "проверять")
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(data, "Компактный", { kind: "raw", occurrence: 1, target: "value" })
+
+    const serialized = serializeYAMLDocument(data, annotations)
+    const reparsed = parseMetadataYaml(serialized.text)
+
+    expect(serialized.text).toBe("!проверять Компактный: !xml/raw")
+    expect(reparsed.data).toEqual(data)
+    expect(yamlScalarTagAt(reparsed.data, "Компактный")).toBe("проверять")
+    expect(reparsed.annotations.at(reparsed.data as object, "Компактный")).toMatchObject({ kind: "raw" })
+  })
+
+  it("сохраняет important и режим пустого object-свойства", () => {
+    const data = { Объект: {} }
+    markYAMLScalarTag(data, "Объект", "изменять")
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(data, "Объект", { kind: "important", occurrence: 1, target: "value" })
+
+    const serialized = serializeYAMLDocument(data, annotations)
+    const reparsed = parseMetadataYaml(serialized.text)
+
+    expect(serialized.text).toBe("!изменять Объект: !xml/important {}")
+    expect(reparsed.data).toEqual(data)
+    expect(yamlScalarTagAt(reparsed.data, "Объект")).toBe("изменять")
+    expect(reparsed.annotations.at(reparsed.data as object, "Объект")).toMatchObject({ kind: "important" })
+  })
+
+  it("сохраняет аномалию object/sequence и вложенные режимы", () => {
+    const data = {
+      Объект: { Поле: "value" },
+      Список: ["one", "two"],
+    }
+    markYAMLScalarTag(data.Объект, "Поле", "изменять")
+    markYAMLScalarTag(data.Список, 1, "проверять")
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(data, "Объект", { kind: "important", occurrence: 1, target: "value" })
+    annotations.set(data, "Список", { kind: "invalid", occurrence: 1, target: "value" })
+
+    const serialized = serializeYAMLDocument(data, annotations)
+    const reparsed = parseMetadataYaml(serialized.text)
+    const reparsedData = reparsed.data as typeof data
+
+    expect(serialized.text).toContain("Объект: !xml/important")
+    expect(serialized.text).toContain("Поле: !изменять value")
+    expect(serialized.text).toContain("Список: !xml/invalid")
+    expect(serialized.text).toContain("- !проверять two")
+    expect(yamlScalarTagAt(reparsedData.Объект, "Поле")).toBe("изменять")
+    expect(yamlScalarTagAt(reparsedData.Список, 1)).toBe("проверять")
+  })
+
+  it("оставляет нумерацию дублей однозначной при режимах значений", () => {
+    const parsed = parseMetadataYaml([
+      "!xml/invalid Код: !проверять one",
+      "!xml/invalid/2 Код: !изменять two",
+    ].join("\n"))
+
+    const serialized = serializeYAMLDocument(parsed.data, parsed.annotations)
+    const reparsed = parseMetadataYaml(serialized.text)
+    const entries = xmlAnnotatedMappingEntries(
+      reparsed.data as Record<string, unknown>,
+      reparsed.annotations,
+    )
+    const keys = Object.keys(reparsed.data as object)
+
+    expect(serialized.text).toBe([
+      "!xml/invalid Код: !проверять one",
+      "!xml/invalid/2 Код: !изменять two",
+    ].join("\n"))
+    expect(entries).toEqual([["Код", "one"], ["Код", "two"]])
+    expect(yamlScalarTagAt(reparsed.data, keys[0]!)).toBe("проверять")
+    expect(yamlScalarTagAt(reparsed.data, keys[1]!)).toBe("изменять")
   })
 
   it("сохраняет компактный raw на корне документа", () => {

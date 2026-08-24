@@ -4,8 +4,11 @@ import {
   markXmlAnomalyExportClaim,
   markXmlAnomalyRawItem,
   mergeXmlRawFragments,
+  markYAMLScalarTag,
   parseXmlDocumentWithSaxes,
   readXmlAnomalyExportClaim,
+  yamlMappingKeys,
+  yamlScalarTagAt,
   xmlExport,
   type XmlAnomalyAnnotation,
   type XmlAnomalyAnnotations,
@@ -37,9 +40,21 @@ export function prepareXmlAnomalyAssignment(params: {
   readonly rootRule: MetadataItemRule
   readonly itemName: string
   readonly runtime?: XmlAnomalyRuntime
+  readonly mode?: "preserve" | "projectionOnly"
 }): PreparedXmlAnomalyAssignment {
   const rootAnnotation = params.preparedYamlFile.annotations.root()
   if (rootAnnotation?.kind === "raw") {
+    if (params.mode === "projectionOnly") {
+      return {
+        itemName: params.itemName,
+        rawBoundaries: [],
+        preparedYamlFile: {
+          ...params.preparedYamlFile,
+          data: {},
+          annotations: createXmlAnomalyAnnotations(),
+        },
+      }
+    }
     throw new Error("Корневой !xml/raw не поддерживается XML assignment")
   }
   if (
@@ -71,6 +86,7 @@ export function prepareXmlAnomalyAssignment(params: {
     rules,
     rawBoundaries,
     exportClaims,
+    mode: params.mode ?? "preserve",
   })
 
   if (rootAnnotation !== undefined) semanticAnnotations.setRoot(rootAnnotation)
@@ -124,17 +140,20 @@ function cloneSemanticValue(params: {
   readonly exportClaims: { nextId: number }
   readonly exportClaimId?: string
   readonly hiddenName?: HiddenSingletonNameBoundary
+  readonly mode: "preserve" | "projectionOnly"
 }): unknown {
   if (Array.isArray(params.value)) {
     const target: unknown[] = []
     for (let index = 0; index < params.value.length; index += 1) {
       const annotation = params.sourceAnnotations.at(params.value, index)
       if (annotation?.kind === "raw") {
+        if (params.mode === "projectionOnly") continue
         throw new Error(`!xml/raw в YAML sequence не имеет устойчивого XML-пути: /${[...params.yamlPath, index].join("/")}`)
       }
       const child = cloneSemanticValue({ ...params, value: params.value[index], yamlPath: [...params.yamlPath, index] })
       target.push(child)
-      if (annotation !== undefined) params.targetAnnotations.set(target, index, annotation)
+      const targetIndex = target.length - 1
+      copySequenceEntryMetadata(params.value, params.targetAnnotations, index, target, targetIndex, annotation)
     }
     return target
   }
@@ -149,8 +168,7 @@ function cloneSemanticValue(params: {
   }
   const keys = new Set([...Object.keys(params.value), ...annotationsByKey.keys()])
   for (const runtimeKey of keys) {
-    const keyAnnotation = params.sourceAnnotations.keyAt(params.value, runtimeKey)
-    const logicalKey = keyAnnotation?.logicalKey ?? runtimeKey
+    const { keyAnnotation, logicalKey, targetKey } = mappingEntryIdentity(params, target, runtimeKey)
     const annotation = annotationsByKey.get(runtimeKey)
     const property = propertyForYamlKey(params.rule, logicalKey)
     const sourceValue = Object.prototype.hasOwnProperty.call(params.value, runtimeKey)
@@ -159,8 +177,8 @@ function cloneSemanticValue(params: {
     if (keyAnnotation?.kind === "raw") {
       throw new Error("!xml/raw разрешён только на YAML-значении, но не на ключе")
     }
-
     if (annotation?.kind === "raw") {
+      if (params.mode === "projectionOnly") continue
       if (logicalKey === "Имя" && params.hiddenName !== undefined) {
         params.rawBoundaries.push(hiddenSingletonNameBoundary(params.hiddenName, sourceValue))
         continue
@@ -192,9 +210,11 @@ function cloneSemanticValue(params: {
           property,
           yamlPath: [...params.yamlPath, logicalKey],
         })
-    target[runtimeKey] = child
-    if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, runtimeKey, keyAnnotation)
-    if (annotation !== undefined) params.targetAnnotations.set(target, runtimeKey, annotation)
+    target[targetKey] = child
+    const scalarTag = yamlScalarTagAt(params.value, runtimeKey)
+    if (scalarTag !== undefined) markYAMLScalarTag(target, targetKey, scalarTag)
+    if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, targetKey, keyAnnotation)
+    if (annotation !== undefined) params.targetAnnotations.set(target, targetKey, annotation)
   }
   return target
 }
@@ -256,10 +276,12 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
     ?? params.descriptor.itemRule
   if (params.descriptor.yamlShape === "array") {
     if (!Array.isArray(params.value)) return params.value
+    const source = params.value
     const target: unknown[] = []
-    params.value.forEach((item, index) => {
-      const annotation = params.sourceAnnotations.at(params.value as unknown[], index)
+    source.forEach((item, index) => {
+      const annotation = params.sourceAnnotations.at(source, index)
       if (annotation?.kind === "raw") {
+        if (params.mode === "projectionOnly") return
         const exportClaimId = nextExportClaimId(params.exportClaims)
         const semanticItem = {}
         markXmlAnomalyRawItem(semanticItem, exportClaimId)
@@ -271,7 +293,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         }))
         return
       }
-      const exportClaimId = hasRawDescendant(item, params.sourceAnnotations)
+      const exportClaimId = params.mode === "preserve" && hasRawDescendant(item, params.sourceAnnotations)
         ? nextExportClaimId(params.exportClaims)
         : undefined
       const rule = params.descriptor.resolveItemRule?.({
@@ -291,7 +313,8 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
       })
       if (exportClaimId !== undefined) markXmlAnomalyExportClaim(child, exportClaimId)
       target.push(child)
-      if (annotation !== undefined) params.targetAnnotations.set(target, index, annotation)
+      const targetIndex = target.length - 1
+      copySequenceEntryMetadata(source, params.targetAnnotations, index, target, targetIndex, annotation)
     })
     return target
   }
@@ -302,11 +325,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
   const keys = new Set([...Object.keys(params.value), ...annotationsByKey.keys()])
   let index = 0
   for (const runtimeKey of keys) {
-    const keyAnnotation = params.sourceAnnotations.keyAt(params.value, runtimeKey)
-    if (keyAnnotation?.kind === "raw") {
-      throw new Error("!xml/raw разрешён только на YAML-значении, но не на ключе")
-    }
-    const logicalKey = keyAnnotation?.logicalKey ?? runtimeKey
+    const { keyAnnotation, logicalKey, targetKey } = mappingEntryIdentity(params, target, runtimeKey)
     const item = Object.prototype.hasOwnProperty.call(params.value, runtimeKey)
       ? params.value[runtimeKey]
       : undefined
@@ -315,7 +334,14 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
       propertyRule: params.property.propertyRule,
     }) ?? params.descriptor.nameFromYAMLKey?.(logicalKey) ?? logicalKey
     const annotation = annotationsByKey.get(runtimeKey)
+    if (keyAnnotation?.kind === "raw") {
+      throw new Error("!xml/raw разрешён только на YAML-значении, но не на ключе")
+    }
     if (annotation?.kind === "raw") {
+      if (params.mode === "projectionOnly") {
+        index += 1
+        continue
+      }
       const exportClaimId = nextExportClaimId(params.exportClaims)
       const semanticItem = {}
       markXmlAnomalyRawItem(semanticItem, exportClaimId)
@@ -330,7 +356,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         exportClaimId,
       }))
     } else {
-      const exportClaimId = hasRawDescendant(item, params.sourceAnnotations)
+      const exportClaimId = params.mode === "preserve" && hasRawDescendant(item, params.sourceAnnotations)
         ? nextExportClaimId(params.exportClaims)
         : undefined
       const rule = params.descriptor.resolveItemRule?.({
@@ -339,7 +365,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         index,
         propertyRule: params.property.propertyRule,
       }) ?? fallbackRule
-      target[runtimeKey] = cloneSemanticValue({
+      target[targetKey] = cloneSemanticValue({
         ...params,
         value: item,
         rule,
@@ -348,15 +374,47 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         exportClaimId,
         hiddenName: undefined,
       })
+      const scalarTag = yamlScalarTagAt(params.value, runtimeKey)
+      if (scalarTag !== undefined) markYAMLScalarTag(target, targetKey, scalarTag)
       if (exportClaimId !== undefined) {
-        markXmlAnomalyExportClaim(target[runtimeKey], exportClaimId)
+        markXmlAnomalyExportClaim(target[targetKey], exportClaimId)
       }
-      if (annotation !== undefined) params.targetAnnotations.set(target, runtimeKey, annotation)
+      if (annotation !== undefined) params.targetAnnotations.set(target, targetKey, annotation)
     }
-    if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, runtimeKey, keyAnnotation)
+    if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, targetKey, keyAnnotation)
     index += 1
   }
   return target
+}
+
+function copySequenceEntryMetadata(
+  source: readonly unknown[],
+  targetAnnotations: ReturnType<typeof createXmlAnomalyAnnotations>,
+  sourceIndex: number,
+  target: unknown[],
+  targetIndex: number,
+  annotation: XmlAnomalyAnnotation | undefined,
+): void {
+  const scalarTag = yamlScalarTagAt(source, sourceIndex)
+  if (scalarTag !== undefined) markYAMLScalarTag(target, targetIndex, scalarTag)
+  if (annotation !== undefined) targetAnnotations.set(target, targetIndex, annotation)
+}
+
+function mappingEntryIdentity(
+  params: Pick<Parameters<typeof cloneSemanticValue>[0], "value" | "sourceAnnotations">,
+  target: Record<string, unknown>,
+  runtimeKey: string,
+): {
+  readonly keyAnnotation: XmlAnomalyAnnotation | undefined
+  readonly logicalKey: string
+  readonly targetKey: string
+} {
+  const keyAnnotation = params.sourceAnnotations.keyAt(params.value as object, runtimeKey)
+  const logicalKey = keyAnnotation?.logicalKey ?? runtimeKey
+  const targetKey = keyAnnotation !== undefined && !Object.prototype.hasOwnProperty.call(target, logicalKey)
+    ? logicalKey
+    : runtimeKey
+  return { keyAnnotation, logicalKey, targetKey }
 }
 
 function hasRawDescendant(
@@ -371,6 +429,7 @@ function hasRawDescendant(
     : Object.keys(value)
   for (const key of keys) {
     if (annotations.at(value, key)?.kind === "raw") return true
+    if (typeof key === "string" && annotations.keyAt(value, key)?.kind === "raw") return true
     if (hasRawDescendant((value as Record<string | number, unknown>)[key], annotations, seen)) {
       return true
     }
@@ -416,13 +475,38 @@ function rawBoundary(params: {
       ...(params.exportClaimId === undefined ? {} : { exportClaimId: params.exportClaimId }),
     }
   }
+  const siblingOrder = params.property === undefined
+    ? rawSiblingOrder(params.ownerYaml, params.rule, params.logicalKey)
+    : undefined
   return {
     ...preparedPath(path),
     value: params.sourceValue,
     suppressOrdinaryOutput: !isTerminalPath(path),
+    ...(siblingOrder === undefined ? {} : { siblingOrder }),
     ...(params.property?.propertyRule.tag === undefined ? {} : { tag: params.property.propertyRule.tag }),
     ...(params.exportClaimId === undefined ? {} : { exportClaimId: params.exportClaimId }),
   }
+}
+
+function rawSiblingOrder(
+  ownerYaml: unknown,
+  rule: MetadataItemRule | undefined,
+  logicalKey: string,
+): readonly string[] | undefined {
+  if (!isRecord(ownerYaml) || rule === undefined) return undefined
+  const rawPath = splitRawPath(logicalKey)
+  const isCompiledAncestor = getYAMLToXMLPlan(rule).properties.some((property) =>
+    rawPath.length < property.xmlPath.length
+    && rawPath.every((segment, index) => property.xmlPath[index] === segment)
+  )
+  if (!isCompiledAncestor) return undefined
+  const result: string[] = []
+  for (const yamlKey of yamlMappingKeys(ownerYaml)) {
+    const property = propertyForYamlKey(rule, yamlKey)
+    const xmlName = property?.xmlPath[0] ?? splitRawPath(yamlKey)[0]
+    if (xmlName !== undefined && !result.includes(xmlName)) result.push(xmlName)
+  }
+  return result.length === 0 ? undefined : result
 }
 
 interface PlannedProperty {
