@@ -3,7 +3,12 @@ import { Type, type TSchema } from "typebox"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
-import { validateFile, validateParsedFile, validateParsedFileWithIssues } from "./validateFile"
+import {
+  evaluateParsedXmlAnomalyBoundaries,
+  validateFile,
+  validateParsedFile,
+  validateParsedFileWithIssues,
+} from "./validateFile"
 import type { ValidationSchemaValidator } from "./compileValidationSchema"
 
 // Простая схема для юнит-тестов — не зависит от доменных правил каталогов
@@ -502,6 +507,31 @@ describe("validateParsedFile", () => {
     ])
     expect(result.diagnostics).toEqual([
       expect.objectContaining({ path: "/Использовать", source: "structure" }),
+    ])
+  })
+
+  it("возвращает accepted и pending для соседних точных границ", () => {
+    const parsed = parseMetadataYaml(`
+Первый: !xml/invalid неверно
+Второй: !xml/invalid true
+`)
+    const firstTarget = { kind: "path" as const, path: ["Первый"] }
+
+    const result = evaluateParsedXmlAnomalyBoundaries({
+      filePath: "test.yaml",
+      parsed,
+      diagnostics: [],
+      issues: [{ code: "schema.type", kind: "semantic", target: firstTarget }],
+      deferUnnecessaryFor: (target) => target.path[0] === "Второй",
+    })
+
+    expect(result.boundaries).toEqual([
+      { annotation: "invalid", target: firstTarget, state: "accepted" },
+      {
+        annotation: "invalid",
+        target: { kind: "path", path: ["Второй"] },
+        state: "pending",
+      },
     ])
   })
 

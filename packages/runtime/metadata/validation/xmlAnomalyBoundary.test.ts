@@ -15,7 +15,7 @@ describe("граница смысловой XML-аномалии", () => {
       target: semanticIssue.target,
       issues: [semanticIssue],
       importantRegistered: false,
-    })).toEqual({ accepted: [semanticIssue], visible: [], contract: [] })
+    })).toEqual({ accepted: [semanticIssue], visible: [], contract: [], state: "accepted" })
   })
 
   it("считает тег лишним, когда значение уже корректно", () => {
@@ -37,7 +37,7 @@ describe("граница смысловой XML-аномалии", () => {
       issues: [],
       importantRegistered: false,
       deferUnnecessary: true,
-    })).toEqual({ accepted: [], visible: [], contract: [] })
+    })).toEqual({ accepted: [], visible: [], contract: [], state: "pending" })
   })
 
   it("не подавляет инфраструктурную ошибку и ошибку дочернего пути", () => {
@@ -52,6 +52,27 @@ describe("граница смысловой XML-аномалии", () => {
 
     expect(result.accepted).toEqual([semanticIssue])
     expect(result.visible).toEqual([infrastructure, child])
+  })
+
+  it("не подтверждает границу инфраструктурной ошибкой", () => {
+    const infrastructure: ValidationIssue = {
+      ...semanticIssue,
+      code: "validator.crashed",
+      kind: "infrastructure",
+    }
+
+    expect(evaluateXmlAnomalyBoundary({
+      annotation: "invalid",
+      target: semanticIssue.target,
+      issues: [infrastructure],
+      importantRegistered: false,
+      deferUnnecessary: true,
+    })).toEqual({
+      accepted: [],
+      visible: [infrastructure],
+      contract: [],
+      state: "pending",
+    })
   })
 
   it("требует important только для зарегистрированной границы", () => {

@@ -8,7 +8,10 @@ import {
   validationIssuePathFromPointer,
   type ValidationIssue,
 } from "./validationIssue"
-import { evaluateXmlAnomalyBoundary } from "./xmlAnomalyBoundary"
+import {
+  evaluateXmlAnomalyBoundary,
+  type XmlAnomalyValidationState,
+} from "./xmlAnomalyBoundary"
 import { diagnosticAtYamlPath } from "./yamlLocations"
 import type { ValidationIssueTarget } from "./validationIssue"
 
@@ -44,7 +47,7 @@ export function validateParsedFileWithIssues(
     importantRegistered = () => false,
     evaluateXmlAnomalies = true,
   }: ValidateParsedFileParams,
-): { readonly diagnostics: Diagnostic[]; readonly issues: ValidationIssue[] } {
+): ParsedXmlAnomalyEvaluation {
   // Short-circuit: при синтаксической ошибке TypeBox и external-file не запускаются
   if (parsed.syntaxErrors.length > 0) {
     return {
@@ -62,6 +65,7 @@ export function validateParsedFileWithIssues(
         target: { kind: "path" as const, path: [] },
         params: { line: error.line, col: error.col, message: error.message },
       })),
+      boundaries: [],
     }
   }
 
@@ -75,7 +79,7 @@ export function validateParsedFileWithIssues(
       parsed.data,
       parsed.annotations,
     ))
-  if (!evaluateXmlAnomalies) return { diagnostics: schemaDiagnostics, issues: schemaIssues }
+  if (!evaluateXmlAnomalies) return { diagnostics: schemaDiagnostics, issues: schemaIssues, boundaries: [] }
   return evaluateParsedXmlAnomalyBoundaries({
     filePath,
     parsed,
@@ -92,10 +96,11 @@ export function evaluateParsedXmlAnomalyBoundaries(params: {
   readonly diagnostics: readonly Diagnostic[]
   readonly importantRegistered?: (target: ValidationIssueTarget) => boolean
   readonly deferUnnecessaryFor?: (target: ValidationIssueTarget) => boolean
-}): { readonly diagnostics: Diagnostic[]; readonly issues: ValidationIssue[] } {
+}): ParsedXmlAnomalyEvaluation {
   let visibleIssues = [...params.issues]
   const contractIssues: ValidationIssue[] = []
   const acceptedTargets = new Set<string>()
+  const boundaries: XmlAnomalyBoundaryState[] = []
   for (const boundary of semanticAnomalyBoundaries(params.parsed.data, params.parsed.annotations)) {
     const evaluated = evaluateXmlAnomalyBoundary({
       annotation: boundary.annotation,
@@ -107,12 +112,25 @@ export function evaluateParsedXmlAnomalyBoundaries(params: {
     visibleIssues = [...evaluated.visible]
     contractIssues.push(...evaluated.contract)
     if (evaluated.accepted.length > 0) acceptedTargets.add(pointerForTarget(boundary.target))
+    if (evaluated.state !== undefined) boundaries.push({ ...boundary, state: evaluated.state })
   }
   const diagnostics = params.diagnostics.filter((diagnostic) =>
     !acceptedTargets.has(diagnostic.path ?? "/"))
   diagnostics.push(...contractIssues.map((issue) =>
     diagnosticForContractIssue(params.filePath, params.parsed, issue)))
-  return { diagnostics, issues: [...visibleIssues, ...contractIssues] }
+  return { diagnostics, issues: [...visibleIssues, ...contractIssues], boundaries }
+}
+
+export interface XmlAnomalyBoundaryState {
+  readonly annotation: "invalid" | "important"
+  readonly target: ValidationIssueTarget
+  readonly state: XmlAnomalyValidationState
+}
+
+export interface ParsedXmlAnomalyEvaluation {
+  readonly diagnostics: Diagnostic[]
+  readonly issues: ValidationIssue[]
+  readonly boundaries: readonly XmlAnomalyBoundaryState[]
 }
 
 function semanticAnomalyBoundaries(

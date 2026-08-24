@@ -8,7 +8,10 @@ export interface XmlAnomalyBoundaryEvaluation {
   readonly accepted: readonly ValidationIssue[]
   readonly visible: readonly ValidationIssue[]
   readonly contract: readonly ValidationIssue[]
+  readonly state?: XmlAnomalyValidationState
 }
+
+export type XmlAnomalyValidationState = "pending" | "accepted"
 
 export function evaluateXmlAnomalyBoundary(params: {
   readonly annotation: "invalid" | "important"
@@ -31,7 +34,18 @@ export function evaluateXmlAnomalyBoundary(params: {
     contract.push(contractIssue("xml/anomaly-tag-unnecessary", params))
   }
 
-  return { accepted, visible, contract }
+  const state = accepted.length > 0
+    ? "accepted"
+    : params.deferUnnecessary === true
+      ? "pending"
+      : undefined
+
+  return {
+    accepted,
+    visible,
+    contract,
+    ...(state === undefined ? {} : { state }),
+  }
 }
 
 function contractIssue(
