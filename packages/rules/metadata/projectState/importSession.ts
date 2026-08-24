@@ -19,7 +19,11 @@ import {
   assertProjectStateImportFinalFileState,
   assertProjectStatePortableData,
 } from "./fileUpdateValidation"
-import { createMetadataDiagnosticCollection } from "@nkdk/runtime"
+import {
+  createMetadataDiagnosticCollection,
+  validationIssuePathFromPointer,
+  type ValidationIssue,
+} from "@nkdk/runtime"
 
 export interface ProjectStateImportParams {
   readonly projectDir: string
@@ -67,10 +71,16 @@ export interface ProjectStateImportSession {
   replaceFinalHashes(files: readonly { readonly projectPath: string; readonly hash: bigint }[]): Promise<void>
   commitWorkingIndex(): Promise<ProjectStateReadToken>
   commitSemanticIndex(): Promise<ProjectStateReadToken>
+  collectSemanticValidationIssues(): Promise<readonly ProjectStateImportValidationIssue[]>
   /** Выдаёт отдельный одноразовый token следующему worker после фиксации индекса. */
   createReadToken(): Promise<ProjectStateReadToken>
   finalize(beforeCheckpoint?: () => Promise<void>): Promise<ProjectStateRefreshResult>
   abort(cause: unknown): Promise<void>
+}
+
+export interface ProjectStateImportValidationIssue {
+  readonly projectPath: string
+  readonly issue: ValidationIssue
 }
 
 export interface CreateProjectStateImportSessionParams extends ProjectStateImportParams {
@@ -207,6 +217,32 @@ export async function createProjectStateImportSession(
       const token = await commitIndex("semanticIndex")
       phase = "final"
       return token
+    },
+    async collectSemanticValidationIssues() {
+      if (phase !== "final") {
+        throw new Error("Ошибки смыслового индекса доступны только после его фиксации")
+      }
+      const batches = await params.writer.validateDependencyDiagnosticBatches()
+      const diagnostics = createMetadataDiagnosticCollection(batches)
+      try {
+        return [...diagnostics]
+          .filter(({ severity }) => severity === "error")
+          .map((diagnostic) => ({
+            projectPath: diagnostic.filePath,
+            issue: {
+              code: diagnostic.code ?? `diagnostic.${diagnostic.source}`,
+              kind: diagnostic.source === "syntax" || diagnostic.source === "external-file"
+                ? "infrastructure" as const
+                : "semantic" as const,
+              target: {
+                kind: "path" as const,
+                path: validationIssuePathFromPointer(diagnostic.path ?? ""),
+              },
+            },
+          }))
+      } finally {
+        diagnostics.release()
+      }
     },
     async createReadToken() {
       if (phase !== "semantic" && phase !== "final") {

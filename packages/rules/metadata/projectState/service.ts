@@ -276,6 +276,7 @@ export function createProjectStateService(
       replaceFinalHashes: (files) => session.replaceFinalHashes(files),
       commitWorkingIndex: () => session.commitWorkingIndex(),
       commitSemanticIndex: () => session.commitSemanticIndex(),
+      collectSemanticValidationIssues: () => session.collectSemanticValidationIssues(),
       createReadToken: () => session.createReadToken(),
       async finalize(beforeCheckpoint) {
         try {

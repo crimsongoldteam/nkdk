@@ -60,6 +60,8 @@ import type {
   ImportControlCompositionEntry,
   ImportDiagnostic,
   ImportFirstPassResult,
+  ImportIssueDecision,
+  ImportProjectIssueDecision,
   ImportResultFile,
   ImportSecondPassResult,
   ImportWorkerCommand,
@@ -95,7 +97,9 @@ import type { XmlAnomalyProofAudit } from "./anomalyProof"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
 import { classifyImportedIssues } from "./classifyImportedIssues"
 import { applyImportedIssueDecisions } from "./applyImportedIssueDecisions"
-import type { ValidationIssue } from "@nkdk/runtime"
+import type { ValidationIssue, ValidationIssueTarget } from "@nkdk/runtime"
+import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { traverseMetadataRuleYaml } from "../validation/metadataRuleYamlTraversal"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -174,6 +178,7 @@ interface ActiveSecondPass {
   readonly ownerMetadataCache: OwnerMetadataCache
   readonly configurationIndex: ReturnType<typeof createLocalConfigurationIndexReader>
   readonly composition: MetadataXmlPrepareComposition
+  readonly issueDecisionsByProjectPath: ReadonlyMap<string, readonly ImportIssueDecision[]>
 }
 
 export interface ImportWorkerCommandRunner {
@@ -337,7 +342,7 @@ async function runImportWorkerCommand(
   }
 
   if (command.kind === "beginThirdPass") {
-    beginSecondPass(command.readToken, requireInitializedState())
+    beginSecondPass(command.readToken, requireInitializedState(), undefined, command.issueDecisions)
     secondPassAccumulator?.fragmentWriter.discard()
     secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     return undefined
@@ -347,7 +352,7 @@ async function runImportWorkerCommand(
     requireInitializedState()
     const accumulator = requireSecondPassAccumulator()
     for (const assignmentId of command.assignmentIds) {
-      await processThirdPass(assignmentId, accumulator)
+      await processThirdPass(assignmentId, requireInitializedState(), accumulator)
     }
     return finishImportWorkerBatch(accumulator, requireInitializedState().workerIndex)
   }
@@ -374,7 +379,7 @@ async function runImportWorkerCommand(
   if (command.kind === "secondPass") {
     const accumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     await processSecondPass(command.assignmentId, requireInitializedState(), accumulator)
-    await processThirdPass(command.assignmentId, accumulator)
+    await processThirdPass(command.assignmentId, requireInitializedState(), accumulator)
     return finishSecondPass(accumulator)
   }
 
@@ -407,7 +412,9 @@ async function processSecondPass(
       )
       prepared.output = output
       accumulator.fragmentWriter.appendImportIndex(output.main.index)
+      accumulator.fragmentWriter.appendImportFinal(output.main.final)
       if (output.base !== undefined) accumulator.fragmentWriter.appendImportIndex(output.base.index)
+      if (output.base !== undefined) accumulator.fragmentWriter.appendImportFinal(output.base.final)
       accumulator.configurationFragments.push(...output.configurationFragments)
       accumulator.stateEntries += output.base === undefined ? 1 : 2
     } catch (caught) {
@@ -426,6 +433,7 @@ async function processSecondPass(
 
 async function processThirdPass(
   assignmentId: string,
+  state: InitializedImportWorkerState,
   accumulator: SecondPassAccumulator,
 ): Promise<void> {
   if (!assignedImportIds.has(assignmentId)) {
@@ -434,9 +442,42 @@ async function processThirdPass(
   const prepared = preparedYaml.get(assignmentId)
   if (prepared === undefined) return
   try {
-    const output = prepared.output
+    let output = prepared.output
     if (output === undefined) {
       throw new Error(`Задание ${assignmentId} не подготовлено вторым проходом XML-import`)
+    }
+    const decisions = (activeSecondPass?.issueDecisionsByProjectPath.get(prepared.targetProjectPath) ?? [])
+      .map((decision) => requiresImportantForImportedTarget(prepared, decision.target)
+        ? { ...decision, kind: "important" as const }
+        : decision)
+    if (decisions.length > 0) {
+      applyImportedIssueDecisions({
+        data: prepared.yaml,
+        annotations: prepared.annotations,
+        decisions,
+      })
+      const serialized = serializePreparedYaml(
+        prepared.targetProjectPath,
+        prepared.yaml,
+        state,
+        accumulator.profiler,
+        prepared.annotations,
+      )
+      const validated = measureSerializedImportYamlValidation(
+        prepared,
+        serialized,
+        state,
+        accumulator.profiler,
+      )
+      output = {
+        ...output,
+        main: {
+          serialized,
+          index: validated.index,
+          final: withoutDecidedDependencies(validated.final, decisions),
+        },
+      }
+      prepared.output = output
     }
     const main = await writeMainImportYaml({ serialized: output.main.serialized, profiler: accumulator.profiler })
     accumulator.files.push(main.file)
@@ -498,6 +539,7 @@ function beginSecondPass(
   readToken: import("../projectState/contracts").ProjectStateReadToken,
   state: InitializedImportWorkerState,
   controlComposition?: readonly ImportControlCompositionEntry[],
+  issueDecisions: readonly ImportProjectIssueDecision[] = [],
 ): void {
   if (activeSecondPass !== undefined) throw new Error("Второй проход XML-import worker уже начат")
   const readSession = openProjectStateReadSession(readToken)
@@ -517,7 +559,53 @@ function beginSecondPass(
     composition: importControlComposition(
       controlComposition ?? [...assignedImports.values()].map(importControlCompositionEntry),
     ),
+    issueDecisionsByProjectPath: groupIssueDecisionsByProjectPath(issueDecisions),
   }
+}
+
+function groupIssueDecisionsByProjectPath(
+  entries: readonly ImportProjectIssueDecision[],
+): ReadonlyMap<string, readonly ImportIssueDecision[]> {
+  const result = new Map<string, ImportIssueDecision[]>()
+  for (const { targetProjectPath, decision } of entries) {
+    const decisions = result.get(targetProjectPath) ?? []
+    decisions.push(decision)
+    result.set(targetProjectPath, decisions)
+  }
+  return result
+}
+
+function requiresImportantForImportedTarget(
+  prepared: Pick<DeferredImportYaml, "yaml" | "rule">,
+  target: ValidationIssueTarget,
+): boolean {
+  const propertyKey = target.path.at(-1)
+  if (typeof propertyKey !== "string") return false
+  const parentPath = target.path.slice(0, -1)
+  let location: { itemType: string; propertyKey: string; propertyType: string } | undefined
+  traverseMetadataRuleYaml({
+    yaml: prepared.yaml,
+    rule: prepared.rule,
+    initialState: undefined,
+    onObject({ rule, yamlPath }) {
+      if (!sameYamlPath(yamlPath, parentPath)) return
+      const property = Object.entries(rule.properties).find(([, candidate]) => candidate.yaml === propertyKey)
+      if (property === undefined) return
+      location = {
+        itemType: rule.itemType,
+        propertyKey: property[0],
+        propertyType: property[1].type,
+      }
+    },
+  })
+  if (location === undefined) return false
+  return currentRuleRegistrySet<{
+    xmlAnomalies: { requiresImportant(value: typeof location): boolean }
+  }>()?.xmlAnomalies.requiresImportant(location) ?? false
+}
+
+function sameYamlPath(left: readonly (string | number)[], right: readonly (string | number)[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index])
 }
 
 function endSecondPass(): void {
@@ -668,7 +756,7 @@ async function prepareYamlForFinalPass(
   let validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
   const classified = classifyImportedIssues({
     issues: validated.issues,
-    requiresImportant: () => false,
+    requiresImportant: (target) => requiresImportantForImportedTarget(prepared, target),
   })
   if (classified.fatal.length > 0) {
     throw new Error(`Валидация импортированного YAML завершилась внутренней ошибкой: ${classified.fatal
@@ -1381,6 +1469,30 @@ function splitImportYamlUpdate(
       hashBytes: batch.hashBytes,
     },
   }
+}
+
+function withoutDecidedDependencies(
+  batch: ProjectStateImportFinalFileStateBatch,
+  decisions: readonly ImportIssueDecision[],
+): ProjectStateImportFinalFileStateBatch {
+  const paths = new Set(decisions.map(({ target }) => validationTargetPathKey(target.path)))
+  if (paths.size === 0) return batch
+  return {
+    ...batch,
+    updates: batch.updates.map((update) => update.kind === "yaml"
+      ? {
+          ...update,
+          pendingReferences: update.pendingReferences.filter(({ yamlPath }) =>
+            !paths.has(validationTargetPathKey(yamlPath))),
+          pendingChecks: update.pendingChecks.filter(({ yamlPath }) =>
+            !paths.has(validationTargetPathKey(yamlPath))),
+        }
+      : update),
+  }
+}
+
+function validationTargetPathKey(path: readonly (string | number)[]): string {
+  return JSON.stringify(path)
 }
 
 function importIndexContribution(

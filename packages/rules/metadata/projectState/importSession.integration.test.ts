@@ -15,6 +15,7 @@ import type {
 import { assertProjectStateImportFinalFileStateBatch, createProjectStateImportSession } from "./importSession"
 import type { ProjectStateWriterHandle } from "./writerHandle"
 import { createProjectStateWriterHandle } from "./writerHandle"
+import { encodeDiagnosticBatch, openDiagnosticBatch } from "@nkdk/runtime"
 
 describe("ProjectState import session", () => {
   it("принимает файловые цели в окончательном resource-state", () => {
@@ -349,18 +350,7 @@ describe("ProjectState import session", () => {
 
   it("сообщает отдельные времена фиксации и завершения import", async () => {
     const phases: string[] = []
-    const writer = {
-      async openProject() {},
-      async beginUpdate() {},
-      async clearImportOutput() {},
-      async commitUpdate() {},
-      async createReadToken() { return {} as never },
-      async readLocalDiagnostics() { return [] },
-      async readLocalDiagnosticBatches() { return [] },
-      async validateDependencies() { return [] },
-      async validateDependencyDiagnosticBatches() { return [] },
-      async commitAndScheduleCheckpoint() {},
-    } as unknown as ProjectStateWriterHandle
+    const writer = importSessionWriterStub()
     const importSession = await createProjectStateImportSession({
       projectDir: "/project",
       workerCount: 1,
@@ -383,6 +373,37 @@ describe("ProjectState import session", () => {
       "save",
       "publication",
     ])
+  })
+
+  it("возвращает адресные ошибки зависимостей после смыслового индекса", async () => {
+    const writer = importSessionWriterStub({
+      async validateDependencyDiagnosticBatches() {
+        return [openDiagnosticBatch(encodeDiagnosticBatch([{
+          filePath: "cf/Справочник/Товары/Свойства.yaml",
+          line: 7,
+          col: 5,
+          path: "/Реквизиты/Код/Тип",
+          severity: "error",
+          source: "reference",
+          code: "reference.not-found",
+          message: "Текст сообщения не участвует в классификации",
+        }]))]
+      },
+    })
+    const importSession = await createTestImportSession(writer)
+
+    await importSession.commitWorkingIndex()
+    await importSession.commitSemanticIndex()
+
+    expect(await importSession.collectSemanticValidationIssues()).toEqual([{
+      projectPath: "cf/Справочник/Товары/Свойства.yaml",
+      issue: {
+        code: "reference.not-found",
+        kind: "semantic",
+        target: { kind: "path", path: ["Реквизиты", "Код", "Тип"] },
+      },
+    }])
+    await importSession.abort(new Error("test complete"))
   })
 })
 
@@ -411,6 +432,25 @@ function createTestImportSession(writer: ProjectStateWriterHandle): Promise<Proj
     async publish() {},
     async discard() {},
   })
+}
+
+function importSessionWriterStub(
+  overrides: Partial<ProjectStateWriterHandle> = {},
+): ProjectStateWriterHandle {
+  return {
+    async openProject() {},
+    async beginUpdate() {},
+    async clearImportOutput() {},
+    async commitUpdate() {},
+    async rollbackUpdate() {},
+    async createReadToken() { return {} as never },
+    async readLocalDiagnostics() { return [] },
+    async readLocalDiagnosticBatches() { return [] },
+    async validateDependencies() { return [] },
+    async validateDependencyDiagnosticBatches() { return [] },
+    async commitAndScheduleCheckpoint() {},
+    ...overrides,
+  } as unknown as ProjectStateWriterHandle
 }
 
 function stateFragment(

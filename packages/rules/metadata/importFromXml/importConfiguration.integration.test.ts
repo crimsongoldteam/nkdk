@@ -986,6 +986,7 @@ function fakeProjectState(
           importParams.profile?.onPhase?.({ phase: "semanticIndex", elapsedMs: 1 })
           return readToken()
         },
+        async collectSemanticValidationIssues() { return [] },
         async createReadToken() { return readToken() },
         async writeStateFragment(fragment) {
           const buffers = Object.values(fragment.buffers)
@@ -1050,6 +1051,7 @@ function projectStateWithImportSession(
     async replaceFinalHashes() {},
     commitWorkingIndex: unexpected,
     commitSemanticIndex: unexpected,
+    async collectSemanticValidationIssues() { return [] },
     createReadToken: unexpected,
     finalize: unexpected,
     async abort() {},

@@ -50,6 +50,8 @@ import {
   type XmlImportWorkerPool,
   type XmlImportWorkerPoolHandle,
 } from "./workerPool"
+import { classifyImportedIssues } from "./classifyImportedIssues"
+import type { ImportProjectIssueDecision } from "../workerPool/importContracts"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -329,6 +331,18 @@ export async function importConfigurationFromXml(
       return outcome = failedResult([...secondDiagnostics, ...cleanup], warnings, resolvedComponentPath)
     }
     const semanticReadToken = await importSession.commitSemanticIndex()
+    const semanticIssues = await importSession.collectSemanticValidationIssues()
+    const semanticClassification = classifySemanticImportIssues(semanticIssues)
+    if (semanticClassification.fatal.length > 0) {
+      const diagnostics = semanticClassification.fatal.map(({ projectPath, code }) => ({
+        severity: "error" as const,
+        code: "xml_import_validation_failed",
+        message: `Не удалось классифицировать ошибку смыслового индекса: ${code}`,
+        targetProjectPath: projectPath,
+      }))
+      const cleanup = await abortCleanupDiagnostics(importSession, diagnostics, closePoolForCleanup)
+      return outcome = failedResult([...diagnostics, ...cleanup], warnings, resolvedComponentPath)
+    }
     const semanticReadTokens = [semanticReadToken]
     for (let index = 1; index < pool.workerCount(); index += 1) {
       semanticReadTokens.push(await importSession.createReadToken())
@@ -337,7 +351,7 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Третий проход worker",
       { items: discovered.assignments.length },
-      () => pool!.runThirdPass(semanticReadTokens, stateSink),
+      () => pool!.runThirdPass(semanticReadTokens, stateSink, semanticClassification.decisions),
     )
     temporaryCollections.push(third.diagnostics, third.warnings, third.files)
     warnings = [...warnings, ...third.warnings]
@@ -454,6 +468,28 @@ export async function importConfigurationFromXml(
       }
     }
   }
+}
+
+function classifySemanticImportIssues(
+  entries: readonly import("../projectState/importSession").ProjectStateImportValidationIssue[],
+): {
+  readonly decisions: readonly ImportProjectIssueDecision[]
+  readonly fatal: readonly { readonly projectPath: string; readonly code: string }[]
+} {
+  const byProjectPath = new Map<string, import("@nkdk/runtime").ValidationIssue[]>()
+  for (const { projectPath, issue } of entries) {
+    const issues = byProjectPath.get(projectPath) ?? []
+    issues.push(issue)
+    byProjectPath.set(projectPath, issues)
+  }
+  const decisions: ImportProjectIssueDecision[] = []
+  const fatal: { projectPath: string; code: string }[] = []
+  for (const [projectPath, issues] of byProjectPath) {
+    const classified = classifyImportedIssues({ issues, requiresImportant: () => false })
+    decisions.push(...classified.decisions.map((decision) => ({ targetProjectPath: projectPath, decision })))
+    fatal.push(...classified.fatal.map(({ code }) => ({ projectPath, code })))
+  }
+  return { decisions, fatal }
 }
 
 function withPropertyStateCompatibilityMode(

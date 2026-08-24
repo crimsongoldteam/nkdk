@@ -17,6 +17,7 @@ import type {
   ImportAssignment,
   ImportControlCompositionEntry,
   ImportDiagnostic,
+  ImportProjectIssueDecision,
   ImportResultFile,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
@@ -49,6 +50,7 @@ export interface XmlImportWorkerPool {
   runThirdPass(
     readTokens: readonly ProjectStateReadToken[],
     sink?: XmlImportStateSink,
+    issueDecisions?: readonly ImportProjectIssueDecision[],
   ): Promise<XmlImportSecondPassPoolResult>
   workerCount(): number
   close(): Promise<void>
@@ -261,6 +263,7 @@ function createXmlImportOperationPool(params: {
     pass: "second" | "third",
     readTokens: readonly ProjectStateReadToken[],
     sink: XmlImportStateSink,
+    issueDecisions: readonly ImportProjectIssueDecision[] = [],
   ): Promise<XmlImportSecondPassPoolResult> {
     const runningPhase = pass === "second" ? "secondPassRunning" : "thirdPassRunning"
     const donePhase = pass === "second" ? "secondPassDone" : "thirdPassDone"
@@ -287,7 +290,7 @@ function createXmlImportOperationPool(params: {
               readToken: readTokens[activeIndex]!,
               composition: controlComposition,
             }
-          : { kind: "beginThirdPass", readToken: readTokens[activeIndex]! }
+          : { kind: "beginThirdPass", readToken: readTokens[activeIndex]!, issueDecisions }
         const beginResponse = await runCommand(workerIndex, beginCommand)
         if (beginResponse !== undefined) {
           throw new Error(`Worker вернул неожиданный результат ${beginCommand.kind}`)
@@ -429,10 +432,10 @@ function createXmlImportOperationPool(params: {
       if (phase !== "firstPassReady") throw new Error("Первый проход import не завершён успешно")
       return runFollowingPass("second", readTokens, sink)
     },
-    async runThirdPass(readTokens, sink = noopStateSink) {
+    async runThirdPass(readTokens, sink = noopStateSink, issueDecisions = []) {
       assertUsable(phase, fatalError)
       if (phase !== "secondPassDone") throw new Error("Второй проход import не завершён успешно")
-      return runFollowingPass("third", readTokens, sink)
+      return runFollowingPass("third", readTokens, sink, issueDecisions)
     },
     workerCount() {
       return activeWorkerIndexes.length

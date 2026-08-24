@@ -3,12 +3,9 @@ import {
   type ValidationIssue,
   type ValidationIssueTarget,
 } from "@nkdk/runtime"
+import type { ImportIssueDecision } from "../workerPool/importContracts"
 
-export interface ImportedIssueDecision {
-  readonly kind: "invalid" | "important"
-  readonly target: ValidationIssueTarget
-  readonly issueCodes: readonly string[]
-}
+export type ImportedIssueDecision = ImportIssueDecision
 
 export function classifyImportedIssues(params: {
   readonly issues: readonly ValidationIssue[]

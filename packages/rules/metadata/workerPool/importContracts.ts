@@ -1,4 +1,4 @@
-import type { XmlImportConfigurationContext } from "@nkdk/runtime"
+import type { ValidationIssueTarget, XmlImportConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
@@ -32,6 +32,17 @@ export interface ImportControlCompositionEntry {
   readonly logicalAddress: string
   readonly assignmentRole: ImportAssignmentRole
   readonly ownerLogicalAddress?: string
+}
+
+export interface ImportIssueDecision {
+  readonly kind: "invalid" | "important"
+  readonly target: ValidationIssueTarget
+  readonly issueCodes: readonly string[]
+}
+
+export interface ImportProjectIssueDecision {
+  readonly targetProjectPath: string
+  readonly decision: ImportIssueDecision
 }
 
 export function importControlCompositionEntry(
@@ -105,7 +116,11 @@ export type ImportWorkerCommand =
   | { kind: "secondPassBatch"; assignmentIds: string[] }
   | { kind: "finishSecondPass" }
   | { kind: "endSecondPass" }
-  | { kind: "beginThirdPass"; readToken: ProjectStateReadToken }
+  | {
+      kind: "beginThirdPass"
+      readToken: ProjectStateReadToken
+      issueDecisions?: readonly ImportProjectIssueDecision[]
+    }
   | { kind: "thirdPassBatch"; assignmentIds: string[] }
   | { kind: "finishThirdPass" }
   | { kind: "dispose" }

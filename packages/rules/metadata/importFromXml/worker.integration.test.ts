@@ -451,18 +451,7 @@ describe("XML import worker second pass", () => {
 
   it("публикует смысловой индекс во втором проходе, а YAML записывает только в третьем", async () => {
     const outputDir = createTempDir("three-pass-write")
-    const assignment = catalogAssignment()
-    await initializeWorker(outputDir)
-    const first = expectFirstPass(await runImportWorkerCommand({
-      kind: "firstPass",
-      assignments: [assignment],
-    }))
-
-    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
-    const second = openImportBinaryResult(await runImportWorkerCommand({
-      kind: "secondPassBatch",
-      assignmentIds: [assignment.id],
-    }))
+    const { assignment, second } = await prepareCatalogForThirdPass(outputDir)
 
     expect(second.stateFragment).toBeDefined()
     expect(second.files.count).toBe(0)
@@ -482,6 +471,30 @@ describe("XML import worker second pass", () => {
     expect(third.files.count).toBe(1)
     expect(third.stateFragment).toBeDefined()
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
+  })
+
+  it("назначает межфайловый invalid перед записью YAML", async () => {
+    const outputDir = createTempDir("third-pass-invalid")
+    const { assignment, second } = await prepareCatalogForThirdPass(outputDir)
+    await runImportWorkerCommand({ kind: "finishSecondPass" })
+
+    await runImportWorkerCommand({
+      kind: "beginThirdPass",
+      readToken: createReadToken({ stateFragment: second.stateFragment }),
+      issueDecisions: [{
+        targetProjectPath: assignment.targetProjectPath,
+        decision: {
+          kind: "invalid",
+          target: { kind: "path", path: ["Синоним"] },
+          issueCodes: ["reference.filter"],
+        },
+      }],
+    })
+    await runImportWorkerCommand({ kind: "thirdPassBatch", assignmentIds: [assignment.id] })
+    await runImportWorkerCommand({ kind: "finishThirdPass" })
+
+    expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
+      .toContain("Синоним: !xml/invalid Контрагенты справочник")
   })
 
   it("отклоняет идентификатор задания, принадлежащий другой линии", async () => {
@@ -708,6 +721,21 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 })
+
+async function prepareCatalogForThirdPass(outputDir: string) {
+  const assignment = catalogAssignment()
+  await initializeWorker(outputDir)
+  const first = expectFirstPass(await runImportWorkerCommand({
+    kind: "firstPass",
+    assignments: [assignment],
+  }))
+  await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+  const second = openImportBinaryResult(await runImportWorkerCommand({
+    kind: "secondPassBatch",
+    assignmentIds: [assignment.id],
+  }))
+  return { assignment, second }
+}
 
 function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAssignment {
   const assignment: ImportAssignment = {
