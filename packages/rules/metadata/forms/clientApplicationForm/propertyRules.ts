@@ -4,6 +4,7 @@ import {
   defineMetadataXmlPrepareCapability,
 } from "../../resourceTopology/adapters/capabilities"
 import { composeMetadataRules } from "../../ruleRuntime/definition"
+import { FormRulesTags } from "./rules"
 
 const formPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
   id: "ClientApplicationForm",
@@ -48,6 +49,7 @@ const formPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
             {
               declarationId: output.declarationId,
               targetXmlPath: output.targetXmlPath,
+              tags: [document.targetKind === "metadata" ? FormRulesTags.Metadata : FormRulesTags.Form],
               ...document,
             },
           ]

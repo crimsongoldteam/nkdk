@@ -2,7 +2,11 @@ import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import Piscina, { move, transferableSymbol, valueSymbol } from "piscina"
-import type { ConfigurationContext } from "@nkdk/runtime"
+import {
+  isXmlAnomalyAnnotationsSnapshot,
+  restoreXmlAnomalyAnnotations,
+  type ConfigurationContext,
+} from "@nkdk/runtime"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type {
   ComponentFirstPassPoolResult,
@@ -186,9 +190,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
             files,
             includeYamlData: runParams.includeYamlData ?? true,
           } satisfies PreparedYamlProjectWorkerTask
-          const response = (await getOrCreatePool(pools, index, createPool).run(
+          const response = restorePreparedYamlWorkerResult((await getOrCreatePool(pools, index, createPool).run(
             task
-          )) as PreparedYamlProjectWorkerTaskResult
+          )) as PreparedYamlProjectWorkerTaskResult)
           if (response.kind !== "prepareResult") throw new Error("Worker вернул неожиданный результат prepare")
           return {
             workerIndex: index,
@@ -507,6 +511,23 @@ export function createPreparedYamlProjectWorkerPool(params: {
     size() {
       return params.concurrency
     },
+  }
+}
+
+function restorePreparedYamlWorkerResult(
+  result: PreparedYamlProjectWorkerTaskResult,
+): PreparedYamlProjectWorkerTaskResult {
+  if (result.kind !== "prepareResult") return result
+  return {
+    ...result,
+    yamlFiles: result.yamlFiles.map((file) => {
+      const transported: unknown = file.annotations
+      if (!isXmlAnomalyAnnotationsSnapshot(transported)) return file
+      return {
+        ...file,
+        annotations: restoreXmlAnomalyAnnotations(file.data, transported),
+      }
+    }),
   }
 }
 

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import { parseMetadataYaml } from "./parseMetadataYaml"
 import {
   copyXmlAnomalyAnnotationsDeep,
+  restoreXmlAnomalyAnnotations,
+  snapshotXmlAnomalyAnnotations,
   xmlAnnotatedMappingEntries,
 } from "./xmlAnomalyAnnotations"
 
@@ -83,6 +85,25 @@ describe("XML-аннотации YAML", () => {
 
     expect(parsed.syntaxErrors).toEqual([])
     expect(parsed.data).toEqual({ Компактный: undefined, Отсутствует: null })
+  })
+
+  it("восстанавливает аннотации после structured clone без повторного разбора YAML", () => {
+    const parsed = parseMetadataYaml([
+      "Коллекция:",
+      "  Код: !xml/raw value",
+      "  !xml/invalid Код: !xml/important second",
+    ].join("\n"))
+    const transferred = structuredClone({
+      data: parsed.data,
+      annotations: snapshotXmlAnomalyAnnotations(parsed.data, parsed.annotations),
+    })
+    const restored = restoreXmlAnomalyAnnotations(transferred.data, transferred.annotations)
+    const collection = (transferred.data as Record<string, unknown>).Коллекция as Record<string, unknown>
+    const runtimeKeys = Object.keys(collection)
+
+    expect(restored.at(collection, runtimeKeys[0]!)).toMatchObject({ kind: "raw" })
+    expect(restored.keyAt(collection, runtimeKeys[1]!)).toMatchObject({ kind: "invalid", logicalKey: "Код" })
+    expect(restored.at(collection, runtimeKeys[1]!)).toMatchObject({ kind: "important" })
   })
 
   it.each([

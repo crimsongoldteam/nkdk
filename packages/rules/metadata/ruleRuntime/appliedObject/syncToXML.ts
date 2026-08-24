@@ -86,6 +86,7 @@ export const prepareAppliedObjectOwnerXML = (params: {
     context: contextWithOwner,
     rule: withFileItemCollectionReferenceExportRules(params.rule),
     yaml: yamlObj,
+    annotations: params.preparedYamlFile.annotations,
     name: params.name,
     outputs: [{ key: "owner", referenceXML: params.referenceXML }],
     propertyValues,
@@ -211,7 +212,12 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
       if (explicitXMLAction?.kind === "invalid") throw new Error(explicitXMLAction.message)
       const nestedYAML = explicitXMLAction?.kind === "materializeCollection" ? {} : source.raw(propertyKey)
       const normalizedYAML =
-        nestedRule.normalizeYAML?.({ yaml: nestedYAML, name: itemName, propertyRule }) ?? nestedYAML
+        nestedRule.normalizeYAML?.({
+          yaml: nestedYAML,
+          annotations: preparedYamlFile.annotations,
+          name: itemName,
+          propertyRule,
+        }) ?? nestedYAML
       const propertyContext = withConfigurationIndexExportPropertyContext(
         itemContext,
         propertyRule.yaml ?? propertyKey,
@@ -237,6 +243,7 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
         convertProperties: convertPropertiesFromYAMLToXML,
         context: nestedItemContext,
         yaml: normalizedYAML,
+        annotations: preparedYamlFile.annotations,
         rule: itemRule,
         name: nestedRule.injectOwnerName === true ? itemName : undefined,
         sourceItemName: nestedItemName ?? itemName,

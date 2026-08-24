@@ -75,6 +75,7 @@ export function prepareYamlFiles(options: PrepareYamlFilesOptions): PreparedYaml
           role: file.role,
           owner: file.owner,
           data: parsed.data,
+          annotations: parsed.annotations,
           syntaxDiagnostics: parsed.syntaxErrors.map((error) => ({
             filePath: file.filePath,
             line: error.line,

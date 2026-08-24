@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { hashFileBytes, yamlScalarTagAt } from "@nkdk/runtime"
+import { hashFileBytes } from "@nkdk/runtime"
 import { prepareYamlFiles } from "./prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
 
@@ -85,19 +85,23 @@ describe("prepareYamlFiles", () => {
     expect(result.yamlFiles[0]?.data).toEqual({ Имя: "Товары" })
   })
 
-  it("сохраняет классификацию XML-аномалии в подготовленных YAML-данных", () => {
+  it("сохраняет таблицу XML-аннотаций рядом с подготовленными YAML-данными", () => {
     const projectDir = createProject()
     const projectPath = "Справочник/Товары/Свойства.yaml"
     const filePath = join(projectDir, ...projectPath.split("/"))
     const result = prepareYamlFiles({
       files: [descriptor(projectDir, projectPath, "Catalog")],
       itemTypeByYamlDir: { Справочник: "Catalog" },
-      sourceBytes: new Map([[filePath, Buffer.from("Значение: !xml/present\n")]]),
+      sourceBytes: new Map([[filePath, Buffer.from("Значение: !xml/invalid ошибка\n")]]),
     })
     const data = result.yamlFiles[0]?.data as Record<string, unknown>
 
-    expect(data.Значение).toBe("!xml/present")
-    expect(yamlScalarTagAt(data, "Значение")).toBe("xml/present")
+    expect(data.Значение).toBe("ошибка")
+    expect(result.yamlFiles[0]?.annotations.at(data, "Значение")).toEqual({
+      kind: "invalid",
+      occurrence: 1,
+      target: "value",
+    })
   })
 
   it("extracts declarations and dependencies without schema or reference validation", () => {

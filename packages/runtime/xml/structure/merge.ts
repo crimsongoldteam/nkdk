@@ -17,6 +17,7 @@ export interface XmlRawMergeBoundary {
   readonly value: unknown
   readonly suppressOrdinaryOutput: boolean
   readonly placement?: "value" | "key"
+  readonly fragment?: XmlRawFragment
 }
 
 type RawPathTerminal = "attributes" | "order"
@@ -112,6 +113,19 @@ function planBoundaries(
     }
     occupiedPaths.add(pathKey)
 
+    if (boundary.fragment !== undefined) {
+      if (path.terminal !== undefined) {
+        throw new Error(`Структурный raw-фрагмент недопустим для терминала: ${path.source}`)
+      }
+      return {
+        path,
+        kind: "element",
+        fragment: {
+          nodes: readdressXmlElementNodes(boundary.fragment.nodes),
+          suppressOrdinaryOutput: boundary.suppressOrdinaryOutput,
+        },
+      }
+    }
     if (path.terminal === "attributes") {
       assertTerminalDoesNotSuppress(boundary, "#attributes")
       return { path, kind: "attributes", attributes: decodeXmlRawAttributes(boundary.value) }

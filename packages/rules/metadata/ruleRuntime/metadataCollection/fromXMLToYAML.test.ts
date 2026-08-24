@@ -130,7 +130,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
 
   it("сохраняет все элементы record-коллекции с повторным логическим ключом", () => {
     const annotations = createXmlAnomalyAnnotations()
-    const { yaml, audit } = importTestRecordCollection(
+    const { yaml } = importTestRecordCollection(
       "<Root><Items>" +
       "<Item><Name>Код</Name><Value>first</Value></Item>" +
       "<Item><Name>Код</Name><Value>second</Value></Item>" +

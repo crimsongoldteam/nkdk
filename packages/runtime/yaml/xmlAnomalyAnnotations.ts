@@ -23,6 +23,18 @@ export interface XmlAnomalyAnnotations {
   copy(source: object, target: object): void
 }
 
+export interface XmlAnomalyAnnotationSnapshotEntry {
+  readonly parentPath: readonly (string | number)[]
+  readonly key: string | number
+  readonly annotation: XmlAnomalyAnnotation
+}
+
+export interface XmlAnomalyAnnotationsSnapshot {
+  readonly version: 1
+  readonly root?: XmlAnomalyAnnotation
+  readonly entries: readonly XmlAnomalyAnnotationSnapshotEntry[]
+}
+
 export interface XmlAnnotatedMappingEntry<T = unknown> {
   readonly logicalKey: string
   readonly value: T
@@ -79,6 +91,57 @@ export class XmlAnomalyAnnotationTable implements XmlAnomalyAnnotations {
 
 export function createXmlAnomalyAnnotations(): XmlAnomalyAnnotationTable {
   return new XmlAnomalyAnnotationTable()
+}
+
+export function snapshotXmlAnomalyAnnotations(
+  data: unknown,
+  annotations: XmlAnomalyAnnotations,
+): XmlAnomalyAnnotationsSnapshot {
+  const paths = new Map<object, readonly (string | number)[]>()
+  collectObjectPaths(data, [], paths)
+  const entries: XmlAnomalyAnnotationSnapshotEntry[] = []
+  for (const entry of annotations.entries()) {
+    if (entry.parent === undefined || entry.key === undefined) continue
+    const parentPath = paths.get(entry.parent)
+    if (parentPath === undefined) {
+      throw new Error("XML-аннотация ссылается на значение вне YAML-дерева")
+    }
+    entries.push({ parentPath, key: entry.key, annotation: entry.annotation })
+  }
+  const root = annotations.root()
+  return {
+    version: 1,
+    ...(root === undefined ? {} : { root }),
+    entries,
+  }
+}
+
+export function restoreXmlAnomalyAnnotations(
+  data: unknown,
+  snapshot: XmlAnomalyAnnotationsSnapshot,
+): XmlAnomalyAnnotationTable {
+  if (snapshot.version !== 1) throw new Error(`Неизвестная версия XML-аннотаций: ${snapshot.version}`)
+  const annotations = createXmlAnomalyAnnotations()
+  if (snapshot.root !== undefined) annotations.setRoot(snapshot.root)
+  for (const entry of snapshot.entries) {
+    const parent = valueAtPath(data, entry.parentPath)
+    if (!isObject(parent)) {
+      throw new Error(`Не найден родитель XML-аннотации: /${entry.parentPath.join("/")}`)
+    }
+    if (entry.annotation.target === "key") {
+      if (typeof entry.key !== "string") throw new Error("Ключ XML-аннотации должен быть строкой")
+      annotations.setKey(parent, entry.key, entry.annotation)
+    } else if (entry.annotation.target === "value") {
+      annotations.set(parent, entry.key, entry.annotation)
+    }
+  }
+  return annotations
+}
+
+export function isXmlAnomalyAnnotationsSnapshot(value: unknown): value is XmlAnomalyAnnotationsSnapshot {
+  if (!isObject(value)) return false
+  const candidate = value as { readonly version?: unknown; readonly entries?: unknown }
+  return candidate.version === 1 && Array.isArray(candidate.entries)
 }
 
 export function copyXmlAnomalyAnnotationsForParent(
@@ -184,4 +247,29 @@ function uniqueXmlAnnotationRuntimeKey(mapping: Record<string, unknown>): string
 
 function isObject(value: unknown): value is object {
   return value !== null && typeof value === "object"
+}
+
+function collectObjectPaths(
+  value: unknown,
+  path: readonly (string | number)[],
+  paths: Map<object, readonly (string | number)[]>,
+): void {
+  if (!isObject(value) || paths.has(value)) return
+  paths.set(value, path)
+  if (Array.isArray(value)) {
+    value.forEach((child, index) => collectObjectPaths(child, [...path, index], paths))
+    return
+  }
+  for (const key of Object.keys(value)) {
+    collectObjectPaths((value as Record<string, unknown>)[key], [...path, key], paths)
+  }
+}
+
+function valueAtPath(value: unknown, path: readonly (string | number)[]): unknown {
+  let current = value
+  for (const segment of path) {
+    if (!isObject(current)) return undefined
+    current = (current as Record<string | number, unknown>)[segment]
+  }
+  return current
 }

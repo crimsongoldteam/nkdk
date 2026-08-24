@@ -18,6 +18,7 @@ import {
 import { metadataTargetOwnerFromRule } from "../ruleRuntime/property/metadataTargetString"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { BaseFormSourceResult } from "./baseFormSource"
+import { prepareXmlAnomalyAssignment } from "./xmlAnomalyAssignment"
 
 export function prepareFullXmlSyncAssignment(params: {
   assignment: FullXmlSyncAssignment
@@ -107,6 +108,11 @@ function prepareTopologyAssignmentDocuments(
           ).rootRule,
         }
       : assignmentNode
+  const anomalyAssignment = prepareXmlAnomalyAssignment({
+    preparedYamlFile: params.preparedYamlFile,
+    rootRule: effectiveAssignmentNode.itemRule,
+    itemName: params.assignment.itemName,
+  })
   const outputs = params.assignment.potentialOutputs
   const context = withTopologyMetadataTargetOwners(params)
   const outputsByCapability = Map.groupBy(outputs, (output) => output.prepareCapabilityId)
@@ -115,7 +121,7 @@ function prepareTopologyAssignmentDocuments(
     if (capability === undefined) throw new Error(`Не зарегистрирована возможность подготовки XML: ${capabilityId}`)
     return capability.run({
       context,
-      preparedYamlFile: params.preparedYamlFile,
+      preparedYamlFile: anomalyAssignment.preparedYamlFile,
       ...(params.baseFormSource === undefined
         ? {}
         : {
@@ -134,7 +140,7 @@ function prepareTopologyAssignmentDocuments(
         ? {}
         : { baseFormContext: params.baseFormContext }),
       assignment: effectiveAssignmentNode,
-      itemName: params.assignment.itemName,
+      itemName: anomalyAssignment.itemName,
       logicalAddress: params.assignment.logicalAddress,
       outputs: capabilityOutputs,
       index: params.index,
@@ -142,9 +148,28 @@ function prepareTopologyAssignmentDocuments(
       profile: params.profile,
     })
   })
+  for (const boundary of anomalyAssignment.rawBoundaries) {
+    const tag = boundary.tag
+    if (tag === undefined && documents.length !== 1) {
+      throw new Error(
+        `raw-границу ${boundary.path} нельзя однозначно связать с одним XML-документом assignment`,
+      )
+    }
+    if (tag !== undefined && !documents.some((document) => document.tags?.includes(tag) === true)) {
+      throw new Error(
+        `Для raw-границы ${boundary.path} не сформирован XML-документ с тегом ${tag}`,
+      )
+    }
+  }
+  const preparedDocuments = documents.map((document) => ({
+    ...document,
+    rawBoundaries: anomalyAssignment.rawBoundaries.filter(
+      (boundary) => boundary.tag === undefined || document.tags?.includes(boundary.tag) === true,
+    ),
+  }))
   const allowed = new Set(outputs.map((output) => output.declarationId))
   const seen = new Set<string>()
-  for (const document of documents) {
+  for (const document of preparedDocuments) {
     if (!allowed.has(document.declarationId)) {
       throw new Error(`Возможность вернула необъявленный XML-документ: ${document.declarationId}`)
     }
@@ -153,7 +178,7 @@ function prepareTopologyAssignmentDocuments(
     }
     seen.add(document.declarationId)
   }
-  return documents
+  return preparedDocuments
 }
 
 function withTopologyMetadataTargetOwners(

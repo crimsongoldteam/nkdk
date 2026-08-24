@@ -9,6 +9,7 @@ import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import type { ProjectStateReadToken } from "../projectState/contracts/readToken"
 import type { MetadataXmlBaseInputDeclaration } from "@nkdk/runtime/rule-kit"
 import type { MetadataWorkerBinaryResult } from "../workerPool/binaryResult"
+import type { XmlRawMergeBoundary } from "@nkdk/runtime"
 
 export interface FullXmlSyncPotentialOutput {
   readonly declarationId: string
@@ -91,12 +92,17 @@ export type FullXmlSyncOutputTarget =
       readonly documentIdsByAssignment: Readonly<Record<string, readonly string[]>>
     }
 
+export interface PreparedXmlAnomalyBoundary extends XmlRawMergeBoundary {
+  readonly tag?: string
+}
+
 export interface PreparedXMLDocument {
   readonly declarationId?: string
   readonly targetXmlPath: string
   readonly xml: Record<string, unknown>
   readonly deferred: readonly DeferredObjectValue[]
   readonly rootRule: MetadataItemRule
+  readonly rawBoundaries: readonly PreparedXmlAnomalyBoundary[]
 }
 
 export interface PreparedXMLAssignment {

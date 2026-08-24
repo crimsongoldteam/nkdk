@@ -8,6 +8,7 @@ import { mockContextToXML } from "../../tests/mockContext"
 import { createYAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
 import { resolvePartialXmlPackagePolicy } from "../partialSyncToXml/packagePolicy"
 import { testConfigurationIndexReader } from "../../tests/configurationIndex"
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
 
 
 describe("registered metadata resource topology contracts", () => {
@@ -73,6 +74,7 @@ describe("registered metadata resource topology contracts", () => {
         role: "properties",
         owner: { dir: "ОбщаяФорма", name: "Пустая" },
         data: {},
+        annotations: createXmlAnomalyAnnotations(),
         syntaxDiagnostics: [],
       },
       assignment,
@@ -106,6 +108,7 @@ describe("registered metadata resource topology contracts", () => {
         role: "properties",
         owner: { dir: "ОбщаяФорма", name: "Обычная" },
         data: { ТипФормы: "Обычная" },
+        annotations: createXmlAnomalyAnnotations(),
         syntaxDiagnostics: [],
       },
       assignment,

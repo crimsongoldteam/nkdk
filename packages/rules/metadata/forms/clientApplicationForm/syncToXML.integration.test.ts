@@ -6,6 +6,7 @@ import { mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixtureDir } from "../../../tests/readFixtureXML"
 import { prepareYamlFiles } from "../../project/prepareYamlFiles"
 import { prepareFormXML, writePreparedFormToXML } from "./syncToXML"
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
 
 describe("writePreparedFormToXML", () => {
   it("готовит для обычной формы только metadata XML", () => {
@@ -15,6 +16,7 @@ describe("writePreparedFormToXML", () => {
       role: "form" as const,
       owner: { dir: "Справочник", name: "Товары" },
       data: { ТипФормы: "Обычная" },
+      annotations: createXmlAnomalyAnnotations(),
       syntaxDiagnostics: [],
     }
 
@@ -39,6 +41,7 @@ describe("writePreparedFormToXML", () => {
           role: "form",
           owner: { dir: "Справочник", name: "Товары" },
           data: { ТипФормы: "Обычная" },
+          annotations: createXmlAnomalyAnnotations(),
           syntaxDiagnostics: [],
         },
         outputDir: join(tmpRoot, "xml"),
@@ -92,6 +95,7 @@ describe("writePreparedFormToXML", () => {
       role: "form" as const,
       owner: { dir: "Справочник", name: "Товары" },
       data,
+      annotations: createXmlAnomalyAnnotations(),
       syntaxDiagnostics: [],
     })
     const result = prepareFormXML({
