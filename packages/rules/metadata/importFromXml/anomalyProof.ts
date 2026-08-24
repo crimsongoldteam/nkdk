@@ -14,6 +14,7 @@ import {
   type XmlAnomalyAnnotationsSnapshot,
   type XmlDocument,
   type XmlElementNode,
+  type XmlImportAuditBoundary,
   type XmlImportAuditedNode,
   type XmlImportAuditSession,
   type XmlSourceSpan,
@@ -125,7 +126,7 @@ export function deriveXmlAnomalyProofBoundaries(params: {
       readonly span: XmlSourceSpan
     }[]
   }>()
-  const itemAnchors: XmlAnomalyItemAnchor[] = []
+  const itemAnchorsByBoundary = new Map<string, XmlAnomalyItemAnchor>()
   for (const outcome of params.audit.outcomes()) {
     if (outcome.state !== "claimed" && outcome.state !== "duplicate" && outcome.state !== "ambiguous") continue
     const source = nodeSource.get(outcome.node)
@@ -135,12 +136,17 @@ export function deriveXmlAnomalyProofBoundaries(params: {
       for (const candidate of outcome.boundaries) {
         const anchorRulePath = candidate.rulePath?.map(({ propertyKey }) => propertyKey) ?? []
         if (candidate.yamlPath === undefined || anchorRulePath.length === 0) continue
-        itemAnchors.push({
+        const anchor = {
           sourcePath: source.sourcePath,
           xmlPath: outcome.node.path,
           yamlPath: [...candidate.yamlPath],
           rulePath: anchorRulePath,
-        })
+        }
+        const key = itemAnchorBoundaryKey(source.sourcePath, candidate)
+        const current = itemAnchorsByBoundary.get(key)
+        if (current === undefined || compareItemAnchorRoot(anchor, current) < 0) {
+          itemAnchorsByBoundary.set(key, anchor)
+        }
       }
     }
     for (const boundary of proofBoundariesForOutcome(outcome)) {
@@ -173,6 +179,7 @@ export function deriveXmlAnomalyProofBoundaries(params: {
       }
     }
   }
+  const itemAnchors = [...itemAnchorsByBoundary.values()]
   const resolvedItemRules = resolveDynamicItemRules(params.rule, itemAnchors, params.data)
   const boundaries: XmlAnomalyProofBoundary[] = [...grouped.values()].map(({
     boundary,
@@ -264,6 +271,29 @@ export function deriveXmlAnomalyProofBoundaries(params: {
     }
   }
   return boundaries
+}
+
+function itemAnchorBoundaryKey(
+  sourcePath: string,
+  boundary: XmlImportAuditBoundary,
+): string {
+  return JSON.stringify([
+    sourcePath,
+    boundary.itemType,
+    boundary.propertyKey,
+    boundary.propertyType,
+    boundary.yamlPath,
+    boundary.rulePath,
+  ])
+}
+
+function compareItemAnchorRoot(left: XmlAnomalyItemAnchor, right: XmlAnomalyItemAnchor): number {
+  return xmlPathDepth(left.xmlPath) - xmlPathDepth(right.xmlPath)
+    || left.xmlPath.localeCompare(right.xmlPath)
+}
+
+function xmlPathDepth(path: string): number {
+  return path.split("/").length - 1
 }
 
 function resolveDynamicItemRules(

@@ -7,9 +7,15 @@ import {
   serializeYAMLDocument,
   snapshotXmlAnomalyAnnotations,
   type XmlElementNode,
+  type XmlImportAuditSession,
 } from "@nkdk/runtime"
 import { describe, expect, it, vi } from "vitest"
-import { getTypeRule, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import {
+  getTypeRule,
+  getXMLImportPlan,
+  visitXMLImportPlan,
+  type MetadataItemRule,
+} from "@nkdk/runtime/rule-kit"
 import "../../tests/metadataExecutionContext"
 import { MetadataCommonFormRules } from "../appliedObjects/metadataCommonForm/rules"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
@@ -30,6 +36,7 @@ import {
 } from "./anomalyProof"
 
 const sourcePath = "/source/Owner.xml"
+const formSourcePath = "/source/Ext/Form.xml"
 
 describe("XML anomaly proof", () => {
   it("объединяет вложенные PropertyRule одной YAML-границы до общего XML-элемента", () => {
@@ -257,15 +264,7 @@ describe("XML anomaly proof", () => {
         { propertyKey: "dataPath" },
       ],
     })
-    const childItemsDescriptor = getTypeRule(
-      ClientApplicationFormRules.properties.childItems.type,
-      "yamlToXMLNestedRule",
-    )
-    expect(childItemsDescriptor?.kind).toBe("collection")
-    if (childItemsDescriptor?.kind !== "collection" || childItemsDescriptor.resolveItemRule === undefined) {
-      throw new Error("У GroupChildItems отсутствует dynamic resolveItemRule")
-    }
-    const resolver = vi.spyOn(childItemsDescriptor, "resolveItemRule")
+    const resolver = spyOnFormChildItemsResolver()
     const data = {
       Элементы: {
         Поле: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Количество" },
@@ -273,14 +272,11 @@ describe("XML anomaly proof", () => {
     }
 
     try {
-      const boundaries = deriveXmlAnomalyProofBoundaries({
-        sources: [{ sourcePath: "/source/Ext/Form.xml", role: "body", document }],
+      const boundary = deriveFormDataPathBoundary(
+        document,
         audit,
-        rule: ClientApplicationFormRules,
         data,
-      })
-      const boundary = boundaries.find(({ yamlPath }) =>
-        yamlPath.join("/") === "Элементы/Поле/ПутьКДанным"
+        ["Элементы", "Поле", "ПутьКДанным"],
       )
 
       expect(resolver).toHaveBeenCalledOnce()
@@ -289,34 +285,113 @@ describe("XML anomaly proof", () => {
         yamlPath: ["Элементы", "Поле", "ПутьКДанным"],
       }))
 
-      const result = await proveXmlAnomalyBoundaries({
-        data,
-        annotations: { version: 1, entries: [] },
-        audit: captureXmlAnomalyProofAudit({
-          sources: [{ sourcePath: "/source/Ext/Form.xml", role: "body", document }],
-          boundaries: [boundary!],
-        }),
-        exported: [{
-          role: "body",
-          sourcePath: "/source/Ext/Form.xml",
-          document: parseXmlDocumentWithSaxes(exported),
-        }],
-        readSource: async (path) => {
-          expect(path).toBe("/source/Ext/Form.xml")
-          return source
-        },
-      })
+      const result = await proveFormDataPathBoundary({ source, exported, document, data, boundary })
 
-      expect(result.annotations.entries).toContainEqual(expect.objectContaining({
-        parentPath: ["Элементы", "Поле"],
-        key: "ПутьКДанным",
-        annotation: expect.objectContaining({ kind: "raw", target: "value" }),
-      }))
+      expectFormDataPathRaw(result, "Поле")
       expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
         parentPath: ["Элементы"],
         key: "Поле",
       }))
       expect(result.data).toMatchObject({ Элементы: { Поле: { Вид: "ПолеВвода" } } })
+    } finally {
+      resolver.mockRestore()
+    }
+  })
+
+  it("разрешает dynamic item rule один раз на physical item из import audit", async () => {
+    const source = [
+      '<Form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><ChildItems>',
+      '<InputField name="Первое" id="id-1"><ChildItems>',
+      '<DataPath xsi:type="xs:string">Объект.Количество</DataPath>',
+      "</ChildItems></InputField>",
+      '<InputField name="Второе" id="id-2"/>',
+      "</ChildItems></Form>",
+    ].join("")
+    const exported = source.replace(' xsi:type="xs:string"', "")
+    const document = parseXmlDocumentWithSaxes(source)
+    const root = document.roots[0]!
+    const childItems = nestedElement(root, ["ChildItems"])
+    const inputs = childItems.content.filter(
+      (node): node is XmlElementNode => node.type === "element" && node.name === "InputField",
+    )
+    const audit = createXmlImportAuditSession(document.roots)
+    const physicalYamlPaths = [
+      ["Элементы", "Первое"],
+      ["Элементы", "Второе"],
+    ] as const
+    const importPlan = getXMLImportPlan({
+      rule: {
+        itemType: "InputField",
+        properties: {
+          dataPath: {
+            type: "DataPath",
+            yaml: "ПутьКДанным",
+            xml: "DataPath",
+            xmlParents: ["ChildItems"],
+          },
+        },
+      },
+      includeAllTags: true,
+    })
+    for (const [index, input] of inputs.entries()) {
+      const yamlPath = physicalYamlPaths[index]!
+      visitXMLImportPlan({
+        plan: importPlan,
+        xml: input,
+        audit,
+        auditItemBoundary: {
+          itemType: "InputField",
+          yamlPath,
+          rulePath: [{ propertyKey: "childItems" }],
+        },
+        auditBoundary: ({ propertyKey, rule }) => ({
+          itemType: "InputField",
+          propertyKey,
+          propertyType: rule.type,
+          yamlPath: [...yamlPath, rule.yaml ?? propertyKey],
+          rulePath: [
+            { propertyKey: "childItems", nestedItemType: "InputField" },
+            { propertyKey },
+          ],
+        }),
+        visit() {},
+      })
+    }
+    audit.finalize()
+
+    const resolver = spyOnFormChildItemsResolver()
+    const data = {
+      Элементы: {
+        Первое: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Количество" },
+        Второе: { Вид: "ПолеВвода" },
+      },
+    }
+
+    try {
+      const boundary = deriveFormDataPathBoundary(
+        document,
+        audit,
+        data,
+        ["Элементы", "Первое", "ПутьКДанным"],
+      )
+
+      expect(resolver).toHaveBeenCalledTimes(2)
+      expect(resolver.mock.calls.map(([input]) => ({ name: input.name, index: input.index }))).toEqual([
+        { name: "Первое", index: 0 },
+        { name: "Второе", index: 1 },
+      ])
+      expect(boundary?.levels?.[0]).toEqual(expect.objectContaining({
+        xmlPath: "/Form[1]/ChildItems[1]/InputField[1]/ChildItems[1]/DataPath[1]",
+        yamlPath: ["Элементы", "Первое", "ПутьКДанным"],
+      }))
+
+      const result = await proveFormDataPathBoundary({ source, exported, document, data, boundary })
+
+      expectFormDataPathRaw(result, "Первое")
+      expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+        parentPath: ["Элементы"],
+        key: "Первое",
+      }))
     } finally {
       resolver.mockRestore()
     }
@@ -873,6 +948,71 @@ function deriveClaimedValueBoundary(
     audit,
     rule,
   })
+}
+
+function spyOnFormChildItemsResolver() {
+  const descriptor = getTypeRule(
+    ClientApplicationFormRules.properties.childItems.type,
+    "yamlToXMLNestedRule",
+  )
+  expect(descriptor?.kind).toBe("collection")
+  if (descriptor?.kind !== "collection" || descriptor.resolveItemRule === undefined) {
+    throw new Error("У GroupChildItems отсутствует dynamic resolveItemRule")
+  }
+  return vi.spyOn(descriptor, "resolveItemRule")
+}
+
+function deriveFormDataPathBoundary(
+  document: ReturnType<typeof parseXmlDocumentWithSaxes>,
+  audit: XmlImportAuditSession,
+  data: Record<string, unknown>,
+  yamlPath: readonly (string | number)[],
+): XmlAnomalyProofBoundary {
+  const boundary = deriveXmlAnomalyProofBoundaries({
+    sources: [{ sourcePath: formSourcePath, role: "body", document }],
+    audit,
+    rule: ClientApplicationFormRules,
+    data,
+  }).find((candidate) => candidate.yamlPath.join("/") === yamlPath.join("/"))
+  if (boundary === undefined) throw new Error(`Не найдена proof-граница ${yamlPath.join("/")}`)
+  return boundary
+}
+
+async function proveFormDataPathBoundary(params: {
+  readonly source: string
+  readonly exported: string
+  readonly document: ReturnType<typeof parseXmlDocumentWithSaxes>
+  readonly data: Record<string, unknown>
+  readonly boundary: XmlAnomalyProofBoundary
+}) {
+  return proveXmlAnomalyBoundaries({
+    data: params.data,
+    annotations: { version: 1, entries: [] },
+    audit: captureXmlAnomalyProofAudit({
+      sources: [{ sourcePath: formSourcePath, role: "body", document: params.document }],
+      boundaries: [params.boundary],
+    }),
+    exported: [{
+      role: "body",
+      sourcePath: formSourcePath,
+      document: parseXmlDocumentWithSaxes(params.exported),
+    }],
+    readSource: async (path) => {
+      expect(path).toBe(formSourcePath)
+      return params.source
+    },
+  })
+}
+
+function expectFormDataPathRaw(
+  result: Awaited<ReturnType<typeof proveXmlAnomalyBoundaries>>,
+  itemName: string,
+): void {
+  expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+    parentPath: ["Элементы", itemName],
+    key: "ПутьКДанным",
+    annotation: expect.objectContaining({ kind: "raw", target: "value" }),
+  }))
 }
 
 function nestedElement(root: XmlElementNode, path: readonly string[]): XmlElementNode {
