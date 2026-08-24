@@ -60,6 +60,17 @@ export interface ProjectStateStructuredDocumentFact {
   readonly entry: ProjectStateStructuredDocumentEntry
 }
 
+export interface ProjectStateXmlAnomalyBoundary {
+  readonly componentPath: string
+  readonly projectPath: string
+  readonly yamlPath: ProjectStateYamlPath
+}
+
+export interface ProjectStateSemanticValidationResult {
+  readonly diagnostics: readonly Diagnostic[]
+  readonly acceptedXmlAnomalies: readonly ProjectStateXmlAnomalyBoundary[]
+}
+
 export interface ProjectStateQueryPort {
   resolveTargets(requests: readonly ProjectTargetLookup[]): readonly ProjectTargetLookupResult[]
   readOwners(requests: readonly ProjectOwnerLookup[]): readonly ProjectOwnerLookupResult[]
@@ -121,9 +132,9 @@ export type ProjectStateStructuredDocumentValidator = (
 export interface ProjectStateDependencyValidator {
   readReadiness(params: ProjectStateReadinessParams): ProjectStateDependencyReadiness
   resolveDataPaths(params: ProjectStateResolveDataPathsParams): readonly ProjectStateResolvedDataPathProjection[]
-  validateReferences(params: ProjectStateReferenceValidationParams): readonly Diagnostic[]
+  validateReferences(params: ProjectStateReferenceValidationParams): ProjectStateSemanticValidationResult
   validateOwners(params: ProjectStateOwnerValidationParams): readonly Diagnostic[]
-  validateDependencies(params: ProjectStateDependencyValidationParams): readonly Diagnostic[]
+  validateDependencies(params: ProjectStateDependencyValidationParams): ProjectStateSemanticValidationResult
   validateAddressableRequired(params: ProjectStateAddressableRequiredValidationParams): readonly Diagnostic[]
   validateReferenceCoverage(params: ProjectStateReferenceCoverageValidationParams): readonly Diagnostic[]
   validateStructuredDocuments(params: ProjectStateStructuredDocumentValidationParams): readonly Diagnostic[]

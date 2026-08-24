@@ -107,11 +107,35 @@ describe("validatePendingChecks", () => {
       Другой: { type: ["DefinedType.АвторДействия"] },
     }), "цикл определяемых типов"],
   ] as const)("не считает предупреждение о %s DefinedType подтверждением invalid", (_name, cache, _message) => {
-    const diagnostics = validatePendingChecks({ ownerCache: cache, checks: [fillValueCheck(true)] }).diagnostics
-    expect(diagnostics).toEqual([expect.objectContaining({
-      source: "structure",
-      message: expect.stringContaining("Тег XML-аномалии лишний"),
-    })])
+    expect(validatePendingChecks({ ownerCache: cache, checks: [fillValueCheck(true)] })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalyPaths: [],
+    })
+  })
+
+  it("возвращает ошибочную pending-границу как подтверждённую", () => {
+    const result = validatePendingChecks({
+      ownerCache: definedTypeCache({ АвторДействия: { type: ["CatalogRef.Сотрудники"] } }),
+      checks: [fillValueCheck(true)],
+    })
+
+    expect(result).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalyPaths: [["Реквизиты", "Автор", "ЗначениеЗаполнения"]],
+    })
+  })
+
+  it("не проверяет уже подтверждённую границу", () => {
+    const check = { ...fillValueCheck(true), xmlAnomaly: "accepted" as const }
+    const rejectingCache: OwnerMetadataCache = {
+      get: () => { throw new Error("проверка не должна запускаться") },
+      listRefs: () => [],
+    }
+
+    expect(validatePendingChecks({ ownerCache: rejectingCache, checks: [check] })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalyPaths: [check.yamlPath],
+    })
   })
 
   it("разрешает DesignTimeRef для ссылочного DefinedType и отклоняет для строкового", () => {

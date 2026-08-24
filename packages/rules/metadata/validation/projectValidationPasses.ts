@@ -23,7 +23,6 @@ import {
   type ProjectObjectIndexEntry,
   type ProjectReferenceIndex,
   type ProjectValueIndexEntry,
-  validatePendingReferencesWithIndex,
 } from "./projectReferenceIndex"
 import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
@@ -36,6 +35,7 @@ import type { Diagnostic } from "./types"
 import {
   validationIssuePathFromPointer,
   validationIssueTargetKey,
+  yamlPathToPointer,
   type ValidationIssue,
   type ValidationIssueTarget,
 } from "@nkdk/runtime"
@@ -701,37 +701,24 @@ export function validateProjectFileSecondPass(
   params: ProjectValidationSecondPassParams
 ): ProjectValidationSecondPassResult {
   if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
-
-  if (params.state.kind === "form") {
-    const referenceDiagnostics = params.skipMetadataTargetValidation
-      ? []
-      : validateSecondPassReferences(params, params.state.pendingReferences)
-    return {
-      status: "ok",
-      diagnostics: [
-        ...referenceDiagnostics,
-        ...validatePendingChecks({
-          ownerCache: params.ownerCache,
-          checks: params.state.pendingChecks,
-          resolveReference: pendingReferenceResolver(params),
-        }).diagnostics,
-      ],
-    }
+  const references = params.skipMetadataTargetValidation ? [] : params.state.pendingReferences
+  const referenceResult = validateSecondPassReferences(params, references)
+  const accepted = new Set(referenceResult.acceptedXmlAnomalyPaths.map(xmlAnomalyPathKey))
+  const pendingChecks = params.state.pendingChecks.filter((check) => !accepted.has(xmlAnomalyPathKey(check.yamlPath)))
+  const pendingResult = validatePendingChecks({
+    ownerCache: params.ownerCache,
+    checks: pendingChecks,
+    resolveReference: pendingReferenceResolver(params),
+  })
+  for (const path of pendingResult.acceptedXmlAnomalyPaths) accepted.add(xmlAnomalyPathKey(path))
+  return {
+    status: "ok",
+    diagnostics: [
+      ...referenceResult.diagnostics,
+      ...pendingResult.diagnostics,
+      ...unnecessaryXmlAnomalyDiagnostics(references, params.state.pendingChecks, accepted),
+    ],
   }
-
-  const collected = params.skipMetadataTargetValidation
-    ? { references: [], diagnostics: [] }
-    : { references: params.state.pendingReferences, diagnostics: [] }
-  const diagnostics = [
-    ...collected.diagnostics,
-    ...validateSecondPassReferences(params, collected.references),
-    ...validatePendingChecks({
-      ownerCache: params.ownerCache,
-      checks: params.state.pendingChecks,
-      resolveReference: pendingReferenceResolver(params),
-    }).diagnostics,
-  ]
-  return { status: "ok", diagnostics }
 }
 
 function pendingReferenceResolver(
@@ -752,18 +739,59 @@ function pendingReferenceResolver(
 function validateSecondPassReferences(
   params: ProjectValidationSecondPassParams,
   references: readonly PendingMetadataTargetReference[],
-): Diagnostic[] {
-  const dataTables = references.filter(({ target }) => target.kind === "dataTable" || target.kind === "dataTableField")
-  const ordinary = references.filter(({ target }) => target.kind !== "dataTable" && target.kind !== "dataTableField")
-  const diagnostics = validatePendingReferencesWithIndex({
-    index: params.referenceIndex,
-    references: ordinary,
-  }).diagnostics
-  for (const reference of dataTables) {
-    const resolved = params.dataTableIndex?.resolve(reference) ?? params.referenceIndex.resolve(reference)
-    if (!resolved.ok) diagnostics.push(...resolved.diagnostics)
+): { diagnostics: Diagnostic[]; acceptedXmlAnomalyPaths: Array<readonly (string | number)[]> } {
+  const diagnostics: Diagnostic[] = []
+  const acceptedXmlAnomalyPaths: Array<readonly (string | number)[]> = []
+  for (const reference of references) {
+    if (reference.xmlAnomaly === "accepted") {
+      acceptedXmlAnomalyPaths.push(reference.yamlPath)
+      continue
+    }
+    const resolved = reference.target.kind === "dataTable" || reference.target.kind === "dataTableField"
+      ? params.dataTableIndex?.resolve(reference) ?? params.referenceIndex.resolve(reference)
+      : params.referenceIndex.resolve(reference)
+    if (resolved.ok) continue
+    if (reference.xmlAnomaly === "pending") {
+      acceptedXmlAnomalyPaths.push(reference.yamlPath)
+      continue
+    }
+    diagnostics.push(...resolved.diagnostics)
   }
-  return diagnostics
+  return { diagnostics, acceptedXmlAnomalyPaths }
+}
+
+function unnecessaryXmlAnomalyDiagnostics(
+  references: readonly PendingMetadataTargetReference[],
+  checks: readonly ValidationPendingCheck[],
+  accepted: ReadonlySet<string>,
+): Diagnostic[] {
+  const pending = new Map<string, { filePath: string; line: number; col: number; path?: string }>()
+  for (const reference of references) {
+    if (reference.xmlAnomaly !== "pending") continue
+    const path = yamlPathToPointer(reference.yamlPath)
+    pending.set(xmlAnomalyPathKey(reference.yamlPath), {
+      filePath: reference.filePath,
+      line: 1,
+      col: 1,
+      ...(path === undefined ? {} : { path }),
+    })
+  }
+  for (const check of checks) {
+    if (!("xmlAnomaly" in check) || check.xmlAnomaly !== "pending") continue
+    pending.set(xmlAnomalyPathKey(check.yamlPath), check.location)
+  }
+  return [...pending]
+    .filter(([key]) => !accepted.has(key))
+    .map(([, location]) => ({
+      ...location,
+      severity: "error" as const,
+      source: "structure" as const,
+      message: "Тег XML-аномалии лишний: значение не содержит ошибки",
+    }))
+}
+
+function xmlAnomalyPathKey(path: readonly (string | number)[]): string {
+  return validationIssueTargetKey({ kind: "path", path })
 }
 
 interface ProjectValidationFirstPassInternalParams {

@@ -4,12 +4,16 @@ import {
   type EncodedDiagnosticBatch,
 } from "@nkdk/runtime"
 import type { Diagnostic, DiagnosticSource, DiagnosticSeverity } from "@nkdk/runtime"
+import { yamlPathToPointer } from "@nkdk/runtime"
+import { join } from "node:path"
 import type {
   ProjectStateDependencyValidator,
   ProjectStateAddressableRequiredCheck,
   ProjectStateReferenceCoverageCheck,
   ProjectStatePendingOwnerCheck,
   ProjectStatePendingReferenceCheck,
+  ProjectStateSemanticValidationResult,
+  ProjectStateXmlAnomalyBoundary,
 } from "../contracts/dependencyValidation"
 import type { ProjectDependencyInputQuery } from "../contracts/dependencyValidation"
 import { PROJECT_STATE_FACT_RECORD_VIEWS } from "./factTables"
@@ -101,15 +105,160 @@ export function validateSnapshotDependencyDiagnostics(
     typed,
     readiness.blockedComponentPaths,
   )
+  const pending = collectPendingBoundaries(references, dependencies)
+  const accepted = collectAcceptedBoundaryKeys(references, dependencies)
+  const referenceResult = validatePendingInWaves({
+    checks: references.filter((check) => check.reference.xmlAnomaly !== "accepted"),
+    boundary: referenceBoundary,
+    accepted,
+    validate: (checks) => dependencyValidator.validateReferences({ checks, projectDir, queryPort }),
+  })
+  addAccepted(accepted, referenceResult.acceptedXmlAnomalies)
+  const dependencyResult = validatePendingInWaves({
+    checks: dependencies.filter((check) => check.check.xmlAnomaly !== "accepted"),
+    boundary: dependencyBoundary,
+    accepted,
+    validate: (checks) => dependencyValidator.validateDependencies({ checks, projectDir, queryPort }),
+  })
+  addAccepted(accepted, dependencyResult.acceptedXmlAnomalies)
+
   return [
-    ...dependencyValidator.validateReferences({ checks: references, projectDir, queryPort }),
+    ...referenceResult.diagnostics,
     ...dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }),
-    ...dependencyValidator.validateDependencies({ checks: dependencies, projectDir, queryPort }),
+    ...dependencyResult.diagnostics,
     ...dependencyValidator.validateAddressableRequired({ checks: addressableRequired, projectDir, queryPort }),
     ...dependencyValidator.validateReferenceCoverage({ checks: referenceCoverage, projectDir, queryPort }),
     ...dependencyValidator.validateStructuredDocuments({ facts: structuredDocuments, projectDir, queryPort }),
     ...readiness.diagnostics,
+    ...unnecessaryXmlAnomalyDiagnostics(pending, accepted, projectDir),
   ]
+}
+
+function validatePendingInWaves<T>(params: {
+  readonly checks: readonly T[]
+  readonly boundary: (check: T) => ProjectStateXmlAnomalyBoundary | undefined
+  readonly accepted: Set<string>
+  readonly validate: (checks: readonly T[]) => ProjectStateSemanticValidationResult
+}): ProjectStateSemanticValidationResult {
+  const ordinary: T[] = []
+  const pending = new Map<string, T[]>()
+  for (const check of params.checks) {
+    const boundary = params.boundary(check)
+    if (boundary === undefined) {
+      ordinary.push(check)
+      continue
+    }
+    const key = boundaryKey(boundary)
+    if (params.accepted.has(key)) continue
+    const queue = pending.get(key)
+    if (queue === undefined) pending.set(key, [check])
+    else queue.push(check)
+  }
+
+  const diagnostics: Diagnostic[] = []
+  const acceptedXmlAnomalies: ProjectStateXmlAnomalyBoundary[] = []
+  let first = true
+  while (first || pending.size > 0) {
+    const wave = first ? [...ordinary] : []
+    first = false
+    for (const [key, queue] of pending) {
+      if (params.accepted.has(key)) {
+        pending.delete(key)
+        continue
+      }
+      const check = queue.shift()
+      if (check !== undefined) wave.push(check)
+      if (queue.length === 0) pending.delete(key)
+    }
+    if (wave.length === 0) break
+    const result = params.validate(wave)
+    diagnostics.push(...result.diagnostics)
+    acceptedXmlAnomalies.push(...result.acceptedXmlAnomalies)
+    addAccepted(params.accepted, result.acceptedXmlAnomalies)
+  }
+  return { diagnostics, acceptedXmlAnomalies }
+}
+
+function collectPendingBoundaries(
+  references: readonly ProjectStatePendingReferenceCheck[],
+  dependencies: readonly ProjectDependencyInputQuery[],
+): Map<string, ProjectStateXmlAnomalyBoundary & { readonly line: number; readonly col: number }> {
+  const result = new Map<string, ProjectStateXmlAnomalyBoundary & { readonly line: number; readonly col: number }>()
+  for (const check of references) {
+    const boundary = referenceBoundary(check)
+    if (boundary !== undefined) result.set(boundaryKey(boundary), { ...boundary, line: 1, col: 1 })
+  }
+  for (const check of dependencies) {
+    const boundary = dependencyBoundary(check)
+    if (boundary !== undefined) result.set(boundaryKey(boundary), {
+      ...boundary,
+      line: check.check.location.line,
+      col: check.check.location.col,
+    })
+  }
+  return result
+}
+
+function collectAcceptedBoundaryKeys(
+  references: readonly ProjectStatePendingReferenceCheck[],
+  dependencies: readonly ProjectDependencyInputQuery[],
+): Set<string> {
+  const result = new Set<string>()
+  for (const check of references) {
+    if (check.reference.xmlAnomaly === "accepted") result.add(boundaryKey(referenceBoundaryValue(check)))
+  }
+  for (const check of dependencies) {
+    if (check.check.xmlAnomaly === "accepted") result.add(boundaryKey(dependencyBoundaryValue(check)))
+  }
+  return result
+}
+
+function referenceBoundary(check: ProjectStatePendingReferenceCheck): ProjectStateXmlAnomalyBoundary | undefined {
+  return check.reference.xmlAnomaly === "pending" ? referenceBoundaryValue(check) : undefined
+}
+
+function referenceBoundaryValue(check: ProjectStatePendingReferenceCheck): ProjectStateXmlAnomalyBoundary {
+  return {
+    componentPath: check.componentPath,
+    projectPath: check.reference.filePath,
+    yamlPath: check.reference.yamlPath,
+  }
+}
+
+function dependencyBoundary(check: ProjectDependencyInputQuery): ProjectStateXmlAnomalyBoundary | undefined {
+  return check.check.xmlAnomaly === "pending" ? dependencyBoundaryValue(check) : undefined
+}
+
+function dependencyBoundaryValue(check: ProjectDependencyInputQuery): ProjectStateXmlAnomalyBoundary {
+  return {
+    componentPath: check.componentPath,
+    projectPath: check.projectPath,
+    yamlPath: check.check.yamlPath,
+  }
+}
+
+function addAccepted(target: Set<string>, boundaries: readonly ProjectStateXmlAnomalyBoundary[]): void {
+  for (const boundary of boundaries) target.add(boundaryKey(boundary))
+}
+
+function boundaryKey(boundary: ProjectStateXmlAnomalyBoundary): string {
+  return `${boundary.componentPath}\u0000${boundary.projectPath}\u0000${yamlPathToPointer(boundary.yamlPath) ?? ""}`
+}
+
+function unnecessaryXmlAnomalyDiagnostics(
+  pending: ReadonlyMap<string, ProjectStateXmlAnomalyBoundary & { readonly line: number; readonly col: number }>,
+  accepted: ReadonlySet<string>,
+  projectDir: string,
+): Diagnostic[] {
+  return [...pending].flatMap(([key, boundary]) => accepted.has(key) ? [] : [{
+    filePath: join(projectDir, boundary.projectPath),
+    line: boundary.line,
+    col: boundary.col,
+    path: yamlPathToPointer(boundary.yamlPath),
+    severity: "error" as const,
+    source: "structure" as const,
+    message: "Тег XML-аномалии лишний: значение не содержит ошибки",
+  }])
 }
 
 export function collectDependencyChecks(

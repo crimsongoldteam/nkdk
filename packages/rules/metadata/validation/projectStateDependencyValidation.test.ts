@@ -213,7 +213,10 @@ describe("dependency validation из ProjectState", () => {
     const ownerCache = { get, listRefs: () => [] } satisfies OwnerMetadataCache
 
     expect(facts.pendingChecks).toEqual([])
-    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks })).toEqual({ diagnostics: [] })
+    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalyPaths: [],
+    })
     expect(get).not.toHaveBeenCalled()
   })
 
@@ -231,6 +234,95 @@ describe("dependency validation из ProjectState", () => {
     })
 
     expect(diagnostics).toEqual([])
+  })
+
+  it("не отправляет accepted-ссылку в порт projectState", () => {
+    const reference = {
+      ...valueReference("Справочник.Товары.ПустаяСсылка", {
+        roots: ["Catalog"],
+        valueKinds: ["emptyRef"],
+        allowEmptyRef: true,
+      }),
+      xmlAnomaly: "accepted" as const,
+    }
+    const validator = createProjectStateDependencyValidator()
+
+    expect(validator.validateReferences({
+      projectDir: "/project",
+      checks: [{ requestId: "accepted", componentPath: "cf", reference }],
+      queryPort: {
+        resolveTargets: () => unexpectedAcceptedLookup("resolveTargets"),
+        readOwners: () => unexpectedAcceptedLookup("readOwners"),
+        readDependencyOwnerInputs: () => unexpectedAcceptedLookup("readDependencyOwnerInputs"),
+        readOwnerRefPage: () => unexpectedAcceptedLookup("readOwnerRefPage"),
+      },
+    })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalies: [{
+        componentPath: "cf",
+        projectPath: reference.filePath,
+        yamlPath: reference.yamlPath,
+      }],
+    })
+  })
+
+  it("возвращает ошибочную pending-ссылку как подтверждённую границу", () => {
+    const reference = {
+      ...valueReference("Справочник.Товары.НетТакого", {
+        roots: ["Catalog"],
+        valueKinds: ["predefinedValue"],
+      }),
+      xmlAnomaly: "pending" as const,
+    }
+    const validator = createProjectStateDependencyValidator()
+
+    expect(validator.validateReferences({
+      projectDir: "/project",
+      checks: [{ requestId: "pending", componentPath: "cf", reference }],
+      queryPort: {
+        ...missingValueQueryPort({ predefined: [] }),
+        readDependencyOwnerInputs: () => [],
+        readOwnerRefPage: () => ({ refs: [] }),
+      },
+    })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalies: [{
+        componentPath: "cf",
+        projectPath: reference.filePath,
+        yamlPath: reference.yamlPath,
+      }],
+    })
+  })
+
+  it("не отправляет accepted-проверку зависимости в порт projectState", () => {
+    const source = ownerDependencySource(
+      "cf",
+      { kind: "Справочник", name: "Товары" },
+      "Объект.Артикул",
+    )
+    const ordinaryQuery = dependencyQuery("accepted-dependency", source)
+    const query = {
+      ...ordinaryQuery,
+      check: { ...ordinaryQuery.check, xmlAnomaly: "accepted" as const },
+    }
+    const validator = createProjectStateDependencyValidator()
+
+    expect(validator.validateDependencies({
+      projectDir: "/project",
+      checks: [query],
+      queryPort: {
+        readDependencyInputs: () => unexpectedAcceptedLookup("readDependencyInputs"),
+        readDependencyOwnerInputs: () => unexpectedAcceptedLookup("readDependencyOwnerInputs"),
+        readOwnerRefPage: () => unexpectedAcceptedLookup("readOwnerRefPage"),
+      },
+    })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalies: [{
+        componentPath: query.componentPath,
+        projectPath: query.projectPath,
+        yamlPath: query.check.yamlPath,
+      }],
+    })
   })
 
   it("Б5 проверяет предопределённое значение общим поставщиком по сведениям владельца", () => {
@@ -1269,6 +1361,10 @@ function dependencyQuery(requestId: string, source: ProjectStateYamlFileUpdate) 
     projectPath: source.projectPath,
     check,
   }
+}
+
+function unexpectedAcceptedLookup(name: string): never {
+  throw new Error(`${name} не должен запускаться`)
 }
 
 function currentOwnerInput(

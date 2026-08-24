@@ -61,6 +61,7 @@ export type DataPathValidationPendingCheck = Extract<ValidationPendingCheck, { k
 
 export interface ValidationPendingCheckResult {
   diagnostics: Diagnostic[]
+  acceptedXmlAnomalyPaths: YamlPath[]
 }
 
 export function validatePendingChecks(params: {
@@ -69,8 +70,13 @@ export function validatePendingChecks(params: {
   resolveReference?: (canonical: string) => "found" | "missing" | "ambiguous"
 }): ValidationPendingCheckResult {
   const diagnostics: Diagnostic[] = []
+  const acceptedXmlAnomalyPaths: YamlPath[] = []
 
   for (const check of params.checks) {
+    if ("xmlAnomaly" in check && check.xmlAnomaly === "accepted") {
+      acceptedXmlAnomalyPaths.push(check.yamlPath)
+      continue
+    }
     if (check.kind === "addressableRequired") continue
     if (check.kind === "referenceCoverage") {
       if (params.resolveReference === undefined) continue
@@ -89,7 +95,11 @@ export function validatePendingChecks(params: {
       continue
     }
     if (check.kind === "fillValue") {
-      diagnostics.push(...evaluateTaggedPendingCheck(check, validateFillValueCheck(params.ownerCache, check)))
+      diagnostics.push(...evaluateXmlAnomalyPendingCheck(
+        check,
+        validateFillValueCheck(params.ownerCache, check),
+        acceptedXmlAnomalyPaths,
+      ))
       continue
     }
     const result = resolveDataPath({
@@ -113,24 +123,25 @@ export function validatePendingChecks(params: {
         ...(check.xmlAnomaly === undefined ? {} : { tagged: true }),
       }))
     }
-    diagnostics.push(...evaluateTaggedPendingCheck(check, problems))
+    diagnostics.push(...evaluateXmlAnomalyPendingCheck(check, problems, acceptedXmlAnomalyPaths))
   }
 
-  return { diagnostics: dedupeDiagnostics(diagnostics) }
+  return {
+    diagnostics: dedupeDiagnostics(diagnostics),
+    acceptedXmlAnomalyPaths,
+  }
 }
 
-function evaluateTaggedPendingCheck(
+function evaluateXmlAnomalyPendingCheck(
   check: Extract<ValidationPendingCheck, { kind: "dataPath" | "fillValue" }>,
   problems: readonly Diagnostic[],
+  acceptedXmlAnomalyPaths: YamlPath[],
 ): readonly Diagnostic[] {
   if (check.xmlAnomaly === undefined) return problems
-  if (problems.some(({ severity }) => severity === "error")) return []
-  return [diagnosticAtYamlLocation({
-    location: check.location,
-    severity: "error",
-    source: "structure",
-    message: "Тег XML-аномалии лишний: значение не содержит ошибки",
-  })]
+  if (problems.some(({ severity }) => severity === "error")) {
+    acceptedXmlAnomalyPaths.push(check.yamlPath)
+  }
+  return []
 }
 
 function validateFillValueCheck(
