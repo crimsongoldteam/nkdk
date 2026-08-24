@@ -7,11 +7,13 @@ import {
   createLocalConfigurationIndexReader,
   type ConfigurationIndexBlock,
   type ConfigurationIndexStoreDescriptor,
+  type LocalConfigurationIndexReader,
 } from "@nkdk/runtime"
 import { openConfigurationIndexStore } from "@nkdk/runtime/configuration-index-store"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlContracts"
+import type { CompiledMetadataResourceTopology } from "@nkdk/runtime/rule-kit"
 import { openProjectStateReadSession } from "../composition/projectState"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import type { ProjectStateReadToken } from "../projectState/contracts/readToken"
@@ -25,6 +27,7 @@ import { createFullXmlSyncCompositionReader, type FullXmlSyncCompositionReader }
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
+  FullXmlSyncExpectedOutput,
   FullXmlSyncExecutionAssignment,
   FullXmlSyncExecutionResult,
   FullXmlSyncGeneratedDocument,
@@ -35,7 +38,12 @@ import type {
 } from "./types"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
-import { BaseFormSourceError, createVerifiedBaseFormSource, type BaseFormSource } from "./baseFormSource"
+import {
+  BaseFormSourceError,
+  createVerifiedBaseFormSource,
+  type BaseFormSource,
+  type BaseFormSourceResult,
+} from "./baseFormSource"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
@@ -113,6 +121,162 @@ export interface FullXmlSyncWorkerCommandRunner {
     readonly baseIndexPath?: string
   }
   readonly resetForTests: () => void
+}
+
+function syncDiagnosticFromProjectDiagnostic(
+  diagnostic: {
+    readonly severity: "error" | "warning"
+    readonly source: string
+    readonly message: string
+    readonly filePath: string
+    readonly line?: number
+    readonly col?: number
+  },
+  assignment: FullXmlSyncAssignment,
+): FullXmlSyncDiagnostic {
+  return {
+    severity: diagnostic.severity,
+    code: diagnostic.source,
+    message: diagnostic.message,
+    assignmentId: assignment.id,
+    sourceProjectPath: assignment.sourceProjectPath,
+    sourcePath: diagnostic.filePath,
+    targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
+    ...(diagnostic.line === undefined ? {} : { line: diagnostic.line }),
+    ...(diagnostic.col === undefined ? {} : { col: diagnostic.col }),
+  }
+}
+
+function assignmentDiagnostic(
+  assignment: FullXmlSyncAssignment,
+  code: string,
+  message: string,
+): FullXmlSyncDiagnostic {
+  return {
+    severity: "error",
+    code,
+    message,
+    assignmentId: assignment.id,
+    sourceProjectPath: assignment.sourceProjectPath,
+    sourcePath: assignment.sourcePath,
+    targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
+  }
+}
+
+interface FullXmlSyncAssignmentBaseFormInput {
+  readonly baseFormSource: BaseFormSourceResult
+  readonly baseConfigurationIndex?: LocalConfigurationIndexReader
+  readonly baseFormConfigurationIndex?: LocalConfigurationIndexReader
+}
+
+export interface ExecuteFullXmlSyncAssignmentCoreParams {
+  readonly assignment: FullXmlSyncAssignment
+  readonly sourceBytes: Uint8Array
+  readonly descriptor: PreparedYamlProjectFileDescriptor
+  readonly itemTypeByYamlDir: Readonly<Record<string, string>>
+  readonly context: ConfigurationContextWithExportToXML
+  readonly index: LocalConfigurationIndexReader
+  readonly operationSeed?: Uint8Array
+  readonly composition: Parameters<typeof prepareFullXmlSyncAssignment>[0]["composition"]
+  readonly topology?: CompiledMetadataResourceTopology
+  readonly outputTarget: FullXmlSyncOutputTarget
+  readonly resolveBaseForm?: () => Promise<FullXmlSyncAssignmentBaseFormInput | undefined>
+}
+
+export interface ExecuteFullXmlSyncAssignmentCoreResult {
+  readonly diagnostics: readonly FullXmlSyncDiagnostic[]
+  readonly warnings: readonly FullXmlSyncDiagnostic[]
+  readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
+  readonly expectedOutputs: readonly FullXmlSyncExpectedOutput[]
+  readonly generatedDocuments: readonly FullXmlSyncGeneratedDocument[]
+  readonly fragments: readonly ConfigurationIndexBlockFragment[]
+  readonly stopExecution: boolean
+}
+
+/**
+ * Единственный производственный путь подготовки и записи одного assignment.
+ * Он не читает YAML с диска, чтобы одинаково обслуживать обычный worker и partial sync.
+ */
+export async function executeFullXmlSyncAssignmentCore(
+  params: ExecuteFullXmlSyncAssignmentCoreParams,
+): Promise<ExecuteFullXmlSyncAssignmentCoreResult> {
+  const diagnostics: FullXmlSyncDiagnostic[] = []
+  if (hashFileBytes(params.sourceBytes) !== params.assignment.expectedContentHash) {
+    diagnostics.push(
+      assignmentDiagnostic(
+        params.assignment,
+        "full_xml_sync_source_changed",
+        `YAML изменён после получения хэшей: ${params.assignment.sourceProjectPath}`,
+      ),
+    )
+    return emptyAssignmentCoreResult(diagnostics, true)
+  }
+
+  const preparedYaml = prepareYamlFiles({
+    files: [params.descriptor],
+    itemTypeByYamlDir: params.itemTypeByYamlDir,
+    sourceBytes: new Map([[params.assignment.sourcePath, params.sourceBytes]]),
+  })
+  diagnostics.push(
+    ...preparedYaml.diagnostics.map((diagnostic) =>
+      syncDiagnosticFromProjectDiagnostic(diagnostic, params.assignment)),
+  )
+  const preparedYamlFile = preparedYaml.yamlFiles[0]
+  if (preparedYamlFile === undefined) return emptyAssignmentCoreResult(diagnostics)
+
+  const syntaxDiagnostics = preparedYamlFile.syntaxDiagnostics.map((diagnostic) =>
+    syncDiagnosticFromProjectDiagnostic(diagnostic, params.assignment),
+  )
+  diagnostics.push(...syntaxDiagnostics)
+  if (syntaxDiagnostics.some(({ severity }) => severity === "error")) {
+    return emptyAssignmentCoreResult(diagnostics)
+  }
+
+  const baseForm = await params.resolveBaseForm?.()
+  const prepared = prepareFullXmlSyncAssignment({
+    assignment: params.assignment,
+    preparedYamlFile,
+    ...(baseForm ?? {}),
+    context: params.context,
+    index: params.index,
+    ...(params.operationSeed === undefined ? {} : { operationSeed: params.operationSeed }),
+    composition: params.composition,
+    ...(params.topology === undefined ? {} : { topology: params.topology }),
+  })
+  const expectedOutputs = prepared.documents.map(({ targetXmlPath }) => ({
+    assignmentId: params.assignment.id,
+    targetXmlPath,
+  }))
+  const written = await writeFullXmlSyncAssignment({
+    prepared,
+    context: params.context,
+    outputTarget: params.outputTarget,
+  })
+  diagnostics.push(...written.diagnostics)
+  return {
+    diagnostics,
+    warnings: [],
+    writtenFiles: written.writtenFiles,
+    expectedOutputs,
+    generatedDocuments: written.generatedDocuments,
+    fragments: written.fragments,
+    stopExecution: false,
+  }
+}
+
+function emptyAssignmentCoreResult(
+  diagnostics: readonly FullXmlSyncDiagnostic[],
+  stopExecution = false,
+): ExecuteFullXmlSyncAssignmentCoreResult {
+  return {
+    diagnostics,
+    warnings: [],
+    writtenFiles: [],
+    expectedOutputs: [],
+    generatedDocuments: [],
+    fragments: [],
+    stopExecution,
+  }
 }
 
 export function createFullXmlSyncWorkerCommandRunner(): FullXmlSyncWorkerCommandRunner {
@@ -240,69 +404,38 @@ async function executeAssignments(
       const assignmentIndex = createLocalConfigurationIndexReader(selectBlocks(targetBlocks, assignment.configurationIndexSources.targetProjectPaths))
       const assignmentBaseIndex = createLocalConfigurationIndexReader(selectBlocks(baseBlocks, assignment.configurationIndexSources.baseProjectPaths))
       const bytes = await fs.promises.readFile(assignment.sourcePath)
-      const actualHash = hashFileBytes(bytes)
-      if (actualHash !== assignment.expectedContentHash) {
-        diagnostics.push(
-          assignmentDiagnostic(
-            assignment,
-            "full_xml_sync_source_changed",
-            `YAML изменён после получения хэшей: ${assignment.sourceProjectPath}`
-          )
-        )
-        break
-      }
-
-      const preparedYaml = prepareYamlFiles({
-        files: [assignmentDescriptor(assignment, state)],
-        itemTypeByYamlDir: state.itemTypeByYamlDir,
-        sourceBytes: new Map([[assignment.sourcePath, bytes]]),
-      })
-      diagnostics.push(
-        ...preparedYaml.diagnostics.map((diagnostic) => syncDiagnosticFromProjectDiagnostic(diagnostic, assignment))
-      )
-      const yamlFile = preparedYaml.yamlFiles[0]
-      if (yamlFile === undefined) continue
-      const syntaxDiagnostics = yamlFile.syntaxDiagnostics.map((diagnostic) =>
-        syncDiagnosticFromProjectDiagnostic(diagnostic, assignment)
-      )
-      diagnostics.push(...syntaxDiagnostics)
-      if (syntaxDiagnostics.some(({ severity }) => severity === "error")) continue
-
-      const baseFormSource = await readBaseFormIfAdopted(assignment, state)
-      const prepared = prepareFullXmlSyncAssignment({
+      const context = exportContext(state, assignment.logicalAddress)
+      const result = await executeFullXmlSyncAssignmentCore({
         assignment,
-        preparedYamlFile: yamlFile,
-        ...(baseFormSource === undefined
-          ? {}
-          : {
-              baseFormSource,
-              ...(baseFormSource.kind === "saved"
-                ? { baseFormConfigurationIndex: assignmentIndex }
-                : {}),
-              ...(baseFormSource.kind === "projected" && state.baseIndex !== undefined
-                ? { baseConfigurationIndex: assignmentBaseIndex }
-                : {}),
-            }),
-        context: exportContext(state, assignment.logicalAddress),
+        sourceBytes: bytes,
+        descriptor: assignmentDescriptor(assignment, state),
+        itemTypeByYamlDir: state.itemTypeByYamlDir,
+        context,
         index: assignmentIndex,
         operationSeed: state.operationSeed,
         composition: state.composition,
-      })
-      expectedOutputs.push(
-        ...prepared.documents.map(({ targetXmlPath }) => ({
-          assignmentId: assignment.id,
-          targetXmlPath,
-        }))
-      )
-      const result = await writeFullXmlSyncAssignment({
-        prepared,
-        context: exportContext(state, assignment.logicalAddress),
         outputTarget: state.outputTarget,
+        resolveBaseForm: async () => {
+          const baseFormSource = await readBaseFormIfAdopted(assignment, state)
+          if (baseFormSource === undefined) return undefined
+          return {
+            baseFormSource,
+            ...(baseFormSource.kind === "saved"
+              ? { baseFormConfigurationIndex: assignmentIndex }
+              : {}),
+            ...(baseFormSource.kind === "projected" && state.baseIndex !== undefined
+              ? { baseConfigurationIndex: assignmentBaseIndex }
+              : {}),
+          }
+        },
       })
       diagnostics.push(...result.diagnostics)
+      warnings.push(...result.warnings)
       writtenFiles.push(...result.writtenFiles)
+      expectedOutputs.push(...result.expectedOutputs)
       generatedDocuments.push(...result.generatedDocuments)
       fragments.push(...result.fragments)
+      if (result.stopExecution) break
     } catch (caught) {
       diagnostics.push(
         assignmentDiagnostic(
@@ -476,42 +609,6 @@ function exportContext(
       typeDescriptionXMLNameByType: state.profile.typeDescriptionXMLNameByType,
       xmlDefaultVariantByLogicalAddress: state.profile.xmlDefaultVariantByLogicalAddress,
     },
-  }
-}
-
-function syncDiagnosticFromProjectDiagnostic(
-  diagnostic: {
-    readonly severity: "error" | "warning"
-    readonly source: string
-    readonly message: string
-    readonly filePath: string
-    readonly line?: number
-    readonly col?: number
-  },
-  assignment: FullXmlSyncAssignment
-): FullXmlSyncDiagnostic {
-  return {
-    severity: diagnostic.severity,
-    code: diagnostic.source,
-    message: diagnostic.message,
-    assignmentId: assignment.id,
-    sourceProjectPath: assignment.sourceProjectPath,
-    sourcePath: diagnostic.filePath,
-    targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
-    ...(diagnostic.line === undefined ? {} : { line: diagnostic.line }),
-    ...(diagnostic.col === undefined ? {} : { col: diagnostic.col }),
-  }
-}
-
-function assignmentDiagnostic(assignment: FullXmlSyncAssignment, code: string, message: string): FullXmlSyncDiagnostic {
-  return {
-    severity: "error",
-    code,
-    message,
-    assignmentId: assignment.id,
-    sourceProjectPath: assignment.sourceProjectPath,
-    sourcePath: assignment.sourcePath,
-    targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
   }
 }
 

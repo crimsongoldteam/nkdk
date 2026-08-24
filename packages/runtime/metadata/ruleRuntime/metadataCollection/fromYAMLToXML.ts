@@ -24,7 +24,10 @@ import {
 import {
   copyXmlAnomalyExportClaim,
   readXmlAnomalyExportClaim,
+  readXmlAnomalyRawItem,
+  readXmlAnomalyRawCollectionItems,
   markXmlAnomalyExportClaim,
+  XML_ANOMALY_RAW_ITEM_PLACEHOLDER,
 } from "../xmlAnomaly/exportClaim"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
@@ -65,6 +68,19 @@ export function convertMetadataCollectionFromYAMLToXML(
 
   entries.forEach(({ yaml, name }, index) => {
     if (params.profile !== undefined) params.profile.nestedItemCount++
+    const rawItemClaimId = readXmlAnomalyRawItem(yaml)
+    if (rawItemClaimId !== undefined) {
+      for (const output of params.outputs) {
+        const marker = {}
+        markXmlAnomalyExportClaim(marker, rawItemClaimId, true)
+        outputItems.get(output.key)!.push(
+          params.descriptor.xmlElement === undefined
+            ? { [XML_ANOMALY_RAW_ITEM_PLACEHOLDER]: marker }
+            : marker,
+        )
+      }
+      return
+    }
     const defaultItemRule =
       (params.propertyRule === undefined ? undefined : params.descriptor.itemRuleFromProperty?.(params.propertyRule)) ??
       params.descriptor.itemRule
@@ -302,14 +318,17 @@ function collectionEntries(
   descriptor: CollectionDescriptor,
   propertyRule: PropertyRule | undefined
 ): { yaml: unknown; name?: string }[] {
+  const rawItems = readXmlAnomalyRawCollectionItems(yaml)
   if (descriptor.yamlShape === "array") {
-    return Array.isArray(yaml) ? yaml.map((item) => ({ yaml: item })) : []
+    const entries = Array.isArray(yaml) ? yaml.map((item) => ({ yaml: item })) : []
+    for (const item of rawItems) entries.splice(item.index, 0, { yaml: item.yaml })
+    return entries
   }
   if (!isRecord(yaml)) return []
   const entries = annotations === undefined
     ? Object.entries(yaml)
     : xmlAnnotatedMappingEntries(yaml, annotations)
-  return entries.map(([key, value]) => ({
+  const result: { yaml: unknown; name?: string }[] = entries.map(([key, value]) => ({
     yaml: value,
     name:
       (propertyRule === undefined
@@ -318,6 +337,13 @@ function collectionEntries(
       descriptor.nameFromYAMLKey?.(key) ??
       key,
   }))
+  for (const item of rawItems) {
+    result.splice(item.index, 0, {
+      yaml: item.yaml,
+      ...(item.name === undefined ? {} : { name: item.name }),
+    })
+  }
+  return result
 }
 
 function findReferenceItem(params: {

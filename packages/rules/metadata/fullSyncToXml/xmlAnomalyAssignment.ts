@@ -1,6 +1,8 @@
 import {
   createXmlAnomalyAnnotations,
+  appendXmlAnomalyRawCollectionItem,
   markXmlAnomalyExportClaim,
+  markXmlAnomalyRawItem,
   mergeXmlRawFragments,
   parseXmlDocumentWithSaxes,
   readXmlAnomalyExportClaim,
@@ -256,18 +258,12 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
     if (!Array.isArray(params.value)) return params.value
     const target: unknown[] = []
     params.value.forEach((item, index) => {
-      const exportClaimId = nextExportClaimId(params.exportClaims)
       const annotation = params.sourceAnnotations.at(params.value as unknown[], index)
-      const rule = params.descriptor.resolveItemRule?.({
-        yaml: item,
-        name: undefined,
-        index,
-        propertyRule: params.property.propertyRule,
-      }) ?? fallbackRule
       if (annotation?.kind === "raw") {
+        const exportClaimId = nextExportClaimId(params.exportClaims)
         const semanticItem = {}
-        markXmlAnomalyExportClaim(semanticItem, exportClaimId)
-        target.push(semanticItem)
+        markXmlAnomalyRawItem(semanticItem, exportClaimId)
+        appendXmlAnomalyRawCollectionItem(target, { index, yaml: semanticItem })
         params.rawBoundaries.push(rawItemBoundary({
           sourceValue: item,
           tag: params.property.propertyRule.tag,
@@ -275,6 +271,15 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         }))
         return
       }
+      const exportClaimId = hasRawDescendant(item, params.sourceAnnotations)
+        ? nextExportClaimId(params.exportClaims)
+        : undefined
+      const rule = params.descriptor.resolveItemRule?.({
+        yaml: item,
+        name: undefined,
+        index,
+        propertyRule: params.property.propertyRule,
+      }) ?? fallbackRule
       const child = cloneSemanticValue({
         ...params,
         value: item,
@@ -284,7 +289,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         exportClaimId,
         hiddenName: undefined,
       })
-      markXmlAnomalyExportClaim(child, exportClaimId)
+      if (exportClaimId !== undefined) markXmlAnomalyExportClaim(child, exportClaimId)
       target.push(child)
       if (annotation !== undefined) params.targetAnnotations.set(target, index, annotation)
     })
@@ -297,7 +302,6 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
   const keys = new Set([...Object.keys(params.value), ...annotationsByKey.keys()])
   let index = 0
   for (const runtimeKey of keys) {
-    const exportClaimId = nextExportClaimId(params.exportClaims)
     const keyAnnotation = params.sourceAnnotations.keyAt(params.value, runtimeKey)
     if (keyAnnotation?.kind === "raw") {
       throw new Error("!xml/raw разрешён только на YAML-значении, но не на ключе")
@@ -310,23 +314,31 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
       yamlKey: logicalKey,
       propertyRule: params.property.propertyRule,
     }) ?? params.descriptor.nameFromYAMLKey?.(logicalKey) ?? logicalKey
-    const rule = params.descriptor.resolveItemRule?.({
-      yaml: item,
-      name: itemName,
-      index,
-      propertyRule: params.property.propertyRule,
-    }) ?? fallbackRule
     const annotation = annotationsByKey.get(runtimeKey)
     if (annotation?.kind === "raw") {
+      const exportClaimId = nextExportClaimId(params.exportClaims)
       const semanticItem = {}
-      markXmlAnomalyExportClaim(semanticItem, exportClaimId)
-      target[runtimeKey] = semanticItem
+      markXmlAnomalyRawItem(semanticItem, exportClaimId)
+      appendXmlAnomalyRawCollectionItem(target, {
+        index,
+        yaml: semanticItem,
+        name: itemName,
+      })
       params.rawBoundaries.push(rawItemBoundary({
         sourceValue: item,
         tag: params.property.propertyRule.tag,
         exportClaimId,
       }))
     } else {
+      const exportClaimId = hasRawDescendant(item, params.sourceAnnotations)
+        ? nextExportClaimId(params.exportClaims)
+        : undefined
+      const rule = params.descriptor.resolveItemRule?.({
+        yaml: item,
+        name: itemName,
+        index,
+        propertyRule: params.property.propertyRule,
+      }) ?? fallbackRule
       target[runtimeKey] = cloneSemanticValue({
         ...params,
         value: item,
@@ -336,13 +348,34 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         exportClaimId,
         hiddenName: undefined,
       })
-      markXmlAnomalyExportClaim(target[runtimeKey], exportClaimId)
+      if (exportClaimId !== undefined) {
+        markXmlAnomalyExportClaim(target[runtimeKey], exportClaimId)
+      }
       if (annotation !== undefined) params.targetAnnotations.set(target, runtimeKey, annotation)
     }
     if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, runtimeKey, keyAnnotation)
     index += 1
   }
   return target
+}
+
+function hasRawDescendant(
+  value: unknown,
+  annotations: XmlAnomalyAnnotations,
+  seen = new WeakSet<object>(),
+): boolean {
+  if (value === null || typeof value !== "object" || seen.has(value)) return false
+  seen.add(value)
+  const keys: readonly (string | number)[] = Array.isArray(value)
+    ? value.map((_item, index) => index)
+    : Object.keys(value)
+  for (const key of keys) {
+    if (annotations.at(value, key)?.kind === "raw") return true
+    if (hasRawDescendant((value as Record<string | number, unknown>)[key], annotations, seen)) {
+      return true
+    }
+  }
+  return false
 }
 
 function rawBoundary(params: {

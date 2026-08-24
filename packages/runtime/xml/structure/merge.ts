@@ -335,7 +335,10 @@ function applyElementBoundary(
   const collisionCandidates = location.siblings().filter(
     (node) =>
       !suppressibleElements.has(node) &&
-      !(selectedOccurrence !== null && node.name === canonicalName)
+      !(
+        selectedOccurrence !== null &&
+        (node.name === canonicalName || insertedNames.has(node.name))
+      )
   )
   if (collisionCandidates.some(({ name }) => insertedNames.has(name))) {
     throw new Error(`Raw-вставка ${boundary.path.source} пересекается с обычным выводом`)

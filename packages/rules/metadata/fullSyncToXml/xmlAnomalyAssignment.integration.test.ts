@@ -88,6 +88,17 @@ const singletonOwnerRule = {
   },
 } as const satisfies MetadataItemRule
 
+const scalarCollectionOwnerRule = {
+  itemType: "SyntheticScalarCollectionOwner",
+  properties: {
+    order: {
+      type: "StructureItemGroupCollection",
+      yaml: "Порядок",
+      xml: "Order",
+    },
+  },
+} as const satisfies MetadataItemRule
+
 const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
   metadataRules,
   defineMetadataRules({
@@ -252,22 +263,15 @@ describe("единое восстановление XML-аномалий assignm
     expect(xmlAnnotatedMappingEntries(semanticCollection, prepared.preparedYamlFile.annotations)).toEqual([
       ["Код", {}],
       ["Код", {}],
-      ["Код", {}],
     ])
     const physicalKeys = Object.keys(semanticCollection)
     expect(prepared.preparedYamlFile.annotations.keyAt(semanticCollection, physicalKeys[1]!)).toMatchObject({
-      kind: "invalid",
-      logicalKey: "Код",
-      occurrence: 1,
-    })
-    expect(prepared.preparedYamlFile.annotations.keyAt(semanticCollection, physicalKeys[2]!)).toMatchObject({
       kind: "invalid",
       logicalKey: "Код",
       occurrence: 2,
     })
     expect(resolveCollectionItemRule.mock.calls.map(([params]) => [params.name, params.index])).toEqual([
       ["Код", 0],
-      ["Код", 1],
       ["Код", 2],
     ])
 
@@ -290,36 +294,16 @@ describe("единое восстановление XML-аномалий assignm
       { Name: "Код", Value: "02" },
       { Name: "Код", Value: "03" },
     ])
-    expect(mapCollectionItemOutput).toHaveBeenCalledTimes(3)
+    expect(mapCollectionItemOutput).toHaveBeenCalledTimes(2)
   })
 
   it("связывает raw поля form element с фактическим XML после normalize и wrapper map", () => {
-    const prepared = prepareAnomalies([
+    const xml = exportFormWithAnomalies([
       "Элементы:",
       "  Поле:",
       "    Вид: ПолеВвода",
       '    Future: !xml/raw "value"',
-    ].join("\n"), anomalyRegistries.xmlAnomalies, ClientApplicationFormRules, anomalyRegistries)
-    const context = mockContextToXML()
-    const ordinary = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
-      withRuleRegistrySet(anomalyRegistries, () => convertClientApplicationFormFromYAMLToXML({
-        context,
-        yaml: prepared.preparedYamlFile.data as ClientApplicationFormYAML,
-        annotations: prepared.preparedYamlFile.annotations,
-        name: "Форма",
-      }).formXML),
-    )
-
-    const xml = buildPreparedAssignmentXml({
-      document: {
-        targetXmlPath: "Form.xml",
-        xml: { Form: ordinary },
-        deferred: [],
-        rootRule: ClientApplicationFormRules,
-        rawBoundaries: prepared.rawBoundaries,
-      },
-      context,
-    })
+    ])
 
     const inputStart = xml.indexOf('<InputField name="Поле"')
     const inputEnd = xml.indexOf("</InputField>", inputStart)
@@ -327,6 +311,55 @@ describe("единое восстановление XML-аномалий assignm
     expect(inputStart).toBeGreaterThan(-1)
     expect(future).toBeGreaterThan(inputStart)
     expect(inputEnd).toBeGreaterThan(future)
+  })
+
+  it("восстанавливает whole raw полиморфного form item без смыслового Вида", () => {
+    const xml = exportFormWithAnomalies([
+      "Элементы:",
+      "  Первое:",
+      "    Вид: ПолеВвода",
+      "  Будущее: !xml/raw",
+      '    "#name": InputField',
+      "    _name: Будущее",
+      "    _id: raw-id",
+      '    Future: "value"',
+      "  Второе:",
+      "    Вид: ПолеВвода",
+    ])
+
+    const first = xml.indexOf('<InputField name="Первое"')
+    const raw = xml.indexOf('<InputField name="Будущее" id="raw-id">')
+    const second = xml.indexOf('<InputField name="Второе"')
+    expect(first).toBeGreaterThan(-1)
+    expect(raw).toBeGreaterThan(first)
+    expect(second).toBeGreaterThan(raw)
+    expect(xml).toContain("<Future>value</Future>")
+  })
+
+  it("не назначает export claim скалярным item без raw-потомков", () => {
+    const prepared = prepareAnomalies([
+      "Порядок:",
+      "  - !xml/invalid Наименование",
+      "  - !xml/important Артикул",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, scalarCollectionOwnerRule, anomalyRegistries)
+
+    const ordinary = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
+      withRuleRegistrySet(anomalyRegistries, () => convertMetadataItemFromYAMLToXML({
+        convertProperties: convertPropertiesFromYAMLToXML,
+        context: mockContextToXML(),
+        yaml: prepared.preparedYamlFile.data,
+        annotations: prepared.preparedYamlFile.annotations,
+        rule: scalarCollectionOwnerRule,
+        outputs: [{ key: "owner" }],
+      }).outputs.get("owner")),
+    )
+
+    expect(ordinary).toMatchObject({
+      Order: [
+        { "_xsi:type": "dcsset:GroupItemField", "dcsset:field": "Наименование" },
+        { "_xsi:type": "dcsset:GroupItemField", "dcsset:field": "Артикул" },
+      ],
+    })
   })
 
   it("fail-closed отклоняет коллизию служебного export claim атрибута", () => {
@@ -414,6 +447,34 @@ describe("единое восстановление XML-аномалий assignm
     ])
   })
 })
+
+function exportFormWithAnomalies(lines: readonly string[]): string {
+  const prepared = prepareAnomalies(
+    lines.join("\n"),
+    anomalyRegistries.xmlAnomalies,
+    ClientApplicationFormRules,
+    anomalyRegistries,
+  )
+  const context = mockContextToXML()
+  const ordinary = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
+    withRuleRegistrySet(anomalyRegistries, () => convertClientApplicationFormFromYAMLToXML({
+      context,
+      yaml: prepared.preparedYamlFile.data as ClientApplicationFormYAML,
+      annotations: prepared.preparedYamlFile.annotations,
+      name: "Форма",
+    }).formXML),
+  )
+  return buildPreparedAssignmentXml({
+    document: {
+      targetXmlPath: "Form.xml",
+      xml: { Form: ordinary },
+      deferred: [],
+      rootRule: ClientApplicationFormRules,
+      rawBoundaries: prepared.rawBoundaries,
+    },
+    context,
+  })
+}
 
 function anomalyRuntime(overrides: {
   generateCompactRaw: XmlAnomalyRuntime["generateCompactRaw"]

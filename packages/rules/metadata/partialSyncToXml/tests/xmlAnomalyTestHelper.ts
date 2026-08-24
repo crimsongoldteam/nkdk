@@ -11,9 +11,7 @@ import {
   type FullXmlSyncWorkerInitialization,
   type FullXmlSyncWorkerPool,
 } from "../../fullSyncToXml/workerPool"
-import { prepareYamlFiles } from "../../project/prepareYamlFiles"
-import { prepareFullXmlSyncAssignment } from "../../fullSyncToXml/prepareAssignment"
-import { writeFullXmlSyncAssignment } from "../../fullSyncToXml/writeAssignment"
+import { executeFullXmlSyncAssignmentCore } from "../../fullSyncToXml/worker"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
@@ -144,6 +142,7 @@ export function createPartialXmlAnomalyExecutionFixture(projectDir: string) {
     createWorkerPool: () => inProcessWorkerPool(
       assignment,
       sourceBytes,
+      componentDir,
       topology,
       operations,
       registries,
@@ -154,6 +153,7 @@ export function createPartialXmlAnomalyExecutionFixture(projectDir: string) {
 function inProcessWorkerPool(
   assignment: FullXmlSyncAssignment,
   yamlBytes: Uint8Array,
+  componentDir: string,
   topology: ReturnType<typeof compileMetadataResourceTopology>,
   operations: ReturnType<typeof createOperationRegistrySet>,
   registries: ReturnType<typeof createRuleRegistrySet>,
@@ -170,43 +170,35 @@ function inProcessWorkerPool(
       const expectedOutputs: FullXmlSyncExpectedOutput[] = []
       for (const requested of assignments) {
         if (requested.id !== assignment.id) throw new Error(`Неизвестный assignment: ${requested.id}`)
-        const preparedYaml = prepareYamlFiles({
-          files: [{
-            projectPath: assignment.sourceProjectPath,
-            filePath: assignment.sourcePath,
-            role: assignment.role,
-            owner: { dir: "Объект", name: assignment.itemName },
-            itemType: assignment.itemType,
-          }],
-          itemTypeByYamlDir: { Объект: rootRule.itemType },
-          sourceBytes: new Map([[assignment.sourcePath, yamlBytes]]),
-        })
-        const yamlFile = preparedYaml.yamlFiles[0]
-        if (yamlFile === undefined) throw new Error("Full-sync worker не подготовил исходный YAML")
-        const prepared = withPropertyRuleRegistrySet(registries.property, () =>
+        const result = await withPropertyRuleRegistrySet(registries.property, () =>
           withRuleRegistrySet(registries, () =>
-            withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
+            withOperationRegistrySet(operations, () => executeFullXmlSyncAssignmentCore({
               assignment,
-              preparedYamlFile: yamlFile,
+              sourceBytes: yamlBytes,
+              descriptor: {
+                componentPath: "cf",
+                componentDir,
+                rootProjectPath: `cf/${assignment.sourceProjectPath}`,
+                projectPath: assignment.sourceProjectPath,
+                filePath: assignment.sourcePath,
+                role: assignment.role,
+                owner: { dir: "Объект", name: assignment.itemName },
+                itemType: assignment.itemType,
+              },
+              itemTypeByYamlDir: { Объект: rootRule.itemType },
               context: mockContextToXML(),
               index: testConfigurationIndexReader(),
               composition: { children: () => [] },
-              operationSeed: initialized.operationSeed,
+              operationSeed: initialized.operationSeed ?? new Uint8Array(32),
               topology,
+              outputTarget: initialized.outputTarget,
             })),
           ),
         )
-        const result = await writeFullXmlSyncAssignment({
-          prepared,
-          context: mockContextToXML(),
-          outputTarget: initialized.outputTarget,
-        })
         diagnostics.push(...result.diagnostics)
+        warnings.push(...result.warnings)
         writtenFiles.push(...result.writtenFiles)
-        expectedOutputs.push(...prepared.documents.map(({ targetXmlPath }) => ({
-          assignmentId: assignment.id,
-          targetXmlPath,
-        })))
+        expectedOutputs.push(...result.expectedOutputs)
         await options?.onBatch?.({
           generatedDocuments: result.generatedDocuments,
           configurationFragments: result.fragments,
