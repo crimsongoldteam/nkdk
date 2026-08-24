@@ -8,8 +8,8 @@ import {
   snapshotXmlAnomalyAnnotations,
   type XmlElementNode,
 } from "@nkdk/runtime"
-import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { describe, expect, it, vi } from "vitest"
+import { getTypeRule, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import "../../tests/metadataExecutionContext"
 import { MetadataCommonFormRules } from "../appliedObjects/metadataCommonForm/rules"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
@@ -222,6 +222,104 @@ describe("XML anomaly proof", () => {
       rulePath: ["childItems", "dataPath"],
       presentInSource: false,
     }))
+  })
+
+  it("локализует несовпадение существующего поля dynamic collection через фактическое item rule", async () => {
+    const source = [
+      '<Form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><ChildItems>',
+      '<InputField name="Поле" id="id-1">',
+      '<DataPath xsi:type="xs:string">Объект.Количество</DataPath>',
+      "</InputField></ChildItems></Form>",
+    ].join("")
+    const exported = [
+      '<Form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><ChildItems>',
+      '<InputField name="Поле" id="id-1">',
+      "<DataPath>Объект.Количество</DataPath>",
+      "</InputField></ChildItems></Form>",
+    ].join("")
+    const document = parseXmlDocumentWithSaxes(source)
+    const root = document.roots[0]!
+    const childItems = nestedElement(root, ["ChildItems"])
+    const input = nestedElement(childItems, ["InputField"])
+    const dataPath = nestedElement(input, ["DataPath"])
+    const audit = createXmlImportAuditSession(document.roots)
+    audit.claim(input, {
+      itemType: "InputField",
+      yamlPath: ["Элементы", "Поле"],
+      rulePath: [{ propertyKey: "childItems" }],
+    })
+    audit.claim(dataPath, {
+      itemType: "InputField",
+      propertyKey: "dataPath",
+      yamlPath: ["Элементы", "Поле", "ПутьКДанным"],
+      rulePath: [
+        { propertyKey: "childItems", nestedItemType: "InputField" },
+        { propertyKey: "dataPath" },
+      ],
+    })
+    const childItemsDescriptor = getTypeRule(
+      ClientApplicationFormRules.properties.childItems.type,
+      "yamlToXMLNestedRule",
+    )
+    expect(childItemsDescriptor?.kind).toBe("collection")
+    if (childItemsDescriptor?.kind !== "collection" || childItemsDescriptor.resolveItemRule === undefined) {
+      throw new Error("У GroupChildItems отсутствует dynamic resolveItemRule")
+    }
+    const resolver = vi.spyOn(childItemsDescriptor, "resolveItemRule")
+    const data = {
+      Элементы: {
+        Поле: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Количество" },
+      },
+    }
+
+    try {
+      const boundaries = deriveXmlAnomalyProofBoundaries({
+        sources: [{ sourcePath: "/source/Ext/Form.xml", role: "body", document }],
+        audit,
+        rule: ClientApplicationFormRules,
+        data,
+      })
+      const boundary = boundaries.find(({ yamlPath }) =>
+        yamlPath.join("/") === "Элементы/Поле/ПутьКДанным"
+      )
+
+      expect(resolver).toHaveBeenCalledOnce()
+      expect(boundary?.levels?.[0]).toEqual(expect.objectContaining({
+        xmlPath: "/Form[1]/ChildItems[1]/InputField[1]/DataPath[1]",
+        yamlPath: ["Элементы", "Поле", "ПутьКДанным"],
+      }))
+
+      const result = await proveXmlAnomalyBoundaries({
+        data,
+        annotations: { version: 1, entries: [] },
+        audit: captureXmlAnomalyProofAudit({
+          sources: [{ sourcePath: "/source/Ext/Form.xml", role: "body", document }],
+          boundaries: [boundary!],
+        }),
+        exported: [{
+          role: "body",
+          sourcePath: "/source/Ext/Form.xml",
+          document: parseXmlDocumentWithSaxes(exported),
+        }],
+        readSource: async (path) => {
+          expect(path).toBe("/source/Ext/Form.xml")
+          return source
+        },
+      })
+
+      expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+        parentPath: ["Элементы", "Поле"],
+        key: "ПутьКДанным",
+        annotation: expect.objectContaining({ kind: "raw", target: "value" }),
+      }))
+      expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+        parentPath: ["Элементы"],
+        key: "Поле",
+      }))
+      expect(result.data).toMatchObject({ Элементы: { Поле: { Вид: "ПолеВвода" } } })
+    } finally {
+      resolver.mockRestore()
+    }
   })
 
   it("сохраняет между проходами только хэши, координаты и пути", () => {
@@ -559,6 +657,42 @@ describe("XML anomaly proof", () => {
       .map(({ name }) => name)).toEqual(["Wrapper", "Sibling"])
   })
 
+  it.each([
+    ["обычное значение", collisionYaml("ordinary")],
+    ["PropertyState", collisionYaml("propertyState")],
+    ["XML-аннотацию", collisionYaml("important")],
+    ["нумерованные физические дубли", collisionYaml("duplicates")],
+  ])("атомарно отклоняет коллизию поднятого path-key с %s", async (_name, parsed) => {
+    const source = '<Root><Wrapper><Inner marker="x"><Value>01</Value></Inner></Wrapper><Sibling>ok</Sibling></Root>'
+    const exported = "<Root><Wrapper><Inner><Value>1</Value></Inner></Wrapper><Sibling>ok</Sibling></Root>"
+    const document = parseXmlDocumentWithSaxes(source)
+    const [derived] = deriveClaimedValueBoundary(
+      document,
+      ["Wrapper", "Inner", "Value"],
+      {
+        itemType: "CollisionOwner",
+        properties: {
+          value: { type: "string", yaml: "Значение", xml: "Value", xmlParents: ["Wrapper", "Inner"] },
+          sibling: { type: "string", yaml: "Сосед", xml: "Sibling" },
+        },
+      },
+    )
+    const before = serializeYAMLDocument(parsed.data, parsed.annotations).text
+
+    await expect(proveXmlAnomalyBoundaries({
+      data: parsed.data,
+      annotations: snapshotXmlAnomalyAnnotations(parsed.data, parsed.annotations),
+      audit: captureXmlAnomalyProofAudit({
+        sources: [{ sourcePath, role: "metadata", document }],
+        boundaries: [derived!],
+      }),
+      exported: [{ role: "metadata", document: parseXmlDocumentWithSaxes(exported) }],
+      readSource: async () => source,
+    })).rejects.toThrow("Коллизия YAML-границы raw /Wrapper\\Inner")
+
+    expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).toBe(before)
+  })
+
   it("не поднимает raw на XML-родителя с независимым ordinary PropertyRule", async () => {
     const document = parseXmlDocumentWithSaxes(
       "<Root><Wrapper><Value>01</Value><Sibling>ok</Sibling></Wrapper></Root>",
@@ -751,4 +885,15 @@ function nestedElement(root: XmlElementNode, path: readonly string[]): XmlElemen
     current = child
   }
   return current
+}
+
+function collisionYaml(kind: "ordinary" | "propertyState" | "important" | "duplicates") {
+  const collision = kind === "duplicates"
+    ? ['!xml/invalid "Wrapper\\\\Inner": first', '!xml/invalid/2 "Wrapper\\\\Inner": second']
+    : [`"Wrapper\\\\Inner": ${kind === "propertyState" ? "!проверять " : kind === "important" ? "!xml/important " : ""}${kind}`]
+  return parseMetadataYaml([
+    ...collision,
+    "Значение: 1",
+    "Сосед: ok",
+  ].join("\n"))
 }

@@ -1,6 +1,7 @@
 import {
   parseMetadataYaml,
   parseXmlDocumentWithSaxes,
+  serializeYAMLDocument,
   xmlAnnotatedMappingEntries,
   yamlScalarTagAt,
   type XmlAnomalyRuntime,
@@ -26,6 +27,12 @@ import "../../tests/metadataExecutionContext"
 import { convertClientApplicationFormFromYAMLToXML } from "../forms/clientApplicationForm/fromYAMLToXML"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
+import { configurationExtensionYamlToXmlAugmenter } from "../appliedObjects/configurationExtension/exportPropertyStates"
+import {
+  createPropertyStateCapabilityRegistry,
+  definePropertyStateItemCapabilities,
+} from "../appliedObjects/configurationExtension/propertyStateCapabilities"
+import { withOperationRegistrySet } from "../operations/operationExecutionContext"
 import {
   buildPreparedAssignmentXml,
   prepareXmlAnomalyAssignment,
@@ -576,6 +583,63 @@ describe("единое восстановление XML-аномалий assignm
       outputs: [{ key: "owner" }],
     }).outputs.get("owner")
     expect(ordinary).toMatchObject({ Invalid: "bad" })
+  })
+
+  it("сохраняет PropertyState compact/expanded raw через serialize→parse и assignment export", () => {
+    const first = parseMetadataYaml([
+      "!проверять Компактное: !xml/raw",
+      '!изменять Развернутое: !xml/raw "01"',
+    ].join("\n"))
+    const serialized = serializeYAMLDocument(first.data, first.annotations)
+    const reparsed = parseMetadataYaml(serialized.text)
+    const prepared = prepareParsedAnomalies(reparsed, {
+      runtime: anomalyRuntime({
+        generateCompactRaw: () => parseXmlDocumentWithSaxes('<Compact generated="yes"/>').roots,
+      }),
+    })
+    const semantic = prepared.preparedYamlFile.data as Record<string, unknown>
+
+    expect(serialized.text).toBe([
+      "!проверять Компактное: !xml/raw",
+      '!изменять Развернутое: !xml/raw "01"',
+    ].join("\n"))
+    expect(Object.keys(semantic)).toEqual(["Компактное", "Развернутое"])
+    expect(yamlScalarTagAt(semantic, "Компактное")).toBe("проверять")
+    expect(yamlScalarTagAt(semantic, "Развернутое")).toBe("изменять")
+
+    const outputs = new Map<string, Record<string, unknown>>([["owner", {}]])
+    const capabilities = definePropertyStateItemCapabilities(rule, {
+      properties: {
+        compact: { availability: "borrowed", modes: ["notify"], representation: "tagged" },
+        expanded: { availability: "borrowed", modes: ["extend"], representation: "tagged" },
+      },
+    })
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([capabilities]),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
+      context: mockContextToXML(),
+      rule,
+      yaml: semantic,
+      outputs,
+      logicalAddress: "Synthetic.One",
+    }))
+
+    const xml = buildPreparedAssignmentXml({
+      document: {
+        targetXmlPath: "Root.xml",
+        xml: { Root: outputs.get("owner") },
+        deferred: [],
+        rootRule: rule,
+        rawBoundaries: prepared.rawBoundaries,
+      },
+      context: mockContextToXML(),
+    })
+    expect(xml).toContain('<Compact generated="yes"')
+    expect(xml).toContain("<Expanded>01</Expanded>")
+    expect(xml).toContain("<xr:Property>Compact</xr:Property>")
+    expect(xml).toContain("<xr:State>Notify</xr:State>")
+    expect(xml).toContain("<xr:Property>Expanded</xr:Property>")
+    expect(xml).toContain("<xr:State>Extended</xr:State>")
   })
 })
 

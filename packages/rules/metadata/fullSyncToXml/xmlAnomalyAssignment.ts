@@ -178,6 +178,11 @@ function cloneSemanticValue(params: {
       throw new Error("!xml/raw разрешён только на YAML-значении, но не на ключе")
     }
     if (annotation?.kind === "raw") {
+      const propertyState = yamlScalarTagAt(params.value, runtimeKey)
+      if (property !== undefined && isPropertyStateTag(propertyState)) {
+        target[targetKey] = undefined
+        markYAMLScalarTag(target, targetKey, propertyState)
+      }
       if (params.mode === "projectionOnly") continue
       if (logicalKey === "Имя" && params.hiddenName !== undefined) {
         params.rawBoundaries.push(hiddenSingletonNameBoundary(params.hiddenName, sourceValue))
@@ -398,6 +403,10 @@ function copySequenceEntryMetadata(
   const scalarTag = yamlScalarTagAt(source, sourceIndex)
   if (scalarTag !== undefined) markYAMLScalarTag(target, targetIndex, scalarTag)
   if (annotation !== undefined) targetAnnotations.set(target, targetIndex, annotation)
+}
+
+function isPropertyStateTag(tag: unknown): tag is "проверять" | "изменять" {
+  return tag === "проверять" || tag === "изменять"
 }
 
 function mappingEntryIdentity(
