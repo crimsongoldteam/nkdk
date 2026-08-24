@@ -145,6 +145,7 @@ const appliedObjectPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
       preparedYamlFile,
       compositionPropertyValues: collectCompositionChildPropertyValues({
         rule: assignment.itemRule,
+        yaml: preparedYamlFile.data,
         ownerLogicalAddress: logicalAddress,
         composition,
       }),
@@ -156,11 +157,29 @@ const appliedObjectPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
 
 function collectCompositionChildPropertyValues(params: {
   rule: MetadataItemRule
+  yaml: unknown
   ownerLogicalAddress: string
   composition: MetadataXmlPrepareComposition
 }): ReadonlyMap<string, unknown> {
   const values = new Map<string, unknown>()
   const children = params.composition.children(params.ownerLogicalAddress)
+  for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
+    const descriptor = getFileChildNamesDescriptor(propertyRule)
+    if (descriptor === undefined) continue
+    const names = children
+      .filter((entry) =>
+        entry.assignmentRole === "fileItem"
+        && entry.sourceProjectPath.split("/").includes(descriptor.folderName)
+      )
+      .map(({ itemName }) => itemName)
+      .sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+    const expected = descriptor.expectedNames({
+      rule: params.rule,
+      yaml: asRecord(params.yaml) ?? {},
+      propertyValue: names,
+    })
+    if (expected.length > 0) values.set(propertyKey, expected)
+  }
   for (const childCollection of params.rule.childCollections ?? []) {
     const fileItemRule = childCollection.fileItemRule
     if (fileItemRule === undefined) continue

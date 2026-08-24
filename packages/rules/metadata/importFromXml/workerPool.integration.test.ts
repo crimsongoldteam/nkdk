@@ -59,6 +59,35 @@ describe("XML import worker pool", () => {
     await pool.close()
   })
 
+  it("передаёт каждому worker полный состав конфигурации для контрольного экспорта", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const assignments = [assignment("first"), assignment("second")]
+
+    await pool.initialize({
+      operationId: "composition",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("composition"),
+      componentKind: "configuration",
+    })
+    await pool.runFirstPass(assignments)
+    await pool.runSecondPass(readTokens(2))
+
+    for (const workerIndex of [0, 1]) {
+      expect(pools.runs(workerIndex).find(({ kind }) => kind === "beginSecondPass")).toMatchObject({
+        composition: assignments.map(({ targetProjectPath, itemType, itemName, logicalAddress, role }) => ({
+          sourceProjectPath: targetProjectPath,
+          itemType,
+          itemName,
+          logicalAddress,
+          assignmentRole: role,
+        })),
+      })
+    }
+
+    await pool.close()
+  })
+
   it("does not create physical workers for empty partitions", async () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 4, createWorkerPool: pools.factory })

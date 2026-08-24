@@ -285,7 +285,9 @@ describe("sync configuration from xml", () => {
     )
 
     expect(primaryImport.catalogYaml).toBe(`${expectedCatalogYaml.replaceAll("\r\n", "\n")}\nВводПоСтроке: []`)
-    expect(primaryImport.formYaml).toBe(expectedFormYaml.replaceAll("\r\n", "\n"))
+    expect(primaryImport.formYaml).toBe(
+      `${expectedFormYaml.replaceAll("\r\n", "\n")}\nКомментарий: !xml/raw null\nВключатьСправкуВСодержание: !xml/raw null`,
+    )
     expect(primaryImport.hasDocument).toBe(true)
     expect(primaryImport.hasNumerator).toBe(true)
     expect(primaryImport.hasLegacyNumerator).toBe(false)

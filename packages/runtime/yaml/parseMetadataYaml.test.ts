@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { createXmlAnomalyAnnotations } from "./xmlAnomalyAnnotations"
 import { parsedYamlFromKnownData, parseMetadataYamlData } from "./parseMetadataYaml"
 
 describe("parseMetadataYamlData", () => {
@@ -43,5 +44,19 @@ describe("parsedYamlFromKnownData", () => {
     expect(parsed.syntaxErrors).toEqual([])
     expect(parsed.locations.keyPosition(["Внешний", "Внутренний"])).toEqual({ line: 2, col: 3 })
     expect(parsed.locations.keyPosition(["Внешний", "Внутренний", "Значение"])).toEqual({ line: 3, col: 5 })
+  })
+
+  it("сохраняет переданные XML-аннотации известного объекта", () => {
+    const yaml = { Тип: { "v8:TypeSet": "cfg:AnyRef" } }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(yaml, "Тип", { kind: "raw", occurrence: 1, target: "value" })
+
+    const parsed = parsedYamlFromKnownData("Тип: !xml/raw {}", yaml, annotations)
+
+    expect(parsed.annotations.at(yaml, "Тип")).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+    })
   })
 })

@@ -132,7 +132,10 @@ export function projectXmlAuditRemainder(params: {
       (node): node is XmlElementNode | XmlProcessingInstructionNode => node.type !== "text",
     )
     const unknownContent = element.content.filter((node) => isUnknown(outcomes.get(node)?.state))
-    const meaningfulUnknownText = unknownContent.some((node) => node.type === "text")
+    const hasMixedText = element.content.some(
+      (node) => node.type === "text" && node.value.trim().length > 0,
+    )
+    const meaningfulUnknownText = hasMixedText && unknownContent.some((node) => node.type === "text")
     const unknownProcessingInstruction = unknownContent.some(
       (node) => node.type === "processingInstruction",
     )
@@ -456,7 +459,7 @@ function formatPath(path: readonly string[]): string {
   return path.join("\\")
 }
 
-function xmlElementRawValue(element: XmlElementNode): XmlRawValue {
+export function xmlElementRawValue(element: XmlElementNode): XmlRawValue {
   const attributes: Record<string, XmlRawValue> = {}
   for (const attribute of element.attributes) attributes[`_${attribute.name}`] = attribute.value
 

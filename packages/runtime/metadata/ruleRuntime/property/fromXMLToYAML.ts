@@ -710,7 +710,8 @@ export function importPropertiesFromXMLToYAML(params: {
         rulePath: [...rulePath, { propertyKey }],
       }),
       isRepeatable: ({ rule: propertyRule }) =>
-        typeRule(propertyRule.type, "yamlToXMLNestedRule")?.kind === "collection",
+        typeRule(propertyRule.type, "yamlToXMLNestedRule")?.kind === "collection"
+        || typeRule(propertyRule.type, "fileChildNamesDescriptor") !== undefined,
       claimRoot: sourceState.source.claimAuditRoot,
       visit(match) {
         sourceState.foundPropertyKeys.add(match.propertyKey)

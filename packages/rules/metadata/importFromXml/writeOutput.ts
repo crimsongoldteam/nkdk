@@ -1,6 +1,11 @@
 import { mkdir, writeFile } from "node:fs/promises"
 import { dirname, join, posix } from "node:path"
-import { createXmlAnomalyAnnotations, serializeYAMLDocument, type SerializedYAMLDocument } from "@nkdk/runtime"
+import {
+  createXmlAnomalyAnnotations,
+  serializeYAMLDocument,
+  type SerializedYAMLDocument,
+  type XmlAnomalyAnnotations,
+} from "@nkdk/runtime"
 import { hashFileBytes } from "@nkdk/runtime"
 import type { ExternalFileEntry } from "@nkdk/runtime"
 import type { ValidationProfiler } from "../validation/profile"
@@ -9,6 +14,7 @@ import type { ImportAssignment, ImportResultFile } from "./types"
 export interface PreparedImportYamlOutput {
   readonly output: ImportResultFile
   readonly yaml: unknown
+  readonly annotations?: XmlAnomalyAnnotations
 }
 
 export interface SerializedImportYaml extends SerializedYAMLDocument {
@@ -22,7 +28,7 @@ const textEncoder = new TextEncoder()
 export function serializeImportYaml(file: PreparedImportYamlOutput): SerializedImportYaml {
   const document = file.yaml === undefined
     ? { text: "", data: undefined, annotations: createXmlAnomalyAnnotations() }
-    : serializeYAMLDocument(file.yaml)
+    : serializeYAMLDocument(file.yaml, file.annotations)
   const bytes = textEncoder.encode(document.text)
   return { file: file.output, ...document, bytes, localHash: hashFileBytes(bytes) }
 }

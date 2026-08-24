@@ -1,3 +1,4 @@
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
@@ -68,6 +69,8 @@ function preparedCatalogYaml(): PreparedImportYaml {
     rule: MetadataCatalogRules,
     targetProjectPath: assignment.targetProjectPath,
     yaml: { Имя: "Контрагенты" },
+    annotations: createXmlAnomalyAnnotations(),
+    proofAudit: { sources: [], boundaries: [] },
     ownerContext: [],
     localIndexes: {
       metadata: {
@@ -101,6 +104,8 @@ function preparedFormYaml(): PreparedImportYaml {
     rule: ClientApplicationFormRules,
     targetProjectPath: assignment.targetProjectPath,
     yaml: {},
+    annotations: createXmlAnomalyAnnotations(),
+    proofAudit: { sources: [], boundaries: [] },
     ownerContext: [],
     localIndexes: { metadata: { events: [], ownerFacts: {} } },
     deferred: [],

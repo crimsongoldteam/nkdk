@@ -27,6 +27,9 @@ export const importInternalInfoFromXML = (
 
   const result: InternalInfo = {}
   for (const item of items) {
+    // Категория не входит в смысловой YAML, но её чтение отмечает структурный
+    // атрибут как обработанный. Отличие от правила затем обнаружит proof-export.
+    void item._category
     const name = item._name.split(".")[0]
     result[name] = {
       typeId: item["xr:TypeId"],

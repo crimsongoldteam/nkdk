@@ -4,6 +4,7 @@ import { join } from "node:path"
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import { transferableSymbol, valueSymbol } from "piscina"
 import { mockXmlImportContext } from "../../tests/mockContext"
+import "../../tests/metadataExecutionContext"
 import type { ImportFirstPassResult } from "./types"
 import { createBinaryProjectStateStore } from "../projectState/binary/store"
 import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
@@ -24,6 +25,10 @@ import {
   createImportFirstPassTransferable,
   createImportWorkerCommandRunner,
 } from "./worker"
+import {
+  controlExportCountForTests,
+  resetControlExportCountForTests,
+} from "./controlExport"
 import { importDiagnostic, openImportBinaryResult } from "./binaryResult"
 import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
@@ -91,6 +96,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   resetImportWorkerStateForTests()
+  resetControlExportCountForTests()
   await initializeWorker("/tmp/nkdk-import-worker-2")
 })
 
@@ -377,6 +383,24 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it("выполняет один control export и записывает найденный raw", async () => {
+    const inputDir = createTempDir("worker-control-export-input")
+    const outputDir = createTempDir("worker-control-export-output")
+    const sourcePath = join(inputDir, "Контрагенты.xml")
+    writeFileSync(
+      sourcePath,
+      readFileSync(join(syncXmlDir, "Catalogs/Контрагенты.xml"), "utf8")
+        .replace("<CodeLength>9</CodeLength>", "<CodeLength>01</CodeLength>"),
+    )
+    const assignment = catalogAssignment({ xmlFiles: [{ role: "metadata", sourcePath }] })
+    const { second } = await runAssignmentSecondPass(outputDir, assignment)
+
+    expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+    expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
+      .toContain('ДлинаКода: !xml/raw "01"')
+    expect(controlExportCountForTests()).toBe(1)
+  })
+
   it("уточняет отсутствующий путь элемента формы после загрузки владельца", async () => {
     const outputDir = createTempDir("implicit-form-data-path")
     const assignments = createCatalogAndFormAssignments("", "Товары", false, false, "LabelField", "Код", false)
@@ -626,15 +650,7 @@ describe("XML import worker second pass", () => {
       }),
       compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
     } satisfies ValidationSchemaCache
-    await initializeWorker(outputDir, failingSchemaCache)
-
-    const first = expectFirstPass(await runImportWorkerCommand({
-      kind: "firstPass",
-      assignments: [assignment],
-    }))
-    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
-    const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignment.id })
-    await runImportWorkerCommand({ kind: "endSecondPass" })
+    const { second } = await runAssignmentSecondPass(outputDir, assignment, failingSchemaCache)
 
     expect(second).toMatchObject({
       kind: "secondPassResult",
@@ -707,6 +723,19 @@ async function initializeWorker(
   })
 }
 
+async function runAssignmentSecondPass(
+  outputDir: string,
+  assignment: ImportAssignment,
+  schemaCache: ValidationSchemaCache = fastValidationSchemaCache,
+) {
+  await initializeWorker(outputDir, schemaCache)
+  const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
+  await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+  const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignment.id })
+  await runImportWorkerCommand({ kind: "endSecondPass" })
+  return { first, second }
+}
+
 function createReadToken(first: { readonly stateFragment?: ImportFirstPassResult["stateFragment"] }): ProjectStateReadToken {
   const fixture = sharedStateFixture
   if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
@@ -725,10 +754,7 @@ async function prepareReadyYamlValidationScenario() {
     logicalAddress: "Справочник.СправочникПолный",
     xmlFiles: [{ role: "metadata", sourcePath: catalogFullXmlPath }],
   })
-  const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
-  await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
-  const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignment.id })
-  await runImportWorkerCommand({ kind: "endSecondPass" })
+  const { first, second } = await runAssignmentSecondPass(outputDir, assignment, fullValidationSchemaCache)
   if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
   const result = { ...second, configurationFragments: first.configurationFragments }
 

@@ -71,6 +71,13 @@ function createCompatibilityConsumption(
     }
   }
 
+  const claimPresence = (node: XmlCompatibilityNode): void => {
+    claimShallow(node)
+    if (node.type === "element" && node.content.every((content) => content.type === "text")) {
+      consumeScalarElement(node)
+    }
+  }
+
   const consumeNode = (
     node: XmlCompatibilityNode,
     value: unknown,
@@ -170,7 +177,7 @@ function createCompatibilityConsumption(
       return
     }
     for (const child of structuralChildren(node)) {
-      if (compatibilityKey(child) === key) claimShallow(child)
+      if (compatibilityKey(child) === key) claimPresence(child)
     }
   }
 

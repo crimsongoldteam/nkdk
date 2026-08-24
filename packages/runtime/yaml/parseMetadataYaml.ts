@@ -28,13 +28,17 @@ export function parseMetadataYaml(text: string): ParsedYaml {
   }
 }
 
-export function parsedYamlFromKnownData(text: string, data: unknown): ParsedYaml {
+export function parsedYamlFromKnownData(
+  text: string,
+  data: unknown,
+  annotations: XmlAnomalyAnnotations = createXmlAnomalyAnnotations(),
+): ParsedYaml {
   return {
     text,
     data,
     locations: buildYamlLocationIndex(text),
     syntaxErrors: [],
-    annotations: createXmlAnomalyAnnotations(),
+    annotations,
   }
 }
 

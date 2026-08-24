@@ -345,6 +345,20 @@ describe("extractValidationYamlFacts", () => {
     ])
   })
 
+  it("не разбирает raw-свойство при сборе локальных индексов", () => {
+    const facts = catalogAttributeFacts([
+      "Реквизиты:",
+      "  Поставщик:",
+      "    Тип: !xml/raw",
+      "      v8:TypeSet: cfg:AnyRef",
+      "      v8:FutureQualifier: true",
+    ])
+
+    expect(facts.localIndexes?.metadata.ownerFacts?.attributes).toEqual([
+      { name: "Поставщик" },
+    ])
+  })
+
   it("не проверяет существование целей с режимом translateOnly", () => {
     const projectDir = "/project"
     const filePath = "/project/Справочник/Товары/Свойства.yaml"

@@ -25,6 +25,29 @@ export interface ImportAssignment {
   externalFiles: readonly ImportExternalFile[]
 }
 
+export interface ImportControlCompositionEntry {
+  readonly sourceProjectPath: string
+  readonly itemType: string
+  readonly itemName: string
+  readonly logicalAddress: string
+  readonly assignmentRole: ImportAssignmentRole
+  readonly ownerLogicalAddress?: string
+}
+
+export function importControlCompositionEntry(
+  assignment: ImportAssignment,
+): ImportControlCompositionEntry {
+  const ownerLogicalAddress = assignment.owner?.logicalAddress
+  return {
+    sourceProjectPath: assignment.targetProjectPath,
+    itemType: assignment.itemType,
+    itemName: assignment.itemName,
+    logicalAddress: assignment.logicalAddress,
+    assignmentRole: assignment.role,
+    ...(ownerLogicalAddress === undefined ? {} : { ownerLogicalAddress }),
+  }
+}
+
 export interface ImportTopologyAddress {
   nodeId: string
   values: Readonly<Record<string, string>>
@@ -73,7 +96,11 @@ export type ImportWorkerCommand =
   | { kind: "firstPass"; assignments: ImportAssignment[] }
   | { kind: "firstPassBatch"; assignments: ImportAssignment[] }
   | { kind: "finishFirstPass" }
-  | { kind: "beginSecondPass"; readToken: ProjectStateReadToken }
+  | {
+      kind: "beginSecondPass"
+      readToken: ProjectStateReadToken
+      composition?: readonly ImportControlCompositionEntry[]
+    }
   | { kind: "secondPass"; assignmentId: string }
   | { kind: "secondPassBatch"; assignmentIds: string[] }
   | { kind: "finishSecondPass" }

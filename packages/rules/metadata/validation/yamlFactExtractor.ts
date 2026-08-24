@@ -581,9 +581,11 @@ function collectPendingReferences(params: {
 
   const references: PendingMetadataTargetReference[] = []
   for (const property of params.properties) {
-    const value = valueAtPath(record, property.yamlPath)
-    if (value === undefined) continue
     const yamlPath = [...params.yamlPath, ...property.yamlPath]
+    if (hasXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)) continue
+    const sourceValue = valueAtPath(record, property.yamlPath)
+    if (sourceValue === undefined) continue
+    const value = withoutAnnotatedDescendants(sourceValue, params.parsed)
     const rulePath = [
       ...params.rulePath,
       {
@@ -1323,7 +1325,7 @@ function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {
   return rule.type === "DataPath"
 }
 
-function valueAtPath(value: Record<string, unknown>, path: readonly string[]): unknown {
+function valueAtPath(value: Record<string, unknown>, path: readonly (string | number)[]): unknown {
   let current: unknown = value
   for (const segment of path) {
     const record = asRecord(current)
@@ -1331,6 +1333,59 @@ function valueAtPath(value: Record<string, unknown>, path: readonly string[]): u
     current = record[segment]
   }
   return current
+}
+
+function hasXmlAnomalyAtPath(
+  root: unknown,
+  parsed: ParsedYaml,
+  path: readonly (string | number)[],
+): boolean {
+  let parent = root
+  for (const segment of path) {
+    if (typeof parent !== "object" || parent === null) return false
+    if (parsed.annotations.at(parent, segment) !== undefined) return true
+    parent = (parent as Record<string | number, unknown>)[segment]
+  }
+  return false
+}
+
+function withoutAnnotatedDescendants(value: unknown, parsed: ParsedYaml): unknown {
+  const firstAnnotation = parsed.annotations.entries()[Symbol.iterator]().next()
+  if (parsed.annotations.root() === undefined && firstAnnotation.done === true) return value
+  return projectWithoutAnnotatedDescendants(value, parsed)
+}
+
+function projectWithoutAnnotatedDescendants(value: unknown, parsed: ParsedYaml): unknown {
+  if (typeof value !== "object" || value === null) return value
+  if (Array.isArray(value)) {
+    let changed = false
+    const projected: unknown[] = []
+    for (let index = 0; index < value.length; index += 1) {
+      if (parsed.annotations.at(value, index) !== undefined) {
+        changed = true
+        continue
+      }
+      const child = projectWithoutAnnotatedDescendants(value[index], parsed)
+      changed ||= child !== value[index]
+      projected.push(child)
+    }
+    return changed ? projected : value
+  }
+  let changed = false
+  const projected: Record<string, unknown> = {}
+  for (const [key, childValue] of Object.entries(value)) {
+    if (
+      parsed.annotations.at(value, key) !== undefined
+      || parsed.annotations.keyAt(value, key) !== undefined
+    ) {
+      changed = true
+      continue
+    }
+    const child = projectWithoutAnnotatedDescendants(childValue, parsed)
+    changed ||= child !== childValue
+    projected[key] = child
+  }
+  return changed ? projected : value
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {

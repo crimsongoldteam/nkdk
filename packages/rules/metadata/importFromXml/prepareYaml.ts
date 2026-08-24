@@ -1,5 +1,11 @@
 import fs from "node:fs"
-import { importContentFromXML } from "@nkdk/runtime"
+import {
+  createXmlAnomalyAnnotations,
+  createXmlImportAuditSession,
+  parseXmlDocumentWithSaxes,
+  type XmlAnomalyAnnotationTable,
+  type XmlDocument,
+} from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ExternalFileEntry, XmlImportConfigurationContext } from "@nkdk/runtime"
@@ -36,11 +42,18 @@ import {
   partitionImportedDependentItems,
 } from "./dependentItems"
 import { createImportedFormDataPathIndex } from "../forms/clientApplicationForm/formDataPathMetadata"
+import {
+  captureXmlAnomalyProofAudit,
+  deriveXmlAnomalyProofBoundaries,
+  type XmlAnomalyProofAudit,
+} from "./anomalyProof"
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment
   targetProjectPath: string
   yaml: unknown
+  annotations: XmlAnomalyAnnotationTable
+  proofAudit: XmlAnomalyProofAudit
   rule: MetadataItemRule
   ownerContext: readonly MetadataItemOwnerContextEntry[]
   localIndexes: LocalIndexes
@@ -65,6 +78,7 @@ export interface PreparedBaseFormCandidate {
 interface ParsedImportXmlInput {
   input: ImportXmlInput
   parsed: Record<string, unknown>
+  document: XmlDocument
 }
 
 let registeredImportRuleLookupCountValueForTests = 0
@@ -89,6 +103,8 @@ export async function prepareImportYaml(params: {
   let xmlInputs: ParsedImportXmlInput[] | undefined
   try {
     xmlInputs = await readAndParseAssignmentXml(params.assignment.xmlFiles, params.profiler)
+    const annotations = createXmlAnomalyAnnotations()
+    const audit = createXmlImportAuditSession(xmlInputs.flatMap(({ document }) => document.roots))
     const generatedFiles: ExternalFileEntry[] = []
     const rule = resolveAssignmentRule(
       params.assignment,
@@ -167,17 +183,21 @@ export async function prepareImportYaml(params: {
       const deferred = createDeferredValuePathCollector()
       const dependent = createImportedDependentPropertyCollector()
       const metadataXML = requireMetadataXml(xmlInputs ?? [])
+      const metadataNode = requireMetadataXmlNode(xmlInputs ?? [])
       const yaml = importMetadataItemFromXMLToYAML({
         context: importContext,
         rule,
         name: params.assignment.itemName,
-        xml: metadataXML["MetaDataObject"],
+        xml: metadataNode ?? metadataXML["MetaDataObject"],
         traversal: {
           yamlPath: [],
           rulePath: [],
           collector,
           deferred,
           dependent,
+          audit,
+          annotations,
+          ...(metadataNode === undefined ? {} : { xmlNodes: [metadataNode] }),
           profile: importProfile,
         },
         propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
@@ -209,6 +229,16 @@ export async function prepareImportYaml(params: {
       }
     })
     recordDirectImportProfile(params.profiler, importProfile)
+    audit.finalize()
+    const proofSources = xmlInputs.map(({ input, document }) => ({
+      sourcePath: input.sourcePath,
+      role: input.role,
+      document,
+    }))
+    const proofAudit = captureXmlAnomalyProofAudit({
+      sources: proofSources,
+      boundaries: deriveXmlAnomalyProofBoundaries({ sources: proofSources, audit, rule }),
+    })
 
     params.profiler?.record("Подготовка импорта конфигурации", "Сбор локальных индексов", {
       items: result.localIndexes.metadata.events.length,
@@ -218,6 +248,8 @@ export async function prepareImportYaml(params: {
       assignment: params.assignment,
       targetProjectPath: params.assignment.targetProjectPath,
       yaml: result.yaml,
+      annotations,
+      proofAudit,
       rule,
       ownerContext,
       localIndexes: result.localIndexes,
@@ -299,25 +331,32 @@ async function readAndParseAssignmentXml(
         )) ?? (await fs.promises.readFile(input.sourcePath, "utf-8"))
       result.push({
         input,
-        parsed:
-          profiler?.measure(
+        ...(() => {
+          const document = profiler?.measure(
             "Подготовка импорта конфигурации",
             "Парсинг XML",
             { items: 1, bytes: Buffer.byteLength(content) },
-            () => importContentFromXML<Record<string, unknown>>(content, {
+            () => parseXmlDocumentWithSaxes(content, {
               preserveXsiNil: true,
               preserveEmptyElementNames: ["AdditionalFields"],
             })
-          ) ?? importContentFromXML<Record<string, unknown>>(content, {
+          ) ?? parseXmlDocumentWithSaxes(content, {
             preserveXsiNil: true,
             preserveEmptyElementNames: ["AdditionalFields"],
-          }),
+          })
+          return { document, parsed: document.compatibility }
+        })(),
       })
     } catch (caught) {
       throw new ImportXmlInputError(input.sourcePath, caught)
     }
   }
   return result
+}
+
+function requireMetadataXmlNode(inputs: readonly ParsedImportXmlInput[]) {
+  const metadata = inputs.find(({ input }) => input.role === "metadata")
+  return metadata?.document.roots.find(({ name }) => name === "MetaDataObject")
 }
 
 function measureYaml<T>(profiler: ValidationProfiler | undefined, fn: () => T): T {

@@ -15,11 +15,13 @@ import {
 } from "@nkdk/runtime"
 import type {
   ImportAssignment,
+  ImportControlCompositionEntry,
   ImportDiagnostic,
   ImportResultFile,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
 } from "./types"
+import { importControlCompositionEntry } from "./types"
 import {
   importDiagnosticValue,
   openImportBinaryResult,
@@ -228,6 +230,7 @@ function createXmlImportOperationPool(params: {
 }): XmlImportWorkerPool {
   const activeWorkerIndexes: number[] = []
   const assignmentIdsByWorker = new Map<number, string[]>()
+  let controlComposition: ImportControlCompositionEntry[] = []
   let initialization:
     | {
         operationId: string
@@ -261,6 +264,7 @@ function createXmlImportOperationPool(params: {
       const initialized = initialization
 
       phase = "firstPassRunning"
+      controlComposition = assignments.map(importControlCompositionEntry)
       const partitions = partitionRoundRobin(assignments, params.concurrency)
       const diagnosticViewsByWorker: DiagnosticBatchView[][] = []
       const fileViewsByWorker: ImportResultFileBatchView[][] = []
@@ -359,6 +363,7 @@ function createXmlImportOperationPool(params: {
           const beginResponse = await runCommand(workerIndex, {
             kind: "beginSecondPass",
             readToken: readTokens[activeIndex]!,
+            composition: controlComposition,
           })
           if (beginResponse !== undefined) {
             throw new Error("Worker вернул неожиданный результат beginSecondPass")

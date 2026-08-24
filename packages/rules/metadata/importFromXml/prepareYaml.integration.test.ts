@@ -3,7 +3,11 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
-import { createConfigurationIndexCollector, yamlScalarTagAt } from "@nkdk/runtime"
+import {
+  createConfigurationIndexCollector,
+  snapshotXmlAnomalyAnnotations,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import { parseMetadataYamlData } from "@nkdk/runtime"
 import { discoverXmlImport } from "./discovery"
@@ -22,6 +26,7 @@ import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,
 } from "../forms/clientApplicationForm/rules"
+import "../../tests/metadataExecutionContext"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const syncXmlDir = join(configurationFixturesDir, "syncConfiguration/xml")
@@ -266,6 +271,51 @@ describe("prepareImportYaml", () => {
       uuid: "0f4c2a9b-1d3e-4b6f-8a7c-9e1d2c3b4a5f",
     })
     expect(writeFile).not.toHaveBeenCalled()
+  })
+
+  it("сохраняет raw неизвестного XML и компактный proof-аудит без structural tree", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-proof-audit-"))
+    try {
+      const metadataPath = join(inputDir, "Контрагенты.xml")
+      fs.writeFileSync(
+        metadataPath,
+        fs.readFileSync(join(syncXmlDir, "Catalogs/Контрагенты.xml"), "utf8")
+          .replace("\t\t</Properties>", "\t\t\t<Future code=\"x\">value</Future>\n\t\t</Properties>"),
+      )
+      const prepared = await prepareImportYaml({
+        assignment: { ...catalogAssignment(), xmlFiles: [{ role: "metadata", sourcePath: metadataPath }] },
+        context: mockXmlImportContext(),
+        collector: createConfigurationIndexCollector(),
+      })
+      const yaml = prepared.yaml as Record<string, unknown>
+
+      expect(yaml["Properties\\Future"]).toEqual({ _code: "x", "#text": "value" })
+      expect(prepared.annotations.at(yaml, "Properties\\Future")).toEqual({
+        kind: "raw",
+        occurrence: 1,
+        target: "value",
+      })
+      expect(snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations).entries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ parentPath: [], key: "Properties\\Future" }),
+        ]),
+      )
+      expect(prepared.proofAudit.sources).toEqual([
+        expect.objectContaining({ sourcePath: metadataPath, role: "metadata" }),
+      ])
+      expect(prepared.proofAudit.boundaries).toEqual(expect.arrayContaining([
+        expect.objectContaining({ yamlPath: ["ДлинаКода"], presentInSource: true }),
+      ]))
+      expect(prepared.proofAudit.sources[0]?.roots[0]).not.toHaveProperty("attributes")
+      expect(prepared.proofAudit.sources[0]?.roots[0]).not.toHaveProperty("content")
+      expect(prepared.proofAudit.boundaries[0]?.levels[0]).not.toHaveProperty("compatibilityValue")
+      expect(prepared.proofAudit.boundaries[0]?.levels[0]).not.toHaveProperty("attributes")
+      expect(prepared.proofAudit.boundaries[0]?.levels[0]).not.toHaveProperty("content")
+      expect(prepared).not.toHaveProperty("xml")
+      expect(prepared).not.toHaveProperty("document")
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true })
+    }
   })
 
   it.each([

@@ -60,6 +60,9 @@ function collectInternalInfoIdentities(context: ConfigurationContextFromXML, xml
   if (collection === undefined) return
 
   for (const item of asArray(xml["xr:GeneratedType"])) {
+    // Категория восстанавливается правилом и не входит в индекс, но должна быть
+    // отмечена как структурно прочитанная для последующего proof-export.
+    void item._category
     const name = item._name.split(".")[0]!
     collection.collector.setIdentity(
       internalInfoGeneratedTypeIdAddress(collection.logicalAddress, name),

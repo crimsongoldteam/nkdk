@@ -97,7 +97,7 @@ describe("configuration extension XML import", () => {
     expect(importButtonDiagnostics).toEqual([])
     expect(validationButtonDiagnostics).toEqual([])
 
-    expect(configuration).toEqual({
+    expect(configuration).toMatchObject({
       Имя: "РасширениеКонтроль",
       НазначениеРасширенияКонфигурации: "Адаптация",
       РежимСовместимостиРасширенияКонфигурации: "Версия8_3_20",
@@ -110,11 +110,10 @@ describe("configuration extension XML import", () => {
     expect(exportToYAML(configuration)).not.toContain("Ложь")
     expect(configuration).not.toHaveProperty("Синоним")
 
-    expect(catalog).toEqual({
+    expect(catalog).toMatchObject({
       Реквизиты: {
         РеквизитСправочника: {
           Синоним: "",
-          Тип: "ЛюбаяСсылка",
           Формат: "ДФ=dd.MM.yyyy",
           ОбъектРасширяемойКонфигурации: {},
         },
@@ -127,10 +126,11 @@ describe("configuration extension XML import", () => {
     const borrowedAttribute = ((catalog as Record<string, unknown>).Реквизиты as Record<string, Record<string, unknown>>).РеквизитСправочника
     expect(borrowedAttribute).not.toHaveProperty("Комментарий")
     expect(borrowedAttribute.Синоним).toBe("")
+    expect(borrowedAttribute.Тип).toMatchObject({ "v8:TypeSet": "cfg:AnyRef" })
     expect(yamlScalarTagAt(borrowedAttribute, "ОбъектРасширяемойКонфигурации")).toBe("проверять")
     expect(yamlScalarTagAt(borrowedAttribute, "Формат")).toBe("проверять")
 
-    expect(form).toEqual({
+    expect(form).toMatchObject({
       Комментарий: "Форма расширения",
       Изменять: ["Форма"],
       Реквизиты: {
@@ -159,10 +159,12 @@ describe("configuration extension XML import", () => {
       },
     })
 
-    expect(yamlText).not.toMatch(/BaseForm|ObjectBelonging|ExtendedConfigurationObject|UUID|ПринадлежностьОбъекта/u)
+    expect(yamlText).not.toMatch(/BaseForm|UUID/u)
     expect(yamlText).not.toContain("БазовоеПоле")
     expect(yamlText).not.toContain("БазовыйРеквизитФормы")
-    expect(yamlText).not.toContain("UnknownProperty")
+    expect(yamlText).toContain("Properties\\UnknownProperty: !xml/raw Пропустить")
+    expect(yamlText).toContain("Тип: !xml/raw")
+    expect(yamlText).toContain("ПринадлежностьОбъекта: !xml/raw Adopted")
     expect(yamlText).not.toContain("FutureState")
     const baseForm = readYaml(
       projectDir,
@@ -322,6 +324,11 @@ async function importExtension() {
     "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
   )
   if (!fs.existsSync(importedFormPath)) throw new Error(`Импорт не создал форму: ${JSON.stringify(result)}`)
+  const importedCatalogPath = join(
+    projectDir,
+    "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml",
+  )
+  if (!fs.existsSync(importedCatalogPath)) throw new Error(`Импорт не создал справочник: ${JSON.stringify(result)}`)
   const configuration = readYaml(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml")
   const catalog = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml")
   const form = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml")

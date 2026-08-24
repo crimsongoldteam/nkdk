@@ -1,7 +1,15 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
+import { readFile } from "node:fs/promises"
 import { join, posix } from "node:path"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
-import { hashFileBytes, rehydrateConfigurationContext } from "@nkdk/runtime"
+import {
+  createLocalConfigurationIndexReader,
+  hashFileBytes,
+  rehydrateConfigurationContext,
+  restoreXmlAnomalyAnnotations,
+  snapshotXmlAnomalyAnnotations,
+  type XmlAnomalyAnnotations,
+} from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
@@ -49,6 +57,7 @@ import {
 import { ImportXmlInputError, prepareImportYaml, type PreparedImportYaml } from "./prepareYaml"
 import type {
   ImportAssignment,
+  ImportControlCompositionEntry,
   ImportDiagnostic,
   ImportFirstPassResult,
   ImportResultFile,
@@ -56,6 +65,7 @@ import type {
   ImportWorkerCommand,
   ImportWorkerCommandResult,
 } from "./types"
+import { importControlCompositionEntry } from "./types"
 import {
   serializeImportYaml,
   writeGeneratedImportFiles,
@@ -80,6 +90,9 @@ import { finalizeImportedConditionalAppearanceAnomalies } from "../forms/clientA
 import { prepareFormDataPathContextFromYAML } from "../forms/clientApplicationForm/formDataPathContext"
 import { getProjectReferenceValueContributor } from "../validation/projectReferenceIndexRegistry"
 import { resolveImportedMetadataTargetStatus } from "./metadataTargetLookup"
+import { executeImportControlExport } from "./controlExport"
+import type { XmlAnomalyProofAudit } from "./anomalyProof"
+import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -122,9 +135,13 @@ interface InitializedImportWorkerState {
 
 interface DeferredImportYaml {
   diagnosticAssignment: Pick<ImportAssignment, "targetProjectPath" | "xmlFiles">
+  assignment: ImportAssignment
   targetProjectPath: string
   logicalAddress: string
   yaml: unknown
+  annotations: XmlAnomalyAnnotations
+  proofAudit: XmlAnomalyProofAudit
+  configurationFragment: ConfigurationIndexBlockFragment
   rule: PreparedImportYaml["rule"]
   ownerContext: PreparedImportYaml["ownerContext"]
   formDataPathIndex: PreparedImportYaml["localIndexes"]["metadata"]["formDataPathIndex"]
@@ -139,6 +156,8 @@ interface DeferredImportYaml {
 interface ActiveSecondPass {
   readonly readSession: ReturnType<typeof openProjectStateReadSession>
   readonly ownerMetadataCache: OwnerMetadataCache
+  readonly configurationIndex: ReturnType<typeof createLocalConfigurationIndexReader>
+  readonly composition: MetadataXmlPrepareComposition
 }
 
 export interface ImportWorkerCommandRunner {
@@ -168,6 +187,7 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
   let schemaCacheForTests: ValidationSchemaCache | undefined
   const preparedYaml = new Map<string, DeferredImportYaml>()
   const assignedImportIds = new Set<string>()
+  const assignedImports = new Map<string, ImportAssignment>()
   let activeSecondPass: ActiveSecondPass | undefined
   let firstPassAccumulator: FirstPassAccumulator | undefined
   let secondPassAccumulator: SecondPassAccumulator | undefined
@@ -204,6 +224,7 @@ async function runImportWorkerCommand(
     endSecondPass()
     preparedYaml.clear()
     assignedImportIds.clear()
+    assignedImports.clear()
     firstPassAccumulator?.fragmentWriter.discard()
     const projectDir = command.projectDir ?? command.outputDir
     const componentPath = command.componentPath ?? "cf"
@@ -271,7 +292,7 @@ async function runImportWorkerCommand(
   }
 
   if (command.kind === "beginSecondPass") {
-    beginSecondPass(command.readToken, requireInitializedState())
+    beginSecondPass(command.readToken, requireInitializedState(), command.composition)
     secondPassAccumulator?.fragmentWriter.discard()
     secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     return undefined
@@ -389,6 +410,7 @@ function finishSecondPass(accumulator: SecondPassAccumulator, flushProfile = tru
 function beginSecondPass(
   readToken: import("../projectState/contracts").ProjectStateReadToken,
   state: InitializedImportWorkerState,
+  controlComposition?: readonly ImportControlCompositionEntry[],
 ): void {
   if (activeSecondPass !== undefined) throw new Error("Второй проход XML-import worker уже начат")
   const readSession = openProjectStateReadSession(readToken)
@@ -399,6 +421,15 @@ function beginSecondPass(
       componentPath: state.componentPath,
       queryPort: readSession,
     }),
+    configurationIndex: createLocalConfigurationIndexReader(new Map(
+      [...preparedYaml.values()].map(({ configurationFragment }) => [
+        configurationFragment.targetProjectPath,
+        { entities: configurationFragment.entities },
+      ]),
+    )),
+    composition: importControlComposition(
+      controlComposition ?? [...assignedImports.values()].map(importControlCompositionEntry),
+    ),
   }
 }
 
@@ -523,7 +554,31 @@ async function writePreparedYamlToOutput(
       })
     }
   )
-  const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
+  const proof = await profiler.measureAsync(
+    "Подготовка импорта конфигурации",
+    "Контрольный экспорт XML",
+    { items: 1 },
+    () => executeImportControlExport({
+      assignment: prepared.assignment,
+      data: prepared.yaml,
+      annotations: snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations),
+      audit: prepared.proofAudit,
+      topology: state.topology,
+      context: { ...contextWithOwners, fromXML: state.context.fromXML },
+      index: activeSecondPass?.configurationIndex ?? createLocalConfigurationIndexReader(new Map()),
+      composition: activeSecondPass?.composition ?? { children: () => [] },
+      readSource: async (sourcePath) => readFile(sourcePath, "utf8"),
+    }),
+  )
+  prepared.yaml = proof.data
+  prepared.annotations = restoreXmlAnomalyAnnotations(proof.data, proof.annotations)
+  const serialized = serializePreparedYaml(
+    prepared.targetProjectPath,
+    prepared.yaml,
+    state,
+    profiler,
+    prepared.annotations,
+  )
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
   const main = await writeMainImportYaml({ serialized, profiler })
   const baseForm = preparedBaseFormCandidate === undefined
@@ -794,6 +849,22 @@ function secondPassExportContext(params: {
   }
 }
 
+function importControlComposition(
+  assignments: readonly ImportControlCompositionEntry[],
+): MetadataXmlPrepareComposition {
+  const rootLogicalAddress = assignments.find(({ assignmentRole }) => assignmentRole === "configuration")?.logicalAddress
+  return {
+    children(ownerLogicalAddress) {
+      return assignments.flatMap((assignment) => {
+        const owner = assignment.ownerLogicalAddress
+          ?? (assignment.assignmentRole === "configuration" ? undefined : rootLogicalAddress)
+        if (owner !== ownerLogicalAddress) return []
+        return [assignment]
+      })
+    },
+  }
+}
+
 async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   const result = await runImportWorkerCommand(command)
   return result?.kind === "binaryResult"
@@ -815,6 +886,7 @@ async function processFirstPass(
   let deferredValueCount = 0
   for (const assignment of assignments) {
     assignedImportIds.add(assignment.id)
+    assignedImports.set(assignment.id, assignment)
     const collector = createConfigurationIndexCollector()
     try {
       const prepared = await prepareImportYaml({
@@ -898,9 +970,13 @@ async function processFirstPass(
             targetProjectPath: assignment.targetProjectPath,
             xmlFiles: assignment.xmlFiles,
           },
+          assignment,
           targetProjectPath: prepared.targetProjectPath,
           logicalAddress: assignment.logicalAddress,
           yaml: prepared.yaml,
+          annotations: prepared.annotations,
+          proofAudit: prepared.proofAudit,
+          configurationFragment: fragment,
           rule: prepared.rule,
           ownerContext: prepared.ownerContext,
           formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
@@ -1038,6 +1114,7 @@ function serializePreparedYaml(
   yaml: unknown,
   state: InitializedImportWorkerState,
   profiler: ValidationProfiler,
+  annotations?: XmlAnomalyAnnotations,
 ): SerializedImportYaml {
   return profiler.measure(
     "Подготовка импорта конфигурации",
@@ -1050,6 +1127,7 @@ function serializePreparedYaml(
         targetProjectPath,
       },
       yaml,
+      ...(annotations === undefined ? {} : { annotations }),
     }),
   )
 }
@@ -1285,6 +1363,7 @@ function disposeWorkerState(): void {
   secondPassAccumulator = undefined
   preparedYaml.clear()
   assignedImportIds.clear()
+  assignedImports.clear()
   initializedState = undefined
 }
 
