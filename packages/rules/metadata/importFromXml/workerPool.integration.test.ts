@@ -56,6 +56,40 @@ describe("XML import worker pool", () => {
     await pool.runSecondPass(readTokens(1))
     expect(pools.secondPassBatchSizes(0)).toEqual([256, 1])
 
+    await pool.runThirdPass(readTokens(1))
+    expect(pools.thirdPassBatchSizes(0)).toEqual([256, 1])
+
+    await pool.close()
+  })
+
+  it("запрещает третий проход до второго и выполняет его после смыслового барьера", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
+
+    await pool.initialize({
+      operationId: "three-pass-order",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("three-pass-order"),
+      componentKind: "configuration",
+    })
+    await pool.runFirstPass([assignment("one")])
+
+    await expect(pool.runThirdPass(readTokens(1))).rejects.toThrow("Второй проход import не завершён")
+
+    await pool.runSecondPass(readTokens(1))
+    await pool.runThirdPass(readTokens(1))
+
+    expect(pools.runs(0).map(({ kind }) => kind)).toEqual([
+      "initialize",
+      "firstPassBatch",
+      "finishFirstPass",
+      "beginSecondPass",
+      "secondPassBatch",
+      "finishSecondPass",
+      "beginThirdPass",
+      "thirdPassBatch",
+      "finishThirdPass",
+    ])
     await pool.close()
   })
 
@@ -679,6 +713,12 @@ function createFakePools() {
       if (task.kind === "finishSecondPass") {
         return undefined
       }
+      if (task.kind === "thirdPassBatch") {
+        return createImportBinaryResult({ diagnostics: [], warnings: [], files: [] })
+      }
+      if (task.kind === "finishThirdPass") {
+        return undefined
+      }
       return undefined
     }
   )
@@ -701,6 +741,11 @@ function createFakePools() {
     secondPassBatchSizes(workerIndex: number): number[] {
       return pools.commands(workerIndex).flatMap((task) =>
         task.kind === "secondPassBatch" ? [task.assignmentIds.length] : []
+      )
+    },
+    thirdPassBatchSizes(workerIndex: number): number[] {
+      return pools.commands(workerIndex).flatMap((task) =>
+        task.kind === "thirdPassBatch" ? [task.assignmentIds.length] : []
       )
     },
     created: pools.created,

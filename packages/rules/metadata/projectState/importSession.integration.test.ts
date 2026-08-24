@@ -44,6 +44,7 @@ describe("ProjectState import session", () => {
   let state: ReturnType<typeof createProjectStateService>
   let session: ProjectStateImportSession
   let firstToken: Awaited<ReturnType<ProjectStateImportSession["commitWorkingIndex"]>>
+  let semanticToken: Awaited<ReturnType<ProjectStateImportSession["commitSemanticIndex"]>>
   let secondToken: Awaited<ReturnType<ProjectStateImportSession["createReadToken"]>>
 
   beforeAll(async () => {
@@ -53,6 +54,8 @@ describe("ProjectState import session", () => {
     await session.writeStateFragment(stateFragment([contribution]))
     firstToken = await session.commitWorkingIndex()
     secondToken = await session.createReadToken()
+    await session.writeStateFragment(stateFragment([contribution]))
+    semanticToken = await session.commitSemanticIndex()
   })
 
   afterAll(async () => {
@@ -63,10 +66,13 @@ describe("ProjectState import session", () => {
   it("фиксирует индекс для отдельных read sessions и принимает после этого окончательный фрагмент", async () => {
     const first = state.openReadSession(firstToken)
     const second = state.openReadSession(secondToken)
+    const semantic = state.openReadSession(semanticToken)
     expect(first.readOwners([{ requestId: "one", componentPath: "cf", owner: { kind: "Справочник", name: "Товары" } }]))
       .toEqual([expect.objectContaining({ requestId: "one", status: "found" })])
     expect(second.readOwners([{ requestId: "two", componentPath: "cf", owner: { kind: "Справочник", name: "Товары" } }]))
       .toEqual([expect.objectContaining({ requestId: "two", status: "found" })])
+    expect(semantic.readOwners([{ requestId: "semantic", componentPath: "cf", owner: { kind: "Справочник", name: "Товары" } }]))
+      .toEqual([expect.objectContaining({ requestId: "semantic", status: "found" })])
 
     const before = first.readComponentTargetPage({ componentPath: "cf" })
     await session.writeStateFragment(stateFragment(
@@ -76,6 +82,7 @@ describe("ProjectState import session", () => {
     expect(first.readComponentTargetPage({ componentPath: "cf" })).toEqual(before)
     first.close()
     second.close()
+    semantic.close()
 
     const result = await session.finalize()
     expect([...result.diagnostics]).toEqual([])
@@ -98,7 +105,9 @@ describe("ProjectState import session", () => {
     await writer.flushCheckpoint()
     expect(saved).toHaveLength(0)
 
-    await importSession.writeStateFragment(stateFragment([indexed], [finalBatch(indexed.projectPath, 4n)]))
+    await importSession.writeStateFragment(stateFragment([indexed]))
+    await importSession.commitSemanticIndex()
+    await importSession.writeStateFragment(stateFragment([], [finalBatch(indexed.projectPath, 4n)]))
     await importSession.finalize()
     await writer.flushCheckpoint()
     expect(saved).toHaveLength(1)
@@ -114,7 +123,9 @@ describe("ProjectState import session", () => {
 
     await importSession.writeStateFragment(stateFragment([indexed]))
     await importSession.commitWorkingIndex()
-    await importSession.writeStateFragment(stateFragment([indexed], [finalBatch(indexed.projectPath, 4n)]))
+    await importSession.writeStateFragment(stateFragment([indexed]))
+    await importSession.commitSemanticIndex()
+    await importSession.writeStateFragment(stateFragment([], [finalBatch(indexed.projectPath, 4n)]))
     const before = await writer.readComponentProjection("cf")
     await importSession.replaceFinalHashes([{ projectPath: indexed.projectPath, hash: 9n }])
 
@@ -361,10 +372,12 @@ describe("ProjectState import session", () => {
     })
 
     await importSession.commitWorkingIndex()
+    await importSession.commitSemanticIndex()
     await importSession.finalize()
 
     expect(phases).toEqual([
       "workingIndex",
+      "semanticIndex",
       "finalBuild",
       "dependencyValidation",
       "save",

@@ -31,6 +31,7 @@ export interface ProjectStateImportParams {
 
 export type ProjectStateImportProfilePhase =
   | "workingIndex"
+  | "semanticIndex"
   | "finalBuild"
   | "dependencyValidation"
   | "save"
@@ -65,6 +66,7 @@ export interface ProjectStateImportSession {
   writeStateFragment(fragment: ProjectStateFragment): Promise<void>
   replaceFinalHashes(files: readonly { readonly projectPath: string; readonly hash: bigint }[]): Promise<void>
   commitWorkingIndex(): Promise<ProjectStateReadToken>
+  commitSemanticIndex(): Promise<ProjectStateReadToken>
   /** Выдаёт отдельный одноразовый token следующему worker после фиксации индекса. */
   createReadToken(): Promise<ProjectStateReadToken>
   finalize(beforeCheckpoint?: () => Promise<void>): Promise<ProjectStateRefreshResult>
@@ -84,7 +86,14 @@ export async function createProjectStateImportSession(
   await params.writer.openProject(params.projectDir)
   await params.writer.beginUpdate(params.projectDir, params.signal)
   await params.writer.clearImportOutput(params.output.componentPaths)
-  let phase: "index" | "committing" | "final" | "finalizing" | "done" = "index"
+  let phase:
+    | "working"
+    | "committingWorking"
+    | "semantic"
+    | "committingSemantic"
+    | "final"
+    | "finalizing"
+    | "done" = "working"
   const changedPaths = new Set<string>()
   let finalWrites = Promise.resolve()
   const activeWrites = new Set<Promise<void>>()
@@ -108,7 +117,7 @@ export async function createProjectStateImportSession(
   }
 
   function startWrite(
-    expectedPhase: "index" | "final",
+    expectedPhase: "working" | "semantic",
     rejectedMessage: string,
     write: () => Promise<void>,
   ): Promise<void> {
@@ -129,19 +138,33 @@ export async function createProjectStateImportSession(
     return trackWrite(queued)
   }
 
+  async function commitIndex(profilePhase: "workingIndex" | "semanticIndex"): Promise<ProjectStateReadToken> {
+    return measurePhase(profilePhase, async () => {
+      await Promise.all([...activeWrites])
+      await params.writer.commitUpdate()
+      const committed = await params.writer.createReadToken()
+      await params.writer.beginUpdate(params.projectDir, params.signal)
+      return committed
+    })
+  }
+
   return {
     async writeStateFragment(fragment) {
       if (phase === "done") throw new Error("Import session уже завершена")
       const checked = openProjectStateFragment(fragment)
-      if (phase === "index") {
+      if (phase === "working") {
         for (let id = 0; id < checked.fileCount; id += 1) {
           changedPaths.add(checked.stringValue(checked.fileRecord(id).projectPathId))
         }
-        await startWrite("index", "Import session уже завершена", () => params.writer.writeFragment(fragment))
+        await startWrite("working", "Рабочая фаза import уже завершена", () => params.writer.writeFragment(fragment))
         return
       }
       for (let id = 0; id < checked.fileCount; id += 1) {
         changedPaths.add(checked.stringValue(checked.fileRecord(id).projectPathId))
+      }
+      if (phase === "semantic") {
+        await startWrite("semantic", "Смысловая фаза import уже завершена", () => params.writer.writeFragment(fragment))
+        return
       }
       await startFinalWrite(() => params.writer.writeFragment(fragment))
     },
@@ -172,20 +195,23 @@ export async function createProjectStateImportSession(
       })
     },
     async commitWorkingIndex() {
-      if (phase !== "index") throw new Error("Рабочий индекс import уже зафиксирован")
-      phase = "committing"
-      const token = await measurePhase("workingIndex", async () => {
-        await Promise.all([...activeWrites])
-        await params.writer.commitUpdate()
-        const committed = await params.writer.createReadToken()
-        await params.writer.beginUpdate(params.projectDir, params.signal)
-        return committed
-      })
+      if (phase !== "working") throw new Error("Рабочий индекс import уже зафиксирован")
+      phase = "committingWorking"
+      const token = await commitIndex("workingIndex")
+      phase = "semantic"
+      return token
+    },
+    async commitSemanticIndex() {
+      if (phase !== "semantic") throw new Error("Смысловой индекс import нельзя зафиксировать сейчас")
+      phase = "committingSemantic"
+      const token = await commitIndex("semanticIndex")
       phase = "final"
       return token
     },
     async createReadToken() {
-      if (phase !== "final") throw new Error("Рабочий индекс import ещё не зафиксирован")
+      if (phase !== "semantic" && phase !== "final") {
+        throw new Error("Индекс import ещё не зафиксирован")
+      }
       return params.writer.createReadToken()
     },
     async finalize(beforeCheckpoint) {

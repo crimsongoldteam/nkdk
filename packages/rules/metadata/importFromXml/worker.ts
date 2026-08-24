@@ -151,6 +151,19 @@ interface DeferredImportYaml {
   indexContribution: ProjectStateImportIndexContribution
   validationFile: ValidationProjectFile
   baseFormCandidate?: NonNullable<PreparedImportYaml["baseFormCandidate"]>
+  output?: PreparedImportOutput
+}
+
+interface PreparedImportOutput {
+  main: PreparedSerializedYaml
+  base?: PreparedSerializedYaml
+  configurationFragments: ConfigurationIndexBlockFragment[]
+}
+
+interface PreparedSerializedYaml {
+  serialized: SerializedImportYaml
+  index: ProjectStateImportIndexContribution
+  final: ProjectStateImportFinalFileStateBatch
 }
 
 interface ActiveSecondPass {
@@ -304,15 +317,7 @@ async function runImportWorkerCommand(
     for (const assignmentId of command.assignmentIds) {
       await processSecondPass(assignmentId, state, accumulator)
     }
-    const result = finishSecondPass(accumulator, false)
-    secondPassAccumulator = createSecondPassAccumulator(state.workerIndex, accumulator.profiler)
-    return encodeImportBinaryResult(accumulator.profiler, {
-      diagnostics: result.diagnostics,
-      warnings: result.warnings,
-      files: result.files,
-      configurationFragments: result.configurationFragments,
-      ...(result.stateFragment === undefined ? {} : { stateFragment: result.stateFragment }),
-    })
+    return finishImportWorkerBatch(accumulator, state.workerIndex)
   }
 
   if (command.kind === "finishSecondPass") {
@@ -321,8 +326,37 @@ async function runImportWorkerCommand(
     accumulator.profiler.flush()
     secondPassAccumulator = undefined
     endSecondPass()
+    const unfinished = [...preparedYaml.values()].filter(({ output }) => output === undefined)
+    if (unfinished.length > 0) {
+      throw new Error(`Второй проход XML-import не обработал ${unfinished.length} отложенных YAML`)
+    }
+    return undefined
+  }
+
+  if (command.kind === "beginThirdPass") {
+    beginSecondPass(command.readToken, requireInitializedState())
+    secondPassAccumulator?.fragmentWriter.discard()
+    secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
+    return undefined
+  }
+
+  if (command.kind === "thirdPassBatch") {
+    requireInitializedState()
+    const accumulator = requireSecondPassAccumulator()
+    for (const assignmentId of command.assignmentIds) {
+      await processThirdPass(assignmentId, accumulator)
+    }
+    return finishImportWorkerBatch(accumulator, requireInitializedState().workerIndex)
+  }
+
+  if (command.kind === "finishThirdPass") {
+    const accumulator = requireSecondPassAccumulator()
+    accumulator.fragmentWriter.discard()
+    accumulator.profiler.flush()
+    secondPassAccumulator = undefined
+    endSecondPass()
     if (preparedYaml.size > 0) {
-      throw new Error(`Второй проход XML-import не обработал ${preparedYaml.size} отложенных YAML`)
+      throw new Error(`Третий проход XML-import не записал ${preparedYaml.size} подготовленных YAML`)
     }
     return undefined
   }
@@ -337,6 +371,7 @@ async function runImportWorkerCommand(
   if (command.kind === "secondPass") {
     const accumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     await processSecondPass(command.assignmentId, requireInitializedState(), accumulator)
+    await processThirdPass(command.assignmentId, accumulator)
     return finishSecondPass(accumulator)
   }
 
@@ -359,7 +394,7 @@ async function processSecondPass(
   const prepared = preparedYaml.get(assignmentId)
   if (prepared !== undefined) {
     try {
-      const written = await writePreparedYamlToOutput(
+      const output = await prepareYamlForFinalPass(
         prepared,
         secondPass.ownerMetadataCache,
         secondPass.readSession,
@@ -367,16 +402,15 @@ async function processSecondPass(
         accumulator.warnings,
         profiler,
       )
-      accumulator.files.push(...written.files)
-      for (const index of written.indexContributions) accumulator.fragmentWriter.appendImportIndex(index)
-      for (const final of written.finalStates) accumulator.fragmentWriter.appendImportFinal(final)
-      accumulator.configurationFragments.push(...written.configurationFragments)
-      accumulator.stateEntries += written.indexContributions.length + written.finalStates.length
+      prepared.output = output
+      accumulator.fragmentWriter.appendImportIndex(output.main.index)
+      if (output.base !== undefined) accumulator.fragmentWriter.appendImportIndex(output.base.index)
+      accumulator.configurationFragments.push(...output.configurationFragments)
+      accumulator.stateEntries += output.base === undefined ? 1 : 2
     } catch (caught) {
       accumulator.diagnostics.push(
         importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"),
       )
-    } finally {
       preparedYaml.delete(assignmentId)
     }
   }
@@ -385,6 +419,44 @@ async function processSecondPass(
     items: prepared === undefined ? 0 : 1,
     timeMs: 0,
   })
+}
+
+async function processThirdPass(
+  assignmentId: string,
+  accumulator: SecondPassAccumulator,
+): Promise<void> {
+  if (!assignedImportIds.has(assignmentId)) {
+    throw new Error(`Задание ${assignmentId} не принадлежит этой линии import`)
+  }
+  const prepared = preparedYaml.get(assignmentId)
+  if (prepared === undefined) return
+  try {
+    const output = prepared.output
+    if (output === undefined) {
+      throw new Error(`Задание ${assignmentId} не подготовлено вторым проходом XML-import`)
+    }
+    const main = await writeMainImportYaml({ serialized: output.main.serialized, profiler: accumulator.profiler })
+    accumulator.files.push(main.file)
+    accumulator.fragmentWriter.appendImportFinal(output.main.final)
+    accumulator.stateEntries += 1
+    if (output.base !== undefined) {
+      const base = await writeMainImportYaml({ serialized: output.base.serialized, profiler: accumulator.profiler })
+      accumulator.files.push(base.file)
+      accumulator.fragmentWriter.appendImportFinal(output.base.final)
+      accumulator.stateEntries += 1
+    }
+  } catch (caught) {
+    accumulator.diagnostics.push(
+      importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"),
+    )
+  } finally {
+    preparedYaml.delete(assignmentId)
+  }
+  accumulator.profiler.record(
+    "Подготовка импорта конфигурации",
+    "Формирование worker списка файлов результата импорта",
+    { items: 1, timeMs: 0 },
+  )
 }
 
 function createSecondPassAccumulator(workerIndex: number, profiler = createImportWorkerProfiler(workerIndex)): SecondPassAccumulator {
@@ -397,6 +469,18 @@ function createSecondPassAccumulator(workerIndex: number, profiler = createImpor
     profiler,
     stateEntries: 0,
   }
+}
+
+function finishImportWorkerBatch(accumulator: SecondPassAccumulator, workerIndex: number) {
+  const result = finishSecondPass(accumulator, false)
+  secondPassAccumulator = createSecondPassAccumulator(workerIndex, accumulator.profiler)
+  return encodeImportBinaryResult(accumulator.profiler, {
+    diagnostics: result.diagnostics,
+    warnings: result.warnings,
+    files: result.files,
+    configurationFragments: result.configurationFragments,
+    ...(result.stateFragment === undefined ? {} : { stateFragment: result.stateFragment }),
+  })
 }
 
 function finishSecondPass(accumulator: SecondPassAccumulator, flushProfile = true): ImportSecondPassResult {
@@ -438,7 +522,7 @@ function endSecondPass(): void {
   activeSecondPass = undefined
 }
 
-async function writePreparedYamlToOutput(
+async function prepareYamlForFinalPass(
   prepared: DeferredImportYaml,
   ownerMetadataCache: OwnerMetadataCache,
   readSession: ActiveSecondPass["readSession"],
@@ -446,9 +530,8 @@ async function writePreparedYamlToOutput(
   warnings: ImportDiagnostic[],
   profiler: ValidationProfiler
 ): Promise<{
-  files: ImportResultFile[]
-  indexContributions: ProjectStateImportIndexContribution[]
-  finalStates: ProjectStateImportFinalFileStateBatch[]
+  main: PreparedSerializedYaml
+  base?: PreparedSerializedYaml
   configurationFragments: ConfigurationIndexBlockFragment[]
 }> {
   const contextWithOwners = profiler.measure(
@@ -580,10 +663,9 @@ async function writePreparedYamlToOutput(
     prepared.annotations,
   )
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
-  const main = await writeMainImportYaml({ serialized, profiler })
   const baseForm = preparedBaseFormCandidate === undefined
     ? undefined
-    : await writePreparedBaseFormCandidate({
+    : prepareSerializedBaseFormCandidate({
         candidate: preparedBaseFormCandidate,
         state,
         profiler,
@@ -597,9 +679,8 @@ async function writePreparedYamlToOutput(
         )
       : prepared.baseFormCandidate.configurationFragment
   return {
-    files: [main.file, ...(baseForm === undefined ? [] : [baseForm.file])],
-    indexContributions: [validated.index, ...(baseForm === undefined ? [] : [baseForm.indexContribution])],
-    finalStates: [validated.final, ...(baseForm === undefined ? [] : [baseForm.finalState])],
+    main: { serialized, index: validated.index, final: validated.final },
+    ...(baseForm === undefined ? {} : { base: baseForm }),
     configurationFragments:
       baseFormConfigurationFragment === undefined ? [] : [baseFormConfigurationFragment],
   }
@@ -658,16 +739,11 @@ function prepareBaseFormCandidate(params: {
   return equalBaseFormYaml(params.candidate.yaml, projection.yaml) ? undefined : params.candidate
 }
 
-async function writePreparedBaseFormCandidate(params: {
+function prepareSerializedBaseFormCandidate(params: {
   candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
   state: InitializedImportWorkerState
   profiler: ValidationProfiler
-}): Promise<{
-  file: ImportResultFile
-  indexContribution: ProjectStateImportIndexContribution
-  finalState: ProjectStateImportFinalFileStateBatch
-  configurationFragment: ConfigurationIndexBlockFragment
-} | undefined> {
+}): PreparedSerializedYaml {
   const serialized = serializePreparedYaml(
     params.candidate.targetProjectPath,
     params.candidate.yaml,
@@ -689,12 +765,10 @@ async function writePreparedBaseFormCandidate(params: {
     params.profiler,
     "isolated",
   )
-  const written = await writeMainImportYaml({ serialized, profiler: params.profiler })
   return {
-    file: written.file,
-    indexContribution: validated.index,
-    finalState: validated.final,
-    configurationFragment: params.candidate.configurationFragment,
+    serialized,
+    index: validated.index,
+    final: validated.final,
   }
 }
 

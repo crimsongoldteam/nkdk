@@ -328,7 +328,25 @@ export async function importConfigurationFromXml(
       const cleanup = await abortCleanupDiagnostics(importSession, secondDiagnostics, closePoolForCleanup)
       return outcome = failedResult([...secondDiagnostics, ...cleanup], warnings, resolvedComponentPath)
     }
-    const allFiles = [...first.files, ...second.files]
+    const semanticReadToken = await importSession.commitSemanticIndex()
+    const semanticReadTokens = [semanticReadToken]
+    for (let index = 1; index < pool.workerCount(); index += 1) {
+      semanticReadTokens.push(await importSession.createReadToken())
+    }
+    const third = await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Третий проход worker",
+      { items: discovered.assignments.length },
+      () => pool!.runThirdPass(semanticReadTokens, stateSink),
+    )
+    temporaryCollections.push(third.diagnostics, third.warnings, third.files)
+    warnings = [...warnings, ...third.warnings]
+    if (third.diagnostics.errors > 0) {
+      const thirdDiagnostics = [...third.diagnostics]
+      const cleanup = await abortCleanupDiagnostics(importSession, thirdDiagnostics, closePoolForCleanup)
+      return outcome = failedResult([...thirdDiagnostics, ...cleanup], warnings, resolvedComponentPath)
+    }
+    const allFiles = [...first.files, ...second.files, ...third.files]
     const files = profiler.measure(
       "Подготовка импорта конфигурации",
       "Обобщение списка файлов результата импорта",
@@ -475,6 +493,7 @@ function importStatePhaseName(
 ): string {
   return {
     workingIndex: "Фиксация рабочего индекса",
+    semanticIndex: "Фиксация смыслового индекса",
     finalBuild: "Построение окончательного состояния",
     dependencyValidation: "Полная проверка зависимостей",
     save: "Сохранение состояния проекта",
@@ -519,6 +538,7 @@ function createImportStateSink(
   return {
     writeFirstPassState: writeState,
     writeSecondPassState: writeState,
+    writeThirdPassState: writeState,
   }
 }
 

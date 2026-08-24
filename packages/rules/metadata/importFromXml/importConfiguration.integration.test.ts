@@ -2,6 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
+import "../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../tests/mockContext"
 import {
   configurationIndexStoreDescriptor,
@@ -37,6 +38,7 @@ const failurePhases = [
   "discover",
   "firstPass",
   "secondPass",
+  "thirdPass",
   "mergeFiles",
   "transferExternalFiles",
   "hashProject",
@@ -254,7 +256,7 @@ describe("configuration XML import coordinator", () => {
         return {
           diagnostics: diagnosticCollection([]),
           warnings: diagnosticCollection([]),
-          files: fileCollection(secondPassFiles),
+          files: fileCollection([]),
         }
       },
     })
@@ -422,6 +424,7 @@ describe("configuration XML import coordinator", () => {
       "initialize",
       "firstPass",
       "secondPass",
+      "thirdPass",
       "mergeFiles",
       "transferExternalFiles",
       "hashProject",
@@ -516,6 +519,7 @@ describe("configuration XML import coordinator", () => {
         throw new Error("unreachable")
       },
       async runSecondPass() { throw new Error("unexpected second pass") },
+      async runThirdPass() { throw new Error("unexpected third pass") },
       workerCount() { return 2 },
       async close() {
         events.push("close:start")
@@ -550,6 +554,7 @@ describe("configuration XML import coordinator", () => {
       async initialize() {},
       async runFirstPass() { throw primary },
       async runSecondPass() { throw new Error("unexpected second pass") },
+      async runThirdPass() { throw new Error("unexpected third pass") },
       workerCount() { return 1 },
       async close() { throw closeFailure },
     })
@@ -569,6 +574,7 @@ describe("configuration XML import coordinator", () => {
     const cleanup = new Error("discard failed")
     params.projectState = projectStateWithImportSession({
       async commitWorkingIndex() { return new Uint8Array([1]) as never },
+      async commitSemanticIndex() { return new Uint8Array([2]) as never },
       async finalize(beforeCheckpoint) {
         await beforeCheckpoint?.()
         throw new AggregateError([primary, cleanup], primary.message)
@@ -814,10 +820,21 @@ function fakeDependencies(params: {
         },
         async runSecondPass(_tokens, sink) {
           call("secondPass")
+          await sink?.writeSecondPassState({
+            stateFragment: indexStateFragment(`${selectedComponentPath}/Конфигурация.yaml`),
+          })
+          return {
+            diagnostics: diagnosticCollection([]),
+            warnings: diagnosticCollection([]),
+            files: fileCollection([]),
+          }
+        },
+        async runThirdPass(_tokens, sink) {
+          call("thirdPass")
           if (componentDir === undefined) throw new Error("Worker pool не инициализирован")
           fs.mkdirSync(componentDir, { recursive: true })
           fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
-          await sink?.writeSecondPassState({
+          await sink?.writeThirdPassState?.({
             stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, selectedComponentPath)),
           })
           return {
@@ -965,6 +982,10 @@ function fakeProjectState(
           importParams.profile?.onPhase?.({ phase: "workingIndex", elapsedMs: 1 })
           return readToken()
         },
+        async commitSemanticIndex() {
+          importParams.profile?.onPhase?.({ phase: "semanticIndex", elapsedMs: 1 })
+          return readToken()
+        },
         async createReadToken() { return readToken() },
         async writeStateFragment(fragment) {
           const buffers = Object.values(fragment.buffers)
@@ -1028,6 +1049,7 @@ function projectStateWithImportSession(
     async writeStateFragment() {},
     async replaceFinalHashes() {},
     commitWorkingIndex: unexpected,
+    commitSemanticIndex: unexpected,
     createReadToken: unexpected,
     finalize: unexpected,
     async abort() {},

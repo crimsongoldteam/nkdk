@@ -397,7 +397,7 @@ describe("XML import worker second pass", () => {
 
     expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
     expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
-      .toContain('ДлинаКода: !xml/raw "01"')
+      .toContain('ДлинаКода: !xml/raw\n  $значение: 1\n  $xml:\n    "#text": "01"')
     expect(controlExportCountForTests()).toBe(1)
   })
 
@@ -448,6 +448,41 @@ describe("XML import worker second pass", () => {
     const lines = error.mock.calls.map(([line]) => String(line)).filter((line) => line.startsWith("[nkdk-profile-step]"))
     expect(lines.length).toBeGreaterThan(0)
     expect(lines.filter((line) => line.includes('substep="Сериализация YAML"'))).toHaveLength(1)
+  })
+
+  it("публикует смысловой индекс во втором проходе, а YAML записывает только в третьем", async () => {
+    const outputDir = createTempDir("three-pass-write")
+    const assignment = catalogAssignment()
+    await initializeWorker(outputDir)
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [assignment],
+    }))
+
+    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    const second = openImportBinaryResult(await runImportWorkerCommand({
+      kind: "secondPassBatch",
+      assignmentIds: [assignment.id],
+    }))
+
+    expect(second.stateFragment).toBeDefined()
+    expect(second.files.count).toBe(0)
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
+
+    await runImportWorkerCommand({ kind: "finishSecondPass" })
+    await runImportWorkerCommand({
+      kind: "beginThirdPass",
+      readToken: createReadToken({ stateFragment: second.stateFragment }),
+    })
+    const third = openImportBinaryResult(await runImportWorkerCommand({
+      kind: "thirdPassBatch",
+      assignmentIds: [assignment.id],
+    }))
+    await runImportWorkerCommand({ kind: "finishThirdPass" })
+
+    expect(third.files.count).toBe(1)
+    expect(third.stateFragment).toBeDefined()
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
   })
 
   it("отклоняет идентификатор задания, принадлежащий другой линии", async () => {
@@ -595,7 +630,7 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it("продолжает второй проход после ошибки записи YAML", async () => {
+  it("продолжает третий проход после ошибки записи YAML", async () => {
     const tempDir = createTempDir("worker")
     const blocked = catalogAssignment({ id: "blocked" })
     const valid = catalogAssignment({
@@ -620,9 +655,19 @@ describe("XML import worker second pass", () => {
       kind: "secondPassBatch",
       assignmentIds: [blocked.id, valid.id],
     })
-    await runImportWorkerCommand({ kind: "endSecondPass" })
+    const semantic = openImportBinaryResult(second)
+    await runImportWorkerCommand({ kind: "finishSecondPass" })
+    await runImportWorkerCommand({
+      kind: "beginThirdPass",
+      readToken: createReadToken({ stateFragment: semantic.stateFragment }),
+    })
+    const third = await runImportWorkerCommand({
+      kind: "thirdPassBatch",
+      assignmentIds: [blocked.id, valid.id],
+    })
+    await runImportWorkerCommand({ kind: "finishThirdPass" })
 
-    const view = openImportBinaryResult(second)
+    const view = openImportBinaryResult(third)
 
     expect(view.diagnostics.count).toBe(1)
     expect(importDiagnostic(view.diagnostics, 0)).toMatchObject({

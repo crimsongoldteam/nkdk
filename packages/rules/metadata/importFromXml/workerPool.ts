@@ -46,6 +46,10 @@ export interface XmlImportWorkerPool {
     readTokens: readonly ProjectStateReadToken[],
     sink?: XmlImportStateSink,
   ): Promise<XmlImportSecondPassPoolResult>
+  runThirdPass(
+    readTokens: readonly ProjectStateReadToken[],
+    sink?: XmlImportStateSink,
+  ): Promise<XmlImportSecondPassPoolResult>
   workerCount(): number
   close(): Promise<void>
 }
@@ -90,6 +94,7 @@ export interface XmlImportStateBatch {
 export interface XmlImportStateSink {
   writeFirstPassState(batch: XmlImportStateBatch): Promise<void>
   writeSecondPassState(batch: XmlImportStateBatch): Promise<void>
+  writeThirdPassState?(batch: XmlImportStateBatch): Promise<void>
 }
 
 export interface XmlImportWorkerThreadPool {
@@ -105,6 +110,8 @@ type PoolPhase =
   | "firstPassReady"
   | "secondPassRunning"
   | "secondPassDone"
+  | "thirdPassRunning"
+  | "thirdPassDone"
   | "crashed"
   | "closed"
 
@@ -250,6 +257,83 @@ function createXmlImportOperationPool(params: {
   const stateQueue = createBoundedStateQueue(params.maxPendingStateBatches)
   const transferProfiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "main" }, aggregate: true })
 
+  async function runFollowingPass(
+    pass: "second" | "third",
+    readTokens: readonly ProjectStateReadToken[],
+    sink: XmlImportStateSink,
+  ): Promise<XmlImportSecondPassPoolResult> {
+    const runningPhase = pass === "second" ? "secondPassRunning" : "thirdPassRunning"
+    const donePhase = pass === "second" ? "secondPassDone" : "thirdPassDone"
+    const passName = pass === "second" ? "Второму" : "Третьему"
+    if (readTokens.length !== activeWorkerIndexes.length) {
+      throw new Error(`${passName} проходу import требуется ${activeWorkerIndexes.length} отдельных read token`)
+    }
+    phase = runningPhase
+    const diagnosticViewsByWorker: DiagnosticBatchView[][] = []
+    const warningViewsByWorker: DiagnosticBatchView[][] = []
+    const fileViewsByWorker: ImportResultFileBatchView[][] = []
+    await superviseWorkerJobs(
+      activeWorkerIndexes.map((workerIndex, activeIndex) => async (): Promise<void> => {
+        const diagnosticViews: DiagnosticBatchView[] = []
+        const warningViews: DiagnosticBatchView[] = []
+        const fileViews: ImportResultFileBatchView[] = []
+        diagnosticViewsByWorker[workerIndex] = diagnosticViews
+        warningViewsByWorker[workerIndex] = warningViews
+        fileViewsByWorker[workerIndex] = fileViews
+        assertProducerActive(runningPhase)
+        const beginCommand: ImportWorkerCommand = pass === "second"
+          ? {
+              kind: "beginSecondPass",
+              readToken: readTokens[activeIndex]!,
+              composition: controlComposition,
+            }
+          : { kind: "beginThirdPass", readToken: readTokens[activeIndex]! }
+        const beginResponse = await runCommand(workerIndex, beginCommand)
+        if (beginResponse !== undefined) {
+          throw new Error(`Worker вернул неожиданный результат ${beginCommand.kind}`)
+        }
+        const assignmentIds = assignmentIdsByWorker.get(workerIndex) ?? []
+        for (let offset = 0; offset < assignmentIds.length; offset += 256) {
+          assertProducerActive(runningPhase)
+          const batchCommand: ImportWorkerCommand = pass === "second"
+            ? { kind: "secondPassBatch", assignmentIds: assignmentIds.slice(offset, offset + 256) }
+            : { kind: "thirdPassBatch", assignmentIds: assignmentIds.slice(offset, offset + 256) }
+          const response = await runCommand(workerIndex, batchCommand)
+          const batch = openProfiledImportBinaryResult(response, transferProfiler)
+          diagnosticViews.push(batch.diagnostics)
+          warningViews.push(batch.warnings)
+          fileViews.push(batch.files)
+          if (batch.configurationFragmentBuffer !== undefined || batch.stateFragment !== undefined) {
+            const writeState = pass === "second"
+              ? sink.writeSecondPassState
+              : sink.writeThirdPassState ?? sink.writeSecondPassState
+            await stateQueue.run(() => writeState({
+              ...(batch.configurationFragmentBuffer === undefined
+                ? {}
+                : { configurationFragmentBuffer: batch.configurationFragmentBuffer }),
+              ...(batch.stateFragment === undefined ? {} : { stateFragment: batch.stateFragment }),
+            }))
+          }
+        }
+        assertProducerActive(runningPhase)
+        const finishCommand: ImportWorkerCommand = pass === "second"
+          ? { kind: "finishSecondPass" }
+          : { kind: "finishThirdPass" }
+        const finishResponse = await runCommand(workerIndex, finishCommand)
+        if (finishResponse !== undefined) {
+          throw new Error(`Worker вернул неожиданный результат ${finishCommand.kind}`)
+        }
+      }),
+    )
+    await superviseWorkerJobs([() => stateQueue.flush()])
+    phase = donePhase
+    return {
+      diagnostics: createImportDiagnosticCollection(collectViews(diagnosticViewsByWorker)),
+      warnings: createImportDiagnosticCollection(collectViews(warningViewsByWorker)),
+      files: createImportResultFileCollection(collectViews(fileViewsByWorker)),
+    }
+  }
+
   return {
     async initialize(initializeParams) {
       assertPhase(phase, "new", "XML-import worker pool уже инициализирован")
@@ -343,65 +427,12 @@ function createXmlImportOperationPool(params: {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
       if (phase !== "firstPassReady") throw new Error("Первый проход import не завершён успешно")
-
-      phase = "secondPassRunning"
-      if (readTokens.length !== activeWorkerIndexes.length) {
-        throw new Error(`Второму проходу import требуется ${activeWorkerIndexes.length} отдельных read token`)
-      }
-      const diagnosticViewsByWorker: DiagnosticBatchView[][] = []
-      const warningViewsByWorker: DiagnosticBatchView[][] = []
-      const fileViewsByWorker: ImportResultFileBatchView[][] = []
-      await superviseWorkerJobs(
-        activeWorkerIndexes.map((workerIndex, activeIndex) => async (): Promise<void> => {
-          const diagnosticViews: DiagnosticBatchView[] = []
-          const warningViews: DiagnosticBatchView[] = []
-          const fileViews: ImportResultFileBatchView[] = []
-          diagnosticViewsByWorker[workerIndex] = diagnosticViews
-          warningViewsByWorker[workerIndex] = warningViews
-          fileViewsByWorker[workerIndex] = fileViews
-          assertProducerActive("secondPassRunning")
-          const beginResponse = await runCommand(workerIndex, {
-            kind: "beginSecondPass",
-            readToken: readTokens[activeIndex]!,
-            composition: controlComposition,
-          })
-          if (beginResponse !== undefined) {
-            throw new Error("Worker вернул неожиданный результат beginSecondPass")
-          }
-          const assignmentIds = assignmentIdsByWorker.get(workerIndex) ?? []
-          for (let offset = 0; offset < assignmentIds.length; offset += 256) {
-            assertProducerActive("secondPassRunning")
-            const response = await runCommand(workerIndex, {
-              kind: "secondPassBatch",
-              assignmentIds: assignmentIds.slice(offset, offset + 256),
-            })
-            const batch = openProfiledImportBinaryResult(response, transferProfiler)
-            diagnosticViews.push(batch.diagnostics)
-            warningViews.push(batch.warnings)
-            fileViews.push(batch.files)
-            if (batch.configurationFragmentBuffer !== undefined || batch.stateFragment !== undefined) {
-              await stateQueue.run(() => sink.writeSecondPassState({
-                ...(batch.configurationFragmentBuffer === undefined
-                  ? {}
-                  : { configurationFragmentBuffer: batch.configurationFragmentBuffer }),
-                ...(batch.stateFragment === undefined ? {} : { stateFragment: batch.stateFragment }),
-              }))
-            }
-          }
-          assertProducerActive("secondPassRunning")
-          const response = await runCommand(workerIndex, { kind: "finishSecondPass" })
-          if (response !== undefined) {
-            throw new Error("Worker вернул неожиданный результат finishSecondPass")
-          }
-        })
-      )
-      await superviseWorkerJobs([() => stateQueue.flush()])
-      phase = "secondPassDone"
-      return {
-        diagnostics: createImportDiagnosticCollection(collectViews(diagnosticViewsByWorker)),
-        warnings: createImportDiagnosticCollection(collectViews(warningViewsByWorker)),
-        files: createImportResultFileCollection(collectViews(fileViewsByWorker)),
-      }
+      return runFollowingPass("second", readTokens, sink)
+    },
+    async runThirdPass(readTokens, sink = noopStateSink) {
+      assertUsable(phase, fatalError)
+      if (phase !== "secondPassDone") throw new Error("Второй проход import не завершён успешно")
+      return runFollowingPass("third", readTokens, sink)
     },
     workerCount() {
       return activeWorkerIndexes.length
@@ -473,7 +504,9 @@ function createXmlImportOperationPool(params: {
     throw new AggregateError(failures, workerFailureMessage(primary))
   }
 
-  function assertProducerActive(expectedPhase: "firstPassRunning" | "secondPassRunning"): void {
+  function assertProducerActive(
+    expectedPhase: "firstPassRunning" | "secondPassRunning" | "thirdPassRunning",
+  ): void {
     if (phase === "crashed") throw fatalError
     if (phase !== expectedPhase) throw new Error("XML-import worker pool завершает операцию")
   }
@@ -516,6 +549,7 @@ function openProfiledImportBinaryResult(
 const noopStateSink: XmlImportStateSink = {
   async writeFirstPassState() {},
   async writeSecondPassState() {},
+  async writeThirdPassState() {},
 }
 
 function appendSecondaryFailures(failures: unknown[], caught: unknown): void {
