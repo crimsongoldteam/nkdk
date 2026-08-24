@@ -93,6 +93,19 @@ export function compileTypeboxValidationSchema(
       return result
     }
 
+    const union = plainUnion(value)
+    if (union !== undefined) {
+      const result: Record<string, unknown> = {}
+      preparedNodes.set(value, result)
+      for (const [key, entry] of Object.entries(value)) {
+        if (key === union.keyword) continue
+        result[key] = prepareNode(entry, document)
+      }
+      const preparedBranches = union.branches.map((branch) => prepareNode(branch, document) as TSchema)
+      result["~refine"] = [createPlainUnionRefinement(union.keyword, preparedBranches, () => preparedContext)]
+      return result
+    }
+
     const result: Record<string, unknown> = {}
     preparedNodes.set(value, result)
     const recordValue = pureAdditionalPropertiesSchema(value)
@@ -114,6 +127,19 @@ export function compileTypeboxValidationSchema(
   preparedContext = expandCompileContext({ ...explicitContext, ...localContext })
   const compiled = Compile(preparedContext, preparedSchema)
   return wrapCompiledValidator(compiled)
+}
+
+function plainUnion(schema: Record<string, unknown>): {
+  readonly keyword: "anyOf" | "oneOf"
+  readonly branches: readonly TSchema[]
+} | undefined {
+  for (const keyword of ["anyOf", "oneOf"] as const) {
+    const branches = schema[keyword]
+    if (!Array.isArray(branches) || branches.length === 0) continue
+    if (!branches.every(isRecord)) throw new Error(`${keyword} должен содержать схемы`)
+    return { keyword, branches: branches as TSchema[] }
+  }
+  return undefined
 }
 
 function localDefinitionEntries(schema: Record<string, unknown>): {
@@ -350,6 +376,36 @@ function createDiscriminatorRefinement(
         : validatorFor(branch).Errors(value)[1][0]
       if (error === undefined) throw new Error(`ветвь discriminator ${propertyName} не вернула ошибку`)
       return asRefinementMessage({ marker: selectedBranchMarker, error })
+    },
+  }
+}
+
+function createPlainUnionRefinement(
+  keyword: "anyOf" | "oneOf",
+  branches: readonly TSchema[],
+  context: () => SchemaContext,
+): { check(value: unknown): boolean; error(): string } {
+  let validators: readonly ValidationSchemaValidator[] | undefined
+  const branchValidators = (): readonly ValidationSchemaValidator[] => {
+    validators ??= branches.map((branch) => wrapCompiledValidator(Compile(context(), branch)))
+    return validators
+  }
+  return {
+    check(value) {
+      const matches = branchValidators().reduce((count, validator) => count + Number(validator.Check(value)), 0)
+      return keyword === "anyOf" ? matches > 0 : matches === 1
+    },
+    error() {
+      return asRefinementMessage({
+        marker: selectedBranchMarker,
+        error: {
+          keyword,
+          schemaPath: `#/${keyword}`,
+          instancePath: "",
+          params: {},
+          message: "",
+        },
+      })
     },
   }
 }

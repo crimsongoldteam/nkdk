@@ -510,6 +510,62 @@ describe("validateParsedFile", () => {
     ])
   })
 
+  it("считает invalid на повторных логических ключах обоснованным", () => {
+    const schema = compileValidationSchema(Type.Object({}, { additionalProperties: true }))
+    const parsed = parseMetadataYaml([
+      "Код: первое",
+      "!xml/invalid Код: второе",
+      "!xml/invalid/2 Код: третье",
+    ].join("\n"))
+
+    const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
+
+    expect(result.diagnostics).toEqual([])
+    expect(result.issues).toEqual([])
+    expect(result.boundaries).toEqual([
+      {
+        annotation: "invalid",
+        target: { kind: "occurrence", path: ["Код"], occurrence: 1 },
+        state: "accepted",
+      },
+      {
+        annotation: "invalid",
+        target: { kind: "occurrence", path: ["Код"], occurrence: 2 },
+        state: "accepted",
+      },
+    ])
+  })
+
+  it.each([
+    {
+      name: "сохраняет как отсутствующее обязательное свойство",
+      property: Type.String(),
+      issues: [],
+      boundaries: [{
+        annotation: "invalid",
+        target: { kind: "missing", path: ["Заголовок"] },
+        state: "accepted",
+      }],
+    },
+    {
+      name: "считает лишним для необязательного свойства",
+      property: Type.Optional(Type.String()),
+      issues: [expect.objectContaining({
+        code: "xml/anomaly-tag-unnecessary",
+        target: { kind: "missing", path: ["Заголовок"] },
+      })],
+      boundaries: [],
+    },
+  ])("пустой invalid $name", ({ property, issues, boundaries }) => {
+    const schema = compileValidationSchema(Type.Object({ Заголовок: property }))
+    const parsed = parseMetadataYaml("Заголовок: !xml/invalid\n")
+
+    const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
+
+    expect(result.issues).toEqual(issues)
+    expect(result.boundaries).toEqual(boundaries)
+  })
+
   it("возвращает accepted и pending для соседних точных границ", () => {
     const parsed = parseMetadataYaml(`
 Первый: !xml/invalid неверно

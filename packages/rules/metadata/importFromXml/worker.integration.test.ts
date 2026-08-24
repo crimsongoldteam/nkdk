@@ -13,6 +13,7 @@ import { createProjectStateFragmentWriter, openProjectStateFragment } from "../p
 import { buildProjectStateSnapshot } from "../projectState/binary/builder"
 import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
+import { createTypedProjectStateReader } from "../projectState/binary/typedReader"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCache } from "../validation/projectYamlCache"
 import {
@@ -485,26 +486,77 @@ describe("XML import worker second pass", () => {
 
   it("назначает межфайловый invalid перед записью YAML", async () => {
     const outputDir = createTempDir("third-pass-invalid")
-    const { assignment, second } = await prepareCatalogForThirdPass(outputDir)
+    const assignments = createCatalogAndFormAssignments("Объект.НеизвестныйПереход.LineNumber")
+    let localValidationRuns = 0
+    const countingSchemaCache = {
+      form: () => ({
+        Check: () => true,
+        Errors: (): [boolean, []] => {
+          localValidationRuns += 1
+          return [true, []]
+        },
+      }),
+      properties: () => ({
+        Check: () => true,
+        Errors: (): [boolean, []] => {
+          localValidationRuns += 1
+          return [true, []]
+        },
+      }),
+      compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
+    } satisfies ValidationSchemaCache
+    await initializeWorker(outputDir, countingSchemaCache)
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [assignments.catalog, assignments.form],
+    }))
+    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    const second = openImportBinaryResult(await runImportWorkerCommand({
+      kind: "secondPassBatch",
+      assignmentIds: [assignments.catalog.id, assignments.form.id],
+    }))
     await runImportWorkerCommand({ kind: "finishSecondPass" })
+    const validationRunsBeforeThirdPass = localValidationRuns
 
     await runImportWorkerCommand({
       kind: "beginThirdPass",
       readToken: createReadToken({ stateFragment: second.stateFragment }),
       issueDecisions: [{
-        targetProjectPath: assignment.targetProjectPath,
+        targetProjectPath: assignments.form.targetProjectPath,
         decision: {
           kind: "invalid",
-          target: { kind: "path", path: ["Синоним"] },
-          issueCodes: ["reference.filter"],
+          target: { kind: "path", path: ["Элементы", "Путь", "ПутьКДанным"] },
+          issueCodes: ["data-path.unresolved"],
         },
       }],
     })
-    await runImportWorkerCommand({ kind: "thirdPassBatch", assignmentIds: [assignment.id] })
+    const third = openImportBinaryResult(await runImportWorkerCommand({
+      kind: "thirdPassBatch",
+      assignmentIds: [assignments.catalog.id, assignments.form.id],
+    }))
     await runImportWorkerCommand({ kind: "finishThirdPass" })
 
-    expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
-      .toContain("Синоним: !xml/invalid Контрагенты справочник")
+    expect(third.diagnostics.count).toBe(0)
+    expect(localValidationRuns).toBe(validationRunsBeforeThirdPass)
+    expect(readFileSync(join(outputDir, assignments.form.targetProjectPath), "utf8"))
+      .toContain("ПутьКДанным: !xml/invalid Объект.НеизвестныйПереход.LineNumber")
+    if (second.stateFragment === undefined || third.stateFragment === undefined) {
+      throw new Error("Ожидались смысловой и окончательный вклады состояния")
+    }
+    const snapshot = new ProjectStateSnapshotView(buildProjectStateSnapshot({
+      fragments: [second.stateFragment, third.stateFragment].map(openProjectStateFragment),
+      deletions: [],
+    }))
+    const reader = createTypedProjectStateReader(snapshot)
+    const formFileId = Array.from({ length: snapshot.fileCount }, (_, fileId) => fileId)
+      .find((fileId) => snapshot.stringValue(snapshot.fileRecord(fileId).projectPathId)
+        .endsWith(assignments.form.targetProjectPath))
+    if (formFileId === undefined) throw new Error("Не найдено окончательное состояние формы")
+    expect(reader.pendingChecks(formFileId)).toContainEqual(expect.objectContaining({
+      kind: "dataPath",
+      yamlPath: ["Элементы", "Путь", "ПутьКДанным"],
+      xmlAnomaly: "accepted",
+    }))
   })
 
   it("отклоняет идентификатор задания, принадлежащий другой линии", async () => {
@@ -900,7 +952,6 @@ function expectSharedFormRoot(targetProjectPath: string, value: string): void {
       location: { line: 1, col: 1 },
       owner: { kind: "Справочник", name: "Товары" },
       value,
-      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     },

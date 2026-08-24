@@ -990,7 +990,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   `xml/anomaly-tag-unnecessary`. Ошибки синтаксиса, чтения файлов и другие
   инфраструктурные ошибки не подтверждают границу.
 
-- [ ] **Step 1: Написать падающие модульные тесты состояний**
+- [x] **Step 1: Написать падающие модульные тесты состояний**
 
   В `xmlAnomalyBoundary.test.ts` проверить следующую таблицу:
 
@@ -1014,13 +1014,13 @@ round-trip отделяет восстанавливаемые XML-различ�
   `pending`, а при `deferUnnecessary: false` создаёт только
   `xml/anomaly-tag-unnecessary`.
 
-- [ ] **Step 2: Убедиться, что тесты падают по ожидаемой причине**
+- [x] **Step 2: Убедиться, что тесты падают по ожидаемой причине**
 
   Run: `pnpm --filter @nkdk/runtime exec vitest run metadata/validation/xmlAnomalyBoundary.test.ts metadata/validation/validateFile.test.ts`
 
   Expected: FAIL, потому что `state` и `boundaries` ещё отсутствуют.
 
-- [ ] **Step 3: Добавить состояния без повторного обхода YAML**
+- [x] **Step 3: Добавить состояния без повторного обхода YAML**
 
   Расширить существующий результат, не создавая второй обход дерева:
 
@@ -1044,13 +1044,13 @@ round-trip отделяет восстанавливаемые XML-различ�
   непосредственно в уже существующем цикле. Проверки регистрации `important` и
   правильности самого тега остаются в `contract` и никогда не подавляются.
 
-- [ ] **Step 4: Проверить точное совпадение границ**
+- [x] **Step 4: Проверить точное совпадение границ**
 
   В `validateFile.test.ts` создать две соседние границы, ошибку только у первой и
   отсрочку только у второй. Ожидать `accepted` у первой, `pending` у второй; ошибка
   родителя или соседнего значения не должна подтверждать ни одну из них.
 
-- [ ] **Step 5: Запустить проверки слоя runtime**
+- [x] **Step 5: Запустить проверки слоя runtime**
 
   Run: `pnpm --filter @nkdk/runtime exec vitest run metadata/validation/xmlAnomalyBoundary.test.ts metadata/validation/validateFile.test.ts`
 
@@ -1060,7 +1060,7 @@ round-trip отделяет восстанавливаемые XML-различ�
 
   Expected: PASS; новых повторов нет.
 
-- [ ] **Step 6: Зафиксировать состояние границы**
+- [x] **Step 6: Зафиксировать состояние границы**
 
   Commit: `feat(runtime): ✨ вернуть состояние XML-границы`
 
@@ -1112,7 +1112,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   применимая проверка; `accepted` означает, что ошибка уже доказана и повторная
   смысловая проверка запрещена.
 
-- [ ] **Step 1: Написать падающие тесты извлечения и переноса состояния**
+- [x] **Step 1: Написать падающие тесты извлечения и переноса состояния**
 
   В `yamlFactExtractor.integration.test.ts` и
   `yamlFactExtractor.fillValue.test.ts` проверить, что ссылка, `dataPath` или
@@ -1129,13 +1129,13 @@ round-trip отделяет восстанавливаемые XML-различ�
   смысловая ошибка обновляет `pending` до `accepted`, а правильная локально
   ссылка, зависящая от общего индекса проекта, остаётся `pending`.
 
-- [ ] **Step 2: Убедиться, что тест падает из-за прежнего `tagged`**
+- [x] **Step 2: Убедиться, что тест падает из-за прежнего `tagged`**
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/validation/yamlFactExtractor.integration.test.ts metadata/validation/yamlFactExtractor.fillValue.test.ts metadata/validation/projectValidationPasses.integration.test.ts`
 
   Expected: FAIL: факты ещё содержат `tagged`, а не состояние границы.
 
-- [ ] **Step 3: Назначать состояние после локальной проверки**
+- [x] **Step 3: Назначать состояние после локальной проверки**
 
   `yamlFactExtractor` назначает `xmlAnomaly: "pending"` только при точном
   `invalid`/`important` на `yamlPath`. В `projectValidationPasses.ts` после
@@ -1154,7 +1154,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   создавать адресуемые факты и индексы для всех трёх вариантов: без тега,
   `pending`, `accepted`.
 
-- [ ] **Step 4: Написать падающий тест двоичного round-trip всех состояний**
+- [x] **Step 4: Написать падающий тест двоичного round-trip всех состояний**
 
   В `fragment.test.ts` записать и прочитать три ссылки и три проверки:
 
@@ -1168,7 +1168,7 @@ round-trip отделяет восстанавливаемые XML-различ�
 
   Отдельно проверить сохранение `propertyStateMode` вместе с каждым состоянием.
 
-- [ ] **Step 5: Обновить компактное кодирование projectState**
+- [x] **Step 5: Обновить компактное кодирование projectState**
 
   Для ссылки использовать младшие два бита `flags`: `0` — состояния нет, `1` —
   `pending`, `2` — `accepted`; режим свойства перенести в биты 2–3. Допустимый
@@ -1185,7 +1185,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   Не увеличивать размер записей и не создавать отдельную таблицу. Неизвестные
   значения `3` и неизвестные биты должны завершать чтение явной ошибкой.
 
-- [ ] **Step 6: Обновить версию двоичного снимка**
+- [x] **Step 6: Обновить версию двоичного снимка**
 
   В `format.ts` установить:
 
@@ -1196,7 +1196,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   Совместимость со снимком `0.6.0` не нужна: это внутренний кэш, который должен
   быть перестроен.
 
-- [ ] **Step 7: Запустить тесты projectState и проверку типов**
+- [x] **Step 7: Запустить тесты projectState и проверку типов**
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/projectState/binary/fragment.test.ts metadata/projectState/binary/readSession.test.ts metadata/validation/yamlFactExtractor.integration.test.ts metadata/validation/yamlFactExtractor.fillValue.test.ts metadata/validation/projectValidationPasses.integration.test.ts`
 
@@ -1206,7 +1206,7 @@ round-trip отделяет восстанавливаемые XML-различ�
 
   Expected: PASS; размер двоичных записей не изменился; новых повторов нет.
 
-- [ ] **Step 8: Зафиксировать перенос состояния**
+- [x] **Step 8: Зафиксировать перенос состояния**
 
   Commit: `feat(rules): ✨ сохранить состояние XML-границы в projectState`
 
@@ -1255,7 +1255,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   `xmlAnomaly`. Ключ границы состоит из `componentPath`, `projectPath` и полного
   `yamlPath`; текст сообщения в ключ не входит.
 
-- [ ] **Step 1: Написать падающие тесты прекращения проверок**
+- [x] **Step 1: Написать падающие тесты прекращения проверок**
 
   В `projectStateDependencyValidation.test.ts` добавить четыре наблюдаемых
   случая с поддельным `queryPort` и счётчиками вызовов:
@@ -1279,7 +1279,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   проверку того же пути; полностью правильный путь получает одну ошибку лишнего
   тега только в конце второго прохода.
 
-- [ ] **Step 2: Убедиться, что тесты показывают нынешнее повторное поведение**
+- [x] **Step 2: Убедиться, что тесты показывают нынешнее повторное поведение**
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/validation/projectStateDependencyValidation.test.ts`
 
@@ -1287,7 +1287,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   создаёт локальное сообщение о лишнем теге, либо не сообщает подтверждённую
   границу вызывающему коду.
 
-- [ ] **Step 3: Возвращать решение отдельно от диагностик**
+- [x] **Step 3: Возвращать решение отдельно от диагностик**
 
   В обработчиках ссылок и зависимостей:
 
@@ -1317,7 +1317,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   границы лишними. Поэтому обычная проверка проекта и проверка двоичного
   projectState используют одинаковый порядок.
 
-- [ ] **Step 4: Написать падающий тест общего порядка этапов**
+- [x] **Step 4: Написать падающий тест общего порядка этапов**
 
   В `diagnosticBatches.test.ts` собрать один снимок, где одна `pending`-граница
   представлена ссылкой и зависимой проверкой:
@@ -1333,7 +1333,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   обе проверки правильными — в конце появляется ровно одно сообщение о лишнем
   теге. Две технические проверки с одним `yamlPath` считаются одной границей.
 
-- [ ] **Step 5: Ввести единый последовательный распорядитель границ**
+- [x] **Step 5: Ввести единый последовательный распорядитель границ**
 
   В `validateSnapshotDependencyDiagnostics()` сохранить пакетную обработку, но
   выполнять смысловые группы в фиксированном порядке:
@@ -1374,7 +1374,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   синтаксиса, чтения и договора тегов всегда публиковать: они не подтверждают и
   не отменяют смысловую границу.
 
-- [ ] **Step 6: Удалить прежнее локальное решение о лишнем теге**
+- [x] **Step 6: Удалить прежнее локальное решение о лишнем теге**
 
   `validatePendingChecks()` возвращает диагностические ошибки обычных записей и
   подтверждённые границы записей с тегом, но не создаёт сообщение о лишнем теге.
@@ -1382,7 +1382,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   `validateSnapshotDependencyDiagnostics()` и локальная проверка границы, для
   которой нет отложенных фактов.
 
-- [ ] **Step 7: Запустить целевые и смежные тесты**
+- [x] **Step 7: Запустить целевые и смежные тесты**
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/projectState/binary/diagnosticBatches.test.ts metadata/validation/projectStateDependencyValidation.test.ts metadata/validation/projectValidationPendingChecks.test.ts metadata/validation/projectValidationPasses.integration.test.ts`
 
@@ -1395,7 +1395,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   Expected: PASS; подтверждённые границы не вызывают чтения зависимостей; обычные
   записи по-прежнему возвращают полный набор ошибок.
 
-- [ ] **Step 8: Зафиксировать единый порядок проверки**
+- [x] **Step 8: Зафиксировать единый порядок проверки**
 
   Commit: `fix(rules): 🐛 прекратить проверку подтверждённых XML-границ`
 
@@ -1407,6 +1407,12 @@ round-trip отделяет восстанавливаемые XML-различ�
 
 - Modify: `packages/rules/metadata/importFromXml/worker.ts`
 - Modify: `packages/rules/metadata/importFromXml/worker.integration.test.ts`
+- Modify: `packages/runtime/metadata/validation/structuralYamlValue.ts`
+- Modify: `packages/runtime/metadata/validation/typeboxValidationCompiler.ts`
+- Modify: `packages/runtime/metadata/validation/typeboxErrorsToDiagnostics.ts`
+- Modify: `packages/runtime/metadata/validation/validationIssue.ts`
+- Modify: `packages/runtime/metadata/validation/validateFile.ts`
+- Modify: соответствующие тесты runtime
 - Modify: `docs/superpowers/plans/2026-08-23-xml-anomaly-runtime-implementation.md`
 
 **Interfaces:**
@@ -1429,7 +1435,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   проход использовал уже построенный индекс, переносил решения в факты и
   вычислял окончательный хэш без полного повторения локальной проверки.
 
-- [ ] **Step 3: Перевести временные признаки на окончательное состояние**
+- [x] **Step 3: Перевести временные признаки на окончательное состояние**
 
   В `applyImportedDecisionsToFinalState()` заменить установку `tagged: "xml"` и
   `tagged: true` на одно состояние:
@@ -1444,7 +1450,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   исключать только собственное значение, а распознанный именованный объект
   остаётся в индексах.
 
-- [ ] **Step 4: Проверить импорт и снимок после третьего прохода**
+- [x] **Step 4: Проверить импорт и снимок после третьего прохода**
 
   Дополнить тест ожиданиями:
 
@@ -1460,7 +1466,7 @@ round-trip отделяет восстанавливаемые XML-различ�
 
   Expected: все тесты PASS.
 
-- [ ] **Step 5: Проверить компактную эталонную базу**
+- [x] **Step 5: Проверить компактную эталонную базу**
 
   Run outside sandbox:
 
@@ -1471,7 +1477,16 @@ round-trip отделяет восстанавливаемые XML-различ�
   классифицироваться как восстановленное `raw`, подтверждённое
   `invalid`/`important` либо фактическое ограничение из спецификации.
 
-- [ ] **Step 6: Проверить время и память импорта**
+  Фактическая проверка выполнена доступным сценарием `round-trip-yaml` на
+  `/Users/nikita/git/round-trip-compact/cf/doc`: импортировал 9937 заданий с 14
+  ранее известными предупреждениями преобразования `DataPath`; сообщений о
+  лишнем теге нет. Синхронизация дошла до 100 ранее зафиксированных ограничений
+  `raw` и `#order`, поэтому сравнение итоговых XML-файлов в этой задаче не
+  выполнялось. Проверка выявила и устранила две общие причины ложных сообщений:
+  повторы логических YAML-ключей и неоднозначные ошибки внутренних ветвей
+  TypeBox union.
+
+- [x] **Step 6: Проверить время и память импорта**
 
   Run: `node .agents/skills/import-profile/import-profile.mjs /Users/nikita/git/round-trip-compact/cf/doc /private/tmp/nkdk-import-profile-doc-yaml --runs 1 --json`
 
@@ -1481,7 +1496,11 @@ round-trip отделяет восстанавливаемые XML-различ�
   запрос к индексу; рост пикового RSS более чем на 10% требует исследования до
   завершения задачи.
 
-- [ ] **Step 7: Выполнить полную проверку проекта**
+  Фактический результат: 184,6 с, RSS 3143,6 МиБ, куча worker 616,2 МиБ. По
+  сравнению с Task 13 RSS уменьшился на 3,4%, куча worker — на 11,9%; порог
+  роста памяти не превышен.
+
+- [x] **Step 7: Выполнить полную проверку проекта**
 
   Использовать `superpowers:verification-before-completion`.
 
@@ -1498,7 +1517,7 @@ round-trip отделяет восстанавливаемые XML-различ�
   Expected: все команды PASS; baseline dependency-cruiser и XML-фикстуры не
   изменены; новых повторов нет.
 
-- [ ] **Step 8: Провести ревью по спецификации и плану**
+- [x] **Step 8: Провести ревью по спецификации и плану**
 
   Использовать `superpowers:requesting-code-review`. Проверить отдельно:
 
@@ -1513,6 +1532,6 @@ round-trip отделяет восстанавливаемые XML-различ�
   исправить код. Архитектурный документ не изменять молча: расхождение сообщить
   разработчику.
 
-- [ ] **Step 9: Зафиксировать завершение механизма**
+- [x] **Step 9: Зафиксировать завершение механизма**
 
   Commit: `fix(rules): 🐛 завершить проверку XML-аномалий при импорте`

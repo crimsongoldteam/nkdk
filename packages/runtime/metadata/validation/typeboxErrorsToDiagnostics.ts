@@ -1,6 +1,7 @@
 import { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { Diagnostic } from "./types"
 import { diagnosticAtYamlPath } from "./yamlLocations"
+import { unambiguousValidationErrors } from "./validationIssue"
 
 export type ValidationError = {
   keyword: string
@@ -59,7 +60,7 @@ function diagnosticMessage(error: ValidationError, keys: (string | number)[]): s
 function normalizedErrors(errors: ValidationError[]): ValidationError[] {
   const result: ValidationError[] = []
 
-  for (const error of errors) {
+  for (const error of unambiguousValidationErrors(errors)) {
     if (error.keyword === "required") {
       const names = requiredPropertyNames(error)
       if (names.length === 0) {

@@ -78,4 +78,37 @@ describe("структурированная ошибка валидации", (
 
     expect(issue?.target).toEqual({ kind: "occurrence", path: ["Языки"], occurrence: 2 })
   })
+
+  it("не выбирает ошибки неоднозначных ветвей union", () => {
+    const issues = typeboxErrorsToValidationIssues([
+      {
+        keyword: "required",
+        schemaPath: "#/properties/Значение/anyOf/0/required",
+        instancePath: "/Значение",
+        params: { requiredProperties: ["Тип"] },
+        message: "required",
+      },
+      {
+        keyword: "required",
+        schemaPath: "#/properties/Значение/anyOf/1/required",
+        instancePath: "/Значение",
+        params: { requiredProperties: ["Значение"] },
+        message: "required",
+      },
+      {
+        keyword: "anyOf",
+        schemaPath: "#/properties/Значение",
+        instancePath: "/Значение",
+        params: {},
+        message: "anyOf",
+      },
+    ])
+
+    expect(issues).toEqual([{
+      code: "schema.anyOf",
+      kind: "semantic",
+      target: { kind: "path", path: ["Значение"] },
+      params: {},
+    }])
+  })
 })

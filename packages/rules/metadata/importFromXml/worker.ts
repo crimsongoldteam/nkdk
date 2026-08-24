@@ -475,18 +475,12 @@ async function processThirdPass(
         accumulator.profiler,
         prepared.annotations,
       )
-      const validated = measureSerializedImportYamlValidation(
-        prepared,
-        serialized,
-        state,
-        accumulator.profiler,
-      )
       output = {
         ...output,
         main: {
           serialized: retainWritableYaml(serialized),
-          index: validated.index,
-          final: validated.final,
+          index: output.main.index,
+          final: applyImportedDecisionsToFinalState(output.main.final, decisions, serialized.localHash),
         },
       }
       prepared.output = output
@@ -620,6 +614,37 @@ function requiresImportantForImportedTarget(
 
 function sameYamlPath(left: readonly (string | number)[], right: readonly (string | number)[]): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index])
+}
+
+function applyImportedDecisionsToFinalState(
+  final: ProjectStateImportFinalFileStateBatch,
+  decisions: readonly ImportIssueDecision[],
+  hash: bigint,
+): ProjectStateImportFinalFileStateBatch {
+  if (final.updates.length !== 1) {
+    throw new Error("Окончательное состояние одного YAML должно содержать ровно одно обновление")
+  }
+  const taggedPaths = decisions
+    .filter(({ target }) => target.kind !== "occurrence")
+    .map(({ target }) => target.path)
+  const updates = final.updates.map((update) => {
+    if (update.kind !== "yaml") return update
+    return {
+      ...update,
+      pendingReferences: update.pendingReferences.map((reference) =>
+        taggedPaths.some((path) => sameYamlPath(path, reference.yamlPath))
+          ? { ...reference, xmlAnomaly: "accepted" as const }
+          : reference),
+      pendingChecks: update.pendingChecks.map((check) =>
+        (check.kind === "dataPath" || check.kind === "fillValue")
+          && taggedPaths.some((path) => sameYamlPath(path, check.yamlPath))
+          ? { ...check, xmlAnomaly: "accepted" as const }
+          : check),
+    }
+  })
+  const hashBytes = new Uint8Array(8)
+  new DataView(hashBytes.buffer).setBigUint64(0, hash, false)
+  return { updates, hashBytes }
 }
 
 function endSecondPass(): void {

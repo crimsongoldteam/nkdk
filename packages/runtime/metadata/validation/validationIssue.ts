@@ -19,7 +19,27 @@ export function typeboxErrorsToValidationIssues(
   errors: readonly ValidationSchemaError[],
   basePath: ValidationIssuePath = [],
 ): ValidationIssue[] {
-  return errors.flatMap((error) => issuesForTypeboxError(error, basePath))
+  return unambiguousValidationErrors(errors)
+    .flatMap((error) => issuesForTypeboxError(error, basePath))
+}
+
+export function unambiguousValidationErrors(
+  errors: readonly ValidationSchemaError[],
+): ValidationSchemaError[] {
+  const unions = errors.filter(({ keyword }) => keyword === "anyOf" || keyword === "oneOf")
+  return errors.filter((error) => !unions.some((union) =>
+    union !== error
+    && error.schemaPath.startsWith(unionBranchSchemaPrefix(union))
+    && isSameOrNestedInstancePath(error.instancePath, union.instancePath)))
+}
+
+function unionBranchSchemaPrefix(error: ValidationSchemaError): string {
+  const separator = error.schemaPath.endsWith("/") ? "" : "/"
+  return `${error.schemaPath}${separator}${error.keyword}/`
+}
+
+function isSameOrNestedInstancePath(candidate: string, parent: string): boolean {
+  return candidate === parent || parent === "" || candidate.startsWith(`${parent}/`)
 }
 
 export function validationIssueTargetKey(target: ValidationIssueTarget): string {

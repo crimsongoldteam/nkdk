@@ -69,24 +69,65 @@ export function validateParsedFileWithIssues(
     }
   }
 
-  const [valid, errors] = schema.Errors(structuralYamlValue(parsed.data))
+  const [valid, errors] = schema.Errors(structuralYamlValue(parsed.data, parsed.annotations))
   const schemaIssues = (valid ? [] : typeboxErrorsToValidationIssues(errors))
     .map((issue) => logicalIssueTarget(issue, parsed.data, parsed.annotations))
     .filter((issue) => !isHiddenByRawWithoutSemantic(issue.target.path, parsed.data, parsed.annotations))
+  const issues = [
+    ...schemaIssues,
+    ...duplicateAnnotatedKeyIssues(parsed.data, parsed.annotations),
+  ]
   const schemaDiagnostics = (valid ? [] : typeboxErrorsToDiagnostics(errors, parsed, filePath))
     .filter((diagnostic) => !isHiddenByRawWithoutSemantic(
       validationIssuePathFromPointer(diagnostic.path ?? ""),
       parsed.data,
       parsed.annotations,
     ))
-  if (!evaluateXmlAnomalies) return { diagnostics: schemaDiagnostics, issues: schemaIssues, boundaries: [] }
+  if (!evaluateXmlAnomalies) return { diagnostics: schemaDiagnostics, issues, boundaries: [] }
   return evaluateParsedXmlAnomalyBoundaries({
     filePath,
     parsed,
-    issues: schemaIssues,
+    issues,
     diagnostics: schemaDiagnostics,
     importantRegistered,
   })
+}
+
+function duplicateAnnotatedKeyIssues(
+  root: unknown,
+  annotations: ParsedYaml["annotations"],
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = []
+  const visit = (value: unknown, path: readonly (string | number)[]): void => {
+    if (Array.isArray(value)) {
+      value.forEach((child, index) => visit(child, [...path, index]))
+      return
+    }
+    if (typeof value !== "object" || value === null) return
+    const record = value as Record<string, unknown>
+    const entries = Object.keys(record).map((runtimeKey) => {
+      const annotation = annotations.keyAt(record, runtimeKey)
+      return { runtimeKey, annotation, logicalKey: annotation?.logicalKey ?? runtimeKey }
+    })
+    const counts = new Map<string, number>()
+    for (const { logicalKey } of entries) counts.set(logicalKey, (counts.get(logicalKey) ?? 0) + 1)
+    for (const { runtimeKey, annotation, logicalKey } of entries) {
+      if (
+        counts.get(logicalKey)! > 1
+        && (annotation?.kind === "invalid" || annotation?.kind === "important")
+      ) {
+        issues.push({
+          code: "rules.duplicate-property",
+          kind: "semantic",
+          target: { kind: "occurrence", path: [...path, logicalKey], occurrence: annotation.occurrence },
+          params: { logicalKey, occurrence: annotation.occurrence },
+        })
+      }
+      visit(record[runtimeKey], [...path, logicalKey])
+    }
+  }
+  visit(root, [])
+  return issues
 }
 
 export function evaluateParsedXmlAnomalyBoundaries(params: {
@@ -153,7 +194,12 @@ function semanticAnomalyBoundaries(
       const valueAnnotation = annotations.at(value, runtimeKey)
       const semantic = valueAnnotation?.kind === "raw" ? valueAnnotation.semantic : valueAnnotation
       if (semantic?.kind === "invalid" || semantic?.kind === "important") {
-        result.push({ annotation: semantic.kind, target: { kind: "path", path: childPath } })
+        result.push({
+          annotation: semantic.kind,
+          target: (value as Record<string, unknown>)[runtimeKey] === undefined
+            ? { kind: "missing", path: childPath }
+            : { kind: "path", path: childPath },
+        })
       }
       visit((value as Record<string, unknown>)[runtimeKey], childPath)
     }
