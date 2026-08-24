@@ -218,6 +218,40 @@ describe("mergeXmlRawFragments", () => {
     )
   })
 
+  it("сохраняет физические вхождения коллекции при удалении более раннего item", () => {
+    const ordinary = roots(
+      "<Root><Items><Item><Value>one</Value></Item><Item><Value>two</Value></Item><Item><Value>three</Value></Item></Items></Root>",
+    )
+
+    const merged = mergeXmlRawFragments(ordinary, [
+      {
+        path: "Items\\Item",
+        occurrencePath: [null, 1],
+        value: null,
+        suppressOrdinaryOutput: true,
+      },
+      {
+        path: "Items\\Item\\Value",
+        occurrencePath: [null, 3, null],
+        value: "raw-three",
+        suppressOrdinaryOutput: true,
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toBe([
+      "<Root>",
+      "\t<Items>",
+      "\t\t<Item>",
+      "\t\t\t<Value>two</Value>",
+      "\t\t</Item>",
+      "\t\t<Item>",
+      "\t\t\t<Value>raw-three</Value>",
+      "\t\t</Item>",
+      "\t</Items>",
+      "</Root>",
+    ].join("\n"))
+  })
+
   it("treats null at an absent deep path as a no-op without creating wrappers", () => {
     const ordinary = roots("<Root><Properties><Name>Items</Name></Properties></Root>")
 

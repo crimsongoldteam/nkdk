@@ -8,8 +8,27 @@ import {
   preparePartialXmlSyncPackage,
   type PartialXmlSyncCoordinatorDependencies,
 } from "./preparePartialXmlSyncPackage"
+import { buildPartialXmlAnomalyTestDocument } from "./tests/xmlAnomalyTestHelper"
+import { writePartialXmlSyncWorkerBatch } from "./workerBatch"
 
 describe("подготовка частичного XML-пакета", () => {
+  it("передаёт восстановленный общим адаптером XML в partial archive writer", async () => {
+    const document = buildPartialXmlAnomalyTestDocument()
+    const addGenerated = vi.fn(async () => undefined)
+    const writtenPayloadPaths = new Set<string>()
+
+    await writePartialXmlSyncWorkerBatch({
+      batch: { generatedDocuments: [document], configurationFragments: [] },
+      writer: { addGenerated },
+      writtenPayloadPaths,
+      rebuiltBlocks: new Map(),
+    })
+
+    expect(addGenerated).toHaveBeenCalledWith(document)
+    expect(new TextDecoder().decode(document.content)).toContain("<Value>01</Value>")
+    expect(writtenPayloadPaths).toEqual(new Set(["Objects/One.xml"]))
+  })
+
   it.each([
     ["сохранённой", "Объект/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml"],
     ["удалённой", undefined],
@@ -129,6 +148,7 @@ function boundary(
 ) {
   return {
     readPending: vi.fn(async () => undefined),
+    assertNoPending: vi.fn(async () => undefined),
     refresh: vi.fn(async () => ({
       diagnostics: [] as readonly Diagnostic[],
       readToken: createTestProjectStateReadToken(),

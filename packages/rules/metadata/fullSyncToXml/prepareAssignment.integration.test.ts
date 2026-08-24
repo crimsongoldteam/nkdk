@@ -95,7 +95,7 @@ describe("prepareFullXmlSyncAssignment", () => {
               xmlId: "base-marker",
             },
           ])
-    let includeTags = true
+    let tagMode: "normal" | "missing" | "duplicate" = "normal"
     const run = vi.fn(({ outputs: requested, baseConfigurationIndex: baseIndex }) =>
       requested.map((output: (typeof outputs)[number]) => ({
         declarationId: output.declarationId,
@@ -106,7 +106,9 @@ describe("prepareFullXmlSyncAssignment", () => {
         },
         deferred: [],
         rootRule: rule,
-        ...(includeTags ? { tags: [output.role] } : {}),
+        ...(tagMode === "missing"
+          ? {}
+          : { tags: [tagMode === "duplicate" ? "metadata" : output.role] }),
       }))
     )
     const operations = createOperationRegistrySet(composeMetadataRules(
@@ -157,10 +159,15 @@ describe("prepareFullXmlSyncAssignment", () => {
     ])
     expect(prepared.documents.map((document) => document.rawBoundaries.length)).toEqual([1, 0])
 
-    includeTags = false
+    tagMode = "missing"
     expect(prepareAssignment).toThrow("не сформирован XML-документ с тегом metadata")
 
-    includeTags = true
+    tagMode = "duplicate"
+    expect(prepareAssignment).toThrow(
+      "raw-границе Future соответствует несколько XML-документов с тегом metadata",
+    )
+
+    tagMode = "normal"
     const unknownParsed = parseMetadataYaml('Properties\\Future: !xml/raw "future"\n')
     const prepareUnknownAssignment = () => withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
       assignment,

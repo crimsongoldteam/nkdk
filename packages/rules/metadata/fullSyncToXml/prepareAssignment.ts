@@ -155,10 +155,18 @@ function prepareTopologyAssignmentDocuments(
         `raw-границу ${boundary.path} нельзя однозначно связать с одним XML-документом assignment`,
       )
     }
-    if (tag !== undefined && !documents.some((document) => document.tags?.includes(tag) === true)) {
-      throw new Error(
-        `Для raw-границы ${boundary.path} не сформирован XML-документ с тегом ${tag}`,
-      )
+    if (tag !== undefined) {
+      const matchingDocuments = documents.filter((document) => document.tags?.includes(tag) === true)
+      if (matchingDocuments.length === 0) {
+        throw new Error(
+          `Для raw-границы ${boundary.path} не сформирован XML-документ с тегом ${tag}`,
+        )
+      }
+      if (matchingDocuments.length > 1) {
+        throw new Error(
+          `raw-границе ${boundary.path} соответствует несколько XML-документов с тегом ${tag}`,
+        )
+      }
     }
   }
   const preparedDocuments = documents.map((document) => ({

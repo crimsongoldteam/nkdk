@@ -44,6 +44,7 @@ import {
   type PendingPartialXmlSyncStateV3,
 } from "./pendingStore"
 import { createPartialXmlArchiveWriter, type PartialXmlArchiveWriter } from "./archiveWriter"
+import { writePartialXmlSyncWorkerBatch } from "./workerBatch"
 import { withConfigurationValidationContextVersions } from "../context/validationContextVersions"
 
 export interface PreparePartialXmlSyncPackageParams {
@@ -77,6 +78,7 @@ interface ValidatedPreparationParams extends PreparePartialXmlSyncPackageParams 
 
 export interface PartialXmlSyncCoordinatorDependencies {
   readonly readPending: typeof readPendingPartialXmlSync
+  readonly assertNoPending: typeof assertNoPendingPartialXmlSync
   readonly refresh: (params: PreparePartialXmlSyncPackageParams) => Promise<{
     readonly diagnostics: readonly Diagnostic[]
     readonly readToken: ProjectStateReadToken
@@ -86,6 +88,7 @@ export interface PartialXmlSyncCoordinatorDependencies {
 
 const defaultDependencies: PartialXmlSyncCoordinatorDependencies = {
   readPending: readPendingPartialXmlSync,
+  assertNoPending: assertNoPendingPartialXmlSync,
   refresh: refreshProject,
   prepareValidated: prepareValidatedPackage,
 }
@@ -101,7 +104,7 @@ export async function preparePartialXmlSyncPackage(
     const normalizedComponentPath = componentPath(address)
     const pending = await dependencies.readPending(projectDir, normalizedComponentPath)
     if (pending !== undefined) throw new Error(`Для компонента ${normalizedComponentPath} существует ожидающий пакет`)
-    await assertNoPendingPartialXmlSync(projectDir, normalizedComponentPath)
+    await dependencies.assertNoPending(projectDir, normalizedComponentPath)
     const refreshed = await dependencies.refresh({ ...params, projectDir, componentPath: normalizedComponentPath })
     diagnostics = refreshed.diagnostics
     if (hasErrors(diagnostics)) return { ok: false, diagnostics }
@@ -274,11 +277,12 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
       const execution = await pool.execute(assignments, {
         maxBufferedBatches: concurrency,
         async onBatch(batch) {
-          for (const document of batch.generatedDocuments) {
-            await writer!.addGenerated(document)
-            writtenPayloadPaths.add(document.targetXmlPath)
-          }
-          for (const fragment of batch.configurationFragments) mergePartialBlock(rebuiltBlocks, fragment)
+          await writePartialXmlSyncWorkerBatch({
+            batch,
+            writer: writer!,
+            writtenPayloadPaths,
+            rebuiltBlocks,
+          })
         },
       })
       workerDiagnostics.push(...execution.diagnostics, ...execution.warnings)
@@ -353,25 +357,6 @@ async function buildPendingDelta(
     await store.close()
   }
   return { hashes, blocks }
-}
-
-function mergePartialBlock(
-  blocks: Map<string, ConfigurationIndexBlock>,
-  fragment: { readonly targetProjectPath: string; readonly entities: ConfigurationIndexBlock["entities"] },
-): void {
-  if (fragment.entities.length === 0) {
-    blocks.set(fragment.targetProjectPath, { entities: [] })
-    return
-  }
-  const merged = new Map((blocks.get(fragment.targetProjectPath)?.entities ?? []).map((entity) => [entity.logicalAddress, entity]))
-  for (const entity of fragment.entities) {
-    const previous = merged.get(entity.logicalAddress)
-    if (previous !== undefined && JSON.stringify(previous) !== JSON.stringify(entity)) {
-      throw new Error(`Конфликт блока ${fragment.targetProjectPath}: ${entity.logicalAddress}`)
-    }
-    merged.set(entity.logicalAddress, entity)
-  }
-  blocks.set(fragment.targetProjectPath, { entities: [...merged.values()] })
 }
 
 function readCompanionReferences(

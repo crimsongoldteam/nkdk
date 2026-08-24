@@ -14,6 +14,7 @@ import {
   type MetadataItemRule,
   type PropertyRule,
   type RuleRegistrySet,
+  type YAMLToXMLNestedRule,
 } from "@nkdk/runtime/rule-kit"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
@@ -51,8 +52,7 @@ export function prepareXmlAnomalyAssignment(params: {
   if (runtime === undefined) throw new Error("Не задан XmlAnomalyRuntime для XML assignment")
   const rawBoundaries: PreparedXmlAnomalyBoundary[] = []
   const semanticAnnotations = createXmlAnomalyAnnotations()
-  const rootPrefix = xmlRootPrefix(params.rootRule)
-  let itemName = params.itemName
+  const rootPrefix = xmlRootPrefix(params.rootRule).map(xmlPathSegment)
 
   const semanticData = cloneSemanticValue({
     value: params.preparedYamlFile.data,
@@ -61,17 +61,15 @@ export function prepareXmlAnomalyAssignment(params: {
     rule: params.rootRule,
     yamlPath: [],
     xmlPrefix: rootPrefix,
-    rootYaml: params.preparedYamlFile.data,
     runtime,
     rules,
     rawBoundaries,
-    setItemName(value) { itemName = value },
   })
 
   if (rootAnnotation !== undefined) semanticAnnotations.setRoot(rootAnnotation)
 
   return {
-    itemName,
+    itemName: params.itemName,
     rawBoundaries,
     preparedYamlFile: {
       ...params.preparedYamlFile,
@@ -111,12 +109,11 @@ function cloneSemanticValue(params: {
   readonly targetAnnotations: ReturnType<typeof createXmlAnomalyAnnotations>
   readonly rule: MetadataItemRule | undefined
   readonly yamlPath: readonly (string | number)[]
-  readonly xmlPrefix: readonly string[]
-  readonly rootYaml: unknown
+  readonly xmlPrefix: readonly XmlTraversalPathSegment[]
   readonly runtime: XmlAnomalyRuntime
   readonly rules: RuleRegistrySet | undefined
   readonly rawBoundaries: PreparedXmlAnomalyBoundary[]
-  readonly setItemName: (value: string) => void
+  readonly hiddenName?: HiddenSingletonNameBoundary
 }): unknown {
   if (Array.isArray(params.value)) {
     const target: unknown[] = []
@@ -154,12 +151,8 @@ function cloneSemanticValue(params: {
     }
 
     if (annotation?.kind === "raw") {
-      if (property !== undefined && isHiddenSingletonName(params, property)) {
-        if (typeof sourceValue !== "string" || sourceValue.length === 0) {
-          throw new Error(`Скрытое XML-имя ${params.rule?.itemType}.${property.propertyKey} должно быть непустой строкой`)
-        }
-        target[runtimeKey] = sourceValue
-        params.setItemName(sourceValue)
+      if (logicalKey === "Имя" && params.hiddenName !== undefined) {
+        params.rawBoundaries.push(hiddenSingletonNameBoundary(params.hiddenName, sourceValue))
         continue
       }
       params.rawBoundaries.push(rawBoundary({
@@ -168,25 +161,169 @@ function cloneSemanticValue(params: {
         sourceValue,
         xmlPrefix: params.xmlPrefix,
         rule: params.rule,
-        rootYaml: params.rootYaml,
+        ownerYaml: params.value,
         runtime: params.runtime,
       }))
       continue
     }
 
-    const nested = nestedRuleForProperty(property?.propertyRule, params.rules)
-    const child = cloneSemanticValue({
-      ...params,
-      value: sourceValue,
-      rule: nested?.rule,
-      yamlPath: [...params.yamlPath, logicalKey],
-      xmlPrefix: property === undefined
-        ? params.xmlPrefix
-        : [...params.xmlPrefix, ...property.xmlPath, ...(nested?.xmlPrefix ?? [])],
-    })
+    const child = property === undefined
+      ? cloneSemanticValue({
+          ...params,
+          value: sourceValue,
+          rule: undefined,
+          hiddenName: undefined,
+          yamlPath: [...params.yamlPath, logicalKey],
+        })
+      : clonePropertySemanticValue({
+          ...params,
+          value: sourceValue,
+          property,
+          yamlPath: [...params.yamlPath, logicalKey],
+        })
     target[runtimeKey] = child
     if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, runtimeKey, keyAnnotation)
     if (annotation !== undefined) params.targetAnnotations.set(target, runtimeKey, annotation)
+  }
+  return target
+}
+
+function clonePropertySemanticValue(params: Omit<Parameters<typeof cloneSemanticValue>[0], "rule"> & {
+  readonly rule: MetadataItemRule | undefined
+  readonly property: PlannedProperty
+}): unknown {
+  const nested = nestedRuleForProperty(params.property.propertyRule, params.rules)
+  const propertyPath = [
+    ...params.xmlPrefix,
+    ...params.property.xmlPath.map(xmlPathSegment),
+  ]
+  if (nested?.kind === "collection") {
+    return cloneCollectionSemanticValue({ ...params, descriptor: nested, propertyPath })
+  }
+  if (nested?.kind === "item") {
+    const itemRule = nested.itemRuleFromProperty?.(params.property.propertyRule) ?? nested.itemRule
+    const hiddenName = allowsHiddenSingletonName(params, params.property)
+      ? {
+          path: propertyPath,
+          itemType: params.rule!.itemType,
+          propertyKey: params.property.propertyKey,
+          ...(params.property.propertyRule.tag === undefined
+            ? {}
+            : { tag: params.property.propertyRule.tag }),
+        }
+      : undefined
+    return cloneSemanticValue({
+      ...params,
+      rule: itemRule,
+      xmlPrefix: propertyPath,
+      ...(hiddenName === undefined ? { hiddenName: undefined } : { hiddenName }),
+    })
+  }
+  if (nested?.kind === "polymorphicRecord" && isRecord(params.value)) {
+    return cloneSemanticValue({
+      ...params,
+      rule: nested.resolveItemRule({ yaml: params.value, name: "" }),
+      xmlPrefix: propertyPath,
+      hiddenName: undefined,
+    })
+  }
+  return cloneSemanticValue({
+    ...params,
+    rule: undefined,
+    xmlPrefix: propertyPath,
+    hiddenName: undefined,
+  })
+}
+
+function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemanticValue>[0], "rule"> & {
+  readonly rule: MetadataItemRule | undefined
+  readonly property: PlannedProperty
+  readonly propertyPath: readonly XmlTraversalPathSegment[]
+  readonly descriptor: Extract<YAMLToXMLNestedRule, { readonly kind: "collection" }>
+}): unknown {
+  const fallbackRule = params.descriptor.itemRuleFromProperty?.(params.property.propertyRule)
+    ?? params.descriptor.itemRule
+  if (params.descriptor.yamlShape === "array") {
+    if (!Array.isArray(params.value)) return params.value
+    const target: unknown[] = []
+    params.value.forEach((item, index) => {
+      const annotation = params.sourceAnnotations.at(params.value as unknown[], index)
+      const rule = params.descriptor.resolveItemRule?.({
+        yaml: item,
+        name: undefined,
+        index,
+        propertyRule: params.property.propertyRule,
+      }) ?? fallbackRule
+      const itemPath = collectionItemPath(params.propertyPath, params.descriptor, index)
+      if (annotation?.kind === "raw") {
+        target.push({})
+        params.rawBoundaries.push(rawItemBoundary({
+          path: itemPath,
+          sourceValue: item,
+          tag: params.property.propertyRule.tag,
+        }))
+        return
+      }
+      const child = cloneSemanticValue({
+        ...params,
+        value: item,
+        rule,
+        yamlPath: [...params.yamlPath, index],
+        xmlPrefix: itemPath,
+        hiddenName: undefined,
+      })
+      target.push(child)
+      if (annotation !== undefined) params.targetAnnotations.set(target, index, annotation)
+    })
+    return target
+  }
+
+  if (!isRecord(params.value)) return params.value
+  const target: Record<string, unknown> = {}
+  const annotationsByKey = valueAnnotationsForParent(params.sourceAnnotations, params.value)
+  const keys = new Set([...Object.keys(params.value), ...annotationsByKey.keys()])
+  let index = 0
+  for (const runtimeKey of keys) {
+    const keyAnnotation = params.sourceAnnotations.keyAt(params.value, runtimeKey)
+    if (keyAnnotation?.kind === "raw") {
+      throw new Error("!xml/raw разрешён только на YAML-значении, но не на ключе")
+    }
+    const logicalKey = keyAnnotation?.logicalKey ?? runtimeKey
+    const item = Object.prototype.hasOwnProperty.call(params.value, runtimeKey)
+      ? params.value[runtimeKey]
+      : undefined
+    const itemName = params.descriptor.nameFromYAMLKeyForProperty?.({
+      yamlKey: logicalKey,
+      propertyRule: params.property.propertyRule,
+    }) ?? params.descriptor.nameFromYAMLKey?.(logicalKey) ?? logicalKey
+    const rule = params.descriptor.resolveItemRule?.({
+      yaml: item,
+      name: itemName,
+      index,
+      propertyRule: params.property.propertyRule,
+    }) ?? fallbackRule
+    const annotation = annotationsByKey.get(runtimeKey)
+    const itemPath = collectionItemPath(params.propertyPath, params.descriptor, index)
+    if (annotation?.kind === "raw") {
+      target[runtimeKey] = {}
+      params.rawBoundaries.push(rawItemBoundary({
+        path: itemPath,
+        sourceValue: item,
+        tag: params.property.propertyRule.tag,
+      }))
+    } else {
+      target[runtimeKey] = cloneSemanticValue({
+        ...params,
+        value: item,
+        rule,
+        yamlPath: [...params.yamlPath, logicalKey],
+        xmlPrefix: itemPath,
+        hiddenName: undefined,
+      })
+      if (annotation !== undefined) params.targetAnnotations.set(target, runtimeKey, annotation)
+    }
+    if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, runtimeKey, keyAnnotation)
+    index += 1
   }
   return target
 }
@@ -195,15 +332,15 @@ function rawBoundary(params: {
   readonly property: PlannedProperty | undefined
   readonly logicalKey: string
   readonly sourceValue: unknown
-  readonly xmlPrefix: readonly string[]
+  readonly xmlPrefix: readonly XmlTraversalPathSegment[]
   readonly rule: MetadataItemRule | undefined
-  readonly rootYaml: unknown
+  readonly ownerYaml: unknown
   readonly runtime: XmlAnomalyRuntime
 }): PreparedXmlAnomalyBoundary {
   const rawPath = params.property === undefined
-    ? splitRawPath(params.logicalKey)
-    : params.property.xmlPath
-  const path = [...params.xmlPrefix, ...rawPath].join("\\")
+    ? splitRawPath(params.logicalKey).map(xmlPathSegment)
+    : params.property.xmlPath.map(xmlPathSegment)
+  const path = [...params.xmlPrefix, ...rawPath]
   if (path.length === 0) throw new Error(`Для !xml/raw ${params.logicalKey} не определён XML-путь`)
   if (params.sourceValue === undefined) {
     if (params.property === undefined || params.rule === undefined) {
@@ -212,13 +349,13 @@ function rawBoundary(params: {
     const nodes = params.runtime.generateCompactRaw({
       rule: params.rule,
       propertyKey: params.property.propertyKey,
-      yaml: params.rootYaml,
+      yaml: params.ownerYaml,
     })
     if (nodes === undefined) {
       throw new Error(`Для compact !xml/raw ${params.rule.itemType}.${params.property.propertyKey} не зарегистрирован генератор`)
     }
     return {
-      path,
+      ...preparedPath(path),
       value: undefined,
       suppressOrdinaryOutput: true,
       fragment: { nodes, suppressOrdinaryOutput: true },
@@ -226,9 +363,9 @@ function rawBoundary(params: {
     }
   }
   return {
-    path,
+    ...preparedPath(path),
     value: params.sourceValue,
-    suppressOrdinaryOutput: true,
+    suppressOrdinaryOutput: !isTerminalPath(path),
     ...(params.property?.propertyRule.tag === undefined ? {} : { tag: params.property.propertyRule.tag }),
   }
 }
@@ -239,6 +376,20 @@ interface PlannedProperty {
   readonly xmlPath: readonly string[]
 }
 
+interface XmlTraversalPathSegment {
+  readonly name: string
+  readonly occurrence?: number
+}
+
+interface HiddenSingletonNameBoundary {
+  readonly path: readonly XmlTraversalPathSegment[]
+  readonly itemType: string
+  readonly propertyKey: string
+  readonly tag?: string
+}
+
+const XML_NAME = /^[:_\p{L}][:_\-.0-9\p{L}\p{M}\p{N}\u00B7]*$/u
+
 function propertyForYamlKey(rule: MetadataItemRule | undefined, yamlKey: string): PlannedProperty | undefined {
   if (rule === undefined) return undefined
   const matches = getYAMLToXMLPlan(rule).properties.filter((property) => property.yamlKey === yamlKey)
@@ -246,7 +397,7 @@ function propertyForYamlKey(rule: MetadataItemRule | undefined, yamlKey: string)
   return matches[0]
 }
 
-function isHiddenSingletonName(
+function allowsHiddenSingletonName(
   params: Pick<Parameters<typeof cloneSemanticValue>[0], "runtime" | "rule">,
   property: PlannedProperty,
 ): boolean {
@@ -260,12 +411,88 @@ function isHiddenSingletonName(
 function nestedRuleForProperty(
   propertyRule: PropertyRule | undefined,
   rules: RuleRegistrySet | undefined,
-): { readonly rule: MetadataItemRule; readonly xmlPrefix: readonly string[] } | undefined {
+): YAMLToXMLNestedRule | undefined {
   if (propertyRule === undefined || rules === undefined) return undefined
-  const nested = rules.property.getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
-  if (nested?.kind !== "item" && nested?.kind !== "collection") return undefined
-  const rule = nested.itemRuleFromProperty?.(propertyRule) ?? nested.itemRule
-  return { rule, xmlPrefix: nested.kind === "collection" && nested.xmlElement !== undefined ? [nested.xmlElement] : [] }
+  return rules.property.getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+}
+
+function collectionItemPath(
+  propertyPath: readonly XmlTraversalPathSegment[],
+  descriptor: Extract<YAMLToXMLNestedRule, { readonly kind: "collection" }>,
+  index: number,
+): readonly XmlTraversalPathSegment[] {
+  if (descriptor.xmlElement !== undefined) {
+    return [...propertyPath, { name: descriptor.xmlElement, occurrence: index + 1 }]
+  }
+  const last = propertyPath.at(-1)
+  if (last === undefined) throw new Error("Для item коллекции не определён XML-путь")
+  return [...propertyPath.slice(0, -1), { ...last, occurrence: index + 1 }]
+}
+
+function valueAnnotationsForParent(
+  annotations: XmlAnomalyAnnotations,
+  parent: object,
+): Map<string, XmlAnomalyAnnotation> {
+  const result = new Map<string, XmlAnomalyAnnotation>()
+  for (const entry of annotations.entries()) {
+    if (entry.parent === parent && entry.key !== undefined && entry.annotation.target === "value") {
+      result.set(String(entry.key), entry.annotation)
+    }
+  }
+  return result
+}
+
+function rawItemBoundary(params: {
+  readonly path: readonly XmlTraversalPathSegment[]
+  readonly sourceValue: unknown
+  readonly tag?: string
+}): PreparedXmlAnomalyBoundary {
+  if (params.sourceValue === undefined) {
+    throw new Error("Compact !xml/raw всего item не имеет зарегистрированной property-границы")
+  }
+  return {
+    ...preparedPath(params.path),
+    value: params.sourceValue,
+    suppressOrdinaryOutput: true,
+    ...(params.tag === undefined ? {} : { tag: params.tag }),
+  }
+}
+
+function hiddenSingletonNameBoundary(
+  boundary: HiddenSingletonNameBoundary,
+  sourceValue: unknown,
+): PreparedXmlAnomalyBoundary {
+  if (typeof sourceValue !== "string" || sourceValue.length === 0 || !XML_NAME.test(sourceValue)) {
+    throw new Error(
+      `Скрытое XML-имя ${boundary.itemType}.${boundary.propertyKey} должно быть непустой допустимой XML-строкой`,
+    )
+  }
+  return {
+    ...preparedPath(boundary.path),
+    value: sourceValue,
+    suppressOrdinaryOutput: false,
+    attributeOverride: { name: "name", value: sourceValue },
+    ...(boundary.tag === undefined ? {} : { tag: boundary.tag }),
+  }
+}
+
+function preparedPath(
+  segments: readonly XmlTraversalPathSegment[],
+): Pick<PreparedXmlAnomalyBoundary, "path" | "occurrencePath"> {
+  const occurrencePath = segments.map(({ occurrence }) => occurrence ?? null)
+  return {
+    path: segments.map(({ name }) => name).join("\\"),
+    ...(occurrencePath.some((occurrence) => occurrence !== null) ? { occurrencePath } : {}),
+  }
+}
+
+function isTerminalPath(path: readonly XmlTraversalPathSegment[]): boolean {
+  const terminal = path.at(-1)?.name
+  return terminal === "#attributes" || terminal === "#order"
+}
+
+function xmlPathSegment(name: string): XmlTraversalPathSegment {
+  return { name }
 }
 
 function xmlRootPrefix(rule: MetadataItemRule): readonly string[] {
