@@ -97,6 +97,40 @@ it("записывает отдельный вид проектной прове
   expect(Array.from({ length: view.stringCount }, (_, id) => view.stringValue(id))).toContain("fillValue")
 })
 
+it("сохраняет состояния XML-границ ссылок и проверок", () => {
+  const writer = createProjectStateFragmentWriter()
+  const update = richYamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")
+  const states = [undefined, "pending", "accepted"] as const
+  const reference = update.pendingReferences[0]!
+  const check = update.pendingChecks[0]!
+  if (check.kind !== "dataPath") throw new Error("Ожидалась проверка dataPath")
+  const { xmlAnomaly: _referenceXmlAnomaly, ...referenceWithoutXmlAnomaly } = reference
+  const { xmlAnomaly: _checkXmlAnomaly, ...checkWithoutXmlAnomaly } = check
+  writer.appendFile({
+    ...update,
+    pendingReferences: states.map((xmlAnomaly, index) => ({
+      ...referenceWithoutXmlAnomaly,
+      yamlPath: ["Ссылка", index],
+      ...(xmlAnomaly === undefined ? {} : { xmlAnomaly }),
+    })),
+    pendingChecks: states.map((xmlAnomaly, index) => ({
+      ...checkWithoutXmlAnomaly,
+      yamlPath: ["ПутьКДанным", index],
+      ...(xmlAnomaly === undefined ? {} : { xmlAnomaly }),
+    })),
+  }, 9n)
+
+  const snapshot = new ProjectStateSnapshotView(buildTypedProjectStateSnapshot({
+    fragments: [openProjectStateFragment(writer.finish())],
+    deletions: [],
+  }))
+  const reader = createTypedProjectStateReader(snapshot)
+
+  expect(reader.pendingReferences(0).map(({ xmlAnomaly }) => xmlAnomaly)).toEqual(states)
+  expect(reader.pendingChecks(0).map((entry) => "xmlAnomaly" in entry ? entry.xmlAnomaly : undefined))
+    .toEqual(states)
+})
+
 it("записывает отложенную проверку обязательных полей адресуемого объекта", () => {
   const writer = createProjectStateFragmentWriter()
   const update = richYamlUpdate("cfe/X/Товары.yaml", "cfe/X", "Catalog.Товары")

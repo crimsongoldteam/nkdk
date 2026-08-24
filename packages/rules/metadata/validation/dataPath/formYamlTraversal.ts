@@ -91,7 +91,6 @@ function collectItem(params: {
           record[propertyRule.yaml as string] = nextValue
         },
         yamlPath: [...params.yamlPath, propertyRule.yaml],
-        tagged: false,
         nameMode: "yaml",
         ...(isElementType(params.rule.itemType) ? { elementType: params.rule.itemType } : {}),
         ...(hasYamlProperty(record, params.rule, "valuesPicture") ? { hasValuesPicture: true } : {}),

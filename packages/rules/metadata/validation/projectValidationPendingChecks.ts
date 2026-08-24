@@ -11,6 +11,7 @@ import { diagnosticAtYamlLocation } from "./yamlLocations"
 import type { TypeDescriptionView } from "../ruleRuntime/property/typeDescriptionView"
 import type { FillValueTypedValue } from "../ruleRuntime/property/fillValueSemantics"
 import { classifyFillValue, effectiveFillValueType, fillValueDiagnostic } from "../ruleRuntime/property/fillValueSemantics"
+import type { XmlAnomalyValidationState } from "@nkdk/runtime"
 
 export type ValidationPendingCheck =
   | {
@@ -23,7 +24,7 @@ export type ValidationPendingCheck =
       policyInput: DataPathPolicyInput
       elementType?: ElementType
       hasValuesPicture?: boolean
-      tagged: boolean
+      xmlAnomaly?: XmlAnomalyValidationState
       nameMode?: "yaml" | "internal"
       tableContext?: { dataPath: string }
       policy: "formDataPath"
@@ -35,7 +36,7 @@ export type ValidationPendingCheck =
       itemType: string
       type: TypeDescriptionView
       value: FillValueTypedValue
-      tagged: boolean
+      xmlAnomaly?: XmlAnomalyValidationState
       transport?: "DesignTimeRef"
     }
   | {
@@ -109,7 +110,7 @@ export function validatePendingChecks(params: {
         target: result.target,
         ...(check.elementType === undefined ? {} : { elementType: check.elementType }),
         ...(check.hasValuesPicture === undefined ? {} : { hasValuesPicture: check.hasValuesPicture }),
-        ...(check.tagged === undefined ? {} : { tagged: check.tagged }),
+        ...(check.xmlAnomaly === undefined ? {} : { tagged: true }),
       }))
     }
     diagnostics.push(...evaluateTaggedPendingCheck(check, problems))
@@ -122,7 +123,7 @@ function evaluateTaggedPendingCheck(
   check: Extract<ValidationPendingCheck, { kind: "dataPath" | "fillValue" }>,
   problems: readonly Diagnostic[],
 ): readonly Diagnostic[] {
-  if (!check.tagged) return problems
+  if (check.xmlAnomaly === undefined) return problems
   if (problems.some(({ severity }) => severity === "error")) return []
   return [diagnosticAtYamlLocation({
     location: check.location,
@@ -149,7 +150,9 @@ function validateFillValueCheck(
       : effectiveType.status === "known" && effectiveType.alternatives.some(({ kind }) => kind === "reference")
         ? undefined
         : { message: "DesignTimeRef допустим только для ссылочного типа", severity: "error" as const }
-    : fillValueDiagnostic(classification, effectiveType.status === "unresolved" ? false : check.tagged)
+    : fillValueDiagnostic(classification, effectiveType.status === "unresolved"
+      ? false
+      : check.xmlAnomaly !== undefined)
   return problem === undefined
     ? []
     : [diagnosticAtYamlLocation({

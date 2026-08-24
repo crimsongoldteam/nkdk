@@ -357,7 +357,6 @@ describe("dependency validation из ProjectState", () => {
       itemType: "MetadataAttribute",
       type: { type: ["DefinedType.АвторДействия"] },
       value: { type: "ref" as const, value: "Catalog.Пользователи.Администратор" },
-      tagged: false,
     }
     const query = { requestId: "fill", componentPath: "cf", projectPath: "cf/Справочник/Товары/Свойства.yaml", check }
     const definedType = { kind: "ОпределяемыйТип", name: "АвторДействия" }
@@ -440,7 +439,7 @@ describe("dependency validation из ProjectState", () => {
       ...ordinarySource,
       pendingReferences: ordinarySource.pendingReferences.map((reference) => ({
         ...reference,
-        tagged: "xml" as const,
+        xmlAnomaly: "pending" as const,
       })),
     }
     const updates = targetExists ? [source, yamlUpdate("cf/ЦельСInvalid.yaml", "cf", false)] : [source]
@@ -485,7 +484,6 @@ describe("dependency validation из ProjectState", () => {
     {
       name: "стандартный реквизит явно представленного объекта",
       value: "Объект.Код",
-      tagged: false,
       field: {
         name: "Код",
         targetName: "Code",
@@ -496,7 +494,7 @@ describe("dependency validation из ProjectState", () => {
     {
       name: "внутреннее имя стандартного реквизита в !xml",
       value: "Объект.Code",
-      tagged: true,
+      xmlAnomaly: "pending" as const,
       field: {
         name: "Код",
         targetName: "Code",
@@ -504,8 +502,14 @@ describe("dependency validation из ProjectState", () => {
         typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
       },
     },
-  ])("разрешает $name", ({ value, field, tagged = false }) => {
-    const source = ownerDependencySource("cfe/x", { kind: "Справочник", name: "Товары" }, value, undefined, tagged)
+  ])("разрешает $name", ({ value, field, xmlAnomaly }) => {
+    const source = ownerDependencySource(
+      "cfe/x",
+      { kind: "Справочник", name: "Товары" },
+      value,
+      undefined,
+      xmlAnomaly !== undefined,
+    )
     const extensionOwner = ownerUpdate("cfe/x", [{
       owner: { kind: "Справочник", name: "Товары" },
       ...field,
@@ -1490,7 +1494,6 @@ function formPolicySource(): ProjectStateYamlFileUpdate {
         location: { line: 8, col: 13, path: "/Элементы/Календарь/ПутьКДанным" },
         owner,
         value: "Таблица.Значение",
-        tagged: false,
         policyInput: { yaml: "ПутьКДанным", allowedKinds: ["dateTime"] },
         policy: "formDataPath",
       },
@@ -1543,7 +1546,7 @@ function ownerDependencySource(
   owner: Extract<ProjectStateYamlFileUpdate["pendingChecks"][number], { kind: "dataPath" }>["owner"] = { kind: "Справочник", name: "Товары" },
   value = "Объект.Артикул",
   projectPath = `${componentPath}/Форма.yaml`,
-  tagged = false,
+  withXmlAnomaly = false,
 ): ProjectStateYamlFileUpdate {
   return {
     ...emptyYamlUpdate(projectPath, componentPath, "form"),
@@ -1566,7 +1569,7 @@ function ownerDependencySource(
         location: { line: 3, col: 15, path: "/ПутьКДанным" },
         owner,
         value,
-        tagged,
+        ...(withXmlAnomaly ? { xmlAnomaly: "pending" as const } : {}),
         policyInput: { yaml: "ПутьКДанным" },
         policy: "formDataPath",
       },

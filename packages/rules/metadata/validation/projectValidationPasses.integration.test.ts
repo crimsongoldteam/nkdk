@@ -565,6 +565,45 @@ describe("validateProjectFileFirstPass references", () => {
       expect(first.schemaDiagnostics).toEqual([])
   })
 
+  it("помечает локально подтверждённую XML-границу как accepted", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(
+      projectDir,
+      "ГруппаКоманд/ПечатьДокумента.yaml",
+      "Картинка: !xml/invalid ОбщаяКартинка.Печать",
+    )
+    const file = resolveValidationProjectFile(
+      projectDir,
+      join(projectDir, "ГруппаКоманд/ПечатьДокумента.yaml"),
+    )
+    if (!file) throw new Error("file not resolved")
+    const runtime = validationRuntimeWithFileValidator(file.owner.spec.kind, ({ filePath }) => [{
+      filePath,
+      line: 1,
+      col: 11,
+      severity: "error",
+      source: "structure",
+      path: "/Картинка",
+      message: "проверочная смысловая ошибка",
+    }])
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot,
+      runtime,
+    })
+
+    expect(first.pendingReferences).toContainEqual(expect.objectContaining({
+      yamlPath: ["Картинка"],
+      xmlAnomaly: "accepted",
+    }))
+  })
+
   it("validates common form body through the shared form schema", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

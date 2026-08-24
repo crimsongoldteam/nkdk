@@ -62,7 +62,7 @@ export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParam
         itemType: params.itemType,
         type,
         value: parsed.value,
-        tagged: parsed.tagged,
+        ...(parsed.tagged ? { xmlAnomaly: "pending" as const } : {}),
         ...(parsed.transport === "DesignTimeRef" ? { transport: parsed.transport } : {}),
       }],
     }, parsed.tagged)
@@ -263,7 +263,7 @@ function withValueReference(
     diagnostics: [...analysis.diagnostics, ...reference.diagnostics],
     references: reference.references.map((candidate) => ({
       ...candidate,
-      ...(tagged ? { tagged: "xml" as const } : {}),
+      ...(tagged ? { xmlAnomaly: "pending" as const } : {}),
     })),
     projectChecks: analysis.projectChecks,
   }

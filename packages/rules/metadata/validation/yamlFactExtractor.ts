@@ -763,11 +763,11 @@ function collectNestedItem(
     if (params.validationDiagnostics) params.localValueDiagnostics.push(...analysis.diagnostics)
     params.pendingChecks.push(...analysis.projectChecks.map((check) => ({
       ...check,
-      ...("tagged" in check && hasSemanticXmlAnomalyAtExactPath(
+      ...(hasSemanticXmlAnomalyAtExactPath(
         params.rootYaml,
         params.parsed,
         check.yamlPath,
-      ) ? { tagged: true } : {}),
+      ) ? { xmlAnomaly: "pending" as const } : {}),
       location: yamlDiagnosticLocationAtPath({
         filePath: params.filePath,
         parsed: params.parsed,
@@ -779,7 +779,7 @@ function collectNestedItem(
         ...dependentPendingReference(reference),
         filePath: params.filePath,
         ...(hasSemanticXmlAnomalyAtExactPath(params.rootYaml, params.parsed, reference.yamlPath)
-          ? { tagged: "xml" as const }
+          ? { xmlAnomaly: "pending" as const }
           : {}),
       }))
     )
@@ -931,7 +931,7 @@ function pendingReferenceFromYamlValue(params: {
     target: parsed.target,
     constraint: params.constraint,
     ...(hasSemanticXmlAnomalyAtExactPath(params.parsed.data, params.parsed, params.yamlPath)
-      ? { tagged: "xml" as const }
+      ? { xmlAnomaly: "pending" as const }
       : {}),
   }
 }
@@ -1274,7 +1274,9 @@ function collectRuleDataPathChecks(params: {
       }),
       owner: { kind: params.file.owner.dir, name: params.file.owner.name },
       value,
-      tagged: hasSemanticXmlAnomalyAtExactPath(params.parsed.data, params.parsed, yamlPath),
+      ...(hasSemanticXmlAnomalyAtExactPath(params.parsed.data, params.parsed, yamlPath)
+        ? { xmlAnomaly: "pending" as const }
+        : {}),
       nameMode: "yaml",
       index: params.index,
       policyInput: toDataPathPolicyInput(rule),

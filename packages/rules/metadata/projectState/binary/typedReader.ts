@@ -18,6 +18,7 @@ import type {
   ProjectStateYamlFileUpdate,
 } from "../fileUpdate"
 import { decodeMetadataTargetConstraint } from "./constraintCodec"
+import { decodeXmlAnomalyState } from "./xmlAnomalyStateCodec"
 import type { DiagnosticSource, DiagnosticSeverity } from "@nkdk/runtime"
 import { PROJECT_STATE_FACT_RECORD_VIEWS, PROJECT_STATE_FACT_TABLE_ORDER, type ProjectStateFactTableKind } from "./factTables"
 import {
@@ -275,9 +276,10 @@ export function createTypedProjectStateReader(
   }
 
   function pendingReference(value: Record<string, number>): ProjectStatePendingReference {
-    if (value.flags < 0 || value.flags > 7) {
+    if (value.flags < 0 || value.flags > 14) {
       throw new Error(`Неизвестные flags отложенной metadata-ссылки: ${value.flags}`)
     }
+    const xmlAnomaly = decodeXmlAnomalyState(value.flags & 3)
     const constraint = decodeMetadataTargetConstraint(string(value.constraintKindId))
     const canonical = string(value.canonicalId)
     return {
@@ -285,7 +287,7 @@ export function createTypedProjectStateReader(
       canonical,
       target: storedTarget(value, canonical),
       constraint,
-      ...((value.flags & 1) === 1 ? { tagged: "xml" as const } : {}),
+      ...(xmlAnomaly === undefined ? {} : { xmlAnomaly }),
       ...pendingReferencePropertyStateMode(value.flags),
     }
   }
@@ -293,10 +295,10 @@ export function createTypedProjectStateReader(
   function pendingReferencePropertyStateMode(flags: number): {
     propertyStateMode?: "control" | "notify" | "extend"
   } {
-    const encoded = flags & 6
+    const encoded = flags & 12
     if (encoded === 0) return {}
-    if (encoded === 2) return { propertyStateMode: "control" }
-    if (encoded === 4) return { propertyStateMode: "notify" }
+    if (encoded === 4) return { propertyStateMode: "control" }
+    if (encoded === 8) return { propertyStateMode: "notify" }
     return { propertyStateMode: "extend" }
   }
 
@@ -510,11 +512,12 @@ export function createTypedProjectStateReader(
         }
       }
       if (kind !== "dataPath") throw new Error(`Неизвестный вид project-state проверки: ${kind}`)
+      const xmlAnomaly = decodeXmlAnomalyState(value.reserved)
       return {
         kind: "dataPath" as const, yamlPath: yamlPath(value.yamlPathId),
         location,
         owner: ownerType(value.ownerTypeId), value: string(value.valueId),
-        tagged: value.reserved === 1,
+        ...(xmlAnomaly === undefined ? {} : { xmlAnomaly }),
         policyInput: { yaml: string(value.policyYamlId),
           ...(value.allowedKindsCount === 0 ? {} : { allowedKinds: stringValues("allowedKinds", value.allowedKindsStart, value.allowedKindsCount) }),
           ...(value.allowComposite === 0 ? {} : { allowComposite: value.allowComposite === 1 }) },
@@ -594,7 +597,7 @@ export function createTypedProjectStateReader(
     itemType: string
     type: TypeDescriptionView
     value: FillValueTypedValue
-    tagged: boolean
+    xmlAnomaly?: "pending" | "accepted"
     transport?: "DesignTimeRef"
   } {
     let decoded: unknown
@@ -607,7 +610,8 @@ export function createTypedProjectStateReader(
       throw new Error("Повреждена project-state проверка fillValue")
     }
     const value = decoded as Record<string, unknown>
-    if (value.version !== 1 || typeof value.itemType !== "string" || typeof value.tagged !== "boolean" ||
+    if (value.version !== 2 || typeof value.itemType !== "string" ||
+      (value.xmlAnomaly !== undefined && value.xmlAnomaly !== "pending" && value.xmlAnomaly !== "accepted") ||
       (value.transport !== undefined && value.transport !== "DesignTimeRef")) {
       throw new Error("Неподдерживаемая project-state проверка fillValue")
     }
@@ -618,7 +622,7 @@ export function createTypedProjectStateReader(
       itemType: value.itemType,
       type: value.type,
       value: value.value,
-      tagged: value.tagged,
+      ...(value.xmlAnomaly === undefined ? {} : { xmlAnomaly: value.xmlAnomaly }),
       ...(value.transport === undefined ? {} : { transport: value.transport }),
     }
   }

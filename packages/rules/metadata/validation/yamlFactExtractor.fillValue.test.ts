@@ -163,10 +163,28 @@ describe("dependent fill value validation", () => {
         itemType: "MetadataAttribute",
         type: { type: ["DefinedType.АвторДействия"] },
         value: { type: "ref", value: "Catalog.Пользователи.EmptyRef" },
-        tagged: false,
       }),
     ])
+    expect(facts.pendingChecks[0]).not.toHaveProperty("xmlAnomaly")
     expect(facts.pendingChecks[0]).not.toHaveProperty("parsed")
+  })
+
+  it("сохраняет помеченное FillValue как ожидающую XML-границу", () => {
+    const facts = extractValidationYamlFacts({
+      file: catalogFile(),
+      parsed: parseMetadataYaml(`Реквизиты:
+  Автор:
+    Тип: ОпределяемыйТип.АвторДействия
+    ЗначениеЗаполнения: !xml/invalid Справочник.Пользователи.ПустаяСсылка
+`),
+      rulesSnapshot,
+    })
+
+    expect(facts.pendingChecks).toContainEqual(expect.objectContaining({
+      kind: "fillValue",
+      yamlPath: ["Реквизиты", "Автор", "ЗначениеЗаполнения"],
+      xmlAnomaly: "pending",
+    }))
   })
 })
 

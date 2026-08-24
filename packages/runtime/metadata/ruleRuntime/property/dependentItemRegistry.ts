@@ -1,5 +1,6 @@
 import type { TypeDescriptionView } from "./typeDescriptionView"
 import type { FillValueTypedValue } from "./fillValueSemantics"
+import type { XmlAnomalyValidationState } from "../../validation/xmlAnomalyBoundary"
 import type { DefinedTypeLookup } from "./fillValueSemantics"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
@@ -58,7 +59,7 @@ export type DependentProjectCheckCandidate =
       readonly itemType: string
       readonly type: TypeDescriptionView
       readonly value: FillValueTypedValue
-      readonly tagged: boolean
+      readonly xmlAnomaly?: XmlAnomalyValidationState
       readonly transport?: "DesignTimeRef"
     }
   | {

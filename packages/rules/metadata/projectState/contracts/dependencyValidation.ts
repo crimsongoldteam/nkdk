@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@nkdk/runtime"
+import type { Diagnostic, XmlAnomalyValidationState } from "@nkdk/runtime"
 import type { MetadataTargetConstraint, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import type { OwnerTypeRef } from "@nkdk/runtime/rule-kit"
 import type {
@@ -83,7 +83,7 @@ export interface ProjectStatePendingMetadataTargetReference {
   readonly canonical: string
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
-  readonly tagged?: "xml"
+  readonly xmlAnomaly?: XmlAnomalyValidationState
   readonly propertyStateMode?: "control" | "notify" | "extend"
 }
 export interface ProjectStatePendingReferenceCheck { readonly requestId: string; readonly componentPath: string; readonly reference: ProjectStatePendingMetadataTargetReference }

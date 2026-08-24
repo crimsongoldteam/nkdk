@@ -624,7 +624,6 @@ function dependencyQuery(requestId: string, componentPath: string, projectPath: 
       location: { line: 1, col: 1 },
       owner: owner(ownerName),
       value: "Объект",
-      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath" as const,
     },

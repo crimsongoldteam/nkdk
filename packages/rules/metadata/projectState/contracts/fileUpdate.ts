@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@nkdk/runtime"
+import type { Diagnostic, XmlAnomalyValidationState } from "@nkdk/runtime"
 import type { OwnerFactRole } from "@nkdk/runtime/rule-kit"
 import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
 import type { ElementType } from "../../ruleRuntime/formElement/types"
@@ -59,7 +59,7 @@ export interface ProjectStatePendingReference {
   readonly canonical: string
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
-  readonly tagged?: "xml"
+  readonly xmlAnomaly?: XmlAnomalyValidationState
   readonly propertyStateMode?: "control" | "notify" | "extend"
 }
 export type ProjectStateNamedTypeItems = Array<{ name: string; type?: TypeDescriptionView }>
@@ -114,7 +114,7 @@ export type ProjectStatePendingDependencyCheck =
       readonly location: { readonly line: number; readonly col: number; readonly path?: string }
       readonly owner: OwnerTypeRef
       readonly value: string
-      readonly tagged: boolean
+      readonly xmlAnomaly?: XmlAnomalyValidationState
       readonly policyInput: { readonly yaml: string; readonly allowedKinds?: readonly DataPathAllowedKind[]; readonly allowComposite?: boolean }
       readonly elementType?: ElementType
       readonly hasValuesPicture?: boolean
@@ -128,7 +128,7 @@ export type ProjectStatePendingDependencyCheck =
       readonly itemType: string
       readonly type: TypeDescriptionView
       readonly value: FillValueTypedValue
-      readonly tagged: boolean
+      readonly xmlAnomaly?: XmlAnomalyValidationState
       readonly transport?: "DesignTimeRef"
     }
   | {

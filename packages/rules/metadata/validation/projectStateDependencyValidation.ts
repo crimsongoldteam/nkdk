@@ -390,7 +390,7 @@ function evaluateTaggedReference(
   reference: PendingMetadataTargetReference,
   problems: readonly Diagnostic[],
 ): readonly Diagnostic[] {
-  if (reference.tagged !== "xml") return problems
+  if (reference.xmlAnomaly === undefined) return problems
   if (problems.length > 0) return []
   return [{
     filePath: reference.filePath,

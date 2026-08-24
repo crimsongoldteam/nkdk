@@ -11,6 +11,7 @@ import { objectPathKindToYAML, rootToYAML } from "../ruleRuntime/metadataTarget/
 import { dataTableCanonical } from "../ruleRuntime/metadataTarget/canonical"
 import type { Diagnostic } from "./types"
 import { yamlPathToPointer, type YamlPath } from "./yamlLocations"
+import type { XmlAnomalyValidationState } from "./xmlAnomalyBoundary"
 
 export type MetadataReferenceResolveResult =
   | { ok: true; filePath?: string; details?: unknown }
@@ -40,7 +41,7 @@ export interface PendingMetadataTargetReference {
   canonical: string
   target: ParsedMetadataTarget
   constraint: MetadataTargetConstraint
-  tagged?: "xml"
+  xmlAnomaly?: XmlAnomalyValidationState
   propertyStateMode?: "control" | "notify" | "extend"
 }
 

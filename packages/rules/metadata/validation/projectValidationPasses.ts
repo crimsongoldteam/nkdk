@@ -33,7 +33,12 @@ import { getConfigurationValidationProjectSpec, getValidationProjectSpecs } from
 import type { ValidationFormIndexContribution, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
-import { validationIssuePathFromPointer, validationIssueTargetKey, type ValidationIssue } from "@nkdk/runtime"
+import {
+  validationIssuePathFromPointer,
+  validationIssueTargetKey,
+  type ValidationIssue,
+  type ValidationIssueTarget,
+} from "@nkdk/runtime"
 import type { TSchema } from "typebox"
 import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
 import { validateParsedFileWithIssues } from "./validateFile"
@@ -831,8 +836,7 @@ function validateProjectFormFirstPass(
 
   const facts = extractFirstPassFacts(params, entry, compatibilityMode)
   const parsed = parsedForProjectFile(params.file, entry.parsed)
-  const deferredAnomalyTargets = deferredXmlAnomalyTargetKeys(facts)
-  const evaluated = evaluateParsedXmlAnomalyBoundaries({
+  const evaluated = evaluateProjectXmlAnomalyBoundaries({
     filePath: entry.filePath,
     parsed,
     diagnostics: [...schemaDiagnostics, ...facts.diagnostics],
@@ -840,16 +844,17 @@ function validateProjectFormFirstPass(
       ...schemaValidation.issues,
       ...facts.diagnostics.map(validationIssueFromDiagnostic),
     ],
-    deferUnnecessaryFor: (target) => deferredAnomalyTargets.has(validationIssueTargetKey(target)),
+    facts,
   })
   const diagnostics = evaluated.diagnostics
+  const { pendingReferences, pendingChecks } = applyXmlAnomalyStatesToFacts(facts, evaluated.boundaries)
 
   return {
     state: {
       kind: "form",
       file: params.file,
-      pendingReferences: facts.pendingReferences,
-      pendingChecks: facts.pendingChecks,
+      pendingReferences,
+      pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
     schemaDiagnostics,
@@ -860,7 +865,7 @@ function validateProjectFormFirstPass(
     objectIndexEntries: facts.objectIndexEntries,
     memberIndexEntries: facts.memberIndexEntries,
     valueIndexEntries: facts.valueIndexEntries,
-    pendingReferences: facts.pendingReferences,
+    pendingReferences,
     dependencies: [
       ...new Set([
         ...facts.localDependencies.map(({ canonical }) => canonical),
@@ -1001,14 +1006,13 @@ function validateProjectPropertiesFirstPass(
   })
   const equalNameMs = performance.now() - equalNameStartedAt
   const facts = extractFirstPassFacts(params, { ...entry, parsed }, compatibilityMode)
-  const deferredAnomalyTargets = deferredXmlAnomalyTargetKeys(facts)
   const publishedSchemaDiagnostics = suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics)
   const unevaluatedDiagnostics = [
     ...publishedSchemaDiagnostics,
     ...equalNameDiagnostics,
     ...facts.diagnostics,
   ]
-  const evaluated = evaluateParsedXmlAnomalyBoundaries({
+  const evaluated = evaluateProjectXmlAnomalyBoundaries({
     filePath: entry.filePath,
     parsed,
     diagnostics: unevaluatedDiagnostics,
@@ -1018,16 +1022,17 @@ function validateProjectPropertiesFirstPass(
       ...equalNameDiagnostics.map(validationIssueFromDiagnostic),
       ...facts.diagnostics.map(validationIssueFromDiagnostic),
     ],
-    deferUnnecessaryFor: (target) => deferredAnomalyTargets.has(validationIssueTargetKey(target)),
+    facts,
   })
   const diagnostics = evaluated.diagnostics
+  const { pendingReferences, pendingChecks } = applyXmlAnomalyStatesToFacts(facts, evaluated.boundaries)
 
   return {
     state: {
       kind: "properties",
       file: params.file,
-      pendingReferences: facts.pendingReferences,
-      pendingChecks: facts.pendingChecks,
+      pendingReferences,
+      pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
     schemaDiagnostics: publishedSchemaDiagnostics,
@@ -1037,7 +1042,7 @@ function validateProjectPropertiesFirstPass(
     objectIndexEntries: facts.objectIndexEntries,
     memberIndexEntries: facts.memberIndexEntries,
     valueIndexEntries: facts.valueIndexEntries,
-    pendingReferences: facts.pendingReferences,
+    pendingReferences,
     dependencies: facts.localDependencies.map(({ canonical }) => canonical),
     ...languageValidationDependency(localizedTextProperties, params.context),
     ...(facts.logicalAddresses === undefined ? {} : { logicalAddresses: facts.logicalAddresses }),
@@ -1063,10 +1068,63 @@ function validateProjectPropertiesFirstPass(
 
 function deferredXmlAnomalyTargetKeys(facts: ProjectValidationFileFacts): ReadonlySet<string> {
   const paths = [
-    ...facts.pendingReferences.filter(({ tagged }) => tagged === "xml").map(({ yamlPath }) => yamlPath),
-    ...facts.pendingChecks.filter((check) => "tagged" in check && check.tagged).map(({ yamlPath }) => yamlPath),
+    ...facts.pendingReferences.filter(({ xmlAnomaly }) => xmlAnomaly !== undefined).map(({ yamlPath }) => yamlPath),
+    ...facts.pendingChecks.filter((check) => "xmlAnomaly" in check && check.xmlAnomaly !== undefined)
+      .map(({ yamlPath }) => yamlPath),
   ]
   return new Set(paths.map((path) => validationIssueTargetKey({ kind: "path", path })))
+}
+
+function evaluateProjectXmlAnomalyBoundaries(params: {
+  readonly filePath: string
+  readonly parsed: ParsedYaml
+  readonly diagnostics: readonly Diagnostic[]
+  readonly issues: readonly ValidationIssue[]
+  readonly facts: ProjectValidationFileFacts
+}) {
+  const deferredTargets = deferredXmlAnomalyTargetKeys(params.facts)
+  return evaluateParsedXmlAnomalyBoundaries({
+    filePath: params.filePath,
+    parsed: params.parsed,
+    diagnostics: params.diagnostics,
+    issues: params.issues,
+    deferUnnecessaryFor: (target) => deferredTargets.has(validationIssueTargetKey(target)),
+  })
+}
+
+function applyXmlAnomalyStates<T extends {
+  readonly yamlPath: readonly (string | number)[]
+  readonly xmlAnomaly?: "pending" | "accepted"
+}>(
+  entries: readonly T[],
+  boundaries: readonly {
+    readonly target: ValidationIssueTarget
+    readonly state: "pending" | "accepted"
+  }[],
+): T[] {
+  const states = new Map(
+    boundaries
+      .filter(({ target }) => target.kind === "path")
+      .map(({ target, state }) => [validationIssueTargetKey(target), state] as const),
+  )
+  return entries.map((entry) => {
+    if (entry.xmlAnomaly === undefined) return entry
+    const state = states.get(validationIssueTargetKey({ kind: "path", path: entry.yamlPath }))
+    return state === undefined ? entry : { ...entry, xmlAnomaly: state }
+  })
+}
+
+function applyXmlAnomalyStatesToFacts(
+  facts: ProjectValidationFileFacts,
+  boundaries: readonly {
+    readonly target: ValidationIssueTarget
+    readonly state: "pending" | "accepted"
+  }[],
+): Pick<ProjectValidationFileFacts, "pendingReferences" | "pendingChecks"> {
+  return {
+    pendingReferences: applyXmlAnomalyStates(facts.pendingReferences, boundaries),
+    pendingChecks: applyXmlAnomalyStates(facts.pendingChecks, boundaries),
+  }
 }
 
 function languageValidationDependency(

@@ -103,7 +103,7 @@ export function richYamlUpdate(
       yamlPath: ["ПутьКДанным"],
       owner,
       value: "Объект.Код",
-      tagged: true,
+      xmlAnomaly: "pending",
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     }],
@@ -119,7 +119,7 @@ export function fillValuePendingCheck(): ProjectStateYamlFileUpdate["pendingChec
     itemType: "MetadataAttribute",
     type: { type: ["DefinedType.АвторДействия", "string"] },
     value: { type: "ref", value: "" },
-    tagged: true,
+    xmlAnomaly: "pending",
     transport: "DesignTimeRef",
   }
 }

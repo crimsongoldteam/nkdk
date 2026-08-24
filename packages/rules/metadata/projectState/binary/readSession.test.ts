@@ -74,7 +74,6 @@ it("читает владельца и входы проверки зависи�
       location: { line: 1, col: 1 },
       owner,
       value: "Объект.Код",
-      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     },
@@ -357,13 +356,19 @@ it("читает referenceCoverage-проверку из двоичного со
   expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])
 })
 
-it("читает признак !xml DataPath из существующего reserved-байта", () => {
+it("читает состояние !xml DataPath из существующего reserved-байта", () => {
   const taggedUpdate = richYamlUpdate("cf/tagged.yaml", "cf", "Catalog.Tagged")
+  const sourceCheck = richYamlUpdate(
+    "cf/ordinary.yaml",
+    "cf",
+    "Catalog.Ordinary",
+  ).pendingChecks[0]!
+  if (sourceCheck.kind !== "dataPath") throw new Error("Ожидалась проверка dataPath")
+  const { xmlAnomaly: _xmlAnomaly, ...ordinaryCheck } = sourceCheck
   const ordinaryUpdate = {
     ...richYamlUpdate("cf/ordinary.yaml", "cf", "Catalog.Ordinary"),
     pendingChecks: [{
-      ...richYamlUpdate("cf/ordinary.yaml", "cf", "Catalog.Ordinary").pendingChecks[0]!,
-      tagged: false,
+      ...ordinaryCheck,
     }],
   }
   const taggedReader = createTypedProjectStateReader(
@@ -376,9 +381,9 @@ it("читает признак !xml DataPath из существующего re
   expect(taggedReader.pendingChecks(0)[0]).toMatchObject({
     kind: "dataPath",
     value: "Объект.Код",
-    tagged: true,
+    xmlAnomaly: "pending",
   })
-  expect(ordinaryReader.pendingChecks(0)[0]).toMatchObject({ kind: "dataPath", tagged: false })
+  expect(ordinaryReader.pendingChecks(0)[0]).not.toHaveProperty("xmlAnomaly")
 })
 
 it("разрешает одинаковую цель один раз для всей серии запросов", () => {
@@ -438,7 +443,6 @@ it("читает входы DataPath без восстановления все�
       location: { line: 1, col: 1 },
       owner: { kind: "Справочник", name: "Catalog.Source" },
       value: "Объект.Код",
-      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     },
@@ -492,7 +496,7 @@ it("восстанавливает вложенную цель и !xml отло�
       allowedObjectPaths: [["ExternalDataSource", "Table"]] as const,
       allowOwner: true,
     },
-    tagged: "xml" as const,
+    xmlAnomaly: "accepted" as const,
     propertyStateMode: "notify" as const,
   }
   const buffers = typedSnapshot([{ ...update, pendingReferences: [pendingReference] }])

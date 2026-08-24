@@ -93,9 +93,9 @@ describe("validatePendingChecks", () => {
     ["допустимая ссылка", "CatalogRef.Пользователи", false, 0],
     ["несовместимая ссылка", "CatalogRef.Сотрудники", false, 1],
     ["несовместимое значение с invalid", "CatalogRef.Сотрудники", true, 0],
-  ] as const)("проверяет DefinedType: %s", (_name, sourceType, tagged, diagnosticCount) => {
+  ] as const)("проверяет DefinedType: %s", (_name, sourceType, withXmlAnomaly, diagnosticCount) => {
     const cache = definedTypeCache({ АвторДействия: { type: [sourceType] } })
-    const check = fillValueCheck(tagged)
+    const check = fillValueCheck(withXmlAnomaly)
     expect(validatePendingChecks({ ownerCache: cache, checks: [check] }).diagnostics).toHaveLength(diagnosticCount)
   })
 
@@ -129,7 +129,7 @@ describe("validatePendingChecks", () => {
   })
 })
 
-function fillValueCheck(tagged: boolean): Extract<ValidationPendingCheck, { kind: "fillValue" }> {
+function fillValueCheck(withXmlAnomaly: boolean): Extract<ValidationPendingCheck, { kind: "fillValue" }> {
   return {
     kind: "fillValue",
     yamlPath: ["Реквизиты", "Автор", "ЗначениеЗаполнения"],
@@ -137,7 +137,7 @@ function fillValueCheck(tagged: boolean): Extract<ValidationPendingCheck, { kind
     itemType: "MetadataAttribute",
     type: { type: ["DefinedType.АвторДействия"] },
     value: { type: "ref", value: "Catalog.Пользователи.Администратор" },
-    tagged,
+    ...(withXmlAnomaly ? { xmlAnomaly: "pending" as const } : {}),
   }
 }
 

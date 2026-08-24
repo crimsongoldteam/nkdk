@@ -300,7 +300,7 @@ describe("extractValidationYamlFacts", () => {
     const reference = facts.pendingReferences.find(({ canonical }) => canonical === "CommonPicture.Печать")
 
     expect(reference !== undefined).toBe(expected)
-    if (kind !== "raw") expect(reference?.tagged).toBe("xml")
+    if (kind !== "raw") expect(reference?.xmlAnomaly).toBe("pending")
     expect(facts.diagnostics).toEqual([])
   })
 
