@@ -147,7 +147,7 @@ function prepareChildForDump(
   const anomaly = sourceAnnotations.at(parent, key)
   if (anomaly?.kind === "raw" && value === undefined) return { dumpValue: null, data: undefined }
   const tag = yamlScalarTagAt(parent, key)
-  if (isXMLAnomalyTag(tag)) {
+  if (anomaly === undefined && isXMLAnomalyTag(tag)) {
     const taggedValue = typeof value === "string"
       ? xmlAnomalyTagValue(tag, prepareXMLAnomalyPayload(tag, value, explicitStrings))
       : value
@@ -165,7 +165,9 @@ function prepareChildForDump(
     ? { dumpValue: null, data: null }
     : prepareForDump(value, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations)
   return {
-    dumpValue: taggedScalarForDump(parent, key, prepared.dumpValue),
+    dumpValue: anomaly === undefined
+      ? taggedScalarForDump(parent, key, prepared.dumpValue)
+      : prepared.dumpValue,
     data: prepared.data,
     ...(prepared.doubleQuoted === true ? { doubleQuoted: true } : {}),
   }

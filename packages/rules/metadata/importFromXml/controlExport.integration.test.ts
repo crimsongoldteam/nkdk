@@ -6,10 +6,11 @@ import {
   createLocalConfigurationIndexReader,
   snapshotXmlAnomalyAnnotations,
 } from "@nkdk/runtime"
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import "../../tests/metadataExecutionContext"
 import { createValidationProjectComponent } from "../validation/projectComponents"
+import { prepareFullXmlSyncAssignment } from "../fullSyncToXml/prepareAssignment"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 import {
@@ -39,11 +40,99 @@ describe("executeImportControlExport", () => {
   })
 
   it("выполняет один обычный экспорт assignment независимо от числа PropertyRule", async () => {
-    const { prepared, initialAnnotations, result } = await runCatalogControlExport()
+    const ordinaryExporter = vi.fn(prepareFullXmlSyncAssignment)
+    const { prepared, initialAnnotations, result } = await runCatalogControlExport(undefined, ordinaryExporter)
 
     expect(Object.keys(prepared.rule.properties).length).toBeGreaterThan(10)
     expect(result.annotations).toEqual(initialAnnotations)
+    expect(ordinaryExporter).toHaveBeenCalledTimes(1)
+    expect(ordinaryExporter).toHaveBeenCalledWith(expect.objectContaining({
+      xmlAnomalyRawFallback: false,
+    }))
     expect(controlExportCountForTests()).toBe(1)
+  })
+
+  it("считает фактический failed exporter invocation, но не ранний отказ projection", async () => {
+    await expect(runCatalogControlExport(undefined, () => {
+      throw new Error("ordinary exporter failed")
+    })).rejects.toThrow("ordinary exporter failed")
+    expect(controlExportCountForTests()).toBe(1)
+
+    resetControlExportCountForTests()
+    const assignment = { ...catalogAssignment(), targetProjectPath: "Неизвестно/Свойства.yaml" }
+    await expect(executeImportControlExport({
+      assignment,
+      data: {},
+      annotations: { version: 1, entries: [] },
+      audit: { sources: [], boundaries: [] },
+      topology,
+      context: mockXmlImportContext(),
+      index: createLocalConfigurationIndexReader(new Map()),
+      composition: catalogComposition(),
+      readSource: async () => "",
+    })).rejects.toThrow("content topology")
+    expect(controlExportCountForTests()).toBe(0)
+  })
+
+  it("исключает существующий raw payload из ordinary PropertyRule", async () => {
+    const { prepared, index } = await prepareCatalogControlInput()
+    const data = {
+      ...(prepared.yaml as Record<string, unknown>),
+      ТипКода: "Число",
+    }
+    const initial = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
+    const annotations = {
+      ...initial,
+      entries: [
+        ...initial.entries,
+        {
+          parentPath: [],
+          key: "ТипКода",
+          annotation: { kind: "raw" as const, occurrence: 1, target: "value" as const },
+        },
+      ],
+    }
+
+    const result = await executePreparedCatalogControlExport({
+      prepared,
+      index,
+      data,
+      annotations,
+      readSource: async () => { throw new Error("существующий raw не должен перечитывать source") },
+    })
+
+    expect((result.data as Record<string, unknown>).ТипКода).toBe("Число")
+    expect(result.annotations).toEqual(annotations)
+    expect(result.rereadSourcePaths).toEqual([])
+  })
+
+  it("полностью заменяет чтение дочерних файлов переданной composition", async () => {
+    const { prepared, index } = await prepareCatalogControlInput()
+    const cwd = process.cwd()
+    const conflictCwd = fs.mkdtempSync(join(os.tmpdir(), "nkdk-control-composition-"))
+    tempDirs.push(conflictCwd)
+    fs.mkdirSync(join(conflictCwd, "Справочник/Контрагенты/Формы/ЛожнаяФорма"), { recursive: true })
+    process.chdir(conflictCwd)
+    const exists = vi.spyOn(fs, "existsSync").mockImplementation(() => {
+      throw new Error("proof export не должен читать cwd")
+    })
+    const readdir = vi.spyOn(fs, "readdirSync").mockImplementation(() => {
+      throw new Error("proof export не должен перечислять cwd")
+    })
+
+    try {
+      const result = await executePreparedCatalogControlExport({
+        prepared,
+        index,
+        readSource: async (path) => fs.promises.readFile(path, "utf8"),
+      })
+
+      expect(result.rereadSourcePaths).toEqual([])
+    } finally {
+      exists.mockRestore()
+      readdir.mockRestore()
+      process.chdir(cwd)
+    }
   })
 
   it("локализует неканоническое число 01 и перечитывает только его source", async () => {
@@ -93,7 +182,23 @@ describe("executeImportControlExport", () => {
   })
 })
 
-async function runCatalogControlExport(sourcePath?: string) {
+async function runCatalogControlExport(
+  sourcePath?: string,
+  ordinaryExporter?: typeof prepareFullXmlSyncAssignment,
+) {
+  const { prepared, index } = await prepareCatalogControlInput(sourcePath)
+  const initialAnnotations = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
+  const result = await executePreparedCatalogControlExport({
+    prepared,
+    index,
+    annotations: initialAnnotations,
+    readSource: async (path) => fs.promises.readFile(path, "utf8"),
+    ...(ordinaryExporter === undefined ? {} : { ordinaryExporter }),
+  })
+  return { prepared, initialAnnotations, result }
+}
+
+async function prepareCatalogControlInput(sourcePath?: string) {
   const collector = createConfigurationIndexCollector()
   const prepared = await prepareImportYaml({
     assignment: catalogAssignment(sourcePath),
@@ -102,21 +207,33 @@ async function runCatalogControlExport(sourcePath?: string) {
     topology,
   })
   const fragment = collector.fragment(prepared.targetProjectPath)
-  const initialAnnotations = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
-  const result = await executeImportControlExport({
-    assignment: prepared.assignment,
-    data: prepared.yaml,
-    annotations: initialAnnotations,
-    audit: prepared.proofAudit,
+  const index = createLocalConfigurationIndexReader(new Map([
+    [fragment.targetProjectPath, { entities: fragment.entities }],
+  ]))
+  return { prepared, index }
+}
+
+async function executePreparedCatalogControlExport(params: {
+  prepared: Awaited<ReturnType<typeof prepareImportYaml>>
+  index: ReturnType<typeof createLocalConfigurationIndexReader>
+  data?: unknown
+  annotations?: ReturnType<typeof snapshotXmlAnomalyAnnotations>
+  readSource: (sourcePath: string) => Promise<string>
+  ordinaryExporter?: typeof prepareFullXmlSyncAssignment
+}) {
+  return executeImportControlExport({
+    assignment: params.prepared.assignment,
+    data: params.data ?? params.prepared.yaml,
+    annotations: params.annotations
+      ?? snapshotXmlAnomalyAnnotations(params.prepared.yaml, params.prepared.annotations),
+    audit: params.prepared.proofAudit,
     topology,
     context: mockXmlImportContext(),
-    index: createLocalConfigurationIndexReader(new Map([
-      [fragment.targetProjectPath, { entities: fragment.entities }],
-    ])),
+    index: params.index,
     composition: catalogComposition(),
-    readSource: async (path) => fs.promises.readFile(path, "utf8"),
+    readSource: params.readSource,
+    ...(params.ordinaryExporter === undefined ? {} : { ordinaryExporter: params.ordinaryExporter }),
   })
-  return { prepared, initialAnnotations, result }
 }
 
 function newAnnotationKeys(

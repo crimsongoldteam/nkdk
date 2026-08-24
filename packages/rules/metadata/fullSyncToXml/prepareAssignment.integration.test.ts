@@ -352,7 +352,32 @@ describe("prepareFullXmlSyncAssignment", () => {
     }
     const writeFile = vi.spyOn(fs.promises, "writeFile")
 
-    const prepared = prepare(assignment, yaml)
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: yaml,
+      context: mockContextToXML(),
+      index: testConfigurationIndexReader(),
+      composition: {
+        children: () => [
+          {
+            sourceProjectPath: "Обработка/ОбработкаВсеСвойства/Формы/ФормаСписка/Форма.yaml",
+            assignmentRole: "fileItem",
+            itemType: "ClientApplicationForm",
+            itemName: "ФормаСписка",
+            logicalAddress: `${assignment.logicalAddress}.Форма.ФормаСписка`,
+            ownerLogicalAddress: assignment.logicalAddress,
+          },
+          {
+            sourceProjectPath: "Обработка/ОбработкаВсеСвойства/Шаблоны/Макет/Макет.yaml",
+            assignmentRole: "fileItem",
+            itemType: "MetadataTemplate",
+            itemName: "Макет",
+            logicalAddress: `${assignment.logicalAddress}.Макет.Макет`,
+            ownerLogicalAddress: assignment.logicalAddress,
+          },
+        ],
+      },
+    })
 
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
       "DataProcessors/ОбработкаВсеСвойства.xml",

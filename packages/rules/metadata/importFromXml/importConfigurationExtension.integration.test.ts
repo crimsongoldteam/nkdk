@@ -124,7 +124,7 @@ describe("configuration extension XML import", () => {
       },
     })
     const borrowedAttribute = ((catalog as Record<string, unknown>).Реквизиты as Record<string, Record<string, unknown>>).РеквизитСправочника
-    expect(borrowedAttribute).not.toHaveProperty("Комментарий")
+    expect(borrowedAttribute.Комментарий).toBeNull()
     expect(borrowedAttribute.Синоним).toBe("")
     expect(borrowedAttribute.Тип).toMatchObject({ "v8:TypeSet": "cfg:AnyRef" })
     expect(yamlScalarTagAt(borrowedAttribute, "ОбъектРасширяемойКонфигурации")).toBe("проверять")
@@ -165,6 +165,7 @@ describe("configuration extension XML import", () => {
     expect(yamlText).toContain("Properties\\UnknownProperty: !xml/raw Пропустить")
     expect(yamlText).toContain("Тип: !xml/raw")
     expect(yamlText).toContain("ПринадлежностьОбъекта: !xml/raw Adopted")
+    expect(yamlText).toContain("Комментарий: !xml/raw null")
     expect(yamlText).not.toContain("FutureState")
     const baseForm = readYaml(
       projectDir,

@@ -126,7 +126,7 @@ export function extractValidationYamlFacts(params: {
   const referenceDiagnostics: Diagnostic[] = []
   const localValueDiagnostics: Diagnostic[] = []
   const localValueValidationProfile: LocalValueValidationProfile = {}
-  if (validationDiagnostics) {
+  if (validationDiagnostics && params.parsed.annotations.root() === undefined) {
     collectLocalValueValidation({
       filePath: params.file.absolutePath,
       parsed: params.parsed,
@@ -582,10 +582,11 @@ function collectPendingReferences(params: {
   const references: PendingMetadataTargetReference[] = []
   for (const property of params.properties) {
     const yamlPath = [...params.yamlPath, ...property.yamlPath]
-    if (hasXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)) continue
+    const hasAnomaly = hasXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)
+    if (hasRawXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)) continue
     const sourceValue = valueAtPath(record, property.yamlPath)
     if (sourceValue === undefined) continue
-    const value = withoutAnnotatedDescendants(sourceValue, params.parsed)
+    const value = withoutRawDescendants(sourceValue, params.parsed)
     const rulePath = [
       ...params.rulePath,
       {
@@ -596,7 +597,7 @@ function collectPendingReferences(params: {
       },
     ]
     if (property.type !== undefined) {
-      if (params.validationDiagnostics) {
+      if (params.validationDiagnostics && !hasAnomaly) {
         collectLocalValueValidation({
           filePath: params.filePath,
           parsed: params.parsed,
@@ -618,6 +619,7 @@ function collectPendingReferences(params: {
           ...(property.ownerFactRole === undefined ? {} : { ownerFactRole: property.ownerFactRole }),
         },
         value,
+        annotations: params.parsed.annotations,
         source: yamlDiagnosticLocationAtPath({ filePath: params.filePath, parsed: params.parsed, path: yamlPath }),
       })
     }
@@ -1340,6 +1342,7 @@ function hasXmlAnomalyAtPath(
   parsed: ParsedYaml,
   path: readonly (string | number)[],
 ): boolean {
+  if (parsed.annotations.root() !== undefined) return true
   let parent = root
   for (const segment of path) {
     if (typeof parent !== "object" || parent === null) return false
@@ -1349,43 +1352,62 @@ function hasXmlAnomalyAtPath(
   return false
 }
 
-function withoutAnnotatedDescendants(value: unknown, parsed: ParsedYaml): unknown {
-  const firstAnnotation = parsed.annotations.entries()[Symbol.iterator]().next()
-  if (parsed.annotations.root() === undefined && firstAnnotation.done === true) return value
-  return projectWithoutAnnotatedDescendants(value, parsed)
+function hasRawXmlAnomalyAtPath(
+  root: unknown,
+  parsed: ParsedYaml,
+  path: readonly (string | number)[],
+): boolean {
+  if (parsed.annotations.root()?.kind === "raw") return true
+  let parent = root
+  for (const segment of path) {
+    if (typeof parent !== "object" || parent === null) return false
+    if (parsed.annotations.at(parent, segment)?.kind === "raw") return true
+    parent = (parent as Record<string | number, unknown>)[segment]
+  }
+  return false
 }
 
-function projectWithoutAnnotatedDescendants(value: unknown, parsed: ParsedYaml): unknown {
+function withoutRawDescendants(value: unknown, parsed: ParsedYaml): unknown {
+  const firstAnnotation = parsed.annotations.entries()[Symbol.iterator]().next()
+  if (parsed.annotations.root() === undefined && firstAnnotation.done === true) return value
+  return projectWithoutRawDescendants(value, parsed)
+}
+
+function projectWithoutRawDescendants(value: unknown, parsed: ParsedYaml): unknown {
   if (typeof value !== "object" || value === null) return value
   if (Array.isArray(value)) {
     let changed = false
     const projected: unknown[] = []
     for (let index = 0; index < value.length; index += 1) {
-      if (parsed.annotations.at(value, index) !== undefined) {
+      if (parsed.annotations.at(value, index)?.kind === "raw") {
         changed = true
         continue
       }
-      const child = projectWithoutAnnotatedDescendants(value[index], parsed)
+      const child = projectWithoutRawDescendants(value[index], parsed)
       changed ||= child !== value[index]
       projected.push(child)
     }
-    return changed ? projected : value
+    if (!changed) return value
+    parsed.annotations.copy(value, projected)
+    return projected
   }
   let changed = false
   const projected: Record<string, unknown> = {}
   for (const [key, childValue] of Object.entries(value)) {
     if (
-      parsed.annotations.at(value, key) !== undefined
-      || parsed.annotations.keyAt(value, key) !== undefined
+      parsed.annotations.at(value, key)?.kind === "raw"
+      || parsed.annotations.keyAt(value, key)?.kind === "raw"
     ) {
       changed = true
       continue
     }
-    const child = projectWithoutAnnotatedDescendants(childValue, parsed)
+    const child = projectWithoutRawDescendants(childValue, parsed)
     changed ||= child !== childValue
     projected[key] = child
   }
-  return changed ? projected : value
+  if (!changed) return value
+  parsed.annotations.copy(value, projected)
+  return projected
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {

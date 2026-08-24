@@ -7,6 +7,7 @@ import { parseMetadataYaml } from "./parseMetadataYaml"
 import { markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "./scalarTags"
 import { copyYAMLMappingTag, yamlMappingTagOf } from "./mappingTags"
 import { markYAMLMappingKeyTag, yamlMappingKeyTagAt } from "./mappingKeyTags"
+import { createXmlAnomalyAnnotations } from "./xmlAnomalyAnnotations"
 
 describe("exportToYAML", () => {
   it.each([
@@ -264,6 +265,20 @@ describe("exportToYAML", () => {
 
     expect(serialized.text).toBe("Компактный: !xml/raw\nОтсутствует: !xml/raw null")
     expect(parseMetadataYaml(serialized.text).data).toEqual(parsed.data)
+  })
+
+  it("ставит новую XML-аннотацию выше прежнего скалярного тега", () => {
+    const parsed = parseMetadataYaml("Ссылка: !xml/reference Catalog.Товары")
+    const data = parsed.data as Record<string, unknown>
+    data.Ссылка = null
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(data, "Ссылка", {
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+    })
+
+    expect(serializeYAMLDocument(data, annotations).text).toBe("Ссылка: !xml/raw null")
   })
 
   it("сохраняет компактный raw на корне документа", () => {

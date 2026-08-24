@@ -71,15 +71,12 @@ export const prepareAppliedObjectOwnerXML = (params: {
     externalMetadata: params.rule.externalMetadata,
   })
   const propertyValues = new Map(
-    collectFileChildPropertyValues({
+    params.compositionPropertyValues ?? collectFileChildPropertyValues({
       rule: params.rule,
       yaml: yamlObj,
       ownerDir: dirname(params.preparedYamlFile.filePath),
     })
   )
-  for (const [propertyKey, value] of params.compositionPropertyValues ?? []) {
-    propertyValues.set(propertyKey, value)
-  }
 
   const converted = convertMetadataItemFromYAMLToXML({
     convertProperties: convertPropertiesFromYAMLToXML,

@@ -1,6 +1,6 @@
 import {
-  createXmlAnomalyAnnotations,
   parseXmlDocumentWithSaxes,
+  restoreXmlAnomalyAnnotations,
   type ConfigurationContextWithExportToXML,
   type LocalConfigurationIndexReader,
   type XmlAnomalyAnnotationsSnapshot,
@@ -40,10 +40,12 @@ export async function executeImportControlExport(params: {
   readonly index: LocalConfigurationIndexReader
   readonly composition: MetadataXmlPrepareComposition
   readonly readSource: (sourcePath: string) => Promise<string>
+  readonly ordinaryExporter?: typeof prepareFullXmlSyncAssignment
 }): Promise<ProveXmlAnomalyBoundariesResult> {
   const assignment = projectControlAssignment(params.assignment, params.topology)
   const context = controlExportContext(params.context)
-  const prepared = prepareFullXmlSyncAssignment({
+  controlExportCountValueForTests += 1
+  const prepared = (params.ordinaryExporter ?? prepareFullXmlSyncAssignment)({
     assignment,
     preparedYamlFile: {
       projectPath: params.assignment.targetProjectPath,
@@ -55,13 +57,16 @@ export async function executeImportControlExport(params: {
       },
       data: params.data,
       // Proof обязан проверить обычный экспорт, поэтому raw fallback здесь намеренно отключён.
-      annotations: createXmlAnomalyAnnotations(),
+      // Обычный экспорт получает смысловую проекцию: существующий raw не
+      // участвует в PropertyRule, а invalid/important остаются значениями.
+      annotations: restoreXmlAnomalyAnnotations(params.data, params.annotations),
       syntaxDiagnostics: [],
     },
     context,
     index: params.index,
     composition: params.composition,
     topology: params.topology,
+    xmlAnomalyRawFallback: false,
   })
   const exported = prepared.documents.map((document) => {
     const output = assignment.potentialOutputs.find(
@@ -91,7 +96,6 @@ export async function executeImportControlExport(params: {
     exported,
     readSource: params.readSource,
   })
-  controlExportCountValueForTests += 1
   return result
 }
 
@@ -107,7 +111,10 @@ function projectControlAssignment(
   if (projected.itemType !== assignment.itemType || projected.logicalAddress !== assignment.logicalAddress) {
     throw new Error(`Topology контрольного экспорта не соответствует import assignment ${assignment.id}`)
   }
-  const { assignmentRole, itemType, itemName, logicalAddress, owner, nodeId, potentialOutputs } = projected
+  const { assignmentRole, itemType, itemName, logicalAddress, owner, nodeId } = projected
+  const potentialOutputs = projected.potentialOutputs.filter((output) =>
+    matchSource(assignment.xmlFiles, output.role, output.targetXmlPath) !== undefined
+  )
   return {
     id: assignment.id,
     sourceProjectPath: assignment.targetProjectPath,

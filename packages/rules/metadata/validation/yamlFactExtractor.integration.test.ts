@@ -2,6 +2,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { beforeAll, describe, expect, it } from "vitest"
+import "../../tests/metadataExecutionContext"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { resolveValidationProjectFile } from "./projectFiles"
@@ -25,27 +26,16 @@ beforeAll(() => {
 
 describe("extractValidationYamlFacts", () => {
   it("запускает локальную проверку для корневого item type", () => {
-    const projectDir = "/project"
-    const filePath = "/project/Справочник/Товары/Свойства.yaml"
-    const file = resolveValidationProjectFile(projectDir, filePath)
-    if (file === undefined) throw new Error("file not resolved")
-    const runtime = localValidationRuntime(file.itemType, (params) => [
-        diagnosticAtYamlPath({
-          filePath: params.filePath,
-          parsed: params.parsed,
-          path: params.yamlPath,
-          severity: "error",
-          source: "structure",
-          message: `${params.owner.dir}.${params.owner.name}:${String(params.value === params.parsed.data)}`,
-        }),
-      ])
-
-    const facts = extractValidationYamlFacts({
-      file,
-      parsed: parseMetadataYaml("{}\n"),
-      rulesSnapshot,
-      runtime,
-    })
+    const facts = catalogRootValidationFacts("{}\n", (params) => [
+      diagnosticAtYamlPath({
+        filePath: params.filePath,
+        parsed: params.parsed,
+        path: params.yamlPath,
+        severity: "error",
+        source: "structure",
+        message: `${params.owner.dir}.${params.owner.name}:${String(params.value === params.parsed.data)}`,
+      }),
+    ])
 
     expect(facts.diagnostics).toEqual(
       expect.arrayContaining([
@@ -56,6 +46,26 @@ describe("extractValidationYamlFacts", () => {
     )
     expect(facts.diagnostics.find(({ message }) => message === "Справочник.Товары:true")?.path).toBeUndefined()
   })
+
+  it.each(["raw", "invalid", "important"])(
+    "не проверяет корневой элемент с !xml/%s",
+    (kind) => {
+      const facts = catalogRootValidationFacts(`!xml/${kind}\n{}`, (params) => [
+        diagnosticAtYamlPath({
+          filePath: params.filePath,
+          parsed: params.parsed,
+          path: params.yamlPath,
+          severity: "error",
+          source: "structure",
+          message: "корень проверен",
+        }),
+      ])
+
+      expect(facts.diagnostics).not.toContainEqual(
+        expect.objectContaining({ message: "корень проверен" })
+      )
+    }
+  )
 
   it("запускает локальную проверку присутствующего свойства с его YAML-путём", () => {
     const projectDir = "/project"
@@ -304,6 +314,27 @@ describe("extractValidationYamlFacts", () => {
     ])
   })
 
+  it.each([
+    { kind: "raw", expected: false },
+    { kind: "invalid", expected: true },
+    { kind: "important", expected: true },
+  ])("учитывает semantic reference для !xml/$kind, исключая только raw", ({ kind, expected }) => {
+    const projectDir = "/project"
+    const filePath = "/project/ГруппаКоманд/ПечатьДокумента.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(`Картинка: !xml/${kind} ОбщаяКартинка.Печать\n`),
+      rulesSnapshot,
+    })
+    const reference = facts.pendingReferences.find(({ canonical }) => canonical === "CommonPicture.Печать")
+
+    expect(reference !== undefined).toBe(expected)
+    expect(facts.diagnostics).toEqual([])
+  })
+
   it("разрешает краткую форму выбора по типу соседнего реквизита", () => {
     const facts = catalogAttributeFacts([
         "Реквизиты:",
@@ -356,6 +387,19 @@ describe("extractValidationYamlFacts", () => {
 
     expect(facts.localIndexes?.metadata.ownerFacts?.attributes).toEqual([
       { name: "Поставщик" },
+    ])
+  })
+
+  it("сохраняет повторные invalid-ключи как отдельные physical items", () => {
+    const facts = catalogAttributeFacts([
+      "Реквизиты:",
+      "  Код: { Тип: Строка }",
+      "  !xml/invalid Код: { Тип: Число }",
+    ])
+
+    expect(facts.localIndexes?.metadata.ownerFacts?.attributes).toEqual([
+      expect.objectContaining({ name: "Код" }),
+      expect.objectContaining({ name: "Код" }),
     ])
   })
 
@@ -638,4 +682,18 @@ function localValidationRuntime(type: string, validator: LocalYamlValueValidator
     validation: [{ kind: "localYamlValue", propertyType: type, validate: validator }],
   })
   return createValidationRegistrySet(rules, createRuleRegistrySet(rules))
+}
+
+function catalogRootValidationFacts(yaml: string, validator: LocalYamlValueValidator) {
+  const file = resolveValidationProjectFile(
+    "/project",
+    "/project/Справочник/Товары/Свойства.yaml",
+  )
+  if (file === undefined) throw new Error("file not resolved")
+  return extractValidationYamlFacts({
+    file,
+    parsed: parseMetadataYaml(yaml),
+    rulesSnapshot,
+    runtime: localValidationRuntime(file.itemType, validator),
+  })
 }

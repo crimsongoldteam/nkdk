@@ -31,6 +31,7 @@ export function prepareFullXmlSyncAssignment(params: {
   operationSeed?: Uint8Array
   composition: MetadataXmlPrepareComposition
   topology?: CompiledMetadataResourceTopology
+  xmlAnomalyRawFallback?: boolean
 }): PreparedXMLAssignment {
   const indexCollector = createConfigurationIndexCollector()
   const runtime = createConfigurationIndexExportRuntime({
@@ -113,6 +114,9 @@ function prepareTopologyAssignmentDocuments(
     rootRule: effectiveAssignmentNode.itemRule,
     itemName: params.assignment.itemName,
   })
+  const rawBoundaries = params.xmlAnomalyRawFallback === false
+    ? []
+    : anomalyAssignment.rawBoundaries
   const outputs = params.assignment.potentialOutputs
   const context = withTopologyMetadataTargetOwners(params)
   const outputsByCapability = Map.groupBy(outputs, (output) => output.prepareCapabilityId)
@@ -148,7 +152,7 @@ function prepareTopologyAssignmentDocuments(
       profile: params.profile,
     })
   })
-  for (const boundary of anomalyAssignment.rawBoundaries) {
+  for (const boundary of rawBoundaries) {
     const tag = boundary.tag
     if (tag === undefined && documents.length !== 1) {
       throw new Error(
@@ -171,7 +175,7 @@ function prepareTopologyAssignmentDocuments(
   }
   const preparedDocuments = documents.map((document) => ({
     ...document,
-    rawBoundaries: anomalyAssignment.rawBoundaries.filter(
+    rawBoundaries: rawBoundaries.filter(
       (boundary) => boundary.tag === undefined || document.tags?.includes(boundary.tag) === true,
     ),
   }))
