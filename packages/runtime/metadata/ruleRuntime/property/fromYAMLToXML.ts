@@ -46,6 +46,7 @@ import {
   isRelativeYAMLReferenceTagged,
 } from "./brokenXMLReferenceCarrierRegistry"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
+import { readXmlAnomalyRawCollectionItems } from "../xmlAnomaly/exportClaim"
 
 export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
   readonly execution?: PropertyRuleExecution
@@ -517,10 +518,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
             })
           : nestedContext
+      const hasRawCollectionItems =
+        effectiveNestedRule.kind === "collection" &&
+        readXmlAnomalyRawCollectionItems(nestedYAML).length > 0
       if (
         effectiveNestedRule.kind === "collection" &&
         Array.isArray(nestedYAML) &&
         nestedYAML.length === 0 &&
+        !hasRawCollectionItems &&
         Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw")
       ) {
         matchingOutputs.forEach((output, index) =>
@@ -532,6 +537,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         effectiveNestedRule.kind === "collection" &&
         Array.isArray(nestedYAML) &&
         nestedYAML.length === 0 &&
+        !hasRawCollectionItems &&
         !hasNestedDefault
       ) {
         continue

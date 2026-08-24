@@ -99,6 +99,17 @@ const scalarCollectionOwnerRule = {
   },
 } as const satisfies MetadataItemRule
 
+const filterArrayOwnerRule = {
+  itemType: "SyntheticFilterArrayOwner",
+  properties: {
+    filter: {
+      type: "FilterItem",
+      yaml: "Отбор",
+      xml: "Filter",
+    },
+  },
+} as const satisfies MetadataItemRule
+
 const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
   metadataRules,
   defineMetadataRules({
@@ -336,6 +347,66 @@ describe("единое восстановление XML-аномалий assignm
     expect(xml).toContain("<Future>value</Future>")
   })
 
+  it.each([
+    {
+      name: "единственный raw item",
+      yaml: [
+        "Отбор:",
+        "  - !xml/raw",
+        '    "#name": dcsset:item',
+        "    _xsi:type: dcsset:FutureFilter",
+        '    "dcsset:future": one',
+      ],
+      orderedValues: ["one"],
+      semanticItems: 0,
+    },
+    {
+      name: "два raw item",
+      yaml: [
+        "Отбор:",
+        "  - !xml/raw",
+        '    "#name": dcsset:item',
+        "    _xsi:type: dcsset:FutureFilter",
+        '    "dcsset:future": one',
+        "  - !xml/raw",
+        '    "#name": dcsset:item',
+        "    _xsi:type: dcsset:FutureFilter",
+        '    "dcsset:future": two',
+      ],
+      orderedValues: ["one", "two"],
+      semanticItems: 0,
+    },
+    {
+      name: "raw item и смысловой сосед",
+      yaml: [
+        "Отбор:",
+        "  - !xml/raw",
+        '    "#name": dcsset:item',
+        "    _xsi:type: dcsset:FutureFilter",
+        '    "dcsset:future": one',
+        "  - ЛевоеЗначение: .Код",
+      ],
+      orderedValues: ["one", "Код"],
+      semanticItems: 1,
+    },
+  ])("восстанавливает $name реальной array collection", ({ yaml, orderedValues, semanticItems }) => {
+    const xml = exportFilterArrayWithAnomalies(yaml)
+
+    const positions = orderedValues.map((value) => xml.indexOf(`>${value}<`))
+    expect(positions.every((position) => position >= 0)).toBe(true)
+    expect(positions).toEqual([...positions].sort((left, right) => left - right))
+    expect(xml.match(/<dcsset:item\b/g)).toHaveLength(orderedValues.length)
+    expect(xml.match(/<dcsset:comparisonType\b/g) ?? []).toHaveLength(semanticItems)
+    expect(xml).not.toContain("nkdkXmlAnomaly")
+  })
+
+  it("не материализует обычную пустую array collection без raw sidecar", () => {
+    const xml = exportFilterArrayWithAnomalies(["Отбор: []"])
+
+    expect(xml).not.toContain("<Filter")
+    expect(xml).not.toContain("<dcsset:item")
+  })
+
   it("не назначает export claim скалярным item без raw-потомков", () => {
     const prepared = prepareAnomalies([
       "Порядок:",
@@ -470,6 +541,36 @@ function exportFormWithAnomalies(lines: readonly string[]): string {
       xml: { Form: ordinary },
       deferred: [],
       rootRule: ClientApplicationFormRules,
+      rawBoundaries: prepared.rawBoundaries,
+    },
+    context,
+  })
+}
+
+function exportFilterArrayWithAnomalies(lines: readonly string[]): string {
+  const prepared = prepareAnomalies(
+    lines.join("\n"),
+    anomalyRegistries.xmlAnomalies,
+    filterArrayOwnerRule,
+    anomalyRegistries,
+  )
+  const context = mockContextToXML()
+  const ordinary = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
+    withRuleRegistrySet(anomalyRegistries, () => convertMetadataItemFromYAMLToXML({
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context,
+      yaml: prepared.preparedYamlFile.data,
+      annotations: prepared.preparedYamlFile.annotations,
+      rule: filterArrayOwnerRule,
+      outputs: [{ key: "owner" }],
+    }).outputs.get("owner")),
+  )
+  return buildPreparedAssignmentXml({
+    document: {
+      targetXmlPath: "Filter.xml",
+      xml: { Root: ordinary },
+      deferred: [],
+      rootRule: filterArrayOwnerRule,
       rawBoundaries: prepared.rawBoundaries,
     },
     context,
