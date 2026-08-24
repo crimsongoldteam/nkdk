@@ -44,7 +44,12 @@ describe("importMetadataItemFromXMLToYAML", () => {
 
     expect(yaml).toMatchObject({
       Известное: "yes",
-      "Properties\\Future": { _mode: "x", "#text": "42" },
+      "Properties\\Future": undefined,
+    })
+    expect(annotations.at(yaml, "Properties\\Future")).toMatchObject({
+      kind: "raw",
+      xml: { _mode: "x", "#text": "42" },
+      hasSemanticValue: false,
     })
     expect(yaml).not.toHaveProperty("Properties")
     expect(yaml).not.toHaveProperty("Properties\\Future\\#attributes")
@@ -98,16 +103,16 @@ describe("importMetadataItemFromXMLToYAML", () => {
     )
 
     expect(yaml).toEqual({
-      Дочерний: {
-        "#text": ["before", "after"],
-        Known: "yes",
-        "#order": ["#text", "Known", "#text"],
-      },
+      Дочерний: { Известное: "yes" },
       Сосед: "keep",
+    })
+    expect(annotations.at(yaml, "Дочерний")).toMatchObject({
+      kind: "raw",
+      hasSemanticValue: true,
     })
     const serialized = serializeYAMLDocument(yaml, annotations).text
     expect(serialized.match(/!xml\/raw/g)).toHaveLength(1)
-    expect(serialized).not.toContain("Известное")
+    expect(serialized).toContain("Известное: yes")
     expect(serialized).toContain("Сосед: keep")
   })
 

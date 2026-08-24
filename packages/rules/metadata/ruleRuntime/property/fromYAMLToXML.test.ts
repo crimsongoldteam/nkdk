@@ -1507,7 +1507,9 @@ describe("convertPropertiesFromYAMLToXML", () => {
     const parsed = parseMetadataYaml([
       "Родитель:",
       "  Вложенное:",
-      "    - Значение: !xml/raw value",
+      "    - Значение: !xml/raw",
+      "        $значение: value",
+      "        $xml: { _future: x }",
     ].join("\n"))
     let normalized: Record<string, unknown> | undefined
     rules.property.registerTypeRule("AnnotatedNormalizedItem" as never, "yamlToXMLNestedRule", {

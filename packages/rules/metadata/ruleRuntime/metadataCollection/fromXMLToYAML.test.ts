@@ -229,12 +229,12 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     }) as Record<string, unknown>
 
     expect(yaml).toEqual({
-      Элементы: [{ "?future": { _mode: "x" }, Value: "known" }],
+      Элементы: [{ Значение: "known" }],
       Сосед: "keep",
     })
     const serialized = serializeYAMLDocument(yaml, annotations).text
     expect(serialized.match(/!xml\/raw/g)).toHaveLength(1)
-    expect(serialized).not.toContain("Значение")
+    expect(serialized).toContain("Значение: known")
     expect(serialized).toContain("Сосед: keep")
   })
 
@@ -432,7 +432,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     })
 
     expect(xmlAnnotatedMappingEntries(items, annotations)).toEqual([
-      ["Финальный", { "#text": "future", Name: "Исходный", Value: "ok" }],
+      ["Финальный", { Значение: "ok" }],
     ])
     expect(annotations.at(items, "Финальный")).toMatchObject({ kind: "raw", target: "value" })
     const itemBoundaryPaths = audit.outcomes()
@@ -457,8 +457,8 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     expect(runtimeKeys).toHaveLength(2)
     expect(runtimeKeys[0]).not.toBe(runtimeKeys[1])
     expect(xmlAnnotatedMappingEntries(items, annotations)).toEqual([
-      ["A", { "#text": "first", Name: "A", Value: "one" }],
-      ["A", { "#text": "second", Name: "A", Value: "two" }],
+      ["A", { Значение: "one" }],
+      ["A", { Значение: "two" }],
     ])
     expect(runtimeKeys.map((runtimeKey) => annotations.at(items, runtimeKey)?.kind)).toEqual([
       "raw",
