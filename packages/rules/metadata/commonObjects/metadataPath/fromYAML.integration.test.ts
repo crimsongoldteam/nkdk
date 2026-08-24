@@ -1,21 +1,18 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import type { ConfigurationContext } from "@nkdk/runtime"
+import { mkdirSync,mkdtempSync,rmSync,writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, test } from "vitest"
-import { tableMetadataFields, tableMetadataValues } from "./__fixtures__/table"
-import { mockContext, mockRule } from "../../../tests/mockContext"
-import type { ConfigurationContext } from "@nkdk/runtime"
-import "../../appliedObjects/metadataCatalog/register"
-import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
-import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "./fromYAML"
-import { createFormDataPathIndexFromYAML } from "../../forms/clientApplicationForm/formDataPathMetadata"
+import { afterEach,describe,expect,test } from "vitest"
 import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredOwnerMetadataCache"
+import { mockContext,mockRule } from "../../../tests/mockContext"
+import "../../appliedObjects/metadataCatalog/register"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
-import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
+import { createFormDataPathIndexFromYAML } from "../../forms/clientApplicationForm/formDataPathMetadata"
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
-import { parseMetadataYaml } from "@nkdk/runtime"
-import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
+import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
+import { tableMetadataFields,tableMetadataValues } from "./__fixtures__/table"
+import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
+import { importMetadataFieldStringFromYAML,importMetadataValueStringFromYAML } from "./fromYAML"
 
 const dirs: string[] = []
 
@@ -72,19 +69,6 @@ describe("importMetadataValueStringFromYAML", () => {
 })
 
 describe("importDataPathStandardMembersFromYAML", () => {
-  test("выгружает !xml/value как точный внутренний путь без повторного преобразования", () => {
-    const parsed = parseMetadataYaml("ПутьКДанным: !xml/value Объект.Owner\n")
-    const yaml = parsed.data as Record<string, unknown>
-    const importFromYAML = getTypeRule("DataPath", "importFromYAML")
-    if (importFromYAML === undefined) throw new Error("DataPath importer is not registered")
-
-    expect((importFromYAML as ImportFromYAMLFunctionNew)({
-      context: catalogContext(),
-      rule: { type: "DataPath", yaml: "ПутьКДанным" },
-      yaml,
-      value: yaml.ПутьКДанным,
-    })).toBe("Объект.Owner")
-  })
 
   test("imports direct standard attribute of current object", () => {
     expect(importDataPathStandardMembersFromYAML(catalogContext(), "Объект.Владелец")).toBe("Объект.Owner")

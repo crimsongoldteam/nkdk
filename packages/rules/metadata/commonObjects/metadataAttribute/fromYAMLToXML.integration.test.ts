@@ -1,29 +1,26 @@
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll,describe,expect,it } from "vitest"
 
-import { compileValidationSchema } from "../../validation/compileValidationSchema"
+import { importContentFromXML } from "@nkdk/runtime"
+import { type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
-  createDirectRoundTripContexts,
-  serializeDirectXML,
-  testPropertyFixtureThroughYAML,
-  testPropertyFromXMLToYAML,
-  testPropertyFromYAMLToXML,
+createDirectRoundTripContexts,
+serializeDirectXML,
+testPropertyFixtureThroughYAML,
+testPropertyFromXMLToYAML,
+testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { mockContext } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
-import { importContentFromXML, markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
-import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
-import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { MetadataCatalogAttributeRules } from "../../appliedObjects/metadataCatalog/childRules"
-import { MetadataDocumentAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
 import { MetadataChartOfCharacteristicTypesAttributeRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/childRules"
 import {
-  MetadataDataProcessorAttributeRules,
-  MetadataDataProcessorTabularSectionAttributeRules,
+MetadataDataProcessorAttributeRules,
+MetadataDataProcessorTabularSectionAttributeRules,
 } from "../../appliedObjects/metadataDataProcessor/childRules"
-import { MetadataDocumentTabularSectionAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
-import { importFromYAML } from "@nkdk/runtime"
-import { metadataRules } from "../../composition/metadataRules"
+import { MetadataDocumentAttributeRules,MetadataDocumentTabularSectionAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
+import { compileValidationSchema } from "../../validation/compileValidationSchema"
+import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 
 const rule = probeRule("MetadataCatalogAttributes", MetadataCatalogAttributeRules)
 
@@ -121,24 +118,6 @@ describe("MetadataAttributes YAML → XML", () => {
     expect(() => convertYAML({ ТестовыйРеквизит: "Строка" })).toThrow("MetadataAttribute: ожидался YAML-объект")
   })
 
-  it("should import TypeDescription TypeId from !xml/reference", () => {
-    const typeId = "8c1e3694-da12-44d5-8b1f-d134b89a1282"
-    const attribute = { Тип: xmlAnomalyTagValue("xml/reference", typeId) }
-    markYAMLScalarTag(attribute, "Тип", "xml/reference")
-    const result = serializeDirectXML(
-      testPropertyFromYAMLToXML({
-        execution: createRuleRegistrySet(metadataRules).execution,
-        rule: probeRule("MetadataDataProcessorAttributes", MetadataDataProcessorAttributeRules),
-        yaml: {
-          Значение: {
-            ТестовыйРеквизит: attribute,
-          },
-        },
-      }).xml
-    )
-    expect(result).toContain(`<v8:TypeId>${typeId}</v8:TypeId>`)
-  })
-
   it("объявляет dcsset локально у типа прикладного реквизита", () => {
     const result = serializeDirectXML(testPropertyFromYAMLToXML({
       rule: probeRule("MetadataDataProcessorAttributes", MetadataDataProcessorAttributeRules),
@@ -226,30 +205,6 @@ describe("MetadataAttributes YAML → XML", () => {
     const result = convertYAML({ ТестовыйРеквизит: { Тип: "Булево" } })
 
     expect(result).toContain('<FillValue xsi:nil="true"/>')
-  })
-
-  it("exports a tagged incompatible reference through MetadataValue", () => {
-    const yaml = importFromYAML(`Значение:
-  Исполнитель:
-    Тип: Справочник.ПолныеРоли
-    ЗначениеЗаполнения: !xml/value Справочник.РолиИсполнителей.ПустаяСсылка
-`)
-    const result = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
-
-    expect(result).toContain(
-      '<FillValue xsi:type="xr:DesignTimeRef">Catalog.РолиИсполнителей.EmptyRef</FillValue>'
-    )
-  })
-
-  it("exports !xml DesignTimeRef as an empty typed reference", () => {
-    const yaml = importFromYAML(`Значение:
-  Получатель:
-    Тип: Справочник.Контрагенты
-    ЗначениеЗаполнения: !xml/value DesignTimeRef
-`)
-    const result = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
-
-    expect(result).toContain('<FillValue xsi:type="xr:DesignTimeRef"/>')
   })
 
   it("exports explicit empty Synonym as empty XML tag", () => {

@@ -1,5 +1,8 @@
 import {
+  applyXmlPatch,
   createXmlAnomalyAnnotations,
+  decodeXmlRawEnvelope,
+  decodeXmlRawValue,
   appendXmlAnomalyRawCollectionItem,
   markXmlAnomalyExportClaim,
   markXmlAnomalyRawItem,
@@ -10,6 +13,7 @@ import {
   yamlMappingKeys,
   yamlScalarTagAt,
   xmlExport,
+  xmlElementRawValue,
   type XmlAnomalyAnnotation,
   type XmlAnomalyAnnotations,
   type XmlElementNode,
@@ -116,11 +120,40 @@ export function buildPreparedAssignmentXml(params: {
   if (params.document.rawBoundaries.length === 0) return xmlExport(xml)
 
   const resolvedBoundaries = resolveExportClaimBoundaries(xml, params.document.rawBoundaries)
-  const ordinary = parseXmlDocumentWithSaxes(xmlExport(xml, false), {
+  let ordinary = parseXmlDocumentWithSaxes(xmlExport(xml, false), {
     preserveXsiNil: true,
     preserveEmptyElements: true,
   }).roots
-  return xmlExport(mergeXmlRawFragments(ordinary, resolvedBoundaries))
+  const documentRootBoundaries = resolvedBoundaries.filter(({ documentRootName }) => documentRootName !== undefined)
+  if (documentRootBoundaries.length > 1) {
+    throw new Error("Один XML-документ не может содержать несколько raw-границ корня")
+  }
+  const documentRootBoundary = documentRootBoundaries[0]
+  if (documentRootBoundary !== undefined) {
+    const elementName = ordinary[0]?.name ?? documentRootBoundary.documentRootName!
+    const value = documentRootBoundary.hasSemanticValue === true
+      ? applyDocumentRootPatch(ordinary, documentRootBoundary.value)
+      : documentRootBoundary.value
+    ordinary = decodeXmlRawValue(value, {
+      elementName,
+      suppressOrdinaryOutput: true,
+    }).nodes
+  }
+  const nestedBoundaries = resolvedBoundaries.filter(({ documentRootName }) => documentRootName === undefined)
+  return xmlExport(nestedBoundaries.length === 0 ? ordinary : mergeXmlRawFragments(ordinary, nestedBoundaries))
+}
+
+function applyDocumentRootPatch(
+  ordinary: readonly XmlElementNode[],
+  patch: unknown,
+): ReturnType<typeof xmlElementRawValue> {
+  if (ordinary.length !== 1) {
+    throw new Error(`XML-поправка корня требует один обычный корень, получено ${ordinary.length}`)
+  }
+  const validated = decodeXmlRawEnvelope({ $xml: patch }).xml
+  const ordinaryValue = xmlElementRawValue(ordinary[0]!)
+  if (ordinaryValue === null) throw new Error("Обычный XML-корень не может быть null")
+  return applyXmlPatch(ordinaryValue, validated)
 }
 
 function cloneSemanticValue(params: {
@@ -515,6 +548,12 @@ function rawBoundary(params: {
     hasSemanticValue: params.annotation.hasSemanticValue === true,
     ...(siblingOrder === undefined ? {} : { siblingOrder }),
     ...(params.property?.propertyRule.tag === undefined ? {} : { tag: params.property.propertyRule.tag }),
+    ...(params.property?.propertyRule.filePath === undefined
+      ? {}
+      : {
+          documentPath: params.property.propertyRule.filePath,
+          documentRootName: params.property.propertyRule.type,
+        }),
     ...(params.exportClaimId === undefined ? {} : { exportClaimId: params.exportClaimId }),
   }
 }

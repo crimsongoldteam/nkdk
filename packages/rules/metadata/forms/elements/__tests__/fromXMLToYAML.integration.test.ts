@@ -1,17 +1,14 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
-import { testMetadataItemFromXMLToYAML, testMetadataItemFromYAMLToXML } from "../../../../tests/directConversion"
-import { TableRules } from "../table/rules"
-import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "../checkBoxField/rules"
-import { UsualGroupRules } from "../usualGroup/rules"
+import { testMetadataItemFromXMLToYAML,testMetadataItemFromYAMLToXML } from "../../../../tests/directConversion"
 import { ButtonRules } from "../button/rules"
-import { InputFieldRules, TableInputFieldRules } from "../inputField/rules"
-import { RadioButtonFieldRules } from "../radioButtonField/rules"
+import { CheckBoxFieldRules,TableCheckBoxFieldRules } from "../checkBoxField/rules"
 import { ExtendedTooltipRules } from "../extendedTooltip/rules"
-import { TableLabelFieldRules } from "../labelField/rules"
-import { TablePictureFieldRules } from "../pictureField/rules"
 import { GraphicalSchemaFieldRules } from "../graphicalSchemaField/rules"
-import { XML_PRESENT_TAG_VALUE, exportToYAML, yamlScalarTagAt } from "@nkdk/runtime"
+import { InputFieldRules } from "../inputField/rules"
+import { RadioButtonFieldRules } from "../radioButtonField/rules"
+import { TableRules } from "../table/rules"
+import { UsualGroupRules } from "../usualGroup/rules"
 
 import "../index"
 
@@ -264,24 +261,6 @@ describe("элементы формы XML → YAML → XML", () => {
     expect(explicitTrue).not.toHaveProperty("Редактирование")
   })
 
-  it("сохраняет пустой форматированный заголовок ExtendedTooltip без reference", () => {
-    const yaml = testMetadataItemFromXMLToYAML({
-      rule: ExtendedTooltipRules,
-      xml: { _name: "ПолеРасширеннаяПодсказка", Title: { _formatted: "true" } },
-      name: "ПолеРасширеннаяПодсказка",
-    }).yaml
-
-    expect(yaml).toHaveProperty("Заголовок", XML_PRESENT_TAG_VALUE)
-    expect(yamlScalarTagAt(yaml, "Заголовок")).toBe("xml/present")
-    expect(
-      testMetadataItemFromYAMLToXML({
-        rule: ExtendedTooltipRules,
-        yaml,
-        name: "ПолеРасширеннаяПодсказка",
-      }).xml
-    ).toHaveProperty("Title", { _formatted: "true" })
-  })
-
   it("не создаёт отсутствующий заголовок ExtendedTooltip", () => {
     expect(
       testMetadataItemFromYAMLToXML({
@@ -291,21 +270,4 @@ describe("элементы формы XML → YAML → XML", () => {
       }).xml
     ).not.toHaveProperty("Title")
   })
-
-  it.each([TableInputFieldRules, TableLabelFieldRules, TablePictureFieldRules, TableCheckBoxFieldRules])(
-    "preserves explicit table HeaderHorizontalAlign=Auto through !xml/present",
-    (rule) => {
-      const yaml = testMetadataItemFromXMLToYAML({
-        rule,
-        xml: { _name: "Колонка", DataPath: "Таблица.Поле", HeaderHorizontalAlign: "Auto" },
-        name: "Колонка",
-      }).yaml
-      expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml/present")
-      expect(exportToYAML(yaml)).not.toContain("!xml Авто")
-      expect(testMetadataItemFromYAMLToXML({ rule, yaml, name: "Колонка" }).xml).toHaveProperty(
-        "HeaderHorizontalAlign",
-        "Auto"
-      )
-    }
-  )
 })

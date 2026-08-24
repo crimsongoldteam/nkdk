@@ -708,6 +708,11 @@ function createPiscinaWorkerPool(): Piscina {
     minThreads: 1,
     maxThreads: 1,
     execArgv,
+    // Один worker удерживает свою долю смыслового YAML между проходами, а во
+    // втором проходе создаёт временные XML-деревья. Без границы V8 расширяет
+    // каждую независимую кучу почти до общего системного предела и слишком
+    // поздно собирает уже недостижимые деревья.
+    resourceLimits: { maxOldGenerationSizeMb: 768 },
   })
 }
 

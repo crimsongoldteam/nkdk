@@ -2,22 +2,12 @@ import type {
   MetadataRulesDefinition,
   PropertyTypeDefinition,
 } from "../definition"
-import {
-  collectExplicitXMLPropertyActions,
-  explicitXMLPropertyValidationTag,
-  type ExplicitXMLPropertyMatcher,
-  registrationKey as propertyRegistrationKey,
-  type ExplicitXMLPropertyAction,
-  type ExplicitXMLPropertyRegistration,
-  type ExplicitXMLPropertyTypeRegistration,
-} from "./explicitXMLPropertyRegistry"
 import type { DependentItemRegistryLookup } from "./dependentItemRegistry"
 import type {
   CollectionItemRule,
   importExportFunction,
   TypeRulesOperations,
 } from "./fn"
-import { isDeepStrictEqual } from "node:util"
 import type { PropertyRuleType } from "./registry"
 import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
 import type { IndexValueFromYAMLFunction } from "./indexValueFromYAMLRegistry"
@@ -26,11 +16,6 @@ import type { MetadataItemXmlImportAugmenter } from "../metadataItem/augmenterRe
 import type { MetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
 import type { MetadataImportedYamlFinalizer, MetadataImportedYamlFinalizerParams } from "../definition"
 import type { MetadataItemRule } from "./types"
-import type { XMLAnomalyTag } from "../../../yaml/scalarTags"
-import {
-  createBrokenXMLReferenceCarrierRegistry,
-  type BrokenXMLReferenceCarrierRegistry,
-} from "./brokenXMLReferenceCarrierRegistry"
 
 type ResolvedPropertyItemRule = CollectionItemRule["itemRule"]
 
@@ -81,15 +66,13 @@ function setPropertyTypeOperation(
   mutableDefinition[contribution.operation] = contribution.handler
 }
 
-export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, DependentItemRegistryLookup, BrokenXMLReferenceCarrierRegistry {
+export interface PropertyRuleRegistrySet extends DependentItemRegistryLookup {
   registerTypeRule<Operation extends TypeRulesOperations>(
     type: PropertyRuleType,
     operation: Operation,
     handler: NonNullable<importExportFunction<Operation>>,
   ): void
   revision(): number
-  registerExplicitXMLProperty(registration: ExplicitXMLPropertyRegistration): void
-  registerExplicitXMLPropertyType(registration: ExplicitXMLPropertyTypeRegistration): void
   registerMetadataItemXmlImportAugmenter(name: string, augmenter: MetadataItemXmlImportAugmenter): void
   applyMetadataItemXmlImportAugmenter(params: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0]): void
   registerMetadataItemYamlToXmlAugmenter(componentKind: string, augmenter: MetadataItemYamlToXmlAugmenter): void
@@ -111,19 +94,6 @@ export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, Dep
   getDeclaredPropertyItemRule<Rule extends object = object>(
     propertyType: string,
   ): Rule | undefined
-  hasExplicitXMLProperty(itemType: string, propertyKey: string): boolean
-  collectExplicitXMLPropertyActions(params: {
-    readonly yaml: unknown
-    readonly itemType: string
-    readonly properties: Readonly<
-      Record<string, { readonly type?: string; readonly yaml?: string }>
-    >
-  }): ReadonlyMap<string, ExplicitXMLPropertyAction>
-  explicitXMLPropertyValidationTag(
-    itemType: string,
-    propertyKey: string,
-    propertyType?: string,
-  ): XMLAnomalyTag | undefined
   indexValueFromYAML<T>(propertyType: string, value: unknown): T | undefined
   getMetadataTargetOwnerResolver(
     itemType: string,
@@ -137,9 +107,6 @@ export function createPropertyRuleRegistrySet(
     | "propertyItemRules"
     | "metadataItems"
     | "projectSpecs"
-    | "explicitXMLProperties"
-    | "explicitXMLPropertyTypes"
-    | "brokenXMLReferenceCarriers"
     | "dependentItems"
     | "indexValuesFromYAML"
     | "metadataTargetOwners"
@@ -162,17 +129,6 @@ export function createPropertyRuleRegistrySet(
       ...Object.values(definition.projectSpecs).map((spec) => spec.rule),
     ],
   )
-  const explicitXMLProperties = new Map<string, ExplicitXMLPropertyRegistration>()
-  for (const registration of Object.values(definition.explicitXMLProperties)) {
-    explicitXMLProperties.set(
-      propertyRegistrationKey(registration.itemType, registration.propertyKey),
-      registration,
-    )
-  }
-  const explicitXMLPropertyTypes = new Map<string, ExplicitXMLPropertyTypeRegistration>()
-  for (const registration of Object.values(definition.explicitXMLPropertyTypes)) {
-    explicitXMLPropertyTypes.set(registration.propertyType, registration)
-  }
   const indexValuesFromYAML = new Map<string, IndexValueFromYAMLFunction>(
     Object.entries(definition.indexValuesFromYAML),
   )
@@ -180,10 +136,6 @@ export function createPropertyRuleRegistrySet(
     Object.entries(definition.metadataTargetOwners),
   )
   const dependentItems = new Map(Object.entries(definition.dependentItems))
-  const brokenXMLReferenceCarriers = createBrokenXMLReferenceCarrierRegistry(
-    definition.brokenXMLReferenceCarriers,
-    (propertyType) => typeRules.get(propertyType)?.brokenXMLReferenceCarrier,
-  )
   const xmlImportAugmenters = new Map<string, MetadataItemXmlImportAugmenter>()
   const yamlToXmlAugmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()
   const importedYamlFinalizers = new Map<string, MetadataImportedYamlFinalizer>()
@@ -205,7 +157,6 @@ export function createPropertyRuleRegistrySet(
   }
 
   return {
-    ...brokenXMLReferenceCarriers,
     registerTypeRule(type, operation, handler) {
       const definition = { ...typeRules.get(type) }
       ;(definition as Record<string, unknown>)[operation] = handler
@@ -213,24 +164,6 @@ export function createPropertyRuleRegistrySet(
       revision += 1
     },
     revision: () => revision,
-    registerExplicitXMLProperty(registration) {
-      const key = propertyRegistrationKey(registration.itemType, registration.propertyKey)
-      const current = explicitXMLProperties.get(key)
-      if (current !== undefined && !sameExplicitXMLPropertyRegistration(current, registration)) {
-        throw new Error(`Конфликт регистрации явного XML-значения ${registration.itemType}.${registration.propertyKey}`)
-      }
-      explicitXMLProperties.set(key, registration)
-    },
-    registerExplicitXMLPropertyType(registration) {
-      const current = explicitXMLPropertyTypes.get(registration.propertyType)
-      if (
-        current !== undefined &&
-        !(current.action === registration.action && Object.is(current.yamlValue, registration.yamlValue))
-      ) {
-        throw new Error(`Конфликт регистрации явного XML-значения типа ${registration.propertyType}`)
-      }
-      explicitXMLPropertyTypes.set(registration.propertyType, registration)
-    },
     registerMetadataItemXmlImportAugmenter(name, augmenter) {
       if (xmlImportAugmenters.has(name)) {
         throw new Error(`Дополнение XML-import metadata-item уже зарегистрировано: ${name}`)
@@ -292,58 +225,6 @@ export function createPropertyRuleRegistrySet(
     ): Rule | undefined {
       return propertyItemRules.get(propertyType) as Rule | undefined
     },
-    hasExplicitXMLProperty(itemType, propertyKey) {
-      return explicitXMLProperties.has(
-        propertyRegistrationKey(itemType, propertyKey),
-      )
-    },
-    matchExplicitXMLPropertyFromXML(params) {
-      const registration = explicitXMLProperties.get(
-        propertyRegistrationKey(params.itemType, params.propertyKey),
-      )
-      if (registration?.action === "transportScalar" || registration?.action === "carrier") return undefined
-      if (registration?.action === "omit") {
-        return params.presentInXML ? undefined : registration
-      }
-      return registration !== undefined &&
-        params.presentInXML &&
-        (isDeepStrictEqual(registration.xmlValue, params.xmlValue) ||
-          (isEmptyXMLValue(registration.xmlValue) && isEmptyXMLValue(params.xmlValue)))
-        ? registration
-        : undefined
-    },
-    matchExplicitXMLPropertyTypeFromXML(params) {
-      const registration = explicitXMLPropertyTypes.get(params.propertyType)
-      return registration !== undefined &&
-        params.presentInXML &&
-        (Object.is(params.yamlValue, registration.yamlValue) ||
-          (Array.isArray(params.yamlValue) && params.yamlValue.length === 0))
-        ? registration
-        : undefined
-    },
-    matchExplicitXMLTransportFromXML(params) {
-      if (!params.presentInXML) return undefined
-      const registration = explicitXMLProperties.get(
-        propertyRegistrationKey(params.itemType, params.propertyKey),
-      )
-      if (registration?.action !== "transportScalar") return undefined
-      for (const [payload, xmlValue] of Object.entries(registration.overrides ?? {})) {
-        if (sameExplicitXMLTransportValue(xmlValue, params.xmlValue)) return payload
-      }
-      return undefined
-    },
-    collectExplicitXMLPropertyActions(params) {
-      return collectExplicitXMLPropertyActions(params, {
-        properties: explicitXMLProperties,
-        propertyTypes: explicitXMLPropertyTypes,
-      })
-    },
-    explicitXMLPropertyValidationTag(itemType, propertyKey, propertyType) {
-      return explicitXMLPropertyValidationTag(itemType, propertyKey, propertyType, {
-        properties: explicitXMLProperties,
-        propertyTypes: explicitXMLPropertyTypes,
-      })
-    },
     indexValueFromYAML<T>(propertyType: string, value: unknown): T | undefined {
       return indexValuesFromYAML.get(propertyType)?.(value) as T | undefined
     },
@@ -388,46 +269,6 @@ export function createPropertyRuleRegistrySet(
       )
     },
   }
-}
-
-function sameExplicitXMLTransportValue(expected: unknown, actual: unknown): boolean {
-  if (isDeepStrictEqual(expected, actual)) return true
-  if (
-    expected !== null && typeof expected === "object" && !Array.isArray(expected) &&
-    actual !== null && typeof actual === "object" && !Array.isArray(actual)
-  ) {
-    const expectedRecord = expected as Record<string, unknown>
-    const actualRecord = actual as Record<string, unknown>
-    return Object.keys(expectedRecord).length === 1 &&
-      Object.keys(actualRecord).length === 1 &&
-      expectedRecord["_xsi:nil"] === true &&
-      actualRecord["_xsi:nil"] === "true"
-  }
-  return false
-}
-
-function isEmptyXMLValue(value: unknown): boolean {
-  return value === "" ||
-    (value !== null && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0)
-}
-
-function sameExplicitXMLPropertyRegistration(
-  left: ExplicitXMLPropertyRegistration,
-  right: ExplicitXMLPropertyRegistration,
-): boolean {
-  if (left.action === "carrier" || right.action === "carrier") {
-    return left.action === "carrier" && right.action === "carrier" && left.prefix === right.prefix
-  }
-  if (left.action === "transportScalar" || right.action === "transportScalar") {
-    return left.action === "transportScalar" &&
-      right.action === "transportScalar" &&
-      JSON.stringify(left.overrides) === JSON.stringify(right.overrides)
-  }
-  const leftAction = left.action ?? "emit"
-  const rightAction = right.action ?? "emit"
-  if (leftAction !== rightAction || !isDeepStrictEqual(left.yamlValue, right.yamlValue)) return false
-  return leftAction === "omit" ||
-    ("xmlValue" in left && "xmlValue" in right && isDeepStrictEqual(left.xmlValue, right.xmlValue))
 }
 
 export function collectPropertyItemRules(

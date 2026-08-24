@@ -31,6 +31,7 @@ export interface XmlAnomalyAnnotations {
   entries(): Iterable<XmlAnomalyAnnotationEntry>
   copy(source: object, target: object): void
   set(parent: object, key: string | number, annotation: XmlAnomalyAnnotation): void
+  setKey(parent: object, runtimeKey: string, annotation: XmlAnomalyAnnotation): void
 }
 
 export interface XmlAnomalyAnnotationSnapshotEntry {

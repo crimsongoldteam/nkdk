@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../ruleRuntime"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { dcsMetadataTypedValueFixtures, emptyValueListTypedValue } from "./__fixtures__/data"
+import { metadataPropertyRule001 } from "./fromXML"
 
 const rule: PropertyRule = {
   type: "DcsMetadataTypedValue" as any,
@@ -9,6 +10,10 @@ const rule: PropertyRule = {
 }
 
 describe("import DcsMetadataTypedValue from XML", () => {
+  it("объявляет повторные XML-узлы одним значением", () => {
+    expect(metadataPropertyRule001.handler.repeatedXMLNodes).toBe(true)
+  })
+
   it.each(dcsMetadataTypedValueFixtures)("imports $name", (fixture) => {
     expect(
       testImportPropertyFromXML({

@@ -1,9 +1,9 @@
-import { compileValidationSchema } from "./../../validation/compileValidationSchema"
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import {
-  buildMultiStateTypeDescriptionJSONSchema,
-  exportTypeDescriptionToJSONSchema,
+buildMultiStateTypeDescriptionJSONSchema,
+exportTypeDescriptionToJSONSchema,
 } from "./toJSONSchema"
 
 const unrestrictedRule = { type: "TypeDescription" } as const
@@ -60,49 +60,7 @@ const findSchemaBranchByPattern = (schema: unknown, pattern: string): SchemaBran
   return undefined
 }
 
-function compileExternalAndInternalSchemas(rule: typeof unrestrictedRule | typeof restrictedRule) {
-  const externalSchema = exportTypeDescriptionToJSONSchema({ context: mockContext, rule, value: undefined })
-  const internalSchema = exportTypeDescriptionToJSONSchema({
-    context: {
-      ...mockContext,
-      exportToJSONSchema: { mode: "inline", refs: new Set(), validationPropertyRefs: true },
-    },
-    rule,
-    value: undefined,
-  })
-  if (externalSchema === undefined || internalSchema === undefined) throw new Error("TypeDescription schema is missing")
-  return {
-    external: compileValidationSchema({}, externalSchema),
-    internal: compileValidationSchema({}, internalSchema),
-  }
-}
-
 describe("exportTypeDescriptionToJSONSchema", () => {
-  it("allows the type prefix marker only in the internal schema", () => {
-    const { external, internal } = compileExternalAndInternalSchemas(unrestrictedRule)
-
-    expect(internal.Check("!xml/type d7p1:Диаграмма")).toBe(true)
-    expect(internal.Check("!xml/type d7p1:")).toBe(false)
-    expect(external.Check("!xml/type d7p1:Диаграмма")).toBe(false)
-  })
-
-  it("allows a prefix marker inside a restricted compound type only in the internal schema", () => {
-    const { external, internal } = compileExternalAndInternalSchemas(restrictedRule)
-    const value = ["!xml/type d6p1:Справочник.Товары", "Строка"]
-
-    expect(internal.Check(value)).toBe(true)
-    expect(external.Check(value)).toBe(false)
-  })
-
-  it("allows an exact TypeId marker only in the internal schema", () => {
-    const { external, internal } = compileExternalAndInternalSchemas(restrictedRule)
-    const typeId = "!xml/reference 8c1e3694-da12-44d5-8b1f-d134b89a1282"
-
-    expect(internal.Check(typeId)).toBe(true)
-    expect(internal.Check(["Строка", typeId])).toBe(true)
-    expect(internal.Check("!xml/reference not-a-uuid")).toBe(false)
-    expect(external.Check(typeId)).toBe(false)
-  })
 
   it("keeps broad schema when allowedTypes is absent", () => {
     const schema = exportTypeDescriptionToJSONSchema({

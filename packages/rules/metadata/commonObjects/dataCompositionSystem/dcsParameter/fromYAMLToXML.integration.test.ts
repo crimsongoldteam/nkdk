@@ -1,17 +1,16 @@
-import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../ruleRuntime"
+import { explicitYAMLString } from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
+import { PropertyRule } from "../../../ruleRuntime"
 import {
-  explicitNullValueDCSParameters,
-  explicitNullValueDCSParametersYAML,
-  fullDCSParameters,
-  minimalDCSParameters,
-  minimalDCSParametersYAML,
-  fullDCSParametersYAML,
+explicitNullValueDCSParameters,
+explicitNullValueDCSParametersYAML,
+fullDCSParameters,
+fullDCSParametersYAML,
+minimalDCSParameters,
+minimalDCSParametersYAML,
 } from "./__fixtures__/data"
 import "./types"
-import { explicitYAMLString } from "@nkdk/runtime"
-import { importFromYAML } from "@nkdk/runtime"
 
 const rule: PropertyRule = { type: "DCSParameters" }
 
@@ -43,16 +42,6 @@ const parameterXML = (name: string, ...values: unknown[]) => ({
 })
 
 describe("export DCSParameter to XML", () => {
-  it("exports !xml/value Undefined without reference XML", () => {
-    const yaml = importFromYAML(`ТипЗначенияКлюча:
-  Значение: !xml/value Undefined
-`)
-    const result = exportDCSParameters([], yaml)
-
-    expect(result).toContain(
-      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>',
-    )
-  })
 
   it("exports minimal.xml", () => {
     const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
@@ -103,26 +92,6 @@ describe("export DCSParameter to XML", () => {
           ОграничениеИспользования: "Истина",
         },
       },
-      xmlRootTag: "Settings",
-      xmlString,
-    })
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("preserves xs:string title from !xml/type", () => {
-    const xmlString = `<Settings>
-	<Parameter>
-		<dcssch:name>StringTitleParameter</dcssch:name>
-		<dcssch:title xsi:type="xs:string">String title</dcssch:title>
-	</Parameter>
-</Settings>`
-    const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
-      rule,
-      value: undefined,
-      yaml: importFromYAML(`StringTitleParameter:
-  Заголовок: !xml/type String String title
-`),
       xmlRootTag: "Settings",
       xmlString,
     })

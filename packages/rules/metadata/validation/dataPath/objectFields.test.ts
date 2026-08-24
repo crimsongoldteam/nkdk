@@ -1,15 +1,13 @@
-import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { MetadataItem,MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { describe,expect,it } from "vitest"
 import { MetadataAccumulationRegisterRules } from "../../appliedObjects/metadataAccumulationRegister/rules"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { MetadataInformationRegisterRules } from "../../appliedObjects/metadataInformationRegister/rules"
 import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
-import type { MetadataItem } from "@nkdk/runtime/rule-kit"
+import { buildObjectFieldIndex,resolveObjectFieldSegment } from "./objectFields"
 import type { OwnerMetadata } from "./ownerCache"
-import { buildObjectFieldIndex, resolveObjectFieldSegment } from "./objectFields"
 import { createValidationOwnerFacts } from "./ownerFacts"
-import { XML_ABSENT_TAG_VALUE } from "@nkdk/runtime"
 
 describe("buildObjectFieldIndex", () => {
   it("indexes catalog attributes and standard attributes", () => {
@@ -38,24 +36,6 @@ describe("buildObjectFieldIndex", () => {
         nextTypes: [{ kind: "Справочник", name: "Номенклатура" }],
       },
     })
-    expect(index.fields.get("Наименование")).toMatchObject({
-      name: "Наименование",
-      kind: "standardAttribute",
-    })
-  })
-
-  it("сохраняет отсутствующий в XML стандартный реквизит доступным для DataPath", () => {
-    const index = buildObjectFieldIndex(
-      owner({
-        ref: { kind: "Справочник", name: "Номенклатура" },
-        rule: MetadataCatalogRules,
-        model: {
-          itemType: "MetadataCatalog",
-          standardAttributes: { Description: XML_ABSENT_TAG_VALUE },
-        } as never,
-      }),
-    )
-
     expect(index.fields.get("Наименование")).toMatchObject({
       name: "Наименование",
       kind: "standardAttribute",

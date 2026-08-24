@@ -128,7 +128,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       potentialOutputs: outputs,
     }
 
-    const parsed = parseMetadataYaml('Будущее: !xml/raw "future"\n')
+    const parsed = parseMetadataYaml("Будущее: !xml/raw\n  $xml: future\n")
     const prepareAssignment = () => withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
       assignment,
       preparedYamlFile: {
@@ -168,7 +168,7 @@ describe("prepareFullXmlSyncAssignment", () => {
     )
 
     tagMode = "normal"
-    const unknownParsed = parseMetadataYaml('Properties\\Future: !xml/raw "future"\n')
+    const unknownParsed = parseMetadataYaml("Properties\\Future: !xml/raw\n  $xml: future\n")
     const prepareUnknownAssignment = () => withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
       assignment,
       preparedYamlFile: {

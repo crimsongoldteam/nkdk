@@ -3,7 +3,6 @@ import { defineMetadataItemCollectionRule, defineMetadataItemRule, defineMetadat
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
-import { exchangePlanContentExplicitXMLPropertyTypes } from "./register"
 import { ExchangePlanContentItemRules, ExchangePlanContentRules } from "./rules"
 
 export type ExchangePlanContentItem = MetadataTypeByRule<typeof ExchangePlanContentItemRules>
@@ -44,5 +43,4 @@ const exchangePlanContentItemRules = defineMetadataItemRule({
 
 export const metadataRuleLayer002 = defineMetadataRules({
   ...exchangePlanContentItemRules,
-  explicitXMLPropertyTypes: exchangePlanContentExplicitXMLPropertyTypes,
 })

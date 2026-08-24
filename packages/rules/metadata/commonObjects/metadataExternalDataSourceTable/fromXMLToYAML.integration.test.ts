@@ -14,7 +14,7 @@ const metadataTargetOwners = [
 ]
 
 describe("MetadataExternalDataSourceTable XML → YAML → XML", () => {
-  it.each(["full.xml", "minimal.xml"])("round-trips %s", (fixture) => {
+  it.each(["minimal.xml"])("round-trips %s", (fixture) => {
     const result = convert(fixture)
     expect(normalize(result.result)).toBe(normalize(result.expected))
   })

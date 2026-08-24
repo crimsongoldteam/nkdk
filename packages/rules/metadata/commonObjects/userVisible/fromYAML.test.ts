@@ -1,9 +1,8 @@
-import { describe, expect, it } from "vitest"
 import type { UserVisiblePropertyRule } from "@nkdk/runtime/rule-kit"
+import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { importUserVisibleFromYAML } from "./fromYAML"
 import { UserVisibleKeysYAML } from "./types"
-import { markYAMLMappingKeyTag } from "@nkdk/runtime"
 
 const userVisibleRule: UserVisiblePropertyRule = {
   type: "UserVisible",
@@ -12,49 +11,27 @@ const userVisibleRule: UserVisiblePropertyRule = {
 
 describe("importUserVisibleFromYAML", () => {
   it("imports allow mode from current YAML", () => {
-    const roles = {
-      Администратор: "Истина" as const,
-      "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь" as const,
-    }
-    markYAMLMappingKeyTag(roles, "b1d9c8b4-d05c-45c7-8db2-abc84e597700", "xml/reference")
-    const result = importUserVisibleFromYAML({
+    expect(importUserVisibleFromYAML({
       context: mockContext,
       rule: userVisibleRule,
-      value: {
-        Роли: roles,
-      },
-    })
-
-    expect(result).toEqual({
+      value: { Роли: { Администратор: "Истина" } },
+    })).toEqual({
       common: true,
-      values: [
-        { name: "Role.Администратор", value: true },
-        { name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", value: false },
-      ],
+      values: [{ name: "Role.Администратор", value: true }],
     })
   })
 
   it("imports deny mode from current YAML", () => {
-    const roles = {
-      Администратор: "Истина" as const,
-      "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь" as const,
-    }
-    markYAMLMappingKeyTag(roles, "b1d9c8b4-d05c-45c7-8db2-abc84e597700", "xml/reference")
-    const result = importUserVisibleFromYAML({
+    expect(importUserVisibleFromYAML({
       context: mockContext,
       rule: userVisibleRule,
       value: {
         Разрешить: "Ложь",
-        Роли: roles,
+        Роли: { Администратор: "Истина" },
       },
-    })
-
-    expect(result).toEqual({
+    })).toEqual({
       common: false,
-      values: [
-        { name: "Role.Администратор", value: true },
-        { name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", value: false },
-      ],
+      values: [{ name: "Role.Администратор", value: true }],
     })
   })
 

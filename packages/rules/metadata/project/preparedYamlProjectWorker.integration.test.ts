@@ -26,6 +26,7 @@ import {
 import preparedYamlProjectWorkerEntryPoint, {
   classifyChangedProjectStateFile,
   collectValidationFacts,
+  prepareYamlWorkerResultForTransport,
   runPreparedYamlProjectWorkerTask,
   type PreparedYamlProjectWorkerTask,
 } from "./preparedYamlProjectWorker"
@@ -51,17 +52,28 @@ afterEach(() => {
 })
 
 describe("project-state refresh worker", () => {
-  it("переносит XML-аннотации через physical worker без повторного разбора YAML", async () => {
+  it("переносит XML-аннотации через границу worker без повторного разбора YAML", async () => {
     const projectDir = createTempDir()
     const file = componentProperties(projectDir, "cf", "Товары")
     writeProjectFile(projectDir, file.rootProjectPath, "Комментарий: !xml/invalid Ошибка\n")
-    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+    const operation: MetadataWorkerOperation = {
+      id: "validation",
+      concurrency: 1,
+      async run(_workerIndex, command) {
+        if (command.kind !== "validation") throw new Error("unexpected command")
+        return structuredClone(prepareYamlWorkerResultForTransport(
+          await runPreparedYamlProjectWorkerTask(command.task),
+        ))
+      },
+      async finish() {},
+    }
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, operation })
 
     try {
       const result = await pool.run({ projectDir, context: mockContext, files: [file] })
       const prepared = result.workers[0]?.yamlFiles[0]
       if (prepared?.data === null || typeof prepared?.data !== "object") {
-        throw new Error("physical worker не вернул YAML")
+        throw new Error("worker не вернул YAML")
       }
 
       expect(prepared.annotations.at(prepared.data, "Комментарий")).toMatchObject({

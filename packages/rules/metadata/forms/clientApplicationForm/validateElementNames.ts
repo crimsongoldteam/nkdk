@@ -10,7 +10,6 @@ import {
 } from "../commonObjects/childItems/treeYAML"
 import { formElementTypeToYAML } from "../elements/formElementCatalog"
 import { formElementRules } from "../elements/metadataRules"
-import { readExplicitElementXMLName } from "@nkdk/runtime/rule-kit"
 
 export const FORM_ELEMENT_NAMES_PROFILE_SUBSTEP = "Проверка уникальности имён элементов формы"
 
@@ -99,7 +98,7 @@ function collectOwnerElementNames(params: {
     const identity = getTypeRule(propertyRule.type, "nestedItemIdentity")
     if (identity !== undefined && "itemRule" in nestedItemRule) {
       const value = asRecord(params.yaml[propertyRule.yaml])
-      const name = readExplicitElementXMLName(value) ?? identity.resolveName(params.ownerName)
+      const name = identity.resolveName(params.ownerName)
       if (name === undefined || name.length === 0) continue
 
       params.collector.acceptReserved({

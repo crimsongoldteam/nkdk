@@ -40,13 +40,8 @@ import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
-import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
-import {
-  assertAllYAMLMappingKeyReferenceTagsTransported,
-  isRelativeYAMLReferenceTagged,
-} from "./brokenXMLReferenceCarrierRegistry"
-import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 import { readXmlAnomalyRawCollectionItems } from "../xmlAnomaly/exportClaim"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
   readonly execution?: PropertyRuleExecution
@@ -137,11 +132,6 @@ export function createYAMLPropertySource(params: {
 }
 
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
-  const brokenReferenceRegistry = params.execution ?? currentPropertyRuleRegistrySet<Pick<
-    PropertyRuleExecution,
-    | "prepareBrokenXMLReferenceExport"
-    | "patchExportedBrokenXMLReferences"
-  >>()
   const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
     type: PropertyRule["type"],
     operation: Operation,
@@ -155,18 +145,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     execution: params.execution,
   })
   const yaml = asRecord(params.yaml)
-  const explicitXMLParams = {
-    yaml,
-    itemType: params.rule.itemType,
-    properties: params.rule.properties,
-  }
-  const explicitXMLActions = params.execution === undefined
-    ? collectExplicitXMLPropertyActions(explicitXMLParams)
-    : params.execution.collectExplicitXMLPropertyActions(explicitXMLParams)
   const propertyValues = new Map(params.propertyValues)
-  for (const [propertyKey, action] of explicitXMLActions) {
-    if (action.kind === "useYamlValue") propertyValues.set(propertyKey, action.yamlValue)
-  }
   const source = createYAMLPropertySource({
     yaml,
     rule: params.rule,
@@ -201,20 +180,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       params.profile.propertyCount++
       params.profile.propertyPaths.push(formatRulePath([...(params.rulePath ?? [params.rule.itemType]), propertyKey]))
     }
-    const explicitXMLAction = explicitXMLActions.get(propertyKey)
-    if (explicitXMLAction?.kind === "omit") continue
-    if (explicitXMLAction?.kind === "deferToAugmenter") continue
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
-    if (explicitXMLAction?.kind === "invalid") {
-      const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
-        propertyPath: [planned.yamlKey ?? propertyKey],
-        ...(planned.yamlKey === undefined ? {} : { yamlPath: [planned.yamlKey] }),
-      })
-      throw toYAMLImportError(new Error(explicitXMLAction.message), diagnosticContext)
-    }
-    if (!source.has(propertyKey)) {
-    }
     const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey, source)
     const exportHandler = typeRule(planned.propertyRule.type, "exportToXML")
     const reserveNestedItemWhenAbsent =
@@ -227,19 +194,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         execution: params.execution,
       })
     )
-    if (explicitXMLAction?.kind === "emit") {
-      collectAutoRequiredXMLParentRoot(planned.propertyRule, autoRequiredXMLParentRoots)
-      matchingOutputs.forEach((output, index) => {
-        writeXMLValue({
-          context: propertyContext,
-          output,
-          planned,
-          value: explicitXMLAction.xmlValue,
-          reference: references[index]!,
-        })
-      })
-      continue
-    }
     if (params.externalWriteFactory !== undefined) {
       externalWrites.push(
         ...params.externalWriteFactory({
@@ -405,16 +359,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
 
     const nestedRule = typeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
-    if (
-      explicitXMLAction?.kind === "materializeCollection" &&
-      nestedRule === undefined &&
-      (planned.propertyRule.xmlParents?.length ?? 0) > 0
-    ) {
-      matchingOutputs.forEach((output) => {
-        setAtPath(output.xml, planned.propertyRule.xmlParents!, {})
-      })
-      continue
-    }
     if (nestedRule !== undefined && nestedRule.kind !== "externalFile") {
       const childCollection = params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)
       const effectiveNestedRule =
@@ -451,11 +395,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
             })
           : nestedPropertyContext
-      const materializeCollection = explicitXMLAction?.kind === "materializeCollection"
       const sourceNestedYAML =
-        materializeCollection
-          ? {}
-          : planned.propertyKey === namePropertyKey && params.name !== undefined && !source.has(propertyKey)
+        planned.propertyKey === namePropertyKey && params.name !== undefined && !source.has(propertyKey)
           ? params.name
           : source.raw(propertyKey)
       const hasNestedDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey, source)
@@ -560,7 +501,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
               source,
               outputs: nestedOutputs,
-              materializeCanonicalItems: materializeCollection ? true : undefined,
               externalWriteFactory: params.externalWriteFactory,
               profile: params.profile,
               rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
@@ -656,23 +596,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             name: params.name,
           })
         : rawSourceValue
-    const transportPreparation = brokenReferenceRegistry?.prepareBrokenXMLReferenceExport({
-      rule: planned.propertyRule,
-      yamlValue: sourceValue,
-      isTagged: (location) => yaml !== undefined && yamlKey !== undefined
-        && isRelativeYAMLReferenceTagged(yaml, yamlKey, location),
-    })
-    assertAllYAMLMappingKeyReferenceTagsTransported(
-      sourceValue,
-      (location) => transportPreparation?.transportedLocations.some((transported) =>
-        transported.kind === "key"
-        && location.kind === "key"
-        && transported.key === location.key
-        && transported.path.length === location.path.length
-        && transported.path.every((segment, index) => segment === location.path[index])) === true,
-      yamlKey === undefined ? [] : [yamlKey],
-    )
-    const importSourceValue = transportPreparation?.yamlValue ?? sourceValue
     const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
       propertyPath: [yamlKey ?? propertyKey],
       ...(yamlKey === undefined ? {} : { yamlPath: [yamlKey] }),
@@ -705,7 +628,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         execution: params.execution,
         context: diagnosticContext,
         rule: planned.propertyRule,
-        value: importSourceValue,
+        value: sourceValue,
         referenceValue: atomicReferences[0],
         yaml,
         name: params.name,
@@ -745,16 +668,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             : {}),
         })
         if (params.profile !== undefined) params.profile.atomicToXMLCount++
-        const transportedXML =
-          transportPreparation === undefined || brokenReferenceRegistry === undefined
-            ? exported
-            : brokenReferenceRegistry.patchExportedBrokenXMLReferences({
-                rule: planned.propertyRule,
-                yamlValue: sourceValue,
-                xmlValue: exported,
-                preparation: transportPreparation,
-              })
-        const valuePath = writeXMLValue({ context: outputContext, output, planned, value: transportedXML, reference })
+        const valuePath = writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
         if (valuePath !== undefined && typeRule(planned.propertyRule.type, "finalizeExportedXML") !== undefined) {
           output.deferred.push({
             valuePath,

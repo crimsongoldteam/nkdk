@@ -77,3 +77,7 @@ const importDcsMetadataTypedValueFromXMLForRule = (
   )
 
 export const metadataPropertyRule000 = definePropertyTypeRule("DcsMetadataTypedValue", "importFromXML", importDcsMetadataTypedValueFromXMLForRule)
+
+export const metadataPropertyRule001 = definePropertyTypeRule("DcsMetadataTypedValue", "xmlImportPropertyBehavior", {
+  repeatedXMLNodes: true,
+})

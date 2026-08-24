@@ -117,7 +117,12 @@ describe("full XML sync worker", () => {
     const partialProjectDir = createPersistentProject(["Товары"])
     fs.appendFileSync(
       join(partialProjectDir, "Справочник", "Товары", "Свойства.yaml"),
-      'ДлинаКода: !xml/raw "001"\n',
+      [
+        "ДлинаКода: !xml/raw",
+        "  $значение: 1",
+        '  $xml: { "#text": "001" }',
+        "",
+      ].join("\n"),
     )
     const partialAssignment = assignment(partialProjectDir, "Товары")
     partialRoundTripFixture = {

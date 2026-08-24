@@ -88,16 +88,7 @@ export function validatePendingChecks(params: {
       continue
     }
     if (check.kind === "fillValue") {
-      diagnostics.push(...validateFillValueCheck(params.ownerCache, check))
-      continue
-    }
-    if (check.tagged && check.value.trim().length === 0) {
-      diagnostics.push(diagnosticAtYamlLocation({
-        location: check.location,
-        severity: "error",
-        source: "structure",
-        message: "!xml/value для ПутьКДанным требует непустой путь",
-      }))
+      diagnostics.push(...evaluateTaggedPendingCheck(check, validateFillValueCheck(params.ownerCache, check)))
       continue
     }
     const result = resolveDataPath({
@@ -109,11 +100,9 @@ export function validatePendingChecks(params: {
       ...(check.nameMode === undefined ? {} : { nameMode: check.nameMode }),
     })
 
-    diagnostics.push(...result.diagnostics)
-    if (result.status === "error" || result.target === undefined) continue
-
-    diagnostics.push(
-      ...validateResolvedDataPathPolicy({
+    const problems = [...result.diagnostics]
+    if (result.status !== "error" && result.target !== undefined) {
+      problems.push(...validateResolvedDataPathPolicy({
         location: check.location,
         value: check.value,
         rule: check.policyInput,
@@ -121,11 +110,26 @@ export function validatePendingChecks(params: {
         ...(check.elementType === undefined ? {} : { elementType: check.elementType }),
         ...(check.hasValuesPicture === undefined ? {} : { hasValuesPicture: check.hasValuesPicture }),
         ...(check.tagged === undefined ? {} : { tagged: check.tagged }),
-      })
-    )
+      }))
+    }
+    diagnostics.push(...evaluateTaggedPendingCheck(check, problems))
   }
 
   return { diagnostics: dedupeDiagnostics(diagnostics) }
+}
+
+function evaluateTaggedPendingCheck(
+  check: Extract<ValidationPendingCheck, { kind: "dataPath" | "fillValue" }>,
+  problems: readonly Diagnostic[],
+): readonly Diagnostic[] {
+  if (!check.tagged) return problems
+  if (problems.some(({ severity }) => severity === "error")) return []
+  return [diagnosticAtYamlLocation({
+    location: check.location,
+    severity: "error",
+    source: "structure",
+    message: "Тег XML-аномалии лишний: значение не содержит ошибки",
+  })]
 }
 
 function validateFillValueCheck(

@@ -5,7 +5,6 @@ import { Type } from "typebox"
 import { afterEach, beforeAll, describe, expect, it } from "vitest"
 import { explicitYAMLString } from "@nkdk/runtime"
 import { serializeYAMLDocument } from "@nkdk/runtime"
-import { XML_PRESENT_TAG_VALUE, markYAMLScalarTag } from "@nkdk/runtime"
 import { mockContext, mockContextFromXML } from "../../tests/mockContext"
 import { compileValidationSchema } from "./compileValidationSchema"
 import { resolveValidationProjectFile } from "./projectFiles"
@@ -25,7 +24,7 @@ const schema = compileValidationSchema(Type.Object({
       ЗначениеЗаполнения: Type.String(),
     }),
   }),
-  ТранспортноеЗначение: Type.Literal(XML_PRESENT_TAG_VALUE),
+  ТранспортноеЗначение: Type.String(),
 }))
 const schemaCache: ValidationSchemaCache = {
   form: () => schema,
@@ -55,9 +54,8 @@ describe("validateSerializedProjectYaml", () => {
           ЗначениеЗаполнения: explicitYAMLString("001"),
         },
       },
-      ТранспортноеЗначение: XML_PRESENT_TAG_VALUE,
+      ТранспортноеЗначение: "служебное значение",
     }
-    markYAMLScalarTag(source, "ТранспортноеЗначение", "xml/present")
     const document = serializeYAMLDocument(source)
     mkdirSync(dirname(absolutePath), { recursive: true })
     writeFileSync(absolutePath, document.text)

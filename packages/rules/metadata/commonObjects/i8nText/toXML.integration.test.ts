@@ -1,13 +1,12 @@
-import { describe, expect, it } from "vitest"
-import { testAtomicToXML } from "../../../tests/property/atomicToXML"
-import { i8nTextFixtures } from "./__fixtures__/legacy/data"
-import { mockContext, mockRule } from "../../../tests/mockContext"
 import { xmlExport } from "@nkdk/runtime"
-import { typedI8nTextRule, typedI8nTextValue } from "./__fixtures__/data"
-import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "./toXML"
-import { I8nTextPropertyRule, type I8nTextXML } from "./types"
-import { markYAMLMappingTag, markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
+import { mockContext,mockRule } from "../../../tests/mockContext"
+import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { staticPropertyTypes } from "../../composition/staticPropertyRules"
+import { typedI8nTextRule,typedI8nTextValue } from "./__fixtures__/data"
+import { i8nTextFixtures } from "./__fixtures__/legacy/data"
+import { exportI8nTextToXML,exportI8nTextToXMLWithDefaultLanguage } from "./toXML"
+import { I8nTextPropertyRule,type I8nTextXML } from "./types"
 
 const excludeEqualNameRule: I8nTextPropertyRule = {
   yaml: "Синоним",
@@ -23,8 +22,8 @@ function expectLegacyFixture(
 ): void {
   if (name === "only other languages (multiple languages)") {
     expect(result?.["v8:item"]).toEqual([
-      { "v8:lang": "de", "v8:content": "Feld" },
       { "v8:lang": "en", "v8:content": "Field" },
+      { "v8:lang": "de", "v8:content": "Feld" },
     ])
   } else {
     expect(xml).toEqual(expectedXML)
@@ -64,20 +63,6 @@ describe("exportI8nTextToXML", () => {
 
       expect(result).toEqual({})
       expect(xml).toEqual("<Title/>")
-    })
-
-    it("expands duplicate and preserves tagged order", () => {
-      const items = { en: "Text", ru: xmlAnomalyTagValue("xml/duplicate", "Текст") }
-      markYAMLMappingTag(items, "xml/order")
-      markYAMLScalarTag(items, "ru", "xml/duplicate")
-
-      expect(exportI8nTextToXML(mockContext, excludeEqualNameRule, { items })).toEqual({
-        "v8:item": [
-          { "v8:lang": "en", "v8:content": "Text" },
-          { "v8:lang": "ru", "v8:content": "Текст" },
-          { "v8:lang": "ru", "v8:content": "Текст" },
-        ],
-      })
     })
   })
 

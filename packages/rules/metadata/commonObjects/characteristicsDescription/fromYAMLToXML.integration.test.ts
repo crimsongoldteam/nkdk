@@ -1,22 +1,21 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
-  createDirectRoundTripContexts,
-  readAppliedObjectFixture,
-  serializeDirectXML,
-  testPropertyFromXMLToYAML,
-  testPropertyFromYAMLToXML,
+createDirectRoundTripContexts,
+readAppliedObjectFixture,
+serializeDirectXML,
+testPropertyFromXMLToYAML,
+testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { importFromYAML } from "@nkdk/runtime"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { multipleCharacteristicsYAML, singleCharacteristicYAML } from "./__fixtures__/data"
+import { multipleCharacteristicsYAML,singleCharacteristicYAML } from "./__fixtures__/data"
 import { characteristicsDescriptionsRule } from "./types"
 
-import "./registerCollectionRule"
 import "../metadataValue/fromXML"
 import "../metadataValue/fromYAML"
 import "../metadataValue/toXML"
+import "./registerCollectionRule"
 
 const rule = {
   itemType: "CharacteristicsDescriptionProbe",
@@ -89,13 +88,6 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
     expect(xml).toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
   })
 
-  it("exports !xml DesignTimeRef without reference XML", () => {
-    const yaml = importFromYAML("Характеристики:\n  - ЗначениеОтбораВидов: !xml/value DesignTimeRef\n")
-    const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
-
-    expect(xml).toContain('<xr:TypesFilterValue xsi:type="xr:DesignTimeRef"/>')
-  })
-
   it("preserves explicit XML default fields from reference", () => {
     const referenceXML = readAppliedObjectFixture(import.meta.url, "single.xml")
     const roundTrip = createDirectRoundTripContexts()
@@ -133,51 +125,6 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
     expect(xml).toContain("<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>")
     expect(xml).toContain("<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>")
     expect(xml).toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
-  })
-
-  it.each([
-    [
-      "отсутствуют все четыре XML-default",
-      [
-        "ПолеПутиКДанным: !xml/absent",
-        "ПолеИспользованияМножественныхЗначений: !xml/absent",
-        "ПолеКлючаМножественныхЗначений: !xml/absent",
-        "ПолеПорядкаМножественныхЗначений: !xml/absent",
-      ],
-      ["DataPathField", "MultipleValuesUseField", "MultipleValuesKeyField", "MultipleValuesOrderField"],
-    ],
-    [
-      "присутствует только DataPathField",
-      [
-        "ПолеПутиКДанным: Data.Path",
-        "ПолеИспользованияМножественныхЗначений: !xml/absent",
-        "ПолеКлючаМножественныхЗначений: !xml/absent",
-        "ПолеПорядкаМножественныхЗначений: !xml/absent",
-      ],
-      ["MultipleValuesUseField", "MultipleValuesKeyField", "MultipleValuesOrderField"],
-    ],
-    [
-      "отсутствует только DataPathField",
-      [
-        "ПолеПутиКДанным: !xml/absent",
-        "ПолеИспользованияМножественныхЗначений: Use.Path",
-        "ПолеКлючаМножественныхЗначений: Key.Path",
-        "ПолеПорядкаМножественныхЗначений: Order.Path",
-      ],
-      ["DataPathField"],
-    ],
-  ])("восстанавливает XML-форму, когда %s", (_name, lines, omittedXMLKeys) => {
-    const yaml = importFromYAML(`Характеристики:\n  - ${lines.join("\n    ")}`)
-    const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
-
-    for (const xmlKey of omittedXMLKeys) expect(xml).not.toContain(`<xr:${xmlKey}>`)
-  })
-
-  it("экспортирует !xml незарегистрированного ПолеКлюча как текст", () => {
-    const yaml = importFromYAML("Характеристики:\n  - ПолеКлюча: !xml/absent")
-    const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
-
-    expect(xml).toContain("<xr:KeyField>!xml/absent</xr:KeyField>")
   })
 })
 

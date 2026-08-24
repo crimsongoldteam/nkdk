@@ -1,4 +1,3 @@
-import { yamlScalarTagAt } from "@nkdk/runtime"
 import type { TableContext } from "../../validation/dataPath/resolver"
 import type { YamlPath } from "../../validation/yamlLocations"
 
@@ -97,7 +96,7 @@ function visitTargets(
         yamlPath: [...yamlPath, index],
         parent: value,
         key: index,
-        tagged: yamlScalarTagAt(value, index) === "xml/reference",
+        tagged: false,
         ...(tableContext === undefined ? {} : { tableContext }),
       })
       return
@@ -108,7 +107,7 @@ function visitTargets(
       yamlPath: [...yamlPath, index, "Поле"],
       parent: item,
       key: "Поле",
-      tagged: yamlScalarTagAt(item, "Поле") === "xml/reference",
+      tagged: false,
       ...(tableContext === undefined ? {} : { tableContext }),
     })
   })
@@ -150,7 +149,7 @@ function collectOperand(
     comparisonPath,
     parent: item,
     key,
-    tagged: yamlScalarTagAt(item, key) === "xml/value",
+    tagged: false,
     ...(params.tableContext === undefined ? {} : { tableContext: params.tableContext }),
   })
 }

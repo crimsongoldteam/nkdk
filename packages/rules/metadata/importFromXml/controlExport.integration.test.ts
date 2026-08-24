@@ -44,7 +44,7 @@ describe("executeImportControlExport", () => {
     const { prepared, initialAnnotations, result } = await runCatalogControlExport(undefined, ordinaryExporter)
 
     expect(Object.keys(prepared.rule.properties).length).toBeGreaterThan(10)
-    expect(result.annotations).toEqual(initialAnnotations)
+    expect(newAnnotationKeys(initialAnnotations, result.annotations)).toEqual(["Properties\\#order"])
     expect(ordinaryExporter).toHaveBeenCalledTimes(1)
     expect(ordinaryExporter).toHaveBeenCalledWith(expect.objectContaining({
       xmlAnomalyRawFallback: false,
@@ -122,12 +122,13 @@ describe("executeImportControlExport", () => {
       index,
       data,
       annotations,
-      readSource: async () => { throw new Error("существующий raw не должен перечитывать source") },
+      readSource: async (path) => fs.promises.readFile(path, "utf8"),
     })
 
     expect((result.data as Record<string, unknown>).ТипКода).toBe("Число")
-    expect(result.annotations).toEqual(annotations)
-    expect(result.rereadSourcePaths).toEqual([])
+    expect(result.annotations.entries).toEqual(expect.arrayContaining(annotations.entries))
+    expect(newAnnotationKeys(annotations, result.annotations)).toEqual(["Properties\\#order"])
+    expect(result.rereadSourcePaths).toEqual([prepared.assignment.xmlFiles[0]!.sourcePath])
   })
 
   it("полностью заменяет чтение дочерних файлов переданной composition", async () => {
@@ -151,7 +152,7 @@ describe("executeImportControlExport", () => {
         readSource: async (path) => fs.promises.readFile(path, "utf8"),
       })
 
-      expect(result.rereadSourcePaths).toEqual([])
+      expect(result.rereadSourcePaths).toEqual([prepared.assignment.xmlFiles[0]!.sourcePath])
     } finally {
       exists.mockRestore()
       readdir.mockRestore()
@@ -217,7 +218,10 @@ describe("executeImportControlExport", () => {
       }),
     ]))
     expect(result.rereadSourcePaths).toEqual([sourcePath])
-    expect(newAnnotationKeys(initialAnnotations, result.annotations)).toEqual(["ДлинаКода"])
+    expect(newAnnotationKeys(initialAnnotations, result.annotations)).toEqual([
+      "ДлинаКода",
+      "Properties\\#order",
+    ])
     expect(controlExportCountForTests()).toBe(1)
   })
 
@@ -244,7 +248,10 @@ describe("executeImportControlExport", () => {
         }),
       }),
     ]))
-    expect(newAnnotationKeys(initialAnnotations, result.annotations)).toEqual(["ДлинаКода"])
+    expect(newAnnotationKeys(initialAnnotations, result.annotations)).toEqual([
+      "ДлинаКода",
+      "Properties\\#order",
+    ])
     expect(controlExportCountForTests()).toBe(1)
   })
 })
@@ -294,6 +301,7 @@ async function executePreparedCatalogControlExport(params: {
     annotations: params.annotations
       ?? snapshotXmlAnomalyAnnotations(params.prepared.yaml, params.prepared.annotations),
     audit: params.prepared.proofAudit,
+    rule: params.prepared.rule,
     index: params.index,
     readSource: params.readSource,
     ...(params.ordinaryExporter === undefined ? {} : { ordinaryExporter: params.ordinaryExporter }),

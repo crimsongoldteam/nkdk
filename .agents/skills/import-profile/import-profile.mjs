@@ -151,6 +151,7 @@ export async function runProfile(options, overrides = {}) {
     warmMinMs: warm.length === 0 ? undefined : Math.min(...warm),
     warmMaxMs: warm.length === 0 ? undefined : Math.max(...warm),
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
+    peakHeapMiB: max(allSteps.map((step) => step.heapPeak).filter((value) => value !== undefined)),
     profileRows: aggregateRows(allSteps.filter(isSummaryProfileStep)),
   }
 }
@@ -478,6 +479,7 @@ function toTableRow(name, records) {
   const workers = records.filter((record) => record.scope === "worker")
   const workerTimes = aggregateWorkerValues(workers, "time", "sum")
   const workerRss = aggregateWorkerValues(workers, "rssPeak", "max")
+  const workerHeap = aggregateWorkerValues(workers, "heapPeak", "max")
   const workerBytes = aggregateWorkerValues(workers, "bytes", "max")
   return {
     step: name,
@@ -491,6 +493,10 @@ function toTableRow(name, records) {
     workerRssMinMiB: min(workerRss),
     workerRssAvgMiB: avg(workerRss),
     workerRssMaxMiB: max(workerRss),
+    processHeapMaxMiB: maxValue(main, "heapPeak"),
+    workerHeapMinMiB: min(workerHeap),
+    workerHeapAvgMiB: avg(workerHeap),
+    workerHeapMaxMiB: max(workerHeap),
     bytesMax: max([maxValue(main, "bytes"), max(workerBytes)].filter((value) => value !== undefined)),
   }
 }

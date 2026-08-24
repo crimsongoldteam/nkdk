@@ -6,7 +6,7 @@
 
 | Принцип | Проверяемое следствие |
 |---|---|
-| XML ↔ YAML без потерь | Поддержанный XML проходит `XML → YAML → XML` без потери содержимого. Если исходную форму нельзя однозначно восстановить, YAML использует одну из согласованных категорий `!xml/present`, `!xml/absent`, `!xml/name`, `!xml/type`, `!xml/value` или `!xml/reference`. Допустимые места и формы перечислены в [реестре XML-аномалий](xml-anomalies.md). |
+| XML ↔ YAML без потерь | Поддержанный XML проходит `XML → YAML → XML` без потери содержимого. Необратимая XML-форма сохраняется общим `!xml/raw`, а обратимые смысловые ошибки — `!xml/invalid` или явно зарегистрированным `!xml/important`. Договор перечислен в [реестре XML-аномалий](xml-anomalies.md). |
 | Один канонический YAML | Одному содержимому XML соответствует одна форма YAML. Повторная выгрузка приводит совместимые входные варианты к этой форме; избыточные значения, совпадающие с выводимыми, в неё не входят. |
 | Проверка за секунды | Неизменённые YAML повторно не разбираются. Изменённые файлы обрабатываются параллельно, а общие индексы переиспользуются между операциями. |
 | YAML содержит только значимое | Очевидные значения выводятся из контекста: например, синоним `Заказ покупателя` для имени `ЗаказПокупателя` и `ПутьКДанным` вида `<ОсновнойРеквизит>.<ИмяЭлемента>`. |
@@ -205,25 +205,36 @@ flowchart TD
   session["Открыть временное<br/>состояние импорта"]
   discover["Найти XML и внешние файлы<br/>и сформировать задания"]
 
-  subgraph first["Воркер"]
+  subgraph first["Первый проход воркера"]
     direction TD
-    readXml["Прочитать XML"] --> toModel["Разобрать XML<br/>и построить модель"] --> toYaml["Преобразовать модель в YAML"]
-    toYaml --> facts["Собрать локальные сведения<br/>для общего индекса"]
-    facts --> defer["Сохранить подготовленный YAML<br/>до второго прохода"]
+    readXml["Прочитать XML совместимым парсером<br/>и потоково вычислить хэши корней"] --> toYaml["По rules.ts построить<br/>смысловой YAML"]
+    toYaml --> facts["Собрать предварительные сведения<br/>и адресуемые повторы"]
+    facts --> defer["Сохранить YAML, аннотации,<br/>пути источников и хэши корней"]
     defer --> firstResult["Вернуть внешние файлы<br/>и части состояния"]
   end
 
   firstErrors{"Есть ошибки?"}
   snapshotFragments["Собрать сведения из XML<br/>для снимка компонента"]
-  index["Записать вклады и зафиксировать<br/>рабочий индекс первого прохода"]
+  index["Зафиксировать рабочий индекс<br/>первого прохода"]
 
-  subgraph second["Воркер"]
+  subgraph second["Второй проход воркера"]
     direction TD
     readIndex["Прочитать рабочий индекс"] --> resolve["Разрешить ссылки и уточнить<br/>зависимые значения"]
-    resolve --> serialize2["Сформировать текст YAML"] --> local2[["Проверить YAML и подготовить<br/>вклад в индекс"]] --> write2["Записать YAML<br/>и окончательный вклад"]
+    resolve --> proof["Один раз выполнить контрольный экспорт<br/>и сравнить потоковые хэши корней"]
+    proof --> detail["Только при различии повторно импортировать задание,<br/>заменить черновой YAML и построить минимальные raw"]
+    detail --> local2[["Проверить YAML и назначить<br/>локальные invalid/important"]]
+    local2 --> semantic["Подготовить смысловой вклад<br/>без записи YAML"]
   end
 
   secondErrors{"Есть ошибки?"}
+  semanticIndex["Зафиксировать смысловой индекс<br/>и проверить связи проекта"]
+
+  subgraph third["Третий проход воркера"]
+    direction TD
+    decisions["Применить решения проверки связей"] --> serialize3["Сформировать окончательный YAML"] --> write3["Записать YAML<br/>и окончательный вклад"]
+  end
+
+  thirdErrors{"Есть ошибки?"}
   files["Объединить списки<br/>созданных файлов"]
   external["Передать внешние файлы<br/>и вычислить их хэши"]
   externalState["Добавить внешние файлы<br/>во временное состояние"]
@@ -240,12 +251,15 @@ flowchart TD
   extension -- "да" --> refresh --> session
   session --> discover --> first --> firstErrors
   firstErrors -- "нет" --> snapshotFragments --> index --> second --> secondErrors
-  secondErrors -- "нет" --> files --> external --> externalState --> snapshot --> dependencies --> writeSnapshot --> publish --> result
+  secondErrors -- "нет" --> semanticIndex --> third --> thirdErrors
+  thirdErrors -- "нет" --> files --> external --> externalState --> snapshot --> dependencies --> writeSnapshot --> publish --> result
   firstErrors -- "да" --> abort
   secondErrors -- "да" --> abort
+  thirdErrors -- "да" --> abort
   abort --> failure
   style first stroke-dasharray: 7 5
   style second stroke-dasharray: 7 5
+  style third stroke-dasharray: 7 5
 ```
 
 ↳ [Актуализировать проект — подробная схема](#subprocess-refresh)

@@ -1,12 +1,13 @@
 import {
   parseXmlDocumentWithSaxes,
+  parseXmlRootStructuresWithSaxes,
   restoreXmlAnomalyAnnotations,
   type ConfigurationContextWithExportToXML,
   type LocalConfigurationIndexReader,
   type XmlAnomalyAnnotationsSnapshot,
   type XmlImportConfigurationContext,
 } from "@nkdk/runtime"
-import type { CompiledMetadataResourceTopology } from "@nkdk/runtime/rule-kit"
+import type { CompiledMetadataResourceTopology, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { buildPreparedAssignmentXml } from "../fullSyncToXml/xmlAnomalyAssignment"
 import { prepareFullXmlSyncAssignment } from "../fullSyncToXml/prepareAssignment"
 import type { FullXmlSyncAssignment } from "../fullSyncToXml/types"
@@ -35,11 +36,17 @@ export async function executeImportControlExport(params: {
   readonly data: unknown
   readonly annotations: XmlAnomalyAnnotationsSnapshot
   readonly audit: XmlAnomalyProofAudit
+  readonly rule?: MetadataItemRule
   readonly topology: CompiledMetadataResourceTopology
   readonly context: XmlImportConfigurationContext
   readonly index: LocalConfigurationIndexReader
   readonly composition: MetadataXmlPrepareComposition
   readonly readSource: (sourcePath: string) => Promise<string>
+  readonly loadDetailedImport?: () => Promise<{
+    readonly data: unknown
+    readonly annotations: XmlAnomalyAnnotationsSnapshot
+    readonly audit: XmlAnomalyProofAudit
+  }>
   readonly ordinaryExporter?: typeof prepareFullXmlSyncAssignment
 }): Promise<ProveXmlAnomalyBoundariesResult> {
   if (params.annotations.root?.kind === "raw") {
@@ -75,7 +82,7 @@ export async function executeImportControlExport(params: {
     topology: params.topology,
     xmlAnomalyRawFallback: false,
   })
-  const exported = prepared.documents.map((document) => {
+  const preliminaryExported = prepared.documents.map((document) => {
     const output = assignment.potentialOutputs.find(
       ({ declarationId }) => declarationId === document.declarationId,
     )
@@ -90,20 +97,61 @@ export async function executeImportControlExport(params: {
     return {
       role: output.role,
       ...(source === undefined ? {} : { sourcePath: source.sourcePath }),
-      document: parseXmlDocumentWithSaxes(xml, {
-        preserveXsiNil: true,
-        preserveEmptyElements: true,
-      }),
+      xml,
+      roots: parseXmlRootStructuresWithSaxes(xml).roots,
     }
   })
+  if (controlExportMatchesSourceRoots(params.audit, preliminaryExported)) {
+    return {
+      data: params.data,
+      annotations: params.annotations,
+      rereadSourcePaths: [],
+    }
+  }
+  const exported = preliminaryExported.map(({ role, sourcePath, xml }) => ({
+    role,
+    ...(sourcePath === undefined ? {} : { sourcePath }),
+    document: parseXmlDocumentWithSaxes(xml, {
+      preserveXsiNil: true,
+      preserveEmptyElements: true,
+    }),
+  }))
+  const detailed = params.loadDetailedImport === undefined
+    ? undefined
+    : await params.loadDetailedImport()
   const result = await proveXmlAnomalyBoundaries({
-    data: params.data,
-    annotations: params.annotations,
-    audit: params.audit,
+    data: detailed?.data ?? params.data,
+    annotations: detailed?.annotations ?? params.annotations,
+    audit: detailed?.audit ?? params.audit,
+    rule: params.rule,
     exported,
     readSource: params.readSource,
   })
   return result
+}
+
+function controlExportMatchesSourceRoots(
+  audit: XmlAnomalyProofAudit,
+  exported: readonly {
+    readonly role: ImportXmlInput["role"]
+    readonly sourcePath?: string
+    readonly roots: ReturnType<typeof parseXmlRootStructuresWithSaxes>["roots"]
+  }[],
+): boolean {
+  if (audit.sources.length !== exported.length) return false
+  return audit.sources.every((source) => {
+    const roleMatches = exported.filter((candidate) => candidate.role === source.role)
+    const exactMatches = roleMatches.filter((candidate) => candidate.sourcePath === source.sourcePath)
+    const hasSourceIdentity = roleMatches.some(({ sourcePath }) => sourcePath !== undefined)
+    const matches = hasSourceIdentity ? exactMatches : roleMatches
+    if (matches.length !== 1) return false
+    const roots = matches[0]!.roots
+    if (roots.length !== source.roots.length) return false
+    const rootsByPath = new Map(roots.map((root) => [root.path, root] as const))
+    return source.roots.every(({ xmlPath, structuralHash }) =>
+      rootsByPath.get(xmlPath)?.structuralHash === structuralHash
+    )
+  })
 }
 
 function projectControlAssignment(

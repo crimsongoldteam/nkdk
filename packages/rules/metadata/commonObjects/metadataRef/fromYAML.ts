@@ -5,8 +5,6 @@ import { ConfigurationContext } from "@nkdk/runtime"
 import type { MetadataTargetOwner } from "../metadataTargets/types"
 import { importMetadataObjectStringFromYAML } from "../metadataPath/fromYAML"
 import type { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
-import { xmlAnomalyTagPayload } from "@nkdk/runtime"
-import { isMDObjectRefUuid } from "./brokenMDObjectRef"
 
 export const importMetadataItemLinkFromYAML = (
   context: ConfigurationContext,
@@ -25,18 +23,11 @@ export const importMetadataItemLinksFromYAML = (
   rule: PropertyRule | undefined,
   data: MetadataItemLinksYAML | undefined,
   owner?: MetadataTargetOwner,
-  isTransported?: (index: number) => boolean,
+  _isTransported?: (index: number) => boolean,
 ): MetadataItemLinks | undefined => {
   if (!data) return undefined
 
-  return data.flatMap((item, index) => {
-    const transported = isTransported?.(index) === true
-    const payload = transported && item.startsWith("!xml/reference")
-      ? xmlAnomalyTagPayload("xml/reference", item)
-      : item
-    if (transported && isMDObjectRefUuid(payload)) {
-      return [payload]
-    }
+  return data.flatMap((item) => {
     const imported = importMetadataItemLinkFromYAML(context, rule, item, owner)
     return imported === undefined ? [] : [imported]
   })

@@ -1,11 +1,10 @@
-import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../ruleRuntime"
+import { describe,expect,it } from "vitest"
 import { testExportPropertyToYAML } from "../../../../tests/property/exportPropertyToYAML"
+import { PropertyRule } from "../../../ruleRuntime"
 import {
-  settingsParameterValueCollectionFixture,
-  settingsParameterValueCollectionFixtureYAML,
+settingsParameterValueCollectionFixture,
+settingsParameterValueCollectionFixtureYAML,
 } from "./__fixtures__/data"
-import { serializeYAMLDocument } from "@nkdk/runtime"
 
 const rule: PropertyRule = {
   type: "SettingsParameterValueCollection",
@@ -64,17 +63,5 @@ describe("export SettingsParameterValueCollection to YAML", () => {
         },
       },
     })
-  })
-
-  it("exports the Nil transport as !xml/value", () => {
-    const result = testExportPropertyToYAML({
-      rule,
-      value: {
-        itemType: "SettingsParameterValueCollection",
-        parameters: { Параметр1: { parameter: "Параметр1", xmlNil: true } },
-      },
-    })
-
-    expect(serializeYAMLDocument(result).text).toContain("Значение: !xml/value Nil")
   })
 })

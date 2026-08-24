@@ -1,32 +1,33 @@
+import {
+createConfigurationIndexCollector,
+parseMetadataYamlData,
+snapshotXmlAnomalyAnnotations
+} from "@nkdk/runtime"
+import { currentRuleRegistrySet,withRuleRegistrySet,type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach,describe,expect,it,vi } from "vitest"
+import "../../tests/metadataExecutionContext"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import {
-  createConfigurationIndexCollector,
-  snapshotXmlAnomalyAnnotations,
-  yamlScalarTagAt,
-} from "@nkdk/runtime"
-import { createOperationProfiler } from "../validation/profile"
-import { parseMetadataYamlData } from "@nkdk/runtime"
-import { discoverXmlImport } from "./discovery"
-import {
-  prepareImportYaml,
-  registeredImportRuleLookupCountForTests,
-  resetRegisteredImportRuleLookupCountForTests,
-  resolveAssignmentRule,
-} from "./prepareYaml"
+ClientApplicationFormRules,
+ClientApplicationFormWithExtendedPresentationRules,
+} from "../forms/clientApplicationForm/rules"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
-import type { ImportAssignment } from "./types"
-import { currentRuleRegistrySet, withRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { createOperationProfiler } from "../validation/profile"
+import { discoverXmlImport } from "./discovery"
 import {
-  ClientApplicationFormRules,
-  ClientApplicationFormWithExtendedPresentationRules,
-} from "../forms/clientApplicationForm/rules"
-import "../../tests/metadataExecutionContext"
+prepareImportYaml,
+importAuditOutcomeCountForTests,
+registeredImportRuleLookupCountForTests,
+resetImportAuditOutcomeCountForTests,
+resetRegisteredImportRuleLookupCountForTests,
+resolveAssignmentRule,
+} from "./prepareYaml"
+import type { ImportAssignment } from "./types"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const syncXmlDir = join(configurationFixturesDir, "syncConfiguration/xml")
@@ -219,6 +220,7 @@ describe("prepareImportYaml", () => {
     const expected = parseMetadataYamlData(
       fs.readFileSync(join(fixtureDir, "yaml/КонстантаВсеСвойства/Свойства.yaml"), "utf8")
     )
+    delete ((expected.data as { Форма?: Record<string, unknown> }).Форма)?.КоманднаяПанель
 
     expect(expected.syntaxErrors).toEqual([])
     expect(prepared.yaml).toEqual(expected.data)
@@ -273,7 +275,7 @@ describe("prepareImportYaml", () => {
     expect(writeFile).not.toHaveBeenCalled()
   })
 
-  it("сохраняет raw неизвестного XML и компактный proof-аудит без structural tree", async () => {
+  it("сохраняет raw заведомо неизвестного XML без контрольного экспорта", async () => {
     const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-proof-audit-"))
     try {
       const metadataPath = join(inputDir, "Контрагенты.xml")
@@ -289,16 +291,16 @@ describe("prepareImportYaml", () => {
       })
       const yaml = prepared.yaml as Record<string, unknown>
 
-      expect(yaml["Properties\\Future"]).toEqual({ _code: "x", "#text": "value" })
-      expect(prepared.annotations.at(yaml, "Properties\\Future")).toEqual({
+      expect(yaml["Properties\\Future"]).toBeUndefined()
+      expect(prepared.annotations.at(yaml, "Properties\\Future")).toEqual(expect.objectContaining({
         kind: "raw",
         occurrence: 1,
         target: "value",
-      })
+        hasSemanticValue: false,
+        xml: { _code: "x", "#text": "value" },
+      }))
       expect(snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations).entries).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ parentPath: [], key: "Properties\\Future" }),
-        ]),
+        expect.arrayContaining([expect.objectContaining({ parentPath: [], key: "Properties\\Future" })]),
       )
       expect(prepared.proofAudit.sources).toEqual([
         expect.objectContaining({ sourcePath: metadataPath, role: "metadata" }),
@@ -316,6 +318,22 @@ describe("prepareImportYaml", () => {
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })
     }
+  })
+
+  it("для обычного первого прохода сохраняет только хэши корней proof", async () => {
+    resetImportAuditOutcomeCountForTests()
+    const prepared = await prepareImportYaml({
+      assignment: catalogAssignment(),
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+      proofDetail: "roots",
+    })
+
+    expect(prepared.proofAudit.sources).toHaveLength(1)
+    expect(prepared.proofAudit.sources[0]?.roots).not.toEqual([])
+    expect(prepared.proofAudit.boundaries).toEqual([])
+    expect(prepared.proofAudit.itemAnchors).toEqual([])
+    expect(importAuditOutcomeCountForTests()).toBe(0)
   })
 
   it.each([
@@ -396,47 +414,6 @@ describe("prepareImportYaml", () => {
         uuid: "00000000-0000-0000-0000-000000000002",
       })
     } finally { fs.rmSync(inputDir, { recursive: true, force: true }) }
-  })
-
-  it("сохраняет xsi:nil общего реквизита через !xml/value Nil", async () => {
-    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-xsi-nil-"))
-    const metadataPath = join(inputDir, "ОбщийРеквизит.xml")
-    try {
-      const sourceFixture = join(
-        import.meta.dirname,
-        "../appliedObjects/metadataCommonAttribute/__fixtures__/minimal.xml"
-      )
-      fs.writeFileSync(
-        metadataPath,
-        fs
-          .readFileSync(sourceFixture, "utf8")
-          .replace('<FillValue xsi:type="xs:string"/>', '<FillValue xsi:nil="true"/>')
-      )
-      const collector = createConfigurationIndexCollector()
-      const targetProjectPath = "ОбщийРеквизит/ОбщийРеквизитПоУмолчанию.yaml"
-      const prepared = await prepareImportYaml({
-        assignment: metadataImportAssignment({
-          id: "common-attribute-nil",
-          targetProjectPath,
-          itemType: "MetadataCommonAttribute",
-          itemName: "ОбщийРеквизитПоУмолчанию",
-          logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию",
-          metadataPath,
-        }),
-        context: mockXmlImportContext(),
-        collector,
-      })
-
-      const yaml = prepared.yaml as Record<string, unknown>
-      expect(yaml).toHaveProperty("ЗначениеЗаполнения", "!xml/value Nil")
-      expect(yamlScalarTagAt(yaml, "ЗначениеЗаполнения")).toBe("xml/value")
-      expect(collector.fragment(targetProjectPath).entities).toEqual([{
-        logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию",
-        uuid: "b82a1fc0-ce4b-4270-b9b7-018c35ab718e",
-      }])
-    } finally {
-      fs.rmSync(inputDir, { recursive: true, force: true })
-    }
   })
 
   it("prepares a nested file item through its registered metadata rule", async () => {

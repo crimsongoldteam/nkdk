@@ -2,25 +2,17 @@ import { dump, type Document, type Node } from "js-yaml"
 import { isExplicitYAMLString, markDoubleQuotedScalar, unwrapExplicitYAMLString } from "./explicitString"
 import {
   copyYAMLScalarTags,
-  isXMLAnomalyTag,
   NKDK_YAML_SCHEMA,
   restoreYAMLScalarTagsAfterDump,
   taggedScalarForDump,
-  xmlAnomalyTagPayload,
-  xmlAnomalyTagValue,
   yamlScalarTagAt,
 } from "./scalarTags"
 import {
   copyYAMLMappingKeyOrder,
-  copyYAMLMappingTag,
   createYAMLOrderedMapping,
   hasYAMLMappingKeyOrder,
   yamlMappingEntries,
 } from "./mappingTags"
-import {
-  copyYAMLMappingKeyTags,
-  yamlMappingKeyTagAt,
-} from "./mappingKeyTags"
 import {
   copyXmlAnomalyAnnotationsForParent,
   createXmlAnomalyAnnotations,
@@ -122,12 +114,8 @@ function prepareForDump(
     }
     copyYAMLScalarTags(value, dumpValue)
     copyYAMLScalarTags(value, data)
-    copyYAMLMappingTag(value, dumpValue)
-    copyYAMLMappingTag(value, data)
     copyYAMLMappingKeyOrder(value, dumpValue)
     copyYAMLMappingKeyOrder(value, data)
-    copyYAMLMappingKeyTags(value, dumpValue)
-    copyYAMLMappingKeyTags(value, data)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, dumpValue, dumpAnnotations)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, data, dataAnnotations)
     return { dumpValue, data }
@@ -163,16 +151,6 @@ function prepareChildForDump(
       data: preparedSemantic?.data,
     }
   }
-  const tag = yamlScalarTagAt(parent, key)
-  if (anomaly === undefined && isXMLAnomalyTag(tag)) {
-    const taggedValue = typeof value === "string"
-      ? xmlAnomalyTagValue(tag, prepareXMLAnomalyPayload(tag, value, explicitStrings))
-      : value
-    return {
-      dumpValue: taggedScalarForDump(parent, key, taggedValue),
-      data: value,
-    }
-  }
   if (value === undefined && !Array.isArray(parent)) {
     const marker = `${UNDEFINED_VALUE_MARKER_PREFIX}${undefinedValues.size}__`
     undefinedValues.add(marker)
@@ -205,17 +183,6 @@ function isPropertyStateTag(tag: unknown): tag is "проверять" | "изм
   return tag === "проверять" || tag === "изменять"
 }
 
-function prepareXMLAnomalyPayload(
-  tag: Parameters<typeof xmlAnomalyTagPayload>[0],
-  value: string,
-  explicitStrings: Map<string, string>,
-): string {
-  const payload = xmlAnomalyTagPayload(tag, value)
-  return shouldExportAsExplicitString(payload)
-    ? explicitStringMarker(payload, explicitStrings)
-    : payload
-}
-
 function explicitStringMarker(value: string, explicitStrings: Map<string, string>): string {
   const marker = `${EXPLICIT_STRING_MARKER_PREFIX}${explicitStrings.size}__`
   explicitStrings.set(marker, value)
@@ -241,10 +208,6 @@ function restoreUndefinedValues(yaml: string, undefinedValues: Set<string>): str
 
 function normalizeQuotedTypeLinkValues(yaml: string): string {
   return yaml.replace(/(: )"(-?\d+\(\d+\))"$/gm, "$1$2")
-}
-
-function normalizeEmptyXMLTags(yaml: string): string {
-  return yaml.replace(/!xml\/(present|absent|name|type|value|reference|language|duplicate) ""(?=[ \t]*(?:#.*)?$)/gm, "!xml/$1")
 }
 
 function normalizeEmptyMappings(yaml: string): string {
@@ -290,10 +253,8 @@ export function serializeYAMLDocument(
   const text = restoreYAMLScalarTagsAfterDump(
     removeDocumentFinalLineEnding(
       normalizeEmptyMappings(
-        normalizeEmptyXMLTags(
-          normalizeQuotedTypeLinkValues(
-            quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings)
-          )
+        normalizeQuotedTypeLinkValues(
+          quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings)
         )
       )
     )
@@ -405,15 +366,6 @@ function applyYAMLMappingKeyTagsToNode(
     if (isPropertyStateTag(propertyState) && annotations.at(source, key) !== undefined) {
       item.key.tag = propertyState === "проверять" ? "!nkdkcheck" : "!nkdkextx"
       item.key.style.tagged = true
-    }
-    const tag = yamlMappingKeyTagAt(source, key)
-    if (tag !== undefined) {
-      if (tag !== "xml/reference") {
-        throw new TypeError(`Тег !${tag} недопустим для ключа YAML`)
-      }
-      item.key.tag = `!${tag}`
-      item.key.style.tagged = true
-      if (key === "") item.key.style.doubleQuoted = true
     }
     applyYAMLMappingKeyTagsToNode(item.value, source[key], annotations)
   }

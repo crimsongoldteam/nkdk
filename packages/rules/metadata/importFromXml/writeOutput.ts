@@ -23,6 +23,11 @@ export interface SerializedImportYaml extends SerializedYAMLDocument {
   readonly localHash: bigint
 }
 
+export type WritableSerializedImportYaml = Pick<
+  SerializedImportYaml,
+  "file" | "bytes" | "localHash"
+>
+
 const textEncoder = new TextEncoder()
 
 export function serializeImportYaml(file: PreparedImportYamlOutput): SerializedImportYaml {
@@ -34,7 +39,7 @@ export function serializeImportYaml(file: PreparedImportYamlOutput): SerializedI
 }
 
 export async function writeMainImportYaml(params: ({
-  serialized: SerializedImportYaml
+  serialized: WritableSerializedImportYaml
   profiler: ValidationProfiler
 } | {
   outputDir: string

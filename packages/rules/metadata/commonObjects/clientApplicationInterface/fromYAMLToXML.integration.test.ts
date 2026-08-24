@@ -1,31 +1,19 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
+import { importContentFromXML } from "@nkdk/runtime"
 import {
-  createDirectRoundTripContexts,
-  readAppliedObjectFixture,
-  serializeDirectXML,
-  testMetadataItemFromXMLToYAML,
-  testMetadataItemFromYAMLToXML,
-  testPropertyFromYAMLToXML,
+createDirectRoundTripContexts,
+readAppliedObjectFixture,
+serializeDirectXML,
+testMetadataItemFromXMLToYAML,
+testMetadataItemFromYAMLToXML
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { importContentFromXML, importFromYAML } from "@nkdk/runtime"
 import { ClientApplicationInterfaceRules } from "./rules"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 import "./register"
 
 describe("ClientApplicationInterface YAML → XML", () => {
-  it("materializes an empty standard root from !xml/present", () => {
-    const result = serializeDirectXML(testPropertyFromYAMLToXML({
-      rule: clientApplicationInterfaceOwnerRule,
-      yaml: importFromYAML("ИнтерфейсКлиентскогоПриложения: !xml/present"),
-    }).xml)
-
-    const panelDefIds = [...result.matchAll(/<panelDef id="([^"]+)"\/>/g)].map((match) => match[1])
-    expect(result).toContain('<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core"')
-    expect(panelDefIds).toEqual(requiredPanelDefIds)
-  })
 
   it("imports sections, short panels, expanded panels and groups", () => {
     const result = convertYAML({
@@ -124,45 +112,6 @@ describe("ClientApplicationInterface YAML → XML", () => {
       "b2735bd3-d822-4430-ba59-c9e869693b24",
     ])
     expect(result).not.toContain('<panelDef id="00000000-0000-0000-0000-000000000000"')
-  })
-
-  it("создаёт пустое определение нестандартной панели только по отдельному полю", () => {
-    const uuid = "8e10648b-f52d-4ec2-b4dd-87de33778d95"
-    const plain = convertYAML(importFromYAML(`Верх:\n  - Панель:\n      UUID: ${uuid}`))
-    const explicit = convertYAML(importFromYAML([
-      "Верх:",
-      "  - Панель:",
-      `      UUID: ${uuid}`,
-      "      ПустоеОпределение: !xml/present",
-    ].join("\n")))
-
-    expect(plain).not.toContain(`<panelDef id="${uuid}"`)
-    expect(explicit).toContain(`<panelDef id="${uuid}"/>`)
-  })
-
-  it("отклоняет тег XML-аномалии у UUID", () => {
-    const uuid = "8e10648b-f52d-4ec2-b4dd-87de33778d95"
-    const yaml = importFromYAML(`Верх:\n  - Панель:\n      UUID: !xml/present ${uuid}`)
-
-    expect(() => convertYAML(yaml)).toThrow("UUID панели не допускает тег XML-аномалии")
-  })
-
-  it("экспортирует !xml/present в имени панели как обычный текст", () => {
-    const result = convertYAML(
-      importFromYAML("Право:\n  - Панель:\n      Имя: !xml/present НестандартнаяПанель")
-    )
-
-    expect(result).toContain("<name>!xml/present НестандартнаяПанель</name>")
-  })
-
-  it.each([
-    ["стандартный UUID", "UUID: b553047f-c9aa-4157-978d-448ecad24248\n      ПустоеОпределение: !xml/present"],
-    ["другое значение", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      ПустоеОпределение: Истина"],
-    ["имя панели", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      Имя: Панель\n      ПустоеОпределение: !xml/present"],
-  ])("отклоняет ПустоеОпределение: %s", (_name, panel) => {
-    const yaml = importFromYAML(`Верх:\n  - Панель:\n      ${panel}`)
-
-    expect(() => convertYAML(yaml)).toThrow(/ПустоеОпределение/)
   })
 
   it("creates default panel definition for new used standard panel when reference has partial panel definitions", () => {
@@ -350,17 +299,6 @@ const requiredPanelDefIds = [
   "cbab57f2-a0f3-4f0a-89ea-4cb19570ab75",
   "b2735bd3-d822-4430-ba59-c9e869693b24",
 ]
-
-const clientApplicationInterfaceOwnerRule = {
-  itemType: "ClientApplicationInterfaceOwner",
-  properties: {
-    clientApplicationInterface: {
-      type: "ClientApplicationInterface",
-      yaml: "ИнтерфейсКлиентскогоПриложения",
-      xml: "ClientApplicationInterface",
-    },
-  },
-} as const satisfies MetadataItemRule
 
 function withRequiredPanelDefs(xml: string): string {
   const panelDefPattern = /\n\t<panelDef id="([^"]+)"[^>]*(?:\/>|>[\s\S]*?<\/panelDef>)/g

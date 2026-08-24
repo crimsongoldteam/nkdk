@@ -1,17 +1,16 @@
-import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "../../../tests/mockContext"
-import { typeFixturesTable } from "./__fixtures__/data"
-import { importTypeDescriptionFromYAML } from "./fromYAML"
-import { TypeDescriptionYAML } from "./types"
-import { markYAMLScalarTag, taggedYAMLScalar, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
-import { importTaggedTypeDescriptionFromYAML } from "./fromYAML"
+import { markYAMLScalarTag } from "@nkdk/runtime"
+import { createRuleRegistrySet,type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { describe,expect,it } from "vitest"
 import {
-  createDirectRoundTripContexts,
-  testPropertyFromXMLToYAML,
-  testPropertyFromYAMLToXML,
+createDirectRoundTripContexts,
+testPropertyFromXMLToYAML,
+testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
-import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { mockContext,mockRule } from "../../../tests/mockContext"
 import { metadataRules } from "../../composition/metadataRules"
+import { typeFixturesTable } from "./__fixtures__/data"
+import { importTaggedTypeDescriptionFromYAML,importTypeDescriptionFromYAML } from "./fromYAML"
+import { TypeDescriptionYAML } from "./types"
 
 const importUnsafeTypeDescriptionFromYAML = (value: unknown) =>
   importTypeDescriptionFromYAML(mockContext, mockRule, value as TypeDescriptionYAML)
@@ -78,38 +77,6 @@ describe("importTypeDescriptionFromYAML", () => {
 })
 
 describe("importTaggedTypeDescriptionFromYAML", () => {
-  const typeId = "8c1e3694-da12-44d5-8b1f-d134b89a1282"
-
-  const tagged = (payload: string) => {
-    const yaml = { Тип: xmlAnomalyTagValue("xml/type", payload) }
-    markYAMLScalarTag(yaml, "Тип", "xml/type")
-    return yaml
-  }
-
-  it("imports a single TypeId from an exact !xml/reference scalar", () => {
-    const yaml = { Тип: xmlAnomalyTagValue("xml/reference", typeId) }
-    markYAMLScalarTag(yaml, "Тип", "xml/reference")
-
-    expect(importTaggedTypeDescriptionFromYAML({
-      context: mockContext,
-      rule: { ...restrictedCatalogAttributeRule, yaml: "Тип" },
-      yaml,
-      value: yaml.Тип,
-    })).toEqual({ type: [], typeId: [typeId] })
-  })
-
-  it("imports ordinary types and TypeId from one scalar sequence", () => {
-    const yaml = { Тип: ["Строка", xmlAnomalyTagValue("xml/reference", typeId)] }
-    markYAMLScalarTag(yaml.Тип, 1, "xml/reference")
-
-    expect(importTaggedTypeDescriptionFromYAML({
-      context: mockContext,
-      rule: { ...restrictedCatalogAttributeRule, yaml: "Тип" },
-      yaml,
-      value: yaml.Тип,
-    })).toEqual({ type: ["string"], typeId: [typeId] })
-  })
-
   it.each([
     {
       label: "property",
@@ -133,74 +100,6 @@ describe("importTaggedTypeDescriptionFromYAML", () => {
     })).toEqual({ type: ["string"] })
   })
 
-  it.each([
-    { label: "untagged UUID", value: typeId },
-    { label: "UUID under PropertyState", value: typeId, tag: "изменять" },
-    { label: "invalid UUID", value: xmlAnomalyTagValue("xml/reference", "not-a-uuid"), tag: "xml/reference" },
-    { label: "wrong tag", value: xmlAnomalyTagValue("xml/type", typeId), tag: "xml/type" },
-    { label: "legacy object", value: { ИдентификаторТипа: [typeId] } },
-  ] as const)("rejects $label TypeId representation", ({ value, tag }) => {
-    const yaml = { Тип: value }
-    if (tag !== undefined) markYAMLScalarTag(yaml, "Тип", tag)
-
-    expect(() => importTaggedTypeDescriptionFromYAML({
-      context: mockContext,
-      rule: { type: "TypeDescription", yaml: "Тип" },
-      yaml,
-      value,
-    })).toThrow()
-  })
-
-  it("imports an exact generated namespace prefix", () => {
-    const yaml = tagged("d7p1:Диаграмма")
-    const result = importTaggedTypeDescriptionFromYAML({
-      context: mockContext,
-      rule: { type: "TypeDescription", yaml: "Тип" },
-      yaml,
-      value: yaml.Тип,
-    })
-
-    expect(result).toEqual({ type: ["Chart"] })
-  })
-
-  it("imports an exact prefix from the in-memory tagged scalar", () => {
-    const yaml = { Тип: taggedYAMLScalar("xml/type", xmlAnomalyTagValue("xml/type", "d7p1:Диаграмма")) }
-    markYAMLScalarTag(yaml, "Тип", "xml/type")
-
-    expect(importTaggedTypeDescriptionFromYAML({
-      context: mockContext,
-      rule: { type: "TypeDescription", yaml: "Тип" },
-      yaml,
-      value: yaml.Тип,
-    })).toEqual({ type: ["Chart"] })
-  })
-
-  it("ignores a stale tag of an omitted type", () => {
-    const yaml = { Тип: undefined }
-    markYAMLScalarTag(yaml, "Тип", "xml/type")
-
-    expect(importTaggedTypeDescriptionFromYAML({
-      context: mockContext,
-      rule: { type: "TypeDescription", yaml: "Тип" },
-      yaml,
-      value: undefined,
-    })).toBeUndefined()
-  })
-
-  it.each(["Диаграмма", "d7p1:", "d7p1:Chart", "d7p1:Строка", "d7p1:Справочник.Товары", "d6p1:Диаграмма"])(
-    "rejects incompatible !xml/type payload %s",
-    (payload) => {
-      const yaml = tagged(payload)
-      expect(() =>
-        importTaggedTypeDescriptionFromYAML({
-          context: mockContext,
-          rule: { type: "TypeDescription", yaml: "Тип" },
-          yaml,
-          value: yaml.Тип,
-        })
-      ).toThrow("Тип: недопустимое значение !xml/type")
-    }
-  )
 })
 
 describe("importTypeDescriptionFromYAML with allowedTypes", () => {
@@ -233,26 +132,6 @@ describe("importTypeDescriptionFromYAML with allowedTypes", () => {
     expect(() => importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, "Число(abc, 2)")).toThrow(
       "TypeDescription YAML value is not allowed by rule.allowedTypes"
     )
-  })
-
-  it("round-trips an allowed tagged prefix inside a compound type", () => {
-    const { contexts, execution, imported } = importRestrictedCompound("CatalogRef.Товары")
-    const type = (imported.yaml as { Тип: string[] }).Тип
-
-    expect(type).toEqual(["!xml/type d6p1:Справочник.Товары", "Строка"])
-    expect(yamlScalarTagAt(type, 0)).toBe("xml/type")
-
-    const exported = testPropertyFromYAMLToXML({
-      context: contexts.exportContext(),
-      execution,
-      rule: restrictedItemRule,
-      yaml: imported.yaml,
-    })
-    const xmlTypes = (exported.xml.Type as Record<string, unknown>)["v8:Type"] as unknown[]
-    expect(xmlTypes[0]).toEqual({
-      "_xmlns:d6p1": "http://v8.1c.ru/8.1/data/enterprise/current-config",
-      "#text": "d6p1:CatalogRef.Товары",
-    })
   })
 
   it("rejects a tagged compound element outside allowedTypes", () => {

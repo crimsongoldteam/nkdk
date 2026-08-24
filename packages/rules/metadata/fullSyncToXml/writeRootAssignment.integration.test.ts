@@ -1,20 +1,19 @@
-import fs from "node:fs"
-import { mkdtempSync } from "node:fs"
+import { childUid } from "@nkdk/runtime"
+import fs,{ mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
-import { mockContextToXML } from "../../tests/mockContext"
-import { childUid } from "@nkdk/runtime"
-import { prepareYamlFiles } from "../project/prepareYamlFiles"
-import { writeFullXmlSyncAssignment } from "./writeAssignment"
-import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
-import type { FullXmlSyncAssignment } from "./types"
-import { fullXmlSyncTestTopologyFields } from "./testTopology"
-import {
-  createFullXmlSyncCompositionReader,
-  createFullXmlSyncCompositionSnapshot,
-} from "./sharedMetadata"
+import { afterEach,describe,expect,it } from "vitest"
 import { testConfigurationIndexReader } from "../../tests/configurationIndex"
+import { mockContextToXML } from "../../tests/mockContext"
+import { prepareYamlFiles } from "../project/prepareYamlFiles"
+import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
+import {
+createFullXmlSyncCompositionReader,
+createFullXmlSyncCompositionSnapshot,
+} from "./sharedMetadata"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
+import type { FullXmlSyncAssignment } from "./types"
+import { writeFullXmlSyncAssignment } from "./writeAssignment"
 
 describe("writeFullXmlSyncAssignment for root Configuration", () => {
   const tempDirs: string[] = []
@@ -92,20 +91,6 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     expect(xml).not.toContain("ТекущийПользователь.yaml")
     expect(result.profile?.rulesPassCount).toBe(1)
     expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
-  })
-
-  it("materializes an empty ClientApplicationInterface from !xml/present", async () => {
-    const projectDir = tempDir()
-    const prepared = prepareConfigurationYaml(
-      projectDir,
-      "Имя: Конфигурация\nИнтерфейсКлиентскогоПриложения: !xml/present\n"
-    )
-    const root = configurationAssignment(projectDir)
-    const result = await writeRoot(projectDir, prepared, [root])
-
-    expect(result.diagnostics).toEqual([])
-    const xml = fs.readFileSync(join(projectDir, "xml", "Ext", "ClientApplicationInterface.xml"), "utf-8")
-    expect(xml.match(/<panelDef id=/gu)).toHaveLength(5)
   })
 
   it("restores ChildObjects order from the configuration index", async () => {

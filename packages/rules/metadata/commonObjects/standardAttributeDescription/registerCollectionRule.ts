@@ -3,12 +3,7 @@ import type { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "@n
 import { StandardAttributeDescriptionRules } from "./rules"
 import { importStandardAttributeDescriptionsFromXMLToYAML } from "./fromXMLToYAML"
 import { StandartAttributeNameFromYAML, StandartAttributeNameToYAML } from "./standartAttributeNames"
-import { XML_ABSENT_TAG_VALUE, XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
-import {
-  isAbsentStandardAttributeItem,
-  sourceWithoutAbsentStandardAttributes,
-} from "./absentItems"
 import { exportStandardAttributeDescriptionToJSONSchema } from "./toJSONSchema"
 
 function buildNameFromYAML(rule: PropertyRule | undefined): (yamlKey: string) => string {
@@ -29,19 +24,11 @@ const collectionRule = defineMetadataItemCollectionRule({
   completeItemNames: ({ source, propertyRule }) => {
     const rule = propertyRule as StandardAttributeDescriptionsPropertyRule
     return Object.keys(
-      rule.standartAttributeNamesXML?.(sourceWithoutAbsentStandardAttributes(source, rule)) ??
+      rule.standartAttributeNamesXML?.(source) ??
         rule.standartAttributeNames ??
         {},
     )
   },
-  normalizeItemYAML: ({ yaml, name, propertyRule }) => {
-    const rule = propertyRule as StandardAttributeDescriptionsPropertyRule | undefined
-    return yaml === XML_ABSENT_TAG_VALUE && name !== undefined && rule?.standartAttributeNames?.[name] !== undefined
-      ? {}
-      : yaml
-  },
-  mapItemOutput: ({ xml, name, collectionYAML, propertyRule }) =>
-    isAbsentStandardAttributeItem({ collectionYAML, internalName: name, propertyRule }) ? undefined : xml,
   preserveReferenceItems: true,
   sparseItems: true,
   omitDefaultsForSparseItems: true,
@@ -62,12 +49,5 @@ export const metadataRuleLayer000 = defineMetadataRules({
         value: undefined,
         execution,
       }),
-  },
-  explicitXMLPropertyTypes: {
-    StandardAttributeDescriptions: {
-      propertyType: "StandardAttributeDescriptions",
-      action: "materializeCollection",
-      yamlValue: XML_PRESENT_TAG_VALUE,
-    },
   },
 })

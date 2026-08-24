@@ -13,7 +13,6 @@ import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import { CollectableElementTypeToYAML, type CollectableElementType, type ElementRule, type ElementXML } from "./types"
 import { currentRuleRegistrySet } from "../ruleRegistryExecutionContext"
-import { writeExplicitElementXMLName } from "./explicitName"
 import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
 
 export function importFormElementFromXMLToYAML(params: {
@@ -106,13 +105,6 @@ export function importSingleFormElementFromXMLToYAML(params: {
       execution: propertyExecutionFromTraversal(params.traversal),
     }) ?? {}
   )
-  if (
-    params.nameStyle?.explicitXMLName === true &&
-    typeof params.xml._name === "string" &&
-    params.xml._name !== canonicalName
-  ) {
-    writeExplicitElementXMLName(yaml, params.xml._name)
-  }
   return yaml
 }
 

@@ -1,93 +1,51 @@
-`!xml/reference` обозначает строго распознанное внутреннее представление
-ссылки: оно сохраняется дословно и исключается из разрешения, поиска и
-переименования. Поддержанные формы перечислены ниже; пустое значение разрешено
-только ключу роли `UserVisible`.
+# XML-аномалии
 
-Для строкового `ЗначениеЗаполнения` сам факт наличия пробелов не является
-аномалией: пробелы сохраняются обычной строкой и учитываются при проверке
-длины. `!xml/value` ставится только тогда, когда исходная строка не
-соответствует эффективному типу: при переменной длине она длиннее ограничения,
-при фиксированной — её длина не равна ограничению. Длина `0` не ограничивает
-строку.
+Поддерживаются три общих тега: `!xml/raw`, `!xml/invalid` и
+`!xml/important`. Прежние частные теги `!xml/present`, `!xml/absent`,
+`!xml/name`, `!xml/type`, `!xml/value`, `!xml/reference`, `!xml/language`,
+`!xml/order` и `!xml/duplicate` больше не читаются.
 
-`ОтображениеПанелиРазделов` является обычным свойством всего
-`ClientApplicationInterface`, а не XML-аномалией размещённой панели. Оно
-восстанавливает `spr` в стандартном `panelDef` панели разделов независимо от
-того, размещена эта панель или скрыта. `!xml/present` у всего интерфейса
-обозначает только существующий файл с пятью пустыми стандартными `panelDef`.
+`!xml/raw` сохраняет XML-форму, которую нельзя однозначно получить из
+смыслового YAML. Он ставится только на значение и всегда содержит явное
+`$xml`; распознанное смысловое значение при наличии хранится отдельно в
+`$значение`. Raw без `$xml`, raw на ключе и raw на корне объекта метаданных
+запрещены.
 
-В условном оформлении `!xml/value` регистрируется только при XML-импорте поля
-DCS, которое общий resolver не смог однозначно разрешить либо признал
-недоступным для условия формы. Payload обязан быть непустым и хранит исходный
-внутренний путь без служебной ведущей точки; при экспорте он дословно
-восстанавливается как `dcscor:Field`. Такой carrier не проходит resolver,
-проверку совместимости типов и проверку избыточности тега. Это отдельный
-договор от `!xml/value` у обычного `ПутьКДанным` формы: там payload является
-полным исходным значением элемента `DataPath` и не преобразуется в DCS-поле.
+`!xml/invalid` сохраняет обычное обратимое YAML-значение, которое нарушает
+смысловое правило. `!xml/important` имеет тот же технический договор, но
+применяется только для отдельно зарегистрированных классов ценных данных.
+Сейчас таких регистраций нет. Оба тега исключают уже принятую ошибку из
+повторной диагностики, но их значение остаётся доступным индексам и экспорту.
 
-`!xml/reference` в `Поля` условного оформления аналогично создаётся только при
-XML-импорте неизвестного элемента формы либо неразрешимого поля набора данных
-`DynamicList`. Непустой payload экспортируется
-дословно; значение не разрешается повторно и не порождает диагностику
-избыточности. Обычная строка с текстом `!xml/value …` или `!xml/reference …`,
-но без реального YAML-тега, carrier не образует.
+Повторы ключей именованной коллекции сохраняются без потерь: первое обычное
+вхождение остаётся без тега, первый дубль получает `!xml/invalid`, следующие —
+`!xml/invalid/2`, `!xml/invalid/3` и далее. Если первое вхождение само
+недопустимо, оно также получает `!xml/invalid`, а номера продолжают обозначать
+физические вхождения.
 
-| Объект с аномалией | Свойство | Классифицированный YAML-тег | Текст в XML |
-|---|---|---|---|
-| обычное поле (`MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension`, `MetadataExternalDataSourceCubeResource`) либо стандартный реквизит `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value <исходное значение>` | `<FillValue …><исходное значение в XML-представлении типа></FillValue>` или `<xr:FillValue …>…</xr:FillValue>` |
-| обычное поле (`MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension`, `MetadataExternalDataSourceCubeResource`) либо стандартный реквизит `StandardAttributeDescription` | `ЗначениеЗаполнения` | `!xml/value DesignTimeRef` | `<FillValue xsi:type="xr:DesignTimeRef"/>` или `<xr:FillValue xsi:type="xr:DesignTimeRef"/>` |
-| стандартный реквизит `Predefined`, для которого FillValue запрещён | `ЗначениеЗаполнения` | `!xml/value Ложь` | `<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>` |
-| ссылочный стандартный реквизит `Parent` с ошибочным булевым значением | `ЗначениеЗаполнения` | `!xml/value Ложь` | `<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>` |
-| обычное поле `MetadataAttribute`, `MetadataCommonAttribute`, `MetadataTaskAddressingAttribute`, `MetadataRegisterAttribute`, `MetadataRegisterDimension`, `MetadataRegisterResource`, `AccountingFlag`, `ExtDimensionAccountingFlag`, `MetadataExternalDataSourceField`, `MetadataExternalDataSourceCubeDimension` или `MetadataExternalDataSourceCubeResource` с единственным строковым типом | `ЗначениеЗаполнения` | `!xml/value Nil` | `<FillValue xsi:nil="true"/>` |
-| строковый `StandardAttributeDescription` (`Code`, `Description`, `Number`) | `ЗначениеЗаполнения` | `!xml/value String` | `<xr:FillValue xsi:type="xs:string"/>` |
-| `StandardAttributeDescription` с именем `ValueType` | `ЗначениеЗаполнения` | `!xml/value TypeDescription` | `<xr:FillValue xsi:type="v8:TypeDescription"/>` |
-| поле внешнего источника данных | `ЗначениеЗаполнения` | `!xml/value Null` | `<FillValue xsi:type="v8:Null"/>` |
-| `CharacteristicsDescription` | `ЗначениеОтбораВидов` | `!xml/value DesignTimeRef` | `<xr:TypesFilterValue xsi:type="xr:DesignTimeRef"/>` |
-| одиночный встроенный элемент формы (`ExtendedTooltip`, `ContextMenu`, `AutoCommandBar`, `SearchStringAddition`, `SearchControlAddition`, `ViewStatusAddition`, вложенная таблица `GanttChartField`) | `Имя` | `!xml/name <исходное имя>`; для пустого имени `!xml/name ""` | исходный атрибут `name`, например `<ExtendedTooltip name="СтароеИмяExtendedTooltip"/>` |
-| подменю `Popup` без `ExtendedTooltip` | `РасширеннаяПодсказка` | `!xml/absent` | элемент `<ExtendedTooltip>` отсутствует |
-| подменю `Popup` с нестандартным именем пустой подсказки | `РасширеннаяПодсказка` | `!xml/name <исходное имя>` | `<ExtendedTooltip name="<исходное имя>"/>` |
-| свойство типа `MinMaxValue` с каноническим `xsi:type` | `МинимальноеЗначение`, `МаксимальноеЗначение` | `!xml/value <исходный текст>` | `MinValue` либо `MaxValue` с точным исходным текстом |
-| свойство типа `MinMaxValue` с иным или отсутствующим `xsi:type` | `МинимальноеЗначение`, `МаксимальноеЗначение` | `!xml/type <QName или -> <исходный текст>` | исходный `xsi:type` или его отсутствие и точный текст `MinValue` либо `MaxValue` |
-| свойство типа `DcsLocalStringType` | соответствующая строка СКД | `!xml/type String <текст>` | элемент с `xsi:type="xs:string"` вместо канонического `v8:LocalStringType` |
-| `IndexField` | `ДополнительныеПоля` | `!xml/present` | `<AdditionalFields/>` |
-| `SettingsParameterValueCollection` | `Значение` | `!xml/value Nil` | `<dcscor:value xsi:nil="true"/>` |
-| параметр схемы компоновки данных | `Значение` | `!xml/value Undefined` | `<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>` |
-| управляемая форма | `Реквизиты` | `!xml/present` | `<Attributes/>` |
-| `LabelDecoration`, `ExtendedTooltip` | `Заголовок` | `!xml/present` | `<Title formatted="true"/>` |
-| предопределённый счёт | `ВидыСубконто` | `!xml/present` | `<ExtDimensionTypes/>` |
-| план обмена | `Состав` | `!xml/present` | существующий пустой `Ext/Content.xml` с корнем `<ExchangePlanContent/>`; отсутствие свойства означает отсутствие файла |
-| реквизит формы с единственным типом `СписокЗначений` | `ТипЗначения` | `!xml/absent` | элемент `<Settings>` отсутствует вопреки каноническому экспорту пустого `v8:TypeDescription` |
-| свойство типа `TypeDescription` | `Тип` | `!xml/type <исходный префикс>:<русское имя типа>` | `v8:Type` с исходным namespace-префиксом, например `d7p1:Chart` |
-| свойство типа `TypeDescription` | `Тип` | `!xml/reference <UUID>` как одиночный скаляр или элемент списка типов | `<v8:TypeId><UUID></v8:TypeId>`; UUID сохраняется дословно, не разрешается через индекс и не участвует в поиске или переименовании |
-| `StandardAttributeDescriptions` | `СтандартныеРеквизиты` | `!xml/present` | канонические элементы `<xr:StandardAttribute name="…">…</xr:StandardAttribute>` |
-| отсутствующий канонический элемент `StandardAttributeDescriptions` внутри присутствующей коллекции | ключ соответствующего стандартного реквизита | `!xml/absent` | соответствующий `<xr:StandardAttribute>` отсутствует |
-| `CharacteristicsDescription` | `ПолеПутиКДанным` | `!xml/absent` | `<xr:DataPathField>` отсутствует |
-| `CharacteristicsDescription` | `ПолеИспользованияМножественныхЗначений` | `!xml/absent` | `<xr:MultipleValuesUseField>` отсутствует |
-| `CharacteristicsDescription` | `ПолеКлючаМножественныхЗначений` | `!xml/absent` | `<xr:MultipleValuesKeyField>` отсутствует |
-| `CharacteristicsDescription` | `ПолеПорядкаМножественныхЗначений` | `!xml/absent` | `<xr:MultipleValuesOrderField>` отсутствует |
-| `TableInputField`, `TableCheckBoxField`, `TablePictureField`, `TableLabelField` | `ГоризонтальноеПоложениеВШапке` | `!xml/present` | `<HeaderHorizontalAlign>Auto</HeaderHorizontalAlign>` |
-| `Table` с источником-коллекцией `КомпоновщикНастроекКомпоновкиДанных`, для которого вычислен профиль `none` ([проверка](../packages/rules/metadata/forms/elements/table/explicitRowFilter.test.ts)) | `ОтборСтрок` | `!xml/present` | явно присутствующий `<RowFilter xsi:nil="true"/>` |
-| нестандартная панель `ClientApplicationInterface` с UUID | `ПустоеОпределение` | `!xml/present` | `<panelDef id="<UUID панели>"/>` |
-| корневой `ClientApplicationInterface` без размещённых панелей | `ИнтерфейсКлиентскогоПриложения` | `!xml/present` | существующий `Ext/ClientApplicationInterface.xml` только с пятью стандартными `<panelDef>` и без `top`, `left`, `right`, `bottom` |
-| управляемая форма | `ПутьКДанным` | `!xml/value <исходный внутренний путь>` | `<DataPath><исходный внутренний путь></DataPath>` |
-| условное оформление управляемой формы или `DynamicList` | неразрешимое поле в `ЛевоеЗначение` или скалярном `ПравоеЗначение` условия | `!xml/value <исходный внутренний путь без ведущей точки>` с непустым payload | `<dcsset:left xsi:type="dcscor:Field"><исходный внутренний путь></dcsset:left>` либо `<dcsset:right xsi:type="dcscor:Field">…</dcsset:right>` |
-| условное оформление управляемой формы или `DynamicList` | неизвестный оформляемый элемент формы либо неразрешимое поле набора данных списка в короткой записи `Поля` или свойстве `Поле` расширенной записи | `!xml/reference <исходное имя>` с непустым payload | `<dcsset:field><исходное имя></dcsset:field>` |
-| `Catalog`, `Document`, `DataProcessor`, `InformationRegister` | битая ссылка типа `MetadataValue` в `FillValue`, `Value`, `app:value`, `v8:Value`, `xr:FillValue` или `xr:TypesFilterValue` | `!xml/reference <ссылка>`; низкоуровневая битая ссылка — `<UUID>.<UUID>` | `<… xsi:type="xr:DesignTimeRef"><внутренняя ссылка></…>` |
-| `Subsystem` | битая ссылка в элементе состава подсистемы | `!xml/reference <UUID>` | `<xr:Item xsi:type="xr:MDObjectRef"><UUID></xr:Item>` |
-| корневой `CommandInterface` | битая ссылка в `ПорядокПодсистем` | `!xml/reference <UUID>` | `<SubsystemsOrder><Subsystem><UUID></Subsystem></SubsystemsOrder>` |
-| прямое ссылочное свойство с `metadataTarget`, включая `SettingsStorage` формы | строгое внутреннее значение UUID | `!xml/reference <UUID>` | исходный UUID сохраняется дословно, без разрешения через индекс и поиска ссылок |
-| `DynamicList.MainTable` | строгое внутреннее значение `число:UUID` | `!xml/reference <число:UUID>` | `<MainTable><число:UUID></MainTable>`; оба сегмента сохраняются дословно и не участвуют в поиске |
-| `UserVisible` | пустое имя роли | `!xml/reference ""` на ключе `Роли` | `<xr:Value name="">true|false</xr:Value>`; пустое имя допустимо только в этом типе и только с тегом |
-| `CashdeskDev_3_32_26_0_setup1c`: `DataProcessors/Отчеты/Forms/ОтчетПоСкупкам/Ext/Form.xml`, `DataProcessors/Отчеты/Forms/ОтчетПоГеолокацииЧеков/Ext/Form.xml`, `DataProcessors/Отчеты/Forms/ОтчетПоПродажам/Ext/Form.xml` | битая ссылка в `FunctionalOptionsProperty.Item` | `!xml/reference 76e70e66-9e54-4a40-95ce-cff9444899e7` | `<FunctionalOptions><Item>76e70e66-9e54-4a40-95ce-cff9444899e7</Item></FunctionalOptions>`; UUID переносится без поиска |
-| `CashdeskDev_3_32_26_0_setup1c`: `CommonForms/РедактированиеСтроки/Ext/Form.xml` | битая ссылка в `FunctionalOptionsProperty.Item` | `!xml/reference 6537a19c-3357-46a2-96a6-1fe4619ddbc8` | `<FunctionalOptions><Item>6537a19c-3357-46a2-96a6-1fe4619ddbc8</Item></FunctionalOptions>`; UUID переносится без поиска |
-| `I8nText`, текстовая часть `FormattedI8nText` | значение незарегистрированного языка | scalar `!xml/language <исходный текст>` на значении кода языка | `<v8:item>` с непустым `v8:lang`, отсутствующим в реестре языков конфигурации, и исходным `v8:content` |
-| `I8nText`, текстовая часть `FormattedI8nText` | порядок языков | mapping `!xml/order` без payload на всей локализованной строке | последовательность `v8:item`, в которой присутствующий основной язык не первый либо остальные коды не возрастают |
-| `I8nText`, текстовая часть `FormattedI8nText` | повтор языка | scalar `!xml/duplicate <исходный текст>` на значении зарегистрированного языка | ровно два соседних `v8:item` с одинаковыми `v8:lang` и `v8:content` |
-| форма `Catalog`, `ChartOfAccounts`, `ChartOfCharacteristicTypes`, `CommonForm`, `DataProcessor`, `DocumentJournal`, `Document`, `ExchangePlan`, `InformationRegister`, `Report` или `Subsystem` | битая локальная ссылка `Command` | `!xml/reference <исходная битая ссылка>` | `<Command><исходная битая ссылка></Command>` |
-| форма `Catalog`, `CommonForm`, `DataProcessor`, `DocumentJournal`, `Document`, `ExchangePlan`, `InformationRegister` или `Report` | битая локальная ссылка `CommandName` | `!xml/reference <исходная битая ссылка>` | `<CommandName><исходная битая ссылка></CommandName>` |
-| форма `Catalog`, `DataProcessor`, `Document` или `Report` | битая локальная ссылка `Field` | `!xml/reference <исходная битая ссылка>` | `<Field><исходная битая ссылка></Field>` |
-| форма `Catalog`, `CommonForm`, `Document` или `InformationRegister` | битая локальная ссылка `DataPath` | `!xml/reference <исходная битая ссылка>` | `<DataPath><исходная битая ссылка></DataPath>` |
-| форма `AccumulationRegister`, `Catalog`, `DataProcessor`, `Document`, `InformationRegister`, `Report` или `SettingsStorage` | битая локальная ссылка `xr:DataPath` | `!xml/reference <исходная битая ссылка>` | `<xr:DataPath><исходная битая ссылка></xr:DataPath>` |
-| форма `Catalog`, `DataProcessor`, `Document`, `ExchangePlan` или `Subsystem` | битая локальная ссылка `CommandGroup` | `!xml/reference <исходная битая ссылка>` | `<CommandGroup><исходная битая ссылка></CommandGroup>` |
-| форма `Catalog` | битая локальная ссылка `GroupList` | `!xml/reference <исходная битая ссылка>` | `<GroupList><исходная битая ссылка></GroupList>` |
-| форма `Catalog`, `CommonForm`, `Document` или `InformationRegister` | битая локальная ссылка `UserSettingsGroup` | `!xml/reference <исходная битая ссылка>` | `<UserSettingsGroup><исходная битая ссылка></UserSettingsGroup>` |
+Неизвестный XML-фрагмент адресуется полным путём относительно текущего объекта,
+например `Properties\Future`, а raw находится в значении этого служебного
+YAML-свойства. Распознанная оболочка объекта не скрывается: raw поднимается
+только до минимальной устойчивой границы.
+
+Назначение тегов при XML-импорте выполняется системно:
+
+1. rules.ts импортируют смысловые данные, а потоковый разбор сохраняет только
+   структурные хэши корней XML;
+2. один контрольный экспорт задания сначала сравнивается по таким же хэшам;
+   только несовпавшее задание повторно читается с полным аудитом владения,
+   который создаёт минимальные raw; результат этого подробного импорта —
+   смысловой YAML, аннотации и аудит — целиком заменяет черновой результат,
+   иначе неизвестный XML мог бы попасть в порядок, но потерять собственное raw-значение;
+3. структурированная проверка назначает invalid/important по точным путям;
+4. полная и частичная синхронизация сначала выполняют обычный YAML → XML, затем
+   применяют явные `$xml`-поправки.
+
+Родительская оболочка коллекции не поглощает различие принадлежащего ей
+дочернего свойства: дочерние границы сравниваются самостоятельно. Для
+common-типов, в которых повторные одноимённые XML-узлы образуют одно смысловое
+значение, это объявляется общим признаком `repeatedXMLNodes`, а не частным
+условием импортёра.
+
+Полный договор, примеры и ограничения находятся в
+`docs/superpowers/specs/2026-08-23-common-types-xml-anomaly-framework-design.md`.

@@ -1,12 +1,12 @@
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
 import fs from "fs"
 import os from "os"
 import { join } from "path"
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixtureDir } from "../../../tests/readFixtureXML"
 import { prepareYamlFiles } from "../../project/prepareYamlFiles"
-import { prepareFormXML, writePreparedFormToXML } from "./syncToXML"
-import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
+import { prepareFormXML,writePreparedFormToXML } from "./syncToXML"
 
 describe("writePreparedFormToXML", () => {
   it("готовит для обычной формы только metadata XML", () => {
@@ -53,39 +53,6 @@ describe("writePreparedFormToXML", () => {
     } finally {
       fs.rmSync(tmpRoot, { recursive: true, force: true })
     }
-  })
-
-  it("сохраняет !xml/present RowFilter после подготовки YAML-файла", () => {
-    const filePath = "/tmp/Форма.yaml"
-    const prepared = prepareYamlFiles({
-      files: [{
-        projectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-        filePath,
-        role: "form",
-        owner: { dir: "Справочник", name: "Товары" },
-        itemType: "ClientApplicationForm",
-      }],
-      itemTypeByYamlDir: { Справочник: "MetadataCatalog" },
-      sourceBytes: new Map([[filePath, Buffer.from([
-        "Реквизиты:",
-        "  Строки:",
-        "    Тип: ТаблицаЗначений",
-        "Элементы:",
-        "  Строки:",
-        "    Вид: ТаблицаФормы",
-        "    ПутьКДанным: Строки",
-        "    ОтборСтрок: !xml/present",
-      ].join("\n"))]]),
-    }).yamlFiles[0]!
-
-    const result = prepareFormXML({
-      context: mockContextToXML(),
-      preparedYamlFile: prepared,
-      formName: "ФормаЭлемента",
-    })
-    const body = result.find(({ targetKind }) => targetKind === "body")?.xml
-
-    expect(JSON.stringify(body)).toContain('"RowFilter":{"_xsi:nil":"true"}')
   })
 
   it("классифицирует таблицу сохранённого BaseForm по текущей форме основной конфигурации", () => {

@@ -38,6 +38,8 @@ import { metadataPropertyRule000 as rule41 } from "../commonObjects/childFormNam
 import { metadataPropertyRule001 as rule42 } from "../commonObjects/childFormNames/fromXML"
 import { metadataPropertyRule000 as rule43 } from "../commonObjects/childFormNames/toXML"
 import { metadataPropertyRule000 as rule44 } from "../commonObjects/childSubsystemNames/fromXML"
+import { metadataPropertyRule001 as rule428 } from "../commonObjects/childSubsystemNames/fromXML"
+import { metadataPropertyRule001 as rule429 } from "../commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML"
 import { metadataPropertyRule000 as rule45 } from "../commonObjects/childSubsystemNames/fromYAML"
 import { metadataPropertyRule000 as rule46 } from "../commonObjects/childSubsystemNames/toJSONSchema"
 import { metadataPropertyRule000 as rule47 } from "../commonObjects/childSubsystemNames/toXML"
@@ -248,8 +250,6 @@ import { metadataPropertyRule055 as rule418 } from "../commonObjects/metadataTar
 import { metadataPropertyRule056 as rule419 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule057 as rule420 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule058 as rule421 } from "../commonObjects/metadataTargets/validationHandlers"
-import { metadataPropertyRule000 as rule422 } from "../commonObjects/functionalOptionsProperty/brokenReference"
-import { metadataPropertyRule000 as rule423 } from "../commonObjects/userVisible/brokenReference"
 import { metadataPropertyRule059 as rule424 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule060 as rule425 } from "../commonObjects/metadataTargets/validationHandlers"
 import { metadataPropertyRule061 as rule426 } from "../commonObjects/metadataTargets/validationHandlers"
@@ -828,10 +828,10 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule419,
   rule420,
   rule421,
-  rule422,
-  rule423,
   rule424,
   rule425,
   rule426,
   rule427,
+  rule428,
+  rule429,
 ])

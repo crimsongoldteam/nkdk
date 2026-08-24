@@ -9,9 +9,6 @@ import {
   chartOfAccountsPredefinedAccountingFlagsRule,
   chartOfAccountsPredefinedExtDimensionTypesRule,
 } from "../builders"
-import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
-import { defineMetadataRules } from "../../../ruleRuntime/definition"
-import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 
 export const PredefinedAccountingFlagRules = {
   itemType: "ChartOfAccountsPredefinedAccountingFlag",
@@ -115,18 +112,6 @@ export const ChartOfAccountsPredefinedItemRules = {
     }),
   },
 } as const satisfies MetadataItemRule
-
-export const explicitEmptyPredefinedExtDimensionTypesRules = defineMetadataRules({
-  ...emptyMetadataRules,
-  explicitXMLProperties: {
-    chartOfAccountsPredefinedExtDimensionTypes: {
-      itemType: "ChartOfAccountsPredefinedItem",
-      propertyKey: "extDimensionTypes",
-      yamlValue: XML_PRESENT_TAG_VALUE,
-      xmlValue: {},
-    },
-  },
-})
 
 export const ChartOfAccountsPredefinedRules = {
   ...PredefinedRules,

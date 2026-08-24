@@ -1,24 +1,24 @@
 import fs from "fs"
 import os from "os"
 import { join } from "path"
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML, mockLanguages } from "../../../tests/mockContext"
+import { afterAll,beforeAll,beforeEach,describe,expect,it } from "vitest"
+import { mockContextFromXML,mockLanguages } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import {
-  createImportProjectStateTestService,
-  createXmlImportWorkerTestPool,
+createImportProjectStateTestService,
+createXmlImportWorkerTestPool,
 } from "../../../tests/xmlImportWorkerTestPool"
 import {
-  type ConfigurationIndexBlockEntity,
-  type ConfigurationProjectFile,
+type ConfigurationIndexBlockEntity,
+type ConfigurationProjectFile,
 } from "../../configurationIndex"
-import { configurationIndexStoreDescriptor, openConfigurationIndexStore } from "../../configurationIndex/store"
-import {
-  createImportCoordinatorDependencies,
-  importConfigurationFromXml,
-} from "../../importFromXml/importConfiguration"
+import { configurationIndexStoreDescriptor,openConfigurationIndexStore } from "../../configurationIndex/store"
 import { resolveXmlImportComponent } from "../../importFromXml/componentDescriptor"
-import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
+import {
+createImportCoordinatorDependencies,
+importConfigurationFromXml,
+} from "../../importFromXml/importConfiguration"
+import { CONFIGURATION_XML_FILE,CONFIGURATION_YAML_FILE } from "./rootIO"
 
 describe("sync configuration from xml", () => {
   const sourceInputDir = join(__dirname, "__fixtures__/syncConfiguration/xml")
@@ -284,10 +284,8 @@ describe("sync configuration from xml", () => {
       join("sync/syncConfiguration/yaml/Справочник/Контрагенты", "Свойства.yaml")
     )
 
-    expect(primaryImport.catalogYaml).toBe(`${expectedCatalogYaml.replaceAll("\r\n", "\n")}\nВводПоСтроке: []`)
-    expect(primaryImport.formYaml).toBe(
-      `${expectedFormYaml.replaceAll("\r\n", "\n")}\nКомментарий: !xml/raw null\nВключатьСправкуВСодержание: !xml/raw null`,
-    )
+    expect(primaryImport.catalogYaml).toBe(expectedCatalogYaml.replaceAll("\r\n", "\n").trimEnd())
+    expect(primaryImport.formYaml).toBe(expectedFormYaml.replaceAll("\r\n", "\n").trimEnd())
     expect(primaryImport.hasDocument).toBe(true)
     expect(primaryImport.hasNumerator).toBe(true)
     expect(primaryImport.hasLegacyNumerator).toBe(false)
@@ -357,8 +355,9 @@ describe("sync configuration from xml", () => {
     expect(yaml).toContain("ОтображениеКомандногоИнтерфейса: Верх")
   })
 
-  it("сохраняет пустой корневой интерфейс приложения, но не создаёт отсутствующий", () => {
-    expect(emptyClientApplicationInterfaceImport.yaml).toContain("ИнтерфейсКлиентскогоПриложения: !xml/present")
+  it("сохраняет пустой корневой интерфейс приложения как raw, но не создаёт отсутствующий", () => {
+    expect(emptyClientApplicationInterfaceImport.yaml).toContain("ИнтерфейсКлиентскогоПриложения: !xml/raw")
+    expect(emptyClientApplicationInterfaceImport.yaml).toContain("$значение:")
     expect(fullRootImport.yaml).not.toContain("ИнтерфейсКлиентскогоПриложения:")
   })
 

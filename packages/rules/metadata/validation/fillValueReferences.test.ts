@@ -1,13 +1,12 @@
-import { beforeAll, describe, expect, it } from "vitest"
+import { parseMetadataYaml,serializeYAMLDocument } from "@nkdk/runtime"
+import { beforeAll,describe,expect,it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
-import { parseMetadataYaml } from "@nkdk/runtime"
-import { serializeYAMLDocument } from "@nkdk/runtime"
-import { resolveValidationProjectFile } from "./projectFiles"
-import { createValidationRulesSnapshot } from "./rulesSnapshot"
-import { extractValidationYamlFacts } from "./yamlFactExtractor"
-import { createValidationSchemaCache } from "./projectValidationPasses"
 import { validateSerializedProjectYaml } from "../importFromXml/serializedYamlValidation"
 import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
+import { resolveValidationProjectFile } from "./projectFiles"
+import { createValidationSchemaCache } from "./projectValidationPasses"
+import { createValidationRulesSnapshot } from "./rulesSnapshot"
+import { extractValidationYamlFacts } from "./yamlFactExtractor"
 
 
 const schemaCache = createValidationSchemaCache(mockContext)
@@ -55,72 +54,6 @@ describe("fill value references", () => {
       }),
     ]))
     expect(facts.pendingReferences).toHaveLength(2)
-  })
-
-  it("indexes a tagged incompatible reference without a local type error", () => {
-    const facts = extract(`Реквизиты:
-  Исполнитель:
-    Тип: Справочник.ПолныеРоли
-    ЗначениеЗаполнения: !xml/value Справочник.РолиИсполнителей.ПустаяСсылка
-`)
-
-    expect(facts.pendingReferences).toEqual([
-      expect.objectContaining({
-        yamlPath: ["Реквизиты", "Исполнитель", "ЗначениеЗаполнения"],
-        canonical: "Catalog.РолиИсполнителей.EmptyRef",
-        target: expect.objectContaining({
-          kind: "value",
-          root: "Catalog",
-          objectName: "РолиИсполнителей",
-        }),
-        tagged: "xml",
-      }),
-    ])
-    expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Исполнитель/ЗначениеЗаполнения")).toEqual([])
-  })
-
-  it("не отправляет !xml ссылку DefinedType в обычную семантическую проверку", () => {
-    const facts = extract(`Реквизиты:
-  Автор:
-    Тип: ОпределяемыйТип.АвторДействия
-    ЗначениеЗаполнения: !xml/value Справочник.Пользователи.Администратор
-`)
-
-    expect(facts.pendingReferences).toEqual([
-      expect.objectContaining({ canonical: "Catalog.Пользователи.Администратор", tagged: "xml" }),
-    ])
-    expect(facts.pendingChecks).toEqual([])
-  })
-
-  it("не отвергает локально совместимую !xml ссылку до компонентного lookup", () => {
-    const facts = extract(`Реквизиты:
-  Получатель:
-    Тип: Справочник.Контрагенты
-    ЗначениеЗаполнения: !xml/value Справочник.Контрагенты.Поставщик
-`)
-
-    expect(facts.pendingReferences).toEqual([
-      expect.objectContaining({ canonical: "Catalog.Контрагенты.Поставщик", tagged: "xml" }),
-    ])
-    expect(facts.diagnostics.filter(({ path }) => path?.endsWith("/ЗначениеЗаполнения"))).toEqual([])
-  })
-
-  it("сохраняет !xml отсутствующей ссылки для второго прохода", () => {
-    const facts = extract(`Владельцы: []
-СтандартныеРеквизиты:
-  Владелец:
-    ЗначениеЗаполнения: !xml/value Справочник.ПапкиФайлов.ПустаяСсылка
-`)
-    const fillValueReferences = facts.pendingReferences.filter(
-      ({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения"
-    )
-    expect(fillValueReferences).toEqual([
-      expect.objectContaining({
-        canonical: "Catalog.ПапкиФайлов.EmptyRef",
-        yamlPath: ["СтандартныеРеквизиты", "Владелец", "ЗначениеЗаполнения"],
-        tagged: "xml",
-      }),
-    ])
   })
 
   it("stores only the reference in project state", () => {

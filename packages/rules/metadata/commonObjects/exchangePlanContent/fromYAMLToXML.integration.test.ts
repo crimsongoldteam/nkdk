@@ -1,20 +1,18 @@
-import { describe, expect, it } from "vitest"
-import { importFromYAML } from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
 
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
-  createDirectRoundTripContexts,
-  readAppliedObjectFixture,
-  serializeDirectXML,
-  testMetadataItemFromXMLToYAML,
-  testMetadataItemFromYAMLToXML,
-  testPropertyFromYAMLToXML,
+createDirectRoundTripContexts,
+readAppliedObjectFixture,
+serializeDirectXML,
+testMetadataItemFromXMLToYAML,
+testMetadataItemFromYAMLToXML,
+testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { contentYAML } from "./__fixtures__/data"
 import { ExchangePlanContentRules } from "./rules"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
-import "./register"
 
 describe("ExchangePlanContent YAML → XML", () => {
   const ownerRule = {
@@ -28,25 +26,8 @@ describe("ExchangePlanContent YAML → XML", () => {
     },
   } as const satisfies MetadataItemRule
 
-  it("создаёт пустой файл состава из !xml/present", () => {
-    const result = testPropertyFromYAMLToXML({
-      rule: ownerRule,
-      yaml: importFromYAML("Состав: !xml/present\n"),
-    })
-
-    expect(result.xml).toHaveProperty("Content.ExchangePlanContent")
-    expect(serializeDirectXML(result.xml)).not.toContain("<Item>")
-  })
-
   it("не создаёт файл состава при отсутствии поля", () => {
     expect(testPropertyFromYAMLToXML({ rule: ownerRule, yaml: {} }).xml).toEqual({})
-  })
-
-  it("отклоняет значение у !xml/present", () => {
-    expect(() => testPropertyFromYAMLToXML({
-      rule: ownerRule,
-      yaml: importFromYAML("Состав: !xml/present payload\n"),
-    })).toThrow("Состав допускает только пустой !xml/present")
   })
 
   it("round-trips content items with Allow and Deny auto record", () => {

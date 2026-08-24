@@ -37,6 +37,7 @@ export interface XmlImportRawCandidate {
 
 export interface XmlImportAuditSession {
   outcomes(): readonly XmlImportAuditOutcome[]
+  forEachOutcome(visitor: (outcome: XmlImportAuditOutcome) => void): void
   rekeyYamlPath(
     sourcePrefix: readonly (string | number)[],
     targetPrefix: readonly (string | number)[],
@@ -79,6 +80,9 @@ export function createXmlImportAuditSession(
 
   return {
     outcomes: () => [...outcomes.values()].map(copyOutcome),
+    forEachOutcome(visitor) {
+      for (const current of outcomes.values()) visitor(current)
+    },
     rekeyYamlPath(sourcePrefix, targetPrefix) {
       for (const current of outcomes.values()) {
         current.boundaries = uniqueBoundaries(

@@ -1,23 +1,18 @@
-import { describe, expect, it } from "vitest"
-import { importFromYAML, yamlMappingKeyTagAt } from "@nkdk/runtime"
-import { ClientApplicationFormRules } from "../../clientApplicationForm/rules"
-import { InputFieldRules } from "../../elements/inputField/rules"
-import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
-import { mockContextFromXML, mockContextToXML } from "../../../../tests/mockContext"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { importEventsFromXML } from "./fromXML"
-import { exportEventsToXML } from "./toXML"
-import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { createConfigurationIndexCollector,createConfigurationIndexExportRuntime } from "@nkdk/runtime"
+import type { MetadataItemRule,PropertyRule } from "@nkdk/runtime/rule-kit"
+import { describe,expect,it } from "vitest"
 import { testConfigurationIndexReader } from "../../../../tests/configurationIndex"
 import {
-  testPropertyFromXMLToYAML,
-  testPropertyFromYAMLToXML,
+testPropertyFromXMLToYAML
 } from "../../../../tests/directConversion"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { mockContextFromXML,mockContextToXML } from "../../../../tests/mockContext"
+import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
+import { ClientApplicationFormRules } from "../../clientApplicationForm/rules"
+import { InputFieldRules } from "../../elements/inputField/rules"
+import { importEventsFromXML } from "./fromXML"
+import { exportEventsToXML } from "./toXML"
 
 const eventRule = ClientApplicationFormRules.properties.events
-const brokenEventUuid = "047d4d09-961c-4bdc-8519-eef10674c35b"
 const eventProbeRule = {
   itemType: "EventBrokenReferenceProbe",
   properties: {
@@ -45,65 +40,6 @@ function contextWithSnapshot() {
 }
 
 describe("export Events to XML", () => {
-  it("помечает UUID-имя события как битую ссылку, не определяя событие по обработчику", () => {
-    const { yaml } = testPropertyFromXMLToYAML({
-      rule: eventProbeRule,
-      xml: {
-        Events: {
-          Event: { _name: brokenEventUuid, "#text": "ПослеЗаписи" },
-        },
-      },
-    })
-    const events = (yaml as { События: Record<string, unknown> }).События
-
-    expect(events).toEqual({ [brokenEventUuid]: "ПослеЗаписи" })
-    expect(yamlMappingKeyTagAt(events, brokenEventUuid)).toBe("xml/reference")
-  })
-
-  it("восстанавливает тегированный UUID дословно в Event.name", () => {
-    const yaml = importFromYAML([
-      "События:",
-      `  !xml/reference ${brokenEventUuid}: ПослеЗаписи`,
-    ].join("\n"))
-
-    expect(testPropertyFromYAMLToXML({ rule: eventProbeRule, yaml }).xml).toEqual({
-      Events: {
-        Event: [{ _name: brokenEventUuid, "#text": "ПослеЗаписи" }],
-      },
-    })
-  })
-
-  it("восстанавливает все callType тегированного UUID дословно", () => {
-    const yaml = importFromYAML([
-      "События:",
-      `  !xml/reference ${brokenEventUuid}:`,
-      "    Перед: ПередОбработчиком",
-      "    После: ПослеОбработчика",
-    ].join("\n"))
-
-    expect(testPropertyFromYAMLToXML({ rule: eventProbeRule, yaml }).xml).toEqual({
-      Events: {
-        Event: [
-          { _name: brokenEventUuid, _callType: "Before", "#text": "ПередОбработчиком" },
-          { _name: brokenEventUuid, _callType: "After", "#text": "ПослеОбработчика" },
-        ],
-      },
-    })
-  })
-
-  it("отклоняет UUID-ключ без !xml/reference", () => {
-    expect(() => testPropertyFromYAMLToXML({
-      rule: eventProbeRule,
-      yaml: { События: { [brokenEventUuid]: "ПослеЗаписи" } },
-    })).toThrow("UUID-имя события должно быть помечено тегом !xml/reference")
-  })
-
-  it("отклоняет !xml/reference на произвольном имени события", () => {
-    const yaml = importFromYAML("События:\n  !xml/reference НеUUID: Обработчик")
-
-    expect(() => testPropertyFromYAMLToXML({ rule: eventProbeRule, yaml }))
-      .toThrow("Тег !xml/reference у ключа не поддерживается типом свойства")
-  })
 
   it("не помечает обычные известные и неизвестные текстовые события", () => {
     const { yaml } = testPropertyFromXMLToYAML({
@@ -120,8 +56,6 @@ describe("export Events to XML", () => {
     const events = (yaml as { События: Record<string, unknown> }).События
 
     expect(events).toEqual({ ПриИзменении: "ПриИзменении", vendorEvent: "ОбработчикVendorEvent" })
-    expect(yamlMappingKeyTagAt(events, "ПриИзменении")).toBeUndefined()
-    expect(yamlMappingKeyTagAt(events, "vendorEvent")).toBeUndefined()
   })
 
   it("выгружает события в порядке ключей YAML, а не reference или снимка", () => {

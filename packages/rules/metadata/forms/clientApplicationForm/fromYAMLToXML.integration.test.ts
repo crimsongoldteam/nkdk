@@ -1,32 +1,29 @@
 import fs from "fs"
 import { fileURLToPath } from "url"
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
 import {
-  childSegmentUid,
-  childUid,
-  XML_PRESENT_TAG_VALUE,
-  importFromYAML,
-  markYAMLScalarTag,
-  xmlExport,
+childSegmentUid,
+childUid,
+importFromYAML
 } from "@nkdk/runtime"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
+import { createDirectRoundTripContexts } from "../../../tests/directConversion"
+import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredOwnerMetadataCache"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
-import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
-import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
-import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
-import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
-import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredOwnerMetadataCache"
-import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import {
-  ClientApplicationFormWithExtendedPresentationRules,
-} from "./rules"
-import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
+import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
+import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
+import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { prepareFormDataPathContextFromYAML } from "./formDataPathContext"
-import { createDirectRoundTripContexts } from "../../../tests/directConversion"
+import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
+import {
+ClientApplicationFormWithExtendedPresentationRules,
+} from "./rules"
+import type { ClientApplicationFormXML,ClientApplicationFormYAML,FormMetadataXML } from "./types"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   const formWithMainAttribute = (
@@ -359,18 +356,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
   })
 
-  it("восстанавливает пустой контейнер реквизитов из !xml/present без reference XML", () => {
-    const yaml = { Реквизиты: XML_PRESENT_TAG_VALUE } as unknown as ClientApplicationFormYAML
-    markYAMLScalarTag(yaml, "Реквизиты", "xml/present")
-    const result = convertClientApplicationFormFromYAMLToXML({
-      context: mockContextToXML(),
-      yaml,
-      name: "Форма",
-    })
-
-    expect(result.formXML.Attributes).toEqual({})
-  })
-
   it("создаёт обязательный пустой Attributes формы расширения без YAML-поля", () => {
     const baseContext = mockContextToXML()
     const result = convertClientApplicationFormFromYAMLToXML({
@@ -557,64 +542,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(elementByName(result.formXML, "Параметр").DataPath).toBe(
       "Items.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.CurrentData.Parameter",
     )
-  })
-
-  it("восстанавливает исключительный RowFilter из !xml/present без reference и configuration index", () => {
-    const yaml = importFromYAML<ClientApplicationFormYAML>([
-      "Реквизиты:",
-      "  КомпоновщикНастроек:",
-      "    Тип: КомпоновщикНастроекКомпоновкиДанных",
-      "Элементы:",
-      "  Настройки:",
-      "    Вид: ТаблицаФормы",
-      "    ПутьКДанным: КомпоновщикНастроек.Настройки",
-      "  Порядок:",
-      "    Вид: ТаблицаФормы",
-      "    ПутьКДанным: Элементы.Настройки.ТекущиеДанные.ЭлементПорядок",
-      "    ОтборСтрок: !xml/present",
-    ].join("\n"))
-
-    const result = convertClientApplicationFormFromYAMLToXML({
-      context: mockContextToXML(),
-      yaml,
-      name: "Форма",
-    })
-
-    expect(tableByName(result.formXML, "Порядок").RowFilter).toEqual({ "_xsi:nil": "true" })
-  })
-
-  it("не заменяет !xml/present RowFilter таблицы значений на false", () => {
-    const yaml = importFromYAML<ClientApplicationFormYAML>([
-      "Реквизиты:",
-      "  Строки:",
-      "    Тип: ТаблицаЗначений",
-      "    Колонки:",
-      "      Значение:",
-      "        Тип: Строка",
-      "Элементы:",
-      "  Строки:",
-      "    Вид: ТаблицаФормы",
-      "    ПутьКДанным: Строки",
-      "    ОтборСтрок: !xml/present",
-      "    Элементы:",
-      "      СтрокиЗначение:",
-      "        Вид: ПолеВвода",
-    ].join("\n"))
-
-    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
-    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
-    const result = nestedRule.convert({
-      context: mockContextToXML(),
-      yaml,
-      ownerYAML: {},
-      baseConfigurationIndex: testConfigurationIndexReader(),
-      name: "Форма",
-      referenceXML: undefined,
-    })
-    if (result === undefined) throw new Error("Управляемая форма не преобразована")
-
-    expect(tableByName(result.Form as ClientApplicationFormXML, "Строки").RowFilter)
-      .toEqual({ "_xsi:nil": "true" })
   })
 
   it("восстанавливает свойства таблицы только для прямого динамического списка", () => {
@@ -973,49 +900,6 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
 
     expect(elementByName(result.formXML, "Номер").DataPath).toBe("Объект.Number")
-  })
-
-  it("экспортирует payload tagged DataPath без преобразования внутренних имён", () => {
-    const yaml = importFromYAML<ClientApplicationFormYAML>([
-      "Реквизиты:",
-      "  Объект:",
-      "    Тип: СправочникОбъект.СправочникПолный",
-      "Элементы:",
-      "  Наименование:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: !xml/value Объект.Description",
-    ].join("\n"))
-
-    const result = convertClientApplicationFormFromYAMLToXML({
-      context: mockContextToXML(),
-      yaml,
-      name: "ФормаЭлемента",
-    })
-
-    expect(firstInputField(result.formXML).DataPath).toBe("Объект.Description")
-    expect(firstInputField(result.formXML).DataPath).not.toContain("!xml")
-  })
-
-  it("восстанавливает поля отбора условного оформления из !xml/value", () => {
-    const yaml = importFromYAML<ClientApplicationFormYAML>([
-      "УсловноеОформлениеРеквизитов:",
-      "  Элементы:",
-      "    - Отбор:",
-      "        Элементы:",
-      "          - ЛевоеЗначение: !xml/value НеизвестныйИсточник.Поле",
-      "            ПравоеЗначение: !xml/value ДругойИсточник.Поле",
-    ].join("\n"))
-
-    const result = convertClientApplicationFormFromYAMLToXML({
-      context: mockContextToXML(),
-      yaml,
-      name: "Форма",
-    })
-    const text = xmlExport({ Form: result.formXML })
-
-    expect(text).toContain('<dcsset:left xsi:type="dcscor:Field">НеизвестныйИсточник.Поле</dcsset:left>')
-    expect(text).toContain('<dcsset:right xsi:type="dcscor:Field">ДругойИсточник.Поле</dcsset:right>')
-    expect(text).not.toContain("!xml/value")
   })
 
   it("строит BaseForm встроенной формы из отдельного базового YAML", () => {

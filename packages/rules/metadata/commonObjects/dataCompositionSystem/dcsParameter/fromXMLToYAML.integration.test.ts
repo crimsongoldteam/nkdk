@@ -1,38 +1,19 @@
-import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../ruleRuntime"
+import { explicitYAMLString } from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
 import { testExportPropertyModelThroughXMLToYAML } from "../../../../tests/property/exportPropertyModelThroughXMLToYAML"
+import { PropertyRule } from "../../../ruleRuntime"
 import {
-  fullDCSParameters,
-  fullDCSParametersYAML,
-  minimalDCSParameters,
-  minimalDCSParametersYAML,
+fullDCSParameters,
+fullDCSParametersYAML,
+minimalDCSParameters,
+minimalDCSParametersYAML,
 } from "./__fixtures__/data"
 import "./types"
-import { explicitYAMLString } from "@nkdk/runtime"
 
 const rule: PropertyRule = {
   type: "DCSParameters",
   yaml: "Параметры",
 }
-
-const xmlWithStringTitle = `<Settings>
-  <Parameter>
-    <dcssch:name>StringTitleParameter</dcssch:name>
-    <dcssch:title xsi:type="xs:string">String title</dcssch:title>
-  </Parameter>
-</Settings>`
-
-const xmlWithUndefinedTypeValue = `<Settings>
-  <Parameter>
-    <dcssch:name>ТипЗначенияКлюча</dcssch:name>
-    <dcssch:title xsi:type="v8:LocalStringType">
-      <v8:item><v8:lang>ru</v8:lang><v8:content>Тип значения ключа</v8:content></v8:item>
-    </dcssch:title>
-    <dcssch:valueType><v8:Type>v8:Type</v8:Type></dcssch:valueType>
-    <dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>
-    <dcssch:useRestriction>true</dcssch:useRestriction>
-  </Parameter>
-</Settings>`
 
 const xmlWithAccumulationRecordTypeValue = `<Settings>
   <Parameter>
@@ -43,35 +24,7 @@ const xmlWithAccumulationRecordTypeValue = `<Settings>
   </Parameter>
 </Settings>`
 
-const importParameterYAML = (parameterXML: string) =>
-  testExportPropertyModelThroughXMLToYAML({
-    rule,
-    value: undefined,
-    xmlRootTag: "Settings",
-    xmlString: `<Settings>${parameterXML}</Settings>`,
-  }) as { Параметры: Record<string, Record<string, unknown>> }
-
 describe("export DCSParameter to YAML", () => {
-  it.each([
-    ["missing", `<Parameter><dcssch:name>P</dcssch:name></Parameter>`, undefined],
-    [
-      "nil",
-      `<Parameter><dcssch:name>P</dcssch:name><dcssch:value xsi:nil="true"/></Parameter>`,
-      null,
-    ],
-    [
-      "Undefined",
-      `<Parameter><dcssch:name>P</dcssch:name><dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value></Parameter>`,
-      "!xml/value Undefined",
-    ],
-  ])("imports %s value", (caseName, xmlString, expected) => {
-    const parameter = importParameterYAML(xmlString).Параметры.P
-
-    expect(parameter.Значение).toBe(expected)
-    if (caseName === "missing") {
-      expect(Object.hasOwn(parameter, "Значение")).toBe(false)
-    }
-  })
 
   it("exports undefined", () => {
     const result = testExportPropertyModelThroughXMLToYAML({ rule, value: undefined })
@@ -136,43 +89,6 @@ describe("export DCSParameter to YAML", () => {
             "Перечисление.ТипыНалогообложенияНДС.ПродажаНаЭкспорт",
             "Перечисление.ТипыНалогообложенияНДС.ЭкспортСырьевыхТоваровУслуг",
           ],
-        },
-      },
-    })
-  })
-
-  it("preserves xs:string title through !xml/type", () => {
-    const result = testExportPropertyModelThroughXMLToYAML({
-      rule,
-      value: undefined,
-      xmlRootTag: "Settings",
-      xmlString: xmlWithStringTitle,
-    })
-
-    expect(result).toEqual({
-      Параметры: {
-        StringTitleParameter: {
-          Заголовок: "!xml/type String String title",
-        },
-      },
-    })
-  })
-
-  it("preserves v8 Type Undefined value as !xml", () => {
-    const result = testExportPropertyModelThroughXMLToYAML({
-      rule,
-      value: undefined,
-      xmlRootTag: "Settings",
-      xmlString: xmlWithUndefinedTypeValue,
-    })
-
-    expect(result).toEqual({
-      Параметры: {
-        ТипЗначенияКлюча: {
-          Заголовок: "Тип значения ключа",
-          ТипЗначения: "Тип",
-          Значение: "!xml/value Undefined",
-          ОграничениеИспользования: "Истина",
         },
       },
     })

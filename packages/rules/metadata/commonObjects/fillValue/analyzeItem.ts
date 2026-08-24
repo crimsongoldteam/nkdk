@@ -24,7 +24,6 @@ import {
 } from "./effectiveType"
 import type { FillValueClassification, FillValueTransport } from "./types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
-import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
 import { fillValueDiagnostic } from "../../ruleRuntime/property/fillValueSemantics"
 import { effectiveFillValueType } from "../../ruleRuntime/property/fillValueSemantics"
@@ -115,33 +114,11 @@ function analyzeTransport(
 export function parseFillValueItem(
   item: Readonly<Record<string, unknown>>
 ): { readonly tagged: boolean; readonly value: MetadataTypedValue; readonly transport?: FillValueTransport } | undefined {
-  const tag = yamlScalarTagAt(item, fillValueYamlKey)
-  const tagged = tag === "xml/value" || tag === "xml/reference"
   const rawValue = item[fillValueYamlKey]
-  const payload = tagged && typeof rawValue === "string" ? xmlAnomalyTagPayload(tag, rawValue) : undefined
-  if (payload !== undefined && isFillValueTransport(payload)) {
-    return {
-      tagged: true,
-      value: payload === "DesignTimeRef"
-        ? { type: "ref", value: "" }
-        : { type: "string", value: "" },
-      transport: payload,
-    }
-  }
   const value = parseFillValueYaml(
-    payload !== undefined
-      ? payload
-      : asExplicitYAMLStringIfMarked(item, fillValueYamlKey, rawValue)
+    asExplicitYAMLStringIfMarked(item, fillValueYamlKey, rawValue)
   )
-  return value === undefined ? undefined : { tagged, value }
-}
-
-function isFillValueTransport(value: string): value is FillValueTransport {
-  return value === "Nil" ||
-    value === "String" ||
-    value === "DesignTimeRef" ||
-    value === "TypeDescription" ||
-    value === "Null"
+  return value === undefined ? undefined : { tagged: false, value }
 }
 
 function metadataAttributeTransportDiagnostic(

@@ -1,41 +1,30 @@
-import { describe, expect, it, vi } from "vitest"
-import { createDirectRoundTripContexts } from "../../../tests/directConversion"
-import { mockContextFromXML, mockXmlImportContext } from "../../../tests/mockContext"
-import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { xmlExport } from "@nkdk/runtime"
-import { importContentFromXML } from "@nkdk/runtime"
-import { withConfigurationIndexCollector } from "@nkdk/runtime"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
-import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from "./__fixtures__/data"
 import {
-  importClientApplicationFormBodyFromXML,
-  importClientApplicationFormFromXMLToYAML,
+createConfigurationIndexCollector,importContentFromXML,
+withConfigurationIndexCollector,
+xmlExport,
+yamlScalarTagAt
+} from "@nkdk/runtime"
+import { bindDeferredObjectValues,createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
+import { describe,expect,it,vi } from "vitest"
+import { createDirectRoundTripContexts } from "../../../tests/directConversion"
+import { mockContextFromXML,mockXmlImportContext } from "../../../tests/mockContext"
+import { readAndParseXMLFixture,readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
+import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeImportedYAML"
+import * as propertyImporter from "../../ruleRuntime/property/fromXMLToYAML"
+import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
+import { fullClientApplicationFormYAML,minimalClientApplicationFormYAML } from "./__fixtures__/data"
+import {
+importClientApplicationFormBodyFromXML,
+importClientApplicationFormFromXMLToYAML,
 } from "./fromXMLToYAML"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
-import * as propertyImporter from "../../ruleRuntime/property/fromXMLToYAML"
 import {
-  ClientApplicationFormRules,
-  ClientApplicationFormWithExtendedPresentationRules,
+ClientApplicationFormRules,
+ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
-import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
-import { bindDeferredObjectValues } from "@nkdk/runtime/rule-kit"
-import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeImportedYAML"
-import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
-import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
-import { createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
-import {
-  createMetadataExecutionRegistrySets,
-  withMetadataExecutionRegistrySets,
-} from "../../composition/metadataExecutionContext"
-import { metadataRules } from "../../composition/metadataRules"
-import {
-  markYAMLScalarTag,
-  XML_PRESENT_TAG_VALUE,
-  xmlAnomalyTagValue,
-  yamlMappingKeyTagAt,
-  yamlScalarTagAt,
-} from "@nkdk/runtime"
+import type { ClientApplicationFormXML,ClientApplicationFormYAML,FormMetadataXML } from "./types"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -168,65 +157,6 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 
     expect(JSON.stringify(result.yaml)).toContain("Элементы.Строки.ТекущиеДанные.Значение")
     expect(JSON.stringify(result.yaml)).not.toContain("Items.Строки.CurrentData.Значение")
-  })
-
-  it("преобразует рекурсивные пути SettingsComposer и сохраняет имена элементов", () => {
-    const result = importClientApplicationFormFromXMLToYAML({
-      context: currentDataImportContext(),
-      formName: "Форма",
-      formXML: {
-        Attributes: {
-          Attribute: [{
-            _name: "КомпоновщикНастроек",
-            _id: "1",
-            Type: { "v8:Type": "dcsset:SettingsComposer" },
-          }],
-        },
-        ChildItems: [
-          {
-            Table: {
-              _name: "КомпоновщикНастроекНастройки",
-              _id: "2",
-              DataPath: "КомпоновщикНастроек.Settings",
-            },
-          },
-          {
-            Table: {
-              _name: "КомпоновщикНастроекНастройкиЭлементПараметрыДанных",
-              _id: "3",
-              DataPath: "Items.КомпоновщикНастроекНастройки.CurrentData.ItemDataParameters",
-              RowFilter: { "_xsi:nil": "true" },
-            },
-          },
-          {
-            InputField: {
-              _name: "Параметр",
-              _id: "4",
-              DataPath: "Items.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.CurrentData.Parameter",
-            },
-          },
-        ],
-      },
-      metadataXML: { Form: { Properties: { FormType: "Managed" } } },
-    })
-
-    finalizeImportedFormDataPaths(result)
-
-    const yaml = result.yaml as ClientApplicationFormYAML
-    expect(yaml.Элементы).toMatchObject({
-      КомпоновщикНастроекНастройки: {
-        ПутьКДанным: "КомпоновщикНастроек.Настройки",
-      },
-      КомпоновщикНастроекНастройкиЭлементПараметрыДанных: {
-        ПутьКДанным: "Элементы.КомпоновщикНастроекНастройки.ТекущиеДанные.ЭлементПараметрыДанных",
-      },
-      Параметр: {
-        ПутьКДанным: "Элементы.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.ТекущиеДанные.Параметр",
-      },
-    })
-    const parameters = yaml.Элементы?.КомпоновщикНастроекНастройкиЭлементПараметрыДанных as unknown as Record<string, unknown>
-    expect(parameters.ОтборСтрок).toBe(XML_PRESENT_TAG_VALUE)
-    expect(yamlScalarTagAt(parameters, "ОтборСтрок")).toBe("xml/present")
   })
 
   it("индексирует дополнительные колонки до уточнения CurrentData", () => {
@@ -403,75 +333,6 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       rule: ClientApplicationFormRules,
     })
     expect(base.yaml).not.toHaveProperty("РасширенноеПредставление")
-  })
-
-  it("восстанавливает пустой контейнер реквизитов без reference XML", () => {
-    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
-    form.Form.Attributes = {}
-    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "minimalMetadata.xml")
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: "Справочник.Товары.Форма.Минимальная",
-    })
-
-    const imported = importClientApplicationFormFromXMLToYAML({
-      context: contexts.importContext,
-      formName: "Минимальная",
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
-    })
-    expect(imported.yaml).toHaveProperty("Реквизиты", XML_PRESENT_TAG_VALUE)
-    expect(yamlScalarTagAt(imported.yaml, "Реквизиты")).toBe("xml/present")
-    const converted = convertClientApplicationFormFromYAMLToXML({
-      context: contexts.exportContext(),
-      yaml: imported.yaml as ClientApplicationFormYAML,
-      name: "Минимальная",
-    })
-
-    expect(converted.formXML.Attributes).toEqual({})
-  })
-
-  it("собирает идентичности формы, вложенных элементов и singleton по каноническим адресам", () => {
-    const collector = createConfigurationIndexCollector()
-    const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
-    const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
-    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
-    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
-    const inputField = (form.Form.ChildItems as Array<{ InputField: { ContextMenu: { _name: string } } }>)[0].InputField
-    inputField.ContextMenu._name = "НестандартноеКонтекстноеМеню"
-
-    const imported = importClientApplicationFormFromXMLToYAML({
-      context,
-      formName: "ФормаЭлемента",
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
-    })
-
-    const identities = identityFacts(collector.fragment("Форма.yaml").entities)
-    expect(identities).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ logicalAddress, kind: "uuid" }),
-        expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1`, kind: "xmlId" }),
-        expect.objectContaining({ logicalAddress: `${logicalAddress}.Атрибут.Объект`, kind: "xmlId" }),
-        expect.objectContaining({ logicalAddress: `${logicalAddress}.Команда.Команда1`, kind: "xmlId" }),
-        {
-          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.КонтекстноеМеню`,
-          kind: "xmlId",
-          value: "3",
-        },
-      ])
-    )
-    expect(identities).not.toEqual(expect.arrayContaining([
-      expect.objectContaining({ kind: "xmlName" }),
-    ]))
-    const input = (imported.yaml as ClientApplicationFormYAML).Элементы?.ПолеВвода1 as Record<string, unknown>
-    const menu = input.КонтекстноеМеню as Record<string, unknown>
-    expect(menu.Имя).toBe("!xml/name НестандартноеКонтекстноеМеню")
-    expect(yamlScalarTagAt(menu, "Имя")).toBe("xml/name")
-    expect(identities).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.НестандартноеКонтекстноеМеню` }),
-      ])
-    )
   })
 
   it("собирает идентичности вложенной таблицы диаграммы Ганта", () => {
@@ -728,50 +589,6 @@ describe("форма XML → YAML → XML", () => {
     ])
   })
 
-  it("сохраняет UUID-имена событий как битые ссылки", () => {
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: "БизнесПроцесс.Заказ.Форма.ФормаЗадачи",
-    })
-    const formXML = {
-      Events: {
-        Event: [
-          { _name: "81c01005-9b73-4278-853b-1a8d203c8e8c", "#text": "ОбработкаАктивации" },
-          { _name: "ea0a9886-1607-44fe-a446-2cc57548f57d", "#text": "ПередВыполнением" },
-        ],
-      },
-    } as ClientApplicationFormXML
-    const metadataXML = { Form: { Properties: { FormType: "Managed" } } } as FormMetadataXML
-
-    const imported = importClientApplicationFormFromXMLToYAML({
-      context: contexts.importContext,
-      formName: "ФормаЗадачи",
-      formXML,
-      metadataXML,
-    })
-    const converted = convertClientApplicationFormFromYAMLToXML({
-      context: contexts.exportContext(),
-      yaml: imported.yaml as ClientApplicationFormYAML,
-      name: "ФормаЗадачи",
-    })
-    const importedForm = imported.yaml as ClientApplicationFormYAML
-    const events = converted.formXML.Events?.Event
-
-    expect(importedForm).toMatchObject({
-      События: {
-        "81c01005-9b73-4278-853b-1a8d203c8e8c": "ОбработкаАктивации",
-        "ea0a9886-1607-44fe-a446-2cc57548f57d": "ПередВыполнением",
-      },
-    })
-    expect(yamlMappingKeyTagAt(importedForm.События, "81c01005-9b73-4278-853b-1a8d203c8e8c"))
-      .toBe("xml/reference")
-    expect(yamlMappingKeyTagAt(importedForm.События, "ea0a9886-1607-44fe-a446-2cc57548f57d"))
-      .toBe("xml/reference")
-    expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
-      "81c01005-9b73-4278-853b-1a8d203c8e8c",
-      "ea0a9886-1607-44fe-a446-2cc57548f57d",
-    ])
-  })
-
   it("восстанавливает идентификаторы элементов формы без reference XML", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
@@ -822,69 +639,17 @@ describe("форма XML → YAML → XML", () => {
       expect.objectContaining({
         _name: "ПолеВвода1",
         _id: "22",
-        ContextMenu: expect.objectContaining({ _name: "СтароеИмяКонтекстногоМеню", _id: "33" }),
+        ContextMenu: expect.objectContaining({ _name: "ПолеВвода1КонтекстноеМеню", _id: "33" }),
         ExtendedTooltip: expect.objectContaining({ _name: "ПолеВвода1РасширеннаяПодсказка", _id: "44" }),
       })
     )
     expect(converted.formXML.Commands?.Command).toEqual(
       expect.arrayContaining([expect.objectContaining({ _name: "Команда1", _id: "55" })])
     )
-    expect(converted.formXML.AutoCommandBar).toEqual(expect.objectContaining({ _name: "", _id: "-1" }))
+    expect(converted.formXML.AutoCommandBar).toEqual(
+      expect.objectContaining({ _name: "ФормаКоманднаяПанель", _id: "-1" })
+    )
   })
-
-  it("восстанавливает имена подсказок вложенных дополнений таблицы без reference XML", () =>
-    withMetadataExecutionRegistrySets(createMetadataExecutionRegistrySets(metadataRules), () => {
-    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "reportForm.xml")
-    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
-      import.meta.url,
-      "reportFormMetadata.xml"
-    )
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: "Отчет.ОтчетВсеСвойства.Форма.ФормаОтчета",
-    })
-    const imported = importClientApplicationFormFromXMLToYAML({
-      context: contexts.importContext,
-      formName: "ФормаОтчета",
-      formXML: form.Form,
-      metadataXML: metadata.MetaDataObject,
-    })
-    const tableYAML = findRecordWithValue(imported.yaml, "Вид", "ТаблицаФормы")
-    if (tableYAML === undefined) throw new Error("В YAML не найдена таблица")
-    const searchStringYAML: Record<string, unknown> = { РасширеннаяПодсказка: {} }
-    tableYAML.ОтображениеСтрокиПоиска = searchStringYAML
-    searchStringYAML.Имя = xmlAnomalyTagValue("xml/name", "СвязиНеУдаленныхСтрокаПоиска")
-    markYAMLScalarTag(searchStringYAML, "Имя", "xml/name")
-
-    const viewStatusTooltipYAML: Record<string, unknown> = {}
-    tableYAML.ОтображениеСостоянияПросмотра = { РасширеннаяПодсказка: viewStatusTooltipYAML }
-    viewStatusTooltipYAML.Имя = xmlAnomalyTagValue("xml/name", "СобственноеИмяПодсказки")
-    markYAMLScalarTag(viewStatusTooltipYAML, "Имя", "xml/name")
-
-    const converted = convertClientApplicationFormFromYAMLToXML({
-      context: contexts.exportContext(),
-      yaml: imported.yaml as ClientApplicationFormYAML,
-      name: "ФормаОтчета",
-    })
-    const table = (
-      converted.formXML.ChildItems as Array<{
-        Table?: {
-          SearchStringAddition?: { ExtendedTooltip?: { _name?: string } }
-          ViewStatusAddition?: { ExtendedTooltip?: { _name?: string } }
-          SearchControlAddition?: { ExtendedTooltip?: { _name?: string } }
-        }
-      }>
-    ).find((item) => item.Table !== undefined)?.Table
-
-    expect(table?.SearchStringAddition?.ExtendedTooltip?._name).toBe(
-      "СвязиНеУдаленныхСтрокаПоискаРасширеннаяПодсказка"
-    )
-    expect(table?.ViewStatusAddition?.ExtendedTooltip?._name).toBe(
-      "СобственноеИмяПодсказки"
-    )
-    expect(table?.SearchControlAddition?.ExtendedTooltip?._name).toBe(
-      "ТабличнаяЧастьВсеСвойстваУправлениеПоискомРасширеннаяПодсказка"
-    )
-  }))
 
   it("восстанавливает порядок metadata-свойств по адресу metadata-файла", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
@@ -997,30 +762,6 @@ describe("форма XML → YAML → XML", () => {
     )
   })
 })
-
-function asTestRecord(value: unknown): Record<string, unknown> | undefined {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : undefined
-}
-
-function findRecordWithValue(value: unknown, property: string, expected: unknown): Record<string, unknown> | undefined {
-  const record = asTestRecord(value)
-  if (record === undefined) {
-    if (!Array.isArray(value)) return undefined
-    for (const item of value) {
-      const found = findRecordWithValue(item, property, expected)
-      if (found !== undefined) return found
-    }
-    return undefined
-  }
-  if (record[property] === expected) return record
-  for (const child of Object.values(record)) {
-    const found = findRecordWithValue(child, property, expected)
-    if (found !== undefined) return found
-  }
-  return undefined
-}
 
 function canonicalXML(xml: string): unknown {
   return withoutFormattingText(importContentFromXML(xml))

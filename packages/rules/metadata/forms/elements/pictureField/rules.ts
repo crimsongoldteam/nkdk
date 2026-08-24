@@ -12,7 +12,6 @@ import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
-import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
 export const PictureFieldRules = {
   itemType: "PictureField",
@@ -229,6 +228,5 @@ export const TablePictureFieldRules = {
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", noImplicitValueYAML: true },
   },
 } as const satisfies ElementRule
-export const metadataRuleLayer000 = defineExplicitHeaderHorizontalAlign(TablePictureFieldRules.itemType)
 export const metadataRuleLayer001 = defineElementRule("PictureField", PictureFieldRules)
 export const metadataRuleLayer002 = defineElementRule("TablePictureField", TablePictureFieldRules)

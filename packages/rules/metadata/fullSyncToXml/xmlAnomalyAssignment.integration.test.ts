@@ -35,8 +35,8 @@ import {
 import { withOperationRegistrySet } from "../operations/operationExecutionContext"
 import {
   buildPreparedAssignmentXml,
-  prepareXmlAnomalyAssignment,
 } from "./xmlAnomalyAssignment"
+import { prepareTestXmlAnomalyAssignment } from "../xmlAnomalies/testSupport"
 
 const rule = {
   itemType: "SyntheticOwner",
@@ -751,18 +751,9 @@ function prepareParsedAnomalies(
     readonly mode?: "preserve" | "projectionOnly"
   },
 ) {
-  return prepareXmlAnomalyAssignment({
-    preparedYamlFile: {
-      projectPath: "Объект/Один/Свойства.yaml",
-      filePath: "/project/Объект/Один/Свойства.yaml",
-      role: "properties",
-      owner: { dir: "Объект", name: "Один" },
-      data: parsed.data,
-      annotations: parsed.annotations,
-      syntaxDiagnostics: [],
-    },
+  return prepareTestXmlAnomalyAssignment({
+    parsed,
     rootRule: options.rootRule ?? rule,
-    itemName: "Один",
     ...(options.runtime === undefined ? {} : { runtime: options.runtime }),
     ...(options.mode === undefined ? {} : { mode: options.mode }),
   })

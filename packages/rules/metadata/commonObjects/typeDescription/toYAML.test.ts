@@ -1,15 +1,11 @@
-import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "../../../tests/mockContext"
+import { describe,expect,it } from "vitest"
+import { mockContext,mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromYAML } from "./fromYAML"
 import { exportTypeDescriptionToYAML } from "./toYAML"
 import { TYPE_DESCRIPTION_SOURCE_TYPES } from "./types"
-import { isTaggedYAMLScalar, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
 
 describe("exportTypeDescriptionToYAML", () => {
-  const firstTypeId = "8c1e3694-da12-44d5-8b1f-d134b89a1282"
-  const secondTypeId = "6b99868d-5f3a-44e2-bb6d-3ad3b5d3198c"
-
   it("should format undefined type description", () => {
     const result = exportTypeDescriptionToYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
@@ -24,31 +20,6 @@ describe("exportTypeDescriptionToYAML", () => {
     const result = exportTypeDescriptionToYAML(mockContext, mockRule, { type: ["FillChecking"] })
 
     expect(result).toEqual("СистемноеПеречисление.ПроверкаЗаполнения")
-  })
-
-  it("exports a single TypeId as an exact !xml/reference scalar", () => {
-    const result = exportTypeDescriptionToYAML(mockContext, mockRule, { type: [], typeId: [firstTypeId] })
-
-    expect(isTaggedYAMLScalar(result)).toBe(true)
-    if (!isTaggedYAMLScalar(result)) throw new Error("Expected tagged TypeId")
-    expect(result.value).toBe(xmlAnomalyTagValue("xml/reference", firstTypeId))
-    expect(result.tag).toBe("xml/reference")
-  })
-
-  it("exports ordinary types before exact !xml/reference TypeIds", () => {
-    const result = exportTypeDescriptionToYAML(mockContext, mockRule, {
-      type: ["string"],
-      typeId: [firstTypeId, secondTypeId],
-    })
-
-    expect(result).toEqual([
-      "Строка",
-      xmlAnomalyTagValue("xml/reference", firstTypeId),
-      xmlAnomalyTagValue("xml/reference", secondTypeId),
-    ])
-    expect(yamlScalarTagAt(result as unknown[], 0)).toBeUndefined()
-    expect(yamlScalarTagAt(result as unknown[], 1)).toBe("xml/reference")
-    expect(yamlScalarTagAt(result as unknown[], 2)).toBe("xml/reference")
   })
 
   it("не помечает !xml составной тип с каноническим префиксом cfg", () => {

@@ -153,10 +153,19 @@ function prepareTopologyAssignmentDocuments(
   })
   for (const boundary of rawBoundaries) {
     const tag = boundary.tag
-    if (tag === undefined && documents.length !== 1) {
+    const documentPath = boundary.documentPath
+    if (tag === undefined && documentPath === undefined && documents.length !== 1) {
       throw new Error(
         `raw-границу ${boundary.path} нельзя однозначно связать с одним XML-документом assignment`,
       )
+    }
+    if (documentPath !== undefined) {
+      const matchingDocuments = documents.filter((document) => sameXmlDocumentPath(document.targetXmlPath, documentPath))
+      if (matchingDocuments.length !== 1) {
+        throw new Error(
+          `raw-границе ${boundary.path} соответствует ${matchingDocuments.length} XML-документов ${documentPath}`,
+        )
+      }
     }
     if (tag !== undefined) {
       const matchingDocuments = documents.filter((document) => document.tags?.includes(tag) === true)
@@ -175,7 +184,9 @@ function prepareTopologyAssignmentDocuments(
   const preparedDocuments = documents.map((document) => ({
     ...document,
     rawBoundaries: rawBoundaries.filter(
-      (boundary) => boundary.tag === undefined || document.tags?.includes(boundary.tag) === true,
+      (boundary) => boundary.documentPath !== undefined
+        ? sameXmlDocumentPath(document.targetXmlPath, boundary.documentPath)
+        : boundary.tag === undefined || document.tags?.includes(boundary.tag) === true,
     ),
   }))
   const allowed = new Set(outputs.map((output) => output.declarationId))
@@ -190,6 +201,12 @@ function prepareTopologyAssignmentDocuments(
     seen.add(document.declarationId)
   }
   return preparedDocuments
+}
+
+function sameXmlDocumentPath(left: string, right: string): boolean {
+  const normalizedLeft = left.replaceAll("\\", "/")
+  const normalizedRight = right.replaceAll("\\", "/")
+  return normalizedLeft === normalizedRight || normalizedLeft.endsWith(`/${normalizedRight}`)
 }
 
 function withTopologyMetadataTargetOwners(

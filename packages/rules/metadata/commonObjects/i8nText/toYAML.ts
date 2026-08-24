@@ -1,10 +1,7 @@
 import {
   ConfigurationContext,
-  copyYAMLScalarTags,
   markYAMLMappingKeyOrder,
   yamlMappingKeys,
-  yamlMappingTagOf,
-  yamlScalarTagAt,
 } from "@nkdk/runtime"
 import { excludeNameFromI8nText } from "../../helpers/synonymHelpers"
 import { ExportToYAMLFunctionNew, PropertyRule } from "../../ruleRuntime"
@@ -37,8 +34,7 @@ export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
     i8nRule.excludeIfEqualNameYAML &&
     text !== undefined &&
     Object.keys(text.items).length > 0 &&
-    text.items[context.languages.default] === undefined &&
-    yamlMappingTagOf(text.items) !== "xml/order"
+    text.items[context.languages.default] === undefined
   ) {
     const items = { [context.languages.default]: "", ...(textClean?.items ?? {}) }
     if (textClean !== undefined) {
@@ -77,13 +73,6 @@ const getTextWithoutName = (params: {
   if (!rule.excludeIfEqualNameYAML) return text
   if (!name) return text
 
-  if (
-    yamlMappingTagOf(text.items) === "xml/order" ||
-    yamlScalarTagAt(text.items, context.languages.default) === "xml/duplicate"
-  ) {
-    return text
-  }
-
   const result = excludeNameFromI8nText(context, text, name)
   if (result !== undefined && result.items !== text.items) copyLocalizedItemTags(text.items, result.items)
   return result
@@ -101,13 +90,7 @@ const exportFullI8nTextToYAML = (
   const languages = yamlMappingKeys(items)
 
   if (languages.length === 0) return undefined
-  if (
-    languages.length === 1 &&
-    items[defaultLanguage] !== undefined &&
-    yamlScalarTagAt(items, defaultLanguage) === undefined
-  ) return items[defaultLanguage]
-
-  if (yamlMappingTagOf(items) === "xml/order") return items
+  if (languages.length === 1 && items[defaultLanguage] !== undefined) return items[defaultLanguage]
   if (languages.some((language) => language === "" || language === "#")) return items
 
   const canonicalLanguages = [
@@ -117,7 +100,6 @@ const exportFullI8nTextToYAML = (
   if (canonicalLanguages.every((language, index) => language === languages[index])) return items
 
   const canonicalItems = Object.fromEntries(canonicalLanguages.map((language) => [language, items[language]]))
-  copyYAMLScalarTags(items, canonicalItems)
   markYAMLMappingKeyOrder(canonicalItems, canonicalLanguages)
 
   return canonicalItems

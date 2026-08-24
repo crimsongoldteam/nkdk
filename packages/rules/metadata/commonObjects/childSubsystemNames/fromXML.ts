@@ -11,3 +11,7 @@ export const importChildSubsystemNamesFromXML = (
 export const metadataPropertyRule000 = definePropertyTypeRule("ChildSubsystemNames", "importFromXML", (_context, _rule, value) =>
   importChildSubsystemNamesFromXML(value as ChildSubsystemNamesXML | undefined)
 )
+
+export const metadataPropertyRule001 = definePropertyTypeRule("ChildSubsystemNames", "xmlImportPropertyBehavior", {
+  repeatedXMLNodes: true,
+})

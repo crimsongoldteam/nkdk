@@ -8,13 +8,7 @@ import {
   collectDependentStructuralItemReferences,
   type DependentStructuralItemReference,
 } from "../ruleRuntime/property/dependentItemRegistry"
-import {
-  assertAllYAMLMappingKeyReferenceTagsTransported,
-  isRelativeYAMLReferenceTagged,
-  type BrokenXMLReferenceLocation,
-} from "../ruleRuntime/property/brokenXMLReferenceCarrierRegistry"
 import { yamlScalarTagAt } from "../../yaml/scalarTags"
-export { isRelativeYAMLReferenceTagged } from "../ruleRuntime/property/brokenXMLReferenceCarrierRegistry"
 import {
   isTypeOwnedMetadataTargetUnavailable,
   metadataTargetOwnerForProperty,
@@ -63,11 +57,6 @@ export type StructuralReferenceNestedRule =
     }
 
 export interface StructuralReferenceRuntime {
-  readonly omittedExplicitXMLPropertyKeys: (params: {
-    readonly yaml: unknown
-    readonly itemType: string
-    readonly properties: Readonly<Record<string, StructuralReferencePropertyRule>>
-  }) => ReadonlySet<string>
   readonly valueFromYAML: (params: {
     context: unknown
     rule: StructuralReferencePropertyRule
@@ -101,12 +90,6 @@ export interface StructuralReferenceRuntime {
     owner?: MetadataTargetOwner
   }) => IndexedStructuralReferenceCandidate[]
   readonly nestedRule: (rule: StructuralReferencePropertyRule) => StructuralReferenceNestedRule | undefined
-  readonly isTransportedBrokenXMLReference: (params: {
-    rule: StructuralReferencePropertyRule
-    yamlValue: unknown
-    location: BrokenXMLReferenceLocation
-    isTagged: (location: BrokenXMLReferenceLocation) => boolean
-  }) => boolean
 }
 
 export interface StructuralYamlReference extends StructuralReferenceCandidate {
@@ -156,11 +139,6 @@ function collectObjectReferences(params: {
   if (record === undefined) return { ok: true, references: [] }
 
   const references: StructuralYamlReference[] = []
-  const omittedExplicitXMLPropertyKeys = params.runtime.omittedExplicitXMLPropertyKeys({
-    yaml: record,
-    itemType: params.rule.itemType,
-    properties: params.rule.properties,
-  })
   const dependentReferences = collectDependentStructuralItemReferences({
     itemType: params.rule.itemType,
     ...(params.itemName === undefined ? {} : { itemName: params.itemName }),
@@ -200,36 +178,12 @@ function collectObjectReferences(params: {
     if (typeof propertyRule.yaml !== "string") continue
     const yamlValue = record[propertyRule.yaml]
     if (yamlValue === undefined) continue
-    if (omittedExplicitXMLPropertyKeys.has(propertyName)) continue
     if (propertyRule.metadataTarget !== undefined && yamlValue === "") continue
     const propertyStateTag = yamlScalarTagAt(record, propertyRule.yaml)
     if (
       (propertyStateTag === "проверять" || propertyStateTag === "изменять") &&
       isEmptyMapping(yamlValue)
     ) continue
-    const isTagged = (location: BrokenXMLReferenceLocation) =>
-      isRelativeYAMLReferenceTagged(record, propertyRule.yaml!, location)
-    const isTransported = (location: BrokenXMLReferenceLocation) =>
-      params.runtime.isTransportedBrokenXMLReference({
-        rule: propertyRule,
-        yamlValue,
-        location,
-        isTagged,
-      })
-    if (isTransported({ kind: "value", path: [] })) continue
-
-    const nestedRule = params.runtime.nestedRule(propertyRule)
-    if (nestedRule === undefined || nestedRule.kind === "externalFile") {
-      try {
-        assertAllYAMLMappingKeyReferenceTagsTransported(
-          yamlValue,
-          isTransported,
-          [...params.yamlPath, propertyRule.yaml],
-        )
-      } catch (error) {
-        return { ok: false, message: error instanceof Error ? error.message : String(error) }
-      }
-    }
 
     const siblingValue = (propertyKey: string) => {
       const siblingYaml = params.rule.properties[propertyKey]?.yaml
@@ -287,8 +241,6 @@ function collectObjectReferences(params: {
         stagedCanonical = undefined
       }
       for (const candidate of candidates) {
-        const relativePath = candidate.yamlPath.slice(handlerParams.yamlPath.length)
-        if (isTransported({ kind: "value", path: relativePath })) continue
         if (typeof candidate.setCanonical !== "function") {
           throw new Error(`Правило ${propertyRule.type} распознало ссылку без setter в ${params.filePath}`)
         }

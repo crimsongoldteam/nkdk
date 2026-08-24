@@ -34,7 +34,6 @@ import {
   ClientApplicationInterfaceItemsHintYAMLSchema,
   ClientApplicationInterfaceItemsValidationYAMLSchema,
 } from "./types"
-import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 
 const standardPanelsByUuid = {
   "b553047f-c9aa-4157-978d-448ecad24248": "ПанельРазделов",
@@ -537,7 +536,7 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
         panelDef.spr === undefined &&
         Object.keys(getReferenceRawXML(panelDef) ?? panelDef).every((key) => key === "_id" || key === "id")
     )
-  return emptyStandardRoot ? XML_PRESENT_TAG_VALUE : result
+  return emptyStandardRoot ? {} : result
 }
 
 const importPanelFromYAML = (
@@ -889,15 +888,13 @@ export const metadataRuleLayer000 = defineMetadataRules({
     propertyType: "ClientApplicationInterface",
     itemRule: ClientApplicationInterfaceRules,
   }),
-  explicitXMLPropertyTypes: {
-    ClientApplicationInterface: {
-      propertyType: "ClientApplicationInterface",
-      action: "materializeCollection",
-      yamlValue: XML_PRESENT_TAG_VALUE,
-    },
-  },
 })
 export const metadataPropertyRule001 = definePropertyTypeRule("ClientApplicationInterface", "importFromXMLToYAML", importClientApplicationInterfaceFromXMLToYAML)
+export const metadataPropertyRule010 = definePropertyTypeRule(
+  "ClientApplicationInterface",
+  "xmlImportPropertyBehavior",
+  { presenceAffectsExport: true },
+)
 
 export const metadataPropertyRule002 = definePropertyTypeRule("ClientApplicationInterfaceItems", "importFromXML", importItemsFromXML)
 export const metadataPropertyRule003 = definePropertyTypeRule("ClientApplicationInterfaceItems", "exportToXML", exportItemsToXML)

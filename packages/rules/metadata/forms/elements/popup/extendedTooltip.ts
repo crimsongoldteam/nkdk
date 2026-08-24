@@ -1,16 +1,8 @@
 import { Type } from "typebox"
 
 import {
-  XML_ABSENT_TAG_VALUE,
-  markYAMLScalarTag,
-  taggedYAMLScalar,
-  xmlAnomalyTagPayload,
-  xmlAnomalyTagValue,
-  yamlScalarTagAt,
   type ConfigurationContextWithExportToXML,
 } from "@nkdk/runtime"
-import { defineMetadataRules } from "../../../ruleRuntime/definition"
-import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { getParentFromContext } from "../../../context/helpers"
 import { explicitElementNameStyle } from "../../explicitElementName"
@@ -40,13 +32,7 @@ export const metadataPropertyRule000 = definePropertyTypeRule(
       nameStyle,
       traversal,
     })
-    if (yaml === undefined || Object.keys(yaml).length === 0) return undefined
-    if (Object.keys(yaml).length === 1 && yamlScalarTagAt(yaml, "Имя") === "xml/name") {
-      const value = yaml.Имя
-      if (typeof value !== "string") throw new Error("Имя подсказки подменю должно быть строкой")
-      return taggedYAMLScalar("xml/name", xmlAnomalyTagValue("xml/name", xmlAnomalyTagPayload("xml/name", value)))
-    }
-    return yaml
+    return yaml === undefined || Object.keys(yaml).length === 0 ? undefined : yaml
   },
 )
 
@@ -81,10 +67,10 @@ export const metadataPropertyRule003 = definePropertyTypeRule(
   "yamlToXMLNestedRule",
   {
     ...popupExtendedTooltipNestedRule,
-    normalizeYAML: ({ yaml, name }) => normalizePopupExtendedTooltipYAML(yaml, name),
+    normalizeYAML: ({ yaml }) => normalizePopupExtendedTooltipYAML(yaml),
     transformOutput: (params) => popupExtendedTooltipNestedRule.transformOutput?.({
       ...params,
-      yaml: normalizePopupExtendedTooltipYAML(params.yaml, params.source.itemName),
+      yaml: normalizePopupExtendedTooltipYAML(params.yaml),
     }),
   },
 )
@@ -92,39 +78,10 @@ export const metadataPropertyRule003 = definePropertyTypeRule(
 export const metadataPropertyRule004 = definePropertyTypeRule(
   propertyType,
   "exportToJSONSchema",
-  ({ context }) =>
-    context.exportToJSONSchema?.explicitXMLValues === true ||
-    context.exportToJSONSchema?.validationPropertyRefs === true
-      ? Type.String({ pattern: "^!xml/name[ \\t]+\\S.*$" })
-      : Type.Never(),
+  () => Type.Never(),
 )
 
-export const popupExtendedTooltipRules = defineMetadataRules({
-  ...emptyMetadataRules,
-  explicitXMLProperties: {
-    popupExtendedTooltipAbsent: {
-      action: "omit",
-      itemType: "Popup",
-      propertyKey: "extendedTooltip",
-      yamlValue: XML_ABSENT_TAG_VALUE,
-    },
-  },
-})
-
-function normalizePopupExtendedTooltipYAML(yaml: unknown, ownerName: string | undefined): unknown {
+function normalizePopupExtendedTooltipYAML(yaml: unknown): unknown {
   if (typeof yaml === "object" && yaml !== null && !Array.isArray(yaml)) return yaml
-  if (typeof yaml !== "string" || !yaml.startsWith("!xml/name")) {
-    throw new Error("РасширеннаяПодсказка подменю допускает только !xml/absent или !xml/name")
-  }
-  const name = xmlAnomalyTagPayload("xml/name", yaml)
-  if (name.length === 0) throw new Error("!xml/name требует непустое имя подсказки подменю")
-  const canonicalName = getCanonicalSingletonName({ ownerLogicalAddress: ownerName ?? "", nameStyle })
-  if (name === canonicalName) {
-    throw new Error("!xml/name не требуется для канонического имени подсказки подменю")
-  }
-  const result: Record<string, unknown> = {
-    Имя: xmlAnomalyTagValue("xml/name", name),
-  }
-  markYAMLScalarTag(result, "Имя", "xml/name")
-  return result
+  throw new Error("РасширеннаяПодсказка подменю должна быть объектом")
 }

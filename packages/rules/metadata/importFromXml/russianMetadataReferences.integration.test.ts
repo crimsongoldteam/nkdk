@@ -2,19 +2,19 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import { importConfigurationFromXml } from "./importConfiguration"
 import { mockContextFromXML } from "../../tests/mockContext"
+import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
 import {
   createImportProjectStateTestService,
   createInspectableXmlImportWorkerTestPool,
 } from "../../tests/xmlImportWorkerTestPool"
-import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
-import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
-import { metadataRules } from "../composition/metadataRules"
 import {
   createMetadataExecutionRegistrySets,
   withMetadataExecutionRegistrySets,
 } from "../composition/metadataExecutionContext"
+import { metadataRules } from "../composition/metadataRules"
+import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
+import { importConfigurationFromXml } from "./importConfiguration"
 
 const sourceInputDir = join(import.meta.dirname, "../../../../e2e/fixtures/xml/cf")
 const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-russian-metadata-input-"))
@@ -66,7 +66,7 @@ describe("Russian metadata references XML import", () => {
       "ЗначенияХарактеристик: Справочник.СправочникПолный",
     ].join("\n    "))
     expect(readYaml("Справочник/СправочникВладелец/Свойства.yaml"))
-      .toContain("ФормаВыбора: ФормаВыбора")
+      .toContain("ОсновнаяФормаДляВыбора: ФормаВыбора")
   })
 
   it("разрешает предопределённое значение по общему индексу другого работника", () => {
@@ -79,7 +79,7 @@ describe("Russian metadata references XML import", () => {
       "ЗначениеЗаполнения: Справочник.СправочникРеквизит.ПредопредленноеЗначение",
     )
     expect(exchangePlan).not.toContain(
-      "ЗначениеЗаполнения: !xml/value Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+      "ЗначениеЗаполнения: !xml/invalid Справочник.СправочникРеквизит.ПредопредленноеЗначение",
     )
   })
 })

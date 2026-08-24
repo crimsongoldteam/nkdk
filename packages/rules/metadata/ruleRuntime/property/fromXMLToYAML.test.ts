@@ -1,88 +1,30 @@
-import { describe, expect, it } from "vitest"
+import {
+createConfigurationIndexCollector,
+createXmlImportAuditSession,
+parseXmlDocumentWithSaxes,
+runWithConfigurationIndexPropertyContext,
+withConfigurationIndexCollector,
+withConfigurationIndexLogicalAddress
+} from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
-  createXmlImportAuditSession,
-  parseXmlDocumentWithSaxes,
-  runWithConfigurationIndexPropertyContext,
-  withConfigurationIndexCollector,
-  withConfigurationIndexLogicalAddress,
-  XML_PRESENT_TAG_VALUE,
-} from "@nkdk/runtime"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
+captureTestXmlImport,
+createFailingXmlImportAttempt,
+expectXmlImportInfrastructureFailure,
+xmlImportAttemptPhases,
+} from "../../../tests/xmlImportAttempt"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML as importPropertiesWithSources } from "./fromXMLToYAML"
 import {
-  createDeferredValuePathCollector,
-  createImportedDependentPropertyCollector,
+createDeferredValuePathCollector,
+createImportedDependentPropertyCollector,
 } from "./importYamlTypes"
 import { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
-import { yamlScalarTagAt } from "@nkdk/runtime"
-import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
-import {
-  registeredExplicitXMLTestRule,
-  registeredMissingExplicitXMLTestRule,
-} from "../../../tests/property/explicitXMLPropertyRegistry"
-import {
-  captureTestXmlImport,
-  createFailingXmlImportAttempt,
-  expectXmlImportInfrastructureFailure,
-  xmlImportAttemptPhases,
-} from "../../../tests/xmlImportAttempt"
 
 describe("importPropertiesFromXMLToYAML", () => {
-  it("rejects a conflicting explicit XML property registration", () => {
-    registerExplicitXMLProperty({
-      itemType: "TestExplicitXMLRegistrationConflict",
-      propertyKey: "mode",
-      xmlValue: "Auto",
-      yamlValue: XML_PRESENT_TAG_VALUE,
-    })
-
-    expect(() =>
-      registerExplicitXMLProperty({
-        itemType: "TestExplicitXMLRegistrationConflict",
-        propertyKey: "mode",
-        xmlValue: "Left",
-        yamlValue: XML_PRESENT_TAG_VALUE,
-      })
-    ).toThrow(/Конфликт регистрации[\s\S]*TestExplicitXMLRegistrationConflict\.mode/)
-  })
-
-  it("preserves a registered explicit XML default as a tagged YAML scalar", () => {
-    const rule = registeredExplicitXMLTestRule("TestExplicitXMLDefault")
-    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
-
-    const yaml = importPropertiesWithSources({
-      context,
-      rule,
-      sources: [{ context, xml: { Mode: "Auto" } }],
-      yamlPath: [],
-      rulePath: [],
-      collector: createLocalIndexesCollector(),
-    })
-
-    expect(yaml).toEqual({ Режим: "!xml/present" })
-    expect(yamlScalarTagAt(yaml, "Режим")).toBe("xml/present")
-  })
-
-  it("preserves a registered missing XML default as an empty tagged YAML scalar", () => {
-    const rule = registeredMissingExplicitXMLTestRule()
-    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
-
-    const yaml = importPropertiesWithSources({
-      context,
-      rule,
-      sources: [{ context, xml: {} }],
-      yamlPath: [],
-      rulePath: [],
-      collector: createLocalIndexesCollector(),
-    })
-
-    expect(yaml).toEqual({ Поле: "!xml/absent" })
-    expect(yamlScalarTagAt(yaml, "Поле")).toBe("xml/absent")
-  })
 
   it("sorts only properties produced by the current rules", () => {
     registerTypeRule("TestUnsortedArray" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => xml)

@@ -95,7 +95,8 @@ describe("writeFullXmlSyncAssignment", () => {
       [
         "Синоним: !xml/important Синоним",
         "Комментарий: !xml/invalid Комментарий",
-        'ИспользоватьСтандартныеКоманды: !xml/raw "FALSE"',
+        "ИспользоватьСтандартныеКоманды: !xml/raw",
+        "  $xml: FALSE",
         "",
       ].join("\n"),
       true

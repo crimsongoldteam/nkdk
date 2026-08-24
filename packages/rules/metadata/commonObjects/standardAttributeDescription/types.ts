@@ -9,7 +9,6 @@ import * as SE from "../../systemEnumerations/types"
 import { ChoiceParametersXML } from "../сhoiceParameters/types"
 import { StandardAttributeDescriptionRules } from "./rules"
 import type { StandartAttributeName, StandartAttributeYAML } from "./standartAttributeNames"
-import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
 
 export { StandartAttributeNameFromYAML, StandartAttributeNameToYAML } from "./standartAttributeNames"
 export type { StandartAttributeName, StandartAttributeYAML } from "./standartAttributeNames"
@@ -55,5 +54,4 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
 export type StandardAttributeDescriptionsYAML =
-  | Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>
-  | typeof XML_PRESENT_TAG_VALUE
+  Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>

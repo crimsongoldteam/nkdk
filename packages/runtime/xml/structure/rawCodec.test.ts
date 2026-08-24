@@ -4,6 +4,7 @@ import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
 import { compareXmlStructures } from "./compare"
 import {
   decodeXmlRawEnvelope,
+  decodeXmlRawOrderPatch,
   decodeXmlRawValue,
   readdressXmlElementNodes,
 } from "./rawCodec"
@@ -14,6 +15,16 @@ const contentLabels = (nodes: ReturnType<typeof decodeXmlRawValue>["nodes"]): st
   ) ?? []
 
 describe("decodeXmlRawValue", () => {
+  it("декодирует точный текст оболочки вместе с #order", () => {
+    expect(decodeXmlRawOrderPatch({
+      "#text": ["\n  ", "\n  ", "\n"],
+      "#order": ["#text", "A", "#text", "B", "#text"],
+    })).toEqual({
+      text: ["\n  ", "\n  ", "\n"],
+      order: ["#text", "A", "#text", "B", "#text"],
+    })
+  })
+
   it("decodes only the explicit semantic value and XML patch envelope", () => {
     expect(decodeXmlRawEnvelope({
       "$значение": 1,

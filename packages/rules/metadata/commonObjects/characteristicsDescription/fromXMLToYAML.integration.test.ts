@@ -1,17 +1,15 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
-import {
-  createDirectRoundTripContexts,
-  readAppliedObjectFixture,
-  testPropertyFromXMLToYAML,
-} from "../../../tests/directConversion"
-import { exportToYAML } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { multipleCharacteristicsYAML, singleCharacteristicYAML } from "./__fixtures__/data"
+import {
+readAppliedObjectFixture,
+testPropertyFromXMLToYAML
+} from "../../../tests/directConversion"
+import { multipleCharacteristicsYAML,singleCharacteristicYAML } from "./__fixtures__/data"
 
-import "./registerCollectionRule"
 import "../metadataValue/fromXML"
 import "../metadataValue/toYAML"
+import "./registerCollectionRule"
 
 const rule = {
   itemType: "CharacteristicsDescriptionProbe",
@@ -49,19 +47,6 @@ describe("CharacteristicsDescriptions XML → YAML", () => {
     expect(testPropertyFromXMLToYAML({ rule, xml }).yaml).toEqual({ Характеристики: multipleCharacteristicsYAML })
   })
 
-  it("stores an empty DesignTimeRef as !xml instead of the configuration snapshot", () => {
-    const contexts = createDirectRoundTripContexts()
-    const result = testPropertyFromXMLToYAML({
-      rule,
-      context: contexts.importContext,
-      xml: characteristicWithTypesFilterValue({ "_xsi:type": "xr:DesignTimeRef" }),
-    })
-
-    expect(exportToYAML(result.yaml)).toContain("ЗначениеОтбораВидов: !xml/value DesignTimeRef")
-    const fragment = contexts.importContext.fromXML.configurationIndex?.collector.fragment("Тест.yaml")
-    expect(JSON.stringify(fragment?.entities)).not.toContain("typesFilterValue")
-  })
-
   it("preserves a negative service field value", () => {
     const yaml = testPropertyFromXMLToYAML({
       rule,
@@ -69,48 +54,6 @@ describe("CharacteristicsDescriptions XML → YAML", () => {
     }).yaml
 
     expect(yaml).toMatchObject({ Характеристики: [{ ПолеПутиКДанным: "-8" }] })
-  })
-
-  it.each([
-    [
-      "отсутствуют все четыре XML-default",
-      {},
-      [
-        "ПолеПутиКДанным: !xml/absent",
-        "ПолеИспользованияМножественныхЗначений: !xml/absent",
-        "ПолеКлючаМножественныхЗначений: !xml/absent",
-        "ПолеПорядкаМножественныхЗначений: !xml/absent",
-      ],
-    ],
-    [
-      "присутствует только DataPathField",
-      { dataPathField: "Data.Path" },
-      [
-        "ПолеПутиКДанным: Data.Path",
-        "ПолеИспользованияМножественныхЗначений: !xml/absent",
-        "ПолеКлючаМножественныхЗначений: !xml/absent",
-        "ПолеПорядкаМножественныхЗначений: !xml/absent",
-      ],
-    ],
-    [
-      "отсутствует только DataPathField",
-      {
-        multipleValuesUseField: "Use.Path",
-        multipleValuesKeyField: "Key.Path",
-        multipleValuesOrderField: "Order.Path",
-      },
-      [
-        "ПолеПутиКДанным: !xml/absent",
-        "ПолеИспользованияМножественныхЗначений: Use.Path",
-        "ПолеКлючаМножественныхЗначений: Key.Path",
-        "ПолеПорядкаМножественныхЗначений: Order.Path",
-      ],
-    ],
-  ])("помечает !xml форму, когда %s", (_name, fields, expectedLines) => {
-    const yaml = testPropertyFromXMLToYAML({ rule, xml: characteristicXML(fields) }).yaml
-    const text = exportToYAML(yaml)
-
-    for (const line of expectedLines) expect(text).toContain(line)
   })
 })
 
@@ -136,18 +79,6 @@ function characteristicXML(fields: {
           ...(fields.multipleValuesOrderField === undefined
             ? {}
             : { "xr:MultipleValuesOrderField": fields.multipleValuesOrderField }),
-        },
-      },
-    },
-  }
-}
-
-function characteristicWithTypesFilterValue(value: Record<string, unknown>): Record<string, unknown> {
-  return {
-    Characteristics: {
-      "xr:Characteristic": {
-        "xr:CharacteristicTypes": {
-          "xr:TypesFilterValue": value,
         },
       },
     },

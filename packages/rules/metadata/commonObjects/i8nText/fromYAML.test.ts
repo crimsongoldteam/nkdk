@@ -1,15 +1,13 @@
-import { describe, expect, it } from "vitest"
+import {
+createConfigurationLanguages,
+parseMetadataYaml,
+yamlMappingKeys
+} from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
+import { mockContext,mockRule } from "../../../tests/mockContext"
 import { i8nTextFixtures } from "./__fixtures__/legacy/data"
-import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importI8nTextFromYAML } from "./fromYAML"
 import { I8nTextPropertyRule } from "./types"
-import {
-  createConfigurationLanguages,
-  parseMetadataYaml,
-  yamlMappingKeys,
-  yamlMappingTagOf,
-  yamlScalarTagAt,
-} from "@nkdk/runtime"
 
 const multilingualContext = {
   ...mockContext,
@@ -129,22 +127,6 @@ describe("importI8nTextFromYAML", () => {
       })
 
       expect(result).toEqual({ items: { en: "Dont exit" } })
-    })
-
-    it("preserves order and scalar sidecars in the model", () => {
-      const parsed = parseMetadataYaml("!xml/order\nen: Text\nru: !xml/duplicate Текст")
-      const value = parsed.data as Record<string, string>
-
-      const result = importI8nTextFromYAML({
-        context: multilingualContext,
-        rule: { type: "I8nText", excludeIfEqualNameYAML: true },
-        name: "НеВыходить",
-        value,
-      })!
-
-      expect(yamlMappingTagOf(result.items)).toBe("xml/order")
-      expect(yamlScalarTagAt(result.items, "ru")).toBe("xml/duplicate")
-      expect(Object.keys(result.items)).toEqual(["en", "ru"])
     })
   })
 })

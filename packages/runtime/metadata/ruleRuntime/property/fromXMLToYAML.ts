@@ -42,21 +42,9 @@ import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import type { YamlPath } from "../../diagnostics/types"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
-import {
-  copyYAMLScalarTags,
-  markYAMLScalarTag,
-  xmlAnomalyTagValue,
-} from "../../../yaml/scalarTags"
-import {
-  matchExplicitXMLPropertyFromXML,
-  matchExplicitXMLPropertyTypeFromXML,
-  matchExplicitXMLTransportFromXML,
-} from "./explicitXMLPropertyRegistry"
+import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
-import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
-import { markYAMLMappingKeyTag } from "../../../yaml/mappingKeyTags"
-import type { BrokenXMLReferenceLocation } from "./brokenXMLReferenceCarrierRegistry"
 import type { XmlElementNode } from "../../../xml/import/document"
 import type {
   XmlImportAuditBoundary,
@@ -102,10 +90,6 @@ export function importPropertiesFromXMLToYAML(params: {
 }): Record<string, unknown> | undefined {
   const { context, rule, sources, itemName, yamlPath, rulePath, collector, deferred, propertyXML } = params
   if (sources.length === 0) return undefined
-  const brokenReferenceRegistry = params.execution ?? currentPropertyRuleRegistrySet<Pick<
-    PropertyRuleExecution,
-    "normalizeImportedBrokenXMLReferences"
-  >>()
   const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
     type: import("./types").PropertyRule["type"],
     operation: Operation,
@@ -200,18 +184,6 @@ export function importPropertiesFromXMLToYAML(params: {
     ]).begin()
     try {
       const run = (): void => {
-        const explicitXMLParams = {
-          itemType: rule.itemType,
-          propertyKey: key,
-          presentInXML,
-          xmlValue: sourceXMLValue,
-        }
-        const explicitXMLByProperty = params.execution === undefined
-          ? matchExplicitXMLPropertyFromXML(explicitXMLParams)
-          : params.execution.matchExplicitXMLPropertyFromXML(explicitXMLParams)
-        const explicitXMLTransport = params.execution === undefined
-          ? matchExplicitXMLTransportFromXML(explicitXMLParams)
-          : params.execution.matchExplicitXMLTransportFromXML(explicitXMLParams)
         const dependentImportProperty = params.execution === undefined
           ? isDependentImportProperty(rule.itemType, key)
           : params.execution.isDependentImportProperty(rule.itemType, key)
@@ -326,7 +298,6 @@ export function importPropertiesFromXMLToYAML(params: {
         if (
           !shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" }) &&
           !shouldImportForReference &&
-          explicitXMLByProperty === undefined &&
           propertyXML?.has(key) !== true
         )
           return
@@ -350,9 +321,7 @@ export function importPropertiesFromXMLToYAML(params: {
             execution: params.execution,
           }
           let importedValue: unknown
-          if (explicitXMLTransport !== undefined) {
-            importedValue = undefined
-          } else if (resolveNestedSources !== undefined) {
+          if (resolveNestedSources !== undefined) {
             const nested = typeRule(propertyRule.type, "nestedItemRule")
             if (nested === undefined || !("itemRule" in nested)) {
               throw new Error(`Для ${propertyRule.type} не зарегистрировано фиксированное вложенное правило`)
@@ -510,13 +479,6 @@ export function importPropertiesFromXMLToYAML(params: {
                 preserveImplicitValue: preserveExplicitDefault,
               })
             : value
-          const transportedBeforeMetadataTargets = brokenReferenceRegistry === undefined
-            ? { yamlValue: yamlValueBeforeMetadataTargets, taggedLocations: [] }
-            : brokenReferenceRegistry.normalizeImportedBrokenXMLReferences({
-                rule: propertyRule,
-                xmlValue,
-                yamlValue: yamlValueBeforeMetadataTargets,
-              })
           const yamlValue = !convertedDirectly
             ? exportPropertyMetadataTargetsToYAML({
                 context: sourceContext,
@@ -526,31 +488,9 @@ export function importPropertiesFromXMLToYAML(params: {
                 owner: propertyOwner,
                 execution: params.execution,
                 preserveImplicitValue: preserveExplicitDefault,
-              }, transportedBeforeMetadataTargets.yamlValue)
-            : transportedBeforeMetadataTargets.yamlValue
-          const explicitXML =
-            explicitXMLByProperty ??
-            (params.execution === undefined
-              ? matchExplicitXMLPropertyTypeFromXML({
-                  propertyType: propertyRule.type,
-                  presentInXML,
-                  yamlValue,
-                })
-              : params.execution.matchExplicitXMLPropertyTypeFromXML({
-              propertyType: propertyRule.type,
-              presentInXML,
-              yamlValue,
-                }))
-          const transported =
-            explicitXML === undefined && explicitXMLTransport === undefined
-              ? { ...transportedBeforeMetadataTargets, yamlValue }
-              : {
-                  yamlValue: explicitXMLTransport === undefined
-                    ? explicitXML?.yamlValue ?? yamlValue
-                    : xmlAnomalyTagValue("xml/value", explicitXMLTransport),
-                  taggedLocations: [],
-                }
-          const exportedYamlValue = transported.yamlValue
+              }, yamlValueBeforeMetadataTargets)
+            : yamlValueBeforeMetadataTargets
+          const exportedYamlValue = yamlValue
           if (!convertedDirectly) {
             const profile = params.profile
             if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
@@ -584,21 +524,16 @@ export function importPropertiesFromXMLToYAML(params: {
           }
 
           if (
-            explicitXML === undefined &&
-            explicitXMLTransport === undefined &&
             !canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })
           ) return
           const outputStartedAt = performance.now()
-          const exportedValues =
-            explicitXML === undefined && explicitXMLTransport === undefined
-              ? getExportToYAMLResult(
-                  propertyRule,
-                  propertyRule.yaml!,
-                  exportedYamlValue,
-                  value,
-                  params.execution,
-                )
-              : { [propertyRule.yaml!]: exportedYamlValue }
+          const exportedValues = getExportToYAMLResult(
+            propertyRule,
+            propertyRule.yaml!,
+            exportedYamlValue,
+            value,
+            params.execution,
+          )
           if (exportedValues === undefined) return
           if (dependentImportProperty) {
             params.dependent?.accept({
@@ -611,17 +546,6 @@ export function importPropertiesFromXMLToYAML(params: {
               xmlValue: sourceXMLValue,
               presentInXML,
             })
-          }
-          if (explicitXML !== undefined || explicitXMLTransport !== undefined) {
-            const tag = explicitXMLTransport !== undefined
-              ? "xml/value"
-              : explicitXML?.action === "omit"
-                ? "xml/absent"
-                : "xml/present"
-            markYAMLScalarTag(exportedValues, propertyRule.yaml!, tag)
-          }
-          for (const location of transported.taggedLocations) {
-            markRelativeYAMLReferenceTag(exportedValues, propertyRule.yaml!, location)
           }
           const profile = params.profile
           if (profile !== undefined) profile.exportedCount++
@@ -711,7 +635,12 @@ export function importPropertiesFromXMLToYAML(params: {
       }),
       isRepeatable: ({ rule: propertyRule }) =>
         typeRule(propertyRule.type, "yamlToXMLNestedRule")?.kind === "collection"
-        || typeRule(propertyRule.type, "fileChildNamesDescriptor") !== undefined,
+        || typeRule(propertyRule.type, "fileChildNamesDescriptor") !== undefined
+        || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.repeatedXMLNodes === true,
+      nestedItemsOwnNode: ({ canonicalXMLKey, rule: propertyRule }) => {
+        const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")
+        return nestedRule?.kind === "collection" && nestedRule.xmlElement === canonicalXMLKey
+      },
       claimRoot: sourceState.source.claimAuditRoot,
       visit(match) {
         sourceState.foundPropertyKeys.add(match.propertyKey)
@@ -767,79 +696,11 @@ export function importPropertiesFromXMLToYAML(params: {
       if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
       conversionMs += importMissingEntry(sourceState, entry)
     }
-    for (const entry of sourceState.plan.entriesByPropertyKey.values()) {
-      if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
-      const explicitCollection = params.execution === undefined
-        ? matchExplicitXMLPropertyTypeFromXML({
-            propertyType: entry.rule.type,
-            presentInXML: true,
-            yamlValue: [],
-          })
-        : params.execution.matchExplicitXMLPropertyTypeFromXML({
-            propertyType: entry.rule.type,
-            presentInXML: true,
-            yamlValue: [],
-          })
-      const emptyCollectionContainer =
-        explicitCollection?.action === "materializeCollection"
-          ? emptyXMLContainerAtPath(sourceState.xml, entry.rule.xmlParents ?? [])
-          : undefined
-      if (emptyCollectionContainer !== undefined) {
-        sourceState.foundPropertyKeys.add(entry.propertyKey)
-        const conversionStartedAt = performance.now()
-        importMatch({
-          sourceState,
-          entry,
-          sourceXMLKey: entry.rule.xmlParents?.at(-1),
-          xmlPath: entry.rule.xmlParents,
-          sourceXMLValue: emptyCollectionContainer,
-          xmlNode: undefined,
-          xmlNodes: undefined,
-          presentInXML: true,
-          ambiguousXMLKey: false,
-        })
-        conversionMs += performance.now() - conversionStartedAt
-        continue
-      }
-      if (
-        matchExplicitXMLPropertyFromXML({
-          itemType: rule.itemType,
-          propertyKey: entry.propertyKey,
-          presentInXML: false,
-          xmlValue: undefined,
-        }) === undefined
-      ) {
-        continue
-      }
-      conversionMs += importMissingEntry(sourceState, entry)
-    }
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
   normalizeTypeOwnedMetadataTargets({ result, rule })
   return sortYamlRuleProperties(result)
-}
-
-function emptyXMLContainerAtPath(
-  xml: Record<string, unknown>,
-  path: readonly string[],
-): Record<string, unknown> | undefined {
-  if (path.length === 0) return undefined
-  let value: unknown = xml
-  for (const [index, segment] of path.entries()) {
-    if (value === null || typeof value !== "object" || Array.isArray(value)) return undefined
-    const record = value as Record<string, unknown>
-    if (!Object.prototype.hasOwnProperty.call(record, segment)) return undefined
-    value = record[segment]
-    if (value === undefined && index === path.length - 1) return {}
-  }
-  if (value === null || typeof value !== "object" || Array.isArray(value)) return undefined
-  const entries = Object.entries(value as Record<string, unknown>)
-  return entries.every(
-    ([key, item]) => key === "#text" && typeof item === "string" && item.trim() === "",
-  )
-    ? value as Record<string, unknown>
-    : undefined
 }
 
 function normalizeTypeOwnedMetadataTargets(params: {
@@ -873,46 +734,6 @@ function normalizeTypeOwnedMetadataTargets(params: {
 function isScalarMetadataTarget(rule: PropertyRule): boolean {
   return rule.metadataTarget !== undefined &&
     (rule.type === "string" || rule.type === "MetadataItemLink" || rule.type === "MetadataField")
-}
-
-function markRelativeYAMLReferenceTag(
-  result: Record<string, unknown>,
-  propertyKey: string,
-  location: BrokenXMLReferenceLocation,
-): void {
-  const path = location.path
-  if (path.length === 0) {
-    if (location.kind === "key") {
-      const parent = result[propertyKey]
-      if (typeof parent !== "object" || parent === null) {
-        throw new Error(`Не найден YAML-путь переносчика: ${propertyKey}`)
-      }
-      markYAMLMappingKeyTag(parent, location.key, "xml/reference")
-      return
-    }
-    markYAMLScalarTag(result, propertyKey, "xml/reference")
-    return
-  }
-  let parent: unknown = result[propertyKey]
-  for (const segment of path.slice(0, -1)) {
-    if (typeof parent !== "object" || parent === null) {
-      throw new Error(`Не найден YAML-путь переносчика: ${[propertyKey, ...path].join("/")}`)
-    }
-    parent = (parent as Record<string | number, unknown>)[segment]
-  }
-  const key = path[path.length - 1]
-  if (typeof parent !== "object" || parent === null || key === undefined) {
-    throw new Error(`Не найден YAML-путь переносчика: ${[propertyKey, ...path].join("/")}`)
-  }
-  if (location.kind === "key") {
-    const mapping = (parent as Record<string | number, unknown>)[key]
-    if (typeof mapping !== "object" || mapping === null) {
-      throw new Error(`Не найден YAML-путь переносчика: ${[propertyKey, ...path].join("/")}`)
-    }
-    markYAMLMappingKeyTag(mapping, location.key, "xml/reference")
-    return
-  }
-  markYAMLScalarTag(parent, key, "xml/reference")
 }
 
 function nestedItemXMLTypeMatches(expectedXsiType: string | undefined, xmlValue: unknown): boolean {

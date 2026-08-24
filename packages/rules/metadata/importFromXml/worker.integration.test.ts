@@ -27,6 +27,7 @@ import {
 } from "./worker"
 import {
   controlExportCountForTests,
+  executeImportControlExport,
   resetControlExportCountForTests,
 } from "./controlExport"
 import { importDiagnostic, openImportBinaryResult } from "./binaryResult"
@@ -37,7 +38,13 @@ const importWorker = createImportWorkerCommandRunner()
 const runImportWorkerCommand = importWorker.run
 const workerStateForTests = importWorker.stateForTests
 const resetImportWorkerStateForTests = importWorker.resetForTests
+const setControlExportForTests = importWorker.setControlExportForTests
 const createFirstPassTransferable = createImportFirstPassTransferable
+const passThroughControlExport: typeof executeImportControlExport = async (params) => ({
+  data: params.data,
+  annotations: params.annotations,
+  rereadSourcePaths: [],
+})
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
 const catalogFullXmlPath = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
@@ -97,6 +104,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   resetImportWorkerStateForTests()
   resetControlExportCountForTests()
+  setControlExportForTests(passThroughControlExport)
   await initializeWorker("/tmp/nkdk-import-worker-2")
 })
 
@@ -113,6 +121,7 @@ afterEach(() => {
   vi.unstubAllEnvs()
   vi.restoreAllMocks()
   resetImportWorkerStateForTests()
+  setControlExportForTests(undefined)
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
@@ -383,6 +392,7 @@ describe("XML import worker first pass", () => {
 
 describe("XML import worker second pass", () => {
   it("выполняет один control export и записывает найденный raw", async () => {
+    setControlExportForTests(undefined)
     const inputDir = createTempDir("worker-control-export-input")
     const outputDir = createTempDir("worker-control-export-output")
     const sourcePath = join(inputDir, "Контрагенты.xml")

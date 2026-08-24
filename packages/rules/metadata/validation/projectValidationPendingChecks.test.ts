@@ -1,18 +1,18 @@
-import { beforeAll, describe, expect, it } from "vitest"
 import { parseMetadataYaml } from "@nkdk/runtime"
-import type { OwnerMetadataCache } from "./dataPath/ownerCache"
-import { resolveValidationProjectFile } from "./projectFiles"
-import { validatePendingChecks } from "./projectValidationPendingChecks"
-import { extractValidationYamlFacts } from "./yamlFactExtractor"
-import { toDataPathPolicyInput } from "./dataPath/policies"
 import type { DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
-import { ownerMetadataFromFacts } from "./dataPath/ownerCache"
+import { beforeAll,describe,expect,it } from "vitest"
 import type { TypeDescriptionView } from "../ruleRuntime/property/typeDescriptionView"
+import type { OwnerMetadataCache } from "./dataPath/ownerCache"
+import { ownerMetadataFromFacts } from "./dataPath/ownerCache"
+import { toDataPathPolicyInput } from "./dataPath/policies"
+import { resolveValidationProjectFile } from "./projectFiles"
 import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
+import { validatePendingChecks } from "./projectValidationPendingChecks"
 import {
-  createTestValidationRulesSnapshot,
-  missingOwnerMetadataCache,
+createTestValidationRulesSnapshot,
+missingOwnerMetadataCache,
 } from "./tests/validationTestSupport"
+import { extractValidationYamlFacts } from "./yamlFactExtractor"
 
 
 const ownerCache = missingOwnerMetadataCache
@@ -23,89 +23,6 @@ beforeAll(() => {
 })
 
 describe("validatePendingChecks", () => {
-  it("отклоняет пустой payload tagged ПутьКДанным", () => {
-    const projectDir = "/project"
-    const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
-    const file = resolveValidationProjectFile(projectDir, filePath)
-    if (file === undefined) throw new Error("file not resolved")
-    const parsed = parseMetadataYaml([
-      "Элементы:",
-      "  Поле:",
-      "    Вид: ПолеФлажок",
-      "    ПутьКДанным: !xml/value",
-    ].join("\n"))
-    const facts = extractValidationYamlFacts({
-      file,
-      parsed,
-      rulesSnapshot,
-    })
-
-    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toEqual([
-      expect.objectContaining({
-        path: "/Элементы/Поле/ПутьКДанным",
-        message: "!xml/value для ПутьКДанным требует непустой путь",
-      }),
-    ])
-  })
-
-  it("применяет !xml/value только к разрешённому несовместимому ПутьКДанным", () => {
-    const projectDir = "/project"
-    const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
-    const file = resolveValidationProjectFile(projectDir, filePath)
-    if (file === undefined) throw new Error("file not resolved")
-    const parsed = parseMetadataYaml(
-      [
-        "Реквизиты:",
-        "  БулевоЗначение:",
-        "    Тип: Булево",
-        "  СтроковоеЗначение:",
-        "    Тип: Строка",
-        "Элементы:",
-        "  ДопустимоеИсключение:",
-        "    Вид: ПолеФлажок",
-        "    ПутьКДанным: !xml/value СтроковоеЗначение",
-        "  ЛишнееИсключение:",
-        "    Вид: ПолеФлажок",
-        "    ПутьКДанным: !xml/value БулевоЗначение",
-        "  НеизвестныйПуть:",
-        "    Вид: ПолеФлажок",
-        "    ПутьКДанным: !xml/value НеизвестноеЗначение",
-        "  БитаяСсылкаНеТойКатегории:",
-        "    Вид: ПолеФлажок",
-        "    ПутьКДанным: !xml/value 1/0:8969c93a-23e5-4bef-941d-aaef315858d2",
-        "  ОбычнаяОшибка:",
-        "    Вид: ПолеФлажок",
-        "    ПутьКДанным: СтроковоеЗначение",
-      ].join("\n")
-    )
-    const facts = extractValidationYamlFacts({
-      file,
-      parsed,
-      rulesSnapshot,
-    })
-
-    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          path: "/Элементы/ЛишнееИсключение/ПутьКДанным",
-          message: "!xml/value допустим только для несовместимого ПутьКДанным",
-        }),
-        expect.objectContaining({
-          path: "/Элементы/НеизвестныйПуть/ПутьКДанным",
-          message: expect.stringContaining('неизвестный корень "НеизвестноеЗначение"'),
-        }),
-        expect.objectContaining({
-          path: "/Элементы/БитаяСсылкаНеТойКатегории/ПутьКДанным",
-          message: expect.stringContaining('неизвестный корень "1/0:8969c93a-23e5-4bef-941d-aaef315858d2"'),
-        }),
-        expect.objectContaining({
-          path: "/Элементы/ОбычнаяОшибка/ПутьКДанным",
-          message: expect.stringContaining("конечный тип не подходит string"),
-        }),
-      ])
-    )
-    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toHaveLength(4)
-  })
 
   it.each([
     ["Значение", []],
@@ -175,7 +92,7 @@ describe("validatePendingChecks", () => {
   it.each([
     ["допустимая ссылка", "CatalogRef.Пользователи", false, 0],
     ["несовместимая ссылка", "CatalogRef.Сотрудники", false, 1],
-    ["несовместимое XML-исключение", "CatalogRef.Сотрудники", true, 0],
+    ["несовместимое значение с invalid", "CatalogRef.Сотрудники", true, 0],
   ] as const)("проверяет DefinedType: %s", (_name, sourceType, tagged, diagnosticCount) => {
     const cache = definedTypeCache({ АвторДействия: { type: [sourceType] } })
     const check = fillValueCheck(tagged)
@@ -189,13 +106,16 @@ describe("validatePendingChecks", () => {
       АвторДействия: { type: ["DefinedType.Другой"] },
       Другой: { type: ["DefinedType.АвторДействия"] },
     }), "цикл определяемых типов"],
-  ] as const)("не скрывает тегом %s DefinedType", (_name, cache, message) => {
+  ] as const)("не считает предупреждение о %s DefinedType подтверждением invalid", (_name, cache, _message) => {
     const diagnostics = validatePendingChecks({ ownerCache: cache, checks: [fillValueCheck(true)] }).diagnostics
-    expect(diagnostics).toEqual([expect.objectContaining({ source: "cross-file", message: expect.stringContaining(message) })])
+    expect(diagnostics).toEqual([expect.objectContaining({
+      source: "structure",
+      message: expect.stringContaining("Тег XML-аномалии лишний"),
+    })])
   })
 
   it("разрешает DesignTimeRef для ссылочного DefinedType и отклоняет для строкового", () => {
-    const check = { ...fillValueCheck(true), value: { type: "ref", value: "" }, transport: "DesignTimeRef" as const }
+    const check = { ...fillValueCheck(false), value: { type: "ref", value: "" }, transport: "DesignTimeRef" as const }
     expect(validatePendingChecks({
       ownerCache: definedTypeCache({ АвторДействия: { type: ["CatalogRef.Пользователи"] } }),
       checks: [check],

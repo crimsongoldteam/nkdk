@@ -43,6 +43,11 @@ export interface XmlRawAttributes {
   readonly order?: readonly string[]
 }
 
+export interface XmlRawOrderPatch {
+  readonly order: readonly string[]
+  readonly text?: readonly string[]
+}
+
 export function decodeXmlRawEnvelope(value: unknown): XmlRawEnvelope {
   if (!isRecord(value)) {
     throw new Error("!xml/raw должен содержать YAML mapping с обязательным $xml")
@@ -255,6 +260,28 @@ export function decodeXmlRawOrder(value: unknown, description = "#order"): reado
     throw new Error(`${description} должен быть YAML-массивом строк`)
   }
   return value as readonly string[]
+}
+
+export function decodeXmlRawOrderPatch(value: unknown, description = "#order"): XmlRawOrderPatch {
+  if (Array.isArray(value)) return { order: decodeXmlRawOrder(value, description) }
+  if (!isRecord(value)) {
+    throw new Error(`${description} должен быть YAML-массивом строк или mapping #order/#text`)
+  }
+  for (const key of Object.keys(value)) {
+    if (key !== "#order" && key !== "#text") throw new Error(`Неизвестное поле ${description}: ${key}`)
+  }
+  const order = decodeXmlRawOrder(value["#order"], `${description}.#order`)
+  const rawText = value["#text"]
+  const text = typeof rawText === "string"
+    ? [rawText]
+    : Array.isArray(rawText) && rawText.every((item) => typeof item === "string")
+      ? rawText as readonly string[]
+      : undefined
+  if (text === undefined) throw new Error(`${description}.#text должен быть строкой или YAML-массивом строк`)
+  if (order.filter((item) => item === "#text").length !== text.length) {
+    throw new Error(`${description}.#order должен содержать по одному #text для каждого текстового фрагмента`)
+  }
+  return { order, text }
 }
 
 export function readdressXmlElementNodes(

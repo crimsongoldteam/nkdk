@@ -182,6 +182,7 @@ export const visitXMLImportPlan = (params: {
   auditItemBoundary?: XmlImportAuditBoundary
   auditBoundary?(entry: XMLImportPlanEntry): XmlImportAuditBoundary
   isRepeatable?(entry: XMLImportPlanEntry): boolean
+  nestedItemsOwnNode?(entry: XMLImportPlanEntry): boolean
   claimRoot?: boolean
   visit(match: XMLImportMatch): void
 }): void => {
@@ -194,6 +195,7 @@ export const visitXMLImportPlan = (params: {
       auditItemBoundary: params.auditItemBoundary,
       auditBoundary: params.auditBoundary,
       isRepeatable: params.isRepeatable,
+      nestedItemsOwnNode: params.nestedItemsOwnNode,
       claimRoot: params.claimRoot,
       visit: params.visit,
     })
@@ -217,6 +219,7 @@ function visitStructuralXMLImportPlan(params: {
   readonly auditItemBoundary?: XmlImportAuditBoundary
   readonly auditBoundary?: (entry: XMLImportPlanEntry) => XmlImportAuditBoundary
   readonly isRepeatable?: (entry: XMLImportPlanEntry) => boolean
+  readonly nestedItemsOwnNode?: (entry: XMLImportPlanEntry) => boolean
   readonly claimRoot?: boolean
   readonly visit: (match: XMLImportMatch) => void
 }): void {
@@ -274,6 +277,9 @@ function visitStructuralXMLImportPlan(params: {
     const selection = selected.get(candidate)
     if (selection === undefined) continue
     const selectedCandidates = selection.candidates
+    const compatibilityAudit = selection.repeatable && params.nestedItemsOwnNode?.(candidate.entry) === true
+      ? undefined
+      : params.audit
     const selectedElements = selectedCandidates.flatMap(({ xmlNode }) =>
       "type" in xmlNode ? [xmlNode] : [],
     )
@@ -284,18 +290,18 @@ function visitStructuralXMLImportPlan(params: {
       xmlValue: selection.repeatable && selectedCandidates.length > 1
         ? xmlImportCompatibilityValues({
             nodes: selectedElements,
-            audit: params.audit,
+            audit: compatibilityAudit,
             boundary: boundaryForEntry(candidate.entry),
           })
         : selectedCandidates.length === 1
           ? xmlImportCompatibilityValue({
               node: candidate.xmlNode,
-              audit: params.audit,
+              audit: compatibilityAudit,
               boundary: boundaryForEntry(candidate.entry),
             })
           : selectedCandidates.map(({ entry, xmlNode }) => xmlImportCompatibilityValue({
               node: xmlNode,
-              audit: params.audit,
+              audit: compatibilityAudit,
               boundary: boundaryForEntry(entry),
             })),
       xmlNode: candidate.xmlNode,

@@ -1,27 +1,9 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 import { InputFieldRules } from "../elements/inputField/rules"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
 import type { ClientApplicationFormYAML } from "./types"
-import { importFromYAML, yamlScalarTagAt } from "@nkdk/runtime"
 
 describe("client application BaseForm projection", () => {
-  it("сохраняет классификацию XML-аномалии свойства элемента", () => {
-    const yaml = importFromYAML<ClientApplicationFormYAML>([
-      "Элементы:",
-      "  Строки:",
-      "    Вид: ТаблицаФормы",
-      "    ОтборСтрок: !xml/present",
-    ].join("\n"))
-
-    const projection = projectClientApplicationBaseForm({
-      baseYaml: yaml,
-      extensionYaml: yaml,
-    })
-    const table = projection.yaml.Элементы?.Строки as Record<string, unknown>
-
-    expect(table.ОтборСтрок).toBe("!xml/present")
-    expect(yamlScalarTagAt(table, "ОтборСтрок")).toBe("xml/present")
-  })
 
   it("selects the cf element tree and only explicitly borrowed named components", () => {
     const baseAttribute = {

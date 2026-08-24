@@ -4,8 +4,6 @@ import type { DataPathPropertyRule, MetadataItemRule, PropertyRule } from "@nkdk
 import type { TableContext } from "./resolver"
 import type { FormDataPathOccurrence } from "./formTraversal"
 import type { YamlPath } from "../yamlLocations"
-import { markYAMLScalarTag, xmlAnomalyTagPayload, xmlAnomalyTagValue, yamlScalarTagAt } from "@nkdk/runtime"
-import { isTransportedBrokenPropertyScalar } from "../transportedBrokenReference"
 
 export interface FormYAMLItemVisit {
   yaml: Record<string, unknown>
@@ -84,30 +82,17 @@ function collectItem(params: {
     if (typeof propertyRule.yaml !== "string") continue
     const rawValue = record[propertyRule.yaml]
     if (isDataPathRule(propertyRule) && typeof rawValue === "string") {
-      const tag = yamlScalarTagAt(record, propertyRule.yaml)
-      const transportedReference = tag === "xml/reference"
-      if (isTransportedBrokenPropertyScalar({
-        rule: propertyRule,
-        yamlValue: rawValue,
-        tagged: transportedReference,
-      })) continue
-      const tagged = tag === "xml/value"
-      const value = tagged ? xmlAnomalyTagPayload("xml/value", rawValue) : rawValue
+      const value = rawValue
       if (value.trim().length === 0) continue
       occurrences.push({
         rule: propertyRule,
         value,
         setValue: (nextValue) => {
-          record[propertyRule.yaml as string] = tagged
-            ? xmlAnomalyTagValue("xml/value", nextValue)
-            : nextValue
-        },
-        markTag: (tag) => {
-          markYAMLScalarTag(record, propertyRule.yaml as string, tag)
+          record[propertyRule.yaml as string] = nextValue
         },
         yamlPath: [...params.yamlPath, propertyRule.yaml],
-        tagged,
-        nameMode: tagged ? "internal" : "yaml",
+        tagged: false,
+        nameMode: "yaml",
         ...(isElementType(params.rule.itemType) ? { elementType: params.rule.itemType } : {}),
         ...(hasYamlProperty(record, params.rule, "valuesPicture") ? { hasValuesPicture: true } : {}),
         ...(isYamlTrue(readYamlProperty(record, params.rule, "multipleValuesExtendedEdit"))

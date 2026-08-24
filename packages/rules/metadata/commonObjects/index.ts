@@ -196,8 +196,6 @@ import "./metadataExternalDataSourceCube/register"
 import "./metadataExternalDataSourceCubeDimension/register"
 import "./metadataExternalDataSourceCubeResource/register"
 
-import "./exchangePlanContent/register"
-
 import "./metadataSequenceDimension/register"
 import "./resourceTopology"
 

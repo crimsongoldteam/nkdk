@@ -155,8 +155,12 @@ function normalizedOwnerFact(
   return undefined
 }
 
-export function ownerFactFromYAML(role: OwnerFactRole, value: unknown): unknown {
-  return normalizedOwnerFact(role, value)
+export function ownerFactFromYAML(
+  role: OwnerFactRole,
+  value: unknown,
+  annotations?: XmlAnomalyAnnotations,
+): unknown {
+  return normalizedOwnerFact(role, value, annotations)
 }
 
 function namedTypedItemsFromYaml(value: unknown, annotations?: XmlAnomalyAnnotations): NamedTypeItems {

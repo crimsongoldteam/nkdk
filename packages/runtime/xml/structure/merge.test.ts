@@ -94,6 +94,31 @@ describe("mergeXmlRawFragments", () => {
     )
   })
 
+  it("восстанавливает точный текст оболочки при вставке отсутствующего raw-ребёнка", () => {
+    const merged = mergeXmlRawFragments(roots("<Root><Properties><B/></Properties></Root>"), [
+      {
+        path: "Properties\\A",
+        value: {},
+        suppressOrdinaryOutput: true,
+      },
+      {
+        path: "Properties\\#order",
+        value: {
+          "#text": ["\n  ", "\n  ", "\n"],
+          "#order": ["#text", "A", "#text", "B", "#text"],
+        },
+        suppressOrdinaryOutput: false,
+      },
+    ])
+    const properties = merged[0]!.content.find(
+      (node): node is XmlElementNode => node.type === "element" && node.name === "Properties",
+    )!
+
+    expect(properties.content.map((node) =>
+      node.type === "text" ? node.value : node.type === "element" ? node.name : `?${node.target}`
+    )).toEqual(["\n  ", "A", "\n  ", "B", "\n"])
+  })
+
   it("сохраняет whitespace вокруг ребёнка при legacy child-only #order", () => {
     const ordinary = roots(
       "<Root><Properties><Name>Items</Name> </Properties></Root>",

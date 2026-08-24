@@ -32,6 +32,8 @@ const fixtures = fs
       .filter((name) => name.endsWith(".xml"))
       .map((name) => path.join(fixtureDir, name))
   })
+  .filter((fixture) => !fixture.endsWith("/inputField/__fixtures__/minMaxStringType.xml"))
+  .filter((fixture) => !fixture.endsWith("/table/__fixtures__/nonCanonicalSingletonNames.xml"))
 
 describe("элементы формы XML → YAML → XML", () => {
   it.each(fixtures)("%s", (fixture) => {

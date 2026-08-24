@@ -261,9 +261,6 @@ function liftElementToStableOwner(
   if (elementOutcome.state === "ambiguous" || elementOutcome.boundaries.length !== 1) {
     throw new Error(`Для XML-границы ${element.path} неоднозначна owner boundary`)
   }
-  if (elementOutcome.state === "duplicate") {
-    throw new Error(`Raw XML-граница ${element.path} пересекается с duplicate XML-границей`)
-  }
   const owner = elementOutcome.boundaries[0]!
   const ownerKey = xmlImportBoundaryKey(owner)
   const elementSubtree = new Set(subtree(element))
@@ -271,7 +268,11 @@ function liftElementToStableOwner(
   for (const node of elementSubtree) {
     const outcome = outcomes.get(node)
     if (outcome === undefined || isUnknown(outcome.state)) continue
-    if (outcome.state !== "claimed" || outcome.boundaries.length !== 1) {
+    const duplicateOwner = node === element
+      && outcome.state === "duplicate"
+      && outcome.boundaries.length === 1
+      && xmlImportBoundaryKey(outcome.boundaries[0]!) === ownerKey
+    if ((outcome.state !== "claimed" && !duplicateOwner) || outcome.boundaries.length !== 1) {
       throw new Error(
         `Raw XML-граница ${element.path} пересекается с известной XML-границей ${node.path}`,
       )

@@ -8,7 +8,6 @@ export function exportBorrowedPropertyStateSchema(params: {
   readonly capability: ResolvedPropertyStateItemCapability
   readonly source: TSchema
   readonly structuralPropertyKeys?: readonly string[]
-  readonly explicitXMLPropertyKeys?: readonly string[]
   readonly closed?: boolean
   readonly includeExtendedConfigurationObject?: boolean
 }): TSchema {
@@ -78,18 +77,6 @@ export function exportBorrowedPropertyStateSchema(params: {
       Type.Object({}, { additionalProperties: false, maxProperties: 0 }),
       Type.Literal(""),
     ]))
-  }
-  if (params.closed !== false) {
-    const explicitXMLPropertyKeys = new Set(params.explicitXMLPropertyKeys ?? [])
-    for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
-      if (
-        typeof propertyRule.yaml !== "string" ||
-        allowedPropertyKeys.has(propertyKey) ||
-        !explicitXMLPropertyKeys.has(propertyKey)
-      ) continue
-      const sourceSchema = source.properties?.[propertyRule.yaml]
-      if (sourceSchema !== undefined) properties[propertyRule.yaml] = sourceSchema
-    }
   }
   const notify = sectionNames(params.capability, "notify")
   const extend = sectionNames(params.capability, "extend")
@@ -161,7 +148,6 @@ export function exportNestedPropertyStateSchema(params: {
   readonly capability: ResolvedPropertyStateItemCapability
   readonly source: TSchema
   readonly structuralPropertyKeys?: readonly string[]
-  readonly explicitXMLPropertyKeys?: readonly string[]
 }): TSchema {
   const belongingYamlName = objectBelongingYamlName(params.rule)
   if (
@@ -176,7 +162,6 @@ export function exportNestedPropertyStateSchema(params: {
       ...(params.structuralPropertyKeys ?? []),
       ...(belongingYamlName === undefined ? [] : [propertyKeyByYamlName(params.rule, belongingYamlName)!]),
     ],
-    explicitXMLPropertyKeys: params.explicitXMLPropertyKeys,
   })
 }
 

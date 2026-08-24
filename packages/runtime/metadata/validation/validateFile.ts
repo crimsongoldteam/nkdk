@@ -91,6 +91,7 @@ export function evaluateParsedXmlAnomalyBoundaries(params: {
   readonly issues: readonly ValidationIssue[]
   readonly diagnostics: readonly Diagnostic[]
   readonly importantRegistered?: (target: ValidationIssueTarget) => boolean
+  readonly deferUnnecessaryFor?: (target: ValidationIssueTarget) => boolean
 }): { readonly diagnostics: Diagnostic[]; readonly issues: ValidationIssue[] } {
   let visibleIssues = [...params.issues]
   const contractIssues: ValidationIssue[] = []
@@ -101,6 +102,7 @@ export function evaluateParsedXmlAnomalyBoundaries(params: {
       target: boundary.target,
       issues: visibleIssues,
       importantRegistered: params.importantRegistered?.(boundary.target) ?? false,
+      deferUnnecessary: params.deferUnnecessaryFor?.(boundary.target) ?? false,
     })
     visibleIssues = [...evaluated.visible]
     contractIssues.push(...evaluated.contract)

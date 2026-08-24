@@ -30,6 +30,16 @@ describe("граница смысловой XML-аномалии", () => {
     })])
   })
 
+  it("откладывает проверку необходимости до проверки зависимостей", () => {
+    expect(evaluateXmlAnomalyBoundary({
+      annotation: "invalid",
+      target: semanticIssue.target,
+      issues: [],
+      importantRegistered: false,
+      deferUnnecessary: true,
+    })).toEqual({ accepted: [], visible: [], contract: [] })
+  })
+
   it("не подавляет инфраструктурную ошибку и ошибку дочернего пути", () => {
     const infrastructure: ValidationIssue = { ...semanticIssue, code: "validator.crashed", kind: "infrastructure" }
     const child: ValidationIssue = { ...semanticIssue, target: { kind: "path", path: ["Использовать", "Вид"] } }

@@ -37,6 +37,7 @@ describe("ProjectReferenceIndex", () => {
         filePath: reference.filePath,
         line: 1,
         col: 1,
+        path: "/Реквизиты/Тип",
         severity: "error",
         source: "reference",
         message: `Ссылка "${reference.canonical}" не включена в расширение`,

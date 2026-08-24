@@ -199,8 +199,7 @@ function isMatchingEmptyRef(value: string, type: Extract<FillValueAlternative, {
     (type.objectName === undefined || parsed.target.objectName === type.objectName)
 }
 
-export function fillValueDiagnostic(classification: FillValueClassification, tagged: boolean): { readonly message: string; readonly severity: "error" | "warning" } | undefined {
-  if (tagged) return classification.kind === "invalid" ? undefined : { message: "!xml/value допустим только для несовместимого XML-значения", severity: "error" }
+export function fillValueDiagnostic(classification: FillValueClassification, _tagged: boolean): { readonly message: string; readonly severity: "error" | "warning" } | undefined {
   if (classification.kind === "valid" || classification.kind === "notSpecified") return undefined
   if (classification.kind === "implicit") return { message: "поле содержит неявное значение; удалите ЗначениеЗаполнения", severity: "error" }
   if (classification.kind === "invalid") return { message: classification.reason, severity: "error" }

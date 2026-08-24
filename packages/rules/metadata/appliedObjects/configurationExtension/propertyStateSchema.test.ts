@@ -1,10 +1,9 @@
-import { describe, expect, it } from "vitest"
-import { compileValidationSchema } from "../../validation/compileValidationSchema"
-import { Type } from "typebox"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { Type } from "typebox"
+import { describe,expect,it } from "vitest"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
-import { exportBorrowedPropertyStateSchema } from "../../ruleRuntime/property/propertyStateSchema"
-import { exportNestedPropertyStateSchema } from "../../ruleRuntime/property/propertyStateSchema"
+import { exportBorrowedPropertyStateSchema,exportNestedPropertyStateSchema } from "../../ruleRuntime/property/propertyStateSchema"
+import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { MetadataAccountingRegisterDimensionRules } from "../metadataAccountingRegister/childRules"
 import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
@@ -130,39 +129,6 @@ describe("borrowed property-state schema", () => {
       source: Type.Object({}, { additionalProperties: false }),
     })
     expect(compileValidationSchema(schema).Check({ Изменять: ["МодульОбъекта"] })).toBe(true)
-  })
-  it("keeps only capabilities and adds closed canonical sections", () => {
-    const schema = exportBorrowedPropertyStateSchema({
-      rule,
-      capability,
-      source: Type.Object({
-        Имя: Type.String(),
-        Комментарий: Type.Optional(Type.String()),
-        Синоним: Type.Optional(Type.String()),
-        ДлинаКода: Type.Optional(Type.Number()),
-        Реквизиты: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-      }, { additionalProperties: false }),
-      structuralPropertyKeys: ["attributes"],
-    }) as { properties: Record<string, unknown>; additionalProperties: boolean }
-
-    expect(Object.keys(schema.properties)).toEqual([
-      "Имя",
-      "Комментарий",
-      "Синоним",
-      "ДлинаКода",
-      "Реквизиты",
-      "Изменять",
-    ])
-    expect(schema.properties.Изменять).toMatchObject({
-      type: "array",
-      items: { enum: ["МодульОбъекта"] },
-      uniqueItems: true,
-    })
-    expect(schema.properties).not.toHaveProperty("Проверять")
-    expect(schema.additionalProperties).toBe(false)
-    expect(schema.properties.Реквизиты).not.toMatchObject({
-      pattern: "^!xml/reference configurationExtensionPropertyStateXML:[A-Za-z0-9_-]+$",
-    })
   })
 
   it("adds both sections only with names allowed for each mode", () => {
@@ -348,21 +314,6 @@ describe("borrowed property-state schema", () => {
     })
 
     expect(schema).toMatchObject({ properties: { Форма: expect.any(Object) } })
-  })
-
-  it("разрешает зарегистрированный !xml во вложенном заимствованном объекте", () => {
-    const schema = exportNestedPropertyStateSchema({
-      rule,
-      capability,
-      source: Type.Object({
-        ДлинаКода: Type.Optional(Type.Number()),
-        Реквизиты: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-      }, { additionalProperties: false }),
-      explicitXMLPropertyKeys: ["attributes"],
-    }) as { properties?: Record<string, unknown> }
-
-    expect(schema.properties?.Реквизиты).toEqual(expect.objectContaining({ type: "object" }))
-    expect(JSON.stringify(schema.properties?.Реквизиты)).not.toContain("configurationExtensionPropertyStateXML")
   })
 
   it("разрешает только пустые формы флажка расширяемого объекта", () => {

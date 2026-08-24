@@ -1,12 +1,10 @@
-import { describe, expect, it } from "vitest"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import {
-  withConfigurationIndexCollector,
-  withConfigurationIndexFormElementRootLogicalAddress,
+createConfigurationIndexCollector,withConfigurationIndexCollector,
+withConfigurationIndexFormElementRootLogicalAddress
 } from "@nkdk/runtime"
-import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
+import { describe,expect,it } from "vitest"
 import { mockContextFromXML } from "../../../../tests/mockContext"
-import { exportToYAML } from "@nkdk/runtime"
+import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import "../../elements"
 import { importChildItemsFromXMLToYAML } from "./fromXMLToYAML"
 
@@ -112,27 +110,5 @@ describe("importChildItemsFromXMLToYAML", () => {
     })
 
     expect(yaml).toEqual({ ОК: { Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" } })
-  })
-
-  it("сохраняет !xml/present у явного Auto в колонке таблицы", () => {
-    const yaml = importChildItemsFromXMLToYAML({
-      context: mockContextFromXML(),
-      rule: { type: "TableChildItems", yaml: "Элементы" },
-      xml: {
-        InputField: {
-          _name: "Колонка",
-          DataPath: "Таблица.Поле",
-          HeaderHorizontalAlign: "Auto",
-        },
-      },
-      traversal: {
-        yamlPath: ["Элементы"],
-        rulePath: [{ propertyKey: "childItems" }],
-        collector: createLocalIndexesCollector(),
-      },
-    })
-
-    expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml/present")
-    expect(exportToYAML(yaml)).not.toContain("!xml Авто")
   })
 })

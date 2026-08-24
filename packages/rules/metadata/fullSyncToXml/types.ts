@@ -94,6 +94,10 @@ export type FullXmlSyncOutputTarget =
 
 export interface PreparedXmlAnomalyBoundary extends XmlRawMergeBoundary {
   readonly tag?: string
+  /** Отдельный XML-файл свойства, к которому относится граница. */
+  readonly documentPath?: string
+  /** Поправка заменяет или дополняет корень отдельного XML-документа. */
+  readonly documentRootName?: string
   /** Привязка относительного raw-пути к фактически экспортированному item коллекции. */
   readonly exportClaimId?: string
 }

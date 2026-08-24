@@ -15,6 +15,7 @@ export function evaluateXmlAnomalyBoundary(params: {
   readonly target: ValidationIssueTarget
   readonly issues: readonly ValidationIssue[]
   readonly importantRegistered: boolean
+  readonly deferUnnecessary?: boolean
 }): XmlAnomalyBoundaryEvaluation {
   const targetKey = validationIssueTargetKey(params.target)
   const accepted = params.issues.filter((issue) =>
@@ -26,7 +27,7 @@ export function evaluateXmlAnomalyBoundary(params: {
     contract.push(contractIssue("xml/important-not-registered", params))
   } else if (params.annotation === "invalid" && params.importantRegistered) {
     contract.push(contractIssue("xml/important-required", params))
-  } else if (accepted.length === 0) {
+  } else if (accepted.length === 0 && params.deferUnnecessary !== true) {
     contract.push(contractIssue("xml/anomaly-tag-unnecessary", params))
   }
 

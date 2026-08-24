@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importChildSubsystemNamesFromXML } from "./fromXML"
+import { importChildSubsystemNamesFromXML, metadataPropertyRule001 } from "./fromXML"
 
 describe("ChildSubsystemNames XML import", () => {
   it("imports undefined as undefined", () => {
@@ -12,5 +12,9 @@ describe("ChildSubsystemNames XML import", () => {
 
   it("imports several subsystem names", () => {
     expect(importChildSubsystemNamesFromXML(["А", "Б"])).toEqual(["А", "Б"])
+  })
+
+  it("объявляет повторные XML-узлы одним значением", () => {
+    expect(metadataPropertyRule001.handler.repeatedXMLNodes).toBe(true)
   })
 })

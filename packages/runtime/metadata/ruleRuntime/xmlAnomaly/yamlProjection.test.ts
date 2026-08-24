@@ -73,6 +73,49 @@ describe("YAML-проекция XML-аномалий", () => {
     ])
   })
 
+  it("сочетает invalid повторного ключа с raw его непонятного XML-значения", () => {
+    const root = parseXmlDocumentWithSaxes(
+      '<Root><Known>first</Known><Known><?future mode="x"?></Known></Root>',
+    ).roots[0]!
+    const known = root.content.filter(
+      (node): node is XmlElementNode => node.type === "element" && node.name === "Known",
+    )
+    const annotations = createXmlAnomalyAnnotations()
+    const projected = projectNamedXmlCollection({
+      entries: [
+        { key: "Known", value: "first" },
+        { key: "Known", value: "second" },
+      ],
+      annotations,
+    })
+    const runtimeKeys = Object.keys(projected)
+    const firstBoundary: XmlImportAuditBoundary = {
+      itemType: "SyntheticItem",
+      yamlPath: [runtimeKeys[0]!],
+    }
+    const duplicateBoundary: XmlImportAuditBoundary = {
+      itemType: "SyntheticItem",
+      yamlPath: [runtimeKeys[1]!],
+    }
+    const audit = createXmlImportAuditSession([root])
+    audit.claim(root, boundary)
+    audit.claim(known[0]!, firstBoundary)
+    audit.claim(known[0]!.content[0]!, firstBoundary)
+    audit.duplicate(known[1]!, duplicateBoundary)
+
+    projectXmlAuditRemainder({ yaml: projected, annotations, audit, root, boundary })
+
+    expect(annotations.at(projected, runtimeKeys[1]!)).toMatchObject({
+      kind: "raw",
+      target: "value",
+      hasSemanticValue: true,
+      xml: { "?future": { _mode: "x" } },
+    })
+    const serialized = serializeYAMLDocument(projected, annotations).text
+    expect(serialized).toContain("!xml/invalid Known: !xml/raw")
+    expect(serialized).toContain("$значение: second")
+  })
+
   it("сохраняет полностью неизвестный узел одним raw со всем содержимым", () => {
     const root = parseXmlDocumentWithSaxes(
       '<Root><Properties><Future mode="x">42<Child extra="y">value</Child> ' +

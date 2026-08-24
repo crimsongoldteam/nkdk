@@ -2,8 +2,6 @@ import {
   createXmlElementPatch,
   decodeXmlRawValue,
   copyYAMLMappingKeyOrder,
-  copyYAMLMappingKeyTags,
-  copyYAMLMappingTag,
   copyYAMLScalarTags,
   mergeXmlRawFragments,
   markYAMLMappingKeyOrder,
@@ -17,6 +15,7 @@ import {
   type XmlElementNode,
   type XmlImportAuditBoundary,
   type XmlImportAuditedNode,
+  type XmlImportAuditOutcome,
   type XmlImportAuditSession,
   type XmlSourceSpan,
   type XmlRawValue,
@@ -91,9 +90,10 @@ export interface XmlAnomalyProofAudit {
     }[]
     readonly levels: readonly XmlAnomalyProofLevel[]
   })[]
+  readonly itemAnchors?: readonly XmlAnomalyItemAnchor[]
 }
 
-interface XmlAnomalyItemAnchor {
+export interface XmlAnomalyItemAnchor {
   readonly sourcePath: string
   readonly xmlPath: string
   readonly yamlPath: readonly (string | number)[]
@@ -104,12 +104,38 @@ interface ResolvedXmlAnomalyItemRule extends XmlAnomalyItemAnchor {
   readonly rule: MetadataItemRule
 }
 
-export function deriveXmlAnomalyProofBoundaries(params: {
+interface ResolvedXmlAnomalyItemRuleIndex {
+  readonly add: (candidate: ResolvedXmlAnomalyItemRule) => void
+  readonly find: (params: {
+    readonly sourcePath: string
+    readonly rulePath: readonly string[]
+    readonly yamlPath: readonly (string | number)[]
+    readonly exactYamlPath?: boolean
+  }) => ResolvedXmlAnomalyItemRule | undefined
+}
+
+interface XmlAnomalyItemAnchorIndex {
+  readonly byParent: ReadonlyMap<string, readonly XmlAnomalyItemAnchor[]>
+  readonly byNormalizedPath: ReadonlyMap<string, readonly XmlAnomalyItemAnchor[]>
+}
+
+interface DeriveXmlAnomalyProofParams {
   readonly sources: readonly XmlAnomalyProofSource[]
   readonly audit: XmlImportAuditSession
   readonly rule: MetadataItemRule
   readonly data?: unknown
-}): XmlAnomalyProofBoundary[] {
+}
+
+export function deriveXmlAnomalyProofBoundaries(params: DeriveXmlAnomalyProofParams): XmlAnomalyProofBoundary[] {
+  return deriveXmlAnomalyProofPlan({ ...params, includePlannedAbsences: true }).boundaries
+}
+
+export function deriveXmlAnomalyProofPlan(
+  params: DeriveXmlAnomalyProofParams & { readonly includePlannedAbsences: boolean },
+): {
+  readonly boundaries: XmlAnomalyProofBoundary[]
+  readonly itemAnchors: readonly XmlAnomalyItemAnchor[]
+} {
   const nodeSource = new Map<XmlImportAuditedNode, XmlAnomalyProofSource>()
   const elementsBySourcePath = new Map<string, ReadonlyMap<string, XmlElementNode>>()
   for (const source of params.sources) {
@@ -129,7 +155,10 @@ export function deriveXmlAnomalyProofBoundaries(params: {
     }[]
   }>()
   const itemAnchorsByBoundary = new Map<string, XmlAnomalyItemAnchor>()
-  for (const outcome of params.audit.outcomes()) {
+  const outcomes: XmlImportAuditOutcome[] = []
+  params.audit.forEachOutcome((outcome) => outcomes.push(outcome))
+  let shallowElements: ReadonlySet<string> | undefined
+  for (const outcome of outcomes) {
     if (outcome.state !== "claimed" && outcome.state !== "duplicate" && outcome.state !== "ambiguous") continue
     const source = nodeSource.get(outcome.node)
     if (source === undefined) continue
@@ -153,6 +182,7 @@ export function deriveXmlAnomalyProofBoundaries(params: {
     }
     for (const boundary of proofBoundariesForOutcome(outcome)) {
       if (boundary.yamlPath === undefined || boundary.yamlPath.length === 0) continue
+      shallowElements ??= elementsWithIndependentDescendants(outcomes, nodeSource)
       // Одна YAML-граница может собираться несколькими вложенными правилами.
       // Для proof это один кандидат raw, поэтому XML-цели объединяются по
       // итоговому YAML-пути, а не по частному PropertyRule.
@@ -166,7 +196,10 @@ export function deriveXmlAnomalyProofBoundaries(params: {
           targetPaths: [outcome.node.path],
           capturedTargets: [{
             path: outcome.node.path,
-            signature: nodeSignature(outcome.node),
+            signature: auditedNodeSignature(
+              outcome.node,
+              shallowElements.has(auditedNodeKey(source.sourcePath, outcome.node.path)),
+            ),
             span: { ...outcome.node.span },
           }],
         })
@@ -175,7 +208,10 @@ export function deriveXmlAnomalyProofBoundaries(params: {
         current.targetPaths.push(outcome.node.path)
         current.capturedTargets.push({
           path: outcome.node.path,
-          signature: nodeSignature(outcome.node),
+          signature: auditedNodeSignature(
+            outcome.node,
+            shallowElements.has(auditedNodeKey(source.sourcePath, outcome.node.path)),
+          ),
           span: { ...outcome.node.span },
         })
       }
@@ -183,6 +219,7 @@ export function deriveXmlAnomalyProofBoundaries(params: {
   }
   const itemAnchors = [...itemAnchorsByBoundary.values()]
   const resolvedItemRules = resolveDynamicItemRules(params.rule, itemAnchors, params.data)
+  const itemAnchorIndex = indexItemAnchors(itemAnchors)
   const boundaries: XmlAnomalyProofBoundary[] = [...grouped.values()].map(({
     boundary,
     source,
@@ -232,7 +269,40 @@ export function deriveXmlAnomalyProofBoundaries(params: {
     }
   })
 
-  const existingYamlPaths = new Set(boundaries.map(({ sourcePath, yamlPath }) =>
+  if (params.includePlannedAbsences) {
+    boundaries.push(...deriveXmlAnomalyPlannedAbsenceBoundaries({
+      sources: params.sources,
+      rule: params.rule,
+      data: params.data,
+      itemAnchors,
+      existingBoundaries: boundaries,
+      elementsBySourcePath,
+      resolvedItemRules,
+      itemAnchorIndex,
+    }))
+  }
+  return { boundaries, itemAnchors }
+}
+
+export function deriveXmlAnomalyPlannedAbsenceBoundaries(params: {
+  readonly sources: readonly XmlAnomalyProofSource[]
+  readonly rule: MetadataItemRule
+  readonly data?: unknown
+  readonly itemAnchors: readonly XmlAnomalyItemAnchor[]
+  readonly existingBoundaries?: readonly XmlAnomalyProofBoundary[]
+  readonly elementsBySourcePath?: ReadonlyMap<string, ReadonlyMap<string, XmlElementNode>>
+  readonly resolvedItemRules?: ResolvedXmlAnomalyItemRuleIndex
+  readonly itemAnchorIndex?: XmlAnomalyItemAnchorIndex
+}): XmlAnomalyProofBoundary[] {
+  const elementsBySourcePath = params.elementsBySourcePath ?? new Map(params.sources.map((source) => [
+    source.sourcePath,
+    indexXmlDocument(source.document.roots).elements,
+  ] as const))
+  const resolvedItemRules = params.resolvedItemRules
+    ?? resolveDynamicItemRules(params.rule, params.itemAnchors, params.data)
+  const itemAnchorIndex = params.itemAnchorIndex ?? indexItemAnchors(params.itemAnchors)
+  const boundaries: XmlAnomalyProofBoundary[] = []
+  const existingYamlPaths = new Set((params.existingBoundaries ?? []).map(({ sourcePath, yamlPath }) =>
     JSON.stringify([sourcePath, yamlPath])
   ))
   const metadataSource = params.sources.find(({ role }) => role === "metadata")
@@ -248,7 +318,8 @@ export function deriveXmlAnomalyProofBoundaries(params: {
       rule: params.rule,
       yamlPrefix: [],
       rulePrefix: [],
-      itemAnchors,
+      itemAnchors: params.itemAnchors,
+      itemAnchorIndex,
       resolvedItemRules,
       data: params.data,
     })
@@ -266,7 +337,8 @@ export function deriveXmlAnomalyProofBoundaries(params: {
         rule: params.rule,
         yamlPrefix: [],
         rulePrefix: [],
-        itemAnchors,
+        itemAnchors: params.itemAnchors,
+        itemAnchorIndex,
         resolvedItemRules,
         data: params.data,
       })
@@ -302,14 +374,14 @@ function resolveDynamicItemRules(
   rootRule: MetadataItemRule,
   itemAnchors: readonly XmlAnomalyItemAnchor[],
   data: unknown,
-): readonly ResolvedXmlAnomalyItemRule[] {
+): ResolvedXmlAnomalyItemRuleIndex {
   const uniqueAnchors = [...new Map(itemAnchors.map((anchor) => [
     JSON.stringify([anchor.sourcePath, anchor.xmlPath, anchor.yamlPath, anchor.rulePath]),
     anchor,
   ])).values()].sort((left, right) =>
     left.rulePath.length - right.rulePath.length || left.yamlPath.length - right.yamlPath.length
   )
-  const resolved: ResolvedXmlAnomalyItemRule[] = []
+  const resolved = createResolvedItemRuleIndex()
   const collectionIndexes = new Map<string, number>()
   for (const anchor of uniqueAnchors) {
     const propertyKey = anchor.rulePath.at(-1)
@@ -344,7 +416,7 @@ function resolveDynamicItemRules(
         : undefined,
       index,
     }) ?? nestedItemRule(planned.propertyRule.type)
-    if (itemRule !== undefined) resolved.push({ ...anchor, rule: itemRule })
+    if (itemRule !== undefined) resolved.add({ ...anchor, rule: itemRule })
   }
   return resolved
 }
@@ -354,7 +426,7 @@ function compiledRuleAtPath(params: {
   readonly rulePath: readonly string[]
   readonly yamlPath: readonly (string | number)[]
   readonly sourcePath: string
-  readonly resolvedItemRules: readonly ResolvedXmlAnomalyItemRule[]
+  readonly resolvedItemRules: ResolvedXmlAnomalyItemRuleIndex
 }): MetadataItemRule | undefined {
   let rule: MetadataItemRule | undefined = params.rootRule
   for (let index = 0; index < params.rulePath.length && rule !== undefined; index += 1) {
@@ -363,8 +435,7 @@ function compiledRuleAtPath(params: {
       (candidate) => candidate.propertyKey === params.rulePath[index],
     )
     if (planned === undefined) return undefined
-    rule = resolvedItemRuleAt({
-      resolvedItemRules: params.resolvedItemRules,
+    rule = params.resolvedItemRules.find({
       sourcePath: params.sourcePath,
       rulePath: params.rulePath.slice(0, index + 1),
       yamlPath: params.yamlPath,
@@ -373,26 +444,96 @@ function compiledRuleAtPath(params: {
   return rule
 }
 
-function resolvedItemRuleAt(params: {
-  readonly resolvedItemRules: readonly ResolvedXmlAnomalyItemRule[]
-  readonly sourcePath: string
-  readonly rulePath: readonly string[]
-  readonly yamlPath: readonly (string | number)[]
-  readonly exactYamlPath?: boolean
-}): ResolvedXmlAnomalyItemRule | undefined {
-  return params.resolvedItemRules
-    .filter((candidate) =>
-      candidate.sourcePath === params.sourcePath
-      && sameStringPath(candidate.rulePath, params.rulePath)
-      && (params.exactYamlPath === true
-        ? sameYamlPath(candidate.yamlPath, params.yamlPath)
-        : startsWith(params.yamlPath, candidate.yamlPath))
-    )
-    .sort((left, right) => right.yamlPath.length - left.yamlPath.length)[0]
-}
-
 function parentXmlPath(path: string): string {
   return path.slice(0, path.lastIndexOf("/"))
+}
+
+function createResolvedItemRuleIndex(): ResolvedXmlAnomalyItemRuleIndex {
+  const exact = new Map<string, ResolvedXmlAnomalyItemRule>()
+  return {
+    add(candidate) {
+      exact.set(itemRuleLookupKey(candidate.sourcePath, candidate.rulePath, candidate.yamlPath), candidate)
+    },
+    find(params) {
+      if (params.exactYamlPath === true) {
+        return exact.get(itemRuleLookupKey(params.sourcePath, params.rulePath, params.yamlPath))
+      }
+      for (let length = params.yamlPath.length; length >= 0; length -= 1) {
+        const candidate = exact.get(itemRuleLookupKey(
+          params.sourcePath,
+          params.rulePath,
+          params.yamlPath.slice(0, length),
+        ))
+        if (candidate !== undefined) return candidate
+      }
+      return undefined
+    },
+  }
+}
+
+function itemRuleLookupKey(
+  sourcePath: string,
+  rulePath: readonly string[],
+  yamlPath: readonly (string | number)[],
+): string {
+  return JSON.stringify([sourcePath, rulePath, yamlPath])
+}
+
+function indexItemAnchors(anchors: readonly XmlAnomalyItemAnchor[]): XmlAnomalyItemAnchorIndex {
+  const byParent = new Map<string, XmlAnomalyItemAnchor[]>()
+  const byNormalizedPath = new Map<string, XmlAnomalyItemAnchor[]>()
+  for (const anchor of anchors) {
+    appendAnchorIndex(
+      byParent,
+      collectionAnchorLookupKey(anchor.sourcePath, anchor.rulePath, parentXmlPath(anchor.xmlPath)),
+      anchor,
+    )
+    appendAnchorIndex(
+      byNormalizedPath,
+      collectionAnchorLookupKey(anchor.sourcePath, anchor.rulePath, normalizeElementOccurrences(anchor.xmlPath)),
+      anchor,
+    )
+  }
+  return { byParent, byNormalizedPath }
+}
+
+function appendAnchorIndex(
+  index: Map<string, XmlAnomalyItemAnchor[]>,
+  key: string,
+  anchor: XmlAnomalyItemAnchor,
+): void {
+  const current = index.get(key)
+  if (current === undefined) index.set(key, [anchor])
+  else current.push(anchor)
+}
+
+function collectionItemAnchors(
+  index: XmlAnomalyItemAnchorIndex,
+  sourcePath: string,
+  rulePath: readonly string[],
+  xmlPath: string,
+): readonly XmlAnomalyItemAnchor[] {
+  const parentMatches = index.byParent.get(collectionAnchorLookupKey(sourcePath, rulePath, xmlPath)) ?? []
+  const directMatches = index.byNormalizedPath.get(collectionAnchorLookupKey(
+    sourcePath,
+    rulePath,
+    normalizeElementOccurrences(xmlPath),
+  )) ?? []
+  if (parentMatches.length === 0) return directMatches
+  if (directMatches.length === 0) return parentMatches
+  return [...new Map([...parentMatches, ...directMatches].map((anchor) => [anchor.xmlPath, anchor])).values()]
+}
+
+function collectionAnchorLookupKey(
+  sourcePath: string,
+  rulePath: readonly string[],
+  xmlPath: string,
+): string {
+  return JSON.stringify([sourcePath, rulePath, xmlPath])
+}
+
+function normalizeElementOccurrences(path: string): string {
+  return path.replace(/\[\d+\]/gu, "[1]")
 }
 
 function compiledProofLevels(
@@ -400,7 +541,7 @@ function compiledProofLevels(
   rulePath: readonly string[],
   yamlPath: readonly (string | number)[],
   sourcePath: string,
-  resolvedItemRules: readonly ResolvedXmlAnomalyItemRule[],
+  resolvedItemRules: ResolvedXmlAnomalyItemRuleIndex,
 ): readonly {
   readonly yamlPath: readonly (string | number)[]
   readonly rawYamlPath: readonly (string | number)[]
@@ -423,9 +564,15 @@ function compiledProofLevels(
     for (let segment = 0; segment < planned.xmlPath.length; segment += 1) {
       const xmlPrefix = planned.xmlPath.slice(0, segment + 1)
       const isPropertyLeaf = segment === planned.xmlPath.length - 1
-      const protectedYamlPaths = plan.properties
-        .filter((candidate) => candidate.propertyKey !== propertyKey && startsWithStringPath(candidate.xmlPath, xmlPrefix))
-        .map((candidate) => [...ownerPath, candidate.yamlKey ?? candidate.propertyKey])
+      // Для запрета подъёма достаточно одного независимого соседа. Хранение
+      // полного списка для каждой XML-границы квадратично раздувало подробный
+      // аудит больших форм, хотя список использовался только как признак.
+      const protectedProperty = plan.properties.find(
+        (candidate) => candidate.propertyKey !== propertyKey && startsWithStringPath(candidate.xmlPath, xmlPrefix),
+      )
+      const protectedYamlPaths = protectedProperty === undefined
+        ? []
+        : [[...ownerPath, protectedProperty.yamlKey ?? protectedProperty.propertyKey]]
       rootToLeaf.push({
         yamlPath: propertyYamlPath,
         rawYamlPath: isPropertyLeaf
@@ -434,8 +581,7 @@ function compiledProofLevels(
         protectedYamlPaths,
       })
     }
-    rule = resolvedItemRuleAt({
-      resolvedItemRules,
+    rule = resolvedItemRules.find({
       sourcePath,
       rulePath: rulePath.slice(0, index + 1),
       yamlPath,
@@ -461,7 +607,8 @@ function appendPlannedAbsenceBoundaries(params: {
   readonly yamlPrefix: readonly (string | number)[]
   readonly rulePrefix: readonly string[]
   readonly itemAnchors: readonly XmlAnomalyItemAnchor[]
-  readonly resolvedItemRules: readonly ResolvedXmlAnomalyItemRule[]
+  readonly itemAnchorIndex: XmlAnomalyItemAnchorIndex
+  readonly resolvedItemRules: ResolvedXmlAnomalyItemRuleIndex
   readonly data: unknown
 }): void {
   const elements = params.elementsBySourcePath.get(params.source.sourcePath)
@@ -490,16 +637,16 @@ function appendPlannedAbsenceBoundaries(params: {
     const element = elements?.get(xmlPath)
     const nestedConversion = getTypeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
     if (element !== undefined && nestedConversion?.kind === "collection") {
-      const anchors = params.itemAnchors.filter((anchor) =>
-        anchor.sourcePath === params.source.sourcePath
-        && sameStringPath(anchor.rulePath, rulePath)
-        && belongsToCollectionElement(anchor.xmlPath, xmlPath)
+      const anchors = collectionItemAnchors(
+        params.itemAnchorIndex,
+        params.source.sourcePath,
+        rulePath,
+        xmlPath,
       )
       for (const anchor of anchors) {
         const itemRoot = elements?.get(anchor.xmlPath)
         if (itemRoot === undefined) continue
-        const itemRule = resolvedItemRuleAt({
-          resolvedItemRules: params.resolvedItemRules,
+        const itemRule = params.resolvedItemRules.find({
           sourcePath: anchor.sourcePath,
           rulePath: anchor.rulePath,
           yamlPath: anchor.yamlPath,
@@ -547,16 +694,6 @@ function appendPlannedAbsenceBoundaries(params: {
       presentInSource: false,
     })
   }
-}
-
-function sameStringPath(left: readonly string[], right: readonly string[]): boolean {
-  return left.length === right.length && left.every((segment, index) => segment === right[index])
-}
-
-function belongsToCollectionElement(itemPath: string, collectionPath: string): boolean {
-  const normalizedItem = itemPath.replace(/\[\d+\]/gu, "[1]")
-  const normalizedCollection = collectionPath.replace(/\[\d+\]/gu, "[1]")
-  return normalizedItem === normalizedCollection || normalizedItem.startsWith(`${normalizedCollection}/`)
 }
 
 function resolveNestedItemRule(params: {
@@ -627,6 +764,7 @@ function proofBoundariesForOutcome(
 export function captureXmlAnomalyProofAudit(params: {
   readonly sources: readonly XmlAnomalyProofSource[]
   readonly boundaries: readonly XmlAnomalyProofBoundary[]
+  readonly itemAnchors?: readonly XmlAnomalyItemAnchor[]
 }): XmlAnomalyProofAudit {
   const sourceByPath = new Map(params.sources.map((source) => [source.sourcePath, source] as const))
   const needsIndex = params.boundaries.some((boundary) =>
@@ -705,6 +843,11 @@ export function captureXmlAnomalyProofAudit(params: {
       })),
     })),
     boundaries,
+    itemAnchors: (params.itemAnchors ?? []).map((anchor) => ({
+      ...anchor,
+      yamlPath: [...anchor.yamlPath],
+      rulePath: [...anchor.rulePath],
+    })),
   }
 }
 
@@ -718,6 +861,7 @@ export async function proveXmlAnomalyBoundaries(params: {
   readonly data: unknown
   readonly annotations: XmlAnomalyAnnotationsSnapshot
   readonly audit: XmlAnomalyProofAudit
+  readonly rule?: MetadataItemRule
   readonly exported: readonly {
     readonly role: ImportXmlInput["role"]
     readonly sourcePath?: string
@@ -725,7 +869,15 @@ export async function proveXmlAnomalyBoundaries(params: {
   }[]
   readonly readSource: (sourcePath: string) => Promise<string>
 }): Promise<ProveXmlAnomalyBoundariesResult> {
-  const data = cloneYamlForProof(params.data)
+  let data = params.data
+  let ownsData = false
+  const mutableData = (): unknown => {
+    if (!ownsData) {
+      data = cloneYamlForProof(data)
+      ownsData = true
+    }
+    return data
+  }
   let annotationSnapshot = cloneAnnotationSnapshot(params.annotations)
   const rereadDocuments = new Map<string, XmlDocument>()
   const rereadElements = new Map<string, ReadonlyMap<string, XmlElementNode>>()
@@ -751,11 +903,39 @@ export async function proveXmlAnomalyBoundaries(params: {
     return document
   }
 
-  for (const boundary of params.audit.boundaries) {
+  const boundaries: XmlAnomalyProofBoundary[] = [...params.audit.boundaries]
+  if (params.rule !== undefined) {
+    const changedSourcePaths = new Set<string>()
+    for (const source of params.audit.sources) {
+      const exported = exportedDocumentForSource(params.exported, source)
+      if (exported === undefined || sourceRootsAreExact(source.roots, exported)) continue
+      changedSourcePaths.add(source.sourcePath)
+    }
+    if (changedSourcePaths.size > 0) {
+      const sources: XmlAnomalyProofSource[] = []
+      for (const source of params.audit.sources) {
+        sources.push({
+          sourcePath: source.sourcePath,
+          role: source.role,
+          document: await readDocument(source.sourcePath),
+        })
+      }
+      boundaries.push(...deriveXmlAnomalyPlannedAbsenceBoundaries({
+        sources,
+        rule: params.rule,
+        data,
+        itemAnchors: params.audit.itemAnchors ?? [],
+        existingBoundaries: boundaries,
+      }).filter(({ sourcePath }) => changedSourcePaths.has(sourcePath)))
+    }
+  }
+
+  for (const boundary of boundaries) {
     const exported = singleExportedDocument(params.exported, boundary)
+    if (exported === undefined) continue
     const exact = boundary.presentInSource
-      ? boundary.targets.length > 0 && boundary.targets.every((target) =>
-          targetSignature(exportedElements.get(exported)?.get(target.path)) === target.signature
+      ? isCapturedProofBoundary(boundary) && boundary.targets.length > 0 && boundary.targets.every((target) =>
+          targetSignature(exportedElements.get(exported)?.get(target.path), target.signature) === target.signature
         )
       : exportedElements.get(exported)?.get(boundary.xmlPath) === undefined
     if (exact || hasRawAtOrAbovePath(annotationSnapshot, boundary.yamlPath)) continue
@@ -771,12 +951,15 @@ export async function proveXmlAnomalyBoundaries(params: {
     }
 
     await readDocument(boundary.sourcePath)
+    if (!isCapturedProofBoundary(boundary)) {
+      throw new Error(`У присутствующей XML-границы ${boundary.xmlPath} отсутствуют proof-данные`)
+    }
     const sourceElements = rereadElements.get(boundary.sourcePath)!
     const sourceNodes = rereadNodes.get(boundary.sourcePath)!
     const firstSource = sourceElements.get(boundary.xmlPath)
     if (
       firstSource === undefined
-      || boundary.targets.some((target) => targetSignature(sourceNodes.get(target.path)) !== target.signature)
+      || boundary.targets.some((target) => targetSignature(sourceNodes.get(target.path), target.signature) !== target.signature)
     ) {
       throw new Error(`Исходный XML изменился после первого прохода: ${boundary.sourcePath} ${boundary.xmlPath}`)
     }
@@ -791,7 +974,7 @@ export async function proveXmlAnomalyBoundaries(params: {
           const decoded = decodeXmlRawValue(raw, { elementName: source.name }).nodes[0]
           if (decoded === undefined || decoded.structuralHash !== source.structuralHash) return false
           const mergePath = rawMergePath(level.xmlPath)
-          if (mergePath === undefined) return false
+          if (mergePath === undefined) return true
           const merged = mergeXmlRawFragments(exported.roots, [{
             path: mergePath.path,
             occurrencePath: mergePath.occurrences,
@@ -827,7 +1010,7 @@ export async function proveXmlAnomalyBoundaries(params: {
       ? createXmlElementPatch(selectedSource, exportedSelected)
       : xmlElementRawValue(selectedSource)
     if (!hasSemanticValue) {
-      setRawYamlValue(data, rawYamlPath, undefined, selected.yamlPath)
+      setRawYamlValue(mutableData(), rawYamlPath, undefined, selected.yamlPath)
     }
     annotationSnapshot = withRawAnnotation(
       annotationSnapshot,
@@ -838,12 +1021,89 @@ export async function proveXmlAnomalyBoundaries(params: {
     )
   }
 
+  for (const source of params.audit.sources) {
+    const exported = exportedDocumentForSource(params.exported, source)
+    if (exported === undefined || sourceRootsAreExact(source.roots, exported)) continue
+    const exportedNodes = exportedElements.get(exported)
+    const sourceBoundaries = boundaries.filter((boundary) => boundary.sourcePath === source.sourcePath)
+    const boundariesByContainerPath = new Map<string, XmlAnomalyProofBoundary[]>()
+    for (const boundary of sourceBoundaries) {
+      for (const { xmlPath } of boundary.levels ?? []) {
+        const related = boundariesByContainerPath.get(xmlPath)
+        if (related === undefined) boundariesByContainerPath.set(xmlPath, [boundary])
+        else related.push(boundary)
+      }
+    }
+    for (const [xmlPath, related] of boundariesByContainerPath) {
+      const rawYamlPath = orderRawYamlPath(related, xmlPath)
+      if (rawYamlPath === undefined || hasRawAtOrAbovePath(annotationSnapshot, rawYamlPath)) continue
+      const containerYamlPath = containerRawYamlPath(rawYamlPath)
+      if (containerYamlPath !== undefined && hasRawAtOrAbovePath(annotationSnapshot, containerYamlPath)) continue
+      await readDocument(source.sourcePath)
+      const sourceElement = rereadElements.get(source.sourcePath)!.get(xmlPath)
+      const exportedNode = exportedNodes?.get(xmlPath)
+      const exportedElement = exportedNode !== undefined
+        && "type" in exportedNode
+        && exportedNode.type === "element"
+        ? exportedNode
+        : undefined
+      if (sourceElement === undefined || exportedElement === undefined) continue
+      const sourceOrder = directElementOrder(sourceElement)
+      const exportedOrder = directElementOrder(exportedElement)
+      if (sameStrings(sourceOrder, exportedOrder)) continue
+      const insertsRawChild = related.some((boundary) => {
+        if (!boundary.presentInSource || parentElementPath(boundary.xmlPath) !== xmlPath) return false
+        const annotation = rawAnnotationAtPath(annotationSnapshot, boundary.yamlPath)
+        return annotation !== undefined && annotation.xml !== null
+      })
+      if (!sameStringMultiset(sourceOrder, exportedOrder) && !insertsRawChild) continue
+      assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, rawYamlPath)
+      setRawYamlValue(mutableData(), rawYamlPath, undefined)
+      annotationSnapshot = withRawAnnotation(
+        annotationSnapshot,
+        rawYamlPath,
+        insertsRawChild ? directContentOrderPatch(sourceElement) : sourceOrder,
+        false,
+      )
+    }
+  }
+
   const annotations = restoreXmlAnomalyAnnotations(data, annotationSnapshot)
   return {
     data,
     annotations: snapshotXmlAnomalyAnnotations(data, annotations),
     rereadSourcePaths,
   }
+}
+
+function isCapturedProofBoundary(
+  boundary: XmlAnomalyProofBoundary,
+): boundary is XmlAnomalyProofAudit["boundaries"][number] {
+  return "targets" in boundary && Array.isArray(boundary.targets) && Array.isArray(boundary.levels)
+}
+
+function exportedDocumentForSource(
+  exported: readonly {
+    readonly role: ImportXmlInput["role"]
+    readonly sourcePath?: string
+    readonly document: XmlDocument
+  }[],
+  source: Pick<XmlAnomalyProofAudit["sources"][number], "role" | "sourcePath">,
+): XmlDocument | undefined {
+  const roleMatches = exported.filter((candidate) => candidate.role === source.role)
+  const exact = roleMatches.filter((candidate) => candidate.sourcePath === source.sourcePath)
+  const hasSourceIdentity = roleMatches.some(({ sourcePath }) => sourcePath !== undefined)
+  const matches = hasSourceIdentity ? exact : roleMatches
+  return matches.length === 1 ? matches[0]!.document : undefined
+}
+
+function sourceRootsAreExact(
+  sourceRoots: XmlAnomalyProofAudit["sources"][number]["roots"],
+  exported: XmlDocument,
+): boolean {
+  if (sourceRoots.length !== exported.roots.length) return false
+  const exportedByPath = new Map(exported.roots.map((root) => [root.path, root] as const))
+  return sourceRoots.every((source) => exportedByPath.get(source.xmlPath)?.structuralHash === source.structuralHash)
 }
 
 function sameElementShell(left: XmlElementNode, right: XmlElementNode): boolean {
@@ -855,6 +1115,88 @@ function sameElementShell(left: XmlElementNode, right: XmlElementNode): boolean 
         && attribute.name === other.name
         && attribute.value === other.value
     })
+}
+
+function directElementOrder(element: XmlElementNode): string[] {
+  return element.content.flatMap((node) => node.type === "element" ? [node.name] : [])
+}
+
+function directContentOrderPatch(element: XmlElementNode): XmlRawValue {
+  const text = element.content.flatMap((node) => node.type === "text" ? [node.value] : [])
+  return {
+    "#text": text,
+    "#order": element.content.map((node) =>
+      node.type === "text" ? "#text" : node.type === "element" ? node.name : `?${node.target}`
+    ),
+  }
+}
+
+function sameStrings(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index])
+}
+
+function sameStringMultiset(left: readonly string[], right: readonly string[]): boolean {
+  if (left.length !== right.length) return false
+  const counts = new Map<string, number>()
+  for (const value of left) counts.set(value, (counts.get(value) ?? 0) + 1)
+  for (const value of right) {
+    const count = counts.get(value)
+    if (count === undefined) return false
+    if (count === 1) counts.delete(value)
+    else counts.set(value, count - 1)
+  }
+  return counts.size === 0
+}
+
+function containerRawYamlPath(
+  orderPath: readonly (string | number)[],
+): readonly (string | number)[] | undefined {
+  const last = orderPath.at(-1)
+  if (last === "#order") return orderPath.slice(0, -1)
+  if (typeof last !== "string" || !last.endsWith("\\#order")) return undefined
+  return [...orderPath.slice(0, -1), last.slice(0, -"\\#order".length)]
+}
+
+function orderRawYamlPath(
+  boundaries: readonly XmlAnomalyProofBoundary[],
+  xmlPath: string,
+): readonly (string | number)[] | undefined {
+  const candidates = new Map<string, readonly (string | number)[]>()
+  for (const boundary of boundaries) {
+    for (const level of boundary.levels ?? []) {
+      if (level.xmlPath !== xmlPath || level.rawYamlPath === undefined) continue
+      candidates.set(JSON.stringify(level.rawYamlPath), level.rawYamlPath)
+    }
+  }
+  if (candidates.size === 0) return undefined
+  const paths = [...candidates.values()]
+  if (paths.length === 1) {
+    const path = paths[0]!
+    const last = path.at(-1)
+    if (typeof last !== "string") return undefined
+    return [...path.slice(0, -1), `${last}\\#order`]
+  }
+  const common: (string | number)[] = []
+  const limit = Math.min(...paths.map((path) => path.length))
+  for (let index = 0; index < limit; index += 1) {
+    const segment = paths[0]?.[index]
+    if (paths.some((path) => path[index] !== segment)) break
+    common.push(segment!)
+  }
+  const hasXmlParentInsideBoundary = boundaries.some((boundary) => {
+    const levels = boundary.levels ?? []
+    const index = levels.findIndex((level) => level.xmlPath === xmlPath)
+    return index >= 0 && index + 1 < levels.length
+  })
+  if (!hasXmlParentInsideBoundary) return [...common, "#order"]
+  return [...common, `${elementNameFromPath(xmlPath)}\\#order`]
+}
+
+function elementNameFromPath(xmlPath: string): string {
+  const segment = xmlPath.slice(xmlPath.lastIndexOf("/") + 1)
+  const match = /^(.*)\[\d+\]$/u.exec(segment)
+  if (match?.[1] === undefined) throw new Error(`Недопустимый структурный XML-путь: ${xmlPath}`)
+  return match[1]
 }
 
 function rawMergePath(xmlPath: string): {
@@ -931,6 +1273,20 @@ function hasRawAtOrAbovePath(
   })
 }
 
+function rawAnnotationAtPath(
+  annotations: XmlAnomalyAnnotationsSnapshot,
+  path: readonly (string | number)[],
+) {
+  const key = path.at(-1)
+  if (key === undefined) return annotations.root?.kind === "raw" ? annotations.root : undefined
+  const parentPath = path.slice(0, -1)
+  return annotations.entries.find((entry) =>
+    entry.annotation.kind === "raw"
+    && entry.key === key
+    && sameYamlPath(entry.parentPath, parentPath)
+  )?.annotation
+}
+
 function withRawAnnotation(
   annotations: XmlAnomalyAnnotationsSnapshot,
   path: readonly (string | number)[],
@@ -979,7 +1335,11 @@ function setRawYamlValue(
   let parent = data
   for (const segment of path.slice(0, -1)) {
     if (!isObject(parent)) throw new Error(`Не найдена YAML-граница /${path.join("/")}`)
-    const child = parent[segment]
+    let child = parent[segment]
+    if (child === undefined && typeof segment === "string") {
+      child = {}
+      parent[segment] = child
+    }
     if (!isObject(child)) throw new Error(`Не найдена YAML-граница /${path.join("/")}`)
     parent = child
   }
@@ -1046,12 +1406,13 @@ function singleExportedDocument(
     readonly sourcePath?: string
     readonly document: XmlDocument
   }[],
-  boundary: Pick<XmlAnomalyProofBoundary, "sourceRole" | "sourcePath">,
-): XmlDocument {
+  boundary: Pick<XmlAnomalyProofBoundary, "sourceRole" | "sourcePath" | "presentInSource">,
+): XmlDocument | undefined {
   const roleMatches = exported.filter((candidate) => candidate.role === boundary.sourceRole)
   const exact = roleMatches.filter((candidate) => candidate.sourcePath === boundary.sourcePath)
   const hasSourceIdentity = roleMatches.some(({ sourcePath }) => sourcePath !== undefined)
   const matches = hasSourceIdentity ? exact : roleMatches
+  if (!boundary.presentInSource && matches.length === 0) return undefined
   if (matches.length !== 1) {
     throw new Error(
       `Proof требует один экспортированный XML-документ ${boundary.sourcePath}, получено ${matches.length}`,
@@ -1140,8 +1501,14 @@ function indexXmlDocument(roots: readonly XmlElementNode[]): {
   return { elements, nodes }
 }
 
-function targetSignature(node: XmlImportAuditedNode | undefined): bigint | string | undefined {
-  return node === undefined ? undefined : nodeSignature(node)
+function targetSignature(
+  node: XmlImportAuditedNode | undefined,
+  expected: bigint | string,
+): bigint | string | undefined {
+  if (node === undefined) return undefined
+  return "type" in node && node.type === "element" && typeof expected === "string"
+    ? auditedNodeSignature(node)
+    : nodeSignature(node)
 }
 
 function nodeSignature(node: XmlImportAuditedNode): bigint | string {
@@ -1153,6 +1520,62 @@ function nodeSignature(node: XmlImportAuditedNode): bigint | string {
     node.target,
     node.body,
     node.attributes.map(({ name, value }) => [name, value]),
+  ])
+}
+
+function auditedNodeSignature(node: XmlImportAuditedNode, shallow = true): bigint | string {
+  // Содержимое контейнера с независимо принадлежащими потомками проверяется
+  // отдельными целями их владельцев. Его полный structuralHash иначе поглощал
+  // дочернее расхождение и поднимал raw на всю коллекцию.
+  return shallow && "type" in node && node.type === "element"
+    ? JSON.stringify(["element", node.name])
+    : nodeSignature(node)
+}
+
+function elementsWithIndependentDescendants(
+  outcomes: ReturnType<XmlImportAuditSession["outcomes"]>,
+  nodeSource: ReadonlyMap<XmlImportAuditedNode, XmlAnomalyProofSource>,
+): ReadonlySet<string> {
+  const outcomesByPath = new Map<string, (typeof outcomes)[number]>()
+  for (const outcome of outcomes) {
+    const source = nodeSource.get(outcome.node)
+    if (source !== undefined) outcomesByPath.set(auditedNodeKey(source.sourcePath, outcome.node.path), outcome)
+  }
+  const shallow = new Set<string>()
+  for (const outcome of outcomes) {
+    const source = nodeSource.get(outcome.node)
+    if (source === undefined || outcome.boundaries.length === 0) continue
+    const ownBoundaries = new Set(outcome.boundaries.map(auditBoundaryIdentity))
+    const ownerElementPath = owningElementPath(outcome.node)
+    let ancestorPath = "type" in outcome.node && outcome.node.type === "element"
+      ? parentElementPath(ownerElementPath)
+      : ownerElementPath
+    while (ancestorPath !== undefined) {
+      const ancestor = outcomesByPath.get(auditedNodeKey(source.sourcePath, ancestorPath))
+      if (
+        ancestor !== undefined
+        && ancestor.boundaries.length > 0
+        && !ancestor.boundaries.some((boundary) => ownBoundaries.has(auditBoundaryIdentity(boundary)))
+      ) {
+        shallow.add(auditedNodeKey(source.sourcePath, ancestorPath))
+      }
+      ancestorPath = parentElementPath(ancestorPath)
+    }
+  }
+  return shallow
+}
+
+function auditedNodeKey(sourcePath: string, nodePath: string): string {
+  return `${sourcePath}\u0000${nodePath}`
+}
+
+function auditBoundaryIdentity(boundary: XmlImportAuditBoundary): string {
+  return JSON.stringify([
+    boundary.itemType,
+    boundary.propertyKey,
+    boundary.propertyType,
+    boundary.yamlPath,
+    boundary.rulePath,
   ])
 }
 
@@ -1203,9 +1626,7 @@ function cloneYamlForProof<T>(source: T): T {
 function copyYamlMetadataDeep(source: unknown, target: unknown): void {
   if (!isObject(source) || !isObject(target)) return
   copyYAMLScalarTags(source, target)
-  copyYAMLMappingTag(source, target)
   copyYAMLMappingKeyOrder(source, target)
-  copyYAMLMappingKeyTags(source, target)
   if (Array.isArray(source) && Array.isArray(target)) {
     for (let index = 0; index < source.length; index += 1) {
       copyYamlMetadataDeep(source[index], target[index])

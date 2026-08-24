@@ -74,6 +74,7 @@ import {
   writeMainImportYaml,
   xmlExternalImportFiles,
   type SerializedImportYaml,
+  type WritableSerializedImportYaml,
 } from "./writeOutput"
 import { createImportBinaryResult } from "./binaryResult"
 import type { MetadataWorkerOperationRegistry } from "../workerPool/operationRegistry"
@@ -87,9 +88,6 @@ import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplic
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { importedClientApplicationForm } from "../forms/clientApplicationForm/formDataPathMetadata"
-import { collectConditionalAppearanceOccurrences } from "../forms/clientApplicationForm/conditionalAppearanceTraversal"
-import { finalizeImportedConditionalAppearanceAnomalies } from "../forms/clientApplicationForm/conditionalAppearanceAnomalies"
-import { prepareFormDataPathContextFromYAML } from "../forms/clientApplicationForm/formDataPathContext"
 import { getProjectReferenceValueContributor } from "../validation/projectReferenceIndexRegistry"
 import { resolveImportedMetadataTargetStatus } from "./metadataTargetLookup"
 import { executeImportControlExport } from "./controlExport"
@@ -168,7 +166,7 @@ interface PreparedImportOutput {
 }
 
 interface PreparedSerializedYaml {
-  serialized: SerializedImportYaml
+  serialized: WritableSerializedImportYaml
   index: ProjectStateImportIndexContribution
   final: ProjectStateImportFinalFileStateBatch
 }
@@ -201,11 +199,13 @@ export interface ImportWorkerCommandRunner {
   }
   readonly resetForTests: () => void
   readonly setSchemaCacheForTests: (schemaCache: ValidationSchemaCache | undefined) => void
+  readonly setControlExportForTests: (controlExport: typeof executeImportControlExport | undefined) => void
 }
 
 export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
   let initializedState: InitializedImportWorkerState | undefined
   let schemaCacheForTests: ValidationSchemaCache | undefined
+  let controlExportForTests: typeof executeImportControlExport | undefined
   const preparedYaml = new Map<string, DeferredImportYaml>()
   const assignedImportIds = new Set<string>()
   const assignedImports = new Map<string, ImportAssignment>()
@@ -323,7 +323,12 @@ async function runImportWorkerCommand(
     const state = requireInitializedState()
     const accumulator = requireSecondPassAccumulator()
     for (const assignmentId of command.assignmentIds) {
-      await processSecondPass(assignmentId, state, accumulator)
+      await processSecondPass(
+        assignmentId,
+        state,
+        accumulator,
+        controlExportForTests ?? executeImportControlExport,
+      )
     }
     return finishImportWorkerBatch(accumulator, state.workerIndex)
   }
@@ -378,7 +383,12 @@ async function runImportWorkerCommand(
 
   if (command.kind === "secondPass") {
     const accumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
-    await processSecondPass(command.assignmentId, requireInitializedState(), accumulator)
+    await processSecondPass(
+      command.assignmentId,
+      requireInitializedState(),
+      accumulator,
+      controlExportForTests ?? executeImportControlExport,
+    )
     await processThirdPass(command.assignmentId, requireInitializedState(), accumulator)
     return finishSecondPass(accumulator)
   }
@@ -392,6 +402,7 @@ async function processSecondPass(
   assignmentId: string,
   state: InitializedImportWorkerState,
   accumulator: SecondPassAccumulator,
+  controlExport: typeof executeImportControlExport,
 ): Promise<void> {
   if (!assignedImportIds.has(assignmentId)) {
     throw new Error(`Задание ${assignmentId} не принадлежит этой линии import`)
@@ -409,6 +420,7 @@ async function processSecondPass(
         state,
         accumulator.warnings,
         profiler,
+        controlExport,
       )
       prepared.output = output
       accumulator.fragmentWriter.appendImportIndex(output.main.index)
@@ -472,20 +484,22 @@ async function processThirdPass(
       output = {
         ...output,
         main: {
-          serialized,
+          serialized: retainWritableYaml(serialized),
           index: validated.index,
-          final: withoutDecidedDependencies(validated.final, decisions),
+          final: validated.final,
         },
       }
       prepared.output = output
     }
     const main = await writeMainImportYaml({ serialized: output.main.serialized, profiler: accumulator.profiler })
     accumulator.files.push(main.file)
+    accumulator.fragmentWriter.appendImportIndex(output.main.index)
     accumulator.fragmentWriter.appendImportFinal(output.main.final)
     accumulator.stateEntries += 1
     if (output.base !== undefined) {
       const base = await writeMainImportYaml({ serialized: output.base.serialized, profiler: accumulator.profiler })
       accumulator.files.push(base.file)
+      accumulator.fragmentWriter.appendImportIndex(output.base.index)
       accumulator.fragmentWriter.appendImportFinal(output.base.final)
       accumulator.stateEntries += 1
     }
@@ -619,7 +633,8 @@ async function prepareYamlForFinalPass(
   readSession: ActiveSecondPass["readSession"],
   state: InitializedImportWorkerState,
   warnings: ImportDiagnostic[],
-  profiler: ValidationProfiler
+  profiler: ValidationProfiler,
+  controlExport: typeof executeImportControlExport,
 ): Promise<{
   main: PreparedSerializedYaml
   base?: PreparedSerializedYaml
@@ -640,7 +655,6 @@ async function prepareYamlForFinalPass(
     }
   )
   const originalFormDataPaths = collectImportedFormDataPaths(prepared.yaml, prepared.rule)
-  const originalConditionalAppearance = collectImportedConditionalAppearance(prepared.yaml, prepared.rule)
   profiler.measure(
     "Подготовка импорта конфигурации",
     "Уточнение отложенных значений YAML",
@@ -709,14 +723,6 @@ async function prepareYamlForFinalPass(
     "Уточнение импортированного metadata-item",
     { items: 1 },
     () => {
-      finalizeImportedConditionalAppearance({
-        yaml: prepared.yaml,
-        rule: prepared.rule,
-        originals: originalConditionalAppearance,
-        ownerMetadataCache,
-        currentConfigurationYAML,
-        savedBaseYAML: preparedBaseFormCandidate?.yaml,
-      })
       finalizeMetadataItemImportedYaml({
         yaml: prepared.yaml,
         rule: prepared.rule,
@@ -732,16 +738,41 @@ async function prepareYamlForFinalPass(
     "Подготовка импорта конфигурации",
     "Контрольный экспорт XML",
     { items: 1 },
-    () => executeImportControlExport({
+    () => controlExport({
       assignment: prepared.assignment,
       data: prepared.yaml,
       annotations: snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations),
       audit: prepared.proofAudit,
+      rule: prepared.rule,
       topology: state.topology,
       context: { ...contextWithOwners, fromXML: state.context.fromXML },
       index: activeSecondPass?.configurationIndex ?? createLocalConfigurationIndexReader(new Map()),
       composition: activeSecondPass?.composition ?? { children: () => [] },
       readSource: async (sourcePath) => readFile(sourcePath, "utf8"),
+      loadDetailedImport: async () => {
+        const detailed = await prepareImportYaml({
+          assignment: prepared.assignment,
+          context: state.context,
+          collector: createConfigurationIndexCollector(),
+          profiler,
+          topology: state.topology,
+          proofDetail: "full",
+        })
+        finalizeMetadataItemImportedYaml({
+          yaml: detailed.yaml,
+          rule: detailed.rule,
+          ownerMetadataCache,
+          ...(currentConfigurationYAML === undefined ? {} : { currentConfigurationYAML }),
+          ...(preparedBaseFormCandidate === undefined
+            ? {}
+            : { savedBaseYAML: preparedBaseFormCandidate.yaml }),
+        })
+        return {
+          data: detailed.yaml,
+          annotations: snapshotXmlAnomalyAnnotations(detailed.yaml, detailed.annotations),
+          audit: detailed.proofAudit,
+        }
+      },
     }),
   )
   prepared.yaml = proof.data
@@ -793,7 +824,11 @@ async function prepareYamlForFinalPass(
         )
       : prepared.baseFormCandidate.configurationFragment
   return {
-    main: { serialized, index: validated.index, final: validated.final },
+    main: {
+      serialized: retainWritableYaml(serialized),
+      index: validated.index,
+      final: validated.final,
+    },
     ...(baseForm === undefined ? {} : { base: baseForm }),
     configurationFragments:
       baseFormConfigurationFragment === undefined ? [] : [baseFormConfigurationFragment],
@@ -821,10 +856,6 @@ function prepareBaseFormCandidate(params: {
     throw new Error(`Не найдена текущая форма cf для ${params.candidate.baseProjectPath}`)
   }
   const originalFormDataPaths = collectImportedFormDataPaths(params.candidate.yaml, params.candidate.rule)
-  const originalConditionalAppearance = collectImportedConditionalAppearance(
-    params.candidate.yaml,
-    params.candidate.rule,
-  )
   finalizeImportedYamlValues({
     yaml: params.candidate.yaml,
     rootRule: params.candidate.rule,
@@ -837,12 +868,6 @@ function prepareBaseFormCandidate(params: {
     rule: params.candidate.rule,
     originalOccurrences: originalFormDataPaths,
     formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
-    ownerMetadataCache: params.ownerMetadataCache,
-  })
-  finalizeImportedConditionalAppearance({
-    yaml: params.candidate.yaml,
-    rule: params.candidate.rule,
-    originals: originalConditionalAppearance,
     ownerMetadataCache: params.ownerMetadataCache,
   })
   const projection = projectClientApplicationBaseForm({
@@ -880,7 +905,7 @@ function prepareSerializedBaseFormCandidate(params: {
     "isolated",
   )
   return {
-    serialized,
+    serialized: retainWritableYaml(serialized),
     index: validated.index,
     final: validated.final,
   }
@@ -891,50 +916,6 @@ function collectImportedFormDataPaths(yaml: unknown, rule: PreparedImportYaml["r
   return form === undefined
     ? []
     : collectFormDataPathOccurrencesFromYAML(form)
-}
-
-function collectImportedConditionalAppearance(yaml: unknown, rule: PreparedImportYaml["rule"]) {
-  const form = importedClientApplicationForm({ yaml, rule })
-  return form === undefined
-    ? { operands: [], targets: [] }
-    : collectConditionalAppearanceOccurrences(form.yaml)
-}
-
-function finalizeImportedConditionalAppearance(params: {
-  yaml: unknown
-  rule: PreparedImportYaml["rule"]
-  originals: ReturnType<typeof collectImportedConditionalAppearance>
-  ownerMetadataCache: OwnerMetadataCache
-  currentConfigurationYAML?: unknown
-  savedBaseYAML?: unknown
-}): void {
-  if (params.originals.operands.length === 0 && params.originals.targets.length === 0) return
-  const form = importedClientApplicationForm({ yaml: params.yaml, rule: params.rule })
-  if (form === undefined) return
-  const formYaml = clientApplicationFormYaml(form.yaml, "импортируемая форма")
-  const currentForm = params.currentConfigurationYAML === undefined
-    ? undefined
-    : importedClientApplicationForm({ yaml: params.currentConfigurationYAML, rule: params.rule })
-  const savedBaseForm = params.savedBaseYAML === undefined
-    ? undefined
-    : importedClientApplicationForm({ yaml: params.savedBaseYAML, rule: params.rule })
-  const dataPathContext = prepareFormDataPathContextFromYAML({
-    yaml: formYaml,
-    ownerCache: params.ownerMetadataCache,
-    rule: form.rule,
-    ...(currentForm === undefined
-      ? {}
-      : { currentConfigurationFormYaml: clientApplicationFormYaml(currentForm.yaml, "текущая форма") }),
-    ...(savedBaseForm === undefined
-      ? {}
-      : { savedBaseFormYaml: clientApplicationFormYaml(savedBaseForm.yaml, "базовая форма") }),
-  })
-  finalizeImportedConditionalAppearanceAnomalies({
-    yaml: formYaml,
-    originals: params.originals,
-    dataPathContext,
-    ownerCache: params.ownerMetadataCache,
-  })
 }
 
 function finalizeImportedFormDataPaths(params: {
@@ -1083,6 +1064,7 @@ async function processFirstPass(
         collector,
         profiler,
         topology: state.topology,
+        proofDetail: "roots",
       })
       const fragment = profiler.measure(
         "Подготовка импорта конфигурации",
@@ -1320,6 +1302,14 @@ function serializePreparedYaml(
   )
 }
 
+function retainWritableYaml(serialized: SerializedImportYaml): WritableSerializedImportYaml {
+  return {
+    file: serialized.file,
+    bytes: serialized.bytes,
+    localHash: serialized.localHash,
+  }
+}
+
 function validateSerializedImportYaml(
   prepared: Pick<DeferredImportYaml, "targetProjectPath" | "validationFile">,
   serialized: SerializedImportYaml,
@@ -1471,30 +1461,6 @@ function splitImportYamlUpdate(
   }
 }
 
-function withoutDecidedDependencies(
-  batch: ProjectStateImportFinalFileStateBatch,
-  decisions: readonly ImportIssueDecision[],
-): ProjectStateImportFinalFileStateBatch {
-  const paths = new Set(decisions.map(({ target }) => validationTargetPathKey(target.path)))
-  if (paths.size === 0) return batch
-  return {
-    ...batch,
-    updates: batch.updates.map((update) => update.kind === "yaml"
-      ? {
-          ...update,
-          pendingReferences: update.pendingReferences.filter(({ yamlPath }) =>
-            !paths.has(validationTargetPathKey(yamlPath))),
-          pendingChecks: update.pendingChecks.filter(({ yamlPath }) =>
-            !paths.has(validationTargetPathKey(yamlPath))),
-        }
-      : update),
-  }
-}
-
-function validationTargetPathKey(path: readonly (string | number)[]): string {
-  return JSON.stringify(path)
-}
-
 function importIndexContribution(
   prepared: PreparedImportYaml,
   contribution: ImportValidationContribution,
@@ -1615,6 +1581,12 @@ function setImportWorkerSchemaCacheForTests(schemaCache: ValidationSchemaCache |
   schemaCacheForTests = schemaCache
 }
 
+function setImportWorkerControlExportForTests(
+  controlExport: typeof executeImportControlExport | undefined,
+): void {
+  controlExportForTests = controlExport
+}
+
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
@@ -1625,6 +1597,7 @@ return {
   stateForTests: workerStateForTests,
   resetForTests: resetImportWorkerStateForTests,
   setSchemaCacheForTests: setImportWorkerSchemaCacheForTests,
+  setControlExportForTests: setImportWorkerControlExportForTests,
 }
 }
 

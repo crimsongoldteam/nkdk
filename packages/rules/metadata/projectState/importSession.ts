@@ -228,7 +228,7 @@ export async function createProjectStateImportSession(
         return [...diagnostics]
           .filter(({ severity }) => severity === "error")
           .map((diagnostic) => ({
-            projectPath: diagnostic.filePath,
+            projectPath: importTargetProjectPath(diagnostic.filePath, params.output.componentPaths),
             issue: {
               code: diagnostic.code ?? `diagnostic.${diagnostic.source}`,
               kind: diagnostic.source === "syntax" || diagnostic.source === "external-file"
@@ -296,6 +296,24 @@ export async function createProjectStateImportSession(
       if (failures.length > 1) throw new AggregateError(failures, errorMessage(cause))
     },
   }
+}
+
+function importTargetProjectPath(
+  diagnosticFilePath: string,
+  componentPaths: readonly string[],
+): string {
+  const normalized = diagnosticFilePath.replaceAll("\\", "/")
+  const candidates = [...componentPaths]
+    .map((componentPath) => componentPath.replaceAll("\\", "/").replace(/^\/+|\/+$/gu, ""))
+    .filter((componentPath) => componentPath.length > 0)
+    .sort((left, right) => right.length - left.length)
+  for (const componentPath of candidates) {
+    if (normalized.startsWith(`${componentPath}/`)) return normalized.slice(componentPath.length + 1)
+    const marker = `/${componentPath}/`
+    const markerIndex = normalized.lastIndexOf(marker)
+    if (markerIndex >= 0) return normalized.slice(markerIndex + marker.length)
+  }
+  return normalized
 }
 
 function flattenFailures(caught: unknown): unknown[] {

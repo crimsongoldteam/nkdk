@@ -1,14 +1,14 @@
-import { describe, expect, it } from "vitest"
-import {
-  createPropertyRuleRegistrySet,
-  defineMetadataRules,
-  definePropertyTypeRule,
-  propertyTypesFromContributions,
-  withPropertyRuleRegistrySet,
-} from "@nkdk/runtime/rule-kit"
-import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { createConfigurationLanguages,parseMetadataYaml } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { createConfigurationLanguages, parseMetadataYaml } from "@nkdk/runtime"
+import {
+createPropertyRuleRegistrySet,
+defineMetadataRules,
+definePropertyTypeRule,
+propertyTypesFromContributions,
+withPropertyRuleRegistrySet,
+} from "@nkdk/runtime/rule-kit"
+import { describe,expect,it } from "vitest"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 
 const context = {
@@ -114,27 +114,6 @@ describe("validateExcludedEqualNameYAML", () => {
         path: "/Реквизиты/КакоеТоПоле/Заголовок/Текст/ru",
       }),
     ])
-  })
-
-  it.each([
-    ["order anomaly", "Синоним: !xml/order\n  en: Text\n  ru: Какое то поле"],
-    ["duplicate anomaly", "Синоним:\n  ru: !xml/duplicate Какое то поле"],
-  ])("allows an explicit calculated value for $name", (_name, source) => {
-    const parsed = parseMetadataYaml(source)
-    const rule: MetadataItemRule = {
-      itemType: "MetadataCatalog",
-      properties: {
-        synonym: { type: "I8nText", yaml: "Синоним", excludeIfEqualNameYAML: true },
-      },
-    } as never
-
-    expect(validateExcludedEqualNameYAML({
-      context,
-      filePath: "/tmp/Свойства.yaml",
-      parsed,
-      rule,
-      name: "КакоеТоПоле",
-    })).toEqual([])
   })
 })
 

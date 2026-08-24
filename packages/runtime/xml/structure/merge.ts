@@ -6,12 +6,13 @@ import type {
 import {
   applyXmlPatch,
   decodeXmlRawAttributes,
-  decodeXmlRawOrder,
+  decodeXmlRawOrderPatch,
   decodeXmlRawValue,
   encodeXmlRawElement,
   readdressXmlElementNodes,
   type XmlRawAttributes,
   type XmlRawFragment,
+  type XmlRawOrderPatch,
 } from "./rawCodec"
 
 export interface XmlRawMergeBoundary {
@@ -63,7 +64,7 @@ type PlannedBoundary =
   | {
       readonly path: CanonicalRawPath
       readonly kind: "order"
-      readonly order: readonly string[]
+      readonly order: XmlRawOrderPatch
     }
   | {
       readonly path: CanonicalRawPath
@@ -201,7 +202,7 @@ function planBoundaries(
     }
     if (path.terminal === "order") {
       assertTerminalDoesNotSuppress(boundary, "#order")
-      return { path, kind: "order", order: decodeXmlRawOrder(boundary.value) }
+      return { path, kind: "order", order: decodeXmlRawOrderPatch(boundary.value) }
     }
     const elementName = path.segments.at(-1) ?? path.rootName
     return {
@@ -530,10 +531,19 @@ function validateTerminalBoundaries(
       }
       continue
     }
-    const content = boundary.order.includes("#text")
+    if (boundary.order.text !== undefined) {
+      assertExactOrder(
+        structuralTerminalContent(parent.content),
+        boundary.order.order.filter((item) => item !== "#text"),
+        orderedContentName,
+        boundary.path.source,
+      )
+      continue
+    }
+    const content = boundary.order.order.includes("#text")
       ? parent.content
       : structuralTerminalContent(parent.content)
-    assertExactOrder(content, boundary.order, orderedContentName, boundary.path.source)
+    assertExactOrder(content, boundary.order.order, orderedContentName, boundary.path.source)
   }
 }
 
@@ -567,9 +577,11 @@ function applyTerminalBoundaries(
       parent.attributes[index] = { ...attribute, value: boundary.attribute.value }
       continue
     }
-    parent.content = boundary.order.includes("#text")
-      ? reorder(parent.content, boundary.order, orderedContentName)
-      : reorderStructuralContentPreservingText(parent.content, boundary.order)
+    parent.content = boundary.order.text !== undefined
+      ? reorderContentWithText(parent.content, boundary.order)
+      : boundary.order.order.includes("#text")
+        ? reorder(parent.content, boundary.order.order, orderedContentName)
+        : reorderStructuralContentPreservingText(parent.content, boundary.order.order)
   }
 }
 
@@ -646,6 +658,27 @@ function reorderStructuralContentPreservingText(
   return content.map((node) =>
     node.type === "text" ? node : reordered[structuralIndex++]!,
   )
+}
+
+function reorderContentWithText(
+  content: readonly MutableXmlContentNode[],
+  patch: XmlRawOrderPatch,
+): MutableXmlContentNode[] {
+  const structuralOrder = patch.order.filter((item) => item !== "#text")
+  const structural = reorder(structuralTerminalContent(content), structuralOrder, orderedContentName)
+  let structuralIndex = 0
+  let textIndex = 0
+  return patch.order.map((name): MutableXmlContentNode => {
+    if (name !== "#text") return structural[structuralIndex++]!
+    return {
+      id: 0,
+      occurrence: textIndex + 1,
+      path: "",
+      span: { start: 0, end: 0 },
+      type: "text",
+      value: patch.text?.[textIndex++] ?? "",
+    }
+  })
 }
 
 function childElements(

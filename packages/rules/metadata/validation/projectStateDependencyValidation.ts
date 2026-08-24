@@ -2,7 +2,6 @@ import { join } from "node:path"
 import {
   referenceNotIncludedInExtensionResult,
   resolvedProjectReferenceResult,
-  unnecessaryXmlReferenceResult,
   unresolvedProjectReferenceResult,
   type PendingMetadataTargetReference,
 } from "./projectReferenceIndex"
@@ -10,7 +9,7 @@ import {
   getProjectReferenceObjectPathContributor,
   getProjectReferenceValueContributor,
 } from "./projectReferenceIndexRegistry"
-import type { Diagnostic } from "@nkdk/runtime"
+import { yamlPathToPointer, type Diagnostic } from "@nkdk/runtime"
 import {
   ownerMetadataFromFacts,
   ownerMetadataNotFound,
@@ -211,7 +210,7 @@ export function resolveProjectStateDataPathReferenceBatch(params: {
         owners,
       }),
       ...(check.check.tableContext === undefined ? {} : { tableContext: check.check.tableContext }),
-      nameMode: check.check.tagged ? "internal" : "yaml",
+      nameMode: "yaml",
     })
     if (resolution.status !== "error" && resolution.target !== undefined) {
       resolved.push({ ...check, target: resolution.target })
@@ -303,8 +302,7 @@ export function validateProjectStateReferenceBatch(params: {
   )
   const resultByRequestId = new Map(results.map((result) => [result.requestId, result]))
   const basePresenceChecks = ordinaryChecks.filter(({ requestId, componentPath, reference }) =>
-    reference.tagged !== "xml"
-    && componentPath.startsWith("cfe/")
+    componentPath.startsWith("cfe/")
     && componentPath.length > "cfe/".length
     && (resultByRequestId.get(requestId)?.status === "missing"
       || reference.propertyStateMode === "control"
@@ -321,8 +319,7 @@ export function validateProjectStateReferenceBatch(params: {
     basePresenceResults.map((result) => [result.requestId, result]),
   )
   const valueOwnerChecks = ordinaryChecks.filter(({ requestId, reference }) =>
-    reference.tagged !== "xml"
-    && resultByRequestId.get(requestId)?.status === "missing"
+    resultByRequestId.get(requestId)?.status === "missing"
     && reference.target.kind === "value"
   )
   const valueResults = resolveProjectValueTargets({
@@ -337,57 +334,75 @@ export function validateProjectStateReferenceBatch(params: {
   const valueResultByRequestId = new Map(valueResults.map((result) => [result.requestId, result]))
   const diagnostics: Diagnostic[] = [...dataTableDiagnostics]
   forEachDependencyResult(ordinaryChecks, results, (check, result) => {
-    if (check.reference.tagged === "xml") {
-      if (result.status === "found") {
-        diagnostics.push(...unnecessaryXmlReferenceResult(check.reference).diagnostics)
-      } else if (result.status === "ambiguous") {
-        diagnostics.push(...unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics)
-      }
-      return
-    }
+    let problems: readonly Diagnostic[] = []
     if (result.status === "found") {
       const baseResult = basePresenceByRequestId.get(check.requestId)
       if (check.reference.propertyStateMode !== undefined
         && check.reference.propertyStateMode !== "extend"
         && baseResult?.status !== "found") {
-        diagnostics.push(...unresolvedProjectReferenceResult(
+        problems = unresolvedProjectReferenceResult(
           check.reference,
           baseResult?.status ?? "missing",
-        ).diagnostics)
-        return
+        ).diagnostics
+      } else {
+        const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
+        if (!resolved.ok) problems = resolved.diagnostics
       }
-      const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
-      if (!resolved.ok) diagnostics.push(...resolved.diagnostics)
     } else {
       if (result.status === "missing" && basePresenceByRequestId.get(check.requestId)?.status === "found") {
-        diagnostics.push(...referenceNotIncludedInExtensionResult(check.reference).diagnostics)
-        return
-      }
-      if (result.status === "missing" && check.reference.target.kind === "value") {
+        problems = referenceNotIncludedInExtensionResult(check.reference).diagnostics
+      } else if (result.status === "missing" && check.reference.target.kind === "value") {
         const valueResult = valueResultByRequestId.get(check.requestId)
-        if (valueResult?.status === "found") return
         if (valueResult?.status === "invalid") {
-          diagnostics.push(...valueResult.diagnostics)
-          return
+          problems = valueResult.diagnostics
+        } else if (valueResult?.status === "ambiguous") {
+          problems = unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics
+        } else if (valueResult?.status !== "found") {
+          problems = unresolvedReferenceDiagnostics(params.projectDir, check, result.status)
         }
-        if (valueResult?.status === "ambiguous") {
-          diagnostics.push(...unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics)
-          return
-        }
+      } else {
+        problems = unresolvedReferenceDiagnostics(params.projectDir, check, result.status)
       }
-      const objectFilePath = check.reference.target.kind === "object"
-        ? getProjectReferenceObjectPathContributor(check.reference.target.root)?.({
-            projectDir: join(params.projectDir, check.componentPath),
-            target: check.reference.target,
-          })?.filePath
-        : undefined
-      const objectProjectPath = objectFilePath === undefined
-        ? undefined
-        : projectPathFromFileSystem(params.projectDir, objectFilePath)
-      diagnostics.push(...unresolvedProjectReferenceResult(check.reference, result.status, objectProjectPath).diagnostics)
     }
+    diagnostics.push(...evaluateTaggedReference(check.reference, problems))
   })
   return diagnostics
+}
+
+function unresolvedReferenceDiagnostics(
+  projectDir: string,
+  check: ProjectStatePendingReferenceCheck,
+  status: "missing" | "ambiguous",
+): readonly Diagnostic[] {
+  const objectFilePath = check.reference.target.kind === "object"
+    ? getProjectReferenceObjectPathContributor(check.reference.target.root)?.({
+        projectDir: join(projectDir, check.componentPath),
+        target: check.reference.target,
+      })?.filePath
+    : undefined
+  const objectProjectPath = objectFilePath === undefined
+    ? undefined
+    : projectPathFromFileSystem(projectDir, objectFilePath)
+  return unresolvedProjectReferenceResult(check.reference, status, objectProjectPath).diagnostics
+}
+
+function evaluateTaggedReference(
+  reference: PendingMetadataTargetReference,
+  problems: readonly Diagnostic[],
+): readonly Diagnostic[] {
+  if (reference.tagged !== "xml") return problems
+  if (problems.length > 0) return []
+  return [{
+    filePath: reference.filePath,
+    line: 1,
+    col: 1,
+    ...(yamlPathToPointer(reference.yamlPath) === undefined
+      ? {}
+      : { path: yamlPathToPointer(reference.yamlPath) }),
+    severity: "error",
+    source: "structure",
+    message: "Тег XML-аномалии лишний: значение не содержит ошибки",
+  }]
 }
 
 function requireDataTableQueryPort(
@@ -476,7 +491,7 @@ export function validateProjectStateDependencyBatch(params: {
               ...check.check,
               location: { ...check.check.location, filePath: check.projectPath },
               index,
-              nameMode: check.check.tagged ? "internal" : "yaml",
+              nameMode: "yaml",
             }),
       }).diagnostics,
     )

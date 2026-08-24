@@ -8,7 +8,14 @@ export function applyImportedIssueDecisions(params: {
 }): void {
   for (const decision of params.decisions) {
     if (decision.target.kind === "occurrence") {
-      throw new Error("Решение для повтора должно применяться к сохранённому ключу коллекции")
+      applyOccurrenceDecision(
+        params.data,
+        params.annotations,
+        decision.kind,
+        decision.target,
+        decision.issueCodes,
+      )
+      continue
     }
     const parentPath = decision.target.path.slice(0, -1)
     const key = decision.target.path.at(-1)
@@ -36,6 +43,35 @@ export function applyImportedIssueDecisions(params: {
       target: "value",
     })
   }
+}
+
+function applyOccurrenceDecision(
+  data: unknown,
+  annotations: XmlAnomalyAnnotations,
+  kind: ImportedIssueDecision["kind"],
+  target: Extract<ImportedIssueDecision["target"], { readonly kind: "occurrence" }>,
+  issueCodes: readonly string[],
+): void {
+  const parent = valueAtPath(data, target.path.slice(0, -1))
+  const logicalKey = target.path.at(-1)
+  if (!isRecord(parent) || typeof logicalKey !== "string") {
+    throw new Error(`Не найдена YAML-коллекция повтора /${target.path.join("/")}`)
+  }
+  const runtimeKey = Object.keys(parent).find((key) => {
+    const annotation = annotations.keyAt(parent, key)
+    return annotation?.logicalKey === logicalKey
+      && annotation.occurrence === target.occurrence
+  })
+  if (runtimeKey === undefined) {
+    throw new Error(`Не найден повтор ${target.occurrence} ключа /${target.path.join("/")} для ${issueCodes.join(", ")}`)
+  }
+  const current = annotations.keyAt(parent, runtimeKey)
+  annotations.setKey(parent, runtimeKey, {
+    kind: kind === "important" ? "important" : current?.kind ?? "invalid",
+    occurrence: target.occurrence,
+    target: "key",
+    logicalKey,
+  })
 }
 
 function valueAtPath(root: unknown, path: readonly (string | number)[]): unknown {

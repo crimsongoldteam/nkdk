@@ -378,31 +378,53 @@ describe("ProjectState import session", () => {
   it("возвращает адресные ошибки зависимостей после смыслового индекса", async () => {
     const writer = importSessionWriterStub({
       async validateDependencyDiagnosticBatches() {
-        return [openDiagnosticBatch(encodeDiagnosticBatch([{
-          filePath: "cf/Справочник/Товары/Свойства.yaml",
-          line: 7,
-          col: 5,
-          path: "/Реквизиты/Код/Тип",
-          severity: "error",
-          source: "reference",
-          code: "reference.not-found",
-          message: "Текст сообщения не участвует в классификации",
-        }]))]
+        return [openDiagnosticBatch(encodeDiagnosticBatch([
+          {
+            filePath: "cf/Справочник/Товары/Свойства.yaml",
+            line: 7,
+            col: 5,
+            path: "/Реквизиты/Код/Тип",
+            severity: "error",
+            source: "reference",
+            code: "reference.not-found",
+            message: "Текст сообщения не участвует в классификации",
+          },
+          {
+            filePath: "/project/cfe/Расширение/Конфигурация.yaml",
+            line: 2,
+            col: 1,
+            path: "/ОсновнойЯзык",
+            severity: "error",
+            source: "cross-file",
+            code: "reference.not-included",
+            message: "Текст сообщения не участвует в классификации",
+          },
+        ]))]
       },
     })
-    const importSession = await createTestImportSession(writer)
+    const importSession = await createTestImportSession(writer, ["cf", "cfe/Расширение"])
 
     await importSession.commitWorkingIndex()
     await importSession.commitSemanticIndex()
 
-    expect(await importSession.collectSemanticValidationIssues()).toEqual([{
-      projectPath: "cf/Справочник/Товары/Свойства.yaml",
-      issue: {
-        code: "reference.not-found",
-        kind: "semantic",
-        target: { kind: "path", path: ["Реквизиты", "Код", "Тип"] },
+    expect(await importSession.collectSemanticValidationIssues()).toEqual([
+      {
+        projectPath: "Конфигурация.yaml",
+        issue: {
+          code: "reference.not-included",
+          kind: "semantic",
+          target: { kind: "path", path: ["ОсновнойЯзык"] },
+        },
       },
-    }])
+      {
+        projectPath: "Справочник/Товары/Свойства.yaml",
+        issue: {
+          code: "reference.not-found",
+          kind: "semantic",
+          target: { kind: "path", path: ["Реквизиты", "Код", "Тип"] },
+        },
+      },
+    ])
     await importSession.abort(new Error("test complete"))
   })
 })
@@ -423,11 +445,14 @@ function indexContribution(projectPath: string, name: string): ProjectStateImpor
   }
 }
 
-function createTestImportSession(writer: ProjectStateWriterHandle): Promise<ProjectStateImportSession> {
+function createTestImportSession(
+  writer: ProjectStateWriterHandle,
+  componentPaths: readonly string[] = ["cf"],
+): Promise<ProjectStateImportSession> {
   return createProjectStateImportSession({
     projectDir: "/project",
     workerCount: 1,
-    output: { componentPaths: ["cf"] },
+    output: { componentPaths },
     writer,
     async publish() {},
     async discard() {},

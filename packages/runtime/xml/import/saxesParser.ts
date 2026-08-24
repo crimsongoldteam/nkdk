@@ -8,7 +8,11 @@ import type {
   XmlProcessingInstructionNode,
   XmlSourceSpan,
 } from "./document"
-import { hashXmlElementStructure } from "../structure/hash"
+import {
+  hashXmlElementStructure,
+  type XmlStructuralAttribute,
+  type XmlStructuralContent,
+} from "../structure/hash"
 import { parseXmlProcessingInstructionAttributes } from "../structure/processingInstruction"
 
 const XML_METADATA = Symbol.for("metadata")
@@ -106,9 +110,7 @@ export function parseXmlDocumentWithSaxes(
     advanceContentBoundary(document, parser.position, true)
   })
   parser.on("opentagstart", (tag: SaxesStartTagPlain) => {
-    assertSafeName(tag.name)
-    const parent = stack.at(-1)
-    if (parent === undefined) throw new Error("XML-элемент вне документа")
+    const parent = requireElementParent(stack, tag.name)
     const occurrence = (parent.childCounts[tag.name] ?? 0) + 1
     const parentPath = parent.structural.path
     stack.push(
@@ -246,6 +248,135 @@ export function parseXmlDocumentWithSaxes(
   }
 }
 
+export interface XmlRootStructure {
+  readonly path: string
+  readonly name: string
+  readonly structuralHash: bigint
+  readonly span: XmlSourceSpan
+}
+
+interface RootStructureFrame {
+  readonly name: string
+  readonly occurrence: number
+  readonly path: string
+  readonly spanStart: number
+  readonly attributes: XmlStructuralAttribute[]
+  readonly content: XmlStructuralContent[]
+  readonly childCounts: Map<string, number>
+  nextContentStart: number
+  canMergeText: boolean
+}
+
+/**
+ * Вычисляет только структурные хэши XML-корней. В отличие от полного parser
+ * уже закрытые поддеревья представлены в родителе одним bigint и сразу
+ * освобождаются, поэтому первый проход не удерживает адресное XML-дерево.
+ */
+export function parseXmlRootStructuresWithSaxes(data: string): {
+  readonly roots: readonly XmlRootStructure[]
+  readonly sourceLength: number
+} {
+  const document: RootStructureFrame = {
+    name: "",
+    occurrence: 1,
+    path: "",
+    spanStart: 0,
+    attributes: [],
+    content: [],
+    childCounts: new Map(),
+    nextContentStart: 0,
+    canMergeText: true,
+  }
+  const stack = [document]
+  const roots: XmlRootStructure[] = []
+  const parser = new SaxesParser({ xmlns: false, fragment: !hasXmlDeclaration(data) })
+
+  parser.on("xmldecl", () => {
+    document.nextContentStart = parser.position
+    document.canMergeText = false
+  })
+  parser.on("opentagstart", (tag: SaxesStartTagPlain) => {
+    const parent = requireElementParent(stack, tag.name)
+    const occurrence = (parent.childCounts.get(tag.name) ?? 0) + 1
+    parent.childCounts.set(tag.name, occurrence)
+    stack.push({
+      name: tag.name,
+      occurrence,
+      path: `${parent.path}/${tag.name}[${occurrence}]`,
+      spanStart: parent.nextContentStart,
+      attributes: [],
+      content: [],
+      childCounts: new Map(),
+      nextContentStart: 0,
+      canMergeText: true,
+    })
+  })
+  parser.on("attribute", ({ name, value }) => {
+    const frame = stack.at(-1)
+    if (frame === undefined || frame === document) throw new Error("XML-атрибут вне элемента")
+    frame.attributes.push({ name, value })
+  })
+  parser.on("opentag", () => {
+    const frame = stack.at(-1)
+    if (frame === undefined) throw new Error("Несогласованный открывающий XML-тег")
+    frame.nextContentStart = parser.position
+  })
+  const appendStructuralText = (text: string): void => {
+    const frame = stack.at(-1)
+    if (frame === undefined) throw new Error("XML-текст вне документа")
+    const previous = frame.content.at(-1)
+    if (previous?.type === "text" && frame.canMergeText) {
+      frame.content[frame.content.length - 1] = { type: "text", value: previous.value + text }
+    } else {
+      frame.content.push({ type: "text", value: text })
+    }
+    frame.nextContentStart = parser.position
+    frame.canMergeText = true
+  }
+  parser.on("text", appendStructuralText)
+  parser.on("cdata", appendStructuralText)
+  const splitText = (): void => {
+    const frame = stack.at(-1)
+    if (frame !== undefined) {
+      frame.nextContentStart = parser.position
+      frame.canMergeText = false
+    }
+  }
+  parser.on("comment", splitText)
+  parser.on("doctype", splitText)
+  parser.on("processinginstruction", ({ target, body }) => {
+    const frame = stack.at(-1)
+    if (frame === undefined) throw new Error("XML PI вне документа")
+    frame.content.push({
+      type: "processingInstruction",
+      target,
+      body,
+      attributes: parseXmlProcessingInstructionAttributes(body),
+    })
+    frame.nextContentStart = parser.position
+  })
+  parser.on("closetag", () => {
+    const frame = stack.pop()
+    const parent = stack.at(-1)
+    if (frame === undefined || frame === document || parent === undefined) {
+      throw new Error("Несогласованный стек XML")
+    }
+    const structuralHash = hashXmlElementStructure(frame)
+    const span = { start: frame.spanStart, end: parser.position }
+    parent.content.push({ type: "element", structuralHash })
+    parent.nextContentStart = parser.position
+    if (parent === document) roots.push({
+      path: frame.path,
+      name: frame.name,
+      structuralHash,
+      span,
+    })
+  })
+  parser.on("error", (error) => { throw error })
+  parser.write(data).close()
+  return { roots, sourceLength: data.length }
+}
+
 function appendText(
   frame: ElementFrame,
   text: string,
@@ -369,6 +500,13 @@ const containerProperties = (container: XmlContainer): Record<PropertyKey, unkno
 
 function assertSafeName(name: string): void {
   if (UNSAFE_NAMES.has(name)) throw new Error(`Небезопасное имя XML-элемента: ${name}`)
+}
+
+function requireElementParent<T>(stack: readonly T[], name: string): T {
+  assertSafeName(name)
+  const parent = stack.at(-1)
+  if (parent === undefined) throw new Error("XML-элемент вне документа")
+  return parent
 }
 
 function hasXmlDeclaration(data: string): boolean {

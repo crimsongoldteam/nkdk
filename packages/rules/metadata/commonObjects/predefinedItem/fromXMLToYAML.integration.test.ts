@@ -1,14 +1,14 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
-import {
-  createDirectRoundTripContexts,
-  serializeDirectXML,
-  testPropertyFixtureThroughYAML,
-  testPropertyFromXMLToYAML,
-  testPropertyFromYAMLToXML,
-} from "../../../tests/directConversion"
-import { importContentFromXML, yamlScalarTagAt } from "@nkdk/runtime"
+import { importContentFromXML,yamlScalarTagAt } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import {
+createDirectRoundTripContexts,
+serializeDirectXML,
+testPropertyFixtureThroughYAML,
+testPropertyFromXMLToYAML,
+testPropertyFromYAMLToXML,
+} from "../../../tests/directConversion"
 import { mockContextToXML } from "../../../tests/mockContext"
 
 import "./index"
@@ -94,36 +94,6 @@ describe("PredefinedItem XML → YAML", () => {
     }
   })
 
-  it("сохраняет неканонический префикс предопределённого элемента через !xml", () => {
-    const yaml = testPropertyFromXMLToYAML({
-      rule: collectionRule,
-      xml: { Item: predefinedItem("Первый", "d6p1", "CatalogRef.Товары") },
-    }).yaml as Record<string, any>
-    const item = yaml.Значение.Первый
-
-    expect(item.ТипЗначения).toBe("!xml/type d6p1:Справочник.Товары")
-    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml/type")
-  })
-
-  it("точно восстанавливает неканонический d6p1 у Type на глубине 1", () => {
-    const source = { Item: predefinedItem("Первый", "d6p1", "CatalogRef.Товары") }
-    const { yaml, xml } = roundTrip(source)
-    const item = (yaml as Record<string, any>).Значение.Первый
-
-    expect(item.ТипЗначения).toBe("!xml/type d6p1:Справочник.Товары")
-    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml/type")
-    expect(xml).toMatchObject({
-      Item: [{
-        Type: {
-          "v8:Type": {
-            "_xmlns:d6p1": "http://v8.1c.ru/8.1/data/enterprise/current-config",
-            "#text": "d6p1:CatalogRef.Товары",
-          },
-        },
-      }],
-    })
-  })
-
   it("выбирает TypeSet по реестру без !xml и снимка", () => {
     const contexts = createDirectRoundTripContexts()
     const imported = testPropertyFromXMLToYAML({
@@ -165,29 +135,6 @@ describe("PredefinedItem XML → YAML", () => {
 
   it("отклоняет несовместимый generated prefix внутри составного типа", () => {
     expect(() => importCompoundType("d7p1")).toThrow("несовместимый XML-префикс d7p1")
-  })
-
-  it("точно восстанавливает допустимый неканонический prefix внутри составного типа", () => {
-    const source = compoundPredefinedItem("d6p1")
-    const { yaml, xml } = roundTrip(source)
-    const type = (yaml as Record<string, any>).Значение.Первый.ТипЗначения
-
-    expect(type).toEqual(["!xml/type d6p1:Справочник.Товары", "Строка"])
-    expect(yamlScalarTagAt(type, 0)).toBe("xml/type")
-    expect(yamlScalarTagAt(type, 1)).toBeUndefined()
-    expect(xml).toMatchObject({
-      Item: [{
-        Type: {
-          "v8:Type": [
-            {
-              "_xmlns:d6p1": "http://v8.1c.ru/8.1/data/enterprise/current-config",
-              "#text": "d6p1:CatalogRef.Товары",
-            },
-            "xs:string",
-          ],
-        },
-      }],
-    })
   })
 })
 

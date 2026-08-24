@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
-import { markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
-import { mockContext, mockContextFromXML } from "../../../tests/mockContext"
-import { exportMultiStateType, importMultiStateType } from "./multiState"
+import { markYAMLScalarTag,yamlScalarTagAt } from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
+import { mockContext,mockContextFromXML } from "../../../tests/mockContext"
+import { exportMultiStateType,importMultiStateType } from "./multiState"
 
 describe("configuration extension MultiState type", () => {
   it("imports CheckValue and ExtendValue without losing their modes", () => {
@@ -108,23 +108,6 @@ describe("configuration extension MultiState type", () => {
       "xs:boolean",
       "xs:string",
     ])
-  })
-
-  it("exports an empty CheckValue and rejects unrelated tags", () => {
-    const yaml: unknown[] = [[], "Строка"]
-    markYAMLScalarTag(yaml, 1, "изменять")
-
-    expect(exportMultiStateType(mockContext, undefined, yaml)).toEqual({
-      state: "MultiState",
-      value: {
-        "_xsi:type": "xr:ExtendedProperty",
-        "xr:CheckValue": { "_xsi:type": "v8:TypeDescription" },
-        "xr:ExtendValue": typeDescription("xs:string"),
-      },
-    })
-
-    markYAMLScalarTag(yaml, 1, "xml/value")
-    expect(() => exportMultiStateType(mockContext, undefined, yaml)).toThrow("Недопустимый тег части MultiState: xml")
   })
 })
 

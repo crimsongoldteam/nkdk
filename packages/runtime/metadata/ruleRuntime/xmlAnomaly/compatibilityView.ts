@@ -251,6 +251,7 @@ function createCompatibilityConsumption(
       return consumeNode(node, node.compatibilityValue)
     },
     elements(nodes, values) {
+      for (const node of nodes) claimPresence(node)
       return wrapArray(values, nodes, (entry, node) => consumeNode(node, entry))
     },
     container(node, value) {

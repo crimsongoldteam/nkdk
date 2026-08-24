@@ -33,7 +33,7 @@ import { getConfigurationValidationProjectSpec, getValidationProjectSpecs } from
 import type { ValidationFormIndexContribution, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
-import { validationIssuePathFromPointer, type ValidationIssue } from "@nkdk/runtime"
+import { validationIssuePathFromPointer, validationIssueTargetKey, type ValidationIssue } from "@nkdk/runtime"
 import type { TSchema } from "typebox"
 import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
 import { validateParsedFileWithIssues } from "./validateFile"
@@ -374,7 +374,6 @@ function compileRuleValidationSchema(params: {
         capability,
         source: sourceRoot,
         structuralPropertyKeys: structuralPropertyKeys(params.rule),
-        explicitXMLPropertyKeys: explicitXMLPropertyKeys(params.rule),
         closed: params.variant !== "extension-root" && params.variant !== "extension-form-overlay",
         includeExtendedConfigurationObject: params.variant === "extension-root",
       })
@@ -409,7 +408,6 @@ function propertyStateNestedSchemas(
       capability,
       source: structuredClone(schema),
       structuralPropertyKeys: structuralPropertyKeys(source),
-      explicitXMLPropertyKeys: explicitXMLPropertyKeys(source),
     })
     return capability === undefined
       ? [ref, schema]
@@ -433,13 +431,6 @@ function structuralPropertyKeys(rule: MetadataItemRule): string[] {
     (property.xmlParents ?? []).includes("ChildObjects")
       ? [propertyKey]
       : [])
-}
-
-function explicitXMLPropertyKeys(rule: MetadataItemRule): string[] {
-  const property = currentRuleRegistrySet<RuleRegistrySet>()?.property
-  if (property === undefined) return []
-  return Object.keys(rule.properties).filter((propertyKey) =>
-    property.hasExplicitXMLProperty(rule.itemType, propertyKey))
 }
 
 function requiredPolicy(variant: ValidationSchemaVariant) {
@@ -840,6 +831,7 @@ function validateProjectFormFirstPass(
 
   const facts = extractFirstPassFacts(params, entry, compatibilityMode)
   const parsed = parsedForProjectFile(params.file, entry.parsed)
+  const deferredAnomalyTargets = deferredXmlAnomalyTargetKeys(facts)
   const evaluated = evaluateParsedXmlAnomalyBoundaries({
     filePath: entry.filePath,
     parsed,
@@ -848,6 +840,7 @@ function validateProjectFormFirstPass(
       ...schemaValidation.issues,
       ...facts.diagnostics.map(validationIssueFromDiagnostic),
     ],
+    deferUnnecessaryFor: (target) => deferredAnomalyTargets.has(validationIssueTargetKey(target)),
   })
   const diagnostics = evaluated.diagnostics
 
@@ -974,6 +967,7 @@ function validateProjectPropertiesFirstPass(
         ...schemaValidation.issues,
         ...requiredIssues,
       ],
+      deferUnnecessaryFor: () => true,
     })
     const diagnostics = evaluated.diagnostics
     if (diagnostics.length > 0) {
@@ -1007,6 +1001,7 @@ function validateProjectPropertiesFirstPass(
   })
   const equalNameMs = performance.now() - equalNameStartedAt
   const facts = extractFirstPassFacts(params, { ...entry, parsed }, compatibilityMode)
+  const deferredAnomalyTargets = deferredXmlAnomalyTargetKeys(facts)
   const publishedSchemaDiagnostics = suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics)
   const unevaluatedDiagnostics = [
     ...publishedSchemaDiagnostics,
@@ -1023,6 +1018,7 @@ function validateProjectPropertiesFirstPass(
       ...equalNameDiagnostics.map(validationIssueFromDiagnostic),
       ...facts.diagnostics.map(validationIssueFromDiagnostic),
     ],
+    deferUnnecessaryFor: (target) => deferredAnomalyTargets.has(validationIssueTargetKey(target)),
   })
   const diagnostics = evaluated.diagnostics
 
@@ -1063,6 +1059,14 @@ function validateProjectPropertiesFirstPass(
       propertyEvents: facts.profile.propertyEvents,
     },
   }
+}
+
+function deferredXmlAnomalyTargetKeys(facts: ProjectValidationFileFacts): ReadonlySet<string> {
+  const paths = [
+    ...facts.pendingReferences.filter(({ tagged }) => tagged === "xml").map(({ yamlPath }) => yamlPath),
+    ...facts.pendingChecks.filter((check) => "tagged" in check && check.tagged).map(({ yamlPath }) => yamlPath),
+  ]
+  return new Set(paths.map((path) => validationIssueTargetKey({ kind: "path", path })))
 }
 
 function languageValidationDependency(

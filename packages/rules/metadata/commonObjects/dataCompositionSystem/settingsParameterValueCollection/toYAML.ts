@@ -1,5 +1,4 @@
 import { ConfigurationContext } from "@nkdk/runtime"
-import { markYAMLScalarTag, XML_PRESENT_TAG_VALUE, xmlAnomalyTagValue } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import { exportParameterValueToYAML } from "../parameterValue/toYAML"
@@ -13,7 +12,7 @@ const exportSettingsParameterValueCollectionToYAML = (
   value: SettingsParameterValueCollection | undefined
 ): SettingsParameterValueCollectionYAML | undefined => {
   if (!value?.parameters) return undefined
-  if (Object.keys(value.parameters).length === 0) return XML_PRESENT_TAG_VALUE
+  if (Object.keys(value.parameters).length === 0) return {}
 
   const collRule = rule as SettingsParameterValueCollectionPropertyRule
   const result: Record<string, SettingsParameterValueYAML> = {}
@@ -31,21 +30,11 @@ const exportSettingsParameterValueCollectionToYAML = (
       data: { ...data, parameter: paramName, ...(data.xmlNil === true ? { xmlNil: undefined } : {}) },
     })
     if (yamlFragment !== undefined) {
-      const transported = data.xmlNil === true ? withNilTransport(yamlFragment) : yamlFragment
-      result[paramName] = transported as SettingsParameterValueYAML
+      result[paramName] = yamlFragment as SettingsParameterValueYAML
     }
   }
 
   return Object.keys(result).length > 0 ? result : undefined
-}
-
-function withNilTransport(fragment: unknown): Record<string, unknown> {
-  const result = typeof fragment === "object" && fragment !== null && !Array.isArray(fragment)
-    ? { ...fragment as Record<string, unknown> }
-    : {}
-  result.Значение = xmlAnomalyTagValue("xml/value", "Nil")
-  markYAMLScalarTag(result, "Значение", "xml/value")
-  return result
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValueCollection", "exportToYAML", exportSettingsParameterValueCollectionToYAML)

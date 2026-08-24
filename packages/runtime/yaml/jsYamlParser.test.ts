@@ -2,14 +2,7 @@ import { describe, expect, it } from "vitest"
 import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitString"
 import { serializeYAMLDocument } from "./export"
 import { parseWithJsYaml } from "./jsYamlParser"
-import {
-  copyYAMLScalarTags,
-  xmlAnomalyTagPayload,
-  xmlAnomalyTagValue,
-  yamlScalarTagAt,
-} from "./scalarTags"
-import { copyYAMLMappingTag, yamlMappingTagOf } from "./mappingTags"
-import { yamlMappingKeyTagAt } from "./mappingKeyTags"
+import { yamlScalarTagAt } from "./scalarTags"
 
 describe("parseWithJsYaml", () => {
   it.each([
@@ -35,115 +28,17 @@ describe("parseWithJsYaml", () => {
   })
 
   it.each([
-    ["present без payload", "Поле: !xml/present", "!xml/present", "xml/present"],
-    ["absent без payload", "Поле: !xml/absent", "!xml/absent", "xml/absent"],
-    ["name с payload", "Поле: !xml/name СтароеИмя", "!xml/name СтароеИмя", "xml/name"],
-    ["type с payload", "Поле: !xml/type d7p1:Диаграмма", "!xml/type d7p1:Диаграмма", "xml/type"],
-    ["value с payload", "Поле: !xml/value Nil", "!xml/value Nil", "xml/value"],
-    ["language с payload", "Поле: !xml/language Buttons", "!xml/language Buttons", "xml/language"],
-    ["duplicate с payload", "Поле: !xml/duplicate Группа", "!xml/duplicate Группа", "xml/duplicate"],
-    [
-      "reference с payload",
-      "Поле: !xml/reference 00000000-0000-0000-0000-000000000000",
-      "!xml/reference 00000000-0000-0000-0000-000000000000",
-      "xml/reference",
-    ],
-    ["пустое значение", "Поле:", {}, undefined],
-    ["явная пустая строка", 'Поле: ""', "", undefined],
-  ] as const)("различает %s", (_name, text, value, tag) => {
-    const parsed = parseWithJsYaml(text)
-
-    expect(parsed.syntaxErrors).toEqual([])
-    expect(parsed.data).toEqual({ Поле: value })
-    expect(yamlScalarTagAt(parsed.data, "Поле")).toBe(tag)
-  })
-
-  it.each([
-    ["xml/present", "", "!xml/present"],
-    ["xml/name", "ФункцииExtendedTooltip", "!xml/name ФункцииExtendedTooltip"],
-    ["xml/reference", "Справочник.Товары.ПустаяСсылка", "!xml/reference Справочник.Товары.ПустаяСсылка"],
-  ] as const)("упаковывает и распаковывает payload %s", (tag, payload, stored) => {
-    expect(xmlAnomalyTagValue(tag, payload)).toBe(stored)
-    expect(xmlAnomalyTagPayload(tag, stored)).toBe(payload)
-  })
-
-  it("копирует точную категорию XML-аномалии", () => {
-    const source = { Поле: "!xml/value Nil" }
-    const parsed = parseWithJsYaml("Поле: !xml/value Nil")
-    const target = { ...source }
-
-    copyYAMLScalarTags(parsed.data as object, target)
-
-    expect(yamlScalarTagAt(target, "Поле")).toBe("xml/value")
-  })
-
-  it("разбирает !xml/reference на скалярном ключе как строковый ключ", () => {
-    const parsed = parseWithJsYaml([
-      "Использование:",
-      "  Роли:",
-      "    !xml/reference 6537a19c-3357-46a2-96a6-1fe4619ddbc8: Истина",
-    ].join("\n"))
-
-    expect(parsed.syntaxErrors).toEqual([])
-    expect(parsed.data).toEqual({
-      Использование: {
-        Роли: {
-          "6537a19c-3357-46a2-96a6-1fe4619ddbc8": "Истина",
-        },
-      },
-    })
-    const roles = (parsed.data as {
-      Использование: { Роли: Record<string, string> }
-    }).Использование.Роли
-    expect(yamlMappingKeyTagAt(
-      roles,
-      "6537a19c-3357-46a2-96a6-1fe4619ddbc8",
-    )).toBe("xml/reference")
-  })
-
-  it("разбирает пустой скалярный ключ с !xml/reference", () => {
-    const parsed = parseWithJsYaml('Роли:\n  !xml/reference "": Ложь')
-    const roles = (parsed.data as { Роли: Record<string, string> }).Роли
-
-    expect(parsed.syntaxErrors).toEqual([])
-    expect(roles).toEqual({ "": "Ложь" })
-    expect(yamlMappingKeyTagAt(roles, "")).toBe("xml/reference")
-  })
-
-  it.each([
-    "Роли:\n  ? !xml/reference\n    - uuid\n  : Истина",
-    "Роли:\n  !xml/value uuid: Истина",
-  ])("отклоняет недопустимый тег скалярного ключа: %s", (source) => {
-    const parsed = parseWithJsYaml(source)
-
-    expect(parsed.syntaxErrors).toHaveLength(1)
-  })
-
-  it("отклоняет старый неклассифицированный тег !xml", () => {
-    const parsed = parseWithJsYaml("Поле: !xml Текст")
-
-    expect(parsed.data).toEqual({})
-    expect(parsed.syntaxErrors).toHaveLength(1)
-    expect(parsed.syntaxErrors[0]?.message).toContain("unknown scalar tag")
-  })
-
-  it("сохраняет тег нарушения порядка на mapping", () => {
-    const parsed = parseWithJsYaml("Заголовок: !xml/order\n  en: Text\n  ru: Текст\n")
-    const title = (parsed.data as { Заголовок: Record<string, string> }).Заголовок
-    const copied = { ...title }
-
-    copyYAMLMappingTag(title, copied)
-
-    expect(parsed.syntaxErrors).toEqual([])
-    expect(title).toEqual({ en: "Text", ru: "Текст" })
-    expect(yamlMappingTagOf(title)).toBe("xml/order")
-    expect(yamlMappingTagOf(copied)).toBe("xml/order")
-  })
-
-  it.each([
-    "Заголовок: !xml/order payload",
-    "Заголовок: !xml/order\n  - Text",
-  ])("отклоняет !xml/order вне mapping: %s", (source) => {
+    "Поле: !xml Текст",
+    "Поле: !xml/present",
+    "Поле: !xml/absent",
+    "Поле: !xml/name СтароеИмя",
+    "Поле: !xml/type d7p1:Диаграмма",
+    "Поле: !xml/value Nil",
+    "Поле: !xml/reference uuid",
+    "Поле: !xml/language Buttons",
+    "Поле: !xml/duplicate Группа",
+    "Заголовок: !xml/order\n  en: Text",
+  ])("отклоняет прежний тег XML-аномалии: %s", (source) => {
     const parsed = parseWithJsYaml(source)
 
     expect(parsed.syntaxErrors).toHaveLength(1)

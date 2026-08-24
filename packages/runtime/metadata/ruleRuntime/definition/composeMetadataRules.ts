@@ -32,18 +32,6 @@ export function composeMetadataRules<
         ...result.propertyItemRules,
         ...layer.propertyItemRules,
       },
-      explicitXMLProperties: {
-        ...result.explicitXMLProperties,
-        ...layer.explicitXMLProperties,
-      },
-      explicitXMLPropertyTypes: {
-        ...result.explicitXMLPropertyTypes,
-        ...layer.explicitXMLPropertyTypes,
-      },
-      brokenXMLReferenceCarriers: [
-        ...result.brokenXMLReferenceCarriers,
-        ...layer.brokenXMLReferenceCarriers,
-      ],
       dependentItems: {
         ...result.dependentItems,
         ...layer.dependentItems,

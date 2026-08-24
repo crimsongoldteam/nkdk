@@ -1,22 +1,21 @@
-import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
+import fs,{ mkdirSync,mkdtempSync,rmSync,writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach,describe,expect,it,vi } from "vitest"
+import { mockContext } from "../../tests/mockContext"
+import {
+createMetadataExecutionRegistrySets,
+withMetadataExecutionRegistrySets,
+} from "../composition/metadataExecutionContext"
+import { metadataRules } from "../composition/metadataRules"
 import "../forms"
 import {
-  validateClientApplicationFormFirstPass,
-  validateClientApplicationFormSecondPass,
+validateClientApplicationFormFirstPass,
+validateClientApplicationFormSecondPass,
 } from "../forms/clientApplicationForm/validate"
-import { mockContext } from "../../tests/mockContext"
 import { createOwnerMetadataCache } from "./dataPath/ownerCache"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { validateForm } from "./validateForm"
-import { createPropertyRuleRegistrySet, withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
-import { metadataRules } from "../composition/metadataRules"
-import {
-  createMetadataExecutionRegistrySets,
-  withMetadataExecutionRegistrySets,
-} from "../composition/metadataExecutionContext"
 
 const metadataRegistries = createMetadataExecutionRegistrySets(metadataRules)
 
@@ -44,22 +43,6 @@ describe("validateForm", () => {
     })
 
     expect(runValidateForm(project)).toEqual([])
-  })
-
-  it("не проверяет существование зарегистрированной битой локальной ссылки", () => {
-    const project = createProject({
-      form: [
-        "Элементы:",
-        "  Поле:",
-        "    Вид: ПолеВвода",
-        "    ПутьКДанным: !xml/reference 1/0:8969c93a-23e5-4bef-941d-aaef315858d2",
-      ],
-    })
-
-    expect(withPropertyRuleRegistrySet(
-      createPropertyRuleRegistrySet(metadataRules),
-      () => runValidateForm(project),
-    )).toEqual([])
   })
 
   it("запрещает избыточный вычисляемый ПутьКДанным через системное перечисление", () => {

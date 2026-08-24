@@ -23,7 +23,6 @@ import {
   prepareYAMLScalarTagsForParser,
 } from "./scalarTags"
 import { markYAMLMappingKeyOrder, yamlMappingKeys } from "./mappingTags"
-import { markYAMLMappingKeyTag } from "./mappingKeyTags"
 import {
   createXmlAnomalyAnnotations,
   type XmlAnomalyAnnotation,
@@ -125,10 +124,6 @@ function parseYamlData(
 }
 
 type ParsedMappingKeyTag = {
-  readonly kind: "xmlReference"
-  readonly containerPath: readonly (string | number)[]
-  readonly key: string
-} | {
   readonly kind: "propertyState"
   readonly containerPath: readonly (string | number)[]
   readonly key: string
@@ -240,12 +235,6 @@ function collectYamlTags(
     } else if (propertyStateKeyTag(key.tag) !== undefined) {
       if (key.kind !== "scalar") throw new YAMLException("Режим свойства поддерживает только скалярный ключ")
       tags.push({ kind: "propertyState", containerPath: path, key: key.value, tag: propertyStateKeyTag(key.tag)! })
-      key.tag = "tag:yaml.org,2002:str"
-      key.style.tagged = false
-    } else if (key.tag.startsWith("!xml/")) {
-      if (key.tag !== "!xml/reference") throw new YAMLException(`Тег ${key.tag} недопустим для ключа YAML`)
-      if (key.kind !== "scalar") throw new YAMLException("!xml/reference поддерживает только скалярный ключ")
-      tags.push({ kind: "xmlReference", containerPath: path, key: key.value })
       key.tag = "tag:yaml.org,2002:str"
       key.style.tagged = false
     }
@@ -391,8 +380,7 @@ function applyParsedMappingKeyTags(
     const { containerPath, key } = entry
     const container = valueAtPath(data, containerPath)
     if (isRecord(container) && Object.prototype.hasOwnProperty.call(container, key)) {
-      if (entry.kind === "xmlReference") markYAMLMappingKeyTag(container, key, "xml/reference")
-      else markYAMLScalarTag(container, key, entry.tag)
+      markYAMLScalarTag(container, key, entry.tag)
     }
   }
 }

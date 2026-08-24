@@ -5,7 +5,6 @@ import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { createYAMLPropertySource } from "../property/fromYAMLToXML"
-import { collectExplicitXMLPropertyActions } from "../property/explicitXMLPropertyRegistry"
 import { getTypeRule } from "../property/typeRuleRegistry"
 import type { FileChildNamesDescriptor } from "../property/fn"
 import { metadataTargetOwnerFromRule } from "../property/metadataTargetString"
@@ -209,12 +208,6 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
       itemName,
       context: itemContext,
     })
-    const explicitXMLActions = collectExplicitXMLPropertyActions({
-      yaml,
-      itemType: assignment.itemRule.itemType,
-      properties: assignment.itemRule.properties,
-    })
-
     return outputs.flatMap((output) => {
       const propertyKey = output.propertyName
       if (propertyKey === undefined || !source.has(propertyKey)) return []
@@ -224,9 +217,7 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
       if (nestedRule?.kind !== "item") return []
       const itemRule = nestedRule.itemRuleFromProperty?.(propertyRule) ?? nestedRule.itemRule
 
-      const explicitXMLAction = explicitXMLActions.get(propertyKey)
-      if (explicitXMLAction?.kind === "invalid") throw new Error(explicitXMLAction.message)
-      const nestedYAML = explicitXMLAction?.kind === "materializeCollection" ? {} : source.raw(propertyKey)
+      const nestedYAML = source.raw(propertyKey)
       const normalizedYAML =
         nestedRule.normalizeYAML?.({
           yaml: nestedYAML,

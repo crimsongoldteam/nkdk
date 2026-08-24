@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest"
 import { parseMetadataYaml } from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { collectConfigurationExtensionPropertyStateDocuments } from "../../validation/configurationExtensionPropertyStateFacts"
 
@@ -85,18 +85,6 @@ describe("configuration extension PropertyState facts", () => {
         payload: { version: 1, itemType: "MetadataExample", propertyKey: "package", mode: "extend", value: { externalProjectPath: "Пример/Один/Package.bin" }, explicitMode: true },
       },
     ])
-  })
-
-  it("marks !xml as a subject-validation bypass", () => {
-    const parsed = parseMetadataYaml("Заголовок: !xml/value сырой\n")
-    const [document] = collectConfigurationExtensionPropertyStateDocuments({
-      yaml: parsed.data as Record<string, unknown>, rule, capability,
-      logicalAddress: "Example.Один", workingProjectPath: "Пример/Один/Свойства.yaml",
-    })
-
-    expect(JSON.parse(document!.payload!)).toEqual({
-      version: 1, itemType: "MetadataExample", propertyKey: "title", mode: "xml", value: "!xml/value сырой", explicitMode: true,
-    })
   })
 
   it.each([
