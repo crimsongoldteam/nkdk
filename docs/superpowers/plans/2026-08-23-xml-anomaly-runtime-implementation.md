@@ -10,12 +10,14 @@
 
 **Spec:** [2026-08-23-common-types-xml-anomaly-framework-design.md](../specs/2026-08-23-common-types-xml-anomaly-framework-design.md)
 
-**Состояние реализации:** план выполнен. Импорт разделён на три worker-прохода
-с двумя барьерами индекса; контрольный экспорт использует потоковые хэши корней
-и строит полные XML-деревья только для несовпавших заданий. Структурированные
-ошибки общей валидации превращаются в `invalid`/`important` в третьем проходе.
-Прежний механизм XML-аномалий удалён без слоя совместимости. Tasks 1–8 ниже
-сохранены как история реализации и договор их инвариантов.
+**Состояние реализации:** Tasks 1–13 выполнены. Импорт разделён на три
+worker-прохода с двумя барьерами индекса; контрольный экспорт использует
+потоковые хэши корней и строит полные XML-деревья только для несовпавших
+заданий. Структурированные ошибки общей валидации превращаются в
+`invalid`/`important` в третьем проходе. Прежний механизм XML-аномалий удалён
+без слоя совместимости. Tasks 14–17 уточняют проверку смысловых тегов:
+подтверждённая граница больше не проверяется повторно, а лишний тег определяется
+только после последней применимой проверки.
 
 ## Global Constraints
 
@@ -688,7 +690,7 @@
 
 - [x] **Step 4: Разделить обязанности worker**
 
-  Первый проход импортирует черновой смысловой YAML, карту владения и публикует рабочие факты. До схлопывания mapping он сохраняет повторные ключи как внутренние адресуемые вхождения, а для отсутствующих ожидаемых свойств резервирует targets `missing`; публичных invalid/important ещё нет. Второй проход завершает deferred, выполняет терпимый контрольный экспорт, выбирает минимальные raw-границы и публикует окончательные смысловые факты без записи YAML. Третий принимает решения invalid/important общей валидации, проецирует таблицу в окончательные YAML-ключи и пустые значения, проверяет договор аннотаций, выполняет завершающее доказательство точного XML и только затем сериализует и пишет YAML ровно один раз.
+  Первый проход импортирует черновой смысловой YAML, карту владения и публикует рабочие факты. До схлопывания mapping он сохраняет повторные ключи как внутренние адресуемые вхождения, а для отсутствующих ожидаемых свойств резервирует targets `missing`; публичных invalid/important ещё нет. Второй проход завершает deferred, выполняет терпимый контрольный экспорт, выбирает минимальные raw-границы и публикует окончательные смысловые факты без записи YAML. Третий принимает решения invalid/important общей валидации, проецирует таблицу в окончательные YAML-ключи и пустые значения, переносит наличие тегов в уже построенные отложенные ссылки и проверки, затем сериализует и пишет YAML ровно один раз. Локальная валидация и построение индексов в третьем проходе не повторяются; меняются только аннотации, признаки тегов в окончательном состоянии и хэш файла.
 
   Именованный item с raw внутри не исчезает из структурного индекса. Его ключ, вид и адрес публикуются как обычные факты; неизвестными считаются только данные под raw. Если raw поднят до всего значения item, запрещено строить внутренние факты из payload, но само наличие именованного item сохраняется.
 
@@ -946,3 +948,571 @@ round-trip отделяет восстанавливаемые XML-различ�
 - [x] **Step 8: Зафиксировать окончательную проверку**
 
   Commit: `test(rules): ✅ проверить общий runtime XML-аномалий`
+
+---
+
+## Task 14: Возвращать состояние каждой смысловой XML-границы
+
+**Files:**
+
+- Modify: `packages/runtime/metadata/validation/xmlAnomalyBoundary.ts`
+- Modify: `packages/runtime/metadata/validation/xmlAnomalyBoundary.test.ts`
+- Modify: `packages/runtime/metadata/validation/validateFile.ts`
+- Modify: `packages/runtime/metadata/validation/validateFile.test.ts`
+
+**Interfaces:**
+
+- Consumes: `ValidationIssueTarget`, `validationIssueTargetKey()` и существующий
+  обход `semanticAnomalyBoundaries()`.
+- Produces:
+
+  ```ts
+  export type XmlAnomalyValidationState = "pending" | "accepted"
+
+  export interface XmlAnomalyBoundaryState {
+    readonly annotation: "invalid" | "important"
+    readonly target: ValidationIssueTarget
+    readonly state: XmlAnomalyValidationState
+  }
+
+  export interface ParsedXmlAnomalyEvaluation {
+    readonly diagnostics: Diagnostic[]
+    readonly issues: ValidationIssue[]
+    readonly boundaries: readonly XmlAnomalyBoundaryState[]
+  }
+  ```
+
+  `evaluateParsedXmlAnomalyBoundaries()` возвращает `ParsedXmlAnomalyEvaluation`.
+  Граница имеет состояние `accepted`, если на её точном `ValidationIssueTarget`
+  найдена хотя бы одна смысловая ошибка. Граница имеет состояние `pending`, если
+  точной ошибки ещё нет, но `deferUnnecessaryFor(target)` вернул `true`. Если
+  отсрочки нет, состояние не возвращается и создаётся
+  `xml/anomaly-tag-unnecessary`. Ошибки синтаксиса, чтения файлов и другие
+  инфраструктурные ошибки не подтверждают границу.
+
+- [ ] **Step 1: Написать падающие модульные тесты состояний**
+
+  В `xmlAnomalyBoundary.test.ts` проверить следующую таблицу:
+
+  ```ts
+  it.each([
+    { issues: [semanticIssue(target)], deferUnnecessary: false, state: "accepted" },
+    { issues: [], deferUnnecessary: true, state: "pending" },
+  ] as const)("возвращает состояние $state", ({ issues, deferUnnecessary, state }) => {
+    const result = evaluateXmlAnomalyBoundary({
+      annotation: "invalid",
+      target,
+      issues,
+      importantRegistered: false,
+      deferUnnecessary,
+    })
+    expect(result.state).toBe(state)
+  })
+  ```
+
+  Отдельно проверить: инфраструктурная ошибка на том же пути оставляет границу
+  `pending`, а при `deferUnnecessary: false` создаёт только
+  `xml/anomaly-tag-unnecessary`.
+
+- [ ] **Step 2: Убедиться, что тесты падают по ожидаемой причине**
+
+  Run: `pnpm --filter @nkdk/runtime exec vitest run metadata/validation/xmlAnomalyBoundary.test.ts metadata/validation/validateFile.test.ts`
+
+  Expected: FAIL, потому что `state` и `boundaries` ещё отсутствуют.
+
+- [ ] **Step 3: Добавить состояния без повторного обхода YAML**
+
+  Расширить существующий результат, не создавая второй обход дерева:
+
+  ```ts
+  export interface XmlAnomalyBoundaryEvaluation {
+    readonly accepted: readonly ValidationIssue[]
+    readonly visible: readonly ValidationIssue[]
+    readonly contract: readonly ValidationIssue[]
+    readonly state?: XmlAnomalyValidationState
+  }
+
+  const state = accepted.length > 0
+    ? "accepted"
+    : params.deferUnnecessary === true
+      ? "pending"
+      : undefined
+  return { accepted, visible, contract, ...(state === undefined ? {} : { state }) }
+  ```
+
+  В `evaluateParsedXmlAnomalyBoundaries()` добавлять запись в `boundaries`
+  непосредственно в уже существующем цикле. Проверки регистрации `important` и
+  правильности самого тега остаются в `contract` и никогда не подавляются.
+
+- [ ] **Step 4: Проверить точное совпадение границ**
+
+  В `validateFile.test.ts` создать две соседние границы, ошибку только у первой и
+  отсрочку только у второй. Ожидать `accepted` у первой, `pending` у второй; ошибка
+  родителя или соседнего значения не должна подтверждать ни одну из них.
+
+- [ ] **Step 5: Запустить проверки слоя runtime**
+
+  Run: `pnpm --filter @nkdk/runtime exec vitest run metadata/validation/xmlAnomalyBoundary.test.ts metadata/validation/validateFile.test.ts`
+
+  Run: `pnpm --filter @nkdk/runtime type-check`
+
+  Run: `pnpm duplicates -- --base 573d812bc`
+
+  Expected: PASS; новых повторов нет.
+
+- [ ] **Step 6: Зафиксировать состояние границы**
+
+  Commit: `feat(runtime): ✨ вернуть состояние XML-границы`
+
+---
+
+## Task 15: Сохранить pending и accepted в projectState
+
+**Files:**
+
+- Modify: `packages/rules/metadata/validation/projectValidationPasses.ts`
+- Modify: `packages/rules/metadata/validation/projectValidationPasses.integration.test.ts`
+- Modify: `packages/rules/metadata/validation/yamlFactExtractor.ts`
+- Modify: `packages/rules/metadata/validation/yamlFactExtractor.integration.test.ts`
+- Modify: `packages/rules/metadata/validation/yamlFactExtractor.fillValue.test.ts`
+- Modify: `packages/rules/metadata/validation/dataPath/formYamlTraversal.ts`
+- Modify: `packages/runtime/metadata/validation/projectReferenceIndex.ts`
+- Modify: `packages/runtime/metadata/validation/projectReferenceIndex.test.ts`
+- Modify: `packages/rules/metadata/projectState/contracts/fileUpdate.ts`
+- Modify: `packages/rules/metadata/projectState/contracts/dependencyValidation.ts`
+- Modify: `packages/rules/metadata/projectState/storeContract.ts`
+- Modify: `packages/rules/metadata/projectState/fileUpdate.test.ts`
+- Modify: `packages/rules/metadata/projectState/binary/fragment.ts`
+- Modify: `packages/rules/metadata/projectState/binary/fragment.test.ts`
+- Modify: `packages/rules/metadata/projectState/binary/readSession.test.ts`
+- Modify: `packages/rules/metadata/projectState/binary/typedReader.ts`
+- Modify: `packages/rules/metadata/projectState/binary/format.ts`
+- Modify: `packages/rules/metadata/projectState/binary/format.test.ts`
+- Modify: `packages/rules/metadata/projectState/binary/testData.ts`
+
+**Interfaces:**
+
+- Consumes: `ParsedXmlAnomalyEvaluation.boundaries` из Task 14.
+- Produces единое состояние для ссылок и отложенных проверок. Используется
+  `XmlAnomalyValidationState` из Task 14, второй тип с теми же значениями не
+  создаётся:
+
+  ```ts
+  export interface ProjectStatePendingReference {
+    // существующие поля без изменений
+    readonly xmlAnomaly?: XmlAnomalyValidationState
+  }
+  ```
+
+  В вариантах `dataPath` и `fillValue` у
+  `ProjectStatePendingDependencyCheck` поле `tagged: boolean` заменяется на
+  `xmlAnomaly?: XmlAnomalyValidationState`. Такое же поле заменяет `tagged` в
+  runtime-типе `PendingMetadataTargetReference`. Поле отражает не просто наличие тега:
+  `pending` означает, что локальная проверка не нашла ошибку и нужна следующая
+  применимая проверка; `accepted` означает, что ошибка уже доказана и повторная
+  смысловая проверка запрещена.
+
+- [ ] **Step 1: Написать падающие тесты извлечения и переноса состояния**
+
+  В `yamlFactExtractor.integration.test.ts` и
+  `yamlFactExtractor.fillValue.test.ts` проверить, что ссылка, `dataPath` или
+  `fillValue` с `invalid`/`important` сначала извлекаются как `pending`, а
+  обычное значение не содержит `xmlAnomaly`:
+
+  ```ts
+  expect(facts.pendingReferences).toContainEqual(
+    expect.objectContaining({ yamlPath: ["Источник"], xmlAnomaly: "pending" }),
+  )
+  ```
+
+  В `projectValidationPasses.integration.test.ts` проверить два пути: локальная
+  смысловая ошибка обновляет `pending` до `accepted`, а правильная локально
+  ссылка, зависящая от общего индекса проекта, остаётся `pending`.
+
+- [ ] **Step 2: Убедиться, что тест падает из-за прежнего `tagged`**
+
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/validation/yamlFactExtractor.integration.test.ts metadata/validation/yamlFactExtractor.fillValue.test.ts metadata/validation/projectValidationPasses.integration.test.ts`
+
+  Expected: FAIL: факты ещё содержат `tagged`, а не состояние границы.
+
+- [ ] **Step 3: Назначать состояние после локальной проверки**
+
+  `yamlFactExtractor` назначает `xmlAnomaly: "pending"` только при точном
+  `invalid`/`important` на `yamlPath`. В `projectValidationPasses.ts` после
+  `evaluateParsedXmlAnomalyBoundaries()`
+  построить таблицу по `validationIssueTargetKey(boundary.target)`. Затем одной
+  функцией заменить только совпадающие `pendingReferences` и `pendingChecks`:
+
+  ```ts
+  function applyXmlAnomalyStates<T extends {
+    readonly yamlPath: readonly (string | number)[]
+    readonly xmlAnomaly?: XmlAnomalyValidationState
+  }>(entries: readonly T[], boundaries: readonly XmlAnomalyBoundaryState[]): T[]
+  ```
+
+  Не извлекать состояние повторным чтением тегов. `yamlFactExtractor` продолжает
+  создавать адресуемые факты и индексы для всех трёх вариантов: без тега,
+  `pending`, `accepted`.
+
+- [ ] **Step 4: Написать падающий тест двоичного round-trip всех состояний**
+
+  В `fragment.test.ts` записать и прочитать три ссылки и три проверки:
+
+  ```ts
+  const states = [undefined, "pending", "accepted"] as const
+  expect(createTypedProjectStateReader(snapshot).pendingReferences(0)
+    .map(({ xmlAnomaly }) => xmlAnomaly)).toEqual(states)
+  expect(createTypedProjectStateReader(snapshot).pendingChecks(0)
+    .map(({ xmlAnomaly }) => xmlAnomaly)).toEqual(states)
+  ```
+
+  Отдельно проверить сохранение `propertyStateMode` вместе с каждым состоянием.
+
+- [ ] **Step 5: Обновить компактное кодирование projectState**
+
+  Для ссылки использовать младшие два бита `flags`: `0` — состояния нет, `1` —
+  `pending`, `2` — `accepted`; режим свойства перенести в биты 2–3. Допустимый
+  диапазон `flags` становится `0..14`. Для `dataPath` использовать `reserved`:
+  `0`, `1`, `2` с тем же смыслом. Для полезной нагрузки `fillValue` заменить
+  `tagged: boolean` на `xmlAnomaly?: XmlAnomalyValidationState` и увеличить версию
+  этой полезной нагрузки до `2`.
+
+  ```ts
+  function encodeXmlAnomalyState(state: XmlAnomalyValidationState | undefined): 0 | 1 | 2
+  function decodeXmlAnomalyState(value: number): XmlAnomalyValidationState | undefined
+  ```
+
+  Не увеличивать размер записей и не создавать отдельную таблицу. Неизвестные
+  значения `3` и неизвестные биты должны завершать чтение явной ошибкой.
+
+- [ ] **Step 6: Обновить версию двоичного снимка**
+
+  В `format.ts` установить:
+
+  ```ts
+  export const PROJECT_STATE_FORMAT_VERSION = Object.freeze({ major: 0, minor: 7, patch: 0 })
+  ```
+
+  Совместимость со снимком `0.6.0` не нужна: это внутренний кэш, который должен
+  быть перестроен.
+
+- [ ] **Step 7: Запустить тесты projectState и проверку типов**
+
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/projectState/binary/fragment.test.ts metadata/projectState/binary/readSession.test.ts metadata/validation/yamlFactExtractor.integration.test.ts metadata/validation/yamlFactExtractor.fillValue.test.ts metadata/validation/projectValidationPasses.integration.test.ts`
+
+  Run: `pnpm --filter @nkdk/rules type-check`
+
+  Run: `pnpm duplicates -- --base 573d812bc`
+
+  Expected: PASS; размер двоичных записей не изменился; новых повторов нет.
+
+- [ ] **Step 8: Зафиксировать перенос состояния**
+
+  Commit: `feat(rules): ✨ сохранить состояние XML-границы в projectState`
+
+---
+
+## Task 16: Прекращать смысловые проверки подтверждённой границы
+
+**Files:**
+
+- Modify: `packages/rules/metadata/projectState/contracts/dependencyValidation.ts`
+- Modify: `packages/rules/metadata/projectState/binary/diagnosticBatches.ts`
+- Create: `packages/rules/metadata/projectState/binary/diagnosticBatches.test.ts`
+- Modify: `packages/rules/metadata/validation/projectStateDependencyValidation.ts`
+- Modify: `packages/rules/metadata/validation/projectStateDependencyValidation.test.ts`
+- Modify: `packages/rules/metadata/validation/projectValidationPendingChecks.ts`
+- Modify: `packages/rules/metadata/validation/projectValidationPendingChecks.test.ts`
+- Modify: `packages/rules/metadata/validation/projectValidationPasses.ts`
+- Modify: `packages/rules/metadata/validation/projectValidationPasses.integration.test.ts`
+- Modify: `packages/rules/metadata/project/validateProject.integration.test.ts`
+- Modify: `packages/rules/metadata/projectState/contracts.test.ts`
+- Modify: `packages/rules/metadata/projectState/importSession.integration.test.ts`
+- Modify: `packages/rules/metadata/projectState/service.integration.test.ts`
+
+**Interfaces:**
+
+- Consumes: `XmlAnomalyValidationState` из Tasks 14–15.
+- Produces общий результат смыслового этапа:
+
+  ```ts
+  export interface ProjectStateXmlAnomalyBoundary {
+    readonly componentPath: string
+    readonly projectPath: string
+    readonly yamlPath: ProjectStateYamlPath
+  }
+
+  export interface ProjectStateSemanticValidationResult {
+    readonly diagnostics: readonly Diagnostic[]
+    readonly acceptedXmlAnomalies: readonly ProjectStateXmlAnomalyBoundary[]
+  }
+  ```
+
+  `validateReferences()` и `validateDependencies()` в
+  `ProjectStateDependencyValidator` возвращают
+  `ProjectStateSemanticValidationResult`. Остальные проверки пока сохраняют
+  прежний результат `readonly Diagnostic[]`, потому что их факты не несут
+  `xmlAnomaly`. Ключ границы состоит из `componentPath`, `projectPath` и полного
+  `yamlPath`; текст сообщения в ключ не входит.
+
+- [ ] **Step 1: Написать падающие тесты прекращения проверок**
+
+  В `projectStateDependencyValidation.test.ts` добавить четыре наблюдаемых
+  случая с поддельным `queryPort` и счётчиками вызовов:
+
+  ```ts
+  expect(resolveTargetsCalls).toBe(0) // accepted-ссылка не проверялась
+  expect(readDependencyInputsCalls).toBe(0) // accepted-проверка не выполнялась
+  ```
+
+  Для `pending` проверить:
+
+  - сломанная ссылка подавляет свою диагностику и возвращает границу в
+    `acceptedXmlAnomalies`;
+  - правильная ссылка не подтверждает тег;
+  - ошибка `dataPath` подтверждает тег и не публикуется;
+  - обычная запись без `xmlAnomaly` по-прежнему публикует все свои ошибки.
+
+  В `projectValidationPasses.integration.test.ts` повторить три главных случая
+  для проверки проекта без двоичного projectState: локально `accepted` не
+  попадает во второй проход; ошибка ссылки подтверждает `pending` и прекращает
+  проверку того же пути; полностью правильный путь получает одну ошибку лишнего
+  тега только в конце второго прохода.
+
+- [ ] **Step 2: Убедиться, что тесты показывают нынешнее повторное поведение**
+
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/validation/projectStateDependencyValidation.test.ts`
+
+  Expected: FAIL: `accepted` ещё отправляется в `queryPort`, а `pending` либо
+  создаёт локальное сообщение о лишнем теге, либо не сообщает подтверждённую
+  границу вызывающему коду.
+
+- [ ] **Step 3: Возвращать решение отдельно от диагностик**
+
+  В обработчиках ссылок и зависимостей:
+
+  ```ts
+  if (entry.reference.xmlAnomaly === "accepted") continue
+  if (entry.reference.xmlAnomaly === "pending" && problems.length > 0) {
+    acceptedXmlAnomalies.push(boundaryFromReference(entry))
+    continue
+  }
+  diagnostics.push(...problems)
+  ```
+
+  Внутри одного обработчика проверки границ выполнять волнами: в одну пакетную
+  операцию входит не более одной ещё не выполненной проверки каждой `pending`-
+  границы и все обычные записи. После ответа подтверждённая граница удаляется из
+  следующей волны. Так несколько проверок не превращаются в отдельные запросы,
+  но ни одна последующая проверка подтверждённой границы не запускается.
+
+  Для зависимостей применять то же правило по `entry.check.xmlAnomaly`. Не
+  создавать `xml/anomaly-tag-unnecessary` внутри отдельного обработчика: он не
+  знает, осталась ли ещё применимая проверка для этой же YAML-границы.
+
+  `validateSecondPassReferences()` в `projectValidationPasses.ts` возвращает тот
+  же смысловой результат. `validateProjectFileSecondPass()` сначала проверяет
+  ссылки, исключает подтверждённые пути из `pendingChecks`, затем проверяет
+  оставшиеся зависимости и только после этого объявляет оставшиеся `pending`-
+  границы лишними. Поэтому обычная проверка проекта и проверка двоичного
+  projectState используют одинаковый порядок.
+
+- [ ] **Step 4: Написать падающий тест общего порядка этапов**
+
+  В `diagnosticBatches.test.ts` собрать один снимок, где одна `pending`-граница
+  представлена ссылкой и зависимой проверкой:
+
+  ```ts
+  expect(messages(result)).not.toContain("Тег XML-аномалии лишний: значение не содержит ошибки")
+  expect(validateDependenciesReceivedBoundary).toBe(false)
+  ```
+
+  Ссылка должна найти ошибку первой. Обработчик зависимостей не должен получить
+  уже подтверждённую границу. Вторым тестом сделать ссылку правильной, а
+  зависимость ошибочной — тег подтверждает второй этап. Третьим тестом сделать
+  обе проверки правильными — в конце появляется ровно одно сообщение о лишнем
+  теге. Две технические проверки с одним `yamlPath` считаются одной границей.
+
+- [ ] **Step 5: Ввести единый последовательный распорядитель границ**
+
+  В `validateSnapshotDependencyDiagnostics()` сохранить пакетную обработку, но
+  выполнять смысловые группы в фиксированном порядке:
+
+  1. ссылки;
+  2. `dataPath` и `fillValue` только для ещё не подтверждённых границ;
+  3. одно `xml/anomaly-tag-unnecessary` для каждой оставшейся `pending`-границы.
+
+  ```ts
+  const accepted = new Set<string>()
+  const referenceResult = dependencyValidator.validateReferences(...)
+  addAccepted(accepted, referenceResult.acceptedXmlAnomalies)
+  const dependencyResult = dependencyValidator.validateDependencies({
+    ...params,
+    checks: dependencies.filter((entry) => !accepted.has(boundaryKey(entry))),
+  })
+  addAccepted(accepted, dependencyResult.acceptedXmlAnomalies)
+  ```
+
+  Для очереди однотипных проверок использовать общий помощник, который берёт по
+  одной записи каждой границы за волну:
+
+  ```ts
+  function validatePendingInWaves<T>(params: {
+    readonly checks: readonly T[]
+    readonly boundary: (check: T) => ProjectStateXmlAnomalyBoundary | undefined
+    readonly validate: (checks: readonly T[]) => ProjectStateSemanticValidationResult
+  }): ProjectStateSemanticValidationResult
+  ```
+
+  Обычные записи без `xmlAnomaly` отправляются в первую волну все сразу и не
+  участвуют в прекращении сбора ошибок. Для `pending` следующая запись того же
+  ключа берётся только если предыдущая волна не вернула этот ключ в
+  `acceptedXmlAnomalies`.
+
+  Записи `accepted` исключать до вызова первого обработчика. Записи без тега не
+  фильтровать и не прекращать для них сбор ошибок. Ошибки готовности проекта,
+  синтаксиса, чтения и договора тегов всегда публиковать: они не подтверждают и
+  не отменяют смысловую границу.
+
+- [ ] **Step 6: Удалить прежнее локальное решение о лишнем теге**
+
+  `validatePendingChecks()` возвращает диагностические ошибки обычных записей и
+  подтверждённые границы записей с тегом, но не создаёт сообщение о лишнем теге.
+  Единственное место такого сообщения после этой задачи — конец
+  `validateSnapshotDependencyDiagnostics()` и локальная проверка границы, для
+  которой нет отложенных фактов.
+
+- [ ] **Step 7: Запустить целевые и смежные тесты**
+
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/projectState/binary/diagnosticBatches.test.ts metadata/validation/projectStateDependencyValidation.test.ts metadata/validation/projectValidationPendingChecks.test.ts metadata/validation/projectValidationPasses.integration.test.ts`
+
+  Run: `pnpm --filter @nkdk/runtime exec vitest run metadata/validation/projectReferenceIndex.test.ts`
+
+  Run: `pnpm --filter @nkdk/rules type-check`
+
+  Run: `pnpm duplicates -- --base 573d812bc`
+
+  Expected: PASS; подтверждённые границы не вызывают чтения зависимостей; обычные
+  записи по-прежнему возвращают полный набор ошибок.
+
+- [ ] **Step 8: Зафиксировать единый порядок проверки**
+
+  Commit: `fix(rules): 🐛 прекратить проверку подтверждённых XML-границ`
+
+---
+
+## Task 17: Связать решения импорта с окончательным состоянием и проверить cf/doc
+
+**Files:**
+
+- Modify: `packages/rules/metadata/importFromXml/worker.ts`
+- Modify: `packages/rules/metadata/importFromXml/worker.integration.test.ts`
+- Modify: `docs/superpowers/plans/2026-08-23-xml-anomaly-runtime-implementation.md`
+
+**Interfaces:**
+
+- Consumes: `XmlAnomalyValidationState = "accepted"` из Task 15 и прекращение
+  проверок из Task 16.
+- Produces: третий проход импорта повторно использует построенный индекс, а
+  решения импорта сразу записывает как `accepted`; он не запускает локальный
+  валидатор ещё раз и не превращает уже доказанную аномалию в «лишний тег».
+
+- [x] **Step 1: Написать падающий тест отсутствия повторной локальной проверки**
+
+  В `worker.integration.test.ts` подсчитать запуски схемы для двух задач и
+  ожидать три запуска вместо четырёх: два в первом проходе и один после
+  появления новых решений второго прохода.
+
+- [x] **Step 2: Получить ожидаемое падение и внести ограниченную правку**
+
+  Тест сначала получил `4` вместо `3`. `worker.ts` был изменён так, чтобы третий
+  проход использовал уже построенный индекс, переносил решения в факты и
+  вычислял окончательный хэш без полного повторения локальной проверки.
+
+- [ ] **Step 3: Перевести временные признаки на окончательное состояние**
+
+  В `applyImportedDecisionsToFinalState()` заменить установку `tagged: "xml"` и
+  `tagged: true` на одно состояние:
+
+  ```ts
+  const acceptedPaths = decisions.map(({ target }) => target.path)
+  // для точного совпадения yamlPath:
+  { ...entry, xmlAnomaly: "accepted" as const }
+  ```
+
+  Не менять факты соседних свойств и не расширять XML-границу. `raw` продолжает
+  исключать только собственное значение, а распознанный именованный объект
+  остаётся в индексах.
+
+- [ ] **Step 4: Проверить импорт и снимок после третьего прохода**
+
+  Дополнить тест ожиданиями:
+
+  ```ts
+  expect(finalState.pendingReferences).toContainEqual(
+    expect.objectContaining({ yamlPath: ["Источник"], xmlAnomaly: "accepted" }),
+  )
+  expect(schemaRuns).toBe(3)
+  expect(indexBuilds).toBe(2)
+  ```
+
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/importFromXml/worker.integration.test.ts`
+
+  Expected: все тесты PASS.
+
+- [ ] **Step 5: Проверить компактную эталонную базу**
+
+  Run outside sandbox:
+
+  `env NKDK_XML_REPO=/Users/nikita/git/round-trip-source NKDK_XML_DIR=/Users/nikita/git/round-trip-source/doc ./.agents/skills/round-trip-xml/round-trip.sh --triage --batch-size 5 --start-index 1`
+
+  Expected: прежние 176 сообщений «Тег XML-аномалии лишний» отсутствуют. Любое
+  оставшееся различие должно содержать точный XML/YAML-путь и отдельно
+  классифицироваться как восстановленное `raw`, подтверждённое
+  `invalid`/`important` либо фактическое ограничение из спецификации.
+
+- [ ] **Step 6: Проверить время и память импорта**
+
+  Run: `node .agents/skills/import-profile/import-profile.mjs /Users/nikita/git/round-trip-compact/cf/doc /private/tmp/nkdk-import-profile-doc-yaml --runs 1 --json`
+
+  Сравнить с последним зафиксированным профилем Task 13: 178,5 с, RSS 3253,7
+  МиБ, куча worker 699,5 МиБ. Новая реализация не должна создавать проход по
+  YAML для каждой границы, отдельную таблицу projectState или индивидуальный
+  запрос к индексу; рост пикового RSS более чем на 10% требует исследования до
+  завершения задачи.
+
+- [ ] **Step 7: Выполнить полную проверку проекта**
+
+  Использовать `superpowers:verification-before-completion`.
+
+  Run: `pnpm type-check`
+
+  Run outside sandbox: `pnpm test`
+
+  Run: `pnpm test:architecture:rules`
+
+  Run: `pnpm test:architecture`
+
+  Run: `pnpm duplicates -- --base 573d812bc`
+
+  Expected: все команды PASS; baseline dependency-cruiser и XML-фикстуры не
+  изменены; новых повторов нет.
+
+- [ ] **Step 8: Провести ревью по спецификации и плану**
+
+  Использовать `superpowers:requesting-code-review`. Проверить отдельно:
+
+  - `raw` исключает только собственную границу;
+  - `accepted` остаётся в индексах, поиске, переименовании и экспорте;
+  - `accepted` не поступает ни в одну последующую смысловую проверку;
+  - `pending` получает ровно одно итоговое решение;
+  - правила самого тега и инфраструктурные ошибки не подавляются;
+  - обычный YAML без тега продолжает собирать все ошибки.
+
+  Если код расходится со спецификацией или `.agents/architecture.md`, сначала
+  исправить код. Архитектурный документ не изменять молча: расхождение сообщить
+  разработчику.
+
+- [ ] **Step 9: Зафиксировать завершение механизма**
+
+  Commit: `fix(rules): 🐛 завершить проверку XML-аномалий при импорте`
