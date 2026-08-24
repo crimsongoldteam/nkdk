@@ -252,6 +252,57 @@ describe("mergeXmlRawFragments", () => {
     ].join("\n"))
   })
 
+  it("фиксирует terminal и attribute override на узлах до удаления раннего item", () => {
+    const ordinary = roots([
+      '<Root><Items><Item name="one"><A>1</A><B>1</B></Item>',
+      '<Item name="two"><A>2</A><B>2</B></Item>',
+      '<Item name="three"><A>3</A><B>3</B></Item></Items></Root>',
+    ].join(""))
+
+    const merged = mergeXmlRawFragments(ordinary, [
+      {
+        path: "Items\\Item",
+        occurrencePath: [null, 1],
+        value: null,
+        suppressOrdinaryOutput: true,
+      },
+      {
+        path: "Items\\Item\\#attributes",
+        occurrencePath: [null, 2, null],
+        value: { _future: "x", "#order": ["_name", "_future"] },
+        suppressOrdinaryOutput: false,
+      },
+      {
+        path: "Items\\Item\\#order",
+        occurrencePath: [null, 2, null],
+        value: ["B", "A"],
+        suppressOrdinaryOutput: false,
+      },
+      {
+        path: "Items\\Item",
+        occurrencePath: [null, 3],
+        value: "renamed-three",
+        suppressOrdinaryOutput: false,
+        attributeOverride: { name: "name", value: "renamed-three" },
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toBe([
+      "<Root>",
+      "\t<Items>",
+      '\t\t<Item name="two" future="x">',
+      "\t\t\t<B>2</B>",
+      "\t\t\t<A>2</A>",
+      "\t\t</Item>",
+      '\t\t<Item name="renamed-three">',
+      "\t\t\t<A>3</A>",
+      "\t\t\t<B>3</B>",
+      "\t\t</Item>",
+      "\t</Items>",
+      "</Root>",
+    ].join("\n"))
+  })
+
   it("treats null at an absent deep path as a no-op without creating wrappers", () => {
     const ordinary = roots("<Root><Properties><Name>Items</Name></Properties></Root>")
 

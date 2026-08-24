@@ -21,6 +21,11 @@ import {
   xmlAnnotatedMappingEntries,
   type XmlAnomalyAnnotations,
 } from "../../../yaml/xmlAnomalyAnnotations"
+import {
+  copyXmlAnomalyExportClaim,
+  readXmlAnomalyExportClaim,
+  markXmlAnomalyExportClaim,
+} from "../xmlAnomaly/exportClaim"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -74,6 +79,7 @@ export function convertMetadataCollectionFromYAMLToXML(
         propertyRule: params.propertyRule,
       }) ?? yaml
     copyXmlAnomalyAnnotationsDeep(params.annotations, yaml, normalizedYAML)
+    copyXmlAnomalyExportClaim(yaml, normalizedYAML)
     const defaultItemContext = configurationIndexItemContext({
       context: params.context,
       descriptor: params.descriptor,
@@ -164,6 +170,8 @@ export function convertMetadataCollectionFromYAMLToXML(
     })
     for (const output of itemOutputs) {
       const xml = converted.outputs.get(output.key) ?? {}
+      const exportClaimId = readXmlAnomalyExportClaim(normalizedYAML)
+      if (exportClaimId !== undefined) markXmlAnomalyExportClaim(xml, exportClaimId, true)
       const mapped =
         params.descriptor.mapItemOutput === undefined
           ? xml

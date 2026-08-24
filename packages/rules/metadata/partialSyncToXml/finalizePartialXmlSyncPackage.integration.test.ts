@@ -17,8 +17,13 @@ import {
   type PendingPartialXmlSyncStateV3,
 } from "./pendingStore"
 import { createPartialXmlArchiveWriter } from "./archiveWriter"
-import { buildPartialXmlAnomalyTestDocument } from "./tests/xmlAnomalyTestHelper"
-import { writePartialXmlSyncWorkerBatch } from "./workerBatch"
+import { createPartialXmlAnomalyExecutionFixture } from "./tests/xmlAnomalyTestHelper"
+import {
+  preparePartialXmlSyncPackage,
+  writePreparedPartialXmlSyncPackage,
+  type PartialXmlSyncCoordinatorDependencies,
+} from "./preparePartialXmlSyncPackage"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 
 describe("фиксация частичной XML-синхронизации", () => {
   const tempDirs: string[] = []
@@ -29,52 +34,59 @@ describe("фиксация частичной XML-синхронизации", (
   it("публикует partial ZIP с XML, восстановленным общим адаптером аномалий", async () => {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-finalize-partial-anomaly-"))
     tempDirs.push(projectDir)
-    const packageId = "anomaly-package"
-    const archiveProjectPath = partialXmlSyncArchiveProjectPath("cf", packageId)
-    const archivePath = join(projectDir, ...archiveProjectPath.split("/"))
-    const writer = createPartialXmlArchiveWriter({ archivePath })
-    const document = buildPartialXmlAnomalyTestDocument()
-    const writtenPayloadPaths = new Set<string>()
-    await writePartialXmlSyncWorkerBatch({
-      batch: { generatedDocuments: [document], configurationFragments: [] },
-      writer,
-      writtenPayloadPaths,
-      rebuiltBlocks: new Map(),
-    })
-    const archive = await writer.close([document.targetXmlPath])
-    const state: PendingPartialXmlSyncStateV3 = {
-      version: 3,
-      packageId,
+    const fixture = createPartialXmlAnomalyExecutionFixture(projectDir)
+    const pendingPath = pendingPartialXmlSyncPaths(projectDir, "cf").pendingPath
+    const dependencies: PartialXmlSyncCoordinatorDependencies = {
+      async readPending() { return undefined },
+      async assertNoPending() {},
+      async refresh() { return { diagnostics: [], readToken: createTestProjectStateReadToken() } },
+      async prepareValidated(validated) {
+        return writePreparedPartialXmlSyncPackage({ ...validated, ...fixture.stage }, {
+          packageId: () => "anomaly-package",
+          operationSeed: () => new Uint8Array(32),
+          createWriter: createPartialXmlArchiveWriter,
+          createWorkerPool: fixture.createWorkerPool,
+          async writePending({ state }) {
+            fs.mkdirSync(join(pendingPath, ".."), { recursive: true })
+            fs.writeFileSync(pendingPath, `${JSON.stringify(state)}\n`)
+          },
+          async buildPendingDelta() { return { hashes: new Map(), blocks: new Map() } },
+        })
+      },
+    }
+    const prepared = await preparePartialXmlSyncPackage({
+      context: fixture.stage.context,
+      projectDir,
       componentPath: "cf",
-      archiveProjectPath,
-      archiveHash: archive.archiveHash.toString(16).padStart(16, "0"),
-      candidateAppliedMigrations: [],
-      entries: archive.entries,
-      loadTargets: [document.targetXmlPath],
+      projectState: fixture.stage.projectState,
+    }, dependencies)
+    if (!prepared.ok || prepared.status !== "prepared") {
+      throw new Error(prepared.diagnostics.map(({ message }) => message).join("; "))
+    }
+    const state = JSON.parse(fs.readFileSync(pendingPath, "utf8")) as PendingPartialXmlSyncStateV3
+    fs.writeFileSync(pendingPath, `${JSON.stringify({
+      ...state,
       delivery: {
         status: "applied",
         attemptId: "attempt-1",
         operationLogProjectPath: ".nkdk/tmp/sync-to-infobase/attempt-1/platform.log",
       },
-    }
-    const pendingPath = pendingPartialXmlSyncPaths(projectDir, "cf").pendingPath
-    fs.mkdirSync(join(pendingPath, ".."), { recursive: true })
-    fs.writeFileSync(pendingPath, `${JSON.stringify(state)}\n`)
+    })}\n`)
     let appliedXml = ""
     const store = fakeStore([], {
       async applyPending() {
-        appliedXml = await readZipText(archivePath, document.targetXmlPath)
+        appliedXml = await readZipText(prepared.archivePath, fixture.targetXmlPath)
       },
     })
 
-    await finalizePartialXmlSyncPackage({ projectDir, componentPath: "cf", packageId }, {
+    await finalizePartialXmlSyncPackage({ projectDir, componentPath: "cf", packageId: prepared.packageId }, {
       openStore: () => store,
       async publishMigrations() {},
     })
 
     expect(appliedXml).toContain("<Value>01</Value>")
     expect(appliedXml).not.toContain("ordinary")
-    expect(fs.existsSync(archivePath)).toBe(false)
+    expect(fs.existsSync(prepared.archivePath)).toBe(false)
   })
 
   it("применяет дельту, публикует migration, очищает pending и затем удаляет транспорт", async () => {

@@ -94,6 +94,8 @@ export type FullXmlSyncOutputTarget =
 
 export interface PreparedXmlAnomalyBoundary extends XmlRawMergeBoundary {
   readonly tag?: string
+  /** Привязка относительного raw-пути к фактически экспортированному item коллекции. */
+  readonly exportClaimId?: string
 }
 
 export interface PreparedXMLDocument {

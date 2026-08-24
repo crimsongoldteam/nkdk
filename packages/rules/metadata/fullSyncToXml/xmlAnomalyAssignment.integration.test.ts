@@ -22,6 +22,9 @@ import { describe, expect, it, vi } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
 import { metadataRules } from "../composition/metadataRules"
 import "../../tests/metadataExecutionContext"
+import { convertClientApplicationFormFromYAMLToXML } from "../forms/clientApplicationForm/fromYAMLToXML"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import {
   buildPreparedAssignmentXml,
   prepareXmlAnomalyAssignment,
@@ -50,6 +53,9 @@ type CollectionNestedRule = Extract<YAMLToXMLNestedRule, { readonly kind: "colle
 const resolveCollectionItemRule = vi.fn(
   (_params: Parameters<NonNullable<CollectionNestedRule["resolveItemRule"]>>[0]) => collectionItemRule,
 )
+const mapCollectionItemOutput = vi.fn(
+  ({ xml }: Parameters<NonNullable<CollectionNestedRule["mapItemOutput"]>>[0]) => xml,
+)
 const collectionDescriptor = {
   kind: "collection",
   itemRule: collectionItemRule,
@@ -57,6 +63,7 @@ const collectionDescriptor = {
   xmlElement: "Item",
   keyField: "name",
   resolveItemRule: resolveCollectionItemRule,
+  mapItemOutput: mapCollectionItemOutput,
 } as const satisfies YAMLToXMLNestedRule
 
 const collectionOwnerRule = {
@@ -229,6 +236,7 @@ describe("единое восстановление XML-аномалий assignm
 
   it("адресует raw item и его поля по физическим вхождениям named collection", () => {
     resolveCollectionItemRule.mockClear()
+    mapCollectionItemOutput.mockClear()
     const prepared = prepareAnomalies([
       "Реквизиты:",
       "  Код:",
@@ -263,16 +271,7 @@ describe("единое восстановление XML-аномалий assignm
       ["Код", 2],
     ])
 
-    const ordinary = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
-      withRuleRegistrySet(anomalyRegistries, () => convertMetadataItemFromYAMLToXML({
-        convertProperties: convertPropertiesFromYAMLToXML,
-        context: mockContextToXML(),
-        yaml: prepared.preparedYamlFile.data,
-        annotations: prepared.preparedYamlFile.annotations,
-        rule: collectionOwnerRule,
-        outputs: [{ key: "owner" }],
-      }).outputs.get("owner")),
-    )
+    const ordinary = exportCollectionOwner(prepared)
     const xml = buildPreparedAssignmentXml({
       document: {
         targetXmlPath: "Root.xml",
@@ -291,6 +290,64 @@ describe("единое восстановление XML-аномалий assignm
       { Name: "Код", Value: "02" },
       { Name: "Код", Value: "03" },
     ])
+    expect(mapCollectionItemOutput).toHaveBeenCalledTimes(3)
+  })
+
+  it("связывает raw поля form element с фактическим XML после normalize и wrapper map", () => {
+    const prepared = prepareAnomalies([
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      '    Future: !xml/raw "value"',
+    ].join("\n"), anomalyRegistries.xmlAnomalies, ClientApplicationFormRules, anomalyRegistries)
+    const context = mockContextToXML()
+    const ordinary = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
+      withRuleRegistrySet(anomalyRegistries, () => convertClientApplicationFormFromYAMLToXML({
+        context,
+        yaml: prepared.preparedYamlFile.data as ClientApplicationFormYAML,
+        annotations: prepared.preparedYamlFile.annotations,
+        name: "Форма",
+      }).formXML),
+    )
+
+    const xml = buildPreparedAssignmentXml({
+      document: {
+        targetXmlPath: "Form.xml",
+        xml: { Form: ordinary },
+        deferred: [],
+        rootRule: ClientApplicationFormRules,
+        rawBoundaries: prepared.rawBoundaries,
+      },
+      context,
+    })
+
+    const inputStart = xml.indexOf('<InputField name="Поле"')
+    const inputEnd = xml.indexOf("</InputField>", inputStart)
+    const future = xml.indexOf("<Future>value</Future>")
+    expect(inputStart).toBeGreaterThan(-1)
+    expect(future).toBeGreaterThan(inputStart)
+    expect(inputEnd).toBeGreaterThan(future)
+  })
+
+  it("fail-closed отклоняет коллизию служебного export claim атрибута", () => {
+    const prepared = prepareAnomalies(
+      "Реквизиты:\n  Код:\n    Значение: !xml/raw 01",
+      anomalyRuntime({ generateCompactRaw: () => undefined }),
+      collectionOwnerRule,
+      anomalyRegistries,
+    )
+    const ordinary = exportCollectionOwner(prepared)
+
+    expect(() => buildPreparedAssignmentXml({
+      document: {
+        targetXmlPath: "Root.xml",
+        xml: { Root: { Other: { _nkdkXmlAnomalyClaim: "item-1" }, ...ordinary } },
+        deferred: [],
+        rootRule: collectionOwnerRule,
+        rawBoundaries: prepared.rawBoundaries,
+      },
+      context: mockContextToXML(),
+    })).toThrow("занят и не может служить export claim")
   })
 
   it("объединяет terminal raw attributes/order с обычным выводом", () => {
@@ -391,4 +448,17 @@ function prepareAnomalies(
     runtime,
   })
   return registries === undefined ? prepare() : withRuleRegistrySet(registries, prepare)
+}
+
+function exportCollectionOwner(prepared: ReturnType<typeof prepareAnomalies>) {
+  return withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
+    withRuleRegistrySet(anomalyRegistries, () => convertMetadataItemFromYAMLToXML({
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: mockContextToXML(),
+      yaml: prepared.preparedYamlFile.data,
+      annotations: prepared.preparedYamlFile.annotations,
+      rule: collectionOwnerRule,
+      outputs: [{ key: "owner" }],
+    }).outputs.get("owner")),
+  )
 }

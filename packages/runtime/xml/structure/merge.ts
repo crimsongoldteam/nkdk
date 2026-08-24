@@ -66,6 +66,17 @@ interface ResolvedTerminalBoundary {
   readonly parent: MutableXmlElementNode
 }
 
+interface ResolvedElementBoundary {
+  readonly boundary: Extract<PlannedBoundary, { readonly kind: "element" }>
+  readonly location?: ElementLocation
+}
+
+interface MutableMergePlan {
+  readonly roots: MutableXmlElementNode[]
+  readonly elements: readonly ResolvedElementBoundary[]
+  readonly terminals: readonly ResolvedTerminalBoundary[]
+}
+
 interface MutableXmlElementNode
   extends Omit<XmlElementNode, "attributes" | "content"> {
   readonly origin: "ordinary" | "planned"
@@ -87,41 +98,44 @@ export function mergeXmlRawFragments(
   // Первый проход строит и полностью проверяет недоступный вызывающему
   // проверочный снимок. Только после успеха журнал повторяется над итоговой
   // копией, поэтому ни вход, ни частичный результат ошибки наблюдать нельзя.
-  const validationRoots = applyElementBoundaries(ordinaryRoots, planned)
-  validateTerminalBoundaries(resolveTerminalBoundaries(validationRoots, planned))
+  const validationPlan = resolveMutableMergePlan(ordinaryRoots, planned)
+  applyElementBoundaries(validationPlan.elements)
+  validateTerminalBoundaries(validationPlan.terminals)
 
-  const resultRoots = applyElementBoundaries(ordinaryRoots, planned)
-  applyTerminalBoundaries(resolveTerminalBoundaries(resultRoots, planned))
+  const resultPlan = resolveMutableMergePlan(ordinaryRoots, planned)
+  applyElementBoundaries(resultPlan.elements)
+  applyTerminalBoundaries(resultPlan.terminals)
 
-  return readdressXmlElementNodes(resultRoots)
+  return readdressXmlElementNodes(resultPlan.roots)
+}
+
+function resolveMutableMergePlan(
+  ordinaryRoots: readonly XmlElementNode[],
+  boundaries: readonly PlannedBoundary[]
+): MutableMergePlan {
+  const roots = ordinaryRoots.map((node) => toMutableElement(node, "ordinary"))
+  // Все физические цели фиксируются до первой структурной мутации. Ссылки на
+  // узлы остаются устойчивыми, даже когда более раннее вхождение удаляется.
+  const terminals = resolveTerminalBoundaries(roots, boundaries)
+  const elements = boundaries.flatMap((boundary): ResolvedElementBoundary[] =>
+    boundary.kind === "element"
+      ? [{
+          boundary,
+          location: resolveElementLocation(
+            roots,
+            boundary.path,
+            boundary.fragment.nodes.length > 0,
+          ),
+        }]
+      : [],
+  )
+  return { roots, elements, terminals }
 }
 
 function applyElementBoundaries(
-  ordinaryRoots: readonly XmlElementNode[],
-  boundaries: readonly PlannedBoundary[]
-): MutableXmlElementNode[] {
-  const roots = ordinaryRoots.map((node) => toMutableElement(node, "ordinary"))
-  const elements = boundaries
-    .filter((boundary): boundary is Extract<PlannedBoundary, { readonly kind: "element" }> =>
-      boundary.kind === "element")
-    .toSorted(comparePhysicalOccurrencesDescending)
-  for (const boundary of elements) {
-    applyElementBoundary(roots, boundary)
-  }
-  return roots
-}
-
-function comparePhysicalOccurrencesDescending(
-  left: Extract<PlannedBoundary, { readonly kind: "element" }>,
-  right: Extract<PlannedBoundary, { readonly kind: "element" }>,
-): number {
-  const length = Math.max(left.path.occurrences.length, right.path.occurrences.length)
-  for (let index = 0; index < length; index += 1) {
-    const leftOccurrence = left.path.occurrences[index] ?? 0
-    const rightOccurrence = right.path.occurrences[index] ?? 0
-    if (leftOccurrence !== rightOccurrence) return rightOccurrence - leftOccurrence
-  }
-  return 0
+  boundaries: readonly ResolvedElementBoundary[],
+): void {
+  for (const boundary of boundaries) applyElementBoundary(boundary)
 }
 
 function planBoundaries(
@@ -293,14 +307,9 @@ function occurrencesOverlap(left: number | null, right: number | null): boolean 
 }
 
 function applyElementBoundary(
-  roots: MutableXmlElementNode[],
-  boundary: Extract<PlannedBoundary, { readonly kind: "element" }>
+  resolved: ResolvedElementBoundary,
 ): void {
-  const location = resolveElementLocation(
-    roots,
-    boundary.path,
-    boundary.fragment.nodes.length > 0
-  )
+  const { boundary, location } = resolved
   if (location === undefined) return
   const inserted = boundary.fragment.nodes.map((node) => toMutableElement(node, "planned"))
   const canonicalName = boundary.path.segments.at(-1) ?? boundary.path.rootName
@@ -323,7 +332,7 @@ function applyElementBoundary(
   const retained = location.elements.filter((node) => !suppressibleElements.has(node))
   const insertedNames = new Set(inserted.map(({ name }) => name))
   const selectedOccurrence = boundary.path.occurrences.at(-1) ?? null
-  const collisionCandidates = location.siblings.filter(
+  const collisionCandidates = location.siblings().filter(
     (node) =>
       !suppressibleElements.has(node) &&
       !(selectedOccurrence !== null && node.name === canonicalName)
@@ -336,7 +345,7 @@ function applyElementBoundary(
 
 interface ElementLocation {
   readonly elements: readonly MutableXmlElementNode[]
-  readonly siblings: readonly MutableXmlElementNode[]
+  readonly siblings: () => readonly MutableXmlElementNode[]
   readonly replace: (elements: readonly MutableXmlElementNode[]) => void
 }
 
@@ -354,7 +363,7 @@ function resolveElementLocation(
   }
   return {
     elements: rootMatches,
-    siblings: roots,
+    siblings: () => roots,
     replace: (elements) => replaceNamedElements(roots, path.rootName, elements),
   }
 }
@@ -391,7 +400,7 @@ function childLocation(
       )
   return {
     elements: selected,
-    siblings: parent.content.filter(
+    siblings: () => parent.content.filter(
       (node): node is MutableXmlElementNode => node.type === "element"
     ),
     replace: (elements) => {

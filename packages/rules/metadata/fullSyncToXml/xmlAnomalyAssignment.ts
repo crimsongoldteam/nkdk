@@ -1,11 +1,14 @@
 import {
   createXmlAnomalyAnnotations,
+  markXmlAnomalyExportClaim,
   mergeXmlRawFragments,
   parseXmlDocumentWithSaxes,
+  readXmlAnomalyExportClaim,
   xmlExport,
   type XmlAnomalyAnnotation,
   type XmlAnomalyAnnotations,
   type XmlAnomalyRuntime,
+  type XmlElementNode,
 } from "@nkdk/runtime"
 import {
   bindDeferredObjectValues,
@@ -51,6 +54,7 @@ export function prepareXmlAnomalyAssignment(params: {
   const runtime = params.runtime ?? rules?.xmlAnomalies
   if (runtime === undefined) throw new Error("Не задан XmlAnomalyRuntime для XML assignment")
   const rawBoundaries: PreparedXmlAnomalyBoundary[] = []
+  const exportClaims = { nextId: 1 }
   const semanticAnnotations = createXmlAnomalyAnnotations()
   const rootPrefix = xmlRootPrefix(params.rootRule).map(xmlPathSegment)
 
@@ -64,6 +68,7 @@ export function prepareXmlAnomalyAssignment(params: {
     runtime,
     rules,
     rawBoundaries,
+    exportClaims,
   })
 
   if (rootAnnotation !== undefined) semanticAnnotations.setRoot(rootAnnotation)
@@ -96,11 +101,12 @@ export function buildPreparedAssignmentXml(params: {
   })
   if (params.document.rawBoundaries.length === 0) return xmlExport(xml)
 
+  const resolvedBoundaries = resolveExportClaimBoundaries(xml, params.document.rawBoundaries)
   const ordinary = parseXmlDocumentWithSaxes(xmlExport(xml, false), {
     preserveXsiNil: true,
     preserveEmptyElements: true,
   }).roots
-  return xmlExport(mergeXmlRawFragments(ordinary, params.document.rawBoundaries))
+  return xmlExport(mergeXmlRawFragments(ordinary, resolvedBoundaries))
 }
 
 function cloneSemanticValue(params: {
@@ -113,6 +119,8 @@ function cloneSemanticValue(params: {
   readonly runtime: XmlAnomalyRuntime
   readonly rules: RuleRegistrySet | undefined
   readonly rawBoundaries: PreparedXmlAnomalyBoundary[]
+  readonly exportClaims: { nextId: number }
+  readonly exportClaimId?: string
   readonly hiddenName?: HiddenSingletonNameBoundary
 }): unknown {
   if (Array.isArray(params.value)) {
@@ -163,6 +171,7 @@ function cloneSemanticValue(params: {
         rule: params.rule,
         ownerYaml: params.value,
         runtime: params.runtime,
+        exportClaimId: params.exportClaimId,
       }))
       continue
     }
@@ -198,7 +207,7 @@ function clonePropertySemanticValue(params: Omit<Parameters<typeof cloneSemantic
     ...params.property.xmlPath.map(xmlPathSegment),
   ]
   if (nested?.kind === "collection") {
-    return cloneCollectionSemanticValue({ ...params, descriptor: nested, propertyPath })
+    return cloneCollectionSemanticValue({ ...params, descriptor: nested })
   }
   if (nested?.kind === "item") {
     const itemRule = nested.itemRuleFromProperty?.(params.property.propertyRule) ?? nested.itemRule
@@ -207,6 +216,7 @@ function clonePropertySemanticValue(params: Omit<Parameters<typeof cloneSemantic
           path: propertyPath,
           itemType: params.rule!.itemType,
           propertyKey: params.property.propertyKey,
+          ...(params.exportClaimId === undefined ? {} : { exportClaimId: params.exportClaimId }),
           ...(params.property.propertyRule.tag === undefined
             ? {}
             : { tag: params.property.propertyRule.tag }),
@@ -238,7 +248,6 @@ function clonePropertySemanticValue(params: Omit<Parameters<typeof cloneSemantic
 function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemanticValue>[0], "rule"> & {
   readonly rule: MetadataItemRule | undefined
   readonly property: PlannedProperty
-  readonly propertyPath: readonly XmlTraversalPathSegment[]
   readonly descriptor: Extract<YAMLToXMLNestedRule, { readonly kind: "collection" }>
 }): unknown {
   const fallbackRule = params.descriptor.itemRuleFromProperty?.(params.property.propertyRule)
@@ -247,6 +256,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
     if (!Array.isArray(params.value)) return params.value
     const target: unknown[] = []
     params.value.forEach((item, index) => {
+      const exportClaimId = nextExportClaimId(params.exportClaims)
       const annotation = params.sourceAnnotations.at(params.value as unknown[], index)
       const rule = params.descriptor.resolveItemRule?.({
         yaml: item,
@@ -254,13 +264,14 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         index,
         propertyRule: params.property.propertyRule,
       }) ?? fallbackRule
-      const itemPath = collectionItemPath(params.propertyPath, params.descriptor, index)
       if (annotation?.kind === "raw") {
-        target.push({})
+        const semanticItem = {}
+        markXmlAnomalyExportClaim(semanticItem, exportClaimId)
+        target.push(semanticItem)
         params.rawBoundaries.push(rawItemBoundary({
-          path: itemPath,
           sourceValue: item,
           tag: params.property.propertyRule.tag,
+          exportClaimId,
         }))
         return
       }
@@ -269,9 +280,11 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         value: item,
         rule,
         yamlPath: [...params.yamlPath, index],
-        xmlPrefix: itemPath,
+        xmlPrefix: [],
+        exportClaimId,
         hiddenName: undefined,
       })
+      markXmlAnomalyExportClaim(child, exportClaimId)
       target.push(child)
       if (annotation !== undefined) params.targetAnnotations.set(target, index, annotation)
     })
@@ -284,6 +297,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
   const keys = new Set([...Object.keys(params.value), ...annotationsByKey.keys()])
   let index = 0
   for (const runtimeKey of keys) {
+    const exportClaimId = nextExportClaimId(params.exportClaims)
     const keyAnnotation = params.sourceAnnotations.keyAt(params.value, runtimeKey)
     if (keyAnnotation?.kind === "raw") {
       throw new Error("!xml/raw разрешён только на YAML-значении, но не на ключе")
@@ -303,13 +317,14 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
       propertyRule: params.property.propertyRule,
     }) ?? fallbackRule
     const annotation = annotationsByKey.get(runtimeKey)
-    const itemPath = collectionItemPath(params.propertyPath, params.descriptor, index)
     if (annotation?.kind === "raw") {
-      target[runtimeKey] = {}
+      const semanticItem = {}
+      markXmlAnomalyExportClaim(semanticItem, exportClaimId)
+      target[runtimeKey] = semanticItem
       params.rawBoundaries.push(rawItemBoundary({
-        path: itemPath,
         sourceValue: item,
         tag: params.property.propertyRule.tag,
+        exportClaimId,
       }))
     } else {
       target[runtimeKey] = cloneSemanticValue({
@@ -317,9 +332,11 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         value: item,
         rule,
         yamlPath: [...params.yamlPath, logicalKey],
-        xmlPrefix: itemPath,
+        xmlPrefix: [],
+        exportClaimId,
         hiddenName: undefined,
       })
+      markXmlAnomalyExportClaim(target[runtimeKey], exportClaimId)
       if (annotation !== undefined) params.targetAnnotations.set(target, runtimeKey, annotation)
     }
     if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, runtimeKey, keyAnnotation)
@@ -336,11 +353,14 @@ function rawBoundary(params: {
   readonly rule: MetadataItemRule | undefined
   readonly ownerYaml: unknown
   readonly runtime: XmlAnomalyRuntime
+  readonly exportClaimId?: string
 }): PreparedXmlAnomalyBoundary {
   const rawPath = params.property === undefined
     ? splitRawPath(params.logicalKey).map(xmlPathSegment)
     : params.property.xmlPath.map(xmlPathSegment)
-  const path = [...params.xmlPrefix, ...rawPath]
+  const path = params.exportClaimId === undefined
+    ? [...params.xmlPrefix, ...rawPath]
+    : rawPath
   if (path.length === 0) throw new Error(`Для !xml/raw ${params.logicalKey} не определён XML-путь`)
   if (params.sourceValue === undefined) {
     if (params.property === undefined || params.rule === undefined) {
@@ -360,6 +380,7 @@ function rawBoundary(params: {
       suppressOrdinaryOutput: true,
       fragment: { nodes, suppressOrdinaryOutput: true },
       ...(params.property.propertyRule.tag === undefined ? {} : { tag: params.property.propertyRule.tag }),
+      ...(params.exportClaimId === undefined ? {} : { exportClaimId: params.exportClaimId }),
     }
   }
   return {
@@ -367,6 +388,7 @@ function rawBoundary(params: {
     value: params.sourceValue,
     suppressOrdinaryOutput: !isTerminalPath(path),
     ...(params.property?.propertyRule.tag === undefined ? {} : { tag: params.property.propertyRule.tag }),
+    ...(params.exportClaimId === undefined ? {} : { exportClaimId: params.exportClaimId }),
   }
 }
 
@@ -386,6 +408,7 @@ interface HiddenSingletonNameBoundary {
   readonly itemType: string
   readonly propertyKey: string
   readonly tag?: string
+  readonly exportClaimId?: string
 }
 
 const XML_NAME = /^[:_\p{L}][:_\-.0-9\p{L}\p{M}\p{N}\u00B7]*$/u
@@ -416,19 +439,6 @@ function nestedRuleForProperty(
   return rules.property.getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
 }
 
-function collectionItemPath(
-  propertyPath: readonly XmlTraversalPathSegment[],
-  descriptor: Extract<YAMLToXMLNestedRule, { readonly kind: "collection" }>,
-  index: number,
-): readonly XmlTraversalPathSegment[] {
-  if (descriptor.xmlElement !== undefined) {
-    return [...propertyPath, { name: descriptor.xmlElement, occurrence: index + 1 }]
-  }
-  const last = propertyPath.at(-1)
-  if (last === undefined) throw new Error("Для item коллекции не определён XML-путь")
-  return [...propertyPath.slice(0, -1), { ...last, occurrence: index + 1 }]
-}
-
 function valueAnnotationsForParent(
   annotations: XmlAnomalyAnnotations,
   parent: object,
@@ -443,17 +453,18 @@ function valueAnnotationsForParent(
 }
 
 function rawItemBoundary(params: {
-  readonly path: readonly XmlTraversalPathSegment[]
   readonly sourceValue: unknown
   readonly tag?: string
+  readonly exportClaimId: string
 }): PreparedXmlAnomalyBoundary {
   if (params.sourceValue === undefined) {
     throw new Error("Compact !xml/raw всего item не имеет зарегистрированной property-границы")
   }
   return {
-    ...preparedPath(params.path),
+    path: "$item",
     value: params.sourceValue,
     suppressOrdinaryOutput: true,
+    exportClaimId: params.exportClaimId,
     ...(params.tag === undefined ? {} : { tag: params.tag }),
   }
 }
@@ -473,6 +484,122 @@ function hiddenSingletonNameBoundary(
     suppressOrdinaryOutput: false,
     attributeOverride: { name: "name", value: sourceValue },
     ...(boundary.tag === undefined ? {} : { tag: boundary.tag }),
+    ...(boundary.exportClaimId === undefined ? {} : { exportClaimId: boundary.exportClaimId }),
+  }
+}
+
+function nextExportClaimId(state: { nextId: number }): string {
+  const id = `item-${state.nextId}`
+  state.nextId += 1
+  return id
+}
+
+const EXPORT_CLAIM_ATTRIBUTE = "nkdkXmlAnomalyClaim"
+
+function resolveExportClaimBoundaries(
+  xml: Record<string, unknown>,
+  boundaries: readonly PreparedXmlAnomalyBoundary[],
+): readonly PreparedXmlAnomalyBoundary[] {
+  const claimed = boundaries.filter(({ exportClaimId }) => exportClaimId !== undefined)
+  if (claimed.length === 0) return boundaries
+
+  const probe = cloneXmlObject(xml)
+  injectExportClaimAttributes(probe)
+  const roots = parseXmlDocumentWithSaxes(xmlExport(probe, false), {
+    preserveXsiNil: true,
+    preserveEmptyElements: true,
+  }).roots
+  const paths = collectExportClaimPaths(roots)
+
+  return boundaries.map((boundary) => {
+    if (boundary.exportClaimId === undefined) return boundary
+    const claimedPath = paths.get(boundary.exportClaimId)
+    if (claimedPath === undefined) {
+      throw new Error(
+        `Не найден фактически экспортированный item для raw-границы ${boundary.path}`,
+      )
+    }
+    const relative = boundary.path === "$item"
+      ? []
+      : boundary.path.split("\\").map((name, index) => ({
+          name,
+          occurrence: boundary.occurrencePath?.[index] ?? null,
+        }))
+    const combined = [
+      ...claimedPath,
+      ...relative,
+    ]
+    const occurrencePath = combined.map(({ occurrence }) => occurrence)
+    const { exportClaimId: _claim, ...resolved } = boundary
+    return {
+      ...resolved,
+      path: combined.map(({ name }) => name).join("\\"),
+      occurrencePath,
+    }
+  })
+}
+
+function injectExportClaimAttributes(value: unknown, seen = new WeakSet<object>()): void {
+  if (value === null || typeof value !== "object") return
+  if (seen.has(value)) return
+  seen.add(value)
+  if (!Array.isArray(value)) {
+    const attributeKey = `_${EXPORT_CLAIM_ATTRIBUTE}`
+    if (Object.prototype.hasOwnProperty.call(value, attributeKey)) {
+      throw new Error(`XML-атрибут ${attributeKey} занят и не может служить export claim`)
+    }
+    const claimId = readXmlAnomalyExportClaim(value)
+    if (claimId !== undefined) {
+      Object.defineProperty(value, attributeKey, {
+        configurable: true,
+        enumerable: true,
+        value: claimId,
+      })
+    }
+  }
+  for (const key of Reflect.ownKeys(value)) {
+    injectExportClaimAttributes((value as Record<PropertyKey, unknown>)[key], seen)
+  }
+}
+
+interface PhysicalClaimPathSegment {
+  readonly name: string
+  readonly occurrence: number
+}
+
+function collectExportClaimPaths(
+  roots: readonly XmlElementNode[],
+): ReadonlyMap<string, readonly PhysicalClaimPathSegment[]> {
+  const result = new Map<string, readonly PhysicalClaimPathSegment[]>()
+  collectExportClaimPathsFromSiblings(roots, [], result, roots.length === 1)
+  return result
+}
+
+function collectExportClaimPathsFromSiblings(
+  siblings: readonly XmlElementNode[],
+  parentPath: readonly PhysicalClaimPathSegment[],
+  result: Map<string, readonly PhysicalClaimPathSegment[]>,
+  omitSoleRoot = false,
+): void {
+  const occurrences = new Map<string, number>()
+  for (const element of siblings) {
+    const occurrence = (occurrences.get(element.name) ?? 0) + 1
+    occurrences.set(element.name, occurrence)
+    const path = omitSoleRoot
+      ? parentPath
+      : [...parentPath, { name: element.name, occurrence }]
+    const claim = element.attributes.find(({ name }) => name === EXPORT_CLAIM_ATTRIBUTE)?.value
+    if (claim !== undefined) {
+      if (result.has(claim)) {
+        throw new Error(`XML anomaly export claim ${claim} соответствует нескольким XML-элементам`)
+      }
+      result.set(claim, path)
+    }
+    collectExportClaimPathsFromSiblings(
+      element.content.filter((node): node is XmlElementNode => node.type === "element"),
+      path,
+      result,
+    )
   }
 }
 
