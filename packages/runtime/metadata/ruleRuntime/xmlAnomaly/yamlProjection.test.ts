@@ -87,8 +87,13 @@ describe("YAML-проекция XML-аномалий", () => {
 
     projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
 
-    expect(yaml).toEqual({
-      "Properties\\Future": {
+    expect(yaml).toEqual({ "Properties\\Future": undefined })
+    expect(annotations.at(yaml, "Properties\\Future")).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+      hasSemanticValue: false,
+      xml: {
         _mode: "x",
         "#text": ["42", " "],
         Child: { _extra: "y", "#text": "value" },
@@ -97,11 +102,6 @@ describe("YAML-проекция XML-аномалий", () => {
     })
     expect(yaml).not.toHaveProperty("Properties")
     expect(yaml).not.toHaveProperty("Properties\\Future\\#attributes")
-    expect(annotations.at(yaml, "Properties\\Future")).toEqual({
-      kind: "raw",
-      occurrence: 1,
-      target: "value",
-    })
   })
 
   it("использует #attributes только для неизвестного атрибута известного родителя", () => {
@@ -119,32 +119,38 @@ describe("YAML-проекция XML-аномалий", () => {
 
     projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
 
-    expect(yaml).toEqual({
-      "Properties\\#attributes": {
-        _future: "b",
-        "#order": ["_known", "_future"],
-      },
-    })
+    expect(yaml).toEqual({ "Properties\\#attributes": undefined })
     expect(annotations.at(yaml, "Properties\\#attributes")).toMatchObject({
       kind: "raw",
       target: "value",
+      hasSemanticValue: false,
+      xml: {
+        _future: "b",
+        "#order": ["_known", "_future"],
+      },
     })
   })
 
   it("сохраняет whitespace-only текст неизвестного leaf-элемента", () => {
     const { yaml, annotations } = projectUnknownRootChildren("<Root><Future> \n\t </Future></Root>")
 
-    expect(yaml).toEqual({ Future: " \n\t " })
-    expect(annotations.at(yaml, "Future")).toMatchObject({ kind: "raw", target: "value" })
+    expect(yaml).toEqual({ Future: undefined })
+    expect(annotations.at(yaml, "Future")).toMatchObject({
+      kind: "raw",
+      target: "value",
+      xml: " \n\t ",
+      hasSemanticValue: false,
+    })
   })
 
   it("сохраняет все whitespace occurrences вокруг structural children", () => {
-    const { yaml } = projectUnknownRootChildren(
+    const { yaml, annotations } = projectUnknownRootChildren(
       "<Root><Future>\n  <Child>value</Child>\n</Future></Root>",
     )
 
-    expect(yaml).toEqual({
-      Future: {
+    expect(yaml).toEqual({ Future: undefined })
+    expect(annotations.at(yaml, "Future")).toMatchObject({
+      xml: {
         "#text": ["\n  ", "\n"],
         Child: "value",
         "#order": ["#text", "Child", "#text"],
@@ -153,34 +159,34 @@ describe("YAML-проекция XML-аномалий", () => {
   })
 
   it("сохраняет whitespace occurrence после structural child", () => {
-    const { yaml } = projectUnknownRootChildren(
+    const { yaml, annotations } = projectUnknownRootChildren(
       "<Root><Future><Child/> </Future></Root>",
     )
 
-    expect(yaml).toEqual({
-      Future: {
+    expect(yaml).toEqual({ Future: undefined })
+    const xml = annotations.at(yaml, "Future")?.xml
+    expect(xml).toEqual({
         "#text": " ",
         Child: {},
         "#order": ["Child", "#text"],
-      },
     })
-    const decoded = decodeXmlRawValue(yaml.Future, { elementName: "Future" })
+    const decoded = decodeXmlRawValue(xml, { elementName: "Future" })
     expect(xmlExport(decoded.nodes, false)).toBe("<Future><Child/> </Future>")
   })
 
   it("сохраняет точный mixed text до и после ребёнка", () => {
-    const { yaml } = projectUnknownRootChildren(
+    const { yaml, annotations } = projectUnknownRootChildren(
       "<Root><Future>before<Child/>after</Future></Root>",
     )
 
-    expect(yaml).toEqual({
-      Future: {
+    expect(yaml).toEqual({ Future: undefined })
+    const xml = annotations.at(yaml, "Future")?.xml
+    expect(xml).toEqual({
         "#text": ["before", "after"],
         Child: {},
         "#order": ["#text", "Child", "#text"],
-      },
     })
-    const decoded = decodeXmlRawValue(yaml.Future, { elementName: "Future" }).nodes[0]!
+    const decoded = decodeXmlRawValue(xml, { elementName: "Future" }).nodes[0]!
     expect(decoded.content.map((node) =>
       node.type === "text" ? node.value : node.type === "element" ? node.name : `?${node.target}`,
     )).toEqual([
@@ -218,11 +224,13 @@ describe("YAML-проекция XML-аномалий", () => {
 
     projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
 
-    expect(yaml).toEqual({ Известное: "future text", Сосед: "known" })
+    expect(yaml).toEqual({ Известное: "semantic", Сосед: "known" })
     expect(annotations.at(yaml, "Известное")).toEqual({
       kind: "raw",
       occurrence: 1,
       target: "value",
+      xml: "future text",
+      hasSemanticValue: true,
     })
     expect(annotations.at(yaml, "Сосед")).toBeUndefined()
   })
@@ -246,8 +254,13 @@ describe("YAML-проекция XML-аномалий", () => {
 
     projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
 
-    expect(yaml).toEqual({ Известное: { "?future": { _mode: "x" } } })
-    expect(annotations.at(yaml, "Известное")).toMatchObject({ kind: "raw", target: "value" })
+    expect(yaml).toEqual({ Известное: {} })
+    expect(annotations.at(yaml, "Известное")).toMatchObject({
+      kind: "raw",
+      target: "value",
+      xml: { "?future": { _mode: "x" } },
+      hasSemanticValue: true,
+    })
   })
 
   it("отклоняет подъём raw к неоднозначной owner boundary", () => {

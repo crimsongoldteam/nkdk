@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest"
 import { xmlExport } from "../export/exporter"
 import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
 import { compareXmlStructures } from "./compare"
-import { decodeXmlRawValue, readdressXmlElementNodes } from "./rawCodec"
+import {
+  decodeXmlRawEnvelope,
+  decodeXmlRawValue,
+  readdressXmlElementNodes,
+} from "./rawCodec"
 
 const contentLabels = (nodes: ReturnType<typeof decodeXmlRawValue>["nodes"]): string[] =>
   nodes[0]?.content.map((node) =>
@@ -10,6 +14,24 @@ const contentLabels = (nodes: ReturnType<typeof decodeXmlRawValue>["nodes"]): st
   ) ?? []
 
 describe("decodeXmlRawValue", () => {
+  it("decodes only the explicit semantic value and XML patch envelope", () => {
+    expect(decodeXmlRawEnvelope({
+      "$значение": 1,
+      "$xml": { "#text": "01" },
+    })).toEqual({
+      semanticValue: 1,
+      hasSemanticValue: true,
+      xml: { "#text": "01" },
+    })
+    expect(decodeXmlRawEnvelope({ "$xml": { Future: "42" } })).toEqual({
+      semanticValue: undefined,
+      hasSemanticValue: false,
+      xml: { Future: "42" },
+    })
+    expect(() => decodeXmlRawEnvelope({ "$значение": 1 })).toThrow(/\$xml/)
+    expect(() => decodeXmlRawEnvelope({ "$xml": {}, "$future": true })).toThrow(/\$future/)
+  })
+
   it("preserves scalar text and distinguishes an absent XML place", () => {
     const scalar = decodeXmlRawValue("01", { elementName: "Value" })
     const absent = decodeXmlRawValue(null, { elementName: "Value" })

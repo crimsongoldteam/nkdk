@@ -79,9 +79,7 @@ export function createRuleRegistrySet(
   return {
     property,
     execution,
-    xmlAnomalies: createXmlAnomalyRuntime(xmlAnomalyRegistry, {
-      resolvePropertyItemRule: property.resolvePropertyItemRule,
-    }),
+    xmlAnomalies: createXmlAnomalyRuntime(xmlAnomalyRegistry),
     metadataItems,
     formElements,
     formElementKinds,

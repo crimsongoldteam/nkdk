@@ -8,6 +8,37 @@ const roots = (xml: string): readonly XmlElementNode[] =>
   parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }).roots
 
 describe("mergeXmlRawFragments", () => {
+  it("recursively applies an XML patch without replacing the semantic boundary", () => {
+    const ordinary = roots(
+      '<Root><Value mode="old"><Known>kept</Known><Changed>old</Changed><Removed>gone</Removed></Value></Root>',
+    )
+
+    const merged = mergeXmlRawFragments(ordinary, [
+      {
+        path: "Value",
+        value: {
+          _mode: "new",
+          Changed: "new",
+          Removed: null,
+          Added: "added",
+          "#order": ["Known", "Changed", "Added"],
+        },
+        suppressOrdinaryOutput: false,
+        hasSemanticValue: true,
+      },
+    ])
+
+    expect(xmlExport(merged, false)).toBe([
+      '<Root>',
+      '\t<Value mode="new">',
+      '\t\t<Known>kept</Known>',
+      '\t\t<Changed>new</Changed>',
+      '\t\t<Added>added</Added>',
+      '\t</Value>',
+      '</Root>',
+    ].join("\n"))
+  })
+
   it("merges a hierarchical raw path with attribute and child-order terminals", () => {
     const ordinary = roots('<Root><Properties id="known"><Name>Items</Name></Properties></Root>')
 

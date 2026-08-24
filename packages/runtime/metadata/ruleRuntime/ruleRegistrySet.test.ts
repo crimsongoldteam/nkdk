@@ -37,7 +37,7 @@ describe("RuleRegistrySet.xmlAnomalies", () => {
           boundary: { propertyType: "SyntheticValue" },
         },
         {
-          kind: "hiddenSingletonName",
+          kind: "important",
           boundary: { itemType: "SyntheticOwner", propertyKey: "value" },
         },
       ],

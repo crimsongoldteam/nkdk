@@ -202,9 +202,19 @@ describe("executeImportControlExport", () => {
     )
     const { initialAnnotations, result } = await runCatalogControlExport(sourcePath)
 
-    expect((result.data as Record<string, unknown>).ДлинаКода).toBe("01")
+    expect((result.data as Record<string, unknown>).ДлинаКода).toBe(1)
     expect(result.annotations.entries).toEqual(expect.arrayContaining([
-      expect.objectContaining({ parentPath: [], key: "ДлинаКода", annotation: { kind: "raw", occurrence: 1, target: "value" } }),
+      expect.objectContaining({
+        parentPath: [],
+        key: "ДлинаКода",
+        annotation: {
+          kind: "raw",
+          occurrence: 1,
+          target: "value",
+          xml: { "#text": "01" },
+          hasSemanticValue: true,
+        },
+      }),
     ]))
     expect(result.rereadSourcePaths).toEqual([sourcePath])
     expect(newAnnotationKeys(initialAnnotations, result.annotations)).toEqual(["ДлинаКода"])
@@ -222,15 +232,16 @@ describe("executeImportControlExport", () => {
     )
     const { initialAnnotations, result } = await runCatalogControlExport(sourcePath)
 
-    expect((result.data as Record<string, unknown>).ДлинаКода).toEqual({
-      "_xsi:type": "xs:future",
-      "#text": "9",
-    })
+    expect((result.data as Record<string, unknown>).ДлинаКода).toBeUndefined()
     expect(result.annotations.entries).toEqual(expect.arrayContaining([
       expect.objectContaining({
         parentPath: [],
         key: "ДлинаКода",
-        annotation: expect.objectContaining({ kind: "raw" }),
+        annotation: expect.objectContaining({
+          kind: "raw",
+          xml: { "_xsi:type": "xs:future", "#text": "9" },
+          hasSemanticValue: false,
+        }),
       }),
     ]))
     expect(newAnnotationKeys(initialAnnotations, result.annotations)).toEqual(["ДлинаКода"])

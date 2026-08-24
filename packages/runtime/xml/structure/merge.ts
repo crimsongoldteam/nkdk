@@ -4,9 +4,11 @@ import type {
   XmlElementNode,
 } from "../import/document"
 import {
+  applyXmlPatch,
   decodeXmlRawAttributes,
   decodeXmlRawOrder,
   decodeXmlRawValue,
+  encodeXmlRawElement,
   readdressXmlElementNodes,
   type XmlRawAttributes,
   type XmlRawFragment,
@@ -16,6 +18,8 @@ export interface XmlRawMergeBoundary {
   readonly path: string
   readonly value: unknown
   readonly suppressOrdinaryOutput: boolean
+  /** `$xml` дополняет обычный экспорт смыслового `$значение`. */
+  readonly hasSemanticValue?: boolean
   readonly placement?: "value" | "key"
   readonly fragment?: XmlRawFragment
   /** Номера вхождений (с единицы) для сегментов `path`; `null` означает обычный однозначный сегмент. */
@@ -48,6 +52,11 @@ type PlannedBoundary =
     }
   | {
       readonly path: CanonicalRawPath
+      readonly kind: "patch"
+      readonly patch: XmlRawMergeBoundary["value"]
+    }
+  | {
+      readonly path: CanonicalRawPath
       readonly kind: "attributes"
       readonly attributes: XmlRawAttributes
     }
@@ -62,7 +71,10 @@ type PlannedBoundary =
       readonly attribute: { readonly name: string; readonly value: string }
     }
 
-type PlannedTerminalBoundary = Exclude<PlannedBoundary, { readonly kind: "element" }>
+type PlannedTerminalBoundary = Exclude<
+  PlannedBoundary,
+  { readonly kind: "element" | "patch" }
+>
 
 interface ResolvedTerminalBoundary {
   readonly boundary: PlannedTerminalBoundary
@@ -70,7 +82,7 @@ interface ResolvedTerminalBoundary {
 }
 
 interface ResolvedElementBoundary {
-  readonly boundary: Extract<PlannedBoundary, { readonly kind: "element" }>
+  readonly boundary: Extract<PlannedBoundary, { readonly kind: "element" | "patch" }>
   readonly location?: ElementLocation
 }
 
@@ -121,13 +133,13 @@ function resolveMutableMergePlan(
   // узлы остаются устойчивыми, даже когда более раннее вхождение удаляется.
   const terminals = resolveTerminalBoundaries(roots, boundaries)
   const elements = boundaries.flatMap((boundary): ResolvedElementBoundary[] =>
-    boundary.kind === "element"
+    boundary.kind === "element" || boundary.kind === "patch"
       ? [{
           boundary,
           location: resolveElementLocation(
             roots,
             boundary.path,
-            boundary.fragment.nodes.length > 0,
+            boundary.kind === "element" && boundary.fragment.nodes.length > 0,
           ),
         }]
       : [],
@@ -162,6 +174,12 @@ function planBoundaries(
         throw new Error(`Транспортная замена XML-атрибута недопустима для границы: ${path.source}`)
       }
       return { path, kind: "attributeOverride", attribute: boundary.attributeOverride }
+    }
+    if (boundary.hasSemanticValue === true) {
+      if (path.terminal !== undefined || boundary.fragment !== undefined) {
+        throw new Error(`Рекурсивная XML-поправка недопустима для границы: ${path.source}`)
+      }
+      return { path, kind: "patch", patch: boundary.value }
     }
     if (boundary.fragment !== undefined) {
       if (path.terminal !== undefined) {
@@ -289,8 +307,8 @@ function assertNonOverlappingBoundaries(boundaries: readonly PlannedBoundary[]):
       const right = boundaries[rightIndex]!
       if (
         left.path.rootName === right.path.rootName &&
-        ((left.kind === "element" && isPathPrefix(left.path, right.path)) ||
-          (right.kind === "element" && isPathPrefix(right.path, left.path)))
+        (((left.kind === "element" || left.kind === "patch") && isPathPrefix(left.path, right.path)) ||
+          ((right.kind === "element" || right.kind === "patch") && isPathPrefix(right.path, left.path)))
       ) {
         throw new Error(`Найдены перекрывающиеся raw-границы: ${left.path.source} и ${right.path.source}`)
       }
@@ -316,6 +334,23 @@ function applyElementBoundary(
 ): void {
   const { boundary, location } = resolved
   if (location === undefined) return
+  if (boundary.kind === "patch") {
+    if (location.elements.length > 1) {
+      throw new Error(`Для XML-поправки ${boundary.path.source} не найдена однозначная граница`)
+    }
+    const ordinary = location.elements[0]
+    const elementName = boundary.path.segments.at(-1) ?? boundary.path.rootName
+    const patched = applyXmlPatch(
+      ordinary === undefined ? {} : encodeXmlRawElement(ordinary),
+      boundary.patch as import("./rawCodec").XmlPatchValue,
+    )
+    const replacement = decodeXmlRawValue(patched, {
+      elementName,
+      suppressOrdinaryOutput: true,
+    }).nodes.map((node) => toMutableElement(node, "planned"))
+    location.replace(replacement)
+    return
+  }
   const inserted = boundary.fragment.nodes.map((node) => toMutableElement(node, "planned"))
   const canonicalName = boundary.path.segments.at(-1) ?? boundary.path.rootName
   const existingCanonical = location.elements.filter((node) => node.name === canonicalName)
@@ -460,7 +495,7 @@ function resolveTerminalBoundaries(
   boundaries: readonly PlannedBoundary[]
 ): readonly ResolvedTerminalBoundary[] {
   return boundaries.flatMap((boundary) =>
-    boundary.kind === "element"
+    boundary.kind === "element" || boundary.kind === "patch"
       ? []
       : [{ boundary, parent: resolveExistingElement(roots, boundary.path) }]
   )

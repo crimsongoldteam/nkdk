@@ -129,38 +129,34 @@ const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
         collectionDescriptor,
       ),
     ]),
-    xmlAnomalies: [{
-      kind: "hiddenSingletonName",
-      boundary: { itemType: "SyntheticSingletonOwner", propertyKey: "extendedTooltip" },
-    }],
+    xmlAnomalies: [],
   }),
 ))
 
 describe("единое восстановление XML-аномалий assignment", () => {
-  it("projection-only исключает compact/expanded/root raw без генератора и raw plans", () => {
-    const runtime = anomalyRuntime({
-      generateCompactRaw: () => { throw new Error("projection-only не должен запускать генератор") },
-    })
+  it("projection-only исключает полный raw, но сохраняет его $значение", () => {
+    const runtime = anomalyRuntime({})
     const parsed = parseMetadataYaml([
       "Компактное: !xml/raw",
-      'Развернутое: !xml/raw "01"',
+      "  $xml: { Generated: 'true' }",
+      "Развернутое: !xml/raw",
+      "  $значение: '01'",
+      "  $xml: { '#text': '01' }",
       "Важное: !xml/important keep",
     ].join("\n"))
 
     const prepared = prepareParsedAnomalies(parsed, { runtime, mode: "projectionOnly" })
 
-    expect(prepared.preparedYamlFile.data).toEqual({ Важное: "keep" })
+    expect(prepared.preparedYamlFile.data).toEqual({ Развернутое: "01", Важное: "keep" })
     expect(prepared.rawBoundaries).toEqual([])
 
-    const root = parseMetadataYaml("!xml/raw\nБудущее: value\n")
-    const rootPrepared = prepareParsedAnomalies(root, { runtime, mode: "projectionOnly" })
-    expect(rootPrepared.preparedYamlFile.data).toEqual({})
-    expect(rootPrepared.rawBoundaries).toEqual([])
+    expect(parseMetadataYaml("!xml/raw\n$xml: { Future: value }\n").syntaxErrors).toHaveLength(1)
   })
 
   it("projection-only переносит аннотацию sequence после исключённого raw на новый индекс", () => {
     const parsed = parseMetadataYaml([
-      "- !xml/raw one",
+      "- !xml/raw",
+      "  $xml: one",
       "- !xml/important two",
     ].join("\n"))
 
@@ -176,15 +172,18 @@ describe("единое восстановление XML-аномалий assignm
     const yaml = [
       "Неверное: !xml/invalid bad",
       "Важное: !xml/important keep",
-      'Развернутое: !xml/raw "01"',
-      "Отсутствует: !xml/raw null",
+      "Развернутое: !xml/raw",
+      "  $значение: ordinary",
+      "  $xml: { '#text': '01' }",
+      "Отсутствует: !xml/raw",
+      "  $значение: default",
+      "  $xml: null",
       "Компактное: !xml/raw",
-      'Properties\\Future: !xml/raw "future"',
+      "  $xml: { _generated: 'yes' }",
+      "Properties\\Future: !xml/raw",
+      "  $xml: future",
     ].join("\n")
-    const generateCompactRaw = vi.fn(() =>
-      parseXmlDocumentWithSaxes('<Compact generated="yes"/>').roots
-    )
-    const runtime = anomalyRuntime({ generateCompactRaw })
+    const runtime = anomalyRuntime({})
 
     const prepared = prepareAnomalies(yaml, runtime)
 
@@ -192,6 +191,8 @@ describe("единое восстановление XML-аномалий assignm
     expect(prepared.preparedYamlFile.data).toEqual({
       Неверное: "bad",
       Важное: "keep",
+      Развернутое: "ordinary",
+      Отсутствует: "default",
     })
     expect(prepared.rawBoundaries.map(({ path }) => path)).toEqual([
       "Expanded",
@@ -199,19 +200,25 @@ describe("единое восстановление XML-аномалий assignm
       "Compact",
       "Properties\\Future",
     ])
-    expect(generateCompactRaw).toHaveBeenCalledOnce()
   })
 
   it("объединяет expanded/compact raw после deferred и подавляет default через raw null", () => {
     const yaml = [
-      'Развернутое: !xml/raw "01"',
-      "Отсутствует: !xml/raw null",
+      "Развернутое: !xml/raw",
+      "  $значение: ordinary",
+      "  $xml: { '#text': '01' }",
+      "Отсутствует: !xml/raw",
+      "  $значение: default",
+      "  $xml: null",
       "Компактное: !xml/raw",
-      'Properties\\Future: !xml/raw "future"',
+      "  $xml: { Generated: 'true' }",
+      "Properties\\Future: !xml/raw",
+      "  $xml: future",
     ].join("\n")
-    const prepared = prepareAnomalies(yaml, anomalyRuntime({
-      generateCompactRaw: () => parseXmlDocumentWithSaxes("<Compact><Generated>true</Generated></Compact>").roots,
-    }))
+    const prepared = prepareAnomalies(yaml, anomalyRuntime({}))
+    expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: "Missing", value: null, hasSemanticValue: true }),
+    ]))
 
     const xml = buildPreparedAssignmentXml({
       document: {
@@ -256,12 +263,14 @@ describe("единое восстановление XML-аномалий assignm
     expect(xml).toEqual({ Root: { Value: "before" } })
   })
 
-  it("исключает скрытое Имя реального вложенного singleton из semantic YAML и меняет его XML-атрибут", () => {
+  it("явно дополняет XML вложенного singleton, не скрывая смысловые поля", () => {
     const prepared = prepareAnomalies([
-      "РасширеннаяПодсказка:",
-      "  Имя: !xml/raw СтароеИмяExtendedTooltip",
-      "  Заголовок:",
-      "    Текст: Подсказка",
+      "РасширеннаяПодсказка: !xml/raw",
+      "  $значение:",
+      "    Заголовок:",
+      "      Текст: Подсказка",
+      "  $xml:",
+      "    _name: СтароеИмяExtendedTooltip",
     ].join("\n"), anomalyRegistries.xmlAnomalies, singletonOwnerRule, anomalyRegistries)
 
     expect(prepared.itemName).toBe("Один")
@@ -290,13 +299,12 @@ describe("единое восстановление XML-аномалий assignm
     expect(xml).toContain("<Title>Подсказка</Title>")
   })
 
-  it("отклоняет скрытое внешнее имя singleton нестрокового вида", () => {
-    expect(() => prepareAnomalies(
-      "РасширеннаяПодсказка:\n  Имя: !xml/raw {}\n",
-      anomalyRegistries.xmlAnomalies,
-      singletonOwnerRule,
-      anomalyRegistries,
-    )).toThrow("должно быть непустой допустимой XML-строкой")
+  it("отклоняет нестроковое значение XML-атрибута", () => {
+    expect(parseMetadataYaml([
+      "РасширеннаяПодсказка: !xml/raw",
+      "  $значение: {}",
+      "  $xml: { _name: 1 }",
+    ].join("\n")).syntaxErrors).toHaveLength(1)
   })
 
   it("адресует raw item и его поля по физическим вхождениям named collection", () => {
@@ -305,13 +313,16 @@ describe("единое восстановление XML-аномалий assignm
     const prepared = prepareAnomalies([
       "Реквизиты:",
       "  Код:",
-      '    Значение: !xml/raw "01"',
+      "    Значение: !xml/raw",
+      "      $xml: '01'",
       "  !xml/invalid Код: !xml/raw",
-      "    Name: Код",
-      '    Value: "02"',
+      "    $xml:",
+      "      Name: Код",
+      "      Value: '02'",
       "  !xml/invalid/2 Код:",
-      '    Значение: !xml/raw "03"',
-    ].join("\n"), anomalyRuntime({ generateCompactRaw: () => undefined }), collectionOwnerRule, anomalyRegistries)
+      "    Значение: !xml/raw",
+      "      $xml: '03'",
+    ].join("\n"), anomalyRuntime({}), collectionOwnerRule, anomalyRegistries)
 
     const semanticCollection = (prepared.preparedYamlFile.data as Record<string, unknown>).Реквизиты as Record<string, unknown>
     expect(xmlAnnotatedMappingEntries(semanticCollection, prepared.preparedYamlFile.annotations)).toEqual([
@@ -356,7 +367,8 @@ describe("единое восстановление XML-аномалий assignm
       "Элементы:",
       "  Поле:",
       "    Вид: ПолеВвода",
-      '    Future: !xml/raw "value"',
+      "    Future: !xml/raw",
+      "      $xml: value",
     ])
 
     const inputStart = xml.indexOf('<InputField name="Поле"')
@@ -373,10 +385,11 @@ describe("единое восстановление XML-аномалий assignm
       "  Первое:",
       "    Вид: ПолеВвода",
       "  Будущее: !xml/raw",
-      '    "#name": InputField',
-      "    _name: Будущее",
-      "    _id: raw-id",
-      '    Future: "value"',
+      "    $xml:",
+      '      "#name": InputField',
+      "      _name: Будущее",
+      "      _id: raw-id",
+      '      Future: "value"',
       "  Второе:",
       "    Вид: ПолеВвода",
     ])
@@ -396,9 +409,10 @@ describe("единое восстановление XML-аномалий assignm
       yaml: [
         "Отбор:",
         "  - !xml/raw",
-        '    "#name": dcsset:item',
-        "    _xsi:type: dcsset:FutureFilter",
-        '    "dcsset:future": one',
+        "    $xml:",
+        '      "#name": dcsset:item',
+        "      _xsi:type: dcsset:FutureFilter",
+        '      "dcsset:future": one',
       ],
       orderedValues: ["one"],
       semanticItems: 0,
@@ -408,13 +422,15 @@ describe("единое восстановление XML-аномалий assignm
       yaml: [
         "Отбор:",
         "  - !xml/raw",
-        '    "#name": dcsset:item',
-        "    _xsi:type: dcsset:FutureFilter",
-        '    "dcsset:future": one',
+        "    $xml:",
+        '      "#name": dcsset:item',
+        "      _xsi:type: dcsset:FutureFilter",
+        '      "dcsset:future": one',
         "  - !xml/raw",
-        '    "#name": dcsset:item',
-        "    _xsi:type: dcsset:FutureFilter",
-        '    "dcsset:future": two',
+        "    $xml:",
+        '      "#name": dcsset:item',
+        "      _xsi:type: dcsset:FutureFilter",
+        '      "dcsset:future": two',
       ],
       orderedValues: ["one", "two"],
       semanticItems: 0,
@@ -424,9 +440,10 @@ describe("единое восстановление XML-аномалий assignm
       yaml: [
         "Отбор:",
         "  - !xml/raw",
-        '    "#name": dcsset:item',
-        "    _xsi:type: dcsset:FutureFilter",
-        '    "dcsset:future": one',
+        "    $xml:",
+        '      "#name": dcsset:item',
+        "      _xsi:type: dcsset:FutureFilter",
+        '      "dcsset:future": one',
         "  - ЛевоеЗначение: .Код",
       ],
       orderedValues: ["one", "Код"],
@@ -478,8 +495,8 @@ describe("единое восстановление XML-аномалий assignm
 
   it("fail-closed отклоняет коллизию служебного export claim атрибута", () => {
     const prepared = prepareAnomalies(
-      "Реквизиты:\n  Код:\n    Значение: !xml/raw 01",
-      anomalyRuntime({ generateCompactRaw: () => undefined }),
+      "Реквизиты:\n  Код:\n    Значение: !xml/raw\n      $xml: '01'",
+      anomalyRuntime({}),
       collectionOwnerRule,
       anomalyRegistries,
     )
@@ -500,11 +517,14 @@ describe("единое восстановление XML-аномалий assignm
   it("объединяет terminal raw attributes/order с обычным выводом", () => {
     const prepared = prepareAnomalies([
       "Properties\\#attributes: !xml/raw",
-      '  _future: "x"',
-      "  \"#order\": [_known, _future]",
-      "Properties\\#order: !xml/raw [Known, Future]",
-      'Properties\\Future: !xml/raw "future"',
-    ].join("\n"), anomalyRuntime({ generateCompactRaw: () => undefined }))
+      "  $xml:",
+      '    _future: "x"',
+      "    \"#order\": [_known, _future]",
+      "Properties\\#order: !xml/raw",
+      "  $xml: [Known, Future]",
+      "Properties\\Future: !xml/raw",
+      "  $xml: future",
+    ].join("\n"), anomalyRuntime({}))
 
     expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: "Properties\\#attributes", suppressOrdinaryOutput: false }),
@@ -551,8 +571,8 @@ describe("единое восстановление XML-аномалий assignm
 
   it("разрешает invalid-ключу иметь raw-значение", () => {
     const prepared = prepareAnomalies(
-      '!xml/invalid Развернутое: !xml/raw "01"\n',
-      anomalyRuntime({ generateCompactRaw: () => undefined }),
+      "!xml/invalid Развернутое: !xml/raw\n  $xml: '01'\n",
+      anomalyRuntime({}),
     )
 
     expect(prepared.preparedYamlFile.data).toEqual({})
@@ -564,8 +584,9 @@ describe("единое восстановление XML-аномалий assignm
   it("экспортирует режим свойства на ключе и anomaly на значении", () => {
     const prepared = prepareAnomalies([
       "!изменять Неверное: !xml/invalid bad",
-      '!проверять Развернутое: !xml/raw "01"',
-    ].join("\n"), anomalyRuntime({ generateCompactRaw: () => undefined }))
+      "!проверять Развернутое: !xml/raw",
+      "  $xml: '01'",
+    ].join("\n"), anomalyRuntime({}))
     const semantic = prepared.preparedYamlFile.data as Record<string, unknown>
     const invalidKey = Object.keys(semantic)[0]!
 
@@ -588,20 +609,26 @@ describe("единое восстановление XML-аномалий assignm
   it("сохраняет PropertyState compact/expanded raw через serialize→parse и assignment export", () => {
     const first = parseMetadataYaml([
       "!проверять Компактное: !xml/raw",
-      '!изменять Развернутое: !xml/raw "01"',
+      "  $xml: { _generated: 'yes' }",
+      "!изменять Развернутое: !xml/raw",
+      "  $значение: ordinary",
+      "  $xml: { '#text': '01' }",
     ].join("\n"))
     const serialized = serializeYAMLDocument(first.data, first.annotations)
     const reparsed = parseMetadataYaml(serialized.text)
     const prepared = prepareParsedAnomalies(reparsed, {
-      runtime: anomalyRuntime({
-        generateCompactRaw: () => parseXmlDocumentWithSaxes('<Compact generated="yes"/>').roots,
-      }),
+      runtime: anomalyRuntime({}),
     })
     const semantic = prepared.preparedYamlFile.data as Record<string, unknown>
 
     expect(serialized.text).toBe([
       "!проверять Компактное: !xml/raw",
-      '!изменять Развернутое: !xml/raw "01"',
+      "  $xml:",
+      "    _generated: yes",
+      "!изменять Развернутое: !xml/raw",
+      "  $значение: ordinary",
+      "  $xml:",
+      '    "#text": "01"',
     ].join("\n"))
     expect(Object.keys(semantic)).toEqual(["Компактное", "Развернутое"])
     expect(yamlScalarTagAt(semantic, "Компактное")).toBe("проверять")
@@ -701,15 +728,8 @@ function exportFilterArrayWithAnomalies(lines: readonly string[]): string {
   })
 }
 
-function anomalyRuntime(overrides: {
-  generateCompactRaw: XmlAnomalyRuntime["generateCompactRaw"]
-  allowsHiddenSingletonName?: XmlAnomalyRuntime["allowsHiddenSingletonName"]
-}): XmlAnomalyRuntime {
-  return {
-    requiresImportant: () => false,
-    allowsHiddenSingletonName: overrides.allowsHiddenSingletonName ?? (() => false),
-    generateCompactRaw: overrides.generateCompactRaw,
-  }
+function anomalyRuntime(_overrides: object): XmlAnomalyRuntime {
+  return { requiresImportant: () => false }
 }
 
 function prepareAnomalies(

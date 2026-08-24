@@ -1,4 +1,5 @@
 import {
+  createXmlElementPatch,
   decodeXmlRawValue,
   copyYAMLMappingKeyOrder,
   copyYAMLMappingKeyTags,
@@ -18,6 +19,7 @@ import {
   type XmlImportAuditedNode,
   type XmlImportAuditSession,
   type XmlSourceSpan,
+  type XmlRawValue,
 } from "@nkdk/runtime"
 import {
   getTypeRule,
@@ -759,8 +761,12 @@ export async function proveXmlAnomalyBoundaries(params: {
     if (exact || hasRawAtOrAbovePath(annotationSnapshot, boundary.yamlPath)) continue
 
     if (!boundary.presentInSource) {
-      setRawYamlValue(data, boundary.yamlPath, null)
-      annotationSnapshot = withRawAnnotation(annotationSnapshot, boundary.yamlPath)
+      annotationSnapshot = withRawAnnotation(
+        annotationSnapshot,
+        boundary.yamlPath,
+        null,
+        false,
+      )
       continue
     }
 
@@ -809,8 +815,27 @@ export async function proveXmlAnomalyBoundaries(params: {
     if (selectedSource === undefined) throw new Error(`Не найдена выбранная XML-граница ${selected.xmlPath}`)
     const rawYamlPath = selected.rawYamlPath ?? selected.yamlPath
     assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, selected.yamlPath)
-    setRawYamlValue(data, rawYamlPath, xmlElementRawValue(selectedSource), selected.yamlPath)
-    annotationSnapshot = withRawAnnotation(annotationSnapshot, rawYamlPath, selected.yamlPath)
+    const hasSemanticValue = sameYamlPath(rawYamlPath, selected.yamlPath)
+      && valueAtYamlPath(data, selected.yamlPath) !== undefined
+    const exportedSelectedNode = exportedElements.get(exported)?.get(selected.xmlPath)
+    const exportedSelected = exportedSelectedNode !== undefined
+      && "type" in exportedSelectedNode
+      && exportedSelectedNode.type === "element"
+      ? exportedSelectedNode
+      : undefined
+    const xml = hasSemanticValue && exportedSelected !== undefined
+      ? createXmlElementPatch(selectedSource, exportedSelected)
+      : xmlElementRawValue(selectedSource)
+    if (!hasSemanticValue) {
+      setRawYamlValue(data, rawYamlPath, undefined, selected.yamlPath)
+    }
+    annotationSnapshot = withRawAnnotation(
+      annotationSnapshot,
+      rawYamlPath,
+      xml,
+      hasSemanticValue,
+      selected.yamlPath,
+    )
   }
 
   const annotations = restoreXmlAnomalyAnnotations(data, annotationSnapshot)
@@ -909,14 +934,12 @@ function hasRawAtOrAbovePath(
 function withRawAnnotation(
   annotations: XmlAnomalyAnnotationsSnapshot,
   path: readonly (string | number)[],
+  xml: XmlRawValue,
+  hasSemanticValue: boolean,
   replacedPath: readonly (string | number)[] = path,
 ): XmlAnomalyAnnotationsSnapshot {
   if (path.length === 0) {
-    return {
-      version: 1,
-      root: { kind: "raw", occurrence: 1, target: "root" },
-      entries: [],
-    }
+    throw new Error("Корневой raw не поддерживается XML proof")
   }
   const parentPath = path.slice(0, -1)
   const key = path.at(-1)!
@@ -931,7 +954,13 @@ function withRawAnnotation(
       {
         parentPath,
         key,
-        annotation: { kind: "raw", occurrence: 1, target: "value" },
+        annotation: {
+          kind: "raw",
+          occurrence: 1,
+          target: "value",
+          xml,
+          hasSemanticValue,
+        },
       },
     ],
   }

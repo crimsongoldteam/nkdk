@@ -9,15 +9,15 @@ it("составляет xmlAnomalies как отдельный упорядоч
     kind: "important",
     boundary: { propertyType: "SyntheticValue" },
   }
-  const hiddenName: XmlAnomalyRegistration = {
-    kind: "hiddenSingletonName",
+  const exactImportant: XmlAnomalyRegistration = {
+    kind: "important",
     boundary: { itemType: "SyntheticOwner", propertyKey: "value" },
   }
 
   const definition = composeMetadataRules(
     { ...emptyMetadataRules, xmlAnomalies: [important] },
-    { ...emptyMetadataRules, xmlAnomalies: [hiddenName] },
+    { ...emptyMetadataRules, xmlAnomalies: [exactImportant] },
   )
 
-  expect(definition.xmlAnomalies).toEqual([important, hiddenName])
+  expect(definition.xmlAnomalies).toEqual([important, exactImportant])
 })

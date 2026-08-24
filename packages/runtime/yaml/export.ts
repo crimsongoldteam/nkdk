@@ -146,7 +146,23 @@ function prepareChildForDump(
   dataAnnotations: ReturnType<typeof createXmlAnomalyAnnotations>,
 ): PreparedYAMLNode {
   const anomaly = sourceAnnotations.at(parent, key)
-  if (anomaly?.kind === "raw" && value === undefined) return { dumpValue: null, data: undefined }
+  if (anomaly?.kind === "raw") {
+    if (anomaly.xml === undefined) throw new TypeError("!xml/raw требует обязательную XML-поправку")
+    const hasSemanticValue = anomaly.hasSemanticValue === true
+    if (!hasSemanticValue && value !== undefined) {
+      throw new TypeError("!xml/raw без $значение не может содержать смысловые данные")
+    }
+    const preparedSemantic = hasSemanticValue
+      ? prepareForDump(value, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations)
+      : undefined
+    return {
+      dumpValue: {
+        ...(preparedSemantic === undefined ? {} : { "$значение": preparedSemantic.dumpValue }),
+        $xml: prepareXmlPatchForDump(anomaly.xml, explicitStrings),
+      },
+      data: preparedSemantic?.data,
+    }
+  }
   const tag = yamlScalarTagAt(parent, key)
   if (anomaly === undefined && isXMLAnomalyTag(tag)) {
     const taggedValue = typeof value === "string"
@@ -172,6 +188,17 @@ function prepareChildForDump(
     data: prepared.data,
     ...(prepared.doubleQuoted === true ? { doubleQuoted: true } : {}),
   }
+}
+
+function prepareXmlPatchForDump(value: unknown, explicitStrings: Map<string, string>): unknown {
+  if (typeof value === "string") {
+    return shouldExportAsExplicitString(value) ? explicitStringMarker(value, explicitStrings) : value
+  }
+  if (Array.isArray(value)) return value.map((item) => prepareXmlPatchForDump(item, explicitStrings))
+  if (!isRecord(value)) return value
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [key, prepareXmlPatchForDump(item, explicitStrings)]),
+  )
 }
 
 function isPropertyStateTag(tag: unknown): tag is "проверять" | "изменять" {
@@ -312,6 +339,25 @@ function applyXmlAnomalyAnnotationsToNode(
     }
     const valueAnnotation = annotations.at(source, runtimeKey)
     if (valueAnnotation !== undefined) applyXmlAnomalyTag(item.value, valueAnnotation, semanticData[runtimeKey])
+    if (valueAnnotation?.kind === "raw" && item.value.kind === "mapping") {
+      const semanticItem = item.value.items.find(({ key }) => key.kind === "scalar" && key.value === "$значение")
+      const rawSource = source[runtimeKey]
+      if (semanticItem !== undefined && isRecord(rawSource)) {
+        if (valueAnnotation.semantic !== undefined) {
+          applyXmlAnomalyTag(semanticItem.value, {
+            ...valueAnnotation.semantic,
+            target: "value",
+          })
+        }
+        applyXmlAnomalyAnnotationsToNode(
+          semanticItem.value,
+          rawSource["$значение"],
+          semanticData[runtimeKey],
+          annotations,
+        )
+      }
+      continue
+    }
     applyXmlAnomalyAnnotationsToNode(item.value, source[runtimeKey], semanticData[runtimeKey], annotations)
   }
 }

@@ -30,6 +30,7 @@ import {
   type XmlAnomalyAnnotations,
   type XmlAnomalyKind,
 } from "./xmlAnomalyAnnotations"
+import { decodeXmlRawEnvelope } from "../xml/structure/rawCodec"
 
 export interface JsYamlSyntaxError {
   message: string
@@ -139,6 +140,7 @@ interface ParsedXmlAnomalyAnnotation {
   readonly parentPath: readonly (string | number)[]
   readonly key: string | number | undefined
   readonly rawPayload?: "compact" | "null"
+  readonly rawNullPaths?: readonly (readonly (string | number)[])[]
 }
 
 function prepareMappingKeyTags(text: string): {
@@ -191,6 +193,7 @@ function collectYamlTags(
       parentPath: [],
       key: undefined,
       rawPayload: rawPayloadOf(node, rootTag.kind),
+      rawNullPaths: rawNullPathsOf(node, rootTag.kind),
     })
   }
   if (node.kind === "sequence") {
@@ -273,7 +276,38 @@ function collectValueAnnotation(
     parentPath,
     key,
     rawPayload: rawPayloadOf(node, tag.kind),
+    rawNullPaths: rawNullPathsOf(node, tag.kind),
   })
+}
+
+function rawNullPathsOf(
+  node: Node,
+  kind: XmlAnomalyKind,
+): readonly (readonly (string | number)[])[] | undefined {
+  if (kind !== "raw" || node.kind !== "mapping") return undefined
+  const result: (readonly (string | number)[])[] = []
+  collectNullPaths(node, [], result)
+  return result.length === 0 ? undefined : result
+}
+
+function collectNullPaths(
+  node: Node,
+  path: readonly (string | number)[],
+  result: (readonly (string | number)[])[],
+): void {
+  if (node.kind === "scalar") {
+    if (node.tag === "tag:yaml.org,2002:null") result.push(path)
+    return
+  }
+  if (node.kind === "sequence") {
+    node.items.forEach((item, index) => collectNullPaths(item, [...path, index], result))
+    return
+  }
+  if (node.kind === "mapping") {
+    for (const { key, value } of node.items) {
+      if (key.kind === "scalar") collectNullPaths(value, [...path, key.value], result)
+    }
+  }
 }
 
 function rawPayloadOf(node: Node, kind: XmlAnomalyKind): "compact" | "null" | undefined {
@@ -371,23 +405,138 @@ function applyParsedXmlAnomalyAnnotations(
   let normalized = data
   for (const entry of parsed) {
     if (entry.annotation.target === "root") {
+      if (entry.annotation.kind === "raw") {
+        throw new YAMLException("!xml/raw недопустим на корне metadata item")
+      }
       annotations.setRoot(entry.annotation)
       if (entry.rawPayload === "compact") normalized = undefined
       if (entry.rawPayload === "null") normalized = null
       continue
     }
-    const parent = valueAtPath(data, entry.parentPath)
+    if (isRawSemanticRootEntry(entry, parsed)) continue
+    const parent = valueAtPath(data, semanticParentPath(entry.parentPath, parsed))
     if (!isRecord(parent) && !Array.isArray(parent)) continue
     if (entry.annotation.target === "key" && typeof entry.key === "string") {
       annotations.setKey(parent, entry.key, entry.annotation)
       continue
     }
     if (entry.key !== undefined) {
+      if (entry.annotation.kind === "raw") {
+        const envelope = valueAt(parent, entry.key)
+        const decoded = decodeRawEnvelope(envelope, parsed, entry)
+        setValueAt(parent, entry.key, decoded.value)
+        annotations.set(parent, entry.key, {
+          ...entry.annotation,
+          xml: decoded.xml,
+          hasSemanticValue: decoded.hasSemanticValue,
+          ...(decoded.semantic === undefined ? {} : { semantic: decoded.semantic }),
+        })
+        continue
+      }
       if (entry.rawPayload === "null") setValueAt(parent, entry.key, null)
       annotations.set(parent, entry.key, entry.annotation)
     }
   }
   return normalized
+}
+
+function semanticParentPath(
+  source: readonly (string | number)[],
+  parsed: readonly ParsedXmlAnomalyAnnotation[],
+): readonly (string | number)[] {
+  const path = [...source]
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const raw of parsed) {
+      if (raw.annotation.kind !== "raw" || raw.annotation.target !== "value" || raw.key === undefined) continue
+      const prefix = [...raw.parentPath, raw.key, "$значение"]
+      if (path.length < prefix.length || !prefix.every((segment, index) => path[index] === segment)) continue
+      path.splice(raw.parentPath.length + 1, 1)
+      changed = true
+      break
+    }
+  }
+  return path
+}
+
+function isRawSemanticRootEntry(
+  entry: ParsedXmlAnomalyAnnotation,
+  parsed: readonly ParsedXmlAnomalyAnnotation[],
+): boolean {
+  if (entry.key !== "$значение" || entry.annotation.kind === "raw") return false
+  return parsed.some((raw) =>
+    raw.annotation.kind === "raw"
+    && raw.annotation.target === "value"
+    && raw.key !== undefined
+    && entry.parentPath.length === raw.parentPath.length + 1
+    && entry.parentPath.every((segment, index) =>
+      index < raw.parentPath.length ? segment === raw.parentPath[index] : segment === raw.key
+    )
+  )
+}
+
+function decodeRawEnvelope(
+  value: unknown,
+  parsed: readonly ParsedXmlAnomalyAnnotation[],
+  entry: ParsedXmlAnomalyAnnotation,
+): {
+  readonly value: unknown
+  readonly xml: import("../xml/structure/rawCodec").XmlRawValue
+  readonly hasSemanticValue: boolean
+  readonly semantic?: { readonly kind: "invalid" | "important"; readonly occurrence: number }
+} {
+  restoreRawNulls(value, entry.rawNullPaths)
+  let envelope: ReturnType<typeof decodeXmlRawEnvelope>
+  try {
+    envelope = decodeXmlRawEnvelope(value)
+  } catch (error) {
+    throw new YAMLException(error instanceof Error ? error.message : String(error))
+  }
+  const semanticEntry = parsed.find((candidate) =>
+    candidate.annotation.target === "value"
+    && candidate.annotation.kind !== "raw"
+    && candidate.key === "$значение"
+    && candidate.parentPath.length === entry.parentPath.length + 1
+    && candidate.parentPath.every((segment, index) =>
+      index < entry.parentPath.length
+        ? segment === entry.parentPath[index]
+        : segment === entry.key
+    )
+  )
+  return {
+    value: envelope.semanticValue,
+    xml: envelope.xml,
+    hasSemanticValue: envelope.hasSemanticValue,
+    ...(semanticEntry === undefined
+      ? {}
+      : {
+          semantic: {
+            kind: semanticEntry.annotation.kind as "invalid" | "important",
+            occurrence: semanticEntry.annotation.occurrence,
+          },
+        }),
+  }
+}
+
+function restoreRawNulls(
+  envelope: unknown,
+  paths: readonly (readonly (string | number)[])[] | undefined,
+): void {
+  if (paths === undefined) return
+  for (const path of paths) {
+    if (path.length === 0) continue
+    const parent = valueAtPath(envelope, path.slice(0, -1))
+    const key = path.at(-1)!
+    if (isRecord(parent) && typeof key === "string") parent[key] = null
+    else if (Array.isArray(parent) && typeof key === "number") parent[key] = null
+  }
+}
+
+function valueAt(parent: Record<string, unknown> | unknown[], key: string | number): unknown {
+  if (Array.isArray(parent) && typeof key === "number") return parent[key]
+  if (isRecord(parent) && typeof key === "string") return parent[key]
+  return undefined
 }
 
 function setValueAt(parent: Record<string, unknown> | unknown[], key: string | number, value: unknown): void {

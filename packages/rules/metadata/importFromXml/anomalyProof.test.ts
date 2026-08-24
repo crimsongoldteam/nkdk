@@ -551,42 +551,48 @@ describe("XML anomaly proof", () => {
       source: "<Root><Value>01</Value></Root>",
       exported: "<Root><Value>1</Value></Root>",
       data: { Значение: 1 },
-      expected: "01",
+      expectedXml: { "#text": "01" },
     },
     {
       name: "неизвестный xsi:type",
       source: '<Root><Value xmlns:xsi="u" xsi:type="xs:future">true</Value></Root>',
       exported: "<Root><Value>true</Value></Root>",
       data: { Значение: true },
-      expected: { "_xmlns:xsi": "u", "_xsi:type": "xs:future", "#text": "true" },
+      expectedXml: { "_xmlns:xsi": "u", "_xsi:type": "xs:future", "#text": "true" },
     },
     {
       name: "лишнего ребёнка",
       source: "<Root><Value><Known>ok</Known><Future>x</Future></Value></Root>",
       exported: "<Root><Value><Known>ok</Known></Value></Root>",
       data: { Значение: { Known: "ok" } },
-      expected: { Known: "ok", Future: "x" },
+      expectedXml: { Future: "x", "#order": ["Known", "Future"] },
     },
     {
       name: "явного default",
       source: "<Root><Mode>Auto</Mode></Root>",
       exported: "<Root/>",
       data: { Режим: "Auto" },
-      expected: "Auto",
+      expectedXml: "Auto",
     },
-  ])("локализует $name минимальным raw", async ({ source, exported, data, expected }) => {
+  ])("локализует $name минимальным raw", async ({ source, exported, data, expectedXml }) => {
     const result = await prove(source, exported, data, [
       boundary("/Root[1]/Value[1]", ["Значение"], ["value"], source.includes("<Value")),
       boundary("/Root[1]/Mode[1]", ["Режим"], ["mode"], source.includes("<Mode")),
     ].filter(({ presentInSource }) => presentInSource))
 
     const key = Object.keys(data)[0]!
-    expect(result.data).toEqual({ [key]: expected })
+    expect(result.data).toEqual(data)
     expect(result.annotations.entries).toEqual([
       expect.objectContaining({
         parentPath: [],
         key,
-        annotation: { kind: "raw", occurrence: 1, target: "value" },
+        annotation: {
+          kind: "raw",
+          occurrence: 1,
+          target: "value",
+          xml: expectedXml,
+          hasSemanticValue: true,
+        },
       }),
     ])
     expect(result.rereadSourcePaths).toEqual([sourcePath])
@@ -600,12 +606,18 @@ describe("XML anomaly proof", () => {
       boundary("/Root[1]/Mode[1]", ["Режим"], ["mode"], false),
     ])
 
-    expect(result.data).toEqual({ Режим: null })
+    expect(result.data).toEqual({})
     expect(result.annotations.entries).toEqual([
       expect.objectContaining({
         parentPath: [],
         key: "Режим",
-        annotation: { kind: "raw", occurrence: 1, target: "value" },
+        annotation: {
+          kind: "raw",
+          occurrence: 1,
+          target: "value",
+          xml: null,
+          hasSemanticValue: false,
+        },
       }),
     ])
     expect(result.rereadSourcePaths).toEqual([])
@@ -639,14 +651,18 @@ describe("XML anomaly proof", () => {
       boundary("/Root[1]/Wrapper[1]/Value[1]", ["Объект", "Значение"], ["object", "value"]),
     ])
 
-    expect(result.data).toEqual({
-      Объект: { _marker: "x", Value: "01" },
-    })
+    expect(result.data).toEqual({ Объект: { Значение: 1 } })
     expect(result.annotations.entries).toEqual([
       expect.objectContaining({
         parentPath: [],
         key: "Объект",
-        annotation: { kind: "raw", occurrence: 1, target: "value" },
+        annotation: {
+          kind: "raw",
+          occurrence: 1,
+          target: "value",
+          xml: { _marker: "x", Value: "01" },
+          hasSemanticValue: true,
+        },
       }),
     ])
   })
@@ -687,14 +703,15 @@ describe("XML anomaly proof", () => {
       readSource: async () => source,
     })
 
-    expect(result.data).toEqual({
-      Wrapper: { _marker: "x", Value: "01" },
-      Сосед: "ok",
-    })
+    expect(result.data).toEqual({ Wrapper: undefined, Сосед: "ok" })
     expect(result.annotations.entries).toContainEqual(expect.objectContaining({
       parentPath: [],
       key: "Wrapper",
-      annotation: expect.objectContaining({ kind: "raw" }),
+      annotation: expect.objectContaining({
+        kind: "raw",
+        xml: { _marker: "x", Value: "01" },
+        hasSemanticValue: false,
+      }),
     }))
 
     const serialized = serializeYAMLDocument(

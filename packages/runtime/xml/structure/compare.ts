@@ -4,6 +4,84 @@ import type {
   XmlElementNode,
   XmlProcessingInstructionNode,
 } from "../import/document"
+import {
+  encodeXmlRawElement,
+  type XmlPatchValue,
+  type XmlRawMapping,
+  type XmlRawValue,
+} from "./rawCodec"
+
+export function createXmlElementPatch(
+  expected: XmlElementNode,
+  actual: XmlElementNode,
+): XmlPatchValue {
+  const expectedValue = encodeXmlRawElement(expected, actual.name)
+  const actualValue = encodeXmlRawElement(actual)
+  const difference = diffXmlRawValue(expectedValue, actualValue)
+  const patch: Record<string, XmlPatchValue> = isRawMapping(difference)
+    ? { ...difference }
+    : difference === undefined
+      ? {}
+      : { "#text": difference }
+  const expectedOrder = xmlContentOrder(expected)
+  const actualOrder = xmlContentOrder(actual)
+  if (!sameStrings(expectedOrder, actualOrder)) patch["#order"] = expectedOrder
+  return patch
+}
+
+function diffXmlRawValue(
+  expected: Exclude<XmlRawValue, null>,
+  actual: Exclude<XmlRawValue, null>,
+): XmlPatchValue | undefined {
+  if (typeof expected === "string" || Array.isArray(expected)) {
+    return rawValuesEqual(expected, actual) ? undefined : expected
+  }
+  if (!isRawMapping(actual)) return expected
+
+  const patch: Record<string, XmlPatchValue> = {}
+  for (const [key, expectedValue] of Object.entries(expected)) {
+    const actualValue = actual[key]
+    if (actualValue === undefined || actualValue === null) {
+      patch[key] = expectedValue
+      continue
+    }
+    if (expectedValue === null) {
+      if (actualValue !== null) patch[key] = null
+      continue
+    }
+    const difference = diffXmlRawValue(expectedValue, actualValue)
+    if (difference !== undefined) patch[key] = difference
+  }
+  for (const key of Object.keys(actual)) {
+    if (!(key in expected)) patch[key] = null
+  }
+  return Object.keys(patch).length === 0 ? undefined : patch
+}
+
+function rawValuesEqual(left: XmlRawValue, right: XmlRawValue): boolean {
+  if (typeof left === "string" || left === null) return left === right
+  if (Array.isArray(left)) {
+    return Array.isArray(right) && left.length === right.length
+      && left.every((value, index) => rawValuesEqual(value, right[index]!))
+  }
+  return isRawMapping(right)
+    && Object.keys(left).length === Object.keys(right).length
+    && Object.entries(left).every(([key, value]) => rawValuesEqual(value, right[key]!))
+}
+
+function isRawMapping(value: XmlRawValue | undefined): value is XmlRawMapping {
+  return value !== undefined && value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function xmlContentOrder(element: XmlElementNode): string[] {
+  return element.content.map((node) =>
+    node.type === "text" ? "#text" : node.type === "element" ? node.name : `?${node.target}`,
+  )
+}
+
+function sameStrings(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index])
+}
 
 export function compareXmlStructures(
   expected: readonly XmlElementNode[],

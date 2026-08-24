@@ -4,27 +4,41 @@
 
 **Goal:** Заменить все прежние частные XML-аномалии единым механизмом `!xml/raw`, `!xml/invalid` и `!xml/important`, который сохраняет импортируемый XML, не пропускает аномальные данные в обычную валидацию и одинаково восстанавливает их при полной и частичной синхронизации.
 
-**Architecture:** Нейтральный `XmlAnomalyRuntime` компилируется рядом с `RuleRegistrySet`, оборачивает существующие PropertyRule и ведёт аудит нормализованного XML-дерева. Импорт выполняется в три прохода: смысловой рабочий индекс, доказательство обратимости и окончательный смысловой индекс, затем классификация и единственная запись YAML. Полная и частичная синхронизация используют один адаптер: смысловые теги снимаются перед обычным экспортом, а raw-фрагменты объединяются с полученным XML после него.
+**Architecture:** Нейтральный `XmlAnomalyRuntime` компилируется рядом с `RuleRegistrySet`, оборачивает существующие PropertyRule и ведёт аудит нормализованного XML-дерева. Импорт выполняется в три worker-прохода: черновой смысловой YAML, внутренняя таблица адресуемых вхождений и рабочий индекс; терпимый контрольный экспорт и минимальные raw-границы; окончательный индекс, общая валидация, `invalid`/`important` и единственная запись YAML. Raw является самодостаточным контейнером с проверяемым `$значение` и обязательной явной XML-поправкой `$xml`; пустых raw и генераторов нет. Полная и частичная синхронизация сначала экспортируют `$значение` обычным правилом, затем применяют `$xml`.
 
 **Tech Stack:** TypeScript 7, Vitest, `js-yaml`, `saxes`, TypeBox, Piscina, LMDB/projectState, `@node-rs/xxhash`.
 
 **Spec:** [2026-08-23-common-types-xml-anomaly-framework-design.md](../specs/2026-08-23-common-types-xml-anomaly-framework-design.md)
 
+**Состояние реализации на `dfa196064`:** Task 2 (структурный XML) и Task 5
+(транзакционный аудит владения) соответствуют целевой архитектуре. Tasks 1, 3,
+4, 6, 7 и 8 имеют работающую и покрытую тестами основу, но реализованы по
+прежнему raw-договору: raw-payload подменяет смысловое значение, допускаются
+пустой и корневой raw, а runtime содержит отменённые `compactRaw` и
+`hiddenSingletonName`. Task 9 переводит эту основу на окончательный
+`{$значение?, $xml}` договор. Tasks 10–13 после этого добавляют три
+worker-прохода, классификацию валидатором, удаление прежних аномалий и итоговую
+проверку. Tasks 1–8 ниже сохранены как история и договор их
+инвариантов; повторно выполнять их не нужно. Новое выполнение плана
+начинается с Task 9.
+
 ## Global Constraints
 
 - Выполнять задачи по TDD: сначала падающий тест, затем минимальная реализация, затем переработка без изменения поведения.
 - Не изменять существующие XML-фикстуры: они являются источником истины. Для дополнительных форм XML создавать строки непосредственно в тестах или добавлять только новые фикстуры.
-- Не добавлять поля в `BasePropertyRule`, `PropertyRule` и параметры построителей common-типов. Частные решения регистрировать только через отдельный реестр `xmlAnomalies`.
+- Не добавлять поля в `BasePropertyRule`, `PropertyRule` и параметры построителей common-типов. В отдельном реестре `xmlAnomalies` оставлять только явно согласованные классы important; raw-генераторы запрещены.
 - Не добавлять в нейтральные слои условия по `itemType`, XML-корням и папкам проекта. Конкретные регистрации принадлежат `packages/rules/metadata/**`.
 - Не поддерживать прежние `!xml/present`, `!xml/absent`, `!xml/name`, `!xml/type`, `!xml/value`, `!xml/reference`, `!xml/language` и `!xml/duplicate`: после окончательного переключения они являются синтаксической ошибкой YAML.
 - Не создавать мигратор старого YAML. Повторный импорт исходного XML является единственным переходом на новый формат.
-- Разработчик явно разрешил обновить `.agents/architecture.md` после реализации. Обновлять его только в Task 12, когда фактическая архитектура уже подтверждена тестами и финальным устройством кода.
+- Разработчик явно разрешил обновить `.agents/architecture.md` после реализации. Обновлять его только в Task 13, когда фактическая архитектура уже подтверждена тестами и финальным устройством кода.
 - После каждого законченного слоя запускать `pnpm duplicates -- --base c0cf08c81` и не принимать новые дубли без локального устранения.
 - Для каждого коммита использовать навык `commit`; сообщения ниже задают ожидаемый смысл, но перед коммитом должны быть проверены по фактическому diff.
 
 ---
 
 ## Task 1: Ввести единую таблицу YAML-аннотаций
+
+**Статус:** основа реализована; целевой raw-контейнер и запрет корневого/пустого raw выполняет Task 9.
 
 **Files:**
 
@@ -45,13 +59,15 @@
   ```yaml
   Флаг: !xml/invalid true
   Объект: !xml/raw
-    _future: x
-    "#text": "42"
+    $значение: 42
+    $xml:
+      _future: x
+      "#text": "42"
   !xml/invalid Код: { Тип: Строка }
   !xml/invalid/2 Код: { Тип: Число }
   ```
 
-  Проверить, что смысловые данные не содержат объектов-обёрток, оба ключа `Код` не теряются, а парсер возвращает отдельную таблицу аннотаций. Проверить ошибки `/1`, первого `/2`, пропуска номера и raw на ключе. Проверку important-регистрации выполняет Task 10, а окончательный отказ от прежних `!xml/*` — атомарное переключение Task 11.
+  Проверить, что смысловые данные не содержат объектов-обёрток, оба ключа `Код` не теряются, а парсер возвращает отдельную таблицу аннотаций. Проверить ошибки `/1`, первого `/2`, пропуска номера, raw на ключе и raw на корне объекта метаданных. Последние два случая обязаны завершаться ошибкой договора. Проверку important-регистрации выполняет Task 11, а окончательный отказ от прежних `!xml/*` — атомарное переключение Task 12.
 
 - [ ] **Step 2: Запустить тест и подтвердить ожидаемое падение**
 
@@ -71,6 +87,8 @@
     readonly occurrence: number
     readonly target: "root" | "value" | "key"
     readonly logicalKey?: string
+    readonly xml?: XmlPatchValue
+    readonly hasSemanticValue?: boolean
   }
 
   export interface XmlAnomalyAnnotations {
@@ -82,11 +100,11 @@
   }
   ```
 
-  Для повторных ключей до `js-yaml.load` заменять каждый тегированный ключ внутренним уникальным ключом. В таблице хранить его логическое имя и номер; наружу предоставить `xmlAnnotatedMappingEntries`, возвращающий логические ключи в исходном порядке. Служебные ключи не должны попадать в сериализованный YAML.
+  Для raw парсер проверяет контейнер, помещает `$значение` в смысловые данные, а `$xml` и признак наличия смыслового значения — в аннотацию. Если `$значение` отсутствует, ключ всё равно остаётся адресуемым со значением `undefined`. Сериализатор выполняет обратное преобразование. Для повторных ключей до `js-yaml.load` заменять каждый тегированный ключ внутренним уникальным ключом. В таблице хранить его логическое имя и номер; наружу предоставить `xmlAnnotatedMappingEntries`, возвращающий логические ключи в исходном порядке.
 
 - [ ] **Step 4: Протащить таблицу через разбор и сериализацию**
 
-  Добавить `annotations` в `ParsedYaml`, `ParsedYamlData` и `SerializedYAMLDocument`. Сделать второй параметр `serializeYAMLDocument(source, annotations?)` необязательным, чтобы обычные вызовы не менялись. До атомарного переключения Task 11 прежние XML-теги продолжают читать существующие функции; новый код их не создаёт и не преобразует. Property-state теги `!проверять` и `!изменять` оставить отдельным механизмом.
+  Добавить `annotations` в `ParsedYaml`, `ParsedYamlData` и `SerializedYAMLDocument`. Сделать второй параметр `serializeYAMLDocument(source, annotations?)` необязательным, чтобы обычные вызовы не менялись. До атомарного переключения Task 12 прежние XML-теги продолжают читать существующие функции; новый код их не создаёт и не преобразует. Property-state теги `!проверять` и `!изменять` оставить отдельным механизмом.
 
 - [ ] **Step 5: Проверить точный повторный разбор**
 
@@ -105,6 +123,8 @@
 ---
 
 ## Task 2: Разбирать XML без потери структуры
+
+**Статус:** реализовано и соответствует спецификации.
 
 **Files:**
 
@@ -180,6 +200,8 @@
 
 ## Task 3: Добавить общий raw-кодек и защищённое объединение XML
 
+**Статус:** кодек, сравнение и объединение реализованы по прежнему договору; на рекурсивную `$xml`-поправку их переводит Task 9.
+
 **Files:**
 
 - Create: `packages/runtime/xml/structure/rawCodec.ts`
@@ -193,7 +215,7 @@
 
 - [ ] **Step 1: Зафиксировать полный raw-договор тестами**
 
-  Покрыть scalar, `null`, `_`-атрибуты, `#text`, `#name`, `#order`, массив повторных детей, полный путь `Properties\\Future`, терминалы `#attributes` и `#order`. Проверить отказ при XML-декларации/DOCTYPE внутри свойства, пересечении с обычным выводом, повторной записи пути, неверном порядке и перекрывающихся raw-границах.
+  Покрыть обязательный контейнер `{ $значение?, $xml }`, `$xml: null`, рекурсивные добавление/замену/удаление, `_`-атрибуты, `#text`, `#name`, `#order`, массив повторных детей, полный путь `Properties\\Future`, терминалы `#attributes` и `#order`. Проверить отказ для пустого raw, отсутствующего `$xml`, неизвестного `$...`-поля, XML-декларации/DOCTYPE, повторной записи пути, неверного порядка и перекрывающихся raw-границ.
 
 - [ ] **Step 2: Подтвердить падение**
 
@@ -204,23 +226,23 @@
 - [ ] **Step 3: Реализовать нормализованный фрагмент**
 
   ```ts
-  export type XmlRawValue =
+  export type XmlPatchValue =
     | string
     | null
-    | readonly XmlRawValue[]
-    | Readonly<Record<string, XmlRawValue>>
+    | readonly XmlPatchValue[]
+    | Readonly<Record<string, XmlPatchValue>>
 
-  export interface XmlRawFragment {
-    readonly nodes: readonly XmlElementNode[]
-    readonly suppressOrdinaryOutput: boolean
+  export interface XmlRawEnvelope {
+    readonly semanticValue?: unknown
+    readonly xml: XmlPatchValue
   }
   ```
 
-  `decodeXmlRawValue` принимает только договорённые YAML-формы и возвращает нормализованные узлы. `null` означает явное отсутствие известного XML-места и разрешён только как корневой payload. YAML number и boolean запрещены: XML-текст вроде `01`, `true` и `null` хранится строкой. Не принимать raw на ключе.
+  `decodeXmlRawEnvelope` отделяет `$значение` от `$xml`. При наличии `$значение` XML является поправкой к обычному экспорту; без него — полным деревом границы. `null` в корне `$xml` удаляет всю границу, во вложенном mapping — соответствующую XML-часть. YAML number и boolean внутри `$xml` запрещены. Не принимать raw на ключе и не поддерживать генератор без явного `$xml`.
 
 - [ ] **Step 4: Реализовать структурное сравнение и слияние**
 
-  Сравнение возвращает минимальные несовпадающие пути и использует хэши для равных поддеревьев. Слияние работает через журнал занятых путей и сначала проверяет все операции, затем применяет их; частично изменённый XML при ошибке недопустим.
+  Сравнение возвращает минимальную поправку `$xml`: отсутствующий ключ ничего не меняет, null удаляет, scalar/sequence заменяют, mapping применяется рекурсивно. Применение работает через журнал занятых путей и сначала проверяет все операции; частично изменённый XML при ошибке недопустим.
 
 - [ ] **Step 5: Проверить кодек**
 
@@ -240,6 +262,8 @@
 
 ## Task 4: Скомпилировать `XmlAnomalyRuntime` рядом с rules
 
+**Статус:** runtime и его композиция реализованы; отменённые `compactRaw` и `hiddenSingletonName` удаляет Task 9.
+
 **Files:**
 
 - Create: `packages/runtime/metadata/ruleRuntime/xmlAnomaly/contracts.ts`
@@ -255,9 +279,9 @@
 - Create: `packages/runtime/metadata/ruleRuntime/ruleRegistrySet.test.ts`
 - Modify: `packages/runtime/index.ts`
 
-- [ ] **Step 1: Описать три вида частных регистраций**
+- [ ] **Step 1: Оставить только регистрацию important**
 
-  Падающими тестами проверить компактный raw-генератор, обязательный important и скрытое внешнее имя singleton. Проверить конфликт двух регистраций одной границы и отсутствие concrete-условий внутри runtime.
+  Удалить `compactRaw` и `hiddenSingletonName` из contracts, registry и runtime вместе с тестами генераторов. Падающими тестами проверить обязательный important, конфликт двух регистраций одной границы и отсутствие concrete-условий внутри runtime. Raw и внешнее имя не требуют частной регистрации: они самодостаточно выражены `$xml` и `#name`.
 
 - [ ] **Step 2: Подтвердить падение**
 
@@ -268,10 +292,7 @@
 - [ ] **Step 3: Реализовать отдельный вклад композиции**
 
   ```ts
-  export type XmlAnomalyRegistration =
-    | XmlCompactRawRegistration
-    | XmlImportantRegistration
-    | XmlHiddenSingletonNameRegistration
+  export type XmlAnomalyRegistration = XmlImportantRegistration
 
   export type XmlAnomalyBoundary =
     | { readonly propertyType: string }
@@ -280,9 +301,9 @@
 
   `MetadataRulesDefinition.xmlAnomalies` является массивом вкладов. Компилятор строит карты по типу свойства и паре `itemType/propertyKey`, проверяет неоднозначность при создании `RuleRegistrySet` и возвращает `registry.xmlAnomalies`. Не добавлять новые поля в PropertyRule.
 
-- [ ] **Step 4: Проверить детерминированность компактного raw**
+- [ ] **Step 4: Проверить отсутствие скрытого восстановления raw**
 
-  Runtime дважды вызывает генератор на одном замороженном наборе входов и сравнивает структурные хэши. Несовпадение блокирует сборку rules. Все входы генератора перечислены регистрацией и извлекаются через существующий путь PropertyRule.
+  Тестом запретить `compactRaw`, пустой raw и обращение экспорта raw к source XML, reference snapshot либо специальному генератору. Всё восстановление обязано определяться `$значение` и `$xml`.
 
 - [ ] **Step 5: Проверить слой**
 
@@ -301,6 +322,8 @@
 ---
 
 ## Task 5: Аудировать владение XML и изолировать сбой PropertyRule
+
+**Статус:** реализовано и соответствует спецификации.
 
 **Files:**
 
@@ -336,7 +359,7 @@
 
 - [ ] **Step 5: Проверить alias, повторы и неизвестные узлы**
 
-  Отдельными тестами зафиксировать canonical вместе с alias, два singleton, неизвестный ребёнок и неизвестный атрибут. Они должны остаться разными результатами аудита до классификации, а не общей ошибкой assignment.
+  Отдельными тестами зафиксировать canonical вместе с alias, два singleton, неизвестный ребёнок и неизвестный атрибут. Они должны остаться разными результатами аудита до классификации, а не общей ошибкой задания.
 
 - [ ] **Step 6: Запустить слой**
 
@@ -356,6 +379,8 @@
 
 ## Task 6: Сохранять повторы именованных коллекций и неизвестные XML-пути
 
+**Статус:** сохранение повторов и XML-путей реализовано; Task 9 меняет raw-payload, а Tasks 10–11 переносят назначение invalid с импорта на позднюю валидацию.
+
 **Files:**
 
 - Create: `packages/runtime/metadata/ruleRuntime/xmlAnomaly/yamlProjection.ts`
@@ -371,7 +396,7 @@
 
 - [ ] **Step 1: Зафиксировать проекцию дублей**
 
-  Для трёх реквизитов с именем `Код` ожидать обычный первый ключ, затем `!xml/invalid Код`, затем `!xml/invalid/2 Код`. Для двух одновременно невалидных имён `1Код` сохранять тот же адресный ряд: отдельный класс ошибки в ключ не кодируется.
+  Для трёх реквизитов с именем `Код` до валидации ожидать три внутренних вхождения с одним `logicalKey` и номерами `0`, `1`, `2`, без публичных тегов. Ни один item не должен попасть в `Object.fromEntries`. После структурной валидации и окончательной проекции ожидать обычный первый ключ, затем `!xml/invalid Код`, затем `!xml/invalid/2 Код`. Для двух одновременно невалидных имён `1Код` сохранять тот же адресный ряд: отдельный класс ошибки в ключ не кодируется.
 
 - [ ] **Step 2: Зафиксировать неизвестные многоуровневые части**
 
@@ -379,13 +404,13 @@
 
   ```yaml
   Properties\Future: !xml/raw
-    _mode: x
-    "#text": "42"
-  Properties\Future\#attributes: !xml/raw
-    _extra: y
+    $xml:
+      _mode: x
+      _extra: y
+      "#text": "42"
   ```
 
-  `Properties` не появляется отдельным смысловым свойством YAML. Иерархия относится только к XML-узлам; атрибуты находятся лишь в конечном `#attributes`.
+  `Properties` не появляется отдельным смысловым свойством YAML. Иерархия относится только к XML-узлам. У служебного ключа нет `$значение`: обязательный `$xml` хранит всё дерево ближайшей неизвестной границы, включая её атрибуты, текст и детей.
 
 - [ ] **Step 3: Подтвердить падение**
 
@@ -395,7 +420,7 @@
 
 - [ ] **Step 4: Использовать общий адаптер отображений**
 
-  До сворачивания коллекции передавать все элементы в `projectNamedXmlCollection`; на чтении YAML использовать `xmlAnnotatedMappingEntries`. Обычный ключ остаётся первым каноническим item, а номера относятся только к дублям. Не вводить `#order` там, где порядок уже задаётся порядком YAML mapping.
+  До сворачивания коллекции передавать все элементы в `projectNamedXmlCollection` и сохранять внутреннюю последовательность `{ logicalKey, occurrence, value, source }`; на чтении окончательного YAML использовать `xmlAnnotatedMappingEntries`. Обычный ключ остаётся первым каноническим item, а номера относятся только к дублям. `projectNamedXmlCollection` не назначает invalid: решение и финальную проекцию выполняет структурный валидатор в Task 11. Не вводить `#order` там, где порядок уже задаётся порядком YAML mapping.
 
 - [ ] **Step 5: Проецировать остаток аудита на ближайшего владельца**
 
@@ -419,6 +444,8 @@
 
 ## Task 7: Встроить единое восстановление в полную и частичную синхронизацию
 
+**Статус:** общий путь полной и частичной синхронизации реализован; Task 9 переводит его на обычный экспорт `$значение` с последующим применением `$xml`.
+
 **Files:**
 
 - Create: `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.ts`
@@ -435,7 +462,7 @@
 
 - [ ] **Step 1: Написать общие сценарии экспорта**
 
-  Проверить, что invalid/important передают payload обычному `fromYAML/toXML`, expanded raw вставляет фрагмент, `!xml/raw null` подавляет обычный default, пустой raw вызывает ровно один компактный генератор, скрытое `Имя: !xml/raw` меняет внешнее XML-имя. Один и тот же YAML должен дать структурно одинаковый XML в full и partial sync.
+  Проверить, что invalid/important передают значение обычному `fromYAML/toXML`; raw с `$значение` сначала экспортирует его, затем рекурсивно применяет `$xml`; `$xml: null` подавляет обычный default; raw без `$значение` создаёт полное дерево; `$xml.#name` меняет внешнее имя. Пустой raw и отсутствующий `$xml` отклоняются. Один и тот же YAML должен дать структурно одинаковый XML в full и partial sync.
 
 - [ ] **Step 2: Подтвердить падение**
 
@@ -445,11 +472,11 @@
 
 - [ ] **Step 3: Сохранять аннотации подготовленного YAML**
 
-  `PreparedYamlFile` хранит `ParsedYaml`, а не только `.data`, либо явно хранит пару `{ data, annotations }`. Не восстанавливать теги повторным поиском текста. Перед обычной сборкой assignment runtime создаёт смысловой вид без raw-границ; invalid/important остаются обычными значениями.
+  `PreparedYamlFile` хранит `ParsedYaml`, а не только `.data`, либо явно хранит пару `{ data, annotations }`. Не восстанавливать теги повторным поиском текста. Перед обычной сборкой задания runtime заменяет raw-контейнеры их `$значение`; границы без `$значение` исключаются из обычного экспорта. Invalid/important остаются обычными значениями.
 
 - [ ] **Step 4: Применять raw после обычного экспорта**
 
-  `PreparedXMLDocument` получает план raw-вставок. После завершения всех deferred XML `writeAssignment` вызывает общий `mergeXmlRawFragments` и только затем `xmlExport`. Ошибка договора тега или коллизия блокирует запись всего assignment.
+  `PreparedXMLDocument` получает план XML-поправок. После завершения всех deferred XML `writeAssignment` рекурсивно применяет `$xml`: null удаляет, scalar/sequence заменяют, mapping изменяет только перечисленные части. Для raw без `$значение` `$xml` создаёт полную границу. Ошибка договора или коллизия блокирует запись всего задания.
 
 - [ ] **Step 5: Подтвердить общий путь partial sync**
 
@@ -471,7 +498,9 @@
 
 ---
 
-## Task 8: Выполнять контрольный экспорт один раз на assignment
+## Task 8: Выполнять терпимый контрольный экспорт один раз на задание
+
+**Статус:** один экспорт на задание, локализация, ограниченный подъём границы и атомарный отказ реализованы; Task 9 меняет результат доказательства на минимальную `$xml`-поправку.
 
 **Files:**
 
@@ -487,7 +516,7 @@
 
 - [ ] **Step 1: Зафиксировать доказательство обратимости**
 
-  Проверить: точный boolean/string/number остаётся обычным YAML; `01`, неизвестный `xsi:type`, лишний ребёнок и default/presence mismatch локализуются в raw; понятное, но недопустимое значение пока остаётся смысловым кандидатом. Счётчик обязан показать один обычный YAML → XML экспорт на assignment независимо от числа PropertyRule.
+  Проверить: точный boolean/string/number остаётся обычным YAML; `01`, неизвестный `xsi:type`, лишний ребёнок и default/presence mismatch локализуются в raw; понятное, но недопустимое значение пока остаётся смысловым кандидатом. Сбой экспорта одного свойства не должен скрывать независимых соседей. Счётчик обязан показать один обычный YAML → XML экспорт на задание независимо от числа PropertyRule.
 
 - [ ] **Step 2: Подтвердить падение**
 
@@ -495,13 +524,13 @@
 
   Expected: контрольного экспорта и локализации различий нет.
 
-- [ ] **Step 3: Сохранить компактный аудит между проходами**
+- [ ] **Step 3: Сохранить аудит между проходами**
 
-  В worker Map хранить смысловой YAML, таблицу аннотаций, хэши XML-границ, координаты и пути исходных файлов. Не удерживать полное структурное дерево после первого прохода. Расширенный raw извлекать повторным чтением только соответствующего исходного XML-файла.
+  В worker Map хранить смысловой YAML, таблицу аннотаций, хэши XML-границ, координаты и пути исходных файлов. Не удерживать полное структурное дерево после первого прохода. Явную минимальную поправку `$xml` извлекать повторным чтением только соответствующего исходного XML-файла.
 
 - [ ] **Step 4: Выполнить обычный экспорт без исходного XML**
 
-  Использовать тот же `prepareAssignment/writeAssignment` runtime в режиме in-memory proof, но отключить raw fallback и reference snapshot. Сравнить полученное дерево с аудит-хэшами; поднимать несовпавшую границу по одному уровню, не поглощая независимые соседние аннотации.
+  Использовать тот же `prepareAssignment/writeAssignment` runtime в режиме доказательства в памяти, но отключить raw и reference snapshot. Экспортировать свойства в изолируемые границы, чтобы ошибка одной границы не останавливала сравнение остальных. Сравнить полученное дерево с исходным и построить минимальную `$xml`-поправку. При понятном значении сохранить его как `$значение`; при полностью непонятной границе сохранить полное дерево без `$значение`. Поднимать границу по одному уровню, не поглощая независимые соседние аннотации.
 
 - [ ] **Step 5: Ограничить попытки доказательства**
 
@@ -509,11 +538,11 @@
 
 - [ ] **Step 6: Запустить слой**
 
-  Run: `pnpm --filter @nkdk/rules exec vitest run --project unit metadata/importFromXml/anomalyProof.test.ts`
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/importFromXml/anomalyProof.test.ts`
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/importFromXml/controlExport.integration.test.ts metadata/importFromXml/prepareYaml.integration.test.ts metadata/importFromXml/worker.integration.test.ts`
 
-  Expected: PASS; счётчик контрольного экспорта равен числу успешных assignments.
+  Expected: PASS; счётчик контрольного экспорта равен числу успешных заданий.
 
 - [ ] **Step 7: Проверить и зафиксировать**
 
@@ -525,7 +554,105 @@
 
 ---
 
-## Task 9: Разделить import на три worker-прохода и два барьера индекса
+## Task 9: Перевести работающую основу на окончательный raw-договор
+
+**Статус:** не реализовано; эта задача является обязательным переходом между уже написанной основой Tasks 1–8 и последующими проходами импорта.
+
+**Files:**
+
+- Modify: `packages/runtime/yaml/xmlAnomalyAnnotations.ts`
+- Modify: `packages/runtime/yaml/xmlAnomalyAnnotations.test.ts`
+- Modify: `packages/runtime/yaml/jsYamlParser.ts`
+- Modify: `packages/runtime/yaml/jsYamlParser.test.ts`
+- Modify: `packages/runtime/yaml/export.ts`
+- Modify: `packages/runtime/yaml/export.test.ts`
+- Modify: `packages/runtime/yaml/scalarTags.ts`
+- Modify: `packages/runtime/xml/structure/rawCodec.ts`
+- Modify: `packages/runtime/xml/structure/rawCodec.test.ts`
+- Modify: `packages/runtime/xml/structure/compare.ts`
+- Modify: `packages/runtime/xml/structure/compare.test.ts`
+- Modify: `packages/runtime/xml/structure/merge.ts`
+- Modify: `packages/runtime/xml/structure/merge.test.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/xmlAnomaly/contracts.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/xmlAnomaly/registry.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/xmlAnomaly/registry.test.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/xmlAnomaly/runtime.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/xmlAnomaly/runtime.test.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/xmlAnomaly/yamlProjection.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/xmlAnomaly/yamlProjection.test.ts`
+- Modify: `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.ts`
+- Modify: `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts`
+- Modify: `packages/rules/metadata/importFromXml/anomalyProof.ts`
+- Modify: `packages/rules/metadata/importFromXml/anomalyProof.test.ts`
+- Modify: `packages/rules/metadata/importFromXml/controlExport.integration.test.ts`
+- Modify: `packages/rules/metadata/partialSyncToXml/finalizePartialXmlSyncPackage.integration.test.ts`
+
+- [ ] **Step 1: Зафиксировать публичный YAML-договор**
+
+  Падающими тестами покрыть raw со смысловым значением и без него:
+
+  ```yaml
+  Количество: !xml/raw
+    $значение: 1
+    $xml:
+      "#text": "01"
+  Properties\Future: !xml/raw
+    $xml:
+      _mode: new
+      "#text": "42"
+  ```
+
+  После разбора `Количество` равно числу `1`, а аннотация хранит `$xml` и `hasSemanticValue: true`. Служебный XML-путь остаётся адресуемым со значением `undefined` и `hasSemanticValue: false`. Сериализация точно восстанавливает оба контейнера. Отдельно ожидать ошибку для пустого raw, raw без `$xml`, неизвестного `$...`-ключа, raw на ключе и raw на корне metadata item.
+
+- [ ] **Step 2: Подтвердить падение договора**
+
+  Run: `pnpm --filter @nkdk/runtime exec vitest run --project unit yaml/xmlAnomalyAnnotations.test.ts yaml/jsYamlParser.test.ts yaml/export.test.ts xml/structure/rawCodec.test.ts xml/structure/compare.test.ts xml/structure/merge.test.ts metadata/ruleRuntime/xmlAnomaly/registry.test.ts metadata/ruleRuntime/xmlAnomaly/runtime.test.ts metadata/ruleRuntime/xmlAnomaly/yamlProjection.test.ts`
+
+  Expected: тесты падают, потому что аннотация не хранит `$xml`, raw-payload ещё заменяет смысловое значение, а runtime принимает `compactRaw` и `hiddenSingletonName`.
+
+- [ ] **Step 3: Отделить смысловое значение от XML-поправки**
+
+  Расширить `XmlAnomalyAnnotation` полями `xml?: XmlPatchValue` и `hasSemanticValue?: boolean`. Парсер помещает `$значение` в обычное YAML-дерево, а `$xml` — только в таблицу аннотаций. Сериализатор выполняет обратную проекцию. Удалить обработку `!xml/raw` как свободного scalar/mapping/sequence payload; остальные старые `!xml/*` до Task 12 не трогать.
+
+- [ ] **Step 4: Перевести кодек на рекурсивную поправку**
+
+  Ввести `decodeXmlRawEnvelope`, который проверяет только `{$значение?, $xml}`. При наличии `$значение` сравнение строит минимальную `$xml`-поправку к обычному экспорту; без `$значение` `$xml` кодирует полное дерево границы. Применение поправки сначала проверяет все операции, затем атомарно выполняет добавление, замену и удаление по правилам спецификации.
+
+- [ ] **Step 5: Удалить скрытое восстановление XML**
+
+  В `XmlAnomalyRegistration` оставить только `XmlImportantRegistration`. Удалить `XmlCompactRaw*`, `XmlHiddenSingletonNameRegistration`, `generateCompactRaw`, `allowsHiddenSingletonName`, кэш генераторов и их входы. Нестандартное внешнее имя singleton выражать только через `$xml."#name"`; пустой raw-генератор не заменять новым скрытым механизмом.
+
+- [ ] **Step 6: Перевести проекцию и доказательство импорта**
+
+  `projectXmlAuditRemainder` создаёт служебный ключ полного XML-пути и помещает полное дерево ближайшей неизвестной границы в `annotation.xml`, не в смысловое YAML-значение. `proveXmlAnomalyBoundaries` для понятной границы сохраняет смысл и минимальную поправку; для непонятной — полное XML-дерево без смысла. Корневой raw и пересечение с независимым PropertyRule остаются фатальными.
+
+- [ ] **Step 7: Перевести полный и частичный экспорт**
+
+  При `hasSemanticValue: true` передавать смысловое значение обычному fromYAML/toXML, а после экспорта применять `annotation.xml`. При `hasSemanticValue: false` не запускать PropertyRule для значения, но сохранять адрес и применять полный `$xml`. Одинаковую сборку документа использовать в full sync, partial sync и контрольном экспорте.
+
+- [ ] **Step 8: Запустить переходный слой**
+
+  Run: `pnpm --filter @nkdk/runtime exec vitest run --project unit yaml/xmlAnomalyAnnotations.test.ts yaml/jsYamlParser.test.ts yaml/export.test.ts xml/structure/rawCodec.test.ts xml/structure/compare.test.ts xml/structure/merge.test.ts metadata/ruleRuntime/xmlAnomaly/registry.test.ts metadata/ruleRuntime/xmlAnomaly/runtime.test.ts metadata/ruleRuntime/xmlAnomaly/yamlProjection.test.ts`
+
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/importFromXml/anomalyProof.test.ts metadata/importFromXml/controlExport.integration.test.ts metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts metadata/partialSyncToXml/finalizePartialXmlSyncPackage.integration.test.ts`
+
+  Expected: PASS; в тестах и production-коде нет пустого raw, корневого raw, `compactRaw`, `hiddenSingletonName` и raw-payload без `$xml`.
+
+- [ ] **Step 9: Проверить и зафиксировать переход**
+
+  Run: `pnpm --filter @nkdk/runtime type-check`
+
+  Run: `pnpm --filter @nkdk/rules type-check`
+
+  Run: `pnpm duplicates -- --base c0cf08c81`
+
+  Commit: `refactor(runtime): ♻️ перевести raw на явную XML-поправку`
+
+---
+
+## Task 10: Разделить import на три worker-прохода и два барьера индекса
+
+**Статус:** не реализовано; текущий импорт имеет два worker-прохода и один барьер индекса.
 
 **Files:**
 
@@ -545,12 +672,12 @@
   Ожидаемая последовательность:
 
   ```text
-  firstPass -> commitWorkingIndex -> secondPass
-  -> commitSemanticIndex -> classifyImportedIssues -> thirdPass
-  -> finalize
+  firstPass -> commitWorkingIndex -> proofPass
+  -> commitSemanticIndex -> validateImportedProject -> finalPass
+  -> finalProofForChangedRaw -> finalize
   ```
 
-  Проверить запрет раннего третьего прохода, поздних записей в предыдущую фазу, повторного barrier, потерянного assignment и любого неразрешённого pending.
+  Проверить запрет раннего третьего прохода, поздних записей в предыдущую фазу, повторного барьера, потерянного задания и любого неразрешённого pending.
 
 - [ ] **Step 2: Подтвердить падение**
 
@@ -564,7 +691,9 @@
 
 - [ ] **Step 4: Разделить обязанности worker**
 
-  Первый проход импортирует и публикует рабочие факты. Второй завершает deferred, выполняет контрольный экспорт, выбирает raw и публикует окончательные смысловые факты без записи YAML. Третий принимает готовые решения invalid/important, проверяет договор аннотаций, сериализует и пишет YAML ровно один раз.
+  Первый проход импортирует черновой смысловой YAML, карту владения и публикует рабочие факты. До схлопывания mapping он сохраняет повторные ключи как внутренние адресуемые вхождения, а для отсутствующих ожидаемых свойств резервирует targets `missing`; публичных invalid/important ещё нет. Второй проход завершает deferred, выполняет терпимый контрольный экспорт, выбирает минимальные raw-границы и публикует окончательные смысловые факты без записи YAML. Третий принимает решения invalid/important общей валидации, проецирует таблицу в окончательные YAML-ключи и пустые значения, проверяет договор аннотаций, выполняет завершающее доказательство точного XML и только затем сериализует и пишет YAML ровно один раз.
+
+  Именованный item с raw внутри не исчезает из структурного индекса. Его ключ, вид и адрес публикуются как обычные факты; неизвестными считаются только данные под raw. Если raw поднят до всего значения item, запрещено строить внутренние факты из payload, но само наличие именованного item сохраняется.
 
 - [ ] **Step 5: Сделать отказ атомарным**
 
@@ -586,16 +715,26 @@
 
 ---
 
-## Task 10: Классифицировать ошибки как invalid/important и изменить валидацию
+## Task 11: Классифицировать ошибки как invalid/important и изменить валидацию
+
+**Статус:** не реализовано; структурированных `ValidationIssue`, обхода rules.ts и поздней классификации тегов ещё нет.
 
 **Files:**
 
+- Create: `packages/runtime/metadata/validation/validationIssue.ts`
+- Create: `packages/runtime/metadata/validation/validationIssue.test.ts`
 - Create: `packages/runtime/metadata/validation/xmlAnomalyBoundary.ts`
 - Create: `packages/runtime/metadata/validation/xmlAnomalyBoundary.test.ts`
 - Create: `packages/rules/metadata/importFromXml/classifyImportedIssues.ts`
 - Create: `packages/rules/metadata/importFromXml/classifyImportedIssues.test.ts`
 - Create: `packages/rules/metadata/validation/xmlAnomalyContract.ts`
 - Create: `packages/rules/metadata/validation/xmlAnomalyContract.integration.test.ts`
+- Create: `packages/rules/metadata/validation/metadataRuleValidator.ts`
+- Create: `packages/rules/metadata/validation/metadataRuleValidator.test.ts`
+- Modify: `packages/runtime/metadata/validation/validationSchema.ts`
+- Modify: `packages/runtime/metadata/validation/typeboxValidationCompiler.ts`
+- Modify: `packages/rules/metadata/validation/typeboxValidationCompiler.test.ts`
+- Modify: `packages/runtime/metadata/validation/typeboxErrorsToDiagnostics.ts`
 - Modify: `packages/runtime/metadata/validation/validateFile.ts`
 - Modify: `packages/runtime/metadata/validation/validateFile.test.ts`
 - Modify: `packages/rules/metadata/validation/projectValidationPasses.ts`
@@ -606,39 +745,53 @@
 
 - [ ] **Step 1: Ввести внутреннюю структурированную ошибку**
 
-  Падающими тестами зафиксировать, что внутренний результат содержит `yamlPath`, код и признак `semantic | infrastructure`, а публичный `Diagnostic` остаётся прежним. Только semantic-ошибка импортированного значения может стать invalid/important; сбой валидатора, повреждённый индекс и unresolved pending остаются фатальными.
+  В `validationIssue.ts` определить `ValidationIssue` с `code`, `kind: "semantic" | "infrastructure"`, обязательным `target`, необязательными `relatedPaths` и структурированными `params`. Target является объединением обычного `path`, отсутствующего `missing` и конкретного `occurrence` повторного mapping-ключа. Падающими тестами зафиксировать, что классификация не меняется при замене текста сообщения. Публичный `Diagnostic` остаётся прежним и создаётся из issue только на внешней границе. Только semantic-ошибка импортированного значения может стать invalid/important; сбой валидатора, повреждённый индекс и unresolved pending остаются фатальными.
 
-- [ ] **Step 2: Зафиксировать подавление и необходимость тега**
+- [ ] **Step 2: Ввести общий валидатор по rules.ts**
 
-  Проверить четыре случая: ошибочное значение без тега даёт обычную ошибку; то же импортированное значение с invalid не даёт внутренней ошибки; корректное значение с invalid/important/raw даёт `xml/anomaly-tag-unnecessary`; неверный important даёт `xml/important-not-registered` или `xml/important-required`. Диагностики внутри аномальной границы не должны вычисляться и выводиться.
+  На основе `metadataRuleYamlTraversal` добавить единый обход смыслового YAML по MetadataItemRule и PropertyRule. Он проверяет обязательные и неизвестные свойства, выбирает nested rule для объектов и коллекций и вызывает локальную TypeBox-проверку конкретного значения. Для скаляра проверяется всё значение; для объекта или коллекции локальная проверка не должна рекурсивно проверять детей — их состав и схемы обходит сам валидатор. Проверки PropertyRule компилировать один раз при сборке среды метаданных и переиспользовать между файлами. Не компилировать цельную изменённую схему для каждого файла или сочетания raw.
 
-- [ ] **Step 3: Подтвердить падение**
+  Перед обработкой свойства читать `XmlAnomalyAnnotations`: raw с `$значение` проверять и обходить как обычное смысловое значение, полностью исключая только `$xml`; raw без `$значение` считать присутствующим, но не проверять предметно. Invalid/important внутри `$значение` проверять обычным правилом. Неизвестный путь под raw пропускать только при подтверждённом договоре XML-границы, обычный неизвестный ключ возвращать как структурированную ошибку.
 
-  Run: `pnpm --filter @nkdk/runtime exec vitest run --project unit metadata/validation/xmlAnomalyBoundary.test.ts metadata/validation/validateFile.test.ts`
+  Падающими тестами проверить: boolean в `$значение` проверяется; `$xml` не проверяется; raw без `$значение` удовлетворяет required, но не создаёт предметных фактов; invalid внутри `$значение` подтверждается; соседнее свойство всё равно проверяется; TypeBox родителя не заходит в `$xml`; неизвестный обычный ключ ошибочен, а подтверждённая неизвестная raw-граница не проверяется; компиляции зависят от числа разных PropertyRule, а не от числа файлов и raw-значений.
 
-  Run: `pnpm --filter @nkdk/rules exec vitest run --project unit metadata/importFromXml/classifyImportedIssues.test.ts metadata/validation/projectStateDependencyValidation.test.ts`
+- [ ] **Step 3: Сохранить структурированные ошибки TypeBox**
 
-  Expected: validation знает прежние частные теги и выдаёт диагностики вместо классификационных решений.
+  Для каждой локальной ошибки TypeBox без разбора `message` перенести `keyword` в код `schema.<keyword>`, путь свойства и локальный `instancePath` объединить в `target.path`, а `params` сохранить целиком. `required` связывать с заранее созданным target `missing`; `propertyNames` и `uniqueItems` разворачивать в отдельные адресуемые issue по сведениям `params`. Проверку `additionalProperties` выполняет структурный обход rules.ts, потому что только он различает обычный неизвестный ключ и подтверждённую raw-границу. `schemaPath` использовать только для внутренней привязки к правилу.
 
-- [ ] **Step 4: Классифицировать после окончательного индекса**
+  Падающими тестами проверить `type`, `maxLength`, `enum`, отсутствующее свойство, неверное имя ключа, повторы массива и две независимые ошибки одного файла. Для `anyOf`/`oneOf` с дискриминатором ожидать ошибки только выбранной nested rule ветви. Отдельно доказать, что изменение `Locale` и текста `message` не меняет ни код, ни пути, ни параметры.
 
-  Координатор группирует structured issues по project path и YAML-границе. По умолчанию создаётся invalid; important выбирается только при точном совпадении с регистрацией. Повторы коллекций уже invalid по адресу и не требуют important. Решения передаются соответствующему worker третьего прохода.
+- [ ] **Step 4: Зафиксировать подавление и необходимость тега**
 
-- [ ] **Step 5: Проверять договор самих тегов отдельно**
+  Проверить: ошибочное значение без тега даёт обычную ошибку; то же импортированное значение с invalid вычисляет ту же внутреннюю ошибку на точно совпавшем target, но не выводит её повторно; несколько semantic issue одного target требуют один тег, пока остаётся хотя бы одна из них; корректное значение с invalid/important даёт `xml/anomaly-tag-unnecessary`; неверный important даёт `xml/important-not-registered` или `xml/important-required`. Родительский тег не подавляет issue дочернего target. Межполевой валидатор обязан явно назначить target и relatedPaths. Raw с `$значение` участвует во всех этих проверках, raw без него пропускает только зависимые предметные проверки.
 
-  `xmlAnomalyContract` проверяет место, payload, нумерацию, регистрацию important, восстановимость и необходимость. Для raw выполняется изолированный экспорт/повторный импорт границы; для invalid/important тег временно снимается. Пробные внутренние диагностики наружу не выходят и YAML автоматически не меняют.
+- [ ] **Step 5: Подтвердить падение**
 
-- [ ] **Step 6: Запустить слой**
+  Run: `pnpm --filter @nkdk/runtime exec vitest run --project unit metadata/validation/validationIssue.test.ts metadata/validation/xmlAnomalyBoundary.test.ts metadata/validation/validateFile.test.ts`
 
-  Run: `pnpm --filter @nkdk/runtime exec vitest run --project unit metadata/validation/xmlAnomalyBoundary.test.ts metadata/validation/validateFile.test.ts`
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project unit metadata/validation/metadataRuleValidator.test.ts metadata/validation/typeboxValidationCompiler.test.ts metadata/importFromXml/classifyImportedIssues.test.ts metadata/validation/projectStateDependencyValidation.test.ts`
 
-  Run: `pnpm --filter @nkdk/rules exec vitest run --project unit metadata/importFromXml/classifyImportedIssues.test.ts metadata/validation/projectStateDependencyValidation.test.ts`
+  Expected: общего обхода rules.ts ещё нет, публичный `Diagnostic` теряет `keyword` и `params`, а остальные проверки выдают диагностики вместо классификационных решений.
+
+- [ ] **Step 6: Классифицировать после окончательного индекса**
+
+  После `commitSemanticIndex()` координатор запускает те же правила валидации, что обычная проверка проекта, и группирует `ValidationIssue` по project path и явно назначенному target. TypeBox, resolver, проверки ссылок, уникальности, повторов и межполевые правила обязаны возвращать issue до форматирования текста. Структурный валидатор читает внутреннюю таблицу вхождений: target `occurrence` превращает первый дубль в `!xml/invalid`, следующие — в `/2`, `/3`; target `missing` превращается в пустой `!xml/invalid`, если доказательство экспорта не выбрало raw null. По умолчанию создаётся invalid; important выбирается только при точном совпадении с регистрацией. Common-импортёры не повторяют JSON Schema, resolver, отборы ссылок и межполевые ограничения. Решения передаются соответствующему worker третьего прохода.
+
+- [ ] **Step 7: Проверять договор самих тегов отдельно**
+
+  `xmlAnomalyContract` проверяет место, контейнер, нумерацию, регистрацию important, восстановимость и необходимость. Для invalid/important тег временно снимается и запускается та же проверка значения. Raw обязан содержать `$xml`; `$значение`, если оно есть, проходит обычную проверку, а `$xml` — только форматную и экспортную. Завершающий экспорт изменённых границ обязан доказать, что без `$xml` различие остаётся, а после поправки XML структурно равен исходному. Пустой raw, неизвестное `$...`-поле и избыточная поправка дают ошибку договора.
+
+- [ ] **Step 8: Запустить слой**
+
+  Run: `pnpm --filter @nkdk/runtime exec vitest run --project unit metadata/validation/validationIssue.test.ts metadata/validation/xmlAnomalyBoundary.test.ts metadata/validation/validateFile.test.ts`
+
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project unit metadata/validation/metadataRuleValidator.test.ts metadata/validation/typeboxValidationCompiler.test.ts metadata/importFromXml/classifyImportedIssues.test.ts metadata/validation/projectStateDependencyValidation.test.ts`
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/validation/xmlAnomalyContract.integration.test.ts`
 
   Expected: PASS.
 
-- [ ] **Step 7: Проверить и зафиксировать**
+- [ ] **Step 9: Проверить и зафиксировать**
 
   Run: `pnpm type-check`
 
@@ -648,7 +801,9 @@
 
 ---
 
-## Task 11: Перенести известные случаи и удалить прежний механизм
+## Task 12: Перенести известные случаи и удалить прежний механизм
+
+**Статус:** не реализовано; прежние XML-теги и реестры остаются в production-коде.
 
 **Files:**
 
@@ -684,9 +839,9 @@
 
   На существующих XML-фикстурах проверить минимум: `HeaderHorizontalAlign=Auto`, `SystemEnumeration Switch`, RowFilter `xsi:nil`, I8nText с повторным языком, metadataItem с синтаксически корректной, но несуществующей целью, broken reference, explicit empty/default, нестандартное singleton-имя и повтор реквизитов.
 
-- [ ] **Step 3: Зарегистрировать только действительно частные решения**
+- [ ] **Step 3: Оставить только действительно частные решения**
 
-  RowFilter и другие однозначные компактные формы получают `compactRaw`; случаи с явно согласованной ценностью получают `important`; внешнее имя singleton получает `hiddenSingletonName`. Все остальные ошибки классифицируются общим runtime без специальных кодов.
+  RowFilter, HeaderHorizontalAlign, контекстные коллекции и внешнее имя singleton получают явный `$xml` без регистраций `compactRaw` и `hiddenSingletonName`. В реестре остаются только случаи с явно согласованной ценностью `important`. Все остальные ошибки классифицируются общим runtime без специальных кодов.
 
 - [ ] **Step 4: Удалить прежние теги одним переключением**
 
@@ -720,7 +875,9 @@
 
 ---
 
-## Task 12: Проверить семейства common-типов, rules и производительность
+## Task 13: Проверить семейства common-типов, rules и производительность
+
+**Статус:** не реализовано; итоговая матрица, round-trip, профиль и обновление `.agents/architecture.md` выполняются после функциональных задач.
 
 **Files:**
 
@@ -737,7 +894,7 @@
 
 - [ ] **Step 2: Проверить общие инварианты**
 
-  Для каждой мутации утверждать одно из трёх: обычный YAML точно восстанавливает XML; импорт выдаёт минимальный raw; импорт выдаёт обратимый invalid/important. Потеря XML, обычная диагностика внутри корректного тега и неразрешённый кандидат запрещены.
+  Для каждой мутации утверждать одно из трёх: обычный YAML точно восстанавливает XML; импорт выдаёт минимальный raw внутри распознанного объекта; импорт выдаёт обратимый invalid/important. Потеря XML, обычная диагностика внутри корректного тега и неразрешённый кандидат запрещены. Неизвестный XML-root, неизвестный metadata item type и попытка raw на всём объекте или файле должны давать явную фатальную ошибку.
 
 - [ ] **Step 3: Проверить rules.ts на нескольких уровнях**
 
@@ -755,7 +912,7 @@
 
   Run: `node .agents/skills/import-profile/import-profile.mjs /Users/nikita/git/round-trip/cf/erp /Users/nikita/git/nkdk-yaml/cf --runs 1 --json`
 
-  Проверить профильные счётчики: один control export на успешный assignment; повторный разбор XML только для файлов с expanded raw; отсутствие цикла по 1839 PropertyRule с отдельным round-trip.
+  Проверить профильные счётчики: один контрольный экспорт на успешное задание; дополнительная проверка только изменённых raw-границ; повторный разбор XML только для файлов с `$xml`; отсутствие цикла по 1839 PropertyRule с отдельным round-trip.
 
 - [ ] **Step 6: Полная проверка перед завершением**
 

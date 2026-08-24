@@ -14,6 +14,14 @@ export interface XmlRawMapping {
 
 export type XmlRawValue = string | null | readonly XmlRawValue[] | XmlRawMapping
 
+export type XmlPatchValue = XmlRawValue
+
+export interface XmlRawEnvelope {
+  readonly semanticValue: unknown
+  readonly hasSemanticValue: boolean
+  readonly xml: XmlPatchValue
+}
+
 export interface XmlRawFragment {
   readonly nodes: readonly XmlElementNode[]
   readonly suppressOrdinaryOutput: boolean
@@ -33,6 +41,136 @@ export interface XmlRawAttribute {
 export interface XmlRawAttributes {
   readonly attributes: readonly XmlRawAttribute[]
   readonly order?: readonly string[]
+}
+
+export function decodeXmlRawEnvelope(value: unknown): XmlRawEnvelope {
+  if (!isRecord(value)) {
+    throw new Error("!xml/raw должен содержать YAML mapping с обязательным $xml")
+  }
+  for (const key of Object.keys(value)) {
+    if (key !== "$значение" && key !== "$xml") {
+      throw new Error(`Неизвестное служебное поле !xml/raw: ${key}`)
+    }
+  }
+  if (!Object.prototype.hasOwnProperty.call(value, "$xml")) {
+    throw new Error("!xml/raw должен содержать обязательное поле $xml")
+  }
+  const xml = value["$xml"]
+  assertXmlPatchValue(xml, "$xml")
+  return {
+    semanticValue: value["$значение"],
+    hasSemanticValue: Object.prototype.hasOwnProperty.call(value, "$значение"),
+    xml,
+  }
+}
+
+function assertXmlPatchValue(value: unknown, path: string): asserts value is XmlPatchValue {
+  if (value === null || typeof value === "string") return
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertXmlPatchValue(item, `${path}[${index}]`))
+    return
+  }
+  if (isRecord(value)) {
+    for (const [key, item] of Object.entries(value)) {
+      assertXmlPatchValue(item, `${path}.${key}`)
+    }
+    return
+  }
+  throw new Error(`${path} принимает только строки, null, массивы и mapping`)
+}
+
+export function applyXmlPatch(
+  ordinary: Exclude<XmlRawValue, null>,
+  patch: XmlPatchValue,
+): XmlRawValue {
+  if (patch === null || typeof patch === "string" || Array.isArray(patch)) return patch
+  if (!isRecord(patch)) throw new Error("XML-поправка должна иметь допустимую YAML-форму")
+
+  const base: Record<string, XmlRawValue> = isRecord(ordinary)
+    ? { ...ordinary }
+    : { "#text": ordinary }
+  for (const [key, patchValue] of Object.entries(patch)) {
+    if (patchValue === null) {
+      delete base[key]
+      continue
+    }
+    const ordinaryValue = base[key]
+    base[key] = ordinaryValue === undefined || ordinaryValue === null
+      ? patchValue
+      : applyXmlPatch(ordinaryValue, patchValue)
+  }
+  return base
+}
+
+export function encodeXmlRawElement(
+  element: XmlElementNode,
+  defaultName = element.name,
+): Exclude<XmlRawValue, null> {
+  const attributes: Record<string, XmlRawValue> = {}
+  for (const attribute of element.attributes) attributes[`_${attribute.name}`] = attribute.value
+
+  const structured = element.content.filter(
+    (node): node is XmlElementNode | XmlProcessingInstructionNode => node.type !== "text",
+  )
+  const textNodes = element.content.filter(
+    (node): node is XmlTextNode => node.type === "text",
+  )
+  const textValues = textNodes.map(({ value }) => value)
+  if (
+    element.name === defaultName &&
+    structured.length === 0 &&
+    element.attributes.length === 0
+  ) {
+    return textNodes.length === 0 ? {} : textValues.join("")
+  }
+
+  const result: Record<string, XmlRawValue> = {
+    ...(element.name === defaultName ? {} : { "#name": element.name }),
+    ...attributes,
+  }
+  if (textNodes.length > 0) {
+    result["#text"] = textValues.length === 1 ? textValues[0]! : textValues
+  }
+  const valuesByKey = new Map<string, XmlRawValue[]>()
+  const keyOrder: string[] = []
+  for (const child of element.content) {
+    if (child.type === "text") {
+      keyOrder.push("#text")
+      continue
+    }
+    const key = child.type === "element" ? child.name : `?${child.target}`
+    const values = valuesByKey.get(key) ?? []
+    values.push(
+      child.type === "element"
+        ? encodeXmlRawElement(child)
+        : encodeXmlRawProcessingInstruction(child),
+    )
+    valuesByKey.set(key, values)
+    keyOrder.push(key)
+  }
+  for (const [key, values] of valuesByKey) {
+    result[key] = values.length === 1 ? values[0]! : values
+  }
+  const canonicalOrder = [
+    ...textValues.map(() => "#text"),
+    ...[...valuesByKey].flatMap(([key, values]) => values.map(() => key)),
+  ]
+  if (canonicalOrder.some((key, index) => key !== keyOrder[index])) {
+    result["#order"] = keyOrder
+  }
+  return result
+}
+
+function encodeXmlRawProcessingInstruction(
+  node: XmlProcessingInstructionNode,
+): XmlRawValue {
+  const result: Record<string, string> = {}
+  for (const attribute of node.attributes) result[`_${attribute.name}`] = attribute.value
+  const reconstructed = node.attributes.map(({ name, value }) => `${name}="${value}"`).join(" ")
+  if (node.body.trim() !== reconstructed) {
+    throw new Error(`Processing instruction ${node.path} нельзя представить raw без потери body`)
+  }
+  return result
 }
 
 interface DraftXmlAttribute {

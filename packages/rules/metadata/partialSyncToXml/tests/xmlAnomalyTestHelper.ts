@@ -30,7 +30,12 @@ import { createOperationRegistrySet } from "../../operations/operationRegistrySe
 import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
 
 const sourceProjectPath = "Объект/Один/Свойства.yaml"
-const sourceBytes = new TextEncoder().encode('Значение: !xml/raw "01"\n')
+const sourceBytes = new TextEncoder().encode([
+  "Значение: !xml/raw",
+  "  $значение: ordinary",
+  '  $xml: { "#text": "01" }',
+  "",
+].join("\n"))
 const rootRule = {
   itemType: "PartialXmlAnomalyTestOwner",
   properties: {

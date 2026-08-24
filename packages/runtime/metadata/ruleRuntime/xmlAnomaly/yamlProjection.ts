@@ -1,9 +1,11 @@
 import type {
   XmlElementNode,
   XmlProcessingInstructionNode,
-  XmlTextNode,
 } from "../../../xml/import/document"
-import type { XmlRawValue } from "../../../xml/structure/rawCodec"
+import {
+  encodeXmlRawElement,
+  type XmlRawValue,
+} from "../../../xml/structure/rawCodec"
 import {
   appendXmlAnnotatedMappingEntry,
   createXmlAnomalyAnnotations,
@@ -106,7 +108,7 @@ export function projectXmlAuditRemainder(params: {
   )
   const projectedKeys = new Map<string, number>()
 
-  const appendRaw = (path: string, value: unknown): void => {
+  const appendRaw = (path: string, value: XmlRawValue): void => {
     if (existingKeys.has(path)) {
       throw new Error(`Raw XML-путь ${path} пересекается с обычной YAML-границей`)
     }
@@ -114,7 +116,7 @@ export function projectXmlAuditRemainder(params: {
     projectedKeys.set(path, previous + 1)
     appendXmlAnnotatedMappingEntry(params.yaml, params.annotations, {
       logicalKey: path,
-      value,
+      value: undefined,
       ...(previous === 0
         ? {}
         : {
@@ -123,7 +125,12 @@ export function projectXmlAuditRemainder(params: {
               occurrence: previous,
             },
           }),
-      valueAnnotation: { kind: "raw", occurrence: 1 },
+      valueAnnotation: {
+        kind: "raw",
+        occurrence: 1,
+        xml: value,
+        hasSemanticValue: false,
+      },
     })
   }
 
@@ -158,7 +165,7 @@ export function projectXmlAuditRemainder(params: {
       isUnknown(outcomes.get(attribute)?.state),
     )
     if (unknownAttributes.length > 0) {
-      const value: Record<string, unknown> = {}
+      const value: Record<string, XmlRawValue> = {}
       for (const attribute of unknownAttributes) value[`_${attribute.name}`] = attribute.value
       if (unknownAttributes.length !== element.attributes.length) {
         value["#order"] = element.attributes.map(({ name }) => `_${name}`)
@@ -353,8 +360,13 @@ function replaceStableOwnerYamlValue(params: {
     if (!Array.isArray(parent) || key < 0 || key >= parent.length) {
       throw new Error(`Для XML-границы ${params.xmlPath} не найден stable YAML owner`)
     }
-    parent[key] = params.value
-    params.annotations.set(parent, key, { kind: "raw", occurrence: 1, target: "value" })
+    params.annotations.set(parent, key, {
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+      xml: params.value,
+      hasSemanticValue: true,
+    })
     return
   }
   if (!isRecord(parent)) {
@@ -367,14 +379,24 @@ function replaceStableOwnerYamlValue(params: {
   if (runtimeKeys.length === 0) {
     appendXmlAnnotatedMappingEntry(parent, params.annotations, {
       logicalKey: key,
-      value: params.value,
-      valueAnnotation: { kind: "raw", occurrence: 1 },
+      value: undefined,
+      valueAnnotation: {
+        kind: "raw",
+        occurrence: 1,
+        xml: params.value,
+        hasSemanticValue: false,
+      },
     })
     return
   }
   const runtimeKey = runtimeKeys[0]!
-  parent[runtimeKey] = params.value
-  params.annotations.set(parent, runtimeKey, { kind: "raw", occurrence: 1, target: "value" })
+  params.annotations.set(parent, runtimeKey, {
+    kind: "raw",
+    occurrence: 1,
+    target: "value",
+    xml: params.value,
+    hasSemanticValue: true,
+  })
 }
 
 function yamlChildAt(
@@ -460,57 +482,5 @@ function formatPath(path: readonly string[]): string {
 }
 
 export function xmlElementRawValue(element: XmlElementNode): XmlRawValue {
-  const attributes: Record<string, XmlRawValue> = {}
-  for (const attribute of element.attributes) attributes[`_${attribute.name}`] = attribute.value
-
-  const structured = element.content.filter(
-    (node): node is XmlElementNode | XmlProcessingInstructionNode => node.type !== "text",
-  )
-  const textNodes = element.content.filter(
-    (node): node is XmlTextNode => node.type === "text",
-  )
-  const textValues = textNodes.map(({ value }) => value)
-  if (structured.length === 0 && element.attributes.length === 0) {
-    return textNodes.length === 0 ? {} : textValues.join("")
-  }
-
-  const result: Record<string, XmlRawValue> = { ...attributes }
-  if (textNodes.length > 0) {
-    result["#text"] = textValues.length === 1 ? textValues[0]! : textValues
-  }
-  const valuesByKey = new Map<string, XmlRawValue[]>()
-  const keyOrder: string[] = []
-  const retainedTextNodes = new Set(textNodes)
-  for (const child of element.content) {
-    if (child.type === "text") {
-      if (retainedTextNodes.has(child)) keyOrder.push("#text")
-      continue
-    }
-    const key = child.type === "element" ? child.name : `?${child.target}`
-    const values = valuesByKey.get(key) ?? []
-    values.push(
-      child.type === "element"
-        ? xmlElementRawValue(child)
-        : xmlProcessingInstructionRawValue(child),
-    )
-    valuesByKey.set(key, values)
-    keyOrder.push(key)
-  }
-  for (const [key, values] of valuesByKey) result[key] = values.length === 1 ? values[0]! : values
-  const canonicalOrder = [
-    ...textValues.map(() => "#text"),
-    ...[...valuesByKey].flatMap(([key, values]) => values.map(() => key)),
-  ]
-  if (canonicalOrder.some((key, index) => key !== keyOrder[index])) result["#order"] = keyOrder
-  return result
-}
-
-function xmlProcessingInstructionRawValue(node: XmlProcessingInstructionNode): XmlRawValue {
-  const result: Record<string, string> = {}
-  for (const attribute of node.attributes) result[`_${attribute.name}`] = attribute.value
-  const reconstructed = node.attributes.map(({ name, value }) => `${name}="${value}"`).join(" ")
-  if (node.body.trim() !== reconstructed) {
-    throw new Error(`Processing instruction ${node.path} нельзя представить raw без потери body`)
-  }
-  return result
+  return encodeXmlRawElement(element)
 }

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { serializeYAMLDocument } from "./export"
 import { parseMetadataYaml } from "./parseMetadataYaml"
 import {
   copyXmlAnomalyAnnotationsDeep,
@@ -8,22 +9,88 @@ import {
 } from "./xmlAnomalyAnnotations"
 
 describe("XML-аннотации YAML", () => {
+  it("отделяет смысловое значение raw от XML-поправки", () => {
+    const parsed = parseMetadataYaml([
+      "Количество: !xml/raw",
+      "  $значение: !xml/invalid 1",
+      "  $xml:",
+      '    "#text": "01"',
+      "Properties\\Future: !xml/raw",
+      "  $xml:",
+      "    _mode: new",
+      '    "#text": "42"',
+    ].join("\n"))
+    const data = parsed.data as Record<string, unknown>
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(data).toEqual({ Количество: 1, "Properties\\Future": undefined })
+    expect(parsed.annotations.at(data, "Количество")).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+      hasSemanticValue: true,
+      xml: { "#text": "01" },
+      semantic: { kind: "invalid", occurrence: 1 },
+    })
+    expect(parsed.annotations.at(data, "Properties\\Future")).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+      hasSemanticValue: false,
+      xml: { _mode: "new", "#text": "42" },
+    })
+  })
+
+  it("сохраняет аннотации детей внутри $значение", () => {
+    const parsed = parseMetadataYaml([
+      "Объект: !xml/raw",
+      "  $значение:",
+      "    Поле: !xml/invalid bad",
+      "  $xml:",
+      "    _future: x",
+    ].join("\n"))
+    const data = parsed.data as { Объект: Record<string, unknown> }
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(data).toEqual({ Объект: { Поле: "bad" } })
+    expect(parsed.annotations.at(data.Объект, "Поле")).toEqual({
+      kind: "invalid",
+      occurrence: 1,
+      target: "value",
+    })
+    expect(serializeYAMLDocument(data, parsed.annotations).text).toBe([
+      "Объект: !xml/raw",
+      "  $значение:",
+      "    Поле: !xml/invalid bad",
+      "  $xml:",
+      "    _future: x",
+    ].join("\n"))
+  })
+
   it("хранит теги значений отдельно от смысловых данных", () => {
     const parsed = parseMetadataYaml([
       "Флаг: !xml/invalid true",
       "Объект: !xml/raw",
-      "  _future: x",
-      '  "#text": "42"',
+      "  $значение:",
+      "    Текст: 42",
+      "  $xml:",
+      "    _future: x",
       "Значения: !xml/important",
       "  - Первый",
       "  - Второй",
     ].join("\n"))
-    const data = parsed.data as { Флаг: boolean; Объект: Record<string, string>; Значения: string[] }
+    const data = parsed.data as { Флаг: boolean; Объект: Record<string, number>; Значения: string[] }
 
     expect(parsed.syntaxErrors).toEqual([])
-    expect(data).toEqual({ Флаг: true, Объект: { _future: "x", "#text": "42" }, Значения: ["Первый", "Второй"] })
+    expect(data).toEqual({ Флаг: true, Объект: { Текст: 42 }, Значения: ["Первый", "Второй"] })
     expect(parsed.annotations.at(data, "Флаг")).toEqual({ kind: "invalid", occurrence: 1, target: "value" })
-    expect(parsed.annotations.at(data, "Объект")).toEqual({ kind: "raw", occurrence: 1, target: "value" })
+    expect(parsed.annotations.at(data, "Объект")).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+      hasSemanticValue: true,
+      xml: { _future: "x" },
+    })
     expect(parsed.annotations.at(data, "Значения")).toEqual({ kind: "important", occurrence: 1, target: "value" })
   })
 
@@ -58,10 +125,14 @@ describe("XML-аннотации YAML", () => {
       "Коллекция:",
       "  Код:",
       "    Дети:",
-      "      - Значение: !xml/raw value",
+      "      - Значение: !xml/raw",
+      "          $значение: value",
+      "          $xml: { \"#text\": raw-value }",
       "  !xml/invalid Код:",
       "    Дети:",
-      "      - Значение: !xml/raw second",
+      "      - Значение: !xml/raw",
+      "          $значение: second",
+      "          $xml: { \"#text\": raw-second }",
     ].join("\n"))
     const source = parsed.data as Record<string, unknown>
     const target = structuredClone(source)
@@ -80,17 +151,39 @@ describe("XML-аннотации YAML", () => {
     })
   })
 
-  it("различает компактный raw и raw null", () => {
-    const parsed = parseMetadataYaml("Компактный: !xml/raw\nОтсутствует: !xml/raw null")
+  it.each([
+    ["пустой raw", "Компактный: !xml/raw"],
+    ["raw null", "Отсутствует: !xml/raw null"],
+    ["raw без $xml", "Значение: !xml/raw\n  $значение: true"],
+    ["корневой raw", "!xml/raw\n$xml: { \"#text\": value }"],
+  ])("отклоняет %s", (_name, yaml) => {
+    const parsed = parseMetadataYaml(yaml)
+
+    expect(parsed.syntaxErrors).toHaveLength(1)
+  })
+
+  it("сохраняет $xml: null как удаление обычного XML-места", () => {
+    const parsed = parseMetadataYaml([
+      "Значение: !xml/raw",
+      "  $значение: default",
+      "  $xml: null",
+    ].join("\n"))
+    const data = parsed.data as Record<string, unknown>
 
     expect(parsed.syntaxErrors).toEqual([])
-    expect(parsed.data).toEqual({ Компактный: undefined, Отсутствует: null })
+    expect(parsed.annotations.at(data, "Значение")).toMatchObject({
+      kind: "raw",
+      xml: null,
+      hasSemanticValue: true,
+    })
   })
 
   it("восстанавливает аннотации после structured clone без повторного разбора YAML", () => {
     const parsed = parseMetadataYaml([
       "Коллекция:",
-      "  Код: !xml/raw value",
+      "  Код: !xml/raw",
+      "    $значение: value",
+      "    $xml: { \"#text\": raw-value }",
       "  !xml/invalid Код: !xml/important second",
     ].join("\n"))
     const transferred = structuredClone({

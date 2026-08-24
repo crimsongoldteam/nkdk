@@ -23,12 +23,14 @@ describe("parseMetadataYamlData", () => {
   })
 
   it("возвращает XML-аннотации без индекса координат", () => {
-    const parsed = parseMetadataYamlData("Значение: !xml/raw Текст")
+    const parsed = parseMetadataYamlData("Значение: !xml/raw\n  $значение: Текст\n  $xml: { \"#text\": raw }")
 
     expect(parsed.annotations.at(parsed.data as object, "Значение")).toEqual({
       kind: "raw",
       occurrence: 1,
       target: "value",
+      hasSemanticValue: true,
+      xml: { "#text": "raw" },
     })
   })
 })

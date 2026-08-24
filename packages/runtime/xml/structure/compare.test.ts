@@ -1,12 +1,29 @@
 import { describe, expect, it } from "vitest"
 import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
 import type { XmlElementNode } from "../import/document"
-import { compareXmlStructures } from "./compare"
+import { compareXmlStructures, createXmlElementPatch } from "./compare"
 
 const roots = (xml: string): readonly XmlElementNode[] =>
   parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }).roots
 
 describe("compareXmlStructures", () => {
+  it("builds a minimal recursive patch from ordinary export to source XML", () => {
+    const source = roots(
+      '<Value mode="new"><Known>kept</Known><Changed>new</Changed><Added>added</Added></Value>',
+    )[0]!
+    const ordinary = roots(
+      '<Value mode="old"><Known>kept</Known><Changed>old</Changed><Removed>gone</Removed></Value>',
+    )[0]!
+
+    expect(createXmlElementPatch(source, ordinary)).toEqual({
+      _mode: "new",
+      Changed: "new",
+      Added: "added",
+      Removed: null,
+      "#order": ["Known", "Changed", "Added"],
+    })
+  })
+
   it("confirms equal structural hashes with a deep comparison", () => {
     const original = roots("<Root><Value>one</Value></Root>")[0]!
     const originalValue = original.content.find(

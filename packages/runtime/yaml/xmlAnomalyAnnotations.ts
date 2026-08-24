@@ -1,12 +1,21 @@
 import { yamlMappingEntries } from "./mappingTags"
+import type { XmlRawValue } from "../xml/structure/rawCodec"
 
 export type XmlAnomalyKind = "raw" | "invalid" | "important"
+
+export interface XmlSemanticAnomalyAnnotation {
+  readonly kind: "invalid" | "important"
+  readonly occurrence: number
+}
 
 export interface XmlAnomalyAnnotation {
   readonly kind: XmlAnomalyKind
   readonly occurrence: number
   readonly target: "root" | "value" | "key"
   readonly logicalKey?: string
+  readonly xml?: XmlRawValue
+  readonly hasSemanticValue?: boolean
+  readonly semantic?: XmlSemanticAnomalyAnnotation
 }
 
 export interface XmlAnomalyAnnotationEntry {
