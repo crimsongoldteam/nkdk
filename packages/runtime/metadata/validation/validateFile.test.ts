@@ -3,7 +3,7 @@ import { Type, type TSchema } from "typebox"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
-import { validateFile, validateParsedFile } from "./validateFile"
+import { validateFile, validateParsedFile, validateParsedFileWithIssues } from "./validateFile"
 import type { ValidationSchemaValidator } from "./compileValidationSchema"
 
 // Простая схема для юнит-тестов — не зависит от доменных правил каталогов
@@ -134,7 +134,7 @@ describe("validateFile", () => {
   it("обнаруживает синтаксическую ошибку YAML", () => {
     const text = `Имя: [незакрытая скобка\n`
     const result = validateFile({ filePath: "test.yaml", text, schema: simpleSchema })
-    expect(result).toHaveLength(1)
+    expect(result.length).toBeGreaterThan(0)
     expect(result[0]).toMatchObject({
       filePath: "test.yaml",
       source: "syntax",
@@ -407,10 +407,10 @@ describe("validateFile", () => {
 
     const result = validateFile({ filePath: "test.yaml", text, schema: plainUnionSchema })
 
-    expect(result).toHaveLength(1)
+    expect(result.length).toBeGreaterThan(0)
     expect(result[0]).toMatchObject({ source: "structure", severity: "error" })
     const [, errors] = plainUnionSchema.Errors({ Вид: "Второй", Число: "не-число" })
-    expect(errors).toHaveLength(1)
+    expect(errors.length).toBeGreaterThan(0)
   })
 })
 
@@ -424,5 +424,111 @@ describe("validateParsedFile", () => {
     const result = validateParsedFile({ filePath: "test.yaml", parsed, schema: simpleSchema })
 
     expect(result).toEqual([])
+  })
+
+  it("не проверяет raw без $значение, но продолжает проверять соседей", () => {
+    const schema = compileValidationSchema(Type.Object({
+      Использовать: Type.Boolean(),
+      Заголовок: Type.String(),
+    }, { additionalProperties: false }))
+    const parsed = parseMetadataYaml(`
+Использовать: !xml/raw
+  $xml:
+    _custom: x
+Заголовок: 42
+`)
+
+    const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
+
+    expect(result.issues).toEqual([expect.objectContaining({
+      code: "schema.type",
+      target: { kind: "path", path: ["Заголовок"] },
+    })])
+    expect(result.diagnostics).toEqual([expect.objectContaining({ path: "/Заголовок" })])
+  })
+
+  it("проверяет смысловое $значение raw", () => {
+    const schema = compileValidationSchema(Type.Object({ Использовать: Type.Boolean() }))
+    const parsed = parseMetadataYaml(`
+Использовать: !xml/raw
+  $значение: неверно
+  $xml:
+    _custom: x
+`)
+
+    expect(validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema }).issues)
+      .toEqual([expect.objectContaining({ target: { kind: "path", path: ["Использовать"] } })])
+  })
+
+  it("invalid подавляет только ошибку точно помеченного значения", () => {
+    const schema = compileValidationSchema(Type.Object({
+      Использовать: Type.Boolean(),
+      Вложенный: Type.Object({ Значение: Type.String() }),
+    }))
+    const parsed = parseMetadataYaml(`
+Использовать: !xml/invalid неверно
+Вложенный: !xml/invalid
+  Значение: 42
+`)
+
+    const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
+
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "schema.type",
+        target: { kind: "path", path: ["Вложенный", "Значение"] },
+      }),
+      expect.objectContaining({
+        code: "xml/anomaly-tag-unnecessary",
+        target: { kind: "path", path: ["Вложенный"] },
+      }),
+    ])
+    expect(result.diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: "/Вложенный/Значение" }),
+    ]))
+  })
+
+  it("считает тег invalid лишним, если значение правильно", () => {
+    const schema = compileValidationSchema(Type.Object({ Использовать: Type.Boolean() }))
+    const parsed = parseMetadataYaml(`Использовать: !xml/invalid true\n`)
+
+    const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
+
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "xml/anomaly-tag-unnecessary",
+        target: { kind: "path", path: ["Использовать"] },
+      }),
+    ])
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({ path: "/Использовать", source: "structure" }),
+    ])
+  })
+
+  it("проверяет регистрацию important", () => {
+    const schema = compileValidationSchema(Type.Object({ Использовать: Type.Boolean() }))
+    const parsed = parseMetadataYaml(`Использовать: !xml/important неверно\n`)
+
+    const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
+
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "xml/important-not-registered",
+        target: { kind: "path", path: ["Использовать"] },
+      }),
+    ])
+  })
+
+  it("проверяет invalid внутри смыслового значения raw", () => {
+    const schema = compileValidationSchema(Type.Object({ Использовать: Type.Boolean() }))
+    const parsed = parseMetadataYaml(`
+Использовать: !xml/raw
+  $значение: !xml/invalid неверно
+  $xml:
+    _custom: x
+`)
+
+    expect(validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema }))
+      .toMatchObject({ diagnostics: [], issues: [] })
   })
 })

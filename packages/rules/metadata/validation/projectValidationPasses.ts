@@ -9,7 +9,7 @@ import type { ConfigurationContext } from "@nkdk/runtime"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { decodeValidationSchemaKey, stripCollectedSchemaRefs } from "../ruleRuntime/jsonSchemaRefs"
-import { parseMetadataYaml, type ParsedYaml } from "@nkdk/runtime"
+import { evaluateParsedXmlAnomalyBoundaries, parseMetadataYaml, type ParsedYaml } from "@nkdk/runtime"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldIndex, type ObjectFieldKind } from "./dataPath/objectFields"
@@ -33,9 +33,10 @@ import { getConfigurationValidationProjectSpec, getValidationProjectSpecs } from
 import type { ValidationFormIndexContribution, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
+import { validationIssuePathFromPointer, type ValidationIssue } from "@nkdk/runtime"
 import type { TSchema } from "typebox"
 import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
-import { validateParsedFile } from "./validateFile"
+import { validateParsedFileWithIssues } from "./validateFile"
 import {
   extractValidationYamlFacts,
   type LocalValueValidationProfile,
@@ -108,6 +109,7 @@ export interface ProjectValidationFirstPassResult {
   structuredComponents?: readonly FormStructuredComponent[]
   structuredDocuments?: readonly import("../projectState/contracts/fileUpdate").ProjectStateStructuredDocumentEntry[]
   diagnostics: Diagnostic[]
+  issues: ValidationIssue[]
   profile?: ProjectValidationFirstPassProfile
 }
 
@@ -805,11 +807,12 @@ function validateProjectFormFirstPass(
   const schemaStartedAt = performance.now()
   const compatibilityMode = params.propertyStateCompatibilityMode
     ?? extensionCompatibilityMode(params.file, params.cache)
-  const schemaDiagnostics = validateProjectFileSchema({
+  const schemaValidation = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
     schema: formSchemaForFile(params.schemaCache, params.file, compatibilityMode),
   })
+  const schemaDiagnostics = schemaValidation.diagnostics
   const schemaMs = performance.now() - schemaStartedAt
   if (schemaDiagnostics.some((diagnostic) => diagnostic.source === "syntax")) {
     return failedFirstPass(params.file, schemaDiagnostics, {
@@ -836,7 +839,17 @@ function validateProjectFormFirstPass(
   }
 
   const facts = extractFirstPassFacts(params, entry, compatibilityMode)
-  const diagnostics = [...schemaDiagnostics, ...facts.diagnostics]
+  const parsed = parsedForProjectFile(params.file, entry.parsed)
+  const evaluated = evaluateParsedXmlAnomalyBoundaries({
+    filePath: entry.filePath,
+    parsed,
+    diagnostics: [...schemaDiagnostics, ...facts.diagnostics],
+    issues: [
+      ...schemaValidation.issues,
+      ...facts.diagnostics.map(validationIssueFromDiagnostic),
+    ],
+  })
+  const diagnostics = evaluated.diagnostics
 
   return {
     state: {
@@ -849,6 +862,7 @@ function validateProjectFormFirstPass(
     schemaDiagnostics,
     contributedFacts: true,
     diagnostics,
+    issues: evaluated.issues,
     objectRecords: facts.objectRecords,
     objectIndexEntries: facts.objectIndexEntries,
     memberIndexEntries: facts.memberIndexEntries,
@@ -906,7 +920,7 @@ function validateProjectPropertiesFirstPass(
       file: params.file,
       cache: params.cache,
       schema: propertiesSchemaForFile(params.schemaCache, params.file, compatibilityMode),
-    })
+    }).diagnostics
     const schemaMs = performance.now() - schemaStartedAt
     return failedFirstPass(
       params.file,
@@ -924,12 +938,13 @@ function validateProjectPropertiesFirstPass(
 
   const parsed = parsedForProjectFile(params.file, entry.parsed)
   const schemaStartedAt = performance.now()
-  const baseSchemaDiagnostics = validateProjectFileSchema({
+  const schemaValidation = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
     schema: propertiesSchemaForFile(params.schemaCache, params.file, compatibilityMode),
     parsed,
   })
+  const baseSchemaDiagnostics = schemaValidation.diagnostics
   const schemaDiagnostics = baseSchemaDiagnostics
   const schemaMs = performance.now() - schemaStartedAt
   if (entry.parsed.syntaxErrors.length > 0) {
@@ -948,22 +963,34 @@ function validateProjectPropertiesFirstPass(
     parsed,
     runtime: params.runtime,
   })
+  const requiredIssues = requiredDiagnostics.map(validationIssueFromDiagnostic)
   const validatorsMs = performance.now() - validatorsStartedAt
   if (requiredDiagnostics.length > 0) {
-    const diagnostics = [...schemaDiagnostics, ...requiredDiagnostics]
-    return failedFirstPass(
-      params.file,
-      diagnostics,
-      {
-        ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
-        totalMs: performance.now() - totalStartedAt,
-        cacheMs,
-        schemaMs,
-        validatorsMs,
-        diagnostics: diagnostics.length,
-      },
-      schemaDiagnostics
-    )
+    const evaluated = evaluateParsedXmlAnomalyBoundaries({
+      filePath: entry.filePath,
+      parsed,
+      diagnostics: [...schemaDiagnostics, ...requiredDiagnostics],
+      issues: [
+        ...schemaValidation.issues,
+        ...requiredIssues,
+      ],
+    })
+    const diagnostics = evaluated.diagnostics
+    if (diagnostics.length > 0) {
+      return failedFirstPass(
+        params.file,
+        diagnostics,
+        {
+          ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+          totalMs: performance.now() - totalStartedAt,
+          cacheMs,
+          schemaMs,
+          validatorsMs,
+          diagnostics: diagnostics.length,
+        },
+        schemaDiagnostics
+      )
+    }
   }
 
   const equalNameValidationName =
@@ -981,11 +1008,23 @@ function validateProjectPropertiesFirstPass(
   const equalNameMs = performance.now() - equalNameStartedAt
   const facts = extractFirstPassFacts(params, { ...entry, parsed }, compatibilityMode)
   const publishedSchemaDiagnostics = suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics)
-  const diagnostics = [
+  const unevaluatedDiagnostics = [
     ...publishedSchemaDiagnostics,
     ...equalNameDiagnostics,
     ...facts.diagnostics,
   ]
+  const evaluated = evaluateParsedXmlAnomalyBoundaries({
+    filePath: entry.filePath,
+    parsed,
+    diagnostics: unevaluatedDiagnostics,
+    issues: [
+      ...schemaValidation.issues,
+      ...requiredIssues,
+      ...equalNameDiagnostics.map(validationIssueFromDiagnostic),
+      ...facts.diagnostics.map(validationIssueFromDiagnostic),
+    ],
+  })
+  const diagnostics = evaluated.diagnostics
 
   return {
     state: {
@@ -998,6 +1037,7 @@ function validateProjectPropertiesFirstPass(
     schemaDiagnostics: publishedSchemaDiagnostics,
     contributedFacts: true,
     diagnostics,
+    issues: evaluated.issues,
     objectIndexEntries: facts.objectIndexEntries,
     memberIndexEntries: facts.memberIndexEntries,
     valueIndexEntries: facts.valueIndexEntries,
@@ -1051,6 +1091,7 @@ function failedFirstPass(
     schemaDiagnostics,
     contributedFacts: false,
     diagnostics,
+    issues: diagnostics.map(validationIssueFromDiagnostic),
     objectRecords: [],
     objectIndexEntries: [],
     memberIndexEntries: [],
@@ -1221,27 +1262,40 @@ function validateProjectFileSchema(params: {
   cache: ProjectYamlCache
   schema: CompiledSchema
   parsed?: ParsedYaml
-}): Diagnostic[] {
+}): { diagnostics: Diagnostic[]; issues: ValidationIssue[] } {
   const entry = params.cache.get(params.file.absolutePath)
   if ("error" in entry) {
-    return [
-      {
+    const diagnostic = {
         filePath: entry.filePath,
         line: 1,
         col: 1,
         severity: "error",
         source: "external-file",
         message: `Не удалось прочитать YAML-файл: ${entry.error.message}`,
-      },
-    ]
+      } satisfies Diagnostic
+    return { diagnostics: [diagnostic], issues: [validationIssueFromDiagnostic(diagnostic)] }
   }
 
-  return validateParsedFile({
+  return validateParsedFileWithIssues({
     filePath: entry.filePath,
     parsed: params.parsed ?? entry.parsed,
     schema: params.schema,
+    evaluateXmlAnomalies: false,
   })
 }
+
+function validationIssueFromDiagnostic(diagnostic: Diagnostic): ValidationIssue {
+  return {
+    code: `diagnostic.${diagnostic.source}`,
+    kind: diagnostic.source === "syntax" || diagnostic.source === "external-file"
+      ? "infrastructure"
+      : "semantic",
+    target: { kind: "path", path: validationIssuePathFromPointer(diagnostic.path ?? "") },
+    params: { message: diagnostic.message },
+  }
+}
+
+
 
 function parsedForProjectFile(file: ValidationProjectFile, parsed: ParsedYaml): ParsedYaml {
   if (file.kind === "properties" && parsed.syntaxErrors.length === 0 && parsed.data === undefined) {

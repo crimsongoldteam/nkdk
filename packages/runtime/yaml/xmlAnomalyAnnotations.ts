@@ -30,6 +30,7 @@ export interface XmlAnomalyAnnotations {
   keyAt(parent: object, runtimeKey: string): XmlAnomalyAnnotation | undefined
   entries(): Iterable<XmlAnomalyAnnotationEntry>
   copy(source: object, target: object): void
+  set(parent: object, key: string | number, annotation: XmlAnomalyAnnotation): void
 }
 
 export interface XmlAnomalyAnnotationSnapshotEntry {
@@ -75,26 +76,33 @@ export class XmlAnomalyAnnotationTable implements XmlAnomalyAnnotations {
 
   setRoot(annotation: XmlAnomalyAnnotation): void {
     this.#root = annotation
-    this.#entries.push({ parent: undefined, key: undefined, annotation })
+    this.#replaceEntry({ parent: undefined, key: undefined, annotation })
   }
 
   set(parent: object, key: string | number, annotation: XmlAnomalyAnnotation): void {
     const values = this.#values.get(parent) ?? new Map<string | number, XmlAnomalyAnnotation>()
     values.set(key, annotation)
     this.#values.set(parent, values)
-    this.#entries.push({ parent, key, annotation })
+    this.#replaceEntry({ parent, key, annotation })
   }
 
   setKey(parent: object, runtimeKey: string, annotation: XmlAnomalyAnnotation): void {
     const keys = this.#keys.get(parent) ?? new Map<string, XmlAnomalyAnnotation>()
     keys.set(runtimeKey, annotation)
     this.#keys.set(parent, keys)
-    this.#entries.push({ parent, key: runtimeKey, annotation })
+    this.#replaceEntry({ parent, key: runtimeKey, annotation })
   }
 
   copy(source: object, target: object): void {
     for (const [key, annotation] of this.#values.get(source) ?? []) this.set(target, key, annotation)
     for (const [key, annotation] of this.#keys.get(source) ?? []) this.setKey(target, key, annotation)
+  }
+
+  #replaceEntry(next: XmlAnomalyAnnotationEntry): void {
+    const index = this.#entries.findIndex(({ parent, key, annotation }) =>
+      parent === next.parent && key === next.key && annotation.target === next.annotation.target)
+    if (index < 0) this.#entries.push(next)
+    else this.#entries[index] = next
   }
 }
 

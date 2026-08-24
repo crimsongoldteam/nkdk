@@ -109,9 +109,11 @@ describe("compileTypeboxValidationSchema", () => {
   it("не преобразует обычный union без discriminator", () => {
     const validator = compileTypeboxValidationSchema({}, Type.Union([Type.String(), Type.Number()]))
 
-    expect(validator.Errors(false)[1]).toEqual([
+    expect(validator.Errors(false)[1]).toEqual(expect.arrayContaining([
       expect.objectContaining({ keyword: "type", schemaPath: "#/anyOf/0", instancePath: "" }),
-    ])
+      expect.objectContaining({ keyword: "type", schemaPath: "#/anyOf/1", instancePath: "" }),
+      expect.objectContaining({ keyword: "anyOf", schemaPath: "#", instancePath: "" }),
+    ]))
   })
 
   it.each([

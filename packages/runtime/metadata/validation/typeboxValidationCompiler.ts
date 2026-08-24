@@ -8,7 +8,6 @@ import type {
   ValidationSchemaValidator,
 } from "./validationSchema"
 
-const firstErrorMarker = Symbol("nkdk-first-validation-error")
 const selectedBranchMarker = Symbol("nkdk-selected-branch-error")
 
 interface SelectedBranchErrorPayload {
@@ -16,15 +15,12 @@ interface SelectedBranchErrorPayload {
   readonly error: ValidationSchemaError
 }
 
-interface FirstErrorSignal {
-  readonly marker: typeof firstErrorMarker
-  readonly error: ValidationSchemaError
-}
-
 interface DiscriminatorBranch {
   readonly schema: TSchema
   readonly value: string
 }
+
+type LocalizedValidationError = TValidationError & { readonly message: string }
 
 function asRefinementMessage(payload: SelectedBranchErrorPayload): string {
   return payload as unknown as string
@@ -393,13 +389,11 @@ function wrapCompiledValidator(compiled: {
     Errors(value) {
       if (compiled.Check(value)) return [true, []]
       const previousLocale = Locale.Get()
-      Locale.Set(createFirstErrorLocale(previousLocale))
+      Locale.Set(createCollectingLocale(previousLocale))
       try {
-        compiled.Errors(value)
-        throw new Error("TypeBox не вернул ошибку для невалидного значения")
-      } catch (caught) {
-        if (!isFirstErrorSignal(caught)) throw caught
-        return [false, [caught.error]]
+        const errors = compiled.Errors(value).map(toCollectedValidationSchemaError)
+        if (errors.length === 0) throw new Error("TypeBox не вернул ошибку для невалидного значения")
+        return [false, errors]
       } finally {
         Locale.Set(previousLocale)
       }
@@ -407,21 +401,21 @@ function wrapCompiledValidator(compiled: {
   }
 }
 
-function createFirstErrorLocale(previousLocale: TLocalizedValidationMessageCallback): TLocalizedValidationMessageCallback {
+function createCollectingLocale(previousLocale: TLocalizedValidationMessageCallback): TLocalizedValidationMessageCallback {
   return (sourceError) => {
     const payload = selectedBranchPayload(sourceError)
-    const error = payload === undefined
-      ? toValidationSchemaError(sourceError)
-      : {
-          ...payload.error,
-          instancePath: `${sourceError.instancePath}${payload.error.instancePath}`,
-          schemaPath: joinSchemaPaths(sourceError.schemaPath, payload.error.schemaPath),
-        }
-    const signal: FirstErrorSignal = {
-      marker: firstErrorMarker,
-      error: { ...error, message: previousLocale(error as TValidationError) },
-    }
-    throw signal
+    return payload === undefined ? previousLocale(sourceError) : previousLocale(payload.error as TValidationError)
+  }
+}
+
+function toCollectedValidationSchemaError(sourceError: LocalizedValidationError): ValidationSchemaError {
+  const payload = selectedBranchPayload(sourceError)
+  if (payload === undefined) return toValidationSchemaError(sourceError)
+  return {
+    ...payload.error,
+    instancePath: `${sourceError.instancePath}${payload.error.instancePath}`,
+    schemaPath: joinSchemaPaths(sourceError.schemaPath, payload.error.schemaPath),
+    message: sourceError.message,
   }
 }
 
@@ -433,13 +427,13 @@ function selectedBranchPayload(error: TValidationError): SelectedBranchErrorPayl
     : undefined
 }
 
-function toValidationSchemaError(error: TValidationError): ValidationSchemaError {
+function toValidationSchemaError(error: LocalizedValidationError): ValidationSchemaError {
   return {
     keyword: error.keyword,
     schemaPath: error.schemaPath,
     instancePath: error.instancePath,
     params: error.params as Record<string, unknown>,
-    message: "",
+    message: error.message,
   }
 }
 
@@ -451,10 +445,6 @@ function joinSchemaPaths(parent: string, child: string): string {
 
 function escapeJsonPointerSegment(value: string): string {
   return value.replaceAll("~", "~0").replaceAll("/", "~1")
-}
-
-function isFirstErrorSignal(value: unknown): value is FirstErrorSignal {
-  return isRecord(value) && value.marker === firstErrorMarker && isValidationSchemaError(value.error)
 }
 
 function isValidationSchemaError(value: unknown): value is ValidationSchemaError {

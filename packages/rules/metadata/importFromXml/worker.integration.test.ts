@@ -169,7 +169,6 @@ describe("XML import worker first pass", () => {
     if (scenario === undefined) throw new Error("Сценарий validation импортированного YAML не подготовлен")
     const {
       assignment,
-      fileDiagnostics,
       importDiagnostics,
       outputDir,
       result,
@@ -183,7 +182,7 @@ describe("XML import worker first pass", () => {
       "Expected union value",
       'Отсутствует обязательное свойство "Тип"',
     ]))
-    expect(importDiagnostics).toEqual(fileDiagnostics)
+    expect(importDiagnostics).toEqual([])
 
     expect(result.diagnostics).toEqual([])
     const fragments = result.configurationFragments
@@ -823,7 +822,9 @@ async function prepareReadyYamlValidationScenario() {
     ...diagnostic,
     filePath: `cf/${assignment.targetProjectPath}`,
   }))
-  if (result.stateFragment === undefined) throw new Error("Ожидался вклад состояния импортированного YAML")
+  if (result.stateFragment === undefined) {
+    throw new Error(`Ожидался вклад состояния импортированного YAML: ${JSON.stringify(result.diagnostics)}`)
+  }
 
   return {
     assignment,

@@ -51,6 +51,8 @@ export * from "./metadata/validation/sharedStringPool"
 export * from "./metadata/validation/structuralReferences"
 export * from "./metadata/validation/structuralYamlValue"
 export * from "./metadata/validation/validationSchema"
+export * from "./metadata/validation/validationIssue"
+export * from "./metadata/validation/xmlAnomalyBoundary"
 export {
   diagnosticAtYamlLocation,
   diagnosticAtYamlPath,

@@ -199,6 +199,23 @@ describe("XML-аннотации YAML", () => {
     expect(restored.at(collection, runtimeKeys[1]!)).toMatchObject({ kind: "important" })
   })
 
+  it("заменяет аннотацию границы без повторной записи в снимок", () => {
+    const parsed = parseMetadataYaml([
+      "Флаг: !xml/raw",
+      "  $значение: неверно",
+      "  $xml: { _custom: x }",
+    ].join("\n"))
+    const data = parsed.data as Record<string, unknown>
+    const raw = parsed.annotations.at(data, "Флаг")!
+
+    parsed.annotations.set(data, "Флаг", {
+      ...raw,
+      semantic: { kind: "invalid", occurrence: 1 },
+    })
+
+    expect(snapshotXmlAnomalyAnnotations(data, parsed.annotations).entries).toHaveLength(1)
+  })
+
   it.each([
     ["номер /1", "!xml/invalid/1 Код: { Тип: Строка }"],
     ["первый номер /2", "!xml/invalid/2 Код: { Тип: Строка }"],

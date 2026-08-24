@@ -93,6 +93,9 @@ import { resolveImportedMetadataTargetStatus } from "./metadataTargetLookup"
 import { executeImportControlExport } from "./controlExport"
 import type { XmlAnomalyProofAudit } from "./anomalyProof"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
+import { classifyImportedIssues } from "./classifyImportedIssues"
+import { applyImportedIssueDecisions } from "./applyImportedIssueDecisions"
+import type { ValidationIssue } from "@nkdk/runtime"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -655,14 +658,37 @@ async function prepareYamlForFinalPass(
   )
   prepared.yaml = proof.data
   prepared.annotations = restoreXmlAnomalyAnnotations(proof.data, proof.annotations)
-  const serialized = serializePreparedYaml(
+  let serialized = serializePreparedYaml(
     prepared.targetProjectPath,
     prepared.yaml,
     state,
     profiler,
     prepared.annotations,
   )
-  const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
+  let validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
+  const classified = classifyImportedIssues({
+    issues: validated.issues,
+    requiresImportant: () => false,
+  })
+  if (classified.fatal.length > 0) {
+    throw new Error(`Валидация импортированного YAML завершилась внутренней ошибкой: ${classified.fatal
+      .map(({ code }) => code).join(", ")}`)
+  }
+  if (classified.decisions.length > 0) {
+    applyImportedIssueDecisions({
+      data: prepared.yaml,
+      annotations: prepared.annotations,
+      decisions: classified.decisions,
+    })
+    serialized = serializePreparedYaml(
+      prepared.targetProjectPath,
+      prepared.yaml,
+      state,
+      profiler,
+      prepared.annotations,
+    )
+    validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
+  }
   const baseForm = preparedBaseFormCandidate === undefined
     ? undefined
     : prepareSerializedBaseFormCandidate({
@@ -1212,7 +1238,11 @@ function validateSerializedImportYaml(
   state: InitializedImportWorkerState,
   profiler: ValidationProfiler,
   indexContribution: "shared" | "isolated" = "shared",
-): { index: ProjectStateImportIndexContribution; final: ProjectStateImportFinalFileStateBatch } {
+): {
+  index: ProjectStateImportIndexContribution
+  final: ProjectStateImportFinalFileStateBatch
+  issues: readonly ValidationIssue[]
+} {
   const file = prepared.validationFile
   const first = profiler.measure(
     "Локальная валидация готового YAML",
@@ -1277,7 +1307,7 @@ function validateSerializedImportYaml(
       fileBackedTargets: importFileBackedTargets(state, prepared.targetProjectPath),
     }),
   )
-  return splitImportYamlUpdate(full, serialized.localHash)
+  return { ...splitImportYamlUpdate(full, serialized.localHash), issues: first.issues }
 }
 
 function importFileBackedTargets(
@@ -1299,7 +1329,11 @@ function measureSerializedImportYamlValidation(
   state: InitializedImportWorkerState,
   profiler: ValidationProfiler,
   indexContribution: "shared" | "isolated" = "shared",
-): { index: ProjectStateImportIndexContribution; final: ProjectStateImportFinalFileStateBatch } {
+): {
+  index: ProjectStateImportIndexContribution
+  final: ProjectStateImportFinalFileStateBatch
+  issues: readonly ValidationIssue[]
+} {
   return profiler.measure(
     "Подготовка импорта конфигурации",
     "Локальная валидация готового YAML",

@@ -232,7 +232,10 @@ function shouldExportAsExplicitString(value: string): boolean {
 
 function restoreUndefinedValues(yaml: string, undefinedValues: Set<string>): string {
   let result = yaml
-  for (const marker of undefinedValues) result = result.split(`: ${marker}`).join(":")
+  for (const marker of undefinedValues) {
+    result = result.split(`: ${marker}`).join(":")
+    result = result.split(` ${marker}`).join("")
+  }
   return result
 }
 
