@@ -455,6 +455,36 @@ describe("XML anomaly proof", () => {
     }))
   })
 
+  it("не поднимает локальное отсутствие до fallback внешнего XML-свойства", async () => {
+    const result = await proveExternalPropertyFallback({
+      source: "<Form><Attribute/></Form>",
+      exported: "<Form><Attribute><Settings/></Attribute></Form>",
+    })
+
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      parentPath: ["Форма", "Реквизиты", "Список"],
+      key: "ТипЗначения",
+      annotation: expect.objectContaining({ kind: "raw", xml: null }),
+    }))
+    expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+      parentPath: [],
+      key: "Форма",
+    }))
+  })
+
+  it("применяет fallback внешнего XML-свойства при остаточном расхождении", async () => {
+    const result = await proveExternalPropertyFallback({
+      source: "<Form><Attribute/><Future/></Form>",
+      exported: "<Form><Attribute><Settings/></Attribute></Form>",
+    })
+
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      parentPath: [],
+      key: "Форма",
+      annotation: expect.objectContaining({ kind: "raw" }),
+    }))
+  })
+
   it("планирует отсутствующее поле каждого physical item именованной коллекции", () => {
     const document = parseXmlDocumentWithSaxes([
       "<MetaDataObject><Catalog><ChildObjects><Attribute><Properties>",
@@ -1651,4 +1681,44 @@ function collisionYaml(kind: "ordinary" | "propertyState" | "important" | "dupli
     "Значение: 1",
     "Сосед: ok",
   ].join("\n"))
+}
+
+async function proveExternalPropertyFallback(params: {
+  readonly source: string
+  readonly exported: string
+}) {
+  const document = parseXmlDocumentWithSaxes(params.source)
+  const root = document.roots[0]!
+  const missingSettings: XmlAnomalyProofBoundary = {
+    sourcePath: formSourcePath,
+    sourceRole: "property",
+    xmlPath: "/Form[1]/Attribute[1]/Settings[1]",
+    yamlPath: ["Форма", "Реквизиты", "Список", "ТипЗначения"],
+    rulePath: ["form", "attributes", "valueType"],
+    presentInSource: false,
+  }
+  const fallback: XmlAnomalyProofBoundary = {
+    sourcePath: formSourcePath,
+    sourceRole: "property",
+    xmlPath: root.path,
+    yamlPath: ["Форма"],
+    rulePath: ["form"],
+    presentInSource: true,
+    targetPaths: [root.path],
+  }
+  return proveXmlAnomalyBoundaries({
+    data: { Форма: { Реквизиты: { Список: {} } } },
+    annotations: { version: 1, entries: [] },
+    audit: captureXmlAnomalyProofAudit({
+      sources: [{ sourcePath: formSourcePath, role: "property", document }],
+      boundaries: [missingSettings],
+      fallbackBoundaries: [fallback],
+    }),
+    exported: [{
+      role: "property",
+      sourcePath: formSourcePath,
+      document: parseXmlDocumentWithSaxes(params.exported),
+    }],
+    readSource: async () => params.source,
+  })
 }

@@ -28,6 +28,10 @@ import {
   type YAMLToXMLNestedRule,
 } from "@nkdk/runtime/rule-kit"
 import type { ImportXmlInput } from "./types"
+import {
+  transformedXmlRootsAreExact,
+  type XmlProofTransformation,
+} from "./xmlProofVerification"
 
 let xmlPathIndexVisitCountValueForTests = 0
 
@@ -921,6 +925,10 @@ export async function proveXmlAnomalyBoundaries(params: {
     params.exported.map(({ document }) => [document, indexXmlDocument(document.roots).nodes] as const),
   )
   const rereadSourcePaths: string[] = []
+  const transformations: XmlProofTransformation[] = []
+  const verificationSourcePaths = new Set(
+    (params.audit.fallbackBoundaries ?? []).map(({ sourcePath }) => sourcePath),
+  )
 
   const readDocument = async (sourcePath: string): Promise<XmlDocument> => {
     const cached = rereadDocuments.get(sourcePath)
@@ -938,14 +946,16 @@ export async function proveXmlAnomalyBoundaries(params: {
     return document
   }
 
-  const boundaries: XmlAnomalyProofBoundary[] = [...params.audit.boundaries]
-  if (params.rule !== undefined) {
-    const changedSourcePaths = new Set<string>()
-    for (const source of params.audit.sources) {
-      const exported = exportedDocumentForSource(params.exported, source)
-      if (exported === undefined || sourceRootsAreExact(source.roots, exported)) continue
+  const changedSourcePaths = new Set<string>()
+  for (const source of params.audit.sources) {
+    const exported = exportedDocumentForSource(params.exported, source)
+    if (exported !== undefined && !sourceRootsAreExact(source.roots, exported)) {
       changedSourcePaths.add(source.sourcePath)
     }
+  }
+
+  const boundaries: XmlAnomalyProofBoundary[] = [...params.audit.boundaries]
+  if (params.rule !== undefined) {
     if (changedSourcePaths.size > 0) {
       const sources: XmlAnomalyProofSource[] = []
       for (const source of params.audit.sources) {
@@ -969,13 +979,49 @@ export async function proveXmlAnomalyBoundaries(params: {
     const exported = singleExportedDocument(params.exported, boundary)
     if (exported === undefined) continue
     const exportedNodes = exportedElements.get(exported)
+    const semanticallyElided = isSemanticallyElidedAbsence(boundary, exportedNodes)
     const exact = boundary.presentInSource
-      ? isSemanticallyElidedAbsence(boundary, exportedNodes)
+      ? semanticallyElided
         || (isCapturedProofBoundary(boundary) && boundary.targets.length > 0 && boundary.targets.every((target) =>
           targetSignature(exportedNodes?.get(target.path), target.signature) === target.signature
         ))
       : exportedNodes?.get(boundary.xmlPath) === undefined
-    if (exact || hasRawAtOrAbovePath(annotationIndex, boundary.yamlPath)) continue
+    if (exact) {
+      if (semanticallyElided && verificationSourcePaths.has(boundary.sourcePath)) {
+        transformations.push({
+          sourcePath: boundary.sourcePath,
+          side: "source",
+          xmlPath: boundary.xmlPath,
+          value: null,
+          hasSemanticValue: false,
+        })
+      }
+      continue
+    }
+    if (hasRawAtOrAbovePath(annotationIndex, boundary.yamlPath)) {
+      if (!verificationSourcePaths.has(boundary.sourcePath)) continue
+      if (boundary.presentInSource) {
+        await readDocument(boundary.sourcePath)
+        const source = rereadElements.get(boundary.sourcePath)!.get(boundary.xmlPath)
+        if (source === undefined) throw new Error(`Не найдена XML-граница ${boundary.xmlPath}`)
+        transformations.push({
+          sourcePath: boundary.sourcePath,
+          side: "exported",
+          xmlPath: boundary.xmlPath,
+          value: xmlElementRawValue(source),
+          hasSemanticValue: false,
+        })
+      } else {
+        transformations.push({
+          sourcePath: boundary.sourcePath,
+          side: "exported",
+          xmlPath: boundary.xmlPath,
+          value: null,
+          hasSemanticValue: false,
+        })
+      }
+      continue
+    }
 
     if (!boundary.presentInSource) {
       setRawYamlValue(mutableData(), boundary.yamlPath, undefined)
@@ -986,6 +1032,15 @@ export async function proveXmlAnomalyBoundaries(params: {
         false,
       )
       annotationIndex = createProofAnnotationIndex(annotationSnapshot)
+      if (verificationSourcePaths.has(boundary.sourcePath)) {
+        transformations.push({
+          sourcePath: boundary.sourcePath,
+          side: "exported",
+          xmlPath: boundary.xmlPath,
+          value: null,
+          hasSemanticValue: false,
+        })
+      }
       continue
     }
 
@@ -1049,6 +1104,15 @@ export async function proveXmlAnomalyBoundaries(params: {
     const xml = hasSemanticValue && exportedSelected !== undefined
       ? createXmlElementPatch(selectedSource, exportedSelected)
       : xmlElementRawValue(selectedSource)
+    if (verificationSourcePaths.has(boundary.sourcePath)) {
+      transformations.push({
+        sourcePath: boundary.sourcePath,
+        side: "exported",
+        xmlPath: selected.xmlPath,
+        value: xml,
+        hasSemanticValue,
+      })
+    }
     if (!hasSemanticValue) {
       setRawYamlValue(mutableData(), rawYamlPath, undefined, selected.yamlPath)
     }
@@ -1067,35 +1131,6 @@ export async function proveXmlAnomalyBoundaries(params: {
     if (exported === undefined || sourceRootsAreExact(source.roots, exported)) continue
     const exportedNodes = exportedElements.get(exported)
     const sourceBoundaries = boundaries.filter((boundary) => boundary.sourcePath === source.sourcePath)
-    const hasCapturedBoundary = sourceBoundaries.some(
-      (boundary) => boundary.presentInSource && isCapturedProofBoundary(boundary),
-    )
-    const hasHandledBoundary = sourceBoundaries.some((boundary) =>
-      hasRawAtOrAbovePath(annotationIndex, boundary.yamlPath)
-    )
-    if (!hasCapturedBoundary && !hasHandledBoundary) {
-      const sourceDocument = await readDocument(source.sourcePath)
-      if (sourceDocument.roots.length !== 1 || exported.roots.length !== 1) {
-        throw new Error(
-          `Нелокализованное XML-расхождение требует по одному корню: ${source.sourcePath}`,
-        )
-      }
-      const sourceRoot = sourceDocument.roots[0]!
-      const exportedRoot = exported.roots[0]!
-      const rawYamlPath = [source.role === "metadata" ? "@" : `@${xmlDocumentShortName(source.sourcePath)}`]
-      assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, rawYamlPath)
-      setRawYamlValue(mutableData(), rawYamlPath, undefined)
-      annotationSnapshot = withRawAnnotation(
-        annotationSnapshot,
-        rawYamlPath,
-        sourceRoot.name === exportedRoot.name
-          ? createXmlElementPatch(sourceRoot, exportedRoot)
-          : xmlElementRawValue(sourceRoot),
-        false,
-      )
-      annotationIndex = createProofAnnotationIndex(annotationSnapshot)
-      continue
-    }
     const boundariesByContainerPath = new Map<string, XmlAnomalyProofBoundary[]>()
     for (const boundary of sourceBoundaries) {
       if (isSemanticallyElidedAbsence(boundary, exportedNodes)) continue
@@ -1132,14 +1167,100 @@ export async function proveXmlAnomalyBoundaries(params: {
       if (!sameStringMultiset(sourceOrder, exportedOrder) && !insertsRawChild) continue
       assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, rawYamlPath)
       setRawYamlValue(mutableData(), rawYamlPath, undefined)
+      const orderXml = insertsRawChild ? directContentOrderPatch(sourceElement) : { "#order": sourceOrder }
       annotationSnapshot = withRawAnnotation(
         annotationSnapshot,
         rawYamlPath,
-        insertsRawChild ? directContentOrderPatch(sourceElement) : { "#order": sourceOrder },
+        orderXml,
         false,
       )
       annotationIndex = createProofAnnotationIndex(annotationSnapshot)
+      if (verificationSourcePaths.has(source.sourcePath)) {
+        transformations.push({
+          sourcePath: source.sourcePath,
+          side: "exported",
+          xmlPath,
+          value: insertsRawChild ? orderXml : sourceOrder,
+          hasSemanticValue: true,
+          terminal: "order",
+        })
+      }
     }
+  }
+
+  for (const source of params.audit.sources) {
+    if (!changedSourcePaths.has(source.sourcePath)) continue
+    const exported = exportedDocumentForSource(params.exported, source)
+    if (exported === undefined) continue
+    const fallbacks = (params.audit.fallbackBoundaries ?? []).filter(
+      (boundary) => boundary.sourcePath === source.sourcePath,
+    )
+    if (fallbacks.length > 1) {
+      throw new Error(`XML-документу ${source.sourcePath} соответствует несколько резервных proof-границ`)
+    }
+    if (fallbacks.length === 0) {
+      const sourceBoundaries = boundaries.filter((boundary) => boundary.sourcePath === source.sourcePath)
+      const hasCapturedBoundary = sourceBoundaries.some(
+        (boundary) => boundary.presentInSource && isCapturedProofBoundary(boundary),
+      )
+      const hasHandledBoundary = sourceBoundaries.some((boundary) =>
+        hasRawAtOrAbovePath(annotationIndex, boundary.yamlPath)
+      )
+      if (hasCapturedBoundary || hasHandledBoundary) continue
+    }
+
+    const sourceDocument = await readDocument(source.sourcePath)
+    if (fallbacks.length > 0 && transformedXmlRootsAreExact({
+      sourcePath: source.sourcePath,
+      source: sourceDocument,
+      exported,
+      transformations,
+    })) continue
+
+    const fallback = fallbacks[0]
+    if (fallback !== undefined) {
+      const sourceRoot = sourceDocument.roots.find((root) => root.path === fallback.xmlPath)
+      const exportedRoot = exported.roots.find((root) => root.path === fallback.xmlPath)
+      if (sourceRoot === undefined || exportedRoot === undefined) {
+        throw new Error(`Не найдена корневая резервная XML-граница ${fallback.xmlPath}`)
+      }
+      const hasSemanticValue = valueAtYamlPath(data, fallback.yamlPath) !== undefined
+      const rawYamlPath = publicRawYamlPath(fallback.yamlPath, fallback, hasSemanticValue)
+      if (hasRawAtOrAbovePath(annotationIndex, rawYamlPath)) continue
+      assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, fallback.yamlPath)
+      if (!hasSemanticValue) setRawYamlValue(mutableData(), rawYamlPath, undefined, fallback.yamlPath)
+      annotationSnapshot = withRawAnnotation(
+        annotationSnapshot,
+        rawYamlPath,
+        sourceRoot.name === exportedRoot.name && hasSemanticValue
+          ? createXmlElementPatch(sourceRoot, exportedRoot)
+          : xmlElementRawValue(sourceRoot),
+        hasSemanticValue,
+        fallback.yamlPath,
+      )
+      annotationIndex = createProofAnnotationIndex(annotationSnapshot)
+      continue
+    }
+
+    if (sourceDocument.roots.length !== 1 || exported.roots.length !== 1) {
+      throw new Error(
+        `Нелокализованное XML-расхождение требует по одному корню: ${source.sourcePath}`,
+      )
+    }
+    const sourceRoot = sourceDocument.roots[0]!
+    const exportedRoot = exported.roots[0]!
+    const rawYamlPath = [source.role === "metadata" ? "@" : `@${xmlDocumentShortName(source.sourcePath)}`]
+    assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, rawYamlPath)
+    setRawYamlValue(mutableData(), rawYamlPath, undefined)
+    annotationSnapshot = withRawAnnotation(
+      annotationSnapshot,
+      rawYamlPath,
+      sourceRoot.name === exportedRoot.name
+        ? createXmlElementPatch(sourceRoot, exportedRoot)
+        : xmlElementRawValue(sourceRoot),
+      false,
+    )
+    annotationIndex = createProofAnnotationIndex(annotationSnapshot)
   }
 
   const annotations = restoreXmlAnomalyAnnotations(data, annotationSnapshot)
