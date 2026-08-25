@@ -294,13 +294,25 @@ export function importPropertiesFromXMLToYAML(params: {
           addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
         }
 
+        const shouldImportProperty = shouldProcessProperty({
+          rule: propertyRule,
+          operation: "importFromXML",
+        })
         const shouldImportForReference = forReference && propertyRule.fromXML === false && presentInXML
         if (
-          !shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" }) &&
+          !shouldImportProperty &&
           !shouldImportForReference &&
           propertyXML?.has(key) !== true
-        )
+        ) {
+          if (
+            presentInXML &&
+            propertyRule.fromXML === false &&
+            isXmlElementNode(xmlNode)
+          ) {
+            params.audit?.claimStructuralSubtree(xmlNode, boundary)
+          }
           return
+        }
 
         const hasExplicitXMLKeyWithEmptyDefault = "defaultValueXMLEmpty" in propertyRule && presentInXML
         const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
@@ -534,7 +546,17 @@ export function importPropertiesFromXMLToYAML(params: {
             value,
             params.execution,
           )
-          if (exportedValues === undefined) return
+          if (exportedValues === undefined) {
+            if (
+              presentInXML &&
+              convertedDirectly &&
+              isXmlElementNode(xmlNode) &&
+              isEmptySemanticContainer(exportedYamlValue)
+            ) {
+              params.audit?.elideSubtree(xmlNode, boundary)
+            }
+            return
+          }
           if (dependentImportProperty) {
             params.dependent?.accept({
               itemType: rule.itemType,
@@ -759,6 +781,14 @@ function isXmlElementNode(value: unknown): value is XmlElementNode {
     "type" in value &&
     value.type === "element" &&
     "compatibilityValue" in value
+}
+
+function isEmptySemanticContainer(value: unknown): boolean {
+  if (Array.isArray(value)) return value.length === 0
+  if (value === null || typeof value !== "object") return false
+  const prototype = Object.getPrototypeOf(value)
+  return (prototype === Object.prototype || prototype === null) &&
+    Object.keys(value).length === 0
 }
 
 function addProfileTime(

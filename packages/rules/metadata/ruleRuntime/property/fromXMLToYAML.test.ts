@@ -939,11 +939,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     audit.finalize()
 
     expect(yaml).toEqual({ Значение: "yes" })
-    expect(
-      audit.outcomes()
-        .filter(({ node }) => node.path.startsWith("/Root[1]/Value[1]"))
-        .map(({ node, state }) => [node.path, state]),
-    ).toEqual([
+    expect(valuePropertyAuditStates(audit)).toEqual([
       ["/Root[1]/Value[1]", "claimed"],
       ["/Root[1]/Value[1]/@future[1]", "unknown"],
       ["/Root[1]/Value[1]/Known[1]", "claimed"],
@@ -954,6 +950,75 @@ describe("importPropertiesFromXMLToYAML", () => {
       ["/Root[1]/Value[1]/?mode[1]", "unknown"],
       ["/Root[1]/Value[1]/?mode[1]/@code[1]", "unknown"],
     ])
+  })
+
+  it("отмечает полностью распознанное пустое значение как осмысленно исключённое", () => {
+    const propertyType = "TestSemanticallyElidedCollection" as PropertyRuleType
+    registerTypeRule(propertyType, "importFromXMLToYAML", ({ xml }) => {
+      JSON.stringify(xml)
+      return []
+    })
+    const { yaml, audit } = importAuditedStructuralProperty({
+      propertyType,
+      itemType: "TestSemanticallyElidedOwner",
+      xml: '<Root><Value kind="known"><Known>value</Known></Value></Root>',
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({})
+    expect(valuePropertyAuditStates(audit).map(([, state]) => state))
+      .toEqual(Array(4).fill("semanticallyElided"))
+  })
+
+  it("не считает частично прочитанное пустое значение осмысленно исключённым", () => {
+    const propertyType = "TestPartiallyElidedCollection" as PropertyRuleType
+    registerTypeRule(propertyType, "importFromXMLToYAML", ({ xml }) => {
+      void (xml as Record<string, unknown>).Known
+      return []
+    })
+    const { yaml, audit } = importAuditedStructuralProperty({
+      propertyType,
+      itemType: "TestPartiallyElidedOwner",
+      xml: "<Root><Value><Known>value</Known><Unknown>future</Unknown></Value></Root>",
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({})
+    expect(valuePropertyAuditStates(audit)).toEqual([
+      ["/Root[1]/Value[1]", "claimed"],
+      ["/Root[1]/Value[1]/Known[1]", "claimed"],
+      ["/Root[1]/Value[1]/Known[1]/#text[1]", "claimed"],
+      ["/Root[1]/Value[1]/Unknown[1]", "unknown"],
+      ["/Root[1]/Value[1]/Unknown[1]/#text[1]", "unknown"],
+    ])
+  })
+
+  it("компактно заявляет присутствующее свойство с fromXML false", () => {
+    const { yaml, audit } = importAuditedStructuralProperty({
+      propertyType: "string",
+      itemType: "TestXmlOnlyOwner",
+      property: { fromXML: false },
+      xml: '<Root><Value xsi:nil="true"><Future code="x"/></Value></Root>',
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({})
+    const outcomes = audit.outcomes().filter(
+      ({ node }) => node.path.startsWith("/Root[1]/Value[1]"),
+    )
+    expect(outcomes[0]).toMatchObject({
+      state: "structurallyClaimed",
+      boundaries: [{
+        itemType: "TestXmlOnlyOwner",
+        propertyKey: "value",
+        propertyType: "string",
+        yamlPath: ["Значение"],
+        rulePath: [{ propertyKey: "value" }],
+      }],
+    })
+    expect(outcomes.slice(1).every(({ state, boundaries }) =>
+      state === "structurallyCovered" && boundaries.length === 0
+    )).toBe(true)
   })
 
   it("отслеживает индекс повторов и enumeration атрибутов PI", () => {
@@ -1375,6 +1440,7 @@ function importAuditedStructuralProperty(params: {
   propertyType: PropertyRuleType
   itemType: string
   xml: string
+  property?: Record<string, unknown>
 }) {
   const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
   const root = parseXmlDocumentWithSaxes(params.xml).roots[0]!
@@ -1384,7 +1450,12 @@ function importAuditedStructuralProperty(params: {
     rule: {
       itemType: params.itemType,
       properties: {
-        value: { type: params.propertyType, xml: "Value", yaml: "Значение" },
+        value: {
+          type: params.propertyType,
+          xml: "Value",
+          yaml: "Значение",
+          ...params.property,
+        },
       },
     } as MetadataItemRule,
     sources: [{ context, xml: root }],
@@ -1394,6 +1465,14 @@ function importAuditedStructuralProperty(params: {
     audit,
   })
   return { yaml, audit }
+}
+
+function valuePropertyAuditStates(
+  audit: ReturnType<typeof createXmlImportAuditSession>,
+): Array<[string, string]> {
+  return audit.outcomes()
+    .filter(({ node }) => node.path.startsWith("/Root[1]/Value[1]"))
+    .map(({ node, state }) => [node.path, state])
 }
 
 function runSingleProperty(
