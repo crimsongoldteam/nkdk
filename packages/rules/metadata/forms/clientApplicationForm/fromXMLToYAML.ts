@@ -1,4 +1,9 @@
-import type { ExternalFileEntry } from "@nkdk/runtime"
+import type {
+  ExternalFileEntry,
+  XmlAnomalyAnnotationTable,
+  XmlElementNode,
+  XmlImportAuditSession,
+} from "@nkdk/runtime"
 import { applyMetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
 import {
@@ -21,6 +26,10 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   formName: string
   formXML?: ClientApplicationFormXML
   metadataXML: FormMetadataXML
+  formXMLNode?: XmlElementNode
+  metadataXMLNode?: XmlElementNode
+  audit?: XmlImportAuditSession
+  annotations?: XmlAnomalyAnnotationTable
   profile?: DirectImportProfile
   rule?: MetadataItemRule
 }): DirectImportResult {
@@ -37,11 +46,13 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     formName: params.formName,
     collector: localIndexesCollector,
     deferred,
+    audit: params.audit,
+    annotations: params.annotations,
     profile: params.profile,
     createSources: (context) => createClientApplicationFormImportSources({
       context,
-      formXML: params.formXML,
-      metadataXML: params.metadataXML,
+      formXML: params.formXMLNode ?? params.formXML,
+      metadataXML: params.metadataXMLNode ?? params.metadataXML,
     }),
   })
   const yaml = imported.yaml
@@ -70,6 +81,8 @@ export function importClientApplicationFormBodyFromXML(params: {
   formXML: ClientApplicationFormXML
   collector: LocalIndexesCollector
   deferred: DeferredValuePathCollector
+  audit?: XmlImportAuditSession
+  annotations?: XmlAnomalyAnnotationTable
   profile?: DirectImportProfile
   rule?: MetadataItemRule
 }): { yaml: Record<string, unknown> | undefined; generatedFiles: ExternalFileEntry[] } {
@@ -91,6 +104,8 @@ function importClientApplicationFormSources(params: {
   rule: MetadataItemRule
   collector: LocalIndexesCollector
   deferred: DeferredValuePathCollector
+  audit?: XmlImportAuditSession
+  annotations?: XmlAnomalyAnnotationTable
   profile?: DirectImportProfile
   createSources(context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]): DirectImportXMLSource[]
 }): {
@@ -119,6 +134,8 @@ function importClientApplicationFormSources(params: {
       rulePath: [],
       collector: params.collector,
       deferred: params.deferred,
+      audit: params.audit,
+      annotations: params.annotations,
       profile: params.profile,
     }),
     generatedFiles,

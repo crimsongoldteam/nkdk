@@ -1,6 +1,8 @@
 import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import {
-createConfigurationIndexCollector,importContentFromXML,
+createConfigurationIndexCollector,createXmlAnomalyAnnotations,
+createXmlImportAuditSession,importContentFromXML,
+parseXmlDocumentWithSaxes,
 withConfigurationIndexCollector,
 xmlExport,
 yamlScalarTagAt
@@ -232,6 +234,42 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     expect(rootCalls).toHaveLength(1)
     expect(rootCalls[0]?.[0].sources).toHaveLength(2)
     importSpy.mockRestore()
+  })
+
+  it("передаёт адресные XML-узлы, audit и аннотации в общий импорт Rules", () => {
+    const formDocument = parseXmlDocumentWithSaxes(
+      readXMLFixtureAsString(import.meta.url, "minimal.xml"),
+      { preserveXsiNil: true },
+    )
+    const metadataDocument = parseXmlDocumentWithSaxes(
+      readXMLFixtureAsString(import.meta.url, "minimalMetadata.xml"),
+      { preserveXsiNil: true },
+    )
+    const formRoot = formDocument.roots[0]!
+    const metadataRoot = metadataDocument.roots[0]!
+    const audit = createXmlImportAuditSession([formRoot, metadataRoot])
+    const annotations = createXmlAnomalyAnnotations()
+    const importSpy = vi.spyOn(propertyImporter, "importPropertiesFromXMLToYAML")
+
+    importClientApplicationFormFromXMLToYAML({
+      context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+      formName: "Форма",
+      formXML: formDocument.compatibility.Form as ClientApplicationFormXML,
+      metadataXML: metadataDocument.compatibility.MetaDataObject as FormMetadataXML,
+      formXMLNode: formRoot,
+      metadataXMLNode: metadataRoot,
+      audit,
+      annotations,
+    })
+
+    expect(importSpy).toHaveBeenCalledWith(expect.objectContaining({
+      sources: [
+        expect.objectContaining({ xml: formRoot }),
+        expect.objectContaining({ xml: metadataRoot }),
+      ],
+      audit,
+      annotations,
+    }))
   })
 
   it("совпадает с действующим YAML полной формы", () => {

@@ -175,7 +175,11 @@ export function deriveXmlAnomalyProofPlan(
     if ("type" in outcome.node && outcome.node.type === "element") {
       for (const candidate of outcome.boundaries) {
         const anchorRulePath = candidate.rulePath?.map(({ propertyKey }) => propertyKey) ?? []
-        if (candidate.yamlPath === undefined || anchorRulePath.length === 0) continue
+        if (
+          candidate.propertyKey !== undefined ||
+          candidate.yamlPath === undefined ||
+          anchorRulePath.length === 0
+        ) continue
         const anchor = {
           sourcePath: source.sourcePath,
           xmlPath: outcome.node.path,

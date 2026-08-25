@@ -1,6 +1,7 @@
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexFormElementLogicalAddress,
+  type XmlElementNode,
   withConfigurationIndexLogicalAddress,
 } from "@nkdk/runtime"
 import { getElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
@@ -43,10 +44,13 @@ const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?
 
 export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, rule, xml, traversal }) => {
   if (xml === undefined) return undefined
-  const items = Array.isArray(xml) ? xml : [xml]
+  const itemXmlNodes = traversal.xmlNodes?.flatMap(elementChildren)
+  const items = itemXmlNodes === undefined
+    ? Array.isArray(xml) ? xml : [xml]
+    : itemXmlNodes.map((node) => ({ [node.name]: node.compatibilityValue }))
   const result: Record<string, unknown> = {}
 
-  for (const value of items) {
+  for (const [index, value] of items.entries()) {
     const item = asRecord(value)
     const xmlTag = item === undefined ? undefined : Object.keys(item)[0]
     if (item === undefined || xmlTag === undefined) continue
@@ -75,6 +79,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
       traversal: {
         ...traversal,
         yamlPath: [...traversal.yamlPath, itemName],
+        ...(itemXmlNodes?.[index] === undefined ? {} : { xmlNodes: [itemXmlNodes[index]!] }),
       },
     })
     const treeProperties = moveButtonTypeToTreeYAML({ itemType, yaml: properties })
@@ -107,6 +112,12 @@ export const metadataRuleLayer000 = defineMetadataRules({
     ]),
   ),
 })
+
+function elementChildren(node: XmlElementNode): XmlElementNode[] {
+  return node.content.filter(
+    (child): child is XmlElementNode => child.type === "element",
+  )
+}
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === "object" && !Array.isArray(value)
