@@ -305,29 +305,29 @@
   }
   ```
 
-- [ ] **Step 1: Написать падающий тест жизненного цикла**
+- [x] **Step 1: Написать падающий тест жизненного цикла**
 
   Создать import session, записать две записи, прочитать их из независимых handles, освободить одну и проверить, что повторное чтение даёт `xml_import_prepared_missing`. После `finalize` временная LMDB и её lock-файлы должны отсутствовать.
 
-- [ ] **Step 2: Написать падающий тест abort**
+- [x] **Step 2: Написать падающий тест abort**
 
   После `session.abort(new Error("boom"))` проверить удаление хранилища и возможность начать следующий import в том же проекте.
 
-- [ ] **Step 3: Подтвердить падение**
+- [x] **Step 3: Подтвердить падение**
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/projectState/preparedImportStore.integration.test.ts metadata/projectState/importSession.integration.test.ts`
 
   Expected: FAIL, потому что import session ещё не предоставляет prepared store.
 
-- [ ] **Step 4: Реализовать изолированную LMDB**
+- [x] **Step 4: Реализовать изолированную LMDB**
 
   Создавать хранилище внутри временного каталога текущей import operation, использовать один writer и независимые read transactions. Ключ — UTF-8 `assignmentId`; значение — непрозрачные bytes. `release` удаляет запись после успешной публикации второго прохода. `close`, `finalize` и `abort` идемпотентно закрывают LMDB до удаления каталога.
 
-- [ ] **Step 5: Не смешивать запись с постоянным projectState**
+- [x] **Step 5: Не смешивать запись с постоянным projectState**
 
   Prepared store не входит в checkpoint, read token, dependency validation или итоговый снимок. `ProjectStateImportSession` только владеет его временем жизни и выдаёт worker путь/дескриптор операции.
 
-- [ ] **Step 6: Проверить слой projectState**
+- [x] **Step 6: Проверить слой projectState**
 
   Run: `pnpm --filter @nkdk/rules test:native`
 
@@ -337,7 +337,7 @@
 
   Expected: PASS; временное хранилище удаляется и при успехе, и при отказе.
 
-- [ ] **Step 7: Зафиксировать слой**
+- [x] **Step 7: Зафиксировать слой**
 
   Commit: `feat: :sparkles: хранить подготовленный импорт в projectState`
 

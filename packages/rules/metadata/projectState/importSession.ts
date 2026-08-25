@@ -24,6 +24,10 @@ import {
   validationIssuePathFromPointer,
   type ValidationIssue,
 } from "@nkdk/runtime"
+import {
+  createPreparedImportStore,
+  type PreparedImportStore,
+} from "./preparedImportStore"
 
 export interface ProjectStateImportParams {
   readonly projectDir: string
@@ -67,6 +71,7 @@ export interface ProjectStateImportFinalFileStateBatch {
 }
 
 export interface ProjectStateImportSession {
+  preparedImportStore(): Promise<PreparedImportStore>
   writeStateFragment(fragment: ProjectStateFragment): Promise<void>
   replaceFinalHashes(files: readonly { readonly projectPath: string; readonly hash: bigint }[]): Promise<void>
   commitWorkingIndex(): Promise<ProjectStateReadToken>
@@ -107,6 +112,14 @@ export async function createProjectStateImportSession(
   const changedPaths = new Set<string>()
   let finalWrites = Promise.resolve()
   const activeWrites = new Set<Promise<void>>()
+  let preparedStorePromise: Promise<PreparedImportStore> | undefined
+
+  async function closePreparedStore(): Promise<void> {
+    if (preparedStorePromise === undefined) return
+    const store = await preparedStorePromise
+    preparedStorePromise = undefined
+    await store.close()
+  }
 
   async function measurePhase<T>(phaseName: ProjectStateImportProfilePhase, action: () => Promise<T>): Promise<T> {
     const startedAt = performance.now()
@@ -159,6 +172,13 @@ export async function createProjectStateImportSession(
   }
 
   return {
+    preparedImportStore() {
+      if (phase === "done" || phase === "finalizing") {
+        return Promise.reject(new Error("Import session уже завершена"))
+      }
+      preparedStorePromise ??= createPreparedImportStore(params.projectDir)
+      return preparedStorePromise
+    },
     async writeStateFragment(fragment) {
       if (phase === "done") throw new Error("Import session уже завершена")
       const checked = openProjectStateFragment(fragment)
@@ -262,6 +282,7 @@ export async function createProjectStateImportSession(
         () => params.writer.validateDependencyDiagnosticBatches(),
       )
       await beforeCheckpoint?.()
+      await closePreparedStore()
       const readToken = await params.writer.createReadToken()
       await measurePhase("save", () => params.writer.commitAndScheduleCheckpoint())
       const result: ProjectStateRefreshResult = {
@@ -285,6 +306,11 @@ export async function createProjectStateImportSession(
       }
       try {
         await params.writer.rollbackUpdate()
+      } catch (caught) {
+        failures.push(...flattenFailures(caught))
+      }
+      try {
+        await closePreparedStore()
       } catch (caught) {
         failures.push(...flattenFailures(caught))
       }

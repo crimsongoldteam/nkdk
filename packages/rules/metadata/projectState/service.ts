@@ -272,6 +272,7 @@ export function createProjectStateService(
     release: () => void,
   ): ProjectStateImportSession {
     return {
+      preparedImportStore: () => session.preparedImportStore(),
       writeStateFragment: (fragment) => session.writeStateFragment(fragment),
       replaceFinalHashes: (files) => session.replaceFinalHashes(files),
       commitWorkingIndex: () => session.commitWorkingIndex(),

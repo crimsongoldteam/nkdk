@@ -978,6 +978,7 @@ function fakeProjectState(
     workers: createUnusedMetadataWorkerPool(),
     async beginImport(importParams) {
       return {
+        async preparedImportStore() { throw new Error("not used") },
         async commitWorkingIndex() {
           importParams.profile?.onPhase?.({ phase: "workingIndex", elapsedMs: 1 })
           return readToken()
@@ -1047,6 +1048,7 @@ function projectStateWithImportSession(
 ): ProjectStateService {
   const unexpected = async (): Promise<never> => { throw new Error("unexpected import session call") }
   const session: ProjectStateImportSession = {
+    preparedImportStore: unexpected,
     async writeStateFragment() {},
     async replaceFinalHashes() {},
     commitWorkingIndex: unexpected,
