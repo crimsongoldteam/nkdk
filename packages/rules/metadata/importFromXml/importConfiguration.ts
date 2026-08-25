@@ -52,6 +52,7 @@ import {
 } from "./workerPool"
 import { classifyImportedIssues } from "./classifyImportedIssues"
 import type { ImportProjectIssueDecision } from "../workerPool/importContracts"
+import type { PreparedImportStore } from "../projectState/preparedImportStore"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -245,10 +246,13 @@ export async function importConfigurationFromXml(
       operationId,
       purpose: "import",
     })
+    const preparedStore = await importSession.preparedImportStore()
     const stateSink = createImportStateSink(
       importSession,
       indexCandidate,
+      preparedStore,
     )
+    const configurationIndexDescriptor = indexCandidate.descriptor()
     if (params.xmlImportWorkerPoolHandle !== undefined) {
       pool = params.xmlImportWorkerPoolHandle.createOperationPool()
     } else if (deps.createWorkerPool !== undefined) {
@@ -291,6 +295,8 @@ export async function importConfigurationFromXml(
           ...(descriptor.metadataItemAugmenter === undefined
             ? {}
             : { metadataItemAugmenter: descriptor.metadataItemAugmenter }),
+          preparedStore: preparedStore.descriptor(),
+          configurationIndex: configurationIndexDescriptor,
         })
     )
     const first = await profiler.measureAsync(
@@ -561,6 +567,7 @@ function flattenFailures(caught: unknown): unknown[] {
 function createImportStateSink(
   session: ProjectStateImportSession,
   candidate: ConfigurationIndexCandidateStore,
+  preparedStore: PreparedImportStore,
 ): XmlImportStateSink {
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
     if (batch.configurationFragment !== undefined) candidate.mergeBlockFragments([batch.configurationFragment])
@@ -570,11 +577,17 @@ function createImportStateSink(
     if (batch.stateFragment !== undefined) {
       await session.writeStateFragment(batch.stateFragment)
     }
+    if (batch.preparedRecords !== undefined) {
+      await Promise.all(batch.preparedRecords.map(({ locator, bytes }) => preparedStore.put(locator, bytes)))
+    }
   }
   return {
     writeFirstPassState: writeState,
     writeSecondPassState: writeState,
     writeThirdPassState: writeState,
+    async releasePrepared(assignmentIds) {
+      await Promise.all(assignmentIds.map((assignmentId) => preparedStore.release(assignmentId)))
+    },
   }
 }
 

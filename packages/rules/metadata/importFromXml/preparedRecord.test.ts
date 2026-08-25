@@ -57,6 +57,13 @@ describe("PreparedImportRecordV1", () => {
       code: "xml_import_prepared_rule",
     }))
   })
+
+  it("восстанавливает корневое правило расширения из реестра схем", () => {
+    const source = { ...preparedRecordSource(), ruleItemType: "MetadataConfigurationExtension" }
+
+    expect(restorePreparedImportRecord(encodePreparedImportRecord(source)).rule.itemType)
+      .toBe("MetadataConfigurationExtension")
+  })
 })
 
 function preparedRecordSource(): PreparedImportRecordSourceV1 {
@@ -83,6 +90,20 @@ function preparedRecordSource(): PreparedImportRecordSourceV1 {
       "  $xml:",
       '    "#text": "01"',
     ].join("\n"),
+    annotations: {
+      version: 1,
+      entries: [{
+        parentPath: [],
+        key: "Неизвестное",
+        annotation: {
+          kind: "raw",
+          occurrence: 1,
+          target: "value",
+          xml: { "#text": "01" },
+          hasSemanticValue: true,
+        },
+      }],
+    },
     proofAudit: {
       sources: [{
         sourcePath: "/xml/Catalogs/Контрагенты.xml",

@@ -52,11 +52,27 @@ export function getRegisteredProjectSpecByDir(dir: string): RegisteredProjectSpe
 }
 
 export function findRegisteredProjectRule(itemType: string): MetadataItemRule | undefined {
+  const contextual = currentRuleRegistrySet<{
+    metadataItems: ReadonlyMap<string, MetadataItemRule>
+    schemas: { get(name: string): { readonly source?: object | string } | undefined }
+  }>()
+  const registeredItem = contextual?.metadataItems.get(itemType)
+  if (registeredItem !== undefined) return registeredItem
+  const schemaSource = contextual?.schemas.get(itemType)?.source
+  if (isMetadataItemRule(schemaSource) && schemaSource.itemType === itemType) return schemaSource
   for (const spec of getRegisteredProjectSpecs()) {
     const rule = findProjectRule(spec.rule, itemType, new Set())
     if (rule !== undefined) return rule
   }
   return undefined
+}
+
+function isMetadataItemRule(value: unknown): value is MetadataItemRule {
+  if (typeof value !== "object" || value === null) return false
+  const candidate = value as { readonly itemType?: unknown; readonly properties?: unknown }
+  return typeof candidate.itemType === "string"
+    && candidate.properties !== null
+    && typeof candidate.properties === "object"
 }
 
 function findProjectRule(

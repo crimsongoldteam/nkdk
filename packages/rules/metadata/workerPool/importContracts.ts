@@ -3,6 +3,9 @@ import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { MetadataWorkerBinaryResult } from "./binaryResult"
+import type { PreparedImportBinaryRecord } from "../importFromXml/binaryResult"
+import type { ConfigurationIndexStoreDescriptor } from "@nkdk/runtime"
+import type { PreparedImportStoreDescriptor } from "../projectState/preparedImportStore"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 export type ExternalFileTransfer = "copy" | "move"
@@ -107,6 +110,8 @@ export type ImportWorkerCommand =
       outputDir: string
       projectDir?: string
       componentPath?: string
+      preparedStore?: PreparedImportStoreDescriptor
+      configurationIndex?: ConfigurationIndexStoreDescriptor
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
   | { kind: "firstPassBatch"; assignments: ImportAssignment[] }
@@ -135,6 +140,7 @@ export interface ImportFirstPassResult {
   files: ImportResultFile[]
   configurationFragments: ConfigurationIndexBlockFragment[]
   stateFragment?: ProjectStateFragment
+  preparedRecords: PreparedImportBinaryRecord[]
 }
 
 export interface ImportSecondPassResult {

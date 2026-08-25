@@ -319,6 +319,7 @@ describe("XML import worker first pass", () => {
       diagnostics: [],
       files: [],
       configurationFragments: [],
+      preparedRecords: [],
       stateFragment,
     }
 
@@ -374,6 +375,8 @@ describe("XML import worker first pass", () => {
     await initializeWorker(createTempDir("stream-finish-first"))
     await runImportWorkerCommand({ kind: "firstPassBatch", assignments: [catalogAssignment()] })
 
+    expect(workerStateForTests().preparedYamlIds).toEqual([])
+    expect(workerStateForTests().retainedProofAuditIds).toEqual([])
     expect(await runImportWorkerCommand({ kind: "finishFirstPass" })).toBeUndefined()
   })
 

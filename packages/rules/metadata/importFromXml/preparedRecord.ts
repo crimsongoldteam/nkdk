@@ -1,9 +1,12 @@
 import {
   hashFileBytes,
   parseMetadataYaml,
+  restoreXmlAnomalyAnnotations,
   serializeYAMLDocument,
+  snapshotXmlAnomalyAnnotations,
   type ConfigurationIndexBlockFragment,
   type XmlAnomalyAnnotations,
+  type XmlAnomalyAnnotationsSnapshot,
 } from "@nkdk/runtime"
 import type {
   DeferredObjectValue,
@@ -38,6 +41,7 @@ export interface PreparedImportRecordSourceV1 {
   readonly version: 1
   readonly assignment: ImportAssignment
   readonly yamlText: string
+  readonly annotations: XmlAnomalyAnnotationsSnapshot
   readonly proofAudit: XmlAnomalyProofAudit
   readonly deferred: readonly DeferredValuePath[]
   readonly dependentDeferred: readonly ImportedDependentPropertyCandidate[]
@@ -47,6 +51,7 @@ export interface PreparedImportRecordSourceV1 {
   readonly ruleItemType: string
   readonly targetProjectPath: string
   readonly logicalAddress: string
+  readonly configurationFragment?: ConfigurationIndexBlockFragment
 }
 
 export interface PreparedImportRecordV1 extends PreparedImportRecordSourceV1 {
@@ -67,6 +72,7 @@ export interface RestoredPreparedImportRecord {
     readonly yaml: unknown
     readonly rule: MetadataItemRule
     readonly deferred: readonly DeferredObjectValue[]
+    readonly formDataPathIndex: ReturnType<typeof createImportedFormDataPathIndex>
     readonly configurationFragment: ConfigurationIndexBlockFragment
   }
 }
@@ -120,11 +126,17 @@ export function resolvePreparedImportRule(itemType: string): MetadataItemRule {
   return requirePreparedRule(itemType)
 }
 
-export function createPreparedImportRecordSource(prepared: PreparedImportYaml): PreparedImportRecordSourceV1 {
+export function createPreparedImportRecordSource(
+  prepared: PreparedImportYaml,
+  configurationFragment?: ConfigurationIndexBlockFragment,
+): PreparedImportRecordSourceV1 {
+  const annotationSnapshot = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
+  const yamlText = serializeYAMLDocument(prepared.yaml, prepared.annotations).text
   return {
     version: 1,
     assignment: prepared.assignment,
-    yamlText: serializeYAMLDocument(prepared.yaml, prepared.annotations).text,
+    yamlText,
+    annotations: annotationSnapshot,
     proofAudit: prepared.proofAudit,
     deferred: deferredValuePaths(prepared.deferred),
     dependentDeferred: prepared.dependentDeferred,
@@ -146,6 +158,7 @@ export function createPreparedImportRecordSource(prepared: PreparedImportYaml): 
     ruleItemType: prepared.rule.itemType,
     targetProjectPath: prepared.targetProjectPath,
     logicalAddress: prepared.assignment.logicalAddress,
+    ...(configurationFragment === undefined ? {} : { configurationFragment }),
   }
 }
 
@@ -157,13 +170,15 @@ export function restorePreparedImportRecord(bytes: Uint8Array): RestoredPrepared
     ? undefined
     : (() => {
         const baseParsed = parsePreparedYaml(base.yamlText)
+        const rule = resolvePreparedImportRule(base.ruleItemType)
         return {
           baseProjectPath: base.baseProjectPath,
           targetProjectPath: base.targetProjectPath,
           owner: base.owner,
           yaml: baseParsed.data,
-          rule: resolvePreparedImportRule(base.ruleItemType),
+          rule,
           deferred: bindDeferredObjectValues(baseParsed.data, base.deferred),
+          formDataPathIndex: createImportedFormDataPathIndex({ yaml: baseParsed.data, rule }),
           configurationFragment: base.configurationFragment,
         }
       })()
@@ -171,11 +186,33 @@ export function restorePreparedImportRecord(bytes: Uint8Array): RestoredPrepared
   return {
     record,
     yaml: parsed.data,
-    annotations: parsed.annotations,
+    annotations: restoreXmlAnomalyAnnotations(
+      parsed.data,
+      mergeAnnotationSnapshots(
+        snapshotXmlAnomalyAnnotations(parsed.data, parsed.annotations),
+        record.annotations,
+      ),
+    ),
     rule,
     deferred: bindDeferredObjectValues(parsed.data, record.deferred),
     formDataPathIndex: createImportedFormDataPathIndex({ yaml: parsed.data, rule }),
     ...(restoredBase === undefined ? {} : { baseFormCandidate: restoredBase }),
+  }
+}
+
+function mergeAnnotationSnapshots(
+  parsed: XmlAnomalyAnnotationsSnapshot,
+  recorded: XmlAnomalyAnnotationsSnapshot,
+): XmlAnomalyAnnotationsSnapshot {
+  const entries = new Map<string, XmlAnomalyAnnotationsSnapshot["entries"][number]>()
+  for (const entry of [...parsed.entries, ...recorded.entries]) {
+    entries.set(JSON.stringify([entry.parentPath, entry.key, entry.annotation.target]), entry)
+  }
+  const root = recorded.root ?? parsed.root
+  return {
+    version: 1,
+    ...(root === undefined ? {} : { root }),
+    entries: [...entries.values()],
   }
 }
 

@@ -33,6 +33,7 @@ import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./typ
 import type { ImportDiagnosticCollection, ImportResultFileCollection } from "./workerPool"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
+import type { PreparedImportStore } from "../projectState/preparedImportStore"
 
 const failurePhases = [
   "discover",
@@ -816,6 +817,7 @@ function fakeDependencies(params: {
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
             files: fileCollection(firstPassFiles),
+            prepared: [],
           }
         },
         async runSecondPass(_tokens, sink) {
@@ -927,6 +929,25 @@ function memoryCandidateStore(fragmentBatches?: ConfigurationIndexBlockFragment[
   }
 }
 
+function memoryPreparedImportStore(): PreparedImportStore {
+  const records = new Map<string, Uint8Array>()
+  return {
+    descriptor: () => ({
+      directory: "/project/.nkdk/tmp/prepared-import-test",
+      dataPath: "/project/.nkdk/tmp/prepared-import-test/records.lmdb",
+      lockPath: "/project/.nkdk/tmp/prepared-import-test/records.lmdb-lock",
+    }),
+    async put(locator, bytes) { records.set(locator.assignmentId, bytes.slice()) },
+    async read(assignmentId) {
+      const bytes = records.get(assignmentId)
+      if (bytes === undefined) throw new Error(`missing ${assignmentId}`)
+      return bytes.slice()
+    },
+    async release(assignmentId) { records.delete(assignmentId) },
+    async close() { records.clear() },
+  }
+}
+
 function stateBatch(
   files: readonly ImportResultFile[],
   firstHash: number,
@@ -977,8 +998,9 @@ function fakeProjectState(
   return {
     workers: createUnusedMetadataWorkerPool(),
     async beginImport(importParams) {
+      const preparedStore = memoryPreparedImportStore()
       return {
-        async preparedImportStore() { throw new Error("not used") },
+        async preparedImportStore() { return preparedStore },
         async commitWorkingIndex() {
           importParams.profile?.onPhase?.({ phase: "workingIndex", elapsedMs: 1 })
           return readToken()
@@ -1048,7 +1070,7 @@ function projectStateWithImportSession(
 ): ProjectStateService {
   const unexpected = async (): Promise<never> => { throw new Error("unexpected import session call") }
   const session: ProjectStateImportSession = {
-    preparedImportStore: unexpected,
+    async preparedImportStore() { return memoryPreparedImportStore() },
     async writeStateFragment() {},
     async replaceFinalHashes() {},
     commitWorkingIndex: unexpected,
