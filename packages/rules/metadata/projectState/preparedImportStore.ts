@@ -66,6 +66,7 @@ function openStore(
       await database.put(assignmentId, bytes.slice())
     },
     async read(assignmentId) {
+      database.resetReadTxn()
       const value = database.get(validateAssignmentId(assignmentId))
       if (value === undefined) {
         throw new PreparedImportStoreError(
