@@ -25,7 +25,10 @@ import { describe, expect, it, vi } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
 import { metadataRules } from "../composition/metadataRules"
 import "../../tests/metadataExecutionContext"
-import { convertClientApplicationFormFromYAMLToXML } from "../forms/clientApplicationForm/fromYAMLToXML"
+import {
+  clientApplicationFormYamlToXmlNestedRule,
+  convertClientApplicationFormFromYAMLToXML,
+} from "../forms/clientApplicationForm/fromYAMLToXML"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import { configurationExtensionYamlToXmlAugmenter } from "../appliedObjects/configurationExtension/exportPropertyStates"
@@ -542,6 +545,48 @@ describe("единое восстановление XML-аномалий assignm
     expect(inputStart).toBeGreaterThan(-1)
     expect(future).toBeGreaterThan(inputStart)
     expect(inputEnd).toBeGreaterThan(future)
+  })
+
+  it("сохраняет raw-привязку унаследованного элемента формы при построении BaseForm", () => {
+    const prepared = prepareAnomalies([
+      "Элементы:",
+      "  Список:",
+      "    Вид: ТаблицаФормы",
+      "    ВыборГруппИЭлементов: !xml/raw",
+      "      $значение: Группы",
+      "      $xml: Folders",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, ClientApplicationFormRules, anomalyRegistries)
+    const context = mockContextToXML()
+    const converted = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
+      withRuleRegistrySet(anomalyRegistries, () => clientApplicationFormYamlToXmlNestedRule.convert({
+        context,
+        yaml: prepared.preparedYamlFile.data,
+        ownerYAML: {},
+        baseYAML: {
+          Реквизиты: { Список: { Тип: "ДинамическийСписок" } },
+          Элементы: {
+            Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" },
+          },
+        },
+        baseYAMLContext: context,
+        name: "Форма",
+        referenceXML: undefined,
+      })),
+    )
+    if (converted === undefined) throw new Error("Управляемая форма не преобразована")
+    const xml = buildPreparedAssignmentXml({
+      document: {
+        targetXmlPath: "Form.xml",
+        xml: converted,
+        deferred: [],
+        rootRule: ClientApplicationFormRules,
+        rawBoundaries: prepared.rawBoundaries,
+      },
+      context,
+    })
+
+    expect(xml).toContain("<ChoiceFoldersAndItems>Folders</ChoiceFoldersAndItems>")
+    expect(xml).toContain("<BaseForm")
   })
 
   it("разрешает логическое имя локального raw через PropertyRule элемента формы", () => {

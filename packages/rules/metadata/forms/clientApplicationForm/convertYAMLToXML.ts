@@ -22,6 +22,7 @@ import {
   type FormDataPathContext,
 } from "./formDataPathContext"
 import { assignFormXmlIds } from "./formXmlIdAssignment"
+import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -94,9 +95,9 @@ export function convertClientApplicationFormYAMLToXMLCore(
                 : formDataPathContext.elementsByName.get(elementName)?.currentConfigurationValue
             ),
           index: formDataPathIndex,
-          ...(resolveDataPath === undefined
-            ? {}
-            : { resolve: (value: string) => resolveDataPath({ value, index: formDataPathIndex, ownerCache: ownerMetadataCache }) }),
+          resolve: (value: string) => resolveDataPath === undefined
+            ? resolveDataPathCore({ value, nameMode: "yaml", index: formDataPathIndex, ownerCache: ownerMetadataCache })
+            : resolveDataPath({ value, index: formDataPathIndex, ownerCache: ownerMetadataCache }),
         }),
     },
   }

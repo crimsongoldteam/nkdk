@@ -1,4 +1,4 @@
-import { childUid, indexedUid, projectNamedXmlCollectionForImport } from "@nkdk/runtime"
+import { childUid, indexedUid, projectNamedXmlCollectionForImport, type XmlElementNode } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
@@ -13,11 +13,14 @@ import { isMetadataNameYAML } from "../../../commonObjects/metadataName/types"
 
 export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml, traversal }) => {
   const source = asRecord(xml)?.Attribute ?? xml
-  const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
+  const itemXmlNodes = traversal.xmlNodes?.flatMap(elementChildren)
+  const items = itemXmlNodes === undefined
+    ? Array.isArray(source) ? source : source === undefined ? [] : [source]
+    : itemXmlNodes.map(({ compatibilityValue }) => compatibilityValue)
   const entries: Array<{ key: string; value: Record<string, unknown>; invalid?: true }> = []
   const collection = getConfigurationIndexCollectionContext(context)
 
-  for (const value of items) {
+  for (const [index, value] of items.entries()) {
     const item = asRecord(value)
     if (item === undefined || typeof item._name !== "string") continue
     const name = item._name
@@ -32,9 +35,12 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
     const yamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: FormAttributeRules,
-      xml: item,
+      xml: itemXmlNodes?.[index] ?? item,
       name,
-      traversal: itemTraversal,
+      traversal: {
+        ...itemTraversal,
+        ...(itemXmlNodes?.[index] === undefined ? {} : { xmlNodes: [itemXmlNodes[index]!] }),
+      },
     })
     if (yamlValue === undefined) continue
     const yaml = asRecord(yamlValue)
@@ -78,6 +84,12 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   return entries.length === 0
     ? undefined
     : projectNamedXmlCollectionForImport({ entries, annotations: traversal.annotations })
+}
+
+function elementChildren(node: XmlElementNode): XmlElementNode[] {
+  return node.content.filter(
+    (child): child is XmlElementNode => child.type === "element" && child.name === "Attribute",
+  )
 }
 
 function importAdditionalColumnsFromXMLToYAML(params: {
@@ -197,3 +209,6 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
 export const metadataPropertyRule000 = definePropertyTypeRule("FormAttributes", "importFromXMLToYAML", importFormAttributesFromXMLToYAML)
 export const metadataPropertyRule001 = definePropertyTypeRule("FormAttributes", "nestedItemRule", { itemRule: FormAttributeRules })
 export const metadataPropertyRule002 = definePropertyTypeRule("FormAttributeColumns", "nestedItemRule", { itemRule: FormAttributeColumnRules })
+export const metadataPropertyRule003 = definePropertyTypeRule("FormAttributes", "xmlImportPropertyBehavior", {
+  nestedItemsOwnXMLChildren: true,
+})

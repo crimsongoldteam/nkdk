@@ -15,6 +15,7 @@ import {
 import type { CompiledMetadataResourceTopology, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { buildPreparedAssignmentControlDocument } from "../fullSyncToXml/xmlAnomalyAssignment"
 import { prepareFullXmlSyncAssignment } from "../fullSyncToXml/prepareAssignment"
+import type { BaseFormSourceResult } from "../fullSyncToXml/baseFormSource"
 import type { FullXmlSyncAssignment } from "../fullSyncToXml/types"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
@@ -45,6 +46,7 @@ export async function executeImportControlExport(params: {
   readonly topology: CompiledMetadataResourceTopology
   readonly context: XmlImportConfigurationContext
   readonly index: LocalConfigurationIndexReader
+  readonly baseFormSource?: BaseFormSourceResult
   readonly composition: MetadataXmlPrepareComposition
   readonly readSource: (sourcePath: string) => Promise<string>
   readonly loadDetailedImport?: () => Promise<{
@@ -98,6 +100,12 @@ export async function executeImportControlExport(params: {
     },
     context,
     index: params.index,
+    ...(params.baseFormSource === undefined
+      ? {}
+      : {
+          baseFormSource: params.baseFormSource,
+          baseConfigurationIndex: params.index,
+        }),
     composition: params.composition,
     topology: params.topology,
     xmlAnomalyRawFallback: false,

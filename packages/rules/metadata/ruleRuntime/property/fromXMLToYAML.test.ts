@@ -970,6 +970,26 @@ describe("importPropertiesFromXMLToYAML", () => {
       .toEqual(Array(4).fill("semanticallyElided"))
   })
 
+  it("заявляет точную XML-форму канонического raw-дефолта", () => {
+    const propertyType = "TestCanonicalRawDefault" as PropertyRuleType
+    registerTypeRule(propertyType, "importFromXMLToYAML", ({ xml }) =>
+      (xml as Record<string, unknown> | undefined)?.["#text"],
+    )
+    const { yaml, audit } = importAuditedStructuralProperty({
+      propertyType,
+      itemType: "TestCanonicalRawDefaultOwner",
+      property: { defaultValueXMLRaw: { "_xsi:nil": true } },
+      xml: '<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Value xsi:nil="true"/></Root>',
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({})
+    expect(valuePropertyAuditStates(audit)).toEqual([
+      ["/Root[1]/Value[1]", "claimed"],
+      ["/Root[1]/Value[1]/@xsi:nil[1]", "claimed"],
+    ])
+  })
+
   it("не считает частично прочитанное пустое значение осмысленно исключённым", () => {
     const propertyType = "TestPartiallyElidedCollection" as PropertyRuleType
     registerTypeRule(propertyType, "importFromXMLToYAML", ({ xml }) => {

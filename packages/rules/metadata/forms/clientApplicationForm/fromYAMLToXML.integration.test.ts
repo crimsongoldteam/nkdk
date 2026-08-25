@@ -461,6 +461,24 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(tabularSection.TopLevelParent).toBeUndefined()
     expect(tabularSection.RowFilter).toEqual({ "_xsi:nil": "true" })
 
+    const implicitTabularSection = firstTable(
+      convertClientApplicationFormFromYAMLToXML({
+        context: contextWithLayeredDocumentOwner(),
+        yaml: {
+          Реквизиты: {
+            Объект: {
+              Тип: "ДокументОбъект.Заказ",
+              ОсновнойРеквизит: "Истина",
+            },
+          },
+          Элементы: { Товары: { Вид: "ТаблицаФормы" } },
+        } as ClientApplicationFormYAML,
+        name: "ФормаДокумента",
+      }).formXML
+    )
+    expect(implicitTabularSection.DataPath).toBe("Объект.Товары")
+    expect(implicitTabularSection.RowFilter).toEqual({ "_xsi:nil": "true" })
+
     const missing = convert({}, undefined)
     expect(missing.Period).toBeUndefined()
     expect(missing.TopLevelParent).toBeUndefined()
@@ -507,9 +525,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
   })
 
   it("преобразует рекурсивные пути SettingsComposer и не создаёт для них RowFilter", () => {
-    const result = convertClientApplicationFormFromYAMLToXML({
-      context: mockContextToXML(),
-      yaml: {
+    const yaml = {
         Реквизиты: { КомпоновщикНастроек: { Тип: "КомпоновщикНастроекКомпоновкиДанных" } },
         Элементы: {
           КомпоновщикНастроекНастройки: {
@@ -526,7 +542,11 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
               "Элементы.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.ТекущиеДанные.Параметр",
           },
         },
-      } as ClientApplicationFormYAML,
+      } as ClientApplicationFormYAML
+    const context = mockContextToXML()
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context,
+      yaml,
       name: "Форма",
     })
 
@@ -542,6 +562,18 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(elementByName(result.formXML, "Параметр").DataPath).toBe(
       "Items.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.CurrentData.Parameter",
     )
+
+    const { resolveDataPath: _resolveDataPath, ...importFromYAML } = context.importFromYAML ?? {}
+    const withoutExternalResolver = convertClientApplicationFormFromYAMLToXML({
+      context: { ...context, importFromYAML },
+      yaml,
+      name: "Форма",
+    })
+    expect(tableByName(withoutExternalResolver.formXML, "КомпоновщикНастроек").RowFilter).toBeUndefined()
+    expect(tableByName(
+      withoutExternalResolver.formXML,
+      "КомпоновщикНастроекНастройкиЭлементПараметрыДанных",
+    ).RowFilter).toBeUndefined()
   })
 
   it("восстанавливает свойства таблицы только для прямого динамического списка", () => {

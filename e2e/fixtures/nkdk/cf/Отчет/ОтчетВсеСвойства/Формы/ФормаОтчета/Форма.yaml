@@ -84,23 +84,3 @@
     ПоложениеЗаголовка: Нет
     ПутьКДанным: Результат
     Ширина: 100
-"@Form": !xml/raw
-  $xml:
-    ChildItems:
-      Table:
-        RowFilter:
-          _xsi:nil: "true"
-        "#order":
-          - Representation
-          - AutoInsertNewRow
-          - EnableStartDrag
-          - EnableDrag
-          - DataPath
-          - RowFilter
-          - ContextMenu
-          - AutoCommandBar
-          - ExtendedTooltip
-          - SearchStringAddition
-          - ViewStatusAddition
-          - SearchControlAddition
-          - ChildItems

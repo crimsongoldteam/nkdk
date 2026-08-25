@@ -4,6 +4,7 @@ import { join } from "node:path"
 import {
   createConfigurationIndexCollector,
   createLocalConfigurationIndexReader,
+  restoreXmlAnomalyAnnotations,
   snapshotXmlAnomalyAnnotations,
 } from "@nkdk/runtime"
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
@@ -112,6 +113,51 @@ describe("executeImportControlExport", () => {
 
     expect(capturedUuid).toBe(adoptedUuid)
     expect(readSource).toHaveBeenCalledTimes(1)
+  })
+
+  it("передаёт обычному экспорту подготовленный источник BaseForm", async () => {
+    const index = createLocalConfigurationIndexReader(new Map())
+    const annotations = { version: 1 as const, entries: [] }
+    const prepared = (projectPath: string, data: unknown) => ({
+      projectPath,
+      filePath: projectPath,
+      role: "form" as const,
+      owner: { dir: "Справочник", name: "Контрагенты" },
+      data,
+      annotations: restoreXmlAnomalyAnnotations(data, annotations),
+      syntaxDiagnostics: [],
+    })
+    const baseFormSource = {
+      kind: "projected" as const,
+      baseForm: {
+        projectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
+        prepared: prepared("Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml", {}),
+      },
+      currentConfigurationForm: {
+        projectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
+        prepared: prepared("Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml", {}),
+      },
+    }
+    let captured: Parameters<typeof prepareFullXmlSyncAssignment>[0] | undefined
+
+    await expect(executeImportControlExport({
+      assignment: catalogAssignment(),
+      data: {},
+      annotations,
+      audit: { sources: [], boundaries: [] },
+      topology,
+      context: mockXmlImportContext(),
+      index,
+      composition: catalogComposition(),
+      readSource: async () => "",
+      baseFormSource,
+      ordinaryExporter(params) {
+        captured = params
+        throw new Error("projection captured")
+      },
+    })).rejects.toThrow("projection captured")
+
+    expect(captured).toMatchObject({ baseFormSource, baseConfigurationIndex: index })
   })
 
   it("не запускает ordinary exporter для корневого raw", async () => {

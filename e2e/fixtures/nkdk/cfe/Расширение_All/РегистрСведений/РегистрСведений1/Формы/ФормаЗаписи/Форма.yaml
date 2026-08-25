@@ -5,29 +5,3 @@
     РасширенноеРедактированиеМножественныхЗначений: Истина
 Изменять:
   - Форма
-"@Form": !xml/raw
-  $xml:
-    BaseForm:
-      _version: "2.20"
-      WindowOpeningMode: LockOwnerWindow
-      AutoCommandBar:
-        _name: ФормаКоманднаяПанель
-        _id: "-1"
-      ChildItems:
-        InputField:
-          _name: Измерение1
-          _id: "1"
-          ExtendedEditMultipleValues: "true"
-          ContextMenu:
-            _name: Измерение1КонтекстноеМеню
-            _id: "2"
-          ExtendedTooltip:
-            _name: Измерение1РасширеннаяПодсказка
-            _id: "3"
-      Attributes:
-    "#order":
-      - WindowOpeningMode
-      - AutoCommandBar
-      - ChildItems
-      - Attributes
-      - BaseForm

@@ -78,6 +78,24 @@ function importValueTableCurrentDataForm(columns: FormAttributeColumnsXML, colum
   })
 }
 
+function importStructuredForm(
+  formDocument: ReturnType<typeof parseXmlDocumentWithSaxes>,
+  metadataDocument: ReturnType<typeof parseXmlDocumentWithSaxes>,
+  audit: ReturnType<typeof createXmlImportAuditSession>,
+  annotations = createXmlAnomalyAnnotations(),
+) {
+  return importClientApplicationFormFromXMLToYAML({
+    context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+    formName: "Форма",
+    formXML: formDocument.compatibility.Form as ClientApplicationFormXML,
+    metadataXML: metadataDocument.compatibility.MetaDataObject as FormMetadataXML,
+    formXMLNode: formDocument.roots[0]!,
+    metadataXMLNode: metadataDocument.roots[0]!,
+    audit,
+    annotations,
+  })
+}
+
 describe("importClientApplicationFormFromXMLToYAML", () => {
   it("сохраняет тип обычной формы без Form.xml", () => {
     const result = importClientApplicationFormFromXMLToYAML({
@@ -251,16 +269,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const annotations = createXmlAnomalyAnnotations()
     const importSpy = vi.spyOn(propertyImporter, "importPropertiesFromXMLToYAML")
 
-    importClientApplicationFormFromXMLToYAML({
-      context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
-      formName: "Форма",
-      formXML: formDocument.compatibility.Form as ClientApplicationFormXML,
-      metadataXML: metadataDocument.compatibility.MetaDataObject as FormMetadataXML,
-      formXMLNode: formRoot,
-      metadataXMLNode: metadataRoot,
-      audit,
-      annotations,
-    })
+    importStructuredForm(formDocument, metadataDocument, audit, annotations)
 
     expect(importSpy).toHaveBeenCalledWith(expect.objectContaining({
       sources: [
@@ -269,6 +278,34 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       ],
       audit,
       annotations,
+    }))
+  })
+
+  it("сохраняет адресное владение свойствами реквизита формы", () => {
+    const formDocument = parseXmlDocumentWithSaxes(
+      `<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config">
+        <Attributes><Attribute name="Отчет" id="1"><Type><v8:Type>cfg:ReportObject.Отчет</v8:Type></Type><MainAttribute>true</MainAttribute></Attribute></Attributes>
+      </Form>`,
+      { preserveXsiNil: true },
+    )
+    const metadataDocument = parseXmlDocumentWithSaxes(
+      `<MetaDataObject><Form><Properties><FormType>Managed</FormType></Properties></Form></MetaDataObject>`,
+    )
+    const formRoot = formDocument.roots[0]!
+    const metadataRoot = metadataDocument.roots[0]!
+    const audit = createXmlImportAuditSession([formRoot, metadataRoot])
+
+    importStructuredForm(formDocument, metadataDocument, audit)
+    audit.finalize()
+
+    const type = audit.outcomes().find(({ node }) => node.path.endsWith("/Attribute[1]/Type[1]"))
+    expect(type).toEqual(expect.objectContaining({
+      state: "claimed",
+      boundaries: [expect.objectContaining({
+        itemType: "FormAttribute",
+        propertyKey: "type",
+        yamlPath: ["Реквизиты", "Отчет", "Тип"],
+      })],
     }))
   })
 

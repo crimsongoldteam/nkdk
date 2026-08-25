@@ -44,4 +44,34 @@ describe("explicit RowFilter", () => {
       resolve: () => ({ status: "warning" }),
     })).toBe("dynamicList")
   })
+
+  it("считает неразрешённый источник таблицы профилем RowFilter", () => {
+    expect(classifyTableSource({
+      dataPath: "Объект.ТабличнаяЧасть",
+      index: { getRoot: () => undefined },
+      resolve: () => ({ status: "warning" }),
+    })).toBe("rowFilter")
+  })
+
+  it("не доверяет частичной цели из warning-резолвера", () => {
+    expect(classifyTableSource({
+      dataPath: "Объект.ТабличнаяЧасть",
+      index: { getRoot: () => undefined },
+      resolve: () => ({
+        status: "warning",
+        target: {
+          segments: ["Объект", "ТабличнаяЧасть"],
+          source: { kind: "objectField" },
+          typeInfo: { nextTypes: [] },
+        },
+      }),
+    })).toBe("rowFilter")
+  })
+
+  it("считает вложенный неразрешённый путь профилем RowFilter и без резолвера", () => {
+    expect(classifyTableSource({
+      dataPath: "Объект.ТабличнаяЧасть",
+      index: { getRoot: () => undefined },
+    })).toBe("rowFilter")
+  })
 })

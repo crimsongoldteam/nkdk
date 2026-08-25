@@ -96,6 +96,8 @@ import { resolveImportedMetadataTargetStatus } from "./metadataTargetLookup"
 import { executeImportControlExport } from "./controlExport"
 import type { XmlAnomalyProofAudit } from "./anomalyProof"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
+import type { BaseFormSourceResult } from "../fullSyncToXml/baseFormSource"
+import type { PreparedYamlFile } from "../project/preparedYamlProject"
 import { classifyImportedIssues } from "./classifyImportedIssues"
 import { applyImportedIssueDecisions } from "./applyImportedIssueDecisions"
 import type { ValidationIssue, ValidationIssueTarget } from "@nkdk/runtime"
@@ -822,6 +824,11 @@ async function prepareYamlForFinalPass(
         contextWithOwners: withoutDataPathDiagnosticSink(contextWithOwners),
         ownerMetadataCache,
       })
+  const controlBaseFormSource = createControlBaseFormSource({
+    importedBaseForm: prepared.baseFormCandidate,
+    savedBaseForm: preparedBaseFormCandidate,
+    currentConfigurationYAML,
+  })
   profiler.measure(
     "Подготовка импорта конфигурации",
     "Уточнение отложенных зависимых значений YAML",
@@ -876,6 +883,7 @@ async function prepareYamlForFinalPass(
       topology: state.topology,
       context: { ...contextWithOwners, fromXML: state.context.fromXML },
       index: configurationIndex,
+      ...(controlBaseFormSource === undefined ? {} : { baseFormSource: controlBaseFormSource }),
       composition: activeSecondPass?.composition ?? { children: () => [] },
       readSource: async (sourcePath) => readFile(sourcePath, "utf8"),
       profile(event) {
@@ -986,6 +994,57 @@ function retargetConfigurationFragment(
   return {
     ...fragment,
     targetProjectPath,
+  }
+}
+
+function createControlBaseFormSource(params: {
+  readonly importedBaseForm: DeferredImportYaml["baseFormCandidate"]
+  readonly savedBaseForm: DeferredImportYaml["baseFormCandidate"]
+  readonly currentConfigurationYAML: unknown
+}): BaseFormSourceResult | undefined {
+  if (params.importedBaseForm === undefined || params.currentConfigurationYAML === undefined) return undefined
+  const currentConfigurationForm = {
+    projectPath: params.importedBaseForm.baseProjectPath,
+    prepared: controlBaseFormPreparedYaml({
+      projectPath: params.importedBaseForm.baseProjectPath,
+      data: params.currentConfigurationYAML,
+      owner: params.importedBaseForm.owner,
+    }),
+  }
+  if (params.savedBaseForm === undefined) {
+    return {
+      kind: "projected",
+      baseForm: currentConfigurationForm,
+      currentConfigurationForm,
+    }
+  }
+  return {
+    kind: "saved",
+    baseForm: {
+      projectPath: params.savedBaseForm.targetProjectPath,
+      prepared: controlBaseFormPreparedYaml({
+        projectPath: params.savedBaseForm.targetProjectPath,
+        data: params.savedBaseForm.yaml,
+        owner: params.savedBaseForm.owner,
+      }),
+    },
+    currentConfigurationForm,
+  }
+}
+
+function controlBaseFormPreparedYaml(params: {
+  readonly projectPath: string
+  readonly data: unknown
+  readonly owner: { readonly dir: string; readonly name: string }
+}): PreparedYamlFile {
+  return {
+    projectPath: params.projectPath,
+    filePath: params.projectPath,
+    role: "form",
+    owner: params.owner,
+    data: params.data,
+    annotations: restoreXmlAnomalyAnnotations(params.data, { version: 1, entries: [] }),
+    syntaxDiagnostics: [],
   }
 }
 

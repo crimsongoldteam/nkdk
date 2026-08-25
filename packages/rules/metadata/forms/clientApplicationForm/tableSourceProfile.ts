@@ -26,13 +26,10 @@ export function classifyTableSource(params: {
 }): TableSourceProfile {
   if (typeof params.dataPath !== "string" || params.dataPath.trim().length === 0) return "rowFilter"
   const resolved = params.resolve?.(params.dataPath)
-  if (resolved === undefined) return classifyDirectRoot(params.dataPath, params.index)
-  if (resolved.status === "error") {
-    const direct = classifyDirectRoot(params.dataPath, params.index)
-    return direct === "none" ? "rowFilter" : direct
-  }
+  if (resolved === undefined) return classifyUnresolvedPath(params.dataPath, params.index)
+  if (resolved.status !== "ok") return classifyUnresolvedPath(params.dataPath, params.index)
   const target = resolved.target
-  if (target === undefined) return classifyDirectRoot(params.dataPath, params.index)
+  if (target === undefined) return classifyUnresolvedPath(params.dataPath, params.index)
   if (target.typeInfo.isComposite === true || target.typeInfo.nextTypes.length > 1) return "none"
 
   const kind = target.typeInfo.table?.kind
@@ -41,6 +38,14 @@ export function classifyTableSource(params: {
   }
   if (kind === "ValueTable" || kind === "TabularSection" || kind === "RegisterRecordSet") return "rowFilter"
   return "none"
+}
+
+function classifyUnresolvedPath(dataPath: string, index: TableSourceIndex): TableSourceProfile {
+  const direct = classifyDirectRoot(dataPath, index)
+  if (direct !== "none") return direct
+  const rootName = dataPath.split(".", 1)[0]!
+  if (rootName !== dataPath && classifyDirectRoot(rootName, index) !== "none") return "none"
+  return "rowFilter"
 }
 
 function classifyDirectRoot(dataPath: string, index: TableSourceIndex): TableSourceProfile {
