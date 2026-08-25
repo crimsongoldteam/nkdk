@@ -186,6 +186,9 @@
     readonly proofAudit: XmlAnomalyProofAudit
     readonly deferred: readonly DeferredValuePath[]
     readonly dependentDeferred: readonly ImportedDependentPropertyCandidate[]
+    readonly ownerContext: readonly MetadataItemOwnerContextEntry[]
+    readonly dependentOwner: { readonly dir: string; readonly name: string }
+    readonly baseFormCandidate?: PreparedBaseFormRecordV1
     readonly ruleItemType: string
     readonly targetProjectPath: string
     readonly logicalAddress: string
@@ -194,7 +197,23 @@
 
   export function encodePreparedImportRecord(record: Omit<PreparedImportRecordV1, "checksum">): Uint8Array
   export function decodePreparedImportRecord(bytes: Uint8Array): PreparedImportRecordV1
+
+  export interface PreparedBaseFormRecordV1 {
+    readonly baseProjectPath: string
+    readonly targetProjectPath: string
+    readonly owner: { readonly dir: string; readonly name: string }
+    readonly yamlText: string
+    readonly ruleItemType: string
+    readonly deferred: readonly DeferredValuePath[]
+    readonly configurationFragment: ConfigurationIndexBlockFragment
+  }
   ```
+
+- Derived second-pass values are rebuilt after decoding: `formDataPathIndex`
+  через `createImportedFormDataPathIndex`, `validationFile` через
+  `resolveValidationProjectFile`, rules через registry. Уже опубликованные в
+  первом проходе `configurationFragment` и `indexContribution` основного файла
+  в запись не дублируются.
 
 - [ ] **Step 1: Зафиксировать отвязку deferred от объектов**
 
@@ -209,6 +228,10 @@
 - [ ] **Step 2: Зафиксировать двоичный round-trip записи**
 
   В `preparedRecord.test.ts` создать запись со строкой из пробелов, явной двойной кавычкой, raw-аннотацией в `yamlText`, двумя deferred paths и proof roots. Проверить точный decode, версию и checksum.
+
+  В ту же запись включить `ownerContext`, `dependentOwner` и
+  `baseFormCandidate` с собственным YAML, deferred path и
+  `configurationFragment`; проверить их точное восстановление.
 
 - [ ] **Step 3: Зафиксировать ошибки записи**
 
@@ -227,6 +250,11 @@
 - [ ] **Step 6: Проверить точный повторный YAML**
 
   Для результата decode проверить повторную сериализацию: текст листа из девяти пробелов, `$xml`, `$значение`, `!xml/invalid/N`, двойные кавычки и порядок mapping должны совпасть с исходной внутренней записью.
+
+  Добавить интеграционные сценарии подготовки обычной формы и формы расширения:
+  после decode заново получить rule, связать deferred, построить
+  `formDataPathIndex` и `validationFile`; результат второго прохода должен
+  совпасть с результатом существующего `DeferredImportYaml` до переноса.
 
 - [ ] **Step 7: Проверить слой**
 
@@ -356,7 +384,12 @@
 
 - [ ] **Step 7: Восстанавливать задание в любом worker**
 
-  Worker читает bytes, проверяет checksum, разбирает внутренний YAML, восстанавливает annotations, находит rule по `ruleItemType`, связывает deferred paths и только затем вызывает существующий `prepareYamlForFinalPass`. После успешной записи второго состояния вызывает `release(assignmentId)`.
+  Worker читает bytes, проверяет checksum, разбирает внутренние YAML основного
+  файла и кандидата базовой формы, восстанавливает annotations, находит оба
+  rules по `ruleItemType`, связывает deferred paths, восстанавливает
+  `formDataPathIndex`, `validationFile`, `ownerContext` и `dependentOwner` и
+  только затем вызывает существующий `prepareYamlForFinalPass`. После успешной
+  записи второго состояния вызывает `release(assignmentId)`.
 
 - [ ] **Step 8: Установить штатные четыре worker**
 
