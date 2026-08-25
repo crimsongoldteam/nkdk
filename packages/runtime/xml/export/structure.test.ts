@@ -57,7 +57,7 @@ describe("xmlObjectRootStructures", () => {
   })
 })
 
-function expectSameStructure(value: unknown): void {
+function expectSameStructure(value: Parameters<typeof xmlExport>[0]): void {
   const direct = xmlObjectRootStructures(value)
   expect(direct.kind).toBe("supported")
   if (direct.kind !== "supported") return

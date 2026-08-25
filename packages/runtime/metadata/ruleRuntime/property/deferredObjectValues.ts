@@ -13,6 +13,13 @@ export interface DeferredObjectValue extends DeferredValuePath {
   readonly target: DeferredObjectTarget
 }
 
+export function deferredValuePaths(values: readonly DeferredObjectValue[]): DeferredValuePath[] {
+  return values.map(({ valuePath, rulePath }) => ({
+    valuePath: [...valuePath],
+    rulePath: rulePath.map((segment) => ({ ...segment })),
+  }))
+}
+
 type DeferredContainer = Record<string, unknown> | unknown[]
 
 export function bindDeferredObjectValues(

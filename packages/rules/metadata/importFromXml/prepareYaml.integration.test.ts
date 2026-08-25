@@ -28,6 +28,11 @@ resetRegisteredImportRuleLookupCountForTests,
 resolveAssignmentRule,
 } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
+import {
+createPreparedImportRecordSource,
+encodePreparedImportRecord,
+restorePreparedImportRecord,
+} from "./preparedRecord"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const syncXmlDir = join(configurationFixturesDir, "syncConfiguration/xml")
@@ -576,6 +581,11 @@ describe("prepareImportYaml", () => {
     expect(prepared.localIndexes.metadata.formDataPathIndex).toBeDefined()
     expect(prepared).not.toHaveProperty("model")
     expect(prepared).not.toHaveProperty("xml")
+    const restored = restorePreparedImportRecord(
+      encodePreparedImportRecord(createPreparedImportRecordSource(prepared)),
+    )
+    expect(restored.yaml).toEqual(prepared.yaml)
+    expect(restored.formDataPathIndex).toBeDefined()
     expect(readFile).toHaveBeenCalledTimes(2)
     expect(readFile).toHaveBeenCalledWith(metadataPath, "utf-8")
     expect(readFile).toHaveBeenCalledWith(bodyPath, "utf-8")
@@ -632,6 +642,14 @@ describe("prepareImportYaml", () => {
     expect(prepared.baseFormCandidate?.configurationFragment.entities.every(({ logicalAddress }) =>
       logicalAddress.startsWith("Справочник.СправочникПолный.Форма.ФормаОтчета.ОсноваФормы")
     )).toBe(true)
+    const restored = restorePreparedImportRecord(
+      encodePreparedImportRecord(createPreparedImportRecordSource(prepared)),
+    )
+    expect(restored.yaml).toEqual(prepared.yaml)
+    expect(restored.baseFormCandidate?.yaml).toEqual(prepared.baseFormCandidate?.yaml)
+    expect(restored.baseFormCandidate?.configurationFragment).toEqual(
+      prepared.baseFormCandidate?.configurationFragment,
+    )
     expect(collector.fragment(prepared.targetProjectPath).entities.some(({ logicalAddress }) =>
       logicalAddress.includes("ОсноваФормы")
     )).toBe(false)

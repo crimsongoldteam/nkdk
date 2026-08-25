@@ -158,7 +158,7 @@
 
   Expected: PASS; для обычного совпадающего задания строка XML не создаётся.
 
-- [ ] **Step 8: Зафиксировать слой**
+- [x] **Step 8: Зафиксировать слой**
 
   Commit: `perf: :zap: убрать повторный разбор контрольного XML`
 
@@ -217,7 +217,7 @@
   первом проходе `configurationFragment` и `indexContribution` основного файла
   в запись не дублируются.
 
-- [ ] **Step 1: Зафиксировать отвязку deferred от объектов**
+- [x] **Step 1: Зафиксировать отвязку deferred от объектов**
 
   Добавить в runtime функцию:
 
@@ -227,7 +227,7 @@
 
   Тест должен сериализовать возвращённые paths, создать новое YAML-дерево и успешно вызвать `bindDeferredObjectValues(newRoot, paths)`.
 
-- [ ] **Step 2: Зафиксировать двоичный round-trip записи**
+- [x] **Step 2: Зафиксировать двоичный round-trip записи**
 
   В `preparedRecord.test.ts` создать запись со строкой из пробелов, явной двойной кавычкой, raw-аннотацией в `yamlText`, двумя deferred paths и proof roots. Проверить точный decode, версию и checksum.
 
@@ -235,21 +235,21 @@
   `baseFormCandidate` с собственным YAML, deferred path и
   `configurationFragment`; проверить их точное восстановление.
 
-- [ ] **Step 3: Зафиксировать ошибки записи**
+- [x] **Step 3: Зафиксировать ошибки записи**
 
   Проверить отдельными тестами неизвестную версию, изменённый байт payload и отсутствие зарегистрированного `ruleItemType`. Ожидаемые коды ошибок: `xml_import_prepared_version`, `xml_import_prepared_checksum`, `xml_import_prepared_rule`.
 
-- [ ] **Step 4: Подтвердить падение**
+- [x] **Step 4: Подтвердить падение**
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project unit metadata/importFromXml/preparedRecord.test.ts metadata/ruleRuntime/property/deferredObjectValues.test.ts`
 
   Expected: FAIL из-за отсутствующего кодека и `deferredValuePaths`.
 
-- [ ] **Step 5: Реализовать запись без объектных ссылок**
+- [x] **Step 5: Реализовать запись без объектных ссылок**
 
   Использовать стабильное двоичное кодирование с UTF-8 payload и xxhash64 по байтам до поля checksum. YAML сериализовать существующим `serializeImportYaml`, чтобы сохранить явные строки, mapping metadata и XML-аннотации; при чтении использовать штатный YAML-парсер и затем `bindDeferredObjectValues`.
 
-- [ ] **Step 6: Проверить точный повторный YAML**
+- [x] **Step 6: Проверить точный повторный YAML**
 
   Для результата decode проверить повторную сериализацию: текст листа из девяти пробелов, `$xml`, `$значение`, `!xml/invalid/N`, двойные кавычки и порядок mapping должны совпасть с исходной внутренней записью.
 
@@ -258,9 +258,11 @@
   `formDataPathIndex` и `validationFile`; результат второго прохода должен
   совпасть с результатом существующего `DeferredImportYaml` до переноса.
 
-- [ ] **Step 7: Проверить слой**
+- [x] **Step 7: Проверить слой**
 
-  Run: `pnpm --filter @nkdk/rules exec vitest run --project unit metadata/importFromXml/preparedRecord.test.ts metadata/ruleRuntime/property/deferredObjectValues.test.ts`
+  Run: `pnpm --filter @nkdk/rules exec vitest run --project core-metadata metadata/importFromXml/preparedRecord.test.ts`
+
+  Run: `pnpm --filter @nkdk/runtime exec vitest run --project unit metadata/ruleRuntime/property/deferredObjectValues.test.ts`
 
   Run: `pnpm --filter @nkdk/rules type-check`
 
@@ -268,7 +270,7 @@
 
   Expected: PASS.
 
-- [ ] **Step 8: Зафиксировать слой**
+- [x] **Step 8: Зафиксировать слой**
 
   Commit: `feat: :sparkles: сделать подготовленный XML-импорт переносимым`
 
