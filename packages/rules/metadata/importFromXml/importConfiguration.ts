@@ -42,6 +42,7 @@ import type {
   ExternalFileTransfer,
   ImportAssignment,
   ImportDiagnostic,
+  ImportExternalFile,
   ImportResultFile,
   ImportSnapshotFile,
 } from "./types"
@@ -336,6 +337,15 @@ export async function importConfigurationFromXml(
       const secondDiagnostics = [...second.diagnostics]
       const cleanup = await abortCleanupDiagnostics(importSession, secondDiagnostics, closePoolForCleanup)
       return outcome = failedResult([...secondDiagnostics, ...cleanup], warnings, resolvedComponentPath)
+    }
+    const externalSemanticState = externalFileSemanticStateBatch(
+      validationComponent,
+      discovered.assignments.flatMap(({ externalFiles }) => externalFiles),
+    )
+    if (externalSemanticState.updates.length > 0) {
+      const externalWriter = createProjectStateFragmentWriter()
+      externalWriter.appendImportFinal(externalSemanticState)
+      await importSession.writeStateFragment(externalWriter.finish())
     }
     const semanticReadToken = await importSession.commitSemanticIndex()
     const semanticIssues = await importSession.collectSemanticValidationIssues()
@@ -684,6 +694,16 @@ export function externalFileStateBatch(
   })
   const batch = createProjectStateFileUpdateBatch(entries)
   return { updates: entries.map(({ update }) => update), hashBytes: batch.hashBytes }
+}
+
+export function externalFileSemanticStateBatch(
+  component: ValidationProjectComponent,
+  files: readonly ImportExternalFile[],
+): ProjectStateImportFinalFileStateBatch {
+  return externalFileStateBatch(component, files.map(({ targetProjectPath }) => ({
+    projectPath: targetProjectPath,
+    contentHash: 0n,
+  })))
 }
 
 function successResult(

@@ -23,6 +23,12 @@ const boundary: XmlImportAuditBoundary = {
   yamlPath: [],
   rulePath: [],
 }
+const knownBoundary: XmlImportAuditBoundary = {
+  itemType: "SyntheticItem",
+  propertyKey: "known",
+  yamlPath: ["Известное"],
+  rulePath: [{ propertyKey: "known" }],
+}
 
 describe("YAML-проекция XML-аномалий", () => {
   it("сохраняет повторные ключи именованной коллекции в XML-порядке", () => {
@@ -244,12 +250,6 @@ describe("YAML-проекция XML-аномалий", () => {
     ).roots[0]!
     const known = child(root, "Known")
     const neighbor = child(root, "Neighbor")
-    const knownBoundary: XmlImportAuditBoundary = {
-      itemType: "SyntheticItem",
-      propertyKey: "known",
-      yamlPath: ["Известное"],
-      rulePath: [{ propertyKey: "known" }],
-    }
     const neighborBoundary: XmlImportAuditBoundary = {
       itemType: "SyntheticItem",
       propertyKey: "neighbor",
@@ -282,12 +282,6 @@ describe("YAML-проекция XML-аномалий", () => {
       '<Root><Known><?future mode="x"?></Known></Root>',
     ).roots[0]!
     const known = child(root, "Known")
-    const knownBoundary: XmlImportAuditBoundary = {
-      itemType: "SyntheticItem",
-      propertyKey: "known",
-      yamlPath: ["Известное"],
-      rulePath: [{ propertyKey: "known" }],
-    }
     const audit = createXmlImportAuditSession([root])
     audit.claim(root, boundary)
     audit.claim(known, knownBoundary)
@@ -301,6 +295,31 @@ describe("YAML-проекция XML-аномалий", () => {
       kind: "raw",
       target: "value",
       xml: { "?future": { _mode: "x" } },
+      hasSemanticValue: true,
+    })
+  })
+
+  it("не считает повтор owner boundary выходом за поддерево raw", () => {
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Known>future text</Known><Known>known text</Known></Root>",
+    ).roots[0]!
+    const known = root.content.filter(
+      (node): node is XmlElementNode => node.type === "element" && node.name === "Known",
+    )
+    const audit = createXmlImportAuditSession([root])
+    audit.claim(root, boundary)
+    audit.claim(known[0]!, knownBoundary)
+    audit.claim(known[1]!, knownBoundary)
+    audit.claim(known[1]!.content[0]!, knownBoundary)
+    const annotations = createXmlAnomalyAnnotations()
+    const yaml: Record<string, unknown> = { Известное: "semantic" }
+
+    projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
+
+    expect(annotations.at(yaml, "Известное")).toMatchObject({
+      kind: "raw",
+      target: "value",
+      xml: "future text",
       hasSemanticValue: true,
     })
   })

@@ -25,6 +25,7 @@ import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime
 import {
   calculateXmlImportConcurrency,
   externalFileStateBatch,
+  externalFileSemanticStateBatch,
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
   type ImportCoordinatorDependencies,
@@ -131,6 +132,20 @@ it.each([
       },
     }],
   }])
+})
+
+it("добавляет файловую цель во смысловой индекс до вычисления хэша", () => {
+  const component = createValidationProjectComponent("/project", { kind: "configuration" })
+  const batch = externalFileSemanticStateBatch(component, [{
+    sourcePath: "/xml/Reports/Продажи/Templates/Схема/Ext/Template.xml",
+    targetProjectPath: "Отчет/Продажи/Шаблоны/Схема/Template.xml",
+  }])
+
+  expect(batch.updates).toEqual([expect.objectContaining({
+    kind: "resource",
+    projectPath: "cf/Отчет/Продажи/Шаблоны/Схема/Template.xml",
+    targets: [expect.objectContaining({ canonical: "Report.Продажи.Template.Схема" })],
+  })])
 })
 
 afterEach(async () => {

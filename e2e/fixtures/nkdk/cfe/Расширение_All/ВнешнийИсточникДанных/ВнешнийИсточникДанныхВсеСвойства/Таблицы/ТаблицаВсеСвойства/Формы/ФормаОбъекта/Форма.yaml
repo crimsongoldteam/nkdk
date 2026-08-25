@@ -6,3 +6,28 @@
     РежимРедактирования: ВходПриВводе
 Изменять:
   - Форма
+"@Form": !xml/raw
+  $xml:
+    BaseForm:
+      _version: "2.20"
+      AutoCommandBar:
+        _name: ФормаКоманднаяПанель
+        _id: "-1"
+      ChildItems:
+        InputField:
+          _name: ПолеПоУмолчанию
+          _id: "1"
+          EditMode: EnterOnInput
+          ExtendedEditMultipleValues: "true"
+          ContextMenu:
+            _name: ПолеПоУмолчаниюКонтекстноеМеню
+            _id: "2"
+          ExtendedTooltip:
+            _name: ПолеПоУмолчаниюРасширеннаяПодсказка
+            _id: "3"
+      Attributes:
+    "#order":
+      - AutoCommandBar
+      - ChildItems
+      - Attributes
+      - BaseForm

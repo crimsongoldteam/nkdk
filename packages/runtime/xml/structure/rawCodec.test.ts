@@ -3,6 +3,7 @@ import { xmlExport } from "../export/exporter"
 import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
 import { compareXmlStructures } from "./compare"
 import {
+  applyXmlPatch,
   decodeXmlRawEnvelope,
   decodeXmlRawOrderPatch,
   decodeXmlRawValue,
@@ -15,6 +16,26 @@ const contentLabels = (nodes: ReturnType<typeof decodeXmlRawValue>["nodes"]): st
   ) ?? []
 
 describe("decodeXmlRawValue", () => {
+  it("сохраняет порядок полного вложенного XML-патча при добавлении ребёнка", () => {
+    const patched = applyXmlPatch(
+      {
+        A: {},
+        B: {},
+        ChildItems: {},
+      },
+      {
+        A: {},
+        RowFilter: { "_xsi:nil": "true" },
+        B: {},
+        ChildItems: {},
+      },
+    )
+
+    const fragment = decodeXmlRawValue(patched, { elementName: "Table" })
+
+    expect(contentLabels(fragment.nodes)).toEqual(["A", "RowFilter", "B", "ChildItems"])
+  })
+
   it("декодирует точный текст оболочки вместе с #order", () => {
     expect(decodeXmlRawOrderPatch({
       "#text": ["\n  ", "\n  ", "\n"],

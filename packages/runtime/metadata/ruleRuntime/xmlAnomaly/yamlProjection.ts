@@ -282,7 +282,10 @@ function liftElementToStableOwner(
         `Raw XML-граница ${element.path} пересекается с независимой XML-границей ${node.path}`,
       )
     }
-    if (!isBoundaryFullyInsideSubtree(boundaryKey, elementSubtree, outcomes)) {
+    if (
+      boundaryKey !== ownerKey &&
+      !isBoundaryFullyInsideSubtree(boundaryKey, elementSubtree, outcomes)
+    ) {
       throw new Error(
         `Raw XML-граница ${element.path} пересекается с выходящей за subtree XML-границей ${node.path}`,
       )

@@ -7,6 +7,19 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Group
+          - ToolTip
+          - Picture
 ОсновнаяФормаВыбора: ""
 ОсновнаяФормаОбъекта: ""
 ОсновнаяФормаСписка: ""
@@ -16,10 +29,43 @@
     Тип: Справочник.СправочникРеквизит
     ФормаВыбора: ""
     Подсказка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - ToolTip
+          - ChoiceForm
   РеквизитХранилище:
     Тип: Булево
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
   РеквизитПоУмолчанию:
     Тип: Строка(10)
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
 ТабличныеЧасти:
   ТабличнаяЧастьПоУмолчанию:
     ПринадлежностьОбъекта: Заимствованный
@@ -32,8 +78,31 @@
         Тип: Справочник.СправочникРеквизит
         ФормаВыбора: ""
         Подсказка: ""
+        ПринадлежностьОбъекта: !xml/raw
+          $xml: Adopted
+        Properties: !xml/raw
+          $xml:
+            "#order":
+              - ObjectBelonging
+              - Name
+              - Synonym
+              - Comment
+              - ExtendedConfigurationObject
+              - Type
+              - ToolTip
+              - ChoiceForm
       РеквизитПоУмолчанию:
         Тип: Строка(10)
+        ПринадлежностьОбъекта: !xml/raw
+          $xml: Adopted
+        Properties: !xml/raw
+          $xml:
+            "#order":
+              - ObjectBelonging
+              - Name
+              - Comment
+              - ExtendedConfigurationObject
+              - Type
     Подсказка: ""
 ДлинаКода: !изменять 9
 ДлинаНаименования: !изменять 40

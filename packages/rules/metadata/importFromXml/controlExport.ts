@@ -66,7 +66,18 @@ export async function executeImportControlExport(params: {
     }
   }
   const assignment = projectControlAssignment(params.assignment, params.topology)
-  const context = controlExportContext(params.context)
+  const sourceCache = new Map<string, string>()
+  const readSource = async (sourcePath: string): Promise<string> => {
+    const cached = sourceCache.get(sourcePath)
+    if (cached !== undefined) return cached
+    const source = await params.readSource(sourcePath)
+    sourceCache.set(sourcePath, source)
+    return source
+  }
+  const adoptedUuid = params.context.fromXML.componentKind === "configurationExtension"
+    ? await readAdoptedUuid(params.assignment, readSource)
+    : undefined
+  const context = controlExportContext(params.context, params.assignment.logicalAddress, adoptedUuid)
   controlExportCountValueForTests += 1
   const prepared = (params.ordinaryExporter ?? prepareFullXmlSyncAssignment)({
     assignment,
@@ -153,7 +164,7 @@ export async function executeImportControlExport(params: {
     audit: detailed?.audit ?? params.audit,
     rule: params.rule,
     exported,
-    readSource: params.readSource,
+    readSource,
   })
   params.profile?.({
     mode: controlExportMode(preliminaryExported),
@@ -395,11 +406,25 @@ function projectControlAssignment(
 
 function controlExportContext(
   context: XmlImportConfigurationContext,
+  logicalAddress: string,
+  adoptedUuid: string | undefined,
 ): ConfigurationContextWithExportToXML {
   return {
     ...context,
     exportToXML: {
       ...(context.exportToXML ?? {}),
+      ...(adoptedUuid === undefined
+        ? {}
+        : {
+            adoptedUuids: {
+              ...context.exportToXML?.adoptedUuids,
+              [logicalAddress]: adoptedUuid,
+            },
+            xmlDefaultVariantByLogicalAddress: {
+              ...context.exportToXML?.xmlDefaultVariantByLogicalAddress,
+              [logicalAddress]: "adopted" as const,
+            },
+          }),
       componentKind: context.fromXML.componentKind,
       version: context.exportToXML?.version ?? context.version,
       itemsTree: context.exportToXML?.itemsTree ?? [],
@@ -412,6 +437,38 @@ function controlExportContext(
       },
     },
   }
+}
+
+async function readAdoptedUuid(
+  assignment: ImportAssignment,
+  readSource: (sourcePath: string) => Promise<string>,
+): Promise<string | undefined> {
+  const metadata = assignment.xmlFiles.find(({ role }) => role === "metadata")
+  if (metadata === undefined) return undefined
+  const document = parseXmlDocumentWithSaxes(await readSource(metadata.sourcePath), {
+    preserveXsiNil: true,
+    preserveEmptyElements: true,
+  })
+  for (const documentRoot of document.roots) {
+    const objectRoot = childElement(documentRoot)
+    const properties = objectRoot === undefined
+      ? undefined
+      : childElement(objectRoot, "Properties")
+    const extended = properties === undefined
+      ? undefined
+      : childElement(properties, "ExtendedConfigurationObject")
+    if (typeof extended?.compatibilityValue === "string") {
+      const value = extended.compatibilityValue.trim()
+      if (value.length > 0) return value
+    }
+  }
+  return undefined
+}
+
+function childElement(parent: XmlElementNode, localName?: string): XmlElementNode | undefined {
+  return parent.content.find((node): node is XmlElementNode =>
+    node.type === "element" && (localName === undefined || xmlLocalName(node.name) === localName),
+  )
 }
 
 function matchSource(

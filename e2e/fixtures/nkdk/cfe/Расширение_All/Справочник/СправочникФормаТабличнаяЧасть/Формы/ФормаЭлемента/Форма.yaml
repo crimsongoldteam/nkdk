@@ -3,7 +3,6 @@
 Элементы:
   ТабличнаяЧасть:
     Вид: ТаблицаФормы
-    ОтборСтрок: !xml/present
     Элементы:
       ТабличнаяЧастьНомерСтроки:
         Вид: ПолеНадписи
@@ -14,3 +13,112 @@
         РежимРедактирования: ВходПриВводе
 Изменять:
   - Форма
+"@Form": !xml/raw
+  $xml:
+    ChildItems:
+      Table:
+        RowFilter:
+          _xsi:nil: "true"
+        "#order":
+          - AutoInsertNewRow
+          - EnableStartDrag
+          - EnableDrag
+          - RowFilter
+          - ContextMenu
+          - AutoCommandBar
+          - ExtendedTooltip
+          - SearchStringAddition
+          - ViewStatusAddition
+          - SearchControlAddition
+          - ChildItems
+    BaseForm:
+      _version: "2.20"
+      WindowOpeningMode: LockOwnerWindow
+      UseForFoldersAndItems: Items
+      AutoCommandBar:
+        _name: ФормаКоманднаяПанель
+        _id: "-1"
+      ChildItems:
+        Table:
+          _name: ТабличнаяЧасть
+          _id: "7"
+          AutoInsertNewRow: "true"
+          EnableStartDrag: "true"
+          EnableDrag: "true"
+          RowFilter:
+            _xsi:nil: "true"
+          ContextMenu:
+            _name: ТабличнаяЧастьКонтекстноеМеню
+            _id: "8"
+          AutoCommandBar:
+            _name: ТабличнаяЧастьКоманднаяПанель
+            _id: "9"
+          ExtendedTooltip:
+            _name: ТабличнаяЧастьРасширеннаяПодсказка
+            _id: "10"
+          SearchStringAddition:
+            _name: ТабличнаяЧастьСтрокаПоиска
+            _id: "11"
+            AdditionSource:
+              Item: ТабличнаяЧасть
+              Type: SearchStringRepresentation
+            ContextMenu:
+              _name: ТабличнаяЧастьСтрокаПоискаКонтекстноеМеню
+              _id: "12"
+            ExtendedTooltip:
+              _name: ТабличнаяЧастьСтрокаПоискаРасширеннаяПодсказка
+              _id: "13"
+          ViewStatusAddition:
+            _name: ТабличнаяЧастьСостояниеПросмотра
+            _id: "14"
+            AdditionSource:
+              Item: ТабличнаяЧасть
+              Type: ViewStatusRepresentation
+            ContextMenu:
+              _name: ТабличнаяЧастьСостояниеПросмотраКонтекстноеМеню
+              _id: "15"
+            ExtendedTooltip:
+              _name: ТабличнаяЧастьСостояниеПросмотраРасширеннаяПодсказка
+              _id: "16"
+          SearchControlAddition:
+            _name: ТабличнаяЧастьУправлениеПоиском
+            _id: "17"
+            AdditionSource:
+              Item: ТабличнаяЧасть
+              Type: SearchControl
+            ContextMenu:
+              _name: ТабличнаяЧастьУправлениеПоискомКонтекстноеМеню
+              _id: "18"
+            ExtendedTooltip:
+              _name: ТабличнаяЧастьУправлениеПоискомРасширеннаяПодсказка
+              _id: "19"
+          ChildItems:
+            LabelField:
+              _name: ТабличнаяЧастьНомерСтроки
+              _id: "20"
+              EditMode: EnterOnInput
+              ContextMenu:
+                _name: ТабличнаяЧастьНомерСтрокиКонтекстноеМеню
+                _id: "21"
+              ExtendedTooltip:
+                _name: ТабличнаяЧастьНомерСтрокиРасширеннаяПодсказка
+                _id: "22"
+            InputField:
+              _name: ТабличнаяЧастьРеквизит1
+              _id: "23"
+              EditMode: EnterOnInput
+              ExtendedEditMultipleValues: "true"
+              ContextMenu:
+                _name: ТабличнаяЧастьРеквизит1КонтекстноеМеню
+                _id: "24"
+              ExtendedTooltip:
+                _name: ТабличнаяЧастьРеквизит1РасширеннаяПодсказка
+                _id: "25"
+      Attributes:
+    "#order":
+      - WindowOpeningMode
+      - UseForFoldersAndItems
+      - AutoCommandBar
+      - ChildItems
+      - Attributes
+      - BaseForm

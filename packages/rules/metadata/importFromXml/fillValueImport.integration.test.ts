@@ -10,7 +10,6 @@ import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 
 
-const fixture = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
 const adoptedExtensionFixture = join(
   import.meta.dirname,
   "__fixtures__/configurationExtension/Catalogs/СправочникПолный.xml",
@@ -26,7 +25,13 @@ describe("fill value XML import", () => {
   it.each(["type-before", "fill-before"] as const)(
     "нормализует значение после полного дерева при порядке %s",
     async (order) => {
-      const sourcePath = copiedFixture(order)
+      const sourcePath = copiedAttributeFixture({
+        name: "СтроковыйРеквизитСИндексом",
+        type: "<v8:Type>xs:string</v8:Type><v8:StringQualifiers><v8:Length>10</v8:Length><v8:AllowedLength>Variable</v8:AllowedLength></v8:StringQualifiers>",
+        fillValue: '<FillValue xsi:type="xs:string"/>',
+        fillBeforeType: order === "fill-before",
+        includeDeletionMark: true,
+      })
       const collector = createConfigurationIndexCollector()
       const prepared = await prepareImportYaml({
         assignment: assignment(sourcePath),
@@ -49,8 +54,13 @@ describe("fill value XML import", () => {
   )
 
   it("не сохраняет канонический xsi:nil нестрокового реквизита", async () => {
+    const sourcePath = copiedAttributeFixture({
+      name: "РеквизитСправочника",
+      type: "<v8:Type>xs:dateTime</v8:Type><v8:DateQualifiers><v8:DateFractions>Date</v8:DateFractions></v8:DateQualifiers>",
+      fillValue: '<FillValue xsi:nil="true"/>',
+    })
     const prepared = await prepareImportYaml({
-      assignment: assignment(fixture),
+      assignment: assignment(sourcePath),
       context: mockXmlImportContext(),
       collector: createConfigurationIndexCollector(),
     })
@@ -124,27 +134,6 @@ describe("fill value XML import", () => {
   })
 })
 
-function copiedFixture(order: "type-before" | "fill-before"): string {
-  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-import-"))
-  tempDirs.push(dir)
-  const sourcePath = join(dir, "СправочникПолный.xml")
-  let xml = fs.readFileSync(fixture, "utf8")
-  if (order === "fill-before") {
-    const start = xml.indexOf("<Name>СтроковыйРеквизитСИндексом</Name>")
-    const fill = xml.indexOf('<FillValue xsi:type="xs:string"/>', start)
-    const type = xml.indexOf("<Type>", start)
-    const fillLineStart = xml.lastIndexOf("\n", fill) + 1
-    const fillLineEnd = xml.indexOf("\n", fill) + 1
-    const fillLine = xml.slice(fillLineStart, fillLineEnd)
-    xml = `${xml.slice(0, fillLineStart)}${xml.slice(fillLineEnd)}`
-    const adjustedType = type < fillLineStart ? type : type - fillLine.length
-    const typeLineStart = xml.lastIndexOf("\n", adjustedType) + 1
-    xml = `${xml.slice(0, typeLineStart)}${fillLine}${xml.slice(typeLineStart)}`
-  }
-  fs.writeFileSync(sourcePath, xml)
-  return sourcePath
-}
-
 function copiedCatalogCodeFixture(value = "--", length = 3): string {
   const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-code-import-"))
   tempDirs.push(dir)
@@ -171,19 +160,46 @@ function copiedCatalogCodeFixture(value = "--", length = 3): string {
 }
 
 function copiedDefinedTypeFixture(): string {
-  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-defined-type-import-"))
+  return copiedAttributeFixture({
+    name: "АвторДействия",
+    type: "<v8:TypeSet>cfg:DefinedType.АвторДействия</v8:TypeSet>",
+    fillValue: '<FillValue xsi:type="xr:DesignTimeRef">Catalog.Пользователи.EmptyRef</FillValue>',
+  })
+}
+
+function copiedAttributeFixture(params: {
+  readonly name: string
+  readonly type: string
+  readonly fillValue: string
+  readonly fillBeforeType?: boolean
+  readonly includeDeletionMark?: boolean
+}): string {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-attribute-import-"))
   tempDirs.push(dir)
   const sourcePath = join(dir, "СправочникПолный.xml")
-  const sourceType = `<Type>
-						<v8:Type>xs:dateTime</v8:Type>
-						<v8:DateQualifiers>
-							<v8:DateFractions>Date</v8:DateFractions>
-						</v8:DateQualifiers>
-					</Type>`
-  const xml = fs.readFileSync(fixture, "utf8")
-    .replace("<Name>РеквизитСправочника</Name>", "<Name>АвторДействия</Name>")
-    .replace(sourceType, "<Type><v8:TypeSet>cfg:DefinedType.АвторДействия</v8:TypeSet></Type>")
-    .replace('<FillValue xsi:nil="true"/>', '<FillValue xsi:type="xr:DesignTimeRef">Catalog.Пользователи.EmptyRef</FillValue>')
+  const type = `<Type>${params.type}</Type>`
+  const ordered = params.fillBeforeType
+    ? `${params.fillValue}${type}`
+    : `${type}${params.fillValue}`
+  const deletionMark = params.includeDeletionMark
+    ? '<StandardAttributes><xr:StandardAttribute name="DeletionMark"><xr:FillValue xsi:nil="true"/></xr:StandardAttribute></StandardAttributes>'
+    : ""
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses"
+  xmlns:v8="http://v8.1c.ru/8.1/data/core"
+  xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"
+  xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Catalog uuid="f8ffca12-d09d-4111-ba91-67077462df5b">
+    <Properties><Name>СправочникПолный</Name>${deletionMark}</Properties>
+    <ChildObjects>
+      <Attribute uuid="301fda37-ce86-4a9a-a764-f914a74e0188">
+        <Properties><Name>${params.name}</Name>${ordered}</Properties>
+      </Attribute>
+    </ChildObjects>
+  </Catalog>
+</MetaDataObject>`
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
 }

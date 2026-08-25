@@ -1,3 +1,13 @@
 Измерения:
   Измерение1:
     Тип: Справочник.СправочникКомандныйИнтерфейс
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type

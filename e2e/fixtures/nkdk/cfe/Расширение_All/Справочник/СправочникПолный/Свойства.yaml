@@ -8,8 +8,31 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Group
+          - ToolTip
+          - Picture
   ПоУмолчанию:
     Группа: ПанельНавигацииОбычное
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Group
 Реквизиты:
   СтроковыйРеквизитСИндексом:
     Синоним: ""
@@ -17,6 +40,18 @@
       - Строка(10)
       - !изменять Булево
     Подсказка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - ToolTip
   РеквизитСправочника:
     Тип:
       - Дата
@@ -24,13 +59,57 @@
     Формат: ""
     ФорматРедактирования: ""
     Подсказка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - Format
+          - EditFormat
+          - ToolTip
   Реквизит1:
     Тип: ЛюбаяСсылка
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
   Реквизит2:
     Синоним: Реквизит2 новое
     Тип: Строка(10)
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
   РеквизитЧисло:
     Тип: Строка(10)
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
 ТабличныеЧасти:
   ТабличнаяЧасть:
     Синоним: ""
@@ -40,7 +119,29 @@
         Синоним: ""
         Тип: Строка(10)
         Подсказка: ""
+        ПринадлежностьОбъекта: !xml/raw
+          $xml: Adopted
+        Properties: !xml/raw
+          $xml:
+            "#order":
+              - ObjectBelonging
+              - Name
+              - Synonym
+              - Comment
+              - ExtendedConfigurationObject
+              - Type
+              - ToolTip
       ЗацикленныйРеквизит:
         Тип: Справочник.СправочникПолный
+        ПринадлежностьОбъекта: !xml/raw
+          $xml: Adopted
+        Properties: !xml/raw
+          $xml:
+            "#order":
+              - ObjectBelonging
+              - Name
+              - Comment
+              - ExtendedConfigurationObject
+              - Type
     Подсказка: ""
 ТипКода: Число

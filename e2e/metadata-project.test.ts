@@ -49,7 +49,7 @@ describe.sequential("metadata project E2E", () => {
       "cfe/Расширение_All/БизнесПроцесс/БизнесПроцессВсеСвойстваExt/Свойства.yaml",
     ), "utf8")
     expect(missingTargetYaml).toContain(
-      "ЗначениеЗаполнения: !xml/reference Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+      "ЗначениеЗаполнения: !xml/invalid Справочник.СправочникРеквизит.ПредопредленноеЗначение",
     )
     const ordinaryValueYaml = await readFile(join(
       baseline.projectDir,

@@ -13,6 +13,19 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Group
+          - ToolTip
+          - Picture
 ОсновнаяФормаДляВыбора: ""
 ОсновнаяФормаСписка: ""
 ПринадлежностьОбъекта: Заимствованный
@@ -21,3 +34,5 @@
 ПредставлениеСписка: ""
 РасширенноеПредставлениеСписка: ""
 Пояснение: ""
+СтандартныеРеквизиты: !xml/raw
+  $xml: null

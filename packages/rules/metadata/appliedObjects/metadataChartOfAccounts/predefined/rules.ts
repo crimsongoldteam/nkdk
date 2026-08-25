@@ -5,6 +5,7 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { parseMetadataTargetFromModel } from "../../../commonObjects/metadataTargets"
 import {
   chartOfAccountsPredefinedAccountingFlagsRule,
   chartOfAccountsPredefinedExtDimensionTypesRule,
@@ -57,7 +58,19 @@ export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   itemRule: PredefinedExtDimensionTypeRules,
   xmlElement: "ExtDimensionType",
   keyField: "name",
+  classifyYamlKey: ({ yamlKey }) => classifyExtDimensionTypeYamlKey(yamlKey),
 })
+
+export function classifyExtDimensionTypeYamlKey(yamlKey: string): "valid" | "invalid" {
+  return parseMetadataTargetFromModel({
+    canonical: yamlKey,
+    constraint: {
+      kind: "value",
+      roots: ["ChartOfCharacteristicTypes"],
+      valueKinds: ["predefinedValue"],
+    },
+  }).ok ? "valid" : "invalid"
+}
 
 export const ChartOfAccountsPredefinedItemRules = {
   ...PredefinedItemRules,

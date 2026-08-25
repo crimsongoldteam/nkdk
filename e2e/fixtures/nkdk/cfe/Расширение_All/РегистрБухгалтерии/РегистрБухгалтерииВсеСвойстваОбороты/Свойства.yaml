@@ -7,9 +7,34 @@
     Балансовый: Ложь
     ФормаВыбора: ""
     Подсказка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - ToolTip
+          - ChoiceForm
+          - Balance
   ИспользоватьХранилищеДвоичныхДанных:
     Тип: Булево
     Балансовый: !проверять Истина
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - Balance
 Команды:
   Команда1:
     Синоним: ""
@@ -18,6 +43,19 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Group
+          - ToolTip
+          - Picture
 ОсновнаяФормаСписка: ""
 ПланСчетов: !проверять ChartOfAccounts.ПланСчетовВсеСвойства
 Реквизиты:
@@ -25,8 +63,30 @@
     Синоним: ""
     Тип: Строка(10)
     Подсказка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - ToolTip
   РеквизитПоУмолчанию:
     Тип: ХранилищеЗначения
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
 Ресурсы:
   РесурсВсеСвойства:
     Синоним: ""
@@ -34,8 +94,34 @@
     Формат: ""
     ФорматРедактирования: ""
     Подсказка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - Format
+          - EditFormat
+          - ToolTip
+          - Balance
   ИзмерениеИндексировать:
     Тип: Число(10, 0)
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - Balance
 Изменять:
   - МодульНабораЗаписей
   - МодульМенеджера

@@ -7,15 +7,60 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Group
+          - ToolTip
+          - Picture
 Реквизиты:
   РеквизитПоУмолчанию:
     Синоним: ""
     Тип: Строка(10)
     Подсказка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - ToolTip
   РеквизитБулево:
     Тип: Булево
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
   РеквизитВсеСвойства:
     Тип: Справочник.СправочникПолный
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
 ТабличныеЧасти:
   ТабличнаяЧастьВсеСвойства:
     Синоним: ""
@@ -25,6 +70,18 @@
         Синоним: ""
         Тип: Строка(10)
         Подсказка: ""
+        ПринадлежностьОбъекта: !xml/raw
+          $xml: Adopted
+        Properties: !xml/raw
+          $xml:
+            "#order":
+              - ObjectBelonging
+              - Name
+              - Synonym
+              - Comment
+              - ExtendedConfigurationObject
+              - Type
+              - ToolTip
     Подсказка: ""
   ТабличнаяЧастьПоУмолчанию:
     ПринадлежностьОбъекта: Заимствованный

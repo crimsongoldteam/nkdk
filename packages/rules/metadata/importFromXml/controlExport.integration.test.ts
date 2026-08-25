@@ -77,6 +77,43 @@ describe("executeImportControlExport", () => {
     expect(controlExportCountForTests()).toBe(0)
   })
 
+  it("передаёт обычному экспорту UUID расширяемого объекта из исходного XML", async () => {
+    const sourcePath = "/source/Catalogs/Контрагенты.xml"
+    const adoptedUuid = "11111111-1111-4111-8111-111111111111"
+    let capturedUuid: string | undefined
+    const readSource = vi.fn(async () => `
+      <MetaDataObject>
+        <Catalog>
+          <Properties>
+            <ObjectBelonging>Adopted</ObjectBelonging>
+            <ExtendedConfigurationObject>${adoptedUuid}</ExtendedConfigurationObject>
+          </Properties>
+        </Catalog>
+      </MetaDataObject>`)
+
+    await expect(executeImportControlExport({
+      assignment: catalogAssignment(sourcePath),
+      data: {},
+      annotations: { version: 1, entries: [] },
+      audit: { sources: [], boundaries: [] },
+      topology,
+      context: {
+        ...mockXmlImportContext(),
+        fromXML: { forReference: false, componentKind: "configurationExtension" },
+      },
+      index: createLocalConfigurationIndexReader(new Map()),
+      composition: catalogComposition(),
+      readSource,
+      ordinaryExporter(params) {
+        capturedUuid = params.context.exportToXML.adoptedUuids?.["Справочник.Контрагенты"]
+        throw new Error("projection captured")
+      },
+    })).rejects.toThrow("projection captured")
+
+    expect(capturedUuid).toBe(adoptedUuid)
+    expect(readSource).toHaveBeenCalledTimes(1)
+  })
+
   it("не запускает ordinary exporter для корневого raw", async () => {
     const ordinaryExporter = vi.fn(() => { throw new Error("root raw не должен экспортироваться") })
     const annotations = {

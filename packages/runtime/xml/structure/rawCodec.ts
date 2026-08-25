@@ -104,7 +104,21 @@ export function applyXmlPatch(
       ? patchValue
       : applyXmlPatch(ordinaryValue, patchValue)
   }
+  if (!("#order" in patch)) {
+    const contentKeys = Object.keys(base).filter(isXmlContentKey)
+    if (contentKeys.length > 0 && contentKeys.every((key) => key in patch)) {
+      base["#order"] = Object.keys(patch).filter(isXmlContentKey).flatMap((key) => {
+        const value = base[key]
+        if (value === undefined || value === null) return []
+        return Array.isArray(value) ? value.map(() => key) : [key]
+      })
+    }
+  }
   return base
+}
+
+function isXmlContentKey(key: string): boolean {
+  return key !== "#name" && key !== "#order" && !key.startsWith("_")
 }
 
 export function encodeXmlRawElement(
