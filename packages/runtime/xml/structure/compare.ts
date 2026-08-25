@@ -26,7 +26,63 @@ export function createXmlElementPatch(
   const expectedOrder = xmlContentOrder(expected)
   const actualOrder = xmlContentOrder(actual)
   if (!sameStrings(expectedOrder, actualOrder)) patch["#order"] = expectedOrder
+  mergeXmlPatch(patch, nestedElementOrderPatch(expected, actual))
   return patch
+}
+
+function nestedElementOrderPatch(
+  expected: XmlElementNode,
+  actual: XmlElementNode,
+): Record<string, XmlPatchValue> {
+  const patch: Record<string, XmlPatchValue> = {}
+  const expectedByName = elementChildrenByName(expected)
+  const actualByName = elementChildrenByName(actual)
+  for (const [name, expectedChildren] of expectedByName) {
+    const actualChildren = actualByName.get(name)
+    if (actualChildren === undefined || actualChildren.length !== expectedChildren.length) continue
+    const childPatches = expectedChildren.map((child, index) => {
+      const counterpart = actualChildren[index]!
+      const nested = nestedElementOrderPatch(child, counterpart)
+      const expectedOrder = xmlContentOrder(child)
+      if (!sameStrings(expectedOrder, xmlContentOrder(counterpart))) nested["#order"] = expectedOrder
+      return nested
+    })
+    if (childPatches.every((childPatch) => Object.keys(childPatch).length === 0)) continue
+    if (childPatches.length === 1) {
+      patch[name] = childPatches[0]!
+      continue
+    }
+    // Массив в raw-патче заменяется целиком. Поэтому при изменении порядка
+    // хотя бы в одном повторяющемся элементе сохраняем всю исходную группу.
+    patch[name] = expectedChildren.map((child) => encodeXmlRawElement(child))
+  }
+  return patch
+}
+
+function elementChildrenByName(element: XmlElementNode): Map<string, XmlElementNode[]> {
+  const result = new Map<string, XmlElementNode[]>()
+  for (const child of element.content) {
+    if (child.type !== "element") continue
+    const values = result.get(child.name) ?? []
+    values.push(child)
+    result.set(child.name, values)
+  }
+  return result
+}
+
+function mergeXmlPatch(
+  target: Record<string, XmlPatchValue>,
+  source: Record<string, XmlPatchValue>,
+): void {
+  for (const [key, value] of Object.entries(source)) {
+    const current = target[key]
+    if (isPatchMapping(current) && isPatchMapping(value)) mergeXmlPatch(current, value)
+    else target[key] = value
+  }
+}
+
+function isPatchMapping(value: XmlPatchValue | undefined): value is Record<string, XmlPatchValue> {
+  return value !== undefined && value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
 function diffXmlRawValue(

@@ -10,6 +10,7 @@ import type {
 } from "./document"
 import {
   hashXmlElementStructure,
+  normalizeXmlElementContent,
   type XmlStructuralAttribute,
   type XmlStructuralContent,
 } from "../structure/hash"
@@ -361,7 +362,10 @@ export function parseXmlRootStructuresWithSaxes(data: string): {
     if (frame === undefined || frame === document || parent === undefined) {
       throw new Error("Несогласованный стек XML")
     }
-    const structuralHash = hashXmlElementStructure(frame)
+    const structuralHash = hashXmlElementStructure({
+      ...frame,
+      content: normalizeXmlElementContent(frame.content),
+    })
     const span = { start: frame.spanStart, end: parser.position }
     parent.content.push({ type: "element", structuralHash })
     parent.nextContentStart = parser.position
@@ -417,7 +421,8 @@ function finalizeElement(
   if (structural.kind !== "element") {
     throw new Error("Документная рамка не является XML-элементом")
   }
-  const { id, name, occurrence, path, attributes, content, spanStart } = structural
+  const { id, name, occurrence, path, attributes, spanStart } = structural
+  const content = normalizeXmlElementContent(structural.content) as XmlDocumentContentNode[]
   const partial = {
     type: "element" as const,
     id,

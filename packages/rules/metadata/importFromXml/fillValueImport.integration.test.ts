@@ -4,6 +4,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach,describe,expect,it } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
+import "../../tests/metadataExecutionContext"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
@@ -70,6 +71,19 @@ describe("fill value XML import", () => {
     expect(prepared.yaml).not.toHaveProperty("ТипКода")
     expect(prepared.yaml).toHaveProperty("ДлинаКода", 3)
     expect(serializeYAMLDocument(prepared.yaml).text).toContain('ЗначениеЗаполнения: "--"')
+  })
+
+  it("сохраняет пробелы строкового FillValue как строку YAML", async () => {
+    const sourcePath = copiedCatalogCodeFixture("         ")
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    expect(serializeYAMLDocument(prepared.yaml).text).toContain(
+      'ЗначениеЗаполнения: "         "',
+    )
   })
 
   it("откладывает DefinedType без сохранения исходного XML в снимке", async () => {

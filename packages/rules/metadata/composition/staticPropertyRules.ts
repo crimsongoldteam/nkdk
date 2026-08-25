@@ -185,6 +185,7 @@ import { metadataPropertyRule001 as rule188 } from "../commonObjects/metadataPat
 import { metadataPropertyRule002 as rule189 } from "../commonObjects/metadataPath/toYAML"
 import { metadataPropertyRule000 as rule190 } from "../commonObjects/metadataRef/fromXML"
 import { metadataPropertyRule001 as rule191 } from "../commonObjects/metadataRef/fromXML"
+import { metadataPropertyRule002 as rule191Behavior } from "../commonObjects/metadataRef/fromXML"
 import { metadataPropertyRule000 as rule192 } from "../commonObjects/metadataRef/fromYAML"
 import { metadataPropertyRule001 as rule193 } from "../commonObjects/metadataRef/fromYAML"
 import { metadataPropertyRule000 as rule194 } from "../commonObjects/metadataRef/toXML"
@@ -603,6 +604,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule189,
   rule190,
   rule191,
+  rule191Behavior,
   rule192,
   rule193,
   rule194,

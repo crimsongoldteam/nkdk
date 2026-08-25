@@ -70,7 +70,7 @@ export function prepareFullXmlSyncAssignment(params: {
         },
       }
   const profile = createYAMLToXMLProfile()
-  const documents = prepareTopologyAssignmentDocuments({
+  const preparedTopology = prepareTopologyAssignmentDocuments({
     ...params,
     context,
     ...(baseFormContext === undefined ? {} : { baseFormContext }),
@@ -79,7 +79,8 @@ export function prepareFullXmlSyncAssignment(params: {
   })
   return {
     assignment: params.assignment,
-    documents,
+    semanticYamlFile: preparedTopology.semanticYamlFile,
+    documents: preparedTopology.documents,
     indexCollectors: [
       { collector: indexCollector, targetProjectPath: params.assignment.sourceProjectPath },
       ...(baseFormCollector === undefined || params.baseFormSource === undefined
@@ -97,7 +98,10 @@ function prepareTopologyAssignmentDocuments(
     topology: CompiledMetadataResourceTopology
     baseFormContext?: ConfigurationContextWithExportToXML
   }
-): readonly PreparedXMLDocument[] {
+): {
+  readonly documents: readonly PreparedXMLDocument[]
+  readonly semanticYamlFile: PreparedYamlFile
+} {
   const assignmentNode = params.topology.assignments.find((candidate) => candidate.id === params.assignment.nodeId)
   if (assignmentNode === undefined) throw new Error(`Не найден узел топологии: ${params.assignment.nodeId}`)
   const effectiveAssignmentNode =
@@ -154,7 +158,13 @@ function prepareTopologyAssignmentDocuments(
   for (const boundary of rawBoundaries) {
     const tag = boundary.tag
     const documentPath = boundary.documentPath
-    if (tag === undefined && documentPath === undefined && documents.length !== 1) {
+    const documentSelector = boundary.documentSelector
+    if (
+      tag === undefined &&
+      documentPath === undefined &&
+      documentSelector === undefined &&
+      documents.length !== 1
+    ) {
       throw new Error(
         `raw-границу ${boundary.path} нельзя однозначно связать с одним XML-документом assignment`,
       )
@@ -164,6 +174,20 @@ function prepareTopologyAssignmentDocuments(
       if (matchingDocuments.length !== 1) {
         throw new Error(
           `raw-границе ${boundary.path} соответствует ${matchingDocuments.length} XML-документов ${documentPath}`,
+        )
+      }
+    }
+    if (documentSelector !== undefined) {
+      const matchingDocuments = documents.filter((document) => {
+        const declaration = effectiveAssignmentNode.xmlDocuments.find(
+          (candidate) => candidate.id === document.declarationId,
+        )
+        return (declaration?.xmlAnomalySelector ?? "") === documentSelector
+      })
+      if (matchingDocuments.length !== 1) {
+        const shown = documentSelector.length === 0 ? "основной" : documentSelector
+        throw new Error(
+          `raw-границе ${boundary.path} соответствует ${matchingDocuments.length} XML-документов ${shown}`,
         )
       }
     }
@@ -186,6 +210,10 @@ function prepareTopologyAssignmentDocuments(
     rawBoundaries: rawBoundaries.filter(
       (boundary) => boundary.documentPath !== undefined
         ? sameXmlDocumentPath(document.targetXmlPath, boundary.documentPath)
+        : boundary.documentSelector !== undefined
+          ? (effectiveAssignmentNode.xmlDocuments.find(
+              (candidate) => candidate.id === document.declarationId,
+            )?.xmlAnomalySelector ?? "") === boundary.documentSelector
         : boundary.tag === undefined || document.tags?.includes(boundary.tag) === true,
     ),
   }))
@@ -200,7 +228,10 @@ function prepareTopologyAssignmentDocuments(
     }
     seen.add(document.declarationId)
   }
-  return preparedDocuments
+  return {
+    documents: preparedDocuments,
+    semanticYamlFile: anomalyAssignment.preparedYamlFile,
+  }
 }
 
 function sameXmlDocumentPath(left: string, right: string): boolean {

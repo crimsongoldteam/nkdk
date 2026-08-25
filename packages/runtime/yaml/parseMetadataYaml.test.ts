@@ -33,6 +33,19 @@ describe("parseMetadataYamlData", () => {
       xml: { "#text": "raw" },
     })
   })
+
+  it("сохраняет пустой объект внутри смыслового значения raw", () => {
+    const parsed = parseMetadataYamlData([
+      "Форма: !xml/raw",
+      "  $значение:",
+      "    Реквизиты:",
+      "      Пустой:",
+      "  $xml:",
+      "    _future: x",
+    ].join("\n"))
+
+    expect(parsed.data).toEqual({ Форма: { Реквизиты: { Пустой: {} } } })
+  })
 })
 
 describe("parsedYamlFromKnownData", () => {

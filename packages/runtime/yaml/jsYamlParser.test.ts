@@ -85,6 +85,16 @@ describe("parseWithJsYaml", () => {
     expect(parsed.syntaxErrors).toEqual([])
   })
 
+  it.each(["invalid", "important"] as const)(
+    "сохраняет строку из пробелов под !xml/%s",
+    (kind) => {
+      const parsed = parseWithJsYaml(`Значение: !xml/${kind} "         "`)
+
+      expect(parsed.syntaxErrors).toEqual([])
+      expect(parsed.data).toEqual({ Значение: "         " })
+    },
+  )
+
   it("разбирает пустой элемент последовательности как пустой объект", () => {
     const parsed = parseWithJsYaml("Элементы:\n  -")
 

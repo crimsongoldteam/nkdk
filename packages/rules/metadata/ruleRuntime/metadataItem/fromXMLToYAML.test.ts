@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML, mockXmlImportContext } from "../../../tests/mockContext"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { registerMetadataItemCollectionRule } from "../metadataCollection/ruleFactory"
@@ -51,7 +52,12 @@ describe("importMetadataItemFromXMLToYAML", () => {
       xml: { _mode: "x", "#text": "42" },
       hasSemanticValue: false,
     })
-    expect(yaml).not.toHaveProperty("Properties")
+    expect(yaml).toHaveProperty("Properties", undefined)
+    expect(annotations.at(yaml, "Properties")).toMatchObject({
+      kind: "raw",
+      xml: { "#order": ["Known", "Future"] },
+      hasSemanticValue: false,
+    })
     expect(yaml).not.toHaveProperty("Properties\\Future\\#attributes")
     expect(serializeYAMLDocument(yaml, annotations).text).toContain(
       "Properties\\Future: !xml/raw",

@@ -30,7 +30,9 @@ interface XMLRootInfo {
 export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFromYAMLToXMLParams): YAMLToXMLResult {
   const inline = findInlineProperty(params.rule)
   if (inline === undefined && params.yaml !== undefined && !isRecord(params.yaml)) {
-    throw new Error(`${params.rule.itemType}: ожидался YAML-объект`)
+    const rulePath = params.rulePath ?? []
+    const path = rulePath.length === 0 ? params.rule.itemType : rulePath.join(".")
+    throw new Error(`${params.rule.itemType}: ожидался YAML-объект; путь rules: ${path}`)
   }
   const yaml = inline === undefined ? params.yaml : { [inline.yamlKey]: params.yaml }
   const root = findXMLRoot(params.rule)

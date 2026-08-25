@@ -9,6 +9,21 @@ const sourceOf = (source: string, node: XmlAddressedNode | undefined): string | 
   node === undefined ? undefined : source.slice(node.span.start, node.span.end)
 
 describe("структурный XML-документ", () => {
+  it("не считает отступы между элементами содержимым, но сохраняет пробелы конечного значения", () => {
+    const formatted = parseXmlDocumentWithSaxes(
+      "<Root>\n  <Value>         </Value>\n  <Other>true</Other>\n</Root>"
+    ).roots[0]
+    const compact = parseXmlDocumentWithSaxes(
+      "<Root><Value>         </Value><Other>true</Other></Root>"
+    ).roots[0]
+
+    expect(formatted?.structuralHash).toBe(compact?.structuralHash)
+    expect(formatted?.content.map(({ type }) => type)).toEqual(["element", "element"])
+    expect(elementChildren(formatted as XmlElementNode)[0]?.content).toMatchObject([
+      { type: "text", value: "         " },
+    ])
+  })
+
   it("сохраняет идентичность повторов, порядок, пути и координаты", () => {
     const xml = '<Root b="2" a="1"><Value/><Value>2</Value><Future x="y"/></Root>'
 

@@ -1,11 +1,14 @@
 import {
   applyXmlPatch,
+  asExplicitYAMLStringIfMarked,
   createXmlAnomalyAnnotations,
   decodeXmlRawEnvelope,
   decodeXmlRawValue,
+  isExplicitYAMLString,
   appendXmlAnomalyRawCollectionItem,
   markXmlAnomalyExportClaim,
   markXmlAnomalyRawItem,
+  markDoubleQuotedScalar,
   mergeXmlRawFragments,
   markYAMLScalarTag,
   parseXmlDocumentWithSaxes,
@@ -140,7 +143,16 @@ export function buildPreparedAssignmentXml(params: {
     }).nodes
   }
   const nestedBoundaries = resolvedBoundaries.filter(({ documentRootName }) => documentRootName === undefined)
-  return xmlExport(nestedBoundaries.length === 0 ? ordinary : mergeXmlRawFragments(ordinary, nestedBoundaries))
+  if (nestedBoundaries.length === 0) return xmlExport(ordinary)
+  try {
+    return xmlExport(mergeXmlRawFragments(ordinary, nestedBoundaries))
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : String(caught)
+    throw new Error(
+      `${message}; raw-границы [${nestedBoundaries.map(({ path }) => path).join(", ")}]`,
+      { cause: caught },
+    )
+  }
 }
 
 function applyDocumentRootPatch(
@@ -153,7 +165,12 @@ function applyDocumentRootPatch(
   const validated = decodeXmlRawEnvelope({ $xml: patch }).xml
   const ordinaryValue = xmlElementRawValue(ordinary[0]!)
   if (ordinaryValue === null) throw new Error("Обычный XML-корень не может быть null")
-  return applyXmlPatch(ordinaryValue, validated)
+  try {
+    return applyXmlPatch(ordinaryValue, validated)
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : String(caught)
+    throw new Error(`XML-корень ${ordinary[0]!.name}: ${message}`, { cause: caught })
+  }
 }
 
 function cloneSemanticValue(params: {
@@ -169,6 +186,7 @@ function cloneSemanticValue(params: {
   readonly exportClaimId?: string
   readonly mode: "preserve" | "projectionOnly"
 }): unknown {
+  if (isExplicitYAMLString(params.value)) return params.value
   if (Array.isArray(params.value)) {
     const target: unknown[] = []
     for (let index = 0; index < params.value.length; index += 1) {
@@ -177,9 +195,14 @@ function cloneSemanticValue(params: {
         if (params.mode === "projectionOnly") continue
         throw new Error(`!xml/raw в YAML sequence не имеет устойчивого XML-пути: /${[...params.yamlPath, index].join("/")}`)
       }
-      const child = cloneSemanticValue({ ...params, value: params.value[index], yamlPath: [...params.yamlPath, index] })
+      const child = cloneSemanticValue({
+        ...params,
+        value: params.value[index],
+        yamlPath: [...params.yamlPath, index],
+      })
       target.push(child)
       const targetIndex = target.length - 1
+      copyExplicitStringMark(params.value, index, target, targetIndex)
       copySequenceEntryMetadata(params.value, params.targetAnnotations, index, target, targetIndex, annotation)
     }
     return target
@@ -238,6 +261,7 @@ function cloneSemanticValue(params: {
           yamlPath: [...params.yamlPath, logicalKey],
         })
     target[targetKey] = child
+    copyExplicitStringMark(params.value, runtimeKey, target, targetKey)
     const scalarTag = yamlScalarTagAt(params.value, runtimeKey)
     if (scalarTag !== undefined) markYAMLScalarTag(target, targetKey, scalarTag)
     if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, targetKey, keyAnnotation)
@@ -345,6 +369,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
       if (exportClaimId !== undefined) markXmlAnomalyExportClaim(child, exportClaimId)
       target.push(child)
       const targetIndex = target.length - 1
+      copyExplicitStringMark(source, index, target, targetIndex)
       copySequenceEntryMetadata(
         source,
         params.targetAnnotations,
@@ -415,6 +440,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         xmlPrefix: [],
         exportClaimId,
       })
+      copyExplicitStringMark(params.value, runtimeKey, target, targetKey)
       const scalarTag = yamlScalarTagAt(params.value, runtimeKey)
       if (scalarTag !== undefined) markYAMLScalarTag(target, targetKey, scalarTag)
       if (exportClaimId !== undefined) {
@@ -477,6 +503,18 @@ function copySequenceEntryMetadata(
   if (annotation !== undefined) targetAnnotations.set(target, targetIndex, annotation)
 }
 
+function copyExplicitStringMark(
+  source: object,
+  sourceKey: string | number,
+  target: object,
+  targetKey: string | number,
+): void {
+  const sourceValue = (source as Record<string | number, unknown>)[sourceKey]
+  if (isExplicitYAMLString(asExplicitYAMLStringIfMarked(source, sourceKey, sourceValue))) {
+    markDoubleQuotedScalar(target, targetKey)
+  }
+}
+
 function isPropertyStateTag(tag: unknown): tag is "проверять" | "изменять" {
   return tag === "проверять" || tag === "изменять"
 }
@@ -528,26 +566,44 @@ function rawBoundary(params: {
   readonly exportClaimId?: string
 }): PreparedXmlAnomalyBoundary {
   if (params.annotation.kind !== "raw") throw new Error("XML-поправка требует !xml/raw")
+  const publicPath = params.property === undefined
+    ? parsePublicRawPath(params.logicalKey)
+    : undefined
   const rawPath = params.property === undefined
-    ? splitRawPath(params.logicalKey).map(xmlPathSegment)
+    ? publicPath!.segments.map(xmlPathSegment)
     : params.property.xmlPath.map(xmlPathSegment)
   const path = params.exportClaimId === undefined
     ? [...params.xmlPrefix, ...rawPath]
     : rawPath
-  if (path.length === 0) throw new Error(`Для !xml/raw ${params.logicalKey} не определён XML-путь`)
+  const documentRoot = publicPath?.documentRoot === true
+  if (path.length === 0 && !documentRoot) {
+    throw new Error(`Для !xml/raw ${params.logicalKey} не определён XML-путь`)
+  }
   if (params.annotation.xml === undefined) {
     throw new Error(`Для !xml/raw ${params.logicalKey} не сохранено обязательное $xml`)
   }
   const siblingOrder = params.property === undefined
     ? rawSiblingOrder(params.ownerYaml, params.rule, params.logicalKey)
     : undefined
+  const augmentsCompiledParent = params.property === undefined
+    && isCompiledParentPatch(params.annotation.xml)
+  const hasSemanticValue =
+    params.annotation.hasSemanticValue === true || augmentsCompiledParent || documentRoot
+  const implicitMainDocument = params.property?.propertyRule.tag === undefined
+    && params.property?.propertyRule.filePath === undefined
   return {
-    ...preparedPath(path),
+    ...(documentRoot ? { path: "@" } : preparedPath(path)),
     value: params.annotation.xml,
-    suppressOrdinaryOutput: params.annotation.hasSemanticValue !== true && !isTerminalPath(path),
-    hasSemanticValue: params.annotation.hasSemanticValue === true,
+    suppressOrdinaryOutput: !hasSemanticValue && !isTerminalPath(path),
+    hasSemanticValue,
     ...(siblingOrder === undefined ? {} : { siblingOrder }),
     ...(params.property?.propertyRule.tag === undefined ? {} : { tag: params.property.propertyRule.tag }),
+    ...(publicPath?.documentSelector !== undefined
+      ? { documentSelector: publicPath.documentSelector }
+      : implicitMainDocument
+        ? { documentSelector: "" }
+        : {}),
+    ...(documentRoot ? { documentRootName: params.rule?.itemType ?? "Root" } : {}),
     ...(params.property?.propertyRule.filePath === undefined
       ? {}
       : {
@@ -565,11 +621,7 @@ function rawSiblingOrder(
 ): readonly string[] | undefined {
   if (!isRecord(ownerYaml) || rule === undefined) return undefined
   const rawPath = splitRawPath(logicalKey)
-  const isCompiledAncestor = getYAMLToXMLPlan(rule).properties.some((property) =>
-    rawPath.length < property.xmlPath.length
-    && rawPath.every((segment, index) => property.xmlPath[index] === segment)
-  )
-  if (!isCompiledAncestor) return undefined
+  if (!isCompiledRawAncestor(rule, rawPath)) return undefined
   const result: string[] = []
   for (const yamlKey of yamlMappingKeys(ownerYaml)) {
     const property = propertyForYamlKey(rule, yamlKey)
@@ -577,6 +629,23 @@ function rawSiblingOrder(
     if (xmlName !== undefined && !result.includes(xmlName)) result.push(xmlName)
   }
   return result.length === 0 ? undefined : result
+}
+
+function isCompiledRawAncestor(
+  rule: MetadataItemRule | undefined,
+  rawPath: readonly string[],
+): boolean {
+  if (rule === undefined || rawPath.length === 0) return false
+  return getYAMLToXMLPlan(rule).properties.some((property) =>
+    rawPath.length < property.xmlPath.length
+    && rawPath.every((segment, index) => property.xmlPath[index] === segment)
+  )
+}
+
+function isCompiledParentPatch(value: unknown): boolean {
+  if (!isRecord(value)) return false
+  const keys = Object.keys(value)
+  return keys.length > 0 && keys.every((key) => key.startsWith("_") || key === "#order")
 }
 
 interface PlannedProperty {
@@ -592,7 +661,10 @@ interface XmlTraversalPathSegment {
 
 function propertyForYamlKey(rule: MetadataItemRule | undefined, yamlKey: string): PlannedProperty | undefined {
   if (rule === undefined) return undefined
-  const matches = getYAMLToXMLPlan(rule).properties.filter((property) => property.yamlKey === yamlKey)
+  const matches = getYAMLToXMLPlan(rule).properties.filter((property) =>
+    property.yamlKey === yamlKey
+    || (property.yamlKey === undefined && property.propertyKey === yamlKey)
+  )
   if (matches.length > 1) throw new Error(`YAML-ключ ${rule.itemType}.${yamlKey} соответствует нескольким PropertyRule`)
   return matches[0]
 }
@@ -780,6 +852,49 @@ function xmlRootPrefix(rule: MetadataItemRule): readonly string[] {
 
 function splitRawPath(key: string): readonly string[] {
   return key.split("\\")
+}
+
+function parsePublicRawPath(key: string): {
+  readonly segments: readonly string[]
+  readonly documentSelector?: string
+  readonly documentRoot?: true
+} {
+  if (key === "@") return { segments: [], documentSelector: "", documentRoot: true }
+
+  let path = key
+  let documentSelector = ""
+  if (key.startsWith("@")) {
+    const separator = key.indexOf("\\")
+    const selector = separator < 0 ? key.slice(1) : key.slice(1, separator)
+    if (
+      selector.length === 0 ||
+      selector.includes("/") ||
+      selector.includes("\\") ||
+      selector.endsWith(".xml") ||
+      !/^[:_\p{L}][:_\-.0-9\p{L}\p{M}\p{N}\u00B7]*$/u.test(selector)
+    ) {
+      throw new Error(`Недопустимое краткое имя XML-документа: ${selector}`)
+    }
+    documentSelector = selector
+    if (separator < 0) return { segments: [], documentSelector, documentRoot: true }
+    path = key.slice(separator + 1)
+  }
+
+  const segments = splitRawPath(path)
+  if (
+    segments.length === 0 ||
+    segments.some((segment) =>
+      segment.length === 0 ||
+      segment === "." ||
+      segment === ".." ||
+      segment === "#attributes" ||
+      segment === "#order" ||
+      segment.includes("/")
+    )
+  ) {
+    throw new Error(`Недопустимый XML-путь: ${key}`)
+  }
+  return { segments, documentSelector }
 }
 
 function cloneXmlObject(value: Record<string, unknown>): Record<string, unknown> {

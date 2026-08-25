@@ -20,11 +20,12 @@ export function applyImportedIssueDecisions(params: {
     const parentPath = decision.target.path.slice(0, -1)
     const key = decision.target.path.at(-1)
     const parent = valueAtPath(params.data, parentPath)
-    if (!isRecord(parent) || typeof key !== "string") {
+    if (!isObject(parent) || (typeof key !== "string" && typeof key !== "number")) {
       throw new Error(`Не найдена YAML-граница /${decision.target.path.join("/")} для ${decision.issueCodes.join(", ")}`)
     }
-    if (decision.target.kind === "missing" && !Object.prototype.hasOwnProperty.call(parent, key)) {
-      parent[key] = undefined
+    if (decision.target.kind === "missing" && typeof key === "string" && !Object.prototype.hasOwnProperty.call(parent, key)) {
+      const mapping = parent as Record<string, unknown>
+      mapping[key] = undefined
     }
     const current = params.annotations.at(parent, key)
     if (current?.kind === "raw") {
@@ -85,4 +86,8 @@ function valueAtPath(root: unknown, path: readonly (string | number)[]): unknown
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function isObject(value: unknown): value is Record<string, unknown> | unknown[] {
+  return typeof value === "object" && value !== null
 }

@@ -30,6 +30,18 @@ describe("writeFullXmlSyncAssignment", () => {
     return dir
   }
 
+  function emptySemanticYamlFile(projectPath: string) {
+    return {
+      projectPath,
+      filePath: projectPath,
+      role: "properties" as const,
+      owner: { dir: "", name: "" },
+      data: {},
+      annotations: createXmlAnomalyAnnotations(),
+      syntaxDiagnostics: [],
+    }
+  }
+
   async function writePreparedAssignmentForTest(
     assignment: FullXmlSyncAssignment,
     preparedYamlFile: Parameters<typeof prepareFullXmlSyncAssignment>[0]["preparedYamlFile"],
@@ -302,6 +314,7 @@ describe("writeFullXmlSyncAssignment", () => {
     const result = await writeFullXmlSyncAssignment({
       prepared: {
         assignment,
+        semanticYamlFile: emptySemanticYamlFile(assignment.sourceProjectPath),
         documents: [],
         indexCollectors: [{
           collector: createConfigurationIndexCollector(),
@@ -346,6 +359,7 @@ describe("writeFullXmlSyncAssignment", () => {
     const result = await writeFullXmlSyncAssignment({
       prepared: {
         assignment,
+        semanticYamlFile: emptySemanticYamlFile(assignment.sourceProjectPath),
         documents: [],
         indexCollectors: [],
         profile: createYAMLToXMLProfile(),
@@ -372,6 +386,7 @@ describe("writeFullXmlSyncAssignment", () => {
     const result = await writeFullXmlSyncAssignment({
       prepared: {
         assignment,
+        semanticYamlFile: emptySemanticYamlFile(assignment.sourceProjectPath),
         documents: [
           {
             targetXmlPath: "Objects/First.xml",

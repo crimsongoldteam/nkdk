@@ -201,7 +201,16 @@ describe("syncToXml service", () => {
     const projectState = createCoreProjectStateTestDouble()
     const syncConfigurationToXML = vi.fn().mockResolvedValue({
       succeeded: 2,
-      failed: [{ severity: "error", code: "bad_yaml", message: "bad yaml" }],
+      failed: [{
+        severity: "error",
+        code: "bad_yaml",
+        message: "bad yaml",
+        sourceProjectPath: "cf/Справочник/Товары/Свойства.yaml",
+        sourcePath: "/project/cf/Справочник/Товары/Свойства.yaml",
+        targetXmlPath: "/xml/Catalogs/Товары.xml",
+        line: 3,
+        col: 5,
+      }],
       warnings: [{ severity: "warning", code: "data_path", message: "ПутьКДанным не преобразован" }],
     })
 
@@ -214,7 +223,16 @@ describe("syncToXml service", () => {
       ok: true,
       succeeded: 2,
       diagnostics: [
-        { severity: "error", code: "bad_yaml", message: "bad yaml" },
+        {
+          severity: "error",
+          code: "bad_yaml",
+          message: "bad yaml",
+          sourceProjectPath: "cf/Справочник/Товары/Свойства.yaml",
+          sourcePath: "/project/cf/Справочник/Товары/Свойства.yaml",
+          targetXmlPath: "/xml/Catalogs/Товары.xml",
+          line: 3,
+          col: 5,
+        },
         { severity: "warning", code: "data_path", message: "ПутьКДанным не преобразован" },
       ],
       summary: { errors: 1, warnings: 1, shown: 2, omitted: 0 },

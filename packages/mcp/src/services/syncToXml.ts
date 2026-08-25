@@ -29,6 +29,11 @@ interface SyncOutputDiagnostic {
   readonly severity: "error" | "warning"
   readonly code: string
   readonly message: string
+  readonly sourceProjectPath?: string
+  readonly sourcePath?: string
+  readonly targetXmlPath?: string
+  readonly line?: number
+  readonly col?: number
 }
 
 export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Promise<SyncToXmlPayload> {
@@ -112,8 +117,17 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
   }
 }
 
-function mapDiagnostic(diagnostic: { severity: "error" | "warning"; code: string; message: string }): SyncOutputDiagnostic {
-  return { severity: diagnostic.severity, code: diagnostic.code, message: diagnostic.message }
+function mapDiagnostic(diagnostic: SyncOutputDiagnostic): SyncOutputDiagnostic {
+  return {
+    severity: diagnostic.severity,
+    code: diagnostic.code,
+    message: diagnostic.message,
+    ...(diagnostic.sourceProjectPath === undefined ? {} : { sourceProjectPath: diagnostic.sourceProjectPath }),
+    ...(diagnostic.sourcePath === undefined ? {} : { sourcePath: diagnostic.sourcePath }),
+    ...(diagnostic.targetXmlPath === undefined ? {} : { targetXmlPath: diagnostic.targetXmlPath }),
+    ...(diagnostic.line === undefined ? {} : { line: diagnostic.line }),
+    ...(diagnostic.col === undefined ? {} : { col: diagnostic.col }),
+  }
 }
 
 function isWarning(diagnostic: SyncOutputDiagnostic): boolean {

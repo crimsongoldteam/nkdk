@@ -32,6 +32,7 @@ export interface ImportControlCompositionEntry {
   readonly logicalAddress: string
   readonly assignmentRole: ImportAssignmentRole
   readonly ownerLogicalAddress?: string
+  readonly externalProjectPaths?: readonly string[]
 }
 
 export interface ImportIssueDecision {
@@ -55,6 +56,9 @@ export function importControlCompositionEntry(
     itemName: assignment.itemName,
     logicalAddress: assignment.logicalAddress,
     assignmentRole: assignment.role,
+    ...(assignment.externalFiles.length === 0
+      ? {}
+      : { externalProjectPaths: assignment.externalFiles.map(({ targetProjectPath }) => targetProjectPath) }),
     ...(ownerLogicalAddress === undefined ? {} : { ownerLogicalAddress }),
   }
 }

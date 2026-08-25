@@ -431,7 +431,11 @@ function assertExactOrder(
     [...expectedCounts].some(([name, count]) => actualCounts.get(name) !== count) ||
     [...actualCounts].some(([name]) => !expectedCounts.has(name))
   ) {
-    throw new Error(`${description} должен ровно перечислять всё XML-содержимое с учётом повторов`)
+    const expected = [...contentByName].flatMap(([name, content]) => content.map(() => name))
+    throw new Error(
+      `${description} должен ровно перечислять всё XML-содержимое с учётом повторов; `
+      + `получено [${order.join(", ")}], содержимое [${expected.join(", ")}]`,
+    )
   }
 }
 

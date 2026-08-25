@@ -542,13 +542,18 @@ describe("prepareImportYaml", () => {
     const metadataPath = `${formRoot}.xml`
     const bodyPath = join(formRoot, "Ext/Form.xml")
     const ownerPath = join(syncXmlDir, "Catalogs/Контрагенты.xml")
+    const assignmentPaths = {
+      targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
+      xmlFiles: [
+        { role: "metadata" as const, sourcePath: metadataPath },
+        { role: "body" as const, sourcePath: bodyPath },
+      ],
+    }
     const assignment: ImportAssignment = {
       id: "catalog-form",
-      topologyAddress: assignmentTopologyAddress(
-        "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
-      ),
+      topologyAddress: assignmentTopologyAddress(assignmentPaths.targetProjectPath),
       role: "fileItem",
-      targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
+      targetProjectPath: assignmentPaths.targetProjectPath,
       itemType: "ClientApplicationForm",
       itemName: "ФормаЭлемента",
       logicalAddress: "Справочник.Контрагенты.Форма.ФормаЭлемента",
@@ -557,10 +562,7 @@ describe("prepareImportYaml", () => {
         name: "Контрагенты",
         logicalAddress: "Справочник.Контрагенты",
       },
-      xmlFiles: [
-        { role: "metadata", sourcePath: metadataPath },
-        { role: "body", sourcePath: bodyPath },
-      ],
+      xmlFiles: assignmentPaths.xmlFiles,
       externalFiles: [],
     }
 

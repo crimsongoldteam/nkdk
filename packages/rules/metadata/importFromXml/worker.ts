@@ -68,6 +68,7 @@ import type {
   ImportWorkerCommandResult,
 } from "./types"
 import { importControlCompositionEntry } from "./types"
+import { importControlComposition } from "./controlComposition"
 import {
   serializeImportYaml,
   writeGeneratedImportFiles,
@@ -145,7 +146,7 @@ interface DeferredImportYaml {
   logicalAddress: string
   yaml: unknown
   annotations: XmlAnomalyAnnotations
-  proofAudit: XmlAnomalyProofAudit
+  proofAudit?: XmlAnomalyProofAudit
   configurationFragment: ConfigurationIndexBlockFragment
   rule: PreparedImportYaml["rule"]
   ownerContext: PreparedImportYaml["ownerContext"]
@@ -196,6 +197,7 @@ export interface ImportWorkerCommandRunner {
     workerIndex?: number
     outputDir?: string
     preparedYamlIds: string[]
+    retainedProofAuditIds: string[]
   }
   readonly resetForTests: () => void
   readonly setSchemaCacheForTests: (schemaCache: ValidationSchemaCache | undefined) => void
@@ -422,6 +424,7 @@ async function processSecondPass(
         profiler,
         controlExport,
       )
+      prepared.proofAudit = undefined
       prepared.output = output
       accumulator.fragmentWriter.appendImportIndex(output.main.index)
       accumulator.fragmentWriter.appendImportFinal(output.main.final)
@@ -665,6 +668,10 @@ async function prepareYamlForFinalPass(
   base?: PreparedSerializedYaml
   configurationFragments: ConfigurationIndexBlockFragment[]
 }> {
+  const proofAudit = prepared.proofAudit
+  if (proofAudit === undefined) {
+    throw new Error(`Карта исходного XML уже освобождена: ${prepared.targetProjectPath}`)
+  }
   const contextWithOwners = profiler.measure(
     "Подготовка импорта конфигурации",
     "Подготовка контекста YAML",
@@ -767,7 +774,7 @@ async function prepareYamlForFinalPass(
       assignment: prepared.assignment,
       data: prepared.yaml,
       annotations: snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations),
-      audit: prepared.proofAudit,
+      audit: proofAudit,
       rule: prepared.rule,
       topology: state.topology,
       context: { ...contextWithOwners, fromXML: state.context.fromXML },
@@ -1039,22 +1046,6 @@ function secondPassExportContext(params: {
           if (!duplicate) params.warnings.push(diagnostic)
         },
       },
-    },
-  }
-}
-
-function importControlComposition(
-  assignments: readonly ImportControlCompositionEntry[],
-): MetadataXmlPrepareComposition {
-  const rootLogicalAddress = assignments.find(({ assignmentRole }) => assignmentRole === "configuration")?.logicalAddress
-  return {
-    children(ownerLogicalAddress) {
-      return assignments.flatMap((assignment) => {
-        const owner = assignment.ownerLogicalAddress
-          ?? (assignment.assignmentRole === "configuration" ? undefined : rootLogicalAddress)
-        if (owner !== ownerLogicalAddress) return []
-        return [assignment]
-      })
     },
   }
 }
@@ -1584,6 +1575,7 @@ function workerStateForTests(): {
   workerIndex?: number
   outputDir?: string
   preparedYamlIds: string[]
+  retainedProofAuditIds: string[]
 } {
   return {
     initialized: initializedState !== undefined,
@@ -1595,6 +1587,9 @@ function workerStateForTests(): {
           outputDir: initializedState.outputDir,
         }),
     preparedYamlIds: [...preparedYaml.keys()],
+    retainedProofAuditIds: [...preparedYaml]
+      .filter(([, prepared]) => prepared.proofAudit !== undefined)
+      .map(([assignmentId]) => assignmentId),
   }
 }
 

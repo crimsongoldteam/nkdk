@@ -151,7 +151,12 @@ function resolveMutableMergePlan(
 function applyElementBoundaries(
   boundaries: readonly ResolvedElementBoundary[],
 ): void {
-  for (const boundary of boundaries) applyElementBoundary(boundary)
+  const ordered = [...boundaries].sort((left, right) => {
+    if (isParentPatchOf(left.boundary, right.boundary)) return 1
+    if (isParentPatchOf(right.boundary, left.boundary)) return -1
+    return 0
+  })
+  for (const boundary of ordered) applyElementBoundary(boundary)
 }
 
 function planBoundaries(
@@ -205,15 +210,20 @@ function planBoundaries(
       return { path, kind: "order", order: decodeXmlRawOrderPatch(boundary.value) }
     }
     const elementName = path.segments.at(-1) ?? path.rootName
-    return {
-      path,
-      kind: "element",
-      fragment: decodeXmlRawValue(boundary.value, {
-        elementName,
-        suppressOrdinaryOutput: boundary.suppressOrdinaryOutput,
-        placement: boundary.placement,
-      }),
-      ...(boundary.siblingOrder === undefined ? {} : { siblingOrder: boundary.siblingOrder }),
+    try {
+      return {
+        path,
+        kind: "element",
+        fragment: decodeXmlRawValue(boundary.value, {
+          elementName,
+          suppressOrdinaryOutput: boundary.suppressOrdinaryOutput,
+          placement: boundary.placement,
+        }),
+        ...(boundary.siblingOrder === undefined ? {} : { siblingOrder: boundary.siblingOrder }),
+      }
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : String(caught)
+      throw new Error(`${path.source}: ${message}`, { cause: caught })
     }
   })
 }
@@ -308,13 +318,44 @@ function assertNonOverlappingBoundaries(boundaries: readonly PlannedBoundary[]):
       const right = boundaries[rightIndex]!
       if (
         left.path.rootName === right.path.rootName &&
-        (((left.kind === "element" || left.kind === "patch") && isPathPrefix(left.path, right.path)) ||
-          ((right.kind === "element" || right.kind === "patch") && isPathPrefix(right.path, left.path)))
+        (boundariesOverlapUnsafely(left, right) || boundariesOverlapUnsafely(right, left))
       ) {
         throw new Error(`Найдены перекрывающиеся raw-границы: ${left.path.source} и ${right.path.source}`)
       }
     }
   }
+}
+
+function boundariesOverlapUnsafely(left: PlannedBoundary, right: PlannedBoundary): boolean {
+  if ((left.kind !== "element" && left.kind !== "patch") || !isPathPrefix(left.path, right.path)) {
+    return false
+  }
+  if (left.kind === "element") return true
+  if (left.path.segments.length === right.path.segments.length) return true
+  return !isShellPatch(left)
+}
+
+function isParentPatchOf(
+  parent: Extract<PlannedBoundary, { readonly kind: "element" | "patch" }>,
+  child: Extract<PlannedBoundary, { readonly kind: "element" | "patch" }>,
+): boolean {
+  return isShellPatch(parent)
+    && parent.path.rootName === child.path.rootName
+    && parent.path.segments.length < child.path.segments.length
+    && isPathPrefix(parent.path, child.path)
+}
+
+function isShellPatch(
+  boundary: Extract<PlannedBoundary, { readonly kind: "element" | "patch" }>,
+): boolean {
+  if (
+    boundary.kind !== "patch" ||
+    boundary.patch === null ||
+    typeof boundary.patch !== "object" ||
+    Array.isArray(boundary.patch)
+  ) return false
+  const keys = Object.keys(boundary.patch)
+  return keys.length > 0 && keys.every((key) => key.startsWith("_") || key === "#order")
 }
 
 function isPathPrefix(prefix: CanonicalRawPath, value: CanonicalRawPath): boolean {
@@ -341,14 +382,20 @@ function applyElementBoundary(
     }
     const ordinary = location.elements[0]
     const elementName = boundary.path.segments.at(-1) ?? boundary.path.rootName
-    const patched = applyXmlPatch(
-      ordinary === undefined ? {} : encodeXmlRawElement(ordinary),
-      boundary.patch as import("./rawCodec").XmlPatchValue,
-    )
-    const replacement = decodeXmlRawValue(patched, {
-      elementName,
-      suppressOrdinaryOutput: true,
-    }).nodes.map((node) => toMutableElement(node, "planned"))
+    let replacement: MutableXmlElementNode[]
+    try {
+      const patched = applyXmlPatch(
+        ordinary === undefined ? {} : encodeXmlRawElement(ordinary),
+        boundary.patch as import("./rawCodec").XmlPatchValue,
+      )
+      replacement = decodeXmlRawValue(patched, {
+        elementName,
+        suppressOrdinaryOutput: true,
+      }).nodes.map((node) => toMutableElement(node, "planned"))
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : String(caught)
+      throw new Error(`${boundary.path.source}: ${message}`, { cause: caught })
+    }
     location.replace(replacement)
     return
   }

@@ -355,9 +355,9 @@ describe("sync configuration from xml", () => {
     expect(yaml).toContain("ОтображениеКомандногоИнтерфейса: Верх")
   })
 
-  it("сохраняет пустой корневой интерфейс приложения как raw, но не создаёт отсутствующий", () => {
-    expect(emptyClientApplicationInterfaceImport.yaml).toContain("ИнтерфейсКлиентскогоПриложения: !xml/raw")
-    expect(emptyClientApplicationInterfaceImport.yaml).toContain("$значение:")
+  it("сохраняет пустой корневой интерфейс приложения обычным пустым значением, но не создаёт отсутствующий", () => {
+    expect(emptyClientApplicationInterfaceImport.yaml).toContain("ИнтерфейсКлиентскогоПриложения:")
+    expect(emptyClientApplicationInterfaceImport.yaml).not.toContain("ИнтерфейсКлиентскогоПриложения: !xml/raw")
     expect(fullRootImport.yaml).not.toContain("ИнтерфейсКлиентскогоПриложения:")
   })
 

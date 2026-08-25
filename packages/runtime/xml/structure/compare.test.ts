@@ -24,6 +24,21 @@ describe("compareXmlStructures", () => {
     })
   })
 
+  it("records an order change inside a nested element", () => {
+    const source = roots(
+      "<Root><Table><Before/><RowFilter/><ChildItems/></Table></Root>",
+    )[0]!
+    const ordinary = roots(
+      "<Root><Table><Before/><ChildItems/><RowFilter/></Table></Root>",
+    )[0]!
+
+    expect(createXmlElementPatch(source, ordinary)).toEqual({
+      Table: {
+        "#order": ["Before", "RowFilter", "ChildItems"],
+      },
+    })
+  })
+
   it("confirms equal structural hashes with a deep comparison", () => {
     const original = roots("<Root><Value>one</Value></Root>")[0]!
     const originalValue = original.content.find(

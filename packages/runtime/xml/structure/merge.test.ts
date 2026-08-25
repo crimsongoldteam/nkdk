@@ -119,7 +119,7 @@ describe("mergeXmlRawFragments", () => {
     )).toEqual(["\n  ", "A", "\n  ", "B", "\n"])
   })
 
-  it("сохраняет whitespace вокруг ребёнка при legacy child-only #order", () => {
+  it("не восстанавливает форматирующий whitespace вокруг ребёнка", () => {
     const ordinary = roots(
       "<Root><Properties><Name>Items</Name> </Properties></Root>",
     )
@@ -132,9 +132,13 @@ describe("mergeXmlRawFragments", () => {
       },
     ])
 
-    expect(xmlExport(merged, false)).toBe(
-      ["<Root>", "\t<Properties><Name>Items</Name> </Properties>", "</Root>"].join("\n"),
-    )
+    expect(xmlExport(merged, false)).toBe([
+      "<Root>",
+      "\t<Properties>",
+      "\t\t<Name>Items</Name>",
+      "\t</Properties>",
+      "</Root>",
+    ].join("\n"))
   })
 
   it("сохраняет scalar text как префикс при legacy child-only #order", () => {

@@ -169,7 +169,7 @@ describe("prepareFullXmlSyncAssignment", () => {
 
     tagMode = "normal"
     const unknownParsed = parseMetadataYaml("Properties\\Future: !xml/raw\n  $xml: future\n")
-    const prepareUnknownAssignment = () => withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
+    const unprefixed = withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
       assignment,
       preparedYamlFile: {
         projectPath: assignment.sourceProjectPath,
@@ -186,9 +186,39 @@ describe("prepareFullXmlSyncAssignment", () => {
       topology,
     }))
 
-    expect(prepareUnknownAssignment).toThrow(
-      "raw-границу Properties\\Future нельзя однозначно связать с одним XML-документом assignment",
-    )
+    expect(unprefixed.documents.map((document) => document.rawBoundaries.length)).toEqual([1, 0])
+    expect(unprefixed.documents[0]?.rawBoundaries[0]).toMatchObject({
+      path: "Properties\\Future",
+      documentSelector: "",
+    })
+
+    const selectedParsed = parseMetadataYaml([
+      "'@body\\Properties\\Future': !xml/raw",
+      "  $xml: future",
+    ].join("\n"))
+    const selected = withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: {
+        projectPath: assignment.sourceProjectPath,
+        filePath: assignment.sourcePath,
+        role: "properties",
+        owner: { dir: "Объект", name: "One" },
+        data: selectedParsed.data,
+        annotations: selectedParsed.annotations,
+        syntaxDiagnostics: [],
+      },
+      context: mockContextToXML(),
+      index: testConfigurationIndexReader(),
+      baseConfigurationIndex,
+      composition: emptyComposition,
+      topology,
+    }))
+
+    expect(selected.documents.map((document) => document.rawBoundaries.length)).toEqual([0, 1])
+    expect(selected.documents[1]?.rawBoundaries[0]).toMatchObject({
+      path: "Properties\\Future",
+      documentSelector: "body",
+    })
   })
 
   it("uses the registered component root rule for the configuration assignment", () => {

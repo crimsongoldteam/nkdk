@@ -79,7 +79,11 @@ export function buildYamlLocationIndex(text: string): YamlLocationIndex {
       nodePositions,
     })
 
-    if (!keyToken.hasValue || isBlockScalarHeaderAt(line, keyToken.valueColumn)) {
+    if (
+      !keyToken.hasValue
+      || isBlockScalarHeaderAt(line, keyToken.valueColumn)
+      || isTagOnlyValueAt(line, keyToken.valueColumn)
+    ) {
       stack.push({ indent, path: currentPath })
     }
   })
@@ -142,7 +146,11 @@ function readSequenceItem(params: {
     nodePositions,
   })
 
-  if (!itemKeyToken.hasValue || isBlockScalarHeaderAt(itemLine, itemKeyToken.valueColumn)) {
+  if (
+    !itemKeyToken.hasValue
+    || isBlockScalarHeaderAt(itemLine, itemKeyToken.valueColumn)
+    || isTagOnlyValueAt(itemLine, itemKeyToken.valueColumn)
+  ) {
     stack.push({ indent, path: itemPath })
     stack.push({ indent: indent + 2, path: currentPath })
     return
@@ -244,4 +252,10 @@ function isBlockScalarHeaderAt(line: string, valueColumn: number | undefined): b
   if (valueColumn === undefined) return false
   const value = line.slice(valueColumn - 1).trim()
   return value.startsWith("|") || value.startsWith(">")
+}
+
+function isTagOnlyValueAt(line: string, valueColumn: number | undefined): boolean {
+  if (valueColumn === undefined) return false
+  const value = line.slice(valueColumn - 1).trim()
+  return /^![^\s]+(?:\s+#.*)?$/u.test(value)
 }

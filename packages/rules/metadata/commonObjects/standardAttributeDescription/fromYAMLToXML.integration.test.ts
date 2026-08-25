@@ -1,4 +1,5 @@
 import { beforeAll,describe,expect,it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemRule,PropertyRuleType } from "@nkdk/runtime/rule-kit"
@@ -28,17 +29,19 @@ const context: ConfigurationContextWithExportToXML = {
 
 function standardAttributesOwnerRule(
   itemType: string,
-  standartAttributeNames: Readonly<Record<string, string>>
+  standartAttributeNames: Readonly<Record<string, string>>,
+  evaluateWhenYAMLMissing = false,
 ): MetadataItemRule {
   return {
     itemType,
     properties: {
-      standardAttributes: {
-        type: "StandardAttributeDescriptions",
-        yaml: "СтандартныеРеквизиты",
-        xml: "StandardAttributes",
-        standartAttributeNames,
-      },
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames,
+          ...(evaluateWhenYAMLMissing ? { evaluateWhenYAMLMissing: true as const } : {}),
+        },
     },
   } as MetadataItemRule
 }
@@ -177,7 +180,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   it("exports undefined and empty YAML", () => {
     const results = [undefined, {}].map((yaml) => {
       return testExportPropertyModelThroughYAMLToXML({
-        rule,
+        rule: { ...rule, standartAttributeNames: {} },
         value: undefined,
         yaml,
         xmlRootTag: "StandardAttributes",
@@ -561,5 +564,51 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     }
     expect(items["xr:StandardAttribute"].map((item) => item._name)).toEqual(["Active", "LineNumber"])
     expect(items["xr:StandardAttribute"][0]?.["xr:Comment"]).toBe("изменён")
+  })
+
+  it("восстанавливает обязательные стандартные реквизиты при отсутствии свойства в YAML", () => {
+    const rule = standardAttributesOwnerRule(
+      "EnumStandardAttributesProbe",
+      {
+        Order: "Порядок",
+        Ref: "Ссылка",
+      },
+      true,
+    )
+
+    const result = convertPropertiesFromYAMLToXML({
+      context,
+      yaml: {},
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(standardAttributeItems(result.outputs.get("owner") ?? {})).toMatchObject([
+      {
+        _name: "Order",
+        "xr:FillChecking": "DontCheck",
+        "xr:MaxValue": { "_xsi:nil": true },
+      },
+      {
+        _name: "Ref",
+        "xr:FillChecking": "DontCheck",
+        "xr:MaxValue": { "_xsi:nil": true },
+      },
+    ])
+  })
+
+  it("не создаёт необязательную коллекцию при отсутствии свойства в YAML", () => {
+    const rule = standardAttributesOwnerRule("OptionalStandardAttributesProbe", {
+      Code: "Код",
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context,
+      yaml: {},
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
   })
 })

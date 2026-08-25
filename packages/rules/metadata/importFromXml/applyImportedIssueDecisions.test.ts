@@ -1,4 +1,4 @@
-import { parseMetadataYaml, serializeYAMLDocument } from "@nkdk/runtime"
+import { explicitYAMLString, parseMetadataYaml, serializeYAMLDocument } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import { applyImportedIssueDecisions } from "./applyImportedIssueDecisions"
 
@@ -41,6 +41,49 @@ describe("применение решений об XML-аномалиях", () =
 
     expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).toContain(
       "$значение: !xml/invalid неверно",
+    )
+  })
+
+  it("помечает конкретный элемент массива по числовому пути TypeBox", () => {
+    const parsed = parseMetadataYaml([
+      "СписокВыбора:",
+      "  - неверно",
+      "  - верно",
+    ].join("\n"))
+
+    applyImportedIssueDecisions({
+      data: parsed.data,
+      annotations: parsed.annotations,
+      decisions: [{
+        kind: "invalid",
+        target: { kind: "path", path: ["СписокВыбора", 0] },
+        issueCodes: ["schema.anyOf"],
+      }],
+    })
+
+    expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).toBe([
+      "СписокВыбора:",
+      "  - !xml/invalid неверно",
+      "  - верно",
+    ].join("\n"))
+  })
+
+  it("сохраняет явную YAML-строку скаляром при добавлении invalid", () => {
+    const data = { Значение: explicitYAMLString("         ") }
+    const parsed = parseMetadataYaml(serializeYAMLDocument(data).text)
+
+    applyImportedIssueDecisions({
+      data,
+      annotations: parsed.annotations,
+      decisions: [{
+        kind: "invalid",
+        target: { kind: "path", path: ["Значение"] },
+        issueCodes: ["rules.fill-value"],
+      }],
+    })
+
+    expect(serializeYAMLDocument(data, parsed.annotations).text).toBe(
+      'Значение: !xml/invalid "         "',
     )
   })
 })

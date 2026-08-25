@@ -27,6 +27,21 @@ export interface XmlElementStructure {
 
 const encoder = new TextEncoder()
 
+export function normalizeXmlElementContent<T extends XmlStructuralContent>(
+  content: readonly T[]
+): readonly T[] {
+  const hasElement = content.some((node) => node.type === "element")
+  const hasMeaningfulText = content.some(
+    (node) => node.type === "text" && node.value.trim().length > 0
+  )
+  if (!hasElement || hasMeaningfulText) return content
+
+  const normalized = content.filter(
+    (node) => node.type !== "text" || node.value.trim().length > 0
+  )
+  return normalized.length === content.length ? content : normalized
+}
+
 export function hashXmlElementStructure(element: XmlElementStructure): bigint {
   const hash = xxh3.Xxh3.withSeed()
   writeByte(hash, 1)

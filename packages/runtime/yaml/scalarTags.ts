@@ -131,11 +131,14 @@ function xmlAnnotationMappingTag(tag: string, matchByTagPrefix = false) {
 }
 
 function parseYAMLScalarPayload(value: string): unknown {
-  return value === "" ? undefined : load(value, { schema: JSON_SCHEMA })
+  if (value === "") return undefined
+  if (value.trim() === "") return value
+  return load(value, { schema: JSON_SCHEMA })
 }
 
 function parsePropertyStatePayload(payload: string): unknown {
   if (payload === "") return undefined
+  if (payload.trim() === "") return payload
   return load(payload, { schema: JSON_SCHEMA })
 }
 

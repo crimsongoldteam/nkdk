@@ -135,6 +135,7 @@ export function projectXmlAuditRemainder(params: {
   }
 
   const visitKnownElement = (element: XmlElementNode, path: readonly string[]): void => {
+    const parentPatch: Record<string, XmlRawValue> = {}
     const structuredContent = element.content.filter(
       (node): node is XmlElementNode | XmlProcessingInstructionNode => node.type !== "text",
     )
@@ -165,12 +166,9 @@ export function projectXmlAuditRemainder(params: {
       isUnknown(outcomes.get(attribute)?.state),
     )
     if (unknownAttributes.length > 0) {
-      const value: Record<string, XmlRawValue> = {}
-      for (const attribute of unknownAttributes) value[`_${attribute.name}`] = attribute.value
-      if (unknownAttributes.length !== element.attributes.length) {
-        value["#order"] = element.attributes.map(({ name }) => `_${name}`)
+      for (const attribute of element.attributes) {
+        parentPatch[`_${attribute.name}`] = attribute.value
       }
-      appendRaw(terminalPath(path, "#attributes"), value)
       for (const attribute of unknownAttributes) params.audit.claim(attribute, params.boundary)
     }
 
@@ -205,13 +203,11 @@ export function projectXmlAuditRemainder(params: {
       if (child.type === "element") visitKnownElement(child, [...path, child.name])
     }
     if (hasUnknownChild && hasKnownChild) {
-      appendRaw(
-        terminalPath(path, "#order"),
-        contentChildren.map((child) =>
-          child.type === "element" ? child.name : `?${child.target}`,
-        ),
+      parentPatch["#order"] = contentChildren.map((child) =>
+        child.type === "element" ? child.name : `?${child.target}`,
       )
     }
+    if (Object.keys(parentPatch).length > 0) appendRaw(parentRawPath(path), parentPatch)
   }
 
   if (isUnknown(outcomes.get(params.root)?.state)) {
@@ -474,12 +470,12 @@ function isUnknown(state: XmlImportAuditState | undefined): boolean {
   return state === "unclaimed" || state === "unknown"
 }
 
-function terminalPath(path: readonly string[], terminal: "#attributes" | "#order"): string {
-  return path.length === 0 ? terminal : `${formatPath(path)}\\${terminal}`
-}
-
 function formatPath(path: readonly string[]): string {
   return path.join("\\")
+}
+
+function parentRawPath(path: readonly string[]): string {
+  return path.length === 0 ? "@" : formatPath(path)
 }
 
 export function xmlElementRawValue(element: XmlElementNode): XmlRawValue {

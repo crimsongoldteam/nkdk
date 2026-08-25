@@ -114,13 +114,7 @@ describe("XML anomaly proof", () => {
   })
 
   it("сохраняет порядок независимо принадлежащих дочерних свойств через #order", async () => {
-    const source = "<Root><Properties><A/><B/></Properties></Root>"
-    const exported = "<Root><Properties><B/><A/></Properties></Root>"
-    const document = parseXmlDocumentWithSaxes(source)
-    const properties = firstElement(document)
-    const children = properties.content.filter(
-      (node): node is XmlElementNode => node.type === "element",
-    )
+    const { source, exported, document, properties, children } = orderProofFixture()
     const root = document.roots[0]!
     const boundaries = children.map((child, index) => orderProofBoundary({
       child,
@@ -142,13 +136,42 @@ describe("XML anomaly proof", () => {
     expect(result.data).toEqual({
       Первое: {},
       Второе: {},
-      "Properties\\#order": undefined,
+      Properties: undefined,
     })
     expect(result.annotations.entries).toEqual([
       expect.objectContaining({
         parentPath: [],
-        key: "Properties\\#order",
-        annotation: expect.objectContaining({ kind: "raw", xml: ["A", "B"] }),
+        key: "Properties",
+        annotation: expect.objectContaining({
+          kind: "raw",
+          xml: { "#order": ["A", "B"] },
+        }),
+      }),
+    ])
+  })
+
+  it("не поднимает порядок вложенного XML-родителя до корня документа при неполном аудите", async () => {
+    const { source, exported, document, properties, children } = orderProofFixture()
+    const boundaries = children.map((child, index) => orderProofBoundary({
+      child,
+      index,
+      parent: properties,
+      parentRawYamlPath: [index === 0 ? "Первое" : "Второе"],
+    }))
+
+    const result = await proveCapturedBoundaries({
+      data: { Первое: {}, Второе: {} },
+      document,
+      boundaries,
+      exported,
+      source,
+    })
+
+    expect(result.annotations.entries).toEqual([
+      expect.objectContaining({
+        parentPath: [],
+        key: "Properties",
+        annotation: expect.objectContaining({ xml: { "#order": ["A", "B"] } }),
       }),
     ])
   })
@@ -197,13 +220,56 @@ describe("XML anomaly proof", () => {
         annotation: expect.objectContaining({ kind: "raw", xml: "future" }),
       }),
       expect.objectContaining({
-        key: "Properties\\#order",
+        key: "Properties",
         annotation: expect.objectContaining({
           kind: "raw",
-          xml: { "#text": [], "#order": ["A", "UnknownProperty", "B"] },
+          xml: { "#order": ["A", "UnknownProperty", "B"] },
         }),
       }),
     ]))
+  })
+
+  it("добавляет краткое имя дополнительного XML-документа к неизвестному raw-пути", async () => {
+    const formPath = "/configuration/Forms/One/Ext/Form.xml"
+    const source = "<Form><Properties><Future>x</Future></Properties></Form>"
+    const exported = "<Form><Properties/></Form>"
+    const document = parseXmlDocumentWithSaxes(source)
+    const future = document.roots[0]?.content
+      .find((node): node is XmlElementNode => node.type === "element" && node.name === "Properties")
+      ?.content.find((node): node is XmlElementNode => node.type === "element" && node.name === "Future")
+    if (future === undefined) throw new Error("Не найден Future")
+    const proofBoundary: XmlAnomalyProofBoundary = {
+      sourcePath: formPath,
+      sourceRole: "body",
+      xmlPath: future.path,
+      yamlPath: ["Properties\\Future"],
+      rulePath: ["future"],
+      presentInSource: true,
+    }
+    const data: Record<string, unknown> = {}
+
+    const result = await proveXmlAnomalyBoundaries({
+      data,
+      annotations: { version: 1, entries: [] },
+      audit: captureXmlAnomalyProofAudit({
+        sources: [{ sourcePath: formPath, role: "body", document }],
+        boundaries: [proofBoundary],
+      }),
+      exported: [{
+        role: "body",
+        sourcePath: formPath,
+        document: parseXmlDocumentWithSaxes(exported),
+      }],
+      readSource: async () => source,
+    })
+
+    expect(result.data).toEqual({ "@Form\\Properties\\Future": undefined })
+    expect(result.annotations.entries).toEqual([
+      expect.objectContaining({
+        key: "@Form\\Properties\\Future",
+        annotation: expect.objectContaining({ kind: "raw", xml: "x" }),
+      }),
+    ])
   })
 
   it("считает вложенное владение коллекции и свойства одной скомпилированной границей", () => {
@@ -333,6 +399,48 @@ describe("XML anomaly proof", () => {
       xmlPath: "/MetaDataObject[1]/Catalog[1]/ChildObjects[1]/Attribute[1]/Properties[1]/Type[1]",
       yamlPath: ["Реквизиты", "Код", "Тип"],
       rulePath: ["attributes", "type"],
+      presentInSource: false,
+    }))
+  })
+
+  it("планирует отсутствующий XML-default внутри элемента массива", () => {
+    const document = parseXmlDocumentWithSaxes([
+      '<Owner xmlns:xr="urn:xr"><Characteristics>',
+      "<xr:Characteristic><xr:CharacteristicTypes/><xr:CharacteristicValues/></xr:Characteristic>",
+      "</Characteristics></Owner>",
+    ].join(""))
+    const characteristics = document.roots[0]!.content.find(
+      (node): node is XmlElementNode => node.type === "element" && node.name === "Characteristics",
+    )!
+    const characteristic = characteristics.content.find(
+      (node): node is XmlElementNode => node.type === "element",
+    )!
+    const audit = createXmlImportAuditSession(document.roots)
+    audit.claim(characteristic, {
+      itemType: "CharacteristicsDescription",
+      yamlPath: ["Характеристики", 0],
+      rulePath: [{ propertyKey: "characteristics" }],
+    })
+
+    const boundaries = deriveXmlAnomalyProofBoundaries({
+      sources: [{ sourcePath, role: "body", document }],
+      audit,
+      rule: {
+        itemType: "Owner",
+        properties: {
+          characteristics: {
+            type: "CharacteristicsDescriptions",
+            xml: "Characteristics",
+            yaml: "Характеристики",
+          },
+        },
+      },
+      data: { Характеристики: [{}] },
+    })
+
+    expect(boundaries).toContainEqual(expect.objectContaining({
+      xmlPath: expect.stringContaining("xr:DataPathField[1]"),
+      yamlPath: ["Характеристики", 0, "ПолеПутиКДанным"],
       presentInSource: false,
     }))
   })
@@ -821,7 +929,7 @@ describe("XML anomaly proof", () => {
       boundary("/Root[1]/Mode[1]", ["Режим"], ["mode"], false),
     ])
 
-    expect(result.data).toEqual({})
+    expect(result.data).toEqual({ Режим: undefined })
     expect(result.annotations.entries).toEqual([
       expect.objectContaining({
         parentPath: [],
@@ -836,6 +944,10 @@ describe("XML anomaly proof", () => {
       }),
     ])
     expect(result.rereadSourcePaths).toEqual([])
+    expect(serializeYAMLDocument(
+      result.data,
+      restoreXmlAnomalyAnnotations(result.data, result.annotations),
+    ).text).toContain("Режим: !xml/raw\n  $xml:")
   })
 
   it("планирует raw null только после того, как контрольный экспорт действительно добавил узел", async () => {
@@ -859,7 +971,7 @@ describe("XML anomaly proof", () => {
       readSource: async () => source,
     })
 
-    expect(result.data).toEqual({})
+    expect(result.data).toEqual({ Режим: undefined })
     expect(result.annotations.entries).toEqual([
       expect.objectContaining({
         parentPath: [],
@@ -1292,6 +1404,17 @@ function orderProofBoundary(params: {
       span: params.root.span,
     }])],
   }
+}
+
+function orderProofFixture() {
+  const source = "<Root><Properties><A/><B/></Properties></Root>"
+  const exported = "<Root><Properties><B/><A/></Properties></Root>"
+  const document = parseXmlDocumentWithSaxes(source)
+  const properties = firstElement(document)
+  const children = properties.content.filter(
+    (node): node is XmlElementNode => node.type === "element",
+  )
+  return { source, exported, document, properties, children }
 }
 
 function deriveFormDataPathBoundary(

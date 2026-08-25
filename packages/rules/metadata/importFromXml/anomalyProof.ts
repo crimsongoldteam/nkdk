@@ -1,6 +1,7 @@
 import {
   createXmlElementPatch,
   decodeXmlRawValue,
+  isExplicitYAMLString,
   copyYAMLMappingKeyOrder,
   copyYAMLScalarTags,
   mergeXmlRawFragments,
@@ -941,6 +942,7 @@ export async function proveXmlAnomalyBoundaries(params: {
     if (exact || hasRawAtOrAbovePath(annotationSnapshot, boundary.yamlPath)) continue
 
     if (!boundary.presentInSource) {
+      setRawYamlValue(mutableData(), boundary.yamlPath, undefined)
       annotationSnapshot = withRawAnnotation(
         annotationSnapshot,
         boundary.yamlPath,
@@ -996,10 +998,11 @@ export async function proveXmlAnomalyBoundaries(params: {
     })
     const selectedSource = sourceElements.get(selected.xmlPath)
     if (selectedSource === undefined) throw new Error(`Не найдена выбранная XML-граница ${selected.xmlPath}`)
-    const rawYamlPath = selected.rawYamlPath ?? selected.yamlPath
-    assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, selected.yamlPath)
-    const hasSemanticValue = sameYamlPath(rawYamlPath, selected.yamlPath)
+    const localRawYamlPath = selected.rawYamlPath ?? selected.yamlPath
+    const hasSemanticValue = sameYamlPath(localRawYamlPath, selected.yamlPath)
       && valueAtYamlPath(data, selected.yamlPath) !== undefined
+    const rawYamlPath = publicRawYamlPath(localRawYamlPath, boundary, hasSemanticValue)
+    assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, selected.yamlPath)
     const exportedSelectedNode = exportedElements.get(exported)?.get(selected.xmlPath)
     const exportedSelected = exportedSelectedNode !== undefined
       && "type" in exportedSelectedNode
@@ -1026,6 +1029,34 @@ export async function proveXmlAnomalyBoundaries(params: {
     if (exported === undefined || sourceRootsAreExact(source.roots, exported)) continue
     const exportedNodes = exportedElements.get(exported)
     const sourceBoundaries = boundaries.filter((boundary) => boundary.sourcePath === source.sourcePath)
+    const hasCapturedBoundary = sourceBoundaries.some(
+      (boundary) => boundary.presentInSource && isCapturedProofBoundary(boundary),
+    )
+    const hasHandledBoundary = sourceBoundaries.some((boundary) =>
+      hasRawAtOrAbovePath(annotationSnapshot, boundary.yamlPath)
+    )
+    if (!hasCapturedBoundary && !hasHandledBoundary) {
+      const sourceDocument = await readDocument(source.sourcePath)
+      if (sourceDocument.roots.length !== 1 || exported.roots.length !== 1) {
+        throw new Error(
+          `Нелокализованное XML-расхождение требует по одному корню: ${source.sourcePath}`,
+        )
+      }
+      const sourceRoot = sourceDocument.roots[0]!
+      const exportedRoot = exported.roots[0]!
+      const rawYamlPath = [source.role === "metadata" ? "@" : `@${xmlDocumentShortName(source.sourcePath)}`]
+      assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, rawYamlPath)
+      setRawYamlValue(mutableData(), rawYamlPath, undefined)
+      annotationSnapshot = withRawAnnotation(
+        annotationSnapshot,
+        rawYamlPath,
+        sourceRoot.name === exportedRoot.name
+          ? createXmlElementPatch(sourceRoot, exportedRoot)
+          : xmlElementRawValue(sourceRoot),
+        false,
+      )
+      continue
+    }
     const boundariesByContainerPath = new Map<string, XmlAnomalyProofBoundary[]>()
     for (const boundary of sourceBoundaries) {
       for (const { xmlPath } of boundary.levels ?? []) {
@@ -1035,10 +1066,11 @@ export async function proveXmlAnomalyBoundaries(params: {
       }
     }
     for (const [xmlPath, related] of boundariesByContainerPath) {
-      const rawYamlPath = orderRawYamlPath(related, xmlPath)
-      if (rawYamlPath === undefined || hasRawAtOrAbovePath(annotationSnapshot, rawYamlPath)) continue
-      const containerYamlPath = containerRawYamlPath(rawYamlPath)
-      if (containerYamlPath !== undefined && hasRawAtOrAbovePath(annotationSnapshot, containerYamlPath)) continue
+      const orderPath = orderRawYamlPath(related, xmlPath)
+      if (orderPath === undefined) continue
+      const localRawYamlPath = containerRawYamlPath(orderPath) ?? orderPath
+      const rawYamlPath = publicRawYamlPath(localRawYamlPath, related[0]!, false)
+      if (hasRawAtOrAbovePath(annotationSnapshot, rawYamlPath)) continue
       await readDocument(source.sourcePath)
       const sourceElement = rereadElements.get(source.sourcePath)!.get(xmlPath)
       const exportedNode = exportedNodes?.get(xmlPath)
@@ -1050,6 +1082,7 @@ export async function proveXmlAnomalyBoundaries(params: {
       if (sourceElement === undefined || exportedElement === undefined) continue
       const sourceOrder = directElementOrder(sourceElement)
       const exportedOrder = directElementOrder(exportedElement)
+      if (sourceOrder.length <= 1) continue
       if (sameStrings(sourceOrder, exportedOrder)) continue
       const insertsRawChild = related.some((boundary) => {
         if (!boundary.presentInSource || parentElementPath(boundary.xmlPath) !== xmlPath) return false
@@ -1062,7 +1095,7 @@ export async function proveXmlAnomalyBoundaries(params: {
       annotationSnapshot = withRawAnnotation(
         annotationSnapshot,
         rawYamlPath,
-        insertsRawChild ? directContentOrderPatch(sourceElement) : sourceOrder,
+        insertsRawChild ? directContentOrderPatch(sourceElement) : { "#order": sourceOrder },
         false,
       )
     }
@@ -1123,12 +1156,15 @@ function directElementOrder(element: XmlElementNode): string[] {
 
 function directContentOrderPatch(element: XmlElementNode): XmlRawValue {
   const text = element.content.flatMap((node) => node.type === "text" ? [node.value] : [])
-  return {
-    "#text": text,
-    "#order": element.content.map((node) =>
-      node.type === "text" ? "#text" : node.type === "element" ? node.name : `?${node.target}`
-    ),
-  }
+  const order = element.content.map((node) =>
+    node.type === "text" ? "#text" : node.type === "element" ? node.name : `?${node.target}`
+  )
+  return text.length === 0
+    ? { "#order": order }
+    : {
+      "#text": text,
+      "#order": order,
+    }
 }
 
 function sameStrings(left: readonly string[], right: readonly string[]): boolean {
@@ -1188,7 +1224,11 @@ function orderRawYamlPath(
     const index = levels.findIndex((level) => level.xmlPath === xmlPath)
     return index >= 0 && index + 1 < levels.length
   })
-  if (!hasXmlParentInsideBoundary) return [...common, "#order"]
+  if (!hasXmlParentInsideBoundary) {
+    return common.length === 0 && parentElementPath(xmlPath) !== undefined
+      ? [`${elementNameFromPath(xmlPath)}\\#order`]
+      : [...common, "#order"]
+  }
   return [...common, `${elementNameFromPath(xmlPath)}\\#order`]
 }
 
@@ -1197,6 +1237,36 @@ function elementNameFromPath(xmlPath: string): string {
   const match = /^(.*)\[\d+\]$/u.exec(segment)
   if (match?.[1] === undefined) throw new Error(`Недопустимый структурный XML-путь: ${xmlPath}`)
   return match[1]
+}
+
+function publicRawYamlPath(
+  path: readonly (string | number)[],
+  boundary: Pick<XmlAnomalyProofBoundary, "sourcePath" | "sourceRole">,
+  hasSemanticValue: boolean,
+): readonly (string | number)[] {
+  if (hasSemanticValue) return path
+  if (path.length === 0) {
+    return [boundary.sourceRole === "metadata" ? "@" : `@${xmlDocumentShortName(boundary.sourcePath)}`]
+  }
+  if (boundary.sourceRole === "metadata") return path
+  const last = path.at(-1)
+  if (typeof last !== "string") {
+    throw new Error(`Raw дополнительного XML-документа требует строковый YAML-ключ: /${path.join("/")}`)
+  }
+  return [
+    ...path.slice(0, -1),
+    `@${xmlDocumentShortName(boundary.sourcePath)}\\${last}`,
+  ]
+}
+
+function xmlDocumentShortName(sourcePath: string): string {
+  const fileName = sourcePath.replaceAll("\\", "/").split("/").at(-1)
+  if (fileName === undefined || !fileName.endsWith(".xml")) {
+    throw new Error(`Не удалось определить краткое имя XML-документа: ${sourcePath}`)
+  }
+  const result = fileName.slice(0, -".xml".length)
+  if (result.length === 0) throw new Error(`Не удалось определить краткое имя XML-документа: ${sourcePath}`)
+  return result
 }
 
 function rawMergePath(xmlPath: string): {
@@ -1618,21 +1688,38 @@ function isStringRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function cloneYamlForProof<T>(source: T): T {
-  const clone = structuredClone(source)
-  copyYamlMetadataDeep(source, clone)
-  return clone
+  return restoreYamlMetadata(source, structuredClone(source)) as T
 }
 
-function copyYamlMetadataDeep(source: unknown, target: unknown): void {
-  if (!isObject(source) || !isObject(target)) return
+function restoreYamlMetadata(source: unknown, target: unknown): unknown {
+  if (isExplicitYAMLString(source)) return source
+  if (!isObject(source) || !isObject(target)) return target
+  copyYamlMetadata(source, target)
+  if (Array.isArray(source)) {
+    if (!Array.isArray(target)) return target
+    for (let index = 0; index < source.length; index += 1) {
+      target[index] = restoreYamlMetadata(source[index], target[index])
+    }
+    return target
+  }
+  if (Array.isArray(target)) return target
+  for (const key of Object.keys(source)) {
+    target[key] = restoreYamlMetadata(source[key], target[key])
+  }
+  for (const key of Object.getOwnPropertyNames(source)) {
+    if (Object.prototype.propertyIsEnumerable.call(source, key) || Object.prototype.hasOwnProperty.call(target, key)) {
+      continue
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(source, key)
+    if (descriptor === undefined) continue
+    Object.defineProperty(target, key, "value" in descriptor
+      ? { ...descriptor, value: restoreYamlMetadata(descriptor.value, structuredClone(descriptor.value)) }
+      : descriptor)
+  }
+  return target
+}
+
+function copyYamlMetadata(source: object, target: object): void {
   copyYAMLScalarTags(source, target)
   copyYAMLMappingKeyOrder(source, target)
-  if (Array.isArray(source) && Array.isArray(target)) {
-    for (let index = 0; index < source.length; index += 1) {
-      copyYamlMetadataDeep(source[index], target[index])
-    }
-    return
-  }
-  if (Array.isArray(source) || Array.isArray(target)) return
-  for (const key of Object.keys(source)) copyYamlMetadataDeep(source[key], target[key])
 }

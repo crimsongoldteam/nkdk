@@ -45,6 +45,7 @@ export function compileMetadataResourceTopology<Spec extends MetadataResourceTop
 
   assertUniqueAssignmentPaths(assignments)
   assertUniqueXmlOwners(assignments)
+  assertUniqueXmlAnomalySelectors(assignments)
 
   const frozenAssignments = assignments.map(freezeAssignment)
   return Object.freeze({
@@ -153,6 +154,9 @@ function compileDeclarations(
         ...declaration,
         id: stableId("xml", assignment.projectPattern, xmlPattern, declaration.role),
         xmlPattern,
+        ...(declaration.role === "metadata"
+          ? {}
+          : { xmlAnomalySelector: xmlDocumentShortName(xmlPattern) }),
       })
       continue
     }
@@ -282,6 +286,29 @@ function assertUniqueXmlOwners(assignments: readonly MutableAssignment[]): void 
     ),
     "XML-путь принадлежит нескольким заданиям"
   )
+}
+
+function assertUniqueXmlAnomalySelectors(assignments: readonly MutableAssignment[]): void {
+  for (const assignment of assignments) {
+    assertUnique(
+      assignment.xmlDocuments.flatMap((document) =>
+        document.xmlAnomalySelector === undefined
+          ? []
+          : [[document.xmlAnomalySelector, document.xmlPattern] as const]
+      ),
+      `Краткое имя дополнительного XML-документа повторяется в задании ${assignment.projectPattern}`,
+    )
+  }
+}
+
+function xmlDocumentShortName(xmlPattern: string): string {
+  const fileName = xmlPattern.replaceAll("\\", "/").split("/").at(-1)
+  if (fileName === undefined || !fileName.endsWith(".xml")) {
+    throw new Error(`Дополнительный XML-документ не имеет расширения .xml: ${xmlPattern}`)
+  }
+  const result = fileName.slice(0, -".xml".length)
+  if (result.length === 0) throw new Error(`Дополнительный XML-документ не имеет краткого имени: ${xmlPattern}`)
+  return result
 }
 
 function assertUnique(entries: readonly (readonly [string, string])[], message: string): void {

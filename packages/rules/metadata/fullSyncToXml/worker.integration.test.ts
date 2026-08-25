@@ -179,6 +179,18 @@ describe("full XML sync worker", () => {
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("baseIndexSnapshot")
   })
 
+  it("экспортирует пустой файл свойств как пустой объект", async () => {
+    const projectDir = createProject(["Товары"])
+    fs.writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "")
+    const assigned = assignment(projectDir, "Товары")
+    await initialize(projectDir, [assigned])
+
+    const result = await runFullXmlSyncWorkerCommand({ kind: "execute", assignments: [assigned] })
+
+    expect(result).toMatchObject({ kind: "executionResult", diagnostics: [] })
+    expect(fs.existsSync(join(projectDir, ".out", "Catalogs", "Товары.xml"))).toBe(true)
+  })
+
   it.each([
     [undefined, "cfg:AnyIBRef"],
     [{ AnyIBRef: "AnyRef" }, "cfg:AnyRef"],

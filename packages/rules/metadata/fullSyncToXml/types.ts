@@ -10,6 +10,7 @@ import type { ProjectStateReadToken } from "../projectState/contracts/readToken"
 import type { MetadataXmlBaseInputDeclaration } from "@nkdk/runtime/rule-kit"
 import type { MetadataWorkerBinaryResult } from "../workerPool/binaryResult"
 import type { XmlRawMergeBoundary } from "@nkdk/runtime"
+import type { PreparedYamlFile } from "../project/preparedYamlProject"
 
 export interface FullXmlSyncPotentialOutput {
   readonly declarationId: string
@@ -94,6 +95,8 @@ export type FullXmlSyncOutputTarget =
 
 export interface PreparedXmlAnomalyBoundary extends XmlRawMergeBoundary {
   readonly tag?: string
+  /** Пустая строка выбирает основной документ, непустая — дополнительный по краткому имени. */
+  readonly documentSelector?: string
   /** Отдельный XML-файл свойства, к которому относится граница. */
   readonly documentPath?: string
   /** Поправка заменяет или дополняет корень отдельного XML-документа. */
@@ -113,6 +116,8 @@ export interface PreparedXMLDocument {
 
 export interface PreparedXMLAssignment {
   readonly assignment: FullXmlSyncAssignment
+  /** Смысловой YAML, фактически переданный обычным правилам экспорта. */
+  readonly semanticYamlFile: PreparedYamlFile
   readonly documents: readonly PreparedXMLDocument[]
   readonly indexCollectors: readonly {
     readonly collector: ConfigurationIndexCollector

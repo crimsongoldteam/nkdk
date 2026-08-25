@@ -246,7 +246,10 @@ function completeCollectionEntries(params: {
   if (params.descriptor.yamlShape !== "record") return params.entries
   const referenceNames = collectReferenceNames(params)
   const shapeNames = referenceNames
-  const shouldComplete = params.entries.length > 0 || params.materializeCanonicalItems === true
+  const shouldComplete =
+    params.entries.length > 0 ||
+    params.materializeCanonicalItems === true ||
+    params.descriptor.completeItemNames !== undefined
   const ruleNames =
     shouldComplete && params.propertyRule !== undefined && params.source !== undefined
       ? (params.descriptor.completeItemNames?.({ source: params.source, propertyRule: params.propertyRule }) ?? [])

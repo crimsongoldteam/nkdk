@@ -184,6 +184,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
     const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey, source)
     const exportHandler = typeRule(planned.propertyRule.type, "exportToXML")
+    const nestedRule = typeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
+    const requiresEvaluation = requiresYAMLToXMLEvaluation(planned.propertyRule)
     const reserveNestedItemWhenAbsent =
       typeRule(planned.propertyRule.type, "nestedItemIdentity")?.reserveWhenAbsent === true
     const references = matchingOutputs.map(({ request }) =>
@@ -225,7 +227,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !reserveNestedItemWhenAbsent &&
       propertyKey !== namePropertyKey &&
       !source.has(propertyKey) &&
-      ((!references.some((reference) => reference.exists) && !requiresYAMLToXMLEvaluation(planned.propertyRule)) ||
+      ((!references.some((reference) => reference.exists) && !requiresEvaluation) ||
         (planned.propertyRule.exportNilValue === true &&
           planned.propertyRule.preserveUnknownReferenceXML === false &&
           references.every((reference) => reference.value === undefined))) &&
@@ -245,7 +247,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       matchingOutputs.every((output) => output.request.referenceXML !== undefined) &&
       references.every((reference) => !reference.exists) &&
-      !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
+      !requiresEvaluation &&
       !hasXMLDefault
     ) {
       continue
@@ -285,7 +287,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       planned.propertyRule.preserveUnknownReferenceXML !== false &&
       planned.propertyRule.excludeIfEqualNameYAML !== true &&
       typeRule(planned.propertyRule.type, "yamlToXMLNestedRule") === undefined &&
-      !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
+      !requiresEvaluation &&
       references.every((reference) => reference.exists) &&
       references.every(
         (reference) =>
@@ -314,7 +316,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       planned.propertyRule.preserveUnknownReferenceXML === false &&
-      !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
+      !requiresEvaluation &&
       !hasXMLDefault
     ) {
       continue
@@ -336,7 +338,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       planned.propertyRule.excludeIfEqualNameYAML !== true &&
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
-      !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
+      !requiresEvaluation &&
       !hasXMLDefault &&
       references.every((reference) => !reference.exists)
     ) {
@@ -347,7 +349,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !usesOrdinaryXMLDefaults(propertyContext) &&
       !reserveNestedItemWhenAbsent &&
       !hasXMLDefault &&
-      !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
+      !requiresEvaluation &&
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       references.every((reference) => !reference.exists) &&
@@ -358,7 +360,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       continue
     }
 
-    const nestedRule = typeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
     if (nestedRule !== undefined && nestedRule.kind !== "externalFile") {
       const childCollection = params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)
       const effectiveNestedRule =
@@ -403,9 +404,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       const nestedYAML =
         sourceNestedYAML === undefined
           ? effectiveNestedRule.kind === "collection" &&
-            hasNestedDefault &&
+            (hasNestedDefault || planned.propertyRule.evaluateWhenYAMLMissing === true) &&
             matchingOutputs.every((output) => output.request.referenceXML === undefined)
-            ? []
+            ? {}
             : effectiveNestedRule.kind === "item" &&
             (reserveNestedItemWhenAbsent ||
               planned.propertyRule.evaluateWhenYAMLMissing === true ||

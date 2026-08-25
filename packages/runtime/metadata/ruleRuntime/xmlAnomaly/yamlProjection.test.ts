@@ -147,7 +147,7 @@ describe("YAML-проекция XML-аномалий", () => {
     expect(yaml).not.toHaveProperty("Properties\\Future\\#attributes")
   })
 
-  it("использует #attributes только для неизвестного атрибута известного родителя", () => {
+  it("хранит неизвестный атрибут в raw известного родителя без #attributes", () => {
     const root = parseXmlDocumentWithSaxes(
       '<Root><Properties known="a" future="b"/></Root>',
     ).roots[0]!
@@ -162,16 +162,17 @@ describe("YAML-проекция XML-аномалий", () => {
 
     projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
 
-    expect(yaml).toEqual({ "Properties\\#attributes": undefined })
-    expect(annotations.at(yaml, "Properties\\#attributes")).toMatchObject({
+    expect(yaml).toEqual({ Properties: undefined })
+    expect(annotations.at(yaml, "Properties")).toMatchObject({
       kind: "raw",
       target: "value",
       hasSemanticValue: false,
       xml: {
+        _known: "a",
         _future: "b",
-        "#order": ["_known", "_future"],
       },
     })
+    expect(yaml).not.toHaveProperty("Properties\\#attributes")
   })
 
   it("сохраняет whitespace-only текст неизвестного leaf-элемента", () => {
@@ -186,7 +187,7 @@ describe("YAML-проекция XML-аномалий", () => {
     })
   })
 
-  it("сохраняет все whitespace occurrences вокруг structural children", () => {
+  it("не сохраняет форматирующие отступы вокруг structural children", () => {
     const { yaml, annotations } = projectUnknownRootChildren(
       "<Root><Future>\n  <Child>value</Child>\n</Future></Root>",
     )
@@ -194,14 +195,12 @@ describe("YAML-проекция XML-аномалий", () => {
     expect(yaml).toEqual({ Future: undefined })
     expect(annotations.at(yaml, "Future")).toMatchObject({
       xml: {
-        "#text": ["\n  ", "\n"],
         Child: "value",
-        "#order": ["#text", "Child", "#text"],
       },
     })
   })
 
-  it("сохраняет whitespace occurrence после structural child", () => {
+  it("не сохраняет форматирующий пробел после structural child", () => {
     const { yaml, annotations } = projectUnknownRootChildren(
       "<Root><Future><Child/> </Future></Root>",
     )
@@ -209,12 +208,12 @@ describe("YAML-проекция XML-аномалий", () => {
     expect(yaml).toEqual({ Future: undefined })
     const xml = annotations.at(yaml, "Future")?.xml
     expect(xml).toEqual({
-        "#text": " ",
         Child: {},
-        "#order": ["Child", "#text"],
     })
     const decoded = decodeXmlRawValue(xml, { elementName: "Future" })
-    expect(xmlExport(decoded.nodes, false)).toBe("<Future><Child/> </Future>")
+    expect(
+      parseXmlDocumentWithSaxes(xmlExport(decoded.nodes, false)).roots[0]?.structuralHash,
+    ).toBe(parseXmlDocumentWithSaxes("<Future><Child/></Future>").roots[0]?.structuralHash)
   })
 
   it("сохраняет точный mixed text до и после ребёнка", () => {

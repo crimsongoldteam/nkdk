@@ -156,6 +156,7 @@ export const MetadataEnumerationRules = {
       yaml: "СтандартныеРеквизиты",
       standartAttributeNames: MetadataEnumerationStandardAttributeNames,
       xmlParents: enumProperties,
+      evaluateWhenYAMLMissing: true,
     }),
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",

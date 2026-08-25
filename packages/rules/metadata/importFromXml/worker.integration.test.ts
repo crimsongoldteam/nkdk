@@ -26,6 +26,7 @@ import {
   createImportFirstPassTransferable,
   createImportWorkerCommandRunner,
 } from "./worker"
+import { importControlComposition } from "./controlComposition"
 import {
   controlExportCountForTests,
   executeImportControlExport,
@@ -78,6 +79,30 @@ const tempDirs: string[] = []
 const stateStores: Array<ReturnType<typeof createBinaryProjectStateStore>["store"]> = []
 let sharedStateFixture: ReturnType<typeof createBinaryProjectStateStore> | undefined
 let readyYamlValidationScenario: Awaited<ReturnType<typeof prepareReadyYamlValidationScenario>> | undefined
+
+describe("XML import control composition", () => {
+  it("видит файловый макет владельца как один элемент состава", () => {
+    const composition = importControlComposition([{
+      sourceProjectPath: "БизнесПроцесс/Согласование/Свойства.yaml",
+      itemType: "MetadataBusinessProcess",
+      itemName: "Согласование",
+      logicalAddress: "БизнесПроцесс.Согласование",
+      assignmentRole: "properties",
+      externalProjectPaths: [
+        "БизнесПроцесс/Согласование/Макеты/Лист/Template.xml",
+        "БизнесПроцесс/Согласование/Макеты/Лист/Ext/Template.xml",
+      ],
+    }])
+
+    expect(composition.children("БизнесПроцесс.Согласование")).toEqual([
+      expect.objectContaining({
+        sourceProjectPath: "БизнесПроцесс/Согласование/Макеты/Лист",
+        itemName: "Лист",
+        assignmentRole: "fileItem",
+      }),
+    ])
+  })
+})
 
 beforeAll(async () => {
   validationRulesSnapshot = createValidationRulesSnapshot(mockXmlImportContext())
@@ -148,7 +173,11 @@ describe("XML import worker first pass", () => {
     await second.run(initialize("second-runner", 2), options)
     first.resetForTests()
 
-    expect(first.stateForTests()).toEqual({ initialized: false, preparedYamlIds: [] })
+    expect(first.stateForTests()).toEqual({
+      initialized: false,
+      preparedYamlIds: [],
+      retainedProofAuditIds: [],
+    })
     expect(second.stateForTests()).toMatchObject({
       initialized: true,
       operationId: "second-runner",
@@ -467,6 +496,7 @@ describe("XML import worker second pass", () => {
     expect(second.stateFragment).toBeDefined()
     expect(second.files.count).toBe(0)
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
+    expect(workerStateForTests().retainedProofAuditIds).toEqual([])
 
     await runImportWorkerCommand({ kind: "finishSecondPass" })
     await runImportWorkerCommand({

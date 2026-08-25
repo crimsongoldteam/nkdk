@@ -49,6 +49,18 @@ const rule = {
   },
 } as const satisfies MetadataItemRule
 
+const parentPatchRule = {
+  itemType: "SyntheticParentPatchOwner",
+  properties: {
+    known: {
+      type: "string",
+      yaml: "Известное",
+      xml: "Known",
+      xmlParents: ["Properties"],
+    },
+  },
+} as const satisfies MetadataItemRule
+
 const collectionItemRule = {
   itemType: "SyntheticCollectionItem",
   properties: {
@@ -134,6 +146,22 @@ const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
 ))
 
 describe("единое восстановление XML-аномалий assignment", () => {
+  it("сохраняет служебную явную строку скаляром в смысловой проекции", () => {
+    const parsed = parseMetadataYaml('Неверное: "         "')
+    parsed.annotations.set(parsed.data as object, "Неверное", {
+      kind: "invalid",
+      occurrence: 1,
+      target: "value",
+    })
+
+    const prepared = prepareParsedAnomalies(parsed, { mode: "projectionOnly" })
+
+    expect(serializeYAMLDocument(
+      prepared.preparedYamlFile.data,
+      prepared.preparedYamlFile.annotations,
+    ).text).toBe('Неверное: !xml/invalid "         "')
+  })
+
   it("projection-only исключает полный raw, но сохраняет его $значение", () => {
     const runtime = anomalyRuntime({})
     const parsed = parseMetadataYaml([
@@ -244,6 +272,107 @@ describe("единое восстановление XML-аномалий assignm
       Properties: { Future: "future" },
     })
     expect(root).not.toHaveProperty("Missing")
+  })
+
+  it("дополняет известного XML-родителя raw-атрибутом, не скрывая его свойства", () => {
+    const prepared = prepareAnomalies([
+      "Известное: value",
+      "Properties: !xml/raw",
+      "  $xml:",
+      "    _future: x",
+    ].join("\n"), anomalyRuntime({}))
+
+    const xml = buildKnownParentXml(prepared.rawBoundaries)
+
+    expect(xml).toContain('<Properties future="x">')
+    expect(xml).toContain("<Known>value</Known>")
+  })
+
+  it("объединяет raw-ребёнка с порядком в raw известного родителя", () => {
+    const prepared = prepareAnomalies([
+      "Известное: value",
+      "Properties\\Future: !xml/raw",
+      "  $xml: future",
+      "Properties: !xml/raw",
+      "  $xml:",
+      "    '#order': [Known, Future]",
+    ].join("\n"), anomalyRuntime({}), parentPatchRule)
+
+    const xml = buildKnownParentXml(prepared.rawBoundaries)
+    const properties = parseXmlDocumentWithSaxes(xml).roots[0]?.content
+      .find((node): node is import("@nkdk/runtime").XmlElementNode =>
+        node.type === "element" && node.name === "Properties"
+      )
+
+    expect(properties?.content.flatMap((node) => node.type === "element" ? [node.name] : [])).toEqual([
+      "Known",
+      "Future",
+    ])
+  })
+
+  it("связывает raw скрытого свойства с его XML-путём из rules", () => {
+    const hiddenRule = {
+      itemType: "Root",
+      properties: {
+        templates: {
+          type: "string",
+          xml: "Template",
+          xmlParents: ["ChildObjects"],
+          toYAML: false,
+          fromYAML: false,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const prepared = prepareAnomalies([
+      "templates: !xml/raw",
+      "  $xml: Макет",
+    ].join("\n"), anomalyRuntime({}), hiddenRule)
+
+    expect(prepared.rawBoundaries).toEqual([
+      expect.objectContaining({ path: "ChildObjects\\Template" }),
+    ])
+  })
+
+  it("объединяет смысловую поправку ребёнка с порядком raw-родителя", () => {
+    const prepared = prepareAnomalies([
+      "Известное: !xml/raw",
+      "  $значение: value",
+      "  $xml: original",
+      "Properties: !xml/raw",
+      "  $xml:",
+      "    '#order': [Known]",
+    ].join("\n"), anomalyRuntime({}), parentPatchRule)
+
+    const xml = buildKnownParentXml(prepared.rawBoundaries)
+
+    expect(xml).toContain("<Known>original</Known>")
+  })
+
+  it("дополняет корень основного XML-документа через путь @", () => {
+    const prepared = prepareAnomalies([
+      "'@': !xml/raw",
+      "  $xml:",
+      "    _future: x",
+    ].join("\n"), anomalyRuntime({}), parentPatchRule)
+
+    expect(prepared.rawBoundaries).toMatchObject([{
+      path: "@",
+      documentSelector: "",
+      documentRootName: parentPatchRule.itemType,
+    }])
+    const xml = buildPreparedAssignmentXml({
+      document: {
+        targetXmlPath: "Root.xml",
+        xml: { Root: { Known: "value" } },
+        deferred: [],
+        rootRule: rule,
+        rawBoundaries: prepared.rawBoundaries,
+      },
+      context: mockContextToXML(),
+    })
+
+    expect(xml).toContain('<Root future="x">')
+    expect(xml).toContain("<Known>value</Known>")
   })
 
   it("не изменяет исходный XML-документ при чистой сборке", () => {
@@ -514,28 +643,27 @@ describe("единое восстановление XML-аномалий assignm
     })).toThrow("занят и не может служить export claim")
   })
 
-  it("объединяет terminal raw attributes/order с обычным выводом", () => {
+  it("объединяет атрибуты и порядок raw-родителя с обычным выводом", () => {
     const prepared = prepareAnomalies([
-      "Properties\\#attributes: !xml/raw",
+      "Properties: !xml/raw",
       "  $xml:",
+      '    _known: "k"',
       '    _future: "x"',
-      "    \"#order\": [_known, _future]",
-      "Properties\\#order: !xml/raw",
-      "  $xml: [Known, Future]",
+      "    \"#order\": [Known, Future]",
       "Properties\\Future: !xml/raw",
       "  $xml: future",
-    ].join("\n"), anomalyRuntime({}))
+    ].join("\n"), anomalyRuntime({}), parentPatchRule)
 
     expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: "Properties\\#attributes", suppressOrdinaryOutput: false }),
-      expect.objectContaining({ path: "Properties\\#order", suppressOrdinaryOutput: false }),
+      expect.objectContaining({ path: "Properties", suppressOrdinaryOutput: false }),
+      expect.objectContaining({ path: "Properties\\Future", suppressOrdinaryOutput: true }),
     ]))
     const xml = buildPreparedAssignmentXml({
       document: {
         targetXmlPath: "Root.xml",
         xml: { Root: { Properties: { _known: "k", Known: "known" } } },
         deferred: [],
-        rootRule: rule,
+        rootRule: parentPatchRule,
         rawBoundaries: prepared.rawBoundaries,
       },
       context: mockContextToXML(),
@@ -730,6 +858,21 @@ function exportFilterArrayWithAnomalies(lines: readonly string[]): string {
 
 function anomalyRuntime(_overrides: object): XmlAnomalyRuntime {
   return { requiresImportant: () => false }
+}
+
+function buildKnownParentXml(
+  rawBoundaries: ReturnType<typeof prepareAnomalies>["rawBoundaries"],
+): string {
+  return buildPreparedAssignmentXml({
+    document: {
+      targetXmlPath: "Root.xml",
+      xml: { Root: { Properties: { Known: "value" } } },
+      deferred: [],
+      rootRule: parentPatchRule,
+      rawBoundaries,
+    },
+    context: mockContextToXML(),
+  })
 }
 
 function prepareAnomalies(

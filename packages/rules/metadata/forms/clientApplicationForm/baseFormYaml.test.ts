@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { exportToYAML } from "@nkdk/runtime"
-import { explicitYAMLString, isExplicitYAMLString } from "@nkdk/runtime"
+import { explicitYAMLString, isExplicitYAMLString, parseMetadataYaml } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ClientApplicationFormXML } from "./types"
@@ -95,6 +96,17 @@ describe("base form YAML", () => {
     expect(isExplicitYAMLString(normalized.СписокВыбора[0]?.Значение)).toBe(true)
     expect(exportToYAML(normalized)).toContain('Значение: "Массив"')
     expect(exportToYAML(normalized)).not.toContain("value:")
+  })
+
+  it("сохраняет кавычки строк после чтения YAML", () => {
+    const parsed = parseMetadataYaml("СписокВыбора:\n  - Значение: \"0\"\n").data
+    const normalized = normalizeBaseFormYaml(parsed) as {
+      СписокВыбора: Array<{ Значение: unknown }>
+    }
+
+    expect(normalized.СписокВыбора[0]?.Значение).toBe("0")
+    expect(isExplicitYAMLString(normalized.СписокВыбора[0]?.Значение)).toBe(false)
+    expect(exportToYAML(normalized)).toContain('Значение: "0"')
   })
 })
 
