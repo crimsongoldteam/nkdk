@@ -2,7 +2,7 @@ import { XMLBuilder } from "fast-xml-parser"
 import type { XmlContentNode, XmlElementNode } from "../import/document"
 import { validateXmlProcessingInstruction } from "../structure/processingInstruction"
 
-const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
+export const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 
 const escapeText = (value: unknown): string =>
   String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -45,7 +45,7 @@ compactPreserveOrderBuilder.options.attributesGroupName = "@attributes"
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value)
 
-const getOrderedChildren = (value: unknown): Array<{ key: string; value: unknown }> | undefined => {
+export const getXmlOrderedChildren = (value: unknown): Array<{ key: string; value: unknown }> | undefined => {
   if (!isRecord(value)) return undefined
   const orderedChildren = (value as Record<PropertyKey, unknown>)[XML_ORDERED_CHILDREN]
   if (!Array.isArray(orderedChildren)) return undefined
@@ -57,7 +57,7 @@ const getOrderedChildren = (value: unknown): Array<{ key: string; value: unknown
 const hasOrderedChildren = (value: unknown): boolean => {
   if (Array.isArray(value)) return value.some(hasOrderedChildren)
   if (!isRecord(value)) return false
-  if (getOrderedChildren(value) !== undefined) return true
+  if (getXmlOrderedChildren(value) !== undefined) return true
   return Object.values(value).some(hasOrderedChildren)
 }
 
@@ -65,7 +65,7 @@ const CHILD_ITEMS_XML_TAG = "ChildItems"
 
 const toOrderedChildItemsNode = (items: unknown[]): Record<PropertyKey, unknown> => {
   const orderedChildren = items.flatMap((item): Array<{ key: string; value: unknown }> => {
-    const normalizedItem = normalizeChildItemsForExport(item)
+    const normalizedItem = normalizeXmlObjectForExport(item)
     if (!isRecord(normalizedItem)) return []
     return Object.entries(normalizedItem).map(([key, value]) => ({ key, value }))
   })
@@ -73,9 +73,9 @@ const toOrderedChildItemsNode = (items: unknown[]): Record<PropertyKey, unknown>
   return { [XML_ORDERED_CHILDREN]: orderedChildren }
 }
 
-const normalizeChildItemsForExport = (value: unknown): unknown => {
+export const normalizeXmlObjectForExport = (value: unknown): unknown => {
   if (Array.isArray(value)) {
-    return value.map((item) => normalizeChildItemsForExport(item))
+    return value.map((item) => normalizeXmlObjectForExport(item))
   }
 
   if (!isRecord(value)) return value
@@ -85,15 +85,15 @@ const normalizeChildItemsForExport = (value: unknown): unknown => {
       key,
       key === CHILD_ITEMS_XML_TAG && Array.isArray(childValue)
         ? toOrderedChildItemsNode(childValue)
-        : normalizeChildItemsForExport(childValue),
+        : normalizeXmlObjectForExport(childValue),
     ])
   )
 
-  const orderedChildren = getOrderedChildren(value)
+  const orderedChildren = getXmlOrderedChildren(value)
   if (orderedChildren !== undefined) {
     normalizedValue[XML_ORDERED_CHILDREN] = orderedChildren.map(({ key, value: childValue }) => ({
       key,
-      value: normalizeChildItemsForExport(childValue),
+      value: normalizeXmlObjectForExport(childValue),
     }))
   }
 
@@ -106,7 +106,7 @@ const getAttributeEntries = (value: Record<string, unknown>): Record<string, unk
 }
 
 const objectToPreserveOrderChildren = (value: Record<string, unknown>): unknown[] => {
-  const orderedChildren = getOrderedChildren(value)
+  const orderedChildren = getXmlOrderedChildren(value)
   const entries =
     orderedChildren?.map(({ key, value: childValue }) => [key, childValue] as const) ??
     Object.entries(value).filter(([key]) => key !== "#text" && !key.startsWith("_"))
@@ -265,7 +265,7 @@ export const xmlExport = (
 }
 
 const buildObjectXml = (data: Record<string, any>): string => {
-  const normalizedData = normalizeChildItemsForExport(data) as Record<string, any>
+  const normalizedData = normalizeXmlObjectForExport(data) as Record<string, any>
   const xml = (
     hasOrderedChildren(normalizedData)
       ? preserveOrderBuilder.build(toPreserveOrder(normalizedData))

@@ -39,8 +39,10 @@
 - Produces:
 
   ```ts
+  export type XmlRootFingerprint = Pick<XmlRootStructure, "name" | "path" | "structuralHash">
+
   export type XmlObjectStructureResult =
-    | { readonly kind: "supported"; readonly roots: readonly XmlRootStructure[] }
+    | { readonly kind: "supported"; readonly roots: readonly XmlRootFingerprint[] }
     | { readonly kind: "unsupported"; readonly reason: string }
 
   export function xmlObjectRootStructures(value: unknown): XmlObjectStructureResult
@@ -48,7 +50,7 @@
 
 - `XML_ORDERED_CHILDREN` и нормализация `ChildItems` становятся общими внутренними функциями exporter/structure, но не новым публичным форматом XML.
 
-- [ ] **Step 1: Зафиксировать равенство обычных объектов**
+- [x] **Step 1: Зафиксировать равенство обычных объектов**
 
   В `structure.test.ts` добавить таблицу объектов: строковый лист, девять пробелов в `FillValue`, атрибуты `_xsi:type` и `_custom` в заданном порядке, пустой элемент, `xsi:nil`, массив повторных `xr:Item`, вложенные `Properties` и `#text` вместе с дочерним узлом. Для каждого поддержанного значения проверять:
 
@@ -59,25 +61,25 @@
   expect(direct.roots).toEqual(parseXmlRootStructuresWithSaxes(xmlExport(value)).roots)
   ```
 
-- [ ] **Step 2: Зафиксировать порядок forms/ChildItems**
+- [x] **Step 2: Зафиксировать порядок forms/ChildItems**
 
   Добавить случай с `markXmlOrderedChildren` и повторными разными элементами `ChildItems`. Проверить точный порядок, occurrences и структурные хэши против `xmlExport`.
 
-- [ ] **Step 3: Зафиксировать честный запасной путь**
+- [x] **Step 3: Зафиксировать честный запасной путь**
 
   Добавить конструкцию, для которой прямой обход пока не определён, и ожидать `{ kind: "unsupported" }`, а не неполный хэш. Начальный неподдержанный случай — XML processing instruction в произвольной позиции mixed content.
 
-- [ ] **Step 4: Запустить тесты и подтвердить ожидаемое падение**
+- [x] **Step 4: Запустить тесты и подтвердить ожидаемое падение**
 
   Run: `pnpm --filter @nkdk/runtime exec vitest run --project unit xml/export/structure.test.ts`
 
   Expected: FAIL, потому что `xmlObjectRootStructures` ещё не существует.
 
-- [ ] **Step 5: Реализовать единый нормализованный обход**
+- [x] **Step 5: Реализовать единый нормализованный обход**
 
   Вынести из `exporter.ts` нормализацию `ChildItems`, чтение ordered children и правила группировки атрибутов в package-private функции. В `structure.ts` обходить тот же нормализованный объект, создавать `XmlStructuralAttribute`/`XmlStructuralContent`, считать occurrence среди одноимённых siblings и вызывать `hashXmlElementStructure`. Не сериализовать текст и атрибуты: хэш использует их исходные декодированные значения.
 
-- [ ] **Step 6: Проверить слой runtime**
+- [x] **Step 6: Проверить слой runtime**
 
   Run: `pnpm --filter @nkdk/runtime exec vitest run --project unit xml/export/structure.test.ts xml/export/exporter.test.ts xml/structure/hash.test.ts xml/import/document.test.ts`
 
