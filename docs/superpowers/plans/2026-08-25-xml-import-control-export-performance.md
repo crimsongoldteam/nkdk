@@ -89,7 +89,7 @@
 
   Expected: PASS; прямой и строковый пути дают одинаковые структуры для всех поддержанных случаев.
 
-- [ ] **Step 7: Зафиксировать слой**
+- [x] **Step 7: Зафиксировать слой**
 
   Commit: `perf: :zap: считать структуру экспортируемого XML без строки`
 
@@ -122,33 +122,33 @@
   }): PreparedAssignmentControlDocument
   ```
 
-- [ ] **Step 1: Написать падающий тест прямого пути**
+- [x] **Step 1: Написать падающий тест прямого пути**
 
   Подготовить документ без raw, вызвать `buildPreparedAssignmentControlDocument` и проверить `mode === "direct"`, равенство roots строковому пути и то, что счётчик тестового `xmlExport` остаётся нулевым до `materializeXml()`.
 
-- [ ] **Step 2: Написать падающий тест запасного пути**
+- [x] **Step 2: Написать падающий тест запасного пути**
 
   Подготовить неподдержанную Task 1 структуру и проверить `mode === "serialized"`; roots должны совпасть с `parseXmlRootStructuresWithSaxes(buildPreparedAssignmentXml(...))`.
 
-- [ ] **Step 3: Запустить тесты и подтвердить падение**
+- [x] **Step 3: Запустить тесты и подтвердить падение**
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts metadata/importFromXml/controlExport.integration.test.ts`
 
   Expected: FAIL из-за отсутствующего построителя контрольного документа.
 
-- [ ] **Step 4: Отделить финализацию XML-объекта**
+- [x] **Step 4: Отделить финализацию XML-объекта**
 
   В `xmlAnomalyAssignment.ts` выделить одну функцию, которая клонирует `document.xml`, заново связывает `document.deferred` и вызывает `finalizeExportedXmlValues`. `buildPreparedAssignmentXml` и новый контрольный построитель обязаны использовать один результат этой функции.
 
-- [ ] **Step 5: Перевести предварительное сравнение**
+- [x] **Step 5: Перевести предварительное сравнение**
 
   В `controlExport.ts` заменить обязательные `buildPreparedAssignmentXml` и `parseXmlRootStructuresWithSaxes` на `buildPreparedAssignmentControlDocument`. Вызывать `materializeXml()` только при несовпадении исходных корневых хэшей или при `mode === "serialized"`; подробный raw-путь продолжает разбирать материализованный XML через `parseXmlDocumentWithSaxes`.
 
-- [ ] **Step 6: Проверить отсутствие ослабления raw**
+- [x] **Step 6: Проверить отсутствие ослабления raw**
 
   Сохранить существующие тесты неизвестного `<Item>`, обычного `xr:Item`, дополнительных документов, nested `#order` и явного `$xml: null`. Добавить утверждение, что несовпадение direct roots всё равно вызывает `loadDetailedImport` и создаёт прежний минимальный raw.
 
-- [ ] **Step 7: Проверить слой rules**
+- [x] **Step 7: Проверить слой rules**
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts metadata/importFromXml/controlExport.integration.test.ts`
 

@@ -12,14 +12,17 @@ import {
   mergeXmlRawFragments,
   markYAMLScalarTag,
   parseXmlDocumentWithSaxes,
+  parseXmlRootStructuresWithSaxes,
   readXmlAnomalyExportClaim,
   yamlMappingKeys,
   yamlScalarTagAt,
   xmlExport,
+  xmlObjectRootStructures,
   xmlElementRawValue,
   type XmlAnomalyAnnotation,
   type XmlAnomalyAnnotations,
   type XmlElementNode,
+  type XmlRootFingerprint,
 } from "@nkdk/runtime"
 import {
   bindDeferredObjectValues,
@@ -39,6 +42,12 @@ export interface PreparedXmlAnomalyAssignment {
   readonly preparedYamlFile: PreparedYamlFile
   readonly itemName: string
   readonly rawBoundaries: readonly PreparedXmlAnomalyBoundary[]
+}
+
+export interface PreparedAssignmentControlDocument {
+  readonly roots: readonly XmlRootFingerprint[]
+  readonly mode: "direct" | "serialized"
+  materializeXml(): string
 }
 
 export function prepareXmlAnomalyAssignment(params: {
@@ -109,6 +118,38 @@ export function buildPreparedAssignmentXml(params: {
   readonly document: PreparedXMLDocument
   readonly context: ConfigurationContext
 }): string {
+  const xml = buildFinalizedAssignmentXmlObject(params)
+  return serializePreparedAssignmentXml(xml, params.document.rawBoundaries)
+}
+
+export function buildPreparedAssignmentControlDocument(params: {
+  readonly document: PreparedXMLDocument
+  readonly context: ConfigurationContext
+}): PreparedAssignmentControlDocument {
+  const xml = buildFinalizedAssignmentXmlObject(params)
+  if (params.document.rawBoundaries.length === 0) {
+    const direct = xmlObjectRootStructures(xml)
+    if (direct.kind === "supported") {
+      let materialized: string | undefined
+      return {
+        roots: direct.roots,
+        mode: "direct",
+        materializeXml: () => materialized ??= xmlExport(xml),
+      }
+    }
+  }
+  const materialized = serializePreparedAssignmentXml(xml, params.document.rawBoundaries)
+  return {
+    roots: rootFingerprints(parseXmlRootStructuresWithSaxes(materialized).roots),
+    mode: "serialized",
+    materializeXml: () => materialized,
+  }
+}
+
+function buildFinalizedAssignmentXmlObject(params: {
+  readonly document: PreparedXMLDocument
+  readonly context: ConfigurationContext
+}): Record<string, unknown> {
   const xml = cloneXmlObject(params.document.xml)
   const deferred = bindDeferredObjectValues(
     xml,
@@ -120,9 +161,16 @@ export function buildPreparedAssignmentXml(params: {
     deferred,
     context: params.context,
   })
-  if (params.document.rawBoundaries.length === 0) return xmlExport(xml)
+  return xml
+}
 
-  const resolvedBoundaries = resolveExportClaimBoundaries(xml, params.document.rawBoundaries)
+function serializePreparedAssignmentXml(
+  xml: Record<string, unknown>,
+  rawBoundaries: readonly PreparedXmlAnomalyBoundary[],
+): string {
+  if (rawBoundaries.length === 0) return xmlExport(xml)
+
+  const resolvedBoundaries = resolveExportClaimBoundaries(xml, rawBoundaries)
   let ordinary = parseXmlDocumentWithSaxes(xmlExport(xml, false), {
     preserveXsiNil: true,
     preserveEmptyElements: true,
@@ -153,6 +201,12 @@ export function buildPreparedAssignmentXml(params: {
       { cause: caught },
     )
   }
+}
+
+function rootFingerprints(
+  roots: ReturnType<typeof parseXmlRootStructuresWithSaxes>["roots"],
+): readonly XmlRootFingerprint[] {
+  return roots.map(({ name, path, structuralHash }) => ({ name, path, structuralHash }))
 }
 
 function applyDocumentRootPatch(

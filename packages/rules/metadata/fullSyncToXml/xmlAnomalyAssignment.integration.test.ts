@@ -1,6 +1,7 @@
 import {
   parseMetadataYaml,
   parseXmlDocumentWithSaxes,
+  parseXmlRootStructuresWithSaxes,
   serializeYAMLDocument,
   xmlAnnotatedMappingEntries,
   yamlScalarTagAt,
@@ -34,6 +35,7 @@ import {
 } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 import { withOperationRegistrySet } from "../operations/operationExecutionContext"
 import {
+  buildPreparedAssignmentControlDocument,
   buildPreparedAssignmentXml,
 } from "./xmlAnomalyAssignment"
 import { prepareTestXmlAnomalyAssignment } from "../xmlAnomalies/testSupport"
@@ -146,6 +148,40 @@ const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
 ))
 
 describe("единое восстановление XML-аномалий assignment", () => {
+  it("считает структуру обычного документа напрямую и создаёт XML только по запросу", () => {
+    const document = {
+      targetXmlPath: "Root.xml",
+      xml: { Root: { Value: "ordinary" } },
+      deferred: [],
+      rootRule: rule,
+      rawBoundaries: [],
+    }
+
+    const control = buildPreparedAssignmentControlDocument({ document, context: mockContextToXML() })
+
+    expect(control.mode).toBe("direct")
+    const xml = control.materializeXml()
+    expect(control.roots).toEqual(rootFingerprints(parseXmlRootStructuresWithSaxes(xml).roots))
+  })
+
+  it("использует строковый путь для смешанного XML-содержимого", () => {
+    const control = buildPreparedAssignmentControlDocument({
+      document: {
+        targetXmlPath: "Root.xml",
+        xml: { Root: { "#text": "prefix", Child: "value" } },
+        deferred: [],
+        rootRule: rule,
+        rawBoundaries: [],
+      },
+      context: mockContextToXML(),
+    })
+
+    expect(control.mode).toBe("serialized")
+    expect(control.roots).toEqual(rootFingerprints(
+      parseXmlRootStructuresWithSaxes(control.materializeXml()).roots,
+    ))
+  })
+
   it("сохраняет служебную явную строку скаляром в смысловой проекции", () => {
     const parsed = parseMetadataYaml('Неверное: "         "')
     parsed.annotations.set(parsed.data as object, "Неверное", {
@@ -797,6 +833,12 @@ describe("единое восстановление XML-аномалий assignm
     expect(xml).toContain("<xr:State>Extended</xr:State>")
   })
 })
+
+function rootFingerprints(
+  roots: ReturnType<typeof parseXmlRootStructuresWithSaxes>["roots"],
+) {
+  return roots.map(({ name, path, structuralHash }) => ({ name, path, structuralHash }))
+}
 
 function exportFormWithAnomalies(lines: readonly string[]): string {
   const prepared = prepareAnomalies(

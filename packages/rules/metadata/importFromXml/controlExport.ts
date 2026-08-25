@@ -2,7 +2,6 @@ import {
   applyXmlPatch,
   decodeXmlRawValue,
   parseXmlDocumentWithSaxes,
-  parseXmlRootStructuresWithSaxes,
   restoreXmlAnomalyAnnotations,
   snapshotXmlAnomalyAnnotations,
   xmlElementRawValue,
@@ -14,7 +13,7 @@ import {
   type XmlRawValue,
 } from "@nkdk/runtime"
 import type { CompiledMetadataResourceTopology, MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { buildPreparedAssignmentXml } from "../fullSyncToXml/xmlAnomalyAssignment"
+import { buildPreparedAssignmentControlDocument } from "../fullSyncToXml/xmlAnomalyAssignment"
 import { prepareFullXmlSyncAssignment } from "../fullSyncToXml/prepareAssignment"
 import type { FullXmlSyncAssignment } from "../fullSyncToXml/types"
 import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
@@ -96,15 +95,15 @@ export async function executeImportControlExport(params: {
       throw new Error(`Не найдено описание контрольного XML-документа ${document.declarationId ?? "<unknown>"}`)
     }
     const source = matchSource(params.assignment.xmlFiles, output.role, output.targetXmlPath)
-    const xml = buildPreparedAssignmentXml({
+    const control = buildPreparedAssignmentControlDocument({
       document: { ...document, rawBoundaries: [] },
       context,
     })
     return {
       role: output.role,
       ...(source === undefined ? {} : { sourcePath: source.sourcePath }),
-      xml,
-      roots: parseXmlRootStructuresWithSaxes(xml).roots,
+      control,
+      roots: control.roots,
     }
   })
   if (controlExportMatchesSourceRoots(params.audit, preliminaryExported)) {
@@ -117,14 +116,17 @@ export async function executeImportControlExport(params: {
       rereadSourcePaths: [],
     }
   }
-  const exported = preliminaryExported.map(({ role, sourcePath, xml }) => ({
-    role,
-    ...(sourcePath === undefined ? {} : { sourcePath }),
-    document: parseXmlDocumentWithSaxes(xml, {
-      preserveXsiNil: true,
-      preserveEmptyElements: true,
-    }),
-  }))
+  const exported = preliminaryExported.map(({ role, sourcePath, control }) => {
+    const xml = control.materializeXml()
+    return {
+      role,
+      ...(sourcePath === undefined ? {} : { sourcePath }),
+      document: parseXmlDocumentWithSaxes(xml, {
+        preserveXsiNil: true,
+        preserveEmptyElements: true,
+      }),
+    }
+  })
   const detailed = params.loadDetailedImport === undefined
     ? undefined
     : await params.loadDetailedImport()
@@ -323,7 +325,7 @@ function controlExportMatchesSourceRoots(
   exported: readonly {
     readonly role: ImportXmlInput["role"]
     readonly sourcePath?: string
-    readonly roots: ReturnType<typeof parseXmlRootStructuresWithSaxes>["roots"]
+    readonly roots: readonly { readonly path: string; readonly structuralHash: bigint }[]
   }[],
 ): boolean {
   if (audit.sources.length !== exported.length) return false
