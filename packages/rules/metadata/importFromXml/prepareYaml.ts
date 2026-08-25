@@ -166,13 +166,19 @@ export async function prepareImportYaml(params: {
     const result: DirectImportResult & Pick<PreparedImportYaml, "baseFormCandidate" | "dependentDeferred"> = measureYaml(params.profiler, () => {
       if (rule.itemType === ClientApplicationFormRules.itemType) {
         const metadataXML = requireMetadataXml(xmlInputs ?? [])
+        const metadataXMLNode = requireMetadataXmlNode(xmlInputs ?? [])
         const bodyInput = xmlInputs?.find(({ input }) => input.role === "body")
         const bodyXML = bodyInput?.parsed
+        const formXMLNode = bodyInput?.document?.roots.find(({ name }) => name === "Form")
         const imported = importClientApplicationFormFromXMLToYAML({
           context: importContext,
           formName: params.assignment.itemName,
           formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
           metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
+          formXMLNode,
+          metadataXMLNode,
+          audit,
+          annotations,
           profile: importProfile,
           rule,
         })

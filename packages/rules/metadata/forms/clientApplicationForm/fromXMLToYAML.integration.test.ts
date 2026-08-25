@@ -1,6 +1,9 @@
 import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import {
-createConfigurationIndexCollector,importContentFromXML,
+createConfigurationIndexCollector,createXmlAnomalyAnnotations,
+createXmlImportAuditSession,importContentFromXML,
+parseXmlDocumentWithSaxes,
+snapshotXmlAnomalyAnnotations,
 withConfigurationIndexCollector,
 xmlExport,
 yamlScalarTagAt
@@ -76,7 +79,65 @@ function importValueTableCurrentDataForm(columns: FormAttributeColumnsXML, colum
   })
 }
 
+function importStructuredForm(
+  formDocument: ReturnType<typeof parseXmlDocumentWithSaxes>,
+  metadataDocument: ReturnType<typeof parseXmlDocumentWithSaxes>,
+  audit: ReturnType<typeof createXmlImportAuditSession>,
+  annotations = createXmlAnomalyAnnotations(),
+) {
+  return importClientApplicationFormFromXMLToYAML({
+    context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+    formName: "Форма",
+    formXML: formDocument.compatibility.Form as ClientApplicationFormXML,
+    metadataXML: metadataDocument.compatibility.MetaDataObject as FormMetadataXML,
+    formXMLNode: formDocument.roots[0]!,
+    metadataXMLNode: metadataDocument.roots[0]!,
+    audit,
+    annotations,
+  })
+}
+
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it("импортирует повторные AdditionalColumns через их точные XML-узлы", () => {
+    const formDocument = parseXmlDocumentWithSaxes(`
+      <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config">
+        <Attributes>
+          <Attribute name="Объект" id="1">
+            <Type><v8:Type>cfg:BusinessProcessObject.Исполнение</v8:Type></Type>
+            <MainAttribute>true</MainAttribute>
+            <Columns>
+              <AdditionalColumns table="Объект.Строки">
+                <Column name="Код" id="1"><Type><v8:Type>xs:string</v8:Type></Type></Column>
+              </AdditionalColumns>
+              <AdditionalColumns table="Объект.Товары">
+                <Column name="Артикул" id="2"><Type><v8:Type>xs:string</v8:Type></Type></Column>
+              </AdditionalColumns>
+            </Columns>
+          </Attribute>
+        </Attributes>
+      </Form>`, { preserveXsiNil: true })
+    const metadataDocument = parseXmlDocumentWithSaxes(
+      `<MetaDataObject><Form><Properties><FormType>Managed</FormType></Properties></Form></MetaDataObject>`,
+      { preserveXsiNil: true },
+    )
+    const audit = createXmlImportAuditSession([formDocument.roots[0]!, metadataDocument.roots[0]!])
+    const annotations = createXmlAnomalyAnnotations()
+    const result = importStructuredForm(formDocument, metadataDocument, audit, annotations)
+    audit.finalize()
+
+    expect(result.yaml).toMatchObject({
+      Реквизиты: {
+        Объект: {
+          ДополнительныеКолонки: {
+            "Объект.Строки": { Код: expect.any(Object) },
+            "Объект.Товары": { Артикул: expect.any(Object) },
+          },
+        },
+      },
+    })
+    expect(() => snapshotXmlAnomalyAnnotations(result.yaml, annotations)).not.toThrow()
+  })
+
   it("сохраняет тип обычной формы без Form.xml", () => {
     const result = importClientApplicationFormFromXMLToYAML({
       context: mockContextFromXML(),
@@ -220,6 +281,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "minimalMetadata.xml")
     const importSpy = vi.spyOn(propertyImporter, "importPropertiesFromXMLToYAML")
+    importSpy.mockClear()
 
     importClientApplicationFormFromXMLToYAML({
       context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
@@ -232,6 +294,63 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     expect(rootCalls).toHaveLength(1)
     expect(rootCalls[0]?.[0].sources).toHaveLength(2)
     importSpy.mockRestore()
+  })
+
+  it("передаёт адресные XML-узлы, audit и аннотации в общий импорт Rules", () => {
+    const formDocument = parseXmlDocumentWithSaxes(
+      readXMLFixtureAsString(import.meta.url, "minimal.xml"),
+      { preserveXsiNil: true },
+    )
+    const metadataDocument = parseXmlDocumentWithSaxes(
+      readXMLFixtureAsString(import.meta.url, "minimalMetadata.xml"),
+      { preserveXsiNil: true },
+    )
+    const formRoot = formDocument.roots[0]!
+    const metadataRoot = metadataDocument.roots[0]!
+    const audit = createXmlImportAuditSession([formRoot, metadataRoot])
+    const annotations = createXmlAnomalyAnnotations()
+    const importSpy = vi.spyOn(propertyImporter, "importPropertiesFromXMLToYAML")
+    importSpy.mockClear()
+
+    importStructuredForm(formDocument, metadataDocument, audit, annotations)
+
+    expect(importSpy).toHaveBeenCalledWith(expect.objectContaining({
+      sources: [
+        expect.objectContaining({ xml: formRoot }),
+        expect.objectContaining({ xml: metadataRoot }),
+      ],
+      audit,
+      annotations,
+    }))
+    importSpy.mockRestore()
+  })
+
+  it("сохраняет адресное владение свойствами реквизита формы", () => {
+    const formDocument = parseXmlDocumentWithSaxes(
+      `<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config">
+        <Attributes><Attribute name="Отчет" id="1"><Type><v8:Type>cfg:ReportObject.Отчет</v8:Type></Type><MainAttribute>true</MainAttribute></Attribute></Attributes>
+      </Form>`,
+      { preserveXsiNil: true },
+    )
+    const metadataDocument = parseXmlDocumentWithSaxes(
+      `<MetaDataObject><Form><Properties><FormType>Managed</FormType></Properties></Form></MetaDataObject>`,
+    )
+    const formRoot = formDocument.roots[0]!
+    const metadataRoot = metadataDocument.roots[0]!
+    const audit = createXmlImportAuditSession([formRoot, metadataRoot])
+
+    importStructuredForm(formDocument, metadataDocument, audit)
+    audit.finalize()
+
+    const type = audit.outcomes().find(({ node }) => node.path.endsWith("/Attribute[1]/Type[1]"))
+    expect(type).toEqual(expect.objectContaining({
+      state: "claimed",
+      boundaries: [expect.objectContaining({
+        itemType: "FormAttribute",
+        propertyKey: "type",
+        yamlPath: ["Реквизиты", "Отчет", "Тип"],
+      })],
+    }))
   })
 
   it("совпадает с действующим YAML полной формы", () => {

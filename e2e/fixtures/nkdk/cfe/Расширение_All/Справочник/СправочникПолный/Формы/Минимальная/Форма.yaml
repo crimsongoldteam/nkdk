@@ -1,14 +1,2 @@
 Изменять:
   - Форма
-"@Form": !xml/raw
-  $xml:
-    BaseForm:
-      _version: "2.20"
-      AutoCommandBar:
-        _name: ФормаКоманднаяПанель
-        _id: "-1"
-      Attributes:
-    "#order":
-      - AutoCommandBar
-      - Attributes
-      - BaseForm

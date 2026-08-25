@@ -23,7 +23,10 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
 
   const canonicalNames = new Set(Object.keys(rule.standartAttributeNames ?? {}))
   if (canonicalNames.size === 0) return yaml
-  const preservedEmptyNames = collectPreservedEmptyNames(params.xml)
+  const structuralXML = params.traversal.xmlNodes?.length === 1
+    ? params.traversal.xmlNodes[0]!.compatibilityValue
+    : params.xml
+  const preservedEmptyNames = collectPreservedEmptyNames(structuralXML)
   for (const name of canonicalNames) {
     if (preservedEmptyNames.has(name)) continue
     const yamlKey = names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name

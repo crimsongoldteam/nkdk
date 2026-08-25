@@ -5,6 +5,7 @@ import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemRule,PropertyRuleType } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
+testMetadataItemFromYAMLToXML,
 testPropertyFromXMLToYAML,
 testPropertyFromYAMLToXML
 } from "../../../tests/directConversion"
@@ -13,6 +14,7 @@ import {
 MetadataAccountingRegisterStandardAttributeNames,
 MetadataAccountingRegisterStandardAttributeNamesXML,
 } from "../../appliedObjects/metadataAccountingRegister/rules"
+import { MetadataEnumerationRules } from "../../appliedObjects/metadataEnumeration/rules"
 import type { PropertyRule } from "../../ruleRuntime"
 import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
@@ -610,5 +612,21 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({})
+  })
+
+  it("не создаёт стандартные реквизиты перечисления при отсутствии раздела в YAML", () => {
+    const result = testMetadataItemFromYAMLToXML({
+      rule: MetadataEnumerationRules,
+      name: "ТестовоеПеречисление",
+      yaml: {},
+    })
+
+    expect(result.xml).toMatchObject({
+      MetaDataObject: {
+        Enum: {
+          Properties: expect.not.objectContaining({ StandardAttributes: expect.anything() }),
+        },
+      },
+    })
   })
 })

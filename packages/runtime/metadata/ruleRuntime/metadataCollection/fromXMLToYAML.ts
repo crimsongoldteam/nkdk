@@ -1,4 +1,5 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
+import { objectRecordOrUndefined } from "../../../helpers/record"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import type {
   DeferredValuePathCollector,
@@ -92,7 +93,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   const items: { xml: Record<string, unknown>; node?: XmlElementNode }[] = structuralItems.length === 0
     ? normalizeCollectionItems(params.xml, params.xmlElement).map((xml) => ({ xml }))
     : structuralItems.flatMap((node) => {
-        const xml = asRecord(node.compatibilityValue)
+        const xml = objectRecordOrUndefined(node.compatibilityValue)
         return xml === undefined ? [] : [{ xml, node }]
       })
   if (items.length === 0) return undefined
@@ -152,7 +153,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       ),
     })
     if (itemYamlValue === undefined) return []
-    const itemYaml = asRecord(itemYamlValue)
+    const itemYaml = objectRecordOrUndefined(itemYamlValue)
     if (itemYaml === undefined) {
       throw new Error(`Элемент коллекции ${itemRule.itemType} должен преобразовываться в YAML-объект`)
     }
@@ -184,6 +185,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedCollector,
       bufferedDeferred,
       bufferedDependent,
+      xmlNode: itemNode,
     }]
   })
   if (yamlItems.length === 0) return undefined
@@ -207,7 +209,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const yamlKey = item.yamlKey!
     const runtimeKey = projected.runtimeKeys[index]!
     const targetYamlPath = [...params.traversal.yamlPath, runtimeKey]
-    params.traversal.audit?.rekeyYamlPath(item.sourceYamlPath, targetYamlPath)
+    params.traversal.audit?.rekeyYamlPath(item.sourceYamlPath, targetYamlPath, item.xmlNode)
     params.traversal.collector.acceptItem({
       itemType: itemRule.itemType,
       name: yamlKey,
@@ -331,22 +333,24 @@ function collectionItemNodes(
 
 function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<string, unknown>[] {
   if (Array.isArray(xml)) {
-    const isWrapped = xml.every((entry) => asRecord(entry)?.[xmlElement] !== undefined)
-    const items = isWrapped ? xml.flatMap((entry) => toArray(asRecord(entry)?.[xmlElement])) : xml
+    const isWrapped = xml.every((entry) => objectRecordOrUndefined(entry)?.[xmlElement] !== undefined)
+    const items = isWrapped
+      ? xml.flatMap((entry) => toArray(objectRecordOrUndefined(entry)?.[xmlElement]))
+      : xml
     return items.flatMap((item) => {
-      const record = asRecord(item)
+      const record = objectRecordOrUndefined(item)
       return record === undefined ? [] : [record]
     })
   }
 
-  const record = asRecord(xml)
+  const record = objectRecordOrUndefined(xml)
   if (record === undefined) return []
   if (Object.keys(record).length === 0) return []
   const nested = record[xmlElement]
   return nested === undefined
     ? [record]
     : toArray(nested).flatMap((item) => {
-        const itemRecord = asRecord(item)
+        const itemRecord = objectRecordOrUndefined(item)
         return itemRecord === undefined ? [] : [itemRecord]
       })
 }
@@ -357,17 +361,11 @@ function itemNameFromXML(xml: Record<string, unknown>, rule: MetadataItemRule, k
   const nameRule = rule.properties[keyField ?? "name"]
   if (nameRule === undefined) return undefined
   let source: Record<string, unknown> | undefined = xml
-  for (const parent of nameRule.xmlParents ?? []) source = asRecord(source?.[parent])
+  for (const parent of nameRule.xmlParents ?? []) source = objectRecordOrUndefined(source?.[parent])
   const value = source?.[nameRule.xml ?? "Name"]
   return typeof value === "string" && value.length > 0 ? value : undefined
 }
 
 function toArray(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [value]
-}
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
 }

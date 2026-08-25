@@ -1,4 +1,4 @@
-import { childUid } from "@nkdk/runtime"
+import { childUid, isXmlElementNode, objectRecordOrUndefined } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexFormElementRootLogicalAddress,
@@ -23,7 +23,7 @@ export function createClientApplicationFormBodyImportSource(params: {
 
   return {
     context,
-    xml: extractFormBody(params.xml) ?? {},
+    xml: isXmlElementNode(params.xml) ? params.xml : extractFormBody(params.xml) ?? {},
     tags: [FormRulesTags.Form],
   }
 }
@@ -40,19 +40,15 @@ export function createClientApplicationFormImportSources(params: {
     }),
     {
       context: params.context,
-      xml: asRecord(params.metadataXML) ?? {},
+      xml: isXmlElementNode(params.metadataXML)
+        ? params.metadataXML
+        : objectRecordOrUndefined(params.metadataXML) ?? {},
       tags: [FormRulesTags.Metadata],
     },
   ]
 }
 
 function extractFormBody(xml: unknown): Record<string, unknown> | undefined {
-  const root = asRecord(xml)
-  return asRecord(root?.Form) ?? root
-}
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
+  const root = objectRecordOrUndefined(xml)
+  return objectRecordOrUndefined(root?.Form) ?? root
 }

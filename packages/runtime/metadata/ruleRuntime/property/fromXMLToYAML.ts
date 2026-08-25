@@ -56,6 +56,7 @@ import {
   XmlImportAttemptInfrastructureError,
 } from "../xmlAnomaly/attempt"
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
+import { encodeXmlRawElement } from "../../../xml/structure/rawCodec"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -294,13 +295,25 @@ export function importPropertiesFromXMLToYAML(params: {
           addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
         }
 
+        const shouldImportProperty = shouldProcessProperty({
+          rule: propertyRule,
+          operation: "importFromXML",
+        })
         const shouldImportForReference = forReference && propertyRule.fromXML === false && presentInXML
         if (
-          !shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" }) &&
+          !shouldImportProperty &&
           !shouldImportForReference &&
           propertyXML?.has(key) !== true
-        )
+        ) {
+          if (
+            presentInXML &&
+            propertyRule.fromXML === false &&
+            isXmlElementNode(xmlNode)
+          ) {
+            params.audit?.claimStructuralSubtree(xmlNode, boundary)
+          }
           return
+        }
 
         const hasExplicitXMLKeyWithEmptyDefault = "defaultValueXMLEmpty" in propertyRule && presentInXML
         const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
@@ -407,6 +420,12 @@ export function importPropertiesFromXMLToYAML(params: {
             )
             addDirectImportProfile(params.profile, propertyRule.type, startedAt)
           }
+          claimCanonicalRawDefault({
+            audit: params.audit,
+            boundary,
+            node: xmlNode,
+            rule: propertyRule,
+          })
           const registeredExplicitEmptyValue =
             importedValue === undefined && presentInXML && (xmlValue === undefined || xmlValue === "")
               ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.explicitEmptyValue?.({
@@ -534,7 +553,17 @@ export function importPropertiesFromXMLToYAML(params: {
             value,
             params.execution,
           )
-          if (exportedValues === undefined) return
+          if (exportedValues === undefined) {
+            if (
+              presentInXML &&
+              convertedDirectly &&
+              isXmlElementNode(xmlNode) &&
+              isEmptySemanticContainer(exportedYamlValue)
+            ) {
+              params.audit?.elideSubtree(xmlNode, boundary)
+            }
+            return
+          }
           if (dependentImportProperty) {
             params.dependent?.accept({
               itemType: rule.itemType,
@@ -639,7 +668,10 @@ export function importPropertiesFromXMLToYAML(params: {
         || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.repeatedXMLNodes === true,
       nestedItemsOwnNode: ({ canonicalXMLKey, rule: propertyRule }) => {
         const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")
-        return nestedRule?.kind === "collection" && nestedRule.xmlElement === canonicalXMLKey
+        return nestedRule?.kind === "collection" && (
+          nestedRule.xmlElement === canonicalXMLKey
+          || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.nestedItemsOwnXMLChildren === true
+        )
       },
       claimRoot: sourceState.source.claimAuditRoot,
       visit(match) {
@@ -703,6 +735,67 @@ export function importPropertiesFromXMLToYAML(params: {
   return sortYamlRuleProperties(result)
 }
 
+function claimCanonicalRawDefault(params: {
+  audit: XmlImportAuditSession | undefined
+  boundary: XmlImportAuditBoundary
+  node: XmlImportAuditedNode | undefined
+  rule: PropertyRule
+}): void {
+  if (
+    params.audit === undefined
+    || !isXmlElementNode(params.node)
+    || !Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLRaw")
+    || !sameCanonicalXmlValue(encodeXmlRawElement(params.node), params.rule.defaultValueXMLRaw)
+  ) return
+  claimAuditedSubtree(params.audit, params.node, params.boundary)
+}
+
+function claimAuditedSubtree(
+  audit: XmlImportAuditSession,
+  node: XmlImportAuditedNode,
+  boundary: XmlImportAuditBoundary,
+): void {
+  audit.claim(node, boundary)
+  if (!("type" in node) || node.type === "text") return
+  for (const attribute of node.attributes) claimAuditedSubtree(audit, attribute, boundary)
+  if (node.type === "processingInstruction") return
+  for (const child of node.content) claimAuditedSubtree(audit, child, boundary)
+}
+
+function sameCanonicalXmlValue(actual: unknown, expected: unknown): boolean {
+  if (
+    (actual === "" && isEmptyPlainRecord(expected))
+    || (expected === "" && isEmptyPlainRecord(actual))
+  ) return true
+  if (Array.isArray(actual) || Array.isArray(expected)) {
+    return Array.isArray(actual)
+      && Array.isArray(expected)
+      && actual.length === expected.length
+      && actual.every((value, index) => sameCanonicalXmlValue(value, expected[index]))
+  }
+  if (isPlainRecord(actual) || isPlainRecord(expected)) {
+    if (!isPlainRecord(actual) || !isPlainRecord(expected)) return false
+    const actualKeys = Object.keys(actual).sort()
+    const expectedKeys = Object.keys(expected).sort()
+    return actualKeys.length === expectedKeys.length
+      && actualKeys.every((key, index) => key === expectedKeys[index])
+      && actualKeys.every((key) => sameCanonicalXmlValue(actual[key], expected[key]))
+  }
+  if (
+    typeof actual === "string"
+    && (typeof expected === "boolean" || typeof expected === "number")
+  ) return actual === String(expected)
+  return Object.is(actual, expected)
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function isEmptyPlainRecord(value: unknown): boolean {
+  return isPlainRecord(value) && Object.keys(value).length === 0
+}
+
 function normalizeTypeOwnedMetadataTargets(params: {
   result: Record<string, unknown>
   rule: MetadataItemRule
@@ -759,6 +852,14 @@ function isXmlElementNode(value: unknown): value is XmlElementNode {
     "type" in value &&
     value.type === "element" &&
     "compatibilityValue" in value
+}
+
+function isEmptySemanticContainer(value: unknown): boolean {
+  if (Array.isArray(value)) return value.length === 0
+  if (value === null || typeof value !== "object") return false
+  const prototype = Object.getPrototypeOf(value)
+  return (prototype === Object.prototype || prototype === null) &&
+    Object.keys(value).length === 0
 }
 
 function addProfileTime(

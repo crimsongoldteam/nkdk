@@ -700,7 +700,23 @@ function reorderStructuralContentPreservingText(
   content: readonly MutableXmlContentNode[],
   order: readonly string[],
 ): MutableXmlContentNode[] {
-  const reordered = reorder(structuralTerminalContent(content), order, orderedContentName)
+  const structural = structuralTerminalContent(content)
+  const rank = new Map<string, number>()
+  for (const [index, name] of order.entries()) {
+    if (!rank.has(name)) rank.set(name, index)
+  }
+  const knownPositions = structural.flatMap((node, index) =>
+    rank.has(orderedContentName(node)) ? [index] : []
+  )
+  const known = knownPositions
+    .map((index) => structural[index]!)
+    .toSorted((left, right) =>
+      rank.get(orderedContentName(left))! - rank.get(orderedContentName(right))!
+    )
+  const reordered = [...structural]
+  knownPositions.forEach((position, index) => {
+    reordered[position] = known[index]!
+  })
   let structuralIndex = 0
   return content.map((node) =>
     node.type === "text" ? node : reordered[structuralIndex++]!,

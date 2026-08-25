@@ -44,4 +44,59 @@ describe("explicit RowFilter", () => {
       resolve: () => ({ status: "warning" }),
     })).toBe("dynamicList")
   })
+
+  it("считает неразрешённый источник таблицы профилем RowFilter", () => {
+    expect(classifyTableSource({
+      dataPath: "Объект.ТабличнаяЧасть",
+      index: { getRoot: () => undefined },
+      resolve: () => ({ status: "warning" }),
+    })).toBe("rowFilter")
+  })
+
+  it("не доверяет частичной цели из warning-резолвера", () => {
+    expect(classifyTableSource({
+      dataPath: "Объект.ТабличнаяЧасть",
+      index: { getRoot: () => undefined },
+      resolve: () => ({
+        status: "warning",
+        target: {
+          segments: ["Объект", "ТабличнаяЧасть"],
+          source: { kind: "objectField" },
+          typeInfo: { nextTypes: [] },
+        },
+      }),
+    })).toBe("rowFilter")
+  })
+
+  it("считает вложенный неразрешённый путь профилем RowFilter и без резолвера", () => {
+    expect(classifyTableSource({
+      dataPath: "Объект.ТабличнаяЧасть",
+      index: { getRoot: () => undefined },
+    })).toBe("rowFilter")
+  })
+
+  it.each(["ValueTable", "TabularSection", "RegisterRecordSet"])(
+    "считает неразрешённый путь внутри известного %s профилем RowFilter",
+    (kind) => {
+      expect(classifyTableSource({
+        dataPath: "Таблица.НеизвестнаяКолонка",
+        index: {
+          getRoot: (name) => name === "Таблица" ? { typeInfo: { table: { kind } } } : undefined,
+        },
+        resolve: () => ({ status: "warning" }),
+      })).toBe("rowFilter")
+    },
+  )
+
+  it("не создаёт RowFilter для неразрешённого пути внутри известного DynamicList", () => {
+    expect(classifyTableSource({
+      dataPath: "Список.НеизвестнаяКолонка",
+      index: {
+        getRoot: (name) => name === "Список"
+          ? { typeInfo: { table: { kind: "DynamicList" } } }
+          : undefined,
+      },
+      resolve: () => ({ status: "warning" }),
+    })).toBe("none")
+  })
 })

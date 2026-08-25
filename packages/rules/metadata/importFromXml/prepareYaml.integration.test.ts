@@ -146,7 +146,14 @@ describe("prepareImportYaml", () => {
       fs.writeFileSync(
         bodyPath,
         `<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" version="2.20"/>`
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <ChildItems>
+    <Table name="Таблица" id="1">
+      <DataPath>Объект.ТабличнаяЧасть</DataPath>
+      <RowFilter xsi:nil="true"/>
+    </Table>
+  </ChildItems>
+</Form>`
       )
       const topology = compileRegisteredMetadataResourceTopology()
       const processorFormNode = topology.assignments.find(
@@ -191,6 +198,12 @@ describe("prepareImportYaml", () => {
       expect(prepared.yaml).not.toHaveProperty(
         "РасширенноеПредставление"
       )
+      expect(prepared.proofAudit.boundaries).toContainEqual(expect.objectContaining({
+        sourceRole: "body",
+        xmlPath: "/Form[1]/ChildItems[1]/Table[1]/RowFilter[1]",
+        yamlPath: ["Элементы", "Таблица", "ОтборСтрок"],
+        auditState: "structurallyClaimed",
+      }))
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })
     }

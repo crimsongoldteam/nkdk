@@ -4,8 +4,11 @@ import { describe,expect,it } from "vitest"
 
 import {
 createXmlAnomalyAnnotations,
+createXmlImportAuditSession,
 importContentFromXML,
+parseXmlDocumentWithSaxes,
 serializeYAMLDocument,
+xmlElementChildren,
 xmlExport
 } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -17,7 +20,7 @@ testPropertyFromYAMLToXML,
 
 import "../index"
 import "./fromXMLToYAML"
-import "./rules"
+import { FormAttributeColumnRules,FormAttributeRules } from "./rules"
 
 const rule = {
   itemType: "FormAttributesProbe",
@@ -52,6 +55,55 @@ const settingsFixtures = [
 ] as const
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it("переносит audit повторных реквизитов и колонок на их runtime-ключи", () => {
+    const document = parseXmlDocumentWithSaxes(`
+      <Root xmlns:v8="http://v8.1c.ru/8.1/data/core">
+        <Attributes>
+          <Attribute name="Таблица" id="1">
+            <Type><v8:Type>v8:ValueTable</v8:Type></Type>
+            <Columns>
+              <Column name="Колонка" id="1"><Type><v8:Type>xs:string</v8:Type></Type></Column>
+              <Column name="Колонка" id="2"><Type><v8:Type>xs:boolean</v8:Type></Type></Column>
+            </Columns>
+          </Attribute>
+          <Attribute name="Таблица" id="2"><Type><v8:Type>xs:string</v8:Type></Type></Attribute>
+        </Attributes>
+      </Root>
+    `, { preserveXsiNil: true })
+    const root = document.roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const annotations = createXmlAnomalyAnnotations()
+
+    const structuredRule = {
+      ...rule,
+      properties: {
+        value: { ...rule.properties.value, xml: "Attributes" },
+      },
+    } as const satisfies MetadataItemRule
+    const { yaml } = testPropertyFromXMLToYAML({ rule: structuredRule, xml: root, audit, annotations })
+    const attributes = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение
+    const attributeRuntimeKeys = Object.keys(attributes)
+    const attributesNode = xmlElementChildren(root, "Attributes")[0]!
+    const attributeNodes = xmlElementChildren(attributesNode, "Attribute")
+    expect(audit.getOutcome(attributeNodes[0]!).boundaries
+      .find(({ itemType }) => itemType === FormAttributeRules.itemType)?.yamlPath)
+      .toEqual(["Значение", attributeRuntimeKeys[0]])
+    expect(audit.getOutcome(attributeNodes[1]!).boundaries
+      .find(({ itemType }) => itemType === FormAttributeRules.itemType)?.yamlPath)
+      .toEqual(["Значение", attributeRuntimeKeys[1]])
+
+    const columns = attributes[attributeRuntimeKeys[0]!]!.Колонки as Record<string, unknown>
+    const columnRuntimeKeys = Object.keys(columns)
+    const columnsNode = xmlElementChildren(attributeNodes[0]!, "Columns")[0]!
+    const columnNodes = xmlElementChildren(columnsNode, "Column")
+    expect(audit.getOutcome(columnNodes[0]!).boundaries
+      .find(({ itemType }) => itemType === FormAttributeColumnRules.itemType)?.yamlPath)
+      .toEqual(["Значение", attributeRuntimeKeys[0], "Колонки", columnRuntimeKeys[0]])
+    expect(audit.getOutcome(columnNodes[1]!).boundaries
+      .find(({ itemType }) => itemType === FormAttributeColumnRules.itemType)?.yamlPath)
+      .toEqual(["Значение", attributeRuntimeKeys[0], "Колонки", columnRuntimeKeys[1]])
+  })
+
   it("сохраняет реквизиты и колонки с повторными именами в XML-порядке", () => {
     const annotations = createXmlAnomalyAnnotations()
     const source = {

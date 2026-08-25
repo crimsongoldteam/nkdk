@@ -14,7 +14,6 @@ import {
 } from "../../../yaml/xmlAnomalyAnnotations"
 import type {
   XmlImportAuditBoundary,
-  XmlImportAuditOutcome,
   XmlImportAuditedNode,
   XmlImportAuditSession,
   XmlImportAuditState,
@@ -97,12 +96,7 @@ export function projectXmlAuditRemainder(params: {
   readonly root: XmlElementNode
   readonly boundary: XmlImportAuditBoundary
 }): void {
-  const outcomes = new Map(
-    params.audit.outcomes().map((outcome) => [outcome.node, outcome] as const),
-  )
-  if (!outcomes.has(params.root)) {
-    throw new Error(`XML-корень ${params.root.path} не принадлежит сеансу аудита`)
-  }
+  const rootOutcome = params.audit.getOutcome(params.root)
   const existingKeys = new Set(
     xmlAnnotatedMappingEntries(params.yaml, params.annotations).map(([key]) => key),
   )
@@ -139,7 +133,9 @@ export function projectXmlAuditRemainder(params: {
     const structuredContent = element.content.filter(
       (node): node is XmlElementNode | XmlProcessingInstructionNode => node.type !== "text",
     )
-    const unknownContent = element.content.filter((node) => isUnknown(outcomes.get(node)?.state))
+    const unknownContent = element.content.filter((node) =>
+      isUnknown(params.audit.getOutcome(node).state)
+    )
     const hasMixedText = element.content.some(
       (node) => node.type === "text" && node.value.trim().length > 0,
     )
@@ -149,7 +145,7 @@ export function projectXmlAuditRemainder(params: {
     )
     const unknownElementCannotBeProjected = unknownContent.some((node) => {
       if (node.type !== "element") return false
-      assertRawSubtreeDoesNotOverlap(node, outcomes)
+      assertRawSubtreeDoesNotOverlap(node, params.audit)
       try {
         xmlElementRawValue(node)
         return false
@@ -158,12 +154,12 @@ export function projectXmlAuditRemainder(params: {
       }
     })
     if (meaningfulUnknownText || unknownProcessingInstruction || unknownElementCannotBeProjected) {
-      liftElementToStableOwner(element, outcomes, params)
+      liftElementToStableOwner(element, params)
       return
     }
 
     const unknownAttributes = element.attributes.filter((attribute) =>
-      isUnknown(outcomes.get(attribute)?.state),
+      isUnknown(params.audit.getOutcome(attribute).state),
     )
     if (unknownAttributes.length > 0) {
       for (const attribute of element.attributes) {
@@ -175,13 +171,15 @@ export function projectXmlAuditRemainder(params: {
     const contentChildren = structuredContent
     const knownElementNames = new Set(
       contentChildren.flatMap((child) =>
-        child.type === "element" && !isUnknown(outcomes.get(child)?.state) ? [child.name] : [],
+        child.type === "element" && !isUnknown(params.audit.getOutcome(child).state)
+          ? [child.name]
+          : [],
       ),
     )
     let hasUnknownChild = false
     let hasKnownChild = false
     for (const child of contentChildren) {
-      const state = outcomes.get(child)?.state
+      const state = params.audit.getOutcome(child).state
       if (isUnknown(state)) {
         hasUnknownChild = true
         if (child.type === "processingInstruction") {
@@ -194,9 +192,9 @@ export function projectXmlAuditRemainder(params: {
             `XML-путь ${formatPath([...path, child.name])} уже принадлежит известной XML-границе`,
           )
         }
-        assertRawSubtreeDoesNotOverlap(child, outcomes)
+        assertRawSubtreeDoesNotOverlap(child, params.audit)
         appendRaw(formatPath([...path, child.name]), xmlElementRawValue(child))
-        claimUnknownSubtree(child, outcomes, params.audit, params.boundary)
+        claimUnknownSubtree(child, params.audit, params.boundary)
         continue
       }
       hasKnownChild = true
@@ -210,7 +208,7 @@ export function projectXmlAuditRemainder(params: {
     if (Object.keys(parentPatch).length > 0) appendRaw(parentRawPath(path), parentPatch)
   }
 
-  if (isUnknown(outcomes.get(params.root)?.state)) {
+  if (isUnknown(rootOutcome.state)) {
     throw new Error(`Ближайший YAML-владелец не заявил XML-корень ${params.root.path}`)
   }
   visitKnownElement(params.root, [])
@@ -218,10 +216,10 @@ export function projectXmlAuditRemainder(params: {
 
 function assertRawSubtreeDoesNotOverlap(
   root: XmlElementNode,
-  outcomes: ReadonlyMap<XmlImportAuditedNode, XmlImportAuditOutcome>,
+  audit: XmlImportAuditSession,
 ): void {
   for (const node of subtree(root)) {
-    if (!isUnknown(outcomes.get(node)?.state)) {
+    if (!isUnknown(audit.getOutcome(node).state)) {
       throw new Error(
         `Raw XML-граница ${root.path} пересекается с известной XML-границей ${node.path}`,
       )
@@ -231,18 +229,16 @@ function assertRawSubtreeDoesNotOverlap(
 
 function claimUnknownSubtree(
   root: XmlElementNode,
-  outcomes: ReadonlyMap<XmlImportAuditedNode, XmlImportAuditOutcome>,
   audit: XmlImportAuditSession,
   boundary: XmlImportAuditBoundary,
 ): void {
   for (const node of subtree(root)) {
-    if (isUnknown(outcomes.get(node)?.state)) audit.claim(node, boundary)
+    if (isUnknown(audit.getOutcome(node).state)) audit.claim(node, boundary)
   }
 }
 
 function liftElementToStableOwner(
   element: XmlElementNode,
-  outcomes: ReadonlyMap<XmlImportAuditedNode, XmlImportAuditOutcome>,
   params: {
     readonly yaml: Record<string, unknown>
     readonly annotations: XmlAnomalyAnnotationTable
@@ -250,8 +246,8 @@ function liftElementToStableOwner(
     readonly boundary: XmlImportAuditBoundary
   },
 ): void {
-  const elementOutcome = outcomes.get(element)
-  if (elementOutcome === undefined || isUnknown(elementOutcome.state)) {
+  const elementOutcome = params.audit.getOutcome(element)
+  if (isUnknown(elementOutcome.state)) {
     throw new Error(`Для XML-границы ${element.path} не найден stable owner`)
   }
   if (elementOutcome.state === "ambiguous" || elementOutcome.boundaries.length !== 1) {
@@ -262,8 +258,8 @@ function liftElementToStableOwner(
   const elementSubtree = new Set(subtree(element))
   const checkedBoundaries = new Set<string>()
   for (const node of elementSubtree) {
-    const outcome = outcomes.get(node)
-    if (outcome === undefined || isUnknown(outcome.state)) continue
+    const outcome = params.audit.getOutcome(node)
+    if (isUnknown(outcome.state)) continue
     const duplicateOwner = node === element
       && outcome.state === "duplicate"
       && outcome.boundaries.length === 1
@@ -284,7 +280,7 @@ function liftElementToStableOwner(
     }
     if (
       boundaryKey !== ownerKey &&
-      !isBoundaryFullyInsideSubtree(boundaryKey, elementSubtree, outcomes)
+      !isBoundaryFullyInsideSubtree(boundaryKey, elementSubtree, params.audit)
     ) {
       throw new Error(
         `Raw XML-граница ${element.path} пересекается с выходящей за subtree XML-границей ${node.path}`,
@@ -308,7 +304,7 @@ function liftElementToStableOwner(
     xmlPath: element.path,
   })
   for (const node of subtree(element)) {
-    if (isUnknown(outcomes.get(node)?.state)) params.audit.claim(node, owner)
+    if (isUnknown(params.audit.getOutcome(node).state)) params.audit.claim(node, owner)
   }
 }
 
@@ -324,15 +320,16 @@ function isDescendantYamlBoundary(
 function isBoundaryFullyInsideSubtree(
   boundaryKey: string,
   elementSubtree: ReadonlySet<XmlImportAuditedNode>,
-  outcomes: ReadonlyMap<XmlImportAuditedNode, XmlImportAuditOutcome>,
+  audit: XmlImportAuditSession,
 ): boolean {
-  for (const outcome of outcomes.values()) {
+  let fullyInside = true
+  audit.forEachOutcome((outcome) => {
     if (
       outcome.boundaries.some((boundary) => xmlImportBoundaryKey(boundary) === boundaryKey) &&
       !elementSubtree.has(outcome.node)
-    ) return false
-  }
-  return true
+    ) fullyInside = false
+  })
+  return fullyInside
 }
 
 function replaceStableOwnerYamlValue(params: {

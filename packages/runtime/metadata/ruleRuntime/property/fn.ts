@@ -279,6 +279,8 @@ export type CollectConfigurationIndexFromXMLFunction = (params: {
 export interface XMLImportPropertyBehavior {
   /** Один PropertyRule читает несколько одноимённых XML-узлов как единое значение. */
   repeatedXMLNodes?: true
+  /** Прямой импортер коллекции передаёт каждому вложенному Rules-элементу его собственный XML-узел. */
+  nestedItemsOwnXMLChildren?: true
   presenceAffectsExport?: true
   presenceAffectsExportForSourceValues?: readonly (string | number | boolean | null)[]
   explicitEmptyValue?: (params: { rule: PropertyRule }) => unknown

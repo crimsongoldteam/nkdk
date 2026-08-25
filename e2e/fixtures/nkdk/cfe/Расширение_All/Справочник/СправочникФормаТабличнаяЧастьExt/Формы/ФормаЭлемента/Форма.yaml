@@ -18,22 +18,3 @@
         Вид: ПолеВвода
         РасширенноеРедактированиеМножественныхЗначений: Истина
         РежимРедактирования: ВходПриВводе
-"@Form": !xml/raw
-  $xml:
-    ChildItems:
-      Table:
-        RowFilter:
-          _xsi:nil: "true"
-        "#order":
-          - AutoInsertNewRow
-          - EnableStartDrag
-          - EnableDrag
-          - DataPath
-          - RowFilter
-          - ContextMenu
-          - AutoCommandBar
-          - ExtendedTooltip
-          - SearchStringAddition
-          - ViewStatusAddition
-          - SearchControlAddition
-          - ChildItems

@@ -19,6 +19,9 @@ export interface XmlImportAuditBoundary {
 export type XmlImportAuditState =
   | "unclaimed"
   | "claimed"
+  | "semanticallyElided"
+  | "structurallyClaimed"
+  | "structurallyCovered"
   | "ambiguous"
   | "duplicate"
   | "unknown"
@@ -37,12 +40,19 @@ export interface XmlImportRawCandidate {
 
 export interface XmlImportAuditSession {
   outcomes(): readonly XmlImportAuditOutcome[]
+  getOutcome(node: XmlImportAuditedNode): XmlImportAuditOutcome
   forEachOutcome(visitor: (outcome: XmlImportAuditOutcome) => void): void
   rekeyYamlPath(
     sourcePrefix: readonly (string | number)[],
     targetPrefix: readonly (string | number)[],
+    root?: XmlElementNode,
   ): void
   claim(node: XmlImportAuditedNode, boundary: XmlImportAuditBoundary): void
+  elideSubtree(node: XmlElementNode, boundary: XmlImportAuditBoundary): boolean
+  claimStructuralSubtree(
+    node: XmlElementNode,
+    boundary: XmlImportAuditBoundary,
+  ): boolean
   ambiguous(
     node: XmlImportAuditedNode,
     boundaries: readonly XmlImportAuditBoundary[],
@@ -61,6 +71,7 @@ interface MutableOutcome {
   readonly node: XmlImportAuditedNode
   state: XmlImportAuditState
   boundaries: XmlImportAuditBoundary[]
+  compactOwner?: MutableOutcome
 }
 
 export function createXmlImportAuditSession(
@@ -80,11 +91,18 @@ export function createXmlImportAuditSession(
 
   return {
     outcomes: () => [...outcomes.values()].map(copyOutcome),
+    getOutcome: outcome,
     forEachOutcome(visitor) {
       for (const current of outcomes.values()) visitor(current)
     },
-    rekeyYamlPath(sourcePrefix, targetPrefix) {
-      for (const current of outcomes.values()) {
+    rekeyYamlPath(sourcePrefix, targetPrefix, root) {
+      const scopedOutcomes = root === undefined
+        ? outcomes.values()
+        : collectSubtreeOutcomes(root, outcomes)
+      const scopedNodes = root === undefined
+        ? undefined
+        : new Set(Array.from(scopedOutcomes, ({ node }) => node))
+      for (const current of scopedOutcomes) {
         current.boundaries = uniqueBoundaries(
           current.boundaries.map((boundary) =>
             rekeyBoundaryYamlPath(boundary, sourcePrefix, targetPrefix),
@@ -93,6 +111,7 @@ export function createXmlImportAuditSession(
       }
       for (let index = 0; index < candidates.length; index += 1) {
         const candidate = candidates[index]!
+        if (scopedNodes !== undefined && !scopedNodes.has(candidate.node)) continue
         candidates[index] = {
           ...candidate,
           boundary: rekeyBoundaryYamlPath(candidate.boundary, sourcePrefix, targetPrefix),
@@ -106,9 +125,83 @@ export function createXmlImportAuditSession(
         current.boundaries = [copyBoundary(boundary)]
         return
       }
+      if (
+        (
+          current.state === "semanticallyElided"
+          || current.state === "structurallyClaimed"
+          || current.state === "structurallyCovered"
+        )
+        && compactBoundary(current) !== undefined
+      ) {
+        const owner = current.compactOwner ?? current
+        const ownerBoundary = compactBoundary(current)!
+        if (sameBoundaries([ownerBoundary], [boundary])) return
+        owner.state = "ambiguous"
+        owner.boundaries = uniqueBoundaries([...owner.boundaries, boundary])
+        current.state = "ambiguous"
+        current.boundaries = uniqueBoundaries([ownerBoundary, boundary])
+        current.compactOwner = undefined
+        return
+      }
       if (sameBoundaries(current.boundaries, [boundary])) return
       current.state = "ambiguous"
       current.boundaries = uniqueBoundaries([...current.boundaries, boundary])
+    },
+    elideSubtree(node, boundary) {
+      const subtree = collectSubtreeOutcomes(node, outcomes)
+      const subtreeNodes = new Set(subtree.map((current) => current.node))
+      if (
+        subtree.some((current) => current.state !== "claimed")
+        || candidates.some((candidate) => subtreeNodes.has(candidate.node))
+      ) return false
+      const [root, ...descendants] = subtree
+      if (root === undefined) return false
+      root.state = "semanticallyElided"
+      root.boundaries = [copyBoundary(boundary)]
+      root.compactOwner = root
+      for (const current of descendants) {
+        current.state = "semanticallyElided"
+        current.boundaries = []
+        current.compactOwner = root
+      }
+      return true
+    },
+    claimStructuralSubtree(node, boundary) {
+      const subtree = collectSubtreeOutcomes(node, outcomes)
+      const [root, ...descendants] = subtree
+      if (root === undefined) return false
+      if (
+        root.state === "structurallyClaimed"
+        && sameBoundaries(root.boundaries, [boundary])
+        && descendants.every((current) =>
+          current.state === "structurallyCovered"
+          && (current.compactOwner ?? root) === root
+        )
+      ) return true
+      const subtreeNodes = new Set(subtree.map((current) => current.node))
+      const rootClaimedByBoundary = root.state === "claimed"
+        && sameBoundaries(root.boundaries, [boundary])
+      const descendantsAvailable = descendants.every((current) =>
+        current.state === "unclaimed"
+        || (
+          current.state === "claimed"
+          && sameBoundaries(current.boundaries, [boundary])
+        )
+      )
+      if (
+        !rootClaimedByBoundary
+        || !descendantsAvailable
+        || candidates.some((candidate) => subtreeNodes.has(candidate.node))
+      ) return false
+      root.state = "structurallyClaimed"
+      root.boundaries = [copyBoundary(boundary)]
+      root.compactOwner = root
+      for (const current of descendants) {
+        current.state = "structurallyCovered"
+        current.boundaries = []
+        current.compactOwner = root
+      }
+      return true
     },
     ambiguous(node, boundaries) {
       const current = outcome(node)
@@ -160,6 +253,30 @@ function collectOutcomes(
   for (const attribute of node.attributes) collectOutcomes(attribute, outcomes)
   if (node.type === "processingInstruction") return
   for (const child of node.content) collectOutcomes(child, outcomes)
+}
+
+function collectSubtreeOutcomes(
+  root: XmlElementNode,
+  outcomes: ReadonlyMap<XmlImportAuditedNode, MutableOutcome>,
+): MutableOutcome[] {
+  const result: MutableOutcome[] = []
+  const visit = (node: XmlImportAuditedNode): void => {
+    const current = outcomes.get(node)
+    if (current === undefined) {
+      throw new Error(`XML-узел ${node.path} не принадлежит сеансу аудита`)
+    }
+    result.push(current)
+    if (!("type" in node) || node.type === "text") return
+    for (const attribute of node.attributes) visit(attribute)
+    if (node.type === "processingInstruction") return
+    for (const child of node.content) visit(child)
+  }
+  visit(root)
+  return result
+}
+
+function compactBoundary(outcome: MutableOutcome): XmlImportAuditBoundary | undefined {
+  return (outcome.compactOwner ?? outcome).boundaries[0]
 }
 
 function copyOutcome(outcome: MutableOutcome): XmlImportAuditOutcome {

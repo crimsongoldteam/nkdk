@@ -278,6 +278,22 @@ describe("mergeXmlRawFragments", () => {
     )
   })
 
+  it("упорядочивает только присутствующих sibling по полному каноническому списку", () => {
+    const merged = mergeXmlRawFragments(
+      roots("<Root><A/><Future/><C/></Root>"),
+      [{
+        path: "B",
+        value: {},
+        suppressOrdinaryOutput: true,
+        siblingOrder: ["A", "B", "C", "Absent"],
+      }],
+    )
+
+    expect(merged[0]!.content.flatMap((node) =>
+      node.type === "element" ? [node.name] : []
+    )).toEqual(["A", "Future", "B", "C"])
+  })
+
   it("сохраняет физические вхождения коллекции при удалении более раннего item", () => {
     const ordinary = roots(
       "<Root><Items><Item><Value>one</Value></Item><Item><Value>two</Value></Item><Item><Value>three</Value></Item></Items></Root>",

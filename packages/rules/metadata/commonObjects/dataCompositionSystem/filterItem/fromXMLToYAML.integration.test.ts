@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest"
+import {
+  createXmlAnomalyAnnotations,
+  createXmlImportAuditSession,
+  parseXmlDocumentWithSaxes,
+  projectXmlAuditRemainder,
+  snapshotXmlAnomalyAnnotations,
+} from "@nkdk/runtime"
 import { PropertyRule } from "../../../ruleRuntime"
+import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
 import { testExportPropertyModelThroughXMLToYAML } from "../../../../tests/property/exportPropertyModelThroughXMLToYAML"
 import {
   fullFilterItemComparison,
@@ -16,6 +24,50 @@ const rule: PropertyRule = {
 }
 
 describe("export FilterItem to YAML", () => {
+  it("привязывает вложенные элементы фильтра к их точным XML-узлам", () => {
+    const document = parseXmlDocumentWithSaxes(`
+      <Probe>
+        <dcsset:item xsi:type="dcsset:FilterItemGroup">
+          <dcsset:groupType>AndGroup</dcsset:groupType>
+          <dcsset:item xsi:type="dcsset:FilterItemComparison">
+            <dcsset:left xsi:type="dcscor:Field">Ссылка</dcsset:left>
+            <dcsset:comparisonType>Equal</dcsset:comparisonType>
+            <dcsset:right xsi:type="xs:boolean">true</dcsset:right>
+          </dcsset:item>
+        </dcsset:item>
+      </Probe>
+    `, { preserveXsiNil: true })
+    const root = document.roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const annotations = createXmlAnomalyAnnotations()
+    const result = testPropertyFromXMLToYAML({
+      rule: {
+        itemType: "FilterItemProbe",
+        properties: {
+          value: { type: "FilterItem", yaml: "Элементы", xml: "dcsset:item" },
+        },
+      },
+      xml: root,
+      audit,
+      annotations,
+    })
+    const yaml = result.yaml
+    if (!isRecord(yaml)) throw new Error("Ожидался YAML фильтра")
+    projectXmlAuditRemainder({
+      yaml,
+      annotations,
+      audit,
+      root,
+      boundary: { itemType: "FilterItemProbe", yamlPath: [], rulePath: [] },
+    })
+    audit.finalize()
+
+    expect(yaml).toMatchObject({
+      Элементы: [{ ТипГруппы: "ГруппаИ", Элементы: [{ ЛевоеЗначение: ".Ссылка" }] }],
+    })
+    expect(() => snapshotXmlAnomalyAnnotations(yaml, annotations)).not.toThrow()
+  })
+
   it("exports FilterItemComparison to YAML", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule,
@@ -260,3 +312,7 @@ describe("export FilterItem to YAML", () => {
     })
   })
 })
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}

@@ -42,7 +42,12 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
   return importPropertiesFromXMLToYAML({
     context: params.context,
     rule: params.rule,
-    sources: [{ context: params.context, xml: params.xml }],
+    sources: [{
+      context: params.context,
+      xml: params.traversal.xmlNodes?.length === 1
+        ? params.traversal.xmlNodes[0]!
+        : params.xml,
+    }],
     itemName: params.name,
     yamlPath: params.traversal.yamlPath,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,

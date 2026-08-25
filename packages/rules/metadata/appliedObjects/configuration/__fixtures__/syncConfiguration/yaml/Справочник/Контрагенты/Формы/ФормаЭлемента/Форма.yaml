@@ -5,20 +5,14 @@
     Вид: ПолеВвода
     ПутьКДанным: !xml/invalid Реквизит
     Ширина: 10
-Комментарий: !xml/raw
-  $xml: null
-ВключатьСправкуВСодержание: !xml/raw
-  $xml: null
-"@Form": !xml/raw
-  $xml:
-    Attributes: null
-    "#order":
-      - AutoCommandBar
-      - ChildItems
-    ChildItems:
-      InputField:
+    "@Form\\InputField": !xml/raw
+      $xml:
         "#order":
           - DataPath
           - ContextMenu
           - ExtendedTooltip
           - Width
+Комментарий: !xml/raw
+  $xml: null
+ВключатьСправкуВСодержание: !xml/raw
+  $xml: null

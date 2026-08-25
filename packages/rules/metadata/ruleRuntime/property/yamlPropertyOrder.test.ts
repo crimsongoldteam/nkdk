@@ -53,4 +53,5 @@ describe("sortYamlRuleProperties", () => {
     expect(sorted["__proto__"]).toBe("собственное значение")
     expect(Object.getPrototypeOf(sorted)).toBe(Object.prototype)
   })
+
 })

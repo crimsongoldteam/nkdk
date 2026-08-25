@@ -14,17 +14,25 @@ export const importStructureItemGroupCollectionFromXMLToYAML: ImportFromXMLToYAM
   traversal,
 }) => {
   const result: unknown[] = []
-  for (const [index, item] of asArray(xml).entries()) {
+  const itemNodes = traversal.xmlNodes
+  const items = itemNodes?.map(({ compatibilityValue }) => compatibilityValue) ?? asArray(xml)
+  for (const [index, item] of items.entries()) {
     const rule = findItemRule(item)
     if (rule === undefined) continue
     const direct = getTypeRule(rule.itemType, "importFromXMLToYAML")
     if (direct === undefined) continue
+    const itemNode = itemNodes?.[index]
+    const { xmlNodes: _parentXmlNodes, ...itemTraversal } = traversal
     const yaml = direct({
       context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),
       rule: { type: rule.itemType },
-      xml: item,
+      xml: itemNode ?? item,
       name,
-      traversal: { ...traversal, yamlPath: [...traversal.yamlPath, index] },
+      traversal: {
+        ...itemTraversal,
+        yamlPath: [...traversal.yamlPath, index],
+        ...(itemNode === undefined ? {} : { xmlNodes: [itemNode] }),
+      },
     })
     if (yaml !== undefined) result.push(yaml)
   }
