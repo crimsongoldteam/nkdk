@@ -23,6 +23,7 @@ import type {
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import {
+  calculateXmlImportConcurrency,
   externalFileStateBatch,
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
@@ -137,6 +138,23 @@ afterEach(async () => {
 })
 
 describe("configuration XML import coordinator", () => {
+  it.each([
+    [10, 16, 6],
+    [4, 8, 2],
+    [32, 8, 8],
+    [2, 2, 1],
+  ])("выбирает число рабочих процессов для %i процессоров и %i ГиБ памяти", (
+    processors,
+    memoryGiB,
+    expected,
+  ) => {
+    expect(calculateXmlImportConcurrency(processors, memoryGiB * 1024 ** 3)).toBe(expected)
+  })
+
+  it("учитывает ограничение памяти контейнера", () => {
+    expect(calculateXmlImportConcurrency(32, 64 * 1024 ** 3, 8 * 1024 ** 3)).toBe(8)
+  })
+
   it("передаёт двоичный конверт индекса одной пачкой", async () => {
     const fragmentBatches: ConfigurationIndexBlockFragment[][] = []
     const result = await importConfigurationFromXml(

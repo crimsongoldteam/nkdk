@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
-import { hashXmlElementStructure } from "./hash"
+import {
+  hashXmlElementStructure,
+  resetXmlStructureHashUpdateCountForTests,
+  xmlStructureHashUpdateCountForTests,
+} from "./hash"
 
 describe("структурный XML-hash", () => {
   it("учитывает порядок атрибутов и типы содержимого", () => {
@@ -107,5 +111,28 @@ describe("структурный XML-hash", () => {
       body: "alpha\nbeta ",
     })
     expect(alpha?.structuralHash).not.toBe(beta?.structuralHash)
+  })
+
+  it("передаёт небольшую структуру хэш-функции одной порцией", () => {
+    resetXmlStructureHashUpdateCountForTests()
+
+    hashXmlElementStructure({
+      name: "Root",
+      attributes: [{ name: "id", value: "one" }],
+      content: [
+        { type: "text", value: "value" },
+        { type: "element", structuralHash: 42n },
+      ],
+    })
+
+    expect(xmlStructureHashUpdateCountForTests()).toBe(1)
+  })
+
+  it("записывает кириллический символ в точно рассчитанный буфер", () => {
+    expect(() => hashXmlElementStructure({
+      name: "Root",
+      attributes: [],
+      content: [{ type: "text", value: "я".repeat(1_000) }],
+    })).not.toThrow()
   })
 })

@@ -24,7 +24,9 @@ prepareImportYaml,
 importAuditOutcomeCountForTests,
 registeredImportRuleLookupCountForTests,
 resetImportAuditOutcomeCountForTests,
+resetRootProofParsePassCountForTests,
 resetRegisteredImportRuleLookupCountForTests,
+rootProofParsePassCountForTests,
 resolveAssignmentRule,
 } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
@@ -327,6 +329,7 @@ describe("prepareImportYaml", () => {
 
   it("для обычного первого прохода сохраняет только хэши корней proof", async () => {
     resetImportAuditOutcomeCountForTests()
+    resetRootProofParsePassCountForTests()
     const prepared = await prepareImportYaml({
       assignment: catalogAssignment(),
       context: mockXmlImportContext(),
@@ -339,6 +342,7 @@ describe("prepareImportYaml", () => {
     expect(prepared.proofAudit.boundaries).toEqual([])
     expect(prepared.proofAudit.itemAnchors).toEqual([])
     expect(importAuditOutcomeCountForTests()).toBe(0)
+    expect(rootProofParsePassCountForTests()).toBe(1)
   })
 
   it.each([

@@ -28,7 +28,7 @@ function isPositiveInteger(value) {
 function parseArgs(argv) {
   const options = {
     runs: 1,
-    concurrency: 4,
+    concurrency: undefined,
     jsonOnly: false,
     xmlDir: undefined,
     yamlDir: undefined,
@@ -108,7 +108,7 @@ export async function runProfile(options, overrides = {}) {
         xmlDir: options.xmlDir,
         projectDir,
         componentPath: "cf",
-        concurrency: options.concurrency,
+        ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
         allowWrite: true,
       })
       const elapsedMs = Math.round(dependencies.now() - started)

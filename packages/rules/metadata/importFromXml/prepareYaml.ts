@@ -2,9 +2,8 @@ import fs from "node:fs"
 import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
-  importContentFromXML,
+  parseXmlCompatibilityWithRootStructures,
   parseXmlDocumentWithSaxes,
-  parseXmlRootStructuresWithSaxes,
   type XmlAnomalyAnnotationTable,
   type XmlDocument,
   type XmlRootStructure,
@@ -88,6 +87,7 @@ interface ParsedImportXmlInput {
 
 let registeredImportRuleLookupCountValueForTests = 0
 let importAuditOutcomeCountValueForTests = 0
+let rootProofParsePassCountValueForTests = 0
 const registeredImportRulesByItemType = new Map<string, MetadataItemRule | undefined>()
 
 export function importAuditOutcomeCountForTests(): number {
@@ -96,6 +96,14 @@ export function importAuditOutcomeCountForTests(): number {
 
 export function resetImportAuditOutcomeCountForTests(): void {
   importAuditOutcomeCountValueForTests = 0
+}
+
+export function rootProofParsePassCountForTests(): number {
+  return rootProofParsePassCountValueForTests
+}
+
+export function resetRootProofParsePassCountForTests(): void {
+  rootProofParsePassCountValueForTests = 0
 }
 
 export function registeredImportRuleLookupCountForTests(): number {
@@ -408,11 +416,12 @@ function parseAssignmentXml(
     })
     return { document, roots: document.roots, parsed: document.compatibility }
   }
-  const parsed = importContentFromXML<Record<string, unknown>>(content, {
+  rootProofParsePassCountValueForTests += 1
+  const parsed = parseXmlCompatibilityWithRootStructures(content, {
     preserveXsiNil: true,
     preserveEmptyElementNames: ["AdditionalFields"],
   })
-  return { parsed, roots: parseXmlRootStructuresWithSaxes(content).roots }
+  return { parsed: parsed.compatibility, roots: parsed.roots }
 }
 
 function requireMetadataXmlNode(inputs: readonly ParsedImportXmlInput[]) {

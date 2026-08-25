@@ -1,6 +1,7 @@
 import fs from "node:fs"
-import { availableParallelism } from "node:os"
+import { availableParallelism, totalmem } from "node:os"
 import { join } from "node:path"
+import { constrainedMemory } from "node:process"
 import {
   componentPath,
   configurationIndexStoreDescriptor,
@@ -729,5 +730,21 @@ function normalizeConcurrency(value: number | undefined): number {
     }
     return value
   }
-  return Math.max(1, Math.min(4, availableParallelism()))
+  return calculateXmlImportConcurrency(availableParallelism(), totalmem(), constrainedMemory())
+}
+
+export function calculateXmlImportConcurrency(
+  availableProcessors: number,
+  totalMemoryBytes: number,
+  constrainedMemoryBytes = 0,
+): number {
+  const workerOldSpaceBytes = 768 * 1024 ** 2
+  const minimumReservedMemoryBytes = 2 * 1024 ** 3
+  const effectiveMemoryBytes = constrainedMemoryBytes > 0
+    ? Math.min(totalMemoryBytes, constrainedMemoryBytes)
+    : totalMemoryBytes
+  const reservedMemoryBytes = Math.max(minimumReservedMemoryBytes, effectiveMemoryBytes / 4)
+  const byProcessors = Math.max(1, Math.floor(availableProcessors * 2 / 3))
+  const byMemory = Math.max(1, Math.floor((effectiveMemoryBytes - reservedMemoryBytes) / workerOldSpaceBytes))
+  return Math.min(byProcessors, byMemory)
 }

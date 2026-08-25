@@ -1,5 +1,6 @@
 import { expect, it } from "vitest"
 import {
+  parseXmlCompatibilityWithRootStructures,
   parseXmlDocumentWithSaxes,
   parseXmlRootStructuresWithSaxes,
   parseXmlWithSaxes,
@@ -31,6 +32,22 @@ it("вычисляет хэши XML-корней без полного адре�
   const document = parseXmlDocumentWithSaxes(xml)
 
   expect(parseXmlRootStructuresWithSaxes(xml)).toEqual({
+    sourceLength: xml.length,
+    roots: document.roots.map(({ path, name, structuralHash, span }) => ({
+      path,
+      name,
+      structuralHash,
+      span,
+    })),
+  })
+})
+
+it("возвращает объектное представление и корневые хэши одним разбором", () => {
+  const xml = '<Root b="2"><Value>text</Value></Root>'
+  const document = parseXmlDocumentWithSaxes(xml)
+
+  expect(parseXmlCompatibilityWithRootStructures(xml)).toEqual({
+    compatibility: document.compatibility,
     sourceLength: xml.length,
     roots: document.roots.map(({ path, name, structuralHash, span }) => ({
       path,

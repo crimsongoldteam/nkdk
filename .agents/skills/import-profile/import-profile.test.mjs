@@ -8,8 +8,34 @@ import {
   usage,
 } from "./import-profile.mjs"
 
-test("справка фиксирует четыре worker по умолчанию", () => {
+test("справка позволяет явно задать число worker", () => {
   assert.match(usage(), /--concurrency N/u)
+})
+
+test("без явного параметра оставляет выбор числа worker production import", async () => {
+  const call = mock.fn(async () => ({
+    result: { isError: false, structuredContent: { ok: true } },
+    payload: { ok: true, succeeded: 1, failed: [], warnings: [], summary: { errors: 0, warnings: 0 } },
+  }))
+  const session = {
+    call,
+    takeStderr: mock.fn(() => ""),
+    close: mock.fn(async () => undefined),
+  }
+
+  await runProfile(
+    { xmlDir: "/xml", yamlDir: "/yaml", runs: 1 },
+    {
+      buildMcp: mock.fn(),
+      createSession: mock.fn(async () => session),
+      now: mock.fn(() => 0),
+      clearOutput: mock.fn(),
+      createProject: mock.fn(() => "/project"),
+    },
+  )
+
+  assert.equal(call.mock.calls[0].arguments[1].concurrency, undefined)
+  assert.equal(Object.hasOwn(call.mock.calls[0].arguments[1], "concurrency"), false)
 })
 
 test("сводит этапы импорта и двоичной выдачи в стабильные поля", () => {

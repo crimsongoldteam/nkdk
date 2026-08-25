@@ -256,6 +256,27 @@ export interface XmlRootStructure {
   readonly span: XmlSourceSpan
 }
 
+export function parseXmlCompatibilityWithRootStructures(
+  data: string,
+  options: ImportContentFromXMLOptions = {},
+): {
+  readonly compatibility: Readonly<Record<string, unknown>>
+  readonly roots: readonly XmlRootStructure[]
+  readonly sourceLength: number
+} {
+  const document = parseXmlDocumentWithSaxes(data, options)
+  return {
+    compatibility: document.compatibility,
+    roots: document.roots.map(({ path, name, structuralHash, span }) => ({
+      path,
+      name,
+      structuralHash,
+      span,
+    })),
+    sourceLength: document.sourceLength,
+  }
+}
+
 interface RootStructureFrame {
   readonly name: string
   readonly occurrence: number

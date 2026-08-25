@@ -1,4 +1,5 @@
 import { xxh3 } from "@node-rs/xxhash"
+import { Buffer } from "node:buffer"
 import type {
   XmlAttributeNode,
   XmlElementNode,
@@ -26,6 +27,15 @@ export interface XmlElementStructure {
 }
 
 const encoder = new TextEncoder()
+let xmlStructureHashUpdateCountValueForTests = 0
+
+export function xmlStructureHashUpdateCountForTests(): number {
+  return xmlStructureHashUpdateCountValueForTests
+}
+
+export function resetXmlStructureHashUpdateCountForTests(): void {
+  xmlStructureHashUpdateCountValueForTests = 0
+}
 
 export function normalizeXmlElementContent<T extends XmlStructuralContent>(
   content: readonly T[]
@@ -43,67 +53,121 @@ export function normalizeXmlElementContent<T extends XmlStructuralContent>(
 }
 
 export function hashXmlElementStructure(element: XmlElementStructure): bigint {
-  const hash = xxh3.Xxh3.withSeed()
-  writeByte(hash, 1)
-  writeString(hash, element.name)
-  writeUnsignedInteger(hash, element.attributes.length)
-  for (const attribute of element.attributes) writeAttribute(hash, attribute)
-  writeUnsignedInteger(hash, element.content.length)
-  for (const node of element.content) writeContent(hash, node)
-  return hash.digest()
+  const writer = new XmlStructureHashWriter(xmlElementStructureByteLength(element))
+  writer.writeByte(1)
+  writer.writeString(element.name)
+  writer.writeUnsignedInteger(element.attributes.length)
+  for (const attribute of element.attributes) writeAttribute(writer, attribute)
+  writer.writeUnsignedInteger(element.content.length)
+  for (const node of element.content) writeContent(writer, node)
+  return writer.digest()
 }
 
-type Xxh3Stream = ReturnType<typeof xxh3.Xxh3.withSeed>
+class XmlStructureHashWriter {
+  readonly #bytes: Uint8Array
+  readonly #view: DataView
+  #length = 0
 
-function writeContent(hash: Xxh3Stream, node: XmlStructuralContent): void {
+  constructor(byteLength: number) {
+    this.#bytes = new Uint8Array(byteLength)
+    this.#view = new DataView(this.#bytes.buffer)
+  }
+
+  writeByte(value: number): void {
+    this.#bytes[this.#length] = value
+    this.#length += 1
+  }
+
+  writeUnsignedInteger(value: number): void {
+    this.#view.setUint32(this.#length, value, true)
+    this.#length += 4
+  }
+
+  writeBigUnsignedInteger(value: bigint): void {
+    this.#view.setBigUint64(this.#length, value, true)
+    this.#length += 8
+  }
+
+  writeString(value: string): void {
+    const encoded = encoder.encode(value)
+    this.writeUnsignedInteger(encoded.byteLength)
+    this.#bytes.set(encoded, this.#length)
+    this.#length += encoded.byteLength
+  }
+
+  digest(): bigint {
+    if (this.#length !== this.#bytes.byteLength) {
+      throw new Error("Размер структурного XML-хэша вычислен неверно")
+    }
+    const hash = xxh3.Xxh3.withSeed()
+    hash.update(this.#bytes)
+    xmlStructureHashUpdateCountValueForTests += 1
+    return hash.digest()
+  }
+}
+
+function xmlElementStructureByteLength(element: XmlElementStructure): number {
+  return 1
+    + xmlStructureStringByteLength(element.name)
+    + 4
+    + element.attributes.reduce((total, attribute) => total + xmlStructureAttributeByteLength(attribute), 0)
+    + 4
+    + element.content.reduce((total, node) => total + xmlStructureContentByteLength(node), 0)
+}
+
+function xmlStructureContentByteLength(node: XmlStructuralContent): number {
   switch (node.type) {
     case "text":
-      writeByte(hash, 2)
-      writeString(hash, node.value)
+      return 1 + xmlStructureStringByteLength(node.value)
+    case "element":
+      return 1 + 8
+    case "processingInstruction":
+      return 1
+        + xmlStructureStringByteLength(node.target)
+        + xmlStructureStringByteLength(node.body)
+        + 4
+        + node.attributes.reduce(
+          (total, attribute) => total + xmlStructureAttributeByteLength(attribute),
+          0,
+        )
+  }
+}
+
+function xmlStructureAttributeByteLength(attribute: XmlStructuralAttribute): number {
+  return xmlStructureStringByteLength(attribute.name) + xmlStructureStringByteLength(attribute.value)
+}
+
+function xmlStructureStringByteLength(value: string): number {
+  return 4 + Buffer.byteLength(value, "utf8")
+}
+
+function writeContent(writer: XmlStructureHashWriter, node: XmlStructuralContent): void {
+  switch (node.type) {
+    case "text":
+      writer.writeByte(2)
+      writer.writeString(node.value)
       return
     case "element":
-      writeByte(hash, 3)
-      writeBigUnsignedInteger(hash, node.structuralHash)
+      writer.writeByte(3)
+      writer.writeBigUnsignedInteger(node.structuralHash)
       return
     case "processingInstruction":
-      writeProcessingInstruction(hash, node)
+      writeProcessingInstruction(writer, node)
   }
 }
 
 function writeProcessingInstruction(
-  hash: Xxh3Stream,
+  writer: XmlStructureHashWriter,
   node: XmlStructuralProcessingInstruction
 ): void {
-  writeByte(hash, 4)
-  writeString(hash, node.target)
-  writeString(hash, node.body)
-  writeUnsignedInteger(hash, node.attributes.length)
-  for (const attribute of node.attributes) writeAttribute(hash, attribute)
+  writer.writeByte(4)
+  writer.writeString(node.target)
+  writer.writeString(node.body)
+  writer.writeUnsignedInteger(node.attributes.length)
+  for (const attribute of node.attributes) writeAttribute(writer, attribute)
 }
 
-function writeAttribute(hash: Xxh3Stream, attribute: XmlStructuralAttribute): void {
-  writeString(hash, attribute.name)
-  writeString(hash, attribute.value)
-}
-
-function writeString(hash: Xxh3Stream, value: string): void {
-  const bytes = encoder.encode(value)
-  writeUnsignedInteger(hash, bytes.length)
-  hash.update(bytes)
-}
-
-function writeUnsignedInteger(hash: Xxh3Stream, value: number): void {
-  const bytes = new Uint8Array(4)
-  new DataView(bytes.buffer).setUint32(0, value, true)
-  hash.update(bytes)
-}
-
-function writeBigUnsignedInteger(hash: Xxh3Stream, value: bigint): void {
-  const bytes = new Uint8Array(8)
-  new DataView(bytes.buffer).setBigUint64(0, value, true)
-  hash.update(bytes)
-}
-
-function writeByte(hash: Xxh3Stream, value: number): void {
-  hash.update(Uint8Array.of(value))
+function writeAttribute(writer: XmlStructureHashWriter, attribute: XmlStructuralAttribute): void {
+  writer.writeString(attribute.name)
+  writer.writeString(attribute.value)
 }
