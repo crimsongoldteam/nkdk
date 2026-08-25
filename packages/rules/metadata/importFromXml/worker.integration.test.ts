@@ -443,6 +443,19 @@ describe("XML import worker second pass", () => {
     expect(controlExportCountForTests()).toBe(1)
   })
 
+  it("не сохраняет raw для восстановленных стандартных элементов формы", async () => {
+    const outputDir = createTempDir("canonical-form-elements")
+    const result = await runCatalogAndFormSecondPass(
+      outputDir,
+      "Объект.Товары.НомерСтроки",
+    )
+
+    const yaml = readImportedFormYaml(result)
+    expect(yaml).not.toContain("!xml/raw")
+    expect(yaml).not.toContain("РасширеннаяПодсказка")
+    expect(yaml).not.toContain("КонтекстноеМеню")
+  })
+
   it("уточняет отсутствующий путь элемента формы после загрузки владельца", async () => {
     const outputDir = createTempDir("implicit-form-data-path")
     const assignments = createCatalogAndFormAssignments("", "Товары", false, false, "LabelField", "Код", false)

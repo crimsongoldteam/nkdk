@@ -862,6 +862,36 @@ describe("XML anomaly proof", () => {
     expect(xmlPathIndexVisitCountForTests()).toBe(deepXmlDepth + 2)
   })
 
+  it("не индексирует весь документ повторно для каждого локального raw", async () => {
+    const count = 100
+    const source = `<Root>${Array.from(
+      { length: count },
+      (_, index) => `<Value${index}>0${index}</Value${index}>`,
+    ).join("")}</Root>`
+    const exported = `<Root>${Array.from(
+      { length: count },
+      (_, index) => `<Value${index}>${index}</Value${index}>`,
+    ).join("")}</Root>`
+    const document = parseXmlDocumentWithSaxes(source)
+    const audit = captureXmlAnomalyProofAudit({
+      sources: [{ sourcePath, role: "metadata", document }],
+      boundaries: Array.from({ length: count }, (_, index) =>
+        boundary(`/Root[1]/Value${index}[1]`, [`Значение${index}`], [`value${index}`])),
+    })
+    resetXmlPathIndexVisitCountForTests()
+
+    const result = await proveXmlAnomalyBoundaries({
+      data: Object.fromEntries(Array.from({ length: count }, (_, index) => [`Значение${index}`, index])),
+      annotations: { version: 1, entries: [] },
+      audit,
+      exported: [{ role: "metadata", document: parseXmlDocumentWithSaxes(exported) }],
+      readSource: async () => source,
+    })
+
+    expect(result.annotations.entries).toHaveLength(count)
+    expect(xmlPathIndexVisitCountForTests()).toBeLessThanOrEqual((count * 2 + 1) * 2)
+  })
+
   it.each([
     { type: "boolean", source: "<Root><Value>true</Value></Root>", data: { Значение: true } },
     { type: "string", source: "<Root><Value>ok</Value></Root>", data: { Значение: "ok" } },

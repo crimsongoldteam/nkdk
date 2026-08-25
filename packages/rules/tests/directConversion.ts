@@ -20,7 +20,12 @@ import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/proj
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
 import { xmlExport } from "@nkdk/runtime"
-import type { XmlAnomalyAnnotations, XmlAnomalyAnnotationTable } from "@nkdk/runtime"
+import type {
+  XmlAnomalyAnnotations,
+  XmlAnomalyAnnotationTable,
+  XmlElementNode,
+  XmlImportAuditSession,
+} from "@nkdk/runtime"
 
 interface FromXMLResult {
   yaml: unknown
@@ -110,11 +115,12 @@ export function createDirectAdoptedExportContext(
 
 export function testPropertyFromXMLToYAML(params: {
   rule: MetadataItemRule
-  xml: Record<string, unknown>
+  xml: Record<string, unknown> | XmlElementNode
   context?: ConfigurationContextFromXML
   execution?: PropertyRuleExecution
   name?: string
   annotations?: XmlAnomalyAnnotationTable
+  audit?: XmlImportAuditSession
 }): FromXMLResult {
   const context = params.context ?? mockContextFromXML()
   const collector = createLocalIndexesCollector()
@@ -128,6 +134,7 @@ export function testPropertyFromXMLToYAML(params: {
     collector,
     execution: params.execution,
     annotations: params.annotations,
+    audit: params.audit,
   })
   return { yaml, indexes: collector.finish() }
 }

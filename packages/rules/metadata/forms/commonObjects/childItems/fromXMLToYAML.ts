@@ -1,8 +1,9 @@
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexFormElementLogicalAddress,
-  type XmlElementNode,
+  objectRecordOrUndefined,
   withConfigurationIndexLogicalAddress,
+  xmlElementChildren,
 } from "@nkdk/runtime"
 import { getElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type {
@@ -44,20 +45,20 @@ const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?
 
 export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, rule, xml, traversal }) => {
   if (xml === undefined) return undefined
-  const itemXmlNodes = traversal.xmlNodes?.flatMap(elementChildren)
+  const itemXmlNodes = traversal.xmlNodes?.flatMap((node) => xmlElementChildren(node))
   const items = itemXmlNodes === undefined
     ? Array.isArray(xml) ? xml : [xml]
     : itemXmlNodes.map((node) => ({ [node.name]: node.compatibilityValue }))
   const result: Record<string, unknown> = {}
 
   for (const [index, value] of items.entries()) {
-    const item = asRecord(value)
+    const item = objectRecordOrUndefined(value)
     const xmlTag = item === undefined ? undefined : Object.keys(item)[0]
     if (item === undefined || xmlTag === undefined) continue
-    const rawXml = asRecord(item[xmlTag])
+    const rawXml = objectRecordOrUndefined(item[xmlTag])
     if (rawXml === undefined) continue
     const itemType = resolveItemTypeFromXMLTag(rule, xmlTag, rawXml) as CollectableElementType
-    const xmlValue = (asRecord(item[itemType]) ?? rawXml) as ElementXML
+    const xmlValue = (objectRecordOrUndefined(item[itemType]) ?? rawXml) as ElementXML
     if (typeof xmlValue._name !== "string" || xmlValue._name.length === 0) {
       throw new Error("У элемента формы отсутствует name")
     }
@@ -112,15 +113,3 @@ export const metadataRuleLayer000 = defineMetadataRules({
     ]),
   ),
 })
-
-function elementChildren(node: XmlElementNode): XmlElementNode[] {
-  return node.content.filter(
-    (child): child is XmlElementNode => child.type === "element",
-  )
-}
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
-}

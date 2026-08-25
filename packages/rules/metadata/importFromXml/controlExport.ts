@@ -202,6 +202,18 @@ function retainUnownedDetailedRaw(params: {
   }[]
 }): { readonly data: unknown; readonly annotations: XmlAnomalyAnnotationsSnapshot } {
   if (params.detailed === undefined) return params
+  const exportedIndexes = params.exported.map((candidate) => ({
+    ...candidate,
+    elementsByFinalName: indexDocumentElementsByFinalName(candidate.document.roots),
+  }))
+  const ownedYamlPaths = new Set(
+    params.detailed.audit.boundaries.flatMap((boundary) => [
+      JSON.stringify(boundary.yamlPath),
+      ...boundary.levels.flatMap((level) =>
+        level.rawYamlPath === undefined ? [] : [JSON.stringify(level.rawYamlPath)]
+      ),
+    ]),
+  )
   const claimedElementNames = new Set(
     params.detailed.audit.boundaries.flatMap((boundary) =>
       [
@@ -218,16 +230,11 @@ function retainUnownedDetailedRaw(params: {
     if (typeof entry.key !== "string" || (!entry.key.includes("\\") && !entry.key.startsWith("@"))) {
       return false
     }
-    if (rawEntryMatchesOrdinaryExport(entry.key, entry.annotation.xml, params.exported)) return false
+    if (rawEntryMatchesOrdinaryExport(entry.key, entry.annotation.xml, exportedIndexes)) return false
     const finalXmlName = entry.key.split("\\").at(-1)!
     if (claimedElementNames.has(finalXmlName) || claimedElementNames.has(xmlLocalName(finalXmlName))) return false
     const path = [...entry.parentPath, entry.key]
-    return !params.detailed!.audit.boundaries.some((boundary) =>
-      samePath(boundary.yamlPath, path)
-      || boundary.levels.some((level) =>
-        level.rawYamlPath !== undefined && samePath(level.rawYamlPath, path)
-      )
-    )
+    return !ownedYamlPaths.has(JSON.stringify(path))
   })
   if (retained.length === 0) return params
   for (const entry of retained) {
@@ -276,10 +283,6 @@ function setValueAtPath(root: unknown, path: readonly (string | number)[], value
   ;(parent as Record<string | number, unknown>)[path.at(-1)!] = value
 }
 
-function samePath(left: readonly (string | number)[], right: readonly (string | number)[]): boolean {
-  return left.length === right.length && left.every((segment, index) => segment === right[index])
-}
-
 function xmlLocalName(name: string): string {
   return name.split(":").at(-1) ?? name
 }
@@ -294,7 +297,10 @@ function rawEntryMatchesOrdinaryExport(
   exported: readonly {
     readonly role: ImportXmlInput["role"]
     readonly sourcePath?: string
-    readonly document: ReturnType<typeof parseXmlDocumentWithSaxes>
+    readonly elementsByFinalName: ReadonlyMap<
+      string,
+      readonly { readonly node: XmlElementNode; readonly path: readonly string[] }[]
+    >
   }[],
 ): boolean {
   if (xml === undefined || xml === null) return false
@@ -302,7 +308,7 @@ function rawEntryMatchesOrdinaryExport(
   if (segments.length === 0) return false
   return exported.some((candidate) => {
     if (!matchesDocumentSelector(candidate, selector)) return false
-    return documentElements(candidate.document.roots).some(({ node, path }) =>
+    return (candidate.elementsByFinalName.get(segments.at(-1)!) ?? []).some(({ node, path }) =>
       hasPathSuffix(path, segments) && rawPatchLeavesElementUnchanged(node, xml)
     )
   })
@@ -336,14 +342,16 @@ function matchesDocumentSelector(
   return fileName === `${selector}.xml`
 }
 
-function documentElements(
+function indexDocumentElementsByFinalName(
   roots: readonly XmlElementNode[],
-): { readonly node: XmlElementNode; readonly path: readonly string[] }[] {
-  const result: { node: XmlElementNode; path: readonly string[] }[] = []
+): ReadonlyMap<string, readonly { readonly node: XmlElementNode; readonly path: readonly string[] }[]> {
+  const result = new Map<string, { node: XmlElementNode; path: readonly string[] }[]>()
   const pending = roots.map((node) => ({ node, path: [node.name] as readonly string[] }))
   while (pending.length > 0) {
     const current = pending.pop()!
-    result.push(current)
+    const matching = result.get(current.node.name)
+    if (matching === undefined) result.set(current.node.name, [current])
+    else matching.push(current)
     for (const child of current.node.content) {
       if (child.type === "element") pending.push({ node: child, path: [...current.path, child.name] })
     }

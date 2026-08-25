@@ -7,7 +7,15 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import { createXmlAnomalyAnnotations, importContentFromXML, xmlAnnotatedMappingEntries } from "@nkdk/runtime"
+import {
+  createXmlAnomalyAnnotations,
+  createXmlImportAuditSession,
+  importContentFromXML,
+  parseXmlDocumentWithSaxes,
+  projectXmlAuditRemainder,
+  serializeYAMLDocument,
+  xmlAnnotatedMappingEntries,
+} from "@nkdk/runtime"
 import { xmlExport } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
@@ -21,6 +29,33 @@ const rule = {
 } as const satisfies MetadataItemRule
 
 describe("FormCommands XML → YAML → XML", () => {
+  it("не создаёт raw для уже распознанных свойств вложенной команды", () => {
+    const root = parseXmlDocumentWithSaxes(`
+      <Probe>
+        <Commands>
+          <Command name="Да" id="1">
+            <Action>Да</Action>
+            <CurrentRowUse>DontUse</CurrentRowUse>
+          </Command>
+        </Commands>
+      </Probe>
+    `).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const annotations = createXmlAnomalyAnnotations()
+    const result = testPropertyFromXMLToYAML({ rule, xml: root, audit, annotations })
+    const yaml = result.yaml as Record<string, unknown>
+    projectXmlAuditRemainder({
+      yaml,
+      annotations,
+      audit,
+      root,
+      boundary: { itemType: rule.itemType, yamlPath: [], rulePath: [] },
+    })
+
+    expect(serializeYAMLDocument(yaml, annotations).text).not.toContain("Command\\Action")
+    expect(serializeYAMLDocument(yaml, annotations).text).not.toContain("Command\\CurrentRowUse")
+  })
+
   it("сохраняет команды с повторным именем в XML-порядке", () => {
     const annotations = createXmlAnomalyAnnotations()
     const source = {

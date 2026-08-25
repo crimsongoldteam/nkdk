@@ -4,7 +4,6 @@ import {
   isExplicitYAMLString,
   copyYAMLMappingKeyOrder,
   copyYAMLScalarTags,
-  mergeXmlRawFragments,
   markYAMLMappingKeyOrder,
   parseXmlDocumentWithSaxes,
   restoreXmlAnomalyAnnotations,
@@ -906,6 +905,7 @@ export async function proveXmlAnomalyBoundaries(params: {
     return data
   }
   let annotationSnapshot = cloneAnnotationSnapshot(params.annotations)
+  let annotationIndex = createProofAnnotationIndex(annotationSnapshot)
   const rereadDocuments = new Map<string, XmlDocument>()
   const rereadElements = new Map<string, ReadonlyMap<string, XmlElementNode>>()
   const rereadNodes = new Map<string, ReadonlyMap<string, XmlImportAuditedNode>>()
@@ -967,7 +967,7 @@ export async function proveXmlAnomalyBoundaries(params: {
           targetSignature(exportedNodes?.get(target.path), target.signature) === target.signature
         ))
       : exportedNodes?.get(boundary.xmlPath) === undefined
-    if (exact || hasRawAtOrAbovePath(annotationSnapshot, boundary.yamlPath)) continue
+    if (exact || hasRawAtOrAbovePath(annotationIndex, boundary.yamlPath)) continue
 
     if (!boundary.presentInSource) {
       setRawYamlValue(mutableData(), boundary.yamlPath, undefined)
@@ -977,6 +977,7 @@ export async function proveXmlAnomalyBoundaries(params: {
         null,
         false,
       )
+      annotationIndex = createProofAnnotationIndex(annotationSnapshot)
       continue
     }
 
@@ -1003,22 +1004,22 @@ export async function proveXmlAnomalyBoundaries(params: {
           const raw = xmlElementRawValue(source)
           const decoded = decodeXmlRawValue(raw, { elementName: source.name }).nodes[0]
           if (decoded === undefined || decoded.structuralHash !== source.structuralHash) return false
-          const mergePath = rawMergePath(level.xmlPath)
-          if (mergePath === undefined) return true
-          const merged = mergeXmlRawFragments(exported.roots, [{
-            path: mergePath.path,
-            occurrencePath: mergePath.occurrences,
-            value: raw,
-            suppressOrdinaryOutput: true,
-          }])
           const levelIndex = boundary.levels.findIndex(({ xmlPath }) => xmlPath === level.xmlPath)
           const comparison = boundary.levels[levelIndex + 1] ?? level
-          const mergedComparison = indexXmlDocument(merged).elements.get(comparison.xmlPath)
           const sourceComparison = sourceElements.get(comparison.xmlPath)
-          if (mergedComparison === undefined || sourceComparison === undefined) return false
-          return comparison === level
-            ? mergedComparison.structuralHash === sourceComparison.structuralHash
-            : sameElementShell(mergedComparison, sourceComparison)
+          if (sourceComparison === undefined) return false
+          if (comparison !== level) {
+            const exportedComparison = xmlElementAtPath(exportedNodes, comparison.xmlPath)
+            return exportedComparison !== undefined
+              && sameElementShell(exportedComparison, sourceComparison)
+          }
+          const parentPath = parentElementPath(level.xmlPath)
+          if (parentPath === undefined) return true
+          const exportedParent = xmlElementAtPath(exportedNodes, parentPath)
+          const sourceParent = sourceElements.get(parentPath)
+          return exportedParent !== undefined
+            && sourceParent !== undefined
+            && sameElementShell(exportedParent, sourceParent)
         } catch {
           return false
         }
@@ -1050,6 +1051,7 @@ export async function proveXmlAnomalyBoundaries(params: {
       hasSemanticValue,
       selected.yamlPath,
     )
+    annotationIndex = createProofAnnotationIndex(annotationSnapshot)
   }
 
   for (const source of params.audit.sources) {
@@ -1061,7 +1063,7 @@ export async function proveXmlAnomalyBoundaries(params: {
       (boundary) => boundary.presentInSource && isCapturedProofBoundary(boundary),
     )
     const hasHandledBoundary = sourceBoundaries.some((boundary) =>
-      hasRawAtOrAbovePath(annotationSnapshot, boundary.yamlPath)
+      hasRawAtOrAbovePath(annotationIndex, boundary.yamlPath)
     )
     if (!hasCapturedBoundary && !hasHandledBoundary) {
       const sourceDocument = await readDocument(source.sourcePath)
@@ -1083,6 +1085,7 @@ export async function proveXmlAnomalyBoundaries(params: {
           : xmlElementRawValue(sourceRoot),
         false,
       )
+      annotationIndex = createProofAnnotationIndex(annotationSnapshot)
       continue
     }
     const boundariesByContainerPath = new Map<string, XmlAnomalyProofBoundary[]>()
@@ -1099,7 +1102,7 @@ export async function proveXmlAnomalyBoundaries(params: {
       if (orderPath === undefined) continue
       const localRawYamlPath = containerRawYamlPath(orderPath) ?? orderPath
       const rawYamlPath = publicRawYamlPath(localRawYamlPath, related[0]!, false)
-      if (hasRawAtOrAbovePath(annotationSnapshot, rawYamlPath)) continue
+      if (hasRawAtOrAbovePath(annotationIndex, rawYamlPath)) continue
       await readDocument(source.sourcePath)
       const sourceElement = rereadElements.get(source.sourcePath)!.get(xmlPath)
       const exportedNode = exportedNodes?.get(xmlPath)
@@ -1115,7 +1118,7 @@ export async function proveXmlAnomalyBoundaries(params: {
       if (sameStrings(sourceOrder, exportedOrder)) continue
       const insertsRawChild = related.some((boundary) => {
         if (!boundary.presentInSource || parentElementPath(boundary.xmlPath) !== xmlPath) return false
-        const annotation = rawAnnotationAtPath(annotationSnapshot, boundary.yamlPath)
+        const annotation = rawAnnotationAtPath(annotationIndex, boundary.yamlPath)
         return annotation !== undefined && annotation.xml !== null
       })
       if (!sameStringMultiset(sourceOrder, exportedOrder) && !insertsRawChild) continue
@@ -1127,6 +1130,7 @@ export async function proveXmlAnomalyBoundaries(params: {
         insertsRawChild ? directContentOrderPatch(sourceElement) : { "#order": sourceOrder },
         false,
       )
+      annotationIndex = createProofAnnotationIndex(annotationSnapshot)
     }
   }
 
@@ -1306,25 +1310,6 @@ function xmlDocumentShortName(sourcePath: string): string {
   return result
 }
 
-function rawMergePath(xmlPath: string): {
-  readonly path: string
-  readonly occurrences: readonly number[]
-} | undefined {
-  const segments = xmlPath.split("/").filter(Boolean).map((segment) => {
-    const match = /^(.*)\[(\d+)\]$/u.exec(segment)
-    if (match === null || match[1] === undefined || match[2] === undefined) {
-      throw new Error(`Недопустимый структурный XML-путь: ${xmlPath}`)
-    }
-    return { name: match[1], occurrence: Number(match[2]) }
-  })
-  const relative = segments.slice(1)
-  if (relative.length === 0) return undefined
-  return {
-    path: relative.map(({ name }) => name).join("\\"),
-    occurrences: relative.map(({ occurrence }) => occurrence),
-  }
-}
-
 export async function selectXmlAnomalyRawLevel(params: {
   readonly boundary: XmlAnomalyProofBoundary
   readonly annotations: XmlAnomalyAnnotationsSnapshot
@@ -1366,32 +1351,55 @@ function assertNoIndependentAnnotation(
   }
 }
 
-function hasRawAtOrAbovePath(
+interface ProofAnnotationIndex {
+  readonly rootRaw: boolean
+  readonly rawByRuntimePath: ReadonlyMap<string, XmlAnomalyAnnotationsSnapshot["entries"][number]["annotation"]>
+  readonly rawLogicalPaths: ReadonlySet<string>
+}
+
+function createProofAnnotationIndex(
   annotations: XmlAnomalyAnnotationsSnapshot,
-  path: readonly (string | number)[],
-): boolean {
-  if (annotations.root?.kind === "raw") return true
-  return annotations.entries.some((entry) => {
-    if (entry.annotation.kind !== "raw") return false
-    const key = entry.annotation.target === "key"
+): ProofAnnotationIndex {
+  const rawByRuntimePath = new Map<
+    string,
+    XmlAnomalyAnnotationsSnapshot["entries"][number]["annotation"]
+  >()
+  const rawLogicalPaths = new Set<string>()
+  for (const entry of annotations.entries) {
+    if (entry.annotation.kind !== "raw") continue
+    rawByRuntimePath.set(yamlPathKey([...entry.parentPath, entry.key]), entry.annotation)
+    const logicalKey = entry.annotation.target === "key"
       ? entry.annotation.logicalKey ?? entry.key
       : entry.key
-    return startsWith(path, [...entry.parentPath, key])
-  })
+    rawLogicalPaths.add(yamlPathKey([...entry.parentPath, logicalKey]))
+  }
+  return {
+    rootRaw: annotations.root?.kind === "raw",
+    rawByRuntimePath,
+    rawLogicalPaths,
+  }
+}
+
+function hasRawAtOrAbovePath(
+  annotations: ProofAnnotationIndex,
+  path: readonly (string | number)[],
+): boolean {
+  if (annotations.rootRaw) return true
+  for (let length = path.length; length > 0; length -= 1) {
+    if (annotations.rawLogicalPaths.has(yamlPathKey(path.slice(0, length)))) return true
+  }
+  return false
 }
 
 function rawAnnotationAtPath(
-  annotations: XmlAnomalyAnnotationsSnapshot,
+  annotations: ProofAnnotationIndex,
   path: readonly (string | number)[],
 ) {
-  const key = path.at(-1)
-  if (key === undefined) return annotations.root?.kind === "raw" ? annotations.root : undefined
-  const parentPath = path.slice(0, -1)
-  return annotations.entries.find((entry) =>
-    entry.annotation.kind === "raw"
-    && entry.key === key
-    && sameYamlPath(entry.parentPath, parentPath)
-  )?.annotation
+  return annotations.rawByRuntimePath.get(yamlPathKey(path))
+}
+
+function yamlPathKey(path: readonly (string | number)[]): string {
+  return JSON.stringify(path)
 }
 
 function withRawAnnotation(
@@ -1616,6 +1624,16 @@ function targetSignature(
   return "type" in node && node.type === "element" && typeof expected === "string"
     ? auditedNodeSignature(node)
     : nodeSignature(node)
+}
+
+function xmlElementAtPath(
+  nodes: ReadonlyMap<string, XmlImportAuditedNode> | undefined,
+  path: string,
+): XmlElementNode | undefined {
+  const node = nodes?.get(path)
+  return node !== undefined && "type" in node && node.type === "element"
+    ? node
+    : undefined
 }
 
 function nodeSignature(node: XmlImportAuditedNode): bigint | string {

@@ -46,3 +46,21 @@ export interface XmlDocument {
   readonly compatibility: Readonly<Record<string, unknown>>
   readonly sourceLength: number
 }
+
+export function isXmlElementNode(value: unknown): value is XmlElementNode {
+  return value !== null
+    && typeof value === "object"
+    && "type" in value
+    && value.type === "element"
+    && "compatibilityValue" in value
+}
+
+export function xmlElementChildren(
+  node: XmlElementNode,
+  name?: string,
+): XmlElementNode[] {
+  return node.content.filter(
+    (child): child is XmlElementNode =>
+      child.type === "element" && (name === undefined || child.name === name),
+  )
+}

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { serializeYAMLDocument } from "../../../yaml/export"
 import {
@@ -151,6 +151,24 @@ describe("YAML-проекция XML-аномалий", () => {
     })
     expect(yaml).not.toHaveProperty("Properties")
     expect(yaml).not.toHaveProperty("Properties\\Future\\#attributes")
+  })
+
+  it("не копирует результаты всего сеанса при проекции одного XML-поддерева", () => {
+    const first = parseXmlDocumentWithSaxes("<Root><Future>value</Future></Root>").roots[0]!
+    const unrelated = parseXmlDocumentWithSaxes("<Unrelated><Large><Tree/></Large></Unrelated>").roots[0]!
+    const audit = createXmlImportAuditSession([first, unrelated])
+    audit.claim(first, boundary)
+    const outcomes = vi.spyOn(audit, "outcomes")
+
+    projectXmlAuditRemainder({
+      yaml: {},
+      annotations: createXmlAnomalyAnnotations(),
+      audit,
+      root: first,
+      boundary,
+    })
+
+    expect(outcomes).not.toHaveBeenCalled()
   })
 
   it("хранит неизвестный атрибут в raw известного родителя без #attributes", () => {

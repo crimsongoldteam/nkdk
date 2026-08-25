@@ -1,4 +1,11 @@
-import { childUid, indexedUid, projectNamedXmlCollectionForImport, type XmlElementNode } from "@nkdk/runtime"
+import {
+  childUid,
+  indexedUid,
+  objectRecordOrUndefined,
+  projectNamedXmlCollectionForImport,
+  type XmlElementNode,
+  xmlElementChildren,
+} from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
@@ -11,9 +18,16 @@ import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import { hasSoleValueListType } from "./valueListSettings"
 import { isMetadataNameYAML } from "../../../commonObjects/metadataName/types"
 
+type FormAttributeCollectionImportParams = {
+  context: Parameters<ImportFromXMLToYAMLFunction>[0]["context"]
+  xml: unknown
+  xmlNodes?: readonly XmlElementNode[]
+  traversal: Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]
+}
+
 export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml, traversal }) => {
-  const source = asRecord(xml)?.Attribute ?? xml
-  const itemXmlNodes = traversal.xmlNodes?.flatMap(elementChildren)
+  const source = objectRecordOrUndefined(xml)?.Attribute ?? xml
+  const itemXmlNodes = traversal.xmlNodes?.flatMap((node) => xmlElementChildren(node, "Attribute"))
   const items = itemXmlNodes === undefined
     ? Array.isArray(source) ? source : source === undefined ? [] : [source]
     : itemXmlNodes.map(({ compatibilityValue }) => compatibilityValue)
@@ -21,7 +35,7 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   const collection = getConfigurationIndexCollectionContext(context)
 
   for (const [index, value] of items.entries()) {
-    const item = asRecord(value)
+    const item = objectRecordOrUndefined(value)
     if (item === undefined || typeof item._name !== "string") continue
     const name = item._name
     const itemContext =
@@ -43,13 +57,17 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
       },
     })
     if (yamlValue === undefined) continue
-    const yaml = asRecord(yamlValue)
+    const yaml = objectRecordOrUndefined(yamlValue)
     if (yaml === undefined) throw new Error(`Реквизит формы ${name} должен преобразовываться в YAML-объект`)
     if (!hasSoleValueListType(item)) delete yaml.ТипЗначения
+    const columnsXmlNode = itemXmlNodes?.[index] === undefined
+      ? undefined
+      : xmlElementChildren(itemXmlNodes[index]!, "Columns")[0]
 
     const columns = importColumnsFromXMLToYAML({
       context: itemContext,
-      xml: asRecord(item.Columns)?.Column,
+      xml: objectRecordOrUndefined(item.Columns)?.Column,
+      xmlNodes: columnsXmlNode === undefined ? undefined : xmlElementChildren(columnsXmlNode, "Column"),
       traversal: {
         ...itemTraversal,
         yamlPath: [...itemTraversal.yamlPath, "Колонки"],
@@ -60,7 +78,10 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
 
     const additionalColumns = importAdditionalColumnsFromXMLToYAML({
       context: itemContext,
-      xml: asRecord(item.Columns)?.AdditionalColumns,
+      xml: objectRecordOrUndefined(item.Columns)?.AdditionalColumns,
+      xmlNodes: columnsXmlNode === undefined
+        ? undefined
+        : xmlElementChildren(columnsXmlNode, "AdditionalColumns"),
       traversal: {
         ...itemTraversal,
         yamlPath: [...itemTraversal.yamlPath, "ДополнительныеКолонки"],
@@ -86,23 +107,15 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
     : projectNamedXmlCollectionForImport({ entries, annotations: traversal.annotations })
 }
 
-function elementChildren(node: XmlElementNode): XmlElementNode[] {
-  return node.content.filter(
-    (child): child is XmlElementNode => child.type === "element" && child.name === "Attribute",
-  )
-}
-
-function importAdditionalColumnsFromXMLToYAML(params: {
-  context: Parameters<ImportFromXMLToYAMLFunction>[0]["context"]
-  xml: unknown
-  traversal: Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]
-}): Record<string, unknown> | undefined {
+function importAdditionalColumnsFromXMLToYAML(
+  params: FormAttributeCollectionImportParams,
+): Record<string, unknown> | undefined {
   const items = Array.isArray(params.xml) ? params.xml : params.xml === undefined ? [] : [params.xml]
   const entries: Array<{ key: string; value: Record<string, unknown> }> = []
   const collection = getConfigurationIndexCollectionContext(params.context)
 
   for (const [index, value] of items.entries()) {
-    const item = asRecord(value)
+    const item = objectRecordOrUndefined(value)
     if (item === undefined || typeof item._table !== "string") continue
     const table = item._table
     const logicalAddress =
@@ -118,6 +131,9 @@ function importAdditionalColumnsFromXMLToYAML(params: {
     const columns = importColumnsFromXMLToYAML({
       context,
       xml: item.Column,
+      xmlNodes: params.xmlNodes?.[index] === undefined
+        ? undefined
+        : xmlElementChildren(params.xmlNodes[index]!, "Column"),
       traversal: { ...params.traversal, yamlPath: [...params.traversal.yamlPath, table] },
     })
     entries.push({ key: table, value: columns ?? {} })
@@ -128,18 +144,16 @@ function importAdditionalColumnsFromXMLToYAML(params: {
     : projectNamedXmlCollectionForImport({ entries, annotations: params.traversal.annotations })
 }
 
-function importColumnsFromXMLToYAML(params: {
-  context: Parameters<ImportFromXMLToYAMLFunction>[0]["context"]
-  xml: unknown
-  traversal: Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]
-}): Record<string, unknown> | undefined {
+function importColumnsFromXMLToYAML(
+  params: FormAttributeCollectionImportParams,
+): Record<string, unknown> | undefined {
   const items = Array.isArray(params.xml) ? params.xml : params.xml === undefined ? [] : [params.xml]
   const entries: Array<{ key: string; value: Record<string, unknown>; invalid?: true }> = []
   const duplicatedNames = duplicatedColumnNames(items)
   const collection = getConfigurationIndexCollectionContext(params.context)
 
   for (const [index, value] of items.entries()) {
-    const item = asRecord(value)
+    const item = objectRecordOrUndefined(value)
     if (item === undefined || typeof item._name !== "string") continue
     const name = item._name
     const logicalAddress =
@@ -159,15 +173,20 @@ function importColumnsFromXMLToYAML(params: {
       { ...params.traversal, yamlPath: [...params.traversal.yamlPath, name] },
       FormAttributeColumnRules.itemType
     )
+    const { xmlNodes: _parentXmlNodes, ...itemTraversalWithoutParentNodes } = itemTraversal
+    const itemXmlNode = params.xmlNodes?.[index]
     const yaml = importMetadataItemFromXMLToYAML({
       context,
       rule: FormAttributeColumnRules,
-      xml: item,
+      xml: itemXmlNode ?? item,
       name,
-      traversal: itemTraversal,
+      traversal: {
+        ...itemTraversalWithoutParentNodes,
+        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),
+      },
     })
     if (yaml !== undefined) {
-      const yamlRecord = asRecord(yaml)
+      const yamlRecord = objectRecordOrUndefined(yaml)
       if (yamlRecord === undefined) throw new Error(`Колонка формы ${name} должна преобразовываться в YAML-объект`)
       params.traversal.collector.acceptItem({
         itemType: FormAttributeColumnRules.itemType,
@@ -192,18 +211,12 @@ function duplicatedColumnNames(items: readonly unknown[]): ReadonlySet<string> {
   const seen = new Set<string>()
   const duplicated = new Set<string>()
   for (const value of items) {
-    const name = asRecord(value)?._name
+    const name = objectRecordOrUndefined(value)?._name
     if (typeof name !== "string" || name.length === 0) continue
     if (seen.has(name)) duplicated.add(name)
     seen.add(name)
   }
   return duplicated
-}
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("FormAttributes", "importFromXMLToYAML", importFormAttributesFromXMLToYAML)

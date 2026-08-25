@@ -3,6 +3,7 @@ import {
 createConfigurationIndexCollector,createXmlAnomalyAnnotations,
 createXmlImportAuditSession,importContentFromXML,
 parseXmlDocumentWithSaxes,
+snapshotXmlAnomalyAnnotations,
 withConfigurationIndexCollector,
 xmlExport,
 yamlScalarTagAt
@@ -97,6 +98,46 @@ function importStructuredForm(
 }
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it("импортирует повторные AdditionalColumns через их точные XML-узлы", () => {
+    const formDocument = parseXmlDocumentWithSaxes(`
+      <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config">
+        <Attributes>
+          <Attribute name="Объект" id="1">
+            <Type><v8:Type>cfg:BusinessProcessObject.Исполнение</v8:Type></Type>
+            <MainAttribute>true</MainAttribute>
+            <Columns>
+              <AdditionalColumns table="Объект.Строки">
+                <Column name="Код" id="1"><Type><v8:Type>xs:string</v8:Type></Type></Column>
+              </AdditionalColumns>
+              <AdditionalColumns table="Объект.Товары">
+                <Column name="Артикул" id="2"><Type><v8:Type>xs:string</v8:Type></Type></Column>
+              </AdditionalColumns>
+            </Columns>
+          </Attribute>
+        </Attributes>
+      </Form>`, { preserveXsiNil: true })
+    const metadataDocument = parseXmlDocumentWithSaxes(
+      `<MetaDataObject><Form><Properties><FormType>Managed</FormType></Properties></Form></MetaDataObject>`,
+      { preserveXsiNil: true },
+    )
+    const audit = createXmlImportAuditSession([formDocument.roots[0]!, metadataDocument.roots[0]!])
+    const annotations = createXmlAnomalyAnnotations()
+    const result = importStructuredForm(formDocument, metadataDocument, audit, annotations)
+    audit.finalize()
+
+    expect(result.yaml).toMatchObject({
+      Реквизиты: {
+        Объект: {
+          ДополнительныеКолонки: {
+            "Объект.Строки": { Код: expect.any(Object) },
+            "Объект.Товары": { Артикул: expect.any(Object) },
+          },
+        },
+      },
+    })
+    expect(() => snapshotXmlAnomalyAnnotations(result.yaml, annotations)).not.toThrow()
+  })
+
   it("сохраняет тип обычной формы без Form.xml", () => {
     const result = importClientApplicationFormFromXMLToYAML({
       context: mockContextFromXML(),

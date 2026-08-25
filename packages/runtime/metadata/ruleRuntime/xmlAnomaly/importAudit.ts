@@ -40,10 +40,12 @@ export interface XmlImportRawCandidate {
 
 export interface XmlImportAuditSession {
   outcomes(): readonly XmlImportAuditOutcome[]
+  getOutcome(node: XmlImportAuditedNode): XmlImportAuditOutcome
   forEachOutcome(visitor: (outcome: XmlImportAuditOutcome) => void): void
   rekeyYamlPath(
     sourcePrefix: readonly (string | number)[],
     targetPrefix: readonly (string | number)[],
+    root?: XmlElementNode,
   ): void
   claim(node: XmlImportAuditedNode, boundary: XmlImportAuditBoundary): void
   elideSubtree(node: XmlElementNode, boundary: XmlImportAuditBoundary): boolean
@@ -69,7 +71,7 @@ interface MutableOutcome {
   readonly node: XmlImportAuditedNode
   state: XmlImportAuditState
   boundaries: XmlImportAuditBoundary[]
-  structuralOwner?: MutableOutcome
+  compactOwner?: MutableOutcome
 }
 
 export function createXmlImportAuditSession(
@@ -89,11 +91,18 @@ export function createXmlImportAuditSession(
 
   return {
     outcomes: () => [...outcomes.values()].map(copyOutcome),
+    getOutcome: outcome,
     forEachOutcome(visitor) {
       for (const current of outcomes.values()) visitor(current)
     },
-    rekeyYamlPath(sourcePrefix, targetPrefix) {
-      for (const current of outcomes.values()) {
+    rekeyYamlPath(sourcePrefix, targetPrefix, root) {
+      const scopedOutcomes = root === undefined
+        ? outcomes.values()
+        : collectSubtreeOutcomes(root, outcomes)
+      const scopedNodes = root === undefined
+        ? undefined
+        : new Set(Array.from(scopedOutcomes, ({ node }) => node))
+      for (const current of scopedOutcomes) {
         current.boundaries = uniqueBoundaries(
           current.boundaries.map((boundary) =>
             rekeyBoundaryYamlPath(boundary, sourcePrefix, targetPrefix),
@@ -102,6 +111,7 @@ export function createXmlImportAuditSession(
       }
       for (let index = 0; index < candidates.length; index += 1) {
         const candidate = candidates[index]!
+        if (scopedNodes !== undefined && !scopedNodes.has(candidate.node)) continue
         candidates[index] = {
           ...candidate,
           boundary: rekeyBoundaryYamlPath(candidate.boundary, sourcePrefix, targetPrefix),
@@ -116,17 +126,21 @@ export function createXmlImportAuditSession(
         return
       }
       if (
-        (current.state === "structurallyClaimed" || current.state === "structurallyCovered")
-        && structuralBoundary(current) !== undefined
+        (
+          current.state === "semanticallyElided"
+          || current.state === "structurallyClaimed"
+          || current.state === "structurallyCovered"
+        )
+        && compactBoundary(current) !== undefined
       ) {
-        const owner = current.structuralOwner ?? current
-        const ownerBoundary = structuralBoundary(current)!
+        const owner = current.compactOwner ?? current
+        const ownerBoundary = compactBoundary(current)!
         if (sameBoundaries([ownerBoundary], [boundary])) return
         owner.state = "ambiguous"
         owner.boundaries = uniqueBoundaries([...owner.boundaries, boundary])
         current.state = "ambiguous"
         current.boundaries = uniqueBoundaries([ownerBoundary, boundary])
-        current.structuralOwner = undefined
+        current.compactOwner = undefined
         return
       }
       if (sameBoundaries(current.boundaries, [boundary])) return
@@ -140,10 +154,15 @@ export function createXmlImportAuditSession(
         subtree.some((current) => current.state !== "claimed")
         || candidates.some((candidate) => subtreeNodes.has(candidate.node))
       ) return false
-      for (const current of subtree) {
+      const [root, ...descendants] = subtree
+      if (root === undefined) return false
+      root.state = "semanticallyElided"
+      root.boundaries = [copyBoundary(boundary)]
+      root.compactOwner = root
+      for (const current of descendants) {
         current.state = "semanticallyElided"
-        current.boundaries = [copyBoundary(boundary)]
-        current.structuralOwner = undefined
+        current.boundaries = []
+        current.compactOwner = root
       }
       return true
     },
@@ -156,7 +175,7 @@ export function createXmlImportAuditSession(
         && sameBoundaries(root.boundaries, [boundary])
         && descendants.every((current) =>
           current.state === "structurallyCovered"
-          && (current.structuralOwner ?? root) === root
+          && (current.compactOwner ?? root) === root
         )
       ) return true
       const subtreeNodes = new Set(subtree.map((current) => current.node))
@@ -176,11 +195,11 @@ export function createXmlImportAuditSession(
       ) return false
       root.state = "structurallyClaimed"
       root.boundaries = [copyBoundary(boundary)]
-      root.structuralOwner = root
+      root.compactOwner = root
       for (const current of descendants) {
         current.state = "structurallyCovered"
         current.boundaries = []
-        current.structuralOwner = root
+        current.compactOwner = root
       }
       return true
     },
@@ -256,8 +275,8 @@ function collectSubtreeOutcomes(
   return result
 }
 
-function structuralBoundary(outcome: MutableOutcome): XmlImportAuditBoundary | undefined {
-  return (outcome.structuralOwner ?? outcome).boundaries[0]
+function compactBoundary(outcome: MutableOutcome): XmlImportAuditBoundary | undefined {
+  return (outcome.compactOwner ?? outcome).boundaries[0]
 }
 
 function copyOutcome(outcome: MutableOutcome): XmlImportAuditOutcome {

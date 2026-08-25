@@ -108,6 +108,29 @@ describe("XmlImportAuditSession", () => {
     ])
   })
 
+  it("меняет YAML-префикс только в указанном XML-поддереве", () => {
+    const root = parseXmlDocumentWithSaxes("<Root><Value/></Root>").roots[0]!
+    const unrelated = parseXmlDocumentWithSaxes("<Other><Value/></Other>").roots[0]!
+    const session = createXmlImportAuditSession([root, unrelated])
+    const sourceBoundary = { ...boundary, yamlPath: ["Элементы", 0, "Значение"] }
+    for (const node of [root, root.content[0]!, unrelated, unrelated.content[0]!]) {
+      session.claim(node, sourceBoundary)
+    }
+    session.rawCandidate(root.content[0]!, sourceBoundary, new Error("root"))
+    session.rawCandidate(unrelated.content[0]!, sourceBoundary, new Error("unrelated"))
+
+    session.rekeyYamlPath(["Элементы", 0], ["Элементы", "Первый"], root)
+
+    expect(session.getOutcome(root).boundaries[0]?.yamlPath)
+      .toEqual(["Элементы", "Первый", "Значение"])
+    expect(session.getOutcome(unrelated).boundaries[0]?.yamlPath)
+      .toEqual(["Элементы", 0, "Значение"])
+    expect(session.rawCandidates().map(({ boundary: candidate }) => candidate.yamlPath)).toEqual([
+      ["Элементы", "Первый", "Значение"],
+      ["Элементы", 0, "Значение"],
+    ])
+  })
+
   it("атомарно отмечает полностью заявленное поддерево как осмысленно исключённое", () => {
     const root = parseXmlDocumentWithSaxes(
       '<Root kind="known"><Value>one</Value><Value>two</Value></Root>',
@@ -116,15 +139,19 @@ describe("XmlImportAuditSession", () => {
     for (const { node } of session.outcomes()) session.claim(node, boundary)
 
     expect(session.elideSubtree(root, boundary)).toBe(true)
-    expect(session.outcomes().map(({ state }) => state))
-      .toEqual(Array(session.outcomes().length).fill("semanticallyElided"))
-    expect(session.outcomes().every(({ boundaries }) => boundaries.length === 1)).toBe(true)
+    const outcomes = session.outcomes()
+    expect(outcomes.map(({ state }) => state))
+      .toEqual(Array(outcomes.length).fill("semanticallyElided"))
+    expect(outcomes.find(({ node }) => node === root)?.boundaries).toEqual([boundary])
+    expect(outcomes.filter(({ node }) => node !== root).every(({ boundaries }) =>
+      boundaries.length === 0
+    )).toBe(true)
+    expect(outcomes.reduce((sum, { boundaries }) => sum + boundaries.length, 0)).toBe(1)
 
     session.rekeyYamlPath([], ["Владелец"])
 
-    expect(session.outcomes().every(({ boundaries }) =>
-      boundaries[0]?.yamlPath?.join("/") === "Владелец/Значение"
-    )).toBe(true)
+    expect(session.outcomes().find(({ node }) => node === root)?.boundaries[0]?.yamlPath)
+      .toEqual(["Владелец", "Значение"])
   })
 
   it("не меняет состояния, если в исключаемом поддереве остался неизвестный узел", () => {

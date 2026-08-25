@@ -1,11 +1,10 @@
-import { childUid } from "@nkdk/runtime"
+import { childUid, isXmlElementNode, objectRecordOrUndefined } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexFormElementRootLogicalAddress,
   withConfigurationIndexXmlNodeLogicalAddress,
 } from "@nkdk/runtime"
 import type { ConfigurationContextFromXML } from "@nkdk/runtime"
-import type { XmlElementNode } from "@nkdk/runtime"
 import type { DirectImportXMLSource } from "@nkdk/runtime/rule-kit"
 import { FormRulesTags } from "./rules"
 
@@ -41,27 +40,15 @@ export function createClientApplicationFormImportSources(params: {
     }),
     {
       context: params.context,
-      xml: isXmlElementNode(params.metadataXML) ? params.metadataXML : asRecord(params.metadataXML) ?? {},
+      xml: isXmlElementNode(params.metadataXML)
+        ? params.metadataXML
+        : objectRecordOrUndefined(params.metadataXML) ?? {},
       tags: [FormRulesTags.Metadata],
     },
   ]
 }
 
 function extractFormBody(xml: unknown): Record<string, unknown> | undefined {
-  const root = asRecord(xml)
-  return asRecord(root?.Form) ?? root
-}
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
-}
-
-function isXmlElementNode(value: unknown): value is XmlElementNode {
-  return value !== null &&
-    typeof value === "object" &&
-    "type" in value &&
-    value.type === "element" &&
-    "compatibilityValue" in value
+  const root = objectRecordOrUndefined(xml)
+  return objectRecordOrUndefined(root?.Form) ?? root
 }

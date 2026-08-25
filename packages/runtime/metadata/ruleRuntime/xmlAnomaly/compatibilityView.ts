@@ -11,6 +11,34 @@ import type {
 
 type XmlCompatibilityNode = XmlElementNode | XmlProcessingInstructionNode
 
+interface XmlCompatibilitySource {
+  readonly node: XmlElementNode
+  readonly audit: XmlImportAuditSession
+  readonly boundary: XmlImportAuditBoundary
+}
+
+const sourcesByCompatibilityValue = new WeakMap<object, XmlCompatibilitySource>()
+
+export function xmlImportNodeForCompatibilityValue(value: unknown): XmlElementNode | undefined {
+  return value !== null && typeof value === "object"
+    ? sourcesByCompatibilityValue.get(value)?.node
+    : undefined
+}
+
+export function claimCanonicalXmlImportAttribute(params: {
+  readonly value: unknown
+  readonly name: string
+  readonly expectedValue: string
+}): void {
+  if (params.value === null || typeof params.value !== "object") return
+  const source = sourcesByCompatibilityValue.get(params.value)
+  if (source === undefined) return
+  const attribute = source.node.attributes.find(
+    ({ name, value }) => name === params.name && value === params.expectedValue,
+  )
+  if (attribute !== undefined) source.audit.claim(attribute, source.boundary)
+}
+
 export function xmlImportCompatibilityValue(params: {
   readonly node: XmlElementNode | XmlAttributeNode
   readonly audit?: XmlImportAuditSession
@@ -97,7 +125,7 @@ function createCompatibilityConsumption(
     if (cached !== undefined) return cached
     if (Array.isArray(value)) {
       const children = structuralChildren(node)
-      return wrapArray(value, children, (entry, child) => {
+      const wrapped = wrapArray(value, children, (entry, child) => {
         if (entry === null || typeof entry !== "object") return consumeNode(child, entry)
         return wrapObject(entry, (key) =>
           key === compatibilityKey(child)
@@ -105,8 +133,12 @@ function createCompatibilityConsumption(
             : Reflect.get(entry, key),
         )
       })
+      sourcesByCompatibilityValue.set(wrapped, { node, audit, boundary })
+      return wrapped
     }
-    return wrapObjectForElement(node, value)
+    const wrapped = wrapObjectForElement(node, value)
+    sourcesByCompatibilityValue.set(wrapped, { node, audit, boundary })
+    return wrapped
   }
 
   const wrapProcessingInstructionValue = (

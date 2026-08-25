@@ -7,8 +7,12 @@ import type { PropertyRuleExecution } from "../property/fn"
 import { findInlineProperty } from "./yamlInline"
 import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
 import type { MetadataItemXmlImportAugmenter } from "./augmenterRegistry"
-import type { XmlElementNode } from "../../../xml/import/document"
-import { xmlImportCompatibilityContainer } from "../xmlAnomaly/compatibilityView"
+import { isXmlElementNode, type XmlElementNode } from "../../../xml/import/document"
+import { objectRecordOrUndefined } from "../../../helpers/record"
+import {
+  xmlImportCompatibilityContainer,
+  xmlImportNodeForCompatibilityValue,
+} from "../xmlAnomaly/compatibilityView"
 import { projectXmlAuditRemainder } from "../xmlAnomaly/yamlProjection"
 
 type InlineProperty = ReturnType<typeof findInlineProperty>
@@ -26,16 +30,17 @@ export function importMetadataItemFromXMLToYAML(params: {
   const xmlRoot = Object.values(params.rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
   )
-  const traversalRootNode = params.traversal.xmlNodes?.length === 1
-    ? params.traversal.xmlNodes[0]
+  const traversalRootNode = !isXmlElementNode(params.xml)
+    ? xmlImportNodeForCompatibilityValue(params.xml)
+      ?? findCompatibilityXmlNode(params.traversal.xmlNodes, params.xml)
     : undefined
-  const rootNodeFromTraversal = !isXmlElementNode(params.xml) && traversalRootNode !== undefined
+  const rootNodeFromTraversal = traversalRootNode !== undefined
   const rootNode = isXmlElementNode(params.xml)
     ? params.xml
     : rootNodeFromTraversal
       ? traversalRootNode
       : undefined
-  const root = asRecord(rootNode?.compatibilityValue ?? params.xml)
+  const root = objectRecordOrUndefined(rootNode?.compatibilityValue ?? params.xml)
   const sourceNode = rootNode === undefined
     ? undefined
     : xmlRoot === undefined
@@ -47,9 +52,14 @@ export function importMetadataItemFromXMLToYAML(params: {
   const sourceValue = sourceNode?.compatibilityValue ?? (
     xmlRoot === undefined ? root : root?.[xmlRoot.container]
   )
-  const source = asRecord(sourceValue)
+  const source = objectRecordOrUndefined(sourceValue)
   if (source === undefined) return undefined
   const inline = findInlinePropertyCached(params.rule)
+  claimKnownXsiType({
+    rule: params.rule,
+    sourceNode,
+    traversal: params.traversal,
+  })
 
   const context = contextWithItemParent(params.context, params.name, params.rule.itemType)
   const yaml = importPropertiesFromXMLToYAML({
@@ -81,7 +91,7 @@ export function importMetadataItemFromXMLToYAML(params: {
       }>()
     const augmenterSource = sourceNode === undefined
       ? source
-      : asRecord(xmlImportCompatibilityContainer({
+      : objectRecordOrUndefined(xmlImportCompatibilityContainer({
           node: sourceNode,
           audit: params.traversal.audit,
           boundary: {
@@ -118,6 +128,27 @@ export function importMetadataItemFromXMLToYAML(params: {
   return inline === undefined ? yaml : yaml?.[inline.yamlKey]
 }
 
+function claimKnownXsiType(params: {
+  rule: MetadataItemRule
+  sourceNode?: XmlElementNode
+  traversal: DirectImportTraversal
+}): void {
+  if (
+    params.rule.xsiType === undefined ||
+    params.sourceNode === undefined ||
+    params.traversal.audit === undefined
+  ) return
+  const attribute = params.sourceNode.attributes.find(
+    ({ name, value }) => name === "xsi:type" && value === params.rule.xsiType,
+  )
+  if (attribute === undefined) return
+  params.traversal.audit.claim(attribute, {
+    itemType: params.rule.itemType,
+    yamlPath: params.traversal.yamlPath,
+    rulePath: params.traversal.rulePath,
+  })
+}
+
 function propertyExecutionFromTraversal(
   traversal: DirectImportTraversal,
 ): PropertyRuleExecution | undefined {
@@ -148,16 +179,18 @@ function contextWithItemParent(
   }
 }
 
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
-}
-
-function isXmlElementNode(value: unknown): value is XmlElementNode {
-  return value !== null &&
-    typeof value === "object" &&
-    "type" in value &&
-    value.type === "element" &&
-    "compatibilityValue" in value
+function findCompatibilityXmlNode(
+  roots: readonly XmlElementNode[] | undefined,
+  value: unknown,
+): XmlElementNode | undefined {
+  if (roots === undefined || value === null || typeof value !== "object") return undefined
+  const pending = [...roots]
+  while (pending.length > 0) {
+    const current = pending.pop()!
+    if (current.compatibilityValue === value) return current
+    for (const child of current.content) {
+      if (child.type === "element") pending.push(child)
+    }
+  }
+  return undefined
 }
