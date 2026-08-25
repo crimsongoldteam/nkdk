@@ -544,6 +544,40 @@ describe("единое восстановление XML-аномалий assignm
     expect(inputEnd).toBeGreaterThan(future)
   })
 
+  it("разрешает логическое имя локального raw через PropertyRule элемента формы", () => {
+    const prepared = prepareAnomalies(
+      tableRowFilterYaml().join("\n"),
+      anomalyRegistries.xmlAnomalies,
+      ClientApplicationFormRules,
+      anomalyRegistries,
+    )
+
+    expect(prepared.rawBoundaries).toContainEqual(expect.objectContaining({
+      path: "RowFilter",
+      documentSelector: "Form",
+    }))
+
+    const xml = exportFormWithAnomalies(tableRowFilterYaml())
+    expect(xml).toContain('<RowFilter xsi:nil="true"')
+    expect(xml).not.toContain("<ОтборСтрок")
+  })
+
+  it("вставляет локальный raw в каноническую позицию xmlOrder без публичного #order", () => {
+    const xml = exportFormWithAnomalies(tableRowFilterYaml())
+    const document = parseXmlDocumentWithSaxes(xml)
+    const table = document.roots[0]?.content
+      .find((node): node is import("@nkdk/runtime").XmlElementNode =>
+        node.type === "element" && node.name === "ChildItems"
+      )?.content.find((node): node is import("@nkdk/runtime").XmlElementNode =>
+        node.type === "element" && node.name === "Table"
+      )
+    const names = table?.content.flatMap((node) => node.type === "element" ? [node.name] : []) ?? []
+
+    expect(names.indexOf("RowFilter")).toBeGreaterThan(names.indexOf("DataPath"))
+    expect(names.indexOf("ContextMenu")).toBeGreaterThan(names.indexOf("RowFilter"))
+    expect(tableRowFilterYaml().join("\n")).not.toContain("#order")
+  })
+
   it("восстанавливает whole raw полиморфного form item без смыслового Вида", () => {
     const xml = exportFormWithAnomalies([
       "Элементы:",
@@ -866,6 +900,18 @@ function exportFormWithAnomalies(lines: readonly string[]): string {
     },
     context,
   })
+}
+
+function tableRowFilterYaml(): readonly string[] {
+  return [
+    "Элементы:",
+    "  Таблица:",
+    "    Вид: ТаблицаФормы",
+    "    ПутьКДанным: Объект.ТабличнаяЧасть",
+    "    '@Form\\ОтборСтрок': !xml/raw",
+    "      $xml:",
+    "        _xsi:nil: 'true'",
+  ]
 }
 
 function exportFilterArrayWithAnomalies(lines: readonly string[]): string {

@@ -27,6 +27,7 @@ import {
 import {
   bindDeferredObjectValues,
   currentRuleRegistrySet,
+  getOrderedKeysToXML,
   getYAMLToXMLPlan,
   type MetadataItemRule,
   type PropertyRule,
@@ -623,9 +624,15 @@ function rawBoundary(params: {
   const publicPath = params.property === undefined
     ? parsePublicRawPath(params.logicalKey)
     : undefined
-  const rawPath = params.property === undefined
-    ? publicPath!.segments.map(xmlPathSegment)
-    : params.property.xmlPath.map(xmlPathSegment)
+  const property = params.property ?? propertyAtPublicRawPath(params.rule, publicPath)
+  const rawPath = params.property !== undefined
+    ? params.property.xmlPath.map(xmlPathSegment)
+    : property === undefined
+      ? publicPath!.segments.map(xmlPathSegment)
+      : [
+          ...publicPath!.segments.slice(0, -1).map(xmlPathSegment),
+          ...property.xmlPath.map(xmlPathSegment),
+        ]
   const path = params.exportClaimId === undefined
     ? [...params.xmlPrefix, ...rawPath]
     : rawPath
@@ -636,36 +643,72 @@ function rawBoundary(params: {
   if (params.annotation.xml === undefined) {
     throw new Error(`Для !xml/raw ${params.logicalKey} не сохранено обязательное $xml`)
   }
-  const siblingOrder = params.property === undefined
+  const siblingOrder = property === undefined
     ? rawSiblingOrder(params.ownerYaml, params.rule, params.logicalKey)
-    : undefined
-  const augmentsCompiledParent = params.property === undefined
+    : propertySiblingOrder(params.rule, property)
+  const augmentsCompiledParent = property === undefined
     && isCompiledParentPatch(params.annotation.xml)
   const hasSemanticValue =
     params.annotation.hasSemanticValue === true || augmentsCompiledParent || documentRoot
-  const implicitMainDocument = params.property?.propertyRule.tag === undefined
-    && params.property?.propertyRule.filePath === undefined
+  const implicitMainDocument = property?.propertyRule.tag === undefined
+    && property?.propertyRule.filePath === undefined
   return {
     ...(documentRoot ? { path: "@" } : preparedPath(path)),
     value: params.annotation.xml,
     suppressOrdinaryOutput: !hasSemanticValue && !isTerminalPath(path),
     hasSemanticValue,
     ...(siblingOrder === undefined ? {} : { siblingOrder }),
-    ...(params.property?.propertyRule.tag === undefined ? {} : { tag: params.property.propertyRule.tag }),
+    ...(property?.propertyRule.tag === undefined ? {} : { tag: property.propertyRule.tag }),
     ...(publicPath?.documentSelector !== undefined
       ? { documentSelector: publicPath.documentSelector }
       : implicitMainDocument
         ? { documentSelector: "" }
         : {}),
     ...(documentRoot ? { documentRootName: params.rule?.itemType ?? "Root" } : {}),
-    ...(params.property?.propertyRule.filePath === undefined
+    ...(property?.propertyRule.filePath === undefined
       ? {}
       : {
-          documentPath: params.property.propertyRule.filePath,
-          documentRootName: params.property.propertyRule.type,
+          documentPath: property.propertyRule.filePath,
+          documentRootName: property.propertyRule.type,
         }),
     ...(params.exportClaimId === undefined ? {} : { exportClaimId: params.exportClaimId }),
   }
+}
+
+function propertyAtPublicRawPath(
+  rule: MetadataItemRule | undefined,
+  path: ReturnType<typeof parsePublicRawPath> | undefined,
+): PlannedProperty | undefined {
+  const logicalKey = path?.segments.at(-1)
+  return logicalKey === undefined ? undefined : propertyForYamlKey(rule, logicalKey)
+}
+
+function propertySiblingOrder(
+  rule: MetadataItemRule | undefined,
+  property: PlannedProperty,
+): readonly string[] | undefined {
+  if (rule === undefined) return undefined
+  const parentPath = property.xmlPath.slice(0, -1)
+  const plan = getYAMLToXMLPlan(rule)
+  const byPropertyKey = new Map(plan.properties.map((candidate) => [candidate.propertyKey, candidate]))
+  const result: string[] = []
+  for (const propertyKey of getOrderedKeysToXML({ rule })) {
+    const candidate = byPropertyKey.get(propertyKey)
+    if (
+      candidate === undefined ||
+      candidate.propertyRule.tag !== property.propertyRule.tag ||
+      !sameStringPath(candidate.xmlPath.slice(0, -1), parentPath)
+    ) continue
+    const xmlName = candidate.xmlPath.at(-1)
+    if (xmlName !== undefined && !xmlName.startsWith("_") && !result.includes(xmlName)) {
+      result.push(xmlName)
+    }
+  }
+  return result.length === 0 ? undefined : result
+}
+
+function sameStringPath(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((segment, index) => segment === right[index])
 }
 
 function rawSiblingOrder(
