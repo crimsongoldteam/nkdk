@@ -1,15 +1,13 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
-import { importFromYAML, serializeYAMLDocument, yamlScalarTagAt } from "@nkdk/runtime"
 import { createDirectRoundTripContexts } from "../../../../tests/directConversion"
-import { mockContextToXML } from "../../../../tests/mockContext"
 import {
-  importClientApplicationFormFromXMLToYAML,
+importClientApplicationFormFromXMLToYAML,
 } from "../../clientApplicationForm/fromXMLToYAML"
 import { convertClientApplicationFormFromYAMLToXML } from "../../clientApplicationForm/fromYAMLToXML"
 import type {
-  ClientApplicationFormXML,
-  ClientApplicationFormYAML,
+ClientApplicationFormXML,
+ClientApplicationFormYAML,
 } from "../../clientApplicationForm/types"
 
 describe("PopupExtendedTooltip", () => {
@@ -21,50 +19,6 @@ describe("PopupExtendedTooltip", () => {
       _name: "ФункцииРасширеннаяПодсказка",
       _id: "75",
     })
-  })
-
-  it("сохраняет отсутствие XML-узла через !xml/absent", () => {
-    const result = roundTrip(undefined)
-    const popup = popupYAML(result.yaml)
-
-    expect(popup.РасширеннаяПодсказка).toBe("!xml/absent")
-    expect(yamlScalarTagAt(popup, "РасширеннаяПодсказка")).toBe("xml/absent")
-    expect(serializeYAMLDocument(result.yaml).text).toContain("РасширеннаяПодсказка: !xml/absent")
-    expect(popupXML(result.xml).ExtendedTooltip).toBeUndefined()
-  })
-
-  it("сохраняет нестандартное имя скаляром !xml/name", () => {
-    const result = roundTrip({ _name: "ФункцииExtendedTooltip", _id: "75" })
-    const popup = popupYAML(result.yaml)
-
-    expect(popup.РасширеннаяПодсказка).toBe("!xml/name ФункцииExtendedTooltip")
-    expect(yamlScalarTagAt(popup, "РасширеннаяПодсказка")).toBe("xml/name")
-    expect(popupXML(result.xml).ExtendedTooltip).toEqual({
-      _name: "ФункцииExtendedTooltip",
-      _id: "75",
-    })
-  })
-
-  it.each([
-    ["обычная строка", "ФункцииExtendedTooltip"],
-    ["другая категория", "!xml/value ФункцииExtendedTooltip"],
-    ["пустое имя", "!xml/name"],
-    ["каноническое имя", "!xml/name ФункцииРасширеннаяПодсказка"],
-  ])("отклоняет %s", (_name, value) => {
-    const yaml = importFromYAML<ClientApplicationFormYAML>([
-      "КоманднаяПанель:",
-      "  Автозаполнение: Ложь",
-      "  Элементы:",
-      "    Функции:",
-      "      Вид: Подменю",
-      `      РасширеннаяПодсказка: ${value}`,
-    ].join("\n"))
-
-    expect(() => convertClientApplicationFormFromYAMLToXML({
-      context: mockContextToXML(),
-      yaml,
-      name: "Форма",
-    })).toThrow()
   })
 })
 

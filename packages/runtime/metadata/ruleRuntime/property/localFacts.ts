@@ -1,6 +1,7 @@
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTarget/types"
 import type { YamlDiagnosticLocation, YamlPath } from "../../diagnostics/types"
 import type { OwnerFactRole } from "./ownerFactRole"
+import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
 
 export interface LocalFactPropertyRule {
   type: string
@@ -21,6 +22,8 @@ export interface LocalYamlFact {
   value: unknown
   source?: YamlDiagnosticLocation
   metadataTargetOwner?: MetadataTargetOwner
+  /** Сохраняет логические ключи повторных XML-аннотированных mapping entries. */
+  annotations?: XmlAnomalyAnnotations
 }
 
 export interface LocalMetadataFactsWriter {

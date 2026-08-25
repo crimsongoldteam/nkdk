@@ -16,6 +16,13 @@ import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
 } from "../../configurationIndex/collector/context"
+import type { XmlElementNode } from "../../../xml/import/document"
+import {
+  arrayLengthXmlImportAttemptAdapter,
+  attachXmlImportAttemptAdapter,
+  createXmlImportBufferedLocalIndexes,
+} from "../xmlAnomaly/attempt"
+import { projectNamedXmlCollectionForImportWithRuntimeKeys } from "../xmlAnomaly/yamlProjection"
 
 type MetadataItemCollectionImportOptions = {
   propertyType?: PropertyRuleType
@@ -23,6 +30,12 @@ type MetadataItemCollectionImportOptions = {
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
   yamlAsArray?: true
 }
+
+export type ClassifyNamedCollectionYamlKey = (params: {
+  yaml: Record<string, unknown>
+  name: string
+  yamlKey: string
+}) => "valid" | "invalid"
 
 function configurationIndexItemContext(params: {
   context: ConfigurationContextFromXML
@@ -72,9 +85,16 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
   preserveItemPropertyPresence?: true
   recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
+  classifyYamlKey?: ClassifyNamedCollectionYamlKey
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
-  const items = normalizeCollectionItems(params.xml, params.xmlElement)
+  const structuralItems = collectionItemNodes(params.traversal.xmlNodes, params.xmlElement)
+  const items: { xml: Record<string, unknown>; node?: XmlElementNode }[] = structuralItems.length === 0
+    ? normalizeCollectionItems(params.xml, params.xmlElement).map((xml) => ({ xml }))
+    : structuralItems.flatMap((node) => {
+        const xml = asRecord(node.compatibilityValue)
+        return xml === undefined ? [] : [{ xml, node }]
+      })
   if (items.length === 0) return undefined
   const sourceItemRule = params.itemRule
   const itemRule =
@@ -83,7 +103,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       : sourceItemRule
   const keyField = params.keyField
   const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
-  const yamlItems = items.flatMap((itemXml, index) => {
+  const yamlItems = items.flatMap(({ xml: itemXml, node: itemNode }, index) => {
     const itemName = itemNameFromXML(itemXml, itemRule, params.keyField)
     const itemContext = configurationIndexItemContext({
       context: params.context,
@@ -101,11 +121,12 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const yamlPath =
       params.yamlAsArray === true
         ? [...params.traversal.yamlPath, index]
-        : [...params.traversal.yamlPath, itemName ?? String(index)]
+        : [...params.traversal.yamlPath, index]
     const bufferedCollector =
-      params.yamlAsArray === true || keyYaml === undefined || params.recordYamlKeyFromYAML === undefined
+      params.yamlAsArray === true || keyYaml === undefined
         ? undefined
-        : createBufferedItemCollector(params.traversal.collector, yamlPath)
+        : createXmlImportBufferedLocalIndexes(params.traversal.collector, yamlPath) ??
+          createBufferedItemCollector(params.traversal.collector, yamlPath)
     const bufferedDeferred =
       bufferedCollector === undefined || params.traversal.deferred === undefined
         ? undefined
@@ -117,7 +138,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: itemRule,
-      xml: itemXml,
+      xml: itemNode ?? itemXml,
       name: itemName,
       traversal: enterNestedYamlRule(
         {
@@ -149,33 +170,55 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         yamlPath,
         rulePath: itemRulePath,
       })
-    } else if (yamlKey !== undefined) {
-      params.traversal.collector.acceptItem({
-        itemType: itemRule.itemType,
-        name: yamlKey,
-        yamlPath: [...params.traversal.yamlPath, yamlKey],
-        rulePath: itemRulePath,
-      })
     }
-    if (yamlKey !== undefined) {
-      const targetYamlPath = [...params.traversal.yamlPath, yamlKey]
-      bufferedCollector?.flush(targetYamlPath)
-      bufferedDeferred?.flush(targetYamlPath)
-      bufferedDependent?.flush(targetYamlPath, yamlKey)
-    }
-    return [{ yaml: itemYaml, name, yamlKey }]
+    const keyClassification = yamlKey === undefined
+      ? undefined
+      : params.classifyYamlKey?.({ yaml: itemYaml, name, yamlKey })
+    return [{
+      yaml: itemYaml,
+      name,
+      yamlKey,
+      keyClassification,
+      sourceYamlPath: yamlPath,
+      itemRulePath,
+      bufferedCollector,
+      bufferedDeferred,
+      bufferedDependent,
+    }]
   })
   if (yamlItems.length === 0) return undefined
 
   if (params.yamlAsArray === true) return yamlItems.map(({ yaml }) => yaml)
 
   if (keyYaml === undefined) return undefined
-  return Object.fromEntries(
-    yamlItems.map(({ yaml, yamlKey }) => {
-      delete yaml[keyYaml]
-      return [yamlKey!, yaml]
+  const entries = yamlItems.map(({ yaml, yamlKey, keyClassification }) => {
+    delete yaml[keyYaml]
+    return {
+      key: yamlKey!,
+      value: yaml,
+      ...(keyClassification === "invalid" ? { invalid: true } : {}),
+    }
+  })
+  const projected = projectNamedXmlCollectionForImportWithRuntimeKeys({
+    entries,
+    annotations: params.traversal.annotations,
+  })
+  for (const [index, item] of yamlItems.entries()) {
+    const yamlKey = item.yamlKey!
+    const runtimeKey = projected.runtimeKeys[index]!
+    const targetYamlPath = [...params.traversal.yamlPath, runtimeKey]
+    params.traversal.audit?.rekeyYamlPath(item.sourceYamlPath, targetYamlPath)
+    params.traversal.collector.acceptItem({
+      itemType: itemRule.itemType,
+      name: yamlKey,
+      yamlPath: targetYamlPath,
+      rulePath: item.itemRulePath,
     })
-  )
+    item.bufferedCollector?.flush(targetYamlPath)
+    item.bufferedDeferred?.flush(targetYamlPath)
+    item.bufferedDependent?.flush(targetYamlPath, yamlKey)
+  }
+  return projected.yaml
 }
 
 function createBufferedDependentCollector(
@@ -183,11 +226,16 @@ function createBufferedDependentCollector(
   sourceItemYamlPath: readonly (string | number)[]
 ) {
   const candidates: ImportedDependentPropertyCandidate[] = []
+  const collector: ImportedDependentPropertyCollector = {
+    accept: (candidate) => candidates.push(candidate),
+    finish: () => candidates,
+  }
+  attachXmlImportAttemptAdapter(
+    collector,
+    arrayLengthXmlImportAttemptAdapter([candidates]),
+  )
   return {
-    collector: {
-      accept: (candidate) => candidates.push(candidate),
-      finish: () => candidates,
-    } satisfies ImportedDependentPropertyCollector,
+    collector,
     flush(itemYamlPath: readonly (string | number)[], itemName: string) {
       for (const candidate of candidates) {
         parent.accept({
@@ -218,11 +266,16 @@ function createBufferedDeferredCollector(
   sourceValuePath: readonly (string | number)[]
 ) {
   const paths: Parameters<DeferredValuePathCollector["accept"]>[0][] = []
+  const collector: DeferredValuePathCollector = {
+    accept: (path) => paths.push(path),
+    finish: () => paths,
+  }
+  attachXmlImportAttemptAdapter(
+    collector,
+    arrayLengthXmlImportAttemptAdapter([paths]),
+  )
   return {
-    collector: {
-      accept: (path) => paths.push(path),
-      finish: () => paths,
-    } satisfies DeferredValuePathCollector,
+    collector,
     flush(valuePath: readonly (string | number)[]) {
       for (const path of paths) {
         parent.accept({
@@ -245,6 +298,10 @@ function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPa
     completeValue: (fact) => facts.push({ kind: "complete", fact }),
     finish: () => parent.finish(),
   }
+  attachXmlImportAttemptAdapter(
+    collector,
+    arrayLengthXmlImportAttemptAdapter([facts]),
+  )
 
   return {
     collector,
@@ -257,6 +314,19 @@ function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPa
       }
     },
   }
+}
+
+function collectionItemNodes(
+  sources: readonly XmlElementNode[] | undefined,
+  xmlElement: string,
+): XmlElementNode[] {
+  if (sources === undefined || sources.length === 0) return []
+  if (sources.every(({ name }) => name === xmlElement)) return [...sources]
+  return sources.flatMap((source) =>
+    source.content.filter(
+      (node): node is XmlElementNode => node.type === "element" && node.name === xmlElement,
+    ),
+  )
 }
 
 function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<string, unknown>[] {

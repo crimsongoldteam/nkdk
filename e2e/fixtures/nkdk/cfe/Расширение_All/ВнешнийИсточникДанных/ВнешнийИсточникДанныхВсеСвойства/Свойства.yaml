@@ -2,9 +2,42 @@
 Функции:
   ФункцияПоУмолчанию:
     Тип: Строка(10)
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
   ФункцияВнешнийИсточникДанныхКубТаблицаИзмеренияСсылка:
     Тип: ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
   ФункцияВсеСвойства:
     Синоним: ""
     ВозвращаемоеЗначение: !изменять Истина
     ВыражениеВИсточникеДанных: !изменять
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - ReturnValue
+          - Type
+          - ExpressionInDataSource

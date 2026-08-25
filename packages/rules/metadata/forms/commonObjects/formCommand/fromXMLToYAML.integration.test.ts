@@ -7,7 +7,7 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import { importContentFromXML } from "@nkdk/runtime"
+import { createXmlAnomalyAnnotations, importContentFromXML, xmlAnnotatedMappingEntries } from "@nkdk/runtime"
 import { xmlExport } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
@@ -21,6 +21,38 @@ const rule = {
 } as const satisfies MetadataItemRule
 
 describe("FormCommands XML → YAML → XML", () => {
+  it("сохраняет команды с повторным именем в XML-порядке", () => {
+    const annotations = createXmlAnomalyAnnotations()
+    const source = {
+      Commands: {
+        Command: [
+          { _name: "Команда", _id: "1", Action: "first" },
+          { _name: "Команда", _id: "2", Action: "second" },
+        ],
+      },
+    }
+
+    const { yaml } = testPropertyFromXMLToYAML({ rule, xml: source, annotations })
+    const entries = xmlAnnotatedMappingEntries(
+      (yaml as { Значение: Record<string, unknown> }).Значение,
+      annotations,
+    )
+    expect(entries).toEqual([
+      ["Команда", expect.objectContaining({ Действие: "first" })],
+      ["Команда", expect.objectContaining({ Действие: "second" })],
+    ])
+
+    const { xml } = testPropertyFromYAMLToXML({ rule, yaml, annotations })
+    expect(xml).toMatchObject({
+      Commands: {
+        Command: [
+          { _name: "Команда", Action: "first" },
+          { _name: "Команда", Action: "second" },
+        ],
+      },
+    })
+  })
+
   it.each(["full.xml", "minimal.xml"])("сохраняет %s", (fixture) => {
     const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
     const parsed = importContentFromXML<Record<string, unknown>>(expected, {

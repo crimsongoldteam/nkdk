@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
+import { createXmlImportAuditSession, parseXmlDocumentWithSaxes } from "@nkdk/runtime"
 
 import type { MetadataItemRule } from "./types"
 import { getXMLImportPlan, visitXMLImportPlan } from "./xmlImportPlan"
@@ -97,5 +98,60 @@ describe("XML import plan", () => {
     })
 
     expect(visit.mock.calls.filter(([match]) => match.propertyKey === "name")).toHaveLength(1)
+  })
+
+  it("не схлопывает адресные canonical, alias, singleton-повторы и неизвестные части", () => {
+    const structuralRule = {
+      itemType: "TestStructuralXMLPlan",
+      properties: {
+        name: { type: "string", xml: "Name", xmlAliases: ["LegacyName"] },
+        singleton: { type: "string", xml: "Singleton" },
+        knownAttribute: { type: "string", xml: "_known" },
+        appearance: { type: "string", xml: "Appearance", xmlParents: ["Attributes"] },
+      },
+    } as MetadataItemRule
+    const root = parseXmlDocumentWithSaxes(
+      '<Root known="yes" future="x"><LegacyName>legacy</LegacyName><Name>canonical</Name>' +
+      '<Singleton>one</Singleton><Singleton>two</Singleton>' +
+      '<Attributes extra="z"><Appearance>shown</Appearance><Future/></Attributes></Root>',
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const visit = vi.fn()
+
+    visitXMLImportPlan({
+      plan: getXMLImportPlan({ rule: structuralRule, includeAllTags: true }),
+      xml: root,
+      audit,
+      visit,
+    })
+    audit.finalize()
+
+    expect(
+      visit.mock.calls.map(([match]) => [match.propertyKey, match.xmlNode?.path, match.xmlValue]),
+    ).toEqual([
+      ["knownAttribute", "/Root[1]/@known[1]", "yes"],
+      ["name", "/Root[1]/Name[1]", "canonical"],
+      ["singleton", "/Root[1]/Singleton[1]", "one"],
+      ["appearance", "/Root[1]/Attributes[1]/Appearance[1]", "shown"],
+    ])
+    expect(
+      audit.outcomes()
+        .filter(({ node }) =>
+          ("type" in node && node.type === "element") || node.path.includes("/@"),
+        )
+        .map(({ node, state }) => [node.path, state]),
+    ).toEqual([
+      ["/Root[1]", "claimed"],
+      ["/Root[1]/@known[1]", "claimed"],
+      ["/Root[1]/@future[1]", "unknown"],
+      ["/Root[1]/LegacyName[1]", "ambiguous"],
+      ["/Root[1]/Name[1]", "ambiguous"],
+      ["/Root[1]/Singleton[1]", "claimed"],
+      ["/Root[1]/Singleton[2]", "duplicate"],
+      ["/Root[1]/Attributes[1]", "claimed"],
+      ["/Root[1]/Attributes[1]/@extra[1]", "unknown"],
+      ["/Root[1]/Attributes[1]/Appearance[1]", "claimed"],
+      ["/Root[1]/Attributes[1]/Future[1]", "unknown"],
+    ])
   })
 })

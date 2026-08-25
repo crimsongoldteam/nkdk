@@ -38,6 +38,65 @@ describe("reference coverage second pass", () => {
       expect.objectContaining({ source: "cross-file", message: expect.stringContaining("требуется связь") }),
     ])
   })
+
+  it("не проверяет accepted-ссылку повторно", () => {
+    const params = secondPassParams(() => { throw new Error("resolver не должен запускаться") })
+    if (params.state.kind === "failed") throw new Error("Ожидалось состояние properties")
+    params.state.pendingReferences[0] = {
+      ...params.state.pendingReferences[0]!,
+      xmlAnomaly: "accepted",
+    }
+    params.state.pendingChecks = []
+
+    expect(validateProjectFileSecondPass(params).diagnostics).toEqual([])
+  })
+
+  it("после ошибки pending-ссылки не проверяет тот же путь дальше", () => {
+    const params = secondPassParams(() => ({
+      ok: false,
+      reason: "notFound",
+      diagnostics: [diagnostic("не найдена ссылка", "reference")],
+    }))
+    if (params.state.kind === "failed") throw new Error("Ожидалось состояние properties")
+    const yamlPath = ["Значение"] as const
+    params.state.pendingReferences[0] = {
+      ...params.state.pendingReferences[0]!,
+      yamlPath,
+      xmlAnomaly: "pending",
+    }
+    params.state.pendingChecks = [{
+      kind: "fillValue",
+      yamlPath,
+      location: { filePath: "/project/Свойства.yaml", line: 1, col: 1 },
+      itemType: "MetadataAttribute",
+      type: { type: ["DefinedType.НельзяПроверять"] },
+      value: { type: "ref", value: "Catalog.Товары.EmptyRef" },
+      xmlAnomaly: "pending",
+    }]
+    params.ownerCache = {
+      get: () => { throw new Error("следующая проверка не должна запускаться") },
+      listRefs: () => [],
+    }
+
+    expect(validateProjectFileSecondPass(params).diagnostics).toEqual([])
+  })
+
+  it("считает pending-тег лишним только после успешной второй проверки", () => {
+    const params = secondPassParams(() => ({ ok: true }))
+    if (params.state.kind === "failed") throw new Error("Ожидалось состояние properties")
+    params.state.pendingReferences[0] = {
+      ...params.state.pendingReferences[0]!,
+      xmlAnomaly: "pending",
+    }
+    params.state.pendingChecks = []
+
+    expect(validateProjectFileSecondPass(params).diagnostics).toEqual([
+      expect.objectContaining({
+        path: "/Измерения/Первое/ДанныеВедущихРегистров/0",
+        message: expect.stringContaining("Тег XML-аномалии лишний"),
+      }),
+    ])
+  })
 })
 
 function secondPassParams(

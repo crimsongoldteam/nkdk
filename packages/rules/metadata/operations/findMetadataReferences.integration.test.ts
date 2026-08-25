@@ -1,29 +1,29 @@
-import { existsSync, readFileSync } from "fs"
-import { join } from "path"
-import { afterAll, afterEach, describe, expect, it } from "vitest"
-import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
-import type { ProjectStateService } from "../projectState/service"
-import { findMetadataReferences } from "./findMetadataReferences"
-import { metadataRules } from "../composition/metadataRules"
+import { existsSync,readFileSync } from "fs"
+import { join } from "path"
+import { afterAll,afterEach,describe,expect,it } from "vitest"
 import {
-  createMetadataExecutionRegistrySets,
-  withMetadataExecutionRegistrySets,
+createMetadataExecutionRegistrySets,
+withMetadataExecutionRegistrySets,
 } from "../composition/metadataExecutionContext"
+import { metadataRules } from "../composition/metadataRules"
+import type { ProjectStateService } from "../projectState/service"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import { findMetadataReferences } from "./findMetadataReferences"
 import {
-  completeOperationReadSession,
-  completeOperationProjectState,
-  createOperationTestProjectHarness,
-  emptyOperationRefreshStats,
-  operationDataPathFormYaml,
-  operationDataPathReference,
-  operationCalculationBaseFormYaml,
-  operationCalculationBaseReference,
-  operationLockFieldYaml,
-  operationMetadataReference,
-  operationPictureFormYaml,
-  operationTargetReadSession,
-  operationValidationError,
+completeOperationProjectState,
+completeOperationReadSession,
+createOperationTestProjectHarness,
+emptyOperationRefreshStats,
+operationCalculationBaseFormYaml,
+operationCalculationBaseReference,
+operationDataPathFormYaml,
+operationDataPathReference,
+operationLockFieldYaml,
+operationMetadataReference,
+operationPictureFormYaml,
+operationTargetReadSession,
+operationValidationError,
 } from "./tests/operationTestSupport"
 
 const validationError = operationValidationError
@@ -253,36 +253,6 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
       code: "references_found",
       blockedReferences: [expect.objectContaining({ value: "CommonPicture.Состояния" })],
     })
-  })
-
-  it("находит обычную роль и не возвращает UUID-ключ UserVisible", async () => {
-    const projectDir = createProject()
-    const uuid = "6537a19c-3357-46a2-96a6-1fe4619ddbc8"
-    writeProjectFile(projectDir, "Роль/Кассир/Свойства.yaml", "{}")
-    writeProjectFile(projectDir, "ОбщаяФорма/Продажи/Форма.yaml", [
-      "Команды:",
-      "  Открыть:",
-      "    Использование:",
-      "      Роли:",
-      "        Кассир: Истина",
-      `        !xml/reference ${uuid}: Ложь`,
-    ])
-    harness.setIndex({
-      references: [operationMetadataReference(
-        "cf/ОбщаяФорма/Продажи/Форма.yaml",
-        ["Команды", "Открыть", "Использование", "Роли", "Кассир"],
-        "Role.Кассир",
-      )],
-    })
-
-    const result = await findInValidProject(projectDir, "Роль.Кассир")
-
-    expect(result).toMatchObject({
-      ok: false,
-      code: "references_found",
-      blockedReferences: [expect.objectContaining({ value: "Role.Кассир" })],
-    })
-    expect(JSON.stringify(result)).not.toContain(uuid)
   })
 
   it("blocks delete when a form DataPath points to the target", async () => {

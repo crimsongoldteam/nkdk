@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRuleType } from "@nkdk/runtime/rule-kit"
+import {
+  attachXmlImportAttemptAdapter,
+  createXmlImportAttemptJournal,
+  PropertyRuleType,
+} from "@nkdk/runtime/rule-kit"
 import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import { createLocalIndexesCollector } from "./localIndexes"
 
@@ -230,5 +234,34 @@ describe("createLocalIndexesCollector", () => {
     })
     expect(acceptedProperties).toBe(facts.length * 2)
     expect(JSON.stringify(imported)).not.toContain("rootYaml")
+  })
+
+  it("восстанавливает owner facts после ошибки следующего publish", () => {
+    const propertyType = "TestTransactionalOwnerFact" as PropertyRuleType
+    registerTypeRule(propertyType, "collectLocalFactsFromYAML", ({ fact, writer }) => {
+      writer.setOwnerFact("role", fact.value)
+    })
+    const collector = createLocalIndexesCollector()
+    const accept = (value: string): void => collector.acceptProperty({
+      yamlPath: ["Значение"],
+      rulePath: [{ propertyKey: "value" }],
+      rule: { type: propertyType },
+      value,
+    })
+    accept("stable")
+    const failing = {}
+    attachXmlImportAttemptAdapter(failing, {
+      begin: () => ({ active: true }),
+      commit() {
+        throw new Error("publish failed")
+      },
+      rollback: () => undefined,
+    })
+    const attempt = createXmlImportAttemptJournal([failing, collector]).begin()
+    accept("temporary")
+
+    expect(() => attempt.commit()).toThrow("publish failed")
+
+    expect(collector.finish().metadata.ownerFacts).toEqual({ role: "stable" })
   })
 })

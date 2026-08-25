@@ -10,17 +10,10 @@ const requiredSchema = (schema: TSchema | undefined, name: string): TSchema => {
   return schema
 }
 
-const ordinaryField = Type.Intersect([
-  Type.String(),
-  { not: Type.String({ pattern: "^!xml/(?:[^ ]+)(?: |$)" }) } as TSchema,
-])
-const xmlReference = Type.String({ pattern: "^!xml/reference[ \\t]+\\S.*$" })
+const ordinaryField = Type.String()
 
 export const exportAvailableFieldsToJSONSchema: ExportToJSONSchemaFn = ({ context }) => {
-  const fieldSchema = context.exportToJSONSchema?.explicitXMLValues === true ||
-    context.exportToJSONSchema?.validationPropertyRefs === true
-    ? Type.Union([ordinaryField, xmlReference])
-    : ordinaryField
+  const fieldSchema = ordinaryField
   const availableFieldItemObjectSchema = Type.Object(
     {
       Поле: fieldSchema,

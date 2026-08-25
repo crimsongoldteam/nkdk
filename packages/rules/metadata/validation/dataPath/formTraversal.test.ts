@@ -1,11 +1,10 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 import "../../forms"
+import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
 import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
 import type { ChildItem } from "../../forms/commonObjects/childItems/types"
 import { collectFormDataPathOccurrences } from "./formTraversal"
 import { collectFormDataPathOccurrencesFromYAML } from "./formYamlTraversal"
-import { parseMetadataYaml } from "@nkdk/runtime"
-import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
 
 describe("collectFormDataPathOccurrences", () => {
   it("collects present string DataPath values from form elements and nested table children", () => {
@@ -134,30 +133,6 @@ describe("collectFormDataPathOccurrences", () => {
 })
 
 describe("collectFormDataPathOccurrencesFromYAML", () => {
-  it("распознаёт !xml/value как внутренний ПутьКДанным", () => {
-    const parsed = parseMetadataYaml(
-      [
-        "Элементы:",
-        "  Флаг:",
-        "    Вид: ПолеФлажок",
-        "    ПутьКДанным: !xml/value Объект.InvalidFlag",
-      ].join("\n")
-    )
-
-    expect(
-      collectFormDataPathOccurrencesFromYAML({
-        yaml: parsed.data,
-        rule: ClientApplicationFormRules,
-      })
-    ).toEqual([
-      expect.objectContaining({
-        value: "Объект.InvalidFlag",
-        tagged: true,
-        nameMode: "internal",
-        yamlPath: ["Элементы", "Флаг", "ПутьКДанным"],
-      }),
-    ])
-  })
 
   it("посещает вложенные элементы и остаётся совместимым с вызовом без visitor", () => {
     const yaml = {

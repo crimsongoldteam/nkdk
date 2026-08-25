@@ -21,7 +21,6 @@ import type { ElementRule, ElementXML, SingleElementType } from "./types"
 import { defineMetadataRules } from "../definition"
 import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
-import { readExplicitElementXMLName } from "./explicitName"
 import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
 import { resolveFormElementXMLId } from "./xmlIdentity"
 export {
@@ -59,9 +58,8 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
           : configurationIndexExportFormElementLogicalAddress(context, canonicalName)
     return logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
   },
-  resolveItemName: ({ context, yaml, ownerName }) =>
-    (params.nameStyle?.explicitXMLName === true ? readExplicitElementXMLName(yaml) : undefined)
-    ?? getCanonicalSingletonName({ ownerLogicalAddress: ownerName ?? "", nameStyle: params.nameStyle })
+  resolveItemName: ({ context, ownerName }) =>
+    getCanonicalSingletonName({ ownerLogicalAddress: ownerName ?? "", nameStyle: params.nameStyle })
     ?? params.toXML({ context }).name,
   resolveItemContext: ({ context, itemName }) => {
     return itemName === undefined

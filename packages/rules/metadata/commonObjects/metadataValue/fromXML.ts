@@ -17,6 +17,7 @@ import {
   MetadataValuePropertyRule,
   MetadataValueType,
   MetadataValueTypeFromXML,
+  MetadataValueTypeToXML,
   MetadataValueTypeXML,
   assertValueType,
 } from "./types"
@@ -57,8 +58,15 @@ export const importMetadataValueFromXML = (params: {
     return context.fromXML.forReference ? (data as any) : undefined
   }
 
+  const declaredXMLType = data["_xsi:type"] as MetadataValueTypeXML | undefined
+  if (type !== undefined && declaredXMLType !== undefined && declaredXMLType !== MetadataValueTypeToXML[type]) {
+    throw new Error(
+      `MetadataValue: ожидался тип ${MetadataValueTypeToXML[type]}, получен ${declaredXMLType}`,
+    )
+  }
+
   const resultedType: MetadataValueType | undefined =
-    type ?? MetadataValueTypeFromXML(data["_xsi:type"] as MetadataValueTypeXML)
+    type ?? MetadataValueTypeFromXML(declaredXMLType)
   if (!resultedType) {
     if (context.fromXML.forReference && typeof data["_xsi:type"] === "string") return data as any
     if (typeof data["_xsi:type"] === "string" && isEmptyMetadataValueXML(data)) return undefined

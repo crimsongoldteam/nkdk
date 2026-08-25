@@ -11,8 +11,6 @@ import {
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import { getSystemEnumeration } from "./systemEnumerationRegistry"
-import { explicitXMLPropertyValidationTag } from "./explicitXMLPropertyRegistry"
-import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 function notSchema(schema: TSchema): TSchema {
   return { not: schema } as TSchema
@@ -28,7 +26,7 @@ function withPropertyDescription(schema: TSchema, description: string | undefine
   } as TSchema
 }
 
-function withExplicitXMLValidationValue(params: {
+function withValidationContextValue(params: {
   context: ConfigurationContext
   itemType: string
   propertyKey: string
@@ -49,39 +47,7 @@ function withExplicitXMLValidationValue(params: {
   ) {
     schema = Type.Union([schema, Type.Null()])
   }
-  if (
-    params.rule.type === "DataPath" &&
-    params.rule.yaml === "ПутьКДанным" &&
-    params.rule.allowedKinds !== undefined
-  ) {
-    schema = Type.Union([schema, Type.String({ pattern: "^!xml/value[ \\t]+\\S.*$" })])
-  }
-  const tag = params.execution === undefined
-    ? explicitXMLPropertyValidationTag(params.itemType, params.propertyKey, params.rule.type)
-    : params.execution.explicitXMLPropertyValidationTag(
-        params.itemType,
-        params.propertyKey,
-        params.rule.type,
-      )
-  if (tag === "xml/present" || tag === "xml/absent") {
-    const marker = `!${tag}`
-    schema = shouldProcessProperty({ rule: params.rule, operation: "importFromYAML" })
-      ? Type.Union([schema, Type.Literal(marker)])
-      : Type.Literal(marker)
-  }
-  if (tag === "xml/value" || tag === "xml/reference") {
-    schema = Type.Union([schema, Type.String({ pattern: `^!${tag}[ \\t]+\\S.*$` })])
-  }
-  const brokenReferenceRegistry = params.execution ?? currentPropertyRuleRegistrySet<Pick<
-    PropertyRuleExecution,
-    "brokenXMLReferenceValidationSchema"
-  >>()
-  return brokenReferenceRegistry?.brokenXMLReferenceValidationSchema({
-    rule: params.rule,
-    base: schema,
-    validationGraph:
-      params.context.exportToJSONSchema?.validationPropertyRefs === true,
-  }) ?? schema
+  return schema
 }
 
 /**
@@ -140,13 +106,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   ][]) {
     // if (ruleProp.fromEnterprise === false) continue
     const importsFromYAML = shouldProcessProperty({ rule: ruleProp, operation: "importFromYAML" })
-    const validatesExplicitXML =
-      (params.context.exportToJSONSchema?.explicitXMLValues === true ||
-        params.context.exportToJSONSchema?.validationPropertyRefs === true) &&
-      (params.execution === undefined
-        ? explicitXMLPropertyValidationTag(rule.itemType, key, ruleProp.type)
-        : params.execution.explicitXMLPropertyValidationTag(rule.itemType, key, ruleProp.type)) !== undefined
-    if (!importsFromYAML && !validatesExplicitXML) continue
+    if (!importsFromYAML) continue
 
     const yamlKey = ruleProp.yaml
     if (!yamlKey) continue
@@ -160,7 +120,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       execution: params.execution,
     })
     if (exportedValue !== undefined) {
-      const schema = withExplicitXMLValidationValue({
+      const schema = withValidationContextValue({
         context,
         itemType: rule.itemType,
         propertyKey: key,

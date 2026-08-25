@@ -36,7 +36,6 @@ export type TypeRulesOperations =
   | "collectMetadataTargetReferences"
   | "structuralReferences"
   | "metadataTargetOccurrences"
-  | "brokenXMLReferenceCarrier"
   | "resourceTopology"
   | "fileChildNamesDescriptor"
   | "configurationIndexValueFromXML"

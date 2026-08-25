@@ -1,5 +1,4 @@
 import type { ClientApplicationFormYAML } from "./types"
-import { yamlScalarTagAt } from "@nkdk/runtime"
 import {
   compactImportedFormDataPaths,
   prepareFormDataPathContextFromYAML,
@@ -17,7 +16,7 @@ export const clientApplicationFormImportedYamlFinalizerRules = defineMetadataRul
     finalizer: {
     requiresFinalization: (yaml, rule) => {
       const form = clientApplicationFormYaml(yaml)
-      return requiresImportedFormDataPathCompaction(form, rule) || hasTaggedRowFilter(form)
+      return requiresImportedFormDataPathCompaction(form, rule)
     },
     finalize: ({ yaml, rule, ownerMetadataCache, currentConfigurationYAML, savedBaseYAML }) => {
       const form = clientApplicationFormYaml(yaml)
@@ -40,14 +39,6 @@ export const clientApplicationFormImportedYamlFinalizerRules = defineMetadataRul
     },
   }],
 })
-
-function hasTaggedRowFilter(value: unknown): boolean {
-  if (Array.isArray(value)) return value.some(hasTaggedRowFilter)
-  if (value === null || typeof value !== "object") return false
-  const record = value as Record<string, unknown>
-  if (yamlScalarTagAt(record, "ОтборСтрок") === "xml/present") return true
-  return Object.values(record).some(hasTaggedRowFilter)
-}
 
 function clientApplicationFormYaml(value: unknown): ClientApplicationFormYAML {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {

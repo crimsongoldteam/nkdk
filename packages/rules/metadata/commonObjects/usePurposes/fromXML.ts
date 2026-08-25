@@ -19,8 +19,13 @@ export const importUsePurposesFromXML = (
   const result: UsePurposes = []
 
   for (const value of valueArray) {
-    const metadataValue = importMetadataValueFromXML({ context, rule: undefined, value, type: "string" })
-    if (metadataValue && metadataValue.type === "string") {
+    const metadataValue = importMetadataValueFromXML({
+      context,
+      rule: undefined,
+      value,
+      type: "ApplicationUsePurpose",
+    })
+    if (metadataValue && metadataValue.type === "ApplicationUsePurpose") {
       const stringValue = metadataValue.value as string
       if (stringValue === "PlatformApplication" || stringValue === "MobilePlatformApplication") {
         result.push(stringValue)

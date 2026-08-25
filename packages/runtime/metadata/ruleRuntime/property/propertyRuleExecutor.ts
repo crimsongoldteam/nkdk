@@ -8,21 +8,6 @@ export function createPropertyRuleExecutor(
   registries: PropertyRuleRegistrySet,
 ): PropertyRuleExecutor {
   const executor: PropertyRuleExecutor = {
-    normalizeImportedBrokenXMLReferences(params) {
-      return registries.normalizeImportedBrokenXMLReferences(params)
-    },
-    prepareBrokenXMLReferenceExport(params) {
-      return registries.prepareBrokenXMLReferenceExport(params)
-    },
-    patchExportedBrokenXMLReferences(params) {
-      return registries.patchExportedBrokenXMLReferences(params)
-    },
-    brokenXMLReferenceValidationSchema(params) {
-      return registries.brokenXMLReferenceValidationSchema(params)
-    },
-    isTransportedBrokenXMLReference(params) {
-      return registries.isTransportedBrokenXMLReference(params)
-    },
     applyMetadataItemXmlImportAugmenter(params) {
       registries.applyMetadataItemXmlImportAugmenter(params)
     },
@@ -67,30 +52,11 @@ export function createPropertyRuleExecutor(
     getSystemEnumeration(name) {
       return registries.getSystemEnumeration(name)
     },
-    explicitXMLPropertyValidationTag(itemType, propertyKey, propertyType) {
-      return registries.explicitXMLPropertyValidationTag(
-        itemType,
-        propertyKey,
-        propertyType,
-      )
-    },
     validationSchemaRef(params) {
       return registries.getTypeRule(
         params.rule.type,
         "validationSchemaRef",
       )?.(params)
-    },
-    collectExplicitXMLPropertyActions(params) {
-      return registries.collectExplicitXMLPropertyActions(params)
-    },
-    matchExplicitXMLPropertyFromXML(params) {
-      return registries.matchExplicitXMLPropertyFromXML(params)
-    },
-    matchExplicitXMLPropertyTypeFromXML(params) {
-      return registries.matchExplicitXMLPropertyTypeFromXML(params)
-    },
-    matchExplicitXMLTransportFromXML(params) {
-      return registries.matchExplicitXMLTransportFromXML(params)
     },
     isDependentImportProperty(itemType, propertyKey) {
       return registries.isDependentImportProperty(itemType, propertyKey)

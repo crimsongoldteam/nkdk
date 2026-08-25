@@ -28,16 +28,7 @@ import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { YAMLPropertySource } from "./fromYAMLToXMLTypes"
 import type { TypeRulesOperations } from "./ruleContracts"
 import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
-import type { ExplicitXMLPropertyAction } from "./explicitXMLPropertyRegistry"
-import type {
-  ExplicitXMLPropertyMatcher,
-} from "./explicitXMLPropertyRegistry"
 import type { MetadataTargetOwnerResolver } from "./metadataTargetOwnerRegistry"
-import type {
-  BrokenXMLReferenceCarrierRegistry,
-  BrokenXMLReferenceTypeCarrier,
-} from "./brokenXMLReferenceCarrierRegistry"
-export type { BrokenXMLReferenceTypeCarrier } from "./brokenXMLReferenceCarrierRegistry"
 import type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
 export type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
 export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
@@ -68,7 +59,7 @@ export type ImportFromXMLFunction = (
   execution?: PropertyRuleExecution,
 ) => any | undefined
 
-export interface PropertyRuleExecution extends ExplicitXMLPropertyMatcher, BrokenXMLReferenceCarrierRegistry {
+export interface PropertyRuleExecution {
   applyMetadataItemXmlImportAugmenter(
     params: Parameters<import("../metadataItem/augmenterRegistry").MetadataItemXmlImportAugmenter["augment"]>[0],
   ): void
@@ -97,23 +88,11 @@ export interface PropertyRuleExecution extends ExplicitXMLPropertyMatcher, Broke
   ): MetadataItemRule | undefined
   getDeclaredPropertyItemRule(propertyType: string): MetadataItemRule | undefined
   getSystemEnumeration(name: string): RegisteredSystemEnumeration | undefined
-  explicitXMLPropertyValidationTag(
-    itemType: string,
-    propertyKey: string,
-    propertyType?: string,
-  ): import("../../../yaml/scalarTags").XMLAnomalyTag | undefined
   validationSchemaRef(params: {
     readonly context: ConfigurationContext
     readonly rule: PropertyRule
     readonly schema: TSchema
   }): string | undefined
-  collectExplicitXMLPropertyActions(params: {
-    readonly yaml: unknown
-    readonly itemType: string
-    readonly properties: Readonly<
-      Record<string, { readonly type?: string; readonly yaml?: string }>
-    >
-  }): ReadonlyMap<string, ExplicitXMLPropertyAction>
   isDependentImportProperty(itemType: string, propertyKey: string): boolean
   getMetadataTargetOwnerResolver(
     itemType: string,
@@ -298,6 +277,8 @@ export type CollectConfigurationIndexFromXMLFunction = (params: {
 
 /** Декларативное поведение XML-import, одинаковое для всех свойств зарегистрированного типа. */
 export interface XMLImportPropertyBehavior {
+  /** Один PropertyRule читает несколько одноимённых XML-узлов как единое значение. */
+  repeatedXMLNodes?: true
   presenceAffectsExport?: true
   presenceAffectsExportForSourceValues?: readonly (string | number | boolean | null)[]
   explicitEmptyValue?: (params: { rule: PropertyRule }) => unknown
@@ -318,7 +299,6 @@ export interface TypeRule {
   collectMetadataTargetReferences?: CollectMetadataTargetReferencesFunction
   structuralReferences?: StructuralReferencesFunction
   metadataTargetOccurrences?: MetadataTargetOccurrencesFunction
-  brokenXMLReferenceCarrier?: BrokenXMLReferenceTypeCarrier
   resourceTopology?: MetadataResourceTopologyFunction
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   configurationIndexValueFromXML?: ConfigurationIndexValueFromXMLDescriptor
@@ -368,9 +348,7 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                           ? StructuralReferencesFunction | undefined
                           : O extends "metadataTargetOccurrences"
                             ? MetadataTargetOccurrencesFunction | undefined
-                            : O extends "brokenXMLReferenceCarrier"
-                              ? BrokenXMLReferenceTypeCarrier | undefined
-                          : O extends "resourceTopology"
+                            : O extends "resourceTopology"
                             ? MetadataResourceTopologyFunction | undefined
                             : O extends "fileChildNamesDescriptor"
                               ? FileChildNamesDescriptorFunction | undefined

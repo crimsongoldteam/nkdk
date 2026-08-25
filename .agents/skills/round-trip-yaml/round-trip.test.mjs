@@ -79,9 +79,6 @@ test("не требует отсутствующих справочных фай
   assert.doesNotMatch(skill, /\.agents\/knowledge\/metadata/u)
 })
 
-test("запускает импорт и sync с четырьмя работниками", () => {
-  const concurrencyValues = [...script.matchAll(/componentPath:"cf",concurrency:(\d+)/gu)]
-    .map((match) => Number(match[1]))
-
-  assert.deepEqual(concurrencyValues, [4, 4])
+test("оставляет выбор числа worker production import", () => {
+  assert.doesNotMatch(script, /componentPath:"cf",concurrency:/u)
 })

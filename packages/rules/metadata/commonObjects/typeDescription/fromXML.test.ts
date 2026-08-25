@@ -1,10 +1,9 @@
-import { describe, expect, it } from "vitest"
-import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importContentFromXML } from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
+import { mockContextFromXML,mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToYAML } from "./toYAML"
-import { isTaggedYAMLScalar, xmlAnomalyTagPayload } from "@nkdk/runtime"
 import { TypeDescriptionXML } from "./types"
 
 describe("importTypeDescriptionFromXML", () => {
@@ -60,7 +59,7 @@ describe("importTypeDescriptionFromXML", () => {
     expect(result).toEqual({ type: ["ConditionalAppearance"] })
   })
 
-  it("should import type with reference prefix spelling from XML", () => {
+  it("imports the meaning of a type with noncanonical XML prefix", () => {
     const xmlData = importContentFromXML<{ Type?: TypeDescriptionXML }>(
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
     )
@@ -68,11 +67,7 @@ describe("importTypeDescriptionFromXML", () => {
     const result = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, xmlData.Type)
 
     expect(result).toEqual({ type: ["Chart"] })
-    const yaml = exportTypeDescriptionToYAML(mockContextFromXML(), mockRule, result)
-    expect(isTaggedYAMLScalar(yaml)).toBe(true)
-    if (!isTaggedYAMLScalar(yaml)) throw new Error("Expected !xml scalar")
-    expect(yaml.tag).toBe("xml/type")
-    expect(xmlAnomalyTagPayload("xml/type", yaml.value as string)).toBe("d7p1:Диаграмма")
+    expect(exportTypeDescriptionToYAML(mockContextFromXML(), mockRule, result)).toBe("Диаграмма")
   })
 
   it("does not mark the canonical type prefix", () => {

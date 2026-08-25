@@ -1,33 +1,25 @@
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll,describe,expect,it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
-import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import type { PropertyRule } from "../../ruleRuntime"
+import type { MetadataItemRule,PropertyRuleType } from "@nkdk/runtime/rule-kit"
+import {
+createDirectRoundTripContexts,
+testPropertyFromXMLToYAML,
+testPropertyFromYAMLToXML
+} from "../../../tests/directConversion"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import {
-  createDirectRoundTripContexts,
-  serializeDirectXML,
-  testMetadataItemFromXMLToYAML,
-  testMetadataItemFromYAMLToXML,
-  testPropertyFromXMLToYAML,
-  testPropertyFromYAMLToXML,
-} from "../../../tests/directConversion"
-import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
-import { canonicalXML } from "../../../tests/canonicalXML"
-import { accountingExtDimensions, all, allYAML, minimal, minimalYAML, multiple } from "./__fixtures__/data"
-import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
-import {
-  MetadataAccountingRegisterStandardAttributeNames,
-  MetadataAccountingRegisterStandardAttributeNamesXML,
+MetadataAccountingRegisterStandardAttributeNames,
+MetadataAccountingRegisterStandardAttributeNamesXML,
 } from "../../appliedObjects/metadataAccountingRegister/rules"
+import type { PropertyRule } from "../../ruleRuntime"
+import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
+import { accountingExtDimensions,all,allYAML,minimal,minimalYAML,multiple } from "./__fixtures__/data"
+import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
-import { importFromYAML } from "@nkdk/runtime"
-import { serializeYAMLDocument } from "@nkdk/runtime"
-import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
-import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
 
 const context: ConfigurationContextWithExportToXML = {
   languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
@@ -37,17 +29,19 @@ const context: ConfigurationContextWithExportToXML = {
 
 function standardAttributesOwnerRule(
   itemType: string,
-  standartAttributeNames: Readonly<Record<string, string>>
+  standartAttributeNames: Readonly<Record<string, string>>,
+  evaluateWhenYAMLMissing = false,
 ): MetadataItemRule {
   return {
     itemType,
     properties: {
-      standardAttributes: {
-        type: "StandardAttributeDescriptions",
-        yaml: "СтандартныеРеквизиты",
-        xml: "StandardAttributes",
-        standartAttributeNames,
-      },
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames,
+          ...(evaluateWhenYAMLMissing ? { evaluateWhenYAMLMissing: true as const } : {}),
+        },
     },
   } as MetadataItemRule
 }
@@ -100,17 +94,6 @@ beforeAll(() => {
     recordYamlKeyFromYAML: ({ name }) => name,
   })
 })
-
-const tabularSectionsOwnerRule = {
-  itemType: "StandardAttributesOwnerProbe",
-  properties: {
-    tabularSections: {
-      type: tabularSectionsType,
-      yaml: "ТабличныеЧасти",
-      xml: "TabularSections",
-    },
-  },
-} as MetadataItemRule
 
 describe("StandardAttributeDescriptions direct YAML to XML", () => {
   const rule: PropertyRule = {
@@ -197,7 +180,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   it("exports undefined and empty YAML", () => {
     const results = [undefined, {}].map((yaml) => {
       return testExportPropertyModelThroughYAMLToXML({
-        rule,
+        rule: { ...rule, standartAttributeNames: {} },
         value: undefined,
         yaml,
         xmlRootTag: "StandardAttributes",
@@ -225,49 +208,6 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toContain('<xr:StandardAttribute name="RecordType">')
     expect(result).toContain('<xr:StandardAttribute name="Active">')
     expect(result.indexOf('name="RecordType"')).toBeLessThan(result.indexOf('name="Active"'))
-  })
-
-  it("исключает отмеченный стандартный реквизит и материализует остальные", () => {
-    const parsed = importFromYAML(`СтандартныеРеквизиты:
-  Наименование:
-    ПроверкаЗаполнения: ВыдаватьОшибку
-  ДатаОбмена: !xml/absent
-`)
-    const { result } = testExportPropertyModelThroughYAMLToXML({
-      rule: {
-        type: "StandardAttributeDescriptions",
-        standartAttributeNames: {
-          Code: "Код",
-          Description: "Наименование",
-          ExchangeDate: "ДатаОбмена",
-        },
-      },
-      value: undefined,
-      yaml: (parsed as Record<string, unknown>).СтандартныеРеквизиты,
-      xmlRootTag: "StandardAttributes",
-    })
-
-    expect(result).toContain('name="Code"')
-    expect(result).toContain('name="Description"')
-    expect(result).not.toContain('name="ExchangeDate"')
-  })
-
-  it("материализует остальные реквизиты, когда YAML содержит только !xml/absent", () => {
-    const parsed = importFromYAML(`СтандартныеРеквизиты:
-  ДатаОбмена: !xml/absent
-`)
-    const { result } = testExportPropertyModelThroughYAMLToXML({
-      rule: {
-        type: "StandardAttributeDescriptions",
-        standartAttributeNames: { Code: "Код", ExchangeDate: "ДатаОбмена" },
-      },
-      value: undefined,
-      yaml: (parsed as Record<string, unknown>).СтандартныеРеквизиты,
-      xmlRootTag: "StandardAttributes",
-    })
-
-    expect(result).toContain('name="Code"')
-    expect(result).not.toContain('name="ExchangeDate"')
   })
 
   it("строит канонический порядок стандартных реквизитов без снимка", () => {
@@ -318,74 +258,6 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
 
     expect(result).toEqual(expectedResult)
   })
-
-  it("exports a tagged forbidden boolean through MetadataValue", () => {
-    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
-  Предопределенный:
-    ЗначениеЗаполнения: !xml/value Ложь
-`, { Predefined: "Предопределенный" })
-
-    expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xs:boolean", "#text": "false" })
-  })
-
-  it.each([
-    ["DesignTimeRef", { "_xsi:type": "xr:DesignTimeRef" }, "Owner", "Владелец"],
-    ["String", { "_xsi:type": "xs:string" }, "Code", "Код"],
-    ["TypeDescription", { "_xsi:type": "v8:TypeDescription" }, "ValueType", "ТипЗначения"],
-    [
-      "Справочник.ПапкиФайлов.ПустаяСсылка",
-      { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.ПапкиФайлов.EmptyRef" },
-      "Owner",
-      "Владелец",
-    ],
-  ] as const)("exports !xml/value %s as exact FillValue XML", (fillValue, expected, xmlName, yamlName) => {
-    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
-  ${yamlName}:
-    ЗначениеЗаполнения: !xml/value ${fillValue}
-`, { [xmlName]: yamlName })
-
-    expect(item["xr:FillValue"]).toEqual(expected)
-    expect(JSON.stringify(item["xr:FillValue"])).not.toContain("!xml")
-  })
-
-  it("восстанавливает несовместимую пробельную строку FillValue дословно", () => {
-    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
-  Код:
-    ЗначениеЗаполнения: !xml/value "    "
-`, { Code: "Код" })
-
-    expect(item["xr:FillValue"]).toEqual({
-      "_xsi:type": "xs:string",
-      "#text": "    ",
-    })
-  })
-
-  function standardAttributeFillValueXML(
-    yaml: string,
-    standartAttributeNames: Record<string, string>,
-  ): Record<string, unknown> {
-    const collectionRule = {
-      itemType: "StandardAttributeXMLTransportProbe",
-      properties: {
-        standardAttributes: {
-          type: "StandardAttributeDescriptions",
-          yaml: "СтандартныеРеквизиты",
-          xml: "StandardAttributes",
-          standartAttributeNames,
-        },
-      },
-    } as const satisfies MetadataItemRule
-    const result = convertPropertiesFromYAMLToXML({
-      context,
-      yaml: importFromYAML(yaml),
-      rule: collectionRule,
-      outputs: [{ key: "owner" }],
-    })
-    const rawItem = (result.outputs.get("owner")?.StandardAttributes as {
-      "xr:StandardAttribute": Record<string, unknown> | Record<string, unknown>[]
-    })["xr:StandardAttribute"]
-    return Array.isArray(rawItem) ? rawItem[0]! : rawItem
-  }
 
   it("preserves maxValue xsi type from reference", () => {
     const xmlString = '<xr:MaxValue xsi:type="xs:decimal">99.99</xr:MaxValue>'
@@ -588,126 +460,6 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).not.toContain('name="ExtDimension1"')
   })
 
-  it("восстанавливает sparse accounting attributes только по YAML и rules", () => {
-    const itemRule = {
-      itemType: "TestItem",
-      properties: {
-        standardAttributes: {
-          type: "StandardAttributeDescriptions",
-          yaml: "СтандартныеРеквизиты",
-          xml: "StandardAttributes",
-          standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
-          standartAttributeNamesXML: MetadataAccountingRegisterStandardAttributeNamesXML,
-        },
-      },
-    } as const satisfies MetadataItemRule
-    const sourceXML = {
-      StandardAttributes: {
-        "xr:StandardAttribute": [
-          {
-            _name: "ExtDimension1",
-            "xr:LinkByType": {
-              "xr:DataPath": "AccountingRegister.Test.StandardAttribute.Account",
-              "xr:LinkItem": 1,
-            },
-            "xr:FillChecking": "DontCheck",
-            "xr:MultiLine": false,
-            "xr:FillValue": { "_xsi:nil": true },
-          },
-          {
-            _name: "ExtDimensionType1",
-            "xr:LinkByType": "",
-            "xr:FillChecking": "DontCheck",
-            "xr:MultiLine": false,
-            "xr:FillValue": { "_xsi:nil": true },
-          },
-        ],
-      },
-    }
-    const contexts = createDirectRoundTripContexts()
-
-    const imported = testPropertyFromXMLToYAML({
-      context: contexts.importContext,
-      rule: itemRule,
-      xml: sourceXML,
-    })
-    expect(imported.yaml).toMatchObject({
-      СтандартныеРеквизиты: {
-        Субконто1: {},
-        ВидСубконто1: {},
-      },
-    })
-    expect(serializeYAMLDocument(imported.yaml).text).toContain("Счет: !xml/absent")
-    const exported = testPropertyFromYAMLToXML({
-      context: contexts.exportContext(),
-      rule: itemRule,
-      yaml: imported.yaml,
-    })
-
-    const items = standardAttributeItems(exported.xml)
-    expect(items.map((item) => item._name)).toEqual([
-      "ExtDimension1",
-      "ExtDimensionType1",
-    ])
-    expect(items.find((item) => item._name === "ExtDimension1")?.["xr:LinkByType"]).toEqual(
-      sourceXML.StandardAttributes["xr:StandardAttribute"][0]["xr:LinkByType"]
-    )
-    expect(items.find((item) => item._name === "ExtDimension1")).toMatchObject({
-      "xr:ChoiceHistoryOnInput": "Auto",
-      "xr:FullTextSearch": "Use",
-      "xr:TypeReductionMode": "TransformValues",
-    })
-  })
-
-  it("восстанавливает дефолтную коллекцию из пустого !xml", () => {
-    const itemRule = standardAttributesOwnerRule("DefaultStandardAttributesProbe", {
-      LineNumber: "НомерСтроки",
-    })
-    const sourceXML = {
-      StandardAttributes: {
-        "xr:StandardAttribute": {
-          _name: "LineNumber",
-        },
-      },
-    }
-    const { exported, imported } = roundTripStandardAttributes(itemRule, sourceXML)
-
-    expect(imported.yaml).toEqual({ СтандартныеРеквизиты: XML_PRESENT_TAG_VALUE })
-    expect(serializeYAMLDocument(imported.yaml).text).toBe("СтандартныеРеквизиты: !xml/present")
-    const items = standardAttributeItems(exported.xml)
-    expect(items).toHaveLength(1)
-    expect(items[0]).toMatchObject({
-      _name: "LineNumber",
-      "xr:FillChecking": "DontCheck",
-      "xr:MultiLine": false,
-      "xr:FillValue": { "_xsi:nil": true },
-    })
-  })
-
-  it("отклоняет непустой payload маркера коллекции", () => {
-    const itemRule = standardAttributesOwnerRule("StandardAttributesPayloadProbe", {
-      LineNumber: "НомерСтроки",
-    })
-
-    expect(() =>
-      testPropertyFromYAMLToXML({
-        rule: itemRule,
-        yaml: importFromYAML("СтандартныеРеквизиты: !xml/present payload\n"),
-      })
-    ).toThrow("СтандартныеРеквизиты допускает только пустой !xml/present")
-  })
-
-  it("отклоняет маркер владельца без канонических имён", () => {
-    const itemRule = standardAttributesOwnerRule("StandardAttributesWithoutNamesProbe", {})
-
-    expect(() =>
-      testPropertyFromYAMLToXML({
-        rule: itemRule,
-        yaml: importFromYAML("СтандартныеРеквизиты: !xml/present\n"),
-      })
-    ).toThrow("Для свойства СтандартныеРеквизиты не определены канонические стандартные реквизиты")
-  })
-
   it("preserves an empty synonym without restoring the standard attribute name", () => {
     const itemRule = {
       itemType: "TestItem",
@@ -770,6 +522,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     const items = standardAttributeItems(exported.xml)
 
     expect(items.map((item) => item._name)).toEqual([
+      "PeriodAdjustment",
       "Account",
       "Active",
       "LineNumber",
@@ -813,42 +566,49 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(items["xr:StandardAttribute"][0]?.["xr:Comment"]).toBe("изменён")
   })
 
-  it("независимо сохраняет дефолтную коллекцию соседних табличных частей", () => {
-    const fixture = readAndParseXMLFixture<{
-      StandardAttributes: { "xr:StandardAttribute": Array<Record<string, unknown>> }
-    }>(import.meta.url, "all.xml")
-    const defaultLineNumber = {
-      ...fixture.StandardAttributes["xr:StandardAttribute"][0],
-      _name: "LineNumber",
-    }
-    const sourceXML = {
-      TabularSections: {
-        Item: [
-          {
-            Name: "СНомеромСтроки",
-            StandardAttributes: { "xr:StandardAttribute": [defaultLineNumber] },
-          },
-          { Name: "БезНомераСтроки" },
-        ],
+  it("восстанавливает обязательные стандартные реквизиты при отсутствии свойства в YAML", () => {
+    const rule = standardAttributesOwnerRule(
+      "EnumStandardAttributesProbe",
+      {
+        Order: "Порядок",
+        Ref: "Ссылка",
       },
-    }
-
-    const imported = testMetadataItemFromXMLToYAML({
-      rule: tabularSectionsOwnerRule,
-      xml: sourceXML,
-    })
-    const exported = testMetadataItemFromYAMLToXML({
-      rule: tabularSectionsOwnerRule,
-      yaml: imported.yaml,
-    })
-    const sections = (imported.yaml as {
-      ТабличныеЧасти: Record<string, Record<string, unknown>>
-    }).ТабличныеЧасти
-
-    expect(sections.СНомеромСтроки?.СтандартныеРеквизиты).toBe(XML_PRESENT_TAG_VALUE)
-    expect(sections.БезНомераСтроки).not.toHaveProperty("СтандартныеРеквизиты")
-    expect(canonicalXML(serializeDirectXML(exported.xml))).toEqual(
-      canonicalXML(serializeDirectXML(sourceXML))
+      true,
     )
+
+    const result = convertPropertiesFromYAMLToXML({
+      context,
+      yaml: {},
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(standardAttributeItems(result.outputs.get("owner") ?? {})).toMatchObject([
+      {
+        _name: "Order",
+        "xr:FillChecking": "DontCheck",
+        "xr:MaxValue": { "_xsi:nil": true },
+      },
+      {
+        _name: "Ref",
+        "xr:FillChecking": "DontCheck",
+        "xr:MaxValue": { "_xsi:nil": true },
+      },
+    ])
+  })
+
+  it("не создаёт необязательную коллекцию при отсутствии свойства в YAML", () => {
+    const rule = standardAttributesOwnerRule("OptionalStandardAttributesProbe", {
+      Code: "Код",
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context,
+      yaml: {},
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
   })
 })

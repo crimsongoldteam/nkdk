@@ -8,6 +8,11 @@ import { createProjectStateWriterHandle } from "../metadata/projectState/writerH
 import { createProjectStateDependencyValidator } from "../metadata/validation/projectStateDependencyValidation"
 import { createMockWorkerThreadPoolFactory } from "./mockWorkerThreadPool"
 import { permissiveValidationSchemaCache } from "./permissiveValidationSchemaCache"
+import { metadataRules } from "../metadata/composition/metadataRules"
+import {
+  createMetadataExecutionRegistrySets,
+  withMetadataExecutionRegistrySets,
+} from "../metadata/composition/metadataExecutionContext"
 
 export function createImportProjectStateTestService(
   options: Pick<CreateProjectStateServiceOptions, "createPool"> = {},
@@ -37,17 +42,23 @@ export function createInspectableXmlImportWorkerTestPool(concurrency = 1): {
   commands(workerIndex: number): readonly ImportWorkerCommand[]
 } {
   const workers = new Map<number, ReturnType<typeof createImportWorkerCommandRunner>>()
+  const registries = Array.from(
+    { length: concurrency },
+    () => createMetadataExecutionRegistrySets(metadataRules),
+  )
   const threadPools = createMockWorkerThreadPoolFactory<ImportWorkerCommand, ImportWorkerCommandResult>(
     async (command, workerIndex) => {
       const worker = workers.get(workerIndex) ?? createImportWorkerCommandRunner()
       workers.set(workerIndex, worker)
-      if (command.kind !== "initialize") return worker.run(command)
-      worker.setSchemaCacheForTests(permissiveValidationSchemaCache)
-      try {
-        return await worker.run(command)
-      } finally {
-        worker.setSchemaCacheForTests(undefined)
-      }
+      return withMetadataExecutionRegistrySets(registries[workerIndex]!, async () => {
+        if (command.kind !== "initialize") return worker.run(command)
+        worker.setSchemaCacheForTests(permissiveValidationSchemaCache)
+        try {
+          return await worker.run(command)
+        } finally {
+          worker.setSchemaCacheForTests(undefined)
+        }
+      })
     },
   )
   return {

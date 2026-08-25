@@ -1,16 +1,50 @@
 import { describe, expect, it } from "vitest"
+import { createXmlAnomalyAnnotations } from "./xmlAnomalyAnnotations"
 import { parsedYamlFromKnownData, parseMetadataYamlData } from "./parseMetadataYaml"
 
 describe("parseMetadataYamlData", () => {
   it.each(["", " \n\t"])("читает пустой корневой документ как пустой объект", (text) => {
-    expect(parseMetadataYamlData(text)).toEqual({ data: {}, syntaxErrors: [] })
+    const parsed = parseMetadataYamlData(text)
+
+    expect(parsed.data).toEqual({})
+    expect(parsed.syntaxErrors).toEqual([])
+    expect([...parsed.annotations.entries()]).toEqual([])
   })
 
   it.each([
     ["null", null],
     ["~", "~"],
   ])("сохраняет явное значение %s", (text, data) => {
-    expect(parseMetadataYamlData(text)).toEqual({ data, syntaxErrors: [] })
+    const parsed = parseMetadataYamlData(text)
+
+    expect(parsed.data).toEqual(data)
+    expect(parsed.syntaxErrors).toEqual([])
+    expect([...parsed.annotations.entries()]).toEqual([])
+  })
+
+  it("возвращает XML-аннотации без индекса координат", () => {
+    const parsed = parseMetadataYamlData("Значение: !xml/raw\n  $значение: Текст\n  $xml: { \"#text\": raw }")
+
+    expect(parsed.annotations.at(parsed.data as object, "Значение")).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+      hasSemanticValue: true,
+      xml: { "#text": "raw" },
+    })
+  })
+
+  it("сохраняет пустой объект внутри смыслового значения raw", () => {
+    const parsed = parseMetadataYamlData([
+      "Форма: !xml/raw",
+      "  $значение:",
+      "    Реквизиты:",
+      "      Пустой:",
+      "  $xml:",
+      "    _future: x",
+    ].join("\n"))
+
+    expect(parsed.data).toEqual({ Форма: { Реквизиты: { Пустой: {} } } })
   })
 })
 
@@ -25,5 +59,19 @@ describe("parsedYamlFromKnownData", () => {
     expect(parsed.syntaxErrors).toEqual([])
     expect(parsed.locations.keyPosition(["Внешний", "Внутренний"])).toEqual({ line: 2, col: 3 })
     expect(parsed.locations.keyPosition(["Внешний", "Внутренний", "Значение"])).toEqual({ line: 3, col: 5 })
+  })
+
+  it("сохраняет переданные XML-аннотации известного объекта", () => {
+    const yaml = { Тип: { "v8:TypeSet": "cfg:AnyRef" } }
+    const annotations = createXmlAnomalyAnnotations()
+    annotations.set(yaml, "Тип", { kind: "raw", occurrence: 1, target: "value" })
+
+    const parsed = parsedYamlFromKnownData("Тип: !xml/raw {}", yaml, annotations)
+
+    expect(parsed.annotations.at(yaml, "Тип")).toEqual({
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+    })
   })
 })

@@ -1,4 +1,4 @@
-import { ConfigurationContext, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"
@@ -71,9 +71,6 @@ const importAvailableFieldsFromYAML = (
 
 export const metadataPropertyRule000 = definePropertyTypeRule("AvailableFields", "importFromYAML", importAvailableFieldsFromYAML)
 
-function importFieldName(parent: object, key: string | number, value: string): string {
-  if (yamlScalarTagAt(parent, key) !== "xml/reference") return value
-  const payload = xmlAnomalyTagPayload("xml/reference", value)
-  if (payload.length === 0) throw new Error("!xml/reference требует непустое имя поля")
-  return payload
+function importFieldName(_parent: object, _key: string | number, value: string): string {
+  return value
 }

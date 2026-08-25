@@ -8,10 +8,6 @@ import type {
   MetadataTargetConstraint,
   MetadataTargetOwner,
 } from "../metadataTarget/types"
-import {
-  copyYAMLMappingKeyTags,
-  moveYAMLMappingKeyTag,
-} from "../../../yaml/mappingKeyTags"
 import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
 import type { PropertyRule } from "./types"
 
@@ -24,12 +20,7 @@ export type MetadataTargetLocation =
     }
 
 export type MetadataTargetRepresentation =
-  | { readonly kind: "canonical"; readonly canonical: string }
-  | {
-      readonly kind: "brokenXMLReference"
-      readonly payload: string
-      readonly grammar: string
-    }
+  { readonly kind: "canonical"; readonly canonical: string }
 
 export interface MetadataTargetOccurrence {
   readonly location: MetadataTargetLocation
@@ -64,8 +55,13 @@ export function exportMetadataTargetOccurrencesToYAML(params: MetadataTargetTran
       })
       occurrence.setValue(nextValue)
       if (typeof params.value === "string" && params.occurrences.length === 1) result = nextValue
-    } catch (error) {
-      if (!isTranslateOnlyConstraint(occurrence.constraint)) throw error
+    } catch {
+      // Неизвестная или несовместимая цель остаётся в исходной канонической
+      // записи. Валидатор затем адресно пометит её как invalid.
+      occurrence.setValue(occurrence.representation.canonical)
+      if (typeof params.value === "string" && params.occurrences.length === 1) {
+        result = occurrence.representation.canonical
+      }
     }
   }
   return result
@@ -96,7 +92,6 @@ export function cloneMetadataTargetValue(value: unknown): unknown {
   if (Array.isArray(value)) {
     const result = value.map(cloneMetadataTargetValue)
     copyYAMLScalarTags(value, result)
-    copyYAMLMappingKeyTags(value, result)
     return result
   }
   if (!isRecord(value)) return value
@@ -107,7 +102,6 @@ export function cloneMetadataTargetValue(value: unknown): unknown {
     if (descriptor !== undefined) Object.defineProperty(result, key, descriptor)
   }
   copyYAMLScalarTags(value, result)
-  copyYAMLMappingKeyTags(value, result)
   return result
 }
 
@@ -123,7 +117,6 @@ export function renameMetadataTargetMappingKey(
   ] as const)
   for (const key of Object.keys(parent)) delete parent[key]
   for (const [key, value] of entries) parent[key] = value
-  moveYAMLMappingKeyTag(parent, currentKey, nextKey)
 }
 
 export function metadataTargetConstraintForOwner(

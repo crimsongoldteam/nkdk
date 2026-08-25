@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest"
 import { serializeYAMLDocument } from "@nkdk/runtime"
-import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
-import { exportPropertyToYAML } from "../../../ruleRuntime/property/toYAML"
-import { createDirectRoundTripContexts, testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
+import type { MetadataItemRule,PropertyRule } from "@nkdk/runtime/rule-kit"
+import { describe,expect,it } from "vitest"
+import { createDirectRoundTripContexts,testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
 import { mockContext } from "../../../../tests/mockContext"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { exportPropertyToYAML } from "../../../ruleRuntime/property/toYAML"
 import { fixtureDcsLocalStringTwoLangs } from "./__fixtures__/data"
 
 import "./fromXML"
@@ -14,9 +14,6 @@ const rule: PropertyRule = { type: "DcsLocalStringType", yaml: "Заголово
 const xmlRootTag = "dcsset:userSettingPresentation"
 
 describe("DcsLocalStringType XML → YAML", () => {
-  it("stores xs:string as !xml/type String", () => {
-    expect(importAndSerialize("string.xml")).toBe("Заголовок: !xml/type String Один язык - string")
-  })
 
   it("imports one-language LocalStringType as ordinary YAML", () => {
     expect(importAndSerialize("localString.xml")).toBe("Заголовок: Один язык - local string")

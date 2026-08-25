@@ -21,7 +21,11 @@ export function validateSerializedProjectYaml(params: {
   const entry = {
     filePath: params.file.absolutePath,
     text: params.document.text,
-    parsed: parsedYamlFromKnownData(params.document.text, params.document.data),
+    parsed: parsedYamlFromKnownData(
+      params.document.text,
+      params.document.data,
+      params.document.annotations,
+    ),
   }
   return validateProjectFileFirstPass({
     projectDir: params.projectDir,

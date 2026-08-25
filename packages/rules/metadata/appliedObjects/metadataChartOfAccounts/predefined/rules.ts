@@ -5,13 +5,11 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { parseMetadataTargetFromModel } from "../../../commonObjects/metadataTargets"
 import {
   chartOfAccountsPredefinedAccountingFlagsRule,
   chartOfAccountsPredefinedExtDimensionTypesRule,
 } from "../builders"
-import { XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
-import { defineMetadataRules } from "../../../ruleRuntime/definition"
-import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 
 export const PredefinedAccountingFlagRules = {
   itemType: "ChartOfAccountsPredefinedAccountingFlag",
@@ -60,7 +58,19 @@ export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   itemRule: PredefinedExtDimensionTypeRules,
   xmlElement: "ExtDimensionType",
   keyField: "name",
+  classifyYamlKey: ({ yamlKey }) => classifyExtDimensionTypeYamlKey(yamlKey),
 })
+
+export function classifyExtDimensionTypeYamlKey(yamlKey: string): "valid" | "invalid" {
+  return parseMetadataTargetFromModel({
+    canonical: yamlKey,
+    constraint: {
+      kind: "value",
+      roots: ["ChartOfCharacteristicTypes"],
+      valueKinds: ["predefinedValue"],
+    },
+  }).ok ? "valid" : "invalid"
+}
 
 export const ChartOfAccountsPredefinedItemRules = {
   ...PredefinedItemRules,
@@ -115,18 +125,6 @@ export const ChartOfAccountsPredefinedItemRules = {
     }),
   },
 } as const satisfies MetadataItemRule
-
-export const explicitEmptyPredefinedExtDimensionTypesRules = defineMetadataRules({
-  ...emptyMetadataRules,
-  explicitXMLProperties: {
-    chartOfAccountsPredefinedExtDimensionTypes: {
-      itemType: "ChartOfAccountsPredefinedItem",
-      propertyKey: "extDimensionTypes",
-      yamlValue: XML_PRESENT_TAG_VALUE,
-      xmlValue: {},
-    },
-  },
-})
 
 export const ChartOfAccountsPredefinedRules = {
   ...PredefinedRules,

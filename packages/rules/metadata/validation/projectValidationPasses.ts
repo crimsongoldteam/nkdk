@@ -9,7 +9,7 @@ import type { ConfigurationContext } from "@nkdk/runtime"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { decodeValidationSchemaKey, stripCollectedSchemaRefs } from "../ruleRuntime/jsonSchemaRefs"
-import { parseMetadataYaml, type ParsedYaml } from "@nkdk/runtime"
+import { evaluateParsedXmlAnomalyBoundaries, parseMetadataYaml, type ParsedYaml } from "@nkdk/runtime"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldIndex, type ObjectFieldKind } from "./dataPath/objectFields"
@@ -23,7 +23,6 @@ import {
   type ProjectObjectIndexEntry,
   type ProjectReferenceIndex,
   type ProjectValueIndexEntry,
-  validatePendingReferencesWithIndex,
 } from "./projectReferenceIndex"
 import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
@@ -33,9 +32,16 @@ import { getConfigurationValidationProjectSpec, getValidationProjectSpecs } from
 import type { ValidationFormIndexContribution, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
+import {
+  validationIssuePathFromPointer,
+  validationIssueTargetKey,
+  yamlPathToPointer,
+  type ValidationIssue,
+  type ValidationIssueTarget,
+} from "@nkdk/runtime"
 import type { TSchema } from "typebox"
 import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
-import { validateParsedFile } from "./validateFile"
+import { validateParsedFileWithIssues } from "./validateFile"
 import {
   extractValidationYamlFacts,
   type LocalValueValidationProfile,
@@ -108,6 +114,7 @@ export interface ProjectValidationFirstPassResult {
   structuredComponents?: readonly FormStructuredComponent[]
   structuredDocuments?: readonly import("../projectState/contracts/fileUpdate").ProjectStateStructuredDocumentEntry[]
   diagnostics: Diagnostic[]
+  issues: ValidationIssue[]
   profile?: ProjectValidationFirstPassProfile
 }
 
@@ -372,7 +379,6 @@ function compileRuleValidationSchema(params: {
         capability,
         source: sourceRoot,
         structuralPropertyKeys: structuralPropertyKeys(params.rule),
-        explicitXMLPropertyKeys: explicitXMLPropertyKeys(params.rule),
         closed: params.variant !== "extension-root" && params.variant !== "extension-form-overlay",
         includeExtendedConfigurationObject: params.variant === "extension-root",
       })
@@ -407,7 +413,6 @@ function propertyStateNestedSchemas(
       capability,
       source: structuredClone(schema),
       structuralPropertyKeys: structuralPropertyKeys(source),
-      explicitXMLPropertyKeys: explicitXMLPropertyKeys(source),
     })
     return capability === undefined
       ? [ref, schema]
@@ -431,13 +436,6 @@ function structuralPropertyKeys(rule: MetadataItemRule): string[] {
     (property.xmlParents ?? []).includes("ChildObjects")
       ? [propertyKey]
       : [])
-}
-
-function explicitXMLPropertyKeys(rule: MetadataItemRule): string[] {
-  const property = currentRuleRegistrySet<RuleRegistrySet>()?.property
-  if (property === undefined) return []
-  return Object.keys(rule.properties).filter((propertyKey) =>
-    property.hasExplicitXMLProperty(rule.itemType, propertyKey))
 }
 
 function requiredPolicy(variant: ValidationSchemaVariant) {
@@ -703,37 +701,24 @@ export function validateProjectFileSecondPass(
   params: ProjectValidationSecondPassParams
 ): ProjectValidationSecondPassResult {
   if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
-
-  if (params.state.kind === "form") {
-    const referenceDiagnostics = params.skipMetadataTargetValidation
-      ? []
-      : validateSecondPassReferences(params, params.state.pendingReferences)
-    return {
-      status: "ok",
-      diagnostics: [
-        ...referenceDiagnostics,
-        ...validatePendingChecks({
-          ownerCache: params.ownerCache,
-          checks: params.state.pendingChecks,
-          resolveReference: pendingReferenceResolver(params),
-        }).diagnostics,
-      ],
-    }
+  const references = params.skipMetadataTargetValidation ? [] : params.state.pendingReferences
+  const referenceResult = validateSecondPassReferences(params, references)
+  const accepted = new Set(referenceResult.acceptedXmlAnomalyPaths.map(xmlAnomalyPathKey))
+  const pendingChecks = params.state.pendingChecks.filter((check) => !accepted.has(xmlAnomalyPathKey(check.yamlPath)))
+  const pendingResult = validatePendingChecks({
+    ownerCache: params.ownerCache,
+    checks: pendingChecks,
+    resolveReference: pendingReferenceResolver(params),
+  })
+  for (const path of pendingResult.acceptedXmlAnomalyPaths) accepted.add(xmlAnomalyPathKey(path))
+  return {
+    status: "ok",
+    diagnostics: [
+      ...referenceResult.diagnostics,
+      ...pendingResult.diagnostics,
+      ...unnecessaryXmlAnomalyDiagnostics(references, params.state.pendingChecks, accepted),
+    ],
   }
-
-  const collected = params.skipMetadataTargetValidation
-    ? { references: [], diagnostics: [] }
-    : { references: params.state.pendingReferences, diagnostics: [] }
-  const diagnostics = [
-    ...collected.diagnostics,
-    ...validateSecondPassReferences(params, collected.references),
-    ...validatePendingChecks({
-      ownerCache: params.ownerCache,
-      checks: params.state.pendingChecks,
-      resolveReference: pendingReferenceResolver(params),
-    }).diagnostics,
-  ]
-  return { status: "ok", diagnostics }
 }
 
 function pendingReferenceResolver(
@@ -754,18 +739,59 @@ function pendingReferenceResolver(
 function validateSecondPassReferences(
   params: ProjectValidationSecondPassParams,
   references: readonly PendingMetadataTargetReference[],
-): Diagnostic[] {
-  const dataTables = references.filter(({ target }) => target.kind === "dataTable" || target.kind === "dataTableField")
-  const ordinary = references.filter(({ target }) => target.kind !== "dataTable" && target.kind !== "dataTableField")
-  const diagnostics = validatePendingReferencesWithIndex({
-    index: params.referenceIndex,
-    references: ordinary,
-  }).diagnostics
-  for (const reference of dataTables) {
-    const resolved = params.dataTableIndex?.resolve(reference) ?? params.referenceIndex.resolve(reference)
-    if (!resolved.ok) diagnostics.push(...resolved.diagnostics)
+): { diagnostics: Diagnostic[]; acceptedXmlAnomalyPaths: Array<readonly (string | number)[]> } {
+  const diagnostics: Diagnostic[] = []
+  const acceptedXmlAnomalyPaths: Array<readonly (string | number)[]> = []
+  for (const reference of references) {
+    if (reference.xmlAnomaly === "accepted") {
+      acceptedXmlAnomalyPaths.push(reference.yamlPath)
+      continue
+    }
+    const resolved = reference.target.kind === "dataTable" || reference.target.kind === "dataTableField"
+      ? params.dataTableIndex?.resolve(reference) ?? params.referenceIndex.resolve(reference)
+      : params.referenceIndex.resolve(reference)
+    if (resolved.ok) continue
+    if (reference.xmlAnomaly === "pending") {
+      acceptedXmlAnomalyPaths.push(reference.yamlPath)
+      continue
+    }
+    diagnostics.push(...resolved.diagnostics)
   }
-  return diagnostics
+  return { diagnostics, acceptedXmlAnomalyPaths }
+}
+
+function unnecessaryXmlAnomalyDiagnostics(
+  references: readonly PendingMetadataTargetReference[],
+  checks: readonly ValidationPendingCheck[],
+  accepted: ReadonlySet<string>,
+): Diagnostic[] {
+  const pending = new Map<string, { filePath: string; line: number; col: number; path?: string }>()
+  for (const reference of references) {
+    if (reference.xmlAnomaly !== "pending") continue
+    const path = yamlPathToPointer(reference.yamlPath)
+    pending.set(xmlAnomalyPathKey(reference.yamlPath), {
+      filePath: reference.filePath,
+      line: 1,
+      col: 1,
+      ...(path === undefined ? {} : { path }),
+    })
+  }
+  for (const check of checks) {
+    if (!("xmlAnomaly" in check) || check.xmlAnomaly !== "pending") continue
+    pending.set(xmlAnomalyPathKey(check.yamlPath), check.location)
+  }
+  return [...pending]
+    .filter(([key]) => !accepted.has(key))
+    .map(([, location]) => ({
+      ...location,
+      severity: "error" as const,
+      source: "structure" as const,
+      message: "Тег XML-аномалии лишний: значение не содержит ошибки",
+    }))
+}
+
+function xmlAnomalyPathKey(path: readonly (string | number)[]): string {
+  return validationIssueTargetKey({ kind: "path", path })
 }
 
 interface ProjectValidationFirstPassInternalParams {
@@ -805,11 +831,12 @@ function validateProjectFormFirstPass(
   const schemaStartedAt = performance.now()
   const compatibilityMode = params.propertyStateCompatibilityMode
     ?? extensionCompatibilityMode(params.file, params.cache)
-  const schemaDiagnostics = validateProjectFileSchema({
+  const schemaValidation = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
     schema: formSchemaForFile(params.schemaCache, params.file, compatibilityMode),
   })
+  const schemaDiagnostics = schemaValidation.diagnostics
   const schemaMs = performance.now() - schemaStartedAt
   if (schemaDiagnostics.some((diagnostic) => diagnostic.source === "syntax")) {
     return failedFirstPass(params.file, schemaDiagnostics, {
@@ -836,24 +863,37 @@ function validateProjectFormFirstPass(
   }
 
   const facts = extractFirstPassFacts(params, entry, compatibilityMode)
-  const diagnostics = [...schemaDiagnostics, ...facts.diagnostics]
+  const parsed = parsedForProjectFile(params.file, entry.parsed)
+  const evaluated = evaluateProjectXmlAnomalyBoundaries({
+    filePath: entry.filePath,
+    parsed,
+    diagnostics: [...schemaDiagnostics, ...facts.diagnostics],
+    issues: [
+      ...schemaValidation.issues,
+      ...facts.diagnostics.map(validationIssueFromDiagnostic),
+    ],
+    facts,
+  })
+  const diagnostics = evaluated.diagnostics
+  const { pendingReferences, pendingChecks } = applyXmlAnomalyStatesToFacts(facts, evaluated.boundaries)
 
   return {
     state: {
       kind: "form",
       file: params.file,
-      pendingReferences: facts.pendingReferences,
-      pendingChecks: facts.pendingChecks,
+      pendingReferences,
+      pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
     schemaDiagnostics,
     contributedFacts: true,
     diagnostics,
+    issues: evaluated.issues,
     objectRecords: facts.objectRecords,
     objectIndexEntries: facts.objectIndexEntries,
     memberIndexEntries: facts.memberIndexEntries,
     valueIndexEntries: facts.valueIndexEntries,
-    pendingReferences: facts.pendingReferences,
+    pendingReferences,
     dependencies: [
       ...new Set([
         ...facts.localDependencies.map(({ canonical }) => canonical),
@@ -906,7 +946,7 @@ function validateProjectPropertiesFirstPass(
       file: params.file,
       cache: params.cache,
       schema: propertiesSchemaForFile(params.schemaCache, params.file, compatibilityMode),
-    })
+    }).diagnostics
     const schemaMs = performance.now() - schemaStartedAt
     return failedFirstPass(
       params.file,
@@ -924,12 +964,13 @@ function validateProjectPropertiesFirstPass(
 
   const parsed = parsedForProjectFile(params.file, entry.parsed)
   const schemaStartedAt = performance.now()
-  const baseSchemaDiagnostics = validateProjectFileSchema({
+  const schemaValidation = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
     schema: propertiesSchemaForFile(params.schemaCache, params.file, compatibilityMode),
     parsed,
   })
+  const baseSchemaDiagnostics = schemaValidation.diagnostics
   const schemaDiagnostics = baseSchemaDiagnostics
   const schemaMs = performance.now() - schemaStartedAt
   if (entry.parsed.syntaxErrors.length > 0) {
@@ -948,22 +989,35 @@ function validateProjectPropertiesFirstPass(
     parsed,
     runtime: params.runtime,
   })
+  const requiredIssues = requiredDiagnostics.map(validationIssueFromDiagnostic)
   const validatorsMs = performance.now() - validatorsStartedAt
   if (requiredDiagnostics.length > 0) {
-    const diagnostics = [...schemaDiagnostics, ...requiredDiagnostics]
-    return failedFirstPass(
-      params.file,
-      diagnostics,
-      {
-        ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
-        totalMs: performance.now() - totalStartedAt,
-        cacheMs,
-        schemaMs,
-        validatorsMs,
-        diagnostics: diagnostics.length,
-      },
-      schemaDiagnostics
-    )
+    const evaluated = evaluateParsedXmlAnomalyBoundaries({
+      filePath: entry.filePath,
+      parsed,
+      diagnostics: [...schemaDiagnostics, ...requiredDiagnostics],
+      issues: [
+        ...schemaValidation.issues,
+        ...requiredIssues,
+      ],
+      deferUnnecessaryFor: () => true,
+    })
+    const diagnostics = evaluated.diagnostics
+    if (diagnostics.length > 0) {
+      return failedFirstPass(
+        params.file,
+        diagnostics,
+        {
+          ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+          totalMs: performance.now() - totalStartedAt,
+          cacheMs,
+          schemaMs,
+          validatorsMs,
+          diagnostics: diagnostics.length,
+        },
+        schemaDiagnostics
+      )
+    }
   }
 
   const equalNameValidationName =
@@ -981,27 +1035,42 @@ function validateProjectPropertiesFirstPass(
   const equalNameMs = performance.now() - equalNameStartedAt
   const facts = extractFirstPassFacts(params, { ...entry, parsed }, compatibilityMode)
   const publishedSchemaDiagnostics = suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics)
-  const diagnostics = [
+  const unevaluatedDiagnostics = [
     ...publishedSchemaDiagnostics,
     ...equalNameDiagnostics,
     ...facts.diagnostics,
   ]
+  const evaluated = evaluateProjectXmlAnomalyBoundaries({
+    filePath: entry.filePath,
+    parsed,
+    diagnostics: unevaluatedDiagnostics,
+    issues: [
+      ...schemaValidation.issues,
+      ...requiredIssues,
+      ...equalNameDiagnostics.map(validationIssueFromDiagnostic),
+      ...facts.diagnostics.map(validationIssueFromDiagnostic),
+    ],
+    facts,
+  })
+  const diagnostics = evaluated.diagnostics
+  const { pendingReferences, pendingChecks } = applyXmlAnomalyStatesToFacts(facts, evaluated.boundaries)
 
   return {
     state: {
       kind: "properties",
       file: params.file,
-      pendingReferences: facts.pendingReferences,
-      pendingChecks: facts.pendingChecks,
+      pendingReferences,
+      pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
     schemaDiagnostics: publishedSchemaDiagnostics,
     contributedFacts: true,
     diagnostics,
+    issues: evaluated.issues,
     objectIndexEntries: facts.objectIndexEntries,
     memberIndexEntries: facts.memberIndexEntries,
     valueIndexEntries: facts.valueIndexEntries,
-    pendingReferences: facts.pendingReferences,
+    pendingReferences,
     dependencies: facts.localDependencies.map(({ canonical }) => canonical),
     ...languageValidationDependency(localizedTextProperties, params.context),
     ...(facts.logicalAddresses === undefined ? {} : { logicalAddresses: facts.logicalAddresses }),
@@ -1022,6 +1091,67 @@ function validateProjectPropertiesFirstPass(
       diagnostics: diagnostics.length,
       propertyEvents: facts.profile.propertyEvents,
     },
+  }
+}
+
+function deferredXmlAnomalyTargetKeys(facts: ProjectValidationFileFacts): ReadonlySet<string> {
+  const paths = [
+    ...facts.pendingReferences.filter(({ xmlAnomaly }) => xmlAnomaly !== undefined).map(({ yamlPath }) => yamlPath),
+    ...facts.pendingChecks.filter((check) => "xmlAnomaly" in check && check.xmlAnomaly !== undefined)
+      .map(({ yamlPath }) => yamlPath),
+  ]
+  return new Set(paths.map((path) => validationIssueTargetKey({ kind: "path", path })))
+}
+
+function evaluateProjectXmlAnomalyBoundaries(params: {
+  readonly filePath: string
+  readonly parsed: ParsedYaml
+  readonly diagnostics: readonly Diagnostic[]
+  readonly issues: readonly ValidationIssue[]
+  readonly facts: ProjectValidationFileFacts
+}) {
+  const deferredTargets = deferredXmlAnomalyTargetKeys(params.facts)
+  return evaluateParsedXmlAnomalyBoundaries({
+    filePath: params.filePath,
+    parsed: params.parsed,
+    diagnostics: params.diagnostics,
+    issues: params.issues,
+    deferUnnecessaryFor: (target) => deferredTargets.has(validationIssueTargetKey(target)),
+  })
+}
+
+function applyXmlAnomalyStates<T extends {
+  readonly yamlPath: readonly (string | number)[]
+  readonly xmlAnomaly?: "pending" | "accepted"
+}>(
+  entries: readonly T[],
+  boundaries: readonly {
+    readonly target: ValidationIssueTarget
+    readonly state: "pending" | "accepted"
+  }[],
+): T[] {
+  const states = new Map(
+    boundaries
+      .filter(({ target }) => target.kind === "path")
+      .map(({ target, state }) => [validationIssueTargetKey(target), state] as const),
+  )
+  return entries.map((entry) => {
+    if (entry.xmlAnomaly === undefined) return entry
+    const state = states.get(validationIssueTargetKey({ kind: "path", path: entry.yamlPath }))
+    return state === undefined ? entry : { ...entry, xmlAnomaly: state }
+  })
+}
+
+function applyXmlAnomalyStatesToFacts(
+  facts: ProjectValidationFileFacts,
+  boundaries: readonly {
+    readonly target: ValidationIssueTarget
+    readonly state: "pending" | "accepted"
+  }[],
+): Pick<ProjectValidationFileFacts, "pendingReferences" | "pendingChecks"> {
+  return {
+    pendingReferences: applyXmlAnomalyStates(facts.pendingReferences, boundaries),
+    pendingChecks: applyXmlAnomalyStates(facts.pendingChecks, boundaries),
   }
 }
 
@@ -1051,6 +1181,7 @@ function failedFirstPass(
     schemaDiagnostics,
     contributedFacts: false,
     diagnostics,
+    issues: diagnostics.map(validationIssueFromDiagnostic),
     objectRecords: [],
     objectIndexEntries: [],
     memberIndexEntries: [],
@@ -1221,27 +1352,40 @@ function validateProjectFileSchema(params: {
   cache: ProjectYamlCache
   schema: CompiledSchema
   parsed?: ParsedYaml
-}): Diagnostic[] {
+}): { diagnostics: Diagnostic[]; issues: ValidationIssue[] } {
   const entry = params.cache.get(params.file.absolutePath)
   if ("error" in entry) {
-    return [
-      {
+    const diagnostic = {
         filePath: entry.filePath,
         line: 1,
         col: 1,
         severity: "error",
         source: "external-file",
         message: `Не удалось прочитать YAML-файл: ${entry.error.message}`,
-      },
-    ]
+      } satisfies Diagnostic
+    return { diagnostics: [diagnostic], issues: [validationIssueFromDiagnostic(diagnostic)] }
   }
 
-  return validateParsedFile({
+  return validateParsedFileWithIssues({
     filePath: entry.filePath,
     parsed: params.parsed ?? entry.parsed,
     schema: params.schema,
+    evaluateXmlAnomalies: false,
   })
 }
+
+function validationIssueFromDiagnostic(diagnostic: Diagnostic): ValidationIssue {
+  return {
+    code: `diagnostic.${diagnostic.source}`,
+    kind: diagnostic.source === "syntax" || diagnostic.source === "external-file"
+      ? "infrastructure"
+      : "semantic",
+    target: { kind: "path", path: validationIssuePathFromPointer(diagnostic.path ?? "") },
+    params: { message: diagnostic.message },
+  }
+}
+
+
 
 function parsedForProjectFile(file: ValidationProjectFile, parsed: ParsedYaml): ParsedYaml {
   if (file.kind === "properties" && parsed.syntaxErrors.length === 0 && parsed.data === undefined) {

@@ -1,14 +1,31 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { withConfigurationIndexCollector } from "@nkdk/runtime"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import {
+  createConfigurationIndexCollector,
+  createXmlAnomalyAnnotations,
+  createXmlImportAuditSession,
+  parseXmlDocumentWithSaxes,
+  serializeYAMLDocument,
+  withConfigurationIndexCollector,
+  xmlAnnotatedMappingEntries,
+} from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
-import { createDeferredValuePathCollector } from "../property/importYamlTypes"
+import {
+  createDeferredValuePathCollector,
+  createImportedDependentPropertyCollector,
+} from "../property/importYamlTypes"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import { PropertyRuleType } from "../property/registry"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
+import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
+import {
+  captureTestXmlImport,
+  createFailingXmlImportAttempt,
+  expectXmlImportInfrastructureFailure,
+  xmlImportAttemptPhases,
+} from "../../../tests/xmlImportAttempt"
 
 const itemRule = {
   itemType: "TestItem",
@@ -27,6 +44,7 @@ registerMetadataItemCollectionRule({
   itemRule,
   xmlElement: "Item",
   keyField: "name",
+  classifyYamlKey: ({ yamlKey }) => /^[$_\p{L}][$_\p{L}\p{N}]*$/u.test(yamlKey) ? "valid" : "invalid",
 })
 registerMetadataItemCollectionRule({
   propertyType: "TestArrayCollection" as PropertyRuleType,
@@ -84,6 +102,374 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it("помечает первый и следующий элементы с невалидным повторным именем", () => {
+    const annotations = createXmlAnomalyAnnotations()
+    const { yaml } = importTestRecordCollection(
+      "<Root><Items>" +
+      "<Item><Name>1Код</Name><Value>first</Value></Item>" +
+      "<Item><Name>1Код</Name><Value>second</Value></Item>" +
+      "</Items></Root>",
+      annotations,
+    )
+
+    expect(serializeYAMLDocument(yaml, annotations).text).toContain(
+      "Элементы:\n  !xml/invalid 1Код:\n    Значение: first\n  !xml/invalid/2 1Код:\n    Значение: second",
+    )
+  })
+
+  it("не схлопывает повторный ключ при отсутствии таблицы аннотаций", () => {
+    expect(() => importTestRecordCollection(
+      "<Root><Items>" +
+      "<Item><Name>Код</Name><Value>first</Value></Item>" +
+      "<Item><Name>Код</Name><Value>second</Value></Item>" +
+      "</Items></Root>",
+      undefined,
+      false,
+    )).toThrow(/таблиц.*аннотац/i)
+  })
+
+  it("сохраняет все элементы record-коллекции с повторным логическим ключом", () => {
+    const annotations = createXmlAnomalyAnnotations()
+    const { yaml } = importTestRecordCollection(
+      "<Root><Items>" +
+      "<Item><Name>Код</Name><Value>first</Value></Item>" +
+      "<Item><Name>Код</Name><Value>second</Value></Item>" +
+      "<Item><Name>Код</Name><Value>third</Value></Item>" +
+      "</Items></Root>",
+      annotations,
+    )
+    const items = yaml.Элементы as Record<string, unknown>
+
+    expect(xmlAnnotatedMappingEntries(items, annotations)).toEqual([
+      ["Код", { Значение: "first" }],
+      ["Код", { Значение: "second" }],
+      ["Код", { Значение: "third" }],
+    ])
+    expect(serializeYAMLDocument(yaml, annotations).text).toContain(
+      "!xml/invalid/2 Код:",
+    )
+  })
+
+  it("передаёт collection все одноимённые Item в исходном порядке", () => {
+    const collector = createLocalIndexesCollector()
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Item><Name>Первый</Name><Value>a</Value></Item>" +
+      "<Item><Name>Второй</Name><Value>b</Value></Item></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestRepeatedCollectionOwner",
+        properties: {
+          items: { type: "TestArrayCollection", xml: "Item", yaml: "Элементы" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector,
+      audit,
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({
+      Элементы: [
+        { Имя: "Первый", Значение: "a" },
+        { Имя: "Второй", Значение: "b" },
+      ],
+    })
+    expect(
+      audit.outcomes()
+        .filter(({ node }) => "type" in node && node.type === "element" && node.name === "Item")
+        .map(({ state }) => state),
+    ).toEqual(["claimed", "claimed"])
+  })
+
+  it("поднимает PI корня collection item к значению массива", () => {
+    const collectionType = "TestRawItemArrayCollection" as PropertyRuleType
+    registerMetadataItemCollectionRule({
+      propertyType: collectionType,
+      itemRule: {
+        itemType: "TestRawArrayItem",
+        properties: {
+          value: { type: "string", xml: "Value", yaml: "Значение" },
+        },
+      } as MetadataItemRule,
+      xmlElement: "Item",
+      yamlAsArray: true,
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      '<Root><Items><Item><?future mode="x"?><Value>known</Value></Item></Items>' +
+      "<Sibling>keep</Sibling></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const annotations = createXmlAnomalyAnnotations()
+
+    const yaml = importMetadataItemFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestRawCollectionParent",
+        properties: {
+          items: { type: collectionType, xml: "Items", yaml: "Элементы" },
+          sibling: { type: "string", xml: "Sibling", yaml: "Сосед" },
+        },
+      } as MetadataItemRule,
+      xml: root,
+      traversal: {
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+        audit,
+        annotations,
+      },
+    }) as Record<string, unknown>
+
+    expect(yaml).toEqual({
+      Элементы: [{ Значение: "known" }],
+      Сосед: "keep",
+    })
+    const serialized = serializeYAMLDocument(yaml, annotations).text
+    expect(serialized.match(/!xml\/raw/g)).toHaveLength(1)
+    expect(serialized).toContain("Значение: known")
+    expect(serialized).toContain("Сосед: keep")
+  })
+
+  it("локализует сбой nested PropertyRule и откатывает три буферных collector", () => {
+    const failedType = "TestNestedBufferedFailure" as PropertyRuleType
+    const collectionType = "TestNestedBufferedCollection" as PropertyRuleType
+    registerTypeRule(failedType, "importFromXMLToYAML", ({ traversal }) => {
+      traversal.deferred?.accept({ valuePath: traversal.yamlPath, rulePath: traversal.rulePath })
+      traversal.dependent?.accept({
+        itemType: "TestNestedBufferedItem",
+        itemYamlPath: ["Элементы", "Первый"],
+        propertyKey: "broken",
+        yamlPath: traversal.yamlPath,
+        xmlValue: "broken",
+        presentInXML: true,
+      })
+      return "leaked"
+    })
+    registerTypeRule(failedType, "collectLocalFactsFromYAML", ({ writer }) => {
+      writer.setOwnerFact("nested-failed", "leaked")
+      throw new Error("broken nested facts")
+    })
+    registerMetadataItemCollectionRule({
+      propertyType: collectionType,
+      itemRule: {
+        itemType: "TestNestedBufferedItem",
+        properties: {
+          name: { type: "string", xml: "Name", yaml: "Имя" },
+          broken: { type: failedType, xml: "Broken", yaml: "Сломано" },
+          good: { type: "string", xml: "Good", yaml: "Хорошее" },
+        },
+      } as MetadataItemRule,
+      xmlElement: "Item",
+      keyField: "name",
+      recordYamlKeyFromYAML: ({ name }) => name,
+    })
+    const collector = createLocalIndexesCollector()
+    const deferred = createDeferredValuePathCollector()
+    const dependent = createImportedDependentPropertyCollector()
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Items><Item><Name>Первый</Name><Broken>x</Broken>" +
+      "<Good>ok</Good></Item></Items></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestNestedBufferedOwner",
+        properties: {
+          items: { type: collectionType, xml: "Items", yaml: "Элементы" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector,
+      deferred,
+      dependent,
+      audit,
+    })
+
+    expect(yaml).toEqual({ Элементы: { Первый: { Хорошее: "ok" } } })
+    expect(
+      collector.finish().metadata.events.filter(
+        (event) => event.kind === "property" && event.propertyType === failedType,
+      ),
+    ).toEqual([])
+    expect(deferred.finish()).toEqual([])
+    expect(dependent.finish()).toEqual([])
+    expect(audit.rawCandidates()).toMatchObject([
+      {
+        node: { path: "/Root[1]/Items[1]/Item[1]/Broken[1]" },
+        boundary: {
+          itemType: "TestNestedBufferedItem",
+          propertyKey: "broken",
+          propertyType: failedType,
+          yamlPath: ["Элементы", "Первый", "Сломано"],
+          rulePath: [
+            { propertyKey: "items", nestedItemType: "TestNestedBufferedItem" },
+            { propertyKey: "broken" },
+          ],
+        },
+      },
+    ])
+  })
+
+  it.each(xmlImportAttemptPhases)("пробрасывает фазу %s через nested metadata-collection без raw", (phase) => {
+    const valueType = `TestNestedCollectionInfrastructureValue${phase}` as PropertyRuleType
+    const collectionType = `TestNestedCollectionInfrastructure${phase}` as PropertyRuleType
+    if (phase === "rollback") {
+      registerTypeRule(valueType, "importFromXMLToYAML", () => {
+        throw new Error("nested collection conversion failed")
+      })
+    }
+    registerMetadataItemCollectionRule({
+      propertyType: collectionType,
+      itemRule: {
+        itemType: `TestNestedCollectionInfrastructureItem${phase}`,
+        properties: {
+          value: {
+            type: phase === "rollback" ? valueType : "string",
+            xml: "Value",
+            yaml: "Значение",
+          },
+        },
+      } as MetadataItemRule,
+      xmlElement: "Item",
+      yamlAsArray: true,
+    })
+    const { collector, cause } = createFailingXmlImportAttempt({
+      phase,
+      causeMessage: `${phase} nested collection infrastructure failed`,
+      targetAttempt: 2,
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Item><Value>value</Value></Item></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const thrown = captureTestXmlImport({
+      context,
+      xml: root,
+      rule: {
+        itemType: `TestNestedCollectionInfrastructureOwner${phase}`,
+        properties: {
+          items: { type: collectionType, xml: "Item", yaml: "Элементы" },
+        },
+      } as MetadataItemRule,
+      collector,
+      audit,
+    })
+
+    expectXmlImportInfrastructureFailure({ thrown, phase, cause, audit })
+  })
+
+  it("публикует готовые local facts с финальным YAML-ключом один раз", () => {
+    const valueType = "TestBufferedLocalFact" as PropertyRuleType
+    const collectionType = "TestRekeyedBufferedCollection" as PropertyRuleType
+    let localFactCalls = 0
+    registerTypeRule(valueType, "importFromXMLToYAML", ({ xml }) => xml)
+    registerTypeRule(valueType, "collectLocalFactsFromYAML", ({ fact, writer }) => {
+      localFactCalls += 1
+      writer.setOwnerFact("buffered", fact.value)
+    })
+    registerMetadataItemCollectionRule({
+      propertyType: collectionType,
+      itemRule: {
+        itemType: "TestRekeyedBufferedItem",
+        properties: {
+          name: { type: "string", xml: "Name", yaml: "Имя" },
+          value: { type: valueType, xml: "Value", yaml: "Значение" },
+        },
+      } as MetadataItemRule,
+      xmlElement: "Item",
+      keyField: "name",
+      recordYamlKeyFromYAML: () => "Финальный",
+    })
+    const collector = createLocalIndexesCollector()
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestRekeyedBufferedOwner",
+        properties: {
+          items: { type: collectionType, xml: "Items", yaml: "Элементы" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Items: { Item: { Name: "Исходный", Value: "ok" } } } }],
+      yamlPath: [],
+      rulePath: [],
+      collector,
+    })
+
+    expect(yaml).toEqual({ Элементы: { Финальный: { Значение: "ok" } } })
+    expect(localFactCalls).toBe(1)
+    const metadata = collector.finish().metadata
+    expect(metadata.events.filter(({ yamlPath }) => yamlPath.length === 3)).toMatchObject([
+      { kind: "property", yamlPath: ["Элементы", "Финальный", "Имя"] },
+      { kind: "property", yamlPath: ["Элементы", "Финальный", "Значение"] },
+    ])
+    expect(metadata.ownerFacts).toEqual({ buffered: "ok" })
+  })
+
+  it("перепривязывает stable owner к финальному ключу record-коллекции", () => {
+    const { items, annotations, audit } = importRawRecordCollection({
+      collectionType: "TestRekeyedRawCollection",
+      itemType: "TestRekeyedRawItem",
+      ownerType: "TestRekeyedRawOwner",
+      xml: "<Root><Items><Item>future<Name>Исходный</Name><Value>ok</Value></Item></Items></Root>",
+      recordYamlKeyFromYAML: () => "Финальный",
+    })
+
+    expect(xmlAnnotatedMappingEntries(items, annotations)).toEqual([
+      ["Финальный", { Значение: "ok" }],
+    ])
+    expect(annotations.at(items, "Финальный")).toMatchObject({ kind: "raw", target: "value" })
+    const itemBoundaryPaths = audit.outcomes()
+      .filter(({ node }) => "type" in node && node.type === "element" && node.name === "Item")
+      .flatMap(({ boundaries }) => boundaries.map(({ yamlPath }) => yamlPath))
+    expect(itemBoundaryPaths).toEqual([["Элементы", "Финальный"]])
+    expect(itemBoundaryPaths).not.toContainEqual(["Элементы", "Исходный"])
+  })
+
+  it("поднимает raw двух одноимённых record-item к разным physical key", () => {
+    const { items, annotations, audit } = importRawRecordCollection({
+      collectionType: "TestDuplicateRawCollection",
+      itemType: "TestDuplicateRawItem",
+      ownerType: "TestDuplicateRawOwner",
+      xml: "<Root><Items>" +
+      "<Item>first<Name>A</Name><Value>one</Value></Item>" +
+      "<Item>second<Name>A</Name><Value>two</Value></Item>" +
+      "</Items></Root>",
+    })
+    const runtimeKeys = Object.keys(items)
+
+    expect(runtimeKeys).toHaveLength(2)
+    expect(runtimeKeys[0]).not.toBe(runtimeKeys[1])
+    expect(xmlAnnotatedMappingEntries(items, annotations)).toEqual([
+      ["A", { Значение: "one" }],
+      ["A", { Значение: "two" }],
+    ])
+    expect(runtimeKeys.map((runtimeKey) => annotations.at(items, runtimeKey)?.kind)).toEqual([
+      "raw",
+      "raw",
+    ])
+    const itemBoundaryPaths = audit.outcomes()
+      .filter(({ node }) => "type" in node && node.type === "element" && node.name === "Item")
+      .flatMap(({ boundaries }) => boundaries.map(({ yamlPath }) => yamlPath))
+    expect(itemBoundaryPaths).toEqual(runtimeKeys.map((runtimeKey) => ["Элементы", runtimeKey]))
+  })
+
   it.each([
     ["обычный объект-контейнер", { Item: { Name: "A" } }, { Элементы: { A: {} } }],
     [
@@ -303,6 +689,87 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     })
   })
 })
+
+function importTestRecordCollection(
+  xml: string,
+  annotations?: ReturnType<typeof createXmlAnomalyAnnotations>,
+  withAudit = true,
+): {
+  yaml: Record<string, unknown>
+  audit: ReturnType<typeof createXmlImportAuditSession>
+} {
+  const collector = createLocalIndexesCollector()
+  const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+  const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+  const audit = createXmlImportAuditSession([root])
+  const yaml = importPropertiesFromXMLToYAML({
+    context,
+    rule: {
+      itemType: "TestRecordCollectionOwner",
+      properties: {
+        items: { type: "TestRecordCollection", xml: "Items", yaml: "Элементы" },
+      },
+    } as MetadataItemRule,
+    sources: [{ context, xml: root }],
+    yamlPath: [],
+    rulePath: [],
+    collector,
+    ...(withAudit ? { audit } : {}),
+    annotations,
+  })!
+  return { yaml, audit }
+}
+
+function importRawRecordCollection(params: {
+  collectionType: string
+  itemType: string
+  ownerType: string
+  xml: string
+  recordYamlKeyFromYAML?: () => string
+}): {
+  items: Record<string, unknown>
+  annotations: ReturnType<typeof createXmlAnomalyAnnotations>
+  audit: ReturnType<typeof createXmlImportAuditSession>
+} {
+  const collectionType = params.collectionType as PropertyRuleType
+  registerMetadataItemCollectionRule({
+    propertyType: collectionType,
+    itemRule: {
+      itemType: params.itemType,
+      properties: {
+        name: { type: "string", xml: "Name", yaml: "Имя" },
+        value: { type: "string", xml: "Value", yaml: "Значение" },
+      },
+    } as MetadataItemRule,
+    xmlElement: "Item",
+    keyField: "name",
+    ...(params.recordYamlKeyFromYAML === undefined
+      ? {}
+      : { recordYamlKeyFromYAML: params.recordYamlKeyFromYAML }),
+  })
+  const annotations = createXmlAnomalyAnnotations()
+  const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+  const root = parseXmlDocumentWithSaxes(params.xml).roots[0]!
+  const audit = createXmlImportAuditSession([root])
+  const yaml = importMetadataItemFromXMLToYAML({
+    context,
+    rule: {
+      itemType: params.ownerType,
+      properties: {
+        items: { type: collectionType, xml: "Items", yaml: "Элементы" },
+      },
+    } as MetadataItemRule,
+    xml: root,
+    traversal: {
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      audit,
+      annotations,
+    },
+  }) as Record<string, unknown>
+  return { items: yaml.Элементы as Record<string, unknown>, annotations, audit }
+}
 
 function runDirectRule(
   type: PropertyRuleType,

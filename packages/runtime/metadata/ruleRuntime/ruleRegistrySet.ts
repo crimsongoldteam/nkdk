@@ -20,10 +20,16 @@ import {
   createPropertyRuleExecutor,
   type PropertyRuleExecutor,
 } from "./property/propertyRuleExecutor"
+import { createXmlAnomalyRegistry } from "./xmlAnomaly/registry"
+import {
+  createXmlAnomalyRuntime,
+  type XmlAnomalyRuntime,
+} from "./xmlAnomaly/runtime"
 
 export interface RuleRegistrySet {
   readonly property: PropertyRuleRegistrySet
   readonly execution: PropertyRuleExecutor
+  readonly xmlAnomalies: XmlAnomalyRuntime
   readonly metadataItems: ReadonlyMap<string, MetadataItemRule>
   readonly formElements: ReadonlyMap<string, ElementRule>
   readonly formElementKinds: ReadonlyMap<string, string>
@@ -63,9 +69,17 @@ export function createRuleRegistrySet(
   >()
 
   const property = createPropertyRuleRegistrySet(definition)
+  const execution = createPropertyRuleExecutor(property)
+  const xmlAnomalyRegistry = createXmlAnomalyRegistry(definition.xmlAnomalies)
+  assertUnambiguousXmlAnomalyRegistrations({
+    definition,
+    resolve: xmlAnomalyRegistry.resolve,
+    resolvePropertyItemRule: property.resolvePropertyItemRule,
+  })
   return {
     property,
-    execution: createPropertyRuleExecutor(property),
+    execution,
+    xmlAnomalies: createXmlAnomalyRuntime(xmlAnomalyRegistry),
     metadataItems,
     formElements,
     formElementKinds,
@@ -105,5 +119,36 @@ export function createRuleRegistrySet(
         return topology
       },
     },
+  }
+}
+
+function assertUnambiguousXmlAnomalyRegistrations(params: {
+  readonly definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object, object>
+  readonly resolve: ReturnType<typeof createXmlAnomalyRegistry>["resolve"]
+  readonly resolvePropertyItemRule: PropertyRuleRegistrySet["resolvePropertyItemRule"]
+}): void {
+  const pending = [
+    ...Object.values(params.definition.metadataItems),
+    ...Object.values(params.definition.formElements),
+    ...Object.values(params.definition.projectSpecs).map(({ rule }) => rule),
+  ]
+  const seen = new WeakSet<MetadataItemRule>()
+  while (pending.length > 0) {
+    const rule = pending.pop()
+    if (rule === undefined || seen.has(rule)) continue
+    seen.add(rule)
+    for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
+      params.resolve({
+        itemType: rule.itemType,
+        propertyKey,
+        propertyType: propertyRule.type,
+      })
+      const nested = params.resolvePropertyItemRule(propertyRule)
+      if (nested !== undefined) pending.push(nested)
+    }
+    for (const child of rule.childCollections ?? []) {
+      pending.push(child.itemRule)
+      if (child.fileItemRule !== undefined) pending.push(child.fileItemRule)
+    }
   }
 }

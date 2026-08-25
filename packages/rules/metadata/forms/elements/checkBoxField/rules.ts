@@ -3,7 +3,6 @@ import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
-import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
 const CheckBoxFieldCommonRulesProperties = {
   backColor: {
@@ -165,6 +164,5 @@ export const TableCheckBoxFieldRules = {
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
-export const metadataRuleLayer000 = defineExplicitHeaderHorizontalAlign(TableCheckBoxFieldRules.itemType)
 export const metadataRuleLayer001 = defineElementRule("CheckBoxField", CheckBoxFieldRules)
 export const metadataRuleLayer002 = defineElementRule("TableCheckBoxField", TableCheckBoxFieldRules)

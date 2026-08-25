@@ -1,15 +1,15 @@
-import { describe, expect, it } from "vitest"
 import { parseMetadataYaml } from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
+import { mockContext } from "../../../tests/mockContext"
 import {
-  createMetadataExecutionRegistrySets,
-  withMetadataExecutionRegistrySets,
+createMetadataExecutionRegistrySets,
+withMetadataExecutionRegistrySets,
 } from "../../composition/metadataExecutionContext"
 import { metadataRules } from "../../composition/metadataRules"
 import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
-import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import type { FormDataPathContext } from "./formDataPathContext"
+import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { validateFormConditionalAppearance } from "./validateConditionalAppearance"
-import { mockContext } from "../../../tests/mockContext"
 
 const registries = createMetadataExecutionRegistrySets(metadataRules)
 
@@ -83,25 +83,6 @@ describe("validateFormConditionalAppearance", () => {
     expect(messages).toContainEqual(expect.stringContaining('Не удалось определить поле "Список.НеизвестноеПоле"'))
     expect(messages).toContainEqual(expect.stringContaining('Не удалось определить оформляемое поле "Список.НеизвестноеПолеОформления"'))
     expect(messages).toContainEqual(expect.stringContaining("несовместимы: decimal и string"))
-  })
-
-  it("не проверяет помеченные импортные аномалии", () => {
-    const source = [
-      "Реквизиты:",
-      "  Число:",
-      "    Тип: Число",
-      "УсловноеОформлениеРеквизитов:",
-      "  Элементы:",
-      "    - Поля: [!xml/reference НеизвестныйЭлемент]",
-      "      Отбор:",
-      "        Элементы:",
-      "          - ЛевоеЗначение: !xml/value НеизвестныйИсточник.Поле",
-      "            ПравоеЗначение: .Число",
-    ].join("\n") + "\n"
-    const parsed = parseMetadataYaml(source)
-    const yaml = parsed.data as Record<string, unknown>
-
-    expect(runValidation(parsed, yaml)).toEqual([])
   })
 })
 

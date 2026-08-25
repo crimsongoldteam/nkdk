@@ -61,6 +61,7 @@ export const prepareConfigurationXML = (params: {
     convertProperties: convertPropertiesFromYAMLToXML,
     context: params.context,
     yaml,
+    annotations: params.preparedYamlFile.annotations,
     rule: rootRule,
     name: typeof yaml.Имя === "string" ? yaml.Имя : undefined,
     outputs: [{ key: "configuration", referenceXML: params.referenceXML }],

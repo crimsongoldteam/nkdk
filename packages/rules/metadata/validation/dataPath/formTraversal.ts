@@ -11,7 +11,6 @@ export interface FormDataPathOccurrence {
   rule: DataPathPropertyRule
   value: string
   setValue(nextValue: string): void
-  markTag?(tag: "xml/value"): void
   yamlPath: YamlPath
   elementType?: ElementType
   hasValuesPicture?: boolean

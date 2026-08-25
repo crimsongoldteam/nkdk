@@ -228,6 +228,10 @@ function createPiscinaLine(workerUrl?: URL): MetadataWorkerLine {
     minThreads: 1,
     maxThreads: 1,
     execArgv,
+    // Операционные линии долго удерживают смысловое состояние между
+    // проходами. Ограниченная куча не даёт временным XML/YAML-деревьям
+    // расширить каждую линию почти до общего лимита процесса.
+    resourceLimits: { maxOldGenerationSizeMb: 768 },
   })
   return piscina
 }

@@ -29,9 +29,6 @@ import {
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { DataPathValidationPendingCheck, ValidationPendingCheck } from "./projectValidationPendingChecks"
-import { currentPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
-import type { PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
-import { isTransportedBrokenPropertyScalar } from "./transportedBrokenReference"
 import { toDataPathPolicyInput } from "./dataPath/policies"
 import {
   findValidationRulesSpec,
@@ -41,11 +38,9 @@ import {
 } from "./rulesSnapshot"
 import {
   collectStructuralYamlReferences,
-  isRelativeYAMLReferenceTagged,
   type StructuralReferenceNestedRule,
   type StructuralReferenceRuntime,
 } from "./structuralReferences"
-import { resolveDeferredPropertyRule } from "../ruleRuntime/property/finalizeImportedYAML"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
@@ -62,7 +57,6 @@ import { createFormDataPathIndexFromYAML } from "./dataPath/formYamlIndex"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 import type { FormElementNameCollectorView, FormStructuredComponent } from "./formContracts"
 import { requireFormValidationAdapter } from "./formValidationRegistry"
-import { xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 import {
   collectAddressableMetadataObjectEntries,
   objectTargetForProjectFile,
@@ -73,7 +67,6 @@ import type { ProjectStateStructuredDocumentEntry } from "../projectState/contra
 import { collectConfigurationExtensionPropertyStateDocuments } from "./configurationExtensionPropertyStateFacts"
 import { configurationExtensionStructureDocument } from "../ruleRuntime/property/configurationExtensionStructureFacts"
 import { traverseMetadataRuleYaml } from "./metadataRuleYamlTraversal"
-import { collectOmittedExplicitXMLPropertyKeys } from "../ruleRuntime/property/explicitXMLStructuralReferences"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -109,6 +102,7 @@ export function extractValidationYamlFacts(params: {
   context?: ConfigurationContext
   fileExists?: (absolutePath: string) => boolean
 }): ValidationYamlFacts {
+  if (params.parsed.annotations.root() !== undefined) return emptyFacts()
   const validationDiagnostics = params.validationDiagnostics !== false
   if (params.file.kind === "form") {
     return validationDiagnostics
@@ -126,7 +120,7 @@ export function extractValidationYamlFacts(params: {
   const referenceDiagnostics: Diagnostic[] = []
   const localValueDiagnostics: Diagnostic[] = []
   const localValueValidationProfile: LocalValueValidationProfile = {}
-  if (validationDiagnostics) {
+  if (validationDiagnostics && params.parsed.annotations.root() === undefined) {
     collectLocalValueValidation({
       filePath: params.file.absolutePath,
       parsed: params.parsed,
@@ -163,7 +157,22 @@ export function extractValidationYamlFacts(params: {
           pendingChecks,
           runtime: params.runtime,
         })
-  const localIndexes = localIndexesCollector.finish()
+  const collectedLocalIndexes = localIndexesCollector.finish()
+  const ownerFacts = spec === undefined
+    ? undefined
+    : collectOwnerFactRolesFromYaml(params.parsed.data, spec, params.parsed.annotations)
+  const localIndexes = ownerFacts === undefined || Object.keys(ownerFacts).length === 0
+    ? collectedLocalIndexes
+    : {
+        ...collectedLocalIndexes,
+        metadata: {
+          ...collectedLocalIndexes.metadata,
+          ownerFacts: {
+            ...collectedLocalIndexes.metadata.ownerFacts,
+            ...ownerFacts,
+          },
+        },
+      }
   const objectIndexEntries = objectTarget === undefined
     ? []
     : [
@@ -441,15 +450,7 @@ function buildOwnerFactsFromYaml(
   spec: ValidationRulesSpecSnapshot,
   runtime?: ValidationRegistrySet,
 ): ValidationOwnerYamlFacts {
-  const record = asRecord(data) ?? {}
-  const compactFacts: Record<string, unknown> = {}
-
-  for (const property of spec.properties) {
-    if (property.ownerFactRole === undefined) continue
-    const value = valueAtPath(record, property.yamlPath)
-    const fact = ownerFactFromYAML(property.ownerFactRole, value)
-    if (fact !== undefined) compactFacts[property.ownerFactRole] = fact
-  }
+  const compactFacts = collectOwnerFactRolesFromYaml(data, spec)
 
   const ref = { kind: file.owner.dir, name: file.owner.name }
   const ownerFactsWithoutIndex = {
@@ -468,6 +469,22 @@ function buildOwnerFactsFromYaml(
     fieldIndex,
     ownerFacts: { ...ownerFactsWithoutIndex, fieldIndex },
   }
+}
+
+function collectOwnerFactRolesFromYaml(
+  data: unknown,
+  spec: Pick<ValidationRulesSpecSnapshot, "properties">,
+  annotations?: ParsedYaml["annotations"],
+): Record<string, unknown> {
+  const record = asRecord(data) ?? {}
+  const compactFacts: Record<string, unknown> = {}
+  for (const property of spec.properties) {
+    if (property.ownerFactRole === undefined) continue
+    const value = valueAtPath(record, property.yamlPath)
+    const fact = ownerFactFromYAML(property.ownerFactRole, value, annotations)
+    if (fact !== undefined) compactFacts[property.ownerFactRole] = fact
+  }
+  return compactFacts
 }
 
 function emptyObjectFieldIndex(): ObjectFieldIndex {
@@ -581,9 +598,12 @@ function collectPendingReferences(params: {
 
   const references: PendingMetadataTargetReference[] = []
   for (const property of params.properties) {
-    const value = valueAtPath(record, property.yamlPath)
-    if (value === undefined) continue
     const yamlPath = [...params.yamlPath, ...property.yamlPath]
+    const hasAnomaly = hasXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)
+    if (hasRawXmlAnomalyAtPath(params.rootYaml, params.parsed, yamlPath)) continue
+    const sourceValue = valueAtLogicalPath(record, property.yamlPath, params.parsed)
+    if (sourceValue === undefined) continue
+    const value = withoutRawDescendants(sourceValue, params.parsed)
     const rulePath = [
       ...params.rulePath,
       {
@@ -594,7 +614,7 @@ function collectPendingReferences(params: {
       },
     ]
     if (property.type !== undefined) {
-      if (params.validationDiagnostics) {
+      if (params.validationDiagnostics && !hasAnomaly) {
         collectLocalValueValidation({
           filePath: params.filePath,
           parsed: params.parsed,
@@ -616,17 +636,12 @@ function collectPendingReferences(params: {
           ...(property.ownerFactRole === undefined ? {} : { ownerFactRole: property.ownerFactRole }),
         },
         value,
+        annotations: params.parsed.annotations,
         source: yamlDiagnosticLocationAtPath({ filePath: params.filePath, parsed: params.parsed, path: yamlPath }),
       })
     }
 
     if (property.metadataTarget !== undefined) {
-      const execution = params.runtime?.rules.execution
-        ?? currentPropertyRuleRegistrySet<PropertyRuleExecution>()
-      const propertyRule = execution === undefined
-        ? undefined
-        : resolveDeferredPropertyRule(params.rootRule, rulePath, execution)
-      const yamlKey = property.yamlPath.at(-1)
       const siblingValue = (propertyKey: string) => {
         const sibling = params.properties.find((candidate) => candidate.modelKey === propertyKey)
         return sibling === undefined ? undefined : valueAtPath(record, sibling.yamlPath)
@@ -663,17 +678,6 @@ function collectPendingReferences(params: {
           yamlPath,
           diagnostics: params.diagnostics,
           validationDiagnostics: params.validationDiagnostics,
-          ...(execution === undefined || propertyRule === undefined || yamlKey === undefined
-            ? {}
-            : {
-                brokenReferenceTransport: {
-                  execution,
-                  rule: propertyRule,
-                  yamlValue: value,
-                  isTagged: (location) =>
-                    isRelativeYAMLReferenceTagged(record, yamlKey, location),
-                },
-              }),
         })
       )
     }
@@ -759,6 +763,11 @@ function collectNestedItem(
     if (params.validationDiagnostics) params.localValueDiagnostics.push(...analysis.diagnostics)
     params.pendingChecks.push(...analysis.projectChecks.map((check) => ({
       ...check,
+      ...(hasSemanticXmlAnomalyAtExactPath(
+        params.rootYaml,
+        params.parsed,
+        check.yamlPath,
+      ) ? { xmlAnomaly: "pending" as const } : {}),
       location: yamlDiagnosticLocationAtPath({
         filePath: params.filePath,
         parsed: params.parsed,
@@ -769,6 +778,9 @@ function collectNestedItem(
       ...analysis.references.map((reference) => ({
         ...dependentPendingReference(reference),
         filePath: params.filePath,
+        ...(hasSemanticXmlAnomalyAtExactPath(params.rootYaml, params.parsed, reference.yamlPath)
+          ? { xmlAnomaly: "pending" as const }
+          : {}),
       }))
     )
   }
@@ -801,12 +813,6 @@ function collectTargetValues(params: {
   validationDiagnostics: boolean
   runtime?: ValidationRegistrySet
   relativePath?: readonly (string | number)[]
-  brokenReferenceTransport?: {
-    execution: PropertyRuleExecution
-    rule: PropertyRule
-    yamlValue: unknown
-    isTagged: (location: import("@nkdk/runtime/rule-kit").BrokenXMLReferenceLocation) => boolean
-  }
 }): PendingMetadataTargetReference[] {
   if ((params.constraint.kind === "dataTable" || params.constraint.kind === "dataTableField")
     && params.constraint.validation === "translateOnly") return []
@@ -817,13 +823,6 @@ function collectTargetValues(params: {
 
   if (typeof params.value === "string") {
     if (params.value === "") return []
-    const relativePath = params.relativePath ?? []
-    if (params.brokenReferenceTransport?.execution.isTransportedBrokenXMLReference({
-      rule: params.brokenReferenceTransport.rule,
-      yamlValue: params.brokenReferenceTransport.yamlValue,
-      location: { kind: "value", path: relativePath },
-      isTagged: params.brokenReferenceTransport.isTagged,
-    })) return []
     const reference = pendingReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })
     return reference === undefined ? [] : [reference]
   }
@@ -931,6 +930,9 @@ function pendingReferenceFromYamlValue(params: {
     canonical: targetKey(parsed.target),
     target: parsed.target,
     constraint: params.constraint,
+    ...(hasSemanticXmlAnomalyAtExactPath(params.parsed.data, params.parsed, params.yamlPath)
+      ? { xmlAnomaly: "pending" as const }
+      : {}),
   }
 }
 
@@ -1014,10 +1016,7 @@ function extractFormYamlFacts(
 }
 
 function createPropertyStructuralReferenceRuntime(runtime?: ValidationRegistrySet): StructuralReferenceRuntime {
-  const transportRegistry = () => runtime?.rules.execution ?? currentPropertyRuleRegistrySet<PropertyRuleExecution>()
   return {
-    omittedExplicitXMLPropertyKeys: (params) =>
-      collectOmittedExplicitXMLPropertyKeys(transportRegistry(), params),
     valueFromYAML: (params) => callAtomicFromYAML(
       params as Parameters<typeof callAtomicFromYAML>[0]
     ),
@@ -1042,11 +1041,6 @@ function createPropertyStructuralReferenceRuntime(runtime?: ValidationRegistrySe
         ?? getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
       return nested as unknown as StructuralReferenceNestedRule | undefined
     },
-    isTransportedBrokenXMLReference: (params) =>
-      transportRegistry()?.isTransportedBrokenXMLReference({
-        ...params,
-        rule: params.rule as PropertyRule,
-      }) ?? false,
   }
 }
 function collectFormPendingChecks(params: {
@@ -1267,17 +1261,8 @@ function collectRuleDataPathChecks(params: {
 
     const rawValue = params.owner[rule.yaml]
     if (typeof rawValue !== "string") continue
-    const tag = yamlScalarTagAt(params.owner, rule.yaml)
-    const transportedReference = tag === "xml/reference"
-    if (isTransportedBrokenPropertyScalar({
-      execution: params.runtime?.rules.execution,
-      rule,
-      yamlValue: rawValue,
-      tagged: transportedReference,
-    })) continue
-    const tagged = tag === "xml/value"
-    const value = tagged ? xmlAnomalyTagPayload("xml/value", rawValue) : rawValue
-    if (value.trim().length === 0 && !tagged) continue
+    const value = rawValue
+    if (value.trim().length === 0) continue
     const yamlPath = enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath
     checks.push({
       kind: "dataPath",
@@ -1289,8 +1274,10 @@ function collectRuleDataPathChecks(params: {
       }),
       owner: { kind: params.file.owner.dir, name: params.file.owner.name },
       value,
-      tagged,
-      nameMode: tagged ? "internal" : "yaml",
+      ...(hasSemanticXmlAnomalyAtExactPath(params.parsed.data, params.parsed, yamlPath)
+        ? { xmlAnomaly: "pending" as const }
+        : {}),
+      nameMode: "yaml",
       index: params.index,
       policyInput: toDataPathPolicyInput(rule),
       elementType: params.elementType,
@@ -1323,7 +1310,7 @@ function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {
   return rule.type === "DataPath"
 }
 
-function valueAtPath(value: Record<string, unknown>, path: readonly string[]): unknown {
+function valueAtPath(value: Record<string, unknown>, path: readonly (string | number)[]): unknown {
   let current: unknown = value
   for (const segment of path) {
     const record = asRecord(current)
@@ -1331,6 +1318,138 @@ function valueAtPath(value: Record<string, unknown>, path: readonly string[]): u
     current = record[segment]
   }
   return current
+}
+
+function hasXmlAnomalyAtPath(
+  root: unknown,
+  parsed: ParsedYaml,
+  path: readonly (string | number)[],
+): boolean {
+  return hasXmlAnnotationAtPath(root, parsed, path, () => true)
+}
+
+function hasRawXmlAnomalyAtPath(
+  root: unknown,
+  parsed: ParsedYaml,
+  path: readonly (string | number)[],
+): boolean {
+  return hasXmlAnnotationAtPath(root, parsed, path, (annotation) => annotation.kind === "raw")
+}
+
+function hasSemanticXmlAnomalyAtExactPath(
+  root: unknown,
+  parsed: ParsedYaml,
+  path: readonly (string | number)[],
+): boolean {
+  if (path.length === 0) {
+    const annotation = parsed.annotations.root()
+    return annotation?.kind === "invalid" || annotation?.kind === "important"
+  }
+  let parent = root
+  for (const segment of path.slice(0, -1)) {
+    if (typeof parent !== "object" || parent === null) return false
+    const runtimeSegment = runtimePathSegment(parent, segment, parsed)
+    parent = (parent as Record<string | number, unknown>)[runtimeSegment]
+  }
+  if (typeof parent !== "object" || parent === null) return false
+  const runtimeSegment = runtimePathSegment(parent, path.at(-1)!, parsed)
+  const annotation = parsed.annotations.at(parent, runtimeSegment)
+  const semantic = annotation?.kind === "raw" ? annotation.semantic : annotation
+  return semantic?.kind === "invalid" || semantic?.kind === "important"
+}
+
+function hasXmlAnnotationAtPath(
+  root: unknown,
+  parsed: ParsedYaml,
+  path: readonly (string | number)[],
+  matches: (annotation: NonNullable<ReturnType<ParsedYaml["annotations"]["root"]>>) => boolean,
+): boolean {
+  const rootAnnotation = parsed.annotations.root()
+  if (rootAnnotation !== undefined && matches(rootAnnotation)) return true
+  let parent = root
+  for (const segment of path) {
+    if (typeof parent !== "object" || parent === null) return false
+    const runtimeSegment = runtimePathSegment(parent, segment, parsed)
+    const valueAnnotation = parsed.annotations.at(parent, runtimeSegment)
+    if (valueAnnotation !== undefined && matches(valueAnnotation)) return true
+    const keyAnnotation = typeof runtimeSegment === "string"
+      ? parsed.annotations.keyAt(parent, runtimeSegment)
+      : undefined
+    if (keyAnnotation !== undefined && matches(keyAnnotation)) return true
+    parent = (parent as Record<string | number, unknown>)[runtimeSegment]
+  }
+  return false
+}
+
+function valueAtLogicalPath(
+  value: Record<string, unknown>,
+  path: readonly (string | number)[],
+  parsed: ParsedYaml,
+): unknown {
+  let current: unknown = value
+  for (const segment of path) {
+    if (typeof current !== "object" || current === null) return undefined
+    const runtimeSegment = runtimePathSegment(current, segment, parsed)
+    current = (current as Record<string | number, unknown>)[runtimeSegment]
+  }
+  return current
+}
+
+function runtimePathSegment(
+  parent: object,
+  segment: string | number,
+  parsed: ParsedYaml,
+): string | number {
+  if (typeof segment === "number" || Array.isArray(parent)) return segment
+  const record = parent as Record<string, unknown>
+  if (Object.prototype.hasOwnProperty.call(record, segment)) return segment
+  const matches = Object.keys(record).filter((runtimeKey) =>
+    parsed.annotations.keyAt(parent, runtimeKey)?.logicalKey === segment
+  )
+  return matches.length === 1 ? matches[0]! : segment
+}
+
+function withoutRawDescendants(value: unknown, parsed: ParsedYaml): unknown {
+  const firstAnnotation = parsed.annotations.entries()[Symbol.iterator]().next()
+  if (parsed.annotations.root() === undefined && firstAnnotation.done === true) return value
+  return projectWithoutRawDescendants(value, parsed)
+}
+
+function projectWithoutRawDescendants(value: unknown, parsed: ParsedYaml): unknown {
+  if (typeof value !== "object" || value === null) return value
+  if (Array.isArray(value)) {
+    let changed = false
+    const projected: unknown[] = []
+    for (let index = 0; index < value.length; index += 1) {
+      if (parsed.annotations.at(value, index)?.kind === "raw") {
+        changed = true
+        continue
+      }
+      const child = projectWithoutRawDescendants(value[index], parsed)
+      changed ||= child !== value[index]
+      projected.push(child)
+    }
+    if (!changed) return value
+    parsed.annotations.copy(value, projected)
+    return projected
+  }
+  let changed = false
+  const projected: Record<string, unknown> = {}
+  for (const [key, childValue] of Object.entries(value)) {
+    if (
+      parsed.annotations.at(value, key)?.kind === "raw"
+      || parsed.annotations.keyAt(value, key)?.kind === "raw"
+    ) {
+      changed = true
+      continue
+    }
+    const child = projectWithoutRawDescendants(childValue, parsed)
+    changed ||= child !== childValue
+    projected[key] = child
+  }
+  if (!changed) return value
+  parsed.annotations.copy(value, projected)
+  return projected
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {

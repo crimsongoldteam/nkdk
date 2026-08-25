@@ -185,6 +185,8 @@ export interface MetadataResourceTopologySpec {
 
 export interface CompiledMetadataXmlDocumentNode extends MetadataXmlDocumentDeclaration {
   readonly id: string
+  /** Краткое имя дополнительного XML-документа для путей !xml/raw. */
+  readonly xmlAnomalySelector?: string
 }
 
 export interface CompiledMetadataExternalFileNode

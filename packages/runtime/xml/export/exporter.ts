@@ -1,11 +1,18 @@
 import { XMLBuilder } from "fast-xml-parser"
+import type { XmlContentNode, XmlElementNode } from "../import/document"
+import { validateXmlProcessingInstruction } from "../structure/processingInstruction"
 
-const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
+export const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 
 const escapeText = (value: unknown): string =>
   String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 
-const escapeAttribute = (value: unknown): string => escapeText(value).replace(/"/g, "&quot;")
+const escapeAttribute = (value: unknown): string =>
+  escapeText(value)
+    .replace(/"/g, "&quot;")
+    .replace(/\n/g, "&#xA;")
+    .replace(/\r/g, "&#xD;")
+    .replace(/\t/g, "&#x9;")
 
 const options = {
   attributeNamePrefix: "_",
@@ -22,16 +29,23 @@ const options = {
 
 const builder = new XMLBuilder(options)
 const preserveOrderBuilder = new XMLBuilder({ ...options, preserveOrder: true })
+const compactPreserveOrderBuilder = new XMLBuilder({
+  ...options,
+  format: false,
+  preserveOrder: true,
+})
 
 // @ts-ignore
 builder.options.attributesGroupName = "@attributes"
 // @ts-ignore
 preserveOrderBuilder.options.attributesGroupName = "@attributes"
+// @ts-ignore
+compactPreserveOrderBuilder.options.attributesGroupName = "@attributes"
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value)
 
-const getOrderedChildren = (value: unknown): Array<{ key: string; value: unknown }> | undefined => {
+export const getXmlOrderedChildren = (value: unknown): Array<{ key: string; value: unknown }> | undefined => {
   if (!isRecord(value)) return undefined
   const orderedChildren = (value as Record<PropertyKey, unknown>)[XML_ORDERED_CHILDREN]
   if (!Array.isArray(orderedChildren)) return undefined
@@ -43,7 +57,7 @@ const getOrderedChildren = (value: unknown): Array<{ key: string; value: unknown
 const hasOrderedChildren = (value: unknown): boolean => {
   if (Array.isArray(value)) return value.some(hasOrderedChildren)
   if (!isRecord(value)) return false
-  if (getOrderedChildren(value) !== undefined) return true
+  if (getXmlOrderedChildren(value) !== undefined) return true
   return Object.values(value).some(hasOrderedChildren)
 }
 
@@ -51,7 +65,7 @@ const CHILD_ITEMS_XML_TAG = "ChildItems"
 
 const toOrderedChildItemsNode = (items: unknown[]): Record<PropertyKey, unknown> => {
   const orderedChildren = items.flatMap((item): Array<{ key: string; value: unknown }> => {
-    const normalizedItem = normalizeChildItemsForExport(item)
+    const normalizedItem = normalizeXmlObjectForExport(item)
     if (!isRecord(normalizedItem)) return []
     return Object.entries(normalizedItem).map(([key, value]) => ({ key, value }))
   })
@@ -59,9 +73,9 @@ const toOrderedChildItemsNode = (items: unknown[]): Record<PropertyKey, unknown>
   return { [XML_ORDERED_CHILDREN]: orderedChildren }
 }
 
-const normalizeChildItemsForExport = (value: unknown): unknown => {
+export const normalizeXmlObjectForExport = (value: unknown): unknown => {
   if (Array.isArray(value)) {
-    return value.map((item) => normalizeChildItemsForExport(item))
+    return value.map((item) => normalizeXmlObjectForExport(item))
   }
 
   if (!isRecord(value)) return value
@@ -71,15 +85,15 @@ const normalizeChildItemsForExport = (value: unknown): unknown => {
       key,
       key === CHILD_ITEMS_XML_TAG && Array.isArray(childValue)
         ? toOrderedChildItemsNode(childValue)
-        : normalizeChildItemsForExport(childValue),
+        : normalizeXmlObjectForExport(childValue),
     ])
   )
 
-  const orderedChildren = getOrderedChildren(value)
+  const orderedChildren = getXmlOrderedChildren(value)
   if (orderedChildren !== undefined) {
     normalizedValue[XML_ORDERED_CHILDREN] = orderedChildren.map(({ key, value: childValue }) => ({
       key,
-      value: normalizeChildItemsForExport(childValue),
+      value: normalizeXmlObjectForExport(childValue),
     }))
   }
 
@@ -92,7 +106,7 @@ const getAttributeEntries = (value: Record<string, unknown>): Record<string, unk
 }
 
 const objectToPreserveOrderChildren = (value: Record<string, unknown>): unknown[] => {
-  const orderedChildren = getOrderedChildren(value)
+  const orderedChildren = getXmlOrderedChildren(value)
   const entries =
     orderedChildren?.map(({ key, value: childValue }) => [key, childValue] as const) ??
     Object.entries(value).filter(([key]) => key !== "#text" && !key.startsWith("_"))
@@ -135,14 +149,127 @@ const toPreserveOrder = (data: Record<string, unknown>): unknown[] =>
     ...attributesToPreserveOrder(value),
   }))
 
-export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = true): string => {
-  const normalizedData = normalizeChildItemsForExport(data) as Record<string, any>
+const structuralAttributesToPreserveOrder = (
+  node: Pick<XmlElementNode, "attributes">
+): Record<string, unknown> =>
+  node.attributes.length === 0
+    ? {}
+    : {
+        ":@": Object.fromEntries(
+          node.attributes.map(({ name, value }) => [`_${name}`, value])
+        ),
+      }
+
+const structuralContentToPreserveOrder = (node: XmlContentNode): Record<string, unknown> => {
+  if (node.type === "text") return { "#text": node.value }
+  if (node.type === "processingInstruction") {
+    validateXmlProcessingInstruction(node)
+    const separator = node.body.length === 0 ? "" : " "
+    return { [`?${node.target}${separator}${node.body}`]: [] }
+  }
+  return structuralElementToPreserveOrder(node)
+}
+
+const structuralElementToPreserveOrder = (node: XmlElementNode): Record<string, unknown> => ({
+  [node.name]: node.content.map(structuralContentToPreserveOrder),
+  ...structuralAttributesToPreserveOrder(node),
+})
+
+const buildStructuralXml = (nodes: readonly XmlElementNode[]): string => {
+  const occupiedElementNames = new Set<string>()
+  const opaquePayloads: string[] = []
+  const collectPlaceholderCollisions = (element: XmlElementNode): void => {
+    occupiedElementNames.add(element.name)
+    for (const attribute of element.attributes) {
+      opaquePayloads.push(attribute.value)
+    }
+    for (const child of element.content) {
+      if (child.type === "element") {
+        collectPlaceholderCollisions(child)
+      } else {
+        opaquePayloads.push(child.type === "text" ? child.value : child.body)
+      }
+    }
+  }
+  for (const node of nodes) collectPlaceholderCollisions(node)
+
+  const replacements: Array<{ readonly tag: string; readonly xml: string }> = []
+  let placeholderIndex = 1
+  const nextPlaceholderTag = (): string => {
+    let tag: string
+    do {
+      tag = `nkdkXmlMixedContent${placeholderIndex}`
+      placeholderIndex += 1
+    } while (
+      occupiedElementNames.has(tag) ||
+      opaquePayloads.some((payload) => payload.includes(`<${tag}/>`))
+    )
+    occupiedElementNames.add(tag)
+    return tag
+  }
+
+  const contentWithPlaceholders = (node: XmlContentNode): Record<string, unknown> => {
+    if (node.type !== "element") return structuralContentToPreserveOrder(node)
+    return elementWithPlaceholders(node)
+  }
+  const elementWithPlaceholders = (node: XmlElementNode): Record<string, unknown> => {
+    if (hasMixedContent(node)) {
+      const tag = nextPlaceholderTag()
+      replacements.push({
+        tag,
+        xml: compactPreserveOrderBuilder.build([structuralElementToPreserveOrder(node)]),
+      })
+      return { [tag]: [] }
+    }
+    return {
+      [node.name]: node.content.map(contentWithPlaceholders),
+      ...structuralAttributesToPreserveOrder(node),
+    }
+  }
+
+  let xml = preserveOrderBuilder.build(nodes.map(elementWithPlaceholders))
+  for (const replacement of replacements) {
+    const placeholder = `<${replacement.tag}/>`
+    const position = xml.indexOf(placeholder)
+    const duplicatePosition = xml.indexOf(
+      placeholder,
+      position + placeholder.length,
+    )
+    if (position < 0 || duplicatePosition >= 0) {
+      throw new Error(
+        `Служебный XML-placeholder ${replacement.tag} не является однозначным`,
+      )
+    }
+    xml =
+      xml.slice(0, position) +
+      replacement.xml +
+      xml.slice(position + placeholder.length)
+  }
+  return xml
+}
+
+const hasMixedContent = (node: XmlElementNode): boolean =>
+  node.content.some((child) => child.type === "text") &&
+  node.content.some((child) => child.type !== "text")
+
+export const xmlExport = (
+  data: Record<string, any> | readonly XmlElementNode[],
+  addDeclaration: boolean = true
+): string => {
+  const xml = Array.isArray(data)
+    ? buildStructuralXml(data)
+    : buildObjectXml(data)
+  const declaration = addDeclaration ? '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n' : ""
+  const result = declaration + xml.replace(/^\n/, "")
+  return result.trimEnd()
+}
+
+const buildObjectXml = (data: Record<string, any>): string => {
+  const normalizedData = normalizeXmlObjectForExport(data) as Record<string, any>
   const xml = (
     hasOrderedChildren(normalizedData)
       ? preserveOrderBuilder.build(toPreserveOrder(normalizedData))
       : builder.build(normalizedData)
   ).replace(/^\n/, "")
-  const declaration = addDeclaration ? '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n' : ""
-  const result = declaration + xml
-  return result.trimEnd()
+  return xml
 }

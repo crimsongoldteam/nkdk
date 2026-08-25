@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
-import { readAppliedObjectFixture, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
-import { XML_PRESENT_TAG_VALUE, exportToYAML, importContentFromXML } from "@nkdk/runtime"
+import { exportToYAML,importContentFromXML } from "@nkdk/runtime"
+import { readAppliedObjectFixture,testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
 import { ClientApplicationInterfaceRules } from "./rules"
 
 import "./register"
@@ -12,60 +12,6 @@ const convert = (fixture: string) => {
 }
 
 describe("ClientApplicationInterface XML → YAML", () => {
-  it("imports an empty standard root as !xml", () => {
-    const yaml = testMetadataItemFromXMLToYAML({
-      rule: ClientApplicationInterfaceRules,
-      xml: importContentFromXML<Record<string, unknown>>(emptyStandardRootXML),
-    }).yaml
-
-    expect(yaml).toBe(XML_PRESENT_TAG_VALUE)
-  })
-
-  it("treats whitespace in a panel definition as formatting", () => {
-    const yaml = testMetadataItemFromXMLToYAML({
-      rule: ClientApplicationInterfaceRules,
-      xml: importContentFromXML<Record<string, unknown>>(
-        emptyStandardRootXML.replace(
-          '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>',
-          '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248">\n  </panelDef>'
-        )
-      ),
-    }).yaml
-
-    expect(yaml).toBe(XML_PRESENT_TAG_VALUE)
-  })
-
-  it.each([
-    [
-      "additional panel definition attribute",
-      emptyStandardRootXML.replace(
-        'panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>',
-        'panelDef id="b553047f-c9aa-4157-978d-448ecad24248" foo="bar"/>'
-      ),
-    ],
-    [
-      "additional panel definition child",
-      emptyStandardRootXML.replace(
-        '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>',
-        '<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"><extra/></panelDef>'
-      ),
-    ],
-    [
-      "changed root namespace",
-      emptyStandardRootXML.replace(
-        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
-        'xmlns:xsi="urn:changed"'
-      ),
-    ],
-    ["unknown root child", emptyStandardRootXML.replace("</ClientApplicationInterface>", "  <extra/>\n</ClientApplicationInterface>")],
-  ])("does not collapse a root with %s into !xml", (_name, xml) => {
-    const yaml = testMetadataItemFromXMLToYAML({
-      rule: ClientApplicationInterfaceRules,
-      xml: importContentFromXML<Record<string, unknown>>(xml),
-    }).yaml
-
-    expect(yaml).not.toBe(XML_PRESENT_TAG_VALUE)
-  })
 
   it("imports sections, panels, groups and panel definitions", () => {
     const result = convert("ClientApplicationInterface.xml")
@@ -127,18 +73,6 @@ describe("ClientApplicationInterface XML → YAML", () => {
     expect(result.Лево).toEqual([{ Панель: { Имя: "МояПанельИстории" } }])
     expect(exportToYAML(result)).not.toContain("b553047f-c9aa-4157-978d-448ecad24248")
   })
-
-  it("distinguishes an absent non-standard panel definition from an empty one", () => {
-    const uuid = "8e10648b-f52d-4ec2-b4dd-87de33778d95"
-    const withoutPanelDef = convertXML(interfaceXML(uuid))
-    const withEmptyPanelDef = convertXML(interfaceXML(uuid, `<panelDef id="${uuid}"/>`))
-
-    expect(exportToYAML(withoutPanelDef)).toContain(`UUID: ${uuid}`)
-    expect(exportToYAML(withoutPanelDef)).not.toContain("ПустоеОпределение")
-    expect(exportToYAML(withEmptyPanelDef)).toContain(`UUID: ${uuid}`)
-    expect(exportToYAML(withEmptyPanelDef)).toContain("ПустоеОпределение: !xml/present")
-    expect(exportToYAML(withEmptyPanelDef)).not.toContain("UUID: !xml")
-  })
 })
 
 function convertXML(xml: string): Record<string, unknown> {
@@ -146,13 +80,6 @@ function convertXML(xml: string): Record<string, unknown> {
     rule: ClientApplicationInterfaceRules,
     xml: importContentFromXML<Record<string, unknown>>(xml),
   }).yaml as Record<string, unknown>
-}
-
-function interfaceXML(uuid: string, panelDef = ""): string {
-  return `<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
-  <right><panel id="custom"><uuid>${uuid}</uuid></panel></right>
-  ${panelDef}
-</ClientApplicationInterface>`
 }
 
 const emptyStandardRootXML = `<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">

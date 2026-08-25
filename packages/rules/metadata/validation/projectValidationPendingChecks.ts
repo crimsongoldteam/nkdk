@@ -11,6 +11,7 @@ import { diagnosticAtYamlLocation } from "./yamlLocations"
 import type { TypeDescriptionView } from "../ruleRuntime/property/typeDescriptionView"
 import type { FillValueTypedValue } from "../ruleRuntime/property/fillValueSemantics"
 import { classifyFillValue, effectiveFillValueType, fillValueDiagnostic } from "../ruleRuntime/property/fillValueSemantics"
+import type { XmlAnomalyValidationState } from "@nkdk/runtime"
 
 export type ValidationPendingCheck =
   | {
@@ -23,7 +24,7 @@ export type ValidationPendingCheck =
       policyInput: DataPathPolicyInput
       elementType?: ElementType
       hasValuesPicture?: boolean
-      tagged: boolean
+      xmlAnomaly?: XmlAnomalyValidationState
       nameMode?: "yaml" | "internal"
       tableContext?: { dataPath: string }
       policy: "formDataPath"
@@ -35,7 +36,7 @@ export type ValidationPendingCheck =
       itemType: string
       type: TypeDescriptionView
       value: FillValueTypedValue
-      tagged: boolean
+      xmlAnomaly?: XmlAnomalyValidationState
       transport?: "DesignTimeRef"
     }
   | {
@@ -60,6 +61,7 @@ export type DataPathValidationPendingCheck = Extract<ValidationPendingCheck, { k
 
 export interface ValidationPendingCheckResult {
   diagnostics: Diagnostic[]
+  acceptedXmlAnomalyPaths: YamlPath[]
 }
 
 export function validatePendingChecks(params: {
@@ -68,8 +70,13 @@ export function validatePendingChecks(params: {
   resolveReference?: (canonical: string) => "found" | "missing" | "ambiguous"
 }): ValidationPendingCheckResult {
   const diagnostics: Diagnostic[] = []
+  const acceptedXmlAnomalyPaths: YamlPath[] = []
 
   for (const check of params.checks) {
+    if ("xmlAnomaly" in check && check.xmlAnomaly === "accepted") {
+      acceptedXmlAnomalyPaths.push(check.yamlPath)
+      continue
+    }
     if (check.kind === "addressableRequired") continue
     if (check.kind === "referenceCoverage") {
       if (params.resolveReference === undefined) continue
@@ -88,16 +95,11 @@ export function validatePendingChecks(params: {
       continue
     }
     if (check.kind === "fillValue") {
-      diagnostics.push(...validateFillValueCheck(params.ownerCache, check))
-      continue
-    }
-    if (check.tagged && check.value.trim().length === 0) {
-      diagnostics.push(diagnosticAtYamlLocation({
-        location: check.location,
-        severity: "error",
-        source: "structure",
-        message: "!xml/value для ПутьКДанным требует непустой путь",
-      }))
+      diagnostics.push(...evaluateXmlAnomalyPendingCheck(
+        check,
+        validateFillValueCheck(params.ownerCache, check),
+        acceptedXmlAnomalyPaths,
+      ))
       continue
     }
     const result = resolveDataPath({
@@ -109,23 +111,37 @@ export function validatePendingChecks(params: {
       ...(check.nameMode === undefined ? {} : { nameMode: check.nameMode }),
     })
 
-    diagnostics.push(...result.diagnostics)
-    if (result.status === "error" || result.target === undefined) continue
-
-    diagnostics.push(
-      ...validateResolvedDataPathPolicy({
+    const problems = [...result.diagnostics]
+    if (result.status !== "error" && result.target !== undefined) {
+      problems.push(...validateResolvedDataPathPolicy({
         location: check.location,
         value: check.value,
         rule: check.policyInput,
         target: result.target,
         ...(check.elementType === undefined ? {} : { elementType: check.elementType }),
         ...(check.hasValuesPicture === undefined ? {} : { hasValuesPicture: check.hasValuesPicture }),
-        ...(check.tagged === undefined ? {} : { tagged: check.tagged }),
-      })
-    )
+        ...(check.xmlAnomaly === undefined ? {} : { tagged: true }),
+      }))
+    }
+    diagnostics.push(...evaluateXmlAnomalyPendingCheck(check, problems, acceptedXmlAnomalyPaths))
   }
 
-  return { diagnostics: dedupeDiagnostics(diagnostics) }
+  return {
+    diagnostics: dedupeDiagnostics(diagnostics),
+    acceptedXmlAnomalyPaths,
+  }
+}
+
+function evaluateXmlAnomalyPendingCheck(
+  check: Extract<ValidationPendingCheck, { kind: "dataPath" | "fillValue" }>,
+  problems: readonly Diagnostic[],
+  acceptedXmlAnomalyPaths: YamlPath[],
+): readonly Diagnostic[] {
+  if (check.xmlAnomaly === undefined) return problems
+  if (problems.some(({ severity }) => severity === "error")) {
+    acceptedXmlAnomalyPaths.push(check.yamlPath)
+  }
+  return []
 }
 
 function validateFillValueCheck(
@@ -145,7 +161,9 @@ function validateFillValueCheck(
       : effectiveType.status === "known" && effectiveType.alternatives.some(({ kind }) => kind === "reference")
         ? undefined
         : { message: "DesignTimeRef допустим только для ссылочного типа", severity: "error" as const }
-    : fillValueDiagnostic(classification, effectiveType.status === "unresolved" ? false : check.tagged)
+    : fillValueDiagnostic(classification, effectiveType.status === "unresolved"
+      ? false
+      : check.xmlAnomaly !== undefined)
   return problem === undefined
     ? []
     : [diagnosticAtYamlLocation({

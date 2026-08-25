@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest"
+import { createConfigurationLanguages,serializeYAMLDocument } from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
+import { mockContext,mockContextFromXML } from "../../../tests/mockContext"
 import { i8nTextFixtures } from "./__fixtures__/legacy/data"
-import { mockContext, mockContextFromXML } from "../../../tests/mockContext"
-import { exportI8nTextDefaultToYAML, exportI8nTextToYAML } from "./toYAML"
-import { I8nTextPropertyRule, type I8nTextXML } from "./types"
-import { createConfigurationLanguages, serializeYAMLDocument } from "@nkdk/runtime"
 import { importI8nTextFromXML } from "./fromXML"
+import { exportI8nTextDefaultToYAML,exportI8nTextToYAML } from "./toYAML"
+import { I8nTextPropertyRule,type I8nTextXML } from "./types"
 
 const contextWithExportToYAML = {
   ...mockContext,
@@ -19,16 +19,6 @@ const multilingualContext = {
 const multilingualXMLContext = {
   ...mockContextFromXML(),
   languages: multilingualContext.languages,
-}
-
-const russianOnlyContext = {
-  ...contextWithExportToYAML,
-  languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
-}
-
-const russianOnlyXMLContext = {
-  ...mockContextFromXML(),
-  languages: russianOnlyContext.languages,
 }
 
 function xmlItems(entries: readonly (readonly [string, string])[]): I8nTextXML {
@@ -137,55 +127,6 @@ describe("exportI8nTextToYAML", () => {
       })
 
       expect(result).toEqual({ en: "Rating sent" })
-    })
-
-    it.each([
-      {
-        name: "folds a canonical calculated default language",
-        entries: [["ru", "Не выходить"], ["en", "Dont exit"]],
-        contexts: undefined,
-        expected: "Заголовок:\n  en: Dont exit",
-      },
-      {
-        name: "marks an absent default language",
-        entries: [["en", "Dont exit"]],
-        contexts: undefined,
-        expected: 'Заголовок:\n  ru: ""\n  en: Dont exit',
-      },
-      {
-        name: "does not fold a noncanonical collection",
-        entries: [["en", "Dont exit"], ["ru", "Не выходить"]],
-        contexts: undefined,
-        expected: "Заголовок: !xml/order\n  en: Dont exit\n  ru: Не выходить",
-      },
-      {
-        name: "does not fold a duplicated calculated value",
-        entries: [["ru", "Не выходить"], ["ru", "Не выходить"]],
-        contexts: undefined,
-        expected: "Заголовок:\n  ru: !xml/duplicate Не выходить",
-      },
-      {
-        name: "classifies an unregistered language after folding",
-        entries: [["ru", "Не выходить"], ["en", "Buttons"]],
-        contexts: { xml: russianOnlyXMLContext, yaml: russianOnlyContext },
-        expected: "Заголовок:\n  en: !xml/language Buttons",
-      },
-      {
-        name: "combines an absent default marker with an unregistered language",
-        entries: [["en", "Buttons"]],
-        contexts: { xml: russianOnlyXMLContext, yaml: russianOnlyContext },
-        expected: 'Заголовок:\n  ru: ""\n  en: !xml/language Buttons',
-      },
-      {
-        name: "combines order and language anomalies",
-        entries: [["en", "Buttons"], ["ru", "Не выходить"]],
-        contexts: { xml: russianOnlyXMLContext, yaml: russianOnlyContext },
-        expected: "Заголовок: !xml/order\n  en: !xml/language Buttons\n  ru: Не выходить",
-      },
-    ] as const)("$name", ({ entries, contexts, expected }) => {
-      const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
-
-      expect(importAndSerialize(entries, rule, contexts)).toBe(expected)
     })
   })
 

@@ -3,5 +3,22 @@
 Элементы:
   ПолеВвода1:
     Вид: ПолеВвода
-    ПутьКДанным: Реквизит
+    ПутьКДанным: !xml/invalid Реквизит
     Ширина: 10
+Комментарий: !xml/raw
+  $xml: null
+ВключатьСправкуВСодержание: !xml/raw
+  $xml: null
+"@Form": !xml/raw
+  $xml:
+    Attributes: null
+    "#order":
+      - AutoCommandBar
+      - ChildItems
+    ChildItems:
+      InputField:
+        "#order":
+          - DataPath
+          - ContextMenu
+          - ExtendedTooltip
+          - Width

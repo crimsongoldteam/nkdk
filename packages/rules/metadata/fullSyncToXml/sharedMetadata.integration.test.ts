@@ -2,12 +2,13 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
+import "../../tests/metadataExecutionContext"
 import { discoverFullXmlSyncPlan } from "./discovery"
 import {
   createFullXmlSyncCompositionReader,
   createFullXmlSyncCompositionSnapshot,
 } from "./sharedMetadata"
-import type { FullXmlSyncAssignment } from "./types"
+import type { FullXmlSyncAssignment, FullXmlSyncExternalFile } from "./types"
 
 describe("full sync shared composition", () => {
   const tempDirs: string[] = []
@@ -105,7 +106,42 @@ describe("full sync shared composition", () => {
     expect(left.itemTypeByYamlDir()).toEqual({ Справочник: "MetadataCatalog" })
     expect(right.children("Справочник.Товары")).toEqual(left.children("Справочник.Товары"))
   })
+
+  it("включает файловые элементы владельца в состав проекта", () => {
+    const owner = assignment({
+      id: "БизнесПроцесс/Согласование/Свойства.yaml",
+      itemName: "Согласование",
+      itemType: "MetadataBusinessProcess",
+      logicalAddress: "БизнесПроцесс.Согласование",
+      role: "properties",
+    })
+    const externalFiles: FullXmlSyncExternalFile[] = [
+      externalFile("БизнесПроцесс/Согласование/Макеты/Лист/Template.xml", owner.id),
+      externalFile("БизнесПроцесс/Согласование/Макеты/Лист/Ext/Template.xml", owner.id),
+    ]
+
+    const shared = createFullXmlSyncCompositionSnapshot([owner], { externalFiles })
+    const reader = createFullXmlSyncCompositionReader(shared)
+
+    expect(reader.children(owner.logicalAddress)).toContainEqual(expect.objectContaining({
+      sourceProjectPath: "БизнесПроцесс/Согласование/Макеты/Лист",
+      itemName: "Лист",
+      assignmentRole: "fileItem",
+      ownerLogicalAddress: owner.logicalAddress,
+    }))
+    expect(reader.children(owner.logicalAddress).filter(({ itemName }) => itemName === "Лист")).toHaveLength(1)
+  })
 })
+
+function externalFile(sourceProjectPath: string, assignmentId: string): FullXmlSyncExternalFile {
+  return {
+    assignmentId,
+    sourceProjectPath,
+    sourcePath: `/project/${sourceProjectPath}`,
+    expectedContentHash: 1n,
+    targetXmlPath: `xml/${sourceProjectPath}`,
+  }
+}
 
 function assignment(params: {
   id: string

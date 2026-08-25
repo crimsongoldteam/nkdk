@@ -56,6 +56,69 @@ describe("XML import worker pool", () => {
     await pool.runSecondPass(readTokens(1))
     expect(pools.secondPassBatchSizes(0)).toEqual([256, 1])
 
+    await pool.runThirdPass(readTokens(1))
+    expect(pools.thirdPassBatchSizes(0)).toEqual([256, 1])
+
+    await pool.close()
+  })
+
+  it("запрещает третий проход до второго и выполняет его после смыслового барьера", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
+
+    await pool.initialize({
+      operationId: "three-pass-order",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("three-pass-order"),
+      componentKind: "configuration",
+    })
+    await pool.runFirstPass([assignment("one")])
+
+    await expect(pool.runThirdPass(readTokens(1))).rejects.toThrow("Второй проход import не завершён")
+
+    await pool.runSecondPass(readTokens(1))
+    await pool.runThirdPass(readTokens(1))
+
+    expect(pools.runs(0).map(({ kind }) => kind)).toEqual([
+      "initialize",
+      "firstPassBatch",
+      "finishFirstPass",
+      "beginSecondPass",
+      "secondPassBatch",
+      "finishSecondPass",
+      "beginThirdPass",
+      "thirdPassBatch",
+      "finishThirdPass",
+    ])
+    await pool.close()
+  })
+
+  it("передаёт каждому worker полный состав конфигурации для контрольного экспорта", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const assignments = [assignment("first"), assignment("second")]
+
+    await pool.initialize({
+      operationId: "composition",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("composition"),
+      componentKind: "configuration",
+    })
+    await pool.runFirstPass(assignments)
+    await pool.runSecondPass(readTokens(2))
+
+    for (const workerIndex of [0, 1]) {
+      expect(pools.runs(workerIndex).find(({ kind }) => kind === "beginSecondPass")).toMatchObject({
+        composition: assignments.map(({ targetProjectPath, itemType, itemName, logicalAddress, role }) => ({
+          sourceProjectPath: targetProjectPath,
+          itemType,
+          itemName,
+          logicalAddress,
+          assignmentRole: role,
+        })),
+      })
+    }
+
     await pool.close()
   })
 
@@ -72,6 +135,59 @@ describe("XML import worker pool", () => {
     await pool.runFirstPass([assignment("only")])
 
     expect(pools.created()).toBe(1)
+    await pool.close()
+  })
+
+  it("передаёт освободившемуся worker следующее тяжёлое задание второго прохода", async () => {
+    const pools = createFakePools()
+    pools.prepareRecords({ a: 100, b: 90, c: 80, d: 70 })
+    const blocked = pools.blockSecondPassAssignment("b")
+    const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+
+    await pool.initialize({
+      operationId: "dynamic-second-pass",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("dynamic-second-pass"),
+      componentKind: "configuration",
+    })
+    await pool.runFirstPass([assignment("a"), assignment("b"), assignment("c"), assignment("d")])
+    const running = pool.runSecondPass(readTokens(2))
+
+    await Promise.all([blocked.started, pools.secondPassStarted("c"), pools.secondPassStarted("d")])
+    expect(pools.secondPassWorker("c")).toBe(pools.secondPassWorker("a"))
+    expect(pools.secondPassWorker("d")).toBe(pools.secondPassWorker("a"))
+    expect(pools.secondPassWorker("c")).not.toBe(pools.secondPassWorker("b"))
+    expect(pools.firstPassIds(pools.secondPassWorker("d")!)).not.toContain("d")
+
+    blocked.release()
+    await running
+    await pool.close()
+  })
+
+  it("освобождает подготовленную запись только после успешной записи третьего прохода", async () => {
+    const pools = createFakePools()
+    pools.prepareRecords({ one: 10 })
+    const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
+    const released: string[] = []
+    const sink = {
+      async writeFirstPassState() {},
+      async writeSecondPassState() {},
+      async writeThirdPassState() {},
+      async releasePrepared(assignmentIds: readonly string[]) { released.push(...assignmentIds) },
+    }
+
+    await pool.initialize({
+      operationId: "prepared-release",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("prepared-release"),
+      componentKind: "configuration",
+    })
+    await pool.runFirstPass([assignment("one")], sink)
+    await pool.runSecondPass(readTokens(1), sink)
+    expect(released).toEqual([])
+
+    await pool.runThirdPass(readTokens(1), sink)
+    expect(released).toEqual(["one"])
     await pool.close()
   })
 
@@ -578,6 +694,10 @@ function createFakePools() {
   const firstPassBlocks = new Map<number, ReturnType<typeof gate>>()
   const firstPassAssignmentBlocks = new Map<string, ReturnType<typeof gate>>()
   const secondPassBlocks = new Map<number, ReturnType<typeof gate>>()
+  const secondPassAssignmentBlocks = new Map<string, ReturnType<typeof gate>>()
+  const secondPassAssignmentWorkers = new Map<string, number>()
+  const secondPassAssignmentStarted = new Map<string, ReturnType<typeof gate>>()
+  const preparedWeights = new Map<string, number>()
   const initializedOutputDirs = new Map<number, string>()
   const realFirstPassFiles = new Map<number, string>()
   let producedFirstPass = 0
@@ -635,6 +755,12 @@ function createFakePools() {
               ],
             })),
           stateFragment: createImportFragment(indexContributions, finalFileStateBatches),
+          preparedRecords: task.assignments.flatMap((item) => {
+            const weight = preparedWeights.get(item.id)
+            return weight === undefined
+              ? []
+              : [{ locator: { assignmentId: item.id, weight }, bytes: Uint8Array.of(1) }]
+          }),
         })
       }
       if (task.kind === "finishFirstPass") {
@@ -642,12 +768,23 @@ function createFakePools() {
       }
       if (task.kind === "secondPassBatch") {
         await secondPassBlocks.get(workerIndex)?.wait()
+        for (const assignmentId of task.assignmentIds) {
+          secondPassAssignmentWorkers.set(assignmentId, workerIndex)
+          secondPassAssignmentStarted.get(assignmentId)?.start()
+          await secondPassAssignmentBlocks.get(assignmentId)?.wait()
+        }
         return createImportBinaryResult({
           diagnostics: [], warnings: [], files: [],
           stateFragment: createImportFragment([], [fakeFinalBatch(`cf/second-${workerIndex}.yaml`)]),
         })
       }
       if (task.kind === "finishSecondPass") {
+        return undefined
+      }
+      if (task.kind === "thirdPassBatch") {
+        return createImportBinaryResult({ diagnostics: [], warnings: [], files: [] })
+      }
+      if (task.kind === "finishThirdPass") {
         return undefined
       }
       return undefined
@@ -674,6 +811,11 @@ function createFakePools() {
         task.kind === "secondPassBatch" ? [task.assignmentIds.length] : []
       )
     },
+    thirdPassBatchSizes(workerIndex: number): number[] {
+      return pools.commands(workerIndex).flatMap((task) =>
+        task.kind === "thirdPassBatch" ? [task.assignmentIds.length] : []
+      )
+    },
     created: pools.created,
     failWorker(workerIndex: number, error: Error): void {
       failures.set(workerIndex, error)
@@ -695,6 +837,27 @@ function createFakePools() {
       const value = gate()
       secondPassBlocks.set(workerIndex, value)
       return value
+    },
+    blockSecondPassAssignment(assignmentId: string) {
+      const value = gate()
+      secondPassAssignmentBlocks.set(assignmentId, value)
+      secondPassAssignmentStarted.set(assignmentId, value)
+      return value
+    },
+    secondPassStarted(assignmentId: string): Promise<void> {
+      let value = secondPassAssignmentStarted.get(assignmentId)
+      if (value === undefined) {
+        value = gate()
+        secondPassAssignmentStarted.set(assignmentId, value)
+      }
+      if (secondPassAssignmentWorkers.has(assignmentId)) value.start()
+      return value.started
+    },
+    secondPassWorker(assignmentId: string): number | undefined {
+      return secondPassAssignmentWorkers.get(assignmentId)
+    },
+    prepareRecords(weights: Readonly<Record<string, number>>): void {
+      for (const [assignmentId, weight] of Object.entries(weights)) preparedWeights.set(assignmentId, weight)
     },
     writeRealFirstPassFile(workerIndex: number, targetProjectPath: string) {
       realFirstPassFiles.set(workerIndex, targetProjectPath)

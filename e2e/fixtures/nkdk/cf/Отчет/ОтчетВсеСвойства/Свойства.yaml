@@ -55,7 +55,7 @@
         БыстрыйВыбор: Использовать
         ВыделятьОтрицательные: Истина
         ЗаполнятьИзДанныхЗаполнения: Истина
-        ЗначениеЗаполнения: "Строка"
+        ЗначениеЗаполнения: Строка
         ИсторияВыбораПриВводе: НеИспользовать
         Комментарий: Комментарий
         МаксимальноеЗначение: 12
@@ -76,7 +76,47 @@
         ФормаВыбора: Справочник.СправочникПолный.Форма.ФормаВыбора
         Формат: ЧЦ=
         ФорматРедактирования: ЧГ=
-    СтандартныеРеквизиты: !xml/present
+    СтандартныеРеквизиты: !xml/raw
+      $xml:
+        xr:StandardAttribute:
+          _name: LineNumber
+          xr:LinkByType:
+          xr:FillChecking: DontCheck
+          xr:MultiLine: "false"
+          xr:FillFromFillingValue: "false"
+          xr:CreateOnInput: Auto
+          xr:TypeReductionMode: TransformValues
+          xr:MaxValue:
+            _xsi:nil: "true"
+          xr:ToolTip:
+          xr:ExtendedEdit: "false"
+          xr:Format:
+          xr:ChoiceForm:
+          xr:QuickChoice: Auto
+          xr:ChoiceHistoryOnInput: Auto
+          xr:EditFormat:
+          xr:PasswordMode: "false"
+          xr:DataHistory: Use
+          xr:MarkNegatives: "false"
+          xr:MinValue:
+            _xsi:nil: "true"
+          xr:Synonym:
+          xr:Comment:
+          xr:FullTextSearch: Use
+          xr:ChoiceParameterLinks:
+          xr:FillValue:
+            _xsi:nil: "true"
+          xr:Mask:
+          xr:ChoiceParameters:
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - Name
+          - Synonym
+          - Comment
+          - ToolTip
+          - FillChecking
+          - StandardAttributes
   ТабличнаяЧастьПоУмолчанию:
 ХранилищеВариантовОтчетов: SettingsStorage.ХранилищеНастроекВсеСвойства
 ХранилищеПользовательскихНастроекОтчетов: SettingsStorage.ХранилищеНастроекВсеСвойства

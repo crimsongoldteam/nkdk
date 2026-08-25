@@ -7,11 +7,6 @@ import type {
   ValidateMetadataTargetFunction,
 } from "@nkdk/runtime/rule-kit"
 import { dataTableCanonical } from "@nkdk/runtime/rule-kit"
-import {
-  isTaggedYAMLScalar,
-  yamlScalarTagAt,
-  xmlAnomalyTagPayload,
-} from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
 import type { Diagnostic } from "../../validation/types"
@@ -169,19 +164,12 @@ export const collectStringTargetListForValidation: CollectMetadataTargetReferenc
 
 const collectDirectMetadataTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => {
   const constraint = occurrenceMetadataTarget(params.propRule)
-  const tagged = isTaggedYAMLScalar(params.value) && params.value.tag === "xml/reference"
-  const value = tagged ? params.value.value : params.value
+  const value = params.value
   if (constraint === undefined || typeof value !== "string" || value === "") return []
   return [{
     location: { kind: "value", path: params.yamlPath },
     constraint,
-    representation: tagged
-      ? {
-          kind: "brokenXMLReference",
-          payload: xmlAnomalyTagPayload("xml/reference", value),
-          grammar: "transported",
-        }
-      : { kind: "canonical", canonical: value },
+    representation: { kind: "canonical", canonical: value },
     setValue: (_nextValue) => undefined,
   }]
 }
@@ -329,14 +317,7 @@ export const collectListMetadataTargetOccurrences: MetadataTargetOccurrencesFunc
       : [{
           location: { kind: "value", path: [...params.yamlPath, index] },
           constraint,
-          representation: params.representation === "yaml"
-            && yamlScalarTagAt(params.value, index) === "xml/reference"
-            ? {
-                kind: "brokenXMLReference",
-                payload: xmlAnomalyTagPayload("xml/reference", value),
-                grammar: "transported",
-              }
-            : { kind: "canonical", canonical: value },
+          representation: { kind: "canonical", canonical: value },
           setValue: (nextValue) => {
             if (Array.isArray(params.value)) params.value[index] = nextValue
           },

@@ -17,7 +17,6 @@ import type { MetadataTargetOwner } from "../metadataTargets/types"
 import type { ParsedYaml } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
-import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 import { ordinaryFillValueItemTypes } from "./ordinaryItemTypes"
@@ -72,12 +71,7 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
         undefined,
         currentValue,
       )
-      if (parsed.tagged) {
-        params.item["ЗначениеЗаполнения"] = xmlAnomalyTagValue("xml/value", String(yamlValue))
-        markYAMLScalarTag(params.item, "ЗначениеЗаполнения", "xml/value")
-      } else {
-        params.item["ЗначениеЗаполнения"] = yamlValue
-      }
+      params.item["ЗначениеЗаполнения"] = yamlValue
     },
   }))
 }
@@ -100,41 +94,6 @@ const standardAttributeImport: DependentImportItemHandler = {
 
 export const fillValueRules = defineMetadataRules({
   ...emptyMetadataRules,
-  explicitXMLProperties: {
-    ...Object.fromEntries(
-      ordinaryFillValueItemTypes.map((itemType) => [
-        `ordinary${itemType}FillValue`,
-        {
-          action: "transportScalar" as const,
-          itemType,
-          propertyKey: "fillValue",
-          overrides: {
-            Nil: { "_xsi:nil": true },
-            DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" },
-            ...(itemType === "MetadataExternalDataSourceField"
-              ? { Null: { "_xsi:type": "v8:Null" } }
-              : {}),
-          },
-        },
-      ]),
-    ),
-    standardAttributeFillValue: {
-      action: "transportScalar",
-      itemType: "StandardAttributeDescription",
-      propertyKey: "fillValue",
-      overrides: {
-        String: { "_xsi:type": "xs:string" },
-        DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" },
-        TypeDescription: { "_xsi:type": "v8:TypeDescription" },
-      },
-    },
-    characteristicTypesFilterValue: {
-      action: "transportScalar",
-      itemType: "CharacteristicsDescription",
-      propertyKey: "typesFilterValue",
-      overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
-    },
-  },
   dependentItems: {
     ...Object.fromEntries(
       ordinaryFillValueItemTypes.map((itemType) => [

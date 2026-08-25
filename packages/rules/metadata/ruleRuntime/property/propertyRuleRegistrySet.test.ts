@@ -1,38 +1,35 @@
 import { Type } from "typebox"
-import { expect, it } from "vitest"
+import { expect,it } from "vitest"
 
+import { withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { mockContextFromXML,mockContextToXML,mockLanguages } from "../../../tests/mockContext"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { defineMetadataRules } from "../definition"
 import {
-  brokenXMLReferenceCarrier,
-  emptyMetadataRules,
+emptyMetadataRules
 } from "../definition/testSupport"
-import {
-  createPropertyRuleRegistrySet,
-  definePropertyTypeRule,
-  propertyTypesFromContributions,
-} from "./propertyRuleRegistrySet"
-import { createPropertyRuleExecutor } from "./propertyRuleExecutor"
-import { XML_ABSENT_TAG_VALUE, XML_PRESENT_TAG_VALUE } from "@nkdk/runtime"
-import { importFromYAML } from "@nkdk/runtime"
-import { exportPropertiesToJSONSchema } from "./toJSONSchema"
-import { exportPropertyValueToYAML } from "./toYAML"
+import { bindDeferredObjectValues } from "./deferredObjectValues"
+import { finalizeExportedXmlValues } from "./finalizeExportedXML"
+import { finalizeImportedYamlValues } from "./finalizeImportedYAML"
 import { importPropertyFromXML } from "./fromXML"
-import {
-  callAtomicFromYAML,
-  callAtomicToXML,
-  convertPropertiesFromYAMLToXML,
-} from "./fromYAMLToXML"
-import { mockContextFromXML, mockContextToXML, mockLanguages } from "../../../tests/mockContext"
 import { importPropertiesFromXMLToYAML } from "./fromXMLToYAML"
-import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
+import {
+callAtomicFromYAML,
+callAtomicToXML,
+convertPropertiesFromYAMLToXML,
+} from "./fromYAMLToXML"
 import { createImportedDependentPropertyCollector } from "./importYamlTypes"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"
-import { finalizeImportedYamlValues } from "./finalizeImportedYAML"
-import { finalizeExportedXmlValues } from "./finalizeExportedXML"
-import { bindDeferredObjectValues } from "./deferredObjectValues"
+import { createPropertyRuleExecutor } from "./propertyRuleExecutor"
+import {
+createPropertyRuleRegistrySet,
+definePropertyTypeRule,
+propertyTypesFromContributions,
+} from "./propertyRuleRegistrySet"
 import { exportPropertyToEnterprise } from "./toEnterprise"
+import { exportPropertiesToJSONSchema } from "./toJSONSchema"
+import { exportPropertyValueToYAML } from "./toYAML"
 import { getTypeRule } from "./typeRuleRegistry"
-import { withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
 function inlineValidationSchemaContext() {
   return {
@@ -53,24 +50,6 @@ function ownerValueRule(type = "Sample") {
       value: { type, yaml: "Значение", xml: "Value" },
     },
   }
-}
-
-function explicitXMLExecution(withExplicitXML: boolean) {
-  return createPropertyRuleExecutor(
-    createPropertyRuleRegistrySet(defineMetadataRules({
-      ...emptyMetadataRules,
-      explicitXMLProperties: withExplicitXML
-        ? {
-            "Owner.value": {
-              itemType: "Owner",
-              propertyKey: "value",
-              xmlValue: "explicit",
-              yamlValue: XML_PRESENT_TAG_VALUE,
-            },
-          }
-        : {},
-    })),
-  )
 }
 
 it("uses the last property type contribution for the same operation", () => {
@@ -103,48 +82,6 @@ it("keeps identical property keys isolated between registry sets", () => {
 
   expect(first.getTypeRule("Sample", "exportToYAML")).toBe(firstHandler)
   expect(second.getTypeRule("Sample", "exportToYAML")).toBe(secondHandler)
-})
-
-it("matches broken XML reference carriers only for their property type", () => {
-  const carrier = brokenXMLReferenceCarrier("sample", "Sample", {
-    tryImport: ({ xmlValue }: { xmlValue: unknown }) => xmlValue === "broken"
-      ? { yamlValue: "!xml/reference broken", taggedLocations: [{ kind: "value", path: [] }] }
-      : undefined,
-  })
-  const registries = createPropertyRuleRegistrySet(defineMetadataRules({
-    ...emptyMetadataRules,
-    brokenXMLReferenceCarriers: [carrier],
-  }))
-
-  expect(registries.normalizeImportedBrokenXMLReferences({
-    rule: { type: "Sample" },
-    xmlValue: "broken",
-    yamlValue: "ordinary",
-  })).toEqual({ yamlValue: "!xml/reference broken", taggedLocations: [{ kind: "value", path: [] }] })
-  expect(registries.normalizeImportedBrokenXMLReferences({
-    rule: { type: "Other" },
-    xmlValue: "broken",
-    yamlValue: "ordinary",
-  })).toEqual({ yamlValue: "ordinary", taggedLocations: [] })
-})
-
-it("rejects ambiguous broken XML reference carrier matches", () => {
-  const carrier = (name: string) => brokenXMLReferenceCarrier(name, "Sample", {
-    tryImport: () => ({
-      yamlValue: `!xml/reference ${name}`,
-      taggedLocations: [{ kind: "value", path: [] }],
-    }),
-  })
-  const registries = createPropertyRuleRegistrySet(defineMetadataRules({
-    ...emptyMetadataRules,
-    brokenXMLReferenceCarriers: [carrier("first"), carrier("second")],
-  }))
-
-  expect(() => registries.normalizeImportedBrokenXMLReferences({
-    rule: { type: "Sample" },
-    xmlValue: "broken",
-    yamlValue: "ordinary",
-  })).toThrow("Конфликт переносчиков битой XML-ссылки: first, second")
 })
 
 it("keeps concurrent execution contexts isolated", async () => {
@@ -194,175 +131,6 @@ it("executes a conversion through the owning registry", () => {
       value: "value",
     }),
   ).toBe("own:value")
-})
-
-it("copies auxiliary property declarations into the registry instance", () => {
-  const itemRule = { itemType: "Child", properties: {} }
-  const indexValue = (value: unknown) => String(value)
-  const owner = () => ({ root: "Catalog" as const, objectName: "Root" })
-  const dependentAnalysis = {
-    diagnostics: [],
-    references: [],
-    projectChecks: [],
-  }
-  const dependentYaml = () => dependentAnalysis
-  const registries = createPropertyRuleRegistrySet(
-    defineMetadataRules({
-      ...emptyMetadataRules,
-      propertyItemRules: { Collection: itemRule },
-      explicitXMLProperties: {
-        "Owner.Value": {
-          itemType: "Owner",
-          propertyKey: "Value",
-          xmlValue: "xml",
-          yamlValue: XML_PRESENT_TAG_VALUE,
-        },
-      },
-      dependentItems: { Owner: { yaml: dependentYaml } },
-      indexValuesFromYAML: { Sample: indexValue },
-      metadataTargetOwners: { Owner: owner },
-    }),
-  )
-
-  expect(registries.getDeclaredPropertyItemRule("Collection")).toBe(itemRule)
-  expect(registries.hasExplicitXMLProperty("Owner", "Value")).toBe(true)
-  expect(registries.indexValueFromYAML("Sample", 42)).toBe("42")
-  expect(registries.getMetadataTargetOwnerResolver("Owner")).toBe(owner)
-  expect(
-    registries.analyzeDependentYamlItem({
-      itemType: "Owner",
-      item: {},
-      itemYamlPath: [],
-      rootYaml: {},
-      rootRule: {},
-      owner: { dir: "project", name: "Root" },
-      filePath: "project/Owner.yaml",
-      parsed: {},
-    }),
-  ).toBe(dependentAnalysis)
-})
-
-it("keeps explicit XML property-type policies inside the registry instance", () => {
-  const withPolicy = createPropertyRuleRegistrySet(
-    defineMetadataRules({
-      ...emptyMetadataRules,
-      explicitXMLPropertyTypes: {
-        Collection: {
-          propertyType: "Collection",
-          action: "materializeCollection",
-          yamlValue: XML_PRESENT_TAG_VALUE,
-        },
-      },
-    }),
-  )
-  const withoutPolicy = createPropertyRuleRegistrySet(
-    defineMetadataRules({ ...emptyMetadataRules }),
-  )
-
-  const yaml = importFromYAML<Record<string, unknown>>("Value: !xml/present\n")
-  const params = {
-    yaml,
-    itemType: "Owner",
-    properties: { value: { type: "Collection", yaml: "Value" } },
-  } as const
-
-  expect(withPolicy.collectExplicitXMLPropertyActions(params).get("value"))
-    .toEqual({ kind: "materializeCollection" })
-  expect(withPolicy.explicitXMLPropertyValidationTag("Owner", "value", "Collection"))
-    .toBe("xml/present")
-  expect(withPolicy.matchExplicitXMLPropertyTypeFromXML({
-    propertyType: "Collection",
-    presentInXML: true,
-    yamlValue: [],
-  })).toMatchObject({ action: "materializeCollection" })
-  expect(withPolicy.matchExplicitXMLPropertyTypeFromXML({
-    propertyType: "Collection",
-    presentInXML: true,
-    yamlValue: ["value"],
-  })).toBeUndefined()
-  expect(withoutPolicy.collectExplicitXMLPropertyActions(params)).toEqual(new Map())
-  expect(withoutPolicy.explicitXMLPropertyValidationTag("Owner", "value", "Collection"))
-    .toBeUndefined()
-})
-
-it("defers a registered PropertyState carrier to the item augmenter", () => {
-  const registry = createPropertyRuleRegistrySet(defineMetadataRules({
-    ...emptyMetadataRules,
-    propertyTypes: {
-      Sample: { importFromYAML: () => "ordinary-conversion" },
-    },
-    explicitXMLProperties: {
-      "Owner.value": {
-        action: "carrier",
-        itemType: "Owner",
-        propertyKey: "value",
-        prefix: "configurationExtensionPropertyStateXML:",
-      },
-    },
-  }))
-  const execution = createPropertyRuleExecutor(registry)
-  const yaml = importFromYAML<Record<string, unknown>>(
-    "Значение: !xml/reference configurationExtensionPropertyStateXML:payload\n",
-  )
-  const rule = {
-    itemType: "Owner",
-    properties: {
-      value: { type: "Sample", yaml: "Значение", xml: "Value" },
-    },
-  }
-
-  expect(registry.collectExplicitXMLPropertyActions({ yaml, ...rule }).get("value"))
-    .toEqual({ kind: "deferToAugmenter" })
-  expect(convertPropertiesFromYAMLToXML({
-    context: mockContextToXML(),
-    yaml,
-    rule,
-    outputs: [{ key: "main" }],
-    execution,
-  }).outputs.get("main")).toEqual({})
-})
-
-it("exports explicit XML validation from the owning registry only", () => {
-  const definition = (withExplicitXML: boolean) => defineMetadataRules({
-    ...emptyMetadataRules,
-    propertyTypes: {
-      DataPath: { exportToJSONSchema: () => Type.String() },
-    },
-    explicitXMLProperties: withExplicitXML
-      ? {
-          "Owner.value": {
-            action: "omit" as const,
-            itemType: "Owner",
-            propertyKey: "value",
-            yamlValue: XML_ABSENT_TAG_VALUE,
-          },
-        }
-      : {},
-  })
-  const withExplicitXML = createPropertyRuleExecutor(
-    createPropertyRuleRegistrySet(definition(true)),
-  )
-  const withoutExplicitXML = createPropertyRuleExecutor(
-    createPropertyRuleRegistrySet(definition(false)),
-  )
-  const context = inlineValidationSchemaContext()
-  const rule = {
-    itemType: "Owner",
-    properties: {
-      value: { type: "DataPath", yaml: "Значение" },
-    },
-  }
-
-  expect(exportPropertiesToJSONSchema({ context, rule, execution: withExplicitXML }))
-    .toMatchObject({
-      "Значение": {
-        anyOf: expect.arrayContaining([
-          expect.objectContaining({ const: XML_ABSENT_TAG_VALUE }),
-        ]),
-      },
-    })
-  expect(exportPropertiesToJSONSchema({ context, rule, execution: withoutExplicitXML }))
-    .toMatchObject({ "Значение": { type: "string" } })
 })
 
 it("exports validation schema refs from the owning registry", () => {
@@ -657,39 +425,6 @@ it("exports enterprise values through the owning registry", () => {
     value: "source",
     execution: executionWithValue("second"),
   })).toBe("second")
-})
-
-it("applies explicit XML actions from the owning registry", () => {
-  const context = mockContextToXML()
-  const rule = ownerValueRule()
-  const convert = (withExplicitXML: boolean) =>
-    convertPropertiesFromYAMLToXML({
-      context,
-      yaml: importFromYAML("Значение: !xml/present"),
-      rule,
-      outputs: [{ key: "main" }],
-      execution: explicitXMLExecution(withExplicitXML),
-    }).outputs.get("main")
-
-  expect(convert(true)).toEqual({ Value: "explicit" })
-  expect(convert(false)).toEqual({ Value: XML_PRESENT_TAG_VALUE })
-})
-
-it("matches explicit XML imports from the owning registry", () => {
-  const context = mockContextFromXML()
-  const rule = ownerValueRule()
-  const convert = (withExplicitXML: boolean) => importPropertiesFromXMLToYAML({
-    context,
-    rule,
-    sources: [{ context, xml: { Value: "explicit" } }],
-    yamlPath: [],
-    rulePath: [],
-    collector: createLocalIndexesCollector(),
-    execution: explicitXMLExecution(withExplicitXML),
-  })
-
-  expect(convert(true)).toEqual({ "Значение": XML_PRESENT_TAG_VALUE })
-  expect(convert(false)).toEqual({ "Значение": "explicit" })
 })
 
 it("classifies dependent imports from the owning registry", () => {

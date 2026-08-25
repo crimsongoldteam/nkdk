@@ -1,77 +1,30 @@
-import { describe, expect, it } from "vitest"
+import {
+createConfigurationIndexCollector,
+createXmlImportAuditSession,
+parseXmlDocumentWithSaxes,
+runWithConfigurationIndexPropertyContext,
+withConfigurationIndexCollector,
+withConfigurationIndexLogicalAddress
+} from "@nkdk/runtime"
+import { describe,expect,it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
-  runWithConfigurationIndexPropertyContext,
-  withConfigurationIndexCollector,
-  withConfigurationIndexLogicalAddress,
-  XML_PRESENT_TAG_VALUE,
-} from "@nkdk/runtime"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
+captureTestXmlImport,
+createFailingXmlImportAttempt,
+expectXmlImportInfrastructureFailure,
+xmlImportAttemptPhases,
+} from "../../../tests/xmlImportAttempt"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML as importPropertiesWithSources } from "./fromXMLToYAML"
-import { createDeferredValuePathCollector } from "./importYamlTypes"
+import {
+createDeferredValuePathCollector,
+createImportedDependentPropertyCollector,
+} from "./importYamlTypes"
 import { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
-import { yamlScalarTagAt } from "@nkdk/runtime"
-import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
-import {
-  registeredExplicitXMLTestRule,
-  registeredMissingExplicitXMLTestRule,
-} from "../../../tests/property/explicitXMLPropertyRegistry"
 
 describe("importPropertiesFromXMLToYAML", () => {
-  it("rejects a conflicting explicit XML property registration", () => {
-    registerExplicitXMLProperty({
-      itemType: "TestExplicitXMLRegistrationConflict",
-      propertyKey: "mode",
-      xmlValue: "Auto",
-      yamlValue: XML_PRESENT_TAG_VALUE,
-    })
-
-    expect(() =>
-      registerExplicitXMLProperty({
-        itemType: "TestExplicitXMLRegistrationConflict",
-        propertyKey: "mode",
-        xmlValue: "Left",
-        yamlValue: XML_PRESENT_TAG_VALUE,
-      })
-    ).toThrow(/Конфликт регистрации[\s\S]*TestExplicitXMLRegistrationConflict\.mode/)
-  })
-
-  it("preserves a registered explicit XML default as a tagged YAML scalar", () => {
-    const rule = registeredExplicitXMLTestRule("TestExplicitXMLDefault")
-    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
-
-    const yaml = importPropertiesWithSources({
-      context,
-      rule,
-      sources: [{ context, xml: { Mode: "Auto" } }],
-      yamlPath: [],
-      rulePath: [],
-      collector: createLocalIndexesCollector(),
-    })
-
-    expect(yaml).toEqual({ Режим: "!xml/present" })
-    expect(yamlScalarTagAt(yaml, "Режим")).toBe("xml/present")
-  })
-
-  it("preserves a registered missing XML default as an empty tagged YAML scalar", () => {
-    const rule = registeredMissingExplicitXMLTestRule()
-    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
-
-    const yaml = importPropertiesWithSources({
-      context,
-      rule,
-      sources: [{ context, xml: {} }],
-      yamlPath: [],
-      rulePath: [],
-      collector: createLocalIndexesCollector(),
-    })
-
-    expect(yaml).toEqual({ Поле: "!xml/absent" })
-    expect(yamlScalarTagAt(yaml, "Поле")).toBe("xml/absent")
-  })
 
   it("sorts only properties produced by the current rules", () => {
     registerTypeRule("TestUnsortedArray" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => xml)
@@ -814,6 +767,277 @@ describe("importPropertiesFromXMLToYAML", () => {
     }
   })
 
+  it("откатывает побочные эффекты сломанного PropertyRule и продолжает assignment", () => {
+    const failedType = "TestTransactionalFailure" as PropertyRuleType
+    registerTypeRule(failedType, "collectLocalFactsFromYAML", ({ writer }) => {
+      writer.setOwnerFact("failed", "leaked")
+      throw new Error("broken local facts")
+    })
+    registerTypeRule(failedType, "importFromXMLToYAML", ({ context, traversal }) => {
+      context.fromXML.configurationIndex?.collector.setIdentity("Лишний", "xmlId", "leaked")
+      traversal.deferred?.accept({ valuePath: traversal.yamlPath, rulePath: traversal.rulePath })
+      traversal.dependent?.accept({
+        itemType: "TestTransactionalItem",
+        itemYamlPath: [],
+        propertyKey: "broken",
+        yamlPath: traversal.yamlPath,
+        xmlValue: "broken",
+        presentInXML: true,
+      })
+      return "leaked"
+    })
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+      indexCollector,
+      "Тест.Объект",
+    )
+    const collector = createLocalIndexesCollector()
+    const deferred = createDeferredValuePathCollector()
+    const dependent = createImportedDependentPropertyCollector()
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Broken>broken</Broken><Good>good</Good></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestTransactionalItem",
+        properties: {
+          broken: { type: failedType, xml: "Broken", yaml: "Сломано" },
+          good: { type: "string", xml: "Good", yaml: "Хорошее" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector,
+      deferred,
+      dependent,
+      audit,
+    })
+
+    expect(yaml).toEqual({ Хорошее: "good" })
+    expect(indexCollector.fragment("test.yaml").entities).toEqual([])
+    expect(collector.finish().metadata).toEqual({
+      events: [
+        {
+          kind: "property",
+          yamlPath: ["Хорошее"],
+          rulePath: [{ propertyKey: "good" }],
+          propertyType: "string",
+        },
+      ],
+    })
+    expect(deferred.finish()).toEqual([])
+    expect(dependent.finish()).toEqual([])
+    expect(
+      audit.outcomes().find(({ node }) => node.path === "/Root[1]/Good[1]")?.boundaries,
+    ).toEqual([
+      {
+        itemType: "TestTransactionalItem",
+        propertyKey: "good",
+        propertyType: "string",
+        yamlPath: ["Хорошее"],
+        rulePath: [{ propertyKey: "good" }],
+      },
+    ])
+    expect(audit.rawCandidates()).toMatchObject([
+      {
+        node: { path: "/Root[1]/Broken[1]" },
+        boundary: {
+          itemType: "TestTransactionalItem",
+          propertyKey: "broken",
+          propertyType: failedType,
+          yamlPath: ["Сломано"],
+          rulePath: [{ propertyKey: "broken" }],
+        },
+        error: { message: expect.stringContaining("broken") },
+      },
+    ])
+  })
+
+  it.each(xmlImportAttemptPhases)("пробрасывает ошибку инфраструктурной фазы %s без raw", (phase) => {
+    const propertyType = `TestAttemptInfrastructure${phase}` as PropertyRuleType
+    if (phase === "rollback") {
+      registerTypeRule(propertyType, "importFromXMLToYAML", () => {
+        throw new Error("conversion failed")
+      })
+    }
+    const { collector, cause } = createFailingXmlImportAttempt({
+      phase,
+      causeMessage: `${phase} infrastructure failed`,
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes("<Root><Value>value</Value></Root>").roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const thrown = captureTestXmlImport({
+      context,
+      xml: root,
+      rule: {
+        itemType: `TestAttemptInfrastructureOwner${phase}`,
+        properties: {
+          value: {
+            type: phase === "rollback" ? propertyType : "string",
+            xml: "Value",
+            yaml: "Значение",
+          },
+        },
+      } as MetadataItemRule,
+      collector,
+      audit,
+    })
+
+    expectXmlImportInfrastructureFailure({ thrown, phase, cause, audit })
+  })
+
+  it("считает raw только DirectImportConversionError", () => {
+    const propertyType = "TestConfigurationIndexInfrastructure" as PropertyRuleType
+    registerTypeRule(propertyType, "collectConfigurationIndexFromXML", () => {
+      throw new Error("configuration index infrastructure failed")
+    })
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+      indexCollector,
+      "Тест.Объект",
+    )
+    const root = parseXmlDocumentWithSaxes("<Root><Value>ok</Value></Root>").roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    expect(() => importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestConfigurationIndexInfrastructureItem",
+        properties: {
+          value: { type: propertyType, xml: "Value", yaml: "Значение" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      audit,
+    })).toThrow("configuration index infrastructure failed")
+    expect(audit.rawCandidates()).toEqual([])
+  })
+
+  it("заявляет только структурные части, фактически прочитанные PropertyRule", () => {
+    const selectiveType = "TestSelectiveStructuralRead" as PropertyRuleType
+    registerTypeRule(selectiveType, "importFromXMLToYAML", ({ xml }) =>
+      (xml as Record<string, unknown>).Known,
+    )
+    const { yaml, audit } = importAuditedStructuralProperty({
+      propertyType: selectiveType,
+      itemType: "TestSelectiveOwner",
+      xml:
+        '<Root><Value future="x"><Known>yes</Known>' +
+        '<Unread extra="z">hidden</Unread><?mode code="m" unused?></Value></Root>',
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({ Значение: "yes" })
+    expect(
+      audit.outcomes()
+        .filter(({ node }) => node.path.startsWith("/Root[1]/Value[1]"))
+        .map(({ node, state }) => [node.path, state]),
+    ).toEqual([
+      ["/Root[1]/Value[1]", "claimed"],
+      ["/Root[1]/Value[1]/@future[1]", "unknown"],
+      ["/Root[1]/Value[1]/Known[1]", "claimed"],
+      ["/Root[1]/Value[1]/Known[1]/#text[1]", "claimed"],
+      ["/Root[1]/Value[1]/Unread[1]", "unknown"],
+      ["/Root[1]/Value[1]/Unread[1]/@extra[1]", "unknown"],
+      ["/Root[1]/Value[1]/Unread[1]/#text[1]", "unknown"],
+      ["/Root[1]/Value[1]/?mode[1]", "unknown"],
+      ["/Root[1]/Value[1]/?mode[1]/@code[1]", "unknown"],
+    ])
+  })
+
+  it("отслеживает индекс повторов и enumeration атрибутов PI", () => {
+    const indexedType = "TestIndexedStructuralRead" as PropertyRuleType
+    registerTypeRule(indexedType, "importFromXMLToYAML", ({ xml }) => {
+      const value = xml as Record<string, unknown>
+      return {
+        second: (value.Row as unknown[])[1],
+        piKeys: Object.keys(value["?mode"] as object),
+      }
+    })
+    const { yaml, audit } = importAuditedStructuralProperty({
+      propertyType: indexedType,
+      itemType: "TestIndexedOwner",
+      xml: '<Root><Value><Row>one</Row><Row>two</Row><?mode code="m"?></Value></Root>',
+    })
+    audit.finalize()
+
+    expect(audit.rawCandidates()).toEqual([])
+    expect(yaml).toEqual({ Значение: { second: "two", piKeys: ["_code"] } })
+    expect(
+      audit.outcomes()
+        .filter(({ node }) =>
+          node.path.includes("/Row[") || node.path.includes("/?mode[1]"),
+        )
+        .map(({ node, state }) => [node.path, state]),
+    ).toEqual([
+      ["/Root[1]/Value[1]/Row[1]", "unknown"],
+      ["/Root[1]/Value[1]/Row[1]/#text[1]", "unknown"],
+      ["/Root[1]/Value[1]/Row[2]", "claimed"],
+      ["/Root[1]/Value[1]/Row[2]/#text[1]", "claimed"],
+      ["/Root[1]/Value[1]/?mode[1]", "claimed"],
+      ["/Root[1]/Value[1]/?mode[1]/@code[1]", "claimed"],
+    ])
+  })
+
+  it.each([
+    {
+      kind: "чтении разных значений",
+      first: "1",
+      second: "2",
+      observe: (pi: Record<string, unknown>) => pi._a,
+      expected: "2",
+    },
+    {
+      kind: "enumeration разных значений",
+      first: "1",
+      second: "2",
+      observe: (pi: Record<string, unknown>) => Object.keys(pi),
+      expected: ["_a"],
+    },
+    {
+      kind: "чтении одинаковых значений",
+      first: "2",
+      second: "2",
+      observe: (pi: Record<string, unknown>) => pi._a,
+      expected: "2",
+    },
+  ])(
+    "заявляет последнюю effective occurrence при $kind repeated PI pseudoattribute",
+    ({ kind, first, second, observe, expected }) => {
+      const indexedType = `TestEffectivePIAttribute${kind}` as PropertyRuleType
+      registerTypeRule(indexedType, "importFromXMLToYAML", ({ xml }) =>
+        observe((xml as Record<string, unknown>)["?mode"] as Record<string, unknown>),
+      )
+      const { yaml, audit } = importAuditedStructuralProperty({
+        propertyType: indexedType,
+        itemType: `TestEffectivePIOwner${kind}`,
+        xml: `<Root><Value><?mode a="${first}" a="${second}"?></Value></Root>`,
+      })
+      audit.finalize()
+
+      expect(yaml).toEqual({ Значение: expected })
+      expect(
+        audit.outcomes()
+          .filter(({ node }) => node.path.includes("/?mode[1]/@a["))
+          .map(({ node, state }) => [node.path, state]),
+      ).toEqual([
+        ["/Root[1]/Value[1]/?mode[1]/@a[1]", "unknown"],
+        ["/Root[1]/Value[1]/?mode[1]/@a[2]", "claimed"],
+      ])
+    },
+  )
+
   it("не собирает aliases, present и пустую XML-форму", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
@@ -1146,6 +1370,31 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(context.fromXML.configurationIndex?.childCollectionUidSegment).toBe("ТабличнаяЧасть")
   })
 })
+
+function importAuditedStructuralProperty(params: {
+  propertyType: PropertyRuleType
+  itemType: string
+  xml: string
+}) {
+  const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+  const root = parseXmlDocumentWithSaxes(params.xml).roots[0]!
+  const audit = createXmlImportAuditSession([root])
+  const yaml = importPropertiesWithSources({
+    context,
+    rule: {
+      itemType: params.itemType,
+      properties: {
+        value: { type: params.propertyType, xml: "Value", yaml: "Значение" },
+      },
+    } as MetadataItemRule,
+    sources: [{ context, xml: root }],
+    yamlPath: [],
+    rulePath: [],
+    collector: createLocalIndexesCollector(),
+    audit,
+  })
+  return { yaml, audit }
+}
 
 function runSingleProperty(
   property: Record<string, unknown>,

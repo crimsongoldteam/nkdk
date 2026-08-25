@@ -1,9 +1,8 @@
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type {
-  YAMLToXMLExternalWriteFactory,
   YAMLToXMLOutputRequest,
+  YAMLToXMLItemConversionParams,
   YAMLToXMLResult,
-  YAMLToXMLProfile,
 } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { findInlineProperty } from "./yamlInline"
@@ -11,38 +10,12 @@ import { recordCurrentExternalMetadataUuid } from "../externalMetadata/record"
 import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import { bindDeferredObjectValues } from "../property/deferredObjectValues"
 
-export interface ConvertMetadataItemFromYAMLToXMLParams {
-  readonly convertProperties: (params: {
-    readonly context: ConfigurationContextWithExportToXML
-    readonly yaml: unknown
-    readonly rule: MetadataItemRule
-    readonly name?: string
-    readonly namePropertyKey?: string
-    readonly sourceItemName?: string
-    readonly outputs: readonly YAMLToXMLOutputRequest[]
-    readonly propertyValues?: ReadonlyMap<string, unknown>
-    readonly sparseYAML?: true
-    readonly omitDefaultsForSparseYAML?: true
-    readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
-    readonly profile?: YAMLToXMLProfile
-    readonly rulePath?: readonly (string | number)[]
-    readonly deferredRulePath?: readonly DeferredRulePathSegment[]
-  }) => YAMLToXMLResult
-  readonly context: ConfigurationContextWithExportToXML
-  readonly yaml: unknown
-  readonly rule: MetadataItemRule
-  readonly name?: string
-  readonly namePropertyKey?: string
-  readonly sourceItemName?: string
-  readonly outputs: readonly YAMLToXMLOutputRequest[]
-  readonly propertyValues?: ReadonlyMap<string, unknown>
+export interface ConvertMetadataItemFromYAMLToXMLParams
+  extends YAMLToXMLItemConversionParams {
+  readonly convertProperties: (
+    params: YAMLToXMLItemConversionParams
+  ) => YAMLToXMLResult
   readonly ownerYAML?: unknown
-  readonly sparseYAML?: true
-  readonly omitDefaultsForSparseYAML?: true
-  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
-  readonly profile?: YAMLToXMLProfile
-  readonly rulePath?: readonly (string | number)[]
-  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
 interface XMLRootInfo {
@@ -57,7 +30,9 @@ interface XMLRootInfo {
 export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFromYAMLToXMLParams): YAMLToXMLResult {
   const inline = findInlineProperty(params.rule)
   if (inline === undefined && params.yaml !== undefined && !isRecord(params.yaml)) {
-    throw new Error(`${params.rule.itemType}: ожидался YAML-объект`)
+    const rulePath = params.rulePath ?? []
+    const path = rulePath.length === 0 ? params.rule.itemType : rulePath.join(".")
+    throw new Error(`${params.rule.itemType}: ожидался YAML-объект; путь rules: ${path}`)
   }
   const yaml = inline === undefined ? params.yaml : { [inline.yamlKey]: params.yaml }
   const root = findXMLRoot(params.rule)
@@ -79,6 +54,7 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
   const converted = params.convertProperties({
     context: itemContext,
     yaml,
+    annotations: params.annotations,
     rule: params.rule,
     name: params.name,
     namePropertyKey: params.namePropertyKey,

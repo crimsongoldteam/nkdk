@@ -239,7 +239,7 @@ function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePe
       itemType: check.itemType,
       type: check.type,
       value: check.value,
-      tagged: check.tagged,
+      ...(check.xmlAnomaly === undefined ? {} : { xmlAnomaly: check.xmlAnomaly }),
       ...(check.transport === undefined ? {} : { transport: check.transport }),
     }
   }
@@ -266,7 +266,7 @@ function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePe
     location,
     owner: check.owner,
     value: check.value,
-    tagged: check.tagged,
+    ...(check.xmlAnomaly === undefined ? {} : { xmlAnomaly: check.xmlAnomaly }),
     policyInput: check.policyInput,
     ...(check.elementType === undefined ? {} : { elementType: check.elementType }),
     ...(check.hasValuesPicture === undefined ? {} : { hasValuesPicture: check.hasValuesPicture }),

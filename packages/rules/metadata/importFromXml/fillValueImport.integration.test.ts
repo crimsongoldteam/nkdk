@@ -1,16 +1,15 @@
+import { createConfigurationIndexCollector,serializeYAMLDocument } from "@nkdk/runtime"
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach,describe,expect,it } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
-import { createConfigurationIndexCollector, unwrapExplicitYAMLString, yamlScalarTagAt } from "@nkdk/runtime"
+import "../../tests/metadataExecutionContext"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
-import { serializeYAMLDocument } from "@nkdk/runtime"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 
 
-const fixture = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
 const adoptedExtensionFixture = join(
   import.meta.dirname,
   "__fixtures__/configurationExtension/Catalogs/СправочникПолный.xml",
@@ -22,60 +21,17 @@ afterEach(() => {
 })
 
 describe("fill value XML import", () => {
-  it("сохраняет булево Ложь для допустимых и запрещённых стандартных реквизитов", async () => {
-    const sourcePath = copiedBooleanFillValuesFixture()
-    const prepared = await prepareImportYaml({
-      assignment: assignment(sourcePath),
-      context: mockXmlImportContext(),
-      collector: createConfigurationIndexCollector(),
-    })
-
-    const yaml = prepared.yaml as {
-      Реквизиты: { БулевоПоле: Record<string, unknown> }
-      СтандартныеРеквизиты: {
-        ПометкаУдаления: Record<string, unknown>
-        Предопределенный: Record<string, unknown>
-        Владелец: Record<string, unknown>
-      }
-    }
-    const booleanFillValue = yaml.Реквизиты.БулевоПоле
-    const deletionMarkFillValue = yaml.СтандартныеРеквизиты.ПометкаУдаления
-    const predefinedFillValue = yaml.СтандартныеРеквизиты.Предопределенный
-    const ownerFillValue = yaml.СтандартныеРеквизиты.Владелец
-
-    expect(booleanFillValue.ЗначениеЗаполнения).toBe("Ложь")
-    expect(yamlScalarTagAt(booleanFillValue, "ЗначениеЗаполнения")).toBeUndefined()
-    expect(deletionMarkFillValue.ЗначениеЗаполнения).toBe("Ложь")
-    expect(yamlScalarTagAt(deletionMarkFillValue, "ЗначениеЗаполнения")).toBeUndefined()
-    expect(predefinedFillValue.ЗначениеЗаполнения).toBe("!xml/value Ложь")
-    expect(yamlScalarTagAt(predefinedFillValue, "ЗначениеЗаполнения")).toBe("xml/value")
-    expect(ownerFillValue.ЗначениеЗаполнения).toBe("!xml/value Ложь")
-    expect(yamlScalarTagAt(ownerFillValue, "ЗначениеЗаполнения")).toBe("xml/value")
-  })
-
-  it("сохраняет начальную дату через !xml без снимка", async () => {
-    const sourcePath = copiedBeginningDateFixture()
-    const collector = createConfigurationIndexCollector()
-    const prepared = await prepareImportYaml({
-      assignment: assignment(sourcePath),
-      context: mockXmlImportContext(),
-      collector,
-    })
-
-    const attribute = (prepared.yaml as {
-      Реквизиты: { Момент: Record<string, unknown> }
-    }).Реквизиты.Момент
-    expect(attribute.ЗначениеЗаполнения).toBe("!xml/value 01.01.0001 00:00:00")
-    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml/value")
-    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
-      expect.objectContaining({ logicalAddress: "Справочник.СправочникПолный.Реквизит.Момент.fillValue" }),
-    )
-  })
 
   it.each(["type-before", "fill-before"] as const)(
     "нормализует значение после полного дерева при порядке %s",
     async (order) => {
-      const sourcePath = copiedFixture(order)
+      const sourcePath = copiedAttributeFixture({
+        name: "СтроковыйРеквизитСИндексом",
+        type: "<v8:Type>xs:string</v8:Type><v8:StringQualifiers><v8:Length>10</v8:Length><v8:AllowedLength>Variable</v8:AllowedLength></v8:StringQualifiers>",
+        fillValue: '<FillValue xsi:type="xs:string"/>',
+        fillBeforeType: order === "fill-before",
+        includeDeletionMark: true,
+      })
       const collector = createConfigurationIndexCollector()
       const prepared = await prepareImportYaml({
         assignment: assignment(sourcePath),
@@ -97,26 +53,14 @@ describe("fill value XML import", () => {
     },
   )
 
-  it("сохраняет неканонический xsi:nil строкового реквизита как !xml Nil", async () => {
-    const sourcePath = copiedStringNilFixture()
-    const collector = createConfigurationIndexCollector()
+  it("не сохраняет канонический xsi:nil нестрокового реквизита", async () => {
+    const sourcePath = copiedAttributeFixture({
+      name: "РеквизитСправочника",
+      type: "<v8:Type>xs:dateTime</v8:Type><v8:DateQualifiers><v8:DateFractions>Date</v8:DateFractions></v8:DateQualifiers>",
+      fillValue: '<FillValue xsi:nil="true"/>',
+    })
     const prepared = await prepareImportYaml({
       assignment: assignment(sourcePath),
-      context: mockXmlImportContext(),
-      collector,
-    })
-
-    expect(serializeYAMLDocument(prepared.yaml).text).toContain("ЗначениеЗаполнения: !xml/value Nil")
-    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
-      expect.objectContaining({
-        logicalAddress: "Справочник.СправочникПолный.Реквизит.СтроковыйРеквизитСИндексом.fillValue",
-      }),
-    )
-  })
-
-  it("не сохраняет канонический xsi:nil нестрокового реквизита", async () => {
-    const prepared = await prepareImportYaml({
-      assignment: assignment(fixture),
       context: mockXmlImportContext(),
       collector: createConfigurationIndexCollector(),
     })
@@ -139,24 +83,17 @@ describe("fill value XML import", () => {
     expect(serializeYAMLDocument(prepared.yaml).text).toContain('ЗначениеЗаполнения: "--"')
   })
 
-  it.each([
-    ["допустимую", "   ", undefined],
-    ["несовместимую", "    ", "xml/value"],
-    ["при нулевой длине", "         ", undefined],
-  ] as const)("сохраняет %s пробельную строку Кода", async (_name, value, expectedTag) => {
-    const sourcePath = copiedCatalogCodeFixture(value, value.length === 9 ? 0 : 3)
+  it("сохраняет пробелы строкового FillValue как строку YAML", async () => {
+    const sourcePath = copiedCatalogCodeFixture("         ")
     const prepared = await prepareImportYaml({
       assignment: assignment(sourcePath),
       context: mockXmlImportContext(),
       collector: createConfigurationIndexCollector(),
     })
-    const code = (prepared.yaml as {
-      СтандартныеРеквизиты: { Код: Record<string, unknown> }
-    }).СтандартныеРеквизиты.Код
 
-    expect(unwrapExplicitYAMLString(code.ЗначениеЗаполнения))
-      .toBe(expectedTag === undefined ? value : `!xml/value ${value}`)
-    expect(yamlScalarTagAt(code, "ЗначениеЗаполнения")).toBe(expectedTag)
+    expect(serializeYAMLDocument(prepared.yaml).text).toContain(
+      'ЗначениеЗаполнения: "         "',
+    )
   })
 
   it("откладывает DefinedType без сохранения исходного XML в снимке", async () => {
@@ -184,38 +121,6 @@ describe("fill value XML import", () => {
     )
   })
 
-  it.each([
-    ["typed", "Справочник.ПапкиФайлов.ПустаяСсылка", false],
-    ["empty", "DesignTimeRef", true],
-  ] as const)("откладывает %s XML-исключение владельца без snapshot", async (kind, expected, tagged) => {
-    const sourcePath = copiedEmptyOwnerFixture(kind)
-    const collector = createConfigurationIndexCollector()
-    const prepared = await prepareImportYaml({
-      assignment: assignment(sourcePath),
-      context: mockXmlImportContext(),
-      collector,
-    })
-
-    expect(prepared.yaml).not.toHaveProperty("Владельцы")
-    expect(prepared.yaml).toHaveProperty(
-      "СтандартныеРеквизиты.Владелец.ЗначениеЗаполнения",
-      tagged ? `!xml/value ${expected}` : expected,
-    )
-    expect(serializeYAMLDocument(prepared.yaml).text).toContain(
-      `ЗначениеЗаполнения: ${tagged ? "!xml/value " : ""}${expected}`,
-    )
-    if (!tagged) {
-      expect(prepared.dependentDeferred).toEqual(expect.arrayContaining([
-        expect.objectContaining({
-          yamlPath: ["СтандартныеРеквизиты", "Владелец", "ЗначениеЗаполнения"],
-        }),
-      ]))
-    }
-    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
-      expect.objectContaining({ logicalAddress: "Справочник.СправочникПолный.СтандартныйРеквизит.Владелец.fillValue" }),
-    )
-  })
-
   it("не синтезирует стандартные реквизиты заимствованного справочника расширения", async () => {
     const prepared = await prepareImportYaml({
       assignment: assignment(adoptedExtensionFixture),
@@ -229,149 +134,72 @@ describe("fill value XML import", () => {
   })
 })
 
-function copiedBeginningDateFixture(): string {
-  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-date-import-"))
-  tempDirs.push(dir)
-  const sourcePath = join(dir, "СправочникПолный.xml")
-  const xml = fs.readFileSync(fixture, "utf8")
-    .replace("<Name>РеквизитСправочника</Name>", "<Name>Момент</Name>")
-    .replace("<v8:DateFractions>Date</v8:DateFractions>", "<v8:DateFractions>DateTime</v8:DateFractions>")
-    .replace('<FillValue xsi:nil="true"/>', '<FillValue xsi:type="xs:dateTime">0001-01-01T00:00:00</FillValue>')
-  fs.writeFileSync(sourcePath, xml)
-  return sourcePath
-}
-
-function copiedBooleanFillValuesFixture(): string {
-  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-boolean-import-"))
-  tempDirs.push(dir)
-  const sourcePath = join(dir, "СправочникПолный.xml")
-  const booleanType = `<Type>
-						<v8:Type>xs:dateTime</v8:Type>
-						<v8:DateQualifiers>
-							<v8:DateFractions>Date</v8:DateFractions>
-						</v8:DateQualifiers>
-					</Type>`
-  let xml = fs.readFileSync(fixture, "utf8")
-    .replace("<Name>РеквизитСправочника</Name>", "<Name>БулевоПоле</Name>")
-    .replace(booleanType, "<Type><v8:Type>xs:boolean</v8:Type></Type>")
-  xml = replaceFillValueAfter(
-    xml,
-    '<xr:StandardAttribute name="DeletionMark">',
-    '<xr:FillValue xsi:nil="true"/>',
-    '<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>',
-  )
-  xml = replaceFillValueAfter(
-    xml,
-    '<xr:StandardAttribute name="Predefined">',
-    '<xr:FillValue xsi:nil="true"/>',
-    '<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>',
-  )
-  xml = replaceFillValueAfter(
-    xml,
-    '<xr:StandardAttribute name="Owner">',
-    '<xr:FillValue xsi:type="xr:DesignTimeRef">447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231</xr:FillValue>',
-    '<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>',
-  )
-  xml = replaceFillValueAfter(
-    xml,
-    "<Name>БулевоПоле</Name>",
-    '<FillValue xsi:nil="true"/>',
-    '<FillValue xsi:type="xs:boolean">false</FillValue>',
-  )
-  fs.writeFileSync(sourcePath, xml)
-  return sourcePath
-}
-
-function replaceFillValueAfter(xml: string, marker: string, source: string, replacement: string): string {
-  const markerIndex = xml.indexOf(marker)
-  const fillValueIndex = xml.indexOf(source, markerIndex)
-  if (markerIndex === -1 || fillValueIndex === -1) throw new Error(`Не найден FillValue после ${marker}`)
-  return `${xml.slice(0, fillValueIndex)}${replacement}${xml.slice(fillValueIndex + source.length)}`
-}
-
-function copiedFixture(order: "type-before" | "fill-before"): string {
-  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-import-"))
-  tempDirs.push(dir)
-  const sourcePath = join(dir, "СправочникПолный.xml")
-  let xml = fs.readFileSync(fixture, "utf8")
-  if (order === "fill-before") {
-    const start = xml.indexOf("<Name>СтроковыйРеквизитСИндексом</Name>")
-    const fill = xml.indexOf('<FillValue xsi:type="xs:string"/>', start)
-    const type = xml.indexOf("<Type>", start)
-    const fillLineStart = xml.lastIndexOf("\n", fill) + 1
-    const fillLineEnd = xml.indexOf("\n", fill) + 1
-    const fillLine = xml.slice(fillLineStart, fillLineEnd)
-    xml = `${xml.slice(0, fillLineStart)}${xml.slice(fillLineEnd)}`
-    const adjustedType = type < fillLineStart ? type : type - fillLine.length
-    const typeLineStart = xml.lastIndexOf("\n", adjustedType) + 1
-    xml = `${xml.slice(0, typeLineStart)}${fillLine}${xml.slice(typeLineStart)}`
-  }
-  fs.writeFileSync(sourcePath, xml)
-  return sourcePath
-}
-
-function copiedStringNilFixture(): string {
-  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-string-nil-import-"))
-  tempDirs.push(dir)
-  const sourcePath = join(dir, "СправочникПолный.xml")
-  const source = fs.readFileSync(fixture, "utf8")
-  const attributeStart = source.indexOf("<Name>СтроковыйРеквизитСИндексом</Name>")
-  const fill = source.indexOf('<FillValue xsi:type="xs:string"/>', attributeStart)
-  if (attributeStart === -1 || fill === -1) throw new Error("Не найден строковый реквизит с пустым FillValue")
-  const original = '<FillValue xsi:type="xs:string"/>'
-  const xml = `${source.slice(0, fill)}<FillValue xsi:nil="true"/>${source.slice(fill + original.length)}`
-  fs.writeFileSync(sourcePath, xml)
-  return sourcePath
-}
-
 function copiedCatalogCodeFixture(value = "--", length = 3): string {
   const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-code-import-"))
   tempDirs.push(dir)
   const sourcePath = join(dir, "СправочникПолный.xml")
-  let xml = fs.readFileSync(fixture, "utf8")
-    .replace("<CodeLength>11</CodeLength>", `<CodeLength>${length}</CodeLength>`)
-    .replace("\n\t\t\t<CodeType>Number</CodeType>", "")
-  const codeStart = xml.indexOf('<xr:StandardAttribute name="Code">')
-  const fillStart = xml.indexOf('<xr:FillValue xsi:nil="true"/>', codeStart)
-  if (codeStart === -1 || fillStart === -1) throw new Error("Не найден стандартный реквизит Code")
-  const emptyFill = '<xr:FillValue xsi:nil="true"/>'
-  xml = `${xml.slice(0, fillStart)}<xr:FillValue xsi:type="xs:string">${value}</xr:FillValue>${xml.slice(fillStart + emptyFill.length)}`
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses"
+  xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Catalog uuid="f8ffca12-d09d-4111-ba91-67077462df5b">
+    <Properties>
+      <Name>СправочникПолный</Name>
+      <CodeLength>${length}</CodeLength>
+      <StandardAttributes>
+        <xr:StandardAttribute name="Code">
+          <xr:FillValue xsi:type="xs:string">${value}</xr:FillValue>
+        </xr:StandardAttribute>
+      </StandardAttributes>
+    </Properties>
+  </Catalog>
+</MetaDataObject>`
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
 }
 
 function copiedDefinedTypeFixture(): string {
-  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-defined-type-import-"))
-  tempDirs.push(dir)
-  const sourcePath = join(dir, "СправочникПолный.xml")
-  const sourceType = `<Type>
-						<v8:Type>xs:dateTime</v8:Type>
-						<v8:DateQualifiers>
-							<v8:DateFractions>Date</v8:DateFractions>
-						</v8:DateQualifiers>
-					</Type>`
-  const xml = fs.readFileSync(fixture, "utf8")
-    .replace("<Name>РеквизитСправочника</Name>", "<Name>АвторДействия</Name>")
-    .replace(sourceType, "<Type><v8:TypeSet>cfg:DefinedType.АвторДействия</v8:TypeSet></Type>")
-    .replace('<FillValue xsi:nil="true"/>', '<FillValue xsi:type="xr:DesignTimeRef">Catalog.Пользователи.EmptyRef</FillValue>')
-  fs.writeFileSync(sourcePath, xml)
-  return sourcePath
+  return copiedAttributeFixture({
+    name: "АвторДействия",
+    type: "<v8:TypeSet>cfg:DefinedType.АвторДействия</v8:TypeSet>",
+    fillValue: '<FillValue xsi:type="xr:DesignTimeRef">Catalog.Пользователи.EmptyRef</FillValue>',
+  })
 }
 
-function copiedEmptyOwnerFixture(kind: "typed" | "empty"): string {
-  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-empty-owner-import-"))
+function copiedAttributeFixture(params: {
+  readonly name: string
+  readonly type: string
+  readonly fillValue: string
+  readonly fillBeforeType?: boolean
+  readonly includeDeletionMark?: boolean
+}): string {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-attribute-import-"))
   tempDirs.push(dir)
   const sourcePath = join(dir, "СправочникПолный.xml")
-  const sourceOwners = `<Owners>
-\t\t\t\t<xr:Item xsi:type="xr:MDObjectRef">Catalog.СправочникВладелец</xr:Item>
-\t\t\t</Owners>`
-  const sourceFill = '<xr:FillValue xsi:type="xr:DesignTimeRef">447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231</xr:FillValue>'
-  const targetFill = kind === "typed"
-    ? '<xr:FillValue xsi:type="xr:DesignTimeRef">Catalog.ПапкиФайлов.EmptyRef</xr:FillValue>'
-    : '<xr:FillValue xsi:type="xr:DesignTimeRef"/>'
-  const xml = fs.readFileSync(fixture, "utf8")
-    .replace(sourceOwners, "<Owners/>")
-    .replace(sourceFill, targetFill)
+  const type = `<Type>${params.type}</Type>`
+  const ordered = params.fillBeforeType
+    ? `${params.fillValue}${type}`
+    : `${type}${params.fillValue}`
+  const deletionMark = params.includeDeletionMark
+    ? '<StandardAttributes><xr:StandardAttribute name="DeletionMark"><xr:FillValue xsi:nil="true"/></xr:StandardAttribute></StandardAttributes>'
+    : ""
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses"
+  xmlns:v8="http://v8.1c.ru/8.1/data/core"
+  xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"
+  xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Catalog uuid="f8ffca12-d09d-4111-ba91-67077462df5b">
+    <Properties><Name>СправочникПолный</Name>${deletionMark}</Properties>
+    <ChildObjects>
+      <Attribute uuid="301fda37-ce86-4a9a-a764-f914a74e0188">
+        <Properties><Name>${params.name}</Name>${ordered}</Properties>
+      </Attribute>
+    </ChildObjects>
+  </Catalog>
+</MetaDataObject>`
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
 }

@@ -1,48 +1,48 @@
-import { beforeAll, describe, expect, it, vi } from "vitest"
-import { join } from "node:path"
-import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
-import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
-import { validationComponentLayers } from "./componentVisibility"
-import {
-  createOwnerMetadataCacheFromValidationTable,
-  type OwnerMetadataCache,
-} from "./dataPath/ownerCache"
-import { createProjectValidationGraph } from "./projectValidationGraph"
-import type { FormDataPathIndex } from "./dataPath/formIndex"
-import type { FormDataPathColumnSource, OwnerTypeRef } from "./dataPath/types"
-import type { ObjectFieldIndex } from "./dataPath/objectFields"
-import { validatePendingChecks } from "./projectValidationPendingChecks"
-import { extractValidationYamlFacts } from "./yamlFactExtractor"
-import { resolveValidationProjectFile } from "./projectFiles"
-import { createValidationRulesSnapshot } from "./rulesSnapshot"
-import { createValidationProjectComponent } from "./projectComponents"
-import {
-  createProjectReferenceIndex,
-  createProjectReferenceSnapshot,
-  validatePendingReferencesWithIndex,
-  type PendingMetadataTargetReference,
-  type ProjectMemberIndexEntry,
-} from "./projectReferenceIndex"
-import { createValidationObjectTable } from "./projectValidationObjectTable"
-import type {
-  ComponentValidationLayer,
-  ProjectValidationGraph,
-  ValidationObjectRecord,
-} from "./projectValidationTypes"
-import type { ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "../projectState/fileUpdate"
+import { join } from "node:path"
+import { beforeAll,describe,expect,it,vi } from "vitest"
+import { mockContext } from "../../tests/mockContext"
+import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
-import { createBinaryProjectStateTestFixture } from "../projectState/binary/testFixture"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
 import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
+import { createBinaryProjectStateTestFixture } from "../projectState/binary/testFixture"
+import type { ProjectStateFileUpdate,ProjectStateYamlFileUpdate } from "../projectState/fileUpdate"
+import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
+import { validationComponentLayers } from "./componentVisibility"
+import type { FormDataPathIndex } from "./dataPath/formIndex"
+import type { ObjectFieldIndex } from "./dataPath/objectFields"
 import {
-  createProjectStateDependencyValidator,
-  validateProjectStateAddressableRequiredBatch,
-  validateProjectStateDependencyBatch,
-  validateProjectStateOwnerBatch,
-  validateProjectStateReferenceBatch,
+createOwnerMetadataCacheFromValidationTable,
+type OwnerMetadataCache,
+} from "./dataPath/ownerCache"
+import type { FormDataPathColumnSource,OwnerTypeRef } from "./dataPath/types"
+import { createValidationProjectComponent } from "./projectComponents"
+import { resolveValidationProjectFile } from "./projectFiles"
+import {
+createProjectReferenceIndex,
+createProjectReferenceSnapshot,
+validatePendingReferencesWithIndex,
+type PendingMetadataTargetReference,
+type ProjectMemberIndexEntry,
+} from "./projectReferenceIndex"
+import {
+createProjectStateDependencyValidator,
+validateProjectStateAddressableRequiredBatch,
+validateProjectStateDependencyBatch,
+validateProjectStateOwnerBatch,
+validateProjectStateReferenceBatch,
 } from "./projectStateDependencyValidation"
-import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
+import { createProjectValidationGraph } from "./projectValidationGraph"
+import { createValidationObjectTable } from "./projectValidationObjectTable"
+import { validatePendingChecks } from "./projectValidationPendingChecks"
+import type {
+ComponentValidationLayer,
+ProjectValidationGraph,
+ValidationObjectRecord,
+} from "./projectValidationTypes"
+import { createValidationRulesSnapshot } from "./rulesSnapshot"
+import { extractValidationYamlFacts } from "./yamlFactExtractor"
 
 let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
 
@@ -213,7 +213,10 @@ describe("dependency validation из ProjectState", () => {
     const ownerCache = { get, listRefs: () => [] } satisfies OwnerMetadataCache
 
     expect(facts.pendingChecks).toEqual([])
-    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks })).toEqual({ diagnostics: [] })
+    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalyPaths: [],
+    })
     expect(get).not.toHaveBeenCalled()
   })
 
@@ -231,6 +234,95 @@ describe("dependency validation из ProjectState", () => {
     })
 
     expect(diagnostics).toEqual([])
+  })
+
+  it("не отправляет accepted-ссылку в порт projectState", () => {
+    const reference = {
+      ...valueReference("Справочник.Товары.ПустаяСсылка", {
+        roots: ["Catalog"],
+        valueKinds: ["emptyRef"],
+        allowEmptyRef: true,
+      }),
+      xmlAnomaly: "accepted" as const,
+    }
+    const validator = createProjectStateDependencyValidator()
+
+    expect(validator.validateReferences({
+      projectDir: "/project",
+      checks: [{ requestId: "accepted", componentPath: "cf", reference }],
+      queryPort: {
+        resolveTargets: () => unexpectedAcceptedLookup("resolveTargets"),
+        readOwners: () => unexpectedAcceptedLookup("readOwners"),
+        readDependencyOwnerInputs: () => unexpectedAcceptedLookup("readDependencyOwnerInputs"),
+        readOwnerRefPage: () => unexpectedAcceptedLookup("readOwnerRefPage"),
+      },
+    })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalies: [{
+        componentPath: "cf",
+        projectPath: reference.filePath,
+        yamlPath: reference.yamlPath,
+      }],
+    })
+  })
+
+  it("возвращает ошибочную pending-ссылку как подтверждённую границу", () => {
+    const reference = {
+      ...valueReference("Справочник.Товары.НетТакого", {
+        roots: ["Catalog"],
+        valueKinds: ["predefinedValue"],
+      }),
+      xmlAnomaly: "pending" as const,
+    }
+    const validator = createProjectStateDependencyValidator()
+
+    expect(validator.validateReferences({
+      projectDir: "/project",
+      checks: [{ requestId: "pending", componentPath: "cf", reference }],
+      queryPort: {
+        ...missingValueQueryPort({ predefined: [] }),
+        readDependencyOwnerInputs: () => [],
+        readOwnerRefPage: () => ({ refs: [] }),
+      },
+    })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalies: [{
+        componentPath: "cf",
+        projectPath: reference.filePath,
+        yamlPath: reference.yamlPath,
+      }],
+    })
+  })
+
+  it("не отправляет accepted-проверку зависимости в порт projectState", () => {
+    const source = ownerDependencySource(
+      "cf",
+      { kind: "Справочник", name: "Товары" },
+      "Объект.Артикул",
+    )
+    const ordinaryQuery = dependencyQuery("accepted-dependency", source)
+    const query = {
+      ...ordinaryQuery,
+      check: { ...ordinaryQuery.check, xmlAnomaly: "accepted" as const },
+    }
+    const validator = createProjectStateDependencyValidator()
+
+    expect(validator.validateDependencies({
+      projectDir: "/project",
+      checks: [query],
+      queryPort: {
+        readDependencyInputs: () => unexpectedAcceptedLookup("readDependencyInputs"),
+        readDependencyOwnerInputs: () => unexpectedAcceptedLookup("readDependencyOwnerInputs"),
+        readOwnerRefPage: () => unexpectedAcceptedLookup("readOwnerRefPage"),
+      },
+    })).toEqual({
+      diagnostics: [],
+      acceptedXmlAnomalies: [{
+        componentPath: query.componentPath,
+        projectPath: query.projectPath,
+        yamlPath: query.check.yamlPath,
+      }],
+    })
   })
 
   it("Б5 проверяет предопределённое значение общим поставщиком по сведениям владельца", () => {
@@ -264,44 +356,6 @@ describe("dependency validation из ProjectState", () => {
       source: "reference",
       message: 'Не найдена ссылка "Catalog.Товары.НетТакого"',
     })])
-  })
-
-  it.each([
-    [false, "found", 0],
-    [false, "missing", 1],
-    [true, "found", 1],
-    [true, "missing", 0],
-  ] as const)("проверяет FillValue: tagged=%s, target=%s", (tagged, status, errors) => {
-    const base = valueReference("Справочник.Товары.Основной", {
-      roots: ["Catalog"],
-      valueKinds: ["predefinedValue"],
-    })
-    const reference = { ...base, ...(tagged ? { tagged: "xml" as const } : {}) }
-    const diagnostics = validateProjectStateReferenceBatch({
-      projectDir: "/project",
-      checks: [{ requestId: "fill-value", componentPath: "cfe/Расширение", reference }],
-      queryPort: {
-        resolveTargets: (requests) => requests.map(({ requestId, componentPath }) =>
-          componentPath === "cfe/Расширение" && status === "found"
-            ? {
-                requestId,
-                status: "found" as const,
-                target: { kind: "value" as const, canonical: reference.canonical },
-                source: { projectPath: "cfe/Расширение/Цель.yaml", componentPath },
-              }
-            : { requestId, status: "missing" as const }
-        ),
-        readOwners: () => [],
-      },
-    })
-
-    expect(diagnostics).toHaveLength(errors)
-    if (tagged && status === "found") {
-      expect(diagnostics[0]?.message).toBe("!xml/reference не требуется: ссылка доступна в расширении")
-    }
-    if (!tagged && status === "missing") {
-      expect(diagnostics[0]?.message).toBe(`Не найдена ссылка "${reference.canonical}"`)
-    }
   })
 
   it.each([
@@ -395,7 +449,6 @@ describe("dependency validation из ProjectState", () => {
       itemType: "MetadataAttribute",
       type: { type: ["DefinedType.АвторДействия"] },
       value: { type: "ref" as const, value: "Catalog.Пользователи.Администратор" },
-      tagged: false,
     }
     const query = { requestId: "fill", componentPath: "cf", projectPath: "cf/Справочник/Товары/Свойства.yaml", check }
     const definedType = { kind: "ОпределяемыйТип", name: "АвторДействия" }
@@ -466,6 +519,28 @@ describe("dependency validation из ProjectState", () => {
     store.rollbackUpdate()
   })
 
+  it.each([
+    ["ошибочную ссылку подтверждением invalid", false, []],
+    ["корректную ссылку причиной ошибки лишнего invalid", true, [expect.objectContaining({
+      source: "structure",
+      message: expect.stringContaining("Тег XML-аномалии лишний"),
+    })]],
+  ] as const)("считает %s", (_name, targetExists, expected) => {
+    const ordinarySource = yamlUpdate("cf/ИсточникСInvalid.yaml", "cf", true)
+    const source = {
+      ...ordinarySource,
+      pendingReferences: ordinarySource.pendingReferences.map((reference) => ({
+        ...reference,
+        xmlAnomaly: "pending" as const,
+      })),
+    }
+    const updates = targetExists ? [source, yamlUpdate("cf/ЦельСInvalid.yaml", "cf", false)] : [source]
+    const store = storeWithUpdates(updates)
+
+    expect(store.validateDependencies({ requests: [] })).toEqual(expected)
+    store.rollbackUpdate()
+  })
+
   it("не применяет фильтр к уточняющей цели cf", () => {
     const constraint = {
       kind: "member" as const,
@@ -501,7 +576,6 @@ describe("dependency validation из ProjectState", () => {
     {
       name: "стандартный реквизит явно представленного объекта",
       value: "Объект.Код",
-      tagged: false,
       field: {
         name: "Код",
         targetName: "Code",
@@ -512,7 +586,7 @@ describe("dependency validation из ProjectState", () => {
     {
       name: "внутреннее имя стандартного реквизита в !xml",
       value: "Объект.Code",
-      tagged: true,
+      xmlAnomaly: "pending" as const,
       field: {
         name: "Код",
         targetName: "Code",
@@ -520,8 +594,14 @@ describe("dependency validation из ProjectState", () => {
         typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
       },
     },
-  ])("разрешает $name", ({ value, field, tagged = false }) => {
-    const source = ownerDependencySource("cfe/x", { kind: "Справочник", name: "Товары" }, value, undefined, tagged)
+  ])("разрешает $name", ({ value, field, xmlAnomaly }) => {
+    const source = ownerDependencySource(
+      "cfe/x",
+      { kind: "Справочник", name: "Товары" },
+      value,
+      undefined,
+      xmlAnomaly !== undefined,
+    )
     const extensionOwner = ownerUpdate("cfe/x", [{
       owner: { kind: "Справочник", name: "Товары" },
       ...field,
@@ -534,7 +614,7 @@ describe("dependency validation из ProjectState", () => {
     store.rollbackUpdate()
   })
 
-  it("сообщает об отсутствующем поле внутри tagged DataPath", () => {
+  it("считает ошибку DataPath подтверждением invalid", () => {
     const source = ownerDependencySource(
       "cf",
       { kind: "Справочник", name: "Товары" },
@@ -547,12 +627,30 @@ describe("dependency validation из ProjectState", () => {
 
     expect(store.validateDependencies({
       requests: [{ requestId: "data-path", componentPath: "cf", projectPath: source.projectPath }],
-    })).toEqual([
-      expect.objectContaining({
-        source: "structure",
-        message: expect.stringContaining('неизвестный реквизит "MissingField"'),
-      }),
-    ])
+    })).toEqual([])
+    store.rollbackUpdate()
+  })
+
+  it("считает invalid на корректном DataPath лишним", () => {
+    const source = ownerDependencySource(
+      "cf",
+      { kind: "Справочник", name: "Товары" },
+      "Объект.Артикул",
+      undefined,
+      true,
+    )
+    const owner = ownerUpdate("cf", [{
+      owner: { kind: "Справочник", name: "Товары" },
+      name: "Артикул",
+      kind: "attribute",
+      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "String" },
+    }])
+    const store = storeWithUpdates([source, owner])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([expect.objectContaining({
+      source: "structure",
+      message: expect.stringContaining("Тег XML-аномалии лишний"),
+    })])
     store.rollbackUpdate()
   })
 
@@ -574,6 +672,7 @@ describe("dependency validation из ProjectState", () => {
       filePath: "cf/Справочник/НетТакого/Свойства.yaml",
       line: 1,
       col: 1,
+      path: "/Ссылка",
       severity: "error",
       source: "reference",
       message: 'Не найден объект "Справочник.НетТакого"',
@@ -1264,6 +1363,10 @@ function dependencyQuery(requestId: string, source: ProjectStateYamlFileUpdate) 
   }
 }
 
+function unexpectedAcceptedLookup(name: string): never {
+  throw new Error(`${name} не должен запускаться`)
+}
+
 function currentOwnerInput(
   requestId: string,
   owner: OwnerTypeRef,
@@ -1341,6 +1444,7 @@ function missingMemberDiagnostic(filePath: string) {
     filePath,
     line: 1,
     col: 1,
+    path: "/Ссылка",
     severity: "error" as const,
     source: "reference" as const,
     message: 'Не найдена ссылка "Catalog.Товары.Attribute.Артикул"',
@@ -1486,7 +1590,6 @@ function formPolicySource(): ProjectStateYamlFileUpdate {
         location: { line: 8, col: 13, path: "/Элементы/Календарь/ПутьКДанным" },
         owner,
         value: "Таблица.Значение",
-        tagged: false,
         policyInput: { yaml: "ПутьКДанным", allowedKinds: ["dateTime"] },
         policy: "formDataPath",
       },
@@ -1539,7 +1642,7 @@ function ownerDependencySource(
   owner: Extract<ProjectStateYamlFileUpdate["pendingChecks"][number], { kind: "dataPath" }>["owner"] = { kind: "Справочник", name: "Товары" },
   value = "Объект.Артикул",
   projectPath = `${componentPath}/Форма.yaml`,
-  tagged = false,
+  withXmlAnomaly = false,
 ): ProjectStateYamlFileUpdate {
   return {
     ...emptyYamlUpdate(projectPath, componentPath, "form"),
@@ -1562,7 +1665,7 @@ function ownerDependencySource(
         location: { line: 3, col: 15, path: "/ПутьКДанным" },
         owner,
         value,
-        tagged,
+        ...(withXmlAnomaly ? { xmlAnomaly: "pending" as const } : {}),
         policyInput: { yaml: "ПутьКДанным" },
         policy: "formDataPath",
       },

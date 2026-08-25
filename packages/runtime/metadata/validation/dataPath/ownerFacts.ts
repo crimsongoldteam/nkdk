@@ -8,6 +8,7 @@ import { indexValueFromYAML } from "../../ruleRuntime/property/indexValueFromYAM
 import { rootFromYAML } from "../../ruleRuntime/metadataTarget/roots"
 import { getSystemEnumeration } from "../../ruleRuntime/property/systemEnumerationRegistry"
 import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+import { xmlAnnotatedMappingEntries, type XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
 type ValidationOwnerFactsModel = MetadataItem & {
   type?: unknown
   content?: unknown
@@ -120,17 +121,21 @@ export function createValidationOwnerFacts(params: {
 export const collectOwnerFactFromYAML: CollectLocalFactsFromYAMLFunction = ({ fact, writer }) => {
   const role = fact.rule.ownerFactRole
   if (role === undefined) return
-  const value = normalizedOwnerFact(role, fact.value)
+  const value = normalizedOwnerFact(role, fact.value, fact.annotations)
   if (value !== undefined) writer.setOwnerFact(role, value)
 }
 
-function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
+function normalizedOwnerFact(
+  role: OwnerFactRole,
+  value: unknown,
+  annotations?: XmlAnomalyAnnotations,
+): unknown {
   if (role === "type") return indexValueFromYAML<TypeDescriptionView>("TypeDescription", value)
   if (role === "attributes" || role === "dimensions" || role === "resources" || role === "addressingAttributes")
-    return namedTypedItemsFromYaml(value)
-  if (role === "tabularSections") return tabularSectionsFromYaml(value)
+    return namedTypedItemsFromYaml(value, annotations)
+  if (role === "tabularSections") return tabularSectionsFromYaml(value, annotations)
   if (role === "standardAttributes" || role === "accountingFlags" || role === "extDimensionAccountingFlags")
-    return namedTypedItemsFromYaml(value)
+    return namedTypedItemsFromYaml(value, annotations)
   if (role === "owners" || role === "registerRecords") return metadataLinksFromYaml(value)
   if (role === "task") return taskLinkFromYaml(value)
   if (role === "chartOfAccounts" || role === "extDimensionTypes")
@@ -145,41 +150,56 @@ function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
   if (role === "correspondence" || role === "actionPeriod" || role === "basePeriod")
     return typeof value === "boolean" ? String(value) : undefined
   if (role === "maxExtDimensionCount") return typeof value === "number" ? String(value) : undefined
-  if (role === "commands") return namedTypedItemsFromYaml(value)
-  if (role === "predefined" || role === "enumValues") return namedValueItemsFromYaml(value)
+  if (role === "commands") return namedTypedItemsFromYaml(value, annotations)
+  if (role === "predefined" || role === "enumValues") return namedValueItemsFromYaml(value, annotations)
   return undefined
 }
 
-export function ownerFactFromYAML(role: OwnerFactRole, value: unknown): unknown {
-  return normalizedOwnerFact(role, value)
+export function ownerFactFromYAML(
+  role: OwnerFactRole,
+  value: unknown,
+  annotations?: XmlAnomalyAnnotations,
+): unknown {
+  return normalizedOwnerFact(role, value, annotations)
 }
 
-function namedTypedItemsFromYaml(value: unknown): NamedTypeItems {
-  return Object.entries(metadataRecord(value)).map(([name, item]) => {
+function namedTypedItemsFromYaml(value: unknown, annotations?: XmlAnomalyAnnotations): NamedTypeItems {
+  return annotatedEntries(value, annotations).map(([name, item]) => {
     const type = indexValueFromYAML<TypeDescriptionView>("TypeDescription", metadataRecord(item)["Тип"])
     return { name, ...(type === undefined ? {} : { type }) }
   })
 }
 
-function namedValueItemsFromYaml(value: unknown): NamedTypeItems {
-  return Object.entries(metadataRecord(value)).flatMap(([name, item]) => [
+function namedValueItemsFromYaml(value: unknown, annotations?: XmlAnomalyAnnotations): NamedTypeItems {
+  return annotatedEntries(value, annotations).flatMap(([name, item]) => [
     { name },
-    ...namedValueItemsFromYaml(metadataRecord(item)["Элементы"]),
+    ...namedValueItemsFromYaml(metadataRecord(item)["Элементы"], annotations),
   ])
 }
 
 function tabularSectionsFromYaml(
-  value: unknown
+  value: unknown,
+  annotations?: XmlAnomalyAnnotations,
 ): Array<{ name: string; attributes: NamedTypeItems; standardAttributes?: NamedTypeItems }> {
-  return Object.entries(metadataRecord(value)).map(([name, item]) => {
+  return annotatedEntries(value, annotations).map(([name, item]) => {
     const record = metadataRecord(item)
-    const standardAttributes = namedTypedItemsFromYaml(record["СтандартныеРеквизиты"])
+    const standardAttributes = namedTypedItemsFromYaml(record["СтандартныеРеквизиты"], annotations)
     return {
       name,
-      attributes: namedTypedItemsFromYaml(record["Реквизиты"]),
+      attributes: namedTypedItemsFromYaml(record["Реквизиты"], annotations),
       ...(standardAttributes.length === 0 ? {} : { standardAttributes }),
     }
   })
+}
+
+function annotatedEntries(
+  value: unknown,
+  annotations?: XmlAnomalyAnnotations,
+): [string, unknown][] {
+  const record = metadataRecord(value)
+  return annotations === undefined
+    ? Object.entries(record)
+    : xmlAnnotatedMappingEntries(record, annotations)
 }
 
 function metadataLinksFromYaml(value: unknown): string[] {

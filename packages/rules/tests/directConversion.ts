@@ -20,6 +20,7 @@ import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/proj
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
 import { xmlExport } from "@nkdk/runtime"
+import type { XmlAnomalyAnnotations, XmlAnomalyAnnotationTable } from "@nkdk/runtime"
 
 interface FromXMLResult {
   yaml: unknown
@@ -113,6 +114,7 @@ export function testPropertyFromXMLToYAML(params: {
   context?: ConfigurationContextFromXML
   execution?: PropertyRuleExecution
   name?: string
+  annotations?: XmlAnomalyAnnotationTable
 }): FromXMLResult {
   const context = params.context ?? mockContextFromXML()
   const collector = createLocalIndexesCollector()
@@ -125,6 +127,7 @@ export function testPropertyFromXMLToYAML(params: {
     rulePath: [],
     collector,
     execution: params.execution,
+    annotations: params.annotations,
   })
   return { yaml, indexes: collector.finish() }
 }
@@ -137,6 +140,7 @@ export function testPropertyFromYAMLToXML(params: {
   name?: string
   referenceXML?: unknown
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
+  annotations?: XmlAnomalyAnnotations
 }): ToXMLResult {
   const result = convertPropertiesFromYAMLToXML({
     context: params.context ?? mockContextToXML(),
@@ -146,6 +150,7 @@ export function testPropertyFromYAMLToXML(params: {
     name: params.name,
     outputs: [{ key: "owner", referenceXML: params.referenceXML }],
     externalWriteFactory: params.externalWriteFactory,
+    annotations: params.annotations,
   })
   return { xml: result.outputs.get("owner") ?? {}, externalWrites: result.externalWrites }
 }

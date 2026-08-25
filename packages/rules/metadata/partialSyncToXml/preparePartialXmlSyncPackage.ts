@@ -44,6 +44,7 @@ import {
   type PendingPartialXmlSyncStateV3,
 } from "./pendingStore"
 import { createPartialXmlArchiveWriter, type PartialXmlArchiveWriter } from "./archiveWriter"
+import { writePartialXmlSyncWorkerBatch } from "./workerBatch"
 import { withConfigurationValidationContextVersions } from "../context/validationContextVersions"
 
 export interface PreparePartialXmlSyncPackageParams {
@@ -68,7 +69,7 @@ export type PreparePartialXmlSyncPackageResult =
     }
   | { readonly ok: false; readonly diagnostics: readonly Diagnostic[] }
 
-interface ValidatedPreparationParams extends PreparePartialXmlSyncPackageParams {
+export interface ValidatedPreparationParams extends PreparePartialXmlSyncPackageParams {
   readonly projectDir: string
   readonly componentPath: string
   readonly readToken: ProjectStateReadToken
@@ -77,6 +78,7 @@ interface ValidatedPreparationParams extends PreparePartialXmlSyncPackageParams 
 
 export interface PartialXmlSyncCoordinatorDependencies {
   readonly readPending: typeof readPendingPartialXmlSync
+  readonly assertNoPending: typeof assertNoPendingPartialXmlSync
   readonly refresh: (params: PreparePartialXmlSyncPackageParams) => Promise<{
     readonly diagnostics: readonly Diagnostic[]
     readonly readToken: ProjectStateReadToken
@@ -86,6 +88,7 @@ export interface PartialXmlSyncCoordinatorDependencies {
 
 const defaultDependencies: PartialXmlSyncCoordinatorDependencies = {
   readPending: readPendingPartialXmlSync,
+  assertNoPending: assertNoPendingPartialXmlSync,
   refresh: refreshProject,
   prepareValidated: prepareValidatedPackage,
 }
@@ -101,7 +104,7 @@ export async function preparePartialXmlSyncPackage(
     const normalizedComponentPath = componentPath(address)
     const pending = await dependencies.readPending(projectDir, normalizedComponentPath)
     if (pending !== undefined) throw new Error(`Для компонента ${normalizedComponentPath} существует ожидающий пакет`)
-    await assertNoPendingPartialXmlSync(projectDir, normalizedComponentPath)
+    await dependencies.assertNoPending(projectDir, normalizedComponentPath)
     const refreshed = await dependencies.refresh({ ...params, projectDir, componentPath: normalizedComponentPath })
     diagnostics = refreshed.diagnostics
     if (hasErrors(diagnostics)) return { ok: false, diagnostics }
@@ -201,7 +204,7 @@ async function prepareValidatedPackage(
     hashes: runtime.target.hashes,
     selection: { kind: "all" },
   }), runtime)
-  return writePreparedPackage({
+  return writePreparedPartialXmlSyncPackage({
     ...params,
     runtime,
     plan,
@@ -217,7 +220,7 @@ function isMissingFile(caught: unknown): caught is NodeJS.ErrnoException {
   return caught instanceof Error && "code" in caught && caught.code === "ENOENT"
 }
 
-async function writePreparedPackage(params: ValidatedPreparationParams & {
+export interface PreparedPartialXmlSyncPackageParams extends ValidatedPreparationParams {
   readonly runtime: FullXmlSyncProfileRuntime
   readonly plan: FullXmlSyncPlan
   readonly compositionAssignments: readonly FullXmlSyncAssignment[]
@@ -225,21 +228,44 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
   readonly migration: Awaited<ReturnType<typeof evaluatePartialXmlSyncMigrationState>>
   readonly changes: ReturnType<typeof detectPartialXmlChanges>
   readonly diagnostics: readonly Diagnostic[]
-}): Promise<PreparePartialXmlSyncPackageResult> {
-  const packageId = randomUUID()
+}
+
+export interface PreparedPartialXmlSyncPackageDependencies {
+  readonly packageId: () => string
+  readonly operationSeed: () => Uint8Array
+  readonly createWriter: typeof createPartialXmlArchiveWriter
+  readonly createWorkerPool: typeof createFullXmlSyncWorkerPool
+  readonly writePending: typeof writePendingPartialXmlSync
+  readonly buildPendingDelta: typeof buildPendingDelta
+}
+
+const defaultPreparedPackageDependencies: PreparedPartialXmlSyncPackageDependencies = {
+  packageId: randomUUID,
+  operationSeed: () => randomBytes(32),
+  createWriter: createPartialXmlArchiveWriter,
+  createWorkerPool: createFullXmlSyncWorkerPool,
+  writePending: writePendingPartialXmlSync,
+  buildPendingDelta,
+}
+
+export async function writePreparedPartialXmlSyncPackage(
+  params: PreparedPartialXmlSyncPackageParams,
+  dependencies: PreparedPartialXmlSyncPackageDependencies = defaultPreparedPackageDependencies,
+): Promise<PreparePartialXmlSyncPackageResult> {
+  const packageId = dependencies.packageId()
   const archiveProjectPath = partialXmlSyncArchiveProjectPath(params.componentPath, packageId)
   const archivePath = join(params.projectDir, ...archiveProjectPath.split("/"))
   let writer: PartialXmlArchiveWriter | undefined
   let pool: FullXmlSyncWorkerPool | undefined
   let retained = false
   try {
-    writer = createPartialXmlArchiveWriter({ archivePath })
+    writer = dependencies.createWriter({ archivePath })
     const writtenPayloadPaths = new Set<string>()
     const rebuiltBlocks = new Map<string, ConfigurationIndexBlock>()
     const workerDiagnostics: FullXmlSyncDiagnostic[] = []
     if (params.plan.assignments.length > 0) {
       const concurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
-      pool = createFullXmlSyncWorkerPool({
+      pool = dependencies.createWorkerPool({
         concurrency,
         operation: await params.projectState.workers.beginOperation({
           id: `partial-xml-sync-${packageId}`,
@@ -264,7 +290,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
         composition: createFullXmlSyncCompositionSnapshot(params.compositionAssignments),
         targetIndex: params.runtime.target.snapshot.descriptor,
         ...(params.runtime.base === undefined ? {} : { baseIndex: params.runtime.base.snapshot.descriptor }),
-        operationSeed: randomBytes(32),
+        operationSeed: dependencies.operationSeed(),
       })
       const assignments = params.plan.assignments.map((assignment) => withConfigurationIndexSources({
         assignment,
@@ -274,11 +300,12 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
       const execution = await pool.execute(assignments, {
         maxBufferedBatches: concurrency,
         async onBatch(batch) {
-          for (const document of batch.generatedDocuments) {
-            await writer!.addGenerated(document)
-            writtenPayloadPaths.add(document.targetXmlPath)
-          }
-          for (const fragment of batch.configurationFragments) mergePartialBlock(rebuiltBlocks, fragment)
+          await writePartialXmlSyncWorkerBatch({
+            batch,
+            writer: writer!,
+            writtenPayloadPaths,
+            rebuiltBlocks,
+          })
         },
       })
       workerDiagnostics.push(...execution.diagnostics, ...execution.warnings)
@@ -296,7 +323,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
     }
     const loadTargets = params.impact.loadTargets.filter((target) => writtenPayloadPaths.has(target))
     const archive = await writer.close(loadTargets)
-    const delta = await buildPendingDelta(params, rebuiltBlocks)
+    const delta = await dependencies.buildPendingDelta(params, rebuiltBlocks)
     const pending: PendingPartialXmlSyncStateV3 = {
       version: 3,
       packageId,
@@ -308,7 +335,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
       loadTargets,
       delivery: { status: "prepared" },
     }
-    await writePendingPartialXmlSync({ projectDir: params.projectDir, state: pending, delta })
+    await dependencies.writePending({ projectDir: params.projectDir, state: pending, delta })
     retained = true
     return {
       ok: true,
@@ -330,7 +357,7 @@ async function writePreparedPackage(params: ValidatedPreparationParams & {
 }
 
 async function buildPendingDelta(
-  params: Pick<Parameters<typeof writePreparedPackage>[0], "changes" | "runtime">,
+  params: Pick<PreparedPartialXmlSyncPackageParams, "changes" | "runtime">,
   rebuiltBlocks: ReadonlyMap<string, ConfigurationIndexBlock>,
 ): Promise<ConfigurationIndexPendingDelta> {
   const hashes = new Map<string, { kind: "put"; contentHash: bigint } | { kind: "delete" }>()
@@ -353,25 +380,6 @@ async function buildPendingDelta(
     await store.close()
   }
   return { hashes, blocks }
-}
-
-function mergePartialBlock(
-  blocks: Map<string, ConfigurationIndexBlock>,
-  fragment: { readonly targetProjectPath: string; readonly entities: ConfigurationIndexBlock["entities"] },
-): void {
-  if (fragment.entities.length === 0) {
-    blocks.set(fragment.targetProjectPath, { entities: [] })
-    return
-  }
-  const merged = new Map((blocks.get(fragment.targetProjectPath)?.entities ?? []).map((entity) => [entity.logicalAddress, entity]))
-  for (const entity of fragment.entities) {
-    const previous = merged.get(entity.logicalAddress)
-    if (previous !== undefined && JSON.stringify(previous) !== JSON.stringify(entity)) {
-      throw new Error(`Конфликт блока ${fragment.targetProjectPath}: ${entity.logicalAddress}`)
-    }
-    merged.set(entity.logicalAddress, entity)
-  }
-  blocks.set(fragment.targetProjectPath, { entities: [...merged.values()] })
 }
 
 function readCompanionReferences(

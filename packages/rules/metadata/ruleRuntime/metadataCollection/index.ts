@@ -1,1 +1,4 @@
-export * from "@nkdk/runtime/rule-kit"
+export {
+  defineMetadataItemCollectionRule,
+  registerMetadataItemCollectionRule,
+} from "./ruleFactory"

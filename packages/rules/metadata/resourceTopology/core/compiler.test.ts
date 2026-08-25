@@ -188,6 +188,23 @@ describe("compileMetadataResourceTopology", () => {
       ["metadata", "Objects/{ownerName}.xml"],
       ["property", "Objects/{ownerName}/Ext/Additional.xml"],
     ])
+    expect(topology.assignments[0]?.xmlDocuments.map((document) => document.xmlAnomalySelector)).toEqual([
+      undefined,
+      "Additional",
+    ])
+  })
+
+  it("отклоняет одинаковые краткие имена дополнительных XML-документов", () => {
+    const ownerRule = rule("Owner")
+
+    expect(() => compileMetadataResourceTopology([
+      spec("Объект", ownerRule, [
+        content("Объект/{ownerName}/Свойства.yaml", ownerRule),
+        xml("", "Objects/{ownerName}.xml", "metadata"),
+        xml("", "Objects/{ownerName}/Ext/A/Form.xml", "body"),
+        xml("", "Objects/{ownerName}/Ext/B/Form.xml", "property"),
+      ]),
+    ])).toThrow(/краткое имя.*Form/iu)
   })
 
   it("компилирует YAML-спутник внутри задания без отдельного XML-задания", () => {

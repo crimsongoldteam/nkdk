@@ -5,7 +5,10 @@ export * from "./ruleRegistrySet"
 export * from "./metadataItem/ruleFactory"
 export * from "./metadataItem/fromXMLToYAML"
 export * from "./metadataItem/fromYAMLToXML"
-export * from "./metadataCollection"
+export {
+  defineMetadataItemCollectionRule,
+  registerMetadataItemCollectionRule,
+} from "./metadataCollection"
 export * from "./metadataCollection/fromYAMLToXML"
 
 export * from "./property/fromXML"

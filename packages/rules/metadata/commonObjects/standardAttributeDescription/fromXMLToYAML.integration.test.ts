@@ -1,11 +1,10 @@
-import { describe, expect, it } from "vitest"
-import type { PropertyRule } from "../../ruleRuntime"
-import { testExportPropertyModelThroughXMLToYAML } from "../../../tests/property/exportPropertyModelThroughXMLToYAML"
+import { yamlScalarTagAt } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { describe,expect,it } from "vitest"
 import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { serializeYAMLDocument } from "@nkdk/runtime"
-import { XML_PRESENT_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { testExportPropertyModelThroughXMLToYAML } from "../../../tests/property/exportPropertyModelThroughXMLToYAML"
+import type { PropertyRule } from "../../ruleRuntime"
 import { allYAML } from "./__fixtures__/data"
 import { StandartAttributeNameToYAML } from "./types"
 
@@ -38,19 +37,6 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     })
 
     expect(result).toEqual({ СтандартныеРеквизиты: allYAML })
-  })
-
-  it("помечает присутствующую дефолтную коллекцию пустым !xml", () => {
-    const result = testExportPropertyModelThroughXMLToYAML({
-      rule: { ...rule, standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" } },
-      value: undefined,
-      path: "minimal.xml",
-      xmlRootTag: "StandardAttributes",
-      importMetaUrl: import.meta.url,
-    })
-
-    expect(result).toEqual({ СтандартныеРеквизиты: XML_PRESENT_TAG_VALUE })
-    expect(serializeYAMLDocument(result).text).toBe("СтандартныеРеквизиты: !xml/present")
   })
 
   it("не создаёт маркер для отсутствующей коллекции", () => {
@@ -119,85 +105,6 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
         },
       },
     })
-  })
-
-  it("помечает отсутствующие канонические элементы через !xml/absent", () => {
-    const itemRule = {
-      itemType: "StandardAttributeAbsenceProbe",
-      properties: {
-        standardAttributes: {
-          type: "StandardAttributeDescriptions",
-          yaml: "СтандартныеРеквизиты",
-          xml: "StandardAttributes",
-          standartAttributeNames: {
-            Code: "Код",
-            Description: "Наименование",
-            ExchangeDate: "ДатаОбмена",
-          },
-        },
-      },
-    } as const satisfies MetadataItemRule
-    const imported = testPropertyFromXMLToYAML({
-      rule: itemRule,
-      xml: {
-        StandardAttributes: {
-          "xr:StandardAttribute": {
-            _name: "Code",
-            "xr:FillChecking": "ShowError",
-          },
-        },
-      },
-    }).yaml
-
-    expect(serializeYAMLDocument(imported).text).toContain("ДатаОбмена: !xml/absent")
-    expect(serializeYAMLDocument(imported).text).toContain("Наименование: !xml/absent")
-  })
-
-  it("exports empty reference fill value without losing its type", () => {
-    const result = testExportPropertyModelThroughXMLToYAML({
-      rule: { ...rule, standartAttributeNames: { Ref: "Ссылка" } },
-      value: undefined,
-      path: "fillValueEmptyRefTypeLoss.xml",
-      xmlRootTag: "StandardAttributes",
-      importMetaUrl: import.meta.url,
-    })
-
-    expect(result).toEqual({
-      СтандартныеРеквизиты: {
-        Ссылка: {
-          ЗначениеЗаполнения: "!xml/value DesignTimeRef",
-        },
-      },
-    })
-  })
-
-  it.each([
-    ["Code", "Код", "xs:string", "String"],
-    ["ValueType", "ТипЗначения", "v8:TypeDescription", "TypeDescription"],
-  ] as const)("переносит пустой %s FillValue в !xml %s", (xmlName, yamlName, xsiType, marker) => {
-    const itemRule = {
-      itemType: "StandardAttributeFillValueTransportProbe",
-      properties: {
-        standardAttributes: {
-          ...rule,
-          xml: "StandardAttributes",
-          standartAttributeNames: { [xmlName]: yamlName },
-        },
-      },
-    } as const satisfies MetadataItemRule
-    const imported = testPropertyFromXMLToYAML({
-      rule: itemRule,
-      xml: {
-        StandardAttributes: {
-          "xr:StandardAttribute": {
-            _name: xmlName,
-            "xr:FillValue": { "_xsi:type": xsiType },
-          },
-        },
-      },
-    }).yaml
-
-    expect(serializeYAMLDocument(imported).text).toContain(`ЗначениеЗаполнения: !xml/value ${marker}`)
   })
 
   it("exports explicit accounting ExtDimension attributes", () => {

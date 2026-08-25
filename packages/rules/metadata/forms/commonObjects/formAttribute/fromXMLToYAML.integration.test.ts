@@ -1,28 +1,23 @@
 import fs from "node:fs"
 import { fileURLToPath } from "node:url"
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
 import {
-  createDirectRoundTripContexts,
-  testPropertyFromXMLToYAML,
-  testPropertyFromYAMLToXML,
-} from "../../../../tests/directConversion"
-import {
-  XML_ABSENT_TAG_VALUE,
-  XML_PRESENT_TAG_VALUE,
-  importContentFromXML,
-  markYAMLScalarTag,
-  serializeYAMLDocument,
-  xmlExport,
-  yamlScalarTagAt,
+createXmlAnomalyAnnotations,
+importContentFromXML,
+serializeYAMLDocument,
+xmlExport
 } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import {
+createDirectRoundTripContexts,
+testPropertyFromXMLToYAML,
+testPropertyFromYAMLToXML,
+} from "../../../../tests/directConversion"
 
 import "../index"
 import "./fromXMLToYAML"
 import "./rules"
-import { metadataRules } from "../../../composition/metadataRules"
-import { createRuleRegistrySet } from "../../../ruleRuntime/ruleRegistrySet"
 
 const rule = {
   itemType: "FormAttributesProbe",
@@ -57,44 +52,45 @@ const settingsFixtures = [
 ] as const
 
 describe("FormAttributes XML → YAML → XML", () => {
-  it("сохраняет пустые параметры данных вложенного динамического списка", () => {
-    const execution = createRuleRegistrySet(metadataRules).execution
-    const { yaml } = testPropertyFromXMLToYAML({
-      rule,
-      xml: {
-        Attribute: {
-          _name: "Список",
-          Type: { "v8:Type": "cfg:DynamicList" },
-          Settings: {
-            "_xsi:type": "DynamicList",
-            ListSettings: { "dcsset:dataParameters": undefined },
+  it("сохраняет реквизиты и колонки с повторными именами в XML-порядке", () => {
+    const annotations = createXmlAnomalyAnnotations()
+    const source = {
+      Attribute: [
+        {
+          _name: "Таблица",
+          _id: "1",
+          Type: { "v8:Type": "v8:ValueTable" },
+          Columns: {
+            Column: [
+              { _name: "Колонка", _id: "1", Type: { "v8:Type": "xs:string" } },
+              { _name: "Колонка", _id: "2", Type: { "v8:Type": "xs:boolean" } },
+            ],
           },
         },
-      },
-      execution,
-    })
+        { _name: "Таблица", _id: "2", Type: { "v8:Type": "xs:string" } },
+      ],
+    }
 
-    expect(yaml).toHaveProperty(
-      "Значение.Список.ДинамическийСписок.ПараметрыДанных",
-      XML_PRESENT_TAG_VALUE,
-    )
-    expect(serializeYAMLDocument(yaml).text).toContain("ПараметрыДанных: !xml/present")
-  })
+    const { yaml } = testPropertyFromXMLToYAML({ rule, xml: source, annotations })
+    const text = serializeYAMLDocument(yaml, annotations).text
+    expect(text).toContain("!xml/invalid Таблица:")
+    expect(text).toContain("!xml/invalid Колонка:")
 
-  it("различает отсутствие Settings у единственного ValueListType", () => {
-    const { yaml } = testPropertyFromXMLToYAML({
-      rule,
-      xml: {
-        Attribute: {
-          _name: "Список",
-          Type: { "v8:Type": "v8:ValueListType" },
+    const { xml } = testPropertyFromYAMLToXML({ rule, yaml, annotations })
+    expect(xml).toMatchObject({
+      Attribute: [
+        {
+          _name: "Таблица",
+          Columns: {
+            Column: [
+              { _name: "Колонка", Type: { "v8:Type": "xs:string" } },
+              { _name: "Колонка", Type: { "v8:Type": "xs:boolean" } },
+            ],
+          },
         },
-      },
+        { _name: "Таблица", Type: { "v8:Type": "xs:string" } },
+      ],
     })
-    const item = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение.Список!
-
-    expect(item.ТипЗначения).toBe(XML_ABSENT_TAG_VALUE)
-    expect(yamlScalarTagAt(item, "ТипЗначения")).toBe("xml/absent")
   })
 
   it("не помечает отсутствие Settings у составного типа", () => {
@@ -130,22 +126,6 @@ describe("FormAttributes XML → YAML → XML", () => {
     const item = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение.Список!
 
     expect(item.ТипЗначения).toBe("Строка")
-  })
-
-  it("не создаёт Settings по маркеру отсутствия", () => {
-    const item = {
-      Тип: "СписокЗначений",
-      ТипЗначения: XML_ABSENT_TAG_VALUE,
-    }
-    markYAMLScalarTag(item, "ТипЗначения", "xml/absent")
-
-    const { xml } = testPropertyFromYAMLToXML({
-      rule,
-      yaml: { Значение: { Список: item } },
-    })
-    const attribute = Array.isArray(xml.Attribute) ? xml.Attribute[0] : xml.Attribute
-
-    expect(attribute).not.toHaveProperty("Settings")
   })
 
   it("создаёт канонический Settings без маркера", () => {

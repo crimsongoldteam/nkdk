@@ -13,3 +13,46 @@
     РазрешитьИзменениеСостава: Ложь
 Изменять:
   - Форма
+"@Form": !xml/raw
+  $xml:
+    AutoShowState: Auto
+    ReportResultViewMode: Auto
+    ViewModeApplicationOnSetReportResult: Auto
+    BaseForm:
+      _version: "2.20"
+      VerticalScroll: useIfNecessary
+      ReportFormType: Settings
+      AutoShowState: Auto
+      CustomSettingsFolder: КомпоновщикНастроекПользовательскиеНастройки
+      ReportResultViewMode: Auto
+      ViewModeApplicationOnSetReportResult: Auto
+      AutoCommandBar:
+        _name: ФормаКоманднаяПанель
+        _id: "-1"
+        HorizontalAlign: Right
+      ChildItems:
+        UsualGroup:
+          _name: КомпоновщикНастроекПользовательскиеНастройки
+          _id: "1"
+          Title:
+            v8:item:
+              v8:lang: ru
+              v8:content: Пользовательские настройки
+          Group: Vertical
+          Representation: None
+          ShowTitle: "false"
+          ExtendedTooltip:
+            _name: КомпоновщикНастроекПользовательскиеНастройкиРасширеннаяПодсказка
+            _id: "2"
+      Attributes:
+    "#order":
+      - VerticalScroll
+      - ReportFormType
+      - AutoShowState
+      - CustomSettingsFolder
+      - ReportResultViewMode
+      - ViewModeApplicationOnSetReportResult
+      - AutoCommandBar
+      - ChildItems
+      - Attributes
+      - BaseForm

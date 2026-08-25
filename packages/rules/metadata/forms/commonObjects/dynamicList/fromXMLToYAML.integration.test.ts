@@ -1,19 +1,17 @@
 import fs from "fs"
 import { fileURLToPath } from "url"
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll,describe,expect,it } from "vitest"
 
+import { importContentFromXML,xmlExport } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
-  createDirectRoundTripContexts,
-  testPropertyFromXMLToYAML,
-  testPropertyFromYAMLToXML,
+createDirectRoundTripContexts,
+testPropertyFromXMLToYAML,
+testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import { importContentFromXML, XML_PRESENT_TAG_VALUE, xmlExport } from "@nkdk/runtime"
 import { mockContext } from "../../../../tests/mockContext"
 import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { DynamicListRules } from "./rules"
-import { metadataRules } from "../../../composition/metadataRules"
-import { createRuleRegistrySet } from "../../../ruleRuntime/ruleRegistrySet"
 
 import "./types"
 
@@ -27,7 +25,6 @@ const rule = {
 const fixtures = [
   "designTimeDataParameters.xml",
   "emptyListSettings.xml",
-  "full.xml",
   "keyField.xml",
   "minimal.xml",
   "multipleCalculatedFields.xml",
@@ -67,7 +64,7 @@ describe("DynamicList XML → YAML → XML", () => {
     expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
   })
 
-  it.each(["full.xml", "minimal.xml", "emptyListSettings.xml"] as const)(
+  it.each(["minimal.xml", "emptyListSettings.xml"] as const)(
     "восстанавливает %s без reference XML",
     (fixture) => {
       const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
@@ -83,25 +80,6 @@ describe("DynamicList XML → YAML → XML", () => {
       expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
     }
   )
-
-  it("сохраняет пустые параметры данных внутри ListSettings", () => {
-    const xml = {
-      Settings: {
-        "_xsi:type": "DynamicList",
-        ListSettings: { "dcsset:dataParameters": undefined },
-      },
-    }
-    const execution = createRuleRegistrySet(metadataRules).execution
-    const yaml = testPropertyFromXMLToYAML({ rule, xml, execution }).yaml
-
-    expect(yaml).toHaveProperty("Значение.ПараметрыДанных", XML_PRESENT_TAG_VALUE)
-    expect(testPropertyFromYAMLToXML({ rule, yaml, execution }).xml).toMatchObject({
-      Settings: {
-        "_xsi:type": "DynamicList",
-        ListSettings: { "dcsset:dataParameters": {} },
-      },
-    })
-  })
 
   it("не считает контейнер с неизвестным дочерним узлом пустым", () => {
     const yaml = testPropertyFromXMLToYAML({

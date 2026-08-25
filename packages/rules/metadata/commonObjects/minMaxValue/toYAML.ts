@@ -1,16 +1,12 @@
-import { taggedYAMLScalar, xmlAnomalyTagValue } from "@nkdk/runtime"
 import type { ExportToYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { formatMinMaxXMLTypePayload, type MinMaxValueModel } from "./types"
-import { getRuleMinMaxValueXsiType } from "./fromXML"
+import type { MinMaxValueModel } from "./types"
 
-const exportMinMaxValueToYAML: ExportToYAMLFunctionNew = ({ rule, value }) => {
+const exportMinMaxValueToYAML: ExportToYAMLFunctionNew = ({ value }) => {
   const minMaxValue = value as MinMaxValueModel | undefined
   if (minMaxValue === undefined || typeof minMaxValue === "number") return minMaxValue
-  const canonicalXsiType = getRuleMinMaxValueXsiType(rule) ?? "xs:decimal"
-  const tag = minMaxValue.xsiType === canonicalXsiType ? "xml/value" : "xml/type"
-  const payload = tag === "xml/value" ? minMaxValue.text : formatMinMaxXMLTypePayload(minMaxValue)
-  return taggedYAMLScalar(tag, xmlAnomalyTagValue(tag, payload))
+  const parsed = Number(minMaxValue.text.replace(",", "."))
+  return Number.isFinite(parsed) ? parsed : minMaxValue.text
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MinMaxValue", "exportToYAML", exportMinMaxValueToYAML)

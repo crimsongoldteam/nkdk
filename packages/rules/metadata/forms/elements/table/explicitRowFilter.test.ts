@@ -1,47 +1,7 @@
-import { describe, expect, it } from "vitest"
-import { XML_PRESENT_TAG_VALUE, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
-import { explicitRowFilterRules } from "./explicitRowFilter"
-import type { ClientApplicationFormYAML } from "../../clientApplicationForm/types"
+import { describe,expect,it } from "vitest"
 import { classifyTableSource } from "../../clientApplicationForm/tableSourceProfile"
 
 describe("explicit RowFilter", () => {
-  it("registers the only approved empty !xml transport value", () => {
-    expect(explicitRowFilterRules.explicitXMLProperties.tableRowFilter).toEqual({
-      itemType: "Table",
-      propertyKey: "rowFilter",
-      yamlValue: XML_PRESENT_TAG_VALUE,
-      xmlValue: { "_xsi:nil": "true" },
-    })
-  })
-
-  it("keeps the marker for every source profile", () => {
-    const yaml = {
-      Реквизиты: {
-        Компоновщик: { Тип: "КомпоновщикНастроекКомпоновкиДанных" },
-        Строки: { Тип: "ТаблицаЗначений" },
-      },
-      Элементы: {
-        Настройки: {
-          Вид: "ТаблицаФормы",
-          ПутьКДанным: "Компоновщик.Настройки",
-          ОтборСтрок: XML_PRESENT_TAG_VALUE,
-        },
-        Строки: {
-          Вид: "ТаблицаФормы",
-          ПутьКДанным: "Строки",
-          ОтборСтрок: XML_PRESENT_TAG_VALUE,
-        },
-      },
-    } as unknown as ClientApplicationFormYAML
-    const settings = yaml.Элементы?.Настройки as unknown as Record<string, unknown>
-    const rows = yaml.Элементы?.Строки as unknown as Record<string, unknown>
-    markYAMLScalarTag(settings, "ОтборСтрок", "xml/present")
-    markYAMLScalarTag(rows, "ОтборСтрок", "xml/present")
-    expect(settings.ОтборСтрок).toBe(XML_PRESENT_TAG_VALUE)
-    expect(yamlScalarTagAt(settings, "ОтборСтрок")).toBe("xml/present")
-    expect(rows.ОтборСтрок).toBe(XML_PRESENT_TAG_VALUE)
-    expect(yamlScalarTagAt(rows, "ОтборСтрок")).toBe("xml/present")
-  })
 
   it.each([
     ["DynamicList", "formAttribute", 1, "dynamicList"],

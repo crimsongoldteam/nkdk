@@ -14,6 +14,7 @@ import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataX
 import { FormRulesTags } from "./rules"
 import type { DeferredValuePath } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "../../ruleRuntime"
+import { copyXmlAnomalyAnnotationsDeep, type XmlAnomalyAnnotations } from "@nkdk/runtime"
 import { classifyTableSource } from "./tableSourceProfile"
 import {
   materializeImplicitFormDataPaths,
@@ -40,6 +41,7 @@ export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly formDataPathContext?: FormDataPathContext
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly savedBaseFormYaml?: ClientApplicationFormYAML
+  readonly annotations?: XmlAnomalyAnnotations
 }
 
 export interface DirectClientApplicationFormXMLResult {
@@ -72,6 +74,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
     })
   const formDataPathIndex = formDataPathContext.index
   const materializedYaml = materializeImplicitFormDataPaths(params.yaml, formDataPathContext)
+  copyXmlAnomalyAnnotationsDeep(params.annotations, params.yaml, materializedYaml)
   const resolveDataPath = params.context.importFromYAML?.resolveDataPath
   const metadataContext = {
     ...params.context,
@@ -101,6 +104,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
   const converted = convertPropertiesFromYAMLToXML({
     context: metadataContext,
     yaml: materializedYaml,
+    annotations: params.annotations,
     rule,
     name: params.name,
     outputs: [

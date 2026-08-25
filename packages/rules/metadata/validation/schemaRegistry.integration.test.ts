@@ -1,19 +1,16 @@
-import { compileValidationSchema, type ValidationSchemaValidator } from "./compileValidationSchema"
-import "../appliedObjects"
-import "../forms"
 import type { TSchema } from "typebox"
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll,describe,expect,it } from "vitest"
+import "../appliedObjects"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
-import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
 import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
-import { MetadataAccumulationRegisterRules } from "../appliedObjects/metadataAccumulationRegister/rules"
-import { importFromYAML } from "@nkdk/runtime"
+import "../forms"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
+import { compileValidationSchema,type ValidationSchemaValidator } from "./compileValidationSchema"
 import {
-  exportJSONSchemaForSchemaName,
-  exportJSONSchemaGraph,
-  listJSONSchemaNames,
+exportJSONSchemaForSchemaName,
+exportJSONSchemaGraph,
+listJSONSchemaNames,
 } from "./schemaRegistry"
 
 const context = {
@@ -485,34 +482,6 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(refs).not.toContain("/extension-overlay/validation/")
   })
 
-  it("разрешает !xml/present для стандартных реквизитов в extension overlay", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      validationPropertyRefs: true,
-      requiredPolicy: { currentBoundary: "defer", cacheVariant: "extension-overlay" },
-      roots: [{ key: "enumeration", rule: MetadataEnumerationRules }],
-    })
-    const root = graph.roots.enumeration as {
-      properties?: Record<string, unknown>
-    }
-
-    expect(JSON.stringify(root.properties?.СтандартныеРеквизиты)).toContain('"const":"!xml/present"')
-  })
-
-  it("разрешает !xml/absent для стандартного реквизита регистра накопления", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      validationPropertyRefs: true,
-      roots: [{ key: "register", rule: MetadataAccumulationRegisterRules }],
-    })
-    const compiled = compileValidationSchema(graph.schemas, graph.roots.register!)
-    const yaml = importFromYAML(`СтандартныеРеквизиты:
-  ВидДвижения: !xml/absent
-`)
-
-    expect(compiled.Check(yaml), JSON.stringify([...compiled.Errors(yaml)], null, 2)).toBe(true)
-  })
-
   it("откладывает required для заимствованного ресурса куба в extension overlay", () => {
     const graph = exportJSONSchemaGraph({
       context,
@@ -537,29 +506,13 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(inputField.properties?.Шрифт).toMatchObject({ $ref: `${prefix}Font/base` })
     expect(inputField.properties?.КартинкаКнопкиВыбора).toMatchObject({ $ref: `${prefix}Picture/base` })
     expect(inputField.properties?.Заголовок).toMatchObject({ $ref: `${prefix}I8nText/base` })
-    expect(inputField.properties?.Использование).toMatchObject({
-      anyOf: expect.arrayContaining([
-        expect.objectContaining({ $ref: `${prefix}UserVisible/base` }),
-      ]),
-    })
+    expect(inputField.properties?.Использование).toMatchObject({ $ref: `${prefix}UserVisible/base` })
     expect(inputField.properties?.СписокВыбора).toMatchObject({ $ref: `${prefix}ChoiceList/base` })
 
     expect(graph.schemas[`${prefix}Color/base`]).toMatchObject({ $id: `${prefix}Color/base` })
     expect(graph.schemas[`${prefix}Font/base`]).toMatchObject({ $id: `${prefix}Font/base` })
     expect(graph.schemas[`${prefix}Picture/base`]).toMatchObject({ $id: `${prefix}Picture/base` })
     expect(graph.schemas[`${prefix}I8nText/base`]).toMatchObject({ $id: `${prefix}I8nText/base` })
-  })
-
-  it("разрешает явное XML-имя встроенного элемента во внутренней схеме формы", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      validationPropertyRefs: true,
-      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
-    })
-    const autoCommandBar = Object.entries(graph.schemas).find(([key]) => key.endsWith("/AutoCommandBar"))?.[1]
-
-    expect(JSON.stringify(autoCommandBar)).toContain('"Имя"')
-    expect(JSON.stringify(autoCommandBar)).toContain("^!xml/name")
   })
 
   it("keeps DataPath and Events inline in validation schemas", () => {

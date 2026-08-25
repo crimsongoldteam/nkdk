@@ -1,13 +1,10 @@
-import { XML_PRESENT_TAG_VALUE, markYAMLScalarTag } from "@nkdk/runtime"
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
 
 export function markExplicitEmptyPanelDefinition(
-  panel: { ПустоеОпределение?: typeof XML_PRESENT_TAG_VALUE }
+  panel: { ПустоеОпределение?: true }
 ): void {
-  panel.ПустоеОпределение = XML_PRESENT_TAG_VALUE
-  markYAMLScalarTag(panel, "ПустоеОпределение", "xml/present")
+  panel.ПустоеОпределение = true
 }
 
 export function collectExplicitEmptyPanelDefinitionUUIDs(
@@ -39,8 +36,8 @@ function collectPanel(
   result: Set<string>
 ): void {
   if (!Object.prototype.hasOwnProperty.call(panel, "ПустоеОпределение")) return
-  if (panel.ПустоеОпределение !== XML_PRESENT_TAG_VALUE) {
-    throw new Error("ПустоеОпределение допускает только !xml/present")
+  if (panel.ПустоеОпределение !== true) {
+    throw new Error("ПустоеОпределение допускает только true")
   }
   if (typeof panel.UUID !== "string" || standardPanelUUIDs.has(panel.UUID)) {
     throw new Error("ПустоеОпределение допускается только у нестандартной панели с UUID")

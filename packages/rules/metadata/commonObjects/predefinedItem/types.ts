@@ -2,7 +2,6 @@ import { defineMetadataItemCollectionRule, defineMetadataItemRule } from "../../
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import { PredefinedItemRules } from "./rules"
-import { yamlScalarTagAt } from "@nkdk/runtime"
 
 export type PredefinedItem = MetadataTypeByRule<typeof PredefinedItemRules>
 export type PredefinedItemYAML = YAMLTypeByRule<typeof PredefinedItemRules>
@@ -87,13 +86,8 @@ function normalizePredefinedItemTypePrefixes(
   }
 }
 
-function hasExplicitTypePrefix(yaml: unknown, index: number): boolean {
-  const item = asRecord(yaml)
-  if (item === undefined) return false
-  const type = item.ТипЗначения
-  return Array.isArray(type)
-    ? yamlScalarTagAt(type, index) === "xml/type"
-    : index === 0 && yamlScalarTagAt(item, "ТипЗначения") === "xml/type"
+function hasExplicitTypePrefix(_yaml: unknown, _index: number): boolean {
+  return false
 }
 
 export const metadataRuleLayer000 = defineMetadataItemRule({

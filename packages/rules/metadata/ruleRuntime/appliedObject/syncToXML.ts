@@ -5,7 +5,6 @@ import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { createYAMLPropertySource } from "../property/fromYAMLToXML"
-import { collectExplicitXMLPropertyActions } from "../property/explicitXMLPropertyRegistry"
 import { getTypeRule } from "../property/typeRuleRegistry"
 import type { FileChildNamesDescriptor } from "../property/fn"
 import { metadataTargetOwnerFromRule } from "../property/metadataTargetString"
@@ -71,21 +70,19 @@ export const prepareAppliedObjectOwnerXML = (params: {
     externalMetadata: params.rule.externalMetadata,
   })
   const propertyValues = new Map(
-    collectFileChildPropertyValues({
+    params.compositionPropertyValues ?? collectFileChildPropertyValues({
       rule: params.rule,
       yaml: yamlObj,
       ownerDir: dirname(params.preparedYamlFile.filePath),
     })
   )
-  for (const [propertyKey, value] of params.compositionPropertyValues ?? []) {
-    propertyValues.set(propertyKey, value)
-  }
 
   const converted = convertMetadataItemFromYAMLToXML({
     convertProperties: convertPropertiesFromYAMLToXML,
     context: contextWithOwner,
     rule: withFileItemCollectionReferenceExportRules(params.rule),
     yaml: yamlObj,
+    annotations: params.preparedYamlFile.annotations,
     name: params.name,
     outputs: [{ key: "owner", referenceXML: params.referenceXML }],
     propertyValues,
@@ -144,6 +141,7 @@ const appliedObjectPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
       preparedYamlFile,
       compositionPropertyValues: collectCompositionChildPropertyValues({
         rule: assignment.itemRule,
+        yaml: preparedYamlFile.data,
         ownerLogicalAddress: logicalAddress,
         composition,
       }),
@@ -155,11 +153,29 @@ const appliedObjectPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
 
 function collectCompositionChildPropertyValues(params: {
   rule: MetadataItemRule
+  yaml: unknown
   ownerLogicalAddress: string
   composition: MetadataXmlPrepareComposition
 }): ReadonlyMap<string, unknown> {
   const values = new Map<string, unknown>()
   const children = params.composition.children(params.ownerLogicalAddress)
+  for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
+    const descriptor = getFileChildNamesDescriptor(propertyRule)
+    if (descriptor === undefined) continue
+    const names = children
+      .filter((entry) =>
+        entry.assignmentRole === "fileItem"
+        && entry.sourceProjectPath.split("/").includes(descriptor.folderName)
+      )
+      .map(({ itemName }) => itemName)
+      .sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+    const expected = descriptor.expectedNames({
+      rule: params.rule,
+      yaml: asRecord(params.yaml) ?? {},
+      propertyValue: names,
+    })
+    if (expected.length > 0) values.set(propertyKey, expected)
+  }
   for (const childCollection of params.rule.childCollections ?? []) {
     const fileItemRule = childCollection.fileItemRule
     if (fileItemRule === undefined) continue
@@ -192,12 +208,6 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
       itemName,
       context: itemContext,
     })
-    const explicitXMLActions = collectExplicitXMLPropertyActions({
-      yaml,
-      itemType: assignment.itemRule.itemType,
-      properties: assignment.itemRule.properties,
-    })
-
     return outputs.flatMap((output) => {
       const propertyKey = output.propertyName
       if (propertyKey === undefined || !source.has(propertyKey)) return []
@@ -207,11 +217,14 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
       if (nestedRule?.kind !== "item") return []
       const itemRule = nestedRule.itemRuleFromProperty?.(propertyRule) ?? nestedRule.itemRule
 
-      const explicitXMLAction = explicitXMLActions.get(propertyKey)
-      if (explicitXMLAction?.kind === "invalid") throw new Error(explicitXMLAction.message)
-      const nestedYAML = explicitXMLAction?.kind === "materializeCollection" ? {} : source.raw(propertyKey)
+      const nestedYAML = source.raw(propertyKey)
       const normalizedYAML =
-        nestedRule.normalizeYAML?.({ yaml: nestedYAML, name: itemName, propertyRule }) ?? nestedYAML
+        nestedRule.normalizeYAML?.({
+          yaml: nestedYAML,
+          annotations: preparedYamlFile.annotations,
+          name: itemName,
+          propertyRule,
+        }) ?? nestedYAML
       const propertyContext = withConfigurationIndexExportPropertyContext(
         itemContext,
         propertyRule.yaml ?? propertyKey,
@@ -237,6 +250,7 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
         convertProperties: convertPropertiesFromYAMLToXML,
         context: nestedItemContext,
         yaml: normalizedYAML,
+        annotations: preparedYamlFile.annotations,
         rule: itemRule,
         name: nestedRule.injectOwnerName === true ? itemName : undefined,
         sourceItemName: nestedItemName ?? itemName,

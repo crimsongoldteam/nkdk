@@ -8,6 +8,19 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Group
+          - ToolTip
+          - Picture
 КонтрольУникальности: Истина
 ОсновнаяФормаВыбора: ""
 ОсновнаяФормаОбъекта: ""
@@ -18,10 +31,43 @@
     Тип: Справочник.СправочникРеквизит
     ФормаВыбора: ""
     Подсказка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - ToolTip
+          - ChoiceForm
   РеквизитХранилище:
     Тип: Булево
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
   РеквизитПоУмолчанию:
     Тип: Строка(10)
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
 РеквизитыАдресации:
   РеквизитАдресацииВсеСвойства:
     Синоним: ""
@@ -29,8 +75,32 @@
     ИзмерениеАдресации: !изменять
     ФормаВыбора: ""
     Подсказка: ""
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Synonym
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
+          - ToolTip
+          - ChoiceForm
+          - AddressingDimension
   РеквизитАдресацииПоУмолчанию:
     Тип: Строка(10)
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
 ТабличныеЧасти:
   ТабличнаяЧастьВсеСвойства:
     Синоним: ""
@@ -38,8 +108,28 @@
     Реквизиты:
       РеквизитВсеСвойства:
         Тип: Справочник.СправочникРеквизит
+        ПринадлежностьОбъекта: !xml/raw
+          $xml: Adopted
+        Properties: !xml/raw
+          $xml:
+            "#order":
+              - ObjectBelonging
+              - Name
+              - Comment
+              - ExtendedConfigurationObject
+              - Type
       РеквизитПоУмолчанию:
         Тип: Строка(10)
+        ПринадлежностьОбъекта: !xml/raw
+          $xml: Adopted
+        Properties: !xml/raw
+          $xml:
+            "#order":
+              - ObjectBelonging
+              - Name
+              - Comment
+              - ExtendedConfigurationObject
+              - Type
     Подсказка: ""
 ТекущийИсполнитель: !изменять
 Изменять:

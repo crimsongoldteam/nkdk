@@ -21,6 +21,11 @@ export const metadataDiagnosticSchema = Type.Object({
   kind: Type.Optional(Type.String()),
   name: Type.Optional(Type.String()),
   targetProjectPath: Type.Optional(Type.String()),
+  sourceProjectPath: Type.Optional(Type.String()),
+  sourcePath: Type.Optional(Type.String()),
+  targetXmlPath: Type.Optional(Type.String()),
+  line: Type.Optional(Type.Integer({ minimum: 1 })),
+  col: Type.Optional(Type.Integer({ minimum: 1 })),
 }, { additionalProperties: false })
 
 export const diagnosticOutputShape = {

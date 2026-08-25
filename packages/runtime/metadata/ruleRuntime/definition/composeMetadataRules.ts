@@ -32,18 +32,6 @@ export function composeMetadataRules<
         ...result.propertyItemRules,
         ...layer.propertyItemRules,
       },
-      explicitXMLProperties: {
-        ...result.explicitXMLProperties,
-        ...layer.explicitXMLProperties,
-      },
-      explicitXMLPropertyTypes: {
-        ...result.explicitXMLPropertyTypes,
-        ...layer.explicitXMLPropertyTypes,
-      },
-      brokenXMLReferenceCarriers: [
-        ...result.brokenXMLReferenceCarriers,
-        ...layer.brokenXMLReferenceCarriers,
-      ],
       dependentItems: {
         ...result.dependentItems,
         ...layer.dependentItems,
@@ -93,6 +81,10 @@ export function composeMetadataRules<
       propertyStateCapabilities: [
         ...result.propertyStateCapabilities,
         ...layer.propertyStateCapabilities,
+      ],
+      xmlAnomalies: [
+        ...result.xmlAnomalies,
+        ...layer.xmlAnomalies,
       ],
     }),
     emptyMetadataRules as MetadataRulesDefinition<SynchronizationContribution, ReferenceContribution, DataPathContribution>,

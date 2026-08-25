@@ -1,14 +1,10 @@
 import type { MetadataItemRule } from "../property/types"
 import type { MetadataRulesDefinition } from "./contracts"
-import type { BrokenXMLReferenceCarrierRegistration } from "../property/brokenXMLReferenceCarrierRegistry"
 import type { PropertyStateCapabilityContribution, PropertyStateMode } from "./contracts"
 
 export const emptyMetadataRules: MetadataRulesDefinition<never, never, never> = {
   propertyTypes: {},
   propertyItemRules: {},
-  explicitXMLProperties: {},
-  explicitXMLPropertyTypes: {},
-  brokenXMLReferenceCarriers: [],
   dependentItems: {},
   indexValuesFromYAML: {},
   metadataTargetOwners: {},
@@ -29,27 +25,11 @@ export const emptyMetadataRules: MetadataRulesDefinition<never, never, never> = 
   operations: [],
   workerOperations: [],
   propertyStateCapabilities: [],
+  xmlAnomalies: [],
 }
 
 export function metadataItemRule(itemType: string): MetadataItemRule {
   return { itemType, properties: {} }
-}
-
-export function brokenXMLReferenceCarrier(
-  name: string,
-  propertyType: string,
-  overrides: Partial<BrokenXMLReferenceCarrierRegistration> = {},
-): BrokenXMLReferenceCarrierRegistration {
-  return {
-    name,
-    propertyType,
-    tryImport: () => undefined,
-    prepareExport: () => undefined,
-    patchExportedXML: ({ xmlValue }) => xmlValue,
-    validationSchema: ({ base }) => base,
-    matchesTaggedYAML: () => false,
-    ...overrides,
-  }
 }
 
 export function propertyStateCapability(

@@ -24,3 +24,156 @@
         АктивизироватьПоУмолчанию: Истина
 Изменять:
   - Форма
+"@Form": !xml/raw
+  $xml:
+    ChildItems:
+      Table:
+        AutoRefresh: "false"
+        AutoRefreshPeriod: "60"
+        Period:
+          v8:variant:
+            _xsi:type: v8:StandardPeriodVariant
+            "#text": Custom
+          v8:startDate: 0001-01-01T00:00:00
+          v8:endDate: 0001-01-01T00:00:00
+        ChoiceFoldersAndItems: Items
+        RestoreCurrentRow: "false"
+        TopLevelParent:
+          _xsi:nil: "true"
+        ShowRoot: "true"
+        AllowRootChoice: "false"
+        UpdateOnDataChange: Auto
+        AllowGettingCurrentRowURL: "true"
+        "#order":
+          - Representation
+          - CommandBarLocation
+          - DefaultItem
+          - UseAlternationRowColor
+          - InitialTreeView
+          - EnableStartDrag
+          - AutoRefresh
+          - AutoRefreshPeriod
+          - Period
+          - ChoiceFoldersAndItems
+          - RestoreCurrentRow
+          - TopLevelParent
+          - ShowRoot
+          - AllowRootChoice
+          - UpdateOnDataChange
+          - UserSettingsGroup
+          - AllowGettingCurrentRowURL
+          - ContextMenu
+          - AutoCommandBar
+          - ExtendedTooltip
+          - SearchStringAddition
+          - ViewStatusAddition
+          - SearchControlAddition
+          - ChildItems
+    BaseForm:
+      _version: "2.20"
+      AutoCommandBar:
+        _name: ФормаКоманднаяПанель
+        _id: "-1"
+      ChildItems:
+        UsualGroup:
+          _name: СписокКомпоновщикНастроекПользовательскиеНастройки
+          _id: "1"
+          Title:
+            v8:item:
+              v8:lang: ru
+              v8:content: Группа пользовательских настроек
+          VerticalStretch: "false"
+          Group: Vertical
+          ShowTitle: "false"
+          ExtendedTooltip:
+            _name: СписокКомпоновщикНастроекПользовательскиеНастройкиРасширеннаяПодсказка
+            _id: "2"
+        Table:
+          _name: Список
+          _id: "3"
+          Representation: List
+          CommandBarLocation: None
+          DefaultItem: "true"
+          UseAlternationRowColor: "true"
+          InitialTreeView: ExpandTopLevel
+          EnableStartDrag: "true"
+          AutoRefresh: "false"
+          AutoRefreshPeriod: "60"
+          Period:
+            v8:variant:
+              _xsi:type: v8:StandardPeriodVariant
+              "#text": Custom
+            v8:startDate: 0001-01-01T00:00:00
+            v8:endDate: 0001-01-01T00:00:00
+          ChoiceFoldersAndItems: Items
+          RestoreCurrentRow: "false"
+          TopLevelParent:
+            _xsi:nil: "true"
+          ShowRoot: "true"
+          AllowRootChoice: "false"
+          UpdateOnDataChange: Auto
+          UserSettingsGroup: СписокКомпоновщикНастроекПользовательскиеНастройки
+          AllowGettingCurrentRowURL: "true"
+          ContextMenu:
+            _name: СписокКонтекстноеМеню
+            _id: "4"
+          AutoCommandBar:
+            _name: СписокКоманднаяПанель
+            _id: "5"
+            Autofill: "false"
+          ExtendedTooltip:
+            _name: СписокРасширеннаяПодсказка
+            _id: "6"
+          SearchStringAddition:
+            _name: СписокСтрокаПоиска
+            _id: "7"
+            AdditionSource:
+              Item: Список
+              Type: SearchStringRepresentation
+            ContextMenu:
+              _name: СписокСтрокаПоискаКонтекстноеМеню
+              _id: "8"
+            ExtendedTooltip:
+              _name: СписокСтрокаПоискаРасширеннаяПодсказка
+              _id: "9"
+          ViewStatusAddition:
+            _name: СписокСостояниеПросмотра
+            _id: "10"
+            AdditionSource:
+              Item: Список
+              Type: ViewStatusRepresentation
+            ContextMenu:
+              _name: СписокСостояниеПросмотраКонтекстноеМеню
+              _id: "11"
+            ExtendedTooltip:
+              _name: СписокСостояниеПросмотраРасширеннаяПодсказка
+              _id: "12"
+          SearchControlAddition:
+            _name: СписокУправлениеПоиском
+            _id: "13"
+            AdditionSource:
+              Item: Список
+              Type: SearchControl
+            ContextMenu:
+              _name: СписокУправлениеПоискомКонтекстноеМеню
+              _id: "14"
+            ExtendedTooltip:
+              _name: СписокУправлениеПоискомРасширеннаяПодсказка
+              _id: "15"
+          ChildItems:
+            LabelField:
+              _name: ПолеПоУмолчанию
+              _id: "16"
+              DefaultItem: "true"
+              ContextMenu:
+                _name: ПолеПоУмолчаниюКонтекстноеМеню
+                _id: "17"
+              ExtendedTooltip:
+                _name: ПолеПоУмолчаниюРасширеннаяПодсказка
+                _id: "18"
+      Attributes:
+    "#order":
+      - AutoCommandBar
+      - ChildItems
+      - Attributes
+      - BaseForm

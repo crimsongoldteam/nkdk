@@ -12,6 +12,9 @@ import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
 import { fullXmlSyncTestOutput, fullXmlSyncTestTopologyFields } from "./testTopology"
 import { testConfigurationIndexReader } from "../../tests/configurationIndex"
+import { createXmlAnomalyAnnotations } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import "../../tests/metadataExecutionContext"
 
 describe("writeFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
@@ -25,6 +28,18 @@ describe("writeFullXmlSyncAssignment", () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-write-assignment-"))
     tempDirs.push(dir)
     return dir
+  }
+
+  function emptySemanticYamlFile(projectPath: string) {
+    return {
+      projectPath,
+      filePath: projectPath,
+      role: "properties" as const,
+      owner: { dir: "", name: "" },
+      data: {},
+      annotations: createXmlAnomalyAnnotations(),
+      syntaxDiagnostics: [],
+    }
   }
 
   async function writePreparedAssignmentForTest(
@@ -81,14 +96,21 @@ describe("writeFullXmlSyncAssignment", () => {
       outputTarget: { kind: "directory", outputDir },
     })
 
-    return { assignment, outputDir, result, sourceProjectPath }
+    return { assignment, context, outputDir, preparedAssignment, result, sourceProjectPath }
   }
 
   it("writes declared owner output from prepared YAML and returns index fragment", async () => {
     const projectDir = tempDir()
-    const { assignment, outputDir, result, sourceProjectPath } = await writeDataProcessorOwnerFromYaml(
+    const { assignment, context, outputDir, preparedAssignment, result, sourceProjectPath } =
+      await writeDataProcessorOwnerFromYaml(
       projectDir,
-      "Синоним: Синоним\nКомментарий: Комментарий\n",
+      [
+        "Синоним: !xml/important Синоним",
+        "Комментарий: !xml/invalid Комментарий",
+        "ИспользоватьСтандартныеКоманды: !xml/raw",
+        "  $xml: FALSE",
+        "",
+      ].join("\n"),
       true
     )
 
@@ -107,9 +129,26 @@ describe("writeFullXmlSyncAssignment", () => {
     )
     expect(result.profile?.rulesPassCount).toBe(1)
     expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
-    expect(fs.readFileSync(join(outputDir, "DataProcessors", "ОбработкаВсеСвойства.xml"), "utf-8")).toContain(
-      "<Name>ОбработкаВсеСвойства</Name>"
+    const xml = fs.readFileSync(
+      join(outputDir, "DataProcessors", "ОбработкаВсеСвойства.xml"),
+      "utf-8",
     )
+    expect(xml).toContain("<Name>ОбработкаВсеСвойства</Name>")
+    expect(xml).toContain("<Comment>Комментарий</Comment>")
+    expect(xml).toContain("<UseStandardCommands>FALSE</UseStandardCommands>")
+
+    const declarationId = assignment.potentialOutputs[0]!.declarationId
+    const memory = await writeFullXmlSyncAssignment({
+      prepared: preparedAssignment,
+      context,
+      outputTarget: {
+        kind: "memory",
+        documentIdsByAssignment: { [assignment.id]: [declarationId] },
+      },
+    })
+    expect(memory.generatedDocuments[0]?.content).toEqual(Uint8Array.from(fs.readFileSync(
+      join(outputDir, "DataProcessors", "ОбработкаВсеСвойства.xml"),
+    )))
   })
 
   it("writes owner XML from an empty properties YAML file", async () => {
@@ -175,6 +214,7 @@ describe("writeFullXmlSyncAssignment", () => {
         role: "properties",
         owner: { dir: "Обработка", name: "ОбработкаВсеСвойства" },
         data: {},
+        annotations: createXmlAnomalyAnnotations(),
         syntaxDiagnostics: [],
       },
       context: mockContextToXML(),
@@ -274,6 +314,7 @@ describe("writeFullXmlSyncAssignment", () => {
     const result = await writeFullXmlSyncAssignment({
       prepared: {
         assignment,
+        semanticYamlFile: emptySemanticYamlFile(assignment.sourceProjectPath),
         documents: [],
         indexCollectors: [{
           collector: createConfigurationIndexCollector(),
@@ -318,6 +359,7 @@ describe("writeFullXmlSyncAssignment", () => {
     const result = await writeFullXmlSyncAssignment({
       prepared: {
         assignment,
+        semanticYamlFile: emptySemanticYamlFile(assignment.sourceProjectPath),
         documents: [],
         indexCollectors: [],
         profile: createYAMLToXMLProfile(),
@@ -331,6 +373,55 @@ describe("writeFullXmlSyncAssignment", () => {
 
     expect(result.diagnostics).toEqual([])
     expect(result.generatedDocuments).toEqual([])
+  })
+
+  it("не записывает ни один документ assignment при коллизии raw", async () => {
+    const projectDir = tempDir()
+    const assignment = dataProcessorAssignment(projectDir)
+    const rootRule = {
+      itemType: "SyntheticOwner",
+      properties: {},
+    } as const satisfies MetadataItemRule
+
+    const result = await writeFullXmlSyncAssignment({
+      prepared: {
+        assignment,
+        semanticYamlFile: emptySemanticYamlFile(assignment.sourceProjectPath),
+        documents: [
+          {
+            targetXmlPath: "Objects/First.xml",
+            xml: { Root: { Value: "first" } },
+            deferred: [],
+            rootRule,
+            rawBoundaries: [],
+          },
+          {
+            targetXmlPath: "Objects/Second.xml",
+            xml: { Root: { Value: "ordinary" } },
+            deferred: [],
+            rootRule,
+            rawBoundaries: [{
+              path: "Value",
+              value: "raw",
+              suppressOrdinaryOutput: false,
+            }],
+          },
+        ],
+        indexCollectors: [],
+        profile: createYAMLToXMLProfile(),
+      },
+      context: mockContextToXML(),
+      outputTarget: { kind: "directory", outputDir: join(projectDir, "xml") },
+    })
+
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        code: "full_xml_sync_assignment_failed",
+        message: expect.stringContaining("пересекается с обычным выводом"),
+      }),
+    ])
+    expect(result.writtenFiles).toEqual([])
+    expect(fs.existsSync(join(projectDir, "xml", "Objects", "First.xml"))).toBe(false)
   })
 })
 

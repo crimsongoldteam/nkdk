@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { importMetadataItemLinkFromXML } from "./fromXML"
+import { importMetadataItemLinkFromXML, metadataPropertyRule002 } from "./fromXML"
 
 describe("importMetadataItemLinkFromXML", () => {
   it("imports plain XML text", () => {
@@ -16,5 +16,9 @@ describe("importMetadataItemLinkFromXML", () => {
     })
 
     expect(result).toBe("CommonCommand.ПоказатьВСписке")
+  })
+
+  it("объявляет повторные xr:Item частью одного свойства", () => {
+    expect(metadataPropertyRule002.handler.repeatedXMLNodes).toBe(true)
   })
 })

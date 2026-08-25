@@ -1,18 +1,17 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import {
-  availableValuesDataCompositionSchemaDataSetField,
-  folderDataCompositionSchemaDataSetField,
-  fullDataCompositionSchemaDataSetField,
-  nestedDataCompositionSchemaDataSetField,
-  fullDataCompositionSchemaDataSetFieldYAML,
-  availableValuesDataCompositionSchemaDataSetFieldYAML,
-  nestedDataCompositionSchemaDataSetFieldYAML,
-  folderDataCompositionSchemaDataSetFieldYAML,
-  legacyDataCompositionSchemaDataSetFieldYAML,
+availableValuesDataCompositionSchemaDataSetField,
+availableValuesDataCompositionSchemaDataSetFieldYAML,
+folderDataCompositionSchemaDataSetField,
+folderDataCompositionSchemaDataSetFieldYAML,
+fullDataCompositionSchemaDataSetField,
+fullDataCompositionSchemaDataSetFieldYAML,
+legacyDataCompositionSchemaDataSetFieldYAML,
+nestedDataCompositionSchemaDataSetField,
+nestedDataCompositionSchemaDataSetFieldYAML,
 } from "./__fixtures__/data"
 import "./types"
-import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
 
 describe("export DataCompositionSchemaDataSetField to XML", () => {
   it("exports full.xml", () => {
@@ -100,30 +99,6 @@ describe("export DataCompositionSchemaDataSetField to XML", () => {
           Порядок: "Истина",
         },
       },
-      xmlRootTag: "Field",
-      xmlString,
-    })
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("preserves xs:string title in XML", () => {
-    const xmlString = `<Field xsi:type="dcssch:DataSetFieldField">
-	<dcssch:dataPath>StringTitleField</dcssch:dataPath>
-	<dcssch:field>StringTitleField</dcssch:field>
-	<dcssch:title xsi:type="xs:string">String title</dcssch:title>
-</Field>`
-    const yaml = {
-      Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
-      ПутьКДанным: "StringTitleField",
-      Поле: "StringTitleField",
-      Заголовок: xmlAnomalyTagValue("xml/type", "String String title"),
-    }
-    markYAMLScalarTag(yaml, "Заголовок", "xml/type")
-    const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
-      rule: { type: "DataCompositionSchemaDataSetField" },
-      value: undefined,
-      yaml,
       xmlRootTag: "Field",
       xmlString,
     })

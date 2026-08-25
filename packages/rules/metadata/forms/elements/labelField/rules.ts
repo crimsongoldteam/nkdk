@@ -10,7 +10,6 @@ import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { DataPathAllowedKind, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
-import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 import { settingsComposerValueFieldKinds } from "../../settingsComposer/dataPathGraph"
 export type { ElementRule, PropertyRule }
 const labelFieldDataPathKinds = [
@@ -221,6 +220,5 @@ export const TableLabelFieldRules = {
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", noImplicitValueYAML: true },
   },
 } as const satisfies ElementRule
-export const metadataRuleLayer000 = defineExplicitHeaderHorizontalAlign(TableLabelFieldRules.itemType)
 export const metadataRuleLayer001 = defineElementRule("LabelField", LabelFieldRules)
 export const metadataRuleLayer002 = defineElementRule("TableLabelField", TableLabelFieldRules)

@@ -8,7 +8,6 @@ import type {
   ValidationSchemaValidator,
 } from "./validationSchema"
 
-const firstErrorMarker = Symbol("nkdk-first-validation-error")
 const selectedBranchMarker = Symbol("nkdk-selected-branch-error")
 
 interface SelectedBranchErrorPayload {
@@ -16,15 +15,12 @@ interface SelectedBranchErrorPayload {
   readonly error: ValidationSchemaError
 }
 
-interface FirstErrorSignal {
-  readonly marker: typeof firstErrorMarker
-  readonly error: ValidationSchemaError
-}
-
 interface DiscriminatorBranch {
   readonly schema: TSchema
   readonly value: string
 }
+
+type LocalizedValidationError = TValidationError & { readonly message: string }
 
 function asRefinementMessage(payload: SelectedBranchErrorPayload): string {
   return payload as unknown as string
@@ -97,6 +93,19 @@ export function compileTypeboxValidationSchema(
       return result
     }
 
+    const union = plainUnion(value)
+    if (union !== undefined) {
+      const result: Record<string, unknown> = {}
+      preparedNodes.set(value, result)
+      for (const [key, entry] of Object.entries(value)) {
+        if (key === union.keyword) continue
+        result[key] = prepareNode(entry, document)
+      }
+      const preparedBranches = union.branches.map((branch) => prepareNode(branch, document) as TSchema)
+      result["~refine"] = [createPlainUnionRefinement(union.keyword, preparedBranches, () => preparedContext)]
+      return result
+    }
+
     const result: Record<string, unknown> = {}
     preparedNodes.set(value, result)
     const recordValue = pureAdditionalPropertiesSchema(value)
@@ -118,6 +127,19 @@ export function compileTypeboxValidationSchema(
   preparedContext = expandCompileContext({ ...explicitContext, ...localContext })
   const compiled = Compile(preparedContext, preparedSchema)
   return wrapCompiledValidator(compiled)
+}
+
+function plainUnion(schema: Record<string, unknown>): {
+  readonly keyword: "anyOf" | "oneOf"
+  readonly branches: readonly TSchema[]
+} | undefined {
+  for (const keyword of ["anyOf", "oneOf"] as const) {
+    const branches = schema[keyword]
+    if (!Array.isArray(branches) || branches.length === 0) continue
+    if (!branches.every(isRecord)) throw new Error(`${keyword} должен содержать схемы`)
+    return { keyword, branches: branches as TSchema[] }
+  }
+  return undefined
 }
 
 function localDefinitionEntries(schema: Record<string, unknown>): {
@@ -358,6 +380,36 @@ function createDiscriminatorRefinement(
   }
 }
 
+function createPlainUnionRefinement(
+  keyword: "anyOf" | "oneOf",
+  branches: readonly TSchema[],
+  context: () => SchemaContext,
+): { check(value: unknown): boolean; error(): string } {
+  let validators: readonly ValidationSchemaValidator[] | undefined
+  const branchValidators = (): readonly ValidationSchemaValidator[] => {
+    validators ??= branches.map((branch) => wrapCompiledValidator(Compile(context(), branch)))
+    return validators
+  }
+  return {
+    check(value) {
+      const matches = branchValidators().reduce((count, validator) => count + Number(validator.Check(value)), 0)
+      return keyword === "anyOf" ? matches > 0 : matches === 1
+    },
+    error() {
+      return asRefinementMessage({
+        marker: selectedBranchMarker,
+        error: {
+          keyword,
+          schemaPath: `#/${keyword}`,
+          instancePath: "",
+          params: {},
+          message: "",
+        },
+      })
+    },
+  }
+}
+
 function discriminatorFieldError(
   value: unknown,
   propertyName: string,
@@ -393,13 +445,11 @@ function wrapCompiledValidator(compiled: {
     Errors(value) {
       if (compiled.Check(value)) return [true, []]
       const previousLocale = Locale.Get()
-      Locale.Set(createFirstErrorLocale(previousLocale))
+      Locale.Set(createCollectingLocale(previousLocale))
       try {
-        compiled.Errors(value)
-        throw new Error("TypeBox не вернул ошибку для невалидного значения")
-      } catch (caught) {
-        if (!isFirstErrorSignal(caught)) throw caught
-        return [false, [caught.error]]
+        const errors = compiled.Errors(value).map(toCollectedValidationSchemaError)
+        if (errors.length === 0) throw new Error("TypeBox не вернул ошибку для невалидного значения")
+        return [false, errors]
       } finally {
         Locale.Set(previousLocale)
       }
@@ -407,21 +457,21 @@ function wrapCompiledValidator(compiled: {
   }
 }
 
-function createFirstErrorLocale(previousLocale: TLocalizedValidationMessageCallback): TLocalizedValidationMessageCallback {
+function createCollectingLocale(previousLocale: TLocalizedValidationMessageCallback): TLocalizedValidationMessageCallback {
   return (sourceError) => {
     const payload = selectedBranchPayload(sourceError)
-    const error = payload === undefined
-      ? toValidationSchemaError(sourceError)
-      : {
-          ...payload.error,
-          instancePath: `${sourceError.instancePath}${payload.error.instancePath}`,
-          schemaPath: joinSchemaPaths(sourceError.schemaPath, payload.error.schemaPath),
-        }
-    const signal: FirstErrorSignal = {
-      marker: firstErrorMarker,
-      error: { ...error, message: previousLocale(error as TValidationError) },
-    }
-    throw signal
+    return payload === undefined ? previousLocale(sourceError) : previousLocale(payload.error as TValidationError)
+  }
+}
+
+function toCollectedValidationSchemaError(sourceError: LocalizedValidationError): ValidationSchemaError {
+  const payload = selectedBranchPayload(sourceError)
+  if (payload === undefined) return toValidationSchemaError(sourceError)
+  return {
+    ...payload.error,
+    instancePath: `${sourceError.instancePath}${payload.error.instancePath}`,
+    schemaPath: joinSchemaPaths(sourceError.schemaPath, payload.error.schemaPath),
+    message: sourceError.message,
   }
 }
 
@@ -433,13 +483,13 @@ function selectedBranchPayload(error: TValidationError): SelectedBranchErrorPayl
     : undefined
 }
 
-function toValidationSchemaError(error: TValidationError): ValidationSchemaError {
+function toValidationSchemaError(error: LocalizedValidationError): ValidationSchemaError {
   return {
     keyword: error.keyword,
     schemaPath: error.schemaPath,
     instancePath: error.instancePath,
     params: error.params as Record<string, unknown>,
-    message: "",
+    message: error.message,
   }
 }
 
@@ -451,10 +501,6 @@ function joinSchemaPaths(parent: string, child: string): string {
 
 function escapeJsonPointerSegment(value: string): string {
   return value.replaceAll("~", "~0").replaceAll("/", "~1")
-}
-
-function isFirstErrorSignal(value: unknown): value is FirstErrorSignal {
-  return isRecord(value) && value.marker === firstErrorMarker && isValidationSchemaError(value.error)
 }
 
 function isValidationSchemaError(value: unknown): value is ValidationSchemaError {

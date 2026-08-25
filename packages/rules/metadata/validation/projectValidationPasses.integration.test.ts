@@ -1,29 +1,28 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
+import { mkdirSync,mkdtempSync,rmSync,writeFileSync } from "fs"
 import { tmpdir } from "os"
-import { dirname, join } from "path"
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest"
+import { dirname,join } from "path"
+import { afterEach,beforeAll,describe,expect,it,vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
-import { resolveValidationProjectFile } from "./projectFiles"
-import { createProjectYamlCache } from "./projectYamlCache"
-import {
-  createValidationSchemaCache,
-  type ValidationSchemaCache,
-  validateProjectFileFirstPass,
-} from "./projectValidationPasses"
-import type { ProjectFileValidator } from "./projectReferenceIndexRegistry"
-import { createValidationRulesSnapshot } from "./rulesSnapshot"
-import { assertProjectStateFileUpdateBatch, toProjectStateFileUpdate } from "../projectState/fileUpdate"
-import { createTestValidationSchemaCache } from "./tests/testValidationSchemaCache"
-import { createValidationProjectComponent } from "./projectComponents"
-import { composeMetadataRules, defineMetadataRules } from "../ruleRuntime/definition"
-import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
-import { metadataRules } from "../composition/metadataRules"
-import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
-import { createValidationRegistrySet } from "./validationRegistrySet"
 import { createPropertyStateCapabilityRegistry } from "../appliedObjects/configurationExtension/propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "../appliedObjects/configurationExtension/propertyStateRules"
+import { metadataRules } from "../composition/metadataRules"
 import { withOperationRegistrySet } from "../operations/operationExecutionContext"
-import { createConfigurationLanguages } from "@nkdk/runtime"
+import { assertProjectStateFileUpdateBatch,toProjectStateFileUpdate } from "../projectState/fileUpdate"
+import { composeMetadataRules,defineMetadataRules } from "../ruleRuntime/definition"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { createValidationProjectComponent } from "./projectComponents"
+import { resolveValidationProjectFile } from "./projectFiles"
+import type { ProjectFileValidator } from "./projectReferenceIndexRegistry"
+import {
+createValidationSchemaCache,
+validateProjectFileFirstPass,
+type ValidationSchemaCache,
+} from "./projectValidationPasses"
+import { createProjectYamlCache } from "./projectYamlCache"
+import { createValidationRulesSnapshot } from "./rulesSnapshot"
+import { createTestValidationSchemaCache } from "./tests/testValidationSchemaCache"
+import { createValidationRegistrySet } from "./validationRegistrySet"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -217,42 +216,6 @@ describe("validateProjectFileFirstPass references", () => {
       "ДлинаНомера: 0\nВводПоСтроке:\n  - СтандартныйРеквизит.Номер",
       "cfe",
     ))).toContainEqual(expect.objectContaining({ path: "/ВводПоСтроке/0" }))
-  })
-
-  it("validates localized language tags and order in the existing first pass", () => {
-    const singleLanguageContext = {
-      ...mockContext,
-      languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
-    }
-    const missingLanguageTag = validationErrors(validateAppliedObject(
-      "Справочник/Тест/Свойства.yaml",
-      "Синоним:\n  ru: Текст\n  en: Text",
-      "cf",
-      singleLanguageContext,
-    ))
-    expect(missingLanguageTag).toContainEqual(expect.objectContaining({
-      path: "/Синоним/en",
-      message: expect.stringMatching(/незарегистрирован/iu),
-    }))
-
-    const classified = validationErrors(validateAppliedObject(
-      "Справочник/Тест/Свойства.yaml",
-      "Синоним:\n  ru: Текст\n  en: !xml/language Text",
-      "cf",
-      singleLanguageContext,
-    ))
-    expect(classified).toEqual([])
-
-    const missingOrderTag = validationErrors(validateAppliedObject(
-      "Справочник/Тест/Свойства.yaml",
-      "Синоним:\n  en: !xml/language Text\n  ru: Текст",
-      "cf",
-      singleLanguageContext,
-    ))
-    expect(missingOrderTag).toContainEqual(expect.objectContaining({
-      path: "/Синоним",
-      message: expect.stringMatching(/порядок/iu),
-    }))
   })
 
   function formFirstPassUpdate(lines: string[]) {
@@ -600,6 +563,45 @@ describe("validateProjectFileFirstPass references", () => {
         expect.arrayContaining([expect.objectContaining({ path: "/RegisteredFailure", source: "structure" })])
       )
       expect(first.schemaDiagnostics).toEqual([])
+  })
+
+  it("помечает локально подтверждённую XML-границу как accepted", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(
+      projectDir,
+      "ГруппаКоманд/ПечатьДокумента.yaml",
+      "Картинка: !xml/invalid ОбщаяКартинка.Печать",
+    )
+    const file = resolveValidationProjectFile(
+      projectDir,
+      join(projectDir, "ГруппаКоманд/ПечатьДокумента.yaml"),
+    )
+    if (!file) throw new Error("file not resolved")
+    const runtime = validationRuntimeWithFileValidator(file.owner.spec.kind, ({ filePath }) => [{
+      filePath,
+      line: 1,
+      col: 11,
+      severity: "error",
+      source: "structure",
+      path: "/Картинка",
+      message: "проверочная смысловая ошибка",
+    }])
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot,
+      runtime,
+    })
+
+    expect(first.pendingReferences).toContainEqual(expect.objectContaining({
+      yamlPath: ["Картинка"],
+      xmlAnomaly: "accepted",
+    }))
   })
 
   it("validates common form body through the shared form schema", () => {

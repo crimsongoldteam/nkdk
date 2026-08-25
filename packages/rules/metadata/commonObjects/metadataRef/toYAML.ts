@@ -5,7 +5,7 @@ import { ConfigurationContext } from "@nkdk/runtime"
 import type { MetadataTargetOwner } from "../metadataTargets/types"
 import { exportMetadataObjectStringToYAML } from "../metadataPath/toYAML"
 import type { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
-import { isMDObjectRefUuid } from "./brokenMDObjectRef"
+import { isMDObjectRefUuid } from "./uuid"
 
 export const exportMetadataItemLinkToYAML = (
   context: ConfigurationContext,

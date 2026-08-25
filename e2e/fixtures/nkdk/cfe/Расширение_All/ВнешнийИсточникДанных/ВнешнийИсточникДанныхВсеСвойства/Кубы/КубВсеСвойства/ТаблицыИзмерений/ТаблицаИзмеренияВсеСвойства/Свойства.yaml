@@ -5,8 +5,28 @@
 Поля:
   ПолеВсеСвойства:
     Тип: Строка(10)
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
   ПолеПоУмолчанию:
     Тип: Строка(10)
+    ПринадлежностьОбъекта: !xml/raw
+      $xml: Adopted
+    Properties: !xml/raw
+      $xml:
+        "#order":
+          - ObjectBelonging
+          - Name
+          - Comment
+          - ExtendedConfigurationObject
+          - Type
 ИмяВИсточникеДанных: !изменять
 ПолеПредставления: !изменять
 Изменять:

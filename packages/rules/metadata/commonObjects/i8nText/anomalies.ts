@@ -1,16 +1,7 @@
 import {
-  copyYAMLMappingTag,
   copyYAMLMappingKeyOrder,
-  copyYAMLScalarTags,
-  markYAMLMappingTag,
   markYAMLMappingKeyOrder,
-  markYAMLScalarTag,
-  isXMLAnomalyTag,
-  xmlAnomalyTagPayload,
-  xmlAnomalyTagValue,
-  yamlMappingTagOf,
   yamlMappingKeys,
-  yamlScalarTagAt,
   type ConfigurationContext,
 } from "@nkdk/runtime"
 import type { I8nTextLanguageXML } from "./types"
@@ -19,7 +10,7 @@ export function importLocalizedItems(params: {
   context: ConfigurationContext
   items: readonly I8nTextLanguageXML[]
 }): Record<string, string> {
-  const { context, items } = params
+  const { items } = params
   if (items.some((item) =>
     typeof item !== "object" || item === null ||
     item["v8:lang"] === undefined || item["v8:lang"] === "" || item["v8:lang"] === "#")) {
@@ -37,16 +28,8 @@ export function importLocalizedItems(params: {
     const next = items[index + 1]
 
     if (next?.["v8:lang"] === code) {
-      if (normalizedContent(next["v8:content"]) !== content || items[index + 2]?.["v8:lang"] === code) {
-        throw unsupportedDuplicate(code)
-      }
-      if (!context.languages.registeredSet.has(code)) {
-        throw new Error(`Неподдерживаемый повтор незарегистрированного языка ${JSON.stringify(code)}`)
-      }
       if (seen.has(code)) throw unsupportedDuplicate(code)
-
-      setLocalizedValue(result, code, xmlAnomalyTagValue("xml/duplicate", content))
-      markYAMLScalarTag(result, code, "xml/duplicate")
+      setLocalizedValue(result, code, content)
       seen.add(code)
       codes.push(code)
       index += 2
@@ -57,18 +40,11 @@ export function importLocalizedItems(params: {
     setLocalizedValue(result, code, content)
     seen.add(code)
     codes.push(code)
-    if (!context.languages.registeredSet.has(code)) {
-      setLocalizedValue(result, code, xmlAnomalyTagValue("xml/language", content))
-      markYAMLScalarTag(result, code, "xml/language")
-    }
     index += 1
   }
 
   markYAMLMappingKeyOrder(result, codes)
 
-  if (!isCanonicalLanguageOrder(codes, context.languages.default)) {
-    markYAMLMappingTag(result, "xml/order")
-  }
   return result
 }
 
@@ -79,26 +55,14 @@ export function exportLocalizedItems(params: {
 }): I8nTextLanguageXML[] {
   const { context, items } = params
   const sourceCodes = yamlMappingKeys(items)
-  const codes =
-    yamlMappingTagOf(items) === "xml/order" || sourceCodes.some((code) => code === "" || code === "#")
-      ? sourceCodes
-      : canonicalCodes(sourceCodes, context.languages.default)
+  const codes = sourceCodes
   const result: I8nTextLanguageXML[] = []
 
   for (const code of codes) {
     const stored = items[code] ?? ""
     if (stored === "" && params.emptyDefaultIsMarker === true && code === context.languages.default) continue
-    const tag = yamlScalarTagAt(items, code)
-    if (isXMLAnomalyTag(tag) && tag !== "xml/language" && tag !== "xml/duplicate") {
-      throw new Error(`Тег !${tag} недопустим для языка ${JSON.stringify(code)}`)
-    }
-    const content =
-      tag === "xml/language" || tag === "xml/duplicate"
-        ? xmlAnomalyTagPayload(tag, stored)
-        : stored
-    const item = { "v8:lang": code, "v8:content": content }
+    const item = { "v8:lang": code, "v8:content": stored }
     result.push(item)
-    if (tag === "xml/duplicate") result.push({ ...item })
   }
 
   return result
@@ -110,8 +74,6 @@ export function isCanonicalLanguageOrder(codes: readonly string[], defaultCode: 
 }
 
 export function copyLocalizedItemTags(source: Record<string, string>, target: Record<string, string>): void {
-  copyYAMLScalarTags(source, target)
-  copyYAMLMappingTag(source, target)
   copyYAMLMappingKeyOrder(source, target)
 }
 

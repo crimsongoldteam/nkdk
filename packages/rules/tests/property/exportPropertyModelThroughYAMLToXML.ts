@@ -10,7 +10,7 @@ import {
 import { mockContext, mockContextToXML } from "../mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
-import { importContentFromXML } from "@nkdk/runtime"
+import { createXmlAnomalyAnnotations, importContentFromXML } from "@nkdk/runtime"
 
 type Params = {
   rule: PropertyRule
@@ -70,6 +70,7 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
             properties: { value: { ...params.rule, xml: "Value", yaml: params.rule.yaml ?? "Значение" } },
           } as MetadataItemRule,
           xml: { Value: referenceValue },
+          annotations: createXmlAnomalyAnnotations(),
         }).yaml
   const yaml =
     "yaml" in params
@@ -93,6 +94,7 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
       context: contexts.importContext,
       rule,
       xml: { Value: referenceValue },
+      annotations: createXmlAnomalyAnnotations(),
     })
   }
   const base = mockContextToXML()

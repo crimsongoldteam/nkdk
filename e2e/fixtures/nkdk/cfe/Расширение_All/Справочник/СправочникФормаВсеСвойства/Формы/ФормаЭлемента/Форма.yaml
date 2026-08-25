@@ -60,3 +60,140 @@
     ТипКнопки: ОбычнаяКнопка
 Изменять:
   - Форма
+"@Form": !xml/raw
+  $xml:
+    BaseForm:
+      _version: "2.20"
+      Title:
+        v8:item:
+          v8:lang: ru
+          v8:content: Заголовок
+      Width: "5"
+      Height: "10"
+      WindowOpeningMode: LockWholeInterface
+      EnterKeyBehavior: DefaultButton
+      AutoSaveDataInSettings: Use
+      SaveDataInSettings: UseList
+      SaveWindowSettings: "false"
+      SettingsStorage: SettingsStorage.ХранилищеНастроекВсеСвойства
+      AutoTitle: "false"
+      AutoURL: "false"
+      Group: AlwaysHorizontal
+      ChildrenAlign: ItemsLeftTitlesLeft
+      HorizontalSpacing: Single
+      VerticalSpacing: Double
+      HorizontalAlign: Center
+      VerticalAlign: Bottom
+      AutoFillCheck: "false"
+      Customizable: "false"
+      Enabled: "false"
+      CommandBarLocation: Top
+      VerticalScroll: useIfNecessary
+      ScalingMode: Compact
+      Scale: "90"
+      ConversationsRepresentation: Show
+      MobileDeviceCommandBarContent:
+        xr:Item:
+          - xr:Presentation:
+            xr:CheckState: "0"
+            xr:Value:
+              _xsi:type: xs:string
+              "#text": ФормаКоманда1
+          - xr:Presentation:
+            xr:CheckState: "0"
+            xr:Value:
+              _xsi:type: xs:string
+              "#text": Команда1
+      CommandSet:
+        ExcludedCommand: Write
+      ShowTitle: "false"
+      ShowCloseButton: "false"
+      CollapseItemsByImportanceVariant: DontUse
+      UseForFoldersAndItems: Folders
+      AutoCommandBar:
+        _name: ФормаКоманднаяПанель
+        _id: "-1"
+        ChildItems:
+          Button:
+            _name: ФормаКоманда2
+            _id: "3"
+            Type: CommandBarButton
+            CommandName: "0"
+            ExtendedTooltip:
+              _name: ФормаКоманда2РасширеннаяПодсказка
+              _id: "4"
+      ChildItems:
+        Button:
+          - _name: ФормаКоманда1
+            _id: "1"
+            Type: UsualButton
+            CommandName: "0"
+            ExtendedTooltip:
+              _name: ФормаКоманда1РасширеннаяПодсказка
+              _id: "2"
+          - _name: Команда1
+            _id: "5"
+            Type: UsualButton
+            CommandName: "0"
+            ExtendedTooltip:
+              _name: Команда1РасширеннаяПодсказка
+              _id: "6"
+      Attributes:
+        ConditionalAppearance:
+          dcsset:item:
+            dcsset:selection:
+            dcsset:filter:
+              dcsset:item:
+                _xsi:type: dcsset:FilterItemComparison
+                dcsset:left:
+                  _xsi:type: dcscor:Field
+                  "#text": Объект.Наименование
+                dcsset:comparisonType: Contains
+                dcsset:right:
+                  _xsi:type: xs:string
+                  "#text": вба
+            dcsset:appearance:
+              dcscor:item:
+                _xsi:type: dcsset:SettingsParameterValue
+                dcscor:parameter: Текст
+                dcscor:value:
+                  _xsi:type: v8:LocalStringType
+                  v8:item:
+                    v8:lang: ru
+                    v8:content: абв
+    "#order":
+      - Title
+      - Width
+      - Height
+      - WindowOpeningMode
+      - EnterKeyBehavior
+      - AutoSaveDataInSettings
+      - SaveDataInSettings
+      - SaveWindowSettings
+      - SettingsStorage
+      - AutoTitle
+      - AutoURL
+      - Group
+      - ChildrenAlign
+      - HorizontalSpacing
+      - VerticalSpacing
+      - HorizontalAlign
+      - VerticalAlign
+      - AutoFillCheck
+      - Customizable
+      - Enabled
+      - CommandBarLocation
+      - VerticalScroll
+      - ScalingMode
+      - Scale
+      - ConversationsRepresentation
+      - MobileDeviceCommandBarContent
+      - CommandSet
+      - ShowTitle
+      - ShowCloseButton
+      - CollapseItemsByImportanceVariant
+      - UseForFoldersAndItems
+      - AutoCommandBar
+      - ChildItems
+      - Attributes
+      - BaseForm

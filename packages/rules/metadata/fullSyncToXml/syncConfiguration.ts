@@ -241,7 +241,7 @@ export async function syncComponentToXml(
       outputTarget: { kind: "directory", outputDir: xmlDir },
       context,
       profile: runtime.workerProfile,
-      composition: createFullXmlSyncCompositionSnapshot(plan.assignments),
+      composition: createFullXmlSyncCompositionSnapshot(plan.assignments, { externalFiles: plan.externalFiles }),
       targetIndex: target.snapshot.descriptor,
       ...(base === undefined ? {} : { baseIndex: base.snapshot.descriptor }),
       operationSeed: randomBytes(32),

@@ -6,6 +6,10 @@ import type {
   LocalYamlFact,
 } from "../ruleRuntime/property/localFacts"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import {
+  attachXmlImportAttemptAdapter,
+  attachXmlImportBufferedLocalIndexesFactory,
+} from "../ruleRuntime/xmlAnomaly/attempt"
 
 export type {
   LocalIndexes,
@@ -15,10 +19,24 @@ export type {
   LocalMetadataTargetFact,
 } from "../ruleRuntime/property/localFacts"
 
+interface LocalIndexesStorage {
+  readonly events: LocalMetadataEvent[]
+  readonly metadataTargets: LocalMetadataTargetFact[]
+  readonly ownerFactWrites: { role: string; value: unknown }[]
+}
+
+const collectorStorage = new WeakMap<LocalIndexesCollector, LocalIndexesStorage>()
+
 export function createLocalIndexesCollector(options?: { recordEvents?: boolean }): LocalIndexesCollector {
   const events: LocalMetadataEvent[] = []
-  const ownerFacts: Record<string, unknown> = {}
   const metadataTargets: LocalMetadataTargetFact[] = []
+  const ownerFactWrites: { role: string; value: unknown }[] = []
+  const checkpoints: {
+    events: number
+    metadataTargets: number
+    ownerFactWrites: number
+    state: "active" | "committed"
+  }[] = []
 
   const recordEvent = (kind: "property" | "complete", fact: LocalYamlFact): void => {
     if (options?.recordEvents === false) return
@@ -36,7 +54,7 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
     let metadataTargetValuesHandled = false
     const writer: LocalMetadataFactsWriter = {
       setOwnerFact(role, value) {
-        ownerFacts[role] = value
+        ownerFactWrites.push({ role, value })
       },
       setMetadataTargetValues(values) {
         metadataTargetValuesHandled = true
@@ -51,7 +69,7 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
     if (!metadataTargetValuesHandled) collectDefaultMetadataTargetFacts(metadataTargets, fact)
   }
 
-  return {
+  const collector: LocalIndexesCollector = {
     acceptItem(fact) {
       if (options?.recordEvents === false) return
       events.push({
@@ -64,14 +82,98 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
     },
     acceptProperty,
     completeValue: (fact) => recordEvent("complete", fact),
-    finish: () => ({
-      metadata: {
-        events,
-        ...(Object.keys(ownerFacts).length === 0 ? {} : { ownerFacts }),
-        ...(metadataTargets.length === 0 ? {} : { metadataTargets }),
-      },
-    }),
+    finish: () => {
+      const ownerFacts = Object.fromEntries(
+        ownerFactWrites.map(({ role, value }) => [role, value]),
+      )
+      return {
+        metadata: {
+          events,
+          ...(Object.keys(ownerFacts).length === 0 ? {} : { ownerFacts }),
+          ...(metadataTargets.length === 0 ? {} : { metadataTargets }),
+        },
+      }
+    },
   }
+  const storage = { events, metadataTargets, ownerFactWrites }
+  collectorStorage.set(collector, storage)
+  attachXmlImportAttemptAdapter(collector, {
+    begin() {
+      const checkpoint = {
+        events: events.length,
+        metadataTargets: metadataTargets.length,
+        ownerFactWrites: ownerFactWrites.length,
+        state: "active" as const,
+      }
+      checkpoints.push(checkpoint)
+      return checkpoint
+    },
+    prepare(checkpoint) {
+      currentCheckpoint(checkpoints, checkpoint, "active")
+    },
+    commit(checkpoint) {
+      currentCheckpoint(checkpoints, checkpoint, "active").state = "committed"
+    },
+    release(checkpoint) {
+      currentCheckpoint(checkpoints, checkpoint, "committed")
+      checkpoints.pop()
+    },
+    rollback(checkpoint) {
+      const current = currentCheckpoint(checkpoints, checkpoint)
+      events.length = current.events
+      metadataTargets.length = current.metadataTargets
+      ownerFactWrites.length = current.ownerFactWrites
+      checkpoints.pop()
+    },
+  })
+  attachXmlImportBufferedLocalIndexesFactory(collector, (sourceYamlPath) => {
+    const buffered = createLocalIndexesCollector(options)
+    const bufferedStorage = collectorStorage.get(buffered)
+    if (bufferedStorage === undefined) throw new Error("Не найден storage buffered local indexes")
+    return {
+      collector: buffered,
+      flush(yamlPath) {
+        appendBufferedLocalIndexes({
+          source: bufferedStorage,
+          target: storage,
+          sourceYamlPath,
+          yamlPath,
+        })
+      },
+    }
+  })
+  return collector
+}
+
+function appendBufferedLocalIndexes(params: {
+  source: LocalIndexesStorage
+  target: LocalIndexesStorage
+  sourceYamlPath: readonly (string | number)[]
+  yamlPath: readonly (string | number)[]
+}): void {
+  const remap = (path: readonly (string | number)[]): (string | number)[] => [
+    ...params.yamlPath,
+    ...path.slice(params.sourceYamlPath.length),
+  ]
+  for (const event of params.source.events) {
+    params.target.events.push({ ...event, yamlPath: remap(event.yamlPath) })
+  }
+  for (const target of params.source.metadataTargets) {
+    params.target.metadataTargets.push({ ...target, yamlPath: remap(target.yamlPath) })
+  }
+  params.target.ownerFactWrites.push(...params.source.ownerFactWrites)
+}
+
+function currentCheckpoint<Checkpoint extends { state: "active" | "committed" }>(
+  checkpoints: Checkpoint[],
+  checkpoint: unknown,
+  state?: Checkpoint["state"],
+): Checkpoint {
+  const current = checkpoints.at(-1)
+  if (current === undefined || current !== checkpoint || (state !== undefined && current.state !== state)) {
+    throw new Error("Нарушен порядок XML-import attempts local facts")
+  }
+  return current
 }
 
 function collectDefaultMetadataTargetFacts(target: LocalMetadataTargetFact[], fact: LocalYamlFact): void {

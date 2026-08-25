@@ -14,10 +14,6 @@ import type {
   DependentYamlItemHandler,
 } from "../property/dependentItemRegistry"
 import type {
-  ExplicitXMLPropertyRegistration,
-  ExplicitXMLPropertyTypeRegistration,
-} from "../property/explicitXMLPropertyRegistry"
-import type {
   importExportFunction,
   PropertyRuleExecution,
   TypeRulesOperations,
@@ -28,7 +24,6 @@ import type { MetadataTargetOwnerResolver } from "../property/metadataTargetOwne
 import type { MetadataItemRule } from "../property/types"
 import type { MetadataItemXmlImportAugmenter } from "../metadataItem/augmenterRegistry"
 import type { MetadataItemYamlToXmlAugmenter } from "../property/yamlToXmlAugmenter"
-import type { BrokenXMLReferenceCarrierRegistration } from "../property/brokenXMLReferenceCarrierRegistry"
 import type { FormDataPathMetadataProjection } from "../../validation/formDataPathProjection"
 import type {
   FormPlatformSourceMatcher,
@@ -38,6 +33,7 @@ import type {
   RegisteredFormValidator,
 } from "../../validation/formValidationRegistry"
 import type { FormValidationAdapter } from "../../validation/formContracts"
+import type { XmlAnomalyRegistration } from "../xmlAnomaly/contracts"
 
 export type PropertyTypeDefinition = {
   readonly [Operation in TypeRulesOperations]?: NonNullable<
@@ -260,13 +256,6 @@ export interface MetadataRulesDefinition<
 > {
   readonly propertyTypes: Readonly<Record<string, PropertyTypeDefinition>>
   readonly propertyItemRules: Readonly<Record<string, object>>
-  readonly explicitXMLProperties: Readonly<
-    Record<string, ExplicitXMLPropertyRegistration>
-  >
-  readonly explicitXMLPropertyTypes: Readonly<
-    Record<string, ExplicitXMLPropertyTypeRegistration>
-  >
-  readonly brokenXMLReferenceCarriers: readonly BrokenXMLReferenceCarrierRegistration[]
   readonly dependentItems: Readonly<Record<string, DependentItemDefinition>>
   readonly indexValuesFromYAML: Readonly<
     Record<string, IndexValueFromYAMLFunction>
@@ -295,4 +284,5 @@ export interface MetadataRulesDefinition<
   readonly operations: readonly MetadataOperationContribution[]
   readonly workerOperations: readonly MetadataWorkerOperationContribution[]
   readonly propertyStateCapabilities: readonly PropertyStateCapabilityContribution[]
+  readonly xmlAnomalies: readonly XmlAnomalyRegistration[]
 }

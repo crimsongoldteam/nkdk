@@ -1,15 +1,55 @@
 import { describe, expect, it, vi } from "vitest"
 import type { Diagnostic } from "@nkdk/runtime"
 import type { ProjectStateService } from "../projectState"
+import type { FullXmlSyncGeneratedDocument } from "../fullSyncToXml/types"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { attachBorrowedFormPaths } from "../fullSyncToXml/borrowedFormPlan"
 import type { FullXmlSyncAssignment } from "../fullSyncToXml/types"
 import {
   preparePartialXmlSyncPackage,
+  writePreparedPartialXmlSyncPackage,
   type PartialXmlSyncCoordinatorDependencies,
 } from "./preparePartialXmlSyncPackage"
+import { createPartialXmlAnomalyExecutionFixture } from "./tests/xmlAnomalyTestHelper"
 
 describe("подготовка частичного XML-пакета", () => {
+  it("ведёт исходный YAML через production partial writer и full-sync worker", async () => {
+    const fixture = createPartialXmlAnomalyExecutionFixture("/project")
+    const addGenerated = vi.fn(async (_document: FullXmlSyncGeneratedDocument) => undefined)
+    const writePending = vi.fn(async () => undefined)
+    const dependencies = boundary({ ok: true, status: "unchanged", diagnostics: [] })
+    dependencies.prepareValidated.mockImplementation((validated) =>
+      writePreparedPartialXmlSyncPackage({ ...validated, ...fixture.stage }, {
+        packageId: () => "package-anomaly",
+        operationSeed: () => new Uint8Array(32),
+        createWriter: () => ({
+          addGenerated,
+          async addExternal() {},
+          async close() {
+            return { archiveHash: 1n, entries: [fixture.targetXmlPath, "load.lst"] }
+          },
+          async abort() {},
+        }),
+        createWorkerPool: fixture.createWorkerPool,
+        writePending,
+        async buildPendingDelta() { return { hashes: new Map(), blocks: new Map() } },
+      }),
+    )
+
+    const result = await preparePartialXmlSyncPackage(params(), dependencies)
+
+    expect(result.ok ? "" : result.diagnostics.map(({ message }) => message).join("; ")).toBe("")
+    expect(result).toMatchObject({ ok: true, status: "prepared", packageId: "package-anomaly" })
+    expect(addGenerated).toHaveBeenCalledOnce()
+    const document = addGenerated.mock.calls[0]![0]
+    const xml = new TextDecoder().decode(document.content)
+    expect(xml).toContain("<Value>01</Value>")
+    expect(xml).not.toContain("ordinary")
+    expect(writePending).toHaveBeenCalledWith(expect.objectContaining({
+      state: expect.objectContaining({ loadTargets: [fixture.targetXmlPath] }),
+    }))
+  })
+
   it.each([
     ["сохранённой", "Объект/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml"],
     ["удалённой", undefined],
@@ -129,10 +169,11 @@ function boundary(
 ) {
   return {
     readPending: vi.fn(async () => undefined),
+    assertNoPending: vi.fn(async () => undefined),
     refresh: vi.fn(async () => ({
       diagnostics: [] as readonly Diagnostic[],
       readToken: createTestProjectStateReadToken(),
     })),
-    prepareValidated: vi.fn(async () => result),
+      prepareValidated: vi.fn(async (_params: Parameters<PartialXmlSyncCoordinatorDependencies["prepareValidated"]>[0]) => result),
   } satisfies PartialXmlSyncCoordinatorDependencies
 }

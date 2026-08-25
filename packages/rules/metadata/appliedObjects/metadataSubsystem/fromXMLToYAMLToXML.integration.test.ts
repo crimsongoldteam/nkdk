@@ -10,6 +10,13 @@ const rule = {
   },
 } satisfies MetadataItemRule
 
+const childSubsystemsRule = {
+  itemType: "MetadataSubsystemChildObjectsProbe",
+  properties: {
+    subsystems: MetadataSubsystemRules.properties.subsystems,
+  },
+} satisfies MetadataItemRule
+
 const cases = [
   {
     canonical: "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
@@ -34,6 +41,15 @@ const cases = [
 ] as const
 
 describe("MetadataSubsystem: единое преобразование состава", () => {
+  it("импортирует все повторные элементы ChildObjects/Subsystem", () => {
+    const imported = testPropertyFromXMLToYAML({
+      rule: childSubsystemsRule,
+      xml: { ChildObjects: { Subsystem: ["Первая", "Вторая"] } },
+    })
+
+    expect(imported.yaml).toEqual({ Подсистемы: ["Первая", "Вторая"] })
+  })
+
   it.each(cases)("преобразует допустимые ссылки состава в обоих направлениях: $canonical", ({ canonical, yaml }) => {
     const imported = testPropertyFromXMLToYAML({
       rule,

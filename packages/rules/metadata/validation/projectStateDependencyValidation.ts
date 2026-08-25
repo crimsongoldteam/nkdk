@@ -2,7 +2,6 @@ import { join } from "node:path"
 import {
   referenceNotIncludedInExtensionResult,
   resolvedProjectReferenceResult,
-  unnecessaryXmlReferenceResult,
   unresolvedProjectReferenceResult,
   type PendingMetadataTargetReference,
 } from "./projectReferenceIndex"
@@ -10,7 +9,7 @@ import {
   getProjectReferenceObjectPathContributor,
   getProjectReferenceValueContributor,
 } from "./projectReferenceIndexRegistry"
-import type { Diagnostic } from "@nkdk/runtime"
+import { yamlPathToPointer, type Diagnostic } from "@nkdk/runtime"
 import {
   ownerMetadataFromFacts,
   ownerMetadataNotFound,
@@ -39,6 +38,10 @@ import type {
 import type { ProjectStatePendingDependencyCheck } from "../projectState/contracts/fileUpdate"
 import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
 import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
+import type {
+  ProjectStateSemanticValidationResult,
+  ProjectStateXmlAnomalyBoundary,
+} from "../projectState/contracts/dependencyValidation"
 import type { ProjectStateStructuredDocumentValidator } from "../projectState/contracts/dependencyValidation"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 import { diagnosticAtYamlLocation } from "./yamlLocations"
@@ -66,14 +69,14 @@ export function createProjectStateDependencyValidator(params: {
         sourceOwner: reference.target.source.kind === "objectField" ? reference.target.source.owner : { kind: "" },
         ...(reference.target.source.kind === "objectField" ? { sourceFieldName: reference.target.source.name } : {}),
       })),
-    validateReferences: (validationParams) => validateProjectStateReferenceBatch({
+    validateReferences: (validationParams) => validateProjectStateReferenceBatchResult({
       ...validationParams,
       dataTableContributors: params.dataTableContributors
         ?? currentValidationRegistrySet<{ dataTables: DataTableRegistrySet }>()?.dataTables.contributors
         ?? [],
     }),
     validateOwners: validateProjectStateOwnerBatch,
-    validateDependencies: validateProjectStateDependencyBatch,
+    validateDependencies: validateProjectStateDependencyBatchResult,
     validateAddressableRequired: validateProjectStateAddressableRequiredBatch,
     validateReferenceCoverage: validateProjectStateReferenceCoverageBatch,
     validateStructuredDocuments: (validationParams) =>
@@ -211,7 +214,7 @@ export function resolveProjectStateDataPathReferenceBatch(params: {
         owners,
       }),
       ...(check.check.tableContext === undefined ? {} : { tableContext: check.check.tableContext }),
-      nameMode: check.check.tagged ? "internal" : "yaml",
+      nameMode: "yaml",
     })
     if (resolution.status !== "error" && resolution.target !== undefined) {
       resolved.push({ ...check, target: resolution.target })
@@ -284,8 +287,22 @@ export function validateProjectStateReferenceBatch(params: {
   > & Partial<Pick<ProjectStateQueryPort, "readDependencyOwnerInputs" | "readOwnerRefPage">>
   readonly dataTableContributors?: readonly DataTableDeclarationContributor[]
 }): readonly Diagnostic[] {
-  const dataTableChecks = params.checks.filter(({ reference }) => reference.target.kind === "dataTable")
-  const ordinaryChecks = params.checks.filter(({ reference }) => reference.target.kind !== "dataTable")
+  return validateProjectStateReferenceBatchResult(params).diagnostics
+}
+
+export function validateProjectStateReferenceBatchResult(params: {
+  readonly checks: readonly ProjectStatePendingReferenceCheck[]
+  readonly projectDir: string
+  readonly queryPort: Pick<
+    ProjectStateQueryPort,
+    "resolveTargets" | "readOwners"
+  > & Partial<Pick<ProjectStateQueryPort, "readDependencyOwnerInputs" | "readOwnerRefPage">>
+  readonly dataTableContributors?: readonly DataTableDeclarationContributor[]
+}): ProjectStateSemanticValidationResult {
+  const acceptedChecks = params.checks.filter(({ reference }) => reference.xmlAnomaly === "accepted")
+  const activeChecks = params.checks.filter(({ reference }) => reference.xmlAnomaly !== "accepted")
+  const dataTableChecks = activeChecks.filter(({ reference }) => reference.target.kind === "dataTable")
+  const ordinaryChecks = activeChecks.filter(({ reference }) => reference.target.kind !== "dataTable")
   const dataTableDiagnostics = dataTableChecks.length === 0
     ? []
     : validateProjectStateDataTableReferenceBatch({
@@ -294,100 +311,144 @@ export function validateProjectStateReferenceBatch(params: {
         queryPort: requireDataTableQueryPort(params.queryPort),
         contributors: params.dataTableContributors ?? [],
       })
-  const results = params.queryPort.resolveTargets(
-    ordinaryChecks.map(({ requestId, componentPath, reference }) => ({
-      requestId,
-      componentPath,
-      canonicalTarget: reference.canonical,
-    })),
-  )
+  const results = ordinaryChecks.length === 0
+    ? []
+    : params.queryPort.resolveTargets(
+        ordinaryChecks.map(({ requestId, componentPath, reference }) => ({
+          requestId,
+          componentPath,
+          canonicalTarget: reference.canonical,
+        })),
+      )
   const resultByRequestId = new Map(results.map((result) => [result.requestId, result]))
   const basePresenceChecks = ordinaryChecks.filter(({ requestId, componentPath, reference }) =>
-    reference.tagged !== "xml"
-    && componentPath.startsWith("cfe/")
+    componentPath.startsWith("cfe/")
     && componentPath.length > "cfe/".length
     && (resultByRequestId.get(requestId)?.status === "missing"
       || reference.propertyStateMode === "control"
       || reference.propertyStateMode === "notify")
   )
-  const basePresenceResults = params.queryPort.resolveTargets(
-    basePresenceChecks.map(({ requestId, reference }) => ({
-      requestId,
-      componentPath: "cf",
-      canonicalTarget: reference.canonical,
-    })),
-  )
+  const basePresenceResults = basePresenceChecks.length === 0
+    ? []
+    : params.queryPort.resolveTargets(
+        basePresenceChecks.map(({ requestId, reference }) => ({
+          requestId,
+          componentPath: "cf",
+          canonicalTarget: reference.canonical,
+        })),
+      )
   const basePresenceByRequestId = new Map(
     basePresenceResults.map((result) => [result.requestId, result]),
   )
   const valueOwnerChecks = ordinaryChecks.filter(({ requestId, reference }) =>
-    reference.tagged !== "xml"
-    && resultByRequestId.get(requestId)?.status === "missing"
+    resultByRequestId.get(requestId)?.status === "missing"
     && reference.target.kind === "value"
   )
-  const valueResults = resolveProjectValueTargets({
-    requests: valueOwnerChecks.map(({ requestId, componentPath, reference }) => {
-      if (reference.target.kind !== "value") throw new Error("Ожидалась ссылка на значение")
-      return { requestId, componentPath, target: reference.target }
-    }),
-    projectDir: params.projectDir,
-    queryPort: params.queryPort,
-    getContributor: getProjectReferenceValueContributor,
-  })
+  const valueResults = valueOwnerChecks.length === 0
+    ? []
+    : resolveProjectValueTargets({
+        requests: valueOwnerChecks.map(({ requestId, componentPath, reference }) => {
+          if (reference.target.kind !== "value") throw new Error("Ожидалась ссылка на значение")
+          return { requestId, componentPath, target: reference.target }
+        }),
+        projectDir: params.projectDir,
+        queryPort: params.queryPort,
+        getContributor: getProjectReferenceValueContributor,
+      })
   const valueResultByRequestId = new Map(valueResults.map((result) => [result.requestId, result]))
   const diagnostics: Diagnostic[] = [...dataTableDiagnostics]
   forEachDependencyResult(ordinaryChecks, results, (check, result) => {
-    if (check.reference.tagged === "xml") {
-      if (result.status === "found") {
-        diagnostics.push(...unnecessaryXmlReferenceResult(check.reference).diagnostics)
-      } else if (result.status === "ambiguous") {
-        diagnostics.push(...unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics)
-      }
-      return
-    }
+    let problems: readonly Diagnostic[] = []
     if (result.status === "found") {
       const baseResult = basePresenceByRequestId.get(check.requestId)
       if (check.reference.propertyStateMode !== undefined
         && check.reference.propertyStateMode !== "extend"
         && baseResult?.status !== "found") {
-        diagnostics.push(...unresolvedProjectReferenceResult(
+        problems = unresolvedProjectReferenceResult(
           check.reference,
           baseResult?.status ?? "missing",
-        ).diagnostics)
-        return
+        ).diagnostics
+      } else {
+        const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
+        if (!resolved.ok) problems = resolved.diagnostics
       }
-      const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
-      if (!resolved.ok) diagnostics.push(...resolved.diagnostics)
     } else {
       if (result.status === "missing" && basePresenceByRequestId.get(check.requestId)?.status === "found") {
-        diagnostics.push(...referenceNotIncludedInExtensionResult(check.reference).diagnostics)
-        return
-      }
-      if (result.status === "missing" && check.reference.target.kind === "value") {
+        problems = referenceNotIncludedInExtensionResult(check.reference).diagnostics
+      } else if (result.status === "missing" && check.reference.target.kind === "value") {
         const valueResult = valueResultByRequestId.get(check.requestId)
-        if (valueResult?.status === "found") return
         if (valueResult?.status === "invalid") {
-          diagnostics.push(...valueResult.diagnostics)
-          return
+          problems = valueResult.diagnostics
+        } else if (valueResult?.status === "ambiguous") {
+          problems = unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics
+        } else if (valueResult?.status !== "found") {
+          problems = unresolvedReferenceDiagnostics(params.projectDir, check, result.status)
         }
-        if (valueResult?.status === "ambiguous") {
-          diagnostics.push(...unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics)
-          return
-        }
+      } else {
+        problems = unresolvedReferenceDiagnostics(params.projectDir, check, result.status)
       }
-      const objectFilePath = check.reference.target.kind === "object"
-        ? getProjectReferenceObjectPathContributor(check.reference.target.root)?.({
-            projectDir: join(params.projectDir, check.componentPath),
-            target: check.reference.target,
-          })?.filePath
-        : undefined
-      const objectProjectPath = objectFilePath === undefined
-        ? undefined
-        : projectPathFromFileSystem(params.projectDir, objectFilePath)
-      diagnostics.push(...unresolvedProjectReferenceResult(check.reference, result.status, objectProjectPath).diagnostics)
     }
+    diagnostics.push(...problems)
   })
-  return diagnostics
+  return acceptProjectStateReferenceDiagnostics({
+    checks: activeChecks,
+    diagnostics,
+    acceptedXmlAnomalies: acceptedChecks.map(projectStateReferenceBoundary),
+  })
+}
+
+function unresolvedReferenceDiagnostics(
+  projectDir: string,
+  check: ProjectStatePendingReferenceCheck,
+  status: "missing" | "ambiguous",
+): readonly Diagnostic[] {
+  const objectFilePath = check.reference.target.kind === "object"
+    ? getProjectReferenceObjectPathContributor(check.reference.target.root)?.({
+        projectDir: join(projectDir, check.componentPath),
+        target: check.reference.target,
+      })?.filePath
+    : undefined
+  const objectProjectPath = objectFilePath === undefined
+    ? undefined
+    : projectPathFromFileSystem(projectDir, objectFilePath)
+  return unresolvedProjectReferenceResult(check.reference, status, objectProjectPath).diagnostics
+}
+
+function acceptProjectStateReferenceDiagnostics(params: {
+  readonly checks: readonly ProjectStatePendingReferenceCheck[]
+  readonly diagnostics: readonly Diagnostic[]
+  readonly acceptedXmlAnomalies: readonly ProjectStateXmlAnomalyBoundary[]
+}): ProjectStateSemanticValidationResult {
+  const accepted = [...params.acceptedXmlAnomalies]
+  const acceptedDiagnosticKeys = new Set<string>()
+  for (const check of params.checks) {
+    if (check.reference.xmlAnomaly !== "pending") continue
+    const path = yamlPathToPointer(check.reference.yamlPath)
+    const matched = params.diagnostics.filter((diagnostic) =>
+      diagnostic.severity === "error"
+      && diagnostic.filePath === check.reference.filePath
+      && diagnostic.path === path)
+    if (matched.length === 0) continue
+    accepted.push(projectStateReferenceBoundary(check))
+    for (const diagnostic of matched) acceptedDiagnosticKeys.add(projectStateDiagnosticKey(diagnostic))
+  }
+  return {
+    diagnostics: params.diagnostics.filter((diagnostic) =>
+      !acceptedDiagnosticKeys.has(projectStateDiagnosticKey(diagnostic))),
+    acceptedXmlAnomalies: accepted,
+  }
+}
+
+function projectStateReferenceBoundary(check: ProjectStatePendingReferenceCheck): ProjectStateXmlAnomalyBoundary {
+  return {
+    componentPath: check.componentPath,
+    projectPath: check.reference.filePath,
+    yamlPath: check.reference.yamlPath,
+  }
+}
+
+function projectStateDiagnosticKey(diagnostic: Diagnostic): string {
+  return `${diagnostic.filePath}\u0000${diagnostic.path ?? ""}\u0000${diagnostic.source}\u0000${diagnostic.message}`
 }
 
 function requireDataTableQueryPort(
@@ -446,10 +507,25 @@ export function validateProjectStateDependencyBatch(params: {
     "readDependencyInputs" | "readDependencyOwnerInputs" | "readOwnerRefPage"
   >
 }): readonly Diagnostic[] {
-  const groups = groupDependencyChecksByFile(params.checks)
+  return validateProjectStateDependencyBatchResult(params).diagnostics
+}
+
+export function validateProjectStateDependencyBatchResult(params: {
+  readonly checks: readonly ProjectDependencyInputQuery[]
+  readonly projectDir: string
+  readonly queryPort: Pick<
+    ProjectStateQueryPort,
+    "readDependencyInputs" | "readDependencyOwnerInputs" | "readOwnerRefPage"
+  >
+}): ProjectStateSemanticValidationResult {
+  const acceptedChecks = params.checks.filter(({ check }) => check.xmlAnomaly === "accepted")
+  const groups = groupDependencyChecksByFile(
+    params.checks.filter(({ check }) => check.xmlAnomaly !== "accepted"),
+  )
   const requests = groups.map((group) => group[0]!)
-  const results = params.queryPort.readDependencyInputs(requests)
+  const results = requests.length === 0 ? [] : params.queryPort.readDependencyInputs(requests)
   const diagnostics: Diagnostic[] = []
+  const acceptedXmlAnomalies = acceptedChecks.map(projectStateDependencyBoundary)
   for (let groupIndex = 0; groupIndex < groups.length; groupIndex += 1) {
     const group = groups[groupIndex]!
     const request = requests[groupIndex]!
@@ -459,8 +535,7 @@ export function validateProjectStateDependencyBatch(params: {
     }
     if (result.status !== "found") continue
     const index = dependencyFormIndex(result.input.forms)
-    diagnostics.push(
-      ...validatePendingChecks({
+    const validation = validatePendingChecks({
         ownerCache: createProjectStateOwnerMetadataCache({
           initialInput: result.input,
           projectDir: `${params.projectDir}/${request.componentPath}`,
@@ -476,12 +551,43 @@ export function validateProjectStateDependencyBatch(params: {
               ...check.check,
               location: { ...check.check.location, filePath: check.projectPath },
               index,
-              nameMode: check.check.tagged ? "internal" : "yaml",
+              nameMode: "yaml",
             }),
-      }).diagnostics,
-    )
+      })
+    diagnostics.push(...validation.diagnostics)
+    for (const path of validation.acceptedXmlAnomalyPaths) {
+      const accepted = group.find(({ check }) => xmlAnomalyPathEquals(check.yamlPath, path))
+      if (accepted !== undefined) acceptedXmlAnomalies.push(projectStateDependencyBoundary(accepted))
+    }
   }
-  return diagnostics
+  return { diagnostics, acceptedXmlAnomalies: dedupeProjectStateBoundaries(acceptedXmlAnomalies) }
+}
+
+function projectStateDependencyBoundary(check: ProjectDependencyInputQuery): ProjectStateXmlAnomalyBoundary {
+  return {
+    componentPath: check.componentPath,
+    projectPath: check.projectPath,
+    yamlPath: check.check.yamlPath,
+  }
+}
+
+function xmlAnomalyPathEquals(
+  left: readonly (string | number)[],
+  right: readonly (string | number)[],
+): boolean {
+  return yamlPathToPointer(left) === yamlPathToPointer(right)
+}
+
+function dedupeProjectStateBoundaries(
+  boundaries: readonly ProjectStateXmlAnomalyBoundary[],
+): ProjectStateXmlAnomalyBoundary[] {
+  const seen = new Set<string>()
+  return boundaries.filter((boundary) => {
+    const key = `${boundary.componentPath}\u0000${boundary.projectPath}\u0000${yamlPathToPointer(boundary.yamlPath) ?? ""}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 function groupDependencyChecksByFile(

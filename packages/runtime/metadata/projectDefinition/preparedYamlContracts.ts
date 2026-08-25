@@ -1,4 +1,5 @@
 import type { Diagnostic } from "../diagnostics/types"
+import type { XmlAnomalyAnnotations } from "../../yaml/xmlAnomalyAnnotations"
 
 export interface PreparedYamlProject {
   projectDir: string
@@ -45,6 +46,7 @@ export interface PreparedYamlFile {
   role: "configuration" | "properties" | "form"
   owner: { dir: string; name: string }
   data?: unknown
+  annotations: XmlAnomalyAnnotations
   syntaxDiagnostics: Diagnostic[]
 }
 

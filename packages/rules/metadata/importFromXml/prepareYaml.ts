@@ -1,5 +1,13 @@
 import fs from "node:fs"
-import { importContentFromXML } from "@nkdk/runtime"
+import {
+  createXmlAnomalyAnnotations,
+  createXmlImportAuditSession,
+  parseXmlCompatibilityWithRootStructures,
+  parseXmlDocumentWithSaxes,
+  type XmlAnomalyAnnotationTable,
+  type XmlDocument,
+  type XmlRootStructure,
+} from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ExternalFileEntry, XmlImportConfigurationContext } from "@nkdk/runtime"
@@ -36,11 +44,19 @@ import {
   partitionImportedDependentItems,
 } from "./dependentItems"
 import { createImportedFormDataPathIndex } from "../forms/clientApplicationForm/formDataPathMetadata"
+import {
+  captureXmlAnomalyProofAudit,
+  deriveXmlAnomalyProofPlan,
+  type XmlAnomalyProofBoundary,
+  type XmlAnomalyProofAudit,
+} from "./anomalyProof"
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment
   targetProjectPath: string
   yaml: unknown
+  annotations: XmlAnomalyAnnotationTable
+  proofAudit: XmlAnomalyProofAudit
   rule: MetadataItemRule
   ownerContext: readonly MetadataItemOwnerContextEntry[]
   localIndexes: LocalIndexes
@@ -65,10 +81,30 @@ export interface PreparedBaseFormCandidate {
 interface ParsedImportXmlInput {
   input: ImportXmlInput
   parsed: Record<string, unknown>
+  roots: readonly XmlRootStructure[]
+  document?: XmlDocument
 }
 
 let registeredImportRuleLookupCountValueForTests = 0
+let importAuditOutcomeCountValueForTests = 0
+let rootProofParsePassCountValueForTests = 0
 const registeredImportRulesByItemType = new Map<string, MetadataItemRule | undefined>()
+
+export function importAuditOutcomeCountForTests(): number {
+  return importAuditOutcomeCountValueForTests
+}
+
+export function resetImportAuditOutcomeCountForTests(): void {
+  importAuditOutcomeCountValueForTests = 0
+}
+
+export function rootProofParsePassCountForTests(): number {
+  return rootProofParsePassCountValueForTests
+}
+
+export function resetRootProofParsePassCountForTests(): void {
+  rootProofParsePassCountValueForTests = 0
+}
 
 export function registeredImportRuleLookupCountForTests(): number {
   return registeredImportRuleLookupCountValueForTests
@@ -85,10 +121,19 @@ export async function prepareImportYaml(params: {
   collector: ConfigurationIndexCollector
   profiler?: ValidationProfiler
   topology?: CompiledMetadataResourceTopology
+  proofDetail?: "full" | "roots"
 }): Promise<PreparedImportYaml> {
   let xmlInputs: ParsedImportXmlInput[] | undefined
   try {
-    xmlInputs = await readAndParseAssignmentXml(params.assignment.xmlFiles, params.profiler)
+    xmlInputs = await readAndParseAssignmentXml(
+      params.assignment.xmlFiles,
+      params.profiler,
+      params.proofDetail ?? "full",
+    )
+    const annotations = createXmlAnomalyAnnotations()
+    const audit = params.proofDetail === "roots"
+      ? undefined
+      : createXmlImportAuditSession(xmlInputs.flatMap(({ document }) => document?.roots ?? []))
     const generatedFiles: ExternalFileEntry[] = []
     const rule = resolveAssignmentRule(
       params.assignment,
@@ -167,17 +212,21 @@ export async function prepareImportYaml(params: {
       const deferred = createDeferredValuePathCollector()
       const dependent = createImportedDependentPropertyCollector()
       const metadataXML = requireMetadataXml(xmlInputs ?? [])
+      const metadataNode = requireMetadataXmlNode(xmlInputs ?? [])
       const yaml = importMetadataItemFromXMLToYAML({
         context: importContext,
         rule,
         name: params.assignment.itemName,
-        xml: metadataXML["MetaDataObject"],
+        xml: metadataNode ?? metadataXML["MetaDataObject"],
         traversal: {
           yamlPath: [],
           rulePath: [],
           collector,
           deferred,
           dependent,
+          ...(audit === undefined ? {} : { audit }),
+          annotations,
+          ...(metadataNode === undefined ? {} : { xmlNodes: [metadataNode] }),
           profile: importProfile,
         },
         propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
@@ -209,6 +258,44 @@ export async function prepareImportYaml(params: {
       }
     })
     recordDirectImportProfile(params.profiler, importProfile)
+    audit?.finalize()
+    if (audit !== undefined) importAuditOutcomeCountValueForTests += audit.outcomes().length
+    const proofAudit = params.proofDetail === "roots"
+      ? {
+          sources: xmlInputs.map(({ input, roots }) => ({
+            sourcePath: input.sourcePath,
+            role: input.role,
+            roots: roots.map(({ path, name, structuralHash, span }) => ({
+              xmlPath: path,
+              elementName: name,
+              structuralHash,
+              span: { ...span },
+            })),
+          })),
+          boundaries: [],
+          itemAnchors: [],
+        }
+      : (() => {
+          if (audit === undefined) throw new Error("Подробный XML proof требует import audit")
+          const proofSources = xmlInputs.map(({ input, document }) => {
+            if (document === undefined) throw new Error("Подробный XML proof требует адресное XML-дерево")
+            return { sourcePath: input.sourcePath, role: input.role, document }
+          })
+          const proofPlan = deriveXmlAnomalyProofPlan({
+            sources: proofSources,
+            audit,
+            rule,
+            data: result.yaml,
+            includePlannedAbsences: false,
+          })
+          const boundaries = proofPlan.boundaries
+          appendExternalPropertyRootBoundaries(boundaries, rule, xmlInputs)
+          return captureXmlAnomalyProofAudit({
+            sources: proofSources,
+            boundaries,
+            itemAnchors: proofPlan.itemAnchors,
+          })
+        })()
 
     params.profiler?.record("Подготовка импорта конфигурации", "Сбор локальных индексов", {
       items: result.localIndexes.metadata.events.length,
@@ -218,6 +305,8 @@ export async function prepareImportYaml(params: {
       assignment: params.assignment,
       targetProjectPath: params.assignment.targetProjectPath,
       yaml: result.yaml,
+      annotations,
+      proofAudit,
       rule,
       ownerContext,
       localIndexes: result.localIndexes,
@@ -288,7 +377,8 @@ function buildOwnerContext(
 
 async function readAndParseAssignmentXml(
   xmlFiles: readonly ImportXmlInput[],
-  profiler: ValidationProfiler | undefined
+  profiler: ValidationProfiler | undefined,
+  proofDetail: "full" | "roots",
 ): Promise<ParsedImportXmlInput[]> {
   const result: ParsedImportXmlInput[] = []
   for (const input of xmlFiles) {
@@ -299,25 +389,44 @@ async function readAndParseAssignmentXml(
         )) ?? (await fs.promises.readFile(input.sourcePath, "utf-8"))
       result.push({
         input,
-        parsed:
-          profiler?.measure(
+        ...(() => {
+          return profiler?.measure(
             "Подготовка импорта конфигурации",
             "Парсинг XML",
             { items: 1, bytes: Buffer.byteLength(content) },
-            () => importContentFromXML<Record<string, unknown>>(content, {
-              preserveXsiNil: true,
-              preserveEmptyElementNames: ["AdditionalFields"],
-            })
-          ) ?? importContentFromXML<Record<string, unknown>>(content, {
-            preserveXsiNil: true,
-            preserveEmptyElementNames: ["AdditionalFields"],
-          }),
+            () => parseAssignmentXml(content, proofDetail),
+          ) ?? parseAssignmentXml(content, proofDetail)
+        })(),
       })
     } catch (caught) {
       throw new ImportXmlInputError(input.sourcePath, caught)
     }
   }
   return result
+}
+
+function parseAssignmentXml(
+  content: string,
+  proofDetail: "full" | "roots",
+): Omit<ParsedImportXmlInput, "input"> {
+  if (proofDetail === "full") {
+    const document = parseXmlDocumentWithSaxes(content, {
+      preserveXsiNil: true,
+      preserveEmptyElementNames: ["AdditionalFields"],
+    })
+    return { document, roots: document.roots, parsed: document.compatibility }
+  }
+  rootProofParsePassCountValueForTests += 1
+  const parsed = parseXmlCompatibilityWithRootStructures(content, {
+    preserveXsiNil: true,
+    preserveEmptyElementNames: ["AdditionalFields"],
+  })
+  return { parsed: parsed.compatibility, roots: parsed.roots }
+}
+
+function requireMetadataXmlNode(inputs: readonly ParsedImportXmlInput[]) {
+  const metadata = inputs.find(({ input }) => input.role === "metadata")
+  return metadata?.document?.roots.find(({ name }) => name === "MetaDataObject")
 }
 
 function measureYaml<T>(profiler: ValidationProfiler | undefined, fn: () => T): T {
@@ -413,6 +522,39 @@ function mapPropertyXml(rule: MetadataItemRule, inputs: readonly ParsedImportXml
     if (input !== undefined) result.set(key, input.parsed)
   }
   return result
+}
+
+function appendExternalPropertyRootBoundaries(
+  boundaries: XmlAnomalyProofBoundary[],
+  rule: MetadataItemRule,
+  inputs: readonly ParsedImportXmlInput[],
+): void {
+  for (const [propertyKey, propertyRule] of Object.entries(rule.properties) as Array<[string, PropertyRule]>) {
+    if (propertyRule.filePath === undefined || typeof propertyRule.yaml !== "string") continue
+    const normalizedFilePath = propertyRule.filePath.replaceAll("\\", "/")
+    const input = inputs.find(({ input }) => normalizedPath(input.sourcePath).endsWith(`/${normalizedFilePath}`))
+    if (input === undefined) continue
+    if (boundaries.some((boundary) =>
+      boundary.sourcePath === input.input.sourcePath
+      && boundary.yamlPath.length === 1
+      && boundary.yamlPath[0] === propertyRule.yaml
+    )) continue
+    const document = input.document
+    if (document === undefined) throw new Error("Внешнее XML-свойство требует адресное XML-дерево")
+    if (document.roots.length !== 1) {
+      throw new Error(`Внешнее XML-свойство ${propertyKey} должно содержать один корень`)
+    }
+    const root = document.roots[0]!
+    boundaries.push({
+      sourcePath: input.input.sourcePath,
+      sourceRole: input.input.role,
+      xmlPath: root.path,
+      yamlPath: [propertyRule.yaml],
+      rulePath: [propertyKey],
+      presentInSource: true,
+      targetPaths: [root.path],
+    })
+  }
 }
 
 function normalizedPath(path: string): string {

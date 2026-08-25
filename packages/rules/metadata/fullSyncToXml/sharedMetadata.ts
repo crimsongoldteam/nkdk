@@ -1,4 +1,5 @@
 import { xxh3 } from "@node-rs/xxhash"
+import { fileBackedMemberPath } from "../resourceTopology/core/fileBackedMemberPath"
 import {
   buildBinaryHashIndex,
   findBinaryHashIndex,
@@ -16,6 +17,7 @@ import type {
   FullXmlSyncCompositionReader,
   FullXmlSyncSharedCompositionSnapshot,
 } from "./sharedMetadataTypes"
+import type { FullXmlSyncExternalFile } from "./types"
 export type {
   FullXmlSyncCompositionChild,
   FullXmlSyncCompositionEntry,
@@ -31,13 +33,28 @@ const EMPTY = ""
 
 interface FullXmlSyncCompositionHashOptions {
   readonly hashOwner?: (ownerLogicalAddress: string) => bigint
+  readonly externalFiles?: readonly FullXmlSyncExternalFile[]
+}
+
+interface CompositionSnapshotRow {
+  readonly id: string
+  readonly sourceProjectPath: string
+  readonly role: FullXmlSyncAssignment["role"]
+  readonly itemType: string
+  readonly itemName: string
+  readonly logicalAddress: string
+  readonly owner?: { readonly logicalAddress: string }
 }
 
 export function createFullXmlSyncCompositionSnapshot(
   assignments: readonly FullXmlSyncAssignment[],
   options: FullXmlSyncCompositionHashOptions = {},
 ): FullXmlSyncSharedCompositionSnapshot {
-  const entries = [...assignments].sort((left, right) => Buffer.compare(Buffer.from(left.id), Buffer.from(right.id)))
+  const assignmentEntries: CompositionSnapshotRow[] = [...assignments]
+  const entries = [
+    ...assignmentEntries,
+    ...fileBackedCompositionRows(assignments, options.externalFiles ?? []),
+  ].sort((left, right) => Buffer.compare(Buffer.from(left.id), Buffer.from(right.id)))
   const rootLogicalAddress = entries.find(({ role }) => role === "configuration")?.logicalAddress
   const stringValues = [EMPTY]
   for (const assignment of entries) {
@@ -125,7 +142,7 @@ export function createFullXmlSyncCompositionSnapshot(
       + childEntryIds.byteLength
       + ownerRanges.byteLength
       + ownerLookup.slots.byteLength,
-    assignments: entries.length,
+    assignments: assignments.length,
   }
 }
 
@@ -214,8 +231,10 @@ export function createFullXmlSyncCompositionReader(
         const base = rowsOffset + index * ENTRY_INTS
         if (strings.get(ints[base + 2] ?? 0) === "configuration") continue
         const sourceProjectPath = strings.get(ints[base + 1] ?? 0)
+        const itemType = strings.get(ints[base + 3] ?? 0)
+        if (itemType.length === 0) continue
         const yamlDir = sourceProjectPath.split("/", 1)[0] ?? EMPTY
-        if (yamlDir.length > 0) result[yamlDir] = strings.get(ints[base + 3] ?? 0)
+        if (yamlDir.length > 0) result[yamlDir] = itemType
       }
       return result
     },
@@ -242,6 +261,32 @@ export function createFullXmlSyncCompositionReader(
         : { ownerLogicalAddress: entry.ownerLogicalAddress }),
     }
   }
+}
+
+function fileBackedCompositionRows(
+  assignments: readonly FullXmlSyncAssignment[],
+  externalFiles: readonly FullXmlSyncExternalFile[],
+): CompositionSnapshotRow[] {
+  const assignmentsById = new Map(assignments.map((assignment) => [assignment.id, assignment]))
+  const rows = new Map<string, CompositionSnapshotRow>()
+  for (const file of externalFiles) {
+    if (file.assignmentId === undefined) continue
+    const owner = assignmentsById.get(file.assignmentId)
+    if (owner === undefined) continue
+    const member = fileBackedMemberPath(owner.sourceProjectPath, file.sourceProjectPath)
+    if (member === undefined) continue
+    const key = `${owner.logicalAddress}\0${member.projectPath}`
+    rows.set(key, {
+      id: `\0external\0${key}`,
+      sourceProjectPath: member.projectPath,
+      role: "form",
+      itemType: "",
+      itemName: member.itemName,
+      logicalAddress: `${owner.logicalAddress}.__external__.${member.collectionName}.${member.itemName}`,
+      owner: { logicalAddress: owner.logicalAddress },
+    })
+  }
+  return [...rows.values()]
 }
 
 function defaultHashOwner(ownerLogicalAddress: string): bigint {

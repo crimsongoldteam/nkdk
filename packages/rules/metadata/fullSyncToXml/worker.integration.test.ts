@@ -35,6 +35,7 @@ import {
 } from "./worker"
 import { configurationFullXmlSyncProfile } from "./profiles/configuration"
 import type { ConfirmedComponentState } from "../project/componentState/types"
+import "../../tests/metadataExecutionContext"
 
 const fullSyncWorker = createFullXmlSyncWorkerCommandRunner()
 const runFullXmlSyncWorkerCommand = fullSyncWorker.run
@@ -114,6 +115,15 @@ describe("full XML sync worker", () => {
     oldXmlStateFixture = { projectDir: oldProjectDir, assigned, targetSnapshot, targetDescriptor, profile }
 
     const partialProjectDir = createPersistentProject(["Товары"])
+    fs.appendFileSync(
+      join(partialProjectDir, "Справочник", "Товары", "Свойства.yaml"),
+      [
+        "ДлинаКода: !xml/raw",
+        "  $значение: 1",
+        '  $xml: { "#text": "001" }',
+        "",
+      ].join("\n"),
+    )
     const partialAssignment = assignment(partialProjectDir, "Товары")
     partialRoundTripFixture = {
       projectDir: partialProjectDir,
@@ -167,6 +177,18 @@ describe("full XML sync worker", () => {
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("activeAssignmentId")
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("preparedIds")
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("baseIndexSnapshot")
+  })
+
+  it("экспортирует пустой файл свойств как пустой объект", async () => {
+    const projectDir = createProject(["Товары"])
+    fs.writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "")
+    const assigned = assignment(projectDir, "Товары")
+    await initialize(projectDir, [assigned])
+
+    const result = await runFullXmlSyncWorkerCommand({ kind: "execute", assignments: [assigned] })
+
+    expect(result).toMatchObject({ kind: "executionResult", diagnostics: [] })
+    expect(fs.existsSync(join(projectDir, ".out", "Catalogs", "Товары.xml"))).toBe(true)
   })
 
   it.each([
@@ -287,6 +309,7 @@ describe("full XML sync worker", () => {
       assignments: [assigned],
     }))
     const partialBytes = partial.generatedDocuments.document(0).content
+    expect(new TextDecoder().decode(partialBytes)).toContain("<CodeLength>001</CodeLength>")
     const [fragment] = decodeConfigurationBlockFragments(partial.fragmentBuffer)
     if (fragment === undefined) throw new Error("частичная синхронизация не вернула блок снимка")
     await runFullXmlSyncWorkerCommand({ kind: "dispose" })

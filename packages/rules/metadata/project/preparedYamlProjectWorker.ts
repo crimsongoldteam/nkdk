@@ -2,9 +2,13 @@ import { relative, resolve } from "node:path"
 import { readFile } from "node:fs/promises"
 import { performance } from "node:perf_hooks"
 import { move, transferableSymbol, valueSymbol } from "piscina"
-import { hashFileBytes } from "@nkdk/runtime"
-import { parseMetadataYaml } from "@nkdk/runtime"
-import { rehydrateConfigurationContext } from "@nkdk/runtime"
+import {
+  createXmlAnomalyAnnotations,
+  hashFileBytes,
+  parseMetadataYaml,
+  rehydrateConfigurationContext,
+  snapshotXmlAnomalyAnnotations,
+} from "@nkdk/runtime"
 import {
   createProjectStateFileUpdateBatch,
   type ProjectStateFileIdentity,
@@ -395,15 +399,30 @@ export default async function preparedYamlProjectWorkerEntryPoint(
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   const result = await runPreparedYamlProjectWorkerTask(message)
   if (result.kind === "binaryResult") return createMovableBinaryResult(result)
-  return result.kind === "validateFirstPassResult" ? movableValidationResult(result) : result
+  if (result.kind === "validateFirstPassResult") return movableValidationResult(result)
+  return prepareYamlWorkerResultForTransport(result)
 }
 
 export function createPreparedYamlProjectWorkerEntryPoint(runtime: ValidationRegistrySet) {
   return async (message: PreparedYamlProjectWorkerTask): Promise<PreparedYamlProjectWorkerTaskResult> => {
     const result = await runPreparedYamlProjectWorkerTask(message, { validationRuntime: runtime })
     if (result.kind === "binaryResult") return createMovableBinaryResult(result)
-    return result.kind === "validateFirstPassResult" ? movableValidationResult(result) : result
+    if (result.kind === "validateFirstPassResult") return movableValidationResult(result)
+    return prepareYamlWorkerResultForTransport(result)
   }
+}
+
+export function prepareYamlWorkerResultForTransport(
+  result: PreparedYamlProjectWorkerTaskResult,
+): PreparedYamlProjectWorkerTaskResult {
+  if (result.kind !== "prepareResult") return result
+  return {
+    ...result,
+    yamlFiles: result.yamlFiles.map((file) => ({
+      ...file,
+      annotations: snapshotXmlAnomalyAnnotations(file.data, file.annotations),
+    })),
+  } as unknown as PreparedYamlProjectWorkerTaskResult
 }
 
 type TransferableValidationWorkerResult = Extract<
@@ -518,8 +537,8 @@ function emptyValidationIndexContribution(): ValidationIndexContribution {
 }
 
 function withoutYamlData(file: PreparedYamlFile): PreparedYamlFile {
-  const { data: _data, ...rest } = file
-  return rest
+  const { data: _data, annotations: _annotations, ...rest } = file
+  return { ...rest, annotations: createXmlAnomalyAnnotations() }
 }
 
 function estimateProfilePayloadBytes(value: unknown): number | undefined {

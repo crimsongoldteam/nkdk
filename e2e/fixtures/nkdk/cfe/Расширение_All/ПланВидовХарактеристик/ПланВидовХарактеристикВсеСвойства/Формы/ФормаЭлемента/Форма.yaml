@@ -12,3 +12,42 @@
     РежимРедактирования: ВходПриВводе
 Изменять:
   - Форма
+"@Form": !xml/raw
+  $xml:
+    BaseForm:
+      _version: "2.20"
+      WindowOpeningMode: LockOwnerWindow
+      UseForFoldersAndItems: Items
+      AutoCommandBar:
+        _name: ФормаКоманднаяПанель
+        _id: "-1"
+      ChildItems:
+        InputField:
+          - _name: Код
+            _id: "1"
+            EditMode: EnterOnInput
+            ExtendedEditMultipleValues: "true"
+            ContextMenu:
+              _name: КодКонтекстноеМеню
+              _id: "2"
+            ExtendedTooltip:
+              _name: КодРасширеннаяПодсказка
+              _id: "3"
+          - _name: Реквизит1
+            _id: "7"
+            EditMode: EnterOnInput
+            ExtendedEditMultipleValues: "true"
+            ContextMenu:
+              _name: Реквизит1КонтекстноеМеню
+              _id: "8"
+            ExtendedTooltip:
+              _name: Реквизит1РасширеннаяПодсказка
+              _id: "9"
+      Attributes:
+    "#order":
+      - WindowOpeningMode
+      - UseForFoldersAndItems
+      - AutoCommandBar
+      - ChildItems
+      - Attributes
+      - BaseForm

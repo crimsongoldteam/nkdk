@@ -10,19 +10,6 @@ export type MinMaxValueModel =
   | number
   | { readonly kind: "xml"; readonly xsiType?: string; readonly text: string }
 
-export function parseMinMaxXMLTypePayload(payload: string): MinMaxValueModel {
-  const separator = payload.indexOf(" ")
-  if (separator <= 0) throw new Error("после !xml/type ожидаются QName и значение")
-  const qName = payload.slice(0, separator)
-  const text = payload.slice(separator + 1)
-  if (text.length === 0) throw new Error("после QName ожидается значение")
-  return { kind: "xml", ...(qName === "-" ? {} : { xsiType: qName }), text }
-}
-
-export function formatMinMaxXMLTypePayload(value: Exclude<MinMaxValueModel, number>): string {
-  return `${value.xsiType ?? "-"} ${value.text}`
-}
-
 export interface MinMaxValueWidePropertyRule extends WidePropertyRuleBase {
   type: "MinMaxValue"
 }

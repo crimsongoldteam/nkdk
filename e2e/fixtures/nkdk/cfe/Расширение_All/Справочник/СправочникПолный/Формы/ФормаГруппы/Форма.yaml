@@ -19,3 +19,62 @@
     РежимРедактирования: ВходПриВводе
 Изменять:
   - Форма
+"@Form": !xml/raw
+  $xml:
+    BaseForm:
+      _version: "2.20"
+      WindowOpeningMode: LockOwnerWindow
+      UseForFoldersAndItems: Folders
+      AutoCommandBar:
+        _name: ФормаКоманднаяПанель
+        _id: "-1"
+      ChildItems:
+        InputField:
+          - _name: Код
+            _id: "1"
+            EditMode: EnterOnInput
+            ExtendedEditMultipleValues: "true"
+            ContextMenu:
+              _name: КодКонтекстноеМеню
+              _id: "2"
+            ExtendedTooltip:
+              _name: КодРасширеннаяПодсказка
+              _id: "3"
+          - _name: Наименование
+            _id: "4"
+            EditMode: EnterOnInput
+            ExtendedEditMultipleValues: "true"
+            ContextMenu:
+              _name: НаименованиеКонтекстноеМеню
+              _id: "5"
+            ExtendedTooltip:
+              _name: НаименованиеРасширеннаяПодсказка
+              _id: "6"
+          - _name: Владелец
+            _id: "7"
+            EditMode: EnterOnInput
+            ExtendedEditMultipleValues: "true"
+            ContextMenu:
+              _name: ВладелецКонтекстноеМеню
+              _id: "8"
+            ExtendedTooltip:
+              _name: ВладелецРасширеннаяПодсказка
+              _id: "9"
+          - _name: Родитель
+            _id: "10"
+            EditMode: EnterOnInput
+            ExtendedEditMultipleValues: "true"
+            ContextMenu:
+              _name: РодительКонтекстноеМеню
+              _id: "11"
+            ExtendedTooltip:
+              _name: РодительРасширеннаяПодсказка
+              _id: "12"
+      Attributes:
+    "#order":
+      - WindowOpeningMode
+      - UseForFoldersAndItems
+      - AutoCommandBar
+      - ChildItems
+      - Attributes
+      - BaseForm

@@ -10,7 +10,8 @@ import type {
 import { objectPathKindToYAML, rootToYAML } from "../ruleRuntime/metadataTarget/roots"
 import { dataTableCanonical } from "../ruleRuntime/metadataTarget/canonical"
 import type { Diagnostic } from "./types"
-import type { YamlPath } from "./yamlLocations"
+import { yamlPathToPointer, type YamlPath } from "./yamlLocations"
+import type { XmlAnomalyValidationState } from "./xmlAnomalyBoundary"
 
 export type MetadataReferenceResolveResult =
   | { ok: true; filePath?: string; details?: unknown }
@@ -40,7 +41,7 @@ export interface PendingMetadataTargetReference {
   canonical: string
   target: ParsedMetadataTarget
   constraint: MetadataTargetConstraint
-  tagged?: "xml"
+  xmlAnomaly?: XmlAnomalyValidationState
   propertyStateMode?: "control" | "notify" | "extend"
 }
 
@@ -127,16 +128,6 @@ export function referenceNotIncludedInExtensionResult(
     ok: false,
     reason: "notFound",
     diagnostics: [referenceDiagnostic(reference, `Ссылка "${reference.canonical}" не включена в расширение`)],
-  }
-}
-
-export function unnecessaryXmlReferenceResult(
-  reference: PendingMetadataTargetReference,
-): Extract<ProjectReferenceIndexResult, { ok: false }> {
-  return {
-    ok: false,
-    reason: "filter",
-    diagnostics: [referenceDiagnostic(reference, "!xml/reference не требуется: ссылка доступна в расширении")],
   }
 }
 
@@ -494,10 +485,12 @@ function referenceDiagnostic(
   message: string,
   filePath = reference.filePath
 ): Diagnostic {
+  const path = yamlPathToPointer(reference.yamlPath)
   return {
     filePath,
     line: 1,
     col: 1,
+    ...(path === undefined ? {} : { path }),
     severity: "error",
     source: "reference",
     message,

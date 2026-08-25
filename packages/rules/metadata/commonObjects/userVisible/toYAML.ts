@@ -8,8 +8,6 @@ import {
 } from "@nkdk/runtime/rule-kit"
 import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
 import { collectUserVisibleMetadataTargetOccurrences } from "./metadataTargetOccurrences"
-import { markYAMLMappingKeyTag } from "@nkdk/runtime"
-import { isMDObjectRefUuid } from "../metadataRef/brokenMDObjectRef"
 
 export const exportUserVisibleToYAML = (
   context: ConfigurationContext,
@@ -50,9 +48,6 @@ const exportPreparedUserVisibleToYAML = (
   const roles: UserVisibleRolesYAML = {}
   userVisible.values.forEach((item) => {
     roles[item.name] = exportBooleanToYAML(context, undefined, item.value)!
-    if (isMDObjectRefUuid(item.name)) {
-      markYAMLMappingKeyTag(roles, item.name, "xml/reference")
-    }
   })
 
   return {

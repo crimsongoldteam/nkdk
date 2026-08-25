@@ -1,30 +1,28 @@
-import { existsSync, mkdirSync, readFileSync } from "fs"
-import { join } from "path"
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
-import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
-import type { ProjectStateService } from "../projectState/service"
-import type { Diagnostic } from "../validation/types"
+import { existsSync,mkdirSync,readFileSync } from "fs"
+import { join } from "path"
+import { afterAll,afterEach,beforeAll,describe,expect,it } from "vitest"
 import {
-  completeOperationProjectState,
-  createOperationTestProjectHarness,
-  emptyOperationRefreshStats,
-  operationDataPathFormYaml,
-  operationDataPathReference,
-  operationCalculationBaseFormYaml,
-  operationCalculationBaseReference,
-  operationLockFieldYaml,
-  operationMetadataReference,
-  operationPictureFormYaml,
-  operationTargetReadSession,
-  operationValidationError,
-} from "./tests/operationTestSupport"
-import { renameMetadataItem } from "./renameItem"
-import { metadataRules } from "../composition/metadataRules"
-import {
-  createMetadataExecutionRegistrySets,
-  withMetadataExecutionRegistrySets,
+createMetadataExecutionRegistrySets,
+withMetadataExecutionRegistrySets,
 } from "../composition/metadataExecutionContext"
+import { metadataRules } from "../composition/metadataRules"
+import type { ProjectStateService } from "../projectState/service"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import type { Diagnostic } from "../validation/types"
+import { renameMetadataItem } from "./renameItem"
+import {
+completeOperationProjectState,
+createOperationTestProjectHarness,
+emptyOperationRefreshStats,
+operationCalculationBaseFormYaml,
+operationCalculationBaseReference,
+operationLockFieldYaml,
+operationMetadataReference,
+operationPictureFormYaml,
+operationTargetReadSession,
+operationValidationError
+} from "./tests/operationTestSupport"
 
 
 const validationError = operationValidationError
@@ -412,31 +410,6 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
     expect(readFileSync(propertiesPath, "utf-8")).toContain(
       "ЗначениеЗаполнения: Справочник.Клиенты.Поставщик",
     )
-  })
-
-  it.each([
-    ["обычном", ""],
-    ["tagged", "!xml/value "],
-  ] as const)("переписывает ссылку и сохраняет тег в %s DataPath", async (_case, tagPrefix) => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
-    const formPath = writeProjectFile(
-      projectDir,
-      "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-      operationDataPathFormYaml.map((line) => line.replace("ПутьКДанным: ", `ПутьКДанным: ${tagPrefix}`)),
-    )
-    harness.setIndex({ references: [operationDataPathReference()] })
-
-    const result = await renameMetadataItem({
-      projectDir,
-      path: "Справочник.Товары.Реквизит.Артикул",
-      newName: "Код",
-      allowWrite: true,
-      projectState,
-      ignoreValidationErrors: true,
-    })
-    expect(result.ok).toBe(true)
-    expect(readFileSync(formPath, "utf-8")).toContain(`ПутьКДанным: ${tagPrefix}Объект.Код`)
   })
 
   it.each([

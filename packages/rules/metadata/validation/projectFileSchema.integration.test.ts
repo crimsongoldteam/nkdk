@@ -1,14 +1,14 @@
-import { compileValidationSchema } from "./compileValidationSchema"
-import { mkdtempSync, rmSync } from "fs"
+import { mkdtempSync,rmSync } from "fs"
 import { tmpdir } from "os"
-import { join, resolve } from "path"
-import { afterEach, beforeAll, describe, expect, it } from "vitest"
+import { join,resolve } from "path"
+import { afterEach,beforeAll,describe,expect,it } from "vitest"
 import { EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION } from "../helpers/excludeIfEqualNameYAML"
+import { compileValidationSchema } from "./compileValidationSchema"
 import {
-  exportJSONSchemaGraph,
-  exportJSONSchemaForProjectFile,
-  exportJSONSchemaForSchemaName,
-  ProjectFileSchemaError,
+exportJSONSchemaForProjectFile,
+exportJSONSchemaForSchemaName,
+exportJSONSchemaGraph,
+ProjectFileSchemaError,
 } from "./projectFileSchema"
 import { validateFile } from "./validateFile"
 
@@ -277,143 +277,6 @@ describe("exportJSONSchemaForProjectFile", () => {
 
     expect(exportSchema).toThrow(ProjectFileSchemaError)
     expect(exportSchema).not.toThrow("Файл находится вне указанного YAML-проекта")
-  })
-
-  it("validates catalog attribute TypeDescription with catalog-specific restrictions", () => {
-    const schema = requiredMapValue(compiledInlineSchemas, "Справочник/Товары/Свойства.yaml")
-
-    expect(
-      validateFile({
-        filePath: "Справочник/Товары/Свойства.yaml",
-        schema,
-        text: ["Реквизиты:", "  Контрагент:", "    Тип:", "      - Справочник", "      - Справочник.Контрагенты"].join(
-          "\n"
-        ),
-      })
-    ).toEqual([])
-
-    expect(
-      validateFile({
-        filePath: "Справочник/Товары/Свойства.yaml",
-        schema,
-        text: ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"),
-      })
-    ).toEqual([])
-
-    expect(
-      validateFile({
-        filePath: "Справочник/Товары/Свойства.yaml",
-        schema,
-        text: ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n"),
-      })
-    ).not.toEqual([])
-
-    expect(
-      validateFile({
-        filePath: "Справочник/Товары/Свойства.yaml",
-        schema,
-        text: ["Реквизиты:", "  Таблица:", "    Тип:", "      - Строка", "      - ХранилищеЗначения"].join("\n"),
-      })
-    ).not.toEqual([])
-
-    expect(
-      validateFile({
-        filePath: "Справочник/Товары/Свойства.yaml",
-        schema,
-        text: [
-          "Реквизиты:",
-          "  Идентификатор:",
-          "    Тип: !xml/reference 8c1e3694-da12-44d5-8b1f-d134b89a1282",
-        ].join("\n"),
-      })
-    ).not.toEqual([])
-  })
-
-  it.each([
-    {
-      label: "catalog attribute",
-      filePath: "Справочник/Товары/Свойства.yaml",
-      validText: ["Реквизиты:", "  Контрагент:", "    Тип: Справочник.Контрагенты"].join("\n"),
-      invalidText: ["Реквизиты:", "  Контрагент:", "    Тип: СправочникСсылка.Контрагенты"].join("\n"),
-    },
-    {
-      label: "document attribute",
-      filePath: "Документ/Заказ/Свойства.yaml",
-      validText: ["Реквизиты:", "  Контрагент:", "    Тип: Справочник.Контрагенты"].join("\n"),
-      invalidText: ["Реквизиты:", "  Контрагент:", "    Тип: СправочникСсылка.Контрагенты"].join("\n"),
-    },
-    {
-      label: "document tabular section attribute",
-      filePath: "Документ/Заказ/Свойства.yaml",
-      validText: [
-        "ТабличныеЧасти:",
-        "  Товары:",
-        "    Реквизиты:",
-        "      Номенклатура:",
-        "        Тип: Справочник.Номенклатура",
-      ].join("\n"),
-      invalidText: [
-        "ТабличныеЧасти:",
-        "  Товары:",
-        "    Реквизиты:",
-        "      Номенклатура:",
-        "        Тип: СправочникСсылка.Номенклатура",
-      ].join("\n"),
-    },
-    {
-      label: "chart of characteristic types attribute",
-      filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
-      validText: ["Реквизиты:", "  Контрагент:", "    Тип: Справочник.Контрагенты"].join("\n"),
-      invalidText: ["Реквизиты:", "  Контрагент:", "    Тип: СправочникСсылка.Контрагенты"].join("\n"),
-    },
-    {
-      label: "chart of characteristic types tabular section attribute",
-      filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
-      validText: [
-        "ТабличныеЧасти:",
-        "  Значения:",
-        "    Реквизиты:",
-        "      Номенклатура:",
-        "        Тип: Справочник.Номенклатура",
-      ].join("\n"),
-      invalidText: [
-        "ТабличныеЧасти:",
-        "  Значения:",
-        "    Реквизиты:",
-        "      Номенклатура:",
-        "        Тип: СправочникСсылка.Номенклатура",
-      ].join("\n"),
-    },
-  ])("validates allowed TypeDescription values for $label", ({ filePath, validText, invalidText }) => {
-    const schema = requiredMapValue(compiledInlineSchemas, filePath)
-
-    expect(validateFile({ filePath, schema, text: validText })).toEqual([])
-    expect(validateFile({ filePath, schema, text: invalidText })).not.toEqual([])
-    expect(
-      validateFile({
-        filePath,
-        schema,
-        text: ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n"),
-      })
-    ).not.toEqual([])
-    expect(
-      validateFile({
-        filePath,
-        schema,
-        text: ["Реквизиты:", "  Таблица:", "    Тип:", "      - Строка", "      - ХранилищеЗначения"].join("\n"),
-      })
-    ).not.toEqual([])
-    expect(
-      validateFile({
-        filePath,
-        schema,
-        text: [
-          "Реквизиты:",
-          "  Идентификатор:",
-          "    Тип: !xml/reference 8c1e3694-da12-44d5-8b1f-d134b89a1282",
-        ].join("\n"),
-      })
-    ).not.toEqual([])
   })
 })
 

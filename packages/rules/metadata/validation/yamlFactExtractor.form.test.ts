@@ -1,6 +1,6 @@
-import { beforeAll, describe, expect, it } from "vitest"
-import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
+import { beforeAll,describe,expect,it } from "vitest"
+import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
@@ -288,18 +288,6 @@ describe("extractValidationYamlFacts form", () => {
       { componentKind: "command", name: "Записать", yamlPath: ["Команды", "Записать"] },
       { componentKind: "parameter", name: "Режим", yamlPath: ["Параметры", "Режим"] },
     ])
-  })
-
-  it("не преобразует зарегистрированный omit при сборе ссылок формы", () => {
-    const facts = extractFormFacts([
-      "Реквизиты:",
-      "  РедактируемыйСписок:",
-      "    Тип: СписокЗначений",
-      "    ТипЗначения: !xml/absent",
-    ].join("\n"))
-
-    expect(facts.diagnostics).toEqual([])
-    expect(facts.pendingReferences).toEqual([])
   })
 })
 

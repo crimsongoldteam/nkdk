@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
 import { xmlExport } from "./exporter"
 
 const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
@@ -50,5 +51,197 @@ describe("xmlExport", () => {
         "</top>",
       ].join("\n")
     )
+  })
+
+  it("exports structural nodes through the existing ordered XML builder", () => {
+    const document = parseXmlDocumentWithSaxes(
+      '<Root second="2" first="1"><A>one</A><B/><A>three</A></Root>'
+    )
+
+    expect(xmlExport(document.roots, false)).toBe(
+      [
+        '<Root second="2" first="1">',
+        "\t<A>one</A>",
+        "\t<B/>",
+        "\t<A>three</A>",
+        "</Root>",
+      ].join("\n")
+    )
+  })
+
+  it("сериализует compact только topmost mixed subtree и форматирует ordinary sibling", () => {
+    const document = parseXmlDocumentWithSaxes(
+      "<Root><Mixed>before<Child/>after</Mixed><Ordinary><A/><B/></Ordinary></Root>",
+    )
+
+    expect(xmlExport(document.roots, false)).toBe([
+      "<Root>",
+      "\t<Mixed>before<Child/>after</Mixed>",
+      "\t<Ordinary>",
+      "\t\t<A/>",
+      "\t\t<B/>",
+      "\t</Ordinary>",
+      "</Root>",
+    ].join("\n"))
+  })
+
+  it("сохраняет attrs, entities, PI и nested mixed внутри compact subtree", () => {
+    const source =
+      '<Root><Container><Mixed flag="a&amp;b">left $&amp; &amp; <?future mode="x"?>' +
+      '<Nested>n<Inner/>m</Nested> </Mixed></Container><Ordinary><A/><B/></Ordinary></Root>'
+    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+
+    const xml = xmlExport(document.roots, false)
+
+    expect(xml).toBe([
+      "<Root>",
+      "\t<Container>",
+      '\t\t<Mixed flag="a&amp;b">left $&amp; &amp; <?future mode="x"?><Nested>n<Inner/>m</Nested> </Mixed>',
+      "\t</Container>",
+      "\t<Ordinary>",
+      "\t\t<A/>",
+      "\t\t<B/>",
+      "\t</Ordinary>",
+      "</Root>",
+    ].join("\n"))
+    const roundTripped = parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true })
+    expect(roundTripped.roots[0]?.content.filter((node) => node.type !== "text").map(
+      (node) => node.type === "element" ? node.name : `?${node.target}`,
+    )).toEqual(["Container", "Ordinary"])
+  })
+
+  it("выбирает placeholder без коллизии с настоящим XML-именем", () => {
+    const document = parseXmlDocumentWithSaxes(
+      "<Root><nkdkXmlMixedContent1/><Mixed>before<Child/>after</Mixed></Root>",
+    )
+
+    expect(xmlExport(document.roots, false)).toBe([
+      "<Root>",
+      "\t<nkdkXmlMixedContent1/>",
+      "\t<Mixed>before<Child/>after</Mixed>",
+      "</Root>",
+    ].join("\n"))
+  })
+
+  it("не подменяет placeholder внутри processing instruction", () => {
+    const document = parseXmlDocumentWithSaxes(
+      "<Root><?future <nkdkXmlMixedContent1/>?><Mixed>before<Child/>after</Mixed></Root>",
+    )
+
+    const xml = xmlExport(document.roots, false)
+    const roundTrippedRoot = parseXmlDocumentWithSaxes(xml).roots[0]
+
+    expect(
+      roundTrippedRoot?.content.flatMap((node) =>
+        node.type === "text"
+          ? []
+          : [node.type === "element" ? node.name : `?${node.target}`],
+      ),
+    ).toEqual(["?future", "Mixed"])
+    expect(
+      roundTrippedRoot?.content.find(
+        (node) => node.type === "processingInstruction",
+      ),
+    ).toMatchObject({
+      type: "processingInstruction",
+      target: "future",
+      body: "<nkdkXmlMixedContent1/>",
+    })
+    expect(xml).toContain("<Mixed>before<Child/>after</Mixed>")
+  })
+
+  it("round-trips the authoritative processing instruction body", () => {
+    const source =
+      '<Root><Before/><?legacy alpha a="1" z="2" a="3" &amp;?><After/></Root>'
+    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+
+    const xml = xmlExport(document.roots, false)
+    const roundTrippedRoot = parseXmlDocumentWithSaxes(xml, {
+      preserveXsiNil: true,
+    }).roots[0]
+    const instruction = roundTrippedRoot?.content.find(
+      (node) => node.type === "processingInstruction"
+    )
+
+    expect(xml).toContain('<?legacy alpha a="1" z="2" a="3" &amp;?>')
+    expect(
+      roundTrippedRoot?.content.flatMap((node) =>
+        node.type === "text"
+          ? []
+          : [node.type === "element" ? node.name : `?${node.target}`]
+      )
+    ).toEqual(["Before", "?legacy", "After"])
+    expect(instruction).toMatchObject({
+      type: "processingInstruction",
+      target: "legacy",
+      body: 'alpha a="1" z="2" a="3" &amp;',
+      attributes: [
+        { name: "a", value: "1", occurrence: 1 },
+        { name: "z", value: "2", occurrence: 1 },
+        { name: "a", value: "3", occurrence: 2 },
+      ],
+    })
+  })
+
+  it.each([
+    { body: 'say "hello"', attributes: [] },
+    { body: 'url=https://example.test?q="1"', attributes: [] },
+    { body: 'a="unterminated', attributes: [] },
+    {
+      body: 'note a="1"',
+      attributes: [{ name: "a", value: "1", occurrence: 1 }],
+    },
+    { body: ',a="1"', attributes: [] },
+  ])("round-trips free PI data at pseudo-attribute token boundaries: $body", ({
+    body,
+    attributes,
+  }) => {
+    const source = `<Root><?p ${body}?></Root>`
+    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+    const instruction = document.roots[0]?.content.find(
+      (node) => node.type === "processingInstruction"
+    )
+
+    expect(instruction).toMatchObject({ body, attributes })
+
+    const xml = xmlExport(document.roots, false)
+    const roundTrippedInstruction = parseXmlDocumentWithSaxes(xml, {
+      preserveXsiNil: true,
+    }).roots[0]?.content.find((node) => node.type === "processingInstruction")
+
+    expect(xml).toContain(`<?p ${body}?>`)
+    expect(roundTrippedInstruction).toMatchObject({ body, attributes })
+  })
+
+  it("escapes normalized XML attribute whitespace as character references", () => {
+    const source = '<Root value="line&#xA;carriage&#xD;tab&#x9;end"/>'
+    const document = parseXmlDocumentWithSaxes(source, { preserveXsiNil: true })
+
+    const xml = xmlExport(document.roots, false)
+    const roundTripped = parseXmlDocumentWithSaxes(xml, {
+      preserveXsiNil: true,
+    }).roots[0]?.attributes[0]
+
+    expect(xml).toBe(source)
+    expect(roundTripped?.value).toBe("line\ncarriage\rtab\tend")
+  })
+
+  it.each([
+    ['a="1" ?> trailing', /\?>/],
+    ['a="2"', /псевдоатрибут/],
+    ["alpha\u0000omega", /XML/],
+  ])("rejects a processing instruction body that cannot round-trip: %s", (body, message) => {
+    const document = parseXmlDocumentWithSaxes(
+      '<Root><?legacy a="1"?></Root>',
+      { preserveXsiNil: true }
+    )
+    const roots = document.roots.map((root) => ({
+      ...root,
+      content: root.content.map((node) =>
+        node.type === "processingInstruction" ? { ...node, body } : node
+      ),
+    }))
+
+    expect(() => xmlExport(roots, false)).toThrow(message)
   })
 })

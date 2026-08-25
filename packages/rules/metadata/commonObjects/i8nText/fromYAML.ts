@@ -2,8 +2,6 @@ import {
   ConfigurationContext,
   markYAMLMappingKeyOrder,
   yamlMappingKeys,
-  yamlMappingTagOf,
-  yamlScalarTagAt,
 } from "@nkdk/runtime"
 import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import { ImportFromYAMLFunctionNew, PropertyRule } from "../../ruleRuntime"
@@ -66,9 +64,7 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
     if (name === undefined) return result
     if (source !== undefined && source.items[context.languages.default] === undefined) return result
     if (
-      hasAbsentDefaultMarker ||
-      yamlMappingTagOf(result.items) === "xml/order" ||
-      yamlScalarTagAt(result.items, defaultLanguage) === "xml/duplicate"
+      hasAbsentDefaultMarker
     ) return result
     const restored = addDefaultLanguageNameToSynonym(context, result, name)
     if (restored.items !== result.items) copyLocalizedItemTags(result.items, restored.items)

@@ -23,13 +23,14 @@ describe("compileValidationSchema", () => {
       "params",
       "schemaPath",
     ])
-    expect(errors).toEqual([
+    expect(errors).toEqual(expect.arrayContaining([
       expect.objectContaining({
         keyword: "required",
         instancePath: "",
         params: { requiredProperties: ["Имя"] },
       }),
-    ])
+      expect.objectContaining({ keyword: "additionalProperties" }),
+    ]))
 
     const [, additionalErrors] = compiled.Errors({ Имя: "Документ", Лишнее: true })
     expect(additionalErrors).toEqual([

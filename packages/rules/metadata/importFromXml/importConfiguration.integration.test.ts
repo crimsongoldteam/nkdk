@@ -2,6 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
+import "../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../tests/mockContext"
 import {
   configurationIndexStoreDescriptor,
@@ -22,7 +23,9 @@ import type {
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import {
+  calculateXmlImportConcurrency,
   externalFileStateBatch,
+  externalFileSemanticStateBatch,
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
   type ImportCoordinatorDependencies,
@@ -32,11 +35,13 @@ import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./typ
 import type { ImportDiagnosticCollection, ImportResultFileCollection } from "./workerPool"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
+import type { PreparedImportStore } from "../projectState/preparedImportStore"
 
 const failurePhases = [
   "discover",
   "firstPass",
   "secondPass",
+  "thirdPass",
   "mergeFiles",
   "transferExternalFiles",
   "hashProject",
@@ -129,11 +134,42 @@ it.each([
   }])
 })
 
+it("добавляет файловую цель во смысловой индекс до вычисления хэша", () => {
+  const component = createValidationProjectComponent("/project", { kind: "configuration" })
+  const batch = externalFileSemanticStateBatch(component, [{
+    sourcePath: "/xml/Reports/Продажи/Templates/Схема/Ext/Template.xml",
+    targetProjectPath: "Отчет/Продажи/Шаблоны/Схема/Template.xml",
+  }])
+
+  expect(batch.updates).toEqual([expect.objectContaining({
+    kind: "resource",
+    projectPath: "cf/Отчет/Продажи/Шаблоны/Схема/Template.xml",
+    targets: [expect.objectContaining({ canonical: "Report.Продажи.Template.Схема" })],
+  })])
+})
+
 afterEach(async () => {
   await Promise.all(tempDirs.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true, force: true })))
 })
 
 describe("configuration XML import coordinator", () => {
+  it.each([
+    [10, 16, 6],
+    [4, 8, 2],
+    [32, 8, 8],
+    [2, 2, 1],
+  ])("выбирает число рабочих процессов для %i процессоров и %i ГиБ памяти", (
+    processors,
+    memoryGiB,
+    expected,
+  ) => {
+    expect(calculateXmlImportConcurrency(processors, memoryGiB * 1024 ** 3)).toBe(expected)
+  })
+
+  it("учитывает ограничение памяти контейнера", () => {
+    expect(calculateXmlImportConcurrency(32, 64 * 1024 ** 3, 8 * 1024 ** 3)).toBe(8)
+  })
+
   it("передаёт двоичный конверт индекса одной пачкой", async () => {
     const fragmentBatches: ConfigurationIndexBlockFragment[][] = []
     const result = await importConfigurationFromXml(
@@ -254,7 +290,7 @@ describe("configuration XML import coordinator", () => {
         return {
           diagnostics: diagnosticCollection([]),
           warnings: diagnosticCollection([]),
-          files: fileCollection(secondPassFiles),
+          files: fileCollection([]),
         }
       },
     })
@@ -422,6 +458,7 @@ describe("configuration XML import coordinator", () => {
       "initialize",
       "firstPass",
       "secondPass",
+      "thirdPass",
       "mergeFiles",
       "transferExternalFiles",
       "hashProject",
@@ -516,6 +553,7 @@ describe("configuration XML import coordinator", () => {
         throw new Error("unreachable")
       },
       async runSecondPass() { throw new Error("unexpected second pass") },
+      async runThirdPass() { throw new Error("unexpected third pass") },
       workerCount() { return 2 },
       async close() {
         events.push("close:start")
@@ -550,6 +588,7 @@ describe("configuration XML import coordinator", () => {
       async initialize() {},
       async runFirstPass() { throw primary },
       async runSecondPass() { throw new Error("unexpected second pass") },
+      async runThirdPass() { throw new Error("unexpected third pass") },
       workerCount() { return 1 },
       async close() { throw closeFailure },
     })
@@ -569,6 +608,7 @@ describe("configuration XML import coordinator", () => {
     const cleanup = new Error("discard failed")
     params.projectState = projectStateWithImportSession({
       async commitWorkingIndex() { return new Uint8Array([1]) as never },
+      async commitSemanticIndex() { return new Uint8Array([2]) as never },
       async finalize(beforeCheckpoint) {
         await beforeCheckpoint?.()
         throw new AggregateError([primary, cleanup], primary.message)
@@ -810,14 +850,26 @@ function fakeDependencies(params: {
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
             files: fileCollection(firstPassFiles),
+            prepared: [],
           }
         },
         async runSecondPass(_tokens, sink) {
           call("secondPass")
+          await sink?.writeSecondPassState({
+            stateFragment: indexStateFragment(`${selectedComponentPath}/Конфигурация.yaml`),
+          })
+          return {
+            diagnostics: diagnosticCollection([]),
+            warnings: diagnosticCollection([]),
+            files: fileCollection([]),
+          }
+        },
+        async runThirdPass(_tokens, sink) {
+          call("thirdPass")
           if (componentDir === undefined) throw new Error("Worker pool не инициализирован")
           fs.mkdirSync(componentDir, { recursive: true })
           fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
-          await sink?.writeSecondPassState({
+          await sink?.writeThirdPassState?.({
             stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, selectedComponentPath)),
           })
           return {
@@ -910,6 +962,25 @@ function memoryCandidateStore(fragmentBatches?: ConfigurationIndexBlockFragment[
   }
 }
 
+function memoryPreparedImportStore(): PreparedImportStore {
+  const records = new Map<string, Uint8Array>()
+  return {
+    descriptor: () => ({
+      directory: "/project/.nkdk/tmp/prepared-import-test",
+      dataPath: "/project/.nkdk/tmp/prepared-import-test/records.lmdb",
+      lockPath: "/project/.nkdk/tmp/prepared-import-test/records.lmdb-lock",
+    }),
+    async put(locator, bytes) { records.set(locator.assignmentId, bytes.slice()) },
+    async read(assignmentId) {
+      const bytes = records.get(assignmentId)
+      if (bytes === undefined) throw new Error(`missing ${assignmentId}`)
+      return bytes.slice()
+    },
+    async release(assignmentId) { records.delete(assignmentId) },
+    async close() { records.clear() },
+  }
+}
+
 function stateBatch(
   files: readonly ImportResultFile[],
   firstHash: number,
@@ -960,11 +1031,18 @@ function fakeProjectState(
   return {
     workers: createUnusedMetadataWorkerPool(),
     async beginImport(importParams) {
+      const preparedStore = memoryPreparedImportStore()
       return {
+        async preparedImportStore() { return preparedStore },
         async commitWorkingIndex() {
           importParams.profile?.onPhase?.({ phase: "workingIndex", elapsedMs: 1 })
           return readToken()
         },
+        async commitSemanticIndex() {
+          importParams.profile?.onPhase?.({ phase: "semanticIndex", elapsedMs: 1 })
+          return readToken()
+        },
+        async collectSemanticValidationIssues() { return [] },
         async createReadToken() { return readToken() },
         async writeStateFragment(fragment) {
           const buffers = Object.values(fragment.buffers)
@@ -1025,9 +1103,12 @@ function projectStateWithImportSession(
 ): ProjectStateService {
   const unexpected = async (): Promise<never> => { throw new Error("unexpected import session call") }
   const session: ProjectStateImportSession = {
+    async preparedImportStore() { return memoryPreparedImportStore() },
     async writeStateFragment() {},
     async replaceFinalHashes() {},
     commitWorkingIndex: unexpected,
+    commitSemanticIndex: unexpected,
+    async collectSemanticValidationIssues() { return [] },
     createReadToken: unexpected,
     finalize: unexpected,
     async abort() {},

@@ -8,7 +8,7 @@ import { discoverValidationProjectFiles, type ValidationProjectFile } from "../v
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createValidationProjectComponent } from "../validation/projectComponents"
 import { validateProject, type ValidationWorkerPoolHandle } from "../project/validateProject"
-import { parseMetadataYaml, type ParsedYaml } from "@nkdk/runtime"
+import { parseMetadataYaml, type ParsedYaml, type XmlAnomalyAnnotations } from "@nkdk/runtime"
 import type { YamlLocationIndex } from "@nkdk/runtime"
 import { defaultMetadataOperationsContext } from "./context"
 import type { MetadataOperationValidationFailed } from "./types"
@@ -197,7 +197,7 @@ function importPreparedSnapshotItem(params: {
   requireValidProject: boolean
 }): { ok: true; item: OperationSnapshotItem } | { ok: false; failure: MetadataOperationValidationFailed } {
   try {
-    const parsed = parsedYamlForOperationTransition(params.yamlFile.data)
+    const parsed = parsedYamlForOperationTransition(params.yamlFile.data, params.yamlFile.annotations)
     const rule = params.resource.kind === "form" ? ClientApplicationFormRules : params.resource.owner.spec.rule
     const yaml = requireYamlObject(parsed.data)
 
@@ -241,12 +241,13 @@ function requireYamlObject(value: unknown): Record<string, unknown> {
   throw new Error("Ожидался YAML-объект")
 }
 
-function parsedYamlForOperationTransition(data: unknown): ParsedYaml {
+function parsedYamlForOperationTransition(data: unknown, annotations: XmlAnomalyAnnotations): ParsedYaml {
   return {
     text: "",
     data,
     locations: emptyYamlLocationIndex(),
     syntaxErrors: [],
+    annotations,
   }
 }
 

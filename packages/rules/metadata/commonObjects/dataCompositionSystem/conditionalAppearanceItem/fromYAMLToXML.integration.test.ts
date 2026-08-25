@@ -1,13 +1,10 @@
-import { describe, expect, it } from "vitest"
-import { MetadataItemRule, PropertyRule } from "../../../ruleRuntime"
+import { describe,expect,it } from "vitest"
+import { serializeDirectXML,testPropertyFromYAMLToXML } from "../../../../tests/directConversion"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
-import { serializeDirectXML, testPropertyFromYAMLToXML } from "../../../../tests/directConversion"
-import { markYAMLScalarTag, xmlAnomalyTagValue } from "@nkdk/runtime"
+import { MetadataItemRule,PropertyRule } from "../../../ruleRuntime"
 import {
-  fullConditionalAppearanceItems,
-  minimalConditionalAppearanceItems,
-  fullConditionalAppearanceItemsYAML,
-  minimalConditionalAppearanceItemsYAML,
+minimalConditionalAppearanceItems,
+minimalConditionalAppearanceItemsYAML
 } from "./__fixtures__/data"
 import "./types"
 
@@ -16,21 +13,6 @@ const rule: PropertyRule = {
 }
 
 describe("export ConditionalAppearanceItems to XML", () => {
-  it("exports full.xml", () => {
-    const item = { ...fullConditionalAppearanceItemsYAML[0] } as Record<string, unknown>
-    item.Представление = xmlAnomalyTagValue("xml/type", "String Выделение цветом состояния")
-    markYAMLScalarTag(item, "Представление", "xml/type")
-    const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
-      rule,
-      value: fullConditionalAppearanceItems,
-      yaml: [item],
-      xmlRootTag: "ConditionalAppearance",
-      path: "full.xml",
-      importMetaUrl: import.meta.url,
-    })
-
-    expect(result).toEqual(expectedResult)
-  })
 
   it("exports minimal.xml", () => {
     const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({

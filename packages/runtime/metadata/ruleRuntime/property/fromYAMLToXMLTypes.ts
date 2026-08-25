@@ -1,8 +1,9 @@
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { ConfigurationIndexAddressingMode, YAMLPropertySource } from "./ruleContracts"
 export type { YAMLPropertySource } from "./ruleContracts"
-import type { YamlRuleCursor } from "./importYamlTypes"
+import type { DeferredRulePathSegment, YamlRuleCursor } from "./importYamlTypes"
 import type { DeferredValuePath } from "./deferredObjectValues"
+import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
 
 export interface YAMLToXMLOutputRequest {
   readonly key: string
@@ -39,6 +40,24 @@ export interface YAMLToXMLProfile {
   atomicToXMLCount: number
   rulesPassCount: 1
   propertyPaths: string[]
+}
+
+export interface YAMLToXMLItemConversionParams {
+  readonly context: import("../../context/types").ConfigurationContextWithExportToXML
+  readonly yaml: unknown
+  readonly annotations?: XmlAnomalyAnnotations
+  readonly rule: MetadataItemRule
+  readonly name?: string
+  readonly namePropertyKey?: string
+  readonly sourceItemName?: string
+  readonly outputs: readonly YAMLToXMLOutputRequest[]
+  readonly propertyValues?: ReadonlyMap<string, unknown>
+  readonly sparseYAML?: true
+  readonly omitDefaultsForSparseYAML?: true
+  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
+  readonly profile?: YAMLToXMLProfile
+  readonly rulePath?: readonly (string | number)[]
+  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
 export const createYAMLToXMLProfile = (): YAMLToXMLProfile => ({
@@ -82,6 +101,7 @@ export type YAMLToXMLNestedRule =
       readonly injectOwnerName?: true
       readonly normalizeYAML?: (params: {
         yaml: unknown
+        annotations?: XmlAnomalyAnnotations
         name: string | undefined
         propertyRule: PropertyRule
       }) => unknown
@@ -134,6 +154,7 @@ export type YAMLToXMLNestedRule =
       }) => import("../../context/types").ConfigurationContextWithExportToXML
       readonly normalizeItemYAML?: (params: {
         yaml: unknown
+        annotations?: XmlAnomalyAnnotations
         name: string | undefined
         index: number
         propertyRule: PropertyRule | undefined

@@ -4,6 +4,10 @@ import type {
   ConfigurationIndexChild,
 } from "../types"
 import { copyConfigurationIndexBlockEntity } from "../blockCodec"
+import {
+  attachXmlImportAttemptAdapter,
+  type XmlImportAttemptAdapter,
+} from "../../ruleRuntime/xmlAnomaly/attempt"
 
 type IdentityKind = "uuid" | "xmlId"
 
@@ -20,18 +24,32 @@ interface MutableEntity {
   children?: readonly ConfigurationIndexChild[]
 }
 
+interface ConfigurationIndexWrite {
+  readonly address: string
+  readonly field: "uuid" | "xmlId" | "children"
+  readonly value: string | readonly ConfigurationIndexChild[]
+}
+
+interface ConfigurationIndexCheckpoint {
+  readonly position: number
+  state: "active" | "committed"
+}
+
 class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector {
   private readonly entities = new Map<string, MutableEntity>()
+  private readonly writes: ConfigurationIndexWrite[] = []
+  private readonly attemptCheckpoints: ConfigurationIndexCheckpoint[] = []
 
   setIdentity(address: string, kind: IdentityKind, value: string): void {
     if (kind === "uuid" && !isUuid(value)) throw new Error("Некорректный UUID")
     if (kind === "xmlId" && value.length === 0) throw new Error("Пустой xmlId")
     const entity = this.entity(address)
-    const previous = entity[kind]
-    if (previous !== undefined) {
-      assertEqualValues(address, kind, previous, value)
+    const current = entity[kind]
+    if (current !== undefined) {
+      assertEqualValues(address, kind, current, value)
       return
     }
+    this.writes.push({ address, field: kind, value })
     entity[kind] = value
   }
 
@@ -42,7 +60,9 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
       assertEqualValues(address, "children", entity.children, value, equalChildren)
       return
     }
-    entity.children = value.map((child) => ({ ...child }))
+    const children = value.map((child) => ({ ...child }))
+    this.writes.push({ address, field: "children", value: children })
+    entity.children = children
   }
 
   fragment(targetProjectPath: string): ConfigurationIndexBlockFragment {
@@ -62,10 +82,64 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
     this.entities.set(logicalAddress, entity)
     return entity
   }
+
+  attemptAdapter(): XmlImportAttemptAdapter {
+    return {
+      begin: () => {
+        const checkpoint: ConfigurationIndexCheckpoint = {
+          position: this.writes.length,
+          state: "active",
+        }
+        this.attemptCheckpoints.push(checkpoint)
+        return checkpoint
+      },
+      prepare: (checkpoint) => {
+        this.currentAttempt(checkpoint, "active")
+      },
+      commit: (checkpoint) => {
+        this.currentAttempt(checkpoint, "active").state = "committed"
+      },
+      release: (checkpoint) => {
+        this.currentAttempt(checkpoint, "committed")
+        this.attemptCheckpoints.pop()
+      },
+      rollback: (checkpoint) => {
+        const current = this.currentAttempt(checkpoint)
+        this.writes.length = current.position
+        this.rebuildEntities()
+        this.attemptCheckpoints.pop()
+      },
+    }
+  }
+
+  private currentAttempt(
+    checkpoint: unknown,
+    state?: ConfigurationIndexCheckpoint["state"],
+  ): ConfigurationIndexCheckpoint {
+    const expected = this.attemptCheckpoints.at(-1)
+    if (expected === undefined || expected !== checkpoint || (state !== undefined && expected.state !== state)) {
+      throw new Error("Нарушен порядок XML-import attempts configuration index")
+    }
+    return expected
+  }
+
+  private rebuildEntities(): void {
+    this.entities.clear()
+    for (const write of this.writes) {
+      const entity = this.entity(write.address)
+      if (write.field === "children") {
+        entity.children = (write.value as readonly ConfigurationIndexChild[]).map((child) => ({ ...child }))
+      } else {
+        entity[write.field] = write.value as string
+      }
+    }
+  }
 }
 
 export function createConfigurationIndexCollector(): ConfigurationIndexCollector {
-  return new InMemoryConfigurationIndexCollector()
+  const collector = new InMemoryConfigurationIndexCollector()
+  attachXmlImportAttemptAdapter(collector, collector.attemptAdapter())
+  return collector
 }
 
 export function createDiscardingConfigurationIndexCollector(): ConfigurationIndexCollector {

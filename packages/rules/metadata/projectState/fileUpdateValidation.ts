@@ -118,15 +118,13 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   assertRows(
     update["pendingReferences"],
     `${path}.pendingReferences`,
-    ["yamlPath", "canonical", "target", "constraint", "tagged", "propertyStateMode"],
+    ["yamlPath", "canonical", "target", "constraint", "xmlAnomaly", "propertyStateMode"],
     (row, rowPath) => {
       assertYamlPath(row["yamlPath"], `${rowPath}.yamlPath`)
       assertString(row["canonical"], `${rowPath}.canonical`)
       assertParsedMetadataTarget(row["target"], `${rowPath}.target`)
       assertMetadataTargetConstraint(row["constraint"], `${rowPath}.constraint`)
-      if (row["tagged"] !== undefined && row["tagged"] !== "xml") {
-        throw new Error(`${rowPath}.tagged должен быть xml`)
-      }
+      assertXmlAnomalyState(row["xmlAnomaly"], `${rowPath}.xmlAnomaly`)
       if (row["propertyStateMode"] !== undefined
         && row["propertyStateMode"] !== "control"
         && row["propertyStateMode"] !== "notify"
@@ -185,7 +183,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     "policy",
     "itemType",
     "type",
-    "tagged",
+    "xmlAnomaly",
     "transport",
     "canonicalTarget",
     "missing",
@@ -697,7 +695,7 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
     assertString(row["itemType"], `${path}.itemType`)
     assertTypeDescriptionView(row["type"], `${path}.type`)
     assertMetadataTypedValue(row["value"], `${path}.value`)
-    if (typeof row["tagged"] !== "boolean") throw new Error(`${path}.tagged должен быть boolean`)
+    assertXmlAnomalyState(row["xmlAnomaly"], `${path}.xmlAnomaly`)
     if (row["transport"] !== undefined && row["transport"] !== "DesignTimeRef") {
       throw new Error(`${path}.transport имеет неизвестное значение`)
     }
@@ -727,7 +725,7 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
   if (row["kind"] !== "dataPath" || row["policy"] !== "formDataPath") throw new Error(`${path} имеет неизвестный вид`)
   assertOwnerRef(row["owner"], `${path}.owner`)
   assertString(row["value"], `${path}.value`)
-  if (typeof row["tagged"] !== "boolean") throw new Error(`${path}.tagged должен быть boolean`)
+  assertXmlAnomalyState(row["xmlAnomaly"], `${path}.xmlAnomaly`)
   const policyInput = requiredRecord(row["policyInput"], `${path}.policyInput`)
   assertExactKeys(policyInput, ["yaml", "allowedKinds", "allowComposite"], `${path}.policyInput`)
   assertString(policyInput["yaml"], `${path}.policyInput.yaml`)
@@ -747,6 +745,12 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
     const tableContext = requiredRecord(row["tableContext"], `${path}.tableContext`)
     assertExactKeys(tableContext, ["dataPath"], `${path}.tableContext`)
     assertString(tableContext["dataPath"], `${path}.tableContext.dataPath`)
+  }
+}
+
+function assertXmlAnomalyState(value: unknown, path: string): void {
+  if (value !== undefined && value !== "pending" && value !== "accepted") {
+    throw new Error(`${path} имеет неизвестное значение`)
   }
 }
 

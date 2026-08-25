@@ -10,6 +10,13 @@ import type {
 } from "./localFacts"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { DeferredValuePath } from "./deferredObjectValues"
+import type { XmlElementNode } from "../../../xml/import/document"
+import type { XmlImportAuditSession } from "../xmlAnomaly/importAudit"
+import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
+import {
+  arrayLengthXmlImportAttemptAdapter,
+  attachXmlImportAttemptAdapter,
+} from "../xmlAnomaly/attempt"
 
 export type { DeferredValuePath } from "./deferredObjectValues"
 
@@ -20,6 +27,9 @@ export interface DirectImportTraversal<Execution = unknown> {
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
   dependent?: ImportedDependentPropertyCollector
+  audit?: XmlImportAuditSession
+  annotations?: XmlAnomalyAnnotationTable
+  xmlNodes?: readonly XmlElementNode[]
   profile?: DirectImportProfile
 }
 
@@ -41,7 +51,7 @@ export interface ImportedDependentPropertyCollector {
 
 export function createImportedDependentPropertyCollector(): ImportedDependentPropertyCollector {
   const candidates: ImportedDependentPropertyCandidate[] = []
-  return {
+  const collector: ImportedDependentPropertyCollector = {
     accept(candidate) {
       candidates.push({
         ...candidate,
@@ -51,6 +61,11 @@ export function createImportedDependentPropertyCollector(): ImportedDependentPro
     },
     finish: () => candidates,
   }
+  attachXmlImportAttemptAdapter(
+    collector,
+    arrayLengthXmlImportAttemptAdapter([candidates]),
+  )
+  return collector
 }
 
 export interface DeferredValuePathCollector {
@@ -60,7 +75,7 @@ export interface DeferredValuePathCollector {
 
 export function createDeferredValuePathCollector(): DeferredValuePathCollector {
   const paths: DeferredValuePath[] = []
-  return {
+  const collector: DeferredValuePathCollector = {
     accept(path) {
       paths.push({
         valuePath: [...path.valuePath],
@@ -69,12 +84,18 @@ export function createDeferredValuePathCollector(): DeferredValuePathCollector {
     },
     finish: () => paths,
   }
+  attachXmlImportAttemptAdapter(
+    collector,
+    arrayLengthXmlImportAttemptAdapter([paths]),
+  )
+  return collector
 }
 
 export interface DirectImportXMLSource {
   context: ConfigurationContextFromXML
-  xml: Record<string, unknown>
+  xml: Record<string, unknown> | XmlElementNode
   tags?: string[]
+  claimAuditRoot?: boolean
 }
 
 export interface DirectImportProfile {

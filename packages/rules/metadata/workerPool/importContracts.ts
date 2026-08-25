@@ -1,8 +1,21 @@
-import type { XmlImportConfigurationContext } from "@nkdk/runtime"
+import type {
+  ConfigurationIndexBlockFragment,
+  ConfigurationIndexStoreDescriptor,
+  ValidationIssueTarget,
+  XmlImportConfigurationContext,
+} from "@nkdk/runtime"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
-import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { MetadataWorkerBinaryResult } from "./binaryResult"
+import type {
+  PreparedImportRecordLocator,
+  PreparedImportStoreDescriptor,
+} from "../projectState/preparedImportStore"
+
+export interface PreparedImportBinaryRecord {
+  readonly locator: PreparedImportRecordLocator
+  readonly bytes: Uint8Array
+}
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 export type ExternalFileTransfer = "copy" | "move"
@@ -23,6 +36,44 @@ export interface ImportAssignment {
   owner: { itemType: string; name: string; logicalAddress: string } | undefined
   xmlFiles: readonly ImportXmlInput[]
   externalFiles: readonly ImportExternalFile[]
+}
+
+export interface ImportControlCompositionEntry {
+  readonly sourceProjectPath: string
+  readonly itemType: string
+  readonly itemName: string
+  readonly logicalAddress: string
+  readonly assignmentRole: ImportAssignmentRole
+  readonly ownerLogicalAddress?: string
+  readonly externalProjectPaths?: readonly string[]
+}
+
+export interface ImportIssueDecision {
+  readonly kind: "invalid" | "important"
+  readonly target: ValidationIssueTarget
+  readonly issueCodes: readonly string[]
+}
+
+export interface ImportProjectIssueDecision {
+  readonly targetProjectPath: string
+  readonly decision: ImportIssueDecision
+}
+
+export function importControlCompositionEntry(
+  assignment: ImportAssignment,
+): ImportControlCompositionEntry {
+  const ownerLogicalAddress = assignment.owner?.logicalAddress
+  return {
+    sourceProjectPath: assignment.targetProjectPath,
+    itemType: assignment.itemType,
+    itemName: assignment.itemName,
+    logicalAddress: assignment.logicalAddress,
+    assignmentRole: assignment.role,
+    ...(assignment.externalFiles.length === 0
+      ? {}
+      : { externalProjectPaths: assignment.externalFiles.map(({ targetProjectPath }) => targetProjectPath) }),
+    ...(ownerLogicalAddress === undefined ? {} : { ownerLogicalAddress }),
+  }
 }
 
 export interface ImportTopologyAddress {
@@ -69,15 +120,28 @@ export type ImportWorkerCommand =
       outputDir: string
       projectDir?: string
       componentPath?: string
+      preparedStore?: PreparedImportStoreDescriptor
+      configurationIndex?: ConfigurationIndexStoreDescriptor
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
   | { kind: "firstPassBatch"; assignments: ImportAssignment[] }
   | { kind: "finishFirstPass" }
-  | { kind: "beginSecondPass"; readToken: ProjectStateReadToken }
+  | {
+      kind: "beginSecondPass"
+      readToken: ProjectStateReadToken
+      composition?: readonly ImportControlCompositionEntry[]
+    }
   | { kind: "secondPass"; assignmentId: string }
   | { kind: "secondPassBatch"; assignmentIds: string[] }
   | { kind: "finishSecondPass" }
   | { kind: "endSecondPass" }
+  | {
+      kind: "beginThirdPass"
+      readToken: ProjectStateReadToken
+      issueDecisions?: readonly ImportProjectIssueDecision[]
+    }
+  | { kind: "thirdPassBatch"; assignmentIds: string[] }
+  | { kind: "finishThirdPass" }
   | { kind: "dispose" }
 
 export interface ImportFirstPassResult {
@@ -86,6 +150,7 @@ export interface ImportFirstPassResult {
   files: ImportResultFile[]
   configurationFragments: ConfigurationIndexBlockFragment[]
   stateFragment?: ProjectStateFragment
+  preparedRecords: PreparedImportBinaryRecord[]
 }
 
 export interface ImportSecondPassResult {

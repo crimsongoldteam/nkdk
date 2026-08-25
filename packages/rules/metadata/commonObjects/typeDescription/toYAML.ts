@@ -1,12 +1,6 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import {
-  ConfigurationContext,
-  isTaggedYAMLScalar,
-  markYAMLScalarTag,
-  taggedYAMLScalar,
-  xmlAnomalyTagValue,
-} from "@nkdk/runtime"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import {
   getSystemEnumerationYAMLType,
@@ -32,16 +26,12 @@ export const exportTypeDescriptionToYAML = (
     (type) => exportSingleTypeToYAML(context, type, typeDescription),
   )
   for (const typeId of typeDescription.typeId ?? []) {
-    exportedTypes.push(taggedYAMLScalar("xml/reference", xmlAnomalyTagValue("xml/reference", typeId)))
+    exportedTypes.push(typeId)
   }
   if (exportedTypes.length === 0) return undefined
   if (exportedTypes.length === 1) return exportedTypes[0] as TypeDescriptionYAML
 
-  const yamlTypes = exportedTypes.map((type) => isTaggedYAMLScalar(type) ? type.value : type)
-  exportedTypes.forEach((type, index) => {
-    if (isTaggedYAMLScalar(type)) markYAMLScalarTag(yamlTypes, index, type.tag)
-  })
-  return yamlTypes as TypeDescriptionYAML
+  return exportedTypes as TypeDescriptionYAML
 }
 
 function exportSingleTypeToYAML(
@@ -63,9 +53,7 @@ function exportSingleTypeToYAML(
     ? canonicalPredefinedItemTypePrefix(context)
     : undefined
   if (sourcePrefix !== undefined && sourcePrefix === contextualPrefix) return yamlType
-  if (sourcePrefix !== undefined && sourcePrefix !== canonicalPrefix) {
-    return taggedYAMLScalar("xml/type", xmlAnomalyTagValue("xml/type", `${sourcePrefix}:${yamlType}`)) as unknown as TypeDescriptionYAML
-  }
+  if (sourcePrefix !== undefined && sourcePrefix !== canonicalPrefix) return yamlType
   return yamlType
 }
 

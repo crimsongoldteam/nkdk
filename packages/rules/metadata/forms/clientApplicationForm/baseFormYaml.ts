@@ -11,7 +11,11 @@ import type { ExternalFileEntry } from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { createDeferredValuePathCollector, type DeferredValuePath } from "@nkdk/runtime/rule-kit"
 import type { LocalIndexes, MetadataItemRule } from "../../ruleRuntime"
-import { isExplicitYAMLString } from "@nkdk/runtime"
+import {
+  asExplicitYAMLStringIfMarked,
+  isExplicitYAMLString,
+  markDoubleQuotedScalar,
+} from "@nkdk/runtime"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { importClientApplicationFormBodyFromXML } from "./fromXMLToYAML"
 import { ClientApplicationFormRules } from "./rules"
@@ -63,13 +67,24 @@ export function importBaseFormYaml(params: {
 
 export function normalizeBaseFormYaml(value: unknown): unknown {
   if (isExplicitYAMLString(value)) return value
-  if (Array.isArray(value)) return value.map(normalizeBaseFormYaml)
+  if (Array.isArray(value)) {
+    const normalized = value.map((child) => normalizeBaseFormYaml(child))
+    value.forEach((child, index) => {
+      if (isExplicitYAMLString(asExplicitYAMLStringIfMarked(value, index, child))) {
+        markDoubleQuotedScalar(normalized, index)
+      }
+    })
+    return normalized
+  }
   if (!isRecord(value)) return value
 
   const normalized: Record<string, unknown> = {}
   for (const [key, child] of Object.entries(value)) {
     if (isXmlServiceKey(key)) continue
     normalized[key] = normalizeBaseFormYaml(child)
+    if (isExplicitYAMLString(asExplicitYAMLStringIfMarked(value, key, child))) {
+      markDoubleQuotedScalar(normalized, key)
+    }
   }
   return normalized
 }

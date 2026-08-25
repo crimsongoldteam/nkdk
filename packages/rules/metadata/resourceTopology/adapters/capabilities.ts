@@ -41,6 +41,7 @@ export interface PreparedMetadataXmlDocument {
   readonly xml: Record<string, unknown>
   readonly deferred: readonly DeferredObjectValue[]
   readonly rootRule: MetadataItemRule
+  readonly tags?: readonly string[]
 }
 
 export interface MetadataXmlPrepareCapability {

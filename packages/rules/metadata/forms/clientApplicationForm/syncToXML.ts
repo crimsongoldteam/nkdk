@@ -51,6 +51,7 @@ export const prepareFormXML = (params: {
   const converted = convertClientApplicationFormFromYAMLToXML({
     context: contextWithFormExternalMetadata,
     yaml: yamlObj,
+    annotations: params.preparedYamlFile.annotations,
     name: params.formName,
     referenceFormXML: params.referenceFormXML,
     referenceMetadataXML: params.referenceMetadataXML,

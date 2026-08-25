@@ -9,17 +9,10 @@ import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 
 const DcsMetadataTypedValueNilArrayItemJSONSchema = Type.Object({}, { additionalProperties: false })
 
-const ordinaryDcsMetadataTypedValueJSONSchema = Type.Intersect([
-  DcsMetadataTypedValueJSONSchema,
-  { not: Type.String({ pattern: "^!xml/(?:[^ ]+)(?: |$)" }) } as TSchema,
-])
-const xmlValueFieldJSONSchema = Type.String({ pattern: "^!xml/value[ \\t]+\\S.*$" })
+const ordinaryDcsMetadataTypedValueJSONSchema = DcsMetadataTypedValueJSONSchema
 
-const dcsMetadataTypedValueSchema = (context: ConfigurationContext): TSchema =>
-  context.exportToJSONSchema?.explicitXMLValues === true ||
-  context.exportToJSONSchema?.validationPropertyRefs === true
-    ? Type.Union([ordinaryDcsMetadataTypedValueJSONSchema, xmlValueFieldJSONSchema])
-    : ordinaryDcsMetadataTypedValueJSONSchema
+const dcsMetadataTypedValueSchema = (_context: ConfigurationContext): TSchema =>
+  ordinaryDcsMetadataTypedValueJSONSchema
 
 const FilterItemRightValueArrayItemJSONSchema = Type.Union([
   ordinaryDcsMetadataTypedValueJSONSchema,

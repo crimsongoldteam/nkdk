@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML, mockXmlImportContext } from "../../../tests/mockContext"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { registerMetadataItemCollectionRule } from "../metadataCollection/ruleFactory"
@@ -8,12 +9,61 @@ import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { registerMetadataItemRule } from "./ruleFactory"
-import { yamlScalarTagAt } from "@nkdk/runtime"
+import {
+  createXmlAnomalyAnnotations,
+  createXmlImportAuditSession,
+  parseXmlDocumentWithSaxes,
+  serializeYAMLDocument,
+  yamlScalarTagAt,
+} from "@nkdk/runtime"
 import { withOperationRegistrySet } from "../../operations/operationExecutionContext"
 import { createPropertyStateCapabilityRegistry, definePropertyStateItemCapabilities } from "../../appliedObjects/configurationExtension/propertyStateCapabilities"
 import type { PropertyStateCapabilityContribution } from "../definition"
+import {
+  captureTestXmlImport,
+  createFailingXmlImportAttempt,
+  expectXmlImportInfrastructureFailure,
+  xmlImportAttemptPhases,
+} from "../../../tests/xmlImportAttempt"
 
 describe("importMetadataItemFromXMLToYAML", () => {
+  it("проецирует неизвестный XML-путь на ближайший metadata-item", () => {
+    const rule = {
+      itemType: "TestUnknownPathOwner",
+      properties: {
+        known: {
+          type: "string",
+          xml: "Known",
+          yaml: "Известное",
+          xmlParents: ["Properties"],
+        },
+      },
+    } as MetadataItemRule
+    const { yaml, annotations } = importAuditedMetadataItem(rule,
+      '<Root><Properties><Known>yes</Known><Future mode="x">42</Future></Properties></Root>',
+    )
+
+    expect(yaml).toMatchObject({
+      Известное: "yes",
+      "Properties\\Future": undefined,
+    })
+    expect(annotations.at(yaml, "Properties\\Future")).toMatchObject({
+      kind: "raw",
+      xml: { _mode: "x", "#text": "42" },
+      hasSemanticValue: false,
+    })
+    expect(yaml).toHaveProperty("Properties", undefined)
+    expect(annotations.at(yaml, "Properties")).toMatchObject({
+      kind: "raw",
+      xml: { "#order": ["Known", "Future"] },
+      hasSemanticValue: false,
+    })
+    expect(yaml).not.toHaveProperty("Properties\\Future\\#attributes")
+    expect(serializeYAMLDocument(yaml, annotations).text).toContain(
+      "Properties\\Future: !xml/raw",
+    )
+  })
+
   it("builds a nested item without returning its model shape", () => {
     const childRule = {
       itemType: "TestChild",
@@ -36,6 +86,42 @@ describe("importMetadataItemFromXMLToYAML", () => {
     expect(result.yaml).not.toHaveProperty("child")
   })
 
+  it("поднимает mixed text nested object к родительской property boundary", () => {
+    const childType = "TestNestedRawOwner" as PropertyRuleType
+    registerMetadataItemRule({
+      propertyType: childType,
+      itemRule: {
+        itemType: "TestNestedRawItem",
+        properties: {
+          known: { type: "string", xml: "Known", yaml: "Известное" },
+        },
+      } as MetadataItemRule,
+    })
+    const rule = {
+      itemType: "TestNestedRawParent",
+      properties: {
+        child: { type: childType, xml: "Child", yaml: "Дочерний" },
+        sibling: { type: "string", xml: "Sibling", yaml: "Сосед" },
+      },
+    } as MetadataItemRule
+    const { yaml, annotations } = importAuditedMetadataItem(rule,
+      "<Root><Child>before<Known>yes</Known>after</Child><Sibling>keep</Sibling></Root>",
+    )
+
+    expect(yaml).toEqual({
+      Дочерний: { Известное: "yes" },
+      Сосед: "keep",
+    })
+    expect(annotations.at(yaml, "Дочерний")).toMatchObject({
+      kind: "raw",
+      hasSemanticValue: true,
+    })
+    const serialized = serializeYAMLDocument(yaml, annotations).text
+    expect(serialized.match(/!xml\/raw/g)).toHaveLength(1)
+    expect(serialized).toContain("Известное: yes")
+    expect(serialized).toContain("Сосед: keep")
+  })
+
   it("returns the inline YAML property without its service wrapper", () => {
     const inlineRule = {
       itemType: "TestInline",
@@ -51,6 +137,112 @@ describe("importMetadataItemFromXMLToYAML", () => {
     )
 
     expect(result.yaml).toEqual({ Значение: "payload" })
+  })
+
+  it("протягивает XML-node и audit в nested metadata-item", () => {
+    const failedType = "TestNestedItemFailure" as PropertyRuleType
+    const itemType = "TestAuditedNestedItem" as PropertyRuleType
+    registerTypeRule(failedType, "importFromXMLToYAML", () => {
+      throw new Error("broken nested item")
+    })
+    registerMetadataItemRule({
+      propertyType: itemType,
+      itemRule: {
+        itemType: "TestAuditedNestedItem",
+        properties: {
+          broken: { type: failedType, xml: "Broken", yaml: "Сломано" },
+          good: { type: "string", xml: "Good", yaml: "Хорошо" },
+        },
+      } as MetadataItemRule,
+    })
+    const collector = createLocalIndexesCollector()
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Child><Broken>x</Broken><Good>ok</Good><Unknown>u</Unknown></Child></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestNestedItemOwner",
+        properties: {
+          child: { type: itemType, xml: "Child", yaml: "Дочерний" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: root }],
+      yamlPath: [],
+      rulePath: [],
+      collector,
+      audit,
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({ Дочерний: { Хорошо: "ok" } })
+    expect(audit.rawCandidates()).toMatchObject([
+      {
+        node: { path: "/Root[1]/Child[1]/Broken[1]" },
+        boundary: {
+          itemType: "TestAuditedNestedItem",
+          propertyKey: "broken",
+          yamlPath: ["Дочерний", "Сломано"],
+        },
+      },
+    ])
+    expect(
+      audit.outcomes().find(({ node }) => node.path === "/Root[1]/Child[1]/Unknown[1]")?.state,
+    ).toBe("unknown")
+    expect(
+      audit.outcomes().find(({ node }) => node.path === "/Root[1]/Child[1]")?.state,
+    ).toBe("claimed")
+  })
+
+  it.each(xmlImportAttemptPhases)("пробрасывает фазу %s через nested metadata-item без raw", (phase) => {
+    const valueType = `TestNestedItemInfrastructureValue${phase}` as PropertyRuleType
+    const itemType = `TestNestedItemInfrastructure${phase}` as PropertyRuleType
+    if (phase === "rollback") {
+      registerTypeRule(valueType, "importFromXMLToYAML", () => {
+        throw new Error("nested conversion failed")
+      })
+    }
+    registerMetadataItemRule({
+      propertyType: itemType,
+      itemRule: {
+        itemType: `TestNestedInfrastructureItem${phase}`,
+        properties: {
+          value: {
+            type: phase === "rollback" ? valueType : "string",
+            xml: "Value",
+            yaml: "Значение",
+          },
+        },
+      } as MetadataItemRule,
+    })
+    const { collector, cause } = createFailingXmlImportAttempt({
+      phase,
+      causeMessage: `${phase} nested item infrastructure failed`,
+      targetAttempt: 2,
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const root = parseXmlDocumentWithSaxes(
+      "<Root><Child><Value>value</Value></Child></Root>",
+    ).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+
+    const thrown = captureTestXmlImport({
+      context,
+      xml: root,
+      rule: {
+        itemType: `TestNestedInfrastructureOwner${phase}`,
+        properties: {
+          child: { type: itemType, xml: "Child", yaml: "Дочерний" },
+        },
+      } as MetadataItemRule,
+      collector,
+      audit,
+    })
+
+    expectXmlImportInfrastructureFailure({ thrown, phase, cause, audit })
   })
 
   it("добавляет !проверять корневому metadata-item до возврата YAML", () => {
@@ -175,6 +367,31 @@ function runDirectRule(rule: MetadataItemRule, xml: Record<string, unknown>) {
     collector,
   })
   return { yaml, localIndexes: collector.finish() }
+}
+
+function importAuditedMetadataItem(
+  rule: MetadataItemRule,
+  xml: string,
+): {
+  yaml: Record<string, unknown>
+  annotations: ReturnType<typeof createXmlAnomalyAnnotations>
+} {
+  const root = parseXmlDocumentWithSaxes(xml).roots[0]!
+  const audit = createXmlImportAuditSession([root])
+  const annotations = createXmlAnomalyAnnotations()
+  const yaml = importMetadataItemFromXMLToYAML({
+    context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+    rule,
+    xml: root,
+    traversal: {
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      audit,
+      annotations,
+    },
+  }) as Record<string, unknown>
+  return { yaml, annotations }
 }
 
 function runMetadataItemRule(

@@ -19,70 +19,25 @@ function issuesFor(source: string, foldable = false) {
 }
 
 describe("validateLocalizedTextYAMLProperty", () => {
-  it.each([
-    {
-      name: "unregistered language without tag",
-      source: "Заголовок:\n  ru: Текст\n  de: Text",
-      path: ["Заголовок", "de"],
-      message: "незарегистрирован",
-    },
-    {
-      name: "redundant language tag",
-      source: "Заголовок:\n  ru: Текст\n  en: !xml/language Text",
-      path: ["Заголовок", "en"],
-      message: "избыточ",
-    },
-    {
-      name: "unrelated tag on scalar",
-      source: "Заголовок: !xml/present Текст",
-      path: ["Заголовок"],
-      message: "!xml/present",
-    },
-    {
-      name: "unrelated tag on language",
-      source: "Заголовок:\n  ru: !xml/present Текст\n  en: Text",
-      path: ["Заголовок", "ru"],
-      message: "!xml/present",
-    },
-    {
-      name: "duplicate tag on unregistered language",
-      source: "Заголовок:\n  ru: Текст\n  de: !xml/duplicate Text",
-      path: ["Заголовок", "de"],
-      message: "!xml/duplicate",
-    },
-    {
-      name: "noncanonical order without tag",
-      source: "Заголовок:\n  en: Text\n  ru: Текст",
-      path: ["Заголовок"],
-      message: "порядок",
-    },
-    {
-      name: "redundant order tag",
-      source: "Заголовок: !xml/order\n  ru: Текст\n  en: Text",
-      path: ["Заголовок"],
-      message: "избыточ",
-    },
-  ])("reports $name", ({ source, path, message }) => {
+  it("сообщает о незарегистрированном языке", () => {
+    const source = "Заголовок:\n  ru: Текст\n  de: Text"
     expect(issuesFor(source)).toEqual([
-      expect.objectContaining({ path, message: expect.stringMatching(new RegExp(message, "iu")) }),
+      expect.objectContaining({
+        path: ["Заголовок", "de"],
+        message: expect.stringMatching(/незарегистрирован/iu),
+      }),
     ])
   })
 
-  it("reports independent language and order anomalies", () => {
+  it("не считает порядок языков предметной ошибкой", () => {
     const issues = issuesFor("Заголовок:\n  de: Text\n  ru: Текст")
 
-    expect(issues.map(({ path }) => path)).toEqual([
-      ["Заголовок", "de"],
-      ["Заголовок"],
-    ])
+    expect(issues.map(({ path }) => path)).toEqual([["Заголовок", "de"]])
   })
 
   it.each([
     ["canonical mapping", "Заголовок:\n  ru: Текст\n  en: Text", false],
     ["property state tag", "Заголовок: !проверять Текст", false],
-    ["classified unregistered language", "Заголовок:\n  ru: Текст\n  de: !xml/language Text", false],
-    ["classified duplicate", "Заголовок:\n  ru: !xml/duplicate Текст\n  en: Text", false],
-    ["classified order", "Заголовок: !xml/order\n  en: Text\n  ru: Текст", false],
     ["folded default participates first", "Заголовок:\n  en: Text", true],
     ["absent default marker", 'Заголовок:\n  ru: ""\n  en: Text', true],
     ["service code", "Заголовок:\n  '#': Service\n  en: Text", false],
@@ -95,12 +50,6 @@ describe("validateLocalizedTextYAMLProperty", () => {
     {
       name: "default marker after another language",
       source: 'Заголовок:\n  en: Text\n  ru: ""',
-      foldable: true,
-      path: ["Заголовок", "ru"],
-    },
-    {
-      name: "default marker with order tag",
-      source: 'Заголовок: !xml/order\n  ru: ""\n  en: Text',
       foldable: true,
       path: ["Заголовок", "ru"],
     },

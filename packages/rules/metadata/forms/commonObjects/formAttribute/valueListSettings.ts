@@ -1,19 +1,3 @@
-import { XML_ABSENT_TAG_VALUE } from "@nkdk/runtime"
-import { defineMetadataRules } from "../../../ruleRuntime/definition"
-import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
-
-export const formAttributeValueTypeSettingsRules = defineMetadataRules({
-  ...emptyMetadataRules,
-  explicitXMLProperties: {
-    missingValueListSettings: {
-      action: "omit",
-      itemType: "FormAttribute",
-      propertyKey: "valueType",
-      yamlValue: XML_ABSENT_TAG_VALUE,
-    },
-  },
-})
-
 export function hasSoleValueListType(xml: Record<string, unknown>): boolean {
   const type = xml.Type
   if (type === null || typeof type !== "object" || Array.isArray(type)) return false

@@ -45,7 +45,6 @@ export const exportSingleElementRuleToJSONSchema = (params: {
   return Type.Object(
     {
       ...properties,
-      ...explicitXMLNameProperty(context, params.explicitXMLName),
     },
     {
       additionalProperties: false,
@@ -101,21 +100,9 @@ export const exportElementToJSONSchema = <T extends { itemType: ElementType; nam
   const result = Type.Object(
     {
       ...properties,
-      ...explicitXMLNameProperty(context, params.explicitXMLName),
     },
     { additionalProperties: false }
   )
 
   return result
-}
-
-function acceptsExplicitXMLValues(context: ConfigurationContext): boolean {
-  return context.exportToJSONSchema?.explicitXMLValues === true ||
-    context.exportToJSONSchema?.validationPropertyRefs === true
-}
-
-function explicitXMLNameProperty(context: ConfigurationContext, enabled: true | undefined): TProperties {
-  return enabled === true && acceptsExplicitXMLValues(context)
-    ? { Имя: Type.Optional(Type.String({ pattern: "^!xml/name(?: .*)?$" })) }
-    : {}
 }

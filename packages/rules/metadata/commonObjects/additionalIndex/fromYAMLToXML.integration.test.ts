@@ -1,17 +1,16 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
 import {
-  createDirectRoundTripContexts,
-  readAppliedObjectFixture,
-  serializeDirectXML,
-  testMetadataItemFromXMLToYAML,
-  testMetadataItemFromYAMLToXML,
+createDirectRoundTripContexts,
+readAppliedObjectFixture,
+serializeDirectXML,
+testMetadataItemFromXMLToYAML,
+testMetadataItemFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { AdditionalIndexRules } from "./rules"
 
 import "./types"
-import { yamlScalarTagAt } from "@nkdk/runtime"
 
 const yaml = [
   {
@@ -99,41 +98,5 @@ describe("AdditionalIndex YAML → XML", () => {
     expect(
       (exported.xml.AdditionalIndexes as { AdditionalIndex: Array<{ _id: string }> }).AdditionalIndex[0]?._id
     ).toBe("00000000-0000-0000-0000-000000000000")
-  })
-
-  it("preserves an explicitly empty fields container through !xml", () => {
-    const contexts = createDirectRoundTripContexts()
-    const sourceXML = {
-      AdditionalIndexes: {
-        AdditionalIndex: [
-          {
-            _id: "00000000-0000-0000-0000-000000000001",
-            Name: "Индекс1",
-            Table: "Catalog.Товары",
-            IndexedFields: { Field: "Ref" },
-            AdditionalFields: {},
-          },
-        ],
-      },
-    }
-    const imported = testMetadataItemFromXMLToYAML({
-      context: contexts.importContext,
-      rule: AdditionalIndexRules,
-      xml: sourceXML,
-    })
-    const exported = testMetadataItemFromYAMLToXML({
-      context: contexts.exportContext(),
-      rule: AdditionalIndexRules,
-      yaml: imported.yaml,
-    })
-    const item = (imported.yaml as Array<Record<string, unknown>>)[0]!
-    expect(item.ДополнительныеПоля).toBe("!xml/present")
-    expect(yamlScalarTagAt(item, "ДополнительныеПоля")).toBe("xml/present")
-
-    expect(exported.xml).toMatchObject({
-      AdditionalIndexes: {
-        AdditionalIndex: [expect.objectContaining({ AdditionalFields: {} })],
-      },
-    })
   })
 })

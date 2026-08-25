@@ -1,6 +1,7 @@
 import fs from "node:fs"
-import { availableParallelism } from "node:os"
+import { availableParallelism, totalmem } from "node:os"
 import { join } from "node:path"
+import { constrainedMemory } from "node:process"
 import {
   componentPath,
   configurationIndexStoreDescriptor,
@@ -41,6 +42,7 @@ import type {
   ExternalFileTransfer,
   ImportAssignment,
   ImportDiagnostic,
+  ImportExternalFile,
   ImportResultFile,
   ImportSnapshotFile,
 } from "./types"
@@ -50,6 +52,9 @@ import {
   type XmlImportWorkerPool,
   type XmlImportWorkerPoolHandle,
 } from "./workerPool"
+import { classifyImportedIssues } from "./classifyImportedIssues"
+import type { ImportProjectIssueDecision } from "../workerPool/importContracts"
+import type { PreparedImportStore } from "../projectState/preparedImportStore"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -243,10 +248,13 @@ export async function importConfigurationFromXml(
       operationId,
       purpose: "import",
     })
+    const preparedStore = await importSession.preparedImportStore()
     const stateSink = createImportStateSink(
       importSession,
       indexCandidate,
+      preparedStore,
     )
+    const configurationIndexDescriptor = indexCandidate.descriptor()
     if (params.xmlImportWorkerPoolHandle !== undefined) {
       pool = params.xmlImportWorkerPoolHandle.createOperationPool()
     } else if (deps.createWorkerPool !== undefined) {
@@ -289,6 +297,8 @@ export async function importConfigurationFromXml(
           ...(descriptor.metadataItemAugmenter === undefined
             ? {}
             : { metadataItemAugmenter: descriptor.metadataItemAugmenter }),
+          preparedStore: preparedStore.descriptor(),
+          configurationIndex: configurationIndexDescriptor,
         })
     )
     const first = await profiler.measureAsync(
@@ -328,7 +338,46 @@ export async function importConfigurationFromXml(
       const cleanup = await abortCleanupDiagnostics(importSession, secondDiagnostics, closePoolForCleanup)
       return outcome = failedResult([...secondDiagnostics, ...cleanup], warnings, resolvedComponentPath)
     }
-    const allFiles = [...first.files, ...second.files]
+    const externalSemanticState = externalFileSemanticStateBatch(
+      validationComponent,
+      discovered.assignments.flatMap(({ externalFiles }) => externalFiles),
+    )
+    if (externalSemanticState.updates.length > 0) {
+      const externalWriter = createProjectStateFragmentWriter()
+      externalWriter.appendImportFinal(externalSemanticState)
+      await importSession.writeStateFragment(externalWriter.finish())
+    }
+    const semanticReadToken = await importSession.commitSemanticIndex()
+    const semanticIssues = await importSession.collectSemanticValidationIssues()
+    const semanticClassification = classifySemanticImportIssues(semanticIssues)
+    if (semanticClassification.fatal.length > 0) {
+      const diagnostics = semanticClassification.fatal.map(({ projectPath, code }) => ({
+        severity: "error" as const,
+        code: "xml_import_validation_failed",
+        message: `Не удалось классифицировать ошибку смыслового индекса: ${code}`,
+        targetProjectPath: projectPath,
+      }))
+      const cleanup = await abortCleanupDiagnostics(importSession, diagnostics, closePoolForCleanup)
+      return outcome = failedResult([...diagnostics, ...cleanup], warnings, resolvedComponentPath)
+    }
+    const semanticReadTokens = [semanticReadToken]
+    for (let index = 1; index < pool.workerCount(); index += 1) {
+      semanticReadTokens.push(await importSession.createReadToken())
+    }
+    const third = await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Третий проход worker",
+      { items: discovered.assignments.length },
+      () => pool!.runThirdPass(semanticReadTokens, stateSink, semanticClassification.decisions),
+    )
+    temporaryCollections.push(third.diagnostics, third.warnings, third.files)
+    warnings = [...warnings, ...third.warnings]
+    if (third.diagnostics.errors > 0) {
+      const thirdDiagnostics = [...third.diagnostics]
+      const cleanup = await abortCleanupDiagnostics(importSession, thirdDiagnostics, closePoolForCleanup)
+      return outcome = failedResult([...thirdDiagnostics, ...cleanup], warnings, resolvedComponentPath)
+    }
+    const allFiles = [...first.files, ...second.files, ...third.files]
     const files = profiler.measure(
       "Подготовка импорта конфигурации",
       "Обобщение списка файлов результата импорта",
@@ -438,6 +487,28 @@ export async function importConfigurationFromXml(
   }
 }
 
+function classifySemanticImportIssues(
+  entries: readonly import("../projectState/importSession").ProjectStateImportValidationIssue[],
+): {
+  readonly decisions: readonly ImportProjectIssueDecision[]
+  readonly fatal: readonly { readonly projectPath: string; readonly code: string }[]
+} {
+  const byProjectPath = new Map<string, import("@nkdk/runtime").ValidationIssue[]>()
+  for (const { projectPath, issue } of entries) {
+    const issues = byProjectPath.get(projectPath) ?? []
+    issues.push(issue)
+    byProjectPath.set(projectPath, issues)
+  }
+  const decisions: ImportProjectIssueDecision[] = []
+  const fatal: { projectPath: string; code: string }[] = []
+  for (const [projectPath, issues] of byProjectPath) {
+    const classified = classifyImportedIssues({ issues, requiresImportant: () => false })
+    decisions.push(...classified.decisions.map((decision) => ({ targetProjectPath: projectPath, decision })))
+    fatal.push(...classified.fatal.map(({ code }) => ({ projectPath, code })))
+  }
+  return { decisions, fatal }
+}
+
 function withPropertyStateCompatibilityMode(
   context: ImportConfigurationFromXmlParams["context"],
   root: Record<string, unknown>,
@@ -475,6 +546,7 @@ function importStatePhaseName(
 ): string {
   return {
     workingIndex: "Фиксация рабочего индекса",
+    semanticIndex: "Фиксация смыслового индекса",
     finalBuild: "Построение окончательного состояния",
     dependencyValidation: "Полная проверка зависимостей",
     save: "Сохранение состояния проекта",
@@ -506,6 +578,7 @@ function flattenFailures(caught: unknown): unknown[] {
 function createImportStateSink(
   session: ProjectStateImportSession,
   candidate: ConfigurationIndexCandidateStore,
+  preparedStore: PreparedImportStore,
 ): XmlImportStateSink {
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
     if (batch.configurationFragment !== undefined) candidate.mergeBlockFragments([batch.configurationFragment])
@@ -515,10 +588,17 @@ function createImportStateSink(
     if (batch.stateFragment !== undefined) {
       await session.writeStateFragment(batch.stateFragment)
     }
+    if (batch.preparedRecords !== undefined) {
+      await Promise.all(batch.preparedRecords.map(({ locator, bytes }) => preparedStore.put(locator, bytes)))
+    }
   }
   return {
     writeFirstPassState: writeState,
     writeSecondPassState: writeState,
+    writeThirdPassState: writeState,
+    async releasePrepared(assignmentIds) {
+      await Promise.all(assignmentIds.map((assignmentId) => preparedStore.release(assignmentId)))
+    },
   }
 }
 
@@ -616,6 +696,16 @@ export function externalFileStateBatch(
   return { updates: entries.map(({ update }) => update), hashBytes: batch.hashBytes }
 }
 
+export function externalFileSemanticStateBatch(
+  component: ValidationProjectComponent,
+  files: readonly ImportExternalFile[],
+): ProjectStateImportFinalFileStateBatch {
+  return externalFileStateBatch(component, files.map(({ targetProjectPath }) => ({
+    projectPath: targetProjectPath,
+    contentHash: 0n,
+  })))
+}
+
 function successResult(
   succeeded: number,
   warnings: ImportDiagnostic[],
@@ -660,5 +750,21 @@ function normalizeConcurrency(value: number | undefined): number {
     }
     return value
   }
-  return Math.max(1, Math.min(4, availableParallelism() - 1))
+  return calculateXmlImportConcurrency(availableParallelism(), totalmem(), constrainedMemory())
+}
+
+export function calculateXmlImportConcurrency(
+  availableProcessors: number,
+  totalMemoryBytes: number,
+  constrainedMemoryBytes = 0,
+): number {
+  const workerOldSpaceBytes = 768 * 1024 ** 2
+  const minimumReservedMemoryBytes = 2 * 1024 ** 3
+  const effectiveMemoryBytes = constrainedMemoryBytes > 0
+    ? Math.min(totalMemoryBytes, constrainedMemoryBytes)
+    : totalMemoryBytes
+  const reservedMemoryBytes = Math.max(minimumReservedMemoryBytes, effectiveMemoryBytes / 4)
+  const byProcessors = Math.max(1, Math.floor(availableProcessors * 2 / 3))
+  const byMemory = Math.max(1, Math.floor((effectiveMemoryBytes - reservedMemoryBytes) / workerOldSpaceBytes))
+  return Math.min(byProcessors, byMemory)
 }

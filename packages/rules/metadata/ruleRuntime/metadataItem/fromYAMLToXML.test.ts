@@ -4,10 +4,12 @@ import "../../commonObjects/i8nText/fromXML"
 import "../../commonObjects/i8nText/fromYAML"
 import "../../commonObjects/i8nText/toXML"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import type { MetadataItemRule } from "../property/types"
 import { convertMetadataItemFromYAMLToXML } from "./fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { registerTypeRule } from "../property/typeRuleRegistry"
+import { registerMetadataItemCollectionRule } from "../metadataCollection/ruleFactory"
 import type { PropertyRuleType } from "../property/registry"
 import type { ExportToXMLFunctionNew } from "../property/fn"
 import { mockLanguages } from "../../../tests/mockContext"
@@ -27,6 +29,51 @@ const itemRule = {
 } as const satisfies MetadataItemRule
 
 describe("convertMetadataItemFromYAMLToXML", () => {
+  it("передаёт XML-аннотации вложенной именованной коллекции", () => {
+    const collectionType = "TestAnnotatedNestedCollection" as PropertyRuleType
+    registerMetadataItemCollectionRule({
+      propertyType: collectionType,
+      itemRule,
+      xmlElement: "Item",
+      keyField: "name",
+    })
+    const parsed = parseMetadataYaml([
+      "Реквизиты:",
+      "  Код:",
+      "    Значение: first",
+      "  !xml/invalid Код:",
+      "    Значение: second",
+    ].join("\n"))
+    const rule = {
+      itemType: "TestAnnotatedCollectionOwner",
+      properties: {
+        items: {
+          type: collectionType,
+          xml: "Items",
+          yaml: "Реквизиты",
+        },
+      },
+    } as MetadataItemRule
+
+    const result = convertMetadataItemFromYAMLToXML({
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Items: {
+        Item: [
+          { Name: "Код", Value: "first" },
+          { Name: "Код", Value: "second" },
+        ],
+      },
+    })
+  })
+
   it("rejects scalar YAML for metadata items without yamlInline", () => {
     const rule = {
       itemType: "MetadataAttribute",

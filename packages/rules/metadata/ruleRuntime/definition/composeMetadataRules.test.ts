@@ -1,12 +1,11 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
 import {
-  composeMetadataRules,
-  defineMetadataRules,
+composeMetadataRules,
+defineMetadataRules,
 } from "."
 import {
-  brokenXMLReferenceCarrier,
-  emptyMetadataRules,
+emptyMetadataRules
 } from "./testSupport"
 
 describe("metadata rules definition", () => {
@@ -67,27 +66,6 @@ describe("metadata rules definition", () => {
 
     expect(result.propertyTypes.Sample?.importFromXML).toBe(importFromXML)
     expect(result.propertyTypes.Sample?.exportToXML).toBe(secondExportToXML)
-  })
-
-  it("appends broken XML reference carriers in layer order", () => {
-    const firstCarrier = brokenXMLReferenceCarrier("first", "MetadataValue")
-    const secondCarrier = brokenXMLReferenceCarrier("second", "DataPath")
-
-    const result = composeMetadataRules(
-      defineMetadataRules({
-        ...emptyMetadataRules,
-        brokenXMLReferenceCarriers: [firstCarrier],
-      }),
-      defineMetadataRules({
-        ...emptyMetadataRules,
-        brokenXMLReferenceCarriers: [secondCarrier],
-      }),
-    )
-
-    expect(result.brokenXMLReferenceCarriers).toEqual([
-      firstCarrier,
-      secondCarrier,
-    ])
   })
 
   it("сохраняет возможности PropertyState в порядке слоёв", () => {

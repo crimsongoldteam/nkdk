@@ -15,9 +15,6 @@ import type { OperationSnapshotItem } from "./projectSnapshot"
 import type { MetadataOperationBlockedReference, MetadataOperationReferenceChange } from "./types"
 import { defaultMetadataOperationsContext } from "./context"
 import type { MetadataOperationRules } from "./targetResolver"
-import { currentPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
-import type { PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
-import { collectOmittedExplicitXMLPropertyKeys } from "../ruleRuntime/property/explicitXMLStructuralReferences"
 
 export type StructuralReferenceInput = Pick<
   StructuralYamlReference,
@@ -89,10 +86,7 @@ export function createPropertyStructuralReferenceRuntime(
   rules?: MetadataOperationRules,
 ): StructuralReferenceRuntime {
   const execution = rules?.execution
-  const transportRegistry = () => execution ?? currentPropertyRuleRegistrySet<PropertyRuleExecution>()
   return {
-    omittedExplicitXMLPropertyKeys: (params) =>
-      collectOmittedExplicitXMLPropertyKeys(transportRegistry(), params),
     valueFromYAML: (params) => callAtomicFromYAML(
       { ...params, execution } as Parameters<typeof callAtomicFromYAML>[0]
     ),
@@ -129,11 +123,6 @@ export function createPropertyStructuralReferenceRuntime(
         ? nested
         : { kind: "item", itemRule: item.itemRule }
     },
-    isTransportedBrokenXMLReference: (params) =>
-      transportRegistry()?.isTransportedBrokenXMLReference({
-        ...params,
-        rule: params.rule as PropertyRule,
-      }) ?? false,
   }
 }
 

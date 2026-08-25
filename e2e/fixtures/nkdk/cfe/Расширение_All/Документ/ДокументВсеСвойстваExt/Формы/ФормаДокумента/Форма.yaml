@@ -24,7 +24,6 @@
     РежимРедактирования: ВходПриВводе
   ТабличнаяЧасть:
     Вид: ТаблицаФормы
-    ОтборСтрок: !xml/present
     Отображение: Список
     Элементы:
       ТабличнаяЧастьНомерСтроки:
@@ -34,3 +33,23 @@
         Вид: ПолеВвода
         РасширенноеРедактированиеМножественныхЗначений: Истина
         РежимРедактирования: ВходПриВводе
+"@Form": !xml/raw
+  $xml:
+    ChildItems:
+      Table:
+        RowFilter:
+          _xsi:nil: "true"
+        "#order":
+          - Representation
+          - AutoInsertNewRow
+          - EnableStartDrag
+          - EnableDrag
+          - DataPath
+          - RowFilter
+          - ContextMenu
+          - AutoCommandBar
+          - ExtendedTooltip
+          - SearchStringAddition
+          - ViewStatusAddition
+          - SearchControlAddition
+          - ChildItems

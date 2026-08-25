@@ -1,9 +1,41 @@
 import assert from "node:assert/strict"
 import test, { mock } from "node:test"
-import { isSummaryProfileStep, runProfile, summarizeImportSteps, usage } from "./import-profile.mjs"
+import {
+  isSummaryProfileStep,
+  runProfile,
+  summarizeControlExport,
+  summarizeImportSteps,
+  usage,
+} from "./import-profile.mjs"
 
-test("справка фиксирует четыре worker по умолчанию", () => {
+test("справка позволяет явно задать число worker", () => {
   assert.match(usage(), /--concurrency N/u)
+})
+
+test("без явного параметра оставляет выбор числа worker production import", async () => {
+  const call = mock.fn(async () => ({
+    result: { isError: false, structuredContent: { ok: true } },
+    payload: { ok: true, succeeded: 1, failed: [], warnings: [], summary: { errors: 0, warnings: 0 } },
+  }))
+  const session = {
+    call,
+    takeStderr: mock.fn(() => ""),
+    close: mock.fn(async () => undefined),
+  }
+
+  await runProfile(
+    { xmlDir: "/xml", yamlDir: "/yaml", runs: 1 },
+    {
+      buildMcp: mock.fn(),
+      createSession: mock.fn(async () => session),
+      now: mock.fn(() => 0),
+      clearOutput: mock.fn(),
+      createProject: mock.fn(() => "/project"),
+    },
+  )
+
+  assert.equal(call.mock.calls[0].arguments[1].concurrency, undefined)
+  assert.equal(Object.hasOwn(call.mock.calls[0].arguments[1], "concurrency"), false)
 })
 
 test("сводит этапы импорта и двоичной выдачи в стабильные поля", () => {
@@ -49,6 +81,23 @@ test("сводит этапы импорта и двоичной выдачи в
 test("пропускает профильные записи без строкового имени этапа", () => {
   assert.equal(isSummaryProfileStep({ substep: 42 }), false)
   assert.equal(isSummaryProfileStep({ substep: null }), false)
+})
+
+test("сводит режим контрольного XML и распределение второго прохода", () => {
+  const steps = [
+    { scope: "worker", worker: 0, substep: "Контрольный XML без сериализации", items: 3 },
+    { scope: "worker", worker: 1, substep: "Контрольный XML с сериализацией", items: 2 },
+    { scope: "worker", worker: 1, substep: "Подробный повторный импорт XML", items: 1 },
+    { scope: "worker", worker: 0, substep: "Задания второго прохода", items: 3 },
+    { scope: "worker", worker: 1, substep: "Задания второго прохода", items: 2 },
+  ]
+
+  assert.deepEqual(summarizeControlExport(steps), {
+    direct: 3,
+    serialized: 2,
+    detailedRereads: 1,
+    assignmentsByWorker: [3, 2],
+  })
 })
 
 test("собирает MCP до замера и переиспользует одну сессию", async () => {

@@ -19,7 +19,10 @@ import {
   type PropertyTypeRuleContribution,
 } from "../property/propertyRuleRegistrySet"
 import { getDeclaredPropertyItemRule } from "../property/propertyItemRuleDeclarations"
-import { importMetadataItemCollectionFromXMLToYAML } from "./fromXMLToYAML"
+import {
+  importMetadataItemCollectionFromXMLToYAML,
+  type ClassifyNamedCollectionYamlKey,
+} from "./fromXMLToYAML"
 import { defineMetadataRules } from "../definition"
 import type {
   MetadataRulesDefinition,
@@ -79,6 +82,8 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   >["referenceIdentity"]
   /** Для YAML-объекта коллекции: YAML-элемент → ключ записи при прямом XML → YAML обходе. */
   recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
+  /** Нейтральная классификация ключа выполняется concrete-слоем до удаления ключевого YAML-поля. */
+  classifyYamlKey?: ClassifyNamedCollectionYamlKey
   fromXMLToYAML?: ImportFromXMLToYAMLFunction
   toJSONSchema?: ExportToJSONSchemaFn
   /** Регистрирует item-правило коллекции для обхода вложенных metadata target. */
@@ -150,6 +155,7 @@ export const defineMetadataItemCollectionRule = <
         preserveItemPropertyPresence: params.preserveItemPropertyPresence,
         ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
         ...(params.recordYamlKeyFromYAML === undefined ? {} : { recordYamlKeyFromYAML: params.recordYamlKeyFromYAML }),
+        ...(params.classifyYamlKey === undefined ? {} : { classifyYamlKey: params.classifyYamlKey }),
         traversal,
       })
     ))

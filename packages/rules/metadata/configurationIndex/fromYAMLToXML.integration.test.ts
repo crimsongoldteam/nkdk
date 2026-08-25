@@ -1,32 +1,27 @@
-import { describe, expect, it } from "vitest"
+import type { ConfigurationContextWithExportToXML,ConfigurationIndexBlockEntity } from "@nkdk/runtime"
+import { createConfigurationIndexCollector,createConfigurationIndexExportRuntime } from "@nkdk/runtime"
+import type { MetadataItemRule,TypeRulesOperations } from "@nkdk/runtime/rule-kit"
+import { describe,expect,it } from "vitest"
+import { TEST_CONFIGURATION_UUID,testConfigurationIndexReader } from "../../tests/configurationIndex"
 import {
-  createDirectRoundTripContexts,
-  testPropertyFromXMLToYAML,
-  testPropertyFromYAMLToXML,
+createDirectRoundTripContexts,
+testPropertyFromXMLToYAML,
+testPropertyFromYAMLToXML,
 } from "../../tests/directConversion"
-import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { convertPropertiesFromYAMLToXML } from "../ruleRuntime/property/fromYAMLToXML"
-import type { TypeRulesOperations } from "@nkdk/runtime/rule-kit"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { importFromYAML } from "@nkdk/runtime"
-import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
-import { registeredExplicitXMLTestRule } from "../../tests/property/explicitXMLPropertyRegistry"
-import { TEST_CONFIGURATION_UUID, testConfigurationIndexReader } from "../../tests/configurationIndex"
 
-import "../commonObjects/metadataValue/toXML"
-import "../commonObjects/metadataValue/fromXML"
-import "../commonObjects/dataCompositionSystem/conditionalAppearance/types"
 import "../commonObjects/boolean/fromXML"
 import "../commonObjects/boolean/fromYAML"
 import "../commonObjects/boolean/toYAML"
+import "../commonObjects/dataCompositionSystem/conditionalAppearance/types"
 import "../commonObjects/i8nText/fromXML"
 import "../commonObjects/i8nText/fromYAML"
 import "../commonObjects/i8nText/toXML"
 import "../commonObjects/i8nText/toYAML"
 import "../commonObjects/internalInfo/fromXML"
 import "../commonObjects/internalInfo/toXML"
+import "../commonObjects/metadataValue/fromXML"
+import "../commonObjects/metadataValue/toXML"
 import "../commonObjects/userSettingsID/toXML"
 import "../commonObjects/uuid/fromXML"
 import "../systemEnumerations/fromXML"
@@ -67,55 +62,9 @@ function contextWithIndex(extraEntities: readonly ConfigurationIndexBlockEntity[
   }
 }
 
-function contextWithEmptyIndex(): ConfigurationContextWithExportToXML {
-  const source = testConfigurationIndexReader()
-  const collector = createConfigurationIndexCollector()
-  return {
-    languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
-    version: "2.20",
-    exportToXML: {
-      version: "2.20",
-      itemsTree: [],
-      configurationIndex: createConfigurationIndexExportRuntime({
-        source,
-        collector,
-        targetProjectPath: "Справочник/Товары/Свойства.yaml",
-        logicalAddress: "Справочник.Товары",
-      }),
-    },
-  }
-}
-
 describe("configuration index в едином YAML → XML-обходе", () => {
-  it.each([
-    ["каноническое значение", "default"],
-    ["явное !xml-значение", "explicitXML"],
-  ] as const)("экспортирует %s одинаково без снимка и с пустым снимком", (_name, kind) => {
-    const rule = kind === "explicitXML"
-      ? registeredExplicitXMLTestRule("SnapshotIndependentExplicitXMLProbe")
-      : {
-          itemType: "SnapshotIndependentDefaultProbe",
-          properties: {
-            mode: {
-              type: "string",
-              xml: "Mode",
-              yaml: "Режим",
-              implicitValueYAML: "Auto",
-            },
-          },
-        } as const satisfies MetadataItemRule
-    const yaml = kind === "explicitXML" ? importFromYAML("Режим: !xml/present") : {}
-    const withoutSnapshot = testPropertyFromYAMLToXML({ rule, yaml }).xml
-    const withEmptySnapshot = testPropertyFromYAMLToXML({
-      context: contextWithEmptyIndex(),
-      rule,
-      yaml,
-    }).xml
 
-    expect(withEmptySnapshot).toEqual(withoutSnapshot)
-  })
-
-  it("восстанавливает исходный namespace-префикс описания типа без reference XML", () => {
+  it("канонизирует namespace-префикс описания типа без reference XML", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TypeDescriptionPrefixProbe",
@@ -148,7 +97,14 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       yaml: imported.yaml,
     })
 
-    expect(exported.xml).toEqual(source)
+    expect(exported.xml).toEqual({
+      Type: {
+        "v8:Type": {
+          "_xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+          "#text": "cfg:CatalogRef.ЗначенияХарактеристик",
+        },
+      },
+    })
   })
 
   it("не восстанавливает необязательное XML-значение только по implicitValueYAML", () => {

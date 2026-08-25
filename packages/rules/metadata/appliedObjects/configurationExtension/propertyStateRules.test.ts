@@ -1,8 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
 import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
-import { configurationExtensionPropertyStateRules } from "./propertyStateRules"
 
 describe("матрица PropertyState расширения", () => {
   const registry = createPropertyStateCapabilityRegistry(
@@ -126,11 +125,6 @@ describe("матрица PropertyState расширения", () => {
     ["maxExtDimensionCount", ["control", "notify"]],
   ])("описывает режимы плана счетов для %s", (propertyKey, modes) => {
     expect(registry.resolve({ itemType: "MetadataChartOfAccounts", propertyKey })?.modes).toEqual(modes)
-  })
-
-  it("не регистрирует служебные переносчики PropertyState", () => {
-    expect(JSON.stringify(configurationExtensionPropertyStateRules.explicitXMLProperties))
-      .not.toContain("configurationExtensionPropertyStateXML")
   })
 
   it("не переносит возможность по совпадению имени свойства", () => {

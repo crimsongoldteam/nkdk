@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
-import { emptyYamlUpdate as yamlUpdate } from "./binary/testData"
+import { emptyYamlUpdate as yamlUpdate, richYamlUpdate } from "./binary/testData"
 import { toDataPathPolicyInput } from "../validation/dataPath/policies"
 import {
   assertProjectStateFileUpdateBatch,
@@ -203,9 +203,9 @@ describe("ProjectStateFileUpdateBatch", () => {
   })
 
   it.each([
-    ["строковое значение", { type: { type: ["DefinedType.А"] }, value: "Catalog.Товары.EmptyRef", tagged: true }],
-    ["нестроковый itemType", { itemType: 1, type: { type: ["DefinedType.А"] }, value: { type: "ref", value: "" }, tagged: true }],
-    ["неизвестная форма value", { type: { type: ["DefinedType.А"] }, value: {}, tagged: true }],
+    ["строковое значение", { type: { type: ["DefinedType.А"] }, value: "Catalog.Товары.EmptyRef", xmlAnomaly: "pending" }],
+    ["нестроковый itemType", { itemType: 1, type: { type: ["DefinedType.А"] }, value: { type: "ref", value: "" }, xmlAnomaly: "pending" }],
+    ["неизвестная форма value", { type: { type: ["DefinedType.А"] }, value: {}, xmlAnomaly: "pending" }],
   ])("отклоняет повреждённую fillValue-проверку: %s", (_name, payload) => {
     const pendingCheck = {
       kind: "fillValue",
@@ -338,7 +338,7 @@ describe("ProjectStateFileUpdateBatch", () => {
       { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, target: { ...pendingReference.target, root: 1 } }] },
       { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, constraint: { kind: "object", extra: true } }] },
       { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, constraint: { kind: "object", allowNested: "yes" } }] },
-      { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, tagged: "raw" }] },
+      { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, xmlAnomaly: "raw" }] },
       {
         ...yamlUpdate("a.yaml"),
         owners: [{ owner: { kind: "Справочник", name: "Товары" }, facts: { owners: ["Catalog.Товары"], extra: true } }],
@@ -364,7 +364,6 @@ describe("ProjectStateFileUpdateBatch", () => {
       location: { line: 1, col: 1 },
       owner,
       value: "Объект.Код",
-      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     }
@@ -394,13 +393,28 @@ describe("ProjectStateFileUpdateBatch", () => {
       },
       { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, elementType: "unknown" }] },
       { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, hasValuesPicture: "yes" }] },
-      { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, tagged: "yes" }] },
+      { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, xmlAnomaly: "yes" }] },
       { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, tableContext: { dataPath: 1 } }] },
     ]
 
     for (const update of updates) {
       expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) })).toThrow()
     }
+  })
+
+  it.each(["pending", "accepted"] as const)("принимает состояние XML-границы %s", (xmlAnomaly) => {
+    const update = richYamlUpdate("a.yaml", "cf", "Catalog.Товары")
+    const check = update.pendingChecks[0]
+    if (check?.kind !== "dataPath") throw new Error("Ожидалась проверка dataPath")
+
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [{
+        ...update,
+        pendingReferences: update.pendingReferences.map((reference) => ({ ...reference, xmlAnomaly })),
+        pendingChecks: [{ ...check, xmlAnomaly }],
+      }],
+      hashBytes: new Uint8Array(8),
+    })).not.toThrow()
   })
 
   it("переносит structuredType источника данных формы", () => {

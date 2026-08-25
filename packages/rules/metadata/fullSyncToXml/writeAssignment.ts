@@ -1,9 +1,7 @@
 import fs from "node:fs"
 import { dirname, join } from "node:path"
-import { xmlExport } from "@nkdk/runtime"
 import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
-import { finalizeExportedXmlValues } from "../ruleRuntime/property/finalizeExportedXML"
 import type { YAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
 import type {
   FullXmlSyncAssignment,
@@ -13,6 +11,7 @@ import type {
   FullXmlSyncWrittenFile,
   PreparedXMLAssignment,
 } from "./types"
+import { buildPreparedAssignmentXml } from "./xmlAnomalyAssignment"
 
 interface PreparedWriteParams {
   readonly prepared: PreparedXMLAssignment
@@ -42,14 +41,23 @@ async function writePreparedAssignment(
   try {
     const requestedDocumentIds = requestedIds(params)
     const foundDocumentIds = new Set<string>()
-    for (const document of params.prepared.documents) {
-      finalizeExportedXmlValues({
-        xml: document.xml,
-        rootRule: document.rootRule,
-        deferred: document.deferred,
-        context: params.context,
-      })
-      const content = new TextEncoder().encode(xmlExport(document.xml))
+    const builtDocuments = params.prepared.documents.map((document) => ({
+      document,
+      content: new TextEncoder().encode(buildPreparedAssignmentXml({ document, context: params.context })),
+    }))
+    for (const { document } of builtDocuments) {
+      if (document.declarationId !== undefined && requestedDocumentIds.has(document.declarationId)) {
+        foundDocumentIds.add(document.declarationId)
+      }
+    }
+    for (const declarationId of requestedDocumentIds) {
+      const output = params.prepared.assignment.potentialOutputs.find((candidate) =>
+        candidate.declarationId === declarationId)
+      if (!foundDocumentIds.has(declarationId) && output?.required !== false) {
+        throw new Error(`Не сформирован запрошенный XML-документ: ${declarationId}`)
+      }
+    }
+    for (const { document, content } of builtDocuments) {
       if (params.outputTarget.kind === "directory") {
         const target = join(params.outputTarget.outputDir, ...document.targetXmlPath.split("/"))
         await fs.promises.mkdir(dirname(target), { recursive: true })
@@ -59,20 +67,12 @@ async function writePreparedAssignment(
           targetXmlPath: document.targetXmlPath,
         })
       } else if (document.declarationId !== undefined && requestedDocumentIds.has(document.declarationId)) {
-        foundDocumentIds.add(document.declarationId)
         generatedDocuments.push({
           assignmentId: params.prepared.assignment.id,
           declarationId: document.declarationId,
           targetXmlPath: document.targetXmlPath,
           content,
         })
-      }
-    }
-    for (const declarationId of requestedDocumentIds) {
-      const output = params.prepared.assignment.potentialOutputs.find((candidate) =>
-        candidate.declarationId === declarationId)
-      if (!foundDocumentIds.has(declarationId) && output?.required !== false) {
-        throw new Error(`Не сформирован запрошенный XML-документ: ${declarationId}`)
       }
     }
     return {

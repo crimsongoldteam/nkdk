@@ -33,6 +33,6 @@ describe("projectValidationWorkerSchemaCache", () => {
   it("компилирует runtime cache независимо от расположения worker", () => {
     expect(acceptsConfigurationNameOnly).toBe(false)
     expect(rejectsNonObjectForm).toBe(false)
-    expect(acceptsExplicitStandardAttributes).toBe(true)
+    expect(acceptsExplicitStandardAttributes).toBe(false)
   })
 })

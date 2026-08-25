@@ -3,8 +3,7 @@ import {
   type MetadataTargetOccurrence,
   type MetadataTargetOccurrencesFunction,
 } from "@nkdk/runtime/rule-kit"
-import { yamlMappingKeyTagAt } from "@nkdk/runtime"
-import { isMDObjectRefUuid } from "../../../commonObjects/metadataRef/brokenMDObjectRef"
+import { isMDObjectRefUuid } from "../../../commonObjects/metadataRef/uuid"
 
 const invalidOrdinaryEventTarget = {
   kind: "object",
@@ -16,14 +15,10 @@ export const collectEventMetadataTargetOccurrences: MetadataTargetOccurrencesFun
 
   return Object.keys(params.value).flatMap((key): MetadataTargetOccurrence[] => {
     if (!isMDObjectRefUuid(key)) return []
-    const tagged = params.representation === "model"
-      || yamlMappingKeyTagAt(params.value, key) === "xml/reference"
     return [{
       location: { kind: "key", path: params.yamlPath, key },
       constraint: invalidOrdinaryEventTarget,
-      representation: tagged
-        ? { kind: "brokenXMLReference", payload: key, grammar: "uuid" }
-        : { kind: "canonical", canonical: key },
+      representation: { kind: "canonical", canonical: key },
       setValue: () => undefined,
     }]
   })

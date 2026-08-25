@@ -10,7 +10,6 @@
     РежимРедактирования: ВходПриВводе
   ТабличнаяЧастьВсеСвойства:
     Вид: ТаблицаФормы
-    ОтборСтрок: !xml/present
     Отображение: Список
     Элементы:
       ТабличнаяЧастьВсеСвойстваНомерСтроки:
@@ -35,3 +34,171 @@
 Изменять:
   - Форма
 РасширенноеПредставление: ""
+"@Form": !xml/raw
+  $xml:
+    ReportFormType: Main
+    AutoShowState: Auto
+    ReportResultViewMode: Auto
+    ViewModeApplicationOnSetReportResult: Auto
+    ChildItems:
+      Table:
+        RowFilter:
+          _xsi:nil: "true"
+        "#order":
+          - Representation
+          - AutoInsertNewRow
+          - EnableStartDrag
+          - EnableDrag
+          - RowFilter
+          - ContextMenu
+          - AutoCommandBar
+          - ExtendedTooltip
+          - SearchStringAddition
+          - ViewStatusAddition
+          - SearchControlAddition
+          - ChildItems
+    BaseForm:
+      _version: "2.20"
+      ReportFormType: Main
+      AutoShowState: Auto
+      CustomSettingsFolder: КомпоновщикНастроекПользовательскиеНастройки
+      ReportResultViewMode: Auto
+      ViewModeApplicationOnSetReportResult: Auto
+      AutoCommandBar:
+        _name: ФормаКоманднаяПанель
+        _id: "-1"
+      ChildItems:
+        InputField:
+          _name: РеквизитВсеСвойства
+          _id: "1"
+          EditMode: EnterOnInput
+          ExtendedEditMultipleValues: "true"
+          ContextMenu:
+            _name: РеквизитВсеСвойстваКонтекстноеМеню
+            _id: "2"
+          ExtendedTooltip:
+            _name: РеквизитВсеСвойстваРасширеннаяПодсказка
+            _id: "3"
+        CheckBoxField:
+          _name: РеквизитБулево
+          _id: "4"
+          EditMode: EnterOnInput
+          CheckBoxType: Auto
+          ContextMenu:
+            _name: РеквизитБулевоКонтекстноеМеню
+            _id: "5"
+          ExtendedTooltip:
+            _name: РеквизитБулевоРасширеннаяПодсказка
+            _id: "6"
+        Table:
+          _name: ТабличнаяЧастьВсеСвойства
+          _id: "7"
+          Representation: List
+          AutoInsertNewRow: "true"
+          EnableStartDrag: "true"
+          EnableDrag: "true"
+          RowFilter:
+            _xsi:nil: "true"
+          ContextMenu:
+            _name: ТабличнаяЧастьВсеСвойстваКонтекстноеМеню
+            _id: "8"
+          AutoCommandBar:
+            _name: ТабличнаяЧастьВсеСвойстваКоманднаяПанель
+            _id: "9"
+          ExtendedTooltip:
+            _name: ТабличнаяЧастьВсеСвойстваРасширеннаяПодсказка
+            _id: "10"
+          SearchStringAddition:
+            _name: ТабличнаяЧастьВсеСвойстваСтрокаПоиска
+            _id: "11"
+            AdditionSource:
+              Item: ТабличнаяЧастьВсеСвойства
+              Type: SearchStringRepresentation
+            ContextMenu:
+              _name: ТабличнаяЧастьВсеСвойстваСтрокаПоискаКонтекстноеМеню
+              _id: "12"
+            ExtendedTooltip:
+              _name: ТабличнаяЧастьВсеСвойстваСтрокаПоискаРасширеннаяПодсказка
+              _id: "13"
+          ViewStatusAddition:
+            _name: ТабличнаяЧастьВсеСвойстваСостояниеПросмотра
+            _id: "14"
+            AdditionSource:
+              Item: ТабличнаяЧастьВсеСвойства
+              Type: ViewStatusRepresentation
+            ContextMenu:
+              _name: ТабличнаяЧастьВсеСвойстваСостояниеПросмотраКонтекстноеМеню
+              _id: "15"
+            ExtendedTooltip:
+              _name: ТабличнаяЧастьВсеСвойстваСостояниеПросмотраРасширеннаяПодсказка
+              _id: "16"
+          SearchControlAddition:
+            _name: ТабличнаяЧастьВсеСвойстваУправлениеПоиском
+            _id: "17"
+            AdditionSource:
+              Item: ТабличнаяЧастьВсеСвойства
+              Type: SearchControl
+            ContextMenu:
+              _name: ТабличнаяЧастьВсеСвойстваУправлениеПоискомКонтекстноеМеню
+              _id: "18"
+            ExtendedTooltip:
+              _name: ТабличнаяЧастьВсеСвойстваУправлениеПоискомРасширеннаяПодсказка
+              _id: "19"
+          ChildItems:
+            LabelField:
+              _name: ТабличнаяЧастьВсеСвойстваНомерСтроки
+              _id: "20"
+              EditMode: EnterOnInput
+              ContextMenu:
+                _name: ТабличнаяЧастьВсеСвойстваНомерСтрокиКонтекстноеМеню
+                _id: "21"
+              ExtendedTooltip:
+                _name: ТабличнаяЧастьВсеСвойстваНомерСтрокиРасширеннаяПодсказка
+                _id: "22"
+            InputField:
+              _name: ТабличнаяЧастьВсеСвойстваРеквизитТаблицыВсеСвойства
+              _id: "23"
+              EditMode: EnterOnInput
+              ExtendedEditMultipleValues: "true"
+              ContextMenu:
+                _name: ТабличнаяЧастьВсеСвойстваРеквизитТаблицыВсеСвойстваКонтекстноеМеню
+                _id: "24"
+              ExtendedTooltip:
+                _name: ТабличнаяЧастьВсеСвойстваРеквизитТаблицыВсеСвойстваРасширеннаяПодсказка
+                _id: "25"
+        UsualGroup:
+          _name: КомпоновщикНастроекПользовательскиеНастройки
+          _id: "26"
+          Title:
+            v8:item:
+              v8:lang: ru
+              v8:content: Настройки
+          VerticalStretch: "false"
+          Group: Vertical
+          ShowTitle: "false"
+          ExtendedTooltip:
+            _name: КомпоновщикНастроекПользовательскиеНастройкиРасширеннаяПодсказка
+            _id: "27"
+        SpreadSheetDocumentField:
+          _name: Результат
+          _id: "28"
+          DefaultItem: "true"
+          TitleLocation: None
+          Width: "100"
+          ContextMenu:
+            _name: РезультатКонтекстноеМеню
+            _id: "29"
+          ExtendedTooltip:
+            _name: РезультатРасширеннаяПодсказка
+            _id: "30"
+      Attributes:
+    "#order":
+      - ReportFormType
+      - AutoShowState
+      - CustomSettingsFolder
+      - ReportResultViewMode
+      - ViewModeApplicationOnSetReportResult
+      - AutoCommandBar
+      - ChildItems
+      - Attributes
+      - BaseForm

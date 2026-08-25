@@ -18,7 +18,6 @@ import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { DataPathAllowedKind, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
-import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 import { settingsComposerValueFieldKinds } from "../../settingsComposer/dataPathGraph"
 export type { ElementRule, PropertyRule }
 const inputFieldDataPathKinds = [
@@ -538,6 +537,5 @@ export const TableInputFieldRules = {
     maxValue: minMaxValueRule({ yaml: "МаксимальноеЗначение", xml: "MaxValue" }),
   },
 } as const satisfies ElementRule
-export const metadataRuleLayer000 = defineExplicitHeaderHorizontalAlign(TableInputFieldRules.itemType)
 export const metadataRuleLayer001 = defineElementRule("InputField", InputFieldRules)
 export const metadataRuleLayer002 = defineElementRule("TableInputField", TableInputFieldRules)

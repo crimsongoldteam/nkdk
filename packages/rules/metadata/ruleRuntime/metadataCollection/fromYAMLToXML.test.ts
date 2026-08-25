@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
-import type { MetadataItemRule } from "../property/types"
+import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "./fromYAMLToXML"
@@ -27,6 +28,123 @@ const nestedRule = {
 } as const satisfies MetadataItemRule
 
 describe("convertMetadataCollectionFromYAMLToXML", () => {
+  it("переносит nested XML-аннотации на новый mapping normalizeItemYAML", () => {
+    const parsed = parseMetadataYaml([
+      "Код:",
+      "  Вложенное:",
+      "    - Значение: !xml/raw",
+      "        $значение: value",
+      "        $xml: { _future: x }",
+    ].join("\n"))
+    let normalized: Record<string, unknown> | undefined
+    const descriptor = {
+      kind: "collection",
+      itemRule: nestedRule,
+      yamlShape: "record",
+      normalizeItemYAML: ({ yaml, annotations }) => {
+        expect(annotations).toBe(parsed.annotations)
+        normalized = structuredClone(yaml as Record<string, unknown>)
+        return normalized
+      },
+    } as const satisfies YAMLToXMLNestedRule
+
+    convertMetadataCollectionFromYAMLToXML({
+      convertItem: (params) => {
+        const nested = (params.yaml as Record<string, unknown>).Вложенное as Array<Record<string, unknown>>
+        expect(params.annotations?.at(nested[0]!, "Значение")).toMatchObject({
+          kind: "raw",
+          target: "value",
+        })
+        return { outputs: new Map([["owner", {}]]), deferredByOutput: new Map(), externalWrites: [] }
+      },
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+      descriptor,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(normalized).toBeDefined()
+  })
+
+  it("восстанавливает повторные логические ключи из таблицы XML-аннотаций", () => {
+    const parsed = parseMetadataYaml([
+      "Код:",
+      "  Значение: first",
+      "!xml/invalid Код:",
+      "  Значение: second",
+      "!xml/invalid/2 Код:",
+      "  Значение: third",
+    ].join("\n"))
+    const descriptor = {
+      kind: "collection",
+      itemRule: nestedRule,
+      yamlShape: "record",
+      xmlElement: "Item",
+    } as const satisfies YAMLToXMLNestedRule
+
+    const result = convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+      descriptor,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Item: [
+        { Name: "Код", Value: "first" },
+        { Name: "Код", Value: "second" },
+        { Name: "Код", Value: "third" },
+      ],
+    })
+  })
+
+  it("не теряет XML-порядок дублей при дополнении канонической коллекции", () => {
+    const parsed = parseMetadataYaml([
+      "Код:",
+      "  Значение: first",
+      "Наименование:",
+      "  Значение: title",
+      "!xml/invalid Код:",
+      "  Значение: second",
+    ].join("\n"))
+    const descriptor = {
+      kind: "collection",
+      itemRule: nestedRule,
+      yamlShape: "record",
+      xmlElement: "Item",
+      completeItemNames: () => ["Код", "Наименование"],
+    } as const satisfies YAMLToXMLNestedRule
+
+    const result = convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
+      context: context(),
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+      descriptor,
+      propertyRule: { type: "string" } as PropertyRule,
+      source: {
+        has: () => true,
+        raw: () => parsed.data,
+        yamlKey: () => "Элементы",
+      },
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Item: [
+        { Name: "Код", Value: "first" },
+        { Name: "Наименование", Value: "title" },
+        { Name: "Код", Value: "second" },
+      ],
+    })
+  })
+
   it("рекурсивно преобразует YAML-запись коллекции без массива моделей", () => {
     const descriptor = {
       kind: "collection",

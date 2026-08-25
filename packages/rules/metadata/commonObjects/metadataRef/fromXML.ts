@@ -38,3 +38,6 @@ export function importMetadataItemLinksFromXML(
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataItemLink", "importFromXML", importMetadataItemLinkFromXML)
 export const metadataPropertyRule001 = definePropertyTypeRule("MetadataItemLinks", "importFromXML", importMetadataItemLinksFromXML)
+export const metadataPropertyRule002 = definePropertyTypeRule("MetadataItemLinks", "xmlImportPropertyBehavior", {
+  repeatedXMLNodes: true,
+})

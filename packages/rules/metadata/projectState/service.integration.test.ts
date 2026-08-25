@@ -184,6 +184,7 @@ describe("ProjectStateService", () => {
 
     const session = await service.beginImport({ projectDir, workerCount: 1, output: { componentPaths: ["cf"] } })
     await session.commitWorkingIndex()
+    await session.commitSemanticIndex()
     const result = await session.finalize()
     expect([...result.diagnostics]).toEqual([])
     await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-2" }])
@@ -224,6 +225,7 @@ describe("ProjectStateService", () => {
         },
       )
       await session.commitWorkingIndex()
+      await session.commitSemanticIndex()
 
       const queued = operation === "reset"
         ? service.reset(projectDir)
@@ -290,6 +292,7 @@ describe("ProjectStateService", () => {
       },
     )
     await session.commitWorkingIndex()
+    await session.commitSemanticIndex()
     const resetting = service.reset(projectDir)
     await nextTurn()
 
@@ -316,6 +319,7 @@ describe("ProjectStateService", () => {
       },
     )
     await session.commitWorkingIndex()
+    await session.commitSemanticIndex()
 
     const failure = await session.finalize().catch((caught: unknown) => caught)
 
@@ -353,6 +357,7 @@ describe("ProjectStateService", () => {
       "nkdk-project-state-import-release-once-",
     )
     await session.commitWorkingIndex()
+    await session.commitSemanticIndex()
 
     await session.finalize()
     await session.abort(new Error("late abort"))
@@ -375,6 +380,7 @@ describe("ProjectStateService", () => {
       },
     )
     await session.commitWorkingIndex()
+    await session.commitSemanticIndex()
     const resetting = service.reset(projectDir)
     await nextTurn()
 

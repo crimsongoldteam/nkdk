@@ -21,6 +21,8 @@ import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "../forms/clientApplicationForm/rules"
 import { TEST_CONFIGURATION_UUID, testConfigurationIndexReader } from "../../tests/configurationIndex"
+import { createXmlAnomalyAnnotations, parseMetadataYaml } from "@nkdk/runtime"
+import "../../tests/metadataExecutionContext"
 
 describe("prepareFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
@@ -44,7 +46,9 @@ describe("prepareFullXmlSyncAssignment", () => {
   it("calls one registered capability once for all of its XML outputs", () => {
     const rule = {
       itemType: "TestObject",
-      properties: {},
+      properties: {
+        future: { type: "string", yaml: "Будущее", xml: "Future", tag: "metadata" },
+      },
       metadataTargetOwner: { kind: "self", root: "Catalog" },
     } as MetadataItemRule
     const source = { kind: "itemRule" as const, description: "test" }
@@ -91,6 +95,7 @@ describe("prepareFullXmlSyncAssignment", () => {
               xmlId: "base-marker",
             },
           ])
+    let tagMode: "normal" | "missing" | "duplicate" = "normal"
     const run = vi.fn(({ outputs: requested, baseConfigurationIndex: baseIndex }) =>
       requested.map((output: (typeof outputs)[number]) => ({
         declarationId: output.declarationId,
@@ -101,6 +106,9 @@ describe("prepareFullXmlSyncAssignment", () => {
         },
         deferred: [],
         rootRule: rule,
+        ...(tagMode === "missing"
+          ? {}
+          : { tags: [tagMode === "duplicate" ? "metadata" : output.role] }),
       }))
     )
     const operations = createOperationRegistrySet(composeMetadataRules(
@@ -120,14 +128,16 @@ describe("prepareFullXmlSyncAssignment", () => {
       potentialOutputs: outputs,
     }
 
-    const prepared = withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
+    const parsed = parseMetadataYaml("Будущее: !xml/raw\n  $xml: future\n")
+    const prepareAssignment = () => withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
       assignment,
       preparedYamlFile: {
         projectPath: assignment.sourceProjectPath,
         filePath: assignment.sourcePath,
         role: "properties",
         owner: { dir: "Объект", name: "One" },
-        data: {},
+        data: parsed.data,
+        annotations: parsed.annotations,
         syntaxDiagnostics: [],
       },
       context: mockContextToXML(),
@@ -136,6 +146,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       composition: emptyComposition,
       topology,
     }))
+    const prepared = prepareAssignment()
 
     expect(run).toHaveBeenCalledTimes(1)
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
@@ -146,6 +157,68 @@ describe("prepareFullXmlSyncAssignment", () => {
       "base-marker",
       "base-marker",
     ])
+    expect(prepared.documents.map((document) => document.rawBoundaries.length)).toEqual([1, 0])
+
+    tagMode = "missing"
+    expect(prepareAssignment).toThrow("не сформирован XML-документ с тегом metadata")
+
+    tagMode = "duplicate"
+    expect(prepareAssignment).toThrow(
+      "raw-границе Future соответствует несколько XML-документов с тегом metadata",
+    )
+
+    tagMode = "normal"
+    const unknownParsed = parseMetadataYaml("Properties\\Future: !xml/raw\n  $xml: future\n")
+    const unprefixed = withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: {
+        projectPath: assignment.sourceProjectPath,
+        filePath: assignment.sourcePath,
+        role: "properties",
+        owner: { dir: "Объект", name: "One" },
+        data: unknownParsed.data,
+        annotations: unknownParsed.annotations,
+        syntaxDiagnostics: [],
+      },
+      context: mockContextToXML(),
+      index: testConfigurationIndexReader(),
+      composition: emptyComposition,
+      topology,
+    }))
+
+    expect(unprefixed.documents.map((document) => document.rawBoundaries.length)).toEqual([1, 0])
+    expect(unprefixed.documents[0]?.rawBoundaries[0]).toMatchObject({
+      path: "Properties\\Future",
+      documentSelector: "",
+    })
+
+    const selectedParsed = parseMetadataYaml([
+      "'@body\\Properties\\Future': !xml/raw",
+      "  $xml: future",
+    ].join("\n"))
+    const selected = withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: {
+        projectPath: assignment.sourceProjectPath,
+        filePath: assignment.sourcePath,
+        role: "properties",
+        owner: { dir: "Объект", name: "One" },
+        data: selectedParsed.data,
+        annotations: selectedParsed.annotations,
+        syntaxDiagnostics: [],
+      },
+      context: mockContextToXML(),
+      index: testConfigurationIndexReader(),
+      baseConfigurationIndex,
+      composition: emptyComposition,
+      topology,
+    }))
+
+    expect(selected.documents.map((document) => document.rawBoundaries.length)).toEqual([0, 1])
+    expect(selected.documents[1]?.rawBoundaries[0]).toMatchObject({
+      path: "Properties\\Future",
+      documentSelector: "body",
+    })
   })
 
   it("uses the registered component root rule for the configuration assignment", () => {
@@ -185,6 +258,7 @@ describe("prepareFullXmlSyncAssignment", () => {
           Имя: "Расширение",
           НазначениеРасширенияКонфигурации: "Customization",
         },
+        annotations: createXmlAnomalyAnnotations(),
         syntaxDiagnostics: [],
       },
       context: {
@@ -230,6 +304,7 @@ describe("prepareFullXmlSyncAssignment", () => {
         role: "form",
         owner: { dir: "Обработка", name: "Загрузка" },
         data: {},
+        annotations: createXmlAnomalyAnnotations(),
         syntaxDiagnostics: [],
       },
       context: mockContextToXML(),
@@ -307,7 +382,32 @@ describe("prepareFullXmlSyncAssignment", () => {
     }
     const writeFile = vi.spyOn(fs.promises, "writeFile")
 
-    const prepared = prepare(assignment, yaml)
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: yaml,
+      context: mockContextToXML(),
+      index: testConfigurationIndexReader(),
+      composition: {
+        children: () => [
+          {
+            sourceProjectPath: "Обработка/ОбработкаВсеСвойства/Формы/ФормаСписка/Форма.yaml",
+            assignmentRole: "fileItem",
+            itemType: "ClientApplicationForm",
+            itemName: "ФормаСписка",
+            logicalAddress: `${assignment.logicalAddress}.Форма.ФормаСписка`,
+            ownerLogicalAddress: assignment.logicalAddress,
+          },
+          {
+            sourceProjectPath: "Обработка/ОбработкаВсеСвойства/Шаблоны/Макет/Макет.yaml",
+            assignmentRole: "fileItem",
+            itemType: "MetadataTemplate",
+            itemName: "Макет",
+            logicalAddress: `${assignment.logicalAddress}.Макет.Макет`,
+            ownerLogicalAddress: assignment.logicalAddress,
+          },
+        ],
+      },
+    })
 
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
       "DataProcessors/ОбработкаВсеСвойства.xml",

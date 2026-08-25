@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector, createDiscardingConfigurationIndexCollector } from "./writer"
+import { createXmlImportAttemptJournal } from "../../ruleRuntime/xmlAnomaly/attempt"
 
 const UUID = "00000000-0000-4000-8000-000000000001"
 
@@ -69,5 +70,39 @@ describe("configuration index collector", () => {
     collector.setIdentity("Объект", "xmlId", "two")
     collector.setChildren("Объект", [])
     expect(collector.fragment("ignored.yaml")).toEqual({ targetProjectPath: "ignored.yaml", entities: [] })
+  })
+
+  it("откатывает только записи текущей попытки и фиксирует успешную", () => {
+    const collector = createConfigurationIndexCollector()
+    collector.setIdentity("Справочник.Товары", "uuid", UUID)
+    const journal = createXmlImportAttemptJournal([collector])
+    const failed = journal.begin()
+    collector.setIdentity("Справочник.Товары", "xmlId", "temporary")
+    collector.setChildren("Справочник.Товары.Свойство.ДочерниеОбъекты", [
+      { xmlName: "Form", name: "Временная" },
+    ])
+    failed.rollback()
+
+    const successful = journal.begin()
+    collector.setIdentity("Справочник.Товары", "xmlId", "stable")
+    successful.commit()
+
+    expect(collector.fragment("Справочники/Товары.yaml").entities).toEqual([
+      { logicalAddress: "Справочник.Товары", uuid: UUID, xmlId: "stable" },
+    ])
+  })
+
+  it("сохраняет точный nested checkpoint даже без записей", () => {
+    const collector = createConfigurationIndexCollector()
+    const journal = createXmlImportAttemptJournal([collector])
+    const outer = journal.begin()
+    const inner = journal.begin()
+
+    expect(() => outer.commit()).toThrow("порядок XML-import attempts")
+    inner.rollback()
+    collector.setIdentity("Справочник.Товары", "xmlId", "outer")
+    outer.rollback()
+
+    expect(collector.fragment("Справочники/Товары.yaml").entities).toEqual([])
   })
 })

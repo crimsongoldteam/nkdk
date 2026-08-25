@@ -10,12 +10,25 @@ import type {
   YAMLToXMLResult,
   YAMLToXMLProfile,
 } from "../property/fromYAMLToXMLTypes"
+import { copyXmlAnomalyAnnotationsDeep } from "../../../yaml/xmlAnomalyAnnotations"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
 import { getChildContextToXML } from "../../context/childContext"
 import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import type { DeferredValuePath } from "../property/deferredObjectValues"
 import { assertRequiredConfigurationIdentity } from "../property/requiredIdentity"
+import {
+  xmlAnnotatedMappingEntries,
+  type XmlAnomalyAnnotations,
+} from "../../../yaml/xmlAnomalyAnnotations"
+import {
+  copyXmlAnomalyExportClaim,
+  readXmlAnomalyExportClaim,
+  readXmlAnomalyRawItem,
+  readXmlAnomalyRawCollectionItems,
+  markXmlAnomalyExportClaim,
+  XML_ANOMALY_RAW_ITEM_PLACEHOLDER,
+} from "../xmlAnomaly/exportClaim"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -24,6 +37,7 @@ export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly convertProperties: Parameters<typeof convertMetadataItemFromYAMLToXML>[0]["convertProperties"]
   readonly context: ConfigurationContextWithExportToXML
   readonly yaml: unknown
+  readonly annotations?: XmlAnomalyAnnotations
   readonly descriptor: CollectionDescriptor
   readonly propertyRule?: PropertyRule
   readonly source?: YAMLPropertySource
@@ -39,7 +53,7 @@ export function convertMetadataCollectionFromYAMLToXML(
   params: ConvertMetadataCollectionFromYAMLToXMLParams
 ): YAMLToXMLResult {
   const entries = completeCollectionEntries({
-    entries: collectionEntries(params.yaml, params.descriptor, params.propertyRule),
+    entries: collectionEntries(params.yaml, params.annotations, params.descriptor, params.propertyRule),
     descriptor: params.descriptor,
     itemRule: params.descriptor.itemRule,
     propertyRule: params.propertyRule,
@@ -54,13 +68,34 @@ export function convertMetadataCollectionFromYAMLToXML(
 
   entries.forEach(({ yaml, name }, index) => {
     if (params.profile !== undefined) params.profile.nestedItemCount++
+    const rawItemClaimId = readXmlAnomalyRawItem(yaml)
+    if (rawItemClaimId !== undefined) {
+      for (const output of params.outputs) {
+        const marker = {}
+        markXmlAnomalyExportClaim(marker, rawItemClaimId, true)
+        outputItems.get(output.key)!.push(
+          params.descriptor.xmlElement === undefined
+            ? { [XML_ANOMALY_RAW_ITEM_PLACEHOLDER]: marker }
+            : marker,
+        )
+      }
+      return
+    }
     const defaultItemRule =
       (params.propertyRule === undefined ? undefined : params.descriptor.itemRuleFromProperty?.(params.propertyRule)) ??
       params.descriptor.itemRule
     const itemRule =
       params.descriptor.resolveItemRule?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? defaultItemRule
     const normalizedYAML =
-      params.descriptor.normalizeItemYAML?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? yaml
+      params.descriptor.normalizeItemYAML?.({
+        yaml,
+        annotations: params.annotations,
+        name,
+        index,
+        propertyRule: params.propertyRule,
+      }) ?? yaml
+    copyXmlAnomalyAnnotationsDeep(params.annotations, yaml, normalizedYAML)
+    copyXmlAnomalyExportClaim(yaml, normalizedYAML)
     const defaultItemContext = configurationIndexItemContext({
       context: params.context,
       descriptor: params.descriptor,
@@ -127,6 +162,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       convertProperties: params.convertProperties,
       context: itemContextWithReferenceRemap,
       yaml: normalizedYAML,
+      annotations: params.annotations,
       rule: itemRule,
       name,
       namePropertyKey: params.descriptor.keyField,
@@ -150,6 +186,8 @@ export function convertMetadataCollectionFromYAMLToXML(
     })
     for (const output of itemOutputs) {
       const xml = converted.outputs.get(output.key) ?? {}
+      const exportClaimId = readXmlAnomalyExportClaim(normalizedYAML)
+      if (exportClaimId !== undefined) markXmlAnomalyExportClaim(xml, exportClaimId, true)
       const mapped =
         params.descriptor.mapItemOutput === undefined
           ? xml
@@ -208,7 +246,10 @@ function completeCollectionEntries(params: {
   if (params.descriptor.yamlShape !== "record") return params.entries
   const referenceNames = collectReferenceNames(params)
   const shapeNames = referenceNames
-  const shouldComplete = params.entries.length > 0 || params.materializeCanonicalItems === true
+  const shouldComplete =
+    params.entries.length > 0 ||
+    params.materializeCanonicalItems === true ||
+    params.descriptor.completeItemNames !== undefined
   const ruleNames =
     shouldComplete && params.propertyRule !== undefined && params.source !== undefined
       ? (params.descriptor.completeItemNames?.({ source: params.source, propertyRule: params.propertyRule }) ?? [])
@@ -229,6 +270,22 @@ function completeCollectionEntries(params: {
     ? completedNames
     : [...completedNames, ...referenceNames.filter((name) => !completedNames.includes(name))]
   if (requestedNames.length === 0) return params.entries
+
+  const seenNames = new Set<string>()
+  const containsDuplicates = params.entries.some(({ name }) => {
+    if (name === undefined) return false
+    if (seenNames.has(name)) return true
+    seenNames.add(name)
+    return false
+  })
+  if (containsDuplicates) {
+    return [
+      ...params.entries,
+      ...requestedNames
+        .filter((name) => !seenNames.has(name))
+        .map((name) => ({ name, yaml: {} })),
+    ]
+  }
 
   const byName = new Map(params.entries.map((entry) => [entry.name, entry]))
   const result = requestedNames.map((name) => byName.get(name) ?? { name, yaml: {} })
@@ -260,14 +317,21 @@ function collectReferenceNames(params: {
 
 function collectionEntries(
   yaml: unknown,
+  annotations: XmlAnomalyAnnotations | undefined,
   descriptor: CollectionDescriptor,
   propertyRule: PropertyRule | undefined
 ): { yaml: unknown; name?: string }[] {
+  const rawItems = readXmlAnomalyRawCollectionItems(yaml)
   if (descriptor.yamlShape === "array") {
-    return Array.isArray(yaml) ? yaml.map((item) => ({ yaml: item })) : []
+    const entries = Array.isArray(yaml) ? yaml.map((item) => ({ yaml: item })) : []
+    for (const item of rawItems) entries.splice(item.index, 0, { yaml: item.yaml })
+    return entries
   }
   if (!isRecord(yaml)) return []
-  return Object.entries(yaml).map(([key, value]) => ({
+  const entries = annotations === undefined
+    ? Object.entries(yaml)
+    : xmlAnnotatedMappingEntries(yaml, annotations)
+  const result: { yaml: unknown; name?: string }[] = entries.map(([key, value]) => ({
     yaml: value,
     name:
       (propertyRule === undefined
@@ -276,6 +340,13 @@ function collectionEntries(
       descriptor.nameFromYAMLKey?.(key) ??
       key,
   }))
+  for (const item of rawItems) {
+    result.splice(item.index, 0, {
+      yaml: item.yaml,
+      ...(item.name === undefined ? {} : { name: item.name }),
+    })
+  }
+  return result
 }
 
 function findReferenceItem(params: {

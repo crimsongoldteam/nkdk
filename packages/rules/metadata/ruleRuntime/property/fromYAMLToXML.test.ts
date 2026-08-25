@@ -1,28 +1,21 @@
-import { describe, expect, it } from "vitest"
+import { describe,expect,it } from "vitest"
 
-import { importFromYAML, markYAMLScalarTag, xmlAnomalyTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { createConfigurationIndexCollector,createConfigurationIndexExportRuntime,importFromYAML,parseMetadataYaml } from "@nkdk/runtime"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import "../../commonObjects/i8nText/fromXML"
 import "../../commonObjects/i8nText/fromYAML"
 import "../../commonObjects/i8nText/toXML"
 import "../../commonObjects/usePurposes/fromYAML"
 import "../../commonObjects/usePurposes/toXML"
-import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
-import type { MetadataItemRule, PropertyRule } from "./types"
-import type { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew } from "./fn"
-import { registerTypeRule } from "./typeRuleRegistry"
-import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
-import type { PropertyRuleType } from "./registry"
-import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
-import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { metadataRules } from "../../composition/metadataRules"
-import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
-import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
-import {
-  registeredExplicitXMLTestRule,
-  registeredMissingExplicitXMLTestRule,
-} from "../../../tests/property/explicitXMLPropertyRegistry"
-import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
+import type { ExportToXMLFunctionNew,ImportFromYAMLFunctionNew } from "./fn"
+import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
+import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
+import type { PropertyRuleType } from "./registry"
+import { registerTypeRule } from "./typeRuleRegistry"
+import type { MetadataItemRule,PropertyRule } from "./types"
 
 
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
@@ -122,144 +115,6 @@ describe("convertPropertiesFromYAMLToXML", () => {
         "v8:item": [{ "v8:lang": "ru", "v8:content": "Динамический список" }],
       },
     })
-  })
-
-  it("exports a registered explicit XML scalar without reference", () => {
-    const rule = registeredExplicitXMLTestRule("TestExplicitXMLDefault")
-
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: importFromYAML("Режим: !xml/present"),
-      rule,
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Mode: "Auto" })
-  })
-
-  it("does not materialize a default for a registered missing XML property", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: importFromYAML("Поле: !xml/absent"),
-      rule: registeredMissingExplicitXMLTestRule(),
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({})
-  })
-
-  it("не принимает обычную строку за тег !xml/present", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: importFromYAML('Режим: "!xml/present"'),
-      rule: registeredExplicitXMLTestRule("TestQuotedExplicitXMLDefault"),
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Mode: "!xml/present" })
-  })
-
-  it("передаёт payload зарегистрированного !xml/value штатному типу", () => {
-    const rule = {
-      itemType: "ExplicitXMLScalarProbe",
-      properties: {
-        fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
-      },
-    } as MetadataItemRule
-    registerExplicitXMLProperty({
-      action: "transportScalar",
-      itemType: rule.itemType,
-      propertyKey: "fillValue",
-    })
-
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: importFromYAML("ЗначениеЗаполнения: !xml/value Справочник.Роли.ПустаяСсылка"),
-      rule,
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({
-      FillValue: { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.Роли.EmptyRef" },
-    })
-  })
-
-  it("преобразует payload зарегистрированного !xml/value перед штатным типом", () => {
-    const rule = {
-      itemType: "ExplicitXMLTransformedScalarProbe",
-      properties: {
-        field: { type: "string", yaml: "Поле", xml: "Field" },
-      },
-    } as MetadataItemRule
-    registerExplicitXMLProperty({
-      action: "transportScalar",
-      itemType: rule.itemType,
-      propertyKey: "field",
-      transformPayload: (payload) => `.${payload}`,
-    })
-
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: importFromYAML("Поле: !xml/value Источник.Поле"),
-      rule,
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Field: ".Источник.Поле" })
-  })
-
-  it("не распаковывает !xml/value у незарегистрированной пары", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: importFromYAML("ЗначениеЗаполнения: !xml/value Справочник.Роли.ПустаяСсылка"),
-      rule: {
-        itemType: "UnregisteredExplicitXMLScalarProbe",
-        properties: {
-          fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
-        },
-      } as MetadataItemRule,
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({
-      FillValue: { "_xsi:type": "xs:string", "#text": "!xml/value Справочник.Роли.ПустаяСсылка" },
-    })
-  })
-
-  it("экспортирует незарегистрированный !xml/present как обычный текст", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: importFromYAML("Комментарий: !xml/present"),
-      rule: {
-        itemType: "CommentProbe",
-        properties: { comment: { type: "string", xml: "Comment", yaml: "Комментарий" } },
-      } as MetadataItemRule,
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Comment: "!xml/present" })
-  })
-
-  it("не применяет регистрацию к другому тексту", () => {
-    const rule = {
-      itemType: "TestExplicitXMLWrongValue",
-      properties: { mode: { type: "string", xml: "Mode", yaml: "Режим" } },
-    } as MetadataItemRule
-    registerExplicitXMLProperty({
-      itemType: rule.itemType,
-      propertyKey: "mode",
-      xmlValue: "Auto",
-      yamlValue: "!xml/present",
-    })
-
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: importFromYAML("Режим: !xml/absent"),
-      rule,
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Mode: "!xml/absent" })
   })
 
   it("экспортирует свойства по xmlOrder независимо от reference XML", () => {
@@ -1422,84 +1277,42 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Item: [{ Name: "Первый", Value: "A" }] })
   })
 
-  it("передаёт вычисленное имя одиночного родителя его дочернему элементу", () => {
+  it("переносит nested XML-аннотации на новый mapping normalizeYAML", () => {
     const rules = createRuleRegistrySet(metadataRules)
-    const childRule = testRule({})
-    rules.property.registerTypeRule("EffectiveNameChild" as never, "yamlToXMLNestedRule", {
-      kind: "item",
-      itemRule: childRule,
-      resolveItemName: ({ context }: { context: ConfigurationContextWithExportToXML }) => {
-        const parentName = context.exportToXML.itemsTree.at(-1)?.name
-        return parentName === undefined ? undefined : `${parentName}Ребёнок`
-      },
-      resolveItemContext: ({ context, itemName }: {
-        context: ConfigurationContextWithExportToXML
-        itemName: string | undefined
-      }) => appendTestItemContext(context, "Child", itemName),
-      transformOutput: includeEffectiveTestItemName,
-    } as YAMLToXMLNestedRule)
-    const parentRule = testRule({
-      child: { type: "EffectiveNameChild" as never, yaml: "Дочерний", xml: "Child" },
-    })
-    rules.property.registerTypeRule("EffectiveNameParent" as never, "yamlToXMLNestedRule", {
-      kind: "item",
-      itemRule: parentRule,
-      resolveItemName: resolveExplicitTestItemName,
-      resolveItemContext: ({ context, itemName }: {
-        context: ConfigurationContextWithExportToXML
-        itemName: string | undefined
-      }) => appendTestItemContext(context, "Parent", itemName),
-      transformOutput: includeEffectiveTestItemName,
-    } as YAMLToXMLNestedRule)
-
-    const result = convertPropertiesFromYAMLToXML({
-      execution: rules.execution,
-      context: context(),
-      yaml: importFromYAML([
-        "Родитель:",
-        "  Имя: !xml/name СтарыйРодитель",
-        "  Дочерний: {}",
-      ].join("\n")),
-      rule: testRule({
-        parent: { type: "EffectiveNameParent" as never, yaml: "Родитель", xml: "Parent" },
-      }),
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({
-      Parent: {
-        Name: "СтарыйРодитель",
-        Child: { Name: "СтарыйРодительРебёнок" },
-      },
-    })
-  })
-
-  it("вычисляет имя одиночного элемента после нормализации YAML", () => {
-    const rules = createRuleRegistrySet(metadataRules)
-    rules.property.registerTypeRule("NormalizedEffectiveName" as never, "yamlToXMLNestedRule", {
+    const parsed = parseMetadataYaml([
+      "Родитель:",
+      "  Вложенное:",
+      "    - Значение: !xml/raw",
+      "        $значение: value",
+      "        $xml: { _future: x }",
+    ].join("\n"))
+    let normalized: Record<string, unknown> | undefined
+    rules.property.registerTypeRule("AnnotatedNormalizedItem" as never, "yamlToXMLNestedRule", {
       kind: "item",
       itemRule: testRule({}),
-      normalizeYAML: ({ yaml }: { yaml: unknown }) => {
-        if (typeof yaml !== "string") throw new Error("Ожидался скаляр !xml/name")
-        const normalized = { Имя: yaml }
-        markYAMLScalarTag(normalized, "Имя", "xml/name")
+      normalizeYAML: ({ yaml, annotations }) => {
+        expect(annotations).toBe(parsed.annotations)
+        normalized = structuredClone(yaml as Record<string, unknown>)
         return normalized
       },
-      resolveItemName: resolveExplicitTestItemName,
-      transformOutput: includeEffectiveTestItemName,
     } as YAMLToXMLNestedRule)
 
-    const result = convertPropertiesFromYAMLToXML({
+    convertPropertiesFromYAMLToXML({
       execution: rules.execution,
       context: context(),
-      yaml: importFromYAML("Родитель: !xml/name СтарыйРодитель"),
+      yaml: parsed.data,
+      annotations: parsed.annotations,
       rule: testRule({
-        parent: { type: "NormalizedEffectiveName" as never, yaml: "Родитель", xml: "Parent" },
+        parent: { type: "AnnotatedNormalizedItem" as never, yaml: "Родитель", xml: "Parent" },
       }),
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Parent: { Name: "СтарыйРодитель" } })
+    const nested = normalized?.Вложенное as Array<Record<string, unknown>>
+    expect(parsed.annotations.at(nested[0]!, "Значение")).toMatchObject({
+      kind: "raw",
+      target: "value",
+    })
   })
 
   it("не обходит отсутствующий необязательный вложенный объект", () => {
@@ -1523,41 +1336,6 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 })
-
-function appendTestItemContext(
-  source: ConfigurationContextWithExportToXML,
-  itemType: string,
-  name: string | undefined,
-): ConfigurationContextWithExportToXML {
-  if (name === undefined) return source
-  return {
-    ...source,
-    exportToXML: {
-      ...source.exportToXML,
-      itemsTree: [
-        ...source.exportToXML.itemsTree,
-        { itemType, name, path: `${itemType}.${name}` },
-      ],
-    },
-  }
-}
-
-function resolveExplicitTestItemName({ yaml }: { yaml: unknown }): string | undefined {
-  const record = yaml as Record<string, unknown>
-  const explicitName = record.Имя
-  if (yamlScalarTagAt(record, "Имя") !== "xml/name" || typeof explicitName !== "string") return undefined
-  return xmlAnomalyTagPayload("xml/name", explicitName)
-}
-
-function includeEffectiveTestItemName({
-  xml,
-  itemName,
-}: {
-  xml: Record<string, unknown>
-  itemName: string | undefined
-}): Record<string, unknown> {
-  return { Name: itemName, ...xml }
-}
 
 function synonymRule(): MetadataItemRule {
   return testRule({

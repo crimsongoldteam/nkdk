@@ -28,7 +28,7 @@ function isPositiveInteger(value) {
 function parseArgs(argv) {
   const options = {
     runs: 1,
-    concurrency: 4,
+    concurrency: undefined,
     jsonOnly: false,
     xmlDir: undefined,
     yamlDir: undefined,
@@ -108,7 +108,7 @@ export async function runProfile(options, overrides = {}) {
         xmlDir: options.xmlDir,
         projectDir,
         componentPath: "cf",
-        concurrency: options.concurrency,
+        ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
         allowWrite: true,
       })
       const elapsedMs = Math.round(dependencies.now() - started)
@@ -128,6 +128,7 @@ export async function runProfile(options, overrides = {}) {
         truncated: payload?.truncated,
         report,
         workerPoolSize: workerPoolSize(steps),
+        controlExport: summarizeControlExport(steps),
         phases: summarizeImportSteps(steps, elapsedMs),
       })
 
@@ -151,6 +152,8 @@ export async function runProfile(options, overrides = {}) {
     warmMinMs: warm.length === 0 ? undefined : Math.min(...warm),
     warmMaxMs: warm.length === 0 ? undefined : Math.max(...warm),
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
+    peakHeapMiB: max(allSteps.map((step) => step.heapPeak).filter((value) => value !== undefined)),
+    controlExport: summarizeControlExport(allSteps),
     profileRows: aggregateRows(allSteps.filter(isSummaryProfileStep)),
   }
 }
@@ -243,6 +246,22 @@ export function summarizeImportSteps(steps, elapsedMs) {
     measuredMainMs,
     mcpOverheadMs: Math.max(0, elapsedMs - measuredMainMs),
     responseMs: elapsedMs,
+  }
+}
+
+export function summarizeControlExport(steps) {
+  const itemCount = (substep) => sum(
+    steps.filter((step) => step.substep === substep),
+    "items",
+  )
+  const workers = workerPoolSize(steps)
+  return {
+    direct: itemCount("Контрольный XML без сериализации"),
+    serialized: itemCount("Контрольный XML с сериализацией"),
+    detailedRereads: itemCount("Подробный повторный импорт XML"),
+    assignmentsByWorker: Array.from({ length: workers }, (_unused, worker) =>
+      sum(steps.filter((step) => step.worker === worker && step.substep === "Задания второго прохода"), "items")
+    ),
   }
 }
 
@@ -478,6 +497,7 @@ function toTableRow(name, records) {
   const workers = records.filter((record) => record.scope === "worker")
   const workerTimes = aggregateWorkerValues(workers, "time", "sum")
   const workerRss = aggregateWorkerValues(workers, "rssPeak", "max")
+  const workerHeap = aggregateWorkerValues(workers, "heapPeak", "max")
   const workerBytes = aggregateWorkerValues(workers, "bytes", "max")
   return {
     step: name,
@@ -491,6 +511,10 @@ function toTableRow(name, records) {
     workerRssMinMiB: min(workerRss),
     workerRssAvgMiB: avg(workerRss),
     workerRssMaxMiB: max(workerRss),
+    processHeapMaxMiB: maxValue(main, "heapPeak"),
+    workerHeapMinMiB: min(workerHeap),
+    workerHeapAvgMiB: avg(workerHeap),
+    workerHeapMaxMiB: max(workerHeap),
     bytesMax: max([maxValue(main, "bytes"), max(workerBytes)].filter((value) => value !== undefined)),
   }
 }

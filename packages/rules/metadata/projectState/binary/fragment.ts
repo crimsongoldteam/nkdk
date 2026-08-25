@@ -1,10 +1,12 @@
 import { xxh3 } from "@node-rs/xxhash"
+import type { XmlAnomalyValidationState } from "@nkdk/runtime"
 import type {
   MetadataTargetConstraint,
   ParsedMetadataTarget,
 } from "@nkdk/runtime/rule-kit"
 import { PROJECT_STATE_FORMAT_VERSION } from "./format"
 import { encodeMetadataTargetConstraint } from "./constraintCodec"
+import { encodeXmlAnomalyState } from "./xmlAnomalyStateCodec"
 import {
   assertProjectStateFactSection,
   openProjectStateFactCatalog,
@@ -220,7 +222,7 @@ interface ProjectStatePendingReference {
   readonly canonical: string
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
-  readonly tagged?: "xml"
+  readonly xmlAnomaly?: XmlAnomalyValidationState
   readonly propertyStateMode?: "control" | "notify" | "extend"
 }
 
@@ -231,7 +233,7 @@ type ProjectStatePendingCheck =
       readonly location: { readonly line: number; readonly col: number; readonly path?: string }
       readonly owner: OwnerTypeRef
       readonly value: string
-      readonly tagged: boolean
+      readonly xmlAnomaly?: XmlAnomalyValidationState
       readonly policyInput: {
         readonly yaml: string
         readonly allowedKinds?: readonly string[]
@@ -248,7 +250,7 @@ type ProjectStatePendingCheck =
       readonly itemType: string
       readonly type: unknown
       readonly value: unknown
-      readonly tagged: boolean
+      readonly xmlAnomaly?: XmlAnomalyValidationState
       readonly transport?: "DesignTimeRef"
     }
   | {
@@ -610,12 +612,13 @@ export function createProjectStateFragmentWriter(options: {
       check: ProjectStatePendingCheck,
       kind: "addressableRequired" | "fillValue" | "referenceCoverage",
       payload: object,
+      version = 1,
     ): void => {
       rows.pendingChecks.push({
         sourceFileId: fileId,
         yamlPathId: appendYamlPath(check.yamlPath),
         kindId: strings.intern(kind),
-        payloadId: strings.intern(JSON.stringify({ version: 1, ...payload })),
+        payloadId: strings.intern(JSON.stringify({ version, ...payload })),
         line: check.location.line,
         col: check.location.col,
         pathId: optionalString(check.location.path),
@@ -640,13 +643,13 @@ export function createProjectStateFragmentWriter(options: {
         continue
       }
       if (check.kind === "fillValue") {
-        appendPayloadPendingCheck(check, "fillValue", {
-          itemType: check.itemType,
-          type: check.type,
-          value: check.value,
-          tagged: check.tagged,
-          ...(check.transport === undefined ? {} : { transport: check.transport }),
-        })
+        const {
+          kind: _kind,
+          yamlPath: _yamlPath,
+          location: _location,
+          ...payload
+        } = check
+        appendPayloadPendingCheck(check, "fillValue", payload, 2)
         continue
       }
       if (check.kind === "referenceCoverage") {
@@ -676,7 +679,7 @@ export function createProjectStateFragmentWriter(options: {
         tableContextId: optionalString(check.tableContext?.dataPath),
         allowComposite: booleanFlag(check.policyInput.allowComposite),
         hasValuesPicture: booleanFlag(check.hasValuesPicture),
-        reserved: check.tagged ? 1 : 0,
+        reserved: encodeXmlAnomalyState(check.xmlAnomaly),
       })
     }
     for (const dependency of update.dependencies) {
@@ -692,12 +695,12 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function encodePendingReferenceFlags(reference: ProjectStatePendingReference): number {
-    const tagged = reference.tagged === "xml" ? 1 : 0
-    const mode = reference.propertyStateMode === "control" ? 2
-      : reference.propertyStateMode === "notify" ? 4
-        : reference.propertyStateMode === "extend" ? 6
+    const anomaly = encodeXmlAnomalyState(reference.xmlAnomaly)
+    const mode = reference.propertyStateMode === "control" ? 4
+      : reference.propertyStateMode === "notify" ? 8
+        : reference.propertyStateMode === "extend" ? 12
           : 0
-    return tagged | mode
+    return anomaly | mode
   }
 
   function appendOwnerFact(ownerId: number, role: string, value: unknown): void {
