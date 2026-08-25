@@ -49,6 +49,94 @@ describe("XML anomaly proof", () => {
     )
   })
 
+  it("принимает отсутствие осмысленно исключённого поддерева в контрольном XML", async () => {
+    const source = "<Root><Value><Known>value</Known></Value><Sibling/></Root>"
+    const { document, boundaries } = elidedValueProof(source)
+
+    const result = await proveCapturedBoundaries({
+      data: {},
+      document,
+      boundaries,
+      exported: "<Root><Sibling/></Root>",
+      source,
+    })
+
+    expect(boundaries).toContainEqual(expect.objectContaining({
+      xmlPath: "/Root[1]/Value[1]",
+      auditState: "semanticallyElided",
+    }))
+    expect(result.data).toEqual({})
+    expect(result.annotations.entries).toEqual([])
+    expect(result.rereadSourcePaths).toEqual([])
+  })
+
+  it("не принимает другое значение вместо осмысленно исключённого поддерева", async () => {
+    const source = "<Root><Value><Known>value</Known></Value></Root>"
+    const { document, boundaries } = elidedValueProof(source)
+
+    const result = await proveCapturedBoundaries({
+      data: {},
+      document,
+      boundaries,
+      exported: "<Root><Value><Known>other</Known></Value></Root>",
+      source,
+    })
+
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      key: "Значение",
+      annotation: expect.objectContaining({ kind: "raw" }),
+    }))
+  })
+
+  it("сравнивает структурно заявленное XML-only поддерево одной полной целью", async () => {
+    const source = '<Root><RowFilter nil="true"><Future code="x"/></RowFilter></Root>'
+    const document = parseXmlDocumentWithSaxes(source)
+    const rowFilter = nestedElement(document.roots[0]!, ["RowFilter"])
+    const audit = createXmlImportAuditSession(document.roots)
+    const boundary = {
+      itemType: "Owner",
+      propertyKey: "rowFilter",
+      yamlPath: ["ОтборСтрок"],
+      rulePath: [{ propertyKey: "rowFilter" }],
+    }
+    audit.claim(rowFilter, boundary)
+    expect(audit.claimStructuralSubtree(rowFilter, boundary)).toBe(true)
+    const boundaries = deriveXmlAnomalyProofBoundaries({
+      sources: [{ sourcePath, role: "metadata", document }],
+      audit,
+      rule: rowFilterRule(),
+    })
+    const [proofBoundary] = boundaries
+
+    expect(proofBoundary).toMatchObject({
+      xmlPath: rowFilter.path,
+      auditState: "structurallyClaimed",
+      targetPaths: [rowFilter.path],
+      capturedTargets: [{ path: rowFilter.path, signature: rowFilter.structuralHash }],
+    })
+    const exact = await proveCapturedBoundaries({
+      data: {},
+      document,
+      boundaries,
+      exported: source,
+      source,
+    })
+    expect(exact.annotations.entries).toEqual([])
+
+    const changed = await proveCapturedBoundaries({
+      data: {},
+      document,
+      boundaries,
+      exported: '<Root><RowFilter nil="true"><Future code="y"/></RowFilter></Root>',
+      source,
+    })
+    expect(changed.annotations.entries).toContainEqual(expect.objectContaining({
+      key: "ОтборСтрок",
+      annotation: expect.objectContaining({ kind: "raw" }),
+    }))
+    expect(changed.annotations.entries).not.toContainEqual(expect.objectContaining({ key: "@" }))
+  })
+
   it("объединяет вложенные PropertyRule одной YAML-границы до общего XML-элемента", () => {
     const document = parseXmlDocumentWithSaxes("<Root><Type><Qualifier>value</Qualifier></Type></Root>")
     const root = document.roots[0]!
@@ -1324,6 +1412,48 @@ function deriveClaimedValueBoundary(
     audit,
     rule,
   })
+}
+
+function singleValueRule(): MetadataItemRule {
+  return {
+    itemType: "Owner",
+    properties: {
+      value: { type: "string", xml: "Value", yaml: "Значение" },
+    },
+  } as MetadataItemRule
+}
+
+function elidedValueProof(source: string) {
+  const document = parseXmlDocumentWithSaxes(source)
+  const value = nestedElement(document.roots[0]!, ["Value"])
+  const audit = createXmlImportAuditSession(document.roots)
+  const boundary = {
+    itemType: "Owner",
+    propertyKey: "value",
+    yamlPath: ["Значение"],
+    rulePath: [{ propertyKey: "value" }],
+  }
+  for (const outcome of audit.outcomes()) {
+    if (outcome.node.path.startsWith(value.path)) audit.claim(outcome.node, boundary)
+  }
+  expect(audit.elideSubtree(value, boundary)).toBe(true)
+  return {
+    document,
+    boundaries: deriveXmlAnomalyProofBoundaries({
+      sources: [{ sourcePath, role: "metadata", document }],
+      audit,
+      rule: singleValueRule(),
+    }),
+  }
+}
+
+function rowFilterRule(): MetadataItemRule {
+  return {
+    itemType: "Owner",
+    properties: {
+      rowFilter: { type: "string", xml: "RowFilter", yaml: "ОтборСтрок", fromXML: false },
+    },
+  } as MetadataItemRule
 }
 
 function spyOnFormChildItemsResolver() {

@@ -57,6 +57,7 @@ export interface XmlAnomalyProofBoundary {
   readonly yamlPath: readonly (string | number)[]
   readonly rulePath: readonly string[]
   readonly presentInSource: boolean
+  readonly auditState?: "semanticallyElided" | "structurallyClaimed"
   readonly targetPaths?: readonly string[]
   readonly levels?: readonly XmlAnomalyProofLevel[]
   readonly capturedTargets?: readonly {
@@ -147,6 +148,7 @@ export function deriveXmlAnomalyProofPlan(
   const grouped = new Map<string, {
     readonly boundary: NonNullable<ReturnType<XmlImportAuditSession["outcomes"]>[number]["boundaries"][number]>
     readonly source: XmlAnomalyProofSource
+    readonly auditStates: Set<XmlAnomalyProofBoundary["auditState"]>
     readonly elementPaths: string[]
     readonly targetPaths: string[]
     readonly capturedTargets: {
@@ -160,7 +162,13 @@ export function deriveXmlAnomalyProofPlan(
   params.audit.forEachOutcome((outcome) => outcomes.push(outcome))
   let shallowElements: ReadonlySet<string> | undefined
   for (const outcome of outcomes) {
-    if (outcome.state !== "claimed" && outcome.state !== "duplicate" && outcome.state !== "ambiguous") continue
+    if (
+      outcome.state !== "claimed" &&
+      outcome.state !== "semanticallyElided" &&
+      outcome.state !== "structurallyClaimed" &&
+      outcome.state !== "duplicate" &&
+      outcome.state !== "ambiguous"
+    ) continue
     const source = nodeSource.get(outcome.node)
     if (source === undefined) continue
     const elementPath = owningElementPath(outcome.node)
@@ -183,36 +191,39 @@ export function deriveXmlAnomalyProofPlan(
     }
     for (const boundary of proofBoundariesForOutcome(outcome)) {
       if (boundary.yamlPath === undefined || boundary.yamlPath.length === 0) continue
-      shallowElements ??= elementsWithIndependentDescendants(outcomes, nodeSource)
       // Одна YAML-граница может собираться несколькими вложенными правилами.
       // Для proof это один кандидат raw, поэтому XML-цели объединяются по
       // итоговому YAML-пути, а не по частному PropertyRule.
       const key = JSON.stringify([source.sourcePath, boundary.yamlPath])
+      const auditState = proofAuditState(outcome.state)
+      const signature = outcome.state === "structurallyClaimed"
+        ? auditedNodeSignature(outcome.node, false)
+        : auditedNodeSignature(
+            outcome.node,
+            (shallowElements ??= elementsWithIndependentDescendants(outcomes, nodeSource))
+              .has(auditedNodeKey(source.sourcePath, outcome.node.path)),
+          )
       const current = grouped.get(key)
       if (current === undefined) {
         grouped.set(key, {
           boundary,
           source,
+          auditStates: new Set([auditState]),
           elementPaths: [elementPath],
           targetPaths: [outcome.node.path],
           capturedTargets: [{
             path: outcome.node.path,
-            signature: auditedNodeSignature(
-              outcome.node,
-              shallowElements.has(auditedNodeKey(source.sourcePath, outcome.node.path)),
-            ),
+            signature,
             span: { ...outcome.node.span },
           }],
         })
       } else {
+        current.auditStates.add(auditState)
         current.elementPaths.push(elementPath)
         current.targetPaths.push(outcome.node.path)
         current.capturedTargets.push({
           path: outcome.node.path,
-          signature: auditedNodeSignature(
-            outcome.node,
-            shallowElements.has(auditedNodeKey(source.sourcePath, outcome.node.path)),
-          ),
+          signature,
           span: { ...outcome.node.span },
         })
       }
@@ -224,6 +235,7 @@ export function deriveXmlAnomalyProofPlan(
   const boundaries: XmlAnomalyProofBoundary[] = [...grouped.values()].map(({
     boundary,
     source,
+    auditStates,
     elementPaths,
     targetPaths,
     capturedTargets,
@@ -264,6 +276,9 @@ export function deriveXmlAnomalyProofPlan(
       yamlPath,
       rulePath: effectiveRulePath,
       presentInSource: true,
+      ...(auditStates.size !== 1 || auditStates.has(undefined)
+        ? {}
+        : { auditState: [...auditStates][0] }),
       targetPaths: [...new Set(targetPaths)],
       capturedTargets: [...new Map(capturedTargets.map((target) => [target.path, target])).values()],
       levels,
@@ -762,6 +777,13 @@ function proofBoundariesForOutcome(
   return boundaries.filter(({ yamlPath }) => yamlPath!.length === maxDepth)
 }
 
+function proofAuditState(
+  state: XmlImportAuditOutcome["state"],
+): XmlAnomalyProofBoundary["auditState"] {
+  if (state === "semanticallyElided" || state === "structurallyClaimed") return state
+  return undefined
+}
+
 export function captureXmlAnomalyProofAudit(params: {
   readonly sources: readonly XmlAnomalyProofSource[]
   readonly boundaries: readonly XmlAnomalyProofBoundary[]
@@ -934,11 +956,13 @@ export async function proveXmlAnomalyBoundaries(params: {
   for (const boundary of boundaries) {
     const exported = singleExportedDocument(params.exported, boundary)
     if (exported === undefined) continue
+    const exportedNodes = exportedElements.get(exported)
     const exact = boundary.presentInSource
-      ? isCapturedProofBoundary(boundary) && boundary.targets.length > 0 && boundary.targets.every((target) =>
-          targetSignature(exportedElements.get(exported)?.get(target.path), target.signature) === target.signature
-        )
-      : exportedElements.get(exported)?.get(boundary.xmlPath) === undefined
+      ? isSemanticallyElidedAbsence(boundary, exportedNodes)
+        || (isCapturedProofBoundary(boundary) && boundary.targets.length > 0 && boundary.targets.every((target) =>
+          targetSignature(exportedNodes?.get(target.path), target.signature) === target.signature
+        ))
+      : exportedNodes?.get(boundary.xmlPath) === undefined
     if (exact || hasRawAtOrAbovePath(annotationSnapshot, boundary.yamlPath)) continue
 
     if (!boundary.presentInSource) {
@@ -1059,6 +1083,7 @@ export async function proveXmlAnomalyBoundaries(params: {
     }
     const boundariesByContainerPath = new Map<string, XmlAnomalyProofBoundary[]>()
     for (const boundary of sourceBoundaries) {
+      if (isSemanticallyElidedAbsence(boundary, exportedNodes)) continue
       for (const { xmlPath } of boundary.levels ?? []) {
         const related = boundariesByContainerPath.get(xmlPath)
         if (related === undefined) boundariesByContainerPath.set(xmlPath, [boundary])
@@ -1113,6 +1138,14 @@ function isCapturedProofBoundary(
   boundary: XmlAnomalyProofBoundary,
 ): boundary is XmlAnomalyProofAudit["boundaries"][number] {
   return "targets" in boundary && Array.isArray(boundary.targets) && Array.isArray(boundary.levels)
+}
+
+function isSemanticallyElidedAbsence(
+  boundary: XmlAnomalyProofBoundary,
+  exportedNodes: ReadonlyMap<string, XmlImportAuditedNode> | undefined,
+): boolean {
+  return boundary.auditState === "semanticallyElided"
+    && exportedNodes?.get(boundary.xmlPath) === undefined
 }
 
 function exportedDocumentForSource(
