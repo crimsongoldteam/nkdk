@@ -281,6 +281,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "minimalMetadata.xml")
     const importSpy = vi.spyOn(propertyImporter, "importPropertiesFromXMLToYAML")
+    importSpy.mockClear()
 
     importClientApplicationFormFromXMLToYAML({
       context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
@@ -309,6 +310,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     const audit = createXmlImportAuditSession([formRoot, metadataRoot])
     const annotations = createXmlAnomalyAnnotations()
     const importSpy = vi.spyOn(propertyImporter, "importPropertiesFromXMLToYAML")
+    importSpy.mockClear()
 
     importStructuredForm(formDocument, metadataDocument, audit, annotations)
 
@@ -320,6 +322,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       audit,
       annotations,
     }))
+    importSpy.mockRestore()
   })
 
   it("сохраняет адресное владение свойствами реквизита формы", () => {

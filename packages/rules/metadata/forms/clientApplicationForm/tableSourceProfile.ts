@@ -44,7 +44,7 @@ function classifyUnresolvedPath(dataPath: string, index: TableSourceIndex): Tabl
   const direct = classifyDirectRoot(dataPath, index)
   if (direct !== "none") return direct
   const rootName = dataPath.split(".", 1)[0]!
-  if (rootName !== dataPath && classifyDirectRoot(rootName, index) !== "none") return "none"
+  if (rootName !== dataPath && classifyDirectRoot(rootName, index) === "dynamicList") return "none"
   return "rowFilter"
 }
 

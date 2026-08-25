@@ -74,4 +74,29 @@ describe("explicit RowFilter", () => {
       index: { getRoot: () => undefined },
     })).toBe("rowFilter")
   })
+
+  it.each(["ValueTable", "TabularSection", "RegisterRecordSet"])(
+    "считает неразрешённый путь внутри известного %s профилем RowFilter",
+    (kind) => {
+      expect(classifyTableSource({
+        dataPath: "Таблица.НеизвестнаяКолонка",
+        index: {
+          getRoot: (name) => name === "Таблица" ? { typeInfo: { table: { kind } } } : undefined,
+        },
+        resolve: () => ({ status: "warning" }),
+      })).toBe("rowFilter")
+    },
+  )
+
+  it("не создаёт RowFilter для неразрешённого пути внутри известного DynamicList", () => {
+    expect(classifyTableSource({
+      dataPath: "Список.НеизвестнаяКолонка",
+      index: {
+        getRoot: (name) => name === "Список"
+          ? { typeInfo: { table: { kind: "DynamicList" } } }
+          : undefined,
+      },
+      resolve: () => ({ status: "warning" }),
+    })).toBe("none")
+  })
 })
