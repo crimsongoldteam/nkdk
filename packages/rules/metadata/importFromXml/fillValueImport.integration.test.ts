@@ -149,14 +149,23 @@ function copiedCatalogCodeFixture(value = "--", length = 3): string {
   const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-code-import-"))
   tempDirs.push(dir)
   const sourcePath = join(dir, "СправочникПолный.xml")
-  let xml = fs.readFileSync(fixture, "utf8")
-    .replace("<CodeLength>11</CodeLength>", `<CodeLength>${length}</CodeLength>`)
-    .replace("\n\t\t\t<CodeType>Number</CodeType>", "")
-  const codeStart = xml.indexOf('<xr:StandardAttribute name="Code">')
-  const fillStart = xml.indexOf('<xr:FillValue xsi:nil="true"/>', codeStart)
-  if (codeStart === -1 || fillStart === -1) throw new Error("Не найден стандартный реквизит Code")
-  const emptyFill = '<xr:FillValue xsi:nil="true"/>'
-  xml = `${xml.slice(0, fillStart)}<xr:FillValue xsi:type="xs:string">${value}</xr:FillValue>${xml.slice(fillStart + emptyFill.length)}`
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses"
+  xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Catalog uuid="f8ffca12-d09d-4111-ba91-67077462df5b">
+    <Properties>
+      <Name>СправочникПолный</Name>
+      <CodeLength>${length}</CodeLength>
+      <StandardAttributes>
+        <xr:StandardAttribute name="Code">
+          <xr:FillValue xsi:type="xs:string">${value}</xr:FillValue>
+        </xr:StandardAttribute>
+      </StandardAttributes>
+    </Properties>
+  </Catalog>
+</MetaDataObject>`
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
 }
