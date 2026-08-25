@@ -254,6 +254,16 @@ describe("prepareImportYaml", () => {
     expect(substeps).toContain("XML в YAML: обход XML")
     expect(substeps).not.toContain("XML в YAML: определение порядка свойств")
     expect(substeps).not.toContain("XML в YAML: выбор свойств")
+    expect(prepared.proofAudit.fallbackBoundaries).toContainEqual(expect.objectContaining({
+      sourceRole: "property",
+      xmlPath: "/Form[1]",
+      yamlPath: ["Форма"],
+    }))
+    expect(prepared.proofAudit.boundaries).not.toContainEqual(expect.objectContaining({
+      sourceRole: "property",
+      xmlPath: "/Form[1]",
+      yamlPath: ["Форма"],
+    }))
     expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства.Элемент.КонстантаВсеСвойства",
       xmlId: "1",

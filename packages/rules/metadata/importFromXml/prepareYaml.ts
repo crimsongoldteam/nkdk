@@ -294,11 +294,15 @@ export async function prepareImportYaml(params: {
             data: result.yaml,
             includePlannedAbsences: false,
           })
-          const boundaries = proofPlan.boundaries
-          appendExternalPropertyRootBoundaries(boundaries, rule, xmlInputs)
+          const fallbackBoundaries = externalPropertyRootBoundaries(
+            proofPlan.boundaries,
+            rule,
+            xmlInputs,
+          )
           return captureXmlAnomalyProofAudit({
             sources: proofSources,
-            boundaries,
+            boundaries: proofPlan.boundaries,
+            fallbackBoundaries,
             itemAnchors: proofPlan.itemAnchors,
           })
         })()
@@ -530,11 +534,12 @@ function mapPropertyXml(rule: MetadataItemRule, inputs: readonly ParsedImportXml
   return result
 }
 
-function appendExternalPropertyRootBoundaries(
-  boundaries: XmlAnomalyProofBoundary[],
+function externalPropertyRootBoundaries(
+  boundaries: readonly XmlAnomalyProofBoundary[],
   rule: MetadataItemRule,
   inputs: readonly ParsedImportXmlInput[],
-): void {
+): XmlAnomalyProofBoundary[] {
+  const result: XmlAnomalyProofBoundary[] = []
   for (const [propertyKey, propertyRule] of Object.entries(rule.properties) as Array<[string, PropertyRule]>) {
     if (propertyRule.filePath === undefined || typeof propertyRule.yaml !== "string") continue
     const normalizedFilePath = propertyRule.filePath.replaceAll("\\", "/")
@@ -551,7 +556,7 @@ function appendExternalPropertyRootBoundaries(
       throw new Error(`Внешнее XML-свойство ${propertyKey} должно содержать один корень`)
     }
     const root = document.roots[0]!
-    boundaries.push({
+    result.push({
       sourcePath: input.input.sourcePath,
       sourceRole: input.input.role,
       xmlPath: root.path,
@@ -561,6 +566,7 @@ function appendExternalPropertyRootBoundaries(
       targetPaths: [root.path],
     })
   }
+  return result
 }
 
 function normalizedPath(path: string): string {

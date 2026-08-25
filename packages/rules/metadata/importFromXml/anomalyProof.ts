@@ -72,6 +72,15 @@ export interface XmlAnomalyProofSource {
   readonly document: XmlDocument
 }
 
+export type XmlAnomalyProofAuditBoundary = XmlAnomalyProofBoundary & {
+  readonly targets: readonly {
+    readonly path: string
+    readonly signature: bigint | string
+    readonly span: XmlSourceSpan
+  }[]
+  readonly levels: readonly XmlAnomalyProofLevel[]
+}
+
 export interface XmlAnomalyProofAudit {
   readonly sources: readonly {
     readonly sourcePath: string
@@ -83,14 +92,8 @@ export interface XmlAnomalyProofAudit {
       readonly span: XmlSourceSpan
     }[]
   }[]
-  readonly boundaries: readonly (XmlAnomalyProofBoundary & {
-    readonly targets: readonly {
-      readonly path: string
-      readonly signature: bigint | string
-      readonly span: XmlSourceSpan
-    }[]
-    readonly levels: readonly XmlAnomalyProofLevel[]
-  })[]
+  readonly boundaries: readonly XmlAnomalyProofAuditBoundary[]
+  readonly fallbackBoundaries?: readonly XmlAnomalyProofAuditBoundary[]
   readonly itemAnchors?: readonly XmlAnomalyItemAnchor[]
 }
 
@@ -790,16 +793,18 @@ function proofAuditState(
 export function captureXmlAnomalyProofAudit(params: {
   readonly sources: readonly XmlAnomalyProofSource[]
   readonly boundaries: readonly XmlAnomalyProofBoundary[]
+  readonly fallbackBoundaries?: readonly XmlAnomalyProofBoundary[]
   readonly itemAnchors?: readonly XmlAnomalyItemAnchor[]
 }): XmlAnomalyProofAudit {
   const sourceByPath = new Map(params.sources.map((source) => [source.sourcePath, source] as const))
-  const needsIndex = params.boundaries.some((boundary) =>
+  const allBoundaries = [...params.boundaries, ...(params.fallbackBoundaries ?? [])]
+  const needsIndex = allBoundaries.some((boundary) =>
     boundary.presentInSource && (boundary.levels === undefined || boundary.capturedTargets === undefined)
   )
   const indexesBySourcePath = needsIndex
     ? new Map(params.sources.map((source) => [source.sourcePath, indexXmlDocument(source.document.roots)] as const))
     : new Map<string, ReturnType<typeof indexXmlDocument>>()
-  const boundaries = params.boundaries.map((boundary) => {
+  const captureBoundary = (boundary: XmlAnomalyProofBoundary): XmlAnomalyProofAuditBoundary => {
     const { capturedTargets, ...publicBoundary } = boundary
     const source = sourceByPath.get(boundary.sourcePath)
     if (source === undefined) throw new Error(`Не найден XML-source для proof: ${boundary.sourcePath}`)
@@ -856,7 +861,9 @@ export function captureXmlAnomalyProofAudit(params: {
       return { path, signature: nodeSignature(target), span: { ...target.span } }
     })
     return { ...publicBoundary, targets, levels }
-  })
+  }
+  const boundaries = params.boundaries.map(captureBoundary)
+  const fallbackBoundaries = (params.fallbackBoundaries ?? []).map(captureBoundary)
   return {
     sources: params.sources.map(({ sourcePath, role, document }) => ({
       sourcePath,
@@ -869,6 +876,7 @@ export function captureXmlAnomalyProofAudit(params: {
       })),
     })),
     boundaries,
+    ...(fallbackBoundaries.length === 0 ? {} : { fallbackBoundaries }),
     itemAnchors: (params.itemAnchors ?? []).map((anchor) => ({
       ...anchor,
       yamlPath: [...anchor.yamlPath],
