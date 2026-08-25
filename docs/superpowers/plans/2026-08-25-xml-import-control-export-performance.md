@@ -360,46 +360,47 @@
 - Consumes: `PreparedImportStore`, `decodePreparedImportRecord`, четыре projectState read tokens.
 - Produces: `runSecondPass` обрабатывает общий список locator по убыванию `weight`; конкретный assignment больше не обязан вернуться в worker первого прохода.
 
-- [ ] **Step 1: Зафиксировать перенос задания между worker**
+- [x] **Step 1: Зафиксировать перенос задания между worker**
 
   В `workerPool.integration.test.ts` worker 0 должен создать prepared record, а второй проход — обработать её worker 1. Проверить успешный результат и отсутствие `preparedYaml` в долговременном состоянии обоих worker.
 
-- [ ] **Step 2: Зафиксировать динамическую балансировку**
+- [x] **Step 2: Зафиксировать динамическую балансировку**
 
   Создать веса `[100, 90, 10, 10]` и два управляемых worker. После завершения задания 100 свободный worker должен получить следующее задание 10, не ожидая worker с заданием 90. Проверить порядок команд `[100, 90, 10, 10]` с выдачей следующего задания первому освободившемуся worker.
 
-- [ ] **Step 3: Зафиксировать атомарность**
+- [x] **Step 3: Зафиксировать атомарность**
 
   Если worker падает после чтения, но до публикации результата, запись не удаляется, import session abort очищает её вместе со всем временным хранилищем, а YAML на диск не записывается.
 
-- [ ] **Step 4: Подтвердить падение**
+- [x] **Step 4: Подтвердить падение**
 
   Run: `pnpm --filter @nkdk/rules exec vitest run --project integration metadata/importFromXml/workerPool.integration.test.ts metadata/importFromXml/worker.integration.test.ts metadata/importFromXml/importConfiguration.integration.test.ts`
 
   Expected: FAIL, потому что assignment закреплён за worker первого прохода.
 
-- [ ] **Step 5: Перевести первый проход на prepared store**
+- [x] **Step 5: Перевести первый проход на prepared store**
 
   После подготовки задания кодировать запись Task 3, записывать её через Task 4 и освобождать `yaml`, annotations и proof audit в worker. В памяти оставлять только locator и бинарные фрагменты рабочего индекса.
 
-- [ ] **Step 6: Реализовать диспетчер очереди**
+- [x] **Step 6: Реализовать диспетчер очереди**
 
   В `workerPool.ts` отсортировать locator по `weight` убыванию, запустить по одному command на каждый из четырёх worker и после завершения немедленно выдавать этому worker следующий locator. Размер command — один locator; пакет результата сразу передаётся stateQueue и освобождается.
 
-- [ ] **Step 7: Восстанавливать задание в любом worker**
+- [x] **Step 7: Восстанавливать задание в любом worker**
 
   Worker читает bytes, проверяет checksum, разбирает внутренние YAML основного
   файла и кандидата базовой формы, восстанавливает annotations, находит оба
   rules по `ruleItemType`, связывает deferred paths, восстанавливает
   `formDataPathIndex`, `validationFile`, `ownerContext` и `dependentOwner` и
-  только затем вызывает существующий `prepareYamlForFinalPass`. После успешной
-  записи второго состояния вызывает `release(assignmentId)`.
+  только затем вызывает существующий `prepareYamlForFinalPass`. Запись остаётся
+  доступной до третьего прохода и удаляется через `release(assignmentId)` только
+  после успешной записи окончательного YAML.
 
-- [ ] **Step 8: Установить штатные четыре worker**
+- [x] **Step 8: Установить штатные четыре worker**
 
   В round-trip skill и профильных командах использовать `concurrency: 4`. Пользовательский параметр MCP продолжает иметь приоритет; значения меньше четырёх разрешены и сохраняют корректность, но не входят в целевой профиль.
 
-- [ ] **Step 9: Проверить функциональность и память worker**
+- [x] **Step 9: Проверить функциональность и память worker**
 
   Run: `pnpm --filter @nkdk/rules test:native`
 
@@ -411,7 +412,7 @@
 
   Expected: PASS; тест состояния worker подтверждает отсутствие удерживаемых YAML/proof записей после каждого задания.
 
-- [ ] **Step 10: Зафиксировать слой**
+- [x] **Step 10: Зафиксировать слой**
 
   Commit: `perf: :zap: распределять контрольный импорт динамически`
 
@@ -432,7 +433,7 @@
 - Consumes: профиль фаз `firstPassMs`, `secondPassMs`, `responseMs`, `peakRssMiB`.
 - Produces: профиль отдельно показывает `directControlExports`, `serializedControlExports`, `detailedRereads` и распределение заданий между worker.
 
-- [ ] **Step 1: Добавить профильные счётчики**
+- [x] **Step 1: Добавить профильные счётчики**
 
   В итоговый JSON добавить:
 
@@ -447,29 +448,37 @@
 
   Счётчики агрегируются в существующем профилировщике и не добавляют подробную строку на каждое из 9937 заданий.
 
-- [ ] **Step 2: Проверить профильный формат**
+- [x] **Step 2: Проверить профильный формат**
 
   Run: `node --test .agents/skills/import-profile/import-profile.test.mjs .agents/skills/round-trip-yaml/round-trip.test.mjs`
 
   Expected: PASS; по умолчанию обе команды передают четыре worker.
 
-- [ ] **Step 3: Выполнить профиль `cf/doc`**
+- [x] **Step 3: Выполнить профиль `cf/doc`**
 
   Run: `node .agents/skills/import-profile/import-profile.mjs /Users/nikita/git/round-trip-compact/cf/doc /private/tmp/nkdk-import-profile-doc-fast --runs 1 --concurrency 4 --json`
 
   Expected: `responseMs <= 120000`, `peakRssMiB <= 3276.8`, `succeeded = 9937`, `errors = 0`; сумма direct и serialized равна числу контрольных экспортов, detailed rereads не превышает serialized/mismatched cases.
 
-- [ ] **Step 4: Если профиль не достиг цели, остановиться на измеренной причине**
+- [x] **Step 4: Если профиль не достиг цели, остановиться на измеренной причине**
 
   Не ослаблять контроль и не повышать память выше 3,2 ГиБ. По агрегированным строкам назвать один доминирующий этап и добавить отдельную согласованную задачу; не объединять несколько предположительных оптимизаций.
 
-- [ ] **Step 5: Выполнить полный round-trip `cf/doc`**
+- [x] **Step 5: Выполнить полный round-trip `cf/doc`**
 
   Run: `env NKDK_XML_REPO=/Users/nikita/git/round-trip-compact NKDK_XML_DIR=/Users/nikita/git/round-trip-compact/cf/doc ./.agents/skills/round-trip-yaml/round-trip.sh`
 
   Expected: `Round-trip чистый: диффов нет`.
 
-- [ ] **Step 6: Выполнить обязательные проверки проекта**
+Фактический профиль 25 августа 2026 года: `succeeded = 9937`, `errors = 0`,
+`responseMs = 221155`, `peakRssMiB = 2813.4`. Все 9937 контрольных
+документов построены прямым структурным путём, сериализованный путь не
+использовался. Для 1813 несовпадений выполнен подробный повторный импорт.
+Второй проход занял 140522 мс, из них контрольный экспорт — 109553 мс;
+это единственная измеренная причина недостижения цели 120 секунд. Полный
+round-trip завершился без XML-расхождений.
+
+- [x] **Step 6: Выполнить обязательные проверки проекта**
 
   Run: `pnpm type-check`
 
@@ -483,10 +492,16 @@
 
   Expected: PASS; XML-фикстуры и dependency-cruiser baseline не изменены.
 
-- [ ] **Step 7: Сверить результат со спецификацией**
+- [x] **Step 7: Сверить результат со спецификацией**
 
   Проверить обязательность контрольного экспорта, точность direct/fallback структур, отсутствие удержания YAML между заданиями, атомарность prepared store, лимиты времени и памяти. Фактические значения профиля записать в этот план и в раздел производительности спецификации.
 
-- [ ] **Step 8: Зафиксировать окончательную проверку**
+  Сверка подтверждает обязательный контроль каждого задания, точность прямого
+  и запасного путей, отсутствие долговременного YAML в worker, удаление записи
+  только после окончательного YAML и успешный чистый round-trip. Лимит памяти
+  выполнен. Лимит времени не выполнен; измеренная причина зафиксирована выше и
+  не скрыта ослаблением контроля.
 
-  Commit: `perf: :zap: ускорить контрольный XML-импорт`
+- [x] **Step 8: Зафиксировать окончательную проверку**
+
+  Commit: `perf: :zap: проверить контрольный XML-импорт`

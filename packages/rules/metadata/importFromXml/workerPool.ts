@@ -99,7 +99,7 @@ export interface XmlImportStateBatch {
   readonly configurationFragment?: ConfigurationIndexBlockFragment
   readonly configurationFragmentBuffer?: ArrayBuffer
   readonly stateFragment?: ProjectStateFragment
-  readonly preparedRecords?: readonly import("./binaryResult").PreparedImportBinaryRecord[]
+  readonly preparedRecords?: readonly import("./types").PreparedImportBinaryRecord[]
 }
 
 export interface XmlImportStateSink {

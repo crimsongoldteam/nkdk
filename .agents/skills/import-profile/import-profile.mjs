@@ -128,6 +128,7 @@ export async function runProfile(options, overrides = {}) {
         truncated: payload?.truncated,
         report,
         workerPoolSize: workerPoolSize(steps),
+        controlExport: summarizeControlExport(steps),
         phases: summarizeImportSteps(steps, elapsedMs),
       })
 
@@ -152,6 +153,7 @@ export async function runProfile(options, overrides = {}) {
     warmMaxMs: warm.length === 0 ? undefined : Math.max(...warm),
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
     peakHeapMiB: max(allSteps.map((step) => step.heapPeak).filter((value) => value !== undefined)),
+    controlExport: summarizeControlExport(allSteps),
     profileRows: aggregateRows(allSteps.filter(isSummaryProfileStep)),
   }
 }
@@ -244,6 +246,22 @@ export function summarizeImportSteps(steps, elapsedMs) {
     measuredMainMs,
     mcpOverheadMs: Math.max(0, elapsedMs - measuredMainMs),
     responseMs: elapsedMs,
+  }
+}
+
+export function summarizeControlExport(steps) {
+  const itemCount = (substep) => sum(
+    steps.filter((step) => step.substep === substep),
+    "items",
+  )
+  const workers = workerPoolSize(steps)
+  return {
+    direct: itemCount("Контрольный XML без сериализации"),
+    serialized: itemCount("Контрольный XML с сериализацией"),
+    detailedRereads: itemCount("Подробный повторный импорт XML"),
+    assignmentsByWorker: Array.from({ length: workers }, (_unused, worker) =>
+      sum(steps.filter((step) => step.worker === worker && step.substep === "Задания второго прохода"), "items")
+    ),
   }
 }
 

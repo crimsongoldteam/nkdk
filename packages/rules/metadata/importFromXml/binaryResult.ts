@@ -26,7 +26,7 @@ import {
   PROJECT_STATE_FRAGMENT_BUFFER_NAMES,
   projectStateFragmentFromNamedBuffers,
 } from "../workerPool/projectStateBuffers"
-import type { ImportDiagnostic, ImportResultFile } from "./types"
+import type { ImportDiagnostic, ImportResultFile, PreparedImportBinaryRecord } from "./types"
 import type { MetadataDiagnostic } from "../validation/types"
 import type { PreparedImportRecordLocator } from "../projectState/preparedImportStore"
 
@@ -46,11 +46,6 @@ export interface ImportBinaryBatchView {
   readonly configurationFragmentBuffer?: ArrayBuffer
   readonly stateFragment?: ProjectStateFragment
   readonly preparedRecords: readonly PreparedImportBinaryRecord[]
-}
-
-export interface PreparedImportBinaryRecord {
-  readonly locator: PreparedImportRecordLocator
-  readonly bytes: Uint8Array
 }
 
 export function createImportBinaryResult(params: {

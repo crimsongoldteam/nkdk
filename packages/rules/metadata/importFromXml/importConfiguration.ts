@@ -729,5 +729,5 @@ function normalizeConcurrency(value: number | undefined): number {
     }
     return value
   }
-  return Math.max(1, Math.min(2, availableParallelism() - 1))
+  return Math.max(1, Math.min(4, availableParallelism()))
 }

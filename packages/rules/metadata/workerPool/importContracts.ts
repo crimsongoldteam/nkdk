@@ -1,11 +1,21 @@
-import type { ValidationIssueTarget, XmlImportConfigurationContext } from "@nkdk/runtime"
+import type {
+  ConfigurationIndexBlockFragment,
+  ConfigurationIndexStoreDescriptor,
+  ValidationIssueTarget,
+  XmlImportConfigurationContext,
+} from "@nkdk/runtime"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
-import type { ConfigurationIndexBlockFragment } from "@nkdk/runtime"
 import type { MetadataWorkerBinaryResult } from "./binaryResult"
-import type { PreparedImportBinaryRecord } from "../importFromXml/binaryResult"
-import type { ConfigurationIndexStoreDescriptor } from "@nkdk/runtime"
-import type { PreparedImportStoreDescriptor } from "../projectState/preparedImportStore"
+import type {
+  PreparedImportRecordLocator,
+  PreparedImportStoreDescriptor,
+} from "../projectState/preparedImportStore"
+
+export interface PreparedImportBinaryRecord {
+  readonly locator: PreparedImportRecordLocator
+  readonly bytes: Uint8Array
+}
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 export type ExternalFileTransfer = "copy" | "move"

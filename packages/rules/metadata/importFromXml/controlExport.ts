@@ -53,6 +53,10 @@ export async function executeImportControlExport(params: {
     readonly audit: XmlAnomalyProofAudit
   }>
   readonly ordinaryExporter?: typeof prepareFullXmlSyncAssignment
+  readonly profile?: (event: {
+    readonly mode: "direct" | "serialized"
+    readonly detailedRereads: number
+  }) => void
 }): Promise<ProveXmlAnomalyBoundariesResult> {
   if (params.annotations.root?.kind === "raw") {
     return {
@@ -107,6 +111,10 @@ export async function executeImportControlExport(params: {
     }
   })
   if (controlExportMatchesSourceRoots(params.audit, preliminaryExported)) {
+    params.profile?.({
+      mode: controlExportMode(preliminaryExported),
+      detailedRereads: 0,
+    })
     return {
       data: prepared.semanticYamlFile.data,
       annotations: snapshotXmlAnomalyAnnotations(
@@ -147,7 +155,17 @@ export async function executeImportControlExport(params: {
     exported,
     readSource: params.readSource,
   })
+  params.profile?.({
+    mode: controlExportMode(preliminaryExported),
+    detailedRereads: detailed === undefined ? 0 : 1,
+  })
   return result
+}
+
+function controlExportMode(
+  exported: readonly { readonly control: { readonly mode: "direct" | "serialized" } }[],
+): "direct" | "serialized" {
+  return exported.every(({ control }) => control.mode === "direct") ? "direct" : "serialized"
 }
 
 function retainUnownedDetailedRaw(params: {

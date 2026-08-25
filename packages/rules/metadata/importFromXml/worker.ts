@@ -79,7 +79,7 @@ import {
   type WritableSerializedImportYaml,
 } from "./writeOutput"
 import { createImportBinaryResult } from "./binaryResult"
-import type { PreparedImportBinaryRecord } from "./binaryResult"
+import type { PreparedImportBinaryRecord } from "./types"
 import type { MetadataWorkerOperationRegistry } from "../workerPool/operationRegistry"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { projectClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormProjection"
@@ -428,6 +428,10 @@ async function processSecondPass(
   controlExport: typeof executeImportControlExport,
 ): Promise<void> {
   const profiler = accumulator.profiler
+  profiler.record("Подготовка импорта конфигурации", "Задания второго прохода", {
+    items: 1,
+    timeMs: 0,
+  })
   const secondPass = activeSecondPass
   if (secondPass === undefined) throw new Error("Второй проход XML-import worker не начат")
   if (secondPass.preparedStore === undefined && !assignedImports.has(assignmentId)) {
@@ -874,6 +878,21 @@ async function prepareYamlForFinalPass(
       index: configurationIndex,
       composition: activeSecondPass?.composition ?? { children: () => [] },
       readSource: async (sourcePath) => readFile(sourcePath, "utf8"),
+      profile(event) {
+        profiler.record(
+          "Подготовка импорта конфигурации",
+          event.mode === "direct"
+            ? "Контрольный XML без сериализации"
+            : "Контрольный XML с сериализацией",
+          { items: 1, timeMs: 0 },
+        )
+        if (event.detailedRereads > 0) {
+          profiler.record("Подготовка импорта конфигурации", "Подробный повторный импорт XML", {
+            items: event.detailedRereads,
+            timeMs: 0,
+          })
+        }
+      },
       loadDetailedImport: async () => {
         const detailed = await prepareImportYaml({
           assignment: prepared.assignment,
