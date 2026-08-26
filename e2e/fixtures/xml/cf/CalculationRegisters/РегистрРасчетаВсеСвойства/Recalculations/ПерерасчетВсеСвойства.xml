@@ -57,7 +57,7 @@
 					<RegisterDimension>CalculationRegister.РегистрРасчетаВсеСвойства.Dimension.ИзмерениеПоУмолчанию</RegisterDimension>
 					<LeadingRegisterData>
 						<xr:Item xsi:type="xr:MDObjectRef">CalculationRegister.РегистрРасчетаВсеСвойства.Dimension.ИзмерениеПоУмолчанию</xr:Item>
-						<xr:Item xsi:type="xr:MDObjectRef">CalculationRegister.РегистрРасчетаВедущий.Dimension.ИзмерениеСтрока</xr:Item>
+						<xr:Item xsi:type="xr:MDObjectRef">CalculationRegister.РегистрРасчетаВедущий.Dimension.ИзмерениеПараметрыВыбора</xr:Item>
 					</LeadingRegisterData>
 				</Properties>
 			</Dimension>
