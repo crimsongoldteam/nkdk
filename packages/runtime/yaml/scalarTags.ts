@@ -1,9 +1,13 @@
 import { JSON_SCHEMA, defineMappingTag, defineScalarTag, defineSequenceTag, load } from "js-yaml"
-export type YAMLScalarTag = "проверять" | "изменять"
 export type YAMLScalarTagKey = string | number
 
 export const PROPERTY_STATE_YAML_TAGS = ["проверять", "изменять"] as const
+export const XML_REPRESENTATION_YAML_TAGS = ["xml/string"] as const
 export const XML_ANNOTATION_TAGS = ["raw", "invalid", "important"] as const
+
+export type PropertyStateYAMLTag = (typeof PROPERTY_STATE_YAML_TAGS)[number]
+export type XMLRepresentationYAMLTag = (typeof XML_REPRESENTATION_YAML_TAGS)[number]
+export type YAMLScalarTag = PropertyStateYAMLTag | XMLRepresentationYAMLTag
 
 const propertyStateTagAliases = {
   проверять: "nkdkcheck",
@@ -83,6 +87,24 @@ const propertyStateTags = PROPERTY_STATE_YAML_TAGS.map((tag) =>
   })
 )
 
+const xmlRepresentationTags = XML_REPRESENTATION_YAML_TAGS.map((tag) =>
+  defineScalarTag(`!${tag}`, {
+    resolve(value) {
+      return taggedYAMLScalar(tag, value)
+    },
+    identify(value) {
+      return isTaggedYAMLScalar(value) && value.tag === tag
+    },
+    represent(value) {
+      const payload = (value as TaggedYAMLScalar).value
+      if (typeof payload !== "string") {
+        throw new TypeError("Тег !xml/string поддерживает только строковое значение")
+      }
+      return payload
+    },
+  })
+)
+
 const xmlAnnotationTags = XML_ANNOTATION_TAGS.flatMap((tag) => [
   defineScalarTag(`!xml/${tag}`, {
     resolve(value) {
@@ -146,6 +168,10 @@ function isEmptyMapping(value: unknown): value is Record<string, never> {
   return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0
 }
 
+export function isPropertyStateYAMLTag(tag: unknown): tag is PropertyStateYAMLTag {
+  return tag === "проверять" || tag === "изменять"
+}
+
 export function prepareYAMLScalarTagsForParser(text: string): string {
   return replacePropertyStateTags(text, (tag) => `!${propertyStateTagAliases[tag]}`)
 }
@@ -172,4 +198,5 @@ function replacePropertyStateTags(
 export const NKDK_YAML_SCHEMA = JSON_SCHEMA.withTags(
   xmlAnnotationTags,
   propertyStateTags,
+  xmlRepresentationTags,
 )

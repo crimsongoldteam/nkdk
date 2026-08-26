@@ -2,6 +2,7 @@ import { dump, type Document, type Node } from "js-yaml"
 import { isExplicitYAMLString, markDoubleQuotedScalar, unwrapExplicitYAMLString } from "./explicitString"
 import {
   copyYAMLScalarTags,
+  isPropertyStateYAMLTag,
   NKDK_YAML_SCHEMA,
   restoreYAMLScalarTagsAfterDump,
   taggedScalarForDump,
@@ -177,10 +178,6 @@ function prepareXmlPatchForDump(value: unknown, explicitStrings: Map<string, str
   return Object.fromEntries(
     Object.entries(value).map(([key, item]) => [key, prepareXmlPatchForDump(item, explicitStrings)]),
   )
-}
-
-function isPropertyStateTag(tag: unknown): tag is "проверять" | "изменять" {
-  return tag === "проверять" || tag === "изменять"
 }
 
 function explicitStringMarker(value: string, explicitStrings: Map<string, string>): string {
@@ -363,7 +360,7 @@ function applyYAMLMappingKeyTagsToNode(
     if (item.key.kind !== "scalar") continue
     const key = item.key.value
     const propertyState = yamlScalarTagAt(source, key)
-    if (isPropertyStateTag(propertyState) && annotations.at(source, key) !== undefined) {
+    if (isPropertyStateYAMLTag(propertyState) && annotations.at(source, key) !== undefined) {
       item.key.tag = propertyState === "проверять" ? "!nkdkcheck" : "!nkdkextx"
       item.key.style.tagged = true
     }
