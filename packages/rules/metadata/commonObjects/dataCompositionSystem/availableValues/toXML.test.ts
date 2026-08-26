@@ -7,7 +7,7 @@ import "../index"
 const rule = { type: "DcsAvailableValues", xml: "dcssch:availableValue" } as const
 
 describe("export DcsAvailableValues to XML", () => {
-  it("exports string values and presentations", () => {
+  it("exports ordinary presentations as LocalStringType", () => {
     const result = callAtomicToXML({
       context: mockContextToXML(),
       rule,
