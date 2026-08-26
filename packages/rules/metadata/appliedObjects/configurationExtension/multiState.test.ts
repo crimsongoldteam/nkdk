@@ -1,7 +1,7 @@
 import { markYAMLScalarTag,yamlScalarTagAt } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
 import { mockContext,mockContextFromXML } from "../../../tests/mockContext"
-import { exportMultiStateType,importMultiStateType } from "./multiState"
+import { exportMultiStateType,importMultiStateType,isMultiStateTypeYAML } from "./multiState"
 
 describe("configuration extension MultiState type", () => {
   it("imports CheckValue and ExtendValue without losing their modes", () => {
@@ -108,6 +108,13 @@ describe("configuration extension MultiState type", () => {
       "xs:boolean",
       "xs:string",
     ])
+  })
+
+  it("не считает !xml/string признаком MultiState", () => {
+    const yaml: unknown[] = ["Строка"]
+    markYAMLScalarTag(yaml, 0, "xml/string")
+
+    expect(isMultiStateTypeYAML(yaml)).toBe(false)
   })
 })
 

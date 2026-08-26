@@ -373,17 +373,21 @@ export function validateProjectStateReferenceBatchResult(params: {
         if (!resolved.ok) problems = resolved.diagnostics
       }
     } else {
-      if (result.status === "missing" && basePresenceByRequestId.get(check.requestId)?.status === "found") {
-        problems = referenceNotIncludedInExtensionResult(check.reference).diagnostics
-      } else if (result.status === "missing" && check.reference.target.kind === "value") {
+      if (result.status === "missing" && check.reference.target.kind === "value") {
         const valueResult = valueResultByRequestId.get(check.requestId)
-        if (valueResult?.status === "invalid") {
+        if (valueResult?.status === "found") {
+          problems = []
+        } else if (valueResult?.status === "invalid") {
           problems = valueResult.diagnostics
         } else if (valueResult?.status === "ambiguous") {
           problems = unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics
-        } else if (valueResult?.status !== "found") {
+        } else if (basePresenceByRequestId.get(check.requestId)?.status === "found") {
+          problems = referenceNotIncludedInExtensionResult(check.reference).diagnostics
+        } else {
           problems = unresolvedReferenceDiagnostics(params.projectDir, check, result.status)
         }
+      } else if (result.status === "missing" && basePresenceByRequestId.get(check.requestId)?.status === "found") {
+        problems = referenceNotIncludedInExtensionResult(check.reference).diagnostics
       } else {
         problems = unresolvedReferenceDiagnostics(params.projectDir, check, result.status)
       }

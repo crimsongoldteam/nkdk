@@ -31,6 +31,7 @@ import {
 } from "../forms/clientApplicationForm/fromYAMLToXML"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
+import { MetadataCommonFormRules } from "../appliedObjects/metadataCommonForm/rules"
 import { configurationExtensionYamlToXmlAugmenter } from "../appliedObjects/configurationExtension/exportPropertyStates"
 import {
   createPropertyStateCapabilityRegistry,
@@ -605,6 +606,85 @@ describe("единое восстановление XML-аномалий assignm
     const xml = exportFormWithAnomalies(tableRowFilterYaml())
     expect(xml).toContain('<RowFilter xsi:nil="true"')
     expect(xml).not.toContain("<ОтборСтрок")
+  })
+
+  it("привязывает raw внутри внешнего XML-свойства к Rules и фактическому item", () => {
+    const prepared = prepareAnomalies([
+      "Форма:",
+      "  Реквизиты:",
+      "    Первый:",
+      "      Тип: СписокЗначений",
+      '      "@Form\\\\ТипЗначения": !xml/raw',
+      "        $xml: null",
+      "    Второй:",
+      "      Тип: СписокЗначений",
+      '      "@Form\\\\ТипЗначения": !xml/raw',
+      "        $xml: null",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, MetadataCommonFormRules, anomalyRegistries)
+
+    expect(prepared.rawBoundaries).toHaveLength(2)
+    expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: "Settings",
+        documentPath: "Ext/Form.xml",
+        exportClaimId: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: "Settings",
+        documentPath: "Ext/Form.xml",
+        exportClaimId: expect.any(String),
+      }),
+    ]))
+    expect(new Set(prepared.rawBoundaries.map(({ exportClaimId }) => exportClaimId)).size).toBe(2)
+  })
+
+  it("сохраняет относительный XML-путь raw внутри вложенных объектов external item", () => {
+    const prepared = prepareAnomalies([
+      "Форма:",
+      "  Реквизиты:",
+      "    Список:",
+      "      Тип: ДинамическийСписок",
+      "      ДинамическийСписок:",
+      "        Отбор:",
+      "          ПредставлениеПользовательскойНастройки: !xml/raw",
+      "            $значение: Отбор",
+      "            $xml: { _xsi:type: 'xs:string', '#text': Отбор }",
+      "        Порядок:",
+      "          ПредставлениеПользовательскойНастройки: !xml/raw",
+      "            $значение: Порядок",
+      "            $xml: { _xsi:type: 'xs:string', '#text': Порядок }",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, MetadataCommonFormRules, anomalyRegistries)
+
+    expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: "Settings\\ListSettings\\dcsset:filter\\dcsset:userSettingPresentation",
+        documentPath: "Ext/Form.xml",
+        exportClaimId: expect.any(String),
+      }),
+      expect.objectContaining({
+        path: "Settings\\ListSettings\\dcsset:order\\dcsset:userSettingPresentation",
+        documentPath: "Ext/Form.xml",
+        exportClaimId: expect.any(String),
+      }),
+    ]))
+  })
+
+  it("привязывает поправку корня collection item к самому экспортированному элементу", () => {
+    const prepared = prepareAnomalies([
+      "Форма:",
+      "  Элементы:",
+      "    Метка:",
+      "      Вид: Надпись",
+      '      "@Form\\\\LabelDecoration": !xml/raw',
+      "        $xml:",
+      "          '#order': [MaxWidth, Title, ContextMenu, ExtendedTooltip]",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, MetadataCommonFormRules, anomalyRegistries)
+
+    expect(prepared.rawBoundaries).toContainEqual(expect.objectContaining({
+      path: "$item",
+      documentPath: "Ext/Form.xml",
+      exportClaimId: expect.any(String),
+    }))
   })
 
   it("вставляет локальный raw в каноническую позицию xmlOrder без публичного #order", () => {

@@ -4,7 +4,10 @@ import { dirname, join } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { mockContextFromXML, mockLanguages } from "../../../tests/mockContext"
 import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
-import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
+import {
+  createImportProjectStateTestService,
+  createXmlImportWorkerTestPool,
+} from "../../../tests/xmlImportWorkerTestPool"
 import {
   createImportCoordinatorDependencies,
   importConfigurationFromXml,
@@ -16,9 +19,10 @@ import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 
 const temporaryDirectories: string[] = []
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
+const projectState = createImportProjectStateTestService()
 
 afterAll(async () => {
-  await xmlImportWorkerPoolHandle.close()
+  await Promise.all([xmlImportWorkerPoolHandle.close(), projectState.close()])
   await Promise.all(
     temporaryDirectories.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true, force: true }))
   )
@@ -62,6 +66,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
         projectDir,
         concurrency: 1,
         xmlImportWorkerPoolHandle,
+        projectState,
       },
       {
         ...createImportCoordinatorDependencies(resolveXmlImportComponent),

@@ -19,6 +19,7 @@ it("isolates every data path contribution between rule sets", () => {
     { kind: "standardAttributeType", resolver: () => ({ kinds: ["scalar"], nextTypes: [], sourceText: marker }) },
     { kind: "virtualOwnerField", resolver: () => ({ name: marker, typeInfo: { kinds: [], nextTypes: [], sourceText: marker } }) },
     { kind: "tableColumn", resolver: () => ({ name: marker, typeInfo: { kinds: [], nextTypes: [], sourceText: marker } }) },
+    { kind: "ownerKindTraversalTransition", resolver: () => ({ sourceName: marker, typeInfo: { kinds: [], nextTypes: [], sourceText: marker } }) },
     { kind: "traversalTransition", resolver: () => ({ sourceName: marker, typeInfo: { kinds: [], nextTypes: [], sourceText: marker } }) },
     { kind: "opaqueTraversal", resolver: () => true },
     { kind: "registerRecordsItem", resolver: () => ({ owner: owner.ref, typeInfo: { kinds: [], nextTypes: [], sourceText: marker }, tableSource: { table, columns: new Map(), hasColumns: true } }) },
@@ -40,6 +41,8 @@ it("isolates every data path contribution between rule sets", () => {
   expect(first.resolveStandardAttributeType({ owner, internalName: "x", yamlName: "x" })?.sourceText).toBe("first")
   expect(first.resolveVirtualOwnerField({ owner, segment: "x" })?.name).toBe("first")
   expect(first.resolveTableColumn({ table, segment: "x", index })?.name).toBe("first")
+  const ownerTransition = first.resolveOwnerKindTraversalTransition({ owner: owner.ref, segment: "x" })
+  expect(ownerTransition?.kind === "warning" ? undefined : ownerTransition?.typeInfo.sourceText).toBe("first")
   const transition = first.resolveTraversalTransition({
     owner,
     segment: "x",

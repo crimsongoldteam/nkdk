@@ -108,4 +108,21 @@ describe("configuration extension PropertyState facts", () => {
       borrowed: false,
     })).toThrow("Режимы PropertyState допустимы только для заимствованного объекта")
   })
+
+  it("does not treat !xml/string as an explicit PropertyState mode", () => {
+    const parsed = parseMetadataYaml("Заголовок: !xml/string Новый\n")
+
+    const documents = collectConfigurationExtensionPropertyStateDocuments({
+      yaml: parsed.data as Record<string, unknown>, rule, capability,
+      logicalAddress: "Example.Один", workingProjectPath: "Пример/Один/Свойства.yaml",
+    })
+
+    expect(JSON.parse(documents[0]!.payload!)).toEqual({
+      version: 1,
+      itemType: "MetadataExample",
+      propertyKey: "title",
+      mode: "control",
+      value: "Новый",
+    })
+  })
 })

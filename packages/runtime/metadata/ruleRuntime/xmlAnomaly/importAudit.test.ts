@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { parseXmlDocumentWithSaxes } from "../../../xml/import/saxesParser"
+import type { XmlElementNode } from "../../../xml/import/document"
 import {
   createXmlImportAuditSession,
   type XmlImportAuditBoundary,
@@ -12,6 +13,20 @@ const boundary: XmlImportAuditBoundary = {
   propertyType: "string",
   yamlPath: ["Значение"],
   rulePath: [{ propertyKey: "value" }],
+}
+
+function expectAtomicSubtreeState(
+  session: ReturnType<typeof createXmlImportAuditSession>,
+  root: XmlElementNode,
+  state: "semanticallyElided" | "externallyPersisted",
+): void {
+  const outcomes = session.outcomes()
+  expect(outcomes.map(({ state: actual }) => actual))
+    .toEqual(Array(outcomes.length).fill(state))
+  expect(outcomes.find(({ node }) => node === root)?.boundaries).toEqual([boundary])
+  expect(outcomes.filter(({ node }) => node !== root).every(({ boundaries }) =>
+    boundaries.length === 0
+  )).toBe(true)
 }
 
 describe("XmlImportAuditSession", () => {
@@ -108,6 +123,30 @@ describe("XmlImportAuditSession", () => {
     ])
   })
 
+  it("закрепляет общий XML-узел за единственным выбранным свойством", () => {
+    const root = parseXmlDocumentWithSaxes(
+      '<Settings xsi:type="pl:Planner"><Known/><Nested/></Settings>',
+    ).roots[0]!
+    const [known, nested] = root.content.filter((node) => node.type === "element")
+    const attribute = root.attributes[0]!
+    const dynamicList = { ...boundary, propertyKey: "dynamicList", yamlPath: ["ДинамическийСписок"] }
+    const planner = { ...boundary, propertyKey: "planner", yamlPath: ["Планировщик"] }
+    const nestedBoundary = { ...planner, propertyKey: "nested", yamlPath: ["Планировщик", "Вложенное"] }
+    const session = createXmlImportAuditSession([root])
+    session.ambiguous(root, [dynamicList, planner])
+    session.claim(attribute, dynamicList)
+    session.claim(attribute, planner)
+    session.claim(known!, planner)
+    session.claim(nested!, nestedBoundary)
+
+    session.selectPropertyBoundary(root, planner)
+
+    expect(session.getOutcome(root)).toMatchObject({ state: "claimed", boundaries: [planner] })
+    expect(session.getOutcome(attribute)).toMatchObject({ state: "claimed", boundaries: [planner] })
+    expect(session.getOutcome(known!)).toMatchObject({ state: "claimed", boundaries: [planner] })
+    expect(session.getOutcome(nested!)).toMatchObject({ state: "claimed", boundaries: [nestedBoundary] })
+  })
+
   it("меняет YAML-префикс только в указанном XML-поддереве", () => {
     const root = parseXmlDocumentWithSaxes("<Root><Value/></Root>").roots[0]!
     const unrelated = parseXmlDocumentWithSaxes("<Other><Value/></Other>").roots[0]!
@@ -140,18 +179,25 @@ describe("XmlImportAuditSession", () => {
 
     expect(session.elideSubtree(root, boundary)).toBe(true)
     const outcomes = session.outcomes()
-    expect(outcomes.map(({ state }) => state))
-      .toEqual(Array(outcomes.length).fill("semanticallyElided"))
-    expect(outcomes.find(({ node }) => node === root)?.boundaries).toEqual([boundary])
-    expect(outcomes.filter(({ node }) => node !== root).every(({ boundaries }) =>
-      boundaries.length === 0
-    )).toBe(true)
+    expectAtomicSubtreeState(session, root, "semanticallyElided")
     expect(outcomes.reduce((sum, { boundaries }) => sum + boundaries.length, 0)).toBe(1)
 
     session.rekeyYamlPath([], ["Владелец"])
 
     expect(session.outcomes().find(({ node }) => node === root)?.boundaries[0]?.yamlPath)
       .toEqual(["Владелец", "Значение"])
+  })
+
+  it("атомарно отмечает полностью заявленное поддерево как сохранённое во внешнем файле", () => {
+    const root = parseXmlDocumentWithSaxes(
+      '<QueryText language="query">select 1</QueryText>',
+    ).roots[0]!
+    const session = createXmlImportAuditSession([root])
+    for (const { node } of session.outcomes()) session.claim(node, boundary)
+
+    expect(session.persistExternalSubtree(root, boundary)).toBe(true)
+
+    expectAtomicSubtreeState(session, root, "externallyPersisted")
   })
 
   it("не меняет состояния, если в исключаемом поддереве остался неизвестный узел", () => {

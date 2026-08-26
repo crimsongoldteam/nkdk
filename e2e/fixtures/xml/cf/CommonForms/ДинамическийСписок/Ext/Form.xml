@@ -604,12 +604,26 @@
 									<dcscor:value xsi:type="xs:string">6678</dcscor:value>
 								</dcscor:item>
 							</dcsset:appearance>
+							<dcsset:presentation xsi:type="v8:LocalStringType">
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Представление</v8:content>
+								</v8:item>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Представление на английском</v8:content>
+								</v8:item>
+							</dcsset:presentation>
 						</dcsset:item>
 						<dcsset:userSettingID>b75fecce-942b-4aed-abc9-e6a02e460fb3</dcsset:userSettingID>
 						<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>ru</v8:lang>
 								<v8:content>Представление условного оформления</v8:content>
+							</v8:item>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Представление условного оформления на английском</v8:content>
 							</v8:item>
 						</dcsset:userSettingPresentation>
 					</dcsset:conditionalAppearance>

@@ -8,6 +8,7 @@ const unitDependencyGuard = resolve(__dirname, "../../scripts/vitest/forbid-unit
 export default defineConfig({
   test: {
     environment: "node",
+    maxWorkers: 1,
     setupFiles: [unitDependencyGuard],
     watch: false,
   },

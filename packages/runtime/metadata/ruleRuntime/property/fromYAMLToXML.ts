@@ -42,6 +42,8 @@ import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import { readXmlAnomalyRawCollectionItems } from "../xmlAnomaly/exportClaim"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
+import { yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { assertYAMLScalarTagAllowed } from "./yamlScalarTagPolicy"
 
 export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
   readonly execution?: PropertyRuleExecution
@@ -727,6 +729,13 @@ function callAtomicFromXML(params: {
 
 export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const { context, rule, value, referenceValue, yaml, name, owner } = params
+  const scalarTag = typeof rule.yaml === "string"
+    ? yamlScalarTagAt(yaml, rule.yaml)
+    : undefined
+  const scalarTagPolicy = params.execution === undefined
+    ? getTypeRule(rule.type, "yamlScalarTagPolicy")
+    : params.execution.getTypeRule(rule.type, "yamlScalarTagPolicy")
+  assertYAMLScalarTagAllowed({ tag: scalarTag, policy: scalarTagPolicy })
   const handler = params.handler ?? (params.execution === undefined
     ? getTypeRule(rule.type, "importFromYAML")
     : params.execution.getTypeRule(rule.type, "importFromYAML"))

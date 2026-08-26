@@ -9,7 +9,7 @@ const valueRule = {
   type: "MetadataDcsMetadataValue",
   valueType: "Primitive",
 } as const satisfies DcsMetadataValuePropertyRule
-const presentationRule = { type: "DcsLocalStringType" } as const
+const presentationRule = { type: "DcsLocalStringType", yaml: "Представление" } as const
 
 export const importDcsAvailableValuesFromYAML = (
   context: ConfigurationContext,
@@ -27,6 +27,7 @@ export const importDcsAvailableValuesFromYAML = (
     const presentation = callAtomicFromYAML({
       context,
       rule: presentationRule,
+      yaml: item,
       value: item.Представление,
     }) as DcsAvailableValue["presentation"]
 

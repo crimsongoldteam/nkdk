@@ -1,6 +1,6 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import * as SE from "../../systemEnumerations/types"
-import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { claimCanonicalXmlImportAttribute, ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   ChoiceParameterLink,
   ChoiceParameterLinkDcsItemXML,
@@ -29,6 +29,11 @@ const optionalMode = (mode: ChoiceParameterLinkDcsItemXML["dcscor:mode"]): SE.Li
   if (typeof mode === "string") {
     return mode as SE.LinkedValueChangeMode
   }
+  claimCanonicalXmlImportAttribute({
+    value: mode,
+    name: "xsi:type",
+    expectedValue: "ent:LinkedValueChangeMode",
+  })
   return mode["#text"] as SE.LinkedValueChangeMode | undefined
 }
 

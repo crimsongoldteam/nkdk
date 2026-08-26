@@ -96,6 +96,7 @@ export function createMockFullSyncDependencies(
               kind: address.kind,
               componentKind: address.kind,
               adoptedUuids: {},
+              xmlDefaultVariantByLogicalAddress: {},
               ...(base === undefined
                 ? {}
                 : {

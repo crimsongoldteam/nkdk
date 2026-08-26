@@ -6,6 +6,7 @@ import {
   parseXmlDocumentWithSaxes,
   type XmlAnomalyAnnotationTable,
   type XmlDocument,
+  type XmlElementNode,
   type XmlRootStructure,
 } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
@@ -182,35 +183,16 @@ export async function prepareImportYaml(params: {
           profile: importProfile,
           rule,
         })
-        const baseFormXML = (bodyXML?.["Form"] as ClientApplicationFormXML | undefined)?.BaseForm
-        const companion = baseFormXML === undefined
-          ? undefined
-          : resolveBaseFormCompanion(params.assignment, params.topology)
-        if (baseFormXML === undefined || companion === undefined) {
-          return { ...imported, dependentDeferred: [] }
-        }
-        const baseForm = importBaseFormYaml({
+        const baseFormCandidate = importAssignmentBaseFormCandidate({
+          assignment: params.assignment,
+          topology: params.topology,
+          inputs: xmlInputs ?? [],
           context: importContext,
-          baseFormXML,
-          formName: params.assignment.itemName,
-          rule: companion.rule,
         })
         return {
           ...imported,
           dependentDeferred: [],
-          baseFormCandidate: {
-            baseProjectPath: params.assignment.targetProjectPath,
-            targetProjectPath: companion.targetProjectPath,
-            owner: {
-              dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
-              name: params.assignment.owner?.name ?? params.assignment.itemName,
-            },
-            yaml: baseForm.yaml,
-            rule: companion.rule,
-            localIndexes: baseForm.localIndexes,
-            deferred: bindDeferredObjectValues(baseForm.yaml, baseForm.deferred),
-            configurationFragment: baseForm.configurationIndexCollector.fragment(companion.targetProjectPath),
-          },
+          ...(baseFormCandidate === undefined ? {} : { baseFormCandidate }),
         }
       }
 
@@ -219,6 +201,7 @@ export async function prepareImportYaml(params: {
       const dependent = createImportedDependentPropertyCollector()
       const metadataXML = requireMetadataXml(xmlInputs ?? [])
       const metadataNode = requireMetadataXmlNode(xmlInputs ?? [])
+      const externalPropertyXml = mapExternalPropertyXmlInputs(rule, xmlInputs ?? [])
       const yaml = importMetadataItemFromXMLToYAML({
         context: importContext,
         rule,
@@ -235,7 +218,8 @@ export async function prepareImportYaml(params: {
           ...(metadataNode === undefined ? {} : { xmlNodes: [metadataNode] }),
           profile: importProfile,
         },
-        propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
+        propertyXML: externalPropertyXml.compatibilityByPropertyKey,
+        propertyXMLNodes: externalPropertyXml.nodesByPropertyKey,
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
       const partitioned = partitionImportedDependentItems({
@@ -255,12 +239,19 @@ export async function prepareImportYaml(params: {
       const localIndexes = collector.finish()
       const formDataPathIndex = createImportedFormDataPathIndex({ yaml, rule })
       if (formDataPathIndex !== undefined) localIndexes.metadata.formDataPathIndex = formDataPathIndex
+      const baseFormCandidate = importAssignmentBaseFormCandidate({
+        assignment: params.assignment,
+        topology: params.topology,
+        inputs: xmlInputs ?? [],
+        context: importContext,
+      })
       return {
         yaml,
         localIndexes,
         deferred: deferred.finish(),
         dependentDeferred: partitioned.deferred,
         generatedFiles,
+        ...(baseFormCandidate === undefined ? {} : { baseFormCandidate }),
       }
     })
     recordDirectImportProfile(params.profiler, importProfile)
@@ -294,11 +285,15 @@ export async function prepareImportYaml(params: {
             data: result.yaml,
             includePlannedAbsences: false,
           })
-          const boundaries = proofPlan.boundaries
-          appendExternalPropertyRootBoundaries(boundaries, rule, xmlInputs)
+          const fallbackBoundaries = externalPropertyRootBoundaries(
+            proofPlan.boundaries,
+            rule,
+            xmlInputs,
+          )
           return captureXmlAnomalyProofAudit({
             sources: proofSources,
-            boundaries,
+            boundaries: proofPlan.boundaries,
+            fallbackBoundaries,
             itemAnchors: proofPlan.itemAnchors,
           })
         })()
@@ -324,6 +319,38 @@ export async function prepareImportYaml(params: {
     }
   } finally {
     xmlInputs = undefined
+  }
+}
+
+function importAssignmentBaseFormCandidate(params: {
+  readonly assignment: ImportAssignment
+  readonly topology?: CompiledMetadataResourceTopology
+  readonly inputs: readonly ParsedImportXmlInput[]
+  readonly context: XmlImportConfigurationContext
+}): PreparedBaseFormCandidate | undefined {
+  const bodyXML = params.inputs.find(({ input }) => input.role === "body")?.parsed
+  const baseFormXML = (bodyXML?.["Form"] as ClientApplicationFormXML | undefined)?.BaseForm
+  if (baseFormXML === undefined) return undefined
+  const companion = resolveBaseFormCompanion(params.assignment, params.topology)
+  if (companion === undefined) return undefined
+  const baseForm = importBaseFormYaml({
+    context: params.context,
+    baseFormXML,
+    formName: params.assignment.itemName,
+    rule: companion.rule,
+  })
+  return {
+    baseProjectPath: params.assignment.targetProjectPath,
+    targetProjectPath: companion.targetProjectPath,
+    owner: {
+      dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
+      name: params.assignment.owner?.name ?? params.assignment.itemName,
+    },
+    yaml: baseForm.yaml,
+    rule: companion.rule,
+    localIndexes: baseForm.localIndexes,
+    deferred: bindDeferredObjectValues(baseForm.yaml, baseForm.deferred),
+    configurationFragment: baseForm.configurationIndexCollector.fragment(companion.targetProjectPath),
   }
 }
 
@@ -519,22 +546,32 @@ function requireMetadataXml(inputs: readonly ParsedImportXmlInput[]): Record<str
   return metadata.parsed
 }
 
-function mapPropertyXml(rule: MetadataItemRule, inputs: readonly ParsedImportXmlInput[]): ReadonlyMap<string, unknown> {
-  const result = new Map<string, unknown>()
+function mapExternalPropertyXmlInputs(
+  rule: MetadataItemRule,
+  inputs: readonly ParsedImportXmlInput[],
+): {
+  readonly compatibilityByPropertyKey: ReadonlyMap<string, unknown>
+  readonly nodesByPropertyKey: ReadonlyMap<string, readonly XmlElementNode[]>
+} {
+  const compatibilityByPropertyKey = new Map<string, unknown>()
+  const nodesByPropertyKey = new Map<string, readonly XmlElementNode[]>()
   for (const [key, propertyRule] of Object.entries(rule.properties) as Array<[string, PropertyRule]>) {
     if (propertyRule.filePath === undefined) continue
     const normalizedFilePath = propertyRule.filePath.replace(/\\/g, "/")
     const input = inputs.find(({ input }) => normalizedPath(input.sourcePath).endsWith(`/${normalizedFilePath}`))
-    if (input !== undefined) result.set(key, input.parsed)
+    if (input === undefined) continue
+    compatibilityByPropertyKey.set(key, input.parsed)
+    if (input.document !== undefined) nodesByPropertyKey.set(key, input.document.roots)
   }
-  return result
+  return { compatibilityByPropertyKey, nodesByPropertyKey }
 }
 
-function appendExternalPropertyRootBoundaries(
-  boundaries: XmlAnomalyProofBoundary[],
+function externalPropertyRootBoundaries(
+  boundaries: readonly XmlAnomalyProofBoundary[],
   rule: MetadataItemRule,
   inputs: readonly ParsedImportXmlInput[],
-): void {
+): XmlAnomalyProofBoundary[] {
+  const result: XmlAnomalyProofBoundary[] = []
   for (const [propertyKey, propertyRule] of Object.entries(rule.properties) as Array<[string, PropertyRule]>) {
     if (propertyRule.filePath === undefined || typeof propertyRule.yaml !== "string") continue
     const normalizedFilePath = propertyRule.filePath.replaceAll("\\", "/")
@@ -551,7 +588,7 @@ function appendExternalPropertyRootBoundaries(
       throw new Error(`Внешнее XML-свойство ${propertyKey} должно содержать один корень`)
     }
     const root = document.roots[0]!
-    boundaries.push({
+    result.push({
       sourcePath: input.input.sourcePath,
       sourceRole: input.input.role,
       xmlPath: root.path,
@@ -561,6 +598,7 @@ function appendExternalPropertyRootBoundaries(
       targetPaths: [root.path],
     })
   }
+  return result
 }
 
 function normalizedPath(path: string): string {

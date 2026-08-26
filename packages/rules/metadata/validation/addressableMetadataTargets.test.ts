@@ -6,6 +6,8 @@ import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
 import "../commonObjects/metadataExternalDataSourceField/types"
 import { MetadataExternalDataSourceDimensionTableRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/rules"
+import { MetadataExternalDataSourceTableRules } from "../commonObjects/metadataExternalDataSourceTable/rules"
+import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
 import {
   collectAddressableMetadataLogicalAddresses,
   collectAddressableMetadataObjectEntries,
@@ -179,6 +181,27 @@ describe("collectAddressableMetadataObjectEntries", () => {
         "ВнешнийИсточникДанных.Источник.Куб.Куб.ТаблицаИзмерений.Таблица.Поле.Поле",
       sourceProjectPath:
         "/project/ВнешнийИсточникДанных/Источник/Кубы/Куб/ТаблицыИзмерений/Таблица/Свойства.yaml",
+    }])
+  })
+
+  it.each([
+    [
+      MetadataExternalDataSourceTableRules,
+      "ВнешнийИсточникДанных.Источник.Таблица.Таблица",
+    ],
+    [
+      MetadataExternalDataSourceCubeRules,
+      "ВнешнийИсточникДанных.Источник.Куб.Куб",
+    ],
+  ] as const)("uses the owner's child collection segment for nested commands", (rule, logicalAddress) => {
+    expect(collectAddressableMetadataLogicalAddresses({
+      yaml: { Команды: { Команда1: {} } },
+      rule,
+      logicalAddress,
+      filePath: "/project/Свойства.yaml",
+    })).toEqual([{
+      logicalAddress: `${logicalAddress}.Команда.Команда1`,
+      sourceProjectPath: "/project/Свойства.yaml",
     }])
   })
 })

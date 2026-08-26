@@ -9,16 +9,18 @@ import {
   stringAvailableValuesYAML,
 } from "./__fixtures__/data"
 import "../index"
+import { metadataRules } from "../../../composition/metadataRules"
+import {
+  createMetadataExecutionRegistrySets,
+  withMetadataExecutionRegistrySets,
+} from "../../../composition/metadataExecutionContext"
 
 const rule = { type: "DcsAvailableValues" } as const
+const registries = createMetadataExecutionRegistrySets(metadataRules)
 
 describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
   it("imports string values", () => {
-    const result = callAtomicFromYAML({
-      context: mockContext,
-      rule,
-      value: stringAvailableValuesYAML,
-    })
+    const result = importValues(stringAvailableValuesYAML)
 
     expect(result).toEqual(stringAvailableValues)
   })
@@ -26,11 +28,7 @@ describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
   it("imports double-quoted numeric string value from parsed YAML as string", () => {
     const yaml = importFromYAML(['- Значение: "2"', "  Представление: 2 знака"].join("\n"))
 
-    const result = callAtomicFromYAML({
-      context: mockContext,
-      rule,
-      value: yaml,
-    })
+    const result = importValues(yaml)
 
     expect(result).toEqual([
       {
@@ -41,14 +39,30 @@ describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
     ])
   })
 
+  it("imports tagged presentation as xmlString", () => {
+    const yaml = importFromYAML<unknown[]>([
+      "- Значение: 2",
+      "  Представление: !xml/string 2 знака",
+    ].join("\n"))
+
+    expect(importValues(yaml)).toEqual([
+      {
+        itemType: "DcsAvailableValue",
+        value: { type: "decimal", value: 2 },
+        presentation: { kind: "xmlString", text: "2 знака" },
+      },
+    ])
+  })
+
   it("imports absent value as undefined", () => {
-    const result = callAtomicFromYAML({
-      context: mockContext,
-      rule,
-      value: nilAndBooleanAvailableValuesYAML,
-    })
+    const result = importValues(nilAndBooleanAvailableValuesYAML)
 
     expect(result).toEqual(nilAndBooleanAvailableValues)
   })
 
 })
+
+function importValues(value: unknown): unknown {
+  return withMetadataExecutionRegistrySets(registries, () =>
+    callAtomicFromYAML({ context: mockContext, rule, value }))
+}

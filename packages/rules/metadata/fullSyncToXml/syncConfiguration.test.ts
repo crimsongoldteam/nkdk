@@ -653,6 +653,7 @@ function createHarness(options: HarnessOptions = {}) {
               kind: address.kind,
               componentKind: address.kind,
               adoptedUuids: {},
+              xmlDefaultVariantByLogicalAddress: {},
               ...(base === undefined
                 ? {}
                 : {

@@ -103,6 +103,7 @@ describe("export DataCompositionSchemaDataSetField to XML", () => {
       xmlString,
     })
 
+    if (expectedResult === undefined) throw new Error("Ожидаемый XML не построен из xmlString")
     expect(result).toEqual(expectedResult)
   })
 

@@ -49,3 +49,4 @@ export type TypeRulesOperations =
   | "finalizeExportedXML"
   | "collectLocalFactsFromYAML"
   | "yamlToXMLNestedRule"
+  | "yamlScalarTagPolicy"

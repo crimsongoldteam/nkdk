@@ -295,7 +295,12 @@ describe("full XML sync worker", () => {
         componentDir: projectDir,
         outputTarget,
         context,
-        profile: { kind: "configuration", componentKind: "configuration", adoptedUuids: {} },
+        profile: {
+          kind: "configuration",
+          componentKind: "configuration",
+          adoptedUuids: {},
+          xmlDefaultVariantByLogicalAddress: {},
+        },
         composition: createFullXmlSyncCompositionSnapshot([assigned]),
         targetIndex: descriptor,
         operationSeed,
@@ -378,7 +383,12 @@ describe("full XML sync worker", () => {
       componentDir: projectDir,
       outputTarget: { kind: "directory", outputDir: join(projectDir, ".out") },
       context,
-      profile: { kind: "configuration", componentKind: "configuration", adoptedUuids: {} },
+      profile: {
+        kind: "configuration",
+        componentKind: "configuration",
+        adoptedUuids: {},
+        xmlDefaultVariantByLogicalAddress: {},
+      },
       composition,
       targetIndex: targetDescriptor,
       operationSeed: new Uint8Array(32),
@@ -627,6 +637,7 @@ describe("full XML sync worker", () => {
                 [logicalAddress]: "11111111-1111-4111-8111-111111111111",
               }
             : {},
+          xmlDefaultVariantByLogicalAddress: {},
           baseForms: {
             componentDir: baseComponentDir,
             projectFiles: [
@@ -815,6 +826,7 @@ describe("full XML sync worker", () => {
         kind: baseSnapshot === undefined ? "configuration" : "configurationExtension",
         componentKind: baseSnapshot === undefined ? "configuration" : "configurationExtension",
         adoptedUuids: {},
+        xmlDefaultVariantByLogicalAddress: {},
         ...(typeDescriptionXMLNameByType === undefined ? {} : { typeDescriptionXMLNameByType }),
         ...(baseSnapshot === undefined
           ? {}

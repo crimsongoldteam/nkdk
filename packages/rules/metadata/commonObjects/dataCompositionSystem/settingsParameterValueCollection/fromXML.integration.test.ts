@@ -1,6 +1,15 @@
+import {
+  createXmlAnomalyAnnotations,
+  createXmlImportAuditSession,
+  parseXmlDocumentWithSaxes,
+  projectXmlAuditRemainder,
+} from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
+import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { PropertyRule } from "../../../ruleRuntime"
+import { metadataRules } from "../../../composition/metadataRules"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
 import { settingsParameterValueCollectionFixture } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
@@ -65,5 +74,58 @@ describe("import SettingsParameterValueCollection from XML", () => {
     })
 
     expect(result).toMatchObject({ parameters: { Параметр1: { xmlNil: true } } })
+  })
+
+  it("структурно импортирует все повторяющиеся dcscor:item без raw-остатка", () => {
+    const registries = createRuleRegistrySet(metadataRules)
+    expect(registries.property.getTypeRule(
+      "SettingsParameterValueCollection",
+      "xmlImportPropertyBehavior",
+    ))
+      .toEqual({ repeatedXMLNodes: true })
+    const document = parseXmlDocumentWithSaxes(`<Root>
+      <dcssch:inputParameters>
+        <dcscor:item><dcscor:parameter>Первый</dcscor:parameter><dcscor:value xsi:type="dcscor:Field">Поле1</dcscor:value></dcscor:item>
+        <dcscor:item><dcscor:parameter>Второй</dcscor:parameter><dcscor:value xsi:type="dcscor:Field">Поле2</dcscor:value></dcscor:item>
+      </dcssch:inputParameters>
+    </Root>`)
+    const root = document.roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const annotations = createXmlAnomalyAnnotations()
+    const ownerRule = {
+      itemType: "SettingsParameterValueCollectionProbe",
+      properties: {
+        values: {
+          ...rule,
+          xml: "dcscor:item",
+          xmlParents: ["dcssch:inputParameters"],
+          yaml: "Значения",
+        },
+      },
+    } as MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      rule: ownerRule,
+      xml: root,
+      audit,
+      annotations,
+      execution: registries.execution,
+    }).yaml as Record<string, unknown>
+    audit.finalize()
+
+    projectXmlAuditRemainder({
+      yaml: imported,
+      annotations,
+      audit,
+      root,
+      boundary: { itemType: ownerRule.itemType, yamlPath: [], rulePath: [] },
+    })
+
+    expect(imported).toMatchObject({
+      Значения: {
+        Первый: { Значение: "Поле1" },
+        Второй: { Значение: "Поле2" },
+      },
+    })
+    expect([...annotations.entries()]).toEqual([])
   })
 })

@@ -4,6 +4,7 @@ import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { hashConfigurationProjectFileList } from "../../configurationIndex"
 import { readComponentIndexes } from "./indexes"
+import { collectComponentLogicalAddresses } from "./logicalAddresses"
 import { readComponentProjectStructure } from "./structure"
 
 describe("component indexes", () => {
@@ -88,6 +89,75 @@ describe("component indexes", () => {
       { logicalAddress: "Catalog.Товары", sourceProjectPath: projectPath },
       { logicalAddress: "Catalog.Товары.Attribute.Артикул", sourceProjectPath: projectPath },
     ])
+  })
+
+  it("collects paged component addresses and keeps the first duplicate", () => {
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    const cursors: Array<string | undefined> = []
+
+    const addresses = collectComponentLogicalAddresses({
+      componentPath: "cfe/Дополнение",
+      known: [{ logicalAddress: "Catalog.Товары", sourceProjectPath: projectPath }],
+      projectStateReadSession: {
+        readComponentTargetPage(query) {
+          cursors.push(query.cursor)
+          return query.cursor === undefined
+            ? {
+                entries: [{
+                  logicalAddress: "Catalog.Товары",
+                  sourceProjectPath: `cfe/Дополнение/${projectPath}`,
+                }],
+                nextCursor: "Catalog.Товары",
+              }
+            : {
+                entries: [{
+                  logicalAddress: "Catalog.Товары.Attribute.Артикул",
+                  sourceProjectPath: `cfe/Дополнение/${projectPath}`,
+                }],
+              }
+        },
+      },
+    })
+
+    expect(cursors).toEqual([undefined, "Catalog.Товары"])
+    expect(addresses).toEqual([
+      { logicalAddress: "Catalog.Товары", sourceProjectPath: projectPath },
+      {
+        logicalAddress: "Catalog.Товары.Attribute.Артикул",
+        sourceProjectPath: projectPath,
+      },
+    ])
+  })
+
+  it("keeps the first duplicate from the known addresses", () => {
+    const addresses = collectComponentLogicalAddresses({
+      componentPath: "cfe/Дополнение",
+      known: [
+        { logicalAddress: "Catalog.Товары", sourceProjectPath: "Справочник/Товары/Первый.yaml" },
+        { logicalAddress: "Catalog.Товары", sourceProjectPath: "Справочник/Товары/Второй.yaml" },
+      ],
+      projectStateReadSession: { readComponentTargetPage: () => ({ entries: [] }) },
+    })
+
+    expect(addresses).toEqual([{
+      logicalAddress: "Catalog.Товары",
+      sourceProjectPath: "Справочник/Товары/Первый.yaml",
+    }])
+  })
+
+  it("rejects a ProjectState address from another component", () => {
+    expect(() => collectComponentLogicalAddresses({
+      componentPath: "cfe/Дополнение",
+      known: [],
+      projectStateReadSession: {
+        readComponentTargetPage: () => ({
+          entries: [{
+            logicalAddress: "Catalog.Товары",
+            sourceProjectPath: "cf/Справочник/Товары/Свойства.yaml",
+          }],
+        }),
+      },
+    })).toThrow("Адрес ProjectState относится к другому компоненту: cf/Справочник/Товары/Свойства.yaml")
   })
 
   async function indexedProject(projectPath: string, content: string) {

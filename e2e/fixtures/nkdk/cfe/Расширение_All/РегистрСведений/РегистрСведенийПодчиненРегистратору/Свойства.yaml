@@ -1,14 +1,4 @@
 Измерения:
   Измерение1:
     Тип: Строка(10)
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 РежимЗаписи: ПодчинениеРегистратору

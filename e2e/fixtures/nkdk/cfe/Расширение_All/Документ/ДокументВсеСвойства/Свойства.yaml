@@ -10,19 +10,6 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Group
-          - ToolTip
-          - Picture
 КонтрольУникальности: Истина
 Нумератор: !изменять
 ОсновнаяФормаДляВыбора: ""
@@ -34,62 +21,16 @@
     Синоним: ""
     Тип: Строка(10)
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - ToolTip
   РеквизитБулево:
     Синоним: ""
     Тип: Булево
     Формат: ""
     ФорматРедактирования: ""
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - Format
-          - EditFormat
-          - ToolTip
   ПолныйРеквизит:
     Тип: ХранилищеЗначения
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
   ИндексированноеПоле:
     Тип: Строка(10)
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 ТабличныеЧасти:
   ТабличнаяЧасть:
     Синоним: ""
@@ -101,20 +42,6 @@
         Формат: ""
         ФорматРедактирования: ""
         Подсказка: ""
-        ПринадлежностьОбъекта: !xml/raw
-          $xml: Adopted
-        Properties: !xml/raw
-          $xml:
-            "#order":
-              - ObjectBelonging
-              - Name
-              - Synonym
-              - Comment
-              - ExtendedConfigurationObject
-              - Type
-              - Format
-              - EditFormat
-              - ToolTip
     Подсказка: ""
 ТипНомера: !изменять Строка
 ДлинаНомера: !изменять 9

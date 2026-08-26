@@ -19,6 +19,7 @@ import {
   executeImportControlExport,
   resetControlExportCountForTests,
 } from "./controlExport"
+import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
 let topology: ReturnType<typeof createValidationProjectComponent>["topology"]
@@ -78,22 +79,21 @@ describe("executeImportControlExport", () => {
     expect(controlExportCountForTests()).toBe(0)
   })
 
-  it("передаёт обычному экспорту UUID расширяемого объекта из исходного XML", async () => {
-    const sourcePath = "/source/Catalogs/Контрагенты.xml"
-    const adoptedUuid = "11111111-1111-4111-8111-111111111111"
-    let capturedUuid: string | undefined
-    const readSource = vi.fn(async () => `
-      <MetaDataObject>
-        <Catalog>
-          <Properties>
-            <ObjectBelonging>Adopted</ObjectBelonging>
-            <ExtendedConfigurationObject>${adoptedUuid}</ExtendedConfigurationObject>
-          </Properties>
-        </Catalog>
-      </MetaDataObject>`)
+  it("передаёт полный профиль без чтения XML ради UUID", async () => {
+    const exportProfile: XmlComponentExportProfile = {
+      componentKind: "configurationExtension",
+      adoptedUuids: { "Справочник.Контрагенты": "11111111-1111-4111-8111-111111111111" },
+      xmlDefaultVariantByLogicalAddress: {
+        Конфигурация: "adopted",
+        "Справочник.Контрагенты": "adopted",
+      },
+      typeDescriptionXMLNameByType: { AnyIBRef: "AnyRef" },
+    }
+    const readSource = vi.fn(async () => { throw new Error("XML не должен читаться до proof") })
+    let captured: XmlComponentExportProfile | undefined
 
     await expect(executeImportControlExport({
-      assignment: catalogAssignment(sourcePath),
+      assignment: catalogAssignment(),
       data: {},
       annotations: { version: 1, entries: [] },
       audit: { sources: [], boundaries: [] },
@@ -102,21 +102,30 @@ describe("executeImportControlExport", () => {
         ...mockXmlImportContext(),
         fromXML: { forReference: false, componentKind: "configurationExtension" },
       },
+      exportProfile,
       index: createLocalConfigurationIndexReader(new Map()),
       composition: catalogComposition(),
       readSource,
       ordinaryExporter(params) {
-        capturedUuid = params.context.exportToXML.adoptedUuids?.["Справочник.Контрагенты"]
+        captured = {
+          componentKind: params.context.exportToXML.componentKind as "configurationExtension",
+          adoptedUuids: params.context.exportToXML.adoptedUuids ?? {},
+          xmlDefaultVariantByLogicalAddress:
+            params.context.exportToXML.xmlDefaultVariantByLogicalAddress ?? {},
+          typeDescriptionXMLNameByType:
+            params.context.exportToXML.typeDescriptionXMLNameByType,
+        }
         throw new Error("projection captured")
       },
     })).rejects.toThrow("projection captured")
 
-    expect(capturedUuid).toBe(adoptedUuid)
-    expect(readSource).toHaveBeenCalledTimes(1)
+    expect(captured).toEqual(exportProfile)
+    expect(readSource).not.toHaveBeenCalled()
   })
 
   it("передаёт обычному экспорту подготовленный источник BaseForm", async () => {
     const index = createLocalConfigurationIndexReader(new Map())
+    const baseConfigurationIndex = createLocalConfigurationIndexReader(new Map())
     const annotations = { version: 1 as const, entries: [] }
     const prepared = (projectPath: string, data: unknown) => ({
       projectPath,
@@ -147,7 +156,9 @@ describe("executeImportControlExport", () => {
       audit: { sources: [], boundaries: [] },
       topology,
       context: mockXmlImportContext(),
+      exportProfile: configurationExportProfileForTests(),
       index,
+      baseConfigurationIndex,
       composition: catalogComposition(),
       readSource: async () => "",
       baseFormSource,
@@ -157,7 +168,9 @@ describe("executeImportControlExport", () => {
       },
     })).rejects.toThrow("projection captured")
 
-    expect(captured).toMatchObject({ baseFormSource, baseConfigurationIndex: index })
+    expect(captured).toMatchObject({ baseFormSource, baseConfigurationIndex })
+    expect(captured?.index).toBe(index)
+    expect(captured?.baseConfigurationIndex).not.toBe(index)
   })
 
   it("не запускает ordinary exporter для корневого raw", async () => {
@@ -449,6 +462,7 @@ describe("executeImportControlExport", () => {
       rule: prepared.rule,
       topology,
       context: mockXmlImportContext(),
+      exportProfile: configurationExportProfileForTests(),
       index,
       composition: { children: () => [] },
       readSource: async (path) => fs.promises.readFile(path, "utf8"),
@@ -518,14 +532,26 @@ async function executePreparedCatalogControlExport(params: {
 }
 
 function executeCatalogControlExport(
-  params: Omit<Parameters<typeof executeImportControlExport>[0], "topology" | "context" | "composition">,
+  params: Omit<
+    Parameters<typeof executeImportControlExport>[0],
+    "topology" | "context" | "composition" | "exportProfile"
+  > & { readonly exportProfile?: XmlComponentExportProfile },
 ) {
   return executeImportControlExport({
     ...params,
     topology,
     context: mockXmlImportContext(),
     composition: catalogComposition(),
+    exportProfile: params.exportProfile ?? configurationExportProfileForTests(),
   })
+}
+
+function configurationExportProfileForTests(): XmlComponentExportProfile {
+  return {
+    componentKind: "configuration",
+    adoptedUuids: {},
+    xmlDefaultVariantByLogicalAddress: {},
+  }
 }
 
 function newAnnotationKeys(

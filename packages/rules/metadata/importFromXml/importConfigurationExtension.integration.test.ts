@@ -51,7 +51,7 @@ describe("configuration extension XML import", () => {
   })
 
   it("сохраняет структуру расширения и локализует импортированные аномалии", () => {
-    const { projectDir, result, configuration, catalog, form, yamlText, snapshot } = importedExtension
+    const { projectDir, result, configuration, catalog, form, yamlText, catalogText, snapshot } = importedExtension
 
     expect(result).toMatchObject({
       componentPath: "cfe/РасширениеКонтроль",
@@ -83,6 +83,13 @@ describe("configuration extension XML import", () => {
     expect(yamlText).toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.БазовыйРеквизит.Description")
     expect(yamlText).toContain("Properties\\UnknownProperty: !xml/raw")
     expect(yamlText).toContain("Тип: !xml/raw")
+    const borrowedAttributeYaml = textBetween(
+      catalogText,
+      "  РеквизитСправочника:",
+      "  СобственныйРеквизит:",
+    )
+    expect(borrowedAttributeYaml).not.toContain("ПринадлежностьОбъекта: !xml/raw")
+    expect(borrowedAttributeYaml).not.toContain("Properties: !xml/raw")
 
     const baseForm = readYaml(
       projectDir,
@@ -239,9 +246,13 @@ async function importExtension() {
     projectDir,
     "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаБезОсновы/Форма.yaml",
   )
+  const catalogText = readText(
+    projectDir,
+    "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml",
+  )
   const yamlText = [
     readText(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml"),
-    readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml"),
+    catalogText,
     readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml"),
   ].join("\n")
   const descriptor = configurationIndexStoreDescriptor(projectDir, {
@@ -254,7 +265,16 @@ async function importExtension() {
   const snapshot = { hashes, blocks: store.getBlocks(hashes.map(({ projectPath }) => projectPath)) }
   await store.close()
 
-  return { projectDir, result, configuration, catalog, form, formWithoutBase, yamlText, snapshot }
+  return { projectDir, result, configuration, catalog, form, formWithoutBase, yamlText, catalogText, snapshot }
+}
+
+function textBetween(source: string, startMarker: string, endMarker: string): string {
+  const start = source.indexOf(startMarker)
+  const end = source.indexOf(endMarker, start + startMarker.length)
+  if (start < 0 || end < 0) {
+    throw new Error(`Не найдены границы YAML-фрагмента: ${startMarker} / ${endMarker}`)
+  }
+  return source.slice(start, end)
 }
 
 async function importBaseConfiguration(projectDir: string): Promise<void> {
@@ -278,7 +298,19 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
   replaceExactlyOnce(
     catalogPath,
     "\t\t<ChildObjects/>",
-    "\t\t<ChildObjects><Form>ФормаОтчета</Form><Form>ФормаБезОсновы</Form></ChildObjects>",
+    [
+      "\t\t<ChildObjects>",
+      "\t\t\t<Attribute uuid=\"55555555-5555-4555-8555-555555555555\">",
+      "\t\t\t\t<Properties>",
+      "\t\t\t\t\t<Name>РеквизитСправочника</Name>",
+      "\t\t\t\t\t<Synonym/>",
+      "\t\t\t\t\t<Type><v8:Type>xs:dateTime</v8:Type><v8:DateQualifiers><v8:DateFractions>Date</v8:DateFractions></v8:DateQualifiers></Type>",
+      "\t\t\t\t</Properties>",
+      "\t\t\t</Attribute>",
+      "\t\t\t<Form>ФормаОтчета</Form>",
+      "\t\t\t<Form>ФормаБезОсновы</Form>",
+      "\t\t</ChildObjects>",
+    ].join("\n"),
   )
 
   for (const formName of ["ФормаОтчета", "ФормаБезОсновы"]) {

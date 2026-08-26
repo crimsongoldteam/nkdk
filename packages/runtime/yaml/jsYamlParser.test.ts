@@ -27,6 +27,21 @@ describe("parseWithJsYaml", () => {
     expect(yamlScalarTagAt(types, 1)).toBe("изменять")
   })
 
+  it("разбирает !xml/string как строку и сохраняет скалярный тег", () => {
+    const parsed = parseWithJsYaml("Представление: !xml/string Текст")
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(parsed.data).toEqual({ Представление: "Текст" })
+    expect(yamlScalarTagAt(parsed.data, "Представление")).toBe("xml/string")
+  })
+
+  it.each([
+    "Представление: !xml/string { ru: Текст }",
+    "Представление: !xml/string [Текст]",
+  ])("отклоняет нескалярный payload !xml/string: %s", (source) => {
+    expect(parseWithJsYaml(source).syntaxErrors).toHaveLength(1)
+  })
+
   it.each([
     "Поле: !xml Текст",
     "Поле: !xml/present",

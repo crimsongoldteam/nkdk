@@ -19,6 +19,8 @@ import {
   createXmlImportWorkerPoolHandle,
   type XmlImportStateBatch,
 } from "./workerPool"
+import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
+import { configurationIndexStoreDescriptor } from "../configurationIndex"
 
 const tempDirs: string[] = []
 
@@ -53,7 +55,7 @@ describe("XML import worker pool", () => {
     expect(first).not.toHaveProperty("ownerFacts")
     expect(first).not.toHaveProperty("validationContribution")
 
-    await pool.runSecondPass(readTokens(1))
+    await pool.runSecondPass(readTokens(1), exportProfileForTests())
     expect(pools.secondPassBatchSizes(0)).toEqual([256, 1])
 
     await pool.runThirdPass(readTokens(1))
@@ -76,7 +78,7 @@ describe("XML import worker pool", () => {
 
     await expect(pool.runThirdPass(readTokens(1))).rejects.toThrow("Второй проход import не завершён")
 
-    await pool.runSecondPass(readTokens(1))
+    await pool.runSecondPass(readTokens(1), exportProfileForTests())
     await pool.runThirdPass(readTokens(1))
 
     expect(pools.runs(0).map(({ kind }) => kind)).toEqual([
@@ -97,6 +99,7 @@ describe("XML import worker pool", () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
     const assignments = [assignment("first"), assignment("second")]
+    const exportProfile = exportProfileForTests()
 
     await pool.initialize({
       operationId: "composition",
@@ -105,10 +108,13 @@ describe("XML import worker pool", () => {
       componentKind: "configuration",
     })
     await pool.runFirstPass(assignments)
-    await pool.runSecondPass(readTokens(2))
+    await pool.runSecondPass(readTokens(2), exportProfile)
+
+    expect(structuredClone(exportProfile)).toEqual(exportProfile)
 
     for (const workerIndex of [0, 1]) {
       expect(pools.runs(workerIndex).find(({ kind }) => kind === "beginSecondPass")).toMatchObject({
+        exportProfile,
         composition: assignments.map(({ targetProjectPath, itemType, itemName, logicalAddress, role }) => ({
           sourceProjectPath: targetProjectPath,
           itemType,
@@ -117,6 +123,8 @@ describe("XML import worker pool", () => {
           assignmentRole: role,
         })),
       })
+      expect(pools.runs(workerIndex).find(({ kind }) => kind === "secondPassBatch"))
+        .not.toHaveProperty("exportProfile")
     }
 
     await pool.close()
@@ -151,7 +159,7 @@ describe("XML import worker pool", () => {
       componentKind: "configuration",
     })
     await pool.runFirstPass([assignment("a"), assignment("b"), assignment("c"), assignment("d")])
-    const running = pool.runSecondPass(readTokens(2))
+    const running = pool.runSecondPass(readTokens(2), exportProfileForTests())
 
     await Promise.all([blocked.started, pools.secondPassStarted("c"), pools.secondPassStarted("d")])
     expect(pools.secondPassWorker("c")).toBe(pools.secondPassWorker("a"))
@@ -183,7 +191,7 @@ describe("XML import worker pool", () => {
       componentKind: "configuration",
     })
     await pool.runFirstPass([assignment("one")], sink)
-    await pool.runSecondPass(readTokens(1), sink)
+    await pool.runSecondPass(readTokens(1), exportProfileForTests(), sink)
     expect(released).toEqual([])
 
     await pool.runThirdPass(readTokens(1), sink)
@@ -441,7 +449,7 @@ describe("XML import worker pool", () => {
     const blocked = pools.blockSecondPassWorker(1)
     const acknowledged: number[] = []
 
-    const running = pool.runSecondPass(readTokens(2), sink as never)
+    const running = pool.runSecondPass(readTokens(2), exportProfileForTests(), sink as never)
     await blocked.started
     await new Promise<void>((resolve) => setImmediate(resolve))
 
@@ -468,7 +476,7 @@ describe("XML import worker pool", () => {
     })
     await pool.runFirstPass([assignment("one"), assignment("two")])
 
-    const running = pool.runSecondPass(readTokens(2), {
+    const running = pool.runSecondPass(readTokens(2), exportProfileForTests(), {
       async writeFirstPassState() {},
       async writeSecondPassState(batch) {
         started += 1
@@ -495,6 +503,8 @@ describe("XML import worker pool", () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
     const context = mockContextFromXML()
+    const configurationIndex = configurationIndexStoreDescriptor("/project", { kind: "configurationExtension", name: "Расширение" })
+    const baseConfigurationIndex = configurationIndexStoreDescriptor("/project", { kind: "configuration" })
 
     await pool.initialize({
       operationId: "component",
@@ -502,6 +512,8 @@ describe("XML import worker pool", () => {
       outputDir: createTempDir("component"),
       componentKind: "test-component",
       metadataItemAugmenter: "test-augmenter",
+      configurationIndex,
+      baseConfigurationIndex,
     })
     await pool.runFirstPass([assignment("component")])
 
@@ -511,6 +523,8 @@ describe("XML import worker pool", () => {
       context: {
         fromXML: { componentKind: "test-component", metadataItemAugmenter: "test-augmenter" },
       },
+      configurationIndex,
+      baseConfigurationIndex,
     })
     expect(() => structuredClone(initialize)).not.toThrow()
 
@@ -537,7 +551,7 @@ describe("XML import worker pool", () => {
 
     expect([...result.diagnostics]).toContainEqual(expect.objectContaining({ severity: "error" }))
     await expect(
-      pool.runSecondPass(readTokens(2))
+      pool.runSecondPass(readTokens(2), exportProfileForTests())
     ).rejects.toThrow("Первый проход import завершён с ошибками")
     expect(pools.runs(0).map((task) => task.kind)).toEqual([
       "initialize", "firstPassBatch", "finishFirstPass",
@@ -630,7 +644,7 @@ describe("XML import worker pool", () => {
         componentKind: "configuration",
       })
       await firstOperation.runFirstPass([assignment("one-a"), assignment("one-b")])
-      await firstOperation.runSecondPass(readTokens(2))
+      await firstOperation.runSecondPass(readTokens(2), exportProfileForTests())
       await firstOperation.close()
 
       const secondOperation = handle.createOperationPool()
@@ -641,7 +655,7 @@ describe("XML import worker pool", () => {
         componentKind: "configuration",
       })
       await secondOperation.runFirstPass([assignment("two-a"), assignment("two-b")])
-      await secondOperation.runSecondPass(readTokens(2))
+      await secondOperation.runSecondPass(readTokens(2), exportProfileForTests())
       await secondOperation.close()
 
       expect(pools.created()).toBe(2)
@@ -671,6 +685,18 @@ describe("XML import worker pool", () => {
     expect(pools.destroyCalls()).toEqual([1, 1])
   })
 })
+
+function exportProfileForTests(): XmlComponentExportProfile {
+  return {
+    componentKind: "configurationExtension",
+    adoptedUuids: { "Справочник.Товары": "11111111-1111-4111-8111-111111111111" },
+    xmlDefaultVariantByLogicalAddress: {
+      Конфигурация: "adopted",
+      "Справочник.Товары": "adopted",
+    },
+    typeDescriptionXMLNameByType: { AnyIBRef: "AnyRef" },
+  }
+}
 
 function assignment(id: string, overrides: Partial<ImportAssignment> = {}): ImportAssignment {
   return {

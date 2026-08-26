@@ -25,6 +25,7 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createImportFirstPassTransferable,
   createImportWorkerCommandRunner,
+  shouldReadCurrentConfigurationYaml,
 } from "./worker"
 import { importControlComposition } from "./controlComposition"
 import {
@@ -35,6 +36,7 @@ import {
 import { importDiagnostic, openImportBinaryResult } from "./binaryResult"
 import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 
 const importWorker = createImportWorkerCommandRunner()
 const runImportWorkerCommand = importWorker.run
@@ -424,6 +426,62 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it("читает текущую форму cf для проекции BaseForm", () => {
+    expect(shouldReadCurrentConfigurationYaml({
+      componentPath: "cfe/Расширение",
+      rule: ClientApplicationFormRules,
+      hasBaseFormCandidate: true,
+    })).toBe(true)
+    expect(shouldReadCurrentConfigurationYaml({
+      componentPath: "cf",
+      rule: ClientApplicationFormRules,
+      hasBaseFormCandidate: true,
+    })).toBe(false)
+  })
+
+  it("переиспользует один профиль во всех контрольных экспортах прохода", async () => {
+    const outputDir = createTempDir("shared-export-profile")
+    const assignments = [
+      catalogAssignment(),
+      catalogAssignment({
+        id: "catalog-second",
+        itemName: "Поставщики",
+        logicalAddress: "Справочник.Поставщики",
+        targetProjectPath: "Справочник/Поставщики/Свойства.yaml",
+      }),
+    ]
+    const exportProfile = exportProfileForTests()
+    const capturedProfiles: unknown[] = []
+    const capturedContexts: unknown[] = []
+    setControlExportForTests(async (params) => {
+      capturedProfiles.push(params.exportProfile)
+      capturedContexts.push(params.context)
+      return { data: params.data, annotations: params.annotations, rereadSourcePaths: [] }
+    })
+    await initializeWorker(outputDir)
+    const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments }))
+    await runImportWorkerCommand({
+      kind: "beginSecondPass",
+      readToken: createReadToken(first),
+      exportProfile,
+    })
+
+    await runImportWorkerCommand({
+      kind: "secondPassBatch",
+      assignmentIds: assignments.map(({ id }) => id),
+    })
+    await runImportWorkerCommand({ kind: "finishSecondPass" })
+
+    expect(capturedProfiles).toEqual([exportProfile, exportProfile])
+    expect(capturedProfiles[0]).toBe(capturedProfiles[1])
+    expect(capturedContexts).toHaveLength(2)
+    for (const context of capturedContexts) {
+      expect(context).toMatchObject({
+        importFromYAML: { ownerMetadataCache: expect.any(Object) },
+      })
+    }
+  })
+
   it("выполняет один control export и записывает найденный raw", async () => {
     setControlExportForTests(undefined)
     const inputDir = createTempDir("worker-control-export-input")
@@ -467,7 +525,11 @@ describe("XML import worker second pass", () => {
     }))
 
     expect(workerStateForTests().preparedYamlIds).toEqual([assignments.catalog.id, assignments.form.id])
-    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    await runImportWorkerCommand({
+      kind: "beginSecondPass",
+      readToken: createReadToken(first),
+      exportProfile: exportProfileForTests(),
+    })
     await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.catalog.id })
     const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.form.id })
     await runImportWorkerCommand({ kind: "endSecondPass" })
@@ -484,12 +546,7 @@ describe("XML import worker second pass", () => {
     vi.stubEnv("NKDK_PROFILE", "1")
     const outputDir = createTempDir("second-pass-profile")
     const assignments = createCatalogAndFormAssignments("Неизвестный.LineNumber")
-    await initializeWorker(outputDir)
-    const first = expectFirstPass(await runImportWorkerCommand({
-      kind: "firstPass",
-      assignments: [assignments.catalog, assignments.form],
-    }))
-    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    await beginCatalogAndFormSecondPass(outputDir, assignments)
     error.mockClear()
 
     await runImportWorkerCommand({
@@ -551,12 +608,7 @@ describe("XML import worker second pass", () => {
       }),
       compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
     } satisfies ValidationSchemaCache
-    await initializeWorker(outputDir, countingSchemaCache)
-    const first = expectFirstPass(await runImportWorkerCommand({
-      kind: "firstPass",
-      assignments: [assignments.catalog, assignments.form],
-    }))
-    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    await beginCatalogAndFormSecondPass(outputDir, assignments, countingSchemaCache)
     const second = openImportBinaryResult(await runImportWorkerCommand({
       kind: "secondPassBatch",
       assignmentIds: [assignments.catalog.id, assignments.form.id],
@@ -612,7 +664,11 @@ describe("XML import worker second pass", () => {
       kind: "firstPass",
       assignments: [catalogAssignment({ id: "owned" })],
     }))
-    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    await runImportWorkerCommand({
+      kind: "beginSecondPass",
+      readToken: createReadToken(first),
+      exportProfile: exportProfileForTests(),
+    })
 
     await expect(runImportWorkerCommand({
       kind: "secondPassBatch",
@@ -770,7 +826,11 @@ describe("XML import worker second pass", () => {
     expect(first.diagnostics).toEqual([])
     expect(workerStateForTests().preparedYamlIds).toEqual([blocked.id, valid.id])
 
-    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    await runImportWorkerCommand({
+      kind: "beginSecondPass",
+      readToken: createReadToken(first),
+      exportProfile: exportProfileForTests(),
+    })
     const second = await runImportWorkerCommand({
       kind: "secondPassBatch",
       assignmentIds: [blocked.id, valid.id],
@@ -837,12 +897,24 @@ async function prepareCatalogForThirdPass(outputDir: string) {
     kind: "firstPass",
     assignments: [assignment],
   }))
-  await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+  await runImportWorkerCommand({
+    kind: "beginSecondPass",
+    readToken: createReadToken(first),
+    exportProfile: exportProfileForTests(),
+  })
   const second = openImportBinaryResult(await runImportWorkerCommand({
     kind: "secondPassBatch",
     assignmentIds: [assignment.id],
   }))
   return { assignment, second }
+}
+
+function exportProfileForTests() {
+  return {
+    componentKind: "configuration" as const,
+    adoptedUuids: {},
+    xmlDefaultVariantByLogicalAddress: {},
+  }
 }
 
 function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAssignment {
@@ -903,6 +975,24 @@ async function initializeWorker(
   })
 }
 
+async function beginCatalogAndFormSecondPass(
+  outputDir: string,
+  assignments: ReturnType<typeof createCatalogAndFormAssignments>,
+  schemaCache: ValidationSchemaCache = fastValidationSchemaCache,
+): Promise<ImportFirstPassResult> {
+  await initializeWorker(outputDir, schemaCache)
+  const first = expectFirstPass(await runImportWorkerCommand({
+    kind: "firstPass",
+    assignments: [assignments.catalog, assignments.form],
+  }))
+  await runImportWorkerCommand({
+    kind: "beginSecondPass",
+    readToken: createReadToken(first),
+    exportProfile: exportProfileForTests(),
+  })
+  return first
+}
+
 async function runAssignmentSecondPass(
   outputDir: string,
   assignment: ImportAssignment,
@@ -910,7 +1000,11 @@ async function runAssignmentSecondPass(
 ) {
   await initializeWorker(outputDir, schemaCache)
   const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
-  await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+  await runImportWorkerCommand({
+    kind: "beginSecondPass",
+    readToken: createReadToken(first),
+    exportProfile: exportProfileForTests(),
+  })
   const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignment.id })
   await runImportWorkerCommand({ kind: "endSecondPass" })
   return { first, second }
@@ -1027,7 +1121,11 @@ async function runCatalogAndFormSecondPass(
     assignments: [assignments.catalog, assignments.form],
   }))
   onFirstPass?.({ assignments, first })
-  await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+  await runImportWorkerCommand({
+    kind: "beginSecondPass",
+    readToken: createReadToken(first),
+    exportProfile: exportProfileForTests(),
+  })
   const secondResults = []
   const assignmentIds = secondPassOrder === "owner-first"
     ? [assignments.catalog.id, assignments.form.id]

@@ -9,31 +9,8 @@
     Тип: Справочник.ПараметрыВыбора
     ФормаВыбора: ""
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - ToolTip
-          - ChoiceForm
   ИзмерениеПоУмолчанию:
     Тип: Строка(10)
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 Команды:
   Команда1:
     Синоним: ""
@@ -42,19 +19,6 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Group
-          - ToolTip
-          - Picture
 ОсновнаяФормаСписка: ""
 ПериодДействия: Истина
 Периодичность: Квартал
@@ -64,30 +28,8 @@
     Синоним: ""
     Тип: Строка(10)
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - ToolTip
   РеквизитПоУмолчанию:
     Тип: ХранилищеЗначения
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 Ресурсы:
   РесурсВсеСвойства:
     Синоним: ""
@@ -95,32 +37,8 @@
     Формат: ""
     ФорматРедактирования: ""
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - Format
-          - EditFormat
-          - ToolTip
   ИзмерениеИндексировать:
     Тип: Число(10, 0)
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 Изменять:
   - МодульНабораЗаписей
   - МодульМенеджера

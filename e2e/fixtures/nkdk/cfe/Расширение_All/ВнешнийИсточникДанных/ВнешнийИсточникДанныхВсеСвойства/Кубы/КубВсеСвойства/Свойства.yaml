@@ -4,31 +4,8 @@
     Тип: ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства
     ФормаВыбора: ""
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - ToolTip
-          - ChoiceForm
   ИзмерениеПоУмолчанию:
     Тип: ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 Команды:
   Команда1:
     Синоним: ""
@@ -37,19 +14,6 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Group
-          - ToolTip
-          - Picture
 ОсновнаяФормаЗаписи: ""
 ОсновнаяФормаСписка: ""
 Ресурсы:
@@ -60,33 +24,8 @@
     Формат: ""
     ФорматРедактирования: ""
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - Format
-          - EditFormat
-          - ToolTip
-          - NameInDataSource
   РесурсПоУмолчанию:
     Тип: Строка(10)
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 ИмяВИсточникеДанных: !изменять
 Изменять:
   - МодульНабораЗаписей

@@ -10,8 +10,10 @@
     }
   },
   "scripts": {
-    "test": "node ../../scripts/run-test-duration-check.mjs",
-    "test:isolated": "node ../../scripts/run-test-duration-check.mjs",
+    "test": "pnpm test:isolated",
+    "test:isolated": "pnpm test:unit && pnpm test:sessions",
+    "test:unit": "node ../../scripts/run-test-duration-check.mjs -- src/extensions src/infobases src/platform src/settings src/startupConfig.test.ts src/testing",
+    "test:sessions": "node ../../scripts/run-test-duration-check.mjs --integration -- src/sessions",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {

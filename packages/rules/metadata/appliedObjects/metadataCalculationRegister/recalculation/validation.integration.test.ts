@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 
 import { mockContext } from "../../../../tests/mockContext"
 import { metadataRules } from "../../../composition/metadataRules"
@@ -20,6 +20,16 @@ import { validatePendingChecks } from "../../../validation/projectValidationPend
 import { missingOwnerMetadataCache } from "../../../validation/tests/validationTestSupport"
 
 describe("Recalculation project validation", () => {
+  let registries: ReturnType<typeof createMetadataExecutionRegistrySets>
+  let schemaCache: ReturnType<typeof createValidationSchemaCache>
+  let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
+
+  beforeAll(() => {
+    registries = createMetadataExecutionRegistrySets(metadataRules)
+    schemaCache = createValidationSchemaCache(mockContext)
+    rulesSnapshot = createValidationRulesSnapshot(mockContext)
+  })
+
   it("reports an incomplete leading-register link matrix", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-recalculation-validation-"))
     try {
@@ -40,7 +50,7 @@ describe("Recalculation project validation", () => {
       ].join("\n"))
 
       const result = withMetadataExecutionRegistrySets(
-        createMetadataExecutionRegistrySets(metadataRules),
+        registries,
         () => {
           const file = resolveValidationProjectFile(projectDir, absolutePath)
           if (file === undefined) throw new Error("Recalculation project file was not resolved")
@@ -49,8 +59,8 @@ describe("Recalculation project validation", () => {
             file,
             cache: createProjectYamlCache(),
             context: mockContext,
-            schemaCache: createValidationSchemaCache(mockContext),
-            rulesSnapshot: createValidationRulesSnapshot(mockContext),
+            schemaCache,
+            rulesSnapshot,
           })
         },
       )

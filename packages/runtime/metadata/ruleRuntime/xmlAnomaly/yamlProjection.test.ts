@@ -153,6 +153,21 @@ describe("YAML-проекция XML-аномалий", () => {
     expect(yaml).not.toHaveProperty("Properties\\Future\\#attributes")
   })
 
+  it("поднимает повторяющиеся неизвестные элементы до смыслового владельца", () => {
+    const { yaml, annotations } = projectUnknownRootChildren(
+      "<Root><Inputs><Entry>A</Entry><Entry>B</Entry></Inputs></Root>",
+      "Inputs",
+    )
+
+    expect(yaml).toEqual({ Известное: {} })
+    expect(annotations.at(yaml, "Известное")).toMatchObject({
+      kind: "raw",
+      hasSemanticValue: true,
+      xml: { Entry: ["A", "B"] },
+    })
+    expect(yaml).not.toHaveProperty("Inputs\\Entry")
+  })
+
   it("не копирует результаты всего сеанса при проекции одного XML-поддерева", () => {
     const first = parseXmlDocumentWithSaxes("<Root><Future>value</Future></Root>").roots[0]!
     const unrelated = parseXmlDocumentWithSaxes("<Unrelated><Large><Tree/></Large></Unrelated>").roots[0]!
@@ -296,17 +311,10 @@ describe("YAML-проекция XML-аномалий", () => {
   })
 
   it("поднимает неизвестный processing instruction к property boundary", () => {
-    const root = parseXmlDocumentWithSaxes(
+    const { yaml, annotations } = projectUnknownRootChildren(
       '<Root><Known><?future mode="x"?></Known></Root>',
-    ).roots[0]!
-    const known = child(root, "Known")
-    const audit = createXmlImportAuditSession([root])
-    audit.claim(root, boundary)
-    audit.claim(known, knownBoundary)
-    const annotations = createXmlAnomalyAnnotations()
-    const yaml: Record<string, unknown> = { Известное: {} }
-
-    projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
+      "Known",
+    )
 
     expect(yaml).toEqual({ Известное: {} })
     expect(annotations.at(yaml, "Известное")).toMatchObject({
@@ -436,15 +444,18 @@ function expectProjectionToFail(
   })).toThrow(expected)
 }
 
-function projectUnknownRootChildren(xml: string): {
+function projectUnknownRootChildren(xml: string, knownChildName?: string): {
   yaml: Record<string, unknown>
   annotations: ReturnType<typeof createXmlAnomalyAnnotations>
 } {
   const root = parseXmlDocumentWithSaxes(xml).roots[0]!
   const audit = createXmlImportAuditSession([root])
   audit.claim(root, boundary)
+  if (knownChildName !== undefined) {
+    audit.claim(child(root, knownChildName), knownBoundary)
+  }
   const annotations = createXmlAnomalyAnnotations()
-  const yaml: Record<string, unknown> = {}
+  const yaml: Record<string, unknown> = knownChildName === undefined ? {} : { Известное: {} }
   projectXmlAuditRemainder({ yaml, annotations, audit, root, boundary })
   return { yaml, annotations }
 }

@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "@nkdk/runtime"
+import { ConfigurationContext, copyYAMLScalarTags } from "@nkdk/runtime"
 import { exportPropertyToYAML, PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { exportDcsMetadataValueToYAML } from "../dcsMetadataValue/toYAML"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
@@ -19,15 +19,16 @@ export const exportDcsAvailableValuesToYAML = (
 
   return values.map((item) => {
     const value = exportDcsMetadataValueToYAML(context, valueRule, item.value)
-    const presentation =
-      item.presentation === undefined
-        ? undefined
-        : exportPropertyToYAML({ context, rule: presentationRule, value: item.presentation })?.Представление
+    const presentation = item.presentation === undefined
+      ? undefined
+      : exportPropertyToYAML({ context, rule: presentationRule, value: item.presentation })
 
-    return {
+    const result = {
       ...(value !== undefined ? { Значение: value } : {}),
-      ...(presentation !== undefined ? { Представление: presentation } : {}),
+      ...(presentation ?? {}),
     }
+    if (presentation !== undefined) copyYAMLScalarTags(presentation, result)
+    return result
   })
 }
 

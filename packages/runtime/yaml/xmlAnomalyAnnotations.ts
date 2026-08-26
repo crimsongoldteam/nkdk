@@ -118,6 +118,39 @@ export class XmlAnomalyAnnotationTable implements XmlAnomalyAnnotations {
     }
   }
 
+  deleteSubtree(root: unknown): void {
+    if (!isObject(root)) return
+    const paths = new Map<object, readonly (string | number)[]>()
+    collectObjectPaths(root, [], paths)
+    this.#entries = this.#entries.filter(({ parent }) => parent === undefined || !paths.has(parent))
+    this.#rebuildIndexes()
+  }
+
+  #rebuildIndexes(): void {
+    this.#root = undefined
+    this.#rootEntryIndex = undefined
+    this.#values = new WeakMap()
+    this.#keys = new WeakMap()
+    for (const [entryIndex, entry] of this.#entries.entries()) {
+      if (entry.parent === undefined || entry.key === undefined) {
+        if (entry.annotation.target === "root") {
+          this.#root = entry.annotation
+          this.#rootEntryIndex = entryIndex
+        }
+        continue
+      }
+      if (entry.annotation.target === "key" && typeof entry.key === "string") {
+        const keys = this.#keys.get(entry.parent) ?? new Map<string, IndexedXmlAnomalyAnnotation>()
+        keys.set(entry.key, { annotation: entry.annotation, entryIndex })
+        this.#keys.set(entry.parent, keys)
+      } else if (entry.annotation.target === "value") {
+        const values = this.#values.get(entry.parent) ?? new Map<string | number, IndexedXmlAnomalyAnnotation>()
+        values.set(entry.key, { annotation: entry.annotation, entryIndex })
+        this.#values.set(entry.parent, values)
+      }
+    }
+  }
+
   #replaceEntry(next: XmlAnomalyAnnotationEntry, index: number | undefined): number {
     if (index === undefined) {
       this.#entries.push(next)

@@ -101,6 +101,7 @@ function createRuntime(resources: readonly MetadataProjectResourceMatch[]): Full
       kind: "configurationExtension",
       componentKind: "configurationExtension",
       adoptedUuids: {},
+      xmlDefaultVariantByLogicalAddress: {},
     },
   }
 }

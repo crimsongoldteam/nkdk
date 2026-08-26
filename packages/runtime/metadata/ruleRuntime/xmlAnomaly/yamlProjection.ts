@@ -169,6 +169,20 @@ export function projectXmlAuditRemainder(params: {
     }
 
     const contentChildren = structuredContent
+    const elementNameCounts = new Map<string, number>()
+    for (const child of contentChildren) {
+      if (child.type !== "element") continue
+      elementNameCounts.set(child.name, (elementNameCounts.get(child.name) ?? 0) + 1)
+    }
+    const hasAmbiguousUnknownChild = contentChildren.some((child) =>
+      child.type === "element"
+      && isUnknown(params.audit.getOutcome(child).state)
+      && (elementNameCounts.get(child.name) ?? 0) > 1
+    )
+    if (hasAmbiguousUnknownChild && canLiftElementToStableOwner(element, params)) {
+      liftElementToStableOwner(element, params)
+      return
+    }
     const knownElementNames = new Set(
       contentChildren.flatMap((child) =>
         child.type === "element" && !isUnknown(params.audit.getOutcome(child).state)
@@ -306,6 +320,20 @@ function liftElementToStableOwner(
   for (const node of subtree(element)) {
     if (isUnknown(params.audit.getOutcome(node).state)) params.audit.claim(node, owner)
   }
+}
+
+function canLiftElementToStableOwner(
+  element: XmlElementNode,
+  params: {
+    readonly audit: XmlImportAuditSession
+    readonly boundary: XmlImportAuditBoundary
+  },
+): boolean {
+  const outcome = params.audit.getOutcome(element)
+  if (outcome.state === "ambiguous" || outcome.boundaries.length !== 1) return false
+  const ownerPath = outcome.boundaries[0]?.yamlPath
+  const basePath = params.boundary.yamlPath ?? []
+  return ownerPath !== undefined && !sameYamlPath(ownerPath, basePath)
 }
 
 function isDescendantYamlBoundary(

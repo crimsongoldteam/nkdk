@@ -1,4 +1,5 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
+import { existsSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import { join, posix } from "node:path"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
@@ -112,6 +113,7 @@ import {
   openPreparedImportStore,
   type PreparedImportStore,
 } from "../projectState/preparedImportStore"
+import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -152,6 +154,7 @@ interface InitializedImportWorkerState {
   rulesSnapshot: ValidationRulesSnapshot
   preparedStoreDescriptor?: import("../projectState/preparedImportStore").PreparedImportStoreDescriptor
   configurationIndexDescriptor?: import("@nkdk/runtime").ConfigurationIndexStoreDescriptor
+  baseConfigurationIndexDescriptor?: import("@nkdk/runtime").ConfigurationIndexStoreDescriptor
 }
 
 interface DeferredImportYaml {
@@ -191,8 +194,10 @@ interface ActiveSecondPass {
   readonly ownerMetadataCache: OwnerMetadataCache
   readonly preparedStore?: PreparedImportStore
   readonly configurationStore?: ReturnType<typeof openConfigurationIndexStore>
+  readonly baseConfigurationStore?: ReturnType<typeof openConfigurationIndexStore>
   readonly composition: MetadataXmlPrepareComposition
   readonly issueDecisionsByProjectPath: ReadonlyMap<string, readonly ImportIssueDecision[]>
+  readonly exportProfile?: XmlComponentExportProfile
 }
 
 export interface ImportWorkerCommandRunner {
@@ -217,6 +222,16 @@ export interface ImportWorkerCommandRunner {
   readonly resetForTests: () => void
   readonly setSchemaCacheForTests: (schemaCache: ValidationSchemaCache | undefined) => void
   readonly setControlExportForTests: (controlExport: typeof executeImportControlExport | undefined) => void
+}
+
+export function shouldReadCurrentConfigurationYaml(params: {
+  readonly componentPath: string
+  readonly rule: PreparedImportYaml["rule"]
+  readonly hasBaseFormCandidate: boolean
+}): boolean {
+  return params.componentPath.startsWith("cfe/") && (
+    params.hasBaseFormCandidate || supportsMetadataItemImportedYamlFinalization(params.rule)
+  )
 }
 
 export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
@@ -291,6 +306,9 @@ async function runImportWorkerCommand(
         ?? createValidationRulesSnapshot(context, validationComponent.topology),
       ...(command.preparedStore === undefined ? {} : { preparedStoreDescriptor: command.preparedStore }),
       ...(command.configurationIndex === undefined ? {} : { configurationIndexDescriptor: command.configurationIndex }),
+      ...(command.baseConfigurationIndex === undefined
+        ? {}
+        : { baseConfigurationIndexDescriptor: command.baseConfigurationIndex }),
     }
     firstPassAccumulator = createFirstPassAccumulator(command.workerIndex)
     return undefined
@@ -336,7 +354,12 @@ async function runImportWorkerCommand(
   }
 
   if (command.kind === "beginSecondPass") {
-    beginSecondPass(command.readToken, requireInitializedState(), command.composition)
+    beginSecondPass(
+      command.readToken,
+      requireInitializedState(),
+      command.composition,
+      command.exportProfile,
+    )
     secondPassAccumulator?.fragmentWriter.discard()
     secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     return undefined
@@ -370,7 +393,7 @@ async function runImportWorkerCommand(
   }
 
   if (command.kind === "beginThirdPass") {
-    beginSecondPass(command.readToken, requireInitializedState(), undefined, command.issueDecisions)
+    beginSecondPass(command.readToken, requireInitializedState(), undefined, undefined, command.issueDecisions)
     secondPassAccumulator?.fragmentWriter.discard()
     secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     return undefined
@@ -508,6 +531,13 @@ async function processSecondPass(
             prepared.targetProjectPath,
             ...(prepared.baseFormCandidate === undefined ? [] : [prepared.baseFormCandidate.targetProjectPath]),
           ]))
+      const baseConfigurationIndex = secondPass.baseConfigurationStore === undefined
+        || prepared.baseFormCandidate === undefined
+        ? undefined
+        : createLocalConfigurationIndexReader(secondPass.baseConfigurationStore.getBlocks([
+            prepared.baseFormCandidate.baseProjectPath,
+            prepared.baseFormCandidate.targetProjectPath,
+          ]))
       const output = await prepareYamlForFinalPass(
         prepared,
         secondPass.ownerMetadataCache,
@@ -517,6 +547,7 @@ async function processSecondPass(
         profiler,
         controlExport,
         configurationIndex,
+        baseConfigurationIndex,
       )
       prepared.proofAudit = undefined
       prepared.output = output
@@ -644,6 +675,7 @@ function beginSecondPass(
   readToken: import("../projectState/contracts").ProjectStateReadToken,
   state: InitializedImportWorkerState,
   controlComposition?: readonly ImportControlCompositionEntry[],
+  exportProfile?: XmlComponentExportProfile,
   issueDecisions: readonly ImportProjectIssueDecision[] = [],
 ): void {
   if (activeSecondPass !== undefined) throw new Error("Второй проход XML-import worker уже начат")
@@ -654,6 +686,9 @@ function beginSecondPass(
   const configurationStore = state.configurationIndexDescriptor === undefined
     ? undefined
     : openConfigurationIndexStore(state.configurationIndexDescriptor, "readOnly")
+  const baseConfigurationStore = state.baseConfigurationIndexDescriptor === undefined
+    ? undefined
+    : openConfigurationIndexStore(state.baseConfigurationIndexDescriptor, "readOnly")
   activeSecondPass = {
     readSession,
     ownerMetadataCache: createProjectStateOwnerMetadataCache({
@@ -663,10 +698,12 @@ function beginSecondPass(
     }),
     ...(preparedStore === undefined ? {} : { preparedStore }),
     ...(configurationStore === undefined ? {} : { configurationStore }),
+    ...(baseConfigurationStore === undefined ? {} : { baseConfigurationStore }),
     composition: importControlComposition(
       controlComposition ?? [...assignedImports.values()].map(importControlCompositionEntry),
     ),
     issueDecisionsByProjectPath: groupIssueDecisionsByProjectPath(issueDecisions),
+    ...(exportProfile === undefined ? {} : { exportProfile }),
   }
 }
 
@@ -750,6 +787,7 @@ async function endSecondPass(): Promise<void> {
   activeSecondPass?.readSession.close()
   await activeSecondPass?.preparedStore?.close()
   await activeSecondPass?.configurationStore?.close()
+  await activeSecondPass?.baseConfigurationStore?.close()
   activeSecondPass = undefined
 }
 
@@ -762,6 +800,7 @@ async function prepareYamlForFinalPass(
   profiler: ValidationProfiler,
   controlExport: typeof executeImportControlExport,
   configurationIndex: ReturnType<typeof createLocalConfigurationIndexReader>,
+  baseConfigurationIndex?: ReturnType<typeof createLocalConfigurationIndexReader>,
 ): Promise<{
   main: PreparedSerializedYaml
   base?: PreparedSerializedYaml
@@ -806,10 +845,15 @@ async function prepareYamlForFinalPass(
     formDataPathIndex: prepared.formDataPathIndex,
     ownerMetadataCache,
   })
-  const currentConfigurationYAML = state.componentPath.startsWith("cfe/") &&
-    supportsMetadataItemImportedYamlFinalization(prepared.rule)
+  const currentConfigurationYAML = shouldReadCurrentConfigurationYaml({
+    componentPath: state.componentPath,
+    rule: prepared.rule,
+    hasBaseFormCandidate: prepared.baseFormCandidate !== undefined,
+  })
     ? await readCurrentConfigurationFormYaml({
         logicalAddress: prepared.logicalAddress,
+        fallbackProjectPath: prepared.baseFormCandidate?.baseProjectPath ?? prepared.targetProjectPath,
+        role: prepared.assignment.role === "fileItem" ? "form" : "properties",
         rule: prepared.rule,
         owner: prepared.dependentOwner,
         state,
@@ -819,6 +863,7 @@ async function prepareYamlForFinalPass(
     ? undefined
     : prepareBaseFormCandidate({
         candidate: prepared.baseFormCandidate,
+        ownerRule: prepared.rule,
         extensionYaml: prepared.yaml,
         currentConfigurationYAML,
         contextWithOwners: withoutDataPathDiagnosticSink(contextWithOwners),
@@ -882,7 +927,9 @@ async function prepareYamlForFinalPass(
       rule: prepared.rule,
       topology: state.topology,
       context: { ...contextWithOwners, fromXML: state.context.fromXML },
+      exportProfile: requireSecondPassExportProfile(),
       index: configurationIndex,
+      ...(baseConfigurationIndex === undefined ? {} : { baseConfigurationIndex }),
       ...(controlBaseFormSource === undefined ? {} : { baseFormSource: controlBaseFormSource }),
       composition: activeSecondPass?.composition ?? { children: () => [] },
       readSource: async (sourcePath) => readFile(sourcePath, "utf8"),
@@ -987,6 +1034,14 @@ async function prepareYamlForFinalPass(
   }
 }
 
+function requireSecondPassExportProfile(): XmlComponentExportProfile {
+  const exportProfile = activeSecondPass?.exportProfile
+  if (exportProfile === undefined) {
+    throw new Error("Второй проход XML-import не получил профиль восстановления XML")
+  }
+  return exportProfile
+}
+
 function retargetConfigurationFragment(
   fragment: ConfigurationIndexBlockFragment,
   targetProjectPath: string,
@@ -1050,6 +1105,7 @@ function controlBaseFormPreparedYaml(params: {
 
 function prepareBaseFormCandidate(params: {
   candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
+  ownerRule: DeferredImportYaml["rule"]
   extensionYaml: unknown
   currentConfigurationYAML: unknown
   contextWithOwners: ConfigurationContext
@@ -1073,9 +1129,20 @@ function prepareBaseFormCandidate(params: {
     formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
     ownerMetadataCache: params.ownerMetadataCache,
   })
+  const currentForm = importedClientApplicationForm({
+    yaml: params.currentConfigurationYAML,
+    rule: params.ownerRule,
+  })
+  const extensionForm = importedClientApplicationForm({
+    yaml: params.extensionYaml,
+    rule: params.ownerRule,
+  })
+  if (currentForm === undefined || extensionForm === undefined) {
+    throw new Error(`Не найдены данные формы для ${params.candidate.baseProjectPath}`)
+  }
   const projection = projectClientApplicationBaseForm({
-    baseYaml: clientApplicationFormYaml(params.currentConfigurationYAML, params.candidate.baseProjectPath),
-    extensionYaml: clientApplicationFormYaml(params.extensionYaml, params.candidate.targetProjectPath),
+    baseYaml: clientApplicationFormYaml(currentForm.yaml, params.candidate.baseProjectPath),
+    extensionYaml: clientApplicationFormYaml(extensionForm.yaml, params.candidate.targetProjectPath),
     rule: params.candidate.rule,
   })
   return equalBaseFormYaml(params.candidate.yaml, projection.yaml) ? undefined : params.candidate
@@ -1153,34 +1220,36 @@ function clientApplicationFormYaml(value: unknown, projectPath: string): ClientA
 
 async function readCurrentConfigurationFormYaml(params: {
   logicalAddress: string
+  fallbackProjectPath: string
+  role: "form" | "properties"
   rule: PreparedImportYaml["rule"]
   owner: DeferredImportYaml["dependentOwner"]
   state: InitializedImportWorkerState
 }): Promise<unknown | undefined> {
   const readSession = activeSecondPass?.readSession
   if (readSession === undefined) throw new Error("Не начат второй проход XML-import worker")
+  const entries = readSession.readStructuredDocumentEntries({
+    componentPath: "cf",
+    logicalAddress: params.logicalAddress,
+  })
   const projectPaths = new Set(
-    readSession.readStructuredDocumentEntries({
-      componentPath: "cf",
-      logicalAddress: params.logicalAddress,
-    })
+    entries
       .filter(({ representation, componentKind }) =>
         representation === "working" && componentKind === "document"
       )
       .map(({ workingProjectPath }) => workingProjectPath)
   )
-  if (projectPaths.size === 0) return undefined
   if (projectPaths.size > 1) {
     throw new Error(`Для текущей формы cf найдено несколько YAML: ${[...projectPaths].join(", ")}`)
   }
-  const projectPath = [...projectPaths][0]
-  if (projectPath === undefined) return undefined
+  const projectPath = [...projectPaths][0] ?? params.fallbackProjectPath
   const filePath = join(params.state.projectDir, "cf", ...projectPath.split("/"))
+  if (!existsSync(filePath)) return undefined
   const prepared = prepareYamlFiles({
     files: [{
       projectPath,
       filePath,
-      role: "form",
+      role: params.role,
       owner: params.owner,
       itemType: params.rule.itemType,
     }],
@@ -1202,6 +1271,10 @@ function secondPassExportContext(params: {
   const { projectDir: _projectDir, ...baseExportContext } = params.context.exportToYAML ?? { toTyped: false }
   return {
     ...params.context,
+    importFromYAML: {
+      ...params.context.importFromYAML,
+      ownerMetadataCache: params.ownerMetadataCache,
+    },
     exportToYAML: {
       ...baseExportContext,
       ownerMetadataCache: params.ownerMetadataCache,
@@ -1747,6 +1820,7 @@ function resetImportWorkerStateForTests(): void {
   secondPass?.readSession.close()
   void secondPass?.preparedStore?.close()
   void secondPass?.configurationStore?.close()
+  void secondPass?.baseConfigurationStore?.close()
   clearWorkerState()
 }
 

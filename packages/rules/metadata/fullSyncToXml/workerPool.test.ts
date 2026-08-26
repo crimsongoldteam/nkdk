@@ -32,6 +32,7 @@ describe("full XML sync worker pool", () => {
       kind: "configuration",
       componentKind: "configuration",
       adoptedUuids: {},
+      xmlDefaultVariantByLogicalAddress: {},
     },
     composition: {} as never,
     targetIndex: targetIndex([]),

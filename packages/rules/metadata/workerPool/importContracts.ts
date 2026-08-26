@@ -11,6 +11,7 @@ import type {
   PreparedImportRecordLocator,
   PreparedImportStoreDescriptor,
 } from "../projectState/preparedImportStore"
+import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
 
 export interface PreparedImportBinaryRecord {
   readonly locator: PreparedImportRecordLocator
@@ -122,6 +123,7 @@ export type ImportWorkerCommand =
       componentPath?: string
       preparedStore?: PreparedImportStoreDescriptor
       configurationIndex?: ConfigurationIndexStoreDescriptor
+      baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
   | { kind: "firstPassBatch"; assignments: ImportAssignment[] }
@@ -130,6 +132,7 @@ export type ImportWorkerCommand =
       kind: "beginSecondPass"
       readToken: ProjectStateReadToken
       composition?: readonly ImportControlCompositionEntry[]
+      exportProfile: XmlComponentExportProfile
     }
   | { kind: "secondPass"; assignmentId: string }
   | { kind: "secondPassBatch"; assignmentIds: string[] }

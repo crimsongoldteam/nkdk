@@ -9,6 +9,7 @@ import {
   resolveRegisterRecordsItem as resolveRegisteredMovementItem,
   resolveTraversalTimeStandardMember,
   resolveTraversalTransition,
+  resolveOwnerKindTraversalTransition,
   resolveTypedDataPathMember,
   resolveTypedDynamicDataPathTarget,
   resolveVirtualOwnerField,
@@ -336,6 +337,36 @@ function resolveDataPathCoreWithCurrentData(
     const nextType = resolvedTypeInfo.nextTypes[0] as OwnerTypeRef
     if (isOpaqueTraversal({ owner: nextType, segment: lookupSegment })) {
       return okWithoutTarget({ value, segments, replacements })
+    }
+
+    const ownerKindTransition = resolveOwnerKindTraversalTransition({
+      owner: nextType,
+      segment: lookupSegment,
+    })
+    if (ownerKindTransition?.kind === "warning") {
+      return okWithoutTarget({ value, segments, replacements })
+    }
+    if (ownerKindTransition !== undefined) {
+      if (ownerKindTransition.targetName !== undefined) {
+        recordTableColumnStandardMemberReplacement({
+          replacements,
+          nameMode: params.nameMode,
+          segmentIndex: index,
+          input: lookupSegment,
+          internalName: ownerKindTransition.targetName,
+          yamlName: ownerKindTransition.sourceName,
+        })
+      }
+      state = {
+        typeInfo: ownerKindTransition.typeInfo,
+        source: { kind: "objectField", owner: nextType, name: ownerKindTransition.sourceName },
+        ...(ownerKindTransition.tableSource !== undefined
+          ? { tableSource: ownerKindTransition.tableSource }
+          : {}),
+      }
+
+      if (isLast) return okTarget({ value, segments, state, replacements })
+      continue
     }
 
     const ownerResult = params.ownerCache.get(nextType)

@@ -14,6 +14,13 @@ describe("metadataRules", () => {
         "function",
       )
       expect(
+        metadataRules.propertyTypes.DcsLocalStringType?.exportToXML,
+      ).toBeTypeOf("function")
+      expect(
+        metadataRules.propertyTypes.DcsLocalStringType?.yamlScalarTagPolicy,
+      ).toEqual({ acceptedTags: ["xml/string"] })
+      expect(metadataRules.propertyTypes.string?.yamlScalarTagPolicy).toBeUndefined()
+      expect(
         metadataRules.propertyTypes.ChildFormNames?.resourceTopology,
       ).toBeTypeOf("function")
       expect(

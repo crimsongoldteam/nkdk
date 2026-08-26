@@ -27,7 +27,11 @@ const exportSettingsParameterValueCollectionToYAML = (
     const yamlFragment = exportParameterValueToYAML({
       context,
       rule: itemRule,
-      data: { ...data, parameter: paramName, ...(data.xmlNil === true ? { xmlNil: undefined } : {}) },
+      data: {
+        ...data,
+        parameter: paramName,
+        ...(data.xmlNil === true ? { value: null, xmlNil: undefined } : {}),
+      },
     })
     if (yamlFragment !== undefined) {
       result[paramName] = yamlFragment as SettingsParameterValueYAML

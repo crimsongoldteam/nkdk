@@ -95,14 +95,19 @@ describe("assert test durations", () => {
       duration: 100.01,
     }])
     expect(analyzeTestDurationReport(
-      report({ testMs: 200 }),
+      report({ testMs: 400 }),
+      lifecycleReport(1_000),
+      { CI: "true", NKDK_TEST_SUITE: "integration" },
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 400.01 }),
       lifecycleReport(1_000),
       { CI: "true", NKDK_TEST_SUITE: "integration" },
     ).failures).toEqual([{
       type: "test",
       file: "/project/packages/rules/example.test.ts",
       name: "example test case",
-      duration: 200,
+      duration: 400.01,
     }])
   })
 
@@ -119,17 +124,39 @@ describe("assert test durations", () => {
     ).warnings).toContainEqual({ type: "setup", duration: 15_000.01 })
   })
 
-  it("ограничивает integration тест тем же пределом 50ms", () => {
+  it("даёт integration тесту отдельный предел 200ms", () => {
     expect(analyzeTestDurationReport(
-      report({ testMs: 50 }),
+      report({ testMs: 200 }),
       lifecycleReport(1_000),
       { NKDK_TEST_SUITE: "integration" },
     ).failures).toEqual([])
     expect(analyzeTestDurationReport(
-      report({ testMs: 50.01 }),
+      report({ testMs: 200.01 }),
       lifecycleReport(1_000),
       { NKDK_TEST_SUITE: "integration" },
-    ).failures).toContainEqual(expect.objectContaining({ type: "test", duration: 50.01 }))
+    ).failures).toContainEqual(expect.objectContaining({ type: "test", duration: 200.01 }))
+  })
+
+  it("ограничивает unit файл пределом 1000ms, а integration — 2500ms", () => {
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(1_000),
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(1_000.01),
+    ).failures).toContainEqual(expect.objectContaining({ type: "file", duration: 1_000.01 }))
+
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(2_500),
+      { NKDK_TEST_SUITE: "integration" },
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(2_500.01),
+      { NKDK_TEST_SUITE: "integration" },
+    ).failures).toContainEqual(expect.objectContaining({ type: "file", duration: 2_500.01 }))
   })
 
   it("сортирует предупреждения и превышения по убыванию длительности", () => {

@@ -82,6 +82,7 @@ flowchart TD
 | [Проверка связей проекта](#subprocess-reference-check) | ● | ● | ● | ● | ● | ● |
 | [Актуализировать проект](#subprocess-refresh) |  | ● | ● | ● | ● | ● |
 | Сверка со [снимком компонента](#term-snapshot) |  |  | ● | ● |  |  |
+| [Подготовить профиль восстановления XML компонента](#subprocess-xml-reconstruction-profile) | ● |  | ● | ● |  |  |
 | Подготовка выгрузки XML |  |  | ● | ● |  |  |
 | YAML → XML |  |  | ● | ● |  |  |
 
@@ -138,6 +139,29 @@ flowchart TD
 
   prepared --> schema --> rules --> synonym --> values --> facts --> contribution
 ```
+
+<a id="subprocess-xml-reconstruction-profile"></a>
+
+### Подготовить профиль восстановления XML компонента
+
+```mermaid
+flowchart TD
+  target["Получить логические адреса<br/>и идентификаторы целевого компонента"]
+  base["При наличии получить логические адреса<br/>и UUID основной конфигурации"]
+  classify["Определить точный вариант XML<br/>для каждого адреса"]
+  adopted["Связать заимствованные объекты<br/>с UUID основной конфигурации"]
+  validate["Проверить полноту<br/>и непротиворечивость профиля"]
+  profile["Вернуть неизменяемый профиль<br/>для всех воркеров компонента"]
+
+  target --> classify
+  base --> classify --> adopted --> validate --> profile
+```
+
+Подпроцесс одинаково классифицирует объекты при контрольном экспорте импорта и
+при обычной синхронизации. Он работает с уже прочитанными сведениями индексов,
+не открывает LMDB и не читает XML/YAML. Для каждого адреса материализуется
+точный вариант `full`, `adopted` или `indexed`; обязательный UUID
+заимствованного объекта проверяется до запуска экспорта.
 
 <a id="subprocess-reference-check"></a>
 
@@ -216,6 +240,7 @@ flowchart TD
   firstErrors{"Есть ошибки?"}
   snapshotFragments["Собрать сведения из XML<br/>для снимка компонента"]
   index["Зафиксировать рабочий индекс<br/>первого прохода"]
+  profile[["Подготовить профиль<br/>восстановления XML компонента"]]
 
   subgraph second["Второй проход воркера"]
     direction TD
@@ -250,7 +275,7 @@ flowchart TD
   extension -- "нет" --> session
   extension -- "да" --> refresh --> session
   session --> discover --> first --> firstErrors
-  firstErrors -- "нет" --> snapshotFragments --> index --> second --> secondErrors
+  firstErrors -- "нет" --> snapshotFragments --> index --> profile --> second --> secondErrors
   secondErrors -- "нет" --> semanticIndex --> third --> thirdErrors
   thirdErrors -- "нет" --> files --> external --> externalState --> snapshot --> dependencies --> writeSnapshot --> publish --> result
   firstErrors -- "да" --> abort
@@ -267,6 +292,8 @@ flowchart TD
 ↳ [Проверка YAML и подготовка вклада в индекс — подробная схема](#subprocess-yaml-index)
 
 ↳ [Проверить связи проекта — подробная схема](#subprocess-reference-check)
+
+↳ [Подготовить профиль восстановления XML компонента — подробная схема](#subprocess-xml-reconstruction-profile)
 
 <a id="operation-validation"></a>
 
@@ -291,6 +318,7 @@ flowchart LR
 flowchart TD
   validate[["Актуализировать проект"]]
   target[["Сверить компонент<br/>с его снимком"]]
+  profile[["Подготовить профиль<br/>восстановления XML компонента"]]
   plan[["Построить план<br/>выгрузки XML"]]
 
   subgraph fullSyncJob["Воркер"]
@@ -302,11 +330,13 @@ flowchart TD
   check["Проверить полноту<br/>записанных файлов"]
   snapshot[["Одной транзакцией заменить<br/>активные hash/block-записи"]]
 
-  validate --> target --> plan --> fullSyncJob --> external --> check --> snapshot
+  validate --> target --> profile --> plan --> fullSyncJob --> external --> check --> snapshot
   style fullSyncJob stroke-dasharray: 7 5
 ```
 
 ↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
+
+↳ [Подготовить профиль восстановления XML компонента — подробная схема](#subprocess-xml-reconstruction-profile)
 
 <a id="operation-partial-sync"></a>
 
@@ -321,6 +351,7 @@ flowchart TD
   changes["Найти изменения<br/>относительно снимка"]
   work{"Есть изменения<br/>для передачи?"}
   impact["Расширить выборку<br/>по топологии и ссылкам"]
+  profile[["Подготовить профиль<br/>восстановления XML компонента"]]
   plan[["Построить план<br/>выгрузки XML"]]
 
   subgraph partialSyncJob["Воркер"]
@@ -345,7 +376,7 @@ flowchart TD
   pending --> proceed
   proceed -- "да" --> validate
   proceed -- "нет" --> previous
-  validate --> target --> changes --> work
+  validate --> target --> profile --> changes --> work
   work -- "да" --> impact --> plan --> readYaml
   work -- "нет" --> noChanges
   document -- "по мере готовности" --> archive --> prepared
@@ -357,6 +388,8 @@ flowchart TD
 ```
 
 ↳ [Актуализировать проект — подробная схема](#subprocess-refresh)
+
+↳ [Подготовить профиль восстановления XML компонента — подробная схема](#subprocess-xml-reconstruction-profile)
 
 <a id="operation-rename"></a>
 

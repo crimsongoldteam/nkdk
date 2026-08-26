@@ -26,6 +26,7 @@ import {
   type XmlAnomalyProofAudit,
 } from "./anomalyProof"
 import type { ImportAssignment, ImportXmlInput } from "./types"
+import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
 
 let controlExportCountValueForTests = 0
 
@@ -45,7 +46,9 @@ export async function executeImportControlExport(params: {
   readonly rule?: MetadataItemRule
   readonly topology: CompiledMetadataResourceTopology
   readonly context: XmlImportConfigurationContext
+  readonly exportProfile: XmlComponentExportProfile
   readonly index: LocalConfigurationIndexReader
+  readonly baseConfigurationIndex?: LocalConfigurationIndexReader
   readonly baseFormSource?: BaseFormSourceResult
   readonly composition: MetadataXmlPrepareComposition
   readonly readSource: (sourcePath: string) => Promise<string>
@@ -76,10 +79,7 @@ export async function executeImportControlExport(params: {
     sourceCache.set(sourcePath, source)
     return source
   }
-  const adoptedUuid = params.context.fromXML.componentKind === "configurationExtension"
-    ? await readAdoptedUuid(params.assignment, readSource)
-    : undefined
-  const context = controlExportContext(params.context, params.assignment.logicalAddress, adoptedUuid)
+  const context = controlExportContext(params.context, params.exportProfile)
   controlExportCountValueForTests += 1
   const prepared = (params.ordinaryExporter ?? prepareFullXmlSyncAssignment)({
     assignment,
@@ -104,7 +104,9 @@ export async function executeImportControlExport(params: {
       ? {}
       : {
           baseFormSource: params.baseFormSource,
-          baseConfigurationIndex: params.index,
+          ...(params.baseConfigurationIndex === undefined
+            ? {}
+            : { baseConfigurationIndex: params.baseConfigurationIndex }),
         }),
     composition: params.composition,
     topology: params.topology,
@@ -422,26 +424,18 @@ function projectControlAssignment(
 
 function controlExportContext(
   context: XmlImportConfigurationContext,
-  logicalAddress: string,
-  adoptedUuid: string | undefined,
+  profile: XmlComponentExportProfile,
 ): ConfigurationContextWithExportToXML {
   return {
     ...context,
     exportToXML: {
       ...(context.exportToXML ?? {}),
-      ...(adoptedUuid === undefined
+      componentKind: profile.componentKind,
+      adoptedUuids: profile.adoptedUuids,
+      xmlDefaultVariantByLogicalAddress: profile.xmlDefaultVariantByLogicalAddress,
+      ...(profile.typeDescriptionXMLNameByType === undefined
         ? {}
-        : {
-            adoptedUuids: {
-              ...context.exportToXML?.adoptedUuids,
-              [logicalAddress]: adoptedUuid,
-            },
-            xmlDefaultVariantByLogicalAddress: {
-              ...context.exportToXML?.xmlDefaultVariantByLogicalAddress,
-              [logicalAddress]: "adopted" as const,
-            },
-          }),
-      componentKind: context.fromXML.componentKind,
+        : { typeDescriptionXMLNameByType: profile.typeDescriptionXMLNameByType }),
       version: context.exportToXML?.version ?? context.version,
       itemsTree: context.exportToXML?.itemsTree ?? [],
       context: {
@@ -453,38 +447,6 @@ function controlExportContext(
       },
     },
   }
-}
-
-async function readAdoptedUuid(
-  assignment: ImportAssignment,
-  readSource: (sourcePath: string) => Promise<string>,
-): Promise<string | undefined> {
-  const metadata = assignment.xmlFiles.find(({ role }) => role === "metadata")
-  if (metadata === undefined) return undefined
-  const document = parseXmlDocumentWithSaxes(await readSource(metadata.sourcePath), {
-    preserveXsiNil: true,
-    preserveEmptyElements: true,
-  })
-  for (const documentRoot of document.roots) {
-    const objectRoot = childElement(documentRoot)
-    const properties = objectRoot === undefined
-      ? undefined
-      : childElement(objectRoot, "Properties")
-    const extended = properties === undefined
-      ? undefined
-      : childElement(properties, "ExtendedConfigurationObject")
-    if (typeof extended?.compatibilityValue === "string") {
-      const value = extended.compatibilityValue.trim()
-      if (value.length > 0) return value
-    }
-  }
-  return undefined
-}
-
-function childElement(parent: XmlElementNode, localName?: string): XmlElementNode | undefined {
-  return parent.content.find((node): node is XmlElementNode =>
-    node.type === "element" && (localName === undefined || xmlLocalName(node.name) === localName),
-  )
 }
 
 function matchSource(

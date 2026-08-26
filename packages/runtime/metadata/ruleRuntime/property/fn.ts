@@ -30,6 +30,7 @@ import type { TypeRulesOperations } from "./ruleContracts"
 import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
 import type { MetadataTargetOwnerResolver } from "./metadataTargetOwnerRegistry"
 import type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
+import type { YAMLScalarTagPolicy } from "./yamlScalarTagPolicy"
 export type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
 export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
 
@@ -314,6 +315,7 @@ export interface TypeRule {
   finalizeExportedXML?: FinalizeExportedXMLFunction
   collectLocalFactsFromYAML?: CollectLocalFactsFromYAMLFunction
   yamlToXMLNestedRule?: YAMLToXMLNestedRule
+  yamlScalarTagPolicy?: YAMLScalarTagPolicy
 }
 
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
@@ -376,4 +378,6 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
                                                   : O extends "yamlToXMLNestedRule"
                                                     ? YAMLToXMLNestedRule | undefined
-                                                    : never
+                                                    : O extends "yamlScalarTagPolicy"
+                                                      ? YAMLScalarTagPolicy | undefined
+                                                      : never

@@ -36,11 +36,15 @@ function visitObject<State>(params: MetadataRuleYamlContext<State>): void {
   if (record === undefined) return
   params.onObject?.(params)
 
-  for (const propertyRule of Object.values(params.rule.properties)) {
+  for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
     if (typeof propertyRule.yaml !== "string" || !Object.hasOwn(record, propertyRule.yaml)) continue
+    const collectionUidSegment = params.rule.childCollections
+      ?.find((collection) => collection.propertyKey === propertyKey)
+      ?.configurationIndexUidSegment
     visitNested({
       ...params,
       propertyRule,
+      collectionUidSegment,
       yaml: record[propertyRule.yaml],
       yamlPath: [...params.yamlPath, propertyRule.yaml],
     })
@@ -49,6 +53,7 @@ function visitObject<State>(params: MetadataRuleYamlContext<State>): void {
 
 function visitNested<State>(params: MetadataRuleYamlContext<State> & {
   readonly propertyRule: PropertyRule
+  readonly collectionUidSegment?: string
 }): void {
   const nested = getTypeRule(params.propertyRule.type, "yamlToXMLNestedRule")
   if (nested === undefined || nested.kind === "externalFile") return
@@ -84,7 +89,7 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
         rule,
         yamlPath: [...params.yamlPath, index],
         itemName: itemNameFromArrayItem(item),
-        collectionUidSegment: nested.configurationIndexUidSegment,
+        collectionUidSegment: params.collectionUidSegment ?? nested.configurationIndexUidSegment,
       }
       visitObject({ ...object, state: params.enterCollectionItem?.(object) ?? params.state })
     })
@@ -110,7 +115,7 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
       rule,
       yamlPath: [...params.yamlPath, yamlKey],
       itemName,
-      collectionUidSegment: nested.configurationIndexUidSegment,
+      collectionUidSegment: params.collectionUidSegment ?? nested.configurationIndexUidSegment,
     }
     visitObject({ ...object, state: params.enterCollectionItem?.(object) ?? params.state })
     index += 1

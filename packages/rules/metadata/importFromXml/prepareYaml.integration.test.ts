@@ -254,9 +254,63 @@ describe("prepareImportYaml", () => {
     expect(substeps).toContain("XML в YAML: обход XML")
     expect(substeps).not.toContain("XML в YAML: определение порядка свойств")
     expect(substeps).not.toContain("XML в YAML: выбор свойств")
+    expect(prepared.proofAudit.fallbackBoundaries).toContainEqual(expect.objectContaining({
+      sourceRole: "property",
+      xmlPath: "/Form[1]",
+      yamlPath: ["Форма"],
+    }))
+    expect(prepared.proofAudit.boundaries).not.toContainEqual(expect.objectContaining({
+      sourceRole: "property",
+      xmlPath: "/Form[1]",
+      yamlPath: ["Форма"],
+    }))
+    expect(prepared.proofAudit.itemAnchors).toContainEqual({
+      sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml"),
+      xmlPath: "/Form[1]/Attributes[1]/Attribute[1]",
+      yamlPath: ["Форма", "Реквизиты", "НаборКонстант"],
+      rulePath: ["form", "attributes"],
+    })
     expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства.Элемент.КонстантаВсеСвойства",
       xmlId: "1",
+    })
+  })
+
+  it("удерживает BaseForm встроенной общей формы как изолированный YAML-кандидат", async () => {
+    const fixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync")
+    const prepared = await prepareImportYaml({
+      assignment: {
+        id: "borrowed-common-form",
+        topologyAddress: assignmentTopologyAddress("ОбщаяФорма/InputField/Свойства.yaml"),
+        role: "properties",
+        targetProjectPath: "ОбщаяФорма/InputField/Свойства.yaml",
+        itemType: "MetadataCommonForm",
+        itemName: "InputField",
+        logicalAddress: "ОбщаяФорма.InputField",
+        owner: undefined,
+        xmlFiles: [
+          { role: "metadata", sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства.xml") },
+          {
+            role: "body",
+            sourcePath: join(
+              extensionFixtureDir,
+              "Catalogs/СправочникПолный/Forms/ФормаОтчета/Ext/Form.xml",
+            ),
+          },
+        ],
+        externalFiles: [],
+      },
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    expect(prepared.baseFormCandidate).toMatchObject({
+      baseProjectPath: "ОбщаяФорма/InputField/Свойства.yaml",
+      targetProjectPath: "ОбщаяФорма/InputField/БазоваяФорма.yaml",
+      yaml: {
+        Реквизиты: { БазовыйРеквизитФормы: { Тип: "Дата" } },
+        Элементы: { БазовоеПоле: { Вид: "ПолеВвода", Ширина: 99 } },
+      },
     })
   })
 

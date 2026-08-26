@@ -249,6 +249,7 @@ export async function roundTripMetadataProject(params: {
         reportDir: resolve(params.reportRoot, component.reportName),
         compareOptions: {
           xmlComparison: "bytes",
+          textComparison: "normalize",
           ignoredPaths: ["ConfigDumpInfo.xml"],
         },
       })
@@ -271,7 +272,10 @@ export async function compareSuccessfulSync(params: {
   readonly actualDir: string
   readonly reportDir: string
   readonly compare?: typeof compareFileTrees
-  readonly compareOptions?: Pick<Parameters<typeof compareFileTrees>[0], "xmlComparison" | "ignoredPaths">
+  readonly compareOptions?: Pick<
+    Parameters<typeof compareFileTrees>[0],
+    "xmlComparison" | "textComparison" | "ignoredPaths"
+  >
 }): Promise<
   | { readonly kind: "syncFailed" }
   | { readonly kind: "compared"; readonly comparison: FileTreeComparison }

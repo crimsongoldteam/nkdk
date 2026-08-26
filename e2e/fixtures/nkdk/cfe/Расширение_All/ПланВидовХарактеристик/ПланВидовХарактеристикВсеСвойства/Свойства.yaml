@@ -8,31 +8,8 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Group
-          - ToolTip
-          - Picture
   ПоУмолчанию:
     Группа: ПанельНавигацииОбычное
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Group
 ОсновнаяФормаВыбора: ""
 ОсновнаяФормаОбъекта: ""
 ОсновнаяФормаСписка: ""
@@ -46,19 +23,6 @@
         Тип: Справочник.СправочникПолный
         ФормаВыбора: ""
         Подсказка: ""
-        ПринадлежностьОбъекта: !xml/raw
-          $xml: Adopted
-        Properties: !xml/raw
-          $xml:
-            "#order":
-              - ObjectBelonging
-              - Name
-              - Synonym
-              - Comment
-              - ExtendedConfigurationObject
-              - Type
-              - ToolTip
-              - ChoiceForm
     Подсказка: ""
 ДлинаКода: !изменять 9
 ДопустимаяДлинаКода: !изменять Переменная

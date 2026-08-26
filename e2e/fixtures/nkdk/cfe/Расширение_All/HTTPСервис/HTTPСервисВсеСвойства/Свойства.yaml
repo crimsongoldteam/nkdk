@@ -5,45 +5,7 @@
     Методы:
       МетодВсеСвойства:
         Синоним: ""
-        ПринадлежностьОбъекта: !xml/raw
-          $xml: Adopted
-        Properties: !xml/raw
-          $xml:
-            "#order":
-              - ObjectBelonging
-              - Name
-              - Synonym
-              - Comment
-              - ExtendedConfigurationObject
       МетодПоУмолчанию:
-        ПринадлежностьОбъекта: !xml/raw
-          $xml: Adopted
-        Properties: !xml/raw
-          $xml:
-            "#order":
-              - ObjectBelonging
-              - Name
-              - Comment
-              - ExtendedConfigurationObject
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
   ШаблонURLПоУмолчанию:
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
 Изменять:
   - Модуль

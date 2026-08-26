@@ -1,4 +1,5 @@
 import {
+  isPropertyStateYAMLTag,
   markYAMLScalarTag,
   yamlScalarTagAt,
   type ConfigurationContext,
@@ -84,7 +85,8 @@ export function exportMultiStateType(
 }
 
 export function isMultiStateTypeYAML(value: unknown): value is readonly unknown[] {
-  return Array.isArray(value) && value.some((_, index) => yamlScalarTagAt(value, index) !== undefined || isEmptyPart(value[index]))
+  return Array.isArray(value) && value.some((_, index) =>
+    isPropertyStateYAMLTag(yamlScalarTagAt(value, index)) || isEmptyPart(value[index]))
 }
 
 function isEmptyPart(value: unknown): boolean {

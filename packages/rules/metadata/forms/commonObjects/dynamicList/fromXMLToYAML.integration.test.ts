@@ -6,6 +6,7 @@ import { importContentFromXML,xmlExport } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
+directPropertyRuleExecution,
 testPropertyFromXMLToYAML,
 testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
@@ -36,7 +37,11 @@ describe("DynamicList XML → YAML → XML", () => {
 
   beforeAll(() => {
     dynamicListSchema = JSON.stringify(
-      exportMetadataItemToJSONSchema({ context: mockContext, rule: DynamicListRules })
+      exportMetadataItemToJSONSchema({
+        context: mockContext,
+        rule: DynamicListRules,
+        execution: directPropertyRuleExecution,
+      })
     )
   })
 

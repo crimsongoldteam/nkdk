@@ -20,6 +20,7 @@ export type XmlImportAuditState =
   | "unclaimed"
   | "claimed"
   | "semanticallyElided"
+  | "externallyPersisted"
   | "structurallyClaimed"
   | "structurallyCovered"
   | "ambiguous"
@@ -47,8 +48,13 @@ export interface XmlImportAuditSession {
     targetPrefix: readonly (string | number)[],
     root?: XmlElementNode,
   ): void
+  selectPropertyBoundary(
+    root: XmlElementNode,
+    boundary: XmlImportAuditBoundary,
+  ): void
   claim(node: XmlImportAuditedNode, boundary: XmlImportAuditBoundary): void
   elideSubtree(node: XmlElementNode, boundary: XmlImportAuditBoundary): boolean
+  persistExternalSubtree(node: XmlElementNode, boundary: XmlImportAuditBoundary): boolean
   claimStructuralSubtree(
     node: XmlElementNode,
     boundary: XmlImportAuditBoundary,
@@ -89,6 +95,30 @@ export function createXmlImportAuditSession(
     return current
   }
 
+  const compactClaimedSubtree = (
+    node: XmlElementNode,
+    boundary: XmlImportAuditBoundary,
+    state: "semanticallyElided" | "externallyPersisted",
+  ): boolean => {
+    const subtree = collectSubtreeOutcomes(node, outcomes)
+    const subtreeNodes = new Set(subtree.map((current) => current.node))
+    if (
+      subtree.some((current) => current.state !== "claimed")
+      || candidates.some((candidate) => subtreeNodes.has(candidate.node))
+    ) return false
+    const [root, ...descendants] = subtree
+    if (root === undefined) return false
+    root.state = state
+    root.boundaries = [copyBoundary(boundary)]
+    root.compactOwner = root
+    for (const current of descendants) {
+      current.state = state
+      current.boundaries = []
+      current.compactOwner = root
+    }
+    return true
+  }
+
   return {
     outcomes: () => [...outcomes.values()].map(copyOutcome),
     getOutcome: outcome,
@@ -118,6 +148,24 @@ export function createXmlImportAuditSession(
         }
       }
     },
+    selectPropertyBoundary(root, boundary) {
+      const alternatives = outcome(root).boundaries
+      if (!alternatives.some((candidate) => sameBoundaries([candidate], [boundary]))) return
+      for (const current of collectSubtreeOutcomes(root, outcomes)) {
+        if (current.boundaries.length === 0) continue
+        const owners = current.boundaries.map((candidate) => alternatives.filter(
+          (alternative) => boundaryBelongsToAlternative(candidate, alternative),
+        ))
+        if (owners.some((candidates) => candidates.length === 0)) continue
+        const selected = current.boundaries.filter((_, index) =>
+          owners[index]!.some((owner) => sameBoundaries([owner], [boundary])),
+        )
+        if (selected.length > 1) continue
+        current.state = selected.length === 1 ? "claimed" : "unclaimed"
+        current.boundaries = selected.map(copyBoundary)
+        current.compactOwner = undefined
+      }
+    },
     claim(node, boundary) {
       const current = outcome(node)
       if (current.state === "unclaimed" || current.state === "unknown") {
@@ -128,6 +176,7 @@ export function createXmlImportAuditSession(
       if (
         (
           current.state === "semanticallyElided"
+          || current.state === "externallyPersisted"
           || current.state === "structurallyClaimed"
           || current.state === "structurallyCovered"
         )
@@ -148,23 +197,10 @@ export function createXmlImportAuditSession(
       current.boundaries = uniqueBoundaries([...current.boundaries, boundary])
     },
     elideSubtree(node, boundary) {
-      const subtree = collectSubtreeOutcomes(node, outcomes)
-      const subtreeNodes = new Set(subtree.map((current) => current.node))
-      if (
-        subtree.some((current) => current.state !== "claimed")
-        || candidates.some((candidate) => subtreeNodes.has(candidate.node))
-      ) return false
-      const [root, ...descendants] = subtree
-      if (root === undefined) return false
-      root.state = "semanticallyElided"
-      root.boundaries = [copyBoundary(boundary)]
-      root.compactOwner = root
-      for (const current of descendants) {
-        current.state = "semanticallyElided"
-        current.boundaries = []
-        current.compactOwner = root
-      }
-      return true
+      return compactClaimedSubtree(node, boundary, "semanticallyElided")
+    },
+    persistExternalSubtree(node, boundary) {
+      return compactClaimedSubtree(node, boundary, "externallyPersisted")
     },
     claimStructuralSubtree(node, boundary) {
       const subtree = collectSubtreeOutcomes(node, outcomes)
@@ -328,4 +364,35 @@ function boundaryKey(boundary: XmlImportAuditBoundary): string {
     boundary.yamlPath,
     boundary.rulePath,
   ])
+}
+
+function boundaryBelongsToAlternative(
+  candidate: XmlImportAuditBoundary,
+  alternative: XmlImportAuditBoundary,
+): boolean {
+  return pathStartsWith(candidate.yamlPath, alternative.yamlPath)
+    && rulePathStartsWith(candidate.rulePath, alternative.rulePath)
+}
+
+function pathStartsWith<T>(
+  candidate: readonly T[] | undefined,
+  prefix: readonly T[] | undefined,
+): boolean {
+  if (prefix === undefined) return true
+  return candidate !== undefined
+    && prefix.length <= candidate.length
+    && prefix.every((segment, index) => segment === candidate[index])
+}
+
+function rulePathStartsWith(
+  candidate: readonly DeferredRulePathSegment[] | undefined,
+  prefix: readonly DeferredRulePathSegment[] | undefined,
+): boolean {
+  if (prefix === undefined) return true
+  return candidate !== undefined
+    && prefix.length <= candidate.length
+    && prefix.every((segment, index) =>
+      segment.propertyKey === candidate[index]?.propertyKey
+      && segment.nestedItemType === candidate[index]?.nestedItemType,
+    )
 }

@@ -1,4 +1,4 @@
-import { yamlScalarTagAt } from "@nkdk/runtime"
+import { isPropertyStateYAMLTag, yamlScalarTagAt } from "@nkdk/runtime"
 import { dirname, join } from "node:path/posix"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type {
@@ -61,7 +61,7 @@ export function collectConfigurationExtensionPropertyStateDocuments(params: {
       mode,
       normalizedValue(mode, value),
       yamlPath,
-      tag !== undefined || hasTaggedParts(value),
+      isPropertyStateYAMLTag(tag) || hasPropertyStateTaggedParts(value),
     ))
   }
 
@@ -87,7 +87,7 @@ function hasPropertyStateMarkup(
   if (sections.size > 0) return true
   return Object.keys(yaml).some((yamlName) => {
     const tag = yamlScalarTagAt(yaml, yamlName)
-    return tag === "проверять" || tag === "изменять"
+    return isPropertyStateYAMLTag(tag)
   })
 }
 
@@ -115,8 +115,8 @@ function normalizedValue(mode: ConfigurationExtensionPropertyStateFactMode, valu
   }))
 }
 
-function hasTaggedParts(value: unknown): boolean {
-  return Array.isArray(value) && value.some((_part, index) => yamlScalarTagAt(value, index) !== undefined)
+function hasPropertyStateTaggedParts(value: unknown): boolean {
+  return Array.isArray(value) && value.some((_part, index) => isPropertyStateYAMLTag(yamlScalarTagAt(value, index)))
 }
 
 function sectionPath(

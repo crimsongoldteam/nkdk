@@ -5,9 +5,9 @@ import {
 } from "../../forms/settingsComposer/dataPathGraph"
 
 export const metadataReportDataPathRules: readonly DataPathContribution[] = [{
-  kind: "traversalTransition",
+  kind: "ownerKindTraversalTransition",
   resolver: ({ owner, segment }) =>
-    owner.ref.kind === "ОтчетОбъект" && (segment === "SettingsComposer" || segment === "КомпоновщикНастроек")
+    owner.kind === "ОтчетОбъект" && (segment === "SettingsComposer" || segment === "КомпоновщикНастроек")
       ? {
           typeInfo: settingsComposerTypeInfo(SETTINGS_COMPOSER_TYPE),
           sourceName: "КомпоновщикНастроек",

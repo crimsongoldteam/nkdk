@@ -12,7 +12,8 @@ export const exportDcsLocalStringTypeToXML = (
 ) => {
   if (data === undefined) return undefined
   if ("kind" in data) return { "_xsi:type": "xs:string", "#text": data.text }
-  if (Object.keys(data.items).length === 0) return undefined
+  const languages = Object.keys(data.items)
+  if (languages.length === 0) return undefined
 
   const base = exportI8nTextToXML(context, { type: "I8nText" } as PropertyRule, data as I8nText)
   return base === undefined ? undefined : { "_xsi:type": "v8:LocalStringType", ...base }

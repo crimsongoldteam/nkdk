@@ -7,7 +7,7 @@ import { getStandardMembers, type StandardMemberDeclaration } from "../../standa
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { MetadataTypedValue } from "../metadataValue/types"
 import { classifyStandardAttributeFillValue } from "./analyzeItem"
-import { classifyStandardMemberFillValue } from "./effectiveType"
+import { classifyStandardMemberFillValue, implicitStandardMemberFillValue } from "./effectiveType"
 
 const catalogMember = (name: string): StandardMemberDeclaration => {
   const member = getStandardMembers("Справочник").find((item) => item.names.yaml === name)
@@ -145,6 +145,23 @@ describe("standard member fill value", () => {
     expect(classify(member, { type: "ref", value: "Catalog.Контрагенты.EmptyRef" }, compositeOwner).kind).toBe(
       "valid"
     )
+  })
+
+  it("builds the canonical empty reference for a single configured owner", () => {
+    expect(implicitStandardMemberFillValue({
+      declaration: catalogMember("Владелец"),
+      ownerProperties: { owners: ["Catalog.СправочникВладелец"] },
+    })).toEqual({
+      type: "ref",
+      value: "Catalog.СправочникВладелец.EmptyRef",
+    })
+  })
+
+  it("does not choose an empty reference for a composite owner type", () => {
+    expect(implicitStandardMemberFillValue({
+      declaration: catalogMember("Владелец"),
+      ownerProperties: { owners: ["Catalog.Один", "Catalog.Два"] },
+    })).toBeUndefined()
   })
 
   it.each([undefined, []])("rejects fill value without catalog owners", (owners) => {

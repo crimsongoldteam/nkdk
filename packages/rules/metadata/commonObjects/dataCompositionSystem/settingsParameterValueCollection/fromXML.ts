@@ -1,13 +1,18 @@
 import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
-import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
+import type {
+  PropertyRuleExecution,
+  SettingsParameterValueCollectionPropertyRule,
+} from "@nkdk/runtime/rule-kit"
 import { importSettingsParameterValueDcscorItemsFromXML } from "./dcscorItemsXML"
 import type { SettingsParameterValueCollection, SettingsParameterValueCollectionXML } from "./types"
 
 const importSettingsParameterValueCollectionFromXML = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
-  xml: SettingsParameterValueCollectionXML | undefined
+  xml: SettingsParameterValueCollectionXML | undefined,
+  _ownerXmlName?: string,
+  execution?: PropertyRuleExecution,
 ): SettingsParameterValueCollection | undefined => {
   const collRule = rule as SettingsParameterValueCollectionPropertyRule
   const parameters = importSettingsParameterValueDcscorItemsFromXML({
@@ -18,6 +23,7 @@ const importSettingsParameterValueCollectionFromXML = (
     },
     xml,
     skipUnknownParameters: collRule.defaultItemRule === undefined,
+    execution,
   })
 
   if (!parameters || Object.keys(parameters).length === 0) {
@@ -33,3 +39,8 @@ const importSettingsParameterValueCollectionFromXML = (
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValueCollection", "importFromXML", importSettingsParameterValueCollectionFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule(
+  "SettingsParameterValueCollection",
+  "xmlImportPropertyBehavior",
+  { repeatedXMLNodes: true },
+)

@@ -38,6 +38,18 @@ describe("exportToYAML", () => {
     expect(yamlScalarTagAt(types, 1)).toBe("изменять")
   })
 
+  it("сериализует и повторно разбирает !xml/string", () => {
+    const source = { Представление: "Текст" }
+    markYAMLScalarTag(source, "Представление", "xml/string")
+
+    const serialized = serializeYAMLDocument(source)
+    const reparsed = parseMetadataYaml(serialized.text)
+
+    expect(serialized.text).toBe("Представление: !xml/string Текст")
+    expect(reparsed.data).toEqual(source)
+    expect(yamlScalarTagAt(reparsed.data, "Представление")).toBe("xml/string")
+  })
+
   it.each([
     ["корень", {}, ""],
     ["свойство", { Поле: {} }, "Поле:"],

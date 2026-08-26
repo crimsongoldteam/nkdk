@@ -1,13 +1,3 @@
 Команды:
   КомандаОбъекта:
     Группа: ПанельНавигацииВажное
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Group
