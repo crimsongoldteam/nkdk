@@ -317,6 +317,14 @@ export async function importConfigurationFromXml(
             : { metadataItemAugmenter: descriptor.metadataItemAugmenter }),
           preparedStore: preparedStore.descriptor(),
           configurationIndex: configurationIndexDescriptor,
+          ...(address.kind === "configurationExtension"
+            ? {
+                baseConfigurationIndex: configurationIndexStoreDescriptor(
+                  params.projectDir,
+                  { kind: "configuration" },
+                ),
+              }
+            : {}),
         })
     )
     const first = await profiler.measureAsync(

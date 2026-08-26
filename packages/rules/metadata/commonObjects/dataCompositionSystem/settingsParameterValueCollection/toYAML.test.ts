@@ -64,4 +64,29 @@ describe("export SettingsParameterValueCollection to YAML", () => {
       },
     })
   })
+
+  it("exports xsi:nil parameter value as explicit YAML null", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: {
+        itemType: "SettingsParameterValueCollection",
+        parameters: {
+          Параметр1: {
+            parameter: "Параметр1",
+            xmlNil: true,
+            userSettingID: "21b52fc2-2b83-40f1-aa31-8dce4c9e7e9a",
+          },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      ПараметрыДанных: {
+        Параметр1: {
+          Значение: null,
+          ИдентификаторПользовательскойНастройки: "21b52fc2-2b83-40f1-aa31-8dce4c9e7e9a",
+        },
+      },
+    })
+  })
 })

@@ -71,6 +71,21 @@ describe("AdditionalIndex YAML → XML", () => {
     )
   })
 
+  it("exports canonical empty AdditionalFields when YAML omits it", () => {
+    const result = testMetadataItemFromYAMLToXML({
+      rule: AdditionalIndexRules,
+      yaml: [{
+        Имя: "БезДополнительныхПолей",
+        Таблица: "Catalog.СправочникПолный",
+        ИндексируемыеПоля: ["Code"],
+      }],
+    })
+    const exported = serializeDirectXML(result.xml)
+
+    expect(exported).toContain("\t\t<AdditionalFields/>")
+    expect(exported.indexOf("<IndexedFields>")).toBeLessThan(exported.indexOf("<AdditionalFields/>"))
+  })
+
   it("preserves a zero _id through the configuration index", () => {
     const contexts = createDirectRoundTripContexts()
     const sourceXML = {

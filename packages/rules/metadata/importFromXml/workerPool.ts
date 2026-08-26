@@ -46,6 +46,7 @@ export interface XmlImportWorkerPool {
     metadataItemAugmenter?: string
     preparedStore?: PreparedImportStoreDescriptor
     configurationIndex?: ConfigurationIndexStoreDescriptor
+    baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
   }): Promise<void>
   runFirstPass(
     assignments: readonly ImportAssignment[],
@@ -264,6 +265,7 @@ function createXmlImportOperationPool(params: {
         metadataItemAugmenter?: string
         preparedStore?: PreparedImportStoreDescriptor
         configurationIndex?: ConfigurationIndexStoreDescriptor
+        baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
       }
     | undefined
   let phase: PoolPhase = "new"
@@ -409,6 +411,9 @@ function createXmlImportOperationPool(params: {
             ...(initialized.configurationIndex === undefined
               ? {}
               : { configurationIndex: initialized.configurationIndex }),
+            ...(initialized.baseConfigurationIndex === undefined
+              ? {}
+              : { baseConfigurationIndex: initialized.baseConfigurationIndex }),
           })
           if (initializeResponse !== undefined) {
             throw new Error("Worker вернул неожиданный результат initialize")

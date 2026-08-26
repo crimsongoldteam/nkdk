@@ -125,6 +125,7 @@ describe("executeImportControlExport", () => {
 
   it("передаёт обычному экспорту подготовленный источник BaseForm", async () => {
     const index = createLocalConfigurationIndexReader(new Map())
+    const baseConfigurationIndex = createLocalConfigurationIndexReader(new Map())
     const annotations = { version: 1 as const, entries: [] }
     const prepared = (projectPath: string, data: unknown) => ({
       projectPath,
@@ -157,6 +158,7 @@ describe("executeImportControlExport", () => {
       context: mockXmlImportContext(),
       exportProfile: configurationExportProfileForTests(),
       index,
+      baseConfigurationIndex,
       composition: catalogComposition(),
       readSource: async () => "",
       baseFormSource,
@@ -166,7 +168,9 @@ describe("executeImportControlExport", () => {
       },
     })).rejects.toThrow("projection captured")
 
-    expect(captured).toMatchObject({ baseFormSource, baseConfigurationIndex: index })
+    expect(captured).toMatchObject({ baseFormSource, baseConfigurationIndex })
+    expect(captured?.index).toBe(index)
+    expect(captured?.baseConfigurationIndex).not.toBe(index)
   })
 
   it("не запускает ordinary exporter для корневого raw", async () => {

@@ -1,12 +1,31 @@
 import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
 import { dcsMetadataTypedValueRule } from "../dscMetadataTypedValue/types"
 import { filterItemRule } from "../filter/builders"
-import { filterItemPresentationValueRule } from "./builders"
 import { userSettingsIDRule } from "../../userSettingsID/types"
 import { booleanRule } from "../../boolean/types"
 import { stringRule } from "../../string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../ruleRuntime"
+
+const filterItemDisplayProperties = {
+  presentation: dcsLocalStringTypeRule({
+    xml: "dcsset:presentation",
+    yaml: "Представление",
+  }),
+  application: systemEnumerationRule({
+    typeSE: "DataCompositionFilterApplicationType",
+    xml: "dcsset:application",
+    yaml: "Применение",
+    implicitValueYAML: "Items",
+  }),
+  viewMode: systemEnumerationRule({
+    typeSE: "DataCompositionSettingsItemViewMode",
+    xml: "dcsset:viewMode",
+    yaml: "РежимОтображения",
+    implicitValueYAML: "Auto",
+  }),
+} as const
+
 export const FilterItemComparisonRules = {
   itemType: "FilterItemComparison",
   xsiType: "dcsset:FilterItemComparison",
@@ -42,22 +61,7 @@ export const FilterItemComparisonRules = {
       xml: "dcsset:right",
       yaml: "ПравоеЗначение",
     }),
-    presentation: filterItemPresentationValueRule({
-      xml: "dcsset:presentation",
-      yaml: "Представление",
-    }),
-    application: systemEnumerationRule({
-      typeSE: "DataCompositionFilterApplicationType",
-      xml: "dcsset:application",
-      yaml: "Применение",
-      implicitValueYAML: "Items",
-    }),
-    viewMode: systemEnumerationRule({
-      typeSE: "DataCompositionSettingsItemViewMode",
-      xml: "dcsset:viewMode",
-      yaml: "РежимОтображения",
-      implicitValueYAML: "Auto",
-    }),
+    ...filterItemDisplayProperties,
     userSettingID: userSettingsIDRule({
       xml: "dcsset:userSettingID",
       yaml: "ИспользоватьПользовательскуюНастройку",
@@ -98,27 +102,12 @@ export const FilterItemGroupRules = {
       xml: "dcsset:item",
       yaml: "Элементы",
     }),
-    presentation: filterItemPresentationValueRule({
-      xml: "dcsset:presentation",
-      yaml: "Представление",
-    }),
-    application: systemEnumerationRule({
-      typeSE: "DataCompositionFilterApplicationType",
-      xml: "dcsset:application",
-      yaml: "Применение",
-      implicitValueYAML: "Items",
-    }),
-    viewMode: systemEnumerationRule({
-      typeSE: "DataCompositionSettingsItemViewMode",
-      xml: "dcsset:viewMode",
-      yaml: "РежимОтображения",
-      implicitValueYAML: "Auto",
-    }),
+    ...filterItemDisplayProperties,
     userSettingID: userSettingsIDRule({
       xml: "dcsset:userSettingID",
       yaml: "ИспользоватьПользовательскуюНастройку",
     }),
-    userSettingPresentation: filterItemPresentationValueRule({
+    userSettingPresentation: dcsLocalStringTypeRule({
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
     }),

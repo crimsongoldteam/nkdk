@@ -183,35 +183,16 @@ export async function prepareImportYaml(params: {
           profile: importProfile,
           rule,
         })
-        const baseFormXML = (bodyXML?.["Form"] as ClientApplicationFormXML | undefined)?.BaseForm
-        const companion = baseFormXML === undefined
-          ? undefined
-          : resolveBaseFormCompanion(params.assignment, params.topology)
-        if (baseFormXML === undefined || companion === undefined) {
-          return { ...imported, dependentDeferred: [] }
-        }
-        const baseForm = importBaseFormYaml({
+        const baseFormCandidate = importAssignmentBaseFormCandidate({
+          assignment: params.assignment,
+          topology: params.topology,
+          inputs: xmlInputs ?? [],
           context: importContext,
-          baseFormXML,
-          formName: params.assignment.itemName,
-          rule: companion.rule,
         })
         return {
           ...imported,
           dependentDeferred: [],
-          baseFormCandidate: {
-            baseProjectPath: params.assignment.targetProjectPath,
-            targetProjectPath: companion.targetProjectPath,
-            owner: {
-              dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
-              name: params.assignment.owner?.name ?? params.assignment.itemName,
-            },
-            yaml: baseForm.yaml,
-            rule: companion.rule,
-            localIndexes: baseForm.localIndexes,
-            deferred: bindDeferredObjectValues(baseForm.yaml, baseForm.deferred),
-            configurationFragment: baseForm.configurationIndexCollector.fragment(companion.targetProjectPath),
-          },
+          ...(baseFormCandidate === undefined ? {} : { baseFormCandidate }),
         }
       }
 
@@ -258,12 +239,19 @@ export async function prepareImportYaml(params: {
       const localIndexes = collector.finish()
       const formDataPathIndex = createImportedFormDataPathIndex({ yaml, rule })
       if (formDataPathIndex !== undefined) localIndexes.metadata.formDataPathIndex = formDataPathIndex
+      const baseFormCandidate = importAssignmentBaseFormCandidate({
+        assignment: params.assignment,
+        topology: params.topology,
+        inputs: xmlInputs ?? [],
+        context: importContext,
+      })
       return {
         yaml,
         localIndexes,
         deferred: deferred.finish(),
         dependentDeferred: partitioned.deferred,
         generatedFiles,
+        ...(baseFormCandidate === undefined ? {} : { baseFormCandidate }),
       }
     })
     recordDirectImportProfile(params.profiler, importProfile)
@@ -331,6 +319,38 @@ export async function prepareImportYaml(params: {
     }
   } finally {
     xmlInputs = undefined
+  }
+}
+
+function importAssignmentBaseFormCandidate(params: {
+  readonly assignment: ImportAssignment
+  readonly topology?: CompiledMetadataResourceTopology
+  readonly inputs: readonly ParsedImportXmlInput[]
+  readonly context: XmlImportConfigurationContext
+}): PreparedBaseFormCandidate | undefined {
+  const bodyXML = params.inputs.find(({ input }) => input.role === "body")?.parsed
+  const baseFormXML = (bodyXML?.["Form"] as ClientApplicationFormXML | undefined)?.BaseForm
+  if (baseFormXML === undefined) return undefined
+  const companion = resolveBaseFormCompanion(params.assignment, params.topology)
+  if (companion === undefined) return undefined
+  const baseForm = importBaseFormYaml({
+    context: params.context,
+    baseFormXML,
+    formName: params.assignment.itemName,
+    rule: companion.rule,
+  })
+  return {
+    baseProjectPath: params.assignment.targetProjectPath,
+    targetProjectPath: companion.targetProjectPath,
+    owner: {
+      dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
+      name: params.assignment.owner?.name ?? params.assignment.itemName,
+    },
+    yaml: baseForm.yaml,
+    rule: companion.rule,
+    localIndexes: baseForm.localIndexes,
+    deferred: bindDeferredObjectValues(baseForm.yaml, baseForm.deferred),
+    configurationFragment: baseForm.configurationIndexCollector.fragment(companion.targetProjectPath),
   }
 }
 

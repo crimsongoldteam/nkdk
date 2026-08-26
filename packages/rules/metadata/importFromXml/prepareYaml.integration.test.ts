@@ -276,6 +276,44 @@ describe("prepareImportYaml", () => {
     })
   })
 
+  it("удерживает BaseForm встроенной общей формы как изолированный YAML-кандидат", async () => {
+    const fixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync")
+    const prepared = await prepareImportYaml({
+      assignment: {
+        id: "borrowed-common-form",
+        topologyAddress: assignmentTopologyAddress("ОбщаяФорма/InputField/Свойства.yaml"),
+        role: "properties",
+        targetProjectPath: "ОбщаяФорма/InputField/Свойства.yaml",
+        itemType: "MetadataCommonForm",
+        itemName: "InputField",
+        logicalAddress: "ОбщаяФорма.InputField",
+        owner: undefined,
+        xmlFiles: [
+          { role: "metadata", sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства.xml") },
+          {
+            role: "body",
+            sourcePath: join(
+              extensionFixtureDir,
+              "Catalogs/СправочникПолный/Forms/ФормаОтчета/Ext/Form.xml",
+            ),
+          },
+        ],
+        externalFiles: [],
+      },
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    expect(prepared.baseFormCandidate).toMatchObject({
+      baseProjectPath: "ОбщаяФорма/InputField/Свойства.yaml",
+      targetProjectPath: "ОбщаяФорма/InputField/БазоваяФорма.yaml",
+      yaml: {
+        Реквизиты: { БазовыйРеквизитФормы: { Тип: "Дата" } },
+        Элементы: { БазовоеПоле: { Вид: "ПолеВвода", Ширина: 99 } },
+      },
+    })
+  })
+
   it("prepares an applied object without writing YAML or external files", async () => {
     const writeFile = vi.spyOn(fs.promises, "writeFile")
     const assignment = catalogAssignment()

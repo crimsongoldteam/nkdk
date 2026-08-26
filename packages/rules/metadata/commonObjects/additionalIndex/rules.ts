@@ -21,6 +21,7 @@ export const AdditionalIndexItemRules = {
     additionalFields: indexFieldRule({
       xml: "AdditionalFields",
       yaml: "ДополнительныеПоля",
+      defaultValueXMLRaw: {},
     }),
     name: stringRule({
       xml: "Name",

@@ -48,6 +48,7 @@ export async function executeImportControlExport(params: {
   readonly context: XmlImportConfigurationContext
   readonly exportProfile: XmlComponentExportProfile
   readonly index: LocalConfigurationIndexReader
+  readonly baseConfigurationIndex?: LocalConfigurationIndexReader
   readonly baseFormSource?: BaseFormSourceResult
   readonly composition: MetadataXmlPrepareComposition
   readonly readSource: (sourcePath: string) => Promise<string>
@@ -103,7 +104,9 @@ export async function executeImportControlExport(params: {
       ? {}
       : {
           baseFormSource: params.baseFormSource,
-          baseConfigurationIndex: params.index,
+          ...(params.baseConfigurationIndex === undefined
+            ? {}
+            : { baseConfigurationIndex: params.baseConfigurationIndex }),
         }),
     composition: params.composition,
     topology: params.topology,

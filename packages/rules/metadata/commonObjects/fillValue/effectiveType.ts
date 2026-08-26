@@ -44,6 +44,22 @@ export function classifyStandardMemberFillValue(params: {
   }
 }
 
+export function implicitStandardMemberFillValue(params: {
+  readonly declaration: StandardMemberDeclaration
+  readonly ownerProperties: Readonly<Record<string, unknown>>
+}): MetadataTypedValue | undefined {
+  if (params.declaration.memberKind !== "standardAttribute") return undefined
+  const policy = params.declaration.fillValue
+  if (policy?.policy !== "ownerReference") return undefined
+  const owners = params.ownerProperties[policy.ownersProperty]
+  if (!Array.isArray(owners) || owners.length !== 1 || typeof owners[0] !== "string") return undefined
+  const separator = owners[0].indexOf(".")
+  if (separator < 1 || separator === owners[0].length - 1) return undefined
+  const root = owners[0].slice(0, separator)
+  if (!isMetadataRootName(root)) return undefined
+  return { type: "ref", value: `${owners[0]}.EmptyRef` }
+}
+
 function effectiveTypeFromDeclaration(declaration: StandardMemberDeclaration): FillValueEffectiveType {
   if (declaration.memberKind !== "standardAttribute" || declaration.family !== "primitive") {
     return { status: "unresolved", reason: "тип стандартного реквизита не определён декларацией" }

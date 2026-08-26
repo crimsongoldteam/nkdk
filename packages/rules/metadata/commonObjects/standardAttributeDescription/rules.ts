@@ -10,6 +10,10 @@ import { stringRule } from "../string/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { StandartAttributeNameFromYAML } from "./standartAttributeNames"
+import { getDataPathOwnerKindByItemType } from "../../validation/dataPath/registry"
+import { getStandardMembers } from "../../standardMembers/declarations"
+import { implicitStandardMemberFillValue } from "../fillValue/effectiveType"
+import type { ConfigurationContext } from "@nkdk/runtime"
 export const StandardAttributeDescriptionRules = {
   itemType: "StandardAttributeDescription",
   xmlOrder: [
@@ -115,6 +119,8 @@ export const StandardAttributeDescriptionRules = {
     fillValue: metadataValueRule({
       yaml: "ЗначениеЗаполнения",
       xml: "xr:FillValue",
+      defaultValue: ({ context, name }: { context: ConfigurationContext; name?: string }) =>
+        implicitFillValueForStandardMember(context, name),
       defaultValueXMLRaw: { "_xsi:nil": true },
       exportNilValue: true,
       preserveUnknownReferenceXML: false,
@@ -200,3 +206,47 @@ export const StandardAttributeDescriptionRules = {
     }),
   },
 } as const satisfies MetadataItemRule
+
+function implicitFillValueForStandardMember(
+  context: ConfigurationContext,
+  internalName: string | undefined,
+) {
+  const member = standardMemberContext(context, internalName)
+  if (member === undefined) return undefined
+  if (
+    context.exportToXML?.componentKind === "configurationExtension"
+    && member.declaration.fillValue?.policy === "ownerReference"
+  ) return undefined
+  const owner = context.importFromYAML?.ownerMetadataCache?.get({
+    kind: member.ownerKind,
+    name: member.ownerName,
+  })
+  if (owner?.status !== "ok") return undefined
+  return implicitStandardMemberFillValue({
+    declaration: member.declaration,
+    ownerProperties: { ...owner.owner.facts },
+  })
+}
+
+function standardMemberContext(
+  context: ConfigurationContext,
+  internalName: string | undefined,
+) {
+  if (internalName === undefined) return undefined
+  const ownerContexts = context.importFromYAML?.metadataTargetOwners ?? []
+  for (let index = ownerContexts.length - 1; index >= 0; index -= 1) {
+    const ownerContext = ownerContexts[index]!
+    const ownerKind = getDataPathOwnerKindByItemType(ownerContext.itemType)
+    if (ownerKind === undefined) continue
+    const declaration = getStandardMembers(ownerKind.kind).find(
+      ({ names }) => names.internal === internalName,
+    )
+    if (declaration === undefined) return undefined
+    return {
+      declaration,
+      ownerKind: ownerKind.kind,
+      ownerName: ownerContext.name,
+    }
+  }
+  return undefined
+}

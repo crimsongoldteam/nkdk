@@ -25,6 +25,7 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createImportFirstPassTransferable,
   createImportWorkerCommandRunner,
+  shouldReadCurrentConfigurationYaml,
 } from "./worker"
 import { importControlComposition } from "./controlComposition"
 import {
@@ -35,6 +36,7 @@ import {
 import { importDiagnostic, openImportBinaryResult } from "./binaryResult"
 import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 
 const importWorker = createImportWorkerCommandRunner()
 const runImportWorkerCommand = importWorker.run
@@ -424,6 +426,19 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it("читает текущую форму cf для проекции BaseForm", () => {
+    expect(shouldReadCurrentConfigurationYaml({
+      componentPath: "cfe/Расширение",
+      rule: ClientApplicationFormRules,
+      hasBaseFormCandidate: true,
+    })).toBe(true)
+    expect(shouldReadCurrentConfigurationYaml({
+      componentPath: "cf",
+      rule: ClientApplicationFormRules,
+      hasBaseFormCandidate: true,
+    })).toBe(false)
+  })
+
   it("переиспользует один профиль во всех контрольных экспортах прохода", async () => {
     const outputDir = createTempDir("shared-export-profile")
     const assignments = [
@@ -437,8 +452,10 @@ describe("XML import worker second pass", () => {
     ]
     const exportProfile = exportProfileForTests()
     const capturedProfiles: unknown[] = []
+    const capturedContexts: unknown[] = []
     setControlExportForTests(async (params) => {
       capturedProfiles.push(params.exportProfile)
+      capturedContexts.push(params.context)
       return { data: params.data, annotations: params.annotations, rereadSourcePaths: [] }
     })
     await initializeWorker(outputDir)
@@ -457,6 +474,12 @@ describe("XML import worker second pass", () => {
 
     expect(capturedProfiles).toEqual([exportProfile, exportProfile])
     expect(capturedProfiles[0]).toBe(capturedProfiles[1])
+    expect(capturedContexts).toHaveLength(2)
+    for (const context of capturedContexts) {
+      expect(context).toMatchObject({
+        importFromYAML: { ownerMetadataCache: expect.any(Object) },
+      })
+    }
   })
 
   it("выполняет один control export и записывает найденный raw", async () => {

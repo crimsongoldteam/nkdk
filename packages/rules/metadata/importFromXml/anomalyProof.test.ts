@@ -363,42 +363,25 @@ describe("XML anomaly proof", () => {
 
   it("восстанавливает порядок после локального raw дополнительного XML-документа до проверки fallback", async () => {
     const source = '<Form><Item><A/><Title formatted="true"/><B/></Item></Form>'
-    const document = parseXmlDocumentWithSaxes(source)
-    const root = document.roots[0]!
-    const title = nestedElement(root, ["Item", "Title"])
-    const proofBoundary: XmlAnomalyProofBoundary = {
-      sourcePath: formSourcePath,
-      sourceRole: "property",
-      xmlPath: title.path,
-      yamlPath: ["Форма", "Элемент", "Заголовок"],
-      rulePath: ["form", "item", "title"],
-      presentInSource: true,
-    }
-    const result = await proveXmlAnomalyBoundaries({
-      data: { Форма: { Элемент: {} } },
-      annotations: { version: 1, entries: [] },
-      audit: captureXmlAnomalyProofAudit({
-        sources: [{ sourcePath: formSourcePath, role: "property", document }],
-        boundaries: [proofBoundary],
-        fallbackBoundaries: [formPropertyFallback(root)],
-      }),
-      exported: [{
-        role: "property",
-        sourcePath: formSourcePath,
-        document: parseXmlDocumentWithSaxes("<Form><Item><A/><B/></Item></Form>"),
-      }],
-      readSource: async () => source,
-    })
+    const result = await proveLocalRawOrder(source)
 
     expect(result.annotations.entries).toContainEqual(expect.objectContaining({
       parentPath: ["Форма", "Элемент"],
       key: "@Form\\Заголовок",
       annotation: expect.objectContaining({ kind: "raw" }),
     }))
+    expect(JSON.stringify(result.annotations.entries)).not.toContain('"#order"')
     expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
       parentPath: [],
       key: "Форма",
     }))
+  })
+
+  it("сохраняет родительский #order при действительно необычном порядке локального raw", async () => {
+    const source = '<Form><Item><Title formatted="true"/><A/><B/></Item></Form>'
+    const result = await proveLocalRawOrder(source)
+
+    expect(JSON.stringify(result.annotations.entries)).toContain('"#order"')
   })
 
   it("поднимает raw до однозначно адресуемого родителя повторяющегося XML-элемента", async () => {
@@ -1915,5 +1898,46 @@ function formPropertyFallback(root: XmlElementNode): XmlAnomalyProofBoundary {
     rulePath: ["form"],
     presentInSource: true,
     targetPaths: [root.path],
+  }
+}
+
+function proveLocalRawOrder(source: string) {
+  const document = parseXmlDocumentWithSaxes(source)
+  const root = document.roots[0]!
+  const title = nestedElement(root, ["Item", "Title"])
+  return proveXmlAnomalyBoundaries({
+    data: { Форма: { Элемент: {} } },
+    annotations: { version: 1, entries: [] },
+    audit: captureXmlAnomalyProofAudit({
+      sources: [{ sourcePath: formSourcePath, role: "property", document }],
+      boundaries: [{
+        sourcePath: formSourcePath,
+        sourceRole: "property",
+        xmlPath: title.path,
+        yamlPath: ["Форма", "Элемент", "Заголовок"],
+        rulePath: ["title"],
+        presentInSource: true,
+      }],
+      fallbackBoundaries: [formPropertyFallback(root)],
+    }),
+    exported: [{
+      role: "property",
+      sourcePath: formSourcePath,
+      document: parseXmlDocumentWithSaxes("<Form><Item><A/><B/></Item></Form>"),
+    }],
+    rule: proofOrderRule(),
+    readSource: async () => source,
+  })
+}
+
+function proofOrderRule(): MetadataItemRule {
+  return {
+    itemType: "ProofOrderProbe",
+    xmlOrder: ["a", "title", "b"],
+    properties: {
+      a: { type: "string", yaml: "A", xml: "A", xmlParents: ["Item"] },
+      title: { type: "string", yaml: "Заголовок", xml: "Title", xmlParents: ["Item"] },
+      b: { type: "string", yaml: "B", xml: "B", xmlParents: ["Item"] },
+    },
   }
 }

@@ -340,6 +340,57 @@ describe("dependency validation из ProjectState", () => {
     expect(diagnostics).toEqual([])
   })
 
+  it("разрешает у явно заимствованного объекта значение из базовой конфигурации", () => {
+    const componentPath = "cfe/Расширение"
+    const owner = { kind: "Справочник", name: "Товары" } as const
+    const reference = valueReference("Справочник.Товары.Основной", {
+      roots: ["Catalog"],
+      valueKinds: ["predefinedValue"],
+    })
+    const base = predefinedOwnerUpdate(reference)
+    const borrowed = {
+      ...emptyYamlUpdate(`${componentPath}/Справочник/Товары/Свойства.yaml`, componentPath, "properties"),
+      targets: [{ kind: "object" as const, canonical: "Catalog.Товары" }],
+      owners: [{ owner, facts: { predefined: [] } }],
+    }
+    const { store, openReadSession } = createBinaryProjectStateTestFixture()
+    store.beginUpdate()
+    replaceFiles(store, [base, borrowed, configurationUpdate(true)])
+    store.commitUpdate()
+    const session = openReadSession(store.createReadToken())
+
+    expect(validateProjectStateReferenceBatch({
+      projectDir: "/project",
+      checks: [{ requestId: "borrowed-predefined", componentPath, reference }],
+      queryPort: session,
+    })).toEqual([])
+    session.close()
+  })
+
+  it("не разрешает значение объекта, который не заимствован в расширение", () => {
+    const componentPath = "cfe/Расширение"
+    const reference = valueReference("Справочник.Товары.Основной", {
+      roots: ["Catalog"],
+      valueKinds: ["predefinedValue"],
+    })
+    const base = predefinedOwnerUpdate(reference)
+    const { store, openReadSession } = createBinaryProjectStateTestFixture()
+    store.beginUpdate()
+    replaceFiles(store, [base, configurationUpdate(true)])
+    store.commitUpdate()
+    const session = openReadSession(store.createReadToken())
+
+    expect(validateProjectStateReferenceBatch({
+      projectDir: "/project",
+      checks: [{ requestId: "not-borrowed-predefined", componentPath, reference }],
+      queryPort: session,
+    })).toEqual([expect.objectContaining({
+      source: "reference",
+      message: `Ссылка "${reference.canonical}" не включена в расширение`,
+    })])
+    session.close()
+  })
+
   it("Б5 сообщает об отсутствующем предопределённом значении существующего владельца", () => {
     const reference = valueReference("Справочник.Товары.НетТакого", {
       roots: ["Catalog"],
@@ -1282,6 +1333,22 @@ function valueReference(
     canonical: parsed.canonical,
     target: parsed.target,
     constraint: { kind: "value", ...constraint },
+  }
+}
+
+function predefinedOwnerUpdate(
+  reference: PendingMetadataTargetReference,
+): ProjectStateYamlFileUpdate {
+  return {
+    ...emptyYamlUpdate("cf/Справочник/Товары/Свойства.yaml", "cf", "properties"),
+    targets: [
+      { kind: "object", canonical: "Catalog.Товары" },
+      { kind: "value", canonical: reference.canonical },
+    ],
+    owners: [{
+      owner: { kind: "Справочник", name: "Товары" },
+      facts: { predefined: [{ name: "Основной" }] },
+    }],
   }
 }
 

@@ -61,11 +61,7 @@ export type TableColumnResolver = (params: {
   field?: ObjectField
 }) => FormDataPathColumnSource | undefined
 
-export type TraversalTransitionResolver = (params: {
-  owner: OwnerMetadata
-  segment: string
-  ownerCache: OwnerMetadataCache
-}) =>
+export type TraversalTransitionResult =
   | {
       kind?: "state"
       typeInfo: DataPathTypeInfo
@@ -83,6 +79,17 @@ export type TraversalTransitionResolver = (params: {
       kind: "warning"
     }
   | undefined
+
+export type OwnerKindTraversalTransitionResolver = (params: {
+  owner: OwnerTypeRef
+  segment: string
+}) => TraversalTransitionResult
+
+export type TraversalTransitionResolver = (params: {
+  owner: OwnerMetadata
+  segment: string
+  ownerCache: OwnerMetadataCache
+}) => TraversalTransitionResult
 
 export type OpaqueTraversalResolver = (params: {
   owner: OwnerTypeRef
@@ -129,6 +136,7 @@ type DataPathRegistrationContribution =
   | { readonly kind: "standardAttributeType"; readonly resolver: StandardAttributeTypeResolver }
   | { readonly kind: "virtualOwnerField"; readonly resolver: VirtualOwnerFieldResolver }
   | { readonly kind: "tableColumn"; readonly resolver: TableColumnResolver }
+  | { readonly kind: "ownerKindTraversalTransition"; readonly resolver: OwnerKindTraversalTransitionResolver }
   | { readonly kind: "traversalTransition"; readonly resolver: TraversalTransitionResolver }
   | { readonly kind: "opaqueTraversal"; readonly resolver: OpaqueTraversalResolver }
   | { readonly kind: "registerRecordsItem"; readonly resolver: RegisterRecordsItemResolver }
@@ -164,6 +172,7 @@ export interface DataPathRegistrySet {
   resolveStandardAttributeType(params: Parameters<StandardAttributeTypeResolver>[0]): DataPathTypeInfo | undefined
   resolveVirtualOwnerField(params: Parameters<VirtualOwnerFieldResolver>[0]): ReturnType<VirtualOwnerFieldResolver>
   resolveTableColumn(params: Parameters<TableColumnResolver>[0]): ReturnType<TableColumnResolver>
+  resolveOwnerKindTraversalTransition(params: Parameters<OwnerKindTraversalTransitionResolver>[0]): ReturnType<OwnerKindTraversalTransitionResolver>
   resolveTraversalTransition(params: Parameters<TraversalTransitionResolver>[0]): ReturnType<TraversalTransitionResolver>
   isOpaqueTraversal(params: Parameters<OpaqueTraversalResolver>[0]): boolean
   resolveRegisterRecordsItem(params: Parameters<RegisterRecordsItemResolver>[0]): ReturnType<RegisterRecordsItemResolver>
@@ -193,6 +202,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     standardAttribute: [] as StandardAttributeTypeResolver[],
     virtualField: [] as VirtualOwnerFieldResolver[],
     tableColumn: [] as TableColumnResolver[],
+    ownerKindTraversal: [] as OwnerKindTraversalTransitionResolver[],
     traversal: [] as TraversalTransitionResolver[],
     opaque: [] as OpaqueTraversalResolver[],
     registerRecords: [] as RegisterRecordsItemResolver[],
@@ -240,6 +250,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     else if (contribution.kind === "standardAttributeType") resolvers.standardAttribute.push(contribution.resolver)
     else if (contribution.kind === "virtualOwnerField") resolvers.virtualField.push(contribution.resolver)
     else if (contribution.kind === "tableColumn") resolvers.tableColumn.push(contribution.resolver)
+    else if (contribution.kind === "ownerKindTraversalTransition") resolvers.ownerKindTraversal.push(contribution.resolver)
     else if (contribution.kind === "traversalTransition") resolvers.traversal.push(contribution.resolver)
     else if (contribution.kind === "opaqueTraversal") resolvers.opaque.push(contribution.resolver)
     else if (contribution.kind === "registerRecordsItem") resolvers.registerRecords.push(contribution.resolver)
@@ -314,6 +325,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     resolveStandardAttributeType: (params) => first(resolvers.standardAttribute, params),
     resolveVirtualOwnerField: (params) => first(resolvers.virtualField, params),
     resolveTableColumn: (params) => first(resolvers.tableColumn, params),
+    resolveOwnerKindTraversalTransition: (params) => first(resolvers.ownerKindTraversal, params),
     resolveTraversalTransition: (params) => first(resolvers.traversal, params),
     isOpaqueTraversal: (params) => resolvers.opaque.some((resolver) => resolver(params)),
     resolveRegisterRecordsItem: (params) => first(resolvers.registerRecords, params),
@@ -396,6 +408,12 @@ export function resolveTraversalTransition(
   params: Parameters<TraversalTransitionResolver>[0]
 ): ReturnType<TraversalTransitionResolver> {
   return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveTraversalTransition(params)
+}
+
+export function resolveOwnerKindTraversalTransition(
+  params: Parameters<OwnerKindTraversalTransitionResolver>[0]
+): ReturnType<OwnerKindTraversalTransitionResolver> {
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveOwnerKindTraversalTransition(params)
 }
 
 export function isOpaqueTraversal(params: Parameters<OpaqueTraversalResolver>[0]): boolean {

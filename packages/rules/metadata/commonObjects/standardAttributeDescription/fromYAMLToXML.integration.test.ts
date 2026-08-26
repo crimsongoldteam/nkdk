@@ -22,6 +22,7 @@ import { accountingExtDimensions,all,allYAML,minimal,minimalYAML,multiple } from
 import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
+import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredOwnerMetadataCache"
 
 const context: ConfigurationContextWithExportToXML = {
   languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
@@ -566,6 +567,65 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     }
     expect(items["xr:StandardAttribute"].map((item) => item._name)).toEqual(["Active", "LineNumber"])
     expect(items["xr:StandardAttribute"][0]?.["xr:Comment"]).toBe("изменён")
+  })
+
+  it("restores the implicit Owner EmptyRef from the standard member declaration", () => {
+    const ownerMetadataCache = createLayeredOwnerMetadataCacheForTests({
+      base: [{
+        ref: { kind: "Справочник", name: "СправочникСВладельцем" },
+        filePath: "/project/cf/Справочник/СправочникСВладельцем/Свойства.yaml",
+        fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
+        owners: ["Catalog.СправочникВладелец"],
+      }],
+    })
+    const exportOwner = (componentKind?: string, includeOwnerCache = true) =>
+      convertPropertiesFromYAMLToXML({
+        context: {
+          ...context,
+          exportToXML: {
+            ...context.exportToXML,
+            ...(componentKind === undefined ? {} : { componentKind }),
+          },
+          importFromYAML: {
+            ...(includeOwnerCache ? { ownerMetadataCache } : {}),
+            metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "СправочникСВладельцем" }],
+          },
+        },
+        yaml: {
+          СтандартныеРеквизиты: {
+            Владелец: { Комментарий: "изменён" },
+            Код: {},
+          },
+        },
+        rule: standardAttributesOwnerRule("MetadataCatalog", { Owner: "Владелец", Code: "Код" }),
+        outputs: [{ key: "owner" }],
+      })
+    const result = exportOwner()
+
+    expect(standardAttributeItems(result.outputs.get("owner") ?? {})).toContainEqual(
+      expect.objectContaining({
+        _name: "Owner",
+        "xr:FillValue": {
+          "_xsi:type": "xr:DesignTimeRef",
+          "#text": "Catalog.СправочникВладелец.EmptyRef",
+        },
+      }),
+    )
+
+    const extensionResult = exportOwner("configurationExtension")
+    const extensionItems = standardAttributeItems(extensionResult.outputs.get("owner") ?? {})
+    expect(extensionItems.find((item) => item._name === "Owner")).toHaveProperty(
+      "xr:FillValue",
+      { "_xsi:nil": true },
+    )
+    expect(extensionItems.find((item) => item._name === "Code")).toHaveProperty("xr:FillValue", { "_xsi:nil": true })
+
+    const extensionWithoutOwnerCache = exportOwner("configurationExtension", false)
+    const extensionItemsWithoutOwnerCache = standardAttributeItems(
+      extensionWithoutOwnerCache.outputs.get("owner") ?? {},
+    )
+    expect(extensionItemsWithoutOwnerCache.find((item) => item._name === "Owner"))
+      .toHaveProperty("xr:FillValue", { "_xsi:nil": true })
   })
 
   it("восстанавливает обязательные стандартные реквизиты при отсутствии свойства в YAML", () => {

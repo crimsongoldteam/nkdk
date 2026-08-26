@@ -2368,6 +2368,18 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves report SettingsComposer from the owner kind without loading report YAML", () => {
+    expect(resolveDataPathCore({
+      value: "Отчет.SettingsComposer.Settings",
+      nameMode: "internal",
+      index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject.Анализ"] })]),
+      ownerCache: ownerCache([]),
+    })).toMatchObject({
+      status: "ok",
+      target: { typeInfo: { terminalTypes: ["DataCompositionSettings"] } },
+    })
+  })
+
   it.each([
     ["Список.КомпоновщикНастроек.Настройки.Отбор", "yaml", "DataCompositionFilter"],
     ["Список.SettingsComposer.Settings.Filter", "internal", "DataCompositionFilter"],

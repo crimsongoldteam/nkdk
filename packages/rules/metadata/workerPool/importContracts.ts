@@ -123,6 +123,7 @@ export type ImportWorkerCommand =
       componentPath?: string
       preparedStore?: PreparedImportStoreDescriptor
       configurationIndex?: ConfigurationIndexStoreDescriptor
+      baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
   | { kind: "firstPassBatch"; assignments: ImportAssignment[] }

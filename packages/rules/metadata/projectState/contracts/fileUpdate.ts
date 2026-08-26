@@ -82,6 +82,8 @@ export interface ProjectStateOwnerFacts {
   tabularSections?: Array<{ name: string; attributes: ProjectStateNamedTypeItems; standardAttributes?: ProjectStateNamedTypeItems }>
   standardAttributes?: ProjectStateNamedTypeItems
   commands?: ProjectStateNamedTypeItems
+  predefined?: ProjectStateNamedTypeItems
+  enumValues?: ProjectStateNamedTypeItems
 }
 export interface ProjectStateOwnerFact { readonly owner: OwnerTypeRef; readonly facts: ProjectStateOwnerFacts }
 export type ProjectStateObjectFieldKind = "attribute" | "standardAttribute" | "tabularSection" | "dimension" | "resource" | "addressingAttribute"

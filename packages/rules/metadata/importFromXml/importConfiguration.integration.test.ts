@@ -11,7 +11,7 @@ import {
   type ConfigurationIndexBlockFragment,
 } from "../configurationIndex"
 import type { ConfigurationIndexCandidateStore } from "../configurationIndex/store"
-import type { ComponentAddress, ConfigurationLanguages } from "@nkdk/runtime"
+import type { ComponentAddress, ConfigurationIndexStoreDescriptor, ConfigurationLanguages } from "@nkdk/runtime"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
@@ -236,7 +236,12 @@ describe("configuration XML import coordinator", () => {
     const calls: string[] = []
     const params = createParams("configuration")
     const writtenIndexes: PublishedCandidate[] = []
-    const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
+    const initialized: Array<{
+      outputDir: string
+      componentKind: string
+      metadataItemAugmenter?: string
+      baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
+    }> = []
 
     const result = await importConfigurationFromXml(params, fakeDependencies({ calls, writtenIndexes, initialized }))
 
@@ -331,6 +336,7 @@ describe("configuration XML import coordinator", () => {
         outputDir: join(params.projectDir, "cfe", "Расширение_All"),
         componentKind: "configurationExtension",
         metadataItemAugmenter: "configurationExtension",
+        baseConfigurationIndex: configurationIndexStoreDescriptor(params.projectDir, { kind: "configuration" }),
       },
     ])
     expect(secondPassTokenCount).toBe(1)
@@ -842,7 +848,12 @@ function fakeDependencies(params: {
   calls: string[]
   failurePhase?: FailurePhase
   writtenIndexes?: PublishedCandidate[]
-  initialized?: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }>
+  initialized?: Array<{
+    outputDir: string
+    componentKind: string
+    metadataItemAugmenter?: string
+    baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
+  }>
   initializedLanguages?: ConfigurationLanguages[]
   discovered?: Array<{
     xmlDir: string
@@ -901,6 +912,9 @@ function fakeDependencies(params: {
             ...(initializeParams.metadataItemAugmenter === undefined
               ? {}
               : { metadataItemAugmenter: initializeParams.metadataItemAugmenter }),
+            ...(initializeParams.baseConfigurationIndex === undefined
+              ? {}
+              : { baseConfigurationIndex: initializeParams.baseConfigurationIndex }),
           })
         },
         async runFirstPass(_assignments, sink) {

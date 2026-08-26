@@ -20,6 +20,7 @@ import {
   type XmlImportStateBatch,
 } from "./workerPool"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
+import { configurationIndexStoreDescriptor } from "../configurationIndex"
 
 const tempDirs: string[] = []
 
@@ -502,6 +503,8 @@ describe("XML import worker pool", () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
     const context = mockContextFromXML()
+    const configurationIndex = configurationIndexStoreDescriptor("/project", { kind: "configurationExtension", name: "Расширение" })
+    const baseConfigurationIndex = configurationIndexStoreDescriptor("/project", { kind: "configuration" })
 
     await pool.initialize({
       operationId: "component",
@@ -509,6 +512,8 @@ describe("XML import worker pool", () => {
       outputDir: createTempDir("component"),
       componentKind: "test-component",
       metadataItemAugmenter: "test-augmenter",
+      configurationIndex,
+      baseConfigurationIndex,
     })
     await pool.runFirstPass([assignment("component")])
 
@@ -518,6 +523,8 @@ describe("XML import worker pool", () => {
       context: {
         fromXML: { componentKind: "test-component", metadataItemAugmenter: "test-augmenter" },
       },
+      configurationIndex,
+      baseConfigurationIndex,
     })
     expect(() => structuredClone(initialize)).not.toThrow()
 

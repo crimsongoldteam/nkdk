@@ -21,6 +21,7 @@ import {
   type XmlRawValue,
 } from "@nkdk/runtime"
 import {
+  getCompiledXMLPropertyOrder,
   getTypeRule,
   getYAMLToXMLPlan,
   type MetadataItemRule,
@@ -991,6 +992,9 @@ export async function proveXmlAnomalyBoundaries(params: {
       }).filter(({ sourcePath }) => changedSourcePaths.has(sourcePath)))
     }
   }
+  const resolvedItemRules = params.rule === undefined
+    ? undefined
+    : resolveDynamicItemRules(params.rule, params.audit.itemAnchors ?? [], data)
   for (const boundary of boundaries) {
     const exported = singleExportedDocument(params.exported, boundary)
     if (exported === undefined) continue
@@ -1191,6 +1195,32 @@ export async function proveXmlAnomalyBoundaries(params: {
         )
       )
       if (!sameStringMultiset(sourceOrder, exportedOrder) && !insertsRawChild) continue
+      const canonicalOrder = params.rule === undefined || resolvedItemRules === undefined
+        ? undefined
+        : canonicalDirectElementOrder({
+            rootRule: params.rule,
+            resolvedItemRules,
+            itemAnchors: params.audit.itemAnchors ?? [],
+            sourcePath: source.sourcePath,
+            sourceRootPaths: source.roots.map(({ xmlPath: rootPath }) => rootPath),
+            xmlPath,
+          })
+      if (
+        insertsRawChild
+        && canonicalOrder !== undefined
+        && followsCanonicalDirectElementOrder(sourceOrder, canonicalOrder)
+      ) {
+        if (verificationSourcePaths.has(source.sourcePath)) {
+          transformations.push({
+            sourcePath: source.sourcePath,
+            side: "exported",
+            xmlPath,
+            value: directContentOrderPatch(sourceElement),
+            hasSemanticValue: true,
+          })
+        }
+        continue
+      }
       assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, rawYamlPath)
       setRawYamlValue(mutableData(), rawYamlPath, undefined)
       const orderXml = insertsRawChild ? directContentOrderPatch(sourceElement) : { "#order": sourceOrder }
@@ -1364,6 +1394,79 @@ function directContentOrderPatch(element: XmlElementNode): XmlRawValue {
       "#text": text,
       "#order": order,
     }
+}
+
+function canonicalDirectElementOrder(params: {
+  readonly rootRule: MetadataItemRule
+  readonly resolvedItemRules: ResolvedXmlAnomalyItemRuleIndex
+  readonly itemAnchors: readonly XmlAnomalyItemAnchor[]
+  readonly sourcePath: string
+  readonly sourceRootPaths: readonly string[]
+  readonly xmlPath: string
+}): readonly string[] | undefined {
+  const anchor = params.itemAnchors
+    .filter((candidate) =>
+      candidate.sourcePath === params.sourcePath
+      && isXmlPathAtOrBelow(params.xmlPath, candidate.xmlPath)
+    )
+    .sort((left, right) => xmlPathDepth(right.xmlPath) - xmlPathDepth(left.xmlPath))[0]
+  const sourceRootPath = params.sourceRootPaths
+    .filter((candidate) => isXmlPathAtOrBelow(params.xmlPath, candidate))
+    .sort((left, right) => xmlPathDepth(right) - xmlPathDepth(left))[0]
+  const ruleRootPath = anchor?.xmlPath ?? sourceRootPath
+  const rule = anchor === undefined
+    ? sourceRootPath === undefined ? undefined : params.rootRule
+    : compiledRuleAtPath({
+        rootRule: params.rootRule,
+        rulePath: anchor.rulePath,
+        yamlPath: anchor.yamlPath,
+        sourcePath: params.sourcePath,
+        resolvedItemRules: params.resolvedItemRules,
+      })
+  if (rule === undefined || ruleRootPath === undefined) return undefined
+  const containerPrefix = relativeXmlElementNames(ruleRootPath, params.xmlPath)
+  if (containerPrefix === undefined) return undefined
+  const order: string[] = []
+  const seen = new Set<string>()
+  const plan = getYAMLToXMLPlan(rule)
+  const plannedByKey = new Map(plan.properties.map((planned) => [planned.propertyKey, planned]))
+  for (const propertyKey of getCompiledXMLPropertyOrder(rule)) {
+    const planned = plannedByKey.get(propertyKey)
+    if (planned === undefined) continue
+    if (!startsWithStringPath(planned.xmlPath, containerPrefix)) continue
+    const elementName = planned.xmlPath[containerPrefix.length]
+    if (
+      elementName === undefined
+      || elementName.startsWith("_")
+      || elementName === "#text"
+      || seen.has(elementName)
+    ) continue
+    seen.add(elementName)
+    order.push(elementName)
+  }
+  return order.length === 0 ? undefined : order
+}
+
+function isXmlPathAtOrBelow(path: string, parent: string): boolean {
+  return path === parent || path.startsWith(`${parent}/`)
+}
+
+function relativeXmlElementNames(parent: string, path: string): readonly string[] | undefined {
+  if (!isXmlPathAtOrBelow(path, parent)) return undefined
+  return path.slice(parent.length).split("/").filter(Boolean).map((segment) =>
+    segment.replace(/\[\d+\]$/u, "")
+  )
+}
+
+function followsCanonicalDirectElementOrder(
+  actual: readonly string[],
+  canonical: readonly string[],
+): boolean {
+  if (new Set(actual).size !== actual.length) return false
+  const canonicalSet = new Set(canonical)
+  if (actual.some((elementName) => !canonicalSet.has(elementName))) return false
+  const present = new Set(actual)
+  return sameStrings(actual, canonical.filter((elementName) => present.has(elementName)))
 }
 
 function sameStrings(left: readonly string[], right: readonly string[]): boolean {
