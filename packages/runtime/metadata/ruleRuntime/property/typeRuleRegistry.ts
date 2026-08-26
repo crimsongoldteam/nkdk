@@ -37,6 +37,7 @@ import type {
 } from "./importYamlTypes"
 import type { PropertyTypeDefinition } from "../definition"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
+import type { YAMLScalarTagPolicy } from "./yamlScalarTagPolicy"
 
 export { definePropertyTypeRule } from "./propertyRuleRegistrySet"
 
@@ -135,7 +136,9 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
                                                   : O extends "yamlToXMLNestedRule"
                                                     ? YAMLToXMLNestedRule | undefined
-                                                    : never => {
+                                                    : O extends "yamlScalarTagPolicy"
+                                                      ? YAMLScalarTagPolicy | undefined
+                                                      : never => {
   const contextual = currentPropertyRuleRegistrySet<{
     getTypeRule<Operation extends TypeRulesOperations>(
       propertyType: PropertyRuleType,
