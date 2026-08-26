@@ -1,90 +1,22 @@
 Реквизиты:
   РеквизитСтрока:
     Тип: Строка(10)
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
   РеквизитДвоичныеДанныеБезХранилища:
     Тип: ХранилищеЗначения
     ОбъектРасширяемойКонфигурации:
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - Type
   РеквизитСсылка:
     Тип: Справочник.СправочникСПредопределенными
     ОбъектРасширяемойКонфигурации: !проверять
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
   РеквизитБулево:
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
   РеквизитДвоичныеДанные:
     Тип: ХранилищеЗначения
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
   РеквизитМинимальный:
     Тип:
       - !изменять Строка(10)
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
   РеквизитПолный:
     Тип:
       - Справочник.СправочникПолный
       - !изменять Справочник.СправочникРеквизит
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 ТабличныеЧасти:
   ТабличнаяЧастьМинимальный:
     ПринадлежностьОбъекта: Заимствованный
@@ -93,13 +25,3 @@
     Реквизиты:
       Реквизит1:
         Тип: Строка(10)
-        ПринадлежностьОбъекта: !xml/raw
-          $xml: Adopted
-        Properties: !xml/raw
-          $xml:
-            "#order":
-              - ObjectBelonging
-              - Name
-              - Comment
-              - ExtendedConfigurationObject
-              - Type

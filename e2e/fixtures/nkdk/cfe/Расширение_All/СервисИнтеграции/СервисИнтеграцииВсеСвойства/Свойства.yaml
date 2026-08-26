@@ -2,45 +2,8 @@
 Каналы:
   КаналСервисаИнтеграцииВсеСвойства:
     Синоним: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
   КаналСервисаИнтеграцииПоУмолчанию:
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
   allext_КаналСервисаИнтеграции1:
     Синоним: ""
-    ИмяКаналаВнешнегоСервисаИнтеграции: !xml/raw
-      $xml:
-    НаправлениеСообщения: !xml/raw
-      $xml: Send
-    ОбработкаПолученияСообщения: !xml/raw
-      $xml:
-    Транзакционный: !xml/raw
-      $xml: "true"
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - Name
-          - Synonym
-          - Comment
-          - ExternalIntegrationServiceChannelName
-          - MessageDirection
-          - ReceiveMessageProcessing
-          - Transactioned
 Изменять:
   - Модуль

@@ -8,34 +8,11 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Group
-          - ToolTip
-          - Picture
 ОсновнаяФормаЗаписи: ""
 ОсновнаяФормаСписка: ""
 Поля:
   ПолеПоУмолчанию:
     Тип: Строка(10)
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
   ПолеВсеСвойства:
     Синоним: ""
     Тип: ДвоичныеДанные
@@ -43,21 +20,6 @@
     ТолькоЧтение: !изменять Ложь
     РазрешитьNull: !изменять Истина
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - ToolTip
-          - NameInDataSource
-          - ReadOnly
-          - AllowNull
 ТипТаблицы: Таблица
 ТолькоЧтение: !изменять Ложь
 КлючевыеПоля: !изменять

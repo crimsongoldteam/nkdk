@@ -5,46 +5,8 @@
     Параметры:
       ПараметрВсеСвойства:
         Синоним: ""
-        ПринадлежностьОбъекта: !xml/raw
-          $xml: Adopted
-        Properties: !xml/raw
-          $xml:
-            "#order":
-              - ObjectBelonging
-              - Name
-              - Synonym
-              - Comment
-              - ExtendedConfigurationObject
       ПараметрПоУмолчанию:
-        ПринадлежностьОбъекта: !xml/raw
-          $xml: Adopted
-        Properties: !xml/raw
-          $xml:
-            "#order":
-              - ObjectBelonging
-              - Name
-              - Comment
-              - ExtendedConfigurationObject
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
   ОперацияПоУмолчанию:
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
 Изменять:
   - Модуль
 ПакетыXDTO: []

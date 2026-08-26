@@ -5,31 +5,8 @@
     Тип: Справочник.СправочникПолный
     ФормаВыбора: ""
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - ToolTip
-          - ChoiceForm
   ИзмерениеИндексировать:
     Тип: Строка(10)
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 Команды:
   Команда1:
     Синоним: ""
@@ -38,19 +15,6 @@
       - МодульКоманды
     Подсказка: ""
     Картинка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Group
-          - ToolTip
-          - Picture
 ОсновнаяФормаЗаписи: ""
 ОсновнаяФормаСписка: ""
 Периодичность: День
@@ -61,61 +25,15 @@
     Формат: ""
     ФорматРедактирования: ""
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - Format
-          - EditFormat
-          - ToolTip
   ИспользоватьХранилищеДвоичныхДанных:
     Тип: Булево
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 Ресурсы:
   РесурсВсеСвойства:
     Синоним: ""
     Тип: Строка(10)
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - ToolTip
   РесурсПоУмолчанию:
     Тип: ХранилищеЗначения
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
 Изменять:
   - МодульНабораЗаписей
   - МодульМенеджера

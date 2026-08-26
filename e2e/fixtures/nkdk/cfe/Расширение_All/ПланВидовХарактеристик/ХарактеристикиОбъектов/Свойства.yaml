@@ -5,18 +5,4 @@
     Формат: ""
     ФорматРедактирования: ""
     Подсказка: ""
-    ПринадлежностьОбъекта: !xml/raw
-      $xml: Adopted
-    Properties: !xml/raw
-      $xml:
-        "#order":
-          - ObjectBelonging
-          - Name
-          - Synonym
-          - Comment
-          - ExtendedConfigurationObject
-          - Type
-          - Format
-          - EditFormat
-          - ToolTip
 ТипЗначения: Строка(10)
