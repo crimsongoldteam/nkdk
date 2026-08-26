@@ -85,9 +85,11 @@ import { metadataPropertyRule002 as rule86 } from "../commonObjects/dataComposit
 import { metadataPropertyRule003 as rule87 } from "../commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind"
 import { metadataPropertyRule004 as rule88 } from "../commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind"
 import { metadataPropertyRule000 as rule89 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/fromXML"
+import { metadataPropertyRule000 as rule90 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/toXML"
 import { metadataPropertyRule000 as rule91 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/fromYAML"
 import { metadataPropertyRule000 as rule92 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/toJSONSchema"
 import { metadataPropertyRule000 as rule93 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/toYAML"
+import { metadataPropertyRule000 as dcsLocalStringYamlTagPolicy } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/yamlScalarTagPolicy"
 import { metadataPropertyRule000 as rule94 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML"
 import { metadataPropertyRule001 as rule95 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromXML"
 import { metadataPropertyRule000 as rule96 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/fromYAML"
@@ -505,9 +507,11 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule87,
   rule88,
   rule89,
+  rule90,
   rule91,
   rule92,
   rule93,
+  dcsLocalStringYamlTagPolicy,
   rule94,
   rule95,
   rule96,

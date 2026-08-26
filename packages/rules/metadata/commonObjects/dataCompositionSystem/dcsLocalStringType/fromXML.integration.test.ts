@@ -6,17 +6,26 @@ import { mockContext } from "../../../../tests/mockContext"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { exportPropertyToYAML } from "../../../ruleRuntime/property/toYAML"
 import { fixtureDcsLocalStringTwoLangs } from "./__fixtures__/data"
+import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../../../composition/metadataRules"
 
 import "./fromXML"
 import "./toYAML"
 
 const rule: PropertyRule = { type: "DcsLocalStringType", yaml: "Заголовок" }
 const xmlRootTag = "dcsset:userSettingPresentation"
+const execution = createPropertyRuleExecutor(createRuleRegistrySet(metadataRules).property)
 
 describe("DcsLocalStringType XML → YAML", () => {
 
   it("imports one-language LocalStringType as ordinary YAML", () => {
     expect(importAndSerialize("localString.xml")).toBe("Заголовок: Один язык - local string")
+  })
+
+  it("imports xs:string as !xml/string", () => {
+    expect(importAndSerialize("string.xml")).toBe(
+      "Заголовок: !xml/string Один язык - string",
+    )
   })
 
   it("imports two-language LocalStringType as ordinary YAML", () => {
@@ -46,7 +55,7 @@ describe("DcsLocalStringType XML → YAML", () => {
 
 function importAndSerialize(path: string): string {
   const value = importFixture(path)
-  const yaml = exportPropertyToYAML({ context: mockContext, rule, value })
+  const yaml = exportPropertyToYAML({ context: mockContext, rule, value, execution })
   if (yaml === undefined) throw new Error("DcsLocalStringType не экспортирован")
   return serializeYAMLDocument(yaml).text.trim()
 }
