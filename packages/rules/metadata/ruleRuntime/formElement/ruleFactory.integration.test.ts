@@ -8,18 +8,21 @@ import {
 import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
+  markXmlAnomalyExportClaim,
   parseXmlDocumentWithSaxes,
+  readXmlAnomalyExportClaim,
 } from "@nkdk/runtime"
 import { createImportedDependentPropertyCollector } from "../property/importYamlTypes"
 import type { MetadataItemRule } from "../property/types"
 import type { ElementRule } from "./types"
 import {
+  createFormElementCollectionNestedRule,
   defineElementAsType,
   defineElementRule,
   getElementRule,
 } from "./ruleFactory"
 import { typeRulesRegistryRevision } from "../property/typeRuleRegistry"
-import { createRuleRegistrySet } from "../ruleRegistrySet"
+import { createRuleRegistrySet, withRuleRegistrySet } from "../ruleRegistrySet"
 import { metadataRules } from "../../composition/metadataRules"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import {
@@ -29,6 +32,22 @@ import {
 import type { ElementXML } from "./types"
 
 import "../../forms/elements/index"
+
+const singletonElementContexts = () => createDirectRoundTripContexts({
+  logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.Элемент.Кнопка",
+  targetProjectPath: "Форма.yaml",
+})
+
+const singletonElementProbeRule = {
+  itemType: "SingletonElementProbe",
+  properties: {
+    tooltip: {
+      type: "ExtendedTooltip",
+      xml: "ExtendedTooltip",
+      yaml: "РасширеннаяПодсказка",
+    },
+  },
+} as const satisfies MetadataItemRule
 
 describe("одиночный элемент формы", () => {
   it.each(["обычный", "singleton"] as const)(
@@ -118,7 +137,8 @@ describe("одиночный элемент формы", () => {
   })
 
   it("определяет element rule без изменения legacy registry", () => {
-    const registeredRule = getElementRule("ExtendedTooltip")
+    const registries = createRuleRegistrySet(metadataRules)
+    const registeredRule = withRuleRegistrySet(registries, () => getElementRule("ExtendedTooltip"))
     const elementRule = {
       itemType: "ExtendedTooltip",
       enterpriseField: "FormDecoration",
@@ -128,25 +148,12 @@ describe("одиночный элемент формы", () => {
 
     const definition = defineElementRule("ExtendedTooltip", elementRule)
 
-    expect(getElementRule("ExtendedTooltip")).toBe(registeredRule)
+    expect(withRuleRegistrySet(registries, () => getElementRule("ExtendedTooltip"))).toBe(registeredRule)
     expect(definition.formElements.ExtendedTooltip).toBe(elementRule)
   })
 
   it("восстанавливает имя и id перед остальными XML-атрибутами без reference XML", () => {
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.Элемент.Кнопка",
-      targetProjectPath: "Форма.yaml",
-    })
-    const rule = {
-      itemType: "SingletonElementProbe",
-      properties: {
-        tooltip: {
-          type: "ExtendedTooltip",
-          xml: "ExtendedTooltip",
-          yaml: "РасширеннаяПодсказка",
-        },
-      },
-    } as const satisfies MetadataItemRule
+    const contexts = singletonElementContexts()
     const source = {
       ExtendedTooltip: {
         _name: "КнопкаРасширеннаяПодсказка",
@@ -157,13 +164,13 @@ describe("одиночный элемент формы", () => {
 
     const imported = testPropertyFromXMLToYAML({
       context: contexts.importContext,
-      rule,
+      rule: singletonElementProbeRule,
       xml: source,
       name: "Кнопка",
     })
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
-      rule,
+      rule: singletonElementProbeRule,
       yaml: imported.yaml,
       name: "Кнопка",
     })
@@ -173,5 +180,54 @@ describe("одиночный элемент формы", () => {
       "_id",
       "_DisplayImportance",
     ])
+  })
+
+  it("сохраняет export claim одиночного элемента при добавлении имени и id", () => {
+    const contexts = singletonElementContexts()
+    const tooltip = {}
+    markXmlAnomalyExportClaim(tooltip, "item-1")
+
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: singletonElementProbeRule,
+      yaml: { РасширеннаяПодсказка: tooltip },
+      name: "Кнопка",
+    })
+
+    expect(readXmlAnomalyExportClaim(exported.xml.ExtendedTooltip)).toBe("item-1")
+  })
+
+  it("сохраняет export claim элемента коллекции при добавлении имени и id", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.Элемент.Кнопка",
+      targetProjectPath: "Форма.yaml",
+    })
+    const elementRule = {
+      itemType: "Button",
+      enterpriseField: "FormButton",
+      enterpriseFieldType: "FormButtonType.UsualButton",
+      properties: {},
+    } as const satisfies ElementRule
+    const descriptor = createFormElementCollectionNestedRule({
+      elementRules: { Button: elementRule },
+      elementKinds: { Button: "Кнопка" },
+      allowedTypes: ["Button"],
+    })
+    const xml = {}
+    markXmlAnomalyExportClaim(xml, "item-2")
+
+    const mapped = descriptor.mapItemOutput!({
+      xml,
+      yaml: { Вид: "Кнопка" },
+      name: "Кнопка",
+      index: 0,
+      itemRule: elementRule,
+      propertyRule: undefined,
+      context: contexts.exportContext(),
+      collectionYAML: {},
+      referenceXML: undefined,
+    }) as Record<string, unknown>
+
+    expect(readXmlAnomalyExportClaim(mapped.Button)).toBe("item-2")
   })
 })

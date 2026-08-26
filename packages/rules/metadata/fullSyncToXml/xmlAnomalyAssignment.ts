@@ -236,6 +236,7 @@ function cloneSemanticValue(params: {
   readonly yamlPath: readonly (string | number)[]
   readonly xmlPrefix: readonly XmlTraversalPathSegment[]
   readonly documentPath?: string
+  readonly documentTag?: string
   readonly rules: RuleRegistrySet | undefined
   readonly rawBoundaries: PreparedXmlAnomalyBoundary[]
   readonly exportClaims: { nextId: number }
@@ -296,6 +297,7 @@ function cloneSemanticValue(params: {
           logicalKey,
           xmlPrefix: params.xmlPrefix,
           ...(params.documentPath === undefined ? {} : { documentPath: params.documentPath }),
+          ...(params.documentTag === undefined ? {} : { documentTag: params.documentTag }),
           rule: params.rule,
           ownerYaml: params.value,
           exportClaimId: params.exportClaimId,
@@ -339,6 +341,7 @@ function clonePropertySemanticValue(params: Omit<Parameters<typeof cloneSemantic
   readonly property: PlannedProperty
 }): unknown {
   const nested = nestedRuleForProperty(params.property.propertyRule, params.rules)
+  const documentTag = params.property.propertyRule.tag ?? params.documentTag
   const propertyPath = [
     ...params.xmlPrefix,
     ...params.property.xmlPath.map(xmlPathSegment),
@@ -348,6 +351,7 @@ function clonePropertySemanticValue(params: Omit<Parameters<typeof cloneSemantic
     if (itemRule !== undefined) {
       return cloneSemanticValue({
         ...params,
+        ...(documentTag === undefined ? {} : { documentTag }),
         rule: itemRule,
         xmlPrefix: [],
         documentPath: params.property.propertyRule.filePath,
@@ -355,12 +359,17 @@ function clonePropertySemanticValue(params: Omit<Parameters<typeof cloneSemantic
     }
   }
   if (nested?.kind === "collection") {
-    return cloneCollectionSemanticValue({ ...params, descriptor: nested })
+    return cloneCollectionSemanticValue({
+      ...params,
+      ...(documentTag === undefined ? {} : { documentTag }),
+      descriptor: nested,
+    })
   }
   if (nested?.kind === "item") {
     const itemRule = nested.itemRuleFromProperty?.(params.property.propertyRule) ?? nested.itemRule
     return cloneSemanticValue({
       ...params,
+      ...(documentTag === undefined ? {} : { documentTag }),
       rule: itemRule,
       xmlPrefix: propertyPath,
     })
@@ -368,12 +377,14 @@ function clonePropertySemanticValue(params: Omit<Parameters<typeof cloneSemantic
   if (nested?.kind === "polymorphicRecord" && isRecord(params.value)) {
     return cloneSemanticValue({
       ...params,
+      ...(documentTag === undefined ? {} : { documentTag }),
       rule: nested.resolveItemRule({ yaml: params.value, name: "" }),
       xmlPrefix: propertyPath,
     })
   }
   return cloneSemanticValue({
     ...params,
+    ...(documentTag === undefined ? {} : { documentTag }),
     rule: undefined,
     xmlPrefix: propertyPath,
   })
@@ -396,7 +407,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
     annotations: params.sourceAnnotations,
     exportClaims: params.exportClaims,
     rawBoundaries: params.rawBoundaries,
-    tag: params.property.propertyRule.tag,
+    tag: params.property.propertyRule.tag ?? params.documentTag,
   })
   if (params.descriptor.yamlShape === "array") {
     if (!Array.isArray(params.value)) return params.value
@@ -413,7 +424,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
           appendXmlAnomalyRawCollectionItem(target, { index, yaml: semanticItem })
           params.rawBoundaries.push(rawItemBoundary({
             annotation,
-            tag: params.property.propertyRule.tag,
+            tag: params.property.propertyRule.tag ?? params.documentTag,
             exportClaimId,
           }))
           return
@@ -484,7 +495,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         })
         params.rawBoundaries.push(rawItemBoundary({
           annotation,
-          tag: params.property.propertyRule.tag,
+          tag: params.property.propertyRule.tag ?? params.documentTag,
           exportClaimId,
         }))
         if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, targetKey, keyAnnotation)
@@ -630,6 +641,7 @@ function rawBoundary(params: {
   readonly logicalKey: string
   readonly xmlPrefix: readonly XmlTraversalPathSegment[]
   readonly documentPath?: string
+  readonly documentTag?: string
   readonly rule: MetadataItemRule | undefined
   readonly ownerYaml: unknown
   readonly exportClaimId?: string
@@ -666,16 +678,17 @@ function rawBoundary(params: {
     && isCompiledParentPatch(params.annotation.xml)
   const hasSemanticValue =
     params.annotation.hasSemanticValue === true || augmentsCompiledParent || documentRoot
-  const implicitMainDocument = property?.propertyRule.tag === undefined
-    && property?.propertyRule.filePath === undefined
+  const documentTag = property?.propertyRule.tag ?? params.documentTag
   const documentPath = params.documentPath ?? property?.propertyRule.filePath
+  const implicitMainDocument = documentPath === undefined
+    && documentTag === undefined
   return {
     ...(documentRoot ? { path: "@" } : claimsCurrentItem ? { path: "$item" } : preparedPath(path)),
     value: params.annotation.xml,
     suppressOrdinaryOutput: !hasSemanticValue && !isTerminalPath(path),
     hasSemanticValue,
     ...(siblingOrder === undefined ? {} : { siblingOrder }),
-    ...(property?.propertyRule.tag === undefined ? {} : { tag: property.propertyRule.tag }),
+    ...(documentPath !== undefined || documentTag === undefined ? {} : { tag: documentTag }),
     ...(documentPath !== undefined
       ? { documentPath }
       : publicPath?.documentSelector !== undefined

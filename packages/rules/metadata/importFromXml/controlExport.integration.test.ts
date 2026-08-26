@@ -441,35 +441,52 @@ describe("executeImportControlExport", () => {
   })
 
   it("не принимает внутреннее имя формы, которое обычная синхронизация изменит", async () => {
-    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-control-export-form-"))
-    tempDirs.push(inputDir)
-    const fixtureDir = join(syncXmlDir, "Catalogs/Контрагенты/Forms")
-    const metadataPath = join(inputDir, "ФормаЭлемента.xml")
-    const bodyPath = join(inputDir, "Form.xml")
-    fs.copyFileSync(join(fixtureDir, "ФормаЭлемента.xml"), metadataPath)
-    fs.writeFileSync(
-      bodyPath,
-      fs.readFileSync(join(fixtureDir, "ФормаЭлемента/Ext/Form.xml"), "utf8")
-        .replace("ПолеВвода1РасширеннаяПодсказка", "ПолеВвода1ExtendedTooltip"),
+    const sourceBody = fs.readFileSync(
+      join(syncXmlDir, "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form.xml"),
+      "utf8",
     )
-    const assignment = catalogFormAssignment(metadataPath, bodyPath)
+    const { assignment, bodyPath } = createCatalogFormInput(
+      tempDirs,
+      "nkdk-control-export-form-",
+      sourceBody.replace("ПолеВвода1РасширеннаяПодсказка", "ПолеВвода1ExtendedTooltip"),
+    )
     const { prepared, index } = await prepareControlInput(assignment)
-    const result = await executeImportControlExport({
-      assignment,
-      data: prepared.yaml,
-      annotations: snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations),
-      audit: prepared.proofAudit,
-      rule: prepared.rule,
-      topology,
-      context: mockXmlImportContext(),
-      exportProfile: configurationExportProfileForTests(),
-      index,
-      composition: { children: () => [] },
-      readSource: async (path) => fs.promises.readFile(path, "utf8"),
-    })
+    const initialAnnotations = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
+    const result = await executePreparedFormControlExport(assignment, prepared, index, initialAnnotations)
 
     expect(result.rereadSourcePaths).toContain(bodyPath)
     expect(JSON.stringify(result.annotations.entries)).toContain("ПолеВвода1ExtendedTooltip")
+  })
+
+  it("не сохраняет raw пустых AdditionalColumns, восстановленных в Form.xml", async () => {
+    const { assignment } = createCatalogFormInput(tempDirs, "nkdk-control-export-empty-additional-columns-", [
+      '<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core">',
+      "  <Attributes>",
+      '    <Attribute name="Объект" id="1">',
+      "      <Type><v8:Type>xs:string</v8:Type></Type>",
+      '      <Columns><AdditionalColumns table="Объект.Пустая"/></Columns>',
+      "    </Attribute>",
+      "  </Attributes>",
+      "</Form>",
+    ].join("\n"))
+    const { prepared, index } = await prepareControlInput(assignment)
+    const initialAnnotations = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
+
+    expect(initialAnnotations.entries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: "Columns\\AdditionalColumns" }),
+    ]))
+
+    const result = await executePreparedFormControlExport(
+      assignment,
+      prepared,
+      index,
+      initialAnnotations,
+      true,
+    )
+
+    expect(result.annotations.entries).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: "Columns\\AdditionalColumns" }),
+    ]))
   })
 })
 
@@ -616,4 +633,48 @@ function catalogFormAssignment(metadataPath: string, bodyPath: string): ImportAs
     ],
     externalFiles: [],
   }
+}
+
+function createCatalogFormInput(
+  tempDirs: string[],
+  prefix: string,
+  bodyXml: string,
+): { assignment: ImportAssignment; bodyPath: string } {
+  const inputDir = fs.mkdtempSync(join(os.tmpdir(), prefix))
+  tempDirs.push(inputDir)
+  const fixtureDir = join(syncXmlDir, "Catalogs/Контрагенты/Forms")
+  const metadataPath = join(inputDir, "ФормаЭлемента.xml")
+  const bodyPath = join(inputDir, "Form.xml")
+  fs.copyFileSync(join(fixtureDir, "ФормаЭлемента.xml"), metadataPath)
+  fs.writeFileSync(bodyPath, bodyXml)
+  return { assignment: catalogFormAssignment(metadataPath, bodyPath), bodyPath }
+}
+
+async function executePreparedFormControlExport(
+  assignment: ImportAssignment,
+  prepared: Awaited<ReturnType<typeof prepareControlInput>>["prepared"],
+  index: Awaited<ReturnType<typeof prepareControlInput>>["index"],
+  annotations: ReturnType<typeof snapshotXmlAnomalyAnnotations>,
+  detailed = false,
+) {
+  return executeImportControlExport({
+    assignment,
+    data: prepared.yaml,
+    annotations,
+    audit: prepared.proofAudit,
+    rule: prepared.rule,
+    topology,
+    context: mockXmlImportContext(),
+    exportProfile: configurationExportProfileForTests(),
+    index,
+    composition: { children: () => [] },
+    readSource: async (path) => fs.promises.readFile(path, "utf8"),
+    ...(detailed ? {
+      loadDetailedImport: async () => ({
+        data: prepared.yaml,
+        annotations,
+        audit: prepared.proofAudit,
+      }),
+    } : {}),
+  })
 }

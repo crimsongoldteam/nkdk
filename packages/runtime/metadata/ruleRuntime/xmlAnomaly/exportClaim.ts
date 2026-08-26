@@ -1,6 +1,6 @@
-const XML_ANOMALY_EXPORT_CLAIM = Symbol("xmlAnomalyExportClaim")
-const XML_ANOMALY_RAW_ITEM = Symbol("xmlAnomalyRawItem")
-const XML_ANOMALY_RAW_COLLECTION_ITEMS = Symbol("xmlAnomalyRawCollectionItems")
+const XML_ANOMALY_EXPORT_CLAIM = Symbol.for("@nkdk/runtime/xmlAnomalyExportClaim")
+const XML_ANOMALY_RAW_ITEM = Symbol.for("@nkdk/runtime/xmlAnomalyRawItem")
+const XML_ANOMALY_RAW_COLLECTION_ITEMS = Symbol.for("@nkdk/runtime/xmlAnomalyRawCollectionItems")
 
 export const XML_ANOMALY_RAW_ITEM_PLACEHOLDER = "nkdkXmlAnomalyRawItem"
 

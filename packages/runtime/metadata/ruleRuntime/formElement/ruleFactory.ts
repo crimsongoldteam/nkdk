@@ -23,6 +23,7 @@ import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
 import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
 import { resolveFormElementXMLId } from "./xmlIdentity"
+import { copyXmlAnomalyExportClaim } from "../xmlAnomaly/exportClaim"
 export {
   defineElementRule,
   getElementRule,
@@ -86,7 +87,9 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
       _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
       ...properties,
     }
+    copyXmlAnomalyExportClaim(xml, result)
     const transformed = params.transformOutput?.({ ...outputParams, xml: result }) ?? result
+    copyXmlAnomalyExportClaim(result, transformed)
     if (transformed !== null && typeof transformed === "object" && !Array.isArray(transformed)) {
       registerFormXmlIdReservation(transformed, {
         ...(runtime === undefined ? {} : { runtime }),

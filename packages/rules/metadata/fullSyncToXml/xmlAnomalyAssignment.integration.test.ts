@@ -29,8 +29,10 @@ import {
   clientApplicationFormYamlToXmlNestedRule,
   convertClientApplicationFormFromYAMLToXML,
 } from "../forms/clientApplicationForm/fromYAMLToXML"
-import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { ClientApplicationFormRules, FormRulesTags } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
+import { prepareFormDataPathContextFromYAML } from "../forms/clientApplicationForm/formDataPathContext"
+import { catalogOwnerCache } from "../forms/clientApplicationForm/__tests__/catalogOwnerCache"
 import { MetadataCommonFormRules } from "../appliedObjects/metadataCommonForm/rules"
 import { configurationExtensionYamlToXmlAugmenter } from "../appliedObjects/configurationExtension/exportPropertyStates"
 import {
@@ -548,6 +550,53 @@ describe("единое восстановление XML-аномалий assignm
     expect(inputEnd).toBeGreaterThan(future)
   })
 
+  it("сохраняет raw-привязку при материализации неявного пути элемента формы", () => {
+    const prepared = prepareAnomalies([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: CatalogObject.Товары",
+      "    ОсновнойРеквизит: Истина",
+      "Элементы:",
+      "  Наименование:",
+      "    Вид: ПолеВвода",
+      "    Future: !xml/raw",
+      "      $xml: value",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, ClientApplicationFormRules, anomalyRegistries)
+    const yaml = prepared.preparedYamlFile.data as ClientApplicationFormYAML
+    const xml = exportPreparedFormAssignment(prepared, yaml)
+
+    expect(xml).toContain('<InputField name="Наименование"')
+    expect(xml).toContain("<DataPath>Объект.Наименование</DataPath>")
+    expect(xml).toContain("<Future>value</Future>")
+  })
+
+  it("сохраняет raw-привязку вложенного элемента при материализации пути владельца", () => {
+    const prepared = prepareAnomalies([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: CatalogObject.Товары",
+      "    ОсновнойРеквизит: Истина",
+      "Элементы:",
+      "  Таблица:",
+      "    Вид: ТаблицаФормы",
+      "    КонтекстноеМеню: !xml/raw",
+      "      $значение:",
+      "        Автозаполнение: Ложь",
+      "      $xml:",
+      "        Future: value",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, ClientApplicationFormRules, anomalyRegistries)
+    const yaml = prepared.preparedYamlFile.data as ClientApplicationFormYAML
+    expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: expect.stringContaining("ContextMenu"), tag: FormRulesTags.Form }),
+    ]))
+    const xml = exportPreparedFormAssignment(prepared, yaml)
+
+    expect(xml).toContain('<Table name="Таблица"')
+    expect(xml).toContain("<DataPath>Объект.Таблица</DataPath>")
+    expect(xml).toContain("<ContextMenu")
+    expect(xml).toContain("<Future>value</Future>")
+  })
+
   it("сохраняет raw-привязку унаследованного элемента формы при построении BaseForm", () => {
     const prepared = prepareAnomalies([
       "Элементы:",
@@ -635,7 +684,24 @@ describe("единое восстановление XML-аномалий assignm
         exportClaimId: expect.any(String),
       }),
     ]))
+    expect(prepared.rawBoundaries.every(boundary => !("tag" in boundary))).toBe(true)
     expect(new Set(prepared.rawBoundaries.map(({ exportClaimId }) => exportClaimId)).size).toBe(2)
+  })
+
+  it("сохраняет привязку пустой группы дополнительных колонок после mapItemOutput", () => {
+    const xml = exportFormWithAnomalies([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: CatalogObject.Товары",
+      "    ОсновнойРеквизит: Истина",
+      "    ДополнительныеКолонки:",
+      "      Объект.Таблица:",
+      "    Columns\\AdditionalColumns: !xml/raw",
+      "      $xml:",
+      "        _table: Объект.Таблица",
+    ], true)
+
+    expect(xml).toContain('<AdditionalColumns table="Объект.Таблица"')
   })
 
   it("сохраняет относительный XML-путь raw внутри вложенных объектов external item", () => {
@@ -999,22 +1065,36 @@ function rootFingerprints(
   return roots.map(({ name, path, structuralHash }) => ({ name, path, structuralHash }))
 }
 
-function exportFormWithAnomalies(lines: readonly string[]): string {
+function exportFormWithAnomalies(lines: readonly string[], withDataPaths = false): string {
   const prepared = prepareAnomalies(
     lines.join("\n"),
     anomalyRegistries.xmlAnomalies,
     ClientApplicationFormRules,
     anomalyRegistries,
   )
+  const yaml = prepared.preparedYamlFile.data as ClientApplicationFormYAML
+  return exportPreparedFormAssignment(prepared, yaml, withDataPaths)
+}
+
+function exportPreparedFormAssignment(
+  prepared: ReturnType<typeof prepareAnomalies>,
+  yaml: ClientApplicationFormYAML,
+  withDataPaths = true,
+): string {
   const context = mockContextToXML()
+  const formDataPathContext = withDataPaths
+    ? prepareFormDataPathContextFromYAML({ yaml, ownerCache: catalogOwnerCache() })
+    : undefined
   const ordinary = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
     withRuleRegistrySet(anomalyRegistries, () => convertClientApplicationFormFromYAMLToXML({
       context,
-      yaml: prepared.preparedYamlFile.data as ClientApplicationFormYAML,
+      yaml,
       annotations: prepared.preparedYamlFile.annotations,
+      ...(formDataPathContext === undefined ? {} : { formDataPathContext }),
       name: "Форма",
     }).formXML),
   )
+
   return buildPreparedAssignmentXml({
     document: {
       targetXmlPath: "Form.xml",

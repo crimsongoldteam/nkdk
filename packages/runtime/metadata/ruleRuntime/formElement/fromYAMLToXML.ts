@@ -10,6 +10,7 @@ import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
 import { resolveFormElementXMLId } from "./xmlIdentity"
+import { copyXmlAnomalyExportClaim } from "../xmlAnomaly/exportClaim"
 
 type FormElementCollectionNestedRule = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -96,6 +97,7 @@ function withNameAndId(
     _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
     ...properties,
   }
+  copyXmlAnomalyExportClaim(xml, result)
   registerFormXmlIdReservation(result, {
     ...(runtime === undefined ? {} : { runtime }),
     space: "elements",

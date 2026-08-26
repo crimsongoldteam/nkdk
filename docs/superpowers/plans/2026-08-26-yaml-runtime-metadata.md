@@ -332,7 +332,6 @@ Expected: новые дубли не найдены; исправление оф
 - Modify: `packages/rules/metadata/forms/commonObjects/childItems/treeYAML.ts`
 - Modify: `packages/rules/metadata/importFromXml/anomalyProof.ts`
 - Modify: `packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/toYAML.ts`
-- Modify: `packages/rules/metadata/commonObjects/i8nText/anomalies.ts`
 
 **Interfaces:**
 - Consumes: `copyYAMLRuntimeMetadata(source, target)` и `cloneYAMLContainer(source)` из Task 1.
@@ -365,7 +364,6 @@ packages/rules/metadata/forms/clientApplicationForm/baseFormProjection.ts
 packages/rules/metadata/forms/commonObjects/childItems/fromXMLToYAML.ts
 packages/rules/metadata/forms/commonObjects/childItems/treeYAML.ts
 packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/toYAML.ts
-packages/rules/metadata/commonObjects/i8nText/anomalies.ts
 ```
 
 В `normalizeProjectionAliases` и `moveButtonTypeToTreeYAML`, где создаётся прямой поверхностный клон, использовать `cloneYAMLContainer(source)` вместо `{ ...source }` с последующим копированием. В преобразованиях, которые добавляют или переименовывают смысловые поля, оставить построение `result` и после него вызвать `copyYAMLRuntimeMetadata(source, result)`.
@@ -382,7 +380,7 @@ Run:
 rg -n "copyYAMLScalarTags|copyYAMLMappingKeyOrder" packages/runtime packages/rules
 ```
 
-Expected: определения функций остаются в `packages/runtime/yaml/scalarTags.ts` и `packages/runtime/yaml/mappingTags.ts`; их импорт и вызовы остаются только внутри `packages/runtime/yaml/runtimeMetadata.ts` и в тестах, которые проверяют сами низкоуровневые операции. В производственных преобразователях совпадений нет.
+Expected: `copyYAMLScalarTags` остаётся только в своём определении и внутри `runtimeMetadata.ts`. `copyYAMLMappingKeyOrder` дополнительно остаётся в узком `copyLocalizedItemTags`, который переносит только порядок языков и намеренно принимает отсутствующий источник DCS `xs:string`; это не копия YAML-контейнера общего назначения.
 
 - [ ] **Step 5: Запустить связанные тестовые проекты**
 
@@ -403,7 +401,7 @@ Run:
 
 ```bash
 pnpm duplicates -- --base 9cdcb73b9
-git add packages/runtime/yaml/export.ts packages/runtime/metadata/ruleRuntime/property/fromXMLToYAML.ts packages/runtime/metadata/ruleRuntime/property/metadataTargetOccurrences.ts packages/runtime/metadata/ruleRuntime/formElement/fromYAMLToXML.ts packages/runtime/metadata/ruleRuntime/formElement/fromXMLToYAML.ts packages/rules/metadata/forms/clientApplicationForm/baseFormProjection.ts packages/rules/metadata/forms/commonObjects/childItems/fromXMLToYAML.ts packages/rules/metadata/forms/commonObjects/childItems/treeYAML.ts packages/rules/metadata/importFromXml/anomalyProof.ts packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/toYAML.ts packages/rules/metadata/commonObjects/i8nText/anomalies.ts
+git add packages/runtime/yaml/export.ts packages/runtime/metadata/ruleRuntime/property/fromXMLToYAML.ts packages/runtime/metadata/ruleRuntime/property/metadataTargetOccurrences.ts packages/runtime/metadata/ruleRuntime/formElement/fromYAMLToXML.ts packages/runtime/metadata/ruleRuntime/formElement/fromXMLToYAML.ts packages/rules/metadata/forms/clientApplicationForm/baseFormProjection.ts packages/rules/metadata/forms/commonObjects/childItems/fromXMLToYAML.ts packages/rules/metadata/forms/commonObjects/childItems/treeYAML.ts packages/rules/metadata/importFromXml/anomalyProof.ts packages/rules/metadata/commonObjects/dataCompositionSystem/availableValues/toYAML.ts
 git commit -m "refactor: :recycle: унифицировать копирование метаданных YAML"
 ```
 
@@ -414,7 +412,7 @@ Expected: новые дубли не найдены; миграция оформ
 ### Task 4: Полная синхронизация формы и итоговая проверка `doc`
 
 **Files:**
-- Create: `packages/rules/metadata/forms/clientApplicationForm/formDataPathContext.testSupport.ts`
+- Create: `packages/rules/metadata/forms/clientApplicationForm/__tests__/catalogOwnerCache.ts`
 - Modify: `packages/rules/metadata/forms/clientApplicationForm/formDataPathContext.test.ts`
 - Modify: `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts`
 
@@ -424,7 +422,7 @@ Expected: новые дубли не найдены; миграция оформ
 
 - [ ] **Step 1: Вынести тестовый индекс владельца формы в общий test support**
 
-Создать `formDataPathContext.testSupport.ts`, переместив без изменения функции `catalogOwnerCache` и `catalogOwner` из конца `formDataPathContext.test.ts` вместе с их текущими импортами `MetadataCatalogRules`, `buildObjectFieldIndex`, `createValidationOwnerFacts` и типами владельца. Экспортировать только:
+Создать `__tests__/catalogOwnerCache.ts`, переместив без изменения функции `catalogOwnerCache` и `catalogOwner` из конца `formDataPathContext.test.ts` вместе с их текущими импортами `MetadataCatalogRules`, `buildObjectFieldIndex`, `createValidationOwnerFacts` и типами владельца. Каталог `__tests__` обязателен, чтобы dependency-cruiser не классифицировал зависимость формы от тестового `MetadataCatalogRules` как production-ребро. Экспортировать только:
 
 ```ts
 export function catalogOwnerCache(): OwnerMetadataCache
@@ -477,7 +475,7 @@ it("сохраняет raw-привязку при материализации 
   })
 
   expect(xml).toContain('<InputField name="Наименование"')
-  expect(xml).toContain("<DataPath>Объект.Description</DataPath>")
+  expect(xml).toContain("<DataPath>Объект.Наименование</DataPath>")
   expect(xml).toContain("<Future>value</Future>")
 })
 ```
@@ -522,7 +520,7 @@ Expected: этап YAML → XML проходит дальше прежних 324
 Run:
 
 ```bash
-git add packages/rules/metadata/forms/clientApplicationForm/formDataPathContext.testSupport.ts packages/rules/metadata/forms/clientApplicationForm/formDataPathContext.test.ts packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts
+git add packages/rules/metadata/forms/clientApplicationForm/__tests__/catalogOwnerCache.ts packages/rules/metadata/forms/clientApplicationForm/formDataPathContext.test.ts packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts
 git commit -m "test: :white_check_mark: проверить raw после вычисления пути формы"
 ```
 

@@ -40,7 +40,7 @@ import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
-import { readXmlAnomalyRawCollectionItems } from "../xmlAnomaly/exportClaim"
+import { copyXmlAnomalyExportClaim, readXmlAnomalyRawCollectionItems } from "../xmlAnomaly/exportClaim"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { assertYAMLScalarTagAllowed } from "./yamlScalarTagPolicy"
@@ -537,6 +537,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         if (effectiveNestedRule.kind === "collection" && !nested.outputs.has(output.request.key)) return
         const reference = references[index]!
         let value: unknown = nested.outputs.get(output.request.key)
+        if (effectiveNestedRule.kind === "item") {
+          copyXmlAnomalyExportClaim(normalizedNestedYAML, value)
+        }
         if (
           effectiveNestedRule.kind === "item" &&
           effectiveNestedRule.transformOutput !== undefined &&

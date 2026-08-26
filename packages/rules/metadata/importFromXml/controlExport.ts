@@ -339,7 +339,8 @@ function matchesDocumentSelector(
   candidate: { readonly role: ImportXmlInput["role"]; readonly sourcePath?: string },
   selector: string | undefined,
 ): boolean {
-  if (selector === undefined || selector.length === 0) return candidate.role === "metadata"
+  if (selector === undefined) return true
+  if (selector.length === 0) return candidate.role === "metadata"
   const fileName = candidate.sourcePath?.replaceAll("\\", "/").split("/").at(-1)
   return fileName === `${selector}.xml`
 }
