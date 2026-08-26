@@ -273,7 +273,7 @@ it("сохраняет export claim при материализации неяв
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project unit metadata/forms/clientApplicationForm/formDataPathContext.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata
 ```
 
 Expected: новый тест FAIL — на подготовленном элементе `readXmlAnomalyExportClaim(...)` возвращает `undefined`.
@@ -299,7 +299,7 @@ targetChild = cloneYAMLContainer(sourceChild)
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project unit metadata/forms/clientApplicationForm/formDataPathContext.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata
 pnpm --filter @nkdk/rules type-check
 ```
 
@@ -487,7 +487,7 @@ it("сохраняет raw-привязку при материализации 
 Run:
 
 ```bash
-pnpm --filter @nkdk/rules exec vitest run --project unit metadata/forms/clientApplicationForm/formDataPathContext.test.ts
+pnpm --filter @nkdk/rules exec vitest run --no-isolate --project core-metadata
 pnpm --filter @nkdk/rules exec vitest run --project integration metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts
 ```
 

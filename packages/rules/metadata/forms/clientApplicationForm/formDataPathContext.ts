@@ -1,5 +1,5 @@
 import type { DataPathPropertyRule, MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { copyYAMLScalarTags } from "@nkdk/runtime"
+import { cloneYAMLContainer } from "@nkdk/runtime"
 import type { ElementType } from "../../ruleRuntime/formElement/types"
 import type { FormDataPathTabularElementDeclaration } from "@nkdk/runtime/rule-kit"
 import { acceptFormTabularElementVisit } from "../../ruleRuntime/formElement/formTableDataPaths"
@@ -134,7 +134,7 @@ export function materializeImplicitFormDataPaths(
   }
   if (changes.length === 0) return yaml
 
-  const root = cloneContainer(yaml)
+  const root = cloneYAMLContainer(yaml)
   const clones = new Map<object, object>([[yaml, root]])
   for (const change of changes) {
     const element = mutableRecordAtPath({ source: yaml, target: root, path: change.yamlPath, clones })
@@ -499,7 +499,7 @@ function mutableRecordAtPath(params: {
     }
     let targetChild = params.clones.get(sourceChild)
     if (targetChild === undefined) {
-      targetChild = cloneContainer(sourceChild)
+      targetChild = cloneYAMLContainer(sourceChild)
       params.clones.set(sourceChild, targetChild)
       target[segment as keyof typeof target] = targetChild as never
     }
@@ -509,12 +509,6 @@ function mutableRecordAtPath(params: {
   const record = asRecord(target)
   if (record !== undefined) return record
   throw new Error(`YAML-путь элемента формы указывает на массив: ${params.path.join(".")}`)
-}
-
-function cloneContainer<T extends object>(value: T): T {
-  const clone = (Array.isArray(value) ? [...value] : { ...value }) as T
-  copyYAMLScalarTags(value, clone)
-  return clone
 }
 
 function isContainer(value: unknown): value is Record<string | number, unknown> | unknown[] {

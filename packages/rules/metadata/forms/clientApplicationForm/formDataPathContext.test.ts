@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { markXmlAnomalyExportClaim, readXmlAnomalyExportClaim } from "@nkdk/runtime"
 import "../../appliedObjects"
 import "../../forms"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
@@ -154,6 +155,26 @@ describe("prepareFormDataPathContextFromYAML", () => {
 
     expect(prepared.Элементы.Таблица).not.toHaveProperty("ПутьКДанным")
     expect(prepared.Элементы.Таблица.Элементы.ТаблицаКолонка).not.toHaveProperty("ПутьКДанным")
+  })
+
+  it("сохраняет export claim при материализации неявного пути", () => {
+    const element = { Вид: "ПолеВвода" } as const
+    markXmlAnomalyExportClaim(element, "item-1")
+    const yaml = {
+      Реквизиты: {
+        Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
+      },
+      Элементы: { Наименование: element },
+    } satisfies ClientApplicationFormYAML
+    const context = prepareFormDataPathContextFromYAML({ yaml, ownerCache: catalogOwnerCache() })
+
+    const prepared = materializeImplicitFormDataPaths(yaml, context)
+
+    expect(prepared.Элементы.Наименование.ПутьКДанным).toBe("Объект.Наименование")
+    expect(readXmlAnomalyExportClaim(prepared.Элементы.Наименование)).toBe("item-1")
+    expect(prepared.Элементы.Наименование).not.toBe(element)
+    expect(readXmlAnomalyExportClaim(element)).toBe("item-1")
+    expect(element).not.toHaveProperty("ПутьКДанным")
   })
 
   it("уплотняет импортированные пути и различает отсутствующий XML-тег", () => {
