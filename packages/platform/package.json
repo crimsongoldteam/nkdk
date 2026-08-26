@@ -10,8 +10,8 @@
     }
   },
   "scripts": {
-    "test": "node ../../scripts/run-test-duration-check.mjs",
-    "test:isolated": "node ../../scripts/run-test-duration-check.mjs",
+    "test": "node ../../scripts/run-test-duration-check.mjs --integration",
+    "test:isolated": "node ../../scripts/run-test-duration-check.mjs --integration",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
