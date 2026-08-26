@@ -17,6 +17,7 @@ import {
   testMetadataItemFromYAMLToXML,
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
+  withDirectMetadataExecution,
 } from "./directConversion"
 
 
@@ -24,22 +25,24 @@ describe("direct conversion test helpers", () => {
   it("вызывает атомарные операции в порядке единого обхода", () => {
     const propertyType = "TestDirectConversionOrder" as PropertyRuleType
     const calls: string[] = []
-    registerTypeRule(propertyType, "importFromXML", (_context, _rule, xml) => {
-      calls.push("fromXML")
-      return { parsed: String(xml) }
+    withDirectMetadataExecution(() => {
+      registerTypeRule(propertyType, "importFromXML", (_context, _rule, xml) => {
+        calls.push("fromXML")
+        return { parsed: String(xml) }
+      })
+      registerTypeRule(propertyType, "exportToYAML", (({ value }) => {
+        calls.push("toYAML")
+        return (value as { parsed: string }).parsed.toUpperCase()
+      }) as ExportToYAMLFunctionNew)
+      registerTypeRule(propertyType, "importFromYAML", (({ value }) => {
+        calls.push("fromYAML")
+        return String(value).toUpperCase()
+      }) as ImportFromYAMLFunctionNew)
+      registerTypeRule(propertyType, "exportToXML", (({ value }) => {
+        calls.push("toXML")
+        return `xml:${String(value)}`
+      }) as ExportToXMLFunctionNew)
     })
-    registerTypeRule(propertyType, "exportToYAML", (({ value }) => {
-      calls.push("toYAML")
-      return (value as { parsed: string }).parsed.toUpperCase()
-    }) as ExportToYAMLFunctionNew)
-    registerTypeRule(propertyType, "importFromYAML", (({ value }) => {
-      calls.push("fromYAML")
-      return String(value).toUpperCase()
-    }) as ImportFromYAMLFunctionNew)
-    registerTypeRule(propertyType, "exportToXML", (({ value }) => {
-      calls.push("toXML")
-      return `xml:${String(value)}`
-    }) as ExportToXMLFunctionNew)
     const rule = itemRule(propertyType)
 
     const imported = testPropertyFromXMLToYAML({ rule, xml: { Value: "abc" } })

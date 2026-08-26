@@ -14,7 +14,7 @@ import type {
 } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule, PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
-import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { createPropertyRuleExecutor } from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/projectDefinition/localIndexes"
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
@@ -47,7 +47,7 @@ export function normalizeDirectRoundTripXML(value: string): string {
 
 const directMetadataRegistries = createMetadataExecutionRegistrySets(metadataRules)
 export const directPropertyRuleExecution = createPropertyRuleExecutor(
-  createRuleRegistrySet(metadataRules).property,
+  directMetadataRegistries.rules.property,
 )
 
 export function withDirectMetadataExecution<T>(callback: () => T): T {
