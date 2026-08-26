@@ -33,6 +33,7 @@ import {
   openImportBinaryResult,
   type ImportResultFileBatchView,
 } from "./binaryResult"
+import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
 
 export interface XmlImportWorkerPool {
   initialize(params: {
@@ -52,6 +53,7 @@ export interface XmlImportWorkerPool {
   ): Promise<XmlImportFirstPassPoolResult>
   runSecondPass(
     readTokens: readonly ProjectStateReadToken[],
+    exportProfile: XmlComponentExportProfile,
     sink?: XmlImportStateSink,
   ): Promise<XmlImportSecondPassPoolResult>
   runThirdPass(
@@ -276,6 +278,7 @@ function createXmlImportOperationPool(params: {
     pass: "second" | "third",
     readTokens: readonly ProjectStateReadToken[],
     sink: XmlImportStateSink,
+    exportProfile?: XmlComponentExportProfile,
     issueDecisions: readonly ImportProjectIssueDecision[] = [],
   ): Promise<XmlImportSecondPassPoolResult> {
     const runningPhase = pass === "second" ? "secondPassRunning" : "thirdPassRunning"
@@ -302,11 +305,7 @@ function createXmlImportOperationPool(params: {
         fileViewsByWorker[workerIndex] = fileViews
         assertProducerActive(runningPhase)
         const beginCommand: ImportWorkerCommand = pass === "second"
-          ? {
-              kind: "beginSecondPass",
-              readToken: readTokens[activeIndex]!,
-              composition: controlComposition,
-            }
+          ? secondPassBeginCommand(readTokens[activeIndex]!, controlComposition, exportProfile)
           : { kind: "beginThirdPass", readToken: readTokens[activeIndex]!, issueDecisions }
         const beginResponse = await runCommand(workerIndex, beginCommand)
         if (beginResponse !== undefined) {
@@ -462,16 +461,16 @@ function createXmlImportOperationPool(params: {
       }
     },
 
-    async runSecondPass(readTokens, sink = noopStateSink) {
+    async runSecondPass(readTokens, exportProfile, sink = noopStateSink) {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
       if (phase !== "firstPassReady") throw new Error("Первый проход import не завершён успешно")
-      return runFollowingPass("second", readTokens, sink)
+      return runFollowingPass("second", readTokens, sink, exportProfile)
     },
     async runThirdPass(readTokens, sink = noopStateSink, issueDecisions = []) {
       assertUsable(phase, fatalError)
       if (phase !== "secondPassDone") throw new Error("Второй проход import не завершён успешно")
-      return runFollowingPass("third", readTokens, sink, issueDecisions)
+      return runFollowingPass("third", readTokens, sink, undefined, issueDecisions)
     },
     workerCount() {
       return activeWorkerIndexes.length
@@ -742,6 +741,17 @@ function normalizePendingStateBatches(value: number | undefined): number {
     throw new Error("Лимит неподтверждённых import state batches должен быть положительным целым числом")
   }
   return normalized
+}
+
+function secondPassBeginCommand(
+  readToken: ProjectStateReadToken,
+  composition: readonly ImportControlCompositionEntry[],
+  exportProfile: XmlComponentExportProfile | undefined,
+): Extract<ImportWorkerCommand, { kind: "beginSecondPass" }> {
+  if (exportProfile === undefined) {
+    throw new Error("Второй проход import не получил профиль восстановления XML")
+  }
+  return { kind: "beginSecondPass", readToken, composition, exportProfile }
 }
 
 function normalizeConcurrency(concurrency: number): number {

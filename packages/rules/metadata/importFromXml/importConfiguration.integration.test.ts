@@ -36,6 +36,10 @@ import type { ImportDiagnosticCollection, ImportResultFileCollection } from "./w
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 import type { PreparedImportStore } from "../projectState/preparedImportStore"
+import type {
+  XmlComponentExportProfile,
+  XmlComponentReconstructionProfile,
+} from "../project/xmlReconstructionProfile"
 
 const failurePhases = [
   "discover",
@@ -53,7 +57,12 @@ type FailurePhase = (typeof failurePhases)[number]
 const catalogProjectPath = "Справочник/Контрагенты/Свойства.yaml"
 const formProjectPath = "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml"
 const emptyProjectPath = "БезФактов.yaml"
-const assignments: ImportAssignment[] = [assignment("Контрагенты"), formAssignment(), assignmentWithoutSnapshotFacts()]
+const assignments: ImportAssignment[] = [
+  configurationAssignment(),
+  assignment("Контрагенты"),
+  formAssignment(),
+  assignmentWithoutSnapshotFacts(),
+]
 const resultFiles: ImportResultFile[] = [
   {
     sourceKind: "worker",
@@ -277,13 +286,24 @@ describe("configuration XML import coordinator", () => {
       topology?: CompiledMetadataResourceTopology
       rootItemName?: string
     }> = []
-    const dependencies = fakeDependencies({ calls, writtenIndexes, initialized, discovered })
+    const preparedProfiles: Array<{ readonly address: ComponentAddress; readonly assignments: readonly ImportAssignment[] }> = []
+    const secondPassProfiles: XmlComponentExportProfile[] = []
+    const dependencies = fakeDependencies({
+      calls,
+      writtenIndexes,
+      initialized,
+      discovered,
+      preparedProfiles,
+      secondPassProfiles,
+      rootYaml: { РежимСовместимостиРасширенияКонфигурации: "Версия8_3_20" },
+    })
     const pool = dependencies.createWorkerPool!({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
       ...pool,
-      async runSecondPass(snapshots, sink) {
+      async runSecondPass(snapshots, exportProfile, sink) {
         calls.push("secondPass")
         secondPassTokenCount = snapshots.length
+        secondPassProfiles.push(exportProfile)
         await sink?.writeSecondPassState({
           stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, "cfe/Расширение_All")),
         })
@@ -314,6 +334,17 @@ describe("configuration XML import coordinator", () => {
       },
     ])
     expect(secondPassTokenCount).toBe(1)
+    expect(preparedProfiles).toHaveLength(1)
+    expect(preparedProfiles[0]).toMatchObject({
+      address: { kind: "configurationExtension", name: "Расширение_All" },
+      assignments,
+    })
+    expect(secondPassProfiles).toEqual([{
+      componentKind: "configurationExtension",
+      adoptedUuids: {},
+      xmlDefaultVariantByLogicalAddress: {},
+      typeDescriptionXMLNameByType: { AnyIBRef: "AnyRef" },
+    }])
     expect(discovered).toHaveLength(1)
     expect(discovered[0]?.topology?.assignments[0]?.itemRule).toBe(MetadataConfigurationExtensionRules)
     expect(discovered[0]?.rootItemName).toBe("Расширение_All")
@@ -322,6 +353,29 @@ describe("configuration XML import coordinator", () => {
       hashes: projectFiles,
     })
     expect(calls.indexOf("baseMetadata")).toBeLessThan(calls.indexOf("discover"))
+  })
+
+  it("прерывает импорт, если профиль заимствованного объекта нельзя построить", async () => {
+    const calls: string[] = []
+    const params = createParams("configurationExtension")
+    createBaseConfiguration(params.projectDir)
+    const candidateDiscards: number[] = []
+    const sessionAborts: number[] = []
+
+    const result = await importConfigurationFromXml(params, fakeDependencies({
+      calls,
+      profileFailure: new Error("Не найден UUID основной конфигурации: Справочник.Товары"),
+      candidateDiscards,
+      sessionAborts,
+    }))
+
+    expect(result.failed).toHaveLength(1)
+    expect(result.failed[0]?.message).toContain(
+      "Не найден UUID основной конфигурации: Справочник.Товары",
+    )
+    expect(calls).not.toContain("secondPass")
+    expect(sessionAborts).toEqual([1])
+    expect(candidateDiscards).toEqual([1])
   })
 
   it("accepts only a requested component path matching the detected extension", async () => {
@@ -801,6 +855,12 @@ function fakeDependencies(params: {
   projectStateCloseFailure?: Error
   fragmentBatches?: ConfigurationIndexBlockFragment[][]
   bufferedFragments?: boolean
+  preparedProfiles?: Array<{ readonly address: ComponentAddress; readonly assignments: readonly ImportAssignment[] }>
+  secondPassProfiles?: XmlComponentExportProfile[]
+  rootYaml?: unknown
+  profileFailure?: Error
+  candidateDiscards?: number[]
+  sessionAborts?: number[]
 }): ImportCoordinatorDependencies {
   let componentDir: string | undefined
   let selectedComponentPath = "cf"
@@ -811,7 +871,22 @@ function fakeDependencies(params: {
 
   return {
     assertNoPending() {},
-    async createIndexCandidate() { return memoryCandidateStore(params.fragmentBatches) },
+    async createIndexCandidate() {
+      return memoryCandidateStore(params.fragmentBatches, () => params.candidateDiscards?.push(1))
+    },
+    async prepareReconstructionProfile(profileParams) {
+      params.preparedProfiles?.push({
+        address: profileParams.address,
+        assignments: profileParams.assignments,
+      })
+      if (params.profileFailure !== undefined) throw params.profileFailure
+      return Object.freeze({
+        componentKind: profileParams.address.kind,
+        adoptedUuids: Object.freeze({}),
+        xmlDefaultVariantByLogicalAddress: Object.freeze({}),
+      }) as XmlComponentReconstructionProfile
+    },
+    async readPreparedRootYaml() { return params.rootYaml ?? {} },
     createWorkerPool() {
       return {
         async writeStateFragment() {},
@@ -853,8 +928,9 @@ function fakeDependencies(params: {
             prepared: [],
           }
         },
-        async runSecondPass(_tokens, sink) {
+        async runSecondPass(_tokens, exportProfile, sink) {
           call("secondPass")
+          params.secondPassProfiles?.push(exportProfile)
           await sink?.writeSecondPassState({
             stateFragment: indexStateFragment(`${selectedComponentPath}/Конфигурация.yaml`),
           })
@@ -891,7 +967,12 @@ function fakeDependencies(params: {
       return { assignments }
     },
     createProjectStateService() {
-      return fakeProjectState(params.calls, params.projectStateCloseFailure, params.replacedFinalHashes)
+      return fakeProjectState(
+        params.calls,
+        params.projectStateCloseFailure,
+        params.replacedFinalHashes,
+        () => params.sessionAborts?.push(1),
+      )
     },
     mergeFiles(files) {
       call("mergeFiles")
@@ -918,7 +999,10 @@ function fakeDependencies(params: {
   }
 }
 
-function memoryCandidateStore(fragmentBatches?: ConfigurationIndexBlockFragment[][]): ConfigurationIndexCandidateStore {
+function memoryCandidateStore(
+  fragmentBatches?: ConfigurationIndexBlockFragment[][],
+  onDiscard?: () => void,
+): ConfigurationIndexCandidateStore {
   let hashes: readonly { projectPath: string; contentHash: bigint }[] = []
   const blocks = new Map<string, ConfigurationIndexBlock>()
   return {
@@ -949,7 +1033,7 @@ function memoryCandidateStore(fragmentBatches?: ConfigurationIndexBlockFragment[
     async clearPending() {},
     async flush() {},
     async close() {},
-    async discard() {},
+    async discard() { onDiscard?.() },
   }
 
   function mergeFragment(fragment: ConfigurationIndexBlockFragment): void {
@@ -1025,6 +1109,7 @@ function fakeProjectState(
   calls: string[],
   closeFailure?: Error,
   replacedFinalHashes?: Array<readonly { readonly projectPath: string; readonly hash: bigint }[]>,
+  onAbort?: () => void,
 ): ProjectStateService {
   let nextToken = 1
   const readToken = () => new Uint8Array([nextToken++]) as never
@@ -1062,7 +1147,7 @@ function fakeProjectState(
             stats: { hashedFiles: 4, parsedYamlFiles: 0, changedFiles: 4, deletedFiles: 0 },
           }
         },
-        async abort() {},
+        async abort() { onAbort?.() },
       }
     },
     async refreshAndValidate() {
@@ -1177,6 +1262,21 @@ function assignment(name: string): ImportAssignment {
     logicalAddress: `Справочник.${name}`,
     owner: undefined,
     xmlFiles: [{ role: "metadata", sourcePath: `/xml/Catalogs/${name}.xml` }],
+    externalFiles: [],
+  }
+}
+
+function configurationAssignment(): ImportAssignment {
+  return {
+    id: "Конфигурация.yaml",
+    topologyAddress: { nodeId: "configuration", values: {} },
+    role: "configuration",
+    targetProjectPath: "Конфигурация.yaml",
+    itemType: "MetadataConfiguration",
+    itemName: "Конфигурация",
+    logicalAddress: "Конфигурация",
+    owner: undefined,
+    xmlFiles: [{ role: "metadata", sourcePath: "/xml/Configuration.xml" }],
     externalFiles: [],
   }
 }

@@ -13,7 +13,11 @@ import {
   buildXmlComponentReconstructionProfile,
   type XmlComponentReconstructionProfile,
 } from "../project/xmlReconstructionProfile"
-import type { ProjectStateReadToken, ProjectStateService } from "../projectState"
+import {
+  cloneProjectStateReadToken,
+  type ProjectStateReadToken,
+  type ProjectStateService,
+} from "../projectState"
 import { projectXmlExportAssignment } from "../resourceTopology/core/xmlExportProjection"
 import type { ImportAssignment } from "./types"
 
@@ -38,7 +42,9 @@ export async function prepareImportXmlReconstructionProfile(params: {
   readonly targetIndex: Pick<ConfigurationIndexStore, "getBlocks">
 }, dependencyOverrides: Partial<ImportXmlReconstructionProfileDependencies> = {}): Promise<XmlComponentReconstructionProfile> {
   const dependencies = { ...defaultDependencies, ...dependencyOverrides }
-  const projectStateReadSession = params.projectState.openReadSession(params.projectStateReadToken)
+  const projectStateReadSession = params.projectState.openReadSession(
+    cloneProjectStateReadToken(params.projectStateReadToken),
+  )
   try {
     const targetAddresses = collectComponentLogicalAddresses({
       componentPath: componentPath(params.address),

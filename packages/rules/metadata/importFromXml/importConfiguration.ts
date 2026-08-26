@@ -55,6 +55,10 @@ import {
 import { classifyImportedIssues } from "./classifyImportedIssues"
 import type { ImportProjectIssueDecision } from "../workerPool/importContracts"
 import type { PreparedImportStore } from "../projectState/preparedImportStore"
+import { prepareImportXmlReconstructionProfile } from "./reconstructionProfile"
+import { configurationExtensionTypeDescriptionXMLNameByType } from "../appliedObjects/configurationExtension/typeDescriptionPolicy"
+import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
+import { restorePreparedImportRecord } from "./preparedRecord"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -113,6 +117,11 @@ export interface ImportCoordinatorDependencies {
     readonly address: ComponentAddress
     readonly candidate: ConfigurationIndexCandidateStore
   }): Promise<void>
+  prepareReconstructionProfile?: typeof prepareImportXmlReconstructionProfile
+  readPreparedRootYaml?(params: {
+    readonly preparedStore: PreparedImportStore
+    readonly rootAssignment: ImportAssignment
+  }): Promise<unknown>
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
@@ -155,6 +164,15 @@ export function createImportCoordinatorDependencies(
   resolveComponent: NonNullable<ImportCoordinatorDependencies["resolveComponent"]>,
 ): ImportCoordinatorDependencies {
   return { ...defaultImportDependencies, resolveComponent }
+}
+
+async function readPreparedRootYaml(params: {
+  readonly preparedStore: PreparedImportStore
+  readonly rootAssignment: ImportAssignment
+}): Promise<unknown> {
+  return restorePreparedImportRecord(
+    await params.preparedStore.read(params.rootAssignment.id),
+  ).yaml
 }
 
 export async function importConfigurationFromXml(
@@ -319,6 +337,36 @@ export async function importConfigurationFromXml(
     })
     if (snapshotFragments.length > 0) indexCandidate.mergeBlockFragments(snapshotFragments)
     const firstReadToken = await importSession.commitWorkingIndex()
+    const reconstructionProfile = await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Подготовка профиля восстановления XML компонента",
+      { items: discovered.assignments.length },
+      () => (deps.prepareReconstructionProfile ?? prepareImportXmlReconstructionProfile)({
+        address,
+        projectDir: params.projectDir,
+        assignments: discovered.assignments,
+        projectState,
+        projectStateReadToken: firstReadToken,
+        targetIndex: indexCandidate!,
+      }),
+    )
+    const rootAssignments = discovered.assignments.filter(({ role }) => role === "configuration")
+    if (rootAssignments.length !== 1) {
+      throw new Error(`Ожидалось одно корневое задание XML-import, получено: ${rootAssignments.length}`)
+    }
+    const rootYaml = await (deps.readPreparedRootYaml ?? readPreparedRootYaml)({
+      preparedStore,
+      rootAssignment: rootAssignments[0]!,
+    })
+    const exportProfile: XmlComponentExportProfile = {
+      ...reconstructionProfile,
+      ...(address.kind !== "configurationExtension"
+        ? {}
+        : {
+            typeDescriptionXMLNameByType:
+              configurationExtensionTypeDescriptionXMLNameByType(rootYaml),
+          }),
+    }
     const readTokens = [firstReadToken]
     for (let index = 1; index < pool.workerCount(); index += 1) readTokens.push(await importSession.createReadToken())
     profiler.record("Подготовка импорта конфигурации", "Распределение индекса метаданных", {
@@ -329,7 +377,7 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Второй проход worker",
       { items: discovered.assignments.length },
-      () => pool!.runSecondPass(readTokens, stateSink)
+      () => pool!.runSecondPass(readTokens, exportProfile, stateSink)
     )
     temporaryCollections.push(second.diagnostics, second.warnings, second.files)
     warnings = [...second.warnings]

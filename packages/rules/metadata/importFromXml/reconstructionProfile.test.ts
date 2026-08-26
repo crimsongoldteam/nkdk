@@ -52,6 +52,8 @@ describe("prepareImportXmlReconstructionProfile", () => {
 
   it("builds a configuration profile without opening a base index", async () => {
     const sessionClose = vi.fn()
+    const projectStateReadToken = createTestProjectStateReadToken()
+    let openedReadToken: typeof projectStateReadToken | undefined
     const openBaseIndex = vi.fn(() => {
       throw new Error("Основной индекс не должен открываться")
     })
@@ -68,16 +70,19 @@ describe("prepareImportXmlReconstructionProfile", () => {
       projectDir: "/project",
       assignments: [catalog, commonModule],
       projectState: {
-        openReadSession: () => projectStateSession(({ componentPath }) => ({
+        openReadSession: (token) => {
+          openedReadToken = token
+          return projectStateSession(({ componentPath }) => ({
           entries: componentPath === "cf"
             ? [{
                 logicalAddress: "Catalog.Товары.Attribute.Артикул",
                 sourceProjectPath: `cf/${catalog.targetProjectPath}`,
               }]
             : [],
-        }), sessionClose),
+          }), sessionClose)
+        },
       },
-      projectStateReadToken: createTestProjectStateReadToken(),
+      projectStateReadToken,
       targetIndex: targetIndex(new Map([
         [catalog.targetProjectPath, {
           entities: [
@@ -97,6 +102,7 @@ describe("prepareImportXmlReconstructionProfile", () => {
       "ОбщийМодуль.Сервис": "full",
     })
     expect(openBaseIndex).not.toHaveBeenCalled()
+    expect(openedReadToken).not.toBe(projectStateReadToken)
     expect(sessionClose).toHaveBeenCalledOnce()
   })
 

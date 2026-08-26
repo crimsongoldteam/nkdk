@@ -112,6 +112,7 @@ import {
   openPreparedImportStore,
   type PreparedImportStore,
 } from "../projectState/preparedImportStore"
+import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -193,6 +194,7 @@ interface ActiveSecondPass {
   readonly configurationStore?: ReturnType<typeof openConfigurationIndexStore>
   readonly composition: MetadataXmlPrepareComposition
   readonly issueDecisionsByProjectPath: ReadonlyMap<string, readonly ImportIssueDecision[]>
+  readonly exportProfile?: XmlComponentExportProfile
 }
 
 export interface ImportWorkerCommandRunner {
@@ -336,7 +338,12 @@ async function runImportWorkerCommand(
   }
 
   if (command.kind === "beginSecondPass") {
-    beginSecondPass(command.readToken, requireInitializedState(), command.composition)
+    beginSecondPass(
+      command.readToken,
+      requireInitializedState(),
+      command.composition,
+      command.exportProfile,
+    )
     secondPassAccumulator?.fragmentWriter.discard()
     secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     return undefined
@@ -370,7 +377,7 @@ async function runImportWorkerCommand(
   }
 
   if (command.kind === "beginThirdPass") {
-    beginSecondPass(command.readToken, requireInitializedState(), undefined, command.issueDecisions)
+    beginSecondPass(command.readToken, requireInitializedState(), undefined, undefined, command.issueDecisions)
     secondPassAccumulator?.fragmentWriter.discard()
     secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     return undefined
@@ -644,6 +651,7 @@ function beginSecondPass(
   readToken: import("../projectState/contracts").ProjectStateReadToken,
   state: InitializedImportWorkerState,
   controlComposition?: readonly ImportControlCompositionEntry[],
+  exportProfile?: XmlComponentExportProfile,
   issueDecisions: readonly ImportProjectIssueDecision[] = [],
 ): void {
   if (activeSecondPass !== undefined) throw new Error("Второй проход XML-import worker уже начат")
@@ -667,6 +675,7 @@ function beginSecondPass(
       controlComposition ?? [...assignedImports.values()].map(importControlCompositionEntry),
     ),
     issueDecisionsByProjectPath: groupIssueDecisionsByProjectPath(issueDecisions),
+    ...(exportProfile === undefined ? {} : { exportProfile }),
   }
 }
 
@@ -882,6 +891,7 @@ async function prepareYamlForFinalPass(
       rule: prepared.rule,
       topology: state.topology,
       context: { ...contextWithOwners, fromXML: state.context.fromXML },
+      exportProfile: requireSecondPassExportProfile(),
       index: configurationIndex,
       ...(controlBaseFormSource === undefined ? {} : { baseFormSource: controlBaseFormSource }),
       composition: activeSecondPass?.composition ?? { children: () => [] },
@@ -985,6 +995,14 @@ async function prepareYamlForFinalPass(
     configurationFragments:
       baseFormConfigurationFragment === undefined ? [] : [baseFormConfigurationFragment],
   }
+}
+
+function requireSecondPassExportProfile(): XmlComponentExportProfile {
+  const exportProfile = activeSecondPass?.exportProfile
+  if (exportProfile === undefined) {
+    throw new Error("Второй проход XML-import не получил профиль восстановления XML")
+  }
+  return exportProfile
 }
 
 function retargetConfigurationFragment(

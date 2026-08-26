@@ -13,6 +13,7 @@ import {
   createMetadataExecutionRegistrySets,
   withMetadataExecutionRegistrySets,
 } from "../metadata/composition/metadataExecutionContext"
+import { openProjectStateReadSession } from "../metadata/composition/projectState"
 
 export function createImportProjectStateTestService(
   options: Pick<CreateProjectStateServiceOptions, "createPool"> = {},
@@ -20,6 +21,7 @@ export function createImportProjectStateTestService(
   const snapshots = new Map<string, ProjectStateSharedBuffers>()
   return createProjectStateService({
     ...options,
+    openReadSession: openProjectStateReadSession,
     createWriter: () => createProjectStateWriterHandle({
       openStore: async (projectDir) => createBinaryProjectStateStore({
         dependencyValidator: createProjectStateDependencyValidator(),
