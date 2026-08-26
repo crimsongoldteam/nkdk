@@ -12,6 +12,8 @@ const BASE_CONFIGURATION_UUID = "11111111-1111-4111-8111-111111111111"
 const EXTENSION_CONFIGURATION_UUID = "22222222-2222-4222-8222-222222222222"
 const BASE_ATTRIBUTE_UUID = "33333333-3333-4333-8333-333333333333"
 const EXTENSION_ATTRIBUTE_UUID = "44444444-4444-4444-8444-444444444444"
+const BASE_COMMAND_UUID = "55555555-5555-4555-8555-555555555555"
+const EXTENSION_COMMAND_UUID = "66666666-6666-4666-8666-666666666666"
 
 describe("buildXmlComponentReconstructionProfile", () => {
   it("materializes indexed and full variants for every configuration address", () => {
@@ -116,6 +118,33 @@ describe("buildXmlComponentReconstructionProfile", () => {
       [element]: "adopted",
     })
     expect(profile.adoptedUuids).toEqual({ Конфигурация: BASE_CONFIGURATION_UUID })
+  })
+
+  it("canonicalizes a nested external data source command to the worker address", () => {
+    const canonical =
+      "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Command.Команда1"
+    const worker =
+      "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Таблица.ТаблицаВсеСвойства.Команда.Команда1"
+    const profile = buildXmlComponentReconstructionProfile({
+      componentKind: "configurationExtension",
+      target: source(
+        ["Конфигурация", canonical],
+        [
+          { logicalAddress: "Конфигурация", uuid: EXTENSION_CONFIGURATION_UUID },
+          { logicalAddress: canonical, uuid: EXTENSION_COMMAND_UUID },
+        ],
+      ),
+      base: source(
+        ["Конфигурация", canonical],
+        [
+          { logicalAddress: "Конфигурация", uuid: BASE_CONFIGURATION_UUID },
+          { logicalAddress: canonical, uuid: BASE_COMMAND_UUID },
+        ],
+      ),
+    })
+
+    expect(profile.xmlDefaultVariantByLogicalAddress[worker]).toBe("adopted")
+    expect(profile.adoptedUuids[worker]).toBe(BASE_COMMAND_UUID)
   })
 
   it("rejects conflicting UUIDs after address canonicalization", () => {
