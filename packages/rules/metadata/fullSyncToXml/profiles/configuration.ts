@@ -3,6 +3,7 @@ import {
   type FullXmlSyncComponentProfile,
   type FullXmlSyncProfileRuntime,
 } from "../componentProfile"
+import { buildXmlComponentReconstructionProfile } from "../../project/xmlReconstructionProfile"
 
 export const configurationFullXmlSyncProfile: FullXmlSyncComponentProfile = {
   kind: "configuration",
@@ -26,34 +27,36 @@ export function confirmConfigurationFullXmlSync(
   { target, base }: Parameters<FullXmlSyncComponentProfile["confirm"]>[0],
   readIndex: ReadIndex | typeof readConfirmedComponentIndex = readConfirmedComponentIndex,
 ): FullXmlSyncProfileRuntime | Promise<FullXmlSyncProfileRuntime> {
-    if (target.structure.address.kind !== "configuration") {
-      throw new Error("Профиль configuration получил другой вид компонента")
-    }
-    if (base !== undefined) {
-      throw new Error("Для основной конфигурации не должна передаваться базовая конфигурация")
-    }
-    const reader = readIndex(target)
-    if (reader instanceof Promise) {
-      return reader.then((resolved) => confirmedRuntime(target, resolved))
-    }
-    return confirmedRuntime(target, reader)
+  if (target.structure.address.kind !== "configuration") {
+    throw new Error("Профиль configuration получил другой вид компонента")
+  }
+  if (base !== undefined) {
+    throw new Error("Для основной конфигурации не должна передаваться базовая конфигурация")
+  }
+  const reader = readIndex(target)
+  if (reader instanceof Promise) {
+    return reader.then((resolved) => confirmedRuntime(target, resolved))
+  }
+  return confirmedRuntime(target, reader)
 }
 
 function confirmedRuntime(
   target: Parameters<FullXmlSyncComponentProfile["confirm"]>[0]["target"],
   reader: Awaited<ReturnType<typeof readConfirmedComponentIndex>>,
 ): FullXmlSyncProfileRuntime {
-    const indexedItems = [...reader.entities()].flatMap((entity) =>
-      entity.uuid === undefined && entity.xmlId === undefined ? [] : [[entity.logicalAddress, "indexed"] as const]
-    )
-    return {
+  const reconstruction = buildXmlComponentReconstructionProfile({
+    componentKind: "configuration",
+    target: {
+      logicalAddresses: target.indexes.logicalAddresses.map(({ logicalAddress }) => logicalAddress),
+      index: reader,
+    },
+  })
+  return {
+    kind: "configuration",
+    target,
+    workerProfile: {
       kind: "configuration",
-      target,
-      workerProfile: {
-        kind: "configuration",
-        componentKind: "configuration",
-        adoptedUuids: {},
-        xmlDefaultVariantByLogicalAddress: Object.fromEntries(indexedItems),
-      },
-    }
+      ...reconstruction,
+    },
+  }
 }

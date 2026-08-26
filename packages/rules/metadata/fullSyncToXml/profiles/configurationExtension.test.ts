@@ -10,8 +10,10 @@ import {
 import { confirmConfigurationFullXmlSync } from "./configuration"
 import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../../resourceTopology/core/projectProjection"
+import { formatCanonicalMetadataTargetToYAML } from "../../ruleRuntime/metadataTarget"
 
 const blockEntitiesByStore = new Map<string, readonly ConfigurationIndexBlockEntity[]>()
+const DEFAULT_BASE_CONFIGURATION_UUID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
 
 describe("configuration extension full XML sync profile", () => {
   it.each([
@@ -67,6 +69,7 @@ describe("configuration extension full XML sync profile", () => {
     const runtime = confirmExtension({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).toEqual({
+      Конфигурация: DEFAULT_BASE_CONFIGURATION_UUID,
       "Справочник.Товары": "11111111-1111-4111-8111-111111111111",
     })
   })
@@ -90,6 +93,7 @@ describe("configuration extension full XML sync profile", () => {
     expect(runtime.target).toBe(target)
     expect(runtime.base).toBe(base)
     expect(runtime.workerProfile.adoptedUuids).toEqual({
+      Конфигурация: DEFAULT_BASE_CONFIGURATION_UUID,
       "Справочник.Товары": "11111111-1111-4111-8111-111111111111",
       "Справочник.Товары.Реквизит.Артикул": "21111111-1111-4111-8111-111111111111",
     })
@@ -128,6 +132,24 @@ describe("configuration extension full XML sync profile", () => {
       "Справочник.Заимствованный": "adopted",
       "Справочник.Собственный": "full",
     })
+  })
+
+  it("rejects a borrowed UUID-bearing object without a base UUID", () => {
+    const borrowed = "Catalog.Заимствованный"
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: ["Конфигурация", borrowed],
+      entities: [uuidEntity("Конфигурация", "11111111-1111-4111-8111-111111111111")],
+    })
+    const target = state({
+      componentPath: "cfe/Дополнение",
+      logicalAddresses: ["Конфигурация", borrowed],
+      entities: [uuidEntity(borrowed, "22222222-2222-4222-8222-222222222222")],
+    })
+
+    expect(() => confirmExtension({ target, base })).toThrow(
+      "Не найден UUID основной конфигурации: Справочник.Заимствованный",
+    )
   })
 
   it.each([
@@ -180,7 +202,10 @@ describe("configuration extension full XML sync profile", () => {
       baseProjectPath: formPath,
       savedProjectPath: savedPath,
     }])
-    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toHaveProperty(logicalAddress, "adopted")
+    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toHaveProperty(
+      formatCanonicalMetadataTargetToYAML(logicalAddress) ?? logicalAddress,
+      "adopted",
+    )
   })
 
   it("does not adopt an address found only in snapshots", () => {
@@ -215,6 +240,7 @@ describe("configuration extension full XML sync profile", () => {
     const runtime = confirmExtension({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).toEqual({
+      Конфигурация: DEFAULT_BASE_CONFIGURATION_UUID,
       [workerLogicalAddress]: "33333333-3333-4333-8333-333333333333",
     })
     expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty(logicalAddress)
@@ -259,7 +285,10 @@ describe("configuration extension full XML sync profile", () => {
 
     const runtime = confirmExtension({ target, base })
 
-    expect(runtime.workerProfile.adoptedUuids).toEqual({ [workerLogicalAddress]: uuid })
+    expect(runtime.workerProfile.adoptedUuids).toEqual({
+      Конфигурация: DEFAULT_BASE_CONFIGURATION_UUID,
+      [workerLogicalAddress]: uuid,
+    })
     expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty(canonical)
   })
 
@@ -304,13 +333,15 @@ describe("configuration extension full XML sync profile", () => {
 describe("configuration full XML sync profile", () => {
   it("uses indexed defaults only below metadata items present in the snapshot", () => {
     const existing = "ПланВидовХарактеристик.ВидыСвойств"
+    const nested = `${existing}.Характеристики[0].ПолеПутиКДанным`
     const runtime = confirmConfigurationFullXmlSync({
       target: state({
         componentPath: "cf",
+        logicalAddresses: [existing, nested, "Catalog.Товары"],
         entities: [
           uuidEntity(existing, "11111111-1111-4111-8111-111111111111"),
           {
-            logicalAddress: `${existing}.Характеристики[0].ПолеПутиКДанным`,
+            logicalAddress: nested,
           },
         ],
       }),
@@ -318,6 +349,8 @@ describe("configuration full XML sync profile", () => {
 
     expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toEqual({
       [existing]: "indexed",
+      [nested]: "indexed",
+      "Справочник.Товары": "full",
     })
   })
 })
@@ -331,11 +364,17 @@ function state(params: {
 }): ConfirmedComponentState {
   const projectFiles = params.projectFiles ?? [{ projectPath: "Свойства.yaml", contentHash: 1n }]
   const dataPath = `/project/.nkdk/components/${params.componentPath}/configuration-index.lmdb`
-  blockEntitiesByStore.set(dataPath, params.entities ?? [])
   const address =
     params.componentPath === "cf"
       ? { kind: "configuration" as const }
       : { kind: "configurationExtension" as const, name: "Дополнение" }
+  const entities = params.entities ?? []
+  blockEntitiesByStore.set(
+    dataPath,
+    address.kind === "configuration" && !entities.some(({ logicalAddress }) => logicalAddress === "Конфигурация")
+      ? [uuidEntity("Конфигурация", DEFAULT_BASE_CONFIGURATION_UUID), ...entities]
+      : entities,
+  )
   return {
     structure: {
       address,

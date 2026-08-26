@@ -4,7 +4,7 @@ import type {
   ConfigurationIndexStoreDescriptor,
 } from "../configurationIndex"
 import type { ConfirmedComponentState } from "../project/componentState/types"
-import type { XMLDefaultVariant } from "@nkdk/runtime"
+import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
 import { currentOperationRegistrySet } from "../operations/operationExecutionContext"
 import {
   createLocalConfigurationIndexReader,
@@ -15,12 +15,8 @@ import type { ConfigurationIndexStore } from "../configurationIndex/store"
 
 export type XmlSyncProfileKind = "configuration" | "configurationExtension"
 
-export interface FullXmlSyncWorkerProfileRuntime {
+export interface FullXmlSyncWorkerProfileRuntime extends XmlComponentExportProfile {
   readonly kind: XmlSyncProfileKind
-  readonly componentKind: ComponentAddress["kind"]
-  readonly adoptedUuids: Readonly<Record<string, string>>
-  readonly typeDescriptionXMLNameByType?: Readonly<Record<string, string>>
-  readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
   readonly referencePathByCurrentPath?: ReadonlyMap<string, string>
   readonly baseForms?: {
     readonly componentDir: string
