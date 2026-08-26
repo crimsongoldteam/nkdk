@@ -20,6 +20,7 @@ describe("export CalculatedFields to XML", () => {
 
     expect(result).toContain("<dcssch:dataPath>РабочееМесто</dcssch:dataPath>")
     expect(result).toContain("<dcssch:expression>ФискальноеУстройство.РабочееМесто</dcssch:expression>")
+    expect(result).toContain('<dcssch:title xsi:type="v8:LocalStringType">')
     expect(result).toContain("<v8:content>Рабочее место</v8:content>")
     expect(result).toContain("<dcssch:dataPath>ОбщееСостояниеПодключения</dcssch:dataPath>")
     expect(result).toContain("<v8:content>Настройки</v8:content>")

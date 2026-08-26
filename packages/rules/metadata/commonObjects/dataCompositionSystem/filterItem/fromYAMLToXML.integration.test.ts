@@ -229,7 +229,7 @@ describe("export FilterItem to XML", () => {
       expect(result).not.toContain(guidB)
     })
 
-    it("FilterItemComparison: канонизирует обычное userSettingPresentation", () => {
+    it("FilterItemComparison: восстанавливает обычное userSettingPresentation как LocalStringType", () => {
       const guid = "eeeeeeee-0000-0000-0000-000000000005"
       const current: FilterItemComparison = {
         itemType: "FilterItemComparison",
@@ -255,7 +255,8 @@ describe("export FilterItem to XML", () => {
       })
 
       expect(result).toContain(`<dcsset:userSettingID>${guid}</dcsset:userSettingID>`)
-      expect(result).toContain(`<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">`)
+      expect(result).toContain('<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">')
+      expect(result).toContain("<v8:content>Способ оплаты</v8:content>")
     })
 
     it("FilterItemComparison: сопоставляет implicit Equal и поле с точкой из YAML", () => {
@@ -283,7 +284,8 @@ describe("export FilterItem to XML", () => {
       })
 
       expect(result).toContain(`<dcsset:userSettingID>${guid}</dcsset:userSettingID>`)
-      expect(result).toContain(`<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">`)
+      expect(result).toContain('<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">')
+      expect(result).toContain("<v8:content>Способ оплаты</v8:content>")
     })
 
     it("FilterItemGroup: передает reference во вложенный FilterItemComparison", () => {
@@ -326,7 +328,8 @@ describe("export FilterItem to XML", () => {
       })
 
       expect(result).toContain(`<dcsset:userSettingID>${guid}</dcsset:userSettingID>`)
-      expect(result).toContain(`<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">`)
+      expect(result).toContain('<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">')
+      expect(result).toContain("<v8:content>Контрагент</v8:content>")
     })
   })
 })

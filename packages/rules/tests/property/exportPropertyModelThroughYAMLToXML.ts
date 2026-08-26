@@ -4,8 +4,10 @@ import type { ElementXML, MetadataItemRule, PropertyRule } from "../../metadata/
 import { xmlExport } from "@nkdk/runtime"
 import {
   createDirectRoundTripContexts,
+  directPropertyRuleExecution,
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
+  withDirectMetadataExecution,
 } from "../directConversion"
 import { mockContext, mockContextToXML } from "../mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
@@ -38,6 +40,7 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
   expectedResult: string | undefined
   result: string
 } {
+  return withDirectMetadataExecution(() => {
   const expectedResult =
     params.xmlString !== undefined
       ? params.xmlString.trimEnd()
@@ -83,6 +86,7 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
             context: mockContext,
             rule: propertyRule,
             value: params.value,
+            execution: directPropertyRuleExecution,
           })
   const rule = {
     itemType: "DirectPropertyModelProbe",
@@ -131,8 +135,6 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
       ? xmlExport(xmlData as Record<string, unknown>, false)
       : xmlExport({ [effectiveRootTag as string]: xmlData }, false)
 
-  return { expectedResult, result }
+    return { expectedResult, result }
+  })
 }
-import { registerCommonObjects } from "../../metadata/commonObjects"
-
-registerCommonObjects()

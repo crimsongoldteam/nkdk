@@ -1,4 +1,3 @@
-import { registerCommonObjects } from "../metadata/commonObjects"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataTargetOwnerContext } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
@@ -9,13 +8,13 @@ import { importMetadataItemFromXMLToYAML } from "../metadata/ruleRuntime/metadat
 import { convertMetadataItemFromYAMLToXML } from "../metadata/ruleRuntime/metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../metadata/ruleRuntime/property/fromYAMLToXML"
 import { importPropertiesFromXMLToYAML } from "../metadata/ruleRuntime/property/fromXMLToYAML"
-import { getTypeRule } from "../metadata/ruleRuntime/property/typeRuleRegistry"
 import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLExternalWriteFactory,
 } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule, PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/projectDefinition/localIndexes"
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
@@ -26,6 +25,11 @@ import type {
   XmlElementNode,
   XmlImportAuditSession,
 } from "@nkdk/runtime"
+import { metadataRules } from "../metadata/composition/metadataRules"
+import {
+  createMetadataExecutionRegistrySets,
+  withMetadataExecutionRegistrySets,
+} from "../metadata/composition/metadataExecutionContext"
 
 interface FromXMLResult {
   yaml: unknown
@@ -41,7 +45,14 @@ export function normalizeDirectRoundTripXML(value: string): string {
   return value.replace(/^\ufeff?<\?xml[^\n]*\?>\r?\n?/, "").replace(/\r\n/g, "\n").trimEnd()
 }
 
-registerCommonObjects()
+const directMetadataRegistries = createMetadataExecutionRegistrySets(metadataRules)
+export const directPropertyRuleExecution = createPropertyRuleExecutor(
+  createRuleRegistrySet(metadataRules).property,
+)
+
+export function withDirectMetadataExecution<T>(callback: () => T): T {
+  return withMetadataExecutionRegistrySets(directMetadataRegistries, callback)
+}
 
 export interface DirectRoundTripContexts {
   readonly importContext: ConfigurationContextFromXML
@@ -122,21 +133,23 @@ export function testPropertyFromXMLToYAML(params: {
   annotations?: XmlAnomalyAnnotationTable
   audit?: XmlImportAuditSession
 }): FromXMLResult {
-  const context = params.context ?? mockContextFromXML()
-  const collector = createLocalIndexesCollector()
-  const yaml = importPropertiesFromXMLToYAML({
-    context,
-    rule: params.rule,
-    sources: [{ context, xml: params.xml }],
-    itemName: params.name,
-    yamlPath: [],
-    rulePath: [],
-    collector,
-    execution: params.execution,
-    annotations: params.annotations,
-    audit: params.audit,
+  return withDirectMetadataExecution(() => {
+    const context = params.context ?? mockContextFromXML()
+    const collector = createLocalIndexesCollector()
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: params.rule,
+      sources: [{ context, xml: params.xml }],
+      itemName: params.name,
+      yamlPath: [],
+      rulePath: [],
+      collector,
+      execution: params.execution ?? directPropertyRuleExecution,
+      annotations: params.annotations,
+      audit: params.audit,
+    })
+    return { yaml, indexes: collector.finish() }
   })
-  return { yaml, indexes: collector.finish() }
 }
 
 export function testPropertyFromYAMLToXML(params: {
@@ -149,17 +162,19 @@ export function testPropertyFromYAMLToXML(params: {
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
   annotations?: XmlAnomalyAnnotations
 }): ToXMLResult {
-  const result = convertPropertiesFromYAMLToXML({
-    context: params.context ?? mockContextToXML(),
-    yaml: params.yaml,
-    rule: params.rule,
-    execution: params.execution,
-    name: params.name,
-    outputs: [{ key: "owner", referenceXML: params.referenceXML }],
-    externalWriteFactory: params.externalWriteFactory,
-    annotations: params.annotations,
+  return withDirectMetadataExecution(() => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: params.context ?? mockContextToXML(),
+      yaml: params.yaml,
+      rule: params.rule,
+      execution: params.execution ?? directPropertyRuleExecution,
+      name: params.name,
+      outputs: [{ key: "owner", referenceXML: params.referenceXML }],
+      externalWriteFactory: params.externalWriteFactory,
+      annotations: params.annotations,
+    })
+    return { xml: result.outputs.get("owner") ?? {}, externalWrites: result.externalWrites }
   })
-  return { xml: result.outputs.get("owner") ?? {}, externalWrites: result.externalWrites }
 }
 
 export function testMetadataItemFromXMLToYAML(params: {
@@ -168,21 +183,23 @@ export function testMetadataItemFromXMLToYAML(params: {
   context?: ConfigurationContextFromXML
   name?: string
 }): FromXMLResult {
-  const collector = createLocalIndexesCollector()
-  const context = params.context ?? mockContextFromXML()
-  const traversal = { yamlPath: [], rulePath: [], collector }
-  const direct = getTypeRule(params.rule.itemType, "importFromXMLToYAML")
-  const yaml =
-    direct === undefined
-      ? importMetadataItemFromXMLToYAML({
-          context,
-          rule: params.rule,
-          xml: params.xml,
-          name: params.name,
-          traversal,
-        })
-      : direct({ context, rule: { type: params.rule.itemType }, xml: params.xml, name: params.name, traversal })
-  return { yaml, indexes: collector.finish() }
+  return withDirectMetadataExecution(() => {
+    const collector = createLocalIndexesCollector()
+    const context = params.context ?? mockContextFromXML()
+    const traversal = { yamlPath: [], rulePath: [], collector }
+    const direct = directPropertyRuleExecution.getTypeRule(params.rule.itemType, "importFromXMLToYAML")
+    const yaml =
+      direct === undefined
+        ? importMetadataItemFromXMLToYAML({
+            context,
+            rule: params.rule,
+            xml: params.xml,
+            name: params.name,
+            traversal,
+          })
+        : direct({ context, rule: { type: params.rule.itemType }, xml: params.xml, name: params.name, traversal })
+    return { yaml, indexes: collector.finish() }
+  })
 }
 
 export function testMetadataItemFromYAMLToXML(params: {
@@ -195,18 +212,23 @@ export function testMetadataItemFromYAMLToXML(params: {
   ownerYAML?: unknown
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
 }): ToXMLResult {
-  const result = convertMetadataItemFromYAMLToXML({
-    convertProperties: convertPropertiesFromYAMLToXML,
-    context: params.context ?? mockContextToXML(),
-    yaml: params.yaml,
-    rule: params.rule,
-    name: params.name,
-    outputs: [{ key: "owner", referenceXML: params.referenceXML }],
-    propertyValues: params.propertyValues,
-    ownerYAML: params.ownerYAML,
-    externalWriteFactory: params.externalWriteFactory,
+  return withDirectMetadataExecution(() => {
+    const result = convertMetadataItemFromYAMLToXML({
+      convertProperties: (conversionParams) => convertPropertiesFromYAMLToXML({
+        ...conversionParams,
+        execution: directPropertyRuleExecution,
+      }),
+      context: params.context ?? mockContextToXML(),
+      yaml: params.yaml,
+      rule: params.rule,
+      name: params.name,
+      outputs: [{ key: "owner", referenceXML: params.referenceXML }],
+      propertyValues: params.propertyValues,
+      ownerYAML: params.ownerYAML,
+      externalWriteFactory: params.externalWriteFactory,
+    })
+    return { xml: result.outputs.get("owner") ?? {}, externalWrites: result.externalWrites }
   })
-  return { xml: result.outputs.get("owner") ?? {}, externalWrites: result.externalWrites }
 }
 
 export function testPropertyFixtureThroughYAML(params: {
