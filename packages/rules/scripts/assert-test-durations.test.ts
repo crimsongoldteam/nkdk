@@ -137,6 +137,19 @@ describe("assert test durations", () => {
     ).failures).toContainEqual(expect.objectContaining({ type: "test", duration: 200.01 }))
   })
 
+  it("даёт integration файлу отдельный предел 2500ms", () => {
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(2_500),
+      { NKDK_TEST_SUITE: "integration" },
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(2_500.01),
+      { NKDK_TEST_SUITE: "integration" },
+    ).failures).toContainEqual(expect.objectContaining({ type: "file", duration: 2_500.01 }))
+  })
+
   it("сортирует предупреждения и превышения по убыванию длительности", () => {
     const result = analyzeTestDurationReport({
       success: true,

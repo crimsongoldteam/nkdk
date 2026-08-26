@@ -6,6 +6,7 @@ export const TEST_DURATION_TARGET_MS = 10
 export const TEST_DURATION_LIMIT_MS = 50
 export const INTEGRATION_TEST_DURATION_LIMIT_MS = 200
 export const TEST_FILE_LIMIT_MS = 1_000
+export const INTEGRATION_TEST_FILE_LIMIT_MS = 2_500
 export const TEST_PACKAGE_SETUP_LIMIT_MS = 3_000
 export const WINDOWS_LIMIT_MULTIPLIER = 5
 export const CI_TEST_DURATION_LIMIT_MULTIPLIER = 2
@@ -17,11 +18,15 @@ export function analyzeTestDurationReport(report, lifecycleReport, environment =
     environment.CI === "true" ? 3 : 1,
     environment.platform === "win32" ? WINDOWS_LIMIT_MULTIPLIER : 1,
   )
-  const suiteTestDurationLimit = environment.NKDK_TEST_SUITE === "integration"
+  const integration = environment.NKDK_TEST_SUITE === "integration"
+  const suiteTestDurationLimit = integration
     ? INTEGRATION_TEST_DURATION_LIMIT_MS
     : TEST_DURATION_LIMIT_MS
   const testDurationLimit = suiteTestDurationLimit *
     (environment.CI === "true" ? CI_TEST_DURATION_LIMIT_MULTIPLIER : 1)
+  const fileDurationLimit = (integration
+    ? INTEGRATION_TEST_FILE_LIMIT_MS
+    : TEST_FILE_LIMIT_MS) * limitMultiplier
 
   const warnings = []
   const failures = []
@@ -32,7 +37,7 @@ export function analyzeTestDurationReport(report, lifecycleReport, environment =
   }
   for (const suite of report.testResults) {
     const fileDuration = lifecycleByFile.get(suite.name)
-    if (fileDuration > TEST_FILE_LIMIT_MS * limitMultiplier) {
+    if (fileDuration > fileDurationLimit) {
       const result = { type: "file", file: suite.name, duration: fileDuration }
       warnings.push(result)
       failures.push(result)

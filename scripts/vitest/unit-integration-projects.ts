@@ -18,6 +18,7 @@ export function unitIntegrationVitestConfig(
   const unitDependencyGuard = resolve(packageDirectory, "../../scripts/vitest/forbid-unit-external-dependencies")
   return defineConfig({
     test: {
+      maxWorkers: 1,
       ...testOptions,
       projects: unitIntegrationProjects(unitDependencyGuard),
     },
