@@ -264,6 +264,12 @@ describe("prepareImportYaml", () => {
       xmlPath: "/Form[1]",
       yamlPath: ["Форма"],
     }))
+    expect(prepared.proofAudit.itemAnchors).toContainEqual({
+      sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml"),
+      xmlPath: "/Form[1]/Attributes[1]/Attribute[1]",
+      yamlPath: ["Форма", "Реквизиты", "НаборКонстант"],
+      rulePath: ["form", "attributes"],
+    })
     expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства.Элемент.КонстантаВсеСвойства",
       xmlId: "1",

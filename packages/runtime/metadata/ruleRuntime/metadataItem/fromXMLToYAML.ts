@@ -26,6 +26,7 @@ export function importMetadataItemFromXMLToYAML(params: {
   name?: string
   traversal: DirectImportTraversal
   propertyXML?: ReadonlyMap<string, unknown>
+  propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
 }): unknown {
   const xmlRoot = Object.values(params.rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
@@ -80,6 +81,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     annotations: params.traversal.annotations,
     profile: params.traversal.profile,
     propertyXML: params.propertyXML,
+    propertyXMLNodes: params.propertyXMLNodes,
     execution: propertyExecutionFromTraversal(params.traversal),
   })
   if (yaml !== undefined) {

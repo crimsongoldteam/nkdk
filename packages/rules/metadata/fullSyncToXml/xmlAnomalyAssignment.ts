@@ -235,6 +235,7 @@ function cloneSemanticValue(params: {
   readonly rule: MetadataItemRule | undefined
   readonly yamlPath: readonly (string | number)[]
   readonly xmlPrefix: readonly XmlTraversalPathSegment[]
+  readonly documentPath?: string
   readonly rules: RuleRegistrySet | undefined
   readonly rawBoundaries: PreparedXmlAnomalyBoundary[]
   readonly exportClaims: { nextId: number }
@@ -294,6 +295,7 @@ function cloneSemanticValue(params: {
           property,
           logicalKey,
           xmlPrefix: params.xmlPrefix,
+          ...(params.documentPath === undefined ? {} : { documentPath: params.documentPath }),
           rule: params.rule,
           ownerYaml: params.value,
           exportClaimId: params.exportClaimId,
@@ -341,6 +343,17 @@ function clonePropertySemanticValue(params: Omit<Parameters<typeof cloneSemantic
     ...params.xmlPrefix,
     ...params.property.xmlPath.map(xmlPathSegment),
   ]
+  if (params.property.propertyRule.filePath !== undefined) {
+    const itemRule = fixedNestedItemRule(params.property.propertyRule, params.rules)
+    if (itemRule !== undefined) {
+      return cloneSemanticValue({
+        ...params,
+        rule: itemRule,
+        xmlPrefix: [],
+        documentPath: params.property.propertyRule.filePath,
+      })
+    }
+  }
   if (nested?.kind === "collection") {
     return cloneCollectionSemanticValue({ ...params, descriptor: nested })
   }
@@ -616,6 +629,7 @@ function rawBoundary(params: {
   readonly property: PlannedProperty | undefined
   readonly logicalKey: string
   readonly xmlPrefix: readonly XmlTraversalPathSegment[]
+  readonly documentPath?: string
   readonly rule: MetadataItemRule | undefined
   readonly ownerYaml: unknown
   readonly exportClaimId?: string
@@ -633,11 +647,13 @@ function rawBoundary(params: {
           ...publicPath!.segments.slice(0, -1).map(xmlPathSegment),
           ...property.xmlPath.map(xmlPathSegment),
         ]
-  const path = params.exportClaimId === undefined
-    ? [...params.xmlPrefix, ...rawPath]
-    : rawPath
+  const claimsCurrentItem = params.exportClaimId !== undefined
+    && property === undefined
+    && publicPath?.segments.length === 1
+    && publicPath.segments[0] === params.rule?.itemType
+  const path = claimsCurrentItem ? [] : [...params.xmlPrefix, ...rawPath]
   const documentRoot = publicPath?.documentRoot === true
-  if (path.length === 0 && !documentRoot) {
+  if (path.length === 0 && !documentRoot && !claimsCurrentItem) {
     throw new Error(`Для !xml/raw ${params.logicalKey} не определён XML-путь`)
   }
   if (params.annotation.xml === undefined) {
@@ -652,23 +668,25 @@ function rawBoundary(params: {
     params.annotation.hasSemanticValue === true || augmentsCompiledParent || documentRoot
   const implicitMainDocument = property?.propertyRule.tag === undefined
     && property?.propertyRule.filePath === undefined
+  const documentPath = params.documentPath ?? property?.propertyRule.filePath
   return {
-    ...(documentRoot ? { path: "@" } : preparedPath(path)),
+    ...(documentRoot ? { path: "@" } : claimsCurrentItem ? { path: "$item" } : preparedPath(path)),
     value: params.annotation.xml,
     suppressOrdinaryOutput: !hasSemanticValue && !isTerminalPath(path),
     hasSemanticValue,
     ...(siblingOrder === undefined ? {} : { siblingOrder }),
     ...(property?.propertyRule.tag === undefined ? {} : { tag: property.propertyRule.tag }),
-    ...(publicPath?.documentSelector !== undefined
-      ? { documentSelector: publicPath.documentSelector }
-      : implicitMainDocument
-        ? { documentSelector: "" }
-        : {}),
+    ...(documentPath !== undefined
+      ? { documentPath }
+      : publicPath?.documentSelector !== undefined
+        ? { documentSelector: publicPath.documentSelector }
+        : implicitMainDocument
+          ? { documentSelector: "" }
+          : {}),
     ...(documentRoot ? { documentRootName: params.rule?.itemType ?? "Root" } : {}),
-    ...(property?.propertyRule.filePath === undefined
+    ...(params.documentPath !== undefined || property?.propertyRule.filePath === undefined
       ? {}
       : {
-          documentPath: property.propertyRule.filePath,
           documentRootName: property.propertyRule.type,
         }),
     ...(params.exportClaimId === undefined ? {} : { exportClaimId: params.exportClaimId }),
@@ -772,6 +790,14 @@ function nestedRuleForProperty(
 ): YAMLToXMLNestedRule | undefined {
   if (propertyRule === undefined || rules === undefined) return undefined
   return rules.property.getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+}
+
+function fixedNestedItemRule(
+  propertyRule: PropertyRule,
+  rules: RuleRegistrySet | undefined,
+): MetadataItemRule | undefined {
+  const nested = rules?.property.getTypeRule(propertyRule.type, "nestedItemRule")
+  return nested !== undefined && "itemRule" in nested ? nested.itemRule : undefined
 }
 
 function valueAnnotationsForParent(

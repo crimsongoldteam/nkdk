@@ -95,6 +95,7 @@ import { metadataPropertyRule000 as rule97 } from "../commonObjects/dataComposit
 import { metadataPropertyRule000 as rule98 } from "../commonObjects/dataCompositionSystem/parameterValue/fromYAML"
 import { metadataPropertyRule000 as rule99 } from "../commonObjects/dataCompositionSystem/parameterValue/toYAML"
 import { metadataPropertyRule000 as rule100 } from "../commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromXML"
+import { metadataPropertyRule001 as rule430 } from "../commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromXML"
 import { metadataPropertyRule000 as rule101 } from "../commonObjects/dataCompositionSystem/settingsParameterValueCollection/fromYAML"
 import { metadataPropertyRule000 as rule102 } from "../commonObjects/dataCompositionSystem/settingsParameterValueCollection/toXML"
 import { metadataPropertyRule000 as rule103 } from "../commonObjects/dataCompositionSystem/settingsParameterValueCollection/toYAML"
@@ -836,4 +837,5 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule427,
   rule428,
   rule429,
+  rule430,
 ])

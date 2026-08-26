@@ -11,7 +11,7 @@ serializeYAMLDocument,
 xmlElementChildren,
 xmlExport
 } from "@nkdk/runtime"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { createRuleRegistrySet, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
 testPropertyFromXMLToYAML,
@@ -21,6 +21,7 @@ testPropertyFromYAMLToXML,
 import "../index"
 import "./fromXMLToYAML"
 import { FormAttributeColumnRules,FormAttributeRules } from "./rules"
+import { metadataRules } from "../../../composition/metadataRules"
 
 const rule = {
   itemType: "FormAttributesProbe",
@@ -54,9 +55,58 @@ const settingsFixtures = [
   "spreadsheetDocumentSettings.xml",
 ] as const
 
+function importStructuredFormAttributes(
+  xml: string,
+  execution?: ReturnType<typeof createRuleRegistrySet>["execution"],
+) {
+  const document = parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true })
+  const root = document.roots[0]!
+  const audit = createXmlImportAuditSession([root])
+  const annotations = createXmlAnomalyAnnotations()
+  const structuredRule = {
+    ...rule,
+    properties: {
+      value: { ...rule.properties.value, xml: "Attributes" },
+    },
+  } as const satisfies MetadataItemRule
+  const { yaml } = testPropertyFromXMLToYAML({
+    rule: structuredRule,
+    xml: root,
+    audit,
+    annotations,
+    execution,
+  })
+  return { root, audit, yaml }
+}
+
 describe("FormAttributes XML → YAML → XML", () => {
+  it("привязывает общие Settings к выбранному по xsi:type свойству", () => {
+    const registries = createRuleRegistrySet(metadataRules)
+    const attribute = fs.readFileSync(
+      fileURLToPath(new URL("__fixtures__/plannerSettings.xml", import.meta.url)),
+      "utf8",
+    )
+    const { root, audit, yaml } = importStructuredFormAttributes(
+      `<Root><Attributes>${attribute}</Attributes></Root>`,
+      registries.execution,
+    )
+    audit.finalize()
+    const attributesNode = xmlElementChildren(root, "Attributes")[0]!
+    const attributeNode = xmlElementChildren(attributesNode, "Attribute")[0]!
+    const settingsNode = xmlElementChildren(attributeNode, "Settings")[0]!
+    expect(audit.getOutcome(settingsNode)).toMatchObject({
+      state: "claimed",
+      boundaries: [expect.objectContaining({ propertyKey: "planner", yamlPath: ["Значение", "Канбан", "Планировщик"] })],
+    })
+    expect(audit.outcomes().filter(({ node }) => node.path.startsWith(settingsNode.path)).map(({ state }) => state))
+      .toEqual(Array(audit.outcomes().filter(({ node }) => node.path.startsWith(settingsNode.path)).length).fill("claimed"))
+
+    expect(yaml).toHaveProperty("Значение.Канбан.Планировщик")
+    expect(yaml).not.toHaveProperty("Значение.Канбан.ДинамическийСписок")
+  })
+
   it("переносит audit повторных реквизитов и колонок на их runtime-ключи", () => {
-    const document = parseXmlDocumentWithSaxes(`
+    const { root, audit, yaml } = importStructuredFormAttributes(`
       <Root xmlns:v8="http://v8.1c.ru/8.1/data/core">
         <Attributes>
           <Attribute name="Таблица" id="1">
@@ -69,18 +119,7 @@ describe("FormAttributes XML → YAML → XML", () => {
           <Attribute name="Таблица" id="2"><Type><v8:Type>xs:string</v8:Type></Type></Attribute>
         </Attributes>
       </Root>
-    `, { preserveXsiNil: true })
-    const root = document.roots[0]!
-    const audit = createXmlImportAuditSession([root])
-    const annotations = createXmlAnomalyAnnotations()
-
-    const structuredRule = {
-      ...rule,
-      properties: {
-        value: { ...rule.properties.value, xml: "Attributes" },
-      },
-    } as const satisfies MetadataItemRule
-    const { yaml } = testPropertyFromXMLToYAML({ rule: structuredRule, xml: root, audit, annotations })
+    `)
     const attributes = (yaml as { Значение: Record<string, Record<string, unknown>> }).Значение
     const attributeRuntimeKeys = Object.keys(attributes)
     const attributesNode = xmlElementChildren(root, "Attributes")[0]!

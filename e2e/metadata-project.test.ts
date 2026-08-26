@@ -73,6 +73,13 @@ describe.sequential("metadata project E2E", () => {
     )
     expect(settingsComposerYaml).not.toContain("!xml/value КомпоновщикНастроек.Settings.ReportStructure")
     expect(settingsComposerYaml).not.toContain("!xml/value КомпоновщикНастроек.FixedSettings.ReportStructure")
+    const valueListYaml = await readFile(join(
+      baseline.projectDir,
+      "cf/ОбщаяФорма/СписокЗначений/Свойства.yaml",
+    ), "utf8")
+    expect(valueListYaml).not.toContain("Форма: !xml/raw")
+    expect(valueListYaml).toContain("ТипЗначения: !xml/raw")
+    expect(valueListYaml).toContain("$xml: null")
     await expect(access(join(baseline.projectDir, ".nkdk"))).resolves.toBeUndefined()
     console.info("E2E import durations, ms", baseline.durationsMs)
   })

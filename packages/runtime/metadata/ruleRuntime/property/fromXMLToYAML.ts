@@ -85,11 +85,23 @@ export function importPropertiesFromXMLToYAML(params: {
   dependent?: ImportedDependentPropertyCollector
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
+  propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
   execution?: PropertyRuleExecution
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
 }): Record<string, unknown> | undefined {
-  const { context, rule, sources, itemName, yamlPath, rulePath, collector, deferred, propertyXML } = params
+  const {
+    context,
+    rule,
+    sources,
+    itemName,
+    yamlPath,
+    rulePath,
+    collector,
+    deferred,
+    propertyXML,
+    propertyXMLNodes,
+  } = params
   if (sources.length === 0) return undefined
   const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
     type: import("./types").PropertyRule["type"],
@@ -97,6 +109,7 @@ export function importPropertiesFromXMLToYAML(params: {
   ) => params.execution === undefined
     ? getTypeRule(type, operation)
     : params.execution.getTypeRule(type, operation)
+  const selectedAmbiguousBoundaries = new Map<XmlElementNode, XmlImportAuditBoundary[]>()
 
   const result: Record<string, unknown> = {}
   const owner = metadataTargetOwnerFromRule({
@@ -164,6 +177,7 @@ export function importPropertiesFromXMLToYAML(params: {
       presentInXML,
       xmlNode,
       xmlNodes,
+      ambiguousXMLKey,
     } = match
     const { propertyKey: key, rule: propertyRule } = entry
     const { source, indexCollection, ownerXmlName } = sourceState
@@ -183,6 +197,7 @@ export function importPropertiesFromXMLToYAML(params: {
       deferred,
       params.dependent,
     ]).begin()
+    let discardAttempt = false
     try {
       const run = (): void => {
         const dependentImportProperty = params.execution === undefined
@@ -355,7 +370,7 @@ export function importPropertiesFromXMLToYAML(params: {
                   sources: resolveNestedSources({
                     context: propertyContext,
                     rule: propertyRule,
-                    xml: xmlValue,
+                    xml: xmlNode ?? xmlValue,
                     name: itemName,
                     ownerXmlName,
                     traversal: nestedTraversal,
@@ -521,7 +536,12 @@ export function importPropertiesFromXMLToYAML(params: {
             const externalValue = convertedDirectly ? yamlValue : value
             if (parentName !== undefined && externalFiles !== undefined && externalValue !== undefined) {
               const entry = buildExternalFileEntry(propertyRule.externalFile, parentName, externalValue as string)
-              if (entry !== null) externalFiles.push(entry)
+              if (entry !== null) {
+                externalFiles.push(entry)
+                if (xmlNode !== undefined && "type" in xmlNode && xmlNode.type === "element") {
+                  params.audit?.persistExternalSubtree(xmlNode, boundary)
+                }
+              }
             }
             importedExternalProperties.add(key)
             addProfileTime(params.profile, "outputMs", outputStartedAt)
@@ -553,16 +573,31 @@ export function importPropertiesFromXMLToYAML(params: {
             value,
             params.execution,
           )
-          if (exportedValues === undefined) {
+          const emptyDirectValue = convertedDirectly && isEmptySemanticContainer(exportedYamlValue)
+          const discardedAlternative = ambiguousXMLKey && emptyDirectValue
+          if (exportedValues === undefined || discardedAlternative) {
+            if (discardedAlternative) {
+              params.annotations?.deleteSubtree(exportedYamlValue)
+              discardAttempt = true
+            }
             if (
               presentInXML &&
-              convertedDirectly &&
+              emptyDirectValue &&
               isXmlElementNode(xmlNode) &&
-              isEmptySemanticContainer(exportedYamlValue)
+              params.audit !== undefined
             ) {
-              params.audit?.elideSubtree(xmlNode, boundary)
+              params.audit.elideSubtree(xmlNode, boundary)
             }
             return
+          }
+          if (
+            ambiguousXMLKey
+            && isXmlElementNode(xmlNode)
+            && !isEmptySemanticContainer(exportedYamlValue)
+          ) {
+            const selected = selectedAmbiguousBoundaries.get(xmlNode)
+            if (selected === undefined) selectedAmbiguousBoundaries.set(xmlNode, [boundary])
+            else selected.push(boundary)
           }
           if (dependentImportProperty) {
             params.dependent?.accept({
@@ -619,6 +654,10 @@ export function importPropertiesFromXMLToYAML(params: {
         return
       }
       throw cause
+    }
+    if (discardAttempt) {
+      attempt.rollback()
+      return
     }
     attempt.commit()
   }
@@ -696,6 +735,11 @@ export function importPropertiesFromXMLToYAML(params: {
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
+  for (const [node, selected] of selectedAmbiguousBoundaries) {
+    const unique = uniqueAuditBoundaries(selected)
+    if (unique.length === 1) params.audit?.selectPropertyBoundary(node, unique[0]!)
+  }
+
   if (propertyXML !== undefined) {
     const traversalStartedAt = performance.now()
     let conversionMs = 0
@@ -703,6 +747,9 @@ export function importPropertiesFromXMLToYAML(params: {
       const sourceState = sourceByProperty === undefined ? sourceStates[0] : sourceByProperty.get(propertyKey)
       const entry = sourceState?.plan.entriesByPropertyKey.get(propertyKey)
       if (sourceState === undefined || entry === undefined) continue
+      const sourceNodes = typeRule(entry.rule.type, "resolveNestedImportXMLSources") === undefined
+        ? undefined
+        : propertyXMLNodes?.get(propertyKey)
       sourceState.foundPropertyKeys.add(propertyKey)
       const conversionStartedAt = performance.now()
       importMatch({
@@ -711,8 +758,8 @@ export function importPropertiesFromXMLToYAML(params: {
         sourceXMLKey: entry.canonicalXMLKey,
         xmlPath: [entry.canonicalXMLKey],
         sourceXMLValue,
-        xmlNode: undefined,
-        xmlNodes: undefined,
+        xmlNode: sourceNodes?.length === 1 ? sourceNodes[0] : undefined,
+        xmlNodes: sourceNodes,
         presentInXML: true,
         ambiguousXMLKey: false,
       })
@@ -859,7 +906,23 @@ function isEmptySemanticContainer(value: unknown): boolean {
   if (value === null || typeof value !== "object") return false
   const prototype = Object.getPrototypeOf(value)
   return (prototype === Object.prototype || prototype === null) &&
-    Object.keys(value).length === 0
+    Object.values(value).every((nested) => nested === undefined)
+}
+
+function uniqueAuditBoundaries(
+  boundaries: readonly XmlImportAuditBoundary[],
+): XmlImportAuditBoundary[] {
+  const unique = new Map<string, XmlImportAuditBoundary>()
+  for (const boundary of boundaries) {
+    unique.set(JSON.stringify([
+      boundary.itemType,
+      boundary.propertyKey,
+      boundary.propertyType,
+      boundary.yamlPath,
+      boundary.rulePath,
+    ]), boundary)
+  }
+  return [...unique.values()]
 }
 
 function addProfileTime(

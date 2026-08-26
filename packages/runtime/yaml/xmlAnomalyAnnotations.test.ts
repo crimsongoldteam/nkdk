@@ -3,12 +3,35 @@ import { serializeYAMLDocument } from "./export"
 import { parseMetadataYaml } from "./parseMetadataYaml"
 import {
   copyXmlAnomalyAnnotationsDeep,
+  createXmlAnomalyAnnotations,
   restoreXmlAnomalyAnnotations,
   snapshotXmlAnomalyAnnotations,
   xmlAnnotatedMappingEntries,
 } from "./xmlAnomalyAnnotations"
 
 describe("XML-аннотации YAML", () => {
+  it("удаляет аннотации отброшенного смыслового поддерева", () => {
+    const annotations = createXmlAnomalyAnnotations()
+    const retained = { value: true }
+    const discarded = { nested: { raw: undefined } }
+    annotations.set(retained, "value", { kind: "important", occurrence: 1, target: "value" })
+    annotations.set(discarded.nested, "raw", {
+      kind: "raw",
+      occurrence: 1,
+      target: "value",
+      xml: { "#text": "raw" },
+    })
+
+    annotations.deleteSubtree(discarded)
+
+    expect([...annotations.entries()]).toEqual([{
+      parent: retained,
+      key: "value",
+      annotation: { kind: "important", occurrence: 1, target: "value" },
+    }])
+    expect(annotations.at(discarded.nested, "raw")).toBeUndefined()
+  })
+
   it("отделяет смысловое значение raw от XML-поправки", () => {
     const parsed = parseMetadataYaml([
       "Количество: !xml/raw",

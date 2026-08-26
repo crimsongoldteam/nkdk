@@ -33,7 +33,7 @@
 - Produces: `captureXmlAnomalyProofAudit({ ..., fallbackBoundaries })`, которое захватывает координаты и хэши резервных границ отдельно.
 - Consumes: существующую корневую границу внешнего `PropertyRule.filePath` из `prepareYaml.ts`.
 
-- [ ] **Step 1: Написать падающий интеграционный тест подготовки общей формы**
+- [x] **Step 1: Написать падающий интеграционный тест подготовки общей формы**
 
   В тесте `imports a common form through the standard nested rules converter` добавить проверки:
 
@@ -50,13 +50,13 @@
   }))
   ```
 
-- [ ] **Step 2: Запустить тест и подтвердить правильное падение**
+- [x] **Step 2: Запустить тест и подтвердить правильное падение**
 
   Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/prepareYaml.integration.test.ts`
 
   Expected: FAIL, потому что `fallbackBoundaries` ещё отсутствует, а корень `Форма` находится среди обычных `boundaries`.
 
-- [ ] **Step 3: Добавить отдельное хранение резервных границ**
+- [x] **Step 3: Добавить отдельное хранение резервных границ**
 
   В `anomalyProof.ts` расширить договор:
 
@@ -89,19 +89,19 @@
 
   `captureXmlAnomalyProofAudit` должен захватывать `boundaries` и `fallbackBoundaries` одной общей функцией без дублирования формата. В `prepareYaml.ts` заменить `appendExternalPropertyRootBoundaries(boundaries, ...)` на построение отдельного массива и передать его как `fallbackBoundaries`.
 
-- [ ] **Step 4: Запустить целевой тест**
+- [x] **Step 4: Запустить целевой тест**
 
   Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/prepareYaml.integration.test.ts`
 
   Expected: PASS.
 
-- [ ] **Step 5: Проверить отсутствие новых дубликатов**
+- [x] **Step 5: Проверить отсутствие новых дубликатов**
 
   Run: `pnpm duplicates -- --base 9c9abbb9d`
 
   Expected: PASS.
 
-- [ ] **Step 6: Создать первый commit через навык `commit`**
+- [x] **Step 6: Создать первый commit через навык `commit`**
 
   Run: `git add docs/superpowers/specs/2026-08-25-semantic-xml-elision-design.md docs/superpowers/plans/2026-08-26-verified-external-xml-fallback.md packages/rules/metadata/importFromXml/anomalyProof.ts packages/rules/metadata/importFromXml/prepareYaml.ts packages/rules/metadata/importFromXml/prepareYaml.integration.test.ts && git commit`
 
@@ -141,7 +141,7 @@
 - Consumes: `mergeXmlRawFragments` для применения concrete XML-путей с физическими occurrence.
 - Consumes: выбранный `selected.xmlPath`, вычисленный raw/patch и поправки `#order` из `proveXmlAnomalyBoundaries`.
 
-- [ ] **Step 1: Написать падающие модульные тесты XML-проверки**
+- [x] **Step 1: Написать падающие модульные тесты XML-проверки**
 
   В `xmlProofVerification.test.ts` зафиксировать три поведения:
 
@@ -198,13 +198,13 @@
   })
   ```
 
-- [ ] **Step 2: Запустить новый тест и подтвердить отсутствие модуля**
+- [x] **Step 2: Запустить новый тест и подтвердить отсутствие модуля**
 
   Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/xmlProofVerification.test.ts`
 
   Expected: FAIL с ошибкой импорта `xmlProofVerification`.
 
-- [ ] **Step 3: Реализовать применение преобразований без второго rules-экспорта**
+- [x] **Step 3: Реализовать применение преобразований без второго rules-экспорта**
 
   `xmlProofVerification.ts` должен:
 
@@ -217,13 +217,13 @@
 
   Конвертер concrete-пути должен отклонять путь без корня, нечисловой occurrence и преобразование самого корня, чтобы fallback не маскировался этим API.
 
-- [ ] **Step 4: Запустить модульный тест XML-проверки**
+- [x] **Step 4: Запустить модульный тест XML-проверки**
 
   Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/xmlProofVerification.test.ts`
 
   Expected: PASS.
 
-- [ ] **Step 5: Написать падающий proof-тест при совместном наличии локальной и резервной границ**
+- [x] **Step 5: Написать падающий proof-тест при совместном наличии локальной и резервной границ**
 
   В `anomalyProof.test.ts` создать source `<Form><Attribute/></Form>`, exported `<Form><Attribute><Settings/></Attribute></Form>`, обычную отсутствующую границу `Settings` и захваченную резервную границу `/Form[1] → ["Форма"]`. Проверить:
 
@@ -241,13 +241,13 @@
 
   Второй тест добавляет в source независимый `<Future/>` без точечной границы и ожидает резервный raw на `Форма`.
 
-- [ ] **Step 6: Запустить proof-тест и подтвердить отсутствие проверки остатка**
+- [x] **Step 6: Запустить proof-тест и подтвердить отсутствие проверки остатка**
 
   Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/anomalyProof.test.ts`
 
   Expected: тест с независимым `<Future/>` FAIL, потому что отделённый fallback пока не применяется после проверки остатка.
 
-- [ ] **Step 7: Интегрировать проверку преобразований в proof**
+- [x] **Step 7: Интегрировать проверку преобразований в proof**
 
   В `proveXmlAnomalyBoundaries` накапливать `XmlProofTransformation`:
 
@@ -259,25 +259,25 @@
 
   После обработки порядка для каждого первоначально несовпавшего source вызвать `transformedXmlRootsAreExact`. При совпадении не применять `fallbackBoundaries`. При остаточном несовпадении выбрать резервную границу с тем же `sourcePath`: ноль совпадений означает существующий скрытый fallback документа `@`/`@Form`, одно — fallback внешнего свойства, больше одного — явную ошибку неоднозначности.
 
-- [ ] **Step 8: Запустить целевые proof-тесты**
+- [x] **Step 8: Запустить целевые proof-тесты**
 
   Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/anomalyProof.test.ts metadata/importFromXml/xmlProofVerification.test.ts`
 
   Expected: PASS.
 
-- [ ] **Step 9: Запустить интеграционные тесты контрольного экспорта**
+- [x] **Step 9: Запустить интеграционные тесты контрольного экспорта**
 
   Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/controlExport.integration.test.ts metadata/importFromXml/prepareYaml.integration.test.ts`
 
   Expected: PASS; `ordinaryExporter` по-прежнему вызывается один раз.
 
-- [ ] **Step 10: Проверить отсутствие новых дубликатов**
+- [x] **Step 10: Проверить отсутствие новых дубликатов**
 
   Run: `pnpm duplicates -- --base 9c9abbb9d`
 
   Expected: PASS.
 
-- [ ] **Step 11: Создать второй commit через навык `commit`**
+- [x] **Step 11: Создать второй commit через навык `commit`**
 
   Run: `git add packages/rules/metadata/importFromXml/anomalyProof.ts packages/rules/metadata/importFromXml/anomalyProof.test.ts packages/rules/metadata/importFromXml/xmlProofVerification.ts packages/rules/metadata/importFromXml/xmlProofVerification.test.ts && git commit`
 
@@ -296,7 +296,15 @@
 - Consumes: production `importMetadataProject` и полный e2e round-trip.
 - Produces: эталонный YAML с локальным отсутствующим `Settings` и без корневого raw общей формы `СписокЗначений`.
 
-- [ ] **Step 1: Добавить e2e-проверку минимальной границы**
+**Уточнение по фактическому выполнению:** e2e выявил три общих класса,
+не видимых на синтетическом proof: повторяемые атомарные `dcscor:item`,
+канонический `xsi:type` вложенного значения и альтернативные свойства одного
+`Settings`. Они исправляются общими договорами runtime без условий по виду
+формы: `repeatedXMLNodes`, заявление канонического атрибута и выбор единственной
+альтернативы, создавшей непустой YAML. Временные аннотации отброшенной
+альтернативы удаляются до сериализации.
+
+- [x] **Step 1: Добавить e2e-проверку минимальной границы**
 
   После импорта `cf` прочитать `cf/ОбщаяФорма/СписокЗначений/Свойства.yaml` и проверить:
 
@@ -306,37 +314,37 @@
   expect(valueListYaml).toContain("$xml: null")
   ```
 
-- [ ] **Step 2: Запустить e2e и подтвердить падение старого эталона/поведения**
+- [x] **Step 2: Запустить e2e и подтвердить падение старого эталона/поведения**
 
   Run: `pnpm test:e2e`
 
   Expected: FAIL на новой проверке либо byte-for-byte сравнении до обновления YAML-эталона.
 
-- [ ] **Step 3: Обновить только NKDK e2e-фикстуры штатным импортом**
+- [x] **Step 3: Обновить только NKDK e2e-фикстуры штатным импортом**
 
   Run: `pnpm fixtures:e2e:nkdk`
 
   Expected: изменяются только `e2e/fixtures/nkdk/**`; `e2e/fixtures/xml/**` остаются без изменений.
 
-- [ ] **Step 4: Проверить изменения крупных raw**
+- [x] **Step 4: Проверить изменения крупных raw**
 
   Run: `git diff -- e2e/fixtures/nkdk && git diff --exit-code -- e2e/fixtures/xml`
 
   Expected: у `ОбщаяФорма/СписокЗначений` исчезает корневой `Форма: !xml/raw`, а отличие отсутствующего `Settings` остаётся локальным. Остальные уменьшившиеся raw принимаются только если полный round-trip остаётся точным.
 
-- [ ] **Step 5: Запустить полный e2e-набор**
+- [x] **Step 5: Запустить полный e2e-набор**
 
   Run: `pnpm test:e2e`
 
   Expected: 19 test files PASS, включая byte-for-byte импорт и XML round-trip.
 
-- [ ] **Step 6: Проверить отсутствие новых дубликатов**
+- [x] **Step 6: Проверить отсутствие новых дубликатов**
 
   Run: `pnpm duplicates -- --base 9c9abbb9d`
 
   Expected: PASS.
 
-- [ ] **Step 7: Создать третий commit через навык `commit`**
+- [x] **Step 7: Создать третий commit через навык `commit`**
 
   Run: `git add e2e/metadata-project.test.ts e2e/fixtures/nkdk && git commit`
 
@@ -353,43 +361,43 @@
 - Consumes: все результаты Tasks 1–3.
 - Produces: доказательство соответствия спецификации и архитектурным ограничениям.
 
-- [ ] **Step 1: Проверить типы**
+- [x] **Step 1: Проверить типы**
 
   Run: `pnpm type-check`
 
   Expected: PASS.
 
-- [ ] **Step 2: Проверить архитектуру rules**
+- [x] **Step 2: Проверить архитектуру rules**
 
   Run: `pnpm test:architecture:rules`
 
   Expected: PASS.
 
-- [ ] **Step 3: Проверить архитектуру проекта**
+- [x] **Step 3: Проверить архитектуру проекта**
 
   Run: `pnpm test:architecture`
 
   Expected: PASS без изменения baseline.
 
-- [ ] **Step 4: Запустить весь набор тестов проекта**
+- [x] **Step 4: Запустить весь набор тестов проекта**
 
   Run: `pnpm test`
 
   Expected: PASS. Команда не использует внешний каталог `cf/doc`.
 
-- [ ] **Step 5: Повторить e2e как окончательное доказательство**
+- [x] **Step 5: Повторить e2e как окончательное доказательство**
 
   Run: `pnpm test:e2e`
 
   Expected: PASS.
 
-- [ ] **Step 6: Проверить дубликаты относительно базового commit**
+- [x] **Step 6: Проверить дубликаты относительно базового commit**
 
   Run: `pnpm duplicates -- --base 9c9abbb9d`
 
   Expected: PASS.
 
-- [ ] **Step 7: Проверить чистоту и границы diff**
+- [x] **Step 7: Проверить чистоту и границы diff**
 
   Run: `git status --short && git diff --stat origin/develop...HEAD && git diff --exit-code -- e2e/fixtures/xml`
 

@@ -6,6 +6,7 @@ import {
   parseXmlDocumentWithSaxes,
   type XmlAnomalyAnnotationTable,
   type XmlDocument,
+  type XmlElementNode,
   type XmlRootStructure,
 } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
@@ -219,6 +220,7 @@ export async function prepareImportYaml(params: {
       const dependent = createImportedDependentPropertyCollector()
       const metadataXML = requireMetadataXml(xmlInputs ?? [])
       const metadataNode = requireMetadataXmlNode(xmlInputs ?? [])
+      const externalPropertyXml = mapExternalPropertyXmlInputs(rule, xmlInputs ?? [])
       const yaml = importMetadataItemFromXMLToYAML({
         context: importContext,
         rule,
@@ -235,7 +237,8 @@ export async function prepareImportYaml(params: {
           ...(metadataNode === undefined ? {} : { xmlNodes: [metadataNode] }),
           profile: importProfile,
         },
-        propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
+        propertyXML: externalPropertyXml.compatibilityByPropertyKey,
+        propertyXMLNodes: externalPropertyXml.nodesByPropertyKey,
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
       const partitioned = partitionImportedDependentItems({
@@ -523,15 +526,24 @@ function requireMetadataXml(inputs: readonly ParsedImportXmlInput[]): Record<str
   return metadata.parsed
 }
 
-function mapPropertyXml(rule: MetadataItemRule, inputs: readonly ParsedImportXmlInput[]): ReadonlyMap<string, unknown> {
-  const result = new Map<string, unknown>()
+function mapExternalPropertyXmlInputs(
+  rule: MetadataItemRule,
+  inputs: readonly ParsedImportXmlInput[],
+): {
+  readonly compatibilityByPropertyKey: ReadonlyMap<string, unknown>
+  readonly nodesByPropertyKey: ReadonlyMap<string, readonly XmlElementNode[]>
+} {
+  const compatibilityByPropertyKey = new Map<string, unknown>()
+  const nodesByPropertyKey = new Map<string, readonly XmlElementNode[]>()
   for (const [key, propertyRule] of Object.entries(rule.properties) as Array<[string, PropertyRule]>) {
     if (propertyRule.filePath === undefined) continue
     const normalizedFilePath = propertyRule.filePath.replace(/\\/g, "/")
     const input = inputs.find(({ input }) => normalizedPath(input.sourcePath).endsWith(`/${normalizedFilePath}`))
-    if (input !== undefined) result.set(key, input.parsed)
+    if (input === undefined) continue
+    compatibilityByPropertyKey.set(key, input.parsed)
+    if (input.document !== undefined) nodesByPropertyKey.set(key, input.document.roots)
   }
-  return result
+  return { compatibilityByPropertyKey, nodesByPropertyKey }
 }
 
 function externalPropertyRootBoundaries(
