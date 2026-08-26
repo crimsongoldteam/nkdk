@@ -30,12 +30,12 @@ const lifecycleReport = (fileMs: number, packageSetupMs = 3_000) => ({
 
 describe("assert test durations", () => {
   it("предупреждает после 10ms и жёстко ограничивает тест после 50ms", () => {
-    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(2_500))).toEqual({
+    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000))).toEqual({
       warnings: [],
       failures: [],
     })
-    expect(analyzeTestDurationReport(report({ testMs: 10.01 }), lifecycleReport(2_500)).warnings).toHaveLength(1)
-    expect(analyzeTestDurationReport(report({ testMs: 50 }), lifecycleReport(2_500))).toEqual({
+    expect(analyzeTestDurationReport(report({ testMs: 10.01 }), lifecycleReport(1_000)).warnings).toHaveLength(1)
+    expect(analyzeTestDurationReport(report({ testMs: 50 }), lifecycleReport(1_000))).toEqual({
       warnings: [{
         type: "test",
         file: "/project/packages/rules/example.test.ts",
@@ -44,7 +44,7 @@ describe("assert test durations", () => {
       }],
       failures: [],
     })
-    expect(analyzeTestDurationReport(report({ testMs: 50.01 }), lifecycleReport(2_500)).failures).toEqual([{
+    expect(analyzeTestDurationReport(report({ testMs: 50.01 }), lifecycleReport(1_000)).failures).toEqual([{
       type: "test",
       file: "/project/packages/rules/example.test.ts",
       name: "example test case",
@@ -52,9 +52,9 @@ describe("assert test durations", () => {
     }])
     expect(analyzeTestDurationReport(
       report({ testMs: 1 }),
-      lifecycleReport(2_500.01, 3_000.01),
+      lifecycleReport(1_000.01, 3_000.01),
     ).failures).toEqual(expect.arrayContaining([
-      { type: "file", file: "/project/packages/rules/example.test.ts", duration: 2_500.01 },
+      { type: "file", file: "/project/packages/rules/example.test.ts", duration: 1_000.01 },
       { type: "setup", duration: 3_000.01 },
     ]))
   })
@@ -137,19 +137,26 @@ describe("assert test durations", () => {
     ).failures).toContainEqual(expect.objectContaining({ type: "test", duration: 200.01 }))
   })
 
-  it("ограничивает файл единым пределом 2500ms", () => {
-    for (const environment of [{}, { NKDK_TEST_SUITE: "integration" }]) {
-      expect(analyzeTestDurationReport(
-        report({ testMs: 1 }),
-        lifecycleReport(2_500),
-        environment,
-      ).failures).toEqual([])
-      expect(analyzeTestDurationReport(
-        report({ testMs: 1 }),
-        lifecycleReport(2_500.01),
-        environment,
-      ).failures).toContainEqual(expect.objectContaining({ type: "file", duration: 2_500.01 }))
-    }
+  it("ограничивает unit файл пределом 1000ms, а integration — 2500ms", () => {
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(1_000),
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(1_000.01),
+    ).failures).toContainEqual(expect.objectContaining({ type: "file", duration: 1_000.01 }))
+
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(2_500),
+      { NKDK_TEST_SUITE: "integration" },
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1 }),
+      lifecycleReport(2_500.01),
+      { NKDK_TEST_SUITE: "integration" },
+    ).failures).toContainEqual(expect.objectContaining({ type: "file", duration: 2_500.01 }))
   })
 
   it("сортирует предупреждения и превышения по убыванию длительности", () => {
@@ -179,15 +186,15 @@ describe("assert test durations", () => {
     }, {
       packageSetupDuration: 3_500,
       testFiles: [
-        { file: "/project/first.test.ts", duration: 2_600 },
-        { file: "/project/second.test.ts", duration: 2_700 },
+        { file: "/project/first.test.ts", duration: 1_100 },
+        { file: "/project/second.test.ts", duration: 1_200 },
       ],
     })
 
     expect(result.warnings.map(({ duration }: { duration: number }) => duration)).toEqual([
       3_500,
-      2_700,
-      2_600,
+      1_200,
+      1_100,
       80,
       60,
       20,
@@ -195,8 +202,8 @@ describe("assert test durations", () => {
     ])
     expect(result.failures.map(({ duration }: { duration: number }) => duration)).toEqual([
       3_500,
-      2_700,
-      2_600,
+      1_200,
+      1_100,
       80,
       60,
     ])
