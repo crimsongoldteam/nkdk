@@ -1,4 +1,4 @@
-import { ConfigurationContext, copyYAMLScalarTags } from "@nkdk/runtime"
+import { ConfigurationContext, copyYAMLRuntimeMetadata } from "@nkdk/runtime"
 import { exportPropertyToYAML, PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { exportDcsMetadataValueToYAML } from "../dcsMetadataValue/toYAML"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
@@ -27,7 +27,7 @@ export const exportDcsAvailableValuesToYAML = (
       ...(value !== undefined ? { Значение: value } : {}),
       ...(presentation ?? {}),
     }
-    if (presentation !== undefined) copyYAMLScalarTags(presentation, result)
+    if (presentation !== undefined) copyYAMLRuntimeMetadata(presentation, result)
     return result
   })
 }

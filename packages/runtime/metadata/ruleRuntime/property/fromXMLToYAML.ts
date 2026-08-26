@@ -42,7 +42,7 @@ import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import type { YamlPath } from "../../diagnostics/types"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
-import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
+import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
 import type { XmlElementNode } from "../../../xml/import/document"
@@ -631,7 +631,7 @@ export function importPropertiesFromXMLToYAML(params: {
             deferred?.accept({ valuePath: propertyYamlPath, rulePath: propertyRulePath })
           }
           Object.assign(result, exportedValues)
-          copyYAMLScalarTags(exportedValues, result)
+          copyYAMLRuntimeMetadata(exportedValues, result)
           addProfileTime(params.profile, "collectorMs", collectorStartedAt)
         } catch (cause) {
           if (cause instanceof XmlImportAttemptInfrastructureError) throw cause

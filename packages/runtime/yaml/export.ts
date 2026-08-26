@@ -1,7 +1,6 @@
 import { dump, type Document, type Node } from "js-yaml"
 import { isExplicitYAMLString, markDoubleQuotedScalar, unwrapExplicitYAMLString } from "./explicitString"
 import {
-  copyYAMLScalarTags,
   isPropertyStateYAMLTag,
   NKDK_YAML_SCHEMA,
   restoreYAMLScalarTagsAfterDump,
@@ -9,11 +8,11 @@ import {
   yamlScalarTagAt,
 } from "./scalarTags"
 import {
-  copyYAMLMappingKeyOrder,
   createYAMLOrderedMapping,
   hasYAMLMappingKeyOrder,
   yamlMappingEntries,
 } from "./mappingTags"
+import { copyYAMLRuntimeMetadata } from "./runtimeMetadata"
 import {
   copyXmlAnomalyAnnotationsForParent,
   createXmlAnomalyAnnotations,
@@ -89,7 +88,7 @@ function prepareForDump(
     prepared.forEach((item, index) => {
       if (item.doubleQuoted === true) markDoubleQuotedScalar(data, index)
     })
-    copyYAMLScalarTags(value, data)
+    copyYAMLRuntimeMetadata(value, data)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, dumpValue, dumpAnnotations)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, data, dataAnnotations)
     return { dumpValue, data }
@@ -113,10 +112,8 @@ function prepareForDump(
     for (const [key, item] of prepared) {
       if (item.doubleQuoted === true) markDoubleQuotedScalar(data, key)
     }
-    copyYAMLScalarTags(value, dumpValue)
-    copyYAMLScalarTags(value, data)
-    copyYAMLMappingKeyOrder(value, dumpValue)
-    copyYAMLMappingKeyOrder(value, data)
+    copyYAMLRuntimeMetadata(value, dumpValue)
+    copyYAMLRuntimeMetadata(value, data)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, dumpValue, dumpAnnotations)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, data, dataAnnotations)
     return { dumpValue, data }

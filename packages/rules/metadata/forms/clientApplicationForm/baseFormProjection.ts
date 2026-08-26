@@ -1,5 +1,5 @@
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
-import { copyYAMLScalarTags } from "@nkdk/runtime"
+import { cloneYAMLContainer, copyYAMLRuntimeMetadata } from "@nkdk/runtime"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { resolveFormElementRule } from "../elements/ruleRuntime/fromYAMLToXML"
 import type { FormElementTreeNodeYAML, FormElementTreeYAML } from "../commonObjects/childItems/types"
@@ -168,7 +168,7 @@ function projectElementSelection(params: {
     Вид: params.baseElement.Вид,
     ...properties,
   }
-  copyYAMLScalarTags(properties, result)
+  copyYAMLRuntimeMetadata(properties, result)
 
   if (params.baseElement.Элементы !== undefined) {
     const childCollectionRule = propertyRuleByYamlKey(baseRule, "Элементы")
@@ -219,8 +219,7 @@ function normalizeProjectionAliases(
   yaml: Record<string, unknown>,
   aliases: Readonly<Record<string, string>>
 ): Record<string, unknown> {
-  const result = { ...yaml }
-  copyYAMLScalarTags(yaml, result)
+  const result = cloneYAMLContainer(yaml)
   for (const [ruleYamlKey, treeYamlKey] of Object.entries(aliases)) {
     if (Object.hasOwn(yaml, treeYamlKey)) {
       result[ruleYamlKey] = yaml[treeYamlKey]
@@ -237,7 +236,7 @@ function restoreProjectionAliases(
   aliases: Readonly<Record<string, string>>
 ): Record<string, unknown> {
   const result = { ...projected }
-  copyYAMLScalarTags(projected, result)
+  copyYAMLRuntimeMetadata(projected, result)
   for (const [ruleYamlKey, treeYamlKey] of Object.entries(aliases)) {
     if (Object.hasOwn(result, ruleYamlKey)) {
       result[treeYamlKey] = result[ruleYamlKey]
@@ -254,7 +253,7 @@ function restoreProjectionAliases(
     ),
     ...result,
   }
-  copyYAMLScalarTags(result, restored)
+  copyYAMLRuntimeMetadata(result, restored)
   return restored
 }
 
@@ -309,7 +308,7 @@ function projectMetadataItemProperties(params: {
         : intersectBaseFormValues(projection.value, extensionValue)
   }
 
-  copyYAMLScalarTags(params.baseYaml, result)
+  copyYAMLRuntimeMetadata(params.baseYaml, result)
   return result
 }
 

@@ -2,8 +2,7 @@ import {
   createXmlElementPatch,
   decodeXmlRawValue,
   isExplicitYAMLString,
-  copyYAMLMappingKeyOrder,
-  copyYAMLScalarTags,
+  copyYAMLRuntimeMetadata,
   markYAMLMappingKeyOrder,
   parseXmlDocumentWithSaxes,
   restoreXmlAnomalyAnnotations,
@@ -2038,7 +2037,7 @@ function cloneYamlForProof<T>(source: T): T {
 function restoreYamlMetadata(source: unknown, target: unknown): unknown {
   if (isExplicitYAMLString(source)) return source
   if (!isObject(source) || !isObject(target)) return target
-  copyYamlMetadata(source, target)
+  copyYAMLRuntimeMetadata(source, target)
   if (Array.isArray(source)) {
     if (!Array.isArray(target)) return target
     for (let index = 0; index < source.length; index += 1) {
@@ -2061,9 +2060,4 @@ function restoreYamlMetadata(source: unknown, target: unknown): unknown {
       : descriptor)
   }
   return target
-}
-
-function copyYamlMetadata(source: object, target: object): void {
-  copyYAMLScalarTags(source, target)
-  copyYAMLMappingKeyOrder(source, target)
 }

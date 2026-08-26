@@ -13,7 +13,7 @@ import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import { CollectableElementTypeToYAML, type CollectableElementType, type ElementRule, type ElementXML } from "./types"
 import { currentRuleRegistrySet } from "../ruleRegistryExecutionContext"
-import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
+import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 
 export function importFormElementFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
@@ -28,7 +28,7 @@ export function importFormElementFromXMLToYAML(params: {
       ?.formElementKinds.get(params.rule.itemType) ?? CollectableElementTypeToYAML[params.rule.itemType],
     ...properties,
   }
-  copyYAMLScalarTags(properties, result)
+  copyYAMLRuntimeMetadata(properties, result)
   return result
 }
 

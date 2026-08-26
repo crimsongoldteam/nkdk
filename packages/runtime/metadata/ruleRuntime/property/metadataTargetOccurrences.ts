@@ -8,7 +8,7 @@ import type {
   MetadataTargetConstraint,
   MetadataTargetOwner,
 } from "../metadataTarget/types"
-import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
+import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import type { PropertyRule } from "./types"
 
 export type MetadataTargetLocation =
@@ -91,17 +91,13 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
 export function cloneMetadataTargetValue(value: unknown): unknown {
   if (Array.isArray(value)) {
     const result = value.map(cloneMetadataTargetValue)
-    copyYAMLScalarTags(value, result)
+    copyYAMLRuntimeMetadata(value, result)
     return result
   }
   if (!isRecord(value)) return value
   const result: Record<string, unknown> = {}
   for (const [key, item] of Object.entries(value)) result[key] = cloneMetadataTargetValue(item)
-  for (const key of Object.getOwnPropertySymbols(value)) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, key)
-    if (descriptor !== undefined) Object.defineProperty(result, key, descriptor)
-  }
-  copyYAMLScalarTags(value, result)
+  copyYAMLRuntimeMetadata(value, result)
   return result
 }
 

@@ -1,5 +1,5 @@
 import {
-  copyYAMLMappingKeyOrder,
+  copyYAMLRuntimeMetadata,
   markYAMLMappingKeyOrder,
   yamlMappingKeys,
   type ConfigurationContext,
@@ -74,7 +74,7 @@ export function isCanonicalLanguageOrder(codes: readonly string[], defaultCode: 
 }
 
 export function copyLocalizedItemTags(source: Record<string, string>, target: Record<string, string>): void {
-  copyYAMLMappingKeyOrder(source, target)
+  copyYAMLRuntimeMetadata(source, target)
 }
 
 function canonicalCodes(codes: readonly string[], defaultCode: string): string[] {
