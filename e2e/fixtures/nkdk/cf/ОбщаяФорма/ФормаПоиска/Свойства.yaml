@@ -89,13 +89,6 @@
               "@Form\\Заголовок": !xml/raw
                 $xml:
                   _formatted: "true"
-              "@Form\\LabelDecoration": !xml/raw
-                $xml:
-                  "#order":
-                    - MaxWidth
-                    - Title
-                    - ContextMenu
-                    - ExtendedTooltip
         СтраницаРезультатаПоиска:
           Вид: Страница
           ОтображатьЗаголовок: Ложь
@@ -121,16 +114,6 @@
                       "@Form\\Заголовок": !xml/raw
                         $xml:
                           _formatted: "true"
-                      "@Form\\LabelDecoration": !xml/raw
-                        $xml:
-                          "#order":
-                            - AutoMaxWidth
-                            - HorizontalStretch
-                            - VerticalStretch
-                            - Title
-                            - ContextMenu
-                            - ExtendedTooltip
-                            - Events
             ГруппаНавигации:
               Вид: Группа
               ВертикальноеПоложениеВГруппе: Низ
