@@ -61,6 +61,8 @@ function buildConfigurationExtensionProfile(
   base: XmlReconstructionProfileIndex,
 ): XmlComponentReconstructionProfile {
   const baseAddresses = new Set(base.logicalAddresses.map(workerAddress))
+  const baseUuids = canonicalUuids(base)
+  const targetUuids = canonicalUuids(target)
   const adoptedUuids: Record<string, string> = {}
   const variants: Record<string, XMLDefaultVariant> = {}
   const targetAddresses = target.logicalAddresses.includes("Конфигурация")
@@ -73,17 +75,24 @@ function buildConfigurationExtensionProfile(
     setExact(variants, address, adopted ? "adopted" : "full", "Противоречивые варианты XML")
     if (!adopted) continue
 
-    const baseEntity = base.index.entity(logicalAddress) ?? base.index.entity(address)
-    const targetEntity = target.index.entity(logicalAddress) ?? target.index.entity(address)
-    const uuid = baseEntity?.uuid
+    const uuid = baseUuids[address]
     if (uuid !== undefined) {
       setExact(adoptedUuids, address, uuid, "Противоречивые UUID")
-    } else if (address === "Конфигурация" || targetEntity?.uuid !== undefined) {
+    } else if (address === "Конфигурация" || targetUuids[address] !== undefined) {
       throw new Error(`Не найден UUID основной конфигурации: ${address}`)
     }
   }
 
   return frozenProfile("configurationExtension", adoptedUuids, variants)
+}
+
+function canonicalUuids(source: XmlReconstructionProfileIndex): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const { logicalAddress, uuid } of source.index.entities()) {
+    if (uuid === undefined) continue
+    setExact(result, workerAddress(logicalAddress), uuid, "Противоречивые UUID")
+  }
+  return result
 }
 
 function workerAddress(logicalAddress: string): string {

@@ -129,6 +129,22 @@ describe("component indexes", () => {
     ])
   })
 
+  it("keeps the first duplicate from the known addresses", () => {
+    const addresses = collectComponentLogicalAddresses({
+      componentPath: "cfe/Дополнение",
+      known: [
+        { logicalAddress: "Catalog.Товары", sourceProjectPath: "Справочник/Товары/Первый.yaml" },
+        { logicalAddress: "Catalog.Товары", sourceProjectPath: "Справочник/Товары/Второй.yaml" },
+      ],
+      projectStateReadSession: { readComponentTargetPage: () => ({ entries: [] }) },
+    })
+
+    expect(addresses).toEqual([{
+      logicalAddress: "Catalog.Товары",
+      sourceProjectPath: "Справочник/Товары/Первый.yaml",
+    }])
+  })
+
   it("rejects a ProjectState address from another component", () => {
     expect(() => collectComponentLogicalAddresses({
       componentPath: "cfe/Дополнение",

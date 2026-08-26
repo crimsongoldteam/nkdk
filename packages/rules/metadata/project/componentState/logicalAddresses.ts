@@ -6,7 +6,10 @@ export function collectComponentLogicalAddresses(params: {
   readonly known: readonly ProjectLogicalAddressEntry[]
   readonly projectStateReadSession: Pick<ProjectStateReadSession, "readComponentTargetPage">
 }): ProjectLogicalAddressEntry[] {
-  const result = new Map(params.known.map((entry) => [entry.logicalAddress, entry]))
+  const result = new Map<string, ProjectLogicalAddressEntry>()
+  for (const entry of params.known) {
+    if (!result.has(entry.logicalAddress)) result.set(entry.logicalAddress, entry)
+  }
   let cursor: string | undefined
   do {
     const page = params.projectStateReadSession.readComponentTargetPage({

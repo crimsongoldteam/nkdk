@@ -147,16 +147,26 @@ describe("buildXmlComponentReconstructionProfile", () => {
     expect(profile.adoptedUuids[worker]).toBe(BASE_COMMAND_UUID)
   })
 
+  it("resolves a base UUID through the canonical form of its address", () => {
+    const profile = buildXmlComponentReconstructionProfile({
+      componentKind: "configurationExtension",
+      target: russianCatalogTarget(),
+      base: source(
+        ["Конфигурация", "Catalog.Товары"],
+        [
+          { logicalAddress: "Конфигурация", uuid: BASE_CONFIGURATION_UUID },
+          { logicalAddress: "Catalog.Товары", uuid: BASE_ATTRIBUTE_UUID },
+        ],
+      ),
+    })
+
+    expect(profile.adoptedUuids["Справочник.Товары"]).toBe(BASE_ATTRIBUTE_UUID)
+  })
+
   it("rejects conflicting UUIDs after address canonicalization", () => {
     expect(() => buildXmlComponentReconstructionProfile({
       componentKind: "configurationExtension",
-      target: source(
-        ["Конфигурация", "Catalog.Товары", "Справочник.Товары"],
-        [
-          { logicalAddress: "Конфигурация", uuid: EXTENSION_CONFIGURATION_UUID },
-          { logicalAddress: "Catalog.Товары", uuid: EXTENSION_ATTRIBUTE_UUID },
-        ],
-      ),
+      target: russianCatalogTarget(),
       base: source(
         ["Конфигурация", "Catalog.Товары", "Справочник.Товары"],
         [
@@ -168,6 +178,16 @@ describe("buildXmlComponentReconstructionProfile", () => {
     })).toThrow("Противоречивые UUID: Справочник.Товары")
   })
 })
+
+function russianCatalogTarget(): XmlReconstructionProfileIndex {
+  return source(
+    ["Конфигурация", "Справочник.Товары"],
+    [
+      { logicalAddress: "Конфигурация", uuid: EXTENSION_CONFIGURATION_UUID },
+      { logicalAddress: "Справочник.Товары", uuid: EXTENSION_ATTRIBUTE_UUID },
+    ],
+  )
+}
 
 function source(
   logicalAddresses: readonly string[],
