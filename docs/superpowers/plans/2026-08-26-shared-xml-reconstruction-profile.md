@@ -29,8 +29,8 @@
 
 ## File Structure
 
-- Create: `packages/rules/metadata/xmlReconstructionProfile.ts` — чистые типы и построение точного профиля по двум индексам.
-- Create: `packages/rules/metadata/xmlReconstructionProfile.test.ts` — быстрые unit-договоры `full`/`adopted`/`indexed`, UUID, канонизации и конфликтов.
+- Create: `packages/rules/metadata/project/xmlReconstructionProfile.ts` — чистые типы и построение точного профиля по двум индексам.
+- Create: `packages/rules/metadata/project/xmlReconstructionProfile.test.ts` — быстрые unit-договоры `full`/`adopted`/`indexed`, UUID, канонизации и конфликтов.
 - Create: `packages/rules/metadata/project/componentState/logicalAddresses.ts` — общий сбор корневых и вложенных логических адресов из ProjectState.
 - Modify: `packages/rules/metadata/project/componentState/indexes.ts` — переиспользование общего сборщика полной синхронизацией.
 - Modify: `packages/rules/metadata/project/componentState/indexes.integration.test.ts` — договор сборщика адресов без изменения результата существующего индекса.
@@ -57,8 +57,8 @@
 ### Task 1: Чистый построитель профиля восстановления XML
 
 **Files:**
-- Create: `packages/rules/metadata/xmlReconstructionProfile.ts`
-- Create: `packages/rules/metadata/xmlReconstructionProfile.test.ts`
+- Create: `packages/rules/metadata/project/xmlReconstructionProfile.ts`
+- Create: `packages/rules/metadata/project/xmlReconstructionProfile.test.ts`
 
 **Interfaces:**
 - Consumes: `LocalConfigurationIndexReader`, `XMLDefaultVariant`, `formatCanonicalMetadataTargetToYAML`.
@@ -127,7 +127,7 @@ it("materializes indexed and full variants for every configuration address", () 
 Run:
 
 ```bash
-pnpm exec vitest run --no-isolate --project core-metadata metadata/xmlReconstructionProfile.test.ts
+pnpm exec vitest run --no-isolate --project core-metadata metadata/project/xmlReconstructionProfile.test.ts
 ```
 
 Expected: FAIL because `buildXmlComponentReconstructionProfile` does not exist.
@@ -237,7 +237,7 @@ it("rejects conflicting UUIDs after address canonicalization", () => {
 
 - [ ] **Step 4: Implement the minimal pure builder**
 
-Implement these private operations in `xmlReconstructionProfile.ts`:
+Implement these private operations in `project/xmlReconstructionProfile.ts`:
 
 ```ts
 const workerAddress = (logicalAddress: string): string =>
@@ -277,7 +277,7 @@ Freeze the returned top-level object and both records.
 Run:
 
 ```bash
-pnpm exec vitest run --no-isolate --project core-metadata metadata/xmlReconstructionProfile.test.ts
+pnpm exec vitest run --no-isolate --project core-metadata metadata/project/xmlReconstructionProfile.test.ts
 pnpm --filter @nkdk/rules type-check
 pnpm duplicates -- --base 7b4292075
 ```
@@ -287,7 +287,7 @@ Expected: all commands PASS; the unit test remains below the 50 ms test-case lim
 - [ ] **Step 6: Commit the shared builder**
 
 ```bash
-git add packages/rules/metadata/xmlReconstructionProfile.ts packages/rules/metadata/xmlReconstructionProfile.test.ts
+git add packages/rules/metadata/project/xmlReconstructionProfile.ts packages/rules/metadata/project/xmlReconstructionProfile.test.ts
 git commit -m "feat: :sparkles: добавить профиль восстановления XML"
 ```
 
