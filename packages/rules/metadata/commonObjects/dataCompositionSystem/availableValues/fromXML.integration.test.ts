@@ -7,9 +7,12 @@ import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
 import { importContentFromXML } from "@nkdk/runtime"
 import { nilAndBooleanAvailableValues, stringAvailableValues } from "./__fixtures__/data"
 import "../index"
+import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../../../composition/metadataRules"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
 const rule = { type: "DcsAvailableValues", xml: "dcssch:availableValue" } as const
+const execution = createPropertyRuleExecutor(createRuleRegistrySet(metadataRules).property)
 
 describe("import DcsAvailableValues from XML", () => {
   it("imports string values and presentations", () => {
@@ -18,6 +21,7 @@ describe("import DcsAvailableValues from XML", () => {
       context: mockContextFromXML(),
       rule,
       value: xml.root["dcssch:availableValue"],
+      execution,
     })
 
     expect(result).toEqual(stringAvailableValues)
@@ -29,6 +33,7 @@ describe("import DcsAvailableValues from XML", () => {
       context: mockContextFromXML(),
       rule,
       value: xml.root["dcssch:availableValue"],
+      execution,
     })
 
     expect(result).toEqual(nilAndBooleanAvailableValues)
@@ -50,6 +55,7 @@ describe("import DcsAvailableValues from XML", () => {
       context: mockContextFromXML(),
       rule,
       value: xml.root["dcssch:availableValue"],
+      execution,
     })
 
     expect(result).toEqual(nilAndBooleanAvailableValues)
