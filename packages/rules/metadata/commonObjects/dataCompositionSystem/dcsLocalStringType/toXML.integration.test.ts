@@ -113,7 +113,6 @@ describe("DcsLocalStringType YAML → XML", () => {
 
     expect(() => testMetadataItemFromYAMLToXML({
       rule: ordinaryRule,
-      execution,
       yaml: importFromYAML("Представление: !xml/string Текст"),
     })).toThrow("Тег !xml/string недопустим для этого типа свойства")
   })
