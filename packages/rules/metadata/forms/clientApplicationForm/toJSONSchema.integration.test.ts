@@ -1,5 +1,6 @@
 import type { TSchema } from "typebox"
-import { beforeAll,describe,expect,it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
+import { withDirectMetadataExecution } from "../../../tests/directConversion"
 import { mockContext } from "../../../tests/mockContext"
 import { getTypeRule } from "../../ruleRuntime"
 import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
@@ -7,33 +8,36 @@ import { compileValidationSchema } from "../../validation/compileValidationSchem
 import { ClientApplicationFormRules } from "./rules"
 import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 
-
 let usePurposesSchema: ReturnType<typeof compileValidationSchema>
 let ordinaryFormConstraint: ReturnType<typeof compileValidationSchema>
 
 describe("ClientApplicationForm exportToJSONSchema type rule", () => {
   beforeAll(() => {
-    const schema = exportPropertyToJSONSchema({
-      context: mockContext,
-      rule: ClientApplicationFormRules.properties.usePurposes,
-      value: undefined,
-    })
-    if (schema === undefined) throw new Error("UsePurposes schema is not registered")
-    usePurposesSchema = compileValidationSchema(schema)
+    withDirectMetadataExecution(() => {
+      const schema = exportPropertyToJSONSchema({
+        context: mockContext,
+        rule: ClientApplicationFormRules.properties.usePurposes,
+        value: undefined,
+      })
+      if (schema === undefined) throw new Error("UsePurposes schema is not registered")
+      usePurposesSchema = compileValidationSchema(schema)
 
-    const formSchema = exportClientApplicationFormToJSONSchema({
-      context: mockContext,
-      rule: { type: "ClientApplicationForm" },
-      value: undefined,
-    }) as { allOf?: TSchema[] }
-    const ordinaryFormSchema = formSchema.allOf?.[1]
-    if (ordinaryFormSchema === undefined) throw new Error("Ordinary form constraint is not registered")
-    ordinaryFormConstraint = compileValidationSchema(ordinaryFormSchema)
+      const formSchema = exportClientApplicationFormToJSONSchema({
+        context: mockContext,
+        rule: { type: "ClientApplicationForm" },
+        value: undefined,
+      }) as { allOf?: TSchema[] }
+      const ordinaryFormSchema = formSchema.allOf?.[1]
+      if (ordinaryFormSchema === undefined) throw new Error("Ordinary form constraint is not registered")
+      ordinaryFormConstraint = compileValidationSchema(ordinaryFormSchema)
+    })
   })
 
   it("registers client form JSON Schema exporter", () => {
-    const exportToJSONSchema = getTypeRule("ClientApplicationForm", "exportToJSONSchema")
-    expect(exportToJSONSchema).toBe(exportClientApplicationFormToJSONSchema)
+    withDirectMetadataExecution(() => {
+      const exportToJSONSchema = getTypeRule("ClientApplicationForm", "exportToJSONSchema")
+      expect(exportToJSONSchema).toBe(exportClientApplicationFormToJSONSchema)
+    })
   })
 
   it.each([
