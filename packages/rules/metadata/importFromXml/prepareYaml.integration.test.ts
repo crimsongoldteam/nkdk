@@ -29,6 +29,7 @@ resetRegisteredImportRuleLookupCountForTests,
 rootProofParsePassCountForTests,
 resolveAssignmentRule,
 } from "./prepareYaml"
+import { createXmlAnomalyProofAddressIndex } from "./anomalyProof"
 import type { ImportAssignment } from "./types"
 import {
 createPreparedImportRecordSource,
@@ -269,6 +270,21 @@ describe("prepareImportYaml", () => {
       xmlPath: "/Form[1]/Attributes[1]/Attribute[1]",
       yamlPath: ["Форма", "Реквизиты", "НаборКонстант"],
       rulePath: ["form", "attributes"],
+    })
+    const proofAddressIndex = createXmlAnomalyProofAddressIndex(prepared.proofAudit)
+    expect(proofAddressIndex.deepest(
+      join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml"),
+      "/Form[1]/Attributes[1]/Attribute[1]/@id[1]",
+    )).toEqual({
+      sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml"),
+      xmlPath: "/Form[1]/Attributes[1]/Attribute[1]/@id[1]",
+      yamlPath: ["Форма", "Реквизиты", "НаборКонстант", "id"],
+      rulePath: [
+        { propertyKey: "form" },
+        { propertyKey: "attributes" },
+        { propertyKey: "id" },
+      ],
+      kind: "property",
     })
     expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства.Элемент.КонстантаВсеСвойства",

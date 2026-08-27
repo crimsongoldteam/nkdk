@@ -1,5 +1,6 @@
 import {
   createXmlElementPatch,
+  createXmlRuleAddressIndex,
   decodeXmlRawValue,
   isExplicitYAMLString,
   copyYAMLRuntimeMetadata,
@@ -18,6 +19,8 @@ import {
   type XmlImportAuditSession,
   type XmlSourceSpan,
   type XmlRawValue,
+  type XmlRuleAddress,
+  type XmlRuleAddressIndex,
 } from "@nkdk/runtime"
 import {
   getCompiledXMLPropertyOrder,
@@ -883,6 +886,11 @@ export function captureXmlAnomalyProofAudit(params: {
   }
   const boundaries = params.boundaries.map(captureBoundary)
   const fallbackBoundaries = (params.fallbackBoundaries ?? []).map(captureBoundary)
+  const itemAnchors = (params.itemAnchors ?? []).map((anchor) => ({
+    ...anchor,
+    yamlPath: [...anchor.yamlPath],
+    rulePath: [...anchor.rulePath],
+  }))
   return {
     sources: params.sources.map(({ sourcePath, role, document }) => ({
       sourcePath,
@@ -896,12 +904,61 @@ export function captureXmlAnomalyProofAudit(params: {
     })),
     boundaries,
     ...(fallbackBoundaries.length === 0 ? {} : { fallbackBoundaries }),
-    itemAnchors: (params.itemAnchors ?? []).map((anchor) => ({
-      ...anchor,
-      yamlPath: [...anchor.yamlPath],
-      rulePath: [...anchor.rulePath],
-    })),
+    itemAnchors,
   }
+}
+
+export function createXmlAnomalyProofAddressIndex(
+  audit: Pick<XmlAnomalyProofAudit, "boundaries" | "itemAnchors">,
+): XmlRuleAddressIndex {
+  return createXmlRuleAddressIndex(proofRuleAddresses(
+    audit.boundaries,
+    audit.itemAnchors ?? [],
+  ))
+}
+
+function proofRuleAddresses(
+  boundaries: readonly XmlAnomalyProofAuditBoundary[],
+  itemAnchors: readonly XmlAnomalyItemAnchor[],
+): readonly XmlRuleAddress[] {
+  const addresses: XmlRuleAddress[] = []
+  for (const boundary of boundaries) {
+    for (const target of boundary.targets) {
+      addresses.push({
+        sourcePath: boundary.sourcePath,
+        xmlPath: target.path,
+        yamlPath: [...boundary.yamlPath],
+        rulePath: boundary.rulePath.map((propertyKey) => ({ propertyKey })),
+        kind: "property",
+      })
+    }
+    const levels = boundary.levels.length === 0
+      ? [{
+          xmlPath: boundary.xmlPath,
+          yamlPath: boundary.yamlPath,
+          rawYamlPath: boundary.yamlPath,
+        }]
+      : boundary.levels
+    for (const level of levels) {
+      addresses.push({
+        sourcePath: boundary.sourcePath,
+        xmlPath: level.xmlPath,
+        yamlPath: [...(level.rawYamlPath ?? level.yamlPath)],
+        rulePath: boundary.rulePath.map((propertyKey) => ({ propertyKey })),
+        kind: "property",
+      })
+    }
+  }
+  for (const anchor of itemAnchors) {
+    addresses.push({
+      sourcePath: anchor.sourcePath,
+      xmlPath: anchor.xmlPath,
+      yamlPath: [...anchor.yamlPath],
+      rulePath: anchor.rulePath.map((propertyKey) => ({ propertyKey })),
+      kind: "item",
+    })
+  }
+  return [...new Map(addresses.map((address) => [JSON.stringify(address), address])).values()]
 }
 
 export interface ProveXmlAnomalyBoundariesResult {

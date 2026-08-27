@@ -108,6 +108,7 @@ export interface XmlRuleAddress {
 
 export interface XmlRuleAddressIndex {
   deepest(sourcePath: string, xmlPath: string): XmlRuleAddress | undefined
+  deepestCandidates(sourcePath: string, xmlPath: string): readonly XmlRuleAddress[]
 }
 
 export function createXmlRuleAddressIndex(
@@ -115,28 +116,28 @@ export function createXmlRuleAddressIndex(
 ): XmlRuleAddressIndex
 ```
 
-- [ ] **Step 1: Написать падающий тест индексирования**
+- [x] **Step 1: Написать падающий тест индексирования**
 
   Проверить, что запрос `/Form[1]/ChildItems[1]/Button[2]/ExtendedTooltip[1]/@name` выбирает адрес второго `Button`, а не `ChildItems` или всю форму. Проверить одинаковые XML-пути в разных `sourcePath` и отсутствие зависимости от `id`.
 
-- [ ] **Step 2: Реализовать нейтральный префиксный индекс**
+- [x] **Step 2: Реализовать нейтральный префиксный индекс**
 
   Индекс разбирает occurrence-aware пути один раз при построении. `deepest` выполняет проход по сегментам пути; он не сканирует все адреса для каждого отличия и не знает конкретных metadata-типов.
 
-- [ ] **Step 3: Наполнить индекс из существующего import audit**
+- [x] **Step 3: Наполнить индекс из существующего import audit**
 
-  В `deriveXmlAnomalyProofPlan` и `captureXmlAnomalyProofAudit` преобразовать зарегистрированные property boundaries и `itemAnchors` в один массив `XmlRuleAddress`. Не выполнять повторный обход XML и не создавать отдельные правила распознавания для форм.
+  `createXmlAnomalyProofAddressIndex` преобразует уже захваченные property boundaries и `itemAnchors` в `XmlRuleAddress` непосредственно перед proof. Отдельная копия адресов не сериализуется: это исключает повторное хранение тысяч XML- и YAML-путей. Не выполнять повторный обход XML и не создавать отдельные правила распознавания для форм.
 
   Проверка интеграции:
 
   ```ts
-  expect(audit.addressIndex.deepest(sourcePath, tooltipXmlPath)).toMatchObject({
-    yamlPath: ["Форма", "Элементы", "Кнопка", "РасширеннаяПодсказка"],
-    kind: "item",
+  expect(createXmlAnomalyProofAddressIndex(audit).deepest(sourcePath, idXmlPath)).toMatchObject({
+    yamlPath: ["Форма", "Реквизиты", "НаборКонстант", "id"],
+    kind: "property",
   })
   ```
 
-- [ ] **Step 4: Запустить тесты runtime и proof**
+- [x] **Step 4: Запустить тесты runtime и proof**
 
   Run: `pnpm --filter @nkdk/runtime test -- --run metadata/ruleRuntime/xmlAnomaly/addressIndex.test.ts`
 
@@ -144,7 +145,7 @@ export function createXmlRuleAddressIndex(
 
   Run: `pnpm duplicates -- --base 9cdcb73b9`
 
-- [ ] **Step 5: Создать commit через навык `commit`**
+- [x] **Step 5: Создать commit через навык `commit`**
 
   Expected message: `refactor: :recycle: переиспользовать адреса rules для XML`
 
