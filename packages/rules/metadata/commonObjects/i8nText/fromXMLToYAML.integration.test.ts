@@ -1,6 +1,8 @@
 import {
   createConfigurationLanguages,
   createXmlAnomalyAnnotations,
+  createXmlImportAuditSession,
+  parseXmlDocumentWithSaxes,
   parseMetadataYaml,
   serializeYAMLDocument,
   xmlAnnotatedMappingEntries,
@@ -15,6 +17,22 @@ const rule = {
   itemType: "I8nTextProbe",
   properties: {
     title: { type: "I8nText", yaml: "Заголовок", xml: "Title" },
+  },
+} as const satisfies MetadataItemRule
+
+const foldedRule = {
+  itemType: "FoldedI8nTextProbe",
+  properties: {
+    title: {
+      type: "I8nText",
+      yaml: "Заголовок",
+      xml: "Title",
+      excludeIfEqualNameYAML: true,
+      skipEmptyToXML: true,
+      defaultValue: ({ context, name }: { context: { languages: { default: string } }; name?: string }) => ({
+        items: { [context.languages.default]: name === "ДинамическийСписок" ? "Динамический список" : "" },
+      }),
+    },
   },
 } as const satisfies MetadataItemRule
 
@@ -150,5 +168,115 @@ describe("I8nText XML → YAML", () => {
         "v8:item": repeatedLanguageItems,
       },
     })
+  })
+
+  it("не добавляет служебный язык items при экспорте с XML-референсом", () => {
+    const annotations = createXmlAnomalyAnnotations()
+    const referenceXML = {
+      Title: {
+        "v8:item": [{ "v8:lang": "ru", "v8:content": "Заголовок" }],
+      },
+    }
+    const { yaml } = testPropertyFromXMLToYAML({ rule, context, annotations, xml: referenceXML })
+
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml,
+      annotations,
+      referenceXML,
+    })
+
+    expect(xml).toEqual(referenceXML)
+  })
+
+  it("не добавляет служебный язык items для свёрнутого заголовка с XML-референсом", () => {
+    const referenceXML = {
+      Title: {
+        "v8:item": [{ "v8:lang": "ru", "v8:content": "Динамический список" }],
+      },
+    }
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule: foldedRule,
+      context,
+      xml: referenceXML,
+      name: "ДинамическийСписок",
+    })
+    expect(yaml).toEqual({})
+
+    const { xml } = testPropertyFromYAMLToXML({
+      rule: foldedRule,
+      yaml,
+      name: "ДинамическийСписок",
+      referenceXML,
+    })
+
+    expect(xml).toEqual(referenceXML)
+  })
+
+  it("сохраняет маркер отсутствующего заголовка из смыслового default", () => {
+    const referenceXML = {}
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule: foldedRule,
+      context,
+      xml: referenceXML,
+      name: "Команда1",
+    })
+
+    expect(yaml).toEqual({ Заголовок: "" })
+    expect(testPropertyFromYAMLToXML({
+      rule: foldedRule,
+      yaml,
+      name: "Команда1",
+      referenceXML,
+    }).xml).toEqual(referenceXML)
+  })
+
+  it("сохраняет пустой XML сворачиваемого текста как короткий пустой маркер", () => {
+    const emptyFoldedRule = {
+      itemType: "EmptyFoldedI8nTextProbe",
+      properties: {
+        title: {
+          type: "I8nText",
+          yaml: "Заголовок",
+          xml: "Title",
+          excludeIfEqualNameYAML: true,
+        },
+      },
+    } as const satisfies MetadataItemRule
+
+    const xml = parseXmlDocumentWithSaxes("<Root><Title/></Root>", {
+      preserveEmptyElements: true,
+    }).roots[0]!
+    const audit = createXmlImportAuditSession([xml])
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule: emptyFoldedRule,
+      context,
+      xml,
+      name: "БизнесПроцесс1",
+      audit,
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({ Заголовок: "" })
+    expect(audit.outcomes().map(({ node, state }) => [node.path, state])).toEqual([
+      ["/Root[1]", "claimed"],
+      ["/Root[1]/Title[1]", "claimed"],
+    ])
+    expect(testPropertyFromYAMLToXML({
+      rule: emptyFoldedRule,
+      yaml,
+      name: "БизнесПроцесс1",
+      referenceXML: xml.compatibilityValue,
+    }).xml).toEqual({ Title: {} })
+    expect(testPropertyFromYAMLToXML({
+      rule: emptyFoldedRule,
+      yaml,
+      name: "БизнесПроцесс1",
+      referenceXML: {
+        Title: {
+          "v8:item": { "v8:lang": "ru", "v8:content": "Старое значение" },
+        },
+      },
+    }).xml).toEqual({ Title: {} })
   })
 })

@@ -67,7 +67,7 @@ describe("exportI8nTextToXML", () => {
       const result = exportI8nTextToXML(mockContext, excludeEqualNameRule, { items: {} })
       const xml = result ? xmlExport({ Title: result }, false) : undefined
 
-      expect(result).toEqual({})
+      expect(result).toEqual({ "v8:item": undefined })
       expect(xml).toEqual("<Title/>")
     })
 

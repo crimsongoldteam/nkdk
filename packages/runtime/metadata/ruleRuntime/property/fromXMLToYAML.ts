@@ -336,6 +336,12 @@ export function importPropertiesFromXMLToYAML(params: {
           const direct = typeRule(propertyRule.type, "importFromXMLToYAML")
           const resolveNestedSources = typeRule(propertyRule.type, "resolveNestedImportXMLSources")
           const convertedDirectly = resolveNestedSources !== undefined || direct !== undefined
+          const explicitEmptyValue =
+            presentInXML && (xmlValue === undefined || xmlValue === "")
+              ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.explicitEmptyValue?.({
+                  rule: propertyRule,
+                })
+              : undefined
           const directTraversal: DirectImportTraversal<PropertyRuleExecution> = {
             yamlPath: propertyYamlPath,
             rulePath: propertyRulePath,
@@ -426,7 +432,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 direct({
                   context: propertyContext,
                   rule: propertyRule,
-                  xml: xmlValue,
+                  xml: xmlValue === undefined && explicitEmptyValue !== undefined ? "" : xmlValue,
                   name: itemName,
                   ownerXmlName,
                   traversal: directTraversal,
@@ -442,10 +448,10 @@ export function importPropertiesFromXMLToYAML(params: {
             rule: propertyRule,
           })
           const registeredExplicitEmptyValue =
-            importedValue === undefined && presentInXML && (xmlValue === undefined || xmlValue === "")
-              ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.explicitEmptyValue?.({
-                  rule: propertyRule,
-                })
+            !convertedDirectly &&
+            importedValue === undefined &&
+            explicitEmptyValue !== undefined
+              ? explicitEmptyValue
               : undefined
           const clearedMetadataTarget =
             !forReference &&
@@ -469,15 +475,15 @@ export function importPropertiesFromXMLToYAML(params: {
               ? undefined
               : rawValue
           const defaultStartedAt = performance.now()
-          const value = !forReference
-            ? getValueOrDefault({
+          const value = convertedDirectly || forReference
+            ? cleanValue
+            : getValueOrDefault({
                 context: sourceContext,
                 rule: propertyRule,
                 value: cleanValue,
                 name: key,
                 operation: "importFromXML",
               })
-            : cleanValue
           addProfileTime(params.profile, "defaultMs", defaultStartedAt)
 
           if (value !== undefined && !dependentImportProperty) {
@@ -573,7 +579,9 @@ export function importPropertiesFromXMLToYAML(params: {
             value,
             params.execution,
           )
-          const emptyDirectValue = convertedDirectly && isEmptySemanticContainer(exportedYamlValue)
+          const emptyDirectValue = convertedDirectly && (
+            exportedYamlValue === undefined || isEmptySemanticContainer(exportedYamlValue)
+          )
           const discardedAlternative = ambiguousXMLKey && emptyDirectValue
           if (exportedValues === undefined || discardedAlternative) {
             if (discardedAlternative) {

@@ -1,5 +1,9 @@
 import { projectNamedXmlCollectionForImport, yamlMappingKeys } from "@nkdk/runtime"
-import type { ImportFromXMLToYAMLFunction } from "../../ruleRuntime"
+import {
+  importPropertyFromXML,
+  type ImportFromXMLToYAMLFunction,
+  type PropertyRuleExecution,
+} from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 
 import { localizedItemOccurrences } from "./anomalies"
@@ -14,7 +18,13 @@ export const importI8nTextFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   name,
   traversal,
 }) => {
-  const imported = importI8nTextFromXML(context, rule, xml as I8nTextXML | "" | undefined)
+  const imported = importPropertyFromXML({
+    context,
+    rule,
+    value: xml as I8nTextXML | "" | undefined,
+    name,
+    execution: traversal.execution as PropertyRuleExecution | undefined,
+  }) as ReturnType<typeof importI8nTextFromXML>
   const exported = exportI8nTextToYAML({ context, rule, value: imported, name })
   if (imported === undefined || (typeof exported !== "object" && !hasRepeatedLanguage(imported.items))) {
     return exported
