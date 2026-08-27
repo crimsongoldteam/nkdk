@@ -52,6 +52,7 @@ function validateObject(
         languages: params.context.languages,
         value: localizedText,
         valueTag: localizedOwner === undefined ? undefined : yamlScalarTagAt(localizedOwner, localizedKey),
+        annotations: params.parsed.annotations,
         path: localizedPath,
         foldable: propRule.excludeIfEqualNameYAML === true,
       })

@@ -115,6 +115,30 @@ describe("validateExcludedEqualNameYAML", () => {
       }),
     ])
   })
+
+  it("validates logical language keys from XML annotations", () => {
+    const parsed = parseMetadataYaml([
+      "Заголовок:",
+      "  ru: Первый",
+      "  !xml/invalid ru: Второй",
+    ].join("\n"))
+    const rule: MetadataItemRule = {
+      itemType: "MetadataCatalog",
+      properties: {
+        title: { type: "I8nText", yaml: "Заголовок" },
+      },
+    } as never
+
+    const diagnostics = validateExcludedEqualNameYAML({
+      context,
+      filePath: "/tmp/Свойства.yaml",
+      parsed,
+      rule,
+      name: "Объект",
+    })
+
+    expect(diagnostics).toEqual([])
+  })
 })
 
 function withCollectionItemRule<Result>(

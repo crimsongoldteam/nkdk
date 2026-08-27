@@ -365,6 +365,38 @@ describe("prepareImportYaml", () => {
     expect(writeFile).not.toHaveBeenCalled()
   })
 
+  it("сохраняет неканонический порядок I8nText до этапа валидации", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-i8n-order-"))
+    try {
+      const metadataPath = join(inputDir, "Контрагенты.xml")
+      const source = fs.readFileSync(join(syncXmlDir, "Catalogs/Контрагенты.xml"), "utf8")
+      fs.writeFileSync(
+        metadataPath,
+        source.replace(
+          /<Synonym>[\s\S]*?<\/Synonym>/,
+          [
+            "<Synonym>",
+            "\t\t\t\t<v8:item><v8:lang>en</v8:lang><v8:content>Catalog</v8:content></v8:item>",
+            "\t\t\t\t<v8:item><v8:lang>ru</v8:lang><v8:content>Справочник</v8:content></v8:item>",
+            "\t\t\t</Synonym>",
+          ].join("\n"),
+        ),
+      )
+
+      const prepared = await prepareImportYaml({
+        assignment: { ...catalogAssignment(), xmlFiles: [{ role: "metadata", sourcePath: metadataPath }] },
+        context: mockXmlImportContext(),
+        collector: createConfigurationIndexCollector(),
+      })
+
+      const synonym = (prepared.yaml as { Синоним: Record<string, unknown> }).Синоним
+      expect(Object.keys(synonym)).toEqual(["en", "ru"])
+      expect(prepared.annotations.at(prepared.yaml as object, "Синоним")).toBeUndefined()
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true })
+    }
+  })
+
   it("сохраняет raw заведомо неизвестного XML без контрольного экспорта", async () => {
     const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-proof-audit-"))
     try {

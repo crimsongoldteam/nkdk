@@ -13,6 +13,7 @@ function issuesFor(source: string, foldable = false) {
     languages,
     value: owner.Заголовок,
     valueTag: yamlScalarTagAt(owner, "Заголовок"),
+    annotations: parsed.annotations,
     path: ["Заголовок"],
     foldable,
   })
@@ -29,10 +30,21 @@ describe("validateLocalizedTextYAMLProperty", () => {
     ])
   })
 
-  it("не считает порядок языков предметной ошибкой", () => {
-    const issues = issuesFor("Заголовок:\n  de: Text\n  ru: Текст")
+  it("сообщает о неканоническом порядке на границе всей карты", () => {
+    const issues = issuesFor("Заголовок:\n  en: Text\n  ru: Текст")
 
-    expect(issues.map(({ path }) => path)).toEqual([["Заголовок", "de"]])
+    expect(issues).toEqual([
+      expect.objectContaining({
+        path: ["Заголовок"],
+        message: expect.stringMatching(/порядок языков/iu),
+      }),
+    ])
+  })
+
+  it("проверяет помеченные дубли по логическому коду языка", () => {
+    const issues = issuesFor("Заголовок:\n  ru: Первый\n  !xml/invalid ru: Второй")
+
+    expect(issues).toEqual([])
   })
 
   it.each([

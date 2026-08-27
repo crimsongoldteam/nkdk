@@ -82,11 +82,6 @@ export function exportLocalizedItems(params: {
   return result
 }
 
-export function isCanonicalLanguageOrder(codes: readonly string[], defaultCode: string): boolean {
-  const uniqueCodes = codes.filter((code, index) => code !== codes[index - 1])
-  return uniqueCodes.every((code, index) => code === canonicalCodes(uniqueCodes, defaultCode)[index])
-}
-
 export function copyLocalizedItemTags(source: Record<string, string>, target: Record<string, string>): void {
   copyYAMLMappingKeyOrder(source, target)
   const sourceOccurrences = localizedOccurrences.get(source)
@@ -100,18 +95,6 @@ export function copyLocalizedItemTags(source: Record<string, string>, target: Re
     copiedLanguages.add(language)
   }
   markLocalizedItemOccurrences(target, copied)
-}
-
-function canonicalCodes(codes: readonly string[], defaultCode: string): string[] {
-  const unique = [...new Set(codes)]
-  return [
-    ...(unique.includes(defaultCode) ? [defaultCode] : []),
-    ...unique.filter((code) => code !== defaultCode).sort(codeCompare),
-  ]
-}
-
-function codeCompare(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0
 }
 
 function localizedLanguage(item: I8nTextLanguageXML): string {
