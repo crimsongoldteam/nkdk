@@ -1,13 +1,14 @@
 import {
   createConfigurationLanguages,
   createXmlAnomalyAnnotations,
+  parseMetadataYaml,
   serializeYAMLDocument,
   xmlAnnotatedMappingEntries,
 } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { describe, expect, it } from "vitest"
 
-import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
+import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
 import { mockContextFromXML } from "../../../tests/mockContext"
 
 const rule = {
@@ -23,6 +24,13 @@ const context = {
   exportToYAML: { toTyped: false },
 }
 
+const repeatedLanguageItems = [
+  { "v8:lang": "ru", "v8:content": "Первый" },
+  { "v8:lang": "en", "v8:content": "Text" },
+  { "v8:lang": "ru", "v8:content": "Второй" },
+  { "v8:lang": "ru", "v8:content": "Третий" },
+]
+
 describe("I8nText XML → YAML", () => {
   it("использует общий адресный ряд для разнесённых дублей языка", () => {
     const annotations = createXmlAnomalyAnnotations()
@@ -32,12 +40,7 @@ describe("I8nText XML → YAML", () => {
       annotations,
       xml: {
         Title: {
-          "v8:item": [
-            { "v8:lang": "ru", "v8:content": "Первый" },
-            { "v8:lang": "en", "v8:content": "Text" },
-            { "v8:lang": "ru", "v8:content": "Второй" },
-            { "v8:lang": "ru", "v8:content": "Третий" },
-          ],
+          "v8:item": repeatedLanguageItems,
         },
       },
     })
@@ -125,5 +128,27 @@ describe("I8nText XML → YAML", () => {
       "  ru: Первый",
       "  !xml/invalid ru: Второй",
     ].join("\n"))
+  })
+
+  it("восстанавливает каждый помеченный дубль отдельным v8:item", () => {
+    const parsed = parseMetadataYaml([
+      "Заголовок:",
+      "  ru: Первый",
+      "  en: Text",
+      "  !xml/invalid ru: Второй",
+      "  !xml/invalid/2 ru: Третий",
+    ].join("\n"))
+
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+    })
+
+    expect(xml).toEqual({
+      Title: {
+        "v8:item": repeatedLanguageItems,
+      },
+    })
   })
 })

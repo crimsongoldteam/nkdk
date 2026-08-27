@@ -57,6 +57,7 @@ export interface AtomicFromYAMLParams {
   readonly value: unknown
   readonly referenceValue?: unknown
   readonly yaml?: unknown
+  readonly annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
   readonly name?: string
   readonly owner?: MetadataTargetOwner
   readonly restoreExcludedEqualName?: boolean
@@ -643,6 +644,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         value: sourceValue,
         referenceValue: atomicReferences[0],
         yaml,
+        annotations: params.annotations,
         name: params.name,
         owner: metadataTargetOwnerForProperty({
           rule: planned.propertyRule,
@@ -737,7 +739,7 @@ function callAtomicFromXML(params: {
 }
 
 export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
-  const { context, rule, value, referenceValue, yaml, name, owner } = params
+  const { context, rule, value, referenceValue, yaml, annotations, name, owner } = params
   const scalarTag = typeof rule.yaml === "string"
     ? yamlScalarTagAt(yaml, rule.yaml)
     : undefined
@@ -772,6 +774,7 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
           value: importedValue,
           source: referenceValue,
           yaml,
+          annotations,
           name,
           owner,
           restoreExcludedEqualName: params.restoreExcludedEqualName,

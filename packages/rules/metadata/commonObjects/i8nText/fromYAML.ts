@@ -1,23 +1,26 @@
 import {
   ConfigurationContext,
   markYAMLMappingKeyOrder,
+  xmlAnnotatedMappingEntries,
   yamlMappingKeys,
+  type XmlAnomalyAnnotations,
 } from "@nkdk/runtime"
 import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import { ImportFromYAMLFunctionNew, PropertyRule } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
-import { copyLocalizedItemTags } from "./anomalies"
+import { copyLocalizedItemTags, markLocalizedItemOccurrences } from "./anomalies"
 
 export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: I8nTextYAML | undefined
   source?: I8nText | undefined
+  annotations?: XmlAnomalyAnnotations
   name?: string
   restoreExcludedEqualName?: boolean
 }): I8nText | undefined => {
-  const { context, rule, value, source, name, restoreExcludedEqualName } = params
+  const { context, rule, value, source, annotations, name, restoreExcludedEqualName } = params
   const i8nRule = rule as I8nTextPropertyRule
   if (value === "" && i8nRule.excludeIfEqualNameYAML) return { items: {} }
   if (source === undefined && value === undefined) {
@@ -34,7 +37,7 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   }
 
   if (value !== undefined) {
-    const otherLanguages = importFromYAML(context, value)!
+    const otherLanguages = importFromYAML(context, value, annotations)!
     const combined = { ...result.items, ...otherLanguages.items }
     copyLocalizedItemTags(result.items, combined)
     copyLocalizedItemTags(otherLanguages.items, combined)
@@ -74,7 +77,11 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   return result
 }
 
-const importFromYAML = (context: ConfigurationContext, data: I8nTextYAML | undefined): I8nText | undefined => {
+const importFromYAML = (
+  context: ConfigurationContext,
+  data: I8nTextYAML | undefined,
+  annotations?: XmlAnomalyAnnotations,
+): I8nText | undefined => {
   if (data === undefined) return undefined
 
   if (typeof data === "string") {
@@ -86,13 +93,24 @@ const importFromYAML = (context: ConfigurationContext, data: I8nTextYAML | undef
   }
 
   return {
-    items: copyItems(data),
+    items: copyItems(data, annotations),
   }
 }
 
-function copyItems(items: Record<string, string>): Record<string, string> {
-  const copy = { ...items }
-  copyLocalizedItemTags(items, copy)
+function copyItems(
+  items: Record<string, string>,
+  annotations?: XmlAnomalyAnnotations,
+): Record<string, string> {
+  const entries = annotations === undefined
+    ? yamlMappingKeys(items).map((language) => [language, items[language]] as const)
+    : xmlAnnotatedMappingEntries(items, annotations) as [string, string][]
+  const copy: Record<string, string> = {}
+  const occurrences: { language: string; content: string }[] = []
+  for (const [language, content = ""] of entries) {
+    occurrences.push({ language, content })
+    if (!Object.prototype.hasOwnProperty.call(copy, language)) copy[language] = content
+  }
+  markLocalizedItemOccurrences(copy, occurrences)
   return copy
 }
 

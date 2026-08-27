@@ -8,6 +8,7 @@ import { mockContext,mockRule } from "../../../tests/mockContext"
 import { i8nTextFixtures } from "./__fixtures__/legacy/data"
 import { importI8nTextFromYAML } from "./fromYAML"
 import { I8nTextPropertyRule } from "./types"
+import { localizedItemOccurrences } from "./anomalies"
 
 const multilingualContext = {
   ...mockContext,
@@ -19,6 +20,30 @@ describe("importI8nTextFromYAML", () => {
     it.each(i8nTextFixtures)("should import: $name", (fixture) => {
       const result = importI8nTextFromYAML({ context: mockContext, rule: mockRule, value: fixture.fullYAML })
       expect(result).toEqual(fixture.text)
+    })
+
+    it("читает повторные логические ключи через общую таблицу аннотаций", () => {
+      const parsed = parseMetadataYaml([
+        "ru: Основной",
+        "en: English",
+        "!xml/invalid ru: Повтор",
+        "!xml/invalid/2 ru: Последний",
+      ].join("\n"))
+
+      const result = importI8nTextFromYAML({
+        context: multilingualContext,
+        rule: mockRule,
+        value: parsed.data,
+        annotations: parsed.annotations,
+      })!
+
+      expect(result.items).toEqual({ ru: "Основной", en: "English" })
+      expect(localizedItemOccurrences(result.items)).toEqual([
+        { language: "ru", content: "Основной" },
+        { language: "en", content: "English" },
+        { language: "ru", content: "Повтор" },
+        { language: "ru", content: "Последний" },
+      ])
     })
   })
 
