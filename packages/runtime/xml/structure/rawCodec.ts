@@ -104,7 +104,7 @@ export function applyXmlPatch(
       ? patchValue
       : applyXmlPatch(ordinaryValue, patchValue)
   }
-  if (!("#order" in patch)) {
+  if (!("#order" in patch) && !("#order" in base)) {
     const contentKeys = Object.keys(base).filter(isXmlContentKey)
     if (contentKeys.length > 0 && contentKeys.every((key) => key in patch)) {
       base["#order"] = Object.keys(patch).filter(isXmlContentKey).flatMap((key) => {

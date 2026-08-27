@@ -376,6 +376,11 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
                 itemRule: nestedRule.itemRuleFromProperty?.(planned.propertyRule) ?? nestedRule.itemRule,
               }
             : nestedRule
+      const scalarTag = typeof planned.yamlKey === "string" && yaml !== undefined
+        ? yamlScalarTagAt(yaml, planned.yamlKey)
+        : undefined
+      const scalarTagPolicy = typeRule(planned.propertyRule.type, "yamlScalarTagPolicy")
+      assertYAMLScalarTagAllowed({ tag: scalarTag, policy: scalarTagPolicy })
       const nestedPropertyContext = withConfigurationIndexExportPropertyContext(
         propertyContext,
         planned.yamlKey ?? planned.propertyKey,
@@ -406,7 +411,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       const nestedYAML =
         sourceNestedYAML === undefined
           ? effectiveNestedRule.kind === "collection" &&
-            (hasNestedDefault || planned.propertyRule.evaluateWhenYAMLMissing === true) &&
+            (scalarTag !== undefined || hasNestedDefault || planned.propertyRule.evaluateWhenYAMLMissing === true) &&
             matchingOutputs.every((output) => output.request.referenceXML === undefined)
             ? {}
             : effectiveNestedRule.kind === "item" &&
@@ -504,6 +509,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
               source,
               outputs: nestedOutputs,
+              ...(scalarTag === "xml/standard-attributes" ? { materializeCanonicalItems: true as const } : {}),
               externalWriteFactory: params.externalWriteFactory,
               profile: params.profile,
               rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],

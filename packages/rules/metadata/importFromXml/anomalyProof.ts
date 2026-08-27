@@ -354,27 +354,26 @@ export function deriveXmlAnomalyPlannedAbsenceBoundaries(params: {
       resolvedItemRules,
       data: params.data,
     })
-  } else {
-    const bodySource = params.sources.find(({ role }) => role === "body")
-    const bodyRoot = bodySource?.document.roots[0]
-    if (bodySource !== undefined && bodyRoot !== undefined) {
-      appendPlannedAbsenceBoundaries({
-        sources: params.sources,
-        elementsBySourcePath,
-        boundaries,
-        existingYamlPaths,
-        existingXmlPaths,
-        source: bodySource,
-        root: bodyRoot,
-        rule: params.rule,
-        yamlPrefix: [],
-        rulePrefix: [],
-        itemAnchors: params.itemAnchors,
-        itemAnchorIndex,
-        resolvedItemRules,
-        data: params.data,
-      })
-    }
+  }
+  const bodySource = params.sources.find(({ role }) => role === "body")
+  const bodyRoot = bodySource?.document.roots[0]
+  if (bodySource !== undefined && bodyRoot !== undefined) {
+    appendPlannedAbsenceBoundaries({
+      sources: params.sources,
+      elementsBySourcePath,
+      boundaries,
+      existingYamlPaths,
+      existingXmlPaths,
+      source: bodySource,
+      root: bodyRoot,
+      rule: params.rule,
+      yamlPrefix: [],
+      rulePrefix: [],
+      itemAnchors: params.itemAnchors,
+      itemAnchorIndex,
+      resolvedItemRules,
+      data: params.data,
+    })
   }
   return boundaries
 }
@@ -982,13 +981,14 @@ export async function proveXmlAnomalyBoundaries(params: {
           document: await readDocument(source.sourcePath),
         })
       }
-      boundaries.push(...deriveXmlAnomalyPlannedAbsenceBoundaries({
+      const plannedAbsences = deriveXmlAnomalyPlannedAbsenceBoundaries({
         sources,
         rule: params.rule,
         data,
         itemAnchors: params.audit.itemAnchors ?? [],
         existingBoundaries: boundaries,
-      }).filter(({ sourcePath }) => changedSourcePaths.has(sourcePath)))
+      }).filter(({ sourcePath }) => changedSourcePaths.has(sourcePath))
+      boundaries.push(...plannedAbsences)
     }
   }
   const resolvedItemRules = params.rule === undefined
@@ -1017,7 +1017,7 @@ export async function proveXmlAnomalyBoundaries(params: {
       }
       continue
     }
-    if (hasRawAtOrAbovePath(annotationIndex, boundary.yamlPath)) {
+    if (hasRawForBoundary(annotationIndex, boundary)) {
       if (!verificationSourcePaths.has(boundary.sourcePath)) continue
       if (boundary.presentInSource) {
         await readDocument(boundary.sourcePath)
@@ -1043,12 +1043,14 @@ export async function proveXmlAnomalyBoundaries(params: {
     }
 
     if (!boundary.presentInSource) {
-      setRawYamlValue(mutableData(), boundary.yamlPath, undefined)
+      const rawYamlPath = publicRawYamlPath(boundary.yamlPath, boundary, false)
+      setRawYamlValue(mutableData(), rawYamlPath, undefined, boundary.yamlPath)
       annotationSnapshot = withRawAnnotation(
         annotationSnapshot,
-        boundary.yamlPath,
+        rawYamlPath,
         null,
         false,
+        boundary.yamlPath,
       )
       annotationIndex = createProofAnnotationIndex(annotationSnapshot)
       if (verificationSourcePaths.has(boundary.sourcePath)) {
@@ -1259,7 +1261,7 @@ export async function proveXmlAnomalyBoundaries(params: {
         (boundary) => boundary.presentInSource && isCapturedProofBoundary(boundary),
       )
       const hasHandledBoundary = sourceBoundaries.some((boundary) =>
-        hasRawAtOrAbovePath(annotationIndex, boundary.yamlPath)
+        hasRawForBoundary(annotationIndex, boundary)
       )
       if (hasCapturedBoundary || hasHandledBoundary) continue
     }
@@ -1558,6 +1560,18 @@ function publicRawYamlPath(
     ...path.slice(0, -1),
     `@${xmlDocumentShortName(boundary.sourcePath)}\\${last}`,
   ]
+}
+
+function hasRawForBoundary(
+  annotationIndex: ReturnType<typeof createProofAnnotationIndex>,
+  boundary: XmlAnomalyProofBoundary,
+): boolean {
+  if (hasRawAtOrAbovePath(annotationIndex, boundary.yamlPath)) return true
+  if (boundary.presentInSource) return false
+  return hasRawAtOrAbovePath(
+    annotationIndex,
+    publicRawYamlPath(boundary.yamlPath, boundary, false),
+  )
 }
 
 function xmlDocumentShortName(sourcePath: string): string {

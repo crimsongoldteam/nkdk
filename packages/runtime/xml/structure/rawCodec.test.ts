@@ -15,6 +15,17 @@ const contentLabels = (nodes: ReturnType<typeof decodeXmlRawValue>["nodes"]): st
     node.type === "text" ? node.value : node.type === "element" ? node.name : `?${node.target}`,
   ) ?? []
 
+const interleavedButtons = {
+  Button: [{ _name: "Создать" }, { _name: "Выполнить" }],
+  ButtonGroup: { _name: "Группа" },
+  "#order": ["Button", "ButtonGroup", "Button"],
+}
+
+const groupedButtonsPatch = {
+  Button: [{ _name: "Создать" }, { _name: "Выполнить" }],
+  ButtonGroup: { _name: "Группа", _future: "true" },
+}
+
 describe("decodeXmlRawValue", () => {
   it("сохраняет порядок полного вложенного XML-патча при добавлении ребёнка", () => {
     const patched = applyXmlPatch(
@@ -34,6 +45,29 @@ describe("decodeXmlRawValue", () => {
     const fragment = decodeXmlRawValue(patched, { elementName: "Table" })
 
     expect(contentLabels(fragment.nodes)).toEqual(["A", "RowFilter", "B", "ChildItems"])
+  })
+
+  it("не заменяет существующий смешанный порядок порядком ключей патча", () => {
+    const patched = applyXmlPatch(
+      interleavedButtons,
+      groupedButtonsPatch,
+    )
+
+    expect((patched as Record<string, unknown>)["#order"])
+      .toEqual(["Button", "ButtonGroup", "Button"])
+  })
+
+  it("заменяет существующий порядок только явным #order патча", () => {
+    const patched = applyXmlPatch(
+      interleavedButtons,
+      {
+        ...groupedButtonsPatch,
+        "#order": ["Button", "Button", "ButtonGroup"],
+      },
+    )
+
+    expect((patched as Record<string, unknown>)["#order"])
+      .toEqual(["Button", "Button", "ButtonGroup"])
   })
 
   it("декодирует точный текст оболочки вместе с #order", () => {

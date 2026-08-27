@@ -571,7 +571,7 @@ describe("XML anomaly proof", () => {
 
     expect(result.annotations.entries).toContainEqual(expect.objectContaining({
       parentPath: ["Форма", "Реквизиты", "Список"],
-      key: "ТипЗначения",
+      key: "@Form\\ТипЗначения",
       annotation: expect.objectContaining({ kind: "raw", xml: null }),
     }))
     expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
@@ -1267,7 +1267,7 @@ describe("XML anomaly proof", () => {
     expect(result.annotations.entries).toEqual([
       expect.objectContaining({
         parentPath: [],
-        key: "Режим",
+        key: "@Owner\\Режим",
         annotation: expect.objectContaining({ kind: "raw", xml: null, hasSemanticValue: false }),
       }),
     ])

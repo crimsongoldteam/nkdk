@@ -57,6 +57,14 @@ const rule = {
   },
 } as const satisfies MetadataItemRule
 
+const deferredControlType = "SyntheticDeferredControl" as never
+const deferredControlRule = {
+  itemType: "SyntheticDeferredOwner",
+  properties: {
+    value: { type: deferredControlType, yaml: "Значение", xml: "Value" },
+  },
+} as const satisfies MetadataItemRule
+
 const parentPatchRule = {
   itemType: "SyntheticParentPatchOwner",
   properties: {
@@ -144,6 +152,11 @@ const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
     ...emptyMetadataRules,
     propertyTypes: propertyTypesFromContributions([
       definePropertyTypeRule(
+        deferredControlType,
+        "finalizeExportedXML",
+        ({ value }) => `${String(value)}:final`,
+      ),
+      definePropertyTypeRule(
         "SyntheticNamedCollection" as never,
         "yamlToXMLNestedRule",
         collectionDescriptor,
@@ -168,6 +181,26 @@ describe("единое восстановление XML-аномалий assignm
     expect(control.mode).toBe("direct")
     const xml = control.materializeXml()
     expect(control.roots).toEqual(rootFingerprints(parseXmlRootStructuresWithSaxes(xml).roots))
+  })
+
+  it("строит контрольные roots из материализованного XML при отложенных значениях", () => {
+    const control = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
+      buildPreparedAssignmentControlDocument({
+        document: {
+          targetXmlPath: "Root.xml",
+          xml: { Root: { Value: "draft" } },
+          deferred: [{ valuePath: ["Root", "Value"], rulePath: [{ propertyKey: "value" }] }],
+          rootRule: deferredControlRule,
+          rawBoundaries: [],
+        },
+        context: mockContextToXML(),
+      }),
+    )
+
+    expect(control.mode).toBe("serialized")
+    expect(control.roots).toEqual(rootFingerprints(
+      parseXmlRootStructuresWithSaxes(control.materializeXml()).roots,
+    ))
   })
 
   it("использует строковый путь для смешанного XML-содержимого", () => {

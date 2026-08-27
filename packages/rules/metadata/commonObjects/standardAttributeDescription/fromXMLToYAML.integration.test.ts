@@ -3,6 +3,7 @@ import {
   parseXmlDocumentWithSaxes,
   yamlScalarTagAt,
 } from "@nkdk/runtime"
+import "../../../tests/metadataExecutionContext"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { describe,expect,it } from "vitest"
 import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
@@ -85,7 +86,7 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     expect(yamlScalarTagAt(imported, "СтандартныеРеквизиты")).toBeUndefined()
   })
 
-  it("осмысленно исключает полностью стандартную коллекцию", () => {
+  it("помечает полностью стандартную присутствующую коллекцию кратким XML-тегом", () => {
     const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
     const root = parseXmlDocumentWithSaxes(DEFAULT_LINE_NUMBER_XML).roots[0]!
     const audit = createXmlImportAuditSession([root])
@@ -109,7 +110,8 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     })
     audit.finalize()
 
-    expect(yaml).toEqual({})
+    expect(yaml).toHaveProperty("СтандартныеРеквизиты")
+    expect(yamlScalarTagAt(yaml, "СтандартныеРеквизиты")).toBe("xml/standard-attributes")
     expect(audit.outcomes()
       .filter(({ node }) => node.path.includes("/StandardAttributes[1]"))
       .filter(({ state }) => state === "unknown" || state === "ambiguous")

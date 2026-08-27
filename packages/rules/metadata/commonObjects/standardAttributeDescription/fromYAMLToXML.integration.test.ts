@@ -1,7 +1,7 @@
 import { beforeAll,describe,expect,it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 
-import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { importFromYAML, type ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemRule,PropertyRuleType } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
@@ -190,6 +190,48 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       }).result
     })
     expect(results).toEqual(["", ""])
+  })
+
+  it("восстанавливает каноническую коллекцию из !xml/standard-attributes", () => {
+    const exported = testPropertyFromYAMLToXML({
+      context: createDirectRoundTripContexts().exportContext(),
+      rule: standardAttributesOwnerRule(
+        "StandardAttributesMarkerProbe",
+        { LineNumber: "НомерСтроки" },
+      ),
+      yaml: importFromYAML("СтандартныеРеквизиты: !xml/standard-attributes"),
+    })
+
+    expect(standardAttributeItems(exported.xml)).toEqual([
+      {
+        _name: "LineNumber",
+        "xr:LinkByType": "",
+        "xr:FillChecking": "DontCheck",
+        "xr:MultiLine": false,
+        "xr:FillFromFillingValue": false,
+        "xr:CreateOnInput": "Auto",
+        "xr:TypeReductionMode": "TransformValues",
+        "xr:MaxValue": { "_xsi:nil": true },
+        "xr:ToolTip": "",
+        "xr:ExtendedEdit": false,
+        "xr:Format": "",
+        "xr:ChoiceForm": "",
+        "xr:QuickChoice": "Auto",
+        "xr:ChoiceHistoryOnInput": "Auto",
+        "xr:EditFormat": "",
+        "xr:PasswordMode": false,
+        "xr:DataHistory": "Use",
+        "xr:MarkNegatives": false,
+        "xr:MinValue": { "_xsi:nil": true },
+        "xr:Synonym": "",
+        "xr:Comment": "",
+        "xr:FullTextSearch": "Use",
+        "xr:ChoiceParameterLinks": "",
+        "xr:FillValue": { "_xsi:nil": true },
+        "xr:Mask": "",
+        "xr:ChoiceParameters": "",
+      },
+    ])
   })
 
   it("exports RecordType among canonical standard attributes", () => {

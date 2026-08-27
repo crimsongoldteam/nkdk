@@ -2,7 +2,7 @@ import { JSON_SCHEMA, defineMappingTag, defineScalarTag, defineSequenceTag, load
 export type YAMLScalarTagKey = string | number
 
 export const PROPERTY_STATE_YAML_TAGS = ["проверять", "изменять"] as const
-export const XML_REPRESENTATION_YAML_TAGS = ["xml/string"] as const
+export const XML_REPRESENTATION_YAML_TAGS = ["xml/string", "xml/standard-attributes"] as const
 export const XML_ANNOTATION_TAGS = ["raw", "invalid", "important"] as const
 
 export type PropertyStateYAMLTag = (typeof PROPERTY_STATE_YAML_TAGS)[number]
@@ -90,6 +90,10 @@ const propertyStateTags = PROPERTY_STATE_YAML_TAGS.map((tag) =>
 const xmlRepresentationTags = XML_REPRESENTATION_YAML_TAGS.map((tag) =>
   defineScalarTag(`!${tag}`, {
     resolve(value) {
+      if (tag === "xml/standard-attributes") {
+        if (value !== "") throw new TypeError("!xml/standard-attributes не принимает значение")
+        return taggedYAMLScalar(tag, undefined)
+      }
       return taggedYAMLScalar(tag, value)
     },
     identify(value) {
@@ -97,6 +101,10 @@ const xmlRepresentationTags = XML_REPRESENTATION_YAML_TAGS.map((tag) =>
     },
     represent(value) {
       const payload = (value as TaggedYAMLScalar).value
+      if (tag === "xml/standard-attributes") {
+        if (payload !== undefined) throw new TypeError("!xml/standard-attributes не принимает значение")
+        return ""
+      }
       if (typeof payload !== "string") {
         throw new TypeError("Тег !xml/string поддерживает только строковое значение")
       }

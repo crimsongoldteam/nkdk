@@ -3,6 +3,7 @@ import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import type { StandardAttributeDescriptionsPropertyRule } from "@nkdk/runtime/rule-kit"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML, type StandartAttributeName } from "./standartAttributeNames"
+import { taggedYAMLScalar } from "@nkdk/runtime"
 
 export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYAMLFunction = (params) => {
   const rule = params.rule as StandardAttributeDescriptionsPropertyRule
@@ -19,9 +20,13 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
       names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,
     traversal: params.traversal,
   })
-  if (yaml === undefined || Array.isArray(yaml) || params.context.fromXML.forReference) return yaml
-
   const canonicalNames = new Set(Object.keys(rule.standartAttributeNames ?? {}))
+  if (params.context.fromXML.forReference || Array.isArray(yaml)) return yaml
+  if (yaml === undefined) {
+    return canonicalNames.size > 0
+      ? taggedYAMLScalar("xml/standard-attributes", undefined)
+      : undefined
+  }
   if (canonicalNames.size === 0) return yaml
   const structuralXML = params.traversal.xmlNodes?.length === 1
     ? params.traversal.xmlNodes[0]!.compatibilityValue
@@ -33,7 +38,9 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
     if (isEmptyRecord(yaml[yamlKey])) delete yaml[yamlKey]
   }
 
-  return yaml
+  return Object.keys(yaml).length === 0 && canonicalNames.size > 0
+    ? taggedYAMLScalar("xml/standard-attributes", undefined)
+    : yaml
 }
 
 function collectPreservedEmptyNames(xml: unknown): Set<string> {

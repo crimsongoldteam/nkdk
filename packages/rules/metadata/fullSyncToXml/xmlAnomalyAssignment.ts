@@ -128,7 +128,7 @@ export function buildPreparedAssignmentControlDocument(params: {
   readonly context: ConfigurationContext
 }): PreparedAssignmentControlDocument {
   const xml = buildFinalizedAssignmentXmlObject(params)
-  if (params.document.rawBoundaries.length === 0) {
+  if (params.document.rawBoundaries.length === 0 && params.document.deferred.length === 0) {
     const direct = xmlObjectRootStructures(xml)
     if (direct.kind === "supported") {
       let materialized: string | undefined
