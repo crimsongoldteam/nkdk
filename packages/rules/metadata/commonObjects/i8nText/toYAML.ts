@@ -91,18 +91,7 @@ const exportFullI8nTextToYAML = (
 
   if (languages.length === 0) return undefined
   if (languages.length === 1 && items[defaultLanguage] !== undefined) return items[defaultLanguage]
-  if (languages.some((language) => language === "" || language === "#")) return items
-
-  const canonicalLanguages = [
-    ...(languages.includes(defaultLanguage) ? [defaultLanguage] : []),
-    ...languages.filter((language) => language !== defaultLanguage).sort(),
-  ]
-  if (canonicalLanguages.every((language, index) => language === languages[index])) return items
-
-  const canonicalItems = Object.fromEntries(canonicalLanguages.map((language) => [language, items[language]]))
-  markYAMLMappingKeyOrder(canonicalItems, canonicalLanguages)
-
-  return canonicalItems
+  return items
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("I8nText", "exportToYAML", exportI8nTextToYAML)
