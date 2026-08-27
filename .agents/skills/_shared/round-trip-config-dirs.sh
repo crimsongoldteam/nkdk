@@ -7,21 +7,25 @@ round_trip_is_config_dir() {
 
 round_trip_collect_run_dirs() {
   local root="$1"
-  local child
+  local configuration_file
 
   if round_trip_is_config_dir "${root}"; then
     printf '%s\n' "${root}"
     return 0
   fi
 
-  while IFS= read -r child; do
-    if round_trip_is_config_dir "${child}"; then
-      printf '%s\n' "${child}"
-    fi
-  done < <(find "${root}" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) | sort)
+  while IFS= read -r configuration_file; do
+    dirname "${configuration_file}"
+  done < <(find "${root}" -mindepth 2 -type f -name Configuration.xml | sort)
 }
 
 round_trip_sanitize_path_segment() {
+  case "$1" in
+    .|..)
+      printf 'root'
+      return 0
+      ;;
+  esac
   printf '%s' "$1" | sed 's#[^A-Za-z0-9._-]#_#g'
 }
 
@@ -36,6 +40,22 @@ round_trip_config_rel_path() {
   fi
 
   printf '%s' "${dir#${repo}/}"
+}
+
+round_trip_component_path() {
+  local dir="$1"
+  local repo="$2"
+  local relative_path
+
+  relative_path="$(round_trip_config_rel_path "${dir}" "${repo}")"
+  case "${relative_path}" in
+    .|cf)
+      printf 'cf'
+      ;;
+    *)
+      printf '%s' "${relative_path}"
+      ;;
+  esac
 }
 
 round_trip_load_dotenv_preserving_env() {

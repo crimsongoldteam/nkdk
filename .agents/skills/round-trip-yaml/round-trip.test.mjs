@@ -27,6 +27,26 @@ function collectConfigDirs(root) {
   return result.stdout.trim() === "" ? [] : result.stdout.trim().split("\n")
 }
 
+function componentPath(configDir, repo) {
+  const result = spawnSync(
+    "bash",
+    ["-c", '. "$1"\nround_trip_component_path "$2" "$3"', "round-trip-config-dirs", configDirsHelper, configDir, repo],
+    { encoding: "utf8" },
+  )
+  assert.equal(result.status, 0, result.stderr)
+  return result.stdout
+}
+
+function sanitizedPathSegment(value) {
+  const result = spawnSync(
+    "bash",
+    ["-c", '. "$1"\nround_trip_sanitize_path_segment "$2"', "round-trip-config-dirs", configDirsHelper, value],
+    { encoding: "utf8" },
+  )
+  assert.equal(result.status, 0, result.stderr)
+  return result.stdout
+}
+
 test("определяет конфигурацию по корневому Configuration.xml", async (t) => {
   const root = await mkdtemp(join(tmpdir(), "nkdk-round-trip-configs-"))
   t.after(() => rm(root, { recursive: true, force: true }))
@@ -37,6 +57,33 @@ test("определяет конфигурацию по корневому Conf
   await writeFile(join(configurationOnly, "Configuration.xml"), "<MetaDataObject/>")
 
   assert.deepEqual(collectConfigDirs(root), [configurationOnly])
+})
+
+test("находит основную конфигурацию и вложенные расширения", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "nkdk-round-trip-configs-"))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const configuration = join(root, "cf")
+  const extension = join(root, "cfe", "Расширение")
+  await mkdir(configuration, { recursive: true })
+  await mkdir(extension, { recursive: true })
+  await writeFile(join(configuration, "Configuration.xml"), "<MetaDataObject/>")
+  await writeFile(join(extension, "Configuration.xml"), "<MetaDataObject/>")
+
+  assert.deepEqual(collectConfigDirs(root), [configuration, extension])
+})
+
+test("выводит путь компонента из положения XML-каталога", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "nkdk-round-trip-component-"))
+  t.after(() => rm(root, { recursive: true, force: true }))
+
+  assert.equal(componentPath(root, root), "cf")
+  assert.equal(componentPath(join(root, "cf"), root), "cf")
+  assert.equal(componentPath(join(root, "cfe", "Расширение"), root), "cfe/Расширение")
+})
+
+test("даёт корневому временному каталогу безопасное имя", () => {
+  assert.equal(sanitizedPathSegment("."), "root")
+  assert.equal(sanitizedPathSegment(".."), "root")
 })
 
 test("проверяет только активный XML-каталог, а не рабочее дерево nkdk", () => {
@@ -81,4 +128,15 @@ test("не требует отсутствующих справочных фай
 
 test("оставляет выбор числа worker production import", () => {
   assert.doesNotMatch(script, /componentPath:"cf",concurrency:/u)
+})
+
+test("передаёт вычисленный путь компонента в import и sync", () => {
+  assert.doesNotMatch(script, /componentPath:"cf"/u)
+  assert.match(script, /componentPath:process\.argv\[4\]/u)
+})
+
+test("переиспользует один MCP-проект для основной конфигурации и расширений", () => {
+  assert.match(script, /prepare_mcp_project "\$\{MCP_PROJECT_DIR\}"/u)
+  assert.match(script, /link_mcp_component "\$\{MCP_PROJECT_DIR\}" "\$\{RUN_YAML_DIR\}" "\$\{RUN_COMPONENT_PATH\}"/u)
+  assert.doesNotMatch(script, /mcp_project_dir_for "\$\{RUN_XML_DIR\}"/u)
 })
