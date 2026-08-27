@@ -1,12 +1,60 @@
 import { describe, expect, it } from "vitest"
 import { parseXmlDocumentWithSaxes } from "../import/saxesParser"
 import type { XmlElementNode } from "../import/document"
-import { compareXmlStructures, createXmlElementPatch } from "./compare"
+import {
+  compareXmlStructureDifferences,
+  compareXmlStructures,
+  createXmlElementPatch,
+} from "./compare"
 
 const roots = (xml: string): readonly XmlElementNode[] =>
   parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }).roots
 
 describe("compareXmlStructures", () => {
+  it("describes the changed attribute of the exact repeated element", () => {
+    const expected = roots('<Root><Item name="first"/><Item name="expected"/></Root>')
+    const actual = roots('<Root><Item name="first"/><Item name="actual"/></Root>')
+
+    expect(compareXmlStructureDifferences(expected, actual)).toEqual([
+      {
+        kind: "value",
+        path: "/Root[1]/Item[2]/@name[1]",
+        ownerPath: "/Root[1]/Item[2]",
+      },
+    ])
+  })
+
+  it("describes text and presence differences with their immediate owners", () => {
+    const expected = roots("<Root><Value>expected</Value></Root>")
+    const actual = roots("<Root><Value>actual</Value><Extra/></Root>")
+
+    expect(compareXmlStructureDifferences(expected, actual)).toEqual([
+      {
+        kind: "value",
+        path: "/Root[1]/Value[1]/#text[1]",
+        ownerPath: "/Root[1]/Value[1]",
+      },
+      {
+        kind: "presence",
+        path: "/Root[1]/Extra[1]",
+        ownerPath: "/Root[1]",
+      },
+    ])
+  })
+
+  it("describes an order difference as the collection terminal", () => {
+    const expected = roots("<Root><First/><Second/></Root>")
+    const actual = roots("<Root><Second/><First/></Root>")
+
+    expect(compareXmlStructureDifferences(expected, actual)).toEqual([
+      {
+        kind: "order",
+        path: "/Root[1]/#order",
+        ownerPath: "/Root[1]",
+      },
+    ])
+  })
+
   it("builds a minimal recursive patch from ordinary export to source XML", () => {
     const source = roots(
       '<Value mode="new"><Known>kept</Known><Changed>new</Changed><Added>added</Added></Value>',
