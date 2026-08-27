@@ -28,6 +28,27 @@ const lifecycleReport = (fileMs: number, packageSetupMs = 3_000) => ({
   }],
 })
 
+const reportWithFiles = (fileCount: number) => ({
+  success: true,
+  numTotalTests: fileCount,
+  numPassedTests: fileCount,
+  numFailedTests: 0,
+  numPendingTests: 0,
+  numTodoTests: 0,
+  testResults: Array.from({ length: fileCount }, (_, index) => ({
+    name: `/project/packages/rules/example-${index}.test.ts`,
+    assertionResults: [{ fullName: `example test case ${index}`, duration: 1 }],
+  })),
+})
+
+const lifecycleReportWithFiles = (fileCount: number, packageSetupDuration: number) => ({
+  packageSetupDuration,
+  testFiles: Array.from({ length: fileCount }, (_, index) => ({
+    file: `/project/packages/rules/example-${index}.test.ts`,
+    duration: 1,
+  })),
+})
+
 describe("assert test durations", () => {
   it("предупреждает после 10ms и жёстко ограничивает тест после 50ms", () => {
     expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000))).toEqual({
@@ -76,6 +97,19 @@ describe("assert test durations", () => {
       lifecycleReport(2_999, 9_000.01),
       { CI: "true" },
     ).warnings).toContainEqual({ type: "setup", duration: 9_000.01 })
+  })
+
+  it("нормирует суммарный setup по числу тестовых файлов", () => {
+    const largeReport = reportWithFiles(400)
+
+    expect(analyzeTestDurationReport(
+      largeReport,
+      lifecycleReportWithFiles(400, 4_800),
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      largeReport,
+      lifecycleReportWithFiles(400, 4_800.01),
+    ).failures).toContainEqual({ type: "setup", duration: 4_800.01 })
   })
 
   it("удваивает жёсткий лимит отдельного теста на CI", () => {

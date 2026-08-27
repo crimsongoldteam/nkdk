@@ -8,6 +8,7 @@ export const INTEGRATION_TEST_DURATION_LIMIT_MS = 200
 export const TEST_FILE_LIMIT_MS = 1_000
 export const INTEGRATION_TEST_FILE_LIMIT_MS = 2_500
 export const TEST_PACKAGE_SETUP_LIMIT_MS = 3_000
+export const TEST_FILE_SETUP_LIMIT_MS = 12
 export const WINDOWS_LIMIT_MULTIPLIER = 5
 export const CI_TEST_DURATION_LIMIT_MULTIPLIER = 2
 
@@ -31,7 +32,11 @@ export function analyzeTestDurationReport(report, lifecycleReport, environment =
 
   const warnings = []
   const failures = []
-  if (packageSetupDuration > TEST_PACKAGE_SETUP_LIMIT_MS * limitMultiplier) {
+  const packageSetupLimit = Math.max(
+    TEST_PACKAGE_SETUP_LIMIT_MS,
+    report.testResults.length * TEST_FILE_SETUP_LIMIT_MS,
+  ) * limitMultiplier
+  if (packageSetupDuration > packageSetupLimit) {
     const result = { type: "setup", duration: packageSetupDuration }
     warnings.push(result)
     failures.push(result)
