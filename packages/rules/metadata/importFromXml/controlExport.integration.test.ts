@@ -195,6 +195,7 @@ describe("executeImportControlExport", () => {
       data: { Future: "value" },
       annotations,
       rereadSourcePaths: [],
+      warnings: [],
     })
     expect(ordinaryExporter).not.toHaveBeenCalled()
     expect(controlExportCountForTests()).toBe(0)

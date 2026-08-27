@@ -68,6 +68,7 @@ export async function executeImportControlExport(params: {
       data: params.data,
       annotations: params.annotations,
       rereadSourcePaths: [],
+      warnings: [],
     }
   }
   const assignment = projectControlAssignment(params.assignment, params.topology)
@@ -143,6 +144,7 @@ export async function executeImportControlExport(params: {
         prepared.semanticYamlFile.annotations,
       ),
       rereadSourcePaths: [],
+      warnings: [],
     }
   }
   const exported = preliminaryExported.map(({ role, sourcePath, control }) => {

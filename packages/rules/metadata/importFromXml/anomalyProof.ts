@@ -40,6 +40,8 @@ import {
 import {
   localizeXmlDifferences,
   type LocalizedXmlDifference,
+  type UnlocalizedXmlDifference,
+  type UnlocalizedXmlDifferenceReason,
 } from "./xmlDifferenceLocalization"
 
 let xmlPathIndexVisitCountValueForTests = 0
@@ -971,6 +973,16 @@ export interface ProveXmlAnomalyBoundariesResult {
   readonly data: unknown
   readonly annotations: XmlAnomalyAnnotationsSnapshot
   readonly rereadSourcePaths: readonly string[]
+  readonly warnings: readonly XmlRawScopeWarning[]
+}
+
+export interface XmlRawScopeWarning {
+  readonly sourcePath: string
+  readonly xmlPath: string
+  readonly yamlPath: readonly (string | number)[]
+  readonly nearestYamlPath?: readonly (string | number)[]
+  readonly reason: UnlocalizedXmlDifferenceReason
+  readonly rawBytes: number
 }
 
 export async function proveXmlAnomalyBoundaries(params: {
@@ -1005,6 +1017,8 @@ export async function proveXmlAnomalyBoundaries(params: {
   const rereadSourcePaths: string[] = []
   const transformations: XmlProofTransformation[] = []
   const insertedRawXmlPaths = new Set<string>()
+  const unlocalizedBySource = new Map<string, UnlocalizedXmlDifference[]>()
+  const warnings: XmlRawScopeWarning[] = []
   const verificationSourcePaths = new Set(
     (params.audit.fallbackBoundaries ?? []).map(({ sourcePath }) => sourcePath),
   )
@@ -1091,7 +1105,18 @@ export async function proveXmlAnomalyBoundaries(params: {
         sourceNodes,
         sourceElements,
       })
-      if (boundary !== undefined) boundaries.push(boundary)
+      if (boundary !== undefined) {
+        boundaries.push(boundary)
+        continue
+      }
+      appendUnlocalizedDifference(unlocalizedBySource, source.sourcePath, {
+        difference: difference.difference,
+        nearestAddresses: [difference.address],
+        reason: "unresolved-export-claim",
+      })
+    }
+    for (const difference of localized.unlocalized) {
+      appendUnlocalizedDifference(unlocalizedBySource, source.sourcePath, difference)
     }
   }
   const resolvedItemRules = params.rule === undefined
@@ -1389,16 +1414,24 @@ export async function proveXmlAnomalyBoundaries(params: {
       if (hasRawAtOrAbovePath(annotationIndex, rawYamlPath)) continue
       assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, fallback.yamlPath)
       if (!hasSemanticValue) setRawYamlValue(mutableData(), rawYamlPath, undefined, fallback.yamlPath)
+      const fallbackXml = sourceRoot.name === exportedRoot.name && hasSemanticValue
+        ? createXmlElementPatch(sourceRoot, exportedRoot)
+        : xmlElementRawValue(sourceRoot)
       annotationSnapshot = withRawAnnotation(
         annotationSnapshot,
         rawYamlPath,
-        sourceRoot.name === exportedRoot.name && hasSemanticValue
-          ? createXmlElementPatch(sourceRoot, exportedRoot)
-          : xmlElementRawValue(sourceRoot),
+        fallbackXml,
         hasSemanticValue,
         fallback.yamlPath,
       )
       annotationIndex = createProofAnnotationIndex(annotationSnapshot)
+      warnings.push(rawScopeWarning({
+        sourcePath: source.sourcePath,
+        yamlPath: rawYamlPath,
+        fallbackXml,
+        unresolved: unlocalizedBySource.get(source.sourcePath)?.[0],
+        fallbackXmlPath: fallback.xmlPath,
+      }))
       continue
     }
 
@@ -1412,15 +1445,23 @@ export async function proveXmlAnomalyBoundaries(params: {
     const rawYamlPath = [source.role === "metadata" ? "@" : `@${xmlDocumentShortName(source.sourcePath)}`]
     assertRawYamlPathAvailable(data, annotationSnapshot, rawYamlPath, rawYamlPath)
     setRawYamlValue(mutableData(), rawYamlPath, undefined)
+    const fallbackXml = sourceRoot.name === exportedRoot.name
+      ? createXmlElementPatch(sourceRoot, exportedRoot)
+      : xmlElementRawValue(sourceRoot)
     annotationSnapshot = withRawAnnotation(
       annotationSnapshot,
       rawYamlPath,
-      sourceRoot.name === exportedRoot.name
-        ? createXmlElementPatch(sourceRoot, exportedRoot)
-        : xmlElementRawValue(sourceRoot),
+      fallbackXml,
       false,
     )
     annotationIndex = createProofAnnotationIndex(annotationSnapshot)
+    warnings.push(rawScopeWarning({
+      sourcePath: source.sourcePath,
+      yamlPath: rawYamlPath,
+      fallbackXml,
+      unresolved: unlocalizedBySource.get(source.sourcePath)?.[0],
+      fallbackXmlPath: sourceRoot.path,
+    }))
   }
 
   const annotations = restoreXmlAnomalyAnnotations(data, annotationSnapshot)
@@ -1428,6 +1469,37 @@ export async function proveXmlAnomalyBoundaries(params: {
     data,
     annotations: snapshotXmlAnomalyAnnotations(data, annotations),
     rereadSourcePaths,
+    warnings,
+  }
+}
+
+function appendUnlocalizedDifference(
+  bySource: Map<string, UnlocalizedXmlDifference[]>,
+  sourcePath: string,
+  difference: UnlocalizedXmlDifference,
+): void {
+  const current = bySource.get(sourcePath)
+  if (current === undefined) bySource.set(sourcePath, [difference])
+  else current.push(difference)
+}
+
+function rawScopeWarning(params: {
+  readonly sourcePath: string
+  readonly yamlPath: readonly (string | number)[]
+  readonly fallbackXml: XmlRawValue
+  readonly unresolved: UnlocalizedXmlDifference | undefined
+  readonly fallbackXmlPath: string
+}): XmlRawScopeWarning {
+  const nearestYamlPath = params.unresolved?.nearestAddresses.length === 1
+    ? params.unresolved.nearestAddresses[0]!.yamlPath
+    : undefined
+  return {
+    sourcePath: params.sourcePath,
+    xmlPath: params.unresolved?.difference.path ?? params.fallbackXmlPath,
+    yamlPath: [...params.yamlPath],
+    ...(nearestYamlPath === undefined ? {} : { nearestYamlPath: [...nearestYamlPath] }),
+    reason: params.unresolved?.reason ?? "unresolved-export-claim",
+    rawBytes: new TextEncoder().encode(JSON.stringify(params.fallbackXml)).byteLength,
   }
 }
 
@@ -1458,6 +1530,10 @@ function localizedDifferenceBoundary(params: {
   if (element === undefined) return undefined
   const rawYamlPath = localizedRawYamlPath(params.localized.address, xmlPath)
   if (rawYamlPath === undefined) return undefined
+  const owner = params.localized.address.kind === "item"
+    && params.localized.address.xmlPath !== xmlPath
+    ? params.sourceElements.get(params.localized.address.xmlPath)
+    : undefined
   return {
     sourcePath: params.source.sourcePath,
     sourceRole: params.source.role,
@@ -1471,15 +1547,28 @@ function localizedDifferenceBoundary(params: {
       signature: nodeSignature(target),
       span: { ...target.span },
     }],
-    levels: [{
-      xmlPath,
-      yamlPath: [...params.localized.address.yamlPath],
-      rawYamlPath,
-      protectedYamlPaths: [],
-      elementName: element.name,
-      structuralHash: element.structuralHash,
-      span: { ...element.span },
-    }],
+    levels: [
+      {
+        xmlPath,
+        yamlPath: [...params.localized.address.yamlPath],
+        rawYamlPath,
+        protectedYamlPaths: [],
+        elementName: element.name,
+        structuralHash: element.structuralHash,
+        span: { ...element.span },
+      },
+      ...(owner === undefined
+        ? []
+        : [{
+            xmlPath: owner.path,
+            yamlPath: [...params.localized.address.yamlPath],
+            rawYamlPath: [...params.localized.address.yamlPath],
+            protectedYamlPaths: [],
+            elementName: owner.name,
+            structuralHash: owner.structuralHash,
+            span: { ...owner.span },
+          }]),
+    ],
   }
 }
 

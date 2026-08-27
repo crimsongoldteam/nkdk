@@ -582,7 +582,7 @@ function validateTerminalBoundaries(
       assertExactOrder(
         structuralTerminalContent(parent.content),
         boundary.order.order.filter((item) => item !== "#text"),
-        orderedContentName,
+        (node) => orderedContentNameForOrder(node, boundary.order.order),
         boundary.path.source,
       )
       continue
@@ -590,7 +590,12 @@ function validateTerminalBoundaries(
     const content = boundary.order.order.includes("#text")
       ? parent.content
       : structuralTerminalContent(parent.content)
-    assertExactOrder(content, boundary.order.order, orderedContentName, boundary.path.source)
+    assertExactOrder(
+      content,
+      boundary.order.order,
+      (node) => orderedContentNameForOrder(node, boundary.order.order),
+      boundary.path.source,
+    )
   }
 }
 
@@ -627,7 +632,11 @@ function applyTerminalBoundaries(
     parent.content = boundary.order.text !== undefined
       ? reorderContentWithText(parent.content, boundary.order)
       : boundary.order.order.includes("#text")
-        ? reorder(parent.content, boundary.order.order, orderedContentName)
+        ? reorder(
+            parent.content,
+            boundary.order.order,
+            (node) => orderedContentNameForOrder(node, boundary.order.order),
+          )
         : reorderStructuralContentPreservingText(parent.content, boundary.order.order)
   }
 }
@@ -690,6 +699,18 @@ function orderedContentName(node: MutableXmlContentNode): string {
   return node.type === "element" ? node.name : `?${node.target}`
 }
 
+function orderedContentNameForOrder(
+  node: MutableXmlContentNode,
+  order: readonly string[],
+): string {
+  const ordinary = orderedContentName(node)
+  if (node.type !== "element") return ordinary
+  const name = node.attributes.find((attribute) => attribute.name === "name")?.value
+  if (name === undefined) return ordinary
+  const selected = `${node.name}:${name}`
+  return order.includes(selected) ? selected : ordinary
+}
+
 function structuralTerminalContent(
   content: readonly MutableXmlContentNode[],
 ): MutableXmlContentNode[] {
@@ -706,12 +727,13 @@ function reorderStructuralContentPreservingText(
     if (!rank.has(name)) rank.set(name, index)
   }
   const knownPositions = structural.flatMap((node, index) =>
-    rank.has(orderedContentName(node)) ? [index] : []
+    rank.has(orderedContentNameForOrder(node, order)) ? [index] : []
   )
   const known = knownPositions
     .map((index) => structural[index]!)
     .toSorted((left, right) =>
-      rank.get(orderedContentName(left))! - rank.get(orderedContentName(right))!
+      rank.get(orderedContentNameForOrder(left, order))!
+      - rank.get(orderedContentNameForOrder(right, order))!
     )
   const reordered = [...structural]
   knownPositions.forEach((position, index) => {
@@ -728,7 +750,11 @@ function reorderContentWithText(
   patch: XmlRawOrderPatch,
 ): MutableXmlContentNode[] {
   const structuralOrder = patch.order.filter((item) => item !== "#text")
-  const structural = reorder(structuralTerminalContent(content), structuralOrder, orderedContentName)
+  const structural = reorder(
+    structuralTerminalContent(content),
+    structuralOrder,
+    (node) => orderedContentNameForOrder(node, structuralOrder),
+  )
   let structuralIndex = 0
   let textIndex = 0
   return patch.order.map((name): MutableXmlContentNode => {

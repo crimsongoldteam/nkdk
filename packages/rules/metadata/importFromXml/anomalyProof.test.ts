@@ -591,13 +591,22 @@ describe("XML anomaly proof", () => {
       key: "Форма",
       annotation: expect.objectContaining({ kind: "raw" }),
     }))
+    expect(result.warnings).toEqual([
+      expect.objectContaining({
+        sourcePath: formSourcePath,
+        xmlPath: "/Form[1]/Future[1]",
+        yamlPath: ["Форма"],
+        reason: "no-rule-address",
+      }),
+    ])
+    expect(result.warnings[0]!.rawBytes).toBeGreaterThan(0)
   })
 
   it("локализует неизвестный XML-узел внутри конкретного повторяющегося элемента", async () => {
     const source = [
       "<Form><Items>",
       '<Item name="first"/>',
-      '<Item name="second"><Future mode="x"/></Item>',
+      '<Item name="second"><A/><Future mode="x"/><B/></Item>',
       "</Items></Form>",
     ].join("")
     const exported = source.replace('<Future mode="x"/>', "")
@@ -639,6 +648,14 @@ describe("XML anomaly proof", () => {
       parentPath: [],
       key: "Форма",
     }))
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      annotation: expect.objectContaining({
+        kind: "raw",
+        xml: { "#order": ["A", "Future", "B"] },
+      }),
+    }))
+    expect(JSON.stringify(result.annotations.entries)).not.toContain('"Item":[')
+    expect(result.warnings).toEqual([])
   })
 
   it("исключает из proof формы XML-поддерево, сохранённое во внешнем файле", async () => {

@@ -250,7 +250,7 @@ export interface ProveXmlAnomalyBoundariesResult {
 }
 ```
 
-- [ ] **Step 1: Написать падающий тест минимального порядка**
+- [x] **Step 1: Написать падающий тест минимального порядка**
 
   Для переставленных соседей ожидать:
 
@@ -260,11 +260,11 @@ export interface ProveXmlAnomalyBoundariesResult {
 
   Patch не должен содержать объекты кнопок или весь массив `Button`.
 
-- [ ] **Step 2: Написать падающий тест диагностики широкого fallback**
+- [x] **Step 2: Написать падающий тест диагностики широкого fallback**
 
   Искусственно передать отличие без rule-адреса. Proof должен сохранить текущий широкий raw и вернуть одно предупреждение с XML-путём, ближайшим YAML-путём, причиной и размером.
 
-- [ ] **Step 3: Протянуть предупреждение в результат импорта**
+- [x] **Step 3: Протянуть предупреждение в результат импорта**
 
   `worker.ts` преобразует его в существующий `ImportDiagnostic`:
 
@@ -281,7 +281,7 @@ export interface ProveXmlAnomalyBoundariesResult {
 
   Диагностика не меняет успешность импорта и не создаётся для точно локализованного raw.
 
-- [ ] **Step 4: Запустить целевые тесты и проверку дубликатов**
+- [x] **Step 4: Запустить целевые тесты и проверку дубликатов**
 
   Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/anomalyProof.test.ts metadata/importFromXml/controlExport.integration.test.ts metadata/importFromXml/worker.integration.test.ts`
 

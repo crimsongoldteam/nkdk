@@ -48,6 +48,7 @@ const passThroughControlExport: typeof executeImportControlExport = async (param
   data: params.data,
   annotations: params.annotations,
   rereadSourcePaths: [],
+  warnings: [],
 })
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
@@ -456,7 +457,7 @@ describe("XML import worker second pass", () => {
     setControlExportForTests(async (params) => {
       capturedProfiles.push(params.exportProfile)
       capturedContexts.push(params.context)
-      return { data: params.data, annotations: params.annotations, rereadSourcePaths: [] }
+      return { data: params.data, annotations: params.annotations, rereadSourcePaths: [], warnings: [] }
     })
     await initializeWorker(outputDir)
     const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments }))
@@ -499,6 +500,43 @@ describe("XML import worker second pass", () => {
     expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
       .toContain('ДлинаКода: !xml/raw\n  $значение: 1\n  $xml:\n    "#text": "01"')
     expect(controlExportCountForTests()).toBe(1)
+  })
+
+  it("возвращает предупреждение о слишком широкой области raw", async () => {
+    const outputDir = createTempDir("broad-raw-warning")
+    const assignment = catalogAssignment()
+    setControlExportForTests(async (params) => ({
+      data: params.data,
+      annotations: params.annotations,
+      rereadSourcePaths: [],
+      warnings: [{
+        sourcePath: "/source/Ext/Form.xml",
+        xmlPath: "/Form[1]/Future[1]",
+        yamlPath: ["Форма"],
+        reason: "no-rule-address",
+        rawBytes: 512,
+      }],
+    }))
+
+    const { second } = await runAssignmentSecondPass(outputDir, assignment)
+
+    expect(second).toMatchObject({
+      kind: "secondPassResult",
+      diagnostics: [],
+      warnings: [{
+        severity: "warning",
+        code: "xml_raw_scope_too_broad",
+        message: "Непредметное XML-отличие сохранено на более широкой границе",
+        targetProjectPath: assignment.targetProjectPath,
+        sourcePath: "/source/Ext/Form.xml",
+        value: JSON.stringify({
+          xmlPath: "/Form[1]/Future[1]",
+          yamlPath: ["Форма"],
+          reason: "no-rule-address",
+          rawBytes: 512,
+        }),
+      }],
+    })
   })
 
   it("не сохраняет raw для восстановленных стандартных элементов формы", async () => {

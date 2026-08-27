@@ -90,6 +90,12 @@ function diffXmlRawValue(
   actual: Exclude<XmlRawValue, null>,
 ): XmlPatchValue | undefined {
   if (typeof expected === "string" || Array.isArray(expected)) {
+    if (Array.isArray(expected) && Array.isArray(actual)) {
+      const aligned = alignRawArrayByNameAttribute(expected, actual)
+      if (aligned !== undefined && expected.every((value, index) =>
+        rawValuesEqual(value, aligned[index]!)
+      )) return undefined
+    }
     return rawValuesEqual(expected, actual) ? undefined : expected
   }
   if (!isRawMapping(actual)) return expected
@@ -114,6 +120,28 @@ function diffXmlRawValue(
   return Object.keys(patch).length === 0 ? undefined : patch
 }
 
+function alignRawArrayByNameAttribute(
+  expected: readonly XmlRawValue[],
+  actual: readonly XmlRawValue[],
+): readonly XmlRawValue[] | undefined {
+  if (expected.length !== actual.length) return undefined
+  const key = (value: XmlRawValue): string | undefined =>
+    isRawMapping(value) && typeof value._name === "string" ? value._name : undefined
+  const expectedKeys = expected.map(key)
+  const actualKeys = actual.map(key)
+  if (expectedKeys.some((value) => value === undefined) || actualKeys.some((value) => value === undefined)) {
+    return undefined
+  }
+  if (new Set(expectedKeys).size !== expectedKeys.length || new Set(actualKeys).size !== actualKeys.length) {
+    return undefined
+  }
+  const actualByKey = new Map(actualKeys.map((value, index) => [value!, actual[index]!] as const))
+  const aligned = expectedKeys.map((value) => actualByKey.get(value!))
+  return aligned.some((value) => value === undefined)
+    ? undefined
+    : aligned as readonly XmlRawValue[]
+}
+
 function rawValuesEqual(left: XmlRawValue, right: XmlRawValue): boolean {
   if (typeof left === "string" || left === null) return left === right
   if (Array.isArray(left)) {
@@ -130,9 +158,22 @@ function isRawMapping(value: XmlRawValue | undefined): value is XmlRawMapping {
 }
 
 function xmlContentOrder(element: XmlElementNode): string[] {
-  return element.content.map((node) =>
-    node.type === "text" ? "#text" : node.type === "element" ? node.name : `?${node.target}`,
+  const elementsByName = Map.groupBy(
+    element.content.filter((node): node is XmlElementNode => node.type === "element"),
+    ({ name }) => name,
   )
+  return element.content.map((node) => {
+    if (node.type === "text") return "#text"
+    if (node.type !== "element") return `?${node.target}`
+    const siblings = elementsByName.get(node.name) ?? []
+    if (siblings.length <= 1) return node.name
+    const name = node.attributes.find((attribute) => attribute.name === "name")?.value
+    if (name === undefined) return node.name
+    const unique = siblings.filter((sibling) =>
+      sibling.attributes.some((attribute) => attribute.name === "name" && attribute.value === name)
+    ).length === 1
+    return unique ? `${node.name}:${name}` : node.name
+  })
 }
 
 function sameStrings(left: readonly string[], right: readonly string[]): boolean {
@@ -189,6 +230,10 @@ function compareElementLists(
   ) return
   if (sameElementOrder(expected, actual) === false && sameElementMultiset(expected, actual)) {
     addDifference(differences, `${parentPath}/#order`, parentPath, "order")
+    compareAddressedLists(expected, actual, elementOrderKey, (left, right) => {
+      compareElement(left, right, differences)
+    }, parentPath, differences)
+    return
   }
   compareAddressedLists(expected, actual, elementKey, (left, right) => {
     compareElement(left, right, differences)
@@ -242,11 +287,20 @@ function compareContent(
   const expectedOrdered = expected.content.filter(isOrderedContent)
   const actualOrdered = actual.content.filter(isOrderedContent)
   if (
-    expectedOrdered.map(contentKey).join("\u0000") !==
-      actualOrdered.map(contentKey).join("\u0000") &&
-    sameKeyMultiset(expectedOrdered, actualOrdered, contentKey)
+    expectedOrdered.map(contentOrderKey).join("\u0000") !==
+      actualOrdered.map(contentOrderKey).join("\u0000") &&
+    sameKeyMultiset(expectedOrdered, actualOrdered, contentOrderKey)
   ) {
     addDifference(differences, `${expected.path}/#order`, expected.path, "order")
+    compareAddressedLists(
+      expected.content,
+      actual.content,
+      contentOrderKey,
+      (left, right) => compareContentNode(left, right, differences),
+      expected.path,
+      differences,
+    )
+    return
   }
 
   compareAddressedLists(
@@ -360,14 +414,14 @@ function sameElementOrder(
   expected: readonly XmlElementNode[],
   actual: readonly XmlElementNode[]
 ): boolean {
-  return expected.map(elementKey).join("\u0000") === actual.map(elementKey).join("\u0000")
+  return expected.map(elementOrderKey).join("\u0000") === actual.map(elementOrderKey).join("\u0000")
 }
 
 function sameElementMultiset(
   expected: readonly XmlElementNode[],
   actual: readonly XmlElementNode[]
 ): boolean {
-  return sameKeyMultiset(expected, actual, elementKey)
+  return sameKeyMultiset(expected, actual, elementOrderKey)
 }
 
 function sameKeyMultiset<T>(
@@ -385,6 +439,11 @@ function elementKey(node: XmlElementNode): string {
   return `${node.name}[${node.occurrence}]`
 }
 
+function elementOrderKey(node: XmlElementNode): string {
+  const name = node.attributes.find((attribute) => attribute.name === "name")?.value
+  return name === undefined ? elementKey(node) : `${node.name}:name=${name}`
+}
+
 function attributeKey(node: XmlAttributeNode): string {
   return `${node.name}[${node.occurrence}]`
 }
@@ -398,6 +457,12 @@ function contentKey(node: XmlContentNode): string {
     case "processingInstruction":
       return `processingInstruction:${node.target}[${node.occurrence}]`
   }
+}
+
+function contentOrderKey(node: XmlContentNode): string {
+  return node.type === "element"
+    ? `element:${elementOrderKey(node)}`
+    : contentKey(node)
 }
 
 function isOrderedContent(

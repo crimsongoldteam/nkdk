@@ -94,6 +94,27 @@ describe("mergeXmlRawFragments", () => {
     )
   })
 
+  it("переставляет одноимённые элементы по атрибуту name из краткого #order", () => {
+    const ordinary = roots(
+      '<Root><Items><Button name="Первая"/><Button name="Вторая"/></Items></Root>',
+    )
+
+    const merged = mergeXmlRawFragments(ordinary, [{
+      path: "Items\\#order",
+      value: ["Button:Вторая", "Button:Первая"],
+      suppressOrdinaryOutput: false,
+    }])
+
+    expect(xmlExport(merged, false)).toBe([
+      "<Root>",
+      "\t<Items>",
+      '\t\t<Button name="Вторая"/>',
+      '\t\t<Button name="Первая"/>',
+      "\t</Items>",
+      "</Root>",
+    ].join("\n"))
+  })
+
   it("восстанавливает точный текст оболочки при вставке отсутствующего raw-ребёнка", () => {
     const merged = mergeXmlRawFragments(roots("<Root><Properties><B/></Properties></Root>"), [
       {

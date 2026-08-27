@@ -55,6 +55,21 @@ describe("compareXmlStructures", () => {
     ])
   })
 
+  it("описывает перестановку именованных повторяющихся элементов одним #order", () => {
+    const expected = roots(
+      '<Root><Button name="Вторая"/><Button name="Первая"/></Root>',
+    )
+    const actual = roots(
+      '<Root><Button name="Первая"/><Button name="Вторая"/></Root>',
+    )
+
+    expect(compareXmlStructureDifferences(expected, actual)).toEqual([{
+      kind: "order",
+      path: "/Root[1]/#order",
+      ownerPath: "/Root[1]",
+    }])
+  })
+
   it("builds a minimal recursive patch from ordinary export to source XML", () => {
     const source = roots(
       '<Value mode="new"><Known>kept</Known><Changed>new</Changed><Added>added</Added></Value>',
@@ -84,6 +99,19 @@ describe("compareXmlStructures", () => {
       Table: {
         "#order": ["Before", "RowFilter", "ChildItems"],
       },
+    })
+  })
+
+  it("сохраняет перестановку повторяющихся элементов только через краткий #order", () => {
+    const source = roots(
+      '<Root><Button name="Вторая"/><Button name="Первая"/></Root>',
+    )[0]!
+    const ordinary = roots(
+      '<Root><Button name="Первая"/><Button name="Вторая"/></Root>',
+    )[0]!
+
+    expect(createXmlElementPatch(source, ordinary)).toEqual({
+      "#order": ["Button:Вторая", "Button:Первая"],
     })
   })
 

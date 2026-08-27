@@ -976,6 +976,24 @@ async function prepareYamlForFinalPass(
   )
   prepared.yaml = proof.data
   prepared.annotations = restoreXmlAnomalyAnnotations(proof.data, proof.annotations)
+  for (const warning of proof.warnings) {
+    warnings.push({
+      severity: "warning",
+      code: "xml_raw_scope_too_broad",
+      message: "Непредметное XML-отличие сохранено на более широкой границе",
+      targetProjectPath: prepared.targetProjectPath,
+      sourcePath: warning.sourcePath,
+      value: JSON.stringify({
+        xmlPath: warning.xmlPath,
+        yamlPath: warning.yamlPath,
+        ...(warning.nearestYamlPath === undefined
+          ? {}
+          : { nearestYamlPath: warning.nearestYamlPath }),
+        reason: warning.reason,
+        rawBytes: warning.rawBytes,
+      }),
+    })
+  }
   let serialized = serializePreparedYaml(
     prepared.targetProjectPath,
     prepared.yaml,
