@@ -10,7 +10,14 @@ import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
 import type { PropertyRuleExecution } from "../property/fn"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
-import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
+import {
+  attachExplicitSingletonName,
+  getCanonicalSingletonName,
+  getSingletonName,
+  getSingletonNameVariant,
+  type SingletonNameStyle,
+  withSingletonNameVariantFromXML,
+} from "./singletonName"
 import { CollectableElementTypeToYAML, type CollectableElementType, type ElementRule, type ElementXML } from "./types"
 import { currentRuleRegistrySet } from "../ruleRegistryExecutionContext"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
@@ -72,6 +79,7 @@ export function importSingleFormElementFromXMLToYAML(params: {
   if (params.xml === undefined) return undefined
 
   const collection = getConfigurationIndexCollectionContext(params.context)
+  const inheritedNameVariant = params.context.fromXML.formElementNameVariant
   const canonicalName = getCanonicalSingletonName({
     ownerLogicalAddress: params.ownerXmlName ?? collection?.logicalAddress ?? "",
     nameStyle: params.nameStyle,
@@ -86,19 +94,31 @@ export function importSingleFormElementFromXMLToYAML(params: {
           : getConfigurationIndexFormElementLogicalAddress(collection, canonicalName)
   const context =
     logicalAddress === undefined ? params.context : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
+  const generatedName = getSingletonName({
+    ownerLogicalAddress: params.ownerXmlName ?? collection?.logicalAddress ?? "",
+    nameStyle: params.nameStyle,
+    variant: inheritedNameVariant,
+  })
+  const xmlName = typeof params.xml._name === "string" ? params.xml._name : undefined
+  const nameVariant = getSingletonNameVariant({
+    xmlName,
+    ownerXmlName: params.ownerXmlName,
+    nameStyle: params.nameStyle,
+  })
+  const itemContext = withSingletonNameVariantFromXML(context, nameVariant)
 
-  collectConfigurationIndexIdentityFromXML({ context, sourceXmlKey: "_id", xmlValue: params.xml._id })
+  collectConfigurationIndexIdentityFromXML({ context: itemContext, sourceXmlKey: "_id", xmlValue: params.xml._id })
   const yaml = (
     importPropertiesFromXMLToYAML({
-      context,
+      context: itemContext,
       rule: params.rule,
       sources: [{
-        context,
+        context: itemContext,
         xml: params.nameStyle?.explicitXMLName === true
           ? withoutImportableXMLName(params.xml)
           : params.xml,
       }],
-      itemName: canonicalName,
+      itemName: xmlName ?? canonicalName,
       yamlPath: params.traversal.yamlPath,
       rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
       collector: params.traversal.collector,
@@ -110,6 +130,7 @@ export function importSingleFormElementFromXMLToYAML(params: {
       execution: propertyExecutionFromTraversal(params.traversal),
     }) ?? {}
   )
+  attachExplicitSingletonName({ yaml, xmlName, generatedName, nameStyle: params.nameStyle })
   return yaml
 }
 

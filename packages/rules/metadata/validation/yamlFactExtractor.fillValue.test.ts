@@ -97,21 +97,24 @@ describe("dependent fill value validation", () => {
     expect(diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Предопределенный/ЗначениеЗаполнения")).toHaveLength(1)
   })
 
-  it.each(["", "Владельцы: []\n"])(
+  it.each([
+    ["", "."],
+    ["", "Справочник.ПапкиФайлов.ПустаяСсылка"],
+    ["Владельцы: []\n", "."],
+    ["Владельцы: []\n", "Справочник.ПапкиФайлов.ПустаяСсылка"],
+  ])(
     "отклоняет обычное значение владельца при пустом списке владельцев",
-    (ownersYaml) => {
-      for (const fillValue of [".", "Справочник.ПапкиФайлов.ПустаяСсылка"]) {
-        const diagnostics = extractDiagnostics(`${ownersYaml}СтандартныеРеквизиты:
+    (ownersYaml, fillValue) => {
+      const diagnostics = extractDiagnostics(`${ownersYaml}СтандартныеРеквизиты:
   Владелец:
     ЗначениеЗаполнения: ${fillValue}
 `)
-        expect(diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Владелец/ЗначениеЗаполнения")).toEqual([
-          expect.objectContaining({
-            severity: "error",
-            message: "у справочника отсутствуют владельцы; значение заполнения реквизита Владелец допускается только с !xml",
-          }),
-        ])
-      }
+      expect(diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Владелец/ЗначениеЗаполнения")).toEqual([
+        expect.objectContaining({
+          severity: "error",
+          message: "у справочника отсутствуют владельцы; значение заполнения реквизита Владелец допускается только с !xml",
+        }),
+      ])
     }
   )
 

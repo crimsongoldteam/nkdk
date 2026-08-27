@@ -19,13 +19,19 @@ export interface FormattedI8nText extends I8nText {
   items: Record<string, string>
 }
 
-const formattedI8nTextJSONSchema = (textSchema: typeof I8nTextJSONSchema) => Type.Object(
-  {
-    Форматированный: Type.Optional(Type.Literal("Истина")),
-    Текст: textSchema,
-  },
-  { additionalProperties: false }
-)
+const formattedI8nTextJSONSchema = (textSchema: typeof I8nTextJSONSchema) => Type.Union([
+  Type.Object(
+    {
+      Форматированный: Type.Optional(Type.Literal("Истина")),
+      Текст: textSchema,
+    },
+    { additionalProperties: false },
+  ),
+  Type.Object(
+    { Форматированный: Type.Literal("Истина") },
+    { additionalProperties: false },
+  ),
+])
 
 export const FormattedI8nTextJSONSchema = formattedI8nTextJSONSchema(I8nTextJSONSchema)
 export const FoldableFormattedI8nTextJSONSchema = formattedI8nTextJSONSchema(FoldableI8nTextJSONSchema)

@@ -32,6 +32,9 @@ describe.sequential("metadata project E2E", () => {
       .toEqual(E2E_COMPONENTS.map(({ componentPath }) => componentPath))
     for (const result of baseline.results) {
       expect(result.failed).toEqual([])
+      expect(result.warnings).not.toContainEqual(expect.objectContaining({
+        code: "xml_raw_scope_too_broad",
+      }))
       expect(result.succeeded).toBeGreaterThan(0)
       expect(result.configurationIndexPath).toBe(join(
         baseline.projectDir,
@@ -184,15 +187,9 @@ const VALUE_LIST_SETTINGS_XML_RAW_LOCATIONS = [
   "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Реквизиты/ПоследниеЗапросы/@Form\\ТипЗначения",
 ] as const
 
-const FORM_TITLE_XML_RAW_LOCATIONS = [
-  "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Элементы/СтраницыРезультатов/Элементы/СтраницаПодсказки/Элементы/СтрокаПодсказки/@Form\\Заголовок",
-  "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Элементы/СтраницыРезультатов/Элементы/СтраницаРезультатаПоиска/Элементы/СтраницыРезультатаПоиска/Элементы/СтраницаРезультатаПоискаПрокрутка/Элементы/РезультатыПоиска/@Form\\Заголовок",
-] as const
-
 const EXPECTED_XML_RAW_LOCATIONS = [
   ...RARE_FILL_VALUE_XML_RAW_LOCATIONS,
   ...VALUE_LIST_SETTINGS_XML_RAW_LOCATIONS,
-  ...FORM_TITLE_XML_RAW_LOCATIONS,
 ].sort(compareUtf8)
 
 const DYNAMIC_LIST_FILE = "cf/ОбщаяФорма/ДинамическийСписок/Свойства.yaml"
@@ -223,11 +220,16 @@ async function collectXmlAnomalyLocations(projectDir: string): Promise<{
     }
     const snapshot = snapshotXmlAnomalyAnnotations(parsed.data, parsed.annotations)
     if (snapshot.root !== undefined) {
+      if (snapshot.root.kind === "raw") {
+        assertMinimalXmlRaw(snapshot.root.xml, `${relative(projectDir, filePath)}#/$`)
+      }
       anomalyBucket(snapshot.root.kind, raw, invalid)?.push(`${relative(projectDir, filePath)}#/$`)
     }
     for (const entry of snapshot.entries) {
+      const location = `${relative(projectDir, filePath)}#/${[...entry.parentPath, entry.key].map(String).join("/")}`
+      if (entry.annotation.kind === "raw") assertMinimalXmlRaw(entry.annotation.xml, location)
       anomalyBucket(entry.annotation.kind, raw, invalid)?.push(
-        `${relative(projectDir, filePath)}#/${[...entry.parentPath, entry.key].map(String).join("/")}`,
+        location,
       )
     }
     collectXmlStringLocations({
@@ -242,6 +244,17 @@ async function collectXmlAnomalyLocations(projectDir: string): Promise<{
     invalid: invalid.sort(compareUtf8),
     string: string.sort(compareUtf8),
   }
+}
+
+function assertMinimalXmlRaw(value: unknown, location: string): void {
+  if (Array.isArray(value)) {
+    if (value.some((item) => item !== null && typeof item === "object")) {
+      throw new Error(`${location}: raw не должен содержать полную замену повторяющихся XML-объектов`)
+    }
+    return
+  }
+  if (value === null || typeof value !== "object") return
+  for (const nested of Object.values(value)) assertMinimalXmlRaw(nested, location)
 }
 
 function collectXmlStringLocations(params: {

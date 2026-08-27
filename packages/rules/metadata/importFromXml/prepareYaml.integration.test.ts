@@ -241,7 +241,6 @@ describe("prepareImportYaml", () => {
     const expected = parseMetadataYamlData(
       fs.readFileSync(join(fixtureDir, "yaml/КонстантаВсеСвойства/Свойства.yaml"), "utf8")
     )
-    delete ((expected.data as { Форма?: Record<string, unknown> }).Форма)?.КоманднаяПанель
 
     expect(expected.syntaxErrors).toEqual([])
     expect(prepared.yaml).toEqual(expected.data)

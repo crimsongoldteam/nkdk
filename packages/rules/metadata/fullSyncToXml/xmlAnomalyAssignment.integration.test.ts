@@ -18,6 +18,7 @@ import {
   withRuleRegistrySet,
   convertMetadataItemFromYAMLToXML,
   convertPropertiesFromYAMLToXML,
+  bindDeferredObjectValues,
   type MetadataItemRule,
   type YAMLToXMLNestedRule,
 } from "@nkdk/runtime/rule-kit"
@@ -184,12 +185,16 @@ describe("единое восстановление XML-аномалий assignm
   })
 
   it("строит контрольные roots из материализованного XML при отложенных значениях", () => {
+    const draftXml = { Root: { Value: "draft" } }
     const control = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
       buildPreparedAssignmentControlDocument({
         document: {
           targetXmlPath: "Root.xml",
-          xml: { Root: { Value: "draft" } },
-          deferred: [{ valuePath: ["Root", "Value"], rulePath: [{ propertyKey: "value" }] }],
+          xml: draftXml,
+          deferred: bindDeferredObjectValues(draftXml, [{
+            valuePath: ["Root", "Value"],
+            rulePath: [{ propertyKey: "value" }],
+          }]),
           rootRule: deferredControlRule,
           rawBoundaries: [],
         },
@@ -347,6 +352,43 @@ describe("единое восстановление XML-аномалий assignm
       Properties: { Future: "future" },
     })
     expect(root).not.toHaveProperty("Missing")
+  })
+
+  it("считает удаление XML-атрибута поправкой поверх обычного вывода свойства", () => {
+    const prepared = prepareAnomalies([
+      "Отсутствует: !xml/raw",
+      "  $xml:",
+      "    _xsi:type: xs:dateTime",
+      "    '#text': 0001-01-01T00:00:00",
+      "    _xsi:nil: null",
+      "    '#order': ['#text']",
+    ].join("\n"), anomalyRuntime({}))
+
+    expect(prepared.rawBoundaries).toContainEqual(expect.objectContaining({
+      path: "Missing",
+      value: {
+        "_xsi:type": "xs:dateTime",
+        "#text": "0001-01-01T00:00:00",
+        "_xsi:nil": null,
+        "#order": ["#text"],
+      },
+      suppressOrdinaryOutput: false,
+      hasSemanticValue: true,
+    }))
+
+    const xml = buildPreparedAssignmentXml({
+      document: {
+        targetXmlPath: "Objects/One.xml",
+        xml: { Root: { Missing: { "_xsi:nil": "true" } } },
+        deferred: [],
+        rootRule: rule,
+        rawBoundaries: prepared.rawBoundaries,
+      },
+      context: mockContextToXML(),
+    })
+
+    expect(xml).toContain('<Missing xsi:type="xs:dateTime">0001-01-01T00:00:00</Missing>')
+    expect(xml).not.toContain("xsi:nil")
   })
 
   it("дополняет известного XML-родителя raw-атрибутом, не скрывая его свойства", () => {
@@ -811,6 +853,41 @@ describe("единое восстановление XML-аномалий assignm
     }))
     expect(exportFormWithAnomalies(yaml)).toMatch(
       /<ExtendedTooltip name="МеткаExtendedTooltip" id="[^"]+"\/>/u,
+    )
+  })
+
+  it("дополняет скрытый вычисляемый singleton вложенным raw, сохраняя имя и id", () => {
+    const yaml = [
+      "Элементы:",
+      "  Метка:",
+      "    Вид: Надпись",
+      '    "@Form\\\\РасширеннаяПодсказка": !xml/raw',
+      "      $xml:",
+      "        Title:",
+      '          _formatted: "true"',
+      "        '#order': [Title]",
+    ]
+
+    expect(exportFormWithAnomalies(yaml)).toMatch(
+      /<ExtendedTooltip name="МеткаРасширеннаяПодсказка" id="[^"]+">\s*<Title formatted="true"\/>\s*<\/ExtendedTooltip>/u,
+    )
+  })
+
+  it("накладывает вложенную raw-поправку поверх имени и id вычисляемого singleton", () => {
+    const yaml = [
+      "Элементы:",
+      "  Метка:",
+      "    Вид: Надпись",
+      "    РасширеннаяПодсказка: !xml/raw",
+      "      $значение:",
+      "        АвтоМаксимальнаяШирина: Ложь",
+      "      $xml:",
+      "        Title:",
+      '          _formatted: "true"',
+    ]
+
+    expect(exportFormWithAnomalies(yaml)).toMatch(
+      /<ExtendedTooltip name="МеткаРасширеннаяПодсказка" id="[^"]+">[\s\S]*<Title formatted="true"\/>[\s\S]*<\/ExtendedTooltip>/u,
     )
   })
 

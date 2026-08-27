@@ -35,6 +35,14 @@ describe("parseWithJsYaml", () => {
     expect(yamlScalarTagAt(parsed.data, "Представление")).toBe("xml/string")
   })
 
+  it("разбирает !xml/name как строку и сохраняет скалярный тег", () => {
+    const parsed = parseWithJsYaml("Имя: !xml/name СтароеИмя")
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(parsed.data).toEqual({ Имя: "СтароеИмя" })
+    expect(yamlScalarTagAt(parsed.data, "Имя")).toBe("xml/name")
+  })
+
   it.each([
     "Представление: !xml/string { ru: Текст }",
     "Представление: !xml/string [Текст]",
@@ -46,7 +54,6 @@ describe("parseWithJsYaml", () => {
     "Поле: !xml Текст",
     "Поле: !xml/present",
     "Поле: !xml/absent",
-    "Поле: !xml/name СтароеИмя",
     "Поле: !xml/type d7p1:Диаграмма",
     "Поле: !xml/value Nil",
     "Поле: !xml/reference uuid",

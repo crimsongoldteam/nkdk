@@ -674,10 +674,14 @@ function rawBoundary(params: {
   const siblingOrder = property === undefined
     ? rawSiblingOrder(params.ownerYaml, params.rule, params.logicalKey)
     : propertySiblingOrder(params.rule, property)
-  const augmentsCompiledParent = isCompiledParentPatch(params.annotation.xml)
-    && (property === undefined || params.exportClaimId !== undefined)
+  const augmentsCompiledOutput = isCompiledOutputPatch(params.annotation.xml)
+    && (
+      property === undefined
+      || params.exportClaimId !== undefined
+      || containsXmlDeletion(params.annotation.xml)
+    )
   const hasSemanticValue =
-    params.annotation.hasSemanticValue === true || augmentsCompiledParent || documentRoot
+    params.annotation.hasSemanticValue === true || augmentsCompiledOutput || documentRoot
   const documentTag = property?.propertyRule.tag ?? params.documentTag
   const documentPath = params.documentPath ?? property?.propertyRule.filePath
   const implicitMainDocument = documentPath === undefined
@@ -770,10 +774,13 @@ function isCompiledRawAncestor(
   )
 }
 
-function isCompiledParentPatch(value: unknown): boolean {
+function isCompiledOutputPatch(value: unknown): boolean {
+  return isRecord(value) && Object.keys(value).length > 0
+}
+
+function containsXmlDeletion(value: unknown): boolean {
   if (!isRecord(value)) return false
-  const keys = Object.keys(value)
-  return keys.length > 0 && keys.every((key) => key.startsWith("_") || key === "#order")
+  return Object.values(value).some((item) => item === null || containsXmlDeletion(item))
 }
 
 interface PlannedProperty {

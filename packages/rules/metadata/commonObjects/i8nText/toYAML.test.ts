@@ -86,6 +86,15 @@ describe("exportI8nTextToYAML", () => {
         ["ru", "Русский текст"],
       ], rule)).toBe("Заголовок:\n  : Служебный текст\n  ru: Русский текст")
     })
+
+    it("сохраняет неканонический порядок зарегистрированных языков", () => {
+      const rule: I8nTextPropertyRule = { type: "I8nText" }
+
+      expect(importAndSerialize([
+        ["en", "Text"],
+        ["ru", "Текст"],
+      ], rule)).toBe("Заголовок:\n  en: Text\n  ru: Текст")
+    })
   })
 
   describe("excludeIfEqualNameYAML", () => {

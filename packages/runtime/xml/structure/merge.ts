@@ -55,6 +55,7 @@ type PlannedBoundary =
       readonly path: CanonicalRawPath
       readonly kind: "patch"
       readonly patch: XmlRawMergeBoundary["value"]
+      readonly siblingOrder?: readonly string[]
     }
   | {
       readonly path: CanonicalRawPath
@@ -185,7 +186,12 @@ function planBoundaries(
       if (path.terminal !== undefined || boundary.fragment !== undefined) {
         throw new Error(`Рекурсивная XML-поправка недопустима для границы: ${path.source}`)
       }
-      return { path, kind: "patch", patch: boundary.value }
+      return {
+        path,
+        kind: "patch",
+        patch: boundary.value,
+        ...(boundary.siblingOrder === undefined ? {} : { siblingOrder: boundary.siblingOrder }),
+      }
     }
     if (boundary.fragment !== undefined) {
       if (path.terminal !== undefined) {
@@ -397,6 +403,7 @@ function applyElementBoundary(
       throw new Error(`${boundary.path.source}: ${message}`, { cause: caught })
     }
     location.replace(replacement)
+    if (boundary.siblingOrder !== undefined) location.reorder(boundary.siblingOrder)
     return
   }
   const inserted = boundary.fragment.nodes.map((node) => toMutableElement(node, "planned"))

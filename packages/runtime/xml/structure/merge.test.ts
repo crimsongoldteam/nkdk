@@ -39,6 +39,26 @@ describe("mergeXmlRawFragments", () => {
     ].join("\n"))
   })
 
+  it("возвращает XML-поправку в порядок siblings из rules", () => {
+    const ordinary = roots("<Root><A/><B/><Title/></Root>")
+
+    const merged = mergeXmlRawFragments(ordinary, [{
+      path: "Title",
+      value: { _formatted: "true" },
+      suppressOrdinaryOutput: false,
+      hasSemanticValue: true,
+      siblingOrder: ["A", "Title", "B"],
+    }])
+
+    expect(xmlExport(merged, false)).toBe([
+      "<Root>",
+      "\t<A/>",
+      '\t<Title formatted="true"/>',
+      "\t<B/>",
+      "</Root>",
+    ].join("\n"))
+  })
+
   it("merges a hierarchical raw path with attribute and child-order terminals", () => {
     const ordinary = roots('<Root><Properties id="known"><Name>Items</Name></Properties></Root>')
 

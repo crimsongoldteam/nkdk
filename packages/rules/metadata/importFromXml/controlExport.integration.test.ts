@@ -5,6 +5,7 @@ import {
   createConfigurationIndexCollector,
   createLocalConfigurationIndexReader,
   restoreXmlAnomalyAnnotations,
+  serializeYAMLDocument,
   snapshotXmlAnomalyAnnotations,
 } from "@nkdk/runtime"
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
@@ -441,7 +442,7 @@ describe("executeImportControlExport", () => {
     ]))
   })
 
-  it("не принимает внутреннее имя формы, которое обычная синхронизация изменит", async () => {
+  it("сохраняет нестандартное имя singleton через !xml/name без raw", async () => {
     const sourceBody = fs.readFileSync(
       join(syncXmlDir, "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form.xml"),
       "utf8",
@@ -457,13 +458,11 @@ describe("executeImportControlExport", () => {
 
     expect(result.rereadSourcePaths).toContain(bodyPath)
     expect(result.warnings).toEqual([])
-    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+    expect(serializeYAMLDocument(prepared.yaml).text)
+      .toContain("Имя: !xml/name ПолеВвода1ExtendedTooltip")
+    expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
       parentPath: ["Элементы", "ПолеВвода1"],
       key: "@Form\\РасширеннаяПодсказка",
-      annotation: expect.objectContaining({
-        kind: "raw",
-        xml: { _name: "ПолеВвода1ExtendedTooltip" },
-      }),
     }))
     expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
       parentPath: [],

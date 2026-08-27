@@ -23,6 +23,16 @@ describe("exportFormattedI8nTextToYAML", () => {
     })
   })
 
+  it("сохраняет признак пустого форматированного текста", () => {
+    expect(exportFormattedI8nTextToYAML({
+      context: mockContextToYAML,
+      rule: formattedI8nTextRule,
+      value: { formatted: true, items: {} },
+    })).toEqual({
+      Title: { Форматированный: "Истина" },
+    })
+  })
+
   it("exports explicit empty text for excludeIfEqualNameYAML", () => {
     const result = exportFormattedI8nTextToYAML({
       context: mockContextToYAML,

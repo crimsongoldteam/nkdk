@@ -18,6 +18,10 @@ describe("FormattedI8nTextJSONSchema", () => {
     expect(compiled.Check({ Форматированный: "Истина", Текст: "<b>Заголовок</>" })).toBe(true)
   })
 
+  it("accepts an empty formatted text marker", () => {
+    expect(compiled.Check({ Форматированный: "Истина" })).toBe(true)
+  })
+
   it("rejects explicit formatted false marker", () => {
     expect(compiled.Check({ Форматированный: "Ложь", Текст: "Заголовок" })).toBe(false)
   })

@@ -36,7 +36,7 @@ export const exportSingleElementRuleToJSONSchema = (params: {
   rule: ElementRule
   explicitXMLName?: true
 }): TSchema => {
-  const { context, rule } = params
+  const { context, rule, explicitXMLName } = params
   const properties = exportPropertiesToJSONSchema({
     context,
     rule: shouldOmitNestedChildItems(context) ? omitNestedChildItemsRule(rule) : rule,
@@ -45,6 +45,7 @@ export const exportSingleElementRuleToJSONSchema = (params: {
   return Type.Object(
     {
       ...properties,
+      ...(explicitXMLName === true ? { Имя: Type.Optional(Type.String()) } : {}),
     },
     {
       additionalProperties: false,

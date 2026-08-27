@@ -100,6 +100,16 @@ describe("exportToYAML", () => {
     expect(asExplicitYAMLStringIfMarked(outer, "Значение", outer.Значение)).toEqual(explicitYAMLString("001"))
   })
 
+  it("сохраняет техническое XML-имя как !xml/name", () => {
+    const parsed = parseMetadataYaml("Имя: !xml/name ДеревоПодсистемSearchString")
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(parsed.data).toEqual({ Имя: "ДеревоПодсистемSearchString" })
+    expect(yamlScalarTagAt(parsed.data, "Имя")).toBe("xml/name")
+    expect(serializeYAMLDocument(parsed.data).text)
+      .toBe("Имя: !xml/name ДеревоПодсистемSearchString")
+  })
+
   it("сериализует raw как явный контейнер $значение/$xml", () => {
     const data = { Количество: 1, "Properties\\Future": undefined }
     const annotations = createXmlAnomalyAnnotations()
