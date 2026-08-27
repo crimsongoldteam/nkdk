@@ -441,7 +441,7 @@ export function importPropertiesFromXMLToYAML(params: {
             )
             addDirectImportProfile(params.profile, propertyRule.type, startedAt)
           }
-          claimCanonicalRawDefault({
+          const claimedCanonicalRawDefault = claimCanonicalRawDefault({
             audit: params.audit,
             boundary,
             node: xmlNode,
@@ -591,6 +591,7 @@ export function importPropertiesFromXMLToYAML(params: {
             if (
               presentInXML &&
               emptyDirectValue &&
+              !claimedCanonicalRawDefault &&
               isXmlElementNode(xmlNode) &&
               params.audit !== undefined
             ) {
@@ -795,14 +796,15 @@ function claimCanonicalRawDefault(params: {
   boundary: XmlImportAuditBoundary
   node: XmlImportAuditedNode | undefined
   rule: PropertyRule
-}): void {
+}): boolean {
   if (
     params.audit === undefined
     || !isXmlElementNode(params.node)
     || !Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLRaw")
     || !sameCanonicalXmlValue(encodeXmlRawElement(params.node), params.rule.defaultValueXMLRaw)
-  ) return
+  ) return false
   claimAuditedSubtree(params.audit, params.node, params.boundary)
+  return true
 }
 
 function claimAuditedSubtree(

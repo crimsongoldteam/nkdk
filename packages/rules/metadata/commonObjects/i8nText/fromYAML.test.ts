@@ -8,7 +8,7 @@ import { mockContext,mockRule } from "../../../tests/mockContext"
 import { i8nTextFixtures } from "./__fixtures__/legacy/data"
 import { importI8nTextFromYAML } from "./fromYAML"
 import { I8nTextPropertyRule } from "./types"
-import { localizedItemOccurrences } from "./anomalies"
+import { importLocalizedItems,localizedItemOccurrences } from "./anomalies"
 
 const multilingualContext = {
   ...mockContext,
@@ -69,6 +69,24 @@ describe("importI8nTextFromYAML", () => {
       })!
 
       expect(yamlMappingKeys(result.items)).toEqual(["", "ru"])
+    })
+
+    it("replaces source occurrence metadata with an explicit scalar value", () => {
+      const result = importI8nTextFromYAML({
+        context: mockContext,
+        rule: mockRule,
+        value: "Новый синоним",
+        source: {
+          items: importLocalizedItems({
+            context: mockContext,
+            items: [{ "v8:lang": "ru", "v8:content": "Старый синоним" }],
+          }),
+        },
+      })!
+
+      expect(localizedItemOccurrences(result.items)).toEqual([
+        { language: "ru", content: "Новый синоним" },
+      ])
     })
   })
 

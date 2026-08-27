@@ -85,11 +85,11 @@ const importFromYAML = (
   if (data === undefined) return undefined
 
   if (typeof data === "string") {
-    return {
-      items: {
-        [context.languages.default]: data,
-      },
-    }
+    const items = { [context.languages.default]: data }
+    markLocalizedItemOccurrences(items, [
+      { language: context.languages.default, content: data },
+    ])
+    return { items }
   }
 
   return {
