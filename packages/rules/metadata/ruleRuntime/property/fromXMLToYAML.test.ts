@@ -459,6 +459,33 @@ describe("importPropertiesFromXMLToYAML", () => {
     ).toEqual({})
   })
 
+  it("restores an explicit empty inline collection after direct conversion", () => {
+    registerTypeRule("TestDirectInlineEmptyCollection" as PropertyRuleType, "importFromXMLToYAML", () => undefined)
+
+    expect(
+      importPropertiesFromXMLToYAML({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule: {
+          itemType: "TestDirectItem",
+          properties: {
+            items: {
+              type: "TestDirectInlineEmptyCollection",
+              xml: "Item",
+              yaml: "items",
+              yamlInline: true,
+              defaultValue: [],
+              defaultValueXMLEmpty: [],
+            },
+          },
+        } as MetadataItemRule,
+        xml: {},
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      }),
+    ).toEqual({ items: [] })
+  })
+
   it("does not collect imported XML-prefix values for the configuration index", () => {
     registerTypeRule("TestIndexedImport" as PropertyRuleType, "importFromXML", () => ({ xmlPrefix: "v8" }))
     registerTypeRule("TestIndexedImport" as PropertyRuleType, "exportToYAML", () => "Type")

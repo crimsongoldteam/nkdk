@@ -475,7 +475,14 @@ export function importPropertiesFromXMLToYAML(params: {
               ? undefined
               : rawValue
           const defaultStartedAt = performance.now()
-          const value = convertedDirectly || forReference
+          const restoresExplicitEmptyInlineCollection =
+            convertedDirectly &&
+            cleanValue === undefined &&
+            propertyRule.yamlInline === true &&
+            Array.isArray(propertyRule.defaultValue) &&
+            propertyRule.defaultValue.length === 0 &&
+            Array.isArray(propertyRule.defaultValueXMLEmpty)
+          const value = forReference || (convertedDirectly && !restoresExplicitEmptyInlineCollection)
             ? cleanValue
             : getValueOrDefault({
                 context: sourceContext,
