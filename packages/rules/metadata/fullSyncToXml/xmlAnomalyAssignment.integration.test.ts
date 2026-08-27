@@ -786,6 +786,34 @@ describe("единое восстановление XML-аномалий assignm
     }))
   })
 
+  it("накладывает атрибуты вычисляемого collection item поверх обычного экспорта", () => {
+    const yaml = [
+      "Элементы:",
+      "  Метка:",
+      "    Вид: Надпись",
+      '    "@Form\\\\РасширеннаяПодсказка": !xml/raw',
+      "      $xml:",
+      "        _name: МеткаExtendedTooltip",
+    ]
+    const prepared = prepareAnomalies(
+      yaml.join("\n"),
+      anomalyRegistries.xmlAnomalies,
+      ClientApplicationFormRules,
+      anomalyRegistries,
+    )
+
+    expect(prepared.rawBoundaries).toContainEqual(expect.objectContaining({
+      path: "ExtendedTooltip",
+      value: { _name: "МеткаExtendedTooltip" },
+      suppressOrdinaryOutput: false,
+      hasSemanticValue: true,
+      exportClaimId: expect.any(String),
+    }))
+    expect(exportFormWithAnomalies(yaml)).toMatch(
+      /<ExtendedTooltip name="МеткаExtendedTooltip" id="[^"]+"\/>/u,
+    )
+  })
+
   it("вставляет локальный raw в каноническую позицию xmlOrder без публичного #order", () => {
     const xml = exportFormWithAnomalies(tableRowFilterYaml())
     const document = parseXmlDocumentWithSaxes(xml)

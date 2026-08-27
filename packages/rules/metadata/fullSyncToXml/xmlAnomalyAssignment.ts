@@ -674,8 +674,8 @@ function rawBoundary(params: {
   const siblingOrder = property === undefined
     ? rawSiblingOrder(params.ownerYaml, params.rule, params.logicalKey)
     : propertySiblingOrder(params.rule, property)
-  const augmentsCompiledParent = property === undefined
-    && isCompiledParentPatch(params.annotation.xml)
+  const augmentsCompiledParent = isCompiledParentPatch(params.annotation.xml)
+    && (property === undefined || params.exportClaimId !== undefined)
   const hasSemanticValue =
     params.annotation.hasSemanticValue === true || augmentsCompiledParent || documentRoot
   const documentTag = property?.propertyRule.tag ?? params.documentTag

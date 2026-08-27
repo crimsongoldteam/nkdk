@@ -302,7 +302,7 @@ export interface ProveXmlAnomalyBoundariesResult {
 - Modify if a missing common registration is proven: `packages/rules/metadata/forms/clientApplicationForm/formXmlIdAssignment.ts`
 - Modify corresponding test only if production registration changes: `packages/rules/metadata/forms/clientApplicationForm/formXmlIdAssignment.test.ts`
 
-- [ ] **Step 1: Добавить регрессионный тест канонической формы**
+- [x] **Step 1: Добавить регрессионный тест канонической формы**
 
   Использовать существующий `createCatalogAndFormAssignments`: форма содержит `ContextMenu` и пустой канонический `ExtendedTooltip` с XML `id`. После импорта:
 
@@ -316,15 +316,15 @@ export interface ProveXmlAnomalyBoundariesResult {
 
   Контрольный XML должен восстановить исходные `id` через индекс конфигурации, хотя в YAML/raw их нет.
 
-- [ ] **Step 2: Добавить тест реального неканонического отличия**
+- [x] **Step 2: Добавить тест реального неканонического отличия**
 
   Изменённое внутреннее имя `ExtendedTooltip` сохраняется как короткий raw на адресе самой подсказки. В YAML не должно быть raw всей `КоманднаяПанель`, `КонтекстноеМеню`, `ChildItems` или формы.
 
-- [ ] **Step 3: Исправить только доказанный разрыв общего механизма**
+- [x] **Step 3: Исправить только доказанный разрыв общего механизма**
 
   Если тест показывает потерю адреса или `id`, дополнить общую регистрацию логического адреса/индекса в существующем пути `fromXMLToYAML` или `formXmlIdAssignment`. Не добавлять проверок на конкретный вид формы, командной панели или имя поля.
 
-- [ ] **Step 4: Запустить интеграционные тесты и проверку дубликатов**
+- [x] **Step 4: Запустить интеграционные тесты и проверку дубликатов**
 
   Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/controlExport.integration.test.ts metadata/importFromXml/worker.integration.test.ts metadata/forms/clientApplicationForm/formXmlIdAssignment.test.ts`
 

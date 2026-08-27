@@ -548,8 +548,12 @@ describe("XML import worker second pass", () => {
 
     const yaml = readImportedFormYaml(result)
     expect(yaml).not.toContain("!xml/raw")
-    expect(yaml).not.toContain("РасширеннаяПодсказка")
+    expect(yaml).not.toContain("@Form\\РасширеннаяПодсказка")
     expect(yaml).not.toContain("КонтекстноеМеню")
+    expect(result.second.diagnostics).toEqual([])
+    expect(result.second.warnings).not.toContainEqual(expect.objectContaining({
+      code: "xml_raw_scope_too_broad",
+    }))
   })
 
   it("сохраняет отсутствие вычисляемого RowFilter локальной raw-отметкой", async () => {

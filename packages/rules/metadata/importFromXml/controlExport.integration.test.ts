@@ -456,7 +456,19 @@ describe("executeImportControlExport", () => {
     const result = await executePreparedFormControlExport(assignment, prepared, index, initialAnnotations)
 
     expect(result.rereadSourcePaths).toContain(bodyPath)
-    expect(JSON.stringify(result.annotations.entries)).toContain("ПолеВвода1ExtendedTooltip")
+    expect(result.warnings).toEqual([])
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      parentPath: ["Элементы", "ПолеВвода1"],
+      key: "@Form\\РасширеннаяПодсказка",
+      annotation: expect.objectContaining({
+        kind: "raw",
+        xml: { _name: "ПолеВвода1ExtendedTooltip" },
+      }),
+    }))
+    expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+      parentPath: [],
+      key: "@Form",
+    }))
   })
 
   it("не сохраняет raw пустых AdditionalColumns, восстановленных в Form.xml", async () => {

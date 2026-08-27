@@ -1256,7 +1256,7 @@ export async function proveXmlAnomalyBoundaries(params: {
       && exportedSelectedNode.type === "element"
       ? exportedSelectedNode
       : undefined
-    const xml = hasSemanticValue && exportedSelected !== undefined
+    const xml = exportedSelected !== undefined
       ? createXmlElementPatch(selectedSource, exportedSelected)
       : xmlElementRawValue(selectedSource)
     if (exportedSelected === undefined && xml !== null) {
