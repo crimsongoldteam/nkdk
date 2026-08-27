@@ -9,8 +9,7 @@ import {
   importMetadataProject,
   removeImportedProject,
   roundTripMetadataProject,
-  validateChangedProject,
-  validateCleanProject,
+  validateProjectCacheParity,
   type ImportedMetadataProject,
 } from "./support/metadata-project"
 import { compareFileTrees } from "./support/file-tree"
@@ -122,8 +121,7 @@ describe.sequential("metadata project E2E", () => {
   it("validates a clean project and reports the same changed YAML without .nkdk", async () => {
     if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
     const projectDir = await cloneImportedProject(baseline, "validation")
-    const clean = await validateCleanProject(projectDir)
-    const result = await validateChangedProject(projectDir)
+    const result = await validateProjectCacheParity(projectDir)
 
     expect(result.cold).toEqual(result.warm)
     const ownRequired = result.warm.filter(({ filePath, path }) =>
@@ -138,7 +136,7 @@ describe.sequential("metadata project E2E", () => {
       path: "/ИмяВИсточникеДанных",
     })
     expect(ownRequired[0]?.message).toContain("обязательное")
-    expect(clean).toEqual([])
+    expect(result.clean).toEqual([])
     expect(result.warm).toHaveLength(1)
     console.info("E2E validation durations, ms", result.durationsMs)
   })

@@ -38,6 +38,9 @@ function createE2EMetadataRuntime() {
   })
 }
 
+type E2EMetadataRuntime = ReturnType<typeof createE2EMetadataRuntime>
+type E2EProjectState = ReturnType<E2EMetadataRuntime["projects"]["createState"]>
+
 export interface E2EComponent {
   readonly fixturePath: string
   readonly componentPath: "cf" | `cfe/${string}`
@@ -60,9 +63,11 @@ export interface ComparableDiagnostic {
 }
 
 export interface ValidationParityResult {
+  readonly clean: readonly ComparableDiagnostic[]
   readonly warm: readonly ComparableDiagnostic[]
   readonly cold: readonly ComparableDiagnostic[]
   readonly durationsMs: {
+    readonly clean: number
     readonly warm: number
     readonly cold: number
   }
@@ -166,26 +171,32 @@ export async function cloneNkdkFixtureProject(
   return target
 }
 
-export async function validateCleanProject(projectDir: string): Promise<readonly ComparableDiagnostic[]> {
-  return runValidation(projectDir)
-}
+export async function validateProjectCacheParity(projectDir: string): Promise<ValidationParityResult> {
+  const runtime = createE2EMetadataRuntime()
+  const projectState = runtime.projects.createState()
+  try {
+    const cleanStartedAt = performance.now()
+    const clean = await runValidation(runtime, projectState, projectDir)
+    const cleanDurationMs = performance.now() - cleanStartedAt
 
-export async function validateChangedProject(projectDir: string): Promise<ValidationParityResult> {
-  await removeRequiredOwnExtensionField(projectDir)
+    await removeRequiredOwnExtensionField(projectDir)
+    const warmStartedAt = performance.now()
+    const warm = await runValidation(runtime, projectState, projectDir)
+    const warmDurationMs = performance.now() - warmStartedAt
 
-  const warmStartedAt = performance.now()
-  const warm = await runValidation(projectDir)
-  const warmDurationMs = performance.now() - warmStartedAt
+    await projectState.reset(projectDir)
+    const coldStartedAt = performance.now()
+    const cold = await runValidation(runtime, projectState, projectDir)
+    const coldDurationMs = performance.now() - coldStartedAt
 
-  await rm(join(projectDir, ".nkdk"), { recursive: true, force: true })
-  const coldStartedAt = performance.now()
-  const cold = await runValidation(projectDir)
-  const coldDurationMs = performance.now() - coldStartedAt
-
-  return {
-    warm,
-    cold,
-    durationsMs: { warm: warmDurationMs, cold: coldDurationMs },
+    return {
+      clean,
+      warm,
+      cold,
+      durationsMs: { clean: cleanDurationMs, warm: warmDurationMs, cold: coldDurationMs },
+    }
+  } finally {
+    await runtime.close()
   }
 }
 
@@ -294,21 +305,19 @@ export async function removeImportedProject(source: ImportedMetadataProject): Pr
   await rm(source.root, { recursive: true, force: true })
 }
 
-async function runValidation(projectDir: string): Promise<readonly ComparableDiagnostic[]> {
-  const runtime = createE2EMetadataRuntime()
-  const projectState = runtime.projects.createState()
+async function runValidation(
+  runtime: E2EMetadataRuntime,
+  projectState: E2EProjectState,
+  projectDir: string,
+): Promise<readonly ComparableDiagnostic[]> {
+  const { diagnostics } = await runtime.validation.validateProject({
+    projectDir,
+    projectState,
+  })
   try {
-    const { diagnostics } = await runtime.validation.validateProject({
-      projectDir,
-      projectState,
-    })
-    try {
-      return [...diagnostics].map((diagnostic) => comparableDiagnostic(projectDir, diagnostic))
-    } finally {
-      diagnostics.release()
-    }
+    return [...diagnostics].map((diagnostic) => comparableDiagnostic(projectDir, diagnostic))
   } finally {
-    await runtime.close()
+    diagnostics.release()
   }
 }
 
