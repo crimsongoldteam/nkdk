@@ -51,6 +51,23 @@ describe("createXmlRuleAddressIndex", () => {
     expect(index.deepest("/second.xml", "/Root[1]/Value[1]/#text[1]")).toEqual(second)
   })
 
+  it("prefers the item owner over sibling properties for an unknown descendant", () => {
+    const sourcePath = "/source.xml"
+    const item = address(sourcePath, "/Root[1]/Item[2]", ["Элементы", "Второй"], "item")
+    const index = createXmlRuleAddressIndex([
+      item,
+      {
+        ...address(sourcePath, "/Root[1]/Item[2]", ["Элементы", "Второй", "Имя"], "property"),
+        rulePath: [
+          { propertyKey: "items", nestedItemType: "Item" },
+          { propertyKey: "name" },
+        ],
+      },
+    ])
+
+    expect(index.deepest(sourcePath, "/Root[1]/Item[2]/Future[1]/@mode[1]")).toEqual(item)
+  })
+
   it("reports all candidates instead of choosing an ambiguous rule address", () => {
     const first = address("/source.xml", "/Root[1]/Item[1]", ["Первое"], "item")
     const second = address("/source.xml", "/Root[1]/Item[1]", ["Второе"], "item")

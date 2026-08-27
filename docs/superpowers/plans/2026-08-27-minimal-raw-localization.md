@@ -158,8 +158,7 @@ export function createXmlRuleAddressIndex(
 - Create: `packages/rules/metadata/importFromXml/xmlDifferenceLocalization.test.ts`
 - Modify: `packages/rules/metadata/importFromXml/anomalyProof.ts`
 - Modify: `packages/rules/metadata/importFromXml/anomalyProof.test.ts`
-- Modify: `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.ts`
-- Modify: `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.test.ts`
+- Verify: `packages/rules/metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts`
 
 **Interfaces:**
 
@@ -171,7 +170,7 @@ export interface LocalizedXmlDifference {
 
 export interface UnlocalizedXmlDifference {
   readonly difference: XmlStructureDifference
-  readonly nearestAddress?: XmlRuleAddress
+  readonly nearestAddresses: readonly XmlRuleAddress[]
   readonly reason: "no-rule-address" | "ambiguous-item" | "unresolved-export-claim"
 }
 
@@ -185,17 +184,17 @@ export function localizeXmlDifferences(params: {
 }
 ```
 
-- [ ] **Step 1: Написать падающие тесты локализации повторяющихся элементов**
+- [x] **Step 1: Написать падающие тесты локализации повторяющихся элементов**
 
   Зафиксировать два одноимённых элемента, отличие только во втором и ожидать локальный адрес второго элемента. Отдельно проверить неоднозначный адрес: результат должен попасть в `unlocalized`, а не молча подняться к коллекции.
 
-- [ ] **Step 2: Встроить локализацию перед внешним fallback**
+- [x] **Step 2: Встроить локализацию перед внешним fallback**
 
   В `proveXmlAnomalyBoundaries` после обработки известных boundaries сравнить остаточный XML через `compareXmlStructureDifferences`. Каждое локализованное отличие повторно пропустить через существующий выбор `selectXmlAnomalyRawLevel`; только `unlocalized` передавать внешнему fallback.
 
-- [ ] **Step 3: Переиспользовать экспортные claim для конкретного экземпляра**
+- [x] **Step 3: Переиспользовать экспортные claim для конкретного экземпляра**
 
-  `xmlAnomalyAssignment.ts` уже связывает raw-элемент с XML occurrence через временный export claim. Расширить этот путь так, чтобы локализатор передавал существующий `rulePath`/claim, а не строил селектор из XML `id`. После сериализации временные атрибуты claim не должны оставаться в XML.
+  `xmlAnomalyAssignment.ts` уже связывает raw-элемент с XML occurrence через временный export claim. Проверка показала, что полученный локальный YAML-адрес проходит через этот путь без его расширения: локализатор передаёт существующий `rulePath`/claim и не строит селектор из XML `id`. После сериализации временные атрибуты claim не остаются в XML.
 
   Проверка:
 
@@ -206,17 +205,17 @@ export function localizeXmlDifferences(params: {
   expect(serializedRaw).toContain("НестандартноеСвойство")
   ```
 
-- [ ] **Step 4: Оставить raw только на самой глубокой границе**
+- [x] **Step 4: Оставить raw только на самой глубокой границе**
 
   Если различается атрибут/текст скрытого узла, patch содержит только этот терминал. Если несколько отличий относятся к разным дочерним правилам, они не объединяются на общем родителе.
 
-- [ ] **Step 5: Запустить целевые тесты и проверку дубликатов**
+- [x] **Step 5: Запустить целевые тесты и проверку дубликатов**
 
-  Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/xmlDifferenceLocalization.test.ts metadata/importFromXml/anomalyProof.test.ts metadata/fullSyncToXml/xmlAnomalyAssignment.test.ts`
+  Run: `pnpm --filter @nkdk/rules test -- --run metadata/importFromXml/xmlDifferenceLocalization.test.ts metadata/importFromXml/anomalyProof.test.ts metadata/fullSyncToXml/xmlAnomalyAssignment.integration.test.ts`
 
   Run: `pnpm duplicates -- --base 9cdcb73b9`
 
-- [ ] **Step 6: Создать commit через навык `commit`**
+- [x] **Step 6: Создать commit через навык `commit`**
 
   Expected message: `fix: :bug: локализовать raw на границе rules`
 

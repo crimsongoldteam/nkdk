@@ -593,6 +593,54 @@ describe("XML anomaly proof", () => {
     }))
   })
 
+  it("локализует неизвестный XML-узел внутри конкретного повторяющегося элемента", async () => {
+    const source = [
+      "<Form><Items>",
+      '<Item name="first"/>',
+      '<Item name="second"><Future mode="x"/></Item>',
+      "</Items></Form>",
+    ].join("")
+    const exported = source.replace('<Future mode="x"/>', "")
+    const document = parseXmlDocumentWithSaxes(source)
+    const root = document.roots[0]!
+    const items = nestedElement(root, ["Items"])
+    const secondItem = items.content.filter(
+      (node): node is XmlElementNode => node.type === "element",
+    )[1]!
+
+    const result = await proveXmlAnomalyBoundaries({
+      data: { Форма: { Элементы: { Второй: {} } } },
+      annotations: { version: 1, entries: [] },
+      audit: captureXmlAnomalyProofAudit({
+        sources: [{ sourcePath: formSourcePath, role: "property", document }],
+        boundaries: [],
+        fallbackBoundaries: [formPropertyFallback(root)],
+        itemAnchors: [{
+          sourcePath: formSourcePath,
+          xmlPath: secondItem.path,
+          yamlPath: ["Форма", "Элементы", "Второй"],
+          rulePath: ["form", "items"],
+        }],
+      }),
+      exported: [{
+        role: "property",
+        sourcePath: formSourcePath,
+        document: parseXmlDocumentWithSaxes(exported),
+      }],
+      readSource: async () => source,
+    })
+
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      parentPath: ["Форма", "Элементы", "Второй"],
+      key: "@Form\\Future",
+      annotation: expect.objectContaining({ kind: "raw", hasSemanticValue: false }),
+    }))
+    expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+      parentPath: [],
+      key: "Форма",
+    }))
+  })
+
   it("исключает из proof формы XML-поддерево, сохранённое во внешнем файле", async () => {
     const source = "<Form><QueryText>select 1</QueryText></Form>"
     const document = parseXmlDocumentWithSaxes(source)

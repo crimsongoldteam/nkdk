@@ -36,7 +36,11 @@ export function createXmlRuleAddressIndex(
     let candidatePath = xmlPath
     while (candidatePath.length > 0) {
       const candidates = byXmlPath.get(addressKey(sourcePath, candidatePath))
-      if (candidates !== undefined) return candidates
+      if (candidates !== undefined) {
+        if (candidatePath === xmlPath) return candidates
+        const itemOwners = candidates.filter(({ kind }) => kind === "item")
+        return itemOwners.length === 0 ? candidates : itemOwners
+      }
       candidatePath = parentXmlPath(candidatePath)
     }
     return []
