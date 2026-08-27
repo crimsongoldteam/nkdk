@@ -21,6 +21,25 @@ describe("применение решений об XML-аномалиях", () =
     ].join("\n"))
   })
 
+  it("помечает корень YAML для межфайловой диагностики без локального пути", () => {
+    const parsed = parseMetadataYaml("Имя: Расширение\n")
+
+    applyImportedIssueDecisions({
+      data: parsed.data,
+      annotations: parsed.annotations,
+      decisions: [{
+        kind: "invalid",
+        target: { kind: "path", path: [] },
+        issueCodes: ["diagnostic.cross-file"],
+      }],
+    })
+
+    expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).toBe([
+      "!xml/invalid",
+      "Имя: Расширение",
+    ].join("\n"))
+  })
+
   it("помещает invalid внутрь raw со смысловым значением", () => {
     const parsed = parseMetadataYaml([
       "Флаг: !xml/raw",

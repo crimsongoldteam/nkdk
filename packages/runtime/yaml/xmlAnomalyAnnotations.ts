@@ -26,6 +26,7 @@ export interface XmlAnomalyAnnotationEntry {
 
 export interface XmlAnomalyAnnotations {
   root(): XmlAnomalyAnnotation | undefined
+  setRoot(annotation: XmlAnomalyAnnotation): void
   at(parent: object, key: string | number): XmlAnomalyAnnotation | undefined
   keyAt(parent: object, runtimeKey: string): XmlAnomalyAnnotation | undefined
   entries(): Iterable<XmlAnomalyAnnotationEntry>
