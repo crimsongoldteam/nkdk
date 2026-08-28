@@ -18,18 +18,37 @@ export interface ValidateExcludedEqualNameYAMLParams {
 }
 
 export function validateExcludedEqualNameYAML(params: ValidateExcludedEqualNameYAMLParams): Diagnostic[] {
-  return validateObject({
+  return validateRuleYAMLProperties({
     ...params,
     value: params.parsed.data,
     yamlPath: [],
   })
 }
 
+function validateRuleYAMLProperties(
+  params: ValidateExcludedEqualNameYAMLParams & {
+    readonly value: unknown
+    readonly yamlPath: YamlPath
+  },
+): Diagnostic[] {
+  return validateObject(params)
+}
+
+export function validateRuleYAMLObjectProperties(
+  params: ValidateExcludedEqualNameYAMLParams & {
+    readonly value: unknown
+    readonly yamlPath: YamlPath
+  },
+): Diagnostic[] {
+  return validateObject(params, false)
+}
+
 function validateObject(
   params: ValidateExcludedEqualNameYAMLParams & {
     value: unknown
     yamlPath: YamlPath
-  }
+  },
+  recurse = true,
 ): Diagnostic[] {
   const record = asRecord(params.value)
   if (!record) return []
@@ -86,6 +105,7 @@ function validateObject(
       )
     }
 
+    if (!recurse) continue
     const itemRule = nestedItemRule(propRule)
     if (!itemRule) continue
 

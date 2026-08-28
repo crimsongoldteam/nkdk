@@ -41,7 +41,7 @@ import {
   type StructuralReferenceNestedRule,
   type StructuralReferenceRuntime,
 } from "./structuralReferences"
-import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
+import { validateRuleYAMLObjectProperties } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
 import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
@@ -982,13 +982,24 @@ function extractFormYamlFacts(
     ...reference
   }) => reference)
   let localizedTextProperties = 0
-  const localizedTextDiagnostics = validateExcludedEqualNameYAML({
-    filePath: file.absolutePath,
-    parsed,
+  const localizedTextDiagnostics: Diagnostic[] = []
+  traverseMetadataRuleYaml<{ readonly name: string | undefined }>({
+    yaml: data,
     rule: adapter.formRule,
-    context: validationContext,
-    name: file.formName,
-    onLocalizedTextProperty: () => { localizedTextProperties += 1 },
+    initialState: { name: file.formName },
+    onObject: ({ yaml, rule, yamlPath, state }) => {
+      localizedTextDiagnostics.push(...validateRuleYAMLObjectProperties({
+        filePath: file.absolutePath,
+        parsed,
+        rule,
+        context: validationContext,
+        name: state.name,
+        value: yaml,
+        yamlPath,
+        onLocalizedTextProperty: () => { localizedTextProperties += 1 },
+      }))
+    },
+    enterCollectionItem: ({ itemName }) => ({ name: itemName }),
   })
 
   return {

@@ -536,6 +536,28 @@ describe("validateParsedFile", () => {
     ])
   })
 
+  it("связывает invalid уникального логического ключа с его смысловым значением", () => {
+    const parsed = parseMetadataYaml([
+      "Заголовок:",
+      "  ru: Текст",
+      "  !xml/invalid en: Text",
+    ].join("\n"))
+    const target = { kind: "path" as const, path: ["Заголовок", "en"] }
+
+    const result = evaluateParsedXmlAnomalyBoundaries({
+      filePath: "test.yaml",
+      parsed,
+      diagnostics: [],
+      issues: [{ code: "i18n.unregistered-language", kind: "semantic", target }],
+    })
+
+    expect(result.diagnostics).toEqual([])
+    expect(result.issues).toEqual([])
+    expect(result.boundaries).toEqual([
+      { annotation: "invalid", target, state: "accepted" },
+    ])
+  })
+
   it.each([
     {
       name: "сохраняет как отсутствующее обязательное свойство",

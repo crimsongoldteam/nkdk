@@ -1,10 +1,21 @@
 import { copyDoubleQuotedScalarMarks } from "./explicitString"
 import { copyYAMLMappingKeyOrder } from "./mappingTags"
 import { copyYAMLScalarTags, type YAMLScalarTagKey, yamlScalarTagAt } from "./scalarTags"
-import type {
-  XmlAnomalyAnnotations,
-  XmlAnomalyAnnotationTable,
-} from "./xmlAnomalyAnnotations"
+
+interface YAMLRuntimeAnnotationReader<TAnnotation extends { readonly target: string }> {
+  at(parent: object, key: string | number): TAnnotation | undefined
+  keyAt(parent: object, runtimeKey: string): TAnnotation | undefined
+  entries(): Iterable<{
+    readonly parent: object | undefined
+    readonly key: string | number | undefined
+    readonly annotation: TAnnotation
+  }>
+}
+
+interface YAMLRuntimeAnnotationWriter<TAnnotation extends { readonly target: string }> {
+  set(parent: object, key: string | number, annotation: TAnnotation): void
+  setKey(parent: object, runtimeKey: string, annotation: TAnnotation): void
+}
 
 export function copyYAMLRuntimeMetadata(
   source: object,
@@ -23,11 +34,11 @@ export function cloneYAMLContainer<T extends object>(source: T): T {
   return target
 }
 
-export function copyYAMLRuntimeMetadataDeep(params: {
+export function copyYAMLRuntimeMetadataDeep<TAnnotation extends { readonly target: string }>(params: {
   readonly source: unknown
   readonly target: unknown
-  readonly sourceAnnotations?: XmlAnomalyAnnotations
-  readonly targetAnnotations?: XmlAnomalyAnnotationTable
+  readonly sourceAnnotations?: YAMLRuntimeAnnotationReader<TAnnotation>
+  readonly targetAnnotations?: YAMLRuntimeAnnotationWriter<TAnnotation>
 }): void {
   if ((params.sourceAnnotations === undefined) !== (params.targetAnnotations === undefined)) {
     throw new Error("Для переноса XML-аннотаций нужны исходная и целевая таблицы")
@@ -66,10 +77,10 @@ export function copyYAMLRuntimeMetadataDeep(params: {
   visit(params.source, params.target)
 }
 
-export function hasYAMLRuntimeMetadataAt(
+export function hasYAMLRuntimeMetadataAt<TAnnotation extends { readonly target: string }>(
   parent: object,
   key: YAMLScalarTagKey,
-  annotations?: XmlAnomalyAnnotations,
+  annotations?: Pick<YAMLRuntimeAnnotationReader<TAnnotation>, "at" | "keyAt">,
 ): boolean {
   return yamlScalarTagAt(parent, key) !== undefined
     || annotations?.at(parent, key) !== undefined
@@ -91,12 +102,12 @@ function correspondingYAMLKeys(source: object, target: object): ReadonlySet<YAML
   return keys
 }
 
-function copyXmlAnnotationsForKeys(
-  sourceAnnotations: XmlAnomalyAnnotations | undefined,
+function copyXmlAnnotationsForKeys<TAnnotation extends { readonly target: string }>(
+  sourceAnnotations: YAMLRuntimeAnnotationReader<TAnnotation> | undefined,
   source: object,
   target: object,
   keys: ReadonlySet<YAMLScalarTagKey>,
-  targetAnnotations: XmlAnomalyAnnotationTable | undefined,
+  targetAnnotations: YAMLRuntimeAnnotationWriter<TAnnotation> | undefined,
 ): void {
   if (sourceAnnotations === undefined || targetAnnotations === undefined) return
   for (const entry of sourceAnnotations.entries()) {
