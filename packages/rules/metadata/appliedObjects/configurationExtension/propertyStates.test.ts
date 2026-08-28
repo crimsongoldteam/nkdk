@@ -589,6 +589,47 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml.Изменять).toEqual(["КомандныйИнтерфейс"])
   })
 
+  it.each([
+    ["Predefined", "Предопределенные", {}],
+    ["ExchangePlanContent", "Состав", []],
+  ] as const)("выводит Extended-состояние смысловой коллекции %s через присутствие поля", (
+    type,
+    yamlName,
+    expected,
+  ) => {
+    const propertyKey = type === "Predefined" ? "predefined" : "content"
+    const xmlName = type === "Predefined" ? "Predefined" : "Content"
+    const rule = {
+      itemType: `Semantic${type}`,
+      properties: {
+        [propertyKey]: { type, yaml: yamlName, xml: xmlName },
+      },
+    } as MetadataItemRule
+    const contribution = definePropertyStateItemCapabilities(rule, {
+      properties: {
+        [propertyKey]: {
+          availability: "borrowed",
+          modes: ["extend"],
+          representation: "semantic",
+        },
+      },
+    })
+    const yaml: Record<string, unknown> = {}
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([contribution]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule,
+      source: propertyStates([xmlName, "Extended"]),
+      yaml,
+    }))
+
+    expect(yaml).toEqual({ [yamlName]: expected })
+    expect(yaml).not.toHaveProperty("Изменять")
+    expect(yamlScalarTagAt(yaml, yamlName)).toBeUndefined()
+  })
+
   it("не сохраняет присутствие ExtendedConfigurationObject в тонком снимке", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Конфигурация"

@@ -64,7 +64,7 @@ export type PropertyStateMode = "control" | "notify" | "extend" | "multi"
 export interface PropertyStatePropertyCapability {
   readonly availability?: "borrowed" | "own"
   readonly modes: readonly PropertyStateMode[]
-  readonly representation?: "plain" | "tagged" | "section" | "multi"
+  readonly representation?: "plain" | "tagged" | "section" | "multi" | "semantic"
   readonly xmlName?: string
   readonly externalName?: string
 }

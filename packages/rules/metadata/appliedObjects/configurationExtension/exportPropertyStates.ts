@@ -197,6 +197,14 @@ function propertyStates(params: {
     const scalarTag = typeof yamlName === "string" ? yamlScalarTagAt(params.yaml, yamlName) : undefined
     const capability = registry?.resolve({ itemType: params.rule.itemType, propertyKey })
     if (
+      capability?.representation === "semantic" &&
+      typeof yamlName === "string" &&
+      Object.prototype.hasOwnProperty.call(params.yaml, yamlName)
+    ) {
+      addState(propertyKey, "Extended")
+      continue
+    }
+    if (
       capability !== undefined &&
       typeof yamlName === "string" &&
       Object.prototype.hasOwnProperty.call(params.yaml, yamlName) &&

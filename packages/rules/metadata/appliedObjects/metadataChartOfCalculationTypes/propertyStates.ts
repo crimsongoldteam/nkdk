@@ -1,4 +1,4 @@
-import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "../configurationExtension/propertyStateCapabilities"
+import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty, semanticExternalProperty } from "../configurationExtension/propertyStateCapabilities"
 import { MetadataChartOfCalculationTypesRules } from "./rules"
 
 export const metadataChartOfCalculationTypesPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataChartOfCalculationTypesRules, {
@@ -8,6 +8,6 @@ export const metadataChartOfCalculationTypesPropertyStateCapabilities = definePr
     ...allPropertyStateModes("codeLength", "descriptionLength", "codeType", "codeAllowedLength"),
     ...externalProperty("objectModule", "МодульОбъекта", ["extend"]),
     ...externalProperty("managerModule", "МодульМенеджера", ["extend"]),
-    ...externalProperty("predefined", "Предопределенные", ["extend"]),
+    ...semanticExternalProperty("predefined"),
   },
 })

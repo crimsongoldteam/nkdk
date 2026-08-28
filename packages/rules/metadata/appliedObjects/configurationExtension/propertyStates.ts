@@ -36,6 +36,16 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
         extendedConfigurationObjectNotify = mode === "notify"
         continue
       }
+      if (capability.representation === "semantic") {
+        const propertyRule = rule.properties[propertyKey!]
+        if (propertyRule === undefined || typeof propertyRule.yaml !== "string") {
+          throw new Error(`Не задано YAML-свойство PropertyState ${rule.itemType}.${property}`)
+        }
+        if (!Object.prototype.hasOwnProperty.call(yaml, propertyRule.yaml)) {
+          yaml[propertyRule.yaml] = semanticEmptyValue(propertyRule.type, rule.itemType, property)
+        }
+        continue
+      }
       if (capability.representation === "section") {
         if (capability.externalName === undefined) {
           throw new Error(`Не задано имя раздела PropertyState ${rule.itemType}.${property}`)
@@ -75,6 +85,12 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       })
     }
   },
+}
+
+function semanticEmptyValue(type: string, itemType: string, property: string): Record<string, never> | [] {
+  if (type === "Predefined") return {}
+  if (type === "ExchangePlanContent") return []
+  throw new Error(`Неизвестный смысловой PropertyState ${itemType}.${property}`)
 }
 
 function compactTaggedDefault(

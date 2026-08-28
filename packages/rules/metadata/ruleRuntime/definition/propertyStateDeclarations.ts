@@ -114,3 +114,13 @@ export const externalProperty = (
     externalName,
   },
 })
+
+export const semanticExternalProperty = (
+  propertyKey: string,
+): Readonly<Record<string, PropertyStatePropertyCapability>> => ({
+  [propertyKey]: {
+    availability: "borrowed",
+    modes: ["extend"],
+    representation: "semantic",
+  },
+})
