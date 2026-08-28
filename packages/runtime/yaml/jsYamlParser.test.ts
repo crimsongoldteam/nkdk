@@ -27,6 +27,17 @@ describe("parseWithJsYaml", () => {
     expect(yamlScalarTagAt(types, 1)).toBe("изменять")
   })
 
+  it.each([
+    ["Объект: !проверять\n  Поле: Значение", "Объект", "проверять", { Поле: "Значение" }],
+    ["Список: !изменять\n  - Первый\n  - Второй", "Список", "изменять", ["Первый", "Второй"]],
+  ] as const)("разбирает режим составного значения: %s", (source, key, tag, expected) => {
+    const parsed = parseWithJsYaml(source)
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect((parsed.data as Record<string, unknown>)[key]).toEqual(expected)
+    expect(yamlScalarTagAt(parsed.data, key)).toBe(tag)
+  })
+
   it("разбирает !xml/string как строку и сохраняет скалярный тег", () => {
     const parsed = parseWithJsYaml("Представление: !xml/string Текст")
 

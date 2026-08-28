@@ -579,7 +579,7 @@ function visitYamlData(
     if (parent !== undefined && key !== undefined && resolvedValue === "") {
       markDoubleQuotedScalar(parent, key)
     }
-    return resolvedValue
+    return visitYamlData(resolvedValue, path, sourcePath, lines, locations, sourcePaths, parent, key)
   }
 
   if (value === null) return isExplicitNullValue(sourcePath, lines, locations) ? null : {}

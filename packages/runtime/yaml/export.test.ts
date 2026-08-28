@@ -3,7 +3,7 @@ import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitStri
 import { exportToYAML, serializeYAMLDocument } from "./export"
 import { importFromYAML } from "./import"
 import { parseMetadataYaml } from "./parseMetadataYaml"
-import { markYAMLScalarTag, yamlScalarTagAt } from "./scalarTags"
+import { markYAMLScalarTag, markYAMLValueTag, yamlScalarTagAt } from "./scalarTags"
 import { createXmlAnomalyAnnotations, xmlAnnotatedMappingEntries } from "./xmlAnomalyAnnotations"
 
 describe("exportToYAML", () => {
@@ -36,6 +36,40 @@ describe("exportToYAML", () => {
     expect(types).toEqual(source.Тип)
     expect(yamlScalarTagAt(types, 0)).toBe("проверять")
     expect(yamlScalarTagAt(types, 1)).toBe("изменять")
+  })
+
+  it("сериализует режимы составных значений после двоеточия", () => {
+    const source = {
+      Объект: { Поле: "Значение" },
+      Список: ["Первый", "Второй"],
+    }
+    markYAMLScalarTag(source, "Объект", "проверять")
+    markYAMLScalarTag(source, "Список", "изменять")
+
+    const yaml = exportToYAML(source)
+    const reparsed = parseMetadataYaml(yaml)
+
+    expect(yaml).toBe([
+      "Объект: !проверять",
+      "  Поле: Значение",
+      "Список: !изменять",
+      "  - Первый",
+      "  - Второй",
+    ].join("\n"))
+    expect(reparsed.data).toEqual(source)
+    expect(yamlScalarTagAt(reparsed.data, "Объект")).toBe("проверять")
+    expect(yamlScalarTagAt(reparsed.data, "Список")).toBe("изменять")
+  })
+
+  it("сериализует временную метку составного значения после включения в родителя", () => {
+    const item = { Код: "000000001" }
+    markYAMLValueTag(item, "проверять")
+
+    const yaml = exportToYAML({ Элемент: item })
+    const reparsed = parseMetadataYaml(yaml)
+
+    expect(yaml).toBe("Элемент: !проверять\n  Код: \"000000001\"")
+    expect(yamlScalarTagAt(reparsed.data, "Элемент")).toBe("проверять")
   })
 
   it("сериализует и повторно разбирает !xml/string", () => {

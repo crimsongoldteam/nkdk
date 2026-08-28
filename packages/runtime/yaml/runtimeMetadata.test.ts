@@ -3,7 +3,7 @@ import { asExplicitYAMLStringIfMarked, explicitYAMLString, markDoubleQuotedScala
 import { markYAMLMappingKeyOrder, yamlMappingKeys } from "./mappingTags"
 import { parseMetadataYaml } from "./parseMetadataYaml"
 import { cloneYAMLContainer, copyYAMLRuntimeMetadata, copyYAMLRuntimeMetadataDeep } from "./runtimeMetadata"
-import { markYAMLScalarTag, yamlScalarTagAt } from "./scalarTags"
+import { markYAMLScalarTag, markYAMLValueTag, yamlScalarTagAt, yamlValueTag } from "./scalarTags"
 import { createXmlAnomalyAnnotations } from "./xmlAnomalyAnnotations"
 
 describe("YAML runtime metadata", () => {
@@ -51,6 +51,15 @@ describe("YAML runtime metadata", () => {
     )
     expect(yamlScalarTagAt(clone, 1)).toBe("изменять")
     expect(asExplicitYAMLStringIfMarked(clone, 0, clone[0])).toEqual(explicitYAMLString("001"))
+  })
+
+  it("переносит временную метку самого составного значения", () => {
+    const source = { Код: "000000001" }
+    markYAMLValueTag(source, "проверять")
+
+    const clone = cloneYAMLContainer(source)
+
+    expect(yamlValueTag(clone)).toBe("проверять")
   })
 
   it("разрешает совпадающую символьную метку и восстанавливает её дескриптор", () => {
