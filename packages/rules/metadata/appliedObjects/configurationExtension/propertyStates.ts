@@ -60,6 +60,7 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       }
       ensurePropertyYamlValue({ context, rule, source, yaml, xmlProperty: property, yamlName })
       if (capability.representation === "plain") continue
+      compactTaggedDefault(yaml, yamlName, propertyRule)
       markPropertyState(yaml, yamlName, mode === "notify" ? "проверять" : "изменять")
     }
     importPresentProperties({ context, rule, source, yaml, compatibilityMode })
@@ -74,6 +75,16 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       })
     }
   },
+}
+
+function compactTaggedDefault(
+  yaml: Record<string, unknown>,
+  yamlName: string,
+  propertyRule: MetadataItemRule["properties"][string] | undefined,
+): void {
+  if (propertyRule === undefined) return
+  const implicit = getImplicitValueYAML(propertyRule)
+  if (implicit !== undefined && yaml[yamlName] === implicit) yaml[yamlName] = {}
 }
 
 function propertyStateMode(state: string): "notify" | "extend" | "multi" | undefined {
@@ -117,6 +128,14 @@ function importPresentProperties(params: {
     const owner = asRecord(valueAtImportXmlPath(params.source, params.rule, propertyRule.xmlParents ?? []))
     if (owner === undefined || !Object.prototype.hasOwnProperty.call(owner, xmlProperty)) continue
     const xmlValue = owner[xmlProperty]
+    if (
+      capability.modes.includes("control") &&
+      yamlScalarTagAt(params.yaml, propertyRule.yaml) === undefined &&
+      isExplicitXMLDefault(params.context, propertyRule, xmlValue)
+    ) {
+      params.yaml[propertyRule.yaml] = undefined
+      continue
+    }
     if (xmlValue !== undefined && xmlValue !== "" && !isEmptyRecord(xmlValue)) continue
     const emptyValue = emptyPlainYAMLValue(propertyRule.type)
     if (emptyValue === undefined) continue
@@ -130,6 +149,21 @@ function importPresentProperties(params: {
       emptyValue,
     })
   }
+}
+
+function isExplicitXMLDefault(
+  context: Parameters<typeof importPropertyFromXML>[0]["context"],
+  rule: MetadataItemRule["properties"][string],
+  value: unknown,
+): boolean {
+  const imported = importPropertyFromXML({ context, rule, value })
+  return (
+    Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML") &&
+    imported === importPropertyFromXML({ context, rule, value: rule.defaultValueAdoptedXML })
+  ) || (
+    Object.prototype.hasOwnProperty.call(rule, "defaultValueXML") &&
+    imported === importPropertyFromXML({ context, rule, value: rule.defaultValueXML })
+  )
 }
 
 function emptyPlainYAMLValue(type: MetadataItemRule["properties"][string]["type"]): unknown | undefined {

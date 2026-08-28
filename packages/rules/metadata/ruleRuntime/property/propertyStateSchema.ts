@@ -55,14 +55,7 @@ export function exportBorrowedPropertyStateSchema(params: {
         ? schema
         : capability?.availability === "own"
           ? ownPropertySchema(schema, propertyRule)
-          : implicitValueSchema(
-              capability?.representation === "plain"
-                ? plainEmptySchema(schema, propertyRule)
-                : isScalarMetadataTarget(propertyRule)
-                  ? Type.Union([schema, Type.Null()])
-                  : schema,
-              getImplicitValueYAML(propertyRule),
-            )
+          : borrowedPropertySchema(schema, propertyRule, capability)
       return [[yamlName, capability?.representation === "tagged"
         ? taggedScalarSchema(withImplicitValue)
         : withImplicitValue]]
@@ -100,6 +93,39 @@ export function exportBorrowedPropertyStateSchema(params: {
           allowedYamlNames.has(yamlName) || Object.hasOwn(technicalProperties, yamlName)),
     additionalProperties: false,
   }
+}
+
+function borrowedPropertySchema(
+  source: TSchema,
+  rule: PropertyRule,
+  capability: ResolvedPropertyStateItemCapability["properties"][string] | undefined,
+): TSchema {
+  const base = capability?.representation === "plain"
+    ? plainEmptySchema(source, rule)
+    : isScalarMetadataTarget(rule)
+      ? Type.Union([source, Type.Null()])
+      : source
+  const implicit = controlledDefaultYAML(rule, capability)
+  if (implicit === undefined) return base
+  if (capability?.modes.includes("control") !== true) return implicitValueSchema(base, implicit)
+  return Type.Union([
+    Type.Intersect([base, notSchema(Type.Literal(implicit))]),
+    Type.Null(),
+  ])
+}
+
+function controlledDefaultYAML(
+  rule: PropertyRule,
+  capability: ResolvedPropertyStateItemCapability["properties"][string] | undefined,
+): string | number | undefined {
+  const implicit = getImplicitValueYAML(rule)
+  if (implicit !== undefined || capability?.modes.includes("control") !== true) return implicit
+  const defaultValue = Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML")
+    ? rule.defaultValueAdoptedXML
+    : Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
+      ? rule.defaultValueXML
+      : undefined
+  return getImplicitValueYAML({ ...rule, implicitValueYAML: defaultValue })
 }
 
 function isScalarMetadataTarget(rule: PropertyRule): boolean {

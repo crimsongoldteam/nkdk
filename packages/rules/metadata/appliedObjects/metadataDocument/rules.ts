@@ -184,7 +184,6 @@ export const MetadataDocumentRules = {
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
       defaultValueXML: true,
-      preserveExplicitDefaultXML: true,
       implicitValueYAML: true,
       xmlParents: documentProperties,
     }),
@@ -380,7 +379,6 @@ export const MetadataDocumentRules = {
       yaml: "ПериодичностьНомера",
       typeSE: "BusinessProcessNumberPeriodicity",
       defaultValueXML: "Nonperiodical",
-      preserveExplicitDefaultXML: true,
       implicitValueYAML: "Nonperiodical",
       xmlParents: documentProperties,
     }),

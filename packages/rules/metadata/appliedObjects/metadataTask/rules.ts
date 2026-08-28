@@ -25,6 +25,7 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { commonBasedOnObjectPaths } from "../../ruleRuntime/metadataTarget"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 import { appliedObjectInputByStringRule, inputByStringStandardField, NUMERIC_LENGTH_HINT } from "../inputByStringDeclarations"
+import { uniqueAutonumberingRules } from "../numberingDeclarations"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataTaskStandardAttributeNames: Record<string, string> = {
@@ -170,19 +171,7 @@ export const MetadataTaskRules = {
       implicitValueYAML: "Variable",
       xmlParents: properties,
     }),
-    checkUnique: booleanRule({
-      yaml: "КонтрольУникальности",
-      defaultValueXML: true,
-      preserveExplicitDefaultXML: true,
-      implicitValueYAML: true,
-      xmlParents: properties,
-    }),
-    autonumbering: booleanRule({
-      yaml: "Автонумерация",
-      defaultValueXML: true,
-      implicitValueYAML: true,
-      xmlParents: properties,
-    }),
+    ...uniqueAutonumberingRules(properties),
     taskNumberAutoPrefix: systemEnumerationRule({
       yaml: "АвтоПрефиксНомераЗадачи",
       typeSE: "TaskNumberAutoPrefix",

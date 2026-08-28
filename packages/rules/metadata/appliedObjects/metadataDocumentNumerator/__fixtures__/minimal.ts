@@ -7,6 +7,4 @@ export const minimal: MetadataDocumentNumerator = {
 
 export const minimalYAML: MetadataDocumentNumeratorYAML = {
   Синоним: "",
-  ПериодичностьНомера: "Непериодический",
-  КонтрольУникальности: "Истина",
 }
