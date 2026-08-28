@@ -22,12 +22,20 @@
 				<xr:TypeId>beb6192c-abfa-4c32-b715-b3a08659530f</xr:TypeId>
 				<xr:ValueId>c347611c-6572-4bcb-acb2-429789b68b7e</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>Predefined</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
 			<Name>СправочникСПредопределенными</Name>
 			<Comment/>
 			<ExtendedConfigurationObject>b47a9e20-e2c8-4091-9025-b0cf97b28126</ExtendedConfigurationObject>
+			<CodeLength>9</CodeLength>
+			<DescriptionLength>25</DescriptionLength>
+			<CodeType>String</CodeType>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
 		</Properties>
 		<ChildObjects>
 			<Form>ФормаВыбора</Form>

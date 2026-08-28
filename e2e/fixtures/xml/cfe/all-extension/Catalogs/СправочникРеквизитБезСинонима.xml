@@ -22,6 +22,10 @@
 				<xr:TypeId>9b557a4c-9d17-4260-a3be-aa0b6f76b758</xr:TypeId>
 				<xr:ValueId>661436ed-c8d3-487c-bd50-9de2a3bdd207</xr:ValueId>
 			</xr:GeneratedType>
+			<xr:PropertyState>
+				<xr:Property>Predefined</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
 		</InternalInfo>
 		<Properties>
 			<ObjectBelonging>Adopted</ObjectBelonging>
