@@ -29,6 +29,43 @@ const rule = {
 } as never
 
 describe("configuration extension PropertyState facts", () => {
+  it("сохраняет режимы вложенных элементов смысловой коллекции", () => {
+    const parsed = parseMetadataYaml([
+      "Предопределенные:",
+      "  Группа: !проверять",
+      "    Код: '000000003'",
+      "    Элементы:",
+      "      Вложенный:",
+      "        Код: '000000004'",
+      "",
+    ].join("\n"))
+    const documents = collectConfigurationExtensionPropertyStateDocuments({
+      yaml: parsed.data as Record<string, unknown>,
+      rule: {
+        itemType: "MetadataCatalog",
+        properties: { predefined: { yaml: "Предопределенные", type: "Predefined" } },
+      } as never,
+      capability: {
+        itemType: "MetadataCatalog",
+        properties: {
+          predefined: { availability: "borrowed", modes: ["extend"], representation: "semantic" },
+        },
+      },
+      logicalAddress: "Catalog.Товары",
+      workingProjectPath: "Справочник/Товары/Свойства.yaml",
+    })
+
+    expect(JSON.parse(documents[0]!.payload!).value).toEqual({
+      Группа: {
+        mode: "notify",
+        value: {
+          Код: "000000003",
+          Элементы: { Вложенный: { Код: "000000004" } },
+        },
+      },
+    })
+  })
+
   it("extracts ordinary, tagged, section and MultiState facts", () => {
     const parsed = parseMetadataYaml([
       "Заголовок: !проверять Новый",

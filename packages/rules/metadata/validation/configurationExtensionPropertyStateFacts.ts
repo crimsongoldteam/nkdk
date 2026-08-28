@@ -104,19 +104,49 @@ function scalarMode(
 }
 
 function normalizedValue(mode: ConfigurationExtensionPropertyStateFactMode, value: unknown): unknown {
-  if (mode !== "multi" || !Array.isArray(value)) return value
-  return value.map((part, index) => ({
-    mode: yamlScalarTagAt(value, index) === "проверять"
-      ? "notify"
-      : yamlScalarTagAt(value, index) === "изменять"
-        ? "extend"
-        : "control",
-    value: part,
-  }))
+  if (Array.isArray(value)) {
+    return value.map((part, index) => {
+      const normalized = normalizedNestedValue(part)
+      const partMode = mode === "multi" ? nestedMode(value, index) : taggedMode(value, index)
+      return partMode === undefined ? normalized : { mode: partMode, value: normalized }
+    })
+  }
+  return normalizedNestedValue(value)
 }
 
 function hasPropertyStateTaggedParts(value: unknown): boolean {
-  return Array.isArray(value) && value.some((_part, index) => isPropertyStateYAMLTag(yamlScalarTagAt(value, index)))
+  if (value === null || typeof value !== "object") return false
+  const entries = Array.isArray(value) ? value.entries() : Object.entries(value)
+  for (const [key, part] of entries) {
+    if (isPropertyStateYAMLTag(yamlScalarTagAt(value, key))) return true
+    if (hasPropertyStateTaggedParts(part)) return true
+  }
+  return false
+}
+
+function normalizedNestedValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((part, index) => {
+      const normalized = normalizedNestedValue(part)
+      const mode = taggedMode(value, index)
+      return mode === undefined ? normalized : { mode, value: normalized }
+    })
+  }
+  if (value === null || typeof value !== "object") return value
+  return Object.fromEntries(Object.entries(value).map(([key, part]) => {
+    const normalized = normalizedNestedValue(part)
+    const mode = taggedMode(value, key)
+    return [key, mode === undefined ? normalized : { mode, value: normalized }]
+  }))
+}
+
+function nestedMode(parent: object, key: string | number): "control" | "notify" | "extend" {
+  return taggedMode(parent, key) ?? "control"
+}
+
+function taggedMode(parent: object, key: string | number): "notify" | "extend" | undefined {
+  const tag = yamlScalarTagAt(parent, key)
+  return tag === "проверять" ? "notify" : tag === "изменять" ? "extend" : undefined
 }
 
 function sectionPath(

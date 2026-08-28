@@ -12,6 +12,7 @@ import type {
 } from "../property/fromYAMLToXMLTypes"
 import { copyXmlAnomalyAnnotationsDeep } from "../../../yaml/xmlAnomalyAnnotations"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
+import { markYAMLValueTag, yamlScalarTagAt } from "../../../yaml/scalarTags"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
 import { getChildContextToXML } from "../../context/childContext"
@@ -330,7 +331,9 @@ function collectionEntries(
 ): { yaml: unknown; name?: string }[] {
   const rawItems = readXmlAnomalyRawCollectionItems(yaml)
   if (descriptor.yamlShape === "array") {
-    const entries = Array.isArray(yaml) ? yaml.map((item) => ({ yaml: item })) : []
+    const entries = Array.isArray(yaml) ? yaml.map((item, index) => ({
+      yaml: transferCollectionValueTag(yaml, index, item),
+    })) : []
     for (const item of rawItems) entries.splice(item.index, 0, { yaml: item.yaml })
     return entries
   }
@@ -339,7 +342,7 @@ function collectionEntries(
     ? Object.entries(yaml)
     : xmlAnnotatedMappingEntries(yaml, annotations)
   const result: { yaml: unknown; name?: string }[] = entries.map(([key, value]) => ({
-    yaml: value,
+    yaml: transferCollectionValueTag(yaml, key, value),
     name:
       (propertyRule === undefined
         ? undefined
@@ -354,6 +357,14 @@ function collectionEntries(
     })
   }
   return result
+}
+
+function transferCollectionValueTag(parent: object, key: string | number, value: unknown): unknown {
+  const tag = yamlScalarTagAt(parent, key)
+  if (tag !== "проверять" && tag !== "изменять") return value
+  if (value === null || typeof value !== "object") return value
+  markYAMLValueTag(value, tag)
+  return value
 }
 
 function findReferenceItem(params: {

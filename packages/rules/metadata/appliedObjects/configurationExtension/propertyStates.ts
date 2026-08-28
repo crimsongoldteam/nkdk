@@ -11,9 +11,11 @@ import {
   EXTENDED_CONFIGURATION_OBJECT_YAML,
   writeExtendedConfigurationObjectYAML,
 } from "./extendedConfigurationObjectYAML"
+import { importConfigurationExtensionCollectionState } from "./collectionStates"
 
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
   augment({ context, rule, source, yaml }): void {
+    importConfigurationExtensionCollectionState({ rule, source, yaml })
     const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
     let extendedConfigurationObjectNotify = false
     for (const propertyState of propertyStates(source)) {

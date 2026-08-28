@@ -11,6 +11,7 @@ import {
   EXTENDED_CONFIGURATION_OBJECT_YAML,
   readExtendedConfigurationObjectYAML,
 } from "./extendedConfigurationObjectYAML"
+import { exportConfigurationExtensionCollectionState } from "./collectionStates"
 
 export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugmenter = {
   augment({ context, rule, yaml, outputs, logicalAddress }) {
@@ -49,6 +50,7 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
     else if (adopted && propertyStateRegistry()?.item(rule.itemType) !== undefined) {
       ensureInternalInfo(outputs, rule)
     }
+    exportConfigurationExtensionCollectionState({ rule, yaml, outputs, borrowed: adopted })
     reorderServiceProperties(outputs, rule)
     reorderMetadataRoot(outputs, rule)
   },

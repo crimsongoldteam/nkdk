@@ -9,6 +9,7 @@ import {
 import { CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT } from "../../ruleRuntime/property/configurationExtensionStructureFacts"
 import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
+import { validatePredefinedCollectionState } from "./collectionStateValidation"
 
 const propertyStates = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
 
@@ -73,6 +74,16 @@ export function validateConfigurationExtensionPropertyStates(
     ) {
       diagnostics.push(diagnostic(params.projectDir, fact.projectPath, fact.entry, "error",
         `Режим свойства «${extension.propertyKey}» недоступен при ${compatibilityMode ?? "Версия8_3_27"}`))
+      continue
+    }
+    if (extension.propertyKey === "predefined") {
+      diagnostics.push(...validatePredefinedCollectionState({
+        projectDir: params.projectDir,
+        projectPath: fact.projectPath,
+        entry: fact.entry,
+        extension: extension.value,
+        base: basePayload.value,
+      }))
       continue
     }
     if (extension.mode === "extend" || extension.mode === "xml") continue

@@ -20,6 +20,7 @@ export const PredefinedItemRules = {
     "description",
     "type",
     "isFolder",
+    "extensionState",
     "childItems",
     "id",
   ],
@@ -58,6 +59,10 @@ export const PredefinedItemRules = {
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isChartOfCharacteristicTypesPredefined(context),
       defaultValueXMLRaw: {},
+    }),
+    extensionState: stringRule({
+      xml: "ExtensionState",
+      runtimeOnly: true,
     }),
     childItems: predefinedItemCollectionRule({
       xml: "ChildItems",
