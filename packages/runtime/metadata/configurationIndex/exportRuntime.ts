@@ -20,11 +20,13 @@ export interface ConfigurationIndexExportRuntime {
   readonly xmlNodeLogicalAddress?: string
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
+  readonly propertyValueLogicalAddress?: string
   readonly yamlPathAddressing?: true
   readonly referencePathByCurrentPath?: ReadonlyMap<string, string>
   identity(kind: IdentityKind, address?: string): string | undefined
   identityOrCreate(kind: IdentityKind, address?: string): string
   children(address?: string): readonly ConfigurationIndexChild[] | undefined
+  xmlValue(address?: string): string | undefined
   configVersion(address: string): string
   withLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime
   withXmlNodeLogicalAddress(xmlNodeLogicalAddress: string): ConfigurationIndexExportRuntime
@@ -32,7 +34,7 @@ export interface ConfigurationIndexExportRuntime {
   withPropertyContext(
     propertyName: string,
     childCollectionUidSegment?: string,
-    options?: { configurationIndexAddressing?: ConfigurationIndexAddressingMode },
+    options?: { configurationIndexAddressing?: ConfigurationIndexAddressingMode; propertyKey?: string },
   ): ConfigurationIndexExportRuntime
 }
 
@@ -51,6 +53,7 @@ export interface CreateConfigurationIndexExportRuntimeOptions {
   readonly xmlNodeLogicalAddress?: string
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
+  readonly propertyValueLogicalAddress?: string
   readonly yamlPathAddressing?: true
   readonly referencePathByCurrentPath?: ReadonlyMap<string, string>
 }
@@ -78,6 +81,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   readonly xmlNodeLogicalAddress?: string
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
+  readonly propertyValueLogicalAddress?: string
   readonly yamlPathAddressing?: true
   readonly referencePathByCurrentPath?: ReadonlyMap<string, string>
   readonly operationSeed: Buffer
@@ -91,6 +95,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     this.xmlNodeLogicalAddress = options.xmlNodeLogicalAddress
     this.formElementRootLogicalAddress = options.formElementRootLogicalAddress
     this.childCollectionUidSegment = options.childCollectionUidSegment
+    this.propertyValueLogicalAddress = options.propertyValueLogicalAddress
     this.yamlPathAddressing = options.yamlPathAddressing
     this.referencePathByCurrentPath = options.referencePathByCurrentPath
     this.operationSeed = options.operationSeed
@@ -113,6 +118,10 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     const entity = this.source.entity(address)
     if (entity === undefined) return undefined
     return entity.children
+  }
+
+  xmlValue(address = this.propertyValueLogicalAddress ?? this.logicalAddress): string | undefined {
+    return this.source.entity(address)?.xmlValue
   }
 
   configVersion(address: string): string {
@@ -140,7 +149,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   withPropertyContext(
     propertyName: string,
     childCollectionUidSegment?: string,
-    options: { configurationIndexAddressing?: ConfigurationIndexAddressingMode } = {},
+    options: { configurationIndexAddressing?: ConfigurationIndexAddressingMode; propertyKey?: string } = {},
   ): ConfigurationIndexExportRuntime {
     const useYamlPath = this.yamlPathAddressing === true || options.configurationIndexAddressing === "yamlPath"
     const propertyAddress = useYamlPath
@@ -149,6 +158,11 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     return new DefaultConfigurationIndexExportRuntime({
       ...this.inheritedOptions(useYamlPath ? propertyAddress : this.logicalAddress),
       xmlNodeLogicalAddress: propertyAddress,
+      ...(options.propertyKey === undefined
+        ? {}
+        : { propertyValueLogicalAddress: useYamlPath
+          ? propertyAddress
+          : `${this.logicalAddress}.${options.propertyKey}` }),
       childCollectionUidSegment,
       ...(useYamlPath ? { yamlPathAddressing: true as const } : {}),
     }, this.generated)
@@ -164,6 +178,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       ...(this.xmlNodeLogicalAddress === undefined ? {} : { xmlNodeLogicalAddress: this.xmlNodeLogicalAddress }),
       ...(this.formElementRootLogicalAddress === undefined ? {} : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
       ...(this.childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment: this.childCollectionUidSegment }),
+      ...(this.propertyValueLogicalAddress === undefined ? {} : { propertyValueLogicalAddress: this.propertyValueLogicalAddress }),
       ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
       ...(this.referencePathByCurrentPath === undefined ? {} : { referencePathByCurrentPath: this.referencePathByCurrentPath }),
     }

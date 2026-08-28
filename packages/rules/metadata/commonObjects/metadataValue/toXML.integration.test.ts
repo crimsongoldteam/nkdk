@@ -3,7 +3,7 @@ import { MetadataCommonAttributeRules } from "../../appliedObjects/metadataCommo
 import { metadataValueFixtures } from "./__fixtures__/data"
 import { MetadataPrimitiveValueHandler, primitiveValueHandlers } from "./handlers"
 import { MetadataPrimitiveValueType } from "./types"
-import { mockContext } from "../../../tests/mockContext"
+import { mockContext, mockContextToXML } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { xmlExport } from "@nkdk/runtime"
 import { exportMetadataValueToXML } from "./toXML"
@@ -36,6 +36,62 @@ describe("exportMetadataValueToXML", () => {
     const result = xmlExport({ Value: xmlData }, false)
 
     expect(result).toEqual('<Value xsi:type="dcsset:DataCompositionComparisonType">Equal</Value>')
+  })
+
+  it("restores the indexed UUID form of a semantic DesignTimeRef", () => {
+    const uuidReference = "11111111-1111-4111-8111-111111111111.22222222-2222-4222-8222-222222222222"
+    const baseContext = mockContextToXML()
+    const context = {
+      ...baseContext,
+      exportToXML: {
+        ...baseContext.exportToXML,
+        designTimeReferenceByUuid: {
+          [uuidReference]: "Справочник.Товары.Основной",
+        },
+        configurationIndex: {
+          xmlValue: () => uuidReference,
+          collector: { setXmlValue: () => undefined },
+          logicalAddress: "Справочник.Товары.Реквизит.Ссылка.fillValue",
+        } as never,
+      },
+    }
+
+    const xmlData = exportMetadataValueToXML({
+      context,
+      rule: { type: "MetadataValue" },
+      value: { type: "ref", value: "Catalog.Товары.Основной" },
+    })
+
+    expect(xmlExport({ Value: xmlData }, false))
+      .toBe(`<Value xsi:type="xr:DesignTimeRef">${uuidReference}</Value>`)
+  })
+
+  it("does not reuse an indexed UUID after the semantic reference changes", () => {
+    const uuidReference = "11111111-1111-4111-8111-111111111111.22222222-2222-4222-8222-222222222222"
+    const baseContext = mockContextToXML()
+    const context = {
+      ...baseContext,
+      exportToXML: {
+        ...baseContext.exportToXML,
+        designTimeReferenceByUuid: {
+          [uuidReference]: "Справочник.Товары.Основной",
+        },
+        configurationIndex: {
+          xmlValue: () => uuidReference,
+          collector: { setXmlValue: () => undefined },
+          logicalAddress: "Справочник.Товары.Реквизит.Ссылка.fillValue",
+        } as never,
+      },
+    }
+
+    const xmlData = exportMetadataValueToXML({
+      context,
+      rule: { type: "MetadataValue" },
+      value: { type: "ref", value: "Catalog.Товары.Другой" },
+    })
+
+    expect(xmlExport({ Value: xmlData }, false))
+      .toBe('<Value xsi:type="xr:DesignTimeRef">Catalog.Товары.Другой</Value>')
   })
 
   it("exports ent:AccountType", () => {

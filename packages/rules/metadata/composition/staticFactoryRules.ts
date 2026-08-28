@@ -66,6 +66,7 @@ import { metadataRuleLayer000 as contribution64 } from "../commonObjects/dataCom
 import { metadataRuleLayer000 as contribution65 } from "../commonObjects/exchangePlanContent/types"
 import { metadataRuleLayer001 as contribution66 } from "../commonObjects/exchangePlanContent/types"
 import { metadataRuleLayer002 as contribution67 } from "../commonObjects/exchangePlanContent/types"
+import { metadataRuleLayer003 as contribution192 } from "../commonObjects/exchangePlanContent/types"
 import { metadataRuleLayer000 as contribution68 } from "../commonObjects/homePageWorkArea/register"
 import { metadataRuleLayer000 as contribution69 } from "../commonObjects/metadataDocumentJournalColumn/register"
 import { metadataRuleLayer000 as contribution70 } from "../commonObjects/metadataExternalDataSourceCube/types"
@@ -460,6 +461,7 @@ export const staticFactoryRules = composeMetadataRules(
   contribution65,
   contribution66,
   contribution67,
+  contribution192,
   contribution68,
   contribution69,
   contribution70,

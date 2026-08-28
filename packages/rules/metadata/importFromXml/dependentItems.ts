@@ -8,6 +8,18 @@ import {
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
+export function collectImportedDependentXmlValues(
+  candidates: readonly ImportedDependentPropertyCandidate[],
+  collector: ConfigurationIndexCollector,
+): void {
+  for (const candidate of candidates) {
+    const value = designTimeRefUuid(candidate.xmlValue)
+    if (value !== undefined && candidate.logicalAddress !== undefined) {
+      collector.setXmlValue(candidate.logicalAddress, value)
+    }
+  }
+}
+
 export function normalizeImportedDependentItems(params: {
   readonly yaml: unknown
   readonly rule: MetadataItemRule
@@ -16,6 +28,7 @@ export function normalizeImportedDependentItems(params: {
   readonly owner: DependentItemParams["owner"]
   readonly definedTypeLookup?: DependentItemParams["definedTypeLookup"]
   readonly metadataTargetLookup?: DependentItemParams["metadataTargetLookup"]
+  readonly metadataTargetCanonicalizer?: (value: string) => string | undefined
   readonly preserveRawXML?: boolean
 }): number {
   let removed = 0
@@ -25,6 +38,11 @@ export function normalizeImportedDependentItems(params: {
     const yamlKey = candidate.yamlPath.at(-1)
     if (typeof yamlKey !== "string") continue
     if (!Object.prototype.hasOwnProperty.call(item, yamlKey)) continue
+    const currentValue = item[yamlKey]
+    if (typeof currentValue === "string") {
+      const canonical = params.metadataTargetCanonicalizer?.(currentValue)
+      if (canonical !== undefined) item[yamlKey] = canonical
+    }
     const dependentParams = dependentParamsForCandidate(params, candidate, item)
     const shouldRemove = shouldRemoveImportedDependentProperty(dependentParams)
     if (shouldRemove) {
@@ -35,6 +53,17 @@ export function normalizeImportedDependentItems(params: {
     shouldTagImportedDependentProperty(dependentParams)
   }
   return removed
+}
+
+function designTimeRefUuid(value: unknown): string | undefined {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return undefined
+  const record = value as Record<string, unknown>
+  const text = record["#text"]
+  return record["_xsi:type"] === "xr:DesignTimeRef"
+    && typeof text === "string"
+    && /^[0-9a-f-]{36}\.[0-9a-f-]{36}$/iu.test(text)
+    ? text
+    : undefined
 }
 
 export function partitionImportedDependentItems(params: {

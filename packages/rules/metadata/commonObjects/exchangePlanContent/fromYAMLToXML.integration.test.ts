@@ -99,7 +99,12 @@ describe("ExchangePlanContent YAML → XML", () => {
       { Metadata: "Document.ДокументСНумератором", State: "Check" },
       { Metadata: "Document.ДокументКнопкаСПараметрамиExt", State: "Modify" },
     ])
-    expect(restored.xml).toHaveProperty("ExchangePlanContent.Item")
+    expect(restored.xml).toHaveProperty("ExchangePlanContent.Item", [
+      { Metadata: "Document.ДокументВсеСвойства", AutoRecord: "Allow" },
+      { Metadata: "Catalog.СправочникПолный", AutoRecord: "Allow" },
+      { Metadata: "Document.ДокументКнопкаСПараметрамиExt", AutoRecord: "Allow" },
+      { Metadata: "Document.ДокументСНумераторомExt", AutoRecord: "Allow" },
+    ])
   })
 
   it("imports content items with current AutoChangeRecord YAML values", () => {

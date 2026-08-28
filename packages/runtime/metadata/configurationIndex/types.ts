@@ -12,6 +12,7 @@ export interface ConfigurationIndexBlockEntity {
   readonly logicalAddress: string
   readonly uuid?: string
   readonly xmlId?: string
+  readonly xmlValue?: string
   readonly children?: readonly ConfigurationIndexChild[]
 }
 

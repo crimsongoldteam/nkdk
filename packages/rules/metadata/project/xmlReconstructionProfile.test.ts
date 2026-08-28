@@ -35,6 +35,7 @@ describe("buildXmlComponentReconstructionProfile", () => {
     expect(profile).toEqual({
       componentKind: "configuration",
       adoptedUuids: {},
+      designTimeReferenceByUuid: {},
       xmlDefaultVariantByLogicalAddress: {
         "ПланВидовХарактеристик.ВидыСвойств": "indexed",
         "ПланВидовХарактеристик.ВидыСвойств.Характеристики[0].ПолеПутиКДанным": "indexed",
@@ -73,6 +74,7 @@ describe("buildXmlComponentReconstructionProfile", () => {
         Конфигурация: BASE_CONFIGURATION_UUID,
         "Справочник.Товары.Реквизит.Артикул": BASE_ATTRIBUTE_UUID,
       },
+      designTimeReferenceByUuid: {},
       xmlDefaultVariantByLogicalAddress: {
         Конфигурация: "adopted",
         "Справочник.Товары": "adopted",
@@ -120,6 +122,48 @@ describe("buildXmlComponentReconstructionProfile", () => {
     expect(profile.adoptedUuids).toEqual({ Конфигурация: BASE_CONFIGURATION_UUID })
   })
 
+  it("marks a nested indexed object as adopted even when it shares the owner's YAML file", () => {
+    const owner = "Catalog.Товары"
+    const nested = `${owner}.Predefined.Группа`
+    const profile = buildXmlComponentReconstructionProfile({
+      componentKind: "configurationExtension",
+      target: source(
+        ["Конфигурация", owner],
+        [
+          { logicalAddress: "Конфигурация", uuid: EXTENSION_CONFIGURATION_UUID },
+          { logicalAddress: nested, xmlId: "extension-item" },
+        ],
+      ),
+      base: source(
+        ["Конфигурация", owner],
+        [
+          { logicalAddress: "Конфигурация", uuid: BASE_CONFIGURATION_UUID },
+          { logicalAddress: nested, xmlId: "base-item" },
+        ],
+      ),
+    })
+
+    expect(profile.xmlDefaultVariantByLogicalAddress[nested]).toBe("adopted")
+  })
+
+  it("ignores a stale base index entity without a current base logical address", () => {
+    const stale = "Catalog.Старый"
+    const profile = buildXmlComponentReconstructionProfile({
+      componentKind: "configurationExtension",
+      target: source(["Конфигурация", stale], []),
+      base: source(
+        ["Конфигурация"],
+        [
+          { logicalAddress: "Конфигурация", uuid: BASE_CONFIGURATION_UUID },
+          { logicalAddress: stale, uuid: BASE_ATTRIBUTE_UUID },
+        ],
+      ),
+    })
+
+    expect(profile.xmlDefaultVariantByLogicalAddress["Справочник.Старый"]).toBe("full")
+    expect(profile.adoptedUuids).not.toHaveProperty("Справочник.Старый")
+  })
+
   it("canonicalizes a nested external data source command to the worker address", () => {
     const canonical =
       "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Command.Команда1"
@@ -161,6 +205,54 @@ describe("buildXmlComponentReconstructionProfile", () => {
     })
 
     expect(profile.adoptedUuids["Справочник.Товары"]).toBe(BASE_ATTRIBUTE_UUID)
+  })
+
+  it("resolves UUID DesignTimeRef for nested predefined values", () => {
+    const typeId = "11111111-1111-4111-8111-111111111111"
+    const valueId = "22222222-2222-4222-8222-222222222222"
+    const owner = "Справочник.Товары"
+    const profile = buildXmlComponentReconstructionProfile({
+      componentKind: "configuration",
+      target: source(["Конфигурация", owner], [
+        {
+          logicalAddress: `${owner}.InternalInfo.GeneratedType.CatalogRef.TypeId`,
+          uuid: typeId,
+        },
+        {
+          logicalAddress: `${owner}.Предопределенный.Группа.Предопределенный.Основной`,
+          uuid: valueId,
+        },
+      ]),
+    })
+
+    expect(profile.designTimeReferenceByUuid?.[`${typeId}.${valueId}`])
+      .toBe("Справочник.Товары.Основной")
+  })
+
+  it("resolves UUID DesignTimeRef for empty references and enum values", () => {
+    const typeId = "11111111-1111-4111-8111-111111111111"
+    const emptyRefId = "22222222-2222-4222-8222-222222222222"
+    const enumValueId = "33333333-3333-4333-8333-333333333333"
+    const owner = "Перечисление.Статусы"
+    const profile = buildXmlComponentReconstructionProfile({
+      componentKind: "configuration",
+      target: source(["Конфигурация", owner], [
+        {
+          logicalAddress: `${owner}.InternalInfo.GeneratedType.EnumRef.TypeId`,
+          uuid: typeId,
+        },
+        {
+          logicalAddress: `${owner}.InternalInfo.GeneratedType.EnumRef.ValueId`,
+          uuid: emptyRefId,
+        },
+        { logicalAddress: `${owner}.Значение.Новый`, uuid: enumValueId },
+      ]),
+    })
+
+    expect(profile.designTimeReferenceByUuid).toMatchObject({
+      [`${typeId}.${emptyRefId}`]: "Перечисление.Статусы.ПустаяСсылка",
+      [`${typeId}.${enumValueId}`]: "Перечисление.Статусы.Новый",
+    })
   })
 
   it("rejects conflicting UUIDs after address canonicalization", () => {

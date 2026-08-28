@@ -13,6 +13,7 @@ type IdentityKind = "uuid" | "xmlId"
 
 export interface ConfigurationIndexCollector {
   setIdentity(address: string, kind: IdentityKind, value: string): void
+  setXmlValue(address: string, value: string): void
   setChildren(address: string, value: readonly ConfigurationIndexChild[]): void
   fragment(targetProjectPath: string): ConfigurationIndexBlockFragment
 }
@@ -21,12 +22,13 @@ interface MutableEntity {
   readonly logicalAddress: string
   uuid?: string
   xmlId?: string
+  xmlValue?: string
   children?: readonly ConfigurationIndexChild[]
 }
 
 interface ConfigurationIndexWrite {
   readonly address: string
-  readonly field: "uuid" | "xmlId" | "children"
+  readonly field: "uuid" | "xmlId" | "xmlValue" | "children"
   readonly value: string | readonly ConfigurationIndexChild[]
 }
 
@@ -63,6 +65,17 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
     const children = value.map((child) => ({ ...child }))
     this.writes.push({ address, field: "children", value: children })
     entity.children = children
+  }
+
+  setXmlValue(address: string, value: string): void {
+    if (value.length === 0) throw new Error("Пустое XML-значение")
+    const entity = this.entity(address)
+    if (entity.xmlValue !== undefined) {
+      assertEqualValues(address, "xmlValue", entity.xmlValue, value)
+      return
+    }
+    this.writes.push({ address, field: "xmlValue", value })
+    entity.xmlValue = value
   }
 
   fragment(targetProjectPath: string): ConfigurationIndexBlockFragment {
@@ -146,6 +159,7 @@ export function createDiscardingConfigurationIndexCollector(): ConfigurationInde
   const discard = (): void => undefined
   return {
     setIdentity: discard,
+    setXmlValue: discard,
     setChildren: discard,
     fragment(targetProjectPath) {
       return { targetProjectPath, entities: [] }
@@ -158,6 +172,7 @@ function normalizeEntity(entity: MutableEntity): ConfigurationIndexBlockEntity {
     logicalAddress: entity.logicalAddress,
     uuid: entity.uuid,
     xmlId: entity.xmlId,
+    xmlValue: entity.xmlValue,
     children: entity.children?.map((child) => ({ ...child })),
   })
 }

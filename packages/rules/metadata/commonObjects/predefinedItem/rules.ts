@@ -50,6 +50,7 @@ export const PredefinedItemRules = {
       yaml: "ЭтоГруппа",
       defaultValue: false,
       defaultValueXML: false,
+      defaultValueAdoptedXML: false,
       implicitValueYAML: "Ложь",
     }),
     type: typeDescriptionRule({

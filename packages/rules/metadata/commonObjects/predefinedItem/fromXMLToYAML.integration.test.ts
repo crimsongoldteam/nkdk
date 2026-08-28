@@ -92,6 +92,18 @@ describe("PredefinedItem XML → YAML", () => {
     expect(result.xml.ExtensionState).toBe(expectedState)
   })
 
+  it("восстанавливает явный IsFolder=false у заимствованного элемента", () => {
+    const logicalAddress = "Catalog.Товары.Predefined.Элемент"
+    const result = testMetadataItemFromYAMLToXML({
+      rule: PredefinedItemRules,
+      yaml: { Код: "000000001", Наименование: "Элемент" },
+      name: "Элемент",
+      context: createDirectAdoptedExportContext(logicalAddress),
+    })
+
+    expect(result.xml.IsFolder).toBe(false)
+  })
+
   it("передаёт тег mapping через общий проектор коллекции", () => {
     const logicalAddress = "Catalog.Товары.Predefined"
     const baseContext = createDirectAdoptedExportContext(logicalAddress)

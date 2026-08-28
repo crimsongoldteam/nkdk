@@ -59,10 +59,17 @@ describe("metadataRules", () => {
       expect(metadataRules.dataPaths.length).toBeGreaterThan(20)
       expect(metadataRules.operations.length).toBeGreaterThan(2)
       expect(metadataRules.resourceTopology).toHaveLength(1)
-      expect(
-        createRuleRegistrySet(metadataRules).resourceTopology.get().assignments
-          .length,
-      ).toBeGreaterThan(0)
+      const assignments = createRuleRegistrySet(metadataRules).resourceTopology.get().assignments
+      expect(assignments.length).toBeGreaterThan(0)
+      const exchangePlan = assignments.find(
+        (assignment) => assignment.projectPattern === "ПланОбмена/{ownerName}/Свойства.yaml",
+      )
+      expect(exchangePlan?.xmlDocuments).toContainEqual(expect.objectContaining({
+        xmlPattern: "ExchangePlans/{ownerName}/Ext/Content.xml",
+        role: "property",
+        prepareCapabilityId: "itemProperty",
+        source: expect.objectContaining({ propertyName: "content" }),
+      }))
     },
     30_000,
   )
