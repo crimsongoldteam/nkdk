@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { withStructuralYAMLProperties, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { Type } from "typebox"
 import { describe,expect,it } from "vitest"
 import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
@@ -279,6 +279,34 @@ describe("borrowed property-state schema", () => {
     expect(schema.properties).not.toHaveProperty("СобственноеПоле")
     expect(schema.properties).toHaveProperty("ПринадлежностьОбъекта")
     expect(schema.additionalProperties).toBe(false)
+  })
+
+  it("сохраняет служебное поле схемы, не принадлежащее предметным rules", () => {
+    const nestedRule = {
+      itemType: "NestedSingleton",
+      properties: {
+        value: { type: "string", yaml: "Значение" },
+        objectBelonging: { type: "string", yaml: "ПринадлежностьОбъекта" },
+      },
+    } as MetadataItemRule
+    const schema = exportNestedPropertyStateSchema({
+      rule: nestedRule,
+      capability: {
+        itemType: nestedRule.itemType,
+        properties: {
+          objectBelonging: { availability: "borrowed", modes: [], representation: "plain" },
+        },
+      },
+      source: withStructuralYAMLProperties(Type.Object({
+        Имя: Type.Optional(Type.String()),
+        Значение: Type.Optional(Type.String()),
+        ПринадлежностьОбъекта: Type.Optional(Type.String()),
+      }, { additionalProperties: false }), ["Имя"]),
+    }) as { properties?: Record<string, unknown> }
+
+    expect(schema.properties).toHaveProperty("Имя")
+    expect(schema.properties).not.toHaveProperty("Значение")
+    expect(schema.properties).toHaveProperty("ПринадлежностьОбъекта")
   })
 
   it("сохраняет признак принадлежности у корневого заимствованного объекта", () => {

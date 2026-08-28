@@ -202,6 +202,86 @@ describe("XML anomaly proof", () => {
     ])
   })
 
+  it("локализует соседнее свойство внутри элемента с уже сохранённым raw имени", async () => {
+    const source = [
+      "<Root><Items>",
+      '<Item name="Description"><FillChecking>ShowError</FillChecking></Item>',
+      "</Items></Root>",
+    ].join("")
+    const exported = source
+      .replace('name="Description"', 'name="Наименование"')
+      .replace("ShowError", "DontCheck")
+    const document = parseXmlDocumentWithSaxes(source)
+    const item = nestedElement(document.roots[0]!, ["Items", "Item"])
+    const fillChecking = nestedElement(item, ["FillChecking"])
+    const itemYamlPath = ["СтандартныеРеквизиты", "Наименование"] as const
+    const fillYamlPath = [...itemYamlPath, "ПроверкаЗаполнения"] as const
+    const nameYamlPath = [...itemYamlPath, "name"] as const
+    const boundaries: XmlAnomalyProofBoundary[] = [
+      {
+        sourcePath,
+        sourceRole: "metadata",
+        xmlPath: item.path,
+        yamlPath: nameYamlPath,
+        rulePath: ["standardAttributes", "name"],
+        presentInSource: true,
+        targetPaths: [item.attributes[0]!.path],
+      },
+      {
+        sourcePath,
+        sourceRole: "metadata",
+        xmlPath: fillChecking.path,
+        yamlPath: fillYamlPath,
+        rulePath: ["standardAttributes", "fillChecking"],
+        presentInSource: true,
+        levels: [
+          proofLevel(fillChecking, fillYamlPath, fillYamlPath),
+          proofLevel(item, itemYamlPath, itemYamlPath),
+        ],
+        targetPaths: [fillChecking.path],
+      },
+    ]
+
+    const result = await proveCapturedBoundaries({
+      data: {
+        СтандартныеРеквизиты: {
+          Наименование: { ПроверкаЗаполнения: "ВыдаватьОшибку" },
+        },
+      },
+      annotations: {
+        version: 1,
+        entries: [{
+          parentPath: itemYamlPath,
+          key: "name",
+          annotation: {
+            kind: "raw",
+            occurrence: 1,
+            target: "value",
+            xml: "Description",
+            hasSemanticValue: false,
+          },
+        }],
+      },
+      document,
+      boundaries,
+      exported,
+      source,
+    })
+
+    expect(result.annotations.entries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ parentPath: itemYamlPath, key: "name" }),
+      expect.objectContaining({
+        parentPath: itemYamlPath,
+        key: "ПроверкаЗаполнения",
+        annotation: expect.objectContaining({ kind: "raw" }),
+      }),
+    ]))
+    expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+      parentPath: ["СтандартныеРеквизиты"],
+      key: "Наименование",
+    }))
+  })
+
   it("сохраняет порядок независимо принадлежащих дочерних свойств через #order", async () => {
     const { source, exported, document, properties, children } = orderProofFixture()
     const root = document.roots[0]!

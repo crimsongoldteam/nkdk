@@ -1229,7 +1229,13 @@ export async function proveXmlAnomalyBoundaries(params: {
           if (comparison !== level) {
             const exportedComparison = xmlElementAtPath(exportedNodes, comparison.xmlPath)
             return exportedComparison !== undefined
-              && sameElementShell(exportedComparison, sourceComparison)
+              && sameElementShellAfterIndependentRaw({
+                source: sourceComparison,
+                exported: exportedComparison,
+                sourcePath: boundary.sourcePath,
+                boundaries,
+                annotations: annotationIndex,
+              })
           }
           const parentPath = parentElementPath(level.xmlPath)
           if (parentPath === undefined) return true
@@ -1237,7 +1243,13 @@ export async function proveXmlAnomalyBoundaries(params: {
           const sourceParent = sourceElements.get(parentPath)
           return exportedParent !== undefined
             && sourceParent !== undefined
-            && sameElementShell(exportedParent, sourceParent)
+            && sameElementShellAfterIndependentRaw({
+              source: sourceParent,
+              exported: exportedParent,
+              sourcePath: boundary.sourcePath,
+              boundaries,
+              annotations: annotationIndex,
+            })
         } catch {
           return false
         }
@@ -1623,15 +1635,43 @@ function sourceRootsAreExact(
   return sourceRoots.every((source) => exportedByPath.get(source.xmlPath)?.structuralHash === source.structuralHash)
 }
 
-function sameElementShell(left: XmlElementNode, right: XmlElementNode): boolean {
-  return left.name === right.name
-    && left.attributes.length === right.attributes.length
-    && left.attributes.every((attribute, index) => {
-      const other = right.attributes[index]
-      return other !== undefined
-        && attribute.name === other.name
-        && attribute.value === other.value
-    })
+function sameElementShellAfterIndependentRaw(params: {
+  readonly source: XmlElementNode
+  readonly exported: XmlElementNode
+  readonly sourcePath: string
+  readonly boundaries: readonly XmlAnomalyProofBoundary[]
+  readonly annotations: ProofAnnotationIndex
+}): boolean {
+  if (params.source.name !== params.exported.name) return false
+  const length = Math.max(params.source.attributes.length, params.exported.attributes.length)
+  for (let index = 0; index < length; index += 1) {
+    const source = params.source.attributes[index]
+    const exported = params.exported.attributes[index]
+    if (
+      source !== undefined
+      && exported !== undefined
+      && source.name === exported.name
+      && source.value === exported.value
+    ) continue
+    if (source === undefined || !attributeDifferenceHasIndependentRaw({ ...params, attributePath: source.path })) {
+      return false
+    }
+  }
+  return true
+}
+
+function attributeDifferenceHasIndependentRaw(params: {
+  readonly sourcePath: string
+  readonly attributePath: string
+  readonly boundaries: readonly XmlAnomalyProofBoundary[]
+  readonly annotations: ProofAnnotationIndex
+}): boolean {
+  return params.boundaries.some((boundary) =>
+    boundary.sourcePath === params.sourcePath
+    && isCapturedProofBoundary(boundary)
+    && boundary.targets.some(({ path }) => path === params.attributePath)
+    && hasRawForBoundary(params.annotations, boundary)
+  )
 }
 
 function directElementOrder(element: XmlElementNode): string[] {

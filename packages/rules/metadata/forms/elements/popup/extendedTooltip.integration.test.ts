@@ -1,6 +1,9 @@
 import { describe,expect,it } from "vitest"
 
-import { createDirectRoundTripContexts } from "../../../../tests/directConversion"
+import { createDirectRoundTripContexts, withDirectMetadataExecution } from "../../../../tests/directConversion"
+import { mockContext } from "../../../../tests/mockContext"
+import { getTypeRule } from "../../../ruleRuntime"
+import { compileValidationSchema } from "../../../validation/compileValidationSchema"
 import {
 importClientApplicationFormFromXMLToYAML,
 } from "../../clientApplicationForm/fromXMLToYAML"
@@ -11,8 +14,24 @@ ClientApplicationFormYAML,
 } from "../../clientApplicationForm/types"
 
 describe("PopupExtendedTooltip", () => {
+  it("разрешает техническое имя в общей схеме singleton", () => {
+    withDirectMetadataExecution(() => {
+      const exportToJSONSchema = getTypeRule("PopupExtendedTooltip", "exportToJSONSchema")
+      if (exportToJSONSchema === undefined) throw new Error("PopupExtendedTooltip schema is not registered")
+      const schema = exportToJSONSchema({
+        context: mockContext,
+        rule: { type: "PopupExtendedTooltip" },
+        value: undefined,
+      })
+      if (schema === undefined) throw new Error("PopupExtendedTooltip schema is empty")
+
+      expect(compileValidationSchema(schema).Check({ Имя: "ФункцииExtendedTooltip" })).toBe(true)
+    })
+  })
+
   it("скрывает каноническую пустую подсказку и восстанавливает её id", () => {
-    const result = roundTrip({ _name: "ФункцииРасширеннаяПодсказка", _id: "75" })
+    const result = withDirectMetadataExecution(() =>
+      roundTrip({ _name: "ФункцииРасширеннаяПодсказка", _id: "75" }))
 
     expect(popupYAML(result.yaml)).not.toHaveProperty("РасширеннаяПодсказка")
     expect(popupXML(result.xml).ExtendedTooltip).toEqual({
