@@ -6,7 +6,10 @@ import type { MetadataItemRule } from "../property/types"
 import type { PropertyRuleExecution } from "../property/fn"
 import { findInlineProperty } from "./yamlInline"
 import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
-import type { MetadataItemXmlImportAugmenter } from "./augmenterRegistry"
+import {
+  withResolvedXMLImportObjectVariant,
+  type MetadataItemXmlImportAugmenter,
+} from "./augmenterRegistry"
 import { isXmlElementNode, type XmlElementNode } from "../../../xml/import/document"
 import { objectRecordOrUndefined } from "../../../helpers/record"
 import {
@@ -62,7 +65,33 @@ export function importMetadataItemFromXMLToYAML(params: {
     traversal: params.traversal,
   })
 
-  const context = contextWithItemParent(params.context, params.name, params.rule.itemType)
+  const augmenterRegistry = propertyExecutionFromTraversal(params.traversal) ??
+    currentPropertyRuleRegistrySet<{
+      resolveMetadataItemXMLDefaultVariant(
+        value: import("./augmenterRegistry").MetadataItemXmlImportVariantParams,
+      ): import("../../context/types").XMLImportObjectVariant | undefined
+      applyMetadataItemXmlImportAugmenter(
+        value: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0],
+      ): void
+    }>()
+  const augmenterSource = sourceNode === undefined
+    ? source
+    : objectRecordOrUndefined(xmlImportCompatibilityContainer({
+        node: sourceNode,
+        audit: params.traversal.audit,
+        boundary: {
+          itemType: params.rule.itemType,
+          yamlPath: params.traversal.yamlPath,
+          rulePath: params.traversal.rulePath,
+        },
+      })) ?? source
+  const resolvedVariant = augmenterRegistry?.resolveMetadataItemXMLDefaultVariant({
+    context: params.context,
+    rule: params.rule,
+    source: augmenterSource,
+  })
+  const variantContext = withResolvedXMLImportObjectVariant(params.context, resolvedVariant)
+  const context = contextWithItemParent(variantContext, params.name, params.rule.itemType)
   const yaml = importPropertiesFromXMLToYAML({
     context,
     rule: params.rule,
@@ -90,23 +119,6 @@ export function importMetadataItemFromXMLToYAML(params: {
     execution: propertyExecutionFromTraversal(params.traversal),
   })
   if (yaml !== undefined) {
-    const augmenterRegistry = propertyExecutionFromTraversal(params.traversal) ??
-      currentPropertyRuleRegistrySet<{
-        applyMetadataItemXmlImportAugmenter(
-          value: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0],
-        ): void
-      }>()
-    const augmenterSource = sourceNode === undefined
-      ? source
-      : objectRecordOrUndefined(xmlImportCompatibilityContainer({
-          node: sourceNode,
-          audit: params.traversal.audit,
-          boundary: {
-            itemType: params.rule.itemType,
-            yamlPath: params.traversal.yamlPath,
-            rulePath: params.traversal.rulePath,
-          },
-        })) ?? source
     augmenterRegistry?.applyMetadataItemXmlImportAugmenter({
       context,
       rule: params.rule,

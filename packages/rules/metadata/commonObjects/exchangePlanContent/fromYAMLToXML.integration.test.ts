@@ -71,6 +71,7 @@ describe("ExchangePlanContent YAML → XML", () => {
         ...contexts.importContext.fromXML,
         componentKind: "configurationExtension" as const,
         metadataItemAugmenter: "configurationExtension",
+        currentXMLDefaultVariant: "adopted" as const,
       },
     }
     const imported = testMetadataItemFromXMLToYAML({
@@ -81,7 +82,11 @@ describe("ExchangePlanContent YAML → XML", () => {
     const baseExport = contexts.exportContext()
     const exportContext = {
       ...baseExport,
-      exportToXML: { ...baseExport.exportToXML, componentKind: "configurationExtension" as const },
+      exportToXML: {
+        ...baseExport.exportToXML,
+        componentKind: "configurationExtension" as const,
+        xmlDefaultVariantByLogicalAddress: { "Test.Item": "adopted" as const },
+      },
     }
 
     const restored = testMetadataItemFromYAMLToXML({
@@ -105,6 +110,28 @@ describe("ExchangePlanContent YAML → XML", () => {
       { Metadata: "Document.ДокументКнопкаСПараметрамиExt", AutoRecord: "Allow" },
       { Metadata: "Document.ДокументСНумераторомExt", AutoRecord: "Allow" },
     ])
+  })
+
+  it("не создаёт ExtensionProperty у собственного плана расширения", () => {
+    const contexts = createDirectRoundTripContexts()
+    const baseExport = contexts.exportContext()
+    const context = {
+      ...baseExport,
+      exportToXML: {
+        ...baseExport.exportToXML,
+        componentKind: "configurationExtension" as const,
+        xmlDefaultVariantByLogicalAddress: { "Test.Item": "full" as const },
+      },
+    }
+
+    const result = testMetadataItemFromYAMLToXML({
+      rule: ExchangePlanContentRules,
+      yaml: contentYAML,
+      context,
+    })
+
+    expect(result.xml).toHaveProperty("ExchangePlanContent.Item")
+    expect(result.xml).not.toHaveProperty("ExchangePlanContent.ExtensionProperty")
   })
 
   it("imports content items with current AutoChangeRecord YAML values", () => {

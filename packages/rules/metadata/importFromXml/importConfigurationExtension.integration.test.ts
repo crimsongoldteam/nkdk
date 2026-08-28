@@ -21,6 +21,11 @@ import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProj
 import { importConfigurationFromXml } from "./importConfiguration"
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "configurationExtension")
+const ownExchangePlanFixtureDir = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "__fixtures__",
+  "ownExtensionExchangePlan",
+)
 const configurationFixtureDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const catalogFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__")
 const formFixtureDir = join(import.meta.dirname, "../forms/clientApplicationForm/__fixtures__")
@@ -56,7 +61,7 @@ describe("configuration extension XML import", () => {
 
     expect(result).toMatchObject({
       componentPath: "cfe/РасширениеКонтроль",
-      succeeded: 4,
+      succeeded: 5,
       failed: [],
     })
     expect(result.warnings).toEqual([expect.objectContaining({ code: "unresolved_data_path" })])
@@ -121,6 +126,15 @@ describe("configuration extension XML import", () => {
     ))).toBe(false)
   })
 
+  it("импортирует состав собственного плана расширения без ExtensionProperty", () => {
+    const { exchangePlan, result } = importedExtension
+
+    expect(result.failed).toEqual([])
+    expect(exchangePlan).toMatchObject({
+      Состав: [{ Метаданные: "Справочник.ПроектныеЗадачи", Авторегистрация: "Запретить" }],
+    })
+  })
+
 })
 
 async function importExtension() {
@@ -128,6 +142,11 @@ async function importExtension() {
   await importBaseConfiguration(projectDir)
   const inputDir = temporaryDirectory()
   fs.cpSync(fixtureDir, inputDir, { recursive: true })
+  fs.cpSync(
+    join(ownExchangePlanFixtureDir, "ExchangePlans"),
+    join(inputDir, "ExchangePlans"),
+    { recursive: true },
+  )
   for (const relativePath of [
     "Configuration.xml",
     "Catalogs/СправочникПолный.xml",
@@ -255,6 +274,10 @@ async function importExtension() {
     throw new Error(`Импорт не создал конфигурацию расширения: ${JSON.stringify(result)}`)
   }
   const configuration = readYaml(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml")
+  const exchangePlan = readYaml(
+    projectDir,
+    "cfe/РасширениеКонтроль/ПланОбмена/дкз_ОбменТипы/Свойства.yaml",
+  )
   const catalog = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml")
   const form = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml")
   const formWithoutBase = readYaml(
@@ -284,7 +307,19 @@ async function importExtension() {
   const snapshot = { hashes, blocks: store.getBlocks(hashes.map(({ projectPath }) => projectPath)) }
   await store.close()
 
-  return { projectDir, result, configuration, catalog, form, formWithoutBase, yamlText, catalogText, baseFormText, snapshot }
+  return {
+    projectDir,
+    result,
+    configuration,
+    exchangePlan,
+    catalog,
+    form,
+    formWithoutBase,
+    yamlText,
+    catalogText,
+    baseFormText,
+    snapshot,
+  }
 }
 
 function textBetween(source: string, startMarker: string, endMarker: string): string {

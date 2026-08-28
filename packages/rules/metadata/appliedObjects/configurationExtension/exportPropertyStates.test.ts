@@ -33,6 +33,7 @@ const rule = {
     },
     form: { type: "string", yaml: "Форма", xml: "Form" },
     extendedConfigurationObject: { type: "string", runtimeOnly: true },
+    objectBelonging: { type: "string", runtimeOnly: true },
   },
 } as const satisfies MetadataItemRule
 
@@ -161,8 +162,10 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     }]])
     const yamlType = ["Дата", "Булево"]
     markYAMLScalarTag(yamlType, 1, "изменять")
-    configurationExtensionYamlToXmlAugmenter.augment({
-      context: context({ adoptedUuids: {} }),
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: {}, variant: "adopted" }),
       rule: {
         itemType: "MetadataAttribute",
         properties: {
@@ -172,7 +175,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       yaml: { Тип: yamlType },
       outputs,
       logicalAddress,
-    })
+    }))
 
     expect(record(outputs.get("metadata")).InternalInfo).toEqual({
       "xr:PropertyState": [{ "xr:Property": "Type", "xr:State": "MultiState" }],
@@ -241,7 +244,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
         metadataExternalDataSourceTablePropertyStateCapabilities,
       ]),
     }, () => configurationExtensionYamlToXmlAugmenter.augment({
-      context: context({ adoptedUuids: {} }),
+      context: context({ adoptedUuids: { [logicalAddress]: BASE_UUID } }),
       rule: MetadataExternalDataSourceTableRules,
       yaml,
       outputs,
@@ -297,13 +300,15 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     const outputs = new Map([
       ["metadata", { Properties: { Name: "Товары", Synonym: "Новое имя" } }],
     ])
-    configurationExtensionYamlToXmlAugmenter.augment({
-      context: context({ adoptedUuids }),
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids, variant: _kind === "own" ? "full" : "adopted" }),
       rule: MetadataCatalogRules,
       yaml: { Синоним: "Новое имя" },
       outputs,
       logicalAddress: "Catalog.Товары",
-    })
+    }))
 
     const metadata = record(outputs.get("metadata"))
     if (_kind === "borrowed") expect(metadata.InternalInfo).toEqual({})
@@ -311,9 +316,10 @@ describe("configuration extension YAML-to-XML augmenter", () => {
   })
 
   it.each([
-    ["присутствует", { Предопределенные: {} }, [{ "xr:Property": "Predefined", "xr:State": "Extended" }]],
-    ["отсутствует", {}, []],
-  ] as const)("выводит состояние смысловой коллекции, когда поле %s", (_case, yaml, expectedStates) => {
+    ["присутствует у adopted", "adopted", { Предопределенные: {} }, [{ "xr:Property": "Predefined", "xr:State": "Extended" }]],
+    ["присутствует у full", "full", { Предопределенные: {} }, []],
+    ["отсутствует у adopted", "adopted", {}, []],
+  ] as const)("выводит состояние смысловой коллекции, когда поле %s", (_case, variant, yaml, expectedStates) => {
     const semanticRule = {
       itemType: "SemanticPredefined",
       properties: {
@@ -334,7 +340,10 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     withOperationRegistrySet({
       propertyStates: createPropertyStateCapabilityRegistry([contribution]),
     }, () => configurationExtensionYamlToXmlAugmenter.augment({
-      context: context({ adoptedUuids: { [logicalAddress]: BASE_UUID } }),
+      context: context({
+        adoptedUuids: variant === "adopted" ? { [logicalAddress]: BASE_UUID } : {},
+        variant,
+      }),
       rule: semanticRule,
       yaml,
       outputs,
@@ -432,7 +441,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
   it("does not mark an own address as adopted", () => {
     const outputs = new Map([["metadata", { Form: { Properties: {} } }]])
     configurationExtensionYamlToXmlAugmenter.augment({
-      context: context({ adoptedUuids: {} }),
+      context: context({ adoptedUuids: {}, variant: "full" }),
       rule,
       yaml: {},
       outputs,
@@ -559,6 +568,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       context: context({
         adoptedUuids: {},
         internalInfoPresent: true,
+        variant: "full",
       }),
       rule: {
         itemType: "MetadataAttribute",
@@ -624,7 +634,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     const yaml = { Форма: {} }
     markYAMLScalarTag(yaml, "Форма", "проверять")
     expect(() => configurationExtensionYamlToXmlAugmenter.augment({
-      context: context({ adoptedUuids: {}, extended: ["form"] }),
+      context: context({ adoptedUuids: { [logicalAddress]: BASE_UUID }, extended: ["form"] }),
       rule,
       yaml,
       outputs,
@@ -663,6 +673,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
 
 function context(params: {
   adoptedUuids: Readonly<Record<string, string>>
+  variant?: "full" | "adopted"
   extended?: readonly string[]
   extendedLogicalAddresses?: readonly string[]
   internalInfoPresent?: true
@@ -674,6 +685,10 @@ function context(params: {
       version: "2.20",
       itemsTree: [],
       adoptedUuids: params.adoptedUuids,
+      xmlDefaultVariantByLogicalAddress: {
+        ...Object.fromEntries(Object.keys(params.adoptedUuids).map((address) => [address, "adopted"] as const)),
+        [logicalAddress]: params.variant ?? "adopted",
+      },
       componentKind: "configurationExtension",
       configurationIndex: createConfigurationIndexExportRuntime({
         source: testConfigurationIndexReader(),

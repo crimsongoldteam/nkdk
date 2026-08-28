@@ -9,6 +9,7 @@ import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { registerMetadataItemRule } from "./ruleFactory"
+import { registerMetadataItemXmlImportAugmenter } from "./augmenterRegistry"
 import {
   createXmlAnomalyAnnotations,
   createXmlImportAuditSession,
@@ -27,6 +28,92 @@ import {
 } from "../../../tests/xmlImportAttempt"
 
 describe("importMetadataItemFromXMLToYAML", () => {
+  it("передаёт локальный вариант объекта вложенным правилам без утечки между соседями", () => {
+    const observed: [string, "full" | "adopted" | undefined][] = []
+    const observationType = "TestCurrentXMLDefaultVariant" as PropertyRuleType
+    registerTypeRule(observationType, "importFromXML", (context, _rule, value) => {
+      observed.push([String(value), context.fromXML.currentXMLDefaultVariant])
+      return value
+    })
+    registerMetadataItemXmlImportAugmenter("test-current-xml-default-variant", {
+      resolveCurrentXMLDefaultVariant: ({ rule }) => {
+        if (rule.itemType === "TestVariantParent") return "full"
+        if (rule.itemType === "TestVariantAdoptedChild") return "adopted"
+        return undefined
+      },
+      augment() {},
+    })
+    const nestedRules = [
+      ["TestVariantInheritedChild", "TestVariantInheritedChildType"],
+      ["TestVariantAdoptedChild", "TestVariantAdoptedChildType"],
+      ["TestVariantSibling", "TestVariantSiblingType"],
+    ] as const
+    for (const [itemType, propertyType] of nestedRules) {
+      registerMetadataItemRule({
+        propertyType: propertyType as PropertyRuleType,
+        itemRule: {
+          itemType,
+          properties: {
+            probe: { type: observationType, xml: "Probe", yaml: "Проверка" },
+          },
+        } as MetadataItemRule,
+      })
+    }
+    const rule = {
+      itemType: "TestVariantParent",
+      properties: {
+        probe: { type: observationType, xml: "Probe", yaml: "Проверка" },
+        inherited: {
+          type: "TestVariantInheritedChildType" as PropertyRuleType,
+          xml: "Inherited",
+          yaml: "Унаследованный",
+        },
+        adopted: {
+          type: "TestVariantAdoptedChildType" as PropertyRuleType,
+          xml: "Adopted",
+          yaml: "Заимствованный",
+        },
+        sibling: {
+          type: "TestVariantSiblingType" as PropertyRuleType,
+          xml: "Sibling",
+          yaml: "Соседний",
+        },
+      },
+    } as MetadataItemRule
+    const baseContext = mockContextFromXML()
+    const context = {
+      ...baseContext,
+      fromXML: {
+        ...baseContext.fromXML,
+        metadataItemAugmenter: "test-current-xml-default-variant",
+      },
+    }
+
+    importMetadataItemFromXMLToYAML({
+      context,
+      rule,
+      xml: {
+        Probe: "Parent",
+        Inherited: { Probe: "InheritedChild" },
+        Adopted: { Probe: "AdoptedChild" },
+        Sibling: { Probe: "Sibling" },
+      },
+      traversal: {
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      },
+    })
+
+    expect(observed).toEqual([
+      ["Parent", "full"],
+      ["InheritedChild", "full"],
+      ["AdoptedChild", "adopted"],
+      ["Sibling", "full"],
+    ])
+    expect(context.fromXML.currentXMLDefaultVariant).toBeUndefined()
+  })
+
   it("проецирует неизвестный XML-путь на ближайший metadata-item", () => {
     const rule = {
       itemType: "TestUnknownPathOwner",
@@ -404,7 +491,11 @@ function runMetadataItemRule(
   const extensionContext = {
     ...baseContext,
     exportToYAML: { toTyped: true },
-    fromXML: { ...baseContext.fromXML, metadataItemAugmenter: "configurationExtension" },
+    fromXML: {
+      ...baseContext.fromXML,
+      metadataItemAugmenter: "configurationExtension",
+      currentXMLDefaultVariant: "adopted" as const,
+    },
   }
   return withOperationRegistrySet({
     propertyStates: createPropertyStateCapabilityRegistry(contributions),

@@ -1171,7 +1171,13 @@ describe("единое восстановление XML-аномалий assignm
     withOperationRegistrySet({
       propertyStates: createPropertyStateCapabilityRegistry([capabilities]),
     }, () => configurationExtensionYamlToXmlAugmenter.augment({
-      context: mockContextToXML(),
+      context: {
+        ...mockContextToXML(),
+        exportToXML: {
+          ...mockContextToXML().exportToXML,
+          xmlDefaultVariantByLogicalAddress: { "Synthetic.One": "adopted" },
+        },
+      },
       rule,
       yaml: semantic,
       outputs,

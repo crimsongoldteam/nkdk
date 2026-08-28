@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { getChildContextToXML } from "@nkdk/runtime/rule-kit"
+import { getChildContextToXML, resolveXMLDefaultVariant } from "@nkdk/runtime/rule-kit"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
@@ -284,13 +284,13 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
   },
 })
 
-function isEmptySemanticConfigurationExtensionProperty(params: {
+export function isEmptySemanticConfigurationExtensionProperty(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly itemType: string
   readonly propertyKey: string
   readonly yaml: unknown
 }): boolean {
-  if (params.context.exportToXML.componentKind !== "configurationExtension") return false
+  if (resolveXMLDefaultVariant(params.context) !== "adopted") return false
   const capability = currentOperationRegistrySet<{
     readonly propertyStates: PropertyStateCapabilityRegistry
   }>()?.propertyStates.resolve({ itemType: params.itemType, propertyKey: params.propertyKey })

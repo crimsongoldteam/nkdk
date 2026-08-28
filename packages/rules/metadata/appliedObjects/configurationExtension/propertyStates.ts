@@ -14,9 +14,27 @@ import {
 import { importConfigurationExtensionCollectionState } from "./collectionStates"
 
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
+  resolveCurrentXMLDefaultVariant({ rule, source }) {
+    if (rule.properties.objectBelonging === undefined) return undefined
+    return extensionServiceProperties(source, rule)?.objectBelonging === "Adopted"
+      ? "adopted"
+      : "full"
+  },
   augment({ context, rule, source, yaml }): void {
     importConfigurationExtensionCollectionState({ context, rule, source, yaml })
+    const serviceProperties = extensionServiceProperties(source, rule)
     const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
+    if (context.fromXML.currentXMLDefaultVariant !== "adopted") {
+      if (serviceProperties?.hasExtendedConfigurationObject === true) {
+        throw new Error(`ExtendedConfigurationObject недопустим для full ${rule.itemType}`)
+      }
+      const states = propertyStates(source)
+      if (states.length > 0) {
+        throw new Error(`PropertyState недопустим для full ${rule.itemType}`)
+      }
+      importPresentProperties({ context, rule, source, yaml, compatibilityMode })
+      return
+    }
     let extendedConfigurationObjectNotify = false
     for (const propertyState of propertyStates(source)) {
       const property = propertyState["xr:Property"]
@@ -76,7 +94,6 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       markPropertyState(yaml, yamlName, mode === "notify" ? "проверять" : "изменять")
     }
     importPresentProperties({ context, rule, source, yaml, compatibilityMode })
-    const serviceProperties = extensionServiceProperties(source, rule)
     if (supportsAdoptionServiceProperties(rule) && (
       rule.itemType === "MetadataConfigurationExtension" ||
       serviceProperties?.objectBelonging === "Adopted"
@@ -129,7 +146,7 @@ function importPresentProperties(params: {
   readonly yaml: Record<string, unknown>
   readonly compatibilityMode?: string
 }): void {
-  const borrowed = extensionServiceProperties(params.source, params.rule)?.objectBelonging === "Adopted"
+  const borrowed = params.context.fromXML.currentXMLDefaultVariant === "adopted"
   const item = propertyStateRegistry()?.item(params.rule.itemType, params.compatibilityMode)
   for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
     const propertyRule = params.rule.properties[propertyKey]
@@ -219,8 +236,7 @@ function extensionServiceProperties(
 }
 
 function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
-  return rule.itemType === "MetadataConfigurationExtension" ||
-    rule.itemType === "ClientApplicationForm" ||
+  return rule.properties.objectBelonging !== undefined ||
     rule.properties.uuid !== undefined
 }
 

@@ -542,6 +542,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     } = {
       Form: {
         Properties: {
+          ObjectBelonging: "Adopted",
           Name: "ФормаЭлемента",
           Comment: "Комментарий",
           FormType: "Managed",

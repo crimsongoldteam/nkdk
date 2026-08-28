@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
   createConfigurationIndexCollector,
@@ -16,8 +17,111 @@ import { clearedReferencePropertyStateCapabilities, clearedReferenceRule } from 
 import { MetadataAccountingRegisterDimensionRules } from "../metadataAccountingRegister/childRules"
 import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/rules"
 import { MetadataTaskAddressingAttributeRules } from "../../commonObjects/metadataTaskAddressingAttribute/rules"
+import { MetadataConfigurationExtensionRules } from "./rules"
+import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
+import { MetadataCommonFormRules } from "../metadataCommonForm/rules"
+import { MetadataWebServiceOperationRules } from "../../commonObjects/metadataWebServiceOperation/rules"
+import { directPropertyRuleExecution, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
 
 describe("configuration extension PropertyState augmenter", () => {
+  it("определяет вариант только у правила с объявленной принадлежностью", () => {
+    const ruleWithOwnership = {
+      itemType: "OwnershipProbe",
+      properties: {
+        objectBelonging: {
+          type: "string",
+          xml: "ObjectBelonging",
+          xmlParents: ["Properties"],
+          runtimeOnly: true,
+        },
+      },
+    } as MetadataItemRule
+    const ruleWithoutOwnership = {
+      itemType: "InheritedOwnershipProbe",
+      properties: {},
+    } as MetadataItemRule
+    const resolve = configurationExtensionPropertyStatesAugmenter.resolveCurrentXMLDefaultVariant!
+
+    expect(resolve({
+      context: ownExtensionContext(),
+      rule: ruleWithOwnership,
+      source: { Properties: { ObjectBelonging: "Adopted" } },
+    })).toBe("adopted")
+    expect(resolve({
+      context: extensionContext(),
+      rule: ruleWithOwnership,
+      source: { Properties: {} },
+    })).toBe("full")
+    expect(resolve({
+      context: extensionContext(),
+      rule: ruleWithoutOwnership,
+      source: {},
+    })).toBeUndefined()
+  })
+
+  it("определяет вариант корня расширения и формы через их служебные правила", () => {
+    const resolve = configurationExtensionPropertyStatesAugmenter.resolveCurrentXMLDefaultVariant!
+
+    expect(resolve({
+      context: ownExtensionContext(),
+      rule: MetadataConfigurationExtensionRules,
+      source: { Properties: { ObjectBelonging: "Adopted" } },
+    })).toBe("adopted")
+    expect(resolve({
+      context: extensionContext(),
+      rule: ClientApplicationFormRules,
+      source: { Form: { Properties: {} } },
+    })).toBe("full")
+    expect(resolve({
+      context: extensionContext(),
+      rule: MetadataCommonFormRules,
+      source: { Properties: { ObjectBelonging: "Adopted" } },
+    })).toBe("adopted")
+  })
+
+  it("отклоняет ExtendedConfigurationObject у full-объекта", () => {
+    expect(() => configurationExtensionPropertyStatesAugmenter.augment({
+      context: ownExtensionContext(),
+      rule: MetadataCatalogRules,
+      source: {
+        Properties: {
+          ExtendedConfigurationObject: "11111111-1111-4111-8111-111111111111",
+        },
+      },
+      yaml: {},
+    })).toThrow("ExtendedConfigurationObject недопустим для full MetadataCatalog")
+  })
+
+  it("сбрасывает inherited adopted у дочернего объекта с собственной принадлежностью", () => {
+    const context = extensionContext()
+    expect(directPropertyRuleExecution.resolveMetadataItemXMLDefaultVariant({
+      context,
+      rule: MetadataWebServiceOperationRules,
+      source: { Properties: {} },
+    })).toBe("full")
+    const result = withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => testMetadataItemFromXMLToYAML({
+      context,
+      rule: MetadataWebServiceOperationRules,
+      name: "ОперацияПоУмолчанию",
+      xml: {
+        Properties: {
+          Name: "ОперацияПоУмолчанию",
+          Comment: undefined,
+          XDTOReturningValueType: "xs:string",
+          Nillable: false,
+          Transactioned: false,
+          ProcedureName: "ОперацияПоУмолчанию",
+          DataLockControlMode: "Managed",
+        },
+        ChildObjects: {},
+      },
+    }))
+
+    expect(result.yaml).not.toHaveProperty("Комментарий")
+  })
+
   it("представляет контролируемый XML-default пустым YAML-значением", () => {
     const rule = {
       itemType: "ControlledDefaultProbe",
@@ -102,9 +206,12 @@ describe("configuration extension PropertyState augmenter", () => {
     },
   )
 
-  it("не переносит plain-свойство собственного объекта расширения", () => {
+  it.each([
+    ["не переносит plain-свойство собственного объекта расширения", "OwnPlainItem", ownExtensionContext(), "Собственный", {}],
+    ["наследует adopted при сохранении пустого свойства вложенного объекта", "InheritedPlainItem", extensionContext(), undefined, { Синоним: "" }],
+  ] as const)("%s", (_case, itemType, context, synonym, expected) => {
     const rule = {
-      itemType: "OwnPlainItem",
+      itemType,
       properties: {
         synonym: { type: "I8nText", yaml: "Синоним", xml: "Synonym", xmlParents: ["Properties"] },
       },
@@ -118,13 +225,13 @@ describe("configuration extension PropertyState augmenter", () => {
         }),
       ]),
     }, () => configurationExtensionPropertyStatesAugmenter.augment({
-      context: extensionContext(),
+      context,
       rule,
-      source: { Properties: { Synonym: "Собственный" } },
+      source: { Properties: { Synonym: synonym } },
       yaml,
     }))
 
-    expect(yaml).toEqual({})
+    expect(yaml).toEqual(expected)
   })
 
   it.each([
@@ -296,6 +403,7 @@ describe("configuration extension PropertyState augmenter", () => {
           typeSE: "CompatibilityMode",
         }),
         extendedConfigurationObject: { type: "string", runtimeOnly: true },
+        objectBelonging: { type: "string", runtimeOnly: true },
       },
     } as MetadataItemRule
     withOperationRegistrySet({
@@ -486,17 +594,23 @@ describe("configuration extension PropertyState augmenter", () => {
   ] as const)("сохраняет Extended для %s.%s в YAML-раздел", (itemType, property, propertyKey, externalName) => {
     const logicalAddress = "Справочник.Товары.Форма.ФормаЭлемента"
     const yaml: Record<string, unknown> = {}
-    const contribution = definePropertyStateItemCapabilities({
+    const itemRule = {
       itemType,
-      properties: { [propertyKey]: { type: "string", xml: property } },
-    } as MetadataItemRule, {
+      properties: {
+        [propertyKey]: { type: "string", xml: property },
+        ...(itemType === "MetadataConfigurationExtension"
+          ? { objectBelonging: { type: "string", runtimeOnly: true } }
+          : {}),
+      },
+    } as MetadataItemRule
+    const contribution = definePropertyStateItemCapabilities(itemRule, {
       properties: externalProperty(propertyKey, externalName, ["extend"]),
     })
     withOperationRegistrySet({
       propertyStates: createPropertyStateCapabilityRegistry([contribution]),
     }, () => configurationExtensionPropertyStatesAugmenter.augment({
         context: extensionContext(undefined, logicalAddress),
-        rule: { itemType, properties: { [propertyKey]: { type: "string", xml: property } } } as MetadataItemRule,
+        rule: itemRule,
         source: propertyStates([property, "Extended"]),
         yaml,
       }))
@@ -708,10 +822,19 @@ function extensionContext(
     fromXML: {
       ...mockContextFromXML().fromXML,
       metadataItemAugmenter: "configurationExtension",
+      currentXMLDefaultVariant: "adopted" as const,
       ...(propertyStateCompatibilityMode === undefined ? {} : { propertyStateCompatibilityMode }),
     },
   }
   return collector === undefined ? base : withConfigurationIndexCollector(base, collector, logicalAddress)
+}
+
+function ownExtensionContext() {
+  const context = extensionContext()
+  return {
+    ...context,
+    fromXML: { ...context.fromXML, currentXMLDefaultVariant: "full" as const },
+  }
 }
 
 function propertyStates(

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import type { MetadataItemRule } from "../property/types"
 import {
   applyMetadataItemXmlImportAugmenter,
   createMetadataItemXmlImportAugmenterRegistry,
   registerMetadataItemXmlImportAugmenter,
+  resolveMetadataItemXMLDefaultVariant,
 } from "./augmenterRegistry"
 
 const rule = {
@@ -49,6 +51,32 @@ describe("metadata item XML import augmenter registry", () => {
     })
 
     expect(yaml).toEqual({})
+  })
+
+  it("разрешает вариант до применения обработчика", () => {
+    registerMetadataItemXmlImportAugmenter("metadata-item-variant-test", {
+      resolveCurrentXMLDefaultVariant: ({ source }) =>
+        source.Value === "borrowed" ? "adopted" : "full",
+      augment() {},
+    })
+    const context = {
+      ...mockContextFromXML(),
+      fromXML: {
+        ...mockContextFromXML().fromXML,
+        metadataItemAugmenter: "metadata-item-variant-test",
+      },
+    }
+
+    expect(resolveMetadataItemXMLDefaultVariant({
+      context,
+      rule,
+      source: { Value: "borrowed" },
+    })).toBe("adopted")
+    expect(resolveMetadataItemXMLDefaultVariant({
+      context: mockContextFromXML(),
+      rule,
+      source: { Value: "borrowed" },
+    })).toBeUndefined()
   })
 })
 
