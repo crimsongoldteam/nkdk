@@ -385,14 +385,10 @@ function decodeElement(defaultName: string, value: unknown, allowExternalName: b
   const orderedContentByName = legacyScalarPrefix
     ? new Map([...contentByName].filter(([name]) => name !== "#text"))
     : contentByName
-  assertExactOrder(order, orderedContentByName, "#order")
-  const contentOffsets = new Map<string, number>()
-  const content: DraftXmlContent[] = legacyScalarPrefix ? [...texts] : []
-  for (const contentName of order) {
-    const offset = contentOffsets.get(contentName) ?? 0
-    content.push(orderedContentByName.get(contentName)![offset]!)
-    contentOffsets.set(contentName, offset + 1)
-  }
+  const orderedContent = resolveExactOrder(order, orderedContentByName, "#order")
+  const content: DraftXmlContent[] = legacyScalarPrefix
+    ? [...texts, ...orderedContent]
+    : orderedContent
   return { type: "element", name, attributes, content }
 }
 
@@ -430,27 +426,51 @@ function decodeProcessingInstruction(
   return { type: "processingInstruction", target, body, attributes }
 }
 
-function assertExactOrder(
+function resolveExactOrder(
   order: readonly string[],
   contentByName: ReadonlyMap<string, readonly DraftXmlContent[]>,
   description: string
-): void {
-  const expectedCounts = new Map(
-    [...contentByName].map(([name, content]) => [name, content.length] as const)
-  )
-  const actualCounts = new Map<string, number>()
-  for (const name of order) actualCounts.set(name, (actualCounts.get(name) ?? 0) + 1)
-  if (
-    order.length !== [...expectedCounts.values()].reduce((sum, count) => sum + count, 0) ||
-    [...expectedCounts].some(([name, count]) => actualCounts.get(name) !== count) ||
-    [...actualCounts].some(([name]) => !expectedCounts.has(name))
-  ) {
-    const expected = [...contentByName].flatMap(([name, content]) => content.map(() => name))
+): DraftXmlContent[] {
+  const expected = [...contentByName].flatMap(([name, content]) => content.map(() => name))
+  const selected = new Set<DraftXmlContent>()
+  const result: DraftXmlContent[] = []
+  for (const label of order) {
+    const direct = contentByName.get(label)?.find((content) => !selected.has(content))
+    const content = direct ?? selectNamedElement(label, contentByName, selected)
+    if (content === undefined) return invalidExactOrder()
+    selected.add(content)
+    result.push(content)
+  }
+  if (result.length !== expected.length) return invalidExactOrder()
+  return result
+
+  function invalidExactOrder(): never {
     throw new Error(
       `${description} должен ровно перечислять всё XML-содержимое с учётом повторов; `
       + `получено [${order.join(", ")}], содержимое [${expected.join(", ")}]`,
     )
   }
+}
+
+function selectNamedElement(
+  label: string,
+  contentByName: ReadonlyMap<string, readonly DraftXmlContent[]>,
+  selected: ReadonlySet<DraftXmlContent>,
+): DraftXmlElement | undefined {
+  for (const [elementName, content] of [...contentByName].toSorted(
+    ([left], [right]) => right.length - left.length,
+  )) {
+    const prefix = `${elementName}:`
+    if (!label.startsWith(prefix)) continue
+    const name = label.slice(prefix.length)
+    const matches = content.filter((item): item is DraftXmlElement =>
+      item.type === "element"
+      && !selected.has(item)
+      && item.attributes.some((attribute) => attribute.name === "name" && attribute.value === name)
+    )
+    return matches.length === 1 ? matches[0] : undefined
+  }
+  return undefined
 }
 
 function materializeXmlElementNodes(drafts: readonly DraftXmlElement[]): readonly XmlElementNode[] {

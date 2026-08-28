@@ -57,6 +57,25 @@ describe("decodeXmlRawValue", () => {
       .toEqual(["Button", "ButtonGroup", "Button"])
   })
 
+  it("переставляет одноимённые элементы по атрибуту name из краткого #order", () => {
+    const fragment = decodeXmlRawValue({
+      "xr:GeneratedType": [
+        { _name: "CatalogRef.ВидыЗадач", _category: "Ref" },
+        { _name: "CatalogObject.ВидыЗадач", _category: "Object" },
+      ],
+      "#order": [
+        "xr:GeneratedType:CatalogObject.ВидыЗадач",
+        "xr:GeneratedType:CatalogRef.ВидыЗадач",
+      ],
+    }, { elementName: "InternalInfo" })
+
+    expect(fragment.nodes[0]?.content.map((node) =>
+      node.type === "element"
+        ? node.attributes.find(({ name }) => name === "name")?.value
+        : undefined
+    )).toEqual(["CatalogObject.ВидыЗадач", "CatalogRef.ВидыЗадач"])
+  })
+
   it("заменяет существующий порядок только явным #order патча", () => {
     const patched = applyXmlPatch(
       interleavedButtons,
