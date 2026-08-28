@@ -14,8 +14,21 @@ import {
 import { importConfigurationExtensionCollectionState } from "./collectionStates"
 
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
+  resolveCurrentXMLDefaultVariant({ rule, source }) {
+    if (rule.properties.objectBelonging === undefined) return undefined
+    return extensionServiceProperties(source, rule)?.objectBelonging === "Adopted"
+      ? "adopted"
+      : "full"
+  },
   augment({ context, rule, source, yaml }): void {
     importConfigurationExtensionCollectionState({ context, rule, source, yaml })
+    if (context.fromXML.currentXMLDefaultVariant !== "adopted") {
+      const states = propertyStates(source)
+      if (states.length > 0) {
+        throw new Error(`PropertyState недопустим для full ${rule.itemType}`)
+      }
+      return
+    }
     const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
     let extendedConfigurationObjectNotify = false
     for (const propertyState of propertyStates(source)) {

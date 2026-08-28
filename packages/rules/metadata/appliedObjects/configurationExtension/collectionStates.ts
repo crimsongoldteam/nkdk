@@ -30,9 +30,16 @@ export function importConfigurationExtensionCollectionState(params: {
   readonly source: Record<string, unknown>
   readonly yaml: Record<string, unknown>
 }): void {
+  const borrowed = params.context.fromXML.currentXMLDefaultVariant === "adopted"
   if (params.rule.itemType === "ExchangePlanContent") {
     const items = arrayOfRecords(params.yaml.items)
     persistExchangePlanItemOrder(params.context, items)
+    if (!borrowed) {
+      if (params.source.ExtensionProperty !== undefined || params.yaml.extensionProperties !== undefined) {
+        throw new Error("ExtensionProperty недопустим для full ExchangePlanContent")
+      }
+      return
+    }
     const states = arrayOfRecords(params.yaml.extensionProperties).map((item) => ({
       metadata: requiredString(item.metadata, "Metadata"),
       state: requiredState(item.state),
@@ -42,6 +49,12 @@ export function importConfigurationExtensionCollectionState(params: {
     return
   }
   if (params.rule.properties.extensionState === undefined) return
+  if (!borrowed) {
+    if (params.source.ExtensionState !== undefined) {
+      throw new Error(`ExtensionState недопустим для full ${params.rule.itemType}`)
+    }
+    return
+  }
   importPredefinedExtensionState(params.source, params.yaml)
 }
 

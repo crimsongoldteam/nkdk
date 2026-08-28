@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
   createConfigurationIndexCollector,
@@ -18,6 +19,41 @@ import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/ru
 import { MetadataTaskAddressingAttributeRules } from "../../commonObjects/metadataTaskAddressingAttribute/rules"
 
 describe("configuration extension PropertyState augmenter", () => {
+  it("определяет вариант только у правила с объявленной принадлежностью", () => {
+    const ruleWithOwnership = {
+      itemType: "OwnershipProbe",
+      properties: {
+        objectBelonging: {
+          type: "string",
+          xml: "ObjectBelonging",
+          xmlParents: ["Properties"],
+          runtimeOnly: true,
+        },
+      },
+    } as MetadataItemRule
+    const ruleWithoutOwnership = {
+      itemType: "InheritedOwnershipProbe",
+      properties: {},
+    } as MetadataItemRule
+    const resolve = configurationExtensionPropertyStatesAugmenter.resolveCurrentXMLDefaultVariant!
+
+    expect(resolve({
+      context: ownExtensionContext(),
+      rule: ruleWithOwnership,
+      source: { Properties: { ObjectBelonging: "Adopted" } },
+    })).toBe("adopted")
+    expect(resolve({
+      context: extensionContext(),
+      rule: ruleWithOwnership,
+      source: { Properties: {} },
+    })).toBe("full")
+    expect(resolve({
+      context: extensionContext(),
+      rule: ruleWithoutOwnership,
+      source: {},
+    })).toBeUndefined()
+  })
+
   it("представляет контролируемый XML-default пустым YAML-значением", () => {
     const rule = {
       itemType: "ControlledDefaultProbe",
@@ -708,10 +744,19 @@ function extensionContext(
     fromXML: {
       ...mockContextFromXML().fromXML,
       metadataItemAugmenter: "configurationExtension",
+      currentXMLDefaultVariant: "adopted" as const,
       ...(propertyStateCompatibilityMode === undefined ? {} : { propertyStateCompatibilityMode }),
     },
   }
   return collector === undefined ? base : withConfigurationIndexCollector(base, collector, logicalAddress)
+}
+
+function ownExtensionContext() {
+  const context = extensionContext()
+  return {
+    ...context,
+    fromXML: { ...context.fromXML, currentXMLDefaultVariant: "full" as const },
+  }
 }
 
 function propertyStates(

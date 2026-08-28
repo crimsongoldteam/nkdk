@@ -7,6 +7,7 @@ createDirectRoundTripContexts,
 createDirectAdoptedExportContext,
 serializeDirectXML,
 testMetadataItemFromYAMLToXML,
+testMetadataItemFromXMLToYAML,
 testPropertyFixtureThroughYAML,
 testPropertyFromXMLToYAML,
 testPropertyFromYAMLToXML,
@@ -41,6 +42,7 @@ describe("PredefinedItem XML → YAML", () => {
         ...contexts.importContext.fromXML,
         componentKind: "configurationExtension" as const,
         metadataItemAugmenter: "configurationExtension",
+        currentXMLDefaultVariant: "adopted" as const,
       },
     }
     const yaml = testPropertyFromXMLToYAML({
@@ -72,6 +74,32 @@ describe("PredefinedItem XML → YAML", () => {
     expect(yamlScalarTagAt(children, "Предопределенный3")).toBeUndefined()
     expect(group).not.toHaveProperty("ExtensionState")
     expect(children.Предопределенный3).not.toHaveProperty("ExtensionState")
+  })
+
+  it("отклоняет состояние расширения у собственного предопределённого элемента", () => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Catalog.Товары.Predefined" })
+    const context = {
+      ...contexts.importContext,
+      fromXML: {
+        ...contexts.importContext.fromXML,
+        componentKind: "configurationExtension" as const,
+        metadataItemAugmenter: "configurationExtension",
+        currentXMLDefaultVariant: "full" as const,
+      },
+    }
+
+    expect(() => testMetadataItemFromXMLToYAML({
+      context,
+      rule: PredefinedItemRules,
+      name: "Собственный",
+      xml: {
+        Name: "Собственный",
+        Code: "000000001",
+        Description: "Собственный",
+        IsFolder: false,
+        ExtensionState: "AdoptedNotify",
+      },
+    })).toThrow("ExtensionState недопустим для full")
   })
 
   it.each([

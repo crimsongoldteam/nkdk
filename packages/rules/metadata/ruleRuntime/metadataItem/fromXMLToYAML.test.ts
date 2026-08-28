@@ -491,7 +491,11 @@ function runMetadataItemRule(
   const extensionContext = {
     ...baseContext,
     exportToYAML: { toTyped: true },
-    fromXML: { ...baseContext.fromXML, metadataItemAugmenter: "configurationExtension" },
+    fromXML: {
+      ...baseContext.fromXML,
+      metadataItemAugmenter: "configurationExtension",
+      currentXMLDefaultVariant: "adopted" as const,
+    },
   }
   return withOperationRegistrySet({
     propertyStates: createPropertyStateCapabilityRegistry(contributions),

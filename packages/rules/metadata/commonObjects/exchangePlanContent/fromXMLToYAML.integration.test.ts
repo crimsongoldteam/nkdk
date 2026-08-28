@@ -43,6 +43,7 @@ describe("ExchangePlanContent XML → YAML", () => {
         ...contexts.importContext.fromXML,
         componentKind: "configurationExtension" as const,
         metadataItemAugmenter: "configurationExtension",
+        currentXMLDefaultVariant: "adopted" as const,
       },
     }
     const yaml = testMetadataItemFromXMLToYAML({
@@ -55,6 +56,26 @@ describe("ExchangePlanContent XML → YAML", () => {
     expect(yamlScalarTagAt(yaml[0], "Метаданные")).toBe("изменять")
     expect(yamlScalarTagAt(yaml[4], "Метаданные")).toBe("изменять")
     expect(yamlScalarTagAt(yaml[1], "Метаданные")).toBeUndefined()
+  })
+
+  it("импортирует состав собственного плана расширения как полную форму", () => {
+    const contexts = createDirectRoundTripContexts()
+    const context = {
+      ...contexts.importContext,
+      fromXML: {
+        ...contexts.importContext.fromXML,
+        componentKind: "configurationExtension" as const,
+        metadataItemAugmenter: "configurationExtension",
+        currentXMLDefaultVariant: "full" as const,
+      },
+    }
+    const xml = readAppliedObjectFixture(import.meta.url, "content.xml")
+
+    expect(testMetadataItemFromXMLToYAML({
+      rule: ExchangePlanContentRules,
+      context,
+      xml,
+    }).yaml).toEqual(contentYAML)
   })
 
   it("imports empty content as an explicit empty list", () => {
