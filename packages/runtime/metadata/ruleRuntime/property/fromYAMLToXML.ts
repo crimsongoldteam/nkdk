@@ -44,6 +44,7 @@ import { copyXmlAnomalyExportClaim, readXmlAnomalyRawCollectionItems } from "../
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { assertYAMLScalarTagAllowed } from "./yamlScalarTagPolicy"
+import { isXmlImportControlExportContext } from "../../helpers/mdObjectRefUuid"
 
 export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
   readonly execution?: PropertyRuleExecution
@@ -760,6 +761,7 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const importedValue = occurrenceHandler === undefined
     ? value
     : importMetadataTargetsFromYAML({
+        context,
         value,
         handler: occurrenceHandler,
         rule,
@@ -792,6 +794,7 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
 }
 
 function importMetadataTargetsFromYAML(params: {
+  context: ConfigurationContext
   value: unknown
   handler: MetadataTargetOccurrencesFunction
   rule: PropertyRule
@@ -809,6 +812,7 @@ function importMetadataTargetsFromYAML(params: {
     value: prepared,
     occurrences,
     owner: params.owner,
+    allowUnresolvedUuid: isXmlImportControlExportContext(params.context),
   })
 }
 

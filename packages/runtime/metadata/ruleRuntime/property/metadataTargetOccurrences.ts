@@ -9,6 +9,7 @@ import type {
   MetadataTargetOwner,
 } from "../metadataTarget/types"
 import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
+import { isMDObjectRefUuid } from "../../helpers/mdObjectRefUuid"
 import type { PropertyRule } from "./types"
 
 export type MetadataTargetLocation =
@@ -41,6 +42,7 @@ interface MetadataTargetTransformationParams {
   readonly value: unknown
   readonly occurrences: readonly MetadataTargetOccurrence[]
   readonly owner?: MetadataTargetOwner
+  readonly allowUnresolvedUuid?: boolean
 }
 
 export function exportMetadataTargetOccurrencesToYAML(params: MetadataTargetTransformationParams): unknown {
@@ -83,6 +85,7 @@ export function importMetadataTargetOccurrencesFromYAML(params: MetadataTargetTr
       const model = parseMetadataTargetFromModel({ canonical: text, constraint, owner: params.owner })
       if (!model.ok) continue
     }
+    if (params.allowUnresolvedUuid === true && isMDObjectRefUuid(text)) continue
     throw new Error(parsed.message)
   }
   return result

@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import os from "node:os"
-import { join } from "node:path"
+import { join, resolve } from "node:path"
 import { createConfigurationLanguages, type ComponentAddress } from "@nkdk/runtime"
 import type { ConfigurationIndexCandidateStore, ConfigurationIndexStore } from "@nkdk/runtime/configuration-index-store"
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "../project/componentState"
@@ -55,7 +55,7 @@ export function createMockFullSyncDependencies(
   const topology = compileRegisteredMetadataResourceTopology()
   const defaults: FullXmlSyncCoordinatorDependencies = {
     async exists(path) {
-      return path === "/project"
+      return path === resolve("/project")
     },
     async isDirectoryEmpty() {
       return true

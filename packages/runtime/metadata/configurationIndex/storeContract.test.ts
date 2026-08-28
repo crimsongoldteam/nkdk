@@ -1,4 +1,4 @@
-import { join } from "node:path"
+import { join, resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import {
   CONFIGURATION_INDEX_SCHEMA_VERSION,
@@ -8,7 +8,7 @@ import { validateConfigurationIndexProjectPath } from "./utilities"
 
 describe("configuration index store contract", () => {
   it("places configuration data and lock under the component directory", () => {
-    const projectDir = "/project"
+    const projectDir = resolve("project")
 
     expect(configurationIndexStoreDescriptor(projectDir, { kind: "configuration" })).toEqual({
       dataPath: join(projectDir, ".nkdk/components/cf/configuration-index.lmdb"),
