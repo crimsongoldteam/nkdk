@@ -1,7 +1,6 @@
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import {
   cloneYAMLContainer,
-  copyYAMLRuntimeMetadata,
   copyYAMLRuntimeMetadataDeep,
   createXmlAnomalyAnnotations,
   hasYAMLRuntimeMetadataAt,
@@ -34,6 +33,11 @@ interface IndexedFormElement {
   readonly rule: MetadataItemRule
 }
 
+interface YAMLRuntimeCorrespondence {
+  readonly source: object
+  readonly target: object
+}
+
 export function projectClientApplicationBaseForm(params: {
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml: ClientApplicationFormYAML
@@ -52,12 +56,18 @@ export function projectClientApplicationBaseForm(params: {
   const attributeNames = intersectNamedComponentNames(params.baseYaml.Реквизиты, params.extensionYaml.Реквизиты)
   const commandNames = intersectNamedComponentNames(params.baseYaml.Команды, params.extensionYaml.Команды)
   const parameterNames = intersectNamedComponentNames(params.baseYaml.Параметры, params.extensionYaml.Параметры)
+  const metadataCorrespondences: YAMLRuntimeCorrespondence[] = []
   const projectionContext: BaseFormProjectionRuntimeContext = {
     attributeNames,
     commandNames,
     parameterNames,
     baseAnnotations: params.baseAnnotations,
     extensionAnnotations: params.extensionAnnotations,
+    registerYAMLRuntimeCorrespondence: (source, target) => {
+      if (isYamlObject(source) && isYamlObject(target)) {
+        metadataCorrespondences.push({ source, target })
+      }
+    },
   }
   const properties = projectMetadataItemProperties({
     baseYaml: params.baseYaml,
@@ -81,13 +91,15 @@ export function projectClientApplicationBaseForm(params: {
     ...(elements === undefined ? {} : { Элементы: elements }),
   } as ClientApplicationFormYAML
   const annotations = createXmlAnomalyAnnotations()
-  copyYAMLRuntimeMetadataDeep({
-    source: params.baseYaml,
-    target: yaml,
-    ...(params.baseAnnotations === undefined
-      ? {}
-      : { sourceAnnotations: params.baseAnnotations, targetAnnotations: annotations }),
-  })
+  projectionContext.registerYAMLRuntimeCorrespondence?.(params.baseYaml, yaml)
+  for (const correspondence of metadataCorrespondences) {
+    copyYAMLRuntimeMetadataDeep({
+      ...correspondence,
+      ...(params.baseAnnotations === undefined
+        ? {}
+        : { sourceAnnotations: params.baseAnnotations, targetAnnotations: annotations }),
+    })
+  }
 
   return {
     yaml,
@@ -151,7 +163,7 @@ function projectElementTree(params: {
   readonly extensionElementsByName: ReadonlyMap<string, IndexedFormElement>
   readonly context: BaseFormProjectionRuntimeContext
 }): FormElementTreeYAML {
-  return Object.fromEntries(
+  const result = Object.fromEntries(
     Object.entries(params.baseElements).map(([name, baseElement]) => [
       name,
       projectElementSelection({
@@ -164,6 +176,8 @@ function projectElementTree(params: {
       }),
     ])
   )
+  params.context.registerYAMLRuntimeCorrespondence?.(params.baseElements, result)
+  return result
 }
 
 function projectElementSelection(params: {
@@ -194,7 +208,6 @@ function projectElementSelection(params: {
     Вид: params.baseElement.Вид,
     ...properties,
   }
-  copyYAMLRuntimeMetadata(properties, result)
 
   if (params.baseElement.Элементы !== undefined) {
     const childCollectionRule = propertyRuleByYamlKey(baseRule, "Элементы")
@@ -208,6 +221,8 @@ function projectElementSelection(params: {
       context: params.context,
     })
   }
+
+  params.context.registerYAMLRuntimeCorrespondence?.(params.baseElement, result)
 
   return result
 }
@@ -234,11 +249,13 @@ function projectAliasedMetadataItemProperties(params: {
       extensionAliases
     ),
   })
-  return restoreProjectionAliases(
+  const restored = restoreProjectionAliases(
     projected,
     params.baseYaml,
     baseAliases
   )
+  params.context.registerYAMLRuntimeCorrespondence?.(params.baseYaml, restored)
+  return restored
 }
 
 function normalizeProjectionAliases(
@@ -262,7 +279,6 @@ function restoreProjectionAliases(
   aliases: Readonly<Record<string, string>>
 ): Record<string, unknown> {
   const result = { ...projected }
-  copyYAMLRuntimeMetadata(projected, result)
   for (const [ruleYamlKey, treeYamlKey] of Object.entries(aliases)) {
     if (Object.hasOwn(result, ruleYamlKey)) {
       result[treeYamlKey] = result[ruleYamlKey]
@@ -279,7 +295,6 @@ function restoreProjectionAliases(
     ),
     ...result,
   }
-  copyYAMLRuntimeMetadata(result, restored)
   return restored
 }
 
@@ -338,10 +353,12 @@ function projectMetadataItemProperties(params: {
     result[yamlKey] =
       nestedProjection.kind === "include"
         ? nestedProjection.value
-        : intersectBaseFormValues(projection.value, extensionValue)
+        : intersectBaseFormValues(
+            projection.value,
+            extensionValue,
+            params.context.registerYAMLRuntimeCorrespondence,
+          )
   }
-
-  copyYAMLRuntimeMetadata(params.baseYaml, result)
   return result
 }
 
@@ -574,6 +591,10 @@ function asYamlRecord(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
+}
+
+function isYamlObject(value: unknown): value is object {
+  return value !== null && typeof value === "object"
 }
 
 function intersectNamedComponentNames(

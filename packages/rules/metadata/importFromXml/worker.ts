@@ -1175,6 +1175,7 @@ function prepareSerializedBaseFormCandidate(params: {
     params.candidate.yaml,
     params.state,
     params.profiler,
+    params.candidate.annotations,
   )
   const validationFile = resolveValidationProjectFile(
     params.state.projectDir,

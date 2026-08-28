@@ -153,4 +153,48 @@ describe("YAML runtime metadata", () => {
 
     expect(targetAnnotations.at(target, "Объект")).toBeUndefined()
   })
+
+  it("не сопоставляет элементы изменённого массива по сдвинувшемуся индексу", () => {
+    const parsed = parseMetadataYaml([
+      "Элементы:",
+      "  - Имя: Первый",
+      "    Значение: !xml/invalid same",
+      "  - Имя: Второй",
+      "    Значение: !xml/important same",
+    ].join("\n"))
+    const source = parsed.data as { Элементы: Array<Record<string, string>> }
+    const target = { Элементы: [structuredClone(source.Элементы[1])] }
+    const targetAnnotations = createXmlAnomalyAnnotations()
+
+    copyYAMLRuntimeMetadataDeep({
+      source,
+      target,
+      sourceAnnotations: parsed.annotations,
+      targetAnnotations,
+    })
+
+    expect(targetAnnotations.at(target.Элементы[0], "Значение")).toBeUndefined()
+
+    copyYAMLRuntimeMetadataDeep({
+      source: source.Элементы[1],
+      target: target.Элементы[0],
+      sourceAnnotations: parsed.annotations,
+      targetAnnotations,
+    })
+
+    expect(targetAnnotations.at(target.Элементы[0], "Значение")).toMatchObject({
+      kind: "important",
+    })
+  })
+
+  it("отклоняет перенос только с одной таблицей XML-аннотаций", () => {
+    const parsed = parseMetadataYaml("Значение: !xml/invalid text")
+    const target = structuredClone(parsed.data)
+
+    expect(() => copyYAMLRuntimeMetadataDeep({
+      source: parsed.data,
+      target,
+      sourceAnnotations: parsed.annotations,
+    })).toThrow("Для переноса XML-аннотаций нужны исходная и целевая таблицы")
+  })
 })

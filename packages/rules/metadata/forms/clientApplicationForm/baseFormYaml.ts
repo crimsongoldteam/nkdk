@@ -42,7 +42,7 @@ export function importBaseFormYaml(params: {
   formName: string
   rule?: MetadataItemRule
 }): ImportedBaseFormYaml {
-  const annotations = createXmlAnomalyAnnotations()
+  const importedAnnotations = createXmlAnomalyAnnotations()
   const configurationIndexCollector = createConfigurationIndexCollector()
   const currentCollection = getConfigurationIndexCollectionContext(params.context)
   const formLogicalAddress = currentCollection?.logicalAddress ?? params.formName
@@ -60,13 +60,14 @@ export function importBaseFormYaml(params: {
     rule: params.rule ?? ClientApplicationFormRules,
     collector: localIndexesCollector,
     deferred,
-    annotations,
+    annotations: importedAnnotations,
   })
   const yaml = normalizeBaseFormYaml(imported.yaml)
+  const annotations = createXmlAnomalyAnnotations()
   copyYAMLRuntimeMetadataDeep({
     source: imported.yaml,
     target: yaml,
-    sourceAnnotations: annotations,
+    sourceAnnotations: importedAnnotations,
     targetAnnotations: annotations,
   })
   const localIndexes = localIndexesCollector.finish()

@@ -537,25 +537,25 @@ describe("validateParsedFile", () => {
   })
 
   it("связывает invalid уникального логического ключа с его смысловым значением", () => {
-    const parsed = parseMetadataYaml([
-      "Заголовок:",
-      "  ru: Текст",
-      "  !xml/invalid en: Text",
-    ].join("\n"))
-    const target = { kind: "path" as const, path: ["Заголовок", "en"] }
-
-    const result = evaluateParsedXmlAnomalyBoundaries({
-      filePath: "test.yaml",
-      parsed,
-      diagnostics: [],
-      issues: [{ code: "i18n.unregistered-language", kind: "semantic", target }],
-    })
+    const { result, target } = evaluateUniqueInvalidLanguage(true)
 
     expect(result.diagnostics).toEqual([])
     expect(result.issues).toEqual([])
     expect(result.boundaries).toEqual([
       { annotation: "invalid", target, state: "accepted" },
     ])
+  })
+
+  it("считает invalid уникального логического ключа лишним без смысловой ошибки", () => {
+    const { result, target } = evaluateUniqueInvalidLanguage(false)
+
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "xml/anomaly-tag-unnecessary",
+        target,
+      }),
+    ])
+    expect(result.boundaries).toEqual([])
   })
 
   it.each([
@@ -640,3 +640,21 @@ describe("validateParsedFile", () => {
       .toMatchObject({ diagnostics: [], issues: [] })
   })
 })
+
+function evaluateUniqueInvalidLanguage(withIssue: boolean) {
+  const parsed = parseMetadataYaml([
+    "Заголовок:",
+    "  ru: Текст",
+    "  !xml/invalid en: Text",
+  ].join("\n"))
+  const target = { kind: "path" as const, path: ["Заголовок", "en"] }
+  const result = evaluateParsedXmlAnomalyBoundaries({
+    filePath: "test.yaml",
+    parsed,
+    diagnostics: [],
+    issues: withIssue
+      ? [{ code: "i18n.unregistered-language", kind: "semantic", target }]
+      : [],
+  })
+  return { result, target }
+}

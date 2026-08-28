@@ -7,7 +7,9 @@ import type {
 } from "@nkdk/runtime/rule-kit"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 
-export type BaseFormProjectionContext = MetadataBaseFormProjectionContext
+export type BaseFormProjectionContext = MetadataBaseFormProjectionContext & {
+  readonly registerYAMLRuntimeCorrespondence?: (source: unknown, target: unknown) => void
+}
 export type BaseFormPropertyProjection = MetadataBaseFormProjection
 export type BaseFormPropertyProjector = MetadataBaseFormProjector
 
@@ -67,18 +69,22 @@ export function projectProperty(params: {
 
 export function intersectBaseFormValues(
   baseValue: unknown,
-  extensionValue: unknown
+  extensionValue: unknown,
+  registerYAMLRuntimeCorrespondence?: (source: unknown, target: unknown) => void,
 ): unknown {
   if (Array.isArray(baseValue) && Array.isArray(extensionValue)) {
     const length = Math.min(baseValue.length, extensionValue.length)
-    return Array.from(
+    const result = Array.from(
       { length },
       (_, index) =>
         intersectBaseFormValues(
           baseValue[index],
-          extensionValue[index]
+          extensionValue[index],
+          registerYAMLRuntimeCorrespondence,
         )
     )
+    registerYAMLRuntimeCorrespondence?.(baseValue, result)
+    return result
   }
 
   const baseYaml = asYamlRecord(baseValue)
@@ -88,8 +94,13 @@ export function intersectBaseFormValues(
   const result: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(baseYaml)) {
     if (!Object.hasOwn(extensionYaml, key)) continue
-    result[key] = intersectBaseFormValues(value, extensionYaml[key])
+    result[key] = intersectBaseFormValues(
+      value,
+      extensionYaml[key],
+      registerYAMLRuntimeCorrespondence,
+    )
   }
+  registerYAMLRuntimeCorrespondence?.(baseYaml, result)
   return result
 }
 
@@ -104,7 +115,8 @@ function projectStructuredValue(params: {
       kind: "include",
       value: intersectBaseFormValues(
         params.baseValue,
-        params.extensionValue
+        params.extensionValue,
+        params.context.registerYAMLRuntimeCorrespondence,
       ),
     }
   }
@@ -141,7 +153,13 @@ function projectStructuredValue(params: {
         context: params.context,
         rule: params.rule.item,
       })
-      if (item.kind === "include") value.push(item.value)
+      if (item.kind === "include") {
+        value.push(item.value)
+        params.context.registerYAMLRuntimeCorrespondence?.(
+          params.baseValue[index],
+          item.value,
+        )
+      }
     }
     return value.length === 0 && params.rule.omitIfEmpty === true
       ? { kind: "omit" }
@@ -180,6 +198,7 @@ function projectStructuredValue(params: {
   ) {
     return { kind: "omit" }
   }
+  params.context.registerYAMLRuntimeCorrespondence?.(baseYaml, value)
   return { kind: "include", value }
 }
 

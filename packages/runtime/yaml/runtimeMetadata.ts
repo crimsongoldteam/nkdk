@@ -68,7 +68,12 @@ export function copyYAMLRuntimeMetadataDeep<TAnnotation extends { readonly targe
     for (const key of correspondingKeys) {
       const sourceChild = valueAt(source, key)
       const targetChild = valueAt(target, key)
-      if (isObject(sourceChild) && isObject(targetChild) && sameContainerKind(sourceChild, targetChild)) {
+      if (
+        isObject(sourceChild) &&
+        isObject(targetChild) &&
+        sameContainerKind(sourceChild, targetChild) &&
+        (!Array.isArray(sourceChild) || sameYAMLValue(sourceChild, targetChild))
+      ) {
         visit(sourceChild, targetChild)
       }
     }
