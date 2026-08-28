@@ -45,10 +45,16 @@ export function yamlScalarTagAt(parent: unknown, key: YAMLScalarTagKey): YAMLSca
   return typeof parent === "object" && parent !== null ? scalarTags.get(parent)?.get(key) : undefined
 }
 
-export function copyYAMLScalarTags(source: object, target: object): void {
+export function copyYAMLScalarTags(
+  source: object,
+  target: object,
+  keys?: ReadonlySet<YAMLScalarTagKey>,
+): void {
   const marks = scalarTags.get(source)
   if (marks === undefined) return
-  for (const [key, tag] of marks) markYAMLScalarTag(target, key, tag)
+  for (const [key, tag] of marks) {
+    if (keys === undefined || keys.has(key)) markYAMLScalarTag(target, key, tag)
+  }
 }
 
 export function taggedScalarForDump(parent: object, key: YAMLScalarTagKey, value: unknown): unknown {

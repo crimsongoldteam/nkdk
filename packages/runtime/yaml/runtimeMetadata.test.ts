@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { asExplicitYAMLStringIfMarked, explicitYAMLString, markDoubleQuotedScalar } from "./explicitString"
 import { markYAMLMappingKeyOrder, yamlMappingKeys } from "./mappingTags"
-import { cloneYAMLContainer, copyYAMLRuntimeMetadata } from "./runtimeMetadata"
+import { parseMetadataYaml } from "./parseMetadataYaml"
+import { cloneYAMLContainer, copyYAMLRuntimeMetadata, copyYAMLRuntimeMetadataDeep } from "./runtimeMetadata"
 import { markYAMLScalarTag, yamlScalarTagAt } from "./scalarTags"
+import { createXmlAnomalyAnnotations } from "./xmlAnomalyAnnotations"
 
 describe("YAML runtime metadata", () => {
   it("клонирует объект со всеми служебными метаданными", () => {
@@ -77,5 +79,58 @@ describe("YAML runtime metadata", () => {
     expect(() => copyYAMLRuntimeMetadata(source, target)).toThrow(
       "Несовместимая служебная Symbol-метка YAML: Symbol(marker)",
     )
+  })
+
+  it("переносит все служебные метаданные соответствующего YAML-поддерева", () => {
+    const parsed = parseMetadataYaml([
+      "Объект: !xml/raw",
+      "  $значение:",
+      "    Имя: !xml/name ОсобоеИмя",
+      "    Языки: !xml/invalid",
+      "      ru: Текст",
+      "      en: Text",
+      "  $xml: { _name: ОсобоеИмя }",
+    ].join("\n"))
+    const source = parsed.data as { Объект: { Имя: string; Языки: Record<string, string> } }
+    markYAMLMappingKeyOrder(source.Объект.Языки, ["en", "ru"])
+    markDoubleQuotedScalar(source.Объект.Языки, "en")
+    const target = structuredClone(source)
+    const targetAnnotations = createXmlAnomalyAnnotations()
+
+    copyYAMLRuntimeMetadataDeep({
+      source,
+      target,
+      sourceAnnotations: parsed.annotations,
+      targetAnnotations,
+    })
+
+    expect(targetAnnotations.at(target, "Объект")).toMatchObject({ kind: "raw", target: "value" })
+    expect(targetAnnotations.at(target.Объект, "Языки")).toMatchObject({ kind: "invalid", target: "value" })
+    expect(yamlScalarTagAt(target.Объект, "Имя")).toBe("xml/name")
+    expect(yamlMappingKeys(target.Объект.Языки)).toEqual(["en", "ru"])
+    expect(asExplicitYAMLStringIfMarked(target.Объект.Языки, "en", "Text"))
+      .toEqual(explicitYAMLString("Text"))
+  })
+
+  it("не переносит аннотацию отсутствующего или изменённого значения", () => {
+    const parsed = parseMetadataYaml([
+      "Сохранить: !xml/invalid same",
+      "Изменить: !xml/invalid old",
+      "Удалить: !xml/invalid gone",
+    ].join("\n"))
+    const source = parsed.data as Record<string, string>
+    const target = { Сохранить: "same", Изменить: "new" }
+    const targetAnnotations = createXmlAnomalyAnnotations()
+
+    copyYAMLRuntimeMetadataDeep({
+      source,
+      target,
+      sourceAnnotations: parsed.annotations,
+      targetAnnotations,
+    })
+
+    expect(targetAnnotations.at(target, "Сохранить")).toMatchObject({ kind: "invalid" })
+    expect(targetAnnotations.at(target, "Изменить")).toBeUndefined()
+    expect(targetAnnotations.at(target, "Удалить")).toBeUndefined()
   })
 })
