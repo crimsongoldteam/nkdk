@@ -17,6 +17,8 @@ import { clearedReferencePropertyStateCapabilities, clearedReferenceRule } from 
 import { MetadataAccountingRegisterDimensionRules } from "../metadataAccountingRegister/childRules"
 import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/rules"
 import { MetadataTaskAddressingAttributeRules } from "../../commonObjects/metadataTaskAddressingAttribute/rules"
+import { MetadataConfigurationExtensionRules } from "./rules"
+import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
 
 describe("configuration extension PropertyState augmenter", () => {
   it("определяет вариант только у правила с объявленной принадлежностью", () => {
@@ -52,6 +54,21 @@ describe("configuration extension PropertyState augmenter", () => {
       rule: ruleWithoutOwnership,
       source: {},
     })).toBeUndefined()
+  })
+
+  it("определяет вариант корня расширения и формы через их служебные правила", () => {
+    const resolve = configurationExtensionPropertyStatesAugmenter.resolveCurrentXMLDefaultVariant!
+
+    expect(resolve({
+      context: ownExtensionContext(),
+      rule: MetadataConfigurationExtensionRules,
+      source: { Properties: { ObjectBelonging: "Adopted" } },
+    })).toBe("adopted")
+    expect(resolve({
+      context: extensionContext(),
+      rule: ClientApplicationFormRules,
+      source: { Form: { Properties: {} } },
+    })).toBe("full")
   })
 
   it("представляет контролируемый XML-default пустым YAML-значением", () => {
@@ -332,6 +349,7 @@ describe("configuration extension PropertyState augmenter", () => {
           typeSE: "CompatibilityMode",
         }),
         extendedConfigurationObject: { type: "string", runtimeOnly: true },
+        objectBelonging: { type: "string", runtimeOnly: true },
       },
     } as MetadataItemRule
     withOperationRegistrySet({
@@ -522,17 +540,23 @@ describe("configuration extension PropertyState augmenter", () => {
   ] as const)("сохраняет Extended для %s.%s в YAML-раздел", (itemType, property, propertyKey, externalName) => {
     const logicalAddress = "Справочник.Товары.Форма.ФормаЭлемента"
     const yaml: Record<string, unknown> = {}
-    const contribution = definePropertyStateItemCapabilities({
+    const itemRule = {
       itemType,
-      properties: { [propertyKey]: { type: "string", xml: property } },
-    } as MetadataItemRule, {
+      properties: {
+        [propertyKey]: { type: "string", xml: property },
+        ...(itemType === "MetadataConfigurationExtension"
+          ? { objectBelonging: { type: "string", runtimeOnly: true } }
+          : {}),
+      },
+    } as MetadataItemRule
+    const contribution = definePropertyStateItemCapabilities(itemRule, {
       properties: externalProperty(propertyKey, externalName, ["extend"]),
     })
     withOperationRegistrySet({
       propertyStates: createPropertyStateCapabilityRegistry([contribution]),
     }, () => configurationExtensionPropertyStatesAugmenter.augment({
         context: extensionContext(undefined, logicalAddress),
-        rule: { itemType, properties: { [propertyKey]: { type: "string", xml: property } } } as MetadataItemRule,
+        rule: itemRule,
         source: propertyStates([property, "Extended"]),
         yaml,
       }))

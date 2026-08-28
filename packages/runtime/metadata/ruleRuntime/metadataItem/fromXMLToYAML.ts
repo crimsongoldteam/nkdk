@@ -6,7 +6,10 @@ import type { MetadataItemRule } from "../property/types"
 import type { PropertyRuleExecution } from "../property/fn"
 import { findInlineProperty } from "./yamlInline"
 import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
-import type { MetadataItemXmlImportAugmenter } from "./augmenterRegistry"
+import {
+  withResolvedXMLImportObjectVariant,
+  type MetadataItemXmlImportAugmenter,
+} from "./augmenterRegistry"
 import { isXmlElementNode, type XmlElementNode } from "../../../xml/import/document"
 import { objectRecordOrUndefined } from "../../../helpers/record"
 import {
@@ -87,14 +90,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     rule: params.rule,
     source: augmenterSource,
   })
-  const variantContext = {
-    ...params.context,
-    fromXML: {
-      ...params.context.fromXML,
-      currentXMLDefaultVariant:
-        resolvedVariant ?? params.context.fromXML.currentXMLDefaultVariant ?? "full",
-    },
-  }
+  const variantContext = withResolvedXMLImportObjectVariant(params.context, resolvedVariant)
   const context = contextWithItemParent(variantContext, params.name, params.rule.itemType)
   const yaml = importPropertiesFromXMLToYAML({
     context,

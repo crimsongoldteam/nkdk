@@ -22,6 +22,7 @@ export const MetadataConfigurationExtensionRules = {
   itemType: "MetadataConfigurationExtension",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",
@@ -76,6 +77,15 @@ export const MetadataConfigurationExtensionRules = {
       xmlParents: [],
     }),
     internalInfo: configurationInternalInfoRule,
+    objectBelonging: systemEnumerationRule({
+      xml: "ObjectBelonging",
+      typeSE: "ObjectBelonging",
+      xmlParents: properties,
+      runtimeOnly: true,
+      toYAML: false,
+      fromYAML: false,
+      implicitValueYAML: "Native",
+    }),
     name: stringRule({
       yaml: "Имя",
       xmlParents: properties,

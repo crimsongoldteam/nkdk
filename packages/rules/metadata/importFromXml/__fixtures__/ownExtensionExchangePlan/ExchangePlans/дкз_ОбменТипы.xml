@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ExchangePlan uuid="2a78061d-3ac8-426f-944a-87777dbb8d54">
+		<InternalInfo>
+			<xr:ThisNode>8b96654a-14bb-4751-9475-21544a6f82ea</xr:ThisNode>
+			<xr:GeneratedType name="ExchangePlanObject.дкз_ОбменТипы" category="Object">
+				<xr:TypeId>a590814a-c80e-4791-ba84-a30740f008e4</xr:TypeId>
+				<xr:ValueId>9df9d0d9-a8df-44d3-ab1a-20a73ecadd8d</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanRef.дкз_ОбменТипы" category="Ref">
+				<xr:TypeId>0b081fe9-c51f-4dbc-811f-491b29678017</xr:TypeId>
+				<xr:ValueId>3c8f18c9-c2ef-4c4d-b080-89f0187c7f88</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanSelection.дкз_ОбменТипы" category="Selection">
+				<xr:TypeId>0614dc9e-2b9d-4094-b23d-d034eb1446d3</xr:TypeId>
+				<xr:ValueId>d9a4f7c9-e021-425e-9bac-e159c9dfc7b8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanList.дкз_ОбменТипы" category="List">
+				<xr:TypeId>a1eeec6f-c3cd-4733-8565-b7f5a0c03769</xr:TypeId>
+				<xr:ValueId>4104e52a-441b-402e-be6f-419ea6660576</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanManager.дкз_ОбменТипы" category="Manager">
+				<xr:TypeId>6e9d5390-3b36-4e36-8ef9-5dc01ad25788</xr:TypeId>
+				<xr:ValueId>6d0be823-9b10-483e-b1b6-e3622199a789</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Name>дкз_ОбменТипы</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Обмен с учетом задач Типы ООО</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment/>
+			<UseStandardCommands>true</UseStandardCommands>
+			<CodeLength>9</CodeLength>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
+			<DescriptionLength>25</DescriptionLength>
+			<DefaultPresentation>AsDescription</DefaultPresentation>
+			<EditType>InDialog</EditType>
+			<QuickChoice>false</QuickChoice>
+			<ChoiceMode>BothWays</ChoiceMode>
+			<InputByString>
+				<xr:Field>ExchangePlan.дкз_ОбменТипы.StandardAttribute.Description</xr:Field>
+				<xr:Field>ExchangePlan.дкз_ОбменТипы.StandardAttribute.Code</xr:Field>
+			</InputByString>
+			<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>
+			<FullTextSearchOnInputByString>DontUse</FullTextSearchOnInputByString>
+			<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>
+			<DefaultObjectForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<AuxiliaryObjectForm/>
+			<AuxiliaryListForm/>
+			<AuxiliaryChoiceForm/>
+			<Characteristics/>
+			<BasedOn/>
+			<DistributedInfoBase>false</DistributedInfoBase>
+			<IncludeConfigurationExtensions>false</IncludeConfigurationExtensions>
+			<CreateOnInput>DontUse</CreateOnInput>
+			<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+			<IncludeHelpInContents>false</IncludeHelpInContents>
+			<DataLockFields/>
+			<DataLockControlMode>Managed</DataLockControlMode>
+			<FullTextSearch>Use</FullTextSearch>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<ListPresentation/>
+			<ExtendedListPresentation/>
+			<Explanation/>
+			<DataHistory>DontUse</DataHistory>
+			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
+			<ExecuteAfterWriteDataHistoryVersionProcessing>false</ExecuteAfterWriteDataHistoryVersionProcessing>
+		</Properties>
+		<ChildObjects/>
+	</ExchangePlan>
+</MetaDataObject>

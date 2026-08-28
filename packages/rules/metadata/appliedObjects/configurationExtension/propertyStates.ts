@@ -232,8 +232,7 @@ function extensionServiceProperties(
 }
 
 function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
-  return rule.itemType === "MetadataConfigurationExtension" ||
-    rule.itemType === "ClientApplicationForm" ||
+  return rule.properties.objectBelonging !== undefined ||
     rule.properties.uuid !== undefined
 }
 

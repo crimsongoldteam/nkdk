@@ -4,7 +4,11 @@ import type {
   XmlElementNode,
   XmlImportAuditSession,
 } from "@nkdk/runtime"
-import { applyMetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
+import {
+  applyMetadataItemXmlImportAugmenter,
+  resolveMetadataItemXMLDefaultVariant,
+  withResolvedXMLImportObjectVariant,
+} from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
 import {
   createDeferredValuePathCollector,
@@ -40,8 +44,17 @@ export function importClientApplicationFormFromXMLToYAML(params: {
 
   const localIndexesCollector = createLocalIndexesCollector()
   const deferred = createDeferredValuePathCollector()
+  const augmenterSource = { ...params.metadataXML.Form }
+  const context = withResolvedXMLImportObjectVariant(
+    params.context,
+    resolveMetadataItemXMLDefaultVariant({
+      context: params.context,
+      rule,
+      source: augmenterSource,
+    }),
+  )
   const imported = importClientApplicationFormSources({
-    context: params.context,
+    context,
     rule,
     formName: params.formName,
     collector: localIndexesCollector,
@@ -60,7 +73,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     applyMetadataItemXmlImportAugmenter({
       context: imported.context,
       rule,
-      source: { ...params.metadataXML.Form },
+      source: augmenterSource,
       yaml,
     })
   }

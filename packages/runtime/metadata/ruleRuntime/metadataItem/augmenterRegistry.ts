@@ -79,6 +79,20 @@ export function resolveMetadataItemXMLDefaultVariant(
   return registry.resolveMetadataItemXMLDefaultVariant(params)
 }
 
+export function withResolvedXMLImportObjectVariant(
+  context: ConfigurationContextFromXML,
+  resolved: XMLImportObjectVariant | undefined,
+): ConfigurationContextFromXML {
+  return {
+    ...context,
+    fromXML: {
+      ...context.fromXML,
+      currentXMLDefaultVariant:
+        resolved ?? context.fromXML.currentXMLDefaultVariant ?? "full",
+    },
+  }
+}
+
 function applyFromRegistry(
   registry: ReadonlyMap<string, MetadataItemXmlImportAugmenter>,
   params: Parameters<typeof applyMetadataItemXmlImportAugmenter>[0],
