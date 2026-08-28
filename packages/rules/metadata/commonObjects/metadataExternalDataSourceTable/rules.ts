@@ -65,7 +65,6 @@ const tableProperties = {
     typeSE: "ExternalDataSourceTableType",
     xmlParents: properties,
     defaultValueXML: "Table",
-    preserveExplicitDefaultXML: true,
     implicitValueYAML: "Table",
   },
   nameInDataSource: {
@@ -283,7 +282,6 @@ const tableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
-    preserveExplicitDefaultXML: true,
     implicitValueYAML: false,
   },
   transactionsIsolationLevel: {
