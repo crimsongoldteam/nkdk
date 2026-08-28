@@ -1,5 +1,3 @@
-import { Type } from "typebox"
-
 import {
   type ConfigurationContextWithExportToXML,
 } from "@nkdk/runtime"
@@ -12,6 +10,7 @@ import { importSingleFormElementFromXMLToYAML } from "../ruleRuntime/fromXMLToYA
 import { createSingletonElementYAMLToXMLNestedRule } from "../ruleRuntime/ruleFactory"
 import type { ElementXML } from "../../../ruleRuntime/formElement/types"
 import { getCanonicalSingletonName } from "../../../ruleRuntime/formElement/singletonName"
+import { exportSingleElementRuleToJSONSchema } from "../../../ruleRuntime/formElement/toJSONSchema"
 
 const propertyType = "PopupExtendedTooltip"
 const nameStyle = explicitElementNameStyle("ExtendedTooltip", {
@@ -78,7 +77,11 @@ export const metadataPropertyRule003 = definePropertyTypeRule(
 export const metadataPropertyRule004 = definePropertyTypeRule(
   propertyType,
   "exportToJSONSchema",
-  () => Type.Never(),
+  ({ context }) => exportSingleElementRuleToJSONSchema({
+    context,
+    rule: ExtendedTooltipRules,
+    explicitXMLName: true,
+  }),
 )
 
 function normalizePopupExtendedTooltipYAML(yaml: unknown): unknown {

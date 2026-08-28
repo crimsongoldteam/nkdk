@@ -5,7 +5,10 @@ import { createOwnerMetadataCache, type OwnerMetadataCache } from "../../validat
 import { toDataPathPolicyInput, validateResolvedDataPathPolicy } from "../../validation/dataPath/policies"
 import { resolveDataPath } from "../../validation/dataPath/resolver"
 import { type RegisteredFormValidator, type RegisteredFormValidatorParams } from "../../validation/formValidationRegistry"
-import { validateExcludedEqualNameYAML } from "../../validation/excludeIfEqualNameYAML"
+import {
+  validateExcludedEqualNameYAML,
+  validateRuleYAMLObjectProperties,
+} from "../../validation/excludeIfEqualNameYAML"
 import type { Diagnostic } from "../../validation/types"
 import { dedupeDiagnostics } from "../../validation/diagnostics"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
@@ -91,6 +94,17 @@ export function validateClientApplicationFormFirstPass(
       context,
       name: params.formName,
     }),
+    ...visitedItems.flatMap((visit) => visit.yamlPath.length === 0 ? [] : validateRuleYAMLObjectProperties({
+      filePath: entry.filePath,
+      parsed: entry.parsed,
+      rule: visit.rule,
+      context,
+      name: typeof visit.yamlPath.at(-1) === "string"
+        ? visit.yamlPath.at(-1) as string
+        : undefined,
+      value: visit.yaml,
+      yamlPath: visit.yamlPath,
+    })),
     ...validateFormElementNames({
       filePath: entry.filePath,
       parsed: entry.parsed,

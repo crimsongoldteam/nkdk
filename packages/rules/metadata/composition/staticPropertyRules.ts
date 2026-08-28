@@ -150,6 +150,7 @@ import { metadataPropertyRule000 as rule149 } from "../commonObjects/functionalO
 import { metadataPropertyRule000 as rule150 } from "../commonObjects/help/fromXML"
 import { metadataPropertyRule000 as rule151 } from "../commonObjects/i8nText/fromXML"
 import { metadataPropertyRule001 as rule152 } from "../commonObjects/i8nText/fromXML"
+import { metadataPropertyRule000 as rule157 } from "../commonObjects/i8nText/fromXMLToYAML"
 import { metadataPropertyRule000 as rule153 } from "../commonObjects/i8nText/fromYAML"
 import { metadataPropertyRule000 as rule154 } from "../commonObjects/i8nText/toJSONSchema"
 import { metadataPropertyRule000 as rule155 } from "../commonObjects/i8nText/toYAML"
@@ -298,6 +299,7 @@ import { metadataPropertyRule003 as rule264 } from "../commonObjects/resourceTop
 import { metadataPropertyRule004 as rule265 } from "../commonObjects/resourceTopology"
 import { metadataPropertyRule005 as rule266 } from "../commonObjects/resourceTopology"
 import { metadataPropertyRule000 as rule268 } from "../commonObjects/standardAttributeDescription/toJSONSchema"
+import { metadataPropertyRule000 as standardAttributesYamlTagPolicy } from "../commonObjects/standardAttributeDescription/yamlScalarTagPolicy"
 import { metadataPropertyRule000 as rule269 } from "../commonObjects/string/fromXML"
 import { metadataPropertyRule000 as rule270 } from "../commonObjects/string/toJSONSchema"
 import { metadataPropertyRule001 as rule271 } from "../commonObjects/string/toJSONSchema"
@@ -512,6 +514,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule92,
   rule93,
   dcsLocalStringYamlTagPolicy,
+  standardAttributesYamlTagPolicy,
   rule94,
   rule95,
   rule96,
@@ -575,6 +578,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule154,
   rule155,
   rule156,
+  rule157,
   rule158,
   rule159,
   rule160,

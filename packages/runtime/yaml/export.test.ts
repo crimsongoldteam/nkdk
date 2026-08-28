@@ -50,6 +50,23 @@ describe("exportToYAML", () => {
     expect(yamlScalarTagAt(reparsed.data, "Представление")).toBe("xml/string")
   })
 
+  it("сериализует и повторно разбирает пустой !xml/standard-attributes", () => {
+    const source = { СтандартныеРеквизиты: undefined }
+    markYAMLScalarTag(source, "СтандартныеРеквизиты", "xml/standard-attributes")
+
+    const serialized = serializeYAMLDocument(source)
+    const reparsed = parseMetadataYaml(serialized.text)
+
+    expect(serialized.text).toBe("СтандартныеРеквизиты: !xml/standard-attributes")
+    expect(reparsed.data).toHaveProperty("СтандартныеРеквизиты")
+    expect(yamlScalarTagAt(reparsed.data, "СтандартныеРеквизиты")).toBe("xml/standard-attributes")
+  })
+
+  it("отклоняет payload у !xml/standard-attributes", () => {
+    expect(() => importFromYAML("СтандартныеРеквизиты: !xml/standard-attributes лишнее"))
+      .toThrow("!xml/standard-attributes не принимает значение")
+  })
+
   it.each([
     ["корень", {}, ""],
     ["свойство", { Поле: {} }, "Поле:"],
@@ -81,6 +98,16 @@ describe("exportToYAML", () => {
     const outer = (serialized.data as { Внешний: { Значение: string } }).Внешний
 
     expect(asExplicitYAMLStringIfMarked(outer, "Значение", outer.Значение)).toEqual(explicitYAMLString("001"))
+  })
+
+  it("сохраняет техническое XML-имя как !xml/name", () => {
+    const parsed = parseMetadataYaml("Имя: !xml/name ДеревоПодсистемSearchString")
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(parsed.data).toEqual({ Имя: "ДеревоПодсистемSearchString" })
+    expect(yamlScalarTagAt(parsed.data, "Имя")).toBe("xml/name")
+    expect(serializeYAMLDocument(parsed.data).text)
+      .toBe("Имя: !xml/name ДеревоПодсистемSearchString")
   })
 
   it("сериализует raw как явный контейнер $значение/$xml", () => {

@@ -4,6 +4,7 @@ import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
+import "../../tests/metadataExecutionContext"
 
 let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
 
@@ -184,6 +185,29 @@ describe("extractValidationYamlFacts form", () => {
             path: "/Элементы/Таблица/КонтекстноеМеню/Элементы/Открыть/Данные",
           }),
           policy: "formDataPath",
+        }),
+      ])
+    )
+  })
+
+  it("проверяет локализованные свойства динамически выбранного элемента формы", () => {
+    const facts = extractFormFacts(
+      [
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "    ПодсказкаВвода:",
+        "      !xml/invalid de: Hinweis",
+      ].join("\n")
+    )
+
+    expect(facts.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/Элементы/Поле/ПодсказкаВвода/de",
+          source: "structure",
+          severity: "error",
+          message: expect.stringContaining("зарегистрированный язык de"),
         }),
       ])
     )

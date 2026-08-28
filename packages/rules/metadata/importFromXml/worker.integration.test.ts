@@ -48,6 +48,7 @@ const passThroughControlExport: typeof executeImportControlExport = async (param
   data: params.data,
   annotations: params.annotations,
   rereadSourcePaths: [],
+  warnings: [],
 })
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
@@ -456,7 +457,7 @@ describe("XML import worker second pass", () => {
     setControlExportForTests(async (params) => {
       capturedProfiles.push(params.exportProfile)
       capturedContexts.push(params.context)
-      return { data: params.data, annotations: params.annotations, rereadSourcePaths: [] }
+      return { data: params.data, annotations: params.annotations, rereadSourcePaths: [], warnings: [] }
     })
     await initializeWorker(outputDir)
     const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments }))
@@ -501,6 +502,43 @@ describe("XML import worker second pass", () => {
     expect(controlExportCountForTests()).toBe(1)
   })
 
+  it("возвращает предупреждение о слишком широкой области raw", async () => {
+    const outputDir = createTempDir("broad-raw-warning")
+    const assignment = catalogAssignment()
+    setControlExportForTests(async (params) => ({
+      data: params.data,
+      annotations: params.annotations,
+      rereadSourcePaths: [],
+      warnings: [{
+        sourcePath: "/source/Ext/Form.xml",
+        xmlPath: "/Form[1]/Future[1]",
+        yamlPath: ["Форма"],
+        reason: "no-rule-address",
+        rawBytes: 512,
+      }],
+    }))
+
+    const { second } = await runAssignmentSecondPass(outputDir, assignment)
+
+    expect(second).toMatchObject({
+      kind: "secondPassResult",
+      diagnostics: [],
+      warnings: [{
+        severity: "warning",
+        code: "xml_raw_scope_too_broad",
+        message: "Непредметное XML-отличие сохранено на более широкой границе",
+        targetProjectPath: assignment.targetProjectPath,
+        sourcePath: "/source/Ext/Form.xml",
+        value: JSON.stringify({
+          xmlPath: "/Form[1]/Future[1]",
+          yamlPath: ["Форма"],
+          reason: "no-rule-address",
+          rawBytes: 512,
+        }),
+      }],
+    })
+  })
+
   it("не сохраняет raw для восстановленных стандартных элементов формы", async () => {
     const outputDir = createTempDir("canonical-form-elements")
     const result = await runCatalogAndFormSecondPass(
@@ -510,8 +548,67 @@ describe("XML import worker second pass", () => {
 
     const yaml = readImportedFormYaml(result)
     expect(yaml).not.toContain("!xml/raw")
-    expect(yaml).not.toContain("РасширеннаяПодсказка")
+    expect(yaml).not.toContain("@Form\\РасширеннаяПодсказка")
     expect(yaml).not.toContain("КонтекстноеМеню")
+    expect(result.second.diagnostics).toEqual([])
+    expect(result.second.warnings).not.toContainEqual(expect.objectContaining({
+      code: "xml_raw_scope_too_broad",
+    }))
+  })
+
+  it("сохраняет отсутствие вычисляемого RowFilter локальной raw-отметкой", async () => {
+    setControlExportForTests(undefined)
+    const outputDir = createTempDir("absent-computed-row-filter")
+    const result = await runCatalogAndFormSecondPass(
+      outputDir,
+      "Объект.Товары",
+      undefined,
+      undefined,
+      "Table",
+    )
+
+    const yaml = readImportedFormYaml(result)
+    expect(yaml).toContain('"@Form\\\\ОтборСтрок": !xml/raw')
+    expect(yaml).toContain("$xml: null")
+  })
+
+  it("сохраняет xs:string списка выбора явной YAML-строкой", async () => {
+    const outputDir = createTempDir("explicit-choice-list-string")
+    const result = await runCatalogAndFormSecondPass(
+      outputDir,
+      "Объект.Код",
+      undefined,
+      undefined,
+      "InputField",
+      "owner-first",
+      ({ form }) => {
+        const bodyPath = form.xmlFiles.find(({ role }) => role === "body")?.sourcePath
+        if (bodyPath === undefined) throw new Error("Не найден XML тела формы")
+        const source = readFileSync(bodyPath, "utf8")
+        const marker = '<ContextMenu name="ПутьКонтекстноеМеню"'
+        if (!source.includes(marker)) throw new Error("Не найдено место вставки ChoiceList")
+        writeFileSync(bodyPath, source.replace(
+          marker,
+          [
+            "\n\t\t\t<ChoiceList>",
+            "\t\t\t\t<xr:Item>",
+            "\t\t\t\t\t<xr:Presentation/>",
+            "\t\t\t\t\t<xr:CheckState>0</xr:CheckState>",
+            "\t\t\t\t\t<xr:Value xsi:type=\"FormChoiceListDesTimeValue\">",
+            "\t\t\t\t\t\t<Presentation/>",
+            "\t\t\t\t\t\t<Value xsi:type=\"xs:string\">Перечисление.ВидыКорреспонденции.Входящая</Value>",
+            "\t\t\t\t\t</xr:Value>",
+            "\t\t\t\t</xr:Item>",
+            "\t\t\t</ChoiceList>",
+            marker,
+          ].join("\n"),
+        ), "utf8")
+      },
+    )
+
+    expect(readImportedFormYaml(result)).toContain(
+      'Значение: "Перечисление.ВидыКорреспонденции.Входящая"',
+    )
   })
 
   it("уточняет отсутствующий путь элемента формы после загрузки владельца", async () => {
@@ -1113,8 +1210,10 @@ async function runCatalogAndFormSecondPass(
   }) => void,
   elementTag = "LabelField",
   secondPassOrder: "owner-first" | "consumer-first" = "owner-first",
+  prepareSources?: (assignments: ReturnType<typeof createCatalogAndFormAssignments>) => void,
 ) {
   const assignments = createCatalogAndFormAssignments(dataPath, objectTypeName, false, false, elementTag)
+  prepareSources?.(assignments)
   await initializeWorker(outputDir)
   const first = expectFirstPass(await runImportWorkerCommand({
     kind: "firstPass",

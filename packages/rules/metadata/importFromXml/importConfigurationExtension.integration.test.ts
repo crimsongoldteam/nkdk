@@ -11,6 +11,7 @@ import { dirname,join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { afterAll,beforeAll,describe,expect,it } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
+import "../../tests/metadataExecutionContext"
 import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
 import {
 createImportProjectStateTestService,
@@ -51,7 +52,7 @@ describe("configuration extension XML import", () => {
   })
 
   it("сохраняет структуру расширения и локализует импортированные аномалии", () => {
-    const { projectDir, result, configuration, catalog, form, yamlText, catalogText, snapshot } = importedExtension
+    const { projectDir, result, configuration, catalog, form, yamlText, catalogText, baseFormText, snapshot } = importedExtension
 
     expect(result).toMatchObject({
       componentPath: "cfe/РасширениеКонтроль",
@@ -96,6 +97,7 @@ describe("configuration extension XML import", () => {
       "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/БазоваяФорма.yaml",
     ) as Record<string, unknown>
     expect(baseForm).toMatchObject({ Элементы: { БазовоеПоле: { Вид: "ПолеВвода", Ширина: 99 } } })
+    expect(baseFormText).toContain("!xml/invalid de: Hinweis")
     const entities = [...snapshot.blocks.values()].flatMap(({ entities }) => entities)
     expect(entities.some(
       ({ logicalAddress }) => logicalAddress === "Справочник.СправочникПолный.Форма.ФормаОтчета.form"
@@ -133,6 +135,19 @@ async function importExtension() {
   ]) {
     removeUnknownPropertyStates(join(inputDir, ...relativePath.split("/")))
   }
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml"),
+    "\t\t\t\t<Width>99</Width>",
+    [
+      "\t\t\t\t<Width>99</Width>",
+      "\t\t\t\t<ToolTip>",
+      "\t\t\t\t\t<v8:item>",
+      "\t\t\t\t\t\t<v8:lang>de</v8:lang>",
+      "\t\t\t\t\t\t<v8:content>Hinweis</v8:content>",
+      "\t\t\t\t\t</v8:item>",
+      "\t\t\t\t</ToolTip>",
+    ].join("\n"),
+  )
   replaceExactlyOnce(
     join(inputDir, "Configuration.xml"),
     "\t\t\t<Name>РасширениеКонтроль</Name>",
@@ -250,6 +265,10 @@ async function importExtension() {
     projectDir,
     "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml",
   )
+  const baseFormText = readText(
+    projectDir,
+    "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/БазоваяФорма.yaml",
+  )
   const yamlText = [
     readText(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml"),
     catalogText,
@@ -265,7 +284,7 @@ async function importExtension() {
   const snapshot = { hashes, blocks: store.getBlocks(hashes.map(({ projectPath }) => projectPath)) }
   await store.close()
 
-  return { projectDir, result, configuration, catalog, form, formWithoutBase, yamlText, catalogText, snapshot }
+  return { projectDir, result, configuration, catalog, form, formWithoutBase, yamlText, catalogText, baseFormText, snapshot }
 }
 
 function textBetween(source: string, startMarker: string, endMarker: string): string {

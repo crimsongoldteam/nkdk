@@ -138,6 +138,7 @@ describe("матрица PropertyState расширения", () => {
     ["MetadataRegisterDimension", "type"],
     ["MetadataRegisterResource", "type"],
     ["MetadataTaskAddressingAttribute", "type"],
+    ["MetadataDefinedType", "type"],
   ])("keeps MultiState for %s.%s", (itemType, propertyKey) => {
     expect(registry.resolve({ itemType, propertyKey })).toMatchObject({
       representation: "multi",

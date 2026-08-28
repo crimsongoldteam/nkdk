@@ -37,6 +37,18 @@ export function markDoubleQuotedScalar(parent: object, key: YAMLStyleKey): void 
   doubleQuotedScalarMarks.set(parent, new Set([key]))
 }
 
+export function copyDoubleQuotedScalarMarks(
+  source: object,
+  target: object,
+  keys?: ReadonlySet<YAMLStyleKey>,
+): void {
+  const marks = doubleQuotedScalarMarks.get(source)
+  if (marks === undefined) return
+  for (const key of marks) {
+    if (keys === undefined || keys.has(key)) markDoubleQuotedScalar(target, key)
+  }
+}
+
 export function asExplicitYAMLStringIfMarked(parent: unknown, key: YAMLStyleKey, value: unknown): unknown {
   if (parent === null || typeof parent !== "object") return value
   if (typeof value !== "string") return value

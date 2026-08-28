@@ -202,6 +202,86 @@ describe("XML anomaly proof", () => {
     ])
   })
 
+  it("локализует соседнее свойство внутри элемента с уже сохранённым raw имени", async () => {
+    const source = [
+      "<Root><Items>",
+      '<Item name="Description"><FillChecking>ShowError</FillChecking></Item>',
+      "</Items></Root>",
+    ].join("")
+    const exported = source
+      .replace('name="Description"', 'name="Наименование"')
+      .replace("ShowError", "DontCheck")
+    const document = parseXmlDocumentWithSaxes(source)
+    const item = nestedElement(document.roots[0]!, ["Items", "Item"])
+    const fillChecking = nestedElement(item, ["FillChecking"])
+    const itemYamlPath = ["СтандартныеРеквизиты", "Наименование"] as const
+    const fillYamlPath = [...itemYamlPath, "ПроверкаЗаполнения"] as const
+    const nameYamlPath = [...itemYamlPath, "name"] as const
+    const boundaries: XmlAnomalyProofBoundary[] = [
+      {
+        sourcePath,
+        sourceRole: "metadata",
+        xmlPath: item.path,
+        yamlPath: nameYamlPath,
+        rulePath: ["standardAttributes", "name"],
+        presentInSource: true,
+        targetPaths: [item.attributes[0]!.path],
+      },
+      {
+        sourcePath,
+        sourceRole: "metadata",
+        xmlPath: fillChecking.path,
+        yamlPath: fillYamlPath,
+        rulePath: ["standardAttributes", "fillChecking"],
+        presentInSource: true,
+        levels: [
+          proofLevel(fillChecking, fillYamlPath, fillYamlPath),
+          proofLevel(item, itemYamlPath, itemYamlPath),
+        ],
+        targetPaths: [fillChecking.path],
+      },
+    ]
+
+    const result = await proveCapturedBoundaries({
+      data: {
+        СтандартныеРеквизиты: {
+          Наименование: { ПроверкаЗаполнения: "ВыдаватьОшибку" },
+        },
+      },
+      annotations: {
+        version: 1,
+        entries: [{
+          parentPath: itemYamlPath,
+          key: "name",
+          annotation: {
+            kind: "raw",
+            occurrence: 1,
+            target: "value",
+            xml: "Description",
+            hasSemanticValue: false,
+          },
+        }],
+      },
+      document,
+      boundaries,
+      exported,
+      source,
+    })
+
+    expect(result.annotations.entries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ parentPath: itemYamlPath, key: "name" }),
+      expect.objectContaining({
+        parentPath: itemYamlPath,
+        key: "ПроверкаЗаполнения",
+        annotation: expect.objectContaining({ kind: "raw" }),
+      }),
+    ]))
+    expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+      parentPath: ["СтандартныеРеквизиты"],
+      key: "Наименование",
+    }))
+  })
+
   it("сохраняет порядок независимо принадлежащих дочерних свойств через #order", async () => {
     const { source, exported, document, properties, children } = orderProofFixture()
     const root = document.roots[0]!
@@ -571,7 +651,7 @@ describe("XML anomaly proof", () => {
 
     expect(result.annotations.entries).toContainEqual(expect.objectContaining({
       parentPath: ["Форма", "Реквизиты", "Список"],
-      key: "ТипЗначения",
+      key: "@Form\\ТипЗначения",
       annotation: expect.objectContaining({ kind: "raw", xml: null }),
     }))
     expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
@@ -591,6 +671,71 @@ describe("XML anomaly proof", () => {
       key: "Форма",
       annotation: expect.objectContaining({ kind: "raw" }),
     }))
+    expect(result.warnings).toEqual([
+      expect.objectContaining({
+        sourcePath: formSourcePath,
+        xmlPath: "/Form[1]/Future[1]",
+        yamlPath: ["Форма"],
+        reason: "no-rule-address",
+      }),
+    ])
+    expect(result.warnings[0]!.rawBytes).toBeGreaterThan(0)
+  })
+
+  it("локализует неизвестный XML-узел внутри конкретного повторяющегося элемента", async () => {
+    const source = [
+      "<Form><Items>",
+      '<Item name="first"/>',
+      '<Item name="second"><A/><Future mode="x"/><B/></Item>',
+      "</Items></Form>",
+    ].join("")
+    const exported = source.replace('<Future mode="x"/>', "")
+    const document = parseXmlDocumentWithSaxes(source)
+    const root = document.roots[0]!
+    const items = nestedElement(root, ["Items"])
+    const secondItem = items.content.filter(
+      (node): node is XmlElementNode => node.type === "element",
+    )[1]!
+
+    const result = await proveXmlAnomalyBoundaries({
+      data: { Форма: { Элементы: { Второй: {} } } },
+      annotations: { version: 1, entries: [] },
+      audit: captureXmlAnomalyProofAudit({
+        sources: [{ sourcePath: formSourcePath, role: "property", document }],
+        boundaries: [],
+        fallbackBoundaries: [formPropertyFallback(root)],
+        itemAnchors: [{
+          sourcePath: formSourcePath,
+          xmlPath: secondItem.path,
+          yamlPath: ["Форма", "Элементы", "Второй"],
+          rulePath: ["form", "items"],
+        }],
+      }),
+      exported: [{
+        role: "property",
+        sourcePath: formSourcePath,
+        document: parseXmlDocumentWithSaxes(exported),
+      }],
+      readSource: async () => source,
+    })
+
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      parentPath: ["Форма", "Элементы", "Второй"],
+      key: "@Form\\Future",
+      annotation: expect.objectContaining({ kind: "raw", hasSemanticValue: false }),
+    }))
+    expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+      parentPath: [],
+      key: "Форма",
+    }))
+    expect(result.annotations.entries).toContainEqual(expect.objectContaining({
+      annotation: expect.objectContaining({
+        kind: "raw",
+        xml: { "#order": ["A", "Future", "B"] },
+      }),
+    }))
+    expect(JSON.stringify(result.annotations.entries)).not.toContain('"Item":[')
+    expect(result.warnings).toEqual([])
   })
 
   it("исключает из proof формы XML-поддерево, сохранённое во внешнем файле", async () => {
@@ -1267,7 +1412,7 @@ describe("XML anomaly proof", () => {
     expect(result.annotations.entries).toEqual([
       expect.objectContaining({
         parentPath: [],
-        key: "Режим",
+        key: "@Owner\\Режим",
         annotation: expect.objectContaining({ kind: "raw", xml: null, hasSemanticValue: false }),
       }),
     ])

@@ -42,7 +42,7 @@ import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import type { YamlPath } from "../../diagnostics/types"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
-import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
+import { copyYAMLRuntimeMetadata } from "../../../yaml/runtimeMetadata"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 import type { PropertyRuleExecution } from "./fn"
 import type { XmlElementNode } from "../../../xml/import/document"
@@ -336,6 +336,12 @@ export function importPropertiesFromXMLToYAML(params: {
           const direct = typeRule(propertyRule.type, "importFromXMLToYAML")
           const resolveNestedSources = typeRule(propertyRule.type, "resolveNestedImportXMLSources")
           const convertedDirectly = resolveNestedSources !== undefined || direct !== undefined
+          const explicitEmptyValue =
+            presentInXML && (xmlValue === undefined || xmlValue === "")
+              ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.explicitEmptyValue?.({
+                  rule: propertyRule,
+                })
+              : undefined
           const directTraversal: DirectImportTraversal<PropertyRuleExecution> = {
             yamlPath: propertyYamlPath,
             rulePath: propertyRulePath,
@@ -426,7 +432,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 direct({
                   context: propertyContext,
                   rule: propertyRule,
-                  xml: xmlValue,
+                  xml: xmlValue === undefined && explicitEmptyValue !== undefined ? "" : xmlValue,
                   name: itemName,
                   ownerXmlName,
                   traversal: directTraversal,
@@ -435,17 +441,17 @@ export function importPropertiesFromXMLToYAML(params: {
             )
             addDirectImportProfile(params.profile, propertyRule.type, startedAt)
           }
-          claimCanonicalRawDefault({
+          const claimedCanonicalRawDefault = claimCanonicalRawDefault({
             audit: params.audit,
             boundary,
             node: xmlNode,
             rule: propertyRule,
           })
           const registeredExplicitEmptyValue =
-            importedValue === undefined && presentInXML && (xmlValue === undefined || xmlValue === "")
-              ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.explicitEmptyValue?.({
-                  rule: propertyRule,
-                })
+            !convertedDirectly &&
+            importedValue === undefined &&
+            explicitEmptyValue !== undefined
+              ? explicitEmptyValue
               : undefined
           const clearedMetadataTarget =
             !forReference &&
@@ -469,15 +475,22 @@ export function importPropertiesFromXMLToYAML(params: {
               ? undefined
               : rawValue
           const defaultStartedAt = performance.now()
-          const value = !forReference
-            ? getValueOrDefault({
+          const restoresExplicitEmptyInlineCollection =
+            convertedDirectly &&
+            cleanValue === undefined &&
+            propertyRule.yamlInline === true &&
+            Array.isArray(propertyRule.defaultValue) &&
+            propertyRule.defaultValue.length === 0 &&
+            Array.isArray(propertyRule.defaultValueXMLEmpty)
+          const value = forReference || (convertedDirectly && !restoresExplicitEmptyInlineCollection)
+            ? cleanValue
+            : getValueOrDefault({
                 context: sourceContext,
                 rule: propertyRule,
                 value: cleanValue,
                 name: key,
                 operation: "importFromXML",
               })
-            : cleanValue
           addProfileTime(params.profile, "defaultMs", defaultStartedAt)
 
           if (value !== undefined && !dependentImportProperty) {
@@ -573,7 +586,9 @@ export function importPropertiesFromXMLToYAML(params: {
             value,
             params.execution,
           )
-          const emptyDirectValue = convertedDirectly && isEmptySemanticContainer(exportedYamlValue)
+          const emptyDirectValue = convertedDirectly && (
+            exportedYamlValue === undefined || isEmptySemanticContainer(exportedYamlValue)
+          )
           const discardedAlternative = ambiguousXMLKey && emptyDirectValue
           if (exportedValues === undefined || discardedAlternative) {
             if (discardedAlternative) {
@@ -583,6 +598,7 @@ export function importPropertiesFromXMLToYAML(params: {
             if (
               presentInXML &&
               emptyDirectValue &&
+              !claimedCanonicalRawDefault &&
               isXmlElementNode(xmlNode) &&
               params.audit !== undefined
             ) {
@@ -631,7 +647,7 @@ export function importPropertiesFromXMLToYAML(params: {
             deferred?.accept({ valuePath: propertyYamlPath, rulePath: propertyRulePath })
           }
           Object.assign(result, exportedValues)
-          copyYAMLScalarTags(exportedValues, result)
+          copyYAMLRuntimeMetadata(exportedValues, result)
           addProfileTime(params.profile, "collectorMs", collectorStartedAt)
         } catch (cause) {
           if (cause instanceof XmlImportAttemptInfrastructureError) throw cause
@@ -787,14 +803,15 @@ function claimCanonicalRawDefault(params: {
   boundary: XmlImportAuditBoundary
   node: XmlImportAuditedNode | undefined
   rule: PropertyRule
-}): void {
+}): boolean {
   if (
     params.audit === undefined
     || !isXmlElementNode(params.node)
     || !Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLRaw")
     || !sameCanonicalXmlValue(encodeXmlRawElement(params.node), params.rule.defaultValueXMLRaw)
-  ) return
+  ) return false
   claimAuditedSubtree(params.audit, params.node, params.boundary)
+  return true
 }
 
 function claimAuditedSubtree(

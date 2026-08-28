@@ -1,9 +1,152 @@
+import { markYAMLScalarTag, parseMetadataYaml, yamlScalarTagAt } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { InputFieldRules } from "../elements/inputField/rules"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
 import type { ClientApplicationFormYAML } from "./types"
 
 describe("client application BaseForm projection", () => {
+
+  it("сохраняет все метаданные согласованных вложенных значений", () => {
+    const source = [
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    Подсказка:",
+      "      ru: Текст",
+      "      en: !xml/invalid Text",
+      "    РасширеннаяПодсказка:",
+      "      Имя: !xml/name ПолеExtendedTooltip",
+    ].join("\n")
+    const base = parseMetadataYaml(source)
+    const extension = parseMetadataYaml(source)
+    const baseYaml = base.data as ClientApplicationFormYAML
+    const extensionYaml = extension.data as ClientApplicationFormYAML
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+      baseAnnotations: base.annotations,
+      extensionAnnotations: extension.annotations,
+    })
+    const field = projection.yaml.Элементы?.Поле
+    const tooltip = projection.yaml.Элементы?.Поле?.РасширеннаяПодсказка
+    const languages = field?.Подсказка as Record<string, string>
+
+    expect(tooltip).toEqual({ Имя: "ПолеExtendedTooltip" })
+    expect(yamlScalarTagAt(tooltip, "Имя")).toBe("xml/name")
+    expect(projection.annotations.at(languages, "en")).toMatchObject({ kind: "invalid" })
+  })
+
+  it("не переносит аннотацию удалённой части составного свойства", () => {
+    const base = parseMetadataYaml([
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    Подсказка:",
+      "      ru: Текст",
+      "      en: !xml/invalid Text",
+    ].join("\n"))
+    const extension = parseMetadataYaml([
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    Подсказка:",
+      "      ru: Текст",
+    ].join("\n"))
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml: base.data as ClientApplicationFormYAML,
+      extensionYaml: extension.data as ClientApplicationFormYAML,
+      baseAnnotations: base.annotations,
+      extensionAnnotations: extension.annotations,
+    })
+
+    const languages = projection.yaml.Элементы?.Поле?.Подсказка as Record<string, string>
+    expect(languages).toEqual({ ru: "Текст" })
+    expect(projection.annotations.at(languages, "en")).toBeUndefined()
+  })
+
+  it("сохраняет raw только для сохранённого составного свойства", () => {
+    const source = [
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    Подсказка: !xml/raw",
+      "      $значение:",
+      "        ru: Текст",
+      "      $xml:",
+      "        _future: x",
+    ].join("\n")
+    const base = parseMetadataYaml(source)
+    const extension = parseMetadataYaml(source)
+    const retained = projectClientApplicationBaseForm({
+      baseYaml: base.data as ClientApplicationFormYAML,
+      extensionYaml: extension.data as ClientApplicationFormYAML,
+      baseAnnotations: base.annotations,
+      extensionAnnotations: extension.annotations,
+    })
+
+    const retainedField = retained.yaml.Элементы?.Поле
+    if (retainedField === undefined) throw new Error("Не спроектировано поле")
+    expect(retained.annotations.at(retainedField, "Подсказка")).toMatchObject({ kind: "raw" })
+
+    const omitted = projectClientApplicationBaseForm({
+      baseYaml: base.data as ClientApplicationFormYAML,
+      extensionYaml: {
+        Элементы: { Поле: { Вид: "ПолеВвода" } },
+      } as ClientApplicationFormYAML,
+      baseAnnotations: base.annotations,
+    })
+    const omittedField = omitted.yaml.Элементы?.Поле
+    if (omittedField === undefined) throw new Error("Не спроектировано поле")
+    expect(omittedField).not.toHaveProperty("Подсказка")
+    expect(omitted.annotations.at(omittedField, "Подсказка")).toBeUndefined()
+  })
+
+  it("не переносит скалярный тег на изменённое проектором значение", () => {
+    const baseButton = {
+      Вид: "Кнопка",
+      ИмяКоманды: "Form.StandardCommand.Close",
+    }
+    markYAMLScalarTag(baseButton, "ИмяКоманды", "xml/name")
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml: { Элементы: { Закрыть: baseButton } } as ClientApplicationFormYAML,
+      extensionYaml: {
+        Элементы: {
+          Закрыть: { Вид: "Кнопка", ИмяКоманды: "0" },
+        },
+      } as ClientApplicationFormYAML,
+    })
+
+    const button = projection.yaml.Элементы?.Закрыть
+    expect(button?.ИмяКоманды).toBe("0")
+    expect(yamlScalarTagAt(button, "ИмяКоманды")).toBeUndefined()
+  })
+
+  it("переносит метаданные явно сопоставленного элемента после сокращения массива", () => {
+    const removed = { Команда: "Form.Command.Базовая", Тип: "Added" }
+    const retained = { Команда: "Catalog.Товары.Command.Открыть", Тип: "Added" }
+    markYAMLScalarTag(removed, "Тип", "xml/name")
+    markYAMLScalarTag(retained, "Тип", "xml/string")
+    const extensionRetained = structuredClone(retained)
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml: {
+        Команды: { Базовая: {} },
+        ИнтерфейсКоманды: { КоманднаяПанель: [removed, retained] },
+      } as ClientApplicationFormYAML,
+      extensionYaml: {
+        Команды: {},
+        ИнтерфейсКоманды: { КоманднаяПанель: [structuredClone(removed), extensionRetained] },
+      } as ClientApplicationFormYAML,
+    })
+
+    const item = projection.yaml.ИнтерфейсКоманды?.КоманднаяПанель?.[0]
+    expect(item).toEqual(retained)
+    expect(yamlScalarTagAt(item, "Тип")).toBe("xml/string")
+  })
 
   it("selects the cf element tree and only explicitly borrowed named components", () => {
     const baseAttribute = {

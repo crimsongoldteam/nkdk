@@ -9,11 +9,10 @@ import {
   importMetadataProject,
   removeImportedProject,
   roundTripMetadataProject,
-  validateChangedProject,
-  validateCleanProject,
+  validateProjectCacheParity,
   type ImportedMetadataProject,
 } from "./support/metadata-project"
-import { compareFileTrees, type FileTreeComparison } from "./support/file-tree"
+import { compareFileTrees } from "./support/file-tree"
 
 let baseline: ImportedMetadataProject | undefined
 
@@ -32,6 +31,9 @@ describe.sequential("metadata project E2E", () => {
       .toEqual(E2E_COMPONENTS.map(({ componentPath }) => componentPath))
     for (const result of baseline.results) {
       expect(result.failed).toEqual([])
+      expect(result.warnings).not.toContainEqual(expect.objectContaining({
+        code: "xml_raw_scope_too_broad",
+      }))
       expect(result.succeeded).toBeGreaterThan(0)
       expect(result.configurationIndexPath).toBe(join(
         baseline.projectDir,
@@ -82,7 +84,7 @@ describe.sequential("metadata project E2E", () => {
       "cf/ОбщаяФорма/СписокЗначений/Свойства.yaml",
     ), "utf8")
     expect(valueListYaml).not.toContain("Форма: !xml/raw")
-    expect(valueListYaml).toContain("ТипЗначения: !xml/raw")
+    expect(valueListYaml).toContain('"@Form\\\\ТипЗначения": !xml/raw')
     expect(valueListYaml).toContain("$xml: null")
     const anomalies = await collectXmlAnomalyLocations(baseline.projectDir)
     expect(anomalies.invalid).toEqual([])
@@ -119,8 +121,7 @@ describe.sequential("metadata project E2E", () => {
   it("validates a clean project and reports the same changed YAML without .nkdk", async () => {
     if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
     const projectDir = await cloneImportedProject(baseline, "validation")
-    const clean = await validateCleanProject(projectDir)
-    const result = await validateChangedProject(projectDir)
+    const result = await validateProjectCacheParity(projectDir)
 
     expect(result.cold).toEqual(result.warm)
     const ownRequired = result.warm.filter(({ filePath, path }) =>
@@ -135,12 +136,12 @@ describe.sequential("metadata project E2E", () => {
       path: "/ИмяВИсточникеДанных",
     })
     expect(ownRequired[0]?.message).toContain("обязательное")
-    expect(clean).toEqual([])
+    expect(result.clean).toEqual([])
     expect(result.warm).toHaveLength(1)
     console.info("E2E validation durations, ms", result.durationsMs)
   })
 
-  it("restores every XML component with only agreed canonical XML elisions", async () => {
+  it("restores every XML component exactly", async () => {
     if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
     const projectDir = await cloneImportedProject(baseline, "round-trip")
     const reportRoot = resolve(import.meta.dirname, "../reports/e2e/round-trip")
@@ -153,16 +154,12 @@ describe.sequential("metadata project E2E", () => {
       if (result.kind !== "compared") {
         throw new Error(`Sync ${result.component.componentPath} завершился без сравнения`)
       }
-      if (result.component.componentPath === "cf") {
-        await expectCanonicalStandardAttributeElisions(result.comparison)
-      } else {
-        expect.soft(result.comparison, result.comparison.reportDir).toMatchObject({
-          equal: true,
-          added: [],
-          removed: [],
-          changed: [],
-        })
-      }
+      expect.soft(result.comparison, result.comparison.reportDir).toMatchObject({
+        equal: true,
+        added: [],
+        removed: [],
+        changed: [],
+      })
     }
     console.table(results.map(({ component, durationMs }) => ({
       component: component.componentPath,
@@ -170,14 +167,6 @@ describe.sequential("metadata project E2E", () => {
     })))
   })
 })
-
-const CANONICAL_STANDARD_ATTRIBUTE_ELISIONS = new Map([
-  ["BusinessProcesses/БизнесПроцессВсеСвойства.xml", 2],
-  ["ChartsOfAccounts/ПланСчетовВсеСвойства.xml", 2],
-  ["ChartsOfCalculationTypes/ПланРасчетаВсеСвойства.xml", 2],
-  ["Reports/ОтчетВсеСвойства.xml", 1],
-  ["Tasks/ЗадачаВсеСвойства.xml", 2],
-] as const)
 
 const RARE_FILL_VALUE_XML_RAW_LOCATIONS = [
   "cf/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/ТаблицыИзмерений/ТаблицаИзмеренияВсеСвойства/Свойства.yaml#/Поля/ПолеВсеСвойства/ЗначениеЗаполнения",
@@ -191,20 +180,14 @@ const RARE_FILL_VALUE_XML_RAW_LOCATIONS = [
 ] as const
 
 const VALUE_LIST_SETTINGS_XML_RAW_LOCATIONS = [
-  "cf/ОбщаяФорма/СписокЗначений/Свойства.yaml#/Форма/Реквизиты/СписокЗначенийПроизвольный/ТипЗначения",
-  "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Реквизиты/ЗначенияРезультата/ТипЗначения",
-  "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Реквизиты/ПоследниеЗапросы/ТипЗначения",
-] as const
-
-const FORM_TITLE_XML_RAW_LOCATIONS = [
-  "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Элементы/СтраницыРезультатов/Элементы/СтраницаПодсказки/Элементы/СтрокаПодсказки/@Form\\Заголовок",
-  "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Элементы/СтраницыРезультатов/Элементы/СтраницаРезультатаПоиска/Элементы/СтраницыРезультатаПоиска/Элементы/СтраницаРезультатаПоискаПрокрутка/Элементы/РезультатыПоиска/@Form\\Заголовок",
+  "cf/ОбщаяФорма/СписокЗначений/Свойства.yaml#/Форма/Реквизиты/СписокЗначенийПроизвольный/@Form\\ТипЗначения",
+  "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Реквизиты/ЗначенияРезультата/@Form\\ТипЗначения",
+  "cf/ОбщаяФорма/ФормаПоиска/Свойства.yaml#/Форма/Реквизиты/ПоследниеЗапросы/@Form\\ТипЗначения",
 ] as const
 
 const EXPECTED_XML_RAW_LOCATIONS = [
   ...RARE_FILL_VALUE_XML_RAW_LOCATIONS,
   ...VALUE_LIST_SETTINGS_XML_RAW_LOCATIONS,
-  ...FORM_TITLE_XML_RAW_LOCATIONS,
 ].sort(compareUtf8)
 
 const DYNAMIC_LIST_FILE = "cf/ОбщаяФорма/ДинамическийСписок/Свойства.yaml"
@@ -219,48 +202,6 @@ const EXPECTED_XML_STRING_LOCATIONS = [
   `${DYNAMIC_LIST_FILE}#/Форма/Реквизиты/ПоУмолчанию1/ДинамическийСписок/Отбор/Элементы/0/Представление`,
   `${DYNAMIC_LIST_FILE}#/Форма/Реквизиты/УсловноеОформлениеНесколькоСтрок/ДинамическийСписок/УсловноеОформление/ПредставлениеПользовательскойНастройки`,
 ].sort(compareUtf8)
-
-const CANONICAL_LINE_NUMBER_DIFF_LINES = new Set([
-  '"StandardAttributes": {',
-  '"xr:StandardAttribute": {',
-  '"_name": "LineNumber",',
-  '"xr:ChoiceHistoryOnInput": "Auto",',
-  '"xr:CreateOnInput": "Auto",',
-  '"xr:DataHistory": "Use",',
-  '"xr:ExtendedEdit": "false",',
-  '"xr:FillChecking": "DontCheck",',
-  '"xr:FillFromFillingValue": "false",',
-  '"xr:FullTextSearch": "Use",',
-  '"xr:MarkNegatives": "false",',
-  '"xr:MultiLine": "false",',
-  '"xr:PasswordMode": "false",',
-  '"xr:QuickChoice": "Auto",',
-  '"xr:TypeReductionMode": "TransformValues"',
-  '}',
-  '},',
-])
-
-async function expectCanonicalStandardAttributeElisions(comparison: FileTreeComparison): Promise<void> {
-  const reportDir = comparison.reportDir
-  if (reportDir === undefined) throw new Error("Для канонических исключений стандартных реквизитов не создан отчёт")
-
-  expect(comparison.added, reportDir).toEqual([])
-  expect(comparison.removed, reportDir).toEqual([])
-  expect(comparison.changed, reportDir).toEqual([...CANONICAL_STANDARD_ATTRIBUTE_ELISIONS.keys()])
-
-  for (const [path, blockCount] of CANONICAL_STANDARD_ATTRIBUTE_ELISIONS) {
-    const diff = await readFile(join(reportDir, `${path}.normalized.diff`), "utf8")
-    const contentAdditions = diff.split("\n").filter((line) => line.startsWith("+") && !line.startsWith("+++"))
-    const contentRemovals = diff.split("\n")
-      .filter((line) => line.startsWith("-") && !line.startsWith("---"))
-      .map((line) => line.slice(1).trim())
-
-    expect(contentAdditions, path).toEqual([])
-    expect(contentRemovals, path).toHaveLength(blockCount * 17)
-    expect(contentRemovals.filter((line) => line === '"StandardAttributes": {'), path).toHaveLength(blockCount)
-    expect(contentRemovals.every((line) => CANONICAL_LINE_NUMBER_DIFF_LINES.has(line)), path).toBe(true)
-  }
-}
 
 async function collectXmlAnomalyLocations(projectDir: string): Promise<{
   readonly raw: readonly string[]
@@ -277,11 +218,16 @@ async function collectXmlAnomalyLocations(projectDir: string): Promise<{
     }
     const snapshot = snapshotXmlAnomalyAnnotations(parsed.data, parsed.annotations)
     if (snapshot.root !== undefined) {
+      if (snapshot.root.kind === "raw") {
+        assertMinimalXmlRaw(snapshot.root.xml, `${relative(projectDir, filePath)}#/$`)
+      }
       anomalyBucket(snapshot.root.kind, raw, invalid)?.push(`${relative(projectDir, filePath)}#/$`)
     }
     for (const entry of snapshot.entries) {
+      const location = `${relative(projectDir, filePath)}#/${[...entry.parentPath, entry.key].map(String).join("/")}`
+      if (entry.annotation.kind === "raw") assertMinimalXmlRaw(entry.annotation.xml, location)
       anomalyBucket(entry.annotation.kind, raw, invalid)?.push(
-        `${relative(projectDir, filePath)}#/${[...entry.parentPath, entry.key].map(String).join("/")}`,
+        location,
       )
     }
     collectXmlStringLocations({
@@ -296,6 +242,17 @@ async function collectXmlAnomalyLocations(projectDir: string): Promise<{
     invalid: invalid.sort(compareUtf8),
     string: string.sort(compareUtf8),
   }
+}
+
+function assertMinimalXmlRaw(value: unknown, location: string): void {
+  if (Array.isArray(value)) {
+    if (value.some((item) => item !== null && typeof item === "object")) {
+      throw new Error(`${location}: raw не должен содержать полную замену повторяющихся XML-объектов`)
+    }
+    return
+  }
+  if (value === null || typeof value !== "object") return
+  for (const nested of Object.values(value)) assertMinimalXmlRaw(nested, location)
 }
 
 function collectXmlStringLocations(params: {

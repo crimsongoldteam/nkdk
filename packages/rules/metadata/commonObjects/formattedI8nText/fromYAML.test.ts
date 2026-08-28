@@ -47,6 +47,19 @@ describe("importFormattedI8nTextFromYAML", () => {
     })
   })
 
+  it("восстанавливает пустой форматированный текст без языковых значений", () => {
+    const result = importFormattedI8nTextFromYAML({
+      context: mockContext,
+      rule: formattedI8nTextRule,
+      value: { Форматированный: "Истина" },
+    })
+
+    expect(result).toEqual({
+      formatted: true,
+      items: {},
+    })
+  })
+
   describe("value-based YAML", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
       const result = importFormattedI8nTextFromYAML({

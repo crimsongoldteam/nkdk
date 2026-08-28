@@ -2,7 +2,9 @@ import type { ConfigurationIndexBlockEntity } from "@nkdk/runtime"
 import {
 createConfigurationIndexCollector,createXmlAnomalyAnnotations,
 createXmlImportAuditSession,importContentFromXML,
+parseMetadataYaml,
 parseXmlDocumentWithSaxes,
+serializeYAMLDocument,
 snapshotXmlAnomalyAnnotations,
 withConfigurationIndexCollector,
 xmlExport,
@@ -28,6 +30,7 @@ ClientApplicationFormRules,
 ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
 import type { ClientApplicationFormXML,ClientApplicationFormYAML,FormMetadataXML } from "./types"
+import "../../../tests/metadataExecutionContext"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -750,6 +753,10 @@ describe("форма XML → YAML → XML", () => {
       name: "ФормаЭлемента",
     })
     const inputField = (converted.formXML.ChildItems as Array<{ InputField: ClientApplicationFormXML }>)[0].InputField
+    const serialized = serializeYAMLDocument(imported.yaml)
+
+    expect(serialized.text).toContain("Имя: !xml/name СтароеИмяКонтекстногоМеню")
+    expect(serialized.text).toContain('Имя: !xml/name ""')
 
     expect(converted.formXML.Attributes?.Attribute).toEqual(
       expect.arrayContaining([expect.objectContaining({ _name: "Объект", _id: "11" })])
@@ -758,16 +765,14 @@ describe("форма XML → YAML → XML", () => {
       expect.objectContaining({
         _name: "ПолеВвода1",
         _id: "22",
-        ContextMenu: expect.objectContaining({ _name: "ПолеВвода1КонтекстноеМеню", _id: "33" }),
+        ContextMenu: expect.objectContaining({ _name: "СтароеИмяКонтекстногоМеню", _id: "33" }),
         ExtendedTooltip: expect.objectContaining({ _name: "ПолеВвода1РасширеннаяПодсказка", _id: "44" }),
       })
     )
     expect(converted.formXML.Commands?.Command).toEqual(
       expect.arrayContaining([expect.objectContaining({ _name: "Команда1", _id: "55" })])
     )
-    expect(converted.formXML.AutoCommandBar).toEqual(
-      expect.objectContaining({ _name: "ФормаКоманднаяПанель", _id: "-1" })
-    )
+    expect(converted.formXML.AutoCommandBar).toEqual(expect.objectContaining({ _name: "", _id: "-1" }))
   })
 
   it("восстанавливает порядок metadata-свойств по адресу metadata-файла", () => {
@@ -880,7 +885,81 @@ describe("форма XML → YAML → XML", () => {
       canonicalXML(xmlExport({ MetaDataObject: expectedMetadata }))
     )
   })
+
+  it("сохраняет нестандартное имя singleton как компактный !xml/name", () => {
+    const source = readXMLFixtureAsString(import.meta.url, "reportForm.xml")
+      .replaceAll(
+        "ТабличнаяЧастьВсеСвойстваСтрокаПоискаКонтекстноеМеню",
+        "ТабличнаяЧастьВсеСвойстваSearchStringContextMenu",
+      )
+      .replaceAll(
+        "ТабличнаяЧастьВсеСвойстваСтрокаПоискаРасширеннаяПодсказка",
+        "ТабличнаяЧастьВсеСвойстваSearchStringExtendedTooltip",
+      )
+      .replaceAll(
+        "ТабличнаяЧастьВсеСвойстваСтрокаПоиска",
+        "ТабличнаяЧастьВсеСвойстваSearchString",
+      )
+    const form = (importContentFromXML(source) as { Form: ClientApplicationFormXML }).Form
+    const { contexts, formName, imported } = importReportForm(form)
+    const serialized = serializeYAMLDocument(imported.yaml)
+
+    expect(serialized.text).toContain([
+      "ОтображениеСтрокиПоиска:",
+      "      Имя: !xml/name ТабличнаяЧастьВсеСвойстваSearchString",
+    ].join("\n"))
+    expect(serialized.text.match(/ТабличнаяЧастьВсеСвойстваSearchString/gu)).toHaveLength(1)
+
+    const reparsed = parseMetadataYaml(serialized.text)
+    const converted = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: reparsed.data as ClientApplicationFormYAML,
+      name: formName,
+    })
+    const xml = xmlExport({ Form: converted.formXML })
+
+    expect(xml).toContain('<SearchStringAddition name="ТабличнаяЧастьВсеСвойстваSearchString" id="11">')
+    expect(xml).toContain("<AdditionSource>")
+    expect(xml).toContain('<ContextMenu name="ТабличнаяЧастьВсеСвойстваSearchStringContextMenu" id="12"/>')
+    expect(xml).toContain('<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваSearchStringExtendedTooltip" id="13"/>')
+  })
+
+  it("не принимает явное имя singleton без !xml/name", () => {
+    const source = readXMLFixtureAsString(import.meta.url, "reportForm.xml")
+      .replaceAll(
+        "ТабличнаяЧастьВсеСвойстваСтрокаПоиска",
+        "ТабличнаяЧастьВсеСвойстваSearchString",
+    )
+    const form = (importContentFromXML(source) as { Form: ClientApplicationFormXML }).Form
+    const { contexts, formName, imported } = importReportForm(form)
+    const yamlWithoutTag = serializeYAMLDocument(imported.yaml).text.replace("!xml/name ", "")
+    const reparsed = parseMetadataYaml(yamlWithoutTag)
+
+    expect(() => convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: reparsed.data as ClientApplicationFormYAML,
+      name: formName,
+    })).toThrow("Явное XML-имя singleton должно быть помечено тегом !xml/name")
+  })
 })
+
+function importReportForm(form: ClientApplicationFormXML) {
+  const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+    import.meta.url,
+    "reportFormMetadata.xml",
+  )
+  const contexts = createDirectRoundTripContexts({
+    logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+  })
+  const formName = String(metadata.MetaDataObject.Form.Properties.Name)
+  const imported = importClientApplicationFormFromXMLToYAML({
+    context: contexts.importContext,
+    formName,
+    formXML: form,
+    metadataXML: metadata.MetaDataObject,
+  })
+  return { contexts, formName, imported }
+}
 
 function canonicalXML(xml: string): unknown {
   return withoutFormattingText(importContentFromXML(xml))

@@ -16,13 +16,21 @@ import {
   configurationIndexExportFormSingletonLogicalAddress,
   withConfigurationIndexExportLogicalAddress,
 } from "../../configurationIndex/referenceView"
-import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
+import {
+  getCanonicalSingletonName,
+  getSingletonName,
+  getSingletonNameVariant,
+  resolveExplicitSingletonName,
+  type SingletonNameStyle,
+  withSingletonNameVariantToXML,
+} from "./singletonName"
 import type { ElementRule, ElementXML, SingleElementType } from "./types"
 import { defineMetadataRules } from "../definition"
 import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
 import { registerFormXmlIdReservation } from "../../configurationIndex/formXmlIdReservation"
 import { resolveFormElementXMLId } from "./xmlIdentity"
+import { copyXmlAnomalyExportClaim } from "../xmlAnomaly/exportClaim"
 export {
   defineElementRule,
   getElementRule,
@@ -58,18 +66,29 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
           : configurationIndexExportFormElementLogicalAddress(context, canonicalName)
     return logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
   },
-  resolveItemName: ({ context, ownerName }) =>
-    getCanonicalSingletonName({ ownerLogicalAddress: ownerName ?? "", nameStyle: params.nameStyle })
-    ?? params.toXML({ context }).name,
-  resolveItemContext: ({ context, itemName }) => {
-    return itemName === undefined
-      ? context
-      : getChildContextToXML({
+  resolveItemName: ({ context, yaml, ownerName }) => {
+    const effectiveOwnerName = ownerName ?? context.exportToXML.itemsTree.at(-1)?.name
+    const generatedName = getSingletonName({
+      ownerLogicalAddress: effectiveOwnerName ?? "",
+      nameStyle: params.nameStyle,
+      variant: context.exportToXML.formElementNameVariant,
+    }) ?? params.toXML({ context }).name
+    return resolveExplicitSingletonName({ yaml, generatedName, nameStyle: params.nameStyle })
+  },
+  resolveItemContext: ({ context, name, itemName }) => {
+    if (itemName === undefined) return context
+    const ownerXmlName = name ?? context.exportToXML.itemsTree.at(-1)?.name
+    const childContext = getChildContextToXML({
           context,
           itemType: params.elementRule.itemType,
           path: `${params.elementRule.itemType}.${itemName}`,
           name: itemName,
         })
+    return withSingletonNameVariantToXML(childContext, getSingletonNameVariant({
+      xmlName: itemName,
+      ownerXmlName,
+      nameStyle: params.nameStyle,
+    }))
   },
   transformOutput: (outputParams) => {
     const { context, itemName, xml } = outputParams
@@ -86,7 +105,9 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
       _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
       ...properties,
     }
+    copyXmlAnomalyExportClaim(xml, result)
     const transformed = params.transformOutput?.({ ...outputParams, xml: result }) ?? result
+    copyXmlAnomalyExportClaim(result, transformed)
     if (transformed !== null && typeof transformed === "object" && !Array.isArray(transformed)) {
       registerFormXmlIdReservation(transformed, {
         ...(runtime === undefined ? {} : { runtime }),

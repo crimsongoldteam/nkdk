@@ -2,6 +2,7 @@ import { Type, type TSchema } from "typebox"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { ResolvedPropertyStateItemCapability } from "../definition"
 import { getImplicitValueYAML } from "./toJSONSchema"
+import { structuralYAMLProperties } from "@nkdk/runtime/rule-kit"
 
 export function exportBorrowedPropertyStateSchema(params: {
   readonly rule: MetadataItemRule
@@ -40,6 +41,10 @@ export function exportBorrowedPropertyStateSchema(params: {
       return typeof yaml === "string" ? [yaml] : []
     }),
   )
+  const structuralYamlNames = structuralYAMLProperties(source)
+  const technicalProperties = Object.fromEntries(
+    Object.entries(source.properties ?? {}).filter(([yamlName]) => structuralYamlNames.has(yamlName)),
+  )
   const allowedProperties = Object.fromEntries(
     Object.entries(source.properties ?? {}).flatMap(([yamlName, schema]) => {
       if (!allowedYamlNames.has(yamlName)) return []
@@ -68,7 +73,10 @@ export function exportBorrowedPropertyStateSchema(params: {
         ...(source.properties ?? {}),
         ...allowedProperties,
       }
-    : allowedProperties
+    : {
+        ...technicalProperties,
+        ...allowedProperties,
+      }
   if (
     params.includeExtendedConfigurationObject === true ||
     params.capability.properties.extendedConfigurationObject !== undefined
@@ -88,7 +96,8 @@ export function exportBorrowedPropertyStateSchema(params: {
     properties,
     required: params.closed === false
       ? source.required
-      : (source.required ?? []).filter((yamlName) => allowedYamlNames.has(yamlName)),
+      : (source.required ?? []).filter((yamlName) =>
+          allowedYamlNames.has(yamlName) || Object.hasOwn(technicalProperties, yamlName)),
     additionalProperties: false,
   }
 }

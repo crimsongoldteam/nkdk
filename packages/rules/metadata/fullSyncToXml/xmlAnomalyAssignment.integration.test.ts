@@ -18,6 +18,7 @@ import {
   withRuleRegistrySet,
   convertMetadataItemFromYAMLToXML,
   convertPropertiesFromYAMLToXML,
+  bindDeferredObjectValues,
   type MetadataItemRule,
   type YAMLToXMLNestedRule,
 } from "@nkdk/runtime/rule-kit"
@@ -29,8 +30,10 @@ import {
   clientApplicationFormYamlToXmlNestedRule,
   convertClientApplicationFormFromYAMLToXML,
 } from "../forms/clientApplicationForm/fromYAMLToXML"
-import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { ClientApplicationFormRules, FormRulesTags } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
+import { prepareFormDataPathContextFromYAML } from "../forms/clientApplicationForm/formDataPathContext"
+import { catalogOwnerCache } from "../forms/clientApplicationForm/__tests__/catalogOwnerCache"
 import { MetadataCommonFormRules } from "../appliedObjects/metadataCommonForm/rules"
 import { configurationExtensionYamlToXmlAugmenter } from "../appliedObjects/configurationExtension/exportPropertyStates"
 import {
@@ -52,6 +55,14 @@ const rule = {
     expanded: { type: "string", yaml: "Развернутое", xml: "Expanded" },
     missing: { type: "string", yaml: "Отсутствует", xml: "Missing", defaultValueXML: "default" },
     compact: { type: "string", yaml: "Компактное", xml: "Compact" },
+  },
+} as const satisfies MetadataItemRule
+
+const deferredControlType = "SyntheticDeferredControl" as never
+const deferredControlRule = {
+  itemType: "SyntheticDeferredOwner",
+  properties: {
+    value: { type: deferredControlType, yaml: "Значение", xml: "Value" },
   },
 } as const satisfies MetadataItemRule
 
@@ -142,6 +153,11 @@ const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
     ...emptyMetadataRules,
     propertyTypes: propertyTypesFromContributions([
       definePropertyTypeRule(
+        deferredControlType,
+        "finalizeExportedXML",
+        ({ value }) => `${String(value)}:final`,
+      ),
+      definePropertyTypeRule(
         "SyntheticNamedCollection" as never,
         "yamlToXMLNestedRule",
         collectionDescriptor,
@@ -166,6 +182,30 @@ describe("единое восстановление XML-аномалий assignm
     expect(control.mode).toBe("direct")
     const xml = control.materializeXml()
     expect(control.roots).toEqual(rootFingerprints(parseXmlRootStructuresWithSaxes(xml).roots))
+  })
+
+  it("строит контрольные roots из материализованного XML при отложенных значениях", () => {
+    const draftXml = { Root: { Value: "draft" } }
+    const control = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
+      buildPreparedAssignmentControlDocument({
+        document: {
+          targetXmlPath: "Root.xml",
+          xml: draftXml,
+          deferred: bindDeferredObjectValues(draftXml, [{
+            valuePath: ["Root", "Value"],
+            rulePath: [{ propertyKey: "value" }],
+          }]),
+          rootRule: deferredControlRule,
+          rawBoundaries: [],
+        },
+        context: mockContextToXML(),
+      }),
+    )
+
+    expect(control.mode).toBe("serialized")
+    expect(control.roots).toEqual(rootFingerprints(
+      parseXmlRootStructuresWithSaxes(control.materializeXml()).roots,
+    ))
   })
 
   it("использует строковый путь для смешанного XML-содержимого", () => {
@@ -312,6 +352,43 @@ describe("единое восстановление XML-аномалий assignm
       Properties: { Future: "future" },
     })
     expect(root).not.toHaveProperty("Missing")
+  })
+
+  it("считает удаление XML-атрибута поправкой поверх обычного вывода свойства", () => {
+    const prepared = prepareAnomalies([
+      "Отсутствует: !xml/raw",
+      "  $xml:",
+      "    _xsi:type: xs:dateTime",
+      "    '#text': 0001-01-01T00:00:00",
+      "    _xsi:nil: null",
+      "    '#order': ['#text']",
+    ].join("\n"), anomalyRuntime({}))
+
+    expect(prepared.rawBoundaries).toContainEqual(expect.objectContaining({
+      path: "Missing",
+      value: {
+        "_xsi:type": "xs:dateTime",
+        "#text": "0001-01-01T00:00:00",
+        "_xsi:nil": null,
+        "#order": ["#text"],
+      },
+      suppressOrdinaryOutput: false,
+      hasSemanticValue: true,
+    }))
+
+    const xml = buildPreparedAssignmentXml({
+      document: {
+        targetXmlPath: "Objects/One.xml",
+        xml: { Root: { Missing: { "_xsi:nil": "true" } } },
+        deferred: [],
+        rootRule: rule,
+        rawBoundaries: prepared.rawBoundaries,
+      },
+      context: mockContextToXML(),
+    })
+
+    expect(xml).toContain('<Missing xsi:type="xs:dateTime">0001-01-01T00:00:00</Missing>')
+    expect(xml).not.toContain("xsi:nil")
   })
 
   it("дополняет известного XML-родителя raw-атрибутом, не скрывая его свойства", () => {
@@ -548,6 +625,53 @@ describe("единое восстановление XML-аномалий assignm
     expect(inputEnd).toBeGreaterThan(future)
   })
 
+  it("сохраняет raw-привязку при материализации неявного пути элемента формы", () => {
+    const prepared = prepareAnomalies([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: CatalogObject.Товары",
+      "    ОсновнойРеквизит: Истина",
+      "Элементы:",
+      "  Наименование:",
+      "    Вид: ПолеВвода",
+      "    Future: !xml/raw",
+      "      $xml: value",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, ClientApplicationFormRules, anomalyRegistries)
+    const yaml = prepared.preparedYamlFile.data as ClientApplicationFormYAML
+    const xml = exportPreparedFormAssignment(prepared, yaml)
+
+    expect(xml).toContain('<InputField name="Наименование"')
+    expect(xml).toContain("<DataPath>Объект.Наименование</DataPath>")
+    expect(xml).toContain("<Future>value</Future>")
+  })
+
+  it("сохраняет raw-привязку вложенного элемента при материализации пути владельца", () => {
+    const prepared = prepareAnomalies([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: CatalogObject.Товары",
+      "    ОсновнойРеквизит: Истина",
+      "Элементы:",
+      "  Таблица:",
+      "    Вид: ТаблицаФормы",
+      "    КонтекстноеМеню: !xml/raw",
+      "      $значение:",
+      "        Автозаполнение: Ложь",
+      "      $xml:",
+      "        Future: value",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, ClientApplicationFormRules, anomalyRegistries)
+    const yaml = prepared.preparedYamlFile.data as ClientApplicationFormYAML
+    expect(prepared.rawBoundaries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: expect.stringContaining("ContextMenu"), tag: FormRulesTags.Form }),
+    ]))
+    const xml = exportPreparedFormAssignment(prepared, yaml)
+
+    expect(xml).toContain('<Table name="Таблица"')
+    expect(xml).toContain("<DataPath>Объект.Таблица</DataPath>")
+    expect(xml).toContain("<ContextMenu")
+    expect(xml).toContain("<Future>value</Future>")
+  })
+
   it("сохраняет raw-привязку унаследованного элемента формы при построении BaseForm", () => {
     const prepared = prepareAnomalies([
       "Элементы:",
@@ -635,7 +759,24 @@ describe("единое восстановление XML-аномалий assignm
         exportClaimId: expect.any(String),
       }),
     ]))
+    expect(prepared.rawBoundaries.every(boundary => !("tag" in boundary))).toBe(true)
     expect(new Set(prepared.rawBoundaries.map(({ exportClaimId }) => exportClaimId)).size).toBe(2)
+  })
+
+  it("сохраняет привязку пустой группы дополнительных колонок после mapItemOutput", () => {
+    const xml = exportFormWithAnomalies([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: CatalogObject.Товары",
+      "    ОсновнойРеквизит: Истина",
+      "    ДополнительныеКолонки:",
+      "      Объект.Таблица:",
+      "    Columns\\AdditionalColumns: !xml/raw",
+      "      $xml:",
+      "        _table: Объект.Таблица",
+    ], true)
+
+    expect(xml).toContain('<AdditionalColumns table="Объект.Таблица"')
   })
 
   it("сохраняет относительный XML-путь raw внутри вложенных объектов external item", () => {
@@ -685,6 +826,69 @@ describe("единое восстановление XML-аномалий assignm
       documentPath: "Ext/Form.xml",
       exportClaimId: expect.any(String),
     }))
+  })
+
+  it("накладывает атрибуты вычисляемого collection item поверх обычного экспорта", () => {
+    const yaml = [
+      "Элементы:",
+      "  Метка:",
+      "    Вид: Надпись",
+      '    "@Form\\\\РасширеннаяПодсказка": !xml/raw',
+      "      $xml:",
+      "        _name: МеткаExtendedTooltip",
+    ]
+    const prepared = prepareAnomalies(
+      yaml.join("\n"),
+      anomalyRegistries.xmlAnomalies,
+      ClientApplicationFormRules,
+      anomalyRegistries,
+    )
+
+    expect(prepared.rawBoundaries).toContainEqual(expect.objectContaining({
+      path: "ExtendedTooltip",
+      value: { _name: "МеткаExtendedTooltip" },
+      suppressOrdinaryOutput: false,
+      hasSemanticValue: true,
+      exportClaimId: expect.any(String),
+    }))
+    expect(exportFormWithAnomalies(yaml)).toMatch(
+      /<ExtendedTooltip name="МеткаExtendedTooltip" id="[^"]+"\/>/u,
+    )
+  })
+
+  it("дополняет скрытый вычисляемый singleton вложенным raw, сохраняя имя и id", () => {
+    const yaml = [
+      "Элементы:",
+      "  Метка:",
+      "    Вид: Надпись",
+      '    "@Form\\\\РасширеннаяПодсказка": !xml/raw',
+      "      $xml:",
+      "        Title:",
+      '          _formatted: "true"',
+      "        '#order': [Title]",
+    ]
+
+    expect(exportFormWithAnomalies(yaml)).toMatch(
+      /<ExtendedTooltip name="МеткаРасширеннаяПодсказка" id="[^"]+">\s*<Title formatted="true"\/>\s*<\/ExtendedTooltip>/u,
+    )
+  })
+
+  it("накладывает вложенную raw-поправку поверх имени и id вычисляемого singleton", () => {
+    const yaml = [
+      "Элементы:",
+      "  Метка:",
+      "    Вид: Надпись",
+      "    РасширеннаяПодсказка: !xml/raw",
+      "      $значение:",
+      "        АвтоМаксимальнаяШирина: Ложь",
+      "      $xml:",
+      "        Title:",
+      '          _formatted: "true"',
+    ]
+
+    expect(exportFormWithAnomalies(yaml)).toMatch(
+      /<ExtendedTooltip name="МеткаРасширеннаяПодсказка" id="[^"]+">[\s\S]*<Title formatted="true"\/>[\s\S]*<\/ExtendedTooltip>/u,
+    )
   })
 
   it("вставляет локальный raw в каноническую позицию xmlOrder без публичного #order", () => {
@@ -999,22 +1203,36 @@ function rootFingerprints(
   return roots.map(({ name, path, structuralHash }) => ({ name, path, structuralHash }))
 }
 
-function exportFormWithAnomalies(lines: readonly string[]): string {
+function exportFormWithAnomalies(lines: readonly string[], withDataPaths = false): string {
   const prepared = prepareAnomalies(
     lines.join("\n"),
     anomalyRegistries.xmlAnomalies,
     ClientApplicationFormRules,
     anomalyRegistries,
   )
+  const yaml = prepared.preparedYamlFile.data as ClientApplicationFormYAML
+  return exportPreparedFormAssignment(prepared, yaml, withDataPaths)
+}
+
+function exportPreparedFormAssignment(
+  prepared: ReturnType<typeof prepareAnomalies>,
+  yaml: ClientApplicationFormYAML,
+  withDataPaths = true,
+): string {
   const context = mockContextToXML()
+  const formDataPathContext = withDataPaths
+    ? prepareFormDataPathContextFromYAML({ yaml, ownerCache: catalogOwnerCache() })
+    : undefined
   const ordinary = withPropertyRuleRegistrySet(anomalyRegistries.property, () =>
     withRuleRegistrySet(anomalyRegistries, () => convertClientApplicationFormFromYAMLToXML({
       context,
-      yaml: prepared.preparedYamlFile.data as ClientApplicationFormYAML,
+      yaml,
       annotations: prepared.preparedYamlFile.annotations,
+      ...(formDataPathContext === undefined ? {} : { formDataPathContext }),
       name: "Форма",
     }).formXML),
   )
+
   return buildPreparedAssignmentXml({
     document: {
       targetXmlPath: "Form.xml",

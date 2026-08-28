@@ -35,7 +35,7 @@ export const exportI8nTextToXML = (
       return undefined
     }
     if (narrowRule.preserveEmptyXML || narrowRule.excludeIfEqualNameYAML) {
-      return {}
+      return { "v8:item": undefined }
     }
   }
 

@@ -68,6 +68,7 @@ export async function executeImportControlExport(params: {
       data: params.data,
       annotations: params.annotations,
       rereadSourcePaths: [],
+      warnings: [],
     }
   }
   const assignment = projectControlAssignment(params.assignment, params.topology)
@@ -143,6 +144,7 @@ export async function executeImportControlExport(params: {
         prepared.semanticYamlFile.annotations,
       ),
       rereadSourcePaths: [],
+      warnings: [],
     }
   }
   const exported = preliminaryExported.map(({ role, sourcePath, control }) => {
@@ -339,7 +341,8 @@ function matchesDocumentSelector(
   candidate: { readonly role: ImportXmlInput["role"]; readonly sourcePath?: string },
   selector: string | undefined,
 ): boolean {
-  if (selector === undefined || selector.length === 0) return candidate.role === "metadata"
+  if (selector === undefined) return true
+  if (selector.length === 0) return candidate.role === "metadata"
   const fileName = candidate.sourcePath?.replaceAll("\\", "/").split("/").at(-1)
   return fileName === `${selector}.xml`
 }

@@ -1,4 +1,10 @@
-import { childSegmentUid } from "@nkdk/runtime"
+import {
+  childSegmentUid,
+  copyYAMLRuntimeMetadata,
+  copyYAMLRuntimeMetadataDeep,
+  createXmlAnomalyAnnotations,
+  type XmlAnomalyAnnotationTable,
+} from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexCollector,
@@ -23,6 +29,7 @@ import type { ClientApplicationFormXML } from "./types"
 
 export interface ImportedBaseFormYaml {
   readonly yaml: unknown
+  readonly annotations: XmlAnomalyAnnotationTable
   readonly localIndexes: LocalIndexes
   readonly deferred: readonly DeferredValuePath[]
   readonly generatedFiles: readonly ExternalFileEntry[]
@@ -35,6 +42,7 @@ export function importBaseFormYaml(params: {
   formName: string
   rule?: MetadataItemRule
 }): ImportedBaseFormYaml {
+  const importedAnnotations = createXmlAnomalyAnnotations()
   const configurationIndexCollector = createConfigurationIndexCollector()
   const currentCollection = getConfigurationIndexCollectionContext(params.context)
   const formLogicalAddress = currentCollection?.logicalAddress ?? params.formName
@@ -52,12 +60,21 @@ export function importBaseFormYaml(params: {
     rule: params.rule ?? ClientApplicationFormRules,
     collector: localIndexesCollector,
     deferred,
+    annotations: importedAnnotations,
   })
   const yaml = normalizeBaseFormYaml(imported.yaml)
+  const annotations = createXmlAnomalyAnnotations()
+  copyYAMLRuntimeMetadataDeep({
+    source: imported.yaml,
+    target: yaml,
+    sourceAnnotations: importedAnnotations,
+    targetAnnotations: annotations,
+  })
   const localIndexes = localIndexesCollector.finish()
   localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
   return {
     yaml,
+    annotations,
     localIndexes,
     deferred: deferred.finish(),
     generatedFiles: imported.generatedFiles,
@@ -69,6 +86,7 @@ export function normalizeBaseFormYaml(value: unknown): unknown {
   if (isExplicitYAMLString(value)) return value
   if (Array.isArray(value)) {
     const normalized = value.map((child) => normalizeBaseFormYaml(child))
+    copyYAMLRuntimeMetadata(value, normalized)
     value.forEach((child, index) => {
       if (isExplicitYAMLString(asExplicitYAMLStringIfMarked(value, index, child))) {
         markDoubleQuotedScalar(normalized, index)
@@ -86,6 +104,7 @@ export function normalizeBaseFormYaml(value: unknown): unknown {
       markDoubleQuotedScalar(normalized, key)
     }
   }
+  copyYAMLRuntimeMetadata(value, normalized)
   return normalized
 }
 

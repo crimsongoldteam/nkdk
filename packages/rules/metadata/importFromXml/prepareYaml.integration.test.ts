@@ -29,6 +29,7 @@ resetRegisteredImportRuleLookupCountForTests,
 rootProofParsePassCountForTests,
 resolveAssignmentRule,
 } from "./prepareYaml"
+import { createXmlAnomalyProofAddressIndex } from "./anomalyProof"
 import type { ImportAssignment } from "./types"
 import {
 createPreparedImportRecordSource,
@@ -240,7 +241,6 @@ describe("prepareImportYaml", () => {
     const expected = parseMetadataYamlData(
       fs.readFileSync(join(fixtureDir, "yaml/КонстантаВсеСвойства/Свойства.yaml"), "utf8")
     )
-    delete ((expected.data as { Форма?: Record<string, unknown> }).Форма)?.КоманднаяПанель
 
     expect(expected.syntaxErrors).toEqual([])
     expect(prepared.yaml).toEqual(expected.data)
@@ -269,6 +269,21 @@ describe("prepareImportYaml", () => {
       xmlPath: "/Form[1]/Attributes[1]/Attribute[1]",
       yamlPath: ["Форма", "Реквизиты", "НаборКонстант"],
       rulePath: ["form", "attributes"],
+    })
+    const proofAddressIndex = createXmlAnomalyProofAddressIndex(prepared.proofAudit)
+    expect(proofAddressIndex.deepest(
+      join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml"),
+      "/Form[1]/Attributes[1]/Attribute[1]/@id[1]",
+    )).toEqual({
+      sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml"),
+      xmlPath: "/Form[1]/Attributes[1]/Attribute[1]/@id[1]",
+      yamlPath: ["Форма", "Реквизиты", "НаборКонстант", "id"],
+      rulePath: [
+        { propertyKey: "form" },
+        { propertyKey: "attributes" },
+        { propertyKey: "id" },
+      ],
+      kind: "property",
     })
     expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства.Элемент.КонстантаВсеСвойства",
@@ -347,6 +362,38 @@ describe("prepareImportYaml", () => {
       uuid: "0f4c2a9b-1d3e-4b6f-8a7c-9e1d2c3b4a5f",
     })
     expect(writeFile).not.toHaveBeenCalled()
+  })
+
+  it("сохраняет неканонический порядок I8nText до этапа валидации", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-i8n-order-"))
+    try {
+      const metadataPath = join(inputDir, "Контрагенты.xml")
+      const source = fs.readFileSync(join(syncXmlDir, "Catalogs/Контрагенты.xml"), "utf8")
+      fs.writeFileSync(
+        metadataPath,
+        source.replace(
+          /<Synonym>[\s\S]*?<\/Synonym>/,
+          [
+            "<Synonym>",
+            "\t\t\t\t<v8:item><v8:lang>en</v8:lang><v8:content>Catalog</v8:content></v8:item>",
+            "\t\t\t\t<v8:item><v8:lang>ru</v8:lang><v8:content>Справочник</v8:content></v8:item>",
+            "\t\t\t</Synonym>",
+          ].join("\n"),
+        ),
+      )
+
+      const prepared = await prepareImportYaml({
+        assignment: { ...catalogAssignment(), xmlFiles: [{ role: "metadata", sourcePath: metadataPath }] },
+        context: mockXmlImportContext(),
+        collector: createConfigurationIndexCollector(),
+      })
+
+      const synonym = (prepared.yaml as { Синоним: Record<string, unknown> }).Синоним
+      expect(Object.keys(synonym)).toEqual(["en", "ru"])
+      expect(prepared.annotations.at(prepared.yaml as object, "Синоним")).toBeUndefined()
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true })
+    }
   })
 
   it("сохраняет raw заведомо неизвестного XML без контрольного экспорта", async () => {

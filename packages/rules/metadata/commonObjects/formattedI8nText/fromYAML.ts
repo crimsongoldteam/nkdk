@@ -14,10 +14,16 @@ export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params
   restoreExcludedEqualName?: boolean
 }): FormattedI8nText | undefined => {
   const { context, rule, value, source, name, restoreExcludedEqualName } = params
+  if (
+    value?.Форматированный === "Истина" &&
+    !("Текст" in value)
+  ) {
+    return { formatted: true, items: {} }
+  }
   const textResult = importI8nTextFromYAML({
     context,
     rule,
-    value: value?.Текст,
+    value: value === undefined || !("Текст" in value) ? undefined : value.Текст,
     source,
     name,
     restoreExcludedEqualName,

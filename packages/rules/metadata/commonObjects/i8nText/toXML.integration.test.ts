@@ -1,4 +1,4 @@
-import { xmlExport } from "@nkdk/runtime"
+import { createConfigurationLanguages,xmlExport } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
 import { mockContext,mockRule } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
@@ -7,11 +7,17 @@ import { typedI8nTextRule,typedI8nTextValue } from "./__fixtures__/data"
 import { i8nTextFixtures } from "./__fixtures__/legacy/data"
 import { exportI8nTextToXML,exportI8nTextToXMLWithDefaultLanguage } from "./toXML"
 import { I8nTextPropertyRule,type I8nTextXML } from "./types"
+import { importLocalizedItems } from "./anomalies"
 
 const excludeEqualNameRule: I8nTextPropertyRule = {
   yaml: "Синоним",
   type: "I8nText",
   excludeIfEqualNameYAML: true,
+}
+
+const multilingualXMLContext = {
+  ...mockContext,
+  languages: createConfigurationLanguages({ default: "ru", registered: ["ru", "en"] }),
 }
 
 function expectLegacyFixture(
@@ -61,9 +67,29 @@ describe("exportI8nTextToXML", () => {
       const result = exportI8nTextToXML(mockContext, excludeEqualNameRule, { items: {} })
       const xml = result ? xmlExport({ Title: result }, false) : undefined
 
-      expect(result).toEqual({})
+      expect(result).toEqual({ "v8:item": undefined })
       expect(xml).toEqual("<Title/>")
     })
+
+    it("выгружает все сохранённые вхождения языков в исходном порядке", () => {
+      const value = {
+        items: importLocalizedItems({
+          context: multilingualXMLContext,
+          items: [
+          { "v8:lang": "ru", "v8:content": "Первый" },
+          { "v8:lang": "en", "v8:content": "Text" },
+          { "v8:lang": "ru", "v8:content": "Второй" },
+          ],
+        }),
+      }
+
+      expect(exportI8nTextToXML(mockContext, mockRule, value)?.["v8:item"]).toEqual([
+        { "v8:lang": "ru", "v8:content": "Первый" },
+        { "v8:lang": "en", "v8:content": "Text" },
+        { "v8:lang": "ru", "v8:content": "Второй" },
+      ])
+    })
+
   })
 
   describe("exportI8nTextToXMLWithDefaultLanguage", () => {

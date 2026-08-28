@@ -1,8 +1,10 @@
 import fs,{ mkdirSync,mkdtempSync,rmSync,writeFileSync } from "fs"
+import { createConfigurationLanguages } from "@nkdk/runtime"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach,describe,expect,it,vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
+import "../../tests/metadataExecutionContext"
 import {
 createMetadataExecutionRegistrySets,
 withMetadataExecutionRegistrySets,
@@ -418,6 +420,42 @@ describe("validateForm", () => {
     )
   })
 
+  it("проверяет локализованные свойства динамически выбранного элемента формы", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "    ПодсказкаВвода:",
+        "      ru: Текст",
+        "      !xml/invalid en: Text",
+      ],
+    })
+    const first = validateClientApplicationFormFirstPass({
+      projectDir: project.projectDir,
+      formDir: project.formDir,
+      formName: project.formName,
+      owner: { dir: project.ownerDir, name: project.ownerName },
+      cache: createProjectYamlCache(),
+      context: {
+        ...mockContext,
+        languages: createConfigurationLanguages({ default: "ru", registered: ["ru"] }),
+      },
+    })
+
+    expect(first.status).toBe("ok")
+    if (first.status !== "ok") return
+    expect(first.state.visitedItems.map(({ yamlPath }) => yamlPath)).toContainEqual(["Элементы", "Поле"])
+    expect(first.state.visitedItems.find(({ yamlPath }) => yamlPath.join("/") === "Элементы/Поле")?.rule.itemType)
+      .toBe("InputField")
+    expect(first.diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: "/Элементы/Поле/ПодсказкаВвода/en",
+        message: expect.stringContaining("Незарегистрированный язык en"),
+      }),
+    ]))
+  })
+
   it("reports intermediate composite type errors", () => {
     const project = createProject({
       form: [
@@ -585,14 +623,7 @@ describe("validateForm", () => {
         "    АвтоОбновление: Истина",
       ],
     })
-    const first = validateClientApplicationFormFirstPass({
-      projectDir: project.projectDir,
-      formDir: project.formDir,
-      formName: project.formName,
-      owner: { dir: project.ownerDir, name: project.ownerName },
-      cache: createProjectYamlCache(),
-      context: mockContext,
-    })
+    const first = runValidateFormFirstPass(project)
 
     expect(first.status).toBe("ok")
     if (first.status !== "ok") return
@@ -610,14 +641,7 @@ describe("validateForm", () => {
         "    АвтоОбновление: Истина",
       ],
     })
-    const first = validateClientApplicationFormFirstPass({
-      projectDir: project.projectDir,
-      formDir: project.formDir,
-      formName: project.formName,
-      owner: { dir: project.ownerDir, name: project.ownerName },
-      cache: createProjectYamlCache(),
-      context: mockContext,
-    })
+    const first = runValidateFormFirstPass(project)
 
     expect(first.status).toBe("ok")
     if (first.status !== "ok") return
@@ -2100,6 +2124,17 @@ function runValidateForm(
     ownerCache:
       params.ownerCache ??
       createOwnerMetadataCache({ projectDir: project.projectDir, yamlCache: cache, context: mockContext }),
+  })
+}
+
+function runValidateFormFirstPass(project: TestProject, context = mockContext) {
+  return validateClientApplicationFormFirstPass({
+    projectDir: project.projectDir,
+    formDir: project.formDir,
+    formName: project.formName,
+    owner: { dir: project.ownerDir, name: project.ownerName },
+    cache: createProjectYamlCache(),
+    context,
   })
 }
 

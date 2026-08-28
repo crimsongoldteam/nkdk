@@ -31,6 +31,7 @@ import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
 import type { MetadataTargetOwnerResolver } from "./metadataTargetOwnerRegistry"
 import type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
 import type { YAMLScalarTagPolicy } from "./yamlScalarTagPolicy"
+import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
 export type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
 export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
 
@@ -104,6 +105,7 @@ export type ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   yaml?: any
+  annotations?: XmlAnomalyAnnotations
   source?: any
   value: any
   name?: string

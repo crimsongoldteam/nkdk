@@ -130,6 +130,35 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(absent).toEqual({})
   })
 
+  it("passes a present semantic explicit-empty value to a direct converter as an empty string", () => {
+    const received: unknown[] = []
+    registerTypeRule("TestDirectExplicitEmpty" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => {
+      received.push(xml)
+      return xml
+    })
+    registerTypeRule("TestDirectExplicitEmpty" as PropertyRuleType, "xmlImportPropertyBehavior", {
+      explicitEmptyValue: () => ({ semantic: true }),
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestDirectExplicitEmptyItem",
+        properties: {
+          value: { type: "TestDirectExplicitEmpty", xml: "Value", yaml: "Значение" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Value: undefined } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(received).toEqual([""])
+    expect(yaml).toEqual({ Значение: "" })
+  })
+
   it("preserves an explicit null returned by an XML importer", () => {
     registerTypeRule("TestExplicitNull" as PropertyRuleType, "importFromXML", () => null)
     registerTypeRule("TestExplicitNull" as PropertyRuleType, "exportToYAML", (_context, _rule, value) => value)
@@ -403,6 +432,58 @@ describe("importPropertiesFromXMLToYAML", () => {
         collector: createLocalIndexesCollector(),
       })
     ).toEqual({})
+  })
+
+  it("does not apply a semantic default to an omitted direct YAML value", () => {
+    registerTypeRule("TestDirectOmittedDefault" as PropertyRuleType, "importFromXMLToYAML", () => undefined)
+
+    expect(
+      importPropertiesFromXMLToYAML({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule: {
+          itemType: "TestDirectItem",
+          properties: {
+            value: {
+              type: "TestDirectOmittedDefault",
+              xml: "Value",
+              yaml: "Значение",
+              defaultValue: { items: { ru: "Смысловой default" } },
+            },
+          },
+        } as MetadataItemRule,
+        xml: { Value: {} },
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      }),
+    ).toEqual({})
+  })
+
+  it("restores an explicit empty inline collection after direct conversion", () => {
+    registerTypeRule("TestDirectInlineEmptyCollection" as PropertyRuleType, "importFromXMLToYAML", () => undefined)
+
+    expect(
+      importPropertiesFromXMLToYAML({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule: {
+          itemType: "TestDirectItem",
+          properties: {
+            items: {
+              type: "TestDirectInlineEmptyCollection",
+              xml: "Item",
+              yaml: "items",
+              yamlInline: true,
+              defaultValue: [],
+              defaultValueXMLEmpty: [],
+            },
+          },
+        } as MetadataItemRule,
+        xml: {},
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      }),
+    ).toEqual({ items: [] })
   })
 
   it("does not collect imported XML-prefix values for the configuration index", () => {
@@ -968,6 +1049,24 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(yaml).toEqual({})
     expect(valuePropertyAuditStates(audit).map(([, state]) => state))
       .toEqual(Array(4).fill("semanticallyElided"))
+  })
+
+  it("считает полностью прочитанное и опущенное прямое значение восстановимым", () => {
+    const propertyType = "TestSemanticallyElidedDirectValue" as PropertyRuleType
+    registerTypeRule(propertyType, "importFromXMLToYAML", ({ xml }) => {
+      JSON.stringify(xml)
+      return undefined
+    })
+    const { yaml, audit } = importAuditedStructuralProperty({
+      propertyType,
+      itemType: "TestSemanticallyElidedDirectOwner",
+      xml: "<Root><Value><Known>value</Known></Value></Root>",
+    })
+    audit.finalize()
+
+    expect(yaml).toEqual({})
+    expect(valuePropertyAuditStates(audit).map(([, state]) => state))
+      .toEqual(Array(3).fill("semanticallyElided"))
   })
 
   it("заявляет точную XML-форму канонического raw-дефолта", () => {

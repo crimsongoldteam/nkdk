@@ -3,6 +3,7 @@ import { ConfigurationContext } from "../../context/types"
 import { exportPropertiesToJSONSchema } from "../property/toJSONSchema"
 import { getElementRule } from "./ruleRegistry"
 import { ElementRule, type ElementType } from "./types"
+import { withStructuralYAMLProperties } from "../property/structuralYAMLProperties"
 
 export const exportElementRuleToJSONSchema = (params: {
   context: ConfigurationContext
@@ -36,20 +37,22 @@ export const exportSingleElementRuleToJSONSchema = (params: {
   rule: ElementRule
   explicitXMLName?: true
 }): TSchema => {
-  const { context, rule } = params
+  const { context, rule, explicitXMLName } = params
   const properties = exportPropertiesToJSONSchema({
     context,
     rule: shouldOmitNestedChildItems(context) ? omitNestedChildItemsRule(rule) : rule,
   })
 
-  return Type.Object(
+  const schema = Type.Object(
     {
       ...properties,
+      ...(explicitXMLName === true ? { Имя: Type.Optional(Type.String()) } : {}),
     },
     {
       additionalProperties: false,
     }
   )
+  return explicitXMLName === true ? withStructuralYAMLProperties(schema, ["Имя"]) : schema
 }
 
 function shouldOmitNestedChildItems(context: ConfigurationContext): boolean {

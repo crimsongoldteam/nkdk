@@ -1,4 +1,4 @@
-import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML, XmlAnomalyAnnotations } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import { childUid } from "@nkdk/runtime"
@@ -17,7 +17,9 @@ export function buildClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly baseIndex?: LocalConfigurationIndexReader
   readonly baseYaml: ClientApplicationFormYAML
+  readonly baseAnnotations?: XmlAnomalyAnnotations
   readonly extensionYaml?: ClientApplicationFormYAML
+  readonly extensionAnnotations?: XmlAnomalyAnnotations
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly formName: string
   readonly rule?: MetadataItemRule
@@ -32,6 +34,8 @@ export function buildClientApplicationBaseForm(params: {
     ...params,
     baseIndex: params.baseIndex,
     extensionYaml: params.extensionYaml,
+    baseAnnotations: params.baseAnnotations,
+    extensionAnnotations: params.extensionAnnotations,
   })
 }
 
@@ -39,7 +43,9 @@ function buildProjectedClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly baseIndex: LocalConfigurationIndexReader
   readonly baseYaml: ClientApplicationFormYAML
+  readonly baseAnnotations?: XmlAnomalyAnnotations
   readonly extensionYaml: ClientApplicationFormYAML
+  readonly extensionAnnotations?: XmlAnomalyAnnotations
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly formName: string
   readonly rule?: MetadataItemRule
@@ -48,6 +54,8 @@ function buildProjectedClientApplicationBaseForm(params: {
   const projected = projectClientApplicationBaseForm({
     baseYaml: params.baseYaml,
     extensionYaml: params.extensionYaml,
+    baseAnnotations: params.baseAnnotations,
+    extensionAnnotations: params.extensionAnnotations,
     rule,
   })
   const runtime = params.context.exportToXML.configurationIndex
@@ -70,6 +78,7 @@ function buildProjectedClientApplicationBaseForm(params: {
   const converted = convertClientApplicationFormYAMLToXMLCore({
     context,
     yaml: projected.yaml,
+    annotations: projected.annotations,
     dataPathYaml: projected.yaml,
     currentConfigurationFormYaml:
       params.currentConfigurationFormYaml ?? params.baseYaml,
@@ -84,6 +93,7 @@ function buildProjectedClientApplicationBaseForm(params: {
 function buildSavedClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
   readonly baseYaml: ClientApplicationFormYAML
+  readonly baseAnnotations?: XmlAnomalyAnnotations
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
   readonly formName: string
   readonly rule?: MetadataItemRule
@@ -91,6 +101,7 @@ function buildSavedClientApplicationBaseForm(params: {
   const converted = convertClientApplicationFormYAMLToXMLCore({
     context: params.context,
     yaml: params.baseYaml,
+    annotations: params.baseAnnotations,
     dataPathYaml: params.baseYaml,
     ...(params.currentConfigurationFormYaml === undefined
       ? {}

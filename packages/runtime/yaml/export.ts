@@ -1,7 +1,11 @@
 import { dump, type Document, type Node } from "js-yaml"
-import { isExplicitYAMLString, markDoubleQuotedScalar, unwrapExplicitYAMLString } from "./explicitString"
 import {
-  copyYAMLScalarTags,
+  asExplicitYAMLStringIfMarked,
+  isExplicitYAMLString,
+  markDoubleQuotedScalar,
+  unwrapExplicitYAMLString,
+} from "./explicitString"
+import {
   isPropertyStateYAMLTag,
   NKDK_YAML_SCHEMA,
   restoreYAMLScalarTagsAfterDump,
@@ -9,11 +13,11 @@ import {
   yamlScalarTagAt,
 } from "./scalarTags"
 import {
-  copyYAMLMappingKeyOrder,
   createYAMLOrderedMapping,
   hasYAMLMappingKeyOrder,
   yamlMappingEntries,
 } from "./mappingTags"
+import { copyYAMLRuntimeMetadata } from "./runtimeMetadata"
 import {
   copyXmlAnomalyAnnotationsForParent,
   createXmlAnomalyAnnotations,
@@ -89,7 +93,7 @@ function prepareForDump(
     prepared.forEach((item, index) => {
       if (item.doubleQuoted === true) markDoubleQuotedScalar(data, index)
     })
-    copyYAMLScalarTags(value, data)
+    copyYAMLRuntimeMetadata(value, data)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, dumpValue, dumpAnnotations)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, data, dataAnnotations)
     return { dumpValue, data }
@@ -113,10 +117,8 @@ function prepareForDump(
     for (const [key, item] of prepared) {
       if (item.doubleQuoted === true) markDoubleQuotedScalar(data, key)
     }
-    copyYAMLScalarTags(value, dumpValue)
-    copyYAMLScalarTags(value, data)
-    copyYAMLMappingKeyOrder(value, dumpValue)
-    copyYAMLMappingKeyOrder(value, data)
+    copyYAMLRuntimeMetadata(value, dumpValue)
+    copyYAMLRuntimeMetadata(value, data)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, dumpValue, dumpAnnotations)
     copyXmlAnomalyAnnotationsForParent(sourceAnnotations, value, data, dataAnnotations)
     return { dumpValue, data }
@@ -134,6 +136,7 @@ function prepareChildForDump(
   dumpAnnotations: ReturnType<typeof createXmlAnomalyAnnotations>,
   dataAnnotations: ReturnType<typeof createXmlAnomalyAnnotations>,
 ): PreparedYAMLNode {
+  const valueForDump = asExplicitYAMLStringIfMarked(parent, key, value)
   const anomaly = sourceAnnotations.at(parent, key)
   if (anomaly?.kind === "raw") {
     if (anomaly.xml === undefined) throw new TypeError("!xml/raw требует обязательную XML-поправку")
@@ -142,7 +145,7 @@ function prepareChildForDump(
       throw new TypeError("!xml/raw без $значение не может содержать смысловые данные")
     }
     const preparedSemantic = hasSemanticValue
-      ? prepareForDump(value, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations)
+      ? prepareForDump(valueForDump, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations)
       : undefined
     return {
       dumpValue: {
@@ -152,14 +155,17 @@ function prepareChildForDump(
       data: preparedSemantic?.data,
     }
   }
+  if (value === undefined && yamlScalarTagAt(parent, key) !== undefined) {
+    return { dumpValue: taggedScalarForDump(parent, key, value), data: value }
+  }
   if (value === undefined && !Array.isArray(parent)) {
     const marker = `${UNDEFINED_VALUE_MARKER_PREFIX}${undefinedValues.size}__`
     undefinedValues.add(marker)
     return { dumpValue: marker, data: {} }
   }
-  const prepared = value === undefined
+  const prepared = valueForDump === undefined
     ? { dumpValue: null, data: null }
-    : prepareForDump(value, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations)
+    : prepareForDump(valueForDump, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations)
   return {
     dumpValue: anomaly === undefined
       ? taggedScalarForDump(parent, key, prepared.dumpValue)

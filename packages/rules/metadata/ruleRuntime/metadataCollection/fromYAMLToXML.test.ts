@@ -4,6 +4,7 @@ import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { parseMetadataYaml } from "@nkdk/runtime"
+import { yamlScalarTagAt } from "@nkdk/runtime"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
@@ -31,6 +32,7 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
   it("переносит nested XML-аннотации на новый mapping normalizeItemYAML", () => {
     const parsed = parseMetadataYaml([
       "Код:",
+      "  СтандартныеРеквизиты: !xml/standard-attributes",
       "  Вложенное:",
       "    - Значение: !xml/raw",
       "        $значение: value",
@@ -50,6 +52,8 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
 
     convertMetadataCollectionFromYAMLToXML({
       convertItem: (params) => {
+        expect(yamlScalarTagAt(params.yaml, "СтандартныеРеквизиты"))
+          .toBe("xml/standard-attributes")
         const nested = (params.yaml as Record<string, unknown>).Вложенное as Array<Record<string, unknown>>
         expect(params.annotations?.at(nested[0]!, "Значение")).toMatchObject({
           kind: "raw",

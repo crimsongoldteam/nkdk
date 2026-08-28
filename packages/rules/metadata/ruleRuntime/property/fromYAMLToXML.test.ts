@@ -349,6 +349,34 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: "xml:42" })
   })
 
+  it("передаёт таблицу XML-аннотаций атомарному fromYAML", () => {
+    const parsed = parseMetadataYaml("Значение:\n  !xml/invalid ru: Первый\n  !xml/invalid/2 ru: Второй")
+    let received: unknown
+    const rules = createRuleRegistrySet(metadataRules)
+    rules.property.registerTypeRule("TestAnnotatedAtomic" as never, "importFromYAML", (({ value, annotations }) => {
+      received = annotations
+      return value
+    }) as ImportFromYAMLFunctionNew)
+    rules.property.registerTypeRule(
+      "TestAnnotatedAtomic" as never,
+      "exportToXML",
+      (({ value }) => value) as ExportToXMLFunctionNew,
+    )
+
+    convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml: parsed.data,
+      annotations: parsed.annotations,
+      rule: testRule({
+        value: { type: "TestAnnotatedAtomic" as never, yaml: "Значение", xml: "Value" },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(received).toBe(parsed.annotations)
+  })
+
   it("сохраняет временный путь значения с направленным уточнением XML", () => {
     const deferredType = "TestDeferredExport" as PropertyRuleType
     registerTypeRule(deferredType, "exportToXML", (({ value }) => value) as ExportToXMLFunctionNew)

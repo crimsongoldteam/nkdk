@@ -4,6 +4,7 @@ import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { createConfigurationLanguages, importContentFromXML } from "@nkdk/runtime"
 import { importI8nTextFromXML } from "./fromXML"
 import { I8nTextPropertyRule, I8nTextXML } from "./types"
+import { localizedItemOccurrences } from "./anomalies"
 
 const preserveEmptyXMLRule: I8nTextPropertyRule = {
   yaml: "Шапка",
@@ -39,5 +40,22 @@ describe("importI8nTextFromXML", () => {
     const result = importI8nTextFromXML(mockContextFromXML(), excludeEqualNameRule, {})
 
     expect(result).toEqual({ items: {} })
+  })
+
+  it("сохраняет первое смысловое значение и все вхождения языков", () => {
+    const result = importI8nTextFromXML(multilingualXMLContext, mockRule, {
+      "v8:item": [
+        { "v8:lang": "ru", "v8:content": "Первый" },
+        { "v8:lang": "en", "v8:content": "Text" },
+        { "v8:lang": "ru", "v8:content": "Второй" },
+      ],
+    })!
+
+    expect(result.items).toEqual({ ru: "Первый", en: "Text" })
+    expect(localizedItemOccurrences(result.items)).toEqual([
+      { language: "ru", content: "Первый" },
+      { language: "en", content: "Text" },
+      { language: "ru", content: "Второй" },
+    ])
   })
 })

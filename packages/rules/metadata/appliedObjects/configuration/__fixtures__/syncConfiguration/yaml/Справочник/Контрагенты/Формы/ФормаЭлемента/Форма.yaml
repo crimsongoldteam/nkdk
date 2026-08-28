@@ -16,3 +16,5 @@
   $xml: null
 ВключатьСправкуВСодержание: !xml/raw
   $xml: null
+"@Form\\Реквизиты": !xml/raw
+  $xml: null

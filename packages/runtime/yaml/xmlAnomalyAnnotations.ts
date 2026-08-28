@@ -1,5 +1,6 @@
 import { yamlMappingEntries } from "./mappingTags"
 import type { XmlRawValue } from "../xml/structure/rawCodec"
+import { copyYAMLRuntimeMetadataDeep } from "./runtimeMetadata"
 
 export type XmlAnomalyKind = "raw" | "invalid" | "important"
 
@@ -26,6 +27,7 @@ export interface XmlAnomalyAnnotationEntry {
 
 export interface XmlAnomalyAnnotations {
   root(): XmlAnomalyAnnotation | undefined
+  setRoot(annotation: XmlAnomalyAnnotation): void
   at(parent: object, key: string | number): XmlAnomalyAnnotation | undefined
   keyAt(parent: object, runtimeKey: string): XmlAnomalyAnnotation | undefined
   entries(): Iterable<XmlAnomalyAnnotationEntry>
@@ -238,37 +240,13 @@ export function copyXmlAnomalyAnnotationsDeep(
   source: unknown,
   target: unknown,
 ): void {
-  if (annotations === undefined || source === target || !isObject(source) || !isObject(target)) return
-  const copied = new WeakMap<object, WeakSet<object>>()
-
-  const visit = (sourceValue: object, targetValue: object): void => {
-    if (sourceValue === targetValue) return
-    const targets = copied.get(sourceValue) ?? new WeakSet<object>()
-    if (targets.has(targetValue)) return
-    targets.add(targetValue)
-    copied.set(sourceValue, targets)
-    annotations.copy(sourceValue, targetValue)
-
-    if (Array.isArray(sourceValue) || Array.isArray(targetValue)) {
-      if (!Array.isArray(sourceValue) || !Array.isArray(targetValue)) return
-      const length = Math.min(sourceValue.length, targetValue.length)
-      for (let index = 0; index < length; index += 1) {
-        const sourceChild = sourceValue[index]
-        const targetChild = targetValue[index]
-        if (isObject(sourceChild) && isObject(targetChild)) visit(sourceChild, targetChild)
-      }
-      return
-    }
-
-    for (const runtimeKey of Object.keys(targetValue)) {
-      if (!Object.prototype.hasOwnProperty.call(sourceValue, runtimeKey)) continue
-      const sourceChild = (sourceValue as Record<string, unknown>)[runtimeKey]
-      const targetChild = (targetValue as Record<string, unknown>)[runtimeKey]
-      if (isObject(sourceChild) && isObject(targetChild)) visit(sourceChild, targetChild)
-    }
-  }
-
-  visit(source, target)
+  if (annotations === undefined) return
+  copyYAMLRuntimeMetadataDeep({
+    source,
+    target,
+    sourceAnnotations: annotations,
+    targetAnnotations: annotations as XmlAnomalyAnnotationTable,
+  })
 }
 
 export function xmlAnnotatedMappingEntries(

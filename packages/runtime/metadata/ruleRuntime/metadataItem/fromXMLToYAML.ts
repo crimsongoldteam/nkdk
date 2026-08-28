@@ -69,7 +69,12 @@ export function importMetadataItemFromXMLToYAML(params: {
     sources: [{
       context,
       xml: sourceNode ?? source,
-      claimAuditRoot: !(rootNodeFromTraversal && sourceNode === rootNode),
+      claimAuditRoot: shouldClaimAuditRoot({
+        rootNodeFromTraversal,
+        sourceNode,
+        rootNode,
+        audit: params.traversal.audit,
+      }),
     }],
     itemName: params.name,
     yamlPath: params.traversal.yamlPath,
@@ -128,6 +133,18 @@ export function importMetadataItemFromXMLToYAML(params: {
     }
   }
   return inline === undefined ? yaml : yaml?.[inline.yamlKey]
+}
+
+function shouldClaimAuditRoot(params: {
+  readonly rootNodeFromTraversal: boolean
+  readonly sourceNode: XmlElementNode | undefined
+  readonly rootNode: XmlElementNode | undefined
+  readonly audit: DirectImportTraversal["audit"]
+}): boolean {
+  if (!params.rootNodeFromTraversal || params.sourceNode !== params.rootNode) return true
+  if (params.sourceNode === undefined || params.audit === undefined) return false
+  const state = params.audit.getOutcome(params.sourceNode).state
+  return state === "unclaimed" || state === "unknown"
 }
 
 function claimKnownXsiType(params: {

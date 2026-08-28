@@ -29,6 +29,12 @@ const exportToYAML = <R extends FormattedI8nTextPropertyRule>(
 
   if (!rule.yaml) throw Error(`Rule must have yaml property`)
 
+  if (text.formatted && Object.keys(text.items).length === 0) {
+    return {
+      [rule.yaml]: { Форматированный: "Истина" as const },
+    } as { [K in NonNullable<R["yaml"]>]?: FormattedI8nTextValueYAML }
+  }
+
   const exported = exportI8nTextToYAML({ context, rule, value: text, name })
   if (exported === undefined) return {}
 

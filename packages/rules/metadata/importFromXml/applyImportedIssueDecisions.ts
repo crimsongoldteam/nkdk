@@ -7,6 +7,21 @@ export function applyImportedIssueDecisions(params: {
   readonly decisions: readonly ImportedIssueDecision[]
 }): void {
   for (const decision of params.decisions) {
+    if (decision.target.path.length === 0) {
+      const current = params.annotations.root()
+      if (current?.kind === "raw") {
+        if (current.hasSemanticValue !== true) {
+          throw new Error(`Нельзя назначить ${decision.kind} корневому raw без смыслового значения`)
+        }
+        params.annotations.setRoot({
+          ...current,
+          semantic: { kind: decision.kind, occurrence: 1 },
+        })
+      } else {
+        params.annotations.setRoot({ kind: decision.kind, occurrence: 1, target: "root" })
+      }
+      continue
+    }
     if (decision.target.kind === "occurrence") {
       applyOccurrenceDecision(
         params.data,

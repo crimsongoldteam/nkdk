@@ -40,7 +40,7 @@ import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
-import { readXmlAnomalyRawCollectionItems } from "../xmlAnomaly/exportClaim"
+import { copyXmlAnomalyExportClaim, readXmlAnomalyRawCollectionItems } from "../xmlAnomaly/exportClaim"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { assertYAMLScalarTagAllowed } from "./yamlScalarTagPolicy"
@@ -57,6 +57,7 @@ export interface AtomicFromYAMLParams {
   readonly value: unknown
   readonly referenceValue?: unknown
   readonly yaml?: unknown
+  readonly annotations?: import("../../../yaml/xmlAnomalyAnnotations").XmlAnomalyAnnotations
   readonly name?: string
   readonly owner?: MetadataTargetOwner
   readonly restoreExcludedEqualName?: boolean
@@ -376,6 +377,11 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
                 itemRule: nestedRule.itemRuleFromProperty?.(planned.propertyRule) ?? nestedRule.itemRule,
               }
             : nestedRule
+      const scalarTag = typeof planned.yamlKey === "string" && yaml !== undefined
+        ? yamlScalarTagAt(yaml, planned.yamlKey)
+        : undefined
+      const scalarTagPolicy = typeRule(planned.propertyRule.type, "yamlScalarTagPolicy")
+      assertYAMLScalarTagAllowed({ tag: scalarTag, policy: scalarTagPolicy })
       const nestedPropertyContext = withConfigurationIndexExportPropertyContext(
         propertyContext,
         planned.yamlKey ?? planned.propertyKey,
@@ -406,7 +412,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       const nestedYAML =
         sourceNestedYAML === undefined
           ? effectiveNestedRule.kind === "collection" &&
-            (hasNestedDefault || planned.propertyRule.evaluateWhenYAMLMissing === true) &&
+            (scalarTag !== undefined || hasNestedDefault || planned.propertyRule.evaluateWhenYAMLMissing === true) &&
             matchingOutputs.every((output) => output.request.referenceXML === undefined)
             ? {}
             : effectiveNestedRule.kind === "item" &&
@@ -504,6 +510,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
               source,
               outputs: nestedOutputs,
+              ...(scalarTag === "xml/standard-attributes" ? { materializeCanonicalItems: true as const } : {}),
               externalWriteFactory: params.externalWriteFactory,
               profile: params.profile,
               rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
@@ -537,6 +544,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         if (effectiveNestedRule.kind === "collection" && !nested.outputs.has(output.request.key)) return
         const reference = references[index]!
         let value: unknown = nested.outputs.get(output.request.key)
+        if (effectiveNestedRule.kind === "item") {
+          copyXmlAnomalyExportClaim(normalizedNestedYAML, value)
+        }
         if (
           effectiveNestedRule.kind === "item" &&
           effectiveNestedRule.transformOutput !== undefined &&
@@ -634,6 +644,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         value: sourceValue,
         referenceValue: atomicReferences[0],
         yaml,
+        annotations: params.annotations,
         name: params.name,
         owner: metadataTargetOwnerForProperty({
           rule: planned.propertyRule,
@@ -728,7 +739,7 @@ function callAtomicFromXML(params: {
 }
 
 export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
-  const { context, rule, value, referenceValue, yaml, name, owner } = params
+  const { context, rule, value, referenceValue, yaml, annotations, name, owner } = params
   const scalarTag = typeof rule.yaml === "string"
     ? yamlScalarTagAt(yaml, rule.yaml)
     : undefined
@@ -763,6 +774,7 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
           value: importedValue,
           source: referenceValue,
           yaml,
+          annotations,
           name,
           owner,
           restoreExcludedEqualName: params.restoreExcludedEqualName,

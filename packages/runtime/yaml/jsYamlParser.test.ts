@@ -35,6 +35,14 @@ describe("parseWithJsYaml", () => {
     expect(yamlScalarTagAt(parsed.data, "Представление")).toBe("xml/string")
   })
 
+  it("разбирает !xml/name как строку и сохраняет скалярный тег", () => {
+    const parsed = parseWithJsYaml("Имя: !xml/name СтароеИмя")
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(parsed.data).toEqual({ Имя: "СтароеИмя" })
+    expect(yamlScalarTagAt(parsed.data, "Имя")).toBe("xml/name")
+  })
+
   it.each([
     "Представление: !xml/string { ru: Текст }",
     "Представление: !xml/string [Текст]",
@@ -46,7 +54,6 @@ describe("parseWithJsYaml", () => {
     "Поле: !xml Текст",
     "Поле: !xml/present",
     "Поле: !xml/absent",
-    "Поле: !xml/name СтароеИмя",
     "Поле: !xml/type d7p1:Диаграмма",
     "Поле: !xml/value Nil",
     "Поле: !xml/reference uuid",
@@ -197,6 +204,40 @@ describe("parseMetadataYaml", () => {
 
     expect(asExplicitYAMLStringIfMarked(data, "Отбор.Код", data["Отбор.Код"])).toEqual(
       explicitYAMLString("456")
+    )
+  })
+
+  it("preserves a double-quoted scalar inside a sequence mapping", async () => {
+    const { parseMetadataYaml } = await import("./parseMetadataYaml")
+    const parsed = parseMetadataYaml([
+      "СписокВыбора:",
+      '  - Значение: "Перечисление.ВидыКорреспонденции.Входящая"',
+    ].join("\n"))
+    const item = (parsed.data as { СписокВыбора: Array<Record<string, unknown>> }).СписокВыбора[0]!
+
+    expect(asExplicitYAMLStringIfMarked(item, "Значение", item.Значение)).toEqual(
+      explicitYAMLString("Перечисление.ВидыКорреспонденции.Входящая"),
+    )
+    expect(serializeYAMLDocument(parsed.data).text).toContain(
+      'Значение: "Перечисление.ВидыКорреспонденции.Входящая"',
+    )
+  })
+
+  it("preserves a double-quoted scalar inside a deeply nested sequence mapping", async () => {
+    const { parseMetadataYamlData } = await import("./parseMetadataYaml")
+    const parsed = parseMetadataYamlData([
+      'Синоним: ""',
+      "Элементы:",
+      "  Путь:",
+      "    СписокВыбора:",
+      '      - Значение: "Перечисление.ВидыКорреспонденции.Входящая"',
+    ].join("\n"))
+    const item = (parsed.data as {
+      Элементы: { Путь: { СписокВыбора: Array<Record<string, unknown>> } }
+    }).Элементы.Путь.СписокВыбора[0]!
+
+    expect(asExplicitYAMLStringIfMarked(item, "Значение", item.Значение)).toEqual(
+      explicitYAMLString("Перечисление.ВидыКорреспонденции.Входящая"),
     )
   })
 })

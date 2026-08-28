@@ -25,7 +25,7 @@ import { importFormElementPropertiesFromXMLToYAML } from "../../elements/ruleRun
 import { childItemsTreePropertyTypes, moveButtonTypeToTreeYAML } from "./treeYAML"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { TableChildItem } from "./types"
-import { copyYAMLScalarTags } from "@nkdk/runtime"
+import { copyYAMLRuntimeMetadata } from "@nkdk/runtime"
 
 const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown>): string => {
   if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
@@ -89,7 +89,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
         ?.formElementKinds.get(itemType) ?? CollectableElementTypeToYAML[itemType],
       ...treeProperties,
     }
-    copyYAMLScalarTags(treeProperties, treeItem)
+    copyYAMLRuntimeMetadata(treeProperties, treeItem)
     result[itemName] = treeItem
   }
 
