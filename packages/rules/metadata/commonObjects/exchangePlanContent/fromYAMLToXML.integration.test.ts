@@ -12,6 +12,7 @@ testPropertyFromYAMLToXML,
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { contentYAML } from "./__fixtures__/data"
 import { ExchangePlanContentRules } from "./rules"
+import { extensionContentXML } from "./__fixtures__/extension"
 
 
 describe("ExchangePlanContent YAML → XML", () => {
@@ -60,6 +61,45 @@ describe("ExchangePlanContent YAML → XML", () => {
     expect(normalizeXML(serializeDirectXML(restored.xml))).toBe(
       normalizeXML(readXMLFixtureAsString(import.meta.url, "content.xml"))
     )
+  })
+
+  it("восстанавливает Item и ExtensionProperty расширения без служебных полей YAML", () => {
+    const contexts = createDirectRoundTripContexts()
+    const importContext = {
+      ...contexts.importContext,
+      fromXML: {
+        ...contexts.importContext.fromXML,
+        componentKind: "configurationExtension" as const,
+        metadataItemAugmenter: "configurationExtension",
+      },
+    }
+    const imported = testMetadataItemFromXMLToYAML({
+      rule: ExchangePlanContentRules,
+      xml: extensionContentXML(),
+      context: importContext,
+    })
+    const baseExport = contexts.exportContext()
+    const exportContext = {
+      ...baseExport,
+      exportToXML: { ...baseExport.exportToXML, componentKind: "configurationExtension" as const },
+    }
+
+    const restored = testMetadataItemFromYAMLToXML({
+      rule: ExchangePlanContentRules,
+      yaml: imported.yaml,
+      context: exportContext,
+    })
+
+    expect(restored.xml).toHaveProperty("ExchangePlanContent.ExtensionProperty.Item", [
+      { Metadata: "Document.ДокументВсеСвойстваExt", State: "Modify" },
+      { Metadata: "Document.ДокументВсеСвойства", State: "Check" },
+      { Metadata: "Catalog.СправочникВладелец", State: "Check" },
+      { Metadata: "Document.ДокументСНумераторомExt", State: "Check" },
+      { Metadata: "Catalog.СправочникПолный", State: "Modify" },
+      { Metadata: "Document.ДокументСНумератором", State: "Check" },
+      { Metadata: "Document.ДокументКнопкаСПараметрамиExt", State: "Modify" },
+    ])
+    expect(restored.xml).toHaveProperty("ExchangePlanContent.Item")
   })
 
   it("imports content items with current AutoChangeRecord YAML values", () => {

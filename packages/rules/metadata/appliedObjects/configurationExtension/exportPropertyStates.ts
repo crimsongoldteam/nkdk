@@ -15,6 +15,7 @@ import { exportConfigurationExtensionCollectionState } from "./collectionStates"
 
 export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugmenter = {
   augment({ context, rule, yaml, outputs, logicalAddress }) {
+    if (rule.itemType === "ExchangePlanContentItem") return
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
     const adopted = rule.itemType === "MetadataConfigurationExtension" ||
       adoptedUuid !== undefined ||
@@ -50,7 +51,7 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
     else if (adopted && propertyStateRegistry()?.item(rule.itemType) !== undefined) {
       ensureInternalInfo(outputs, rule)
     }
-    exportConfigurationExtensionCollectionState({ rule, yaml, outputs, borrowed: adopted })
+    exportConfigurationExtensionCollectionState({ context, rule, yaml, outputs, borrowed: adopted })
     reorderServiceProperties(outputs, rule)
     reorderMetadataRoot(outputs, rule)
   },

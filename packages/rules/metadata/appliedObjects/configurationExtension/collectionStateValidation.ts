@@ -20,6 +20,53 @@ export function validatePredefinedCollectionState(params: {
   })
 }
 
+interface ExchangePlanContentFactItem {
+  readonly metadata: string
+  readonly mode: "control" | "extend"
+  readonly used: boolean
+  readonly autoRecord: unknown
+  readonly invalidUse: boolean
+}
+
+export function validateExchangePlanContentState(params: {
+  readonly projectDir: string
+  readonly projectPath: string
+  readonly entry: ProjectStateStructuredDocumentEntry
+  readonly extension: unknown
+  readonly base: unknown
+  readonly baseTargetExists?: (metadata: string) => boolean
+}): readonly Diagnostic[] {
+  const extension = exchangeItems(params.extension)
+  const baseByMetadata = new Map(exchangeItems(params.base).map((item) => [item.metadata, item]))
+  const diagnostics: Diagnostic[] = []
+  extension.forEach((item, index) => {
+    const usePath = [...params.entry.yamlPath, index, "Использовать"]
+    if (item.mode === "extend") {
+      if (!item.used && !item.invalidUse) {
+        diagnostics.push(diagnostic(params, usePath, "error",
+          "Изменяемый элемент состава со снятым флажком требует !xml/invalid"))
+      } else if (item.used && item.invalidUse) {
+        diagnostics.push(diagnostic(params, usePath, "error", "Лишний !xml/invalid у допустимого элемента состава"))
+      }
+      return
+    }
+    if (item.invalidUse) {
+      diagnostics.push(diagnostic(params, usePath, "error", "Лишний !xml/invalid у контролируемого элемента состава"))
+      return
+    }
+    const base = baseByMetadata.get(item.metadata) ?? (
+      params.baseTargetExists?.(item.metadata) === true
+        ? { ...item, used: false, autoRecord: "Разрешить", invalidUse: false }
+        : undefined
+    )
+    if (base === undefined) return
+    if (item.used === base.used && (!item.used || item.autoRecord === base.autoRecord)) return
+    diagnostics.push(diagnostic(params, [...params.entry.yamlPath, index], "error",
+      `Контролируемый элемент состава «${item.metadata}» отличается от основной конфигурации`))
+  })
+  return diagnostics
+}
+
 function validateCollection(params: {
   readonly projectDir: string
   readonly projectPath: string
@@ -112,4 +159,21 @@ function diagnostic(
 
 function escapePointer(value: string | number): string {
   return String(value).replace(/~/g, "~0").replace(/\//g, "~1")
+}
+
+function exchangeItems(value: unknown): ExchangePlanContentFactItem[] {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((item) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) return []
+    const record = item as Record<string, unknown>
+    if (typeof record.metadata !== "string") return []
+    if (record.mode !== "control" && record.mode !== "extend") return []
+    return [{
+      metadata: record.metadata,
+      mode: record.mode,
+      used: record.used === true,
+      autoRecord: record.autoRecord,
+      invalidUse: record.invalidUse === true,
+    }]
+  })
 }

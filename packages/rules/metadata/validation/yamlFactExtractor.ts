@@ -205,6 +205,7 @@ export function extractValidationYamlFacts(params: {
     ? []
     : collectConfigurationExtensionDocuments({
         yaml: params.parsed.data,
+        parsed: params.parsed,
         rule: params.file.itemRule,
         logicalAddress: extensionLogicalAddress,
         workingProjectPath: params.file.projectPath,
@@ -252,6 +253,7 @@ interface ExtensionDocumentTraversalState {
 
 function collectConfigurationExtensionDocuments(params: {
   readonly yaml: unknown
+  readonly parsed: ParsedYaml
   readonly rule: MetadataItemRule
   readonly logicalAddress: string
   readonly workingProjectPath: string
@@ -286,6 +288,7 @@ function collectConfigurationExtensionDocuments(params: {
           borrowed,
           projectFileExists: params.projectFileExists,
           yamlPathPrefix: yamlPath,
+          isInvalidAtYAMLPath: (path) => hasSemanticXmlAnomalyAtExactPath(params.yaml, params.parsed, path),
         })
         if (params.collectPropertyStates && (!extensionObject || borrowed)) {
           documents.push(...propertyStateDocuments)

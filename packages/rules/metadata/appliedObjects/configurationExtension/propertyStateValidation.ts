@@ -9,7 +9,11 @@ import {
 import { CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT } from "../../ruleRuntime/property/configurationExtensionStructureFacts"
 import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
-import { validatePredefinedCollectionState } from "./collectionStateValidation"
+import {
+  validateExchangePlanContentState,
+  validatePredefinedCollectionState,
+} from "./collectionStateValidation"
+import { MetadataFieldTypeFromYAML } from "../../commonObjects/metadataPath/types"
 
 const propertyStates = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
 
@@ -86,6 +90,17 @@ export function validateConfigurationExtensionPropertyStates(
       }))
       continue
     }
+    if (extension.itemType === "MetadataExchangePlan" && extension.propertyKey === "content") {
+      diagnostics.push(...validateExchangePlanContentState({
+        projectDir: params.projectDir,
+        projectPath: fact.projectPath,
+        entry: fact.entry,
+        extension: extension.value,
+        base: basePayload.value,
+        baseTargetExists: (metadata) => baseMetadataObjectExists(params, metadata),
+      }))
+      continue
+    }
     if (extension.mode === "extend" || extension.mode === "xml") continue
     if (extension.mode === "multi") {
       diagnostics.push(...validateMulti({
@@ -106,6 +121,25 @@ export function validateConfigurationExtensionPropertyStates(
         : `Контролируемое свойство «${extension.propertyKey}» отличается от основной конфигурации`))
   }
   return diagnostics
+}
+
+function baseMetadataObjectExists(
+  params: ProjectStateStructuredDocumentValidationParams,
+  metadata: string,
+): boolean {
+  const logicalAddress = metadataLogicalAddress(metadata)
+  if (logicalAddress === undefined) return false
+  return params.queryPort.readStructuredDocumentEntries({
+    componentPath: "cf",
+    logicalAddress,
+  }).some((entry) => entry.documentKind === CONFIGURATION_EXTENSION_STRUCTURE_DOCUMENT)
+}
+
+function metadataLogicalAddress(metadata: string): string | undefined {
+  const [yamlRoot, ...segments] = metadata.split(".")
+  const root = (MetadataFieldTypeFromYAML as Readonly<Record<string, string>>)[yamlRoot ?? ""]
+  if (root === undefined || segments.length === 0) return undefined
+  return [root, ...segments].join(".")
 }
 
 function functionalOptionHasBooleanLocation(

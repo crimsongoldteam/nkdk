@@ -15,3 +15,20 @@ export function exchangePlanContentItemsRule<const Params extends ExchangePlanCo
 ): Readonly<{ type: "ExchangePlanContentItems" } & Params> {
   return defineWidePropertyRule("ExchangePlanContentItems", params)
 }
+
+export interface ExchangePlanExtensionPropertyItemsWidePropertyRule extends WidePropertyRuleBase {
+  type: "ExchangePlanExtensionPropertyItems"
+}
+
+export type ExchangePlanExtensionPropertyItemsRuleParams = Omit<
+  ExchangePlanExtensionPropertyItemsWidePropertyRule,
+  "type"
+>
+
+export function exchangePlanExtensionPropertyItemsRule<
+  const Params extends ExchangePlanExtensionPropertyItemsRuleParams,
+>(
+  params: WideExactRuleParams<ExchangePlanExtensionPropertyItemsRuleParams, Params>,
+): Readonly<{ type: "ExchangePlanExtensionPropertyItems" } & Params> {
+  return defineWidePropertyRule("ExchangePlanExtensionPropertyItems", params)
+}

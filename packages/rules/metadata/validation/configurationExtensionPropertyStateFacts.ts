@@ -22,6 +22,7 @@ export function collectConfigurationExtensionPropertyStateDocuments(params: {
   readonly borrowed?: boolean
   readonly projectFileExists?: (projectPath: string) => boolean
   readonly yamlPathPrefix?: readonly (string | number)[]
+  readonly isInvalidAtYAMLPath?: (path: readonly (string | number)[]) => boolean
 }): readonly ProjectStateStructuredDocumentEntry[] {
   const sections = readPropertyStateSections(params.yaml, params.capability)
   const result: ProjectStateStructuredDocumentEntry[] = []
@@ -59,7 +60,13 @@ export function collectConfigurationExtensionPropertyStateDocuments(params: {
       params,
       propertyKey,
       mode,
-      normalizedValue(mode, value),
+      normalizedValue({
+        propertyKey,
+        mode,
+        value,
+        yamlPath: [...(params.yamlPathPrefix ?? []), ...yamlPath],
+        isInvalidAtYAMLPath: params.isInvalidAtYAMLPath,
+      }),
       yamlPath,
       isPropertyStateYAMLTag(tag) || hasPropertyStateTaggedParts(value),
     ))
@@ -103,7 +110,17 @@ function scalarMode(
   return modes.length === 1 && modes[0] === "extend" ? "extend" : "control"
 }
 
-function normalizedValue(mode: ConfigurationExtensionPropertyStateFactMode, value: unknown): unknown {
+function normalizedValue(params: {
+  readonly propertyKey: string
+  readonly mode: ConfigurationExtensionPropertyStateFactMode
+  readonly value: unknown
+  readonly yamlPath: readonly (string | number)[]
+  readonly isInvalidAtYAMLPath?: (path: readonly (string | number)[]) => boolean
+}): unknown {
+  if (params.propertyKey === "content" && Array.isArray(params.value)) {
+    return normalizeExchangePlanContent(params.value, params.yamlPath, params.isInvalidAtYAMLPath)
+  }
+  const { mode, value } = params
   if (Array.isArray(value)) {
     return value.map((part, index) => {
       const normalized = normalizedNestedValue(part)
@@ -112,6 +129,24 @@ function normalizedValue(mode: ConfigurationExtensionPropertyStateFactMode, valu
     })
   }
   return normalizedNestedValue(value)
+}
+
+function normalizeExchangePlanContent(
+  value: readonly unknown[],
+  yamlPath: readonly (string | number)[],
+  isInvalidAtYAMLPath?: (path: readonly (string | number)[]) => boolean,
+): unknown {
+  return value.map((item, index) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) return item
+    const record = item as Record<string, unknown>
+    return {
+      metadata: record.Метаданные,
+      mode: yamlScalarTagAt(record, "Метаданные") === "изменять" ? "extend" : "control",
+      used: record.Использовать !== "Ложь",
+      autoRecord: record.Авторегистрация ?? "Разрешить",
+      invalidUse: isInvalidAtYAMLPath?.([...yamlPath, index, "Использовать"]) === true,
+    }
+  })
 }
 
 function hasPropertyStateTaggedParts(value: unknown): boolean {

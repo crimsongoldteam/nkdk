@@ -136,6 +136,65 @@ describe("configuration extension PropertyState validation", () => {
     })])
   })
 
+  it("контролирует использование и авторегистрацию элемента состава плана обмена", () => {
+    const extension = exchangeContentEntry([
+      exchangeItem("Документ.Заказ", "control", false, "Разрешить"),
+    ])
+    const base = exchangeContentEntry([
+      exchangeItem("Документ.Заказ", "control", true, "Разрешить"),
+    ])
+
+    expect(validatePredefined(extension, base)).toEqual([expect.objectContaining({
+      severity: "error",
+      path: "/Состав/0",
+    })])
+  })
+
+  it.each([
+    ["extend", false, false, "error"],
+    ["extend", false, true, undefined],
+    ["extend", true, true, "error"],
+    ["control", true, true, "error"],
+  ] as const)("проверяет аномалию состава mode=%s used=%s invalid=%s", (mode, used, invalidUse, severity) => {
+    const extension = exchangeContentEntry([
+      { ...exchangeItem("Документ.Заказ", mode, used, "Разрешить"), invalidUse },
+    ])
+    const diagnostics = validatePredefined(extension, exchangeContentEntry([]))
+
+    expect(diagnostics.map((item) => item.severity)).toEqual(severity === undefined ? [] : [severity])
+    if (severity !== undefined) expect(diagnostics[0]?.path).toBe("/Состав/0/Использовать")
+  })
+
+  it("не сравнивает собственный контролируемый элемент состава с базой", () => {
+    const extension = exchangeContentEntry([
+      exchangeItem("Документ.СобственныйExt", "control", true, "Разрешить"),
+    ])
+    expect(validatePredefined(extension, exchangeContentEntry([]))).toEqual([])
+  })
+
+  it("считает отсутствующий в базовом составе объект выключенным", () => {
+    const extension = exchangeContentEntry([
+      exchangeItem("Документ.Заказ", "control", true, "Разрешить"),
+    ])
+    const baseContent = exchangeContentEntry([])
+    const baseObject = configurationExtensionStructureDocument({
+      itemType: "MetadataDocument",
+      logicalAddress: "Document.Заказ",
+      workingProjectPath: "Документ/Заказ/Свойства.yaml",
+    })
+    const diagnostics = validateConfigurationExtensionPropertyStates({
+      facts: [fact("cfe/X", extension)],
+      projectDir: "/project",
+      queryPort: {
+        ...queryPort([]),
+        readStructuredDocumentEntries: ({ logicalAddress }: { logicalAddress: string }) =>
+          logicalAddress === "Document.Заказ" ? [baseObject] : [baseContent],
+      },
+    })
+
+    expect(diagnostics).toEqual([expect.objectContaining({ severity: "error", path: "/Состав/0" })])
+  })
+
   it("uses the extension compatibility mode for the capability matrix", () => {
     const property = fact("cfe/X", entry({
       version: 1,
@@ -276,6 +335,29 @@ function validatePredefined(
     projectDir: "/project",
     queryPort: queryPort([base]),
   })
+}
+
+function exchangeContentEntry(value: unknown): ProjectStateStructuredDocumentEntry {
+  return {
+    ...entry({
+      version: 1,
+      itemType: "MetadataExchangePlan",
+      propertyKey: "content",
+      mode: "extend",
+      value,
+    }),
+    name: "content",
+    yamlPath: ["Состав"],
+  }
+}
+
+function exchangeItem(
+  metadata: string,
+  mode: "control" | "extend",
+  used: boolean,
+  autoRecord: string,
+) {
+  return { metadata, mode, used, autoRecord, invalidUse: false }
 }
 
 function entry(value: ConfigurationExtensionPropertyStateFactPayload): ProjectStateStructuredDocumentEntry {

@@ -1,8 +1,10 @@
-import { exchangePlanContentItemsRule } from "./builders"
+import { exchangePlanContentItemsRule, exchangePlanExtensionPropertyItemsRule } from "./builders"
 import { metadataItemLinkRule } from "../metadataPath/types"
 import { xmlRootRule } from "../xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { stringRule } from "../string/types"
+import { booleanRule } from "../boolean/types"
 export const ExchangePlanContentItemRules = {
   itemType: "ExchangePlanContentItem",
   xmlOrder: [
@@ -23,12 +25,35 @@ export const ExchangePlanContentItemRules = {
       implicitValueYAML: "Allow",
       preserveExplicitDefaultXML: true,
     }),
+    use: booleanRule({
+      yaml: "Использовать",
+      runtimeOnly: true,
+    }),
   },
 } as const satisfies MetadataItemRule
+
+export const ExchangePlanExtensionPropertyItemRules = {
+  itemType: "ExchangePlanExtensionPropertyItem",
+  xmlOrder: ["metadata", "state"],
+  properties: {
+    metadata: metadataItemLinkRule({
+      yaml: "metadata",
+      xml: "Metadata",
+      required: true,
+    }),
+    state: stringRule({
+      yaml: "state",
+      xml: "State",
+      required: true,
+    }),
+  },
+} as const satisfies MetadataItemRule
+
 export const ExchangePlanContentRules = {
   itemType: "ExchangePlanContent",
   xmlOrder: [
     "items",
+    "extensionProperties",
   ],
   properties: {
     xmlRoot: xmlRootRule({
@@ -49,6 +74,10 @@ export const ExchangePlanContentRules = {
       defaultValue: [],
       yamlInline: true,
       yaml: "items",
+    }),
+    extensionProperties: exchangePlanExtensionPropertyItemsRule({
+      xml: "ExtensionProperty",
+      yaml: "extensionProperties",
     }),
   },
 } as const satisfies MetadataItemRule
