@@ -432,11 +432,21 @@ function resolveExactOrder(
   description: string
 ): DraftXmlContent[] {
   const expected = [...contentByName].flatMap(([name, content]) => content.map(() => name))
+  const reserved = new Set<DraftXmlContent>()
+  const explicitSelections = order.map((label) => {
+    if (contentByName.has(label)) return undefined
+    const content = selectNamedElement(label, contentByName, reserved)
+    if (content !== undefined) reserved.add(content)
+    return content
+  })
   const selected = new Set<DraftXmlContent>()
   const result: DraftXmlContent[] = []
-  for (const label of order) {
-    const direct = contentByName.get(label)?.find((content) => !selected.has(content))
-    const content = direct ?? selectNamedElement(label, contentByName, selected)
+  for (const [index, label] of order.entries()) {
+    const explicit = explicitSelections[index]
+    const direct = contentByName.get(label)?.find((content) =>
+      !selected.has(content) && !reserved.has(content)
+    )
+    const content = explicit ?? direct
     if (content === undefined) return invalidExactOrder()
     selected.add(content)
     result.push(content)

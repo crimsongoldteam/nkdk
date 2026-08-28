@@ -1,7 +1,7 @@
 import { capitalize, yamlScalarTagAt } from "@nkdk/runtime"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
-import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { resolveXMLDefaultVariant, type MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { getCompiledXMLPropertyOrder } from "../../ruleRuntime/property/xmlPropertyOrder"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry } from "../../ruleRuntime/definition"
@@ -17,10 +17,23 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
   augment({ context, rule, yaml, outputs, logicalAddress }) {
     if (rule.itemType === "ExchangePlanContentItem") return
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
+    const exactVariant = context.exportToXML.xmlDefaultVariantByLogicalAddress?.[logicalAddress]
     const adopted = rule.itemType === "MetadataConfigurationExtension" ||
-      adoptedUuid !== undefined ||
-      context.exportToXML.xmlDefaultVariantByLogicalAddress?.[logicalAddress] === "adopted"
-    if (adopted && supportsAdoptionServiceProperties(rule)) {
+      resolveXMLDefaultVariant({
+        exportToXML: {
+          configurationIndex: { logicalAddress },
+          xmlDefaultVariantByLogicalAddress: context.exportToXML.xmlDefaultVariantByLogicalAddress,
+        },
+      }) === "adopted"
+    const ownsAdoption = rule.itemType === "MetadataConfigurationExtension" || exactVariant === "adopted"
+    if (Object.prototype.hasOwnProperty.call(yaml, "Контроль")) {
+      throw new Error(`YAML-поле Контроль больше не поддерживается: ${logicalAddress}`)
+    }
+    if (
+      ownsAdoption &&
+      supportsAdoptionServiceProperties(rule) &&
+      (rule.properties.objectBelonging !== undefined || adoptedUuid !== undefined)
+    ) {
       const extensionObject = readExtendedConfigurationObjectYAML(yaml)
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
       if (extensionObject.uuidPresent) {
@@ -37,16 +50,9 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       }
     }
 
-    if (Object.prototype.hasOwnProperty.call(yaml, "Контроль")) {
-      throw new Error(`YAML-поле Контроль больше не поддерживается: ${logicalAddress}`)
-    }
-    const states = propertyStates({
-      context,
-      rule,
-      yaml,
-      outputs,
-      logicalAddress,
-    })
+    const states = adopted
+      ? propertyStates({ context, rule, yaml, outputs, logicalAddress })
+      : []
     if (states.length > 0) writePropertyStates(outputs, rule, states)
     else if (adopted && propertyStateRegistry()?.item(rule.itemType) !== undefined) {
       ensureInternalInfo(outputs, rule)
@@ -161,7 +167,7 @@ function insertAfter(
 }
 
 function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
-  return rule.itemType === "ClientApplicationForm" || rule.properties.uuid !== undefined
+  return rule.properties.objectBelonging !== undefined || rule.properties.uuid !== undefined
 }
 
 function propertyStates(params: {

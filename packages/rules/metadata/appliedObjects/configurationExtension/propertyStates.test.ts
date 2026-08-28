@@ -71,6 +71,19 @@ describe("configuration extension PropertyState augmenter", () => {
     })).toBe("full")
   })
 
+  it("отклоняет ExtendedConfigurationObject у full-объекта", () => {
+    expect(() => configurationExtensionPropertyStatesAugmenter.augment({
+      context: ownExtensionContext(),
+      rule: MetadataCatalogRules,
+      source: {
+        Properties: {
+          ExtendedConfigurationObject: "11111111-1111-4111-8111-111111111111",
+        },
+      },
+      yaml: {},
+    })).toThrow("ExtendedConfigurationObject недопустим для full MetadataCatalog")
+  })
+
   it("представляет контролируемый XML-default пустым YAML-значением", () => {
     const rule = {
       itemType: "ControlledDefaultProbe",
@@ -171,13 +184,38 @@ describe("configuration extension PropertyState augmenter", () => {
         }),
       ]),
     }, () => configurationExtensionPropertyStatesAugmenter.augment({
-      context: extensionContext(),
+      context: ownExtensionContext(),
       rule,
       source: { Properties: { Synonym: "Собственный" } },
       yaml,
     }))
 
     expect(yaml).toEqual({})
+  })
+
+  it("наследует adopted при сохранении пустого свойства вложенного объекта", () => {
+    const rule = {
+      itemType: "InheritedPlainItem",
+      properties: {
+        synonym: { type: "I8nText", yaml: "Синоним", xml: "Synonym", xmlParents: ["Properties"] },
+      },
+    } as MetadataItemRule
+    const yaml: Record<string, unknown> = {}
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(rule, {
+          properties: { synonym: { availability: "borrowed", modes: ["extend"], representation: "plain" } },
+        }),
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule,
+      source: { Properties: { Synonym: undefined } },
+      yaml,
+    }))
+
+    expect(yaml).toEqual({ Синоним: "" })
   })
 
   it.each([
