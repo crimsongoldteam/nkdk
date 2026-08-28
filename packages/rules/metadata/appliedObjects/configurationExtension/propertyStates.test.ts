@@ -168,9 +168,12 @@ describe("configuration extension PropertyState augmenter", () => {
     },
   )
 
-  it("не переносит plain-свойство собственного объекта расширения", () => {
+  it.each([
+    ["не переносит plain-свойство собственного объекта расширения", "OwnPlainItem", ownExtensionContext(), "Собственный", {}],
+    ["наследует adopted при сохранении пустого свойства вложенного объекта", "InheritedPlainItem", extensionContext(), undefined, { Синоним: "" }],
+  ] as const)("%s", (_case, itemType, context, synonym, expected) => {
     const rule = {
-      itemType: "OwnPlainItem",
+      itemType,
       properties: {
         synonym: { type: "I8nText", yaml: "Синоним", xml: "Synonym", xmlParents: ["Properties"] },
       },
@@ -184,38 +187,13 @@ describe("configuration extension PropertyState augmenter", () => {
         }),
       ]),
     }, () => configurationExtensionPropertyStatesAugmenter.augment({
-      context: ownExtensionContext(),
+      context,
       rule,
-      source: { Properties: { Synonym: "Собственный" } },
+      source: { Properties: { Synonym: synonym } },
       yaml,
     }))
 
-    expect(yaml).toEqual({})
-  })
-
-  it("наследует adopted при сохранении пустого свойства вложенного объекта", () => {
-    const rule = {
-      itemType: "InheritedPlainItem",
-      properties: {
-        synonym: { type: "I8nText", yaml: "Синоним", xml: "Synonym", xmlParents: ["Properties"] },
-      },
-    } as MetadataItemRule
-    const yaml: Record<string, unknown> = {}
-
-    withOperationRegistrySet({
-      propertyStates: createPropertyStateCapabilityRegistry([
-        definePropertyStateItemCapabilities(rule, {
-          properties: { synonym: { availability: "borrowed", modes: ["extend"], representation: "plain" } },
-        }),
-      ]),
-    }, () => configurationExtensionPropertyStatesAugmenter.augment({
-      context: extensionContext(),
-      rule,
-      source: { Properties: { Synonym: undefined } },
-      yaml,
-    }))
-
-    expect(yaml).toEqual({ Синоним: "" })
+    expect(yaml).toEqual(expected)
   })
 
   it.each([
