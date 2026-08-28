@@ -118,7 +118,6 @@ export const MetadataCommonModuleRules = {
       typeSE: "ReturnValuesReuse",
       xmlParents: properties,
       defaultValueXML: "DontUse",
-      preserveExplicitDefaultXML: true,
       implicitValueYAML: "DontUse",
     }),
     module: moduleRule({

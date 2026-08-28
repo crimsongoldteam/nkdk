@@ -1,7 +1,7 @@
 import { describe,expect,it } from "vitest"
 
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
-import { createConfigurationIndexCollector,createConfigurationIndexExportRuntime,importFromYAML,parseMetadataYaml } from "@nkdk/runtime"
+import { createConfigurationIndexCollector,createConfigurationIndexExportRuntime,importFromYAML,markYAMLScalarTag,parseMetadataYaml } from "@nkdk/runtime"
 import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import "../../commonObjects/i8nText/fromXML"
@@ -498,6 +498,33 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({})
+  })
+
+  it.each([
+    ["null", null, undefined],
+    ["undefined", undefined, undefined],
+    ["!проверять", {}, "проверять"],
+    ["!изменять", {}, "изменять"],
+  ] as const)("восстанавливает XML-default заимствованного объекта из %s", (_name, emptyValue, tag) => {
+    const yaml: Record<string, unknown> = { Режим: emptyValue }
+    if (tag !== undefined) markYAMLScalarTag(yaml, "Режим", tag)
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted"),
+      yaml,
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Режим",
+          xml: "Mode",
+          defaultValueXML: "full-xml",
+          implicitValueYAML: "model-default",
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Mode: "full-xml" })
   })
 
   it("применяет предметно обязательный XML-default к заимствованному объекту", () => {

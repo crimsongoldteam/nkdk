@@ -831,11 +831,13 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
     ? getTypeRule(rule.type, "exportToXML")
     : params.execution.getTypeRule(rule.type, "exportToXML"))
   const hasRaw = Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
+  const forcedXMLDefault = explicitYAMLDefaultXML({ context, rule, source, propertyKey })
   const xmlDefault =
     params.preserveIndexedImplicitValue === true && Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
       ? { exists: true, value: rule.defaultValueXML }
       : resolveXMLDefault(context, rule, propertyKey, source)
   if (handler === undefined) {
+    if (forcedXMLDefault.exists) return wrapWithNamespace(rule, forcedXMLDefault.value)
     if (isDefaultValue(value, rule.defaultValue)) {
       if (shouldCreateRawParent(value, rule)) return value
       return hasRaw ? rule.defaultValueXMLRaw : xmlDefault.exists ? xmlDefault.value : undefined
@@ -854,6 +856,9 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
           referenceMetadata: referenceValue,
         })
       : (handler as ExportToXMLFunction)(context, rule, nextValue, referenceValue)
+  if (forcedXMLDefault.exists) {
+    return wrapWithNamespace(rule, exportValue(forcedXMLDefault.value))
+  }
   const exported = exportValue(value)
   if (
     isDefaultValue(exported, rule.defaultValue) ||
@@ -864,6 +869,30 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
     return xmlDefault.exists ? wrapWithNamespace(rule, exportValue(xmlDefault.value)) : undefined
   }
   return wrapWithNamespace(rule, exported)
+}
+
+function explicitYAMLDefaultXML(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly rule: PropertyRule
+  readonly source?: YAMLPropertySource
+  readonly propertyKey?: string
+}): { readonly exists: boolean; readonly value: unknown } {
+  if (params.source === undefined || params.propertyKey === undefined || !params.source.has(params.propertyKey)) {
+    return { exists: false, value: undefined }
+  }
+  const rawValue = params.source.raw(params.propertyKey)
+  if (rawValue !== null && rawValue !== undefined && !(isRecord(rawValue) && Object.keys(rawValue).length === 0)) {
+    return { exists: false, value: undefined }
+  }
+  if (
+    resolveXMLDefaultVariant(params.context) === "adopted" &&
+    Object.prototype.hasOwnProperty.call(params.rule, "defaultValueAdoptedXML")
+  ) {
+    return { exists: true, value: params.rule.defaultValueAdoptedXML }
+  }
+  return Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXML")
+    ? { exists: true, value: params.rule.defaultValueXML }
+    : { exists: false, value: undefined }
 }
 
 function shouldConvertYAMLProperty(params: {

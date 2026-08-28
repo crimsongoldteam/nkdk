@@ -5,6 +5,7 @@ import type { ResolvedPropertyStateItemCapability } from "../../ruleRuntime/defi
 import { exportBorrowedPropertyStateSchema,exportNestedPropertyStateSchema } from "../../ruleRuntime/property/propertyStateSchema"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { MetadataAccountingRegisterDimensionRules } from "../metadataAccountingRegister/childRules"
+import { MetadataConfigurationExtensionRules } from "./rules"
 import { createPropertyStateCapabilityRegistry } from "./propertyStateCapabilities"
 import { configurationExtensionPropertyStateCapabilities } from "./propertyStateRules"
 
@@ -84,7 +85,7 @@ describe("borrowed property-state schema", () => {
     expect(validator.Check({ Подсказка: "" })).toBe(true)
   })
 
-  it("разрешает оба явных значения Balance только в режимах контроля и проверки", () => {
+  it("требует пустую форму для контролируемого дефолта Balance", () => {
     const registry = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
     const item = registry.item(MetadataAccountingRegisterDimensionRules.itemType)!
     const schema = exportBorrowedPropertyStateSchema({
@@ -96,12 +97,29 @@ describe("borrowed property-state schema", () => {
     })
     const validator = compileValidationSchema(schema)
 
-    expect(validator.Check({ Балансовый: "Истина" })).toBe(true)
+    expect(validator.Check({ Балансовый: null })).toBe(true)
+    expect(validator.Check({ Балансовый: "Истина" })).toBe(false)
     expect(validator.Check({ Балансовый: "Ложь" })).toBe(true)
     expect(registry.resolve({
       itemType: MetadataAccountingRegisterDimensionRules.itemType,
       propertyKey: "balance",
     })?.modes).toEqual(["control", "notify"])
+  })
+
+  it("требует пустую форму для контролируемого XML-default без implicitValueYAML", () => {
+    const registry = createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities)
+    const item = registry.item(MetadataConfigurationExtensionRules.itemType)!
+    const schema = exportBorrowedPropertyStateSchema({
+      rule: MetadataConfigurationExtensionRules,
+      capability: item,
+      source: Type.Object({
+        ОсновнойРежимЗапуска: Type.Optional(Type.String()),
+      }, { additionalProperties: false }),
+    })
+    const validator = compileValidationSchema(schema)
+
+    expect(validator.Check({ ОсновнойРежимЗапуска: null })).toBe(true)
+    expect(validator.Check({ ОсновнойРежимЗапуска: "УправляемоеПриложение" })).toBe(false)
   })
 
   it("расширяет корень схемы, упакованный в $defs", () => {
@@ -151,20 +169,18 @@ describe("borrowed property-state schema", () => {
     expect(schema.properties.Изменять?.items?.enum).toEqual(["МодульОбъекта"])
   })
 
-  it("разрешает пустое значение локального тега для многорежимного скаляра", () => {
+  it("разрешает единственную пустую форму контролируемого дефолта", () => {
     const schema = exportBorrowedPropertyStateSchema({
       rule,
       capability,
       source: Type.Object({ ДлинаКода: Type.Optional(Type.Number()) }, { additionalProperties: false }),
-    }) as { properties: Record<string, { anyOf?: unknown[] }> }
+    })
+    const validator = compileValidationSchema(schema)
 
-    expect(schema.properties.ДлинаКода?.anyOf).toEqual(expect.arrayContaining([
-      expect.objectContaining({ anyOf: expect.arrayContaining([
-        expect.objectContaining({ type: "number" }),
-        expect.objectContaining({ const: 9 }),
-      ]) }),
-      expect.objectContaining({ type: "object", maxProperties: 0 }),
-    ]))
+    expect(validator.Check({ ДлинаКода: null })).toBe(true)
+    expect(validator.Check({ ДлинаКода: 9 })).toBe(false)
+    expect(validator.Check({ ДлинаКода: 10 })).toBe(true)
+    expect(validator.Check({ ДлинаКода: {} })).toBe(true)
   })
 
   it("разрешает null только предметной ссылке", () => {

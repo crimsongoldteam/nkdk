@@ -23,8 +23,39 @@ createImportedDependentPropertyCollector,
 import { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
+import { MetadataCommonModuleRules } from "../../appliedObjects/metadataCommonModule/rules"
+import { MetadataCommonAttributeRules } from "../../appliedObjects/metadataCommonAttribute/rules"
+import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
+import { MetadataDocumentNumeratorRules } from "../../appliedObjects/metadataDocumentNumerator/rules"
+import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
+import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 
 describe("importPropertiesFromXMLToYAML", () => {
+
+  it.each([
+    [MetadataCommonAttributeRules, "DataSeparation", "DontUse"],
+    [MetadataCommonModuleRules, "ReturnValuesReuse", "DontUse"],
+    [MetadataDocumentRules, "CheckUnique", true],
+    [MetadataDocumentRules, "NumberPeriodicity", "Nonperiodical"],
+    [MetadataDocumentNumeratorRules, "CheckUnique", true],
+    [MetadataDocumentNumeratorRules, "NumberPeriodicity", "Nonperiodical"],
+    [MetadataTaskRules, "CheckUnique", true],
+    [MetadataExternalDataSourceTableRules, "TableType", "Table"],
+    [MetadataExternalDataSourceTableRules, "ReadOnly", false],
+  ] as const)("опускает XML-default обычного объекта %s.%s", (rule, xmlName, xmlValue) => {
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule,
+      sources: [{ context, xml: { Properties: { [xmlName]: xmlValue } } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({})
+  })
 
   it("sorts only properties produced by the current rules", () => {
     registerTypeRule("TestUnsortedArray" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => xml)

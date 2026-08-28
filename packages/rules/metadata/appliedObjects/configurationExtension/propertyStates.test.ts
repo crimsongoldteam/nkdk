@@ -18,6 +18,41 @@ import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/ru
 import { MetadataTaskAddressingAttributeRules } from "../../commonObjects/metadataTaskAddressingAttribute/rules"
 
 describe("configuration extension PropertyState augmenter", () => {
+  it("представляет контролируемый XML-default пустым YAML-значением", () => {
+    const rule = {
+      itemType: "ControlledDefaultProbe",
+      properties: {
+        enabled: {
+          type: "boolean",
+          yaml: "Включено",
+          xml: "Enabled",
+          xmlParents: ["Properties"],
+          defaultValueXML: false,
+          implicitValueYAML: false,
+          preserveExplicitDefaultXML: true,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const yaml: Record<string, unknown> = { Включено: "Ложь" }
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(rule, {
+          properties: {
+            enabled: { availability: "borrowed", modes: ["control"], representation: "tagged" },
+          },
+        }),
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule,
+      source: { Properties: { ObjectBelonging: "Adopted", Enabled: "false" } },
+      yaml,
+    }))
+
+    expect(yaml).toEqual({ Включено: undefined })
+  })
+
   it.each([
     ["synonym", "Синоним", "Synonym", undefined, ""],
     ["defaultListForm", "ОсновнаяФормаСписка", "DefaultListForm", undefined, ""],
@@ -328,12 +363,12 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml,
     })
 
-    expect(yaml.ДлинаНомера).toBe(9)
+    expect(yaml.ДлинаНомера).toEqual({})
     expect(yamlScalarTagAt(yaml, "ДлинаНомера")).toBe(tag)
   })
 
   it.each([
-    [true, "Истина"],
+    [true, {}],
     [false, "Ложь"],
   ] as const)("сохраняет Balance=%s с !проверять", (xmlValue, yamlValue) => {
     const yaml: Record<string, unknown> = {}
@@ -350,7 +385,7 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml,
     }))
 
-    expect(yaml.Балансовый).toBe(yamlValue)
+    expect(yaml.Балансовый).toEqual(yamlValue)
     expect(yamlScalarTagAt(yaml, "Балансовый")).toBe("проверять")
   })
 
