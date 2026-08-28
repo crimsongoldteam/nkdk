@@ -17,6 +17,7 @@ export const MetadataCommonFormRules = {
   itemTypePrefix: "ОбщаяФорма",
   xmlDir: "CommonForms",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",
@@ -42,6 +43,20 @@ export const MetadataCommonFormRules = {
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
+    }),
+    objectBelonging: systemEnumerationRule({
+      yaml: "ПринадлежностьОбъекта",
+      xml: "ObjectBelonging",
+      typeSE: "ObjectBelonging",
+      xmlParents: properties,
+      toYAML: false,
+      fromYAML: false,
+      implicitValueYAML: "Native",
+    }),
+    extendedConfigurationObject: stringRule({
+      xml: "ExtendedConfigurationObject",
+      xmlParents: properties,
+      runtimeOnly: true,
     }),
     name: stringRule({
       xmlParents: properties,

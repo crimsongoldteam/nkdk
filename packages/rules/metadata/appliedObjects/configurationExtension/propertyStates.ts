@@ -23,6 +23,7 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
   augment({ context, rule, source, yaml }): void {
     importConfigurationExtensionCollectionState({ context, rule, source, yaml })
     const serviceProperties = extensionServiceProperties(source, rule)
+    const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
     if (context.fromXML.currentXMLDefaultVariant !== "adopted") {
       if (serviceProperties?.hasExtendedConfigurationObject === true) {
         throw new Error(`ExtendedConfigurationObject недопустим для full ${rule.itemType}`)
@@ -31,9 +32,9 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       if (states.length > 0) {
         throw new Error(`PropertyState недопустим для full ${rule.itemType}`)
       }
+      importPresentProperties({ context, rule, source, yaml, compatibilityMode })
       return
     }
-    const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
     let extendedConfigurationObjectNotify = false
     for (const propertyState of propertyStates(source)) {
       const property = propertyState["xr:Property"]

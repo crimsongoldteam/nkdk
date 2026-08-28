@@ -19,6 +19,9 @@ import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/ru
 import { MetadataTaskAddressingAttributeRules } from "../../commonObjects/metadataTaskAddressingAttribute/rules"
 import { MetadataConfigurationExtensionRules } from "./rules"
 import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
+import { MetadataCommonFormRules } from "../metadataCommonForm/rules"
+import { MetadataWebServiceOperationRules } from "../../commonObjects/metadataWebServiceOperation/rules"
+import { directPropertyRuleExecution, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
 
 describe("configuration extension PropertyState augmenter", () => {
   it("определяет вариант только у правила с объявленной принадлежностью", () => {
@@ -69,6 +72,11 @@ describe("configuration extension PropertyState augmenter", () => {
       rule: ClientApplicationFormRules,
       source: { Form: { Properties: {} } },
     })).toBe("full")
+    expect(resolve({
+      context: extensionContext(),
+      rule: MetadataCommonFormRules,
+      source: { Properties: { ObjectBelonging: "Adopted" } },
+    })).toBe("adopted")
   })
 
   it("отклоняет ExtendedConfigurationObject у full-объекта", () => {
@@ -82,6 +90,36 @@ describe("configuration extension PropertyState augmenter", () => {
       },
       yaml: {},
     })).toThrow("ExtendedConfigurationObject недопустим для full MetadataCatalog")
+  })
+
+  it("сбрасывает inherited adopted у дочернего объекта с собственной принадлежностью", () => {
+    const context = extensionContext()
+    expect(directPropertyRuleExecution.resolveMetadataItemXMLDefaultVariant({
+      context,
+      rule: MetadataWebServiceOperationRules,
+      source: { Properties: {} },
+    })).toBe("full")
+    const result = withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry(configurationExtensionPropertyStateCapabilities),
+    }, () => testMetadataItemFromXMLToYAML({
+      context,
+      rule: MetadataWebServiceOperationRules,
+      name: "ОперацияПоУмолчанию",
+      xml: {
+        Properties: {
+          Name: "ОперацияПоУмолчанию",
+          Comment: undefined,
+          XDTOReturningValueType: "xs:string",
+          Nillable: false,
+          Transactioned: false,
+          ProcedureName: "ОперацияПоУмолчанию",
+          DataLockControlMode: "Managed",
+        },
+        ChildObjects: {},
+      },
+    }))
+
+    expect(result.yaml).not.toHaveProperty("Комментарий")
   })
 
   it("представляет контролируемый XML-default пустым YAML-значением", () => {
