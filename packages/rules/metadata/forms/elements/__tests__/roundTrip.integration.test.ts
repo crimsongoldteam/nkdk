@@ -21,6 +21,10 @@ import { getElementRule } from "../ruleRuntime/ruleFactory"
 import "../index"
 
 const elementsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+const excludedFixtures = new Set([
+  path.join(elementsDir, "inputField", "__fixtures__", "minMaxStringType.xml"),
+  path.join(elementsDir, "table", "__fixtures__", "nonCanonicalSingletonNames.xml"),
+])
 const fixtures = fs
   .readdirSync(elementsDir, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
@@ -32,8 +36,7 @@ const fixtures = fs
       .filter((name) => name.endsWith(".xml"))
       .map((name) => path.join(fixtureDir, name))
   })
-  .filter((fixture) => !fixture.endsWith("/inputField/__fixtures__/minMaxStringType.xml"))
-  .filter((fixture) => !fixture.endsWith("/table/__fixtures__/nonCanonicalSingletonNames.xml"))
+  .filter((fixture) => !excludedFixtures.has(fixture))
 
 describe("элементы формы XML → YAML → XML", () => {
   it.each(fixtures)("%s", (fixture) => {
