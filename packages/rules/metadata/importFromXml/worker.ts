@@ -859,13 +859,14 @@ async function prepareYamlForFinalPass(
         state,
       })
     : undefined
+  const currentConfigurationData = currentConfigurationYAML?.data
   const preparedBaseFormCandidate = prepared.baseFormCandidate === undefined
     ? undefined
     : prepareBaseFormCandidate({
         candidate: prepared.baseFormCandidate,
         ownerRule: prepared.rule,
         extensionYaml: prepared.yaml,
-        currentConfigurationYAML,
+        currentConfigurationYAML: currentConfigurationData,
         contextWithOwners: withoutDataPathDiagnosticSink(contextWithOwners),
         ownerMetadataCache,
       })
@@ -908,7 +909,7 @@ async function prepareYamlForFinalPass(
         yaml: prepared.yaml,
         rule: prepared.rule,
         ownerMetadataCache,
-        ...(currentConfigurationYAML === undefined ? {} : { currentConfigurationYAML }),
+        ...(currentConfigurationData === undefined ? {} : { currentConfigurationYAML: currentConfigurationData }),
         ...(preparedBaseFormCandidate === undefined
           ? {}
           : { savedBaseYAML: preparedBaseFormCandidate.yaml }),
@@ -961,7 +962,7 @@ async function prepareYamlForFinalPass(
           yaml: detailed.yaml,
           rule: detailed.rule,
           ownerMetadataCache,
-          ...(currentConfigurationYAML === undefined ? {} : { currentConfigurationYAML }),
+          ...(currentConfigurationData === undefined ? {} : { currentConfigurationYAML: currentConfigurationData }),
           ...(preparedBaseFormCandidate === undefined
             ? {}
             : { savedBaseYAML: preparedBaseFormCandidate.yaml }),
@@ -1073,16 +1074,12 @@ function retargetConfigurationFragment(
 function createControlBaseFormSource(params: {
   readonly importedBaseForm: DeferredImportYaml["baseFormCandidate"]
   readonly savedBaseForm: DeferredImportYaml["baseFormCandidate"]
-  readonly currentConfigurationYAML: unknown
+  readonly currentConfigurationYAML: PreparedYamlFile | undefined
 }): BaseFormSourceResult | undefined {
   if (params.importedBaseForm === undefined || params.currentConfigurationYAML === undefined) return undefined
   const currentConfigurationForm = {
     projectPath: params.importedBaseForm.baseProjectPath,
-    prepared: controlBaseFormPreparedYaml({
-      projectPath: params.importedBaseForm.baseProjectPath,
-      data: params.currentConfigurationYAML,
-      owner: params.importedBaseForm.owner,
-    }),
+    prepared: params.currentConfigurationYAML,
   }
   if (params.savedBaseForm === undefined) {
     return {
@@ -1098,6 +1095,7 @@ function createControlBaseFormSource(params: {
       prepared: controlBaseFormPreparedYaml({
         projectPath: params.savedBaseForm.targetProjectPath,
         data: params.savedBaseForm.yaml,
+        annotations: params.savedBaseForm.annotations,
         owner: params.savedBaseForm.owner,
       }),
     },
@@ -1108,6 +1106,7 @@ function createControlBaseFormSource(params: {
 function controlBaseFormPreparedYaml(params: {
   readonly projectPath: string
   readonly data: unknown
+  readonly annotations: XmlAnomalyAnnotations
   readonly owner: { readonly dir: string; readonly name: string }
 }): PreparedYamlFile {
   return {
@@ -1116,7 +1115,7 @@ function controlBaseFormPreparedYaml(params: {
     role: "form",
     owner: params.owner,
     data: params.data,
-    annotations: restoreXmlAnomalyAnnotations(params.data, { version: 1, entries: [] }),
+    annotations: params.annotations,
     syntaxDiagnostics: [],
   }
 }
@@ -1243,7 +1242,7 @@ async function readCurrentConfigurationFormYaml(params: {
   rule: PreparedImportYaml["rule"]
   owner: DeferredImportYaml["dependentOwner"]
   state: InitializedImportWorkerState
-}): Promise<unknown | undefined> {
+}): Promise<PreparedYamlFile | undefined> {
   const readSession = activeSecondPass?.readSession
   if (readSession === undefined) throw new Error("Не начат второй проход XML-import worker")
   const entries = readSession.readStructuredDocumentEntries({
@@ -1277,7 +1276,7 @@ async function readCurrentConfigurationFormYaml(params: {
   if (prepared.diagnostics.length > 0 || yaml === undefined || yaml.syntaxDiagnostics.length > 0) {
     throw new Error(`Не удалось подготовить текущую форму cf: ${projectPath}`)
   }
-  return yaml.data
+  return yaml
 }
 
 function secondPassExportContext(params: {

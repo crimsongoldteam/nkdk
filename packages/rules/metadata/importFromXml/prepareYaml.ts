@@ -5,6 +5,7 @@ import {
   parseXmlCompatibilityWithRootStructures,
   parseXmlDocumentWithSaxes,
   type XmlAnomalyAnnotationTable,
+  type XmlAnomalyAnnotations,
   type XmlDocument,
   type XmlElementNode,
   type XmlRootStructure,
@@ -73,6 +74,7 @@ export interface PreparedBaseFormCandidate {
   targetProjectPath: string
   owner: { dir: string; name: string }
   yaml: unknown
+  annotations: XmlAnomalyAnnotations
   rule: MetadataItemRule
   localIndexes: LocalIndexes
   deferred: readonly DeferredObjectValue[]
@@ -347,6 +349,7 @@ function importAssignmentBaseFormCandidate(params: {
       name: params.assignment.owner?.name ?? params.assignment.itemName,
     },
     yaml: baseForm.yaml,
+    annotations: baseForm.annotations,
     rule: companion.rule,
     localIndexes: baseForm.localIndexes,
     deferred: bindDeferredObjectValues(baseForm.yaml, baseForm.deferred),

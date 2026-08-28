@@ -32,6 +32,44 @@ describe("PreparedImportRecordV1", () => {
     expect(restored.baseFormCandidate?.deferred[0]?.target.key).toBe("Элементы")
   })
 
+  it("восстанавливает XML-аннотации подготовленной BaseForm", () => {
+    const source = preparedRecordSource()
+    const base = source.baseFormCandidate!
+    const withAnnotatedBase = {
+      ...source,
+      baseFormCandidate: {
+        ...base,
+        yamlText: [
+          "Элементы:",
+          "  Поле:",
+          "    Вид: ПолеВвода",
+          "    Подсказка:",
+          "      ru: Текст",
+          "      en: Text",
+        ].join("\n"),
+        annotations: {
+          version: 1 as const,
+          entries: [{
+            parentPath: ["Элементы", "Поле", "Подсказка"],
+            key: "en",
+            annotation: { kind: "invalid" as const, occurrence: 1, target: "value" as const },
+          }],
+        },
+      },
+    }
+
+    const restored = restorePreparedImportRecord(encodePreparedImportRecord(withAnnotatedBase))
+    const candidate = restored.baseFormCandidate!
+    const languages = (
+      candidate.yaml as { Элементы: { Поле: { Подсказка: Record<string, string> } } }
+    ).Элементы.Поле.Подсказка
+    const annotations = (
+      candidate as typeof candidate & { annotations?: { at(parent: object, key: string): unknown } }
+    ).annotations
+
+    expect(annotations?.at(languages, "en")).toMatchObject({ kind: "invalid", target: "value" })
+  })
+
   it("отклоняет неизвестную версию", () => {
     const bytes = encodePreparedImportRecord(preparedRecordSource()).slice()
     new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).setUint16(4, 2, false)
@@ -127,6 +165,7 @@ function preparedRecordSource(): PreparedImportRecordSourceV1 {
       targetProjectPath: "Справочник/Контрагенты/Формы/Форма/БазоваяФорма.yaml",
       owner: { dir: "Справочник", name: "Контрагенты" },
       yamlText: "Элементы: {}\n",
+      annotations: { version: 1, entries: [] },
       ruleItemType: "ClientApplicationForm",
       deferred: [{ valuePath: ["Элементы"], rulePath: [{ propertyKey: "items" }] }],
       configurationFragment: {

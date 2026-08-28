@@ -32,6 +32,7 @@ export interface PreparedBaseFormRecordV1 {
   readonly targetProjectPath: string
   readonly owner: { readonly dir: string; readonly name: string }
   readonly yamlText: string
+  readonly annotations: XmlAnomalyAnnotationsSnapshot
   readonly ruleItemType: string
   readonly deferred: readonly DeferredValuePath[]
   readonly configurationFragment: ConfigurationIndexBlockFragment
@@ -70,6 +71,7 @@ export interface RestoredPreparedImportRecord {
     readonly targetProjectPath: string
     readonly owner: { readonly dir: string; readonly name: string }
     readonly yaml: unknown
+    readonly annotations: XmlAnomalyAnnotations
     readonly rule: MetadataItemRule
     readonly deferred: readonly DeferredObjectValue[]
     readonly formDataPathIndex: ReturnType<typeof createImportedFormDataPathIndex>
@@ -149,7 +151,14 @@ export function createPreparedImportRecordSource(
             baseProjectPath: prepared.baseFormCandidate.baseProjectPath,
             targetProjectPath: prepared.baseFormCandidate.targetProjectPath,
             owner: prepared.baseFormCandidate.owner,
-            yamlText: serializeYAMLDocument(prepared.baseFormCandidate.yaml).text,
+            yamlText: serializeYAMLDocument(
+              prepared.baseFormCandidate.yaml,
+              prepared.baseFormCandidate.annotations,
+            ).text,
+            annotations: snapshotXmlAnomalyAnnotations(
+              prepared.baseFormCandidate.yaml,
+              prepared.baseFormCandidate.annotations,
+            ),
             ruleItemType: prepared.baseFormCandidate.rule.itemType,
             deferred: deferredValuePaths(prepared.baseFormCandidate.deferred),
             configurationFragment: prepared.baseFormCandidate.configurationFragment,
@@ -176,6 +185,13 @@ export function restorePreparedImportRecord(bytes: Uint8Array): RestoredPrepared
           targetProjectPath: base.targetProjectPath,
           owner: base.owner,
           yaml: baseParsed.data,
+          annotations: restoreXmlAnomalyAnnotations(
+            baseParsed.data,
+            mergeAnnotationSnapshots(
+              snapshotXmlAnomalyAnnotations(baseParsed.data, baseParsed.annotations),
+              base.annotations,
+            ),
+          ),
           rule,
           deferred: bindDeferredObjectValues(baseParsed.data, base.deferred),
           formDataPathIndex: createImportedFormDataPathIndex({ yaml: baseParsed.data, rule }),
