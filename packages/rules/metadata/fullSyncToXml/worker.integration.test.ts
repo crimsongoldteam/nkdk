@@ -946,9 +946,11 @@ async function installTestIndex(
     operationId: `test-${Math.random()}`,
     purpose: "full",
   })
-  candidate.replaceHashes(snapshot.files)
-  candidate.mergeBlockFragments(snapshot.fragments)
-  await candidate.close()
-  const descriptor = candidate.descriptor()
-  return descriptor
+  try {
+    candidate.replaceHashes(snapshot.files)
+    candidate.mergeBlockFragments(snapshot.fragments)
+    return candidate.descriptor()
+  } finally {
+    await candidate.close()
+  }
 }

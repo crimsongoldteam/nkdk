@@ -393,61 +393,64 @@ async function executeAssignments(
   const generatedDocuments: FullXmlSyncGeneratedDocument[] = []
   const fragments: ConfigurationIndexBlockFragment[] = []
   const targetStore = openConfigurationIndexStore(state.targetIndex, "readOnly")
-  const baseStore = state.baseIndex === undefined ? undefined : openConfigurationIndexStore(state.baseIndex, "readOnly")
-  const targetBlocks = targetStore.getBlocks(assignments.flatMap(({ configurationIndexSources }) => configurationIndexSources.targetProjectPaths))
-  const baseBlocks = baseStore?.getBlocks(assignments.flatMap(({ configurationIndexSources }) => configurationIndexSources.baseProjectPaths)) ?? new Map()
-  state.ownerMetadataCache.preload(assignments.flatMap(ownerRefsFromAssignment))
+  let baseStore: ReturnType<typeof openConfigurationIndexStore> | undefined
 
-  try { for (const assignment of assignments) {
-    state.activeAssignmentId = assignment.id
-    try {
-      const assignmentIndex = createLocalConfigurationIndexReader(selectBlocks(targetBlocks, assignment.configurationIndexSources.targetProjectPaths))
-      const assignmentBaseIndex = createLocalConfigurationIndexReader(selectBlocks(baseBlocks, assignment.configurationIndexSources.baseProjectPaths))
-      const bytes = await fs.promises.readFile(assignment.sourcePath)
-      const context = exportContext(state, assignment.logicalAddress)
-      const result = await executeFullXmlSyncAssignmentCore({
-        assignment,
-        sourceBytes: bytes,
-        descriptor: assignmentDescriptor(assignment, state),
-        itemTypeByYamlDir: state.itemTypeByYamlDir,
-        context,
-        index: assignmentIndex,
-        operationSeed: state.operationSeed,
-        composition: state.composition,
-        outputTarget: state.outputTarget,
-        resolveBaseForm: async () => {
-          const baseFormSource = await readBaseFormIfAdopted(assignment, state)
-          if (baseFormSource === undefined) return undefined
-          return {
-            baseFormSource,
-            ...(baseFormSource.kind === "saved"
-              ? { baseFormConfigurationIndex: assignmentIndex }
-              : {}),
-            ...(baseFormSource.kind === "projected" && state.baseIndex !== undefined
-              ? { baseConfigurationIndex: assignmentBaseIndex }
-              : {}),
-          }
-        },
-      })
-      diagnostics.push(...result.diagnostics)
-      warnings.push(...result.warnings)
-      writtenFiles.push(...result.writtenFiles)
-      expectedOutputs.push(...result.expectedOutputs)
-      generatedDocuments.push(...result.generatedDocuments)
-      fragments.push(...result.fragments)
-      if (result.stopExecution) break
-    } catch (caught) {
-      diagnostics.push(
-        assignmentDiagnostic(
+  try {
+    baseStore = state.baseIndex === undefined ? undefined : openConfigurationIndexStore(state.baseIndex, "readOnly")
+    const targetBlocks = targetStore.getBlocks(assignments.flatMap(({ configurationIndexSources }) => configurationIndexSources.targetProjectPaths))
+    const baseBlocks = baseStore?.getBlocks(assignments.flatMap(({ configurationIndexSources }) => configurationIndexSources.baseProjectPaths)) ?? new Map()
+    state.ownerMetadataCache.preload(assignments.flatMap(ownerRefsFromAssignment))
+    for (const assignment of assignments) {
+      state.activeAssignmentId = assignment.id
+      try {
+        const assignmentIndex = createLocalConfigurationIndexReader(selectBlocks(targetBlocks, assignment.configurationIndexSources.targetProjectPaths))
+        const assignmentBaseIndex = createLocalConfigurationIndexReader(selectBlocks(baseBlocks, assignment.configurationIndexSources.baseProjectPaths))
+        const bytes = await fs.promises.readFile(assignment.sourcePath)
+        const context = exportContext(state, assignment.logicalAddress)
+        const result = await executeFullXmlSyncAssignmentCore({
           assignment,
-          caught instanceof BaseFormSourceError ? caught.code : "full_xml_sync_assignment_failed",
-          errorMessage(caught)
+          sourceBytes: bytes,
+          descriptor: assignmentDescriptor(assignment, state),
+          itemTypeByYamlDir: state.itemTypeByYamlDir,
+          context,
+          index: assignmentIndex,
+          operationSeed: state.operationSeed,
+          composition: state.composition,
+          outputTarget: state.outputTarget,
+          resolveBaseForm: async () => {
+            const baseFormSource = await readBaseFormIfAdopted(assignment, state)
+            if (baseFormSource === undefined) return undefined
+            return {
+              baseFormSource,
+              ...(baseFormSource.kind === "saved"
+                ? { baseFormConfigurationIndex: assignmentIndex }
+                : {}),
+              ...(baseFormSource.kind === "projected" && state.baseIndex !== undefined
+                ? { baseConfigurationIndex: assignmentBaseIndex }
+                : {}),
+            }
+          },
+        })
+        diagnostics.push(...result.diagnostics)
+        warnings.push(...result.warnings)
+        writtenFiles.push(...result.writtenFiles)
+        expectedOutputs.push(...result.expectedOutputs)
+        generatedDocuments.push(...result.generatedDocuments)
+        fragments.push(...result.fragments)
+        if (result.stopExecution) break
+      } catch (caught) {
+        diagnostics.push(
+          assignmentDiagnostic(
+            assignment,
+            caught instanceof BaseFormSourceError ? caught.code : "full_xml_sync_assignment_failed",
+            errorMessage(caught)
+          )
         )
-      )
-    } finally {
-      state.activeAssignmentId = undefined
+      } finally {
+        state.activeAssignmentId = undefined
+      }
     }
-  } } finally {
+  } finally {
     await targetStore.close()
     await baseStore?.close()
   }

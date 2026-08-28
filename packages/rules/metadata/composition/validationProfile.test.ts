@@ -1,4 +1,5 @@
 import { createConfigurationLanguages } from "@nkdk/runtime"
+import { join } from "node:path"
 import { describe, expect, it, vi } from "vitest"
 
 import { createValidationProfileRuntime } from "./validationProfile"
@@ -30,7 +31,7 @@ describe("createValidationProfileRuntime", () => {
       await runtime.close()
     }
 
-    expect(loadLanguages).toHaveBeenCalledWith("/project/cf")
+    expect(loadLanguages).toHaveBeenCalledWith(join("/project", "cf"))
     expect(refreshAndValidate).toHaveBeenCalledWith(expect.objectContaining({
       context: expect.objectContaining({ languages }),
       validationContextVersions: new Map([["languages", languages.version]]),

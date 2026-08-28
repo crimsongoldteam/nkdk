@@ -53,6 +53,7 @@ const passThroughControlExport: typeof executeImportControlExport = async (param
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
 const catalogFullXmlPath = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
+const subsystemFullXmlPath = join(import.meta.dirname, "../appliedObjects/metadataSubsystem/__fixtures__/full.xml")
 const minimalFormXmlPath = join(import.meta.dirname, "../forms/clientApplicationForm/__fixtures__/minimal.xml")
 const minimalFormMetadataXmlPath = join(
   import.meta.dirname,
@@ -77,6 +78,7 @@ function requireTopologyNode(projectPattern: string) {
 }
 let catalogTopologyNode: ReturnType<typeof requireTopologyNode>
 let catalogFormTopologyNode: ReturnType<typeof requireTopologyNode>
+let subsystemTopologyNode: ReturnType<typeof requireTopologyNode>
 let catalogValidationFile: NonNullable<ReturnType<typeof resolveValidationProjectFile>>
 const tempDirs: string[] = []
 const stateStores: Array<ReturnType<typeof createBinaryProjectStateStore>["store"]> = []
@@ -115,6 +117,7 @@ beforeAll(async () => {
   ).topology
   catalogTopologyNode = requireTopologyNode("Справочник/{ownerName}/Свойства.yaml")
   catalogFormTopologyNode = requireTopologyNode("Справочник/{ownerName}/Формы/{itemName}/Форма.yaml")
+  subsystemTopologyNode = requireTopologyNode("Подсистема/{ownerName}/Свойства.yaml")
   const resolvedCatalogValidationFile = resolveValidationProjectFile(
     "/project",
     "/project/Справочник/Товары/Свойства.yaml",
@@ -499,6 +502,43 @@ describe("XML import worker second pass", () => {
     expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
     expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
       .toContain('ДлинаКода: !xml/raw\n  $значение: 1\n  $xml:\n    "#text": "01"')
+    expect(controlExportCountForTests()).toBe(1)
+  })
+
+  it("сохраняет неразбираемый UUID состава подсистемы как invalid", async () => {
+    setControlExportForTests(undefined)
+    const inputDir = createTempDir("subsystem-invalid-uuid-input")
+    const outputDir = createTempDir("subsystem-invalid-uuid-output")
+    const sourcePath = join(inputDir, "ПодсистемаВсеСвойства.xml")
+    const uuid = "a786340b-1ca9-48ee-8517-6bd389390bcc"
+    writeFileSync(
+      sourcePath,
+      readFileSync(subsystemFullXmlPath, "utf8").replace(
+        "\t\t\t</Content>",
+        `\t\t\t\t<xr:Item xsi:type="xr:MDObjectRef">${uuid}</xr:Item>\n\t\t\t</Content>`,
+      ),
+    )
+    const assignment: ImportAssignment = {
+      id: "subsystem-invalid-uuid",
+      role: "properties",
+      topologyAddress: {
+        nodeId: subsystemTopologyNode.id,
+        values: { ownerName: "ПодсистемаВсеСвойства" },
+      },
+      targetProjectPath: "Подсистема/ПодсистемаВсеСвойства/Свойства.yaml",
+      itemType: "MetadataSubsystem",
+      itemName: "ПодсистемаВсеСвойства",
+      logicalAddress: "Подсистема.ПодсистемаВсеСвойства",
+      owner: undefined,
+      xmlFiles: [{ role: "metadata", sourcePath }],
+      externalFiles: [],
+    }
+
+    const { second } = await runAssignmentSecondPass(outputDir, assignment, fullValidationSchemaCache)
+
+    expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+    expect(readFileSync(join(outputDir, assignment.targetProjectPath), "utf8"))
+      .toContain(`- !xml/invalid ${uuid}`)
     expect(controlExportCountForTests()).toBe(1)
   })
 

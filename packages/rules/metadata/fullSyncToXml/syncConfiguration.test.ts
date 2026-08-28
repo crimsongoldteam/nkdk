@@ -1,4 +1,4 @@
-import { resolve } from "node:path"
+import { join, resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import type {
   ConfigurationIndexBlockFragment,
@@ -371,7 +371,7 @@ describe("shared full XML sync coordinator", () => {
       "close",
     ])
     expect(harness.initializedWithBase).toBe(true)
-    expect(result.configurationIndexPath).toContain("cfe/Дополнение/configuration-index.lmdb")
+    expect(result.configurationIndexPath).toContain(join("cfe", "Дополнение", "configuration-index.lmdb"))
   })
 
   it.each(["sync", "preview"] as const)("prepares the component profile before %s", async (mode) => {
