@@ -133,4 +133,24 @@ describe("YAML runtime metadata", () => {
     expect(targetAnnotations.at(target, "Изменить")).toBeUndefined()
     expect(targetAnnotations.at(target, "Удалить")).toBeUndefined()
   })
+
+  it("не переносит аннотацию составного значения после сокращения поддерева", () => {
+    const parsed = parseMetadataYaml([
+      "Объект: !xml/raw",
+      "  $значение: { Первое: 1, Второе: 2 }",
+      "  $xml: { _mode: full }",
+    ].join("\n"))
+    const source = parsed.data as { Объект: { Первое: number; Второе: number } }
+    const target = { Объект: { Первое: 1 } }
+    const targetAnnotations = createXmlAnomalyAnnotations()
+
+    copyYAMLRuntimeMetadataDeep({
+      source,
+      target,
+      sourceAnnotations: parsed.annotations,
+      targetAnnotations,
+    })
+
+    expect(targetAnnotations.at(target, "Объект")).toBeUndefined()
+  })
 })

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import "../../../tests/metadataExecutionContext"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { exportToYAML } from "@nkdk/runtime"
-import { explicitYAMLString, isExplicitYAMLString, parseMetadataYaml } from "@nkdk/runtime"
+import { explicitYAMLString, isExplicitYAMLString, parseMetadataYaml, yamlScalarTagAt } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ClientApplicationFormXML } from "./types"
@@ -107,6 +107,19 @@ describe("base form YAML", () => {
     expect(normalized.СписокВыбора[0]?.Значение).toBe("0")
     expect(isExplicitYAMLString(normalized.СписокВыбора[0]?.Значение)).toBe(false)
     expect(exportToYAML(normalized)).toContain('Значение: "0"')
+  })
+
+  it("сохраняет служебные теги вложенных значений", () => {
+    const parsed = parseMetadataYaml([
+      "РасширеннаяПодсказка:",
+      "  Имя: !xml/name ПолеExtendedTooltip",
+    ].join("\n")).data
+
+    const normalized = normalizeBaseFormYaml(parsed) as {
+      РасширеннаяПодсказка: { Имя: string }
+    }
+
+    expect(yamlScalarTagAt(normalized.РасширеннаяПодсказка, "Имя")).toBe("xml/name")
   })
 })
 

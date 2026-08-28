@@ -1,5 +1,12 @@
 import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
-import { cloneYAMLContainer, copyYAMLRuntimeMetadata } from "@nkdk/runtime"
+import {
+  cloneYAMLContainer,
+  copyYAMLRuntimeMetadata,
+  copyYAMLRuntimeMetadataDeep,
+  createXmlAnomalyAnnotations,
+  hasYAMLRuntimeMetadataAt,
+  type XmlAnomalyAnnotations,
+} from "@nkdk/runtime"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { resolveFormElementRule } from "../elements/ruleRuntime/fromYAMLToXML"
 import type { FormElementTreeNodeYAML, FormElementTreeYAML } from "../commonObjects/childItems/types"
@@ -14,6 +21,7 @@ import type { ClientApplicationFormYAML } from "./types"
 
 export interface ProjectedBaseForm {
   readonly yaml: ClientApplicationFormYAML
+  readonly annotations: ReturnType<typeof createXmlAnomalyAnnotations>
   readonly explicitComponents: {
     readonly attributes: ReadonlySet<string>
     readonly commands: ReadonlySet<string>
@@ -29,6 +37,8 @@ interface IndexedFormElement {
 export function projectClientApplicationBaseForm(params: {
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml: ClientApplicationFormYAML
+  readonly baseAnnotations?: XmlAnomalyAnnotations
+  readonly extensionAnnotations?: XmlAnomalyAnnotations
   readonly rule?: MetadataItemRule
 }): ProjectedBaseForm {
   const rule = params.rule ?? ClientApplicationFormRules
@@ -42,10 +52,12 @@ export function projectClientApplicationBaseForm(params: {
   const attributeNames = intersectNamedComponentNames(params.baseYaml.Реквизиты, params.extensionYaml.Реквизиты)
   const commandNames = intersectNamedComponentNames(params.baseYaml.Команды, params.extensionYaml.Команды)
   const parameterNames = intersectNamedComponentNames(params.baseYaml.Параметры, params.extensionYaml.Параметры)
-  const projectionContext: BaseFormProjectionContext = {
+  const projectionContext: BaseFormProjectionRuntimeContext = {
     attributeNames,
     commandNames,
     parameterNames,
+    baseAnnotations: params.baseAnnotations,
+    extensionAnnotations: params.extensionAnnotations,
   }
   const properties = projectMetadataItemProperties({
     baseYaml: params.baseYaml,
@@ -68,15 +80,29 @@ export function projectClientApplicationBaseForm(params: {
     ...properties,
     ...(elements === undefined ? {} : { Элементы: elements }),
   } as ClientApplicationFormYAML
+  const annotations = createXmlAnomalyAnnotations()
+  copyYAMLRuntimeMetadataDeep({
+    source: params.baseYaml,
+    target: yaml,
+    ...(params.baseAnnotations === undefined
+      ? {}
+      : { sourceAnnotations: params.baseAnnotations, targetAnnotations: annotations }),
+  })
 
   return {
     yaml,
+    annotations,
     explicitComponents: {
       attributes: attributeNames,
       commands: commandNames,
       parameters: parameterNames,
     },
   }
+}
+
+interface BaseFormProjectionRuntimeContext extends BaseFormProjectionContext {
+  readonly baseAnnotations?: XmlAnomalyAnnotations
+  readonly extensionAnnotations?: XmlAnomalyAnnotations
 }
 
 function indexElementsByName(
@@ -123,7 +149,7 @@ function projectElementTree(params: {
   readonly baseElements: FormElementTreeYAML
   readonly baseCollectionRule: PropertyRule
   readonly extensionElementsByName: ReadonlyMap<string, IndexedFormElement>
-  readonly context: BaseFormProjectionContext
+  readonly context: BaseFormProjectionRuntimeContext
 }): FormElementTreeYAML {
   return Object.fromEntries(
     Object.entries(params.baseElements).map(([name, baseElement]) => [
@@ -146,7 +172,7 @@ function projectElementSelection(params: {
   readonly baseCollectionRule: PropertyRule
   readonly extensionElement: IndexedFormElement | undefined
   readonly extensionElementsByName: ReadonlyMap<string, IndexedFormElement>
-  readonly context: BaseFormProjectionContext
+  readonly context: BaseFormProjectionRuntimeContext
 }): FormElementTreeNodeYAML {
   const baseRule = resolveFormElementRule({
     yaml: params.baseElement,
@@ -191,7 +217,7 @@ function projectAliasedMetadataItemProperties(params: {
   readonly extensionYaml: Record<string, unknown>
   readonly baseRule: MetadataItemRule
   readonly extensionRule: MetadataItemRule
-  readonly context: BaseFormProjectionContext
+  readonly context: BaseFormProjectionRuntimeContext
   readonly skippedYamlKeys?: ReadonlySet<string>
 }): Record<string, unknown> {
   const baseAliases = getTreeNodeJSONSchemaPropertyAliases(
@@ -262,11 +288,18 @@ function projectMetadataItemProperties(params: {
   readonly extensionYaml: Record<string, unknown>
   readonly baseRule: MetadataItemRule
   readonly extensionRule: MetadataItemRule
-  readonly context: BaseFormProjectionContext
+  readonly context: BaseFormProjectionRuntimeContext
   readonly skippedYamlKeys?: ReadonlySet<string>
 }): Record<string, unknown> {
-  const result: Record<string, unknown> = {}
   const extensionRulesByYamlKey = propertyRulesByYamlKey(params.extensionRule)
+  const baseRulesByYamlKey = propertyRulesByYamlKey(params.baseRule)
+  const result = projectSharedRuntimeProperties({
+    baseYaml: params.baseYaml,
+    extensionYaml: params.extensionYaml,
+    baseRulesByYamlKey,
+    extensionRulesByYamlKey,
+    context: params.context,
+  })
 
   for (const [propertyKey, basePropertyRule] of Object.entries(params.baseRule.properties)) {
     const yamlKey = basePropertyRule.yaml ?? propertyKey
@@ -312,6 +345,28 @@ function projectMetadataItemProperties(params: {
   return result
 }
 
+function projectSharedRuntimeProperties(params: {
+  readonly baseYaml: Record<string, unknown>
+  readonly extensionYaml: Record<string, unknown>
+  readonly baseRulesByYamlKey: ReadonlyMap<string, PropertyRule>
+  readonly extensionRulesByYamlKey: ReadonlyMap<string, PropertyRule>
+  readonly context: BaseFormProjectionRuntimeContext
+}): Record<string, unknown> {
+  return Object.fromEntries(Object.keys(params.baseYaml).flatMap((yamlKey) => {
+    if (
+      params.baseRulesByYamlKey.has(yamlKey)
+      || params.extensionRulesByYamlKey.has(yamlKey)
+      || !Object.hasOwn(params.extensionYaml, yamlKey)
+    ) return []
+    if (
+      !hasYAMLRuntimeMetadataAt(params.baseYaml, yamlKey, params.context.baseAnnotations)
+      || !hasYAMLRuntimeMetadataAt(params.extensionYaml, yamlKey, params.context.extensionAnnotations)
+      || !Object.is(params.baseYaml[yamlKey], params.extensionYaml[yamlKey])
+    ) return []
+    return [[yamlKey, params.baseYaml[yamlKey]]]
+  }))
+}
+
 function isEmptyNestedProjection(value: unknown): boolean {
   if (Array.isArray(value)) return value.length === 0
   return (
@@ -331,7 +386,7 @@ function projectNestedProperty(params: {
   readonly extensionValue: unknown
   readonly basePropertyRule: PropertyRule
   readonly extensionPropertyRule: PropertyRule
-  readonly context: BaseFormProjectionContext
+  readonly context: BaseFormProjectionRuntimeContext
 }): NestedProjection {
   const baseNestedRule = getTypeRule(params.basePropertyRule.type, "yamlToXMLNestedRule")
   if (baseNestedRule === undefined || baseNestedRule.kind === "externalFile") {

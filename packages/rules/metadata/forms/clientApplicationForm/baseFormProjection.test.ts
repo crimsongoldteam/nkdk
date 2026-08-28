@@ -1,9 +1,71 @@
+import { parseMetadataYaml, yamlScalarTagAt } from "@nkdk/runtime"
 import { describe,expect,it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { InputFieldRules } from "../elements/inputField/rules"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
 import type { ClientApplicationFormYAML } from "./types"
 
 describe("client application BaseForm projection", () => {
+
+  it("сохраняет все метаданные согласованных вложенных значений", () => {
+    const source = [
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    Подсказка:",
+      "      ru: Текст",
+      "      en: !xml/invalid Text",
+      "    РасширеннаяПодсказка:",
+      "      Имя: !xml/name ПолеExtendedTooltip",
+    ].join("\n")
+    const base = parseMetadataYaml(source)
+    const extension = parseMetadataYaml(source)
+    const baseYaml = base.data as ClientApplicationFormYAML
+    const extensionYaml = extension.data as ClientApplicationFormYAML
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+      baseAnnotations: base.annotations,
+      extensionAnnotations: extension.annotations,
+    })
+    const field = projection.yaml.Элементы?.Поле
+    const tooltip = projection.yaml.Элементы?.Поле?.РасширеннаяПодсказка
+    const languages = field?.Подсказка as Record<string, string>
+
+    expect(tooltip).toEqual({ Имя: "ПолеExtendedTooltip" })
+    expect(yamlScalarTagAt(tooltip, "Имя")).toBe("xml/name")
+    expect(projection.annotations.at(languages, "en")).toMatchObject({ kind: "invalid" })
+  })
+
+  it("не переносит аннотацию удалённой части составного свойства", () => {
+    const base = parseMetadataYaml([
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    Подсказка:",
+      "      ru: Текст",
+      "      en: !xml/invalid Text",
+    ].join("\n"))
+    const extension = parseMetadataYaml([
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    Подсказка:",
+      "      ru: Текст",
+    ].join("\n"))
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml: base.data as ClientApplicationFormYAML,
+      extensionYaml: extension.data as ClientApplicationFormYAML,
+      baseAnnotations: base.annotations,
+      extensionAnnotations: extension.annotations,
+    })
+
+    const languages = projection.yaml.Элементы?.Поле?.Подсказка as Record<string, string>
+    expect(languages).toEqual({ ru: "Текст" })
+    expect(projection.annotations.at(languages, "en")).toBeUndefined()
+  })
 
   it("selects the cf element tree and only explicitly borrowed named components", () => {
     const baseAttribute = {

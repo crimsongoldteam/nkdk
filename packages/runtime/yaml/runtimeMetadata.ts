@@ -1,6 +1,6 @@
 import { copyDoubleQuotedScalarMarks } from "./explicitString"
 import { copyYAMLMappingKeyOrder } from "./mappingTags"
-import { copyYAMLScalarTags, type YAMLScalarTagKey } from "./scalarTags"
+import { copyYAMLScalarTags, type YAMLScalarTagKey, yamlScalarTagAt } from "./scalarTags"
 import type {
   XmlAnomalyAnnotations,
   XmlAnomalyAnnotationTable,
@@ -42,8 +42,17 @@ export function copyYAMLRuntimeMetadataDeep(params: {
     copied.set(source, targets)
 
     const correspondingKeys = correspondingYAMLKeys(source, target)
-    copyYAMLRuntimeMetadata(source, target, correspondingKeys)
-    copyXmlAnnotationsForKeys(params.sourceAnnotations, source, target, correspondingKeys, params.targetAnnotations)
+    const retainedMetadataKeys = new Set(
+      [...correspondingKeys].filter((key) => sameYAMLValue(valueAt(source, key), valueAt(target, key))),
+    )
+    copyYAMLRuntimeMetadata(source, target, retainedMetadataKeys)
+    copyXmlAnnotationsForKeys(
+      params.sourceAnnotations,
+      source,
+      target,
+      retainedMetadataKeys,
+      params.targetAnnotations,
+    )
 
     for (const key of correspondingKeys) {
       const sourceChild = valueAt(source, key)
@@ -55,6 +64,16 @@ export function copyYAMLRuntimeMetadataDeep(params: {
   }
 
   visit(params.source, params.target)
+}
+
+export function hasYAMLRuntimeMetadataAt(
+  parent: object,
+  key: YAMLScalarTagKey,
+  annotations?: XmlAnomalyAnnotations,
+): boolean {
+  return yamlScalarTagAt(parent, key) !== undefined
+    || annotations?.at(parent, key) !== undefined
+    || (typeof key === "string" && annotations?.keyAt(parent, key) !== undefined)
 }
 
 function correspondingYAMLKeys(source: object, target: object): ReadonlySet<YAMLScalarTagKey> {
@@ -96,6 +115,16 @@ function valueAt(value: object, key: YAMLScalarTagKey): unknown {
 
 function sameContainerKind(left: object, right: object): boolean {
   return Array.isArray(left) === Array.isArray(right)
+}
+
+function sameYAMLValue(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) return true
+  if (!isObject(left) || !isObject(right) || !sameContainerKind(left, right)) return false
+  const leftKeys = Object.keys(left)
+  const rightKeys = Object.keys(right)
+  return leftKeys.length === rightKeys.length
+    && leftKeys.every((key) => Object.prototype.hasOwnProperty.call(right, key)
+      && sameYAMLValue(valueAt(left, key), valueAt(right, key)))
 }
 
 function isObject(value: unknown): value is object {
