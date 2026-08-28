@@ -29,7 +29,7 @@
 			</Type>
 			<UseStandardCommands>false</UseStandardCommands>
 			<Content>
-				<xr:Item xsi:type="xr:MDObjectRef">Catalog.СправочникПолный.Attribute.СтроковыйРеквизитСИндексом</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Catalog.СправочникПолный.Attribute.Реквизит2</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.Attribute.РеквизитТабличнойЧасти</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Document.ДокументВсеСвойства.Attribute.СтроковыйРеквизит</xr:Item>
 			</Content>

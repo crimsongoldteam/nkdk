@@ -1,9 +1,12 @@
-import { Type } from "typebox"
 import { defineMetadataItemCollectionRule, defineMetadataItemRule, defineMetadataRules } from "../../ruleRuntime"
-import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
-import { ExchangePlanContentItemRules, ExchangePlanContentRules } from "./rules"
+import {
+  ExchangePlanContentItemRules,
+  ExchangePlanContentRules,
+  ExchangePlanExtensionPropertyItemRules,
+} from "./rules"
+import { exchangePlanContentItemsToJSONSchema } from "./toJSONSchema"
 
 export type ExchangePlanContentItem = MetadataTypeByRule<typeof ExchangePlanContentItemRules>
 export type ExchangePlanContentItemYAML = YAMLTypeByRule<typeof ExchangePlanContentItemRules>
@@ -26,14 +29,16 @@ export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   keyField: "metadata",
   yamlAsArray: true,
   configurationIndexAddressing: "yamlPath",
-  toJSONSchema: ({ context, execution }) => Type.Array(
-    exportMetadataItemToJSONSchema({
-      context,
-      rule: ExchangePlanContentItemRules,
-      execution,
-    }),
-    { minItems: 1 },
-  ),
+  toJSONSchema: ({ context, execution }) => exchangePlanContentItemsToJSONSchema({ context, execution }),
+})
+
+export const metadataRuleLayer002 = defineMetadataItemCollectionRule({
+  propertyType: "ExchangePlanExtensionPropertyItems",
+  itemRule: ExchangePlanExtensionPropertyItemRules,
+  xmlElement: "Item",
+  keyField: "metadata",
+  yamlAsArray: true,
+  configurationIndexAddressing: "yamlPath",
 })
 
 const exchangePlanContentItemRules = defineMetadataItemRule({
@@ -41,6 +46,6 @@ const exchangePlanContentItemRules = defineMetadataItemRule({
   itemRule: ExchangePlanContentRules,
 })
 
-export const metadataRuleLayer002 = defineMetadataRules({
+export const metadataRuleLayer003 = defineMetadataRules({
   ...exchangePlanContentItemRules,
 })

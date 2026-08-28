@@ -11,6 +11,7 @@ export {
   extended,
   externalProperty,
   multiState,
+  semanticExternalProperty,
 } from "../../ruleRuntime/definition/propertyStateDeclarations"
 import { definePropertyStateItemCapabilities as defineItemCapabilities } from "../../ruleRuntime/definition/propertyStateDeclarations"
 import {

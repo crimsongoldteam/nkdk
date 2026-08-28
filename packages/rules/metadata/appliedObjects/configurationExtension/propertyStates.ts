@@ -11,9 +11,11 @@ import {
   EXTENDED_CONFIGURATION_OBJECT_YAML,
   writeExtendedConfigurationObjectYAML,
 } from "./extendedConfigurationObjectYAML"
+import { importConfigurationExtensionCollectionState } from "./collectionStates"
 
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
   augment({ context, rule, source, yaml }): void {
+    importConfigurationExtensionCollectionState({ context, rule, source, yaml })
     const compatibilityMode = context.fromXML.propertyStateCompatibilityMode
     let extendedConfigurationObjectNotify = false
     for (const propertyState of propertyStates(source)) {
@@ -34,6 +36,16 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       }
       if (propertyKey === "extendedConfigurationObject") {
         extendedConfigurationObjectNotify = mode === "notify"
+        continue
+      }
+      if (capability.representation === "semantic") {
+        const propertyRule = rule.properties[propertyKey!]
+        if (propertyRule === undefined || typeof propertyRule.yaml !== "string") {
+          throw new Error(`Не задано YAML-свойство PropertyState ${rule.itemType}.${property}`)
+        }
+        if (!Object.prototype.hasOwnProperty.call(yaml, propertyRule.yaml)) {
+          yaml[propertyRule.yaml] = semanticEmptyValue(propertyRule.type, rule.itemType, property)
+        }
         continue
       }
       if (capability.representation === "section") {
@@ -75,6 +87,12 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       })
     }
   },
+}
+
+function semanticEmptyValue(type: string, itemType: string, property: string): Record<string, never> | [] {
+  if (type === "Predefined") return {}
+  if (type === "ExchangePlanContent") return []
+  throw new Error(`Неизвестный смысловой PropertyState ${itemType}.${property}`)
 }
 
 function compactTaggedDefault(

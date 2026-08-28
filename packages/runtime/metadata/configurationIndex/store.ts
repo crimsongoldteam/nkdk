@@ -391,7 +391,7 @@ function mergeEntity(
   previous: ConfigurationIndexBlockEntity,
   incoming: ConfigurationIndexBlockEntity,
 ): ConfigurationIndexBlockEntity {
-  for (const field of ["uuid", "xmlId", "children"] as const) {
+  for (const field of ["uuid", "xmlId", "xmlValue", "children"] as const) {
     if (previous[field] !== undefined && incoming[field] !== undefined) {
       throw new Error(`Конфликт поля ${field} для ${incoming.logicalAddress}`)
     }
@@ -400,6 +400,7 @@ function mergeEntity(
     logicalAddress: previous.logicalAddress,
     uuid: incoming.uuid ?? previous.uuid,
     xmlId: incoming.xmlId ?? previous.xmlId,
+    xmlValue: incoming.xmlValue ?? previous.xmlValue,
     children: incoming.children ?? previous.children,
   }
 }

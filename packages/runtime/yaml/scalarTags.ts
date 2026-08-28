@@ -16,6 +16,7 @@ const propertyStateTagAliases = {
 
 const taggedScalarKind = Symbol("taggedYamlScalar")
 const scalarTags = new WeakMap<object, Map<YAMLScalarTagKey, YAMLScalarTag>>()
+const valueTags = new WeakMap<object, PropertyStateYAMLTag>()
 
 export interface TaggedYAMLScalar {
   readonly [taggedScalarKind]: true
@@ -45,6 +46,19 @@ export function yamlScalarTagAt(parent: unknown, key: YAMLScalarTagKey): YAMLSca
   return typeof parent === "object" && parent !== null ? scalarTags.get(parent)?.get(key) : undefined
 }
 
+export function markYAMLValueTag(value: object, tag: PropertyStateYAMLTag): void {
+  valueTags.set(value, tag)
+}
+
+export function yamlValueTag(value: unknown): PropertyStateYAMLTag | undefined {
+  return typeof value === "object" && value !== null ? valueTags.get(value) : undefined
+}
+
+export function copyYAMLValueTag(source: object, target: object): void {
+  const tag = valueTags.get(source)
+  if (tag !== undefined) valueTags.set(target, tag)
+}
+
 export function copyYAMLScalarTags(
   source: object,
   target: object,
@@ -57,8 +71,13 @@ export function copyYAMLScalarTags(
   }
 }
 
-export function taggedScalarForDump(parent: object, key: YAMLScalarTagKey, value: unknown): unknown {
-  const tag = yamlScalarTagAt(parent, key)
+export function taggedScalarForDump(
+  parent: object,
+  key: YAMLScalarTagKey,
+  value: unknown,
+  sourceValue: unknown = value,
+): unknown {
+  const tag = yamlScalarTagAt(parent, key) ?? yamlValueTag(sourceValue)
   return tag === undefined ? value : taggedYAMLScalar(tag, value)
 }
 
@@ -79,19 +98,43 @@ export function propertyStateScalarTagPayload(
   throw new TypeError("Локальный тег режима поддерживает только скалярное или пустое значение")
 }
 
-const propertyStateTags = PROPERTY_STATE_YAML_TAGS.map((tag) =>
-  defineScalarTag(`!${propertyStateTagAliases[tag]}`, {
-    resolve(value) {
-      return taggedYAMLScalar(tag, propertyStateScalarTagValue(tag, parsePropertyStatePayload(value)))
-    },
-    identify(value) {
-      return isTaggedYAMLScalar(value) && value.tag === tag
-    },
-    represent(value) {
-      return propertyStateScalarTagPayload(tag, (value as TaggedYAMLScalar).value)
-    },
-  })
-)
+const propertyStateTags = PROPERTY_STATE_YAML_TAGS.flatMap((tag) => {
+  const tagName = `!${propertyStateTagAliases[tag]}`
+  return [
+    defineScalarTag(tagName, {
+      resolve(value) {
+        return taggedYAMLScalar(tag, propertyStateScalarTagValue(tag, parsePropertyStatePayload(value)))
+      },
+      identify(value) {
+        return isTaggedYAMLScalar(value) && value.tag === tag && !isCompositePropertyStateValue(value.value)
+      },
+      represent(value) {
+        return propertyStateScalarTagPayload(tag, (value as TaggedYAMLScalar).value)
+      },
+    }),
+    defineMappingTag<Record<string, unknown>, TaggedYAMLScalar>(tagName, {
+      create: createMappingCarrier,
+      addPair: addMappingPair,
+      has: hasMappingKey,
+      keys: (result) => Object.keys(result.value as Record<string, unknown>),
+      get: (result, key) => (result.value as Record<string, unknown>)[String(key)],
+      finalize: (carrier) => taggedYAMLScalar(tag, carrier),
+      identify: (value) => isTaggedYAMLScalar(value)
+        && value.tag === tag
+        && isNonEmptyMapping(value.value),
+      represent: (value) => new Map(Object.entries((value as TaggedYAMLScalar).value as Record<string, unknown>)),
+    }),
+    defineSequenceTag<unknown[], TaggedYAMLScalar>(tagName, {
+      create: () => [],
+      addItem: (carrier, value) => { carrier.push(value) },
+      finalize: (carrier) => taggedYAMLScalar(tag, carrier),
+      identify: (value) => isTaggedYAMLScalar(value)
+        && value.tag === tag
+        && Array.isArray(value.value),
+      represent: (value) => (value as TaggedYAMLScalar).value as unknown[],
+    }),
+  ]
+})
 
 const xmlRepresentationTags = XML_REPRESENTATION_YAML_TAGS.map((tag) =>
   defineScalarTag(`!${tag}`, {
@@ -151,19 +194,29 @@ const xmlAnnotationTags = XML_ANNOTATION_TAGS.flatMap((tag) => [
 function xmlAnnotationMappingTag(tag: string, matchByTagPrefix = false) {
   return defineMappingTag<Record<string, unknown>, Record<string, unknown>>(tag, {
     ...(matchByTagPrefix ? { matchByTagPrefix: true } : {}),
-    create: () => ({}),
-    addPair(carrier, key, value) {
-      const stringKey = String(key)
-      if (Object.prototype.hasOwnProperty.call(carrier, stringKey)) return "duplicated mapping key"
-      carrier[stringKey] = value
-      return ""
-    },
-    has: (carrier, key) => Object.prototype.hasOwnProperty.call(carrier, String(key)),
+    create: createMappingCarrier,
+    addPair: addMappingPair,
+    has: hasMappingKey,
     keys: (result) => Object.keys(result),
     get: (result, key) => result[String(key)],
     identify: () => false,
     represent: (value) => new Map(Object.entries(value)),
   })
+}
+
+function createMappingCarrier(): Record<string, unknown> {
+  return {}
+}
+
+function addMappingPair(carrier: Record<string, unknown>, key: unknown, value: unknown): string {
+  const stringKey = String(key)
+  if (Object.prototype.hasOwnProperty.call(carrier, stringKey)) return "duplicated mapping key"
+  carrier[stringKey] = value
+  return ""
+}
+
+function hasMappingKey(carrier: Record<string, unknown>, key: unknown): boolean {
+  return Object.prototype.hasOwnProperty.call(carrier, String(key))
 }
 
 function parseYAMLScalarPayload(value: string): unknown {
@@ -180,6 +233,14 @@ function parsePropertyStatePayload(payload: string): unknown {
 
 function isEmptyMapping(value: unknown): value is Record<string, never> {
   return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0
+}
+
+function isNonEmptyMapping(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length > 0
+}
+
+function isCompositePropertyStateValue(value: unknown): boolean {
+  return Array.isArray(value) || isNonEmptyMapping(value)
 }
 
 export function isPropertyStateYAMLTag(tag: unknown): tag is PropertyStateYAMLTag {

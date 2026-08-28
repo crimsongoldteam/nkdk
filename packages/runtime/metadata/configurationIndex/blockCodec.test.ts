@@ -16,6 +16,7 @@ describe("configuration index block codec", () => {
   it.each([
     { name: "uuid", entity: { logicalAddress: "Документ.Заказ", uuid: UUID } },
     { name: "xmlId", entity: { logicalAddress: "Форма.Элемент.Таблица", xmlId: "1" } },
+    { name: "xmlValue", entity: { logicalAddress: "Справочник.Товары.fillValue", xmlValue: "TypeId.ValueId" } },
     {
       name: "children",
       entity: {
@@ -78,7 +79,7 @@ describe("configuration index block codec", () => {
       name: "reserved flags",
       mutate: (bytes: Uint8Array) => {
         const copy = bytes.slice()
-        copy[9] = 8
+        copy[9] = 16
         return copy
       },
     },

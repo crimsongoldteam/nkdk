@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<PredefinedData xmlns="http://v8.1c.ru/8.3/xcf/predef" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CatalogPredefinedItems" version="2.20">
+	<Item id="8e008631-1204-4745-a7a8-25544a37c7c9">
+		<Name>Группа2</Name>
+		<Code>000000004</Code>
+		<Description>Группа 2</Description>
+		<IsFolder>true</IsFolder>
+		<ExtensionState>AdoptedNotify</ExtensionState>
+		<ChildItems>
+			<Item id="633dd246-5da2-43a0-a30d-f3a237c2bcae">
+				<Name>Предопределенный3</Name>
+				<Code>000000005</Code>
+				<Description>Предопределенный 3</Description>
+				<IsFolder>false</IsFolder>
+				<ExtensionState>AdoptedCheck</ExtensionState>
+			</Item>
+		</ChildItems>
+	</Item>
+	<Item id="49c8c31f-8771-4d34-89c4-ee37d85c4225">
+		<Name>Группа</Name>
+		<Code>000000003</Code>
+		<Description>Наименование</Description>
+		<IsFolder>true</IsFolder>
+		<ExtensionState>AdoptedNotify</ExtensionState>
+	</Item>
+	<Item id="71753bc2-e6a6-44e3-ac4f-3cefe37cc7a0">
+		<Name>Предопределенный2</Name>
+		<Code>000000002</Code>
+		<Description>Наименование</Description>
+		<IsFolder>false</IsFolder>
+		<ExtensionState>AdoptedCheck</ExtensionState>
+	</Item>
+</PredefinedData>

@@ -29,6 +29,84 @@ const rule = {
 } as never
 
 describe("configuration extension PropertyState facts", () => {
+  it("сохраняет режимы вложенных элементов смысловой коллекции", () => {
+    const parsed = parseMetadataYaml([
+      "Предопределенные:",
+      "  Группа: !проверять",
+      "    Код: '000000003'",
+      "    Элементы:",
+      "      Вложенный:",
+      "        Код: '000000004'",
+      "",
+    ].join("\n"))
+    const documents = collectConfigurationExtensionPropertyStateDocuments({
+      yaml: parsed.data as Record<string, unknown>,
+      rule: {
+        itemType: "MetadataCatalog",
+        properties: { predefined: { yaml: "Предопределенные", type: "Predefined" } },
+      } as never,
+      capability: {
+        itemType: "MetadataCatalog",
+        properties: {
+          predefined: { availability: "borrowed", modes: ["extend"], representation: "semantic" },
+        },
+      },
+      logicalAddress: "Catalog.Товары",
+      workingProjectPath: "Справочник/Товары/Свойства.yaml",
+    })
+
+    expect(JSON.parse(documents[0]!.payload!).value).toEqual({
+      Группа: {
+        mode: "notify",
+        value: {
+          Код: "000000003",
+          Элементы: { Вложенный: { Код: "000000004" } },
+        },
+      },
+    })
+  })
+
+  it("сохраняет смысловой снимок состава плана обмена", () => {
+    const parsed = parseMetadataYaml([
+      "Состав:",
+      "  - Метаданные: Документ.Заказ",
+      "  - Метаданные: !изменять Справочник.Товары",
+      "    Использовать: !xml/invalid Ложь",
+      "",
+    ].join("\n"))
+    const documents = collectConfigurationExtensionPropertyStateDocuments({
+      yaml: parsed.data as Record<string, unknown>,
+      rule: {
+        itemType: "MetadataExchangePlan",
+        properties: { content: { yaml: "Состав", type: "ExchangePlanContent" } },
+      } as never,
+      capability: {
+        itemType: "MetadataExchangePlan",
+        properties: { content: { availability: "borrowed", modes: ["extend"], representation: "semantic" } },
+      },
+      logicalAddress: "ExchangePlan.Обмен",
+      workingProjectPath: "ПланОбмена/Обмен/Свойства.yaml",
+      isInvalidAtYAMLPath: (path) => path.join("/") === "Состав/1/Использовать",
+    })
+
+    expect(JSON.parse(documents[0]!.payload!).value).toEqual([
+      {
+        metadata: "Документ.Заказ",
+        mode: "control",
+        used: true,
+        autoRecord: "Разрешить",
+        invalidUse: false,
+      },
+      {
+        metadata: "Справочник.Товары",
+        mode: "extend",
+        used: false,
+        autoRecord: "Разрешить",
+        invalidUse: true,
+      },
+    ])
+  })
+
   it("extracts ordinary, tagged, section and MultiState facts", () => {
     const parsed = parseMetadataYaml([
       "Заголовок: !проверять Новый",

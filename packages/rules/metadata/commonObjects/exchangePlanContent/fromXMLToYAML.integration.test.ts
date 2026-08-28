@@ -1,13 +1,16 @@
 import { describe,expect,it } from "vitest"
 
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { yamlScalarTagAt } from "@nkdk/runtime"
 import {
+createDirectRoundTripContexts,
 readAppliedObjectFixture,
 testMetadataItemFromXMLToYAML,
 testPropertyFromXMLToYAML,
 } from "../../../tests/directConversion"
 import { contentYAML } from "./__fixtures__/data"
 import { ExchangePlanContentRules } from "./rules"
+import { extensionContentXML, extensionContentYAML } from "./__fixtures__/extension"
 
 
 describe("ExchangePlanContent XML → YAML", () => {
@@ -30,6 +33,28 @@ describe("ExchangePlanContent XML → YAML", () => {
     const xml = readAppliedObjectFixture(import.meta.url, "content.xml")
 
     expect(testMetadataItemFromXMLToYAML({ rule: ExchangePlanContentRules, xml }).yaml).toEqual(contentYAML)
+  })
+
+  it("объединяет Item и ExtensionProperty расширения в один Состав", () => {
+    const contexts = createDirectRoundTripContexts()
+    const context = {
+      ...contexts.importContext,
+      fromXML: {
+        ...contexts.importContext.fromXML,
+        componentKind: "configurationExtension" as const,
+        metadataItemAugmenter: "configurationExtension",
+      },
+    }
+    const yaml = testMetadataItemFromXMLToYAML({
+      rule: ExchangePlanContentRules,
+      context,
+      xml: extensionContentXML(),
+    }).yaml as Record<string, unknown>[]
+
+    expect(yaml).toEqual(extensionContentYAML)
+    expect(yamlScalarTagAt(yaml[0], "Метаданные")).toBe("изменять")
+    expect(yamlScalarTagAt(yaml[4], "Метаданные")).toBe("изменять")
+    expect(yamlScalarTagAt(yaml[1], "Метаданные")).toBeUndefined()
   })
 
   it("imports empty content as an explicit empty list", () => {

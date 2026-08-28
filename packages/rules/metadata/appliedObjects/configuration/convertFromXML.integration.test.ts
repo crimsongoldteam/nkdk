@@ -313,7 +313,11 @@ describe("sync configuration from xml", () => {
     ).toBe(true)
     expect(
       primaryImport.snapshot.entities.every(
-        (entity) => entity.uuid !== undefined || entity.xmlId !== undefined || entity.children !== undefined
+        (entity) =>
+          entity.uuid !== undefined ||
+          entity.xmlId !== undefined ||
+          entity.xmlValue !== undefined ||
+          entity.children !== undefined
       )
     ).toBe(true)
     expect(primaryImport.operationTempExists).toBe(false)

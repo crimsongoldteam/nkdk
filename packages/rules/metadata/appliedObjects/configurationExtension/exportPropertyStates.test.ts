@@ -310,6 +310,40 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     else expect(metadata).not.toHaveProperty("InternalInfo")
   })
 
+  it.each([
+    ["присутствует", { Предопределенные: {} }, [{ "xr:Property": "Predefined", "xr:State": "Extended" }]],
+    ["отсутствует", {}, []],
+  ] as const)("выводит состояние смысловой коллекции, когда поле %s", (_case, yaml, expectedStates) => {
+    const semanticRule = {
+      itemType: "SemanticPredefined",
+      properties: {
+        predefined: { type: "Predefined", yaml: "Предопределенные", xml: "Predefined" },
+      },
+    } as MetadataItemRule
+    const contribution = definePropertyStateItemCapabilities(semanticRule, {
+      properties: {
+        predefined: {
+          availability: "borrowed",
+          modes: ["extend"],
+          representation: "semantic",
+        },
+      },
+    })
+    const outputs = new Map<string, Record<string, unknown>>([["metadata", { InternalInfo: {}, Properties: {} }]])
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([contribution]),
+    }, () => configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: { [logicalAddress]: BASE_UUID } }),
+      rule: semanticRule,
+      yaml,
+      outputs,
+      logicalAddress,
+    }))
+
+    expect(record(record(outputs.get("metadata")).InternalInfo)["xr:PropertyState"] ?? []).toEqual(expectedStates)
+  })
+
   it("places extension root service fields in the platform XML order", () => {
     const outputs = new Map([
       [

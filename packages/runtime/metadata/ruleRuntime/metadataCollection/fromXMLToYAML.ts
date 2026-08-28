@@ -24,6 +24,7 @@ import {
   createXmlImportBufferedLocalIndexes,
 } from "../xmlAnomaly/attempt"
 import { projectNamedXmlCollectionForImportWithRuntimeKeys } from "../xmlAnomaly/yamlProjection"
+import { markYAMLScalarTag, yamlValueTag } from "../../../yaml/scalarTags"
 
 type MetadataItemCollectionImportOptions = {
   propertyType?: PropertyRuleType
@@ -190,7 +191,14 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   })
   if (yamlItems.length === 0) return undefined
 
-  if (params.yamlAsArray === true) return yamlItems.map(({ yaml }) => yaml)
+  if (params.yamlAsArray === true) {
+    const result = yamlItems.map(({ yaml }) => yaml)
+    result.forEach((yaml, index) => {
+      const tag = yamlValueTag(yaml)
+      if (tag !== undefined) markYAMLScalarTag(result, index, tag)
+    })
+    return result
+  }
 
   if (keyYaml === undefined) return undefined
   const entries = yamlItems.map(({ yaml, yamlKey, keyClassification }) => {
@@ -208,6 +216,8 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   for (const [index, item] of yamlItems.entries()) {
     const yamlKey = item.yamlKey!
     const runtimeKey = projected.runtimeKeys[index]!
+    const tag = yamlValueTag(item.yaml)
+    if (tag !== undefined) markYAMLScalarTag(projected.yaml, runtimeKey, tag)
     const targetYamlPath = [...params.traversal.yamlPath, runtimeKey]
     params.traversal.audit?.rekeyYamlPath(item.sourceYamlPath, targetYamlPath, item.xmlNode)
     params.traversal.collector.acceptItem({

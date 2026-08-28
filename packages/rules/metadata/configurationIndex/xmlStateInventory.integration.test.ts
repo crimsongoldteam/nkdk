@@ -12,7 +12,7 @@ import "../../tests/directConversion"
 
 function expectNoOrdinaryXMLState(index: ConfigurationIndexBlock): void {
   for (const entity of index.entities) {
-    expect(Object.keys(entity).every((key) => ["logicalAddress", "uuid", "xmlId", "children"].includes(key))).toBe(true)
+    expect(Object.keys(entity).every((key) => ["logicalAddress", "uuid", "xmlId", "xmlValue", "children"].includes(key))).toBe(true)
   }
 }
 

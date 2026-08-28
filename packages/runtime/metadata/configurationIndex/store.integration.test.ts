@@ -80,7 +80,7 @@ beforeAll(async () => {
   unknownSchemaDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
   await createAndClose(unknownSchemaDescriptor)
   await writeRaw(unknownSchemaDescriptor.dataPath, (table) => {
-    table("meta").putSync("schemaVersion", Uint8Array.of(2, 0, 0, 0))
+    table("meta").putSync("schemaVersion", Uint8Array.of(CONFIGURATION_INDEX_SCHEMA_VERSION + 1, 0, 0, 0))
   })
 
   const closeDescriptor = configurationIndexStoreDescriptor(await scope.temporaryProject(), { kind: "configuration" })
@@ -98,7 +98,7 @@ describe("configuration index store", () => {
   })
 
   it("creates all named tables and schema version", () => {
-    expect(schemaVersion).toEqual([1, 0, 0, 0])
+    expect(schemaVersion).toEqual([CONFIGURATION_INDEX_SCHEMA_VERSION, 0, 0, 0])
     expect(openedTableNames).toEqual(["hashes", "blocks", "pendingHashes", "pendingBlocks"])
   })
 

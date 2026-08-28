@@ -169,6 +169,36 @@ describe("borrowed property-state schema", () => {
     expect(schema.properties.Изменять?.items?.enum).toEqual(["МодульОбъекта"])
   })
 
+  it("не добавляет смысловую коллекцию в раздел Изменять", () => {
+    const semanticRule = {
+      itemType: "SemanticPredefined",
+      properties: {
+        predefined: { type: "Predefined", yaml: "Предопределенные" },
+      },
+    } as MetadataItemRule
+    const schema = exportBorrowedPropertyStateSchema({
+      rule: semanticRule,
+      capability: {
+        itemType: semanticRule.itemType,
+        properties: {
+          predefined: {
+            availability: "borrowed",
+            modes: ["extend"],
+            representation: "semantic",
+          },
+        },
+      },
+      source: Type.Object({
+        Предопределенные: Type.Optional(Type.Object({})),
+      }, { additionalProperties: false }),
+    }) as { properties: Record<string, { items?: { enum?: string[] } }> }
+    const validator = compileValidationSchema(schema)
+
+    expect(validator.Check({ Предопределенные: {} })).toBe(true)
+    expect(validator.Check({ Изменять: ["Предопределенные"] })).toBe(false)
+    expect(schema.properties).not.toHaveProperty("Изменять")
+  })
+
   it("разрешает единственную пустую форму контролируемого дефолта", () => {
     const schema = exportBorrowedPropertyStateSchema({
       rule,

@@ -168,7 +168,7 @@ function prepareChildForDump(
     : prepareForDump(valueForDump, explicitStrings, undefinedValues, sourceAnnotations, dumpAnnotations, dataAnnotations)
   return {
     dumpValue: anomaly === undefined
-      ? taggedScalarForDump(parent, key, prepared.dumpValue)
+      ? taggedScalarForDump(parent, key, prepared.dumpValue, value)
       : prepared.dumpValue,
     data: prepared.data,
     ...(prepared.doubleQuoted === true ? { doubleQuoted: true } : {}),

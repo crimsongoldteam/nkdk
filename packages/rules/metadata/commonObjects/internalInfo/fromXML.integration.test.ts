@@ -307,7 +307,11 @@ describe("importInternalInfoFromXML", () => {
     const collected = exportContext.exportToXML.configurationIndex?.collector
       .fragment("Справочник/Товары/Свойства.yaml").entities
     expect(collected).toHaveLength(4)
-    expect(collected?.every((entity) => Object.keys(entity).every((key) => ["logicalAddress", "uuid", "xmlId", "children"].includes(key)))).toBe(true)
+    expect(
+      collected?.every((entity) =>
+        Object.keys(entity).every((key) => ["logicalAddress", "uuid", "xmlId", "xmlValue", "children"].includes(key)),
+      ),
+    ).toBe(true)
   })
 
   it("imports GeneratedType and ThisNode", () => {

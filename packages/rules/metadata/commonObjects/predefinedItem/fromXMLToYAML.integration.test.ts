@@ -1,10 +1,12 @@
 import { describe,expect,it } from "vitest"
 
-import { importContentFromXML,yamlScalarTagAt } from "@nkdk/runtime"
+import { importContentFromXML,markYAMLValueTag,parseMetadataYaml,yamlScalarTagAt } from "@nkdk/runtime"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
 createDirectRoundTripContexts,
+createDirectAdoptedExportContext,
 serializeDirectXML,
+testMetadataItemFromYAMLToXML,
 testPropertyFixtureThroughYAML,
 testPropertyFromXMLToYAML,
 testPropertyFromYAMLToXML,
@@ -12,6 +14,7 @@ testPropertyFromYAMLToXML,
 import { mockContextToXML } from "../../../tests/mockContext"
 
 import "./index"
+import { PredefinedItemRules } from "./rules"
 
 const collectionRule = probeRule("PredefinedItemCollection")
 const fixtures = ["group.xml", "item.xml", "typed-code.xml"] as const
@@ -28,6 +31,103 @@ describe("PredefinedItem XML → YAML", () => {
       "Значение.Предопределенный2.Наименование",
       "Наименование"
     )
+  })
+
+  it("сохраняет независимые режимы заимствованных элементов и групп", () => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Catalog.Товары.Predefined" })
+    const context = {
+      ...contexts.importContext,
+      fromXML: {
+        ...contexts.importContext.fromXML,
+        componentKind: "configurationExtension" as const,
+        metadataItemAugmenter: "configurationExtension",
+      },
+    }
+    const yaml = testPropertyFromXMLToYAML({
+      context,
+      rule: collectionRule,
+      xml: {
+        Item: {
+          Name: "Группа",
+          Code: "000000003",
+          Description: "Наименование",
+          IsFolder: true,
+          ExtensionState: "AdoptedNotify",
+          ChildItems: {
+            Item: {
+              Name: "Предопределенный3",
+              Code: "000000004",
+              Description: "Наименование",
+              IsFolder: false,
+              ExtensionState: "AdoptedCheck",
+            },
+          },
+        },
+      },
+    }).yaml as { Значение: Record<string, Record<string, unknown>> }
+
+    const group = yaml.Значение.Группа
+    const children = group.Элементы as Record<string, Record<string, unknown>>
+    expect(yamlScalarTagAt(yaml.Значение, "Группа")).toBe("проверять")
+    expect(yamlScalarTagAt(children, "Предопределенный3")).toBeUndefined()
+    expect(group).not.toHaveProperty("ExtensionState")
+    expect(children.Предопределенный3).not.toHaveProperty("ExtensionState")
+  })
+
+  it.each([
+    [undefined, "AdoptedCheck"],
+    ["проверять", "AdoptedNotify"],
+  ] as const)("экспортирует режим %s заимствованного элемента", (tag, expectedState) => {
+    const logicalAddress = "Catalog.Товары.Predefined.Группа"
+    const yaml = { Код: "000000003", Наименование: "Наименование", ЭтоГруппа: true }
+    if (tag !== undefined) markYAMLValueTag(yaml, tag)
+
+    const result = testMetadataItemFromYAMLToXML({
+      rule: PredefinedItemRules,
+      yaml,
+      name: "Группа",
+      context: createDirectAdoptedExportContext(logicalAddress),
+    })
+
+    expect(result.xml.ExtensionState).toBe(expectedState)
+  })
+
+  it("восстанавливает явный IsFolder=false у заимствованного элемента", () => {
+    const logicalAddress = "Catalog.Товары.Predefined.Элемент"
+    const result = testMetadataItemFromYAMLToXML({
+      rule: PredefinedItemRules,
+      yaml: { Код: "000000001", Наименование: "Элемент" },
+      name: "Элемент",
+      context: createDirectAdoptedExportContext(logicalAddress),
+    })
+
+    expect(result.xml.IsFolder).toBe(false)
+  })
+
+  it("передаёт тег mapping через общий проектор коллекции", () => {
+    const logicalAddress = "Catalog.Товары.Predefined"
+    const baseContext = createDirectAdoptedExportContext(logicalAddress)
+    const context = {
+      ...baseContext,
+      exportToXML: {
+        ...baseContext.exportToXML,
+        adoptedUuids: new Proxy({}, {
+          get: () => "22222222-2222-4222-8222-222222222222",
+        }),
+      },
+    }
+    const yaml = parseMetadataYaml([
+      "Значение:",
+      "  Группа: !проверять",
+      "    Код: '000000003'",
+      "    Наименование: Наименование",
+      "    ЭтоГруппа: Истина",
+      "",
+    ].join("\n")).data
+
+    const result = testPropertyFromYAMLToXML({ rule: collectionRule, yaml, context })
+
+    expect(result.xml).toHaveProperty("Item.0.ExtensionState", "AdoptedNotify")
   })
 
   it("imports typed-code.xml", () => {

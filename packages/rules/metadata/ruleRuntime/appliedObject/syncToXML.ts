@@ -18,6 +18,8 @@ import { defineMetadataXmlPrepareCapability } from "../../resourceTopology/adapt
 import { composeMetadataRules } from "../definition"
 import { withConfigurationIndexExportPropertyContext } from "@nkdk/runtime"
 import type { MetadataXmlPrepareComposition } from "../../resourceTopology/adapters/capabilities"
+import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
+import type { PropertyStateCapabilityRegistry } from "../definition"
 
 export const prepareAppliedObjectOwnerXML = (params: {
   rule: MetadataItemRule
@@ -225,11 +227,17 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
           name: itemName,
           propertyRule,
         }) ?? nestedYAML
+      if (isEmptySemanticConfigurationExtensionProperty({
+        context,
+        itemType: assignment.itemRule.itemType,
+        propertyKey,
+        yaml: normalizedYAML,
+      })) return []
       const propertyContext = withConfigurationIndexExportPropertyContext(
         itemContext,
         propertyRule.yaml ?? propertyKey,
         propertyRule.configurationIndexUidSegment ?? propertyRule.operationTarget?.migrationSegment,
-        { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+        { propertyKey, configurationIndexAddressing: propertyRule.configurationIndexAddressing }
       )
       const nestedContext =
         nestedRule.resolveContext?.({ context: propertyContext, name: itemName, propertyRule }) ?? propertyContext
@@ -275,6 +283,22 @@ const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
     })
   },
 })
+
+function isEmptySemanticConfigurationExtensionProperty(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly itemType: string
+  readonly propertyKey: string
+  readonly yaml: unknown
+}): boolean {
+  if (params.context.exportToXML.componentKind !== "configurationExtension") return false
+  const capability = currentOperationRegistrySet<{
+    readonly propertyStates: PropertyStateCapabilityRegistry
+  }>()?.propertyStates.resolve({ itemType: params.itemType, propertyKey: params.propertyKey })
+  if (capability?.representation !== "semantic") return false
+  return Array.isArray(params.yaml)
+    ? params.yaml.length === 0
+    : params.yaml !== null && typeof params.yaml === "object" && Object.keys(params.yaml).length === 0
+}
 
 const externalFilePropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
   id: "externalFileProperty",
@@ -337,7 +361,7 @@ const externalFilePropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapab
         itemContext,
         propertyRule.yaml ?? propertyKey,
         propertyRule.configurationIndexUidSegment ?? propertyRule.operationTarget?.migrationSegment,
-        { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+        { propertyKey, configurationIndexAddressing: propertyRule.configurationIndexAddressing }
       )
       const xml = nestedRule.convert({
         context: propertyContext,

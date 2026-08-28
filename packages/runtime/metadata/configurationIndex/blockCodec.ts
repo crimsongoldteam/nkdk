@@ -7,7 +7,8 @@ import type {
 const UUID_FLAG = 1
 const XML_ID_FLAG = 2
 const CHILDREN_FLAG = 4
-const KNOWN_FLAGS = UUID_FLAG | XML_ID_FLAG | CHILDREN_FLAG
+const XML_VALUE_FLAG = 8
+const KNOWN_FLAGS = UUID_FLAG | XML_ID_FLAG | CHILDREN_FLAG | XML_VALUE_FLAG
 const MAX_U32 = 0xffff_ffff
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true })
@@ -32,6 +33,7 @@ export function encodeBlockV1(block: ConfigurationIndexBlock): Uint8Array {
     if (entity.uuid !== undefined) chunks.push(encodeUuid(entity.uuid))
     if (entity.xmlId !== undefined) chunks.push(encodeString(entity.xmlId))
     if (entity.children !== undefined) chunks.push(encodeChildren(entity.children))
+    if (entity.xmlValue !== undefined) chunks.push(encodeString(entity.xmlValue))
   }
 
   return Buffer.concat(chunks)
@@ -54,7 +56,8 @@ export function decodeBlockV1(bytes: Uint8Array): ConfigurationIndexBlock {
     const uuid = (flags & UUID_FLAG) !== 0 ? reader.uuid() : undefined
     const xmlId = (flags & XML_ID_FLAG) !== 0 ? reader.string() : undefined
     const children = (flags & CHILDREN_FLAG) !== 0 ? reader.children() : undefined
-    const entity = { logicalAddress, uuid, xmlId, children }
+    const xmlValue = (flags & XML_VALUE_FLAG) !== 0 ? reader.string() : undefined
+    const entity = { logicalAddress, uuid, xmlId, children, xmlValue }
     validateEntity(entity)
     entities.push(copyConfigurationIndexBlockEntity(entity))
   }
@@ -95,12 +98,13 @@ export function decodePendingValue(bytes: Uint8Array): ConfigurationIndexPending
 
 function validateEntity(entity: ConfigurationIndexBlockEntity): void {
   const keys = Object.keys(entity)
-  if (keys.some((key) => !["logicalAddress", "uuid", "xmlId", "children"].includes(key))) {
+  if (keys.some((key) => !["logicalAddress", "uuid", "xmlId", "children", "xmlValue"].includes(key))) {
     throw new Error(`Неизвестное поле entity: ${keys.join(", ")}`)
   }
   validateString(entity.logicalAddress, "logicalAddress")
   if (entity.uuid !== undefined && !UUID_PATTERN.test(entity.uuid)) throw new Error(`Некорректный UUID: ${entity.uuid}`)
   if (entity.xmlId !== undefined) validateString(entity.xmlId, "xmlId")
+  if (entity.xmlValue !== undefined) validateString(entity.xmlValue, "xmlValue")
   if (entity.children !== undefined) {
     if (entity.children.length === 0) throw new Error("children не может быть пустым")
     assertU32(entity.children.length, "Количество children")
@@ -109,7 +113,7 @@ function validateEntity(entity: ConfigurationIndexBlockEntity): void {
       validateString(child.name, "children.name")
     }
   }
-  if (entity.uuid === undefined && entity.xmlId === undefined && entity.children === undefined) {
+  if (entity.uuid === undefined && entity.xmlId === undefined && entity.children === undefined && entity.xmlValue === undefined) {
     throw new Error(`Entity ${entity.logicalAddress} не содержит данных`)
   }
 }
@@ -118,6 +122,7 @@ function entityFlags(entity: ConfigurationIndexBlockEntity): number {
   return (entity.uuid === undefined ? 0 : UUID_FLAG)
     | (entity.xmlId === undefined ? 0 : XML_ID_FLAG)
     | (entity.children === undefined ? 0 : CHILDREN_FLAG)
+    | (entity.xmlValue === undefined ? 0 : XML_VALUE_FLAG)
 }
 
 function encodeUuid(uuid: string): Buffer {
@@ -162,12 +167,14 @@ export function copyConfigurationIndexBlockEntity(entity: {
   readonly logicalAddress: string
   readonly uuid: string | undefined
   readonly xmlId: string | undefined
+  readonly xmlValue: string | undefined
   readonly children: readonly ConfigurationIndexChild[] | undefined
 }): ConfigurationIndexBlockEntity {
   return {
     logicalAddress: entity.logicalAddress,
     ...(entity.uuid === undefined ? {} : { uuid: entity.uuid }),
     ...(entity.xmlId === undefined ? {} : { xmlId: entity.xmlId }),
+    ...(entity.xmlValue === undefined ? {} : { xmlValue: entity.xmlValue }),
     ...(entity.children === undefined ? {} : { children: entity.children }),
   }
 }

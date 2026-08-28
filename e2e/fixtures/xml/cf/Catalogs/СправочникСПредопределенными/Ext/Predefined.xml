@@ -1,5 +1,19 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <PredefinedData xmlns="http://v8.1c.ru/8.3/xcf/predef" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CatalogPredefinedItems" version="2.20">
+	<Item id="b8ed5b92-4713-4d68-bc91-76746cd07a4d">
+		<Name>Группа2</Name>
+		<Code>000000004</Code>
+		<Description>Группа 2</Description>
+		<IsFolder>true</IsFolder>
+		<ChildItems>
+			<Item id="cf683884-dd37-4db6-b597-be9a5f92155c">
+				<Name>Предопределенный3</Name>
+				<Code>000000005</Code>
+				<Description>Предопределенный 3</Description>
+				<IsFolder>false</IsFolder>
+			</Item>
+		</ChildItems>
+	</Item>
 	<Item id="79d5668f-62a2-4d95-954b-8d3b03b76b99">
 		<Name>Группа</Name>
 		<Code>000000003</Code>

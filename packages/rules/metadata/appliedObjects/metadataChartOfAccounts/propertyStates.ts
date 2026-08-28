@@ -1,4 +1,4 @@
-import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty } from "../configurationExtension/propertyStateCapabilities"
+import { allPropertyStateModes, controlled, definePropertyStateItemCapabilities, externalProperty, semanticExternalProperty } from "../configurationExtension/propertyStateCapabilities"
 import { MetadataChartOfAccountsRules } from "./rules"
 
 export const metadataChartOfAccountsPropertyStateCapabilities = definePropertyStateItemCapabilities(MetadataChartOfAccountsRules, {
@@ -6,7 +6,7 @@ export const metadataChartOfAccountsPropertyStateCapabilities = definePropertySt
   properties: {
     ...controlled("maxExtDimensionCount"),
     ...allPropertyStateModes("codeLength", "descriptionLength"),
-    ...externalProperty("predefined", "Предопределенные", ["extend"]),
+    ...semanticExternalProperty("predefined"),
     ...externalProperty("objectModule", "МодульОбъекта", ["extend"]),
     ...externalProperty("managerModule", "МодульМенеджера", ["extend"]),
     ...controlled("orderLength", "extDimensionTypes"),

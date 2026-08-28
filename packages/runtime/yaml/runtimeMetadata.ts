@@ -1,6 +1,11 @@
 import { copyDoubleQuotedScalarMarks } from "./explicitString"
 import { copyYAMLMappingKeyOrder } from "./mappingTags"
-import { copyYAMLScalarTags, type YAMLScalarTagKey, yamlScalarTagAt } from "./scalarTags"
+import {
+  copyYAMLScalarTags,
+  copyYAMLValueTag,
+  type YAMLScalarTagKey,
+  yamlScalarTagAt,
+} from "./scalarTags"
 
 interface YAMLRuntimeAnnotationReader<TAnnotation extends { readonly target: string }> {
   at(parent: object, key: string | number): TAnnotation | undefined
@@ -24,6 +29,7 @@ export function copyYAMLRuntimeMetadata(
 ): void {
   copySymbolProperties(source, target)
   copyYAMLScalarTags(source, target, keys)
+  copyYAMLValueTag(source, target)
   copyYAMLMappingKeyOrder(source, target)
   copyDoubleQuotedScalarMarks(source, target, keys)
 }

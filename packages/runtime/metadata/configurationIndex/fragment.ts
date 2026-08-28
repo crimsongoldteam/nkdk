@@ -7,13 +7,13 @@ import type {
   ConfigurationIndexFragmentCollection,
 } from "./types"
 
-const FRAGMENT_MAGIC = "NKDKCIF5"
+const FRAGMENT_MAGIC = "NKDKCIF6"
 const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
 const utf8Encoder = new TextEncoder()
 
 interface FragmentEnvelope {
   readonly magic: typeof FRAGMENT_MAGIC
-  readonly version: 5
+  readonly version: 6
   readonly fragments: readonly ConfigurationIndexBlockFragment[]
 }
 
@@ -68,7 +68,7 @@ export function encodeConfigurationBlockFragments(
 ): ArrayBuffer {
   const envelope: FragmentEnvelope = {
     magic: FRAGMENT_MAGIC,
-    version: 5,
+    version: 6,
     fragments: fragments.map(normalizeFragment),
   }
   const bytes = utf8Encoder.encode(JSON.stringify(envelope))
@@ -81,7 +81,7 @@ export function decodeConfigurationBlockFragments(buffer: ArrayBuffer): Configur
     const parsed: unknown = JSON.parse(fatalUtf8Decoder.decode(new Uint8Array(buffer)))
     if (!isRecord(parsed)) throw new Error("конверт должен быть объектом")
     assertExactKeys(parsed, ["magic", "version", "fragments"], "конверт")
-    if (parsed.magic !== FRAGMENT_MAGIC || parsed.version !== 5) throw new Error("неподдерживаемая версия")
+    if (parsed.magic !== FRAGMENT_MAGIC || parsed.version !== 6) throw new Error("неподдерживаемая версия")
     if (!Array.isArray(parsed.fragments)) throw new Error("fragments должен быть массивом")
     return parsed.fragments.map(decodeFragment)
   } catch (error) {
@@ -110,10 +110,11 @@ function decodeFragment(value: unknown): ConfigurationIndexBlockFragment {
 
 function decodeEntity(value: unknown): ConfigurationIndexBlockEntity {
   if (!isRecord(value)) throw new Error("entity должна быть объектом")
-  assertExactKeys(value, ["logicalAddress", "uuid", "xmlId", "children"], "entity")
+  assertExactKeys(value, ["logicalAddress", "uuid", "xmlId", "xmlValue", "children"], "entity")
   if (typeof value.logicalAddress !== "string") throw new Error("logicalAddress должен быть строкой")
   if (value.uuid !== undefined && typeof value.uuid !== "string") throw new Error("uuid должен быть строкой")
   if (value.xmlId !== undefined && typeof value.xmlId !== "string") throw new Error("xmlId должен быть строкой")
+  if (value.xmlValue !== undefined && typeof value.xmlValue !== "string") throw new Error("xmlValue должен быть строкой")
   if (value.children !== undefined && !Array.isArray(value.children)) throw new Error("children должен быть массивом")
   const children = value.children?.map((child) => {
     if (!isRecord(child)) throw new Error("children item должен быть объектом")
@@ -125,6 +126,7 @@ function decodeEntity(value: unknown): ConfigurationIndexBlockEntity {
     logicalAddress: value.logicalAddress,
     ...(value.uuid === undefined ? {} : { uuid: value.uuid }),
     ...(value.xmlId === undefined ? {} : { xmlId: value.xmlId }),
+    ...(value.xmlValue === undefined ? {} : { xmlValue: value.xmlValue }),
     ...(children === undefined ? {} : { children }),
   }
 }
@@ -140,7 +142,7 @@ function mergeEntity(
   next: ConfigurationIndexBlockEntity,
 ): ConfigurationIndexBlockEntity {
   const result: ConfigurationIndexBlockEntity = { logicalAddress: previous.logicalAddress }
-  for (const field of ["uuid", "xmlId", "children"] as const) {
+  for (const field of ["uuid", "xmlId", "xmlValue", "children"] as const) {
     const left = previous[field]
     const right = next[field]
     if (left !== undefined && right !== undefined && !equalValue(left, right)) {

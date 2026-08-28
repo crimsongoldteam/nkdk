@@ -123,7 +123,7 @@ export function withConfigurationIndexExportPropertyContext(
   context: ConfigurationContextWithExportToXML,
   propertyName: string,
   childCollectionUidSegment: string | undefined,
-  options: { configurationIndexAddressing?: ConfigurationIndexAddressingMode } = {}
+  options: { configurationIndexAddressing?: ConfigurationIndexAddressingMode; propertyKey?: string } = {}
 ): ConfigurationContextWithExportToXML {
   const runtime = context.exportToXML.configurationIndex
   if (runtime === undefined) return context

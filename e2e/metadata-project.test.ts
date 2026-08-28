@@ -63,6 +63,25 @@ describe.sequential("metadata project E2E", () => {
     ), "utf8")
     expect(ordinaryValueYaml).toContain("ЗначениеЗаполнения: Истина")
     expect(ordinaryValueYaml).not.toContain("ЗначениеЗаполнения: !xml/value Истина")
+    const predefinedYaml = await readFile(join(
+      baseline.projectDir,
+      "cfe/Расширение_All/Справочник/СправочникСПредопределенными/Свойства.yaml",
+    ), "utf8")
+    expect(predefinedYaml).toContain("Группа: !проверять")
+    expect(predefinedYaml).not.toContain("Предопределенные: !xml/raw")
+    const emptyPredefinedYaml = await readFile(join(
+      baseline.projectDir,
+      "cfe/Расширение_All/Справочник/СправочникРеквизитБезСинонима/Свойства.yaml",
+    ), "utf8")
+    expect(parseMetadataYaml(emptyPredefinedYaml).data).toEqual({ Предопределенные: {} })
+    const exchangePlanYaml = await readFile(join(
+      baseline.projectDir,
+      "cfe/Расширение_All/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml",
+    ), "utf8")
+    expect(exchangePlanYaml).toContain("Метаданные: !изменять Справочник.СправочникПолный")
+    expect(exchangePlanYaml).toContain("Использовать: !xml/invalid Ложь")
+    expect(exchangePlanYaml).not.toContain("Состав: !xml/raw")
+    expect(exchangePlanYaml).not.toContain("Изменять:\n  - Состав")
     const settingsComposerYaml = await readFile(join(
       baseline.projectDir,
       "cf/ОбщаяФорма/КомпоновщикНастроек/Свойства.yaml",
@@ -87,7 +106,7 @@ describe.sequential("metadata project E2E", () => {
     expect(valueListYaml).toContain('"@Form\\\\ТипЗначения": !xml/raw')
     expect(valueListYaml).toContain("$xml: null")
     const anomalies = await collectXmlAnomalyLocations(baseline.projectDir)
-    expect(anomalies.invalid).toEqual([])
+    expect(anomalies.invalid).toEqual(EXPECTED_XML_INVALID_LOCATIONS)
     expect(anomalies.raw).toEqual(EXPECTED_XML_RAW_LOCATIONS)
     expect(anomalies.string).toEqual(EXPECTED_XML_STRING_LOCATIONS)
     await expect(access(join(baseline.projectDir, ".nkdk"))).resolves.toBeUndefined()
@@ -161,6 +180,10 @@ describe.sequential("metadata project E2E", () => {
         changed: [],
       })
     }
+    await expect(access(join(
+      projectDir,
+      "../xml-cfe-all-extension/Catalogs/СправочникРеквизитБезСинонима/Ext/Predefined.xml",
+    ))).rejects.toThrow()
     console.table(results.map(({ component, durationMs }) => ({
       component: component.componentPath,
       durationMs,
@@ -188,6 +211,12 @@ const VALUE_LIST_SETTINGS_XML_RAW_LOCATIONS = [
 const EXPECTED_XML_RAW_LOCATIONS = [
   ...RARE_FILL_VALUE_XML_RAW_LOCATIONS,
   ...VALUE_LIST_SETTINGS_XML_RAW_LOCATIONS,
+].sort(compareUtf8)
+
+const EXPECTED_XML_INVALID_LOCATIONS = [
+  "cfe/Расширение_All/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml#/Состав/0/Использовать",
+  "cfe/Расширение_All/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml#/Состав/2/Использовать",
+  "cfe/Расширение_All/ПланОбмена/ПланОбменаВсеСвойства/Свойства.yaml#/Состав/5/Использовать",
 ].sort(compareUtf8)
 
 const DYNAMIC_LIST_FILE = "cf/ОбщаяФорма/ДинамическийСписок/Свойства.yaml"

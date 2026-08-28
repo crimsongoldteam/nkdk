@@ -18,6 +18,7 @@ import {
 } from "./types"
 import { importTypeDescriptionFromYAML } from "../typeDescription/fromYAML"
 import { effectiveTypeFromTypeDescription } from "../fillValue/effectiveType"
+import { exportMetadataValueStringToYAML } from "../metadataPath/toYAML"
 
 const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "string",
@@ -124,7 +125,22 @@ export const exportMetadataValueToXML = (params: {
   if (handler === undefined) {
     throw new Error(`MetadataValue: отсутствует toXML-обработчик для типа ${value.type} (rule.type: ${rule.type})`)
   }
-  return handler.toXML(value)
+  return handler.toXML(restoreDesignTimeReferenceUuid(context, value))
+}
+
+function restoreDesignTimeReferenceUuid(
+  context: ConfigurationContext,
+  value: MetadataTypedValue,
+): MetadataTypedValue {
+  if (value.type !== "ref") return value
+  const yaml = exportMetadataValueStringToYAML(context, undefined, value.value)
+  const uuid = context.exportToXML?.configurationIndex?.xmlValue()
+  if (uuid === undefined
+    || yaml === undefined
+    || context.exportToXML?.designTimeReferenceByUuid?.[uuid] !== yaml) return value
+  const runtime = context.exportToXML.configurationIndex
+  runtime?.collector.setXmlValue(runtime.propertyValueLogicalAddress ?? runtime.logicalAddress, uuid)
+  return { ...value, value: uuid }
 }
 
 export const exportFixedArrayToXML = (

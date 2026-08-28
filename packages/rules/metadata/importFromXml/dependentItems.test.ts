@@ -7,6 +7,7 @@ import { describe,expect,it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { ordinaryFillValueItemTypes } from "../commonObjects/fillValue/ordinaryItemTypes"
 import {
+collectImportedDependentXmlValues,
 normalizeImportedDependentItems,
 partitionImportedDependentItems,
 } from "./dependentItems"
@@ -82,6 +83,48 @@ describe("normalizeImportedDependentItems", () => {
 
     expect(partitioned.immediate).toEqual([])
     expect(partitioned.deferred).toEqual([imported])
+  })
+
+  it("заменяет UUID DesignTimeRef на смысловую ссылку перед проверкой", () => {
+    const uuidReference = "11111111-1111-4111-8111-111111111111.22222222-2222-4222-8222-222222222222"
+    const canonical = "Справочник.СправочникРеквизит.ПредопределенноеЗначение"
+    const attribute: Record<string, unknown> = {
+      Тип: "Справочник.СправочникРеквизит",
+      ЗначениеЗаполнения: uuidReference,
+    }
+    const imported = {
+      ...designTimeRefCandidate(),
+      xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": uuidReference },
+    }
+
+    normalizeImportedDependentItems({
+      yaml: { Реквизиты: { Получатель: attribute } },
+      rule: MetadataCatalogRules,
+      candidates: [imported],
+      owner: { dir: "Справочник", name: "Товары" },
+      metadataTargetCanonicalizer: (value) => value === uuidReference ? canonical : undefined,
+      metadataTargetLookup: (value) => value === canonical ? "found" : "missing",
+      preserveRawXML: false,
+    })
+
+    expect(attribute.ЗначениеЗаполнения).toBe(canonical)
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
+  })
+
+  it("сохраняет UUID-форму DesignTimeRef по адресу конкретного свойства", () => {
+    const uuidReference = "11111111-1111-4111-8111-111111111111.22222222-2222-4222-8222-222222222222"
+    const logicalAddress = "Справочник.Товары.Реквизит.Получатель.fillValue"
+    const collector = createConfigurationIndexCollector()
+
+    collectImportedDependentXmlValues([{
+      ...designTimeRefCandidate(),
+      logicalAddress,
+      xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": uuidReference },
+    }], collector)
+
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([
+      { logicalAddress, xmlValue: uuidReference },
+    ])
   })
 
   it("сохраняет непустое допустимое значение для последующей локальной валидации", () => {

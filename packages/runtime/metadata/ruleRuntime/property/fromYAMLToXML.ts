@@ -389,6 +389,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           planned.propertyRule.configurationIndexUidSegment ??
           planned.propertyRule.operationTarget?.migrationSegment,
         {
+          propertyKey: planned.propertyKey,
           configurationIndexAddressing:
             planned.propertyRule.configurationIndexAddressing ??
             ("configurationIndexAddressing" in effectiveNestedRule
@@ -666,7 +667,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           output.request.context ?? propertyContext,
           planned.yamlKey ?? planned.propertyKey,
           planned.propertyRule.configurationIndexUidSegment ?? planned.propertyRule.operationTarget?.migrationSegment,
-          { configurationIndexAddressing: planned.propertyRule.configurationIndexAddressing }
+          {
+            propertyKey: planned.propertyKey,
+            configurationIndexAddressing: planned.propertyRule.configurationIndexAddressing,
+          }
         )
         const exported = callAtomicToXML({
           handler: exportHandler,

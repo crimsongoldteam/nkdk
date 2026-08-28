@@ -20,6 +20,7 @@ export const PredefinedItemRules = {
     "description",
     "type",
     "isFolder",
+    "extensionState",
     "childItems",
     "id",
   ],
@@ -49,6 +50,7 @@ export const PredefinedItemRules = {
       yaml: "ЭтоГруппа",
       defaultValue: false,
       defaultValueXML: false,
+      defaultValueAdoptedXML: false,
       implicitValueYAML: "Ложь",
     }),
     type: typeDescriptionRule({
@@ -58,6 +60,10 @@ export const PredefinedItemRules = {
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isChartOfCharacteristicTypesPredefined(context),
       defaultValueXMLRaw: {},
+    }),
+    extensionState: stringRule({
+      xml: "ExtensionState",
+      runtimeOnly: true,
     }),
     childItems: predefinedItemCollectionRule({
       xml: "ChildItems",

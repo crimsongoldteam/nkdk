@@ -5,19 +5,21 @@ import { createXmlImportAttemptJournal } from "../../ruleRuntime/xmlAnomaly/atte
 const UUID = "00000000-0000-4000-8000-000000000001"
 
 describe("configuration index collector", () => {
-  it("собирает только закрытый набор полей BlockV1", () => {
+  it("собирает только закрытый набор полей BlockV2", () => {
     const collector = createConfigurationIndexCollector()
     collector.setIdentity("Справочник.Товары", "uuid", UUID)
     collector.setIdentity("Справочник.Товары", "xmlId", "1")
     collector.setChildren("Справочник.Товары.Свойство.ДочерниеОбъекты", [
       { xmlName: "Form", name: "ФормаЭлемента" },
     ])
+    collector.setXmlValue("Справочник.Товары.fillValue", "TypeId.ValueId")
 
     const fragment = collector.fragment("Справочники/Товары.yaml")
     expect(fragment).toEqual({
       targetProjectPath: "Справочники/Товары.yaml",
       entities: [
         { logicalAddress: "Справочник.Товары", uuid: UUID, xmlId: "1" },
+        { logicalAddress: "Справочник.Товары.fillValue", xmlValue: "TypeId.ValueId" },
         {
           logicalAddress: "Справочник.Товары.Свойство.ДочерниеОбъекты",
           children: [{ xmlName: "Form", name: "ФормаЭлемента" }],
@@ -26,7 +28,7 @@ describe("configuration index collector", () => {
     })
     for (const entity of fragment.entities) {
       expect(Object.keys(entity).sort()).toEqual(
-        ["children", "logicalAddress", "uuid", "xmlId"].filter((key) => key in entity).sort(),
+        ["children", "logicalAddress", "uuid", "xmlId", "xmlValue"].filter((key) => key in entity).sort(),
       )
     }
   })
@@ -48,6 +50,8 @@ describe("configuration index collector", () => {
     expect(() => collector.setChildren(address, [{ xmlName: "Form", name: "Б" }])).toThrow(
       "Конфликт logicalAddress",
     )
+    collector.setXmlValue(address, "one")
+    expect(() => collector.setXmlValue(address, "two")).toThrow("Конфликт logicalAddress")
   })
 
   it("проверяет идентификаторы и копирует children", () => {
@@ -69,6 +73,7 @@ describe("configuration index collector", () => {
     collector.setIdentity("Объект", "xmlId", "one")
     collector.setIdentity("Объект", "xmlId", "two")
     collector.setChildren("Объект", [])
+    collector.setXmlValue("Объект", "ignored")
     expect(collector.fragment("ignored.yaml")).toEqual({ targetProjectPath: "ignored.yaml", entities: [] })
   })
 
