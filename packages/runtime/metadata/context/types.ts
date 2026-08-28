@@ -185,6 +185,7 @@ export interface XmlImportConfigurationContext extends ConfigurationContextFromX
 }
 
 export type XMLDefaultVariant = "full" | "adopted" | "indexed"
+export type XMLImportObjectVariant = Extract<XMLDefaultVariant, "full" | "adopted">
 
 type ToXMLContextElement<Type extends MetadataItemType> = {
   element: ToMetadata<Type> | undefined
@@ -221,6 +222,8 @@ export interface FromXMLConfigurationContext {
   forReference: boolean
   /** Режим, ограничивающий доступные состояния свойств импортируемого компонента. */
   propertyStateCompatibilityMode?: string
+  /** Вариант текущего metadata-item; вложенные значения наследуют его от владельца. */
+  currentXMLDefaultVariant?: XMLImportObjectVariant
 }
 
 export type XmlImportFromXMLConfigurationContext = FromXMLConfigurationContext & {

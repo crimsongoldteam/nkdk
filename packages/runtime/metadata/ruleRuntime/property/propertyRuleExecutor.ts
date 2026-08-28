@@ -8,6 +8,9 @@ export function createPropertyRuleExecutor(
   registries: PropertyRuleRegistrySet,
 ): PropertyRuleExecutor {
   const executor: PropertyRuleExecutor = {
+    resolveMetadataItemXMLDefaultVariant(params) {
+      return registries.resolveMetadataItemXMLDefaultVariant(params)
+    },
     applyMetadataItemXmlImportAugmenter(params) {
       registries.applyMetadataItemXmlImportAugmenter(params)
     },

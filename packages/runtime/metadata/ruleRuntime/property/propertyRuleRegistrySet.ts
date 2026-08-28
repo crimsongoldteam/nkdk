@@ -13,6 +13,8 @@ import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
 import type { IndexValueFromYAMLFunction } from "./indexValueFromYAMLRegistry"
 import type { MetadataTargetOwnerResolver } from "./metadataTargetOwnerRegistry"
 import type { MetadataItemXmlImportAugmenter } from "../metadataItem/augmenterRegistry"
+import type { MetadataItemXmlImportVariantParams } from "../metadataItem/augmenterRegistry"
+import type { XMLImportObjectVariant } from "../../context/types"
 import type { MetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
 import type { MetadataImportedYamlFinalizer, MetadataImportedYamlFinalizerParams } from "../definition"
 import type { MetadataItemRule } from "./types"
@@ -74,6 +76,9 @@ export interface PropertyRuleRegistrySet extends DependentItemRegistryLookup {
   ): void
   revision(): number
   registerMetadataItemXmlImportAugmenter(name: string, augmenter: MetadataItemXmlImportAugmenter): void
+  resolveMetadataItemXMLDefaultVariant(
+    params: MetadataItemXmlImportVariantParams,
+  ): XMLImportObjectVariant | undefined
   applyMetadataItemXmlImportAugmenter(params: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0]): void
   registerMetadataItemYamlToXmlAugmenter(componentKind: string, augmenter: MetadataItemYamlToXmlAugmenter): void
   augmentMetadataItemYamlToXml(params: Omit<Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0], "logicalAddress">): void
@@ -170,14 +175,12 @@ export function createPropertyRuleRegistrySet(
       }
       xmlImportAugmenters.set(name, augmenter)
     },
+    resolveMetadataItemXMLDefaultVariant(params) {
+      return selectedXmlImportAugmenter(xmlImportAugmenters, params.context)
+        ?.resolveCurrentXMLDefaultVariant?.(params)
+    },
     applyMetadataItemXmlImportAugmenter(params) {
-      const fromXML = params.context.fromXML
-      if (!("metadataItemAugmenter" in fromXML) || typeof fromXML.metadataItemAugmenter !== "string") return
-      const augmenter = xmlImportAugmenters.get(fromXML.metadataItemAugmenter)
-      if (augmenter === undefined) {
-        throw new Error(`Не зарегистрировано дополнение XML-import metadata-item: ${fromXML.metadataItemAugmenter}`)
-      }
-      augmenter.augment(params)
+      selectedXmlImportAugmenter(xmlImportAugmenters, params.context)?.augment(params)
     },
     registerMetadataItemYamlToXmlAugmenter(componentKind, augmenter) {
       if (yamlToXmlAugmenters.has(componentKind)) {
@@ -269,6 +272,19 @@ export function createPropertyRuleRegistrySet(
       )
     },
   }
+}
+
+function selectedXmlImportAugmenter(
+  augmenters: ReadonlyMap<string, MetadataItemXmlImportAugmenter>,
+  context: MetadataItemXmlImportVariantParams["context"],
+): MetadataItemXmlImportAugmenter | undefined {
+  const fromXML = context.fromXML
+  if (!("metadataItemAugmenter" in fromXML) || typeof fromXML.metadataItemAugmenter !== "string") return undefined
+  const augmenter = augmenters.get(fromXML.metadataItemAugmenter)
+  if (augmenter === undefined) {
+    throw new Error(`Не зарегистрировано дополнение XML-import metadata-item: ${fromXML.metadataItemAugmenter}`)
+  }
+  return augmenter
 }
 
 export function collectPropertyItemRules(
