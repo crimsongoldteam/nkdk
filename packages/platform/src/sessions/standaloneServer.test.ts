@@ -330,6 +330,36 @@ describe("standalone server session", () => {
     expect(fixture.operationLogText).not.toContain("database-secret")
   })
 
+  it("rejects a partial load through an opened client-server session", async () => {
+    const fixture = createFixture()
+    const session = await createStandaloneServerSession(
+      createParams({
+        settings: {
+          connectionString: 'Srvr="cluster";Ref="base";',
+          database: {
+            dbms: "PostgreSQL",
+            server: "database-server",
+            name: "base",
+            user: "dbuser",
+          },
+        },
+      }),
+      fixture.dependencies,
+    )
+
+    await expect(session.loadPartialConfiguration?.(
+      "/project/package.zip",
+      ["Catalogs/Test.xml"],
+      fixture.operationLog,
+    )).rejects.toMatchObject({
+      code: "unsupported_connection",
+      message: expect.stringContaining("только для импорта"),
+    })
+    expect(fixture.calls.some((call) => call.includes(".nkdk-load"))).toBe(false)
+    expect(fixture.calls.some((call) => call.includes("config load-files"))).toBe(false)
+    await session.close()
+  })
+
   it("rejects a client-server database without DBMS settings before runtime", async () => {
     const fixture = createFixture()
 

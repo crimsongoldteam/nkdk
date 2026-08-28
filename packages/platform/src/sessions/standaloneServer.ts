@@ -323,6 +323,12 @@ export async function createStandaloneServerSession(
       }
     },
     async loadPartialConfiguration(archivePath, loadTargets, operationLog, extensionName, signal) {
+      if (connection.type === "server") {
+        throw new PlatformSessionError(
+          "unsupported_connection",
+          "Автономный режим пока поддерживает клиент-серверные информационные базы только для импорта"
+        )
+      }
       if (closed || runtimeStopped) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
