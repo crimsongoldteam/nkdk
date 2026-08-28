@@ -75,6 +75,15 @@ export function createPlatformSessionManager(
   async function loadPartialConfiguration(
     params: Parameters<PlatformSessionManager["loadPartialConfiguration"]>[0]
   ) {
+    if (
+      params.mode === "standalone-server"
+      && parseConnection(params.connectionString).type === "server"
+    ) {
+      throw new PlatformSessionError(
+        "unsupported_connection",
+        "Автономный режим пока поддерживает клиент-серверные информационные базы только для импорта"
+      )
+    }
     const mode = params.mode
     const operationLog = await openOperationLog(params, mode)
     await appendRequired(

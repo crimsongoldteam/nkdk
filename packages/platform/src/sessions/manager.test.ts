@@ -145,6 +145,28 @@ describe("platform session manager", () => {
     expect(fixture.created).toEqual(["/project:standalone-server"])
   })
 
+  it("rejects a standalone client-server partial load before platform discovery", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await expect(manager.loadPartialConfiguration(loadParams({
+      mode: "standalone-server",
+      connectionString: 'Srvr="cluster";Ref="base";',
+      database: {
+        dbms: "PostgreSQL",
+        server: "database-server",
+        name: "base",
+        user: "dbuser",
+      },
+    }))).rejects.toMatchObject({
+      code: "unsupported_connection",
+      message: expect.stringContaining("только для импорта"),
+    })
+
+    expect(fixture.findPlatformCalls).toBe(0)
+    expect(fixture.created).toEqual([])
+  })
+
   it("discards the session after an unknown partial load outcome", async () => {
     const fixture = createFixture({
       loadHook: async () => {

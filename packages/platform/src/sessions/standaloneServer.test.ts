@@ -293,26 +293,84 @@ describe("standalone server session", () => {
     expect(String(error)).not.toContain("secret")
   })
 
-  it("rejects a client-server connection before touching runtime boundaries", async () => {
+  it("opens a client-server database for read operations", async () => {
     const fixture = createFixture()
+    const params = createParams({
+      settings: {
+        connectionString: 'Srvr="cluster";Ref="base";',
+        database: {
+          dbms: "PostgreSQL",
+          server: "database-server",
+          name: "base",
+          user: "dbuser",
+          password: "database-secret",
+        },
+      },
+    })
 
-    const error = await createStandaloneServerSession(
+    const session = await createStandaloneServerSession(params, fixture.dependencies)
+    await session.exportConfiguration(
+      "/project/.nkdk/tmp/op/xml",
+      fixture.operationLog,
+      "include",
+    )
+    await expect(session.listExtensions()).resolves.toEqual([])
+    await session.close()
+
+    expect(fixture.calls).toContain(
+      "run ibcmd server config init --dbms=PostgreSQL "
+        + "--database-server=database-server --database-name=base "
+        + "--database-user=dbuser --database-password=database-secret timeout=1800000",
+    )
+    expect(fixture.calls.some((call) => call.startsWith("spawn ibsrv"))).toBe(true)
+    expect(fixture.calls.some((call) => call.includes("dump-config-to-files"))).toBe(true)
+    expect(fixture.calls).toContain(
+      "shell.run config extensions properties get --all-extensions",
+    )
+    expect(fixture.operationLogText).not.toContain("database-secret")
+  })
+
+  it("rejects a partial load through an opened client-server session", async () => {
+    const fixture = createFixture()
+    const session = await createStandaloneServerSession(
       createParams({
         settings: {
-          connectionString: 'Srvr="server";Ref="base";',
+          connectionString: 'Srvr="cluster";Ref="base";',
           database: {
             dbms: "PostgreSQL",
             server: "database-server",
             name: "base",
+            user: "dbuser",
           },
         },
       }),
       fixture.dependencies,
-    ).catch((caught: unknown) => caught)
+    )
 
-    expect(error).toMatchObject({
+    await expect(session.loadPartialConfiguration?.(
+      "/project/package.zip",
+      ["Catalogs/Test.xml"],
+      fixture.operationLog,
+    )).rejects.toMatchObject({
       code: "unsupported_connection",
-      message: expect.stringContaining("клиент-сервер"),
+      message: expect.stringContaining("только для импорта"),
+    })
+    expect(fixture.calls.some((call) => call.includes(".nkdk-load"))).toBe(false)
+    expect(fixture.calls.some((call) => call.includes("config load-files"))).toBe(false)
+    await session.close()
+  })
+
+  it("rejects a client-server database without DBMS settings before runtime", async () => {
+    const fixture = createFixture()
+
+    await expect(createStandaloneServerSession(
+      createParams({
+        settings: { connectionString: 'Srvr="cluster";Ref="base";' },
+      }),
+      fixture.dependencies,
+    )).rejects.toMatchObject({
+      code: "unsupported_connection",
+      message: expect.stringContaining("параметры СУБД"),
     })
     expect(fixture.calls).toEqual([])
   })
