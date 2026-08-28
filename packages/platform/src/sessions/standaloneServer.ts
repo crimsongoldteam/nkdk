@@ -62,26 +62,34 @@ export async function createStandaloneServerSession(
     throw missingComponent("ibcmd")
   }
   const connection = parseConnection(params.settings.connectionString)
-  if (connection.type === "server") {
-    throw new PlatformSessionError(
-      "unsupported_connection",
-      "Автономный режим временно не поддерживает клиент-серверные информационные базы",
-    )
-  }
-  if (connection.type !== "file") {
-    throw new PlatformSessionError(
-      "unsupported_connection",
-      "Автономный режим поддерживает только файловые информационные базы",
-    )
-  }
   const ibsrvPath = params.installation.ibsrvPath
   if (ibsrvPath === undefined) throw missingComponent("ibsrv")
 
   const configPath = join(params.sessionDir, "config.yaml")
-  const init = buildStandaloneConfigInit({
-    ibcmdPath,
-    databasePath: connection.path,
-  })
+  const init = (() => {
+    if (connection.type === "file") {
+      return buildStandaloneConfigInit({
+        ibcmdPath,
+        databasePath: connection.path,
+      })
+    }
+    if (connection.type === "server") {
+      if (params.settings.database === undefined) {
+        throw new PlatformSessionError(
+          "unsupported_connection",
+          "Для автономного сервера клиент-серверной базы нужны параметры СУБД",
+        )
+      }
+      return buildStandaloneConfigInit({
+        ibcmdPath,
+        database: params.settings.database,
+      })
+    }
+    throw new PlatformSessionError(
+      "unsupported_connection",
+      "Автономный режим поддерживает только файловые и клиент-серверные информационные базы",
+    )
+  })()
   await dependencies.fileSystem.mkdir(params.sessionDir)
   try {
     await dependencies.fileSystem.rm(configPath)
