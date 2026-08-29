@@ -1,18 +1,20 @@
 import { describe, expect, it } from "vitest"
-import type { SessionClock, SshShell } from "./runtime"
+import type { PlatformOperationLog, SessionClock, SshShell } from "./runtime"
 import { openPlatformCommandSession } from "./sshProtocol"
 
 describe("platform SSH command protocol", () => {
   it("selects JSON, connects to the infobase, and completes a command", async () => {
     const diagnostics: string[] = []
+    const operationMessages: string[] = []
+    const operationLog = recordingOperationLog(operationMessages)
     const stages: Array<[string, string]> = []
     const shell = scriptedShell([
       "1C:Enterprise 8.3 1C Designer Shell © 1C-Soft LLC 1996-2023\r\ndesigner> ",
-      '[\r\n{\r\n"type": "success",\r\n"message": "",\r\n"body": []\r\n}\r\n]designer> ',
-      '[{"type":"question","message":"User"}]\ndesigner> ',
-      '[{"type":"question","message":"Password"}]\ndesigner> ',
-      '[{"type":"success","message":"Connected"}]\ndesigner> ',
-      '[{"type":"success","message":"Dump complete"}]\ndesigner> ',
+      '[\r\n{\r\n"type": "success",\r\n"message": "",\r\n"body": []\r\n}\r\n]',
+      '[{"type":"question","message":"User"}]',
+      '[{"type":"question","message":"Password"}]',
+      '[{"type":"success","message":"Connected"}]',
+      '[{"type":"success","message":"Dump complete"}]',
     ])
 
     const session = await openPlatformCommandSession({
@@ -21,16 +23,17 @@ describe("platform SSH command protocol", () => {
       password: "secret",
       timeoutMs: 60_000,
       diagnostic: (message) => diagnostics.push(message),
+      operationLog,
       onStage: async (stage: "protocol-handshake" | "authentication", status: "start" | "ready") => {
         stages.push([stage, status])
       },
     })
     await expect(
-      session.run('config dump-config-to-files --dir="xml"')
+      session.run('config dump-config-to-files --dir="xml"', { operationLog })
     ).resolves.toEqual({})
 
     expect(shell.rawWrites).toEqual([
-      "options set --output-format=json\n",
+      "options set --show-prompt=no --output-format=json\n",
       "common connect-ib\n",
       "Администратор\n",
       "secret\n",
@@ -44,6 +47,14 @@ describe("platform SSH command protocol", () => {
       ["authentication", "start"],
       ["authentication", "ready"],
     ])
+    expect(operationMessages).toEqual(expect.arrayContaining([
+      "command status=start value=options set --show-prompt=no --output-format=json",
+      expect.stringMatching(/^command status=ready value=options set --show-prompt=no --output-format=json receivedBytes=\d+ successSeen=true$/u),
+      "command status=start value=common connect-ib",
+      expect.stringMatching(/^command status=ready value=common connect-ib receivedBytes=\d+ successSeen=true$/u),
+      'command status=start value=config dump-config-to-files --dir="xml"',
+      expect.stringMatching(/^command status=ready value=config dump-config-to-files --dir="xml" receivedBytes=\d+ successSeen=true$/u),
+    ]))
   })
 
   it("preserves the platform message for a rejected login", async () => {
@@ -79,9 +90,12 @@ describe("platform SSH command protocol", () => {
       '[{"type":"success","message":""}]',
     ])
 
-    await expect(
-      openPlatformCommandSession({ shell, timeoutMs: 100 })
-    ).resolves.toMatchObject({ isAlive: expect.any(Function) })
+    await expect(openPlatformCommandSession({ shell, timeoutMs: 100 }))
+      .resolves.toMatchObject({ isAlive: expect.any(Function) })
+    expect(shell.rawWrites).toEqual([
+      "options set --show-prompt=no --output-format=json\n",
+      "common connect-ib\n",
+    ])
   })
 
   it("maps a command error without leaking its secret values", async () => {
@@ -354,6 +368,36 @@ describe("platform SSH command protocol", () => {
       commandOutcome: "unknown",
     })
   })
+
+  it("records safe diagnostics when infobase connection times out without a response", async () => {
+    const clock = controlledClock()
+    const messages: string[] = []
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]',
+    ])
+    const operationLog = recordingOperationLog(messages)
+    const pending = openPlatformCommandSession({
+      shell,
+      timeoutMs: 100,
+      clock,
+      operationLog,
+    })
+    for (let index = 0; index < 32 && shell.rawWrites.length < 2; index += 1) {
+      await Promise.resolve()
+    }
+
+    expect(shell.rawWrites).toEqual([
+      "options set --show-prompt=no --output-format=json\n",
+      "common connect-ib\n",
+    ])
+    clock.expire()
+
+    await expect(pending).rejects.toMatchObject({ code: "session_timeout" })
+    expect(messages).toContain(
+      "command-timeout command=common connect-ib timeoutMs=100 receivedBytes=0 shellOpen=true successSeen=false"
+    )
+  })
 })
 
 type ScriptedShell = SshShell & {
@@ -430,6 +474,23 @@ function controlledClock(): SessionClock & {
     },
     setCalls() {
       return setCalls
+    },
+  }
+}
+
+function recordingOperationLog(messages: string[]): PlatformOperationLog {
+  return {
+    path: "/project/platform.log",
+    available: true,
+    async append(message) {
+      messages.push(message)
+      return true
+    },
+    async process() {
+      return true
+    },
+    sanitize(value) {
+      return value
     },
   }
 }

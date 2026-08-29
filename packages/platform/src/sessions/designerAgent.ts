@@ -516,6 +516,8 @@ async function agentFailure(
     )
     if (processLog.trim() !== "") {
       await operationLog.append(`process-log\n${processLog}`)
+    } else {
+      await operationLog.append("process-log empty=true")
     }
   } catch {
     // Исходная ошибка платформы важнее недоступного /Out-журнала.
