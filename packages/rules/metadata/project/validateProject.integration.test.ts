@@ -115,6 +115,33 @@ describe("validateProject", () => {
     store.rollbackUpdate()
   })
 
+  it("возвращает projectPath для отсутствующего владельца", async () => {
+    const { store } = createBinaryProjectStateTestFixture()
+    store.beginUpdate()
+    appendStateFiles(store, [{
+      ...emptyYamlUpdate("cf/ОбщаяФорма/Продажи/Форма.yaml", "form"),
+      pendingChecks: [{
+        kind: "dataPath",
+        yamlPath: ["ПутьКДанным"],
+        location: { line: 3, col: 15, path: "/ПутьКДанным" },
+        owner: { kind: "Документ", name: "Продажа" },
+        value: "Объект.Номер",
+        policyInput: { yaml: "Объект.Номер" },
+        policy: "formDataPath",
+      }],
+    }])
+    const projectState = testProjectState(() => store.validateDependencies({ requests: [] }))
+
+    const result = await validateTestProject({ projectDir: "/project", concurrency: 1, projectState })
+
+    expect([...result.diagnostics]).toEqual([expect.objectContaining({
+      filePath: "cf/Документ/Продажа/Свойства.yaml",
+      source: "cross-file",
+      message: "Не найден владелец Документ.Продажа",
+    })])
+    store.rollbackUpdate()
+  })
+
 })
 
 describe("toRootProjectDiagnostic", () => {
