@@ -7,6 +7,7 @@ import type { ValidationObjectTable } from "../projectValidationObjectTable"
 import type { ValidationProjectSpec } from "../projectSpecs"
 import type { ProjectYamlCache } from "../projectYamlCache"
 import type { Diagnostic } from "../types"
+import { parseProjectPath } from "../../projectDefinition/path"
 import { buildObjectFieldIndex } from "./objectFields"
 import type { ObjectFieldIndex, OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult, ValidationOwnerFacts } from "./contracts"
 export type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./contracts"
@@ -308,6 +309,17 @@ function emptyObjectFieldIndex(): ObjectFieldIndex {
 
 function canonicalOwnerKey(ref: OwnerTypeRef): string {
   return `${ref.kind}:${ref.name ?? ""}`
+}
+
+export function ownerMetadataProjectPath(componentPath: string, ref: OwnerTypeRef): string {
+  const ownerKind = getDataPathOwnerKind(ref.kind)
+  const segments = [
+    componentPath,
+    ownerKind?.projectDir ?? ref.kind,
+    ...(ref.name ? [ref.name] : []),
+    "Свойства.yaml",
+  ]
+  return parseProjectPath(segments.join("/"))
 }
 
 function ownerFilePath(projectDir: string, dir: string, name: string): string {
