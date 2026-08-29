@@ -43,7 +43,7 @@ describe("ownerMetadataProjectPath", () => {
     ["cf", "cf/Документ/Продажа/Свойства.yaml"],
     ["cfe/дкз", "cfe/дкз/Документ/Продажа/Свойства.yaml"],
   ])("builds a project path for %s", (componentPath, expected) => {
-    expect(ownerMetadataProjectPath(componentPath, { kind: "ДокументОбъект", name: "Продажа" }))
+    expect(ownerMetadataProjectPath(componentPath, { kind: "Документ", name: "Продажа" }))
       .toBe(expected)
   })
 
@@ -87,7 +87,7 @@ export function ownerMetadataProjectPath(componentPath: string, ref: OwnerTypeRe
 
 Run the command from Step 2.
 
-Expected: PASS for `cf`, `cfe/дкз`, the `ДокументОбъект` alias and the outside-project rejection.
+Expected: PASS for `cf`, `cfe/дкз` and the outside-project rejection.
 
 - [ ] **Step 5: Commit the isolated path contract**
 
@@ -103,6 +103,8 @@ git commit -m "fix: :bug: формировать путь диагностики
 - Modify: `packages/rules/metadata/validation/dataPath/ownerCache.integration.test.ts`
 - Modify: `packages/rules/metadata/validation/projectStateDependencyValidation.ts`
 - Modify: `packages/rules/metadata/validation/projectStateDependencyValidation.test.ts`
+- Modify: `packages/rules/metadata/validation/projectReferenceValueResolver.ts`
+- Modify: `packages/rules/metadata/validation/projectValidationPendingChecks.test.ts`
 - Modify: `packages/rules/tests/layeredOwnerMetadataCache.ts`
 
 **Interfaces:**
@@ -194,7 +196,7 @@ Update all `createOwnerMetadataCacheFromValidationTable` callers with the known 
 createOwnerMetadataCacheFromValidationTable({ projectDir, componentPath, table })
 ```
 
-The affected callers are `ownerCache.integration.test.ts`, `projectStateDependencyValidation.test.ts` and `tests/layeredOwnerMetadataCache.ts`.
+The affected callers are `ownerCache.integration.test.ts`, `projectStateDependencyValidation.test.ts`, `projectReferenceValueResolver.ts`, `projectValidationPendingChecks.test.ts` and `tests/layeredOwnerMetadataCache.ts`.
 
 - [ ] **Step 5: Strengthen the owner-cache integration assertion**
 
@@ -243,7 +245,7 @@ Expected: both commands exit with code 0 and no new duplicate blocks are reporte
 - [ ] **Step 8: Commit the source-generation fix**
 
 ```bash
-git add packages/rules/metadata/validation/dataPath/ownerCache.ts packages/rules/metadata/validation/dataPath/ownerCache.integration.test.ts packages/rules/metadata/validation/projectStateDependencyValidation.ts packages/rules/metadata/validation/projectStateDependencyValidation.test.ts packages/rules/tests/layeredOwnerMetadataCache.ts
+git add docs/superpowers/plans/2026-08-29-diagnostic-project-path-contract.md packages/rules/metadata/validation/dataPath/ownerCache.ts packages/rules/metadata/validation/dataPath/ownerCache.integration.test.ts packages/rules/metadata/validation/projectReferenceValueResolver.ts packages/rules/metadata/validation/projectStateDependencyValidation.ts packages/rules/metadata/validation/projectStateDependencyValidation.test.ts packages/rules/metadata/validation/projectValidationPendingChecks.test.ts packages/rules/tests/layeredOwnerMetadataCache.ts
 git commit -m "fix: :bug: не выпускать абсолютные пути диагностик"
 ```
 

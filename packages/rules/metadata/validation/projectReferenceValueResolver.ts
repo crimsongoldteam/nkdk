@@ -68,6 +68,7 @@ export function resolveProjectValueTargets(params: {
     const ownerRef = valueTargetOwner(request.target)
     const owner = ownerMetadataFromFacts({
       projectDir: join(params.projectDir, request.componentPath),
+      componentPath: request.componentPath,
       ref: ownerRef,
       facts,
       fieldIndex: projectStateFieldIndex(ownerRef, []),

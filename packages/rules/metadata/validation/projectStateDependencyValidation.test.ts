@@ -440,6 +440,29 @@ describe("dependency validation из ProjectState", () => {
     expect(diagnostics).toHaveLength(errors)
   })
 
+  it.each([
+    ["cf", "cf/Документ/Продажа/Свойства.yaml"],
+    ["cfe/дкз", "cfe/дкз/Документ/Продажа/Свойства.yaml"],
+  ])("возвращает projectPath отсутствующего владельца для %s", (componentPath, filePath) => {
+    const diagnostics = validateProjectStateOwnerBatch({
+      projectDir: "/project",
+      checks: [{
+        requestId: "missing-owner",
+        componentPath,
+        owner: { kind: "Документ", name: "Продажа" },
+      }],
+      queryPort: {
+        readOwners: () => [{ requestId: "missing-owner", status: "missing" }],
+      },
+    })
+
+    expect(diagnostics).toEqual([expect.objectContaining({
+      filePath,
+      source: "cross-file",
+      message: "Не найден владелец Документ.Продажа",
+    })])
+  })
+
   it("проверяет одинакового владельца компонента один раз", () => {
     const owner = { kind: "Справочник", name: "Товары" }
     const requestBatchSizes: number[] = []
@@ -1575,6 +1598,7 @@ function createOwnerCacheFromGraphForTests(
   }
   return createOwnerMetadataCacheFromValidationTable({
     projectDir: `/project/${componentPath}`,
+    componentPath,
     table,
   })
 }

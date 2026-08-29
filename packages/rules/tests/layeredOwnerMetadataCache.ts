@@ -6,8 +6,8 @@ export function createLayeredOwnerMetadataCacheForTests(params: {
   readonly local?: readonly ValidationOwnerFacts[]
   readonly base: readonly ValidationOwnerFacts[]
 }): OwnerMetadataCache {
-  const local = ownerCache("/project/cfe/Расширение", params.local ?? [])
-  const base = ownerCache("/project/cf", params.base)
+  const local = ownerCache("/project/cfe/Расширение", "cfe/Расширение", params.local ?? [])
+  const base = ownerCache("/project/cf", "cf", params.base)
   return {
     get(ref) {
       const localResult = local.get(ref)
@@ -19,7 +19,11 @@ export function createLayeredOwnerMetadataCacheForTests(params: {
   }
 }
 
-function ownerCache(projectDir: string, facts: readonly ValidationOwnerFacts[]): OwnerMetadataCache {
+function ownerCache(
+  projectDir: string,
+  componentPath: string,
+  facts: readonly ValidationOwnerFacts[],
+): OwnerMetadataCache {
   const records = facts.map((fact) => ({
     filePath: fact.filePath,
     projectPath: fact.filePath,
@@ -32,6 +36,7 @@ function ownerCache(projectDir: string, facts: readonly ValidationOwnerFacts[]):
   }))
   return createOwnerMetadataCacheFromValidationTable({
     projectDir,
+    componentPath,
     table: createValidationObjectTable({ records, filePaths: records.map(({ filePath }) => filePath) }),
   })
 }

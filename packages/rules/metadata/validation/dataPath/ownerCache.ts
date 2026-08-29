@@ -75,6 +75,7 @@ export function createOwnerMetadataCache({
 
 export function createOwnerMetadataCacheFromValidationTable(params: {
   projectDir: string
+  componentPath: string
   table: ValidationObjectTable
 }): OwnerMetadataCache {
   const results = new Map<string, OwnerMetadataResult>()
@@ -86,7 +87,12 @@ export function createOwnerMetadataCacheFromValidationTable(params: {
       const cached = results.get(key)
       if (cached) return cached
 
-      const result = loadOwnerFromValidationTable({ projectDir, table: params.table, ref })
+      const result = loadOwnerFromValidationTable({
+        projectDir,
+        componentPath: params.componentPath,
+        table: params.table,
+        ref,
+      })
       results.set(key, result)
       return result
     },
@@ -103,6 +109,7 @@ export function createOwnerMetadataCacheFromValidationTable(params: {
 
 function loadOwnerFromValidationTable(params: {
   projectDir: string
+  componentPath: string
   table: ValidationObjectTable
   ref: OwnerTypeRef
 }): OwnerMetadataResult {
@@ -110,7 +117,10 @@ function loadOwnerFromValidationTable(params: {
   const tableRef = ownerKind ? { kind: ownerKind.projectDir, name: params.ref.name } : params.ref
   const record = params.table.getOwner(tableRef)
   if (record === undefined) {
-    return ownerMetadataNotFound({ projectDir: params.projectDir, ref: params.ref })
+    return ownerMetadataNotFound({
+      filePath: ownerMetadataProjectPath(params.componentPath, params.ref),
+      ref: params.ref,
+    })
   }
 
   if (record.importDiagnostics.length > 0) {
@@ -148,23 +158,20 @@ function loadOwnerFromValidationTable(params: {
 }
 
 export function ownerMetadataNotFound(params: {
-  projectDir: string
+  filePath: string
   ref: OwnerTypeRef
 }): Extract<OwnerMetadataResult, { status: "not-found" }> {
-  const ownerKind = getDataPathOwnerKind(params.ref.kind)
   return {
     status: "not-found",
     diagnostics: [
-      crossFileDiagnostic(
-        ownerFilePath(resolve(params.projectDir), ownerKind?.projectDir ?? params.ref.kind, params.ref.name ?? ""),
-        ownerNotFoundMessage(params.ref),
-      ),
+      crossFileDiagnostic(params.filePath, ownerNotFoundMessage(params.ref)),
     ],
   }
 }
 
 export function ownerMetadataFromFacts(params: {
   projectDir: string
+  componentPath: string
   ref: OwnerTypeRef
   facts: Omit<ValidationOwnerFacts, "ref" | "filePath" | "fieldIndex">
   fieldIndex: ObjectFieldIndex
@@ -178,7 +185,10 @@ export function ownerMetadataFromFacts(params: {
   if (ownerKind === undefined) {
     return {
       status: "import-error",
-      diagnostics: [crossFileDiagnostic(filePath, `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}`)],
+      diagnostics: [crossFileDiagnostic(
+        ownerMetadataProjectPath(params.componentPath, params.ref),
+        `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}`,
+      )],
     }
   }
   const spec = createValidationSpecFromOwnerKind(ownerKind)
