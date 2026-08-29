@@ -13,6 +13,7 @@ import { mockXmlImportContext } from "../../tests/mockContext"
 import "../../tests/metadataExecutionContext"
 import { createValidationProjectComponent } from "../validation/projectComponents"
 import { prepareFullXmlSyncAssignment } from "../fullSyncToXml/prepareAssignment"
+import { buildPreparedAssignmentControlDocument } from "../fullSyncToXml/xmlAnomalyAssignment"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 import {
@@ -470,6 +471,85 @@ describe("executeImportControlExport", () => {
     }))
   })
 
+  it("сохраняет строковый xsi:type числового MinValue через минимальный !xml/raw", async () => {
+    const minMaxFixture = fs.readFileSync(
+      join(import.meta.dirname, "../forms/elements/inputField/__fixtures__/minMaxStringType.xml"),
+      "utf8",
+    )
+    const minMaxValues = minMaxFixture.match(/^\s*<(?:MinValue|MaxValue)\b.*<\/(?:MinValue|MaxValue)>$/gmu)
+    if (minMaxValues?.length !== 2) throw new Error("В фикстуре не найдены MinValue и MaxValue")
+    const sourceBody = fs.readFileSync(
+      join(syncXmlDir, "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form.xml"),
+      "utf8",
+    ).replace(
+      "\t\t\t<ContextMenu",
+      `${minMaxValues.map(value => `\t\t\t${value.trim()}`).join("\n")}\n\t\t\t<ContextMenu`,
+    )
+    const { assignment, bodyPath } = createCatalogFormInput(
+      tempDirs,
+      "nkdk-control-export-form-min-value-",
+      sourceBody,
+    )
+    const { prepared, index } = await prepareControlInput(assignment)
+    const initialAnnotations = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
+    let ordinaryExportParams: Parameters<typeof prepareFullXmlSyncAssignment>[0] | undefined
+    const result = await executePreparedFormControlExport(
+      assignment,
+      prepared,
+      index,
+      initialAnnotations,
+      false,
+      (params) => {
+        ordinaryExportParams = params
+        return prepareFullXmlSyncAssignment(params)
+      },
+    )
+
+    expect(result.rereadSourcePaths).toContain(bodyPath)
+    expect(result.warnings).toEqual([])
+    expect(result.annotations.entries).toContainEqual({
+      parentPath: ["Элементы", "ПолеВвода1"],
+      key: "МинимальноеЗначение",
+      annotation: {
+        kind: "raw",
+        occurrence: 1,
+        target: "value",
+        xml: { "_xsi:type": "xs:string" },
+        hasSemanticValue: true,
+      },
+    })
+    expect(result.annotations.entries).not.toContainEqual(expect.objectContaining({
+      parentPath: ["Элементы", "ПолеВвода1"],
+      key: "МаксимальноеЗначение",
+    }))
+    const annotations = restoreXmlAnomalyAnnotations(result.data, result.annotations)
+    expect(serializeYAMLDocument(result.data, annotations).text).toContain([
+      "    МинимальноеЗначение: !xml/raw",
+      "      $значение: 1",
+      "      $xml:",
+      "        _xsi:type: xs:string",
+    ].join("\n"))
+
+    if (ordinaryExportParams === undefined) throw new Error("Обычный экспорт формы не был вызван")
+    const exported = prepareFullXmlSyncAssignment({
+      ...ordinaryExportParams,
+      preparedYamlFile: {
+        ...ordinaryExportParams.preparedYamlFile,
+        data: result.data,
+        annotations,
+      },
+      xmlAnomalyRawFallback: true,
+    })
+    const body = exported.documents.find(({ targetXmlPath }) => targetXmlPath.endsWith("/Ext/Form.xml"))
+    if (body === undefined) throw new Error("Экспорт не подготовил Form.xml")
+    const xml = buildPreparedAssignmentControlDocument({
+      document: body,
+      context: ordinaryExportParams.context,
+    }).materializeXml()
+    expect(xml).toContain('<MinValue xsi:type="xs:string">1</MinValue>')
+    expect(xml).toContain('<MaxValue xsi:type="xs:decimal">99.99</MaxValue>')
+  })
+
   it("не сохраняет raw пустых AdditionalColumns, восстановленных в Form.xml", async () => {
     const { assignment } = createCatalogFormInput(tempDirs, "nkdk-control-export-empty-additional-columns-", [
       '<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core">',
@@ -668,6 +748,7 @@ async function executePreparedFormControlExport(
   index: Awaited<ReturnType<typeof prepareControlInput>>["index"],
   annotations: ReturnType<typeof snapshotXmlAnomalyAnnotations>,
   detailed = false,
+  ordinaryExporter?: typeof prepareFullXmlSyncAssignment,
 ) {
   return executeImportControlExport({
     assignment,
@@ -681,6 +762,7 @@ async function executePreparedFormControlExport(
     index,
     composition: { children: () => [] },
     readSource: async (path) => fs.promises.readFile(path, "utf8"),
+    ...(ordinaryExporter === undefined ? {} : { ordinaryExporter }),
     ...(detailed ? {
       loadDetailedImport: async () => ({
         data: prepared.yaml,

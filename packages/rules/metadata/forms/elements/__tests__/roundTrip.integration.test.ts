@@ -22,6 +22,9 @@ import "../index"
 
 const elementsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const excludedFixtures = new Set([
+  // Точный xsi:type MinMaxValue сохраняет общий контрольный экспорт через !xml/raw;
+  // прямой round-trip элементов не запускает этот механизм. Обоснование:
+  // docs/superpowers/specs/2026-08-29-min-max-value-xml-representation-design.md.
   path.join(elementsDir, "inputField", "__fixtures__", "minMaxStringType.xml"),
   path.join(elementsDir, "table", "__fixtures__", "nonCanonicalSingletonNames.xml"),
 ])
