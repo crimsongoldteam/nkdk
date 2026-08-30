@@ -194,6 +194,20 @@ const topology = compileMetadataResourceTopology([{
       compositionImpact: "none" as const,
       source,
     },
+    content("Самостоятельный/{ownerName}/Свойства.yaml", "properties", objectRule, "none"),
+    document("", "Standalone/{ownerName}.xml", "metadata", true),
+    document("", "Standalone/{ownerName}/Ext/Body.xml", "body", true),
+    document("", "Standalone/{ownerName}/Ext/Property.xml", "property", true),
+    {
+      kind: "externalFile" as const,
+      assignmentProjectPattern: "Самостоятельный/{ownerName}/Свойства.yaml",
+      projectPattern: "Самостоятельный/{ownerName}/Модуль.bsl",
+      xmlPattern: "Standalone/{ownerName}/Ext/Module.bsl",
+      direction: "both" as const,
+      transferCapabilityId: "test",
+      compositionImpact: "none" as const,
+      source,
+    },
     {
       kind: "ignore" as const,
       side: "project" as const,
@@ -222,6 +236,13 @@ registry.register({
   externalFiles: [{ projectPattern: "МодульПриложения.bsl", loadTarget: true }],
 })
 registry.register(childFormPartialXmlPackagePolicy)
+registry.register({
+  assignment: {
+    assignmentPattern: "Самостоятельный/{ownerName}/Свойства.yaml",
+    loadDocumentRoles: ["metadata"],
+  },
+  externalFiles: [{ projectPattern: "Самостоятельный/{ownerName}/Модуль.bsl", loadTarget: true }],
+})
 const policies = registry.resolve(topology)
 
 const root = "Конфигурация.yaml"
@@ -245,8 +266,24 @@ const firstTable = "Объект/Товары/Таблицы/Первая/Сво
 const secondTable = "Объект/Товары/Таблицы/Вторая/Свойства.yaml"
 const secondTableModule = "Объект/Товары/Таблицы/Вторая/Команды/Проверочная.bsl"
 const secondNestedTable = "Объект/Товары/Таблицы/Вторая/Вложения/Вложенная/Свойства.yaml"
+const standalone = "Самостоятельный/Новый/Свойства.yaml"
+const standaloneModule = "Самостоятельный/Новый/Модуль.bsl"
 
 describe("partial XML impact planner", () => {
+  it("загружает весь payload нового многодокументного задания", () => {
+    const current = [root, standalone, standaloneModule]
+
+    expect(plan(current, changes({ added: [standalone] })).loadTargets).toEqual([
+      "Standalone/Новый.xml",
+      "Standalone/Новый/Ext/Body.xml",
+      "Standalone/Новый/Ext/Module.bsl",
+      "Standalone/Новый/Ext/Property.xml",
+    ].sort(utf8))
+    expect(plan(current, changes({ changed: [standalone] })).loadTargets).toEqual([
+      "Standalone/Новый.xml",
+    ])
+  })
+
   it("при изменении конфигурации сохраняет корневые внешние файлы", () => {
     const result = plan(
       [root, rootModule, language],
@@ -350,8 +387,8 @@ describe("partial XML impact planner", () => {
     ])
   })
 
-  it("выбирает только изменённый модуль и загружает его", () => {
-    const result = plan([root, language, owner, firstForm, firstModule], changes({ changed: [firstModule] }))
+  it.each(["changed", "added"] as const)("выбирает только %s модуль существующей формы", (kind) => {
+    const result = plan([root, language, owner, firstForm, firstModule], changes({ [kind]: [firstModule] }))
 
     expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstModule] })
     expect(result.externalProjectPaths).toEqual([firstModule])
@@ -402,7 +439,11 @@ describe("partial XML impact planner", () => {
       secondTemplateXml,
       secondTemplateText,
     ].sort(utf8))
-    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+    expect(result.loadTargets).toEqual([
+      "Objects/Товары.xml",
+      "Objects/Товары/Templates/Второй.xml",
+      "Objects/Товары/Templates/Второй/Ext/Template.txt",
+    ].sort(utf8))
   })
 
   it("при удалении внешнего файлового объекта загружает владельца и оставшуюся коллекцию", () => {
@@ -433,6 +474,8 @@ describe("partial XML impact planner", () => {
     expect(result.loadTargets).toEqual([
       "Objects/Товары.xml",
       "Objects/Товары/Forms/Вторая.xml",
+      "Objects/Товары/Forms/Вторая/Ext/Form.xml",
+      "Objects/Товары/Forms/Вторая/Ext/Form/Module.bsl",
     ].sort(utf8))
   })
 
@@ -450,6 +493,7 @@ describe("partial XML impact planner", () => {
     expect(result.loadTargets).toEqual([
       "Objects/Товары.xml",
       "Objects/Товары/Forms/Первая.xml",
+      "Objects/Товары/Forms/Первая/Ext/Form.xml",
     ].sort(utf8))
   })
 
