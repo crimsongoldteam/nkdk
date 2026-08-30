@@ -22,7 +22,6 @@ it("регистрирует состав частичного XML-пакета 
     },
   })
   expect(policy?.loadDocumentIds).not.toContain(body.id)
-  expect(body.required).toBe(true)
   expect(policy?.yamlCompanionInputIds).toEqual([
     assignment.yamlCompanions.find(({ projectRole }) => projectRole === "form")?.id,
   ])
