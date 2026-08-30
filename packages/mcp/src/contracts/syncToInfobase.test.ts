@@ -61,6 +61,45 @@ describe("sync_to_infobase contract", () => {
     })).toBe(true)
   })
 
+  it("accepts fields emitted by runtime diagnostics", () => {
+    expect(Value.Check(syncToInfobaseOutputShape, {
+      ok: true,
+      status: "unchanged",
+      componentPath: "cf",
+      diagnostics: [{
+        severity: "warning",
+        code: "unknown_reference",
+        message: "Ссылка не разрешена",
+        filePath: "cf/Конфигурация.yaml",
+        line: 2,
+        col: 3,
+        path: "/Состав/0",
+        source: "reference",
+        value: "11111111-1111-1111-1111-111111111111",
+      }],
+    })).toBe(true)
+    expect(Value.Check(syncToInfobaseOutputShape, {
+      ok: true,
+      status: "synchronized",
+      componentPath: "cf",
+      packageId: "package-1",
+      entries: [],
+      loadTargets: [],
+      mode: "standalone-server",
+      loadMode: "selected",
+      reusedConnection: false,
+      finalizeStatus: "published",
+      configurationIndexPath: "/project/index.lmdb",
+      warnings: [{
+        severity: "warning",
+        code: "ambiguous_assignment",
+        message: "Назначение неоднозначно",
+        source: "partial-sync",
+        assignmentId: "configuration-root",
+      }],
+    })).toBe(true)
+  })
+
   it("keeps successful variants strict", () => {
     expect(Value.Check(syncToInfobaseSuccessOutputSchema, {
       ok: true,
