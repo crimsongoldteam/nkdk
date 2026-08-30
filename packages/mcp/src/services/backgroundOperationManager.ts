@@ -77,7 +77,10 @@ export function createBackgroundOperationManager(options: {
     await options.store.write(snapshot)
     const job = Promise.resolve().then(() => execute(key, kind, input, controller))
     jobs.set(key, job)
-    void job.finally(() => {
+    void job.then(() => {
+      jobs.delete(key)
+      controllers.delete(key)
+    }, () => {
       jobs.delete(key)
       controllers.delete(key)
     })

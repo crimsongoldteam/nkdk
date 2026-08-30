@@ -1,5 +1,12 @@
 import type { McpServer } from "@modelcontextprotocol/server"
-import { jsonToolResult } from "../contracts/common"
+import { jsonToolResult, toolError } from "../contracts/common"
+import {
+  backgroundOperationLookupOutputSchema,
+  backgroundOperationStartOutputSchema,
+  cancelOperationInputSchema,
+  getOperationInputSchema,
+} from "../contracts/backgroundOperations"
+import { backgroundOperationHandle, type BackgroundOperationHandle } from "../backgroundOperationHandle"
 import { describeProjectStructureInputShape, describeProjectStructureOutputShape } from "../contracts/describeProjectStructure"
 import { getSchemaInputShape, getSchemaOutputShape } from "../contracts/getSchema"
 import { importFromXmlInputShape, importFromXmlOutputShape } from "../contracts/importFromXml"
@@ -85,9 +92,24 @@ const mcpSchemas = {
   renameItemInput: toMcpSchema(renameItemInputShape),
   metadataOperationOutput: toMcpSchema(metadataOperationOutputSchema),
   findReferencesInput: toMcpSchema(findReferencesInputShape),
+  backgroundOperationStartOutput: toMcpSchema(backgroundOperationStartOutputSchema),
+  backgroundOperationLookupOutput: toMcpSchema(backgroundOperationLookupOutputSchema),
+  getOperationInput: toMcpSchema(getOperationInputSchema),
+  cancelOperationInput: toMcpSchema(cancelOperationInputSchema),
 } as const
 
-export function registerNkdkCapabilities(server: RegisterableServer): void {
+export interface RegisterNkdkDependencies {
+  readonly backgroundOperations: BackgroundOperationHandle
+}
+
+const defaultRegisterDependencies: RegisterNkdkDependencies = {
+  backgroundOperations: backgroundOperationHandle,
+}
+
+export function registerNkdkCapabilities(
+  server: RegisterableServer,
+  dependencies: RegisterNkdkDependencies = defaultRegisterDependencies,
+): void {
   registerProjectSettingsSchemaResource(server)
 
   server.registerTool(
@@ -144,9 +166,9 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Validate NKDK YAML project",
       description: "Проверяет все компоненты в корне NKDK-проекта и возвращает diagnostics в JSON.",
       inputSchema: mcpSchemas.validateProjectInput,
-      outputSchema: mcpSchemas.validateProjectOutput,
+      outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
-    async (input) => metadataToolResult(await validateYamlProject(input), "Validation")
+    async (input) => jsonToolResult(await (await dependencies.backgroundOperations.get()).start("validate_project", input))
   )
 
   server.registerTool(
@@ -168,9 +190,9 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Строит отдельное полное состояние проекта, выполняет validation и атомарно заменяет cache даже при обычных diagnostics. Возвращает diagnostics и статистику. Требует allowWrite=true.",
       inputSchema: mcpSchemas.projectCacheInput,
-      outputSchema: mcpSchemas.rebuildProjectCacheOutput,
+      outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
-    async (input) => metadataToolResult(await rebuildProjectCache(input), "Перестроение состояния проекта")
+    async (input) => jsonToolResult(await (await dependencies.backgroundOperations.get()).start("rebuild_project_cache", input))
   )
 
   server.registerTool(
@@ -180,9 +202,15 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Импортирует готовую XML-выгрузку одного компонента из xmlDir в projectDir. Для расширения путь определяется из Configuration.xml, componentPath передавать не требуется; при передаче он служит ограничением, цель должна отсутствовать или быть пустой. Операция не подключается к 1С и не импортирует все компоненты за один вызов. Пишет файлы только при allowWrite=true.",
       inputSchema: mcpSchemas.importFromXmlInput,
-      outputSchema: mcpSchemas.importFromXmlOutput,
+      outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
-    async (input) => metadataToolResult(await importFromXml(input), "Импорт")
+    async (input) => {
+      if (input.allowWrite !== true) return jsonToolResult(toolError(
+        "confirmation_required",
+        "import_from_xml пишет YAML-файлы; повторите вызов с allowWrite=true",
+      ))
+      return jsonToolResult(await (await dependencies.backgroundOperations.get()).start("import_from_xml", input))
+    }
   )
 
   server.registerTool(
@@ -192,9 +220,15 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Импортирует один компонент информационной базы: по умолчанию cf, расширение выбирается через cfe/<Имя>; цель должна отсутствовать или быть пустой. Перед расширением cf импортируется первым. Перед операцией нужно создать .nkdk/project.yaml по опубликованной схеме, вручную внести нужные пароли, а затем повторить импорт. Запускает 1С и пишет файлы только при allowWrite=true.",
       inputSchema: mcpSchemas.importFromInfobaseInput,
-      outputSchema: mcpSchemas.importFromInfobaseOutput,
+      outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
-    createImportFromInfobaseHandler()
+    async (input) => {
+      if (input.allowWrite !== true) return jsonToolResult(toolError(
+        "confirmation_required",
+        "import_from_infobase запускает 1С и пишет YAML-файлы; повторите вызов с allowWrite=true",
+      ))
+      return jsonToolResult(await (await dependencies.backgroundOperations.get()).start("import_from_infobase", input))
+    }
   )
 
   server.registerTool(
@@ -204,9 +238,15 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы через агентный или автономный режим и обновляет конфигурацию базы данных. Запускает платформу и изменяет конфигурацию только при allowWrite=true.",
       inputSchema: mcpSchemas.syncToInfobaseInput,
-      outputSchema: mcpSchemas.syncToInfobaseOutput,
+      outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
-    createSyncToInfobaseHandler()
+    async (input) => {
+      if (input.allowWrite !== true) return jsonToolResult(toolError(
+        "confirmation_required",
+        "sync_to_infobase запускает 1С и изменяет сохранённую конфигурацию; повторите вызов с allowWrite=true",
+      ))
+      return jsonToolResult(await (await dependencies.backgroundOperations.get()).start("sync_to_infobase", input))
+    }
   )
 
   server.registerTool(
@@ -240,9 +280,37 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Выгружает один YAML-компонент projectDir/componentPath в заданный xmlDir через файл индекса конфигурации. componentPath по умолчанию cf; xmlDir не вычисляется как xmlRootDir/componentPath. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics. Файлы пишутся только при allowWrite=true.",
       inputSchema: mcpSchemas.syncToXmlInput,
-      outputSchema: mcpSchemas.syncToXmlOutput,
+      outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
-    async (input) => metadataToolResult(await syncToXml(input), "Синхронизация")
+    async (input) => jsonToolResult(await (await dependencies.backgroundOperations.get()).start("sync_to_xml", input))
+  )
+
+  server.registerTool(
+    "nkdk.get_operation",
+    {
+      title: "Get NKDK background operation",
+      description: "Возвращает сохранённое состояние и итог длительной операции по projectDir и operationId.",
+      inputSchema: mcpSchemas.getOperationInput,
+      outputSchema: mcpSchemas.backgroundOperationLookupOutput,
+    },
+    async (input) => {
+      const snapshot = await (await dependencies.backgroundOperations.get()).get(input.projectDir, input.operationId)
+      return jsonToolResult(snapshot ?? toolError("not_found", `Операция не найдена: ${input.operationId}`))
+    }
+  )
+
+  server.registerTool(
+    "nkdk.cancel_operation",
+    {
+      title: "Cancel NKDK background operation",
+      description: "Запрашивает отмену длительной операции и возвращает её сохранённое состояние.",
+      inputSchema: mcpSchemas.cancelOperationInput,
+      outputSchema: mcpSchemas.backgroundOperationLookupOutput,
+    },
+    async (input) => {
+      const snapshot = await (await dependencies.backgroundOperations.get()).cancel(input.projectDir, input.operationId)
+      return jsonToolResult(snapshot ?? toolError("not_found", `Операция не найдена: ${input.operationId}`))
+    }
   )
 
   server.registerTool(

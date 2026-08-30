@@ -5,6 +5,7 @@ import { rebuildProjectCacheOutputSchema, type ProjectCacheInput } from "./proje
 import { syncToInfobaseOutputShape, type SyncToInfobaseInput } from "./syncToInfobase"
 import { syncToXmlOutputShape, type SyncToXmlInput } from "./syncToXml"
 import { validateProjectOutputShape, type ValidateProjectInput } from "./validateProject"
+import { strictToolErrorOutputSchema } from "./common"
 
 export const backgroundOperationKindSchema = Type.Union([
   Type.Literal("import_from_infobase"),
@@ -39,7 +40,7 @@ export type BackgroundOperationInput<K extends BackgroundOperationKind> = Backgr
 export type BackgroundOperationResult<K extends BackgroundOperationKind> = BackgroundOperationResultMap[K]
 
 const operationIdentityShape = {
-  operationId: Type.String({ minLength: 1 }),
+  operationId: Type.String({ minLength: 1, pattern: "^[A-Za-z0-9_-]+$" }),
   operationKind: backgroundOperationKindSchema,
   projectDir: Type.String({ minLength: 1 }),
 }
@@ -114,6 +115,16 @@ export const backgroundOperationSnapshotSchema = Type.Union([
   succeededSnapshot("sync_to_xml", syncToXmlOutputShape),
   succeededSnapshot("rebuild_project_cache", rebuildProjectCacheOutputSchema),
   succeededSnapshot("validate_project", validateProjectOutputShape),
+])
+
+export const backgroundOperationStartOutputSchema = Type.Union([
+  backgroundOperationAcceptedSchema,
+  strictToolErrorOutputSchema,
+])
+
+export const backgroundOperationLookupOutputSchema = Type.Union([
+  backgroundOperationSnapshotSchema,
+  strictToolErrorOutputSchema,
 ])
 
 export type BackgroundOperationSnapshot = Static<typeof backgroundOperationSnapshotSchema>

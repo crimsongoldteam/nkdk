@@ -15,6 +15,44 @@ async function accepts(schema: RegisteredSchema | undefined, value: unknown): Pr
 }
 
 describe("registerNkdkCapabilities", () => {
+  it("starts, reads, and cancels background operations through the shared manager", async () => {
+    const accepted = {
+      ok: true as const,
+      status: "accepted" as const,
+      operationId: "operation-1",
+      operationKind: "validate_project" as const,
+      projectDir: "/project",
+    }
+    const manager = {
+      start: vi.fn(async () => accepted),
+      get: vi.fn(async () => undefined),
+      cancel: vi.fn(async () => undefined),
+      close: vi.fn(async () => undefined),
+    }
+    const server = {
+      registerTool: vi.fn(),
+      registerResource: vi.fn(),
+      registerPrompt: vi.fn(),
+    }
+    registerNkdkCapabilities(
+      server as unknown as Parameters<typeof registerNkdkCapabilities>[0],
+      { backgroundOperations: { get: async () => manager, close: async () => undefined } },
+    )
+
+    const validate = registeredHandler(server, "nkdk.validate_project")
+    const get = registeredHandler(server, "nkdk.get_operation")
+    const cancel = registeredHandler(server, "nkdk.cancel_operation")
+
+    await expect(validate({ projectDir: "/project" })).resolves.toMatchObject({ structuredContent: accepted })
+    await expect(get({ projectDir: "/project", operationId: "missing" })).resolves.toMatchObject({
+      structuredContent: { ok: false, code: "not_found" },
+    })
+    await expect(cancel({ projectDir: "/project", operationId: "missing" })).resolves.toMatchObject({
+      structuredContent: { ok: false, code: "not_found" },
+    })
+    expect(manager.start).toHaveBeenCalledWith("validate_project", { projectDir: "/project" })
+  })
+
   it("registers operation tools, base tools, resources, and prompts", async () => {
     const calls = {
       tools: [] as string[],
@@ -43,6 +81,8 @@ describe("registerNkdkCapabilities", () => {
       "nkdk.close_platform_connection",
       "nkdk.close_all_platform_connections",
       "nkdk.sync_to_xml",
+      "nkdk.get_operation",
+      "nkdk.cancel_operation",
       "nkdk.init_sync_state",
       "nkdk.rename_item",
       "nkdk.find_references",
@@ -132,15 +172,17 @@ describe("registerNkdkCapabilities", () => {
     if (infobaseSyncOutput === undefined) throw new Error("sync_to_infobase outputSchema отсутствует")
     expect(await accepts(infobaseSyncOutput, {
       ok: true,
-      status: "unchanged",
-      componentPath: "cf",
-      diagnostics: [],
+      status: "accepted",
+      operationId: "operation-1",
+      operationKind: "sync_to_infobase",
+      projectDir: "/project",
     })).toBe(true)
     expect(await accepts(infobaseSyncOutput, {
       ok: true,
-      status: "unchanged",
-      componentPath: "cf",
-      diagnostics: [],
+      status: "accepted",
+      operationId: "operation-1",
+      operationKind: "sync_to_infobase",
+      projectDir: "/project",
       packageId: "unexpected",
     })).toBe(false)
     expect(await accepts(infobaseSyncOutput, {
@@ -400,3 +442,12 @@ describe("registerNkdkCapabilities", () => {
     expect(service).toHaveBeenCalledWith(input, undefined, controller.signal)
   })
 })
+
+function registeredHandler(
+  server: { registerTool: ReturnType<typeof vi.fn> },
+  name: string,
+): (input: Record<string, unknown>) => Promise<unknown> {
+  const handler: unknown = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[2]
+  if (typeof handler !== "function") throw new Error(`Обработчик ${name} не зарегистрирован`)
+  return handler as (input: Record<string, unknown>) => Promise<unknown>
+}
