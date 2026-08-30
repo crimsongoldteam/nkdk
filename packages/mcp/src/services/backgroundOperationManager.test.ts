@@ -23,6 +23,7 @@ describe("background operation manager", () => {
     expect(accepted).toMatchObject({ status: "accepted", operationKind: "validate_project" })
     await eventually(async () => {
       expect(await fixture.manager.get("C:/project", accepted.operationId)).toMatchObject({
+        ok: true,
         status: "running",
         stage: "validation",
       })

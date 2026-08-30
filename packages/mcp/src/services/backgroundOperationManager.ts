@@ -62,6 +62,7 @@ export function createBackgroundOperationManager(options: {
     const operationId = options.operationId()
     const timestamp = options.now().toISOString()
     const snapshot = operationSnapshot({
+      ok: true,
       status: "queued",
       operationId,
       operationKind: kind,
