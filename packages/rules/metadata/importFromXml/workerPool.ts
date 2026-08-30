@@ -766,23 +766,23 @@ function normalizeConcurrency(concurrency: number): number {
   return concurrency
 }
 
-function createPiscinaWorkerPool(): Piscina {
+export function createXmlImportWorkerPoolOptions() {
   const currentFile = fileURLToPath(import.meta.url)
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "../composition/workers/importFromXml.ts")
     : join(dirname(currentFile), "importFromXmlWorker.js")
   const execArgv = currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
-  return new Piscina({
+  return {
     filename: workerFile,
     minThreads: 1,
     maxThreads: 1,
     execArgv,
-    // Один worker удерживает свою долю смыслового YAML между проходами, а во
-    // втором проходе создаёт временные XML-деревья. Без границы V8 расширяет
-    // каждую независимую кучу почти до общего системного предела и слишком
-    // поздно собирает уже недостижимые деревья.
-    resourceLimits: { maxOldGenerationSizeMb: 768 },
-  })
+    resourceLimits: { maxOldGenerationSizeMb: 512 },
+  }
+}
+
+function createPiscinaWorkerPool(): Piscina {
+  return new Piscina(createXmlImportWorkerPoolOptions())
 }
 
 function partitionRoundRobin<T>(items: readonly T[], count: number): T[][] {

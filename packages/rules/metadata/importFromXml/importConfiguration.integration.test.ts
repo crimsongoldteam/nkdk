@@ -163,9 +163,9 @@ afterEach(async () => {
 
 describe("configuration XML import coordinator", () => {
   it.each([
-    [10, 16, 6],
+    [10, 16, 3],
     [4, 8, 2],
-    [32, 8, 8],
+    [32, 8, 3],
     [2, 2, 1],
   ])("выбирает число рабочих процессов для %i процессоров и %i ГиБ памяти", (
     processors,
@@ -176,7 +176,7 @@ describe("configuration XML import coordinator", () => {
   })
 
   it("учитывает ограничение памяти контейнера", () => {
-    expect(calculateXmlImportConcurrency(32, 64 * 1024 ** 3, 8 * 1024 ** 3)).toBe(8)
+    expect(calculateXmlImportConcurrency(32, 64 * 1024 ** 3, 8 * 1024 ** 3)).toBe(3)
   })
 
   it("передаёт двоичный конверт индекса одной пачкой", async () => {
