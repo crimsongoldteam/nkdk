@@ -74,6 +74,7 @@ function reserve(
   const id = candidate.id
   if (id === undefined) return
   if (!isXmlId(id)) throw new Error(`Некорректный ID формы: ${id}`)
+  if (candidate.reservation.specialId !== undefined) return
   const byId = occupied.get(candidate.scope) ?? new Map<string, Candidate>()
   const previous = byId.get(id)
   if (previous !== undefined && previous !== candidate) {

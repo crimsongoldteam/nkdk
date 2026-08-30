@@ -29,9 +29,12 @@ describe("assignFormXmlIds", () => {
     )
 
     expect(node._id).toBe(expected)
-    expect(setup.collector.fragment("Форма.yaml").entities).toContainEqual(
-      expect.objectContaining({ logicalAddress: address, xmlId: expected }),
-    )
+    const identities = setup.collector.fragment("Форма.yaml").entities
+    if (specialId === undefined) {
+      expect(identities).toContainEqual(expect.objectContaining({ logicalAddress: address, xmlId: expected }))
+    } else {
+      expect(identities).toEqual([])
+    }
   })
 
   it.each([
@@ -87,6 +90,17 @@ describe("assignFormXmlIds", () => {
       `Повторный ID ${id} в XML-контейнере (elements)`,
     )
   })
+
+  it("разрешает одинаковый постоянный ID правила в разных проекциях одного результата", () => {
+    const setup = runtimeSetup([])
+    const first = { _name: "ПерваяПанель", _id: "" }
+    const second = { _name: "ВтораяПанель", _id: "" }
+    register(setup.runtime, first, "elements", "-1")
+    register(setup.runtime, second, "elements", "-1")
+
+    expect(() => assignFormXmlIds({ BaseForm: first, AutoCommandBar: second })).not.toThrow()
+    expect([first._id, second._id]).toEqual(["-1", "-1"])
+  })
 })
 
 function register(
@@ -96,7 +110,7 @@ function register(
   specialId?: string,
 ): void {
   registerFormXmlIdReservation(node, {
-    runtime,
+    ...(specialId === undefined ? { runtime } : {}),
     space,
     ...(specialId === undefined ? {} : { specialId }),
   })
