@@ -6,6 +6,7 @@ import { projectStateHandle } from "./projectStateHandle"
 import { withDiagnosticOutput } from "./diagnosticReport"
 import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
 import { defaultMcpConfigurationLanguages } from "../configurationContext"
+import { rethrowOperationCancellation, throwIfOperationCancelled } from "./operationCancellation"
 
 interface SyncToXmlDeps {
   readonly projectState?: CoreProjectStateService
@@ -36,8 +37,13 @@ interface SyncOutputDiagnostic {
   readonly col?: number
 }
 
-export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Promise<SyncToXmlPayload> {
+export async function syncToXml(
+  input: SyncToXmlInput,
+  deps?: SyncToXmlDeps,
+  signal?: AbortSignal,
+): Promise<SyncToXmlPayload> {
   try {
+    throwIfOperationCancelled(signal)
     if (input.componentPath === "cfe") {
       return toolError("invalid_arguments", "Ожидался путь cfe/<Имя>", {
         componentPath: input.componentPath,
@@ -60,7 +66,12 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
         xmlDir: input.xmlDir,
         ...(input.ignoreValidationErrors === undefined ? {} : { ignoreValidationErrors: input.ignoreValidationErrors }),
       }
-      const result = await core.planSyncToXml({ ...planParams, projectState })
+      const result = await core.planSyncToXml({
+        ...planParams,
+        projectState,
+        ...(signal === undefined ? {} : { signal }),
+      })
+      throwIfOperationCancelled(signal)
       const diagnostics = "diagnostics" in result ? result.diagnostics : []
       return await withDiagnosticOutput({
         projectDir: component.projectDir,
@@ -94,8 +105,10 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
       ...(input.ignoreValidationErrors === undefined ? {} : { ignoreValidationErrors: input.ignoreValidationErrors }),
       projectState,
+      ...(signal === undefined ? {} : { signal }),
     }
     const result = await core.syncConfigurationToXML(syncParams)
+    throwIfOperationCancelled(signal)
 
     const diagnostics = result.diagnostics ?? concatenate(result.failed, result.warnings)
     return await withDiagnosticOutput({
@@ -113,6 +126,7 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
       }),
     })
   } catch (caught) {
+    rethrowOperationCancellation(caught)
     return toolError("core_error", errorMessage(caught))
   }
 }

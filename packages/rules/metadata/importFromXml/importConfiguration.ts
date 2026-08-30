@@ -81,6 +81,7 @@ export interface ImportConfigurationFromXmlParams {
   xmlImportWorkerPoolHandle?: XmlImportWorkerPoolHandle
   projectState?: ProjectStateService
   createReferenceWorkerPool?: () => PreparedWorkerPool
+  signal?: AbortSignal
 }
 
 export interface ImportCoordinatorDependencies {
@@ -213,6 +214,7 @@ export async function importConfigurationFromXml(
   }
 
   try {
+    params.signal?.throwIfAborted()
     const root = await readXmlImportComponentRoot(params.inputDir)
     const descriptor = (deps.resolveComponent ?? resolveXmlImportComponent)(root)
     const resolvedRoot = descriptor.resolveRoot(root)
@@ -248,6 +250,7 @@ export async function importConfigurationFromXml(
         context: operationContext,
         validationContextVersions: configurationValidationContextVersions(operationContext),
         concurrency,
+        ...(params.signal === undefined ? {} : { signal: params.signal }),
       })
     }
     importSession = await projectState.beginImport({
@@ -259,6 +262,7 @@ export async function importConfigurationFromXml(
           profiler.record("Подготовка импорта конфигурации", importStatePhaseName(phase), { timeMs: elapsedMs })
         },
       },
+      ...(params.signal === undefined ? {} : { signal: params.signal }),
     })
     indexCandidate = await (deps.createIndexCandidate ?? createDefaultConfigurationIndexCandidate)({
       projectDir: params.projectDir,
@@ -483,6 +487,7 @@ export async function importConfigurationFromXml(
     })))
     indexCandidate.replaceHashes(projectFiles)
     indexCandidate.validateCandidate()
+    params.signal?.throwIfAborted()
     const candidateToPublish = indexCandidate
     const stateResult = await importSession.finalize(() => profiler.measureAsync(
         "Подготовка импорта конфигурации",
@@ -514,6 +519,7 @@ export async function importConfigurationFromXml(
     const cleanup = importSession === undefined || finalized
       ? []
       : await abortCleanupDiagnostics(importSession, caught, closePoolForCleanup)
+    if (params.signal?.aborted === true) throw caught
     return outcome = failedResult(
       [...flattenFailures(caught).map(operationDiagnostic), ...cleanup],
       warnings,

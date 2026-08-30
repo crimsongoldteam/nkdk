@@ -51,6 +51,7 @@ export interface SyncComponentToXmlParams {
   readonly transferConcurrency?: number
   readonly projectState: ProjectStateService
   readonly ignoreValidationErrors?: boolean
+  readonly signal?: AbortSignal
 }
 
 export type SyncConfigurationToXmlParams = SyncComponentToXmlParams
@@ -63,6 +64,7 @@ export interface PlanSyncConfigurationToXmlParams {
   readonly concurrency?: number
   readonly projectState: ProjectStateService
   readonly ignoreValidationErrors?: boolean
+  readonly signal?: AbortSignal
 }
 
 export interface FullXmlSyncResult {
@@ -156,6 +158,7 @@ export async function syncComponentToXml(
   const profiler = createValidationProfiler({ scope: "main" })
 
   try {
+    params.signal?.throwIfAborted()
     const languages = await (deps.loadLanguages ?? loadConfigurationLanguagesFromYAML)(resolve(projectDir, "cf"))
     const context = { ...params.context, languages }
     if (params.componentPath === "cf" || params.componentPath.startsWith("cfe/")) {
@@ -258,6 +261,7 @@ export async function syncComponentToXml(
         candidateForBatches.mergeBlockFragments(batch.configurationFragments)
       },
     })
+    params.signal?.throwIfAborted()
     const executionDiagnostics = [...execution.diagnostics]
     const executionWarnings = [...execution.warnings]
     const expectedOutputs = [...execution.expectedOutputs]
@@ -287,6 +291,7 @@ export async function syncComponentToXml(
     if (hasErrors(outputDiagnostics)) return await complete(failedResult(outputDiagnostics, warnings, diagnostics))
 
     indexCandidate.validateCandidate()
+    params.signal?.throwIfAborted()
     await (deps.publishCandidate ?? defaultDependencies.publishCandidate!)({ active: activeIndex, candidate: indexCandidate })
 
     return await complete({
@@ -297,6 +302,12 @@ export async function syncComponentToXml(
       configurationIndexPath: configurationIndexStoreDescriptor(projectDir, address).dataPath,
     })
   } catch (caught) {
+    if (params.signal?.aborted === true) {
+      const activePool = pool
+      pool = undefined
+      await activePool?.close().catch(() => undefined)
+      throw caught
+    }
     const failure = operationDiagnostic(diagnosticCode(caught), errorMessage(caught))
     return await complete(failedResult([failure], warnings, [...diagnostics, failure]))
   } finally {
@@ -346,6 +357,7 @@ export async function planSyncConfigurationToXml(
   const xmlDir = resolve(params.xmlDir)
   let diagnostics: FullXmlSyncDiagnostic[] = []
   try {
+    params.signal?.throwIfAborted()
     const languages = await (deps.loadLanguages ?? loadConfigurationLanguagesFromYAML)(resolve(projectDir, "cf"))
     const context = {
       version: "2.20",
@@ -374,6 +386,7 @@ export async function planSyncConfigurationToXml(
       deps,
     })
     const confirmedRuntime = await profile.confirm({ target, ...(base === undefined ? {} : { base }) })
+    params.signal?.throwIfAborted()
     await prepareFullXmlSyncProfileRuntime({
       profile,
       runtime: confirmedRuntime,
@@ -393,6 +406,7 @@ export async function planSyncConfigurationToXml(
       diagnostics,
     }
   } catch (caught) {
+    if (params.signal?.aborted === true) throw caught
     const failure = operationDiagnostic(diagnosticCode(caught), errorMessage(caught))
     return {
       ok: false,
@@ -407,11 +421,13 @@ async function refreshSyncProject(params: {
   readonly projectDir: string
   readonly context: ConfigurationContext
   readonly concurrency?: number
+  readonly signal?: AbortSignal
 }): Promise<{ readonly diagnostics: FullXmlSyncDiagnostic[]; readonly readToken: ProjectStateReadToken }> {
   const result = await params.projectState.refreshAndValidate(withConfigurationValidationContextVersions({
     projectDir: params.projectDir,
     context: params.context,
     ...(params.concurrency === undefined ? {} : { concurrency: params.concurrency }),
+    ...(params.signal === undefined ? {} : { signal: params.signal }),
   }))
   const diagnostics = [...result.diagnostics].map(projectValidationDiagnostic)
   result.diagnostics.release()

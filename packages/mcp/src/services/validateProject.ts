@@ -5,6 +5,7 @@ import { resolveProjectRoot } from "./componentResolver"
 import { projectStateHandle } from "./projectStateHandle"
 import { prepareDiagnosticOutput } from "./diagnosticReport"
 import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
+import { rethrowOperationCancellation, throwIfOperationCancelled } from "./operationCancellation"
 
 export type ValidateProjectPayload = ToolPayload<{
   diagnostics: readonly {
@@ -18,17 +19,24 @@ export type ValidateProjectPayload = ToolPayload<{
   report?: DiagnosticReportReference
 }>
 
-export async function validateYamlProject(input: ValidateProjectInput): Promise<ValidateProjectPayload> {
+export async function validateYamlProject(
+  input: ValidateProjectInput,
+  _deps?: undefined,
+  signal?: AbortSignal,
+): Promise<ValidateProjectPayload> {
   const project = resolveProjectRoot(input.projectDir)
   if (!project.ok) return project.error
 
   try {
+    throwIfOperationCancelled(signal)
     const projectState = await projectStateHandle.get()
     const core = await loadCoreApi()
     const diagnostics = (await core.validateProject({
       projectDir: project.projectDir,
       projectState,
+      ...(signal === undefined ? {} : { signal }),
     })).diagnostics
+    throwIfOperationCancelled(signal)
     const output = await prepareDiagnosticOutput({
       projectDir: project.projectDir,
       operation: "validation",
@@ -46,6 +54,7 @@ export async function validateYamlProject(input: ValidateProjectInput): Promise<
     })
     return toolSuccess(output)
   } catch (caught) {
+    rethrowOperationCancellation(caught)
     const core = await loadCoreApi()
     if (caught instanceof core.ProjectFileSchemaError) {
       return toolError("invalid_arguments", caught.message)
