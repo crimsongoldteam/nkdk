@@ -471,6 +471,59 @@ describe("executeImportControlExport", () => {
     }))
   })
 
+  it("локализует raw-поправки свёрнутых заголовков по отдельным командам формы", async () => {
+    const { assignment, bodyPath } = createCatalogFormInput(tempDirs, "nkdk-control-export-form-commands-", [
+      '<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core">',
+      "  <Commands>",
+      '    <Command name="ОК" id="1">',
+      "      <Title>",
+      "        <v8:item><v8:lang>ru</v8:lang><v8:content>ОК</v8:content></v8:item>",
+      "        <v8:item><v8:lang>en</v8:lang><v8:content>OK</v8:content></v8:item>",
+      "      </Title>",
+      "      <Representation>TextPicture</Representation>",
+      "    </Command>",
+      '    <Command name="Отмена" id="2">',
+      "      <Title>",
+      "        <v8:item><v8:lang>ru</v8:lang><v8:content>Отмена</v8:content></v8:item>",
+      "        <v8:item><v8:lang>en</v8:lang><v8:content>Cancel</v8:content></v8:item>",
+      "      </Title>",
+      "      <Representation>TextPicture</Representation>",
+      "    </Command>",
+      "  </Commands>",
+      "</Form>",
+    ].join("\n"))
+    const { prepared, index } = await prepareControlInput(assignment)
+    const initialAnnotations = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
+
+    expect(prepared.proofAudit.itemAnchors).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        sourcePath: bodyPath,
+        xmlPath: "/Form[1]/Commands[1]/Command[1]",
+        yamlPath: ["Команды", "ОК"],
+      }),
+      expect.objectContaining({
+        sourcePath: bodyPath,
+        xmlPath: "/Form[1]/Commands[1]/Command[2]",
+        yamlPath: ["Команды", "Отмена"],
+      }),
+    ]))
+
+    const result = await executePreparedFormControlExport(
+      assignment,
+      prepared,
+      index,
+      initialAnnotations,
+    )
+
+    expect(result.annotations.entries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ parentPath: ["Команды", "ОК"], key: "Заголовок" }),
+      expect.objectContaining({ parentPath: ["Команды", "Отмена"], key: "Заголовок" }),
+    ]))
+    expect(result.annotations.entries.filter(({ key, annotation }) =>
+      key === "Команды" && annotation.kind === "raw"
+    )).toEqual([])
+  })
+
   it("сохраняет строковый xsi:type числового MinValue через минимальный !xml/raw", async () => {
     const minMaxFixture = fs.readFileSync(
       join(import.meta.dirname, "../forms/elements/inputField/__fixtures__/minMaxStringType.xml"),

@@ -1,4 +1,10 @@
-import { childUid, projectNamedXmlCollectionForImport } from "@nkdk/runtime"
+import {
+  childUid,
+  objectRecordOrUndefined,
+  projectNamedXmlCollectionForImportWithRuntimeKeys,
+  type XmlElementNode,
+  xmlElementChildren,
+} from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
@@ -7,52 +13,100 @@ import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataIt
 import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { FormCommandRules } from "./rules"
 import { isMetadataNameYAML } from "../../../commonObjects/metadataName/types"
+import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCursor"
+
+type ImportedFormCommand = {
+  name: string
+  sourceYamlPath: readonly (string | number)[]
+  rulePath: Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]["rulePath"]
+  xmlNode?: XmlElementNode
+}
 
 export const importFormCommandsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   context,
   xml,
   traversal,
 }) => {
-  const source = asRecord(xml)?.Command ?? xml
-  const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
+  const source = objectRecordOrUndefined(xml)?.Command ?? xml
+  const commandNodes = traversal.xmlNodes?.flatMap((node) => xmlElementChildren(node, "Command"))
+  const items = commandNodes?.map(({ compatibilityValue }) => compatibilityValue)
+    ?? formCommandCompatibilityItems(source)
   const collection = getConfigurationIndexCollectionContext(context)
-  const entries = items.flatMap((value) => {
-    const item = asRecord(value)
-    if (item === undefined || typeof item._name !== "string") return []
-    const itemContext =
-      collection === undefined
-        ? context
-        : withConfigurationIndexLogicalAddress(
-            context,
-            childUid(collection.logicalAddress, "Команда", item._name)
-          )
-    const normalized = item.Representation === "TextPicture" ? { ...item, Representation: "PictureAndText" } : item
+  const entries: Array<{ key: string; value: Record<string, unknown>; invalid?: true }> = []
+  const importedItems: ImportedFormCommand[] = []
+
+  for (const [index, value] of items.entries()) {
+    const item = objectRecordOrUndefined(value)
+    if (item === undefined || typeof item._name !== "string") continue
+    const name = item._name
+    const itemContext = formCommandItemContext(context, collection, name)
+    const itemTraversal = enterNestedYamlRule(
+      { ...traversal, yamlPath: [...traversal.yamlPath, name] },
+      FormCommandRules.itemType,
+    )
+    const itemXmlNode = commandNodes?.[index]
+    const importXml = itemXmlNode ?? item
     const yaml = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: FormCommandRules,
-      xml: normalized,
-      name: item._name,
+      xml: importXml,
+      name,
       traversal: {
-        ...traversal,
-        yamlPath: [...traversal.yamlPath, item._name],
+        ...itemTraversal,
+        ...(itemXmlNode === undefined ? {} : { xmlNodes: [itemXmlNode] }),
       },
     })
-    return yaml === undefined
-      ? []
-      : [{
-          key: item._name,
-          value: yaml,
-          ...(isMetadataNameYAML(item._name) ? {} : { invalid: true }),
-        }]
-  })
+    const yamlRecord = objectRecordOrUndefined(yaml)
+    if (yamlRecord === undefined) continue
+    entries.push({
+      key: name,
+      value: yamlRecord,
+      ...(isMetadataNameYAML(name) ? {} : { invalid: true }),
+    })
+    importedItems.push({
+      name,
+      sourceYamlPath: itemTraversal.yamlPath,
+      rulePath: itemTraversal.rulePath,
+      ...(itemXmlNode === undefined ? {} : { xmlNode: itemXmlNode }),
+    })
+  }
 
-  return entries.length === 0
-    ? undefined
-    : projectNamedXmlCollectionForImport({ entries, annotations: traversal.annotations })
+  if (entries.length === 0) return undefined
+  const projected = projectNamedXmlCollectionForImportWithRuntimeKeys({
+    entries,
+    annotations: traversal.annotations,
+  })
+  for (const [index, item] of importedItems.entries()) {
+    const runtimeKey = projected.runtimeKeys[index]!
+    const yamlPath = [...traversal.yamlPath, runtimeKey]
+    if (runtimeKey !== item.sourceYamlPath.at(-1)) {
+      traversal.audit?.rekeyYamlPath(item.sourceYamlPath, yamlPath, item.xmlNode)
+    }
+    traversal.collector.acceptItem({
+      itemType: FormCommandRules.itemType,
+      name: item.name,
+      yamlPath,
+      rulePath: item.rulePath,
+    })
+  }
+
+  return projected.yaml
 }
 
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
+function formCommandCompatibilityItems(source: unknown): readonly unknown[] {
+  if (source === undefined) return []
+  return Array.isArray(source) ? source : [source]
+}
+
+function formCommandItemContext(
+  context: Parameters<ImportFromXMLToYAMLFunction>[0]["context"],
+  collection: ReturnType<typeof getConfigurationIndexCollectionContext>,
+  name: string,
+): Parameters<ImportFromXMLToYAMLFunction>[0]["context"] {
+  return collection === undefined
+    ? context
+    : withConfigurationIndexLogicalAddress(
+        context,
+        childUid(collection.logicalAddress, "Команда", name),
+      )
 }
