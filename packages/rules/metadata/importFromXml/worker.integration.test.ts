@@ -697,8 +697,8 @@ describe("XML import worker second pass", () => {
     expect(checkpointLines).toEqual(expect.arrayContaining([
       expect.stringContaining(`substep="Начало задания второго прохода: ${assignments.catalog.id}"`),
       expect.stringContaining(`substep="Начало задания второго прохода: ${assignments.form.id}"`),
-      expect.stringMatching(/substep="Удерживаемый вход второго прохода".*items=2 bytes=[1-9]\d*/u),
-      expect.stringMatching(/substep="Удерживаемый output второго прохода".*items=2 bytes=[1-9]\d*/u),
+      expect.stringMatching(/substep="Удерживаемый вход второго прохода".*items=0 bytes=0/u),
+      expect.stringMatching(/substep="Удерживаемый output второго прохода".*items=0 bytes=0/u),
     ]))
 
     const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
@@ -710,13 +710,14 @@ describe("XML import worker second pass", () => {
     expect(lines.filter((line) => line.includes('substep="Сериализация YAML"'))).toHaveLength(1)
   })
 
-  it("публикует смысловой индекс во втором проходе, а YAML записывает только в третьем", async () => {
+  it("публикует смысловой индекс, записывает YAML и освобождает его во втором проходе", async () => {
     const outputDir = createTempDir("three-pass-write")
     const { assignment, second } = await prepareCatalogForThirdPass(outputDir)
 
     expect(second.stateFragment).toBeDefined()
-    expect(second.files.count).toBe(0)
-    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
+    expect(second.files.count).toBe(1)
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
+    expect(workerStateForTests().preparedYamlIds).toEqual([])
     expect(workerStateForTests().retainedProofAuditIds).toEqual([])
 
     await runImportWorkerCommand({ kind: "finishSecondPass" })
@@ -730,8 +731,7 @@ describe("XML import worker second pass", () => {
     }))
     await runImportWorkerCommand({ kind: "finishThirdPass" })
 
-    expect(third.files.count).toBe(1)
-    expect(third.stateFragment).toBeDefined()
+    expect(third.files.count).toBe(0)
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
   })
 
@@ -783,7 +783,7 @@ describe("XML import worker second pass", () => {
     await runImportWorkerCommand({ kind: "finishThirdPass" })
 
     expect(third.diagnostics.count).toBe(0)
-    expect(localValidationRuns).toBe(validationRunsBeforeThirdPass)
+    expect(localValidationRuns).toBe(validationRunsBeforeThirdPass + 1)
     expect(readFileSync(join(outputDir, assignments.form.targetProjectPath), "utf8"))
       .toContain("ПутьКДанным: !xml/invalid Объект.НеизвестныйПереход.LineNumber")
     if (second.stateFragment === undefined || third.stateFragment === undefined) {
@@ -954,7 +954,7 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it("продолжает третий проход после ошибки записи YAML", async () => {
+  it("продолжает второй проход после ошибки записи YAML", async () => {
     const tempDir = createTempDir("worker")
     const blocked = catalogAssignment({ id: "blocked" })
     const valid = catalogAssignment({
@@ -995,17 +995,20 @@ describe("XML import worker second pass", () => {
     })
     await runImportWorkerCommand({ kind: "finishThirdPass" })
 
-    const view = openImportBinaryResult(third)
+    const secondView = semantic
+    const thirdView = openImportBinaryResult(third)
 
-    expect(view.diagnostics.count).toBe(1)
-    expect(importDiagnostic(view.diagnostics, 0)).toMatchObject({
+    expect(secondView.diagnostics.count).toBe(1)
+    expect(importDiagnostic(secondView.diagnostics, 0)).toMatchObject({
       severity: "error",
       code: "xml_import_yaml_failed",
       targetProjectPath: blocked.targetProjectPath,
     })
-    expect(Array.from({ length: view.files.count }, (_, index) => view.files.file(index))).toContainEqual(
+    expect(Array.from({ length: secondView.files.count }, (_, index) => secondView.files.file(index))).toContainEqual(
       expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath }),
     )
+    expect(thirdView.diagnostics.count).toBe(0)
+    expect(thirdView.files.count).toBe(0)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 

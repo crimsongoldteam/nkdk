@@ -777,7 +777,7 @@ export function createXmlImportWorkerPoolOptions() {
     minThreads: 1,
     maxThreads: 1,
     execArgv,
-    resourceLimits: { maxOldGenerationSizeMb: 8192 },
+    resourceLimits: { maxOldGenerationSizeMb: 512 },
   }
 }
 

@@ -814,7 +814,8 @@ export function calculateXmlImportConcurrency(
   totalMemoryBytes: number,
   constrainedMemoryBytes = 0,
 ): number {
-  const workerOldSpaceBytes = 768 * 1024 ** 2
+  const workerOldSpaceBytes = 512 * 1024 ** 2
+  const maximumWorkersWithinBudget = 3
   const minimumReservedMemoryBytes = 2 * 1024 ** 3
   const effectiveMemoryBytes = constrainedMemoryBytes > 0
     ? Math.min(totalMemoryBytes, constrainedMemoryBytes)
@@ -822,5 +823,5 @@ export function calculateXmlImportConcurrency(
   const reservedMemoryBytes = Math.max(minimumReservedMemoryBytes, effectiveMemoryBytes / 4)
   const byProcessors = Math.max(1, Math.floor(availableProcessors * 2 / 3))
   const byMemory = Math.max(1, Math.floor((effectiveMemoryBytes - reservedMemoryBytes) / workerOldSpaceBytes))
-  return Math.min(byProcessors, byMemory)
+  return Math.min(maximumWorkersWithinBudget, byProcessors, byMemory)
 }

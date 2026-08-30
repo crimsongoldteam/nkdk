@@ -6,8 +6,8 @@ import {
 
 export async function createProjectValidationWorkerSchemaCache(params: {
   context: ConfigurationContext
-}): Promise<ValidationSchemaCache> {
-  const cache = createValidationSchemaCache(params.context)
-  cache.compileAll()
-  return cache
+}, dependencies: {
+  createCache?: typeof createValidationSchemaCache
+} = {}): Promise<ValidationSchemaCache> {
+  return (dependencies.createCache ?? createValidationSchemaCache)(params.context)
 }
