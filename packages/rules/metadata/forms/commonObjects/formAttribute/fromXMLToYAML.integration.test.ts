@@ -58,7 +58,7 @@ const settingsFixtures = [
 function importStructuredFormAttributes(
   xml: string,
   execution?: ReturnType<typeof createRuleRegistrySet>["execution"],
-  context = createDirectRoundTripContexts().importContext,
+  context?: ReturnType<typeof createDirectRoundTripContexts>["importContext"],
 ) {
   const document = parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true })
   const root = document.roots[0]!
@@ -76,7 +76,7 @@ function importStructuredFormAttributes(
     audit,
     annotations,
     execution,
-    context,
+    ...(context === undefined ? {} : { context }),
   })
   return { root, audit, yaml }
 }

@@ -76,18 +76,8 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
   })
 
   it("восстанавливает платформенное назначение при отсутствии YAML-поля", () => {
-    const baseContext = mockContextToXML()
     const result = convertClientApplicationFormFromYAMLToXML({
-      context: {
-        ...baseContext,
-        exportToXML: {
-          ...baseContext.exportToXML,
-          context: {
-            ...baseContext.exportToXML.context!,
-            currentXMLPath: "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml",
-          },
-        },
-      },
+      context: mockContextToXML(),
       yaml: {} as ClientApplicationFormYAML,
       name: "Форма",
     })
@@ -337,8 +327,18 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       ].join("\n")
     )
 
+    const baseContext = mockContextToXML()
     const result = convertClientApplicationFormFromYAMLToXML({
-      context: mockContextToXML(),
+      context: {
+        ...baseContext,
+        exportToXML: {
+          ...baseContext.exportToXML,
+          context: {
+            ...baseContext.exportToXML.context!,
+            currentXMLPath: "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml",
+          },
+        },
+      },
       yaml,
       name: "ФормаСписка",
     })
