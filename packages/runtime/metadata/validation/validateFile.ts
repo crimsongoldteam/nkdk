@@ -181,6 +181,18 @@ function semanticAnomalyBoundaries(
   const result: { annotation: "invalid" | "important"; target: ValidationIssueTarget }[] = []
   const visit = (value: unknown, path: readonly (string | number)[]): void => {
     if (typeof value !== "object" || value === null) return
+    if (Array.isArray(value)) {
+      value.forEach((child, index) => {
+        const valueAnnotation = annotations.at(value, index)
+        const semantic = valueAnnotation?.kind === "raw" ? valueAnnotation.semantic : valueAnnotation
+        const childPath = [...path, index]
+        if (semantic?.kind === "invalid" || semantic?.kind === "important") {
+          result.push({ annotation: semantic.kind, target: { kind: "path", path: childPath } })
+        }
+        visit(child, childPath)
+      })
+      return
+    }
     const logicalKeyCounts = new Map<string, number>()
     for (const runtimeKey of Object.keys(value)) {
       const logicalKey = annotations.keyAt(value, runtimeKey)?.logicalKey ?? runtimeKey

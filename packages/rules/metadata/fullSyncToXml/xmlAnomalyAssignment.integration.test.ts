@@ -796,6 +796,25 @@ describe("единое восстановление XML-аномалий assignm
     expect(xml).toMatch(/<Column name="Статус"[^>]*future="yes"/u)
   })
 
+  it("привязывает raw дополнительной колонки к внешнему XML-документу формы", () => {
+    const prepared = prepareAnomalies([
+      "Форма:",
+      "  Реквизиты:",
+      "    Объект:",
+      "      Тип: Строка",
+      "      ДополнительныеКолонки:",
+      "        Объект.Таблица:",
+      "          Статус: !xml/raw",
+      "            $значение:",
+      "              Тип: Строка",
+      "            $xml:",
+      "              _future: yes",
+    ].join("\n"), anomalyRegistries.xmlAnomalies, MetadataCommonFormRules, anomalyRegistries)
+
+    expectExternalFormItemBoundary(prepared)
+    expect(prepared.rawBoundaries.every(boundary => !("tag" in boundary))).toBe(true)
+  })
+
   it("сохраняет относительный XML-путь raw внутри вложенных объектов external item", () => {
     const prepared = prepareAnomalies([
       "Форма:",
@@ -838,11 +857,7 @@ describe("единое восстановление XML-аномалий assignm
       "          '#order': [MaxWidth, Title, ContextMenu, ExtendedTooltip]",
     ].join("\n"), anomalyRegistries.xmlAnomalies, MetadataCommonFormRules, anomalyRegistries)
 
-    expect(prepared.rawBoundaries).toContainEqual(expect.objectContaining({
-      path: "$item",
-      documentPath: "Ext/Form.xml",
-      exportClaimId: expect.any(String),
-    }))
+    expectExternalFormItemBoundary(prepared)
   })
 
   it("накладывает атрибуты вычисляемого collection item поверх обычного экспорта", () => {
@@ -1010,6 +1025,46 @@ describe("единое восстановление XML-аномалий assignm
 
     expect(xml).not.toContain("<Filter")
     expect(xml).not.toContain("<dcsset:item")
+  })
+
+  it("привязывает raw-потомка к помеченному invalid элементу массива", () => {
+    const xml = exportFilterArrayWithAnomalies([
+      "Отбор:",
+      "  - !xml/invalid",
+      "    ЛевоеЗначение: .Тип",
+      "    ПравоеЗначение: !xml/raw",
+      "      $xml:",
+      "        _future: yes",
+    ])
+
+    expect(xml).toMatch(/<dcsset:right[^>]*future="yes"/u)
+  })
+
+  it("восстанавливает несколько raw-узлов одного свойства внутри элемента массива", () => {
+    const xml = exportFormWithAnomalies([
+      "Реквизиты:",
+      "  Список:",
+      "    Тип: ДинамическийСписок",
+      "    ДинамическийСписок:",
+      "      УсловноеОформление:",
+      "        Элементы:",
+      "          - Отбор:",
+      "              Элементы:",
+      "                - ВидСравнения: ВСписке",
+      "                  ЛевоеЗначение: .Тип",
+      "                  ПравоеЗначение: !xml/raw",
+      "                    $значение:",
+      "                      -",
+      "                      -",
+      "                    $xml:",
+      "                      dcsset:right:",
+      "                        - _xsi:type: v8:Type",
+      "                          '#text': d8p1:Undefined",
+      "                        - _xsi:type: v8:Type",
+      "                          '#text': d8p1:Undefined",
+    ], true)
+
+    expect(xml.match(/<dcsset:right\b/g)).toHaveLength(2)
   })
 
   it("не назначает export claim скалярным item без raw-потомков", () => {
@@ -1308,6 +1363,14 @@ function exportFilterArrayWithAnomalies(lines: readonly string[]): string {
     },
     context,
   })
+}
+
+function expectExternalFormItemBoundary(prepared: ReturnType<typeof prepareAnomalies>): void {
+  expect(prepared.rawBoundaries).toContainEqual(expect.objectContaining({
+    path: "$item",
+    documentPath: "Ext/Form.xml",
+    exportClaimId: expect.any(String),
+  }))
 }
 
 function anomalyRuntime(_overrides: object): XmlAnomalyRuntime {

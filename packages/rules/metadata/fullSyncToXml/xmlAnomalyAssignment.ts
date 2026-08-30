@@ -423,6 +423,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
     exportClaims: params.exportClaims,
     rawBoundaries: params.rawBoundaries,
     tag: params.property.propertyRule.tag ?? params.documentTag,
+    documentPath: params.documentPath,
   })
   if (params.descriptor.yamlShape === "array") {
     if (!Array.isArray(params.value)) return params.value
@@ -440,6 +441,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
           params.rawBoundaries.push(rawItemBoundary({
             annotation,
             tag: params.property.propertyRule.tag ?? params.documentTag,
+            documentPath: params.documentPath,
             exportClaimId,
           }))
           return
@@ -511,6 +513,7 @@ function cloneCollectionSemanticValue(params: Omit<Parameters<typeof cloneSemant
         params.rawBoundaries.push(rawItemBoundary({
           annotation,
           tag: params.property.propertyRule.tag ?? params.documentTag,
+          documentPath: params.documentPath,
           exportClaimId,
         }))
         if (keyAnnotation !== undefined) params.targetAnnotations.setKey(target, targetKey, keyAnnotation)
@@ -568,6 +571,7 @@ function prepareSemanticItemExportClaim(params: {
   readonly exportClaims: { nextId: number }
   readonly rawBoundaries: PreparedXmlAnomalyBoundary[]
   readonly tag?: string
+  readonly documentPath?: string
 }): string | undefined {
   if (params.mode !== "preserve") return undefined
   if (params.annotation?.kind !== "raw" && !hasRawDescendant(params.item, params.annotations)) {
@@ -578,6 +582,7 @@ function prepareSemanticItemExportClaim(params: {
     params.rawBoundaries.push(rawItemBoundary({
       annotation: params.annotation,
       tag: params.tag,
+      documentPath: params.documentPath,
       exportClaimId,
     }))
   }
@@ -674,13 +679,19 @@ function rawBoundary(params: {
           ...publicPath!.segments.slice(0, -1).map(xmlPathSegment),
           ...property.xmlPath.map(xmlPathSegment),
         ]
+  const repeatedElementName = rawPath.at(-1)?.name
+  const targetsRepeatedSiblings = repeatedElementName !== undefined
+    && isRecord(params.annotation.xml)
+    && Array.isArray(params.annotation.xml[repeatedElementName])
+  const effectiveRawPath = targetsRepeatedSiblings ? rawPath.slice(0, -1) : rawPath
   const claimsCurrentItem = params.exportClaimId !== undefined
     && property === undefined
     && publicPath?.segments.length === 1
     && publicPath.segments[0] === params.rule?.itemType
-  const path = claimsCurrentItem ? [] : [...params.xmlPrefix, ...rawPath]
+  const path = claimsCurrentItem ? [] : [...params.xmlPrefix, ...effectiveRawPath]
+  const claimsParentItem = params.exportClaimId !== undefined && path.length === 0
   const documentRoot = publicPath?.documentRoot === true
-  if (path.length === 0 && !documentRoot && !claimsCurrentItem) {
+  if (path.length === 0 && !documentRoot && !claimsParentItem) {
     throw new Error(`Для !xml/raw ${params.logicalKey} не определён XML-путь`)
   }
   if (params.annotation.xml === undefined) {
@@ -702,7 +713,7 @@ function rawBoundary(params: {
   const implicitMainDocument = documentPath === undefined
     && documentTag === undefined
   return {
-    ...(documentRoot ? { path: "@" } : claimsCurrentItem ? { path: "$item" } : preparedPath(path)),
+    ...(documentRoot ? { path: "@" } : claimsParentItem ? { path: "$item" } : preparedPath(path)),
     value: params.annotation.xml,
     suppressOrdinaryOutput: !hasSemanticValue && !isTerminalPath(path),
     hasSemanticValue,
@@ -851,6 +862,7 @@ function valueAnnotationsForParent(
 function rawItemBoundary(params: {
   readonly annotation: XmlAnomalyAnnotation
   readonly tag?: string
+  readonly documentPath?: string
   readonly exportClaimId: string
 }): PreparedXmlAnomalyBoundary {
   if (params.annotation.kind !== "raw") throw new Error("XML-поправка item требует !xml/raw")
@@ -863,7 +875,9 @@ function rawItemBoundary(params: {
     suppressOrdinaryOutput: params.annotation.hasSemanticValue !== true,
     hasSemanticValue: params.annotation.hasSemanticValue === true,
     exportClaimId: params.exportClaimId,
-    ...(params.tag === undefined ? {} : { tag: params.tag }),
+    ...(params.documentPath === undefined
+      ? params.tag === undefined ? {} : { tag: params.tag }
+      : { documentPath: params.documentPath }),
   }
 }
 

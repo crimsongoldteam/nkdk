@@ -42,6 +42,7 @@ export function applyImportedIssueDecisions(params: {
       const mapping = parent as Record<string, unknown>
       mapping[key] = undefined
     }
+    if (typeof key === "string" && params.annotations.keyAt(parent, key)?.kind === decision.kind) continue
     const current = params.annotations.at(parent, key)
     if (current?.kind === "raw") {
       if (current.hasSemanticValue !== true) {
