@@ -58,6 +58,7 @@ const settingsFixtures = [
 function importStructuredFormAttributes(
   xml: string,
   execution?: ReturnType<typeof createRuleRegistrySet>["execution"],
+  context = createDirectRoundTripContexts().importContext,
 ) {
   const document = parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true })
   const root = document.roots[0]!
@@ -75,11 +76,54 @@ function importStructuredFormAttributes(
     audit,
     annotations,
     execution,
+    context,
   })
   return { root, audit, yaml }
 }
 
 describe("FormAttributes XML → YAML → XML", () => {
+  it("сворачивает известные дополнительные колонки ERP до первой", () => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Форма.Атрибут.Объект" })
+    const context = {
+      ...contexts.importContext,
+      fromXML: {
+        ...contexts.importContext.fromXML,
+        currentXMLPath: "/xml/erp/Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml",
+      },
+    }
+    const columns = ["1", "2", "3", "4", "5"].map((id) =>
+      `<Column name="Реквизит1" id="${id}"><Type><v8:Type>xs:string</v8:Type></Type></Column>`
+    ).join("")
+    const { root, audit, yaml } = importStructuredFormAttributes(`
+      <Root xmlns:v8="http://v8.1c.ru/8.1/data/core">
+        <Attributes>
+          <Attribute name="Объект" id="1">
+            <Type><v8:Type>xs:string</v8:Type></Type>
+            <Columns><AdditionalColumns table="Список.Способы">${columns}</AdditionalColumns></Columns>
+          </Attribute>
+        </Attributes>
+      </Root>
+    `, undefined, context)
+
+    const additionalColumns = (yaml as {
+      Значение: { Объект: { ДополнительныеКолонки: Record<string, Record<string, unknown>> } }
+    }).Значение.Объект.ДополнительныеКолонки["Список.Способы"]!
+    expect(Object.keys(additionalColumns)).toEqual(["Реквизит1"])
+
+    const identities = context.fromXML.configurationIndex?.collector.fragment("Форма.yaml").entities
+      .filter(({ logicalAddress }) => logicalAddress.includes("Колонка.Реквизит1"))
+    expect(identities).toEqual([expect.objectContaining({ xmlId: "1" })])
+
+    audit.finalize()
+    const attributeNode = xmlElementChildren(xmlElementChildren(root, "Attributes")[0]!, "Attribute")[0]!
+    const columnsNode = xmlElementChildren(attributeNode, "Columns")[0]!
+    const additionalNode = xmlElementChildren(columnsNode, "AdditionalColumns")[0]!
+    const omittedNodes = xmlElementChildren(additionalNode, "Column").slice(1)
+    expect(omittedNodes.map((node) => audit.getOutcome(node).state)).toEqual(
+      Array(4).fill("structurallyClaimed"),
+    )
+  })
+
   it("привязывает общие Settings к выбранному по xsi:type свойству", () => {
     const registries = createRuleRegistrySet(metadataRules)
     const attribute = fs.readFileSync(

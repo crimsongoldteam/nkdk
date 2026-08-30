@@ -2,12 +2,40 @@ import { describe, expect, it } from "vitest"
 import {
   ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM,
   MASTER_SIMPLIFIED_CONNECTION_FORM,
+  collapseKnownDuplicateErpAdditionalColumns,
   findKnownDuplicateCommandBarButtonReference,
   restoreKnownDuplicateCommandBarButtonIds,
   restoreKnownDuplicateErpAdditionalColumns,
 } from "./knownAnomalies"
 
 describe("known form XML anomalies", () => {
+  it("сворачивает только точную группу из пяти дополнительных колонок ERP", () => {
+    const columns = ["1", "2", "3", "4", "5"].map((_id) => ({ _name: "Реквизит1", _id }))
+
+    expect(collapseKnownDuplicateErpAdditionalColumns({
+      currentXMLPath: `/xml/erp/${ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM}`,
+      table: "Список.Способы",
+      columns,
+      columnName: (column) => column._name,
+    })).toEqual({ first: columns[0], omitted: columns.slice(1) })
+  })
+
+  it.each([
+    ["другой путь", "Catalogs/Другой/Forms/ФормаСписка/Ext/Form.xml", "Список.Способы", 5, "Реквизит1"],
+    ["другая таблица", ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM, "Список.Другая", 5, "Реквизит1"],
+    ["другое имя", ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM, "Список.Способы", 5, "Реквизит2"],
+    ["четыре колонки", ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM, "Список.Способы", 4, "Реквизит1"],
+    ["шесть колонок", ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM, "Список.Способы", 6, "Реквизит1"],
+  ] as const)("не сворачивает: %s", (_case, currentXMLPath, table, count, name) => {
+    const columns = Array.from({ length: count }, (_, index) => ({ _name: name, _id: String(index + 1) }))
+    expect(collapseKnownDuplicateErpAdditionalColumns({
+      currentXMLPath,
+      table,
+      columns,
+      columnName: (column) => column._name,
+    })).toBeUndefined()
+  })
+
   it("restores ERP duplicate AdditionalColumns only for the known path/table/name", () => {
     const column = { _name: "Реквизит1", _id: "", Title: "Реквизит1" }
 

@@ -174,8 +174,17 @@ export async function prepareImportYaml(params: {
         const bodyInput = xmlInputs?.find(({ input }) => input.role === "body")
         const bodyXML = bodyInput?.parsed
         const formXMLNode = bodyInput?.document?.roots.find(({ name }) => name === "Form")
+        const formImportContext: XmlImportConfigurationContext = {
+          ...importContext,
+          fromXML: {
+            ...importContext.fromXML,
+            ...(bodyInput?.input.sourcePath === undefined
+              ? {}
+              : { currentXMLPath: bodyInput.input.sourcePath }),
+          },
+        }
         const imported = importClientApplicationFormFromXMLToYAML({
-          context: importContext,
+          context: formImportContext,
           formName: params.assignment.itemName,
           formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
           metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
