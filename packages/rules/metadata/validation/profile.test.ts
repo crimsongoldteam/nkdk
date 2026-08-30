@@ -125,6 +125,34 @@ describe("validation profile", () => {
     expect(line).toMatch(/rssPeak=\d+\.\d+MiB/)
   })
 
+  it("prints a memory checkpoint immediately without retaining it", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    const previous = process.env["NKDK_PROFILE"]
+    process.env["NKDK_PROFILE"] = "1"
+    try {
+      const profiler = createOperationProfiler({
+        operation: "import-from-xml",
+        scope: { scope: "worker", workerIndex: 2 },
+        aggregate: true,
+      })
+
+      profiler.checkpoint("Подготовка импорта конфигурации", "Удерживаемые данные второго прохода", {
+        items: 256,
+        bytes: 4096,
+      })
+
+      expect(profiler.records()).toEqual([])
+      expect(error).toHaveBeenCalledTimes(1)
+      expect(String(error.mock.calls[0]?.[0])).toMatch(
+        /^\[nkdk-profile-step\].*substep="Удерживаемые данные второго прохода".*worker=2 items=256 bytes=4096 .*heapEnd=\d+\.\d+MiB/,
+      )
+    } finally {
+      if (previous === undefined) delete process.env["NKDK_PROFILE"]
+      else process.env["NKDK_PROFILE"] = previous
+      error.mockRestore()
+    }
+  })
+
   it("aggregates repeated records by substep when requested", () => {
     const profiler = createOperationProfiler({
       operation: "import-from-xml",

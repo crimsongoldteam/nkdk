@@ -146,6 +146,56 @@ test("собирает MCP до замера и переиспользует о�
   assert.equal(result.runs[0].elapsedMs, 100)
 })
 
+test("сохраняет упорядоченные checkpoints памяти отдельно от сводной таблицы", async () => {
+  const checkpoint = [
+    '[nkdk-profile-step] operation="import-from-xml" step="Подготовка импорта конфигурации" substep="Начало задания второго прохода: Документ/Заказ/Свойства.yaml" scope=worker worker=2 items=17 bytes=4096 time=0.00ms rssStart=100.0MiB rssEnd=100.0MiB rssPeak=100.0MiB heapStart=42.5MiB heapEnd=42.5MiB heapPeak=42.5MiB',
+    '[nkdk-profile-step] operation="import-from-xml" step="Подготовка импорта конфигурации" substep="Удерживаемый output второго прохода" scope=worker worker=2 items=18 bytes=8192 time=0.00ms rssStart=101.0MiB rssEnd=101.0MiB rssPeak=101.0MiB heapStart=45.0MiB heapEnd=45.0MiB heapPeak=45.0MiB',
+  ].join("\n")
+  const session = {
+    call: mock.fn(async () => ({
+      result: { isError: false },
+      payload: { ok: true, succeeded: 1, failed: [], warnings: [], summary: { errors: 0, warnings: 0 } },
+    })),
+    takeStderr: mock.fn(() => checkpoint),
+    close: mock.fn(async () => undefined),
+  }
+
+  const result = await runProfile(
+    { xmlDir: "/xml", yamlDir: "/yaml", runs: 1 },
+    {
+      buildMcp: mock.fn(),
+      createSession: mock.fn(async () => session),
+      now: mock.fn(() => 0),
+      clearOutput: mock.fn(),
+      createProject: mock.fn(() => "/project"),
+    },
+  )
+
+  assert.deepEqual(result.memoryCheckpoints.map(({ worker, items, bytes, heapEnd, substep }) => ({
+    worker,
+    items,
+    bytes,
+    heapEnd,
+    substep,
+  })), [
+    {
+      worker: 2,
+      items: 17,
+      bytes: 4096,
+      heapEnd: 42.5,
+      substep: "Начало задания второго прохода: Документ/Заказ/Свойства.yaml",
+    },
+    {
+      worker: 2,
+      items: 18,
+      bytes: 8192,
+      heapEnd: 45,
+      substep: "Удерживаемый output второго прохода",
+    },
+  ])
+  assert.equal(result.profileRows.some(({ step }) => step.includes("Начало задания второго прохода")), false)
+})
+
 function main(substep, time, bytes) {
   return { scope: "main", substep, time, bytes }
 }

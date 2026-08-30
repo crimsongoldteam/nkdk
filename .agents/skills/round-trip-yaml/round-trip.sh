@@ -56,7 +56,7 @@ config_rel_path() {
 }
 
 component_path_for() {
-  round_trip_component_path "$1" "${NKDK_XML_REPO}"
+  round_trip_component_path "$1" "${NKDK_XML_DIR}"
 }
 
 yaml_dir_for() {

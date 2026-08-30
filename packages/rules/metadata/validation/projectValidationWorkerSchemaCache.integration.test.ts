@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import { createProjectValidationWorkerSchemaCache } from "./projectValidationWorkerSchemaCache"
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
 import { getConfigurationMetadataProjectSpec } from "../projectDefinition/specs"
@@ -9,6 +9,14 @@ const context = {
   languages: { default: "ru", registered: ["ru"], registeredSet: new Set(["ru"]), version: '["ru",["ru"]]' },
   exportToYAML: { toTyped: false },
 } as const
+
+it("не компилирует заранее схемы, которые worker может не использовать", async () => {
+  const compileAll = vi.fn()
+  const cache = { compileAll } as never
+
+  expect(await createProjectValidationWorkerSchemaCache({ context }, { createCache: () => cache })).toBe(cache)
+  expect(compileAll).not.toHaveBeenCalled()
+})
 
 describe("projectValidationWorkerSchemaCache", () => {
   let acceptsConfigurationNameOnly: boolean

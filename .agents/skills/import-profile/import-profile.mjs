@@ -154,7 +154,10 @@ export async function runProfile(options, overrides = {}) {
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
     peakHeapMiB: max(allSteps.map((step) => step.heapPeak).filter((value) => value !== undefined)),
     controlExport: summarizeControlExport(allSteps),
-    profileRows: aggregateRows(allSteps.filter(isSummaryProfileStep)),
+    memoryCheckpoints: allSteps.filter(isMemoryCheckpointStep),
+    profileRows: aggregateRows(allSteps.filter((step) =>
+      isSummaryProfileStep(step) && !isMemoryCheckpointStep(step)
+    )),
   }
 }
 
@@ -407,6 +410,14 @@ function printResult(result, options) {
 export function isSummaryProfileStep(step) {
   if (typeof step.substep !== "string") return false
   return !step.substep.startsWith("XML в YAML:")
+}
+
+function isMemoryCheckpointStep(step) {
+  return typeof step.substep === "string" && (
+    step.substep.startsWith("Начало задания второго прохода: ")
+    || step.substep === "Удерживаемый вход второго прохода"
+    || step.substep === "Удерживаемый output второго прохода"
+  )
 }
 
 function aggregateRows(steps) {

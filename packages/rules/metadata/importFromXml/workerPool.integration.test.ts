@@ -15,6 +15,7 @@ import type { ImportAssignment, ImportDiagnostic, ImportWorkerCommand } from "./
 import { serializeImportYaml, writeMainImportYaml } from "./writeOutput"
 import { createImportBinaryResult } from "./binaryResult"
 import {
+  createXmlImportWorkerPoolOptions,
   createXmlImportWorkerPool,
   createXmlImportWorkerPoolHandle,
   type XmlImportStateBatch,
@@ -29,6 +30,12 @@ afterEach(() => {
 })
 
 describe("XML import worker pool", () => {
+  it("ограничивает XML-import worker 512 МБ heap", () => {
+    expect(createXmlImportWorkerPoolOptions()).toMatchObject({
+      resourceLimits: { maxOldGenerationSizeMb: 512 },
+    })
+  })
+
   it("keeps the generic XML context free of component selection", () => {
     expect(mockContextFromXML().fromXML).not.toHaveProperty("componentKind")
   })

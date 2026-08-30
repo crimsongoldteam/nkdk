@@ -91,6 +91,7 @@ export interface ValidationProfiler {
     fn: () => Promise<T>
   ): Promise<T>
   record(step: string, substep: string, params: { items?: number; timeMs: number; bytes?: number }): void
+  checkpoint(step: string, substep: string, params: { items?: number; bytes?: number }): void
   records(): ValidationProfileRecord[]
   flush(): void
 }
@@ -194,6 +195,20 @@ export function createOperationProfiler(options: {
           timeMs: params.timeMs,
         })
       )
+    },
+    checkpoint(step, substep, params) {
+      if (!isProfilingEnabled()) return
+      const tracker = createMemoryTracker()
+      console.error(formatValidationProfileRecord(createRecord({
+        operation: options.operation,
+        step,
+        substep,
+        scope: options.scope,
+        items: params.items,
+        bytes: params.bytes,
+        tracker,
+        timeMs: 0,
+      })))
     },
     records() {
       return [...records]
