@@ -13,9 +13,9 @@ import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 describe("assignFormXmlIds", () => {
   it.each([
-    ["снимок", "11", "22", "-1", "11"],
-    ["целевой XML", undefined, "22", "-1", "22"],
-    ["специальный ID", undefined, undefined, "-1", "-1"],
+    ["снимок", "11", "22", undefined, "11"],
+    ["целевой XML", undefined, "22", undefined, "22"],
+    ["специальный ID", "11", "22", "-1", "-1"],
     ["свободный ID", undefined, undefined, undefined, "1"],
   ] as const)("использует приоритет: %s", (_case, snapshotId, referenceId, specialId, expected) => {
     const address = "Форма.Элемент.Поле"
@@ -32,6 +32,23 @@ describe("assignFormXmlIds", () => {
     expect(setup.collector.fragment("Форма.yaml").entities).toContainEqual(
       expect.objectContaining({ logicalAddress: address, xmlId: expected }),
     )
+  })
+
+  it.each([
+    ["снимка", "-4", undefined, "-4"],
+    ["целевого XML", undefined, "-6", "-6"],
+  ] as const)("сохраняет отрицательный ID из %s", (_case, snapshotId, referenceId, expected) => {
+    const address = "Форма.Элемент.Поле"
+    const setup = runtimeSetup(snapshotId === undefined ? [] : [entity(address, snapshotId)])
+    const node = { _name: "Поле", _id: "" }
+    register(setup.runtime.withLogicalAddress(address), node, "elements")
+
+    assignFormXmlIds(
+      { Items: [node] },
+      referenceId === undefined ? undefined : { Items: [{ _name: "Поле", _id: referenceId }] },
+    )
+
+    expect(node._id).toBe(expected)
   })
 
   it("назначает одинаковый свободный ID в разных пространствах", () => {
@@ -60,14 +77,14 @@ describe("assignFormXmlIds", () => {
     expect(second._id).toBe("1")
   })
 
-  it("отклоняет повторный неотрицательный ID внутри одного XML-контейнера", () => {
+  it.each(["1", "-4"])("отклоняет повторный ID %s внутри одного XML-контейнера", (id) => {
     const firstAddress = "Форма.Элемент.Первый"
     const secondAddress = "Форма.Элемент.Второй"
-    const setup = runtimeSetup([entity(firstAddress, "1"), entity(secondAddress, "1")])
+    const setup = runtimeSetup([entity(firstAddress, id), entity(secondAddress, id)])
     const { first, second } = registerElementPair(setup.runtime, firstAddress, secondAddress)
 
     expect(() => assignFormXmlIds({ Items: [first, second] })).toThrow(
-      "Повторный ID 1 в XML-контейнере (elements)",
+      `Повторный ID ${id} в XML-контейнере (elements)`,
     )
   })
 })

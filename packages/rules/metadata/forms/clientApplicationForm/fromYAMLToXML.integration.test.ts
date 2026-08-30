@@ -303,7 +303,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         .fragment("Справочники/Товары/Формы/ФормаЭлемента.yaml")
         .entities.map((entity) => [entity.logicalAddress, entity.xmlId]),
     )
-    expect(identities.get(childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"))).toBe("-1")
+    expect(identities.has(childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"))).toBe(false)
     expect(identities.get(inputAddress)).toBe(inputField._id)
     expect(identities.get(childSegmentUid(inputAddress, "КонтекстноеМеню"))).toBe(
       (inputField.ContextMenu as Record<string, unknown>)._id,

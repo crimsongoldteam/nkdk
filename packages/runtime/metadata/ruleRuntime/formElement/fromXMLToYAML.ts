@@ -74,6 +74,7 @@ export function importSingleFormElementFromXMLToYAML(params: {
   xml: ElementXML | undefined
   ownerXmlName?: string
   nameStyle?: SingletonNameStyle
+  directId?: string
   traversal: DirectImportTraversal
 }): Record<string, unknown> | undefined {
   if (params.xml === undefined) return undefined
@@ -107,7 +108,9 @@ export function importSingleFormElementFromXMLToYAML(params: {
   })
   const itemContext = withSingletonNameVariantFromXML(context, nameVariant)
 
-  collectConfigurationIndexIdentityFromXML({ context: itemContext, sourceXmlKey: "_id", xmlValue: params.xml._id })
+  if (params.directId === undefined) {
+    collectConfigurationIndexIdentityFromXML({ context: itemContext, sourceXmlKey: "_id", xmlValue: params.xml._id })
+  }
   const yaml = (
     importPropertiesFromXMLToYAML({
       context: itemContext,
