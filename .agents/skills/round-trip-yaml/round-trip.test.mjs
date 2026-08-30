@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import { spawnSync } from "node:child_process"
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises"
+import { chmod, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -133,6 +133,57 @@ test("оставляет выбор числа worker production import", () => 
 test("передаёт вычисленный путь компонента в import и sync", () => {
   assert.doesNotMatch(script, /componentPath:"cf"/u)
   assert.match(script, /componentPath:process\.argv\[4\]/u)
+})
+
+test("для выбранного вложенного XML-каталога использует логический путь cf", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "nkdk-round-trip-selected-config-"))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const xmlRepo = join(root, "xml-repo")
+  const xmlDir = join(xmlRepo, "cf", "erp")
+  const fakeBin = join(root, "bin")
+  const capturedInput = join(root, "import-input.json")
+  await mkdir(xmlDir, { recursive: true })
+  await mkdir(fakeBin)
+  await writeFile(join(xmlDir, "Configuration.xml"), "<MetaDataObject/>\n")
+  run("git", ["init", "-q"], xmlRepo)
+  run("git", ["add", "cf/erp/Configuration.xml"], xmlRepo)
+  run("git", ["-c", "user.name=NKDK Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "fixture"], xmlRepo)
+
+  const fakeNode = join(fakeBin, "node")
+  await writeFile(fakeNode, `#!/usr/bin/env bash
+if [[ "\${1:-}" == *"/.agents/tools/mcp/call.mjs" ]]; then
+  while [ "$#" -gt 0 ]; do
+    if [ "$1" = "--input" ]; then
+      cp "$2" "$NKDK_TEST_CAPTURE"
+      exit 1
+    fi
+    shift
+  done
+fi
+exec "$NKDK_TEST_REAL_NODE" "$@"
+`)
+  await chmod(fakeNode, 0o755)
+
+  const result = spawnSync("bash", [fileURLToPath(new URL("./round-trip.sh", import.meta.url))], {
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      NKDK_ROUND_TRIP_YAML_DIR: join(root, "yaml"),
+      NKDK_TEST_CAPTURE: capturedInput,
+      NKDK_TEST_REAL_NODE: process.execPath,
+      NKDK_XML_DIR: xmlDir,
+      NKDK_XML_REPO: xmlRepo,
+      PATH: `${fakeBin}:${process.env.PATH}`,
+      TMPDIR: join(root, "tmp"),
+    },
+  })
+  assert.notEqual(result.status, 0)
+  assert.deepEqual(JSON.parse(await readFile(capturedInput, "utf8")), {
+    xmlDir,
+    projectDir: join(root, "tmp", "round-trip-yaml-mcp-project", "cf_erp"),
+    componentPath: "cf",
+    allowWrite: true,
+  })
 })
 
 test("переиспользует один MCP-проект для основной конфигурации и расширений", () => {

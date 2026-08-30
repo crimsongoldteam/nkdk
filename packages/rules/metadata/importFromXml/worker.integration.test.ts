@@ -678,7 +678,7 @@ describe("XML import worker second pass", () => {
     expect(readFileSync(formFile.sourcePath, "utf-8")).toContain('ПутьКДанным: ""')
   })
 
-  it("выводит агрегированный профиль только после завершения прохода", async () => {
+  it("выводит удерживаемые данные после пачки и агрегированный профиль после прохода", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
     vi.stubEnv("NKDK_PROFILE", "1")
     const outputDir = createTempDir("second-pass-profile")
@@ -690,12 +690,23 @@ describe("XML import worker second pass", () => {
       kind: "secondPassBatch",
       assignmentIds: [assignments.catalog.id, assignments.form.id],
     })
-    expect(error).not.toHaveBeenCalled()
+    const checkpointLines = error.mock.calls
+      .map(([line]) => String(line))
+      .filter((line) => line.startsWith("[nkdk-profile-step]"))
+    expect(checkpointLines).toHaveLength(4)
+    expect(checkpointLines).toEqual(expect.arrayContaining([
+      expect.stringContaining(`substep="Начало задания второго прохода: ${assignments.catalog.id}"`),
+      expect.stringContaining(`substep="Начало задания второго прохода: ${assignments.form.id}"`),
+      expect.stringMatching(/substep="Удерживаемый вход второго прохода".*items=2 bytes=[1-9]\d*/u),
+      expect.stringMatching(/substep="Удерживаемый output второго прохода".*items=2 bytes=[1-9]\d*/u),
+    ]))
 
     const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
     expect(finished).toBeUndefined()
     const lines = error.mock.calls.map(([line]) => String(line)).filter((line) => line.startsWith("[nkdk-profile-step]"))
     expect(lines.length).toBeGreaterThan(0)
+    expect(lines.filter((line) => line.includes("Начало задания второго прохода: "))).toHaveLength(2)
+    expect(lines.filter((line) => line.includes("Удерживаемый "))).toHaveLength(2)
     expect(lines.filter((line) => line.includes('substep="Сериализация YAML"'))).toHaveLength(1)
   })
 

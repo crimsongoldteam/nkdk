@@ -239,6 +239,10 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
   let schemaCacheForTests: ValidationSchemaCache | undefined
   let controlExportForTests: typeof executeImportControlExport | undefined
   const preparedYaml = new Map<string, DeferredImportYaml>()
+  const retainedInputBytesByAssignment = new Map<string, number>()
+  const retainedOutputBytesByAssignment = new Map<string, number>()
+  let retainedInputBytes = 0
+  let retainedOutputBytes = 0
   const assignedImportIds = new Set<string>()
   const assignedImports = new Map<string, ImportAssignment>()
   const legacyPreparedRecords = new Map<string, Uint8Array>()
@@ -278,6 +282,10 @@ async function runImportWorkerCommand(
   if (command.kind === "initialize") {
     await endSecondPass()
     preparedYaml.clear()
+    retainedInputBytesByAssignment.clear()
+    retainedOutputBytesByAssignment.clear()
+    retainedInputBytes = 0
+    retainedOutputBytes = 0
     assignedImportIds.clear()
     assignedImports.clear()
     legacyPreparedRecords.clear()
@@ -369,6 +377,11 @@ async function runImportWorkerCommand(
     const state = requireInitializedState()
     const accumulator = requireSecondPassAccumulator()
     for (const assignmentId of command.assignmentIds) {
+      accumulator.profiler.checkpoint(
+        "Подготовка импорта конфигурации",
+        `Начало задания второго прохода: ${assignmentId}`,
+        { items: preparedYaml.size, bytes: retainedOutputBytes },
+      )
       await processSecondPass(
         assignmentId,
         state,
@@ -376,6 +389,7 @@ async function runImportWorkerCommand(
         controlExportForTests ?? executeImportControlExport,
       )
     }
+    checkpointRetainedSecondPass(accumulator.profiler)
     return finishImportWorkerBatch(accumulator, state.workerIndex)
   }
 
@@ -516,6 +530,7 @@ async function processSecondPass(
           }),
     }
     preparedYaml.set(assignmentId, prepared)
+    retainSecondPassBytes(retainedInputBytesByAssignment, assignmentId, storedBytes.byteLength, "input")
     assignedImportIds.add(assignmentId)
   }
   if (prepared === undefined) throw new Error(`Не найдена подготовленная запись XML-import: ${assignmentId}`)
@@ -552,6 +567,7 @@ async function processSecondPass(
       )
       prepared.proofAudit = undefined
       prepared.output = output
+      retainSecondPassBytes(retainedOutputBytesByAssignment, assignmentId, preparedImportOutputBytes(output), "output")
       accumulator.fragmentWriter.appendImportIndex(output.main.index)
       accumulator.fragmentWriter.appendImportFinal(output.main.final)
       if (output.base !== undefined) accumulator.fragmentWriter.appendImportIndex(output.base.index)
@@ -563,6 +579,7 @@ async function processSecondPass(
         importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"),
       )
       preparedYaml.delete(assignmentId)
+      releaseRetainedSecondPass(assignmentId)
     }
   }
 
@@ -632,6 +649,7 @@ async function processThirdPass(
     )
   } finally {
     preparedYaml.delete(assignmentId)
+    releaseRetainedSecondPass(assignmentId)
   }
   accumulator.profiler.record(
     "Подготовка импорта конфигурации",
@@ -650,6 +668,48 @@ function createSecondPassAccumulator(workerIndex: number, profiler = createImpor
     profiler,
     stateEntries: 0,
   }
+}
+
+function checkpointRetainedSecondPass(profiler: ValidationProfiler): void {
+  profiler.checkpoint(
+    "Подготовка импорта конфигурации",
+    "Удерживаемый вход второго прохода",
+    {
+      items: retainedInputBytesByAssignment.size,
+      bytes: retainedInputBytes,
+    },
+  )
+  profiler.checkpoint(
+    "Подготовка импорта конфигурации",
+    "Удерживаемый output второго прохода",
+    {
+      items: retainedOutputBytesByAssignment.size,
+      bytes: retainedOutputBytes,
+    },
+  )
+}
+
+function preparedImportOutputBytes(output: PreparedImportOutput): number {
+  return output.main.serialized.bytes.byteLength + (output.base?.serialized.bytes.byteLength ?? 0)
+}
+
+function retainSecondPassBytes(
+  entries: Map<string, number>,
+  assignmentId: string,
+  bytes: number,
+  kind: "input" | "output",
+): void {
+  const previous = entries.get(assignmentId) ?? 0
+  entries.set(assignmentId, bytes)
+  if (kind === "input") retainedInputBytes += bytes - previous
+  else retainedOutputBytes += bytes - previous
+}
+
+function releaseRetainedSecondPass(assignmentId: string): void {
+  retainedInputBytes -= retainedInputBytesByAssignment.get(assignmentId) ?? 0
+  retainedOutputBytes -= retainedOutputBytesByAssignment.get(assignmentId) ?? 0
+  retainedInputBytesByAssignment.delete(assignmentId)
+  retainedOutputBytesByAssignment.delete(assignmentId)
 }
 
 function finishImportWorkerBatch(accumulator: SecondPassAccumulator, workerIndex: number) {
@@ -1802,6 +1862,10 @@ function clearWorkerState(): void {
   secondPassAccumulator?.fragmentWriter.discard()
   secondPassAccumulator = undefined
   preparedYaml.clear()
+  retainedInputBytesByAssignment.clear()
+  retainedOutputBytesByAssignment.clear()
+  retainedInputBytes = 0
+  retainedOutputBytes = 0
   assignedImportIds.clear()
   assignedImports.clear()
   legacyPreparedRecords.clear()
