@@ -278,6 +278,7 @@ export function buildPartialXmlImpactPlan(params: {
       sameYamlPath(candidate.yamlPath, companion.yamlPath)
     )
     if (reference === undefined) {
+      if (companion.required === false) return
       throw new Error(
         `Не найдена сохранённая каноническая ссылка ${formatYamlPath(companion.yamlPath)} в ${sourceResource.projectPath}`
       )

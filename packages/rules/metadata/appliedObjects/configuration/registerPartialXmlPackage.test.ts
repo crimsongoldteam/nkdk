@@ -42,6 +42,7 @@ it("регистрирует корневые спутники частично�
       yamlPath: ["ОсновнойЯзык"],
       include: "targetAssignment",
       loadTarget: true,
+      required: false,
     }],
     yamlCompanionInputIds: [],
   })

@@ -23,6 +23,7 @@ export interface PartialXmlAssignmentPolicy {
     readonly yamlPath: ProjectStateYamlPath
     readonly include: "targetAssignment"
     readonly loadTarget: boolean
+    readonly required?: boolean
   }[]
   readonly yamlCompanionInputs?: readonly { readonly projectPattern: string }[]
 }

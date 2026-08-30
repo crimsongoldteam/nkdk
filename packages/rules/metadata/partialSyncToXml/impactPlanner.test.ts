@@ -620,6 +620,35 @@ describe("partial XML impact planner", () => {
     expect(result.selection).toEqual({ kind: "selected", projectPaths: [owner] })
   })
 
+  it("пропускает отсутствующую необязательную ссылку-спутник", () => {
+    const optionalCompanion = {
+      yamlPath: ["ОсновнойЯзык"],
+      include: "targetAssignment",
+      loadTarget: true,
+      required: false,
+    } as const
+    const optionalRegistry = createPartialXmlPackagePolicyRegistry()
+    optionalRegistry.register({
+      assignment: {
+        assignmentPattern: "Конфигурация.yaml",
+        loadDocumentRoles: ["metadata"],
+        companionReferences: [optionalCompanion],
+      },
+    })
+
+    const result = buildPartialXmlImpactPlan({
+      topology,
+      currentResources: resources([root]),
+      changes: changes({ changed: [root] }),
+      policies: optionalRegistry.resolve(topology),
+      referencesFor: () => [],
+      resolveCanonicalTarget: () => undefined,
+    })
+
+    expect(result.selection).toEqual({ kind: "selected", projectPaths: [root] })
+    expect(result.loadTargets).toEqual(["Configuration.xml"])
+  })
+
   it("останавливает циклических спутников и устраняет повторы", () => {
     const cyclicRegistry = createPartialXmlPackagePolicyRegistry()
     cyclicRegistry.register({
