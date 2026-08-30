@@ -164,7 +164,7 @@ export function registerNkdkCapabilities(
     "nkdk.validate_project",
     {
       title: "Validate NKDK YAML project",
-      description: "Проверяет все компоненты в корне NKDK-проекта и возвращает diagnostics в JSON.",
+      description: "В фоне проверяет все компоненты в корне NKDK-проекта и сразу возвращает operationId. Итог доступен через nkdk.get_operation.",
       inputSchema: mcpSchemas.validateProjectInput,
       outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
@@ -188,7 +188,7 @@ export function registerNkdkCapabilities(
     {
       title: "Rebuild NKDK project cache",
       description:
-        "Строит отдельное полное состояние проекта, выполняет validation и атомарно заменяет cache даже при обычных diagnostics. Возвращает diagnostics и статистику. Требует allowWrite=true.",
+        "В фоне строит отдельное полное состояние проекта, выполняет validation и атомарно заменяет cache даже при обычных diagnostics. Сразу возвращает operationId; итог доступен через nkdk.get_operation. Требует allowWrite=true.",
       inputSchema: mcpSchemas.projectCacheInput,
       outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
@@ -200,7 +200,7 @@ export function registerNkdkCapabilities(
     {
       title: "Import 1C XML to NKDK YAML",
       description:
-        "Импортирует готовую XML-выгрузку одного компонента из xmlDir в projectDir. Для расширения путь определяется из Configuration.xml, componentPath передавать не требуется; при передаче он служит ограничением, цель должна отсутствовать или быть пустой. Операция не подключается к 1С и не импортирует все компоненты за один вызов. Пишет файлы только при allowWrite=true.",
+        "В фоне импортирует готовую XML-выгрузку одного компонента из xmlDir в projectDir и сразу возвращает operationId; итог доступен через nkdk.get_operation. Для расширения путь определяется из Configuration.xml, componentPath передавать не требуется; при передаче он служит ограничением, цель должна отсутствовать или быть пустой. Операция не подключается к 1С и не импортирует все компоненты за один вызов. Пишет файлы только при allowWrite=true.",
       inputSchema: mcpSchemas.importFromXmlInput,
       outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
@@ -218,7 +218,7 @@ export function registerNkdkCapabilities(
     {
       title: "Import 1C infobase to NKDK YAML",
       description:
-        "Импортирует один компонент информационной базы: по умолчанию cf, расширение выбирается через cfe/<Имя>; цель должна отсутствовать или быть пустой. Перед расширением cf импортируется первым. Перед операцией нужно создать .nkdk/project.yaml по опубликованной схеме, вручную внести нужные пароли, а затем повторить импорт. Запускает 1С и пишет файлы только при allowWrite=true.",
+        "В фоне импортирует один компонент информационной базы и сразу возвращает operationId; итог доступен через nkdk.get_operation. Выбирает по умолчанию cf, расширение — через cfe/<Имя>; цель должна отсутствовать или быть пустой. Перед расширением cf импортируется первым. Перед операцией нужно создать .nkdk/project.yaml по опубликованной схеме, вручную внести нужные пароли, а затем повторить импорт. Запускает 1С и пишет файлы только при allowWrite=true.",
       inputSchema: mcpSchemas.importFromInfobaseInput,
       outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
@@ -236,7 +236,7 @@ export function registerNkdkCapabilities(
     {
       title: "Partially sync NKDK YAML to 1C infobase",
       description:
-        "Частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы через агентный или автономный режим и обновляет конфигурацию базы данных. Запускает платформу и изменяет конфигурацию только при allowWrite=true.",
+        "В фоне частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы и сразу возвращает operationId; итог доступен через nkdk.get_operation. Поддерживает агентный и автономный режимы и обновляет конфигурацию базы данных. Запускает платформу и изменяет конфигурацию только при allowWrite=true.",
       inputSchema: mcpSchemas.syncToInfobaseInput,
       outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },
@@ -278,7 +278,7 @@ export function registerNkdkCapabilities(
     {
       title: "Sync NKDK YAML to 1C XML",
       description:
-        "Выгружает один YAML-компонент projectDir/componentPath в заданный xmlDir через файл индекса конфигурации. componentPath по умолчанию cf; xmlDir не вычисляется как xmlRootDir/componentPath. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics. Файлы пишутся только при allowWrite=true.",
+        "В фоне выгружает один YAML-компонент projectDir/componentPath в заданный xmlDir через файл индекса конфигурации и сразу возвращает operationId; итог доступен через nkdk.get_operation. componentPath по умолчанию cf; xmlDir не вычисляется как xmlRootDir/componentPath. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics. Файлы пишутся только при allowWrite=true.",
       inputSchema: mcpSchemas.syncToXmlInput,
       outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },

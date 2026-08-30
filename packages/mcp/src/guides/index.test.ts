@@ -44,6 +44,8 @@ describe("guide definitions", () => {
     expect(importGuide?.text).not.toContain(".nkdk/tmp/import/<operation-id>")
     expect(importGuide?.text).toContain("не подключается к 1С")
     expect(importGuide?.text).toContain("не импортирует все компоненты")
+    expect(importGuide?.text).toContain("nkdk.get_operation")
+    expect(importGuide?.text).toContain("operationId")
   })
 
   it("describes sync through configuration index without reference catalog", () => {
@@ -53,5 +55,14 @@ describe("guide definitions", () => {
     expect(syncGuide?.text).toContain("projectDir/componentPath")
     expect(syncGuide?.text).toContain("xmlRootDir/componentPath")
     expect(syncGuide?.text).not.toContain("reference")
+    expect(syncGuide?.text).toContain("nkdk.cancel_operation")
+  })
+
+  it("describes background validation result lookup", () => {
+    const validationGuide = guideDefinitions.find((guide) => guide.uri === "nkdk://guides/config-validate-yaml")
+
+    expect(validationGuide?.text).toContain("все компоненты")
+    expect(validationGuide?.text).toContain("nkdk.get_operation")
+    expect(validationGuide?.text).toContain("succeeded")
   })
 })
