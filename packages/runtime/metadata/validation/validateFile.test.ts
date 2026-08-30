@@ -493,6 +493,26 @@ describe("validateParsedFile", () => {
     ]))
   })
 
+  it("invalid подавляет ошибку элемента последовательности", () => {
+    const schema = compileValidationSchema(Type.Object({
+      Состав: Type.Array(Type.String({ pattern: "^Справочник\\." })),
+    }))
+    const parsed = parseMetadataYaml(`
+Состав:
+  - !xml/invalid a0f8c954-9877-4b52-9172-02b76aebb903
+`)
+
+    const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
+
+    expect(result.diagnostics).toEqual([])
+    expect(result.issues).toEqual([])
+    expect(result.boundaries).toEqual([{
+      annotation: "invalid",
+      target: { kind: "path", path: ["Состав", 0] },
+      state: "accepted",
+    }])
+  })
+
   it("считает тег invalid лишним, если значение правильно", () => {
     const schema = compileValidationSchema(Type.Object({ Использовать: Type.Boolean() }))
     const parsed = parseMetadataYaml(`Использовать: !xml/invalid true\n`)
