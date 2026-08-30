@@ -779,6 +779,23 @@ describe("единое восстановление XML-аномалий assignm
     expect(xml).toContain('<AdditionalColumns table="Объект.Таблица"')
   })
 
+  it("привязывает raw к экспортированной дополнительной колонке", () => {
+    const xml = exportFormWithAnomalies([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: Строка",
+      "    ДополнительныеКолонки:",
+      "      Объект.Таблица:",
+      "        Статус: !xml/raw",
+      "          $значение:",
+      "            Тип: Строка",
+      "          $xml:",
+      "            _future: yes",
+    ], true)
+
+    expect(xml).toMatch(/<Column name="Статус"[^>]*future="yes"/u)
+  })
+
   it("сохраняет относительный XML-путь raw внутри вложенных объектов external item", () => {
     const prepared = prepareAnomalies([
       "Форма:",

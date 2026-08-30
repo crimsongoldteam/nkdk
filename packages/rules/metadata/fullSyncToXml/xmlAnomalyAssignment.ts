@@ -27,6 +27,7 @@ import {
 import {
   bindDeferredObjectValues,
   currentRuleRegistrySet,
+  findInlineProperty,
   getOrderedKeysToXML,
   getYAMLToXMLPlan,
   type MetadataItemRule,
@@ -265,6 +266,20 @@ function cloneSemanticValue(params: {
     return target
   }
   if (!isRecord(params.value)) return params.value
+
+  const rule = params.rule
+  const inline = rule === undefined ? undefined : findInlineProperty(rule)
+  if (rule !== undefined && inline !== undefined) {
+    const property = propertyForYamlKey(rule, inline.yamlKey)
+    if (property === undefined) {
+      throw new Error(`Для yamlInline-свойства ${rule.itemType}.${inline.yamlKey} не найден XML-план`)
+    }
+    return clonePropertySemanticValue({
+      ...params,
+      value: params.value,
+      property,
+    })
+  }
 
   const target: Record<string, unknown> = {}
   const annotationsByKey = new Map<string, XmlAnomalyAnnotation>()
