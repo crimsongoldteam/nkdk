@@ -1,6 +1,5 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { existsSync } from "node:fs"
-import { readFile } from "node:fs/promises"
 import { join, posix } from "node:path"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import {
@@ -58,7 +57,6 @@ import {
 } from "./validationContribution"
 import {
   ImportXmlInputError,
-  prepareImportYaml,
   prepareImportYamlFromDocuments,
   readImportXmlDocuments,
   type PreparedImportYaml,
@@ -843,7 +841,6 @@ async function prepareYamlForFinalPass(
       ...(baseConfigurationIndex === undefined ? {} : { baseConfigurationIndex }),
       ...(controlBaseFormSource === undefined ? {} : { baseFormSource: controlBaseFormSource }),
       composition: activeSecondPass?.composition ?? { children: () => [] },
-      readSource: async (sourcePath) => readFile(sourcePath, "utf8"),
       profile(event) {
         profiler.record(
           "Подготовка импорта конфигурации",
@@ -857,30 +854,6 @@ async function prepareYamlForFinalPass(
             items: event.detailedRereads,
             timeMs: 0,
           })
-        }
-      },
-      loadDetailedImport: async () => {
-        const detailed = await prepareImportYaml({
-          assignment: prepared.assignment,
-          context: state.context,
-          collector: createConfigurationIndexCollector(),
-          profiler,
-          topology: state.topology,
-          proofDetail: "full",
-        })
-        finalizeMetadataItemImportedYaml({
-          yaml: detailed.yaml,
-          rule: detailed.rule,
-          ownerMetadataCache,
-          ...(currentConfigurationData === undefined ? {} : { currentConfigurationYAML: currentConfigurationData }),
-          ...(preparedBaseFormCandidate === undefined
-            ? {}
-            : { savedBaseYAML: preparedBaseFormCandidate.yaml }),
-        })
-        return {
-          data: detailed.yaml,
-          annotations: snapshotXmlAnomalyAnnotations(detailed.yaml, detailed.annotations),
-          audit: detailed.proofAudit,
         }
       },
     }),

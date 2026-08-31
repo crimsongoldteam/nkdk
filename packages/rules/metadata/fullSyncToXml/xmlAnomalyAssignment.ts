@@ -17,11 +17,12 @@ import {
   yamlMappingKeys,
   yamlScalarTagAt,
   xmlExport,
-  xmlObjectRootStructures,
+  xmlObjectDocument,
   xmlElementRawValue,
   type XmlAnomalyAnnotation,
   type XmlAnomalyAnnotations,
   type XmlElementNode,
+  type XmlDocument,
   type XmlRootFingerprint,
 } from "@nkdk/runtime"
 import {
@@ -50,6 +51,7 @@ export interface PreparedAssignmentControlDocument {
   readonly roots: readonly XmlRootFingerprint[]
   readonly mode: "direct" | "serialized"
   materializeXml(): string
+  document(): XmlDocument
 }
 
 export function prepareXmlAnomalyAssignment(params: {
@@ -130,14 +132,13 @@ export function buildPreparedAssignmentControlDocument(params: {
 }): PreparedAssignmentControlDocument {
   const xml = buildFinalizedAssignmentXmlObject(params)
   if (params.document.rawBoundaries.length === 0 && params.document.deferred.length === 0) {
-    const direct = xmlObjectRootStructures(xml)
-    if (direct.kind === "supported") {
-      let materialized: string | undefined
-      return {
-        roots: direct.roots,
-        mode: "direct",
-        materializeXml: () => materialized ??= xmlExport(xml),
-      }
+    const addressed = xmlObjectDocument(xml).document
+    let materialized: string | undefined
+    return {
+      roots: rootFingerprints(addressed.roots),
+      mode: "direct",
+      materializeXml: () => materialized ??= xmlExport(xml),
+      document: () => addressed,
     }
   }
   const materialized = serializePreparedAssignmentXml(xml, params.document.rawBoundaries)
@@ -145,6 +146,10 @@ export function buildPreparedAssignmentControlDocument(params: {
     roots: rootFingerprints(parseXmlRootStructuresWithSaxes(materialized).roots),
     mode: "serialized",
     materializeXml: () => materialized,
+    document: () => parseXmlDocumentWithSaxes(materialized, {
+      preserveXsiNil: true,
+      preserveEmptyElements: true,
+    }),
   }
 }
 

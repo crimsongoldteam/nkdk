@@ -1,15 +1,15 @@
 import {
   applyXmlPatch,
   decodeXmlRawValue,
-  parseXmlDocumentWithSaxes,
   restoreXmlAnomalyAnnotations,
   snapshotXmlAnomalyAnnotations,
   xmlElementRawValue,
   type ConfigurationContextWithExportToXML,
   type LocalConfigurationIndexReader,
   type XmlAnomalyAnnotationsSnapshot,
-  type XmlImportConfigurationContext,
+  type XmlDocument,
   type XmlElementNode,
+  type XmlImportConfigurationContext,
   type XmlRawValue,
 } from "@nkdk/runtime"
 import type { CompiledMetadataResourceTopology, MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -51,13 +51,8 @@ export async function executeImportControlExport(params: {
   readonly baseConfigurationIndex?: LocalConfigurationIndexReader
   readonly baseFormSource?: BaseFormSourceResult
   readonly composition: MetadataXmlPrepareComposition
-  readonly readSource: (sourcePath: string) => Promise<string>
-  readonly loadDetailedImport?: () => Promise<{
-    readonly data: unknown
-    readonly annotations: XmlAnomalyAnnotationsSnapshot
-    readonly audit: XmlAnomalyProofAudit
-  }>
   readonly ordinaryExporter?: typeof prepareFullXmlSyncAssignment
+  readonly controlDocumentBuilder?: typeof buildPreparedAssignmentControlDocument
   readonly profile?: (event: {
     readonly mode: "direct" | "serialized"
     readonly detailedRereads: number
@@ -72,14 +67,6 @@ export async function executeImportControlExport(params: {
     }
   }
   const assignment = projectControlAssignment(params.assignment, params.topology)
-  const sourceCache = new Map<string, string>()
-  const readSource = async (sourcePath: string): Promise<string> => {
-    const cached = sourceCache.get(sourcePath)
-    if (cached !== undefined) return cached
-    const source = await params.readSource(sourcePath)
-    sourceCache.set(sourcePath, source)
-    return source
-  }
   const context = controlExportContext(params.context, params.exportProfile)
   controlExportCountValueForTests += 1
   const prepared = (params.ordinaryExporter ?? prepareFullXmlSyncAssignment)({
@@ -121,7 +108,7 @@ export async function executeImportControlExport(params: {
       throw new Error(`Не найдено описание контрольного XML-документа ${document.declarationId ?? "<unknown>"}`)
     }
     const source = matchSource(params.assignment.xmlFiles, output.role, output.targetXmlPath)
-    const control = buildPreparedAssignmentControlDocument({
+    const control = (params.controlDocumentBuilder ?? buildPreparedAssignmentControlDocument)({
       document: { ...document, rawBoundaries: [] },
       context,
     })
@@ -147,71 +134,58 @@ export async function executeImportControlExport(params: {
       warnings: [],
     }
   }
-  const exported = preliminaryExported.map(({ role, sourcePath, control }) => {
-    const xml = control.materializeXml()
-    return {
-      role,
-      ...(sourcePath === undefined ? {} : { sourcePath }),
-      document: parseXmlDocumentWithSaxes(xml, {
-        preserveXsiNil: true,
-        preserveEmptyElements: true,
-      }),
-    }
-  })
-  const detailed = params.loadDetailedImport === undefined
-    ? undefined
-    : await params.loadDetailedImport()
-  const proofInput = retainUnownedDetailedRaw({
+  const exported = preliminaryExported.map(({ role, sourcePath, control }) => ({
+    role,
+    ...(sourcePath === undefined ? {} : { sourcePath }),
+    document: control.document(),
+  }))
+  const proofInput = retainUnownedImportRaw({
     data: prepared.semanticYamlFile.data,
     annotations: snapshotXmlAnomalyAnnotations(
       prepared.semanticYamlFile.data,
       prepared.semanticYamlFile.annotations,
     ),
-    detailed,
+    imported: {
+      data: params.data,
+      annotations: params.annotations,
+      audit: params.audit,
+    },
     exported,
   })
   const result = await proveXmlAnomalyBoundaries({
     data: proofInput.data,
     annotations: proofInput.annotations,
-    audit: detailed?.audit ?? params.audit,
+    audit: params.audit,
     rule: params.rule,
     exported,
-    readSource,
   })
   params.profile?.({
     mode: controlExportMode(preliminaryExported),
-    detailedRereads: detailed === undefined ? 0 : 1,
+    detailedRereads: 0,
   })
   return result
 }
 
-function controlExportMode(
-  exported: readonly { readonly control: { readonly mode: "direct" | "serialized" } }[],
-): "direct" | "serialized" {
-  return exported.every(({ control }) => control.mode === "direct") ? "direct" : "serialized"
-}
-
-function retainUnownedDetailedRaw(params: {
+function retainUnownedImportRaw(params: {
   readonly data: unknown
   readonly annotations: XmlAnomalyAnnotationsSnapshot
-  readonly detailed: {
+  readonly imported: {
     readonly data: unknown
     readonly annotations: XmlAnomalyAnnotationsSnapshot
     readonly audit: XmlAnomalyProofAudit
-  } | undefined
+  }
   readonly exported: readonly {
     readonly role: ImportXmlInput["role"]
     readonly sourcePath?: string
-    readonly document: ReturnType<typeof parseXmlDocumentWithSaxes>
+    readonly document: XmlDocument
   }[]
 }): { readonly data: unknown; readonly annotations: XmlAnomalyAnnotationsSnapshot } {
-  if (params.detailed === undefined) return params
   const exportedIndexes = params.exported.map((candidate) => ({
     ...candidate,
     elementsByFinalName: indexDocumentElementsByFinalName(candidate.document.roots),
   }))
   const ownedYamlPaths = new Set(
-    params.detailed.audit.boundaries.flatMap((boundary) => [
+    params.imported.audit.boundaries.flatMap((boundary) => [
       JSON.stringify(boundary.yamlPath),
       ...boundary.levels.flatMap((level) =>
         level.rawYamlPath === undefined ? [] : [JSON.stringify(level.rawYamlPath)]
@@ -219,17 +193,15 @@ function retainUnownedDetailedRaw(params: {
     ]),
   )
   const claimedElementNames = new Set(
-    params.detailed.audit.boundaries.flatMap((boundary) =>
-      [
-        ...boundary.levels.flatMap((level) => [level.elementName, xmlLocalName(level.elementName)]),
-        ...boundary.targets.flatMap(({ path }) => {
-          const name = xmlElementNameFromPath(path)
-          return name === undefined ? [] : [name, xmlLocalName(name)]
-        }),
-      ]
-    ),
+    params.imported.audit.boundaries.flatMap((boundary) => [
+      ...boundary.levels.flatMap((level) => [level.elementName, xmlLocalName(level.elementName)]),
+      ...boundary.targets.flatMap(({ path }) => {
+        const name = xmlElementNameFromPath(path)
+        return name === undefined ? [] : [name, xmlLocalName(name)]
+      }),
+    ]),
   )
-  const retained = params.detailed.annotations.entries.filter((entry) => {
+  const retained = params.imported.annotations.entries.filter((entry) => {
     if (entry.annotation.kind !== "raw") return false
     if (typeof entry.key !== "string" || (!entry.key.includes("\\") && !entry.key.startsWith("@"))) {
       return false
@@ -237,13 +209,12 @@ function retainUnownedDetailedRaw(params: {
     if (rawEntryMatchesOrdinaryExport(entry.key, entry.annotation.xml, exportedIndexes)) return false
     const finalXmlName = entry.key.split("\\").at(-1)!
     if (claimedElementNames.has(finalXmlName) || claimedElementNames.has(xmlLocalName(finalXmlName))) return false
-    const path = [...entry.parentPath, entry.key]
-    return !ownedYamlPaths.has(JSON.stringify(path))
+    return !ownedYamlPaths.has(JSON.stringify([...entry.parentPath, entry.key]))
   })
   if (retained.length === 0) return params
   for (const entry of retained) {
     const path = [...entry.parentPath, entry.key]
-    setValueAtPath(params.data, path, valueAtPath(params.detailed.data, path))
+    setValueAtPath(params.data, path, valueAtPath(params.imported.data, path))
   }
   const retainedPaths = new Set(retained.map((entry) => JSON.stringify([...entry.parentPath, entry.key])))
   return {
@@ -368,6 +339,12 @@ function hasPathSuffix(path: readonly string[], suffix: readonly string[]): bool
   if (suffix.length > path.length) return false
   const offset = path.length - suffix.length
   return suffix.every((segment, index) => path[offset + index] === segment)
+}
+
+function controlExportMode(
+  exported: readonly { readonly control: { readonly mode: "direct" | "serialized" } }[],
+): "direct" | "serialized" {
+  return exported.every(({ control }) => control.mode === "direct") ? "direct" : "serialized"
 }
 
 function controlExportMatchesSourceRoots(

@@ -97,6 +97,7 @@ export type XmlAnomalyProofAuditBoundary = XmlAnomalyProofBoundary & {
 }
 
 export interface XmlAnomalyProofAudit {
+  readonly documents?: readonly XmlAnomalyProofSource[]
   readonly sources: readonly {
     readonly sourcePath: string
     readonly role: ImportXmlInput["role"]
@@ -900,6 +901,7 @@ export function captureXmlAnomalyProofAudit(params: {
     rulePath: [...anchor.rulePath],
   }))
   return {
+    documents: params.sources,
     sources: params.sources.map(({ sourcePath, role, document }) => ({
       sourcePath,
       role,
@@ -995,7 +997,7 @@ export async function proveXmlAnomalyBoundaries(params: {
     readonly sourcePath?: string
     readonly document: XmlDocument
   }[]
-  readonly readSource: (sourcePath: string) => Promise<string>
+  readonly readSource?: (sourcePath: string) => Promise<string>
 }): Promise<ProveXmlAnomalyBoundariesResult> {
   let data = params.data
   let ownsData = false
@@ -1026,16 +1028,20 @@ export async function proveXmlAnomalyBoundaries(params: {
   const readDocument = async (sourcePath: string): Promise<XmlDocument> => {
     const cached = rereadDocuments.get(sourcePath)
     if (cached !== undefined) return cached
-    const content = await params.readSource(sourcePath)
-    const document = parseXmlDocumentWithSaxes(content, {
-      preserveXsiNil: true,
-      preserveEmptyElements: true,
-    })
+    const retained = params.audit.documents?.find((source) => source.sourcePath === sourcePath)?.document
+    const document = retained ?? await (async () => {
+      if (params.readSource === undefined) throw new Error(`Не сохранён исходный XML-документ: ${sourcePath}`)
+      const content = await params.readSource(sourcePath)
+      rereadSourcePaths.push(sourcePath)
+      return parseXmlDocumentWithSaxes(content, {
+        preserveXsiNil: true,
+        preserveEmptyElements: true,
+      })
+    })()
     rereadDocuments.set(sourcePath, document)
     const index = indexXmlDocument(document.roots)
     rereadElements.set(sourcePath, index.elements)
     rereadNodes.set(sourcePath, index.nodes)
-    rereadSourcePaths.push(sourcePath)
     return document
   }
 

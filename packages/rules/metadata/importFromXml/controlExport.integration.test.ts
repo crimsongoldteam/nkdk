@@ -76,7 +76,6 @@ describe("executeImportControlExport", () => {
       annotations: { version: 1, entries: [] },
       audit: { sources: [], boundaries: [] },
       index: createLocalConfigurationIndexReader(new Map()),
-      readSource: async () => "",
     })).rejects.toThrow("content topology")
     expect(controlExportCountForTests()).toBe(0)
   })
@@ -91,7 +90,6 @@ describe("executeImportControlExport", () => {
       },
       typeDescriptionXMLNameByType: { AnyIBRef: "AnyRef" },
     }
-    const readSource = vi.fn(async () => { throw new Error("XML не должен читаться до proof") })
     let captured: XmlComponentExportProfile | undefined
 
     await expect(executeImportControlExport({
@@ -107,7 +105,6 @@ describe("executeImportControlExport", () => {
       exportProfile,
       index: createLocalConfigurationIndexReader(new Map()),
       composition: catalogComposition(),
-      readSource,
       ordinaryExporter(params) {
         captured = {
           componentKind: params.context.exportToXML.componentKind as "configurationExtension",
@@ -122,7 +119,6 @@ describe("executeImportControlExport", () => {
     })).rejects.toThrow("projection captured")
 
     expect(captured).toEqual(exportProfile)
-    expect(readSource).not.toHaveBeenCalled()
   })
 
   it("передаёт обычному экспорту подготовленный источник BaseForm", async () => {
@@ -162,7 +158,6 @@ describe("executeImportControlExport", () => {
       index,
       baseConfigurationIndex,
       composition: catalogComposition(),
-      readSource: async () => "",
       baseFormSource,
       ordinaryExporter(params) {
         captured = params
@@ -189,7 +184,6 @@ describe("executeImportControlExport", () => {
       annotations,
       audit: { sources: [], boundaries: [] },
       index: createLocalConfigurationIndexReader(new Map()),
-      readSource: async () => { throw new Error("root raw не должен перечитывать source") },
       ordinaryExporter,
     })
 
@@ -227,13 +221,12 @@ describe("executeImportControlExport", () => {
       index,
       data,
       annotations,
-      readSource: async (path) => fs.promises.readFile(path, "utf8"),
     })
 
     expect((result.data as Record<string, unknown>).ТипКода).toBeUndefined()
     expect(result.annotations.entries).not.toEqual(expect.arrayContaining(annotations.entries))
     expect(newAnnotationKeys(annotations, result.annotations)).toEqual(["Properties"])
-    expect(result.rereadSourcePaths).toEqual([prepared.assignment.xmlFiles[0]!.sourcePath])
+    expect(result.rereadSourcePaths).toEqual([])
   })
 
   it("полностью заменяет чтение дочерних файлов переданной composition", async () => {
@@ -254,10 +247,9 @@ describe("executeImportControlExport", () => {
       const result = await executePreparedCatalogControlExport({
         prepared,
         index,
-        readSource: async (path) => fs.promises.readFile(path, "utf8"),
       })
 
-      expect(result.rereadSourcePaths).toEqual([prepared.assignment.xmlFiles[0]!.sourcePath])
+      expect(result.rereadSourcePaths).toEqual([])
     } finally {
       exists.mockRestore()
       readdir.mockRestore()
@@ -288,7 +280,6 @@ describe("executeImportControlExport", () => {
       annotations: { version: 1, entries: [] },
       audit: { sources: [], boundaries: [] },
       index: createLocalConfigurationIndexReader(new Map()),
-      readSource: async () => { throw new Error("projection не должен читать файлы") },
       ordinaryExporter,
     })).rejects.toThrow("projection captured")
 
@@ -322,7 +313,7 @@ describe("executeImportControlExport", () => {
         },
       }),
     ]))
-    expect(result.rereadSourcePaths).toEqual([sourcePath])
+    expect(result.rereadSourcePaths).toEqual([])
     expect(newAnnotationKeys(initialAnnotations, result.annotations)).toEqual([
       "ДлинаКода",
       "Properties",
@@ -371,17 +362,21 @@ describe("executeImportControlExport", () => {
     )
 
     const { prepared, index } = await prepareCatalogControlInput(sourcePath)
+    const materializeXml = vi.fn<() => string>()
+    const document = vi.fn()
     const result = await executePreparedCatalogControlExport({
       prepared,
       index,
-      readSource: async (path) => fs.promises.readFile(path, "utf8"),
-      loadDetailedImport: async () => ({
-        data: prepared.yaml,
-        annotations: snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations),
-        audit: prepared.proofAudit,
-      }),
+      controlDocumentBuilder(params) {
+        const control = buildPreparedAssignmentControlDocument(params)
+        document.mockImplementation(control.document)
+        return { ...control, materializeXml, document }
+      },
     })
 
+    expect(document).toHaveBeenCalledTimes(1)
+    expect(materializeXml).not.toHaveBeenCalled()
+    expect(prepared.proofAudit.documents).toHaveLength(1)
     expect(Object.prototype.hasOwnProperty.call(result.data, "Properties\\Item")).toBe(true)
     expect(result.annotations.entries).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -405,19 +400,12 @@ describe("executeImportControlExport", () => {
         ),
     )
     const { prepared, index } = await prepareCatalogControlInput(sourcePath)
-    const detailedData = {
-      ...(prepared.yaml as Record<string, unknown>),
-      "Properties\\Owners\\xr:Item": undefined,
-    }
     const detailedAnnotations = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
 
     const result = await executePreparedCatalogControlExport({
       prepared,
       index,
-      readSource: async (path) => fs.promises.readFile(path, "utf8"),
-      loadDetailedImport: async () => ({
-        data: detailedData,
-        annotations: {
+      annotations: {
           ...detailedAnnotations,
           entries: [
             ...detailedAnnotations.entries,
@@ -434,8 +422,6 @@ describe("executeImportControlExport", () => {
             },
           ],
         },
-        audit: prepared.proofAudit,
-      }),
     })
 
     expect(result.annotations.entries).not.toEqual(expect.arrayContaining([
@@ -448,7 +434,7 @@ describe("executeImportControlExport", () => {
       join(syncXmlDir, "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form.xml"),
       "utf8",
     )
-    const { assignment, bodyPath } = createCatalogFormInput(
+    const { assignment } = createCatalogFormInput(
       tempDirs,
       "nkdk-control-export-form-",
       sourceBody.replace("ПолеВвода1РасширеннаяПодсказка", "ПолеВвода1ExtendedTooltip"),
@@ -457,7 +443,7 @@ describe("executeImportControlExport", () => {
     const initialAnnotations = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
     const result = await executePreparedFormControlExport(assignment, prepared, index, initialAnnotations)
 
-    expect(result.rereadSourcePaths).toContain(bodyPath)
+    expect(result.rereadSourcePaths).toEqual([])
     expect(result.warnings).toEqual([])
     expect(serializeYAMLDocument(prepared.yaml).text)
       .toContain("Имя: !xml/name ПолеВвода1ExtendedTooltip")
@@ -538,7 +524,7 @@ describe("executeImportControlExport", () => {
       "\t\t\t<ContextMenu",
       `${minMaxValues.map(value => `\t\t\t${value.trim()}`).join("\n")}\n\t\t\t<ContextMenu`,
     )
-    const { assignment, bodyPath } = createCatalogFormInput(
+    const { assignment } = createCatalogFormInput(
       tempDirs,
       "nkdk-control-export-form-min-value-",
       sourceBody,
@@ -558,7 +544,7 @@ describe("executeImportControlExport", () => {
       },
     )
 
-    expect(result.rereadSourcePaths).toContain(bodyPath)
+    expect(result.rereadSourcePaths).toEqual([])
     expect(result.warnings).toEqual([])
     expect(result.annotations.entries).toContainEqual({
       parentPath: ["Элементы", "ПолеВвода1"],
@@ -645,7 +631,6 @@ async function runCatalogControlExport(
     prepared,
     index,
     annotations: initialAnnotations,
-    readSource: async (path) => fs.promises.readFile(path, "utf8"),
     ...(ordinaryExporter === undefined ? {} : { ordinaryExporter }),
   })
   return { prepared, initialAnnotations, result }
@@ -675,9 +660,8 @@ async function executePreparedCatalogControlExport(params: {
   index: ReturnType<typeof createLocalConfigurationIndexReader>
   data?: unknown
   annotations?: ReturnType<typeof snapshotXmlAnomalyAnnotations>
-  readSource: (sourcePath: string) => Promise<string>
   ordinaryExporter?: typeof prepareFullXmlSyncAssignment
-  loadDetailedImport?: NonNullable<Parameters<typeof executeImportControlExport>[0]["loadDetailedImport"]>
+  controlDocumentBuilder?: typeof buildPreparedAssignmentControlDocument
 }) {
   return executeCatalogControlExport({
     assignment: params.prepared.assignment,
@@ -687,9 +671,10 @@ async function executePreparedCatalogControlExport(params: {
     audit: params.prepared.proofAudit,
     rule: params.prepared.rule,
     index: params.index,
-    readSource: params.readSource,
     ...(params.ordinaryExporter === undefined ? {} : { ordinaryExporter: params.ordinaryExporter }),
-    ...(params.loadDetailedImport === undefined ? {} : { loadDetailedImport: params.loadDetailedImport }),
+    ...(params.controlDocumentBuilder === undefined
+      ? {}
+      : { controlDocumentBuilder: params.controlDocumentBuilder }),
   })
 }
 
@@ -800,7 +785,7 @@ async function executePreparedFormControlExport(
   prepared: Awaited<ReturnType<typeof prepareControlInput>>["prepared"],
   index: Awaited<ReturnType<typeof prepareControlInput>>["index"],
   annotations: ReturnType<typeof snapshotXmlAnomalyAnnotations>,
-  detailed = false,
+  _detailed = false,
   ordinaryExporter?: typeof prepareFullXmlSyncAssignment,
 ) {
   return executeImportControlExport({
@@ -814,14 +799,6 @@ async function executePreparedFormControlExport(
     exportProfile: configurationExportProfileForTests(),
     index,
     composition: { children: () => [] },
-    readSource: async (path) => fs.promises.readFile(path, "utf8"),
     ...(ordinaryExporter === undefined ? {} : { ordinaryExporter }),
-    ...(detailed ? {
-      loadDetailedImport: async () => ({
-        data: prepared.yaml,
-        annotations,
-        audit: prepared.proofAudit,
-      }),
-    } : {}),
   })
 }

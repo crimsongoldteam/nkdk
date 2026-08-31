@@ -42,18 +42,12 @@ describe("xmlObjectRootStructures", () => {
     expectSameStructure(value)
   })
 
-  it("явно отказывается от processing instruction", () => {
-    expect(xmlObjectRootStructures({ Root: { "?future": "mode=x" } })).toEqual({
-      kind: "unsupported",
-      reason: "processing-instruction",
-    })
+  it("считает processing instruction без сериализации", () => {
+    expectSameStructure({ Root: { "?future": "mode=x" } })
   })
 
-  it("явно отказывается от смешанного текста с дочерним узлом", () => {
-    expect(xmlObjectRootStructures({ Root: { "#text": "prefix", Child: "value" } })).toEqual({
-      kind: "unsupported",
-      reason: "mixed-content",
-    })
+  it("считает смешанный текст без сериализации", () => {
+    expectSameStructure({ Root: { "#text": "prefix", Child: "value" } })
   })
 })
 
