@@ -412,7 +412,8 @@ describe("dependency validation из ProjectState", () => {
       queryPort: session,
     })).toEqual([expect.objectContaining({
       source: "reference",
-      message: `Ссылка "${reference.canonical}" не включена в расширение`,
+      message: `Объект метаданных «${reference.canonical}» отсутствует в расширении. `
+        + `Заимствуйте его из основной конфигурации`,
     })])
     session.close()
   })
@@ -605,7 +606,8 @@ describe("dependency validation из ProjectState", () => {
     expect(store.validateDependencies({ requests: [] })).toEqual([expect.objectContaining({
       filePath: source.projectPath,
       source: "reference",
-      message: `Ссылка "${canonical}" не включена в расширение`,
+      message: `Объект метаданных «${canonical}» отсутствует в расширении. `
+        + `Заимствуйте его из основной конфигурации`,
     })])
 
     store.deleteFiles([baseTarget.projectPath])
@@ -658,7 +660,8 @@ describe("dependency validation из ProjectState", () => {
     const store = storeWithUpdates([source, baseTarget, configurationUpdate(true)])
 
     expect(store.validateDependencies({ requests: [] })).toEqual([expect.objectContaining({
-      message: `Ссылка "${canonical}" не включена в расширение`,
+      message: `Объект метаданных «${canonical}» отсутствует в расширении. `
+        + `Заимствуйте его из основной конфигурации`,
     })])
     store.rollbackUpdate()
   })

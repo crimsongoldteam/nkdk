@@ -108,13 +108,18 @@ describe("validateProject", () => {
     const projectState = testProjectState(() => store.validateDependencies({ requests: [] }))
 
     expect(messages(await validateTestProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([
-      'Ссылка "Catalog.Номенклатура" не включена в расширение',
-      'Ссылка "Catalog.Номенклатура.Attribute.Артикул" не включена в расширение',
+      'Объект метаданных «Catalog.Номенклатура.Attribute.Артикул» '
+        + 'отсутствует в расширении. Заимствуйте его из основной конфигурации',
+      'Объект метаданных «Catalog.Номенклатура» отсутствует в расширении. '
+        + 'Заимствуйте его из основной конфигурации',
     ])
 
     appendStateFiles(store, [facts.extensionObject])
     expect(messages(await validateTestProject({ projectDir: "/project", concurrency: 1, projectState })))
-      .toEqual(['Ссылка "Catalog.Номенклатура.Attribute.Артикул" не включена в расширение'])
+      .toEqual([
+        'Объект метаданных «Catalog.Номенклатура.Attribute.Артикул» '
+          + 'отсутствует в расширении. Заимствуйте его из основной конфигурации',
+      ])
 
     appendStateFiles(store, [facts.extensionObjectWithAttribute])
     expect(messages(await validateTestProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([])

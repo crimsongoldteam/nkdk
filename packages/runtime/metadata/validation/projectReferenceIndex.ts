@@ -127,7 +127,11 @@ export function referenceNotIncludedInExtensionResult(
   return {
     ok: false,
     reason: "notFound",
-    diagnostics: [referenceDiagnostic(reference, `Ссылка "${reference.canonical}" не включена в расширение`)],
+    diagnostics: [referenceDiagnostic(
+      reference,
+      `Объект метаданных «${reference.canonical}» отсутствует в расширении. `
+        + `Заимствуйте его из основной конфигурации`,
+    )],
   }
 }
 
