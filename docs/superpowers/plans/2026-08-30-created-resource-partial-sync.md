@@ -228,7 +228,7 @@ expect(writePending).toHaveBeenCalledWith(expect.objectContaining({
 
 - [ ] **Step 2: Strengthen the form policy test**
 
-Не менять `loadDocumentIds: [metadata.id]` для существующей формы. Добавить утверждение, что assignment содержит `body`, а внешние файлы формы разрешены к загрузке; полнота создания обеспечивается общим planner, не формовой политикой.
+Закрепить `loadDocumentIds: [metadata.id, body.id]` для существующей вложенной и общей формы: `Форма.yaml` формирует оба документа, а платформа применяет только пути из `load.lst`. Добавить утверждение, что внешние файлы формы разрешены к загрузке. В тестах planner закрепить непрерывную цепочку структурных предков `Configuration.xml → владелец → участник → тело`; полнота создания остальных документов обеспечивается общим planner.
 
 - [ ] **Step 3: Run package and form tests**
 

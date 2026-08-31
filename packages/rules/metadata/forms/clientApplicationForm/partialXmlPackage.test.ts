@@ -14,14 +14,13 @@ it("регистрирует состав частичного XML-пакета 
   const body = assignment.xmlDocuments.find((document) => document.role === "body")!
 
   expect(policy).toMatchObject({
-    loadDocumentIds: [metadata.id],
+    loadDocumentIds: [metadata.id, body.id],
     structural: {
       includeOwnerAssignment: true,
       includeCurrentMemberSubtree: true,
       stopAtOwner: true,
     },
   })
-  expect(policy?.loadDocumentIds).not.toContain(body.id)
   expect(policy?.yamlCompanionInputIds).toEqual([
     assignment.yamlCompanions.find(({ projectRole }) => projectRole === "form")?.id,
   ])
@@ -31,6 +30,12 @@ it("регистрирует состав частичного XML-пакета 
   const common = topology.assignments.find(
     (candidate) => candidate.projectPattern === "ОбщаяФорма/{ownerName}/Свойства.yaml"
   )!
+  const commonMetadata = common.xmlDocuments.find((document) => document.role === "metadata")!
+  const commonBody = common.xmlDocuments.find((document) => document.role === "body")!
+  expect(resolved.assignments.get(common.id)?.loadDocumentIds).toEqual([
+    commonMetadata.id,
+    commonBody.id,
+  ])
   expect(resolved.assignments.get(common.id)?.yamlCompanionInputIds).toEqual([
     common.yamlCompanions.find(({ projectRole }) => projectRole === "form")?.id,
   ])

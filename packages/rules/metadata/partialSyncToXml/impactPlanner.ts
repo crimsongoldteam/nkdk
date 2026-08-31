@@ -210,14 +210,61 @@ export function buildPartialXmlImpactPlan(params: {
     loadRequest: LoadRequest = "policy",
   ): void {
     if (resource.kind === "content") {
-      if (resource.assignment?.role === "configuration") includeConfigurationRoot()
-      else includeAssignment(resource, loadRequest)
+      if (resource.assignment?.role === "configuration") {
+        includeConfigurationRoot()
+      } else {
+        includeDeclaredOwner(resource)
+        includeAssignment(resource, loadRequest)
+      }
     } else if (resource.kind === "externalFile") {
       includeExternal(resource, true)
     } else if (resource.kind === "yamlCompanion") {
       includeYamlCompanionOwner(resource)
     } else if (resource.kind === "assignmentInput") {
       includeAssignmentInputOwner(resource)
+    }
+  }
+
+  function includeDeclaredOwner(resource: MetadataProjectResourceMatch): void {
+    const assignment = resource.assignment
+    const declaration = declaredFileBackedTarget(resource)
+    if (assignment === undefined || declaration === undefined) return
+    const structural = params.policies.assignments.get(assignment.id)?.structural
+    if (structural?.includeOwnerAssignment !== true) return
+    includeStructuralAncestors(resource)
+  }
+
+  function includeStructuralAncestors(
+    resource: MetadataProjectResourceMatch,
+    visiting = new Set<string>(),
+  ): void {
+    if (resource.kind !== "content" || resource.assignment === undefined) return
+    if (resource.assignment.role === "configuration") return
+    if (visiting.has(resource.projectPath)) {
+      throw new Error(`Цикл структурных владельцев metadata: ${resource.projectPath}`)
+    }
+    visiting.add(resource.projectPath)
+    try {
+      const declaration = declaredFileBackedTarget(resource)
+      const structural = params.policies.assignments.get(resource.assignment.id)?.structural
+      const ownerPattern = declaration !== undefined && structural?.includeOwnerAssignment === true
+        ? declaration.ownerProjectPattern
+        : resource.assignment.role === "fileItem"
+          ? resource.assignment.ownerProjectPattern
+          : undefined
+      if (ownerPattern !== undefined) {
+        const ownerPath = expandMetadataPathPattern(ownerPattern, resource.values)
+        const owner = currentByPath.get(ownerPath)
+        if (owner?.kind !== "content") {
+          throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
+        }
+        includeStructuralAncestors(owner, visiting)
+        includeAssignment(owner, "policy")
+      } else if (resource.compositionImpact === "configurationComposition") {
+        includeConfigurationMetadataParent()
+      }
+    } finally {
+      visiting.delete(resource.projectPath)
     }
   }
 
@@ -232,6 +279,7 @@ export function buildPartialXmlImpactPlan(params: {
     if (owner?.kind !== "content") {
       throw new Error(`Для входа не найдено текущее XML-задание: ${resource.projectPath}`)
     }
+    includeStructuralAncestors(owner)
     includeAssignment(owner, "policy")
   }
 
@@ -250,6 +298,7 @@ export function buildPartialXmlImpactPlan(params: {
     if (owner?.kind !== "content") {
       throw new Error(`Для YAML-спутника не найдено текущее XML-задание: ${resource.projectPath}`)
     }
+    includeStructuralAncestors(owner)
     includeAssignment(owner, "policy")
   }
 
@@ -402,6 +451,7 @@ export function buildPartialXmlImpactPlan(params: {
       throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
     }
     if (structural?.includeOwnerAssignment !== false) {
+      includeStructuralAncestors(owner)
       includeAssignment(owner, "policy")
     }
     if (structural?.includeOwnerAssignment === true) {
@@ -451,6 +501,7 @@ export function buildPartialXmlImpactPlan(params: {
     if (owner?.kind !== "content") {
       throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
     }
+    includeStructuralAncestors(owner)
     includeAssignment(owner, "policy")
     if (owner.assignment?.role === "fileItem") includeAssignmentSubtree(owner, "none")
     const currentTarget = currentByPath.get(resource.projectPath)
@@ -520,6 +571,20 @@ export function buildPartialXmlImpactPlan(params: {
         includeExternal(resource, true)
       }
     }
+  }
+
+  function includeConfigurationMetadataParent(): void {
+    const roots = [...currentByPath.values()].filter((resource) =>
+      resource.kind === "content" && resource.assignment?.role === "configuration"
+    )
+    if (roots.length !== 1) throw new Error(`Ожидалось одно текущее корневое XML-задание, найдено ${roots.length}`)
+    const root = roots[0]!
+    const metadataDocuments = root.assignment!.xmlDocuments.filter((document) => document.role === "metadata")
+    if (metadataDocuments.length !== 1) {
+      throw new Error(`Корневое XML-задание содержит ${metadataDocuments.length} metadata-документов`)
+    }
+    selectedProjectPaths.add(root.projectPath)
+    addDocument(root, metadataDocuments[0]!, true)
   }
 
   function memberCollectionKey(resource: MetadataProjectResourceMatch): string {

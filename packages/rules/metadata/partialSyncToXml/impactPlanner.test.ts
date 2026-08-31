@@ -197,7 +197,7 @@ const topology = compileMetadataResourceTopology([{
     content("Самостоятельный/{ownerName}/Свойства.yaml", "properties", objectRule, "none"),
     document("", "Standalone/{ownerName}.xml", "metadata", true),
     document("", "Standalone/{ownerName}/Ext/Body.xml", "body", true),
-    document("", "Standalone/{ownerName}/Ext/Optional.xml", "optional", false),
+    document("", "Standalone/{ownerName}/Ext/Optional.xml", "property", false),
     document("", "Standalone/{ownerName}/Ext/Property.xml", "property", true),
     {
       kind: "externalFile" as const,
@@ -342,14 +342,25 @@ describe("partial XML impact planner", () => {
     expect(result.loadTargets).toEqual(["ManifestObjects/Товары/Ext/Help.xml"])
   })
 
-  it("разделяет payload и load target формы", () => {
+  it("загружает владельца, описатель и тело изменённой формы", () => {
     const result = plan([root, language, owner, firstForm], changes({ changed: [firstForm] }))
 
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [root, owner, firstForm].sort(utf8),
+    })
     expect(documentPaths(result)).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
       "Objects/Товары/Forms/Первая.xml",
       "Objects/Товары/Forms/Первая/Ext/Form.xml",
     ])
-    expect(result.loadTargets).toEqual(["Objects/Товары/Forms/Первая.xml"])
+    expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
+      "Objects/Товары/Forms/Первая.xml",
+      "Objects/Товары/Forms/Первая/Ext/Form.xml",
+    ].sort(utf8))
   })
 
   it.each(["changed", "added"] as const)("включает задание формы при %s её сохранённой основы", (kind) => {
@@ -358,11 +369,22 @@ describe("partial XML impact planner", () => {
       changes({ [kind]: [firstBaseForm] }),
     )
 
-    expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstForm] })
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [root, owner, firstForm].sort(utf8),
+    })
     expect(documentPaths(result)).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
       "Objects/Товары/Forms/Первая.xml",
       "Objects/Товары/Forms/Первая/Ext/Form.xml",
     ])
+    expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
+      "Objects/Товары/Forms/Первая.xml",
+      "Objects/Товары/Forms/Первая/Ext/Form.xml",
+    ].sort(utf8))
   })
 
   it("включает задание формы при удалении сохранённой основы", () => {
@@ -371,7 +393,16 @@ describe("partial XML impact planner", () => {
       changes({ deleted: [firstBaseForm] }),
     )
 
-    expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstForm] })
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [root, owner, firstForm].sort(utf8),
+    })
+    expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
+      "Objects/Товары/Forms/Первая.xml",
+      "Objects/Товары/Forms/Первая/Ext/Form.xml",
+    ].sort(utf8))
   })
 
   it.each(["changed", "added", "deleted"] as const)("включает задание формы при %s входа задания", (kind) => {
@@ -382,11 +413,22 @@ describe("partial XML impact planner", () => {
       changes({ [kind]: [firstQuery] }),
     )
 
-    expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstForm] })
+    expect(result.selection).toEqual({
+      kind: "selected",
+      projectPaths: [root, owner, firstForm].sort(utf8),
+    })
     expect(documentPaths(result)).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
       "Objects/Товары/Forms/Первая.xml",
       "Objects/Товары/Forms/Первая/Ext/Form.xml",
     ])
+    expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
+      "Objects/Товары/Forms/Первая.xml",
+      "Objects/Товары/Forms/Первая/Ext/Form.xml",
+    ].sort(utf8))
   })
 
   it.each(["changed", "added"] as const)("выбирает только %s модуль существующей формы", (kind) => {
@@ -427,6 +469,7 @@ describe("partial XML impact planner", () => {
     expect(result.selection).toEqual({
       kind: "selected",
       projectPaths: [
+        root,
         owner,
         firstTemplateXml,
         firstTemplateText,
@@ -434,7 +477,7 @@ describe("partial XML impact planner", () => {
         secondTemplateText,
       ].sort(utf8),
     })
-    expect(documentPaths(result)).toEqual(["Objects/Товары.xml"])
+    expect(documentPaths(result)).toEqual(["Configuration.xml", "Objects/Товары.xml"])
     expect(result.externalProjectPaths).toEqual([
       firstTemplateXml,
       firstTemplateText,
@@ -442,6 +485,7 @@ describe("partial XML impact planner", () => {
       secondTemplateText,
     ].sort(utf8))
     expect(result.loadTargets).toEqual([
+      "Configuration.xml",
       "Objects/Товары.xml",
       "Objects/Товары/Templates/Второй.xml",
       "Objects/Товары/Templates/Второй/Ext/Template.txt",
@@ -456,11 +500,11 @@ describe("partial XML impact planner", () => {
 
     expect(result.selection).toEqual({
       kind: "selected",
-      projectPaths: [owner, firstTemplateXml, firstTemplateText].sort(utf8),
+      projectPaths: [root, owner, firstTemplateXml, firstTemplateText].sort(utf8),
     })
-    expect(documentPaths(result)).toEqual(["Objects/Товары.xml"])
+    expect(documentPaths(result)).toEqual(["Configuration.xml", "Objects/Товары.xml"])
     expect(result.externalProjectPaths).toEqual([firstTemplateXml, firstTemplateText].sort(utf8))
-    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+    expect(result.loadTargets).toEqual(["Configuration.xml", "Objects/Товары.xml"])
   })
 
   it("при добавлении формы включает владельца и весь актуальный подкаталог, но загружает новую форму", () => {
@@ -471,9 +515,10 @@ describe("partial XML impact planner", () => {
 
     expect(result.selection).toEqual({
       kind: "selected",
-      projectPaths: [owner, secondForm, secondModule, firstForm, firstModule].sort(utf8),
+      projectPaths: [root, owner, secondForm, secondModule, firstForm, firstModule].sort(utf8),
     })
     expect(result.loadTargets).toEqual([
+      "Configuration.xml",
       "Objects/Товары.xml",
       "Objects/Товары/Forms/Вторая.xml",
       "Objects/Товары/Forms/Вторая/Ext/Form.xml",
@@ -489,10 +534,11 @@ describe("partial XML impact planner", () => {
 
     expect(result.selection).toEqual({
       kind: "selected",
-      projectPaths: [owner, ownerModule, firstForm].sort(utf8),
+      projectPaths: [root, owner, ownerModule, firstForm].sort(utf8),
     })
     expect(result.externalProjectPaths).toEqual([ownerModule])
     expect(result.loadTargets).toEqual([
+      "Configuration.xml",
       "Objects/Товары.xml",
       "Objects/Товары/Forms/Первая.xml",
       "Objects/Товары/Forms/Первая/Ext/Form.xml",
@@ -518,9 +564,9 @@ describe("partial XML impact planner", () => {
 
     expect(result.selection).toEqual({
       kind: "selected",
-      projectPaths: [owner, firstForm, firstModule].sort(utf8),
+      projectPaths: [root, owner, firstForm, firstModule].sort(utf8),
     })
-    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+    expect(result.loadTargets).toEqual(["Configuration.xml", "Objects/Товары.xml"])
   })
 
   it.each([
@@ -546,9 +592,10 @@ describe("partial XML impact planner", () => {
 
     expect(result.selection).toEqual({
       kind: "selected",
-      projectPaths: [owner, firstTable, secondTable, ...extraExpected].sort(utf8),
+      projectPaths: [root, owner, firstTable, secondTable, ...extraExpected].sort(utf8),
     })
     expect(result.loadTargets).toEqual([
+      "Configuration.xml",
       "Objects/Товары.xml",
       "Objects/Товары/Tables/Вторая.xml",
       ...extraLoadTargets,
@@ -563,9 +610,9 @@ describe("partial XML impact planner", () => {
 
     expect(result.selection).toEqual({
       kind: "selected",
-      projectPaths: [owner, firstTable].sort(utf8),
+      projectPaths: [root, owner, firstTable].sort(utf8),
     })
-    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+    expect(result.loadTargets).toEqual(["Configuration.xml", "Objects/Товары.xml"].sort(utf8))
   })
 
   it("поглощает вложенные удаления удалённым файловым владельцем", () => {
@@ -576,10 +623,10 @@ describe("partial XML impact planner", () => {
 
     expect(result.selection).toEqual({
       kind: "selected",
-      projectPaths: [owner, firstTable].sort(utf8),
+      projectPaths: [root, owner, firstTable].sort(utf8),
     })
     expect(result.externalProjectPaths).toEqual([])
-    expect(result.loadTargets).toEqual(["Objects/Товары.xml"])
+    expect(result.loadTargets).toEqual(["Configuration.xml", "Objects/Товары.xml"].sort(utf8))
   })
 
   it("при изменении вложенного файлового объекта сохраняет внешние файлы его владельца", () => {
@@ -590,10 +637,12 @@ describe("partial XML impact planner", () => {
 
     expect(result.selection).toEqual({
       kind: "selected",
-      projectPaths: [secondTable, secondTableModule, secondNestedTable].sort(utf8),
+      projectPaths: [root, owner, secondTable, secondTableModule, secondNestedTable].sort(utf8),
     })
     expect(result.externalProjectPaths).toEqual([secondTableModule])
     expect(result.loadTargets).toEqual([
+      "Configuration.xml",
+      "Objects/Товары.xml",
       "Objects/Товары/Tables/Вторая.xml",
       "Objects/Товары/Tables/Вторая/Nested/Вложенная.xml",
     ].sort(utf8))
