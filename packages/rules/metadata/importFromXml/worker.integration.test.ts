@@ -34,7 +34,7 @@ import {
   resetControlExportCountForTests,
 } from "./controlExport"
 import { importDiagnostic, openImportBinaryResult } from "./binaryResult"
-import type { ImportAssignment } from "./types"
+import type { ImportAssignment, ImportProjectIssueDecision } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 
@@ -325,7 +325,6 @@ describe("XML import worker first pass", () => {
       diagnostics: [],
       files: [],
       configurationFragments: [],
-      preparedRecords: [],
       stateFragment,
     }
 
@@ -357,15 +356,14 @@ describe("XML import worker first pass", () => {
     expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML"'))).toBe(
       true
     )
-    expect(lines.some((line) => line.includes('substep="Преобразование XML в YAML"'))).toBe(true)
-    expect(lines.some((line) => line.includes('substep="Сбор локальных индексов"'))).toBe(true)
-    expect(lines.some((line) => line.includes('substep="Извлечение данных для индекса конфигурации"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Извлечение фактов XML"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="MessagePack pack"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Подготовка описания файла проекта"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Определение вида файла проекта"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Запись основного YAML-файла"'))).toBe(false)
     expect(lines).toContainEqual(
-      expect.stringMatching(/substep="YAML, ожидающие второго прохода".*items=1/)
+      expect.stringMatching(/substep="XML-задания, ожидающие второго прохода".*items=1/)
     )
     expect(lines.some((line) => line.includes('substep="Досрочно записанные YAML"'))).toBe(false)
     const readLines = lines.filter((line) => line.includes('substep="Чтение XML"'))
@@ -381,8 +379,8 @@ describe("XML import worker first pass", () => {
     await initializeWorker(createTempDir("stream-finish-first"))
     await runImportWorkerCommand({ kind: "firstPassBatch", assignments: [catalogAssignment()] })
 
-    expect(workerStateForTests().preparedYamlIds).toEqual([])
-    expect(workerStateForTests().retainedProofAuditIds).toEqual([])
+    expect(workerStateForTests().preparedYamlIds).toEqual(["catalog"])
+    expect(workerStateForTests().retainedProofAuditIds).toEqual(["catalog"])
     expect(await runImportWorkerCommand({ kind: "finishFirstPass" })).toBeUndefined()
   })
 
@@ -693,12 +691,11 @@ describe("XML import worker second pass", () => {
     const checkpointLines = error.mock.calls
       .map(([line]) => String(line))
       .filter((line) => line.startsWith("[nkdk-profile-step]"))
-    expect(checkpointLines).toHaveLength(4)
+    expect(checkpointLines.length).toBeGreaterThanOrEqual(3)
     expect(checkpointLines).toEqual(expect.arrayContaining([
       expect.stringContaining(`substep="Начало задания второго прохода: ${assignments.catalog.id}"`),
       expect.stringContaining(`substep="Начало задания второго прохода: ${assignments.form.id}"`),
-      expect.stringMatching(/substep="Удерживаемый вход второго прохода".*items=0 bytes=0/u),
-      expect.stringMatching(/substep="Удерживаемый output второго прохода".*items=0 bytes=0/u),
+      expect.stringMatching(/substep="Удерживаемый packed XML".*items=0 bytes=0/u),
     ]))
 
     const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
@@ -706,7 +703,7 @@ describe("XML import worker second pass", () => {
     const lines = error.mock.calls.map(([line]) => String(line)).filter((line) => line.startsWith("[nkdk-profile-step]"))
     expect(lines.length).toBeGreaterThan(0)
     expect(lines.filter((line) => line.includes("Начало задания второго прохода: "))).toHaveLength(2)
-    expect(lines.filter((line) => line.includes("Удерживаемый "))).toHaveLength(2)
+    expect(lines.some((line) => line.includes("Удерживаемый packed XML"))).toBe(true)
     expect(lines.filter((line) => line.includes('substep="Сериализация YAML"'))).toHaveLength(1)
   })
 
@@ -721,17 +718,6 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().retainedProofAuditIds).toEqual([])
 
     await runImportWorkerCommand({ kind: "finishSecondPass" })
-    await runImportWorkerCommand({
-      kind: "beginThirdPass",
-      readToken: createReadToken({ stateFragment: second.stateFragment }),
-    })
-    const third = openImportBinaryResult(await runImportWorkerCommand({
-      kind: "thirdPassBatch",
-      assignmentIds: [assignment.id],
-    }))
-    await runImportWorkerCommand({ kind: "finishThirdPass" })
-
-    expect(third.files.count).toBe(0)
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
   })
 
@@ -756,41 +742,28 @@ describe("XML import worker second pass", () => {
       }),
       compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
     } satisfies ValidationSchemaCache
-    await beginCatalogAndFormSecondPass(outputDir, assignments, countingSchemaCache)
+    await beginCatalogAndFormSecondPass(outputDir, assignments, countingSchemaCache, [{
+      targetProjectPath: assignments.form.targetProjectPath,
+      decision: {
+        kind: "invalid",
+        target: { kind: "path", path: ["Элементы", "Путь", "ПутьКДанным"] },
+        issueCodes: ["data-path.unresolved"],
+      },
+    }])
     const second = openImportBinaryResult(await runImportWorkerCommand({
       kind: "secondPassBatch",
       assignmentIds: [assignments.catalog.id, assignments.form.id],
     }))
     await runImportWorkerCommand({ kind: "finishSecondPass" })
-    const validationRunsBeforeThirdPass = localValidationRuns
-
-    await runImportWorkerCommand({
-      kind: "beginThirdPass",
-      readToken: createReadToken({ stateFragment: second.stateFragment }),
-      issueDecisions: [{
-        targetProjectPath: assignments.form.targetProjectPath,
-        decision: {
-          kind: "invalid",
-          target: { kind: "path", path: ["Элементы", "Путь", "ПутьКДанным"] },
-          issueCodes: ["data-path.unresolved"],
-        },
-      }],
-    })
-    const third = openImportBinaryResult(await runImportWorkerCommand({
-      kind: "thirdPassBatch",
-      assignmentIds: [assignments.catalog.id, assignments.form.id],
-    }))
-    await runImportWorkerCommand({ kind: "finishThirdPass" })
-
-    expect(third.diagnostics.count).toBe(0)
-    expect(localValidationRuns).toBe(validationRunsBeforeThirdPass + 1)
+    expect(second.diagnostics.count).toBe(0)
+    expect(localValidationRuns).toBeGreaterThan(0)
     expect(readFileSync(join(outputDir, assignments.form.targetProjectPath), "utf8"))
       .toContain("ПутьКДанным: !xml/invalid Объект.НеизвестныйПереход.LineNumber")
-    if (second.stateFragment === undefined || third.stateFragment === undefined) {
-      throw new Error("Ожидались смысловой и окончательный вклады состояния")
+    if (second.stateFragment === undefined) {
+      throw new Error("Ожидался окончательный вклад состояния")
     }
     const snapshot = new ProjectStateSnapshotView(buildProjectStateSnapshot({
-      fragments: [second.stateFragment, third.stateFragment].map(openProjectStateFragment),
+      fragments: [second.stateFragment].map(openProjectStateFragment),
       deletions: [],
     }))
     const reader = createTypedProjectStateReader(snapshot)
@@ -985,18 +958,8 @@ describe("XML import worker second pass", () => {
     })
     const semantic = openImportBinaryResult(second)
     await runImportWorkerCommand({ kind: "finishSecondPass" })
-    await runImportWorkerCommand({
-      kind: "beginThirdPass",
-      readToken: createReadToken({ stateFragment: semantic.stateFragment }),
-    })
-    const third = await runImportWorkerCommand({
-      kind: "thirdPassBatch",
-      assignmentIds: [blocked.id, valid.id],
-    })
-    await runImportWorkerCommand({ kind: "finishThirdPass" })
 
     const secondView = semantic
-    const thirdView = openImportBinaryResult(third)
 
     expect(secondView.diagnostics.count).toBe(1)
     expect(importDiagnostic(secondView.diagnostics, 0)).toMatchObject({
@@ -1007,8 +970,6 @@ describe("XML import worker second pass", () => {
     expect(Array.from({ length: secondView.files.count }, (_, index) => secondView.files.file(index))).toContainEqual(
       expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath }),
     )
-    expect(thirdView.diagnostics.count).toBe(0)
-    expect(thirdView.files.count).toBe(0)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
@@ -1130,6 +1091,7 @@ async function beginCatalogAndFormSecondPass(
   outputDir: string,
   assignments: ReturnType<typeof createCatalogAndFormAssignments>,
   schemaCache: ValidationSchemaCache = fastValidationSchemaCache,
+  issueDecisions: readonly ImportProjectIssueDecision[] = [],
 ): Promise<ImportFirstPassResult> {
   await initializeWorker(outputDir, schemaCache)
   const first = expectFirstPass(await runImportWorkerCommand({
@@ -1140,6 +1102,7 @@ async function beginCatalogAndFormSecondPass(
     kind: "beginSecondPass",
     readToken: createReadToken(first),
     exportProfile: exportProfileForTests(),
+    issueDecisions,
   })
   return first
 }

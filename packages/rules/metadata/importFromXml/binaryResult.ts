@@ -26,9 +26,8 @@ import {
   PROJECT_STATE_FRAGMENT_BUFFER_NAMES,
   projectStateFragmentFromNamedBuffers,
 } from "../workerPool/projectStateBuffers"
-import type { ImportDiagnostic, ImportResultFile, PreparedImportBinaryRecord } from "./types"
+import type { ImportDiagnostic, ImportResultFile } from "./types"
 import type { MetadataDiagnostic } from "../validation/types"
-import type { PreparedImportRecordLocator } from "../projectState/preparedImportStore"
 
 const PAYLOAD_KIND = "import.batch"
 const FILE_HEADER_BYTES = 16
@@ -45,7 +44,6 @@ export interface ImportBinaryBatchView {
   readonly files: ImportResultFileBatchView
   readonly configurationFragmentBuffer?: ArrayBuffer
   readonly stateFragment?: ProjectStateFragment
-  readonly preparedRecords: readonly PreparedImportBinaryRecord[]
 }
 
 export function createImportBinaryResult(params: {
@@ -54,14 +52,10 @@ export function createImportBinaryResult(params: {
   readonly files: readonly ImportResultFile[]
   readonly configurationFragments?: readonly ConfigurationIndexBlockFragment[]
   readonly stateFragment?: ProjectStateFragment
-  readonly preparedRecords?: readonly PreparedImportBinaryRecord[]
 }): MetadataWorkerBinaryResult {
   const configuration = params.configurationFragments === undefined
     ? undefined
     : encodeConfigurationBlockFragments(params.configurationFragments)
-  const preparedManifest = params.preparedRecords === undefined || params.preparedRecords.length === 0
-    ? undefined
-    : encodePreparedManifest(params.preparedRecords)
   return {
     kind: "binaryResult",
     payloadKind: PAYLOAD_KIND,
@@ -73,11 +67,6 @@ export function createImportBinaryResult(params: {
       { name: "diagnostics", buffer: encodeImportDiagnostics(params.diagnostics) },
       { name: "warnings", buffer: encodeImportDiagnostics(params.warnings ?? []) },
       { name: "files", buffer: encodeFiles(params.files) },
-      ...(preparedManifest === undefined ? [] : [{ name: "preparedManifest", buffer: preparedManifest }]),
-      ...(params.preparedRecords ?? []).map(({ bytes }, index) => ({
-        name: `prepared.${index}`,
-        buffer: exactArrayBuffer(bytes),
-      })),
       ...(configuration === undefined ? [] : [{ name: "configuration", buffer: configuration }]),
       ...PROJECT_STATE_FRAGMENT_BUFFER_NAMES.map((name) => params.stateFragment === undefined
         ? undefined
@@ -94,15 +83,10 @@ export function openImportBinaryResult(value: unknown): ImportBinaryBatchView {
   assertFlag(value.counters.hasState, "hasState")
   if (Object.keys(value.counters).length !== 2) throw new Error("Повреждены счётчики двоичного результата import")
   const buffers = new Map(value.buffers.map(({ name, buffer }) => [name, buffer]))
-  const preparedManifest = buffers.get("preparedManifest")
-  const preparedLocators = preparedManifest === undefined ? [] : decodePreparedManifest(preparedManifest)
   const expected = [
     "diagnostics",
     "warnings",
     "files",
-    ...(preparedManifest === undefined
-      ? []
-      : ["preparedManifest", ...preparedLocators.map((_locator, index) => `prepared.${index}`)]),
     ...(value.counters.hasConfiguration === 1 ? ["configuration"] : []),
     ...(value.counters.hasState === 1 ? PROJECT_STATE_FRAGMENT_BUFFER_NAMES.map((name) => `projectState.${name}`) : []),
   ]
@@ -117,38 +101,9 @@ export function openImportBinaryResult(value: unknown): ImportBinaryBatchView {
     diagnostics: openDiagnosticBatch({ bytes: new Uint8Array(requireBuffer(buffers, "diagnostics")) }),
     warnings: openDiagnosticBatch({ bytes: new Uint8Array(requireBuffer(buffers, "warnings")) }),
     files: openFiles(requireBuffer(buffers, "files")),
-    preparedRecords: preparedLocators.map((locator, index) => ({
-      locator,
-      bytes: new Uint8Array(requireBuffer(buffers, `prepared.${index}`)),
-    })),
     ...(configurationFragmentBuffer === undefined ? {} : { configurationFragmentBuffer }),
     ...(stateFragment === undefined ? {} : { stateFragment }),
   }
-}
-
-function encodePreparedManifest(records: readonly PreparedImportBinaryRecord[]): ArrayBuffer {
-  const bytes = new TextEncoder().encode(JSON.stringify(records.map(({ locator }) => locator)))
-  return exactArrayBuffer(bytes)
-}
-
-function decodePreparedManifest(buffer: ArrayBuffer): PreparedImportRecordLocator[] {
-  const value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(buffer))
-  if (!Array.isArray(value)) throw new Error("Повреждён список подготовленных заданий import")
-  return value.map((entry) => {
-    if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
-      throw new Error("Повреждён локатор подготовленного задания import")
-    }
-    const { assignmentId, weight } = entry as Record<string, unknown>
-    if (typeof assignmentId !== "string" || assignmentId.length === 0
-      || typeof weight !== "number" || !Number.isFinite(weight) || weight < 0) {
-      throw new Error("Повреждён локатор подготовленного задания import")
-    }
-    return { assignmentId, weight }
-  })
-}
-
-function exactArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  return bytes.slice().buffer as ArrayBuffer
 }
 
 export function importDiagnostic(view: DiagnosticBatchView, index: number): ImportDiagnostic {

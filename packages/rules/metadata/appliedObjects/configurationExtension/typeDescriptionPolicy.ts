@@ -1,6 +1,7 @@
 import {
   CompatibilityMode,
   CompatibilityModeFromYAML,
+  CompatibilityModeToYAML,
   CompatibilityModeYAML,
 } from "../../systemEnumerations/types"
 
@@ -19,6 +20,18 @@ export function configurationExtensionTypeDescriptionXMLNameByType(
   }
 
   return { AnyIBRef: usesLegacyAnyRef(mode) ? "AnyRef" : "AnyIBRef" }
+}
+
+export function configurationExtensionTypeDescriptionXMLNameByCompatibilityMode(
+  xmlMode: unknown,
+): Readonly<Record<string, string>> {
+  if (xmlMode === undefined) return configurationExtensionTypeDescriptionXMLNameByType({})
+  if (typeof xmlMode !== "string" || !Object.hasOwn(CompatibilityModeToYAML, xmlMode)) {
+    throw new Error(`Неизвестный ${COMPATIBILITY_MODE_PROPERTY}: ${String(xmlMode)}`)
+  }
+  return configurationExtensionTypeDescriptionXMLNameByType({
+    [COMPATIBILITY_MODE_PROPERTY]: CompatibilityModeToYAML[xmlMode as CompatibilityMode],
+  })
 }
 
 const readProperty = (value: unknown, property: string): unknown =>

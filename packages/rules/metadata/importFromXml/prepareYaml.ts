@@ -53,6 +53,7 @@ import {
   type XmlAnomalyProofBoundary,
   type XmlAnomalyProofAudit,
 } from "./anomalyProof"
+import type { PackedImportXmlInput } from "./packedXmlAssignment"
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment
@@ -127,13 +128,56 @@ export async function prepareImportYaml(params: {
   topology?: CompiledMetadataResourceTopology
   proofDetail?: "full" | "roots"
 }): Promise<PreparedImportYaml> {
-  let xmlInputs: ParsedImportXmlInput[] | undefined
-  try {
-    xmlInputs = await readAndParseAssignmentXml(
-      params.assignment.xmlFiles,
-      params.profiler,
-      params.proofDetail ?? "full",
-    )
+  const xmlInputs = await readAndParseAssignmentXml(
+    params.assignment.xmlFiles,
+    params.profiler,
+    params.proofDetail ?? "full",
+  )
+  return prepareImportYamlFromParsedInputs({ ...params, xmlInputs })
+}
+
+export async function readImportXmlDocuments(params: {
+  readonly assignment: ImportAssignment
+  readonly profiler?: ValidationProfiler
+}): Promise<PackedImportXmlInput[]> {
+  return (await readAndParseAssignmentXml(params.assignment.xmlFiles, params.profiler, "full")).map(
+    ({ input, document }) => {
+      if (document === undefined) throw new Error(`Не построено адресное XML-дерево: ${input.sourcePath}`)
+      return { input, document }
+    },
+  )
+}
+
+export async function prepareImportYamlFromDocuments(params: {
+  readonly assignment: ImportAssignment
+  readonly context: XmlImportConfigurationContext
+  readonly collector: ConfigurationIndexCollector
+  readonly inputs: readonly PackedImportXmlInput[]
+  readonly profiler?: ValidationProfiler
+  readonly topology?: CompiledMetadataResourceTopology
+}): Promise<PreparedImportYaml> {
+  return prepareImportYamlFromParsedInputs({
+    ...params,
+    proofDetail: "full",
+    xmlInputs: params.inputs.map(({ input, document }) => ({
+      input,
+      document,
+      roots: document.roots,
+      parsed: document.compatibility,
+    })),
+  })
+}
+
+function prepareImportYamlFromParsedInputs(params: {
+  readonly assignment: ImportAssignment
+  readonly context: XmlImportConfigurationContext
+  readonly collector: ConfigurationIndexCollector
+  readonly xmlInputs: ParsedImportXmlInput[]
+  readonly profiler?: ValidationProfiler
+  readonly topology?: CompiledMetadataResourceTopology
+  readonly proofDetail?: "full" | "roots"
+}): PreparedImportYaml {
+    const xmlInputs = params.xmlInputs
     const annotations = createXmlAnomalyAnnotations()
     const audit = params.proofDetail === "roots"
       ? undefined
@@ -154,9 +198,9 @@ export async function prepareImportYaml(params: {
     const importProfile = createDirectImportProfile()
     const result: DirectImportResult & Pick<PreparedImportYaml, "baseFormCandidate" | "dependentDeferred"> = measureYaml(params.profiler, () => {
       if (rule.itemType === ClientApplicationFormRules.itemType) {
-        const metadataXML = requireMetadataXml(xmlInputs ?? [])
-        const metadataXMLNode = requireMetadataXmlNode(xmlInputs ?? [])
-        const bodyInput = xmlInputs?.find(({ input }) => input.role === "body")
+        const metadataXML = requireMetadataXml(xmlInputs)
+        const metadataXMLNode = requireMetadataXmlNode(xmlInputs)
+        const bodyInput = xmlInputs.find(({ input }) => input.role === "body")
         const bodyXML = bodyInput?.parsed
         const formXMLNode = bodyInput?.document?.roots.find(({ name }) => name === "Form")
         const formImportContext: XmlImportConfigurationContext = {
@@ -183,7 +227,7 @@ export async function prepareImportYaml(params: {
         const baseFormCandidate = importAssignmentBaseFormCandidate({
           assignment: params.assignment,
           topology: params.topology,
-          inputs: xmlInputs ?? [],
+          inputs: xmlInputs,
           context: importContext,
         })
         return {
@@ -196,9 +240,9 @@ export async function prepareImportYaml(params: {
       const collector = createLocalIndexesCollector()
       const deferred = createDeferredValuePathCollector()
       const dependent = createImportedDependentPropertyCollector()
-      const metadataXML = requireMetadataXml(xmlInputs ?? [])
-      const metadataNode = requireMetadataXmlNode(xmlInputs ?? [])
-      const externalPropertyXml = mapExternalPropertyXmlInputs(rule, xmlInputs ?? [])
+      const metadataXML = requireMetadataXml(xmlInputs)
+      const metadataNode = requireMetadataXmlNode(xmlInputs)
+      const externalPropertyXml = mapExternalPropertyXmlInputs(rule, xmlInputs)
       const yaml = importMetadataItemFromXMLToYAML({
         context: importContext,
         rule,
@@ -241,7 +285,7 @@ export async function prepareImportYaml(params: {
       const baseFormCandidate = importAssignmentBaseFormCandidate({
         assignment: params.assignment,
         topology: params.topology,
-        inputs: xmlInputs ?? [],
+        inputs: xmlInputs,
         context: importContext,
       })
       return {
@@ -316,9 +360,6 @@ export async function prepareImportYaml(params: {
       generatedFiles: [...generatedFiles, ...result.generatedFiles.filter((file) => !generatedFiles.includes(file))],
       ...(result.baseFormCandidate === undefined ? {} : { baseFormCandidate: result.baseFormCandidate }),
     }
-  } finally {
-    xmlInputs = undefined
-  }
 }
 
 function importAssignmentBaseFormCandidate(params: {

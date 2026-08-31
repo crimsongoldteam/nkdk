@@ -7,16 +7,7 @@ import type {
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { MetadataWorkerBinaryResult } from "./binaryResult"
-import type {
-  PreparedImportRecordLocator,
-  PreparedImportStoreDescriptor,
-} from "../projectState/preparedImportStore"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
-
-export interface PreparedImportBinaryRecord {
-  readonly locator: PreparedImportRecordLocator
-  readonly bytes: Uint8Array
-}
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 export type ExternalFileTransfer = "copy" | "move"
@@ -121,7 +112,6 @@ export type ImportWorkerCommand =
       outputDir: string
       projectDir?: string
       componentPath?: string
-      preparedStore?: PreparedImportStoreDescriptor
       configurationIndex?: ConfigurationIndexStoreDescriptor
       baseConfigurationIndex?: ConfigurationIndexStoreDescriptor
     }
@@ -133,18 +123,12 @@ export type ImportWorkerCommand =
       readToken: ProjectStateReadToken
       composition?: readonly ImportControlCompositionEntry[]
       exportProfile: XmlComponentExportProfile
+      issueDecisions?: readonly ImportProjectIssueDecision[]
     }
   | { kind: "secondPass"; assignmentId: string }
   | { kind: "secondPassBatch"; assignmentIds: string[] }
   | { kind: "finishSecondPass" }
   | { kind: "endSecondPass" }
-  | {
-      kind: "beginThirdPass"
-      readToken: ProjectStateReadToken
-      issueDecisions?: readonly ImportProjectIssueDecision[]
-    }
-  | { kind: "thirdPassBatch"; assignmentIds: string[] }
-  | { kind: "finishThirdPass" }
   | { kind: "dispose" }
 
 export interface ImportFirstPassResult {
@@ -153,7 +137,6 @@ export interface ImportFirstPassResult {
   files: ImportResultFile[]
   configurationFragments: ConfigurationIndexBlockFragment[]
   stateFragment?: ProjectStateFragment
-  preparedRecords: PreparedImportBinaryRecord[]
 }
 
 export interface ImportSecondPassResult {

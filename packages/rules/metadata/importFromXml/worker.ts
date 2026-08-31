@@ -6,7 +6,6 @@ import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import {
   createLocalConfigurationIndexReader,
   hashFileBytes,
-  parseMetadataYaml,
   rehydrateConfigurationContext,
   restoreXmlAnomalyAnnotations,
   snapshotXmlAnomalyAnnotations,
@@ -54,10 +53,17 @@ import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../p
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import {
-  extractImportValidationContribution,
+  extractImportValidationContributionFromFacts,
   type ImportValidationContribution,
 } from "./validationContribution"
-import { ImportXmlInputError, prepareImportYaml, type PreparedImportYaml } from "./prepareYaml"
+import {
+  ImportXmlInputError,
+  prepareImportYaml,
+  prepareImportYamlFromDocuments,
+  readImportXmlDocuments,
+  type PreparedImportYaml,
+} from "./prepareYaml"
+import { prepareImportFacts, type PreparedImportFacts } from "./prepareFacts"
 import type {
   ImportAssignment,
   ImportControlCompositionEntry,
@@ -81,7 +87,6 @@ import {
   type WritableSerializedImportYaml,
 } from "./writeOutput"
 import { createImportBinaryResult } from "./binaryResult"
-import type { PreparedImportBinaryRecord } from "./types"
 import type { MetadataWorkerOperationRegistry } from "../workerPool/operationRegistry"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { isRedundantClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormNecessity"
@@ -104,16 +109,8 @@ import { applyImportedIssueDecisions } from "./applyImportedIssueDecisions"
 import type { ValidationIssue, ValidationIssueTarget } from "@nkdk/runtime"
 import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { traverseMetadataRuleYaml } from "../validation/metadataRuleYamlTraversal"
-import {
-  createPreparedImportRecordSource,
-  encodePreparedImportRecord,
-  restorePreparedImportRecord,
-} from "./preparedRecord"
-import {
-  openPreparedImportStore,
-  type PreparedImportStore,
-} from "../projectState/preparedImportStore"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
+import { createPackedXmlAssignmentStore } from "./packedXmlAssignment"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -152,7 +149,6 @@ interface InitializedImportWorkerState {
   projectFileProjector: ReturnType<typeof createValidationProjectAssignmentFileProjector>
   schemaCache: ValidationSchemaCache
   rulesSnapshot: ValidationRulesSnapshot
-  preparedStoreDescriptor?: import("../projectState/preparedImportStore").PreparedImportStoreDescriptor
   configurationIndexDescriptor?: import("@nkdk/runtime").ConfigurationIndexStoreDescriptor
   baseConfigurationIndexDescriptor?: import("@nkdk/runtime").ConfigurationIndexStoreDescriptor
 }
@@ -189,17 +185,9 @@ interface PreparedSerializedYaml {
   final: ProjectStateImportFinalFileStateBatch
 }
 
-interface FinalizedImportYaml {
-  diagnosticAssignment: Pick<ImportAssignment, "targetProjectPath" | "xmlFiles">
-  targetProjectPath: string
-  rule: PreparedImportYaml["rule"]
-  validationFile: ValidationProjectFile
-}
-
 interface ActiveSecondPass {
   readonly readSession: ReturnType<typeof openProjectStateReadSession>
   readonly ownerMetadataCache: OwnerMetadataCache
-  readonly preparedStore?: PreparedImportStore
   readonly configurationStore?: ReturnType<typeof openConfigurationIndexStore>
   readonly baseConfigurationStore?: ReturnType<typeof openConfigurationIndexStore>
   readonly composition: MetadataXmlPrepareComposition
@@ -246,14 +234,17 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
   let schemaCacheForTests: ValidationSchemaCache | undefined
   let controlExportForTests: typeof executeImportControlExport | undefined
   const preparedYaml = new Map<string, DeferredImportYaml>()
-  const finalizedYaml = new Map<string, FinalizedImportYaml>()
-  const retainedInputBytesByAssignment = new Map<string, number>()
-  const retainedOutputBytesByAssignment = new Map<string, number>()
-  let retainedInputBytes = 0
-  let retainedOutputBytes = 0
-  const assignedImportIds = new Set<string>()
+  let packedProfiler: ValidationProfiler | undefined
+  const packedStore = createPackedXmlAssignmentStore({ profiler: {
+    measure: (step, substep, params, action) => packedProfiler?.measure(step, substep, params, action) ?? action(),
+    measureAsync: (step, substep, params, action) => packedProfiler?.measureAsync(step, substep, params, action) ?? action(),
+    record: (step, substep, params) => packedProfiler?.record(step, substep, params),
+    checkpoint: (step, substep, params) => packedProfiler?.checkpoint(step, substep, params),
+    records: () => packedProfiler?.records() ?? [],
+    flush: () => packedProfiler?.flush(),
+  } })
+  const packedAssignmentIds = new Set<string>()
   const assignedImports = new Map<string, ImportAssignment>()
-  const legacyPreparedRecords = new Map<string, Uint8Array>()
   let activeSecondPass: ActiveSecondPass | undefined
   let firstPassAccumulator: FirstPassAccumulator | undefined
   let secondPassAccumulator: SecondPassAccumulator | undefined
@@ -264,7 +255,6 @@ interface FirstPassAccumulator {
   readonly configurationFragments: ConfigurationIndexBlockFragment[]
   readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
   readonly profiler: ValidationProfiler
-  readonly preparedRecords: PreparedImportBinaryRecord[]
   stateEntries: number
 }
 
@@ -290,14 +280,9 @@ async function runImportWorkerCommand(
   if (command.kind === "initialize") {
     await endSecondPass()
     preparedYaml.clear()
-    finalizedYaml.clear()
-    retainedInputBytesByAssignment.clear()
-    retainedOutputBytesByAssignment.clear()
-    retainedInputBytes = 0
-    retainedOutputBytes = 0
-    assignedImportIds.clear()
+    packedStore.clear()
+    packedAssignmentIds.clear()
     assignedImports.clear()
-    legacyPreparedRecords.clear()
     firstPassAccumulator?.fragmentWriter.discard()
     const projectDir = command.projectDir ?? command.outputDir
     const componentPath = command.componentPath ?? "cf"
@@ -321,7 +306,6 @@ async function runImportWorkerCommand(
         ?? createValidationSchemaCache(context),
       rulesSnapshot: options.persistentValidationState?.rulesSnapshot
         ?? createValidationRulesSnapshot(context, validationComponent.topology),
-      ...(command.preparedStore === undefined ? {} : { preparedStoreDescriptor: command.preparedStore }),
       ...(command.configurationIndex === undefined ? {} : { configurationIndexDescriptor: command.configurationIndex }),
       ...(command.baseConfigurationIndex === undefined
         ? {}
@@ -352,7 +336,6 @@ async function runImportWorkerCommand(
       files: result.files,
       configurationFragments: result.configurationFragments,
       ...(result.stateFragment === undefined ? {} : { stateFragment: result.stateFragment }),
-      preparedRecords: result.preparedRecords,
     })
     accumulator.profiler.record(
       "Подготовка импорта конфигурации",
@@ -376,6 +359,7 @@ async function runImportWorkerCommand(
       requireInitializedState(),
       command.composition,
       command.exportProfile,
+      command.issueDecisions,
     )
     secondPassAccumulator?.fragmentWriter.discard()
     secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
@@ -389,7 +373,7 @@ async function runImportWorkerCommand(
       accumulator.profiler.checkpoint(
         "Подготовка импорта конфигурации",
         `Начало задания второго прохода: ${assignmentId}`,
-        { items: preparedYaml.size, bytes: retainedOutputBytes },
+        { items: packedStore.stats().assignments, bytes: packedStore.stats().bytes },
       )
       await processSecondPass(
         assignmentId,
@@ -408,37 +392,9 @@ async function runImportWorkerCommand(
     accumulator.profiler.flush()
     secondPassAccumulator = undefined
     await endSecondPass()
-    const unfinished = [...preparedYaml.values()].filter(({ output }) => output === undefined)
-    if (unfinished.length > 0) {
-      throw new Error(`Второй проход XML-import не обработал ${unfinished.length} отложенных YAML`)
-    }
-    return undefined
-  }
-
-  if (command.kind === "beginThirdPass") {
-    beginSecondPass(command.readToken, requireInitializedState(), undefined, undefined, command.issueDecisions)
-    secondPassAccumulator?.fragmentWriter.discard()
-    secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
-    return undefined
-  }
-
-  if (command.kind === "thirdPassBatch") {
-    requireInitializedState()
-    const accumulator = requireSecondPassAccumulator()
-    for (const assignmentId of command.assignmentIds) {
-      await processThirdPass(assignmentId, requireInitializedState(), accumulator)
-    }
-    return finishImportWorkerBatch(accumulator, requireInitializedState().workerIndex)
-  }
-
-  if (command.kind === "finishThirdPass") {
-    const accumulator = requireSecondPassAccumulator()
-    accumulator.fragmentWriter.discard()
-    accumulator.profiler.flush()
-    secondPassAccumulator = undefined
-    await endSecondPass()
-    if (finalizedYaml.size > 0) {
-      throw new Error(`Третий проход XML-import не завершил ${finalizedYaml.size} подготовленных YAML`)
+    const unfinished = packedStore.stats().assignments
+    if (unfinished > 0) {
+      throw new Error(`Второй проход XML-import не обработал ${unfinished} packed XML-заданий`)
     }
     return undefined
   }
@@ -458,15 +414,12 @@ async function runImportWorkerCommand(
       accumulator,
       controlExportForTests ?? executeImportControlExport,
     )
-    await processThirdPass(command.assignmentId, requireInitializedState(), accumulator)
     return finishSecondPass(accumulator)
   }
 
   const accumulator = createFirstPassAccumulator(requireInitializedState().workerIndex)
   await processFirstPass(command.assignments, requireInitializedState(), accumulator)
-  const result = finishFirstPass(accumulator)
-  for (const { locator, bytes } of result.preparedRecords) legacyPreparedRecords.set(locator.assignmentId, bytes)
-  return result
+  return finishFirstPass(accumulator)
 }
 
 async function processSecondPass(
@@ -476,75 +429,59 @@ async function processSecondPass(
   controlExport: typeof executeImportControlExport,
 ): Promise<void> {
   const profiler = accumulator.profiler
+  packedProfiler = profiler
   profiler.record("Подготовка импорта конфигурации", "Задания второго прохода", {
     items: 1,
     timeMs: 0,
   })
   const secondPass = activeSecondPass
   if (secondPass === undefined) throw new Error("Второй проход XML-import worker не начат")
-  if (secondPass.preparedStore === undefined && !assignedImports.has(assignmentId)) {
+  const assignment = assignedImports.get(assignmentId)
+  if (assignment === undefined) {
     throw new Error(`Задание ${assignmentId} не принадлежит этой линии import`)
   }
-  let prepared = preparedYaml.get(assignmentId)
-  const storedBytes = prepared === undefined
-    ? secondPass.preparedStore === undefined
-      ? legacyPreparedRecords.get(assignmentId)
-      : await secondPass.preparedStore.read(assignmentId)
-    : undefined
-  if (prepared === undefined && storedBytes !== undefined) {
-    legacyPreparedRecords.delete(assignmentId)
-    const restored = restorePreparedImportRecord(storedBytes)
+  let prepared: DeferredImportYaml | undefined
+  try {
+    const inputs = packedStore.take(assignmentId)
+    packedAssignmentIds.delete(assignmentId)
+    const collector = createConfigurationIndexCollector()
+    const imported = await prepareImportYamlFromDocuments({
+      assignment,
+      context: state.context,
+      collector,
+      inputs,
+      profiler,
+      topology: state.topology,
+    })
     const validationFile = state.projectFileProjector({
-      projectPath: restored.record.assignment.targetProjectPath,
-      topologyAddress: restored.record.assignment.topologyAddress,
+      projectPath: assignment.targetProjectPath,
+      topologyAddress: assignment.topologyAddress,
     })
     if (validationFile === undefined) {
-      throw new Error(`Не найден узел topology XML-import: ${restored.record.assignment.topologyAddress.nodeId}`)
+      throw new Error(`Не найден узел topology XML-import: ${assignment.topologyAddress.nodeId}`)
     }
     prepared = {
       diagnosticAssignment: {
-        targetProjectPath: restored.record.assignment.targetProjectPath,
-        xmlFiles: restored.record.assignment.xmlFiles,
+        targetProjectPath: assignment.targetProjectPath,
+        xmlFiles: assignment.xmlFiles,
       },
-      assignment: restored.record.assignment,
-      targetProjectPath: restored.record.targetProjectPath,
-      logicalAddress: restored.record.logicalAddress,
-      yaml: restored.yaml,
-      annotations: restored.annotations,
-      proofAudit: restored.record.proofAudit,
-      rule: restored.rule,
-      ownerContext: restored.record.ownerContext,
-      formDataPathIndex: restored.formDataPathIndex,
-      deferred: restored.deferred,
-      dependentDeferred: restored.record.dependentDeferred,
-      dependentOwner: restored.record.dependentOwner,
+      assignment,
+      targetProjectPath: imported.targetProjectPath,
+      logicalAddress: assignment.logicalAddress,
+      yaml: imported.yaml,
+      annotations: imported.annotations,
+      proofAudit: imported.proofAudit,
+      rule: imported.rule,
+      ownerContext: imported.ownerContext,
+      formDataPathIndex: imported.localIndexes.metadata.formDataPathIndex,
+      deferred: imported.deferred,
+      dependentDeferred: imported.dependentDeferred,
+      dependentOwner: imported.dependentOwner,
       validationFile,
-      ...(restored.record.configurationFragment === undefined
-        ? {}
-        : { configurationFragment: restored.record.configurationFragment }),
-      ...(restored.baseFormCandidate === undefined
-        ? {}
-        : {
-            baseFormCandidate: {
-              ...restored.baseFormCandidate,
-              localIndexes: {
-                metadata: {
-                  events: [],
-                  ...(restored.baseFormCandidate.formDataPathIndex === undefined
-                    ? {}
-                    : { formDataPathIndex: restored.baseFormCandidate.formDataPathIndex }),
-                },
-              },
-            },
-          }),
+      configurationFragment: collector.fragment(assignment.targetProjectPath),
+      ...(imported.baseFormCandidate === undefined ? {} : { baseFormCandidate: imported.baseFormCandidate }),
     }
     preparedYaml.set(assignmentId, prepared)
-    retainSecondPassBytes(retainedInputBytesByAssignment, assignmentId, storedBytes.byteLength, "input")
-    assignedImportIds.add(assignmentId)
-  }
-  if (prepared === undefined) throw new Error(`Не найдена подготовленная запись XML-import: ${assignmentId}`)
-  if (prepared !== undefined) {
-    try {
       const configurationIndex = secondPass.configurationStore === undefined
         ? createLocalConfigurationIndexReader(new Map(
             prepared.configurationFragment === undefined
@@ -587,81 +524,20 @@ async function processSecondPass(
       if (output.base !== undefined) accumulator.fragmentWriter.appendImportFinal(output.base.final)
       accumulator.configurationFragments.push(...output.configurationFragments)
       accumulator.stateEntries += output.base === undefined ? 1 : 2
-      finalizedYaml.set(assignmentId, {
-        diagnosticAssignment: prepared.diagnosticAssignment,
-        targetProjectPath: prepared.targetProjectPath,
-        rule: prepared.rule,
-        validationFile: prepared.validationFile,
-      })
-      preparedYaml.delete(assignmentId)
-      releaseRetainedSecondPass(assignmentId)
-    } catch (caught) {
-      accumulator.diagnostics.push(
-        importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"),
-      )
-      preparedYaml.delete(assignmentId)
-      releaseRetainedSecondPass(assignmentId)
-    }
+  } catch (caught) {
+    accumulator.diagnostics.push(
+      importAssignmentDiagnostic(prepared?.diagnosticAssignment ?? assignment, caught, "xml_import_yaml_failed"),
+    )
+  } finally {
+    preparedYaml.delete(assignmentId)
+    packedStore.release(assignmentId)
+    packedAssignmentIds.delete(assignmentId)
   }
 
   profiler.record("Подготовка импорта конфигурации", "Формирование worker списка файлов результата импорта", {
     items: prepared === undefined ? 0 : 1,
     timeMs: 0,
   })
-}
-
-async function processThirdPass(
-  assignmentId: string,
-  state: InitializedImportWorkerState,
-  accumulator: SecondPassAccumulator,
-): Promise<void> {
-  if (!assignedImportIds.has(assignmentId)) {
-    throw new Error(`Задание ${assignmentId} не принадлежит этой линии import`)
-  }
-  const prepared = finalizedYaml.get(assignmentId)
-  if (prepared === undefined) return
-  try {
-    const pendingDecisions = activeSecondPass?.issueDecisionsByProjectPath.get(prepared.targetProjectPath) ?? []
-    if (pendingDecisions.length === 0) return
-    const source = await readFile(resolveProjectPath(state.outputDir, prepared.targetProjectPath), "utf8")
-    const parsed = parseMetadataYaml(source)
-    if (parsed.syntaxErrors.length > 0) {
-      throw new Error(`Не удалось повторно разобрать YAML: ${parsed.syntaxErrors[0]!.message}`)
-    }
-    const decisions = pendingDecisions.map((decision) => requiresImportantForImportedTarget({
-      yaml: parsed.data,
-      rule: prepared.rule,
-    }, decision.target)
-      ? { ...decision, kind: "important" as const }
-      : decision)
-    applyImportedIssueDecisions({ data: parsed.data, annotations: parsed.annotations, decisions })
-    const serialized = serializePreparedYaml(
-      prepared.targetProjectPath,
-      parsed.data,
-      state,
-      accumulator.profiler,
-      parsed.annotations,
-    )
-    const validated = measureSerializedImportYamlValidation(prepared, serialized, state, accumulator.profiler)
-    await writeMainImportYaml({ serialized: retainWritableYaml(serialized), profiler: accumulator.profiler })
-    accumulator.fragmentWriter.appendImportIndex(validated.index)
-    accumulator.fragmentWriter.appendImportFinal(
-      applyImportedDecisionsToFinalState(validated.final, decisions, serialized.localHash),
-    )
-    accumulator.stateEntries += 1
-  } catch (caught) {
-    accumulator.diagnostics.push(
-      importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"),
-    )
-  } finally {
-    finalizedYaml.delete(assignmentId)
-    releaseRetainedSecondPass(assignmentId)
-  }
-  accumulator.profiler.record(
-    "Подготовка импорта конфигурации",
-    "Формирование worker списка файлов результата импорта",
-    { items: 1, timeMs: 0 },
-  )
 }
 
 function createSecondPassAccumulator(workerIndex: number, profiler = createImportWorkerProfiler(workerIndex)): SecondPassAccumulator {
@@ -677,41 +553,15 @@ function createSecondPassAccumulator(workerIndex: number, profiler = createImpor
 }
 
 function checkpointRetainedSecondPass(profiler: ValidationProfiler): void {
+  const retained = packedStore.stats()
   profiler.checkpoint(
     "Подготовка импорта конфигурации",
-    "Удерживаемый вход второго прохода",
+    "Удерживаемый packed XML",
     {
-      items: retainedInputBytesByAssignment.size,
-      bytes: retainedInputBytes,
+      items: retained.assignments,
+      bytes: retained.bytes,
     },
   )
-  profiler.checkpoint(
-    "Подготовка импорта конфигурации",
-    "Удерживаемый output второго прохода",
-    {
-      items: retainedOutputBytesByAssignment.size,
-      bytes: retainedOutputBytes,
-    },
-  )
-}
-
-function retainSecondPassBytes(
-  entries: Map<string, number>,
-  assignmentId: string,
-  bytes: number,
-  kind: "input" | "output",
-): void {
-  const previous = entries.get(assignmentId) ?? 0
-  entries.set(assignmentId, bytes)
-  if (kind === "input") retainedInputBytes += bytes - previous
-  else retainedOutputBytes += bytes - previous
-}
-
-function releaseRetainedSecondPass(assignmentId: string): void {
-  retainedInputBytes -= retainedInputBytesByAssignment.get(assignmentId) ?? 0
-  retainedOutputBytes -= retainedOutputBytesByAssignment.get(assignmentId) ?? 0
-  retainedInputBytesByAssignment.delete(assignmentId)
-  retainedOutputBytesByAssignment.delete(assignmentId)
 }
 
 function finishImportWorkerBatch(accumulator: SecondPassAccumulator, workerIndex: number) {
@@ -743,9 +593,6 @@ function beginSecondPass(
 ): void {
   if (activeSecondPass !== undefined) throw new Error("Второй проход XML-import worker уже начат")
   const readSession = openProjectStateReadSession(readToken)
-  const preparedStore = state.preparedStoreDescriptor === undefined
-    ? undefined
-    : openPreparedImportStore(state.preparedStoreDescriptor, "readOnly")
   const configurationStore = state.configurationIndexDescriptor === undefined
     ? undefined
     : openConfigurationIndexStore(state.configurationIndexDescriptor, "readOnly")
@@ -759,7 +606,6 @@ function beginSecondPass(
       componentPath: state.componentPath,
       queryPort: readSession,
     }),
-    ...(preparedStore === undefined ? {} : { preparedStore }),
     ...(configurationStore === undefined ? {} : { configurationStore }),
     ...(baseConfigurationStore === undefined ? {} : { baseConfigurationStore }),
     composition: importControlComposition(
@@ -848,7 +694,6 @@ function applyImportedDecisionsToFinalState(
 
 async function endSecondPass(): Promise<void> {
   activeSecondPass?.readSession.close()
-  await activeSecondPass?.preparedStore?.close()
   await activeSecondPass?.configurationStore?.close()
   await activeSecondPass?.baseConfigurationStore?.close()
   activeSecondPass = undefined
@@ -1060,6 +905,17 @@ async function prepareYamlForFinalPass(
       }),
     })
   }
+  const semanticDecisions = (activeSecondPass?.issueDecisionsByProjectPath.get(prepared.targetProjectPath) ?? [])
+    .map((decision) => requiresImportantForImportedTarget(prepared, decision.target)
+      ? { ...decision, kind: "important" as const }
+      : decision)
+  if (semanticDecisions.length > 0) {
+    applyImportedIssueDecisions({
+      data: prepared.yaml,
+      annotations: prepared.annotations,
+      decisions: semanticDecisions,
+    })
+  }
   let serialized = serializePreparedYaml(
     prepared.targetProjectPath,
     prepared.yaml,
@@ -1110,7 +966,9 @@ async function prepareYamlForFinalPass(
     main: {
       serialized: retainWritableYaml(serialized),
       index: validated.index,
-      final: validated.final,
+      final: semanticDecisions.length === 0
+        ? validated.final
+        : applyImportedDecisionsToFinalState(validated.final, semanticDecisions, serialized.localHash),
     },
     ...(baseForm === undefined ? {} : { base: baseForm }),
     configurationFragments:
@@ -1397,26 +1255,22 @@ async function processFirstPass(
   accumulator: FirstPassAccumulator,
 ): Promise<void> {
   const profiler = accumulator.profiler
-  let retainedYamlCount = 0
-  let deferredValueCount = 0
+  packedProfiler = profiler
   for (const assignment of assignments) {
     assignedImports.set(assignment.id, assignment)
     const collector = createConfigurationIndexCollector()
+    let packed = false
     try {
-      const prepared = await prepareImportYaml({
+      const inputs = await readImportXmlDocuments({ assignment, profiler })
+      const prepared = await prepareImportFacts({
         assignment,
         context: state.context,
         collector,
+        inputs,
         profiler,
         topology: state.topology,
-        proofDetail: "roots",
       })
-      const fragment = profiler.measure(
-        "Подготовка импорта конфигурации",
-        "Извлечение данных для индекса конфигурации",
-        { items: 1 },
-        () => collector.fragment(assignment.targetProjectPath)
-      )
+      const fragment = prepared.configurationFragment
       const validationFile = profiler.measure(
         "Подготовка импорта конфигурации",
         "Подготовка описания файла проекта",
@@ -1433,7 +1287,7 @@ async function processFirstPass(
         "Подготовка импорта конфигурации",
         "Формирование вклада файла в общий индекс",
         { items: 1 },
-        () => extractImportValidationContribution({
+        () => extractImportValidationContributionFromFacts({
           prepared,
           projectDir: state.outputDir,
           file: validationFile,
@@ -1480,34 +1334,29 @@ async function processFirstPass(
         const indexContribution = importIndexContribution(prepared, validationContribution, state)
         accumulator.fragmentWriter.appendImportIndex(indexContribution)
         accumulator.stateEntries += 1
-        const bytes = encodePreparedImportRecord(createPreparedImportRecordSource(prepared, fragment))
-        accumulator.preparedRecords.push({
-          locator: { assignmentId: assignment.id, weight: bytes.byteLength },
-          bytes,
-        })
-        retainedYamlCount += 1
-        deferredValueCount += prepared.deferred.length + prepared.dependentDeferred.length
+        accumulator.fragmentWriter.appendImportFinal(
+          provisionalImportFinalContribution(prepared, validationContribution, state),
+        )
+        packedStore.put(assignment.id, inputs)
+        packedAssignmentIds.add(assignment.id)
+        packed = true
         accumulator.files.push(...assignmentFiles)
       } catch (caught) {
-        preparedYaml.delete(assignment.id)
         accumulator.diagnostics.push(importAssignmentDiagnostic(assignment, caught, "xml_import_yaml_failed"))
         continue
       }
       accumulator.configurationFragments.push(fragment)
     } catch (caught) {
-      preparedYaml.delete(assignment.id)
       accumulator.diagnostics.push(importAssignmentDiagnostic(assignment, caught))
     } finally {
-      // Полные XML-данные принадлежат prepareImportYaml и к этому моменту уже вышли из области видимости.
+      if (!packed) packedStore.release(assignment.id)
     }
   }
 
-  profiler.record("Подготовка импорта конфигурации", "YAML, ожидающие второго прохода", {
-    items: retainedYamlCount,
-    timeMs: 0,
-  })
-  profiler.record("Подготовка импорта конфигурации", "Отложенные значения YAML", {
-    items: deferredValueCount,
+  const retained = packedStore.stats()
+  profiler.record("Подготовка импорта конфигурации", "XML-задания, ожидающие второго прохода", {
+    items: retained.assignments,
+    bytes: retained.bytes,
     timeMs: 0,
   })
 }
@@ -1519,7 +1368,6 @@ function createFirstPassAccumulator(workerIndex: number, profiler = createImport
     configurationFragments: [],
     fragmentWriter: createProjectStateFragmentWriter(),
     profiler,
-    preparedRecords: [],
     stateEntries: 0,
   }
 }
@@ -1538,7 +1386,6 @@ function finishFirstPass(accumulator: FirstPassAccumulator, flushProfile = true)
   return {
     kind: "firstPassResult",
     ...finishImportPass(accumulator, flushProfile),
-    preparedRecords: accumulator.preparedRecords,
   }
 }
 
@@ -1777,7 +1624,7 @@ function splitImportYamlUpdate(
 }
 
 function importIndexContribution(
-  prepared: PreparedImportYaml,
+  prepared: PreparedImportYaml | PreparedImportFacts,
   contribution: ImportValidationContribution,
   state: InitializedImportWorkerState,
 ): ProjectStateImportIndexContribution {
@@ -1804,6 +1651,31 @@ function importIndexContribution(
     owners: validation.objectRecords.flatMap(projectStateOwnerFacts),
     fields: validation.objectRecords.flatMap(projectStateFieldEntries),
     forms: [],
+  }
+}
+
+function provisionalImportFinalContribution(
+  prepared: PreparedImportFacts,
+  contribution: ImportValidationContribution,
+  state: InitializedImportWorkerState,
+): ProjectStateImportFinalFileStateBatch {
+  const identity = importFileIdentity(
+    state,
+    prepared.targetProjectPath,
+    prepared.assignment.role === "fileItem" ? "form" : "properties",
+  )
+  return {
+    updates: [{
+      ...identity,
+      kind: "yaml",
+      localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
+      pendingReferences: contribution.validationContribution.pendingReferences.map(
+        ({ filePath: _filePath, ...reference }) => reference,
+      ),
+      pendingChecks: [],
+      dependencies: [],
+    }],
+    hashBytes: new Uint8Array(8),
   }
 }
 
@@ -1866,15 +1738,10 @@ function clearWorkerState(): void {
   firstPassAccumulator = undefined
   secondPassAccumulator?.fragmentWriter.discard()
   secondPassAccumulator = undefined
-  finalizedYaml.clear()
+  packedStore.clear()
+  packedAssignmentIds.clear()
   preparedYaml.clear()
-  retainedInputBytesByAssignment.clear()
-  retainedOutputBytesByAssignment.clear()
-  retainedInputBytes = 0
-  retainedOutputBytes = 0
-  assignedImportIds.clear()
   assignedImports.clear()
-  legacyPreparedRecords.clear()
   initializedState = undefined
 }
 
@@ -1895,9 +1762,9 @@ function workerStateForTests(): {
           workerIndex: initializedState.workerIndex,
           outputDir: initializedState.outputDir,
         }),
-    preparedYamlIds: [...new Set([...preparedYaml.keys(), ...legacyPreparedRecords.keys()])],
+    preparedYamlIds: [...new Set([...preparedYaml.keys(), ...packedAssignmentIds])],
     retainedProofAuditIds: [...new Set([
-      ...legacyPreparedRecords.keys(),
+      ...packedAssignmentIds,
       ...[...preparedYaml]
       .filter(([, prepared]) => prepared.proofAudit !== undefined)
       .map(([assignmentId]) => assignmentId),
@@ -1909,7 +1776,6 @@ function resetImportWorkerStateForTests(): void {
   const secondPass = activeSecondPass
   activeSecondPass = undefined
   secondPass?.readSession.close()
-  void secondPass?.preparedStore?.close()
   void secondPass?.configurationStore?.close()
   void secondPass?.baseConfigurationStore?.close()
   clearWorkerState()
@@ -1942,10 +1808,7 @@ return {
 export function createImportFirstPassTransferable(result: ImportFirstPassResult) {
   return {
     get [transferableSymbol]() {
-      return [
-        ...Object.values(result.stateFragment?.buffers ?? {}),
-        ...result.preparedRecords.map(({ bytes }) => bytes.buffer as ArrayBuffer),
-      ]
+      return Object.values(result.stateFragment?.buffers ?? {})
     },
     get [valueSymbol]() {
       return result
