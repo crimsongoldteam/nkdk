@@ -238,6 +238,23 @@ describe("Designer agent session", () => {
     expect(fixture.calls).toContain('shell.run config update-db-cfg --session-terminate="prompt"')
   })
 
+  it("can load files without updating the database configuration", async () => {
+    const fixture = createFixture()
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.loadPartialConfiguration(
+      "/project/.nkdk/tmp/op/package.zip",
+      ["Catalogs/Справочник1.xml"],
+      fixture.operationLog,
+      undefined,
+      undefined,
+      false,
+    )).resolves.toEqual({ warnings: [], loadMode: "selected" })
+
+    expect(fixture.calls.some((call) => call.startsWith("shell.run config load-files"))).toBe(true)
+    expect(fixture.calls).not.toContain('shell.run config update-db-cfg --session-terminate="prompt"')
+  })
+
   it("сохраняет успешный результат загрузки при отказе журнала после команды", async () => {
     const fixture = createFixture({ logAppendFailureAt: 3 })
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)

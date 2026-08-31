@@ -157,10 +157,12 @@ describe("registerNkdkCapabilities", () => {
     expect(infobaseSync?.description).toContain("Запускает платформу")
     expect(infobaseSync?.description).toContain("allowWrite=true")
     expect(infobaseSync?.description).toContain("обновляет конфигурацию базы данных")
+    expect(infobaseSync?.description).toContain("updateDatabaseConfiguration=false")
     expect(await accepts(infobaseSync?.inputSchema, {
       projectDir: "/project",
       componentPath: "cf",
       allowWrite: true,
+      updateDatabaseConfiguration: false,
     })).toBe(true)
     expect(await accepts(infobaseSync?.inputSchema, {
       projectDir: "/project",

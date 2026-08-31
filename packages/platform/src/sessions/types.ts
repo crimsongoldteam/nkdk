@@ -63,6 +63,7 @@ export type LoadPartialConfigurationParams = NormalizedPlatformConnectionSetting
   archivePath: string
   loadTargets: readonly string[]
   logPath: string
+  updateDatabaseConfiguration?: boolean
   extensionName?: string
   signal?: AbortSignal
 }
@@ -106,7 +107,8 @@ export interface PlatformSession {
     loadTargets: readonly string[],
     operationLog: PlatformOperationLog,
     extensionName?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    updateDatabaseConfiguration?: boolean
   ): Promise<{ warnings: readonly string[]; loadMode: PartialLoadMode }>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>

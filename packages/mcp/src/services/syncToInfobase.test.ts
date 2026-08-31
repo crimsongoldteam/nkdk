@@ -133,8 +133,20 @@ describe("sync to infobase", () => {
       loadTargets: ["Catalogs/Test.xml"],
       logPath,
       connectionString: "File=/base",
+      updateDatabaseConfiguration: true,
     })
     expect(fixture.platformParams).not.toHaveProperty("operations")
+  })
+
+  it("allows loading without updating the database configuration", async () => {
+    const fixture = createFixture()
+
+    await expect(syncToInfobase({
+      ...input(),
+      updateDatabaseConfiguration: false,
+    }, fixture.dependencies)).resolves.toMatchObject({ ok: true, status: "synchronized" })
+
+    expect(fixture.platformParams).toMatchObject({ updateDatabaseConfiguration: false })
   })
 
   it("uses and reports the standalone-server mode from project settings", async () => {

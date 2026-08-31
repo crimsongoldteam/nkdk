@@ -15,6 +15,16 @@ describe("sync_to_infobase contract", () => {
     })
   })
 
+  it("accepts an explicit database configuration update choice", () => {
+    expect(parseTypeBox(syncToInfobaseInputSchema, {
+      projectDir: "/project",
+      updateDatabaseConfiguration: false,
+    })).toEqual({
+      projectDir: "/project",
+      updateDatabaseConfiguration: false,
+    })
+  })
+
   it.each(["cfe", "cfe/", "cfe/..", "../cf", "/cf", "erf/Report"])(
     "rejects unsupported component %s",
     (componentPath) => {
