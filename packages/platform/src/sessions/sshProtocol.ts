@@ -352,6 +352,11 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     }
     if (type === "progress" || type === "dbstru" || type === "generation-id") return
     if (type === "error" || type === "cancel") {
+      const structured = redactPlatformText(JSON.stringify(message), [this.password])
+      const diagnostic = pending.operationLog?.sanitize(structured) ?? structured
+      pending.logWrites = pending.logWrites.then(async () => {
+        await pending.operationLog?.append(`command-error ${diagnostic}`)
+      })
       const platformMessage = extractFailureMessage(message)
       const fallback = safeFailureMessage(pending.errorCode)
       const passwordSafe = redactPlatformText(platformMessage ?? fallback, [this.password])

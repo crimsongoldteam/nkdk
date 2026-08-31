@@ -135,6 +135,28 @@ describe("platform SSH command protocol", () => {
     })
   })
 
+  it("writes the structured platform error to the operation log without secrets", async () => {
+    const operationMessages: string[] = []
+    const operationLog = recordingOperationLog(operationMessages)
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"error","body":{"message":"Некорректный Form.xml","details":"secret"}}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({
+      shell,
+      password: "secret",
+      timeoutMs: 100,
+    })
+
+    await expect(session.run("config load-files", { operationLog }))
+      .rejects.toMatchObject({ code: "platform_command_failed" })
+    expect(operationMessages).toContain(
+      'command-error {"type":"error","body":{"message":"Некорректный Form.xml","details":"***"}}'
+    )
+  })
+
   it.each([
     ["progress", '{"type":"progress","message":"","body":{"message":"Подготовка","percent":33}}'],
     ["database structure", '{"type":"dbstru","body":{"info":"change","message":"Новый объект"}}'],
