@@ -52,7 +52,7 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
 }): SingletonElementYAMLToXMLNestedRule => ({
   kind: "item",
   itemRule: params.elementRule,
-  requiredIdentity: "xmlId",
+  ...(params.directId === undefined ? { requiredIdentity: "xmlId" as const } : {}),
   resolveContext: ({ context, name }) => {
     const canonicalName = getCanonicalSingletonName({
       ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",
@@ -93,8 +93,8 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
   transformOutput: (outputParams) => {
     const { context, itemName, xml } = outputParams
     const { _name, _id, ...properties } = xml
-    const runtime = context.exportToXML.configurationIndex
-    const indexedId = resolveFormElementXMLId(context)
+    const runtime = params.directId === undefined ? context.exportToXML.configurationIndex : undefined
+    const indexedId = params.directId === undefined ? resolveFormElementXMLId(context) : undefined
     const result = {
       _name:
         itemName ?? (
@@ -102,7 +102,7 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
             ? _name
             : ""
         ),
-      _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
+      _id: params.directId ?? (typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? "")),
       ...properties,
     }
     copyXmlAnomalyExportClaim(xml, result)
@@ -135,6 +135,7 @@ export const defineElementAsType = <Rule extends ElementRule & { itemType: Singl
       xml: xml as ElementXML | undefined,
       ownerXmlName,
       nameStyle,
+      directId: params.directId,
       traversal,
     })
   ))

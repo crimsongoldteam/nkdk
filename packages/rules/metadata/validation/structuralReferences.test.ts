@@ -232,6 +232,21 @@ it.each([
   })
 })
 
+it("не считает системную рамку ссылкой на объект конфигурации", () => {
+  const registry = createPropertyRuleRegistrySet(metadataRules)
+  const occurrences = registry.getTypeRule("Border", "metadataTargetOccurrences")!({
+    value: { ref: "ControlBorder" },
+    representation: "model",
+    yamlPath: ["Рамка"],
+    propRule: {
+      type: "Border",
+      metadataTarget: { kind: "object", roots: ["StyleItem"] },
+    } as PropertyRule,
+  })
+
+  expect(occurrences).toEqual([])
+})
+
 function collectProbeReferences(
   parsed: ReturnType<typeof parseMetadataYaml>,
   rule: MetadataItemRule,

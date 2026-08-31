@@ -5,7 +5,7 @@ import { UserVisibleXML } from "../../../commonObjects/userVisible/types"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection"
 import { FormTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
-import { ButtonRepresentation, CurrentRowUse } from "../../../systemEnumerations/types"
+import { CurrentRowUse, FormCommandButtonRepresentation } from "../../../systemEnumerations/types"
 import { importFormCommandsFromXMLToYAML } from "./fromXMLToYAML"
 import { FormCommandRules } from "./rules"
 import { registerFormXmlIdReservation } from "@nkdk/runtime"
@@ -23,7 +23,7 @@ export interface FormCommandXML {
   Shortcut?: string
   Picture?: PictureXML
   Action?: string
-  Representation?: ButtonRepresentation | "TextPicture"
+  Representation?: FormCommandButtonRepresentation
   ModifiesSavedData?: boolean
   CurrentRowUse?: CurrentRowUse
   AssociatedTableElementId?: MetadataPrimitiveValueXML
@@ -46,7 +46,6 @@ export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   mapItemOutput: ({ xml, context }) => {
     const { _name, _id, ...properties } = xml
     const result: Record<string, unknown> = { _name, _id: typeof _id === "string" ? _id : "", ...properties }
-    if (result.Representation === "PictureAndText") result.Representation = "TextPicture"
     const runtime = context.exportToXML.configurationIndex
     registerFormXmlIdReservation(result, {
       ...(runtime === undefined ? {} : { runtime }),

@@ -56,6 +56,46 @@ describe("FormCommands XML → YAML → XML", () => {
     expect(serializeYAMLDocument(yaml, annotations).text).not.toContain("Command\\CurrentRowUse")
   })
 
+  it("сохраняет TextPicture и аннотацию языка на исходном audit-узле", () => {
+    const root = parseXmlDocumentWithSaxes(`
+      <Probe xmlns:v8="http://v8.1c.ru/8.1/data/core">
+        <Commands>
+          <Command name="Команда" id="1">
+            <Title>
+              <v8:item><v8:lang>ru</v8:lang><v8:content>Команда</v8:content></v8:item>
+              <v8:item><v8:lang>tr</v8:lang><v8:content>Komut</v8:content></v8:item>
+            </Title>
+            <Representation>TextPicture</Representation>
+          </Command>
+        </Commands>
+      </Probe>
+    `).roots[0]!
+    const audit = createXmlImportAuditSession([root])
+    const annotations = createXmlAnomalyAnnotations()
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Форма" })
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule,
+      xml: root,
+      context: contexts.importContext,
+      audit,
+      annotations,
+    })
+
+    expect(yaml).toHaveProperty("Значение.Команда.ОтображениеКнопки", "КартинкаИТекст")
+    expect(serializeYAMLDocument(yaml, annotations).text).toContain("tr")
+    expect(audit.rawCandidates()).toEqual([])
+
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml,
+      context: contexts.exportContext(),
+      annotations,
+    })
+    expect(xml).toMatchObject({
+      Commands: { Command: [{ _name: "Команда", Representation: "TextPicture" }] },
+    })
+  })
+
   it("сохраняет команды с повторным именем в XML-порядке", () => {
     const annotations = createXmlAnomalyAnnotations()
     const source = {

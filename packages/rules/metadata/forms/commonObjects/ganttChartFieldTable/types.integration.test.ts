@@ -5,12 +5,28 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
+import { mockContext } from "../../../../tests/mockContext"
+import { compileValidationSchema } from "../../../validation/compileValidationSchema"
 import { GanttChartFieldRules } from "../../elements/ganttChartField/rules"
+import { exportGanttChartFieldTableToJSONSchema } from "./types"
 
 import "../../elements/index"
 import "../tableAdditionalSource/toXML"
+import "../../../../tests/metadataExecutionContext"
 
 describe("таблица поля диаграммы Ганта", () => {
+  it("разрешает явное XML-имя в JSON Schema", () => {
+    const jsonSchema = exportGanttChartFieldTableToJSONSchema({
+      context: mockContext,
+      rule: GanttChartFieldRules.properties.table,
+      value: undefined,
+    })
+    if (jsonSchema === undefined) throw new Error("Ожидалась схема таблицы диаграммы Ганта")
+    const schema = compileValidationSchema(jsonSchema)
+
+    expect(schema.Check({ Имя: "Table" })).toBe(true)
+  })
+
   it("восстанавливает канонические дополнения без явных YAML-ключей", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "ОбщаяФорма.GanttChartField.Элемент.ПоУмолчанию",

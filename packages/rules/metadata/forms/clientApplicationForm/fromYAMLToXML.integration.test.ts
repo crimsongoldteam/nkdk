@@ -303,7 +303,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         .fragment("Справочники/Товары/Формы/ФормаЭлемента.yaml")
         .entities.map((entity) => [entity.logicalAddress, entity.xmlId]),
     )
-    expect(identities.get(childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"))).toBe("-1")
+    expect(identities.has(childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"))).toBe(false)
     expect(identities.get(inputAddress)).toBe(inputField._id)
     expect(identities.get(childSegmentUid(inputAddress, "КонтекстноеМеню"))).toBe(
       (inputField.ContextMenu as Record<string, unknown>)._id,
@@ -327,8 +327,18 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       ].join("\n")
     )
 
+    const baseContext = mockContextToXML()
     const result = convertClientApplicationFormFromYAMLToXML({
-      context: mockContextToXML(),
+      context: {
+        ...baseContext,
+        exportToXML: {
+          ...baseContext.exportToXML,
+          context: {
+            ...baseContext.exportToXML.context!,
+            currentXMLPath: "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml",
+          },
+        },
+      },
       yaml,
       name: "ФормаСписка",
     })
@@ -341,7 +351,9 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
             { _table: "Список.Пустая" },
             {
               _table: "Список.Способы",
-              Column: [expect.objectContaining({ _name: "Реквизит1" })],
+              Column: ["1", "2", "3", "4", "5"].map((_id) =>
+                expect.objectContaining({ _name: "Реквизит1", _id })
+              ),
             },
           ],
         },

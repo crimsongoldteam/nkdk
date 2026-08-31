@@ -54,8 +54,8 @@
 			<Comment/>
 			<ExtendedConfigurationObject>2f109eaa-d341-4592-a04f-3f199e75d879</ExtendedConfigurationObject>
 			<Numerator/>
-			<NumberType>String</NumberType>
-			<NumberLength>9</NumberLength>
+			<NumberType>Number</NumberType>
+			<NumberLength>11</NumberLength>
 			<NumberAllowedLength>Variable</NumberAllowedLength>
 			<NumberPeriodicity>Nonperiodical</NumberPeriodicity>
 			<CheckUnique>true</CheckUnique>

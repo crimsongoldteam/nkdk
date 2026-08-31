@@ -146,6 +146,7 @@ export const virtualDataTableToYAML: Readonly<Record<string, string>> = {
   ScheduleData: "ДанныеГрафика",
   ActualActionPeriod: "ФактическийПериодДействия",
   Points: "Точки",
+  TasksByExecutive: "ЗадачиПоИсполнителю",
 }
 
 export const virtualDataTableFromYAML = Object.fromEntries(

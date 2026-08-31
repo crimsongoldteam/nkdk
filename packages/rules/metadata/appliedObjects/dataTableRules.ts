@@ -89,6 +89,8 @@ function virtualTables(
     if (isTrue(facts.actionPeriod)) names.push("ActualActionPeriod")
   } else if (physical.root === "BusinessProcess") {
     names.push("Points")
+  } else if (physical.root === "Task") {
+    names.push("TasksByExecutive")
   }
 
   return names.map((virtualTable) => table(record, { ok: true, filePath: record.filePath }, {

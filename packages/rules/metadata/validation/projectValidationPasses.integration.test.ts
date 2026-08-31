@@ -232,6 +232,36 @@ describe("validateProjectFileFirstPass references", () => {
     })
   }
 
+  it("проверяет локализованный заголовок yamlInline дополнительной колонки", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const projectPath = "Отчет/Тест/Формы/ФормаОтчета/Форма.yaml"
+    writeProjectFile(projectDir, projectPath, [
+      "Реквизиты:",
+      "  Отчет:",
+      "    Тип: Строка",
+      "    ДополнительныеКолонки:",
+      "      Отчет.Таблица:",
+      "        ПредставлениеПараметра:",
+      "          Заголовок:",
+      "            ru: Параметр",
+      "            !xml/invalid tr: Parametre",
+      "          Тип: Строка",
+      "        СыраяКолонка: !xml/raw",
+      "          $значение:",
+      "            Заголовок:",
+      "              tr: Raw",
+      "            Тип: Строка",
+      "          $xml:",
+      "            Custom: x",
+    ])
+
+    const result = validateProjectPath(projectDir, projectPath)
+
+    expect(result.diagnostics).toEqual([])
+    expect(result.issues).toEqual([])
+  })
+
   it("marks syntax failure as a file without contributed facts", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

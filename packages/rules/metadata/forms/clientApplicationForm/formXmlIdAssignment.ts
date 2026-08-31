@@ -16,7 +16,7 @@ export function assignFormXmlIds(generated: unknown, reference?: unknown): void 
   for (const candidate of candidates) {
     const snapshotId = candidate.reservation.runtime?.identity("xmlId")
     const referenceId = stringId(candidate.reference?._id)
-    candidate.id = snapshotId ?? referenceId ?? candidate.reservation.specialId
+    candidate.id = candidate.reservation.specialId ?? snapshotId ?? referenceId
     if (candidate.id !== undefined) reserve(candidate, occupied)
   }
 
@@ -73,11 +73,8 @@ function reserve(
 ): void {
   const id = candidate.id
   if (id === undefined) return
-  if (isNegativeId(id)) {
-    if (candidate.reservation.specialId !== id) throw new Error(`Отрицательный ID ${id} не объявлен правилом`)
-    return
-  }
-  if (!isNonNegativeId(id)) throw new Error(`Некорректный ID формы: ${id}`)
+  if (!isXmlId(id)) throw new Error(`Некорректный ID формы: ${id}`)
+  if (candidate.reservation.specialId !== undefined) return
   const byId = occupied.get(candidate.scope) ?? new Map<string, Candidate>()
   const previous = byId.get(id)
   if (previous !== undefined && previous !== candidate) {
@@ -95,12 +92,8 @@ function stringId(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined
 }
 
-function isNonNegativeId(value: string): boolean {
-  return /^(0|[1-9]\d*)$/.test(value)
-}
-
-function isNegativeId(value: string): boolean {
-  return /^-[1-9]\d*$/.test(value)
+function isXmlId(value: string): boolean {
+  return /^(?:0|[1-9]\d*|-[1-9]\d*)$/.test(value)
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

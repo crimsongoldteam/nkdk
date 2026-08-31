@@ -513,6 +513,33 @@ describe("validateParsedFile", () => {
     }])
   })
 
+  it("invalid на элементе массива подавляет ошибку union этого элемента", () => {
+    const schema = compileValidationSchema(Type.Object({
+      Элементы: Type.Array(Type.Union([
+        Type.Object({ Вид: Type.Literal("А"), Значение: Type.String() }, { additionalProperties: false }),
+        Type.Object({ Вид: Type.Literal("Б"), Число: Type.Number() }, { additionalProperties: false }),
+      ])),
+    }))
+    const parsed = parseMetadataYaml([
+      "Элементы:",
+      "  - !xml/invalid",
+      "    Вид: А",
+      "    Неизвестное: x",
+    ].join("\n"))
+
+    const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
+
+    expect(result).toMatchObject({
+      diagnostics: [],
+      issues: [],
+      boundaries: [{
+        annotation: "invalid",
+        target: { kind: "path", path: ["Элементы", 0] },
+        state: "accepted",
+      }],
+    })
+  })
+
   it("считает тег invalid лишним, если значение правильно", () => {
     const schema = compileValidationSchema(Type.Object({ Использовать: Type.Boolean() }))
     const parsed = parseMetadataYaml(`Использовать: !xml/invalid true\n`)

@@ -17,6 +17,7 @@ import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRe
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import { hasSoleValueListType } from "./valueListSettings"
 import { isMetadataNameYAML } from "../../../commonObjects/metadataName/types"
+import { collapseKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
 
 type FormAttributeImportTraversal = Parameters<ImportFromXMLToYAMLFunction>[0]["traversal"]
 
@@ -160,12 +161,45 @@ function importAdditionalColumnsFromXMLToYAML(
       logicalAddress === undefined
         ? params.context
         : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
+    const columnItems = formAttributeCollectionItems(item.Column)
+    const columnNodes = params.xmlNodes?.[index] === undefined
+      ? undefined
+      : xmlElementChildren(params.xmlNodes[index]!, "Column")
+    const collapsed = collapseKnownDuplicateErpAdditionalColumns({
+      currentXMLPath: params.context.fromXML.currentXMLPath,
+      table,
+      columns: columnItems,
+      columnName: (column) => {
+        const name = objectRecordOrUndefined(column)?._name
+        return typeof name === "string" ? name : undefined
+      },
+    })
+    if (collapsed !== undefined && columnNodes?.length === columnItems.length) {
+      const omittedNodes = columnNodes.slice(1)
+      const itemTraversal = enterNestedYamlRule(
+        { ...params.traversal, yamlPath: [...params.traversal.yamlPath, table, "Реквизит1"] },
+        FormAttributeColumnRules.itemType,
+      )
+      const boundary = {
+        itemType: FormAttributeColumnRules.itemType,
+        yamlPath: itemTraversal.yamlPath,
+        rulePath: itemTraversal.rulePath,
+      }
+      for (const node of omittedNodes) {
+        const audit = params.traversal.audit
+        if (audit === undefined) continue
+        const outcome = audit.getOutcome(node)
+        const effectiveBoundary = outcome.boundaries.length === 1 ? outcome.boundaries[0]! : boundary
+        if (outcome.state === "unclaimed" || outcome.state === "unknown") {
+          audit.claim(node, effectiveBoundary)
+        }
+        audit.claimStructuralSubtree(node, effectiveBoundary)
+      }
+    }
     const columns = importColumnsFromXMLToYAML({
       context,
-      xml: item.Column,
-      xmlNodes: params.xmlNodes?.[index] === undefined
-        ? undefined
-        : xmlElementChildren(params.xmlNodes[index]!, "Column"),
+      xml: collapsed === undefined ? item.Column : collapsed.first,
+      xmlNodes: collapsed === undefined || columnNodes === undefined ? columnNodes : columnNodes.slice(0, 1),
       traversal: { ...params.traversal, yamlPath: [...params.traversal.yamlPath, table] },
     })
     entries.push({ key: table, value: columns ?? {} })

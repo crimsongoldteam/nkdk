@@ -37,7 +37,9 @@ function visitObject<State>(params: MetadataRuleYamlContext<State>): void {
   params.onObject?.(params)
 
   for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
-    if (typeof propertyRule.yaml !== "string" || !Object.hasOwn(record, propertyRule.yaml)) continue
+    if (typeof propertyRule.yaml !== "string") continue
+    const inline = propertyRule.yamlInline === true
+    if (!inline && !Object.hasOwn(record, propertyRule.yaml)) continue
     const collectionUidSegment = params.rule.childCollections
       ?.find((collection) => collection.propertyKey === propertyKey)
       ?.configurationIndexUidSegment
@@ -45,8 +47,8 @@ function visitObject<State>(params: MetadataRuleYamlContext<State>): void {
       ...params,
       propertyRule,
       collectionUidSegment,
-      yaml: record[propertyRule.yaml],
-      yamlPath: [...params.yamlPath, propertyRule.yaml],
+      yaml: inline ? record : record[propertyRule.yaml],
+      yamlPath: inline ? params.yamlPath : [...params.yamlPath, propertyRule.yaml],
     })
   }
 }
