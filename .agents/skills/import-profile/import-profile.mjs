@@ -1,12 +1,10 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process"
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync } from "node:fs"
 import { tmpdir } from "node:os"
-import { dirname, join, resolve } from "node:path"
+import { join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
-import { createMcpToolSession, operationFailed } from "../../tools/mcp/call.mjs"
-
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..")
+import { buildCompiledMcp } from "../../tools/mcp/build-compiled.mjs"
+import { callMcpToolToCompletion, createMcpToolSession, operationFailed } from "../../tools/mcp/call.mjs"
 
 export function usage() {
   return [
@@ -84,6 +82,7 @@ function assertDirectory(path, label) {
 const defaultDependencies = {
   buildMcp: buildCompiledMcp,
   createSession: createMcpToolSession,
+  callToCompletion: callMcpToolToCompletion,
   now: () => performance.now(),
   clearOutput: clearDirectory,
   createProject: createProfileProject,
@@ -104,13 +103,13 @@ export async function runProfile(options, overrides = {}) {
       dependencies.clearOutput(options.yamlDir)
       const projectDir = dependencies.createProject(options.yamlDir)
       const started = dependencies.now()
-      const { result, payload } = await session.call("nkdk.import_from_xml", {
+      const { result, payload } = await dependencies.callToCompletion(session, "nkdk.import_from_xml", {
         xmlDir: options.xmlDir,
         projectDir,
         componentPath: "cf",
         ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
         allowWrite: true,
-      })
+      }, { signal: options.signal })
       const elapsedMs = Math.round(dependencies.now() - started)
       const stderr = session.takeStderr()
       const steps = parseProfileSteps(stderr)
@@ -176,24 +175,6 @@ export function parseProfileSteps(stderr) {
     .split(/\r?\n/)
     .filter((line) => line.startsWith("[nkdk-profile-step] "))
     .map(parseProfileLine)
-}
-
-function buildCompiledMcp() {
-  const result = spawnSync("pnpm", ["--filter", "@nkdk/mcp", "build"], {
-    cwd: repoRoot,
-    encoding: "utf8",
-    maxBuffer: 1024 * 1024 * 128,
-  })
-  if (result.status !== 0) {
-    const details = [result.stderr, result.stdout].filter(Boolean).join("\n").trim()
-    throw new Error(`Сборка MCP: команда завершилась с кодом ${result.status ?? "unknown"}${details.length === 0 ? "" : `\n${details}`}`)
-  }
-  for (const path of [
-    "packages/mcp/dist/bin/nkdk-mcp",
-    "packages/mcp/dist/bin/worker.js",
-  ]) {
-    if (!existsSync(join(repoRoot, path))) throw new Error(`Сборка MCP: отсутствует ${path}`)
-  }
 }
 
 function createProfileProject(yamlDir) {
@@ -635,10 +616,19 @@ function formatBytes(value) {
 
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const options = parseArgs(process.argv.slice(2))
-  runProfile(options)
+  const controller = new AbortController()
+  const onInterrupt = () => controller.abort(new Error("Получен SIGINT"))
+  const onTerminate = () => controller.abort(new Error("Получен SIGTERM"))
+  process.once("SIGINT", onInterrupt)
+  process.once("SIGTERM", onTerminate)
+  runProfile({ ...options, signal: controller.signal })
     .then((result) => printResult(result, options))
     .catch((error) => {
       console.error(error instanceof Error ? error.message : String(error))
       process.exitCode = 1
+    })
+    .finally(() => {
+      process.off("SIGINT", onInterrupt)
+      process.off("SIGTERM", onTerminate)
     })
 }

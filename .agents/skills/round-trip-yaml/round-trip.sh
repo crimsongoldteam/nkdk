@@ -221,29 +221,22 @@ link_mcp_component() {
   ln -s "${yaml_dir}" "${component_dir}"
 }
 
-write_mcp_input() {
+init_mcp_manifest() {
   local path="$1"
-  local xml_dir="$2"
-  local project_dir="$3"
-  local component_path="$4"
-  node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringify({xmlDir:process.argv[2],projectDir:process.argv[3],componentPath:process.argv[4],allowWrite:true})+"\n")' \
-    "${path}" "${xml_dir}" "${project_dir}" "${component_path}"
+  node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringify({components:[]})+"\n")' "${path}"
 }
 
-write_mcp_sync_input() {
+append_mcp_manifest_component() {
   local path="$1"
   local xml_dir="$2"
-  local project_dir="$3"
-  local component_path="$4"
-  node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringify({xmlDir:process.argv[2],projectDir:process.argv[3],componentPath:process.argv[4],allowWrite:true,ignoreValidationErrors:true})+"\n")' \
-    "${path}" "${xml_dir}" "${project_dir}" "${component_path}"
-}
-
-run_mcp_tool() {
-  local tool="$1"
-  local input="$2"
-  local output="$3"
-  run_nkdk node "${MCP_CALL}" "${tool}" --input "${input}" --output "${output}"
+  local yaml_dir="$3"
+  local xml_output_dir="$4"
+  local project_dir="$5"
+  local component_path="$6"
+  local import_output_path="$7"
+  local sync_output_path="$8"
+  node -e 'const fs=require("fs"); const path=process.argv[1]; const manifest=JSON.parse(fs.readFileSync(path,"utf8")); manifest.components.push({xmlDir:process.argv[2],yamlDir:process.argv[3],xmlOutputDir:process.argv[4],projectDir:process.argv[5],componentPath:process.argv[6],importOutputPath:process.argv[7],syncOutputPath:process.argv[8]}); fs.writeFileSync(path,JSON.stringify(manifest)+"\n")' \
+    "${path}" "${xml_dir}" "${yaml_dir}" "${xml_output_dir}" "${project_dir}" "${component_path}" "${import_output_path}" "${sync_output_path}"
 }
 
 while [ "$#" -gt 0 ]; do
@@ -318,8 +311,8 @@ fi
 NKDK_XML_DIR="$(cd "${NKDK_XML_DIR}" && pwd)"
 NKDK_XML_REPO="$(cd "${NKDK_XML_REPO}" && pwd)"
 
-MCP_CALL="${REPO_DIR}/.agents/tools/mcp/call.mjs"
-[ -x "${MCP_CALL}" ] || die "локальный MCP-клиент не найден: ${MCP_CALL}"
+MCP_ROUND_TRIP="${REPO_DIR}/.agents/skills/round-trip-yaml/mcp-round-trip.mjs"
+[ -f "${MCP_ROUND_TRIP}" ] || die "локальный MCP round-trip runner не найден: ${MCP_ROUND_TRIP}"
 
 echo "=== round-trip-yaml.sh ==="
 echo "XML репо:    ${NKDK_XML_REPO}"
@@ -352,15 +345,20 @@ ACTIVE_XML_DIR=""
 ACTIVE_YAML_DIR=""
 MCP_PROJECT_DIR="$(mcp_project_dir_for)"
 prepare_mcp_project "${MCP_PROJECT_DIR}"
+MCP_MANIFEST="${MCP_PROJECT_DIR}.manifest.json"
+MCP_RESULT="${MCP_PROJECT_DIR}.result.json"
+init_mcp_manifest "${MCP_MANIFEST}"
+
+RUN_COMPONENT_PATHS=()
+RUN_YAML_DIRS=()
+RUN_XML_TMP_DIRS=()
 
 for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   RUN_COMPONENT_PATH="$(component_path_for "${RUN_XML_DIR}")"
   RUN_COMPONENT_KEY="$(sanitize_path_segment "${RUN_COMPONENT_PATH}")"
   RUN_YAML_DIR="$(yaml_dir_for "${RUN_XML_DIR}")"
   RUN_XML_TMP_DIR="$(xml_tmp_dir_for "${RUN_XML_DIR}")"
-  IMPORT_INPUT="${MCP_PROJECT_DIR}.${RUN_COMPONENT_KEY}.import.json"
   IMPORT_OUTPUT="${MCP_PROJECT_DIR}.${RUN_COMPONENT_KEY}.import-output.json"
-  SYNC_INPUT="${MCP_PROJECT_DIR}.${RUN_COMPONENT_KEY}.sync.json"
   SYNC_OUTPUT="${MCP_PROJECT_DIR}.${RUN_COMPONENT_KEY}.sync-output.json"
 
   RUN_XML_REL="$(config_rel_path "${RUN_XML_DIR}")"
@@ -381,27 +379,27 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   echo "[xml] Очистка временного XML-каталога: ${RUN_XML_TMP_DIR}"
   clear_dir_contents "${RUN_XML_TMP_DIR}"
 
-  echo "[round-trip] XML -> YAML: ${RUN_XML_DIR}"
-  write_mcp_input "${IMPORT_INPUT}" "${RUN_XML_DIR}" "${MCP_PROJECT_DIR}" "${RUN_COMPONENT_PATH}"
-  if ! run_mcp_tool nkdk.import_from_xml "${IMPORT_INPUT}" "${IMPORT_OUTPUT}"; then
-    echo "=== ROUND_TRIP_ERROR ==="
-    echo "STAGE: import"
-    echo "ACTIVE_XML_DIR: ${RUN_XML_DIR}"
-    echo "YAML_DIR: ${RUN_YAML_DIR}"
-    echo "XML_TMP_DIR: ${RUN_XML_TMP_DIR}"
-    exit 1
-  fi
+  append_mcp_manifest_component \
+    "${MCP_MANIFEST}" "${RUN_XML_DIR}" "${RUN_YAML_DIR}" "${RUN_XML_TMP_DIR}" \
+    "${MCP_PROJECT_DIR}" "${RUN_COMPONENT_PATH}" "${IMPORT_OUTPUT}" "${SYNC_OUTPUT}"
+  RUN_COMPONENT_PATHS+=("${RUN_COMPONENT_PATH}")
+  RUN_YAML_DIRS+=("${RUN_YAML_DIR}")
+  RUN_XML_TMP_DIRS+=("${RUN_XML_TMP_DIR}")
+done
 
-  echo "[round-trip] YAML -> временный XML: ${RUN_YAML_DIR}"
-  write_mcp_sync_input "${SYNC_INPUT}" "${RUN_XML_TMP_DIR}" "${MCP_PROJECT_DIR}" "${RUN_COMPONENT_PATH}"
-  if ! run_mcp_tool nkdk.sync_to_xml "${SYNC_INPUT}" "${SYNC_OUTPUT}"; then
-    echo "=== ROUND_TRIP_ERROR ==="
-    echo "STAGE: sync"
-    echo "ACTIVE_XML_DIR: ${RUN_XML_DIR}"
-    echo "YAML_DIR: ${RUN_YAML_DIR}"
-    echo "XML_TMP_DIR: ${RUN_XML_TMP_DIR}"
-    exit 1
-  fi
+echo "[round-trip] XML -> YAML -> временный XML: ${#RUN_DIRS[@]} компонент(ов)"
+if ! run_nkdk node "${MCP_ROUND_TRIP}" --manifest "${MCP_MANIFEST}" --output "${MCP_RESULT}"; then
+  echo "=== ROUND_TRIP_ERROR ==="
+  echo "MANIFEST: ${MCP_MANIFEST}"
+  echo "MCP_PROJECT_DIR: ${MCP_PROJECT_DIR}"
+  exit 1
+fi
+
+for ((RUN_INDEX = 0; RUN_INDEX < ${#RUN_DIRS[@]}; RUN_INDEX++)); do
+  RUN_XML_DIR="${RUN_DIRS[${RUN_INDEX}]}"
+  RUN_COMPONENT_PATH="${RUN_COMPONENT_PATHS[${RUN_INDEX}]}"
+  RUN_YAML_DIR="${RUN_YAML_DIRS[${RUN_INDEX}]}"
+  RUN_XML_TMP_DIR="${RUN_XML_TMP_DIRS[${RUN_INDEX}]}"
 
   preserve_reference_only_files "${RUN_XML_DIR}" "${RUN_XML_TMP_DIR}"
 

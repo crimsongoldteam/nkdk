@@ -5,11 +5,73 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
+import { runMcpRoundTrip } from "./mcp-round-trip.mjs"
 
 const skill = await readFile(new URL("./SKILL.md", import.meta.url), "utf8")
 const script = await readFile(new URL("./round-trip.sh", import.meta.url), "utf8")
 const configDirsHelper = fileURLToPath(new URL("../_shared/round-trip-config-dirs.sh", import.meta.url))
 const diffHelper = fileURLToPath(new URL("../_shared/round-trip-git-diff.sh", import.meta.url))
+
+test("не запускает sync до terminal import и переиспользует сессию", async () => {
+  const events = []
+  const session = {
+    close: async () => events.push("close"),
+  }
+  const result = await runMcpRoundTrip({
+    components: [
+      { xmlDir: "/xml/cf", xmlOutputDir: "/out/cf", projectDir: "/project", componentPath: "cf" },
+      {
+        xmlDir: "/xml/cfe/addon",
+        xmlOutputDir: "/out/cfe/addon",
+        projectDir: "/project",
+        componentPath: "cfe/addon",
+      },
+    ],
+  }, {
+    buildMcp: () => events.push("build"),
+    createSession: async () => {
+      events.push("session")
+      return session
+    },
+    callToCompletion: async (_session, toolName, args) => {
+      events.push(`${toolName}:${args.componentPath}`)
+      return { payload: { ok: true, toolName } }
+    },
+    writeResult: async () => undefined,
+  })
+
+  assert.deepEqual(events, [
+    "build",
+    "session",
+    "nkdk.import_from_xml:cf",
+    "nkdk.sync_to_xml:cf",
+    "nkdk.import_from_xml:cfe/addon",
+    "nkdk.sync_to_xml:cfe/addon",
+    "close",
+  ])
+  assert.equal(result.components.length, 2)
+})
+
+test("после terminal import failure не запускает sync и закрывает сессию", async () => {
+  const calls = []
+  const session = { close: async () => calls.push("close") }
+
+  await assert.rejects(runMcpRoundTrip({
+    components: [
+      { xmlDir: "/xml", xmlOutputDir: "/out", projectDir: "/project", componentPath: "cf" },
+    ],
+  }, {
+    buildMcp: () => undefined,
+    createSession: async () => session,
+    callToCompletion: async (_session, toolName) => {
+      calls.push(toolName)
+      throw new Error("worker failed")
+    },
+    writeResult: async () => undefined,
+  }), /import.*cf.*worker failed/u)
+
+  assert.deepEqual(calls, ["nkdk.import_from_xml", "close"])
+})
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: "utf8" })
@@ -132,7 +194,7 @@ test("оставляет выбор числа worker production import", () => 
 
 test("передаёт вычисленный путь компонента в import и sync", () => {
   assert.doesNotMatch(script, /componentPath:"cf"/u)
-  assert.match(script, /componentPath:process\.argv\[4\]/u)
+  assert.match(script, /componentPath:process\.argv\[6\]/u)
 })
 
 test("для выбранного вложенного XML-каталога использует логический путь cf", async (t) => {
@@ -151,9 +213,9 @@ test("для выбранного вложенного XML-каталога ис
 
   const fakeNode = join(fakeBin, "node")
   await writeFile(fakeNode, `#!/usr/bin/env bash
-if [[ "\${1:-}" == *"/.agents/tools/mcp/call.mjs" ]]; then
+if [[ "\${1:-}" == *"/.agents/skills/round-trip-yaml/mcp-round-trip.mjs" ]]; then
   while [ "$#" -gt 0 ]; do
-    if [ "$1" = "--input" ]; then
+    if [ "$1" = "--manifest" ]; then
       cp "$2" "$NKDK_TEST_CAPTURE"
       exit 1
     fi
@@ -179,11 +241,21 @@ exec "$NKDK_TEST_REAL_NODE" "$@"
   })
   assert.notEqual(result.status, 0)
   assert.deepEqual(JSON.parse(await readFile(capturedInput, "utf8")), {
-    xmlDir,
-    projectDir: join(root, "tmp", "round-trip-yaml-mcp-project", "cf_erp"),
-    componentPath: "cf",
-    allowWrite: true,
+    components: [{
+      xmlDir,
+      yamlDir: join(root, "yaml"),
+      xmlOutputDir: join(root, "tmp", "round-trip-yaml-xml", "cf_erp"),
+      projectDir: join(root, "tmp", "round-trip-yaml-mcp-project", "cf_erp"),
+      componentPath: "cf",
+      importOutputPath: join(root, "tmp", "round-trip-yaml-mcp-project", "cf_erp.cf.import-output.json"),
+      syncOutputPath: join(root, "tmp", "round-trip-yaml-mcp-project", "cf_erp.cf.sync-output.json"),
+    }],
   })
+})
+
+test("вызывает единый MCP runner один раз на весь manifest", () => {
+  assert.doesNotMatch(script, /\.agents\/tools\/mcp\/call\.mjs/u)
+  assert.match(script, /node "\$\{MCP_ROUND_TRIP\}" --manifest/u)
 })
 
 test("переиспользует один MCP-проект для основной конфигурации и расширений", () => {

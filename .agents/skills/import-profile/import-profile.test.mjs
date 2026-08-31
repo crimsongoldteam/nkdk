@@ -146,6 +146,45 @@ test("собирает MCP до замера и переиспользует о�
   assert.equal(result.runs[0].elapsedMs, 100)
 })
 
+test("измеряет terminal результат через общий MCP waiter", async () => {
+  let clock = 0
+  const controller = new AbortController()
+  const session = {
+    call: mock.fn(() => {
+      throw new Error("accepted response must not be measured directly")
+    }),
+    takeStderr: mock.fn(() => profileLine("Первый проход worker", 40)),
+    close: mock.fn(async () => undefined),
+  }
+  const callToCompletion = mock.fn(async (actualSession, toolName, args, callOptions) => {
+    assert.equal(actualSession, session)
+    assert.equal(toolName, "nkdk.import_from_xml")
+    assert.equal(args.projectDir, "/project")
+    assert.equal(callOptions.signal, controller.signal)
+    clock += 250
+    return {
+      result: { isError: false },
+      payload: { ok: true, succeeded: 1, failed: [], warnings: [], summary: { errors: 0, warnings: 0 } },
+    }
+  })
+
+  const result = await runProfile(
+    { xmlDir: "/xml", yamlDir: "/yaml", runs: 1, signal: controller.signal },
+    {
+      buildMcp: mock.fn(),
+      createSession: mock.fn(async () => session),
+      callToCompletion,
+      now: () => clock,
+      clearOutput: mock.fn(),
+      createProject: mock.fn(() => "/project"),
+    },
+  )
+
+  assert.equal(session.call.mock.callCount(), 0)
+  assert.equal(callToCompletion.mock.callCount(), 1)
+  assert.equal(result.coldMs, 250)
+})
+
 test("сохраняет упорядоченные checkpoints памяти отдельно от сводной таблицы", async () => {
   const checkpoint = [
     '[nkdk-profile-step] operation="import-from-xml" step="Подготовка импорта конфигурации" substep="Начало задания второго прохода: Документ/Заказ/Свойства.yaml" scope=worker worker=2 items=17 bytes=4096 time=0.00ms rssStart=100.0MiB rssEnd=100.0MiB rssPeak=100.0MiB heapStart=42.5MiB heapEnd=42.5MiB heapPeak=42.5MiB',
