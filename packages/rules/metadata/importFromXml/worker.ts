@@ -1102,7 +1102,7 @@ async function prepareYamlForFinalPass(
   const baseFormConfigurationFragment = prepared.baseFormCandidate === undefined
     ? undefined
     : preparedBaseFormCandidate === undefined
-      ? retargetConfigurationFragment(
+      ? retargetNonEmptyConfigurationFragment(
           prepared.baseFormCandidate.configurationFragment,
           prepared.targetProjectPath,
         )
@@ -1127,10 +1127,11 @@ function requireSecondPassExportProfile(): XmlComponentExportProfile {
   return exportProfile
 }
 
-function retargetConfigurationFragment(
+function retargetNonEmptyConfigurationFragment(
   fragment: ConfigurationIndexBlockFragment,
   targetProjectPath: string,
-): ConfigurationIndexBlockFragment {
+): ConfigurationIndexBlockFragment | undefined {
+  if (fragment.entities.length === 0) return undefined
   return {
     ...fragment,
     targetProjectPath,
