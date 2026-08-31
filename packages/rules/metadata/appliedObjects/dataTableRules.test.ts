@@ -21,7 +21,7 @@ describe("applied object data tables", () => {
     ["AccountingRegister", ["Balance", "Turnovers", "BalanceAndTurnovers"]],
     ["CalculationRegister", []],
     ["BusinessProcess", ["Points"]],
-    ["Task", []],
+    ["Task", ["TasksByExecutive"]],
   ] satisfies readonly (readonly [MetadataRootName, readonly string[]])[])(
     "publishes the physical %s table and its unconditional virtual tables",
     (root, virtualTables) => {

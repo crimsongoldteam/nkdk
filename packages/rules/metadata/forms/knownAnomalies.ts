@@ -6,6 +6,19 @@ export const ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM =
 export const MASTER_SIMPLIFIED_CONNECTION_FORM =
   "DataProcessors/ДокументооборотСКонтролирующимиОрганами/Forms/МастерФормированияЗаявкиНаПодключениеУпрощенное/Ext/Form.xml"
 
+export function collapseKnownDuplicateErpAdditionalColumns<T>(params: {
+  currentXMLPath: string | undefined
+  table: string
+  columns: readonly T[]
+  columnName(column: T): string | undefined
+}): { first: T; omitted: readonly T[] } | undefined {
+  if (!isKnownXMLPath(params.currentXMLPath, ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM)) return undefined
+  if (params.table !== "Список.Способы" || params.columns.length !== 5) return undefined
+  if (!params.columns.every((column) => params.columnName(column) === "Реквизит1")) return undefined
+  const [first, ...omitted] = params.columns
+  return first === undefined ? undefined : { first, omitted }
+}
+
 export const restoreKnownDuplicateErpAdditionalColumns = <ColumnXML extends XMLObject>(params: {
   currentXMLPath: string | undefined
   table: string

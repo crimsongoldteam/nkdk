@@ -85,7 +85,7 @@ export const FormCommandRules = {
     representation: systemEnumerationRule({
       yaml: "ОтображениеКнопки",
       xml: "Representation",
-      typeSE: "ButtonRepresentation",
+      typeSE: "FormCommandButtonRepresentation",
       implicitValueYAML: "Auto",
     }),
     currentRowUse: systemEnumerationRule({

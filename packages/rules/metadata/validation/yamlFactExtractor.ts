@@ -991,6 +991,7 @@ function extractFormYamlFacts(
     rule: adapter.formRule,
     initialState: { name: file.formName },
     onObject: ({ yaml, rule, yamlPath, state }) => {
+      if (hasRawXmlAnomalyAtPath(data, parsed, yamlPath)) return
       localizedTextDiagnostics.push(...validateRuleYAMLObjectProperties({
         filePath: file.absolutePath,
         parsed,

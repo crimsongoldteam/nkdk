@@ -218,6 +218,29 @@ describe("parseMetadataYaml", () => {
     )
   })
 
+  it("preserves double-quoted scalar semantics under an XML anomaly tag", async () => {
+    const { parseMetadataYamlData } = await import("./parseMetadataYaml")
+    const parsed = parseMetadataYamlData(
+      'Значение: !xml/invalid "Справочник.Виды.Макет.Оповещения_Предопределенный"',
+    )
+    const data = parsed.data as Record<string, unknown>
+
+    expect(asExplicitYAMLStringIfMarked(data, "Значение", data.Значение)).toEqual(
+      explicitYAMLString("Справочник.Виды.Макет.Оповещения_Предопределенный"),
+    )
+  })
+
+  it("preserves an empty double-quoted scalar under an XML anomaly tag", async () => {
+    const { parseMetadataYamlData } = await import("./parseMetadataYaml")
+    const parsed = parseMetadataYamlData('Значение: !xml/invalid ""')
+    const data = parsed.data as Record<string, unknown>
+
+    expect(data.Значение).toBe("")
+    expect(asExplicitYAMLStringIfMarked(data, "Значение", data.Значение)).toEqual(
+      explicitYAMLString(""),
+    )
+  })
+
   it("preserves a double-quoted scalar inside a sequence mapping", async () => {
     const { parseMetadataYaml } = await import("./parseMetadataYaml")
     const parsed = parseMetadataYaml([

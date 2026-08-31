@@ -19,7 +19,7 @@ export const fullFormCommands: Omit<Required<FormCommand>, "id">[] = [
     },
     action: "Действие",
     functionalOptions: ["FunctionalOption.ФункциональнаяОпцияБулево"],
-    representation: "PictureAndText",
+    representation: "TextPicture",
     modifiesSavedData: true,
     currentRowUse: "DontUse",
     table: { type: "string" as const, value: "Таблица" },

@@ -122,6 +122,21 @@ describe("DynamicList XML → YAML → XML", () => {
     })
   })
 
+  it("переводит виртуальную таблицу задачи по исполнителю", () => {
+    const yaml = testPropertyFromXMLToYAML({
+      rule,
+      xml: { Settings: { "_xsi:type": "DynamicList", MainTable: "Task.ЗадачаИсполнителя.TasksByExecutive" } },
+    }).yaml
+
+    expect(yaml).toHaveProperty(
+      "Значение.ОсновнаяТаблица",
+      "Задача.ЗадачаИсполнителя.ЗадачиПоИсполнителю",
+    )
+    expect(testPropertyFromYAMLToXML({ rule, yaml }).xml).toMatchObject({
+      Settings: { MainTable: "Task.ЗадачаИсполнителя.TasksByExecutive" },
+    })
+  })
+
   it("выгружает новый список с ключевыми полями в каноническом порядке", () => {
     const { xml } = testPropertyFromYAMLToXML({
       rule,

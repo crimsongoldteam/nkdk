@@ -89,7 +89,7 @@ export const exportElementToJSONSchema = <T extends { itemType: ElementType; nam
   value: T
   explicitXMLName?: true
 }): TSchema => {
-  const { context, value: element } = params
+  const { context, value: element, explicitXMLName } = params
   const itemType = element.itemType
 
   const rules = getElementRule(itemType)
@@ -100,12 +100,13 @@ export const exportElementToJSONSchema = <T extends { itemType: ElementType; nam
     rule: rules,
   })
 
-  const result = Type.Object(
+  const schema = Type.Object(
     {
       ...properties,
+      ...(explicitXMLName === true ? { Имя: Type.Optional(Type.String()) } : {}),
     },
     { additionalProperties: false }
   )
 
-  return result
+  return explicitXMLName === true ? withStructuralYAMLProperties(schema, ["Имя"]) : schema
 }

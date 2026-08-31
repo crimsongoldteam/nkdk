@@ -218,7 +218,7 @@ const collectFontTargetOccurrences: MetadataTargetOccurrencesFunction = (params)
 const collectBorderTargetOccurrences: MetadataTargetOccurrencesFunction = (params) => withTargetConstraint(params, (value) => {
   if (!isRecord(value)) return []
   if (params.representation === "model") {
-    if (typeof value.ref !== "string") return []
+    if (typeof value.ref !== "string" || isKnownStyleBorder(value.ref)) return []
     return modelObjectNameOccurrences({
       params,
       name: value.ref,
@@ -525,6 +525,10 @@ function isKnownStyleColor(value: string): value is SE.StyleColors {
 
 function isKnownStyleFont(value: string): value is SE.StyleFonts {
   return Object.prototype.hasOwnProperty.call(SE.StyleFontsToYAML, value)
+}
+
+function isKnownStyleBorder(value: string): value is SE.StyleBorders {
+  return Object.prototype.hasOwnProperty.call(SE.StyleBordersToYAML, value)
 }
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataItemLink", "validateMetadataTarget", validateStringTarget)

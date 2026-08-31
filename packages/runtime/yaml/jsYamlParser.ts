@@ -136,6 +136,7 @@ interface ParsedXmlAnomalyAnnotation {
   readonly key: string | number | undefined
   readonly rawPayload?: "compact" | "null"
   readonly rawNullPaths?: readonly (readonly (string | number)[])[]
+  readonly doubleQuotedEmpty?: true
 }
 
 function prepareMappingKeyTags(text: string): {
@@ -266,6 +267,9 @@ function collectValueAnnotation(
     key,
     rawPayload: rawPayloadOf(node, tag.kind),
     rawNullPaths: rawNullPathsOf(node, tag.kind),
+    ...(node.kind === "scalar" && node.style.doubleQuoted && node.value === ""
+      ? { doubleQuotedEmpty: true as const }
+      : {}),
   })
 }
 
@@ -421,6 +425,10 @@ function applyParsedXmlAnomalyAnnotations(
         })
         continue
       }
+      if (entry.doubleQuotedEmpty === true) {
+        setValueAt(parent, entry.key, "")
+        markDoubleQuotedScalar(parent, entry.key)
+      }
       if (entry.rawPayload === "null") setValueAt(parent, entry.key, null)
       annotations.set(parent, entry.key, entry.annotation)
     }
@@ -573,10 +581,11 @@ function visitYamlData(
 ): unknown {
   if (isTaggedYAMLScalar(value)) {
     if (parent !== undefined && key !== undefined) markYAMLScalarTag(parent, key, value.tag)
-    const resolvedValue = isEmptyRecord(value.value) && isDoubleQuotedTaggedValue(sourcePath, lines, locations)
+    const doubleQuoted = isDoubleQuotedTaggedValue(sourcePath, lines, locations)
+    const resolvedValue = isEmptyRecord(value.value) && doubleQuoted
       ? ""
       : value.value
-    if (parent !== undefined && key !== undefined && resolvedValue === "") {
+    if (parent !== undefined && key !== undefined && typeof resolvedValue === "string" && doubleQuoted) {
       markDoubleQuotedScalar(parent, key)
     }
     return visitYamlData(resolvedValue, path, sourcePath, lines, locations, sourcePaths, parent, key)
@@ -589,7 +598,7 @@ function visitYamlData(
     parent !== undefined &&
     key !== undefined &&
     typeof value === "string" &&
-    isDoubleQuotedValue(sourcePath, lines, locations)
+    (isDoubleQuotedValue(sourcePath, lines, locations) || isDoubleQuotedTaggedValue(sourcePath, lines, locations))
   ) {
     markDoubleQuotedScalar(parent, key)
   }
@@ -669,7 +678,9 @@ function isDoubleQuotedTaggedValue(
   lines: readonly string[],
   locations: YamlLocationIndex
 ): boolean {
-  return /^!(?:проверять|изменять)\s+"/u.test(sourceAtValuePosition(path, lines, locations))
+  return /^!(?:проверять|изменять|xml\/(?:invalid|important))\s+"/u.test(
+    sourceAtValuePosition(path, lines, locations),
+  )
 }
 
 function sourceAtValuePosition(

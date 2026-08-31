@@ -105,4 +105,24 @@ describe("применение решений об XML-аномалиях", () =
       'Значение: !xml/invalid "         "',
     )
   })
+
+  it("не дублирует invalid на значении уже помеченного ключа", () => {
+    const parsed = parseMetadataYaml("Заголовок:\n  !xml/invalid tr: Parametre\n")
+    const title = (parsed.data as { Заголовок: Record<string, unknown> }).Заголовок
+    const runtimeKey = Object.keys(title)[0]!
+
+    applyImportedIssueDecisions({
+      data: parsed.data,
+      annotations: parsed.annotations,
+      decisions: [{
+        kind: "invalid",
+        target: { kind: "path", path: ["Заголовок", runtimeKey] },
+        issueCodes: ["schema.additional-property"],
+      }],
+    })
+
+    expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).toBe(
+      "Заголовок:\n  !xml/invalid tr: Parametre",
+    )
+  })
 })

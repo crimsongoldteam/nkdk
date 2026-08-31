@@ -5661,6 +5661,23 @@ export const ButtonRepresentationFromYAML = {
 export type ButtonRepresentation = keyof typeof ButtonRepresentationToYAML
 export type ButtonRepresentationYAML = keyof typeof ButtonRepresentationFromYAML
 
+export const FormCommandButtonRepresentationToYAML = {
+  Auto: "Авто",
+  Picture: "Картинка",
+  TextPicture: "КартинкаИТекст",
+  Text: "Текст",
+} as const
+
+export const FormCommandButtonRepresentationFromYAML = {
+  Авто: "Auto",
+  Картинка: "Picture",
+  КартинкаИТекст: "TextPicture",
+  Текст: "Text",
+} as const
+
+export type FormCommandButtonRepresentation = keyof typeof FormCommandButtonRepresentationToYAML
+export type FormCommandButtonRepresentationYAML = keyof typeof FormCommandButtonRepresentationFromYAML
+
 export const ButtonShapeToYAML = {
   Auto: "Авто",
   Usual: "Обычная",
@@ -13242,6 +13259,7 @@ export type SystemEnumerationTypeMap = {
   ButtonLocationInCommandBar: ButtonLocationInCommandBar
   ButtonPictureLocation: ButtonPictureLocation
   ButtonRepresentation: ButtonRepresentation
+  FormCommandButtonRepresentation: FormCommandButtonRepresentation
   ButtonShape: ButtonShape
   ButtonShapeRepresentation: ButtonShapeRepresentation
   CheckBoxType: CheckBoxType
