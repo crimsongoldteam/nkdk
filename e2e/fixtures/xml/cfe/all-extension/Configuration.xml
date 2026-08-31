@@ -151,11 +151,9 @@
 			<CommonPicture>ОбщаяКартинкаВсеСвойства</CommonPicture>
 			<CommonPicture>ОбщаяКартинкаРежимКоллекции</CommonPicture>
 			<CommonPicture>ОбщаяКартинкаПоУмолчанию</CommonPicture>
-			<CommonPicture>ОбщаяКартинкаОднаКартинка</CommonPicture>
 			<CommonPicture>ОбщаяКартинкаВсеСвойстваExt</CommonPicture>
 			<CommonPicture>ОбщаяКартинкаРежимКоллекцииExt</CommonPicture>
 			<CommonPicture>ОбщаяКартинкаПоУмолчаниюExt</CommonPicture>
-			<CommonPicture>ОбщаяКартинкаОднаКартинкаExt</CommonPicture>
 			<SessionParameter>ПараметрСеансаВсеСвойства</SessionParameter>
 			<SessionParameter>ПараметрСеансаПоУмолчанию</SessionParameter>
 			<SessionParameter>ПараметрСеансаТекущийИсполнитель</SessionParameter>

@@ -79,6 +79,11 @@
 				</InputField>
 			</ChildItems>
 		</Table>
+		<UsualGroup name="Группа1" id="29">
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="Группа1РасширеннаяПодсказка" id="30"/>
+		</UsualGroup>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="Объект" id="1">

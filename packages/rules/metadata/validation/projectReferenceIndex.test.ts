@@ -40,7 +40,8 @@ describe("ProjectReferenceIndex", () => {
         path: "/Реквизиты/Тип",
         severity: "error",
         source: "reference",
-        message: `Ссылка "${reference.canonical}" не включена в расширение`,
+        message: `Объект метаданных «${reference.canonical}» отсутствует в расширении. `
+          + `Заимствуйте его из основной конфигурации`,
       }],
     })
     expect(reference.yamlPath).toEqual(["Реквизиты", "Тип"])
