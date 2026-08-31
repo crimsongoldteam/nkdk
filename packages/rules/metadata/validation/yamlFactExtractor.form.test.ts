@@ -299,6 +299,20 @@ describe("extractValidationYamlFacts form", () => {
 
     expect(facts.structuredComponents).toEqual([
       {
+        componentKind: "document",
+        name: "",
+        yamlPath: [],
+        payload: JSON.stringify({
+          version: 1,
+          yaml: {
+            Реквизиты: { Объект: {} },
+            Команды: { Записать: {} },
+            Параметры: { Режим: {} },
+            Элементы: { Поле: { Вид: "ПолеВвода" } },
+          },
+        }),
+      },
+      {
         componentKind: "element",
         name: "Поле",
         yamlPath: ["Элементы", "Поле"],
