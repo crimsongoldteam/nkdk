@@ -592,7 +592,7 @@
 					<MinValue xsi:nil="true"/>
 					<MaxValue xsi:nil="true"/>
 					<FillFromFillingValue>true</FillFromFillingValue>
-					<FillValue xsi:type="xr:DesignTimeRef">4344139e-4155-46a7-8e24-f2063be046e4.3234ebff-0d7f-4ad7-b6c4-1f86a23725dd</FillValue>
+					<FillValue xsi:type="xr:DesignTimeRef">Catalog.СправочникСПредопределенными.Предопределенный1</FillValue>
 					<FillChecking>DontCheck</FillChecking>
 					<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
 					<ChoiceParameterLinks>
