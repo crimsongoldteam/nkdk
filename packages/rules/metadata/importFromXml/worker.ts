@@ -41,7 +41,9 @@ import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createProjectStateFileUpdateBatch,
   projectStateFieldEntries,
+  projectStateFormEntries,
   projectStateOwnerFacts,
+  projectStatePendingCheck,
   projectStateTargetEntry,
   type ProjectStateYamlFileUpdate,
 } from "../projectState/fileUpdate"
@@ -1630,6 +1632,7 @@ function importIndexContribution(
     prepared.assignment.role === "fileItem" ? "form" : "properties",
   )
   const validation = contribution.validationContribution
+  const formValidation = "formValidation" in prepared ? prepared.formValidation : undefined
   return {
     ...identity,
     targets: [
@@ -1646,7 +1649,12 @@ function importIndexContribution(
     ],
     owners: validation.objectRecords.flatMap(projectStateOwnerFacts),
     fields: validation.objectRecords.flatMap(projectStateFieldEntries),
-    forms: [],
+    forms: formValidation === undefined
+      ? []
+      : projectStateFormEntries({
+          owner: formValidation.owner,
+          index: formValidation.index,
+        }),
   }
 }
 
@@ -1668,7 +1676,7 @@ function provisionalImportFinalContribution(
       pendingReferences: contribution.validationContribution.pendingReferences.map(
         ({ filePath: _filePath, ...reference }) => reference,
       ),
-      pendingChecks: [],
+      pendingChecks: prepared.formValidation?.pendingChecks.map(projectStatePendingCheck) ?? [],
       dependencies: [],
     }],
     hashBytes: new Uint8Array(8),

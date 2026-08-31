@@ -120,6 +120,37 @@ describe("prepareImportFacts", () => {
       }],
     })).resolves.toMatchObject({ targetProjectPath: assignment.targetProjectPath })
   })
+
+  it("сохраняет проверку ПутьКДанным формы без assignment-level YAML", async () => {
+    const assignment = invalidDataPathFormAssignment()
+    const facts = await prepareImportFacts({
+      assignment,
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+      inputs: parseAssignmentInputs(assignment),
+    })
+
+    expect(facts.formValidation?.pendingChecks).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "dataPath",
+        yamlPath: ["Элементы", "ПолеВвода1", "ПутьКДанным"],
+        value: "Реквизит",
+      }),
+    ]))
+    expect(facts).not.toHaveProperty("yaml")
+  })
+
+  it("строит индекс путей формы напрямую из принятых фактов", async () => {
+    const assignment = managedFormAssignment()
+    const { facts, legacy } = await preparePair(assignment, extensionContext())
+
+    expect(formDataPathSnapshot(facts.formValidation?.index)).toEqual(
+      formDataPathSnapshot(legacy.localIndexes.metadata.formDataPathIndex),
+    )
+    expect(formDataPathSnapshot(facts.localIndexes.metadata.formDataPathIndex)).toEqual(
+      formDataPathSnapshot(legacy.localIndexes.metadata.formDataPathIndex),
+    )
+  })
 })
 
 function catalogAssignment(): ImportAssignment {
@@ -200,6 +231,29 @@ function managedFormAssignment(): ImportAssignment {
   })
 }
 
+function invalidDataPathFormAssignment(): ImportAssignment {
+  const formRoot = join(
+    configurationFixturesDir,
+    "syncConfiguration/xml/Catalogs/Контрагенты/Forms/ФормаЭлемента",
+  )
+  return assignmentForProjectPath({
+    id: "invalid-data-path-form",
+    targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
+    itemType: "ClientApplicationForm",
+    itemName: "ФормаЭлемента",
+    logicalAddress: "Справочник.Контрагенты.Форма.ФормаЭлемента",
+    owner: {
+      itemType: "MetadataCatalog",
+      name: "Контрагенты",
+      logicalAddress: "Справочник.Контрагенты",
+    },
+    xmlFiles: [
+      { role: "metadata", sourcePath: `${formRoot}.xml` },
+      { role: "body", sourcePath: join(formRoot, "Ext/Form.xml") },
+    ],
+  })
+}
+
 async function preparePair(
   assignment: ImportAssignment,
   context: XmlImportConfigurationContext,
@@ -242,6 +296,22 @@ function extensionContext() {
 function withoutFormDataPath(indexes: Awaited<ReturnType<typeof prepareImportFacts>>["localIndexes"]) {
   const { formDataPathIndex: _formDataPathIndex, ...metadata } = indexes.metadata
   return { metadata }
+}
+
+function formDataPathSnapshot(
+  index: Awaited<ReturnType<typeof prepareImportFacts>>["localIndexes"]["metadata"]["formDataPathIndex"],
+) {
+  if (index === undefined) return undefined
+  return {
+    roots: [...index.roots],
+    additionalColumnsByTablePath: [...index.additionalColumnsByTablePath].map(([path, columns]) => [
+      path,
+      [...columns],
+    ]),
+    tabularElementsByName: [...index.tabularElementsByName],
+    dialect: index.dialect,
+    duplicateDiagnostics: index.duplicateDiagnostics,
+  }
 }
 
 function validationFile(projectPath: string): ValidationProjectFile {
