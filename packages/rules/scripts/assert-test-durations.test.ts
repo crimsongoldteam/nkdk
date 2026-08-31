@@ -147,6 +147,26 @@ describe("assert test durations", () => {
 
   it("учитывает системное замедление Windows для жёстких лимитов", () => {
     expect(analyzeTestDurationReport(
+      report({ testMs: 250 }),
+      lifecycleReport(1_000),
+      { platform: "win32" },
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 250.01 }),
+      lifecycleReport(1_000),
+      { platform: "win32" },
+    ).failures).toContainEqual(expect.objectContaining({ type: "test", duration: 250.01 }))
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1_000 }),
+      lifecycleReport(1_000),
+      { platform: "win32", NKDK_TEST_SUITE: "integration" },
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 1_000.01 }),
+      lifecycleReport(1_000),
+      { platform: "win32", NKDK_TEST_SUITE: "integration" },
+    ).failures).toContainEqual(expect.objectContaining({ type: "test", duration: 1_000.01 }))
+    expect(analyzeTestDurationReport(
       report({ testMs: 40 }),
       lifecycleReport(12_000, 14_500),
       { platform: "win32" },
