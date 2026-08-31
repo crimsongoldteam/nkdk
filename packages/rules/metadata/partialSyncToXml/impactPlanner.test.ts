@@ -197,6 +197,7 @@ const topology = compileMetadataResourceTopology([{
     content("Самостоятельный/{ownerName}/Свойства.yaml", "properties", objectRule, "none"),
     document("", "Standalone/{ownerName}.xml", "metadata", true),
     document("", "Standalone/{ownerName}/Ext/Body.xml", "body", true),
+    document("", "Standalone/{ownerName}/Ext/Optional.xml", "optional", false),
     document("", "Standalone/{ownerName}/Ext/Property.xml", "property", true),
     {
       kind: "externalFile" as const,
@@ -277,6 +278,7 @@ describe("partial XML impact planner", () => {
       "Standalone/Новый.xml",
       "Standalone/Новый/Ext/Body.xml",
       "Standalone/Новый/Ext/Module.bsl",
+      "Standalone/Новый/Ext/Optional.xml",
       "Standalone/Новый/Ext/Property.xml",
     ].sort(utf8))
     expect(plan(current, changes({ changed: [standalone] })).loadTargets).toEqual([

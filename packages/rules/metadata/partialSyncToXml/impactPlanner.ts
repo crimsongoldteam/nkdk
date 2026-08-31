@@ -279,7 +279,7 @@ export function buildPartialXmlImpactPlan(params: {
 
     if (loadRequestRank(requestLoad) > loadRequestRank(state.load)) {
       const loadDocumentIds = requestLoad === "allPayload"
-        ? assignmentDocumentIds.get(resource.projectPath) ?? new Set<string>()
+        ? assignment.xmlDocuments.map((document) => document.id)
         : policy?.loadDocumentIds ?? assignment.xmlDocuments.map((document) => document.id)
       for (const documentId of loadDocumentIds) {
         addDocument(resource, requiredDocument(assignment, documentId), true)
