@@ -212,6 +212,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   const projected = projectNamedXmlCollectionForImportWithRuntimeKeys({
     entries,
     annotations: params.traversal.annotations,
+    ...(params.traversal.mode === "facts" ? { ephemeral: true as const } : {}),
   })
   for (const [index, item] of yamlItems.entries()) {
     const yamlKey = item.yamlKey!

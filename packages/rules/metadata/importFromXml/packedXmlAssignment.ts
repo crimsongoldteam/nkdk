@@ -56,6 +56,11 @@ export function createPackedXmlAssignmentStore(options: {
       const bytes = measure(options.profiler, "MessagePack pack", { items: inputs.length }, () =>
         Uint8Array.from(codec.pack(payload))
       )
+      options.profiler?.record(PROFILE_STEP, "Packed XML bytes", {
+        items: inputs.length,
+        bytes: bytes.byteLength,
+        timeMs: 0,
+      })
       buffers.set(assignmentId, bytes)
       retainedBytes += bytes.byteLength
       checkpoint()

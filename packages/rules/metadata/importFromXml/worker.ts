@@ -237,7 +237,9 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
     measure: (step, substep, params, action) => packedProfiler?.measure(step, substep, params, action) ?? action(),
     measureAsync: (step, substep, params, action) => packedProfiler?.measureAsync(step, substep, params, action) ?? action(),
     record: (step, substep, params) => packedProfiler?.record(step, substep, params),
-    checkpoint: (step, substep, params) => packedProfiler?.checkpoint(step, substep, params),
+    checkpoint: (step, substep, params) => {
+      if (isImportMemoryProfilingEnabled()) packedProfiler?.checkpoint(step, substep, params)
+    },
     records: () => packedProfiler?.records() ?? [],
     flush: () => packedProfiler?.flush(),
   } })
@@ -368,11 +370,13 @@ async function runImportWorkerCommand(
     const state = requireInitializedState()
     const accumulator = requireSecondPassAccumulator()
     for (const assignmentId of command.assignmentIds) {
-      accumulator.profiler.checkpoint(
-        "Подготовка импорта конфигурации",
-        `Начало задания второго прохода: ${assignmentId}`,
-        { items: packedStore.stats().assignments, bytes: packedStore.stats().bytes },
-      )
+      if (isImportMemoryProfilingEnabled()) {
+        accumulator.profiler.checkpoint(
+          "Подготовка импорта конфигурации",
+          `Начало задания второго прохода: ${assignmentId}`,
+          { items: packedStore.stats().assignments, bytes: packedStore.stats().bytes },
+        )
+      }
       await processSecondPass(
         assignmentId,
         state,
@@ -551,6 +555,7 @@ function createSecondPassAccumulator(workerIndex: number, profiler = createImpor
 }
 
 function checkpointRetainedSecondPass(profiler: ValidationProfiler): void {
+  if (!isImportMemoryProfilingEnabled()) return
   const retained = packedStore.stats()
   profiler.checkpoint(
     "Подготовка импорта конфигурации",
@@ -560,6 +565,10 @@ function checkpointRetainedSecondPass(profiler: ValidationProfiler): void {
       bytes: retained.bytes,
     },
   )
+}
+
+function isImportMemoryProfilingEnabled(): boolean {
+  return process.env["NKDK_PROFILE_MEMORY"] === "1"
 }
 
 function finishImportWorkerBatch(accumulator: SecondPassAccumulator, workerIndex: number) {
@@ -849,12 +858,26 @@ async function prepareYamlForFinalPass(
             : "Контрольный XML с сериализацией",
           { items: 1, timeMs: 0 },
         )
-        if (event.detailedRereads > 0) {
-          profiler.record("Подготовка импорта конфигурации", "Подробный повторный импорт XML", {
-            items: event.detailedRereads,
-            timeMs: 0,
-          })
-        }
+        profiler.record("Подготовка импорта конфигурации", "toXML: построение объекта", {
+          items: 1,
+          timeMs: event.toXmlObjectMs,
+        })
+        profiler.record("Подготовка импорта конфигурации", "toXML: финализация deferred", {
+          items: 1,
+          timeMs: event.toXmlFinalizeMs,
+        })
+        profiler.record("Подготовка импорта конфигурации", "Контрольный XML: прямой hash", {
+          items: 1,
+          timeMs: event.directHashMs,
+        })
+        profiler.record("Подготовка импорта конфигурации", "Контрольный XML: дерево расхождения", {
+          items: 1,
+          timeMs: event.mismatchDocumentMs,
+        })
+        profiler.record("Подготовка импорта конфигурации", "Доказательство XML-аномалий", {
+          items: 1,
+          timeMs: event.anomalyProofMs,
+        })
       },
     }),
   )

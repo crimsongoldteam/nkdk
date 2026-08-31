@@ -75,6 +75,7 @@ export const importFormCommandsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   const projected = projectNamedXmlCollectionForImportWithRuntimeKeys({
     entries,
     annotations: traversal.annotations,
+    ...(traversal.mode === "facts" ? { ephemeral: true as const } : {}),
   })
   for (const [index, item] of importedItems.entries()) {
     const runtimeKey = projected.runtimeKeys[index]!

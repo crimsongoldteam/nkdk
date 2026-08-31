@@ -3,7 +3,9 @@ import {
   parseXmlDocumentWithSaxes,
   parseXmlRootStructuresWithSaxes,
   serializeYAMLDocument,
+  resetXmlObjectDocumentBuildCountForTests,
   xmlAnnotatedMappingEntries,
+  xmlObjectDocumentBuildCountForTests,
   yamlScalarTagAt,
   type XmlAnomalyRuntime,
 } from "@nkdk/runtime"
@@ -169,6 +171,7 @@ const anomalyRegistries = createRuleRegistrySet(composeMetadataRules(
 
 describe("единое восстановление XML-аномалий assignment", () => {
   it("считает структуру обычного документа напрямую и создаёт XML только по запросу", () => {
+    resetXmlObjectDocumentBuildCountForTests()
     const document = {
       targetXmlPath: "Root.xml",
       xml: { Root: { Value: "ordinary" } },
@@ -180,6 +183,9 @@ describe("единое восстановление XML-аномалий assignm
     const control = buildPreparedAssignmentControlDocument({ document, context: mockContextToXML() })
 
     expect(control.mode).toBe("direct")
+    expect(xmlObjectDocumentBuildCountForTests()).toBe(0)
+    expect(control.document().roots).toHaveLength(1)
+    expect(xmlObjectDocumentBuildCountForTests()).toBe(1)
     const xml = control.materializeXml()
     expect(control.roots).toEqual(rootFingerprints(parseXmlRootStructuresWithSaxes(xml).roots))
   })
@@ -208,7 +214,7 @@ describe("единое восстановление XML-аномалий assignm
     ))
   })
 
-  it("использует строковый путь для смешанного XML-содержимого", () => {
+  it("строит смешанное XML-содержимое прямым путём", () => {
     const control = buildPreparedAssignmentControlDocument({
       document: {
         targetXmlPath: "Root.xml",
@@ -220,7 +226,7 @@ describe("единое восстановление XML-аномалий assignm
       context: mockContextToXML(),
     })
 
-    expect(control.mode).toBe("serialized")
+    expect(control.mode).toBe("direct")
     expect(control.roots).toEqual(rootFingerprints(
       parseXmlRootStructuresWithSaxes(control.materializeXml()).roots,
     ))

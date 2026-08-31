@@ -1,5 +1,5 @@
 import type { XmlRootStructure } from "../import/saxesParser"
-import { xmlObjectDocument } from "./document"
+import { xmlObjectRootFingerprints } from "./document"
 
 export type XmlRootFingerprint = Pick<XmlRootStructure, "name" | "path" | "structuralHash">
 
@@ -11,9 +11,7 @@ export function xmlObjectRootStructures(value: unknown): XmlObjectStructureResul
   try {
     return {
       kind: "supported",
-      roots: xmlObjectDocument(value).document.roots.map(({ name, path, structuralHash }) => ({
-        name, path, structuralHash,
-      })),
+      roots: xmlObjectRootFingerprints(value),
     }
   } catch (caught) {
     return { kind: "unsupported", reason: caught instanceof Error ? caught.message : String(caught) }

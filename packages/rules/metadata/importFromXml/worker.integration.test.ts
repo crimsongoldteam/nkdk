@@ -358,6 +358,7 @@ describe("XML import worker first pass", () => {
     )
     expect(lines.some((line) => line.includes('substep="Извлечение фактов XML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="MessagePack pack"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Удерживаемый packed XML"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Подготовка описания файла проекта"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Определение вида файла проекта"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(false)
@@ -679,6 +680,7 @@ describe("XML import worker second pass", () => {
   it("выводит удерживаемые данные после пачки и агрегированный профиль после прохода", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
     vi.stubEnv("NKDK_PROFILE", "1")
+    vi.stubEnv("NKDK_PROFILE_MEMORY", "1")
     const outputDir = createTempDir("second-pass-profile")
     const assignments = createCatalogAndFormAssignments("Неизвестный.LineNumber")
     await beginCatalogAndFormSecondPass(outputDir, assignments)

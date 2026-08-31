@@ -55,7 +55,11 @@ export async function executeImportControlExport(params: {
   readonly controlDocumentBuilder?: typeof buildPreparedAssignmentControlDocument
   readonly profile?: (event: {
     readonly mode: "direct" | "serialized"
-    readonly detailedRereads: number
+    readonly toXmlObjectMs: number
+    readonly toXmlFinalizeMs: number
+    readonly directHashMs: number
+    readonly mismatchDocumentMs: number
+    readonly anomalyProofMs: number
   }) => void
 }): Promise<ProveXmlAnomalyBoundariesResult> {
   if (params.annotations.root?.kind === "raw") {
@@ -69,6 +73,7 @@ export async function executeImportControlExport(params: {
   const assignment = projectControlAssignment(params.assignment, params.topology)
   const context = controlExportContext(params.context, params.exportProfile)
   controlExportCountValueForTests += 1
+  const toXmlObjectStartedAt = performance.now()
   const prepared = (params.ordinaryExporter ?? prepareFullXmlSyncAssignment)({
     assignment,
     preparedYamlFile: {
@@ -100,6 +105,7 @@ export async function executeImportControlExport(params: {
     topology: params.topology,
     xmlAnomalyRawFallback: false,
   })
+  const toXmlObjectMs = performance.now() - toXmlObjectStartedAt
   const preliminaryExported = prepared.documents.map((document) => {
     const output = assignment.potentialOutputs.find(
       ({ declarationId }) => declarationId === document.declarationId,
@@ -111,6 +117,7 @@ export async function executeImportControlExport(params: {
     const control = (params.controlDocumentBuilder ?? buildPreparedAssignmentControlDocument)({
       document: { ...document, rawBoundaries: [] },
       context,
+      profile: prepared.profile,
     })
     return {
       role: output.role,
@@ -122,7 +129,7 @@ export async function executeImportControlExport(params: {
   if (controlExportMatchesSourceRoots(params.audit, preliminaryExported)) {
     params.profile?.({
       mode: controlExportMode(preliminaryExported),
-      detailedRereads: 0,
+      ...controlExportTimings(prepared.profile, toXmlObjectMs, 0),
     })
     return {
       data: prepared.semanticYamlFile.data,
@@ -152,6 +159,7 @@ export async function executeImportControlExport(params: {
     },
     exported,
   })
+  const anomalyProofStartedAt = performance.now()
   const result = await proveXmlAnomalyBoundaries({
     data: proofInput.data,
     annotations: proofInput.annotations,
@@ -159,11 +167,26 @@ export async function executeImportControlExport(params: {
     rule: params.rule,
     exported,
   })
+  const anomalyProofMs = performance.now() - anomalyProofStartedAt
   params.profile?.({
     mode: controlExportMode(preliminaryExported),
-    detailedRereads: 0,
+    ...controlExportTimings(prepared.profile, toXmlObjectMs, anomalyProofMs),
   })
   return result
+}
+
+function controlExportTimings(
+  profile: { readonly propertyConversionMs: number; readonly deferredFinalizeMs: number; readonly directHashMs: number; readonly mismatchDocumentMs: number },
+  toXmlObjectMs: number,
+  anomalyProofMs: number,
+) {
+  return {
+    toXmlObjectMs,
+    toXmlFinalizeMs: profile.deferredFinalizeMs,
+    directHashMs: profile.directHashMs,
+    mismatchDocumentMs: profile.mismatchDocumentMs,
+    anomalyProofMs,
+  }
 }
 
 function retainUnownedImportRaw(params: {

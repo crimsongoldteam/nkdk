@@ -40,6 +40,11 @@ export interface YAMLToXMLProfile {
   atomicToXMLCount: number
   rulesPassCount: 1
   propertyPaths: string[]
+  planningMs: number
+  propertyConversionMs: number
+  deferredFinalizeMs: number
+  directHashMs: number
+  mismatchDocumentMs: number
 }
 
 export interface YAMLToXMLItemConversionParams {
@@ -67,6 +72,11 @@ export const createYAMLToXMLProfile = (): YAMLToXMLProfile => ({
   atomicToXMLCount: 0,
   rulesPassCount: 1,
   propertyPaths: [],
+  planningMs: 0,
+  propertyConversionMs: 0,
+  deferredFinalizeMs: 0,
+  directHashMs: 0,
+  mismatchDocumentMs: 0,
 })
 
 export interface SelectedBaseYAMLInput {

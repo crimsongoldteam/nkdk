@@ -72,8 +72,9 @@ describe("PackedXmlAssignmentStore", () => {
   it("профилирует pack, unpack и удерживаемый объём", () => {
     const measure = vi.fn((_step, _substep, _params, fn: () => unknown) => fn())
     const checkpoint = vi.fn()
+    const record = vi.fn()
     const store = createPackedXmlAssignmentStore({
-      profiler: { measure, checkpoint } as never,
+      profiler: { measure, checkpoint, record } as never,
     })
     store.put("a", [{
       input: { role: "property", sourcePath: "/p.xml" },
@@ -82,6 +83,11 @@ describe("PackedXmlAssignmentStore", () => {
     store.take("a")
 
     expect(measure.mock.calls.map((call) => call[1])).toEqual(["MessagePack pack", "MessagePack unpack"])
+    expect(record).toHaveBeenCalledWith(
+      "Подготовка импорта конфигурации",
+      "Packed XML bytes",
+      expect.objectContaining({ items: 1, bytes: expect.any(Number), timeMs: 0 }),
+    )
     expect(checkpoint.mock.calls.map((call) => call[1])).toEqual([
       "Удерживаемый packed XML",
       "Удерживаемый packed XML",

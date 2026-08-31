@@ -136,6 +136,9 @@ export function createYAMLPropertySource(params: {
 }
 
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
+  const topLevelStartedAt = params.profile !== undefined && params.rulePath === undefined
+    ? performance.now()
+    : undefined
   const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
     type: PropertyRule["type"],
     operation: Operation,
@@ -166,6 +169,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     context: params.context,
     execution: params.execution,
   })
+  const planningStartedAt = params.profile === undefined ? undefined : performance.now()
   const orderedKeys = getOrderedKeysToXML({
     rule: params.rule,
   })
@@ -174,6 +178,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     for (const propertyKey of planByKey.keys()) {
       if (!orderedKeys.includes(propertyKey)) orderedKeys.push(propertyKey)
     }
+  }
+  if (params.profile !== undefined && planningStartedAt !== undefined) {
+    params.profile.planningMs += performance.now() - planningStartedAt
   }
   const namePropertyKey = params.namePropertyKey ?? "name"
 
@@ -717,6 +724,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       yaml,
       outputs: outputMap,
     })
+  }
+  if (params.profile !== undefined && topLevelStartedAt !== undefined) {
+    params.profile.propertyConversionMs += performance.now() - topLevelStartedAt
   }
   return {
     outputs: outputMap,

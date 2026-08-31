@@ -105,6 +105,21 @@ describe("prepareImportFacts", () => {
     expect(expected.validationContribution.logicalAddresses.length).toBeGreaterThan(0)
     expect(actual).toEqual(expected)
   })
+
+  it("не требует таблицу YAML-аннотаций для временной проекции фактов", async () => {
+    const assignment = catalogAssignment()
+    const xml = fs.readFileSync(metadataPath, "utf8").replace("<v8:lang>ru</v8:lang>", "<v8:lang>xx</v8:lang>")
+
+    await expect(prepareImportFacts({
+      assignment,
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+      inputs: [{
+        input: assignment.xmlFiles[0]!,
+        document: parseXmlDocumentWithSaxes(xml, { preserveXsiNil: true }),
+      }],
+    })).resolves.toMatchObject({ targetProjectPath: assignment.targetProjectPath })
+  })
 })
 
 function catalogAssignment(): ImportAssignment {

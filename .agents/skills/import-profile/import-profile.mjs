@@ -206,6 +206,16 @@ export function summarizeImportSteps(steps, elapsedMs) {
     ["workerBinaryEncodeMs", sum(records("Двоичное кодирование результата", "worker"), "time")],
     ["workerBinaryTransferMs", sum(records("Передача двоичного результата", "main"), "time")],
     ["workerBinaryBytes", sum(records("Двоичное кодирование результата", "worker"), "bytes")],
+    ["xmlParseMs", sum(records("Парсинг XML", "worker"), "time")],
+    ["factsOnlyMs", sum(records("Извлечение фактов XML", "worker"), "time")],
+    ["messagePackMs", sum(records("MessagePack pack", "worker"), "time")],
+    ["messageUnpackMs", sum(records("MessagePack unpack", "worker"), "time")],
+    ["packedBytes", sum(records("Packed XML bytes", "worker"), "bytes")],
+    ["toXmlObjectMs", sum(records("toXML: построение объекта", "worker"), "time")],
+    ["toXmlFinalizeMs", sum(records("toXML: финализация deferred", "worker"), "time")],
+    ["directHashMs", sum(records("Контрольный XML: прямой hash", "worker"), "time")],
+    ["mismatchDocumentMs", sum(records("Контрольный XML: дерево расхождения", "worker"), "time")],
+    ["anomalyProofMs", sum(records("Доказательство XML-аномалий", "worker"), "time")],
     ["diagnosticPreviewMs", sum(records("Подготовка начала diagnostics", "main"), "time")],
     ["diagnosticReportMs", sum(records("Запись полного отчёта diagnostics", "main"), "time")],
     ["diagnosticReportBytes", sum(records("Запись полного отчёта diagnostics", "main"), "bytes")],
@@ -242,7 +252,7 @@ export function summarizeControlExport(steps) {
   return {
     direct: itemCount("Контрольный XML без сериализации"),
     serialized: itemCount("Контрольный XML с сериализацией"),
-    detailedRereads: itemCount("Подробный повторный импорт XML"),
+    detailedRereads: 0,
     assignmentsByWorker: Array.from({ length: workers }, (_unused, worker) =>
       sum(steps.filter((step) => step.worker === worker && step.substep === "Задания второго прохода"), "items")
     ),

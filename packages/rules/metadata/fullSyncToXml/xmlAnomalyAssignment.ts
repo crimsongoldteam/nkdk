@@ -18,6 +18,7 @@ import {
   yamlScalarTagAt,
   xmlExport,
   xmlObjectDocument,
+  xmlObjectRootStructures,
   xmlElementRawValue,
   type XmlAnomalyAnnotation,
   type XmlAnomalyAnnotations,
@@ -34,6 +35,7 @@ import {
   type MetadataItemRule,
   type PropertyRule,
   type RuleRegistrySet,
+  type YAMLToXMLProfile,
   type YAMLToXMLNestedRule,
 } from "@nkdk/runtime/rule-kit"
 import type { ConfigurationContext } from "@nkdk/runtime"
@@ -129,16 +131,29 @@ export function buildPreparedAssignmentXml(params: {
 export function buildPreparedAssignmentControlDocument(params: {
   readonly document: PreparedXMLDocument
   readonly context: ConfigurationContext
+  readonly profile?: YAMLToXMLProfile
 }): PreparedAssignmentControlDocument {
   const xml = buildFinalizedAssignmentXmlObject(params)
   if (params.document.rawBoundaries.length === 0 && params.document.deferred.length === 0) {
-    const addressed = xmlObjectDocument(xml).document
-    let materialized: string | undefined
-    return {
-      roots: rootFingerprints(addressed.roots),
-      mode: "direct",
-      materializeXml: () => materialized ??= xmlExport(xml),
-      document: () => addressed,
+    const directHashStartedAt = performance.now()
+    const direct = xmlObjectRootStructures(xml)
+    if (params.profile !== undefined) params.profile.directHashMs += performance.now() - directHashStartedAt
+    if (direct.kind === "supported") {
+      let materialized: string | undefined
+      let addressed: XmlDocument | undefined
+      return {
+        roots: direct.roots,
+        mode: "direct",
+        materializeXml: () => materialized ??= xmlExport(xml),
+        document: () => {
+          const startedAt = performance.now()
+          try {
+            return addressed ??= xmlObjectDocument(xml).document
+          } finally {
+            if (params.profile !== undefined) params.profile.mismatchDocumentMs += performance.now() - startedAt
+          }
+        },
+      }
     }
   }
   const materialized = serializePreparedAssignmentXml(xml, params.document.rawBoundaries)
@@ -146,28 +161,41 @@ export function buildPreparedAssignmentControlDocument(params: {
     roots: rootFingerprints(parseXmlRootStructuresWithSaxes(materialized).roots),
     mode: "serialized",
     materializeXml: () => materialized,
-    document: () => parseXmlDocumentWithSaxes(materialized, {
-      preserveXsiNil: true,
-      preserveEmptyElements: true,
-    }),
+    document: () => {
+      const startedAt = performance.now()
+      try {
+        return parseXmlDocumentWithSaxes(materialized, {
+          preserveXsiNil: true,
+          preserveEmptyElements: true,
+        })
+      } finally {
+        if (params.profile !== undefined) params.profile.mismatchDocumentMs += performance.now() - startedAt
+      }
+    },
   }
 }
 
 function buildFinalizedAssignmentXmlObject(params: {
   readonly document: PreparedXMLDocument
   readonly context: ConfigurationContext
+  readonly profile?: YAMLToXMLProfile
 }): Record<string, unknown> {
   const xml = cloneXmlObject(params.document.xml)
   const deferred = bindDeferredObjectValues(
     xml,
     params.document.deferred.map(({ valuePath, rulePath }) => ({ valuePath, rulePath })),
   )
-  finalizeExportedXmlValues({
-    xml,
-    rootRule: params.document.rootRule,
-    deferred,
-    context: params.context,
-  })
+  const finalizeStartedAt = performance.now()
+  try {
+    finalizeExportedXmlValues({
+      xml,
+      rootRule: params.document.rootRule,
+      deferred,
+      context: params.context,
+    })
+  } finally {
+    if (params.profile !== undefined) params.profile.deferredFinalizeMs += performance.now() - finalizeStartedAt
+  }
   return xml
 }
 
