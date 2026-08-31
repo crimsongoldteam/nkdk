@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { join } from "node:path"
+import "../../../tests/metadataExecutionContext"
 import type {
   ProjectStateStructuredDocumentFact,
   ProjectStateStructuredDocumentValidationParams,
@@ -121,6 +122,64 @@ describe("проверка заимствованной формы", () => {
       }),
     ])
   })
+
+  it("запрещает полностью восстановимую сохранённую основу", () => {
+    const current = {
+      События: { ПриОткрытии: "Обработка" },
+      Элементы: { Поле: { Вид: "ПолеВвода" } },
+    }
+    const diagnostics = validate([
+      semanticDocument("cf", "working", current),
+      semanticDocument("cfe/X", "working", current),
+      semanticDocument("cfe/X", "base", {
+        Элементы: { Поле: { Вид: "ПолеВвода" } },
+        События: { ПриОткрытии: "Обработка" },
+      }, "БазоваяФорма.yaml"),
+    ])
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      severity: "error",
+      filePath: join("/project/cfe/X/БазоваяФорма.yaml"),
+      path: "/",
+      message: "БазоваяФорма.yaml избыточна: основа полностью восстанавливается из основной конфигурации и рабочей формы расширения",
+    }))
+  })
+
+  it("разрешает значимо отличающуюся сохранённую основу", () => {
+    expect(validate([
+      semanticDocument("cf", "working", { Ширина: 20 }),
+      semanticDocument("cfe/X", "working", { Ширина: 20 }),
+      semanticDocument("cfe/X", "base", { Ширина: 99 }, "БазоваяФорма.yaml"),
+    ])).toEqual([])
+  })
+
+  it.each(["cf", "working", "base"] as const)(
+    "не предполагает избыточность без payload %s",
+    (missing) => {
+      const current = { Ширина: 20 }
+      const facts = [
+        semanticDocument("cf", "working", current, undefined, address, missing === "cf"),
+        semanticDocument("cfe/X", "working", current, undefined, address, missing === "working"),
+        semanticDocument("cfe/X", "base", current, "БазоваяФорма.yaml", address, missing === "base"),
+      ]
+      expect(validate(facts)).toEqual([])
+    },
+  )
+
+  it("проверяет избыточность основы общей формы по topology-адресу", () => {
+    const commonAddress = "ОбщаяФорма.РабочийСтол"
+    const current = { Ширина: 20 }
+    const diagnostics = validate([
+      semanticDocument("cf", "working", current, "ОбщаяФорма/РабочийСтол/Свойства.yaml", commonAddress),
+      semanticDocument("cfe/X", "working", current, "ОбщаяФорма/РабочийСтол/Свойства.yaml", commonAddress),
+      semanticDocument("cfe/X", "base", current, "ОбщаяФорма/РабочийСтол/БазоваяФорма.yaml", commonAddress),
+    ])
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      filePath: join("/project/cfe/X/ОбщаяФорма/РабочийСтол/БазоваяФорма.yaml"),
+      severity: "error",
+    }))
+  })
 })
 
 function validate(facts: readonly ProjectStateStructuredDocumentFact[]) {
@@ -203,6 +262,7 @@ function fact(
   name: string,
   yamlPath: readonly string[],
   fileName = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+  logicalAddress = address,
 ): ProjectStateStructuredDocumentFact {
   return {
     componentPath,
@@ -210,11 +270,31 @@ function fact(
     entry: {
       documentKind: "clientApplicationForm",
       representation,
-      logicalAddress: address,
+      logicalAddress,
       workingProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
       componentKind,
       name,
       yamlPath,
     },
   }
+}
+
+function semanticDocument(
+  componentPath: string,
+  representation: "working" | "base",
+  yaml: object,
+  fileName = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+  logicalAddress = address,
+  withoutPayload = false,
+): ProjectStateStructuredDocumentFact {
+  const result = fact(componentPath, representation, "document", "", [], fileName, logicalAddress)
+  return withoutPayload
+    ? result
+    : {
+        ...result,
+        entry: {
+          ...result.entry,
+          payload: JSON.stringify({ version: 1, yaml }),
+        },
+      }
 }

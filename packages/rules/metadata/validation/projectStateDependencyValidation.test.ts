@@ -2,6 +2,7 @@ import { parseMetadataYaml } from "@nkdk/runtime"
 import { join } from "node:path"
 import { beforeAll,describe,expect,it,vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
+import "../../tests/metadataExecutionContext"
 import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
@@ -159,6 +160,31 @@ describe("dependency validation из ProjectState", () => {
         message: expect.stringContaining("ПолеCF"),
       }),
     ])
+    store.rollbackUpdate()
+  })
+
+  it("удаление избыточной основы очищает диагностику в текущей транзакции", () => {
+    const validator = createProjectStateDependencyValidator({
+      structuredDocumentValidators: [validateBorrowedClientApplicationForms],
+    })
+    const current = semanticFormUpdate("cf", "working", { Ширина: 20 })
+    const extension = semanticFormUpdate("cfe/X", "working", { Ширина: 20 })
+    const base = semanticFormUpdate("cfe/X", "base", { Ширина: 20 })
+    const { store } = createBinaryProjectStateTestFixture(validator)
+    store.beginUpdate()
+    replaceFiles(store, [current, extension, base, configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toContainEqual(expect.objectContaining({
+      filePath: join("/project", base.projectPath),
+      message: expect.stringContaining("БазоваяФорма.yaml избыточна"),
+    }))
+    store.commitUpdate()
+
+    store.beginUpdate()
+    store.deleteFiles([base.projectPath])
+    expect(store.validateDependencies({ requests: [] })).not.toContainEqual(expect.objectContaining({
+      message: expect.stringContaining("БазоваяФорма.yaml избыточна"),
+    }))
     store.rollbackUpdate()
   })
 
@@ -1525,6 +1551,31 @@ function structuredFormUpdate(componentPath: string, name: string): ProjectState
       componentKind: "element",
       name,
       yamlPath: ["Элементы", name],
+    }],
+  }
+}
+
+function semanticFormUpdate(
+  componentPath: string,
+  representation: "working" | "base",
+  yaml: object,
+): ProjectStateYamlFileUpdate {
+  const workingProjectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+  const relativeProjectPath = representation === "base"
+    ? "Справочник/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml"
+    : workingProjectPath
+  const projectPath = `${componentPath}/${relativeProjectPath}`
+  return {
+    ...emptyYamlUpdate(projectPath, componentPath, "form"),
+    structuredDocuments: [{
+      documentKind: "clientApplicationForm",
+      representation,
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+      workingProjectPath,
+      componentKind: "document",
+      name: "",
+      yamlPath: [],
+      payload: JSON.stringify({ version: 1, yaml }),
     }],
   }
 }

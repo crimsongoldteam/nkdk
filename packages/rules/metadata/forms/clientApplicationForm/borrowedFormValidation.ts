@@ -6,6 +6,8 @@ import type {
 } from "../../projectState/contracts/dependencyValidation"
 import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fileUpdate"
 import { resolveProjectStateDataPathReferenceBatch } from "../../validation/projectStateDependencyValidation"
+import { isRedundantClientApplicationBaseForm } from "./baseFormNecessity"
+import { parseClientApplicationFormSemanticPayload } from "./formSemanticPayload"
 
 const DOCUMENT_KIND = "clientApplicationForm"
 
@@ -171,8 +173,41 @@ export function validateBorrowedClientApplicationForms(
       facts: baseFacts,
       filePath: absolutePath(params.projectDir, first.projectPath),
     }))
+    const current = params.queryPort.readStructuredDocumentEntries({
+      componentPath: "cf",
+      logicalAddress: first.entry.logicalAddress,
+    })
+    const currentYaml = semanticDocumentYaml(current)
+    const workingYaml = semanticDocumentYaml(working.map(({ entry }) => entry))
+    const savedYaml = semanticDocumentYaml(baseFacts.map(({ entry }) => entry))
+    if (
+      currentYaml !== undefined
+      && workingYaml !== undefined
+      && savedYaml !== undefined
+      && isRedundantClientApplicationBaseForm({
+        currentConfigurationYaml: currentYaml,
+        extensionYaml: workingYaml,
+        savedBaseYaml: savedYaml,
+      })
+    ) {
+      diagnostics.push({
+        filePath: absolutePath(params.projectDir, first.projectPath),
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "cross-file",
+        message: "БазоваяФорма.yaml избыточна: основа полностью восстанавливается из основной конфигурации и рабочей формы расширения",
+        path: "/",
+      })
+    }
   }
   return diagnostics
+}
+
+function semanticDocumentYaml(entries: readonly ProjectStateStructuredDocumentEntry[]) {
+  return parseClientApplicationFormSemanticPayload(
+    entries.find(({ componentKind }) => componentKind === "document")?.payload,
+  )
 }
 
 function formElementDataPathPayload(value: string | undefined): {
