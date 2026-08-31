@@ -17,11 +17,7 @@ const running: BackgroundOperationSnapshot = {
 describe("background operation store", () => {
   it("writes a snapshot through a temporary file and atomic rename", async () => {
     const memory = memoryFileSystem()
-    const store = createBackgroundOperationStore({
-      fileSystem: memory.fileSystem,
-      temporaryId: () => "temporary",
-      now: () => new Date("2026-08-30T00:00:00.000Z"),
-    })
+    const store = testStore(memory.fileSystem)
 
     await store.write(running)
 
@@ -35,11 +31,7 @@ describe("background operation store", () => {
 
   it("marks active records interrupted without rerunning them", async () => {
     const memory = memoryFileSystem()
-    const store = createBackgroundOperationStore({
-      fileSystem: memory.fileSystem,
-      temporaryId: () => "temporary",
-      now: () => new Date("2026-08-30T00:00:00.000Z"),
-    })
+    const store = testStore(memory.fileSystem)
     await store.write(running)
 
     await store.recover("C:/project")
@@ -52,11 +44,7 @@ describe("background operation store", () => {
 
   it("removes only terminal records older than thirty days", async () => {
     const memory = memoryFileSystem()
-    const store = createBackgroundOperationStore({
-      fileSystem: memory.fileSystem,
-      temporaryId: () => "temporary",
-      now: () => new Date("2026-08-30T00:00:00.000Z"),
-    })
+    const store = testStore(memory.fileSystem)
     await store.write({ ...running, operationId: "active" })
     await store.write({ ...running, operationId: "old", status: "cancelled", updatedAt: "2026-07-01T00:00:00.000Z" })
     await store.write({ ...running, operationId: "recent", status: "cancelled", updatedAt: "2026-08-20T00:00:00.000Z" })
@@ -79,6 +67,14 @@ describe("background operation store", () => {
       .rejects.toThrow("секретное поле password")
   })
 })
+
+function testStore(fileSystem: BackgroundOperationStoreFileSystem) {
+  return createBackgroundOperationStore({
+    fileSystem,
+    temporaryId: () => "temporary",
+    now: () => new Date("2026-08-30T00:00:00.000Z"),
+  })
+}
 
 function memoryFileSystem() {
   const files = new Map<string, string>()

@@ -504,9 +504,7 @@ describe("validateParsedFile", () => {
 
     const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
 
-    expect(result.diagnostics).toEqual([])
-    expect(result.issues).toEqual([])
-    expect(result.boundaries).toEqual([{
+    expectAcceptedInvalid(result, [{
       annotation: "invalid",
       target: { kind: "path", path: ["Состав", 0] },
       state: "accepted",
@@ -529,15 +527,11 @@ describe("validateParsedFile", () => {
 
     const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
 
-    expect(result).toMatchObject({
-      diagnostics: [],
-      issues: [],
-      boundaries: [{
+    expectAcceptedInvalid(result, [{
         annotation: "invalid",
         target: { kind: "path", path: ["Элементы", 0] },
         state: "accepted",
-      }],
-    })
+    }])
   })
 
   it("считает тег invalid лишним, если значение правильно", () => {
@@ -567,9 +561,7 @@ describe("validateParsedFile", () => {
 
     const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
 
-    expect(result.diagnostics).toEqual([])
-    expect(result.issues).toEqual([])
-    expect(result.boundaries).toEqual([
+    expectAcceptedInvalid(result, [
       {
         annotation: "invalid",
         target: { kind: "occurrence", path: ["Код"], occurrence: 1 },
@@ -704,4 +696,13 @@ function evaluateUniqueInvalidLanguage(withIssue: boolean) {
       : [],
   })
   return { result, target }
+}
+
+function expectAcceptedInvalid(
+  result: ReturnType<typeof validateParsedFileWithIssues>,
+  boundaries: readonly unknown[],
+): void {
+  expect(result.diagnostics).toEqual([])
+  expect(result.issues).toEqual([])
+  expect(result.boundaries).toEqual(boundaries)
 }

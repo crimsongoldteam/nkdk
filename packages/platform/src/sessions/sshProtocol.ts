@@ -213,14 +213,9 @@ class PlatformCommandProtocol implements PlatformCommandSession {
           if (this.pending !== pending) return
           this.cleanupPending(pending)
           this.pending = undefined
-          if (pending.command !== undefined && pending.operationLog !== undefined) {
-            const command = pending.operationLog.sanitize(pending.command)
-            pending.logWrites = pending.logWrites.then(async () => {
-              await pending.operationLog?.append(
-                `command-timeout command=${command} timeoutMs=${options.timeoutMs} receivedBytes=${pending.receivedBytes} shellOpen=${this.shell.isOpen()} successSeen=${pending.sawSuccess}`
-              )
-            })
-          }
+          this.queueCommandLog(pending, (command) =>
+            `command-timeout command=${command} timeoutMs=${options.timeoutMs} receivedBytes=${pending.receivedBytes} shellOpen=${this.shell.isOpen()} successSeen=${pending.sawSuccess}`
+          )
           void pending.logWrites.then(() => reject(
             new PlatformSessionError(
               "session_timeout",
@@ -420,14 +415,9 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     if (pending === undefined) return
     this.cleanupPending(pending)
     this.pending = undefined
-    if (pending.command !== undefined && pending.operationLog !== undefined) {
-      const command = pending.operationLog.sanitize(pending.command)
-      pending.logWrites = pending.logWrites.then(async () => {
-        await pending.operationLog?.append(
-          `command status=ready value=${command} receivedBytes=${pending.receivedBytes} successSeen=${pending.sawSuccess}`
-        )
-      })
-    }
+    this.queueCommandLog(pending, (command) =>
+      `command status=ready value=${command} receivedBytes=${pending.receivedBytes} successSeen=${pending.sawSuccess}`
+    )
     void pending.logWrites.then(() => pending.resolve(
       pending.extensionInfo === undefined
         ? {}
@@ -447,6 +437,15 @@ class PlatformCommandProtocol implements PlatformCommandSession {
         commandOutcomeOptions(pending)
       )
     )
+  }
+
+  private queueCommandLog(pending: PendingExchange, format: (command: string) => string): void {
+    if (pending.command === undefined || pending.operationLog === undefined) return
+    const operationLog = pending.operationLog
+    const message = format(operationLog.sanitize(pending.command))
+    pending.logWrites = pending.logWrites.then(async () => {
+      await operationLog.append(message)
+    })
   }
 
   private failPending(

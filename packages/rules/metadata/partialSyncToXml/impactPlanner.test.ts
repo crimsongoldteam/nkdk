@@ -3,7 +3,7 @@ import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { classifyMetadataProjectPath, type MetadataProjectResourceMatch } from "../resourceTopology/core/projectProjection"
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 import { createPartialXmlPackagePolicyRegistry } from "./packagePolicy"
-import { buildPartialXmlImpactPlan } from "./impactPlanner"
+import { buildPartialXmlImpactPlan, type PartialXmlImpactPlan } from "./impactPlanner"
 import type { PartialXmlChanges, PartialXmlFileVersion } from "./types"
 import { childFormPartialXmlPackagePolicy } from "../forms/clientApplicationForm/partialXmlPackage"
 
@@ -345,22 +345,7 @@ describe("partial XML impact planner", () => {
   it("загружает владельца, описатель и тело изменённой формы", () => {
     const result = plan([root, language, owner, firstForm], changes({ changed: [firstForm] }))
 
-    expect(result.selection).toEqual({
-      kind: "selected",
-      projectPaths: [root, owner, firstForm].sort(utf8),
-    })
-    expect(documentPaths(result)).toEqual([
-      "Configuration.xml",
-      "Objects/Товары.xml",
-      "Objects/Товары/Forms/Первая.xml",
-      "Objects/Товары/Forms/Первая/Ext/Form.xml",
-    ])
-    expect(result.loadTargets).toEqual([
-      "Configuration.xml",
-      "Objects/Товары.xml",
-      "Objects/Товары/Forms/Первая.xml",
-      "Objects/Товары/Forms/Первая/Ext/Form.xml",
-    ].sort(utf8))
+    expectFirstFormAssignment(result)
   })
 
   it.each(["changed", "added"] as const)("включает задание формы при %s её сохранённой основы", (kind) => {
@@ -369,22 +354,7 @@ describe("partial XML impact planner", () => {
       changes({ [kind]: [firstBaseForm] }),
     )
 
-    expect(result.selection).toEqual({
-      kind: "selected",
-      projectPaths: [root, owner, firstForm].sort(utf8),
-    })
-    expect(documentPaths(result)).toEqual([
-      "Configuration.xml",
-      "Objects/Товары.xml",
-      "Objects/Товары/Forms/Первая.xml",
-      "Objects/Товары/Forms/Первая/Ext/Form.xml",
-    ])
-    expect(result.loadTargets).toEqual([
-      "Configuration.xml",
-      "Objects/Товары.xml",
-      "Objects/Товары/Forms/Первая.xml",
-      "Objects/Товары/Forms/Первая/Ext/Form.xml",
-    ].sort(utf8))
+    expectFirstFormAssignment(result)
   })
 
   it("включает задание формы при удалении сохранённой основы", () => {
@@ -393,16 +363,7 @@ describe("partial XML impact planner", () => {
       changes({ deleted: [firstBaseForm] }),
     )
 
-    expect(result.selection).toEqual({
-      kind: "selected",
-      projectPaths: [root, owner, firstForm].sort(utf8),
-    })
-    expect(result.loadTargets).toEqual([
-      "Configuration.xml",
-      "Objects/Товары.xml",
-      "Objects/Товары/Forms/Первая.xml",
-      "Objects/Товары/Forms/Первая/Ext/Form.xml",
-    ].sort(utf8))
+    expectFirstFormAssignment(result, false)
   })
 
   it.each(["changed", "added", "deleted"] as const)("включает задание формы при %s входа задания", (kind) => {
@@ -413,22 +374,7 @@ describe("partial XML impact planner", () => {
       changes({ [kind]: [firstQuery] }),
     )
 
-    expect(result.selection).toEqual({
-      kind: "selected",
-      projectPaths: [root, owner, firstForm].sort(utf8),
-    })
-    expect(documentPaths(result)).toEqual([
-      "Configuration.xml",
-      "Objects/Товары.xml",
-      "Objects/Товары/Forms/Первая.xml",
-      "Objects/Товары/Forms/Первая/Ext/Form.xml",
-    ])
-    expect(result.loadTargets).toEqual([
-      "Configuration.xml",
-      "Objects/Товары.xml",
-      "Objects/Товары/Forms/Первая.xml",
-      "Objects/Товары/Forms/Первая/Ext/Form.xml",
-    ].sort(utf8))
+    expectFirstFormAssignment(result)
   })
 
   it.each(["changed", "added"] as const)("выбирает только %s модуль существующей формы", (kind) => {
@@ -807,6 +753,21 @@ function plan(
     referencesFor: (path) => references[path] ?? [],
     resolveCanonicalTarget: (canonical) => canonical === "Language.Русский" ? language : undefined,
   })
+}
+
+function expectFirstFormAssignment(result: PartialXmlImpactPlan, checkDocuments = true): void {
+  const xmlPaths = [
+    "Configuration.xml",
+    "Objects/Товары.xml",
+    "Objects/Товары/Forms/Первая.xml",
+    "Objects/Товары/Forms/Первая/Ext/Form.xml",
+  ]
+  expect(result.selection).toEqual({
+    kind: "selected",
+    projectPaths: [root, owner, firstForm].sort(utf8),
+  })
+  if (checkDocuments) expect(documentPaths(result)).toEqual(xmlPaths)
+  expect(result.loadTargets).toEqual(xmlPaths.sort(utf8))
 }
 
 function resources(paths: readonly string[]): MetadataProjectResourceMatch[] {

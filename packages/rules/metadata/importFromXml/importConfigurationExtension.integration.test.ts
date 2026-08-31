@@ -546,34 +546,16 @@ function addFormWithRedundantBase(inputDir: string): void {
 }
 
 function addBaseCommonForm(inputDir: string): void {
-  const commonFormsDir = join(inputDir, "CommonForms")
-  const metadataPath = join(commonFormsDir, "ОбщаяРавнаяОснова.xml")
-  const bodyPath = join(commonFormsDir, "ОбщаяРавнаяОснова", "Ext", "Form.xml")
-  fs.mkdirSync(dirname(bodyPath), { recursive: true })
-  fs.copyFileSync(join(commonFormFixtureDir, "КонстантаВсеСвойства.xml"), metadataPath)
-  replaceAllInFile(metadataPath, "КонстантаВсеСвойства", "ОбщаяРавнаяОснова")
-  replaceExactlyOnce(
-    metadataPath,
-    "0d003021-0016-43a6-b789-e2ab99a04253",
-    "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
-  )
-  fs.copyFileSync(join(commonFormFixtureDir, "КонстантаВсеСвойства", "Ext", "Form.xml"), bodyPath)
-  replaceAllInFile(bodyPath, "КонстантаВсеСвойства", "ОбщаяРавнаяОснова")
+  const { bodyPath } = createCommonFormFiles(inputDir, "dddddddd-dddd-4ddd-8ddd-dddddddddddd")
   addFormEvent(bodyPath)
 }
 
 function addCommonFormWithRedundantBase(inputDir: string): void {
-  const commonFormsDir = join(inputDir, "CommonForms")
-  const metadataPath = join(commonFormsDir, "ОбщаяРавнаяОснова.xml")
-  const bodyPath = join(commonFormsDir, "ОбщаяРавнаяОснова", "Ext", "Form.xml")
-  fs.mkdirSync(dirname(bodyPath), { recursive: true })
-  fs.copyFileSync(join(commonFormFixtureDir, "КонстантаВсеСвойства.xml"), metadataPath)
-  replaceAllInFile(metadataPath, "КонстантаВсеСвойства", "ОбщаяРавнаяОснова")
-  replaceExactlyOnce(
-    metadataPath,
-    "0d003021-0016-43a6-b789-e2ab99a04253",
+  const { metadataPath, bodyPath } = createCommonFormFiles(
+    inputDir,
     "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
   )
+
   replaceExactlyOnce(
     metadataPath,
     "\t\t<Properties>",
@@ -613,6 +595,23 @@ function addCommonFormWithRedundantBase(inputDir: string): void {
       ].join("\n"),
     ),
   )
+}
+
+function createCommonFormFiles(inputDir: string, uuid: string) {
+  const commonFormsDir = join(inputDir, "CommonForms")
+  const metadataPath = join(commonFormsDir, "ОбщаяРавнаяОснова.xml")
+  const bodyPath = join(commonFormsDir, "ОбщаяРавнаяОснова", "Ext", "Form.xml")
+  fs.mkdirSync(dirname(bodyPath), { recursive: true })
+  fs.copyFileSync(join(commonFormFixtureDir, "КонстантаВсеСвойства.xml"), metadataPath)
+  replaceAllInFile(metadataPath, "КонстантаВсеСвойства", "ОбщаяРавнаяОснова")
+  replaceExactlyOnce(
+    metadataPath,
+    "0d003021-0016-43a6-b789-e2ab99a04253",
+    uuid,
+  )
+  fs.copyFileSync(join(commonFormFixtureDir, "КонстантаВсеСвойства", "Ext", "Form.xml"), bodyPath)
+  replaceAllInFile(bodyPath, "КонстантаВсеСвойства", "ОбщаяРавнаяОснова")
+  return { metadataPath, bodyPath }
 }
 
 function addFormEvent(path: string): void {

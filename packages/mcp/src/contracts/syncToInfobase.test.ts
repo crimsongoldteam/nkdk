@@ -33,20 +33,7 @@ describe("sync_to_infobase contract", () => {
       componentPath: "cf",
       diagnostics: [],
     })).toBe(true)
-    expect(Value.Check(syncToInfobaseOutputShape, {
-      ok: true,
-      status: "synchronized",
-      componentPath: "cf",
-      packageId: "package-1",
-      entries: [],
-      loadTargets: [],
-      mode: "standalone-server",
-      loadMode: "selected",
-      reusedConnection: false,
-      finalizeStatus: "published",
-      configurationIndexPath: "/project/index.lmdb",
-      warnings: [],
-    })).toBe(true)
+    expect(Value.Check(syncToInfobaseOutputShape, synchronizedOutput())).toBe(true)
     expect(Value.Check(syncToInfobaseOutputShape, {
       ok: false,
       code: "delivery_outcome_unknown",
@@ -78,26 +65,13 @@ describe("sync_to_infobase contract", () => {
         value: "11111111-1111-1111-1111-111111111111",
       }],
     })).toBe(true)
-    expect(Value.Check(syncToInfobaseOutputShape, {
-      ok: true,
-      status: "synchronized",
-      componentPath: "cf",
-      packageId: "package-1",
-      entries: [],
-      loadTargets: [],
-      mode: "standalone-server",
-      loadMode: "selected",
-      reusedConnection: false,
-      finalizeStatus: "published",
-      configurationIndexPath: "/project/index.lmdb",
-      warnings: [{
+    expect(Value.Check(syncToInfobaseOutputShape, synchronizedOutput([{
         severity: "warning",
         code: "ambiguous_assignment",
         message: "Назначение неоднозначно",
         source: "partial-sync",
         assignmentId: "configuration-root",
-      }],
-    })).toBe(true)
+      }]))).toBe(true)
   })
 
   it("keeps successful variants strict", () => {
@@ -132,3 +106,20 @@ describe("sync_to_infobase contract", () => {
     })).toBe(false)
   })
 })
+
+function synchronizedOutput(warnings: readonly unknown[] = []) {
+  return {
+    ok: true,
+    status: "synchronized",
+    componentPath: "cf",
+    packageId: "package-1",
+    entries: [],
+    loadTargets: [],
+    mode: "standalone-server",
+    loadMode: "selected",
+    reusedConnection: false,
+    finalizeStatus: "published",
+    configurationIndexPath: "/project/index.lmdb",
+    warnings,
+  }
+}

@@ -560,11 +560,7 @@ export function buildPartialXmlImpactPlan(params: {
   }
 
   function includeConfigurationRoot(): void {
-    const roots = [...currentByPath.values()].filter((resource) =>
-      resource.kind === "content" && resource.assignment?.role === "configuration"
-    )
-    if (roots.length !== 1) throw new Error(`Ожидалось одно текущее корневое XML-задание, найдено ${roots.length}`)
-    const root = roots[0]!
+    const root = configurationRoot()
     includeAssignment(root, "policy")
     for (const resource of currentByPath.values()) {
       if (resource.kind === "externalFile" && resource.assignment?.id === root.assignment?.id) {
@@ -574,17 +570,21 @@ export function buildPartialXmlImpactPlan(params: {
   }
 
   function includeConfigurationMetadataParent(): void {
-    const roots = [...currentByPath.values()].filter((resource) =>
-      resource.kind === "content" && resource.assignment?.role === "configuration"
-    )
-    if (roots.length !== 1) throw new Error(`Ожидалось одно текущее корневое XML-задание, найдено ${roots.length}`)
-    const root = roots[0]!
+    const root = configurationRoot()
     const metadataDocuments = root.assignment!.xmlDocuments.filter((document) => document.role === "metadata")
     if (metadataDocuments.length !== 1) {
       throw new Error(`Корневое XML-задание содержит ${metadataDocuments.length} metadata-документов`)
     }
     selectedProjectPaths.add(root.projectPath)
     addDocument(root, metadataDocuments[0]!, true)
+  }
+
+  function configurationRoot(): MetadataProjectResourceMatch {
+    const roots = [...currentByPath.values()].filter((resource) =>
+      resource.kind === "content" && resource.assignment?.role === "configuration"
+    )
+    if (roots.length !== 1) throw new Error(`Ожидалось одно текущее корневое XML-задание, найдено ${roots.length}`)
+    return roots[0]!
   }
 
   function memberCollectionKey(resource: MetadataProjectResourceMatch): string {
