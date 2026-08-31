@@ -89,6 +89,9 @@ export function importPropertiesFromXMLToYAML(params: {
   execution?: PropertyRuleExecution
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
+  mode?: DirectImportTraversal["mode"]
+  facts?: DirectImportTraversal["facts"]
+  produceResult?: boolean
 }): Record<string, unknown> | undefined {
   const {
     context,
@@ -111,7 +114,10 @@ export function importPropertiesFromXMLToYAML(params: {
     : params.execution.getTypeRule(type, operation)
   const selectedAmbiguousBoundaries = new Map<XmlElementNode, XmlImportAuditBoundary[]>()
 
-  const result: Record<string, unknown> = {}
+  const retainResult = params.mode !== "facts" || params.produceResult === true
+  const result: Record<string, unknown> | undefined = retainResult ? {} : undefined
+  const retainedSiblingValues = new Map<string, unknown>()
+  const retainedSiblingYamlKeys = metadataTargetSiblingYamlKeys(rule)
   const owner = metadataTargetOwnerFromRule({
     itemRule: rule,
     name: itemName,
@@ -343,6 +349,9 @@ export function importPropertiesFromXMLToYAML(params: {
                 })
               : undefined
           const directTraversal: DirectImportTraversal<PropertyRuleExecution> = {
+            ...(params.mode === undefined ? {} : { mode: params.mode }),
+            ...(params.facts === undefined ? {} : { facts: params.facts }),
+            ...(params.mode === "facts" ? { produceResult: true } : {}),
             yamlPath: propertyYamlPath,
             rulePath: propertyRulePath,
             collector,
@@ -391,6 +400,9 @@ export function importPropertiesFromXMLToYAML(params: {
                   annotations: params.annotations,
                   profile: params.profile,
                   execution: params.execution,
+                  mode: params.mode,
+                  facts: params.facts,
+                  produceResult: true,
                 }),
               { configurationIndexAddressing: nestedConfigurationIndexAddressing }
             )
@@ -509,7 +521,9 @@ export function importPropertiesFromXMLToYAML(params: {
             rule: propertyRule,
             siblingValue: (propertyKey) => {
               const siblingYaml = rule.properties[propertyKey]?.yaml
-              return siblingYaml === undefined ? undefined : result[siblingYaml]
+              return siblingYaml === undefined
+                ? undefined
+                : result?.[siblingYaml] ?? retainedSiblingValues.get(siblingYaml)
             },
             owner,
           })
@@ -538,6 +552,12 @@ export function importPropertiesFromXMLToYAML(params: {
               }, yamlValueBeforeMetadataTargets)
             : yamlValueBeforeMetadataTargets
           const exportedYamlValue = yamlValue
+          params.facts?.acceptProperty({
+            itemType: rule.itemType,
+            propertyKey: key,
+            yamlPath: propertyYamlPath,
+            value: exportedYamlValue,
+          })
           if (!convertedDirectly) {
             const profile = params.profile
             if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
@@ -646,8 +666,13 @@ export function importPropertiesFromXMLToYAML(params: {
           ) {
             deferred?.accept({ valuePath: propertyYamlPath, rulePath: propertyRulePath })
           }
-          Object.assign(result, exportedValues)
-          copyYAMLRuntimeMetadata(exportedValues, result)
+          for (const [yamlKey, exportedValue] of Object.entries(exportedValues)) {
+            if (retainedSiblingYamlKeys.has(yamlKey)) retainedSiblingValues.set(yamlKey, exportedValue)
+          }
+          if (result !== undefined) {
+            Object.assign(result, exportedValues)
+            copyYAMLRuntimeMetadata(exportedValues, result)
+          }
           addProfileTime(params.profile, "collectorMs", collectorStartedAt)
         } catch (cause) {
           if (cause instanceof XmlImportAttemptInfrastructureError) throw cause
@@ -794,8 +819,21 @@ export function importPropertiesFromXMLToYAML(params: {
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
+  if (result === undefined) return undefined
   normalizeTypeOwnedMetadataTargets({ result, rule })
   return sortYamlRuleProperties(result)
+}
+
+function metadataTargetSiblingYamlKeys(rule: MetadataItemRule): ReadonlySet<string> {
+  const result = new Set<string>()
+  for (const propertyRule of Object.values(rule.properties)) {
+    const constraint = propertyRule.metadataTarget
+    const typeProperty = constraint?.kind === "member" ? constraint.typeProperty : undefined
+    if (typeProperty === undefined) continue
+    const yamlKey = rule.properties[typeProperty]?.yaml
+    if (yamlKey !== undefined) result.add(yamlKey)
+  }
+  return result
 }
 
 function claimCanonicalRawDefault(params: {

@@ -82,7 +82,7 @@ export interface PreparedBaseFormCandidate {
   configurationFragment: ConfigurationIndexBlockFragment
 }
 
-interface ParsedImportXmlInput {
+export interface ParsedImportXmlInput {
   input: ImportXmlInput
   parsed: Record<string, unknown>
   roots: readonly XmlRootStructure[]
@@ -138,35 +138,20 @@ export async function prepareImportYaml(params: {
     const audit = params.proofDetail === "roots"
       ? undefined
       : createXmlImportAuditSession(xmlInputs.flatMap(({ document }) => document?.roots ?? []))
-    const generatedFiles: ExternalFileEntry[] = []
-    const rule = resolveAssignmentRule(
-      params.assignment,
-      params.context.fromXML.componentKind,
-      params.topology,
-    )
-    const ownerContext = buildOwnerContext(params.assignment, rule)
-    const collectedContext = withConfigurationIndexCollector(
-      params.context,
-      params.collector,
-      params.assignment.logicalAddress
-    )
-    const importContext = withExportMetadataTargetOwners(
-      {
-        ...collectedContext,
-        exportToYAML: {
-          ...(collectedContext.exportToYAML ?? { toTyped: false }),
-          externalFilesCollector: generatedFiles,
-          parent: { name: params.assignment.itemName },
-        },
-      },
-      ownerContext
-    ) as XmlImportConfigurationContext
+    const {
+      generatedFiles,
+      rule,
+      ownerContext,
+      importContext,
+      dependentOwner,
+    } = createResolvedAssignmentImportEnvironment({
+      assignment: params.assignment,
+      context: params.context,
+      collector: params.collector,
+      topology: params.topology,
+    })
 
     const importProfile = createDirectImportProfile()
-    const dependentOwner = {
-      dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
-      name: params.assignment.owner?.name ?? params.assignment.itemName,
-    }
     const result: DirectImportResult & Pick<PreparedImportYaml, "baseFormCandidate" | "dependentDeferred"> = measureYaml(params.profiler, () => {
       if (rule.itemType === ClientApplicationFormRules.itemType) {
         const metadataXML = requireMetadataXml(xmlInputs ?? [])
@@ -408,7 +393,70 @@ export function resolveAssignmentRule(
   return node.itemRule
 }
 
-function buildOwnerContext(
+export function createAssignmentImportEnvironment(params: {
+  readonly assignment: ImportAssignment
+  readonly rule: MetadataItemRule
+  readonly context: XmlImportConfigurationContext
+  readonly collector: ConfigurationIndexCollector
+  readonly generatedFiles: ExternalFileEntry[]
+}): {
+  readonly ownerContext: readonly MetadataItemOwnerContextEntry[]
+  readonly importContext: XmlImportConfigurationContext
+  readonly dependentOwner: { readonly dir: string; readonly name: string }
+} {
+  const ownerContext = buildOwnerContext(params.assignment, params.rule)
+  const collectedContext = withConfigurationIndexCollector(
+    params.context,
+    params.collector,
+    params.assignment.logicalAddress,
+  )
+  const importContext = withExportMetadataTargetOwners({
+    ...collectedContext,
+    exportToYAML: {
+      ...(collectedContext.exportToYAML ?? { toTyped: false }),
+      externalFilesCollector: params.generatedFiles,
+      parent: { name: params.assignment.itemName },
+    },
+  }, ownerContext) as XmlImportConfigurationContext
+  return {
+    ownerContext,
+    importContext,
+    dependentOwner: {
+      dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
+      name: params.assignment.owner?.name ?? params.assignment.itemName,
+    },
+  }
+}
+
+export function createResolvedAssignmentImportEnvironment(params: {
+  readonly assignment: ImportAssignment
+  readonly context: XmlImportConfigurationContext
+  readonly collector: ConfigurationIndexCollector
+  readonly topology?: CompiledMetadataResourceTopology
+}): ReturnType<typeof createAssignmentImportEnvironment> & {
+  readonly rule: MetadataItemRule
+  readonly generatedFiles: ExternalFileEntry[]
+} {
+  const generatedFiles: ExternalFileEntry[] = []
+  const rule = resolveAssignmentRule(
+    params.assignment,
+    params.context.fromXML.componentKind,
+    params.topology,
+  )
+  return {
+    rule,
+    generatedFiles,
+    ...createAssignmentImportEnvironment({
+      assignment: params.assignment,
+      rule,
+      context: params.context,
+      collector: params.collector,
+      generatedFiles,
+    }),
+  }
+}
+
+export function buildOwnerContext(
   assignment: ImportAssignment,
   rule: MetadataItemRule
 ): readonly MetadataItemOwnerContextEntry[] {
@@ -561,7 +609,7 @@ function requireMetadataXml(inputs: readonly ParsedImportXmlInput[]): Record<str
   return metadata.parsed
 }
 
-function mapExternalPropertyXmlInputs(
+export function mapExternalPropertyXmlInputs(
   rule: MetadataItemRule,
   inputs: readonly ParsedImportXmlInput[],
 ): {

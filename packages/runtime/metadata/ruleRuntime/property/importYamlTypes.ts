@@ -20,7 +20,21 @@ import {
 
 export type { DeferredValuePath } from "./deferredObjectValues"
 
+export type DirectImportMode = "yaml" | "facts"
+
+export interface DirectImportFactsSink {
+  acceptProperty(fact: {
+    readonly itemType: string
+    readonly propertyKey: string
+    readonly yamlPath: YamlPath
+    readonly value: unknown
+  }): void
+}
+
 export interface DirectImportTraversal<Execution = unknown> {
+  mode?: DirectImportMode
+  facts?: DirectImportFactsSink
+  produceResult?: boolean
   execution?: Execution
   yamlPath: YamlPath
   rulePath: readonly DeferredRulePathSegment[]

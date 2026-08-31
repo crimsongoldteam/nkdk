@@ -63,6 +63,9 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
     dependent: params.traversal.dependent,
     audit: params.traversal.audit,
     annotations: params.traversal.annotations,
+    mode: params.traversal.mode,
+    facts: params.traversal.facts,
+    produceResult: params.traversal.produceResult,
     profile: params.traversal.profile,
     execution: propertyExecutionFromTraversal(params.traversal),
   })
@@ -129,6 +132,9 @@ export function importSingleFormElementFromXMLToYAML(params: {
       dependent: params.traversal.dependent,
       audit: params.traversal.audit,
       annotations: params.traversal.annotations,
+      mode: params.traversal.mode,
+      facts: params.traversal.facts,
+      produceResult: params.traversal.produceResult,
       profile: params.traversal.profile,
       execution: propertyExecutionFromTraversal(params.traversal),
     }) ?? {}

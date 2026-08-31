@@ -2,9 +2,16 @@ import { buildObjectFieldIndex } from "../validation/dataPath/objectFields"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { getDataPathOwnerKindByItemType } from "../validation/dataPath/registry"
 import type { OwnerTypeRef } from "../validation/dataPath/types"
-import type { PreparedImportYaml } from "./prepareYaml"
+import type { LocalIndexes, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
-export function extractImportOwnerFacts(prepared: PreparedImportYaml): ValidationOwnerFacts[] {
+export interface ImportOwnerFactsSource {
+  readonly rule: MetadataItemRule
+  readonly assignment: { readonly itemName: string }
+  readonly targetProjectPath: string
+  readonly localIndexes: LocalIndexes
+}
+
+export function extractImportOwnerFacts(prepared: ImportOwnerFactsSource): ValidationOwnerFacts[] {
   const ownerKind = getDataPathOwnerKindByItemType(prepared.rule.itemType)
   if (ownerKind === undefined) return []
 
