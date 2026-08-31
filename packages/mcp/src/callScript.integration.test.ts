@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from "vitest"
 const callScript = new URL("../../../.agents/tools/mcp/call.mjs", import.meta.url)
 const callScriptModule = await import(callScript.href)
 const {
+  callMcpToolToCompletion,
   createMcpToolSession,
   operationFailed,
   parseArgs,
@@ -48,6 +49,22 @@ describe("MCP call script", () => {
     expect(client.connect).toHaveBeenCalledTimes(1)
     expect(client.callTool).toHaveBeenCalledTimes(2)
     expect(client.close).toHaveBeenCalledTimes(1)
+  })
+
+  it("остаётся подключённым к реальному stdio до terminal результата", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-call-terminal-"))
+    const session = await createMcpToolSession({ serverMode: "source" })
+
+    try {
+      await expect(callMcpToolToCompletion(
+        session,
+        "nkdk.validate_project",
+        { projectDir },
+        { pollIntervalMs: 5 }
+      )).rejects.toThrow(/operation .* succeeded.*core_error/u)
+    } finally {
+      await session.close()
+    }
   })
 
   it("фиксирует внутренний клиент на MCP 2026-07-28", async () => {

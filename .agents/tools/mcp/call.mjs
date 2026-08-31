@@ -2,6 +2,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { createRequire } from "node:module"
 import { dirname, resolve } from "node:path"
+import { setTimeout as delay } from "node:timers/promises"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url))
@@ -126,12 +127,137 @@ export function operationFailed(payload) {
 }
 
 function failureMessage(toolName, result, payload) {
+  if (payload?.ok === false) {
+    return `${toolName} returned ok=false: ${payload.code ?? payload.error?.code ?? "unknown_error"}`
+  }
   if (result.isError) return `${toolName} returned MCP error`
-  if (payload?.ok === false) return `${toolName} returned ok=false: ${payload.error?.code ?? "unknown_error"}`
   if (Array.isArray(payload?.failed) && payload.failed.length > 0) {
     return `${toolName} returned ${payload.failed.length} operation failure(s)`
   }
   return `${toolName} failed`
+}
+
+function checkedCompletion(toolName, completion) {
+  const { result, payload } = completion
+  if (result?.isError || operationFailed(payload)) {
+    throw new Error(failureMessage(toolName, result ?? {}, payload))
+  }
+  return completion
+}
+
+function requireAcceptedIdentity(payload) {
+  if (
+    !payload
+    || typeof payload !== "object"
+    || payload.ok !== true
+    || payload.status !== "accepted"
+    || typeof payload.operationId !== "string"
+    || payload.operationId.length === 0
+    || typeof payload.projectDir !== "string"
+    || payload.projectDir.length === 0
+  ) {
+    throw new Error("malformed accepted background operation response")
+  }
+  return { projectDir: payload.projectDir, operationId: payload.operationId }
+}
+
+function requireOperationSnapshot(payload, identity) {
+  if (
+    !payload
+    || typeof payload !== "object"
+    || payload.ok !== true
+    || payload.operationId !== identity.operationId
+    || payload.projectDir !== identity.projectDir
+    || typeof payload.operationKind !== "string"
+    || typeof payload.createdAt !== "string"
+    || typeof payload.updatedAt !== "string"
+    || !Array.isArray(payload.messages)
+    || !["queued", "running", "succeeded", "failed", "cancelled", "interrupted"].includes(payload.status)
+  ) {
+    throw new Error(`malformed operation snapshot for ${identity.operationId}`)
+  }
+  return payload
+}
+
+function terminalOperationResult(toolName, lookup, snapshot) {
+  const context = `operation ${snapshot.operationId} ${snapshot.status}`
+  if (snapshot.status === "failed") {
+    const code = snapshot.error?.code ?? "unknown_error"
+    throw new Error(`${toolName} ${context}: ${code}: ${snapshot.error?.message ?? "operation failed"}`)
+  }
+  if (snapshot.status === "cancelled" || snapshot.status === "interrupted") {
+    throw new Error(`${toolName} ${context}`)
+  }
+  if (snapshot.status !== "succeeded" || !snapshot.result || typeof snapshot.result !== "object") {
+    throw new Error(`malformed terminal operation snapshot for ${snapshot.operationId}`)
+  }
+  try {
+    checkedCompletion(toolName, { result: lookup.result, payload: snapshot.result })
+  } catch (error) {
+    throw new Error(`${toolName} ${context}: ${error instanceof Error ? error.message : String(error)}`, {
+      cause: error,
+    })
+  }
+  return { result: lookup.result, payload: snapshot.result, operation: snapshot }
+}
+
+async function waitForCancellation(session, identity, { pollIntervalMs, timeoutMs }) {
+  const deadline = Date.now() + timeoutMs
+  try {
+    await session.call("nkdk.cancel_operation", identity)
+  } catch {
+    return
+  }
+  while (Date.now() < deadline) {
+    try {
+      const lookup = await session.call("nkdk.get_operation", identity)
+      const snapshot = requireOperationSnapshot(lookup.payload, identity)
+      if (!["queued", "running"].includes(snapshot.status)) return
+    } catch {
+      return
+    }
+    await delay(Math.min(pollIntervalMs, Math.max(0, deadline - Date.now())))
+  }
+}
+
+/**
+ * Calls an MCP tool and, for a background operation, keeps the same session open
+ * until the server publishes a terminal snapshot.
+ */
+export async function callMcpToolToCompletion(
+  session,
+  toolName,
+  args,
+  {
+    signal,
+    pollIntervalMs = 100,
+    cancellationTimeoutMs = 2_000,
+    wait = (delayMs, waitSignal) => delay(delayMs, undefined, { signal: waitSignal }),
+  } = {}
+) {
+  const started = checkedCompletion(toolName, await session.call(toolName, args))
+  if (started.payload?.status !== "accepted") return started
+
+  const identity = requireAcceptedIdentity(started.payload)
+  try {
+    for (;;) {
+      signal?.throwIfAborted()
+      const lookup = checkedCompletion(
+        "nkdk.get_operation",
+        await session.call("nkdk.get_operation", identity)
+      )
+      const snapshot = requireOperationSnapshot(lookup.payload, identity)
+      if (snapshot.status === "queued" || snapshot.status === "running") {
+        await wait(pollIntervalMs, signal)
+        continue
+      }
+      return terminalOperationResult(toolName, lookup, snapshot)
+    }
+  } catch (error) {
+    if (!signal?.aborted) throw error
+    await waitForCancellation(session, identity, { pollIntervalMs, timeoutMs: cancellationTimeoutMs })
+    throw signal.reason instanceof Error ? signal.reason : error
+  }
 }
 
 function childEnvironment() {
@@ -209,12 +335,9 @@ async function main() {
 
   let failed = true
   try {
-    const { result, payload } = await session.call(options.toolName, input)
+    const { result, payload } = await callMcpToolToCompletion(session, options.toolName, input)
     await writeJson(options.responseLog, result)
     await writeJson(options.output, payload ?? result)
-    if (result.isError || operationFailed(payload)) {
-      throw new Error(failureMessage(options.toolName, result, payload))
-    }
     failed = false
     if (options.debug) process.stderr.write(`[mcp] ok ${options.toolName}\n`)
   } finally {
