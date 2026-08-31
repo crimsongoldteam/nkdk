@@ -2,6 +2,7 @@ import { parseMetadataYaml } from "@nkdk/runtime"
 import { join } from "node:path"
 import { beforeAll,describe,expect,it,vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
+import "../../tests/metadataExecutionContext"
 import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
@@ -159,6 +160,31 @@ describe("dependency validation из ProjectState", () => {
         message: expect.stringContaining("ПолеCF"),
       }),
     ])
+    store.rollbackUpdate()
+  })
+
+  it("удаление избыточной основы очищает диагностику в текущей транзакции", () => {
+    const validator = createProjectStateDependencyValidator({
+      structuredDocumentValidators: [validateBorrowedClientApplicationForms],
+    })
+    const current = semanticFormUpdate("cf", "working", { Ширина: 20 })
+    const extension = semanticFormUpdate("cfe/X", "working", { Ширина: 20 })
+    const base = semanticFormUpdate("cfe/X", "base", { Ширина: 20 })
+    const { store } = createBinaryProjectStateTestFixture(validator)
+    store.beginUpdate()
+    replaceFiles(store, [current, extension, base, configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toContainEqual(expect.objectContaining({
+      filePath: join("/project", base.projectPath),
+      message: expect.stringContaining("БазоваяФорма.yaml избыточна"),
+    }))
+    store.commitUpdate()
+
+    store.beginUpdate()
+    store.deleteFiles([base.projectPath])
+    expect(store.validateDependencies({ requests: [] })).not.toContainEqual(expect.objectContaining({
+      message: expect.stringContaining("БазоваяФорма.yaml избыточна"),
+    }))
     store.rollbackUpdate()
   })
 
@@ -438,6 +464,29 @@ describe("dependency validation из ProjectState", () => {
     })
 
     expect(diagnostics).toHaveLength(errors)
+  })
+
+  it.each([
+    ["cf", "cf/Документ/Продажа/Свойства.yaml"],
+    ["cfe/дкз", "cfe/дкз/Документ/Продажа/Свойства.yaml"],
+  ])("возвращает projectPath отсутствующего владельца для %s", (componentPath, filePath) => {
+    const diagnostics = validateProjectStateOwnerBatch({
+      projectDir: "/project",
+      checks: [{
+        requestId: "missing-owner",
+        componentPath,
+        owner: { kind: "Документ", name: "Продажа" },
+      }],
+      queryPort: {
+        readOwners: () => [{ requestId: "missing-owner", status: "missing" }],
+      },
+    })
+
+    expect(diagnostics).toEqual([expect.objectContaining({
+      filePath,
+      source: "cross-file",
+      message: "Не найден владелец Документ.Продажа",
+    })])
   })
 
   it("проверяет одинакового владельца компонента один раз", () => {
@@ -1506,6 +1555,31 @@ function structuredFormUpdate(componentPath: string, name: string): ProjectState
   }
 }
 
+function semanticFormUpdate(
+  componentPath: string,
+  representation: "working" | "base",
+  yaml: object,
+): ProjectStateYamlFileUpdate {
+  const workingProjectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+  const relativeProjectPath = representation === "base"
+    ? "Справочник/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml"
+    : workingProjectPath
+  const projectPath = `${componentPath}/${relativeProjectPath}`
+  return {
+    ...emptyYamlUpdate(projectPath, componentPath, "form"),
+    structuredDocuments: [{
+      documentKind: "clientApplicationForm",
+      representation,
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+      workingProjectPath,
+      componentKind: "document",
+      name: "",
+      yamlPath: [],
+      payload: JSON.stringify({ version: 1, yaml }),
+    }],
+  }
+}
+
 function missingMemberDiagnostic(filePath: string) {
   return {
     filePath,
@@ -1575,6 +1649,7 @@ function createOwnerCacheFromGraphForTests(
   }
   return createOwnerMetadataCacheFromValidationTable({
     projectDir: `/project/${componentPath}`,
+    componentPath,
     table,
   })
 }

@@ -29,6 +29,10 @@ const ownExchangePlanFixtureDir = join(
 const configurationFixtureDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const catalogFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__")
 const formFixtureDir = join(import.meta.dirname, "../forms/clientApplicationForm/__fixtures__")
+const commonFormFixtureDir = join(
+  import.meta.dirname,
+  "../appliedObjects/metadataCommonForm/__fixtures__/sync/xml",
+)
 const languageFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataLanguage/__fixtures__")
 const borrowedCommandBarButtonName = "ОбщаяПанельнаяКнопка"
 const temporaryRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-extension-import-"))
@@ -61,10 +65,12 @@ describe("configuration extension XML import", () => {
 
     expect(result).toMatchObject({
       componentPath: "cfe/РасширениеКонтроль",
-      succeeded: 5,
+      succeeded: 7,
       failed: [],
     })
-    expect(result.warnings).toEqual([expect.objectContaining({ code: "unresolved_data_path" })])
+    expect(result.warnings).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "unresolved_data_path" }),
+    ]))
     expect(configuration).toMatchObject({
       Имя: "РасширениеКонтроль",
       НазначениеРасширенияКонфигурации: "Адаптация",
@@ -123,6 +129,19 @@ describe("configuration extension XML import", () => {
     expect(fs.existsSync(join(
       projectDir,
       "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаБезОсновы/БазоваяФорма.yaml",
+    ))).toBe(false)
+  })
+
+  it("не сохраняет восстановимую основу вложенной и общей формы", () => {
+    const { projectDir } = importedExtension
+
+    expect(fs.existsSync(join(
+      projectDir,
+      "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаРавнаяОснова/БазоваяФорма.yaml",
+    ))).toBe(false)
+    expect(fs.existsSync(join(
+      projectDir,
+      "cfe/РасширениеКонтроль/ОбщаяФорма/ОбщаяРавнаяОснова/БазоваяФорма.yaml",
     ))).toBe(false)
   })
 
@@ -249,6 +268,8 @@ async function importExtension() {
     "\t\t<Attribute name=\"БазовыйОбъект\" id=\"8\">\n\t\t\t<Type>\n\t\t\t\t<v8:Type>cfg:CatalogObject.СправочникПолный</v8:Type>\n\t\t\t</Type>\n\t\t</Attribute>"
   )
   addFormWithoutBase(inputDir)
+  addFormWithRedundantBase(inputDir)
+  addCommonFormWithRedundantBase(inputDir)
 
   const result = await importConfigurationFromXml({
     context: mockContextFromXML(),
@@ -363,11 +384,12 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
       "\t\t\t</Attribute>",
       "\t\t\t<Form>ФормаОтчета</Form>",
       "\t\t\t<Form>ФормаБезОсновы</Form>",
+      "\t\t\t<Form>ФормаРавнаяОснова</Form>",
       "\t\t</ChildObjects>",
     ].join("\n"),
   )
 
-  for (const formName of ["ФормаОтчета", "ФормаБезОсновы"]) {
+  for (const formName of ["ФормаОтчета", "ФормаБезОсновы", "ФормаРавнаяОснова"]) {
     const formsDir = join(inputDir, "Catalogs", "СправочникПолный", "Forms")
     const metadataPath = join(formsDir, `${formName}.xml`)
     const bodyPath = join(formsDir, formName, "Ext", "Form.xml")
@@ -407,8 +429,11 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
       )
     } else {
       replaceExactlyOnce(bodyPath, "\t<Attributes/>", baseFormAttributesXml().join("\n"))
+      if (formName === "ФормаРавнаяОснова") addFormEvent(bodyPath)
     }
   }
+
+  addBaseCommonForm(inputDir)
 
   const languagePath = join(inputDir, "Languages", "БазовыйЯзык.xml")
   fs.mkdirSync(dirname(languagePath), { recursive: true })
@@ -426,7 +451,7 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
   })
   expect(result.failed).toEqual([])
   expect(result.componentPath).toBe("cf")
-  expect(result.succeeded).toBe(5)
+  expect(result.succeeded).toBe(7)
 }
 
 function baseFormAttributesXml(): string[] {
@@ -480,6 +505,141 @@ function addFormWithoutBase(inputDir: string): void {
     "\t\t\t<Form>ФормаОтчета</Form>",
     "\t\t\t<Form>ФормаОтчета</Form>\n\t\t\t<Form>ФормаБезОсновы</Form>",
   )
+}
+
+function addFormWithRedundantBase(inputDir: string): void {
+  const catalogDir = join(inputDir, "Catalogs", "СправочникПолный")
+  const formsDir = join(catalogDir, "Forms")
+  const sourceMetadataPath = join(formsDir, "ФормаБезОсновы.xml")
+  const targetMetadataPath = join(formsDir, "ФормаРавнаяОснова.xml")
+  const sourceFormDir = join(formsDir, "ФормаБезОсновы")
+  const targetFormDir = join(formsDir, "ФормаРавнаяОснова")
+  fs.copyFileSync(sourceMetadataPath, targetMetadataPath)
+  fs.cpSync(sourceFormDir, targetFormDir, { recursive: true })
+  replaceExactlyOnce(
+    targetMetadataPath,
+    "99999999-9999-4999-8999-999999999999",
+    "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  )
+  replaceExactlyOnce(
+    targetMetadataPath,
+    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  )
+  replaceExactlyOnce(targetMetadataPath, "<Name>ФормаБезОсновы</Name>", "<Name>ФормаРавнаяОснова</Name>")
+
+  const targetFormPath = join(targetFormDir, "Ext", "Form.xml")
+  addFormEvent(targetFormPath)
+  const baseForm = [
+    "\t<BaseForm version=\"2.20\">",
+    "\t\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\"/>",
+    ...formEventXml("\t\t"),
+    ...baseFormAttributesXml().map((line) => `\t${line}`),
+    "\t</BaseForm>",
+  ].join("\n")
+  replaceExactlyOnce(targetFormPath, "</Form>", `${baseForm}\n</Form>`)
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный.xml"),
+    "\t\t\t<Form>ФормаБезОсновы</Form>",
+    "\t\t\t<Form>ФормаБезОсновы</Form>\n\t\t\t<Form>ФормаРавнаяОснова</Form>",
+  )
+}
+
+function addBaseCommonForm(inputDir: string): void {
+  const { bodyPath } = createCommonFormFiles(inputDir, "dddddddd-dddd-4ddd-8ddd-dddddddddddd")
+  addFormEvent(bodyPath)
+}
+
+function addCommonFormWithRedundantBase(inputDir: string): void {
+  const { metadataPath, bodyPath } = createCommonFormFiles(
+    inputDir,
+    "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  )
+
+  replaceExactlyOnce(
+    metadataPath,
+    "\t\t<Properties>",
+    [
+      "\t\t<InternalInfo>",
+      "\t\t\t<xr:PropertyState>",
+      "\t\t\t\t<xr:Property>Form</xr:Property>",
+      "\t\t\t\t<xr:State>Extended</xr:State>",
+      "\t\t\t</xr:PropertyState>",
+      "\t\t</InternalInfo>",
+      "\t\t<Properties>",
+      "\t\t\t<ObjectBelonging>Adopted</ObjectBelonging>",
+    ].join("\n"),
+  )
+  replaceExactlyOnce(
+    metadataPath,
+    "\t\t\t<Comment>Комментарий</Comment>",
+    "\t\t\t<Comment>Комментарий</Comment>\n" +
+      "\t\t\t<ExtendedConfigurationObject>dddddddd-dddd-4ddd-8ddd-dddddddddddd</ExtendedConfigurationObject>",
+  )
+
+  const baseBody = fs.readFileSync(
+    join(commonFormFixtureDir, "КонстантаВсеСвойства", "Ext", "Form.xml"),
+    "utf8",
+  ).replaceAll("КонстантаВсеСвойства", "ОбщаяРавнаяОснова")
+  const withEvent = insertFormEvent(baseBody)
+  const inner = formBodyInnerXml(withEvent)
+  fs.writeFileSync(
+    bodyPath,
+    withEvent.replace(
+      "</Form>",
+      [
+        "\t<BaseForm version=\"2.20\">",
+        ...inner.split("\n").map((line) => `\t${line}`),
+        "\t</BaseForm>",
+        "</Form>",
+      ].join("\n"),
+    ),
+  )
+}
+
+function createCommonFormFiles(inputDir: string, uuid: string) {
+  const commonFormsDir = join(inputDir, "CommonForms")
+  const metadataPath = join(commonFormsDir, "ОбщаяРавнаяОснова.xml")
+  const bodyPath = join(commonFormsDir, "ОбщаяРавнаяОснова", "Ext", "Form.xml")
+  fs.mkdirSync(dirname(bodyPath), { recursive: true })
+  fs.copyFileSync(join(commonFormFixtureDir, "КонстантаВсеСвойства.xml"), metadataPath)
+  replaceAllInFile(metadataPath, "КонстантаВсеСвойства", "ОбщаяРавнаяОснова")
+  replaceExactlyOnce(
+    metadataPath,
+    "0d003021-0016-43a6-b789-e2ab99a04253",
+    uuid,
+  )
+  fs.copyFileSync(join(commonFormFixtureDir, "КонстантаВсеСвойства", "Ext", "Form.xml"), bodyPath)
+  replaceAllInFile(bodyPath, "КонстантаВсеСвойства", "ОбщаяРавнаяОснова")
+  return { metadataPath, bodyPath }
+}
+
+function addFormEvent(path: string): void {
+  const content = fs.readFileSync(path, "utf8")
+  fs.writeFileSync(path, insertFormEvent(content))
+}
+
+function insertFormEvent(content: string): string {
+  const marker = /\n(\t<AutoCommandBar[^\n]*\/>)\r?\n/u
+  const match = marker.exec(content)
+  if (match?.[1] === undefined) throw new Error("Не найдена командная панель формы")
+  return content.replace(marker, `\n${match[1]}\n${formEventXml("\t").join("\n")}\n`)
+}
+
+function formEventXml(indent: string): string[] {
+  return [
+    `${indent}<Events>`,
+    `${indent}\t<Event name=\"OnOpen\">ПриОткрытии</Event>`,
+    `${indent}</Events>`,
+  ]
+}
+
+function formBodyInnerXml(content: string): string {
+  const normalized = content.replaceAll("\r\n", "\n")
+  const openingEnd = normalized.indexOf("\n", normalized.indexOf("<Form "))
+  const closing = normalized.lastIndexOf("</Form>")
+  if (openingEnd === -1 || closing === -1) throw new Error("Не найдены границы Form.xml")
+  return normalized.slice(openingEnd + 1, closing).trimEnd()
 }
 
 function removeBaseFormElement(path: string): void {

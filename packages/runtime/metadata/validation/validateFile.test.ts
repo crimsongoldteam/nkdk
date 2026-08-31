@@ -493,6 +493,24 @@ describe("validateParsedFile", () => {
     ]))
   })
 
+  it("invalid подавляет ошибку элемента последовательности", () => {
+    const schema = compileValidationSchema(Type.Object({
+      Состав: Type.Array(Type.String({ pattern: "^Справочник\\." })),
+    }))
+    const parsed = parseMetadataYaml(`
+Состав:
+  - !xml/invalid a0f8c954-9877-4b52-9172-02b76aebb903
+`)
+
+    const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
+
+    expectAcceptedInvalid(result, [{
+      annotation: "invalid",
+      target: { kind: "path", path: ["Состав", 0] },
+      state: "accepted",
+    }])
+  })
+
   it("invalid на элементе массива подавляет ошибку union этого элемента", () => {
     const schema = compileValidationSchema(Type.Object({
       Элементы: Type.Array(Type.Union([
@@ -509,15 +527,11 @@ describe("validateParsedFile", () => {
 
     const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
 
-    expect(result).toMatchObject({
-      diagnostics: [],
-      issues: [],
-      boundaries: [{
+    expectAcceptedInvalid(result, [{
         annotation: "invalid",
         target: { kind: "path", path: ["Элементы", 0] },
         state: "accepted",
-      }],
-    })
+    }])
   })
 
   it("считает тег invalid лишним, если значение правильно", () => {
@@ -547,9 +561,7 @@ describe("validateParsedFile", () => {
 
     const result = validateParsedFileWithIssues({ filePath: "test.yaml", parsed, schema })
 
-    expect(result.diagnostics).toEqual([])
-    expect(result.issues).toEqual([])
-    expect(result.boundaries).toEqual([
+    expectAcceptedInvalid(result, [
       {
         annotation: "invalid",
         target: { kind: "occurrence", path: ["Код"], occurrence: 1 },
@@ -684,4 +696,13 @@ function evaluateUniqueInvalidLanguage(withIssue: boolean) {
       : [],
   })
   return { result, target }
+}
+
+function expectAcceptedInvalid(
+  result: ReturnType<typeof validateParsedFileWithIssues>,
+  boundaries: readonly unknown[],
+): void {
+  expect(result.diagnostics).toEqual([])
+  expect(result.issues).toEqual([])
+  expect(result.boundaries).toEqual(boundaries)
 }

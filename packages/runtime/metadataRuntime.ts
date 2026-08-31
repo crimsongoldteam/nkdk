@@ -187,6 +187,7 @@ export interface ImportConfigurationFromXmlParams {
   readonly hashConcurrency?: number
   readonly operationId?: string
   readonly projectState: MetadataRuntimeProjectState
+  readonly signal?: AbortSignal
 }
 
 export interface MetadataRuntime {
@@ -211,6 +212,7 @@ export interface MetadataRuntime {
     validateProject(params: {
       readonly projectDir: string
       readonly projectState: MetadataRuntimeProjectState
+      readonly signal?: AbortSignal
     }): Promise<{ readonly diagnostics: MetadataDiagnosticCollection }>
   }
   readonly import: {
@@ -223,6 +225,7 @@ export interface MetadataRuntime {
       readonly xmlDir: string
       readonly projectState: MetadataRuntimeProjectState
       readonly ignoreValidationErrors?: boolean
+      readonly signal?: AbortSignal
     }): Promise<FullXmlSyncPlanResult>
     configurationToXml(params: {
       readonly context: ConfigurationContext
@@ -232,6 +235,7 @@ export interface MetadataRuntime {
       readonly concurrency?: number
       readonly projectState: MetadataRuntimeProjectState
       readonly ignoreValidationErrors?: boolean
+      readonly signal?: AbortSignal
     }): Promise<FullXmlSyncResult>
     readState(xmlDir: string): Promise<{ readonly version: 1; readonly files: Record<string, string> } | undefined>
     initializeState(params: { readonly yamlDir: string; readonly xmlDir: string }): Promise<{

@@ -26,6 +26,13 @@ export interface PartialXmlImpactPlan {
   readonly loadTargets: readonly string[]
 }
 
+type LoadRequest = "none" | "policy" | "allPayload"
+
+function loadRequestRank(request: LoadRequest): number {
+  if (request === "none") return 0
+  return request === "policy" ? 1 : 2
+}
+
 export function buildPartialXmlImpactPlan(params: {
   readonly topology: CompiledMetadataResourceTopology
   readonly currentResources: readonly MetadataProjectResourceMatch[]
@@ -38,12 +45,13 @@ export function buildPartialXmlImpactPlan(params: {
   readonly resolveCanonicalTarget: (canonical: string) => string | undefined
 }): PartialXmlImpactPlan {
   const currentByPath = uniqueCurrentResources(params.currentResources)
+  const addedProjectPaths = new Set(params.changes.added.map(({ projectPath }) => projectPath))
   const selectedProjectPaths = new Set<string>()
   const assignmentDocumentIds = new Map<string, Set<string>>()
   const externalProjectPaths = new Set<string>()
   const loadTargets = new Set<string>()
   const payloadOwnersByTarget = new Map<string, string>()
-  const assignmentStates = new Map<string, { payload: boolean; load: boolean }>()
+  const assignmentStates = new Map<string, { payload: boolean; load: LoadRequest }>()
   const structurallyDeletedCollections = new Set<string>()
   const handledDeletedContent = new Set<string>()
   const deletedCompositionPaths = new Set(params.changes.deleted.flatMap((version) => {
@@ -95,10 +103,16 @@ export function buildPartialXmlImpactPlan(params: {
     const current = requiredCurrentResource(version.projectPath)
     const declaration = declaredFileBackedTarget(current)
     if (declaration !== undefined) {
-      if (current.kind === "content") includeDirectCurrent(current)
+      if (current.kind === "content") includeDirectCurrent(current, "allPayload")
       includeMemberCollection(current, declaration)
     } else {
-      includeDirectCurrent(current)
+      const loadRequest = current.kind === "content" && addedProjectPaths.has(current.projectPath)
+        ? "allPayload"
+        : "policy"
+      includeDirectCurrent(current, loadRequest)
+      if (current.kind === "content" && loadRequest === "allPayload") {
+        includeCreatedAssignmentExternalFiles(current)
+      }
       if (current.kind === "content" && current.assignment?.role === "fileItem") {
         includeFileItemCollection(current)
       } else if (current.compositionImpact === "configurationComposition") {
@@ -191,16 +205,66 @@ export function buildPartialXmlImpactPlan(params: {
     return current
   }
 
-  function includeDirectCurrent(resource: MetadataProjectResourceMatch): void {
+  function includeDirectCurrent(
+    resource: MetadataProjectResourceMatch,
+    loadRequest: LoadRequest = "policy",
+  ): void {
     if (resource.kind === "content") {
-      if (resource.assignment?.role === "configuration") includeConfigurationRoot()
-      else includeAssignment(resource, true)
+      if (resource.assignment?.role === "configuration") {
+        includeConfigurationRoot()
+      } else {
+        includeDeclaredOwner(resource)
+        includeAssignment(resource, loadRequest)
+      }
     } else if (resource.kind === "externalFile") {
       includeExternal(resource, true)
     } else if (resource.kind === "yamlCompanion") {
       includeYamlCompanionOwner(resource)
     } else if (resource.kind === "assignmentInput") {
       includeAssignmentInputOwner(resource)
+    }
+  }
+
+  function includeDeclaredOwner(resource: MetadataProjectResourceMatch): void {
+    const assignment = resource.assignment
+    const declaration = declaredFileBackedTarget(resource)
+    if (assignment === undefined || declaration === undefined) return
+    const structural = params.policies.assignments.get(assignment.id)?.structural
+    if (structural?.includeOwnerAssignment !== true) return
+    includeStructuralAncestors(resource)
+  }
+
+  function includeStructuralAncestors(
+    resource: MetadataProjectResourceMatch,
+    visiting = new Set<string>(),
+  ): void {
+    if (resource.kind !== "content" || resource.assignment === undefined) return
+    if (resource.assignment.role === "configuration") return
+    if (visiting.has(resource.projectPath)) {
+      throw new Error(`Цикл структурных владельцев metadata: ${resource.projectPath}`)
+    }
+    visiting.add(resource.projectPath)
+    try {
+      const declaration = declaredFileBackedTarget(resource)
+      const structural = params.policies.assignments.get(resource.assignment.id)?.structural
+      const ownerPattern = declaration !== undefined && structural?.includeOwnerAssignment === true
+        ? declaration.ownerProjectPattern
+        : resource.assignment.role === "fileItem"
+          ? resource.assignment.ownerProjectPattern
+          : undefined
+      if (ownerPattern !== undefined) {
+        const ownerPath = expandMetadataPathPattern(ownerPattern, resource.values)
+        const owner = currentByPath.get(ownerPath)
+        if (owner?.kind !== "content") {
+          throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
+        }
+        includeStructuralAncestors(owner, visiting)
+        includeAssignment(owner, "policy")
+      } else if (resource.compositionImpact === "configurationComposition") {
+        includeConfigurationMetadataParent()
+      }
+    } finally {
+      visiting.delete(resource.projectPath)
     }
   }
 
@@ -215,7 +279,8 @@ export function buildPartialXmlImpactPlan(params: {
     if (owner?.kind !== "content") {
       throw new Error(`Для входа не найдено текущее XML-задание: ${resource.projectPath}`)
     }
-    includeAssignment(owner, true)
+    includeStructuralAncestors(owner)
+    includeAssignment(owner, "policy")
   }
 
   function includeYamlCompanionOwner(resource: MetadataProjectResourceMatch): void {
@@ -233,16 +298,17 @@ export function buildPartialXmlImpactPlan(params: {
     if (owner?.kind !== "content") {
       throw new Error(`Для YAML-спутника не найдено текущее XML-задание: ${resource.projectPath}`)
     }
-    includeAssignment(owner, true)
+    includeStructuralAncestors(owner)
+    includeAssignment(owner, "policy")
   }
 
-  function includeAssignment(resource: MetadataProjectResourceMatch, requestLoad: boolean): void {
+  function includeAssignment(resource: MetadataProjectResourceMatch, requestLoad: LoadRequest): void {
     if (resource.kind !== "content" || resource.assignment === undefined) {
       throw new Error(`Ожидалось XML-задание: ${resource.projectPath}`)
     }
     const assignment = resource.assignment
     const policy = params.policies.assignments.get(assignment.id)
-    const state = assignmentStates.get(resource.projectPath) ?? { payload: false, load: false }
+    const state = assignmentStates.get(resource.projectPath) ?? { payload: false, load: "none" as const }
     assignmentStates.set(resource.projectPath, state)
     selectedProjectPaths.add(resource.projectPath)
 
@@ -260,13 +326,14 @@ export function buildPartialXmlImpactPlan(params: {
       for (const companion of policy?.companionReferences ?? []) includeReferenceCompanion(resource, companion)
     }
 
-    if (requestLoad && !state.load) {
-      state.load = true
-      const loadDocumentIds = policy?.loadDocumentIds ?? assignment.xmlDocuments
-        .map((document) => document.id)
+    if (loadRequestRank(requestLoad) > loadRequestRank(state.load)) {
+      const loadDocumentIds = requestLoad === "allPayload"
+        ? assignment.xmlDocuments.map((document) => document.id)
+        : policy?.loadDocumentIds ?? assignment.xmlDocuments.map((document) => document.id)
       for (const documentId of loadDocumentIds) {
         addDocument(resource, requiredDocument(assignment, documentId), true)
       }
+      state.load = requestLoad
     }
   }
 
@@ -278,6 +345,7 @@ export function buildPartialXmlImpactPlan(params: {
       sameYamlPath(candidate.yamlPath, companion.yamlPath)
     )
     if (reference === undefined) {
+      if (companion.required === false) return
       throw new Error(
         `Не найдена сохранённая каноническая ссылка ${formatYamlPath(companion.yamlPath)} в ${sourceResource.projectPath}`
       )
@@ -286,7 +354,7 @@ export function buildPartialXmlImpactPlan(params: {
     if (targetPath === undefined) throw new Error(`Не разрешена каноническая цель: ${reference.canonical}`)
     const target = currentByPath.get(targetPath)
     if (target?.kind !== "content") throw new Error(`Каноническая цель не является текущим XML-заданием: ${targetPath}`)
-    includeAssignment(target, companion.loadTarget)
+    includeAssignment(target, companion.loadTarget ? "policy" : "none")
   }
 
   function addDocument(
@@ -383,20 +451,43 @@ export function buildPartialXmlImpactPlan(params: {
       throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
     }
     if (structural?.includeOwnerAssignment !== false) {
-      includeAssignment(owner, true)
+      includeStructuralAncestors(owner)
+      includeAssignment(owner, "policy")
     }
     if (structural?.includeOwnerAssignment === true) {
       includeAssignmentExternalFiles(owner)
     }
     if (structural?.includeCurrentMemberSubtree === false) return
 
+    const itemPath = expandMetadataPathPattern(declaration.itemProjectPattern, resource.values)
+    const createdMember = isCreatedMember(resource, declaration)
+
     for (const current of currentByPath.values()) {
       const currentDeclaration = collectionFileBackedTarget(current)
       if (currentDeclaration?.memberKind !== declaration.memberKind) continue
       if (expandMetadataPathPattern(currentDeclaration.ownerProjectPattern, current.values) !== ownerPath) continue
-      if (current.kind === "content") includeAssignment(current, false)
-      if (current.kind === "externalFile") includeExternal(current, false)
+      const sameMember = expandMetadataPathPattern(currentDeclaration.itemProjectPattern, current.values) === itemPath
+      if (current.kind === "content") includeAssignment(current, createdMember && sameMember ? "allPayload" : "none")
+      if (current.kind === "externalFile") includeExternal(current, createdMember && sameMember)
     }
+  }
+
+  function isCreatedMember(
+    resource: MetadataProjectResourceMatch,
+    declaration: CompiledMetadataFileBackedMemberTargetDeclaration,
+  ): boolean {
+    const itemPath = expandMetadataPathPattern(declaration.itemProjectPattern, resource.values)
+    const members = [...currentByPath.values()].filter((current) => {
+      const currentDeclaration = collectionFileBackedTarget(current)
+      return currentDeclaration?.memberKind === declaration.memberKind
+        && expandMetadataPathPattern(currentDeclaration.ownerProjectPattern, current.values)
+          === expandMetadataPathPattern(declaration.ownerProjectPattern, resource.values)
+        && expandMetadataPathPattern(currentDeclaration.itemProjectPattern, current.values) === itemPath
+    })
+    if (members.some((current) => current.kind === "content" && addedProjectPaths.has(current.projectPath))) {
+      return true
+    }
+    return members.length > 0 && members.every((current) => addedProjectPaths.has(current.projectPath))
   }
 
   function includeFileItemCollection(resource: MetadataProjectResourceMatch): void {
@@ -410,28 +501,29 @@ export function buildPartialXmlImpactPlan(params: {
     if (owner?.kind !== "content") {
       throw new Error(`Не найден текущий владелец файлового metadata: ${ownerPath}`)
     }
-    includeAssignment(owner, true)
-    if (owner.assignment?.role === "fileItem") includeAssignmentSubtree(owner, false)
+    includeStructuralAncestors(owner)
+    includeAssignment(owner, "policy")
+    if (owner.assignment?.role === "fileItem") includeAssignmentSubtree(owner, "none")
     const currentTarget = currentByPath.get(resource.projectPath)
 
     for (const current of currentByPath.values()) {
       if (current.assignment?.id !== assignment.id) continue
       if (expandMetadataPathPattern(assignment.ownerProjectPattern, current.values) !== ownerPath) continue
       if (current.kind === "content") {
-        includeAssignmentSubtree(current, current.projectPath === currentTarget?.projectPath)
+        includeAssignmentSubtree(current, current.projectPath === currentTarget?.projectPath ? "policy" : "none")
       }
     }
   }
 
   function includeAssignmentSubtree(
     resource: MetadataProjectResourceMatch,
-    requestLoad: boolean,
+    requestLoad: LoadRequest,
   ): void {
     const directory = posix.dirname(resource.projectPath)
     for (const current of currentByPath.values()) {
       if (current.projectPath !== resource.projectPath && !current.projectPath.startsWith(`${directory}/`)) continue
       if (current.kind === "content") includeAssignment(current, requestLoad)
-      if (current.kind === "externalFile") includeExternal(current, requestLoad)
+      if (current.kind === "externalFile") includeExternal(current, requestLoad !== "none")
     }
   }
 
@@ -447,6 +539,18 @@ export function buildPartialXmlImpactPlan(params: {
     }
   }
 
+  function includeCreatedAssignmentExternalFiles(resource: MetadataProjectResourceMatch): void {
+    const assignment = resource.assignment
+    if (resource.kind !== "content" || assignment === undefined) {
+      throw new Error(`Ожидалось новое XML-задание: ${resource.projectPath}`)
+    }
+    for (const current of currentByPath.values()) {
+      if (current.kind !== "externalFile" || current.assignment?.id !== assignment.id) continue
+      const assignmentPath = expandMetadataPathPattern(assignment.projectPattern, current.values)
+      if (assignmentPath === resource.projectPath) includeExternal(current, true)
+    }
+  }
+
   function includeCurrentAssignmentSubtree(resource: MetadataProjectResourceMatch): void {
     const directory = posix.dirname(resource.projectPath)
     for (const current of currentByPath.values()) {
@@ -456,17 +560,31 @@ export function buildPartialXmlImpactPlan(params: {
   }
 
   function includeConfigurationRoot(): void {
-    const roots = [...currentByPath.values()].filter((resource) =>
-      resource.kind === "content" && resource.assignment?.role === "configuration"
-    )
-    if (roots.length !== 1) throw new Error(`Ожидалось одно текущее корневое XML-задание, найдено ${roots.length}`)
-    const root = roots[0]!
-    includeAssignment(root, true)
+    const root = configurationRoot()
+    includeAssignment(root, "policy")
     for (const resource of currentByPath.values()) {
       if (resource.kind === "externalFile" && resource.assignment?.id === root.assignment?.id) {
         includeExternal(resource, true)
       }
     }
+  }
+
+  function includeConfigurationMetadataParent(): void {
+    const root = configurationRoot()
+    const metadataDocuments = root.assignment!.xmlDocuments.filter((document) => document.role === "metadata")
+    if (metadataDocuments.length !== 1) {
+      throw new Error(`Корневое XML-задание содержит ${metadataDocuments.length} metadata-документов`)
+    }
+    selectedProjectPaths.add(root.projectPath)
+    addDocument(root, metadataDocuments[0]!, true)
+  }
+
+  function configurationRoot(): MetadataProjectResourceMatch {
+    const roots = [...currentByPath.values()].filter((resource) =>
+      resource.kind === "content" && resource.assignment?.role === "configuration"
+    )
+    if (roots.length !== 1) throw new Error(`Ожидалось одно текущее корневое XML-задание, найдено ${roots.length}`)
+    return roots[0]!
   }
 
   function memberCollectionKey(resource: MetadataProjectResourceMatch): string {

@@ -1,7 +1,7 @@
 import { resolve } from "node:path"
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import type { ProjectStateRefreshParams, ProjectStateRefreshResult } from "../projectState/refresh"
 import type { ProjectStateService } from "../projectState/service"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
@@ -22,6 +22,31 @@ import { collectAppliedObjectDataTables } from "../appliedObjects/dataTableRules
 const testLanguages = createConfigurationLanguages({ default: "ru", registered: ["ru"] })
 
 describe("validateProject", () => {
+  it("передаёт signal в обновление состояния и не публикует результат после отмены", async () => {
+    const controller = new AbortController()
+    let releaseRefresh!: () => void
+    const refreshGate = new Promise<void>((resolve) => { releaseRefresh = resolve })
+    const projectState = testProjectState([])
+    projectState.refreshAndValidate = async (params) => {
+      projectState.refreshes.push(params)
+      await refreshGate
+      return refreshResult([])
+    }
+
+    const validation = validateTestProject({
+      projectDir: "/project",
+      concurrency: 1,
+      projectState,
+      signal: controller.signal,
+    })
+    await vi.waitFor(() => expect(projectState.refreshes).toHaveLength(1))
+    controller.abort()
+    releaseRefresh()
+
+    await expect(validation).rejects.toMatchObject({ name: "AbortError" })
+    expect(projectState.refreshes[0]?.signal).toBe(controller.signal)
+  })
+
   it("builds the language registry before refreshing the project", async () => {
     const projectDir = await mkdtemp(resolve(tmpdir(), "nkdk-validate-languages-"))
     await writeLanguageProject(projectDir, { Русский: "ru", English: "en" })
@@ -112,6 +137,33 @@ describe("validateProject", () => {
 
     appendStateFiles(store, [dataTableValidationFacts("РегистрНакопления.Продажи.Обороты").form])
     expect(messages(await validateTestProject({ projectDir: "/project", concurrency: 1, projectState }))).toEqual([])
+    store.rollbackUpdate()
+  })
+
+  it("возвращает projectPath для отсутствующего владельца", async () => {
+    const { store } = createBinaryProjectStateTestFixture()
+    store.beginUpdate()
+    appendStateFiles(store, [{
+      ...emptyYamlUpdate("cf/ОбщаяФорма/Продажи/Форма.yaml", "form"),
+      pendingChecks: [{
+        kind: "dataPath",
+        yamlPath: ["ПутьКДанным"],
+        location: { line: 3, col: 15, path: "/ПутьКДанным" },
+        owner: { kind: "Документ", name: "Продажа" },
+        value: "Объект.Номер",
+        policyInput: { yaml: "Объект.Номер" },
+        policy: "formDataPath",
+      }],
+    }])
+    const projectState = testProjectState(() => store.validateDependencies({ requests: [] }))
+
+    const result = await validateTestProject({ projectDir: "/project", concurrency: 1, projectState })
+
+    expect([...result.diagnostics]).toEqual([expect.objectContaining({
+      filePath: "cf/Документ/Продажа/Свойства.yaml",
+      source: "cross-file",
+      message: "Не найден владелец Документ.Продажа",
+    })])
     store.rollbackUpdate()
   })
 

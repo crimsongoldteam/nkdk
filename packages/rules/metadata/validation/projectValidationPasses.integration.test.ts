@@ -635,6 +635,19 @@ describe("validateProjectFileFirstPass references", () => {
     }))
   })
 
+  it("не сохраняет подавленную ошибку элемента последовательности в schema diagnostics", () => {
+    const first = validateAppliedObject(
+      "Подсистема/Тест/Свойства.yaml",
+      [
+        "Состав:",
+        "  - !xml/invalid a0f8c954-9877-4b52-9172-02b76aebb903",
+      ].join("\n"),
+    )
+
+    expect(first.diagnostics).toEqual([])
+    expect(first.schemaDiagnostics).toEqual([])
+  })
+
   it("validates common form body through the shared form schema", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

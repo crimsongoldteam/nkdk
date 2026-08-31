@@ -32,6 +32,7 @@ describe("prompt definitions", () => {
     expect(importPrompt?.text).toContain("не определяй и не создавай cfe")
     expect(importPrompt?.text).toContain("core вернёт componentPath и конфликты")
     expect(importPrompt?.text).not.toContain("пустоту целевого `projectDir/componentPath`")
+    expect(importPrompt?.text).toContain("nkdk.get_operation")
   })
 
   it("describes sync through configuration index without reference catalog", () => {
@@ -40,5 +41,14 @@ describe("prompt definitions", () => {
     expect(syncPrompt?.text).toContain("файл индекса конфигурации")
     expect(syncPrompt?.text).toContain("выбранный компонент")
     expect(syncPrompt?.text).not.toContain("reference")
+    expect(syncPrompt?.text).toContain("nkdk.get_operation")
+  })
+
+  it("requires polling for background validation", () => {
+    const validatePrompt = promptDefinitions.find((prompt) => prompt.name === "nkdk_config_validate_yaml")
+
+    expect(validatePrompt?.text).toContain("все компоненты")
+    expect(validatePrompt?.text).toContain("operationId")
+    expect(validatePrompt?.text).toContain("nkdk.get_operation")
   })
 })

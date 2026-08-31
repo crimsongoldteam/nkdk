@@ -5,6 +5,7 @@ import { resolveProjectRoot } from "./componentResolver"
 import { projectStateHandle } from "./projectStateHandle"
 import { prepareDiagnosticOutput } from "./diagnosticReport"
 import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
+import { rethrowOperationCancellation, throwIfOperationCancelled } from "./operationCancellation"
 
 interface ProjectCacheDeps {
   readonly projectState: CoreProjectStateService
@@ -37,12 +38,18 @@ export async function resetProjectCache(
 export async function rebuildProjectCache(
   input: ProjectCacheInput,
   deps?: ProjectCacheDeps,
+  signal?: AbortSignal,
 ): Promise<RebuildProjectCachePayload> {
   const project = resolveProjectRoot(input.projectDir)
   if (!project.ok) return project.error
   try {
+    throwIfOperationCancelled(signal)
     const projectState = deps?.projectState ?? await projectStateHandle.get()
-    const result = await projectState.rebuild({ projectDir: project.projectDir })
+    const result = await projectState.rebuild({
+      projectDir: project.projectDir,
+      ...(signal === undefined ? {} : { signal }),
+    })
+    throwIfOperationCancelled(signal)
     const output = await prepareDiagnosticOutput({
       projectDir: project.projectDir,
       operation: "rebuild",
@@ -52,6 +59,7 @@ export async function rebuildProjectCache(
     })
     return toolSuccess({ ...output, stats: result.stats })
   } catch (caught) {
+    rethrowOperationCancellation(caught)
     return toolError("core_error", errorMessage(caught))
   }
 }

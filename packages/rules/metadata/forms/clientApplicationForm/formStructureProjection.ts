@@ -2,6 +2,7 @@ import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fil
 import type { FormStructuredComponent } from "../../validation/formContracts"
 import { indexClientApplicationFormComponents } from "./formComponentIndex"
 import { collectClientApplicationFormDataPathPreparation } from "./formDataPathContext"
+import { serializeClientApplicationFormSemanticPayload } from "./formSemanticPayload"
 import type { ClientApplicationFormYAML } from "./types"
 
 export interface FormElementDataPathPayloadV1 {
@@ -51,7 +52,12 @@ export function collectClientApplicationFormStructure(
     }
     return { ...component, payload: JSON.stringify(payload) }
   })
-  return [...withPayload, ...mainAttributeComponents(yaml)]
+  return [{
+    componentKind: "document",
+    name: "",
+    yamlPath: [],
+    payload: serializeClientApplicationFormSemanticPayload(yaml),
+  }, ...withPayload, ...mainAttributeComponents(yaml)]
 }
 
 function mainAttributeComponents(yaml: unknown): FormStructuredComponent[] {
@@ -78,6 +84,7 @@ export function projectClientApplicationFormStructure(params: {
   readonly logicalAddress: string
   readonly workingProjectPath: string
 }): readonly ProjectStateStructuredDocumentEntry[] {
+  const semanticPayload = params.components.find(({ componentKind }) => componentKind === "document")?.payload
   const document = {
     documentKind: "clientApplicationForm",
     representation: params.representation,
@@ -89,7 +96,8 @@ export function projectClientApplicationFormStructure(params: {
     componentKind: "document",
     name: "",
     yamlPath: [],
-  }, ...params.components.map((component) => ({
+    ...(semanticPayload === undefined ? {} : { payload: semanticPayload }),
+  }, ...params.components.filter(({ componentKind }) => componentKind !== "document").map((component) => ({
     ...document,
     ...component,
   }))]

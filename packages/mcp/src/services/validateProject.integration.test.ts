@@ -158,6 +158,28 @@ describe("validateProject service", () => {
     expect(core.validateProject).toHaveBeenCalledWith({ projectDir, projectState })
   })
 
+  it("возвращает диагностику отсутствующего владельца, а не core_error", async () => {
+    const projectDir = createProject()
+    core.validateProject.mockResolvedValue({
+      diagnostics: createDiagnosticCollectionForTest([{
+        filePath: "cf/Документ/Продажа/Свойства.yaml",
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "cross-file",
+        message: "Не найден владелец Документ.Продажа",
+      }]),
+    })
+
+    await expect(validateYamlProject({ projectDir })).resolves.toMatchObject({
+      ok: true,
+      diagnostics: [{
+        filePath: "cf/Документ/Продажа/Свойства.yaml",
+        message: "Не найден владелец Документ.Продажа",
+      }],
+    })
+  })
+
   it.each([
     "/private/secret.yaml",
     "C:\\secret.yaml",

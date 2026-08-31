@@ -17,17 +17,26 @@ describe("подготовка частичного XML-пакета", () => {
     const fixture = createPartialXmlAnomalyExecutionFixture("/project")
     const addGenerated = vi.fn(async (_document: FullXmlSyncGeneratedDocument) => undefined)
     const writePending = vi.fn(async () => undefined)
+    const close = vi.fn(async (_loadTargets: readonly string[]) => ({
+      archiveHash: 1n,
+      entries: [fixture.targetXmlPath, "load.lst"],
+    }))
     const dependencies = boundary({ ok: true, status: "unchanged", diagnostics: [] })
     dependencies.prepareValidated.mockImplementation((validated) =>
-      writePreparedPartialXmlSyncPackage({ ...validated, ...fixture.stage }, {
+      writePreparedPartialXmlSyncPackage({
+        ...validated,
+        ...fixture.stage,
+        impact: {
+          ...fixture.stage.impact,
+          loadTargets: [fixture.targetXmlPath, "Objects/Optional/Ext/Module.bsl"],
+        },
+      }, {
         packageId: () => "package-anomaly",
         operationSeed: () => new Uint8Array(32),
         createWriter: () => ({
           addGenerated,
           async addExternal() {},
-          async close() {
-            return { archiveHash: 1n, entries: [fixture.targetXmlPath, "load.lst"] }
-          },
+          close,
           async abort() {},
         }),
         createWorkerPool: fixture.createWorkerPool,
@@ -45,6 +54,7 @@ describe("подготовка частичного XML-пакета", () => {
     const xml = new TextDecoder().decode(document.content)
     expect(xml).toContain("<Value>01</Value>")
     expect(xml).not.toContain("ordinary")
+    expect(close).toHaveBeenCalledWith([fixture.targetXmlPath])
     expect(writePending).toHaveBeenCalledWith(expect.objectContaining({
       state: expect.objectContaining({ loadTargets: [fixture.targetXmlPath] }),
     }))

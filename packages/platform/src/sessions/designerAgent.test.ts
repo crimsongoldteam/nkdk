@@ -123,6 +123,7 @@ describe("Designer agent session", () => {
         logPath: fixture.operationLog.path,
       },
     })
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain("process-log empty=true")
   })
 
   it("exports a file connection relative to AgentBaseDir without --server", async () => {

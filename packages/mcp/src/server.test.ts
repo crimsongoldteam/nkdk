@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Client } from "@modelcontextprotocol/client"
 import { InMemoryTransport } from "@modelcontextprotocol/server"
-import { createNkdkMcpServer } from "./server"
+import { createNkdkMcpServer, main } from "./server"
+import { createNkdkMcpServerWithDependencies } from "./mcpServer"
 
 const listInfobases = vi.hoisted(() =>
   vi.fn(async () => ({
@@ -18,9 +19,26 @@ const listInfobaseExtensions = vi.hoisted(() =>
     reusedConnection: false,
   }))
 )
+const closeBackgroundOperations = vi.hoisted(() => vi.fn(async () => undefined))
+const closeMetadataRuntime = vi.hoisted(() => vi.fn(async () => undefined))
+const closePlatformSessionManager = vi.hoisted(() => vi.fn(async () => undefined))
+
+vi.mock("./backgroundOperationHandle", () => ({
+  backgroundOperationHandle: {
+    get: vi.fn(),
+    close: closeBackgroundOperations,
+  },
+}))
+
+vi.mock("./metadataRuntimeHandle", () => ({
+  metadataRuntimeHandle: {
+    get: vi.fn(),
+    close: closeMetadataRuntime,
+  },
+}))
 
 vi.mock("./services/platformSessionHandle", () => ({
-  closePlatformSessionManager: vi.fn(),
+  closePlatformSessionManager,
   getPlatformSessionManager: vi.fn(),
 }))
 
@@ -47,6 +65,20 @@ describe("MCP server", () => {
     expect(typeof server.connect).toBe("function")
   })
 
+  it("closes background operations during process shutdown", async () => {
+    const stderr = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    const previousExitCode = process.exitCode
+    try {
+      await main(["--unknown-option"], "server.js")
+      expect(closeBackgroundOperations).toHaveBeenCalledOnce()
+      expect(closeMetadataRuntime).toHaveBeenCalledOnce()
+      expect(closePlatformSessionManager).toHaveBeenCalledOnce()
+    } finally {
+      process.exitCode = previousExitCode
+      stderr.mockRestore()
+    }
+  })
+
   it("returns the infobase tree through the MCP protocol", async () => {
     const server = createNkdkMcpServer()
     const client = new Client({ name: "nkdk-test-client", version: "1.0.0" })
@@ -71,6 +103,53 @@ describe("MCP server", () => {
     } finally {
       await client.close()
     }
+  })
+
+  it("shares a background operation between MCP server instances", async () => {
+    const snapshot = {
+      ok: true as const,
+      status: "running" as const,
+      operationId: "shared-operation",
+      operationKind: "validate_project" as const,
+      projectDir: "/project",
+      createdAt: "2026-08-31T00:00:00.000Z",
+      updatedAt: "2026-08-31T00:00:01.000Z",
+      messages: [],
+    }
+    const manager = {
+      async start() {
+        return {
+          ok: true as const,
+          status: "accepted" as const,
+          operationId: snapshot.operationId,
+          operationKind: snapshot.operationKind,
+          projectDir: snapshot.projectDir,
+        }
+      },
+      async get() { return snapshot },
+      async cancel() { return snapshot },
+      async close() {},
+    }
+    const dependencies = {
+      backgroundOperations: {
+        async get() { return manager },
+        async close() {},
+      },
+    }
+
+    const accepted = await callInMemoryTool(
+      createNkdkMcpServerWithDependencies(dependencies),
+      "nkdk.validate_project",
+      { projectDir: "/project" },
+    )
+    const observed = await callInMemoryTool(
+      createNkdkMcpServerWithDependencies(dependencies),
+      "nkdk.get_operation",
+      { projectDir: "/project", operationId: snapshot.operationId },
+    )
+
+    expect(accepted.structuredContent).toMatchObject({ status: "accepted", operationId: snapshot.operationId })
+    expect(observed.structuredContent).toEqual(snapshot)
   })
 
   it("returns infobase extensions through the MCP protocol", async () => {
@@ -147,3 +226,18 @@ describe("MCP server", () => {
   })
 
 })
+
+async function callInMemoryTool(
+  server: ReturnType<typeof createNkdkMcpServer>,
+  name: string,
+  args: Record<string, unknown>,
+) {
+  const client = new Client({ name: "nkdk-background-test", version: "1.0.0" })
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+  await Promise.all([server.connect(serverTransport), client.connect(clientTransport)])
+  try {
+    return await client.callTool({ name, arguments: args })
+  } finally {
+    await client.close()
+  }
+}

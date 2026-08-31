@@ -7,6 +7,7 @@ import { withDiagnosticOutput, type DiagnosticReportFileSystem } from "./diagnos
 import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
 import type { ConfigurationLanguages } from "@nkdk/runtime"
 import { defaultMcpConfigurationLanguages } from "../configurationContext"
+import { rethrowOperationCancellation, throwIfOperationCancelled } from "./operationCancellation"
 
 interface CoreImportDiagnostic {
   severity: "error" | "warning"
@@ -40,6 +41,7 @@ interface ImportFromXmlDeps {
     requestedComponentPath?: string
     concurrency?: number
     projectState: CoreProjectStateService
+    signal?: AbortSignal
   }) => Promise<CoreImportResult>
 }
 
@@ -65,6 +67,7 @@ interface ImportOutputDiagnostic {
 export async function importFromXml(
   input: ImportFromXmlInput,
   deps?: ImportFromXmlDeps,
+  signal?: AbortSignal,
 ): Promise<ImportFromXmlPayload> {
   if (input.allowWrite !== true) {
     return toolError("confirmation_required", "import_from_xml пишет YAML-файлы; повторите вызов с allowWrite=true", {
@@ -75,6 +78,7 @@ export async function importFromXml(
   }
 
   try {
+    throwIfOperationCancelled(signal)
     const project = resolveComponent({ projectDir: input.projectDir })
     if (!project.ok) return project.error
 
@@ -90,9 +94,11 @@ export async function importFromXml(
       inputDir: input.xmlDir,
       projectDir: project.projectDir,
       projectState,
+      ...(signal === undefined ? {} : { signal }),
       ...(input.componentPath === undefined ? {} : { requestedComponentPath: input.componentPath }),
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
     })
+    throwIfOperationCancelled(signal)
 
     return await withDiagnosticOutput({
       projectDir: project.projectDir,
@@ -124,6 +130,7 @@ export async function importFromXml(
       },
     })
   } catch (caught) {
+    rethrowOperationCancellation(caught)
     return toolError("core_error", errorMessage(caught))
   }
 }

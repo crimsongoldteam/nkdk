@@ -31,6 +31,7 @@ registerPartialXmlPackagePolicy({
       yamlPath: ["ОсновнойЯзык"],
       include: "targetAssignment",
       loadTarget: true,
+      required: false,
     }],
   },
   externalFiles: [{ projectPattern: "{relativePath...}", loadTarget: true }],

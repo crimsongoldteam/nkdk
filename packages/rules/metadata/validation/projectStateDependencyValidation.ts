@@ -13,6 +13,7 @@ import { yamlPathToPointer, type Diagnostic } from "@nkdk/runtime"
 import {
   ownerMetadataFromFacts,
   ownerMetadataNotFound,
+  ownerMetadataProjectPath,
   type OwnerMetadataCache,
 } from "./dataPath/ownerCache"
 import type { FormDataPathSource, OwnerTypeRef } from "./dataPath/types"
@@ -483,7 +484,7 @@ export function validateProjectStateOwnerBatch(params: {
     if (result.status !== "missing") return
     diagnostics.push(
       ...ownerMetadataNotFound({
-        projectDir: `${params.projectDir}/${check.componentPath}`,
+        filePath: ownerMetadataProjectPath(check.componentPath, check.owner),
         ref: check.owner,
       }).diagnostics,
     )
@@ -654,9 +655,15 @@ export function createProjectStateOwnerMetadataCache(params: {
         ? undefined
         : currentOwners.get(fallbackKey) ?? activePage?.get(fallbackKey)
           ?? (missingOwners.has(fallbackKey) ? undefined : readOwner(fallbackRef)))
-      if (stored === undefined) return ownerMetadataNotFound({ projectDir: params.projectDir, ref })
+      if (stored === undefined) {
+        return ownerMetadataNotFound({
+          filePath: ownerMetadataProjectPath(params.componentPath, ref),
+          ref,
+        })
+      }
       return ownerMetadataFromFacts({
         projectDir: params.projectDir,
+        componentPath: params.componentPath,
         ref,
         facts: stored.facts,
         fieldIndex: projectStateFieldIndex(stored.owner, stored.fields),
@@ -888,9 +895,13 @@ function preloadedOwnerCache(params: {
     get(ref) {
       const stored = params.owners.get(componentOwnerKey(params.componentPath, ref))
       return stored === undefined
-        ? ownerMetadataNotFound({ projectDir: params.projectDir, ref })
+        ? ownerMetadataNotFound({
+            filePath: ownerMetadataProjectPath(params.componentPath, ref),
+            ref,
+          })
         : ownerMetadataFromFacts({
             projectDir: params.projectDir,
+            componentPath: params.componentPath,
             ref,
             facts: stored.facts,
             fieldIndex: projectStateFieldIndex(ref, stored.fields),

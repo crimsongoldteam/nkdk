@@ -58,6 +58,23 @@ describe("shared full XML sync coordinator", () => {
     ...(options.selected ? { selection: { kind: "selected" as const, projectPaths: ["Конфигурация.yaml"] } } : {}),
   }, harness.deps)
 
+  it("не начинает full sync и не публикует индекс при отменённом signal", async () => {
+    const harness = createHarness()
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(syncComponentToXml({
+      context,
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+      signal: controller.signal,
+    }, harness.deps)).rejects.toMatchObject({ name: "AbortError" })
+    expect(harness.events).toEqual([])
+    expect(harness.writtenIndex).toBeUndefined()
+  })
+
   it("uses the common provider order for cf", async () => {
     const harness = createHarness()
 

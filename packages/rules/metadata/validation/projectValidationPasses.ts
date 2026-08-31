@@ -875,6 +875,7 @@ function validateProjectFormFirstPass(
     facts,
   })
   const diagnostics = evaluated.diagnostics
+  const visibleSchemaDiagnostics = retainedDiagnostics(schemaDiagnostics, diagnostics)
   const { pendingReferences, pendingChecks } = applyXmlAnomalyStatesToFacts(facts, evaluated.boundaries)
 
   return {
@@ -885,7 +886,7 @@ function validateProjectFormFirstPass(
       pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
-    schemaDiagnostics,
+    schemaDiagnostics: visibleSchemaDiagnostics,
     contributedFacts: true,
     diagnostics,
     issues: evaluated.issues,
@@ -1053,6 +1054,7 @@ function validateProjectPropertiesFirstPass(
     facts,
   })
   const diagnostics = evaluated.diagnostics
+  const visibleSchemaDiagnostics = retainedDiagnostics(publishedSchemaDiagnostics, diagnostics)
   const { pendingReferences, pendingChecks } = applyXmlAnomalyStatesToFacts(facts, evaluated.boundaries)
 
   return {
@@ -1063,7 +1065,7 @@ function validateProjectPropertiesFirstPass(
       pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
-    schemaDiagnostics: publishedSchemaDiagnostics,
+    schemaDiagnostics: visibleSchemaDiagnostics,
     contributedFacts: true,
     diagnostics,
     issues: evaluated.issues,
@@ -1092,6 +1094,11 @@ function validateProjectPropertiesFirstPass(
       propertyEvents: facts.profile.propertyEvents,
     },
   }
+}
+
+function retainedDiagnostics(source: readonly Diagnostic[], visible: readonly Diagnostic[]): Diagnostic[] {
+  const visibleSet = new Set(visible)
+  return source.filter((diagnostic) => visibleSet.has(diagnostic))
 }
 
 function deferredXmlAnomalyTargetKeys(facts: ProjectValidationFileFacts): ReadonlySet<string> {

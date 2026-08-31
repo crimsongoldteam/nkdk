@@ -18,7 +18,9 @@ type PendingExchange = {
   initialPrompt: boolean
   sawSuccess: boolean
   commandSent: boolean
+  receivedBytes: number
   logWrites: Promise<void>
+  command?: string
   extensionInfo?: unknown[]
   timer?: unknown
   removeAbortListener?: () => void
@@ -31,6 +33,7 @@ type ExchangeOptions = {
   timeoutMs?: number
   signal?: AbortSignal
   operationLog?: PlatformOperationLog
+  command?: string
 }
 
 export type PlatformCommandConnectionStage = "protocol-handshake" | "authentication"
@@ -65,7 +68,7 @@ export async function openPlatformCommandSession(params: {
   try {
     await protocol.waitForPrompt()
     await protocol.execute(
-      "options set --output-format=json",
+      "options set --show-prompt=no --output-format=json",
       "session_start_failed",
       false,
       { timeoutMs: params.timeoutMs, operationLog: params.operationLog }
@@ -163,11 +166,16 @@ class PlatformCommandProtocol implements PlatformCommandSession {
         "Операция платформы отменена"
       )
     }
+    if (options.operationLog !== undefined) {
+      await options.operationLog.append(
+        `command status=start value=${options.operationLog.sanitize(command)}`
+      )
+    }
     const completion = this.beginExchange(
       errorCode,
       allowQuestions,
       false,
-      options
+      { ...options, command }
     )
     this.diagnostic("Команда платформы отправлена")
     this.shell.write(`${command}\n`)
@@ -193,7 +201,9 @@ class PlatformCommandProtocol implements PlatformCommandSession {
         initialPrompt,
         sawSuccess: false,
         commandSent: false,
+        receivedBytes: 0,
         logWrites: Promise.resolve(),
+        ...(options.command === undefined ? {} : { command: options.command }),
         ...(options.operationLog === undefined ? {} : { operationLog: options.operationLog }),
         resolve,
         reject,
@@ -203,13 +213,16 @@ class PlatformCommandProtocol implements PlatformCommandSession {
           if (this.pending !== pending) return
           this.cleanupPending(pending)
           this.pending = undefined
-          reject(
+          this.queueCommandLog(pending, (command) =>
+            `command-timeout command=${command} timeoutMs=${options.timeoutMs} receivedBytes=${pending.receivedBytes} shellOpen=${this.shell.isOpen()} successSeen=${pending.sawSuccess}`
+          )
+          void pending.logWrites.then(() => reject(
             new PlatformSessionError(
               "session_timeout",
               "Истекло время ожидания ответа платформы",
               commandOutcomeOptions(pending)
             )
-          )
+          ))
         }, options.timeoutMs)
       }
       if (options.signal !== undefined) {
@@ -242,6 +255,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
 
   private receive(chunk: string): void {
     if (this.pending === undefined) return
+    this.pending.receivedBytes += Buffer.byteLength(chunk, "utf8")
     this.buffer += chunk
     this.consumeBuffer()
   }
@@ -333,6 +347,11 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     }
     if (type === "progress" || type === "dbstru" || type === "generation-id") return
     if (type === "error" || type === "cancel") {
+      const structured = redactPlatformText(JSON.stringify(message), [this.password])
+      const diagnostic = pending.operationLog?.sanitize(structured) ?? structured
+      pending.logWrites = pending.logWrites.then(async () => {
+        await pending.operationLog?.append(`command-error ${diagnostic}`)
+      })
       const platformMessage = extractFailureMessage(message)
       const fallback = safeFailureMessage(pending.errorCode)
       const passwordSafe = redactPlatformText(platformMessage ?? fallback, [this.password])
@@ -396,6 +415,9 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     if (pending === undefined) return
     this.cleanupPending(pending)
     this.pending = undefined
+    this.queueCommandLog(pending, (command) =>
+      `command status=ready value=${command} receivedBytes=${pending.receivedBytes} successSeen=${pending.sawSuccess}`
+    )
     void pending.logWrites.then(() => pending.resolve(
       pending.extensionInfo === undefined
         ? {}
@@ -415,6 +437,15 @@ class PlatformCommandProtocol implements PlatformCommandSession {
         commandOutcomeOptions(pending)
       )
     )
+  }
+
+  private queueCommandLog(pending: PendingExchange, format: (command: string) => string): void {
+    if (pending.command === undefined || pending.operationLog === undefined) return
+    const operationLog = pending.operationLog
+    const message = format(operationLog.sanitize(pending.command))
+    pending.logWrites = pending.logWrites.then(async () => {
+      await operationLog.append(message)
+    })
   }
 
   private failPending(

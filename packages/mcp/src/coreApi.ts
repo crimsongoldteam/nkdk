@@ -67,6 +67,7 @@ export interface CoreApi {
   validateProject(params: {
     projectDir: string
     projectState: CoreProjectStateService
+    signal?: AbortSignal
   }): Promise<{ diagnostics: CoreDiagnosticCollection }>
   renameMetadataItem(params: {
     projectDir: string
@@ -90,6 +91,7 @@ export interface CoreApi {
     xmlDir: string
     projectState: CoreProjectStateService
     ignoreValidationErrors?: boolean
+    signal?: AbortSignal
   }): Promise<FullXmlSyncPlanResult>
   syncConfigurationFromXML(params: {
     context: {
@@ -128,6 +130,7 @@ export interface CoreApi {
     concurrency?: number
     projectState: CoreProjectStateService
     ignoreValidationErrors?: boolean
+    signal?: AbortSignal
   }): Promise<FullXmlSyncResult>
   readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined>
   initializeXmlSyncState(params: {

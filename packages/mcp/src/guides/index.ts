@@ -27,7 +27,7 @@ export const guideDefinitions: GuideDefinition[] = [
       "3. Для сложных полей сначала используй `keys`, `required`, `search` и `exact`.",
       "4. Найди 1-2 соседних YAML-файла того же типа и повтори локальную структуру каталогов.",
       "5. Внеси минимальное изменение файловыми инструментами агента.",
-      "6. Вызови `nkdk.validate_project` для всего проекта или изменённого файла.",
+      "6. Вызови `nkdk.validate_project`, затем получи результат через `nkdk.get_operation` по возвращённому `operationId`.",
     ].join("\n"),
   },
   {
@@ -43,6 +43,7 @@ export const guideDefinitions: GuideDefinition[] = [
       "Импорт пишет результат напрямую в целевой компонент. При ошибке сначала разберись в diagnostics. Не очищай существующую цель автоматически: повтор возможен только после явного устранения пользователем конкретного конфликта. Конфликт только снимка не устраняется очисткой целевого компонента.",
       "В этой версии import не подключается к 1С и не импортирует все компоненты за один вызов: входом служит готовый каталог XML-выгрузки одного компонента.",
       "Tool пишет файлы только при `allowWrite: true`.",
+      "Вызов сразу возвращает `operationId`. Запрашивай `nkdk.get_operation` с теми же `projectDir` и `operationId` до состояния `succeeded`, `failed`, `cancelled` или `interrupted`.",
     ].join("\n"),
   },
   {
@@ -55,6 +56,7 @@ export const guideDefinitions: GuideDefinition[] = [
       "Перед вызовом `nkdk.sync_to_xml` проверь корень NKDK-проекта, выбранный компонент и наличие LMDB-индекса `.nkdk/components/cf/configuration-index.lmdb`.",
       "`nkdk.sync_to_xml` выгружает один компонент `projectDir/componentPath` в заданный `xmlDir`; `xmlDir` не строится как `xmlRootDir/componentPath`.",
       "Tool пишет файлы только при `allowWrite: true`.",
+      "Вызов сразу возвращает `operationId`. Следи за ним через `nkdk.get_operation`; для явной отмены используй `nkdk.cancel_operation`.",
     ].join("\n"),
   },
   {
@@ -65,8 +67,9 @@ export const guideDefinitions: GuideDefinition[] = [
       "# Проверка YAML-проекта",
       "",
       "Используй `nkdk.validate_project` после редактирования YAML.",
-      "В этой версии `nkdk.validate_project` принимает корень NKDK-проекта и валидирует только компонент `cf`.",
-      "Верни пользователю diagnostics с `filePath`, `line`, `col`, `severity` и `message`.",
+      "`nkdk.validate_project` принимает корень NKDK-проекта и проверяет все компоненты.",
+      "Вызов сразу возвращает `operationId`. Запрашивай `nkdk.get_operation` до состояния `succeeded`; при `failed`, `cancelled` или `interrupted` сообщи это пользователю.",
+      "Из результата верни пользователю diagnostics с `filePath`, `line`, `col`, `severity` и `message`.",
     ].join("\n"),
   },
 ]

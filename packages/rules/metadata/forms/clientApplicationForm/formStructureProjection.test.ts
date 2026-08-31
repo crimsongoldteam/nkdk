@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import {
   collectClientApplicationFormStructure,
   projectClientApplicationFormStructure,
@@ -15,10 +16,11 @@ describe("проекция структуры формы", () => {
   it("собирает все категории с YAML-путями", () => {
     const components = collectClientApplicationFormStructure(yaml)
     expect(components.map(({ componentKind, name }) => `${componentKind}:${name}`)).toEqual([
-      "element:Группа", "element:Поле", "attribute:Объект", "command:Записать", "parameter:Режим",
+      "document:", "element:Группа", "element:Поле", "attribute:Объект", "command:Записать", "parameter:Режим",
       "mainAttribute:Объект",
     ])
-    expect(components[1]?.yamlPath).toEqual(["Элементы", "Группа", "Элементы", "Поле"])
+    expect(components.find(({ name }) => name === "Поле")?.yamlPath)
+      .toEqual(["Элементы", "Группа", "Элементы", "Поле"])
     expect(components.find(({ componentKind, name }) => componentKind === "element" && name === "Поле"))
       .toMatchObject({ payload: JSON.stringify({ version: 1, primaryDataPath: "missing" }) })
     expect(components).toContainEqual({
@@ -29,12 +31,14 @@ describe("проекция структуры формы", () => {
   })
 
   it("добавляет роль и topology-адрес документа", () => {
-    expect(projectClientApplicationFormStructure({
+    const projected = projectClientApplicationFormStructure({
       components: collectClientApplicationFormStructure(yaml),
       representation: "base",
       logicalAddress: "Catalog.Товары.Form.ФормаЭлемента",
       workingProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-    })).toEqual(expect.arrayContaining([
+    })
+
+    expect(projected).toEqual(expect.arrayContaining([
       {
         documentKind: "clientApplicationForm",
         representation: "base",
@@ -45,5 +49,11 @@ describe("проекция структуры формы", () => {
         yamlPath: ["Команды", "Записать"],
       },
     ]))
+    const documents = projected.filter(({ componentKind }) => componentKind === "document")
+    expect(documents).toHaveLength(1)
+    expect(JSON.parse(documents[0]?.payload ?? "null")).toEqual({
+      version: 1,
+      yaml,
+    })
   })
 })

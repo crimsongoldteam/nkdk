@@ -3,6 +3,7 @@ import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
 import { afterEach, beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
+import "../../tests/metadataExecutionContext"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCache } from "../validation/projectYamlCache"
 import { validateProjectFileFirstPass } from "../validation/projectValidationPasses"
@@ -71,5 +72,10 @@ describe("buildProjectStateYamlFileUpdate", () => {
       expect.objectContaining({ componentKind: "attribute", name: "Объект" }),
       expect.objectContaining({ componentKind: "element", name: "Поле" }),
     ]))
+    const document = update.structuredDocuments?.find(({ componentKind }) => componentKind === "document")
+    expect(JSON.parse(document?.payload ?? "null")).toMatchObject({
+      version: 1,
+      yaml: { Элементы: { Поле: { Вид: "ПолеВвода" } } },
+    })
   })
 })

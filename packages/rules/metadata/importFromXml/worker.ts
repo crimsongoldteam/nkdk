@@ -84,8 +84,7 @@ import { createImportBinaryResult } from "./binaryResult"
 import type { PreparedImportBinaryRecord } from "./types"
 import type { MetadataWorkerOperationRegistry } from "../workerPool/operationRegistry"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
-import { projectClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormProjection"
-import { equalBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
+import { isRedundantClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormNecessity"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import { normalizeImportedDependentItems } from "./dependentItems"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
@@ -1224,12 +1223,14 @@ function prepareBaseFormCandidate(params: {
   if (currentForm === undefined || extensionForm === undefined) {
     throw new Error(`Не найдены данные формы для ${params.candidate.baseProjectPath}`)
   }
-  const projection = projectClientApplicationBaseForm({
-    baseYaml: clientApplicationFormYaml(currentForm.yaml, params.candidate.baseProjectPath),
+  return isRedundantClientApplicationBaseForm({
+    currentConfigurationYaml: clientApplicationFormYaml(currentForm.yaml, params.candidate.baseProjectPath),
     extensionYaml: clientApplicationFormYaml(extensionForm.yaml, params.candidate.targetProjectPath),
+    savedBaseYaml: clientApplicationFormYaml(params.candidate.yaml, params.candidate.targetProjectPath),
     rule: params.candidate.rule,
   })
-  return equalBaseFormYaml(params.candidate.yaml, projection.yaml) ? undefined : params.candidate
+    ? undefined
+    : params.candidate
 }
 
 function prepareSerializedBaseFormCandidate(params: {

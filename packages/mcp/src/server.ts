@@ -7,6 +7,7 @@ import { McpCliUsageError, parseMcpCli } from "./cli"
 import { runHttpServer } from "./httpServer"
 import { createNkdkMcpServer } from "./mcpServer"
 import { metadataRuntimeHandle } from "./metadataRuntimeHandle"
+import { backgroundOperationHandle } from "./backgroundOperationHandle"
 import { closePlatformSessionManager } from "./services/platformSessionHandle"
 import { createShutdownCoordinator, type ShutdownCloser } from "./shutdown"
 import { createMcpWatchHost } from "./watchHost"
@@ -83,6 +84,7 @@ export async function main(
   let closeTransport: ShutdownCloser = () => undefined
   const shutdownCoordinator = createShutdownCoordinator([
     () => closeTransport(),
+    () => backgroundOperationHandle.close(),
     () => metadataRuntimeHandle.close(),
     async () => {
       await closePlatformSessionManager()

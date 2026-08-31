@@ -162,6 +162,18 @@ afterEach(async () => {
 })
 
 describe("configuration XML import coordinator", () => {
+  it("не начинает импорт и не публикует индекс при отменённом signal", async () => {
+    const controller = new AbortController()
+    controller.abort()
+    const calls: string[] = []
+
+    await expect(importConfigurationFromXml(
+      { ...createParams("configuration"), signal: controller.signal },
+      fakeDependencies({ calls }),
+    )).rejects.toMatchObject({ name: "AbortError" })
+    expect(calls).toEqual([])
+  })
+
   it.each([
     [10, 16, 3],
     [4, 8, 2],

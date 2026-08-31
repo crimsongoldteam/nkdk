@@ -146,11 +146,13 @@ describe("ssh2 loopback transport", () => {
 
     const opening = openPlatformCommandSession({ shell, timeoutMs: 100 })
     await waitForWrites(client, 1)
-    expect(client.stream.writes).toEqual(["options set --output-format=json\n"])
+    expect(client.stream.writes).toEqual([
+      "options set --show-prompt=no --output-format=json\n",
+    ])
     client.stream.emit("data", Buffer.from('[{"type":"success","message":"JSON"}]\ndesigner> '))
     await waitForWrites(client, 2)
     expect(client.stream.writes).toEqual([
-      "options set --output-format=json\n",
+      "options set --show-prompt=no --output-format=json\n",
       "common connect-ib\n",
     ])
     client.stream.emit("data", Buffer.from('[{"type":"success","message":"Connected"}]\ndesigner> '))

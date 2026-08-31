@@ -13,6 +13,7 @@ export interface ValidateProjectParams {
   context?: ConfigurationContext
   concurrency?: number
   projectState?: ProjectStateService
+  signal?: AbortSignal
 }
 
 export interface ValidateProjectResult {
@@ -38,6 +39,7 @@ export async function validateProject(
   const projectState = params.projectState ?? createProjectStateService()
   const ownsProjectState = params.projectState === undefined
   try {
+    params.signal?.throwIfAborted()
     const languages = await deps.loadLanguages(join(params.projectDir, "cf"))
     const context = { ...(params.context ?? { version: "2.20" }), languages }
     const result = await projectState.refreshAndValidate({
@@ -45,7 +47,9 @@ export async function validateProject(
       context,
       validationContextVersions: configurationValidationContextVersions(context),
       concurrency: normalizeValidationConcurrency(params.concurrency),
+      ...(params.signal === undefined ? {} : { signal: params.signal }),
     })
+    params.signal?.throwIfAborted()
     return { diagnostics: result.diagnostics }
   } finally {
     if (ownsProjectState) await projectState.close()

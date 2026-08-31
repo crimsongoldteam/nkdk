@@ -180,6 +180,7 @@ function definedTypeCache(types: Readonly<Record<string, TypeDescriptionView | u
       }
       return ownerMetadataFromFacts({
         projectDir: "/project",
+        componentPath: "cf",
         ref,
         facts: types[ref.name] === undefined ? {} : { type: types[ref.name] },
         fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },

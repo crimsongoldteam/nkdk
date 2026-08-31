@@ -6,7 +6,7 @@ import {
 export const childFormPartialXmlPackagePolicy = {
   assignment: {
     assignmentPattern: "{ownerPath...}/Формы/{itemName}/Форма.yaml",
-    loadDocumentRoles: ["metadata"],
+    loadDocumentRoles: ["metadata", "body"],
     structural: {
       includeOwnerAssignment: true,
       includeCurrentMemberSubtree: true,
@@ -25,7 +25,7 @@ export const childFormPartialXmlPackagePolicy = {
 export const commonFormPartialXmlPackagePolicy = {
   assignment: {
     assignmentPattern: "ОбщаяФорма/{ownerName}/Свойства.yaml",
-    loadDocumentRoles: ["metadata"],
+    loadDocumentRoles: ["metadata", "body"],
     yamlCompanionInputs: [{
       projectPattern: "ОбщаяФорма/{ownerName}/БазоваяФорма.yaml",
     }],

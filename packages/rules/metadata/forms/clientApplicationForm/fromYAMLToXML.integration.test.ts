@@ -7,6 +7,7 @@ childSegmentUid,
 childUid,
 importFromYAML
 } from "@nkdk/runtime"
+import "../../../tests/metadataExecutionContext"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 import { createDirectRoundTripContexts } from "../../../tests/directConversion"
 import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredOwnerMetadataCache"

@@ -23,8 +23,11 @@ export function analyzeTestDurationReport(report, lifecycleReport, environment =
   const suiteTestDurationLimit = integration
     ? INTEGRATION_TEST_DURATION_LIMIT_MS
     : TEST_DURATION_LIMIT_MS
-  const testDurationLimit = suiteTestDurationLimit *
-    (environment.CI === "true" ? CI_TEST_DURATION_LIMIT_MULTIPLIER : 1)
+  const testDurationLimitMultiplier = Math.max(
+    environment.CI === "true" ? CI_TEST_DURATION_LIMIT_MULTIPLIER : 1,
+    environment.platform === "win32" ? WINDOWS_LIMIT_MULTIPLIER : 1,
+  )
+  const testDurationLimit = suiteTestDurationLimit * testDurationLimitMultiplier
   const suiteFileDurationLimit = integration
     ? INTEGRATION_TEST_FILE_LIMIT_MS
     : TEST_FILE_LIMIT_MS

@@ -59,13 +59,29 @@ describe("OwnerMetadataCache", () => {
       ],
       filePaths: [],
     })
-    const cache = createOwnerMetadataCacheFromValidationTable({ projectDir: "/project", table })
+    const cache = createOwnerMetadataCacheFromValidationTable({ projectDir: "/project", componentPath: "cf", table })
 
     const result = cache.get({ kind: "Справочник", name: "Товары" })
 
     expect(result.status).toBe("ok")
     if (result.status !== "ok") return
     expect(result.owner.filePath).toBe("/project/Справочник/Товары/Свойства.yaml")
+  })
+
+  it.each([
+    ["cf", "cf/Справочник/Товары/Свойства.yaml"],
+    ["cfe/дкз", "cfe/дкз/Справочник/Товары/Свойства.yaml"],
+  ])("returns a missing-owner project path for %s", (componentPath, filePath) => {
+    const cache = createOwnerMetadataCacheFromValidationTable({
+      projectDir: `/project/${componentPath}`,
+      componentPath,
+      table: createValidationObjectTable(),
+    })
+
+    expect(cache.get({ kind: "Справочник", name: "Товары" })).toMatchObject({
+      status: "not-found",
+      diagnostics: [{ filePath, source: "cross-file" }],
+    })
   })
 
   it("returns not-found with cross-file diagnostic when owner file is missing", () => {
