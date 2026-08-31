@@ -2,6 +2,7 @@ import { mkdtempSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
+import { StdioClientTransport } from "@modelcontextprotocol/client/stdio"
 import { describe, expect, it, vi } from "vitest"
 
 const callScript = new URL("../../../.agents/tools/mcp/call.mjs", import.meta.url)
@@ -52,8 +53,15 @@ describe("MCP call script", () => {
   })
 
   it("остаётся подключённым к реальному stdio до terminal результата", async () => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-call-terminal-"))
-    const session = await createMcpToolSession({ serverMode: "source" })
+    const projectDir = "/fixture-project"
+    const session = await createMcpToolSession({
+      createTransport: () => new StdioClientTransport({
+        command: process.execPath,
+        args: ["--input-type=module", "--eval", backgroundOperationFixtureServer],
+        cwd: import.meta.dirname,
+        stderr: "pipe",
+      }),
+    })
 
     try {
       await expect(callMcpToolToCompletion(
@@ -147,3 +155,35 @@ describe("MCP call script", () => {
     })).toBe(true)
   })
 })
+
+const backgroundOperationFixtureServer = `
+import { McpServer } from "@modelcontextprotocol/server"
+import { serveStdio } from "@modelcontextprotocol/server/stdio"
+
+const result = (payload) => ({
+  content: [{ type: "text", text: JSON.stringify(payload) }],
+  structuredContent: payload,
+})
+
+serveStdio(() => {
+  const server = new McpServer({ name: "call-script-fixture", version: "1.0.0" })
+  server.registerTool("nkdk.validate_project", { description: "start" }, async () => result({
+    ok: true,
+    status: "accepted",
+    operationId: "op-1",
+    projectDir: "/fixture-project",
+  }))
+  server.registerTool("nkdk.get_operation", { description: "lookup" }, async () => result({
+    ok: true,
+    status: "succeeded",
+    operationId: "op-1",
+    projectDir: "/fixture-project",
+    operationKind: "validate_project",
+    createdAt: "2026-09-01T00:00:00.000Z",
+    updatedAt: "2026-09-01T00:00:00.001Z",
+    messages: [],
+    result: { ok: false, code: "core_error" },
+  }))
+  return server
+}, { legacy: "serve" })
+`
