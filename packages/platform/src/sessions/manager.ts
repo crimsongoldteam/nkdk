@@ -112,7 +112,8 @@ export function createPlatformSessionManager(
           params.loadTargets,
           operationLog,
           params.extensionName,
-          params.signal
+          params.signal,
+          params.updateDatabaseConfiguration
         )
       }
     )

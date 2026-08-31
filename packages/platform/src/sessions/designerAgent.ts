@@ -334,7 +334,14 @@ export async function createDesignerAgentSession(
       }
       return parseExtensionPropertyRecords(result.extensionInfo)
     },
-    async loadPartialConfiguration(archivePath, loadTargets, operationLog, extensionName, signal) {
+    async loadPartialConfiguration(
+      archivePath,
+      loadTargets,
+      operationLog,
+      extensionName,
+      signal,
+      updateDatabaseConfiguration = true,
+    ) {
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
@@ -388,11 +395,13 @@ export async function createDesignerAgentSession(
           command,
           { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog }
         )
-        await commandSession.run('config update-db-cfg --session-terminate="prompt"', {
-          signal,
-          timeoutMs: dependencies.commandTimeoutMs,
-          operationLog,
-        })
+        if (updateDatabaseConfiguration) {
+          await commandSession.run('config update-db-cfg --session-terminate="prompt"', {
+            signal,
+            timeoutMs: dependencies.commandTimeoutMs,
+            operationLog,
+          })
+        }
       } catch (caught) {
         await cleanupStaging()
         const cause = caught instanceof PlatformSessionError && caught.commandOutcome === "unknown"

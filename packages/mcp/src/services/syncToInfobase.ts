@@ -213,6 +213,7 @@ async function syncToInfobaseExclusive(
         archivePath: prepared.archivePath,
         loadTargets: prepared.loadTargets,
         logPath,
+        updateDatabaseConfiguration: input.updateDatabaseConfiguration !== false,
         ...connectionSettings,
         ...(component.componentPath === "cf"
           ? {}

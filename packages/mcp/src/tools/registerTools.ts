@@ -236,7 +236,7 @@ export function registerNkdkCapabilities(
     {
       title: "Partially sync NKDK YAML to 1C infobase",
       description:
-        "В фоне частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы и сразу возвращает operationId; итог доступен через nkdk.get_operation. Поддерживает агентный и автономный режимы и обновляет конфигурацию базы данных. Запускает платформу и изменяет конфигурацию только при allowWrite=true.",
+        "В фоне частично загружает изменения одного компонента cf или cfe/<Имя> в сохранённую конфигурацию информационной базы и сразу возвращает operationId; итог доступен через nkdk.get_operation. Поддерживает агентный и автономный режимы и по умолчанию обновляет конфигурацию базы данных; updateDatabaseConfiguration=false оставляет изменения только в сохранённой конфигурации. Запускает платформу и изменяет конфигурацию только при allowWrite=true.",
       inputSchema: mcpSchemas.syncToInfobaseInput,
       outputSchema: mcpSchemas.backgroundOperationStartOutput,
     },

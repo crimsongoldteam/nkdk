@@ -118,6 +118,24 @@ describe("standalone server session", () => {
     expect(fixture.operationLogText).toContain("stage=authentication status=ready")
   })
 
+  it("can load files without updating the database configuration", async () => {
+    const { dependencies, operationLog, calls } = createFixture()
+    const session = await createStandaloneServerSession(createParams(), dependencies)
+
+    await session.loadPartialConfiguration?.(
+      "/project/package.zip",
+      ["Catalogs/Справочник.xml"],
+      operationLog,
+      undefined,
+      undefined,
+      false,
+    )
+
+    const configurationCommands = calls.filter((call) => call.startsWith("shell.run config "))
+    expect(configurationCommands).toHaveLength(1)
+    expect(configurationCommands[0]).toContain("load-files")
+  })
+
   it("reuses one autonomous process for consecutive partial loads", async () => {
     const fixture = createFixture()
     const session = await createStandaloneServerSession(createParams(), fixture.dependencies)

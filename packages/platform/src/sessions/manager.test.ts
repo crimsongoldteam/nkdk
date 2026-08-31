@@ -123,10 +123,28 @@ describe("platform session manager", () => {
       "/project/.nkdk/tmp/op/package.zip",
       "/project/.nkdk/tmp/op/package.zip",
     ])
+    expect(fixture.databaseConfigurationUpdates).toEqual([true, true])
     expect(fixture.logEvents).toEqual(expect.arrayContaining([
       expect.stringContaining("operation mode=designer-agent"),
       expect.stringContaining("configuration-load"),
     ]))
+  })
+
+  it("passes a disabled database configuration update to the session", async () => {
+    const controller = new AbortController()
+    const receivedSignals: Array<AbortSignal | undefined> = []
+    const fixture = createFixture({
+      loadHook: async (_projectDir, signal) => { receivedSignals.push(signal) },
+    })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await manager.loadPartialConfiguration(loadParams({
+      updateDatabaseConfiguration: false,
+      signal: controller.signal,
+    }))
+
+    expect(fixture.databaseConfigurationUpdates).toEqual([false])
+    expect(receivedSignals).toEqual([controller.signal])
   })
 
   it("reuses a healthy autonomous session for consecutive partial loads", async () => {
@@ -577,6 +595,7 @@ function createFixture(
   exportedUnresolvedReferences: string[]
   exportedExtensionNames: Array<string | undefined>
   loadedArchives: string[]
+  databaseConfigurationUpdates: boolean[]
   logEvents: string[]
   findPlatformCalls: number
   options: {
@@ -595,6 +614,7 @@ function createFixture(
   const exportedUnresolvedReferences: string[] = []
   const exportedExtensionNames: Array<string | undefined> = []
   const loadedArchives: string[] = []
+  const databaseConfigurationUpdates: boolean[] = []
   const logEvents: string[] = []
   let findPlatformCalls = 0
   let cancelFailures = options.cancelFailures ?? 0
@@ -632,8 +652,16 @@ function createFixture(
         await options.listHook?.(params.projectDir, listCalls, signal)
         return [listedExtension]
       },
-      async loadPartialConfiguration(archivePath, loadTargets, operationLog, _extensionName, signal) {
+      async loadPartialConfiguration(
+        archivePath,
+        loadTargets,
+        operationLog,
+        _extensionName,
+        signal,
+        updateDatabaseConfiguration,
+      ) {
         loadedArchives.push(archivePath)
+        databaseConfigurationUpdates.push(updateDatabaseConfiguration ?? true)
         await operationLog.append("stage=configuration-load status=start")
         await options.loadHook?.(params.projectDir, signal)
         await operationLog.append("stage=configuration-load status=ready")
@@ -680,6 +708,7 @@ function createFixture(
     exportedUnresolvedReferences,
     exportedExtensionNames,
     loadedArchives,
+    databaseConfigurationUpdates,
     logEvents,
     get findPlatformCalls() {
       return findPlatformCalls

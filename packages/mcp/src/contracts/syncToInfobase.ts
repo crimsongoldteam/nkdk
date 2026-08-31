@@ -12,6 +12,7 @@ export const syncToInfobaseInputShape = {
   projectDir: Type.String({ minLength: 1 }),
   componentPath: Type.Optional(configurationComponentPathSchema),
   allowWrite: Type.Optional(Type.Boolean()),
+  updateDatabaseConfiguration: Type.Optional(Type.Boolean()),
   forceClearPending: Type.Optional(Type.Boolean()),
 }
 

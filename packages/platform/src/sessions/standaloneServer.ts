@@ -322,7 +322,14 @@ export async function createStandaloneServerSession(
         await dependencies.fileSystem.rm(stagingDir).catch(() => undefined)
       }
     },
-    async loadPartialConfiguration(archivePath, loadTargets, operationLog, extensionName, signal) {
+    async loadPartialConfiguration(
+      archivePath,
+      loadTargets,
+      operationLog,
+      extensionName,
+      signal,
+      updateDatabaseConfiguration = true,
+    ) {
       if (connection.type === "server") {
         throw new PlatformSessionError(
           "unsupported_connection",
@@ -348,11 +355,13 @@ export async function createStandaloneServerSession(
         })
         await operationLog.append(`command ${command}`)
         await residentCommandSession.run(command, { signal, timeoutMs: dependencies.commandTimeoutMs, operationLog })
-        await residentCommandSession.run('config update-db-cfg --session-terminate="prompt"', {
-          signal,
-          timeoutMs: dependencies.commandTimeoutMs,
-          operationLog,
-        })
+        if (updateDatabaseConfiguration) {
+          await residentCommandSession.run('config update-db-cfg --session-terminate="prompt"', {
+            signal,
+            timeoutMs: dependencies.commandTimeoutMs,
+            operationLog,
+          })
+        }
       } catch (cause) {
         if (cause instanceof PlatformSessionError && cause.details !== undefined) throw cause
         throw await processFailure(
