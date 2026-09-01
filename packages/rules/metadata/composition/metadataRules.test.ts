@@ -20,6 +20,10 @@ describe("metadataRules", () => {
         metadataRules.propertyTypes.DcsLocalStringType?.yamlScalarTagPolicy,
       ).toEqual({ acceptedTags: ["xml/string"] })
       expect(metadataRules.propertyTypes.string?.yamlScalarTagPolicy).toBeUndefined()
+      expect(metadataRules.propertyTypes.boolean?.compileAtomicConversion).toBeTypeOf("function")
+      expect(metadataRules.propertyTypes.boolean?.importFromXML).toBeUndefined()
+      expect(metadataRules.propertyTypes.boolean?.importFromYAML).toBeUndefined()
+      expect(metadataRules.propertyTypes.boolean?.exportToYAML).toBeUndefined()
       expect(
         metadataRules.propertyTypes.ChildFormNames?.resourceTopology,
       ).toBeTypeOf("function")

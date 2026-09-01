@@ -19,11 +19,9 @@ import { metadataPropertyRule011 as rule17 } from "../appliedObjects/configurati
 import { metadataPropertyRule012 as rule18 } from "../appliedObjects/configuration/mobileApplicationURLs"
 import { metadataPropertyRule013 as rule19 } from "../appliedObjects/configuration/mobileApplicationURLs"
 import { metadataPropertyRule014 as rule20 } from "../appliedObjects/configuration/mobileApplicationURLs"
-import { metadataPropertyRule000 as rule26 } from "../commonObjects/boolean/fromXML"
-import { metadataPropertyRule000 as rule27 } from "../commonObjects/boolean/fromYAML"
 import { metadataPropertyRule000 as rule28 } from "../commonObjects/boolean/toJSONSchema"
 import { metadataPropertyRule001 as rule29 } from "../commonObjects/boolean/toJSONSchema"
-import { metadataPropertyRule000 as rule30 } from "../commonObjects/boolean/toYAML"
+import { metadataPropertyRule000 as booleanAtomicConversion } from "../commonObjects/boolean/atomicConversion"
 import { metadataPropertyRule000 as rule31 } from "../commonObjects/border/fromXML"
 import { metadataPropertyRule000 as rule32 } from "../commonObjects/border/fromYAML"
 import { metadataPropertyRule000 as rule33 } from "../commonObjects/border/toEnterprise"
@@ -445,11 +443,9 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule18,
   rule19,
   rule20,
-  rule26,
-  rule27,
   rule28,
   rule29,
-  rule30,
+  booleanAtomicConversion,
   rule31,
   rule32,
   rule33,

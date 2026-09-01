@@ -1,7 +1,7 @@
 import { capitalize, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
 import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { exportPropertyValueToYAML, getImplicitValueYAML, importPropertyFromXML } from "@nkdk/runtime/rule-kit"
+import { convertPropertyFromXMLToYAML, getImplicitValueYAML } from "@nkdk/runtime/rule-kit"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry, ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
@@ -140,7 +140,7 @@ function propertyKeyForState(
 }
 
 function importPresentProperties(params: {
-  readonly context: Parameters<typeof importPropertyFromXML>[0]["context"]
+  readonly context: Parameters<typeof convertPropertyFromXMLToYAML>[0]["context"]
   readonly rule: MetadataItemRule
   readonly source: Record<string, unknown>
   readonly yaml: Record<string, unknown>
@@ -187,17 +187,25 @@ function importPresentProperties(params: {
 }
 
 function isExplicitXMLDefault(
-  context: Parameters<typeof importPropertyFromXML>[0]["context"],
+  context: Parameters<typeof convertPropertyFromXMLToYAML>[0]["context"],
   rule: MetadataItemRule["properties"][string],
   value: unknown,
 ): boolean {
-  const imported = importPropertyFromXML({ context, rule, value })
+  const imported = convertPropertyFromXMLToYAML({ context, rule, value }).metadataValue
   return (
     Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML") &&
-    imported === importPropertyFromXML({ context, rule, value: rule.defaultValueAdoptedXML })
+    imported === convertPropertyFromXMLToYAML({
+      context,
+      rule,
+      value: rule.defaultValueAdoptedXML,
+    }).metadataValue
   ) || (
     Object.prototype.hasOwnProperty.call(rule, "defaultValueXML") &&
-    imported === importPropertyFromXML({ context, rule, value: rule.defaultValueXML })
+    imported === convertPropertyFromXMLToYAML({
+      context,
+      rule,
+      value: rule.defaultValueXML,
+    }).metadataValue
   )
 }
 
@@ -241,7 +249,7 @@ function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
 }
 
 function ensurePropertyYamlValue(params: {
-  readonly context: Parameters<typeof importPropertyFromXML>[0]["context"]
+  readonly context: Parameters<typeof convertPropertyFromXMLToYAML>[0]["context"]
   readonly rule: MetadataItemRule
   readonly source: Record<string, unknown>
   readonly yaml: Record<string, unknown>
@@ -268,18 +276,16 @@ function ensurePropertyYamlValue(params: {
     params.rule,
     [...(propertyRule.xmlParents ?? []), params.xmlProperty],
   )
-  const importedValue = importPropertyFromXML({
+  const converted = convertPropertyFromXMLToYAML({
     context: params.context,
     rule: propertyRule,
     value: xmlValue,
-  })
-  const yamlValue = exportPropertyValueToYAML({
-    context: params.context,
-    rule: propertyRule,
-    value: importedValue,
     preserveImplicitValue: true,
   })
-  params.yaml[params.yamlName] = yamlValue ?? getImplicitValueYAML(propertyRule) ?? params.emptyValue ?? {}
+  params.yaml[params.yamlName] = converted.representationValue
+    ?? getImplicitValueYAML(propertyRule)
+    ?? params.emptyValue
+    ?? {}
 }
 
 function propertyKeyByXmlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {
