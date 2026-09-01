@@ -216,27 +216,35 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(toXML).toHaveBeenCalledTimes(1)
   })
 
-  it("исполняет старые преобразователи при отсутствующем YAML, потому что они могут создать XML", () => {
-    const rules = createRuleRegistrySet(metadataRules)
-    const fromYAML = vi.fn(() => "вычислено")
-    const toXML = vi.fn(({ value }: { value: unknown }) => value)
-    rules.property.registerTypeRule("TestMissingEvaluate" as never, "importFromYAML", fromYAML)
-    rules.property.registerTypeRule("TestMissingEvaluate" as never, "exportToXML", toXML)
+  it.each([
+    ["обычном режиме", undefined, undefined],
+    ["разреженном YAML", true, undefined],
+    ["reference XML без свойства", undefined, { Other: true }],
+  ] as const)(
+    "исполняет старые преобразователи при отсутствующем YAML в %s",
+    (_mode, sparseYAML, referenceXML) => {
+      const rules = createRuleRegistrySet(metadataRules)
+      const fromYAML = vi.fn(() => "вычислено")
+      const toXML = vi.fn(({ value }: { value: unknown }) => value)
+      rules.property.registerTypeRule("TestMissingEvaluate" as never, "importFromYAML", fromYAML)
+      rules.property.registerTypeRule("TestMissingEvaluate" as never, "exportToXML", toXML)
 
-    const result = convertPropertiesFromYAMLToXML({
-      execution: rules.execution,
-      context: context(),
-      yaml: {},
-      rule: testRule({
-        value: { type: "TestMissingEvaluate" as never, yaml: "Значение", xml: "Value" },
-      }),
-      outputs: [{ key: "owner" }],
-    })
+      const result = convertPropertiesFromYAMLToXML({
+        execution: rules.execution,
+        context: context(),
+        yaml: {},
+        rule: testRule({
+          value: { type: "TestMissingEvaluate" as never, yaml: "Значение", xml: "Value" },
+        }),
+        outputs: [{ key: "owner", referenceXML }],
+        sparseYAML,
+      })
 
-    expect(result.outputs.get("owner")).toEqual({ Value: "вычислено" })
-    expect(fromYAML).toHaveBeenCalledTimes(1)
-    expect(toXML).toHaveBeenCalledTimes(1)
-  })
+      expect(result.outputs.get("owner")).toEqual({ Value: "вычислено" })
+      expect(fromYAML).toHaveBeenCalledTimes(1)
+      expect(toXML).toHaveBeenCalledTimes(1)
+    },
+  )
 
   it("восстанавливает статический XML-default для отсутствующего YAML-свойства", () => {
     const result = convertSinglePropertyWithMetadataRules({
