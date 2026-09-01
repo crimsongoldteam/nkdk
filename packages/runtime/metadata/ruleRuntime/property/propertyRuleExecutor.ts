@@ -1,13 +1,30 @@
 import { getValueOrDefault } from "./helpers"
 import type { PropertyRuleRegistrySet } from "./propertyRuleRegistrySet"
 import type { PropertyRuleExecution } from "./fn"
+import { compilePropertyPlan, type CompiledPropertyPlan } from "./compiledPropertyPlan"
+import type { MetadataItemRule } from "./types"
 
 export interface PropertyRuleExecutor extends PropertyRuleExecution {}
 
 export function createPropertyRuleExecutor(
   registries: PropertyRuleRegistrySet,
 ): PropertyRuleExecutor {
+  const plans = new WeakMap<MetadataItemRule, CompiledPropertyPlan>()
   const executor: PropertyRuleExecutor = {
+    propertyPlan(rule) {
+      const revision = registries.revision()
+      const cached = plans.get(rule)
+      if (cached?.registryRevision === revision) return cached
+      const compiled = compilePropertyPlan({
+        rule,
+        registryRevision: revision,
+        getTypeRule: (type, operation) => registries.getTypeRule(type, operation),
+        isDependentImportProperty: (itemType, propertyKey) =>
+          registries.isDependentImportProperty(itemType, propertyKey),
+      })
+      plans.set(rule, compiled)
+      return compiled
+    },
     resolveMetadataItemXMLDefaultVariant(params) {
       return registries.resolveMetadataItemXMLDefaultVariant(params)
     },
