@@ -261,7 +261,7 @@ flowchart TD
   subgraph first["Первый проход воркера"]
     direction TD
     readXml["Один раз прочитать полный XmlDocument<br/>и потоково вычислить хэши"] --> itemVariant["До свойств определить вариант<br/>текущего metadata item"]
-    itemVariant --> facts["По rules.ts собрать только факты<br/>индексов и зависимостей"]
+    itemVariant --> facts["По rules.ts собрать полные факты<br/>индексов, связей и ожидающих проверок"]
     facts --> pack["Упаковать XmlDocument<br/>в MessagePack"]
     pack --> retain["Сохранить буфер<br/>локально в worker"]
     retain --> firstResult["Вернуть факты, внешние файлы<br/>и части состояния"]
@@ -269,7 +269,8 @@ flowchart TD
 
   firstErrors{"Есть ошибки?"}
   snapshotFragments["Собрать сведения из XML<br/>для снимка компонента"]
-  index["Зафиксировать глобальные индексы<br/>метаданных и зависимостей"]
+  index["Зафиксировать configuration index<br/>и рабочий индекс метаданных"]
+  semanticDecisions["Зафиксировать семантический индекс<br/>и классифицировать XML-решения"]
   profile[["Подготовить профиль<br/>восстановления XML компонента"]]
 
   subgraph second["Второй проход того же воркера"]
@@ -277,13 +278,13 @@ flowchart TD
     unpack["Распаковать сохранённый XmlDocument"] --> resolve["Построить окончательный YAML<br/>с глобальными индексами"]
     resolve --> proof["Выполнить toXML в памяти<br/>и сравнить структурные хэши"]
     proof --> detail["Только при различии сравнить ветви<br/>и построить минимальные raw"]
-    detail --> local2[["Проверить YAML и подготовить<br/>окончательный вклад"]]
-    local2 --> serialize2["Записать окончательный YAML"]
+    detail --> local2[["Проверить YAML и применить<br/>локальные и межфайловые решения"]]
+    local2 --> serialize2["Один раз записать окончательный YAML"]
     serialize2 --> release["Освободить packed buffer<br/>и объектные деревья"]
   end
 
   secondErrors{"Есть ошибки?"}
-  semanticIndex["Зафиксировать окончательный индекс<br/>и проверить оставшиеся связи"]
+  finalState["Зафиксировать окончательное состояние<br/>и проверить оставшиеся связи"]
   files["Объединить списки<br/>созданных файлов"]
   external["Передать внешние файлы<br/>и вычислить их хэши"]
   externalState["Добавить внешние файлы<br/>во временное состояние"]
@@ -299,8 +300,8 @@ flowchart TD
   extension -- "нет" --> session
   extension -- "да" --> refresh --> session
   session --> discover --> first --> firstErrors
-  firstErrors -- "нет" --> snapshotFragments --> index --> profile --> second --> secondErrors
-  secondErrors -- "нет" --> semanticIndex --> files --> external --> externalState --> snapshot --> dependencies --> writeSnapshot --> publish --> result
+  firstErrors -- "нет" --> snapshotFragments --> index --> semanticDecisions --> profile --> second --> secondErrors
+  secondErrors -- "нет" --> finalState --> files --> external --> externalState --> snapshot --> dependencies --> writeSnapshot --> publish --> result
   firstErrors -- "да" --> abort
   secondErrors -- "да" --> abort
   abort --> failure
@@ -314,6 +315,13 @@ flowchart TD
 глобальным индексом и освобождает буфер сразу после записи задания. Поэтому XML
 с диска читается один раз, а одновременно распакованной остаётся только
 ограниченная пачка заданий.
+
+Факты первого прохода образуют тот же семантический индекс, который обычная
+проверка получает из полного YAML: цели, владельцы, поля, формы, логические
+адреса, ссылки и ожидающие проверки. После общего барьера межфайловые решения
+готовы до второго прохода. Второй проход дополняет их локальными решениями
+текущего YAML и записывает файл один раз; повторное чтение записанного YAML для
+классификации XML-аномалий не требуется.
 
 Контрольный экспорт сравнивает структурные хэши исходного `XmlDocument` и
 объектного результата toXML. При несовпадении адресуемое экспортированное дерево
