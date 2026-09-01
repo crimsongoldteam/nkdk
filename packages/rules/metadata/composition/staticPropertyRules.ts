@@ -275,11 +275,10 @@ import { metadataPropertyRule000 as rule242 } from "../commonObjects/mobileDevic
 import { metadataPropertyRule000 as rule243 } from "../commonObjects/mobileDeviceCommandBarContent/toYAML"
 import { metadataPropertyRule000 as rule244 } from "../commonObjects/module/fromXML"
 import { metadataPropertyRule001 as rule245 } from "../commonObjects/module/fromXML"
-import { metadataPropertyRule000 as rule246 } from "../commonObjects/number/fromXML"
 import { metadataPropertyRule001 as rule247 } from "../commonObjects/number/fromXML"
+import { metadataPropertyRule000 as numberAtomicConversion } from "../commonObjects/number/atomicConversion"
 import { metadataPropertyRule000 as rule248 } from "../commonObjects/number/toJSONSchema"
 import { metadataPropertyRule001 as rule249 } from "../commonObjects/number/toJSONSchema"
-import { metadataPropertyRule000 as rule250 } from "../commonObjects/number/toXML"
 import { metadataPropertyRule000 as rule251 } from "../commonObjects/picture/fromXML"
 import { metadataPropertyRule000 as rule252 } from "../commonObjects/picture/fromYAML"
 import { metadataPropertyRule001 as rule253 } from "../commonObjects/picture/fromYAML"
@@ -660,11 +659,10 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule243,
   rule244,
   rule245,
-  rule246,
+  numberAtomicConversion,
   rule247,
   rule248,
   rule249,
-  rule250,
   rule251,
   rule252,
   rule253,

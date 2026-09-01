@@ -32,6 +32,10 @@ describe("metadataRules", () => {
       expect(metadataRules.propertyTypes.string?.compileAtomicConversion).toBeTypeOf("function")
       expect(metadataRules.propertyTypes.string?.importFromXML).toBeUndefined()
       expect(metadataRules.propertyTypes.string?.exportToYAML).toBeUndefined()
+      expect(metadataRules.propertyTypes.number?.compileAtomicConversion).toBeTypeOf("function")
+      expect(metadataRules.propertyTypes.number?.importFromXML).toBeUndefined()
+      expect(metadataRules.propertyTypes.number?.exportToXML).toBeUndefined()
+      expect(metadataRules.propertyTypes.number?.configurationIndexValueFromXML).toEqual({})
       expect(
         metadataRules.propertyTypes.ChildFormNames?.resourceTopology,
       ).toBeTypeOf("function")
