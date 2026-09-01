@@ -116,25 +116,31 @@ function extractImportValidationContributionCore(params: {
     }
   }
 
-  const ownerFacts = measure(
-    "Сбор сведений о владельцах и полях",
-    () => extractImportOwnerFacts(params.prepared),
-  )
   const objectIndexEntries = measure(
     "Сбор объектов общего индекса",
     () => objectIndexEntriesForFile(file, params.rawYaml, params.prepared),
   )
+  const ownerFacts = measure(
+    "Сбор сведений о владельцах и полях",
+    () => extractImportOwnerFacts(params.prepared, objectIndexEntries[0]?.target, params.rawYaml),
+  )
   const memberIndexEntries = measure(
     "Сбор полей общего индекса",
-    () => ownerFacts.flatMap((facts) =>
-      ownerMemberIndexEntries({
+    () => mergeMemberIndexEntries([
+      ...ownerFacts.flatMap((facts) => ownerMemberIndexEntries({
         projectDir: params.projectDir,
         file,
         prepared: params.prepared,
         rawYaml: params.rawYaml,
         facts,
-      })
-    ),
+      })),
+      ...rawYamlMemberIndexEntries({
+        projectDir: params.projectDir,
+        file,
+        prepared: params.prepared,
+        rawYaml: params.rawYaml,
+      }),
+    ]),
   )
   const objectRecords = measure(
     "Формирование записей объектов общего индекса",
@@ -153,14 +159,12 @@ function extractImportValidationContributionCore(params: {
     "Сбор логических адресов",
     () => canonicalTarget === undefined
       ? []
-      : isPreparedImportFacts(params.prepared)
-        ? collectAddressableLogicalAddressesFromFacts(params.prepared)
-        : collectAddressableMetadataLogicalAddresses({
-            yaml: params.rawYaml,
-            rule: file.itemRule,
-            logicalAddress: params.prepared.assignment.logicalAddress,
-            filePath: params.prepared.assignment.targetProjectPath,
-          }),
+      : collectAddressableMetadataLogicalAddresses({
+          yaml: params.rawYaml,
+          rule: file.itemRule,
+          logicalAddress: params.prepared.assignment.logicalAddress,
+          filePath: params.prepared.assignment.targetProjectPath,
+        }),
   )
 
   return {
@@ -269,30 +273,6 @@ function objectIndexEntriesForFile(
           filePath: file.projectPath,
         })),
   ]
-}
-
-function collectAddressableLogicalAddressesFromFacts(
-  prepared: PreparedImportFacts,
-): Array<{ logicalAddress: string; sourceProjectPath: string }> {
-  const addressesByYamlPath = new Map<string, string>()
-  const entries: Array<{ logicalAddress: string; sourceProjectPath: string }> = []
-  for (const event of prepared.localIndexes.metadata.events) {
-    if (event.kind !== "item" || event.name === undefined) continue
-    const resolved = resolveFactItemRule(prepared.rule, event)
-    if (resolved === undefined) continue
-    const external = resolved.itemRule.externalMetadata
-    const addressable = external?.placement === "ownedEntry" || external?.placement === "ownerChild"
-    const segment = resolved.propertyRule.configurationIndexUidSegment
-      ?? resolved.collectionUidSegment
-      ?? external?.segment
-    if ((!addressable && resolved.itemRule.properties.uuid === undefined) || segment === undefined) continue
-    const parent = nearestFactParent(addressesByYamlPath, event.yamlPath)
-      ?? prepared.assignment.logicalAddress
-    const logicalAddress = `${parent}.${segment}.${event.name}`
-    addressesByYamlPath.set(yamlPathKey(event.yamlPath), logicalAddress)
-    entries.push({ logicalAddress, sourceProjectPath: prepared.assignment.targetProjectPath })
-  }
-  return entries
 }
 
 function collectAddressableObjectEntriesFromFacts(
@@ -428,6 +408,40 @@ function ownerMemberIndexEntries(params: {
     }
   }
   return entries
+}
+
+function rawYamlMemberIndexEntries(params: {
+  projectDir: string
+  file: ValidationProjectFile
+  prepared: PreparedImportYaml | PreparedImportFacts
+  rawYaml: unknown
+}): ProjectMemberIndexEntry[] {
+  const objectTarget = objectTargetForFile(params.file)
+  if (objectTarget === undefined) return []
+  const ref = { kind: params.file.owner.dir, name: params.file.owner.name }
+  const fieldIndex = { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
+  const owner: OwnerMetadata = {
+    ref,
+    filePath: params.prepared.targetProjectPath,
+    facts: { ref, filePath: params.prepared.targetProjectPath, fieldIndex },
+    fieldIndex,
+    rule: params.prepared.rule,
+    spec: params.file.owner.spec,
+  }
+  return getProjectReferenceMemberIndexContributors().flatMap((contributor) =>
+    [...contributor({
+      projectDir: params.projectDir,
+      owner,
+      objectTarget,
+      rawYaml: params.rawYaml,
+    })]
+  )
+}
+
+function mergeMemberIndexEntries(entries: readonly ProjectMemberIndexEntry[]): ProjectMemberIndexEntry[] {
+  const merged = new Map<string, ProjectMemberIndexEntry>()
+  for (const entry of entries) if (!merged.has(entry.canonical)) merged.set(entry.canonical, entry)
+  return [...merged.values()]
 }
 
 function fieldTarget(

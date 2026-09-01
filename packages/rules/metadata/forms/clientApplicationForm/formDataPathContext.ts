@@ -6,7 +6,7 @@ import { acceptFormTabularElementVisit } from "../../ruleRuntime/formElement/for
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
-import { standardMemberYamlToInternal } from "../../validation/dataPath/registry"
+import { getDataPathOwnerKind, standardMemberYamlToInternal } from "../../validation/dataPath/registry"
 import {
   collectFormDataPathOccurrencesFromYAML,
   type FormYAMLItemVisitor,
@@ -28,6 +28,7 @@ export interface FormElementDataPathState {
   readonly tableOwnerName?: string
   readonly candidateYaml?: string
   readonly candidateInternal?: string
+  readonly compactImplicitDataPath?: boolean
   readonly valueInternal?: string
   readonly currentConfigurationValue?: string
 }
@@ -64,7 +65,11 @@ export function compactImportedFormDataPaths(params: {
   readonly context: FormDataPathContext
 }): void {
   for (const element of params.context.elementsByName.values()) {
-    if (element.origin !== "own" || element.candidateInternal === undefined) continue
+    if (
+      element.origin !== "own"
+      || element.candidateInternal === undefined
+      || element.compactImplicitDataPath === false
+    ) continue
     const yaml = recordAtPath(params.yaml, element.yamlPath)
     if (!element.present) {
       yaml["ПутьКДанным"] = ""
@@ -236,6 +241,7 @@ export interface CollectedForm {
 interface ResolvedPath {
   readonly yaml: string
   readonly internal: string
+  readonly compactImplicitDataPath: boolean
 }
 
 interface PreparedForm {
@@ -298,7 +304,10 @@ function prepareCollectedForm(params: {
     if (resolved.status !== "ok" || resolved.target === undefined || resolved.internalValue === undefined) {
       return undefined
     }
-    if (semanticLeafName === undefined) return { yaml, internal: resolved.internalValue }
+    const compactImplicitDataPath = resolved.target.source.kind === "objectField"
+      ? getDataPathOwnerKind(resolved.target.source.owner.kind)?.compactImplicitFormDataPaths !== false
+      : true
+    if (semanticLeafName === undefined) return { yaml, internal: resolved.internalValue, compactImplicitDataPath }
     const standardInternalName = standardMemberYamlToInternal(semanticLeafName)
     return {
       yaml,
@@ -306,6 +315,7 @@ function prepareCollectedForm(params: {
         standardInternalName === undefined
           ? resolved.internalValue
           : replaceUnconvertedLeaf(resolved.internalValue, semanticLeafName, standardInternalName),
+      compactImplicitDataPath,
     }
   }
 
@@ -374,7 +384,11 @@ function prepareCollectedForm(params: {
         : { tableOwnerName: element.collected.tableOwnerName }),
       ...(resolvedCandidate === undefined
         ? {}
-        : { candidateYaml: resolvedCandidate.yaml, candidateInternal: resolvedCandidate.internal }),
+        : {
+            candidateYaml: resolvedCandidate.yaml,
+            candidateInternal: resolvedCandidate.internal,
+            compactImplicitDataPath: resolvedCandidate.compactImplicitDataPath,
+          }),
       ...(valueInternal === undefined ? {} : { valueInternal }),
       ...(currentConfigurationValue === undefined ? {} : { currentConfigurationValue }),
     })

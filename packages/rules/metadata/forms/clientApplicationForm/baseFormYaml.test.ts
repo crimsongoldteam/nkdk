@@ -88,6 +88,30 @@ describe("base form YAML", () => {
     expect(exportToYAML(normalized)).toContain("Отбор.Ссылка:")
   })
 
+  it("считает пустое значение в памяти равным тому же значению после чтения YAML", () => {
+    const restored = parseMetadataYaml([
+      "ПараметрыВыбора:",
+      "  Отбор.Ссылка:",
+    ].join("\n")).data
+
+    expect(equalBaseFormYaml(
+      { ПараметрыВыбора: { "Отбор.Ссылка": undefined } },
+      restored,
+    )).toBe(true)
+  })
+
+  it("считает явную строку в памяти равной той же строке после чтения YAML", () => {
+    const restored = parseMetadataYaml([
+      "СписокВыбора:",
+      '  - Значение: "Значение1"',
+    ].join("\n")).data
+
+    expect(equalBaseFormYaml(
+      { СписокВыбора: [{ Значение: explicitYAMLString("Значение1") }] },
+      restored,
+    )).toBe(true)
+  })
+
   it("сохраняет явные строки списка выбора при нормализации", () => {
     const normalized = normalizeBaseFormYaml({
       СписокВыбора: [{ Представление: "Массив", Значение: explicitYAMLString("Массив") }],

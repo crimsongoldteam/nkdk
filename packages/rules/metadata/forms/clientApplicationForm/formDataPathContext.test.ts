@@ -193,6 +193,38 @@ describe("prepareFormDataPathContextFromYAML", () => {
     expect(yaml.Элементы.Код).toHaveProperty("ПутьКДанным", "")
     expect(yaml.Элементы.Комментарий).toHaveProperty("ПутьКДанным", "Объект.Код")
   })
+
+  it("сохраняет явный путь для владельца без уплотнения импортированного YAML", () => {
+    const yaml = {
+      Элементы: {
+        Поле: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Поле" },
+      },
+    } satisfies ClientApplicationFormYAML
+
+    compactImportedFormDataPaths({
+      yaml,
+      context: {
+        index: {} as never,
+        elementsByName: new Map([[
+          "Поле",
+          {
+            name: "Поле",
+            dataPathRule: { type: "DataPath" } as never,
+            yamlPath: ["Элементы", "Поле"],
+            origin: "own",
+            present: true,
+            value: "Объект.Поле",
+            candidateYaml: "Объект.Поле",
+            candidateInternal: "Объект.Поле",
+            valueInternal: "Объект.Поле",
+            compactImplicitDataPath: false,
+          },
+        ]]),
+      },
+    })
+
+    expect(yaml.Элементы.Поле.ПутьКДанным).toBe("Объект.Поле")
+  })
 })
 
 function elementCandidates(context: ReturnType<typeof prepareFormDataPathContextFromYAML>) {

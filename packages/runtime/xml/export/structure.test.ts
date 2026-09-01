@@ -9,6 +9,7 @@ describe("xmlObjectRootStructures", () => {
     ["атрибуты и пустой элемент", { Root: { "_xsi:type": "xs:string", _custom: "x", Empty: "" } }],
     ["повторные элементы", { Root: { Item: [{ "#text": "one" }, { "#text": "two" }] } }],
     ["xsi:nil", { Root: { "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "_xsi:nil": "true" } }],
+    ["пустой #text", { Root: { "_xsi:type": "dcscor:Field", "#text": "" } }],
     ["вложенные свойства", { Root: { Properties: { MinValue: "1", MaxValue: "2" } } }],
   ])("совпадает со строковым XML: %s", (_name, value) => {
     expectSameStructure(value)

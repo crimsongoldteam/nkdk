@@ -12,6 +12,7 @@ import { decodeValidationSchemaKey, stripCollectedSchemaRefs } from "../ruleRunt
 import { evaluateParsedXmlAnomalyBoundaries, parseMetadataYaml, type ParsedYaml } from "@nkdk/runtime"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
+import { validationOwnerRef } from "./dataPath/validationOwnerRef"
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldIndex, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getProjectFileValidators, getProjectReferenceMemberIndexContributors } from "./projectReferenceIndexRegistry"
@@ -610,7 +611,13 @@ export function extractProjectValidationFileFacts(params: {
     }
   }
 
-  const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
+  const ownerRef = validationOwnerRef({
+    fallback: { kind: params.file.owner.dir, name: params.file.owner.name },
+    itemType: params.file.itemRule.itemType,
+    ...(yamlFacts.objectIndexEntries[0]?.target === undefined
+      ? {}
+      : { objectTarget: yamlFacts.objectIndexEntries[0].target }),
+  })
   const measuredOwner = measureValidationPhase(() => {
     const compactOwnerFacts = yamlFacts.localIndexes?.metadata.ownerFacts ?? {}
     const ownerFactsWithoutIndex = {

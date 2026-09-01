@@ -619,6 +619,50 @@ describe("executeImportControlExport", () => {
       expect.objectContaining({ key: "Columns\\AdditionalColumns" }),
     ]))
   })
+
+  it("сохраняет исходную компактную форму YAML при точном контрольном экспорте", async () => {
+    const { assignment } = createCatalogFormInput(tempDirs, "nkdk-control-export-semantic-shape-", [
+      '<Form xmlns="http://v8.1c.ru/8.3/xcf/logform"/>',
+    ].join("\n"))
+    const { prepared, index } = await prepareControlInput(assignment)
+    const annotations = snapshotXmlAnomalyAnnotations(prepared.yaml, prepared.annotations)
+    const projectedData = { ...(prepared.yaml as Record<string, unknown>), Нормализовано: true }
+
+    let sourceIndex = 0
+    const result = await executePreparedFormControlExport(
+      assignment,
+      prepared,
+      index,
+      annotations,
+      false,
+      (params) => {
+        const exported = prepareFullXmlSyncAssignment(params)
+        return {
+          ...exported,
+          semanticYamlFile: {
+            ...exported.semanticYamlFile,
+            data: projectedData,
+          },
+        }
+      },
+      (params) => {
+        const control = buildPreparedAssignmentControlDocument(params)
+        const source = prepared.proofAudit.sources[sourceIndex++]
+        if (source === undefined) throw new Error("Для контрольного документа не найден исходный XML")
+        return {
+          ...control,
+          roots: source.roots.map(({ xmlPath: path, elementName: name, structuralHash }) => ({
+            name,
+            path,
+            structuralHash,
+          })),
+        }
+      },
+    )
+
+    expect(result.data).toBe(prepared.yaml)
+    expect(result.annotations).toBe(annotations)
+  })
 })
 
 async function runCatalogControlExport(
@@ -787,6 +831,7 @@ async function executePreparedFormControlExport(
   annotations: ReturnType<typeof snapshotXmlAnomalyAnnotations>,
   _detailed = false,
   ordinaryExporter?: typeof prepareFullXmlSyncAssignment,
+  controlDocumentBuilder?: typeof buildPreparedAssignmentControlDocument,
 ) {
   return executeImportControlExport({
     assignment,
@@ -800,5 +845,6 @@ async function executePreparedFormControlExport(
     index,
     composition: { children: () => [] },
     ...(ordinaryExporter === undefined ? {} : { ordinaryExporter }),
+    ...(controlDocumentBuilder === undefined ? {} : { controlDocumentBuilder }),
   })
 }

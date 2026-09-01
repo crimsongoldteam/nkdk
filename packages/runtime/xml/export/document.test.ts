@@ -9,6 +9,7 @@ describe("xmlObjectDocument", () => {
     ["повторные дети", { Root: { Item: [{ "#text": "one" }, { "#text": "two" }] } }],
     ["несколько корней", { Root: [{ _id: "1" }, { _id: "2" }], Tail: "done" }],
     ["xsi:nil", { Root: { "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "_xsi:nil": "true" } }],
+    ["пустой #text", { Root: { "_xsi:type": "dcscor:Field", "#text": "" } }],
     ["processing instruction", { Root: { "?future": 'mode="x" alpha' } }],
     ["смешанный текст", { Root: { "#text": "prefix", Child: "value" } }],
   ])("строит то же адресное дерево без строки: %s", (_name, value) => {

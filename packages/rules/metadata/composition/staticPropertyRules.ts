@@ -31,6 +31,7 @@ import { metadataPropertyRule000 as rule36 } from "../commonObjects/border/toYAM
 import { metadataPropertyRule000 as rule37 } from "../commonObjects/characteristicsDescription/toJSONSchema"
 import { metadataPropertyRule000 as rule38 } from "../commonObjects/childFileItemNames/fromXML"
 import { metadataPropertyRule001 as rule39 } from "../commonObjects/childFileItemNames/fromXML"
+import { metadataPropertyRule002 as childFileItemNamesXmlImportBehavior } from "../commonObjects/childFileItemNames/fromXML"
 import { metadataPropertyRule000 as rule40 } from "../commonObjects/childFileItemNames/toXML"
 import { metadataPropertyRule000 as rule41 } from "../commonObjects/childFormNames/fromXML"
 import { metadataPropertyRule001 as rule42 } from "../commonObjects/childFormNames/fromXML"
@@ -450,6 +451,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule37,
   rule38,
   rule39,
+  childFileItemNamesXmlImportBehavior,
   rule40,
   rule41,
   rule42,

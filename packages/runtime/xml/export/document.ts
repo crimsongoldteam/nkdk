@@ -156,7 +156,10 @@ function contentDescriptors(value: unknown): XmlObjectContentDescriptor[] {
         .map(([key, child]) => ({ key, value: child }))
     : []
   const result: XmlObjectContentDescriptor[] = []
-  const hasText = isRecord(value) && value["#text"] !== undefined
+  const hasText = isRecord(value)
+    && value["#text"] !== undefined
+    && value["#text"] !== null
+    && String(value["#text"]).length > 0
   const containsInstruction = children.some(({ key }) => key.startsWith("?"))
   if (hasText) {
     const text = String(value["#text"])

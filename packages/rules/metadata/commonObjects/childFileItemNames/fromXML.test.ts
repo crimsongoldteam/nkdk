@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { importChildFileItemNamesFromXML } from "./fromXML"
+import { importChildFileItemNamesFromXML, metadataPropertyRule002 } from "./fromXML"
 
 const rule = { type: "ChildFileItemNames" as const, xml: "Table", forReferenceOnly: true as const }
 
@@ -23,5 +23,9 @@ describe("importChildFileItemNamesFromXML", () => {
 
   it("оборачивает одиночную строку в массив", () => {
     expect(importChildFileItemNamesFromXML(mockContextFromXML(), rule, "Таблица")).toEqual(["Таблица"])
+  })
+
+  it("объединяет повторные XML-узлы при адресном обходе", () => {
+    expect(metadataPropertyRule002.handler).toEqual({ repeatedXMLNodes: true })
   })
 })

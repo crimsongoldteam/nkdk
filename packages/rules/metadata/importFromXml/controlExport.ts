@@ -144,12 +144,15 @@ export async function executeImportControlExport(params: {
       mode: controlExportMode(preliminaryExported),
       ...controlExportTimings(prepared.profile, toXmlObjectMs, 0),
     })
+    const retainImportedYaml = !hasRawXmlAnomaly(params.annotations)
     return {
-      data: prepared.semanticYamlFile.data,
-      annotations: snapshotXmlAnomalyAnnotations(
-        prepared.semanticYamlFile.data,
-        prepared.semanticYamlFile.annotations,
-      ),
+      data: retainImportedYaml ? params.data : prepared.semanticYamlFile.data,
+      annotations: retainImportedYaml
+        ? params.annotations
+        : snapshotXmlAnomalyAnnotations(
+            prepared.semanticYamlFile.data,
+            prepared.semanticYamlFile.annotations,
+          ),
       rereadSourcePaths: [],
       warnings: [],
     }
@@ -186,6 +189,11 @@ export async function executeImportControlExport(params: {
     ...controlExportTimings(prepared.profile, toXmlObjectMs, anomalyProofMs),
   })
   return result
+}
+
+function hasRawXmlAnomaly(annotations: XmlAnomalyAnnotationsSnapshot): boolean {
+  return annotations.root?.kind === "raw"
+    || annotations.entries.some(({ annotation }) => annotation.kind === "raw")
 }
 
 function controlExportTimings(

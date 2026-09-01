@@ -25,8 +25,8 @@ describe("extractImportValidationContribution", () => {
     expect(result.validationContribution.objectIndexEntries).toHaveLength(1)
     expect(measured).toEqual([
       "Сбор ссылок и локальных зависимостей",
-      "Сбор сведений о владельцах и полях",
       "Сбор объектов общего индекса",
+      "Сбор сведений о владельцах и полях",
       "Сбор полей общего индекса",
       "Формирование записей объектов общего индекса",
       "Сбор логических адресов",

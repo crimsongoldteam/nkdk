@@ -18,6 +18,9 @@ import { MetadataDocumentNumeratorRules } from "./metadataDocumentNumerator/rule
 import { MetadataEnumerationRules } from "./metadataEnumeration/rules"
 import { MetadataExchangePlanRules } from "./metadataExchangePlan/rules"
 import { MetadataExternalDataSourceRules } from "./metadataExternalDataSource/rules"
+import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
+import { MetadataExternalDataSourceTableRules } from "../commonObjects/metadataExternalDataSourceTable/rules"
+import { MetadataExternalDataSourceDimensionTableRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/rules"
 import { MetadataFilterCriterionRules } from "./metadataFilterCriterion/rules"
 import { MetadataInformationRegisterRules } from "./metadataInformationRegister/rules"
 import { MetadataReportRules } from "./metadataReport/rules"
@@ -112,4 +115,27 @@ export const appliedObjectDataPathRules: readonly DataPathContribution[] = [
   owner({ kind: "ЖурналДокументов", projectDir: "ЖурналДокументов", rule: MetadataDocumentJournalRules }),
   owner({ kind: "НумераторДокументов", projectDir: "Нумератор", rule: MetadataDocumentNumeratorRules }),
   owner({ kind: "ВнешнийИсточникДанных", projectDir: "ВнешнийИсточникДанных", rule: MetadataExternalDataSourceRules }),
+  owner({
+    kind: "ВнешнийИсточникДанныхТаблица",
+    projectDir: "ВнешнийИсточникДанных",
+    rule: MetadataExternalDataSourceTableRules,
+    compactImplicitFormDataPaths: false,
+    typeDescriptionBases: ["ExternalDataSourceTableRef", "ExternalDataSourceTableObject"],
+    aliases: ["ВнешнийИсточникДанныхТаблицаОбъект"],
+  }),
+  owner({
+    kind: "ВнешнийИсточникДанныхКуб",
+    projectDir: "ВнешнийИсточникДанных",
+    rule: MetadataExternalDataSourceCubeRules,
+    compactImplicitFormDataPaths: false,
+    typeDescriptionBases: ["ExternalDataSourceCubeRecordManager"],
+    aliases: ["ВнешнийИсточникДанныхКубМенеджерЗаписи"],
+  }),
+  owner({
+    kind: "ВнешнийИсточникДанныхКубТаблицаИзмерения",
+    projectDir: "ВнешнийИсточникДанных",
+    rule: MetadataExternalDataSourceDimensionTableRules,
+    compactImplicitFormDataPaths: false,
+    typeDescriptionBases: ["ExternalDataSourceCubeDimensionTableRef"],
+  }),
 ]

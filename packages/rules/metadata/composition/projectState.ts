@@ -20,7 +20,7 @@ import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { appliedObjectDataTableRules } from "../appliedObjects/dataTableRules"
 
-function dependencyValidator() {
+export function createComposedProjectStateDependencyValidator() {
   return createProjectStateDependencyValidator({
     dataTableContributors: appliedObjectDataTableRules.map(({ contributor }) => contributor),
     structuredDocumentValidators: [
@@ -33,7 +33,7 @@ function dependencyValidator() {
 }
 
 export const openProjectStateReadSession = (token: ProjectStateReadToken) =>
-  openBinaryProjectStateReadSession(token, dependencyValidator())
+  openBinaryProjectStateReadSession(token, createComposedProjectStateDependencyValidator())
 
 export function createDefaultProjectStateService(
   options: CreateProjectStateServiceOptions = {},
@@ -41,7 +41,7 @@ export function createDefaultProjectStateService(
 ): ProjectStateService {
   const effectiveRules = rules ?? currentRuleRegistrySet<RuleRegistrySet>()
   const workers = options.workerPool ?? createMetadataWorkerPoolHandle()
-  const validator = dependencyValidator()
+  const validator = createComposedProjectStateDependencyValidator()
   return createProjectStateService({
     ...options,
     workerPool: workers,

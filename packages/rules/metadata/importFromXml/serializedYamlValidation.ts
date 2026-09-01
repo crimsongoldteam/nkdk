@@ -1,5 +1,5 @@
 import type { SerializedYAMLDocument } from "@nkdk/runtime"
-import { parsedYamlFromKnownData } from "@nkdk/runtime"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { ValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
@@ -21,11 +21,7 @@ export function validateSerializedProjectYaml(params: {
   const entry = {
     filePath: params.file.absolutePath,
     text: params.document.text,
-    parsed: parsedYamlFromKnownData(
-      params.document.text,
-      params.document.data,
-      params.document.annotations,
-    ),
+    parsed: parseMetadataYaml(params.document.text),
   }
   return validateProjectFileFirstPass({
     projectDir: params.projectDir,

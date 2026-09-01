@@ -330,9 +330,7 @@ describe("sync configuration from xml", () => {
   })
 
   it("пишет корневой файл Конфигурация.yaml из Configuration.xml", () => {
-    expect(fullRootImport.result.failed).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: "project_validation", severity: "error" }),
-    ]))
+    expect(fullRootImport.result.failed).toEqual([])
     expect(fullRootImport.yaml).toContain("Имя: Конфигурация")
     expect(fullRootImport.yaml).not.toContain("ChildObjects")
   })

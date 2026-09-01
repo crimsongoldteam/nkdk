@@ -201,6 +201,17 @@ describe("configuration XML import coordinator", () => {
     expect(fragmentBatches).toEqual([fragmentData])
   })
 
+  it("не запускает смысловую проверку в первом проходе", async () => {
+    const semanticValidationCalls: number[] = []
+    const result = await importConfigurationFromXml(
+      createParams("configuration"),
+      fakeDependencies({ calls: [], semanticValidationCalls }),
+    )
+
+    expect(result.failed).toEqual([])
+    expect(semanticValidationCalls).toEqual([])
+  })
+
   it("builds the XML language registry before worker initialization", async () => {
     const params = createParams("configuration")
     const initializedLanguages: ConfigurationLanguages[] = []
@@ -881,6 +892,7 @@ function fakeDependencies(params: {
   profileFailure?: Error
   candidateDiscards?: number[]
   sessionAborts?: number[]
+  semanticValidationCalls?: number[]
 }): ImportCoordinatorDependencies {
   let componentDir: string | undefined
   let selectedComponentPath = "cf"
@@ -982,6 +994,7 @@ function fakeDependencies(params: {
         params.projectStateCloseFailure,
         params.replacedFinalHashes,
         () => params.sessionAborts?.push(1),
+        params.semanticValidationCalls,
       )
     },
     mergeFiles(files) {
@@ -1120,6 +1133,7 @@ function fakeProjectState(
   closeFailure?: Error,
   replacedFinalHashes?: Array<readonly { readonly projectPath: string; readonly hash: bigint }[]>,
   onAbort?: () => void,
+  semanticValidationCalls?: number[],
 ): ProjectStateService {
   let nextToken = 1
   const readToken = () => new Uint8Array([nextToken++]) as never
@@ -1137,7 +1151,10 @@ function fakeProjectState(
           importParams.profile?.onPhase?.({ phase: "semanticIndex", elapsedMs: 1 })
           return readToken()
         },
-        async collectSemanticValidationIssues() { return [] },
+        async collectSemanticValidationIssues() {
+          semanticValidationCalls?.push(1)
+          return []
+        },
         async createReadToken() { return readToken() },
         async writeStateFragment(fragment) {
           const buffers = Object.values(fragment.buffers)

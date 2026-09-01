@@ -338,6 +338,7 @@ const tableProperties = {
     yaml: "Поля",
     xml: "Field",
     type: "MetadataExternalDataSourceFields",
+    ownerFactRole: "attributes",
     xmlParents: childObjects,
   },
   forms: {

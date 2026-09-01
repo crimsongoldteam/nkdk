@@ -790,19 +790,12 @@ describe("XML import worker second pass", () => {
       }),
       compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
     } satisfies ValidationSchemaCache
-    await beginCatalogAndFormSecondPass(outputDir, assignments, countingSchemaCache, [{
-      targetProjectPath: assignments.form.targetProjectPath,
-      decision: {
-        kind: "invalid",
-        target: { kind: "path", path: ["Элементы", "Путь", "ПутьКДанным"] },
-        issueCodes: ["data-path.unresolved"],
-      },
-    }])
-    const second = openImportBinaryResult(await runImportWorkerCommand({
-      kind: "secondPassBatch",
-      assignmentIds: [assignments.catalog.id, assignments.form.id],
-    }))
-    await runImportWorkerCommand({ kind: "finishSecondPass" })
+    const second = await finishCatalogAndFormSecondPassBatch(
+      outputDir,
+      assignments,
+      countingSchemaCache,
+      invalidDataPathDecision(assignments),
+    )
     expect(second.diagnostics.count).toBe(0)
     expect(localValidationRuns).toBeGreaterThan(0)
     expect(readFileSync(join(outputDir, assignments.form.targetProjectPath), "utf8"))
@@ -824,6 +817,23 @@ describe("XML import worker second pass", () => {
       yamlPath: ["Элементы", "Путь", "ПутьКДанным"],
       xmlAnomaly: "accepted",
     }))
+  })
+
+  it("не применяет устаревшее решение первого прохода к разрешённой ссылке", async () => {
+    const outputDir = createTempDir("resolved-second-pass-decision")
+    const assignments = createCatalogAndFormAssignments("Объект.Товары.LineNumber")
+    const second = await finishCatalogAndFormSecondPassBatch(
+      outputDir,
+      assignments,
+      fastValidationSchemaCache,
+      invalidDataPathDecision(assignments),
+    )
+
+    expect(second.diagnostics.count).toBe(0)
+    expect(readFileSync(join(outputDir, assignments.form.targetProjectPath), "utf8"))
+      .toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
+    expect(readFileSync(join(outputDir, assignments.form.targetProjectPath), "utf8"))
+      .not.toContain("ПутьКДанным: !xml/invalid")
   })
 
   it("отклоняет идентификатор задания, принадлежащий другой линии", async () => {
@@ -864,6 +874,26 @@ describe("XML import worker second pass", () => {
       },
     )
     expectDeferredFormFirstPass(first, assignments, false)
+    if (first.stateFragment === undefined) throw new Error("Ожидался индекс первого прохода")
+    const firstSnapshot = buildProjectStateSnapshot({
+      fragments: [openProjectStateFragment(first.stateFragment)],
+      deletions: [],
+    })
+    expect(createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(firstSnapshot), {
+      dependencyValidator: createProjectStateDependencyValidator(),
+    }).resolveTargets([{
+      requestId: "first-pass-form",
+      componentPath: "cf",
+      canonicalTarget: "Catalog.Товары.Form.ФормаЭлемента",
+    }])[0]).toMatchObject({
+      status: "found",
+      target: {
+        fileBacked: {
+          itemProjectPath: "cf/Справочник/Товары/Формы/ФормаЭлемента",
+          ownerProjectPath: "cf/Справочник/Товары/Свойства.yaml",
+        },
+      },
+    })
     expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [], warnings: [] })
     if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
     const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
@@ -971,7 +1001,8 @@ describe("XML import worker second pass", () => {
     if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
     const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
     if (formFile === undefined) throw new Error("Ожидался файл формы")
-    expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.НеизвестныйПереход.LineNumber")
+    expect(readFileSync(formFile.sourcePath, "utf-8"))
+      .toContain("ПутьКДанным: !xml/invalid Объект.НеизвестныйПереход.LineNumber")
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
@@ -1184,6 +1215,34 @@ async function beginCatalogAndFormSecondPass(
     issueDecisions,
   })
   return first
+}
+
+async function finishCatalogAndFormSecondPassBatch(
+  outputDir: string,
+  assignments: ReturnType<typeof createCatalogAndFormAssignments>,
+  schemaCache: ValidationSchemaCache,
+  issueDecisions: readonly ImportProjectIssueDecision[],
+) {
+  await beginCatalogAndFormSecondPass(outputDir, assignments, schemaCache, issueDecisions)
+  const second = openImportBinaryResult(await runImportWorkerCommand({
+    kind: "secondPassBatch",
+    assignmentIds: [assignments.catalog.id, assignments.form.id],
+  }))
+  await runImportWorkerCommand({ kind: "finishSecondPass" })
+  return second
+}
+
+function invalidDataPathDecision(
+  assignments: ReturnType<typeof createCatalogAndFormAssignments>,
+): readonly ImportProjectIssueDecision[] {
+  return [{
+    targetProjectPath: assignments.form.targetProjectPath,
+    decision: {
+      kind: "invalid",
+      target: { kind: "path", path: ["Элементы", "Путь", "ПутьКДанным"] },
+      issueCodes: ["data-path.unresolved"],
+    },
+  }]
 }
 
 async function runAssignmentSecondPass(

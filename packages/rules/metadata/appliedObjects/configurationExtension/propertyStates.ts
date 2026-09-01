@@ -151,9 +151,24 @@ function importPresentProperties(params: {
   for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
     const propertyRule = params.rule.properties[propertyKey]
     if (propertyRule === undefined || typeof propertyRule.yaml !== "string") continue
+    if (propertyRule.forReferenceOnly === true) continue
+    if (
+      !borrowed &&
+      propertyRule.metadataTarget !== undefined &&
+      Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueYAML") &&
+      params.yaml[propertyRule.yaml] === null
+    ) {
+      delete params.yaml[propertyRule.yaml]
+      continue
+    }
     if (capability.availability === "own") {
       const implicit = getOwnPropertyImplicitValueYAML(propertyRule)
-      if (implicit !== undefined && params.yaml[propertyRule.yaml] === implicit) {
+      if (
+        implicit !== undefined && (
+          params.yaml[propertyRule.yaml] === implicit
+          || (propertyRule.metadataTarget !== undefined && params.yaml[propertyRule.yaml] === null)
+        )
+      ) {
         delete params.yaml[propertyRule.yaml]
       }
       continue
@@ -261,6 +276,7 @@ function ensurePropertyYamlValue(params: {
   if (propertyRule === undefined) return
   if (Object.prototype.hasOwnProperty.call(params.yaml, params.yamlName)) {
     if (propertyRule.metadataTarget !== undefined && params.yaml[params.yamlName] === null) {
+      if (getImplicitValueYAML(propertyRule) !== undefined) delete params.yaml[params.yamlName]
       params.yaml[params.yamlName] = params.emptyValue ?? {}
     } else if (
       params.emptyValue !== undefined &&

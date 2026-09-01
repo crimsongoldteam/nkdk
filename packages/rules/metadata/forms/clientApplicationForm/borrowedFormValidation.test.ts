@@ -85,6 +85,19 @@ describe("проверка заимствованной формы", () => {
     })])
   })
 
+  it("разрешает явный вычисляемый путь владельца без уплотнения", () => {
+    expect(validate([
+      fact("cfe/X", "working", "mainAttribute", "Объект", ["Реквизиты", "Объект", "ОсновнойРеквизит"]),
+      workingWithDataPath(
+        "cfe/X",
+        "Код",
+        "explicit",
+        "Объект.Код",
+        { kind: "ВнешнийИсточникДанных", name: "Источник" },
+      ),
+    ])).toEqual([])
+  })
+
   it.each([
     ["element", "Элементы.Поля"],
     ["attribute", "Реквизиты.Объект"],
@@ -188,34 +201,43 @@ function validate(facts: readonly ProjectStateStructuredDocumentFact[]) {
     facts,
     queryPort: {
       readDependencyInputs(requests) {
-        return requests.map(({ requestId }) => ({
-          requestId,
-          status: "found" as const,
-          input: {
-            owners: [{ owner: { kind: "Справочник", name: "Товары" }, facts: {} }],
-            fields: [{
-              owner: { kind: "Справочник", name: "Товары" },
-              name: "Код",
-              kind: "standardAttribute" as const,
-              targetName: "Code",
-              typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "String" },
-            }],
-            forms: [{
-              kind: "root" as const,
-              owner: { kind: "Справочник", name: "Товары" },
-              name: "Объект",
-              source: {
-                kind: "formAttribute" as const,
+        return requests.map(({ requestId, check }) => {
+          const rootOwner = check.owner
+          const targetOwner = rootOwner.kind === "ВнешнийИсточникДанных"
+            ? { kind: "ВнешнийИсточникДанныхТаблица", name: `${rootOwner.name}.Таблица` }
+            : rootOwner
+          return {
+            requestId,
+            status: "found" as const,
+            input: {
+              owners: [
+                { owner: rootOwner, facts: {} },
+                ...(targetOwner.kind === rootOwner.kind ? [] : [{ owner: targetOwner, facts: {} }]),
+              ],
+              fields: [{
+                owner: targetOwner,
+                name: "Код",
+                kind: "standardAttribute" as const,
+                targetName: "Code",
+                typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "String" },
+              }],
+              forms: [{
+                kind: "root" as const,
+                owner: rootOwner,
                 name: "Объект",
-                typeInfo: {
-                  kinds: ["object"],
-                  nextTypes: [{ kind: "Справочник", name: "Товары" }],
-                  sourceText: "СправочникОбъект.Товары",
+                source: {
+                  kind: "formAttribute" as const,
+                  name: "Объект",
+                  typeInfo: {
+                    kinds: ["object"],
+                    nextTypes: [targetOwner],
+                    sourceText: "Объект",
+                  },
                 },
-              },
-            }],
-          },
-        }))
+              }],
+            },
+          }
+        })
       },
       readDependencyOwnerInputs(requests) {
         return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
@@ -239,6 +261,7 @@ function workingWithDataPath(
   name: string,
   primaryDataPath: "missing" | "empty" | "explicit",
   value?: string,
+  owner: { readonly kind: string; readonly name: string } = { kind: "Справочник", name: "Товары" },
 ): ProjectStateStructuredDocumentFact {
   const result = working(componentPath, name)
   return {
@@ -249,7 +272,7 @@ function workingWithDataPath(
         version: 1,
         primaryDataPath,
         ...(value === undefined ? {} : { value }),
-        owner: { kind: "Справочник", name: "Товары" },
+        owner,
       }),
     },
   }

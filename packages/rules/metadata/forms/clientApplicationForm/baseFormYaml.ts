@@ -21,6 +21,7 @@ import {
   asExplicitYAMLStringIfMarked,
   isExplicitYAMLString,
   markDoubleQuotedScalar,
+  unwrapExplicitYAMLString,
 } from "@nkdk/runtime"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { importClientApplicationFormBodyFromXML } from "./fromXMLToYAML"
@@ -113,7 +114,13 @@ export function equalBaseFormYaml(left: unknown, right: unknown): boolean {
 }
 
 function equalNormalizedValues(left: unknown, right: unknown): boolean {
+  left = unwrapExplicitYAMLString(left)
+  right = unwrapExplicitYAMLString(right)
   if (Object.is(left, right)) return true
+  if (
+    (left === undefined && isEmptyRecord(right))
+    || (right === undefined && isEmptyRecord(left))
+  ) return true
   if (Array.isArray(left) || Array.isArray(right)) {
     return Array.isArray(left)
       && Array.isArray(right)
@@ -125,6 +132,10 @@ function equalNormalizedValues(left: unknown, right: unknown): boolean {
   const rightKeys = Object.keys(right)
   return leftKeys.length === rightKeys.length
     && leftKeys.every((key) => Object.hasOwn(right, key) && equalNormalizedValues(left[key], right[key]))
+}
+
+function isEmptyRecord(value: unknown): boolean {
+  return isRecord(value) && Object.keys(value).length === 0
 }
 
 function isXmlServiceKey(key: string): boolean {

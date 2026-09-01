@@ -150,12 +150,14 @@ const cubeProperties = {
     yaml: "Измерения",
     xml: "Dimension",
     type: "MetadataExternalDataSourceCubeDimensions",
+    ownerFactRole: "dimensions",
     xmlParents: childObjects,
   },
   resources: {
     yaml: "Ресурсы",
     xml: "Resource",
     type: "MetadataExternalDataSourceCubeResources",
+    ownerFactRole: "resources",
     xmlParents: childObjects,
   },
   forms: {

@@ -1,5 +1,8 @@
 import {
+  applyXmlPatch,
+  decodeXmlRawValue,
   mergeXmlRawFragments,
+  xmlElementRawValue,
   type XmlDocument,
   type XmlRawMergeBoundary,
   type XmlRawValue,
@@ -37,12 +40,52 @@ function transformedRoots(
   params: Parameters<typeof transformedXmlRootsAreExact>[0],
   side: XmlProofTransformation["side"],
 ): XmlDocument["roots"] {
-  const boundaries = params.transformations
+  const transformations = params.transformations
     .filter((transformation) =>
       transformation.sourcePath === params.sourcePath && transformation.side === side
     )
-    .map(transformationBoundary)
-  return boundaries.length === 0 ? roots : mergeXmlRawFragments(roots, boundaries)
+  const nestedTransformations = transformations
+    .filter((transformation) => concreteXmlPathSegments(transformation.xmlPath).length > 1)
+    .sort((left, right) =>
+      concreteXmlPathSegments(right.xmlPath).length - concreteXmlPathSegments(left.xmlPath).length
+    )
+  let result = roots
+  for (const transformation of nestedTransformations) {
+    result = mergeXmlRawFragments(result, [transformationBoundary(transformation)])
+  }
+  for (const transformation of transformations) {
+    if (concreteXmlPathSegments(transformation.xmlPath).length !== 1) continue
+    result = applyRootSemanticPatch(result, transformation)
+  }
+  return result
+}
+
+function applyRootSemanticPatch(
+  roots: XmlDocument["roots"],
+  transformation: XmlProofTransformation,
+): XmlDocument["roots"] {
+  if (
+    transformation.hasSemanticValue !== true
+    || transformation.terminal !== undefined
+    || !isXmlMapping(transformation.value)
+  ) {
+    throw new Error(`Точечное proof-преобразование не может заменять корень XML-документа: ${transformation.xmlPath}`)
+  }
+  const rootIndex = roots.findIndex(({ path }) => path === transformation.xmlPath)
+  if (rootIndex < 0) throw new Error(`Не найден корень XML-документа: ${transformation.xmlPath}`)
+  const root = roots[rootIndex]!
+  const rootValue = xmlElementRawValue(root)
+  if (rootValue === null) throw new Error(`Корень XML-документа не может быть null: ${transformation.xmlPath}`)
+  const patched = applyXmlPatch(rootValue, transformation.value)
+  const decoded = decodeXmlRawValue(patched, { elementName: root.name }).nodes
+  if (decoded.length !== 1 || decoded[0]?.name !== root.name) {
+    throw new Error(`Поправка порядка изменила корень XML-документа: ${transformation.xmlPath}`)
+  }
+  return roots.map((candidate, index) => index === rootIndex ? decoded[0]! : candidate)
+}
+
+function isXmlMapping(value: XmlRawValue): boolean {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
 function transformationBoundary(
