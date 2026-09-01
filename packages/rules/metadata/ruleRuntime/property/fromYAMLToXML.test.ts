@@ -12,7 +12,7 @@ import "../../commonObjects/usePurposes/toXML"
 import { metadataRules } from "../../composition/metadataRules"
 import type { ExportToXMLFunctionNew,ImportFromYAMLFunctionNew } from "./fn"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
-import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
+import { createYAMLToXMLProfile,type YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule,PropertyRule } from "./types"
@@ -94,6 +94,46 @@ const contextWithXMLDefaultVariant = (
 }
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("профилирует преобразование по типам PropertyRule", () => {
+    const profile = createYAMLToXMLProfile({ propertyTypes: true })
+
+    convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Строка: "значение", Число: 42 },
+      rule: testRule({
+        stringValue: { type: "string", yaml: "Строка", xml: "StringValue" },
+        numberValue: { type: "number", yaml: "Число", xml: "NumberValue" },
+      }),
+      outputs: [{ key: "owner" }],
+      profile,
+    })
+
+    expect(profile.propertyTypeProfiles).toMatchObject({
+      string: { propertyCount: 1 },
+      number: { propertyCount: 1 },
+    })
+    for (const entry of Object.values(profile.propertyTypeProfiles)) {
+      expect(entry.inclusiveMs).toBeGreaterThanOrEqual(entry.exclusiveMs)
+      expect(entry.exclusiveMs).toBeGreaterThanOrEqual(0)
+    }
+  })
+
+  it("не замедляет обычное преобразование профилированием типов PropertyRule", () => {
+    const profile = createYAMLToXMLProfile()
+
+    convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Строка: "значение" },
+      rule: testRule({
+        stringValue: { type: "string", yaml: "Строка", xml: "StringValue" },
+      }),
+      outputs: [{ key: "owner" }],
+      profile,
+    })
+
+    expect(profile.propertyTypeProfiles).toEqual({})
+  })
+
   it("восстанавливает исключённый заголовок по имени индексированного объекта", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant("indexed"),

@@ -17,6 +17,31 @@ import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
 const address = "Конфигурация.Свойство.childObjects"
 
 describe("ConfigurationChildObjects children", () => {
+  it("reads every repeated XML kind only once while restoring child order", () => {
+    const itemCount = 200
+    let itemReads = 0
+    const names = new Proxy(
+      Array.from({ length: itemCount }, (_, index) => `Документ${index}`),
+      {
+        get(target, key, receiver) {
+          if (typeof key === "string" && /^(0|[1-9]\d*)$/u.test(key)) itemReads += 1
+          return Reflect.get(target, key, receiver)
+        },
+      },
+    )
+    const current: ConfigurationChildObjectsXML = { Document: names }
+    Object.defineProperty(current, Symbol.for("metadata"), {
+      value: {
+        childOrder: names.map((_name, index) => ({ key: "Document", index })),
+      },
+    })
+    itemReads = 0
+
+    configurationChildObjectsFromIndex(undefined, current)
+
+    expect(itemReads).toBeLessThanOrEqual(itemCount * 2)
+  })
+
   it("does not store canonical type and Russian-name order", () => {
     const collector = collect({ Language: ["Английский", "Русский"], Catalog: ["Товары", "Услуги"] })
     expect(collector.fragment("Конфигурация.yaml").entities).toEqual([])

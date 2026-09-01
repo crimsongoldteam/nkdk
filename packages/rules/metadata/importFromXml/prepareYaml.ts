@@ -139,8 +139,14 @@ export async function prepareImportYaml(params: {
 export async function readImportXmlDocuments(params: {
   readonly assignment: ImportAssignment
   readonly profiler?: ValidationProfiler
+  readonly profilePass: "first" | "second"
 }): Promise<PackedImportXmlInput[]> {
-  return (await readAndParseAssignmentXml(params.assignment.xmlFiles, params.profiler, "full")).map(
+  return (await readAndParseAssignmentXml(
+    params.assignment.xmlFiles,
+    params.profiler,
+    "full",
+    params.profilePass,
+  )).map(
     ({ input, document }) => {
       if (document === undefined) throw new Error(`Не построено адресное XML-дерево: ${input.sourcePath}`)
       return { input, document }
@@ -516,12 +522,18 @@ async function readAndParseAssignmentXml(
   xmlFiles: readonly ImportXmlInput[],
   profiler: ValidationProfiler | undefined,
   proofDetail: "full" | "roots",
+  profilePass?: "first" | "second",
 ): Promise<ParsedImportXmlInput[]> {
+  const passLabel = profilePass === "first"
+    ? " первого прохода"
+    : profilePass === "second"
+      ? " второго прохода"
+      : ""
   const result: ParsedImportXmlInput[] = []
   for (const input of xmlFiles) {
     try {
       const content =
-        (await profiler?.measureAsync("Подготовка импорта конфигурации", "Чтение XML", { items: 1 }, () =>
+        (await profiler?.measureAsync("Подготовка импорта конфигурации", `Чтение XML${passLabel}`, { items: 1 }, () =>
           fs.promises.readFile(input.sourcePath, "utf-8")
         )) ?? (await fs.promises.readFile(input.sourcePath, "utf-8"))
       result.push({
@@ -529,7 +541,7 @@ async function readAndParseAssignmentXml(
         ...(() => {
           return profiler?.measure(
             "Подготовка импорта конфигурации",
-            "Парсинг XML",
+            `Парсинг XML${passLabel}`,
             { items: 1, bytes: Buffer.byteLength(content) },
             () => parseAssignmentXml(content, proofDetail),
           ) ?? parseAssignmentXml(content, proofDetail)

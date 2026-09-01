@@ -378,10 +378,10 @@ describe("XML import worker first pass", () => {
           line.includes('operation="import-from-xml"') &&
           line.includes("scope=worker") &&
           line.includes("worker=0") &&
-          line.includes('substep="Чтение XML"')
+          line.includes('substep="Чтение XML первого прохода"')
       )
     ).toBe(true)
-    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML"'))).toBe(
+    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML первого прохода"'))).toBe(
       true
     )
     expect(lines.some((line) => line.includes('substep="Извлечение фактов XML"'))).toBe(true)
@@ -395,7 +395,7 @@ describe("XML import worker first pass", () => {
       expect.stringMatching(/substep="XML-задания, ожидающие второго прохода".*items=1/)
     )
     expect(lines.some((line) => line.includes('substep="Досрочно записанные YAML"'))).toBe(false)
-    const readLines = lines.filter((line) => line.includes('substep="Чтение XML"'))
+    const readLines = lines.filter((line) => line.includes('substep="Чтение XML первого прохода"'))
     expect(readLines).toHaveLength(1)
     expect(readLines[0]).toContain("items=1")
     const serializationLines = lines.filter((line) => line.includes('substep="Сериализация YAML"'))
@@ -457,6 +457,24 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it("повторно читает XML во втором проходе без packed-хранилища", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    vi.stubEnv("NKDK_PROFILE", "1")
+    vi.stubEnv("NKDK_IMPORT_XML_STRATEGY", "reread")
+    const outputDir = createTempDir("reread-second-pass")
+
+    const { second } = await runAssignmentSecondPass(outputDir, catalogAssignment())
+    const lines = error.mock.calls.map(([line]) => String(line))
+
+    expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+    expect(lines.filter((line) => line.includes('substep="Чтение XML первого прохода"'))).toHaveLength(1)
+    expect(lines.filter((line) => line.includes('substep="Парсинг XML первого прохода"'))).toHaveLength(1)
+    expect(lines.filter((line) => line.includes('substep="Чтение XML второго прохода"'))).toHaveLength(1)
+    expect(lines.filter((line) => line.includes('substep="Парсинг XML второго прохода"'))).toHaveLength(1)
+    expect(lines.some((line) => line.includes('substep="MessagePack pack"'))).toBe(false)
+    expect(lines.some((line) => line.includes('substep="MessagePack unpack"'))).toBe(false)
+  })
+
   it("читает текущую форму cf для проекции BaseForm", () => {
     expect(shouldReadCurrentConfigurationYaml({
       componentPath: "cfe/Расширение",

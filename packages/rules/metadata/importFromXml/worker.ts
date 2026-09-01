@@ -245,7 +245,7 @@ export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
     records: () => packedProfiler?.records() ?? [],
     flush: () => packedProfiler?.flush(),
   } })
-  const packedAssignmentIds = new Set<string>()
+  const pendingAssignmentIds = new Set<string>()
   const assignedImports = new Map<string, ImportAssignment>()
   let activeSecondPass: ActiveSecondPass | undefined
   let firstPassAccumulator: FirstPassAccumulator | undefined
@@ -283,7 +283,7 @@ async function runImportWorkerCommand(
     await endSecondPass()
     preparedYaml.clear()
     packedStore.clear()
-    packedAssignmentIds.clear()
+    pendingAssignmentIds.clear()
     assignedImports.clear()
     firstPassAccumulator?.fragmentWriter.discard()
     const projectDir = command.projectDir ?? command.outputDir
@@ -396,7 +396,7 @@ async function runImportWorkerCommand(
     accumulator.profiler.flush()
     secondPassAccumulator = undefined
     await endSecondPass()
-    const unfinished = packedStore.stats().assignments
+    const unfinished = pendingAssignmentIds.size
     if (unfinished > 0) {
       throw new Error(`Второй проход XML-import не обработал ${unfinished} packed XML-заданий`)
     }
@@ -446,8 +446,10 @@ async function processSecondPass(
   }
   let prepared: DeferredImportYaml | undefined
   try {
-    const inputs = packedStore.take(assignmentId)
-    packedAssignmentIds.delete(assignmentId)
+    const inputs = shouldRereadXmlOnSecondPass()
+      ? await readImportXmlDocuments({ assignment, profiler, profilePass: "second" })
+      : packedStore.take(assignmentId)
+    pendingAssignmentIds.delete(assignmentId)
     const collector = createConfigurationIndexCollector()
     const imported = await prepareImportYamlFromDocuments({
       assignment,
@@ -535,7 +537,7 @@ async function processSecondPass(
   } finally {
     preparedYaml.delete(assignmentId)
     packedStore.release(assignmentId)
-    packedAssignmentIds.delete(assignmentId)
+    pendingAssignmentIds.delete(assignmentId)
   }
 
   profiler.record("Подготовка импорта конфигурации", "Формирование worker списка файлов результата импорта", {
@@ -571,6 +573,10 @@ function checkpointRetainedSecondPass(profiler: ValidationProfiler): void {
 
 function isImportMemoryProfilingEnabled(): boolean {
   return process.env["NKDK_PROFILE_MEMORY"] === "1"
+}
+
+function shouldRereadXmlOnSecondPass(): boolean {
+  return process.env["NKDK_IMPORT_XML_STRATEGY"] === "reread"
 }
 
 function finishImportWorkerBatch(accumulator: SecondPassAccumulator, workerIndex: number) {
@@ -852,6 +858,7 @@ async function prepareYamlForFinalPass(
       ...(baseConfigurationIndex === undefined ? {} : { baseConfigurationIndex }),
       ...(controlBaseFormSource === undefined ? {} : { baseFormSource: controlBaseFormSource }),
       composition: activeSecondPass?.composition ?? { children: () => [] },
+      profilePropertyTypes: process.env["NKDK_PROFILE"] === "1",
       profile(event) {
         profiler.record(
           "Подготовка импорта конфигурации",
@@ -880,6 +887,16 @@ async function prepareYamlForFinalPass(
           items: 1,
           timeMs: event.anomalyProofMs,
         })
+        for (const propertyType of event.propertyTypes) {
+          profiler.record("toXML PropertyRule exclusive", propertyType.propertyType, {
+            items: propertyType.propertyCount,
+            timeMs: propertyType.exclusiveMs,
+          })
+          profiler.record("toXML PropertyRule inclusive", propertyType.propertyType, {
+            items: propertyType.propertyCount,
+            timeMs: propertyType.inclusiveMs,
+          })
+        }
       },
     }),
   )
@@ -1259,7 +1276,7 @@ async function processFirstPass(
     const collector = createConfigurationIndexCollector()
     let packed = false
     try {
-      const inputs = await readImportXmlDocuments({ assignment, profiler })
+      const inputs = await readImportXmlDocuments({ assignment, profiler, profilePass: "first" })
       const prepared = await prepareImportFacts({
         assignment,
         context: state.context,
@@ -1335,8 +1352,8 @@ async function processFirstPass(
         accumulator.fragmentWriter.appendImportFinal(
           provisionalImportFinalContribution(prepared, validationContribution, state),
         )
-        packedStore.put(assignment.id, inputs)
-        packedAssignmentIds.add(assignment.id)
+        if (!shouldRereadXmlOnSecondPass()) packedStore.put(assignment.id, inputs)
+        pendingAssignmentIds.add(assignment.id)
         packed = true
         accumulator.files.push(...assignmentFiles)
       } catch (caught) {
@@ -1347,13 +1364,16 @@ async function processFirstPass(
     } catch (caught) {
       accumulator.diagnostics.push(importAssignmentDiagnostic(assignment, caught))
     } finally {
-      if (!packed) packedStore.release(assignment.id)
+      if (!packed) {
+        packedStore.release(assignment.id)
+        pendingAssignmentIds.delete(assignment.id)
+      }
     }
   }
 
   const retained = packedStore.stats()
   profiler.record("Подготовка импорта конфигурации", "XML-задания, ожидающие второго прохода", {
-    items: retained.assignments,
+    items: pendingAssignmentIds.size,
     bytes: retained.bytes,
     timeMs: 0,
   })
@@ -1743,7 +1763,7 @@ function clearWorkerState(): void {
   secondPassAccumulator?.fragmentWriter.discard()
   secondPassAccumulator = undefined
   packedStore.clear()
-  packedAssignmentIds.clear()
+  pendingAssignmentIds.clear()
   preparedYaml.clear()
   assignedImports.clear()
   initializedState = undefined
@@ -1766,9 +1786,9 @@ function workerStateForTests(): {
           workerIndex: initializedState.workerIndex,
           outputDir: initializedState.outputDir,
         }),
-    preparedYamlIds: [...new Set([...preparedYaml.keys(), ...packedAssignmentIds])],
+    preparedYamlIds: [...new Set([...preparedYaml.keys(), ...pendingAssignmentIds])],
     retainedProofAuditIds: [...new Set([
-      ...packedAssignmentIds,
+      ...pendingAssignmentIds,
       ...[...preparedYaml]
       .filter(([, prepared]) => prepared.proofAudit !== undefined)
       .map(([assignmentId]) => assignmentId),

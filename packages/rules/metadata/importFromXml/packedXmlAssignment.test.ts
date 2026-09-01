@@ -82,7 +82,12 @@ describe("PackedXmlAssignmentStore", () => {
     }])
     store.take("a")
 
-    expect(measure.mock.calls.map((call) => call[1])).toEqual(["MessagePack pack", "MessagePack unpack"])
+    expect(measure.mock.calls.map((call) => call[1])).toEqual([
+      "Packed XML store write",
+      "MessagePack pack",
+      "Packed XML store read",
+      "MessagePack unpack",
+    ])
     expect(record).toHaveBeenCalledWith(
       "Подготовка импорта конфигурации",
       "Packed XML bytes",

@@ -129,6 +129,7 @@ export async function runProfile(options, overrides = {}) {
         workerPoolSize: workerPoolSize(steps),
         controlExport: summarizeControlExport(steps),
         phases: summarizeImportSteps(steps, elapsedMs),
+        toXmlPropertyTypes: summarizeToXmlPropertyTypes(steps),
       })
 
       if (result.isError || operationFailed(payload)) {
@@ -206,10 +207,23 @@ export function summarizeImportSteps(steps, elapsedMs) {
     ["workerBinaryEncodeMs", sum(records("Двоичное кодирование результата", "worker"), "time")],
     ["workerBinaryTransferMs", sum(records("Передача двоичного результата", "main"), "time")],
     ["workerBinaryBytes", sum(records("Двоичное кодирование результата", "worker"), "bytes")],
-    ["xmlParseMs", sum(records("Парсинг XML", "worker"), "time")],
+    ["xmlReadMs", sum([
+      ...records("Чтение XML первого прохода", "worker"),
+      ...records("Чтение XML второго прохода", "worker"),
+    ], "time")],
+    ["xmlParseMs", sum([
+      ...records("Парсинг XML первого прохода", "worker"),
+      ...records("Парсинг XML второго прохода", "worker"),
+    ], "time")],
+    ["firstPassXmlReadMs", sum(records("Чтение XML первого прохода", "worker"), "time")],
+    ["firstPassXmlParseMs", sum(records("Парсинг XML первого прохода", "worker"), "time")],
+    ["secondPassXmlReadMs", sum(records("Чтение XML второго прохода", "worker"), "time")],
+    ["secondPassXmlParseMs", sum(records("Парсинг XML второго прохода", "worker"), "time")],
     ["factsOnlyMs", sum(records("Извлечение фактов XML", "worker"), "time")],
     ["messagePackMs", sum(records("MessagePack pack", "worker"), "time")],
     ["messageUnpackMs", sum(records("MessagePack unpack", "worker"), "time")],
+    ["packedStoreWriteMs", sum(records("Packed XML store write", "worker"), "time")],
+    ["packedStoreReadMs", sum(records("Packed XML store read", "worker"), "time")],
     ["packedBytes", sum(records("Packed XML bytes", "worker"), "bytes")],
     ["toXmlObjectMs", sum(records("toXML: построение объекта", "worker"), "time")],
     ["toXmlFinalizeMs", sum(records("toXML: финализация deferred", "worker"), "time")],
@@ -257,6 +271,37 @@ export function summarizeControlExport(steps) {
       sum(steps.filter((step) => step.worker === worker && step.substep === "Задания второго прохода"), "items")
     ),
   }
+}
+
+export function summarizeToXmlPropertyTypes(steps) {
+  const records = (mode, propertyType) => steps.filter((step) =>
+    step.scope === "worker"
+    && step.step === `toXML PropertyRule ${mode}`
+    && step.substep === propertyType
+  )
+  const propertyTypes = new Set(
+    steps
+      .filter((step) => step.scope === "worker" && step.step?.startsWith("toXML PropertyRule "))
+      .map((step) => step.substep)
+      .filter((propertyType) => typeof propertyType === "string"),
+  )
+  return [...propertyTypes]
+    .map((propertyType) => {
+      const exclusive = records("exclusive", propertyType)
+      const inclusive = records("inclusive", propertyType)
+      const propertyCount = sum(exclusive, "items")
+      const exclusiveWorkerMs = sum(exclusive, "time")
+      return {
+        propertyType,
+        propertyCount,
+        exclusiveWorkerMs,
+        exclusiveCriticalMs: max(aggregateWorkerValues(exclusive, "time", "sum")) ?? 0,
+        inclusiveWorkerMs: sum(inclusive, "time"),
+        inclusiveCriticalMs: max(aggregateWorkerValues(inclusive, "time", "sum")) ?? 0,
+        averageExclusiveUs: propertyCount === 0 ? 0 : exclusiveWorkerMs * 1_000 / propertyCount,
+      }
+    })
+    .sort((left, right) => right.exclusiveWorkerMs - left.exclusiveWorkerMs)
 }
 
 function clearDirectory(dir) {
@@ -503,6 +548,7 @@ function toTableRow(name, records) {
   const workerBytes = aggregateWorkerValues(workers, "bytes", "max")
   return {
     step: name,
+    items: sum(records, "items"),
     projectMs: main.length > 0 ? sum(main, "time") : max(workerTimes),
     mainMs: sumOrUndefined(main, "time"),
     workerMinMs: min(workerTimes),

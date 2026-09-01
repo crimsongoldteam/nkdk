@@ -121,8 +121,14 @@ function buildChildObjects(items: readonly ConfigurationIndexChild[]): Configura
 function flattenChildObjects(xml: object): ConfigurationIndexChild[] {
   const childOrder = getXMLChildOrder(xml)
   if (childOrder !== undefined) {
+    const namesByXmlName = new Map<string, readonly string[]>()
     return childOrder.flatMap(({ key: xmlName, index }) => {
-      const name = normalizeNames((xml as Record<string, unknown>)[xmlName])[index]
+      let names = namesByXmlName.get(xmlName)
+      if (names === undefined) {
+        names = normalizeNames((xml as Record<string, unknown>)[xmlName])
+        namesByXmlName.set(xmlName, names)
+      }
+      const name = names[index]
       return name === undefined ? [] : [{ xmlName, name }]
     })
   }

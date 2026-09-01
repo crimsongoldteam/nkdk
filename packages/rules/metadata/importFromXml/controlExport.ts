@@ -53,6 +53,7 @@ export async function executeImportControlExport(params: {
   readonly composition: MetadataXmlPrepareComposition
   readonly ordinaryExporter?: typeof prepareFullXmlSyncAssignment
   readonly controlDocumentBuilder?: typeof buildPreparedAssignmentControlDocument
+  readonly profilePropertyTypes?: boolean
   readonly profile?: (event: {
     readonly mode: "direct" | "serialized"
     readonly toXmlObjectMs: number
@@ -60,6 +61,12 @@ export async function executeImportControlExport(params: {
     readonly directHashMs: number
     readonly mismatchDocumentMs: number
     readonly anomalyProofMs: number
+    readonly propertyTypes: readonly {
+      readonly propertyType: string
+      readonly propertyCount: number
+      readonly inclusiveMs: number
+      readonly exclusiveMs: number
+    }[]
   }) => void
 }): Promise<ProveXmlAnomalyBoundariesResult> {
   if (params.annotations.root?.kind === "raw") {
@@ -104,6 +111,7 @@ export async function executeImportControlExport(params: {
     composition: params.composition,
     topology: params.topology,
     xmlAnomalyRawFallback: false,
+    profilePropertyTypes: params.profilePropertyTypes,
   })
   const toXmlObjectMs = performance.now() - toXmlObjectStartedAt
   const preliminaryExported = prepared.documents.map((document) => {
@@ -176,7 +184,17 @@ export async function executeImportControlExport(params: {
 }
 
 function controlExportTimings(
-  profile: { readonly propertyConversionMs: number; readonly deferredFinalizeMs: number; readonly directHashMs: number; readonly mismatchDocumentMs: number },
+  profile: {
+    readonly propertyConversionMs: number
+    readonly deferredFinalizeMs: number
+    readonly directHashMs: number
+    readonly mismatchDocumentMs: number
+    readonly propertyTypeProfiles: Readonly<Record<string, {
+      readonly propertyCount: number
+      readonly inclusiveMs: number
+      readonly exclusiveMs: number
+    }>>
+  },
   toXmlObjectMs: number,
   anomalyProofMs: number,
 ) {
@@ -186,6 +204,10 @@ function controlExportTimings(
     directHashMs: profile.directHashMs,
     mismatchDocumentMs: profile.mismatchDocumentMs,
     anomalyProofMs,
+    propertyTypes: Object.entries(profile.propertyTypeProfiles).map(([propertyType, value]) => ({
+      propertyType,
+      ...value,
+    })),
   }
 }
 

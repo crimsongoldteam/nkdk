@@ -32,6 +32,7 @@ export function prepareFullXmlSyncAssignment(params: {
   composition: MetadataXmlPrepareComposition
   topology?: CompiledMetadataResourceTopology
   xmlAnomalyRawFallback?: boolean
+  profilePropertyTypes?: boolean
 }): PreparedXMLAssignment {
   const indexCollector = createConfigurationIndexCollector()
   const runtime = createConfigurationIndexExportRuntime({
@@ -69,7 +70,7 @@ export function prepareFullXmlSyncAssignment(params: {
           }),
         },
       }
-  const profile = createYAMLToXMLProfile()
+  const profile = createYAMLToXMLProfile({ propertyTypes: params.profilePropertyTypes })
   const preparedTopology = prepareTopologyAssignmentDocuments({
     ...params,
     context,

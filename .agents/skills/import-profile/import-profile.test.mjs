@@ -5,6 +5,7 @@ import {
   runProfile,
   summarizeControlExport,
   summarizeImportSteps,
+  summarizeToXmlPropertyTypes,
   usage,
 } from "./import-profile.mjs"
 
@@ -49,10 +50,15 @@ test("сводит этапы импорта и двоичной выдачи в
     main("Публикация состояния проекта", 17),
     main("Сохранение состояния проекта", 18),
     worker("Двоичное кодирование результата", 19, 1_024),
-    worker("Парсинг XML", 10),
+    worker("Чтение XML первого прохода", 4, 2_048),
+    worker("Парсинг XML первого прохода", 6, 2_048),
+    worker("Чтение XML второго прохода", 5, 2_048),
+    worker("Парсинг XML второго прохода", 7, 2_048),
     worker("Извлечение фактов XML", 11),
     worker("MessagePack pack", 12),
     worker("MessagePack unpack", 13),
+    worker("Packed XML store write", 14),
+    worker("Packed XML store read", 15),
     worker("Packed XML bytes", 0, 4_096),
     worker("toXML: построение объекта", 14),
     worker("toXML: финализация deferred", 15),
@@ -77,10 +83,17 @@ test("сводит этапы импорта и двоичной выдачи в
     workerBinaryEncodeMs: 19,
     workerBinaryTransferMs: 20,
     workerBinaryBytes: 1_024,
-    xmlParseMs: 10,
+    xmlReadMs: 9,
+    xmlParseMs: 13,
+    firstPassXmlReadMs: 4,
+    firstPassXmlParseMs: 6,
+    secondPassXmlReadMs: 5,
+    secondPassXmlParseMs: 7,
     factsOnlyMs: 11,
     messagePackMs: 12,
     messageUnpackMs: 13,
+    packedStoreWriteMs: 14,
+    packedStoreReadMs: 15,
     packedBytes: 4_096,
     toXmlObjectMs: 14,
     toXmlFinalizeMs: 15,
@@ -117,6 +130,38 @@ test("сводит режим контрольного XML и распредел
     detailedRereads: 0,
     assignmentsByWorker: [3, 2],
   })
+})
+
+test("сводит собственное и полное время toXML по типам PropertyRule", () => {
+  const steps = [
+    { scope: "worker", worker: 0, step: "toXML PropertyRule exclusive", substep: "string", items: 2, time: 5 },
+    { scope: "worker", worker: 1, step: "toXML PropertyRule exclusive", substep: "string", items: 3, time: 7 },
+    { scope: "worker", worker: 0, step: "toXML PropertyRule inclusive", substep: "string", items: 2, time: 9 },
+    { scope: "worker", worker: 1, step: "toXML PropertyRule inclusive", substep: "string", items: 3, time: 11 },
+    { scope: "worker", worker: 0, step: "toXML PropertyRule exclusive", substep: "object", items: 1, time: 15 },
+    { scope: "worker", worker: 0, step: "toXML PropertyRule inclusive", substep: "object", items: 1, time: 30 },
+  ]
+
+  assert.deepEqual(summarizeToXmlPropertyTypes(steps), [
+    {
+      propertyType: "object",
+      propertyCount: 1,
+      exclusiveWorkerMs: 15,
+      exclusiveCriticalMs: 15,
+      inclusiveWorkerMs: 30,
+      inclusiveCriticalMs: 30,
+      averageExclusiveUs: 15_000,
+    },
+    {
+      propertyType: "string",
+      propertyCount: 5,
+      exclusiveWorkerMs: 12,
+      exclusiveCriticalMs: 7,
+      inclusiveWorkerMs: 20,
+      inclusiveCriticalMs: 11,
+      averageExclusiveUs: 2_400,
+    },
+  ])
 })
 
 test("собирает MCP до замера и переиспользует одну сессию", async () => {

@@ -51,34 +51,39 @@ export function createPackedXmlAssignmentStore(options: {
 
   return {
     put(assignmentId, inputs) {
-      if (buffers.has(assignmentId)) throw new Error(`XML assignment already packed: ${assignmentId}`)
-      const payload: PackedXmlAssignmentPayload = { version: PAYLOAD_VERSION, inputs }
-      const bytes = measure(options.profiler, "MessagePack pack", { items: inputs.length }, () =>
-        Uint8Array.from(codec.pack(payload))
-      )
-      options.profiler?.record(PROFILE_STEP, "Packed XML bytes", {
-        items: inputs.length,
-        bytes: bytes.byteLength,
-        timeMs: 0,
+      measure(options.profiler, "Packed XML store write", { items: inputs.length }, () => {
+        if (buffers.has(assignmentId)) throw new Error(`XML assignment already packed: ${assignmentId}`)
+        const payload: PackedXmlAssignmentPayload = { version: PAYLOAD_VERSION, inputs }
+        const bytes = measure(options.profiler, "MessagePack pack", { items: inputs.length }, () =>
+          Uint8Array.from(codec.pack(payload))
+        )
+        options.profiler?.record(PROFILE_STEP, "Packed XML bytes", {
+          items: inputs.length,
+          bytes: bytes.byteLength,
+          timeMs: 0,
+        })
+        buffers.set(assignmentId, bytes)
+        retainedBytes += bytes.byteLength
+        checkpoint()
+        return true
       })
-      buffers.set(assignmentId, bytes)
-      retainedBytes += bytes.byteLength
-      checkpoint()
     },
 
     take(assignmentId) {
-      const bytes = buffers.get(assignmentId)
-      if (bytes === undefined) throw new Error(`XML assignment is not packed: ${assignmentId}`)
-      buffers.delete(assignmentId)
-      retainedBytes -= bytes.byteLength
-      checkpoint()
-      const payload = measure(
-        options.profiler,
-        "MessagePack unpack",
-        { items: 1, bytes: bytes.byteLength },
-        () => codec.unpack(bytes)
-      )
-      return requirePackedXmlAssignmentPayload(payload).inputs.slice()
+      return measure(options.profiler, "Packed XML store read", { items: 1 }, () => {
+        const bytes = buffers.get(assignmentId)
+        if (bytes === undefined) throw new Error(`XML assignment is not packed: ${assignmentId}`)
+        buffers.delete(assignmentId)
+        retainedBytes -= bytes.byteLength
+        checkpoint()
+        const payload = measure(
+          options.profiler,
+          "MessagePack unpack",
+          { items: 1, bytes: bytes.byteLength },
+          () => codec.unpack(bytes)
+        )
+        return requirePackedXmlAssignmentPayload(payload).inputs.slice()
+      })
     },
 
     release(assignmentId) {
