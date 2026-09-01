@@ -3,7 +3,7 @@ import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import type { MetadataItemRule } from "../property/types"
-import type { PropertyRuleExecution } from "../property/fn"
+import type { CompiledPropertyRuleExecution } from "../property/compiledPropertyPlan"
 import { findInlineProperty } from "./yamlInline"
 import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
 import {
@@ -185,8 +185,8 @@ function claimKnownXsiType(params: {
 
 function propertyExecutionFromTraversal(
   traversal: DirectImportTraversal,
-): PropertyRuleExecution | undefined {
-  return traversal.execution as PropertyRuleExecution | undefined
+): CompiledPropertyRuleExecution | undefined {
+  return traversal.execution as CompiledPropertyRuleExecution | undefined
 }
 
 function findInlinePropertyCached(rule: MetadataItemRule): InlineProperty {

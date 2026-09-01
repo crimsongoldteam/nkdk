@@ -2,9 +2,6 @@ import type {
   ConfigurationContext,
 } from "../../context/types"
 import type { PropertyRule } from "./types"
-import type { PropertyRuleExecution } from "./fn"
-import type { CompiledProperty } from "./compiledPropertyPlan"
-import { getTypeRule } from "./typeRuleRegistry"
 
 export interface AtomicConversionResult<Representation = unknown> {
   readonly metadataValue: unknown
@@ -26,14 +23,26 @@ export type CompileAtomicConversionFunction = (params: {
   readonly rule: PropertyRule
 }) => CompiledAtomicConversion
 
+interface AtomicConversionExecution {
+  getTypeRule(
+    type: PropertyRule["type"],
+    operation: "compileAtomicConversion",
+  ): CompileAtomicConversionFunction | undefined
+}
+
+interface CompiledAtomicProperty {
+  readonly atomicConversion: CompiledAtomicConversion | undefined
+}
+
 export function resolveAtomicConversion(params: {
   readonly rule: PropertyRule
-  readonly execution?: PropertyRuleExecution
-  readonly compiled?: CompiledProperty
+  readonly execution?: AtomicConversionExecution
+  readonly compiled?: CompiledAtomicProperty
+  readonly getTypeRule?: AtomicConversionExecution["getTypeRule"]
 }): CompiledAtomicConversion | undefined {
   if (params.compiled !== undefined) return params.compiled.atomicConversion
   return (params.execution?.getTypeRule(params.rule.type, "compileAtomicConversion")
-    ?? getTypeRule(params.rule.type, "compileAtomicConversion"))?.({ rule: params.rule })
+    ?? params.getTypeRule?.(params.rule.type, "compileAtomicConversion"))?.({ rule: params.rule })
 }
 
 export function canUseAtomicFromXMLToYAML(params: {

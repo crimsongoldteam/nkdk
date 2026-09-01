@@ -56,10 +56,10 @@ import {
   canUseAtomicFromYAMLToXML,
   resolveAtomicConversion,
 } from "./atomicConversion"
-import type { CompiledProperty } from "./compiledPropertyPlan"
+import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
 
 export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
-  readonly execution?: PropertyRuleExecution
+  readonly execution?: CompiledPropertyRuleExecution
 }
 
 export interface AtomicFromYAMLParams {
@@ -950,6 +950,7 @@ function callAtomicFromXML(params: {
     rule: params.rule,
     execution: params.execution,
     compiled: params.compiled,
+    getTypeRule,
   })
   if (atomicConversion !== undefined) {
     return atomicConversion.fromXMLToYAML({
@@ -1000,6 +1001,7 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
     rule,
     execution: params.execution,
     compiled: params.compiled,
+    getTypeRule,
   })
   if (atomicConversion !== undefined) {
     const atomicValue = params.restoreExcludedEqualName === true && importedValue === undefined
@@ -1085,6 +1087,7 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
     rule,
     execution: params.execution,
     compiled: params.compiled,
+    getTypeRule,
   })
   if (atomicConversion !== undefined) {
     const converted = atomicConversion.fromYAMLToXML({ context, value })

@@ -17,7 +17,7 @@ export const importPropertyFromXML = (params: {
 }): unknown => {
   const { context, rule, value, name, ownerXmlName, execution, compiled } = params
   if (compiled === undefined && execution !== undefined) {
-    const conversion = resolveAtomicConversion({ rule, execution })
+    const conversion = resolveAtomicConversion({ rule, execution, getTypeRule })
     if (conversion !== undefined) {
       return getValueOrDefault({
         context,
@@ -29,7 +29,7 @@ export const importPropertyFromXML = (params: {
     }
     return execution.fromXML({ context, rule, value, name, ownerXmlName })
   }
-  const conversion = resolveAtomicConversion({ rule, execution, compiled })
+  const conversion = resolveAtomicConversion({ rule, execution, compiled, getTypeRule })
   if (conversion !== undefined) {
     return getValueOrDefault({
       context,

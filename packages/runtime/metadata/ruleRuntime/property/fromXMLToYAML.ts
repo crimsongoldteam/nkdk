@@ -58,7 +58,7 @@ import {
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
 import { encodeXmlRawElement } from "../../../xml/structure/rawCodec"
 import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
-import type { CompiledProperty } from "./compiledPropertyPlan"
+import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
 import { canUseAtomicFromXMLToYAML } from "./atomicConversion"
 
 export class DirectImportConversionError extends Error {
@@ -89,7 +89,7 @@ export function importPropertiesFromXMLToYAML(params: {
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
   propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
-  execution?: PropertyRuleExecution
+  execution?: CompiledPropertyRuleExecution
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
   mode?: DirectImportTraversal["mode"]

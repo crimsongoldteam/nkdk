@@ -74,6 +74,7 @@ export function exportPropertyValueBeforeMetadataTargetsToYAML(params: {
     rule,
     execution: params.execution,
     compiled: params.compiled,
+    getTypeRule,
   })
   if (atomicConversion !== undefined) {
     return atomicConversion.fromXMLToYAML({ context, value }).representationValue

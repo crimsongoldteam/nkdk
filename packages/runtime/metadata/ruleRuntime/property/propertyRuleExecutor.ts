@@ -1,11 +1,14 @@
 import { getValueOrDefault } from "./helpers"
 import type { PropertyRuleRegistrySet } from "./propertyRuleRegistrySet"
-import type { PropertyRuleExecution } from "./fn"
-import { compilePropertyPlan, type CompiledPropertyPlan } from "./compiledPropertyPlan"
+import {
+  compilePropertyPlan,
+  type CompiledPropertyPlan,
+  type CompiledPropertyRuleExecution,
+} from "./compiledPropertyPlan"
 import type { CompiledAtomicConversion } from "./atomicConversion"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
-export interface PropertyRuleExecutor extends PropertyRuleExecution {}
+export interface PropertyRuleExecutor extends CompiledPropertyRuleExecution {}
 
 export function createPropertyRuleExecutor(
   registries: PropertyRuleRegistrySet,

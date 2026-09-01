@@ -5,6 +5,7 @@ import type { CompiledProperty } from "./compiledPropertyPlan"
 import type { PropertyRuleExecution } from "./fn"
 import { importPropertyFromXML } from "./fromXML"
 import { exportPropertyValueToYAML } from "./toYAML"
+import { getTypeRule } from "./typeRuleRegistry"
 import type { PropertyRule } from "./types"
 
 export function convertPropertyFromXMLToYAML(params: {
@@ -16,7 +17,7 @@ export function convertPropertyFromXMLToYAML(params: {
   readonly compiled?: CompiledProperty
   readonly preserveImplicitValue?: boolean
 }): AtomicConversionResult {
-  const conversion = resolveAtomicConversion(params)
+  const conversion = resolveAtomicConversion({ ...params, getTypeRule })
   if (conversion !== undefined) {
     return conversion.fromXMLToYAML({ context: params.context, value: params.value })
   }

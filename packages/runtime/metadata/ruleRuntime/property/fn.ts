@@ -63,7 +63,6 @@ export type ImportFromXMLFunction = (
 ) => any | undefined
 
 export interface PropertyRuleExecution {
-  propertyPlan(rule: MetadataItemRule): import("./compiledPropertyPlan").CompiledPropertyPlan
   resolveMetadataItemXMLDefaultVariant(
     params: import("../metadataItem/augmenterRegistry").MetadataItemXmlImportVariantParams,
   ): import("../../context/types").XMLImportObjectVariant | undefined

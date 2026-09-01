@@ -1,5 +1,5 @@
 import { capitalize } from "../../../helpers/capitalize"
-import type { importExportFunction } from "./fn"
+import type { importExportFunction, PropertyRuleExecution } from "./fn"
 import { getOrderedKeysToXML } from "./helpers"
 import type { TypeRulesOperations } from "./ruleContracts"
 import type { MetadataItemRule, PropertyRule } from "./types"
@@ -73,6 +73,10 @@ export interface CompiledPropertyPlan {
     readonly tags?: readonly string[]
     readonly includeAllTags: boolean
   }): XMLImportPlan<CompiledProperty>
+}
+
+export interface CompiledPropertyRuleExecution extends PropertyRuleExecution {
+  propertyPlan(rule: MetadataItemRule): CompiledPropertyPlan
 }
 
 export interface CompilePropertyPlanParams {
