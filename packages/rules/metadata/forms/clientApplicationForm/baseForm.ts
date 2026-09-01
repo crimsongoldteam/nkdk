@@ -12,6 +12,7 @@ import { createBaseFormConfigurationIndexReader } from "./baseFormIndex"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { ClientApplicationFormRules } from "./rules"
+import type { FormXmlIdAssignmentSession } from "./formXmlIdAssignment"
 
 export function buildClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
@@ -21,8 +22,10 @@ export function buildClientApplicationBaseForm(params: {
   readonly extensionYaml?: ClientApplicationFormYAML
   readonly extensionAnnotations?: XmlAnomalyAnnotations
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
+  readonly referenceFormXML?: ClientApplicationFormXML
   readonly formName: string
   readonly rule?: MetadataItemRule
+  readonly xmlIdSession?: FormXmlIdAssignmentSession
 }): ClientApplicationFormXML {
   if (params.extensionYaml === undefined) {
     return buildSavedClientApplicationBaseForm(params)
@@ -47,8 +50,10 @@ function buildProjectedClientApplicationBaseForm(params: {
   readonly extensionYaml: ClientApplicationFormYAML
   readonly extensionAnnotations?: XmlAnomalyAnnotations
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
+  readonly referenceFormXML?: ClientApplicationFormXML
   readonly formName: string
   readonly rule?: MetadataItemRule
+  readonly xmlIdSession?: FormXmlIdAssignmentSession
 }): ClientApplicationFormXML {
   const rule = params.rule ?? ClientApplicationFormRules
   const projected = projectClientApplicationBaseForm({
@@ -83,7 +88,9 @@ function buildProjectedClientApplicationBaseForm(params: {
     currentConfigurationFormYaml:
       params.currentConfigurationFormYaml ?? params.baseYaml,
     name: params.formName,
+    referenceFormXML: params.referenceFormXML,
     rule,
+    xmlIdSession: params.xmlIdSession,
   }).formXML
   return Object.fromEntries(
     Object.entries(converted).filter(([key]) => !key.startsWith("_xmlns"))
@@ -95,8 +102,10 @@ function buildSavedClientApplicationBaseForm(params: {
   readonly baseYaml: ClientApplicationFormYAML
   readonly baseAnnotations?: XmlAnomalyAnnotations
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
+  readonly referenceFormXML?: ClientApplicationFormXML
   readonly formName: string
   readonly rule?: MetadataItemRule
+  readonly xmlIdSession?: FormXmlIdAssignmentSession
 }): ClientApplicationFormXML {
   const converted = convertClientApplicationFormYAMLToXMLCore({
     context: params.context,
@@ -107,7 +116,9 @@ function buildSavedClientApplicationBaseForm(params: {
       ? {}
       : { currentConfigurationFormYaml: params.currentConfigurationFormYaml }),
     name: params.formName,
+    referenceFormXML: params.referenceFormXML,
     rule: params.rule ?? ClientApplicationFormRules,
+    xmlIdSession: params.xmlIdSession,
   }).formXML
   return Object.fromEntries(
     Object.entries(converted).filter(([key]) => !key.startsWith("_xmlns"))

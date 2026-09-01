@@ -976,6 +976,54 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
   })
 
+  it("использует один ID заимствованного реквизита во внешней форме и BaseForm без снимка", () => {
+    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
+    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
+    const context = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+      targetProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+    }).exportContext()
+
+    const result = nestedRule.convert({
+      context,
+      yaml: {
+        Реквизиты: {
+          Собственный: { Тип: "Строка" },
+          Контрагент: { Тип: "Строка" },
+        },
+      },
+      ownerYAML: {},
+      baseYAML: {
+        Реквизиты: {
+          Контрагент: { Тип: "Строка" },
+        },
+      },
+      baseConfigurationIndex: testConfigurationIndexReader(),
+      name: "ФормаЭлемента",
+      referenceXML: {
+        Form: {
+          Attributes: {
+            Attribute: [
+              { _name: "Собственный", _id: "6" },
+              { _name: "Контрагент", _id: "7" },
+            ],
+          },
+          BaseForm: {
+            Attributes: { Attribute: [{ _name: "Контрагент", _id: "7" }] },
+          },
+        },
+      },
+    })
+    if (result === undefined) throw new Error("Управляемая форма не преобразована")
+    const outer = result.Form as ClientApplicationFormXML
+    const base = outer.BaseForm as ClientApplicationFormXML
+
+    expect(attributeByName(outer, "Контрагент")._id).toBe(attributeByName(base, "Контрагент")._id)
+    expect(attributeByName(outer, "Контрагент")._id).toBe("7")
+    expect(attributeByName(outer, "Контрагент")._id).toMatch(/^(?:0|[1-9]\d*|-[1-9]\d*)$/u)
+    expect(attributeByName(outer, "Собственный")._id).not.toBe(attributeByName(outer, "Контрагент")._id)
+  })
+
   it("классифицирует таблицу cfe по обычному baseYAML текущей cf", () => {
     const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
     if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
@@ -1062,6 +1110,18 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       .toMatchObject({ AutoRefresh: false, ShowRoot: true })
   })
 })
+
+function attributeByName(form: ClientApplicationFormXML, name: string): Record<string, unknown> {
+  const attributes = (form.Attributes as { readonly Attribute?: unknown } | undefined)?.Attribute
+  const items = Array.isArray(attributes) ? attributes : attributes === undefined ? [] : [attributes]
+  const found = items.find((attribute) =>
+    attribute !== null
+    && typeof attribute === "object"
+    && !Array.isArray(attribute)
+    && (attribute as { readonly _name?: unknown })._name === name
+  )
+  return found as Record<string, unknown> | undefined ?? {}
+}
 
 function firstTable(form: ClientApplicationFormXML): Record<string, unknown> {
   const childItems = Array.isArray(form.ChildItems) ? form.ChildItems : form.ChildItems?.ChildItem

@@ -12,6 +12,7 @@ import { bindDeferredObjectValues, type DeferredObjectValue } from "@nkdk/runtim
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { ClientApplicationFormRules } from "./rules"
 import { buildClientApplicationBaseForm } from "./baseForm"
+import { createFormXmlIdAssignmentSession } from "./formXmlIdAssignment"
 
 export const prepareFormXML = (params: {
   context: ConfigurationContextWithExportToXML
@@ -48,6 +49,9 @@ export const prepareFormXML = (params: {
     context: contextWithFormDir,
     formName: params.formName,
   })
+  const xmlIdSession = createFormXmlIdAssignmentSession({
+    references: [params.referenceFormXML],
+  })
   const converted = convertClientApplicationFormFromYAMLToXML({
     context: contextWithFormExternalMetadata,
     yaml: yamlObj,
@@ -55,6 +59,7 @@ export const prepareFormXML = (params: {
     name: params.formName,
     referenceFormXML: params.referenceFormXML,
     referenceMetadataXML: params.referenceMetadataXML,
+    xmlIdSession,
     ...(params.currentConfigurationFormPreparedYamlFile === undefined
       ? {}
       : {
@@ -82,7 +87,9 @@ export const prepareFormXML = (params: {
                 }
               : {}),
             formName: params.formName,
+            referenceFormXML: params.referenceFormXML?.BaseForm as ClientApplicationFormXML | undefined,
             rule,
+            xmlIdSession,
           }),
         }),
     profile: params.profile,

@@ -8,7 +8,7 @@ import {
   type ConfigurationIndexBlockEntity,
   type FormXmlIdSpace,
 } from "@nkdk/runtime"
-import { assignFormXmlIds } from "./formXmlIdAssignment"
+import { assignFormXmlIds, createFormXmlIdAssignmentSession } from "./formXmlIdAssignment"
 import { testConfigurationIndexReader } from "../../../tests/configurationIndex"
 
 describe("assignFormXmlIds", () => {
@@ -100,6 +100,54 @@ describe("assignFormXmlIds", () => {
 
     expect(() => assignFormXmlIds({ BaseForm: first, AutoCommandBar: second })).not.toThrow()
     expect([first._id, second._id]).toEqual(["-1", "-1"])
+  })
+
+  it("повторно использует ID смыслового реквизита во внешней форме и BaseForm", () => {
+    const setup = runtimeSetup([])
+    const session = createFormXmlIdAssignmentSession()
+    const occupied = { _name: "Другой", _id: "" }
+    const baseAttribute = { _name: "Контрагент", _id: "" }
+    const outerAttribute = { _name: "Контрагент", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.Атрибут.Другой"), occupied, "attributes")
+    register(setup.runtime.withLogicalAddress("Форма.Атрибут.Контрагент"), baseAttribute, "attributes")
+    register(setup.runtime.withLogicalAddress("Форма.Атрибут.Контрагент"), outerAttribute, "attributes")
+
+    assignFormXmlIds({ Attributes: [occupied, baseAttribute] }, undefined, session)
+    assignFormXmlIds({ Attributes: [outerAttribute] }, undefined, session)
+
+    expect(baseAttribute._id).toBe("2")
+    expect(outerAttribute._id).toBe(baseAttribute._id)
+  })
+
+  it("пропускает некорректный ID снимка и выбирает допустимый", () => {
+    const address = "Форма.Атрибут.Контрагент"
+    const setup = runtimeSetup([entity(address, "not-an-id")])
+    const attribute = { _name: "Контрагент", _id: "" }
+    register(setup.runtime.withLogicalAddress(address), attribute, "attributes")
+
+    assignFormXmlIds(
+      { Attributes: [attribute] },
+      { Attributes: [{ _name: "Контрагент", _id: "7" }] },
+      createFormXmlIdAssignmentSession(),
+    )
+
+    expect(attribute._id).toBe("7")
+  })
+
+  it("учитывает ID reference только в соответствующем пространстве", () => {
+    const setup = runtimeSetup([])
+    const attribute = { _name: "Новый", _id: "" }
+    const element = { _name: "Поле", _id: "" }
+    register(setup.runtime.withLogicalAddress("Форма.Атрибут.Новый"), attribute, "attributes")
+    register(setup.runtime.withLogicalAddress("Форма.Элемент.Поле"), element, "elements")
+    const session = createFormXmlIdAssignmentSession({
+      references: [{ Attributes: { Attribute: [{ _name: "Старый", _id: "1" }] } }],
+    })
+
+    assignFormXmlIds({ Attributes: [attribute], Elements: [element] }, undefined, session)
+
+    expect(attribute._id).toBe("2")
+    expect(element._id).toBe("1")
   })
 })
 
