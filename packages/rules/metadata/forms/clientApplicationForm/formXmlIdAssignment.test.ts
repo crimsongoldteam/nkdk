@@ -102,6 +102,22 @@ describe("assignFormXmlIds", () => {
     expect([first._id, second._id]).toEqual(["-1", "-1"])
   })
 
+  it("разрешает одинаковый сохранённый ID в независимых XML-контейнерах", () => {
+    const firstAddress = "Форма.ПерваяГруппа.Поле"
+    const secondAddress = "Форма.ВтораяГруппа.Поле"
+    const setup = runtimeSetup([entity(firstAddress, "1"), entity(secondAddress, "1")])
+    const first = { _name: "Первое", _id: "" }
+    const second = { _name: "Второе", _id: "" }
+    register(setup.runtime.withLogicalAddress(firstAddress), first, "elements")
+    register(setup.runtime.withLogicalAddress(secondAddress), second, "elements")
+
+    expect(() => assignFormXmlIds({
+      First: { Items: [first] },
+      Second: { Items: [second] },
+    })).not.toThrow()
+    expect([first._id, second._id]).toEqual(["1", "1"])
+  })
+
   it("повторно использует ID смыслового реквизита во внешней форме и BaseForm", () => {
     const setup = runtimeSetup([])
     const session = createFormXmlIdAssignmentSession()

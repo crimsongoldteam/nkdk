@@ -18,7 +18,6 @@ export interface FormXmlIdAssignmentSession {
 }
 
 const FORM_XML_ID_SPACES: readonly FormXmlIdSpace[] = ["elements", "attributes", "commands", "parameters"]
-const sessionOwners = new WeakMap<FormXmlIdAssignmentSession, Map<FormXmlIdSpace, Map<string, string>>>()
 
 export function createFormXmlIdAssignmentSession(
   params: { readonly references?: readonly unknown[] } = {},
@@ -27,9 +26,7 @@ export function createFormXmlIdAssignmentSession(
     FORM_XML_ID_SPACES.map((space) => [space, new Set<string>()]),
   )
   for (const reference of params.references ?? []) collectReferenceIds(reference, occupiedBySpace)
-  const session = { idsByLogicalAddress: new Map(), occupiedBySpace }
-  sessionOwners.set(session, new Map())
-  return session
+  return { idsByLogicalAddress: new Map(), occupiedBySpace }
 }
 
 export function assignFormXmlIds(
@@ -75,19 +72,10 @@ function reserveSession(candidate: Candidate, session: FormXmlIdAssignmentSessio
   const runtime = candidate.reservation.runtime
   if (id === undefined || runtime === undefined || candidate.reservation.specialId !== undefined) return
   const logicalAddress = runtime.logicalAddress
-  const bySpace = sessionOwners.get(session) ?? new Map<FormXmlIdSpace, Map<string, string>>()
-  const owners = bySpace.get(candidate.reservation.space) ?? new Map<string, string>()
-  const previousAddress = owners.get(id)
-  if (previousAddress !== undefined && previousAddress !== logicalAddress) {
-    throw new Error(`Повторный ID ${id} в XML-контейнере (${candidate.reservation.space})`)
-  }
   const previousId = session.idsByLogicalAddress.get(logicalAddress)
   if (previousId !== undefined && previousId !== id) {
     throw new Error(`Логическому адресу ${logicalAddress} назначены разные ID: ${previousId} и ${id}`)
   }
-  owners.set(id, logicalAddress)
-  bySpace.set(candidate.reservation.space, owners)
-  sessionOwners.set(session, bySpace)
   session.idsByLogicalAddress.set(logicalAddress, id)
   const occupied = session.occupiedBySpace.get(candidate.reservation.space) ?? new Set<string>()
   occupied.add(id)
