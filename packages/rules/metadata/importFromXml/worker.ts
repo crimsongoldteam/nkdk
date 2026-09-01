@@ -891,7 +891,10 @@ async function prepareYamlForFinalPass(
     return { serialized, validated, semanticIssues, decisions: classified.decisions }
   }
   const materializedFormDataPaths = collectImportedFormDataPaths(prepared.yaml, prepared.rule)
-  const initialValidation = materializedFormDataPaths.length > originalFormDataPaths.length
+  const hasMaterializedFormDataPath = materializedFormDataPaths.some((current) =>
+    !originalFormDataPaths.some((original) => sameYamlPath(original.yamlPath, current.yamlPath))
+  )
+  const initialValidation = hasMaterializedFormDataPath
     ? validateAndApplyImportedIssues(false)
     : { semanticIssues: [], decisions: [] }
   const proof = await profiler.measureAsync(

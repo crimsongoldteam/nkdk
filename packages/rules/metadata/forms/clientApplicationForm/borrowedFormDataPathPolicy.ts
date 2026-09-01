@@ -1,6 +1,7 @@
 import type { Diagnostic } from "@nkdk/runtime"
 import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fileUpdate"
 import { dataPathRootName } from "../../validation/dataPath/coreResolver"
+import type { ResolveDataPathCoreResult } from "../../validation/dataPath/coreResolver"
 import { resolveProjectStateDataPathReferenceResultBatch } from "../../validation/projectStateDependencyValidation"
 import type { ProjectStateQueryPort } from "../../projectState/contracts/dependencyValidation"
 
@@ -155,7 +156,7 @@ export function unavailableBorrowedFormSegmentDiagnostics(params: {
     queryPort: params.queryPort,
   })
   return results.flatMap(({ requestId, resolution }) => {
-    if (resolution.status !== "error" || resolution.failedSegmentIndex === undefined) return []
+    if (!isUnavailableBorrowedFormResolution(resolution)) return []
     const check = eligible[Number(requestId)]
     const segment = resolution.segments[resolution.failedSegmentIndex]
     if (check === undefined || segment === undefined) return []
@@ -169,6 +170,14 @@ export function unavailableBorrowedFormSegmentDiagnostics(params: {
       message: `Путь «${check.value}» обращается к реквизиту «${segment}», который недоступен в компоненте расширения`,
     }]
   })
+}
+
+export function isUnavailableBorrowedFormResolution(
+  resolution: ResolveDataPathCoreResult,
+): resolution is ResolveDataPathCoreResult & { status: "error"; failedSegmentIndex: number } {
+  return resolution.status === "error"
+    && resolution.failedSegmentIndex !== undefined
+    && resolution.issues.some(({ code }) => code === "unknown_field" || code === "unknown_column")
 }
 
 interface ElementPayloadV1 {

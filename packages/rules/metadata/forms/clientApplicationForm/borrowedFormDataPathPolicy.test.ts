@@ -2,10 +2,29 @@ import { describe, expect, it } from "vitest"
 import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fileUpdate"
 import {
   collectBorrowedFormDataPathChecks,
+  isUnavailableBorrowedFormResolution,
   missingBorrowedFormRootDiagnostics,
 } from "./borrowedFormDataPathPolicy"
 
 describe("политика путей заимствованной формы", () => {
+  it.each([
+    ["unknown_field", true],
+    ["unknown_column", true],
+    ["internal_standard_member_in_yaml", false],
+    ["unknown_type", false],
+    ["owner_error", false],
+  ] as const)("заменяет специализированной диагностикой только ошибку доступности %s", (code, expected) => {
+    expect(isUnavailableBorrowedFormResolution({
+      status: "error",
+      value: "Контрагент.Поле",
+      segments: ["Контрагент", "Поле"],
+      replacements: [],
+      failedSegmentIndex: 1,
+      targets: [],
+      issues: [{ code, severity: "error", message: code }],
+    })).toBe(expected)
+  })
+
   it("собирает явные DataPath и не дублирует одинаковую YAML-границу", () => {
     const path = entry("dataPath", "Контрагент.ИНН", ["Элементы", "ИНН", "ПутьКДанным"], {
       version: 1,
