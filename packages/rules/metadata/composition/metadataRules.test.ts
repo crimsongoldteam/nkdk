@@ -24,6 +24,11 @@ describe("metadataRules", () => {
       expect(metadataRules.propertyTypes.boolean?.importFromXML).toBeUndefined()
       expect(metadataRules.propertyTypes.boolean?.importFromYAML).toBeUndefined()
       expect(metadataRules.propertyTypes.boolean?.exportToYAML).toBeUndefined()
+      expect(metadataRules.propertyTypes.SystemEnumeration?.compileAtomicConversion).toBeTypeOf("function")
+      expect(metadataRules.propertyTypes.SystemEnumeration?.importFromXML).toBeUndefined()
+      expect(metadataRules.propertyTypes.SystemEnumeration?.importFromYAML).toBeUndefined()
+      expect(metadataRules.propertyTypes.SystemEnumeration?.exportToXML).toBeUndefined()
+      expect(metadataRules.propertyTypes.SystemEnumeration?.exportToYAML).toBeUndefined()
       expect(
         metadataRules.propertyTypes.ChildFormNames?.resourceTopology,
       ).toBeTypeOf("function")

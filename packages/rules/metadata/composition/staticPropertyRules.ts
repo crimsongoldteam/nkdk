@@ -393,13 +393,10 @@ import { metadataPropertyRule001 as rule362 } from "../forms/elements/button/par
 import { metadataPropertyRule002 as rule363 } from "../forms/elements/button/parameter"
 import { metadataPropertyRule003 as rule364 } from "../forms/elements/button/parameter"
 import { metadataPropertyRule004 as rule365 } from "../forms/elements/button/parameter"
-import { metadataPropertyRule000 as rule366 } from "../systemEnumerations/fromXML"
-import { metadataPropertyRule000 as rule369 } from "../systemEnumerations/fromYAML"
+import { metadataPropertyRule000 as systemEnumerationAtomicConversion } from "../systemEnumerations/atomicConversion"
 import { metadataPropertyRule000 as rule370 } from "../systemEnumerations/toEnterprise"
 import { metadataPropertyRule000 as rule371 } from "../systemEnumerations/toJSONSchema"
 import { metadataPropertyRule001 as rule372 } from "../systemEnumerations/toJSONSchema"
-import { metadataPropertyRule000 as rule373 } from "../systemEnumerations/toXML"
-import { metadataPropertyRule000 as rule374 } from "../systemEnumerations/toYAML"
 import { metadataPropertyRule000 as rule375 } from "../commonObjects/minMaxValue/fromYAML"
 import { metadataPropertyRule000 as rule376 } from "../commonObjects/minMaxValue/toYAML"
 import { metadataPropertyRule000 as rule377 } from "../commonObjects/inputByStringFields/propertyRules"
@@ -781,13 +778,10 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule363,
   rule364,
   rule365,
-  rule366,
-  rule369,
+  systemEnumerationAtomicConversion,
   rule370,
   rule371,
   rule372,
-  rule373,
-  rule374,
   rule375,
   rule376,
   rule377,
