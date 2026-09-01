@@ -41,7 +41,9 @@ export const compileSystemEnumerationAtomicConversion: CompileAtomicConversionFu
     },
     fromYAMLToXML: ({ value }) => {
       if (typeof value !== "string") return empty
-      const metadataValue = fromYAML[value]
+      const metadataValue = fromYAML[value] ?? (
+        Object.prototype.hasOwnProperty.call(toYAML, value) ? value : undefined
+      )
       if (metadataValue === undefined) return empty
       return {
         metadataValue,

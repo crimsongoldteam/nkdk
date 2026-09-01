@@ -203,6 +203,8 @@ function compileMissingYAMLStrategy(params: {
     || operations.nestedItemIdentity?.reserveWhenAbsent === true
     || operations.metadataTargetOccurrences !== undefined
     || operations.finalizeExportedXML !== undefined
+    || operations.importFromYAML !== undefined
+    || operations.exportToXML !== undefined
 
   if (requiresEvaluation) return "evaluate"
   if (

@@ -171,10 +171,14 @@ describe("convertPropertiesFromYAMLToXML", () => {
 
   it("не вызывает преобразователи для безопасно отсутствующего YAML-свойства", () => {
     const rules = createRuleRegistrySet(metadataRules)
-    const fromYAML = vi.fn(() => "не должно вычисляться")
-    const toXML = vi.fn(() => "не должно вычисляться")
-    rules.property.registerTypeRule("TestMissingSkip" as never, "importFromYAML", fromYAML)
-    rules.property.registerTypeRule("TestMissingSkip" as never, "exportToXML", toXML)
+    const fused = vi.fn(() => ({
+      metadataValue: "не должно вычисляться",
+      representationValue: "не должно вычисляться",
+    }))
+    rules.property.registerTypeRule("TestMissingSkip" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+      fromYAMLToXML: fused,
+    }))
 
     const result = convertPropertiesFromYAMLToXML({
       execution: rules.execution,
@@ -187,8 +191,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({})
-    expect(fromYAML).not.toHaveBeenCalled()
-    expect(toXML).not.toHaveBeenCalled()
+    expect(fused).not.toHaveBeenCalled()
   })
 
   it("не считает присутствующий undefined отсутствующим YAML-свойством", () => {
@@ -213,7 +216,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(toXML).toHaveBeenCalledTimes(1)
   })
 
-  it("исполняет отсутствующее YAML-свойство с evaluateWhenYAMLMissing", () => {
+  it("исполняет старые преобразователи при отсутствующем YAML, потому что они могут создать XML", () => {
     const rules = createRuleRegistrySet(metadataRules)
     const fromYAML = vi.fn(() => "вычислено")
     const toXML = vi.fn(({ value }: { value: unknown }) => value)
@@ -225,12 +228,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       context: context(),
       yaml: {},
       rule: testRule({
-        value: {
-          type: "TestMissingEvaluate" as never,
-          yaml: "Значение",
-          xml: "Value",
-          evaluateWhenYAMLMissing: true,
-        },
+        value: { type: "TestMissingEvaluate" as never, yaml: "Значение", xml: "Value" },
       }),
       outputs: [{ key: "owner" }],
     })

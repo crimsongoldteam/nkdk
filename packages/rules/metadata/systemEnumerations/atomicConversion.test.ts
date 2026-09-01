@@ -49,4 +49,15 @@ describe("compileSystemEnumerationAtomicConversion", () => {
       representationValue: undefined,
     })
   })
+
+  it("принимает уже подготовленное внутреннее значение XML-default", () => {
+    const conversion = compileSystemEnumerationAtomicConversion({
+      rule: { type: "SystemEnumeration", typeSE: "CheckBoxType" } as never,
+    })
+
+    expect(conversion.fromYAMLToXML({ context, value: "Auto" })).toEqual({
+      metadataValue: "Auto",
+      representationValue: "Auto",
+    })
+  })
 })

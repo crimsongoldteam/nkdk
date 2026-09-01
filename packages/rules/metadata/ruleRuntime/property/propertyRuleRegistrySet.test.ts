@@ -133,6 +133,38 @@ it("executes a conversion through the owning registry", () => {
   ).toBe("own:value")
 })
 
+it("executes and caches an atomic XML conversion through the owning registry", () => {
+  const compileAtomicConversion = vi.fn(() => ({
+    fromXMLToYAML: ({ value }: { value: unknown }) => ({
+      metadataValue: `atomic:${String(value)}`,
+      representationValue: `yaml:${String(value)}`,
+    }),
+    fromYAMLToXML: ({ value }: { value: unknown }) => ({
+      metadataValue: value,
+      representationValue: value,
+    }),
+  }))
+  const registries = createPropertyRuleRegistrySet(
+    defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: { Sample: { compileAtomicConversion } },
+    }),
+  )
+  const executor = createPropertyRuleExecutor(registries)
+  const params = {
+    context: {
+      languages: mockLanguages,
+      version: "test",
+      fromXML: { forReference: false },
+    },
+    rule: { type: "Sample" as const },
+  }
+
+  expect(executor.fromXML({ ...params, value: "first" })).toBe("atomic:first")
+  expect(executor.fromXML({ ...params, value: "second" })).toBe("atomic:second")
+  expect(compileAtomicConversion).toHaveBeenCalledTimes(1)
+})
+
 it("exports validation schema refs from the owning registry", () => {
   const executionWithKey = (key: string) => createPropertyRuleExecutor(
     createPropertyRuleRegistrySet(defineMetadataRules({

@@ -2,7 +2,8 @@ import { getValueOrDefault } from "./helpers"
 import type { PropertyRuleRegistrySet } from "./propertyRuleRegistrySet"
 import type { PropertyRuleExecution } from "./fn"
 import { compilePropertyPlan, type CompiledPropertyPlan } from "./compiledPropertyPlan"
-import type { MetadataItemRule } from "./types"
+import type { CompiledAtomicConversion } from "./atomicConversion"
+import type { MetadataItemRule, PropertyRule } from "./types"
 
 export interface PropertyRuleExecutor extends PropertyRuleExecution {}
 
@@ -10,6 +11,18 @@ export function createPropertyRuleExecutor(
   registries: PropertyRuleRegistrySet,
 ): PropertyRuleExecutor {
   const plans = new WeakMap<MetadataItemRule, CompiledPropertyPlan>()
+  const atomicConversions = new WeakMap<PropertyRule, {
+    readonly registryRevision: number
+    readonly conversion: CompiledAtomicConversion | undefined
+  }>()
+  const atomicConversion = (rule: PropertyRule): CompiledAtomicConversion | undefined => {
+    const registryRevision = registries.revision()
+    const cached = atomicConversions.get(rule)
+    if (cached?.registryRevision === registryRevision) return cached.conversion
+    const conversion = registries.getTypeRule(rule.type, "compileAtomicConversion")?.({ rule })
+    atomicConversions.set(rule, { registryRevision, conversion })
+    return conversion
+  }
   const executor: PropertyRuleExecutor = {
     propertyPlan(rule) {
       const revision = registries.revision()
@@ -39,6 +52,16 @@ export function createPropertyRuleExecutor(
     },
     fromXML(params) {
       const { context, rule, value, name, ownerXmlName } = params
+      const conversion = atomicConversion(rule)
+      if (conversion !== undefined) {
+        return getValueOrDefault({
+          context,
+          rule,
+          value: conversion.fromXMLToYAML({ context, value }).metadataValue,
+          name,
+          operation: "importFromXML",
+        })
+      }
       const handler = registries.getTypeRule(rule.type, "importFromXML")
       if (handler === undefined) {
         return getValueOrDefault({
