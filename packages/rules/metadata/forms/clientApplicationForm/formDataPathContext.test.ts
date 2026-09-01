@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import { markXmlAnomalyExportClaim, readXmlAnomalyExportClaim } from "@nkdk/runtime"
 import "../../appliedObjects"
 import "../../forms"
@@ -9,6 +10,7 @@ import {
 } from "./formDataPathContext"
 import { catalogOwnerCache } from "./__tests__/catalogOwnerCache"
 import type { ClientApplicationFormYAML } from "./types"
+import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 
 describe("prepareFormDataPathContextFromYAML", () => {
   it("вычисляет кандидаты обычных элементов, таблиц и колонок", () => {
@@ -103,6 +105,32 @@ describe("prepareFormDataPathContextFromYAML", () => {
       candidateInternal: "Объект.Таблица.НоваяКолонка",
     })
     expect(context.elementsByName.get("Историческое")).toMatchObject({ origin: "borrowed" })
+  })
+
+  it.each([
+    ["working", { Реквизиты: { Объект: { Тип: "CatalogObject.Товары" } } }],
+    ["inherited", {}],
+  ] as const)("сохраняет происхождение %s корневого реквизита", (expectedOrigin, yaml) => {
+    const context = prepareFormDataPathContextFromYAML({
+      yaml,
+      currentConfigurationFormYaml: {
+        Реквизиты: { Объект: { Тип: "CatalogObject.Товары" } },
+      },
+      ownerCache: catalogOwnerCache(),
+    })
+
+    const resolved = resolveDataPathCore({
+      value: "Объект.Код",
+      nameMode: "yaml",
+      index: context.index,
+      ownerCache: catalogOwnerCache(),
+    })
+
+    expect(resolved).toMatchObject({
+      status: "ok",
+      root: { kind: "formAttribute", name: "Объект", origin: expectedOrigin },
+      target: { source: { kind: "objectField", name: "Код" } },
+    })
   })
 
   it("не вычисляет кандидат обычного элемента без основного реквизита", () => {

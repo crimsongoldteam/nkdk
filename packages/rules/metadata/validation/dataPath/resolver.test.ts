@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/metadataExecutionContext"
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
 import type { FormAttribute } from "../../forms/commonObjects/formAttribute/types"
@@ -177,6 +178,38 @@ describe("resolveDataPath", () => {
         segments: ["ПометкаУдаления"],
         source: { kind: "formAttribute", name: "ПометкаУдаления" },
         typeInfo: { kinds: ["boolean"] },
+      },
+    })
+  })
+
+  it("переносит нейтральное происхождение корня в трассу результата", () => {
+    const source = {
+      kind: "formAttribute",
+      name: "ПометкаУдаления",
+      typeInfo: { kinds: ["boolean"], nextTypes: [] },
+      origin: "inherited",
+    } as never
+    const roots = new Map([["ПометкаУдаления", source]])
+
+    const result = resolveDataPathCore({
+      value: "ПометкаУдаления",
+      nameMode: "yaml",
+      index: {
+        roots,
+        additionalColumnsByTablePath: new Map(),
+        tabularElementsByName: new Map(),
+        duplicateDiagnostics: [],
+        getRoot: (name) => roots.get(name),
+      },
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      root: { kind: "formAttribute", name: "ПометкаУдаления", origin: "inherited" },
+      target: {
+        segmentIndex: 0,
+        source: { kind: "formAttribute", name: "ПометкаУдаления", origin: "inherited" },
       },
     })
   })

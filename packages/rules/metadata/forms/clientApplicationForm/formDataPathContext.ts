@@ -1,7 +1,7 @@
 import type { DataPathPropertyRule, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { cloneYAMLContainer } from "@nkdk/runtime"
 import type { ElementType } from "../../ruleRuntime/formElement/types"
-import type { FormDataPathTabularElementDeclaration } from "@nkdk/runtime/rule-kit"
+import type { FormDataPathSource, FormDataPathTabularElementDeclaration } from "@nkdk/runtime/rule-kit"
 import { acceptFormTabularElementVisit } from "../../ruleRuntime/formElement/formTableDataPaths"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
@@ -446,14 +446,14 @@ function mergeFormDataPathIndexes(
   primary: FormDataPathIndex,
   fallback: FormDataPathIndex | undefined
 ): FormDataPathIndex {
-  if (fallback === undefined) return primary
-  const roots = new Map(fallback.roots)
-  for (const [name, value] of primary.roots) roots.set(name, value)
-  const additionalColumnsByTablePath = new Map(fallback.additionalColumnsByTablePath)
+  const roots = new Map<string, FormDataPathSource>()
+  for (const [name, value] of fallback?.roots ?? []) roots.set(name, { ...value, origin: "inherited" })
+  for (const [name, value] of primary.roots) roots.set(name, { ...value, origin: "working" })
+  const additionalColumnsByTablePath = new Map(fallback?.additionalColumnsByTablePath ?? [])
   for (const [path, columns] of primary.additionalColumnsByTablePath) {
     additionalColumnsByTablePath.set(path, columns)
   }
-  const tabularElementsByName = new Map(fallback.tabularElementsByName)
+  const tabularElementsByName = new Map(fallback?.tabularElementsByName ?? [])
   for (const [name, value] of primary.tabularElementsByName) tabularElementsByName.set(name, value)
   return {
     ...primary,

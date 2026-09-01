@@ -43,7 +43,7 @@ export interface ResolvedDataPathTarget {
 }
 
 export type ResolvedDataPathTargetSource =
-  | { kind: "formAttribute"; name: string }
+  | { kind: "formAttribute"; name: string; origin?: "working" | "inherited" }
   | { kind: "formElement"; name: string }
   | { kind: "tableColumn"; table: string; name: string }
   | { kind: "objectField"; owner: OwnerTypeRef; name: string }
@@ -94,6 +94,7 @@ export type ResolveDataPathCoreResult =
       target?: ResolvedDataPathTarget
       targets: readonly ResolvedDataPathTarget[]
       replacements: ResolvedDataPathSegmentReplacement[]
+      root?: FormDataPathSource
       issues: []
     }
   | {
@@ -105,6 +106,7 @@ export type ResolveDataPathCoreResult =
       target?: ResolvedDataPathTarget
       targets: readonly ResolvedDataPathTarget[]
       replacements: ResolvedDataPathSegmentReplacement[]
+      root?: FormDataPathSource
       issues: ResolveDataPathCoreIssue[]
     }
 
@@ -134,7 +136,11 @@ interface TableColumnSource {
 
 export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveDataPathCoreResult {
   const result = resolveDataPathCoreWithCurrentData(params, new Set())
-  return withCanonicalValues(resolveTerminalDefinedTypeTarget(params, result), params.nameMode)
+  const root = params.index.getRoot(segmentLookupName(params.value.split(".")[0] ?? ""))
+  return {
+    ...withCanonicalValues(resolveTerminalDefinedTypeTarget(params, result), params.nameMode),
+    ...(root === undefined ? {} : { root }),
+  }
 }
 
 function resolveTerminalDefinedTypeTarget(
@@ -874,7 +880,11 @@ function isTildeVariantPath(value: string): boolean {
 function stateFromRoot(root: FormDataPathSource): TraversalState {
   return {
     typeInfo: root.typeInfo,
-    source: { kind: "formAttribute", name: root.name },
+    source: {
+      kind: "formAttribute",
+      name: root.name,
+      ...(root.origin === undefined ? {} : { origin: root.origin }),
+    },
     ...(root.tableSource !== undefined ? { tableSource: root.tableSource } : {}),
     trace: [],
   }
