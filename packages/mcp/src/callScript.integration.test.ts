@@ -157,33 +157,51 @@ describe("MCP call script", () => {
 })
 
 const backgroundOperationFixtureServer = `
-import { McpServer } from "@modelcontextprotocol/server"
-import { serveStdio } from "@modelcontextprotocol/server/stdio"
+import { createInterface } from "node:readline"
 
-const result = (payload) => ({
+const respond = (id, result) => process.stdout.write(JSON.stringify({ jsonrpc: "2.0", id, result }) + "\\n")
+const toolResult = (payload) => ({
+  resultType: "complete",
   content: [{ type: "text", text: JSON.stringify(payload) }],
   structuredContent: payload,
 })
-
-serveStdio(() => {
-  const server = new McpServer({ name: "call-script-fixture", version: "1.0.0" })
-  server.registerTool("nkdk.validate_project", { description: "start" }, async () => result({
-    ok: true,
-    status: "accepted",
-    operationId: "op-1",
-    projectDir: "/fixture-project",
-  }))
-  server.registerTool("nkdk.get_operation", { description: "lookup" }, async () => result({
-    ok: true,
-    status: "succeeded",
-    operationId: "op-1",
-    projectDir: "/fixture-project",
-    operationKind: "validate_project",
-    createdAt: "2026-09-01T00:00:00.000Z",
-    updatedAt: "2026-09-01T00:00:00.001Z",
-    messages: [],
-    result: { ok: false, code: "core_error" },
-  }))
-  return server
-}, { legacy: "serve" })
+const input = createInterface({ input: process.stdin })
+input.on("line", (line) => {
+  const request = JSON.parse(line)
+  if (request.method === "server/discover") {
+    respond(request.id, {
+      supportedVersions: ["2026-07-28"],
+      capabilities: { tools: {} },
+    })
+    return
+  }
+  if (request.method === "initialize") {
+    respond(request.id, {
+      protocolVersion: "2026-07-28",
+      capabilities: { tools: {} },
+      serverInfo: { name: "call-script-fixture", version: "1.0.0" },
+    })
+    return
+  }
+  if (request.method !== "tools/call") return
+  const payload = request.params.name === "nkdk.validate_project"
+    ? {
+        ok: true,
+        status: "accepted",
+        operationId: "op-1",
+        projectDir: "/fixture-project",
+      }
+    : {
+        ok: true,
+        status: "succeeded",
+        operationId: "op-1",
+        projectDir: "/fixture-project",
+        operationKind: "validate_project",
+        createdAt: "2026-09-01T00:00:00.000Z",
+        updatedAt: "2026-09-01T00:00:00.001Z",
+        messages: [],
+        result: { ok: false, code: "core_error" },
+      }
+  respond(request.id, toolResult(payload))
+})
 `
