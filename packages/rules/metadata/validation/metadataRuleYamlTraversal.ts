@@ -15,10 +15,18 @@ export interface MetadataRuleYamlCollectionItem<State> extends MetadataRuleYamlO
   readonly collectionUidSegment: string | undefined
 }
 
+export interface MetadataRuleYamlExternalFile<State> {
+  readonly yaml: unknown
+  readonly yamlPath: YamlPath
+  readonly state: State
+  readonly propertyRule: PropertyRule
+}
+
 interface MetadataRuleYamlCallbacks<State> {
   readonly onObject?: (object: MetadataRuleYamlObject<State>) => void
   readonly enterNestedObject?: (object: MetadataRuleYamlObject<State>) => State
   readonly enterCollectionItem?: (item: MetadataRuleYamlCollectionItem<State>) => State
+  readonly onExternalFile?: (external: MetadataRuleYamlExternalFile<State>) => void
 }
 
 interface MetadataRuleYamlContext<State> extends MetadataRuleYamlObject<State>, MetadataRuleYamlCallbacks<State> {}
@@ -58,7 +66,11 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
   readonly collectionUidSegment?: string
 }): void {
   const nested = getTypeRule(params.propertyRule.type, "yamlToXMLNestedRule")
-  if (nested === undefined || nested.kind === "externalFile") return
+  if (nested === undefined) return
+  if (nested.kind === "externalFile") {
+    params.onExternalFile?.(params)
+    return
+  }
   if (nested.kind === "item") {
     const object = {
       ...params,

@@ -1,4 +1,4 @@
-import { access, readFile, readdir, rm } from "node:fs/promises"
+import { access, readFile, readdir, rm, writeFile } from "node:fs/promises"
 import { join, relative, resolve } from "node:path"
 import { parseMetadataYaml, snapshotXmlAnomalyAnnotations, yamlScalarTagAt } from "@nkdk/runtime"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
@@ -6,6 +6,7 @@ import {
   E2E_COMPONENTS,
   NKDK_FIXTURES_ROOT,
   cloneImportedProject,
+  cloneNkdkFixtureProject,
   importMetadataProject,
   removeImportedProject,
   roundTripMetadataProject,
@@ -160,6 +161,83 @@ describe.sequential("metadata project E2E", () => {
     console.info("E2E validation durations, ms", result.durationsMs)
   })
 
+  it("requires borrowed form attributes used by registered data paths", async () => {
+    if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
+    const projectDir = await cloneNkdkFixtureProject(
+      baseline,
+      "borrowed-form-attribute-validation",
+    )
+    const baseFormPath = join(
+      projectDir,
+      "cf/Документ/ДокументВсеСвойства/Формы/ФормаДокументаВсеСвойства/Форма.yaml",
+    )
+    const extensionFormPath = join(
+      projectDir,
+      "cfe/Расширение_All/Документ/ДокументВсеСвойства/Формы/ФормаДокументаВсеСвойства/Форма.yaml",
+    )
+    await writeFile(baseFormPath, insertAfterYamlLine(
+      await readFile(baseFormPath, "utf8"),
+      "Реквизиты:",
+      [
+        "  Таблица:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      Реквизит:",
+        "        Тип: Строка",
+      ],
+    ), "utf8")
+    let extensionSource = await readFile(extensionFormPath, "utf8")
+    extensionSource = insertAfterYamlLine(extensionSource, "Реквизиты:", [
+      "  ТаблицаExt:",
+      "    Тип: ТаблицаЗначений",
+      "    Колонки:",
+      "      Реквизит:",
+      "        Тип: Строка",
+    ])
+    extensionSource = insertAfterYamlLine(extensionSource, "Элементы:", [
+      "  ПроверкаТаблица:",
+      "    Вид: ПолеВвода",
+      "    ПутьКДанным: Таблица",
+      "    ПутьКДаннымЗначенияМножественногоЗначения: Таблица.Реквизит",
+      "  ПроверкаИндекса:",
+      "    Вид: ПолеВвода",
+      "    ПутьКДанным: Таблица[4].Реквизит",
+      "  ПроверкаСобственного:",
+      "    Вид: ПолеВвода",
+      "    ПутьКДанным: ТаблицаExt.Реквизит",
+    ])
+    await writeFile(extensionFormPath, extensionSource, "utf8")
+
+    try {
+      const result = await validateProjectCacheParity(projectDir)
+
+      expect(result.cold).toEqual(result.warm)
+      const borrowingErrors = result.clean.filter(({ message }) =>
+        message.includes("не добавлен в «Реквизиты» заимствованной формы"))
+      expect(
+        borrowingErrors.map(({ message }) => message),
+        JSON.stringify(result.clean, null, 2),
+      ).toEqual(expect.arrayContaining([
+        expect.stringContaining("Путь «Таблица»"),
+        expect.stringContaining("Путь «Таблица.Реквизит»"),
+        expect.stringContaining("Путь «Таблица[4].Реквизит»"),
+      ]))
+      expect(borrowingErrors).not.toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("ТаблицаExt"),
+      }))
+      expect(borrowingErrors).not.toContainEqual(expect.objectContaining({
+        message: expect.stringContaining("Путь «Объект"),
+      }))
+      expect(result.clean).not.toContainEqual(expect.objectContaining({
+        filePath: expect.stringContaining(
+          "Документ/ДокументВсеСвойства/Формы/ФормаДокумента/Форма.yaml",
+        ),
+      }))
+    } finally {
+      await rm(projectDir, { recursive: true, force: true })
+    }
+  })
+
   it("restores every XML component exactly", async () => {
     if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
     const projectDir = await cloneImportedProject(baseline, "round-trip")
@@ -190,6 +268,15 @@ describe.sequential("metadata project E2E", () => {
     })))
   })
 })
+
+function insertAfterYamlLine(source: string, targetLine: string, insertedLines: readonly string[]): string {
+  const lineEnding = source.includes("\r\n") ? "\r\n" : "\n"
+  const lines = source.split(/\r?\n/u)
+  const index = lines.indexOf(targetLine)
+  if (index < 0) throw new Error(`В YAML отсутствует строка ${targetLine}`)
+  lines.splice(index + 1, 0, ...insertedLines)
+  return lines.join(lineEnding)
+}
 
 const RARE_FILL_VALUE_XML_RAW_LOCATIONS = [
   "cf/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойства/Кубы/КубВсеСвойства/ТаблицыИзмерений/ТаблицаИзмеренияВсеСвойства/Свойства.yaml#/Поля/ПолеВсеСвойства/ЗначениеЗаполнения",
