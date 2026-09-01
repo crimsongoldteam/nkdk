@@ -217,12 +217,12 @@ describe("convertPropertiesFromYAMLToXML", () => {
   })
 
   it.each([
-    ["обычном режиме", undefined, undefined],
-    ["разреженном YAML", true, undefined],
-    ["reference XML без свойства", undefined, { Other: true }],
+    ["обычном режиме", undefined, undefined, false],
+    ["разреженном YAML с явным evaluateWhenYAMLMissing", true, undefined, true],
+    ["reference XML без свойства с явным evaluateWhenYAMLMissing", undefined, { Other: true }, true],
   ] as const)(
     "исполняет старые преобразователи при отсутствующем YAML в %s",
-    (_mode, sparseYAML, referenceXML) => {
+    (_mode, sparseYAML, referenceXML, evaluateWhenYAMLMissing) => {
       const rules = createRuleRegistrySet(metadataRules)
       const fromYAML = vi.fn(() => "вычислено")
       const toXML = vi.fn(({ value }: { value: unknown }) => value)
@@ -234,7 +234,12 @@ describe("convertPropertiesFromYAMLToXML", () => {
         context: context(),
         yaml: {},
         rule: testRule({
-          value: { type: "TestMissingEvaluate" as never, yaml: "Значение", xml: "Value" },
+          value: {
+            type: "TestMissingEvaluate" as never,
+            yaml: "Значение",
+            xml: "Value",
+            ...(evaluateWhenYAMLMissing ? { evaluateWhenYAMLMissing: true as const } : {}),
+          },
         }),
         outputs: [{ key: "owner", referenceXML }],
         sparseYAML,

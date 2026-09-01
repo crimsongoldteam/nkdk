@@ -229,7 +229,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       : compiled.operations.yamlToXMLNestedRule
     const requiresEvaluation = compiled === undefined
       ? requiresYAMLToXMLEvaluation(planned.propertyRule)
-      : compiled.missingYAMLStrategy === "evaluate"
+      : compiled.flags.requiresYAMLToXMLEvaluation
     const reserveNestedItemWhenAbsent = compiled === undefined
       ? typeRule(planned.propertyRule.type, "nestedItemIdentity")?.reserveWhenAbsent === true
       : compiled.flags.reserveNestedItemWhenAbsent

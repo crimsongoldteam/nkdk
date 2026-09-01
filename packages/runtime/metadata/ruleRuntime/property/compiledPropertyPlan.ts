@@ -39,6 +39,7 @@ export type CompiledPropertyOperations = {
 }
 
 export interface CompiledPropertyFlags {
+  readonly requiresYAMLToXMLEvaluation: boolean
   readonly reserveNestedItemWhenAbsent: boolean
   readonly dependentImportProperty: boolean
   readonly runtimeOnly: boolean
@@ -170,6 +171,11 @@ function compileProperty(
     atomicConversion: atomicConversion === undefined ? undefined : Object.freeze(atomicConversion),
     missingYAMLStrategy,
     flags: Object.freeze({
+      requiresYAMLToXMLEvaluation:
+        typeof rule.toXML === "function"
+        || rule.evaluateWhenYAMLMissing === true
+        || rule.exportNilValue === true
+        || Object.prototype.hasOwnProperty.call(rule, "implicitValueXML"),
       reserveNestedItemWhenAbsent: operations.nestedItemIdentity?.reserveWhenAbsent === true,
       dependentImportProperty: params.isDependentImportProperty(params.rule.itemType, propertyKey),
       runtimeOnly: rule.runtimeOnly === true,
