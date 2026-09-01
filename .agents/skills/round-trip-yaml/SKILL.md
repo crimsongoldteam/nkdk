@@ -13,7 +13,7 @@ description: Диагностирует полный metadata round-trip чер�
 XML -> модель -> YAML -> модель -> XML
 ```
 
-На выходе он показывает XML diff'ы после вызовов `nkdk.import_from_xml`, `nkdk.sync_to_xml` через настоящий MCP stdio server и полной замены активного XML-каталога временным результатом.
+На выходе он показывает XML diff'ы после вызовов `nkdk.import_from_xml`, `nkdk.sync_to_xml` через настоящий MCP stdio server и полной замены активного XML-каталога временным результатом. Runner один раз собирает текущий MCP, использует одну compiled-сессию и ждёт terminal result каждой фоновой операции; `sync` не запускается после одного лишь `accepted` или неуспешного импорта.
 
 У скилла два режима:
 

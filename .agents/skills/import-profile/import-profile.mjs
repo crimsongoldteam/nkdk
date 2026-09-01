@@ -1,12 +1,10 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process"
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync } from "node:fs"
 import { tmpdir } from "node:os"
-import { dirname, join, resolve } from "node:path"
+import { join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
-import { createMcpToolSession, operationFailed } from "../../tools/mcp/call.mjs"
-
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..")
+import { buildCompiledMcp } from "../../tools/mcp/build-compiled.mjs"
+import { callMcpToolToCompletion, createMcpToolSession, operationFailed } from "../../tools/mcp/call.mjs"
 
 export function usage() {
   return [
@@ -84,6 +82,7 @@ function assertDirectory(path, label) {
 const defaultDependencies = {
   buildMcp: buildCompiledMcp,
   createSession: createMcpToolSession,
+  callToCompletion: callMcpToolToCompletion,
   now: () => performance.now(),
   clearOutput: clearDirectory,
   createProject: createProfileProject,
@@ -104,13 +103,13 @@ export async function runProfile(options, overrides = {}) {
       dependencies.clearOutput(options.yamlDir)
       const projectDir = dependencies.createProject(options.yamlDir)
       const started = dependencies.now()
-      const { result, payload } = await session.call("nkdk.import_from_xml", {
+      const { result, payload } = await dependencies.callToCompletion(session, "nkdk.import_from_xml", {
         xmlDir: options.xmlDir,
         projectDir,
         componentPath: "cf",
         ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
         allowWrite: true,
-      })
+      }, { signal: options.signal })
       const elapsedMs = Math.round(dependencies.now() - started)
       const stderr = session.takeStderr()
       const steps = parseProfileSteps(stderr)
@@ -130,6 +129,10 @@ export async function runProfile(options, overrides = {}) {
         workerPoolSize: workerPoolSize(steps),
         controlExport: summarizeControlExport(steps),
         phases: summarizeImportSteps(steps, elapsedMs),
+        fromXmlPropertyTypes: summarizeFromXmlPropertyTypes(steps),
+        toXmlPropertyTypes: summarizeToXmlPropertyTypes(steps),
+        fusedFromXmlPropertyTypes: summarizeFusedAtomicTypes(steps, "XML в YAML fused atomic"),
+        fusedToXmlPropertyTypes: summarizeFusedAtomicTypes(steps, "toXML fused atomic"),
       })
 
       if (result.isError || operationFailed(payload)) {
@@ -178,24 +181,6 @@ export function parseProfileSteps(stderr) {
     .map(parseProfileLine)
 }
 
-function buildCompiledMcp() {
-  const result = spawnSync("pnpm", ["--filter", "@nkdk/mcp", "build"], {
-    cwd: repoRoot,
-    encoding: "utf8",
-    maxBuffer: 1024 * 1024 * 128,
-  })
-  if (result.status !== 0) {
-    const details = [result.stderr, result.stdout].filter(Boolean).join("\n").trim()
-    throw new Error(`Сборка MCP: команда завершилась с кодом ${result.status ?? "unknown"}${details.length === 0 ? "" : `\n${details}`}`)
-  }
-  for (const path of [
-    "packages/mcp/dist/bin/nkdk-mcp",
-    "packages/mcp/dist/bin/worker.js",
-  ]) {
-    if (!existsSync(join(repoRoot, path))) throw new Error(`Сборка MCP: отсутствует ${path}`)
-  }
-}
-
 function createProfileProject(yamlDir) {
   const runDir = mkdtempSync(join(tmpdir(), "nkdk-import-profile-"))
   const projectDir = join(runDir, "project")
@@ -225,6 +210,29 @@ export function summarizeImportSteps(steps, elapsedMs) {
     ["workerBinaryEncodeMs", sum(records("Двоичное кодирование результата", "worker"), "time")],
     ["workerBinaryTransferMs", sum(records("Передача двоичного результата", "main"), "time")],
     ["workerBinaryBytes", sum(records("Двоичное кодирование результата", "worker"), "bytes")],
+    ["xmlReadMs", sum([
+      ...records("Чтение XML первого прохода", "worker"),
+      ...records("Чтение XML второго прохода", "worker"),
+    ], "time")],
+    ["xmlParseMs", sum([
+      ...records("Парсинг XML первого прохода", "worker"),
+      ...records("Парсинг XML второго прохода", "worker"),
+    ], "time")],
+    ["firstPassXmlReadMs", sum(records("Чтение XML первого прохода", "worker"), "time")],
+    ["firstPassXmlParseMs", sum(records("Парсинг XML первого прохода", "worker"), "time")],
+    ["secondPassXmlReadMs", sum(records("Чтение XML второго прохода", "worker"), "time")],
+    ["secondPassXmlParseMs", sum(records("Парсинг XML второго прохода", "worker"), "time")],
+    ["factsOnlyMs", sum(records("Извлечение фактов XML", "worker"), "time")],
+    ["messagePackMs", sum(records("MessagePack pack", "worker"), "time")],
+    ["messageUnpackMs", sum(records("MessagePack unpack", "worker"), "time")],
+    ["packedStoreWriteMs", sum(records("Packed XML store write", "worker"), "time")],
+    ["packedStoreReadMs", sum(records("Packed XML store read", "worker"), "time")],
+    ["packedBytes", sum(records("Packed XML bytes", "worker"), "bytes")],
+    ["toXmlObjectMs", sum(records("toXML: построение объекта", "worker"), "time")],
+    ["toXmlFinalizeMs", sum(records("toXML: финализация deferred", "worker"), "time")],
+    ["directHashMs", sum(records("Контрольный XML: прямой hash", "worker"), "time")],
+    ["mismatchDocumentMs", sum(records("Контрольный XML: дерево расхождения", "worker"), "time")],
+    ["anomalyProofMs", sum(records("Доказательство XML-аномалий", "worker"), "time")],
     ["diagnosticPreviewMs", sum(records("Подготовка начала diagnostics", "main"), "time")],
     ["diagnosticReportMs", sum(records("Запись полного отчёта diagnostics", "main"), "time")],
     ["diagnosticReportBytes", sum(records("Запись полного отчёта diagnostics", "main"), "bytes")],
@@ -261,11 +269,78 @@ export function summarizeControlExport(steps) {
   return {
     direct: itemCount("Контрольный XML без сериализации"),
     serialized: itemCount("Контрольный XML с сериализацией"),
-    detailedRereads: itemCount("Подробный повторный импорт XML"),
+    detailedRereads: 0,
     assignmentsByWorker: Array.from({ length: workers }, (_unused, worker) =>
       sum(steps.filter((step) => step.worker === worker && step.substep === "Задания второго прохода"), "items")
     ),
   }
+}
+
+export function summarizeToXmlPropertyTypes(steps) {
+  return summarizePropertyTypes(steps, "toXML PropertyRule")
+}
+
+export function summarizeFromXmlPropertyTypes(steps) {
+  return summarizePropertyTypes(steps, "XML в YAML PropertyRule")
+}
+
+export function summarizeFusedAtomicTypes(steps, stepName) {
+  const nestedPrefix = `- ${stepName} `
+  const nestedSubstepPrefix = `${stepName} `
+  const records = steps.flatMap((step) => {
+    if (step.scope !== "worker") return []
+    if (step.step === stepName && typeof step.substep === "string") {
+      return [{ ...step, propertyType: step.substep }]
+    }
+    if (typeof step.step === "string" && step.step.startsWith(nestedPrefix)) {
+      return [{ ...step, propertyType: step.step.slice(nestedPrefix.length) }]
+    }
+    if (typeof step.substep === "string" && step.substep.startsWith(nestedSubstepPrefix)) {
+      return [{ ...step, propertyType: step.substep.slice(nestedSubstepPrefix.length) }]
+    }
+    return []
+  })
+  const propertyTypes = new Set(records.map((step) => step.propertyType))
+  return [...propertyTypes].map((propertyType) => {
+    const matching = records.filter((step) => step.propertyType === propertyType)
+    return {
+      propertyType,
+      count: sum(matching, "items"),
+      workerMs: sum(matching, "time"),
+      criticalMs: max(aggregateWorkerValues(matching, "time", "sum")) ?? 0,
+    }
+  }).sort((left, right) => right.workerMs - left.workerMs)
+}
+
+function summarizePropertyTypes(steps, stepPrefix) {
+  const records = (mode, propertyType) => steps.filter((step) =>
+    step.scope === "worker"
+    && step.step === `${stepPrefix} ${mode}`
+    && step.substep === propertyType
+  )
+  const propertyTypes = new Set(
+    steps
+      .filter((step) => step.scope === "worker" && step.step?.startsWith(`${stepPrefix} `))
+      .map((step) => step.substep)
+      .filter((propertyType) => typeof propertyType === "string"),
+  )
+  return [...propertyTypes]
+    .map((propertyType) => {
+      const exclusive = records("exclusive", propertyType)
+      const inclusive = records("inclusive", propertyType)
+      const propertyCount = sum(exclusive, "items")
+      const exclusiveWorkerMs = sum(exclusive, "time")
+      return {
+        propertyType,
+        propertyCount,
+        exclusiveWorkerMs,
+        exclusiveCriticalMs: max(aggregateWorkerValues(exclusive, "time", "sum")) ?? 0,
+        inclusiveWorkerMs: sum(inclusive, "time"),
+        inclusiveCriticalMs: max(aggregateWorkerValues(inclusive, "time", "sum")) ?? 0,
+        averageExclusiveUs: propertyCount === 0 ? 0 : exclusiveWorkerMs * 1_000 / propertyCount,
+      }
+    })
+    .sort((left, right) => right.exclusiveWorkerMs - left.exclusiveWorkerMs)
 }
 
 function clearDirectory(dir) {
@@ -512,6 +587,7 @@ function toTableRow(name, records) {
   const workerBytes = aggregateWorkerValues(workers, "bytes", "max")
   return {
     step: name,
+    items: sum(records, "items"),
     projectMs: main.length > 0 ? sum(main, "time") : max(workerTimes),
     mainMs: sumOrUndefined(main, "time"),
     workerMinMs: min(workerTimes),
@@ -635,10 +711,19 @@ function formatBytes(value) {
 
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const options = parseArgs(process.argv.slice(2))
-  runProfile(options)
+  const controller = new AbortController()
+  const onInterrupt = () => controller.abort(new Error("Получен SIGINT"))
+  const onTerminate = () => controller.abort(new Error("Получен SIGTERM"))
+  process.once("SIGINT", onInterrupt)
+  process.once("SIGTERM", onTerminate)
+  runProfile({ ...options, signal: controller.signal })
     .then((result) => printResult(result, options))
     .catch((error) => {
       console.error(error instanceof Error ? error.message : String(error))
       process.exitCode = 1
+    })
+    .finally(() => {
+      process.off("SIGINT", onInterrupt)
+      process.off("SIGTERM", onTerminate)
     })
 }

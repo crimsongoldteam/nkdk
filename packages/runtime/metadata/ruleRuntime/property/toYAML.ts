@@ -12,6 +12,8 @@ import {
 import type { PropertyRule } from "./types"
 import type { MetadataTargetOwner } from "../metadataTarget/types"
 import { isTaggedYAMLScalar, markYAMLScalarTag } from "../../../yaml/scalarTags"
+import type { CompiledProperty } from "./compiledPropertyPlan"
+import { resolveAtomicConversion } from "./atomicConversion"
 
 export const exportPropertyToYAML = (params: {
   context: ConfigurationContext
@@ -20,6 +22,7 @@ export const exportPropertyToYAML = (params: {
   name?: string
   owner?: MetadataTargetOwner
   execution?: PropertyRuleExecution
+  compiled?: CompiledProperty
 }): Record<string, any> | undefined => {
   const exportedValue = exportPropertyValueToYAML(params)
   return getExportToYAMLResult(
@@ -28,6 +31,7 @@ export const exportPropertyToYAML = (params: {
     exportedValue,
     params.value,
     params.execution,
+    params.compiled,
   )
 }
 
@@ -38,6 +42,7 @@ export function exportPropertyValueToYAML(params: {
   name?: string
   owner?: MetadataTargetOwner
   execution?: PropertyRuleExecution
+  compiled?: CompiledProperty
   preserveImplicitValue?: boolean
 }): unknown {
   return exportPropertyMetadataTargetsToYAML(
@@ -53,6 +58,7 @@ export function exportPropertyValueBeforeMetadataTargetsToYAML(params: {
   name?: string
   owner?: MetadataTargetOwner
   execution?: PropertyRuleExecution
+  compiled?: CompiledProperty
   preserveImplicitValue?: boolean
 }): unknown {
   const { context, rule, value, name } = params
@@ -64,9 +70,21 @@ export function exportPropertyValueBeforeMetadataTargetsToYAML(params: {
     "implicitValueYAML" in rule && value === (rule as any).implicitValueYAML
   ) return undefined
 
-  const typeExportFn = params.execution === undefined
-    ? getTypeRule(rule.type, "exportToYAML")
-    : params.execution.getTypeRule(rule.type, "exportToYAML")
+  const atomicConversion = resolveAtomicConversion({
+    rule,
+    execution: params.execution,
+    compiled: params.compiled,
+    getTypeRule,
+  })
+  if (atomicConversion !== undefined) {
+    return atomicConversion.fromXMLToYAML({ context, value }).representationValue
+  }
+
+  const typeExportFn = params.compiled === undefined
+    ? params.execution === undefined
+      ? getTypeRule(rule.type, "exportToYAML")
+      : params.execution.getTypeRule(rule.type, "exportToYAML")
+    : params.compiled.operations.exportToYAML
 
   if (!typeExportFn) return value
 
@@ -91,9 +109,11 @@ export function exportPropertyMetadataTargetsToYAML(
   params: Parameters<typeof exportPropertyValueToYAML>[0],
   value: unknown,
 ): unknown {
-  const handler = params.execution === undefined
-    ? getTypeRule(params.rule.type, "metadataTargetOccurrences")
-    : params.execution.getTypeRule(params.rule.type, "metadataTargetOccurrences")
+  const handler = params.compiled === undefined
+    ? params.execution === undefined
+      ? getTypeRule(params.rule.type, "metadataTargetOccurrences")
+      : params.execution.getTypeRule(params.rule.type, "metadataTargetOccurrences")
+    : params.compiled.operations.metadataTargetOccurrences
   if (handler === undefined) {
     return value
   }
@@ -142,7 +162,8 @@ export const getExportToYAMLResult = (
   yamlKey: string,
   value: any,
   sourceValue?: any,
-  execution?: PropertyRuleExecution
+  execution?: PropertyRuleExecution,
+  compiled?: CompiledProperty,
 ): Record<string, any> | undefined => {
   if (rule.type == "UserVisible" || rule.type == "FormattedI8nText") {
     return value
@@ -162,9 +183,11 @@ export const getExportToYAMLResult = (
     value === (rule as any).implicitValueYAML
   ) return undefined
 
-  const preservesPresence = (execution === undefined
-    ? getTypeRule(rule.type, "xmlImportPropertyBehavior")
-    : execution.getTypeRule(rule.type, "xmlImportPropertyBehavior"))
+  const preservesPresence = (compiled === undefined
+    ? execution === undefined
+      ? getTypeRule(rule.type, "xmlImportPropertyBehavior")
+      : execution.getTypeRule(rule.type, "xmlImportPropertyBehavior")
+    : compiled.operations.xmlImportPropertyBehavior)
     ?.presenceAffectsExport === true
   if (
     Array.isArray(value) &&

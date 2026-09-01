@@ -84,6 +84,43 @@ function createCompatibilityConsumption(
   container(node: XmlElementNode, value: object): object
 } {
   const proxies = new WeakMap<object, object>()
+  const structuralChildrenByNode = new WeakMap<
+    XmlElementNode,
+    readonly (XmlElementNode | XmlProcessingInstructionNode)[]
+  >()
+  const structuralChildrenByKey = new WeakMap<
+    XmlElementNode,
+    ReadonlyMap<string, readonly (XmlElementNode | XmlProcessingInstructionNode)[]>
+  >()
+
+  const childrenOf = (
+    node: XmlElementNode,
+  ): readonly (XmlElementNode | XmlProcessingInstructionNode)[] => {
+    const cached = structuralChildrenByNode.get(node)
+    if (cached !== undefined) return cached
+    const children = structuralChildren(node)
+    structuralChildrenByNode.set(node, children)
+    return children
+  }
+
+  const childrenOfKey = (
+    node: XmlElementNode,
+    key: string,
+  ): readonly (XmlElementNode | XmlProcessingInstructionNode)[] => {
+    let index = structuralChildrenByKey.get(node)
+    if (index === undefined) {
+      const mutable = new Map<string, (XmlElementNode | XmlProcessingInstructionNode)[]>()
+      for (const child of childrenOf(node)) {
+        const childKey = compatibilityKey(child)
+        const entries = mutable.get(childKey) ?? []
+        entries.push(child)
+        mutable.set(childKey, entries)
+      }
+      index = mutable
+      structuralChildrenByKey.set(node, index)
+    }
+    return index.get(key) ?? []
+  }
 
   const claim = (node: XmlContentNode | XmlAttributeNode): void => {
     audit.claim(node, boundary)
@@ -124,7 +161,7 @@ function createCompatibilityConsumption(
     const cached = proxies.get(value)
     if (cached !== undefined) return cached
     if (Array.isArray(value)) {
-      const children = structuralChildren(node)
+      const children = childrenOf(node)
       const wrapped = wrapArray(value, children, (entry, child) => {
         if (entry === null || typeof entry !== "object") return consumeNode(child, entry)
         return wrapObject(entry, (key) =>
@@ -166,7 +203,7 @@ function createCompatibilityConsumption(
     key: PropertyKey,
   ): unknown => {
     if (key === Symbol.for("metadata")) {
-      for (const child of structuralChildren(node)) claimShallow(child)
+      for (const child of childrenOf(node)) claimShallow(child)
       return Reflect.get(value, key)
     }
     if (typeof key !== "string") return Reflect.get(value, key)
@@ -181,9 +218,7 @@ function createCompatibilityConsumption(
       if (attribute !== undefined) claim(attribute)
       return Reflect.get(value, key)
     }
-    const children = structuralChildren(node).filter(
-      (child) => compatibilityKey(child) === key,
-    )
+    const children = childrenOfKey(node, key)
     const childValue = Reflect.get(value, key)
     if (children.length === 0) return childValue
     if (children.length === 1) return consumeNode(children[0]!, childValue)
@@ -193,7 +228,7 @@ function createCompatibilityConsumption(
 
   const claimElementProperty = (node: XmlElementNode, key: PropertyKey): void => {
     if (key === Symbol.for("metadata")) {
-      for (const child of structuralChildren(node)) claimShallow(child)
+      for (const child of childrenOf(node)) claimShallow(child)
       return
     }
     if (typeof key !== "string") return
@@ -208,9 +243,7 @@ function createCompatibilityConsumption(
       if (attribute !== undefined) claim(attribute)
       return
     }
-    for (const child of structuralChildren(node)) {
-      if (compatibilityKey(child) === key) claimPresence(child)
-    }
+    for (const child of childrenOfKey(node, key)) claimPresence(child)
   }
 
   const wrapObject = (

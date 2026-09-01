@@ -6,6 +6,7 @@ export interface DataPathOwnerKindRegistration {
   kind: OwnerTypeRef["kind"]
   projectDir: string
   rule: MetadataItemRule
+  compactImplicitFormDataPaths?: boolean
   typeDescriptionBases?: readonly string[]
   registerRecordSetBases?: readonly string[]
   metadataLinkPrefixes?: readonly string[]

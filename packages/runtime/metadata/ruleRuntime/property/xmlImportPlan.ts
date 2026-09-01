@@ -27,9 +27,9 @@ export interface XMLImportMatch extends XMLImportPlanEntry {
   ambiguousXMLKey: boolean
 }
 
-export interface XMLImportPlan {
-  readonly defaults: readonly XMLImportPlanEntry[]
-  readonly entriesByPropertyKey: ReadonlyMap<string, XMLImportPlanEntry>
+export interface XMLImportPlan<Entry extends XMLImportPlanEntry = XMLImportPlanEntry> {
+  readonly defaults: readonly Entry[]
+  readonly entriesByPropertyKey: ReadonlyMap<string, Entry>
 }
 
 interface XMLImportPlanNode {
@@ -37,7 +37,7 @@ interface XMLImportPlanNode {
   readonly childrenByXMLKey: Map<string, XMLImportPlanNode>
 }
 
-interface CompiledXMLImportPlan extends XMLImportPlan {
+interface CompiledXMLImportPlan<Entry extends XMLImportPlanEntry = XMLImportPlanEntry> extends XMLImportPlan<Entry> {
   readonly itemType: string
   readonly root: XMLImportPlanNode
 }
@@ -75,24 +75,30 @@ const registerXMLKey = (params: {
   if (!entries.some(({ propertyKey }) => propertyKey === params.entry.propertyKey)) entries.push(params.entry)
 }
 
-const compileXMLImportPlan = (params: {
+const compileXMLImportPlan = <Entry extends XMLImportPlanEntry = XMLImportPlanEntry>(params: {
   rule: MetadataItemRule
   tags?: readonly string[]
   includeAllTags: boolean
-}): CompiledXMLImportPlan => {
+  entries?: readonly Entry[]
+}): CompiledXMLImportPlan<Entry> => {
   const root = createNode()
-  const defaults: XMLImportPlanEntry[] = []
-  const entriesByPropertyKey = new Map<string, XMLImportPlanEntry>()
+  const defaults: Entry[] = []
+  const entriesByPropertyKey = new Map<string, Entry>()
 
-  for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
-    if (propertyRule.runtimeOnly || propertyRule.syncExternalOnly) continue
-    if (!matchesSource({ propertyRule, tags: params.tags, includeAllTags: params.includeAllTags })) continue
-
-    const entry: XMLImportPlanEntry = {
+  const sourceEntries = params.entries ?? Object.entries(params.rule.properties).map(
+    ([propertyKey, propertyRule]) => ({
       propertyKey,
       rule: propertyRule,
       canonicalXMLKey: propertyRule.xml ?? capitalize(propertyKey),
-    }
+    } as Entry),
+  )
+  for (const sourceEntry of sourceEntries) {
+    const propertyKey = sourceEntry.propertyKey
+    const propertyRule = sourceEntry.rule
+    if (propertyRule.runtimeOnly || propertyRule.syncExternalOnly) continue
+    if (!matchesSource({ propertyRule, tags: params.tags, includeAllTags: params.includeAllTags })) continue
+
+    const entry = sourceEntry
     entriesByPropertyKey.set(propertyKey, entry)
 
     if (propertyRule.filePath !== undefined) continue
@@ -122,6 +128,13 @@ const compileXMLImportPlan = (params: {
 
   return { itemType: params.rule.itemType, root, defaults, entriesByPropertyKey }
 }
+
+export const compileXMLImportPlanFromEntries = <Entry extends XMLImportPlanEntry>(params: {
+  rule: MetadataItemRule
+  entries: readonly Entry[]
+  tags?: readonly string[]
+  includeAllTags: boolean
+}): XMLImportPlan<Entry> => compileXMLImportPlan(params)
 
 export const getXMLImportPlan = (params: {
   rule: MetadataItemRule

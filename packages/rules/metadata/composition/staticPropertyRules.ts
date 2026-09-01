@@ -19,11 +19,9 @@ import { metadataPropertyRule011 as rule17 } from "../appliedObjects/configurati
 import { metadataPropertyRule012 as rule18 } from "../appliedObjects/configuration/mobileApplicationURLs"
 import { metadataPropertyRule013 as rule19 } from "../appliedObjects/configuration/mobileApplicationURLs"
 import { metadataPropertyRule014 as rule20 } from "../appliedObjects/configuration/mobileApplicationURLs"
-import { metadataPropertyRule000 as rule26 } from "../commonObjects/boolean/fromXML"
-import { metadataPropertyRule000 as rule27 } from "../commonObjects/boolean/fromYAML"
 import { metadataPropertyRule000 as rule28 } from "../commonObjects/boolean/toJSONSchema"
 import { metadataPropertyRule001 as rule29 } from "../commonObjects/boolean/toJSONSchema"
-import { metadataPropertyRule000 as rule30 } from "../commonObjects/boolean/toYAML"
+import { metadataPropertyRule000 as booleanAtomicConversion } from "../commonObjects/boolean/atomicConversion"
 import { metadataPropertyRule000 as rule31 } from "../commonObjects/border/fromXML"
 import { metadataPropertyRule000 as rule32 } from "../commonObjects/border/fromYAML"
 import { metadataPropertyRule000 as rule33 } from "../commonObjects/border/toEnterprise"
@@ -33,6 +31,7 @@ import { metadataPropertyRule000 as rule36 } from "../commonObjects/border/toYAM
 import { metadataPropertyRule000 as rule37 } from "../commonObjects/characteristicsDescription/toJSONSchema"
 import { metadataPropertyRule000 as rule38 } from "../commonObjects/childFileItemNames/fromXML"
 import { metadataPropertyRule001 as rule39 } from "../commonObjects/childFileItemNames/fromXML"
+import { metadataPropertyRule002 as childFileItemNamesXmlImportBehavior } from "../commonObjects/childFileItemNames/fromXML"
 import { metadataPropertyRule000 as rule40 } from "../commonObjects/childFileItemNames/toXML"
 import { metadataPropertyRule000 as rule41 } from "../commonObjects/childFormNames/fromXML"
 import { metadataPropertyRule001 as rule42 } from "../commonObjects/childFormNames/fromXML"
@@ -277,11 +276,10 @@ import { metadataPropertyRule000 as rule242 } from "../commonObjects/mobileDevic
 import { metadataPropertyRule000 as rule243 } from "../commonObjects/mobileDeviceCommandBarContent/toYAML"
 import { metadataPropertyRule000 as rule244 } from "../commonObjects/module/fromXML"
 import { metadataPropertyRule001 as rule245 } from "../commonObjects/module/fromXML"
-import { metadataPropertyRule000 as rule246 } from "../commonObjects/number/fromXML"
 import { metadataPropertyRule001 as rule247 } from "../commonObjects/number/fromXML"
+import { metadataPropertyRule000 as numberAtomicConversion } from "../commonObjects/number/atomicConversion"
 import { metadataPropertyRule000 as rule248 } from "../commonObjects/number/toJSONSchema"
 import { metadataPropertyRule001 as rule249 } from "../commonObjects/number/toJSONSchema"
-import { metadataPropertyRule000 as rule250 } from "../commonObjects/number/toXML"
 import { metadataPropertyRule000 as rule251 } from "../commonObjects/picture/fromXML"
 import { metadataPropertyRule000 as rule252 } from "../commonObjects/picture/fromYAML"
 import { metadataPropertyRule001 as rule253 } from "../commonObjects/picture/fromYAML"
@@ -300,10 +298,9 @@ import { metadataPropertyRule004 as rule265 } from "../commonObjects/resourceTop
 import { metadataPropertyRule005 as rule266 } from "../commonObjects/resourceTopology"
 import { metadataPropertyRule000 as rule268 } from "../commonObjects/standardAttributeDescription/toJSONSchema"
 import { metadataPropertyRule000 as standardAttributesYamlTagPolicy } from "../commonObjects/standardAttributeDescription/yamlScalarTagPolicy"
-import { metadataPropertyRule000 as rule269 } from "../commonObjects/string/fromXML"
+import { metadataPropertyRule000 as stringAtomicConversion } from "../commonObjects/string/atomicConversion"
 import { metadataPropertyRule000 as rule270 } from "../commonObjects/string/toJSONSchema"
 import { metadataPropertyRule001 as rule271 } from "../commonObjects/string/toJSONSchema"
-import { metadataPropertyRule000 as rule272 } from "../commonObjects/string/toYAML"
 import { metadataPropertyRule000 as rule273 } from "../commonObjects/stringOrNumber/fromXML"
 import { metadataPropertyRule000 as rule274 } from "../commonObjects/stringOrNumber/toJSONSchema"
 import { metadataPropertyRule000 as rule275 } from "../commonObjects/stringOrNumber/toXML"
@@ -395,13 +392,10 @@ import { metadataPropertyRule001 as rule362 } from "../forms/elements/button/par
 import { metadataPropertyRule002 as rule363 } from "../forms/elements/button/parameter"
 import { metadataPropertyRule003 as rule364 } from "../forms/elements/button/parameter"
 import { metadataPropertyRule004 as rule365 } from "../forms/elements/button/parameter"
-import { metadataPropertyRule000 as rule366 } from "../systemEnumerations/fromXML"
-import { metadataPropertyRule000 as rule369 } from "../systemEnumerations/fromYAML"
+import { metadataPropertyRule000 as systemEnumerationAtomicConversion } from "../systemEnumerations/atomicConversion"
 import { metadataPropertyRule000 as rule370 } from "../systemEnumerations/toEnterprise"
 import { metadataPropertyRule000 as rule371 } from "../systemEnumerations/toJSONSchema"
 import { metadataPropertyRule001 as rule372 } from "../systemEnumerations/toJSONSchema"
-import { metadataPropertyRule000 as rule373 } from "../systemEnumerations/toXML"
-import { metadataPropertyRule000 as rule374 } from "../systemEnumerations/toYAML"
 import { metadataPropertyRule000 as rule375 } from "../commonObjects/minMaxValue/fromYAML"
 import { metadataPropertyRule000 as rule376 } from "../commonObjects/minMaxValue/toYAML"
 import { metadataPropertyRule000 as rule377 } from "../commonObjects/inputByStringFields/propertyRules"
@@ -445,11 +439,9 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule18,
   rule19,
   rule20,
-  rule26,
-  rule27,
   rule28,
   rule29,
-  rule30,
+  booleanAtomicConversion,
   rule31,
   rule32,
   rule33,
@@ -459,6 +451,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule37,
   rule38,
   rule39,
+  childFileItemNamesXmlImportBehavior,
   rule40,
   rule41,
   rule42,
@@ -668,11 +661,10 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule243,
   rule244,
   rule245,
-  rule246,
+  numberAtomicConversion,
   rule247,
   rule248,
   rule249,
-  rule250,
   rule251,
   rule252,
   rule253,
@@ -690,10 +682,9 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule265,
   rule266,
   rule268,
-  rule269,
+  stringAtomicConversion,
   rule270,
   rule271,
-  rule272,
   rule273,
   rule274,
   rule275,
@@ -785,13 +776,10 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule363,
   rule364,
   rule365,
-  rule366,
-  rule369,
+  systemEnumerationAtomicConversion,
   rule370,
   rule371,
   rule372,
-  rule373,
-  rule374,
   rule375,
   rule376,
   rule377,

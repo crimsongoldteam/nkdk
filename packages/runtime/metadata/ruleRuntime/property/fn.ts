@@ -32,6 +32,7 @@ import type { MetadataTargetOwnerResolver } from "./metadataTargetOwnerRegistry"
 import type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
 import type { YAMLScalarTagPolicy } from "./yamlScalarTagPolicy"
 import type { XmlAnomalyAnnotations } from "../../../yaml/xmlAnomalyAnnotations"
+import type { CompileAtomicConversionFunction } from "./atomicConversion"
 export type { MetadataTargetOccurrencesFunction } from "./metadataTargetOccurrences"
 export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
 
@@ -321,6 +322,7 @@ export interface TypeRule {
   collectLocalFactsFromYAML?: CollectLocalFactsFromYAMLFunction
   yamlToXMLNestedRule?: YAMLToXMLNestedRule
   yamlScalarTagPolicy?: YAMLScalarTagPolicy
+  compileAtomicConversion?: CompileAtomicConversionFunction
 }
 
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
@@ -383,6 +385,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
                                                   : O extends "yamlToXMLNestedRule"
                                                     ? YAMLToXMLNestedRule | undefined
-                                                    : O extends "yamlScalarTagPolicy"
-                                                      ? YAMLScalarTagPolicy | undefined
+                                                  : O extends "yamlScalarTagPolicy"
+                                                    ? YAMLScalarTagPolicy | undefined
+                                                    : O extends "compileAtomicConversion"
+                                                      ? CompileAtomicConversionFunction | undefined
                                                       : never

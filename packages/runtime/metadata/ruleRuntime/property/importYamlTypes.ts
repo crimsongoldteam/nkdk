@@ -20,7 +20,21 @@ import {
 
 export type { DeferredValuePath } from "./deferredObjectValues"
 
+export type DirectImportMode = "yaml" | "facts"
+
+export interface DirectImportFactsSink {
+  acceptProperty(fact: {
+    readonly itemType: string
+    readonly propertyKey: string
+    readonly yamlPath: YamlPath
+    readonly value: unknown
+  }): void
+}
+
 export interface DirectImportTraversal<Execution = unknown> {
+  mode?: DirectImportMode
+  facts?: DirectImportFactsSink
+  produceResult?: boolean
   execution?: Execution
   yamlPath: YamlPath
   rulePath: readonly DeferredRulePathSegment[]
@@ -99,6 +113,8 @@ export interface DirectImportXMLSource {
 }
 
 export interface DirectImportProfile {
+  readonly propertyTypeProfiling: boolean
+  propertyTypeProfiles: Record<string, DirectImportPropertyTypeProfile>
   propertyCount: number
   directCount: number
   legacyCount: number
@@ -114,11 +130,45 @@ export interface DirectImportProfile {
   collectorMs: number
   directByType: Map<string, DirectImportProfileBucket>
   legacyByType: Map<string, DirectImportProfileBucket>
+  fusedAtomicCount: number
+  fusedAtomicByType: Map<string, DirectImportProfileBucket>
+}
+
+export interface DirectImportPropertyTypeProfile {
+  propertyCount: number
+  inclusiveMs: number
+  exclusiveMs: number
 }
 
 export interface DirectImportProfileBucket {
   count: number
   timeMs: number
+}
+
+export function createDirectImportProfile(
+  options: { readonly propertyTypes?: boolean } = {},
+): DirectImportProfile {
+  return {
+    propertyTypeProfiling: options.propertyTypes === true,
+    propertyTypeProfiles: {},
+    propertyCount: 0,
+    directCount: 0,
+    legacyCount: 0,
+    exportedCount: 0,
+    planningMs: 0,
+    xmlTraversalMs: 0,
+    configurationIndexMs: 0,
+    directInclusiveMs: 0,
+    legacyFromXmlMs: 0,
+    yamlExportMs: 0,
+    defaultMs: 0,
+    outputMs: 0,
+    collectorMs: 0,
+    directByType: new Map(),
+    legacyByType: new Map(),
+    fusedAtomicCount: 0,
+    fusedAtomicByType: new Map(),
+  }
 }
 
 export interface DirectImportResult {

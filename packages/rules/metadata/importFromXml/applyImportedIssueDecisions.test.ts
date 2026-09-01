@@ -63,6 +63,27 @@ describe("применение решений об XML-аномалиях", () =
     )
   })
 
+  it("считает решение покрытым raw без смыслового значения", () => {
+    const source = [
+      "Значение: !xml/raw",
+      "  $xml:",
+      "    _xsi:type: xr:DesignTimeRef",
+    ].join("\n")
+    const parsed = parseMetadataYaml(source)
+
+    applyImportedIssueDecisions({
+      data: parsed.data,
+      annotations: parsed.annotations,
+      decisions: [{
+        kind: "invalid",
+        target: { kind: "path", path: ["Значение"] },
+        issueCodes: ["diagnostic.structure"],
+      }],
+    })
+
+    expect(serializeYAMLDocument(parsed.data, parsed.annotations).text).toBe(source)
+  })
+
   it("помечает конкретный элемент массива по числовому пути TypeBox", () => {
     const parsed = parseMetadataYaml([
       "СписокВыбора:",

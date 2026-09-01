@@ -73,6 +73,7 @@ function projectNamedXmlCollectionWithRuntimeKeys<T>(params: {
 export function projectNamedXmlCollectionForImport<T>(params: {
   readonly entries: readonly NamedXmlCollectionEntry<T>[]
   readonly annotations?: XmlAnomalyAnnotationTable
+  readonly ephemeral?: true
 }): Record<string, T> {
   return projectNamedXmlCollectionForImportWithRuntimeKeys(params).yaml
 }
@@ -80,10 +81,11 @@ export function projectNamedXmlCollectionForImport<T>(params: {
 export function projectNamedXmlCollectionForImportWithRuntimeKeys<T>(params: {
   readonly entries: readonly NamedXmlCollectionEntry<T>[]
   readonly annotations?: XmlAnomalyAnnotationTable
+  readonly ephemeral?: true
 }): { readonly yaml: Record<string, T>; readonly runtimeKeys: readonly string[] } {
   const annotations = params.annotations ?? createXmlAnomalyAnnotations()
   const projected = projectNamedXmlCollectionWithRuntimeKeys({ entries: params.entries, annotations })
-  if (params.annotations === undefined && Array.from(annotations.entries()).length > 0) {
+  if (params.annotations === undefined && params.ephemeral !== true && Array.from(annotations.entries()).length > 0) {
     throw new Error("Для сохранения XML-аномалий record-коллекции требуется таблица аннотаций")
   }
   return projected

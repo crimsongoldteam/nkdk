@@ -34,12 +34,27 @@ export interface YAMLToXMLResult {
 }
 
 export interface YAMLToXMLProfile {
+  readonly propertyTypeProfiling: boolean
   propertyCount: number
   nestedItemCount: number
   atomicFromYAMLCount: number
   atomicToXMLCount: number
+  fusedAtomicCount: number
+  fusedAtomicByType: Map<string, { count: number; timeMs: number }>
   rulesPassCount: 1
   propertyPaths: string[]
+  planningMs: number
+  propertyConversionMs: number
+  deferredFinalizeMs: number
+  directHashMs: number
+  mismatchDocumentMs: number
+  propertyTypeProfiles: Record<string, YAMLToXMLPropertyTypeProfile>
+}
+
+export interface YAMLToXMLPropertyTypeProfile {
+  propertyCount: number
+  inclusiveMs: number
+  exclusiveMs: number
 }
 
 export interface YAMLToXMLItemConversionParams {
@@ -60,13 +75,22 @@ export interface YAMLToXMLItemConversionParams {
   readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
-export const createYAMLToXMLProfile = (): YAMLToXMLProfile => ({
+export const createYAMLToXMLProfile = (options: { readonly propertyTypes?: boolean } = {}): YAMLToXMLProfile => ({
+  propertyTypeProfiling: options.propertyTypes === true,
   propertyCount: 0,
   nestedItemCount: 0,
   atomicFromYAMLCount: 0,
   atomicToXMLCount: 0,
+  fusedAtomicCount: 0,
+  fusedAtomicByType: new Map(),
   rulesPassCount: 1,
   propertyPaths: [],
+  planningMs: 0,
+  propertyConversionMs: 0,
+  deferredFinalizeMs: 0,
+  directHashMs: 0,
+  mismatchDocumentMs: 0,
+  propertyTypeProfiles: {},
 })
 
 export interface SelectedBaseYAMLInput {

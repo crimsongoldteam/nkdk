@@ -10,6 +10,9 @@ import { standardAttributeAliasToYAML } from "../../validation/dataPath/objectFi
 
 const objectFieldCollections: ObjectFieldCollectionProvider = ({ owner }) => {
   const descriptors = []
+  if (owner.rule.properties.fields !== undefined) {
+    descriptors.push({ collection: "attributes", kind: "attribute" } as const)
+  }
   for (const collection of [
     "attributes",
     "tabularSections",

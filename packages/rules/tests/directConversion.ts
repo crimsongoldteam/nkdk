@@ -12,7 +12,7 @@ import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLExternalWriteFactory,
 } from "@nkdk/runtime/rule-kit"
-import type { MetadataItemRule, PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
+import type { CompiledPropertyRuleExecution, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { createPropertyRuleExecutor } from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/projectDefinition/localIndexes"
@@ -128,7 +128,7 @@ export function testPropertyFromXMLToYAML(params: {
   rule: MetadataItemRule
   xml: Record<string, unknown> | XmlElementNode
   context?: ConfigurationContextFromXML
-  execution?: PropertyRuleExecution
+  execution?: CompiledPropertyRuleExecution
   name?: string
   annotations?: XmlAnomalyAnnotationTable
   audit?: XmlImportAuditSession
@@ -156,7 +156,7 @@ export function testPropertyFromYAMLToXML(params: {
   rule: MetadataItemRule
   yaml: unknown
   context?: ConfigurationContextWithExportToXML
-  execution?: PropertyRuleExecution
+  execution?: CompiledPropertyRuleExecution
   name?: string
   referenceXML?: unknown
   externalWriteFactory?: YAMLToXMLExternalWriteFactory

@@ -45,9 +45,7 @@ export function applyImportedIssueDecisions(params: {
     if (typeof key === "string" && params.annotations.keyAt(parent, key)?.kind === decision.kind) continue
     const current = params.annotations.at(parent, key)
     if (current?.kind === "raw") {
-      if (current.hasSemanticValue !== true) {
-        throw new Error(`Нельзя назначить ${decision.kind} raw без смыслового значения`)
-      }
+      if (current.hasSemanticValue !== true) continue
       params.annotations.set(parent, key, {
         ...current,
         semantic: { kind: decision.kind, occurrence: 1 },

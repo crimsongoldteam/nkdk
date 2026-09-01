@@ -1,7 +1,7 @@
 import { capitalize, markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
 import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
-import { exportPropertyValueToYAML, getImplicitValueYAML, importPropertyFromXML } from "@nkdk/runtime/rule-kit"
+import { convertPropertyFromXMLToYAML, getImplicitValueYAML } from "@nkdk/runtime/rule-kit"
 import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 import type { PropertyStateCapabilityRegistry, ResolvedPropertyStateItemCapability } from "../../ruleRuntime/definition"
 import { importMultiStateType } from "./multiState"
@@ -140,7 +140,7 @@ function propertyKeyForState(
 }
 
 function importPresentProperties(params: {
-  readonly context: Parameters<typeof importPropertyFromXML>[0]["context"]
+  readonly context: Parameters<typeof convertPropertyFromXMLToYAML>[0]["context"]
   readonly rule: MetadataItemRule
   readonly source: Record<string, unknown>
   readonly yaml: Record<string, unknown>
@@ -151,9 +151,24 @@ function importPresentProperties(params: {
   for (const [propertyKey, capability] of Object.entries(item?.properties ?? {})) {
     const propertyRule = params.rule.properties[propertyKey]
     if (propertyRule === undefined || typeof propertyRule.yaml !== "string") continue
+    if (propertyRule.forReferenceOnly === true) continue
+    if (
+      !borrowed &&
+      propertyRule.metadataTarget !== undefined &&
+      Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueYAML") &&
+      params.yaml[propertyRule.yaml] === null
+    ) {
+      delete params.yaml[propertyRule.yaml]
+      continue
+    }
     if (capability.availability === "own") {
       const implicit = getOwnPropertyImplicitValueYAML(propertyRule)
-      if (implicit !== undefined && params.yaml[propertyRule.yaml] === implicit) {
+      if (
+        implicit !== undefined && (
+          params.yaml[propertyRule.yaml] === implicit
+          || (propertyRule.metadataTarget !== undefined && params.yaml[propertyRule.yaml] === null)
+        )
+      ) {
         delete params.yaml[propertyRule.yaml]
       }
       continue
@@ -187,17 +202,25 @@ function importPresentProperties(params: {
 }
 
 function isExplicitXMLDefault(
-  context: Parameters<typeof importPropertyFromXML>[0]["context"],
+  context: Parameters<typeof convertPropertyFromXMLToYAML>[0]["context"],
   rule: MetadataItemRule["properties"][string],
   value: unknown,
 ): boolean {
-  const imported = importPropertyFromXML({ context, rule, value })
+  const imported = convertPropertyFromXMLToYAML({ context, rule, value }).metadataValue
   return (
     Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML") &&
-    imported === importPropertyFromXML({ context, rule, value: rule.defaultValueAdoptedXML })
+    imported === convertPropertyFromXMLToYAML({
+      context,
+      rule,
+      value: rule.defaultValueAdoptedXML,
+    }).metadataValue
   ) || (
     Object.prototype.hasOwnProperty.call(rule, "defaultValueXML") &&
-    imported === importPropertyFromXML({ context, rule, value: rule.defaultValueXML })
+    imported === convertPropertyFromXMLToYAML({
+      context,
+      rule,
+      value: rule.defaultValueXML,
+    }).metadataValue
   )
 }
 
@@ -241,7 +264,7 @@ function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
 }
 
 function ensurePropertyYamlValue(params: {
-  readonly context: Parameters<typeof importPropertyFromXML>[0]["context"]
+  readonly context: Parameters<typeof convertPropertyFromXMLToYAML>[0]["context"]
   readonly rule: MetadataItemRule
   readonly source: Record<string, unknown>
   readonly yaml: Record<string, unknown>
@@ -253,6 +276,7 @@ function ensurePropertyYamlValue(params: {
   if (propertyRule === undefined) return
   if (Object.prototype.hasOwnProperty.call(params.yaml, params.yamlName)) {
     if (propertyRule.metadataTarget !== undefined && params.yaml[params.yamlName] === null) {
+      if (getImplicitValueYAML(propertyRule) !== undefined) delete params.yaml[params.yamlName]
       params.yaml[params.yamlName] = params.emptyValue ?? {}
     } else if (
       params.emptyValue !== undefined &&
@@ -268,18 +292,16 @@ function ensurePropertyYamlValue(params: {
     params.rule,
     [...(propertyRule.xmlParents ?? []), params.xmlProperty],
   )
-  const importedValue = importPropertyFromXML({
+  const converted = convertPropertyFromXMLToYAML({
     context: params.context,
     rule: propertyRule,
     value: xmlValue,
-  })
-  const yamlValue = exportPropertyValueToYAML({
-    context: params.context,
-    rule: propertyRule,
-    value: importedValue,
     preserveImplicitValue: true,
   })
-  params.yaml[params.yamlName] = yamlValue ?? getImplicitValueYAML(propertyRule) ?? params.emptyValue ?? {}
+  params.yaml[params.yamlName] = converted.representationValue
+    ?? getImplicitValueYAML(propertyRule)
+    ?? params.emptyValue
+    ?? {}
 }
 
 function propertyKeyByXmlName(rule: MetadataItemRule, xmlProperty: string): string | undefined {

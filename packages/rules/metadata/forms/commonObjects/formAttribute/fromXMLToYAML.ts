@@ -301,6 +301,7 @@ function projectFormAttributeCollection(params: {
   const projected = projectNamedXmlCollectionForImportWithRuntimeKeys({
     entries: params.entries,
     annotations: params.traversal.annotations,
+    ...(params.traversal.mode === "facts" ? { ephemeral: true as const } : {}),
   })
   const yamlPaths = params.importedItems.map((item, index) => {
     const runtimeKey = projected.runtimeKeys[index]!

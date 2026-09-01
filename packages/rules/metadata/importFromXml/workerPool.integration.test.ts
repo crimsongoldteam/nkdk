@@ -65,13 +65,10 @@ describe("XML import worker pool", () => {
     await pool.runSecondPass(readTokens(1), exportProfileForTests())
     expect(pools.secondPassBatchSizes(0)).toEqual([256, 1])
 
-    await pool.runThirdPass(readTokens(1))
-    expect(pools.thirdPassBatchSizes(0)).toEqual([256, 1])
-
     await pool.close()
   })
 
-  it("запрещает третий проход до второго и выполняет его после смыслового барьера", async () => {
+  it("выполняет только два прохода", async () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
 
@@ -83,10 +80,7 @@ describe("XML import worker pool", () => {
     })
     await pool.runFirstPass([assignment("one")])
 
-    await expect(pool.runThirdPass(readTokens(1))).rejects.toThrow("Второй проход import не завершён")
-
     await pool.runSecondPass(readTokens(1), exportProfileForTests())
-    await pool.runThirdPass(readTokens(1))
 
     expect(pools.runs(0).map(({ kind }) => kind)).toEqual([
       "initialize",
@@ -95,9 +89,6 @@ describe("XML import worker pool", () => {
       "beginSecondPass",
       "secondPassBatch",
       "finishSecondPass",
-      "beginThirdPass",
-      "thirdPassBatch",
-      "finishThirdPass",
     ])
     await pool.close()
   })
@@ -153,7 +144,7 @@ describe("XML import worker pool", () => {
     await pool.close()
   })
 
-  it("передаёт освободившемуся worker следующее тяжёлое задание второго прохода", async () => {
+  it("возвращает каждое задание второго прохода исходному worker", async () => {
     const pools = createFakePools()
     pools.prepareRecords({ a: 100, b: 90, c: 80, d: 70 })
     const blocked = pools.blockSecondPassAssignment("b")
@@ -168,27 +159,26 @@ describe("XML import worker pool", () => {
     await pool.runFirstPass([assignment("a"), assignment("b"), assignment("c"), assignment("d")])
     const running = pool.runSecondPass(readTokens(2), exportProfileForTests())
 
-    await Promise.all([blocked.started, pools.secondPassStarted("c"), pools.secondPassStarted("d")])
-    expect(pools.secondPassWorker("c")).toBe(pools.secondPassWorker("a"))
-    expect(pools.secondPassWorker("d")).toBe(pools.secondPassWorker("a"))
-    expect(pools.secondPassWorker("c")).not.toBe(pools.secondPassWorker("b"))
-    expect(pools.firstPassIds(pools.secondPassWorker("d")!)).not.toContain("d")
+    await Promise.all([blocked.started, pools.secondPassStarted("a"), pools.secondPassStarted("c")])
+    expect(pools.secondPassWorker("a")).toBe(0)
+    expect(pools.secondPassWorker("c")).toBe(0)
+    expect(pools.secondPassWorker("b")).toBe(1)
+    expect(pools.secondPassWorker("d")).toBeUndefined()
 
     blocked.release()
     await running
+    expect(pools.secondPassWorker("d")).toBe(1)
     await pool.close()
   })
 
-  it("освобождает подготовленную запись только после успешной записи третьего прохода", async () => {
+  it("не передаёт подготовленный XML через state sink", async () => {
     const pools = createFakePools()
     pools.prepareRecords({ one: 10 })
     const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
-    const released: string[] = []
+    const firstPassBatches: XmlImportStateBatch[] = []
     const sink = {
-      async writeFirstPassState() {},
+      async writeFirstPassState(batch: XmlImportStateBatch) { firstPassBatches.push(batch) },
       async writeSecondPassState() {},
-      async writeThirdPassState() {},
-      async releasePrepared(assignmentIds: readonly string[]) { released.push(...assignmentIds) },
     }
 
     await pool.initialize({
@@ -199,10 +189,7 @@ describe("XML import worker pool", () => {
     })
     await pool.runFirstPass([assignment("one")], sink)
     await pool.runSecondPass(readTokens(1), exportProfileForTests(), sink)
-    expect(released).toEqual([])
-
-    await pool.runThirdPass(readTokens(1), sink)
-    expect(released).toEqual(["one"])
+    expect(firstPassBatches.every((batch) => !("preparedRecords" in batch))).toBe(true)
     await pool.close()
   })
 
@@ -788,12 +775,6 @@ function createFakePools() {
               ],
             })),
           stateFragment: createImportFragment(indexContributions, finalFileStateBatches),
-          preparedRecords: task.assignments.flatMap((item) => {
-            const weight = preparedWeights.get(item.id)
-            return weight === undefined
-              ? []
-              : [{ locator: { assignmentId: item.id, weight }, bytes: Uint8Array.of(1) }]
-          }),
         })
       }
       if (task.kind === "finishFirstPass") {
@@ -812,12 +793,6 @@ function createFakePools() {
         })
       }
       if (task.kind === "finishSecondPass") {
-        return undefined
-      }
-      if (task.kind === "thirdPassBatch") {
-        return createImportBinaryResult({ diagnostics: [], warnings: [], files: [] })
-      }
-      if (task.kind === "finishThirdPass") {
         return undefined
       }
       return undefined
@@ -842,11 +817,6 @@ function createFakePools() {
     secondPassBatchSizes(workerIndex: number): number[] {
       return pools.commands(workerIndex).flatMap((task) =>
         task.kind === "secondPassBatch" ? [task.assignmentIds.length] : []
-      )
-    },
-    thirdPassBatchSizes(workerIndex: number): number[] {
-      return pools.commands(workerIndex).flatMap((task) =>
-        task.kind === "thirdPassBatch" ? [task.assignmentIds.length] : []
       )
     },
     created: pools.created,

@@ -165,6 +165,9 @@ importers:
       lmdb:
         specifier: ^3.5.6
         version: 3.5.6
+      msgpackr:
+        specifier: ^1.12.1
+        version: 1.12.1
       p-limit:
         specifier: ^7.3.1
         version: 7.3.1

@@ -1,6 +1,13 @@
-import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
+import { parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { rootFromYAML } from "@nkdk/runtime/rule-kit"
-import type { MetadataFieldKind, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
+import type {
+  LocalMetadataEvent,
+  MetadataFieldKind,
+  MetadataItemRule,
+  ParsedMetadataTarget,
+  PropertyRule,
+} from "@nkdk/runtime/rule-kit"
+import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { OwnerMetadata } from "../validation/dataPath/ownerCache"
 import type { ObjectField, ObjectFieldKind } from "../validation/dataPath/objectFields"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
@@ -22,6 +29,7 @@ import type { ValidationProjectFile } from "../validation/projectFiles"
 import type { ValidationIndexContribution, ValidationObjectRecord } from "../validation/projectValidationTypes"
 import type { ProjectLocalDependency } from "../projectDefinition/componentIndexFacts"
 import type { PreparedImportYaml } from "./prepareYaml"
+import type { PreparedImportFacts } from "./prepareFacts"
 import { extractImportOwnerFacts } from "./ownerFacts"
 
 export interface ImportValidationContribution {
@@ -47,6 +55,31 @@ export function extractImportValidationContribution(params: {
   file: ValidationProjectFile
   measure?: ImportValidationContributionMeasure
 }): ImportValidationContribution {
+  return extractImportValidationContributionCore({
+    ...params,
+    rawYaml: params.prepared.yaml,
+  })
+}
+
+export function extractImportValidationContributionFromFacts(params: {
+  prepared: PreparedImportFacts
+  projectDir: string
+  file: ValidationProjectFile
+  measure?: ImportValidationContributionMeasure
+}): ImportValidationContribution {
+  return extractImportValidationContributionCore({
+    ...params,
+    rawYaml: params.prepared.semanticProjection,
+  })
+}
+
+function extractImportValidationContributionCore(params: {
+  prepared: PreparedImportYaml | PreparedImportFacts
+  projectDir: string
+  file: ValidationProjectFile
+  rawYaml: unknown
+  measure?: ImportValidationContributionMeasure
+}): ImportValidationContribution {
   const measure: ImportValidationContributionMeasure = params.measure ?? ((_step, action) => action())
   const file = params.file
 
@@ -60,7 +93,10 @@ export function extractImportValidationContribution(params: {
         kind: "metadataTarget" as const,
         canonical: reference.canonical,
       })),
-      pendingReferences: references.map(({ reference }) => reference),
+      pendingReferences: [
+        ...references.map(({ reference }) => reference),
+        ...(isPreparedImportFacts(params.prepared) ? params.prepared.pendingReferences : []),
+      ],
     }
   })
 
@@ -80,24 +116,31 @@ export function extractImportValidationContribution(params: {
     }
   }
 
-  const ownerFacts = measure(
-    "Сбор сведений о владельцах и полях",
-    () => extractImportOwnerFacts(params.prepared),
-  )
   const objectIndexEntries = measure(
     "Сбор объектов общего индекса",
-    () => objectIndexEntriesForFile(file, params.prepared.yaml),
+    () => objectIndexEntriesForFile(file, params.rawYaml, params.prepared),
+  )
+  const ownerFacts = measure(
+    "Сбор сведений о владельцах и полях",
+    () => extractImportOwnerFacts(params.prepared, objectIndexEntries[0]?.target, params.rawYaml),
   )
   const memberIndexEntries = measure(
     "Сбор полей общего индекса",
-    () => ownerFacts.flatMap((facts) =>
-      ownerMemberIndexEntries({
+    () => mergeMemberIndexEntries([
+      ...ownerFacts.flatMap((facts) => ownerMemberIndexEntries({
         projectDir: params.projectDir,
         file,
         prepared: params.prepared,
+        rawYaml: params.rawYaml,
         facts,
-      })
-    ),
+      })),
+      ...rawYamlMemberIndexEntries({
+        projectDir: params.projectDir,
+        file,
+        prepared: params.prepared,
+        rawYaml: params.rawYaml,
+      }),
+    ]),
   )
   const objectRecords = measure(
     "Формирование записей объектов общего индекса",
@@ -117,7 +160,7 @@ export function extractImportValidationContribution(params: {
     () => canonicalTarget === undefined
       ? []
       : collectAddressableMetadataLogicalAddresses({
-          yaml: params.prepared.yaml,
+          yaml: params.rawYaml,
           rule: file.itemRule,
           logicalAddress: params.prepared.assignment.logicalAddress,
           filePath: params.prepared.assignment.targetProjectPath,
@@ -170,11 +213,12 @@ export function emptyImportValidationContribution(): ImportValidationContributio
   }
 }
 
-function extractMetadataTargetReferences(prepared: PreparedImportYaml): Array<{
+function extractMetadataTargetReferences(prepared: PreparedImportYaml | PreparedImportFacts): Array<{
   reference: PendingMetadataTargetReference
   rulePath: ProjectLocalDependency["rulePath"]
 }> {
   return (prepared.localIndexes.metadata.metadataTargets ?? []).flatMap((fact) => {
+    if (isTranslateOnlyConstraint(fact.constraint)) return []
     const parsed = parseMetadataTargetFromYAML({
       value: fact.value,
       constraint: fact.constraint,
@@ -193,9 +237,18 @@ function extractMetadataTargetReferences(prepared: PreparedImportYaml): Array<{
   })
 }
 
+function isTranslateOnlyConstraint(constraint: PendingMetadataTargetReference["constraint"]): boolean {
+  return (constraint.kind === "dataTable" || constraint.kind === "dataTableField")
+    && constraint.validation === "translateOnly"
+}
+
 const targetKey = projectMetadataTargetIndexKey
 
-function objectIndexEntriesForFile(file: ValidationProjectFile, yaml: unknown): ProjectObjectIndexEntry[] {
+function objectIndexEntriesForFile(
+  file: ValidationProjectFile,
+  yaml: unknown,
+  prepared: PreparedImportYaml | PreparedImportFacts,
+): ProjectObjectIndexEntry[] {
   const target = objectTargetForFile(file)
   if (target === undefined) return []
   const data = metadataRecord(yaml)
@@ -211,13 +264,103 @@ function objectIndexEntriesForFile(file: ValidationProjectFile, yaml: unknown): 
         details: typeof type === "string" ? { type } : {},
       },
     },
-    ...collectAddressableMetadataObjectEntries({
-      yaml,
-      rule: file.itemRule,
-      canonicalTarget: projectObjectIndexKey(target),
-      filePath: file.projectPath,
-    }),
+    ...(isPreparedImportFacts(prepared)
+      ? collectAddressableObjectEntriesFromFacts(prepared, projectObjectIndexKey(target), file.projectPath)
+      : collectAddressableMetadataObjectEntries({
+          yaml,
+          rule: file.itemRule,
+          canonicalTarget: projectObjectIndexKey(target),
+          filePath: file.projectPath,
+        })),
   ]
+}
+
+function collectAddressableObjectEntriesFromFacts(
+  prepared: PreparedImportFacts,
+  canonicalTarget: string,
+  filePath: string,
+): ProjectObjectIndexEntry[] {
+  const targetsByYamlPath = new Map<string, string>()
+  const entries: ProjectObjectIndexEntry[] = []
+  for (const event of prepared.localIndexes.metadata.events) {
+    if (event.kind !== "item" || event.name === undefined) continue
+    const resolved = resolveFactItemRule(prepared.rule, event)
+    const external = resolved?.itemRule.externalMetadata
+    if (external?.placement !== "ownedEntry") continue
+    const parent = nearestFactParent(targetsByYamlPath, event.yamlPath) ?? canonicalTarget
+    const canonical = `${parent}.${external.segment}.${event.name}`
+    const parsed = parseMetadataTargetFromModel({
+      canonical,
+      constraint: { kind: "object", allowNested: true },
+    })
+    if (!parsed.ok || parsed.target.kind !== "object") {
+      throw new Error(`Некорректный адресуемый metadata target: ${canonical}`)
+    }
+    targetsByYamlPath.set(yamlPathKey(event.yamlPath), canonical)
+    entries.push({
+      canonical: projectObjectIndexKey(parsed.target),
+      target: parsed.target,
+      result: { ok: true, filePath, details: {} },
+    })
+  }
+  return entries
+}
+
+function resolveFactItemRule(
+  rootRule: MetadataItemRule,
+  event: Extract<LocalMetadataEvent, { kind: "item" }>,
+): {
+  readonly itemRule: MetadataItemRule
+  readonly propertyRule: PropertyRule
+  readonly collectionUidSegment?: string
+} | undefined {
+  let currentRule = rootRule
+  let lastProperty: PropertyRule | undefined
+  let lastCollectionUidSegment: string | undefined
+  for (const segment of event.rulePath) {
+    const propertyRule = currentRule.properties[segment.propertyKey]
+    if (propertyRule === undefined) return undefined
+    const nested = getTypeRule(propertyRule.type, "nestedItemRule")
+    const nestedItemType = segment.nestedItemType ?? event.itemType
+    const itemRule = nested === undefined
+      ? undefined
+      : "itemRule" in nested
+        ? nested.itemRule
+        : nested.resolveItemRule(nestedItemType)
+    if (itemRule === undefined) continue
+    lastProperty = propertyRule
+    lastCollectionUidSegment = currentRule.childCollections
+      ?.find(({ propertyKey }) => propertyKey === segment.propertyKey)
+      ?.configurationIndexUidSegment
+    currentRule = itemRule
+  }
+  if (lastProperty === undefined || currentRule.itemType !== event.itemType) return undefined
+  return {
+    itemRule: currentRule,
+    propertyRule: lastProperty,
+    ...(lastCollectionUidSegment === undefined ? {} : { collectionUidSegment: lastCollectionUidSegment }),
+  }
+}
+
+function nearestFactParent(
+  values: ReadonlyMap<string, string>,
+  yamlPath: readonly (string | number)[],
+): string | undefined {
+  for (let length = yamlPath.length - 1; length > 0; length -= 1) {
+    const value = values.get(yamlPathKey(yamlPath.slice(0, length)))
+    if (value !== undefined) return value
+  }
+  return undefined
+}
+
+function yamlPathKey(path: readonly (string | number)[]): string {
+  return JSON.stringify(path)
+}
+
+function isPreparedImportFacts(
+  prepared: PreparedImportYaml | PreparedImportFacts,
+): prepared is PreparedImportFacts {
+  return "reconstructionFacts" in prepared
 }
 
 function objectTargetForFile(
@@ -229,7 +372,8 @@ function objectTargetForFile(
 function ownerMemberIndexEntries(params: {
   projectDir: string
   file: ValidationProjectFile
-  prepared: PreparedImportYaml
+  prepared: PreparedImportYaml | PreparedImportFacts
+  rawYaml: unknown
   facts: ValidationOwnerFacts
 }): ProjectMemberIndexEntry[] {
   const objectTarget = objectTargetForFile(params.file)
@@ -258,12 +402,46 @@ function ownerMemberIndexEntries(params: {
       projectDir: params.projectDir,
       owner,
       objectTarget,
-      rawYaml: params.prepared.yaml,
+      rawYaml: params.rawYaml,
     })) {
       appendMember(entries, seen, entry)
     }
   }
   return entries
+}
+
+function rawYamlMemberIndexEntries(params: {
+  projectDir: string
+  file: ValidationProjectFile
+  prepared: PreparedImportYaml | PreparedImportFacts
+  rawYaml: unknown
+}): ProjectMemberIndexEntry[] {
+  const objectTarget = objectTargetForFile(params.file)
+  if (objectTarget === undefined) return []
+  const ref = { kind: params.file.owner.dir, name: params.file.owner.name }
+  const fieldIndex = { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
+  const owner: OwnerMetadata = {
+    ref,
+    filePath: params.prepared.targetProjectPath,
+    facts: { ref, filePath: params.prepared.targetProjectPath, fieldIndex },
+    fieldIndex,
+    rule: params.prepared.rule,
+    spec: params.file.owner.spec,
+  }
+  return getProjectReferenceMemberIndexContributors().flatMap((contributor) =>
+    [...contributor({
+      projectDir: params.projectDir,
+      owner,
+      objectTarget,
+      rawYaml: params.rawYaml,
+    })]
+  )
+}
+
+function mergeMemberIndexEntries(entries: readonly ProjectMemberIndexEntry[]): ProjectMemberIndexEntry[] {
+  const merged = new Map<string, ProjectMemberIndexEntry>()
+  for (const entry of entries) if (!merged.has(entry.canonical)) merged.set(entry.canonical, entry)
+  return [...merged.values()]
 }
 
 function fieldTarget(

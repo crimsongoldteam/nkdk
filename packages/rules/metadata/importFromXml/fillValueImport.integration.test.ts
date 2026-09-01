@@ -1,4 +1,9 @@
-import { createConfigurationIndexCollector,serializeYAMLDocument } from "@nkdk/runtime"
+import {
+  createConfigurationIndexCollector,
+  parseMetadataYaml,
+  parseXmlDocumentWithSaxes,
+  serializeYAMLDocument,
+} from "@nkdk/runtime"
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
@@ -6,6 +11,10 @@ import { afterEach,describe,expect,it } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import "../../tests/metadataExecutionContext"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { resolveValidationProjectFile } from "../validation/projectFiles"
+import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
+import { extractValidationYamlFacts } from "../validation/yamlFactExtractor"
+import { prepareImportFacts } from "./prepareFacts"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 
@@ -121,6 +130,48 @@ describe("fill value XML import", () => {
     )
   })
 
+  it("сохраняет запись dependency-индекса DefinedType FillValue в первом проходе", async () => {
+    const sourcePath = copiedDefinedTypeFixture()
+    const currentAssignment = assignment(sourcePath)
+    const context = mockXmlImportContext()
+    const legacy = await prepareImportYaml({
+      assignment: currentAssignment,
+      context,
+      collector: createConfigurationIndexCollector(),
+    })
+    const projectDir = "/project"
+    const file = resolveValidationProjectFile(
+      projectDir,
+      join(projectDir, currentAssignment.targetProjectPath),
+    )
+    if (file === undefined) throw new Error("Не удалось классифицировать свойства справочника")
+    const legacyFacts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(serializeYAMLDocument(legacy.yaml).text),
+      rulesSnapshot: createValidationRulesSnapshot(context),
+      validationDiagnostics: false,
+    })
+    const facts = await prepareImportFacts({
+      assignment: currentAssignment,
+      context,
+      collector: createConfigurationIndexCollector(),
+      inputs: [{
+        input: currentAssignment.xmlFiles[0]!,
+        document: parseXmlDocumentWithSaxes(fs.readFileSync(sourcePath, "utf8"), { preserveXsiNil: true }),
+      }],
+    })
+    const expected = legacyFacts.pendingChecks.map(withoutLocation)
+
+    expect(expected).toContainEqual(expect.objectContaining({
+      kind: "fillValue",
+      yamlPath: ["Реквизиты", "АвторДействия", "ЗначениеЗаполнения"],
+      itemType: "MetadataAttribute",
+      type: { type: ["DefinedType.АвторДействия"] },
+      value: { type: "ref", value: "Catalog.Пользователи.EmptyRef" },
+    }))
+    expect(facts.pendingChecks.map(withoutLocation)).toEqual(expected)
+  })
+
   it("не синтезирует стандартные реквизиты заимствованного справочника расширения", async () => {
     const prepared = await prepareImportYaml({
       assignment: assignment(adoptedExtensionFixture),
@@ -221,4 +272,9 @@ function assignment(sourcePath: string): ImportAssignment {
     xmlFiles: [{ role: "metadata", sourcePath }],
     externalFiles: [],
   }
+}
+
+function withoutLocation<T extends { readonly location?: unknown }>(value: T): Omit<T, "location"> {
+  const { location: _location, ...rest } = value
+  return rest
 }

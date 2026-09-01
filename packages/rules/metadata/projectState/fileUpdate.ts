@@ -184,7 +184,7 @@ function addUniqueField(
   entries.push(entry)
 }
 
-function projectStateFormEntries(form: ProjectValidationFirstPassResult["form"]): ProjectStateFormEntry[] {
+export function projectStateFormEntries(form: ProjectValidationFirstPassResult["form"]): ProjectStateFormEntry[] {
   if (form === undefined) return []
   const { owner, index } = form
   const entries: ProjectStateFormEntry[] = []
@@ -229,7 +229,7 @@ function projectStateFormEntries(form: ProjectValidationFirstPassResult["form"])
   return entries
 }
 
-function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePendingDependencyCheck {
+export function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePendingDependencyCheck {
   const { filePath: _filePath, ...location } = check.location
   if (check.kind === "fillValue") {
     return {

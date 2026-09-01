@@ -41,7 +41,7 @@ const externalStateProperties = new Map([
 ])
 
 const presenceProperties = new Map<string, Record<string, {
-  availability: "borrowed"
+  availability: "borrowed" | "own"
   modes: readonly []
   representation: "plain"
 }>>([
@@ -50,6 +50,11 @@ const presenceProperties = new Map<string, Record<string, {
   ["MetadataReport", {
     mainDataCompositionSchema: presentProperty(),
     extendedPresentation: presentProperty(),
+    defaultForm: presentProperty(),
+    defaultSettingsForm: presentProperty(),
+    defaultVariantForm: presentProperty(),
+    auxiliaryForm: { availability: "own", modes: [], representation: "plain" },
+    auxiliarySettingsForm: { availability: "own", modes: [], representation: "plain" },
   }],
   ["MetadataWebService", { xdtoPackages: presentProperty() }],
 ])

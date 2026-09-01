@@ -45,7 +45,6 @@ const failurePhases = [
   "discover",
   "firstPass",
   "secondPass",
-  "thirdPass",
   "mergeFiles",
   "transferExternalFiles",
   "hashProject",
@@ -202,6 +201,17 @@ describe("configuration XML import coordinator", () => {
     expect(fragmentBatches).toEqual([fragmentData])
   })
 
+  it("не запускает смысловую проверку в первом проходе", async () => {
+    const semanticValidationCalls: number[] = []
+    const result = await importConfigurationFromXml(
+      createParams("configuration"),
+      fakeDependencies({ calls: [], semanticValidationCalls }),
+    )
+
+    expect(result.failed).toEqual([])
+    expect(semanticValidationCalls).toEqual([])
+  })
+
   it("builds the XML language registry before worker initialization", async () => {
     const params = createParams("configuration")
     const initializedLanguages: ConfigurationLanguages[] = []
@@ -312,7 +322,6 @@ describe("configuration XML import coordinator", () => {
       discovered,
       preparedProfiles,
       secondPassProfiles,
-      rootYaml: { РежимСовместимостиРасширенияКонфигурации: "Версия8_3_20" },
     })
     const pool = dependencies.createWorkerPool!({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
@@ -321,13 +330,16 @@ describe("configuration XML import coordinator", () => {
         calls.push("secondPass")
         secondPassTokenCount = snapshots.length
         secondPassProfiles.push(exportProfile)
+        const componentDir = join(params.projectDir, "cfe", "Расширение_All")
+        fs.mkdirSync(componentDir, { recursive: true })
+        fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
         await sink?.writeSecondPassState({
           stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, "cfe/Расширение_All")),
         })
         return {
           diagnostics: diagnosticCollection([]),
           warnings: diagnosticCollection([]),
-          files: fileCollection([]),
+          files: fileCollection(secondPassFiles),
         }
       },
     })
@@ -530,7 +542,6 @@ describe("configuration XML import coordinator", () => {
       "initialize",
       "firstPass",
       "secondPass",
-      "thirdPass",
       "mergeFiles",
       "transferExternalFiles",
       "hashProject",
@@ -625,7 +636,6 @@ describe("configuration XML import coordinator", () => {
         throw new Error("unreachable")
       },
       async runSecondPass() { throw new Error("unexpected second pass") },
-      async runThirdPass() { throw new Error("unexpected third pass") },
       workerCount() { return 2 },
       async close() {
         events.push("close:start")
@@ -660,7 +670,6 @@ describe("configuration XML import coordinator", () => {
       async initialize() {},
       async runFirstPass() { throw primary },
       async runSecondPass() { throw new Error("unexpected second pass") },
-      async runThirdPass() { throw new Error("unexpected third pass") },
       workerCount() { return 1 },
       async close() { throw closeFailure },
     })
@@ -880,10 +889,10 @@ function fakeDependencies(params: {
   bufferedFragments?: boolean
   preparedProfiles?: Array<{ readonly address: ComponentAddress; readonly assignments: readonly ImportAssignment[] }>
   secondPassProfiles?: XmlComponentExportProfile[]
-  rootYaml?: unknown
   profileFailure?: Error
   candidateDiscards?: number[]
   sessionAborts?: number[]
+  semanticValidationCalls?: number[]
 }): ImportCoordinatorDependencies {
   let componentDir: string | undefined
   let selectedComponentPath = "cf"
@@ -909,7 +918,6 @@ function fakeDependencies(params: {
         xmlDefaultVariantByLogicalAddress: Object.freeze({}),
       }) as XmlComponentReconstructionProfile
     },
-    async readPreparedRootYaml() { return params.rootYaml ?? {} },
     createWorkerPool() {
       return {
         async writeStateFragment() {},
@@ -951,27 +959,15 @@ function fakeDependencies(params: {
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
             files: fileCollection(firstPassFiles),
-            prepared: [],
           }
         },
         async runSecondPass(_tokens, exportProfile, sink) {
           call("secondPass")
           params.secondPassProfiles?.push(exportProfile)
-          await sink?.writeSecondPassState({
-            stateFragment: indexStateFragment(`${selectedComponentPath}/Конфигурация.yaml`),
-          })
-          return {
-            diagnostics: diagnosticCollection([]),
-            warnings: diagnosticCollection([]),
-            files: fileCollection([]),
-          }
-        },
-        async runThirdPass(_tokens, sink) {
-          call("thirdPass")
           if (componentDir === undefined) throw new Error("Worker pool не инициализирован")
           fs.mkdirSync(componentDir, { recursive: true })
           fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
-          await sink?.writeThirdPassState?.({
+          await sink?.writeSecondPassState({
             stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, selectedComponentPath)),
           })
           return {
@@ -998,6 +994,7 @@ function fakeDependencies(params: {
         params.projectStateCloseFailure,
         params.replacedFinalHashes,
         () => params.sessionAborts?.push(1),
+        params.semanticValidationCalls,
       )
     },
     mergeFiles(files) {
@@ -1136,6 +1133,7 @@ function fakeProjectState(
   closeFailure?: Error,
   replacedFinalHashes?: Array<readonly { readonly projectPath: string; readonly hash: bigint }[]>,
   onAbort?: () => void,
+  semanticValidationCalls?: number[],
 ): ProjectStateService {
   let nextToken = 1
   const readToken = () => new Uint8Array([nextToken++]) as never
@@ -1153,7 +1151,10 @@ function fakeProjectState(
           importParams.profile?.onPhase?.({ phase: "semanticIndex", elapsedMs: 1 })
           return readToken()
         },
-        async collectSemanticValidationIssues() { return [] },
+        async collectSemanticValidationIssues() {
+          semanticValidationCalls?.push(1)
+          return []
+        },
         async createReadToken() { return readToken() },
         async writeStateFragment(fragment) {
           const buffers = Object.values(fragment.buffers)
@@ -1271,6 +1272,7 @@ function configurationExtensionXml(): string {
     <Properties>
       <Name>Расширение_All</Name>
       <ConfigurationExtensionPurpose>Customization</ConfigurationExtensionPurpose>
+      <ConfigurationExtensionCompatibilityMode>Version8_3_20</ConfigurationExtensionCompatibilityMode>
     </Properties>
   </Configuration>
 </MetaDataObject>

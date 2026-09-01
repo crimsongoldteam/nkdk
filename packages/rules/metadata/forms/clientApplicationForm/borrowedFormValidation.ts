@@ -1,5 +1,6 @@
 import { join } from "node:path"
 import type { Diagnostic } from "@nkdk/runtime"
+import { getDataPathOwnerKind } from "@nkdk/runtime/rule-kit"
 import type {
   ProjectStateStructuredDocumentFact,
   ProjectStateStructuredDocumentValidationParams,
@@ -130,7 +131,10 @@ export function validateBorrowedClientApplicationForms(
       })),
       projectDir: params.projectDir,
       queryPort: params.queryPort,
-    }).map(({ requestId }) => requestId))
+    }).filter(({ target }) =>
+      target.source.kind !== "objectField"
+      || getDataPathOwnerKind(target.source.owner.kind)?.compactImplicitFormDataPaths !== false
+    ).map(({ requestId }) => requestId))
     redundantCandidates.forEach(({ entry }, index) => {
       if (!resolvedRedundant.has(String(index))) return
       diagnostics.push({

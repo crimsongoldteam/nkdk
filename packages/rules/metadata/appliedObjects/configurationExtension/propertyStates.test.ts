@@ -157,6 +157,40 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(yaml).toEqual({ Включено: undefined })
   })
 
+  it("не переносит forReferenceOnly-свойство через PropertyState capability", () => {
+    const rule = {
+      itemType: "ReferenceOnlyProbe",
+      properties: {
+        form: {
+          type: "string",
+          yaml: "ОсновнаяФорма",
+          xml: "DefaultForm",
+          xmlParents: ["Properties"],
+          defaultValueAdoptedXML: "",
+          forReferenceOnly: true,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const yaml: Record<string, unknown> = {}
+
+    withOperationRegistrySet({
+      propertyStates: createPropertyStateCapabilityRegistry([
+        definePropertyStateItemCapabilities(rule, {
+          properties: {
+            form: { availability: "borrowed", modes: ["control"], representation: "tagged" },
+          },
+        }),
+      ]),
+    }, () => configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(),
+      rule,
+      source: { Properties: { DefaultForm: "" } },
+      yaml,
+    }))
+
+    expect(yaml).toEqual({})
+  })
+
   it.each([
     ["synonym", "Синоним", "Synonym", undefined, ""],
     ["defaultListForm", "ОсновнаяФормаСписка", "DefaultListForm", undefined, ""],
@@ -266,6 +300,28 @@ describe("configuration extension PropertyState augmenter", () => {
     }))
 
     expect(yaml).toEqual({})
+  })
+
+  it("не переносит пустую ссылку собственного свойства", () => {
+    const yaml = augmentMetadataTargetProbe({ availability: "own", ownObject: true })
+    expect(yaml).toEqual({ Маркер: 1 })
+  })
+
+  it("не переносит неявную пустую ссылку собственного объекта", () => {
+    const yaml = augmentMetadataTargetProbe({ availability: "borrowed", ownObject: true })
+    expect(yaml).toEqual({ Маркер: 1 })
+  })
+
+  it("добавляет пустую ссылку заимствованного свойства в порядке PropertyState", () => {
+    const yaml = augmentMetadataTargetProbe({ availability: "borrowed", propertyState: true })
+    expect(yaml).toEqual({ Маркер: 1, ОсновнаяФорма: "" })
+    expect(Object.keys(yaml)).toEqual(["Маркер", "ОсновнаяФорма"])
+  })
+
+  it("сохраняет место пустой ссылки без неявного YAML-значения", () => {
+    const yaml = augmentMetadataTargetProbe({ availability: "borrowed", implicit: false })
+    expect(yaml).toEqual({ ОсновнаяФорма: "", Маркер: 1 })
+    expect(Object.keys(yaml)).toEqual(["ОсновнаяФорма", "Маркер"])
   })
 
   it("сохраняет присутствующее пустое tagged-свойство без PropertyState", () => {
@@ -827,6 +883,59 @@ function extensionContext(
     },
   }
   return collector === undefined ? base : withConfigurationIndexCollector(base, collector, logicalAddress)
+}
+
+function metadataTargetProbeRule(options: { readonly implicit?: boolean } = {}): MetadataItemRule {
+  return {
+    itemType: "MetadataTargetProbe",
+    properties: {
+      defaultForm: {
+        type: "string",
+        yaml: "ОсновнаяФорма",
+        xml: "DefaultForm",
+        xmlParents: ["Properties"],
+        ...(options.implicit === false ? {} : {
+          defaultValueXMLEmpty: "",
+          defaultValue: "",
+          implicitValueYAML: "",
+        }),
+        metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      },
+    },
+  }
+}
+
+function augmentMetadataTargetProbe(options: {
+  readonly availability: "own" | "borrowed"
+  readonly implicit?: boolean
+  readonly ownObject?: boolean
+  readonly propertyState?: boolean
+}): Record<string, unknown> {
+  const rule = metadataTargetProbeRule({ implicit: options.implicit })
+  const yaml: Record<string, unknown> = { ОсновнаяФорма: null, Маркер: 1 }
+  const modes = options.propertyState === true ? ["extend"] as const : []
+  const state = options.propertyState === true ? propertyStates(["DefaultForm", "Extended"]) : {}
+  withOperationRegistrySet({
+    propertyStates: createPropertyStateCapabilityRegistry([
+      definePropertyStateItemCapabilities(rule, {
+        properties: {
+          defaultForm: { availability: options.availability, modes, representation: "plain" },
+        },
+      }),
+    ]),
+  }, () => configurationExtensionPropertyStatesAugmenter.augment({
+    context: options.ownObject === true ? ownExtensionContext() : extensionContext(),
+    rule,
+    source: {
+      ...state,
+      Properties: {
+        ObjectBelonging: options.ownObject === true ? "Own" : "Adopted",
+        DefaultForm: undefined,
+      },
+    },
+    yaml,
+  }))
+  return yaml
 }
 
 function ownExtensionContext() {

@@ -1096,7 +1096,7 @@ describe("XML anomaly proof", () => {
     expect(durationMs).toBeLessThan(750)
   })
 
-  it("сохраняет между проходами только хэши, координаты и пути", () => {
+  it("сохраняет компактные границы и ссылку на уже разобранный документ", () => {
     const document = parseXmlDocumentWithSaxes(
       "<Root><Flag>true</Flag><Text>ok</Text><Count>12</Count></Root>",
     )
@@ -1117,7 +1117,8 @@ describe("XML anomaly proof", () => {
     ])
     expect(audit.boundaries.map(({ levels }) => levels.length)).toEqual([1, 1, 1])
     expect(audit.boundaries[0]?.levels[0]?.span).toEqual({ start: 6, end: 23 })
-    expect(JSON.stringify(audit, (_key, value) => typeof value === "bigint" ? value.toString() : value))
+    expect(audit.documents?.[0]?.document).toBe(document)
+    expect(JSON.stringify(audit.boundaries, (_key, value) => typeof value === "bigint" ? value.toString() : value))
       .not.toMatch(/compatibilityValue|attributes|content/u)
   })
 
@@ -1333,7 +1334,7 @@ describe("XML anomaly proof", () => {
         },
       }),
     ])
-    expect(result.rereadSourcePaths).toEqual([sourcePath])
+    expect(result.rereadSourcePaths).toEqual([])
   })
 
   it("создаёт отсутствующего именованного владельца для точечного raw", async () => {
@@ -1416,7 +1417,7 @@ describe("XML anomaly proof", () => {
         annotation: expect.objectContaining({ kind: "raw", xml: null, hasSemanticValue: false }),
       }),
     ])
-    expect(result.rereadSourcePaths).toEqual([sourcePath])
+    expect(result.rereadSourcePaths).toEqual([])
   })
 
   it("поднимает raw ровно на один следующий уровень и останавливается на первом доказанном", async () => {

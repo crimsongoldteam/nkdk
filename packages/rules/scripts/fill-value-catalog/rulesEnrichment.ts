@@ -10,6 +10,7 @@ import type {
   PropertyRule,
   StandardMemberDeclaration,
 } from "@nkdk/runtime/rule-kit"
+import { importPropertyFromXML } from "@nkdk/runtime/rule-kit"
 import { classifyStandardMemberFillValue } from "../../metadata/commonObjects/fillValue/effectiveType"
 import { isMetadataRootName } from "../../metadata/commonObjects/metadataTargets/roots"
 import { createMetadataExecutionRegistrySets, withMetadataExecutionRegistrySets } from "../../metadata/composition/metadataExecutionContext"
@@ -126,13 +127,24 @@ function importRequiredOwnerProperties(
       }
       continue
     }
-    const importer = registries.rules.property.getTypeRule(propertyRule.type, "importFromXML")
-    if (typeof importer !== "function") {
-      errors.push(`для ${propertyRule.type} отсутствует importFromXML`)
+    const compiled = registries.rules.execution
+      .propertyPlan(ownerRule)
+      .propertiesByKey.get(key)
+    if (
+      compiled === undefined ||
+      (compiled.atomicConversion === undefined && compiled.operations.importFromXML === undefined)
+    ) {
+      errors.push(`для ${propertyRule.type} отсутствует XML-преобразователь`)
       continue
     }
     try {
-      const imported = importer(context, propertyRule, raw)
+      const imported = importPropertyFromXML({
+        context,
+        rule: propertyRule,
+        value: raw,
+        execution: registries.rules.execution,
+        compiled,
+      })
       if (imported !== undefined) values[key] = imported
     } catch (error) {
       errors.push(`${key}: ${error instanceof Error ? error.message : String(error)}`)

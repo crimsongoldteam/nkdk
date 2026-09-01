@@ -31,6 +31,9 @@ export const metadataPropertyRule001 = definePropertyTypeRule("ChildFileItemName
     rule.xml,
   )
 })
+export const metadataPropertyRule002 = definePropertyTypeRule("ChildFileItemNames", "xmlImportPropertyBehavior", {
+  repeatedXMLNodes: true,
+})
 
 export function setChildFileItemNamesOmittedChildren(
   collector: ConfigurationIndexCollector,

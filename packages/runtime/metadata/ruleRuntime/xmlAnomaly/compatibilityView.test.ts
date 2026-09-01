@@ -16,6 +16,41 @@ function createCompatibilityFixture(xml: string, yamlPath: (string | number)[] =
 }
 
 describe("xmlImportCompatibilityContainer", () => {
+  it("индексирует дочерние XML-узлы перед обходом порядка конфигурации", () => {
+    const itemCount = 200
+    const parsedRoot = parseXmlDocumentWithSaxes(
+      `<Root>${Array.from({ length: itemCount }, (_, index) =>
+        `<Item${index}>value</Item${index}>`
+      ).join("")}</Root>`,
+    ).roots[0]!
+    let nameReads = 0
+    const root = {
+      ...parsedRoot,
+      content: parsedRoot.content.map((node) => node.type !== "element"
+        ? node
+        : new Proxy(node, {
+            get(target, key, receiver) {
+              if (key === "name") nameReads += 1
+              return Reflect.get(target, key, receiver)
+            },
+          })),
+    }
+    const audit = createXmlImportAuditSession([root])
+    const value = xmlImportCompatibilityContainer({
+      node: root,
+      audit,
+      boundary: { itemType: "Configuration", yamlPath: ["ДочерниеОбъекты"] },
+    }) as Record<PropertyKey, unknown>
+    nameReads = 0
+
+    const metadata = value[Symbol.for("metadata")] as {
+      childOrder: Array<{ key: string }>
+    }
+    for (const { key } of metadata.childOrder) value[key]
+
+    expect(nameReads).toBeLessThanOrEqual(itemCount * 2)
+  })
+
   it("считает проверку присутствия скалярного элемента структурным потреблением", () => {
     const { audit, value } = createCompatibilityFixture("<Root><Known>value</Known></Root>")
 

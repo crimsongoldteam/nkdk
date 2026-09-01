@@ -52,13 +52,9 @@ import {
   type XmlImportWorkerPool,
   type XmlImportWorkerPoolHandle,
 } from "./workerPool"
-import { classifyImportedIssues } from "./classifyImportedIssues"
-import type { ImportProjectIssueDecision } from "../workerPool/importContracts"
-import type { PreparedImportStore } from "../projectState/preparedImportStore"
 import { prepareImportXmlReconstructionProfile } from "./reconstructionProfile"
-import { configurationExtensionTypeDescriptionXMLNameByType } from "../appliedObjects/configurationExtension/typeDescriptionPolicy"
+import { configurationExtensionTypeDescriptionXMLNameByCompatibilityMode } from "../appliedObjects/configurationExtension/typeDescriptionPolicy"
 import type { XmlComponentExportProfile } from "../project/xmlReconstructionProfile"
-import { restorePreparedImportRecord } from "./preparedRecord"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -119,10 +115,6 @@ export interface ImportCoordinatorDependencies {
     readonly candidate: ConfigurationIndexCandidateStore
   }): Promise<void>
   prepareReconstructionProfile?: typeof prepareImportXmlReconstructionProfile
-  readPreparedRootYaml?(params: {
-    readonly preparedStore: PreparedImportStore
-    readonly rootAssignment: ImportAssignment
-  }): Promise<unknown>
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
@@ -165,15 +157,6 @@ export function createImportCoordinatorDependencies(
   resolveComponent: NonNullable<ImportCoordinatorDependencies["resolveComponent"]>,
 ): ImportCoordinatorDependencies {
   return { ...defaultImportDependencies, resolveComponent }
-}
-
-async function readPreparedRootYaml(params: {
-  readonly preparedStore: PreparedImportStore
-  readonly rootAssignment: ImportAssignment
-}): Promise<unknown> {
-  return restorePreparedImportRecord(
-    await params.preparedStore.read(params.rootAssignment.id),
-  ).yaml
 }
 
 export async function importConfigurationFromXml(
@@ -270,12 +253,7 @@ export async function importConfigurationFromXml(
       operationId,
       purpose: "import",
     })
-    const preparedStore = await importSession.preparedImportStore()
-    const stateSink = createImportStateSink(
-      importSession,
-      indexCandidate,
-      preparedStore,
-    )
+    const stateSink = createImportStateSink(importSession, indexCandidate)
     const configurationIndexDescriptor = indexCandidate.descriptor()
     if (params.xmlImportWorkerPoolHandle !== undefined) {
       pool = params.xmlImportWorkerPoolHandle.createOperationPool()
@@ -319,7 +297,6 @@ export async function importConfigurationFromXml(
           ...(descriptor.metadataItemAugmenter === undefined
             ? {}
             : { metadataItemAugmenter: descriptor.metadataItemAugmenter }),
-          preparedStore: preparedStore.descriptor(),
           configurationIndex: configurationIndexDescriptor,
           ...(address.kind === "configurationExtension"
             ? {
@@ -348,7 +325,17 @@ export async function importConfigurationFromXml(
       files: discovered.snapshotFiles ?? [],
     })
     if (snapshotFragments.length > 0) indexCandidate.mergeBlockFragments(snapshotFragments)
-    const firstReadToken = await importSession.commitWorkingIndex()
+    await importSession.commitWorkingIndex()
+    const externalSemanticState = externalFileSemanticStateBatch(
+      validationComponent,
+      discovered.assignments.flatMap(({ externalFiles }) => externalFiles),
+    )
+    if (externalSemanticState.updates.length > 0) {
+      const externalWriter = createProjectStateFragmentWriter()
+      externalWriter.appendImportFinal(externalSemanticState)
+      await importSession.writeStateFragment(externalWriter.finish())
+    }
+    const semanticReadToken = await importSession.commitSemanticIndex()
     const reconstructionProfile = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Подготовка профиля восстановления XML компонента",
@@ -358,28 +345,21 @@ export async function importConfigurationFromXml(
         projectDir: params.projectDir,
         assignments: discovered.assignments,
         projectState,
-        projectStateReadToken: firstReadToken,
+        projectStateReadToken: semanticReadToken,
         targetIndex: indexCandidate!,
       }),
     )
-    const rootAssignments = discovered.assignments.filter(({ role }) => role === "configuration")
-    if (rootAssignments.length !== 1) {
-      throw new Error(`Ожидалось одно корневое задание XML-import, получено: ${rootAssignments.length}`)
-    }
-    const rootYaml = await (deps.readPreparedRootYaml ?? readPreparedRootYaml)({
-      preparedStore,
-      rootAssignment: rootAssignments[0]!,
-    })
     const exportProfile: XmlComponentExportProfile = {
       ...reconstructionProfile,
       ...(address.kind !== "configurationExtension"
         ? {}
         : {
-            typeDescriptionXMLNameByType:
-              configurationExtensionTypeDescriptionXMLNameByType(rootYaml),
+            typeDescriptionXMLNameByType: configurationExtensionTypeDescriptionXMLNameByCompatibilityMode(
+              findPropertyStateCompatibilityMode(root),
+            ),
           }),
     }
-    const readTokens = [firstReadToken]
+    const readTokens = [semanticReadToken]
     for (let index = 1; index < pool.workerCount(); index += 1) readTokens.push(await importSession.createReadToken())
     profiler.record("Подготовка импорта конфигурации", "Распределение индекса метаданных", {
       items: discovered.assignments.length,
@@ -398,46 +378,7 @@ export async function importConfigurationFromXml(
       const cleanup = await abortCleanupDiagnostics(importSession, secondDiagnostics, closePoolForCleanup)
       return outcome = failedResult([...secondDiagnostics, ...cleanup], warnings, resolvedComponentPath)
     }
-    const externalSemanticState = externalFileSemanticStateBatch(
-      validationComponent,
-      discovered.assignments.flatMap(({ externalFiles }) => externalFiles),
-    )
-    if (externalSemanticState.updates.length > 0) {
-      const externalWriter = createProjectStateFragmentWriter()
-      externalWriter.appendImportFinal(externalSemanticState)
-      await importSession.writeStateFragment(externalWriter.finish())
-    }
-    const semanticReadToken = await importSession.commitSemanticIndex()
-    const semanticIssues = await importSession.collectSemanticValidationIssues()
-    const semanticClassification = classifySemanticImportIssues(semanticIssues)
-    if (semanticClassification.fatal.length > 0) {
-      const diagnostics = semanticClassification.fatal.map(({ projectPath, code }) => ({
-        severity: "error" as const,
-        code: "xml_import_validation_failed",
-        message: `Не удалось классифицировать ошибку смыслового индекса: ${code}`,
-        targetProjectPath: projectPath,
-      }))
-      const cleanup = await abortCleanupDiagnostics(importSession, diagnostics, closePoolForCleanup)
-      return outcome = failedResult([...diagnostics, ...cleanup], warnings, resolvedComponentPath)
-    }
-    const semanticReadTokens = [semanticReadToken]
-    for (let index = 1; index < pool.workerCount(); index += 1) {
-      semanticReadTokens.push(await importSession.createReadToken())
-    }
-    const third = await profiler.measureAsync(
-      "Подготовка импорта конфигурации",
-      "Третий проход worker",
-      { items: discovered.assignments.length },
-      () => pool!.runThirdPass(semanticReadTokens, stateSink, semanticClassification.decisions),
-    )
-    temporaryCollections.push(third.diagnostics, third.warnings, third.files)
-    warnings = [...warnings, ...third.warnings]
-    if (third.diagnostics.errors > 0) {
-      const thirdDiagnostics = [...third.diagnostics]
-      const cleanup = await abortCleanupDiagnostics(importSession, thirdDiagnostics, closePoolForCleanup)
-      return outcome = failedResult([...thirdDiagnostics, ...cleanup], warnings, resolvedComponentPath)
-    }
-    const allFiles = [...first.files, ...second.files, ...third.files]
+    const allFiles = [...first.files, ...second.files]
     const files = profiler.measure(
       "Подготовка импорта конфигурации",
       "Обобщение списка файлов результата импорта",
@@ -549,28 +490,6 @@ export async function importConfigurationFromXml(
   }
 }
 
-function classifySemanticImportIssues(
-  entries: readonly import("../projectState/importSession").ProjectStateImportValidationIssue[],
-): {
-  readonly decisions: readonly ImportProjectIssueDecision[]
-  readonly fatal: readonly { readonly projectPath: string; readonly code: string }[]
-} {
-  const byProjectPath = new Map<string, import("@nkdk/runtime").ValidationIssue[]>()
-  for (const { projectPath, issue } of entries) {
-    const issues = byProjectPath.get(projectPath) ?? []
-    issues.push(issue)
-    byProjectPath.set(projectPath, issues)
-  }
-  const decisions: ImportProjectIssueDecision[] = []
-  const fatal: { projectPath: string; code: string }[] = []
-  for (const [projectPath, issues] of byProjectPath) {
-    const classified = classifyImportedIssues({ issues, requiresImportant: () => false })
-    decisions.push(...classified.decisions.map((decision) => ({ targetProjectPath: projectPath, decision })))
-    fatal.push(...classified.fatal.map(({ code }) => ({ projectPath, code })))
-  }
-  return { decisions, fatal }
-}
-
 function withPropertyStateCompatibilityMode(
   context: ImportConfigurationFromXmlParams["context"],
   root: Record<string, unknown>,
@@ -640,7 +559,6 @@ function flattenFailures(caught: unknown): unknown[] {
 function createImportStateSink(
   session: ProjectStateImportSession,
   candidate: ConfigurationIndexCandidateStore,
-  preparedStore: PreparedImportStore,
 ): XmlImportStateSink {
   const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
     if (batch.configurationFragment !== undefined) candidate.mergeBlockFragments([batch.configurationFragment])
@@ -650,17 +568,10 @@ function createImportStateSink(
     if (batch.stateFragment !== undefined) {
       await session.writeStateFragment(batch.stateFragment)
     }
-    if (batch.preparedRecords !== undefined) {
-      await Promise.all(batch.preparedRecords.map(({ locator, bytes }) => preparedStore.put(locator, bytes)))
-    }
   }
   return {
     writeFirstPassState: writeState,
     writeSecondPassState: writeState,
-    writeThirdPassState: writeState,
-    async releasePrepared(assignmentIds) {
-      await Promise.all(assignmentIds.map((assignmentId) => preparedStore.release(assignmentId)))
-    },
   }
 }
 

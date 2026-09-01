@@ -57,6 +57,9 @@ import {
 } from "../xmlAnomaly/attempt"
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
 import { encodeXmlRawElement } from "../../../xml/structure/rawCodec"
+import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
+import type { CompiledProperty, CompiledPropertyRuleExecution } from "./compiledPropertyPlan"
+import { canUseAtomicFromXMLToYAML } from "./atomicConversion"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -86,9 +89,12 @@ export function importPropertiesFromXMLToYAML(params: {
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
   propertyXMLNodes?: ReadonlyMap<string, readonly XmlElementNode[]>
-  execution?: PropertyRuleExecution
+  execution?: CompiledPropertyRuleExecution
   audit?: XmlImportAuditSession
   annotations?: XmlAnomalyAnnotationTable
+  mode?: DirectImportTraversal["mode"]
+  facts?: DirectImportTraversal["facts"]
+  produceResult?: boolean
 }): Record<string, unknown> | undefined {
   const {
     context,
@@ -111,7 +117,10 @@ export function importPropertiesFromXMLToYAML(params: {
     : params.execution.getTypeRule(type, operation)
   const selectedAmbiguousBoundaries = new Map<XmlElementNode, XmlImportAuditBoundary[]>()
 
-  const result: Record<string, unknown> = {}
+  const retainResult = params.mode !== "facts" || params.produceResult === true
+  const result: Record<string, unknown> | undefined = retainResult ? {} : undefined
+  const retainedSiblingValues = new Map<string, unknown>()
+  const retainedSiblingYamlKeys = metadataTargetSiblingYamlKeys(rule)
   const owner = metadataTargetOwnerFromRule({
     itemRule: rule,
     name: itemName,
@@ -123,7 +132,9 @@ export function importPropertiesFromXMLToYAML(params: {
   const includeAllTags = sources.length === 1 && sources[0]?.tags === undefined
   const sourceStates = sources.map((source) => {
     const planningStartedAt = performance.now()
-    const plan = getXMLImportPlan({ rule, tags: source.tags, includeAllTags })
+    const plan = params.execution === undefined
+      ? getXMLImportPlan({ rule, tags: source.tags, includeAllTags })
+      : params.execution.propertyPlan(rule).xmlImportView({ tags: source.tags, includeAllTags })
     addProfileTime(params.profile, "planningMs", planningStartedAt)
     const indexCollection = getConfigurationIndexCollectionContext(source.context)
     const xmlNode = isXmlElementNode(source.xml) ? source.xml : undefined
@@ -156,7 +167,7 @@ export function importPropertiesFromXMLToYAML(params: {
   }
   addProfileTime(params.profile, "planningMs", planningStartedAt)
 
-  const importMatch = (match: {
+  const importMatchUnprofiled = (match: {
     sourceState: (typeof sourceStates)[number]
     entry: XMLImportPlanEntry
     sourceXMLKey: string | undefined
@@ -180,6 +191,7 @@ export function importPropertiesFromXMLToYAML(params: {
       ambiguousXMLKey,
     } = match
     const { propertyKey: key, rule: propertyRule } = entry
+    const compiled = "operations" in entry ? entry as CompiledProperty : undefined
     const { source, indexCollection, ownerXmlName } = sourceState
     const { context: sourceContext } = source
     const propertyYamlPath = [...yamlPath, propertyRule.yaml ?? key]
@@ -200,10 +212,14 @@ export function importPropertiesFromXMLToYAML(params: {
     let discardAttempt = false
     try {
       const run = (): void => {
-        const dependentImportProperty = params.execution === undefined
+        const dependentImportProperty = compiled === undefined
+          ? params.execution === undefined
           ? isDependentImportProperty(rule.itemType, key)
           : params.execution.isDependentImportProperty(rule.itemType, key)
-        const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")
+          : compiled.flags.dependentImportProperty
+        const nestedRule = compiled === undefined
+          ? typeRule(propertyRule.type, "yamlToXMLNestedRule")
+          : compiled.operations.yamlToXMLNestedRule
         const nestedConfigurationIndexAddressing =
           propertyRule.configurationIndexAddressing ??
           (nestedRule !== undefined && "configurationIndexAddressing" in nestedRule
@@ -214,7 +230,9 @@ export function importPropertiesFromXMLToYAML(params: {
           context: sourceContext,
           sourceXmlKey: sourceXMLKey,
           xmlValue: sourceXMLValue,
-          descriptor: typeRule(propertyRule.type, "configurationIndexValueFromXML"),
+          descriptor: compiled === undefined
+            ? typeRule(propertyRule.type, "configurationIndexValueFromXML")
+            : compiled.operations.configurationIndexValueFromXML,
         })
         addProfileTime(params.profile, "configurationIndexMs", identityStartedAt)
 
@@ -224,7 +242,9 @@ export function importPropertiesFromXMLToYAML(params: {
           propertyRule.configurationIndexUidSegment ??
           propertyRule.operationTarget?.migrationSegment
 
-        const collectConfigurationIndex = typeRule(propertyRule.type, "collectConfigurationIndexFromXML")
+        const collectConfigurationIndex = compiled === undefined
+          ? typeRule(propertyRule.type, "collectConfigurationIndexFromXML")
+          : compiled.operations.collectConfigurationIndexFromXML
         if (indexCollection !== undefined && sourceXMLKey !== undefined && collectConfigurationIndex !== undefined) {
           const indexStartedAt = performance.now()
           runWithConfigurationIndexPropertyContext(
@@ -260,7 +280,9 @@ export function importPropertiesFromXMLToYAML(params: {
             xmlValue: sourceXMLValue,
             presentInXML,
             rule: propertyRule,
-            descriptor: typeRule(propertyRule.type, "configurationIndexValueFromXML"),
+            descriptor: compiled === undefined
+              ? typeRule(propertyRule.type, "configurationIndexValueFromXML")
+              : compiled.operations.configurationIndexValueFromXML,
           })
           return
         }
@@ -291,7 +313,9 @@ export function importPropertiesFromXMLToYAML(params: {
               )
         if (sourceXMLKey !== undefined && !dependentImportProperty) {
           const indexStartedAt = performance.now()
-          const nestedItemRule = typeRule(propertyRule.type, "nestedItemRule")
+          const nestedItemRule = compiled === undefined
+            ? typeRule(propertyRule.type, "nestedItemRule")
+            : compiled.operations.nestedItemRule
           collectConfigurationIndexPropertyFromXML({
             context: sourceContext,
             logicalAddress: propertyLogicalAddress,
@@ -305,7 +329,9 @@ export function importPropertiesFromXMLToYAML(params: {
                 xmlValue,
               ),
             rule: propertyRule,
-            descriptor: typeRule(propertyRule.type, "configurationIndexValueFromXML"),
+            descriptor: compiled === undefined
+              ? typeRule(propertyRule.type, "configurationIndexValueFromXML")
+              : compiled.operations.configurationIndexValueFromXML,
           })
           addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
         }
@@ -333,16 +359,25 @@ export function importPropertiesFromXMLToYAML(params: {
         const hasExplicitXMLKeyWithEmptyDefault = "defaultValueXMLEmpty" in propertyRule && presentInXML
         const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
         try {
-          const direct = typeRule(propertyRule.type, "importFromXMLToYAML")
-          const resolveNestedSources = typeRule(propertyRule.type, "resolveNestedImportXMLSources")
+          const direct = compiled === undefined
+            ? typeRule(propertyRule.type, "importFromXMLToYAML")
+            : compiled.operations.importFromXMLToYAML
+          const resolveNestedSources = compiled === undefined
+            ? typeRule(propertyRule.type, "resolveNestedImportXMLSources")
+            : compiled.operations.resolveNestedImportXMLSources
           const convertedDirectly = resolveNestedSources !== undefined || direct !== undefined
           const explicitEmptyValue =
             presentInXML && (xmlValue === undefined || xmlValue === "")
-              ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.explicitEmptyValue?.({
+              ? (compiled === undefined
+                  ? typeRule(propertyRule.type, "xmlImportPropertyBehavior")
+                  : compiled.operations.xmlImportPropertyBehavior)?.explicitEmptyValue?.({
                   rule: propertyRule,
                 })
               : undefined
           const directTraversal: DirectImportTraversal<PropertyRuleExecution> = {
+            ...(params.mode === undefined ? {} : { mode: params.mode }),
+            ...(params.facts === undefined ? {} : { facts: params.facts }),
+            ...(params.mode === "facts" ? { produceResult: true } : {}),
             yamlPath: propertyYamlPath,
             rulePath: propertyRulePath,
             collector,
@@ -355,8 +390,21 @@ export function importPropertiesFromXMLToYAML(params: {
             execution: params.execution,
           }
           let importedValue: unknown
+          let fusedRepresentationValue: unknown
+          let usedFusedAtomic = false
+          let fusedStartedAt: number | undefined
+          const atomicConversion = compiled === undefined
+            ? typeRule(propertyRule.type, "compileAtomicConversion")?.({ rule: propertyRule })
+            : compiled.atomicConversion
+          const atomicFromXMLToYAMLEligible = compiled === undefined
+            ? atomicConversion !== undefined
+              && direct === undefined
+              && resolveNestedSources === undefined
+            : compiled.flags.atomicFromXMLToYAMLEligible
           if (resolveNestedSources !== undefined) {
-            const nested = typeRule(propertyRule.type, "nestedItemRule")
+            const nested = compiled === undefined
+              ? typeRule(propertyRule.type, "nestedItemRule")
+              : compiled.operations.nestedItemRule
             if (nested === undefined || !("itemRule" in nested)) {
               throw new Error(`Для ${propertyRule.type} не зарегистрировано фиксированное вложенное правило`)
             }
@@ -391,16 +439,45 @@ export function importPropertiesFromXMLToYAML(params: {
                   annotations: params.annotations,
                   profile: params.profile,
                   execution: params.execution,
+                  mode: params.mode,
+                  facts: params.facts,
+                  produceResult: true,
                 }),
               { configurationIndexAddressing: nestedConfigurationIndexAddressing }
             )
             addDirectImportProfile(params.profile, propertyRule.type, startedAt)
           } else if (direct === undefined) {
-            const startedAt = performance.now()
-            importedValue =
-              hasRawEmptyXML && propertyRule.preserveEmptyXML === true
-                ? propertyRule.defaultValueXMLEmpty
-                : runWithConfigurationIndexPropertyContext(
+            const atomicInvocation = atomicConversion === undefined
+              ? undefined
+              : {
+                  conversion: atomicConversion,
+                  staticallyEligible: atomicFromXMLToYAMLEligible,
+                }
+            if (atomicInvocation !== undefined && canUseAtomicFromXMLToYAML(atomicInvocation)) {
+              fusedStartedAt = params.profile?.propertyTypeProfiling === true
+                ? performance.now()
+                : undefined
+              const fused = runWithConfigurationIndexPropertyContext(
+                sourceContext,
+                propertyRule.yaml ?? key,
+                configurationIndexUidSegment,
+                (propertyContext) => atomicInvocation.conversion.fromXMLToYAML({
+                  context: propertyContext,
+                  value: hasRawEmptyXML && propertyRule.preserveEmptyXML === true
+                    ? propertyRule.defaultValueXMLEmpty
+                    : xmlValue,
+                }),
+                { configurationIndexAddressing: nestedConfigurationIndexAddressing },
+              )
+              importedValue = fused.metadataValue
+              fusedRepresentationValue = fused.representationValue
+              usedFusedAtomic = true
+            } else {
+              const startedAt = performance.now()
+              importedValue =
+                hasRawEmptyXML && propertyRule.preserveEmptyXML === true
+                  ? propertyRule.defaultValueXMLEmpty
+                  : runWithConfigurationIndexPropertyContext(
                     sourceContext,
                     propertyRule.yaml ?? key,
                     configurationIndexUidSegment,
@@ -412,15 +489,17 @@ export function importPropertiesFromXMLToYAML(params: {
                         name: key,
                         ownerXmlName,
                         execution: params.execution,
+                        compiled,
                       }),
                     { configurationIndexAddressing: nestedConfigurationIndexAddressing }
-                  )
-            const elapsedMs = performance.now() - startedAt
-            const profile = params.profile
-            if (profile !== undefined) {
-              profile.legacyCount++
-              profile.legacyFromXmlMs += elapsedMs
-              addProfileBucket(profile.legacyByType, propertyRule.type, elapsedMs)
+                    )
+              const elapsedMs = performance.now() - startedAt
+              const profile = params.profile
+              if (profile !== undefined) {
+                profile.legacyCount++
+                profile.legacyFromXmlMs += elapsedMs
+                addProfileBucket(profile.legacyByType, propertyRule.type, elapsedMs)
+              }
             }
           } else {
             const startedAt = performance.now()
@@ -491,6 +570,34 @@ export function importPropertiesFromXMLToYAML(params: {
                 name: key,
                 operation: "importFromXML",
               })
+          const omitsImplicitFusedValue =
+            usedFusedAtomic
+            && preserveExplicitDefault !== true
+            && Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueYAML")
+            && value === propertyRule.implicitValueYAML
+          if (omitsImplicitFusedValue) {
+            fusedRepresentationValue = undefined
+          } else if (
+            usedFusedAtomic
+            && value !== importedValue
+            && atomicConversion?.fromXMLToYAML !== undefined
+          ) {
+            const normalized = runWithConfigurationIndexPropertyContext(
+              sourceContext,
+              propertyRule.yaml ?? key,
+              configurationIndexUidSegment,
+              (propertyContext) => atomicConversion.fromXMLToYAML!({
+                context: propertyContext,
+                value,
+              }),
+              { configurationIndexAddressing: nestedConfigurationIndexAddressing },
+            )
+            fusedRepresentationValue = normalized.representationValue
+          }
+          const usesFusedRepresentation = usedFusedAtomic
+          if (usesFusedRepresentation) {
+            recordFusedXMLToYAML(params.profile, propertyRule.type, fusedStartedAt)
+          }
           addProfileTime(params.profile, "defaultMs", defaultStartedAt)
 
           if (value !== undefined && !dependentImportProperty) {
@@ -509,12 +616,16 @@ export function importPropertiesFromXMLToYAML(params: {
             rule: propertyRule,
             siblingValue: (propertyKey) => {
               const siblingYaml = rule.properties[propertyKey]?.yaml
-              return siblingYaml === undefined ? undefined : result[siblingYaml]
+              return siblingYaml === undefined
+                ? undefined
+                : result?.[siblingYaml] ?? retainedSiblingValues.get(siblingYaml)
             },
             owner,
           })
           const yamlValueBeforeMetadataTargets = clearedMetadataTarget
             ? null
+            : usesFusedRepresentation
+            ? fusedRepresentationValue
             : !convertedDirectly
             ? exportPropertyValueBeforeMetadataTargetsToYAML({
                 context: sourceContext,
@@ -523,22 +634,41 @@ export function importPropertiesFromXMLToYAML(params: {
                 name: itemName,
                 owner: propertyOwner,
                 execution: params.execution,
+                compiled,
                 preserveImplicitValue: preserveExplicitDefault,
               })
             : value
           const yamlValue = !convertedDirectly
-            ? exportPropertyMetadataTargetsToYAML({
+            ? usesFusedRepresentation
+              ? exportPropertyMetadataTargetsToYAML({
+                  context: sourceContext,
+                  rule: propertyRule,
+                  value,
+                  name: itemName,
+                  owner: propertyOwner,
+                  execution: params.execution,
+                  compiled,
+                  preserveImplicitValue: preserveExplicitDefault,
+                }, yamlValueBeforeMetadataTargets)
+              : exportPropertyMetadataTargetsToYAML({
                 context: sourceContext,
                 rule: propertyRule,
                 value,
                 name: itemName,
                 owner: propertyOwner,
                 execution: params.execution,
+                compiled,
                 preserveImplicitValue: preserveExplicitDefault,
-              }, yamlValueBeforeMetadataTargets)
+                }, yamlValueBeforeMetadataTargets)
             : yamlValueBeforeMetadataTargets
           const exportedYamlValue = yamlValue
-          if (!convertedDirectly) {
+          params.facts?.acceptProperty({
+            itemType: rule.itemType,
+            propertyKey: key,
+            yamlPath: propertyYamlPath,
+            value: exportedYamlValue,
+          })
+          if (!convertedDirectly && !usesFusedRepresentation) {
             const profile = params.profile
             if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
           }
@@ -585,6 +715,7 @@ export function importPropertiesFromXMLToYAML(params: {
             exportedYamlValue,
             value,
             params.execution,
+            compiled,
           )
           const emptyDirectValue = convertedDirectly && (
             exportedYamlValue === undefined || isEmptySemanticContainer(exportedYamlValue)
@@ -638,16 +769,25 @@ export function importPropertiesFromXMLToYAML(params: {
             value: exportedYamlValue,
             ...(owner === undefined ? {} : { metadataTargetOwner: owner }),
           })
-          const finalize = typeRule(propertyRule.type, "finalizeImportedYAML")
-          const requiresFinalization = typeRule(propertyRule.type, "requiresImportedYAMLFinalization")
+          const finalize = compiled === undefined
+            ? typeRule(propertyRule.type, "finalizeImportedYAML")
+            : compiled.operations.finalizeImportedYAML
+          const requiresFinalization = compiled === undefined
+            ? typeRule(propertyRule.type, "requiresImportedYAMLFinalization")
+            : compiled.operations.requiresImportedYAMLFinalization
           if (
             finalize !== undefined &&
             (requiresFinalization === undefined || requiresFinalization({ value: yamlValue }))
           ) {
             deferred?.accept({ valuePath: propertyYamlPath, rulePath: propertyRulePath })
           }
-          Object.assign(result, exportedValues)
-          copyYAMLRuntimeMetadata(exportedValues, result)
+          for (const [yamlKey, exportedValue] of Object.entries(exportedValues)) {
+            if (retainedSiblingYamlKeys.has(yamlKey)) retainedSiblingValues.set(yamlKey, exportedValue)
+          }
+          if (result !== undefined) {
+            Object.assign(result, exportedValues)
+            copyYAMLRuntimeMetadata(exportedValues, result)
+          }
           addProfileTime(params.profile, "collectorMs", collectorStartedAt)
         } catch (cause) {
           if (cause instanceof XmlImportAttemptInfrastructureError) throw cause
@@ -676,6 +816,15 @@ export function importPropertiesFromXMLToYAML(params: {
       return
     }
     attempt.commit()
+  }
+
+  const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {
+    const frame = beginPropertyTypeProfile(params.profile, match.entry.rule.type)
+    try {
+      importMatchUnprofiled(match)
+    } finally {
+      finishPropertyTypeProfile(params.profile, frame, "XML → YAML")
+    }
   }
 
   const importMissingEntry = (
@@ -717,11 +866,16 @@ export function importPropertiesFromXMLToYAML(params: {
         yamlPath: [...yamlPath, propertyRule.yaml ?? propertyKey],
         rulePath: [...rulePath, { propertyKey }],
       }),
-      isRepeatable: ({ rule: propertyRule }) =>
-        typeRule(propertyRule.type, "yamlToXMLNestedRule")?.kind === "collection"
-        || typeRule(propertyRule.type, "fileChildNamesDescriptor") !== undefined
-        || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.repeatedXMLNodes === true,
-      nestedItemsOwnNode: ({ canonicalXMLKey, rule: propertyRule }) => {
+      isRepeatable: (entry) => {
+        if ("flags" in entry) return (entry as CompiledProperty).flags.repeatableXMLNodes
+        const propertyRule = entry.rule
+        return typeRule(propertyRule.type, "yamlToXMLNestedRule")?.kind === "collection"
+          || typeRule(propertyRule.type, "fileChildNamesDescriptor") !== undefined
+          || typeRule(propertyRule.type, "xmlImportPropertyBehavior")?.repeatedXMLNodes === true
+      },
+      nestedItemsOwnNode: (entry) => {
+        if ("flags" in entry) return (entry as CompiledProperty).flags.nestedItemsOwnXMLNode
+        const { canonicalXMLKey, rule: propertyRule } = entry
         const nestedRule = typeRule(propertyRule.type, "yamlToXMLNestedRule")
         return nestedRule?.kind === "collection" && (
           nestedRule.xmlElement === canonicalXMLKey
@@ -763,7 +917,10 @@ export function importPropertiesFromXMLToYAML(params: {
       const sourceState = sourceByProperty === undefined ? sourceStates[0] : sourceByProperty.get(propertyKey)
       const entry = sourceState?.plan.entriesByPropertyKey.get(propertyKey)
       if (sourceState === undefined || entry === undefined) continue
-      const sourceNodes = typeRule(entry.rule.type, "resolveNestedImportXMLSources") === undefined
+      const resolveNestedSources = "operations" in entry
+        ? (entry as CompiledProperty).operations.resolveNestedImportXMLSources
+        : typeRule(entry.rule.type, "resolveNestedImportXMLSources")
+      const sourceNodes = resolveNestedSources === undefined
         ? undefined
         : propertyXMLNodes?.get(propertyKey)
       sourceState.foundPropertyKeys.add(propertyKey)
@@ -794,8 +951,21 @@ export function importPropertiesFromXMLToYAML(params: {
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
+  if (result === undefined) return undefined
   normalizeTypeOwnedMetadataTargets({ result, rule })
   return sortYamlRuleProperties(result)
+}
+
+function metadataTargetSiblingYamlKeys(rule: MetadataItemRule): ReadonlySet<string> {
+  const result = new Set<string>()
+  for (const propertyRule of Object.values(rule.properties)) {
+    const constraint = propertyRule.metadataTarget
+    const typeProperty = constraint?.kind === "member" ? constraint.typeProperty : undefined
+    if (typeProperty === undefined) continue
+    const yamlKey = rule.properties[typeProperty]?.yaml
+    if (yamlKey !== undefined) result.add(yamlKey)
+  }
+  return result
 }
 
 function claimCanonicalRawDefault(params: {
@@ -984,6 +1154,20 @@ function addDirectImportProfile(
   profile.directCount++
   profile.directInclusiveMs += elapsedMs
   addProfileBucket(profile.directByType, propertyType, elapsedMs)
+}
+
+function recordFusedXMLToYAML(
+  profile: DirectImportProfile | undefined,
+  propertyType: string,
+  startedAt: number | undefined,
+): void {
+  if (profile === undefined) return
+  profile.fusedAtomicCount++
+  addProfileBucket(
+    profile.fusedAtomicByType,
+    propertyType,
+    startedAt === undefined ? 0 : performance.now() - startedAt,
+  )
 }
 
 function aggregateAttemptFailure(cause: unknown, rollbackError: unknown): AggregateError {

@@ -45,6 +45,7 @@ export const importI8nTextFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   return projectNamedXmlCollectionForImport({
     entries,
     annotations: traversal.annotations,
+    ...(traversal.mode === "facts" ? { ephemeral: true as const } : {}),
   })
 }
 

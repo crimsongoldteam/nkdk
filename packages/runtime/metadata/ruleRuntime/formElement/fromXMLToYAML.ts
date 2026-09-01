@@ -8,7 +8,7 @@ import {
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
-import type { PropertyRuleExecution } from "../property/fn"
+import type { CompiledPropertyRuleExecution } from "../property/compiledPropertyPlan"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import {
   attachExplicitSingletonName,
@@ -63,6 +63,9 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
     dependent: params.traversal.dependent,
     audit: params.traversal.audit,
     annotations: params.traversal.annotations,
+    mode: params.traversal.mode,
+    facts: params.traversal.facts,
+    produceResult: params.traversal.produceResult,
     profile: params.traversal.profile,
     execution: propertyExecutionFromTraversal(params.traversal),
   })
@@ -129,6 +132,9 @@ export function importSingleFormElementFromXMLToYAML(params: {
       dependent: params.traversal.dependent,
       audit: params.traversal.audit,
       annotations: params.traversal.annotations,
+      mode: params.traversal.mode,
+      facts: params.traversal.facts,
+      produceResult: params.traversal.produceResult,
       profile: params.traversal.profile,
       execution: propertyExecutionFromTraversal(params.traversal),
     }) ?? {}
@@ -146,6 +152,6 @@ function withoutImportableXMLName(xml: ElementXML): ElementXML {
 
 function propertyExecutionFromTraversal(
   traversal: DirectImportTraversal,
-): PropertyRuleExecution | undefined {
-  return traversal.execution as PropertyRuleExecution | undefined
+): CompiledPropertyRuleExecution | undefined {
+  return traversal.execution as CompiledPropertyRuleExecution | undefined
 }

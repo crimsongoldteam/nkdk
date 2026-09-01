@@ -54,7 +54,7 @@ describe("StructureItemGroup XML → YAML", () => {
 
     expect(result.yaml).toMatchObject({
       Значение: [
-        { Поле: "Наименование" },
+        "Наименование",
         "[Авто]",
         { Поле: "ПометкаУдаления", Использование: "Ложь" },
       ],

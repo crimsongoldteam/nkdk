@@ -4,7 +4,10 @@ import {
   isSummaryProfileStep,
   runProfile,
   summarizeControlExport,
+  summarizeFromXmlPropertyTypes,
+  summarizeFusedAtomicTypes,
   summarizeImportSteps,
+  summarizeToXmlPropertyTypes,
   usage,
 } from "./import-profile.mjs"
 
@@ -49,6 +52,21 @@ test("сводит этапы импорта и двоичной выдачи в
     main("Публикация состояния проекта", 17),
     main("Сохранение состояния проекта", 18),
     worker("Двоичное кодирование результата", 19, 1_024),
+    worker("Чтение XML первого прохода", 4, 2_048),
+    worker("Парсинг XML первого прохода", 6, 2_048),
+    worker("Чтение XML второго прохода", 5, 2_048),
+    worker("Парсинг XML второго прохода", 7, 2_048),
+    worker("Извлечение фактов XML", 11),
+    worker("MessagePack pack", 12),
+    worker("MessagePack unpack", 13),
+    worker("Packed XML store write", 14),
+    worker("Packed XML store read", 15),
+    worker("Packed XML bytes", 0, 4_096),
+    worker("toXML: построение объекта", 14),
+    worker("toXML: финализация deferred", 15),
+    worker("Контрольный XML: прямой hash", 16),
+    worker("Контрольный XML: дерево расхождения", 17),
+    worker("Доказательство XML-аномалий", 18),
     main("Передача двоичного результата", 20, 1_024),
     main("Подготовка начала diagnostics", 21),
     main("Запись полного отчёта diagnostics", 22, 2_048),
@@ -67,6 +85,23 @@ test("сводит этапы импорта и двоичной выдачи в
     workerBinaryEncodeMs: 19,
     workerBinaryTransferMs: 20,
     workerBinaryBytes: 1_024,
+    xmlReadMs: 9,
+    xmlParseMs: 13,
+    firstPassXmlReadMs: 4,
+    firstPassXmlParseMs: 6,
+    secondPassXmlReadMs: 5,
+    secondPassXmlParseMs: 7,
+    factsOnlyMs: 11,
+    messagePackMs: 12,
+    messageUnpackMs: 13,
+    packedStoreWriteMs: 14,
+    packedStoreReadMs: 15,
+    packedBytes: 4_096,
+    toXmlObjectMs: 14,
+    toXmlFinalizeMs: 15,
+    directHashMs: 16,
+    mismatchDocumentMs: 17,
+    anomalyProofMs: 18,
     diagnosticPreviewMs: 21,
     diagnosticReportMs: 22,
     diagnosticReportBytes: 2_048,
@@ -87,7 +122,6 @@ test("сводит режим контрольного XML и распредел
   const steps = [
     { scope: "worker", worker: 0, substep: "Контрольный XML без сериализации", items: 3 },
     { scope: "worker", worker: 1, substep: "Контрольный XML с сериализацией", items: 2 },
-    { scope: "worker", worker: 1, substep: "Подробный повторный импорт XML", items: 1 },
     { scope: "worker", worker: 0, substep: "Задания второго прохода", items: 3 },
     { scope: "worker", worker: 1, substep: "Задания второго прохода", items: 2 },
   ]
@@ -95,9 +129,90 @@ test("сводит режим контрольного XML и распредел
   assert.deepEqual(summarizeControlExport(steps), {
     direct: 3,
     serialized: 2,
-    detailedRereads: 1,
+    detailedRereads: 0,
     assignmentsByWorker: [3, 2],
   })
+})
+
+test("сводит собственное и полное время toXML по типам PropertyRule", () => {
+  const steps = [
+    { scope: "worker", worker: 0, step: "toXML PropertyRule exclusive", substep: "string", items: 2, time: 5 },
+    { scope: "worker", worker: 1, step: "toXML PropertyRule exclusive", substep: "string", items: 3, time: 7 },
+    { scope: "worker", worker: 0, step: "toXML PropertyRule inclusive", substep: "string", items: 2, time: 9 },
+    { scope: "worker", worker: 1, step: "toXML PropertyRule inclusive", substep: "string", items: 3, time: 11 },
+    { scope: "worker", worker: 0, step: "toXML PropertyRule exclusive", substep: "object", items: 1, time: 15 },
+    { scope: "worker", worker: 0, step: "toXML PropertyRule inclusive", substep: "object", items: 1, time: 30 },
+  ]
+
+  assert.deepEqual(summarizeToXmlPropertyTypes(steps), [
+    {
+      propertyType: "object",
+      propertyCount: 1,
+      exclusiveWorkerMs: 15,
+      exclusiveCriticalMs: 15,
+      inclusiveWorkerMs: 30,
+      inclusiveCriticalMs: 30,
+      averageExclusiveUs: 15_000,
+    },
+    {
+      propertyType: "string",
+      propertyCount: 5,
+      exclusiveWorkerMs: 12,
+      exclusiveCriticalMs: 7,
+      inclusiveWorkerMs: 20,
+      inclusiveCriticalMs: 11,
+      averageExclusiveUs: 2_400,
+    },
+  ])
+})
+
+test("сводит покрытие объединённых атомарных преобразователей", () => {
+  const steps = [
+    { scope: "worker", worker: 0, step: "toXML fused atomic", substep: "boolean", items: 3, time: 4 },
+    { scope: "worker", worker: 1, step: "toXML fused atomic", substep: "boolean", items: 5, time: 6 },
+  ]
+
+  assert.deepEqual(summarizeFusedAtomicTypes(steps, "toXML fused atomic"), [{
+    propertyType: "boolean",
+    count: 8,
+    workerMs: 10,
+    criticalMs: 6,
+  }])
+})
+
+test("сводит вложенные строки объединённых XML в YAML преобразователей", () => {
+  const steps = [
+    { scope: "worker", worker: 0, step: "Подготовка импорта конфигурации", substep: "XML в YAML fused atomic boolean", items: 3, time: 4 },
+    { scope: "worker", worker: 1, step: "Подготовка импорта конфигурации", substep: "XML в YAML fused atomic boolean", items: 5, time: 6 },
+  ]
+
+  assert.deepEqual(summarizeFusedAtomicTypes(steps, "XML в YAML fused atomic"), [{
+    propertyType: "boolean",
+    count: 8,
+    workerMs: 10,
+    criticalMs: 6,
+  }])
+})
+
+test("сводит собственное и полное время XML в YAML по типам PropertyRule", () => {
+  const steps = [
+    { scope: "worker", worker: 0, step: "XML в YAML PropertyRule exclusive", substep: "boolean", items: 5, time: 3 },
+    { scope: "worker", worker: 1, step: "XML в YAML PropertyRule exclusive", substep: "boolean", items: 7, time: 4 },
+    { scope: "worker", worker: 0, step: "XML в YAML PropertyRule inclusive", substep: "boolean", items: 5, time: 4 },
+    { scope: "worker", worker: 1, step: "XML в YAML PropertyRule inclusive", substep: "boolean", items: 7, time: 6 },
+  ]
+
+  assert.deepEqual(summarizeFromXmlPropertyTypes(steps), [
+    {
+      propertyType: "boolean",
+      propertyCount: 12,
+      exclusiveWorkerMs: 7,
+      exclusiveCriticalMs: 4,
+      inclusiveWorkerMs: 10,
+      inclusiveCriticalMs: 6,
+      averageExclusiveUs: 7_000 / 12,
+    },
+  ])
 })
 
 test("собирает MCP до замера и переиспользует одну сессию", async () => {
@@ -144,6 +259,45 @@ test("собирает MCP до замера и переиспользует о�
   assert.equal(result.runs.length, 2)
   assert.equal(result.coldMs, 100)
   assert.equal(result.runs[0].elapsedMs, 100)
+})
+
+test("измеряет terminal результат через общий MCP waiter", async () => {
+  let clock = 0
+  const controller = new AbortController()
+  const session = {
+    call: mock.fn(() => {
+      throw new Error("accepted response must not be measured directly")
+    }),
+    takeStderr: mock.fn(() => profileLine("Первый проход worker", 40)),
+    close: mock.fn(async () => undefined),
+  }
+  const callToCompletion = mock.fn(async (actualSession, toolName, args, callOptions) => {
+    assert.equal(actualSession, session)
+    assert.equal(toolName, "nkdk.import_from_xml")
+    assert.equal(args.projectDir, "/project")
+    assert.equal(callOptions.signal, controller.signal)
+    clock += 250
+    return {
+      result: { isError: false },
+      payload: { ok: true, succeeded: 1, failed: [], warnings: [], summary: { errors: 0, warnings: 0 } },
+    }
+  })
+
+  const result = await runProfile(
+    { xmlDir: "/xml", yamlDir: "/yaml", runs: 1, signal: controller.signal },
+    {
+      buildMcp: mock.fn(),
+      createSession: mock.fn(async () => session),
+      callToCompletion,
+      now: () => clock,
+      clearOutput: mock.fn(),
+      createProject: mock.fn(() => "/project"),
+    },
+  )
+
+  assert.equal(session.call.mock.callCount(), 0)
+  assert.equal(callToCompletion.mock.callCount(), 1)
+  assert.equal(result.coldMs, 250)
 })
 
 test("сохраняет упорядоченные checkpoints памяти отдельно от сводной таблицы", async () => {

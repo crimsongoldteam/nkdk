@@ -7,7 +7,7 @@ description: Use when the user asks to measure XML import speed by NKDK architec
 
 ## Что делает скилл
 
-Скилл собирает MCP и выполняет benchmark XML-import через собранный MCP stdio server:
+Скилл сначала собирает текущую версию MCP и выполняет benchmark XML-import через собранный MCP stdio server:
 
 ```text
 packages/mcp/dist/bin/nkdk-mcp
@@ -19,6 +19,7 @@ packages/mcp/dist/bin/nkdk-mcp
 последующие переиспользуют worker и кэш готовых JSON Schema. Целевой YAML-каталог очищается перед каждым прогоном.
 Для каждого прогона создаётся отдельный временный проект: повторный импорт того же компонента в уже опубликованное
 состояние проекта по договору запрещён.
+Runner ждёт terminal result фоновой операции; ответ `accepted` не завершает измерение.
 
 ## Быстрый запуск
 
@@ -29,7 +30,7 @@ node .agents/skills/import-profile/import-profile.mjs /path/to/xml /path/to/yaml
 ## Параметры runner'а
 
 - `--runs N` — число прогонов, по умолчанию `1`.
-- `--concurrency N` — число worker, по умолчанию `4`.
+- `--concurrency N` — явное число worker; без параметра размер пула выбирает production import.
 - `--json` — вывести только JSON.
 
 ## Как отвечать пользователю
@@ -56,6 +57,13 @@ Peak RSS: <MiB>
 `structuredContent`, полное время до ответа `responseMs` и верхнюю оценку неразмеченного внешнего времени
 `mcpOverheadMs` в поле `phases`. Оценка может включать неразмеченные промежутки координатора; вложенные worker-этапы
 в неё повторно не складываются.
+Новый двухпроходный импорт дополнительно публикует `xmlParseMs`, `factsOnlyMs`,
+`messagePackMs`, `messageUnpackMs`, `packedBytes`, `toXmlObjectMs`,
+`toXmlFinalizeMs`, `directHashMs`, `mismatchDocumentMs` и `anomalyProofMs`.
+`controlExport.detailedRereads` должен оставаться равным нулю.
+Подробные checkpoints памяти для каждого задания включаются отдельно через
+`NKDK_PROFILE_MEMORY=1`; обычный профиль оставляет их выключенными, чтобы не
+искажать время и не создавать многомегабайтный stderr.
 Подробные записи отдельных типов и объектов в JSON не включаются; `profileRows`
 содержит только агрегированные строки. При большом результате поле `report`
 фиксирует существование, размер и число строк полного отчёта.

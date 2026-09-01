@@ -1,5 +1,5 @@
 import { Type } from "typebox"
-import { expect,it } from "vitest"
+import { expect,it,vi } from "vitest"
 
 import { withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { mockContextFromXML,mockContextToXML,mockLanguages } from "../../../tests/mockContext"
@@ -131,6 +131,38 @@ it("executes a conversion through the owning registry", () => {
       value: "value",
     }),
   ).toBe("own:value")
+})
+
+it("executes and caches an atomic XML conversion through the owning registry", () => {
+  const compileAtomicConversion = vi.fn(() => ({
+    fromXMLToYAML: ({ value }: { value: unknown }) => ({
+      metadataValue: `atomic:${String(value)}`,
+      representationValue: `yaml:${String(value)}`,
+    }),
+    fromYAMLToXML: ({ value }: { value: unknown }) => ({
+      metadataValue: value,
+      representationValue: value,
+    }),
+  }))
+  const registries = createPropertyRuleRegistrySet(
+    defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: { Sample: { compileAtomicConversion } },
+    }),
+  )
+  const executor = createPropertyRuleExecutor(registries)
+  const params = {
+    context: {
+      languages: mockLanguages,
+      version: "test",
+      fromXML: { forReference: false },
+    },
+    rule: { type: "Sample" as const },
+  }
+
+  expect(executor.fromXML({ ...params, value: "first" })).toBe("atomic:first")
+  expect(executor.fromXML({ ...params, value: "second" })).toBe("atomic:second")
+  expect(compileAtomicConversion).toHaveBeenCalledTimes(1)
 })
 
 it("exports validation schema refs from the owning registry", () => {
@@ -309,6 +341,34 @@ it("converts YAML properties through the owning registry", () => {
   expect(convert("second")).toEqual({ Value: "second" })
 })
 
+it("не обращается к реестру повторно для второго YAML-объекта того же правила", () => {
+  const registries = createPropertyRuleRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes: {
+      Sample: {
+        importFromYAML: (_context, _rule, value) => value,
+        exportToXML: (_context, _rule, value) => value,
+      },
+    },
+  }))
+  const getTypeRule = vi.spyOn(registries, "getTypeRule")
+  const execution = createPropertyRuleExecutor(registries)
+  const context = mockContextToXML()
+  const rule = ownerValueRule()
+  const convert = (value: string) => convertPropertiesFromYAMLToXML({
+    context,
+    yaml: { Значение: value },
+    rule,
+    outputs: [{ key: "main" }],
+    execution,
+  }).outputs.get("main")
+
+  expect(convert("one")).toEqual({ Value: "one" })
+  const lookupsAfterFirst = getTypeRule.mock.calls.length
+  expect(convert("two")).toEqual({ Value: "two" })
+  expect(getTypeRule).toHaveBeenCalledTimes(lookupsAfterFirst)
+})
+
 it("converts XML properties through the owning registry", () => {
   const executionWithValue = (value: string) => createPropertyRuleExecutor(
     createPropertyRuleRegistrySet(defineMetadataRules({
@@ -337,6 +397,36 @@ it("converts XML properties through the owning registry", () => {
 
   expect(convert("first")).toEqual({ "Значение": "first" })
   expect(convert("second")).toEqual({ "Значение": "second" })
+})
+
+it("не обращается к реестру повторно для второго XML-объекта того же правила", () => {
+  const registries = createPropertyRuleRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes: {
+      Sample: {
+        importFromXML: (_context, _rule, value) => value,
+        exportToYAML: (_context, _rule, value) => value,
+      },
+    },
+  }))
+  const getTypeRule = vi.spyOn(registries, "getTypeRule")
+  const execution = createPropertyRuleExecutor(registries)
+  const context = mockContextFromXML()
+  const rule = ownerValueRule()
+  const convert = (value: string) => importPropertiesFromXMLToYAML({
+    context,
+    rule,
+    sources: [{ context, xml: { Value: value } }],
+    yamlPath: [],
+    rulePath: [],
+    collector: createLocalIndexesCollector(),
+    execution,
+  })
+
+  expect(convert("one")).toEqual({ Значение: "one" })
+  const lookupsAfterFirst = getTypeRule.mock.calls.length
+  expect(convert("two")).toEqual({ Значение: "two" })
+  expect(getTypeRule).toHaveBeenCalledTimes(lookupsAfterFirst)
 })
 
 it("finalizes imported YAML through the owning registry", () => {

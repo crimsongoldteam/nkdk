@@ -2,11 +2,13 @@ import { mkdtempSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
+import { StdioClientTransport } from "@modelcontextprotocol/client/stdio"
 import { describe, expect, it, vi } from "vitest"
 
 const callScript = new URL("../../../.agents/tools/mcp/call.mjs", import.meta.url)
 const callScriptModule = await import(callScript.href)
 const {
+  callMcpToolToCompletion,
   createMcpToolSession,
   operationFailed,
   parseArgs,
@@ -48,6 +50,29 @@ describe("MCP call script", () => {
     expect(client.connect).toHaveBeenCalledTimes(1)
     expect(client.callTool).toHaveBeenCalledTimes(2)
     expect(client.close).toHaveBeenCalledTimes(1)
+  })
+
+  it("остаётся подключённым к реальному stdio до terminal результата", async () => {
+    const projectDir = "/fixture-project"
+    const session = await createMcpToolSession({
+      createTransport: () => new StdioClientTransport({
+        command: process.execPath,
+        args: ["--input-type=module", "--eval", backgroundOperationFixtureServer],
+        cwd: import.meta.dirname,
+        stderr: "pipe",
+      }),
+    })
+
+    try {
+      await expect(callMcpToolToCompletion(
+        session,
+        "nkdk.validate_project",
+        { projectDir },
+        { pollIntervalMs: 5 }
+      )).rejects.toThrow(/operation .* succeeded.*core_error/u)
+    } finally {
+      await session.close()
+    }
   })
 
   it("фиксирует внутренний клиент на MCP 2026-07-28", async () => {
@@ -130,3 +155,53 @@ describe("MCP call script", () => {
     })).toBe(true)
   })
 })
+
+const backgroundOperationFixtureServer = `
+import { createInterface } from "node:readline"
+
+const respond = (id, result) => process.stdout.write(JSON.stringify({ jsonrpc: "2.0", id, result }) + "\\n")
+const toolResult = (payload) => ({
+  resultType: "complete",
+  content: [{ type: "text", text: JSON.stringify(payload) }],
+  structuredContent: payload,
+})
+const input = createInterface({ input: process.stdin })
+input.on("line", (line) => {
+  const request = JSON.parse(line)
+  if (request.method === "server/discover") {
+    respond(request.id, {
+      supportedVersions: ["2026-07-28"],
+      capabilities: { tools: {} },
+    })
+    return
+  }
+  if (request.method === "initialize") {
+    respond(request.id, {
+      protocolVersion: "2026-07-28",
+      capabilities: { tools: {} },
+      serverInfo: { name: "call-script-fixture", version: "1.0.0" },
+    })
+    return
+  }
+  if (request.method !== "tools/call") return
+  const payload = request.params.name === "nkdk.validate_project"
+    ? {
+        ok: true,
+        status: "accepted",
+        operationId: "op-1",
+        projectDir: "/fixture-project",
+      }
+    : {
+        ok: true,
+        status: "succeeded",
+        operationId: "op-1",
+        projectDir: "/fixture-project",
+        operationKind: "validate_project",
+        createdAt: "2026-09-01T00:00:00.000Z",
+        updatedAt: "2026-09-01T00:00:00.001Z",
+        messages: [],
+        result: { ok: false, code: "core_error" },
+      }
+  respond(request.id, toolResult(payload))
+})
+`

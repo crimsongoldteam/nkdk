@@ -9,6 +9,7 @@ describe("xmlObjectRootStructures", () => {
     ["атрибуты и пустой элемент", { Root: { "_xsi:type": "xs:string", _custom: "x", Empty: "" } }],
     ["повторные элементы", { Root: { Item: [{ "#text": "one" }, { "#text": "two" }] } }],
     ["xsi:nil", { Root: { "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "_xsi:nil": "true" } }],
+    ["пустой #text", { Root: { "_xsi:type": "dcscor:Field", "#text": "" } }],
     ["вложенные свойства", { Root: { Properties: { MinValue: "1", MaxValue: "2" } } }],
   ])("совпадает со строковым XML: %s", (_name, value) => {
     expectSameStructure(value)
@@ -42,18 +43,12 @@ describe("xmlObjectRootStructures", () => {
     expectSameStructure(value)
   })
 
-  it("явно отказывается от processing instruction", () => {
-    expect(xmlObjectRootStructures({ Root: { "?future": "mode=x" } })).toEqual({
-      kind: "unsupported",
-      reason: "processing-instruction",
-    })
+  it("считает processing instruction без сериализации", () => {
+    expectSameStructure({ Root: { "?future": "mode=x" } })
   })
 
-  it("явно отказывается от смешанного текста с дочерним узлом", () => {
-    expect(xmlObjectRootStructures({ Root: { "#text": "prefix", Child: "value" } })).toEqual({
-      kind: "unsupported",
-      reason: "mixed-content",
-    })
+  it("считает смешанный текст без сериализации", () => {
+    expectSameStructure({ Root: { "#text": "prefix", Child: "value" } })
   })
 })
 
