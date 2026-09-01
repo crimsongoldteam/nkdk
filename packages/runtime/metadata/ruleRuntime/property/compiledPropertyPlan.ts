@@ -48,6 +48,7 @@ export interface CompiledPropertyFlags {
 }
 
 export interface CompiledProperty extends XMLImportPlanEntry {
+  readonly propertyRule: PropertyRule
   readonly yamlKey: string | undefined
   readonly xmlPath: readonly string[]
   readonly operations: CompiledPropertyOperations
@@ -139,6 +140,7 @@ function compileProperty(
   return Object.freeze({
     propertyKey,
     rule,
+    propertyRule: rule,
     canonicalXMLKey,
     yamlKey: rule.yaml,
     xmlPath: Object.freeze([...(rule.xmlParents ?? []), canonicalXMLKey]),

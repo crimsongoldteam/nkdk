@@ -1,5 +1,5 @@
 import { Type } from "typebox"
-import { expect,it } from "vitest"
+import { expect,it,vi } from "vitest"
 
 import { withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { mockContextFromXML,mockContextToXML,mockLanguages } from "../../../tests/mockContext"
@@ -307,6 +307,34 @@ it("converts YAML properties through the owning registry", () => {
 
   expect(convert("first")).toEqual({ Value: "first" })
   expect(convert("second")).toEqual({ Value: "second" })
+})
+
+it("не обращается к реестру повторно для второго YAML-объекта того же правила", () => {
+  const registries = createPropertyRuleRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes: {
+      Sample: {
+        importFromYAML: (_context, _rule, value) => value,
+        exportToXML: (_context, _rule, value) => value,
+      },
+    },
+  }))
+  const getTypeRule = vi.spyOn(registries, "getTypeRule")
+  const execution = createPropertyRuleExecutor(registries)
+  const context = mockContextToXML()
+  const rule = ownerValueRule()
+  const convert = (value: string) => convertPropertiesFromYAMLToXML({
+    context,
+    yaml: { Значение: value },
+    rule,
+    outputs: [{ key: "main" }],
+    execution,
+  }).outputs.get("main")
+
+  expect(convert("one")).toEqual({ Value: "one" })
+  const lookupsAfterFirst = getTypeRule.mock.calls.length
+  expect(convert("two")).toEqual({ Value: "two" })
+  expect(getTypeRule).toHaveBeenCalledTimes(lookupsAfterFirst)
 })
 
 it("converts XML properties through the owning registry", () => {

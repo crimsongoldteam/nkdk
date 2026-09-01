@@ -1,4 +1,4 @@
-import { describe,expect,it } from "vitest"
+import { describe,expect,it,vi } from "vitest"
 
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { createConfigurationIndexCollector,createConfigurationIndexExportRuntime,importFromYAML,markYAMLScalarTag,parseMetadataYaml } from "@nkdk/runtime"
@@ -132,6 +132,30 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(profile.propertyTypeProfiles).toEqual({})
+  })
+
+  it("проверяет наличие обычного свойства один раз в общей оркестрации", () => {
+    const propertyValues = new Map<string, unknown>()
+    const has = vi.spyOn(propertyValues, "has")
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      propertyValues,
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Значение",
+          xml: "Value",
+          evaluateWhenYAMLMissing: true,
+          exportNilValue: true,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+    expect(has.mock.calls.length).toBeLessThanOrEqual(3)
   })
 
   it("восстанавливает исключённый заголовок по имени индексированного объекта", () => {
