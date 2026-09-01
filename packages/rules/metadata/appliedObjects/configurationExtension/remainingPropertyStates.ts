@@ -41,7 +41,7 @@ const externalStateProperties = new Map([
 ])
 
 const presenceProperties = new Map<string, Record<string, {
-  availability: "borrowed"
+  availability: "borrowed" | "own"
   modes: readonly []
   representation: "plain"
 }>>([

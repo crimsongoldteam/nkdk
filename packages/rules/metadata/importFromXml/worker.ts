@@ -1008,7 +1008,7 @@ function withPreparedFormIndexFallback(
   return {
     ...index,
     forms: projectStateFormEntries({
-      owner: prepared.dependentOwner,
+      owner: { kind: prepared.dependentOwner.dir, name: prepared.dependentOwner.name },
       index: prepared.formDataPathIndex,
     }),
   }

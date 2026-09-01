@@ -202,6 +202,7 @@ function validate(facts: readonly ProjectStateStructuredDocumentFact[]) {
     queryPort: {
       readDependencyInputs(requests) {
         return requests.map(({ requestId, check }) => {
+          if (check.kind !== "dataPath") throw new Error(`Ожидалась проверка DataPath, получена ${check.kind}`)
           const rootOwner = check.owner
           const targetOwner = rootOwner.kind === "ВнешнийИсточникДанных"
             ? { kind: "ВнешнийИсточникДанныхТаблица", name: `${rootOwner.name}.Таблица` }
