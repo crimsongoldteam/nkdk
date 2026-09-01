@@ -9,6 +9,11 @@ import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fil
 import { resolveProjectStateDataPathReferenceBatch } from "../../validation/projectStateDependencyValidation"
 import { isRedundantClientApplicationBaseForm } from "./baseFormNecessity"
 import { parseClientApplicationFormSemanticPayload } from "./formSemanticPayload"
+import {
+  collectBorrowedFormDataPathChecks,
+  missingBorrowedFormRootDiagnostics,
+  unavailableBorrowedFormSegmentDiagnostics,
+} from "./borrowedFormDataPathPolicy"
 
 const DOCUMENT_KIND = "clientApplicationForm"
 
@@ -47,6 +52,25 @@ export function validateBorrowedClientApplicationForms(
       .filter(({ componentKind }) => componentKind === "element")
       .map(({ name }) => name))
     const workingEntries = extensionFacts.map(({ entry }) => entry)
+    const borrowedFormDataPathChecks = collectBorrowedFormDataPathChecks({
+      workingEntries,
+      currentEntries: baseEntries,
+    })
+    diagnostics.push(...missingBorrowedFormRootDiagnostics({
+      checks: borrowedFormDataPathChecks,
+      workingEntries,
+      currentEntries: baseEntries,
+      filePath: absolutePath(params.projectDir, first.projectPath),
+    }))
+    diagnostics.push(...unavailableBorrowedFormSegmentDiagnostics({
+      checks: borrowedFormDataPathChecks,
+      workingEntries,
+      componentPath: first.componentPath,
+      projectPath: first.projectPath,
+      filePath: absolutePath(params.projectDir, first.projectPath),
+      projectDir: params.projectDir,
+      queryPort: params.queryPort,
+    }))
     const workingElements = new Map(workingEntries
       .filter(({ componentKind }) => componentKind === "element")
       .map((entry) => [entry.name, entry]))

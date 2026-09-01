@@ -2747,6 +2747,20 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("указывает первый недоступный сегмент в нейтральном результате", () => {
+    const result = resolveDataPathCore({
+      ...catalogGoodsResolveParams(),
+      value: "Объект.ИНН",
+      nameMode: "yaml",
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      failedSegmentIndex: 1,
+      issues: [{ code: "unknown_field" }],
+    })
+  })
+
   it("resolves DeletionMark YAML name as boolean through standard attributes", () => {
     const result = resolve("Объект.Обращения.Обращение.ПометкаУдаления", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.ВыгрузкаВССТУ"] })]),

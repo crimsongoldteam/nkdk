@@ -95,6 +95,7 @@ export type ResolveDataPathCoreResult =
       targets: readonly ResolvedDataPathTarget[]
       replacements: ResolvedDataPathSegmentReplacement[]
       root?: FormDataPathSource
+      failedSegmentIndex?: number
       issues: []
     }
   | {
@@ -107,6 +108,7 @@ export type ResolveDataPathCoreResult =
       targets: readonly ResolvedDataPathTarget[]
       replacements: ResolvedDataPathSegmentReplacement[]
       root?: FormDataPathSource
+      failedSegmentIndex?: number
       issues: ResolveDataPathCoreIssue[]
     }
 
@@ -136,11 +138,15 @@ interface TableColumnSource {
 
 export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveDataPathCoreResult {
   const result = resolveDataPathCoreWithCurrentData(params, new Set())
-  const root = params.index.getRoot(segmentLookupName(params.value.split(".")[0] ?? ""))
+  const root = params.index.getRoot(dataPathRootName(params.value))
   return {
     ...withCanonicalValues(resolveTerminalDefinedTypeTarget(params, result), params.nameMode),
     ...(root === undefined ? {} : { root }),
   }
+}
+
+export function dataPathRootName(value: string): string {
+  return segmentLookupName(value.split(".")[0] ?? "")
 }
 
 function resolveTerminalDefinedTypeTarget(
@@ -496,7 +502,7 @@ function resolveDataPathCoreWithCurrentData(
     }
 
     if (field === undefined) {
-      return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
+      return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`, "unknown_field", index)
     }
 
     recordObjectFieldReplacement({
@@ -1416,22 +1422,25 @@ function warning(
 function error(
   params: ResolveDataPathCoreParams,
   message: string,
-  code: ResolveDataPathCoreIssueCode = "unknown_field"
+  code: ResolveDataPathCoreIssueCode = "unknown_field",
+  failedSegmentIndex?: number,
 ): ResolveDataPathCoreResult {
-  return issueResult(params, params.value.split("."), diagnostic("error", message, code))
+  return issueResult(params, params.value.split("."), diagnostic("error", message, code), [], failedSegmentIndex)
 }
 
 function issueResult(
   params: ResolveDataPathCoreParams,
   segments: readonly string[],
   issue: ResolveDataPathCoreIssue,
-  replacements: readonly ResolvedDataPathSegmentReplacement[] = []
+  replacements: readonly ResolvedDataPathSegmentReplacement[] = [],
+  failedSegmentIndex?: number,
 ): ResolveDataPathCoreResult {
   return {
     status: issue.severity,
     value: params.value,
     segments,
     replacements: [...replacements],
+    ...(failedSegmentIndex === undefined ? {} : { failedSegmentIndex }),
     targets: [],
     issues: [issue],
   }

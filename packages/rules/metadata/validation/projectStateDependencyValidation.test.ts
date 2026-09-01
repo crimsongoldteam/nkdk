@@ -29,6 +29,7 @@ type ProjectMemberIndexEntry,
 } from "./projectReferenceIndex"
 import {
 createProjectStateDependencyValidator,
+resolveProjectStateDataPathReferenceResultBatch,
 validateProjectStateAddressableRequiredBatch,
 validateProjectStateDependencyBatch,
 validateProjectStateOwnerBatch,
@@ -70,6 +71,60 @@ if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
 const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
+  it("сохраняет подробную причину неразрешённого DataPath", () => {
+    const owner = { kind: "Справочник", name: "Товары" }
+    const results = resolveProjectStateDataPathReferenceResultBatch({
+      checks: [{
+        requestId: "path:0",
+        componentPath: "cfe/X",
+        projectPath: "cfe/X/Форма.yaml",
+        check: {
+          kind: "dataPath",
+          yamlPath: ["ПутьКДанным"],
+          location: { line: 1, col: 1, path: "/ПутьКДанным" },
+          owner,
+          value: "Объект.ИНН",
+          policyInput: { yaml: "ПутьКДанным" },
+          policy: "formDataPath",
+        },
+      }],
+      projectDir: "/project",
+      queryPort: {
+        readDependencyInputs: (requests) => requests.map(({ requestId }) => ({
+          requestId,
+          status: "found" as const,
+          input: {
+            owners: [{ owner, facts: {} }],
+            fields: [],
+            forms: [{
+              kind: "root" as const,
+              owner,
+              name: "Объект",
+              source: {
+                kind: "formAttribute" as const,
+                name: "Объект",
+                typeInfo: { kinds: ["object" as const], nextTypes: [owner] },
+              },
+            }],
+          },
+        })),
+        readDependencyOwnerInputs: (requests) => requests.map(({ requestId }) => ({
+          requestId,
+          status: "missing" as const,
+        })),
+      },
+    })
+
+    expect(results).toEqual([expect.objectContaining({
+      requestId: "path:0",
+      resolution: expect.objectContaining({
+        status: "error",
+        failedSegmentIndex: 1,
+        issues: [expect.objectContaining({ code: "unknown_field" })],
+      }),
+    })])
+  })
+
   it("не требует поля заимствованного объекта расширения, найденного в cf", () => {
     const resolveTargets = vi.fn(() => [{ requestId: "required:0", status: "found" as const, target: {
       kind: "object" as const,
