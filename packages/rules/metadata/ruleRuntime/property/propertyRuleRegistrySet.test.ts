@@ -367,6 +367,36 @@ it("converts XML properties through the owning registry", () => {
   expect(convert("second")).toEqual({ "Значение": "second" })
 })
 
+it("не обращается к реестру повторно для второго XML-объекта того же правила", () => {
+  const registries = createPropertyRuleRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes: {
+      Sample: {
+        importFromXML: (_context, _rule, value) => value,
+        exportToYAML: (_context, _rule, value) => value,
+      },
+    },
+  }))
+  const getTypeRule = vi.spyOn(registries, "getTypeRule")
+  const execution = createPropertyRuleExecutor(registries)
+  const context = mockContextFromXML()
+  const rule = ownerValueRule()
+  const convert = (value: string) => importPropertiesFromXMLToYAML({
+    context,
+    rule,
+    sources: [{ context, xml: { Value: value } }],
+    yamlPath: [],
+    rulePath: [],
+    collector: createLocalIndexesCollector(),
+    execution,
+  })
+
+  expect(convert("one")).toEqual({ Значение: "one" })
+  const lookupsAfterFirst = getTypeRule.mock.calls.length
+  expect(convert("two")).toEqual({ Значение: "two" })
+  expect(getTypeRule).toHaveBeenCalledTimes(lookupsAfterFirst)
+})
+
 it("finalizes imported YAML through the owning registry", () => {
   const executionWithValue = (value: string) => createPropertyRuleExecutor(
     createPropertyRuleRegistrySet(defineMetadataRules({
