@@ -5,7 +5,12 @@ import {
   withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
 import type { MetadataTargetOwner } from "../metadataTarget"
-import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefaultVariant } from "../../context/types"
+import type {
+  ConfigurationContext,
+  ConfigurationContextFromXML,
+  ConfigurationContextWithExportToXML,
+  XMLDefaultVariant,
+} from "../../context/types"
 import {
   isTypeOwnedMetadataTargetUnavailable,
   metadataTargetOwnerForProperty,
@@ -47,6 +52,10 @@ import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { assertYAMLScalarTagAllowed } from "./yamlScalarTagPolicy"
 import { isXmlImportControlExportContext } from "../../helpers/mdObjectRefUuid"
 import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
+import {
+  canUseAtomicFromYAMLToXML,
+  resolveAtomicConversion,
+} from "./atomicConversion"
 import type { CompiledProperty } from "./compiledPropertyPlan"
 
 export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
@@ -196,6 +205,13 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     const propertyKey = planned.propertyKey
     const compiled = "operations" in planned ? planned : undefined
     const sourceHasProperty = source.has(propertyKey)
+    if (
+      compiled?.missingYAMLStrategy === "skip"
+      && !sourceHasProperty
+      && !(propertyKey === namePropertyKey && params.name !== undefined)
+      && params.externalWriteFactory === undefined
+      && params.outputs.every((output) => output.referenceXML === undefined)
+    ) continue
     const propertyProfileFrame = beginPropertyTypeProfile(params.profile, planned.propertyRule.type)
     try {
     if (params.profile !== undefined) {
@@ -655,18 +671,39 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           `${planned.propertyRule.yaml ?? propertyKey} недоступна: тип должен содержать единственный тип`,
         )
       }
+      const atomicConversion = compiled === undefined
+        ? typeRule(planned.propertyRule.type, "compileAtomicConversion")?.({ rule: planned.propertyRule })
+        : compiled.atomicConversion
+      const atomicFromXMLToYAMLEligible = compiled === undefined
+        ? atomicConversion !== undefined
+          && typeRule(planned.propertyRule.type, "importFromXMLToYAML") === undefined
+          && typeRule(planned.propertyRule.type, "resolveNestedImportXMLSources") === undefined
+        : compiled.flags.atomicFromXMLToYAMLEligible
+      const atomicFromYAMLToXMLEligible = compiled === undefined
+        ? atomicConversion !== undefined
+          && typeRule(planned.propertyRule.type, "yamlToXMLNestedRule") === undefined
+        : compiled.flags.atomicFromYAMLToXMLEligible
       const atomicReferences = references.map((reference) =>
         !sourceHasProperty && planned.propertyRule.exportNilValue === true
           ? undefined
           : reference.exists
-              ? callAtomicFromXML({
-                context: diagnosticContext,
-                rule: planned.propertyRule,
-                value: reference.value,
-                name: params.name,
-                execution: params.execution,
-                compiled,
-              })
+              ? atomicConversion?.fromXMLToYAML !== undefined
+                && atomicFromXMLToYAMLEligible
+                ? atomicConversion.fromXMLToYAML({
+                    context: {
+                      ...diagnosticContext,
+                      fromXML: { forReference: true },
+                    } as ConfigurationContextFromXML,
+                    value: reference.value,
+                  }).metadataValue
+                : callAtomicFromXML({
+                    context: diagnosticContext,
+                    rule: planned.propertyRule,
+                    value: reference.value,
+                    name: params.name,
+                    execution: params.execution,
+                    compiled,
+                  })
             : undefined
       )
       const importParams: AtomicFromYAMLParams = {
@@ -693,8 +730,64 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           params.name !== undefined &&
           resolveXMLDefaultVariant(propertyContext) !== "adopted",
       }
-      imported = callAtomicFromYAML(importParams)
-      if (params.profile !== undefined) params.profile.atomicFromYAMLCount++
+      const scalarTag = typeof planned.propertyRule.yaml === "string"
+        ? yamlScalarTagAt(yaml, planned.propertyRule.yaml)
+        : undefined
+      const scalarTagPolicy = compiled === undefined
+        ? typeRule(planned.propertyRule.type, "yamlScalarTagPolicy")
+        : compiled.operations.yamlScalarTagPolicy
+      assertYAMLScalarTagAllowed({ tag: scalarTag, policy: scalarTagPolicy })
+      let fusedRepresentationValue: unknown
+      let usedFusedAtomic = false
+      const atomicInvocation = atomicConversion === undefined
+        ? undefined
+        : {
+            conversion: atomicConversion,
+            staticallyEligible: atomicFromYAMLToXMLEligible,
+          }
+      if (atomicInvocation !== undefined && canUseAtomicFromYAMLToXML(atomicInvocation)) {
+        const startedAt = params.profile?.propertyTypeProfiling === true
+          ? performance.now()
+          : undefined
+        const occurrenceHandler = compiled === undefined
+          ? typeRule(planned.propertyRule.type, "metadataTargetOccurrences")
+          : compiled.operations.metadataTargetOccurrences
+        const atomicInputValue = occurrenceHandler === undefined
+          ? sourceValue
+          : importMetadataTargetsFromYAML({
+              context: diagnosticContext,
+              value: sourceValue,
+              handler: occurrenceHandler,
+              rule: planned.propertyRule,
+              owner: importParams.owner,
+            })
+        const fused = atomicInvocation.conversion.fromYAMLToXML({
+          context: diagnosticContext,
+          value: atomicInputValue,
+        })
+        imported = fused.metadataValue ?? atomicReferences[0]
+        if (imported === undefined) {
+          imported = defaultValue({
+            context: diagnosticContext,
+            rule: planned.propertyRule,
+            yaml,
+            name: params.name,
+            operation: "importFromYAML",
+          })
+        }
+        fusedRepresentationValue = imported === fused.metadataValue
+          ? fused.representationValue
+          : atomicInvocation.conversion.fromYAMLToXML({
+              context: diagnosticContext,
+              value: imported,
+            }).representationValue
+        usedFusedAtomic = true
+        recordFusedYAMLToXML(params.profile, planned.propertyRule.type, startedAt)
+      }
+      if (!usedFusedAtomic) {
+        imported = callAtomicFromYAML(importParams)
+        if (params.profile !== undefined) params.profile.atomicFromYAMLCount++
+      }
 
       matchingOutputs.forEach((output, index) => {
         const reference = references[index]!
@@ -707,7 +800,18 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             configurationIndexAddressing: planned.propertyRule.configurationIndexAddressing,
           }
         )
-        const exported = callAtomicToXML({
+        const exported = usedFusedAtomic
+          ? atomicRepresentationToXML({
+              context: outputContext,
+              rule: planned.propertyRule,
+              metadataValue: imported,
+              representationValue: fusedRepresentationValue,
+              source,
+              propertyKey,
+              sourceHasProperty,
+              preserveIndexedImplicitValue: reference.synthesizedDefault === true,
+            })
+          : callAtomicToXML({
           handler: exportHandler,
           compiled,
           execution: params.execution,
@@ -721,8 +825,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           ...(reference.synthesizedDefault === true
             ? { preserveIndexedImplicitValue: true as const }
             : {}),
-        })
-        if (params.profile !== undefined) params.profile.atomicToXMLCount++
+          })
+        if (params.profile !== undefined && !usedFusedAtomic) params.profile.atomicToXMLCount++
         const valuePath = writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
         const finalizeExportedXML = compiled === undefined
           ? typeRule(planned.propertyRule.type, "finalizeExportedXML")
@@ -770,6 +874,57 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
   }
 }
 
+function atomicRepresentationToXML(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly rule: PropertyRule
+  readonly metadataValue: unknown
+  readonly representationValue: unknown
+  readonly source?: YAMLPropertySource
+  readonly propertyKey?: string
+  readonly sourceHasProperty?: boolean
+  readonly preserveIndexedImplicitValue: boolean
+}): unknown {
+  const { context, rule, metadataValue, representationValue, source, propertyKey } = params
+  if (
+    Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
+    && metadataValue === rule.implicitValueXML
+  ) return undefined
+  const forcedXMLDefault = explicitYAMLDefaultXML({
+    context,
+    rule,
+    source,
+    propertyKey,
+    sourceHasProperty: params.sourceHasProperty,
+  })
+  if (forcedXMLDefault.exists) return wrapWithNamespace(rule, forcedXMLDefault.value)
+  if (isDefaultValue(metadataValue, rule.defaultValue)) {
+    if (shouldCreateRawParent(metadataValue, rule)) return metadataValue
+    if (Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")) return rule.defaultValueXMLRaw
+    const xmlDefault = params.preserveIndexedImplicitValue
+      && Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
+      ? { exists: true, value: rule.defaultValueXML }
+      : resolveXMLDefault(context, rule, propertyKey, source)
+    return xmlDefault.exists ? wrapWithNamespace(rule, xmlDefault.value) : undefined
+  }
+  return wrapWithNamespace(rule, representationValue)
+}
+
+function recordFusedYAMLToXML(
+  profile: import("./fromYAMLToXMLTypes").YAMLToXMLProfile | undefined,
+  propertyType: string,
+  startedAt: number | undefined,
+): void {
+  if (profile === undefined) return
+  profile.fusedAtomicCount++
+  const elapsedMs = startedAt === undefined ? 0 : performance.now() - startedAt
+  const current = profile.fusedAtomicByType.get(propertyType)
+  if (current === undefined) profile.fusedAtomicByType.set(propertyType, { count: 1, timeMs: elapsedMs })
+  else {
+    current.count++
+    current.timeMs += elapsedMs
+  }
+}
+
 function legacyYAMLToXMLProperties(rule: MetadataItemRule): readonly YAMLToXMLPlannedProperty[] {
   const planByKey = new Map(
     getYAMLToXMLPlan(rule).properties.map((planned) => [planned.propertyKey, planned]),
@@ -791,6 +946,17 @@ function callAtomicFromXML(params: {
   execution?: PropertyRuleExecution
   compiled?: CompiledProperty
 }): unknown {
+  const atomicConversion = resolveAtomicConversion({
+    rule: params.rule,
+    execution: params.execution,
+    compiled: params.compiled,
+  })
+  if (atomicConversion !== undefined) {
+    return atomicConversion.fromXMLToYAML({
+      context: params.context,
+      value: params.value,
+    }).metadataValue
+  }
   const handler = params.compiled === undefined
     ? params.execution === undefined
       ? getTypeRule(params.rule.type, "importFromXML")
@@ -830,6 +996,23 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
         rule,
         owner,
       })
+  const atomicConversion = resolveAtomicConversion({
+    rule,
+    execution: params.execution,
+    compiled: params.compiled,
+  })
+  if (atomicConversion !== undefined) {
+    const atomicValue = params.restoreExcludedEqualName === true && importedValue === undefined
+      ? name
+      : importedValue
+    const imported = atomicConversion.fromYAMLToXML({
+      context,
+      value: atomicValue,
+    }).metadataValue ?? referenceValue
+    return imported === undefined
+      ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" })
+      : imported
+  }
   if (handler === undefined) {
     const imported = importedValue ?? referenceValue
     return imported === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : imported
@@ -897,6 +1080,24 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
   const { context, rule, value, referenceValue, source, propertyKey } = params
   if (Object.prototype.hasOwnProperty.call(rule, "implicitValueXML") && value === rule.implicitValueXML) {
     return undefined
+  }
+  const atomicConversion = resolveAtomicConversion({
+    rule,
+    execution: params.execution,
+    compiled: params.compiled,
+  })
+  if (atomicConversion !== undefined) {
+    const converted = atomicConversion.fromYAMLToXML({ context, value })
+    return atomicRepresentationToXML({
+      context,
+      rule,
+      metadataValue: converted.metadataValue,
+      representationValue: converted.representationValue,
+      source: params.source,
+      propertyKey: params.propertyKey,
+      sourceHasProperty: params.sourceHasProperty,
+      preserveIndexedImplicitValue: params.preserveIndexedImplicitValue === true,
+    })
   }
   const handler = params.compiled === undefined
     ? params.handler ?? (params.execution === undefined

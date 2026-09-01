@@ -4,6 +4,7 @@ import { getTypeRule } from "./typeRuleRegistry"
 import type { PropertyRule } from "./types"
 import type { ImportFromXMLFunction, PropertyRuleExecution } from "./fn"
 import type { CompiledProperty } from "./compiledPropertyPlan"
+import { resolveAtomicConversion } from "./atomicConversion"
 
 export const importPropertyFromXML = (params: {
   context: ConfigurationContextFromXML
@@ -16,7 +17,27 @@ export const importPropertyFromXML = (params: {
 }): unknown => {
   const { context, rule, value, name, ownerXmlName, execution, compiled } = params
   if (compiled === undefined && execution !== undefined) {
+    const conversion = resolveAtomicConversion({ rule, execution })
+    if (conversion !== undefined) {
+      return getValueOrDefault({
+        context,
+        rule,
+        value: conversion.fromXMLToYAML({ context, value }).metadataValue,
+        name,
+        operation: "importFromXML",
+      })
+    }
     return execution.fromXML({ context, rule, value, name, ownerXmlName })
+  }
+  const conversion = resolveAtomicConversion({ rule, execution, compiled })
+  if (conversion !== undefined) {
+    return getValueOrDefault({
+      context,
+      rule,
+      value: conversion.fromXMLToYAML({ context, value }).metadataValue,
+      name,
+      operation: "importFromXML",
+    })
   }
   const handler: ImportFromXMLFunction | undefined = compiled === undefined
     ? getTypeRule(rule.type, "importFromXML")

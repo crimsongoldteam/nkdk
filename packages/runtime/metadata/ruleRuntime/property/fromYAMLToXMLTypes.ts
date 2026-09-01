@@ -39,6 +39,8 @@ export interface YAMLToXMLProfile {
   nestedItemCount: number
   atomicFromYAMLCount: number
   atomicToXMLCount: number
+  fusedAtomicCount: number
+  fusedAtomicByType: Map<string, { count: number; timeMs: number }>
   rulesPassCount: 1
   propertyPaths: string[]
   planningMs: number
@@ -79,6 +81,8 @@ export const createYAMLToXMLProfile = (options: { readonly propertyTypes?: boole
   nestedItemCount: 0,
   atomicFromYAMLCount: 0,
   atomicToXMLCount: 0,
+  fusedAtomicCount: 0,
+  fusedAtomicByType: new Map(),
   rulesPassCount: 1,
   propertyPaths: [],
   planningMs: 0,

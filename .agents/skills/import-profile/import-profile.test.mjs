@@ -5,6 +5,7 @@ import {
   runProfile,
   summarizeControlExport,
   summarizeFromXmlPropertyTypes,
+  summarizeFusedAtomicTypes,
   summarizeImportSteps,
   summarizeToXmlPropertyTypes,
   usage,
@@ -163,6 +164,34 @@ test("сводит собственное и полное время toXML по 
       averageExclusiveUs: 2_400,
     },
   ])
+})
+
+test("сводит покрытие объединённых атомарных преобразователей", () => {
+  const steps = [
+    { scope: "worker", worker: 0, step: "toXML fused atomic", substep: "boolean", items: 3, time: 4 },
+    { scope: "worker", worker: 1, step: "toXML fused atomic", substep: "boolean", items: 5, time: 6 },
+  ]
+
+  assert.deepEqual(summarizeFusedAtomicTypes(steps, "toXML fused atomic"), [{
+    propertyType: "boolean",
+    count: 8,
+    workerMs: 10,
+    criticalMs: 6,
+  }])
+})
+
+test("сводит вложенные строки объединённых XML в YAML преобразователей", () => {
+  const steps = [
+    { scope: "worker", worker: 0, step: "Подготовка импорта конфигурации", substep: "XML в YAML fused atomic boolean", items: 3, time: 4 },
+    { scope: "worker", worker: 1, step: "Подготовка импорта конфигурации", substep: "XML в YAML fused atomic boolean", items: 5, time: 6 },
+  ]
+
+  assert.deepEqual(summarizeFusedAtomicTypes(steps, "XML в YAML fused atomic"), [{
+    propertyType: "boolean",
+    count: 8,
+    workerMs: 10,
+    criticalMs: 6,
+  }])
 })
 
 test("сводит собственное и полное время XML в YAML по типам PropertyRule", () => {

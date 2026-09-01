@@ -50,3 +50,4 @@ export type TypeRulesOperations =
   | "collectLocalFactsFromYAML"
   | "yamlToXMLNestedRule"
   | "yamlScalarTagPolicy"
+  | "compileAtomicConversion"

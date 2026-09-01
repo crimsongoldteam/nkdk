@@ -130,6 +130,8 @@ export interface DirectImportProfile {
   collectorMs: number
   directByType: Map<string, DirectImportProfileBucket>
   legacyByType: Map<string, DirectImportProfileBucket>
+  fusedAtomicCount: number
+  fusedAtomicByType: Map<string, DirectImportProfileBucket>
 }
 
 export interface DirectImportPropertyTypeProfile {
@@ -164,6 +166,8 @@ export function createDirectImportProfile(
     collectorMs: 0,
     directByType: new Map(),
     legacyByType: new Map(),
+    fusedAtomicCount: 0,
+    fusedAtomicByType: new Map(),
   }
 }
 

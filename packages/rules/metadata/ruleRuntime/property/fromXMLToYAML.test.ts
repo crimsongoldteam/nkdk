@@ -6,7 +6,8 @@ runWithConfigurationIndexPropertyContext,
 withConfigurationIndexCollector,
 withConfigurationIndexLogicalAddress
 } from "@nkdk/runtime"
-import { describe,expect,it } from "vitest"
+import { createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { describe,expect,it,vi } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import {
 captureTestXmlImport,
@@ -30,8 +31,94 @@ import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rul
 import { MetadataDocumentNumeratorRules } from "../../appliedObjects/metadataDocumentNumerator/rules"
 import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
 import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
+import { metadataRules } from "../../composition/metadataRules"
 
 describe("importPropertiesFromXMLToYAML", () => {
+
+  it("объединяет fromXML и toYAML через скомпилированную атомарную пару", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const fused = vi.fn(({ value }: { value: unknown }) => ({
+      metadataValue: Number(value),
+      representationValue: `yaml:${String(value)}`,
+    }))
+    rules.property.registerTypeRule("TestFusedAtomic" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: fused,
+      fromYAMLToXML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+    }))
+    rules.property.registerTypeRule("TestFusedAtomic" as never, "importFromXML", () => {
+      throw new Error("legacy fromXML не должен вызываться")
+    })
+    rules.property.registerTypeRule("TestFusedAtomic" as never, "exportToYAML", () => {
+      throw new Error("legacy toYAML не должен вызываться")
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const profile = createDirectImportProfile({ propertyTypes: true })
+
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution,
+      context,
+      rule: {
+        itemType: "TestFusedItem",
+        properties: {
+          value: { type: "TestFusedAtomic" as never, xml: "Value", yaml: "Значение" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Value: "42" } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      profile,
+    })
+
+    expect(yaml).toEqual({ Значение: "yaml:42" })
+    expect(fused).toHaveBeenCalledTimes(1)
+    expect(profile.fusedAtomicCount).toBe(1)
+  })
+
+  it("не вызывает старые обработчики для значения boolean по умолчанию", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const fused = vi.fn(({ value }: { value: unknown }) => {
+      const metadataValue = value === undefined ? undefined : value === true || value === "true"
+      return {
+        metadataValue,
+        representationValue: metadataValue === undefined ? undefined : metadataValue ? "Истина" : "Ложь",
+      }
+    })
+    rules.property.registerTypeRule("TestFusedDefault" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: fused,
+      fromYAMLToXML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+    }))
+    rules.property.registerTypeRule("TestFusedDefault" as never, "importFromXML", () => {
+      throw new Error("legacy fromXML не должен вызываться")
+    })
+    rules.property.registerTypeRule("TestFusedDefault" as never, "exportToYAML", () => {
+      throw new Error("legacy toYAML не должен вызываться")
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      execution: rules.execution,
+      context,
+      rule: {
+        itemType: "TestFusedDefaultItem",
+        properties: {
+          value: {
+            type: "TestFusedDefault" as never,
+            xml: "Value",
+            yaml: "Значение",
+            defaultValue: false,
+          },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: {} }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Значение: "Ложь" })
+    expect(fused).toHaveBeenCalled()
+  })
 
   it("считает полное и собственное время XML → YAML по типу свойства", () => {
     const { profile, yaml } = importProfiledBoolean(true)
@@ -1661,9 +1748,11 @@ function runSingleProperty(
 }
 
 function importProfiledBoolean(propertyTypes: boolean) {
+  const rules = createRuleRegistrySet(metadataRules)
   const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
   const profile = createDirectImportProfile({ propertyTypes })
   const yaml = importPropertiesWithSources({
+    execution: rules.execution,
     context,
     rule: {
       itemType: "TestProfiledItem",

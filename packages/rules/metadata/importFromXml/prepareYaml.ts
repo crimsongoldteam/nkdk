@@ -624,6 +624,7 @@ function recordDirectImportProfile(profiler: ValidationProfiler | undefined, pro
   })
   recordProfileBuckets(profiler, "XML в YAML: прямой тип", profile.directByType)
   recordProfileBuckets(profiler, "XML в YAML: атомарный тип", profile.legacyByType)
+  recordProfileBuckets(profiler, "XML в YAML fused atomic", profile.fusedAtomicByType)
   for (const [propertyType, value] of Object.entries(profile.propertyTypeProfiles)) {
     profiler.record("XML в YAML PropertyRule inclusive", propertyType, {
       items: value.propertyCount,

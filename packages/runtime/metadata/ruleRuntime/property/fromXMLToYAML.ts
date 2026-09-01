@@ -59,6 +59,7 @@ import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotati
 import { encodeXmlRawElement } from "../../../xml/structure/rawCodec"
 import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
 import type { CompiledProperty } from "./compiledPropertyPlan"
+import { canUseAtomicFromXMLToYAML } from "./atomicConversion"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -389,6 +390,17 @@ export function importPropertiesFromXMLToYAML(params: {
             execution: params.execution,
           }
           let importedValue: unknown
+          let fusedRepresentationValue: unknown
+          let usedFusedAtomic = false
+          let fusedStartedAt: number | undefined
+          const atomicConversion = compiled === undefined
+            ? typeRule(propertyRule.type, "compileAtomicConversion")?.({ rule: propertyRule })
+            : compiled.atomicConversion
+          const atomicFromXMLToYAMLEligible = compiled === undefined
+            ? atomicConversion !== undefined
+              && direct === undefined
+              && resolveNestedSources === undefined
+            : compiled.flags.atomicFromXMLToYAMLEligible
           if (resolveNestedSources !== undefined) {
             const nested = compiled === undefined
               ? typeRule(propertyRule.type, "nestedItemRule")
@@ -435,11 +447,37 @@ export function importPropertiesFromXMLToYAML(params: {
             )
             addDirectImportProfile(params.profile, propertyRule.type, startedAt)
           } else if (direct === undefined) {
-            const startedAt = performance.now()
-            importedValue =
-              hasRawEmptyXML && propertyRule.preserveEmptyXML === true
-                ? propertyRule.defaultValueXMLEmpty
-                : runWithConfigurationIndexPropertyContext(
+            const atomicInvocation = atomicConversion === undefined
+              ? undefined
+              : {
+                  conversion: atomicConversion,
+                  staticallyEligible: atomicFromXMLToYAMLEligible,
+                }
+            if (atomicInvocation !== undefined && canUseAtomicFromXMLToYAML(atomicInvocation)) {
+              fusedStartedAt = params.profile?.propertyTypeProfiling === true
+                ? performance.now()
+                : undefined
+              const fused = runWithConfigurationIndexPropertyContext(
+                sourceContext,
+                propertyRule.yaml ?? key,
+                configurationIndexUidSegment,
+                (propertyContext) => atomicInvocation.conversion.fromXMLToYAML({
+                  context: propertyContext,
+                  value: hasRawEmptyXML && propertyRule.preserveEmptyXML === true
+                    ? propertyRule.defaultValueXMLEmpty
+                    : xmlValue,
+                }),
+                { configurationIndexAddressing: nestedConfigurationIndexAddressing },
+              )
+              importedValue = fused.metadataValue
+              fusedRepresentationValue = fused.representationValue
+              usedFusedAtomic = true
+            } else {
+              const startedAt = performance.now()
+              importedValue =
+                hasRawEmptyXML && propertyRule.preserveEmptyXML === true
+                  ? propertyRule.defaultValueXMLEmpty
+                  : runWithConfigurationIndexPropertyContext(
                     sourceContext,
                     propertyRule.yaml ?? key,
                     configurationIndexUidSegment,
@@ -454,13 +492,14 @@ export function importPropertiesFromXMLToYAML(params: {
                         compiled,
                       }),
                     { configurationIndexAddressing: nestedConfigurationIndexAddressing }
-                  )
-            const elapsedMs = performance.now() - startedAt
-            const profile = params.profile
-            if (profile !== undefined) {
-              profile.legacyCount++
-              profile.legacyFromXmlMs += elapsedMs
-              addProfileBucket(profile.legacyByType, propertyRule.type, elapsedMs)
+                    )
+              const elapsedMs = performance.now() - startedAt
+              const profile = params.profile
+              if (profile !== undefined) {
+                profile.legacyCount++
+                profile.legacyFromXmlMs += elapsedMs
+                addProfileBucket(profile.legacyByType, propertyRule.type, elapsedMs)
+              }
             }
           } else {
             const startedAt = performance.now()
@@ -531,6 +570,34 @@ export function importPropertiesFromXMLToYAML(params: {
                 name: key,
                 operation: "importFromXML",
               })
+          const omitsImplicitFusedValue =
+            usedFusedAtomic
+            && preserveExplicitDefault !== true
+            && Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueYAML")
+            && value === propertyRule.implicitValueYAML
+          if (omitsImplicitFusedValue) {
+            fusedRepresentationValue = undefined
+          } else if (
+            usedFusedAtomic
+            && value !== importedValue
+            && atomicConversion?.fromXMLToYAML !== undefined
+          ) {
+            const normalized = runWithConfigurationIndexPropertyContext(
+              sourceContext,
+              propertyRule.yaml ?? key,
+              configurationIndexUidSegment,
+              (propertyContext) => atomicConversion.fromXMLToYAML!({
+                context: propertyContext,
+                value,
+              }),
+              { configurationIndexAddressing: nestedConfigurationIndexAddressing },
+            )
+            fusedRepresentationValue = normalized.representationValue
+          }
+          const usesFusedRepresentation = usedFusedAtomic
+          if (usesFusedRepresentation) {
+            recordFusedXMLToYAML(params.profile, propertyRule.type, fusedStartedAt)
+          }
           addProfileTime(params.profile, "defaultMs", defaultStartedAt)
 
           if (value !== undefined && !dependentImportProperty) {
@@ -557,6 +624,8 @@ export function importPropertiesFromXMLToYAML(params: {
           })
           const yamlValueBeforeMetadataTargets = clearedMetadataTarget
             ? null
+            : usesFusedRepresentation
+            ? fusedRepresentationValue
             : !convertedDirectly
             ? exportPropertyValueBeforeMetadataTargetsToYAML({
                 context: sourceContext,
@@ -570,7 +639,18 @@ export function importPropertiesFromXMLToYAML(params: {
               })
             : value
           const yamlValue = !convertedDirectly
-            ? exportPropertyMetadataTargetsToYAML({
+            ? usesFusedRepresentation
+              ? exportPropertyMetadataTargetsToYAML({
+                  context: sourceContext,
+                  rule: propertyRule,
+                  value,
+                  name: itemName,
+                  owner: propertyOwner,
+                  execution: params.execution,
+                  compiled,
+                  preserveImplicitValue: preserveExplicitDefault,
+                }, yamlValueBeforeMetadataTargets)
+              : exportPropertyMetadataTargetsToYAML({
                 context: sourceContext,
                 rule: propertyRule,
                 value,
@@ -579,7 +659,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 execution: params.execution,
                 compiled,
                 preserveImplicitValue: preserveExplicitDefault,
-              }, yamlValueBeforeMetadataTargets)
+                }, yamlValueBeforeMetadataTargets)
             : yamlValueBeforeMetadataTargets
           const exportedYamlValue = yamlValue
           params.facts?.acceptProperty({
@@ -588,7 +668,7 @@ export function importPropertiesFromXMLToYAML(params: {
             yamlPath: propertyYamlPath,
             value: exportedYamlValue,
           })
-          if (!convertedDirectly) {
+          if (!convertedDirectly && !usesFusedRepresentation) {
             const profile = params.profile
             if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
           }
@@ -1074,6 +1154,20 @@ function addDirectImportProfile(
   profile.directCount++
   profile.directInclusiveMs += elapsedMs
   addProfileBucket(profile.directByType, propertyType, elapsedMs)
+}
+
+function recordFusedXMLToYAML(
+  profile: DirectImportProfile | undefined,
+  propertyType: string,
+  startedAt: number | undefined,
+): void {
+  if (profile === undefined) return
+  profile.fusedAtomicCount++
+  addProfileBucket(
+    profile.fusedAtomicByType,
+    propertyType,
+    startedAt === undefined ? 0 : performance.now() - startedAt,
+  )
 }
 
 function aggregateAttemptFailure(cause: unknown, rollbackError: unknown): AggregateError {

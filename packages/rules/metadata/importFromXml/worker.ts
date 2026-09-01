@@ -897,6 +897,12 @@ async function prepareYamlForFinalPass(
             timeMs: propertyType.inclusiveMs,
           })
         }
+        for (const propertyType of event.fusedAtomicTypes) {
+          profiler.record("toXML fused atomic", propertyType.propertyType, {
+            items: propertyType.count,
+            timeMs: propertyType.timeMs,
+          })
+        }
       },
     }),
   )

@@ -33,6 +33,17 @@ const context = (): ConfigurationContextWithExportToXML => ({
 const testRule = (properties: Record<string, PropertyRule>, xmlOrder?: readonly string[]): MetadataItemRule =>
   ({ itemType: "Catalog", properties, xmlOrder }) as MetadataItemRule
 
+const convertSinglePropertyWithMetadataRules = (params: {
+  readonly yaml: Record<string, unknown>
+  readonly property: PropertyRule
+}) => convertPropertiesFromYAMLToXML({
+  execution: createRuleRegistrySet(metadataRules).execution,
+  context: context(),
+  yaml: params.yaml,
+  rule: testRule({ value: params.property }),
+  outputs: [{ key: "owner" }],
+})
+
 const fillValueTestRule = (): MetadataItemRule => testRule({
   fillValue: {
     type: "MetadataValue",
@@ -156,6 +167,101 @@ describe("convertPropertiesFromYAMLToXML", () => {
 
     expect(result.outputs.get("owner")).toEqual({})
     expect(has.mock.calls.length).toBeLessThanOrEqual(3)
+  })
+
+  it("не вызывает преобразователи для безопасно отсутствующего YAML-свойства", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const fromYAML = vi.fn(() => "не должно вычисляться")
+    const toXML = vi.fn(() => "не должно вычисляться")
+    rules.property.registerTypeRule("TestMissingSkip" as never, "importFromYAML", fromYAML)
+    rules.property.registerTypeRule("TestMissingSkip" as never, "exportToXML", toXML)
+
+    const result = convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: { type: "TestMissingSkip" as never, yaml: "Значение", xml: "Value" },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+    expect(fromYAML).not.toHaveBeenCalled()
+    expect(toXML).not.toHaveBeenCalled()
+  })
+
+  it("не считает присутствующий undefined отсутствующим YAML-свойством", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const fromYAML = vi.fn(() => "явно-неопределено")
+    const toXML = vi.fn(({ value }: { value: unknown }) => value)
+    rules.property.registerTypeRule("TestPresentUndefined" as never, "importFromYAML", fromYAML)
+    rules.property.registerTypeRule("TestPresentUndefined" as never, "exportToXML", toXML)
+
+    const result = convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml: { Значение: undefined },
+      rule: testRule({
+        value: { type: "TestPresentUndefined" as never, yaml: "Значение", xml: "Value" },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: "явно-неопределено" })
+    expect(fromYAML).toHaveBeenCalledTimes(1)
+    expect(toXML).toHaveBeenCalledTimes(1)
+  })
+
+  it("исполняет отсутствующее YAML-свойство с evaluateWhenYAMLMissing", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const fromYAML = vi.fn(() => "вычислено")
+    const toXML = vi.fn(({ value }: { value: unknown }) => value)
+    rules.property.registerTypeRule("TestMissingEvaluate" as never, "importFromYAML", fromYAML)
+    rules.property.registerTypeRule("TestMissingEvaluate" as never, "exportToXML", toXML)
+
+    const result = convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "TestMissingEvaluate" as never,
+          yaml: "Значение",
+          xml: "Value",
+          evaluateWhenYAMLMissing: true,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: "вычислено" })
+    expect(fromYAML).toHaveBeenCalledTimes(1)
+    expect(toXML).toHaveBeenCalledTimes(1)
+  })
+
+  it("восстанавливает статический XML-default для отсутствующего YAML-свойства", () => {
+    const result = convertSinglePropertyWithMetadataRules({
+      yaml: {},
+      property: { type: "boolean", yaml: "Значение", xml: "Value", defaultValueXML: false },
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: false })
+  })
+
+  it("вычисляет implicit YAML для отсутствующего ключа", () => {
+    const result = convertSinglePropertyWithMetadataRules({
+      yaml: {},
+      property: {
+        type: "boolean",
+        yaml: "Значение",
+        xml: "Value",
+        implicitValueYAML: true,
+        implicitValueXML: false,
+      },
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: true })
   })
 
   it("восстанавливает исключённый заголовок по имени индексированного объекта", () => {
@@ -411,6 +517,102 @@ describe("convertPropertiesFromYAMLToXML", () => {
 
     expect(calls).toEqual(["from:42", "to:42"])
     expect(result.outputs.get("owner")).toEqual({ Value: "xml:42" })
+  })
+
+  it("объединяет fromYAML и toXML через скомпилированную атомарную пару", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const fused = vi.fn(({ value }: { value: unknown }) => ({
+      metadataValue: Number(value),
+      representationValue: `xml:${String(value)}`,
+    }))
+    rules.property.registerTypeRule("TestFusedAtomic" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+      fromYAMLToXML: fused,
+    }))
+    rules.property.registerTypeRule("TestFusedAtomic" as never, "importFromYAML", (() => {
+      throw new Error("legacy fromYAML не должен вызываться")
+    }) as ImportFromYAMLFunctionNew)
+    rules.property.registerTypeRule("TestFusedAtomic" as never, "exportToXML", (() => {
+      throw new Error("legacy toXML не должен вызываться")
+    }) as ExportToXMLFunctionNew)
+    const profile = createYAMLToXMLProfile({ propertyTypes: true })
+
+    const result = convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml: { Значение: "42" },
+      rule: testRule({
+        value: { type: "TestFusedAtomic" as never, yaml: "Значение", xml: "Value" },
+      }),
+      outputs: [{ key: "owner" }],
+      profile,
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: "xml:42" })
+    expect(fused).toHaveBeenCalledTimes(1)
+    expect(profile.fusedAtomicCount).toBe(1)
+  })
+
+  it("проверяет YAML-тег до прямого преобразования", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    rules.property.registerTypeRule("TestFusedTagged" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+      fromYAMLToXML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+    }))
+    rules.property.registerTypeRule(
+      "TestFusedTagged" as never,
+      "yamlScalarTagPolicy",
+      { acceptedTags: [] },
+    )
+    const yaml = { Значение: "42" }
+    markYAMLScalarTag(yaml, "Значение", "xml/string")
+
+    expect(() => convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml,
+      rule: testRule({
+        value: { type: "TestFusedTagged" as never, yaml: "Значение", xml: "Value" },
+      }),
+      outputs: [{ key: "owner" }],
+    })).toThrow("Тег !xml/string недопустим для этого типа свойства")
+  })
+
+  it("не вызывает старый fromYAML для boolean, совпадающего с implicitValueXML", () => {
+    const rules = createRuleRegistrySet(metadataRules)
+    const fused = vi.fn(({ value }: { value: unknown }) => ({
+      metadataValue: value === "Истина",
+      representationValue: value === "Истина",
+    }))
+    rules.property.registerTypeRule("TestFusedReference" as never, "compileAtomicConversion", () => ({
+      fromXMLToYAML: ({ value }) => ({ metadataValue: value, representationValue: value }),
+      fromYAMLToXML: fused,
+    }))
+    rules.property.registerTypeRule(
+      "TestFusedReference" as never,
+      "importFromYAML",
+      (() => {
+        throw new Error("legacy fromYAML не должен вызываться")
+      }) as ImportFromYAMLFunctionNew,
+    )
+
+    const result = convertPropertiesFromYAMLToXML({
+      execution: rules.execution,
+      context: context(),
+      yaml: { Значение: "Ложь" },
+      rule: testRule({
+        value: {
+          type: "TestFusedReference" as never,
+          yaml: "Значение",
+          xml: "Value",
+          implicitValueXML: false,
+        },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Value: "true" } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+    expect(fused).toHaveBeenCalledTimes(1)
   })
 
   it("передаёт таблицу XML-аннотаций атомарному fromYAML", () => {

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 import { defineMetadataRules } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
 import type { ImportFromXMLFunction } from "./fn"
+import type { CompileAtomicConversionFunction } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "./types"
 import { createPropertyRuleExecutor } from "./propertyRuleExecutor"
 import { createPropertyRuleRegistrySet } from "./propertyRuleRegistrySet"
@@ -22,6 +23,66 @@ const registriesWithImport = (handler: ImportFromXMLFunction) =>
   }))
 
 describe("CompiledPropertyPlan", () => {
+  it.each([
+    ["skip", { type: "Sample", yaml: "Значение", xml: "Value" }],
+    ["default", { type: "Sample", yaml: "Значение", xml: "Value", defaultValueXML: false }],
+    ["default", { type: "Sample", yaml: "Значение", xml: "Value", defaultValueXMLRaw: {} }],
+    ["evaluate", { type: "Sample", yaml: "Значение", xml: "Value", implicitValueXML: false }],
+    ["evaluate", { type: "Sample", yaml: "Значение", xml: "Value", evaluateWhenYAMLMissing: true }],
+    ["evaluate", { type: "Sample", yaml: "Значение", xml: "Value", excludeIfEqualNameYAML: true }],
+  ] as const)("компилирует стратегию отсутствующего YAML %s", (expected, property) => {
+    const registries = createPropertyRuleRegistrySet(emptyMetadataRules)
+    const execution = createPropertyRuleExecutor(registries)
+    const rule: MetadataItemRule = {
+      itemType: "Owner",
+      properties: { value: property },
+    }
+
+    expect(execution.propertyPlan(rule).propertiesByKey.get("value")?.missingYAMLStrategy)
+      .toBe(expected)
+  })
+
+  it("не пропускает отсутствующую identity из configuration index", () => {
+    const registries = createPropertyRuleRegistrySet(emptyMetadataRules)
+    const execution = createPropertyRuleExecutor(registries)
+    const rule: MetadataItemRule = {
+      itemType: "Owner",
+      properties: { id: { type: "Sample", yaml: "ID", xml: "_id" } },
+    }
+
+    expect(execution.propertyPlan(rule).propertiesByKey.get("id")?.missingYAMLStrategy)
+      .toBe("evaluate")
+  })
+
+  it("компилирует атомарную пару один раз на свойство", () => {
+    const compileAtomicConversion = vi.fn<CompileAtomicConversionFunction>(() => ({
+      fromXMLToYAML: ({ value }) => ({
+        metadataValue: Number(value),
+        representationValue: `yaml:${String(value)}`,
+      }),
+      fromYAMLToXML: ({ value }) => ({
+        metadataValue: Number(value),
+        representationValue: `xml:${String(value)}`,
+      }),
+    }))
+    const registries = createPropertyRuleRegistrySet(defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: { Sample: { compileAtomicConversion } },
+    }))
+    const execution = createPropertyRuleExecutor(registries)
+    const rule = ownerValueRule()
+
+    const first = execution.propertyPlan(rule).propertiesByKey.get("value")
+    const second = execution.propertyPlan(rule).propertiesByKey.get("value")
+
+    expect(first?.atomicConversion).toBe(second?.atomicConversion)
+    expect(first?.atomicConversion?.fromXMLToYAML?.({
+      context: {} as never,
+      value: "42",
+    })).toEqual({ metadataValue: 42, representationValue: "yaml:42" })
+    expect(compileAtomicConversion).toHaveBeenCalledTimes(1)
+  })
+
   it("кэширует оба направления в одном плане и инвалидирует revision", () => {
     const firstImport = vi.fn<ImportFromXMLFunction>((_context, _rule, value) => value)
     const registries = registriesWithImport(firstImport)

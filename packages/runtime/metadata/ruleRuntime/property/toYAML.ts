@@ -13,6 +13,7 @@ import type { PropertyRule } from "./types"
 import type { MetadataTargetOwner } from "../metadataTarget/types"
 import { isTaggedYAMLScalar, markYAMLScalarTag } from "../../../yaml/scalarTags"
 import type { CompiledProperty } from "./compiledPropertyPlan"
+import { resolveAtomicConversion } from "./atomicConversion"
 
 export const exportPropertyToYAML = (params: {
   context: ConfigurationContext
@@ -68,6 +69,15 @@ export function exportPropertyValueBeforeMetadataTargetsToYAML(params: {
     params.preserveImplicitValue !== true &&
     "implicitValueYAML" in rule && value === (rule as any).implicitValueYAML
   ) return undefined
+
+  const atomicConversion = resolveAtomicConversion({
+    rule,
+    execution: params.execution,
+    compiled: params.compiled,
+  })
+  if (atomicConversion !== undefined) {
+    return atomicConversion.fromXMLToYAML({ context, value }).representationValue
+  }
 
   const typeExportFn = params.compiled === undefined
     ? params.execution === undefined

@@ -8,6 +8,7 @@ import {
   type XMLImportPlan,
   type XMLImportPlanEntry,
 } from "./xmlImportPlan"
+import type { CompiledAtomicConversion } from "./atomicConversion"
 
 export const compiledPropertyOperationNames = [
   "importFromXML",
@@ -28,6 +29,7 @@ export const compiledPropertyOperationNames = [
   "finalizeExportedXML",
   "yamlToXMLNestedRule",
   "yamlScalarTagPolicy",
+  "compileAtomicConversion",
 ] as const satisfies readonly TypeRulesOperations[]
 
 type CompiledPropertyOperation = (typeof compiledPropertyOperationNames)[number]
@@ -45,7 +47,11 @@ export interface CompiledPropertyFlags {
   readonly externalFile: boolean
   readonly repeatableXMLNodes: boolean
   readonly nestedItemsOwnXMLNode: boolean
+  readonly atomicFromXMLToYAMLEligible: boolean
+  readonly atomicFromYAMLToXMLEligible: boolean
 }
+
+export type MissingYAMLStrategy = "skip" | "default" | "evaluate"
 
 export interface CompiledProperty extends XMLImportPlanEntry {
   readonly propertyRule: PropertyRule
@@ -53,6 +59,8 @@ export interface CompiledProperty extends XMLImportPlanEntry {
   readonly xmlPath: readonly string[]
   readonly operations: CompiledPropertyOperations
   readonly flags: CompiledPropertyFlags
+  readonly atomicConversion: CompiledAtomicConversion | undefined
+  readonly missingYAMLStrategy: MissingYAMLStrategy
 }
 
 export interface CompiledPropertyPlan {
@@ -136,6 +144,17 @@ function compileProperty(
     nestedRule.xmlElement === canonicalXMLKey
     || xmlImportBehavior?.nestedItemsOwnXMLChildren === true
   )
+  const atomicConversion = operations.compileAtomicConversion?.({ rule })
+  const atomicFromXMLToYAMLEligible = atomicConversion !== undefined
+    && operations.importFromXMLToYAML === undefined
+    && operations.resolveNestedImportXMLSources === undefined
+  const atomicFromYAMLToXMLEligible = atomicConversion !== undefined
+    && operations.yamlToXMLNestedRule === undefined
+  const missingYAMLStrategy = compileMissingYAMLStrategy({
+    rule,
+    canonicalXMLKey,
+    operations,
+  })
 
   return Object.freeze({
     propertyKey,
@@ -145,6 +164,8 @@ function compileProperty(
     yamlKey: rule.yaml,
     xmlPath: Object.freeze([...(rule.xmlParents ?? []), canonicalXMLKey]),
     operations: Object.freeze(operations),
+    atomicConversion: atomicConversion === undefined ? undefined : Object.freeze(atomicConversion),
+    missingYAMLStrategy,
     flags: Object.freeze({
       requiresYAMLToXMLEvaluation:
         typeof rule.toXML === "function"
@@ -158,8 +179,39 @@ function compileProperty(
       externalFile: rule.filePath !== undefined,
       repeatableXMLNodes,
       nestedItemsOwnXMLNode,
+      atomicFromXMLToYAMLEligible,
+      atomicFromYAMLToXMLEligible,
     }),
   })
+}
+
+function compileMissingYAMLStrategy(params: {
+  readonly rule: PropertyRule
+  readonly canonicalXMLKey: string
+  readonly operations: CompiledPropertyOperations
+}): MissingYAMLStrategy {
+  const { rule, canonicalXMLKey, operations } = params
+  const requiresEvaluation =
+    typeof rule.toXML === "function"
+    || rule.evaluateWhenYAMLMissing === true
+    || rule.exportNilValue === true
+    || Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
+    || rule.excludeIfEqualNameYAML === true
+    || canonicalXMLKey === "_id"
+    || canonicalXMLKey === "_uuid"
+    || operations.yamlToXMLNestedRule !== undefined
+    || operations.nestedItemIdentity?.reserveWhenAbsent === true
+    || operations.metadataTargetOccurrences !== undefined
+    || operations.finalizeExportedXML !== undefined
+
+  if (requiresEvaluation) return "evaluate"
+  if (
+    Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
+    || Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML")
+    || Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
+    || Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty")
+  ) return "default"
+  return "skip"
 }
 
 function resolveOperation<Operation extends CompiledPropertyOperation>(

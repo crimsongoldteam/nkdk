@@ -67,6 +67,11 @@ export async function executeImportControlExport(params: {
       readonly inclusiveMs: number
       readonly exclusiveMs: number
     }[]
+    readonly fusedAtomicTypes: readonly {
+      readonly propertyType: string
+      readonly count: number
+      readonly timeMs: number
+    }[]
   }) => void
 }): Promise<ProveXmlAnomalyBoundariesResult> {
   if (params.annotations.root?.kind === "raw") {
@@ -194,6 +199,7 @@ function controlExportTimings(
       readonly inclusiveMs: number
       readonly exclusiveMs: number
     }>>
+    readonly fusedAtomicByType: ReadonlyMap<string, { readonly count: number; readonly timeMs: number }>
   },
   toXmlObjectMs: number,
   anomalyProofMs: number,
@@ -205,6 +211,10 @@ function controlExportTimings(
     mismatchDocumentMs: profile.mismatchDocumentMs,
     anomalyProofMs,
     propertyTypes: Object.entries(profile.propertyTypeProfiles).map(([propertyType, value]) => ({
+      propertyType,
+      ...value,
+    })),
+    fusedAtomicTypes: [...profile.fusedAtomicByType].map(([propertyType, value]) => ({
       propertyType,
       ...value,
     })),

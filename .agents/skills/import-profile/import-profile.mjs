@@ -131,6 +131,8 @@ export async function runProfile(options, overrides = {}) {
         phases: summarizeImportSteps(steps, elapsedMs),
         fromXmlPropertyTypes: summarizeFromXmlPropertyTypes(steps),
         toXmlPropertyTypes: summarizeToXmlPropertyTypes(steps),
+        fusedFromXmlPropertyTypes: summarizeFusedAtomicTypes(steps, "XML в YAML fused atomic"),
+        fusedToXmlPropertyTypes: summarizeFusedAtomicTypes(steps, "toXML fused atomic"),
       })
 
       if (result.isError || operationFailed(payload)) {
@@ -280,6 +282,34 @@ export function summarizeToXmlPropertyTypes(steps) {
 
 export function summarizeFromXmlPropertyTypes(steps) {
   return summarizePropertyTypes(steps, "XML в YAML PropertyRule")
+}
+
+export function summarizeFusedAtomicTypes(steps, stepName) {
+  const nestedPrefix = `- ${stepName} `
+  const nestedSubstepPrefix = `${stepName} `
+  const records = steps.flatMap((step) => {
+    if (step.scope !== "worker") return []
+    if (step.step === stepName && typeof step.substep === "string") {
+      return [{ ...step, propertyType: step.substep }]
+    }
+    if (typeof step.step === "string" && step.step.startsWith(nestedPrefix)) {
+      return [{ ...step, propertyType: step.step.slice(nestedPrefix.length) }]
+    }
+    if (typeof step.substep === "string" && step.substep.startsWith(nestedSubstepPrefix)) {
+      return [{ ...step, propertyType: step.substep.slice(nestedSubstepPrefix.length) }]
+    }
+    return []
+  })
+  const propertyTypes = new Set(records.map((step) => step.propertyType))
+  return [...propertyTypes].map((propertyType) => {
+    const matching = records.filter((step) => step.propertyType === propertyType)
+    return {
+      propertyType,
+      count: sum(matching, "items"),
+      workerMs: sum(matching, "time"),
+      criticalMs: max(aggregateWorkerValues(matching, "time", "sum")) ?? 0,
+    }
+  }).sort((left, right) => right.workerMs - left.workerMs)
 }
 
 function summarizePropertyTypes(steps, stepPrefix) {
