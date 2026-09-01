@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import { performance } from "node:perf_hooks"
-import { parseMetadataYamlData } from "@nkdk/runtime"
+import { parseMetadataYamlData, snapshotDoubleQuotedScalarMarks } from "@nkdk/runtime"
 import type { ConfigurationProjectFile } from "@nkdk/runtime"
 import type { Diagnostic } from "../validation/types"
 import type {
@@ -76,6 +76,7 @@ export function prepareYamlFiles(options: PrepareYamlFilesOptions): PreparedYaml
           owner: file.owner,
           data: parsed.data,
           annotations: parsed.annotations,
+          doubleQuotedScalarMarks: snapshotDoubleQuotedScalarMarks(parsed.data),
           syntaxDiagnostics: parsed.syntaxErrors.map((error) => ({
             filePath: file.filePath,
             line: error.line,

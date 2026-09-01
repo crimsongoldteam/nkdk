@@ -197,6 +197,13 @@ test("передаёт вычисленный путь компонента в i
   assert.match(script, /componentPath:process\.argv\[6\]/u)
 })
 
+test("сохраняет служебное состояние миграций вне YAML-договора", () => {
+  assert.match(
+    script,
+    /REFERENCE_ONLY_XML_FILES=\([^\n]*"\.nakidka-migrations\.yaml"/u,
+  )
+})
+
 test("для выбранного вложенного XML-каталога использует логический путь cf", async (t) => {
   const root = await mkdtemp(join(tmpdir(), "nkdk-round-trip-selected-config-"))
   t.after(() => rm(root, { recursive: true, force: true }))

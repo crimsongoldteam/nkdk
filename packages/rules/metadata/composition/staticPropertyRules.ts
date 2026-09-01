@@ -76,6 +76,7 @@ import { metadataPropertyRule000 as rule78 } from "../commonObjects/dataComposit
 import { metadataPropertyRule000 as rule79 } from "../commonObjects/dataCompositionSystem/availableFields/toJSONSchema"
 import { metadataPropertyRule000 as rule80 } from "../commonObjects/dataCompositionSystem/availableFields/toYAML"
 import { metadataPropertyRule000 as rule81 } from "../commonObjects/dataCompositionSystem/availableValues/fromXML"
+import { metadataPropertyRule001 as dcsAvailableValuesXmlImportBehavior } from "../commonObjects/dataCompositionSystem/availableValues/fromXML"
 import { metadataPropertyRule000 as rule82 } from "../commonObjects/dataCompositionSystem/availableValues/fromYAML"
 import { metadataPropertyRule000 as rule83 } from "../commonObjects/dataCompositionSystem/availableValues/toYAML"
 import { metadataPropertyRule000 as rule84 } from "../commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/kind"
@@ -494,6 +495,7 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule79,
   rule80,
   rule81,
+  dcsAvailableValuesXmlImportBehavior,
   rule82,
   rule83,
   rule84,

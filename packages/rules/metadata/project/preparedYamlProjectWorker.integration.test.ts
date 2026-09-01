@@ -7,7 +7,12 @@ import { mockContext } from "../../tests/mockContext"
 import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createTestValidationSchemaCache } from "../validation/tests/testValidationSchemaCache"
-import { hashFileBytes, type ConfigurationContext } from "@nkdk/runtime"
+import {
+  asExplicitYAMLStringIfMarked,
+  explicitYAMLString,
+  hashFileBytes,
+  type ConfigurationContext,
+} from "@nkdk/runtime"
 import {
   openProjectStateFileUpdateBatch,
 } from "../projectState/binary/contribution"
@@ -80,6 +85,40 @@ describe("project-state refresh worker", () => {
         kind: "invalid",
         target: "value",
       })
+    } finally {
+      await pool.close()
+    }
+  })
+
+  it("переносит явную строку в двойных кавычках через границу worker", async () => {
+    const projectDir = createTempDir()
+    const file = componentProperties(projectDir, "cf", "Товары")
+    writeProjectFile(projectDir, file.rootProjectPath, 'ЗначениеЗаполнения: !xml/invalid "23"\n')
+    const operation: MetadataWorkerOperation = {
+      id: "validation",
+      concurrency: 1,
+      async run(_workerIndex, command) {
+        if (command.kind !== "validation") throw new Error("unexpected command")
+        const untransported = await runPreparedYamlProjectWorkerTask(command.task)
+        if (untransported.kind !== "prepareResult") throw new Error("worker не подготовил YAML")
+        const transported = prepareYamlWorkerResultForTransport(untransported)
+        if (transported.kind !== "prepareResult") throw new Error("worker не подготовил YAML")
+        expect(transported.yamlFiles[0]?.doubleQuotedScalarMarks?.entries).toEqual([
+          { parentPath: [], key: "ЗначениеЗаполнения" },
+        ])
+        return structuredClone(transported)
+      },
+      async finish() {},
+    }
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, operation })
+
+    try {
+      const result = await pool.run({ projectDir, context: mockContext, files: [file] })
+      const data = result.workers[0]?.yamlFiles[0]?.data
+      if (data === null || typeof data !== "object") throw new Error("worker не вернул YAML")
+
+      expect(asExplicitYAMLStringIfMarked(data, "ЗначениеЗаполнения", "23"))
+        .toEqual(explicitYAMLString("23"))
     } finally {
       await pool.close()
     }

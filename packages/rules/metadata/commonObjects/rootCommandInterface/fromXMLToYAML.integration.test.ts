@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest"
 
-import { testAppliedObjectFromXMLToYAML, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
+import {
+  directPropertyRuleExecution,
+  testAppliedObjectFromXMLToYAML,
+  testMetadataItemFromXMLToYAML,
+  testPropertyFromXMLToYAML,
+} from "../../../tests/directConversion"
 import { importContentFromXML } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { RootCommandInterfaceRules } from "./rules"
 
 import "./register"
@@ -39,6 +45,32 @@ describe("RootCommandInterface XML → YAML", () => {
     const yaml = convert("SubsystemCommandInterface.xml")
     expect(yaml).toHaveProperty("ВидимостьКоманд.0.Команда", UUID_COMMAND)
     expect(yaml).toHaveProperty("ПорядокКоманд.0.Команда", UUID_COMMAND)
+  })
+
+  it("сохраняет присутствие пустого CommandInterface в YAML", () => {
+    expect(directPropertyRuleExecution.getTypeRule(
+      "RootCommandInterface",
+      "xmlImportPropertyBehavior",
+    )).toEqual({ presenceAffectsExport: true })
+    const xml = importContentFromXML<Record<string, unknown>>([
+      '<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops"',
+      ' xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" version="2.20"/>',
+    ].join(""))
+    const probeRule = {
+      itemType: "RootCommandInterfacePresenceProbe",
+      properties: {
+        commandInterface: {
+          type: "RootCommandInterface",
+          yaml: "КомандныйИнтерфейс",
+          xml: "CommandInterface",
+          itemRule: RootCommandInterfaceRules,
+        },
+      },
+    } as const satisfies MetadataItemRule
+
+    expect(testPropertyFromXMLToYAML({ rule: probeRule, xml }).yaml).toEqual({
+      КомандныйИнтерфейс: {},
+    })
   })
 
   it("exports root subsystem visibility and order", () => {

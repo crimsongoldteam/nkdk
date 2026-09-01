@@ -200,7 +200,11 @@ function importAdditionalColumnsFromXMLToYAML(
       context,
       xml: collapsed === undefined ? item.Column : collapsed.first,
       xmlNodes: collapsed === undefined || columnNodes === undefined ? columnNodes : columnNodes.slice(0, 1),
-      traversal: { ...params.traversal, yamlPath: [...params.traversal.yamlPath, table] },
+      traversal: {
+        ...params.traversal,
+        yamlPath: [...params.traversal.yamlPath, table],
+        rulePath: [...params.traversal.rulePath, { propertyKey: "columns" }],
+      },
     })
     entries.push({ key: table, value: columns ?? {} })
     importedItems.push({

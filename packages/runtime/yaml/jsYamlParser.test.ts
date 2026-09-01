@@ -230,6 +230,16 @@ describe("parseMetadataYaml", () => {
     )
   })
 
+  it("preserves a numeric-looking double-quoted scalar under an XML anomaly tag", async () => {
+    const { parseMetadataYamlData } = await import("./parseMetadataYaml")
+    const parsed = parseMetadataYamlData('Значение: !xml/invalid "23"')
+    const data = parsed.data as Record<string, unknown>
+
+    expect(asExplicitYAMLStringIfMarked(data, "Значение", data.Значение)).toEqual(
+      explicitYAMLString("23"),
+    )
+  })
+
   it("preserves an empty double-quoted scalar under an XML anomaly tag", async () => {
     const { parseMetadataYamlData } = await import("./parseMetadataYaml")
     const parsed = parseMetadataYamlData('Значение: !xml/invalid ""')
