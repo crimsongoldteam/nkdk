@@ -156,7 +156,9 @@ function resolveTerminalDefinedTypeTarget(
   if (result.target === undefined || (result.target.typeInfo.definedTypes?.length ?? 0) === 0) return result
 
   const resolved = resolveDefinedTypeInfo({ params, typeInfo: result.target.typeInfo })
-  if (resolved.status !== "ok") return ownerError(params, result.segments, result.replacements, resolved)
+  if (resolved.status !== "ok") {
+    return ownerError(params, result.segments, result.replacements, resolved, result.segments.length - 1)
+  }
 
   const target = { ...result.target, typeInfo: resolved.typeInfo }
   return {
@@ -229,7 +231,7 @@ function resolveDataPathCoreWithCurrentData(
   const rootName = segmentLookupName(segments[0] ?? "")
   const root = params.index.getRoot(rootName)
   if (root === undefined) {
-    return error(params, `ПутьКДанным "${value}": неизвестный корень "${segments[0] ?? ""}"`)
+    return error(params, `ПутьКДанным "${value}": неизвестный корень "${segments[0] ?? ""}"`, "unknown_field", 0)
   }
 
   let state: TraversalState = stateFromRoot(root)
@@ -241,7 +243,7 @@ function resolveDataPathCoreWithCurrentData(
     const isLast = index === segments.length - 1
 
     const intermediateError = validateIntermediateType({ params, value, segment: segments[index - 1] ?? "", state })
-    if (intermediateError !== undefined) return issueResult(params, segments, intermediateError, replacements)
+    if (intermediateError !== undefined) return issueResult(params, segments, intermediateError, replacements, index)
 
     if (state.tableSource !== undefined) {
       const tableResult = resolveTableColumn({
@@ -261,7 +263,7 @@ function resolveDataPathCoreWithCurrentData(
 
     if (state.typeInfo.kinds.includes("constantSet")) {
       const constantResult = resolveConstantSetItem({ params, segment: lookupSegment })
-      if (constantResult.status !== "ok") return ownerError(params, segments, replacements, constantResult)
+      if (constantResult.status !== "ok") return ownerError(params, segments, replacements, constantResult, index)
 
       state = {
         typeInfo: constantResult.typeInfo,
@@ -275,7 +277,7 @@ function resolveDataPathCoreWithCurrentData(
     if (state.typeInfo.kinds.includes("registerRecords")) {
       const registerRecordsOwner = state.registerRecordsOwner
       if (registerRecordsOwner === undefined) {
-        return error(params, `ПутьКДанным "${value}": неизвестный регистр движений "${segment}"`)
+        return error(params, `ПутьКДанным "${value}": неизвестный регистр движений "${segment}"`, "unknown_field", index)
       }
 
       const registerResult = resolveMovementItemSegment({
@@ -283,6 +285,7 @@ function resolveDataPathCoreWithCurrentData(
         value,
         owner: registerRecordsOwner,
         segment: lookupSegment,
+        failedSegmentIndex: index,
       })
       if (registerResult.status !== "ok") return registerResult.result
 
@@ -301,13 +304,14 @@ function resolveDataPathCoreWithCurrentData(
         ? undefined
         : resolveTypedDataPathMember({ type: structuredType, segment: lookupSegment })
       if (member === undefined) {
-        return error(params, `ПутьКДанным "${value}": неизвестное свойство "${segment}"`)
+        return error(params, `ПутьКДанным "${value}": неизвестное свойство "${segment}"`, "unknown_field", index)
       }
       if (params.nameMode === "yaml" && lookupSegment === member.internal && member.internal !== member.yaml) {
         return error(
           params,
           `ПутьКДанным "${value}": в YAML используйте "${member.yaml}" вместо "${segment}"`,
           "internal_standard_member_in_yaml",
+          index,
         )
       }
 
@@ -325,6 +329,7 @@ function resolveDataPathCoreWithCurrentData(
           params,
           `ПутьКДанным "${value}": не удалось разрешить динамическое свойство "${segment}"`,
           "unknown_type",
+          index,
         )
       }
       state = typedState
@@ -334,7 +339,7 @@ function resolveDataPathCoreWithCurrentData(
     }
 
     const definedTypeResult = resolveDefinedTypeInfo({ params, typeInfo: state.typeInfo })
-    if (definedTypeResult.status !== "ok") return ownerError(params, segments, replacements, definedTypeResult)
+    if (definedTypeResult.status !== "ok") return ownerError(params, segments, replacements, definedTypeResult, index)
 
     const resolvedTypeInfo = definedTypeResult.typeInfo
     const intermediateErrorAfterDefinedType = validateIntermediateType({
@@ -344,7 +349,7 @@ function resolveDataPathCoreWithCurrentData(
       state: { ...state, typeInfo: resolvedTypeInfo },
     })
     if (intermediateErrorAfterDefinedType !== undefined)
-      return issueResult(params, segments, intermediateErrorAfterDefinedType, replacements)
+      return issueResult(params, segments, intermediateErrorAfterDefinedType, replacements, index)
 
     const nextType = resolvedTypeInfo.nextTypes[0] as OwnerTypeRef
     if (isOpaqueTraversal({ owner: nextType, segment: lookupSegment })) {
@@ -382,7 +387,7 @@ function resolveDataPathCoreWithCurrentData(
     }
 
     const ownerResult = params.ownerCache.get(nextType)
-    if (ownerResult.status !== "ok") return ownerError(params, segments, replacements, ownerResult)
+    if (ownerResult.status !== "ok") return ownerError(params, segments, replacements, ownerResult, index)
 
     const transition = resolveTraversalTransition({
       owner: ownerResult.owner,
@@ -430,7 +435,7 @@ function resolveDataPathCoreWithCurrentData(
       ownerCache: params.ownerCache,
     })
     if (isStandardMemberError(standardMember)) {
-      return error(params, `ПутьКДанным "${value}": ${standardMember.message}`)
+      return error(params, `ПутьКДанным "${value}": ${standardMember.message}`, "unknown_field", index)
     }
     if (standardMember !== undefined) {
       recordStandardMemberReplacement({
@@ -789,12 +794,18 @@ function resolveMovementItemSegment(params: {
   value: string
   owner: OwnerMetadata
   segment: string
+  failedSegmentIndex: number
 }): { status: "ok"; state: TraversalState } | { status: "error"; result: ResolveDataPathCoreResult } {
   const registered = resolveRegisteredMovementItem({ owner: params.owner, segment: params.segment })
   if (registered === undefined) {
     return {
       status: "error",
-      result: error(params.params, `ПутьКДанным "${params.value}": неизвестный регистр движений "${params.segment}"`),
+      result: error(
+        params.params,
+        `ПутьКДанным "${params.value}": неизвестный регистр движений "${params.segment}"`,
+        "unknown_field",
+        params.failedSegmentIndex,
+      ),
     }
   }
 
@@ -915,6 +926,7 @@ function resolveTableColumn(params: {
     tableSource,
     segment: lookupSegment,
     replacements: params.replacements,
+    failedSegmentIndex: params.segmentIndex,
   })
   if (registeredColumnResult.status === "error") {
     return { status: "done", result: registeredColumnResult.result }
@@ -932,6 +944,7 @@ function resolveTableColumn(params: {
           params.params,
           `ПутьКДанным "${params.value}": в YAML используйте "${registeredColumnResult.typedMember.yaml}" вместо "${params.segment}"`,
           "internal_standard_member_in_yaml",
+          params.segmentIndex,
         ),
       }
     }
@@ -955,6 +968,7 @@ function resolveTableColumn(params: {
           params.params,
           `ПутьКДанным "${params.value}": не удалось разрешить динамическое свойство "${params.segment}"`,
           "unknown_type",
+          params.segmentIndex,
         ),
       }
     }
@@ -997,7 +1011,8 @@ function resolveTableColumn(params: {
         result: error(
           params.params,
           `ПутьКДанным "${params.value}": неизвестная колонка "${params.segment}"`,
-          "unknown_column"
+          "unknown_column",
+          params.segmentIndex,
         ),
       }
     }
@@ -1070,6 +1085,7 @@ function resolveRegisteredColumn(params: {
   tableSource: FormDataPathTableSource | ObjectFieldTableSource
   segment: string
   replacements: readonly ResolvedDataPathSegmentReplacement[]
+  failedSegmentIndex: number
 }): {
   status: "ok"
   column?: TableColumnSource
@@ -1082,7 +1098,13 @@ function resolveRegisteredColumn(params: {
   if (ownerResult?.status !== undefined && ownerResult.status !== "ok")
     return {
       status: "error",
-      result: ownerError(params.params, params.params.value.split("."), params.replacements, ownerResult),
+      result: ownerError(
+        params.params,
+        params.params.value.split("."),
+        params.replacements,
+        ownerResult,
+        params.failedSegmentIndex,
+      ),
     }
 
   const field =
@@ -1114,6 +1136,7 @@ function resolveRegisteredColumn(params: {
         params.params,
         `ПутьКДанным "${params.params.value}": в YAML используйте "${column.name}" вместо "${params.segment}"`,
         "internal_standard_member_in_yaml",
+        params.failedSegmentIndex,
       ),
     }
   }
@@ -1351,13 +1374,15 @@ function ownerError(
   params: ResolveDataPathCoreParams,
   segments: readonly string[],
   replacements: readonly ResolvedDataPathSegmentReplacement[],
-  result: Exclude<OwnerMetadataResult, { status: "ok" }>
+  result: Exclude<OwnerMetadataResult, { status: "ok" }>,
+  failedSegmentIndex?: number,
 ): ResolveDataPathCoreResult {
   return {
     status: "error",
     value: params.value,
     segments,
     replacements: [...replacements],
+    ...(failedSegmentIndex === undefined ? {} : { failedSegmentIndex }),
     targets: [],
     issues: [
       {

@@ -1000,26 +1000,13 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
       baseConfigurationIndex: testConfigurationIndexReader(),
       name: "ФормаЭлемента",
-      referenceXML: {
-        Form: {
-          Attributes: {
-            Attribute: [
-              { _name: "Собственный", _id: "6" },
-              { _name: "Контрагент", _id: "7" },
-            ],
-          },
-          BaseForm: {
-            Attributes: { Attribute: [{ _name: "Контрагент", _id: "7" }] },
-          },
-        },
-      },
+      referenceXML: undefined,
     })
     if (result === undefined) throw new Error("Управляемая форма не преобразована")
     const outer = result.Form as ClientApplicationFormXML
     const base = outer.BaseForm as ClientApplicationFormXML
 
     expect(attributeByName(outer, "Контрагент")._id).toBe(attributeByName(base, "Контрагент")._id)
-    expect(attributeByName(outer, "Контрагент")._id).toBe("7")
     expect(attributeByName(outer, "Контрагент")._id).toMatch(/^(?:0|[1-9]\d*|-[1-9]\d*)$/u)
     expect(attributeByName(outer, "Собственный")._id).not.toBe(attributeByName(outer, "Контрагент")._id)
   })

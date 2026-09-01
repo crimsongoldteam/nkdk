@@ -891,9 +891,8 @@ describe("resolveDataPath", () => {
   })
 
   it("keeps unknown tabular section columns as errors when no additional column exists", () => {
-    const result = resolve("Объект.Товары.Артикул", {
-      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
-      ownerCache: ownerCache([
+    const index = indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })])
+    const cache = ownerCache([
         owner({
           ref: { kind: "Документ", name: "Заказ" },
           rule: MetadataDocumentRules,
@@ -908,8 +907,8 @@ describe("resolveDataPath", () => {
             ],
           },
         }),
-      ]),
-    })
+      ])
+    const result = resolve("Объект.Товары.Артикул", { index, ownerCache: cache })
 
     expect(result).toMatchObject({
       status: "error",
@@ -918,6 +917,16 @@ describe("resolveDataPath", () => {
           message: 'ПутьКДанным "Объект.Товары.Артикул": неизвестная колонка "Артикул"',
         }),
       ],
+    })
+    expect(resolveDataPathCore({
+      value: "Объект.Товары.Артикул",
+      index,
+      ownerCache: cache,
+      nameMode: "yaml",
+    })).toMatchObject({
+      status: "error",
+      failedSegmentIndex: 2,
+      issues: [{ code: "unknown_column" }],
     })
   })
 

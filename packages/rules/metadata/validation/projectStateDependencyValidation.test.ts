@@ -218,6 +218,58 @@ describe("dependency validation из ProjectState", () => {
     store.rollbackUpdate()
   })
 
+  it("не дублирует общую ошибку DataPath специализированной ошибкой формы", () => {
+    const validator = createProjectStateDependencyValidator({
+      structuredDocumentValidators: [validateBorrowedClientApplicationForms],
+    })
+    const owner = { kind: "Справочник", name: "Товары" }
+    const path = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const cf = {
+      ...structuredFormUpdate("cf", "Поле"),
+      structuredDocuments: [{
+        documentKind: "clientApplicationForm",
+        representation: "working" as const,
+        logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+        workingProjectPath: path,
+        componentKind: "attribute",
+        name: "Контрагент",
+        yamlPath: ["Реквизиты", "Контрагент"],
+      }],
+    }
+    const extensionSource = ownerDependencySource("cfe/X", owner, "Контрагент.ИНН", `cfe/X/${path}`)
+    const extension = {
+      ...extensionSource,
+      forms: [],
+      pendingChecks: extensionSource.pendingChecks.map((check) => ({
+        ...check,
+        yamlPath: ["Элементы", "ИНН", "ПутьКДанным"],
+        location: { ...check.location, path: "/Элементы/ИНН/ПутьКДанным" },
+      })),
+      structuredDocuments: [{
+        documentKind: "clientApplicationForm",
+        representation: "working" as const,
+        logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+        workingProjectPath: path,
+        componentKind: "dataPath",
+        name: "Контрагент.ИНН",
+        yamlPath: ["Элементы", "ИНН", "ПутьКДанным"],
+        payload: JSON.stringify({ version: 1, mode: "explicit", owner }),
+      }],
+    }
+    const { store } = createBinaryProjectStateTestFixture(validator)
+    store.beginUpdate()
+    replaceFiles(store, [cf, extension, ownerUpdate("cfe/X", [], owner), configurationUpdate(true)])
+
+    const diagnostics = store.validateDependencies({ requests: [] }).filter(({ path }) =>
+      path === "/Элементы/ИНН/ПутьКДанным"
+    )
+    expect(diagnostics).toEqual([expect.objectContaining({
+      source: "cross-file",
+      message: "Путь «Контрагент.ИНН» использует реквизит формы «Контрагент», который не добавлен в «Реквизиты» заимствованной формы",
+    })])
+    store.rollbackUpdate()
+  })
+
   it("удаление избыточной основы очищает диагностику в текущей транзакции", () => {
     const validator = createProjectStateDependencyValidator({
       structuredDocumentValidators: [validateBorrowedClientApplicationForms],

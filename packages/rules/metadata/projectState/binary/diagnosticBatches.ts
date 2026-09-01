@@ -5,7 +5,7 @@ import {
 } from "@nkdk/runtime"
 import type { Diagnostic, DiagnosticSource, DiagnosticSeverity } from "@nkdk/runtime"
 import { yamlPathToPointer } from "@nkdk/runtime"
-import { join } from "node:path"
+import { join, resolve } from "node:path"
 import type {
   ProjectStateDependencyValidator,
   ProjectStateAddressableRequiredCheck,
@@ -121,17 +121,34 @@ export function validateSnapshotDependencyDiagnostics(
     validate: (checks) => dependencyValidator.validateDependencies({ checks, projectDir, queryPort }),
   })
   addAccepted(accepted, dependencyResult.acceptedXmlAnomalies)
+  const structuredDiagnostics = dependencyValidator.validateStructuredDocuments({
+    facts: structuredDocuments,
+    projectDir,
+    queryPort,
+  })
+  const specializedErrorBoundaries = new Set(structuredDiagnostics
+    .filter(({ severity, path }) => severity === "error" && path !== undefined)
+    .map(({ filePath, path }) => diagnosticBoundaryKey(projectDir, filePath, path!)))
+  const dependencyDiagnostics = dependencyResult.diagnostics.filter(({ severity, filePath, path }) =>
+    severity !== "error"
+    || path === undefined
+    || !specializedErrorBoundaries.has(diagnosticBoundaryKey(projectDir, filePath, path))
+  )
 
   return [
     ...referenceResult.diagnostics,
     ...dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }),
-    ...dependencyResult.diagnostics,
+    ...dependencyDiagnostics,
     ...dependencyValidator.validateAddressableRequired({ checks: addressableRequired, projectDir, queryPort }),
     ...dependencyValidator.validateReferenceCoverage({ checks: referenceCoverage, projectDir, queryPort }),
-    ...dependencyValidator.validateStructuredDocuments({ facts: structuredDocuments, projectDir, queryPort }),
+    ...structuredDiagnostics,
     ...readiness.diagnostics,
     ...unnecessaryXmlAnomalyDiagnostics(pending, accepted, projectDir),
   ]
+}
+
+function diagnosticBoundaryKey(projectDir: string, filePath: string, path: string): string {
+  return `${resolve(projectDir, filePath).toLowerCase()}\u0000${path}`
 }
 
 function validatePendingInWaves<T>(params: {

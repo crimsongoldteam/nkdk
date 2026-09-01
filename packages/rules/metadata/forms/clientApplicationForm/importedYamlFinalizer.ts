@@ -19,7 +19,7 @@ export const clientApplicationFormImportedYamlFinalizerRules = defineMetadataRul
       const form = clientApplicationFormYaml(yaml)
       return requiresImportedFormDataPathCompaction(form, rule)
     },
-    finalize: ({ yaml, rule, ownerMetadataCache, annotations, currentConfigurationYAML, savedBaseYAML }) => {
+    finalize: ({ yaml, rule, ownerMetadataCache, currentConfigurationYAML, savedBaseYAML }) => {
       const form = clientApplicationFormYaml(yaml)
       const dataPathContext = prepareFormDataPathContextFromYAML({
         yaml: form,
@@ -32,18 +32,11 @@ export const clientApplicationFormImportedYamlFinalizerRules = defineMetadataRul
         ownerCache: ownerMetadataCache,
         rule,
       })
-      const materialized = materializeInheritedRootFormDataPaths({
+      compactImportedFormDataPaths({
         yaml: form,
         context: dataPathContext,
       })
-      for (const { parent, key } of materialized) {
-        annotations?.set(parent, key, {
-          kind: "invalid",
-          occurrence: 1,
-          target: "value",
-        })
-      }
-      compactImportedFormDataPaths({
+      materializeInheritedRootFormDataPaths({
         yaml: form,
         context: dataPathContext,
       })

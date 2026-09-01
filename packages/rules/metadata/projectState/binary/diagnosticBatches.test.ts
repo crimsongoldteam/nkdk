@@ -59,7 +59,32 @@ it("не запускает смысловые обработчики для acc
   expect(validateDependencies).not.toHaveBeenCalled()
 })
 
-function snapshot(xmlAnomaly: "pending" | "accepted", dependencyCopies = 1): ProjectStateSnapshotView {
+it("оставляет специализированную диагностику вместо общей на той же YAML-границе", () => {
+  const common = {
+    filePath: "cf/Объект.yaml",
+    line: 1,
+    col: 1,
+    path: "/Значение",
+    severity: "error" as const,
+    source: "structure" as const,
+    message: "Общая ошибка DataPath",
+  }
+  const specialized = {
+    ...common,
+    source: "cross-file" as const,
+    message: "Специализированная ошибка формы",
+  }
+  const validator = testValidator({
+    validateDependencies: () => ({ diagnostics: [common], acceptedXmlAnomalies: [] }),
+    validateStructuredDocuments: () => [specialized],
+  })
+
+  const diagnostics = validateSnapshotDependencyDiagnostics(snapshot("none"), "/project", validator)
+  expect(diagnostics).toContainEqual(specialized)
+  expect(diagnostics).not.toContainEqual(common)
+})
+
+function snapshot(xmlAnomaly: "pending" | "accepted" | "none", dependencyCopies = 1): ProjectStateSnapshotView {
   const writer = createProjectStateFragmentWriter()
   const update = richYamlUpdate("cf/Объект.yaml", "cf", "Товары")
   const reference = update.pendingReferences[0]!
@@ -67,12 +92,16 @@ function snapshot(xmlAnomaly: "pending" | "accepted", dependencyCopies = 1): Pro
   writer.appendFile({
     ...update,
     localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    pendingReferences: [{ ...reference, yamlPath: [...yamlPath], xmlAnomaly }],
+    pendingReferences: [{
+      ...reference,
+      yamlPath: [...yamlPath],
+      ...(xmlAnomaly === "none" ? {} : { xmlAnomaly }),
+    }],
     pendingChecks: Array.from({ length: dependencyCopies }, () => ({
       ...dependency,
       yamlPath: [...yamlPath],
       location: { ...dependency.location, path: "/Значение" },
-      xmlAnomaly,
+      ...(xmlAnomaly === "none" ? {} : { xmlAnomaly }),
     })),
   }, 1n)
   return new ProjectStateSnapshotView(buildTypedProjectStateSnapshot({
