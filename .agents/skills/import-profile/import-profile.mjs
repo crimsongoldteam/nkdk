@@ -129,6 +129,7 @@ export async function runProfile(options, overrides = {}) {
         workerPoolSize: workerPoolSize(steps),
         controlExport: summarizeControlExport(steps),
         phases: summarizeImportSteps(steps, elapsedMs),
+        fromXmlPropertyTypes: summarizeFromXmlPropertyTypes(steps),
         toXmlPropertyTypes: summarizeToXmlPropertyTypes(steps),
       })
 
@@ -274,14 +275,22 @@ export function summarizeControlExport(steps) {
 }
 
 export function summarizeToXmlPropertyTypes(steps) {
+  return summarizePropertyTypes(steps, "toXML PropertyRule")
+}
+
+export function summarizeFromXmlPropertyTypes(steps) {
+  return summarizePropertyTypes(steps, "XML в YAML PropertyRule")
+}
+
+function summarizePropertyTypes(steps, stepPrefix) {
   const records = (mode, propertyType) => steps.filter((step) =>
     step.scope === "worker"
-    && step.step === `toXML PropertyRule ${mode}`
+    && step.step === `${stepPrefix} ${mode}`
     && step.substep === propertyType
   )
   const propertyTypes = new Set(
     steps
-      .filter((step) => step.scope === "worker" && step.step?.startsWith("toXML PropertyRule "))
+      .filter((step) => step.scope === "worker" && step.step?.startsWith(`${stepPrefix} `))
       .map((step) => step.substep)
       .filter((propertyType) => typeof propertyType === "string"),
   )

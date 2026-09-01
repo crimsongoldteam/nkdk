@@ -4,6 +4,7 @@ import {
   isSummaryProfileStep,
   runProfile,
   summarizeControlExport,
+  summarizeFromXmlPropertyTypes,
   summarizeImportSteps,
   summarizeToXmlPropertyTypes,
   usage,
@@ -160,6 +161,27 @@ test("сводит собственное и полное время toXML по 
       inclusiveWorkerMs: 20,
       inclusiveCriticalMs: 11,
       averageExclusiveUs: 2_400,
+    },
+  ])
+})
+
+test("сводит собственное и полное время XML в YAML по типам PropertyRule", () => {
+  const steps = [
+    { scope: "worker", worker: 0, step: "XML в YAML PropertyRule exclusive", substep: "boolean", items: 5, time: 3 },
+    { scope: "worker", worker: 1, step: "XML в YAML PropertyRule exclusive", substep: "boolean", items: 7, time: 4 },
+    { scope: "worker", worker: 0, step: "XML в YAML PropertyRule inclusive", substep: "boolean", items: 5, time: 4 },
+    { scope: "worker", worker: 1, step: "XML в YAML PropertyRule inclusive", substep: "boolean", items: 7, time: 6 },
+  ]
+
+  assert.deepEqual(summarizeFromXmlPropertyTypes(steps), [
+    {
+      propertyType: "boolean",
+      propertyCount: 12,
+      exclusiveWorkerMs: 7,
+      exclusiveCriticalMs: 4,
+      inclusiveWorkerMs: 10,
+      inclusiveCriticalMs: 6,
+      averageExclusiveUs: 7_000 / 12,
     },
   ])
 })

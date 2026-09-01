@@ -113,6 +113,8 @@ export interface DirectImportXMLSource {
 }
 
 export interface DirectImportProfile {
+  readonly propertyTypeProfiling: boolean
+  propertyTypeProfiles: Record<string, DirectImportPropertyTypeProfile>
   propertyCount: number
   directCount: number
   legacyCount: number
@@ -130,9 +132,39 @@ export interface DirectImportProfile {
   legacyByType: Map<string, DirectImportProfileBucket>
 }
 
+export interface DirectImportPropertyTypeProfile {
+  propertyCount: number
+  inclusiveMs: number
+  exclusiveMs: number
+}
+
 export interface DirectImportProfileBucket {
   count: number
   timeMs: number
+}
+
+export function createDirectImportProfile(
+  options: { readonly propertyTypes?: boolean } = {},
+): DirectImportProfile {
+  return {
+    propertyTypeProfiling: options.propertyTypes === true,
+    propertyTypeProfiles: {},
+    propertyCount: 0,
+    directCount: 0,
+    legacyCount: 0,
+    exportedCount: 0,
+    planningMs: 0,
+    xmlTraversalMs: 0,
+    configurationIndexMs: 0,
+    directInclusiveMs: 0,
+    legacyFromXmlMs: 0,
+    yamlExportMs: 0,
+    defaultMs: 0,
+    outputMs: 0,
+    collectorMs: 0,
+    directByType: new Map(),
+    legacyByType: new Map(),
+  }
 }
 
 export interface DirectImportResult {

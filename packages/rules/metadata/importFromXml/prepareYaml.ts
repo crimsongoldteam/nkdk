@@ -29,6 +29,7 @@ import type { DirectImportProfile, DirectImportResult } from "@nkdk/runtime/rule
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import {
   createDeferredValuePathCollector,
+  createDirectImportProfile,
   createImportedDependentPropertyCollector,
 } from "@nkdk/runtime/rule-kit"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "@nkdk/runtime/rule-kit"
@@ -201,7 +202,9 @@ function prepareImportYamlFromParsedInputs(params: {
       topology: params.topology,
     })
 
-    const importProfile = createDirectImportProfile()
+    const importProfile = params.profiler === undefined
+      ? undefined
+      : createDirectImportProfile({ propertyTypes: true })
     const result: DirectImportResult & Pick<PreparedImportYaml, "baseFormCandidate" | "dependentDeferred"> = measureYaml(params.profiler, () => {
       if (rule.itemType === ClientApplicationFormRules.itemType) {
         const metadataXML = requireMetadataXml(xmlInputs)
@@ -303,7 +306,7 @@ function prepareImportYamlFromParsedInputs(params: {
         ...(baseFormCandidate === undefined ? {} : { baseFormCandidate }),
       }
     })
-    recordDirectImportProfile(params.profiler, importProfile)
+    if (importProfile !== undefined) recordDirectImportProfile(params.profiler, importProfile)
     audit?.finalize()
     if (audit !== undefined) importAuditOutcomeCountValueForTests += audit.outcomes().length
     const proofAudit = params.proofDetail === "roots"
@@ -583,26 +586,6 @@ function measureYaml<T>(profiler: ValidationProfiler | undefined, fn: () => T): 
   return profiler.measure("Подготовка импорта конфигурации", "Преобразование XML в YAML", { items: 1 }, fn)
 }
 
-function createDirectImportProfile(): DirectImportProfile {
-  return {
-    propertyCount: 0,
-    directCount: 0,
-    legacyCount: 0,
-    exportedCount: 0,
-    planningMs: 0,
-    xmlTraversalMs: 0,
-    configurationIndexMs: 0,
-    directInclusiveMs: 0,
-    legacyFromXmlMs: 0,
-    yamlExportMs: 0,
-    defaultMs: 0,
-    outputMs: 0,
-    collectorMs: 0,
-    directByType: new Map(),
-    legacyByType: new Map(),
-  }
-}
-
 function recordDirectImportProfile(profiler: ValidationProfiler | undefined, profile: DirectImportProfile): void {
   if (profiler === undefined) return
   const step = "Подготовка импорта конфигурации"
@@ -641,6 +624,16 @@ function recordDirectImportProfile(profiler: ValidationProfiler | undefined, pro
   })
   recordProfileBuckets(profiler, "XML в YAML: прямой тип", profile.directByType)
   recordProfileBuckets(profiler, "XML в YAML: атомарный тип", profile.legacyByType)
+  for (const [propertyType, value] of Object.entries(profile.propertyTypeProfiles)) {
+    profiler.record("XML в YAML PropertyRule inclusive", propertyType, {
+      items: value.propertyCount,
+      timeMs: value.inclusiveMs,
+    })
+    profiler.record("XML в YAML PropertyRule exclusive", propertyType, {
+      items: value.propertyCount,
+      timeMs: value.exclusiveMs,
+    })
+  }
 }
 
 function recordProfileBuckets(

@@ -32,7 +32,9 @@
 
 **Files:**
 - Modify: `packages/runtime/metadata/ruleRuntime/property/importYamlTypes.ts`
+- Create: `packages/runtime/metadata/ruleRuntime/property/propertyTypeProfile.ts`
 - Modify: `packages/runtime/metadata/ruleRuntime/property/fromXMLToYAML.ts`
+- Modify: `packages/runtime/metadata/ruleRuntime/property/fromYAMLToXML.ts`
 - Modify: `packages/rules/metadata/importFromXml/prepareYaml.ts`
 - Modify: `.agents/skills/import-profile/import-profile.mjs`
 - Modify: `.agents/skills/import-profile/import-profile.test.mjs`
@@ -201,7 +203,9 @@ cold, следующие три образуют исходную warm-сери�
 ```bash
 pnpm duplicates -- --base be4708d9438dfb1d5955900c881923938e7c016a
 git add packages/runtime/metadata/ruleRuntime/property/importYamlTypes.ts \
+  packages/runtime/metadata/ruleRuntime/property/propertyTypeProfile.ts \
   packages/runtime/metadata/ruleRuntime/property/fromXMLToYAML.ts \
+  packages/runtime/metadata/ruleRuntime/property/fromYAMLToXML.ts \
   packages/rules/metadata/importFromXml/prepareYaml.ts \
   packages/rules/metadata/ruleRuntime/property/fromXMLToYAML.test.ts \
   .agents/skills/import-profile/import-profile.mjs \

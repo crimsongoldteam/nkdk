@@ -57,6 +57,7 @@ import {
 } from "../xmlAnomaly/attempt"
 import type { XmlAnomalyAnnotationTable } from "../../../yaml/xmlAnomalyAnnotations"
 import { encodeXmlRawElement } from "../../../xml/structure/rawCodec"
+import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -162,7 +163,7 @@ export function importPropertiesFromXMLToYAML(params: {
   }
   addProfileTime(params.profile, "planningMs", planningStartedAt)
 
-  const importMatch = (match: {
+  const importMatchUnprofiled = (match: {
     sourceState: (typeof sourceStates)[number]
     entry: XMLImportPlanEntry
     sourceXMLKey: string | undefined
@@ -701,6 +702,15 @@ export function importPropertiesFromXMLToYAML(params: {
       return
     }
     attempt.commit()
+  }
+
+  const importMatch = (match: Parameters<typeof importMatchUnprofiled>[0]): void => {
+    const frame = beginPropertyTypeProfile(params.profile, match.entry.rule.type)
+    try {
+      importMatchUnprofiled(match)
+    } finally {
+      finishPropertyTypeProfile(params.profile, frame, "XML → YAML")
+    }
   }
 
   const importMissingEntry = (

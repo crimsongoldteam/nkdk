@@ -31,7 +31,6 @@ import { getYAMLToXMLPlan, type YAMLToXMLPlannedProperty } from "./fromYAMLToXML
 import type {
   YAMLPropertySource,
   YAMLToXMLOutputRequest,
-  YAMLToXMLProfile,
   YAMLToXMLResult,
   YAMLToXMLItemConversionParams,
 } from "./fromYAMLToXMLTypes"
@@ -46,6 +45,7 @@ import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { assertYAMLScalarTagAllowed } from "./yamlScalarTagPolicy"
 import { isXmlImportControlExportContext } from "../../helpers/mdObjectRefUuid"
+import { beginPropertyTypeProfile, finishPropertyTypeProfile } from "./propertyTypeProfile"
 
 export interface ConvertPropertiesFromYAMLToXMLParams extends YAMLToXMLItemConversionParams {
   readonly execution?: PropertyRuleExecution
@@ -709,7 +709,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       throw toYAMLImportError(error, diagnosticContext)
     }
     } finally {
-      finishPropertyTypeProfile(params.profile, propertyProfileFrame)
+      finishPropertyTypeProfile(params.profile, propertyProfileFrame, "YAML → XML")
     }
   }
 
@@ -739,49 +739,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     deferredByOutput: new Map(outputs.map(({ request, deferred }) => [request.key, deferred])),
     externalWrites,
   }
-}
-
-interface PropertyTypeProfileFrame {
-  readonly propertyType: string
-  readonly startedAt: number
-  childMs: number
-}
-
-const propertyTypeProfileStacks = new WeakMap<YAMLToXMLProfile, PropertyTypeProfileFrame[]>()
-
-function beginPropertyTypeProfile(
-  profile: YAMLToXMLProfile | undefined,
-  propertyType: string,
-): PropertyTypeProfileFrame | undefined {
-  if (profile?.propertyTypeProfiling !== true) return undefined
-  const frame = { propertyType, startedAt: performance.now(), childMs: 0 }
-  const stack = propertyTypeProfileStacks.get(profile) ?? []
-  stack.push(frame)
-  propertyTypeProfileStacks.set(profile, stack)
-  return frame
-}
-
-function finishPropertyTypeProfile(
-  profile: YAMLToXMLProfile | undefined,
-  frame: PropertyTypeProfileFrame | undefined,
-): void {
-  if (profile === undefined || frame === undefined) return
-  const stack = propertyTypeProfileStacks.get(profile)
-  if (stack?.at(-1) !== frame) throw new Error("Нарушен стек профиля YAML → XML")
-  stack.pop()
-  if (stack.length === 0) propertyTypeProfileStacks.delete(profile)
-  const elapsedMs = performance.now() - frame.startedAt
-  const current = profile.propertyTypeProfiles[frame.propertyType] ?? {
-    propertyCount: 0,
-    inclusiveMs: 0,
-    exclusiveMs: 0,
-  }
-  current.propertyCount += 1
-  current.inclusiveMs += elapsedMs
-  current.exclusiveMs += Math.max(0, elapsedMs - frame.childMs)
-  profile.propertyTypeProfiles[frame.propertyType] = current
-  const parent = stack.at(-1)
-  if (parent !== undefined) parent.childMs += elapsedMs
 }
 
 function formatRulePath(path: readonly (string | number)[]): string {

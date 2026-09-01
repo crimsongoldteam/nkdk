@@ -17,6 +17,7 @@ xmlImportAttemptPhases,
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML as importPropertiesWithSources } from "./fromXMLToYAML"
 import {
+createDirectImportProfile,
 createDeferredValuePathCollector,
 createImportedDependentPropertyCollector,
 } from "./importYamlTypes"
@@ -31,6 +32,22 @@ import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
 import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 
 describe("importPropertiesFromXMLToYAML", () => {
+
+  it("считает полное и собственное время XML → YAML по типу свойства", () => {
+    const { profile, yaml } = importProfiledBoolean(true)
+
+    expect(yaml).toEqual({ Значение: "Истина" })
+    expect(profile.propertyTypeProfiles.boolean).toMatchObject({ propertyCount: 1 })
+    expect(profile.propertyTypeProfiles.boolean!.inclusiveMs).toBeGreaterThanOrEqual(
+      profile.propertyTypeProfiles.boolean!.exclusiveMs,
+    )
+  })
+
+  it("не создаёт профиль типов свойств в выключенном режиме", () => {
+    const { profile } = importProfiledBoolean(false)
+
+    expect(profile.propertyTypeProfiles).toEqual({})
+  })
 
   it.each([
     [MetadataCommonAttributeRules, "DataSeparation", "DontUse"],
@@ -1641,6 +1658,26 @@ function runSingleProperty(
     rulePath: [],
     collector: createLocalIndexesCollector(),
   })
+}
+
+function importProfiledBoolean(propertyTypes: boolean) {
+  const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+  const profile = createDirectImportProfile({ propertyTypes })
+  const yaml = importPropertiesWithSources({
+    context,
+    rule: {
+      itemType: "TestProfiledItem",
+      properties: {
+        value: { type: "boolean", xml: "Value", yaml: "Значение" },
+      },
+    } as MetadataItemRule,
+    sources: [{ context, xml: { Value: "true" } }],
+    yamlPath: [],
+    rulePath: [],
+    collector: createLocalIndexesCollector(),
+    profile,
+  })
+  return { profile, yaml }
 }
 
 type DirectImportParams = Parameters<typeof importPropertiesWithSources>[0]
