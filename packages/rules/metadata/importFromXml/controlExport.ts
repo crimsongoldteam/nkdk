@@ -1,5 +1,7 @@
 import {
   applyXmlPatch,
+  copyYAMLRuntimeMetadataDeep,
+  createXmlAnomalyAnnotations,
   decodeXmlRawValue,
   restoreXmlAnomalyAnnotations,
   snapshotXmlAnomalyAnnotations,
@@ -119,6 +121,11 @@ export async function executeImportControlExport(params: {
     profilePropertyTypes: params.profilePropertyTypes,
   })
   const toXmlObjectMs = performance.now() - toXmlObjectStartedAt
+  const semanticAnnotations = projectControlSemanticAnnotations({
+    sourceData: params.data,
+    sourceAnnotations: params.annotations,
+    targetData: prepared.semanticYamlFile.data,
+  })
   const preliminaryExported = prepared.documents.map((document) => {
     const output = assignment.potentialOutputs.find(
       ({ declarationId }) => declarationId === document.declarationId,
@@ -151,7 +158,7 @@ export async function executeImportControlExport(params: {
         ? params.annotations
         : snapshotXmlAnomalyAnnotations(
             prepared.semanticYamlFile.data,
-            prepared.semanticYamlFile.annotations,
+            semanticAnnotations,
           ),
       rereadSourcePaths: [],
       warnings: [],
@@ -166,7 +173,7 @@ export async function executeImportControlExport(params: {
     data: prepared.semanticYamlFile.data,
     annotations: snapshotXmlAnomalyAnnotations(
       prepared.semanticYamlFile.data,
-      prepared.semanticYamlFile.annotations,
+      semanticAnnotations,
     ),
     imported: {
       data: params.data,
@@ -189,6 +196,49 @@ export async function executeImportControlExport(params: {
     ...controlExportTimings(prepared.profile, toXmlObjectMs, anomalyProofMs),
   })
   return result
+}
+
+function projectControlSemanticAnnotations(params: {
+  readonly sourceData: unknown
+  readonly sourceAnnotations: XmlAnomalyAnnotationsSnapshot
+  readonly targetData: unknown
+}) {
+  const semanticSnapshot: XmlAnomalyAnnotationsSnapshot = {
+    version: 1,
+    ...(params.sourceAnnotations.root === undefined
+      ? {}
+      : params.sourceAnnotations.root.kind === "raw"
+        ? params.sourceAnnotations.root.semantic === undefined
+          ? {}
+          : {
+              root: {
+                ...params.sourceAnnotations.root.semantic,
+                target: "root" as const,
+              },
+            }
+        : { root: params.sourceAnnotations.root }),
+    entries: params.sourceAnnotations.entries.flatMap((entry) => {
+      if (entry.annotation.kind !== "raw") return [entry]
+      if (entry.annotation.semantic === undefined) return []
+      return [{
+        ...entry,
+        annotation: {
+          ...entry.annotation.semantic,
+          target: entry.annotation.target,
+          ...(entry.annotation.logicalKey === undefined ? {} : { logicalKey: entry.annotation.logicalKey }),
+        },
+      }]
+    }),
+  }
+  const sourceAnnotations = restoreXmlAnomalyAnnotations(params.sourceData, semanticSnapshot)
+  const targetAnnotations = createXmlAnomalyAnnotations()
+  copyYAMLRuntimeMetadataDeep({
+    source: params.sourceData,
+    target: params.targetData,
+    sourceAnnotations,
+    targetAnnotations,
+  })
+  return targetAnnotations
 }
 
 function hasRawXmlAnomaly(annotations: XmlAnomalyAnnotationsSnapshot): boolean {

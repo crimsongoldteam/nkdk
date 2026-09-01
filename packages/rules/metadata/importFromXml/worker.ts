@@ -841,6 +841,7 @@ async function prepareYamlForFinalPass(
         yaml: prepared.yaml,
         rule: prepared.rule,
         ownerMetadataCache,
+        annotations: prepared.annotations,
         ...(currentConfigurationData === undefined ? {} : { currentConfigurationYAML: currentConfigurationData }),
         ...(preparedBaseFormCandidate === undefined
           ? {}

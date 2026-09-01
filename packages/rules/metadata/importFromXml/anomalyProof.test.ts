@@ -50,6 +50,46 @@ describe("XML anomaly proof", () => {
     )
   })
 
+  it("не заменяет invalid-свойство на raw, если соответствующего XML-элемента не было", async () => {
+    const source = "<Root/>"
+    const document = parseXmlDocumentWithSaxes(source)
+    const result = await proveXmlAnomalyBoundaries({
+      data: { Значение: "ошибка" },
+      annotations: {
+        version: 1,
+        entries: [{
+          parentPath: [],
+          key: "Значение",
+          annotation: { kind: "invalid", occurrence: 1, target: "value" },
+        }],
+      },
+      audit: captureXmlAnomalyProofAudit({
+        sources: [{ sourcePath, role: "metadata", document }],
+        boundaries: [{
+          sourcePath,
+          sourceRole: "metadata",
+          xmlPath: "/Root[1]/Value[1]",
+          yamlPath: ["Значение"],
+          rulePath: ["value"],
+          presentInSource: false,
+        }],
+      }),
+      exported: [{
+        role: "metadata",
+        sourcePath,
+        document: parseXmlDocumentWithSaxes("<Root><Value>ошибка</Value></Root>"),
+      }],
+      readSource: async () => source,
+    })
+
+    expect(result.data).toEqual({ Значение: "ошибка" })
+    expect(result.annotations.entries).toEqual([expect.objectContaining({
+      parentPath: [],
+      key: "Значение",
+      annotation: expect.objectContaining({ kind: "invalid" }),
+    })])
+  })
+
   it("принимает отсутствие осмысленно исключённого поддерева в контрольном XML", async () => {
     const source = "<Root><Value><Known>value</Known></Value><Sibling/></Root>"
     const { document, boundaries } = elidedValueProof(source)

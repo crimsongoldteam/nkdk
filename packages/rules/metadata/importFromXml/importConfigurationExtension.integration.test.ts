@@ -119,13 +119,18 @@ describe("configuration extension XML import", () => {
     ))).toBe(true)
   })
 
-  it("распознаёт заимствованное поле по текущей cf без встроенного BaseForm", () => {
-    const { projectDir, formWithoutBase } = importedExtension
+  it("помечает неявный путь через незаимствованный реквизит по текущей cf без встроенного BaseForm", () => {
+    const { projectDir, formWithoutBase, formWithoutBaseText } = importedExtension
 
-    expect((formWithoutBase as { Элементы: Record<string, unknown> }).Элементы.СобственноеПоле)
-      .not.toHaveProperty("ПутьКДанным")
+    expect((formWithoutBase as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.СобственноеПоле)
+      .toMatchObject({ ПутьКДанным: "БазовыйОбъект.СобственноеПоле" })
+    expect(formWithoutBaseText)
+      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.СобственноеПоле")
+    expect(formWithoutBaseText)
+      .toContain("ПутьКДанным: !xml/invalid БазовыйОбъект.Код")
+    expect(formWithoutBaseText).not.toContain("!xml/raw")
     expect((formWithoutBase as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.Код)
-      .toMatchObject({ ПутьКДанным: "" })
+      .toMatchObject({ ПутьКДанным: "БазовыйОбъект.Код" })
     expect(fs.existsSync(join(
       projectDir,
       "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаБезОсновы/БазоваяФорма.yaml",
@@ -301,9 +306,16 @@ async function importExtension() {
   )
   const catalog = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml")
   const form = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml")
-  const formWithoutBase = readYaml(
+  const formWithoutBaseProjectPath =
+    "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаБезОсновы/Форма.yaml"
+  const formWithoutBasePath = join(projectDir, ...formWithoutBaseProjectPath.split("/"))
+  if (!fs.existsSync(formWithoutBasePath)) {
+    throw new Error(`Импорт не создал форму без основы: ${JSON.stringify(result)}`)
+  }
+  const formWithoutBase = readYaml(projectDir, formWithoutBaseProjectPath)
+  const formWithoutBaseText = readText(
     projectDir,
-    "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаБезОсновы/Форма.yaml",
+    formWithoutBaseProjectPath,
   )
   const catalogText = readText(
     projectDir,
@@ -336,6 +348,7 @@ async function importExtension() {
     catalog,
     form,
     formWithoutBase,
+    formWithoutBaseText,
     yamlText,
     catalogText,
     baseFormText,
@@ -489,6 +502,17 @@ function addFormWithoutBase(inputDir: string): void {
   replaceExactlyOnce(targetMetadataPath, "<Name>ФормаОтчета</Name>", "<Name>ФормаБезОсновы</Name>")
   const targetFormPath = join(targetFormDir, "Ext", "Form.xml")
   removeBaseFormElement(targetFormPath)
+  replaceExactlyOnce(
+    targetFormPath,
+    [
+      "\t\t<Attribute name=\"БазовыйОбъект\" id=\"8\">",
+      "\t\t\t<Type>",
+      "\t\t\t\t<v8:Type>cfg:CatalogObject.СправочникПолный</v8:Type>",
+      "\t\t\t</Type>",
+      "\t\t</Attribute>\n",
+    ].join("\n"),
+    "",
+  )
   replaceExactlyOnce(
     targetFormPath,
     [

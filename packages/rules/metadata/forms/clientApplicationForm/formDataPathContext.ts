@@ -3,7 +3,7 @@ import { cloneYAMLContainer } from "@nkdk/runtime"
 import type { ElementType } from "../../ruleRuntime/formElement/types"
 import type { FormDataPathSource, FormDataPathTabularElementDeclaration } from "@nkdk/runtime/rule-kit"
 import { acceptFormTabularElementVisit } from "../../ruleRuntime/formElement/formTableDataPaths"
-import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
+import { dataPathRootName, resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { getDataPathOwnerKind, standardMemberYamlToInternal } from "../../validation/dataPath/registry"
@@ -28,6 +28,7 @@ export interface FormElementDataPathState {
   readonly tableOwnerName?: string
   readonly candidateYaml?: string
   readonly candidateInternal?: string
+  readonly candidateRootOrigin?: "working" | "inherited"
   readonly compactImplicitDataPath?: boolean
   readonly valueInternal?: string
   readonly currentConfigurationValue?: string
@@ -69,6 +70,7 @@ export function compactImportedFormDataPaths(params: {
       element.origin !== "own"
       || element.candidateInternal === undefined
       || element.compactImplicitDataPath === false
+      || element.candidateRootOrigin === "inherited"
     ) continue
     const yaml = recordAtPath(params.yaml, element.yamlPath)
     if (!element.present) {
@@ -84,8 +86,10 @@ export function requiresImportedFormDataPathCompaction(
   rule: MetadataItemRule = ClientApplicationFormRules
 ): boolean {
   const mainAttribute = findMainAttributeName(asRecord(yaml)?.["Реквизиты"])
-  if (mainAttribute === undefined) return false
   const collected = collectFormElements(yaml, rule)
+  if (mainAttribute === undefined) {
+    return [...collected.elementsByName.values()].some((element) => !element.present)
+  }
   const effectivePaths = new Map<string, string | undefined>()
 
   const candidate = (element: CollectedFormElement): string | undefined => {
@@ -147,6 +151,30 @@ export function materializeImplicitFormDataPaths(
     else element["ПутьКДанным"] = change.value
   }
   return root as ClientApplicationFormYAML
+}
+
+export function materializeInheritedRootFormDataPaths(params: {
+  readonly yaml: ClientApplicationFormYAML
+  readonly context: FormDataPathContext
+}): readonly MaterializedInheritedDataPath[] {
+  const materialized: MaterializedInheritedDataPath[] = []
+  for (const element of params.context.elementsByName.values()) {
+    if (
+      element.origin !== "own"
+      || element.present
+      || element.candidateRootOrigin !== "inherited"
+      || element.candidateYaml === undefined
+    ) continue
+    const parent = recordAtPath(params.yaml, element.yamlPath)
+    parent["ПутьКДанным"] = element.candidateYaml
+    materialized.push({ parent, key: "ПутьКДанным" })
+  }
+  return materialized
+}
+
+export interface MaterializedInheritedDataPath {
+  readonly parent: Record<string, unknown>
+  readonly key: "ПутьКДанным"
 }
 
 type MaterializedDataPathChange =
@@ -242,6 +270,13 @@ interface ResolvedPath {
   readonly yaml: string
   readonly internal: string
   readonly compactImplicitDataPath: boolean
+  readonly rootOrigin?: "working" | "inherited"
+}
+
+interface CandidatePath {
+  readonly yaml: string
+  readonly resolved?: ResolvedPath
+  readonly rootOrigin?: "working" | "inherited"
 }
 
 interface PreparedForm {
@@ -255,7 +290,7 @@ interface PendingElement {
   readonly collected: CollectedFormElement
   readonly origin: "own" | "borrowed"
   candidateState: "unresolved" | "resolving" | "resolved"
-  candidate?: ResolvedPath
+  candidate?: CandidatePath
   effectiveState: "unresolved" | "resolving" | "resolved"
   effective?: ResolvedPath
 }
@@ -307,7 +342,13 @@ function prepareCollectedForm(params: {
     const compactImplicitDataPath = resolved.target.source.kind === "objectField"
       ? getDataPathOwnerKind(resolved.target.source.owner.kind)?.compactImplicitFormDataPaths !== false
       : true
-    if (semanticLeafName === undefined) return { yaml, internal: resolved.internalValue, compactImplicitDataPath }
+    const rootOrigin = resolved.root?.origin
+    if (semanticLeafName === undefined) return {
+      yaml,
+      internal: resolved.internalValue,
+      compactImplicitDataPath,
+      ...(rootOrigin === undefined ? {} : { rootOrigin }),
+    }
     const standardInternalName = standardMemberYamlToInternal(semanticLeafName)
     return {
       yaml,
@@ -316,10 +357,11 @@ function prepareCollectedForm(params: {
           ? resolved.internalValue
           : replaceUnconvertedLeaf(resolved.internalValue, semanticLeafName, standardInternalName),
       compactImplicitDataPath,
+      ...(rootOrigin === undefined ? {} : { rootOrigin }),
     }
   }
 
-  const candidate = (element: PendingElement): ResolvedPath | undefined => {
+  const candidate = (element: PendingElement): CandidatePath | undefined => {
     if (element.candidateState === "resolved") return element.candidate
     if (element.candidateState === "resolving") return undefined
     element.candidateState = "resolving"
@@ -338,8 +380,15 @@ function prepareCollectedForm(params: {
       candidateYaml = `${params.effectiveMainAttribute}.${collected.name}`
       semanticLeafName = collected.name
     }
-    element.candidate =
-      candidateYaml === undefined ? undefined : resolvePath(candidateYaml, semanticLeafName)
+    if (candidateYaml !== undefined) {
+      const resolved = resolvePath(candidateYaml, semanticLeafName)
+      const rootOrigin = resolved?.rootOrigin ?? params.index.getRoot(dataPathRootName(candidateYaml))?.origin
+      element.candidate = {
+        yaml: candidateYaml,
+        ...(resolved === undefined ? {} : { resolved }),
+        ...(rootOrigin === undefined ? {} : { rootOrigin }),
+      }
+    }
     element.candidateState = "resolved"
     return element.candidate
   }
@@ -355,7 +404,7 @@ function prepareCollectedForm(params: {
     } else if (element.origin === "borrowed") {
       element.effective = params.currentConfigurationForm?.effectivePath(element.collected.name)
     } else {
-      element.effective = candidate(element)
+      element.effective = candidate(element)?.resolved
     }
     element.effectiveState = "resolved"
     return element.effective
@@ -363,7 +412,11 @@ function prepareCollectedForm(params: {
 
   const elementsByName = new Map<string, FormElementDataPathState>()
   for (const [name, element] of pending) {
-    const resolvedCandidate = candidate(element)
+    const candidatePath = candidate(element)
+    const resolvedCandidate = candidatePath?.resolved
+    const exposedCandidate = resolvedCandidate !== undefined || candidatePath?.rootOrigin === "inherited"
+      ? candidatePath
+      : undefined
     const valueInternal =
       element.collected.present &&
       typeof element.collected.value === "string" &&
@@ -382,12 +435,19 @@ function prepareCollectedForm(params: {
       ...(element.collected.tableOwnerName === undefined
         ? {}
         : { tableOwnerName: element.collected.tableOwnerName }),
-      ...(resolvedCandidate === undefined
+      ...(exposedCandidate === undefined
         ? {}
         : {
-            candidateYaml: resolvedCandidate.yaml,
-            candidateInternal: resolvedCandidate.internal,
-            compactImplicitDataPath: resolvedCandidate.compactImplicitDataPath,
+            candidateYaml: exposedCandidate.yaml,
+            ...(resolvedCandidate === undefined
+              ? {}
+              : {
+                  candidateInternal: resolvedCandidate.internal,
+                  compactImplicitDataPath: resolvedCandidate.compactImplicitDataPath,
+                }),
+            ...(exposedCandidate.rootOrigin === undefined
+              ? {}
+              : { candidateRootOrigin: exposedCandidate.rootOrigin }),
           }),
       ...(valueInternal === undefined ? {} : { valueInternal }),
       ...(currentConfigurationValue === undefined ? {} : { currentConfigurationValue }),
