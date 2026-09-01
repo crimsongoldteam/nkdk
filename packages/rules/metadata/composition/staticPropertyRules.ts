@@ -298,10 +298,9 @@ import { metadataPropertyRule004 as rule265 } from "../commonObjects/resourceTop
 import { metadataPropertyRule005 as rule266 } from "../commonObjects/resourceTopology"
 import { metadataPropertyRule000 as rule268 } from "../commonObjects/standardAttributeDescription/toJSONSchema"
 import { metadataPropertyRule000 as standardAttributesYamlTagPolicy } from "../commonObjects/standardAttributeDescription/yamlScalarTagPolicy"
-import { metadataPropertyRule000 as rule269 } from "../commonObjects/string/fromXML"
+import { metadataPropertyRule000 as stringAtomicConversion } from "../commonObjects/string/atomicConversion"
 import { metadataPropertyRule000 as rule270 } from "../commonObjects/string/toJSONSchema"
 import { metadataPropertyRule001 as rule271 } from "../commonObjects/string/toJSONSchema"
-import { metadataPropertyRule000 as rule272 } from "../commonObjects/string/toYAML"
 import { metadataPropertyRule000 as rule273 } from "../commonObjects/stringOrNumber/fromXML"
 import { metadataPropertyRule000 as rule274 } from "../commonObjects/stringOrNumber/toJSONSchema"
 import { metadataPropertyRule000 as rule275 } from "../commonObjects/stringOrNumber/toXML"
@@ -683,10 +682,9 @@ export const staticPropertyTypes = propertyTypesFromContributions([
   rule265,
   rule266,
   rule268,
-  rule269,
+  stringAtomicConversion,
   rule270,
   rule271,
-  rule272,
   rule273,
   rule274,
   rule275,
