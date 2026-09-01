@@ -328,19 +328,20 @@ async function collectXmlAnomalyLocations(projectDir: string): Promise<{
   const invalid: string[] = []
   const string: string[] = []
   for (const filePath of await yamlFiles(projectDir)) {
+    const projectPath = relative(projectDir, filePath).replaceAll("\\", "/")
     const parsed = parseMetadataYaml(await readFile(filePath, "utf8"))
     if (parsed.syntaxErrors.length > 0) {
-      throw new Error(`Некорректный YAML ${relative(projectDir, filePath)}`)
+      throw new Error(`Некорректный YAML ${projectPath}`)
     }
     const snapshot = snapshotXmlAnomalyAnnotations(parsed.data, parsed.annotations)
     if (snapshot.root !== undefined) {
       if (snapshot.root.kind === "raw") {
-        assertMinimalXmlRaw(snapshot.root.xml, `${relative(projectDir, filePath)}#/$`)
+        assertMinimalXmlRaw(snapshot.root.xml, `${projectPath}#/$`)
       }
-      anomalyBucket(snapshot.root.kind, raw, invalid)?.push(`${relative(projectDir, filePath)}#/$`)
+      anomalyBucket(snapshot.root.kind, raw, invalid)?.push(`${projectPath}#/$`)
     }
     for (const entry of snapshot.entries) {
-      const location = `${relative(projectDir, filePath)}#/${[...entry.parentPath, entry.key].map(String).join("/")}`
+      const location = `${projectPath}#/${[...entry.parentPath, entry.key].map(String).join("/")}`
       if (entry.annotation.kind === "raw") assertMinimalXmlRaw(entry.annotation.xml, location)
       anomalyBucket(entry.annotation.kind, raw, invalid)?.push(
         location,
@@ -348,7 +349,7 @@ async function collectXmlAnomalyLocations(projectDir: string): Promise<{
     }
     collectXmlStringLocations({
       value: parsed.data,
-      file: relative(projectDir, filePath),
+      file: projectPath,
       path: [],
       result: string,
     })
