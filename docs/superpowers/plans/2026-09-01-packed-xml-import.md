@@ -4,7 +4,7 @@
 
 **Goal:** Перевести XML → YAML импорт на один дисковый parse, worker-local MessagePack и окончательный второй проход, одновременно исправив ожидание фоновых MCP-операций в round-trip и import-profile.
 
-**Architecture:** Первый проход worker создаёт полный `XmlDocument`, извлекает из существующих rules.ts и общих анализаторов полный семантический вклад старого YAML-пути и сохраняет документ в локальном packed store. Координатор до второго прохода фиксирует глобальные индексы, ожидающие проверки и решения зависимостей; тот же worker во втором проходе распаковывает документ, строит окончательный YAML, применяет все решения до единственной записи файла, сравнивает объектный toXML с исходным документом и освобождает задание. MCP-runner удерживает одну compiled-сессию и ждёт терминальный результат каждой фоновой операции.
+**Architecture:** Первый проход worker создаёт полный `XmlDocument`, только извлекает из существующих rules.ts полный семантический и dependency-вклад старого YAML-пути и сохраняет документ в локальном packed store. Он не запускает проверки и не классифицирует XML-аномалии. Координатор фиксирует глобальные индексы, затем отдельным барьером проверяет связи и готовит решения зависимостей до второго прохода; тот же worker во втором проходе распаковывает документ, строит окончательный YAML, применяет все решения до единственной записи файла, сравнивает объектный toXML с исходным документом и освобождает задание. MCP-runner удерживает одну compiled-сессию и ждёт терминальный результат каждой фоновой операции.
 
 **Tech Stack:** TypeScript 7, Node.js 26, Piscina, LMDB project state, `msgpackr`, XXH3, Vitest, `node:test`, MCP stdio.
 
@@ -17,7 +17,8 @@
 - Итоговые diagnostics и XML/YAML round-trip не меняются.
 - XML каждого задания читается с диска только в первом проходе.
 - Первый проход не создаёт assignment-level YAML, audit или аннотации; допустимы только краткоживущие значения отдельного свойства, необходимые существующим преобразователям.
-- Полный facts-only вклад буквально совпадает со старым полным YAML-путём по targets, owners, fields, forms, logical addresses, pending references, pending checks и dependencies.
+- Первый проход не вызывает валидаторы, не ищет цели в неполном индексе и не принимает решений `!xml/*`.
+- Полный facts-only вклад буквально совпадает со старым полным YAML-путём по targets, owners, fields, forms, logical addresses и записям dependency-индекса.
 - Все межфайловые решения принимаются до второго прохода; локальные решения принимаются в памяти до записи файла.
 - Каждый итоговый YAML-файл записывается ровно один раз и после записи не перечитывается для исправления аннотаций.
 - Packed XML не передаётся координатору и не копируется между worker.
@@ -365,14 +366,14 @@ export interface DirectImportTraversal<Execution = unknown> {
 
 В `importPropertiesFromXMLToYAML` вынести запись результата в внутренний output port. YAML-port выполняет прежний `Object.assign/copyYAMLRuntimeMetadata`; facts-port:
 
-- выполняет XML plan, fromXML, metadata-target translation, configuration-index collectors и общие анализаторы зависимых значений;
+- выполняет XML plan, fromXML, metadata-target translation и collectors семантического/dependency-индексов без вызова валидаторов;
 - передаёт `exportedYamlValue` в `LocalIndexesCollector`;
-- сохраняет только краткоживущую семантическую проекцию значений, необходимую следующему свойству, member-index contributors и анализаторам ожидающих проверок;
+- сохраняет только краткоживущую семантическую проекцию значений, необходимую следующему свойству, member-index contributors и формированию dependency-записей;
 - не создаёт root result mapping, audit, annotations, deferred paths и post-import augmenter;
 - пропускает YAML-only defaults, если значение не требуется configuration/dependency facts;
 - для nested collection разрешает краткоживущий value одного свойства, но не удерживает документ после `acceptProperty/acceptItem`.
 
-Формы используют тот же `mode:"facts"`. Индекс путей и ожидающие проверки `ClientApplicationForm` строятся в первом проходе, потому что они участвуют в межфайловых решениях до второго прохода. Вложенный `MetadataCommonForm` не запускает проверку самостоятельной `ClientApplicationForm` и сохраняет ровно те же owner/targets, что старый импорт.
+Формы используют тот же `mode:"facts"`. Первый проход сохраняет индекс путей и dependency-записи `ClientApplicationForm`, но не выполняет их проверку. Вложенный `MetadataCommonForm` не создаёт вклад самостоятельной `ClientApplicationForm` и сохраняет ровно те же owner/targets, что старый импорт.
 
 - [ ] **Step 4: Реализовать `PreparedImportFacts`**
 
@@ -397,7 +398,7 @@ export interface PreparedImportFacts {
 
 - [ ] **Step 5: Перевести validation contribution на fact model**
 
-Добавить `extractImportValidationContributionFromFacts`. Metadata targets берутся из `localIndexes.metadata.metadataTargets`, owner fields — из `ownerFacts`, form member — из topology file. Addressable objects/logical addresses строятся по `LocalMetadataEvent(kind:"item")`, `rulePath`, `itemType` и `name`, а не обходом YAML. Member-index contributors получают полную вложенную семантическую проекцию, достаточную для стандартных реквизитов табличных частей; `rootPropertyValues` используется только как совместимый fallback. Кандидаты зависимых значений проходят тот же общий анализатор, что старый полный YAML, и формируют те же pending references/checks/dependencies, включая `fillValue` для `DefinedType`.
+Добавить `extractImportValidationContributionFromFacts`. Metadata targets берутся из `localIndexes.metadata.metadataTargets`, owner fields — из `ownerFacts`, form member — из topology file. Addressable objects/logical addresses строятся по `LocalMetadataEvent(kind:"item")`, `rulePath`, `itemType` и `name`, а не обходом YAML. Member-index contributors получают полную вложенную семантическую проекцию; `rootPropertyValues` используется только как совместимый fallback. Кандидаты зависимых значений формируют те же dependency-записи, что старый полный YAML, включая `fillValue` для `DefinedType`, но не запускают их проверку. Metadata targets с режимом `translateOnly` остаются доступны для перевода и поиска ссылок, но не включаются в очередь проверки существования.
 
 Сохранить прежнюю функцию как test oracle до завершения equivalence tests.
 
@@ -474,7 +475,7 @@ Expected: FAIL на dynamic second-pass scheduling и third-pass calls.
 
 - [ ] **Step 4: Подготовить глобальные dependency decisions до второго прохода**
 
-First-pass facts должны записать полный, доказанно эквивалентный старому YAML-пути набор pending references/checks/dependencies в import state вместе с object/member/owner indexes. После `commitWorkingIndex()` coordinator фиксирует semantic index, выполняет dependency validation и классифицирует decisions до `runSecondPass`. Если equivalence matrix не проходит, второй проход не считается готовым к запуску.
+First-pass facts должны записать полный, доказанно эквивалентный старому YAML-пути dependency-индекс вместе с object/member/owner indexes, ничего не проверяя. После `commitWorkingIndex()` coordinator фиксирует semantic index, отдельной стадией выполняет dependency validation и классифицирует decisions до `runSecondPass`. Если equivalence matrix не проходит, второй проход не считается готовым к запуску.
 
 Изменить begin command:
 
@@ -688,7 +689,7 @@ git add packages/runtime/metadata/ruleRuntime/property packages/rules/metadata/i
 git commit -m "perf: :zap: измерить двухпроходный импорт XML"
 ```
 
-### Task 8: Восстановить семантическую эквивалентность facts-only
+### Task 8: Восстановить индексную эквивалентность facts-only
 
 **Files:**
 - Modify: `packages/rules/metadata/importFromXml/prepareFacts.ts`
@@ -708,8 +709,8 @@ git commit -m "perf: :zap: измерить двухпроходный импо�
 Добавить проверки на реальных или минимальных неизменяемых XML-фикстурах:
 
 1. `MetadataCommonForm` не создаёт standalone `ClientApplicationForm` form index/data-path pending checks; её owner/targets буквально совпадают со старым путём.
-2. Вложенная ссылка вида `ТабличнаяЧасть.…СтандартныйРеквизит.Ссылка` разрешается по facts-only member index и не получает дополнительный `!xml/invalid`.
-3. Для реквизита с `DefinedType` first pass содержит тот же `fillValue` pending check, а несовместимое значение получает существующее решение `!xml/invalid` во втором проходе.
+2. Вложенная ссылка вида `ТабличнаяЧасть.…СтандартныйРеквизит.Ссылка` с договором `translateOnly` не становится заданием проверки существования и не получает дополнительный `!xml/invalid`.
+3. Для реквизита с `DefinedType` first pass содержит ту же индексную запись `fillValue`, а отдельная проверка после барьера назначает несовместимому значению существующее решение `!xml/invalid` для второго прохода.
 
 Во всех трёх случаях oracle строится старым полным `prepareImportYaml` и существующим извлечением семантического вклада, а не текущим provisional import state.
 
@@ -723,19 +724,19 @@ pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project in
   metadata/importFromXml/worker.integration.test.ts
 ```
 
-Expected: FAIL отдельно демонстрирует каскад CommonForm, потерю nested standard member и отсутствие `fillValue` pending check/решения.
+Expected: FAIL отдельно демонстрирует каскад CommonForm, лишнее задание проверки `translateOnly` и отсутствие индексной записи `fillValue`/решения.
 
 - [ ] **Step 3: Ограничить form facts фактическим типом правила**
 
 Запускать сбор form index и data-path checks только для `ClientApplicationFormRules.itemType`. `MetadataCommonForm` использует обычный metadata-вклад собственного правила и не наследует standalone-проверки вложенной формы. Не добавлять проверок по XML-root name в нейтральные слои.
 
-- [ ] **Step 4: Передать member-index contributors полную вложенную проекцию**
+- [ ] **Step 4: Не превращать `translateOnly` в задание проверки**
 
-Сформировать из property facts краткоживущую nested-проекцию текущего задания и передать её существующим `projectReferenceMemberIndexContributors`. Это должно восстановить стандартные реквизиты вложенных табличных частей и logical addresses без удержания или сериализации assignment-level YAML. Проекция освобождается сразу после построения `ImportValidationContribution`.
+Сформировать из property facts краткоживущую nested-проекцию текущего задания для существующих contributors и переводчиков. Как в старом полном YAML-пути, metadata targets с `validation:"translateOnly"` не добавлять в pending references/dependency validation. Они остаются доступны структурному поиску и переводу ссылок. Проекция освобождается сразу после построения `ImportValidationContribution`.
 
-- [ ] **Step 5: Собрать pending checks/references/dependencies общим анализатором**
+- [ ] **Step 5: Собрать записи dependency-индекса общим анализатором**
 
-Не дублировать семантику `FillValue` и других dependent properties в import worker. Сохранить candidates существующего dependent collector и пропустить их через общий анализатор, которым пользуется полный YAML-путь. Полученные pending references/checks/dependencies включить в `PreparedImportFacts` и first-pass final contribution до `commitWorkingIndex()`.
+Не дублировать семантику `FillValue` и других dependent properties в import worker. Сохранить candidates существующего dependent collector и общим построителем сформировать из них те же записи dependency-индекса, что полный YAML-путь. Включить записи в `PreparedImportFacts` и first-pass final contribution до `commitWorkingIndex()`, но не вызывать проверку до фиксации полного индекса.
 
 - [ ] **Step 6: Применить все межфайловые решения во втором проходе до единственной записи**
 

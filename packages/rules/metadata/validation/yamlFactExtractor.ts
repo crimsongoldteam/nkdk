@@ -15,7 +15,12 @@ import { exportPropertyValueToYAML } from "../ruleRuntime/property/toYAML"
 import { getElementRule } from "../ruleRuntime/formElement/ruleFactory"
 import { enterNestedYamlRule, enterYamlProperty } from "../ruleRuntime/property/yamlRuleCursor"
 import type { YamlRuleCursor } from "@nkdk/runtime/rule-kit"
-import { createConfigurationLanguages, type ConfigurationContext, type ParsedYaml } from "@nkdk/runtime"
+import {
+  createConfigurationLanguages,
+  parsedYamlFromKnownData,
+  type ConfigurationContext,
+  type ParsedYaml,
+} from "@nkdk/runtime"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -50,6 +55,7 @@ import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
 import type { ValidationRegistrySet } from "./validationRegistrySet"
 import {
   analyzeDependentYamlItem,
+  type DependentImportedPropertyCandidate,
   type DependentReferenceCandidate,
 } from "../ruleRuntime/property/dependentItemRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -89,6 +95,56 @@ export interface ValidationYamlFacts {
 export interface ValidationOwnerYamlFacts {
   fieldIndex: ObjectFieldIndex
   ownerFacts: ValidationOwnerFacts
+}
+
+export interface DependentYamlIndexFacts {
+  readonly pendingReferences: readonly PendingMetadataTargetReference[]
+  readonly pendingChecks: readonly ValidationPendingCheck[]
+}
+
+export function extractDependentYamlIndexFacts(params: {
+  readonly filePath: string
+  readonly rootYaml: unknown
+  readonly rootRule: MetadataItemRule
+  readonly owner: { readonly dir: string; readonly name: string }
+  readonly candidates: readonly DependentImportedPropertyCandidate[]
+}): DependentYamlIndexFacts {
+  const parsed = parsedYamlFromKnownData("", params.rootYaml)
+  const pendingReferences: PendingMetadataTargetReference[] = []
+  const pendingChecks: ValidationPendingCheck[] = []
+  const visitedItems = new Set<string>()
+  for (const candidate of params.candidates) {
+    const itemKey = JSON.stringify([candidate.itemType, candidate.itemName, candidate.itemYamlPath])
+    if (visitedItems.has(itemKey)) continue
+    visitedItems.add(itemKey)
+    const root = asRecord(params.rootYaml)
+    const item = root === undefined ? undefined : asRecord(valueAtPath(root, candidate.itemYamlPath))
+    if (item === undefined) continue
+    const analysis = analyzeDependentYamlItem({
+      itemType: candidate.itemType,
+      ...(candidate.itemName === undefined ? {} : { itemName: candidate.itemName }),
+      item,
+      itemYamlPath: candidate.itemYamlPath,
+      rootYaml: params.rootYaml,
+      rootRule: params.rootRule,
+      filePath: params.filePath,
+      parsed,
+      owner: params.owner,
+    })
+    pendingReferences.push(...analysis.references.map((reference) => ({
+      ...dependentPendingReference(reference),
+      filePath: params.filePath,
+    })))
+    pendingChecks.push(...analysis.projectChecks.map((check) => ({
+      ...check,
+      location: yamlDiagnosticLocationAtPath({
+        filePath: params.filePath,
+        parsed,
+        path: check.yamlPath,
+      }),
+    })))
+  }
+  return { pendingReferences, pendingChecks }
 }
 
 export function extractValidationYamlFacts(params: {
@@ -1328,9 +1384,8 @@ function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {
 function valueAtPath(value: Record<string, unknown>, path: readonly (string | number)[]): unknown {
   let current: unknown = value
   for (const segment of path) {
-    const record = asRecord(current)
-    if (record === undefined) return undefined
-    current = record[segment]
+    if (current === null || typeof current !== "object") return undefined
+    current = (current as Record<string | number, unknown>)[segment]
   }
   return current
 }

@@ -6,7 +6,12 @@ import type {
   XmlImportConfigurationContext,
 } from "@nkdk/runtime"
 import { yamlPathToPointer } from "@nkdk/runtime"
-import type { DirectImportFactsSink, LocalIndexes, MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type {
+  DirectImportFactsSink,
+  ImportedDependentPropertyCandidate,
+  LocalIndexes,
+  MetadataItemRule,
+} from "@nkdk/runtime/rule-kit"
 import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
 import {
   createImportedFormDataPathIndex,
@@ -32,6 +37,8 @@ import type { ImportAssignment } from "./types"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import { toDataPathPolicyInput } from "../validation/dataPath/policies"
 import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
+import type { PendingMetadataTargetReference } from "../validation/projectReferenceIndex"
+import { extractDependentYamlIndexFacts } from "../validation/yamlFactExtractor"
 
 export interface PreparedImportFacts {
   readonly assignment: ImportAssignment
@@ -45,6 +52,9 @@ export interface PreparedImportFacts {
   readonly reconstructionFacts: {
     readonly rootPropertyValues: Readonly<Record<string, unknown>>
   }
+  readonly semanticProjection: Readonly<Record<string, unknown>>
+  readonly pendingReferences: readonly PendingMetadataTargetReference[]
+  readonly pendingChecks: readonly ValidationPendingCheck[]
   readonly formValidation?: {
     readonly index: NonNullable<LocalIndexes["metadata"]["formDataPathIndex"]>
     readonly owner: { readonly kind: string; readonly name: string }
@@ -77,6 +87,7 @@ export async function prepareImportFacts(params: {
   })
   const rootPropertyValues: Record<string, unknown> = {}
   const propertyFacts: Parameters<DirectImportFactsSink["acceptProperty"]>[0][] = []
+  let dependentCandidates: readonly ImportedDependentPropertyCandidate[] = []
   const facts: DirectImportFactsSink = {
     acceptProperty(fact) {
       propertyFacts.push({ ...fact, yamlPath: [...fact.yamlPath] })
@@ -125,7 +136,8 @@ export async function prepareImportFacts(params: {
       propertyXML: externalPropertyXml.compatibilityByPropertyKey,
       propertyXMLNodes: externalPropertyXml.nodesByPropertyKey,
     })
-    collectImportedDependentXmlValues(dependent.finish(), params.collector)
+    dependentCandidates = dependent.finish()
+    collectImportedDependentXmlValues(dependentCandidates, params.collector)
     return {
       yaml: undefined,
       localIndexes: localIndexesCollector.finish(),
@@ -134,6 +146,14 @@ export async function prepareImportFacts(params: {
     }
   })
 
+  const semanticProjection = projectAcceptedPropertyFacts(imported.localIndexes, propertyFacts)
+  const dependentIndex = extractDependentYamlIndexFacts({
+    filePath: params.assignment.targetProjectPath,
+    rootYaml: semanticProjection,
+    rootRule: rule,
+    owner: dependentOwner,
+    candidates: dependentCandidates,
+  })
   const formValidation = prepareFormValidationFacts({
     assignment: params.assignment,
     rule,
@@ -152,6 +172,12 @@ export async function prepareImportFacts(params: {
     configurationFragment: params.collector.fragment(params.assignment.targetProjectPath),
     generatedFiles: [...generatedFiles, ...imported.generatedFiles.filter((file) => !generatedFiles.includes(file))],
     reconstructionFacts: { rootPropertyValues },
+    semanticProjection,
+    pendingReferences: dependentIndex.pendingReferences,
+    pendingChecks: [
+      ...dependentIndex.pendingChecks,
+      ...(formValidation?.pendingChecks ?? []),
+    ],
     ...(formValidation === undefined ? {} : { formValidation }),
   }
 }
@@ -164,11 +190,12 @@ function prepareFormValidationFacts(params: {
   readonly owner: { readonly dir: string; readonly name: string }
 }): PreparedImportFacts["formValidation"] {
   const projection = projectAcceptedPropertyFacts(params.localIndexes, params.propertyFacts)
-  const form = importedClientApplicationForm({ yaml: projection, rule: params.rule })
-  if (form === undefined) return undefined
   const index = createImportedFormDataPathIndex({ yaml: projection, rule: params.rule })
   if (index === undefined) return undefined
   params.localIndexes.metadata.formDataPathIndex = index
+  if (params.rule.itemType !== ClientApplicationFormRules.itemType) return undefined
+  const form = importedClientApplicationForm({ yaml: projection, rule: params.rule })
+  if (form === undefined) return undefined
   const pendingChecks: ValidationPendingCheck[] = collectFormDataPathOccurrencesFromYAML({
     yaml: form.yaml,
     rule: form.rule,

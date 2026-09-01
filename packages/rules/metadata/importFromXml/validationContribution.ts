@@ -69,7 +69,7 @@ export function extractImportValidationContributionFromFacts(params: {
 }): ImportValidationContribution {
   return extractImportValidationContributionCore({
     ...params,
-    rawYaml: params.prepared.reconstructionFacts.rootPropertyValues,
+    rawYaml: params.prepared.semanticProjection,
   })
 }
 
@@ -93,7 +93,10 @@ function extractImportValidationContributionCore(params: {
         kind: "metadataTarget" as const,
         canonical: reference.canonical,
       })),
-      pendingReferences: references.map(({ reference }) => reference),
+      pendingReferences: [
+        ...references.map(({ reference }) => reference),
+        ...(isPreparedImportFacts(params.prepared) ? params.prepared.pendingReferences : []),
+      ],
     }
   })
 
@@ -211,6 +214,7 @@ function extractMetadataTargetReferences(prepared: PreparedImportYaml | Prepared
   rulePath: ProjectLocalDependency["rulePath"]
 }> {
   return (prepared.localIndexes.metadata.metadataTargets ?? []).flatMap((fact) => {
+    if (isTranslateOnlyConstraint(fact.constraint)) return []
     const parsed = parseMetadataTargetFromYAML({
       value: fact.value,
       constraint: fact.constraint,
@@ -227,6 +231,11 @@ function extractMetadataTargetReferences(prepared: PreparedImportYaml | Prepared
     }
     return [{ reference, rulePath: fact.rulePath }]
   })
+}
+
+function isTranslateOnlyConstraint(constraint: PendingMetadataTargetReference["constraint"]): boolean {
+  return (constraint.kind === "dataTable" || constraint.kind === "dataTableField")
+    && constraint.validation === "translateOnly"
 }
 
 const targetKey = projectMetadataTargetIndexKey

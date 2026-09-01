@@ -209,6 +209,34 @@ describe("XML import worker first pass", () => {
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
   })
 
+  it("сохраняет FillValue в dependency-индексе без проверки первого прохода", async () => {
+    const outputDir = createTempDir("defined-type-index")
+    const assignment = definedTypeFillValueAssignment()
+    await initializeWorker(outputDir)
+
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [assignment],
+    }))
+
+    expect(first.diagnostics).toEqual([])
+    if (first.stateFragment === undefined) throw new Error("Ожидался вклад состояния первого прохода")
+    const snapshot = new ProjectStateSnapshotView(buildProjectStateSnapshot({
+      fragments: [openProjectStateFragment(first.stateFragment)],
+      deletions: [],
+    }))
+    const reader = createTypedProjectStateReader(snapshot)
+    const fileId = Array.from({ length: snapshot.fileCount }, (_, currentFileId) => currentFileId)
+      .find((currentFileId) => snapshot.stringValue(snapshot.fileRecord(currentFileId).projectPathId)
+        .endsWith(assignment.targetProjectPath))
+    if (fileId === undefined) throw new Error("Не найдено состояние импортированного справочника")
+
+    expect(reader.pendingChecks(fileId)).toContainEqual(expect.objectContaining({
+      kind: "fillValue",
+      yamlPath: ["Реквизиты", "АвторДействия", "ЗначениеЗаполнения"],
+    }))
+  })
+
   it("writes deferred YAML and returns the complete local validation contribution", () => {
     const scenario = readyYamlValidationScenario
     if (scenario === undefined) throw new Error("Сценарий validation импортированного YAML не подготовлен")
@@ -1054,6 +1082,37 @@ function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAss
         },
       }
     : assignment
+}
+
+function definedTypeFillValueAssignment(): ImportAssignment {
+  const sourceDir = createTempDir("defined-type-source")
+  const sourcePath = join(sourceDir, "СправочникПолный.xml")
+  writeFileSync(sourcePath, `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses"
+  xmlns:v8="http://v8.1c.ru/8.1/data/core"
+  xmlns:xr="http://v8.1c.ru/8.3/xcf/readable"
+  xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Catalog uuid="f8ffca12-d09d-4111-ba91-67077462df5b">
+    <Properties><Name>СправочникПолный</Name></Properties>
+    <ChildObjects>
+      <Attribute uuid="301fda37-ce86-4a9a-a764-f914a74e0188">
+        <Properties>
+          <Name>АвторДействия</Name>
+          <Type><v8:TypeSet>cfg:DefinedType.АвторДействия</v8:TypeSet></Type>
+          <FillValue xsi:type="xr:DesignTimeRef">Catalog.Пользователи.EmptyRef</FillValue>
+        </Properties>
+      </Attribute>
+    </ChildObjects>
+  </Catalog>
+</MetaDataObject>`, "utf-8")
+  return catalogAssignment({
+    id: "defined-type-fill-value",
+    itemName: "СправочникПолный",
+    logicalAddress: "Справочник.СправочникПолный",
+    targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
+    xmlFiles: [{ role: "metadata", sourcePath }],
+  })
 }
 
 function expectFirstPass(result: Awaited<ReturnType<typeof runImportWorkerCommand>>): ImportFirstPassResult {

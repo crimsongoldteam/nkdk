@@ -1,6 +1,8 @@
 import {
   createConfigurationIndexCollector,
+  parseMetadataYaml,
   parseXmlDocumentWithSaxes,
+  serializeYAMLDocument,
   type XmlImportConfigurationContext,
 } from "@nkdk/runtime"
 import fs from "node:fs"
@@ -13,6 +15,8 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/a
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import { createMetadataItemProjectSchemaExporter } from "../projectDefinition/projectSpecHelpers"
 import type { ValidationProjectFile } from "../validation/projectFiles"
+import { extractProjectValidationFileFacts } from "../validation/projectValidationPasses"
+import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { prepareImportFacts } from "./prepareFacts"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
@@ -25,6 +29,7 @@ const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/co
 const metadataPath = join(configurationFixturesDir, "syncConfiguration/xml/Catalogs/Контрагенты.xml")
 const commonFormFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync/xml")
 const extensionFixtureDir = join(import.meta.dirname, "__fixtures__/configurationExtension")
+const fullCatalogFixture = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
 
 describe("prepareImportFacts", () => {
   it("даёт тот же configuration и dependency вклад без assignment-level YAML", async () => {
@@ -54,18 +59,7 @@ describe("prepareImportFacts", () => {
       join(extensionFixtureDir, "Configuration.xml"),
       "configuration",
     ), () => mockXmlImportContext()],
-    ["внешнее XML-свойство", () => assignmentForProjectPath({
-      id: "common-form",
-      targetProjectPath: "ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml",
-      itemType: "MetadataCommonForm",
-      itemName: "КонстантаВсеСвойства",
-      logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства",
-      owner: undefined,
-      xmlFiles: [
-        { role: "metadata", sourcePath: join(commonFormFixtureDir, "КонстантаВсеСвойства.xml") },
-        { role: "property", sourcePath: join(commonFormFixtureDir, "КонстантаВсеСвойства/Ext/Form.xml") },
-      ],
-    }), () => mockXmlImportContext()],
+    ["внешнее XML-свойство", commonFormAssignment, () => mockXmlImportContext()],
     ["управляемая форма", managedFormAssignment, () => extensionContext()],
     ["корень расширения", () => configurationAssignment(
       join(extensionFixtureDir, "Configuration.xml"),
@@ -149,6 +143,45 @@ describe("prepareImportFacts", () => {
     )
     expect(formDataPathSnapshot(facts.localIndexes.metadata.formDataPathIndex)).toEqual(
       formDataPathSnapshot(legacy.localIndexes.metadata.formDataPathIndex),
+    )
+  })
+
+  it("не применяет standalone-проверки клиентской формы к MetadataCommonForm", async () => {
+    const assignment = commonFormAssignment()
+    const { facts, legacy } = await preparePair(assignment, mockXmlImportContext())
+
+    expect(formDataPathSnapshot(facts.localIndexes.metadata.formDataPathIndex)).toEqual(
+      formDataPathSnapshot(legacy.localIndexes.metadata.formDataPathIndex),
+    )
+    expect(facts.formValidation).toBeUndefined()
+  })
+
+  it("не отправляет translateOnly-ссылку вложенного стандартного реквизита на проверку", async () => {
+    const assignment = assignmentForProjectPath({
+      id: "catalog-with-characteristics",
+      targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
+      itemType: "MetadataCatalog",
+      itemName: "СправочникПолный",
+      logicalAddress: "Справочник.СправочникПолный",
+      owner: undefined,
+      xmlFiles: [{ role: "metadata", sourcePath: fullCatalogFixture }],
+    })
+    const { facts, legacy } = await preparePair(assignment, mockXmlImportContext())
+    const file = validationFileForAssignment(assignment)
+    const text = serializeYAMLDocument(legacy.yaml).text
+    const expected = extractProjectValidationFileFacts({
+      projectDir: "/project",
+      file,
+      entry: { filePath: file.absolutePath, text, parsed: parseMetadataYaml(text) },
+      rulesSnapshot: createValidationRulesSnapshot(mockXmlImportContext()),
+      validationDiagnostics: false,
+    })
+    const actual = extractImportValidationContributionFromFacts({ prepared: facts, projectDir: "/project", file })
+    expect(expected.pendingReferences).not.toContainEqual(
+      expect.objectContaining({ constraint: expect.objectContaining({ validation: "translateOnly" }) }),
+    )
+    expect(actual.validationContribution.pendingReferences).not.toContainEqual(
+      expect.objectContaining({ constraint: expect.objectContaining({ validation: "translateOnly" }) }),
     )
   })
 })
@@ -250,6 +283,21 @@ function invalidDataPathFormAssignment(): ImportAssignment {
     xmlFiles: [
       { role: "metadata", sourcePath: `${formRoot}.xml` },
       { role: "body", sourcePath: join(formRoot, "Ext/Form.xml") },
+    ],
+  })
+}
+
+function commonFormAssignment(): ImportAssignment {
+  return assignmentForProjectPath({
+    id: "common-form",
+    targetProjectPath: "ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml",
+    itemType: "MetadataCommonForm",
+    itemName: "КонстантаВсеСвойства",
+    logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства",
+    owner: undefined,
+    xmlFiles: [
+      { role: "metadata", sourcePath: join(commonFormFixtureDir, "КонстантаВсеСвойства.xml") },
+      { role: "property", sourcePath: join(commonFormFixtureDir, "КонстантаВсеСвойства/Ext/Form.xml") },
     ],
   })
 }

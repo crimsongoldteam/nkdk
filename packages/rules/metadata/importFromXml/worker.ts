@@ -1676,7 +1676,7 @@ function provisionalImportFinalContribution(
       pendingReferences: contribution.validationContribution.pendingReferences.map(
         ({ filePath: _filePath, ...reference }) => reference,
       ),
-      pendingChecks: prepared.formValidation?.pendingChecks.map(projectStatePendingCheck) ?? [],
+      pendingChecks: prepared.pendingChecks.map(projectStatePendingCheck),
       dependencies: [],
     }],
     hashBytes: new Uint8Array(8),
