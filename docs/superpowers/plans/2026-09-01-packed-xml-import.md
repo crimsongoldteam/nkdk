@@ -4,7 +4,7 @@
 
 **Goal:** Перевести XML → YAML импорт на один дисковый parse, worker-local MessagePack и окончательный второй проход, одновременно исправив ожидание фоновых MCP-операций в round-trip и import-profile.
 
-**Architecture:** Первый проход worker создаёт полный `XmlDocument`, извлекает из rules.ts только индексные и зависимые факты и сохраняет документ в локальном packed store. Координатор фиксирует глобальные индексы и решения зависимостей; тот же worker во втором проходе распаковывает документ, строит окончательный YAML, сравнивает объектный toXML с исходным документом и освобождает задание. MCP-runner удерживает одну compiled-сессию и ждёт терминальный результат каждой фоновой операции.
+**Architecture:** Первый проход worker создаёт полный `XmlDocument`, извлекает из существующих rules.ts и общих анализаторов полный семантический вклад старого YAML-пути и сохраняет документ в локальном packed store. Координатор до второго прохода фиксирует глобальные индексы, ожидающие проверки и решения зависимостей; тот же worker во втором проходе распаковывает документ, строит окончательный YAML, применяет все решения до единственной записи файла, сравнивает объектный toXML с исходным документом и освобождает задание. MCP-runner удерживает одну compiled-сессию и ждёт терминальный результат каждой фоновой операции.
 
 **Tech Stack:** TypeScript 7, Node.js 26, Piscina, LMDB project state, `msgpackr`, XXH3, Vitest, `node:test`, MCP stdio.
 
@@ -17,10 +17,17 @@
 - Итоговые diagnostics и XML/YAML round-trip не меняются.
 - XML каждого задания читается с диска только в первом проходе.
 - Первый проход не создаёт assignment-level YAML, audit или аннотации; допустимы только краткоживущие значения отдельного свойства, необходимые существующим преобразователям.
+- Полный facts-only вклад буквально совпадает со старым полным YAML-путём по targets, owners, fields, forms, logical addresses, pending references, pending checks и dependencies.
+- Все межфайловые решения принимаются до второго прохода; локальные решения принимаются в памяти до записи файла.
+- Каждый итоговый YAML-файл записывается ровно один раз и после записи не перечитывается для исправления аннотаций.
 - Packed XML не передаётся координатору и не копируется между worker.
 - Новые применения `!xml`, изменения публичного YAML/XML и увеличение числа worker не допускаются.
 - Production-код пишется только после падающей проверки соответствующего договора.
 - После каждого слоя выполняется `pnpm duplicates -- --base 5020f2369c43085f1e1919e1f51624eef6223432`.
+
+## Текущее состояние исполнения
+
+Tasks 1–7 уже представлены коммитами `225905866`, `ffbca9209`, `f545cd210`, `cd76a0723`, `2c26faedc`, `f463af215`, `a6de3886f`, `5f288c9dc` и `26b135af0`. Их diff остаётся в области финальной сверки, но повторно выполнять завершённые шаги не требуется. После уточнения спецификации коммитом `227c44b50` обязательным следующим слоем является Task 8; Task 9 выполняется только после его проверок на `cf/doc`.
 
 ---
 
@@ -302,7 +309,7 @@ git add packages/rules/package.json pnpm-lock.yaml packages/rules/metadata/impor
 git commit -m "feat: :sparkles: сохранить XML-задания в MessagePack"
 ```
 
-### Task 4: Facts-only обход rules.ts без assignment-level YAML
+### Task 4: Полный facts-only обход rules.ts без assignment-level YAML
 
 **Files:**
 - Modify: `packages/runtime/metadata/ruleRuntime/property/importYamlTypes.ts`
@@ -316,12 +323,12 @@ git commit -m "feat: :sparkles: сохранить XML-задания в Message
 - Modify: `packages/rules/metadata/importFromXml/ownerFacts.ts`
 
 **Interfaces:**
-- Consumes: уже разобранные `PackedImportXmlInput[]`, существующие rule plans и property converters.
-- Produces: `PreparedImportFacts`; тот же configuration/dependency/project-state вклад, что текущий preliminary YAML, без YAML/audit/annotations.
+- Consumes: уже разобранные `PackedImportXmlInput[]`, существующие rule plans, property converters и общие анализаторы зависимых значений.
+- Produces: `PreparedImportFacts`; тот же полный семантический вклад, который импорт из `5020f2369c43085f1e1919e1f51624eef6223432` получает после построения полного YAML, без assignment-level YAML/audit/annotations.
 
 - [ ] **Step 1: Написать падающий equivalence test на реальных фикстурах**
 
-Для configuration, applied object, form, external property и extension fixture выполнить текущий `prepareImportYaml(...proofDetail:"roots")`, затем новый `prepareImportFacts({inputs})`. Сравнить буквально:
+Для configuration, applied object, form, external property и extension fixture выполнить старый полный `prepareImportYaml(...proofDetail:"roots")`, извлечь его окончательный семантический вклад, затем выполнить новый `prepareImportFacts({inputs})`. Сравнить буквально:
 
 ```ts
 expect(facts.configurationFragment).toEqual(legacyCollector.fragment(assignment.targetProjectPath))
@@ -329,12 +336,13 @@ expect(normalizeContribution(facts.validationContribution)).toEqual(
   normalizeContribution(extractImportValidationContribution({ prepared: legacy, projectDir, file })),
 )
 expect(facts.generatedFiles).toEqual(legacy.generatedFiles)
+expect(normalizeSemanticFacts(facts)).toEqual(normalizeSemanticFacts(legacy))
 expect(facts).not.toHaveProperty("yaml")
 expect(facts).not.toHaveProperty("annotations")
 expect(facts).not.toHaveProperty("proofAudit")
 ```
 
-Инструментировать converter output sink и проверить, что root YAML mapping не создаётся в `mode:"facts"`.
+`normalizeSemanticFacts` обязан включать targets, owners, fields, forms, logical addresses, pending references, pending checks и dependencies. Инструментировать converter output sink и проверить, что root YAML mapping не создаётся в `mode:"facts"`.
 
 - [ ] **Step 2: Запустить test и подтвердить RED**
 
@@ -357,14 +365,14 @@ export interface DirectImportTraversal<Execution = unknown> {
 
 В `importPropertiesFromXMLToYAML` вынести запись результата в внутренний output port. YAML-port выполняет прежний `Object.assign/copyYAMLRuntimeMetadata`; facts-port:
 
-- выполняет XML plan, fromXML, metadata-target translation и configuration-index collectors;
+- выполняет XML plan, fromXML, metadata-target translation, configuration-index collectors и общие анализаторы зависимых значений;
 - передаёт `exportedYamlValue` в `LocalIndexesCollector`;
-- сохраняет только значения свойств, названных в `metadataTarget.typeProperty`, root `Тип` и owner facts, необходимые следующему свойству;
+- сохраняет только краткоживущую семантическую проекцию значений, необходимую следующему свойству, member-index contributors и анализаторам ожидающих проверок;
 - не создаёт root result mapping, audit, annotations, deferred paths и post-import augmenter;
 - пропускает YAML-only defaults, если значение не требуется configuration/dependency facts;
 - для nested collection разрешает краткоживущий value одного свойства, но не удерживает документ после `acceptProperty/acceptItem`.
 
-Формы используют тот же `mode:"facts"`; form data path YAML index в первом проходе не строится, потому что окончательный индекс создаётся во втором.
+Формы используют тот же `mode:"facts"`. Индекс путей и ожидающие проверки `ClientApplicationForm` строятся в первом проходе, потому что они участвуют в межфайловых решениях до второго прохода. Вложенный `MetadataCommonForm` не запускает проверку самостоятельной `ClientApplicationForm` и сохраняет ровно те же owner/targets, что старый импорт.
 
 - [ ] **Step 4: Реализовать `PreparedImportFacts`**
 
@@ -380,14 +388,16 @@ export interface PreparedImportFacts {
   readonly reconstructionFacts: {
     readonly rootPropertyValues: Readonly<Record<string, unknown>>
   }
+  readonly semanticProjection: Readonly<Record<string, unknown>>
+  readonly pendingChecks: readonly ValidationPendingCheck[]
 }
 ```
 
-`prepareImportFacts` получает готовые documents, создаёт `ConfigurationIndexCollector` и local fact collector, разрешает rule/owner context, запускает traversal в facts mode и строит validation contribution непосредственно из facts.
+`prepareImportFacts` получает готовые documents, создаёт `ConfigurationIndexCollector` и local fact collector, разрешает rule/owner context и запускает traversal в facts mode. `extractImportValidationContributionFromFacts` строит `ImportValidationContribution` непосредственно из facts. Краткоживущая `semanticProjection` нужна только до завершения first-pass assignment: она не сериализуется, не попадает в binary result координатора и освобождается после построения вклада.
 
 - [ ] **Step 5: Перевести validation contribution на fact model**
 
-Добавить `extractImportValidationContributionFromFacts`. Metadata targets берутся из `localIndexes.metadata.metadataTargets`, owner fields — из `ownerFacts`, form member — из topology file. Addressable objects/logical addresses строятся по `LocalMetadataEvent(kind:"item")`, `rulePath`, `itemType` и `name`, а не обходом YAML. Member-index contributors получают owner facts; `rootPropertyValues` используется только как совместимый fallback.
+Добавить `extractImportValidationContributionFromFacts`. Metadata targets берутся из `localIndexes.metadata.metadataTargets`, owner fields — из `ownerFacts`, form member — из topology file. Addressable objects/logical addresses строятся по `LocalMetadataEvent(kind:"item")`, `rulePath`, `itemType` и `name`, а не обходом YAML. Member-index contributors получают полную вложенную семантическую проекцию, достаточную для стандартных реквизитов табличных частей; `rootPropertyValues` используется только как совместимый fallback. Кандидаты зависимых значений проходят тот же общий анализатор, что старый полный YAML, и формируют те же pending references/checks/dependencies, включая `fillValue` для `DefinedType`.
 
 Сохранить прежнюю функцию как test oracle до завершения equivalence tests.
 
@@ -464,7 +474,7 @@ Expected: FAIL на dynamic second-pass scheduling и third-pass calls.
 
 - [ ] **Step 4: Подготовить глобальные dependency decisions до второго прохода**
 
-First-pass facts должны записать provisional pending references/checks/dependencies в import state вместе с object/member/owner indexes. После `commitWorkingIndex()` coordinator фиксирует semantic index, выполняет dependency validation и классифицирует decisions до `runSecondPass`.
+First-pass facts должны записать полный, доказанно эквивалентный старому YAML-пути набор pending references/checks/dependencies в import state вместе с object/member/owner indexes. После `commitWorkingIndex()` coordinator фиксирует semantic index, выполняет dependency validation и классифицирует decisions до `runSecondPass`. Если equivalence matrix не проходит, второй проход не считается готовым к запуску.
 
 Изменить begin command:
 
@@ -482,7 +492,7 @@ Root extension reconstruction fact заменяет чтение preliminary roo
 
 - [ ] **Step 5: Сделать второй проход окончательным**
 
-Worker вызывает `packedStore.take(assignmentId)`, строит полный `PreparedImportYaml` из уже разобранных documents через новый `prepareImportYamlFromDocuments`, применяет заранее полученные `issueDecisions`, выполняет control export, локальную validation, записывает YAML и final state. `finally` вызывает `packedStore.release(assignmentId)` и удаляет decoded tree references.
+Worker вызывает `packedStore.take(assignmentId)`, строит полный `PreparedImportYaml` из уже разобранных documents через новый `prepareImportYamlFromDocuments`, применяет заранее полученные `issueDecisions`, выполняет control export и локальную validation, затем сериализует и записывает окончательный YAML ровно один раз вместе с final state. Локальная проверка может повторно сериализовать ещё не записанный объект в памяти, но не читает и не перезаписывает YAML на диске. `finally` вызывает `packedStore.release(assignmentId)` и удаляет decoded tree references.
 
 Удалить `finalizedYaml`, `processThirdPass`, third-pass commands/phases и повторный read/parse YAML. В pool удалить dynamic weighted queue: использовать `assignmentIdsByWorker` первого прохода и fixed batches.
 
@@ -638,7 +648,7 @@ env NKDK_XML_REPO=/Users/nikita/git/round-trip-compact \
   ./.agents/skills/round-trip-yaml/round-trip.sh --triage --batch-size 5 --start-index 1
 ```
 
-Expected: terminal import/sync results, 0 import errors, no new diagnostics/diff, source read counter equals number of XML inputs, detailed rereads = 0. Записать cold/warm elapsed, Peak RSS, packed bytes и toXML breakdown в implementation commit body или итоговый отчёт; не добавлять machine-specific report в git.
+Expected: terminal import/sync results; импорт создаёт 9 937 результатов, 0 ошибок и то же единственное предупреждение, что старый импорт из base SHA; отсутствуют 131 лишний тег ссылок, 12 нетегированных несовместимых FillValue и каскад CommonForm; нет новых diagnostics/diff; source read counter equals number of XML inputs, detailed rereads = 0. Записать cold/warm elapsed, Peak RSS, packed bytes и toXML breakdown в implementation commit body или итоговый отчёт; не добавлять machine-specific report в git.
 
 - [ ] **Step 6: Выполнить полный repository gate**
 
@@ -678,13 +688,90 @@ git add packages/runtime/metadata/ruleRuntime/property packages/rules/metadata/i
 git commit -m "perf: :zap: измерить двухпроходный импорт XML"
 ```
 
-### Task 8: Полная сверка со спецификацией перед review
+### Task 8: Восстановить семантическую эквивалентность facts-only
+
+**Files:**
+- Modify: `packages/rules/metadata/importFromXml/prepareFacts.ts`
+- Modify: `packages/rules/metadata/importFromXml/prepareFacts.integration.test.ts`
+- Modify: `packages/rules/metadata/importFromXml/validationContribution.ts`
+- Modify: `packages/rules/metadata/importFromXml/validationContribution.test.ts`
+- Modify: `packages/rules/metadata/importFromXml/worker.ts`
+- Modify: `packages/rules/metadata/importFromXml/worker.integration.test.ts`
+- Modify as required: общий анализатор зависимых YAML-значений и его тесты без изменения публичных rule contracts
+
+**Interfaces:**
+- Consumes: краткоживущие property facts, существующие member-index contributors, dependent candidates и общий анализатор project references/checks.
+- Produces: полный first-pass semantic contribution, эквивалентный старому полному YAML-пути, и окончательный второй проход без чтения/перезаписи записанного YAML.
+
+- [ ] **Step 1: Зафиксировать три регрессии падающими тестами**
+
+Добавить проверки на реальных или минимальных неизменяемых XML-фикстурах:
+
+1. `MetadataCommonForm` не создаёт standalone `ClientApplicationForm` form index/data-path pending checks; её owner/targets буквально совпадают со старым путём.
+2. Вложенная ссылка вида `ТабличнаяЧасть.…СтандартныйРеквизит.Ссылка` разрешается по facts-only member index и не получает дополнительный `!xml/invalid`.
+3. Для реквизита с `DefinedType` first pass содержит тот же `fillValue` pending check, а несовместимое значение получает существующее решение `!xml/invalid` во втором проходе.
+
+Во всех трёх случаях oracle строится старым полным `prepareImportYaml` и существующим извлечением семантического вклада, а не текущим provisional import state.
+
+- [ ] **Step 2: Запустить тесты и подтвердить RED**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project integration \
+  metadata/importFromXml/prepareFacts.integration.test.ts \
+  metadata/importFromXml/worker.integration.test.ts
+```
+
+Expected: FAIL отдельно демонстрирует каскад CommonForm, потерю nested standard member и отсутствие `fillValue` pending check/решения.
+
+- [ ] **Step 3: Ограничить form facts фактическим типом правила**
+
+Запускать сбор form index и data-path checks только для `ClientApplicationFormRules.itemType`. `MetadataCommonForm` использует обычный metadata-вклад собственного правила и не наследует standalone-проверки вложенной формы. Не добавлять проверок по XML-root name в нейтральные слои.
+
+- [ ] **Step 4: Передать member-index contributors полную вложенную проекцию**
+
+Сформировать из property facts краткоживущую nested-проекцию текущего задания и передать её существующим `projectReferenceMemberIndexContributors`. Это должно восстановить стандартные реквизиты вложенных табличных частей и logical addresses без удержания или сериализации assignment-level YAML. Проекция освобождается сразу после построения `ImportValidationContribution`.
+
+- [ ] **Step 5: Собрать pending checks/references/dependencies общим анализатором**
+
+Не дублировать семантику `FillValue` и других dependent properties в import worker. Сохранить candidates существующего dependent collector и пропустить их через общий анализатор, которым пользуется полный YAML-путь. Полученные pending references/checks/dependencies включить в `PreparedImportFacts` и first-pass final contribution до `commitWorkingIndex()`.
+
+- [ ] **Step 6: Применить все межфайловые решения во втором проходе до единственной записи**
+
+`provisionalImportFinalContribution` использует объединённые facts-only pending checks, а coordinator классифицирует решения до `runSecondPass`. Worker применяет их к полному объекту YAML в памяти. Локальные решения принимаются до сериализации; после записи файла нет повторного чтения или исправляющей записи.
+
+- [ ] **Step 7: Получить GREEN на эквивалентности и doc acceptance**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project core-metadata \
+  metadata/importFromXml/validationContribution.test.ts
+pnpm --filter @nkdk/rules exec vitest run --config vitest.config.ts --project integration \
+  metadata/importFromXml/prepareFacts.integration.test.ts \
+  metadata/importFromXml/worker.integration.test.ts \
+  metadata/importFromXml/importConfiguration.integration.test.ts
+pnpm --filter @nkdk/rules type-check
+```
+
+Затем повторить compiled import и round-trip на `/Users/nikita/git/round-trip-compact/cf/doc`. Expected: 9 937 результатов, 0 ошибок, одно прежнее предупреждение, без трёх известных групп регрессий и без новых semantic/triage diff.
+
+- [ ] **Step 8: Проверить дубли и закоммитить**
+
+```bash
+pnpm duplicates -- --base 5020f2369c43085f1e1919e1f51624eef6223432
+git add packages/rules/metadata/importFromXml packages/rules/metadata/validation
+git commit -m "fix: :bug: восстановить семантику первого прохода"
+```
+
+### Task 9: Полная сверка со спецификацией перед review
 
 **Files:**
 - Verify only: весь diff от base SHA, staged/unstaged/untracked status.
 
 **Interfaces:**
-- Consumes: все результаты Tasks 1–7.
+- Consumes: все результаты Tasks 1–8.
 - Produces: неизменяемое дерево для независимого reviewer.
 
 - [ ] **Step 1: Повторно прочитать spec и plan полностью**
